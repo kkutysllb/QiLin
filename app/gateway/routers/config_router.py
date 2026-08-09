@@ -89,8 +89,10 @@ def _sanitize_for_yaml(value: Any) -> Any:
     """Recursively convert pydantic model_dump to yaml-safe structures."""
     if isinstance(value, dict):
         return {k: _sanitize_for_yaml(v) for k, v in value.items()}
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         return [_sanitize_for_yaml(v) for v in value]
+    if isinstance(value, set):
+        return sorted(_sanitize_for_yaml(v) for v in value)
     return value
 
 
@@ -132,10 +134,15 @@ async def get_full_config(request: Request) -> ConfigFullResponse:
     data = read_config_yaml()
     if not isinstance(data, dict):
         return ConfigFullResponse(config={})
-    masked_config = {
-        k: _mask_section(k, v) if isinstance(v, dict) else v
-        for k, v in data.items()
-    }
+    masked_config = {}
+    for k, v in data.items():
+        if isinstance(v, dict) and k in SECTION_MODELS:
+            try:
+                model_cls = _resolve_model(SECTION_MODELS[k])
+                v = _sanitize_for_yaml(model_cls(**v).model_dump())
+            except Exception:
+                logger.debug("Falling back to raw YAML data for section '%s'", k)
+        masked_config[k] = _mask_section(k, v) if isinstance(v, dict) else v
     return ConfigFullResponse(config=masked_config)
 
 
@@ -156,6 +163,15 @@ async def get_config_section(section: str, request: Request) -> ConfigSectionRes
     section_data = data[section]
     if not isinstance(section_data, dict):
         return ConfigSectionResponse(section=section, data=section_data)
+    # Normalize ruamel-specific types (CommentedSet/CommentedSeq/etc.) through
+    # the pydantic model so FastAPI can JSON-serialize the response.
+    if section in SECTION_MODELS:
+        try:
+            model_cls = _resolve_model(SECTION_MODELS[section])
+            instance = model_cls(**section_data)
+            section_data = _sanitize_for_yaml(instance.model_dump())
+        except Exception:
+            logger.debug("Falling back to raw YAML data for section '%s'", section)
     return ConfigSectionResponse(section=section, data=_mask_section(section, section_data))
 
 
