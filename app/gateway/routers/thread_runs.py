@@ -15,13 +15,14 @@ import asyncio
 import logging
 import uuid
 from copy import deepcopy
-from datetime import UTC, datetime
+from datetime import UTC, datetime, time, timedelta
 from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import Response, StreamingResponse
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, Field
+from sqlalchemy import func, select
 
 from app.gateway.authz import require_permission
 from app.gateway.checkpoint_lineage import (
@@ -51,6 +52,8 @@ from app.gateway.services import (
     wait_for_run_completion,
 )
 from app.gateway.utils import sanitize_log_param
+from qilin.persistence.engine import get_session_factory
+from qilin.persistence.run.model import RunRow
 from qilin.agents.middlewares.dynamic_context_middleware import (
     strip_injected_user_message_id_suffix,
 )
@@ -1468,6 +1471,263 @@ async def get_run_workspace_changes(
         include_files=include_files,
         include_diff=include_diff,
     )
+
+
+# ---------------------------------------------------------------------------
+# Global token-usage endpoints (cross-thread, current user)
+# ---------------------------------------------------------------------------
+
+
+class GlobalTokenUsageModelBreakdown(BaseModel):
+    """Per-model token breakdown for global usage stats."""
+
+    tokens: int = 0
+    runs: int = 0
+    llm_call_count: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cache_read_tokens: int = Field(default=0, description="Prompt-cache-hit input tokens")
+
+
+class GlobalTokenUsageStatsResponse(BaseModel):
+    """Global token usage stats across all threads for the current user."""
+
+    total_tokens: int = 0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_runs: int = 0
+    total_llm_call_count: int = 0
+    total_cache_read_tokens: int = Field(default=0, description="Aggregate prompt-cache-hit input tokens")
+    by_model: dict[str, GlobalTokenUsageModelBreakdown] = Field(default_factory=dict)
+    by_caller: ThreadTokenUsageCallerBreakdown = Field(default_factory=ThreadTokenUsageCallerBreakdown)
+
+
+class GlobalTokenUsageTimeseriesItem(BaseModel):
+    """One day's worth of token usage for one model."""
+
+    date: str
+    model_name: str
+    run_count: int = 0
+    llm_call_count: int = 0
+    total_tokens: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+
+
+def _session_factory_or_503():
+    sf = get_session_factory()
+    if sf is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Token usage requires a SQL database backend; set database.backend to sqlite or postgres in config.yaml.",
+        )
+    return sf
+
+
+@router.get("/token-usage/stats", response_model=GlobalTokenUsageStatsResponse)
+@require_permission("runs", "read")
+async def global_token_usage_stats(
+    request: Request,
+    year: int | None = Query(default=None, ge=2020, le=2100),
+    month: int | None = Query(default=None, ge=1, le=12),
+) -> GlobalTokenUsageStatsResponse:
+    """Aggregate token usage across all threads for the current user.
+
+    Optionally filter by calendar month (year + month). Uses Beijing time
+    (UTC+8) for month boundaries to match the frontend's display convention.
+    """
+    sf = _session_factory_or_503()
+    user_id = await get_current_user(request)
+
+    tz_delta = timedelta(hours=8)
+    if year and month:
+        start_local = datetime(year, month, 1).date()
+        if month == 12:
+            end_local = datetime(year + 1, 1, 1).date()
+        else:
+            end_local = datetime(year, month + 1, 1).date()
+    else:
+        today_local = (datetime.now(UTC) + tz_delta).date()
+        start_local = today_local.replace(day=1)
+        if today_local.month == 12:
+            end_local = today_local.replace(year=today_local.year + 1, month=1, day=1)
+        else:
+            end_local = today_local.replace(month=today_local.month + 1, day=1)
+
+    window_start_utc = datetime.combine(start_local, time.min, tzinfo=UTC) - tz_delta
+    window_end_utc = datetime.combine(end_local, time.min, tzinfo=UTC) - tz_delta
+
+    stmt = (
+        select(RunRow)
+        .where(
+            RunRow.operation_kind == "run",
+            RunRow.created_at >= window_start_utc,
+            RunRow.created_at < window_end_utc,
+        )
+    )
+    if user_id:
+        stmt = stmt.where(RunRow.user_id == user_id)
+
+    async with sf() as session:
+        rows = (await session.execute(stmt)).scalars().all()
+
+    total_tokens = total_input = total_output = total_runs = total_llm = total_cache = 0
+    lead_agent = subagent = middleware = 0
+    by_model: dict[str, dict[str, int]] = {}
+
+    for row in rows:
+        total_runs += 1
+        total_tokens += row.total_tokens or 0
+        total_input += row.total_input_tokens or 0
+        total_output += row.total_output_tokens or 0
+        total_llm += row.llm_call_count or 0
+        lead_agent += row.lead_agent_tokens or 0
+        subagent += row.subagent_tokens or 0
+        middleware += row.middleware_tokens or 0
+
+        usage_map = row.token_usage_by_model or {}
+        if isinstance(usage_map, dict) and usage_map:
+            for model, usage in usage_map.items():
+                if not isinstance(usage, dict):
+                    continue
+                entry = by_model.setdefault(model, {
+                    "tokens": 0, "runs": 0, "llm_call_count": 0,
+                    "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0,
+                })
+                entry["tokens"] += int(usage.get("total_tokens") or 0)
+                entry["runs"] += 1
+                entry["input_tokens"] += int(usage.get("input_tokens") or 0)
+                entry["output_tokens"] += int(usage.get("output_tokens") or 0)
+                cache_read = int(usage.get("cache_read_tokens") or 0)
+                entry["cache_read_tokens"] += cache_read
+                total_cache += cache_read
+        elif row.model_name and (row.total_tokens or 0) > 0:
+            entry = by_model.setdefault(row.model_name, {
+                "tokens": 0, "runs": 0, "llm_call_count": 0,
+                "input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0,
+            })
+            entry["tokens"] += row.total_tokens or 0
+            entry["runs"] += 1
+            entry["input_tokens"] += row.total_input_tokens or 0
+            entry["output_tokens"] += row.total_output_tokens or 0
+
+        # Distribute llm_call_count proportionally across models for by_model
+        if usage_map and isinstance(usage_map, dict):
+            model_count = len([m for m in usage_map if isinstance(usage_map[m], dict)])
+            if model_count > 0:
+                per_model_llm = (row.llm_call_count or 0) // model_count
+                for model in usage_map:
+                    if isinstance(usage_map[model], dict):
+                        by_model[model]["llm_call_count"] += per_model_llm
+
+    return GlobalTokenUsageStatsResponse(
+        total_tokens=total_tokens,
+        total_input_tokens=total_input,
+        total_output_tokens=total_output,
+        total_runs=total_runs,
+        total_llm_call_count=total_llm,
+        total_cache_read_tokens=total_cache,
+        by_model={k: GlobalTokenUsageModelBreakdown(**v) for k, v in by_model.items()},
+        by_caller=ThreadTokenUsageCallerBreakdown(
+            lead_agent=lead_agent,
+            subagent=subagent,
+            middleware=middleware,
+        ),
+    )
+
+
+@router.get(
+    "/token-usage/timeseries",
+    response_model=list[GlobalTokenUsageTimeseriesItem],
+)
+@require_permission("runs", "read")
+async def global_token_usage_timeseries(
+    request: Request,
+    days: int = Query(default=30, ge=1, le=365),
+    year: int | None = Query(default=None, ge=2020, le=2100),
+    month: int | None = Query(default=None, ge=1, le=12),
+) -> list[GlobalTokenUsageTimeseriesItem]:
+    """Daily token usage timeseries grouped by model for the current user.
+
+    When ``year`` and ``month`` are provided, the window is that calendar
+    month (Beijing time, UTC+8). Otherwise, a rolling ``days`` window ending
+    today is used.
+    """
+    sf = _session_factory_or_503()
+    user_id = await get_current_user(request)
+
+    tz_delta = timedelta(hours=8)
+    if year and month:
+        start_local = datetime(year, month, 1).date()
+        if month == 12:
+            end_local = datetime(year + 1, 1, 1).date()
+        else:
+            end_local = datetime(year, month + 1, 1).date()
+    else:
+        today_local = (datetime.now(UTC) + tz_delta).date()
+        start_local = today_local - timedelta(days=days - 1)
+        end_local = today_local + timedelta(days=1)
+
+    window_start_utc = datetime.combine(start_local, time.min, tzinfo=UTC) - tz_delta
+    window_end_utc = datetime.combine(end_local, time.min, tzinfo=UTC) - tz_delta
+
+    stmt = (
+        select(RunRow)
+        .where(
+            RunRow.operation_kind == "run",
+            RunRow.created_at >= window_start_utc,
+            RunRow.created_at < window_end_utc,
+        )
+    )
+    if user_id:
+        stmt = stmt.where(RunRow.user_id == user_id)
+
+    async with sf() as session:
+        rows = (await session.execute(stmt)).scalars().all()
+
+    # Bucket by (date, model)
+    buckets: dict[tuple[str, str], dict[str, int]] = {}
+    for row in rows:
+        created = row.created_at
+        if created is None:
+            continue
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=UTC)
+        local_date = ((created + tz_delta).date()).isoformat()
+
+        usage_map = row.token_usage_by_model or {}
+        if isinstance(usage_map, dict) and usage_map:
+            model_count = len([m for m in usage_map if isinstance(usage_map[m], dict)])
+            for model, usage in usage_map.items():
+                if not isinstance(usage, dict):
+                    continue
+                key = (local_date, model)
+                b = buckets.setdefault(key, {
+                    "run_count": 0, "llm_call_count": 0,
+                    "total_tokens": 0, "input_tokens": 0, "output_tokens": 0,
+                })
+                b["run_count"] += 1
+                b["total_tokens"] += int(usage.get("total_tokens") or 0)
+                b["input_tokens"] += int(usage.get("input_tokens") or 0)
+                b["output_tokens"] += int(usage.get("output_tokens") or 0)
+                if model_count > 0:
+                    b["llm_call_count"] += (row.llm_call_count or 0) // model_count
+        elif row.model_name:
+            key = (local_date, row.model_name)
+            b = buckets.setdefault(key, {
+                "run_count": 0, "llm_call_count": 0,
+                "total_tokens": 0, "input_tokens": 0, "output_tokens": 0,
+            })
+            b["run_count"] += 1
+            b["total_tokens"] += row.total_tokens or 0
+            b["input_tokens"] += row.total_input_tokens or 0
+            b["output_tokens"] += row.total_output_tokens or 0
+            b["llm_call_count"] += row.llm_call_count or 0
+
+    return [
+        GlobalTokenUsageTimeseriesItem(date=d, model_name=m, **vals)
+        for (d, m), vals in sorted(buckets.items())
+    ]
 
 
 @router.get("/{thread_id}/token-usage", response_model=ThreadTokenUsageResponse)
