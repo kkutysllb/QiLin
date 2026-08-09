@@ -35,10 +35,11 @@ def _validate_skill_frontmatter(skill_dir: Path) -> tuple[bool, str, str | None]
         return False, "Invalid frontmatter format", None
     frontmatter = parts.metadata
 
-    # Check for unexpected properties
-    unexpected_keys = set(frontmatter.keys()) - ALLOWED_FRONTMATTER_PROPERTIES
-    if unexpected_keys:
-        return False, f"Unexpected key(s) in SKILL.md frontmatter: {', '.join(sorted(unexpected_keys))}", None
+    # Unknown frontmatter keys are ignored, not rejected. Third-party skill
+    # packages (e.g. from other ecosystems) may include metadata fields that
+    # QiLin does not use (capabilities, category, tags, permissions, …).
+    # The runtime parser only reads the fields it knows about, so extra keys
+    # are harmless. The review analyzer surfaces them as a soft warning.
 
     # Check required fields
     if "name" not in frontmatter:

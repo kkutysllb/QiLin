@@ -360,6 +360,19 @@ def _scan_python(rel_path: str, text: str) -> list[SecurityFinding]:
     reverse_shell_parts: set[str] = set()
     reverse_shell_node: ast.AST | None = None
 
+    # Pre-compute "safe" os.environ references — those used as the receiver
+    # of a targeted key-access method (``.get()``, ``.pop()``, …) or as the
+    # value of a subscript (``os.environ["KEY"]``).  These are standard
+    # patterns for reading API keys and must NOT be flagged as bulk env dumps.
+    _SAFE_ENV_METHODS = frozenset({"get", "getdefault", "setdefault", "pop", "popitem"})
+    safe_environ_ids: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr in _SAFE_ENV_METHODS:
+            if isinstance(node.value, (ast.Attribute, ast.Name)) and _python_name(node.value, aliases) == "os.environ":
+                safe_environ_ids.add(id(node.value))
+        elif isinstance(node, ast.Subscript) and isinstance(node.value, (ast.Attribute, ast.Name)) and _python_name(node.value, aliases) == "os.environ":
+            safe_environ_ids.add(id(node.value))
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             if _SENSITIVE_PATH_RE.search(node.value):
@@ -369,7 +382,7 @@ def _scan_python(rel_path: str, text: str) -> list[SecurityFinding]:
                 has_network_sink = True
                 network_node = network_node or node
 
-        if isinstance(node, (ast.Attribute, ast.Name)) and _python_name(node, aliases) == "os.environ":
+        if isinstance(node, (ast.Attribute, ast.Name)) and _python_name(node, aliases) == "os.environ" and id(node) not in safe_environ_ids:
             has_env_dump = True
             env_node = env_node or node
 

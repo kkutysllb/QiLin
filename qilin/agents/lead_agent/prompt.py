@@ -601,6 +601,35 @@ You (action): ask_clarification(
 
 User: "staging"
 You: "Deploying to staging..." [proceed]
+
+**CRITICAL — Never output clarification questions as plain text or markdown.**
+
+If you need user input you MUST call `ask_clarification`. Typing the question
+or a numbered list of options as markdown VIOLATES the contract: the user
+gets broken plain text instead of an interactive card, and the run keeps
+going instead of stopping to wait for their answer.
+
+Forbidden output patterns (treat as bugs to fix by converting to a tool call):
+- "Please reply with a value for each field."
+- "Please answer the following ..."
+- "请回答 / 请回复 / 请告诉我 ..." followed by a numbered list
+- A `1. field (required) — options: ...` style enumeration in the prose body
+
+The ONLY valid way to ask is:
+```python
+ask_clarification(
+    question="<one short question>",
+    clarification_type="missing_info" | "ambiguous_requirement" | "approach_choice",
+    context="<why you need it>",
+    options=["A", "B"]               # for single/multi choice
+    # OR
+    fields=[{{"name": "x", "type": "select", "required": True, "options": ["A", "B"]}}, ...]  # for forms
+)
+```
+After the call, STOP — the framework interrupts the run automatically
+and the user gets a proper interactive card. Do not append a prose version
+of the same question/options after the tool call — that text is shown to
+the user and duplicates the card.
 </clarification_system>
 
 {skills_section}

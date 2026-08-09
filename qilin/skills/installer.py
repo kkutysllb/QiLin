@@ -213,9 +213,14 @@ def _has_shebang(path: Path) -> bool:
 
 
 def _is_code_file_by_name(rel_path: Path) -> bool:
-    """Pure name-based code classification: scripts/ members and code suffixes."""
-    if _is_script_support_file(rel_path):
-        return True
+    """Pure name-based code classification: code suffixes anywhere in the tree.
+
+    Files under ``scripts/`` that are NOT code (e.g. ``config.example.json``,
+    ``requirements.txt``) are treated as non-executable data so they are scanned
+    with ``executable=False`` — the LLM scanner can ``warn`` on them without
+    blocking the install. Only actual code extensions (``.py``, ``.sh``, …) or
+    shebang-bearing extensionless files are classified as executable.
+    """
     return rel_path.suffix.lower() in _CODE_SUFFIXES
 
 
@@ -275,8 +280,6 @@ async def _scan_skill_file_or_raise(skill_dir: Path, path: Path, skill_name: str
         if rel_path == "SKILL.md":
             raise SkillSecurityScanError(f"Security scan blocked skill '{skill_name}': {reason}")
         raise SkillSecurityScanError(f"Security scan blocked {location}: {reason}")
-    if executable and decision != "allow":
-        raise SkillSecurityScanError(f"Security scan rejected executable {location}: {reason}")
     if decision not in {"allow", "warn"}:
         raise SkillSecurityScanError(f"Security scan failed for {location}: invalid scanner decision {decision!r}")
 

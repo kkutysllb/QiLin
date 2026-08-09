@@ -1,10 +1,11 @@
 import asyncio
 import logging
+import os
 import tempfile
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
 from app.gateway.deps import get_config, require_admin_user
@@ -201,6 +202,78 @@ async def install_skill(request: Request, body: SkillInstallRequest, config: App
     except Exception as e:
         logger.error(f"Failed to install skill: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to install skill: {e!s}")
+
+
+# Maximum upload size for ``install-upload`` (512 MB — mirrors the hard
+# limit enforced by ``safe_extract_skill_archive``).
+_SKILL_UPLOAD_MAX_SIZE = 512 * 1024 * 1024
+
+
+@router.post(
+    "/skills/install-upload",
+    response_model=SkillInstallResponse,
+    summary="Install Skill from Upload",
+    description="Install a skill from a directly-uploaded ``.skill`` or ``.zip`` archive (multipart). No thread context required.",
+)
+async def install_skill_from_upload(
+    request: Request,
+    file: UploadFile = File(..., description="Skill archive (``.skill`` or ``.zip``)"),
+    config: AppConfig = Depends(get_config),
+) -> SkillInstallResponse:
+    await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
+
+    original_name = file.filename or "upload.skill"
+    suffix = Path(original_name).suffix.lower()
+    if suffix not in {".skill", ".zip"}:
+        raise HTTPException(status_code=400, detail=f"Unsupported file type '{suffix}'. Only .skill and .zip archives are accepted.")
+
+    # Write the upload to a temp file with a .skill suffix so the storage's
+    # ``_prepare_skill_archive`` extension check passes unchanged. The
+    # underlying format is identical (ZIP) — only the extension differs.
+    tmp_fd, tmp_path_str = tempfile.mkstemp(suffix=".skill")
+    tmp_path = Path(tmp_path_str)
+    try:
+        total = 0
+        with os.fdopen(tmp_fd, "wb") as dst:
+            while chunk := await file.read(65536):
+                total += len(chunk)
+                if total > _SKILL_UPLOAD_MAX_SIZE:
+                    raise HTTPException(status_code=413, detail="Skill archive is too large.")
+                dst.write(chunk)
+
+        try:
+            result = await _get_user_skill_storage(config).ainstall_skill_from_archive(tmp_path)
+            await refresh_user_skills_system_prompt_cache_async(get_effective_user_id())
+            return SkillInstallResponse(**result)
+        except FileNotFoundError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except SkillAlreadyExistsError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+        except SkillSecurityScanError as e:
+            logger.warning("Skill security scan failed during upload install: %s", e, exc_info=True)
+            if e.findings:
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "message": str(e),
+                        "skill_name": e.skill_name,
+                        "findings": e.findings,
+                    },
+                )
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            logger.warning("Skill validation failed during upload install: %s", e, exc_info=True)
+            raise HTTPException(status_code=400, detail=str(e))
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Failed to install skill from upload: %s", e, exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Failed to install skill: {e!s}")
+    finally:
+        try:
+            tmp_path.unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 @router.post(
