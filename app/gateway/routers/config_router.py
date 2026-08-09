@@ -10,6 +10,7 @@ hot-reload. Sensitive values (postgres_url etc.) are masked on GET.
 
 from __future__ import annotations
 
+import enum
 import importlib
 import logging
 import os
@@ -69,6 +70,9 @@ SECTION_MODELS: dict[str, str] = {
     "uploads": "qilin.config.uploads_config:UploadsConfig",
     "guardrails": "qilin.config.guardrails_config:GuardrailsConfig",
     "safety_finish_reason": "qilin.config.safety_finish_reason_config:SafetyFinishReasonConfig",
+    "agents_api": "qilin.config.agents_api_config:AgentsApiConfig",
+    "subagents": "qilin.config.subagents_config:SubagentsAppConfig",
+    "orchestration": "qilin.config.orchestration_config:OrchestrationConfig",
 }
 
 # Scalar (non-dict) top-level config fields that can be read/written directly.
@@ -112,6 +116,8 @@ def _sanitize_for_yaml(value: Any) -> Any:
         return [_sanitize_for_yaml(v) for v in value]
     if isinstance(value, set):
         return sorted(_sanitize_for_yaml(v) for v in value)
+    if isinstance(value, enum.Enum):
+        return value.value
     return value
 
 
