@@ -40,3 +40,10 @@ class UserResponse(BaseModel):
     system_role: Literal["admin", "user"]
     needs_setup: bool = False
     oauth_provider: str | None = Field(None, description="OAuth/SSO provider ID if the user logged in via SSO (e.g. 'keycloak')")
+    # When returned from login/register/initialize, carries the session JWT so
+    # desktop dev mode (cross-origin renderer → gateway, where SameSite cookies
+    # are unreliable across ports) can persist it in localStorage and inject it
+    # as a Bearer header on direct LangGraph SDK calls. Always None on /auth/me
+    # (no token minted) and on other read-only user endpoints. Web/cookie
+    # clients simply ignore this field.
+    access_token: str | None = Field(None, description="Session JWT — only set on session-creating endpoints (login/register/initialize)")

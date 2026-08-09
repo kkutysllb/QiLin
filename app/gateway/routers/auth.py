@@ -57,10 +57,18 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
 class LoginResponse(BaseModel):
-    """Response model for login — token only lives in HttpOnly cookie."""
+    """Response model for login.
+
+    The session JWT is set as an HttpOnly cookie for browser clients, AND
+    returned in ``access_token`` for desktop dev mode (where the renderer
+    connects directly to the gateway cross-origin and SameSite cookies are
+    unreliable across ports). The renderer persists it in localStorage and
+    injects it as a Bearer header on direct LangGraph SDK calls.
+    """
 
     expires_in: int  # seconds
     needs_setup: bool = False
+    access_token: str | None = None
 
 
 # Top common-password blocklist. Drawn from the public SecLists "10k worst
@@ -322,6 +330,7 @@ async def login_local(
     return LoginResponse(
         expires_in=get_auth_config().token_expiry_days * 24 * 3600,
         needs_setup=user.needs_setup,
+        access_token=token,
     )
 
 
@@ -376,7 +385,7 @@ async def register(request: Request, response: Response, body: RegisterRequest):
     token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request, remember_me=body.remember_me)
 
-    return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role, oauth_provider=user.oauth_provider)
+    return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role, oauth_provider=user.oauth_provider, access_token=token)
 
 
 @router.post("/logout", response_model=MessageResponse)
@@ -572,7 +581,7 @@ async def initialize_admin(request: Request, response: Response, body: Initializ
     token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request, remember_me=body.remember_me)
 
-    return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role, oauth_provider=user.oauth_provider)
+    return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role, oauth_provider=user.oauth_provider, access_token=token)
 
 
 # ── OIDC / SSO Endpoints ────────────────────────────────────────────────

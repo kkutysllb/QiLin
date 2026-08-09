@@ -672,7 +672,19 @@ async def get_current_user_from_request(request: Request):
         token_error_to_code,
     )
 
+    # Read the access token from the HttpOnly ``access_token`` cookie first,
+    # then fall back to the ``Authorization: Bearer <token>`` header. The
+    # Bearer path is essential for the desktop shell in dev mode: the
+    # renderer talks directly to the gateway (bypassing the Next.js rewrite
+    # proxy so SSE streams flush token-by-token), and the SameSite=Strict
+    # CSRF / SameSite=Lax session cookies are not carried on cross-origin
+    # fetches. The preload bridge mints a session token that the renderer
+    # injects via ``injectDesktopAuthorization`` in api-client.ts.
     access_token = request.cookies.get("access_token")
+    if not access_token:
+        auth_header = request.headers.get("authorization")
+        if auth_header and auth_header.lower().startswith("bearer "):
+            access_token = auth_header[7:].strip()
     if not access_token:
         raise HTTPException(
             status_code=401,

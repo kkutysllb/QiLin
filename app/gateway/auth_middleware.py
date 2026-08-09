@@ -108,7 +108,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
             internal_user = get_internal_user(owner_user_id=owner_user_id or None)
 
         auth_source = AUTH_SOURCE_SESSION
+        # Prefer the HttpOnly ``access_token`` cookie; fall back to the
+        # ``Authorization: Bearer <token>`` header for desktop dev mode where
+        # the renderer connects directly to the gateway (cross-origin) and
+        # SameSite cookies are not carried. See deps.py::get_current_user_from_request
+        # for the matching fallback on the strict resolver path.
         access_token = request.cookies.get("access_token")
+        if not access_token:
+            auth_header = request.headers.get("authorization")
+            if auth_header and auth_header.lower().startswith("bearer "):
+                access_token = auth_header[7:].strip()
 
         # Non-public path: require session cookie
         if internal_user is not None:

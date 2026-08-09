@@ -224,20 +224,33 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             )
 
         if should_check_csrf(request) and not _is_auth:
-            cookie_token = request.cookies.get(CSRF_COOKIE_NAME)
-            header_token = request.headers.get(CSRF_HEADER_NAME)
+            # Packaged desktop (managed mode) authenticates via
+            # ``Authorization: Bearer <token>`` because the renderer loads from
+            # ``app://``, which is cross-scheme to the HTTP gateway, so the
+            # SameSite CSRF cookie cannot be read or sent. The double-submit
+            # check would reject every POST. Bearer-token requests are not
+            # vulnerable to CSRF (the token is explicitly supplied by script,
+            # not ambiently attached by the browser), so exempt them here.
+            # Dev mode uses cookie auth (same-site localhost) and does NOT
+            # send a Bearer header, so it still goes through double-submit.
+            auth_header = request.headers.get("authorization")
+            if auth_header and auth_header.lower().startswith("bearer "):
+                pass  # Bearer auth — skip CSRF double-submit
+            else:
+                cookie_token = request.cookies.get(CSRF_COOKIE_NAME)
+                header_token = request.headers.get(CSRF_HEADER_NAME)
 
-            if not cookie_token or not header_token:
-                return JSONResponse(
-                    status_code=403,
-                    content={"detail": "CSRF token missing. Include X-CSRF-Token header."},
-                )
+                if not cookie_token or not header_token:
+                    return JSONResponse(
+                        status_code=403,
+                        content={"detail": "CSRF token missing. Include X-CSRF-Token header."},
+                    )
 
-            if not secrets.compare_digest(cookie_token, header_token):
-                return JSONResponse(
-                    status_code=403,
-                    content={"detail": "CSRF token mismatch."},
-                )
+                if not secrets.compare_digest(cookie_token, header_token):
+                    return JSONResponse(
+                        status_code=403,
+                        content={"detail": "CSRF token mismatch."},
+                    )
 
         response = await call_next(request)
 
