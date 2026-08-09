@@ -25,6 +25,7 @@ from app.gateway.routers import (
     channel_connections,
     channels,
     console,
+    config_router,
     features,
     feedback,
     github_webhooks,
@@ -33,6 +34,7 @@ from app.gateway.routers import (
     mcp,
     memory,
     models,
+    persistence,
     runs,
     scheduled_tasks,
     skills,
@@ -634,6 +636,11 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Thread Runs API (LangGraph Platform-compatible runs lifecycle)
     app.include_router(thread_runs.router)
+
+    # Config read/write API is mounted at /api/config
+    app.include_router(config_router.router)
+    # Persistence status API is mounted at /api/persistence
+    app.include_router(persistence.router)
 
     # Stateless Runs API (stream/wait without a pre-existing thread)
     app.include_router(runs.router)
