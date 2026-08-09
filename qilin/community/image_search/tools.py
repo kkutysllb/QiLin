@@ -22,6 +22,7 @@ def _search_images(
     type_image: str | None = None,
     layout: str | None = None,
     license_image: str | None = None,
+    proxy: str | None = None,
 ) -> list[dict]:
     """
     Execute image search using DuckDuckGo.
@@ -36,6 +37,7 @@ def _search_images(
         type_image: Image type (photo/clipart/gif/transparent/line)
         layout: Layout (Square/Tall/Wide)
         license_image: License filter
+        proxy: Optional proxy URL (e.g. http://127.0.0.1:7890)
 
     Returns:
         List of search results
@@ -46,7 +48,7 @@ def _search_images(
         logger.error("ddgs library not installed. Run: pip install ddgs")
         return []
 
-    ddgs = DDGS(timeout=30)
+    ddgs = DDGS(proxy=proxy, timeout=30)
 
     try:
         kwargs = {
@@ -99,13 +101,23 @@ def image_search_tool(
         type_image: Image type filter. Options: "photo", "clipart", "gif", "transparent", "line". Use "photo" for realistic references.
         layout: Layout filter. Options: "Square", "Tall", "Wide". Choose based on your generation needs.
     """
-    config = get_app_config().get_tool_config("image_search")
+    app_config = get_app_config()
+    network_config = app_config.network
+    tool_config = app_config.get_tool_config("image_search")
+
+    # Default from global network config; per-tool config may override.
+    proxy: str | None = network_config.proxy
 
     # Override max_results from config if set
-    if config is not None:
-        extra = config.model_extra or {}
+    if tool_config is not None:
+        extra = tool_config.model_extra or {}
         if "max_results" in extra:
             max_results = extra.get("max_results", max_results)
+        else:
+            max_results = network_config.image_search_max_results
+        proxy = extra.get("proxy", proxy)
+    else:
+        max_results = network_config.image_search_max_results
 
     results = _search_images(
         query=query,
@@ -113,6 +125,7 @@ def image_search_tool(
         size=size,
         type_image=type_image,
         layout=layout,
+        proxy=proxy,
     )
 
     if not results:

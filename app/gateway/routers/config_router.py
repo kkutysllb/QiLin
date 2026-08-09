@@ -54,6 +54,7 @@ SECTION_MODELS: dict[str, str] = {
     "tool_progress": "qilin.config.tool_progress_config:ToolProgressConfig",
     "tool_search": "qilin.config.tool_search_config:ToolSearchConfig",
     "read_before_write": "qilin.config.read_before_write_config:ReadBeforeWriteConfig",
+    "network": "qilin.config.network_config:NetworkConfig",
     "guardrails": "qilin.config.guardrails_config:GuardrailsConfig",
     "safety_finish_reason": "qilin.config.safety_finish_reason_config:SafetyFinishReasonConfig",
 }

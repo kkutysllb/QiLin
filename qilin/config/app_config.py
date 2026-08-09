@@ -38,6 +38,7 @@ from qilin.config.input_polish_config import InputPolishConfig
 from qilin.config.loop_detection_config import LoopDetectionConfig
 from qilin.config.memory_config import MemoryConfig, load_memory_config_from_dict
 from qilin.config.model_config import ModelConfig
+from qilin.config.network_config import NetworkConfig
 from qilin.config.orchestration_config import OrchestrationConfig
 from qilin.config.read_before_write_config import ReadBeforeWriteConfig
 from qilin.config.reload_boundary import format_field_description
@@ -245,6 +246,7 @@ class AppConfig(BaseModel):
     skills: SkillsConfig = Field(default_factory=SkillsConfig, description="Skills configuration")
     skill_scan: SkillScanConfig = Field(default_factory=SkillScanConfig, description="Native deterministic skill safety scanning configuration")
     skill_evolution: SkillEvolutionConfig = Field(default_factory=SkillEvolutionConfig, description="Agent-managed skill evolution configuration")
+    network: NetworkConfig = Field(default_factory=NetworkConfig, description="Network and web tool configuration (global proxy, web tool defaults)")
     extensions: ExtensionsConfig = Field(default_factory=ExtensionsConfig, description="Extensions configuration (MCP servers and skills state)")
     tool_output: ToolOutputConfig = Field(default_factory=ToolOutputConfig, description="Tool output budget protection configuration")
     tool_search: ToolSearchConfig = Field(default_factory=ToolSearchConfig, description="Tool search / deferred loading configuration")

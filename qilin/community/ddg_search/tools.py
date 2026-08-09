@@ -90,6 +90,7 @@ def _search_text(
     region: str | None = DEFAULT_REGION,
     safesearch: str | None = DEFAULT_SAFESEARCH,
     backend: str | list[str] | tuple[str, ...] | None = DEFAULT_BACKEND,
+    proxy: str | None = None,
 ) -> list[dict]:
     """
     Execute text search using DuckDuckGo.
@@ -100,6 +101,7 @@ def _search_text(
         region: Search region
         safesearch: Safe search level
         backend: DDGS backend(s), e.g. "auto", "duckduckgo", or "duckduckgo,brave"
+        proxy: Optional proxy URL (e.g. http://127.0.0.1:7890)
 
     Returns:
         List of search results
@@ -110,7 +112,7 @@ def _search_text(
         logger.error("ddgs library not installed. Run: pip install ddgs")
         return []
 
-    ddgs = DDGS(timeout=30)
+    ddgs = DDGS(proxy=proxy, timeout=30)
 
     try:
         backend = _normalize_backend(backend)
@@ -141,18 +143,25 @@ def web_search_tool(
         query: Search keywords describing what you want to find. Be specific for better results.
         max_results: Maximum number of results to return. Default is 5.
     """
-    config = get_app_config().get_tool_config("web_search")
+    app_config = get_app_config()
+    network_config = app_config.network
+    tool_config = app_config.get_tool_config("web_search")
     region = DEFAULT_REGION
     safesearch = DEFAULT_SAFESEARCH
     backend = DEFAULT_BACKEND
+    # The global network proxy; per-tool config may override it.
+    proxy: str | None = network_config.proxy
 
-    if config is not None:
+    if tool_config is not None:
         # Override tool call defaults from config if set.
-        extra = config.model_extra or {}
-        max_results = extra.get("max_results", max_results)
+        extra = tool_config.model_extra or {}
+        max_results = extra.get("max_results", network_config.web_search_max_results)
         region = extra.get("region", region)
         safesearch = extra.get("safesearch", safesearch)
         backend = extra.get("backend", backend)
+        proxy = extra.get("proxy", proxy)
+    else:
+        max_results = network_config.web_search_max_results
 
     results = _search_text(
         query=query,
@@ -160,6 +169,7 @@ def web_search_tool(
         region=region,
         safesearch=safesearch,
         backend=backend,
+        proxy=proxy,
     )
 
     if not results:
