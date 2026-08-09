@@ -11,7 +11,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
-from sqlalchemy import CursorResult, case, or_, select, update
+from sqlalchemy import CursorResult, case, delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from qilin.persistence.run.model import RunRow
@@ -288,6 +288,29 @@ class RunRepository(RunStore):
     async def delete_thread_operation(self, run_id: str, *, user_id: str | None) -> None:
         """Release a reservation using its captured owner, not request context."""
         await self.delete(run_id, user_id=user_id)
+
+    async def delete_by_thread(
+        self,
+        thread_id: str,
+        *,
+        user_id: str | _AutoSentinel | None = AUTO,
+    ) -> int:
+        """Delete every run row for *thread_id*. See ``RunStore.delete_by_thread``.
+
+        A single bulk ``DELETE`` is issued; ``rowcount`` reports how many rows
+        were removed so callers can log / verify the cascade. Unlike
+        ``list_by_thread`` this does not filter on ``operation_kind`` — every
+        row (run + internal thread operations) under the thread is removed,
+        matching the filesystem ``rmtree`` semantics of thread deletion.
+        """
+        resolved_user_id = resolve_user_id(user_id, method_name="RunRepository.delete_by_thread")
+        stmt = delete(RunRow).where(RunRow.thread_id == thread_id)
+        if resolved_user_id is not None:
+            stmt = stmt.where(RunRow.user_id == resolved_user_id)
+        async with self._sf() as session:
+            result = await session.execute(stmt)
+            await session.commit()
+            return cast(CursorResult[Any], result).rowcount or 0
 
     async def list_pending(self, *, before=None):
         if before is None:

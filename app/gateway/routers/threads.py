@@ -627,16 +627,20 @@ async def _ensure_thread_for_goal(thread_id: str, request: Request) -> None:
 @router.delete("/{thread_id}", response_model=ThreadDeleteResponse)
 @require_permission("threads", "delete", owner_check=True, require_existing=True)
 async def delete_thread_data(thread_id: str, request: Request) -> ThreadDeleteResponse:
-    """Delete local persisted filesystem data for a thread.
+    """Delete local persisted data for a thread.
 
     Cleans QiLin-managed thread directories, removes checkpoint data,
-    and removes the thread_meta row from the configured ThreadMetaStore
-    (sqlite or memory).
+    the thread_meta row, run metadata rows (``runs``), and run-event
+    traces (``run_events``) from the configured stores. Every step is
+    best-effort: a missing or failing backend never blocks the rest of
+    the cascade, but each failure is logged so residual data is visible.
     """
-    from app.gateway.deps import get_thread_store
+    from app.gateway.deps import get_run_store, get_thread_store
+
+    user_id = get_effective_user_id()
 
     # Clean local filesystem
-    response = _delete_thread_data(thread_id, user_id=get_effective_user_id())
+    response = _delete_thread_data(thread_id, user_id=user_id)
 
     # Remove checkpoints (best-effort)
     checkpointer = getattr(request.app.state, "checkpointer", None)
@@ -654,6 +658,29 @@ async def delete_thread_data(thread_id: str, request: Request) -> ThreadDeleteRe
         await thread_store.delete(thread_id)
     except Exception:
         logger.debug("Could not delete thread_meta for %s (not critical)", sanitize_log_param(thread_id))
+
+    # Remove run metadata rows (best-effort). RunRow carries denormalized
+    # message summaries (first_human_message / last_ai_message) and full
+    # token usage, so leaving orphaned rows leaks conversation content.
+    try:
+        run_store = get_run_store(request)
+        await run_store.delete_by_thread(thread_id, user_id=user_id)
+    except NotImplementedError:
+        # Store backend does not implement thread-level deletion.
+        logger.debug("Run store does not support delete_by_thread for %s", sanitize_log_param(thread_id))
+    except Exception:
+        logger.debug("Could not delete run rows for thread %s (not critical)", sanitize_log_param(thread_id))
+
+    # Remove run-event traces (best-effort). When run_events.backend=jsonl
+    # the files already vanished with the thread directory rmtree above, but
+    # the db and memory backends need an explicit cleanup; calling every
+    # backend uniformly keeps the cascade correct if the directory layout
+    # ever changes.
+    try:
+        event_store = get_run_event_store(request)
+        await event_store.delete_by_thread(thread_id)
+    except Exception:
+        logger.debug("Could not delete run events for thread %s (not critical)", sanitize_log_param(thread_id))
 
     # Tear down any live browser session (best-effort). Sessions are keyed only
     # by thread_id, so leaving one alive after the owner deletes the thread lets

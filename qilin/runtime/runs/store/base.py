@@ -115,6 +115,24 @@ class RunStore(abc.ABC):
         """Batch-load selected runs belonging to one thread."""
         raise NotImplementedError
 
+    async def delete_by_thread(
+        self,
+        thread_id: str,
+        *,
+        user_id: str | None = None,
+    ) -> int:
+        """Delete every run row for *thread_id*. Return the number of rows removed.
+
+        Thread deletion must cascade to run metadata: ``RunRow`` carries
+        denormalized message summaries (``first_human_message`` /
+        ``last_ai_message``) and full token usage, so orphaned rows are a real
+        data-leak rather than harmless history. When *user_id* is provided only
+        that owner's rows are removed; ``None`` clears every owner (used by
+        internal/admin cleanup). Best-effort callers may swallow the
+        ``NotImplementedError`` raised by stores that do not implement this.
+        """
+        raise NotImplementedError
+
     @abc.abstractmethod
     async def update_status(
         self,
