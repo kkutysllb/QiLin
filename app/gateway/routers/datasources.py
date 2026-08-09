@@ -44,19 +44,19 @@ _DATASOURCES: list[dict[str, Any]] = [
         "test_method": "tushare",
     },
     {
-        "key": "X_AUTH_TOKEN",
+        "key": "IWENCAI_TOKEN",
         "display_name": "问财（iWencai）",
-        "description": "同花顺问财 API Token，用于 zm-* 系列金融数据技能的实时行情、财务数据、资金流向等接口调用。",
+        "description": "同花顺问财 API 凭证（openapi.iwencai.com），用于自然语言选股、智能投研等。",
         "secret": True,
-        "placeholder": "输入问财 X-Auth-Token",
+        "placeholder": "输入问财 API Token",
         "test_method": "iwencai",
     },
     {
-        "key": "SINA_FINANCE_API_KEY",
-        "display_name": "新浪财经 MCP",
-        "description": "新浪财经 MCP 工具（zyhub.finance.sina.cn）的 API Key，用于获取实时行情、财务数据等。",
+        "key": "X_AUTH_TOKEN",
+        "display_name": "新浪财经",
+        "description": "新浪财经数据 API Token（mcp.finance.sina.com.cn），zm-* 系列金融技能依赖此凭证获取实时行情、财务数据等。",
         "secret": True,
-        "placeholder": "输入新浪财经 API Key",
+        "placeholder": "输入新浪财经 X-Auth-Token",
         "test_method": "sina",
     },
 ]
@@ -280,14 +280,15 @@ async def _test_tushare(token: str) -> TestResult:
 
 
 async def _test_iwencai(token: str) -> TestResult:
-    """Test iWencai (同花顺问财) X-Auth-Token."""
+    """Test iWencai (同花顺问财) API token."""
     import httpx
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(
                 "https://openapi.iwencai.com/v2/urp",
-                headers={"X-Auth-Token": token},
+                headers={"token": token},
+                params={"query": "上证指数"},
             )
             if resp.status_code == 200:
                 return TestResult(success=True, message="问财 API 连接成功。")
@@ -298,20 +299,21 @@ async def _test_iwencai(token: str) -> TestResult:
         return TestResult(success=False, message=f"连接失败：{e}")
 
 
-async def _test_sina(api_key: str) -> TestResult:
-    """Test Sina Finance MCP API key."""
+async def _test_sina(token: str) -> TestResult:
+    """Test Sina Finance API X-Auth-Token (used by zm-* skills)."""
     import httpx
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(
-                "https://zyhub.finance.sina.cn/mcp",
-                headers={"Authorization": f"Bearer {api_key}"},
+                "https://mcp.finance.sina.com.cn/api-call/globalStockQuoteRealtime",
+                headers={"X-Auth-Token": token},
+                params={"market": "cn", "symbol": "sh000001"},
             )
-            if resp.status_code in (200, 401, 403):
-                if resp.status_code == 200:
-                    return TestResult(success=True, message="新浪财经 MCP 连接成功。")
-                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 API Key。")
-            return TestResult(success=False, message=f"新浪财经返回 HTTP {resp.status_code}")
+            if resp.status_code == 200:
+                return TestResult(success=True, message="新浪财经 API 连接成功。")
+            if resp.status_code in (401, 403):
+                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 Token。")
+            return TestResult(success=False, message=f"新浪财经 API 返回 HTTP {resp.status_code}")
     except Exception as e:
         return TestResult(success=False, message=f"连接失败：{e}")
