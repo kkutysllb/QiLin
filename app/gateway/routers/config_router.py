@@ -44,6 +44,7 @@ SECTION_MODELS: dict[str, str] = {
     "run_events": "qilin.config.run_events_config:RunEventsConfig",
     "memory": "qilin.config.memory_config:MemoryConfig",
     "sandbox": "qilin.config.sandbox_config:SandboxConfig",
+    "summarization": "qilin.config.summarization_config:SummarizationConfig",
     "title": "qilin.config.title_config:TitleConfig",
     "token_usage": "qilin.config.token_usage_config:TokenUsageConfig",
     "loop_detection": "qilin.config.loop_detection_config:LoopDetectionConfig",
@@ -53,6 +54,7 @@ SECTION_MODELS: dict[str, str] = {
 # Sensitive field paths to mask on GET (section → list of nested keys).
 _SENSITIVE_PATHS: dict[str, list[list[str]]] = {
     "database": [["postgres_url"]],
+    "memory": [["backend_config", "model", "api_key"]],
 }
 
 
