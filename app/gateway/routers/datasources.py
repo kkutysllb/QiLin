@@ -44,11 +44,11 @@ _DATASOURCES: list[dict[str, Any]] = [
         "test_method": "tushare",
     },
     {
-        "key": "IWENCAI_TOKEN",
+        "key": "IWENCAI_API_KEY",
         "display_name": "问财（iWencai）",
-        "description": "同花顺问财 API 凭证（openapi.iwencai.com），用于自然语言选股、智能投研等。",
+        "description": "同花顺问财 OpenAPI 凭证（openapi.iwencai.com），用于自然语言选股、智能投研等。",
         "secret": True,
-        "placeholder": "输入问财 API Token",
+        "placeholder": "输入问财 API Key",
         "test_method": "iwencai",
     },
     {
@@ -279,21 +279,31 @@ async def _test_tushare(token: str) -> TestResult:
         return TestResult(success=False, message=f"连接失败：{e}")
 
 
-async def _test_iwencai(token: str) -> TestResult:
-    """Test iWencai (同花顺问财) API token."""
+async def _test_iwencai(api_key: str) -> TestResult:
+    """Test iWencai (同花顺问财) API key.
+
+    Uses POST /v1/comprehensive/search with Authorization: Bearer header.
+    """
     import httpx
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                "https://openapi.iwencai.com/v2/urp",
-                headers={"token": token},
-                params={"query": "上证指数"},
+            resp = await client.post(
+                "https://openapi.iwencai.com/v1/comprehensive/search",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "channels": ["report"],
+                    "query": "上证指数",
+                    "size": 1,
+                },
             )
             if resp.status_code == 200:
                 return TestResult(success=True, message="问财 API 连接成功。")
             if resp.status_code in (401, 403):
-                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 Token。")
+                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 API Key。")
             return TestResult(success=False, message=f"问财 API 返回 HTTP {resp.status_code}")
     except Exception as e:
         return TestResult(success=False, message=f"连接失败：{e}")
