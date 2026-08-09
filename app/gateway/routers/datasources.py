@@ -282,8 +282,10 @@ async def _test_tushare(token: str) -> TestResult:
 async def _test_iwencai(api_key: str) -> TestResult:
     """Test iWencai (同花顺问财) API key.
 
-    Uses POST /v1/comprehensive/search with Authorization: Bearer header.
+    Requires Authorization: Bearer + X-Claw headers (SkillHub 2.0 enforced).
     """
+    import secrets
+
     import httpx
 
     try:
@@ -293,9 +295,16 @@ async def _test_iwencai(api_key: str) -> TestResult:
                 headers={
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
+                    "X-Claw-Call-Type": "normal",
+                    "X-Claw-Skill-Id": "report-search",
+                    "X-Claw-Skill-Version": "2.0.0",
+                    "X-Claw-Plugin-Id": "none",
+                    "X-Claw-Plugin-Version": "none",
+                    "X-Claw-Trace-Id": secrets.token_hex(32),
                 },
                 json={
                     "channels": ["report"],
+                    "app_id": "AIME_SKILL",
                     "query": "上证指数",
                     "size": 1,
                 },
