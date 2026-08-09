@@ -26,6 +26,7 @@ from app.gateway.routers import (
     channels,
     console,
     config_router,
+    datasources,
     features,
     feedback,
     github_webhooks,
@@ -639,6 +640,10 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Config read/write API is mounted at /api/config
     app.include_router(config_router.router)
+
+    # Datasource credentials API is mounted at /api/datasources
+    app.include_router(datasources.router)
+
     # Persistence status API is mounted at /api/persistence
     app.include_router(persistence.router)
 
