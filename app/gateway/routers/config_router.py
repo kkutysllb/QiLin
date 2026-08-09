@@ -47,6 +47,7 @@ SECTION_MODELS: dict[str, str] = {
     "summarization": "qilin.config.summarization_config:SummarizationConfig",
     "title": "qilin.config.title_config:TitleConfig",
     "token_usage": "qilin.config.token_usage_config:TokenUsageConfig",
+    "token_budget": "qilin.config.token_budget_config:TokenBudgetConfig",
     "loop_detection": "qilin.config.loop_detection_config:LoopDetectionConfig",
     "scheduler": "qilin.config.scheduler_config:SchedulerConfig",
 }
