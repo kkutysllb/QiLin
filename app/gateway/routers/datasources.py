@@ -1,6 +1,6 @@
 """Datasource credentials management router.
 
-Provides CRUD for financial data API credentials (Tushare, AkShare, Sina
+Provides CRUD for financial data API credentials (Tushare, iWencai, Sina
 Finance). Credentials are persisted to the user data space ``.env`` file and
 injected into ``os.environ`` so agent skill scripts and MCP servers can read
 them via ``os.environ``.
@@ -44,12 +44,12 @@ _DATASOURCES: list[dict[str, Any]] = [
         "test_method": "tushare",
     },
     {
-        "key": "AKSHARE_TOKEN",
-        "display_name": "AkShare",
-        "description": "开源金融数据接口（东财、新浪等），部分接口需要 token。",
+        "key": "X_AUTH_TOKEN",
+        "display_name": "问财（iWencai）",
+        "description": "同花顺问财 API Token，用于 zm-* 系列金融数据技能的实时行情、财务数据、资金流向等接口调用。",
         "secret": True,
-        "placeholder": "输入 AkShare Token（如无需可留空）",
-        "test_method": None,
+        "placeholder": "输入问财 X-Auth-Token",
+        "test_method": "iwencai",
     },
     {
         "key": "SINA_FINANCE_API_KEY",
@@ -249,6 +249,8 @@ async def test_datasource(body: DatasourceTestRequest, request: Request) -> Test
 
     if method == "tushare":
         return await _test_tushare(test_value)
+    elif method == "iwencai":
+        return await _test_iwencai(test_value)
     elif method == "sina":
         return await _test_sina(test_value)
     else:
@@ -273,6 +275,26 @@ async def _test_tushare(token: str) -> TestResult:
                 msg = data.get("msg", "未知错误")
                 return TestResult(success=False, message=f"Tushare 返回错误：{msg}")
             return TestResult(success=False, message=f"Tushare HTTP {resp.status_code}")
+    except Exception as e:
+        return TestResult(success=False, message=f"连接失败：{e}")
+
+
+async def _test_iwencai(token: str) -> TestResult:
+    """Test iWencai (同花顺问财) X-Auth-Token via Sina MCP API call."""
+    import httpx
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                "https://mcp.finance.sina.com.cn/api-call/globalStockQuoteRealtime",
+                headers={"X-Auth-Token": token},
+                params={"securityids": "000001.SH"},
+            )
+            if resp.status_code == 200:
+                return TestResult(success=True, message="问财 API 连接成功。")
+            if resp.status_code in (401, 403):
+                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 Token。")
+            return TestResult(success=False, message=f"问财 API 返回 HTTP {resp.status_code}")
     except Exception as e:
         return TestResult(success=False, message=f"连接失败：{e}")
 
