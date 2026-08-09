@@ -32,6 +32,17 @@ router = APIRouter(prefix="/api/config", tags=["config"])
 
 _ADMIN_REQUIRED_DETAIL = "Admin privileges required to manage gateway configuration."
 
+
+def _apply_log_level(level: str) -> None:
+    """Apply a log level string to the running gateway's logging config."""
+    level_map = {
+        "debug": logging.DEBUG,
+        "info": logging.INFO,
+        "warning": logging.WARNING,
+        "error": logging.ERROR,
+    }
+    logging.getLogger().setLevel(level_map.get(level, logging.INFO))
+
 # Section name → engine pydantic Config class (lazy import to avoid pulling
 # the full engine at module load). Keys match the config.yaml top-level
 # section names that have a dedicated pydantic model. Note:
@@ -58,6 +69,12 @@ SECTION_MODELS: dict[str, str] = {
     "uploads": "qilin.config.uploads_config:UploadsConfig",
     "guardrails": "qilin.config.guardrails_config:GuardrailsConfig",
     "safety_finish_reason": "qilin.config.safety_finish_reason_config:SafetyFinishReasonConfig",
+}
+
+# Scalar (non-dict) top-level config fields that can be read/written directly.
+# These don't have a pydantic model — they are simple string values in config.yaml.
+_SCALAR_FIELDS: dict[str, str] = {
+    "log_level": "info",
 }
 
 # Sensitive field paths to mask on GET (section → list of nested keys).
@@ -152,6 +169,11 @@ async def get_full_config(request: Request) -> ConfigFullResponse:
 async def get_config_section(section: str, request: Request) -> ConfigSectionResponse:
     """Read a single config section with sensitive values masked."""
     await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
+    # Scalar fields (e.g. log_level) are stored as top-level string values.
+    if section in _SCALAR_FIELDS:
+        data = read_config_yaml()
+        value = data.get(section, _SCALAR_FIELDS[section]) if isinstance(data, dict) else _SCALAR_FIELDS[section]
+        return ConfigSectionResponse(section=section, data=value)
     data = read_config_yaml()
     if not isinstance(data, dict) or section not in data:
         # Return defaults by instantiating the model with no overrides.
@@ -185,6 +207,17 @@ async def put_config_section(
 ) -> ConfigSectionResponse:
     """Write a single config section (validated + atomic)."""
     await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
+    # Scalar fields: write directly to config.yaml top-level.
+    if section in _SCALAR_FIELDS:
+        value = body.data if isinstance(body.data, str) else str(body.data)
+        config_path = resolve_config_path()
+        raw = read_config_yaml(config_path)
+        if not isinstance(raw, dict):
+            raw = {}
+        raw[section] = value
+        write_config_yaml(config_path, raw)
+        _apply_log_level(value)
+        return ConfigSectionResponse(section=section, data=value)
     if section not in SECTION_MODELS:
         raise HTTPException(
             status_code=404, detail=f"Config section '{section}' not writable"
