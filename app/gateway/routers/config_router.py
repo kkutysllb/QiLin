@@ -35,8 +35,8 @@ _ADMIN_REQUIRED_DETAIL = "Admin privileges required to manage gateway configurat
 # Section name → engine pydantic Config class (lazy import to avoid pulling
 # the full engine at module load). Keys match the config.yaml top-level
 # section names that have a dedicated pydantic model. Note:
-# - "uploads" is a free-form dict on AppConfig (no pydantic class); PUT is
-#   not supported for it. Use the YAML editor for uploads tuning.
+# - "uploads" now has a dedicated pydantic model (UploadsConfig) and supports
+#   both GET and PUT like other sections.
 # - "cron_management" (legacy front-end section name) is not recognised by
 #   the engine; the real section is "scheduler".
 SECTION_MODELS: dict[str, str] = {
@@ -55,6 +55,7 @@ SECTION_MODELS: dict[str, str] = {
     "tool_search": "qilin.config.tool_search_config:ToolSearchConfig",
     "read_before_write": "qilin.config.read_before_write_config:ReadBeforeWriteConfig",
     "network": "qilin.config.network_config:NetworkConfig",
+    "uploads": "qilin.config.uploads_config:UploadsConfig",
     "guardrails": "qilin.config.guardrails_config:GuardrailsConfig",
     "safety_finish_reason": "qilin.config.safety_finish_reason_config:SafetyFinishReasonConfig",
 }

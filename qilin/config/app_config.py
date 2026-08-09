@@ -68,6 +68,7 @@ from qilin.config.title_config import TitleConfig, load_title_config_from_dict
 from qilin.config.token_budget_config import TokenBudgetConfig
 from qilin.config.token_usage_config import TokenUsageConfig
 from qilin.config.tool_config import ToolConfig, ToolGroupConfig
+from qilin.config.uploads_config import UploadsConfig
 from qilin.config.tool_output_config import ToolOutputConfig
 from qilin.config.tool_progress_config import ToolProgressConfig
 from qilin.config.tool_search_config import (
@@ -250,6 +251,7 @@ class AppConfig(BaseModel):
     extensions: ExtensionsConfig = Field(default_factory=ExtensionsConfig, description="Extensions configuration (MCP servers and skills state)")
     tool_output: ToolOutputConfig = Field(default_factory=ToolOutputConfig, description="Tool output budget protection configuration")
     tool_search: ToolSearchConfig = Field(default_factory=ToolSearchConfig, description="Tool search / deferred loading configuration")
+    uploads: UploadsConfig = Field(default_factory=UploadsConfig, description="Upload limits and document conversion configuration")
     title: TitleConfig = Field(default_factory=TitleConfig, description="Automatic title generation configuration")
     summarization: SummarizationConfig = Field(default_factory=SummarizationConfig, description="Conversation summarization configuration")
     memory: MemoryConfig = Field(default_factory=MemoryConfig, description="Memory subsystem configuration")
