@@ -1455,7 +1455,7 @@ sandbox:
 #   # Custom agents use their own timeout_seconds (default 900) unless overridden.
 #   timeout_seconds: 1800
 #   # Optional global max-turn override for all subagents.
-#   # Built-in defaults: general-purpose=150, bash=60. Leave unset to keep them.
+#   # Built-in defaults: general-purpose=200, bash=60. Leave unset to keep them.
 #   # max_turns: 120
 #
 #   # Total number of subagent delegations allowed in one lead-agent run.
@@ -1483,7 +1483,7 @@ sandbox:
 #   agents:
 #     general-purpose:
 #       timeout_seconds: 2700  # 45 minutes for very long deep-research tasks
-#       max_turns: 250         # raise above the 150 default for very deep tasks
+#       max_turns: 250         # raise above the 200 default for very deep tasks
 #       # token_budget:        # per-agent override of the global token_budget above
 #       #   max_tokens: 3000000  # raise the ceiling for deep-research tasks
 #       # model: qwen3:32b     # Use a specific model (default: inherit from lead agent)

@@ -65,5 +65,5 @@ You have access to the same sandbox environment as the parent agent:
     tools=None,  # Inherit all tools from parent
     disallowed_tools=["task", "ask_clarification", "present_files"],  # Prevent nesting and clarification
     model="inherit",
-    max_turns=150,
+    max_turns=200,
 )

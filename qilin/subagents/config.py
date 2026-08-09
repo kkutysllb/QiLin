@@ -23,7 +23,7 @@ class SubagentConfig:
                 policies take effect only after activation/loading at runtime.
         model: Model to use - 'inherit' uses parent's model.
         max_turns: Maximum agent turns before stopping. Built-in agents use the
-            value set here (general-purpose=150, bash=60) unless the global
+            value set here (general-purpose=200, bash=60) unless the global
             ``subagents.max_turns`` is set.
         timeout_seconds: Bare fallback execution-time cap. For built-in agents the
             effective limit is the global ``subagents.timeout_seconds`` (default
