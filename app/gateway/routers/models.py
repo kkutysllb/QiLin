@@ -15,8 +15,8 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
-from ruamel.yaml import YAML
 
+from app.gateway.config_yaml_io import read_config_yaml, write_config_yaml
 from app.gateway.deps import get_config
 from qilin.config.app_config import AppConfig, reload_app_config
 from qilin.config.model_config import ModelConfig
@@ -224,24 +224,12 @@ def _extract_endpoint_info(extra: dict[str, Any]) -> tuple[str | None, str | Non
 def _read_config_yaml() -> tuple[Path, Any]:
     """Read ``config.yaml`` as a ruamel structure (preserves comments)."""
     config_path = AppConfig.resolve_config_path(None)
-    parser = YAML()
-    parser.preserve_quotes = True
-    with open(config_path, encoding="utf-8") as fh:
-        data = parser.load(fh)
-    if data is None:
-        data = {}
-    return config_path, data
+    return config_path, read_config_yaml(config_path)
 
 
 def _write_config_yaml(config_path: Path, data: Any) -> None:
     """Write the ruamel structure back to ``config.yaml`` atomically."""
-    parser = YAML()
-    parser.preserve_quotes = True
-    parser.indent(mapping=2, sequence=4, offset=2)
-    tmp_path = config_path.with_suffix(config_path.suffix + ".tmp")
-    with open(tmp_path, "w", encoding="utf-8") as fh:
-        parser.dump(data, fh)
-    tmp_path.replace(config_path)
+    write_config_yaml(config_path, data)
 
 
 def _request_to_dict(req: ModelCreateRequest) -> dict[str, Any]:
