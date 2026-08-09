@@ -280,15 +280,14 @@ async def _test_tushare(token: str) -> TestResult:
 
 
 async def _test_iwencai(token: str) -> TestResult:
-    """Test iWencai (同花顺问财) X-Auth-Token via Sina MCP API call."""
+    """Test iWencai (同花顺问财) X-Auth-Token."""
     import httpx
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(
-                "https://mcp.finance.sina.com.cn/api-call/globalStockQuoteRealtime",
+                "https://openapi.iwencai.com/v2/urp",
                 headers={"X-Auth-Token": token},
-                params={"securityids": "000001.SH"},
             )
             if resp.status_code == 200:
                 return TestResult(success=True, message="问财 API 连接成功。")
