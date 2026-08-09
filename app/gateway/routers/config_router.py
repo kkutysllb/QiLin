@@ -50,6 +50,12 @@ SECTION_MODELS: dict[str, str] = {
     "token_budget": "qilin.config.token_budget_config:TokenBudgetConfig",
     "loop_detection": "qilin.config.loop_detection_config:LoopDetectionConfig",
     "scheduler": "qilin.config.scheduler_config:SchedulerConfig",
+    "tool_output": "qilin.config.tool_output_config:ToolOutputConfig",
+    "tool_progress": "qilin.config.tool_progress_config:ToolProgressConfig",
+    "tool_search": "qilin.config.tool_search_config:ToolSearchConfig",
+    "read_before_write": "qilin.config.read_before_write_config:ReadBeforeWriteConfig",
+    "guardrails": "qilin.config.guardrails_config:GuardrailsConfig",
+    "safety_finish_reason": "qilin.config.safety_finish_reason_config:SafetyFinishReasonConfig",
 }
 
 # Sensitive field paths to mask on GET (section → list of nested keys).
