@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
 from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
@@ -75,6 +76,7 @@ from qilin.runtime.goal import goal_thread_lock
 from qilin.runtime.runs.naming import resolve_root_run_name
 from qilin.runtime.secret_context import (
     LegacyRunMetadataSecretError,
+    SECRETS_CONTEXT_KEY,
     redact_config_secrets,
     validate_run_metadata_secrets,
 )
@@ -350,6 +352,62 @@ _SERVER_OWNED_AUTHZ_CONTEXT_KEYS: frozenset[str] = frozenset(
 #                              webhooks) so ClarificationMiddleware proceeds
 #                              instead of dead-ending the run.
 _CONTEXT_RUNTIME_ONLY_KEYS: frozenset[str] = frozenset({"github_token", "disable_clarification"})
+
+
+def _resolve_sandbox_environment_secrets() -> dict[str, str]:
+    """Resolve operator-declared secrets from ``sandbox.environment`` config.
+
+    Each entry's value may be a ``$VAR`` reference resolved from the gateway
+    process environment (the same mechanism as ``env_policy``). Returns a flat
+    ``{name: value}`` mapping suitable for ``context.secrets``. Entries whose
+    ``$VAR`` reference is unset are silently skipped so a missing optional
+    credential does not break every run.
+    """
+    try:
+        env_config = get_app_config().sandbox.environment
+    except Exception:
+        return {}
+    if not env_config:
+        return {}
+    resolved: dict[str, str] = {}
+    for key, raw_value in env_config.items():
+        if not isinstance(key, str) or not isinstance(raw_value, str):
+            continue
+        if raw_value.startswith("$"):
+            var_name = raw_value[1:]
+            value = os.environ.get(var_name, "")
+            if value:
+                resolved[key] = value
+        elif raw_value:
+            resolved[key] = raw_value
+    return resolved
+
+
+def inject_sandbox_environment_secrets(config: dict[str, Any]) -> None:
+    """Populate ``config['context']['secrets']`` from ``sandbox.environment``.
+
+    This is the gateway-side auto-injection that lets skills declare
+    ``required-secrets`` in their SKILL.md frontmatter and receive the
+    operator-configured credentials through the proper middleware pipeline
+    (``context.secrets`` → ``SkillActivationMiddleware`` → ``ACTIVE_SECRETS``
+    → ``build_sandbox_env(injected=...)``), without the frontend ever handling
+    plaintext secrets.
+
+    Caller-supplied secrets (if any) take precedence: config-derived values
+    only fill keys the caller did not already provide.
+    """
+    runtime_context = config.get("context")
+    if not isinstance(runtime_context, dict):
+        return
+    env_secrets = _resolve_sandbox_environment_secrets()
+    if not env_secrets:
+        return
+    existing = runtime_context.get(SECRETS_CONTEXT_KEY)
+    if isinstance(existing, dict):
+        merged = {**env_secrets, **{k: v for k, v in existing.items() if isinstance(k, str) and isinstance(v, str)}}
+    else:
+        merged = env_secrets
+    runtime_context[SECRETS_CONTEXT_KEY] = merged
 
 
 def strip_internal_context_keys(config: dict[str, Any]) -> None:
@@ -1086,6 +1144,7 @@ async def start_run(
         # that carries agent configuration (model_name, thinking_enabled, etc.).
         # Only agent-relevant keys are forwarded; unknown keys (e.g. thread_id) are ignored.
         merge_run_context_overrides(config, getattr(body, "context", None), internal=is_internal_caller)
+        inject_sandbox_environment_secrets(config)
         if not is_internal_caller:
             # ``body.config`` is free-form and copied verbatim by
             # ``build_run_config``; scrub internal-only keys smuggled there.
