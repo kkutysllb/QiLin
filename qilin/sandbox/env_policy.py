@@ -88,16 +88,38 @@ _BLOCKED_EXACT_NAMES: frozenset[str] = frozenset(
 )
 
 
-def is_blocked_env_name(name: str) -> bool:
+def is_blocked_env_name(name: str, allowlist: frozenset[str] | None = None) -> bool:
     """Return True if ``name`` looks like a credential that must not be inherited
-    by a sandbox subprocess."""
+    by a sandbox subprocess.
+
+    If ``allowlist`` is provided, names in it bypass the blocked-pattern check.
+    This is the escape hatch for ``sandbox.environment`` config: an operator
+    explicitly declares which credential variables skills may inherit.
+    """
     upper = name.upper()
+    if allowlist and upper in allowlist:
+        return False
     if upper in _BLOCKED_EXACT_NAMES:
         return True
     return any(fnmatch.fnmatchcase(upper, pattern) for pattern in _SECRET_NAME_PATTERNS)
 
 
-def build_sandbox_env(injected: dict[str, str] | None = None) -> dict[str, str]:
+def _resolve_allowlist_value(raw: str) -> str:
+    """Resolve a ``$VAR`` reference to its host environment value.
+
+    Values starting with ``$`` are treated as environment variable names to
+    resolve from ``os.environ`` at call time. Literal values pass through.
+    """
+    if raw.startswith("$"):
+        var_name = raw[1:]
+        return os.environ.get(var_name, "")
+    return raw
+
+
+def build_sandbox_env(
+    injected: dict[str, str] | None = None,
+    allowlist: dict[str, str] | None = None,
+) -> dict[str, str]:
     """Build the environment dict for a sandbox subprocess.
 
     Inherits ``os.environ`` minus any secret-looking variables, then layers the
@@ -105,8 +127,19 @@ def build_sandbox_env(injected: dict[str, str] | None = None) -> dict[str, str]:
     even if its name matches a blocked pattern, because injection is authorized
     upstream (the skill declared it and the value came from the request, not from
     the host environment).
+
+    If ``allowlist`` is provided (from ``sandbox.environment`` config), each
+    entry is resolved (``$VAR`` → host env value) and applied after scrubbing
+    but before injected secrets. This lets an operator explicitly exempt
+    specific credential variables (e.g. ``X_AUTH_TOKEN``, ``TUSHARE_TOKEN``)
+    so skills that need them inherit them even though they match the
+    ``*TOKEN*`` / ``*KEY*`` scrub patterns.
     """
-    env = {key: value for key, value in os.environ.items() if not is_blocked_env_name(key)}
+    allowlist_names = frozenset(key.upper() for key in allowlist) if allowlist else None
+    env = {key: value for key, value in os.environ.items() if not is_blocked_env_name(key, allowlist_names)}
+    if allowlist:
+        for key, raw_value in allowlist.items():
+            env[key] = _resolve_allowlist_value(raw_value)
     if injected:
         env.update(injected)
     return env

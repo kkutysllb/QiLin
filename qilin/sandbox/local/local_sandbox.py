@@ -486,7 +486,18 @@ class LocalSandbox(Sandbox):
         # Inherit os.environ minus platform secrets, then layer any injected
         # request-scoped secrets on top (#3861). An explicit env is always passed
         # so platform credentials never leak into skill subprocesses.
-        sandbox_env = build_sandbox_env(env)
+        #
+        # The sandbox.environment config acts as an operator-declared allowlist:
+        # variables listed there bypass the secret-scrubbing patterns so skills
+        # that need domain credentials (e.g. X_AUTH_TOKEN, TUSHARE_TOKEN) inherit
+        # them. Resolved lazily per call so config hot-reloads take effect.
+        allowlist = None
+        try:
+            from qilin.config import get_app_config
+            allowlist = get_app_config().sandbox.environment or None
+        except Exception:
+            pass
+        sandbox_env = build_sandbox_env(env, allowlist=allowlist)
         timed_out = False
         if os.name == "nt":
             if self._is_powershell(shell):
