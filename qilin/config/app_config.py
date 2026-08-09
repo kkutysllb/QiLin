@@ -3,7 +3,7 @@ import os
 from collections.abc import Mapping
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Any, Literal, Self
+from typing import Any, ClassVar, Literal, Self
 
 import yaml
 from dotenv import load_dotenv
@@ -546,29 +546,53 @@ class AppConfig(BaseModel):
                 example_version,
             )
 
+    # Config paths where ``$VAR`` references should be resolved leniently:
+    # a missing env var yields an empty string instead of raising. This is
+    # critical for ``sandbox.environment`` — operator-declared skill model
+    # credentials (GEMINI_API_KEY, KLING_* etc.) may not be configured yet, and
+    # their absence must NOT crash the gateway on startup.
+    _LENIENT_ENV_PATHS: ClassVar[frozenset[str]] = frozenset({"environment"})
+
     @classmethod
-    def resolve_env_variables(cls, config: Any) -> Any:
+    def resolve_env_variables(cls, config: Any, *, path: str = "") -> Any:
         """Recursively resolve environment variables in the config.
 
         Environment variables are resolved using the `os.getenv` function. Example: $OPENAI_API_KEY
 
+        For most config paths, a missing ``$VAR`` raises ``ValueError`` to
+        surface misconfiguration early. However, keys listed in
+        :data:`_LENIENT_ENV_PATHS` (e.g. ``sandbox.environment``) resolve
+        missing variables to an empty string — these are optional operator
+        credentials whose absence is a valid state (user hasn't configured
+        that particular skill yet).
+
         Args:
             config: The config to resolve environment variables in.
+            path: Dot-joined config path of ``config`` (for lenient-path
+                matching). Callers do not need to pass this.
 
         Returns:
             The config with environment variables resolved.
         """
         if isinstance(config, str):
             if config.startswith("$"):
-                env_value = os.getenv(config[1:])
+                env_name = config[1:]
+                env_value = os.getenv(env_name)
                 if env_value is None:
-                    raise ValueError(f"Environment variable {config[1:]} not found for config value {config}")
+                    # Check if any path segment is a lenient key (e.g.
+                    # path="sandbox.environment.GEMINI_API_KEY" matches
+                    # "environment"). This lets all values under
+                    # ``sandbox.environment`` resolve to "" instead of crashing.
+                    segments = path.split(".") if path else []
+                    if any(seg in cls._LENIENT_ENV_PATHS for seg in segments):
+                        return ""
+                    raise ValueError(f"Environment variable {env_name} not found for config value {config}")
                 return env_value
             return config
         elif isinstance(config, dict):
-            return {k: cls.resolve_env_variables(v) for k, v in config.items()}
+            return {k: cls.resolve_env_variables(v, path=f"{path}.{k}" if path else k) for k, v in config.items()}
         elif isinstance(config, list):
-            return [cls.resolve_env_variables(item) for item in config]
+            return [cls.resolve_env_variables(item, path=path) for item in config]
         return config
 
     @model_validator(mode="after")
