@@ -1,9 +1,10 @@
 """CRUD API for custom agents."""
 
 import asyncio
+import json
 import logging
 import re
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -17,10 +18,13 @@ from qilin.config.agents_config import (
     load_agent_soul,
     preserve_non_managed_fields,
 )
-from qilin.config.app_config import get_app_config
+from qilin.config.app_config import AppConfig, get_app_config
 from qilin.config.paths import get_paths
 from qilin.persistence.agents import AgentExistsError, get_agent_store
 from qilin.runtime.user_context import get_effective_user_id
+from qilin.skills.storage import get_or_new_user_skill_storage
+from qilin.utils import llm_text
+from qilin.utils.oneshot_llm import run_oneshot_llm
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["agents"])
@@ -47,6 +51,10 @@ class AgentResponse(BaseModel):
     thinking_enabled: bool | None = Field(default=None, description="Per-agent thinking-mode default (None = runtime default)")
     reasoning_effort: ReasoningEffort | None = Field(default=None, description="Per-agent reasoning-effort default (None = runtime default)")
     soul: str | None = Field(default=None, description="SOUL.md content")
+    max_turns: int | None = Field(default=None, description="Max LLM turns for this agent (None = use subagent default)")
+    timeout_seconds: int | None = Field(default=None, description="Execution timeout in seconds (None = use subagent default)")
+    disallowed_tools: list[str] | None = Field(default=None, description="Tools explicitly blocked for this agent")
+    role: str = Field(default="worker", description="Orchestration role: orchestrator | worker | reviewer")
 
 
 class AgentsListResponse(BaseModel):
@@ -67,6 +75,10 @@ class AgentCreateRequest(BaseModel):
     thinking_enabled: bool | None = Field(default=None, description="Per-agent thinking-mode default (None = runtime default)")
     reasoning_effort: ReasoningEffort | None = Field(default=None, description="Per-agent reasoning-effort default (None = runtime default)")
     soul: str = Field(default="", description="SOUL.md content — agent personality and behavioral guardrails")
+    max_turns: int | None = Field(default=None, description="Max LLM turns for this agent")
+    timeout_seconds: int | None = Field(default=None, description="Execution timeout in seconds")
+    disallowed_tools: list[str] | None = Field(default=None, description="Tools explicitly blocked for this agent")
+    role: str = Field(default="worker", description="Orchestration role: orchestrator | worker | reviewer")
 
 
 class AgentUpdateRequest(BaseModel):
@@ -80,6 +92,10 @@ class AgentUpdateRequest(BaseModel):
     thinking_enabled: bool | None = Field(default=None, description="Updated per-agent thinking-mode default")
     reasoning_effort: ReasoningEffort | None = Field(default=None, description="Updated per-agent reasoning-effort default")
     soul: str | None = Field(default=None, description="Updated SOUL.md content")
+    max_turns: int | None = Field(default=None, description="Updated max LLM turns")
+    timeout_seconds: int | None = Field(default=None, description="Updated execution timeout")
+    disallowed_tools: list[str] | None = Field(default=None, description="Updated blocked tools")
+    role: str | None = Field(default=None, description="Updated orchestration role")
 
 
 def _validate_agent_name(name: str) -> None:
@@ -193,6 +209,10 @@ def _agent_config_to_response(agent_cfg: AgentConfig, include_soul: bool = False
         thinking_enabled=agent_cfg.thinking_enabled,
         reasoning_effort=agent_cfg.reasoning_effort,
         soul=soul,
+        max_turns=agent_cfg.max_turns,
+        timeout_seconds=agent_cfg.timeout_seconds,
+        disallowed_tools=agent_cfg.disallowed_tools,
+        role=agent_cfg.role,
     )
 
 
@@ -325,6 +345,15 @@ async def create_agent_endpoint(request: AgentCreateRequest) -> AgentResponse:
         config_data["tool_groups"] = request.tool_groups
     if request.skills is not None:
         config_data["skills"] = request.skills
+    # Orchestration fields (v2.0).
+    if request.max_turns is not None:
+        config_data["max_turns"] = request.max_turns
+    if request.timeout_seconds is not None:
+        config_data["timeout_seconds"] = request.timeout_seconds
+    if request.disallowed_tools is not None:
+        config_data["disallowed_tools"] = request.disallowed_tools
+    if request.role and request.role != "worker":
+        config_data["role"] = request.role
     # model / model_settings / thinking_enabled / reasoning_effort (issue #4336).
     _apply_model_behavior(config_data, request)
 
@@ -405,7 +434,8 @@ async def update_agent(name: str, request: AgentUpdateRequest) -> AgentResponse:
         # Use model_fields_set to distinguish "field omitted" from "explicitly set to null".
         # This is critical for skills where None means "inherit all" (not "don't change").
         fields_set = request.model_fields_set
-        config_changed = bool(fields_set & ({"description", "tool_groups", "skills"} | set(_MODEL_BEHAVIOR_FIELDS)))
+        _ORCHESTRATION_FIELDS = {"max_turns", "timeout_seconds", "disallowed_tools", "role"}
+        config_changed = bool(fields_set & ({"description", "tool_groups", "skills"} | set(_MODEL_BEHAVIOR_FIELDS) | _ORCHESTRATION_FIELDS))
 
         updated: dict | None = None
         if config_changed:
@@ -425,6 +455,16 @@ async def update_agent(name: str, request: AgentUpdateRequest) -> AgentResponse:
                 new_skills = agent_cfg.skills
             if new_skills is not None:
                 updated["skills"] = new_skills
+
+            # Orchestration fields: take explicitly-set request fields, else
+            # preserve the existing value.
+            for ofield in _ORCHESTRATION_FIELDS:
+                if ofield in fields_set:
+                    val = getattr(request, ofield)
+                else:
+                    val = getattr(agent_cfg, ofield, None)
+                if val is not None and val != "worker":
+                    updated[ofield] = val
 
             # model / model_settings / thinking_enabled / reasoning_effort:
             # take explicitly-set request fields, else preserve the existing
@@ -572,3 +612,311 @@ async def delete_agent(name: str) -> None:
         )
 
     logger.info(f"Deleted agent '{name}'")
+
+
+# ── Orchestration integration ───────────────────────────────────────────────
+
+
+class WorkerSpecResponse(BaseModel):
+    """An agent projected onto the ``orchestration.workers`` schema.
+
+    Lets the orchestration settings UI present a checkbox list of custom agents
+    instead of asking the user to hand-write a JSON workers array. ``system_prompt``
+    maps to the agent's SOUL.md, and ``tools`` maps to ``tool_groups``.
+    """
+
+    name: str
+    description: str
+    system_prompt: str | None = None
+    tools: list[str] | None = None
+    disallowed_tools: list[str] | None = None
+    skills: list[str] | None = None
+    model: str | None = None
+    max_turns: int | None = None
+    timeout_seconds: int | None = None
+    role: str = "worker"
+
+
+class WorkersListResponse(BaseModel):
+    """Response for ``GET /api/agents/as-workers``."""
+
+    workers: list[WorkerSpecResponse]
+
+
+@router.get(
+    "/agents/as-workers",
+    response_model=WorkersListResponse,
+    summary="List Agents as Orchestration Workers",
+    description="Project all custom agents onto the orchestration ``workers`` schema so the UI can present a checkbox list instead of a JSON textarea.",
+)
+async def list_agents_as_workers() -> WorkersListResponse:
+    """Return every custom agent as a ``WorkerSpec``-compatible dict.
+
+    The mapping is:
+    - ``AgentConfig.soul`` (SOUL.md) → ``WorkerSpec.system_prompt``
+    - ``AgentConfig.tool_groups``      → ``WorkerSpec.tools``
+    - ``AgentConfig.role``             → ``WorkerSpec.role``
+    - ``max_turns`` / ``timeout_seconds`` / ``disallowed_tools`` / ``skills`` / ``model`` are forwarded verbatim.
+    """
+    _require_agents_api_enabled()
+
+    user_id = get_effective_user_id()
+
+    def _project() -> WorkersListResponse:
+        agents = list_custom_agents(user_id=user_id)
+        specs: list[WorkerSpecResponse] = []
+        for a in agents:
+            soul = load_agent_soul(a.name, user_id=user_id)
+            specs.append(
+                WorkerSpecResponse(
+                    name=a.name,
+                    description=a.description,
+                    system_prompt=soul or None,
+                    tools=a.tool_groups,
+                    disallowed_tools=a.disallowed_tools,
+                    skills=a.skills,
+                    model=a.model,
+                    max_turns=a.max_turns,
+                    timeout_seconds=a.timeout_seconds,
+                    role=a.role,
+                )
+            )
+        return WorkersListResponse(workers=specs)
+
+    try:
+        return await asyncio.to_thread(_project)
+    except Exception as e:
+        logger.error(f"Failed to list agents as workers: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to list agents as workers: {e!s}")
+
+
+# ── AI-guided agent creation ────────────────────────────────────────────────
+
+
+class AgentSuggestionRequest(BaseModel):
+    """Request body for AI-guided agent configuration suggestions."""
+
+    description: str = Field(..., min_length=3, max_length=2000, description="Natural-language description of the desired agent")
+    model_name: str | None = Field(default=None, description="Optional model override for the suggestion LLM call")
+
+
+class AgentSuggestionResponse(BaseModel):
+    """AI-generated agent configuration suggestion."""
+
+    name: str = Field(..., description="Suggested agent name (kebab-case)")
+    description: str = Field(default="", description="One-sentence agent summary")
+    soul: str = Field(default="", description="Full system prompt / SOUL.md content")
+    tool_groups: list[str] = Field(default_factory=list)
+    disallowed_tools: list[str] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
+    model: str | None = Field(default=None)
+    thinking_enabled: bool | None = Field(default=None)
+    reasoning_effort: ReasoningEffort | None = Field(default=None)
+    max_turns: int | None = Field(default=None)
+    timeout_seconds: int | None = Field(default=None)
+    role: str = Field(default="worker")
+    rationale: str = Field(default="", description="Brief explanation of the AI's configuration choices")
+
+
+_SUGGEST_SYSTEM_INSTRUCTION = """\
+You are an AI agent configuration designer. Based on the user's description, \
+generate a complete agent configuration in JSON format.
+
+Available tool groups (the agent can access tools in these groups):
+{tool_groups_desc}
+
+Available skills (pre-built workflows the agent can use):
+{skills_desc}
+
+Available models:
+{models_desc}
+
+Generate a JSON object with these fields:
+- "name": kebab-case identifier (lowercase letters, digits, hyphens only)
+- "description": one-sentence summary of what this agent does
+- "soul": full system prompt / SOUL.md content. Write a comprehensive prompt \
+  that defines the agent's role, capabilities, behavioral guidelines, output \
+  format, and constraints. Use markdown with section headers.
+- "tool_groups": array of tool group names this agent needs (subset of available)
+- "disallowed_tools": tools to explicitly block (optional, usually empty)
+- "skills": array of skill names relevant to this agent (subset of available, \
+  empty array if none needed)
+- "model": model name or null (null = inherit default). Choose based on task \
+  complexity.
+- "thinking_enabled": true if the agent needs extended reasoning, false or null otherwise
+- "reasoning_effort": "low"/"medium"/"high" or null
+- "max_turns": suggested max LLM turns (e.g. 50-200 depending on task complexity)
+- "timeout_seconds": suggested timeout (e.g. 900-3600)
+- "role": one of "worker", "orchestrator", or "reviewer". \
+  Choose "worker" for most agents that independently execute tasks (research, \
+  coding, data analysis). Choose "orchestrator" only when the user explicitly \
+  describes a coordinator that dispatches tasks to other agents. Choose \
+  "reviewer" only when the agent's primary purpose is to review/validate \
+  other agents' output. Default to "worker" when uncertain.
+- "rationale": brief explanation of your configuration choices
+
+Respond with ONLY the JSON object, no markdown fences or extra text.\
+"""
+
+
+def _sanitize_suggested_name(raw: str) -> str:
+    """Sanitize an AI-suggested agent name into ``^[a-z0-9-]+$`` form."""
+    cleaned = raw.strip().lower()
+    cleaned = re.sub(r"[^a-z0-9-]+", "-", cleaned)
+    cleaned = re.sub(r"-+", "-", cleaned)
+    cleaned = cleaned.strip("-")
+    if not cleaned:
+        cleaned = "new-agent"
+    return cleaned
+
+
+def _parse_suggestion_json(raw_text: str) -> dict[str, Any]:
+    """Extract and parse the first JSON object from an LLM response."""
+    text = llm_text.strip_think_blocks(raw_text)
+    text = llm_text.strip_markdown_code_fence(text)
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        raise ValueError("No JSON object found in LLM response")
+    return json.loads(text[start : end + 1])
+
+
+def _build_suggestion_prompt_context(config: AppConfig) -> tuple[str, str, str]:
+    """Collect available tool groups, skills, and models for the system prompt."""
+    # Tool groups
+    group_names = [g.name for g in config.tool_groups]
+    tool_groups_desc = "\n".join(f"- {g}" for g in group_names) or "- (none configured)"
+
+    # Installed enabled skills (name + first-line description)
+    user_id = get_effective_user_id()
+    skills_desc = "- (none installed)"
+    try:
+        storage = get_or_new_user_skill_storage(user_id, app_config=config)
+        installed_skills = storage.load_skills(enabled_only=True)
+        if installed_skills:
+            lines = []
+            for s in installed_skills:
+                first_line = (s.description or "").split("\n")[0].strip()
+                lines.append(f"- {s.name}: {first_line}")
+            skills_desc = "\n".join(lines)
+    except Exception:
+        logger.debug("Failed to load skills for suggestion prompt", exc_info=True)
+
+    # Available models
+    model_names = [m.name for m in config.models]
+    models_desc = "\n".join(f"- {m}" for m in model_names) or "- (none configured)"
+
+    return tool_groups_desc, skills_desc, models_desc
+
+
+@router.post(
+    "/agents/suggest",
+    response_model=AgentSuggestionResponse,
+    summary="Suggest Agent Configuration via AI",
+    description="Generate a complete agent configuration suggestion from a natural-language description using the default LLM.",
+)
+async def suggest_agent_config(body: AgentSuggestionRequest) -> AgentSuggestionResponse:
+    """Generate an agent configuration suggestion via AI.
+
+    Args:
+        body: The suggestion request with a natural-language description.
+
+    Returns:
+        AgentSuggestionResponse with all fields populated by the LLM.
+    """
+    _require_agents_api_enabled()
+
+    config = get_app_config()
+
+    # Collect context (tool groups, skills, models) off the event loop.
+    tool_groups_desc, skills_desc, models_desc = await asyncio.to_thread(
+        _build_suggestion_prompt_context, config
+    )
+
+    system_instruction = _SUGGEST_SYSTEM_INSTRUCTION.format(
+        tool_groups_desc=tool_groups_desc,
+        skills_desc=skills_desc,
+        models_desc=models_desc,
+    )
+    user_content = f"User description:\n{body.description}\n\nGenerate the agent configuration JSON."
+
+    try:
+        raw = await run_oneshot_llm(
+            system_instruction=system_instruction,
+            user_content=user_content,
+            run_name="suggest_agent_config",
+            app_config=config,
+            model_name=body.model_name,
+        )
+    except Exception as exc:
+        logger.error("Agent suggestion LLM call failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=502, detail=f"AI generation failed: {exc!s}") from exc
+
+    try:
+        parsed = _parse_suggestion_json(raw)
+    except (json.JSONDecodeError, ValueError) as exc:
+        logger.error("Failed to parse agent suggestion JSON: %s\nRaw: %s", exc, raw[:500])
+        raise HTTPException(status_code=502, detail="AI returned an unparseable response. Please try again.") from exc
+
+    # ── Validate and sanitize fields ──────────────────────────────────────
+    known_groups = {g.name for g in config.tool_groups}
+    known_models = {m.name for m in config.models}
+
+    # Load known skill names for filtering
+    known_skill_names: set[str] = set()
+    try:
+        user_id = get_effective_user_id()
+        installed = get_or_new_user_skill_storage(user_id, app_config=config).load_skills(enabled_only=True)
+        known_skill_names = {s.name for s in installed}
+    except Exception:
+        logger.debug("Failed to load skills for suggestion filtering", exc_info=True)
+
+    valid_roles = {"orchestrator", "worker", "reviewer"}
+
+    raw_name = str(parsed.get("name", "")).strip()
+    name = _sanitize_suggested_name(raw_name)
+
+    raw_groups = parsed.get("tool_groups")
+    tool_groups = [g for g in raw_groups if g in known_groups] if isinstance(raw_groups, list) else []
+
+    raw_skills = parsed.get("skills")
+    skills = [s for s in raw_skills if s in known_skill_names] if isinstance(raw_skills, list) else []
+
+    raw_disallowed = parsed.get("disallowed_tools")
+    disallowed_tools = [t for t in raw_disallowed if isinstance(t, str)] if isinstance(raw_disallowed, list) else []
+
+    raw_model = parsed.get("model")
+    model = raw_model if isinstance(raw_model, str) and raw_model in known_models else None
+
+    raw_role = parsed.get("role")
+    role = raw_role if isinstance(raw_role, str) and raw_role in valid_roles else "worker"
+
+    thinking_enabled = parsed.get("thinking_enabled") if isinstance(parsed.get("thinking_enabled"), (bool, type(None))) else None
+
+    raw_effort = parsed.get("reasoning_effort")
+    reasoning_effort = raw_effort if raw_effort in ("low", "medium", "high") else None
+
+    def _safe_int(key: str) -> int | None:
+        val = parsed.get(key)
+        if isinstance(val, (int, float)) and val > 0:
+            return int(val)
+        return None
+
+    max_turns = _safe_int("max_turns")
+    timeout_seconds = _safe_int("timeout_seconds")
+
+    return AgentSuggestionResponse(
+        name=name,
+        description=str(parsed.get("description", "")).strip(),
+        soul=str(parsed.get("soul", "")).strip(),
+        tool_groups=tool_groups,
+        disallowed_tools=disallowed_tools,
+        skills=skills,
+        model=model,
+        thinking_enabled=thinking_enabled,
+        reasoning_effort=reasoning_effort,
+        max_turns=max_turns,
+        timeout_seconds=timeout_seconds,
+        role=role,
+        rationale=str(parsed.get("rationale", "")).strip(),
+    )

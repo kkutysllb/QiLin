@@ -260,6 +260,9 @@ async def task_tool(
     - **bash**: Command execution specialist for running bash commands. This is only
       available when host bash is explicitly allowed or when using an isolated shell
       sandbox such as `AioSandboxProvider`.
+    - **reviewer**: A quality-assurance reviewer that validates the correctness,
+      completeness, and risk profile of other agents' output. Use as a final
+      verification step before synthesizing multi-agent results.
 
     Additional custom subagent types may be defined in config.yaml under
     `subagents.custom_agents`. Each custom type can have its own system prompt,

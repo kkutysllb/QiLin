@@ -311,6 +311,7 @@ def _build_available_subagents_description(available_names: list[str], bash_avai
         "bash": (
             "For command execution (git, build, test, deploy operations)" if bash_available else "Not available in the current sandbox configuration. Use direct file/web tools or switch to AioSandboxProvider for isolated shell access."
         ),
+        "reviewer": "For quality-assurance review of other agents' output - correctness checking, risk identification, completeness validation. Use as a final verification step before synthesizing multi-agent results.",
     }
 
     # Lazy import moved outside loop to avoid repeated import overhead

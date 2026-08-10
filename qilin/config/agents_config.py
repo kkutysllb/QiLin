@@ -210,6 +210,15 @@ class AgentConfig(BaseModel):
     # Per-agent reasoning-effort default for models that support it. None = do
     # not override (a request-supplied reasoning_effort still wins over this).
     reasoning_effort: Literal["low", "medium", "high"] | None = None
+    # Multi-agent orchestration fields (v2.0). These let a custom agent double
+    # as an orchestration worker / orchestrator / reviewer without needing a
+    # separate ``orchestration.workers`` entry.  All default to ``None`` /
+    # "worker" so existing agents are unaffected and continue to run as
+    # single-mode task-tool subagents.
+    max_turns: int | None = None
+    timeout_seconds: int | None = None
+    disallowed_tools: list[str] | None = None
+    role: str = "worker"  # orchestrator | worker | reviewer
     # Optional binding to GitHub repositories so this agent can respond to
     # webhook events from the gateway dispatcher. None means "no GitHub
     # integration", which is the case for every existing agent.
@@ -235,6 +244,10 @@ MANAGED_AGENT_CONFIG_FIELDS: frozenset[str] = frozenset(
         "model_settings",
         "thinking_enabled",
         "reasoning_effort",
+        "max_turns",
+        "timeout_seconds",
+        "disallowed_tools",
+        "role",
     }
 )
 

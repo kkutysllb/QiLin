@@ -16,6 +16,7 @@
 - **内置子代理**：
   - `general_purpose`：通用 research / write 子代理
   - `bash_agent`：受 sandbox 隔离的 Bash 执行子代理
+  - `reviewer`：只读质量审查子代理，校验其他代理产出的正确性与完整性
 - **状态协议**：`status_contract.py` 与 `step_events.py` 标准化子代理状态机事件
 
 ### 关键文件
@@ -30,6 +31,7 @@
 | `subagents/step_events.py` | Step 事件协议 |
 | `subagents/builtins/general_purpose.py` | 内置通用子代理 |
 | `subagents/builtins/bash_agent.py` | 内置 Bash 子代理 |
+| `subagents/builtins/reviewer.py` | 内置审查子代理 |
 
 ### 设计要点
 
@@ -79,7 +81,7 @@ registry.register("my_agent", SubagentConfig(
 - **Executor** — `SubagentExecutor` handles scheduling, cancellation, token accounting, step-event reporting
 - **Registry** — `registry.py` maintains name → config mapping
 - **Config resolution** — `config.py` + `resolve_subagent_model_name()` resolve `name:model` specs
-- **Built-in sub-agents** — `general_purpose` and `bash_agent`
+- **Built-in sub-agents** — `general_purpose`, `bash_agent`, and `reviewer` (read-only QA)
 - **Status protocol** — `status_contract.py` + `step_events.py` standardize state-machine events
 
 ### Key Files
@@ -94,6 +96,7 @@ registry.register("my_agent", SubagentConfig(
 | `subagents/step_events.py` | Step event protocol |
 | `subagents/builtins/general_purpose.py` | General-purpose sub-agent |
 | `subagents/builtins/bash_agent.py` | Bash sub-agent |
+| `subagents/builtins/reviewer.py` | Reviewer (QA) sub-agent |
 
 ### Design Highlights
 
