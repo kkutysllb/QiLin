@@ -1,7 +1,7 @@
 """Datasource credentials management router.
 
-Provides CRUD for financial data API credentials (Tushare, iWencai, Sina
-Finance). Credentials are persisted to the user data space ``.env`` file and
+Provides CRUD for financial data API credentials (Tushare, iWencai).
+Credentials are persisted to the user data space ``.env`` file and
 injected into ``os.environ`` so agent skill scripts and MCP servers can read
 them via ``os.environ``.
 
@@ -51,14 +51,6 @@ _DATASOURCES: list[dict[str, Any]] = [
         "placeholder": "输入问财 API Key",
         "test_method": "iwencai",
     },
-    {
-        "key": "X_AUTH_TOKEN",
-        "display_name": "新浪财经",
-        "description": "新浪财经数据 API Token（mcp.finance.sina.com.cn），zm-* 系列金融技能依赖此凭证获取实时行情、财务数据等。",
-        "secret": True,
-        "placeholder": "输入新浪财经 X-Auth-Token",
-        "test_method": "sina",
-    },
 ]
 
 _DATASOURCE_KEYS = {ds["key"] for ds in _DATASOURCES}
@@ -94,6 +86,21 @@ class DatasourceTestRequest(BaseModel):
 class TestResult(BaseModel):
     success: bool
     message: str
+
+
+class EnvKeyItem(BaseModel):
+    """A single key from the user ``.env`` file (value never exposed)."""
+
+    key: str
+    configured: bool
+    is_secret: bool
+
+
+class EnvKeysResponse(BaseModel):
+    """All keys defined in the user ``.env`` file."""
+
+    keys: list[EnvKeyItem]
+    env_file: str
 
 
 # ── .env file helpers ───────────────────────────────────────────────────
@@ -155,6 +162,36 @@ def _write_env_value(env_path: Path, key: str, value: str) -> None:
 
 def _is_masked(v: str) -> bool:
     return v.endswith(_MASK_SUFFIX) or v == _MASK_SUFFIX
+
+
+# Regex matching a ``KEY=value`` line (comments / blanks excluded).
+_ENV_KEY_RE = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$")
+
+# Heuristic: variable names that look like they hold a secret. Mirrors the
+# ``*KEY*`` / ``*TOKEN*`` / ``*SECRET*`` / ``*PASS*`` scrub patterns in
+# ``qilin.sandbox.env_policy`` so the UI flag is consistent with the sandbox.
+_SECRET_RE = re.compile(r"(KEY|TOKEN|SECRET|PASS|CREDENTIAL)", re.IGNORECASE)
+
+
+def _scan_env_keys(env_path: Path) -> list[str]:
+    """Return every key defined in the ``.env`` file (values excluded)."""
+    if not env_path.exists():
+        return []
+    keys: list[str] = []
+    seen: set[str] = set()
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        m = _ENV_KEY_RE.match(line)
+        if not m:
+            continue
+        key = m.group(1)
+        value = m.group(2).strip()
+        # Strip surrounding quotes to check if the value is non-empty.
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        if value and key not in seen:
+            keys.append(key)
+            seen.add(key)
+    return keys
 
 
 # ── Endpoints ───────────────────────────────────────────────────────────
@@ -251,8 +288,6 @@ async def test_datasource(body: DatasourceTestRequest, request: Request) -> Test
         return await _test_tushare(test_value)
     elif method == "iwencai":
         return await _test_iwencai(test_value)
-    elif method == "sina":
-        return await _test_sina(test_value)
     else:
         # For datasources without a specific test method, just verify the value exists
         return TestResult(success=True, message=f"{body.key} 凭证已配置。")
@@ -318,21 +353,27 @@ async def _test_iwencai(api_key: str) -> TestResult:
         return TestResult(success=False, message=f"连接失败：{e}")
 
 
-async def _test_sina(token: str) -> TestResult:
-    """Test Sina Finance API X-Auth-Token (used by zm-* skills)."""
-    import httpx
+@router.get("/env-keys", response_model=EnvKeysResponse, summary="List .env Keys")
+async def list_env_keys(request: Request) -> EnvKeysResponse:
+    """Return every key defined in the user ``.env`` file.
 
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                "https://mcp.finance.sina.com.cn/api-call/globalStockQuoteRealtime",
-                headers={"X-Auth-Token": token},
-                params={"market": "cn", "symbol": "sh000001"},
+    Values are never exposed — only the key name, whether it has a non-empty
+    value (``configured``), and whether it looks like a secret (``is_secret``).
+    The sandbox settings UI uses this to render the credential-passthrough
+    toggle list.
+    """
+    await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
+
+    env_path = _resolve_env_file_path()
+    raw_keys = _scan_env_keys(env_path)
+    items: list[EnvKeyItem] = []
+    for key in raw_keys:
+        value = _read_env_value(env_path, key) or os.environ.get(key, "")
+        items.append(
+            EnvKeyItem(
+                key=key,
+                configured=bool(value),
+                is_secret=bool(_SECRET_RE.search(key)),
             )
-            if resp.status_code == 200:
-                return TestResult(success=True, message="新浪财经 API 连接成功。")
-            if resp.status_code in (401, 403):
-                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 Token。")
-            return TestResult(success=False, message=f"新浪财经 API 返回 HTTP {resp.status_code}")
-    except Exception as e:
-        return TestResult(success=False, message=f"连接失败：{e}")
+        )
+    return EnvKeysResponse(keys=items, env_file=str(env_path))
