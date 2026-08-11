@@ -495,8 +495,37 @@ class MemoryManager(BaseModel):
         return
 
 
-# ── Backend discovery (drop-in) ───────────────────────────────────────────
-def _scan_backends() -> dict[str, type[MemoryManager]]:
+# ── Backend discovery (drop-in) ────────────────────────────────────────
+# Built-in backend folder names. Used as a fallback when pkgutil.iter_modules
+# cannot enumerate subpackages from a PyInstaller PYZ archive (known edge case
+# in frozen desktop builds where __path__ points into the virtual PYZ filesystem).
+_BUILTIN_BACKEND_NAMES = ("mem0", "noop", "openviking", "qilinmem")
+
+
+def _try_register_backend(
+    registry: dict[str, type["MemoryManager"]], name: str
+) -> None:
+    """Import a backend by folder name and register it if valid."""
+    dotted = f"qilin.agents.memory.backends.{name}"
+    try:
+        module: ModuleType = importlib.import_module(dotted)
+    except Exception:
+        logger.exception("Failed to import memory backend %r; skipping", name)
+        return
+    cls = getattr(module, _MANAGER_CLASS_ATTR, None)
+    if cls is None:
+        return
+    if not (isinstance(cls, type) and issubclass(cls, MemoryManager)):
+        logger.warning(
+            "Memory backend %r exposes MANAGER_CLASS=%r which is not a MemoryManager subclass; skipping",
+            name,
+            cls,
+        )
+        return
+    registry[name] = cls
+
+
+def _scan_backends() -> dict[str, type["MemoryManager"]]:
     """Discover pluggable backends under ``backends/<name>/``.
 
     Each subpackage that exposes a ``MANAGER_CLASS`` attribute (a
@@ -506,10 +535,10 @@ def _scan_backends() -> dict[str, type[MemoryManager]]:
     to import is logged and skipped so a broken optional backend never breaks
     the factory.
 
-    Uses :func:`pkgutil.iter_modules` instead of ``Path.iterdir`` so that
-    backends bundled inside a PyInstaller PYZ archive (frozen desktop build)
-    are still discoverable — the filesystem ``backends/`` directory does not
-    exist in that case, but the modules live in the import system.
+    Uses :func:`pkgutil.iter_modules` for dynamic discovery. As a fallback for
+    frozen builds (PyInstaller) where ``pkgutil.iter_modules`` may not enumerate
+    all subpackages from the PYZ archive, the known built-in backend names are
+    tried directly via :func:`importlib.import_module`.
     """
     global _backends_cache
     if _backends_cache is not None:
@@ -525,26 +554,19 @@ def _scan_backends() -> dict[str, type[MemoryManager]]:
         _backends_cache = registry
         return registry
 
+    # Primary discovery: pkgutil.iter_modules over the backends package path.
     for _importer, name, ispkg in pkgutil.iter_modules(_backends_pkg.__path__):
         if not ispkg or name.startswith(("_", ".")):
             continue
-        dotted = f"qilin.agents.memory.backends.{name}"
-        try:
-            module: ModuleType = importlib.import_module(dotted)
-        except Exception:
-            logger.exception("Failed to import memory backend %r; skipping", name)
+        if name in registry:
             continue
-        cls = getattr(module, _MANAGER_CLASS_ATTR, None)
-        if cls is None:
-            continue
-        if not (isinstance(cls, type) and issubclass(cls, MemoryManager)):
-            logger.warning(
-                "Memory backend %r exposes MANAGER_CLASS=%r which is not a MemoryManager subclass; skipping",
-                name,
-                cls,
-            )
-            continue
-        registry[name] = cls
+        _try_register_backend(registry, name)
+
+    # Fallback for frozen builds: pkgutil.iter_modules may miss subpackages
+    # inside a PyInstaller PYZ archive. Try known built-in names directly.
+    for name in _BUILTIN_BACKEND_NAMES:
+        if name not in registry:
+            _try_register_backend(registry, name)
 
     _backends_cache = registry
     return registry
