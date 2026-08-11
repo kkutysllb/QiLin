@@ -110,8 +110,15 @@ def _normalize_origin(origin: str) -> str | None:
 
 
 def _configured_cors_origins() -> set[str]:
-    """Return explicit configured browser origins that may call auth routes."""
-    origins = set()
+    """Return explicit configured browser origins that may call auth routes.
+
+    Standard http/https origins are validated and normalized by
+    ``_normalize_origin``. Non-standard schemes (e.g. ``app://-`` used by
+    Electron packaged builds) are passed through as-is — CORSMiddleware only
+    needs an exact string match against the ``Origin`` request header, and
+    rejecting them here would silently break cross-scheme desktop builds.
+    """
+    origins: set[str] = set()
     for raw_origin in os.environ.get("GATEWAY_CORS_ORIGINS", "").split(","):
         origin = raw_origin.strip()
         if not origin or origin == "*":
@@ -119,6 +126,10 @@ def _configured_cors_origins() -> set[str]:
         normalized = _normalize_origin(origin)
         if normalized:
             origins.add(normalized)
+        else:
+            # Non-standard scheme (e.g. app://-) — pass through verbatim so
+            # CORSMiddleware can still match it against the Origin header.
+            origins.add(origin)
     return origins
 
 

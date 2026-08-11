@@ -505,26 +505,34 @@ def _scan_backends() -> dict[str, type[MemoryManager]]:
     ``manager_class`` config value (drop-in contract). A backend that fails
     to import is logged and skipped so a broken optional backend never breaks
     the factory.
+
+    Uses :func:`pkgutil.iter_modules` instead of ``Path.iterdir`` so that
+    backends bundled inside a PyInstaller PYZ archive (frozen desktop build)
+    are still discoverable — the filesystem ``backends/`` directory does not
+    exist in that case, but the modules live in the import system.
     """
     global _backends_cache
     if _backends_cache is not None:
         return _backends_cache
 
     registry: dict[str, type[MemoryManager]] = {}
-    if not _BACKENDS_DIR.is_dir():
+
+    import pkgutil
+
+    try:
+        import qilin.agents.memory.backends as _backends_pkg
+    except ImportError:
         _backends_cache = registry
         return registry
 
-    for entry in sorted(_BACKENDS_DIR.iterdir()):
-        if not entry.is_dir() or entry.name.startswith(("_", ".")):
+    for _importer, name, ispkg in pkgutil.iter_modules(_backends_pkg.__path__):
+        if not ispkg or name.startswith(("_", ".")):
             continue
-        if not (entry / "__init__.py").is_file():
-            continue
-        dotted = f"qilin.agents.memory.backends.{entry.name}"
+        dotted = f"qilin.agents.memory.backends.{name}"
         try:
             module: ModuleType = importlib.import_module(dotted)
         except Exception:
-            logger.exception("Failed to import memory backend %r; skipping", entry.name)
+            logger.exception("Failed to import memory backend %r; skipping", name)
             continue
         cls = getattr(module, _MANAGER_CLASS_ATTR, None)
         if cls is None:
@@ -532,11 +540,11 @@ def _scan_backends() -> dict[str, type[MemoryManager]]:
         if not (isinstance(cls, type) and issubclass(cls, MemoryManager)):
             logger.warning(
                 "Memory backend %r exposes MANAGER_CLASS=%r which is not a MemoryManager subclass; skipping",
-                entry.name,
+                name,
                 cls,
             )
             continue
-        registry[entry.name] = cls
+        registry[name] = cls
 
     _backends_cache = registry
     return registry
