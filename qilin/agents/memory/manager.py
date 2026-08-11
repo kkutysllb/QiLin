@@ -673,6 +673,16 @@ def _host_default_llm() -> Any:
         from qilin.models import create_chat_model
 
         return create_chat_model(name=None)
+    except ValueError as exc:
+        # "No models are configured" is expected on first boot before the
+        # user adds a model via Settings UI.  Log a concise WARNING without
+        # the full traceback (which is noisy and looks like a crash).
+        logger.warning(
+            "Memory extraction disabled — no default model available: %s. "
+            "Add a model in Settings to enable long-term memory.",
+            exc,
+        )
+        return None
     except Exception:
         logger.warning("Could not build host default model for QiLinMem memory extraction; memory extraction will be disabled", exc_info=True)
         return None
