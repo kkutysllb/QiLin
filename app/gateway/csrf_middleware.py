@@ -197,12 +197,19 @@ def is_allowed_auth_origin(request: Request) -> bool:
     if not origin:
         return True
 
+    # Fast path: check the raw origin against configured CORS origins first.
+    # This covers non-standard schemes (e.g. ``app://-`` from Electron packaged
+    # builds) that _normalize_origin would reject (it only accepts http/https).
+    configured = _configured_cors_origins()
+    if origin in configured:
+        return True
+
     normalized_origin = _normalize_origin(origin)
     if normalized_origin is None:
         return False
 
     request_origin = _request_origin(request)
-    return normalized_origin in _configured_cors_origins() or (request_origin is not None and normalized_origin == request_origin)
+    return normalized_origin in configured or (request_origin is not None and normalized_origin == request_origin)
 
 
 def auth_csrf_cookie_settings(request: Request) -> tuple[bool, int | None]:
