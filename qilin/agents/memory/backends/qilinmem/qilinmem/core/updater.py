@@ -15,6 +15,12 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from ..config import QiLinMemConfig
+from .lexical import (
+    exact_match_key,
+    find_duplicate,
+    find_prepared_duplicate,
+    token_set,
+)
 from .message_processing import detect_signals, extract_message_text
 from .prompt import (
     format_conversation_for_update,
@@ -363,13 +369,30 @@ def _strip_upload_mentions_from_memory(memory_data: dict[str, Any]) -> dict[str,
     return memory_data
 
 
-def _fact_content_key(content: Any) -> str | None:
-    if not isinstance(content, str):
-        return None
-    stripped = content.strip()
-    if not stripped:
-        return None
-    return stripped.casefold()
+def _merge_duplicate_fact(
+    existing_fact: dict[str, Any],
+    new_content: str,
+    new_confidence: float,
+) -> dict[str, Any] | None:
+    """Merge a near-duplicate write into ``existing_fact``; return the merged copy.
+
+    Richer text wins (more normalized tokens; ties keep the stored content) and
+    confidence takes the maximum, so restating a near-identical fact can only
+    refine the stored one -- it can never lose information or lower confidence.
+    Returns ``None`` when nothing material changes; the caller then skips the
+    write entirely (storage would keep the fact byte-identical, so timestamps
+    and the revision must not move either).
+    """
+    merged = copy.deepcopy(existing_fact)
+    changed = False
+    existing_content = str(existing_fact.get("content") or "")
+    if len(exact_match_key(new_content)) > len(exact_match_key(existing_content)):
+        merged["content"] = new_content
+        changed = True
+    if new_confidence > _coerce_source_confidence(existing_fact):
+        merged["confidence"] = float(new_confidence)
+        changed = True
+    return merged if changed else None
 
 
 # ── Staleness review helpers ──────────────────────────────────────────────
@@ -815,6 +838,16 @@ class MemoryUpdater:
         "added" status. This restores both the max_facts cap and the post-trim
         existence check (upstream's ``create_memory_fact_with_created_fact``),
         which the vendored copy had dropped together to avoid the dangling id.
+
+        Dedup-on-write runs before any insert: the stored facts are checked for
+        an exact normalized match (case/diacritic/punctuation-insensitive; see
+        ``core.lexical.exact_match_key``) and for a near duplicate
+        at/above ``dedup_similarity_threshold``. An exact duplicate is skipped
+        -- ``(memory, existing_fact_id)`` is returned without a write. A near
+        duplicate merges into the existing fact via
+        :meth:`_write_duplicate_merge` (richer text wins, confidence max;
+        storage bumps revision/updatedAt only when something material changed)
+        and also returns the existing fact's id.
         """
         if agent_name is None:
             raise ValueError("agent_name")
@@ -836,6 +869,16 @@ class MemoryUpdater:
         if getattr(type(self._storage), "apply_changes", None) is not MemoryStorage.apply_changes:
             for attempt in range(3):
                 memory_data = self.get_memory_data(agent_name, user_id=user_id) if attempt == 0 else self.reload_memory_data(agent_name, user_id=user_id)
+                duplicate, _action = find_duplicate(normalized_content, memory_data.get("facts", []), near_threshold=self._config.dedup_similarity_threshold)
+                if duplicate is not None:
+                    return self._write_duplicate_merge(
+                        duplicate,
+                        normalized_content,
+                        validated_confidence,
+                        memory_data=memory_data,
+                        agent_name=agent_name,
+                        user_id=user_id,
+                    )
                 updated_memory = dict(memory_data)
                 updated_memory["facts"] = _trim_facts_to_max([*memory_data.get("facts", []), copy.deepcopy(candidate)], self._config.max_facts)
                 kept_ids = {str(fact.get("id")) for fact in updated_memory["facts"]}
@@ -861,6 +904,16 @@ class MemoryUpdater:
                     logger.info("Retrying capped fact creation from a fresh snapshot after a revision conflict")
             raise AssertionError("bounded create retry did not return or raise")
         memory_data = self.get_memory_data(agent_name, user_id=user_id)
+        duplicate, _action = find_duplicate(normalized_content, memory_data.get("facts", []), near_threshold=self._config.dedup_similarity_threshold)
+        if duplicate is not None:
+            return self._write_duplicate_merge(
+                duplicate,
+                normalized_content,
+                validated_confidence,
+                memory_data=memory_data,
+                agent_name=agent_name,
+                user_id=user_id,
+            )
         updated_memory = dict(memory_data)
         updated_memory["facts"] = _trim_facts_to_max([*memory_data.get("facts", []), candidate], self._config.max_facts)
         if not self._save_memory_to_file(updated_memory, agent_name, user_id=user_id, expected_revision=int(memory_data.get("revision") or 0)):
@@ -869,6 +922,47 @@ class MemoryUpdater:
         # None so callers don't report a dangling id as "added".
         stored = any(f.get("id") == fact_id for f in updated_memory["facts"])
         return updated_memory, (fact_id if stored else None)
+
+    def _write_duplicate_merge(
+        self,
+        duplicate: dict[str, Any],
+        new_content: str,
+        new_confidence: float,
+        *,
+        memory_data: dict[str, Any],
+        agent_name: str,
+        user_id: str | None,
+    ) -> tuple[dict[str, Any], str | None]:
+        """Persist (or skip) a duplicate write against ``duplicate``; return ``(memory, fact_id)``.
+
+        Exact duplicates and near-duplicates whose merge changes nothing
+        material are pure reads -- the stored fact is returned untouched, so
+        re-adding a known fact does not move its ``updatedAt``/``revision``.
+        A material merge is committed on the storage's preferred path
+        (``apply_changes`` upsert with the fact's current revision, or a full
+        save for minimal storage providers); storage normalization then bumps
+        ``revision`` and ``updatedAt``. The returned fact id is always the
+        EXISTING fact's id -- callers treat a duplicate add as "already known"
+        rather than "new fact added".
+        """
+        fact_id = str(duplicate.get("id"))
+        merged = _merge_duplicate_fact(duplicate, new_content, new_confidence)
+        if merged is None:
+            return memory_data, fact_id
+        if getattr(type(self._storage), "apply_changes", None) is not MemoryStorage.apply_changes:
+            self._storage.apply_changes(
+                {"upserts": [merged], "upsertRevisions": {fact_id: int(duplicate.get("revision") or 1)}},
+                agent_name=agent_name,
+                user_id=user_id,
+                expected_manifest_revision=int(memory_data.get("revision") or 0),
+                allow_manifest_rebase=True,
+            )
+            return self.reload_memory_data(agent_name, user_id=user_id), fact_id
+        updated_memory = dict(memory_data)
+        updated_memory["facts"] = [merged if str(fact.get("id")) == fact_id else fact for fact in memory_data.get("facts", [])]
+        if not self._save_memory_to_file(updated_memory, agent_name, user_id=user_id, expected_revision=int(memory_data.get("revision") or 0)):
+            raise OSError("Failed to save memory data after merging duplicate fact")
+        return updated_memory, fact_id
 
     def delete_memory_fact(self, fact_id: str, agent_name: str | None = None, *, user_id: str | None = None) -> dict[str, Any]:
         """Delete a fact by its id and persist the updated memory data."""
@@ -1629,8 +1723,19 @@ class MemoryUpdater:
                         updated_facts.append(fact)
                     current_memory["facts"] = updated_facts
 
-        # Add new facts
-        existing_fact_keys = {fact_key for fact_key in (_fact_content_key(fact.get("content")) for fact in current_memory.get("facts", [])) if fact_key is not None}
+        # Add new facts. Dedup-on-write: each candidate is checked against the
+        # stored facts (and facts appended earlier in this same batch) for an
+        # EXACT normalized match (case/diacritic/punctuation-insensitive --
+        # skip; the stored fact already carries it) or a NEAR duplicate at/above
+        # ``dedup_similarity_threshold`` (merge into the stored fact: richer
+        # text wins, confidence max; storage bumps revision/updatedAt on commit
+        # because the merged fact differs materially). Only genuinely new facts
+        # append. This generalizes the historical casefold-content-key check.
+        prepared_facts = [
+            (fact, exact_match_key(str(fact.get("content", ""))), token_set(str(fact.get("content", ""))))
+            for fact in current_memory.get("facts", [])
+            if isinstance(fact, dict)
+        ]
         new_facts = update_data.get("newFacts", [])
         # Creation-time lifetime cap shared with the consolidation path below, so
         # both fact-creation sites apply the identical bound in one place.
@@ -1643,6 +1748,7 @@ class MemoryUpdater:
         # signal (the host's rejection-rate warning monitors confidence
         # filtering, not dedup / over-cap), not a persisted-fact count.
         passed_threshold = 0
+        near_duplicate_merges = 0
         for fact in new_facts:
             confidence = fact.get("confidence", 0.5)
             if confidence >= config.fact_confidence_threshold:
@@ -1651,13 +1757,32 @@ class MemoryUpdater:
                 if not isinstance(raw_content, str):
                     continue
                 normalized_content = raw_content.strip()
-                fact_key = _fact_content_key(normalized_content)
-                if fact_key is None:
-                    # Empty / whitespace-only content: skip it the same way the
-                    # non-string guard above does, instead of appending a blank
-                    # fact that violates the non-empty-content invariant.
+                content_key = exact_match_key(normalized_content)
+                if not content_key:
+                    # Empty / whitespace-only (or punctuation-only) content: skip
+                    # it the same way the non-string guard above does, instead of
+                    # appending a blank fact that violates the non-empty-content
+                    # invariant.
                     continue
-                if fact_key in existing_fact_keys:
+                duplicate, action = find_prepared_duplicate(
+                    content_key,
+                    token_set(normalized_content),
+                    prepared_facts,
+                    near_threshold=config.dedup_similarity_threshold,
+                )
+                if duplicate is not None:
+                    if action == "exact":
+                        continue
+                    merged = _merge_duplicate_fact(duplicate, normalized_content, confidence)
+                    if merged is not None:
+                        duplicate_id = str(duplicate.get("id"))
+                        current_memory["facts"] = [merged if str(stored.get("id")) == duplicate_id else stored for stored in current_memory["facts"]]
+                        for index, (prepared_fact, _key, _tokens) in enumerate(prepared_facts):
+                            if str(prepared_fact.get("id")) == duplicate_id:
+                                prepared_facts[index] = (merged, exact_match_key(str(merged.get("content") or "")), token_set(str(merged.get("content") or "")))
+                                break
+                        near_duplicate_merges += 1
+                        logger.info("Merged near-duplicate memory fact into existing fact %s", duplicate_id)
                     continue
 
                 fact_entry = {
@@ -1682,12 +1807,12 @@ class MemoryUpdater:
                     # deliberate review decision, not an unchecked initial assignment.
                     fact_entry["expected_valid_days"] = min(evd, creation_cap)
                 current_memory["facts"].append(fact_entry)
-                if fact_key is not None:
-                    existing_fact_keys.add(fact_key)
+                prepared_facts.append((fact_entry, content_key, token_set(normalized_content)))
 
         if metrics is not None:
             metrics["facts_passed_confidence"] = passed_threshold
             metrics["rejected_low_confidence"] = len(new_facts) - passed_threshold
+            metrics["facts_merged_near_duplicate"] = near_duplicate_merges
 
         # Enforce max facts limit (coerced confidence -- see _trim_facts_to_max).
         current_memory["facts"] = _trim_facts_to_max(current_memory["facts"], config.max_facts)

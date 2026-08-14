@@ -92,6 +92,20 @@ class QiLinMemConfig(BaseModel):
         le=1.0,
         description="Minimum confidence threshold for storing facts.",
     )
+    dedup_similarity_threshold: float = Field(
+        default=0.85,
+        ge=0.5,
+        le=1.0,
+        description=(
+            "Dice token-set similarity at which a fact being written counts as a "
+            "near-duplicate of an existing fact (exact normalized-text matches "
+            "always dedup regardless of this value). Identical/near-duplicate "
+            "facts are not stored twice: identical is skipped (the existing fact "
+            "id is returned), near-duplicates merge into the existing fact "
+            "(richer text wins, confidence takes the max, timestamps update). "
+            "1.0 disables near-duplicate merging (exact matches only)."
+        ),
+    )
     # ── Injection ────────────────────────────────────────────────────────
     max_injection_tokens: int = Field(
         default=2000,

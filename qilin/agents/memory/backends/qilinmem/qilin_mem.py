@@ -36,6 +36,7 @@ from qilin.agents.memory.manager import (
 )
 
 from .qilinmem.config import QiLinMemConfig
+from .qilinmem.core.lexical import fact_recency, rank_facts
 from .qilinmem.core.llm import build_llm
 from .qilinmem.core.message_processing import (
     SIGNAL_NAMES,
@@ -57,9 +58,16 @@ from .qilinmem.core.storage import (
     MemoryStorageCorruption,
     create_storage,
 )
-from .qilinmem.core.updater import MemoryUpdater, _coerce_source_confidence
+from .qilinmem.core.updater import MemoryUpdater
 
 logger = logging.getLogger(__name__)
+
+# Reciprocal-rank-fusion constant (Cormack et al.): the classic k=60 dampens
+# the influence of any single list's rank positions so a fact's consensus
+# across BOTH retrieval paths -- not one path's raw score magnitude -- drives
+# the fused order. Scale-free, so FTS5's unbounded BM25-based score and the
+# normalized lexical score combine without calibration.
+_RRF_K = 60
 
 
 def _resolve_agent_name(agent_name: str | None) -> str:
@@ -103,6 +111,45 @@ def _compat_document(memory_data: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _fuse_ranked_results(ranked_lists: list[list[dict[str, Any]]], *, top_k: int) -> list[dict[str, Any]]:
+    """Fuse best-first ranked fact lists via reciprocal rank fusion (RRF).
+
+    Each input list is already relevance-ordered (FTS5 BM25-based, lexical).
+    ``fused(id) = Σ 1 / (_RRF_K + rank)`` over every list containing the fact,
+    so a fact matched by both paths outranks a fact matched by one even at a
+    better per-list position. The winning representation is the first list's
+    copy (same fact id; fields only differ by the per-path score/matchType,
+    which are overwritten with the fused score). Ties resolve by the stronger
+    lexical score, then recency, then fact id -- deterministic across runs.
+    """
+    fused_facts: dict[str, dict[str, Any]] = {}
+    fused_scores: dict[str, float] = {}
+    best_lexical_scores: dict[str, float] = {}
+    for ranked in ranked_lists:
+        for rank, fact in enumerate(ranked):
+            fact_id = str(fact.get("id") or "")
+            if not fact_id:
+                continue
+            fused_scores[fact_id] = fused_scores.get(fact_id, 0.0) + 1.0 / (_RRF_K + rank)
+            fused_facts.setdefault(fact_id, dict(fact))
+            raw_score = fact.get("score")
+            if isinstance(raw_score, (int, float)) and not isinstance(raw_score, bool):
+                best_lexical_scores[fact_id] = max(best_lexical_scores.get(fact_id, 0.0), float(raw_score))
+    selected = sorted(
+        fused_facts.values(),
+        key=lambda fact: (
+            -fused_scores.get(str(fact.get("id") or ""), 0.0),
+            -best_lexical_scores.get(str(fact.get("id") or ""), 0.0),
+            -fact_recency(fact),
+            str(fact.get("id") or ""),
+        ),
+    )[:top_k]
+    for fact in selected:
+        fact_id = str(fact.get("id") or "")
+        fact["score"] = round(fused_scores.get(fact_id, 0.0), 6)
+    return selected
+
+
 class QiLinMem(MemoryManager):
     """Default memory backend: file-backed facts + debounced LLM extraction."""
 
@@ -117,10 +164,10 @@ class QiLinMem(MemoryManager):
     _queue: Any = PrivateAttr(default=None)
     _trivial_patterns: Any = PrivateAttr(default=None)
 
-    # QiLinMem implements search() (case-insensitive substring over stored facts),
-    # so it is valid for mode="tool" (the base invariant validator requires this
-    # for tool mode). Backends without real search inherit the False default and
-    # cannot be used with mode="tool".
+    # QiLinMem implements search() (hybrid FTS5 + lexical scoring over stored
+    # facts), so it is valid for mode="tool" (the base invariant validator
+    # requires this for tool mode). Backends without real search inherit the
+    # False default and cannot be used with mode="tool".
     supports_search: ClassVar[bool] = True
 
     def model_post_init(self, __context: Any) -> None:
@@ -344,18 +391,33 @@ class QiLinMem(MemoryManager):
         agent_name: str | None = None,
         category: str | None = None,
     ) -> list[dict[str, Any]]:
-        """Search through the configured retrieval adapter.
+        """Hybrid search: FTS5 BM25 + pure-Python lexical scoring, fused by RRF.
 
-        Retrieval errors never make canonical memory unavailable: the existing
-        case-insensitive substring path remains the last-resort fallback.
+        Two independent ranked lists are produced for the requested scope:
+
+        1. The FTS5 retrieval adapter (when configured) -- BM25 over the
+           tokenized index with time-decay + confidence weighting.
+        2. A lexical pass (:meth:`_lexical_search`) directly over the bucket's
+           stored facts -- exact/substring containment plus case/diacritic-
+           insensitive IDF-weighted token overlap with soft length
+           normalization and recency tie-breaking.
+
+        Fusing both (reciprocal rank fusion) keeps each path's blind spots from
+        becoming the search's blind spots: partial-word substrings ("postgres"
+        inside "PostgreSQL") that the tokenized FTS5 index misses still rank,
+        and FTS5's CJK/jieba matches survive when the lexical pass is weak.
+        Facts found by BOTH lists outrank facts found by one. Every returned
+        fact carries a relevance ``score`` (the fused rank score) and a
+        ``matchType``. Retrieval errors never make canonical memory
+        unavailable: a failing path contributes an empty list, and with no
+        adapter at all the lexical list is the complete result.
         """
         if not query or not query.strip() or top_k <= 0:
             return []
         resolved_agent_name = _resolve_agent_name(agent_name)
-        indexed = self._fts5_search(query, top_k=top_k, user_id=user_id, agent_name=resolved_agent_name, category=category)
-        if indexed:
-            return indexed
-        return self._substring_search(query, top_k=top_k, user_id=user_id, agent_name=resolved_agent_name, category=category)
+        fts5_ranked = self._fts5_search(query, top_k=top_k, user_id=user_id, agent_name=resolved_agent_name, category=category)
+        lexical_ranked = self._lexical_search(query, top_k=top_k, user_id=user_id, agent_name=resolved_agent_name, category=category)
+        return _fuse_ranked_results([fts5_ranked, lexical_ranked], top_k=top_k)
 
     def _fts5_search(
         self,
@@ -366,8 +428,17 @@ class QiLinMem(MemoryManager):
         agent_name: str | None,
         category: str | None,
     ) -> list[dict[str, Any]]:
-        """Return adapter results in the public fact shape (compatibility helper)."""
+        """Return adapter results in the public fact shape, keeping each score.
+
+        With no retrieval adapter configured this returns ``[]`` up front:
+        storage's internal substring fallback would be a strict subset of the
+        lexical pass (and ranked only by confidence), so feeding it into the
+        fusion could only distort the lexical ordering, never improve it.
+        """
         agent_name = _resolve_agent_name(agent_name)
+        status = getattr(self._storage, "retrieval_status", None)
+        if callable(status) and not status().get("configured", False):
+            return []
         search_facts = getattr(self._storage, "search_facts", None)
         scopes = [{"userId": user_id, "agentName": agent_name}]
         try:
@@ -384,14 +455,26 @@ class QiLinMem(MemoryManager):
                 else []
             )
         except Exception:
-            logger.exception("Memory retrieval adapter failed; using substring fallback")
+            logger.exception("Memory retrieval adapter failed; using lexical scoring only")
             indexed = []
-        if indexed:
-            return [_compat_document({"facts": [result.get("fact", result)]})["facts"][0] for result in indexed]
+        if not indexed:
+            return []
+        scored: list[dict[str, Any]] = []
+        for result in indexed:
+            fact = result.get("fact", result) if isinstance(result, dict) else result
+            if not isinstance(fact, dict):
+                continue
+            fact = dict(fact)
+            fact["score"] = float(result.get("score", 0.0) or 0.0) if isinstance(result, dict) else 0.0
+            # The adapter labels its results ("fts5"); storage's own substring
+            # fallback (used when no adapter is configured or a rebuild failed)
+            # labels its "substring". Pass the label through instead of
+            # misreporting every adapter-path result as indexed.
+            fact["matchType"] = str(result.get("matchType") or "fts5") if isinstance(result, dict) else "fts5"
+            scored.append(fact)
+        return _compat_document({"facts": scored})["facts"]
 
-        return []
-
-    def _substring_search(
+    def _lexical_search(
         self,
         query: str,
         *,
@@ -400,11 +483,24 @@ class QiLinMem(MemoryManager):
         agent_name: str | None,
         category: str | None,
     ) -> list[dict[str, Any]]:
-        query_lower = query.strip().lower()
+        """Hybrid lexical scoring directly over the bucket's stored facts.
+
+        Replaces the historical case-insensitive substring fallback: substring
+        containment is now one component (boosted above token overlap, below
+        exact equality) of a scored ranking that also weighs IDF-weighted token
+        overlap, document length, confidence, and recency. Because it reads the
+        canonical facts (not the rebuildable index), it also serves as the
+        complete result path when no retrieval adapter is configured.
+        """
         memory_data = _call_backend(lambda: self._updater.get_memory_data(agent_name=agent_name, user_id=user_id))
-        matched = [fact for fact in memory_data.get("facts", []) if isinstance(fact.get("content"), str) and query_lower in fact["content"].lower() and (category is None or fact.get("category") == category)]
-        matched.sort(key=_coerce_source_confidence, reverse=True)
-        return _compat_document({"facts": matched[:top_k]})["facts"]
+        ranked = rank_facts(query, memory_data.get("facts", []), top_k=top_k, category=category)
+        scored = []
+        for fact, score, match_type in ranked:
+            item = dict(fact)
+            item["score"] = score
+            item["matchType"] = match_type
+            scored.append(item)
+        return _compat_document({"facts": scored})["facts"]
 
     def _ensure_retrieval_scopes(self, scopes: list[dict[str, str | None]]) -> None:
         """Lazily rebuild every requested scope when warm-up was skipped."""
