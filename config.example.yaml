@@ -874,6 +874,38 @@ tools:
   #   group: browser
   #   use: qilin.community.browser_automation.tools:browser_close_tool
 
+  # Native read-only browser tools (shared headless Chromium via Playwright).
+  # One-shot alternatives to the agentic block above: each call takes a URL and
+  # returns a result, with no interactive session kept between calls.
+  #   - browser_navigate   → page title + HTTP status + final URL
+  #   - browser_read_page  → visible page text (truncated at max_chars)
+  #   - browser_screenshot → PNG saved to the thread's outputs, path returned
+  # Requires the same optional dependency as the agentic tools:
+  #   cd backend && uv sync --extra browser && uv run playwright install chromium
+  # Launch settings (headless/viewport/timeouts/proxy) are read canonically
+  # from browser_navigate and shared by all three tools. The tools stay
+  # registered and return a clear error when Playwright is not installed.
+  # NOTE: only one browser_navigate/browser_screenshot provider can be active
+  # at a time — keep the agentic block above commented when enabling these.
+  - name: browser_navigate
+    group: browser
+    use: qilin.tools.builtins.browser_tools:browser_navigate_tool
+    headless: true                   # Set false only for local, trusted debugging
+    timeout_ms: 30000                # Hard navigation timeout (domcontentloaded)
+    network_idle_timeout_ms: 5000    # Best-effort settle wait after load
+    viewport_width: 1280
+    viewport_height: 720
+    # allow_private_addresses: false # SSRF guard: keep false in production.
+    #                                 # Or set env QILIN_BROWSER_ALLOW_PRIVATE_ADDRESSES=true
+  - name: browser_read_page
+    group: browser
+    use: qilin.tools.builtins.browser_tools:browser_read_page_tool
+    max_chars: 20000                 # Truncation cap for extracted text
+  - name: browser_screenshot
+    group: browser
+    use: qilin.tools.builtins.browser_tools:browser_screenshot_tool
+    # allow_private_addresses: false # Same SSRF guard as browser_navigate
+
   # Web fetch tool (uses Exa)
   # NOTE: Only one web_fetch provider can be active at a time.
   # Comment out the Jina AI web_fetch entry below before enabling this one.
@@ -1132,6 +1164,37 @@ loop_detection:
 
 read_before_write:
   enabled: true
+
+# ============================================================================
+# Tool Approval (human-in-the-loop gate for risky tool calls)
+# ============================================================================
+# Before a risky tool call executes, the run is interrupted and the user is
+# asked to approve or deny it via the same interactive card used by
+# ask_clarification. On approval the call re-executes on the next run; on
+# denial the agent receives a "user denied" tool result instead. Approval
+# requests are keyed by (tool name + arguments), so an approved call is never
+# prompted twice. In non-interactive contexts (e.g. GitHub webhooks) a risky
+# call is denied instead of dead-ending on a card nobody can answer.
+#
+# mode:
+#   off       — pass every call through (middleware is a no-op)
+#   dangerous — prompt only for calls matching the built-in risk rules:
+#               destructive bash commands (rm -rf, sudo, mkfs, dd if=,
+#               shutdown/reboot, curl|sh, chmod -R 777, git push --force,
+#               npm publish, dotfile truncation) and writes to sensitive
+#               paths (.env, .ssh/, id_rsa, *_history, .git/config) or
+#               outside the sandbox /mnt/user-data root
+#   all       — prompt for every call to the intercepted tools
+
+tool_approval:
+  mode: dangerous
+  # Tool names gated by the approval middleware. The risk rules above cover
+  # bash (command arg) and file writes (path arg); other names only take
+  # effect in mode "all".
+  tools:
+    - bash
+    - write_file
+    - str_replace
 
 # ============================================================================
 # Provider Safety Termination Configuration
