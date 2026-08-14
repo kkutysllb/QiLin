@@ -32,6 +32,7 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph.state import CompiledStateGraph
 
+from qilin.agents.lead_agent.orchestration_cache import FingerprintedGraphCache
 from qilin.agents.lead_agent.prompt import apply_prompt_template
 from qilin.agents.middlewares.clarification_middleware import ClarificationMiddleware
 from qilin.agents.middlewares.configured_extensions import (
@@ -97,6 +98,21 @@ _NON_INTERACTIVE_DISABLED_TOOL_NAMES = frozenset({"ask_clarification"})
 # itself is plumbed into ``run_context`` by
 # ``ChannelManager._resolve_run_params``.
 _WEBHOOK_CHANNELS: frozenset[str] = frozenset({"github"})
+
+#: Process-wide cache for the compiled orchestrator graph, keyed by the
+#: per-run inputs the builder bakes in (lead model, resolved user, live
+#: ``AppConfig`` identity) and versioned by the orchestration config
+#: fingerprint. This is the config-version check that makes
+#: ``orchestration.mode`` / ``orchestration.workers`` hot-switchable:
+#: an edit to config.yaml (or ``PUT /api/config/orchestration``) reaches
+#: the next run's ``make_lead_agent`` call through ``get_app_config()``
+#: mtime/signature hot reload, and a differing fingerprint rebuilds the
+#: graph exactly once under the cache lock. Unchanged runs reuse the
+#: compiled graph instead of rebuilding it. See
+#: :mod:`qilin.agents.lead_agent.orchestration_cache` for the staleness
+#: guarantees (AppConfig identity in the key + fingerprint for in-place
+#: mutation).
+_orchestrator_graph_cache: FingerprintedGraphCache[CompiledStateGraph] = FingerprintedGraphCache()
 
 
 def _default_max_total_subagents(app_config: object) -> int:
@@ -721,24 +737,35 @@ def _make_lead_agent(config: RunnableConfig, *, app_config: AppConfig):
     # worker registry builds the OrchestratorGraph instead of the v1 lead
     # graph. Runtime configurable "orchestration_mode" overrides the app
     # config for a single request; invalid values fall back (see
-    # ``_resolve_orchestration_mode``). Switching single <-> multi rebuilds
-    # the graph and is therefore restart-bound (reload_boundary registers
-    # "orchestration" as startup-only).
+    # ``_resolve_orchestration_mode``). Mode/workers changes are picked up on
+    # the NEXT RUN without a gateway restart: this factory runs at run start
+    # (``run_agent`` -> ``make_lead_agent``) against the hot-reloaded
+    # ``AppConfig``, and the fingerprinted cache below rebuilds the graph when
+    # the orchestration-relevant config differs from what the cached graph was
+    # built with (single-mode runs keep the per-run v1 build unchanged).
     orchestration = resolved_app_config.orchestration
     if (
         _resolve_orchestration_mode(cfg, orchestration) == OrchestrationMode.MULTI
         and orchestration.workers
     ):
         logger.info(
-            "Building multi-agent orchestrator graph with %d workers",
+            "Multi-agent orchestration active with %d workers (orchestration graph resolved via config-fingerprint cache)",
             len(orchestration.workers),
         )
-        return _build_orchestrator_graph(
-            config,
-            app_config=resolved_app_config,
-            model_name=model_name,
-            user_id=resolved_user_id,
-            max_concurrency=orchestration.max_concurrency,
+        return _orchestrator_graph_cache.get_or_build(
+            # Key covers every non-fingerprint input the builder bakes into
+            # the graph: lead model, resolved user, and the live AppConfig
+            # identity (the compiled graph strongly holds the config via the
+            # executor-factory closure, so id-reuse cannot alias entries).
+            (model_name, resolved_user_id, id(resolved_app_config)),
+            orchestration.graph_fingerprint(),
+            lambda: _build_orchestrator_graph(
+                config,
+                app_config=resolved_app_config,
+                model_name=model_name,
+                user_id=resolved_user_id,
+                max_concurrency=orchestration.max_concurrency,
+            ),
         )
 
     if thinking_enabled and not model_config.supports_thinking:

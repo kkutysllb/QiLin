@@ -43,7 +43,9 @@ v1.0.0 行为完全不变）或 `multi`（OrchestratorGraph 编排）。
 1. **配置选择单/多 agent**：`orchestration.mode: single | multi`。`multi` 且
    `workers` 非空时 `make_lead_agent` 构建 OrchestratorGraph，否则完全走 v1 路径；
    单次请求可用 runtime `orchestration_mode` 临时覆盖（非法值回退配置默认）。
-   模式切换属图结构变更，已在 `reload_boundary` 注册为 **startup-only**（需重启）。
+   模式切换属图结构变更，但**无需重启**：图工厂在每次 run 开始时执行并读取
+   热重载后的配置，`orchestration_cache` 以配置指纹做版本检查——指纹变化时
+   在锁保护下重建图，指纹不变时复用已编译图（下一 run 生效）。
 2. **LangGraph 通道贯穿**：状态 schema 为 `total=False` TypedDict，orchestrator 节点
    的所有返回分支都显式携带 `results` 键，保证结果通道在最终 state 中始终存在。
 3. **失败隔离**：batch 层单任务异常转 `FAILED` 不拖垮批次；graph 层 worker 异常转
@@ -134,8 +136,11 @@ The stack (bottom-up):
    `multi` and a non-empty `workers`, `make_lead_agent` builds the
    OrchestratorGraph; otherwise the v1 path is untouched. A per-request runtime
    `orchestration_mode` override is honored (invalid values fall back to the
-   configured default). Switching modes rebuilds the graph, so the section is
-   registered as **startup-only** in `reload_boundary`.
+   configured default). Mode/workers changes rebuild the graph, but **no
+   restart is needed**: the factory runs at run start against the
+   hot-reloaded config and `orchestration_cache` version-checks a config
+   fingerprint — a change rebuilds once under a lock, unchanged runs reuse
+   the compiled graph (effective on the next run).
 2. **Channel continuity**: the state schema is a `total=False` TypedDict; every
    orchestrator return branch carries the `results` key explicitly so the results
    channel always exists in the final state.

@@ -69,13 +69,13 @@ from qilin.config.token_budget_config import TokenBudgetConfig
 from qilin.config.token_usage_config import TokenUsageConfig
 from qilin.config.tool_approval_config import ToolApprovalConfig
 from qilin.config.tool_config import ToolConfig, ToolGroupConfig
-from qilin.config.uploads_config import UploadsConfig
 from qilin.config.tool_output_config import ToolOutputConfig
 from qilin.config.tool_progress_config import ToolProgressConfig
 from qilin.config.tool_search_config import (
     ToolSearchConfig,
     load_tool_search_config_from_dict,
 )
+from qilin.config.uploads_config import UploadsConfig
 
 load_dotenv()
 
@@ -338,9 +338,11 @@ class AppConfig(BaseModel):
 
     orchestration: OrchestrationConfig = Field(
         default_factory=OrchestrationConfig,
-        description=format_field_description(
-            "orchestration",
-            field_doc="Multi-agent orchestration mode (single = v1 lead-agent delegation, multi = orchestrator graph with worker registry).",
+        description=(
+            "Multi-agent orchestration mode (single = v1 lead-agent delegation, multi = orchestrator graph with worker registry). "
+            "Hot-reloadable: mode / worker edits are applied on the next run — the graph factory runs at run start against the "
+            "freshly-reloaded config and rebuilds when the orchestration fingerprint changes (see "
+            "qilin.agents.lead_agent.orchestration_cache)."
         ),
     )
 

@@ -109,3 +109,48 @@ class TestOrchestrationConfig:
         assert reviewer.model == "inherit"
         assert reviewer.max_turns == 50
         assert reviewer.disallowed_tools == ["task"]
+
+
+class TestGraphFingerprint:
+    """Fingerprint contract for the hot mode-switch config-version check."""
+
+    @staticmethod
+    def _workers() -> list[AgentSpec]:
+        return [AgentSpec(name="coder", description="Writes code")]
+
+    def test_equal_configs_hash_equal(self) -> None:
+        # 独立构造的等值配置 -> 相同指纹（不依赖对象身份/插入顺序）。
+        first = OrchestrationConfig(mode="multi", max_concurrency=2, workers=self._workers())
+        second = OrchestrationConfig(mode="multi", max_concurrency=2, workers=self._workers())
+
+        assert first.graph_fingerprint() == second.graph_fingerprint()
+
+    def test_mode_change_changes_fingerprint(self) -> None:
+        single = OrchestrationConfig(mode="single", workers=self._workers())
+        multi = OrchestrationConfig(mode="multi", workers=self._workers())
+
+        assert single.graph_fingerprint() != multi.graph_fingerprint()
+
+    def test_worker_registry_change_changes_fingerprint(self) -> None:
+        one = OrchestrationConfig(mode="multi", workers=self._workers())
+        two = OrchestrationConfig(
+            mode="multi",
+            workers=[
+                AgentSpec(name="coder", description="Writes code"),
+                AgentSpec(name="reviewer", description="Reviews"),
+            ],
+        )
+        retitled = OrchestrationConfig(
+            mode="multi",
+            workers=[AgentSpec(name="coder", description="Writes lots of code")],
+        )
+
+        assert one.graph_fingerprint() != two.graph_fingerprint()
+        # 单个 worker 的字段级修改同样改变图（executor 规格）。
+        assert one.graph_fingerprint() != retitled.graph_fingerprint()
+
+    def test_max_concurrency_change_changes_fingerprint(self) -> None:
+        low = OrchestrationConfig(mode="multi", max_concurrency=2, workers=self._workers())
+        high = OrchestrationConfig(mode="multi", max_concurrency=4, workers=self._workers())
+
+        assert low.graph_fingerprint() != high.graph_fingerprint()

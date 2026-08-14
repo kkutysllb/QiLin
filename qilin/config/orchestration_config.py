@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
@@ -59,6 +61,31 @@ class OrchestrationConfig(BaseModel):
     @property
     def enabled(self) -> bool:
         return self.mode == OrchestrationMode.MULTI
+
+    def graph_fingerprint(self) -> str:
+        """Stable digest of every field that shapes the compiled graph.
+
+        ``mode``, ``max_concurrency`` and the full ``workers`` registry are
+        baked into the graph at construction time (``make_lead_agent`` /
+        ``_build_orchestrator_graph``); a change to any of them requires a
+        rebuild. The digest lets the run path detect "orchestration-relevant
+        config changed since the cached graph was built" with one cheap
+        string comparison instead of rebuilding unconditionally.
+
+        Deterministic: ``sort_keys`` + compact separators make the payload
+        independent of field insertion order, so equal configs always hash
+        equal regardless of how the objects were constructed.
+        """
+        payload = json.dumps(
+            {
+                "mode": self.mode.value,
+                "max_concurrency": self.max_concurrency,
+                "workers": [worker.model_dump() for worker in self.workers],
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def to_subagent_configs(self) -> dict[str, SubagentConfig]:
         """把 ``workers`` 转成 SubagentConfig 注册表（name -> config）。
