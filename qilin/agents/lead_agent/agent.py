@@ -513,6 +513,21 @@ def build_middlewares(
     if safety_config.enabled:
         middlewares.append(SafetyFinishReasonMiddleware.from_config(safety_config))
 
+    # ToolApprovalMiddleware — interrupt risky tool calls (destructive bash
+    # commands, writes to sensitive paths or outside the sandbox user-data
+    # root) with a human-approval card that reuses the ask_clarification
+    # human-input protocol. Registered adjacent to (before)
+    # ClarificationMiddleware; the two intercept disjoint tool names, so the
+    # relative order between them does not matter. mode "off" skips
+    # registration entirely.
+    approval_config = resolved_app_config.tool_approval
+    if approval_config.mode != "off":
+        from qilin.agents.middlewares.tool_approval_middleware import (
+            ToolApprovalMiddleware,
+        )
+
+        middlewares.append(ToolApprovalMiddleware.from_config(approval_config))
+
     # ClarificationMiddleware should always be last
     middlewares.append(ClarificationMiddleware())
     return middlewares
