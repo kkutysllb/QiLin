@@ -96,6 +96,22 @@ max_recursion_limit: 1000
 
 
 # ============================================================================
+# Recursion Reset — automatic step-counter reset when a run exhausts its
+# recursion_limit mid-task
+# ============================================================================
+# LangGraph raises GraphRecursionError the moment a run exhausts its
+# recursion_limit step budget, hard-stopping legitimately long tasks. The
+# run worker catches that error and resumes the run from the thread's head
+# checkpoint with a fresh step budget (the counter effectively resets to
+# zero), so tasks that simply need more steps can run to completion. This
+# key bounds how many resets one streamed turn may consume — total budget ≈
+# recursion_limit × (recursion_reset_limit + 1) super-steps — so a
+# pathologically looping agent still terminates. 0 restores the legacy
+# hard-stop behavior.
+recursion_reset_limit: 3
+
+
+# ============================================================================
 # Models Configuration
 # ============================================================================
 # Configure available LLM models for the agent to use

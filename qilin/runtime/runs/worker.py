@@ -23,7 +23,7 @@ import os
 import sys
 import threading
 import weakref
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -31,6 +31,7 @@ from functools import lru_cache
 from typing import Any, Literal, cast
 
 from langgraph.checkpoint.base import empty_checkpoint
+from langgraph.errors import GraphRecursionError
 from langgraph.types import Overwrite
 
 from qilin.agents.goal_state import GoalEvaluation, GoalState
@@ -497,6 +498,73 @@ class _SubagentEventBuffer:
             logger.warning("Run %s: failed to persist %d subagent step event(s)", self._run_id, len(batch), exc_info=True)
 
 
+# Lead-agent step-budget resets. LangGraph raises GraphRecursionError *after*
+# committing the last completed super-step and *before* starting the next one,
+# and every new ``astream`` invocation derives its stop point from the resumed
+# checkpoint step (``stop = step + recursion_limit + 1`` in PregelLoop), so
+# re-invoking with a ``None`` input continues the same run from the head
+# checkpoint with a fresh per-invocation budget — the step counter effectively
+# resets to zero. Resets stay bounded (``AppConfig.recursion_reset_limit``) so
+# recursion_limit remains a meaningful run-cost / DoS guard; the loop-detection
+# and token-budget middlewares still hard-stop pathological agents on their
+# own signals regardless of how many step windows the run consumes.
+_DEFAULT_RECURSION_RESET_LIMIT = 3
+
+#: Signature of ``_stream_attempt``: stream one graph invocation end to end.
+_StreamTurnFn = Callable[[Any, Any], Awaitable[None]]
+
+
+def _resolve_recursion_reset_limit(app_config: AppConfig | None) -> int:
+    """Resolve the per-turn reset budget from ``AppConfig.recursion_reset_limit``.
+
+    Falls back to ``_DEFAULT_RECURSION_RESET_LIMIT`` when the app config is
+    unavailable (e.g. a bare unit-test environment), mirroring the gateway's
+    ``_resolve_max_recursion_limit`` fallback.
+    """
+    if app_config is None:
+        return _DEFAULT_RECURSION_RESET_LIMIT
+    return app_config.recursion_reset_limit
+
+
+async def _stream_turn_with_recursion_reset(
+    stream_turn: _StreamTurnFn,
+    *,
+    input_payload: Any,
+    stream_config: Any,
+    resume_config: Any,
+    max_resets: int,
+    should_abort: Callable[[], bool],
+    on_reset: Callable[[int, int], None] | None = None,
+) -> None:
+    """Drive one streamed turn, resuming when the graph runs out of steps.
+
+    ``stream_turn`` must propagate :class:`GraphRecursionError` raised by
+    ``agent.astream``. On that error the graph's head checkpoint already
+    contains every completed super-step, so the resume re-invokes
+    ``stream_turn`` with a ``None`` payload and ``resume_config`` (checkpoint
+    selectors cleared) to continue from that checkpoint under a fresh
+    ``recursion_limit`` window. A ``GraphRecursionError`` raised once
+    ``max_resets`` is exhausted — or once ``should_abort()`` turns true —
+    propagates to the caller (legacy hard-stop). Any other exception
+    propagates immediately, unretried.
+    """
+    payload: Any = input_payload
+    run_config: Any = stream_config
+    resets_used = 0
+    while True:
+        try:
+            await stream_turn(payload, run_config)
+            return
+        except GraphRecursionError:
+            if should_abort() or resets_used >= max_resets:
+                raise
+            resets_used += 1
+            if on_reset is not None:
+                on_reset(resets_used, max_resets)
+            payload = None
+            run_config = resume_config
+
+
 async def run_agent(
     bridge: StreamBridge,
     run_manager: RunManager,
@@ -852,6 +920,33 @@ async def run_agent(
             return goal_evaluator_model
 
         async def _stream_once(input_payload: Any, stream_config: RunnableConfig) -> None:
+            # Drive the turn through the recursion-reset helper so a long task
+            # that exhausts LangGraph's per-invocation step budget auto-resumes
+            # from the head checkpoint instead of failing the run. ``_continuation_runnable_config``
+            # clears checkpoint selectors so each resume re-loads the latest
+            # head and the run's Runtime context (middlewares / tool runtime)
+            # carries over intact.
+            await _stream_turn_with_recursion_reset(
+                _stream_attempt,
+                input_payload=input_payload,
+                stream_config=stream_config,
+                resume_config=_continuation_runnable_config(),
+                max_resets=_resolve_recursion_reset_limit(ctx.app_config),
+                should_abort=record.abort_event.is_set,
+                on_reset=lambda used, budget: logger.warning(
+                    "Run %s exhausted its recursion_limit step budget — resuming from the head checkpoint with a fresh budget (reset %d/%d)",
+                    run_id,
+                    used,
+                    budget,
+                ),
+            )
+
+        async def _stream_attempt(input_payload: Any, stream_config: RunnableConfig) -> None:
+            # One streamed graph invocation. Errors raised here propagate to
+            # ``_stream_turn_with_recursion_reset``: only GraphRecursionError
+            # is retried (with a fresh budget); every other exception —
+            # including asyncio.CancelledError via the outer except clauses —
+            # short-circuits the reset loop.
             nonlocal llm_error_fallback_message
             file_tool_chunk_batcher = _LargeFileToolChunkBatcher() if "values" in requested_modes else None
             try:

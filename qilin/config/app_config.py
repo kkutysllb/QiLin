@@ -236,6 +236,11 @@ class AppConfig(BaseModel):
         ge=1,
         description="Hard server-side ceiling for a client-supplied run recursion_limit. Client values above this are clamped; prevents runaway LangGraph super-steps (LLM cost / DoS).",
     )
+    recursion_reset_limit: int = Field(
+        default=3,
+        ge=0,
+        description="Automatic step-budget resets per streamed turn when a run exhausts its recursion_limit. Each reset resumes the graph from the thread's head checkpoint with a fresh per-invocation step budget, so long tasks complete instead of hard-stopping. 0 disables resets (legacy hard-stop). Bounded so recursion_limit stays a meaningful run-cost guard.",
+    )
     models: list[ModelConfig] = Field(default_factory=list, description="Available models")
     sandbox: SandboxConfig = Field(
         description=format_field_description(
