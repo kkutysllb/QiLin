@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.types import JSON
 
+from qilin.persistence.engine import validate_auto_create_db_name
 from qilin.persistence.json_compat import (
     JsonMatch,
     json_match,
@@ -183,3 +184,48 @@ class TestSqliteBehavior:
         expr = json_match(table.c.payload, "k", "v")
         assert isinstance(expr, JsonMatch)
         assert _matching_ids(sqlite_engine, "k", "v") == [1]
+
+
+# ---------------------------------------------------------------------------
+# auto-create database name validation (CREATE DATABASE cannot be
+# parameterized; the name is interpolated into the SQL text under
+# AUTOCOMMIT, so an allowlist gates it -- see engine.py)
+# ---------------------------------------------------------------------------
+
+
+class TestAutoCreateDbNameValidation:
+    def test_accepts_safe_charset(self) -> None:
+        assert validate_auto_create_db_name("qilin")
+        assert validate_auto_create_db_name("QiLin_Prod-2")
+        assert validate_auto_create_db_name("a")
+        assert validate_auto_create_db_name("_internal")
+
+    def test_rejects_quote_breakout(self) -> None:
+        # AUTOCOMMIT executes multi-statement payloads: a `"` closes the
+        # quoted identifier early and `;` starts the next statement.
+        assert not validate_auto_create_db_name('foo"; DROP DATABASE x; --')
+        assert not validate_auto_create_db_name('foo"')
+        assert not validate_auto_create_db_name("foo';--")
+
+    def test_rejects_statement_separators_and_whitespace(self) -> None:
+        assert not validate_auto_create_db_name("foo;bar")
+        assert not validate_auto_create_db_name("foo bar")
+        assert not validate_auto_create_db_name("foo\t")
+        assert not validate_auto_create_db_name("foo\n")
+
+    def test_rejects_non_string_and_empty(self) -> None:
+        assert not validate_auto_create_db_name("")
+        assert not validate_auto_create_db_name(None)
+        assert not validate_auto_create_db_name(123)
+
+    def test_rejects_over_length_name(self) -> None:
+        # PostgreSQL truncates identifiers to NAMEDATALEN-1 = 63 bytes;
+        # refuse instead of silently creating a truncated database.
+        assert validate_auto_create_db_name("a" * 63)
+        assert not validate_auto_create_db_name("a" * 64)
+
+    def test_rejects_unicode_and_specials(self) -> None:
+        assert not validate_auto_create_db_name("数据库名")
+        assert not validate_auto_create_db_name("foo$bar")
+        assert not validate_auto_create_db_name("foo.bar")
+        assert not validate_auto_create_db_name("foo%00")

@@ -54,10 +54,17 @@ _CHANNELS_GATEWAY_URL_ENV = "QILIN_CHANNELS_GATEWAY_URL"
 
 def _channel_has_credentials(name: str, channel_config: dict[str, Any]) -> bool:
     cred_keys = _CHANNEL_CREDENTIAL_KEYS.get(name, [])
-    return any(not isinstance(channel_config.get(key), bool) and channel_config.get(key) is not None and str(channel_config[key]).strip() for key in cred_keys)
+    return any(
+        not isinstance(channel_config.get(key), bool)
+        and channel_config.get(key) is not None
+        and str(channel_config[key]).strip()
+        for key in cred_keys
+    )
 
 
-def _resolve_service_url(config: dict[str, Any], config_key: str, env_key: str, default: str) -> str:
+def _resolve_service_url(
+    config: dict[str, Any], config_key: str, env_key: str, default: str
+) -> str:
     value = config.pop(config_key, None)
     if isinstance(value, str) and value.strip():
         return value
@@ -67,7 +74,9 @@ def _resolve_service_url(config: dict[str, Any], config_key: str, env_key: str, 
     return default
 
 
-def _merge_channel_connection_runtime_config(channels_config: dict[str, Any], app_config: AppConfig) -> None:
+def _merge_channel_connection_runtime_config(
+    channels_config: dict[str, Any], app_config: AppConfig
+) -> None:
     connection_config = getattr(app_config, "channel_connections", None)
     merge_runtime_channel_configs(channels_config, connection_config)
 
@@ -77,7 +86,11 @@ def _make_connection_repo(connection_config: ChannelConnectionsConfig | None):
         return None
 
     try:
-        from qilin.persistence.channel_connections import ChannelConnectionRepository
+        from qilin.persistence.channel_connections import (
+            ChannelConnectionRepository,
+            ChannelCredentialKeyMissing,
+            load_channel_credential_cipher,
+        )
         from qilin.persistence.engine import get_session_factory
     except Exception:
         logger.exception("Failed to import channel connection repository")
@@ -85,9 +98,26 @@ def _make_connection_repo(connection_config: ChannelConnectionsConfig | None):
 
     session_factory = get_session_factory()
     if session_factory is None:
-        logger.warning("Channel connections are enabled but database persistence is not available")
+        logger.warning(
+            "Channel connections are enabled but database persistence is not available"
+        )
         return None
-    return ChannelConnectionRepository(session_factory)
+
+    # Fail-fast on missing cipher key — channel credential persistence would
+    # otherwise raise RuntimeError deep inside store_credentials() at runtime,
+    # breaking every IM channel OAuth flow. We want the failure to surface at
+    # startup where operators can fix configuration.
+    try:
+        cipher = load_channel_credential_cipher()
+    except ChannelCredentialKeyMissing as exc:
+        logger.error(
+            "Channel connections enabled but QILIN_CHANNEL_CREDENTIAL_KEY is not configured. "
+            "ChannelService will refuse to persist credentials. %s",
+            exc,
+        )
+        return None
+
+    return ChannelConnectionRepository(session_factory, cipher=cipher)
 
 
 class ChannelService:
@@ -111,10 +141,18 @@ class ChannelService:
         self._connection_repo = connection_repo
         self._get_stream_bridge = get_stream_bridge
         config = dict(channels_config or {})
-        langgraph_url = _resolve_service_url(config, "langgraph_url", _CHANNELS_LANGGRAPH_URL_ENV, DEFAULT_LANGGRAPH_URL)
-        gateway_url = _resolve_service_url(config, "gateway_url", _CHANNELS_GATEWAY_URL_ENV, DEFAULT_GATEWAY_URL)
+        langgraph_url = _resolve_service_url(
+            config, "langgraph_url", _CHANNELS_LANGGRAPH_URL_ENV, DEFAULT_LANGGRAPH_URL
+        )
+        gateway_url = _resolve_service_url(
+            config, "gateway_url", _CHANNELS_GATEWAY_URL_ENV, DEFAULT_GATEWAY_URL
+        )
         default_session = config.pop("session", None)
-        channel_sessions = {name: channel_config.get("session") for name, channel_config in config.items() if isinstance(channel_config, dict)}
+        channel_sessions = {
+            name: channel_config.get("session")
+            for name, channel_config in config.items()
+            if isinstance(channel_config, dict)
+        }
         from app.channels.dedupe_store import make_inbound_dedupe_store
 
         self.manager = ChannelManager(
@@ -122,7 +160,9 @@ class ChannelService:
             store=self.store,
             langgraph_url=langgraph_url,
             gateway_url=gateway_url,
-            default_session=default_session if isinstance(default_session, dict) else None,
+            default_session=default_session
+            if isinstance(default_session, dict)
+            else None,
             channel_sessions=channel_sessions,
             connection_repo=connection_repo,
             require_bound_identity=require_bound_identity,
@@ -159,8 +199,13 @@ class ChannelService:
             channels_config = dict(extra["channels"] or {})
         _merge_channel_connection_runtime_config(channels_config, app_config)
         connection_config = getattr(app_config, "channel_connections", None)
-        connections_enabled = connection_config is not None and getattr(connection_config, "enabled", False)
-        require_bound_identity = bool(connections_enabled and getattr(connection_config, "require_bound_identity", True))
+        connections_enabled = connection_config is not None and getattr(
+            connection_config, "enabled", False
+        )
+        require_bound_identity = bool(
+            connections_enabled
+            and getattr(connection_config, "require_bound_identity", True)
+        )
         return cls(
             channels_config=channels_config,
             connection_repo=_make_connection_repo(connection_config),
@@ -179,7 +224,11 @@ class ChannelService:
 
         ready_status = await self.ensure_ready_channels(attempts=2)
         ready_count = sum(1 for ready in ready_status.values() if ready)
-        logger.info("ChannelService started with %d/%d ready channels", ready_count, len(ready_status))
+        logger.info(
+            "ChannelService started with %d/%d ready channels",
+            ready_count,
+            len(ready_status),
+        )
 
     async def ensure_ready_channels(self, *, attempts: int = 1) -> dict[str, bool]:
         """Start or restart enabled configured channels that are not ready."""
@@ -196,7 +245,9 @@ class ChannelService:
                     logger.info("A configured channel is disabled, skipping")
                 continue
 
-            ready_status[name] = await self.ensure_channel_ready(name, attempts=attempts)
+            ready_status[name] = await self.ensure_channel_ready(
+                name, attempts=attempts
+            )
         return ready_status
 
     async def ensure_channel_ready(
@@ -208,7 +259,9 @@ class ChannelService:
     ) -> bool:
         """Ensure a single enabled channel is running using its current config."""
         if not self._running:
-            logger.warning("ChannelService is not running; cannot ensure channel readiness")
+            logger.warning(
+                "ChannelService is not running; cannot ensure channel readiness"
+            )
             return False
 
         if config is not None:
@@ -233,7 +286,9 @@ class ChannelService:
                 try:
                     await channel.stop()
                 except Exception:
-                    logger.exception("Error stopping non-running channel before readiness retry")
+                    logger.exception(
+                        "Error stopping non-running channel before readiness retry"
+                    )
                 self._channels.pop(name, None)
 
             max_attempts = max(1, attempts)
@@ -282,7 +337,9 @@ class ChannelService:
                 self._config[name] = channel_config
                 return channel_config
         except Exception:
-            logger.exception("Failed to reload config for channel %s, using cached version", name)
+            logger.exception(
+                "Failed to reload config for channel %s, using cached version", name
+            )
         return self._config.get(name)
 
     async def restart_channel(self, name: str, *, reload_config: bool = True) -> bool:
@@ -453,7 +510,9 @@ async def start_channel_service(
     # from_app_config reads the JSON channel store and runtime config files;
     # keep that disk IO off the event loop. asyncio.to_thread forwards both
     # args and kwargs to the target callable.
-    _channel_service = await asyncio.to_thread(ChannelService.from_app_config, app_config, get_stream_bridge=get_stream_bridge)
+    _channel_service = await asyncio.to_thread(
+        ChannelService.from_app_config, app_config, get_stream_bridge=get_stream_bridge
+    )
     await _channel_service.start()
     return _channel_service
 

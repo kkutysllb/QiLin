@@ -99,16 +99,29 @@ def _make_file_sandbox_writable(file_path: os.PathLike[str] | str) -> None:
 
     In AIO sandbox mode, the gateway writes the authoritative host-side file
     first, then the sandbox runtime may rewrite the same mounted path. Granting
-    world-writable access here prevents permission mismatches between the
-    gateway user and the sandbox runtime user.
+    group-writable access here prevents permission mismatches between the
+    gateway user and the sandbox runtime user when they share a group.
+
+    Security note: We deliberately do NOT grant world-readable (S_IROTH) or
+    world-writable (S_IWOTH) permissions. This avoids leaking user documents on
+    multi-user hosts and prevents TOCTOU replacement windows where another
+    local user could substitute the file before the sandbox reads it. Sandbox
+    containers that need write access should share the gateway user's group
+    via the container's user namespace / fsuid configuration.
     """
     file_stat = os.lstat(file_path)
     if stat.S_ISLNK(file_stat.st_mode):
-        logger.warning("Skipping sandbox chmod for symlinked upload path: %s", file_path)
+        logger.warning(
+            "Skipping sandbox chmod for symlinked upload path: %s", file_path
+        )
         return
 
-    writable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH | stat.S_IRGRP | stat.S_IROTH
-    chmod_kwargs = {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
+    writable_mode = (
+        stat.S_IMODE(file_stat.st_mode) | stat.S_IWUSR | stat.S_IWGRP | stat.S_IRGRP
+    )
+    chmod_kwargs = (
+        {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
+    )
     os.chmod(file_path, writable_mode, **chmod_kwargs)
 
 
@@ -118,16 +131,25 @@ def _make_file_sandbox_readable(file_path: os.PathLike[str] | str) -> None:
     For Docker sandboxes (AIO), the gateway writes files as root with 0o600
     permissions, then bind-mounts the host directory into the container. The
     sandbox process inside the container runs as a non-root user and cannot
-    read those files without group/other read bits. This function adds
-    ``S_IRGRP | S_IROTH`` so the sandbox can read the uploaded content.
+    read those files without the group read bit. This function adds
+    ``S_IRGRP`` so a sandbox process sharing the gateway user's group can read
+    the uploaded content.
+
+    Security note: We deliberately do NOT grant S_IROTH. This avoids leaking
+    user documents on multi-user hosts where an unprivileged local user could
+    otherwise read every uploaded file.
     """
     file_stat = os.lstat(file_path)
     if stat.S_ISLNK(file_stat.st_mode):
-        logger.warning("Skipping sandbox chmod for symlinked upload path: %s", file_path)
+        logger.warning(
+            "Skipping sandbox chmod for symlinked upload path: %s", file_path
+        )
         return
 
-    readable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IRGRP | stat.S_IROTH
-    chmod_kwargs = {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
+    readable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IRGRP
+    chmod_kwargs = (
+        {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
+    )
     os.chmod(file_path, readable_mode, **chmod_kwargs)
 
 
@@ -135,7 +157,9 @@ def _uses_thread_data_mounts(sandbox_provider: SandboxProvider) -> bool:
     return bool(getattr(sandbox_provider, "uses_thread_data_mounts", False))
 
 
-def _get_uploads_config_value(app_config: AppConfig, key: str, default: object) -> object:
+def _get_uploads_config_value(
+    app_config: AppConfig, key: str, default: object
+) -> object:
     """Read a value from the uploads config, supporting dict and attribute access."""
     uploads_cfg = getattr(app_config, "uploads", None)
     if isinstance(uploads_cfg, dict):
@@ -143,7 +167,9 @@ def _get_uploads_config_value(app_config: AppConfig, key: str, default: object) 
     return getattr(uploads_cfg, key, default)
 
 
-def _get_upload_limit(app_config: AppConfig, key: str, default: int, *, legacy_key: str | None = None) -> int:
+def _get_upload_limit(
+    app_config: AppConfig, key: str, default: int, *, legacy_key: str | None = None
+) -> int:
     try:
         value = _get_uploads_config_value(app_config, key, None)
         if value is None and legacy_key is not None:
@@ -161,9 +187,18 @@ def _get_upload_limit(app_config: AppConfig, key: str, default: int, *, legacy_k
 
 def _get_upload_limits(app_config: AppConfig) -> UploadLimits:
     return UploadLimits(
-        max_files=_get_upload_limit(app_config, "max_files", DEFAULT_MAX_FILES, legacy_key="max_file_count"),
-        max_file_size=_get_upload_limit(app_config, "max_file_size", DEFAULT_MAX_FILE_SIZE, legacy_key="max_single_file_size"),
-        max_total_size=_get_upload_limit(app_config, "max_total_size", DEFAULT_MAX_TOTAL_SIZE),
+        max_files=_get_upload_limit(
+            app_config, "max_files", DEFAULT_MAX_FILES, legacy_key="max_file_count"
+        ),
+        max_file_size=_get_upload_limit(
+            app_config,
+            "max_file_size",
+            DEFAULT_MAX_FILE_SIZE,
+            legacy_key="max_single_file_size",
+        ),
+        max_total_size=_get_upload_limit(
+            app_config, "max_total_size", DEFAULT_MAX_TOTAL_SIZE
+        ),
     )
 
 
@@ -174,13 +209,21 @@ def _cleanup_uploaded_paths(paths: list[os.PathLike[str] | str]) -> None:
         except FileNotFoundError:
             pass
         except Exception:
-            logger.warning("Failed to clean up upload path after rejected request: %s", path, exc_info=True)
+            logger.warning(
+                "Failed to clean up upload path after rejected request: %s",
+                path,
+                exc_info=True,
+            )
 
 
-def _prepare_upload_destination(uploads_dir: os.PathLike[str] | str, display_filename: str) -> _UploadTempFile:
+def _prepare_upload_destination(
+    uploads_dir: os.PathLike[str] | str, display_filename: str
+) -> _UploadTempFile:
     uploads_dir_path = Path(uploads_dir)
     file_path = validate_upload_destination(uploads_dir_path, display_filename)
-    temp_fd, temp_path_str = tempfile.mkstemp(prefix=UPLOAD_STAGING_PREFIX, suffix=UPLOAD_STAGING_SUFFIX, dir=uploads_dir_path)
+    temp_fd, temp_path_str = tempfile.mkstemp(
+        prefix=UPLOAD_STAGING_PREFIX, suffix=UPLOAD_STAGING_SUFFIX, dir=uploads_dir_path
+    )
     temp_path = Path(temp_path_str)
     try:
         handle = os.fdopen(temp_fd, "wb")
@@ -228,7 +271,9 @@ def _make_uploaded_paths_sandbox_readable(paths: list[os.PathLike[str] | str]) -
         _make_file_sandbox_readable(file_path)
 
 
-def _sync_upload_to_sandbox(sandbox, file_path: os.PathLike[str] | str, virtual_path: str) -> None:
+def _sync_upload_to_sandbox(
+    sandbox, file_path: os.PathLike[str] | str, virtual_path: str
+) -> None:
     _make_file_sandbox_writable(file_path)
     sandbox.update_file(virtual_path, Path(file_path).read_bytes())
 
@@ -244,9 +289,13 @@ def _list_uploaded_files_for_thread(thread_id: str, user_id: str) -> dict:
     return result
 
 
-def _delete_uploaded_file_for_thread(thread_id: str, filename: str, user_id: str) -> dict:
+def _delete_uploaded_file_for_thread(
+    thread_id: str, filename: str, user_id: str
+) -> dict:
     uploads_dir = get_uploads_dir(thread_id, user_id=user_id)
-    return delete_file_safe(uploads_dir, filename, convertible_extensions=CONVERTIBLE_EXTENSIONS)
+    return delete_file_safe(
+        uploads_dir, filename, convertible_extensions=CONVERTIBLE_EXTENSIONS
+    )
 
 
 async def _write_upload_file_with_limits(
@@ -261,14 +310,20 @@ async def _write_upload_file_with_limits(
     file_size = 0
     upload_temp: _UploadTempFile | None = None
     try:
-        upload_temp = await run_file_io(_prepare_upload_destination, uploads_dir, display_filename)
+        upload_temp = await run_file_io(
+            _prepare_upload_destination, uploads_dir, display_filename
+        )
         while chunk := await file.read(UPLOAD_CHUNK_SIZE):
             file_size += len(chunk)
             total_size += len(chunk)
             if file_size > max_single_file_size:
-                raise HTTPException(status_code=413, detail=f"File too large: {display_filename}")
+                raise HTTPException(
+                    status_code=413, detail=f"File too large: {display_filename}"
+                )
             if total_size > max_total_size:
-                raise HTTPException(status_code=413, detail="Total upload size too large")
+                raise HTTPException(
+                    status_code=413, detail="Total upload size too large"
+                )
             await run_file_io(_write_upload_chunk, upload_temp, chunk)
 
         await run_file_io(_commit_upload_temp, upload_temp)
@@ -310,11 +365,15 @@ async def upload_files(
 
     limits = _get_upload_limits(config)
     if len(files) > limits.max_files:
-        raise HTTPException(status_code=413, detail=f"Too many files: maximum is {limits.max_files}")
+        raise HTTPException(
+            status_code=413, detail=f"Too many files: maximum is {limits.max_files}"
+        )
 
     try:
         effective_user_id = get_effective_user_id()
-        uploads_dir = await run_file_io(ensure_uploads_dir, thread_id, user_id=effective_user_id)
+        uploads_dir = await run_file_io(
+            ensure_uploads_dir, thread_id, user_id=effective_user_id
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     sandbox_uploads = uploads_dir
@@ -332,7 +391,9 @@ async def upload_files(
     sync_to_sandbox = not _uses_thread_data_mounts(sandbox_provider)
     sandbox = None
     if sync_to_sandbox:
-        sandbox_id = await sandbox_provider.acquire_async(thread_id, user_id=effective_user_id)
+        sandbox_id = await sandbox_provider.acquire_async(
+            thread_id, user_id=effective_user_id
+        )
         sandbox = sandbox_provider.get(sandbox_id)
         if sandbox is None:
             raise HTTPException(status_code=500, detail="Failed to acquire sandbox")
@@ -375,7 +436,9 @@ async def upload_files(
             if safe_filename != original_filename:
                 file_info["original_filename"] = original_filename
 
-            logger.info(f"Saved file: {safe_filename} ({file_size} bytes) to {file_info['path']}")
+            logger.info(
+                f"Saved file: {safe_filename} ({file_size} bytes) to {file_info['path']}"
+            )
 
             file_ext = file_path.suffix.lower()
             if auto_convert_documents and file_ext in CONVERTIBLE_EXTENSIONS:
@@ -383,9 +446,13 @@ async def upload_files(
                 # before writing so conversion cannot silently truncate another
                 # uploaded or derived file (same invariant as form-part dedupe).
                 provisional_md_name = Path(safe_filename).with_suffix(".md").name
-                unique_md_name = claim_unique_filename(provisional_md_name, seen_filenames)
+                unique_md_name = claim_unique_filename(
+                    provisional_md_name, seen_filenames
+                )
                 md_output = file_path.with_name(unique_md_name)
-                md_path = await convert_file_to_markdown(file_path, output_path=md_output)
+                md_path = await convert_file_to_markdown(
+                    file_path, output_path=md_output
+                )
                 if md_path:
                     written_paths.append(md_path)
                     md_virtual_path = upload_virtual_path(md_path.name)
@@ -396,7 +463,9 @@ async def upload_files(
                     file_info["markdown_file"] = md_path.name
                     file_info["markdown_path"] = str(sandbox_uploads / md_path.name)
                     file_info["markdown_virtual_path"] = md_virtual_path
-                    file_info["markdown_artifact_url"] = upload_artifact_url(thread_id, md_path.name)
+                    file_info["markdown_artifact_url"] = upload_artifact_url(
+                        thread_id, md_path.name
+                    )
                 else:
                     # Conversion failed and wrote nothing, so release the claim;
                     # holding it would rename a later same-stem upload against
@@ -409,13 +478,17 @@ async def upload_files(
             await run_file_io(_cleanup_uploaded_paths, written_paths)
             raise e
         except UnsafeUploadPathError as e:
-            logger.warning("Skipping upload with unsafe destination %s: %s", file.filename, e)
+            logger.warning(
+                "Skipping upload with unsafe destination %s: %s", file.filename, e
+            )
             skipped_files.append(safe_filename)
             continue
         except Exception as e:
             logger.error(f"Failed to upload {file.filename}: {e}")
             await run_file_io(_cleanup_uploaded_paths, written_paths)
-            raise HTTPException(status_code=500, detail=f"Failed to upload {file.filename}: {e!s}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to upload {file.filename}: {e!s}"
+            )
 
     # Uploaded files are created with 0o600 permissions (owner read/write only).
     # In Docker sandbox deployments the gateway writes as root but the sandbox
@@ -458,7 +531,9 @@ async def get_upload_limits(
 async def list_uploaded_files(thread_id: str, request: Request) -> UploadListResponse:
     """List all files in a thread's uploads directory."""
     try:
-        result = await run_file_io(_list_uploaded_files_for_thread, thread_id, get_effective_user_id())
+        result = await run_file_io(
+            _list_uploaded_files_for_thread, thread_id, get_effective_user_id()
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -470,7 +545,12 @@ async def list_uploaded_files(thread_id: str, request: Request) -> UploadListRes
 async def delete_uploaded_file(thread_id: str, filename: str, request: Request) -> dict:
     """Delete a file from a thread's uploads directory."""
     try:
-        return await run_file_io(_delete_uploaded_file_for_thread, thread_id, filename, get_effective_user_id())
+        return await run_file_io(
+            _delete_uploaded_file_for_thread,
+            thread_id,
+            filename,
+            get_effective_user_id(),
+        )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"File not found: {filename}")
     except PathTraversalError:
@@ -479,4 +559,6 @@ async def delete_uploaded_file(thread_id: str, filename: str, request: Request) 
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Failed to delete {filename}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to delete {filename}: {e!s}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete {filename}: {e!s}"
+        )

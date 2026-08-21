@@ -27,7 +27,9 @@ logger = logging.getLogger(__name__)
 _STATE_TTL_SECONDS = 600
 _MAX_PENDING_CONNECT_CODES_PER_PROVIDER = 5
 _MASKED_CREDENTIAL_VALUE = "********"
-_ADMIN_REQUIRED_DETAIL = "Admin privileges required to manage channel runtime credentials."
+_ADMIN_REQUIRED_DETAIL = (
+    "Admin privileges required to manage channel runtime credentials."
+)
 
 
 class ChannelCredentialFieldResponse(BaseModel):
@@ -46,7 +48,9 @@ class ChannelProviderResponse(BaseModel):
     unavailable_reason: str | None = None
     auth_mode: str
     connection_status: str
-    credential_fields: list[ChannelCredentialFieldResponse] = Field(default_factory=list)
+    credential_fields: list[ChannelCredentialFieldResponse] = Field(
+        default_factory=list
+    )
     credential_values: dict[str, str] = Field(default_factory=dict)
 
 
@@ -158,7 +162,9 @@ async def _get_channel_connections_config(request: Request) -> ChannelConnection
     config = getattr(request.app.state, "channel_connections_config", None)
     if not isinstance(config, ChannelConnectionsConfig):
         config = _get_app_config().channel_connections
-    config = apply_runtime_connection_config(config, store=await _get_runtime_config_store(request))
+    config = apply_runtime_connection_config(
+        config, store=await _get_runtime_config_store(request)
+    )
     request.app.state.channel_connections_config = config
     return config
 
@@ -168,12 +174,16 @@ async def _get_channels_config(request: Request) -> dict[str, Any]:
     if isinstance(state_config, dict):
         return state_config
 
-    result = await _load_channels_config(request, await _get_channel_connections_config(request))
+    result = await _load_channels_config(
+        request, await _get_channel_connections_config(request)
+    )
     request.app.state.channels_config = result
     return result
 
 
-async def _load_channels_config(request: Request, config: ChannelConnectionsConfig) -> dict[str, Any]:
+async def _load_channels_config(
+    request: Request, config: ChannelConnectionsConfig
+) -> dict[str, Any]:
     app_config = _get_app_config()
     extra = app_config.model_extra or {}
     channels_config = extra.get("channels")
@@ -186,16 +196,40 @@ async def _load_channels_config(request: Request, config: ChannelConnectionsConf
     return result
 
 
-def _get_repository(request: Request, config: ChannelConnectionsConfig) -> ChannelConnectionRepository:
+def _get_repository(
+    request: Request, config: ChannelConnectionsConfig
+) -> ChannelConnectionRepository:
     repo = getattr(request.app.state, "channel_connection_repo", None)
     if isinstance(repo, ChannelConnectionRepository):
         return repo
 
     sf = get_session_factory()
     if sf is None:
-        raise HTTPException(status_code=503, detail="Channel connection persistence is not available")
+        raise HTTPException(
+            status_code=503, detail="Channel connection persistence is not available"
+        )
 
-    repo = ChannelConnectionRepository(sf)
+    # Cipher is mandatory: store_credentials / get_credentials raise
+    # RuntimeError when the cipher is None. Load it eagerly so we surface a
+    # clear 503 to API clients (instead of failing deep inside the request).
+    try:
+        from qilin.persistence.channel_connections import (
+            ChannelCredentialKeyMissing,
+            load_channel_credential_cipher,
+        )
+
+        cipher = load_channel_credential_cipher()
+    except ChannelCredentialKeyMissing as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Channel credential encryption key is not configured. "
+                "Set the QILIN_CHANNEL_CREDENTIAL_KEY environment variable on the gateway process. "
+                f"Detail: {exc}"
+            ),
+        ) from exc
+
+    repo = ChannelConnectionRepository(sf, cipher=cipher)
     request.app.state.channel_connection_repo = repo
     return repo
 
@@ -218,7 +252,10 @@ def _runtime_channel_configured(provider: str, channels_config: dict[str, Any]) 
     runtime_config = channels_config.get(provider)
     if not isinstance(runtime_config, dict) or not runtime_config.get("enabled", False):
         return False
-    return all(str(runtime_config.get(key) or "").strip() for key in _RUNTIME_REQUIREMENTS[provider])
+    return all(
+        str(runtime_config.get(key) or "").strip()
+        for key in _RUNTIME_REQUIREMENTS[provider]
+    )
 
 
 def _runtime_unavailable_reason(provider: str) -> str:
@@ -268,7 +305,10 @@ async def _ensure_runtime_channel_ready_if_available(
     try:
         from app.channels.service import get_channel_service
     except Exception:
-        logger.debug("Unable to import channel service for readiness reconciliation", exc_info=True)
+        logger.debug(
+            "Unable to import channel service for readiness reconciliation",
+            exc_info=True,
+        )
         return None
 
     service = get_channel_service()
@@ -310,8 +350,13 @@ def _provider_status(
 ) -> tuple[dict[str, bool], str | None]:
     declared = config.provider_status(provider)
     unavailable_reason = _provider_unavailable_reason(config, channels_config, provider)
-    configured = declared["configured"] and _runtime_channel_configured(provider, channels_config)
-    return {"enabled": declared["enabled"], "configured": configured}, unavailable_reason
+    configured = declared["configured"] and _runtime_channel_configured(
+        provider, channels_config
+    )
+    return {
+        "enabled": declared["enabled"],
+        "configured": configured,
+    }, unavailable_reason
 
 
 def _new_binding_code() -> str:
@@ -353,7 +398,9 @@ def _connect_instruction(provider: str, code: str) -> str:
     return f"Send /connect {code} to the QiLin {meta['display_name']} bot."
 
 
-def _connect_url(config: ChannelConnectionsConfig, provider: str, code: str) -> str | None:
+def _connect_url(
+    config: ChannelConnectionsConfig, provider: str, code: str
+) -> str | None:
     if provider == "telegram":
         provider_config = _provider_config(config, provider)
         return f"https://t.me/{provider_config.bot_username}?start={code}"
@@ -374,11 +421,15 @@ def _connection_updated_at(connection: dict[str, Any]) -> datetime:
     return datetime.min.replace(tzinfo=UTC)
 
 
-def _newest_connection_by_provider(connections: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def _newest_connection_by_provider(
+    connections: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
     by_provider: dict[str, dict[str, Any]] = {}
     for item in connections:
         existing = by_provider.get(item["provider"])
-        if existing is None or _connection_updated_at(item) > _connection_updated_at(existing):
+        if existing is None or _connection_updated_at(item) > _connection_updated_at(
+            existing
+        ):
             by_provider[item["provider"]] = item
     return by_provider
 
@@ -390,7 +441,9 @@ def _credential_fields(provider: str) -> list[ChannelCredentialFieldResponse]:
     return [ChannelCredentialFieldResponse(**field) for field in fields]
 
 
-def _credential_values(provider: str, channels_config: dict[str, Any]) -> dict[str, str]:
+def _credential_values(
+    provider: str, channels_config: dict[str, Any]
+) -> dict[str, str]:
     runtime_config = channels_config.get(provider)
     if not isinstance(runtime_config, dict):
         return {}
@@ -400,7 +453,9 @@ def _credential_values(provider: str, channels_config: dict[str, Any]) -> dict[s
         value = str(runtime_config.get(field.name) or "").strip()
         if not value:
             continue
-        values[field.name] = _MASKED_CREDENTIAL_VALUE if field.type == "password" else value
+        values[field.name] = (
+            _MASKED_CREDENTIAL_VALUE if field.type == "password" else value
+        )
     return values
 
 
@@ -433,7 +488,9 @@ def _provider_response(
         connection_status = "not_connected"
     credential_values = _credential_values(provider, channels_config)
     if provider == "telegram" and not credential_values.get("bot_username"):
-        bot_username = str(_provider_config(config, provider).bot_username or "").strip()
+        bot_username = str(
+            _provider_config(config, provider).bot_username or ""
+        ).strip()
         if bot_username:
             credential_values["bot_username"] = bot_username
     return ChannelProviderResponse(
@@ -441,7 +498,9 @@ def _provider_response(
         display_name=meta["display_name"],
         enabled=status["enabled"],
         configured=status["configured"],
-        connectable=status["enabled"] and status["configured"] and unavailable_reason is None,
+        connectable=status["enabled"]
+        and status["configured"]
+        and unavailable_reason is None,
         unavailable_reason=unavailable_reason,
         auth_mode=meta["auth_mode"],
         connection_status=connection_status,
@@ -466,20 +525,31 @@ def _required_runtime_values(
             if existing_value:
                 cleaned[field.name] = existing_value
                 continue
-        value = raw_value.strip() if isinstance(raw_value, str) else str(raw_value or "").strip()
+        value = (
+            raw_value.strip()
+            if isinstance(raw_value, str)
+            else str(raw_value or "").strip()
+        )
         if field.required and not value:
             missing.append(field.label)
         cleaned[field.name] = value
     if missing:
-        raise HTTPException(status_code=400, detail=f"Missing required channel configuration: {', '.join(missing)}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Missing required channel configuration: {', '.join(missing)}",
+        )
     return cleaned
 
 
-async def _restart_runtime_channel_if_available(provider: str, runtime_config: dict[str, Any]) -> bool | None:
+async def _restart_runtime_channel_if_available(
+    provider: str, runtime_config: dict[str, Any]
+) -> bool | None:
     try:
         from app.channels.service import get_channel_service
     except Exception:
-        logger.exception("Failed to import channel service while configuring a runtime channel")
+        logger.exception(
+            "Failed to import channel service while configuring a runtime channel"
+        )
         return None
 
     service = get_channel_service()
@@ -488,11 +558,15 @@ async def _restart_runtime_channel_if_available(provider: str, runtime_config: d
     return await service.configure_channel(provider, runtime_config)
 
 
-async def _sync_runtime_channel_after_removal(provider: str, channels_config: dict[str, Any]) -> bool | None:
+async def _sync_runtime_channel_after_removal(
+    provider: str, channels_config: dict[str, Any]
+) -> bool | None:
     try:
         from app.channels.service import get_channel_service
     except Exception:
-        logger.exception("Failed to import channel service while disconnecting a runtime channel")
+        logger.exception(
+            "Failed to import channel service while disconnecting a runtime channel"
+        )
         return None
 
     service = get_channel_service()
@@ -520,18 +594,30 @@ async def get_channel_providers(request: Request) -> ChannelProvidersResponse:
     connections = await repo.list_connections(owner_user_id) if repo is not None else []
     by_provider = _newest_connection_by_provider(connections)
 
-    enabled_providers = [provider for provider in _PROVIDER_META if config.provider_status(provider)["enabled"]]
+    enabled_providers = [
+        provider
+        for provider in _PROVIDER_META
+        if config.provider_status(provider)["enabled"]
+    ]
     # Readiness reconciliation is independent per provider; run it
     # concurrently so one slow channel restart does not serialize the
     # whole /providers response.
     await asyncio.gather(
-        *(_ensure_runtime_channel_ready_if_available(provider, channels_config) for provider in enabled_providers if _runtime_channel_configured(provider, channels_config)),
+        *(
+            _ensure_runtime_channel_ready_if_available(provider, channels_config)
+            for provider in enabled_providers
+            if _runtime_channel_configured(provider, channels_config)
+        ),
     )
 
     providers: list[ChannelProviderResponse] = []
     for provider in enabled_providers:
         connection = by_provider.get(provider)
-        providers.append(_provider_response(config, channels_config, provider, _PROVIDER_META[provider], connection))
+        providers.append(
+            _provider_response(
+                config, channels_config, provider, _PROVIDER_META[provider], connection
+            )
+        )
     return ChannelProvidersResponse(enabled=config.enabled, providers=providers)
 
 
@@ -542,11 +628,15 @@ async def get_channel_connections(request: Request) -> ChannelConnectionsRespons
         return ChannelConnectionsResponse(connections=[])
     repo = _get_repository(request, config)
     rows = await repo.list_connections(_get_user_id(request))
-    return ChannelConnectionsResponse(connections=[ChannelConnectionResponse(**row) for row in rows])
+    return ChannelConnectionsResponse(
+        connections=[ChannelConnectionResponse(**row) for row in rows]
+    )
 
 
 @router.delete("/connections/{connection_id}", status_code=204)
-async def disconnect_channel_connection(connection_id: str, request: Request) -> Response:
+async def disconnect_channel_connection(
+    connection_id: str, request: Request
+) -> Response:
     config = await _get_channel_connections_config(request)
     if not config.enabled:
         raise HTTPException(status_code=400, detail="Channel connections are disabled")
@@ -562,7 +652,9 @@ async def disconnect_channel_connection(connection_id: str, request: Request) ->
 
 
 @router.delete("/{provider}/runtime-config", response_model=ChannelProviderResponse)
-async def disconnect_channel_provider_runtime(provider: str, request: Request) -> ChannelProviderResponse:
+async def disconnect_channel_provider_runtime(
+    provider: str, request: Request
+) -> ChannelProviderResponse:
     await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
     config = await _get_channel_connections_config(request)
     if not config.enabled:
@@ -583,10 +675,14 @@ async def disconnect_channel_provider_runtime(provider: str, request: Request) -
     candidate_channels_config = dict(current_channels_config)
     candidate_channels_config.pop(provider, None)
 
-    stopped = await _sync_runtime_channel_after_removal(provider, candidate_channels_config)
+    stopped = await _sync_runtime_channel_after_removal(
+        provider, candidate_channels_config
+    )
     if stopped is False:
         display_name = _PROVIDER_META[provider]["display_name"]
-        raise HTTPException(status_code=400, detail=f"Failed to stop {display_name} channel. Try again.")
+        raise HTTPException(
+            status_code=400, detail=f"Failed to stop {display_name} channel. Try again."
+        )
 
     # Revoke the DB connection rows before committing the store/cache so a repo
     # failure cannot leave the store and cache saying "disconnected" while the
@@ -605,18 +701,24 @@ async def disconnect_channel_provider_runtime(provider: str, request: Request) -
     live_channels_config.pop(provider, None)
     request.app.state.channels_config = live_channels_config
 
-    return _provider_response(config, live_channels_config, provider, _PROVIDER_META[provider])
+    return _provider_response(
+        config, live_channels_config, provider, _PROVIDER_META[provider]
+    )
 
 
 @router.post("/{provider}/connect", response_model=ChannelConnectResponse)
-async def connect_channel_provider(provider: str, request: Request) -> ChannelConnectResponse:
+async def connect_channel_provider(
+    provider: str, request: Request
+) -> ChannelConnectResponse:
     config = await _get_channel_connections_config(request)
     channels_config = await _get_channels_config(request)
     if not config.enabled:
         raise HTTPException(status_code=400, detail="Channel connections are disabled")
 
     provider_config = _provider_config(config, provider)
-    if provider_config.enabled and _runtime_channel_configured(provider, channels_config):
+    if provider_config.enabled and _runtime_channel_configured(
+        provider, channels_config
+    ):
         await _ensure_runtime_channel_ready_if_available(provider, channels_config)
 
     status, unavailable_reason = _provider_status(config, channels_config, provider)
@@ -625,7 +727,9 @@ async def connect_channel_provider(provider: str, request: Request) -> ChannelCo
     if unavailable_reason:
         raise HTTPException(status_code=400, detail=unavailable_reason)
     if not status["configured"]:
-        raise HTTPException(status_code=400, detail="Channel provider is not configured")
+        raise HTTPException(
+            status_code=400, detail="Channel provider is not configured"
+        )
 
     repo = _get_repository(request, config)
     code = await _create_state(
@@ -680,7 +784,10 @@ async def configure_channel_provider_runtime(
     started = await _restart_runtime_channel_if_available(provider, runtime_config)
     if started is False:
         display_name = _PROVIDER_META[provider]["display_name"]
-        raise HTTPException(status_code=400, detail=f"Failed to start {display_name} channel. Check the values and try again.")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to start {display_name} channel. Check the values and try again.",
+        )
 
     store = await _get_runtime_config_store(request)
     await asyncio.to_thread(store.set_provider_config, provider, runtime_config)
@@ -692,4 +799,6 @@ async def configure_channel_provider_runtime(
     live_channels_config[provider] = runtime_config
     request.app.state.channels_config = live_channels_config
 
-    return _provider_response(config, live_channels_config, provider, _PROVIDER_META[provider])
+    return _provider_response(
+        config, live_channels_config, provider, _PROVIDER_META[provider]
+    )

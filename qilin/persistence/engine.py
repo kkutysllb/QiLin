@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -59,6 +60,35 @@ _engine: AsyncEngine | None = None
 _session_factory: async_sessionmaker[AsyncSession] | None = None
 
 
+# Database names for auto-creation are restricted to an allowlist charset:
+# CREATE DATABASE is DDL and cannot use bound parameters, so the name is
+# interpolated into the SQL text executed under AUTOCOMMIT (where a `"`
+# breakout could chain a second statement). The allowlist makes that
+# categorically impossible; the double-quoted identifier in the emitted SQL
+# remains as defense in depth. Mirrors the allowlist approach of
+# qilin.persistence.json_compat._KEY_CHARSET_RE.
+_AUTO_CREATE_DB_NAME_RE = re.compile(r"[A-Za-z0-9_-]+")
+
+# PostgreSQL truncates identifiers to NAMEDATALEN-1 (63 bytes) by default;
+# refuse longer names instead of silently creating a truncated database.
+_AUTO_CREATE_DB_NAME_MAX = 63
+
+
+def validate_auto_create_db_name(name: object) -> bool:
+    """Return True if *name* is safe to interpolate into CREATE DATABASE.
+
+    A name is "safe" when it is a str of at most 63 characters matching
+    ``[A-Za-z0-9_-]`` -- enough for every realistic operator-chosen database
+    name (letters, digits, underscore, hyphen) while excluding quote /
+    statement-separator / whitespace characters entirely.
+    """
+    return (
+        isinstance(name, str)
+        and len(name) <= _AUTO_CREATE_DB_NAME_MAX
+        and bool(_AUTO_CREATE_DB_NAME_RE.fullmatch(name))
+    )
+
+
 async def _auto_create_postgres_db(url: str) -> None:
     """Connect to the ``postgres`` maintenance DB and CREATE DATABASE.
 
@@ -74,6 +104,13 @@ async def _auto_create_postgres_db(url: str) -> None:
     db_name = parsed.database
     if not db_name:
         raise ValueError("Cannot auto-create database: no database name in URL")
+    if not validate_auto_create_db_name(db_name):
+        raise ValueError(
+            f"Refusing to auto-create database with unsafe name: {db_name!r}. "
+            "Auto-created names must match [A-Za-z0-9_-] and be at most 63 "
+            "characters. Create the database manually if a different name "
+            "is required."
+        )
 
     # Connect to the default 'postgres' database to issue CREATE DATABASE
     maint_url = parsed.set(database="postgres")
