@@ -1757,10 +1757,10 @@ summarization:
 #   enabled             - Master switch for the memory mechanism (call-site gate)
 #   injection_enabled   - Whether to inject memory into the system prompt (call-site gate)
 #   shutdown_flush_timeout_seconds - Hard budget (s) to drain pending updates on Gateway graceful shutdown (default: 30)
-#   manager_class       - Backend selector: registered name (deermem/mem0/noop/openviking) or dotted path
+#   manager_class       - Backend selector: registered name (mem0/noop/openviking/qilinmem) or dotted path
 #   backend_config      - Backend-private config dict (passthrough; each backend self-interprets)
 #
-# DeerMem-private fields live under ``backend_config`` (NOT at the memory: top level):
+# Backend-private fields live under ``backend_config`` (NOT at the memory: top level):
 #   storage_path        - Data root. Empty = qilin base_dir (factory injects absolute
 #                         runtime_home). Absolute path = that root. Relative = CWD-relative.
 #   model               - LLM config for memory extraction: {provider, model, api_key, base_url,
@@ -1796,9 +1796,9 @@ memory:
   # gateway Helm deployment (see deploy/helm/qilin). Default 30s.
   shutdown_flush_timeout_seconds: 30.0
   # Memory backend selector. Either a registered backend name (matching a
-  # backends/<name>/ folder that exposes MANAGER_CLASS, e.g. deermem / mem0 / noop)
+  # backends/<name>/ folder that exposes MANAGER_CLASS, e.g. qilinmem / mem0 / noop / openviking)
   # or a dotted import path to a MemoryManager subclass.
-  manager_class: deermem
+  manager_class: qilinmem
   # Memory operation mode:
   #   middleware (default) - passive background extraction after each turn.
   #   tool - experimental opt-in; the model calls memory_search/memory_add/

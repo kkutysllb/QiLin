@@ -183,7 +183,10 @@ def is_trace_correlation_enabled(config: Any) -> bool:
 
 def _legacy_config_candidates() -> tuple[Path, ...]:
     """Return source-tree config.yaml locations for monorepo compatibility."""
-    backend_dir = Path(__file__).resolve().parents[4]
+    # app_config.py lives at <repo>/qilin/qilin/config/app_config.py, so:
+    #   parents[2] → <repo>/qilin/         (backend / submodule root)
+    #   parents[3] → <repo>/               (monorepo root)
+    backend_dir = Path(__file__).resolve().parents[2]
     repo_root = backend_dir.parent
     return (backend_dir / "config.yaml", repo_root / "config.yaml")
 
