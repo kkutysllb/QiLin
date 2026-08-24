@@ -1,11 +1,8 @@
 import { gatewayFetch } from './client';
-import { GATEWAY_BASE_URL } from '@/lib/gateway/config';
+import { buildUrl, needsCsrf } from './client';
 
-function getCsrfToken(): string | null {
-  if (typeof document === 'undefined') return null;
-  const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
-  return m ? decodeURIComponent(m[1]) : null;
-}
+// Note: raw fetch (for multipart) uses buildUrl() + needsCsrf() so it routes
+// through /api/proxy (browser) or direct (SSR) just like gatewayFetch.
 
 export interface Upload {
   filename: string;
@@ -50,18 +47,15 @@ export const uploadsApi = {
   upload: async (thread_id: string, file: File): Promise<Upload> => {
     const fd = new FormData();
     fd.append('file', file);
-    const csrf = getCsrfToken();
-    const headers: Record<string, string> = {};
-    if (csrf) headers['X-CSRF-Token'] = csrf;
-    const r = await fetch(
-      `${GATEWAY_BASE_URL}/api/threads/${encodeURIComponent(thread_id)}/uploads`,
-      {
-        method: 'POST',
-        body: fd,
-        credentials: 'include',
-        headers
-      }
+    const isBrowser = typeof window !== 'undefined';
+    const url = buildUrl(
+      `/api/threads/${encodeURIComponent(thread_id)}/uploads`
     );
+    const r = await fetch(url, {
+      method: 'POST',
+      body: fd,
+      credentials: isBrowser ? 'include' : 'omit'
+    });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return (await r.json()) as Upload;
   },

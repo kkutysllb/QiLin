@@ -1,18 +1,16 @@
 /**
- * Server-side fetch helper — 把浏览器请求的 cookie 注入到 client.ts 的 fetch 管道。
+ * Server-side fetch helper — 把 cookies() 注入 client.ts 的 fetch 管道。
  *
  * 用法:每个 server component 顶部 await 一次 `setupSsrCookies()`,
  * 之后所有通过 lib/api/*Api 调用的 fetch 都会自动带上 csrf_token + access_token。
  *
- * 实现原理:client.ts 内部有一个 `_ssrCookieJar` 变量,setSsrCookieJar() 设置它,
- * 然后 getCsrfToken() 既能从 document.cookie(浏览器)也能从 _ssrCookieJar(SSR)读 csrf_token。
- *
- * 同时,我们也提供 serverFetch 给极少数不能依赖 module-level 状态的特殊场景(比如
- * 中途动态切换 cookie)。日常使用 setupSsrCookies() 即可。
+ * 实现:setupSsrCookies 读 cookies() 后调用 client.ts 的 setSsrCookieJar(),
+ * 让 module-level _ssrCookieJar 被设置;所有 gatewayFetch 内部用 _ssrCookieJar
+ * 注入 X-CSRF-Token + Cookie header(SSR 直连 gateway)。
  */
 import 'server-only';
 import { cookies } from 'next/headers';
-import { setSsrCookieJar, gatewayFetch as _gatewayFetch } from './client';
+import { gatewayFetch as _gatewayFetch, setSsrCookieJar } from './client';
 import type { RequestOptions } from './types';
 
 let _initialized = false;
@@ -24,7 +22,12 @@ let _initialized = false;
 export async function setupSsrCookies(): Promise<void> {
   if (_initialized) return;
   const store = await cookies();
-  setSsrCookieJar(store.toString());
+  const parts: string[] = [];
+  for (const { name, value } of store.getAll()) {
+    parts.push(`${name}=${value}`);
+  }
+  const cookieStr = parts.join('; ');
+  setSsrCookieJar(cookieStr);
   _initialized = true;
 }
 
