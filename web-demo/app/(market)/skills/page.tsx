@@ -1,9 +1,10 @@
-import { skillsApi } from '@/lib/api';
+import { setupSsrCookies, skillsApi } from '@/lib/api/server-fetch';
 import { SkillGrid } from '@/components/skills/skill-grid';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SkillsPage() {
+  await setupSsrCookies();
   const result = await skillsApi.list().catch(() => ({ skills: [] }));
   return (
     <div className="space-y-4">

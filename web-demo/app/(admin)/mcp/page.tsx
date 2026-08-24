@@ -1,10 +1,11 @@
-import { mcpApi } from '@/lib/api';
+import { setupSsrCookies, mcpApi } from '@/lib/api/server-fetch';
 import { McpServerGrid } from '@/components/mcp/mcp-server-grid';
 import type { McpServerEntry } from '@/lib/api/mcp';
 
 export const dynamic = 'force-dynamic';
 
 export default async function McpPage() {
+  await setupSsrCookies();
   let servers: McpServerEntry[] = [];
   try {
     const config = await mcpApi.getConfig();

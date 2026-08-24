@@ -1,11 +1,12 @@
 import { AppShell } from '@/components/layout/app-shell';
 import { OverviewStats, DEFAULT_STATS, type Stat } from '@/components/home/overview-stats';
 import { ActivityFeed, type ActivityItem } from '@/components/home/activity-feed';
-import { threadsApi, skillsApi, modelsApi } from '@/lib/api';
+import { setupSsrCookies, threadsApi, skillsApi, modelsApi } from '@/lib/api/server-fetch';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
+  await setupSsrCookies();
   const [threads, skills, models] = await Promise.allSettled([
     threadsApi.list({ limit: 100 }),
     skillsApi.list(),
@@ -25,7 +26,7 @@ export default async function HomePage() {
       ...DEFAULT_STATS[2],
       value:
         skills.status === 'fulfilled'
-          ? skills.value.skills.filter((s) => s.enabled).length
+          ? skills.value.skills.filter((s: { enabled: boolean }) => s.enabled).length
           : '—'
     },
     { ...DEFAULT_STATS[3], value: models.status === 'fulfilled' ? models.value.length : '—' }
@@ -33,7 +34,7 @@ export default async function HomePage() {
 
   const recentThreads: ActivityItem[] =
     threads.status === 'fulfilled'
-      ? threads.value.slice(0, 5).map((t) => ({
+      ? threads.value.slice(0, 5).map((t: { thread_id: string; title?: string; updated_at: string }) => ({
           id: t.thread_id,
           type: 'thread' as const,
           title: t.title ?? t.thread_id,

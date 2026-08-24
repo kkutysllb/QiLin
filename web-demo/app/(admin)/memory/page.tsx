@@ -1,9 +1,10 @@
-import { memoryApi } from '@/lib/api';
+import { setupSsrCookies, memoryApi } from '@/lib/api/server-fetch';
 import { MemoryClient } from './client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function MemoryPage() {
+  await setupSsrCookies();
   const facts = await memoryApi.list().catch(() => []);
   return (
     <div className="space-y-6">

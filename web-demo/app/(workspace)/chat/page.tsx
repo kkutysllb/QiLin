@@ -1,13 +1,9 @@
-import { threadsApi } from '@/lib/api';
-import { redirect } from 'next/navigation';
+import { NewChatClient } from './new-chat-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewChatPage() {
-  try {
-    const thread = await threadsApi.create({ title: '新对话' });
-    redirect(`/chat/${thread.thread_id}`);
-  } catch (e) {
-    redirect('/login');
-  }
+export default function NewChatPage() {
+  // 完全在客户端创建 thread:浏览器自动注入 csrf_token cookie,
+  // 避免 server component 转发 cookie 到 gateway 的复杂度。
+  return <NewChatClient />;
 }

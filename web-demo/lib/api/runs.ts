@@ -1,9 +1,10 @@
 import { gatewayFetch } from './client';
-import type { Run, Paginated } from '@/lib/types';
+import type { Run } from '@/lib/types';
 
 export interface CreateRunInput {
   thread_id: string;
-  input: string;
+  /** Graph input — 必须是 object,例如 { messages: [{role, content}] } */
+  input: Record<string, unknown>;
   agent_name?: string;
   metadata?: Record<string, unknown>;
 }
@@ -15,9 +16,9 @@ export const runsApi = {
       method: 'POST',
       body: input
     }),
-  /** 列出某个线程的所有 runs */
+  /** 列出某个线程的所有 runs(Gateway 直接返回 Run[],不是分页包装) */
   list: (params: { thread_id: string; page?: number; page_size?: number }) =>
-    gatewayFetch<Paginated<Run>>(
+    gatewayFetch<Run[]>(
       `/api/threads/${encodeURIComponent(params.thread_id)}/runs`,
       { query: params }
     ),

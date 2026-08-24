@@ -190,7 +190,10 @@ export function useChatStream(threadId: string): StreamState {
       ]);
       setIsStreaming(true);
       try {
-        const run = await runsApi.create({ thread_id: threadId, input: text });
+        const run = await runsApi.create({
+          thread_id: threadId,
+          input: { messages: [{ role: 'user', content: text }] }
+        });
         setCurrentRunId(run.run_id);
       } catch (e) {
         setIsStreaming(false);

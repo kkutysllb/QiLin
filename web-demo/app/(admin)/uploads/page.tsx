@@ -1,4 +1,4 @@
-import { threadsApi, uploadsApi } from '@/lib/api';
+import { setupSsrCookies, threadsApi, uploadsApi } from '@/lib/api/server-fetch';
 import { UploadDropzone } from '@/components/uploads/upload-dropzone';
 import { UploadsGrid } from '@/components/uploads/uploads-grid';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 export const dynamic = 'force-dynamic';
 
 export default async function UploadsPage() {
+  await setupSsrCookies();
   // uploads 必须绑定 thread — 默认用最近活跃的 thread
   const threads = await threadsApi.list({ limit: 1 }).catch(() => []);
   const activeThread = threads[0];
@@ -38,7 +39,9 @@ export default async function UploadsPage() {
     );
   }
 
-  const result = await uploadsApi.list(activeThread.thread_id).catch(() => []);
+  const result = await uploadsApi
+    .list(activeThread.thread_id)
+    .catch(() => ({ files: [] as Array<{ filename: string; virtual_path: string; size: number; mime_type: string; uploaded_at: string }>, count: 0 }));
   return (
     <div className="space-y-6">
       <div>
@@ -48,14 +51,14 @@ export default async function UploadsPage() {
           <code className="rounded bg-muted px-1 text-xs">
             {activeThread.thread_id.slice(0, 16)}…
           </code>
-          )· 共 {result.length} 个文件 ·{' '}
+          )· 共 {result.count} 个文件 ·{' '}
           <Link href="/chat" className="text-qilin-400 underline-offset-4 hover:underline">
             切换 thread
           </Link>
         </p>
       </div>
       <UploadDropzone thread_id={activeThread.thread_id} />
-      <UploadsGrid initial={result} thread_id={activeThread.thread_id} />
+      <UploadsGrid initial={result.files} thread_id={activeThread.thread_id} />
     </div>
   );
 }

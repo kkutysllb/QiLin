@@ -1,18 +1,20 @@
-import { threadsApi, runsApi } from '@/lib/api';
+import { setupSsrCookies, threadsApi, runsApi } from '@/lib/api/server-fetch';
 import { RunsClient } from './client';
 import type { Run } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export default async function RunsPage() {
+  await setupSsrCookies();
   // Runs 必须按 thread 列出 — 默认汇总所有 thread 的 runs
   const threads = await threadsApi.list({ limit: 100 }).catch(() => []);
   const allRunsResults = await Promise.allSettled(
     threads.map((t) => runsApi.list({ thread_id: t.thread_id, page_size: 100 }))
   );
-  const allRuns = allRunsResults
-    .filter((r) => r.status === 'fulfilled')
-    .flatMap((r) => (r as PromiseFulfilledResult<{ items: Run[] }>).value.items);
+  // Gateway 的 /api/threads/{id}/runs 返回 Run[] 数组(不是分页包装对象)
+  const allRuns: Run[] = allRunsResults
+    .filter((r): r is PromiseFulfilledResult<Run[]> => r.status === 'fulfilled')
+    .flatMap((r) => r.value);
   return (
     <div className="space-y-4">
       <div>

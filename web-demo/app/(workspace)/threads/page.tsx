@@ -1,10 +1,17 @@
-import { threadsApi } from '@/lib/api';
+import { setupSsrCookies, threadsApi } from '@/lib/api/server-fetch';
 import { ThreadsClient } from './client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ThreadsPage() {
-  const threads = await threadsApi.list({ limit: 100 }).catch(() => []);
+  await setupSsrCookies();
+  let threads: Awaited<ReturnType<typeof threadsApi.list>> = [];
+  try {
+    threads = await threadsApi.list({ limit: 100 });
+  } catch (e) {
+    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+    console.error('[threads/page] list failed:', msg);
+  }
   return (
     <div className="space-y-4">
       <div>
