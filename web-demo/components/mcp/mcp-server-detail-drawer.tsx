@@ -3,39 +3,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { KeyRound } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
-import { mcpApi } from '@/lib/api';
-import { toast } from 'sonner';
-import type { McpServer } from '@/lib/api/mcp';
+import type { McpServerEntry } from '@/lib/api/mcp';
 
 interface Props {
-  server: McpServer | null;
+  server: McpServerEntry | null;
   onClose: () => void;
 }
 
 export function McpServerDetailDrawer({ server, onClose }: Props) {
-  const oauthMutation = useMutation({
-    mutationFn: (serverName: string) =>
-      // 跳转到 gateway OAuth 授权端点
-      (async () => {
-        const res = await fetch(`/api/mcp/servers/${encodeURIComponent(serverName)}/oauth/authorize`, {
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })(),
-    onSuccess: (data) => {
-      // Gateway 返回 authorize_url,前端跳转
-      if (data?.authorize_url) {
-        window.location.href = data.authorize_url;
-      } else {
-        toast.error('OAuth 端点未返回 authorize_url');
-      }
-    },
-    onError: (e) => toast.error(`OAuth 启动失败: ${(e as Error).message}`)
-  });
+  const startOAuth = () => {
+    // Gateway v2.0.0 的 MCP OAuth 需要 /api/v1/auth/oauth/{provider} 端点
+    // 这里直接打开 Gateway OAuth 入口(若已配置)
+    window.location.href = `/api/v1/auth/oauth/mcp-${server?.name ?? 'default'}`;
+  };
 
   return (
     <Dialog open={!!server} onOpenChange={(open) => !open && onClose()}>
@@ -44,7 +25,7 @@ export function McpServerDetailDrawer({ server, onClose }: Props) {
           <DialogTitle>{server?.name}</DialogTitle>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Badge variant={server?.status === 'connected' ? 'success' : 'destructive'}>
-              {server?.status}
+              {server?.status ?? 'unknown'}
             </Badge>
             <span className="truncate">{server?.url}</span>
           </div>
@@ -58,16 +39,20 @@ export function McpServerDetailDrawer({ server, onClose }: Props) {
                 </CardHeader>
                 <CardContent className="space-y-2 text-xs">
                   <div className="flex justify-between">
+                    <span className="text-muted-foreground">名称</span>
+                    <span className="font-mono">{server.name}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">URL</span>
-                    <span className="font-mono">{server.url}</span>
+                    <span className="truncate font-mono">{server.url}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">工具数</span>
-                    <span>{server.tools_count}</span>
+                    <span>{server.tools_count ?? '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">状态</span>
-                    <span>{server.status}</span>
+                    <span>{server.status ?? 'unknown'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">启用</span>
@@ -82,18 +67,16 @@ export function McpServerDetailDrawer({ server, onClose }: Props) {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    若该 MCP 服务器要求 OAuth 授权,点击下方按钮启动授权码流程。授权完成后会通过 Gateway
-                    callback 路由返回 access token,并保存到服务器配置。
+                    若该 MCP 服务器要求 OAuth 授权,点击下方按钮启动授权码流程。Gateway 端会跳转到 provider 的
+                    authorize 端点,完成后通过 callback 路由返回 access token。
                   </p>
-                  <Button
-                    onClick={() => oauthMutation.mutate(server.name)}
-                    disabled={oauthMutation.isPending}
-                    variant="outline"
-                    size="sm"
+                  <button
+                    onClick={startOAuth}
+                    className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm hover:bg-accent"
                   >
-                    <KeyRound className="mr-2 h-4 w-4" />
+                    <KeyRound className="h-4 w-4" />
                     启动 OAuth 授权
-                  </Button>
+                  </button>
                 </CardContent>
               </Card>
             </div>

@@ -7,13 +7,13 @@ import type { Upload } from '@/lib/types';
 import { PreviewRenderer } from './preview-renderer';
 import { detectPreview } from '@/lib/preview/detect';
 
-export function UploadDetailDrawer({
-  upload,
-  onClose
-}: {
+interface Props {
   upload: Upload | null;
+  thread_id: string;
   onClose: () => void;
-}) {
+}
+
+export function UploadDetailDrawer({ upload, thread_id, onClose }: Props) {
   if (!upload) {
     return (
       <Dialog open={false} onOpenChange={onClose}>
@@ -36,7 +36,7 @@ export function UploadDetailDrawer({
         </DialogHeader>
         <ScrollArea className="max-h-[70vh] pr-4">
           <PreviewRenderer
-            uploadId={upload.id}
+            thread_id={thread_id}
             filename={upload.filename}
             mimeType={upload.mime_type}
           />

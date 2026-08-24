@@ -5,7 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { detectPreview } from '@/lib/preview/detect';
 import { formatRelativeTime } from '@/lib/utils';
-import { FileText, Image as ImageIcon, FileCode, Eye, Download, Trash2, FileType } from 'lucide-react';
+import {
+  FileText,
+  Image as ImageIcon,
+  FileCode,
+  Eye,
+  Download,
+  Trash2,
+  FileType
+} from 'lucide-react';
 
 const ICON_BY_KIND = {
   image: ImageIcon,
@@ -21,14 +29,21 @@ const ICON_BY_KIND = {
 
 interface Props {
   upload: Upload;
+  thread_id: string;
   onSelect?: (u: Upload) => void;
   onDelete?: (u: Upload) => void;
 }
 
-export function UploadCard({ upload, onSelect, onDelete }: Props) {
+export function UploadCard({ upload, thread_id, onSelect, onDelete }: Props) {
   const preview = detectPreview(upload.filename, upload.mime_type);
   const Icon = ICON_BY_KIND[preview.kind];
   const sizeKB = (upload.size / 1024).toFixed(1);
+  // 注:Gateway 实际下载 URL 是 /api/threads/{thread_id}/uploads/{filename}/raw
+  const downloadUrl = `${
+    process.env.NEXT_PUBLIC_GATEWAY_BASE_URL ?? 'http://127.0.0.1:8081'
+  }/api/threads/${encodeURIComponent(thread_id)}/uploads/${encodeURIComponent(
+    upload.filename
+  )}/raw`;
   return (
     <Card className="group transition-colors hover:border-primary/40">
       <CardContent className="p-4">
@@ -59,10 +74,7 @@ export function UploadCard({ upload, onSelect, onDelete }: Props) {
             预览
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a
-              href={`${process.env.NEXT_PUBLIC_GATEWAY_BASE_URL ?? 'http://127.0.0.1:8081'}/api/uploads/${encodeURIComponent(upload.id)}/raw`}
-              download
-            >
+            <a href={downloadUrl} download>
               <Download className="h-3.5 w-3.5" />
             </a>
           </Button>

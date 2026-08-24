@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plug, Loader2 } from 'lucide-react';
+import { Plug, Loader2, AlertCircle } from 'lucide-react';
 import { mcpApi } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -27,14 +27,24 @@ export function McpAddDialog({ open, onOpenChange }: Props) {
   const [token, setToken] = useState('');
 
   const addMutation = useMutation({
-    mutationFn: () =>
-      mcpApi.add({
+    mutationFn: async () => {
+      // 真实接口只有 PATCH 单服务器,没有"添加"接口。
+      // 这里走 PUT 整个 config — 需先 GET 现有 config,再追加新服务器,再 PUT 回去。
+      const current = await mcpApi.getConfig();
+      const newServer = {
         name,
         url,
-        auth: token ? { bearer: token } : undefined
-      }),
+        enabled: true,
+        auth: token ? { bearer: token } : undefined,
+        status: 'unknown' as const
+      };
+      await mcpApi.updateConfig({
+        ...current,
+        servers: [...current.servers, newServer]
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mcp-servers'] });
+      queryClient.invalidateQueries({ queryKey: ['mcp-config'] });
       toast.success('MCP 服务器已添加');
       reset();
       onOpenChange(false);
@@ -54,12 +64,19 @@ export function McpAddDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>添加 MCP 服务器</DialogTitle>
           <DialogDescription>
-            输入 MCP 服务器 URL。可选 Bearer Token 用于私有服务器。
-            <br />
-            支持 OAuth 授权流程的服务器需走 Gateway OAuth 路由(暂未启用)。
+            通过 PUT /api/mcp/config 追加新服务器
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
+          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <p className="text-amber-100/80">
+                Gateway v2.0.0 的 MCP 配置通过整体 PUT 提交,需要 GET 现有 config 后追加。
+                OAuth 流程需要 Gateway 端有专门的 <code>/api/v1/auth/oauth/&#123;provider&#125;</code> 端点支持(见 spec)。
+              </p>
+            </div>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="mcp-name">名称</Label>
             <Input

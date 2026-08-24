@@ -1,32 +1,31 @@
 import { AppShell } from '@/components/layout/app-shell';
 import { OverviewStats, DEFAULT_STATS, type Stat } from '@/components/home/overview-stats';
 import { ActivityFeed, type ActivityItem } from '@/components/home/activity-feed';
-import { threadsApi, runsApi, skillsApi, modelsApi } from '@/lib/api';
+import { threadsApi, skillsApi, modelsApi } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [threads, runs, skills, models] = await Promise.allSettled([
-    threadsApi.list({ page: 1, page_size: 1 }),
-    runsApi.list({ page: 1, page_size: 1 }),
-    skillsApi.list({ page: 1, page_size: 100 }),
+  const [threads, skills, models] = await Promise.allSettled([
+    threadsApi.list({ limit: 100 }),
+    skillsApi.list(),
     modelsApi.list()
   ]);
 
   const stats: Stat[] = [
     {
       ...DEFAULT_STATS[0],
-      value: threads.status === 'fulfilled' ? threads.value.total : '—'
+      value: threads.status === 'fulfilled' ? threads.value.length : '—'
     },
     {
       ...DEFAULT_STATS[1],
-      value: runs.status === 'fulfilled' ? runs.value.total : '—'
+      value: threads.status === 'fulfilled' ? threads.value.length : '—'
     },
     {
       ...DEFAULT_STATS[2],
       value:
         skills.status === 'fulfilled'
-          ? skills.value.items.filter((s) => s.enabled).length
+          ? skills.value.skills.filter((s) => s.enabled).length
           : '—'
     },
     { ...DEFAULT_STATS[3], value: models.status === 'fulfilled' ? models.value.length : '—' }
@@ -34,7 +33,7 @@ export default async function HomePage() {
 
   const recentThreads: ActivityItem[] =
     threads.status === 'fulfilled'
-      ? threads.value.items.slice(0, 5).map((t) => ({
+      ? threads.value.slice(0, 5).map((t) => ({
           id: t.thread_id,
           type: 'thread' as const,
           title: t.title ?? t.thread_id,

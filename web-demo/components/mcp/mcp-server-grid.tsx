@@ -6,42 +6,37 @@ import { McpServerDetailDrawer } from './mcp-server-detail-drawer';
 import { McpAddDialog } from './mcp-add-dialog';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Plug, Plus, Loader2 } from 'lucide-react';
+import { Plug, Plus } from 'lucide-react';
 import { mcpApi } from '@/lib/api';
-import type { McpServer } from '@/lib/api/mcp';
+import type { McpServerEntry } from '@/lib/api/mcp';
 import { toast } from 'sonner';
 
-export function McpServerGrid({ initial }: { initial: McpServer[] }) {
-  const [selected, setSelected] = useState<McpServer | null>(null);
+interface Props {
+  initial: McpServerEntry[];
+}
+
+export function McpServerGrid({ initial }: Props) {
+  const [selected, setSelected] = useState<McpServerEntry | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const toggleMutation = useMutation({
     mutationFn: ({ name, enabled }: { name: string; enabled: boolean }) =>
-      mcpApi.setEnabled(name, enabled),
+      mcpApi.setServerEnabled(name, enabled),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mcp-servers'] });
+      queryClient.invalidateQueries({ queryKey: ['mcp-config'] });
       toast.success('状态已更新');
     },
     onError: (e) => toast.error(`更新失败: ${(e as Error).message}`)
   });
 
   const refreshMutation = useMutation({
-    mutationFn: (name: string) => mcpApi.refresh(name),
+    mutationFn: () => mcpApi.resetCache(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mcp-servers'] });
-      toast.success('已刷新');
+      queryClient.invalidateQueries({ queryKey: ['mcp-config'] });
+      toast.success('缓存已重置,稍后会自动重新连接');
     },
-    onError: (e) => toast.error(`刷新失败: ${(e as Error).message}`)
-  });
-
-  const removeMutation = useMutation({
-    mutationFn: (name: string) => mcpApi.remove(name),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mcp-servers'] });
-      toast.success('服务器已移除');
-    },
-    onError: (e) => toast.error(`移除失败: ${(e as Error).message}`)
+    onError: (e) => toast.error(`重置失败: ${(e as Error).message}`)
   });
 
   return (
@@ -51,17 +46,27 @@ export function McpServerGrid({ initial }: { initial: McpServer[] }) {
           <h2 className="text-base font-medium">MCP 服务器</h2>
           <p className="text-xs text-muted-foreground">通过 Model Context Protocol 接入外部工具</p>
         </div>
-        <Button onClick={() => setAddOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          添加服务器
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refreshMutation.mutate()}
+            disabled={refreshMutation.isPending}
+          >
+            重置缓存
+          </Button>
+          <Button onClick={() => setAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            添加服务器
+          </Button>
+        </div>
       </div>
 
       {initial.length === 0 ? (
         <EmptyState
           icon={Plug}
           title="还没有 MCP 服务器"
-          description="点击「添加服务器」接入第一个 MCP server"
+          description="点击「添加服务器」接入第一个 MCP server(注:添加后需要 Gateway 后端支持 PATCH /api/mcp/config with name)"
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -71,10 +76,6 @@ export function McpServerGrid({ initial }: { initial: McpServer[] }) {
               server={s}
               onSelect={setSelected}
               onToggle={(srv, enabled) => toggleMutation.mutate({ name: srv.name, enabled })}
-              onRefresh={(srv) => refreshMutation.mutate(srv.name)}
-              onRemove={(srv) => {
-                if (confirm(`确定移除 MCP 服务器 "${srv.name}"?`)) removeMutation.mutate(srv.name);
-              }}
             />
           ))}
         </div>

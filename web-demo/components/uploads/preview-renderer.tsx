@@ -8,25 +8,32 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 interface Props {
-  /** upload.id */
-  uploadId: string;
+  /** upload 所属 thread_id(Gateway uploads 必须绑定 thread) */
+  thread_id: string;
   /** upload.filename */
   filename: string;
   /** upload.mime_type */
   mimeType: string;
 }
 
-export function PreviewRenderer({ uploadId, filename, mimeType }: Props) {
+export function PreviewRenderer({ thread_id, filename, mimeType }: Props) {
   const info: PreviewInfo = detectPreview(filename, mimeType);
-  const url = `${GATEWAY_BASE_URL}/api/uploads/${encodeURIComponent(uploadId)}/raw`;
+  const url = `${GATEWAY_BASE_URL}/api/threads/${encodeURIComponent(
+    thread_id
+  )}/uploads/${encodeURIComponent(filename)}/raw`;
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 文本类预览需要拉取内容
   useEffect(() => {
     if (!info.inline) return;
-    if (info.kind === 'image' || info.kind === 'pdf' || info.kind === 'audio' || info.kind === 'video') return;
+    if (
+      info.kind === 'image' ||
+      info.kind === 'pdf' ||
+      info.kind === 'audio' ||
+      info.kind === 'video'
+    )
+      return;
     setLoading(true);
     setError(null);
     fetch(url, { credentials: 'include' })
@@ -82,13 +89,7 @@ export function PreviewRenderer({ uploadId, filename, mimeType }: Props) {
         />
       );
     case 'pdf':
-      return (
-        <iframe
-          src={url}
-          title={filename}
-          className="h-[60vh] w-full rounded-md border"
-        />
-      );
+      return <iframe src={url} title={filename} className="h-[60vh] w-full rounded-md border" />;
     case 'audio':
       return <audio src={url} controls className="w-full" />;
     case 'video':

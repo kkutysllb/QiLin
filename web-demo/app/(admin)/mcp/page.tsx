@@ -1,12 +1,17 @@
 import { mcpApi } from '@/lib/api';
 import { McpServerGrid } from '@/components/mcp/mcp-server-grid';
+import type { McpServerEntry } from '@/lib/api/mcp';
 
 export const dynamic = 'force-dynamic';
 
 export default async function McpPage() {
-  let servers: Awaited<ReturnType<typeof mcpApi.list>> = [];
+  let servers: McpServerEntry[] = [];
   try {
-    servers = await mcpApi.list();
+    const config = await mcpApi.getConfig();
+    servers = (config.servers ?? []).map((s) => ({
+      ...s,
+      status: s.status ?? 'unknown'
+    }));
   } catch {
     servers = [];
   }

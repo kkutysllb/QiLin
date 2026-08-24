@@ -16,7 +16,7 @@ export function ThreadListPanel() {
 
   const { data: threads = [], isLoading } = useQuery({
     queryKey: ['threads'],
-    queryFn: () => threadsApi.list({ page: 1, page_size: 50 }).then((r) => r.items)
+    queryFn: () => threadsApi.list({ limit: 50 })
   });
 
   const deleteMutation = useMutation({

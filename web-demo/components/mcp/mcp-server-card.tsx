@@ -1,33 +1,33 @@
 'use client';
-import type { McpServer } from '@/lib/api/mcp';
+import type { McpServerEntry } from '@/lib/api/mcp';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Plug, CheckCircle2, XCircle, Loader2, Eye, RefreshCw, Trash2 } from 'lucide-react';
-import { formatRelativeTime } from '@/lib/utils';
+import { Plug, CheckCircle2, XCircle, Eye, RefreshCw } from 'lucide-react';
 
 const STATUS_VARIANT = {
   connected: 'success',
   disconnected: 'secondary',
-  error: 'destructive'
+  error: 'destructive',
+  unknown: 'outline'
 } as const;
 
 const STATUS_ICON = {
   connected: <CheckCircle2 className="h-3.5 w-3.5 text-qilin-400" />,
   disconnected: <XCircle className="h-3.5 w-3.5 text-muted-foreground" />,
-  error: <XCircle className="h-3.5 w-3.5 text-destructive" />
+  error: <XCircle className="h-3.5 w-3.5 text-destructive" />,
+  unknown: <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
 };
 
 interface Props {
-  server: McpServer;
-  onSelect?: (s: McpServer) => void;
-  onToggle?: (s: McpServer, enabled: boolean) => void;
-  onRefresh?: (s: McpServer) => void;
-  onRemove?: (s: McpServer) => void;
+  server: McpServerEntry;
+  onSelect?: (s: McpServerEntry) => void;
+  onToggle?: (s: McpServerEntry, enabled: boolean) => void;
 }
 
-export function McpServerCard({ server, onSelect, onToggle, onRefresh, onRemove }: Props) {
+export function McpServerCard({ server, onSelect, onToggle }: Props) {
+  const status = server.status ?? 'unknown';
   return (
     <Card className="transition-colors hover:border-primary/40">
       <CardHeader className="space-y-2">
@@ -43,10 +43,10 @@ export function McpServerCard({ server, onSelect, onToggle, onRefresh, onRemove 
           />
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant={STATUS_VARIANT[server.status]}>{server.status}</Badge>
+          <Badge variant={STATUS_VARIANT[status]}>{status}</Badge>
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            {STATUS_ICON[server.status]}
-            {server.tools_count} 工具
+            {STATUS_ICON[status]}
+            {server.tools_count ?? 0} 工具
           </span>
         </div>
       </CardHeader>
@@ -58,12 +58,6 @@ export function McpServerCard({ server, onSelect, onToggle, onRefresh, onRemove 
           <Button variant="ghost" size="sm" onClick={() => onSelect?.(server)}>
             <Eye className="mr-1 h-3.5 w-3.5" />
             详情
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => onRefresh?.(server)}>
-            <RefreshCw className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => onRemove?.(server)}>
-            <Trash2 className="h-3.5 w-3.5 text-destructive" />
           </Button>
         </div>
       </CardContent>
