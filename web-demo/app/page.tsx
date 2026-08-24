@@ -29,7 +29,7 @@ export default async function HomePage() {
           ? skills.value.skills.filter((s: { enabled: boolean }) => s.enabled).length
           : '—'
     },
-    { ...DEFAULT_STATS[3], value: models.status === 'fulfilled' ? models.value.length : '—' }
+    { ...DEFAULT_STATS[3], value: models.status === 'fulfilled' ? models.value.models.length : '—' }
   ];
 
   const recentThreads: ActivityItem[] =

@@ -53,7 +53,10 @@ export {
   uploadsApi,
   memoryApi,
   mcpApi,
-  toolsApi
+  toolsApi,
+  channelsApi,
+  schedulerApi,
+  configApi
 } from './index';
 
 export { GatewayError } from './types';

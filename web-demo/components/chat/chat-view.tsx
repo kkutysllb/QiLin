@@ -27,10 +27,11 @@ export function ChatView({
     queryKey: ['agents'],
     queryFn: () => agentsApi.list()
   });
-  const { data: models = [] } = useQuery({
+  const { data: modelsResp } = useQuery({
     queryKey: ['models'],
     queryFn: () => modelsApi.list()
   });
+  const models = modelsResp?.models ?? [];
 
   const defaultAgent = agents[0];
   const defaultModel = models[0];
@@ -48,7 +49,7 @@ export function ChatView({
               {defaultAgent?.name ?? 'agent'}
             </Badge>
             <Badge variant="outline" className="text-[10px]">
-              {defaultModel?.model ?? '—'}
+              {defaultModel?.model_id ?? '—'}
             </Badge>
             <Badge variant="success" className="text-[10px]">
               single

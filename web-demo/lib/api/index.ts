@@ -10,3 +10,6 @@ export { uploadsApi } from './uploads';
 export { memoryApi } from './memory';
 export { mcpApi } from './mcp';
 export { toolsApi } from './tools';
+export { channelsApi } from './channels';
+export { schedulerApi } from './scheduler';
+export { configApi } from './config';
