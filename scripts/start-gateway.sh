@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# 一键启动 QiLin Gateway(自动配置 internal auth token + 检查端口冲突)
+# 一键启动 QiLin Gateway(自动配置 internal auth token + CORS + 端口检测)
 #
 # Usage:
-#   ./scripts/start-gateway.sh           # 默认端口 8081
-#   ./scripts/start-gateway.sh 8080      # 自定义端口
+#   ./scripts/start-gateway.sh              # 前台运行(默认端口 8081)
+#   ./scripts/start-gateway.sh 8080         # 前台,自定义端口
+#   ./scripts/start-gateway.sh --daemon     # 后台(用 nohup 脱离 session),默认端口
+#   ./scripts/start-gateway.sh --daemon 8080
+#   ./scripts/start-gateway.sh --stop       # 停掉后台运行的 gateway
+#   ./scripts/start-gateway.sh --status     # 查看 gateway 状态
 #
 # 依赖:
 #   - uvicorn in PATH(或 miniconda 的 uvicorn)
@@ -11,24 +15,73 @@
 
 set -euo pipefail
 
-PORT="${1:-8081}"
+# 解析参数
+MODE="foreground"
+PORT="8081"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --daemon|-d) MODE="daemon"; shift ;;
+    --stop)      MODE="stop"; shift ;;
+    --status|-s) MODE="status"; shift ;;
+    --help|-h)
+      sed -n '2,12p' "$0"; exit 0 ;;
+    [0-9]*)      PORT="$1"; shift ;;
+    *)           echo "未知参数: $1"; exit 1 ;;
+  esac
+done
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
+LOG_FILE="/tmp/qilin-gateway.log"
+PID_FILE="/tmp/qilin-gateway.pid"
 
 # 颜色
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
+# ── stop / status 子命令 ─────────────────────────────────────────────
+if [[ "$MODE" == "stop" ]]; then
+  if [[ -f "$PID_FILE" ]]; then
+    PID="$(cat "$PID_FILE")"
+    if kill -0 "$PID" 2>/dev/null; then
+      kill "$PID"
+      echo -e "${GREEN}✓ Gateway (PID $PID) 已停止${NC}"
+      rm -f "$PID_FILE"
+    else
+      echo -e "${YELLOW}⚠ PID $PID 不存在,清理 PID 文件${NC}"
+      rm -f "$PID_FILE"
+    fi
+  else
+    echo -e "${YELLOW}⚠ 没有运行中的 gateway${NC}"
+  fi
+  exit 0
+fi
+
+if [[ "$MODE" == "status" ]]; then
+  if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+    PID="$(cat "$PID_FILE")"
+    echo -e "${GREEN}✓ Gateway 在跑(PID $PID)${NC}"
+    lsof -nP -iTCP:"$PORT" -sTCP:LISTEN 2>/dev/null | head -3
+    echo ""
+    echo -e "日志: ${CYAN}tail -f $LOG_FILE${NC}"
+  else
+    echo -e "${YELLOW}⚠ Gateway 未运行${NC}"
+  fi
+  exit 0
+fi
+
+# ── 通用前置检查 ─────────────────────────────────────────────────────
 # 检查端口冲突
 if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   echo -e "${RED}❌ 端口 $PORT 已被占用:${NC}"
   lsof -nP -iTCP:"$PORT" -sTCP:LISTEN
   echo ""
-  echo -e "${YELLOW}提示:${NC} 换一个端口,例如: $0 8082"
-  echo "       或先停掉占用端口的进程: lsof -ti :$PORT | xargs kill"
+  echo -e "${YELLOW}提示:${NC} 换一个端口: $0 --daemon 8082"
+  echo "       或停掉占用: $0 --stop"
   exit 1
 fi
 
@@ -41,7 +94,7 @@ if [[ -z "${QILIN_INTERNAL_AUTH_TOKEN:-}" ]]; then
     echo -e "${YELLOW}⚠ QILIN_INTERNAL_AUTH_TOKEN 未设置,自动生成新 secret${NC}"
     export QILIN_INTERNAL_AUTH_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
     echo "$QILIN_INTERNAL_AUTH_TOKEN" > .qilin-internal-token
-    echo -e "${GREEN}✓ 已生成并持久化到 .qilin-internal-token(下次启动自动加载)${NC}"
+    echo -e "${GREEN}✓ 已持久化到 .qilin-internal-token(下次自动加载)${NC}"
   fi
 fi
 
@@ -67,12 +120,42 @@ if ! command -v "$UVICORN_BIN" >/dev/null 2>&1; then
   fi
 fi
 
+# ── daemon 模式 ──────────────────────────────────────────────────────
+if [[ "$MODE" == "daemon" ]]; then
+  echo -e "${GREEN}🚀 后台启动 QiLin Gateway${NC}"
+  echo "   端口:   $PORT"
+  echo "   日志:   $LOG_FILE"
+  echo "   PID:    $PID_FILE"
+  echo "   Secret: $(echo "$QILIN_INTERNAL_AUTH_TOKEN" | head -c 12)..."
+  echo ""
+  nohup "$UVICORN_BIN" app.gateway.app:app \
+    --port "$PORT" \
+    --host 127.0.0.1 \
+    --no-access-log \
+    > "$LOG_FILE" 2>&1 &
+  echo $! > "$PID_FILE"
+  sleep 2
+  if kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+    echo -e "${GREEN}✓ 启动成功(PID $(cat "$PID_FILE"))${NC}"
+    echo ""
+    echo "查看日志: ${CYAN}tail -f $LOG_FILE${NC}"
+    echo "停止服务: ${CYAN}$0 --stop${NC}"
+    echo "查看状态: ${CYAN}$0 --status${NC}"
+  else
+    echo -e "${RED}❌ 启动失败,请查看日志: $LOG_FILE${NC}"
+    cat "$LOG_FILE" | tail -20
+    exit 1
+  fi
+  exit 0
+fi
+
+# ── 前台模式(默认) ──────────────────────────────────────────────────
 echo ""
-echo -e "${GREEN}🚀 启动 QiLin Gateway${NC}"
+echo -e "${GREEN}🚀 启动 QiLin Gateway(前台)${NC}"
 echo "   端口:   $PORT"
 echo "   进程:   $$"
 echo "   Secret: $(echo "$QILIN_INTERNAL_AUTH_TOKEN" | head -c 12)..."
-echo "   日志:   tail -f /tmp/qilin-gateway.log(若用 --background)"
+echo "   停止:   Ctrl+C 或 $0 --stop"
 echo ""
 
 exec "$UVICORN_BIN" app.gateway.app:app \
