@@ -6,12 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { authApi } from '@/lib/api';
+import { GATEWAY_BASE_URL } from '@/lib/gateway/config';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ExternalLink, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -70,12 +71,30 @@ export default function LoginPage() {
                 '登录'
               )}
             </Button>
-            <p className="text-center text-xs text-muted-foreground">
-              默认管理员账户:admin / admin(详见 gateway 配置)
-            </p>
           </form>
+          <div className="mt-6 rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <div className="flex-1 space-y-2">
+                <div className="font-medium text-amber-200">首次启动?</div>
+                <p className="text-amber-100/80">
+                  QiLin Gateway 没有默认管理员账户。需要先在 Gateway 的 <code className="rounded bg-background px-1">/setup</code> 页面创建管理员账户,然后回来登录。
+                </p>
+                <a
+                  href={`${GATEWAY_BASE_URL}/setup`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-qilin-400 underline-offset-4 hover:underline"
+                >
+                  打开 Gateway /setup
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+
