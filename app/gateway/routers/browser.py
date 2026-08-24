@@ -21,11 +21,15 @@ router = APIRouter(prefix="/api", tags=["browser"])
 
 
 class BrowserNavigateRequest(BaseModel):
-    url: str = Field(..., description="The http(s) URL to open in the thread's live browser session")
+    url: str = Field(
+        ..., description="The http(s) URL to open in the thread's live browser session"
+    )
 
 
 class BrowserNavigateResponse(BaseModel):
-    screenshot: str | None = Field(default=None, description="Virtual artifact path of the captured screenshot")
+    screenshot: str | None = Field(
+        default=None, description="Virtual artifact path of the captured screenshot"
+    )
     url: str = Field(..., description="The resolved URL after navigation")
     title: str = Field(default="", description="The page title after navigation")
 
@@ -80,10 +84,14 @@ async def _browser_thread_owned_by(thread_store, thread_id: str, user_id: str) -
     description="Steer the thread's live browser session to a URL from the UI and capture a screenshot.",
 )
 @require_permission("threads", "write", owner_check=True, require_existing=True)
-async def navigate_browser(thread_id: str, body: BrowserNavigateRequest, request: Request) -> BrowserNavigateResponse:
+async def navigate_browser(
+    thread_id: str, body: BrowserNavigateRequest, request: Request
+) -> BrowserNavigateResponse:
     user_id = str(request.state.auth.user.id)
     thread_store = getattr(request.app.state, "thread_store", None)
-    if thread_store is None or not await _browser_thread_owned_by(thread_store, thread_id, user_id):
+    if thread_store is None or not await _browser_thread_owned_by(
+        thread_store, thread_id, user_id
+    ):
         raise HTTPException(status_code=404, detail=f"Thread {thread_id} not found")
 
     if not _browser_tools_enabled():
@@ -95,15 +103,21 @@ async def navigate_browser(thread_id: str, body: BrowserNavigateRequest, request
             redact_browser_url,
         )
     except ImportError as exc:  # Playwright is an optional dependency.
-        raise HTTPException(status_code=501, detail="Browser automation is not available") from exc
+        raise HTTPException(
+            status_code=501, detail="Browser automation is not available"
+        ) from exc
 
     url = body.url.strip()
     if not url:
         raise HTTPException(status_code=400, detail="URL is required")
 
-    outputs_path = get_paths().sandbox_outputs_dir(thread_id, user_id=get_effective_user_id())
+    outputs_path = get_paths().sandbox_outputs_dir(
+        thread_id, user_id=get_effective_user_id()
+    )
     try:
-        result = await navigate_and_capture(thread_id=thread_id, url=url, outputs_path=outputs_path)
+        result = await navigate_and_capture(
+            thread_id=thread_id, url=url, outputs_path=outputs_path
+        )
     except ValueError as exc:
         # SSRF / URL validation failure.
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -114,7 +128,9 @@ async def navigate_browser(thread_id: str, body: BrowserNavigateRequest, request
             redact_browser_url(url),
             type(exc).__name__,
         )
-        raise HTTPException(status_code=502, detail="Browser navigation failed") from exc
+        raise HTTPException(
+            status_code=502, detail="Browser navigation failed"
+        ) from exc
 
     return BrowserNavigateResponse(**result)
 
@@ -174,7 +190,9 @@ def _ws_origin_allowed(websocket: WebSocket) -> bool:
     if normalized in get_configured_cors_origins():
         return True
 
-    target_host = _first_header_value(websocket.headers.get("x-forwarded-host")) or websocket.headers.get("host")
+    target_host = _first_header_value(
+        websocket.headers.get("x-forwarded-host")
+    ) or websocket.headers.get("host")
     if target_host:
         normalized_host = normalized.split("://", 1)[-1]
         if normalized_host == target_host.strip().lower():
@@ -267,7 +285,9 @@ async def browser_stream(websocket: WebSocket, thread_id: str) -> None:
 
     def _cfg_int(key: str, default: int) -> int:
         value = extra.get(key)
-        return value if isinstance(value, int) and not isinstance(value, bool) else default
+        return (
+            value if isinstance(value, int) and not isinstance(value, bool) else default
+        )
 
     def _cfg_bool(key: str, default: bool) -> bool:
         value = extra.get(key)
@@ -283,7 +303,10 @@ async def browser_stream(websocket: WebSocket, thread_id: str) -> None:
             thread_id,
             headless=_cfg_bool("headless", True),
             timeout_ms=_cfg_int("timeout_ms", 30000),
-            viewport={"width": _cfg_int("viewport_width", 1280), "height": _cfg_int("viewport_height", 720)},
+            viewport={
+                "width": _cfg_int("viewport_width", 1280),
+                "height": _cfg_int("viewport_height", 720),
+            },
             cdp_url=_cfg_str("cdp_url"),
             allow_unguarded_cdp=_cfg_bool("allow_unguarded_cdp", False),
             url_guard=validate_browser_url,
@@ -373,7 +396,11 @@ async def browser_stream(websocket: WebSocket, thread_id: str) -> None:
         input_event.set()
 
     def _has_pending_input() -> bool:
-        return pending_move is not None or pending_wheel is not None or not input_queue.empty()
+        return (
+            pending_move is not None
+            or pending_wheel is not None
+            or not input_queue.empty()
+        )
 
     def _take_input() -> dict | None:
         nonlocal pending_move, pending_wheel
@@ -416,9 +443,15 @@ async def browser_stream(websocket: WebSocket, thread_id: str) -> None:
                     # SSRF-screen client-driven navigations with the same policy
                     # the agent tools enforce; reject rather than dispatch.
                     url = event.get("url")
-                    reason = validate_browser_url(url) if isinstance(url, str) else "Error: invalid navigation URL"
+                    reason = (
+                        validate_browser_url(url)
+                        if isinstance(url, str)
+                        else "Error: invalid navigation URL"
+                    )
                     if reason is not None:
-                        await _send_payload({"type": "nav_rejected", "url": url, "message": reason})
+                        await _send_payload(
+                            {"type": "nav_rejected", "url": url, "message": reason}
+                        )
                         continue
                 try:
                     await session.dispatch_input(event)
@@ -426,7 +459,13 @@ async def browser_stream(websocket: WebSocket, thread_id: str) -> None:
                     logger.warning("browser stream input failed: %s", exc)
                 else:
                     # A location may have changed — resync the client's URL bar.
-                    if event.get("type") in {"navigate", "back", "forward", "click", "activate_tab"}:
+                    if event.get("type") in {
+                        "navigate",
+                        "back",
+                        "forward",
+                        "click",
+                        "activate_tab",
+                    }:
                         await _send_url()
                         await _send_tabs()
 

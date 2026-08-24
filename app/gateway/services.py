@@ -75,8 +75,8 @@ from qilin.runtime.checkpoint_state import graph_state_schema
 from qilin.runtime.goal import goal_thread_lock
 from qilin.runtime.runs.naming import resolve_root_run_name
 from qilin.runtime.secret_context import (
-    LegacyRunMetadataSecretError,
     SECRETS_CONTEXT_KEY,
+    LegacyRunMetadataSecretError,
     redact_config_secrets,
     validate_run_metadata_secrets,
 )
@@ -96,10 +96,13 @@ async def reserve_checkpoint_write(
 ) -> AsyncIterator[None]:
     """Serialize an out-of-run checkpoint writer against all thread operations."""
     run_manager = get_run_manager(request)
-    async with goal_thread_lock(thread_id), run_manager.reserve_thread_operation(
-        thread_id,
-        kind=ThreadOperationKind.checkpoint_write,
-        user_id=user_id,
+    async with (
+        goal_thread_lock(thread_id),
+        run_manager.reserve_thread_operation(
+            thread_id,
+            kind=ThreadOperationKind.checkpoint_write,
+            user_id=user_id,
+        ),
     ):
         yield
 
@@ -182,7 +185,9 @@ async def _ensure_thread_metadata(
         unscoped = await thread_store.get(record.thread_id, user_id=None)
         if unscoped is not None:
             if unscoped.get("user_id") != owner_user_id:
-                await thread_store.update_owner(record.thread_id, owner_user_id, user_id=None)
+                await thread_store.update_owner(
+                    record.thread_id, owner_user_id, user_id=None
+                )
             existing = await thread_store.get(record.thread_id)
     if existing is None:
         await thread_store.create(
@@ -192,7 +197,9 @@ async def _ensure_thread_metadata(
         )
 
 
-async def _terminal_record_stream_missing(bridge: StreamBridge, record: RunRecord) -> bool:
+async def _terminal_record_stream_missing(
+    bridge: StreamBridge, record: RunRecord
+) -> bool:
     """True when a terminal run has no retained stream on bridges that can tell."""
     if not _run_is_terminal(record):
         return False
@@ -225,7 +232,11 @@ async def _orphan_recovery_observed_after_heartbeat(
     if not record.store_only:
         return False
     refreshed = await run_mgr.get(record.run_id, user_id=record.user_id)
-    return refreshed is not None and _run_is_terminal(refreshed) and refreshed.stop_reason == ORPHAN_RECOVERY_STOP_REASON
+    return (
+        refreshed is not None
+        and _run_is_terminal(refreshed)
+        and refreshed.stop_reason == ORPHAN_RECOVERY_STOP_REASON
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -246,7 +257,9 @@ def _strip_external_message_metadata(message: Any) -> Any:
     return message.model_copy(update={"additional_kwargs": additional_kwargs})
 
 
-def normalize_input(raw_input: dict[str, Any] | None, *, trusted_internal: bool = False) -> dict[str, Any]:
+def normalize_input(
+    raw_input: dict[str, Any] | None, *, trusted_internal: bool = False
+) -> dict[str, Any]:
     """Convert LangGraph Platform input format to LangChain state dict.
 
     Delegates dict→message coercion to ``langchain_core.messages.utils.convert_to_messages``
@@ -284,7 +297,9 @@ def normalize_input(raw_input: dict[str, Any] | None, *, trusted_internal: bool 
             else:
                 converted.append(msg)
         if not trusted_internal:
-            converted = [_strip_external_message_metadata(message) for message in converted]
+            converted = [
+                _strip_external_message_metadata(message) for message in converted
+            ]
         return {**raw_input, "messages": converted}
     return raw_input
 
@@ -351,7 +366,9 @@ _SERVER_OWNED_AUTHZ_CONTEXT_KEYS: frozenset[str] = frozenset(
 #   ``disable_clarification`` — set for non-interactive channels (GitHub
 #                              webhooks) so ClarificationMiddleware proceeds
 #                              instead of dead-ending the run.
-_CONTEXT_RUNTIME_ONLY_KEYS: frozenset[str] = frozenset({"github_token", "disable_clarification"})
+_CONTEXT_RUNTIME_ONLY_KEYS: frozenset[str] = frozenset(
+    {"github_token", "disable_clarification"}
+)
 
 
 def _resolve_sandbox_environment_secrets() -> dict[str, str]:
@@ -404,7 +421,14 @@ def inject_sandbox_environment_secrets(config: dict[str, Any]) -> None:
         return
     existing = runtime_context.get(SECRETS_CONTEXT_KEY)
     if isinstance(existing, dict):
-        merged = {**env_secrets, **{k: v for k, v in existing.items() if isinstance(k, str) and isinstance(v, str)}}
+        merged = {
+            **env_secrets,
+            **{
+                k: v
+                for k, v in existing.items()
+                if isinstance(k, str) and isinstance(v, str)
+            },
+        }
     else:
         merged = env_secrets
     runtime_context[SECRETS_CONTEXT_KEY] = merged
@@ -425,7 +449,9 @@ def strip_internal_context_keys(config: dict[str, Any]) -> None:
                 value.pop(key, None)
 
 
-def merge_run_context_overrides(config: dict[str, Any], context: Mapping[str, Any] | None, *, internal: bool = False) -> None:
+def merge_run_context_overrides(
+    config: dict[str, Any], context: Mapping[str, Any] | None, *, internal: bool = False
+) -> None:
     """Merge whitelisted keys from ``body.context`` into both ``config['configurable']``
     and ``config['context']`` so they are visible to legacy configurable readers and
     to LangGraph ``ToolRuntime.context`` consumers (e.g. the ``setup_agent`` tool —
@@ -451,7 +477,11 @@ def merge_run_context_overrides(config: dict[str, Any], context: Mapping[str, An
         return
     configurable = config.setdefault("configurable", {})
     runtime_context = config.setdefault("context", {})
-    keys = _CONTEXT_CONFIGURABLE_KEYS | _CONTEXT_INTERNAL_CALLER_KEYS if internal else _CONTEXT_CONFIGURABLE_KEYS
+    keys = (
+        _CONTEXT_CONFIGURABLE_KEYS | _CONTEXT_INTERNAL_CALLER_KEYS
+        if internal
+        else _CONTEXT_CONFIGURABLE_KEYS
+    )
     for key in keys:
         if key in context:
             if isinstance(configurable, dict):
@@ -467,7 +497,9 @@ def merge_run_context_overrides(config: dict[str, Any], context: Mapping[str, An
         runtime_context.setdefault("user_id", context["user_id"])
 
 
-async def resolve_trusted_internal_owner_for_attribution(request: Request, owner_user_id: str | None) -> Any | None:
+async def resolve_trusted_internal_owner_for_attribution(
+    request: Request, owner_user_id: str | None
+) -> Any | None:
     """Resolve the QiLin user used only for trusted internal attribution."""
 
     if not owner_user_id:
@@ -478,7 +510,10 @@ async def resolve_trusted_internal_owner_for_attribution(request: Request, owner
     try:
         return await get_local_provider().get_user(owner_user_id)
     except Exception:
-        logger.exception("Failed to resolve trusted internal owner %s", sanitize_log_param(owner_user_id))
+        logger.exception(
+            "Failed to resolve trusted internal owner %s",
+            sanitize_log_param(owner_user_id),
+        )
         return None
 
 
@@ -538,7 +573,9 @@ def inject_authenticated_user_context(
         if owner_user_id is not None:
             runtime_context["user_id"] = str(owner_user_id)
         runtime_context["user_role"] = getattr(internal_owner_user, "system_role", None)
-        runtime_context["oauth_provider"] = getattr(internal_owner_user, "oauth_provider", None)
+        runtime_context["oauth_provider"] = getattr(
+            internal_owner_user, "oauth_provider", None
+        )
         runtime_context["oauth_id"] = getattr(internal_owner_user, "oauth_id", None)
         return
 
@@ -653,7 +690,11 @@ def build_run_config(
                 # skill enabled/allowlist/declaration gates (#3938). Legitimate
                 # caller keys (``secrets``, ``user_id``, model overrides) never use
                 # the ``__`` prefix.
-                context = {key: value for key, value in context_value.items() if not (isinstance(key, str) and key.startswith("__"))}
+                context = {
+                    key: value
+                    for key, value in context_value.items()
+                    if not (isinstance(key, str) and key.startswith("__"))
+                }
             else:
                 raise ValueError("request config 'context' must be a mapping or null.")
             context["thread_id"] = thread_id
@@ -678,7 +719,9 @@ def build_run_config(
         # it overrides whatever the client sent.
         if "recursion_limit" in request_config:
             max_limit = _resolve_max_recursion_limit()
-            clamped = _clamp_recursion_limit(request_config["recursion_limit"], max_limit)
+            clamped = _clamp_recursion_limit(
+                request_config["recursion_limit"], max_limit
+            )
             if clamped != request_config["recursion_limit"]:
                 logger.warning(
                     "build_run_config: clamped client recursion_limit %r -> %d (max %d). thread_id=%s",
@@ -696,13 +739,19 @@ def build_run_config(
     if assistant_id and assistant_id != _DEFAULT_ASSISTANT_ID:
         normalized = assistant_id.strip().lower().replace("_", "-")
         if not normalized or not re.fullmatch(r"[a-z0-9-]+", normalized):
-            raise ValueError(f"Invalid assistant_id {assistant_id!r}: must contain only letters, digits, and hyphens after normalization.")
+            raise ValueError(
+                f"Invalid assistant_id {assistant_id!r}: must contain only letters, digits, and hyphens after normalization."
+            )
         configurable = config.setdefault("configurable", {})
         runtime_context = config.setdefault("context", {})
         explicit_agent_name: str | None = None
-        if isinstance(configurable, dict) and isinstance(configurable.get("agent_name"), str):
+        if isinstance(configurable, dict) and isinstance(
+            configurable.get("agent_name"), str
+        ):
             explicit_agent_name = configurable["agent_name"]
-        elif isinstance(runtime_context, dict) and isinstance(runtime_context.get("agent_name"), str):
+        elif isinstance(runtime_context, dict) and isinstance(
+            runtime_context.get("agent_name"), str
+        ):
             explicit_agent_name = runtime_context["agent_name"]
         effective_agent_name = explicit_agent_name or normalized
         if isinstance(configurable, dict):
@@ -770,7 +819,9 @@ def build_checkpoint_state_mutation_accessor(
 # and re-read on every eviction check, so a hot-reload takes effect without
 # a restart.
 _STATE_ACCESSOR_GRAPH_CACHE_MAX = 64
-_state_accessor_graph_cache: dict[tuple[str | None, str, int | None], tuple[Any, Any, Any]] = {}
+_state_accessor_graph_cache: dict[
+    tuple[str | None, str, int | None], tuple[Any, Any, Any]
+] = {}
 
 
 def _accessor_graph_cache_max(app_config: Any) -> int:
@@ -781,7 +832,13 @@ def _accessor_graph_cache_max(app_config: Any) -> int:
     )
 
 
-def _state_accessor_graph(agent_factory: Any, assistant_id: str | None, mode: str, snapshot_frequency: int | None, config: dict[str, Any]) -> Any:
+def _state_accessor_graph(
+    agent_factory: Any,
+    assistant_id: str | None,
+    mode: str,
+    snapshot_frequency: int | None,
+    config: dict[str, Any],
+) -> Any:
     app_config = (config.get("context") or {}).get("app_config")
     key = (assistant_id, mode, snapshot_frequency)
     cached = _state_accessor_graph_cache.get(key)
@@ -802,7 +859,17 @@ class _RawCheckpointSnapshot:
     metadata, config ancestry, created_at) comes straight from the tuple.
     """
 
-    __slots__ = ("checkpoint_exists", "config", "created_at", "metadata", "next", "parent_config", "tasks", "tasks_known", "values")
+    __slots__ = (
+        "checkpoint_exists",
+        "config",
+        "created_at",
+        "metadata",
+        "next",
+        "parent_config",
+        "tasks",
+        "tasks_known",
+        "values",
+    )
 
     def __init__(self, config: dict[str, Any], tup: Any | None) -> None:
         self.checkpoint_exists = tup is not None
@@ -834,14 +901,18 @@ class _RawCheckpointReadAccessor:
     @staticmethod
     def _gate(tup: Any) -> None:
         if checkpoint_tuple_uses_delta(tup):
-            raise CheckpointModeMismatchError("Thread requires delta mode; materialize and convert its checkpoints before using full mode.")
+            raise CheckpointModeMismatchError(
+                "Thread requires delta mode; materialize and convert its checkpoints before using full mode."
+            )
 
     async def aget(self, config: dict[str, Any]) -> _RawCheckpointSnapshot:
         tup = await self.checkpointer.aget_tuple(config)
         self._gate(tup)
         return _RawCheckpointSnapshot(config, tup)
 
-    async def ahistory(self, config: dict[str, Any], *, limit: int | None = None) -> list[_RawCheckpointSnapshot]:
+    async def ahistory(
+        self, config: dict[str, Any], *, limit: int | None = None
+    ) -> list[_RawCheckpointSnapshot]:
         if limit is not None and limit <= 0:
             return []
         result: list[_RawCheckpointSnapshot] = []
@@ -855,7 +926,11 @@ class _RawCheckpointReadAccessor:
             before = config
             walk_config = {
                 **config,
-                "configurable": {k: v for k, v in config.get("configurable", {}).items() if k != "checkpoint_id"},
+                "configurable": {
+                    k: v
+                    for k, v in config.get("configurable", {}).items()
+                    if k != "checkpoint_id"
+                },
             }
             anchor = await self.checkpointer.aget_tuple(before)
             self._gate(anchor)
@@ -863,7 +938,9 @@ class _RawCheckpointReadAccessor:
                 result.append(_RawCheckpointSnapshot(config, anchor))
         if limit is None or len(result) < limit:
             remaining = None if limit is None else limit - len(result)
-            async for tup in self.checkpointer.alist(walk_config, before=before, limit=remaining):
+            async for tup in self.checkpointer.alist(
+                walk_config, before=before, limit=remaining
+            ):
                 self._gate(tup)
                 result.append(_RawCheckpointSnapshot(config, tup))
                 if limit is not None and len(result) >= limit:
@@ -892,7 +969,13 @@ def build_checkpoint_state_accessor(
 
     agent_factory = resolve_agent_factory(assistant_id)
     try:
-        graph = _state_accessor_graph(agent_factory, assistant_id, ctx.checkpoint_channel_mode, getattr(ctx, "checkpoint_snapshot_frequency", None), config)
+        graph = _state_accessor_graph(
+            agent_factory,
+            assistant_id,
+            ctx.checkpoint_channel_mode,
+            getattr(ctx, "checkpoint_snapshot_frequency", None),
+            config,
+        )
     except Exception:
         if ctx.checkpoint_channel_mode != "full":
             # Delta materialization needs the graph's channel table; there is
@@ -906,7 +989,9 @@ def build_checkpoint_state_accessor(
             thread_id,
             exc_info=True,
         )
-        return _RawCheckpointReadAccessor(ctx.checkpointer, ctx.checkpoint_channel_mode), config
+        return _RawCheckpointReadAccessor(
+            ctx.checkpointer, ctx.checkpoint_channel_mode
+        ), config
     accessor = CheckpointStateAccessor.bind(
         graph,
         ctx.checkpointer,
@@ -934,7 +1019,9 @@ async def resolve_thread_assistant_id(
         thread_store = get_thread_store(request)
         record = await thread_store.get(thread_id)
     except Exception:
-        logger.warning("Failed to resolve assistant_id for thread %s", thread_id, exc_info=True)
+        logger.warning(
+            "Failed to resolve assistant_id for thread %s", thread_id, exc_info=True
+        )
         if fail_closed:
             raise
         return None
@@ -954,7 +1041,9 @@ async def build_thread_checkpoint_state_accessor(
     with the default lead schema would drop channels contributed by a custom
     ``AgentMiddleware.state_schema`` from the response.
     """
-    assistant_id = await resolve_thread_assistant_id(request, thread_id, fail_closed=fail_closed)
+    assistant_id = await resolve_thread_assistant_id(
+        request, thread_id, fail_closed=fail_closed
+    )
     return build_checkpoint_state_accessor(
         request,
         thread_id=thread_id,
@@ -1010,7 +1099,10 @@ async def apply_checkpoint_to_run_config(
             raise HTTPException(status_code=400, detail="checkpoint must be an object")
         checkpoint_thread_id = checkpoint.get("thread_id")
         if checkpoint_thread_id is not None and str(checkpoint_thread_id) != thread_id:
-            raise HTTPException(status_code=400, detail="checkpoint thread_id does not match request thread_id")
+            raise HTTPException(
+                status_code=400,
+                detail="checkpoint thread_id does not match request thread_id",
+            )
         raw_checkpoint_id = checkpoint.get("checkpoint_id")
         if raw_checkpoint_id:
             checkpoint_id = str(raw_checkpoint_id)
@@ -1036,14 +1128,24 @@ async def apply_checkpoint_to_run_config(
     try:
         checkpoint_tuple = await checkpointer.aget_tuple(read_config)
     except Exception as exc:
-        logger.exception("Failed to validate checkpoint %s for thread %s", checkpoint_id, sanitize_log_param(thread_id))
-        raise HTTPException(status_code=500, detail="Failed to validate checkpoint") from exc
+        logger.exception(
+            "Failed to validate checkpoint %s for thread %s",
+            checkpoint_id,
+            sanitize_log_param(thread_id),
+        )
+        raise HTTPException(
+            status_code=500, detail="Failed to validate checkpoint"
+        ) from exc
     if checkpoint_tuple is None:
-        raise HTTPException(status_code=404, detail=f"Checkpoint {checkpoint_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Checkpoint {checkpoint_id} not found"
+        )
 
     configurable = config.setdefault("configurable", {})
     if not isinstance(configurable, dict):
-        raise HTTPException(status_code=400, detail="request config configurable must be an object")
+        raise HTTPException(
+            status_code=400, detail="request config configurable must be an object"
+        )
     configurable["thread_id"] = thread_id
     configurable["checkpoint_ns"] = checkpoint_ns
     configurable["checkpoint_id"] = str(checkpoint_id)
@@ -1073,7 +1175,9 @@ async def start_run(
         FastAPI request — used to retrieve singletons from ``app.state``.
     """
     body_config = getattr(body, "config", None)
-    config_metadata = body_config.get("metadata") if isinstance(body_config, dict) else None
+    config_metadata = (
+        body_config.get("metadata") if isinstance(body_config, dict) else None
+    )
     try:
         validate_run_metadata_secrets(getattr(body, "metadata", None))
         validate_run_metadata_secrets(config_metadata)
@@ -1085,7 +1189,11 @@ async def start_run(
     run_mgr = get_run_manager(request)
     run_ctx = get_run_context(request)
 
-    disconnect = DisconnectMode.cancel if body.on_disconnect == "cancel" else DisconnectMode.continue_
+    disconnect = (
+        DisconnectMode.cancel
+        if body.on_disconnect == "cancel"
+        else DisconnectMode.continue_
+    )
 
     body_context = getattr(body, "context", None) or {}
     model_name = body_context.get("model_name")
@@ -1119,7 +1227,11 @@ async def start_run(
     user = getattr(request.state, "user", None)
     if user is not None:
         allowed = await run_ctx.thread_store.check_access(thread_id, str(user.id))
-        if not allowed and owner_user_id and getattr(user, "system_role", None) == INTERNAL_SYSTEM_ROLE:
+        if (
+            not allowed
+            and owner_user_id
+            and getattr(user, "system_role", None) == INTERNAL_SYSTEM_ROLE
+        ):
             # Channel workers may also act for the connection owner named in
             # the trusted header (e.g. claiming a legacy default-owned channel
             # thread for its real owner).
@@ -1127,29 +1239,44 @@ async def start_run(
         if not allowed:
             raise HTTPException(status_code=404, detail=f"Thread {thread_id} not found")
 
-    owner_context_token = set_current_user(SimpleNamespace(id=owner_user_id)) if owner_user_id else None
+    owner_context_token = (
+        set_current_user(SimpleNamespace(id=owner_user_id)) if owner_user_id else None
+    )
     try:
         agent_factory = resolve_agent_factory(body.assistant_id)
-        is_internal_caller = getattr(getattr(request, "state", None), "auth_source", None) == AUTH_SOURCE_INTERNAL
+        is_internal_caller = (
+            getattr(getattr(request, "state", None), "auth_source", None)
+            == AUTH_SOURCE_INTERNAL
+        )
         command = getattr(body, "command", None)
         if command and command.get("resume") is not None:
             graph_input = Command(resume=command["resume"])
         else:
-            graph_input = normalize_input(body.input, trusted_internal=is_internal_caller)
-        config = build_run_config(thread_id, body.config, body.metadata, assistant_id=body.assistant_id)
-        await apply_checkpoint_to_run_config(config, body=body, thread_id=thread_id, request=request)
+            graph_input = normalize_input(
+                body.input, trusted_internal=is_internal_caller
+            )
+        config = build_run_config(
+            thread_id, body.config, body.metadata, assistant_id=body.assistant_id
+        )
+        await apply_checkpoint_to_run_config(
+            config, body=body, thread_id=thread_id, request=request
+        )
 
         # Merge QiLin-specific context overrides into both ``configurable`` and ``context``.
         # The ``context`` field is a custom extension for the langgraph-compat layer
         # that carries agent configuration (model_name, thinking_enabled, etc.).
         # Only agent-relevant keys are forwarded; unknown keys (e.g. thread_id) are ignored.
-        merge_run_context_overrides(config, getattr(body, "context", None), internal=is_internal_caller)
+        merge_run_context_overrides(
+            config, getattr(body, "context", None), internal=is_internal_caller
+        )
         inject_sandbox_environment_secrets(config)
         if not is_internal_caller:
             # ``body.config`` is free-form and copied verbatim by
             # ``build_run_config``; scrub internal-only keys smuggled there.
             strip_internal_context_keys(config)
-        internal_owner_user = await resolve_trusted_internal_owner_for_attribution(request, owner_user_id)
+        internal_owner_user = await resolve_trusted_internal_owner_for_attribution(
+            request, owner_user_id
+        )
         inject_authenticated_user_context(
             config,
             request,
@@ -1194,7 +1321,9 @@ async def start_run(
             finally:
                 if metadata_task.done():
                     if not metadata_failure_logged:
-                        _log_thread_metadata_task_result(metadata_task, thread_id=thread_id)
+                        _log_thread_metadata_task_result(
+                            metadata_task, thread_id=thread_id
+                        )
                 else:
                     metadata_task.cancel()
                     metadata_task.add_done_callback(
@@ -1234,7 +1363,10 @@ async def start_run(
                     # written to runs.kwargs_json and echoed by the run API, so a
                     # request-scoped secret (#3861) must not ride along. The live
                     # config built above keeps the secrets for the actual run.
-                    kwargs={"input": body.input, "config": redact_config_secrets(body.config)},
+                    kwargs={
+                        "input": body.input,
+                        "config": redact_config_secrets(body.config),
+                    },
                     multitask_strategy=body.multitask_strategy,
                     model_name=model_name,
                     user_id=owner_user_id,
@@ -1285,7 +1417,11 @@ async def launch_scheduled_thread_run(
             raise ValueError("launch_scheduled_thread_run requires request or app")
         request = SimpleNamespace(
             app=app,
-            headers=({INTERNAL_OWNER_USER_ID_HEADER_NAME: owner_user_id} if owner_user_id else {}),
+            headers=(
+                {INTERNAL_OWNER_USER_ID_HEADER_NAME: owner_user_id}
+                if owner_user_id
+                else {}
+            ),
             state=SimpleNamespace(
                 user=get_internal_user(),
                 auth_source=AUTH_SOURCE_INTERNAL,
@@ -1302,7 +1438,11 @@ async def launch_scheduled_thread_run(
         # runtime-context consumers without a ContextVar fallback (e.g.
         # user-scoped GuardrailMiddleware providers) see the owning user;
         # ``inject_authenticated_user_context`` skips the internal user.
-        context=({"non_interactive": True, "user_id": owner_user_id} if owner_user_id else {"non_interactive": True}),
+        context=(
+            {"non_interactive": True, "user_id": owner_user_id}
+            if owner_user_id
+            else {"non_interactive": True}
+        ),
         webhook=None,
         checkpoint_id=None,
         checkpoint=None,
@@ -1378,7 +1518,11 @@ async def sse_consumer(
         # cancel-then-stream action has already persisted its request before
         # subscribing; a plain join disconnect must not invent a new
         # cancellation request. Only apply on_disconnect to locally-owned runs.
-        if not gap_emitted and not record.store_only and record.status in (RunStatus.pending, RunStatus.running):
+        if (
+            not gap_emitted
+            and not record.store_only
+            and record.status in (RunStatus.pending, RunStatus.running)
+        ):
             if record.on_disconnect == DisconnectMode.cancel:
                 await run_mgr.cancel(record.run_id)
 
@@ -1420,7 +1564,9 @@ async def wait_for_run_completion(
     try:
         while True:
             gap_seen = False
-            async for entry in bridge.subscribe(record.run_id, last_event_id=resume_from_event_id):
+            async for entry in bridge.subscribe(
+                record.run_id, last_event_id=resume_from_event_id
+            ):
                 # END_SENTINEL means the run reached a terminal state; honour it
                 # even if the client just disconnected so the caller still serializes
                 # the real final checkpoint.
@@ -1434,7 +1580,10 @@ async def wait_for_run_completion(
                     resume_from_event_id = entry.latest_available_event_id
                     gap_seen = True
                     break
-                if entry is HEARTBEAT_SENTINEL and await _orphan_recovery_observed_after_heartbeat(record, run_mgr):
+                if (
+                    entry is HEARTBEAT_SENTINEL
+                    and await _orphan_recovery_observed_after_heartbeat(record, run_mgr)
+                ):
                     completed = True
                     return True
                 if await request.is_disconnected():

@@ -23,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 def is_explicit_production_environment() -> bool:
-    return any(os.environ.get(name, "").strip().lower() in _PRODUCTION_ENV_VALUES for name in _PRODUCTION_ENV_VARS)
+    return any(
+        os.environ.get(name, "").strip().lower() in _PRODUCTION_ENV_VALUES
+        for name in _PRODUCTION_ENV_VARS
+    )
 
 
 def is_auth_disabled_requested() -> bool:

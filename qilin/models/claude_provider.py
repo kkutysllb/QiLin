@@ -41,8 +41,12 @@ THINKING_BUDGET_RATIO = 0.8
 # Billing header required by Anthropic API for OAuth token access.
 # Must be the first system prompt block. Format mirrors Claude Code CLI.
 # Override with ANTHROPIC_BILLING_HEADER env var if the hardcoded version drifts.
-_DEFAULT_BILLING_HEADER = "x-anthropic-billing-header: cc_version=2.1.85.351; cc_entrypoint=cli; cch=6c6d5;"
-OAUTH_BILLING_HEADER = os.environ.get("ANTHROPIC_BILLING_HEADER", _DEFAULT_BILLING_HEADER)
+_DEFAULT_BILLING_HEADER = (
+    "x-anthropic-billing-header: cc_version=2.1.85.351; cc_entrypoint=cli; cch=6c6d5;"
+)
+OAUTH_BILLING_HEADER = os.environ.get(
+    "ANTHROPIC_BILLING_HEADER", _DEFAULT_BILLING_HEADER
+)
 
 
 class ClaudeChatModel(ChatAnthropic):
@@ -97,7 +101,9 @@ class ClaudeChatModel(ChatAnthropic):
                 current_key = cred.access_token
                 logger.info(f"Using Claude Code CLI credential (source: {cred.source})")
             else:
-                logger.warning("No Anthropic API key or explicit Claude Code OAuth credential found.")
+                logger.warning(
+                    "No Anthropic API key or explicit Claude Code OAuth credential found."
+                )
 
         # Detect OAuth token and configure Bearer auth
         if is_oauth_token(current_key):
@@ -167,7 +173,13 @@ class ClaudeChatModel(ChatAnthropic):
         system = payload.get("system")
         if isinstance(system, list):
             # Remove any existing billing blocks, then insert a single one at index 0.
-            filtered = [b for b in system if not (isinstance(b, dict) and OAUTH_BILLING_HEADER in b.get("text", ""))]
+            filtered = [
+                b
+                for b in system
+                if not (
+                    isinstance(b, dict) and OAUTH_BILLING_HEADER in b.get("text", "")
+                )
+            ]
             payload["system"] = [billing_block, *filtered]
         elif isinstance(system, str):
             if OAUTH_BILLING_HEADER in system:
@@ -311,20 +323,26 @@ class ClaudeChatModel(ChatAnthropic):
         last_error: Exception | None = None
         for attempt in range(1, self.retry_max_attempts + 1):
             try:
-                return super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+                return super()._generate(
+                    messages, stop=stop, run_manager=run_manager, **kwargs
+                )
             except anthropic.RateLimitError as e:
                 last_error = e
                 if attempt >= self.retry_max_attempts:
                     raise
                 wait_ms = self._calc_backoff_ms(attempt, e)
-                logger.warning(f"Rate limited, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms")
+                logger.warning(
+                    f"Rate limited, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms"
+                )
                 time.sleep(wait_ms / 1000)
             except anthropic.InternalServerError as e:
                 last_error = e
                 if attempt >= self.retry_max_attempts:
                     raise
                 wait_ms = self._calc_backoff_ms(attempt, e)
-                logger.warning(f"Server error, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms")
+                logger.warning(
+                    f"Server error, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms"
+                )
                 time.sleep(wait_ms / 1000)
         assert last_error is not None  # 循环内要么返回要么 raise
         raise last_error
@@ -345,20 +363,26 @@ class ClaudeChatModel(ChatAnthropic):
         last_error: Exception | None = None
         for attempt in range(1, self.retry_max_attempts + 1):
             try:
-                return await super()._agenerate(messages, stop=stop, run_manager=run_manager, **kwargs)
+                return await super()._agenerate(
+                    messages, stop=stop, run_manager=run_manager, **kwargs
+                )
             except anthropic.RateLimitError as e:
                 last_error = e
                 if attempt >= self.retry_max_attempts:
                     raise
                 wait_ms = self._calc_backoff_ms(attempt, e)
-                logger.warning(f"Rate limited, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms")
+                logger.warning(
+                    f"Rate limited, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms"
+                )
                 await asyncio.sleep(wait_ms / 1000)
             except anthropic.InternalServerError as e:
                 last_error = e
                 if attempt >= self.retry_max_attempts:
                     raise
                 wait_ms = self._calc_backoff_ms(attempt, e)
-                logger.warning(f"Server error, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms")
+                logger.warning(
+                    f"Server error, retrying attempt {attempt}/{self.retry_max_attempts} after {wait_ms}ms"
+                )
                 await asyncio.sleep(wait_ms / 1000)
         assert last_error is not None  # 循环内要么返回要么 raise
         raise last_error

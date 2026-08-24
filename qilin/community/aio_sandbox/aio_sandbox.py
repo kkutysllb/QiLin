@@ -61,7 +61,9 @@ class AioSandbox(Sandbox):
         if sandbox_http_trust_env(base_url):
             self._client = AioSandboxClient(base_url=base_url, timeout=600)
         else:
-            direct_client = httpx.Client(timeout=600, follow_redirects=True, trust_env=False)
+            direct_client = httpx.Client(
+                timeout=600, follow_redirects=True, trust_env=False
+            )
             self._client = AioSandboxClient(
                 base_url=base_url,
                 timeout=600,
@@ -117,11 +119,17 @@ class AioSandbox(Sandbox):
         fern_http = getattr(wrapper, "httpx_client", None)
         real_httpx = getattr(fern_http, "httpx_client", None)
         target = next(
-            (c for c in (real_httpx, fern_http, client) if c is not None and hasattr(c, "close")),
+            (
+                c
+                for c in (real_httpx, fern_http, client)
+                if c is not None and hasattr(c, "close")
+            ),
             None,
         )
         if target is None:
-            logger.debug("AioSandbox %s: no closable client found, nothing to release", self.id)
+            logger.debug(
+                "AioSandbox %s: no closable client found, nothing to release", self.id
+            )
             return
 
         try:
@@ -195,18 +203,26 @@ class AioSandbox(Sandbox):
             return self._execute_with_env(command, env)
         with self._lock:
             try:
-                result = self._client.shell.exec_command(command=command, no_change_timeout=self._DEFAULT_NO_CHANGE_TIMEOUT)
+                result = self._client.shell.exec_command(
+                    command=command, no_change_timeout=self._DEFAULT_NO_CHANGE_TIMEOUT
+                )
                 output = result.data.output if result.data else ""
 
                 if output and _ERROR_OBSERVATION_SIGNATURE in output:
-                    logger.warning("ErrorObservation detected in sandbox output, retrying on a fresh session")
+                    logger.warning(
+                        "ErrorObservation detected in sandbox output, retrying on a fresh session"
+                    )
                     # exec_command only auto-creates a session when called with
                     # no id, so the recovery session must be created explicitly
                     # before we target it on retry.
                     fresh_id = str(uuid.uuid4())
                     self._client.shell.create_session(id=fresh_id)
                     try:
-                        result = self._client.shell.exec_command(command=command, id=fresh_id, no_change_timeout=self._DEFAULT_NO_CHANGE_TIMEOUT)
+                        result = self._client.shell.exec_command(
+                            command=command,
+                            id=fresh_id,
+                            no_change_timeout=self._DEFAULT_NO_CHANGE_TIMEOUT,
+                        )
                         output = result.data.output if result.data else ""
                     finally:
                         # Release the one-shot recovery session, best-effort, so
@@ -214,7 +230,9 @@ class AioSandbox(Sandbox):
                         try:
                             self._client.shell.cleanup_session(fresh_id)
                         except Exception as cleanup_error:
-                            logger.warning(f"Failed to release recovery session {fresh_id}: {cleanup_error}")
+                            logger.warning(
+                                f"Failed to release recovery session {fresh_id}: {cleanup_error}"
+                            )
 
                 return output if output else "(no output)"
             except Exception as e:
@@ -253,7 +271,9 @@ class AioSandbox(Sandbox):
             return _BASH_EXEC_UNSUPPORTED_ERROR
         output = self._run_bash_exec(command, env)
         if output and _ERROR_OBSERVATION_SIGNATURE in output:
-            logger.warning("ErrorObservation detected in bash.exec output, retrying on a fresh session")
+            logger.warning(
+                "ErrorObservation detected in bash.exec output, retrying on a fresh session"
+            )
             retried = self._run_bash_exec(command, env)
             if retried and _ERROR_OBSERVATION_SIGNATURE not in retried:
                 return retried
@@ -278,12 +298,19 @@ class AioSandbox(Sandbox):
             except ApiError as e:
                 if e.status_code == 404:
                     self._bash_exec_unsupported = True
-                    logger.error("Sandbox %s does not support bash.exec (/v1/bash/exec returned 404); env-bearing commands are unavailable until the sandbox image is upgraded to all-in-one-sandbox >= 1.9.3", self.id)
+                    logger.error(
+                        "Sandbox %s does not support bash.exec (/v1/bash/exec returned 404); env-bearing commands are unavailable until the sandbox image is upgraded to all-in-one-sandbox >= 1.9.3",
+                        self.id,
+                    )
                     return _BASH_EXEC_UNSUPPORTED_ERROR
-                logger.error(f"Failed to execute command with injected env in sandbox: {e}")
+                logger.error(
+                    f"Failed to execute command with injected env in sandbox: {e}"
+                )
                 return f"Error: {e}"
             except Exception as e:
-                logger.error(f"Failed to execute command with injected env in sandbox: {e}")
+                logger.error(
+                    f"Failed to execute command with injected env in sandbox: {e}"
+                )
                 return f"Error: {e}"
 
     def read_file(self, path: str) -> str:
@@ -317,13 +344,23 @@ class AioSandbox(Sandbox):
         for segment in normalised.split("/"):
             if segment == "..":
                 logger.error(f"Refused download due to path traversal: {path}")
-                raise PermissionError(f"Access denied: path traversal detected in '{path}'")
+                raise PermissionError(
+                    f"Access denied: path traversal detected in '{path}'"
+                )
 
         stripped_path = normalised.lstrip("/")
         allowed_prefix = VIRTUAL_PATH_PREFIX.lstrip("/")
-        if stripped_path != allowed_prefix and not stripped_path.startswith(f"{allowed_prefix}/"):
-            logger.error("Refused download outside allowed directory: path=%s, allowed_prefix=%s", path, VIRTUAL_PATH_PREFIX)
-            raise PermissionError(f"Access denied: path must be under '{VIRTUAL_PATH_PREFIX}': '{path}'")
+        if stripped_path != allowed_prefix and not stripped_path.startswith(
+            f"{allowed_prefix}/"
+        ):
+            logger.error(
+                "Refused download outside allowed directory: path=%s, allowed_prefix=%s",
+                path,
+                VIRTUAL_PATH_PREFIX,
+            )
+            raise PermissionError(
+                f"Access denied: path must be under '{VIRTUAL_PATH_PREFIX}': '{path}'"
+            )
 
         with self._lock:
             try:
@@ -343,7 +380,9 @@ class AioSandbox(Sandbox):
                 raise
             except Exception as e:
                 logger.error(f"Failed to download file in sandbox: {e}")
-                raise OSError(f"Failed to download file '{path}' from sandbox: {e}") from e
+                raise OSError(
+                    f"Failed to download file '{path}' from sandbox: {e}"
+                ) from e
 
     def list_dir(self, path: str, max_depth: int = 2) -> list[str]:
         """List the contents of a directory in the sandbox.
@@ -357,10 +396,17 @@ class AioSandbox(Sandbox):
         """
         with self._lock:
             try:
-                result = self._client.shell.exec_command(command=f"find {shlex.quote(path)} -maxdepth {max_depth} -type f -o -type d 2>/dev/null | head -500", no_change_timeout=self._DEFAULT_NO_CHANGE_TIMEOUT)
+                result = self._client.shell.exec_command(
+                    command=f"find {shlex.quote(path)} -maxdepth {max_depth} -type f -o -type d 2>/dev/null | head -500",
+                    no_change_timeout=self._DEFAULT_NO_CHANGE_TIMEOUT,
+                )
                 output = result.data.output if result.data else ""
                 if output:
-                    return [line.strip() for line in output.strip().split("\n") if line.strip()]
+                    return [
+                        line.strip()
+                        for line in output.strip().split("\n")
+                        if line.strip()
+                    ]
                 return []
             except Exception as e:
                 logger.error(f"Failed to list directory in sandbox: {e}")
@@ -385,15 +431,26 @@ class AioSandbox(Sandbox):
                 logger.error(f"Failed to write file in sandbox: {e}")
                 raise
 
-    def glob(self, path: str, pattern: str, *, include_dirs: bool = False, max_results: int = 200) -> tuple[list[str], bool]:
+    def glob(
+        self,
+        path: str,
+        pattern: str,
+        *,
+        include_dirs: bool = False,
+        max_results: int = 200,
+    ) -> tuple[list[str], bool]:
         if not include_dirs:
             result = self._client.file.find_files(path=path, glob=pattern)
             files = result.data.files if result.data and result.data.files else []
-            filtered = [file_path for file_path in files if not should_ignore_path(file_path)]
+            filtered = [
+                file_path for file_path in files if not should_ignore_path(file_path)
+            ]
             truncated = len(filtered) > max_results
             return filtered[:max_results], truncated
 
-        result = self._client.file.list_path(path=path, recursive=True, show_hidden=False)
+        result = self._client.file.list_path(
+            path=path, recursive=True, show_hidden=False
+        )
         entries = result.data.files if result.data and result.data.files else []
         matches: list[str] = []
         root_path = path.rstrip("/") or "/"
@@ -479,7 +536,9 @@ class AioSandbox(Sandbox):
         with self._lock:
             try:
                 base64_content = base64.b64encode(content).decode("utf-8")
-                self._client.file.write_file(file=path, content=base64_content, encoding="base64")
+                self._client.file.write_file(
+                    file=path, content=base64_content, encoding="base64"
+                )
             except Exception as e:
                 logger.error(f"Failed to update file in sandbox: {e}")
                 raise

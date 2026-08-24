@@ -39,12 +39,19 @@ class OAuthTokenManager:
         # either deadlocks silently or raises "bound to a different event loop".
         # threading.Lock has no loop affinity, so it is safe to share across
         # however many event loops/threads call into the same server's lock.
-        self._locks: dict[str, threading.Lock] = {name: threading.Lock() for name in oauth_by_server}
+        self._locks: dict[str, threading.Lock] = {
+            name: threading.Lock() for name in oauth_by_server
+        }
 
     @classmethod
-    def from_extensions_config(cls, extensions_config: ExtensionsConfig) -> OAuthTokenManager:
+    def from_extensions_config(
+        cls, extensions_config: ExtensionsConfig
+    ) -> OAuthTokenManager:
         oauth_by_server: dict[str, McpOAuthConfig] = {}
-        for server_name, server_config in extensions_config.get_enabled_mcp_servers().items():
+        for (
+            server_name,
+            server_config,
+        ) in extensions_config.get_enabled_mcp_servers().items():
             if server_config.oauth and server_config.oauth.enabled:
                 oauth_by_server[server_name] = server_config.oauth
         return cls(oauth_by_server)
@@ -82,7 +89,9 @@ class OAuthTokenManager:
         # this same line. Shielding the acquisition task means a cancelled caller
         # can instead wait for that (unstoppable) acquisition to actually land and
         # release the lock immediately, rather than leaking ownership of it.
-        acquire_task = asyncio.create_task(asyncio.to_thread(lock.acquire), name=f"oauth-lock-acquire:{server_name}")
+        acquire_task = asyncio.create_task(
+            asyncio.to_thread(lock.acquire), name=f"oauth-lock-acquire:{server_name}"
+        )
         try:
             await asyncio.shield(acquire_task)
         except asyncio.CancelledError:
@@ -113,7 +122,9 @@ class OAuthTokenManager:
     @staticmethod
     def _is_expiring(token: _OAuthToken, oauth: McpOAuthConfig) -> bool:
         now = datetime.now(UTC)
-        return token.expires_at <= now + timedelta(seconds=max(oauth.refresh_skew_seconds, 0))
+        return token.expires_at <= now + timedelta(
+            seconds=max(oauth.refresh_skew_seconds, 0)
+        )
 
     async def _fetch_token(self, oauth: McpOAuthConfig) -> _OAuthToken:
         import httpx  # pyright: ignore[reportMissingImports]
@@ -130,7 +141,9 @@ class OAuthTokenManager:
 
         if oauth.grant_type == "client_credentials":
             if not oauth.client_id or not oauth.client_secret:
-                raise ValueError("OAuth client_credentials requires client_id and client_secret")
+                raise ValueError(
+                    "OAuth client_credentials requires client_id and client_secret"
+                )
             data["client_id"] = oauth.client_id
             data["client_secret"] = oauth.client_secret
         elif oauth.grant_type == "refresh_token":
@@ -163,7 +176,10 @@ class OAuthTokenManager:
             if isinstance(rotated, str) and rotated:
                 oauth.refresh_token = rotated
 
-        token_type = str(payload.get(oauth.token_type_field, oauth.default_token_type) or oauth.default_token_type)
+        token_type = str(
+            payload.get(oauth.token_type_field, oauth.default_token_type)
+            or oauth.default_token_type
+        )
 
         expires_in_raw = payload.get(oauth.expires_in_field, 3600)
         try:
@@ -172,7 +188,9 @@ class OAuthTokenManager:
             expires_in = 3600
 
         expires_at = datetime.now(UTC) + timedelta(seconds=max(expires_in, 1))
-        return _OAuthToken(access_token=access_token, token_type=token_type, expires_at=expires_at)
+        return _OAuthToken(
+            access_token=access_token, token_type=token_type, expires_at=expires_at
+        )
 
 
 def build_oauth_tool_interceptor(extensions_config: ExtensionsConfig) -> Any | None:
@@ -193,7 +211,9 @@ def build_oauth_tool_interceptor(extensions_config: ExtensionsConfig) -> Any | N
     return oauth_interceptor
 
 
-async def get_initial_oauth_headers(extensions_config: ExtensionsConfig) -> dict[str, str]:
+async def get_initial_oauth_headers(
+    extensions_config: ExtensionsConfig,
+) -> dict[str, str]:
     """Get initial OAuth Authorization headers for MCP server connections."""
     token_manager = OAuthTokenManager.from_extensions_config(extensions_config)
     if not token_manager.has_oauth_servers():

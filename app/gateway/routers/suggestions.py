@@ -25,18 +25,34 @@ class SuggestionMessage(BaseModel):
 
 
 class SuggestionsRequest(BaseModel):
-    messages: list[SuggestionMessage] = Field(..., description="Recent conversation messages")
-    n: int = Field(default=DEFAULT_MAX_SUGGESTIONS, ge=1, le=MAX_SUGGESTIONS_LIMIT, description="Number of suggestions to generate")
+    messages: list[SuggestionMessage] = Field(
+        ..., description="Recent conversation messages"
+    )
+    n: int = Field(
+        default=DEFAULT_MAX_SUGGESTIONS,
+        ge=1,
+        le=MAX_SUGGESTIONS_LIMIT,
+        description="Number of suggestions to generate",
+    )
     model_name: str | None = Field(default=None, description="Optional model override")
 
 
 class SuggestionsResponse(BaseModel):
-    suggestions: list[str] = Field(default_factory=list, description="Suggested follow-up questions")
+    suggestions: list[str] = Field(
+        default_factory=list, description="Suggested follow-up questions"
+    )
 
 
 class SuggestionsConfigResponse(BaseModel):
-    enabled: bool = Field(..., description="Whether follow-up suggestions are enabled globally")
-    max_suggestions: int = Field(..., ge=1, le=MAX_SUGGESTIONS_LIMIT, description="Maximum number of follow-up suggestions to generate")
+    enabled: bool = Field(
+        ..., description="Whether follow-up suggestions are enabled globally"
+    )
+    max_suggestions: int = Field(
+        ...,
+        ge=1,
+        le=MAX_SUGGESTIONS_LIMIT,
+        description="Maximum number of follow-up suggestions to generate",
+    )
 
 
 _strip_markdown_code_fence = llm_text.strip_markdown_code_fence
@@ -94,7 +110,10 @@ def _configured_max_suggestions(config: AppConfig) -> int:
 async def get_suggestions_config(
     config: AppConfig = Depends(get_config),
 ) -> SuggestionsConfigResponse:
-    return SuggestionsConfigResponse(enabled=config.suggestions.enabled, max_suggestions=_configured_max_suggestions(config))
+    return SuggestionsConfigResponse(
+        enabled=config.suggestions.enabled,
+        max_suggestions=_configured_max_suggestions(config),
+    )
 
 
 @router.post(
@@ -130,7 +149,9 @@ async def generate_suggestions(
         "- Do NOT include numbering, markdown, or any extra text.\n"
         "- Output MUST be a JSON array of strings only.\n"
     )
-    user_content = f"Conversation Context:\n{conversation}\n\nGenerate {n} follow-up questions"
+    user_content = (
+        f"Conversation Context:\n{conversation}\n\nGenerate {n} follow-up questions"
+    )
 
     try:
         raw = await run_oneshot_llm(
@@ -146,5 +167,7 @@ async def generate_suggestions(
         cleaned = cleaned[:n]
         return SuggestionsResponse(suggestions=cleaned)
     except Exception as exc:
-        logger.exception("Failed to generate suggestions: thread_id=%s err=%s", thread_id, exc)
+        logger.exception(
+            "Failed to generate suggestions: thread_id=%s err=%s", thread_id, exc
+        )
         return SuggestionsResponse(suggestions=[])

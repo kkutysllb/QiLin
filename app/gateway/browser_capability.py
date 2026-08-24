@@ -21,10 +21,16 @@ class BrowserCapability:
 
 def _tool_config(config: AppConfig) -> Any | None:
     get_tool_config = getattr(config, "get_tool_config", None)
-    if callable(get_tool_config) and callable(getattr(type(config), "get_tool_config", None)):
+    if callable(get_tool_config) and callable(
+        getattr(type(config), "get_tool_config", None)
+    ):
         return get_tool_config("browser_navigate")
     return next(
-        (tool for tool in (getattr(config, "tools", None) or []) if getattr(tool, "name", None) == "browser_navigate"),
+        (
+            tool
+            for tool in (getattr(config, "tools", None) or [])
+            if getattr(tool, "name", None) == "browser_navigate"
+        ),
         None,
     )
 
@@ -39,7 +45,11 @@ def browser_capability(config: AppConfig) -> BrowserCapability:
 
     tool_cfg = _tool_config(config)
     if tool_cfg is None:
-        return BrowserCapability(configured=False, available=False, reason="browser_navigate is not configured")
+        return BrowserCapability(
+            configured=False,
+            available=False,
+            reason="browser_navigate is not configured",
+        )
 
     worker_error = browser_multi_worker_error()
     if worker_error is not None:
@@ -47,14 +57,21 @@ def browser_capability(config: AppConfig) -> BrowserCapability:
 
     extra = _tool_extra(tool_cfg)
     cdp_url = extra.get("cdp_url")
-    if isinstance(cdp_url, str) and cdp_url.strip() and extra.get("allow_unguarded_cdp") is not True:
+    if (
+        isinstance(cdp_url, str)
+        and cdp_url.strip()
+        and extra.get("allow_unguarded_cdp") is not True
+    ):
         return BrowserCapability(
             configured=True,
             available=False,
             reason="cdp_url requires allow_unguarded_cdp: true because QiLin cannot enforce the SSRF request guard on a CDP-attached browser",
         )
 
-    if importlib.util.find_spec("playwright") is None or importlib.util.find_spec("playwright.async_api") is None:
+    if (
+        importlib.util.find_spec("playwright") is None
+        or importlib.util.find_spec("playwright.async_api") is None
+    ):
         return BrowserCapability(
             configured=True,
             available=False,

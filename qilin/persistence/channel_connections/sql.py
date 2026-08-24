@@ -46,7 +46,9 @@ class ChannelCredentialCipher:
     def encrypt_text(self, value: str | None) -> str | None:
         if value is None:
             return None
-        return "fernet:v1:" + self._fernet.encrypt(value.encode("utf-8")).decode("ascii")
+        return "fernet:v1:" + self._fernet.encrypt(value.encode("utf-8")).decode(
+            "ascii"
+        )
 
     def decrypt_text(self, value: str | None) -> str | None:
         if value is None:
@@ -122,7 +124,9 @@ class ChannelConnectionRepository:
         metadata: dict[str, Any] | None = None,
         status: str = "connected",
     ) -> dict[str, Any]:
-        external_account_id_value = self._normalize_optional_identity(external_account_id)
+        external_account_id_value = self._normalize_optional_identity(
+            external_account_id
+        )
         workspace_id_value = self._normalize_optional_identity(workspace_id)
 
         def _apply(row: ChannelConnectionRow) -> None:
@@ -141,7 +145,8 @@ class ChannelConnectionRepository:
                 result = await session.execute(
                     select(ChannelConnectionRow.id).where(
                         ChannelConnectionRow.provider == provider,
-                        ChannelConnectionRow.external_account_id == external_account_id_value,
+                        ChannelConnectionRow.external_account_id
+                        == external_account_id_value,
                         ChannelConnectionRow.workspace_id == workspace_id_value,
                         ChannelConnectionRow.owner_user_id != owner_user_id,
                         ChannelConnectionRow.status != "revoked",
@@ -150,8 +155,16 @@ class ChannelConnectionRepository:
             transferred_ids = [row_id for row_id in result.scalars()]
             if not transferred_ids:
                 return
-            await session.execute(update(ChannelConnectionRow).where(ChannelConnectionRow.id.in_(transferred_ids)).values(status="revoked"))
-            await session.execute(delete(ChannelCredentialRow).where(ChannelCredentialRow.connection_id.in_(transferred_ids)))
+            await session.execute(
+                update(ChannelConnectionRow)
+                .where(ChannelConnectionRow.id.in_(transferred_ids))
+                .values(status="revoked")
+            )
+            await session.execute(
+                delete(ChannelCredentialRow).where(
+                    ChannelCredentialRow.connection_id.in_(transferred_ids)
+                )
+            )
 
         stmt = select(ChannelConnectionRow).where(
             ChannelConnectionRow.owner_user_id == owner_user_id,
@@ -193,10 +206,19 @@ class ChannelConnectionRepository:
 
     async def list_connections(self, owner_user_id: str) -> list[dict[str, Any]]:
         async with self.session_factory() as session:
-            result = await session.execute(select(ChannelConnectionRow).where(ChannelConnectionRow.owner_user_id == owner_user_id).order_by(ChannelConnectionRow.updated_at.desc(), ChannelConnectionRow.id.desc()))
+            result = await session.execute(
+                select(ChannelConnectionRow)
+                .where(ChannelConnectionRow.owner_user_id == owner_user_id)
+                .order_by(
+                    ChannelConnectionRow.updated_at.desc(),
+                    ChannelConnectionRow.id.desc(),
+                )
+            )
             return [self._connection_to_dict(row) for row in result.scalars()]
 
-    async def disconnect_connection(self, *, connection_id: str, owner_user_id: str) -> bool:
+    async def disconnect_connection(
+        self, *, connection_id: str, owner_user_id: str
+    ) -> bool:
         async with self.session_factory() as session:
             row = await session.get(ChannelConnectionRow, connection_id)
             if row is None or row.owner_user_id != owner_user_id:
@@ -222,8 +244,16 @@ class ChannelConnectionRepository:
             if not connection_ids:
                 return 0
 
-            await session.execute(update(ChannelConnectionRow).where(ChannelConnectionRow.id.in_(connection_ids)).values(status="revoked"))
-            await session.execute(delete(ChannelCredentialRow).where(ChannelCredentialRow.connection_id.in_(connection_ids)))
+            await session.execute(
+                update(ChannelConnectionRow)
+                .where(ChannelConnectionRow.id.in_(connection_ids))
+                .values(status="revoked")
+            )
+            await session.execute(
+                delete(ChannelCredentialRow).where(
+                    ChannelCredentialRow.connection_id.in_(connection_ids)
+                )
+            )
             await session.commit()
             return len(connection_ids)
 
@@ -250,7 +280,9 @@ class ChannelConnectionRepository:
             row.token_type = token_type
             row.expires_at = expires_at
             row.refresh_expires_at = refresh_expires_at
-            row.encrypted_extra_json = self._cipher.encrypt_text(json.dumps(extra or {}, ensure_ascii=False))
+            row.encrypted_extra_json = self._cipher.encrypt_text(
+                json.dumps(extra or {}, ensure_ascii=False)
+            )
             row.version = (row.version or 0) + 1
             await session.commit()
 
@@ -265,8 +297,12 @@ class ChannelConnectionRepository:
                 extra_raw = self._cipher.decrypt_text(row.encrypted_extra_json)
                 return {
                     "connection_id": row.connection_id,
-                    "access_token": self._cipher.decrypt_text(row.encrypted_access_token),
-                    "refresh_token": self._cipher.decrypt_text(row.encrypted_refresh_token),
+                    "access_token": self._cipher.decrypt_text(
+                        row.encrypted_access_token
+                    ),
+                    "refresh_token": self._cipher.decrypt_text(
+                        row.encrypted_refresh_token
+                    ),
                     "token_type": row.token_type,
                     "expires_at": self._coerce_datetime(row.expires_at),
                     "refresh_expires_at": self._coerce_datetime(row.refresh_expires_at),
@@ -371,7 +407,9 @@ class ChannelConnectionRepository:
                     state_hash=self.hash_state(state),
                     owner_user_id=owner_user_id,
                     provider=provider,
-                    code_verifier_encrypted=self._encrypt_optional_secret(code_verifier),
+                    code_verifier_encrypted=self._encrypt_optional_secret(
+                        code_verifier
+                    ),
                     nonce_hash=nonce_hash,
                     redirect_after=redirect_after,
                     requested_scopes_json=list(requested_scopes or []),
@@ -382,7 +420,9 @@ class ChannelConnectionRepository:
             await session.commit()
             return True
 
-    async def _serialize_oauth_owner_scope(self, session: AsyncSession, owner_user_id: str, provider: str) -> None:
+    async def _serialize_oauth_owner_scope(
+        self, session: AsyncSession, owner_user_id: str, provider: str
+    ) -> None:
         """Serialize concurrent pending-cap transactions for one (owner, provider).
 
         On PostgreSQL this takes a transaction-scoped advisory lock so concurrent
@@ -395,7 +435,10 @@ class ChannelConnectionRepository:
         except Exception:
             dialect = ""
         if dialect == "postgresql":
-            await session.execute(text("SELECT pg_advisory_xact_lock(:lock_key)"), {"lock_key": self._oauth_scope_lock_key(owner_user_id, provider)})
+            await session.execute(
+                text("SELECT pg_advisory_xact_lock(:lock_key)"),
+                {"lock_key": self._oauth_scope_lock_key(owner_user_id, provider)},
+            )
 
     @staticmethod
     def _oauth_scope_lock_key(owner_user_id: str, provider: str) -> int:
@@ -406,7 +449,11 @@ class ChannelConnectionRepository:
     async def delete_expired_oauth_states(self, *, now: datetime | None = None) -> int:
         current_time = now or datetime.now(UTC)
         async with self.session_factory() as session:
-            result = await session.execute(delete(ChannelOAuthStateRow).where(ChannelOAuthStateRow.expires_at < current_time))
+            result = await session.execute(
+                delete(ChannelOAuthStateRow).where(
+                    ChannelOAuthStateRow.expires_at < current_time
+                )
+            )
             await session.commit()
             return int(cast("CursorResult[Any]", result).rowcount or 0)
 
@@ -432,7 +479,11 @@ class ChannelConnectionRepository:
             )
 
         async with self.session_factory() as session:
-            result = await session.execute(select(func.count()).select_from(ChannelOAuthStateRow).where(*conditions))
+            result = await session.execute(
+                select(func.count())
+                .select_from(ChannelOAuthStateRow)
+                .where(*conditions)
+            )
             return int(result.scalar_one())
 
     async def consume_oauth_state(
@@ -445,7 +496,11 @@ class ChannelConnectionRepository:
         current_time = now or datetime.now(UTC)
         state_hash = self.hash_state(state)
         async with self.session_factory() as session:
-            await session.execute(delete(ChannelOAuthStateRow).where(ChannelOAuthStateRow.expires_at < current_time))
+            await session.execute(
+                delete(ChannelOAuthStateRow).where(
+                    ChannelOAuthStateRow.expires_at < current_time
+                )
+            )
             row = await session.get(ChannelOAuthStateRow, state_hash)
             if row is None or row.provider != provider or row.consumed_at is not None:
                 await session.commit()
@@ -489,11 +544,16 @@ class ChannelConnectionRepository:
                 select(ChannelConnectionRow)
                 .where(
                     ChannelConnectionRow.provider == provider,
-                    ChannelConnectionRow.external_account_id == self._normalize_optional_identity(external_account_id),
-                    ChannelConnectionRow.workspace_id == self._normalize_optional_identity(workspace_id),
+                    ChannelConnectionRow.external_account_id
+                    == self._normalize_optional_identity(external_account_id),
+                    ChannelConnectionRow.workspace_id
+                    == self._normalize_optional_identity(workspace_id),
                     ChannelConnectionRow.status == "connected",
                 )
-                .order_by(ChannelConnectionRow.updated_at.desc(), ChannelConnectionRow.id.desc())
+                .order_by(
+                    ChannelConnectionRow.updated_at.desc(),
+                    ChannelConnectionRow.id.desc(),
+                )
                 .limit(1)
             )
             row = result.scalar_one_or_none()
@@ -513,7 +573,8 @@ class ChannelConnectionRepository:
         async with self.session_factory() as session:
             stmt = select(ChannelConversationRow).where(
                 ChannelConversationRow.connection_id == connection_id,
-                ChannelConversationRow.external_conversation_id == external_conversation_id,
+                ChannelConversationRow.external_conversation_id
+                == external_conversation_id,
                 ChannelConversationRow.external_topic_id == topic_id,
             )
             row = (await session.execute(stmt)).scalar_one_or_none()
@@ -543,7 +604,8 @@ class ChannelConnectionRepository:
         async with self.session_factory() as session:
             stmt = select(ChannelConversationRow.thread_id).where(
                 ChannelConversationRow.connection_id == connection_id,
-                ChannelConversationRow.external_conversation_id == external_conversation_id,
+                ChannelConversationRow.external_conversation_id
+                == external_conversation_id,
                 ChannelConversationRow.external_topic_id == (external_topic_id or ""),
             )
             return (await session.execute(stmt)).scalar_one_or_none()

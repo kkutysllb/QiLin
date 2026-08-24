@@ -85,7 +85,11 @@ def _host_with_optional_port(hostname: str, port: int | None, scheme: str) -> st
     if ":" in host and not host.startswith("["):
         host = f"[{host}]"
 
-    if port is None or (scheme == "http" and port == 80) or (scheme == "https" and port == 443):
+    if (
+        port is None
+        or (scheme == "http" and port == 80)
+        or (scheme == "https" and port == 443)
+    ):
         return host
     return f"{host}:{port}"
 
@@ -103,7 +107,13 @@ def _normalize_origin(origin: str) -> str | None:
         return None
 
     # Browser Origin is only scheme/host/port. Reject URL-shaped or credentialed values.
-    if parsed.username or parsed.password or parsed.path or parsed.query or parsed.fragment:
+    if (
+        parsed.username
+        or parsed.password
+        or parsed.path
+        or parsed.query
+        or parsed.fragment
+    ):
         return None
 
     return f"{scheme}://{_host_with_optional_port(parsed.hostname, port, scheme)}"
@@ -168,14 +178,23 @@ def _forwarded_param(request: Request, name: str) -> str | None:
 
 def _request_scheme(request: Request) -> str:
     """Resolve the original request scheme from trusted proxy headers."""
-    scheme = _forwarded_param(request, "proto") or _first_header_value(request.headers.get("x-forwarded-proto")) or request.url.scheme
+    scheme = (
+        _forwarded_param(request, "proto")
+        or _first_header_value(request.headers.get("x-forwarded-proto"))
+        or request.url.scheme
+    )
     return scheme.lower()
 
 
 def _request_origin(request: Request) -> str | None:
     """Build the origin for the URL the browser is targeting."""
     scheme = _request_scheme(request)
-    host = _forwarded_param(request, "host") or _first_header_value(request.headers.get("x-forwarded-host")) or request.headers.get("host") or request.url.netloc
+    host = (
+        _forwarded_param(request, "host")
+        or _first_header_value(request.headers.get("x-forwarded-host"))
+        or request.headers.get("host")
+        or request.url.netloc
+    )
 
     forwarded_port = _first_header_value(request.headers.get("x-forwarded-port"))
     if forwarded_port and ":" not in host.rsplit("]", 1)[-1]:
@@ -209,15 +228,25 @@ def is_allowed_auth_origin(request: Request) -> bool:
         return False
 
     request_origin = _request_origin(request)
-    return normalized_origin in configured or (request_origin is not None and normalized_origin == request_origin)
+    return normalized_origin in configured or (
+        request_origin is not None and normalized_origin == request_origin
+    )
 
 
 def auth_csrf_cookie_settings(request: Request) -> tuple[bool, int | None]:
     """Return ``(secure, max_age)`` for auth-created CSRF cookies."""
-    session_cookie_issued = getattr(request.state, SESSION_COOKIE_ISSUED_STATE_ATTR, False)
+    session_cookie_issued = getattr(
+        request.state, SESSION_COOKIE_ISSUED_STATE_ATTR, False
+    )
     if session_cookie_issued:
         return (
-            bool(getattr(request.state, SESSION_COOKIE_SECURE_STATE_ATTR, is_secure_request(request))),
+            bool(
+                getattr(
+                    request.state,
+                    SESSION_COOKIE_SECURE_STATE_ATTR,
+                    is_secure_request(request),
+                )
+            ),
             getattr(request.state, SESSION_COOKIE_MAX_AGE_STATE_ATTR, None),
         )
 
@@ -232,10 +261,16 @@ class CSRFMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         _is_auth = is_auth_endpoint(request)
 
-        if should_check_csrf(request) and _is_auth and not is_allowed_auth_origin(request):
+        if (
+            should_check_csrf(request)
+            and _is_auth
+            and not is_allowed_auth_origin(request)
+        ):
             return JSONResponse(
                 status_code=403,
                 content={"detail": "Cross-site auth request denied."},
@@ -261,7 +296,9 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                 if not cookie_token or not header_token:
                     return JSONResponse(
                         status_code=403,
-                        content={"detail": "CSRF token missing. Include X-CSRF-Token header."},
+                        content={
+                            "detail": "CSRF token missing. Include X-CSRF-Token header."
+                        },
                     )
 
                 if not secrets.compare_digest(cookie_token, header_token):
@@ -276,7 +313,11 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         # Session-creating handlers may stamp the final access-token max_age on
         # request.state; mirroring it here keeps the double-submit cookie pair
         # from diverging across HTTPS, localhost, and sandbox deployments.
-        if _is_auth and request.method == "POST" and not getattr(request.state, SKIP_AUTH_CSRF_COOKIE_STATE_ATTR, False):
+        if (
+            _is_auth
+            and request.method == "POST"
+            and not getattr(request.state, SKIP_AUTH_CSRF_COOKIE_STATE_ATTR, False)
+        ):
             # Generate a new CSRF token for the session
             csrf_token = generate_csrf_token()
             secure, max_age = auth_csrf_cookie_settings(request)

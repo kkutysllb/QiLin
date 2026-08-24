@@ -36,7 +36,12 @@ ReasoningEffort = Literal["low", "medium", "high"]
 # Fields carrying a custom agent's per-agent model behavior (issue #4336),
 # shared by the create/update request bodies and the response so the three
 # stay in lockstep. ``model`` picks the profile; the rest layer on top of it.
-_MODEL_BEHAVIOR_FIELDS = ("model", "model_settings", "thinking_enabled", "reasoning_effort")
+_MODEL_BEHAVIOR_FIELDS = (
+    "model",
+    "model_settings",
+    "thinking_enabled",
+    "reasoning_effort",
+)
 
 
 class AgentResponse(BaseModel):
@@ -45,16 +50,40 @@ class AgentResponse(BaseModel):
     name: str = Field(..., description="Agent name (hyphen-case)")
     description: str = Field(default="", description="Agent description")
     model: str | None = Field(default=None, description="Optional model override")
-    tool_groups: list[str] | None = Field(default=None, description="Optional tool group whitelist")
-    skills: list[str] | None = Field(default=None, description="Optional skill whitelist (None=all, []=none)")
-    model_settings: AgentModelSettings | None = Field(default=None, description="Per-agent sampling overrides (temperature / max_tokens)")
-    thinking_enabled: bool | None = Field(default=None, description="Per-agent thinking-mode default (None = runtime default)")
-    reasoning_effort: ReasoningEffort | None = Field(default=None, description="Per-agent reasoning-effort default (None = runtime default)")
+    tool_groups: list[str] | None = Field(
+        default=None, description="Optional tool group whitelist"
+    )
+    skills: list[str] | None = Field(
+        default=None, description="Optional skill whitelist (None=all, []=none)"
+    )
+    model_settings: AgentModelSettings | None = Field(
+        default=None,
+        description="Per-agent sampling overrides (temperature / max_tokens)",
+    )
+    thinking_enabled: bool | None = Field(
+        default=None,
+        description="Per-agent thinking-mode default (None = runtime default)",
+    )
+    reasoning_effort: ReasoningEffort | None = Field(
+        default=None,
+        description="Per-agent reasoning-effort default (None = runtime default)",
+    )
     soul: str | None = Field(default=None, description="SOUL.md content")
-    max_turns: int | None = Field(default=None, description="Max LLM turns for this agent (None = use subagent default)")
-    timeout_seconds: int | None = Field(default=None, description="Execution timeout in seconds (None = use subagent default)")
-    disallowed_tools: list[str] | None = Field(default=None, description="Tools explicitly blocked for this agent")
-    role: str = Field(default="worker", description="Orchestration role: orchestrator | worker | reviewer")
+    max_turns: int | None = Field(
+        default=None,
+        description="Max LLM turns for this agent (None = use subagent default)",
+    )
+    timeout_seconds: int | None = Field(
+        default=None,
+        description="Execution timeout in seconds (None = use subagent default)",
+    )
+    disallowed_tools: list[str] | None = Field(
+        default=None, description="Tools explicitly blocked for this agent"
+    )
+    role: str = Field(
+        default="worker",
+        description="Orchestration role: orchestrator | worker | reviewer",
+    )
 
 
 class AgentsListResponse(BaseModel):
@@ -66,19 +95,46 @@ class AgentsListResponse(BaseModel):
 class AgentCreateRequest(BaseModel):
     """Request body for creating a custom agent."""
 
-    name: str = Field(..., description="Agent name (must match ^[A-Za-z0-9-]+$, stored as lowercase)")
+    name: str = Field(
+        ..., description="Agent name (must match ^[A-Za-z0-9-]+$, stored as lowercase)"
+    )
     description: str = Field(default="", description="Agent description")
     model: str | None = Field(default=None, description="Optional model override")
-    tool_groups: list[str] | None = Field(default=None, description="Optional tool group whitelist")
-    skills: list[str] | None = Field(default=None, description="Optional skill whitelist (None=all enabled, []=none)")
-    model_settings: AgentModelSettings | None = Field(default=None, description="Per-agent sampling overrides (temperature / max_tokens)")
-    thinking_enabled: bool | None = Field(default=None, description="Per-agent thinking-mode default (None = runtime default)")
-    reasoning_effort: ReasoningEffort | None = Field(default=None, description="Per-agent reasoning-effort default (None = runtime default)")
-    soul: str = Field(default="", description="SOUL.md content — agent personality and behavioral guardrails")
-    max_turns: int | None = Field(default=None, description="Max LLM turns for this agent")
-    timeout_seconds: int | None = Field(default=None, description="Execution timeout in seconds")
-    disallowed_tools: list[str] | None = Field(default=None, description="Tools explicitly blocked for this agent")
-    role: str = Field(default="worker", description="Orchestration role: orchestrator | worker | reviewer")
+    tool_groups: list[str] | None = Field(
+        default=None, description="Optional tool group whitelist"
+    )
+    skills: list[str] | None = Field(
+        default=None, description="Optional skill whitelist (None=all enabled, []=none)"
+    )
+    model_settings: AgentModelSettings | None = Field(
+        default=None,
+        description="Per-agent sampling overrides (temperature / max_tokens)",
+    )
+    thinking_enabled: bool | None = Field(
+        default=None,
+        description="Per-agent thinking-mode default (None = runtime default)",
+    )
+    reasoning_effort: ReasoningEffort | None = Field(
+        default=None,
+        description="Per-agent reasoning-effort default (None = runtime default)",
+    )
+    soul: str = Field(
+        default="",
+        description="SOUL.md content — agent personality and behavioral guardrails",
+    )
+    max_turns: int | None = Field(
+        default=None, description="Max LLM turns for this agent"
+    )
+    timeout_seconds: int | None = Field(
+        default=None, description="Execution timeout in seconds"
+    )
+    disallowed_tools: list[str] | None = Field(
+        default=None, description="Tools explicitly blocked for this agent"
+    )
+    role: str = Field(
+        default="worker",
+        description="Orchestration role: orchestrator | worker | reviewer",
+    )
 
 
 class AgentUpdateRequest(BaseModel):
@@ -86,15 +142,29 @@ class AgentUpdateRequest(BaseModel):
 
     description: str | None = Field(default=None, description="Updated description")
     model: str | None = Field(default=None, description="Updated model override")
-    tool_groups: list[str] | None = Field(default=None, description="Updated tool group whitelist")
-    skills: list[str] | None = Field(default=None, description="Updated skill whitelist (None=all, []=none)")
-    model_settings: AgentModelSettings | None = Field(default=None, description="Updated per-agent sampling overrides")
-    thinking_enabled: bool | None = Field(default=None, description="Updated per-agent thinking-mode default")
-    reasoning_effort: ReasoningEffort | None = Field(default=None, description="Updated per-agent reasoning-effort default")
+    tool_groups: list[str] | None = Field(
+        default=None, description="Updated tool group whitelist"
+    )
+    skills: list[str] | None = Field(
+        default=None, description="Updated skill whitelist (None=all, []=none)"
+    )
+    model_settings: AgentModelSettings | None = Field(
+        default=None, description="Updated per-agent sampling overrides"
+    )
+    thinking_enabled: bool | None = Field(
+        default=None, description="Updated per-agent thinking-mode default"
+    )
+    reasoning_effort: ReasoningEffort | None = Field(
+        default=None, description="Updated per-agent reasoning-effort default"
+    )
     soul: str | None = Field(default=None, description="Updated SOUL.md content")
     max_turns: int | None = Field(default=None, description="Updated max LLM turns")
-    timeout_seconds: int | None = Field(default=None, description="Updated execution timeout")
-    disallowed_tools: list[str] | None = Field(default=None, description="Updated blocked tools")
+    timeout_seconds: int | None = Field(
+        default=None, description="Updated execution timeout"
+    )
+    disallowed_tools: list[str] | None = Field(
+        default=None, description="Updated blocked tools"
+    )
     role: str | None = Field(default=None, description="Updated orchestration role")
 
 
@@ -124,7 +194,9 @@ def _require_agents_api_enabled() -> None:
     if not get_agents_api_config().enabled:
         raise HTTPException(
             status_code=403,
-            detail=("Custom-agent management API is disabled. Set agents_api.enabled=true to expose agent and user-profile routes over HTTP."),
+            detail=(
+                "Custom-agent management API is disabled. Set agents_api.enabled=true to expose agent and user-profile routes over HTTP."
+            ),
         )
 
 
@@ -145,13 +217,21 @@ def _validate_model_exists(model: str | None) -> None:
     try:
         app_config = get_app_config()
     except Exception:
-        logger.warning("Could not load app config to validate agent model %r; skipping model existence check.", model)
+        logger.warning(
+            "Could not load app config to validate agent model %r; skipping model existence check.",
+            model,
+        )
         return
     if app_config.get_model_config(model) is None:
-        raise HTTPException(status_code=422, detail=f"Unknown model '{model}'. Use a model name defined under `models:` in config.yaml.")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unknown model '{model}'. Use a model name defined under `models:` in config.yaml.",
+        )
 
 
-def _merge_model_settings_update(value: AgentModelSettings, existing: AgentModelSettings | None) -> dict:
+def _merge_model_settings_update(
+    value: AgentModelSettings, existing: AgentModelSettings | None
+) -> dict:
     """Merge an explicit ``model_settings`` update with existing sub-fields.
 
     The top-level ``model_settings`` key is optional in update requests:
@@ -170,7 +250,9 @@ def _merge_model_settings_update(value: AgentModelSettings, existing: AgentModel
     return merged
 
 
-def _apply_model_behavior(config_data: dict, source: BaseModel, existing: AgentConfig | None = None) -> None:
+def _apply_model_behavior(
+    config_data: dict, source: BaseModel, existing: AgentConfig | None = None
+) -> None:
     """Write the model-behavior fields (issue #4336) onto ``config_data``.
 
     Only fields explicitly set on ``source`` (``model_fields_set``) are taken
@@ -186,14 +268,22 @@ def _apply_model_behavior(config_data: dict, source: BaseModel, existing: AgentC
         if value is None:
             continue
         if field == "model_settings" and isinstance(value, AgentModelSettings):
-            dumped_settings = _merge_model_settings_update(value, existing.model_settings if existing is not None else None)
+            dumped_settings = _merge_model_settings_update(
+                value, existing.model_settings if existing is not None else None
+            )
             if dumped_settings:
                 config_data[field] = dumped_settings
             continue
-        config_data[field] = value.model_dump(exclude_none=True) if isinstance(value, BaseModel) else value
+        config_data[field] = (
+            value.model_dump(exclude_none=True)
+            if isinstance(value, BaseModel)
+            else value
+        )
 
 
-def _agent_config_to_response(agent_cfg: AgentConfig, include_soul: bool = False, *, user_id: str | None = None) -> AgentResponse:
+def _agent_config_to_response(
+    agent_cfg: AgentConfig, include_soul: bool = False, *, user_id: str | None = None
+) -> AgentResponse:
     """Convert AgentConfig to AgentResponse."""
     soul: str | None = None
     if include_soul:
@@ -237,7 +327,12 @@ async def list_agents() -> AgentsListResponse:
         # _agent_config_to_response are filesystem IO (file backend) or DB round
         # trips (db backend) and must stay off the event loop.
         agents = list_custom_agents(user_id=user_id)
-        return AgentsListResponse(agents=[_agent_config_to_response(a, include_soul=True, user_id=user_id) for a in agents])
+        return AgentsListResponse(
+            agents=[
+                _agent_config_to_response(a, include_soul=True, user_id=user_id)
+                for a in agents
+            ]
+        )
 
     try:
         return await asyncio.to_thread(_list)
@@ -270,7 +365,9 @@ async def check_agent_name(name: str) -> dict:
     # Availability is defined by the active backend and stays consistent with
     # create()'s conflict rule (file: per-user or legacy dir; db: a row). The
     # exists() probe is filesystem IO / a DB round trip, so keep it off the loop.
-    exists = await asyncio.to_thread(get_agent_store().exists, normalized, user_id=user_id)
+    exists = await asyncio.to_thread(
+        get_agent_store().exists, normalized, user_id=user_id
+    )
     return {"available": not exists, "name": normalized}
 
 
@@ -370,7 +467,9 @@ async def create_agent_endpoint(request: AgentCreateRequest) -> AgentResponse:
     try:
         return await asyncio.to_thread(_create_agent)
     except AgentExistsError:
-        raise HTTPException(status_code=409, detail=f"Agent '{normalized_name}' already exists")
+        raise HTTPException(
+            status_code=409, detail=f"Agent '{normalized_name}' already exists"
+        )
     except Exception as e:
         logger.error(f"Failed to create agent '{request.name}': {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to create agent: {e!s}")
@@ -418,12 +517,17 @@ async def update_agent(name: str, request: AgentUpdateRequest) -> AgentResponse:
         paths = get_paths()
         agent_dir = paths.user_agent_dir(user_id, name)
         legacy_dir = paths.agent_dir(name)
-        return not (agent_dir / "config.yaml").exists() and (legacy_dir / "config.yaml").exists()
+        return (
+            not (agent_dir / "config.yaml").exists()
+            and (legacy_dir / "config.yaml").exists()
+        )
 
     if await asyncio.to_thread(_is_legacy_only_layout):
         raise HTTPException(
             status_code=409,
-            detail=(f"Agent '{name}' only exists in the legacy shared layout and is not scoped to a user. Run scripts/migrate_user_isolation.py to move legacy agents into the per-user layout before updating."),
+            detail=(
+                f"Agent '{name}' only exists in the legacy shared layout and is not scoped to a user. Run scripts/migrate_user_isolation.py to move legacy agents into the per-user layout before updating."
+            ),
         )
 
     if "model" in request.model_fields_set:
@@ -434,17 +538,35 @@ async def update_agent(name: str, request: AgentUpdateRequest) -> AgentResponse:
         # Use model_fields_set to distinguish "field omitted" from "explicitly set to null".
         # This is critical for skills where None means "inherit all" (not "don't change").
         fields_set = request.model_fields_set
-        _ORCHESTRATION_FIELDS = {"max_turns", "timeout_seconds", "disallowed_tools", "role"}
-        config_changed = bool(fields_set & ({"description", "tool_groups", "skills"} | set(_MODEL_BEHAVIOR_FIELDS) | _ORCHESTRATION_FIELDS))
+        _ORCHESTRATION_FIELDS = {
+            "max_turns",
+            "timeout_seconds",
+            "disallowed_tools",
+            "role",
+        }
+        config_changed = bool(
+            fields_set
+            & (
+                {"description", "tool_groups", "skills"}
+                | set(_MODEL_BEHAVIOR_FIELDS)
+                | _ORCHESTRATION_FIELDS
+            )
+        )
 
         updated: dict | None = None
         if config_changed:
             updated = {
                 "name": agent_cfg.name,
-                "description": request.description if "description" in fields_set else agent_cfg.description,
+                "description": request.description
+                if "description" in fields_set
+                else agent_cfg.description,
             }
 
-            new_tool_groups = request.tool_groups if "tool_groups" in fields_set else agent_cfg.tool_groups
+            new_tool_groups = (
+                request.tool_groups
+                if "tool_groups" in fields_set
+                else agent_cfg.tool_groups
+            )
             if new_tool_groups is not None:
                 updated["tool_groups"] = new_tool_groups
 
@@ -486,14 +608,18 @@ async def update_agent(name: str, request: AgentUpdateRequest) -> AgentResponse:
         # Persist config (when changed) and/or soul (when provided) off the
         # event loop. A no-change PATCH commits nothing and re-reads current state.
         if updated is not None or request.soul is not None:
-            await asyncio.to_thread(store.update, name, updated, request.soul, user_id=user_id)
+            await asyncio.to_thread(
+                store.update, name, updated, request.soul, user_id=user_id
+            )
 
         logger.info(f"Updated agent '{name}'")
 
         def _refresh() -> AgentResponse:
             # Worker thread: re-read config + SOUL off the event loop.
             refreshed_cfg = load_agent_config(name, user_id=user_id)
-            return _agent_config_to_response(refreshed_cfg, include_soul=True, user_id=user_id)
+            return _agent_config_to_response(
+                refreshed_cfg, include_soul=True, user_id=user_id
+            )
 
         return await asyncio.to_thread(_refresh)
 
@@ -507,13 +633,18 @@ async def update_agent(name: str, request: AgentUpdateRequest) -> AgentResponse:
 class UserProfileResponse(BaseModel):
     """Response model for the global user profile (USER.md)."""
 
-    content: str | None = Field(default=None, description="USER.md content, or null if not yet created")
+    content: str | None = Field(
+        default=None, description="USER.md content, or null if not yet created"
+    )
 
 
 class UserProfileUpdateRequest(BaseModel):
     """Request body for setting the global user profile."""
 
-    content: str = Field(default="", description="USER.md content — describes the user's background and preferences")
+    content: str = Field(
+        default="",
+        description="USER.md content — describes the user's background and preferences",
+    )
 
 
 @router.get(
@@ -538,7 +669,9 @@ async def get_user_profile() -> UserProfileResponse:
         return UserProfileResponse(content=raw or None)
     except Exception as e:
         logger.error(f"Failed to read user profile: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to read user profile: {e!s}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to read user profile: {e!s}"
+        )
 
 
 @router.put(
@@ -566,7 +699,9 @@ async def update_user_profile(request: UserProfileUpdateRequest) -> UserProfileR
         return UserProfileResponse(content=request.content or None)
     except Exception as e:
         logger.error(f"Failed to update user profile: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to update user profile: {e!s}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to update user profile: {e!s}"
+        )
 
 
 @router.delete(
@@ -601,14 +736,18 @@ async def delete_agent(name: str) -> None:
     if outcome == "legacy":
         raise HTTPException(
             status_code=409,
-            detail=(f"Agent '{name}' only exists in the legacy shared layout and is not scoped to a user. Run scripts/migrate_user_isolation.py to move legacy agents into the per-user layout before deleting."),
+            detail=(
+                f"Agent '{name}' only exists in the legacy shared layout and is not scoped to a user. Run scripts/migrate_user_isolation.py to move legacy agents into the per-user layout before deleting."
+            ),
         )
     if outcome == "missing":
         raise HTTPException(status_code=404, detail=f"Agent '{name}' not found")
     if outcome == "not-custom-agent":
         raise HTTPException(
             status_code=409,
-            detail=(f"Directory for '{name}' contains memory data but is not a custom agent because config.yaml is missing; it was preserved."),
+            detail=(
+                f"Directory for '{name}' contains memory data but is not a custom agent because config.yaml is missing; it was preserved."
+            ),
         )
 
     logger.info(f"Deleted agent '{name}'")
@@ -687,7 +826,9 @@ async def list_agents_as_workers() -> WorkersListResponse:
         return await asyncio.to_thread(_project)
     except Exception as e:
         logger.error(f"Failed to list agents as workers: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to list agents as workers: {e!s}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list agents as workers: {e!s}"
+        )
 
 
 # ── AI-guided agent creation ────────────────────────────────────────────────
@@ -696,8 +837,15 @@ async def list_agents_as_workers() -> WorkersListResponse:
 class AgentSuggestionRequest(BaseModel):
     """Request body for AI-guided agent configuration suggestions."""
 
-    description: str = Field(..., min_length=3, max_length=2000, description="Natural-language description of the desired agent")
-    model_name: str | None = Field(default=None, description="Optional model override for the suggestion LLM call")
+    description: str = Field(
+        ...,
+        min_length=3,
+        max_length=2000,
+        description="Natural-language description of the desired agent",
+    )
+    model_name: str | None = Field(
+        default=None, description="Optional model override for the suggestion LLM call"
+    )
 
 
 class AgentSuggestionResponse(BaseModel):
@@ -715,7 +863,9 @@ class AgentSuggestionResponse(BaseModel):
     max_turns: int | None = Field(default=None)
     timeout_seconds: int | None = Field(default=None)
     role: str = Field(default="worker")
-    rationale: str = Field(default="", description="Brief explanation of the AI's configuration choices")
+    rationale: str = Field(
+        default="", description="Brief explanation of the AI's configuration choices"
+    )
 
 
 _SUGGEST_SYSTEM_INSTRUCTION = """\
@@ -850,13 +1000,20 @@ async def suggest_agent_config(body: AgentSuggestionRequest) -> AgentSuggestionR
         )
     except Exception as exc:
         logger.error("Agent suggestion LLM call failed: %s", exc, exc_info=True)
-        raise HTTPException(status_code=502, detail=f"AI generation failed: {exc!s}") from exc
+        raise HTTPException(
+            status_code=502, detail=f"AI generation failed: {exc!s}"
+        ) from exc
 
     try:
         parsed = _parse_suggestion_json(raw)
     except (json.JSONDecodeError, ValueError) as exc:
-        logger.error("Failed to parse agent suggestion JSON: %s\nRaw: %s", exc, raw[:500])
-        raise HTTPException(status_code=502, detail="AI returned an unparseable response. Please try again.") from exc
+        logger.error(
+            "Failed to parse agent suggestion JSON: %s\nRaw: %s", exc, raw[:500]
+        )
+        raise HTTPException(
+            status_code=502,
+            detail="AI returned an unparseable response. Please try again.",
+        ) from exc
 
     # ── Validate and sanitize fields ──────────────────────────────────────
     known_groups = {g.name for g in config.tool_groups}
@@ -866,7 +1023,9 @@ async def suggest_agent_config(body: AgentSuggestionRequest) -> AgentSuggestionR
     known_skill_names: set[str] = set()
     try:
         user_id = get_effective_user_id()
-        installed = get_or_new_user_skill_storage(user_id, app_config=config).load_skills(enabled_only=True)
+        installed = get_or_new_user_skill_storage(
+            user_id, app_config=config
+        ).load_skills(enabled_only=True)
         known_skill_names = {s.name for s in installed}
     except Exception:
         logger.debug("Failed to load skills for suggestion filtering", exc_info=True)
@@ -877,21 +1036,41 @@ async def suggest_agent_config(body: AgentSuggestionRequest) -> AgentSuggestionR
     name = _sanitize_suggested_name(raw_name)
 
     raw_groups = parsed.get("tool_groups")
-    tool_groups = [g for g in raw_groups if g in known_groups] if isinstance(raw_groups, list) else []
+    tool_groups = (
+        [g for g in raw_groups if g in known_groups]
+        if isinstance(raw_groups, list)
+        else []
+    )
 
     raw_skills = parsed.get("skills")
-    skills = [s for s in raw_skills if s in known_skill_names] if isinstance(raw_skills, list) else []
+    skills = (
+        [s for s in raw_skills if s in known_skill_names]
+        if isinstance(raw_skills, list)
+        else []
+    )
 
     raw_disallowed = parsed.get("disallowed_tools")
-    disallowed_tools = [t for t in raw_disallowed if isinstance(t, str)] if isinstance(raw_disallowed, list) else []
+    disallowed_tools = (
+        [t for t in raw_disallowed if isinstance(t, str)]
+        if isinstance(raw_disallowed, list)
+        else []
+    )
 
     raw_model = parsed.get("model")
-    model = raw_model if isinstance(raw_model, str) and raw_model in known_models else None
+    model = (
+        raw_model if isinstance(raw_model, str) and raw_model in known_models else None
+    )
 
     raw_role = parsed.get("role")
-    role = raw_role if isinstance(raw_role, str) and raw_role in valid_roles else "worker"
+    role = (
+        raw_role if isinstance(raw_role, str) and raw_role in valid_roles else "worker"
+    )
 
-    thinking_enabled = parsed.get("thinking_enabled") if isinstance(parsed.get("thinking_enabled"), (bool, type(None))) else None
+    thinking_enabled = (
+        parsed.get("thinking_enabled")
+        if isinstance(parsed.get("thinking_enabled"), (bool, type(None)))
+        else None
+    )
 
     raw_effort = parsed.get("reasoning_effort")
     reasoning_effort = raw_effort if raw_effort in ("low", "medium", "high") else None

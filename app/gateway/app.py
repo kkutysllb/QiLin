@@ -24,8 +24,8 @@ from app.gateway.routers import (
     browser,
     channel_connections,
     channels,
-    console,
     config_router,
+    console,
     datasources,
     features,
     feedback,
@@ -192,7 +192,9 @@ async def _warm_memory_retrieval(manager) -> None:
         if rebuilt:
             logger.info("Memory retrieval index rebuilt successfully")
         else:
-            logger.warning("Memory retrieval index rebuild failed; scoped searches will retry lazily")
+            logger.warning(
+                "Memory retrieval index rebuild failed; scoped searches will retry lazily"
+            )
     except Exception:
         logger.warning("Memory retrieval index rebuild skipped", exc_info=True)
 
@@ -269,20 +271,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             timeout=5,
         )
         if warmed is None:
-            logger.info("Memory backend %s has nothing to warm; skipping tiktoken warm-up", type(manager).__name__)
+            logger.info(
+                "Memory backend %s has nothing to warm; skipping tiktoken warm-up",
+                type(manager).__name__,
+            )
         elif warmed:
             logger.info("tiktoken encoding cache warmed successfully")
         else:
-            logger.warning("tiktoken encoding cache warm-up failed; token counting will use character-based fallback until tiktoken loads successfully")
+            logger.warning(
+                "tiktoken encoding cache warm-up failed; token counting will use character-based fallback until tiktoken loads successfully"
+            )
     except TimeoutError:
-        logger.warning("tiktoken encoding cache warm-up timed out; token counting will use character-based fallback until tiktoken loads successfully")
+        logger.warning(
+            "tiktoken encoding cache warm-up timed out; token counting will use character-based fallback until tiktoken loads successfully"
+        )
     except Exception:
         logger.warning("tiktoken warm-up skipped", exc_info=True)
 
     try:
-        removed_upload_staging_files = await asyncio.to_thread(cleanup_stale_upload_staging_files)
+        removed_upload_staging_files = await asyncio.to_thread(
+            cleanup_stale_upload_staging_files
+        )
         if removed_upload_staging_files:
-            logger.info("Removed %d stale upload staging file(s)", removed_upload_staging_files)
+            logger.info(
+                "Removed %d stale upload staging file(s)", removed_upload_staging_files
+            )
     except Exception:
         logger.warning("Upload staging file cleanup skipped", exc_info=True)
 
@@ -313,17 +326,24 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             )
             logger.info("Channel service started: %s", channel_service.get_status())
         except Exception:
-            logger.exception("No IM channels configured or channel service failed to start")
+            logger.exception(
+                "No IM channels configured or channel service failed to start"
+            )
 
         try:
             from app.gateway.services import launch_scheduled_thread_run
             from app.scheduler import ScheduledTaskService
 
-            if getattr(app.state, "scheduled_task_repo", None) is not None and getattr(app.state, "scheduled_task_run_repo", None) is not None:
+            if (
+                getattr(app.state, "scheduled_task_repo", None) is not None
+                and getattr(app.state, "scheduled_task_run_repo", None) is not None
+            ):
                 scheduled_task_service = ScheduledTaskService(
                     task_repo=app.state.scheduled_task_repo,
                     task_run_repo=app.state.scheduled_task_run_repo,
-                    launch_run=lambda **kwargs: launch_scheduled_thread_run(app=app, **kwargs),
+                    launch_run=lambda **kwargs: launch_scheduled_thread_run(
+                        app=app, **kwargs
+                    ),
                     poll_interval_seconds=startup_config.scheduler.poll_interval_seconds,
                     lease_seconds=startup_config.scheduler.lease_seconds,
                     max_concurrent_runs=startup_config.scheduler.max_concurrent_runs,
@@ -414,7 +434,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 )
             except TimeoutError:
                 retrieval_warm_finished = False
-                logger.warning("Memory retrieval index rebuild is still running; leaving its connection open during shutdown")
+                logger.warning(
+                    "Memory retrieval index rebuild is still running; leaving its connection open during shutdown"
+                )
 
         manager = None
         try:
@@ -424,9 +446,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
                 manager = await asyncio.to_thread(get_memory_manager)
                 flush_timeout = app_cfg.memory.shutdown_flush_timeout_seconds
-                completed = await asyncio.to_thread(manager.shutdown_flush, flush_timeout)
+                completed = await asyncio.to_thread(
+                    manager.shutdown_flush, flush_timeout
+                )
                 if completed:
-                    logger.info("Memory queue flush completed within %.1fs", flush_timeout)
+                    logger.info(
+                        "Memory queue flush completed within %.1fs", flush_timeout
+                    )
                 else:
                     logger.warning(
                         "Memory queue flush did not finish within %.1fs; remaining updates may be lost",
@@ -572,7 +598,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
     # snapshot the flag from the startup AppConfig instead of reading live; a
     # runtime toggle would otherwise leave the log formatter (installed once by
     # configure_logging() at lifespan startup) out of sync with the middleware.
-    app.add_middleware(TraceMiddleware, enabled=_resolve_trace_enabled_for_app_construction())
+    app.add_middleware(
+        TraceMiddleware, enabled=_resolve_trace_enabled_for_app_construction()
+    )
 
     # Include routers
     # Models API is mounted at /api/models
@@ -666,7 +694,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
         app.include_router(github_webhooks.router)
         logger.info("GitHub webhooks route mounted at /api/webhooks/github")
     else:
-        logger.warning("GitHub webhooks route NOT mounted: GITHUB_WEBHOOK_SECRET unset and QILIN_ALLOW_UNVERIFIED_GITHUB_WEBHOOKS not set. /api/webhooks/github will respond 404. Configure either env var to enable the route.")
+        logger.warning(
+            "GitHub webhooks route NOT mounted: GITHUB_WEBHOOK_SECRET unset and QILIN_ALLOW_UNVERIFIED_GITHUB_WEBHOOKS not set. /api/webhooks/github will respond 404. Configure either env var to enable the route."
+        )
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict[str, str]:
@@ -686,7 +716,9 @@ def _resolve_trace_enabled_for_app_construction() -> bool:
         return resolve_trace_enabled(get_app_config())
     except FileNotFoundError:
         # Startup lifespan still performs strict config loading before serving.
-        logger.debug("config.yaml not found while constructing Gateway app; TraceMiddleware disabled for this app instance")
+        logger.debug(
+            "config.yaml not found while constructing Gateway app; TraceMiddleware disabled for this app instance"
+        )
         return False
 
 

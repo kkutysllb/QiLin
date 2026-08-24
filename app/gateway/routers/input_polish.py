@@ -17,12 +17,16 @@ router = APIRouter(prefix="/api", tags=["input-polish"])
 class InputPolishRequest(BaseModel):
     text: str = Field(..., description="Draft text currently shown in the composer")
     locale: str | None = Field(default=None, description="Optional UI locale hint")
-    thread_id: str | None = Field(default=None, description="Optional thread id for tracing only")
+    thread_id: str | None = Field(
+        default=None, description="Optional thread id for tracing only"
+    )
 
 
 class InputPolishResponse(BaseModel):
     rewritten_text: str = Field(..., description="Polished draft text")
-    changed: bool = Field(..., description="Whether the model changed the original draft")
+    changed: bool = Field(
+        ..., description="Whether the model changed the original draft"
+    )
 
 
 def _clean_rewritten_text(text: str) -> str:
@@ -81,7 +85,9 @@ async def polish_input(
 
     max_chars = config.input_polish.max_chars
     if len(text) > max_chars:
-        raise HTTPException(status_code=400, detail=f"Input text exceeds {max_chars} characters")
+        raise HTTPException(
+            status_code=400, detail=f"Input text exceeds {max_chars} characters"
+        )
 
     model_name = config.input_polish.model_name
     try:
@@ -95,7 +101,9 @@ async def polish_input(
         )
         rewritten = _clean_rewritten_text(raw)
     except Exception as exc:
-        logger.exception("Failed to polish input: thread_id=%s err=%s", body.thread_id, exc)
+        logger.exception(
+            "Failed to polish input: thread_id=%s err=%s", body.thread_id, exc
+        )
         raise HTTPException(status_code=503, detail="Failed to polish input") from exc
 
     if not rewritten:

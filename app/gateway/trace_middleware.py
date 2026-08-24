@@ -48,7 +48,9 @@ class TraceMiddleware:
         header_provided = normalize_trace_id(incoming_trace_id) is not None
 
         with request_trace_context(incoming_trace_id) as trace_id:
-            header_token = mark_trace_id_from_request_header(from_header=header_provided)
+            header_token = mark_trace_id_from_request_header(
+                from_header=header_provided
+            )
             try:
 
                 async def send_with_trace(message: Message) -> None:

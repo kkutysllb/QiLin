@@ -32,7 +32,9 @@ class MemoryOwnershipStore(SandboxOwnershipStore):
 
     supports_cross_process = False
 
-    def __init__(self, *, owner_id: str, ttl_seconds: float, time_source=time.monotonic) -> None:
+    def __init__(
+        self, *, owner_id: str, ttl_seconds: float, time_source=time.monotonic
+    ) -> None:
         self._owner_id = owner_id
         self._ttl = float(ttl_seconds)
         self._now = time_source
@@ -55,7 +57,11 @@ class MemoryOwnershipStore(SandboxOwnershipStore):
         return lease
 
     def _write_locked(self, sandbox_id: str, *, destroying: bool) -> None:
-        self._leases[sandbox_id] = _Lease(owner_id=self._owner_id, expires_at=self._now() + self._ttl, destroying=destroying)
+        self._leases[sandbox_id] = _Lease(
+            owner_id=self._owner_id,
+            expires_at=self._now() + self._ttl,
+            destroying=destroying,
+        )
 
     def take(self, sandbox_id: str) -> bool:
         with self._lock:

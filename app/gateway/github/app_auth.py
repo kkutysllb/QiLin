@@ -107,10 +107,14 @@ def load_app_private_key() -> str:
 
     path = os.environ.get(_PRIVATE_KEY_PATH_ENV)
     if not path:
-        raise GitHubAppAuthError(f"Neither {_PRIVATE_KEY_ENV} nor {_PRIVATE_KEY_PATH_ENV} is set")
+        raise GitHubAppAuthError(
+            f"Neither {_PRIVATE_KEY_ENV} nor {_PRIVATE_KEY_PATH_ENV} is set"
+        )
     p = Path(path).expanduser()
     if not p.exists():
-        raise GitHubAppAuthError(f"{_PRIVATE_KEY_PATH_ENV} points to nonexistent file: {p}")
+        raise GitHubAppAuthError(
+            f"{_PRIVATE_KEY_PATH_ENV} points to nonexistent file: {p}"
+        )
     return p.read_text(encoding="utf-8")
 
 
@@ -151,7 +155,9 @@ async def _request_new_installation_token(
     async def _do(c: httpx.AsyncClient) -> _CachedToken:
         resp = await c.post(url, headers=headers, timeout=15.0)
         if resp.status_code != 201:
-            raise GitHubAppAuthError(f"Failed to mint installation token (status={resp.status_code} body={resp.text!r})")
+            raise GitHubAppAuthError(
+                f"Failed to mint installation token (status={resp.status_code} body={resp.text!r})"
+            )
         data = resp.json()
         token = data["token"]
         # GitHub returns ISO8601 expires_at; we just bake in a 60-minute
@@ -198,7 +204,9 @@ async def mint_installation_token(
         The token string. Caller adds ``Authorization: token <token>``.
     """
     if installation_id <= 0:
-        raise GitHubAppAuthError(f"installation_id must be positive, got {installation_id!r}")
+        raise GitHubAppAuthError(
+            f"installation_id must be positive, got {installation_id!r}"
+        )
 
     # Fast path: lock-free cache hit. The dict is mutated only inside
     # the per-installation lock below, and Python dict reads of an
@@ -207,7 +215,10 @@ async def mint_installation_token(
     # earlier).
     if not force_refresh:
         cached = _token_cache.get(installation_id)
-        if cached is not None and cached.expires_at - _INSTALLATION_TOKEN_LEEWAY_SECONDS > time.time():
+        if (
+            cached is not None
+            and cached.expires_at - _INSTALLATION_TOKEN_LEEWAY_SECONDS > time.time()
+        ):
             return cached.token
 
     lock = await _lock_for(installation_id)
@@ -215,7 +226,11 @@ async def mint_installation_token(
         # Double-check: another coroutine for the same installation may
         # have just minted while we were waiting for this lock.
         cached = _token_cache.get(installation_id)
-        if cached is not None and not force_refresh and cached.expires_at - _INSTALLATION_TOKEN_LEEWAY_SECONDS > time.time():
+        if (
+            cached is not None
+            and not force_refresh
+            and cached.expires_at - _INSTALLATION_TOKEN_LEEWAY_SECONDS > time.time()
+        ):
             return cached.token
 
         fresh = await _request_new_installation_token(installation_id, client=client)

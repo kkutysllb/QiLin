@@ -42,7 +42,9 @@ def _declares_api_base(model_class: type) -> bool:
     return "api_base" in getattr(model_class, "model_fields", {})
 
 
-def _normalize_openai_base_url(model_class: type, model_settings_from_config: dict) -> None:
+def _normalize_openai_base_url(
+    model_class: type, model_settings_from_config: dict
+) -> None:
     """Map the common ``api_base`` alias to ``base_url`` for OpenAI-compatible clients.
 
     ``BaseChatOpenAI`` subclasses accept the OpenAI endpoint override as ``base_url`` (with
@@ -64,16 +66,25 @@ def _normalize_openai_base_url(model_class: type, model_settings_from_config: di
         return
     if "api_base" not in model_settings_from_config:
         return
-    if "base_url" in model_settings_from_config or "openai_api_base" in model_settings_from_config:
+    if (
+        "base_url" in model_settings_from_config
+        or "openai_api_base" in model_settings_from_config
+    ):
         # Canonical key already present; drop the alias to avoid a duplicate-intent kwarg.
         model_settings_from_config.pop("api_base", None)
-        logger.warning("Model config sets both an endpoint key (base_url/openai_api_base) and 'api_base'; using the former and ignoring 'api_base'.")
+        logger.warning(
+            "Model config sets both an endpoint key (base_url/openai_api_base) and 'api_base'; using the former and ignoring 'api_base'."
+        )
         return
     model_settings_from_config["base_url"] = model_settings_from_config.pop("api_base")
-    logger.debug("Normalized model config key 'api_base' -> 'base_url' for OpenAI-compatible client.")
+    logger.debug(
+        "Normalized model config key 'api_base' -> 'base_url' for OpenAI-compatible client."
+    )
 
 
-def _warn_unknown_model_settings(model_class, model_name: str, model_settings_from_config: dict) -> None:
+def _warn_unknown_model_settings(
+    model_class, model_name: str, model_settings_from_config: dict
+) -> None:
     """Warn about config keys the OpenAI client will silently divert into ``model_kwargs``.
 
     ``ModelConfig`` is ``extra="allow"``, so a typo'd key (e.g. ``maxx_tokens``) is not caught at
@@ -134,7 +145,9 @@ def _warn_unknown_model_settings(model_class, model_name: str, model_settings_fr
 _DEFAULT_STREAM_CHUNK_TIMEOUT_SECONDS: float = 240.0
 
 
-def _apply_stream_chunk_timeout_default(model_class: type, model_settings_from_config: dict) -> None:
+def _apply_stream_chunk_timeout_default(
+    model_class: type, model_settings_from_config: dict
+) -> None:
     """Inject a generous ``stream_chunk_timeout`` for OpenAI-compatible clients.
 
     ``stream_chunk_timeout`` is a field of langchain-openai's ``BaseChatOpenAI``, so
@@ -168,10 +181,20 @@ def _apply_stream_chunk_timeout_default(model_class: type, model_settings_from_c
         return
     if "stream_chunk_timeout" in model_settings_from_config:
         return
-    model_settings_from_config["stream_chunk_timeout"] = _DEFAULT_STREAM_CHUNK_TIMEOUT_SECONDS
+    model_settings_from_config["stream_chunk_timeout"] = (
+        _DEFAULT_STREAM_CHUNK_TIMEOUT_SECONDS
+    )
 
 
-def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *, app_config: AppConfig | None = None, attach_tracing: bool = True, model_overrides: dict | None = None, **kwargs) -> BaseChatModel:
+def create_chat_model(
+    name: str | None = None,
+    thinking_enabled: bool = False,
+    *,
+    app_config: AppConfig | None = None,
+    attach_tracing: bool = True,
+    model_overrides: dict | None = None,
+    **kwargs,
+) -> BaseChatModel:
     """Create a chat model instance from the config.
 
     Args:
@@ -237,31 +260,50 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     # dropping max_tokens, thinking disable-paths) still governs the merged
     # value exactly as it would a profile-native one.
     if model_overrides:
-        model_settings_from_config.update({key: value for key, value in model_overrides.items() if value is not None})
+        model_settings_from_config.update(
+            {key: value for key, value in model_overrides.items() if value is not None}
+        )
     # Compute effective when_thinking_enabled by merging in the `thinking` shortcut field.
     # The `thinking` shortcut is equivalent to setting when_thinking_enabled["thinking"].
-    has_thinking_settings = (model_config.when_thinking_enabled is not None) or (model_config.thinking is not None)
-    effective_wte: dict = dict(model_config.when_thinking_enabled) if model_config.when_thinking_enabled else {}
+    has_thinking_settings = (model_config.when_thinking_enabled is not None) or (
+        model_config.thinking is not None
+    )
+    effective_wte: dict = (
+        dict(model_config.when_thinking_enabled)
+        if model_config.when_thinking_enabled
+        else {}
+    )
     if model_config.thinking is not None:
-        merged_thinking = {**(effective_wte.get("thinking") or {}), **model_config.thinking}
+        merged_thinking = {
+            **(effective_wte.get("thinking") or {}),
+            **model_config.thinking,
+        }
         effective_wte = {**effective_wte, "thinking": merged_thinking}
     if thinking_enabled and has_thinking_settings:
         if not model_config.supports_thinking:
-            raise ValueError(f"Model {name} does not support thinking. Set `supports_thinking` to true in the `config.yaml` to enable thinking.") from None
+            raise ValueError(
+                f"Model {name} does not support thinking. Set `supports_thinking` to true in the `config.yaml` to enable thinking."
+            ) from None
         if effective_wte:
             model_settings_from_config.update(effective_wte)
     if not thinking_enabled:
         if model_config.when_thinking_disabled is not None:
             # User-provided disable settings take full precedence
             model_settings_from_config.update(model_config.when_thinking_disabled)
-        elif has_thinking_settings and effective_wte.get("extra_body", {}).get("thinking", {}).get("type"):
+        elif has_thinking_settings and effective_wte.get("extra_body", {}).get(
+            "thinking", {}
+        ).get("type"):
             # OpenAI-compatible gateway: thinking is nested under extra_body
             model_settings_from_config["extra_body"] = _deep_merge_dicts(
                 model_settings_from_config.get("extra_body"),
                 {"thinking": {"type": "disabled"}},
             )
             model_settings_from_config["reasoning_effort"] = "minimal"
-        elif has_thinking_settings and (disable_chat_template_kwargs := _vllm_disable_chat_template_kwargs(effective_wte.get("extra_body", {}).get("chat_template_kwargs") or {})):
+        elif has_thinking_settings and (
+            disable_chat_template_kwargs := _vllm_disable_chat_template_kwargs(
+                effective_wte.get("extra_body", {}).get("chat_template_kwargs") or {}
+            )
+        ):
             # vLLM uses chat template kwargs to switch thinking on/off.
             model_settings_from_config["extra_body"] = _deep_merge_dicts(
                 model_settings_from_config.get("extra_body"),
@@ -299,14 +341,19 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     # Timeout normalization is handled inside MindIEChatModel itself.
     if getattr(model_class, "__name__", "") == "MindIEChatModel":
         # Enforce max_retries constraint to prevent cascading timeouts.
-        model_settings_from_config["max_retries"] = model_settings_from_config.get("max_retries", 1)
+        model_settings_from_config["max_retries"] = model_settings_from_config.get(
+            "max_retries", 1
+        )
 
     # Ensure stream_usage is enabled so that token usage metadata is available
     # in streaming responses.  LangChain's BaseChatOpenAI only defaults
     # stream_usage=True when no custom base_url/api_base is set, so models
     # hitting third-party endpoints (e.g. doubao, deepseek) silently lose
     # usage data.  We default it to True unless explicitly configured.
-    if "stream_usage" not in model_settings_from_config and "stream_usage" not in kwargs:
+    if (
+        "stream_usage" not in model_settings_from_config
+        and "stream_usage" not in kwargs
+    ):
         if "stream_usage" in getattr(model_class, "model_fields", {}):
             model_settings_from_config["stream_usage"] = True
 
@@ -317,7 +364,13 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     if attach_tracing:
         callbacks = build_tracing_callbacks()
         if callbacks:
-            existing_callbacks = model_instance.callbacks if isinstance(model_instance.callbacks, list) else []
+            existing_callbacks = (
+                model_instance.callbacks
+                if isinstance(model_instance.callbacks, list)
+                else []
+            )
             model_instance.callbacks = list(existing_callbacks) + list(callbacks)
-            logger.debug(f"Tracing attached to model '{name}' with providers={len(callbacks)}")
+            logger.debug(
+                f"Tracing attached to model '{name}' with providers={len(callbacks)}"
+            )
     return model_instance

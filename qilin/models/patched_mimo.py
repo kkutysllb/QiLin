@@ -37,13 +37,19 @@ def _extract_reasoning_content(value: Any) -> str | object:
         return reasoning
 
     model_extra = getattr(value, "model_extra", None)
-    if isinstance(model_extra, Mapping) and "reasoning_content" in model_extra and model_extra["reasoning_content"] is not None:
+    if (
+        isinstance(model_extra, Mapping)
+        and "reasoning_content" in model_extra
+        and model_extra["reasoning_content"] is not None
+    ):
         return model_extra["reasoning_content"]
 
     return _MISSING
 
 
-def _with_reasoning_content(message: AIMessage | AIMessageChunk, reasoning: str) -> AIMessage | AIMessageChunk:
+def _with_reasoning_content(
+    message: AIMessage | AIMessageChunk, reasoning: str
+) -> AIMessage | AIMessageChunk:
     additional_kwargs = dict(message.additional_kwargs)
     if additional_kwargs.get("reasoning_content") != reasoning:
         additional_kwargs["reasoning_content"] = reasoning
@@ -106,9 +112,16 @@ class PatchedChatMiMo(ChatOpenAI):
         if choices:
             delta = choices[0].get("delta") or {}
             reasoning = _extract_reasoning_content(delta)
-            if reasoning is not _MISSING and isinstance(reasoning, str) and isinstance(generation_chunk.message, AIMessageChunk):
+            if (
+                reasoning is not _MISSING
+                and isinstance(reasoning, str)
+                and isinstance(generation_chunk.message, AIMessageChunk)
+            ):
                 generation_chunk = ChatGenerationChunk(
-                    message=cast("AIMessageChunk", _with_reasoning_content(generation_chunk.message, reasoning)),
+                    message=cast(
+                        "AIMessageChunk",
+                        _with_reasoning_content(generation_chunk.message, reasoning),
+                    ),
                     generation_info=generation_chunk.generation_info,
                 )
 
@@ -120,19 +133,29 @@ class PatchedChatMiMo(ChatOpenAI):
         generation_info: dict | None = None,
     ) -> ChatResult:
         result = super()._create_chat_result(response, generation_info)
-        response_dict = response if isinstance(response, dict) else response.model_dump()
+        response_dict = (
+            response if isinstance(response, dict) else response.model_dump()
+        )
         choices = response_dict.get("choices", [])
 
         patched_generations: list[ChatGeneration] | None = None
         for index, generation in enumerate(result.generations):
             choice = choices[index] if index < len(choices) else {}
-            choice_message = choice.get("message", {}) if isinstance(choice, Mapping) else {}
+            choice_message = (
+                choice.get("message", {}) if isinstance(choice, Mapping) else {}
+            )
             reasoning = _extract_reasoning_content(choice_message)
             if reasoning is _MISSING and not isinstance(response, dict):
-                reasoning = _extract_reasoning_content(_get_typed_choice_message(response, index))
+                reasoning = _extract_reasoning_content(
+                    _get_typed_choice_message(response, index)
+                )
 
             message = generation.message
-            if reasoning is not _MISSING and isinstance(reasoning, str) and isinstance(message, AIMessage):
+            if (
+                reasoning is not _MISSING
+                and isinstance(reasoning, str)
+                and isinstance(message, AIMessage)
+            ):
                 if patched_generations is None:
                     patched_generations = list(result.generations)
                 patched_generations[index] = ChatGeneration(
@@ -140,4 +163,7 @@ class PatchedChatMiMo(ChatOpenAI):
                     generation_info=generation.generation_info,
                 )
 
-        return ChatResult(generations=patched_generations or result.generations, llm_output=result.llm_output)
+        return ChatResult(
+            generations=patched_generations or result.generations,
+            llm_output=result.llm_output,
+        )

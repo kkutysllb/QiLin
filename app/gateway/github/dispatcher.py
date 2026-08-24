@@ -181,7 +181,10 @@ def _is_redundant_review_comment(payload: dict[str, Any]) -> bool:
     comment = payload.get("comment")
     if not isinstance(comment, dict):
         return False
-    return comment.get("pull_request_review_id") is not None and comment.get("in_reply_to_id") is None
+    return (
+        comment.get("pull_request_review_id") is not None
+        and comment.get("in_reply_to_id") is None
+    )
 
 
 async def fanout_event(
@@ -221,7 +224,11 @@ async def fanout_event(
             event,
             delivery_id,
         )
-        return {"matched_agents": [], "fired_agents": [], "skipped": [{"reason": "no_target"}]}
+        return {
+            "matched_agents": [],
+            "fired_agents": [],
+            "skipped": [{"reason": "no_target"}],
+        }
 
     repo, number = target
 
@@ -263,8 +270,17 @@ async def fanout_event(
     #    :func:`_is_redundant_review_comment` for why a mention-gated review
     #    trigger cannot be trusted as coverage (PR #4131 review, Medium
     #    finding, willem-bd).
-    is_redundant_review_comment = event == "pull_request_review_comment" and _is_redundant_review_comment(payload)
-    review_trigger_by_binding: dict[tuple[str, str], GitHubTriggerConfig] = {(m.user_id, m.agent.name): m.trigger for m in lookup_agents(registry, repo, "pull_request_review")} if is_redundant_review_comment else {}
+    is_redundant_review_comment = (
+        event == "pull_request_review_comment" and _is_redundant_review_comment(payload)
+    )
+    review_trigger_by_binding: dict[tuple[str, str], GitHubTriggerConfig] = (
+        {
+            (m.user_id, m.agent.name): m.trigger
+            for m in lookup_agents(registry, repo, "pull_request_review")
+        }
+        if is_redundant_review_comment
+        else {}
+    )
 
     for match in matches:
         agent = match.agent
@@ -360,7 +376,11 @@ async def fanout_event(
         #    useful for operator debugging (PR #4131 review, Minor finding,
         #    willem-bd).
         review_trigger = review_trigger_by_binding.get((match.user_id, agent.name))
-        if is_redundant_review_comment and review_trigger is not None and not review_trigger.require_mention:
+        if (
+            is_redundant_review_comment
+            and review_trigger is not None
+            and not review_trigger.require_mention
+        ):
             skip_reason = reason if not fire else "redundant_review_comment"
             logger.info(
                 "github_fanout: agent=%s skipped (reason=%s, repo=%s#%s, delivery=%s)",
@@ -425,7 +445,9 @@ async def fanout_event(
         # test_dedupe_identity_distinguishes_same_agent_name_across_users.
         # Left None when the header is absent, so the manager fails open (no
         # dedupe) exactly as before rather than collapsing distinct deliveries.
-        dedupe_message_id = f"{delivery_id}:{match.user_id}:{agent.name}" if delivery_id else None
+        dedupe_message_id = (
+            f"{delivery_id}:{match.user_id}:{agent.name}" if delivery_id else None
+        )
         msg = InboundMessage(
             channel_name="github",
             chat_id=repo,

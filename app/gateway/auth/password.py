@@ -44,14 +44,18 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     try:
         if hashed_password.startswith(_PREFIX_V2):
             bcrypt_hash = hashed_password[len(_PREFIX_V2) :]
-            return bcrypt.checkpw(_pre_hash_v2(plain_password), bcrypt_hash.encode("utf-8"))
+            return bcrypt.checkpw(
+                _pre_hash_v2(plain_password), bcrypt_hash.encode("utf-8")
+            )
 
         if hashed_password.startswith(_PREFIX_V1):
             bcrypt_hash = hashed_password[len(_PREFIX_V1) :]
         else:
             bcrypt_hash = hashed_password
 
-        return bcrypt.checkpw(plain_password.encode("utf-8"), bcrypt_hash.encode("utf-8"))
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"), bcrypt_hash.encode("utf-8")
+        )
     except ValueError:
         # bcrypt raises ValueError for malformed or corrupt hashes (e.g., invalid salt).
         # Fail closed rather than crashing the request.

@@ -77,7 +77,11 @@ class PatchedChatOpenAI(ChatOpenAI):
         # Obtain the base payload from the parent implementation.
         payload = super()._get_request_payload(input_, stop=stop, **kwargs)
 
-        restore_assistant_payloads(payload.get("messages", []), original_messages, _restore_tool_call_signatures)
+        restore_assistant_payloads(
+            payload.get("messages", []),
+            original_messages,
+            _restore_tool_call_signatures,
+        )
 
         return payload
 

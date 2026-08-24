@@ -218,5 +218,7 @@ def build_prompt(event: str, payload: dict[str, Any]) -> str:
     builder = _EVENT_BUILDERS.get(event)
     if builder is None:
         repo = (payload.get("repository") or {}).get("full_name") or "(unknown repo)"
-        return f"GitHub event {event!r} fired on {repo}. action={payload.get('action')!r}"
+        return (
+            f"GitHub event {event!r} fired on {repo}. action={payload.get('action')!r}"
+        )
     return builder(payload)

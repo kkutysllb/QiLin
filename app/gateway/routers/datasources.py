@@ -58,6 +58,7 @@ _DATASOURCE_KEYS = {ds["key"] for ds in _DATASOURCES}
 
 # ── Response models ─────────────────────────────────────────────────────
 
+
 class DatasourceItem(BaseModel):
     key: str
     display_name: str
@@ -105,6 +106,7 @@ class EnvKeysResponse(BaseModel):
 
 # ── .env file helpers ───────────────────────────────────────────────────
 
+
 def _mask_value(value: str | None) -> str:
     """Return a masked representation of *value*."""
     if not value:
@@ -116,13 +118,17 @@ def _read_env_value(env_path: Path, key: str) -> str | None:
     """Read ``key`` from the ``.env`` file (not from os.environ)."""
     if not env_path.exists():
         return None
-    pattern = re.compile(rf"^\s*(?:export\s+)?{re.escape(key)}\s*=\s*(.+?)\s*$", re.IGNORECASE)
+    pattern = re.compile(
+        rf"^\s*(?:export\s+)?{re.escape(key)}\s*=\s*(.+?)\s*$", re.IGNORECASE
+    )
     for line in env_path.read_text(encoding="utf-8").splitlines():
         m = pattern.match(line)
         if m:
             val = m.group(1).strip()
             # Strip surrounding quotes
-            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            if (val.startswith('"') and val.endswith('"')) or (
+                val.startswith("'") and val.endswith("'")
+            ):
                 val = val[1:-1]
             return val
     return None
@@ -186,7 +192,9 @@ def _scan_env_keys(env_path: Path) -> list[str]:
         key = m.group(1)
         value = m.group(2).strip()
         # Strip surrounding quotes to check if the value is non-empty.
-        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+        if (value.startswith('"') and value.endswith('"')) or (
+            value.startswith("'") and value.endswith("'")
+        ):
             value = value[1:-1]
         if value and key not in seen:
             keys.append(key)
@@ -196,7 +204,10 @@ def _scan_env_keys(env_path: Path) -> list[str]:
 
 # ── Endpoints ───────────────────────────────────────────────────────────
 
-@router.get("", response_model=DatasourcesResponse, summary="List Datasource Credentials")
+
+@router.get(
+    "", response_model=DatasourcesResponse, summary="List Datasource Credentials"
+)
 @router.get("/", response_model=DatasourcesResponse, include_in_schema=False)
 async def list_datasources(request: Request) -> DatasourcesResponse:
     """Return all configured datasource credentials with masked values."""
@@ -221,9 +232,13 @@ async def list_datasources(request: Request) -> DatasourcesResponse:
     return DatasourcesResponse(datasources=items, env_file=str(env_path))
 
 
-@router.put("", response_model=DatasourcesResponse, summary="Save Datasource Credentials")
+@router.put(
+    "", response_model=DatasourcesResponse, summary="Save Datasource Credentials"
+)
 @router.put("/", response_model=DatasourcesResponse, include_in_schema=False)
-async def save_datasources(body: DatasourceUpdateRequest, request: Request) -> DatasourcesResponse:
+async def save_datasources(
+    body: DatasourceUpdateRequest, request: Request
+) -> DatasourcesResponse:
     """Persist credential values to the user ``.env`` file.
 
     Masked values (``***``) are treated as "unchanged" and skipped.
@@ -245,7 +260,9 @@ async def save_datasources(body: DatasourceUpdateRequest, request: Request) -> D
             # Empty value — remove from env file
             if env_path.exists():
                 lines = env_path.read_text(encoding="utf-8").splitlines()
-                pattern = re.compile(rf"^\s*(?:export\s+)?{re.escape(key)}\s*=", re.IGNORECASE)
+                pattern = re.compile(
+                    rf"^\s*(?:export\s+)?{re.escape(key)}\s*=", re.IGNORECASE
+                )
                 new_lines = [ln for ln in lines if not pattern.match(ln)]
                 tmp_path = env_path.with_suffix(env_path.suffix + ".tmp")
                 tmp_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
@@ -268,7 +285,9 @@ async def test_datasource(body: DatasourceTestRequest, request: Request) -> Test
     await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
 
     if body.key not in _DATASOURCE_KEYS:
-        raise HTTPException(status_code=404, detail=f"Unknown datasource key: {body.key}")
+        raise HTTPException(
+            status_code=404, detail=f"Unknown datasource key: {body.key}"
+        )
 
     env_path = _resolve_env_file_path()
 
@@ -347,8 +366,13 @@ async def _test_iwencai(api_key: str) -> TestResult:
             if resp.status_code == 200:
                 return TestResult(success=True, message="问财 API 连接成功。")
             if resp.status_code in (401, 403):
-                return TestResult(success=False, message=f"认证失败（HTTP {resp.status_code}），请检查 API Key。")
-            return TestResult(success=False, message=f"问财 API 返回 HTTP {resp.status_code}")
+                return TestResult(
+                    success=False,
+                    message=f"认证失败（HTTP {resp.status_code}），请检查 API Key。",
+                )
+            return TestResult(
+                success=False, message=f"问财 API 返回 HTTP {resp.status_code}"
+            )
     except Exception as e:
         return TestResult(success=False, message=f"连接失败：{e}")
 

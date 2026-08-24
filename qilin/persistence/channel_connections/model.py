@@ -32,8 +32,12 @@ class ChannelConnectionRow(Base):
     provider: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="connected")
 
-    external_account_id: Mapped[str] = mapped_column(String(128), nullable=False, default="")
-    external_account_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    external_account_id: Mapped[str] = mapped_column(
+        String(128), nullable=False, default=""
+    )
+    external_account_name: Mapped[str | None] = mapped_column(
+        String(256), nullable=True
+    )
     workspace_id: Mapped[str] = mapped_column(String(128), nullable=False, default="")
     workspace_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     bot_user_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -42,10 +46,18 @@ class ChannelConnectionRow(Base):
     capabilities_json: Mapped[dict] = mapped_column(JSON, default=dict)
     metadata_json: Mapped[dict] = mapped_column(JSON, default=dict)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utc_now)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now)
-    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utc_now
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now
+    )
+    last_seen_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_error_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     __table_args__ = (
         UniqueConstraint(
@@ -55,7 +67,12 @@ class ChannelConnectionRow(Base):
             "workspace_id",
             name="uq_channel_connection_owner_provider_identity",
         ),
-        Index("idx_channel_connections_event_lookup", "provider", "workspace_id", "bot_user_id"),
+        Index(
+            "idx_channel_connections_event_lookup",
+            "provider",
+            "workspace_id",
+            "bot_user_id",
+        ),
         # Enforce the single-active-owner invariant at the database layer: at most
         # one non-revoked row may exist per external identity. This makes ownership
         # transfer race-safe (concurrent connects from different owners can no
@@ -84,11 +101,17 @@ class ChannelCredentialRow(Base):
     encrypted_access_token: Mapped[str | None] = mapped_column(Text, nullable=True)
     encrypted_refresh_token: Mapped[str | None] = mapped_column(Text, nullable=True)
     token_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    refresh_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    refresh_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     encrypted_extra_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now
+    )
 
 
 class ChannelOAuthStateRow(Base):
@@ -102,9 +125,15 @@ class ChannelOAuthStateRow(Base):
     redirect_after: Mapped[str | None] = mapped_column(Text, nullable=True)
     requested_scopes_json: Mapped[list] = mapped_column(JSON, default=list)
     metadata_json: Mapped[dict] = mapped_column(JSON, default=dict)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utc_now)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    consumed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utc_now
+    )
 
 
 class ChannelConversationRow(Base):
@@ -120,10 +149,16 @@ class ChannelConversationRow(Base):
     owner_user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     provider: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     external_conversation_id: Mapped[str] = mapped_column(String(128), nullable=False)
-    external_topic_id: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    external_topic_id: Mapped[str] = mapped_column(
+        String(128), nullable=False, default=""
+    )
     thread_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utc_now)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utc_now
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now
+    )
 
     __table_args__ = (
         UniqueConstraint(

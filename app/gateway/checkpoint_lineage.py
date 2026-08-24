@@ -24,8 +24,12 @@ def checkpoint_messages(checkpoint_tuple: Any) -> list[Any]:
         messages = values.get("messages", [])
         return list(messages) if isinstance(messages, list) else []
     checkpoint = getattr(checkpoint_tuple, "checkpoint", None) or {}
-    channel_values = checkpoint.get("channel_values", {}) if isinstance(checkpoint, dict) else {}
-    messages = channel_values.get("messages", []) if isinstance(channel_values, dict) else []
+    channel_values = (
+        checkpoint.get("channel_values", {}) if isinstance(checkpoint, dict) else {}
+    )
+    messages = (
+        channel_values.get("messages", []) if isinstance(channel_values, dict) else []
+    )
     return list(messages) if isinstance(messages, list) else []
 
 
@@ -74,7 +78,12 @@ def _config_identity(config: dict[str, Any]) -> tuple[str, str, str] | None:
     thread_id = configurable.get("thread_id")
     checkpoint_ns = configurable.get("checkpoint_ns", "")
     checkpoint_id = configurable.get("checkpoint_id")
-    if not isinstance(thread_id, str) or not thread_id or not isinstance(checkpoint_id, str) or not checkpoint_id:
+    if (
+        not isinstance(thread_id, str)
+        or not thread_id
+        or not isinstance(checkpoint_id, str)
+        or not checkpoint_id
+    ):
         return None
     return thread_id, str(checkpoint_ns or ""), checkpoint_id
 
@@ -117,8 +126,12 @@ async def find_checkpoint_before_message(
     checkpoints that still have pending tasks (see :func:`has_pending_tasks`).
     """
 
-    if message_id not in {_message_id(message) for message in checkpoint_messages(head_checkpoint)}:
-        raise CheckpointLineageIntegrityError("Target message is not present in the checkpoint head")
+    if message_id not in {
+        _message_id(message) for message in checkpoint_messages(head_checkpoint)
+    }:
+        raise CheckpointLineageIntegrityError(
+            "Target message is not present in the checkpoint head"
+        )
 
     current = head_checkpoint
     visited: set[tuple[str, str, str]] = set()
@@ -133,28 +146,45 @@ async def find_checkpoint_before_message(
     for _ in range(max_depth):
         parent_config = getattr(current, "parent_config", None)
         if not isinstance(parent_config, dict):
-            raise CheckpointParentMissingError("Checkpoint lineage ended before the target message")
+            raise CheckpointParentMissingError(
+                "Checkpoint lineage ended before the target message"
+            )
 
         parent = await accessor.aget(parent_config)
         parent_identity = _checkpoint_identity(parent)
         requested_parent_identity = _config_identity(parent_config)
-        if parent_identity is None or not _checkpoint_exists(parent) or (requested_parent_identity is not None and parent_identity != requested_parent_identity):
-            raise CheckpointLineageIntegrityError("Checkpoint parent link is not addressable")
+        if (
+            parent_identity is None
+            or not _checkpoint_exists(parent)
+            or (
+                requested_parent_identity is not None
+                and parent_identity != requested_parent_identity
+            )
+        ):
+            raise CheckpointLineageIntegrityError(
+                "Checkpoint parent link is not addressable"
+            )
         if parent_identity is not None:
             if parent_identity in visited:
-                raise CheckpointLineageIntegrityError("Checkpoint lineage contains a cycle")
+                raise CheckpointLineageIntegrityError(
+                    "Checkpoint lineage contains a cycle"
+                )
             visited.add(parent_identity)
 
         if is_duration_only_checkpoint(parent):
             current = parent
             continue
 
-        parent_message_ids = {_message_id(message) for message in checkpoint_messages(parent)}
+        parent_message_ids = {
+            _message_id(message) for message in checkpoint_messages(parent)
+        }
         if message_id not in parent_message_ids and not has_pending_tasks(parent):
             return parent
         current = parent
 
-    raise CheckpointLineageIntegrityError(f"Checkpoint lineage exceeded the scan limit ({max_depth})")
+    raise CheckpointLineageIntegrityError(
+        f"Checkpoint lineage exceeded the scan limit ({max_depth})"
+    )
 
 
 def find_checkpoint_before_message_chronologically(
@@ -175,9 +205,13 @@ def find_checkpoint_before_message_chronologically(
     for checkpoint_tuple in reversed(checkpoints):
         if is_duration_only_checkpoint(checkpoint_tuple):
             continue
-        message_ids = {_message_id(message) for message in checkpoint_messages(checkpoint_tuple)}
+        message_ids = {
+            _message_id(message) for message in checkpoint_messages(checkpoint_tuple)
+        }
         if message_id in message_ids:
             return previous_checkpoint, True
-        if checkpoint_configurable(checkpoint_tuple).get("checkpoint_id") and not has_pending_tasks(checkpoint_tuple):
+        if checkpoint_configurable(checkpoint_tuple).get(
+            "checkpoint_id"
+        ) and not has_pending_tasks(checkpoint_tuple):
             previous_checkpoint = checkpoint_tuple
     return None, False

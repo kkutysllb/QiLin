@@ -44,6 +44,7 @@ def _apply_log_level(level: str) -> None:
     }
     logging.getLogger().setLevel(level_map.get(level, logging.INFO))
 
+
 # Section name → engine pydantic Config class (lazy import to avoid pulling
 # the full engine at module load). Keys match the config.yaml top-level
 # section names that have a dedicated pydantic model. Note:
@@ -178,7 +179,11 @@ async def get_config_section(section: str, request: Request) -> ConfigSectionRes
     # Scalar fields (e.g. log_level) are stored as top-level string values.
     if section in _SCALAR_FIELDS:
         data = read_config_yaml()
-        value = data.get(section, _SCALAR_FIELDS[section]) if isinstance(data, dict) else _SCALAR_FIELDS[section]
+        value = (
+            data.get(section, _SCALAR_FIELDS[section])
+            if isinstance(data, dict)
+            else _SCALAR_FIELDS[section]
+        )
         return ConfigSectionResponse(section=section, data=value)
     data = read_config_yaml()
     if not isinstance(data, dict) or section not in data:
@@ -202,7 +207,9 @@ async def get_config_section(section: str, request: Request) -> ConfigSectionRes
             section_data = _sanitize_for_yaml(instance.model_dump())
         except Exception:
             logger.debug("Falling back to raw YAML data for section '%s'", section)
-    return ConfigSectionResponse(section=section, data=_mask_section(section, section_data))
+    return ConfigSectionResponse(
+        section=section, data=_mask_section(section, section_data)
+    )
 
 
 @router.put("/{section}", response_model=ConfigSectionResponse)
@@ -257,13 +264,16 @@ async def put_config_section(
     write_config_yaml(config_path, data)
 
     logger.info("Config section '%s' updated via admin API", section)
-    return ConfigSectionResponse(section=section, data=_mask_section(section, validated))
+    return ConfigSectionResponse(
+        section=section, data=_mask_section(section, validated)
+    )
 
 
 @router.post("/restart")
 async def restart_gateway_endpoint(request: Request) -> dict[str, str]:
     """Trigger gateway self-restart (dev/web mode; managed mode uses Electron IPC)."""
     await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
+
     # Schedule exit on a background thread so the HTTP 200 response flushes first.
     def _exit_after_delay() -> None:
         import time

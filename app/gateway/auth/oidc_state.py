@@ -28,12 +28,26 @@ class OIDCStatePayload(BaseModel):
     """Payload stored inside the signed OIDC state cookie."""
 
     provider: str = Field(description="OIDC provider ID (must match the state cookie)")
-    state: str = Field(description="Cryptographically random state value — compared in constant time with the query param")
-    nonce: str | None = Field(default=None, description="OIDC nonce, verified against the ID token nonce claim")
-    code_verifier: str | None = Field(default=None, description="PKCE code verifier, sent during token exchange")
-    next_path: str = Field(default="/workspace", description="Redirect target after successful auth")
-    remember_me: bool = Field(default=True, description="Whether the resulting QiLin session should be persistent")
-    issued_at: float = Field(default_factory=time.time, description="Unix timestamp of cookie creation")
+    state: str = Field(
+        description="Cryptographically random state value — compared in constant time with the query param"
+    )
+    nonce: str | None = Field(
+        default=None,
+        description="OIDC nonce, verified against the ID token nonce claim",
+    )
+    code_verifier: str | None = Field(
+        default=None, description="PKCE code verifier, sent during token exchange"
+    )
+    next_path: str = Field(
+        default="/workspace", description="Redirect target after successful auth"
+    )
+    remember_me: bool = Field(
+        default=True,
+        description="Whether the resulting QiLin session should be persistent",
+    )
+    issued_at: float = Field(
+        default_factory=time.time, description="Unix timestamp of cookie creation"
+    )
 
 
 def _sign_state_payload(payload: OIDCStatePayload) -> str:
@@ -42,7 +56,9 @@ def _sign_state_payload(payload: OIDCStatePayload) -> str:
     return jwt.encode(payload.model_dump(), secret, algorithm="HS256")
 
 
-def _verify_state_signed(signed: str, max_age: int = OIDC_STATE_MAX_AGE) -> OIDCStatePayload | None:
+def _verify_state_signed(
+    signed: str, max_age: int = OIDC_STATE_MAX_AGE
+) -> OIDCStatePayload | None:
     """Verify a signed state payload and return it, or None if invalid/expired."""
     secret = get_auth_config().jwt_secret
     try:
@@ -88,7 +104,9 @@ def _cookie_name(provider: str) -> str:
     return f"{OIDC_STATE_COOKIE_PREFIX}{provider}"
 
 
-def set_state_cookie(response: Response, request: Request, payload: OIDCStatePayload) -> None:
+def set_state_cookie(
+    response: Response, request: Request, payload: OIDCStatePayload
+) -> None:
     """Set the signed OIDC state cookie on the response."""
     signed = _sign_state_payload(payload)
     is_https = is_secure_request(request)

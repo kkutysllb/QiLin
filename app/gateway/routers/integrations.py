@@ -49,38 +49,83 @@ async def _is_admin_user(request: Request) -> bool:
 
 
 class LarkCliProbeResponse(BaseModel):
-    available: bool = Field(..., description="Whether lark-cli is available to the Gateway, either managed by QiLin or on PATH")
+    available: bool = Field(
+        ...,
+        description="Whether lark-cli is available to the Gateway, either managed by QiLin or on PATH",
+    )
     path: str | None = Field(None, description="Resolved lark-cli executable path")
     version: str | None = Field(None, description="lark-cli --version output")
     error: str | None = Field(None, description="Probe failure message")
 
 
 class LarkAuthProbeResponse(BaseModel):
-    status: str = Field(..., description="Auth status: authenticated, not_configured, unavailable, or error")
+    status: str = Field(
+        ...,
+        description="Auth status: authenticated, not_configured, unavailable, or error",
+    )
     message: str | None = Field(None, description="Human-readable status detail")
-    user: str | None = Field(None, description="Authenticated Lark/Feishu user display value when available")
-    verified: bool = Field(False, description="Whether this status came from a live token verification")
+    user: str | None = Field(
+        None, description="Authenticated Lark/Feishu user display value when available"
+    )
+    verified: bool = Field(
+        False, description="Whether this status came from a live token verification"
+    )
 
 
 class LarkIntegrationStatusResponse(BaseModel):
-    installed: bool = Field(..., description="Whether the managed Lark skill pack is installed")
-    version: str = Field(..., description="Installed Lark CLI skill-pack version (from manifest, resolved at install time)")
+    installed: bool = Field(
+        ..., description="Whether the managed Lark skill pack is installed"
+    )
+    version: str = Field(
+        ...,
+        description="Installed Lark CLI skill-pack version (from manifest, resolved at install time)",
+    )
     manifest_version: str | None = Field(None, description="Installed manifest version")
-    latest_available_version: str | None = Field(None, description="Newest larksuite/cli release version available on GitHub, when known")
-    runtime_version_mismatch: bool = Field(False, description="Whether the installed skill-pack version differs from the Gateway runtime lark-cli binary")
-    app_configured: bool = Field(..., description="Whether lark-cli has app_id/app_secret configured for this user")
+    latest_available_version: str | None = Field(
+        None,
+        description="Newest larksuite/cli release version available on GitHub, when known",
+    )
+    runtime_version_mismatch: bool = Field(
+        False,
+        description="Whether the installed skill-pack version differs from the Gateway runtime lark-cli binary",
+    )
+    app_configured: bool = Field(
+        ...,
+        description="Whether lark-cli has app_id/app_secret configured for this user",
+    )
     app_id: str | None = Field(None, description="Configured Lark app ID")
-    app_brand: str | None = Field(None, description="Configured Lark brand: feishu or lark")
-    skills_expected: int = Field(..., description="Number of skills expected in the official pack")
-    skills_installed: int = Field(..., description="Number of installed managed Lark skills")
-    installed_skills: list[str] = Field(default_factory=list, description="Installed managed Lark skill names")
-    enabled_skills: list[str] = Field(default_factory=list, description="Installed Lark skills currently enabled for this user")
-    install_path: str = Field(..., description="Host path of the managed Lark skill pack")
+    app_brand: str | None = Field(
+        None, description="Configured Lark brand: feishu or lark"
+    )
+    skills_expected: int = Field(
+        ..., description="Number of skills expected in the official pack"
+    )
+    skills_installed: int = Field(
+        ..., description="Number of installed managed Lark skills"
+    )
+    installed_skills: list[str] = Field(
+        default_factory=list, description="Installed managed Lark skill names"
+    )
+    enabled_skills: list[str] = Field(
+        default_factory=list,
+        description="Installed Lark skills currently enabled for this user",
+    )
+    install_path: str = Field(
+        ..., description="Host path of the managed Lark skill pack"
+    )
     cli: LarkCliProbeResponse
     auth: LarkAuthProbeResponse
-    sandbox_runtime_mode: str = Field("none", description="How lark-cli is provisioned into the sandbox: none, gateway-download, init-container, or broker")
-    sandbox_runtime_ready: bool = Field(False, description="Whether the sandbox lark-cli runtime is provisioned and usable at chat time")
-    sandbox_runtime_detail: str | None = Field(None, description="Human-readable reason when the sandbox runtime is not ready")
+    sandbox_runtime_mode: str = Field(
+        "none",
+        description="How lark-cli is provisioned into the sandbox: none, gateway-download, init-container, or broker",
+    )
+    sandbox_runtime_ready: bool = Field(
+        False,
+        description="Whether the sandbox lark-cli runtime is provisioned and usable at chat time",
+    )
+    sandbox_runtime_detail: str | None = Field(
+        None, description="Human-readable reason when the sandbox runtime is not ready"
+    )
 
 
 class LarkInstallResponse(BaseModel):
@@ -91,20 +136,40 @@ class LarkInstallResponse(BaseModel):
 
 
 class LarkAuthStartRequest(BaseModel):
-    recommend: bool = Field(default=False, description="Request the official recommended auto-approve scopes")
-    domains: list[str] = Field(default_factory=list, description="Optional Lark auth domains, e.g. calendar or docs")
-    scope: str | None = Field(default=None, description="Optional explicit OAuth scope string")
+    recommend: bool = Field(
+        default=False,
+        description="Request the official recommended auto-approve scopes",
+    )
+    domains: list[str] = Field(
+        default_factory=list,
+        description="Optional Lark auth domains, e.g. calendar or docs",
+    )
+    scope: str | None = Field(
+        default=None, description="Optional explicit OAuth scope string"
+    )
 
 
 class LarkConfigStartRequest(BaseModel):
-    brand: str = Field(default="feishu", description="Lark brand to start app registration for: feishu or lark")
+    brand: str = Field(
+        default="feishu",
+        description="Lark brand to start app registration for: feishu or lark",
+    )
 
 
 class LarkConfigStartResponse(BaseModel):
-    verification_url: str = Field(..., description="URL the user should open in a browser to configure the Lark app")
-    device_code: str = Field(..., description="Device code used by config/complete after browser approval")
-    expires_in: int | None = Field(None, description="Seconds before the configuration URL expires")
-    interval: int | None = Field(None, description="Suggested polling interval from Lark")
+    verification_url: str = Field(
+        ...,
+        description="URL the user should open in a browser to configure the Lark app",
+    )
+    device_code: str = Field(
+        ..., description="Device code used by config/complete after browser approval"
+    )
+    expires_in: int | None = Field(
+        None, description="Seconds before the configuration URL expires"
+    )
+    interval: int | None = Field(
+        None, description="Suggested polling interval from Lark"
+    )
     user_code: str | None = Field(None, description="Optional user code shown by Lark")
     brand: str = Field(..., description="Brand used for this app registration flow")
 
@@ -112,8 +177,12 @@ class LarkConfigStartResponse(BaseModel):
 class LarkConfigCompleteRequest(BaseModel):
     device_code: str = Field(..., description="Device code returned by config/start")
     brand: str = Field(default="feishu", description="Brand returned by config/start")
-    interval: int | None = Field(default=None, description="Polling interval returned by config/start")
-    expires_in: int | None = Field(default=None, description="Expiration returned by config/start")
+    interval: int | None = Field(
+        default=None, description="Polling interval returned by config/start"
+    )
+    expires_in: int | None = Field(
+        default=None, description="Expiration returned by config/start"
+    )
 
 
 class LarkConfigCompleteResponse(BaseModel):
@@ -123,9 +192,16 @@ class LarkConfigCompleteResponse(BaseModel):
 
 
 class LarkAuthStartResponse(BaseModel):
-    verification_url: str = Field(..., description="URL the user should open in a browser to authorize")
-    device_code: str = Field(..., description="Device code used by the complete endpoint after browser approval")
-    expires_in: int | None = Field(None, description="Seconds before the authorization URL expires")
+    verification_url: str = Field(
+        ..., description="URL the user should open in a browser to authorize"
+    )
+    device_code: str = Field(
+        ...,
+        description="Device code used by the complete endpoint after browser approval",
+    )
+    expires_in: int | None = Field(
+        None, description="Seconds before the authorization URL expires"
+    )
     user_code: str | None = Field(None, description="Optional user code shown by Lark")
     hint: str | None = Field(None, description="Optional guidance returned by lark-cli")
 
@@ -164,7 +240,9 @@ def _auth_probe_to_response(probe: LarkAuthProbe) -> LarkAuthProbeResponse:
     )
 
 
-def _status_to_response(status: LarkIntegrationStatus, *, include_host_paths: bool = True) -> LarkIntegrationStatusResponse:
+def _status_to_response(
+    status: LarkIntegrationStatus, *, include_host_paths: bool = True
+) -> LarkIntegrationStatusResponse:
     cli = _cli_probe_to_response(status.cli)
     if not include_host_paths:
         # Host filesystem paths (Gateway layout) are admin-only info; redact them
@@ -212,11 +290,15 @@ def _config_start_to_response(result: LarkConfigStartResult) -> LarkConfigStartR
     )
 
 
-def _config_complete_to_response(result: LarkConfigCompleteResult, *, include_host_paths: bool = True) -> LarkConfigCompleteResponse:
+def _config_complete_to_response(
+    result: LarkConfigCompleteResult, *, include_host_paths: bool = True
+) -> LarkConfigCompleteResponse:
     return LarkConfigCompleteResponse(
         success=result.success,
         message=result.message,
-        status=_status_to_response(result.status, include_host_paths=include_host_paths),
+        status=_status_to_response(
+            result.status, include_host_paths=include_host_paths
+        ),
     )
 
 
@@ -230,29 +312,57 @@ def _auth_start_to_response(result: LarkAuthStartResult) -> LarkAuthStartRespons
     )
 
 
-def _auth_complete_to_response(result: LarkAuthCompleteResult, *, include_host_paths: bool = True) -> LarkAuthCompleteResponse:
+def _auth_complete_to_response(
+    result: LarkAuthCompleteResult, *, include_host_paths: bool = True
+) -> LarkAuthCompleteResponse:
     return LarkAuthCompleteResponse(
         success=result.success,
         message=result.message,
-        status=_status_to_response(result.status, include_host_paths=include_host_paths),
+        status=_status_to_response(
+            result.status, include_host_paths=include_host_paths
+        ),
     )
 
 
-@router.get("/lark/status", response_model=LarkIntegrationStatusResponse, summary="Get Lark/Feishu Integration Status")
-async def get_lark_status(request: Request, config: AppConfig = Depends(get_config)) -> LarkIntegrationStatusResponse:
+@router.get(
+    "/lark/status",
+    response_model=LarkIntegrationStatusResponse,
+    summary="Get Lark/Feishu Integration Status",
+)
+async def get_lark_status(
+    request: Request, config: AppConfig = Depends(get_config)
+) -> LarkIntegrationStatusResponse:
     try:
-        status = await asyncio.to_thread(get_lark_integration_status, get_effective_user_id(), config, check_latest=True, check_runtime=True)
-        return _status_to_response(status, include_host_paths=await _is_admin_user(request))
+        status = await asyncio.to_thread(
+            get_lark_integration_status,
+            get_effective_user_id(),
+            config,
+            check_latest=True,
+            check_runtime=True,
+        )
+        return _status_to_response(
+            status, include_host_paths=await _is_admin_user(request)
+        )
     except Exception as e:
         logger.error("Failed to get Lark integration status: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to get Lark integration status.")
+        raise HTTPException(
+            status_code=500, detail="Failed to get Lark integration status."
+        )
 
 
-@router.post("/lark/install", response_model=LarkInstallResponse, summary="Install Lark/Feishu Skill Pack")
-async def install_lark(request: Request, config: AppConfig = Depends(get_config)) -> LarkInstallResponse:
+@router.post(
+    "/lark/install",
+    response_model=LarkInstallResponse,
+    summary="Install Lark/Feishu Skill Pack",
+)
+async def install_lark(
+    request: Request, config: AppConfig = Depends(get_config)
+) -> LarkInstallResponse:
     await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
     try:
-        result = await asyncio.to_thread(install_lark_integration, get_effective_user_id(), config)
+        result = await asyncio.to_thread(
+            install_lark_integration, get_effective_user_id(), config
+        )
         await refresh_skills_system_prompt_cache_async()
         return _install_to_response(result)
     except FileNotFoundError as e:
@@ -263,11 +373,19 @@ async def install_lark(request: Request, config: AppConfig = Depends(get_config)
         raise
     except Exception as e:
         logger.error("Failed to install Lark integration: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to install Lark integration.")
+        raise HTTPException(
+            status_code=500, detail="Failed to install Lark integration."
+        )
 
 
-@router.post("/lark/config/start", response_model=LarkConfigStartResponse, summary="Start Lark/Feishu App Configuration")
-async def start_lark_app_config(body: LarkConfigStartRequest) -> LarkConfigStartResponse:
+@router.post(
+    "/lark/config/start",
+    response_model=LarkConfigStartResponse,
+    summary="Start Lark/Feishu App Configuration",
+)
+async def start_lark_app_config(
+    body: LarkConfigStartRequest,
+) -> LarkConfigStartResponse:
     try:
         result = await asyncio.to_thread(
             start_lark_config,
@@ -283,11 +401,21 @@ async def start_lark_app_config(body: LarkConfigStartRequest) -> LarkConfigStart
         raise HTTPException(status_code=504, detail=str(e))
     except Exception as e:
         logger.error("Failed to start Lark connection setup: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to start Lark connection setup.")
+        raise HTTPException(
+            status_code=500, detail="Failed to start Lark connection setup."
+        )
 
 
-@router.post("/lark/config/complete", response_model=LarkConfigCompleteResponse, summary="Complete Lark/Feishu App Configuration")
-async def complete_lark_app_config(request: Request, body: LarkConfigCompleteRequest, config: AppConfig = Depends(get_config)) -> LarkConfigCompleteResponse:
+@router.post(
+    "/lark/config/complete",
+    response_model=LarkConfigCompleteResponse,
+    summary="Complete Lark/Feishu App Configuration",
+)
+async def complete_lark_app_config(
+    request: Request,
+    body: LarkConfigCompleteRequest,
+    config: AppConfig = Depends(get_config),
+) -> LarkConfigCompleteResponse:
     try:
         result = await asyncio.to_thread(
             complete_lark_config,
@@ -298,7 +426,9 @@ async def complete_lark_app_config(request: Request, body: LarkConfigCompleteReq
             interval=body.interval,
             expires_in=body.expires_in,
         )
-        return _config_complete_to_response(result, include_host_paths=await _is_admin_user(request))
+        return _config_complete_to_response(
+            result, include_host_paths=await _is_admin_user(request)
+        )
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
@@ -307,10 +437,16 @@ async def complete_lark_app_config(request: Request, body: LarkConfigCompleteReq
         raise HTTPException(status_code=504, detail=str(e))
     except Exception as e:
         logger.error("Failed to complete Lark connection setup: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to complete Lark connection setup.")
+        raise HTTPException(
+            status_code=500, detail="Failed to complete Lark connection setup."
+        )
 
 
-@router.post("/lark/auth/start", response_model=LarkAuthStartResponse, summary="Start Lark/Feishu Browser Authorization")
+@router.post(
+    "/lark/auth/start",
+    response_model=LarkAuthStartResponse,
+    summary="Start Lark/Feishu Browser Authorization",
+)
 async def start_lark_browser_auth(body: LarkAuthStartRequest) -> LarkAuthStartResponse:
     try:
         result = await asyncio.to_thread(
@@ -329,11 +465,21 @@ async def start_lark_browser_auth(body: LarkAuthStartRequest) -> LarkAuthStartRe
         raise HTTPException(status_code=504, detail=str(e))
     except Exception as e:
         logger.error("Failed to start Lark authorization: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to start Lark authorization.")
+        raise HTTPException(
+            status_code=500, detail="Failed to start Lark authorization."
+        )
 
 
-@router.post("/lark/auth/complete", response_model=LarkAuthCompleteResponse, summary="Complete Lark/Feishu Browser Authorization")
-async def complete_lark_browser_auth(request: Request, body: LarkAuthCompleteRequest, config: AppConfig = Depends(get_config)) -> LarkAuthCompleteResponse:
+@router.post(
+    "/lark/auth/complete",
+    response_model=LarkAuthCompleteResponse,
+    summary="Complete Lark/Feishu Browser Authorization",
+)
+async def complete_lark_browser_auth(
+    request: Request,
+    body: LarkAuthCompleteRequest,
+    config: AppConfig = Depends(get_config),
+) -> LarkAuthCompleteResponse:
     try:
         result = await asyncio.to_thread(
             complete_lark_auth,
@@ -342,7 +488,9 @@ async def complete_lark_browser_auth(request: Request, body: LarkAuthCompleteReq
             device_code=body.device_code,
             wait_timeout_seconds=body.wait_timeout_seconds,
         )
-        return _auth_complete_to_response(result, include_host_paths=await _is_admin_user(request))
+        return _auth_complete_to_response(
+            result, include_host_paths=await _is_admin_user(request)
+        )
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
@@ -351,4 +499,6 @@ async def complete_lark_browser_auth(request: Request, body: LarkAuthCompleteReq
         raise HTTPException(status_code=504, detail=str(e))
     except Exception as e:
         logger.error("Failed to complete Lark authorization: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to complete Lark authorization.")
+        raise HTTPException(
+            status_code=500, detail="Failed to complete Lark authorization."
+        )

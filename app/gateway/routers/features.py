@@ -19,13 +19,17 @@ router = APIRouter(prefix="/api", tags=["features"])
 class AgentsApiFeature(BaseModel):
     """Availability of the custom-agent management API."""
 
-    enabled: bool = Field(..., description="Whether the agents_api routes are exposed over HTTP")
+    enabled: bool = Field(
+        ..., description="Whether the agents_api routes are exposed over HTTP"
+    )
 
 
 class BrowserControlFeature(BaseModel):
     """Availability of live agentic browser control."""
 
-    enabled: bool = Field(..., description="Whether the live browser routes and UI are available")
+    enabled: bool = Field(
+        ..., description="Whether the live browser routes and UI are available"
+    )
 
 
 class FeaturesResponse(BaseModel):

@@ -163,23 +163,38 @@ class RedisOwnershipStore(SandboxOwnershipStore):
 
     def take(self, sandbox_id: str) -> bool:
         try:
-            result = self._take(keys=[self._key(sandbox_id)], args=[self._owner_id, self._ttl_ms])
+            result = self._take(
+                keys=[self._key(sandbox_id)], args=[self._owner_id, self._ttl_ms]
+            )
         except RedisError as e:
-            raise OwnershipBackendError(f"failed to publish sandbox ownership for {sandbox_id}: {e}") from e
+            raise OwnershipBackendError(
+                f"failed to publish sandbox ownership for {sandbox_id}: {e}"
+            ) from e
         return bool(result)
 
     def claim(self, sandbox_id: str, *, for_destroy: bool = False) -> bool:
         try:
-            result = self._claim(keys=[self._key(sandbox_id)], args=[self._owner_id, self._ttl_ms, "1" if for_destroy else "0"])
+            result = self._claim(
+                keys=[self._key(sandbox_id)],
+                args=[self._owner_id, self._ttl_ms, "1" if for_destroy else "0"],
+            )
         except RedisError as e:
-            raise OwnershipBackendError(f"failed to claim sandbox ownership for {sandbox_id}: {e}") from e
+            raise OwnershipBackendError(
+                f"failed to claim sandbox ownership for {sandbox_id}: {e}"
+            ) from e
         return bool(result)
 
     def renew(self, sandbox_id: str) -> RenewOutcome:
         try:
-            result = int(self._renew(keys=[self._key(sandbox_id)], args=[self._owner_id, self._ttl_ms]))
+            result = int(
+                self._renew(
+                    keys=[self._key(sandbox_id)], args=[self._owner_id, self._ttl_ms]
+                )
+            )
         except RedisError as e:
-            raise OwnershipBackendError(f"failed to renew sandbox ownership for {sandbox_id}: {e}") from e
+            raise OwnershipBackendError(
+                f"failed to renew sandbox ownership for {sandbox_id}: {e}"
+            ) from e
         if result == 1:
             return RenewOutcome.RENEWED
         if result == -1:
@@ -190,13 +205,17 @@ class RedisOwnershipStore(SandboxOwnershipStore):
         try:
             self._release(keys=[self._key(sandbox_id)], args=[self._owner_id])
         except RedisError as e:
-            raise OwnershipBackendError(f"failed to release sandbox ownership for {sandbox_id}: {e}") from e
+            raise OwnershipBackendError(
+                f"failed to release sandbox ownership for {sandbox_id}: {e}"
+            ) from e
 
     def owner(self, sandbox_id: str) -> str | None:
         try:
             value = self._redis.get(self._key(sandbox_id))
         except RedisError as e:
-            raise OwnershipBackendError(f"failed to read sandbox ownership for {sandbox_id}: {e}") from e
+            raise OwnershipBackendError(
+                f"failed to read sandbox ownership for {sandbox_id}: {e}"
+            ) from e
         if value is None:
             return None
         # An injected client may not set decode_responses.

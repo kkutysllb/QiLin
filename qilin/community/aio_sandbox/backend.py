@@ -32,7 +32,12 @@ def sandbox_http_trust_env(sandbox_url: str) -> bool:
         return True
     if not hostname:
         return True
-    if hostname == "localhost" or hostname.endswith(".localhost") or hostname.endswith(".docker.internal") or hostname.endswith(".containers.internal"):
+    if (
+        hostname == "localhost"
+        or hostname.endswith(".localhost")
+        or hostname.endswith(".docker.internal")
+        or hostname.endswith(".containers.internal")
+    ):
         return False
     try:
         address = ipaddress.ip_address(hostname)
@@ -65,7 +70,9 @@ def wait_for_sandbox_ready(sandbox_url: str, timeout: int = 30) -> bool:
     return False
 
 
-async def wait_for_sandbox_ready_async(sandbox_url: str, timeout: int = 30, poll_interval: float = 1.0) -> bool:
+async def wait_for_sandbox_ready_async(
+    sandbox_url: str, timeout: int = 30, poll_interval: float = 1.0
+) -> bool:
     """Async variant of sandbox readiness polling.
 
     Use this from async runtime paths so sandbox startup waits do not block the
@@ -75,13 +82,17 @@ async def wait_for_sandbox_ready_async(sandbox_url: str, timeout: int = 30, poll
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout
 
-    async with httpx.AsyncClient(timeout=5, trust_env=sandbox_http_trust_env(sandbox_url)) as client:
+    async with httpx.AsyncClient(
+        timeout=5, trust_env=sandbox_http_trust_env(sandbox_url)
+    ) as client:
         while True:
             remaining = deadline - loop.time()
             if remaining <= 0:
                 break
             try:
-                response = await client.get(f"{sandbox_url}/v1/sandbox", timeout=min(5.0, remaining))
+                response = await client.get(
+                    f"{sandbox_url}/v1/sandbox", timeout=min(5.0, remaining)
+                )
                 if response.status_code == 200:
                     return True
             except httpx.RequestError:

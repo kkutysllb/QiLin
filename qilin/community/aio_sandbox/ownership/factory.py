@@ -33,7 +33,11 @@ def generate_owner_id() -> str:
     return f"{socket.gethostname()}:{uuid.uuid4().hex}"
 
 
-def resolve_ownership_config(config: SandboxOwnershipConfig | None, *, stream_bridge: StreamBridgeConfig | None = None) -> SandboxOwnershipConfig:
+def resolve_ownership_config(
+    config: SandboxOwnershipConfig | None,
+    *,
+    stream_bridge: StreamBridgeConfig | None = None,
+) -> SandboxOwnershipConfig:
     """Fill in an omitted ownership section.
 
     A deployment that already points the stream bridge at Redis is by definition
@@ -50,19 +54,35 @@ def resolve_ownership_config(config: SandboxOwnershipConfig | None, *, stream_br
         return config
 
     if stream_bridge is not None and stream_bridge.type == "redis":
-        redis_url = stream_bridge.redis_url or os.getenv(_ENV_OWNERSHIP_REDIS_URL) or os.getenv(_ENV_STREAM_BRIDGE_REDIS_URL)
-        logger.info("Sandbox ownership: redis inferred from stream_bridge.type (multi-instance deployment)")
+        redis_url = (
+            stream_bridge.redis_url
+            or os.getenv(_ENV_OWNERSHIP_REDIS_URL)
+            or os.getenv(_ENV_STREAM_BRIDGE_REDIS_URL)
+        )
+        logger.info(
+            "Sandbox ownership: redis inferred from stream_bridge.type (multi-instance deployment)"
+        )
         return SandboxOwnershipConfig(type="redis", redis_url=redis_url)
 
-    redis_url = os.getenv(_ENV_OWNERSHIP_REDIS_URL) or os.getenv(_ENV_STREAM_BRIDGE_REDIS_URL)
+    redis_url = os.getenv(_ENV_OWNERSHIP_REDIS_URL) or os.getenv(
+        _ENV_STREAM_BRIDGE_REDIS_URL
+    )
     if redis_url:
-        logger.info("Sandbox ownership: redis inferred from environment (multi-instance deployment)")
+        logger.info(
+            "Sandbox ownership: redis inferred from environment (multi-instance deployment)"
+        )
         return SandboxOwnershipConfig(type="redis", redis_url=redis_url)
     return SandboxOwnershipConfig()
 
 
 def _resolve_redis_url(config: SandboxOwnershipConfig) -> str:
-    return config.redis_url or os.getenv(_ENV_OWNERSHIP_REDIS_URL) or os.getenv(_ENV_STREAM_BRIDGE_REDIS_URL) or os.getenv("REDIS_URL") or "redis://localhost:6379/0"
+    return (
+        config.redis_url
+        or os.getenv(_ENV_OWNERSHIP_REDIS_URL)
+        or os.getenv(_ENV_STREAM_BRIDGE_REDIS_URL)
+        or os.getenv("REDIS_URL")
+        or "redis://localhost:6379/0"
+    )
 
 
 def compute_lease_ttl(config: SandboxOwnershipConfig) -> float:
@@ -75,7 +95,9 @@ def compute_lease_ttl(config: SandboxOwnershipConfig) -> float:
     return config.renewal_interval_seconds * config.ttl_multiplier
 
 
-def make_sandbox_ownership_store(config: SandboxOwnershipConfig | None, *, owner_id: str | None = None) -> SandboxOwnershipStore:
+def make_sandbox_ownership_store(
+    config: SandboxOwnershipConfig | None, *, owner_id: str | None = None
+) -> SandboxOwnershipStore:
     """Build the ownership store for *config*.
 
     Caller owns the returned store and must ``close()`` it.
@@ -97,7 +119,11 @@ def make_sandbox_ownership_store(config: SandboxOwnershipConfig | None, *, owner
         from .redis import RedisOwnershipStore
 
         redis_url = _resolve_redis_url(resolved)
-        logger.info("Sandbox ownership store: redis (ttl=%.1fs, renewal=%.1fs)", ttl, resolved.renewal_interval_seconds)
+        logger.info(
+            "Sandbox ownership store: redis (ttl=%.1fs, renewal=%.1fs)",
+            ttl,
+            resolved.renewal_interval_seconds,
+        )
         return RedisOwnershipStore(
             owner_id=effective_owner_id,
             redis_url=redis_url,

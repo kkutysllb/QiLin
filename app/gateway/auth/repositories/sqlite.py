@@ -60,7 +60,9 @@ class SQLiteUserRepository(UserRepository):
             system_role=row.system_role,  # type: ignore[arg-type]
             # SQLite loses tzinfo on read; reattach UTC so downstream
             # code can compare timestamps reliably.
-            created_at=row.created_at if row.created_at.tzinfo else row.created_at.replace(tzinfo=UTC),
+            created_at=row.created_at
+            if row.created_at.tzinfo
+            else row.created_at.replace(tzinfo=UTC),
             oauth_provider=row.oauth_provider,
             oauth_id=row.oauth_id,
             needs_setup=row.needs_setup,
@@ -95,7 +97,11 @@ class SQLiteUserRepository(UserRepository):
         async with self._sf() as session:
             # The unique constraint is case-sensitive, so it cannot catch a
             # canonical address colliding with a mixed-case legacy row.
-            existing = select(UserRow.id).where(func.lower(UserRow.email) == user.email).limit(1)
+            existing = (
+                select(UserRow.id)
+                .where(func.lower(UserRow.email) == user.email)
+                .limit(1)
+            )
             if await session.scalar(existing) is not None:
                 raise ValueError(f"Email already registered: {user.email}")
             session.add(row)
@@ -119,7 +125,12 @@ class SQLiteUserRepository(UserRepository):
         # rows differing only in case, so the fix never turns a legacy duplicate
         # pair into a 500. ``id`` is a secondary tiebreaker so the choice stays
         # deterministic even if two legacy rows share the same ``created_at``.
-        stmt = select(UserRow).where(func.lower(UserRow.email) == _normalize_email(email)).order_by(UserRow.created_at, UserRow.id).limit(1)
+        stmt = (
+            select(UserRow)
+            .where(func.lower(UserRow.email) == _normalize_email(email))
+            .order_by(UserRow.created_at, UserRow.id)
+            .limit(1)
+        )
         async with self._sf() as session:
             result = await session.execute(stmt)
             row = result.scalars().first()
@@ -169,12 +180,18 @@ class SQLiteUserRepository(UserRepository):
             return await session.scalar(stmt) or 0
 
     async def count_admin_users(self) -> int:
-        stmt = select(func.count()).select_from(UserRow).where(UserRow.system_role == "admin")
+        stmt = (
+            select(func.count())
+            .select_from(UserRow)
+            .where(UserRow.system_role == "admin")
+        )
         async with self._sf() as session:
             return await session.scalar(stmt) or 0
 
     async def get_user_by_oauth(self, provider: str, oauth_id: str) -> User | None:
-        stmt = select(UserRow).where(UserRow.oauth_provider == provider, UserRow.oauth_id == oauth_id)
+        stmt = select(UserRow).where(
+            UserRow.oauth_provider == provider, UserRow.oauth_id == oauth_id
+        )
         async with self._sf() as session:
             result = await session.execute(stmt)
             row = result.scalar_one_or_none()

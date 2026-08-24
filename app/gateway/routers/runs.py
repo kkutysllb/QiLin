@@ -44,7 +44,9 @@ def _resolve_thread_id(body: RunCreateRequest) -> str:
 
 
 @router.post("/stream")
-async def stateless_stream(body: RunCreateRequest, request: Request) -> StreamingResponse:
+async def stateless_stream(
+    body: RunCreateRequest, request: Request
+) -> StreamingResponse:
     """Create a run and stream events via SSE.
 
     If ``config.configurable.thread_id`` is provided, the run is created

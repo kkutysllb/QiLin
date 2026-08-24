@@ -226,9 +226,7 @@ async def get_persistence_usage(request: Request) -> PersistenceUsageResponse:
         (home / "logs", "gateway / main / renderer 日志"),
     ]
     directories = [
-        DirectoryUsage(
-            path=str(p), label=label, size_bytes=compute_directory_usage(p)
-        )
+        DirectoryUsage(path=str(p), label=label, size_bytes=compute_directory_usage(p))
         for p, label in entries
     ]
     total = sum(d.size_bytes for d in directories)

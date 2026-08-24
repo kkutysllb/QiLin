@@ -22,7 +22,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-async def inject_github_credentials(msg: InboundMessage, run_context: dict[str, Any]) -> None:
+async def inject_github_credentials(
+    msg: InboundMessage, run_context: dict[str, Any]
+) -> None:
     """Install a GitHub App installation token in ``run_context``.
 
     The GitHub fan-out dispatcher carries each binding's

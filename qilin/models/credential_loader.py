@@ -23,7 +23,9 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # Required beta headers for Claude Code OAuth tokens
-OAUTH_ANTHROPIC_BETAS = "oauth-2025-04-20,claude-code-20250219,interleaved-thinking-2025-05-14"
+OAUTH_ANTHROPIC_BETAS = (
+    "oauth-2025-04-20,claude-code-20250219,interleaved-thinking-2025-05-14"
+)
 
 
 def is_oauth_token(token: str) -> bool:
@@ -105,7 +107,9 @@ def _read_secret_from_file_descriptor(env_var: str) -> str | None:
     return secret or None
 
 
-def _credential_from_direct_token(access_token: str, source: str) -> ClaudeCodeCredential | None:
+def _credential_from_direct_token(
+    access_token: str, source: str
+) -> ClaudeCodeCredential | None:
     token = access_token.strip()
     if not token:
         return None
@@ -125,11 +129,15 @@ def _iter_claude_code_credential_paths() -> list[Path]:
     return paths
 
 
-def _extract_claude_code_credential(data: dict[str, Any], source: str) -> ClaudeCodeCredential | None:
+def _extract_claude_code_credential(
+    data: dict[str, Any], source: str
+) -> ClaudeCodeCredential | None:
     oauth = data.get("claudeAiOauth", {})
     access_token = oauth.get("accessToken", "")
     if not access_token:
-        logger.debug("Claude Code credentials container exists but no accessToken found")
+        logger.debug(
+            "Claude Code credentials container exists but no accessToken found"
+        )
         return None
 
     cred = ClaudeCodeCredential(
@@ -166,14 +174,18 @@ def load_claude_code_credential() -> ClaudeCodeCredential | None:
       }
     }
     """
-    direct_token = os.getenv("CLAUDE_CODE_OAUTH_TOKEN") or os.getenv("ANTHROPIC_AUTH_TOKEN")
+    direct_token = os.getenv("CLAUDE_CODE_OAUTH_TOKEN") or os.getenv(
+        "ANTHROPIC_AUTH_TOKEN"
+    )
     if direct_token:
         cred = _credential_from_direct_token(direct_token, "claude-cli-env")
         if cred:
             logger.info("Loaded Claude Code OAuth credential from environment")
         return cred
 
-    fd_token = _read_secret_from_file_descriptor("CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR")
+    fd_token = _read_secret_from_file_descriptor(
+        "CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR"
+    )
     if fd_token:
         cred = _credential_from_direct_token(fd_token, "claude-cli-fd")
         if cred:
@@ -188,8 +200,14 @@ def load_claude_code_credential() -> ClaudeCodeCredential | None:
             continue
         cred = _extract_claude_code_credential(data, "claude-cli-file")
         if cred:
-            source_label = "override path" if override_path_obj is not None and cred_path == override_path_obj else "plaintext file"
-            logger.info(f"Loaded Claude Code OAuth credential from {source_label} (expires_at={cred.expires_at})")
+            source_label = (
+                "override path"
+                if override_path_obj is not None and cred_path == override_path_obj
+                else "plaintext file"
+            )
+            logger.info(
+                f"Loaded Claude Code OAuth credential from {source_label} (expires_at={cred.expires_at})"
+            )
             return cred
 
     return None
@@ -205,7 +223,9 @@ def load_codex_cli_credential() -> CodexCliCredential | None:
     if not isinstance(tokens, dict):
         tokens = {}
 
-    access_token = data.get("access_token") or data.get("token") or tokens.get("access_token", "")
+    access_token = (
+        data.get("access_token") or data.get("token") or tokens.get("access_token", "")
+    )
     account_id = data.get("account_id") or tokens.get("account_id", "")
     if not access_token:
         logger.debug("Codex CLI credentials file exists but no token found")

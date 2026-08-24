@@ -148,7 +148,9 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8)
     remember_me: bool = True
 
-    _strong_password = field_validator("password")(classmethod(lambda cls, v: _validate_strong_password(v)))
+    _strong_password = field_validator("password")(
+        classmethod(lambda cls, v: _validate_strong_password(v))
+    )
 
 
 class ChangePasswordRequest(BaseModel):
@@ -159,7 +161,9 @@ class ChangePasswordRequest(BaseModel):
     new_email: EmailStr | None = None
     remember_me: bool | None = None
 
-    _strong_password = field_validator("new_password")(classmethod(lambda cls, v: _validate_strong_password(v)))
+    _strong_password = field_validator("new_password")(
+        classmethod(lambda cls, v: _validate_strong_password(v))
+    )
 
 
 class MessageResponse(BaseModel):
@@ -171,7 +175,9 @@ class MessageResponse(BaseModel):
 # ── Helpers ───────────────────────────────────────────────────────────────
 
 
-def _set_session_cookie(response: Response, token: str, request: Request, *, remember_me: bool | None = None) -> None:
+def _set_session_cookie(
+    response: Response, token: str, request: Request, *, remember_me: bool | None = None
+) -> None:
     """Set the access_token HttpOnly cookie on the response."""
     set_session_cookie(response, request, token, remember_me=remember_me)
 
@@ -276,7 +282,11 @@ def _record_login_failure(ip: str) -> None:
     # Evict expired lockouts when dict grows too large
     if len(_login_attempts) >= _MAX_TRACKED_IPS:
         now = time.time()
-        expired = [k for k, (c, t) in _login_attempts.items() if c >= _MAX_LOGIN_ATTEMPTS and now >= t]
+        expired = [
+            k
+            for k, (c, t) in _login_attempts.items()
+            if c >= _MAX_LOGIN_ATTEMPTS and now >= t
+        ]
         for k in expired:
             del _login_attempts[k]
         # If still too large, evict cheapest-to-lose half: below-threshold
@@ -291,7 +301,9 @@ def _record_login_failure(ip: str) -> None:
         _login_attempts[ip] = (1, 0.0)
     else:
         new_count = record[0] + 1
-        lock_until = time.time() + _LOCKOUT_SECONDS if new_count >= _MAX_LOGIN_ATTEMPTS else 0.0
+        lock_until = (
+            time.time() + _LOCKOUT_SECONDS if new_count >= _MAX_LOGIN_ATTEMPTS else 0.0
+        )
         _login_attempts[ip] = (new_count, lock_until)
 
 
@@ -314,13 +326,18 @@ async def login_local(
     client_ip = _get_client_ip(request)
     _check_rate_limit(client_ip)
 
-    user = await get_local_provider().authenticate({"email": form_data.username, "password": form_data.password})
+    user = await get_local_provider().authenticate(
+        {"email": form_data.username, "password": form_data.password}
+    )
 
     if user is None:
         _record_login_failure(client_ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Incorrect email or password").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.INVALID_CREDENTIALS,
+                message="Incorrect email or password",
+            ).model_dump(),
         )
 
     _record_login_success(client_ip)
@@ -359,7 +376,9 @@ def _local_registration_enabled() -> bool:
         return True
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
 async def register(request: Request, response: Response, body: RegisterRequest):
     """Register a new user account (always 'user' role).
 
@@ -371,36 +390,56 @@ async def register(request: Request, response: Response, body: RegisterRequest):
     if not _local_registration_enabled():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=AuthErrorResponse(code=AuthErrorCode.REGISTRATION_DISABLED, message="Self-registration is disabled on this deployment").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.REGISTRATION_DISABLED,
+                message="Self-registration is disabled on this deployment",
+            ).model_dump(),
         )
 
     try:
-        user = await get_local_provider().create_user(email=body.email, password=body.password, system_role="user")
+        user = await get_local_provider().create_user(
+            email=body.email, password=body.password, system_role="user"
+        )
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.EMAIL_ALREADY_EXISTS,
+                message="Email already registered",
+            ).model_dump(),
         )
 
     token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request, remember_me=body.remember_me)
 
-    return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role, oauth_provider=user.oauth_provider, access_token=token)
+    return UserResponse(
+        id=str(user.id),
+        email=user.email,
+        system_role=user.system_role,
+        oauth_provider=user.oauth_provider,
+        access_token=token,
+    )
 
 
 @router.post("/logout", response_model=MessageResponse)
 async def logout(request: Request, response: Response):
     """Logout current user by clearing the cookie."""
     is_https = is_secure_request(request)
-    response.delete_cookie(key=ACCESS_TOKEN_COOKIE_NAME, secure=is_https, samesite="lax")
+    response.delete_cookie(
+        key=ACCESS_TOKEN_COOKIE_NAME, secure=is_https, samesite="lax"
+    )
     response.delete_cookie(key=CSRF_COOKIE_NAME, secure=is_https, samesite="strict")
-    response.delete_cookie(key=SESSION_PERSISTENCE_COOKIE_NAME, secure=is_https, samesite="lax")
+    response.delete_cookie(
+        key=SESSION_PERSISTENCE_COOKIE_NAME, secure=is_https, samesite="lax"
+    )
     setattr(request.state, SKIP_AUTH_CSRF_COOKIE_STATE_ATTR, True)
     return MessageResponse(message="Successfully logged out")
 
 
 @router.post("/change-password", response_model=MessageResponse)
-async def change_password(request: Request, response: Response, body: ChangePasswordRequest):
+async def change_password(
+    request: Request, response: Response, body: ChangePasswordRequest
+):
     """Change password for the currently authenticated user.
 
     Also handles the first-boot setup flow:
@@ -424,10 +463,22 @@ async def change_password(request: Request, response: Response, body: ChangePass
         )
 
     if user.password_hash is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="OAuth users cannot change password").model_dump())
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.INVALID_CREDENTIALS,
+                message="OAuth users cannot change password",
+            ).model_dump(),
+        )
 
     if not await verify_password_async(body.current_password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.INVALID_CREDENTIALS, message="Current password is incorrect").model_dump())
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.INVALID_CREDENTIALS,
+                message="Current password is incorrect",
+            ).model_dump(),
+        )
 
     provider = get_local_provider()
 
@@ -435,7 +486,13 @@ async def change_password(request: Request, response: Response, body: ChangePass
     if body.new_email is not None:
         existing = await provider.get_user_by_email(body.new_email)
         if existing and str(existing.id) != str(user.id):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already in use").model_dump())
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=AuthErrorResponse(
+                    code=AuthErrorCode.EMAIL_ALREADY_EXISTS,
+                    message="Email already in use",
+                ).model_dump(),
+            )
         user.email = body.new_email
 
     # Update password + bump version
@@ -511,13 +568,18 @@ async def setup_status(request: Request):
                 for k in stale:
                     del _SETUP_STATUS_CACHE[k]
                 if len(_SETUP_STATUS_CACHE) >= _MAX_TRACKED_SETUP_STATUS_IPS:
-                    by_time = sorted(_SETUP_STATUS_CACHE.items(), key=lambda entry: entry[1][0])
+                    by_time = sorted(
+                        _SETUP_STATUS_CACHE.items(), key=lambda entry: entry[1][0]
+                    )
                     for k, _ in by_time[: len(by_time) // 2]:
                         del _SETUP_STATUS_CACHE[k]
 
             async def _compute_setup_status() -> dict:
                 admin_count = await get_local_provider().count_admin_users()
-                return {"needs_setup": admin_count == 0, "registration_enabled": _local_registration_enabled()}
+                return {
+                    "needs_setup": admin_count == 0,
+                    "registration_enabled": _local_registration_enabled(),
+                }
 
             task = asyncio.create_task(_compute_setup_status())
             _SETUP_STATUS_INFLIGHT[client_ip] = task
@@ -544,11 +606,17 @@ class InitializeAdminRequest(BaseModel):
     password: str = Field(..., min_length=8)
     remember_me: bool = True
 
-    _strong_password = field_validator("password")(classmethod(lambda cls, v: _validate_strong_password(v)))
+    _strong_password = field_validator("password")(
+        classmethod(lambda cls, v: _validate_strong_password(v))
+    )
 
 
-@router.post("/initialize", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def initialize_admin(request: Request, response: Response, body: InitializeAdminRequest):
+@router.post(
+    "/initialize", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
+async def initialize_admin(
+    request: Request, response: Response, body: InitializeAdminRequest
+):
     """Create the first admin account on initial system setup.
 
     Only callable when no admin exists. Returns 409 Conflict if an admin
@@ -561,27 +629,47 @@ async def initialize_admin(request: Request, response: Response, body: Initializ
     if admin_count > 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=AuthErrorResponse(code=AuthErrorCode.SYSTEM_ALREADY_INITIALIZED, message="System already initialized").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.SYSTEM_ALREADY_INITIALIZED,
+                message="System already initialized",
+            ).model_dump(),
         )
 
     try:
-        user = await get_local_provider().create_user(email=body.email, password=body.password, system_role="admin", needs_setup=False)
+        user = await get_local_provider().create_user(
+            email=body.email,
+            password=body.password,
+            system_role="admin",
+            needs_setup=False,
+        )
     except ValueError:
         admin_count = await get_local_provider().count_admin_users()
         if admin_count == 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=AuthErrorResponse(code=AuthErrorCode.EMAIL_ALREADY_EXISTS, message="Email already registered").model_dump(),
+                detail=AuthErrorResponse(
+                    code=AuthErrorCode.EMAIL_ALREADY_EXISTS,
+                    message="Email already registered",
+                ).model_dump(),
             )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=AuthErrorResponse(code=AuthErrorCode.SYSTEM_ALREADY_INITIALIZED, message="System already initialized").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.SYSTEM_ALREADY_INITIALIZED,
+                message="System already initialized",
+            ).model_dump(),
         )
 
     token = create_access_token(str(user.id), token_version=user.token_version)
     _set_session_cookie(response, token, request, remember_me=body.remember_me)
 
-    return UserResponse(id=str(user.id), email=user.email, system_role=user.system_role, oauth_provider=user.oauth_provider, access_token=token)
+    return UserResponse(
+        id=str(user.id),
+        email=user.email,
+        system_role=user.system_role,
+        oauth_provider=user.oauth_provider,
+        access_token=token,
+    )
 
 
 # ── OIDC / SSO Endpoints ────────────────────────────────────────────────
@@ -620,7 +708,9 @@ def _set_csrf_cookie(response: Response, request: Request) -> None:
     )
 
 
-def _resolve_oidc_redirect_uri(request: Request, provider_id: str, provider_config: OIDCProviderConfig) -> str:
+def _resolve_oidc_redirect_uri(
+    request: Request, provider_id: str, provider_config: OIDCProviderConfig
+) -> str:
     """Resolve the redirect URI for an OIDC provider.
 
     Prefers the explicitly configured ``redirect_uri``. Falls back to
@@ -635,7 +725,9 @@ def _resolve_oidc_redirect_uri(request: Request, provider_id: str, provider_conf
     # and the scheme reflects the real client-facing protocol behind a proxy.
     origin = _request_origin(request)
     if not origin:
-        origin = f"{request.url.scheme}://{request.headers.get('host', 'localhost:8001')}"
+        origin = (
+            f"{request.url.scheme}://{request.headers.get('host', 'localhost:8001')}"
+        )
     return f"{origin}/api/v1/auth/callback/{provider_id}"
 
 
@@ -685,14 +777,22 @@ async def oauth_login(
     oidc_config = app_config.auth.oidc
 
     if not oidc_config.enabled:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="SSO authentication is not enabled")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="SSO authentication is not enabled",
+        )
 
     if not _OIDC_PROVIDER_KEY_RE.match(provider):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid provider ID")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid provider ID"
+        )
 
     provider_config = oidc_config.providers.get(provider)
     if not provider_config:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown SSO provider: {provider}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown SSO provider: {provider}",
+        )
 
     # Validate `next` / open redirect prevention
     redirect_path = validate_next_param(next) or "/workspace"
@@ -718,7 +818,10 @@ async def oauth_login(
         metadata = await service.discover(provider_config.issuer, overrides)
     except OIDCError as exc:
         logger.error("OIDC discovery failed for provider %s: %s", provider, exc)
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Failed to connect to SSO provider")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to connect to SSO provider",
+        )
 
     auth_url = service.build_authorization_url(
         metadata=metadata,
@@ -739,7 +842,9 @@ async def oauth_login(
         next_path=redirect_path,
         remember_me=remember_me,
     )
-    redirect_response = RedirectResponse(url=auth_url, status_code=status.HTTP_302_FOUND)
+    redirect_response = RedirectResponse(
+        url=auth_url, status_code=status.HTTP_302_FOUND
+    )
     set_state_cookie(redirect_response, request, state_payload)
 
     return redirect_response
@@ -768,30 +873,51 @@ async def oauth_callback(
 
     # ── Provider error ───────────────────────────────────────────────
     if error:
-        logger.warning("OIDC provider returned error for %s: %s (description: %s)", provider, error, error_description)
+        logger.warning(
+            "OIDC provider returned error for %s: %s (description: %s)",
+            provider,
+            error,
+            error_description,
+        )
         redirect = _build_error_redirect(oidc_config.frontend_base_url, "sso_failed")
         return RedirectResponse(url=redirect, status_code=status.HTTP_302_FOUND)
 
     if not oidc_config.enabled:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="SSO authentication is not enabled")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="SSO authentication is not enabled",
+        )
 
     if not _OIDC_PROVIDER_KEY_RE.match(provider):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid provider ID")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid provider ID"
+        )
 
     provider_config = oidc_config.providers.get(provider)
     if not provider_config:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown SSO provider: {provider}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown SSO provider: {provider}",
+        )
 
     if not code or not state:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing code or state parameter")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing code or state parameter",
+        )
 
     # ── Verify state cookie ──────────────────────────────────────────
     state_payload = get_state_cookie(request, provider)
     if not state_payload:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Missing or expired OIDC state cookie")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Missing or expired OIDC state cookie",
+        )
 
     if not secrets.compare_digest(state_payload.state, state):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="OIDC state mismatch")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="OIDC state mismatch"
+        )
 
     # ── Resolve redirect URI ─────────────────────────────────────────
     redirect_uri = _resolve_oidc_redirect_uri(request, provider, provider_config)
@@ -807,8 +933,13 @@ async def oauth_callback(
     try:
         metadata = await service.discover(provider_config.issuer, overrides)
     except OIDCError as exc:
-        logger.error("OIDC discovery failed for provider %s during callback: %s", provider, exc)
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Failed to connect to SSO provider")
+        logger.error(
+            "OIDC discovery failed for provider %s during callback: %s", provider, exc
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to connect to SSO provider",
+        )
 
     # ── Authenticate ─────────────────────────────────────────────────
     try:
@@ -830,14 +961,21 @@ async def oauth_callback(
 
     # ── Provision / link user ────────────────────────────────────────
     try:
-        result = await get_or_provision_oidc_user(provider, provider_config, identity, get_local_provider())
+        result = await get_or_provision_oidc_user(
+            provider, provider_config, identity, get_local_provider()
+        )
     except HTTPException as exc:
         error_map = {
             status.HTTP_403_FORBIDDEN: "sso_not_allowed",
             status.HTTP_409_CONFLICT: "sso_account_exists",
         }
         error_code = error_map.get(exc.status_code, "sso_failed")
-        logger.warning("OIDC user provisioning failed for %s (%s): %s", identity.email, provider, exc.detail)
+        logger.warning(
+            "OIDC user provisioning failed for %s (%s): %s",
+            identity.email,
+            provider,
+            exc.detail,
+        )
         redirect = _build_error_redirect(oidc_config.frontend_base_url, error_code)
         return RedirectResponse(url=redirect, status_code=status.HTTP_302_FOUND)
 
@@ -849,12 +987,18 @@ async def oauth_callback(
     # Revalidate as defense-in-depth if future state writers populate this target.
     redirect_target = validate_next_param(state_payload.next_path) or "/workspace"
     frontend_base = oidc_config.frontend_base_url or ""
-    callback_redirect = f"{frontend_base}/auth/callback?next={urllib.parse.quote(redirect_target)}"
+    callback_redirect = (
+        f"{frontend_base}/auth/callback?next={urllib.parse.quote(redirect_target)}"
+    )
 
-    redirect_response = RedirectResponse(url=callback_redirect, status_code=status.HTTP_302_FOUND)
+    redirect_response = RedirectResponse(
+        url=callback_redirect, status_code=status.HTTP_302_FOUND
+    )
 
     # Set session cookie (reuse existing helper)
-    _set_session_cookie(redirect_response, token, request, remember_me=state_payload.remember_me)
+    _set_session_cookie(
+        redirect_response, token, request, remember_me=state_payload.remember_me
+    )
 
     # Set CSRF cookie (callback is a GET, so CSRF middleware won't set it)
     _set_csrf_cookie(redirect_response, request)
@@ -882,7 +1026,11 @@ def validate_next_param(next_param: str | None) -> str | None:
         return None
     if not next_param.startswith("/"):
         return None
-    if next_param.startswith("//") or next_param.startswith("http://") or next_param.startswith("https://"):
+    if (
+        next_param.startswith("//")
+        or next_param.startswith("http://")
+        or next_param.startswith("https://")
+    ):
         return None
     if "\\" in next_param:
         return None

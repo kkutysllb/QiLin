@@ -18,7 +18,9 @@ class TokenPayload(BaseModel):
     ver: int = 0  # token_version — must match User.token_version
 
 
-def create_access_token(user_id: str, expires_delta: timedelta | None = None, token_version: int = 0) -> str:
+def create_access_token(
+    user_id: str, expires_delta: timedelta | None = None, token_version: int = 0
+) -> str:
     """Create a JWT access token.
 
     Args:

@@ -53,10 +53,14 @@ def resolve_thread_id(repo: str, issue_or_pr_number: int, agent_name: str) -> st
     if not isinstance(repo, str) or "/" not in repo:
         raise ValueError(f"Expected repo as 'owner/name', got {repo!r}")
     if not isinstance(issue_or_pr_number, int):
-        raise ValueError(f"Expected issue_or_pr_number as int, got {type(issue_or_pr_number).__name__}")
+        raise ValueError(
+            f"Expected issue_or_pr_number as int, got {type(issue_or_pr_number).__name__}"
+        )
     if not isinstance(agent_name, str) or not agent_name.strip():
         raise ValueError(f"Expected agent_name as non-empty str, got {agent_name!r}")
-    return str(uuid.uuid5(GITHUB_THREAD_NAMESPACE, f"{repo}#{issue_or_pr_number}:{agent_name}"))
+    return str(
+        uuid.uuid5(GITHUB_THREAD_NAMESPACE, f"{repo}#{issue_or_pr_number}:{agent_name}")
+    )
 
 
 def extract_target(event: str, payload: dict[str, Any]) -> tuple[str, int] | None:

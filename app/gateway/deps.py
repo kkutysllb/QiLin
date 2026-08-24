@@ -58,7 +58,10 @@ def _browser_tools_enabled_in_config(config: AppConfig) -> bool:
     get_tool_config = getattr(config, "get_tool_config", None)
     if callable(get_tool_config):
         return get_tool_config("browser_navigate") is not None
-    return any(getattr(tool, "name", None) == "browser_navigate" for tool in (getattr(config, "tools", None) or []))
+    return any(
+        getattr(tool, "name", None) == "browser_navigate"
+        for tool in (getattr(config, "tools", None) or [])
+    )
 
 
 def _enforce_postgres_for_multi_worker(config: AppConfig) -> None:
@@ -95,7 +98,9 @@ def _enforce_postgres_for_multi_worker(config: AppConfig) -> None:
 
     backend = getattr(config.database, "backend", None)
     if backend != "postgres":
-        raise SystemExit(f"GATEWAY_WORKERS={workers} requires database.backend='postgres', but database.backend is '{backend}'. SQLite cannot support concurrent multi-process access. Set GATEWAY_WORKERS=1 or switch to Postgres.")
+        raise SystemExit(
+            f"GATEWAY_WORKERS={workers} requires database.backend='postgres', but database.backend is '{backend}'. SQLite cannot support concurrent multi-process access. Set GATEWAY_WORKERS=1 or switch to Postgres."
+        )
 
     run_events_backend = getattr(getattr(config, "run_events", None), "backend", None)
     if run_events_backend != "db":
@@ -159,7 +164,9 @@ async def _drain_inflight_runs(run_manager: RunManager) -> None:
     (it is bounded by ``RunManager.shutdown``'s own timeout) and then propagate
     the cancellation.
     """
-    drain = asyncio.create_task(run_manager.shutdown(timeout=_RUN_DRAIN_TIMEOUT_SECONDS))
+    drain = asyncio.create_task(
+        run_manager.shutdown(timeout=_RUN_DRAIN_TIMEOUT_SECONDS)
+    )
     try:
         await asyncio.shield(drain)
     except asyncio.CancelledError:
@@ -188,10 +195,17 @@ async def _publish_recovered_run_stream_end(
         if stream_exists is not None:
             try:
                 if not await stream_exists(record.run_id):
-                    logger.debug("Skipping recovered stream end for %s: stream already expired", record.run_id)
+                    logger.debug(
+                        "Skipping recovered stream end for %s: stream already expired",
+                        record.run_id,
+                    )
                     continue
             except Exception:
-                logger.debug("Failed to check recovered stream existence for %s", record.run_id, exc_info=True)
+                logger.debug(
+                    "Failed to check recovered stream existence for %s",
+                    record.run_id,
+                    exc_info=True,
+                )
         try:
             await bridge.publish_end(record.run_id)
         except Exception:
@@ -202,7 +216,11 @@ async def _publish_recovered_run_stream_end(
             )
             continue
         task = asyncio.create_task(bridge.cleanup(record.run_id, delay=cleanup_delay))
-        task.add_done_callback(lambda task, run_id=record.run_id: _log_recovered_stream_cleanup_result(task, run_id))
+        task.add_done_callback(
+            lambda task, run_id=record.run_id: _log_recovered_stream_cleanup_result(
+                task, run_id
+            )
+        )
         cleanup_tasks.append((record.run_id, task))
         if on_cleanup_scheduled is not None:
             on_cleanup_scheduled(record.run_id, task)
@@ -215,7 +233,9 @@ def _log_recovered_stream_cleanup_result(task: asyncio.Task[None], run_id: str) 
     try:
         task.result()
     except Exception:
-        logger.warning("Failed to clean up recovered run stream for %s", run_id, exc_info=True)
+        logger.warning(
+            "Failed to clean up recovered run stream for %s", run_id, exc_info=True
+        )
 
 
 async def _flush_recovered_stream_cleanups(
@@ -225,7 +245,9 @@ async def _flush_recovered_stream_cleanups(
     timeout: float = 1.0,
 ) -> None:
     """Cancel delayed cleanups and delete their streams before bridge shutdown."""
-    pending = [(task, run_id) for task, run_id in cleanup_tasks.items() if not task.done()]
+    pending = [
+        (task, run_id) for task, run_id in cleanup_tasks.items() if not task.done()
+    ]
     if not pending:
         return
     for task, _run_id in pending:
@@ -286,16 +308,26 @@ async def _mark_latest_startup_recovered_threads_error(
 
     for thread_id, recovered_run_ids in recovered_by_thread.items():
         try:
-            latest_runs = await run_manager.list_by_thread(thread_id, user_id=None, limit=1)
+            latest_runs = await run_manager.list_by_thread(
+                thread_id, user_id=None, limit=1
+            )
         except Exception:
-            logger.warning("Failed to find latest run for thread %s during run reconciliation", thread_id, exc_info=True)
+            logger.warning(
+                "Failed to find latest run for thread %s during run reconciliation",
+                thread_id,
+                exc_info=True,
+            )
             continue
         if not latest_runs or latest_runs[0].run_id not in recovered_run_ids:
             continue
         try:
             await thread_store.update_status(thread_id, "error", user_id=None)
         except Exception:
-            logger.warning("Failed to mark thread %s as error during run reconciliation", thread_id, exc_info=True)
+            logger.warning(
+                "Failed to mark thread %s as error during run reconciliation",
+                thread_id,
+                exc_info=True,
+            )
 
 
 async def _terminalize_recovered_runs(
@@ -347,11 +379,15 @@ def get_config() -> AppConfig:
         return get_app_config()
     except Exception as exc:
         logger.exception("Failed to load AppConfig at request time")
-        raise HTTPException(status_code=503, detail="Configuration not available") from exc
+        raise HTTPException(
+            status_code=503, detail="Configuration not available"
+        ) from exc
 
 
 @asynccontextmanager
-async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGenerator[None, None]:
+async def langgraph_runtime(
+    app: FastAPI, startup_config: AppConfig
+) -> AsyncGenerator[None, None]:
     """Bootstrap and tear down all LangGraph runtime singletons.
 
     ``startup_config`` is the ``AppConfig`` snapshot taken once during
@@ -399,16 +435,24 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
 
     async with AsyncExitStack() as stack:
         config = startup_config
-        app.state.checkpoint_channel_mode = freeze_checkpoint_channel_mode(config.database.checkpoint_channel_mode)
-        app.state.checkpoint_snapshot_frequency = freeze_checkpoint_snapshot_frequency(config.database.checkpoint_delta.snapshot_frequency)
+        app.state.checkpoint_channel_mode = freeze_checkpoint_channel_mode(
+            config.database.checkpoint_channel_mode
+        )
+        app.state.checkpoint_snapshot_frequency = freeze_checkpoint_snapshot_frequency(
+            config.database.checkpoint_delta.snapshot_frequency
+        )
 
-        app.state.stream_bridge = await stack.enter_async_context(make_stream_bridge(config))
+        app.state.stream_bridge = await stack.enter_async_context(
+            make_stream_bridge(config)
+        )
 
         # Initialize persistence engine BEFORE checkpointer so that
         # auto-create-database logic runs first (postgres backend).
         await init_engine_from_config(config.database)
 
-        app.state.checkpointer = await stack.enter_async_context(make_checkpointer(config))
+        app.state.checkpointer = await stack.enter_async_context(
+            make_checkpointer(config)
+        )
         app.state.store = await stack.enter_async_context(make_store(config))
 
         # Initialize repositories — one get_session_factory() call for all.
@@ -451,7 +495,11 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
         # RunManager with store backing for persistence
         run_ownership_config = getattr(config, "run_ownership", None)
         sb_config = getattr(config, "stream_bridge", None)
-        cleanup_delay = getattr(sb_config, "recovered_stream_cleanup_delay_seconds", 60.0) if sb_config else 60.0
+        cleanup_delay = (
+            getattr(sb_config, "recovered_stream_cleanup_delay_seconds", 60.0)
+            if sb_config
+            else 60.0
+        )
         recovered_stream_cleanup_tasks: dict[asyncio.Task[None], str] = {}
 
         def track_recovered_stream_cleanup(
@@ -459,7 +507,9 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
             task: asyncio.Task[None],
         ) -> None:
             recovered_stream_cleanup_tasks[task] = run_id
-            task.add_done_callback(lambda completed: recovered_stream_cleanup_tasks.pop(completed, None))
+            task.add_done_callback(
+                lambda completed: recovered_stream_cleanup_tasks.pop(completed, None)
+            )
 
         async def terminalize_recovered_runs(recovered_runs: list[RunRecord]) -> None:
             await _terminalize_recovered_runs(
@@ -512,7 +562,9 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
             # raises PoolClosed (issue #3373).
             run_manager = getattr(app.state, "run_manager", None)
             if run_manager is not None:
-                shutdown_deadline = asyncio.get_running_loop().time() + _RUN_DRAIN_TIMEOUT_SECONDS
+                shutdown_deadline = (
+                    asyncio.get_running_loop().time() + _RUN_DRAIN_TIMEOUT_SECONDS
+                )
                 try:
                     await _drain_inflight_runs(run_manager)
                 finally:
@@ -548,11 +600,21 @@ def _require(attr: str, label: str) -> Callable[[Request], T]:
     return dep
 
 
-get_stream_bridge: Callable[[Request], StreamBridge] = _require("stream_bridge", "Stream bridge")
-get_run_manager: Callable[[Request], RunManager] = _require("run_manager", "Run manager")
-get_checkpointer: Callable[[Request], Checkpointer] = _require("checkpointer", "Checkpointer")
-get_run_event_store: Callable[[Request], RunEventStore] = _require("run_event_store", "Run event store")
-get_feedback_repo: Callable[[Request], FeedbackRepository] = _require("feedback_repo", "Feedback")
+get_stream_bridge: Callable[[Request], StreamBridge] = _require(
+    "stream_bridge", "Stream bridge"
+)
+get_run_manager: Callable[[Request], RunManager] = _require(
+    "run_manager", "Run manager"
+)
+get_checkpointer: Callable[[Request], Checkpointer] = _require(
+    "checkpointer", "Checkpointer"
+)
+get_run_event_store: Callable[[Request], RunEventStore] = _require(
+    "run_event_store", "Run event store"
+)
+get_feedback_repo: Callable[[Request], FeedbackRepository] = _require(
+    "feedback_repo", "Feedback"
+)
 get_run_store: Callable[[Request], RunStore] = _require("run_store", "Run store")
 
 
@@ -565,7 +627,9 @@ def get_thread_store(request: Request) -> ThreadMetaStore:
     """Return the thread metadata store (SQL or memory-backed)."""
     val = getattr(request.app.state, "thread_store", None)
     if val is None:
-        raise HTTPException(status_code=503, detail="Thread metadata store not available")
+        raise HTTPException(
+            status_code=503, detail="Thread metadata store not available"
+        )
     return val
 
 
@@ -579,14 +643,18 @@ def get_scheduled_task_repo(request: Request):
 def get_scheduled_task_run_repo(request: Request):
     val = getattr(request.app.state, "scheduled_task_run_repo", None)
     if val is None:
-        raise HTTPException(status_code=503, detail="Scheduled task run repo not available")
+        raise HTTPException(
+            status_code=503, detail="Scheduled task run repo not available"
+        )
     return val
 
 
 def get_scheduled_task_service(request: Request):
     val = getattr(request.app.state, "scheduled_task_service", None)
     if val is None:
-        raise HTTPException(status_code=503, detail="Scheduled task service not available")
+        raise HTTPException(
+            status_code=503, detail="Scheduled task service not available"
+        )
     return val
 
 
@@ -605,11 +673,19 @@ def get_run_context(request: Request) -> RunContext:
         store=get_store(request),
         event_store=get_run_event_store(request),
         run_events_config=getattr(request.app.state, "run_events_config", None),
-        checkpoint_channel_mode=getattr(request.app.state, "checkpoint_channel_mode", "full"),
-        checkpoint_snapshot_frequency=getattr(request.app.state, "checkpoint_snapshot_frequency", None),
+        checkpoint_channel_mode=getattr(
+            request.app.state, "checkpoint_channel_mode", "full"
+        ),
+        checkpoint_snapshot_frequency=getattr(
+            request.app.state, "checkpoint_snapshot_frequency", None
+        ),
         thread_store=get_thread_store(request),
         app_config=get_config(),
-        on_run_completed=getattr(request.app.state, "scheduled_task_service", None).handle_run_completion if getattr(request.app.state, "scheduled_task_service", None) is not None else None,
+        on_run_completed=getattr(
+            request.app.state, "scheduled_task_service", None
+        ).handle_run_completion
+        if getattr(request.app.state, "scheduled_task_service", None) is not None
+        else None,
     )
 
 
@@ -635,7 +711,9 @@ def get_local_provider() -> LocalAuthProvider:
 
         sf = get_session_factory()
         if sf is None:
-            raise RuntimeError("get_local_provider() called before init_engine_from_config(); cannot access users table")
+            raise RuntimeError(
+                "get_local_provider() called before init_engine_from_config(); cannot access users table"
+            )
         _cached_repo = SQLiteUserRepository(sf)
     if _cached_local_provider is None:
         from app.gateway.auth.local_provider import LocalAuthProvider
@@ -688,14 +766,19 @@ async def get_current_user_from_request(request: Request):
     if not access_token:
         raise HTTPException(
             status_code=401,
-            detail=AuthErrorResponse(code=AuthErrorCode.NOT_AUTHENTICATED, message="Not authenticated").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.NOT_AUTHENTICATED, message="Not authenticated"
+            ).model_dump(),
         )
 
     payload = decode_token(access_token)
     if isinstance(payload, TokenError):
         raise HTTPException(
             status_code=401,
-            detail=AuthErrorResponse(code=token_error_to_code(payload), message=f"Token error: {payload.value}").model_dump(),
+            detail=AuthErrorResponse(
+                code=token_error_to_code(payload),
+                message=f"Token error: {payload.value}",
+            ).model_dump(),
         )
 
     provider = get_local_provider()
@@ -703,14 +786,19 @@ async def get_current_user_from_request(request: Request):
     if user is None:
         raise HTTPException(
             status_code=401,
-            detail=AuthErrorResponse(code=AuthErrorCode.USER_NOT_FOUND, message="User not found").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.USER_NOT_FOUND, message="User not found"
+            ).model_dump(),
         )
 
     # Token version mismatch → password was changed, token is stale
     if user.token_version != payload.ver:
         raise HTTPException(
             status_code=401,
-            detail=AuthErrorResponse(code=AuthErrorCode.TOKEN_INVALID, message="Token revoked (password changed)").model_dump(),
+            detail=AuthErrorResponse(
+                code=AuthErrorCode.TOKEN_INVALID,
+                message="Token revoked (password changed)",
+            ).model_dump(),
         )
 
     return user

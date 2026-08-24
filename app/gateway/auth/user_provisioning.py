@@ -44,7 +44,9 @@ async def get_or_provision_oidc_user(
     if provider_config.require_verified_email and not identity.email_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=("Your email could not be verified by the identity provider. Please contact your administrator."),
+            detail=(
+                "Your email could not be verified by the identity provider. Please contact your administrator."
+            ),
         )
 
     if not identity.email:
@@ -58,7 +60,9 @@ async def get_or_provision_oidc_user(
     # 3. Domain restriction
     if provider_config.allowed_email_domains:
         domain = email.rsplit("@", 1)[-1]
-        if domain not in {d.lower().lstrip("@") for d in provider_config.allowed_email_domains}:
+        if domain not in {
+            d.lower().lstrip("@") for d in provider_config.allowed_email_domains
+        }:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Your email domain is not allowed. Please use an approved email address.",
@@ -72,7 +76,9 @@ async def get_or_provision_oidc_user(
     if local_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=("An account with this email already exists. Contact your administrator to link it to your SSO account."),
+            detail=(
+                "An account with this email already exists. Contact your administrator to link it to your SSO account."
+            ),
         )
 
     # 5. Auto-create
@@ -100,9 +106,13 @@ async def get_or_provision_oidc_user(
             return {"user": existing, "created": False}
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=("An account with this email already exists. Contact your administrator to link it to your SSO account."),
+            detail=(
+                "An account with this email already exists. Contact your administrator to link it to your SSO account."
+            ),
         ) from None
-    logger.info("Auto-created OIDC user %s (provider=%s, role=%s)", email, provider_id, role)
+    logger.info(
+        "Auto-created OIDC user %s (provider=%s, role=%s)", email, provider_id, role
+    )
     return {"user": user, "created": True}
 
 

@@ -8,7 +8,9 @@ class GatewayConfig(BaseModel):
 
     host: str = Field(default="0.0.0.0", description="Host to bind the gateway server")
     port: int = Field(default=8001, description="Port to bind the gateway server")
-    enable_docs: bool = Field(default=True, description="Enable Swagger/ReDoc/OpenAPI endpoints")
+    enable_docs: bool = Field(
+        default=True, description="Enable Swagger/ReDoc/OpenAPI endpoints"
+    )
 
 
 _gateway_config: GatewayConfig | None = None

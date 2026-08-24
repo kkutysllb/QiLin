@@ -86,7 +86,9 @@ def _with_reasoning_content(
     additional_kwargs = dict(message.additional_kwargs)
     if preserve_whitespace:
         existing = additional_kwargs.get("reasoning_content")
-        additional_kwargs["reasoning_content"] = f"{existing}{reasoning}" if isinstance(existing, str) else reasoning
+        additional_kwargs["reasoning_content"] = (
+            f"{existing}{reasoning}" if isinstance(existing, str) else reasoning
+        )
     else:
         additional_kwargs["reasoning_content"] = _merge_reasoning(
             additional_kwargs.get("reasoning_content"),
@@ -146,7 +148,11 @@ class PatchedChatMiniMax(ChatOpenAI):
 
         token_usage = chunk.get("usage")
         choices = chunk.get("choices", []) or chunk.get("chunk", {}).get("choices", [])
-        usage_metadata = _create_usage_metadata(token_usage, chunk.get("service_tier")) if token_usage else None
+        usage_metadata = (
+            _create_usage_metadata(token_usage, chunk.get("service_tier"))
+            if token_usage
+            else None
+        )
 
         if len(choices) == 0:
             generation_chunk = ChatGenerationChunk(
@@ -205,7 +211,9 @@ class PatchedChatMiniMax(ChatOpenAI):
         generation_info: dict | None = None,
     ) -> ChatResult:
         result = super()._create_chat_result(response, generation_info)
-        response_dict = response if isinstance(response, dict) else response.model_dump()
+        response_dict = (
+            response if isinstance(response, dict) else response.model_dump()
+        )
         choices = response_dict.get("choices", [])
 
         generations: list[ChatGeneration] = []
@@ -217,17 +225,27 @@ class PatchedChatMiniMax(ChatOpenAI):
                 cleaned_content = content
                 inline_reasoning = None
                 if isinstance(content, str):
-                    cleaned_content, inline_reasoning = _strip_inline_think_tags(content)
+                    cleaned_content, inline_reasoning = _strip_inline_think_tags(
+                        content
+                    )
 
-                choice_message = choice.get("message", {}) if isinstance(choice, Mapping) else {}
-                split_reasoning = _extract_reasoning_text(choice_message.get("reasoning_details"))
+                choice_message = (
+                    choice.get("message", {}) if isinstance(choice, Mapping) else {}
+                )
+                split_reasoning = _extract_reasoning_text(
+                    choice_message.get("reasoning_details")
+                )
                 merged_reasoning = _merge_reasoning(split_reasoning, inline_reasoning)
 
                 updated_message = message
                 if cleaned_content is not None and cleaned_content != message.content:
-                    updated_message = updated_message.model_copy(update={"content": cleaned_content})
+                    updated_message = updated_message.model_copy(
+                        update={"content": cleaned_content}
+                    )
                 if merged_reasoning:
-                    updated_message = _with_reasoning_content(updated_message, merged_reasoning)
+                    updated_message = _with_reasoning_content(
+                        updated_message, merged_reasoning
+                    )
 
                 generation = ChatGeneration(
                     message=updated_message,

@@ -67,7 +67,9 @@ def _extract_host_port(inspect_entry: dict, container_port: int) -> int | None:
     return None
 
 
-def _format_container_mount(runtime: str, host_path: str, container_path: str, read_only: bool) -> list[str]:
+def _format_container_mount(
+    runtime: str, host_path: str, container_path: str, read_only: bool
+) -> list[str]:
     """Format a bind-mount argument for the selected runtime.
 
     Docker's ``-v host:container`` syntax is ambiguous for Windows drive-letter
@@ -111,7 +113,9 @@ def _redact_container_command_for_log(cmd: list[str]) -> list[str]:
             value = arg.removeprefix("--env=")
             if "=" in value:
                 key = value.split("=", 1)[0]
-                redacted.append(f"--env={key}=<redacted>" if key else "--env=<redacted>")
+                redacted.append(
+                    f"--env={key}=<redacted>" if key else "--env=<redacted>"
+                )
             else:
                 redacted.append(arg)
             continue
@@ -136,10 +140,18 @@ def _is_ipv6_loopback_sandbox_host(host: str) -> bool:
 
 
 def _is_loopback_sandbox_host(host: str) -> bool:
-    return _normalize_sandbox_host(host) in {"", "localhost", "127.0.0.1", "::1", "[::1]"}
+    return _normalize_sandbox_host(host) in {
+        "",
+        "localhost",
+        "127.0.0.1",
+        "::1",
+        "[::1]",
+    }
 
 
-def _resolve_docker_bind_host(sandbox_host: str | None = None, bind_host: str | None = None) -> str:
+def _resolve_docker_bind_host(
+    sandbox_host: str | None = None, bind_host: str | None = None
+) -> str:
     """Choose the host interface for legacy Docker ``-p`` sandbox publishing.
 
     Bare-metal/local runs talk to sandboxes through localhost and should not
@@ -150,14 +162,24 @@ def _resolve_docker_bind_host(sandbox_host: str | None = None, bind_host: str | 
     an IPv6 loopback sandbox host, bind Docker to IPv6 loopback as well so the
     advertised sandbox URL and published socket use the same address family.
     """
-    explicit_bind = bind_host if bind_host is not None else os.environ.get("QILIN_SANDBOX_BIND_HOST")
+    explicit_bind = (
+        bind_host
+        if bind_host is not None
+        else os.environ.get("QILIN_SANDBOX_BIND_HOST")
+    )
     if explicit_bind is not None:
         explicit_bind = explicit_bind.strip()
         if explicit_bind:
-            logger.debug("Docker sandbox bind: %s (explicit bind host override)", explicit_bind)
+            logger.debug(
+                "Docker sandbox bind: %s (explicit bind host override)", explicit_bind
+            )
             return explicit_bind
 
-    host = sandbox_host if sandbox_host is not None else os.environ.get("QILIN_SANDBOX_HOST", "localhost")
+    host = (
+        sandbox_host
+        if sandbox_host is not None
+        else os.environ.get("QILIN_SANDBOX_HOST", "localhost")
+    )
     if _is_ipv6_loopback_sandbox_host(host):
         logger.debug("Docker sandbox bind: [::1] (IPv6 loopback sandbox host)")
         return "[::1]"
@@ -165,7 +187,9 @@ def _resolve_docker_bind_host(sandbox_host: str | None = None, bind_host: str | 
         logger.debug("Docker sandbox bind: 127.0.0.1 (loopback default)")
         return "127.0.0.1"
 
-    logger.debug("Docker sandbox bind: 0.0.0.0 (non-loopback sandbox host compatibility)")
+    logger.debug(
+        "Docker sandbox bind: 0.0.0.0 (non-loopback sandbox host compatibility)"
+    )
     return "0.0.0.0"
 
 
@@ -184,7 +208,11 @@ def _is_no_such_container_error(stderr: str, container_name: str) -> bool:
         return True
     if "not found" not in message:
         return False
-    return container_name.lower() in message or "container" in message or "object" in message
+    return (
+        container_name.lower() in message
+        or "container" in message
+        or "object" in message
+    )
 
 
 class LocalContainerBackend(SandboxBackend):
@@ -257,7 +285,11 @@ class LocalContainerBackend(SandboxBackend):
                 )
                 logger.info(f"Detected Apple Container: {result.stdout.strip()}")
                 return "container"
-            except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            except (
+                FileNotFoundError,
+                subprocess.CalledProcessError,
+                subprocess.TimeoutExpired,
+            ):
                 logger.info("Apple Container not available, falling back to Docker")
 
         return "docker"
@@ -314,21 +346,33 @@ class LocalContainerBackend(SandboxBackend):
                 err = str(exc)
                 err_lower = err.lower()
                 # Port already bound: skip this port and retry with the next one.
-                if "port is already allocated" in err or "address already in use" in err_lower:
-                    logger.warning(f"Port {port} rejected by Docker (already allocated), retrying with next port")
+                if (
+                    "port is already allocated" in err
+                    or "address already in use" in err_lower
+                ):
+                    logger.warning(
+                        f"Port {port} rejected by Docker (already allocated), retrying with next port"
+                    )
                     _next_start = port + 1
                     continue
                 # Container-name conflict: another process may have already started
                 # the deterministic sandbox container for this sandbox_id. Try to
                 # discover and adopt the existing container instead of failing.
-                if "is already in use by container" in err_lower or "conflict. the container name" in err_lower:
-                    logger.warning(f"Container name {container_name} already in use, attempting to discover existing sandbox instance")
+                if (
+                    "is already in use by container" in err_lower
+                    or "conflict. the container name" in err_lower
+                ):
+                    logger.warning(
+                        f"Container name {container_name} already in use, attempting to discover existing sandbox instance"
+                    )
                     existing = self.discover(sandbox_id)
                     if existing is not None:
                         return existing
                 raise
         else:
-            raise RuntimeError("Could not start sandbox container: all candidate ports are already allocated by Docker")
+            raise RuntimeError(
+                "Could not start sandbox container: all candidate ports are already allocated by Docker"
+            )
 
         # When running inside Docker (DooD), sandbox containers are reachable via
         # host.docker.internal rather than localhost (they run on the host daemon).
@@ -385,7 +429,9 @@ class LocalContainerBackend(SandboxBackend):
         try:
             running = self._is_container_running(container_name)
         except RuntimeError as e:
-            logger.warning(f"Could not verify container {container_name} during discovery; not adopting it: {e}")
+            logger.warning(
+                f"Could not verify container {container_name} during discovery; not adopting it: {e}"
+            )
             return None
 
         if not running:
@@ -448,12 +494,21 @@ class LocalContainerBackend(SandboxBackend):
                 return []
             if not result.stdout.strip():
                 return []
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+        except (
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            FileNotFoundError,
+            OSError,
+        ) as e:
             logger.warning(f"Failed to list running containers: {e}")
             return []
 
         # Filter to names matching our exact prefix (docker filter is substring-based)
-        container_names = [name.strip() for name in result.stdout.strip().splitlines() if name.strip().startswith(self._container_prefix + "-")]
+        container_names = [
+            name.strip()
+            for name in result.stdout.strip().splitlines()
+            if name.strip().startswith(self._container_prefix + "-")
+        ]
         if not container_names:
             return []
 
@@ -483,7 +538,9 @@ class LocalContainerBackend(SandboxBackend):
         logger.info(f"Found {len(infos)} running sandbox container(s)")
         return infos
 
-    def _batch_inspect(self, container_names: list[str]) -> dict[str, tuple[float, int | None]]:
+    def _batch_inspect(
+        self, container_names: list[str]
+    ) -> dict[str, tuple[float, int | None]]:
         """Batch-inspect containers in a single subprocess call.
 
         Returns a mapping of ``container_name -> (created_at, host_port)``.
@@ -498,7 +555,12 @@ class LocalContainerBackend(SandboxBackend):
                 text=True,
                 timeout=15,
             )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+        except (
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            FileNotFoundError,
+            OSError,
+        ) as e:
             logger.warning(f"Failed to batch-inspect containers: {e}")
             return {}
 
@@ -601,13 +663,17 @@ class LocalContainerBackend(SandboxBackend):
 
         cmd.append(self._image)
 
-        log_cmd = _format_container_command_for_log(_redact_container_command_for_log(cmd))
+        log_cmd = _format_container_command_for_log(
+            _redact_container_command_for_log(cmd)
+        )
         logger.info(f"Starting container using {self._runtime}: {log_cmd}")
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             container_id = result.stdout.strip()
-            logger.info(f"Started container {container_name} (ID: {container_id}) using {self._runtime}")
+            logger.info(
+                f"Started container {container_name} (ID: {container_id}) using {self._runtime}"
+            )
             return container_id
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to start container using {self._runtime}: {e.stderr}")
@@ -636,7 +702,9 @@ class LocalContainerBackend(SandboxBackend):
         except subprocess.TimeoutExpired:
             # Deliberately not swallowed like a CalledProcessError: the container
             # may still be running, so the caller must not report a clean stop.
-            logger.error(f"Timed out after {self._STOP_TIMEOUT_SECONDS}s stopping container {container_id} using {self._runtime}")
+            logger.error(
+                f"Timed out after {self._STOP_TIMEOUT_SECONDS}s stopping container {container_id} using {self._runtime}"
+            )
             raise
         except subprocess.CalledProcessError as e:
             logger.warning(f"Failed to stop container {container_id}: {e.stderr}")
@@ -662,13 +730,17 @@ class LocalContainerBackend(SandboxBackend):
                 timeout=5,
             )
         except subprocess.TimeoutExpired as exc:
-            raise RuntimeError(f"Timed out checking container {container_name}") from exc
+            raise RuntimeError(
+                f"Timed out checking container {container_name}"
+            ) from exc
 
         if result.returncode == 0:
             return result.stdout.strip().lower() == "true"
         if _is_no_such_container_error(result.stderr, container_name):
             return False
-        raise RuntimeError(f"Failed to inspect container {container_name}: {result.stderr.strip()}")
+        raise RuntimeError(
+            f"Failed to inspect container {container_name}: {result.stderr.strip()}"
+        )
 
     def _get_container_port(self, container_name: str) -> int | None:
         """Get the host port of a running container.

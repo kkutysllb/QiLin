@@ -37,7 +37,10 @@ async def _run(email: str | None) -> int:
     try:
         sf = get_session_factory()
         if sf is None:
-            print("Error: persistence engine not available (check config.database).", file=sys.stderr)
+            print(
+                "Error: persistence engine not available (check config.database).",
+                file=sys.stderr,
+            )
             return 1
 
         repo = SQLiteUserRepository(sf)

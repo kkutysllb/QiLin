@@ -34,21 +34,38 @@ class ModelResponse(BaseModel):
 
     name: str = Field(..., description="Unique identifier for the model")
     model: str = Field(..., description="Actual provider model identifier")
-    use: str = Field(default="", description="Provider class path, e.g. langchain_openai.ChatOpenAI")
+    use: str = Field(
+        default="", description="Provider class path, e.g. langchain_openai.ChatOpenAI"
+    )
     display_name: str | None = Field(None, description="Human-readable name")
     description: str | None = Field(None, description="Model description")
-    api_key: str | None = Field(None, description="API key (env var reference or masked literal)")
-    base_url: str | None = Field(None, description="Endpoint URL (from base_url/api_base/api_url)")
-    endpoint_field: str | None = Field(None, description="YAML key that carries the endpoint (base_url/api_base/api_url)")
-    supports_thinking: bool = Field(default=False, description="Whether model supports thinking mode")
-    supports_reasoning_effort: bool = Field(default=False, description="Whether model supports reasoning effort")
-    supports_vision: bool = Field(default=False, description="Whether model supports vision/image inputs")
+    api_key: str | None = Field(
+        None, description="API key (env var reference or masked literal)"
+    )
+    base_url: str | None = Field(
+        None, description="Endpoint URL (from base_url/api_base/api_url)"
+    )
+    endpoint_field: str | None = Field(
+        None,
+        description="YAML key that carries the endpoint (base_url/api_base/api_url)",
+    )
+    supports_thinking: bool = Field(
+        default=False, description="Whether model supports thinking mode"
+    )
+    supports_reasoning_effort: bool = Field(
+        default=False, description="Whether model supports reasoning effort"
+    )
+    supports_vision: bool = Field(
+        default=False, description="Whether model supports vision/image inputs"
+    )
 
 
 class TokenUsageResponse(BaseModel):
     """Token usage display configuration."""
 
-    enabled: bool = Field(default=False, description="Whether token usage display is enabled")
+    enabled: bool = Field(
+        default=False, description="Whether token usage display is enabled"
+    )
 
 
 class ModelsListResponse(BaseModel):
@@ -67,19 +84,31 @@ class ModelCreateRequest(BaseModel):
     """
 
     name: str = Field(..., description="Unique identifier for the model")
-    display_name: str | None = Field(default=None, description="Display name for the model")
-    description: str | None = Field(default=None, description="Description for the model")
+    display_name: str | None = Field(
+        default=None, description="Display name for the model"
+    )
+    description: str | None = Field(
+        default=None, description="Description for the model"
+    )
     use: str = Field(..., description="Class path of the model provider")
     model: str = Field(..., description="Model name")
-    api_key: str | None = Field(default=None, description="API key literal or $ENV_VAR reference")
+    api_key: str | None = Field(
+        default=None, description="API key literal or $ENV_VAR reference"
+    )
     base_url: str | None = Field(default=None, description="Endpoint URL")
     endpoint_field: str | None = Field(
         default=None,
         description="YAML key to store base_url under (e.g. 'api_base' for DeepSeek). Defaults to 'base_url'.",
     )
-    supports_thinking: bool = Field(default=False, description="Whether the model supports thinking")
-    supports_vision: bool = Field(default=False, description="Whether the model supports vision/image inputs")
-    supports_reasoning_effort: bool = Field(default=False, description="Whether the model supports reasoning effort")
+    supports_thinking: bool = Field(
+        default=False, description="Whether the model supports thinking"
+    )
+    supports_vision: bool = Field(
+        default=False, description="Whether the model supports vision/image inputs"
+    )
+    supports_reasoning_effort: bool = Field(
+        default=False, description="Whether the model supports reasoning effort"
+    )
 
     model_config = ConfigDict(extra="allow")
 
@@ -158,7 +187,9 @@ def _persist_api_key_to_env(env_var: str, plaintext: str) -> None:
     os.environ[env_var] = plaintext
 
 
-def _materialize_api_key(req: ModelCreateRequest, existing_key: str | None = None) -> None:
+def _materialize_api_key(
+    req: ModelCreateRequest, existing_key: str | None = None
+) -> None:
     """Convert a literal ``api_key`` on the request into a ``$ENV_VAR`` ref.
 
     - ``$VAR`` references pass through untouched.
@@ -314,7 +345,9 @@ async def list_models(config: AppConfig = Depends(get_config)) -> ModelsListResp
     summary="Get Model Details",
     description="Retrieve detailed information about a specific AI model by its name.",
 )
-async def get_model(model_name: str, config: AppConfig = Depends(get_config)) -> ModelResponse:
+async def get_model(
+    model_name: str, config: AppConfig = Depends(get_config)
+) -> ModelResponse:
     """Get a specific model by name. Raises 404 if not found."""
     model = config.get_model_config(model_name)
     if model is None:
@@ -329,13 +362,17 @@ async def get_model(model_name: str, config: AppConfig = Depends(get_config)) ->
     summary="Create Model",
     description="Add a new model entry to the `models:` section of config.yaml.",
 )
-async def create_model(req: ModelCreateRequest, config: AppConfig = Depends(get_config)) -> ModelResponse:
+async def create_model(
+    req: ModelCreateRequest, config: AppConfig = Depends(get_config)
+) -> ModelResponse:
     """Create a new model in config.yaml.
 
     Raises 409 if a model with the same name already exists.
     """
     if config.get_model_config(req.name) is not None:
-        raise HTTPException(status_code=409, detail=f"Model '{req.name}' already exists")
+        raise HTTPException(
+            status_code=409, detail=f"Model '{req.name}' already exists"
+        )
 
     # Persist any literal api_key to ~/.kworks/.env and replace it with a
     # $ENV_VAR reference before serialising to config.yaml, so secrets never
@@ -349,7 +386,9 @@ async def create_model(req: ModelCreateRequest, config: AppConfig = Depends(get_
         data["models"] = []
         models_section = data["models"]
     elif not isinstance(models_section, list):
-        raise HTTPException(status_code=500, detail="config.yaml `models:` section is not a list")
+        raise HTTPException(
+            status_code=500, detail="config.yaml `models:` section is not a list"
+        )
 
     models_section.append(_request_to_dict(req))
     _write_config_yaml(config_path, data)
@@ -358,7 +397,10 @@ async def create_model(req: ModelCreateRequest, config: AppConfig = Depends(get_
     new_config = get_config()
     created = new_config.get_model_config(req.name)
     if created is None:
-        raise HTTPException(status_code=500, detail="Model was written but could not be re-read from config")
+        raise HTTPException(
+            status_code=500,
+            detail="Model was written but could not be re-read from config",
+        )
     return _model_config_to_response(created)
 
 
@@ -384,7 +426,9 @@ async def update_model(
 
     # If renaming, ensure the new name is not already taken by a different entry.
     if req.name != model_name and config.get_model_config(req.name) is not None:
-        raise HTTPException(status_code=409, detail=f"Model '{req.name}' already exists")
+        raise HTTPException(
+            status_code=409, detail=f"Model '{req.name}' already exists"
+        )
 
     # Same plaintext→$ENV_VAR migration as create_model. Pass the existing
     # key so the masked placeholder ("***") the UI sends back for an
@@ -395,7 +439,9 @@ async def update_model(
     config_path, data = _read_config_yaml()
     models_section = data.get("models")
     if not isinstance(models_section, list):
-        raise HTTPException(status_code=500, detail="config.yaml `models:` section is not a list")
+        raise HTTPException(
+            status_code=500, detail="config.yaml `models:` section is not a list"
+        )
 
     new_dict = _request_to_dict(req)
     found = False
@@ -405,7 +451,9 @@ async def update_model(
             found = True
             break
     if not found:
-        raise HTTPException(status_code=404, detail=f"Model '{model_name}' not found in config.yaml")
+        raise HTTPException(
+            status_code=404, detail=f"Model '{model_name}' not found in config.yaml"
+        )
 
     _write_config_yaml(config_path, data)
     reload_app_config()
@@ -413,7 +461,10 @@ async def update_model(
     new_config = get_config()
     updated = new_config.get_model_config(req.name)
     if updated is None:
-        raise HTTPException(status_code=500, detail="Model was updated but could not be re-read from config")
+        raise HTTPException(
+            status_code=500,
+            detail="Model was updated but could not be re-read from config",
+        )
     return _model_config_to_response(updated)
 
 
@@ -423,7 +474,9 @@ async def update_model(
     summary="Delete Model",
     description="Remove a model entry from config.yaml.",
 )
-async def delete_model(model_name: str, config: AppConfig = Depends(get_config)) -> None:
+async def delete_model(
+    model_name: str, config: AppConfig = Depends(get_config)
+) -> None:
     """Delete a model from config.yaml. Raises 404 if not found."""
     if config.get_model_config(model_name) is None:
         raise HTTPException(status_code=404, detail=f"Model '{model_name}' not found")
@@ -431,15 +484,20 @@ async def delete_model(model_name: str, config: AppConfig = Depends(get_config))
     config_path, data = _read_config_yaml()
     models_section = data.get("models")
     if not isinstance(models_section, list):
-        raise HTTPException(status_code=500, detail="config.yaml `models:` section is not a list")
+        raise HTTPException(
+            status_code=500, detail="config.yaml `models:` section is not a list"
+        )
 
     original_len = len(models_section)
     models_section[:] = [
-        entry for entry in models_section
+        entry
+        for entry in models_section
         if not (isinstance(entry, dict) and entry.get("name") == model_name)
     ]
     if len(models_section) == original_len:
-        raise HTTPException(status_code=404, detail=f"Model '{model_name}' not found in config.yaml")
+        raise HTTPException(
+            status_code=404, detail=f"Model '{model_name}' not found in config.yaml"
+        )
 
     _write_config_yaml(config_path, data)
     reload_app_config()

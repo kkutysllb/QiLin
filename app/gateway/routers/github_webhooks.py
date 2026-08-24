@@ -249,7 +249,9 @@ async def receive_github_webhook(
                 x_github_event,
                 x_github_delivery,
             )
-            raise HTTPException(status_code=401, detail="Invalid or missing X-Hub-Signature-256")
+            raise HTTPException(
+                status_code=401, detail="Invalid or missing X-Hub-Signature-256"
+            )
 
     if not x_github_event:
         raise HTTPException(status_code=400, detail="Missing X-GitHub-Event header")
@@ -328,7 +330,11 @@ async def receive_github_webhook(
             # without forcing a process restart for operators tuning it.
             github_channel_config = service.get_channel_config("github") or {}
             raw_default_mention = github_channel_config.get("default_mention_login")
-            operator_default_mention_login = raw_default_mention.strip() if isinstance(raw_default_mention, str) else None
+            operator_default_mention_login = (
+                raw_default_mention.strip()
+                if isinstance(raw_default_mention, str)
+                else None
+            )
 
             # Let fan-out exceptions propagate as 503, not 200.
             # ``fanout_event`` calls the registry (filesystem) and the

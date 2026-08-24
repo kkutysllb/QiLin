@@ -87,7 +87,9 @@ def _list_assistants() -> list[AssistantResponse]:
 
 
 @router.post("/search", response_model=list[AssistantResponse])
-async def search_assistants(body: AssistantSearchRequest | None = None) -> list[AssistantResponse]:
+async def search_assistants(
+    body: AssistantSearchRequest | None = None,
+) -> list[AssistantResponse]:
     """Search assistants.
 
     Returns all registered assistants (lead_agent + custom agents from config).
@@ -122,9 +124,14 @@ async def get_assistant_graph(assistant_id: str) -> dict:
     Returns a minimal graph description. Full graph introspection is
     not supported in the Gateway — this stub satisfies SDK validation.
     """
-    found = any(a.assistant_id == assistant_id for a in await asyncio.to_thread(_list_assistants))
+    found = any(
+        a.assistant_id == assistant_id
+        for a in await asyncio.to_thread(_list_assistants)
+    )
     if not found:
-        raise HTTPException(status_code=404, detail=f"Assistant {assistant_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Assistant {assistant_id} not found"
+        )
 
     return {
         "graph_id": "lead_agent",
@@ -139,9 +146,14 @@ async def get_assistant_schemas(assistant_id: str) -> dict:
 
     Returns empty schemas — full introspection not supported in Gateway.
     """
-    found = any(a.assistant_id == assistant_id for a in await asyncio.to_thread(_list_assistants))
+    found = any(
+        a.assistant_id == assistant_id
+        for a in await asyncio.to_thread(_list_assistants)
+    )
     if not found:
-        raise HTTPException(status_code=404, detail=f"Assistant {assistant_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Assistant {assistant_id} not found"
+        )
 
     return {
         "graph_id": "lead_agent",

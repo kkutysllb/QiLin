@@ -49,11 +49,23 @@ class ConsoleStatsResponse(BaseModel):
     total_runs: int = Field(..., description="All recorded runs for the current user")
     active_runs: int = Field(..., description="Runs currently pending or running")
     failed_runs: int = Field(..., description="Runs that ended in error or timeout")
-    total_threads: int = Field(..., description="Conversation threads owned by the current user")
-    total_agents: int = Field(..., description="Custom agents owned by the current user")
-    total_tokens: int = Field(..., description="Tokens consumed across all recorded runs")
-    total_cost: float | None = Field(default=None, description="Estimated spend across priced runs; null when no models[*].pricing is configured")
-    currency: str | None = Field(default=None, description="Display currency taken from the first configured pricing entry")
+    total_threads: int = Field(
+        ..., description="Conversation threads owned by the current user"
+    )
+    total_agents: int = Field(
+        ..., description="Custom agents owned by the current user"
+    )
+    total_tokens: int = Field(
+        ..., description="Tokens consumed across all recorded runs"
+    )
+    total_cost: float | None = Field(
+        default=None,
+        description="Estimated spend across priced runs; null when no models[*].pricing is configured",
+    )
+    currency: str | None = Field(
+        default=None,
+        description="Display currency taken from the first configured pricing entry",
+    )
 
 
 class ConsoleRunItem(BaseModel):
@@ -61,16 +73,24 @@ class ConsoleRunItem(BaseModel):
 
     run_id: str
     thread_id: str
-    thread_title: str | None = Field(default=None, description="Display name from threads_meta, if tracked")
+    thread_title: str | None = Field(
+        default=None, description="Display name from threads_meta, if tracked"
+    )
     assistant_id: str | None = None
     status: str
     model_name: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
-    duration_seconds: float | None = Field(default=None, description="Wall-clock duration; live elapsed time for active runs")
+    duration_seconds: float | None = Field(
+        default=None,
+        description="Wall-clock duration; live elapsed time for active runs",
+    )
     total_tokens: int = 0
     message_count: int = 0
-    cost: float | None = Field(default=None, description="Estimated spend for this run; null when its models are unpriced")
+    cost: float | None = Field(
+        default=None,
+        description="Estimated spend for this run; null when its models are unpriced",
+    )
     error: str | None = Field(default=None, description="Error excerpt for failed runs")
 
 
@@ -84,22 +104,34 @@ class ConsoleRunsResponse(BaseModel):
 class ConsoleUsageDay(BaseModel):
     """Token usage aggregated over one local-time day."""
 
-    date: str = Field(..., description="Local date (YYYY-MM-DD) per the requested tz offset")
+    date: str = Field(
+        ..., description="Local date (YYYY-MM-DD) per the requested tz offset"
+    )
     total_tokens: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
     runs: int = 0
-    cost: float = Field(default=0.0, description="Estimated spend for the day across priced runs")
+    cost: float = Field(
+        default=0.0, description="Estimated spend for the day across priced runs"
+    )
 
 
 class ConsoleUsageModelBreakdown(BaseModel):
     """Token usage attributed to one model."""
 
     tokens: int = 0
-    runs: int = Field(default=0, description="Runs that used this model (non-exclusive)")
-    cost: float | None = Field(default=None, description="Estimated spend for this model; null when unpriced")
-    input_tokens: int = Field(default=0, description="Input tokens attributed to this model")
-    cache_read_tokens: int = Field(default=0, description="Prompt-cache-hit input tokens attributed to this model")
+    runs: int = Field(
+        default=0, description="Runs that used this model (non-exclusive)"
+    )
+    cost: float | None = Field(
+        default=None, description="Estimated spend for this model; null when unpriced"
+    )
+    input_tokens: int = Field(
+        default=0, description="Input tokens attributed to this model"
+    )
+    cache_read_tokens: int = Field(
+        default=0, description="Prompt-cache-hit input tokens attributed to this model"
+    )
 
 
 class ConsoleUsageResponse(BaseModel):
@@ -109,8 +141,14 @@ class ConsoleUsageResponse(BaseModel):
     by_model: dict[str, ConsoleUsageModelBreakdown]
     total_tokens: int
     total_runs: int
-    total_cost: float | None = Field(default=None, description="Estimated spend for the window; null when no pricing is configured")
-    currency: str | None = Field(default=None, description="Display currency taken from the first configured pricing entry")
+    total_cost: float | None = Field(
+        default=None,
+        description="Estimated spend for the window; null when no pricing is configured",
+    )
+    currency: str | None = Field(
+        default=None,
+        description="Display currency taken from the first configured pricing entry",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -162,8 +200,12 @@ def _build_pricing_map() -> dict[str, _ModelPricing]:
     """
     try:
         models = get_app_config().models
-    except Exception:  # pragma: no cover - defensive: cost display must not break the console
-        logger.warning("console: failed to load model pricing from config", exc_info=True)
+    except (
+        Exception
+    ):  # pragma: no cover - defensive: cost display must not break the console
+        logger.warning(
+            "console: failed to load model pricing from config", exc_info=True
+        )
         return {}
 
     pricing: dict[str, _ModelPricing] = {}
@@ -177,9 +219,13 @@ def _build_pricing_map() -> dict[str, _ModelPricing]:
             input_price = float(raw.get("input_per_million") or 0)
             output_price = float(raw.get("output_per_million") or 0)
             raw_hit_price = raw.get("input_cache_hit_per_million")
-            cache_hit_price = float(raw_hit_price) if raw_hit_price is not None else None
+            cache_hit_price = (
+                float(raw_hit_price) if raw_hit_price is not None else None
+            )
         except (TypeError, ValueError):
-            logger.warning("console: ignoring malformed pricing on model %s", model_cfg.name)
+            logger.warning(
+                "console: ignoring malformed pricing on model %s", model_cfg.name
+            )
             continue
         if input_price <= 0 and output_price <= 0:
             continue
@@ -196,7 +242,9 @@ def _build_pricing_map() -> dict[str, _ModelPricing]:
                 model_cfg.name,
             )
             return {}
-        entry = _ModelPricing(input_price, output_price, model_currency, cache_hit_price)
+        entry = _ModelPricing(
+            input_price, output_price, model_currency, cache_hit_price
+        )
         for key in (model_cfg.name, getattr(model_cfg, "model", None)):
             if key:
                 pricing.setdefault(key, entry)
@@ -209,23 +257,40 @@ def _pricing_currency(pricing: dict[str, _ModelPricing]) -> str | None:
     return next(iter(pricing.values())).currency if pricing else None
 
 
-def _lookup_pricing(pricing: dict[str, _ModelPricing], model: str | None) -> _ModelPricing | None:
+def _lookup_pricing(
+    pricing: dict[str, _ModelPricing], model: str | None
+) -> _ModelPricing | None:
     if not model:
         return None
     return pricing.get(model) or pricing.get(model.lower())
 
 
-def _token_cost(input_tokens: int, output_tokens: int, price: _ModelPricing, cache_read_tokens: int = 0) -> float:
+def _token_cost(
+    input_tokens: int,
+    output_tokens: int,
+    price: _ModelPricing,
+    cache_read_tokens: int = 0,
+) -> float:
     """Cache-aware spend: cache-hit input tokens are billed at the hit price.
 
     ``cache_read_tokens`` is clamped into ``[0, input_tokens]``; the remainder
     is billed at the full (cache-miss) input price. Without a configured hit
     price all input is billed at the miss price.
     """
-    cache_read = min(max(int(cache_read_tokens or 0), 0), max(int(input_tokens or 0), 0))
+    cache_read = min(
+        max(int(cache_read_tokens or 0), 0), max(int(input_tokens or 0), 0)
+    )
     uncached = max(int(input_tokens or 0), 0) - cache_read
-    hit_price = price.input_cache_hit_per_million if price.input_cache_hit_per_million is not None else price.input_per_million
-    return (uncached / 1_000_000) * price.input_per_million + (cache_read / 1_000_000) * hit_price + (output_tokens / 1_000_000) * price.output_per_million
+    hit_price = (
+        price.input_cache_hit_per_million
+        if price.input_cache_hit_per_million is not None
+        else price.input_per_million
+    )
+    return (
+        (uncached / 1_000_000) * price.input_per_million
+        + (cache_read / 1_000_000) * hit_price
+        + (output_tokens / 1_000_000) * price.output_per_million
+    )
 
 
 def _run_cost(
@@ -256,7 +321,12 @@ def _run_cost(
             output_tokens = int(usage.get("output_tokens") or 0)
             if input_tokens == 0 and output_tokens == 0:
                 continue
-            cost += _token_cost(input_tokens, output_tokens, price, int(usage.get("cache_read_tokens") or 0))
+            cost += _token_cost(
+                input_tokens,
+                output_tokens,
+                price,
+                int(usage.get("cache_read_tokens") or 0),
+            )
             priced = True
     if priced:
         return cost
@@ -294,11 +364,42 @@ async def console_stats(request: Request) -> ConsoleStatsResponse:
     pricing = _build_pricing_map()
 
     async with sf() as session:
-        total_runs = await session.scalar(select(func.count()).select_from(RunRow).where(*run_where)) or 0
-        active_runs = await session.scalar(select(func.count()).select_from(RunRow).where(RunRow.status.in_(_ACTIVE_STATUSES), *run_where)) or 0
-        failed_runs = await session.scalar(select(func.count()).select_from(RunRow).where(RunRow.status.in_(_FAILED_STATUSES), *run_where)) or 0
-        total_tokens = await session.scalar(select(func.coalesce(func.sum(RunRow.total_tokens), 0)).where(*run_where)) or 0
-        total_threads = await session.scalar(select(func.count()).select_from(ThreadMetaRow).where(*thread_where)) or 0
+        total_runs = (
+            await session.scalar(
+                select(func.count()).select_from(RunRow).where(*run_where)
+            )
+            or 0
+        )
+        active_runs = (
+            await session.scalar(
+                select(func.count())
+                .select_from(RunRow)
+                .where(RunRow.status.in_(_ACTIVE_STATUSES), *run_where)
+            )
+            or 0
+        )
+        failed_runs = (
+            await session.scalar(
+                select(func.count())
+                .select_from(RunRow)
+                .where(RunRow.status.in_(_FAILED_STATUSES), *run_where)
+            )
+            or 0
+        )
+        total_tokens = (
+            await session.scalar(
+                select(func.coalesce(func.sum(RunRow.total_tokens), 0)).where(
+                    *run_where
+                )
+            )
+            or 0
+        )
+        total_threads = (
+            await session.scalar(
+                select(func.count()).select_from(ThreadMetaRow).where(*thread_where)
+            )
+            or 0
+        )
 
         total_cost: float | None = None
         if pricing:
@@ -330,7 +431,9 @@ async def console_stats(request: Request) -> ConsoleStatsResponse:
         # sets the context for real requests, "default" in no-auth mode).
         agents = await asyncio.to_thread(list_custom_agents)
         total_agents = len(agents)
-    except Exception:  # pragma: no cover - defensive: stats must not 500 on a bad agents dir
+    except (
+        Exception
+    ):  # pragma: no cover - defensive: stats must not 500 on a bad agents dir
         logger.warning("console_stats: failed to list custom agents", exc_info=True)
         total_agents = 0
 
@@ -357,7 +460,9 @@ async def console_runs(
     request: Request,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    status: str | None = Query(default=None, description="Filter by run status (e.g. running, success, error)"),
+    status: str | None = Query(
+        default=None, description="Filter by run status (e.g. running, success, error)"
+    ),
 ) -> ConsoleRunsResponse:
     """Return a page of the user's runs across all threads."""
     sf = _session_factory_or_503()
@@ -389,7 +494,9 @@ async def console_runs(
         if row.status in _ACTIVE_STATUSES:
             duration = (now - created).total_seconds() if created else None
         else:
-            duration = (updated - created).total_seconds() if created and updated else None
+            duration = (
+                (updated - created).total_seconds() if created and updated else None
+            )
         cost = _run_cost(
             pricing,
             model_name=row.model_name,
@@ -427,7 +534,12 @@ async def console_runs(
 async def console_usage(
     request: Request,
     days: int = Query(default=14, ge=1, le=90),
-    tz_offset_minutes: int = Query(default=0, ge=-840, le=840, description="Local-time offset from UTC for day bucketing"),
+    tz_offset_minutes: int = Query(
+        default=0,
+        ge=-840,
+        le=840,
+        description="Local-time offset from UTC for day bucketing",
+    ),
 ) -> ConsoleUsageResponse:
     """Aggregate token usage by local day and by model."""
     sf = _session_factory_or_503()
@@ -438,7 +550,9 @@ async def console_usage(
     start_local = today_local - timedelta(days=days - 1)
     window_start_utc = datetime.combine(start_local, time.min, tzinfo=UTC) - tz_delta
 
-    stmt = select(RunRow).where(RunRow.operation_kind == "run", RunRow.created_at >= window_start_utc)
+    stmt = select(RunRow).where(
+        RunRow.operation_kind == "run", RunRow.created_at >= window_start_utc
+    )
     if user_id:
         stmt = stmt.where(RunRow.user_id == user_id)
 
@@ -495,7 +609,12 @@ async def console_usage(
                 entry.cache_read_tokens += int(usage.get("cache_read_tokens") or 0)
                 price = _lookup_pricing(pricing, model)
                 if price is not None:
-                    model_cost = _token_cost(int(usage.get("input_tokens") or 0), int(usage.get("output_tokens") or 0), price, int(usage.get("cache_read_tokens") or 0))
+                    model_cost = _token_cost(
+                        int(usage.get("input_tokens") or 0),
+                        int(usage.get("output_tokens") or 0),
+                        price,
+                        int(usage.get("cache_read_tokens") or 0),
+                    )
                     entry.cost = round((entry.cost or 0.0) + model_cost, 6)
         elif row.model_name and run_tokens > 0:
             # Legacy rows predating token_usage_by_model: fall back to the run's model.

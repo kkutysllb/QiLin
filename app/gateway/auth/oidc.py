@@ -93,7 +93,9 @@ class OIDCService:
 
     # ── Discovery ──────────────────────────────────────────────────────────
 
-    async def discover(self, issuer: str, overrides: dict[str, str | None] | None = None) -> OIDCMetadata:
+    async def discover(
+        self, issuer: str, overrides: dict[str, str | None] | None = None
+    ) -> OIDCMetadata:
         """Fetch and cache OIDC discovery metadata from the issuer.
 
         ``overrides`` may contain endpoint URIs to override discovery values
@@ -110,32 +112,44 @@ class OIDCService:
             resp.raise_for_status()
             data: dict[str, Any] = resp.json()
         except httpx.HTTPStatusError as exc:
-            raise OIDCError(f"OIDC discovery failed for issuer {issuer}: HTTP {exc.response.status_code}") from exc
+            raise OIDCError(
+                f"OIDC discovery failed for issuer {issuer}: HTTP {exc.response.status_code}"
+            ) from exc
         except httpx.RequestError as exc:
-            raise OIDCError(f"OIDC discovery failed for issuer {issuer}: {exc}") from exc
+            raise OIDCError(
+                f"OIDC discovery failed for issuer {issuer}: {exc}"
+            ) from exc
 
         discovered_issuer = data.get("issuer")
         if not discovered_issuer:
-            raise OIDCError(f"OIDC discovery response from {issuer} is missing the issuer field")
+            raise OIDCError(
+                f"OIDC discovery response from {issuer} is missing the issuer field"
+            )
 
         # RFC 8414 §4: the metadata issuer must equal the configured issuer.
         # Pinning it prevents a tampered/rogue discovery document from steering
         # the accepted `iss` (and thus the ID-token forgery surface) to an
         # attacker-chosen value.
         if discovered_issuer.rstrip("/") != issuer.rstrip("/"):
-            raise OIDCError(f"OIDC discovered issuer '{discovered_issuer}' does not match configured issuer '{issuer}'")
+            raise OIDCError(
+                f"OIDC discovered issuer '{discovered_issuer}' does not match configured issuer '{issuer}'"
+            )
 
         self._metadata_cache[issuer] = (now, data)
         return self._metadata_from_dict(data, overrides)
 
-    def _metadata_from_dict(self, data: dict[str, Any], overrides: dict[str, str | None] | None) -> OIDCMetadata:
+    def _metadata_from_dict(
+        self, data: dict[str, Any], overrides: dict[str, str | None] | None
+    ) -> OIDCMetadata:
         """Build OIDCMetadata from a discovery dict, applying endpoint overrides."""
         overrides = overrides or {}
         return OIDCMetadata(
             issuer=data["issuer"],
-            authorization_endpoint=overrides.get("authorization_endpoint") or data["authorization_endpoint"],
+            authorization_endpoint=overrides.get("authorization_endpoint")
+            or data["authorization_endpoint"],
             token_endpoint=overrides.get("token_endpoint") or data["token_endpoint"],
-            userinfo_endpoint=overrides.get("userinfo_endpoint") or data.get("userinfo_endpoint"),
+            userinfo_endpoint=overrides.get("userinfo_endpoint")
+            or data.get("userinfo_endpoint"),
             jwks_uri=overrides.get("jwks_uri") or data["jwks_uri"],
         )
 
@@ -197,13 +211,17 @@ class OIDCService:
         if auth_method == "client_secret_basic" and client_secret:
             import base64
 
-            creds = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode("ascii")
+            creds = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode(
+                "ascii"
+            )
             headers["Authorization"] = f"Basic {creds}"
         elif auth_method == "client_secret_post" and client_secret:
             data["client_secret"] = client_secret
 
         try:
-            resp = await self._http.post(metadata.token_endpoint, data=data, headers=headers)
+            resp = await self._http.post(
+                metadata.token_endpoint, data=data, headers=headers
+            )
             resp.raise_for_status()
             return resp.json()
         except httpx.HTTPStatusError as exc:
@@ -212,13 +230,17 @@ class OIDCService:
                 body = exc.response.text[:200]
             except Exception:
                 pass
-            raise OIDCError(f"Token exchange failed: HTTP {exc.response.status_code} — {body}") from exc
+            raise OIDCError(
+                f"Token exchange failed: HTTP {exc.response.status_code} — {body}"
+            ) from exc
         except httpx.RequestError as exc:
             raise OIDCError(f"Token exchange failed: {exc}") from exc
 
     # ── JWKS loading ───────────────────────────────────────────────────────
 
-    async def _load_jwks(self, jwks_uri: str, force_refresh: bool = False) -> dict[str, Any]:
+    async def _load_jwks(
+        self, jwks_uri: str, force_refresh: bool = False
+    ) -> dict[str, Any]:
         """Load (and cache) JWKS from the provider.
 
         Set ``force_refresh=True`` to bypass the cache (e.g. on a kid miss).
@@ -233,7 +255,9 @@ class OIDCService:
             resp.raise_for_status()
             data: dict[str, Any] = resp.json()
         except httpx.HTTPStatusError as exc:
-            raise OIDCError(f"JWKS fetch failed: HTTP {exc.response.status_code}") from exc
+            raise OIDCError(
+                f"JWKS fetch failed: HTTP {exc.response.status_code}"
+            ) from exc
         except httpx.RequestError as exc:
             raise OIDCError(f"JWKS fetch failed: {exc}") from exc
 
@@ -260,12 +284,16 @@ class OIDCService:
                 jwk = PyJWK(jwk_dict, algorithm=algorithm)
                 return jwk.key
             except jwt.PyJWTError as exc:
-                logger.warning("Skipping invalid JWK (kid=%s) from %s: %s", kid, jwks_uri, exc)
+                logger.warning(
+                    "Skipping invalid JWK (kid=%s) from %s: %s", kid, jwks_uri, exc
+                )
                 if not kid:
                     # No kid in token — try next key
                     continue
                 # kid was specified and this key is the one — fail fast
-                raise OIDCValidationError(f"JWK for kid={kid} is invalid: {exc}") from exc
+                raise OIDCValidationError(
+                    f"JWK for kid={kid} is invalid: {exc}"
+                ) from exc
         return None
 
     # ── ID token validation ────────────────────────────────────────────────
@@ -294,12 +322,18 @@ class OIDCService:
             raise OIDCValidationError(f"ID token uses unsupported algorithm '{alg}'")
 
         # Resolve signing key, refetching JWKS once on kid miss for key rotation
-        signing_key = await self._resolve_signing_key(jwks_data, kid, alg, metadata.jwks_uri)
+        signing_key = await self._resolve_signing_key(
+            jwks_data, kid, alg, metadata.jwks_uri
+        )
         if signing_key is None:
             jwks_data = await self._load_jwks(metadata.jwks_uri, force_refresh=True)
-            signing_key = await self._resolve_signing_key(jwks_data, kid, alg, metadata.jwks_uri)
+            signing_key = await self._resolve_signing_key(
+                jwks_data, kid, alg, metadata.jwks_uri
+            )
             if signing_key is None:
-                raise OIDCValidationError(f"No matching JWK found for kid={kid} after JWKS refresh")
+                raise OIDCValidationError(
+                    f"No matching JWK found for kid={kid} after JWKS refresh"
+                )
 
         try:
             claims = jwt.decode(
@@ -335,7 +369,9 @@ class OIDCService:
 
     # ── UserInfo ────────────────────────────────────────────────────────────
 
-    async def fetch_userinfo(self, metadata: OIDCMetadata, access_token: str, expected_sub: str) -> dict[str, Any]:
+    async def fetch_userinfo(
+        self, metadata: OIDCMetadata, access_token: str, expected_sub: str
+    ) -> dict[str, Any]:
         """Fetch userinfo from the UserInfo endpoint.
 
         Validates that the ``sub`` claim matches ``expected_sub``
@@ -350,7 +386,9 @@ class OIDCService:
             resp.raise_for_status()
             userinfo: dict[str, Any] = resp.json()
         except httpx.HTTPStatusError as exc:
-            raise OIDCError(f"UserInfo fetch failed: HTTP {exc.response.status_code}") from exc
+            raise OIDCError(
+                f"UserInfo fetch failed: HTTP {exc.response.status_code}"
+            ) from exc
         except httpx.RequestError as exc:
             raise OIDCError(f"UserInfo fetch failed: {exc}") from exc
 
@@ -410,7 +448,9 @@ class OIDCService:
                     expected_sub=claims["sub"],
                 )
             except OIDCError as exc:
-                logger.warning("OIDC userinfo fetch failed (continuing with ID token): %s", exc)
+                logger.warning(
+                    "OIDC userinfo fetch failed (continuing with ID token): %s", exc
+                )
 
         # Merge userinfo into claims (userinfo takes precedence for email)
         merged = {**claims, **userinfo}

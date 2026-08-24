@@ -25,7 +25,9 @@ def restore_assistant_payloads(
     """Restore provider-specific fields onto serialized assistant payloads."""
     if len(payload_messages) == len(original_messages):
         for payload_msg, orig_msg in zip(payload_messages, original_messages):
-            if payload_msg.get("role") == "assistant" and isinstance(orig_msg, AIMessage):
+            if payload_msg.get("role") == "assistant" and isinstance(
+                orig_msg, AIMessage
+            ):
                 restore(payload_msg, orig_msg)
         return
 
@@ -39,7 +41,9 @@ def restore_assistant_payloads(
             restore(payload_msg, ai_msg)
 
 
-def restore_additional_kwargs_field(payload_msg: dict[str, Any], orig_msg: AIMessage, field_name: str) -> None:
+def restore_additional_kwargs_field(
+    payload_msg: dict[str, Any], orig_msg: AIMessage, field_name: str
+) -> None:
     """Copy a provider-specific ``additional_kwargs`` field onto a payload message."""
     value = orig_msg.additional_kwargs.get(field_name)
     if value is not None:
@@ -59,12 +63,18 @@ def _match_ai_message(
 ) -> AIMessage | None:
     payload_key = _assistant_signature(payload_msg)
     if payload_key is not None:
-        matches = [index for index, ai_msg in enumerate(ai_messages) if index not in used_ai_indexes and _ai_signature(ai_msg) == payload_key]
+        matches = [
+            index
+            for index, ai_msg in enumerate(ai_messages)
+            if index not in used_ai_indexes and _ai_signature(ai_msg) == payload_key
+        ]
         if len(matches) == 1:
             used_ai_indexes.add(matches[0])
             return ai_messages[matches[0]]
 
-    fallback_index = _next_unused_index_at_or_after(len(ai_messages), used_ai_indexes, fallback_ordinal)
+    fallback_index = _next_unused_index_at_or_after(
+        len(ai_messages), used_ai_indexes, fallback_ordinal
+    )
     if fallback_index is not None:
         used_ai_indexes.add(fallback_index)
         return ai_messages[fallback_index]
@@ -72,7 +82,9 @@ def _match_ai_message(
     return None
 
 
-def _next_unused_index_at_or_after(count: int, used_ai_indexes: set[int], start: int) -> int | None:
+def _next_unused_index_at_or_after(
+    count: int, used_ai_indexes: set[int], start: int
+) -> int | None:
     """Return the next unused AI index at or after ``start``.
 
     Scanning forward from the payload's ordinal preserves the positional bias of

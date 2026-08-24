@@ -92,7 +92,9 @@ FALLBACK_LARK_CLI_VERSION = "v1.0.65"
 LARK_CLI_NPM_VERSION = FALLBACK_LARK_CLI_VERSION.removeprefix("v")
 LARK_CLI_NPM_PACKAGE = "@larksuite/cli"
 LARK_CLI_GITHUB_REPO = "larksuite/cli"
-LARK_CLI_LATEST_RELEASE_API = f"https://api.github.com/repos/{LARK_CLI_GITHUB_REPO}/releases/latest"
+LARK_CLI_LATEST_RELEASE_API = (
+    f"https://api.github.com/repos/{LARK_CLI_GITHUB_REPO}/releases/latest"
+)
 LARK_CLI_SOURCE_ARCHIVE_ENV = "QILIN_LARK_CLI_SKILLS_ARCHIVE"
 LARK_CLI_SANDBOX_RUNTIME_SOURCE_ENV = "QILIN_LARK_CLI_SANDBOX_RUNTIME_DIR"
 LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS = 60
@@ -133,7 +135,9 @@ exec "$script_dir/../linux-$arch/lark-cli" "$@"
 """
 _VERSION_TAG_RE = re.compile(r"v?\d+\.\d+\.\d+")
 _QILIN_LARK_SHARED_GUIDANCE_MARKER = "<!-- qilin-lark-cli-auth-guidance-v2 -->"
-_QILIN_LARK_SHARED_GUIDANCE_LEGACY_MARKERS = ("<!-- qilin-lark-cli-auth-guidance-v1 -->",)
+_QILIN_LARK_SHARED_GUIDANCE_LEGACY_MARKERS = (
+    "<!-- qilin-lark-cli-auth-guidance-v1 -->",
+)
 _LARK_APP_REGISTRATION_PATH = "/oauth/v1/app/registration"
 
 LARK_SKILL_NAMES: tuple[str, ...] = (
@@ -284,7 +288,9 @@ def lark_cli_data_dir(user_id: str) -> Path:
     return get_paths().user_dir(user_id) / "integrations" / INTEGRATION_ID / "data"
 
 
-def ensure_lark_cli_credential_tree(user_id: str, *, paths: Paths | None = None) -> None:
+def ensure_lark_cli_credential_tree(
+    user_id: str, *, paths: Paths | None = None
+) -> None:
     """Make the user's secret-bearing Lark CLI tree owner-only.
 
     The CLI writes plaintext app secrets and OAuth tokens beneath this tree.
@@ -299,7 +305,9 @@ def ensure_lark_cli_credential_tree(user_id: str, *, paths: Paths | None = None)
     root.chmod(0o700)
     for required in (root / "config", root / "data"):
         if required.is_symlink():
-            raise ValueError(f"Lark CLI credential path must not be a symlink: {required}")
+            raise ValueError(
+                f"Lark CLI credential path must not be a symlink: {required}"
+            )
         required.mkdir(parents=True, exist_ok=True, mode=0o700)
     for path in root.rglob("*"):
         if path.is_symlink():
@@ -309,7 +317,9 @@ def ensure_lark_cli_credential_tree(user_id: str, *, paths: Paths | None = None)
         elif path.is_file():
             path.chmod(0o600)
         else:
-            raise ValueError(f"Unsupported file type in Lark CLI credential tree: {path}")
+            raise ValueError(
+                f"Unsupported file type in Lark CLI credential tree: {path}"
+            )
 
 
 def lark_cli_managed_gateway_dir() -> Path:
@@ -339,25 +349,33 @@ def _lark_cli_release_asset_url(version: str, asset_name: str) -> str:
     return f"https://github.com/{LARK_CLI_GITHUB_REPO}/releases/download/{tag}/{quoted_asset}"
 
 
-def _download_lark_release_asset(version: str, asset_name: str, *, max_bytes: int = LARK_CLI_MAX_RUNTIME_ASSET_BYTES) -> bytes:
+def _download_lark_release_asset(
+    version: str, asset_name: str, *, max_bytes: int = LARK_CLI_MAX_RUNTIME_ASSET_BYTES
+) -> bytes:
     """Download one official release asset with a strict size bound."""
     request = urllib.request.Request(
         _lark_cli_release_asset_url(version, asset_name),
         headers={"Accept": "application/octet-stream", "User-Agent": "qilin"},
     )
     try:
-        with urllib.request.urlopen(request, timeout=LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+            request, timeout=LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS
+        ) as response:
             chunks: list[bytes] = []
             total = 0
             while chunk := response.read(1024 * 1024):
                 total += len(chunk)
                 if total > max_bytes:
-                    raise ValueError(f"Lark CLI release asset {asset_name!r} is too large.")
+                    raise ValueError(
+                        f"Lark CLI release asset {asset_name!r} is too large."
+                    )
                 chunks.append(chunk)
     except ValueError:
         raise
     except Exception as exc:
-        raise ValueError(f"Could not download official Lark CLI release asset {asset_name!r} for {version}.") from exc
+        raise ValueError(
+            f"Could not download official Lark CLI release asset {asset_name!r} for {version}."
+        ) from exc
     return b"".join(chunks)
 
 
@@ -384,21 +402,37 @@ def _extract_lark_cli_runtime_binary(archive: bytes, destination: Path) -> None:
             for member in tf.getmembers():
                 normalized = posixpath.normpath(member.name.replace("\\", "/"))
                 parts = PurePosixPath(normalized).parts
-                if normalized.startswith("/") or ".." in parts or member.issym() or member.islnk() or not (member.isdir() or member.isfile()):
-                    raise ValueError(f"Unsafe Lark CLI runtime archive member: {member.name}")
+                if (
+                    normalized.startswith("/")
+                    or ".." in parts
+                    or member.issym()
+                    or member.islnk()
+                    or not (member.isdir() or member.isfile())
+                ):
+                    raise ValueError(
+                        f"Unsafe Lark CLI runtime archive member: {member.name}"
+                    )
                 if member.isfile():
                     total += member.size
                     if total > LARK_CLI_MAX_RUNTIME_ASSET_BYTES:
-                        raise ValueError("Lark CLI runtime archive expands beyond the allowed size.")
+                        raise ValueError(
+                            "Lark CLI runtime archive expands beyond the allowed size."
+                        )
                     if PurePosixPath(normalized).name == "lark-cli":
                         extracted = tf.extractfile(member)
                         if extracted is None or candidate is not None:
-                            raise ValueError("Lark CLI runtime archive must contain exactly one lark-cli executable.")
+                            raise ValueError(
+                                "Lark CLI runtime archive must contain exactly one lark-cli executable."
+                            )
                         candidate = extracted.read()
     except tarfile.TarError as exc:
-        raise ValueError("Lark CLI runtime archive is not a valid tar archive.") from exc
+        raise ValueError(
+            "Lark CLI runtime archive is not a valid tar archive."
+        ) from exc
     if not candidate:
-        raise ValueError("Lark CLI runtime archive does not contain a lark-cli executable.")
+        raise ValueError(
+            "Lark CLI runtime archive does not contain a lark-cli executable."
+        )
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(candidate)
     destination.chmod(0o755)
@@ -413,18 +447,31 @@ def _write_lark_cli_sandbox_launcher(staging: Path) -> None:
 
 def _validate_lark_cli_sandbox_runtime(root: Path) -> None:
     if root.is_symlink() or not root.is_dir():
-        raise ValueError("Managed Lark CLI sandbox runtime root must be a regular directory, not a symlink.")
+        raise ValueError(
+            "Managed Lark CLI sandbox runtime root must be a regular directory, not a symlink."
+        )
     for path in root.rglob("*"):
         if path.is_symlink():
-            raise ValueError(f"Managed Lark CLI sandbox runtime must not contain a symlink: {path}")
+            raise ValueError(
+                f"Managed Lark CLI sandbox runtime must not contain a symlink: {path}"
+            )
         if not (path.is_dir() or path.is_file()):
-            raise ValueError(f"Managed Lark CLI sandbox runtime contains an unsupported file type: {path}")
-    for relative in (Path("bin/lark-cli"), *(Path(f"linux-{arch}/lark-cli") for arch in LARK_CLI_LINUX_ARCHES)):
+            raise ValueError(
+                f"Managed Lark CLI sandbox runtime contains an unsupported file type: {path}"
+            )
+    for relative in (
+        Path("bin/lark-cli"),
+        *(Path(f"linux-{arch}/lark-cli") for arch in LARK_CLI_LINUX_ARCHES),
+    ):
         candidate = root / relative
         if not candidate.is_file():
-            raise ValueError(f"Managed Lark CLI sandbox runtime is missing a regular file: {relative}")
+            raise ValueError(
+                f"Managed Lark CLI sandbox runtime is missing a regular file: {relative}"
+            )
         if candidate.stat().st_mode & 0o111 == 0:
-            raise ValueError(f"Managed Lark CLI sandbox runtime file is not executable: {relative}")
+            raise ValueError(
+                f"Managed Lark CLI sandbox runtime file is not executable: {relative}"
+            )
 
 
 def _read_json_object_file(path: Path) -> dict[str, Any] | None:
@@ -468,11 +515,15 @@ def _ensure_managed_sandbox_lark_cli(version: str) -> Path:
     target = lark_cli_managed_sandbox_dir()
     parent = target.parent
     parent.mkdir(parents=True, exist_ok=True)
-    with _exclusive_install_lock(parent / ".sandbox-cli.install.lock", _LARK_RUNTIME_INSTALL_THREAD_LOCK):
+    with _exclusive_install_lock(
+        parent / ".sandbox-cli.install.lock", _LARK_RUNTIME_INSTALL_THREAD_LOCK
+    ):
         return _ensure_managed_sandbox_lark_cli_locked(tag, target, parent)
 
 
-def _ensure_managed_sandbox_lark_cli_locked(tag: str, target: Path, parent: Path) -> Path:
+def _ensure_managed_sandbox_lark_cli_locked(
+    tag: str, target: Path, parent: Path
+) -> Path:
     manifest = _read_json_object_file(target / LARK_CLI_RUNTIME_MANIFEST_FILE)
     if manifest and manifest.get("version") == tag:
         _validate_lark_cli_sandbox_runtime(target)
@@ -487,15 +538,23 @@ def _ensure_managed_sandbox_lark_cli_locked(tag: str, target: Path, parent: Path
             _validate_lark_cli_sandbox_runtime(source)
             shutil.copytree(source, staging, dirs_exist_ok=True, symlinks=False)
         else:
-            checksums = _release_checksums(_download_lark_release_asset(tag, "checksums.txt", max_bytes=1024 * 1024))
+            checksums = _release_checksums(
+                _download_lark_release_asset(
+                    tag, "checksums.txt", max_bytes=1024 * 1024
+                )
+            )
             for arch in LARK_CLI_LINUX_ARCHES:
                 asset_name = _lark_cli_release_asset_name(tag, arch)
                 archive = _download_lark_release_asset(tag, asset_name)
                 expected = checksums.get(asset_name)
                 actual = hashlib.sha256(archive).hexdigest()
                 if expected is None or actual != expected:
-                    raise ValueError(f"Lark CLI release asset checksum mismatch: {asset_name}")
-                _extract_lark_cli_runtime_binary(archive, staging / f"linux-{arch}" / "lark-cli")
+                    raise ValueError(
+                        f"Lark CLI release asset checksum mismatch: {asset_name}"
+                    )
+                _extract_lark_cli_runtime_binary(
+                    archive, staging / f"linux-{arch}" / "lark-cli"
+                )
             _write_lark_cli_sandbox_launcher(staging)
 
         _validate_lark_cli_sandbox_runtime(staging)
@@ -532,7 +591,9 @@ def _lark_cli_managed_path() -> str | None:
     return None
 
 
-def lark_cli_env_overlay(user_id: str, *, sandbox_paths: bool = False, broker: bool = False) -> dict[str, str]:
+def lark_cli_env_overlay(
+    user_id: str, *, sandbox_paths: bool = False, broker: bool = False
+) -> dict[str, str]:
     """Environment overlay for lark-cli using QiLin-managed credentials.
 
     The directories are per-user so a local trusted-mode login cannot bleed
@@ -563,9 +624,13 @@ def lark_cli_env_overlay(user_id: str, *, sandbox_paths: bool = False, broker: b
         "LARKSUITE_CLI_NO_SKILLS_NOTIFIER": "1",
     }
     if not sandbox_paths and _lark_cli_managed_path() is not None:
-        overlay["PATH"] = f"{_lark_cli_managed_bin_dir()}{os.pathsep}{os.environ.get('PATH', '')}"
+        overlay["PATH"] = (
+            f"{_lark_cli_managed_bin_dir()}{os.pathsep}{os.environ.get('PATH', '')}"
+        )
     elif sandbox_paths:
-        overlay["PATH"] = f"{LARK_CLI_SANDBOX_RUNTIME_DIR}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        overlay["PATH"] = (
+            f"{LARK_CLI_SANDBOX_RUNTIME_DIR}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        )
     return overlay
 
 
@@ -577,7 +642,9 @@ def lark_cli_env(user_id: str) -> dict[str, str]:
 def probe_lark_cli() -> LarkCliProbe:
     path = _resolve_lark_cli_path()
     if path is None:
-        return LarkCliProbe(available=False, error="lark-cli is not installed on the Gateway")
+        return LarkCliProbe(
+            available=False, error="lark-cli is not installed on the Gateway"
+        )
     return _probe_lark_cli_at_path(path)
 
 
@@ -595,7 +662,9 @@ def _probe_lark_cli_at_path(path: str) -> LarkCliProbe:
 
     output = (result.stdout or result.stderr or "").strip()
     if result.returncode != 0:
-        return LarkCliProbe(available=False, path=path, error=output or f"exit code {result.returncode}")
+        return LarkCliProbe(
+            available=False, path=path, error=output or f"exit code {result.returncode}"
+        )
     return LarkCliProbe(available=True, path=path, version=output or None)
 
 
@@ -610,10 +679,14 @@ def probe_lark_auth(user_id: str, *, verify: bool = False) -> LarkAuthProbe:
     """
     path = _resolve_lark_cli_path()
     if path is None:
-        return LarkAuthProbe(status="unavailable", message="lark-cli is not installed on the Gateway")
+        return LarkAuthProbe(
+            status="unavailable", message="lark-cli is not installed on the Gateway"
+        )
     app_config = read_lark_app_config(user_id)
     if not app_config["configured"]:
-        return LarkAuthProbe(status="not_configured", message="Lark app is not configured")
+        return LarkAuthProbe(
+            status="not_configured", message="Lark app is not configured"
+        )
     args = [path, "auth", "status", "--json"]
     if verify:
         args.append("--verify")
@@ -642,7 +715,10 @@ def probe_lark_auth(user_id: str, *, verify: bool = False) -> LarkAuthProbe:
 
     if result.returncode != 0:
         message = _auth_error_message(data) if data else raw
-        return LarkAuthProbe(status="not_authorized", message=message or "Lark user authorization is not configured")
+        return LarkAuthProbe(
+            status="not_authorized",
+            message=message or "Lark user authorization is not configured",
+        )
 
     user = None
     if data:
@@ -650,7 +726,10 @@ def probe_lark_auth(user_id: str, *, verify: bool = False) -> LarkAuthProbe:
         if isinstance(identities, dict):
             user_info = identities.get("user")
             if isinstance(user_info, dict):
-                user = str(user_info.get("userName") or user_info.get("openId") or "") or None
+                user = (
+                    str(user_info.get("userName") or user_info.get("openId") or "")
+                    or None
+                )
         if user is None and data.get("userName"):
             user = str(data["userName"])
     if verify:
@@ -697,21 +776,33 @@ def _resolve_sandbox_runtime_readiness(
             return "init-container", False, None
         caps = _probe_provisioner_capabilities(config)
         if caps is None:
-            return "init-container", False, "Could not reach the provisioner to confirm the lark-cli runtime image."
+            return (
+                "init-container",
+                False,
+                "Could not reach the provisioner to confirm the lark-cli runtime image.",
+            )
         # Pattern B (broker) supersedes Pattern A (init-container binary) when
         # the provisioner has a broker image configured.
         if caps["lark_cli_broker_image"]:
             return "broker", True, None
         if caps["lark_cli_init_image"]:
             return "init-container", True, None
-        return "init-container", False, "The provisioner has no lark-cli runtime image configured (LARK_CLI_INIT_IMAGE / LARK_CLI_BROKER_IMAGE)."
+        return (
+            "init-container",
+            False,
+            "The provisioner has no lark-cli runtime image configured (LARK_CLI_INIT_IMAGE / LARK_CLI_BROKER_IMAGE).",
+        )
 
     # Local AIO: Gateway-download runtime dir.
     runtime_dir = lark_cli_managed_sandbox_dir()
     try:
         _validate_lark_cli_sandbox_runtime(runtime_dir)
     except (ValueError, OSError):
-        return "gateway-download", False, "The managed sandbox lark-cli runtime is not installed."
+        return (
+            "gateway-download",
+            False,
+            "The managed sandbox lark-cli runtime is not installed.",
+        )
     return "gateway-download", True, None
 
 
@@ -757,13 +848,19 @@ def sandbox_lark_broker_active(config: AppConfig | None = None) -> bool:
         cached = getattr(sandbox_lark_broker_active, "_cache", None)
         if cached is not None:
             ts, value = cached
-            ttl = LARK_BROKER_MODE_TTL_SECONDS if value else LARK_BROKER_MODE_NEGATIVE_TTL_SECONDS
+            ttl = (
+                LARK_BROKER_MODE_TTL_SECONDS
+                if value
+                else LARK_BROKER_MODE_NEGATIVE_TTL_SECONDS
+            )
             if now - ts < ttl:
                 return value
 
     active = False
     if _uses_aio_sandbox(config) and _uses_remote_provisioner(config):
-        caps = _probe_provisioner_capabilities(config, timeout=LARK_BROKER_MODE_PROBE_TIMEOUT_SECONDS)
+        caps = _probe_provisioner_capabilities(
+            config, timeout=LARK_BROKER_MODE_PROBE_TIMEOUT_SECONDS
+        )
         active = bool(caps and caps["lark_cli_broker_image"])
     with _LARK_BROKER_MODE_CACHE_LOCK:
         sandbox_lark_broker_active._cache = (now, active)  # type: ignore[attr-defined]
@@ -786,7 +883,9 @@ def get_lark_integration_status(
     manifest_version = str(manifest.get("version")) if manifest else None
     cli = probe_lark_cli()
     latest_available = _cached_latest_lark_cli_version() if check_latest else None
-    runtime_mode, runtime_ready, runtime_detail = _resolve_sandbox_runtime_readiness(config, probe=check_runtime)
+    runtime_mode, runtime_ready, runtime_detail = _resolve_sandbox_runtime_readiness(
+        config, probe=check_runtime
+    )
     return LarkIntegrationStatus(
         installed=bool(manifest) and "lark-shared" in installed_skills,
         version=manifest_version or FALLBACK_LARK_CLI_VERSION,
@@ -862,7 +961,18 @@ def read_lark_app_config(user_id: str) -> dict[str, str | bool | None]:
     current = data.get("currentApp")
     app = None
     if isinstance(current, str) and current:
-        app = next((candidate for candidate in apps if isinstance(candidate, dict) and (candidate.get("name") == current or candidate.get("appId") == current)), None)
+        app = next(
+            (
+                candidate
+                for candidate in apps
+                if isinstance(candidate, dict)
+                and (
+                    candidate.get("name") == current
+                    or candidate.get("appId") == current
+                )
+            ),
+            None,
+        )
     if app is None:
         app = apps[0] if isinstance(apps[0], dict) else None
     if not isinstance(app, dict):
@@ -870,7 +980,11 @@ def read_lark_app_config(user_id: str) -> dict[str, str | bool | None]:
     app_id = str(app.get("appId") or "").strip()
     app_secret = app.get("appSecret")
     brand = str(app.get("brand") or "feishu").strip() or "feishu"
-    return {"configured": bool(app_id and app_secret), "app_id": app_id or None, "brand": brand}
+    return {
+        "configured": bool(app_id and app_secret),
+        "app_id": app_id or None,
+        "brand": brand,
+    }
 
 
 def install_lark_integration(
@@ -891,14 +1005,20 @@ def install_lark_integration(
     else:
         cli = _ensure_managed_gateway_lark_cli()
         runtime_version = _normalize_version(cli.version)
-        resolved_version = f"v{runtime_version}" if runtime_version is not None else FALLBACK_LARK_CLI_VERSION
+        resolved_version = (
+            f"v{runtime_version}"
+            if runtime_version is not None
+            else FALLBACK_LARK_CLI_VERSION
+        )
         archive_path = _download_lark_archive(resolved_version)
         created_temp_archive = True
 
     previous = _read_manifest(lark_integration_root(user_id))
     previous_content_sha = str(previous.get("content_sha256")) if previous else None
     try:
-        installed_skills, content_sha = _install_lark_skills_from_archive(user_id, archive_path, version=resolved_version)
+        installed_skills, content_sha = _install_lark_skills_from_archive(
+            user_id, archive_path, version=resolved_version
+        )
     finally:
         if created_temp_archive:
             try:
@@ -908,11 +1028,17 @@ def install_lark_integration(
 
     if _uses_aio_sandbox(config) and not _uses_remote_provisioner(config):
         installed_manifest = _read_manifest(lark_integration_root()) or {}
-        sandbox_version = str(installed_manifest.get("version") or resolved_version or FALLBACK_LARK_CLI_VERSION)
+        sandbox_version = str(
+            installed_manifest.get("version")
+            or resolved_version
+            or FALLBACK_LARK_CLI_VERSION
+        )
         _ensure_managed_sandbox_lark_cli(sandbox_version)
 
     status = get_lark_integration_status(user_id, config)
-    content_changed = previous_content_sha is not None and previous_content_sha != content_sha
+    content_changed = (
+        previous_content_sha is not None and previous_content_sha != content_sha
+    )
     message = f"Installed {len(installed_skills)} Lark/Feishu skills."
     if content_changed:
         message += " Skill content changed since the previous install."
@@ -946,7 +1072,9 @@ def _uses_remote_provisioner(config: AppConfig) -> bool:
     return bool(_sandbox_config_value(config, "provisioner_url"))
 
 
-def _probe_provisioner_capabilities(config: AppConfig, *, timeout: float = 5.0) -> dict[str, bool] | None:
+def _probe_provisioner_capabilities(
+    config: AppConfig, *, timeout: float = 5.0
+) -> dict[str, bool] | None:
     """Best-effort read of the provisioner's lark-cli capabilities.
 
     Returns the capability dict when the provisioner answers, or None when it
@@ -962,7 +1090,9 @@ def _probe_provisioner_capabilities(config: AppConfig, *, timeout: float = 5.0) 
     headers = {"X-API-Key": api_key} if api_key else {}
     url = f"{base.rstrip('/')}/api/capabilities"
     try:
-        request = urllib.request.Request(url, headers={"User-Agent": "qilin", **headers})
+        request = urllib.request.Request(
+            url, headers={"User-Agent": "qilin", **headers}
+        )
         with urllib.request.urlopen(request, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
         if not isinstance(payload, dict):
@@ -982,7 +1112,9 @@ def start_lark_config(user_id: str, *, brand: str = "feishu") -> LarkConfigStart
     user_code = str(begin_data.get("user_code") or "").strip()
     device_code = str(begin_data.get("device_code") or "").strip()
     if not user_code or not device_code:
-        raise ValueError("Lark app registration did not return a user_code and device_code.")
+        raise ValueError(
+            "Lark app registration did not return a user_code and device_code."
+        )
     verification_url = _build_lark_config_verification_url(parsed_brand, user_code)
     return LarkConfigStartResult(
         verification_url=verification_url,
@@ -1030,9 +1162,13 @@ def complete_lark_config(
     app_secret = str(result.get("client_secret") or "").strip()
     final_brand = _tenant_brand(result) or parsed_brand
     if not app_id or not app_secret:
-        raise ValueError("Lark app registration succeeded but did not return app credentials.")
+        raise ValueError(
+            "Lark app registration succeeded but did not return app credentials."
+        )
 
-    _save_lark_app_config_with_cli(user_id, app_id=app_id, app_secret=app_secret, brand=final_brand)
+    _save_lark_app_config_with_cli(
+        user_id, app_id=app_id, app_secret=app_secret, brand=final_brand
+    )
     status = get_lark_integration_status(user_id, config)
     return LarkConfigCompleteResult(
         success=True,
@@ -1065,7 +1201,9 @@ def start_lark_auth(
             args.extend(["--domain", domain])
 
     data = _run_lark_cli_json(args, user_id=user_id, timeout=20)
-    verification_url = str(data.get("verification_url") or data.get("verification_uri_complete") or "").strip()
+    verification_url = str(
+        data.get("verification_url") or data.get("verification_uri_complete") or ""
+    ).strip()
     device_code = str(data.get("device_code") or "").strip()
     if not verification_url or not device_code:
         raise ValueError("lark-cli did not return a verification_url and device_code.")
@@ -1090,8 +1228,14 @@ def complete_lark_auth(
     device_code = device_code.strip()
     if not device_code:
         raise ValueError("device_code is required.")
-    if not LARK_AUTH_COMPLETE_MIN_WAIT_SECONDS <= wait_timeout_seconds <= LARK_AUTH_COMPLETE_MAX_WAIT_SECONDS:
-        raise ValueError(f"wait_timeout_seconds must be between {LARK_AUTH_COMPLETE_MIN_WAIT_SECONDS} and {LARK_AUTH_COMPLETE_MAX_WAIT_SECONDS}.")
+    if (
+        not LARK_AUTH_COMPLETE_MIN_WAIT_SECONDS
+        <= wait_timeout_seconds
+        <= LARK_AUTH_COMPLETE_MAX_WAIT_SECONDS
+    ):
+        raise ValueError(
+            f"wait_timeout_seconds must be between {LARK_AUTH_COMPLETE_MIN_WAIT_SECONDS} and {LARK_AUTH_COMPLETE_MAX_WAIT_SECONDS}."
+        )
 
     path = _require_lark_cli_path()
     _run_lark_cli_json(
@@ -1104,7 +1248,11 @@ def complete_lark_auth(
     return LarkAuthCompleteResult(
         success=status.auth.status == "authenticated",
         status=status,
-        message="Lark/Feishu authorization completed." if status.auth.status == "authenticated" else (status.auth.message or "Lark/Feishu authorization status is still pending."),
+        message="Lark/Feishu authorization completed."
+        if status.auth.status == "authenticated"
+        else (
+            status.auth.message or "Lark/Feishu authorization status is still pending."
+        ),
     )
 
 
@@ -1131,7 +1279,10 @@ def _ensure_managed_gateway_lark_cli() -> LarkCliProbe:
     except Exception:
         fallback = probe_lark_cli()
         if fallback.available:
-            logger.warning("Could not update managed lark-cli; using existing Gateway lark-cli", exc_info=True)
+            logger.warning(
+                "Could not update managed lark-cli; using existing Gateway lark-cli",
+                exc_info=True,
+            )
             return fallback
         raise
 
@@ -1143,7 +1294,9 @@ def _install_managed_gateway_lark_cli(version: str) -> LarkCliProbe:
     npm_version = normalized.removeprefix("v")
     npm = shutil.which("npm")
     if npm is None:
-        raise FileNotFoundError("npm is not available on the Gateway; cannot install managed @larksuite/cli.")
+        raise FileNotFoundError(
+            "npm is not available on the Gateway; cannot install managed @larksuite/cli."
+        )
 
     install_root = lark_cli_managed_gateway_dir()
     install_root.mkdir(parents=True, exist_ok=True)
@@ -1172,21 +1325,30 @@ def _install_managed_gateway_lark_cli(version: str) -> LarkCliProbe:
     )
     if result.returncode != 0:
         raw = (result.stderr or result.stdout or "").strip()
-        raise ValueError(raw or f"npm install {LARK_CLI_NPM_PACKAGE}@{npm_version} exited with code {result.returncode}")
+        raise ValueError(
+            raw
+            or f"npm install {LARK_CLI_NPM_PACKAGE}@{npm_version} exited with code {result.returncode}"
+        )
 
     path = _lark_cli_managed_path()
     if path is None:
-        raise FileNotFoundError("Managed lark-cli install completed, but no lark-cli binary was found.")
+        raise FileNotFoundError(
+            "Managed lark-cli install completed, but no lark-cli binary was found."
+        )
     probe = _probe_lark_cli_at_path(path)
     if not probe.available:
-        raise ValueError(probe.error or "Managed lark-cli install did not produce a runnable CLI.")
+        raise ValueError(
+            probe.error or "Managed lark-cli install did not produce a runnable CLI."
+        )
     return probe
 
 
 def _require_lark_cli_path() -> str:
     path = _resolve_lark_cli_path()
     if path is None:
-        raise FileNotFoundError("lark-cli is not installed on the Gateway. Install the managed Lark integration as an admin, or rebuild the Gateway image with @larksuite/cli installed.")
+        raise FileNotFoundError(
+            "lark-cli is not installed on the Gateway. Install the managed Lark integration as an admin, or rebuild the Gateway image with @larksuite/cli installed."
+        )
     return path
 
 
@@ -1220,7 +1382,13 @@ def _request_lark_app_registration_begin(brand: str) -> dict[str, Any]:
     ).encode("utf-8")
     data = _post_lark_form(accounts_url, body)
     if "error" in data:
-        raise ValueError(str(data.get("error_description") or data.get("error") or "Lark app registration failed."))
+        raise ValueError(
+            str(
+                data.get("error_description")
+                or data.get("error")
+                or "Lark app registration failed."
+            )
+        )
     return data
 
 
@@ -1249,16 +1417,24 @@ def _poll_lark_app_registration(
     expires_in: int,
 ) -> dict[str, Any]:
     accounts_url = _lark_endpoints(brand)["accounts"] + _LARK_APP_REGISTRATION_PATH
-    deadline = time.monotonic() + min(max(expires_in, 1), LARK_CONFIG_POLL_TIMEOUT_SECONDS)
+    deadline = time.monotonic() + min(
+        max(expires_in, 1), LARK_CONFIG_POLL_TIMEOUT_SECONDS
+    )
     poll_interval = max(min(interval, 10), 1)
     last_error = "authorization_pending"
     while time.monotonic() < deadline:
-        body = urllib.parse.urlencode({"action": "poll", "device_code": device_code}).encode("utf-8")
+        body = urllib.parse.urlencode(
+            {"action": "poll", "device_code": device_code}
+        ).encode("utf-8")
         data = _post_lark_form(accounts_url, body)
         if not data.get("error") and data.get("client_id"):
             return data
         error = str(data.get("error") or "")
-        last_error = str(data.get("error_description") or error or "Lark app registration is still pending.")
+        last_error = str(
+            data.get("error_description")
+            or error
+            or "Lark app registration is still pending."
+        )
         if error == "authorization_pending":
             time.sleep(poll_interval)
             continue
@@ -1278,7 +1454,9 @@ def _post_lark_form(url: str, body: bytes) -> dict[str, Any]:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=LARK_HTTP_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+            request, timeout=LARK_HTTP_TIMEOUT_SECONDS
+        ) as response:
             raw = response.read().decode("utf-8")
     except Exception as exc:
         raise ValueError(f"Lark app registration request failed: {exc}") from exc
@@ -1296,12 +1474,23 @@ def _tenant_brand(result: dict[str, Any]) -> str | None:
     return brand if brand in {"feishu", "lark"} else None
 
 
-def _save_lark_app_config_with_cli(user_id: str, *, app_id: str, app_secret: str, brand: str) -> None:
+def _save_lark_app_config_with_cli(
+    user_id: str, *, app_id: str, app_secret: str, brand: str
+) -> None:
     path = _require_lark_cli_path()
     try:
         try:
             result = subprocess.run(
-                [path, "config", "init", "--app-id", app_id, "--app-secret-stdin", "--brand", _normalize_lark_brand(brand)],
+                [
+                    path,
+                    "config",
+                    "init",
+                    "--app-id",
+                    app_id,
+                    "--app-secret-stdin",
+                    "--brand",
+                    _normalize_lark_brand(brand),
+                ],
                 input=app_secret + "\n",
                 check=False,
                 capture_output=True,
@@ -1317,7 +1506,9 @@ def _save_lark_app_config_with_cli(user_id: str, *, app_id: str, app_secret: str
         raw = (result.stderr or result.stdout or "").strip()
         parsed = _parse_json_object(raw)
         message = _auth_error_message(parsed) if parsed else raw
-        raise ValueError(message or f"lark-cli config init exited with code {result.returncode}")
+        raise ValueError(
+            message or f"lark-cli config init exited with code {result.returncode}"
+        )
 
 
 def _run_lark_cli_json(
@@ -1338,7 +1529,9 @@ def _run_lark_cli_json(
                 env=lark_cli_env(user_id),
             )
         except subprocess.TimeoutExpired as exc:
-            raise TimeoutError("Timed out waiting for Lark/Feishu authorization. Complete authorization in the browser, then try again.") from exc
+            raise TimeoutError(
+                "Timed out waiting for Lark/Feishu authorization. Complete authorization in the browser, then try again."
+            ) from exc
     finally:
         # OAuth commands may create new plaintext token files after the
         # pre-command environment guard has run. Re-harden every file even on
@@ -1422,7 +1615,11 @@ def _enabled_lark_skill_names(user_id: str, config: AppConfig) -> set[str]:
 
     try:
         storage = get_or_new_user_skill_storage(user_id, app_config=config)
-        return {skill.name for skill in storage.load_skills(enabled_only=True) if skill.name in LARK_SKILL_NAME_SET}
+        return {
+            skill.name
+            for skill in storage.load_skills(enabled_only=True)
+            if skill.name in LARK_SKILL_NAME_SET
+        }
     except Exception:
         return set()
 
@@ -1440,7 +1637,9 @@ def _resolve_latest_lark_cli_version() -> str:
             LARK_CLI_LATEST_RELEASE_API,
             headers={"Accept": "application/vnd.github+json", "User-Agent": "qilin"},
         )
-        with urllib.request.urlopen(request, timeout=LARK_HTTP_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+            request, timeout=LARK_HTTP_TIMEOUT_SECONDS
+        ) as response:
             raw = response.read().decode("utf-8")
         data = json.loads(raw)
         tag = str(data.get("tag_name") or "").strip() if isinstance(data, dict) else ""
@@ -1468,7 +1667,9 @@ def _cached_latest_lark_cli_version() -> str | None:
             LARK_CLI_LATEST_RELEASE_API,
             headers={"Accept": "application/vnd.github+json", "User-Agent": "qilin"},
         )
-        with urllib.request.urlopen(request, timeout=LARK_HTTP_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+            request, timeout=LARK_HTTP_TIMEOUT_SECONDS
+        ) as response:
             data = json.loads(response.read().decode("utf-8"))
         tag = str(data.get("tag_name") or "").strip() if isinstance(data, dict) else ""
         version = _normalize_lark_cli_version_tag(tag)
@@ -1498,7 +1699,9 @@ def _download_lark_archive(version: str) -> Path:
     archive_path = Path(archive_name)
     url = _lark_archive_url(version)
     try:
-        with urllib.request.urlopen(url, timeout=LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+            url, timeout=LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS
+        ) as response:
             total = 0
             with archive_path.open("wb") as out:
                 while chunk := response.read(1024 * 1024):
@@ -1511,7 +1714,9 @@ def _download_lark_archive(version: str) -> Path:
         raise
     except Exception as exc:
         archive_path.unlink(missing_ok=True)
-        raise ValueError(f"Could not download the Lark skill pack ({version}) from GitHub. Check the Gateway's internet access, or pre-stage the archive via {LARK_CLI_SOURCE_ARCHIVE_ENV}.") from exc
+        raise ValueError(
+            f"Could not download the Lark skill pack ({version}) from GitHub. Check the Gateway's internet access, or pre-stage the archive via {LARK_CLI_SOURCE_ARCHIVE_ENV}."
+        ) from exc
     return archive_path
 
 
@@ -1554,20 +1759,26 @@ def _infer_lark_archive_version(zf: zipfile.ZipFile) -> str | None:
     return None
 
 
-def _install_lark_skills_from_archive(user_id: str, archive_path: Path, *, version: str | None = None) -> tuple[tuple[str, ...], str]:
+def _install_lark_skills_from_archive(
+    user_id: str, archive_path: Path, *, version: str | None = None
+) -> tuple[tuple[str, ...], str]:
     if not archive_path.is_file():
         raise FileNotFoundError(f"Lark CLI skills archive not found: {archive_path}")
 
     parent = get_paths().integration_skills_dir()
     parent.mkdir(parents=True, exist_ok=True)
     with _lark_install_lock(parent):
-        return _install_lark_skills_from_archive_locked(archive_path, parent, version=version)
+        return _install_lark_skills_from_archive_locked(
+            archive_path, parent, version=version
+        )
 
 
 @contextmanager
 def _lark_install_lock(parent: Path):
     """Serialize the cross-process atomic replacement of the global pack."""
-    with _exclusive_install_lock(parent / ".lark-cli.install.lock", _LARK_INSTALL_THREAD_LOCK):
+    with _exclusive_install_lock(
+        parent / ".lark-cli.install.lock", _LARK_INSTALL_THREAD_LOCK
+    ):
         yield
 
 
@@ -1578,7 +1789,9 @@ def _install_lark_skills_from_archive_locked(
     version: str | None = None,
 ) -> tuple[tuple[str, ...], str]:
     target = parent / INTEGRATION_ID
-    staging_parent = Path(tempfile.mkdtemp(prefix=".installing-lark-cli-", dir=str(parent)))
+    staging_parent = Path(
+        tempfile.mkdtemp(prefix=".installing-lark-cli-", dir=str(parent))
+    )
     staging_target = staging_parent / INTEGRATION_ID
     staging_target.mkdir(parents=True, exist_ok=True)
 
@@ -1590,7 +1803,12 @@ def _install_lark_skills_from_archive_locked(
         _validate_extracted_lark_skills(staging_target, extracted)
         _append_qilin_lark_shared_guidance(staging_target)
         content_sha = _content_sha256(staging_target, extracted)
-        _write_manifest(staging_target, extracted, version=archive_version, content_sha256=content_sha)
+        _write_manifest(
+            staging_target,
+            extracted,
+            version=archive_version,
+            content_sha256=content_sha,
+        )
         make_skill_tree_sandbox_readable(staging_target)
 
         if target.exists():
@@ -1638,11 +1856,15 @@ def _extract_lark_skills(zf: zipfile.ZipFile, destination: Path) -> set[str]:
             first_chunk = True
             while chunk := src.read(65536):
                 if first_chunk and is_executable_binary_prefix(chunk):
-                    raise ValueError(f"Archive contains executable binary member: {info.filename!r}")
+                    raise ValueError(
+                        f"Archive contains executable binary member: {info.filename!r}"
+                    )
                 first_chunk = False
                 total_written += len(chunk)
                 if total_written > LARK_CLI_MAX_EXTRACTED_BYTES:
-                    raise ValueError("Lark CLI skills archive expands to too much data.")
+                    raise ValueError(
+                        "Lark CLI skills archive expands to too much data."
+                    )
                 out.write(chunk)
         extracted.add(skill_name)
 
@@ -1677,15 +1899,25 @@ def _resolve_lark_skill_member(raw_name: str) -> tuple[str | None, Path | None]:
 def _validate_extracted_lark_skills(root: Path, extracted: set[str]) -> None:
     missing = sorted(set(LARK_SKILL_NAMES) - extracted)
     if missing:
-        raise ValueError(f"Lark CLI archive is missing required skills: {', '.join(missing)}")
+        raise ValueError(
+            f"Lark CLI archive is missing required skills: {', '.join(missing)}"
+        )
 
     for skill_name in LARK_SKILL_NAMES:
         skill_file = root / skill_name / SKILL_MD_FILE
-        parsed = parse_skill_file(skill_file, SkillCategory.INTEGRATION, relative_path=Path(INTEGRATION_ID) / skill_name)
+        parsed = parse_skill_file(
+            skill_file,
+            SkillCategory.INTEGRATION,
+            relative_path=Path(INTEGRATION_ID) / skill_name,
+        )
         if parsed is None:
-            raise ValueError(f"Invalid Lark skill metadata: {skill_name}/{SKILL_MD_FILE}")
+            raise ValueError(
+                f"Invalid Lark skill metadata: {skill_name}/{SKILL_MD_FILE}"
+            )
         if parsed.name != skill_name:
-            raise ValueError(f"Lark skill directory {skill_name!r} declares name {parsed.name!r}")
+            raise ValueError(
+                f"Lark skill directory {skill_name!r} declares name {parsed.name!r}"
+            )
 
 
 def _append_qilin_lark_shared_guidance(root: Path) -> None:
@@ -1715,7 +1947,9 @@ def _append_qilin_lark_shared_guidance(root: Path) -> None:
     skill_file.write_text(content.rstrip() + guidance + "\n", encoding="utf-8")
 
 
-def _write_manifest(root: Path, installed_skills: set[str], *, version: str | None, content_sha256: str) -> None:
+def _write_manifest(
+    root: Path, installed_skills: set[str], *, version: str | None, content_sha256: str
+) -> None:
     resolved_version = version or FALLBACK_LARK_CLI_VERSION
     manifest = {
         "provider": INTEGRATION_ID,
@@ -1725,4 +1959,6 @@ def _write_manifest(root: Path, installed_skills: set[str], *, version: str | No
         "installed_at": datetime.now(UTC).isoformat(),
         "skills": sorted(installed_skills),
     }
-    (root / LARK_CLI_MANIFEST_FILE).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (root / LARK_CLI_MANIFEST_FILE).write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )

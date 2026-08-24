@@ -54,7 +54,9 @@ def _extract_reasoning(value: Any) -> str | object:
     return _MISSING
 
 
-def _with_reasoning_content(message: AIMessage | AIMessageChunk, reasoning: str) -> AIMessage | AIMessageChunk:
+def _with_reasoning_content(
+    message: AIMessage | AIMessageChunk, reasoning: str
+) -> AIMessage | AIMessageChunk:
     """Return a copy of *message* with reasoning_content stored in additional_kwargs."""
     additional_kwargs = dict(message.additional_kwargs)
     if additional_kwargs.get("reasoning_content") != reasoning:
@@ -131,9 +133,16 @@ class PatchedChatStepFun(ChatOpenAI):
         if choices:
             delta = choices[0].get("delta") or {}
             reasoning = _extract_reasoning(delta)
-            if reasoning is not _MISSING and isinstance(reasoning, str) and isinstance(generation_chunk.message, AIMessageChunk):
+            if (
+                reasoning is not _MISSING
+                and isinstance(reasoning, str)
+                and isinstance(generation_chunk.message, AIMessageChunk)
+            ):
                 generation_chunk = ChatGenerationChunk(
-                    message=cast("AIMessageChunk", _with_reasoning_content(generation_chunk.message, reasoning)),
+                    message=cast(
+                        "AIMessageChunk",
+                        _with_reasoning_content(generation_chunk.message, reasoning),
+                    ),
                     generation_info=generation_chunk.generation_info,
                 )
 
@@ -148,20 +157,30 @@ class PatchedChatStepFun(ChatOpenAI):
     ) -> ChatResult:
         """Extract ``reasoning`` / ``reasoning_content`` from non-streaming responses."""
         result = super()._create_chat_result(response, generation_info)
-        response_dict = response if isinstance(response, dict) else response.model_dump()
+        response_dict = (
+            response if isinstance(response, dict) else response.model_dump()
+        )
         choices = response_dict.get("choices", [])
 
         patched_generations: list[ChatGeneration] | None = None
         for index, generation in enumerate(result.generations):
             choice = choices[index] if index < len(choices) else {}
-            choice_message = choice.get("message", {}) if isinstance(choice, Mapping) else {}
+            choice_message = (
+                choice.get("message", {}) if isinstance(choice, Mapping) else {}
+            )
             reasoning = _extract_reasoning(choice_message)
 
             if reasoning is _MISSING and not isinstance(response, dict):
-                reasoning = _extract_reasoning(_get_typed_choice_message(response, index))
+                reasoning = _extract_reasoning(
+                    _get_typed_choice_message(response, index)
+                )
 
             message = generation.message
-            if reasoning is not _MISSING and isinstance(reasoning, str) and isinstance(message, AIMessage):
+            if (
+                reasoning is not _MISSING
+                and isinstance(reasoning, str)
+                and isinstance(message, AIMessage)
+            ):
                 if patched_generations is None:
                     patched_generations = list(result.generations)
                 patched_generations[index] = ChatGeneration(

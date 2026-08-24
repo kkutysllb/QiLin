@@ -103,11 +103,19 @@ def _is_cache_stale() -> bool:
         return False
 
     if current_path != _config_path:
-        logger.info("MCP config path changed (%s -> %s), cache is stale", _config_path, current_path)
+        logger.info(
+            "MCP config path changed (%s -> %s), cache is stale",
+            _config_path,
+            current_path,
+        )
         return True
 
     if current_signature != _config_signature:
-        logger.info("MCP config content changed (signature %s -> %s), cache is stale", _config_signature, current_signature)
+        logger.info(
+            "MCP config content changed (signature %s -> %s), cache is stale",
+            _config_signature,
+            current_signature,
+        )
         return True
 
     return False
@@ -133,8 +141,14 @@ async def initialize_mcp_tools() -> list[BaseTool]:
         logger.info("Initializing MCP tools...")
         _mcp_tools_cache = await get_mcp_tools()
         _cache_initialized = True
-        _config_path, _config_signature = _current_config_state()  # Record config path + content signature
-        logger.info("MCP tools initialized: %d tool(s) loaded (config path: %s)", len(_mcp_tools_cache), _config_path)
+        _config_path, _config_signature = (
+            _current_config_state()
+        )  # Record config path + content signature
+        logger.info(
+            "MCP tools initialized: %d tool(s) loaded (config path: %s)",
+            len(_mcp_tools_cache),
+            _config_path,
+        )
 
         return _mcp_tools_cache
 

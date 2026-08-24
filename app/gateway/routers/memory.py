@@ -71,17 +71,33 @@ class Fact(BaseModel):
     id: str = Field(..., description="Unique identifier for the fact")
     content: str = Field(..., description="Fact content")
     category: str = Field(default="context", description="Fact category")
-    categoryExtension: str | None = Field(default=None, description="Extension category when category is 'other'")
-    topics: list[str] | None = Field(default=None, description="Retrieval-oriented topic labels")
+    categoryExtension: str | None = Field(
+        default=None, description="Extension category when category is 'other'"
+    )
+    topics: list[str] | None = Field(
+        default=None, description="Retrieval-oriented topic labels"
+    )
     confidence: float = Field(default=0.5, description="Confidence score (0-1)")
     createdAt: str = Field(default="", description="Creation timestamp")
-    source: str = Field(default="unknown", description="Legacy source string; structured metadata remains internal to storage")
-    sourceError: str | None = Field(default=None, description="Optional description of the prior mistake or wrong approach")
-    schemaVersion: int | None = Field(default=None, description="Per-fact schema version")
+    source: str = Field(
+        default="unknown",
+        description="Legacy source string; structured metadata remains internal to storage",
+    )
+    sourceError: str | None = Field(
+        default=None,
+        description="Optional description of the prior mistake or wrong approach",
+    )
+    schemaVersion: int | None = Field(
+        default=None, description="Per-fact schema version"
+    )
     status: str | None = Field(default=None, description="Fact lifecycle status")
-    scope: dict[str, str | None] | None = Field(default=None, description="Canonical user/agent scope")
+    scope: dict[str, str | None] | None = Field(
+        default=None, description="Canonical user/agent scope"
+    )
     revision: int | None = Field(default=None, description="Fact optimistic revision")
-    updatedAt: str | None = Field(default=None, description="Last fact update timestamp")
+    updatedAt: str | None = Field(
+        default=None, description="Last fact update timestamp"
+    )
     consolidatedAt: str | None = None
     consolidatedFrom: list[str] | None = None
 
@@ -126,10 +142,14 @@ def _map_memory_fact_value_error(exc: ValueError) -> HTTPException:
     return HTTPException(status_code=400, detail=detail)
 
 
-def _map_memory_manager_error(exc: MemoryConflictError | MemoryCorruptionError) -> HTTPException:
+def _map_memory_manager_error(
+    exc: MemoryConflictError | MemoryCorruptionError,
+) -> HTTPException:
     """Map backend-neutral manager errors without importing a storage plugin."""
     if isinstance(exc, MemoryConflictError):
-        return HTTPException(status_code=409, detail="Memory changed concurrently; reload and retry.")
+        return HTTPException(
+            status_code=409, detail="Memory changed concurrently; reload and retry."
+        )
     return HTTPException(status_code=500, detail="Stored memory data is corrupted.")
 
 
@@ -152,7 +172,9 @@ def _unsupported_501(manager: object, label: str) -> HTTPException:
     )
 
 
-async def _get_memory_or_501(manager: MemoryManager, user_id: str, label: str) -> dict[str, Any]:
+async def _get_memory_or_501(
+    manager: MemoryManager, user_id: str, label: str
+) -> dict[str, Any]:
     """Read the full memory doc; 501 if the backend doesn't expose one.
 
     ``get_memory`` is tier-2 (default ``raise NotImplementedError``); a minimal
@@ -175,7 +197,9 @@ class FactCreateRequest(BaseModel):
 
     content: str = Field(..., min_length=1, description="Fact content")
     category: str = Field(default="context", description="Fact category")
-    confidence: float = Field(default=0.5, ge=0.0, le=1.0, description="Confidence score (0-1)")
+    confidence: float = Field(
+        default=0.5, ge=0.0, le=1.0, description="Confidence score (0-1)"
+    )
 
 
 class FactPatchRequest(BaseModel):
@@ -183,18 +207,35 @@ class FactPatchRequest(BaseModel):
 
     content: str | None = Field(default=None, min_length=1, description="Fact content")
     category: str | None = Field(default=None, description="Fact category")
-    confidence: float | None = Field(default=None, ge=0.0, le=1.0, description="Confidence score (0-1)")
+    confidence: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Confidence score (0-1)"
+    )
 
 
 class MemoryConfigResponse(BaseModel):
     """Response model for memory configuration."""
 
-    enabled: bool = Field(..., description="Whether the memory mechanism is enabled (call-site gate).")
-    mode: Literal["middleware", "tool"] = Field(..., description="Memory operation mode: 'middleware' (passive per-turn LLM summarization) or 'tool' (model calls memory tools directly). Mechanism-level, applies to any backend.")
-    injection_enabled: bool = Field(..., description="Whether memory is injected into the system prompt (call-site gate).")
-    shutdown_flush_timeout_seconds: float = Field(..., description="Hard budget (s) to drain pending memory updates on Gateway graceful shutdown; must fit inside the pod's K8s terminationGracePeriodSeconds.")
-    manager_class: str = Field(..., description="Active memory backend selector (backend name or dotted path).")
-    backend_config: dict = Field(..., description="Backend-private config (self-interpreted by the backend).")
+    enabled: bool = Field(
+        ..., description="Whether the memory mechanism is enabled (call-site gate)."
+    )
+    mode: Literal["middleware", "tool"] = Field(
+        ...,
+        description="Memory operation mode: 'middleware' (passive per-turn LLM summarization) or 'tool' (model calls memory tools directly). Mechanism-level, applies to any backend.",
+    )
+    injection_enabled: bool = Field(
+        ...,
+        description="Whether memory is injected into the system prompt (call-site gate).",
+    )
+    shutdown_flush_timeout_seconds: float = Field(
+        ...,
+        description="Hard budget (s) to drain pending memory updates on Gateway graceful shutdown; must fit inside the pod's K8s terminationGracePeriodSeconds.",
+    )
+    manager_class: str = Field(
+        ..., description="Active memory backend selector (backend name or dotted path)."
+    )
+    backend_config: dict = Field(
+        ..., description="Backend-private config (self-interpreted by the backend)."
+    )
 
 
 class MemoryStatusResponse(BaseModel):
@@ -246,7 +287,9 @@ async def get_memory(http_request: Request) -> MemoryResponse:
         ```
     """
     manager = await asyncio.to_thread(get_memory_manager)
-    memory_data = await _get_memory_or_501(manager, _resolve_memory_user_id(http_request), "get memory")
+    memory_data = await _get_memory_or_501(
+        manager, _resolve_memory_user_id(http_request), "get memory"
+    )
     return MemoryResponse(**memory_data)
 
 
@@ -294,13 +337,17 @@ async def clear_memory(http_request: Request) -> MemoryResponse:
     """Clear all persisted memory data."""
     manager = await asyncio.to_thread(get_memory_manager)
     try:
-        memory_data = await asyncio.to_thread(manager.clear_memory, user_id=_resolve_memory_user_id(http_request))
+        memory_data = await asyncio.to_thread(
+            manager.clear_memory, user_id=_resolve_memory_user_id(http_request)
+        )
     except NotImplementedError:
         raise _unsupported_501(manager, "clear memory") from None
     except (MemoryConflictError, MemoryCorruptionError) as exc:
         raise _map_memory_manager_error(exc) from exc
     except OSError as exc:
-        raise HTTPException(status_code=500, detail="Failed to clear memory data.") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to clear memory data."
+        ) from exc
 
     return MemoryResponse(**memory_data)
 
@@ -312,7 +359,9 @@ async def clear_memory(http_request: Request) -> MemoryResponse:
     summary="Create Memory Fact",
     description="Create a single saved memory fact manually.",
 )
-async def create_memory_fact_endpoint(request: FactCreateRequest, http_request: Request) -> MemoryResponse:
+async def create_memory_fact_endpoint(
+    request: FactCreateRequest, http_request: Request
+) -> MemoryResponse:
     """Create a single fact manually."""
     manager = await asyncio.to_thread(get_memory_manager)
     try:
@@ -330,11 +379,16 @@ async def create_memory_fact_endpoint(request: FactCreateRequest, http_request: 
     except (MemoryConflictError, MemoryCorruptionError) as exc:
         raise _map_memory_manager_error(exc) from exc
     except OSError as exc:
-        raise HTTPException(status_code=500, detail="Failed to create memory fact.") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to create memory fact."
+        ) from exc
 
     if fact_id is None:
         # max_facts cap evicted the new (lower-confidence) fact; it was not stored.
-        raise HTTPException(status_code=409, detail="Fact was not stored because memory.max_facts kept higher-confidence facts")
+        raise HTTPException(
+            status_code=409,
+            detail="Fact was not stored because memory.max_facts kept higher-confidence facts",
+        )
     return MemoryResponse(**memory_data)
 
 
@@ -345,19 +399,27 @@ async def create_memory_fact_endpoint(request: FactCreateRequest, http_request: 
     summary="Delete Memory Fact",
     description="Delete a single saved memory fact by its fact id.",
 )
-async def delete_memory_fact_endpoint(fact_id: str, http_request: Request) -> MemoryResponse:
+async def delete_memory_fact_endpoint(
+    fact_id: str, http_request: Request
+) -> MemoryResponse:
     """Delete a single fact from memory by fact id."""
     manager = await asyncio.to_thread(get_memory_manager)
     try:
-        memory_data = await asyncio.to_thread(manager.delete_fact, fact_id, user_id=_resolve_memory_user_id(http_request))
+        memory_data = await asyncio.to_thread(
+            manager.delete_fact, fact_id, user_id=_resolve_memory_user_id(http_request)
+        )
     except NotImplementedError:
         raise _unsupported_501(manager, "delete fact") from None
     except KeyError as exc:
-        raise HTTPException(status_code=404, detail=f"Memory fact '{fact_id}' not found.") from exc
+        raise HTTPException(
+            status_code=404, detail=f"Memory fact '{fact_id}' not found."
+        ) from exc
     except (MemoryConflictError, MemoryCorruptionError) as exc:
         raise _map_memory_manager_error(exc) from exc
     except OSError as exc:
-        raise HTTPException(status_code=500, detail="Failed to delete memory fact.") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to delete memory fact."
+        ) from exc
 
     return MemoryResponse(**memory_data)
 
@@ -369,7 +431,9 @@ async def delete_memory_fact_endpoint(fact_id: str, http_request: Request) -> Me
     summary="Patch Memory Fact",
     description="Partially update a single saved memory fact by its fact id while preserving omitted fields.",
 )
-async def update_memory_fact_endpoint(fact_id: str, request: FactPatchRequest, http_request: Request) -> MemoryResponse:
+async def update_memory_fact_endpoint(
+    fact_id: str, request: FactPatchRequest, http_request: Request
+) -> MemoryResponse:
     """Partially update a single fact manually."""
     manager = await asyncio.to_thread(get_memory_manager)
     try:
@@ -386,11 +450,15 @@ async def update_memory_fact_endpoint(fact_id: str, request: FactPatchRequest, h
     except ValueError as exc:
         raise _map_memory_fact_value_error(exc) from exc
     except KeyError as exc:
-        raise HTTPException(status_code=404, detail=f"Memory fact '{fact_id}' not found.") from exc
+        raise HTTPException(
+            status_code=404, detail=f"Memory fact '{fact_id}' not found."
+        ) from exc
     except (MemoryConflictError, MemoryCorruptionError) as exc:
         raise _map_memory_manager_error(exc) from exc
     except OSError as exc:
-        raise HTTPException(status_code=500, detail="Failed to update memory fact.") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to update memory fact."
+        ) from exc
 
     return MemoryResponse(**memory_data)
 
@@ -405,7 +473,9 @@ async def update_memory_fact_endpoint(fact_id: str, request: FactPatchRequest, h
 async def export_memory(http_request: Request) -> MemoryResponse:
     """Export the current memory data."""
     manager = await asyncio.to_thread(get_memory_manager)
-    memory_data = await _get_memory_or_501(manager, _resolve_memory_user_id(http_request), "export memory")
+    memory_data = await _get_memory_or_501(
+        manager, _resolve_memory_user_id(http_request), "export memory"
+    )
     return MemoryResponse(**memory_data)
 
 
@@ -416,7 +486,9 @@ async def export_memory(http_request: Request) -> MemoryResponse:
     summary="Import Memory Data",
     description="Import and overwrite the current global memory data from a JSON payload.",
 )
-async def import_memory(request: MemoryResponse, http_request: Request) -> MemoryResponse:
+async def import_memory(
+    request: MemoryResponse, http_request: Request
+) -> MemoryResponse:
     """Import and persist memory data."""
     manager = await asyncio.to_thread(get_memory_manager)
     try:
@@ -430,7 +502,9 @@ async def import_memory(request: MemoryResponse, http_request: Request) -> Memor
     except (MemoryConflictError, MemoryCorruptionError) as exc:
         raise _map_memory_manager_error(exc) from exc
     except OSError as exc:
-        raise HTTPException(status_code=500, detail="Failed to import memory data.") from exc
+        raise HTTPException(
+            status_code=500, detail="Failed to import memory data."
+        ) from exc
 
     return MemoryResponse(**memory_data)
 
@@ -499,7 +573,9 @@ async def get_memory_status(http_request: Request) -> MemoryStatusResponse:
     """
     config = get_memory_config()
     manager = await asyncio.to_thread(get_memory_manager)
-    memory_data = await _get_memory_or_501(manager, _resolve_memory_user_id(http_request), "get memory status")
+    memory_data = await _get_memory_or_501(
+        manager, _resolve_memory_user_id(http_request), "get memory status"
+    )
 
     return MemoryStatusResponse(
         config=MemoryConfigResponse(
