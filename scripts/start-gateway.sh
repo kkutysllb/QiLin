@@ -52,6 +52,10 @@ if [[ ! -f config.yaml ]]; then
   exit 1
 fi
 
+# CORS:默认放行本地 web-demo 端口(可被环境变量覆盖)
+# Gateway 的 CORS middleware 是 opt-in:不设置 GATEWAY_CORS_ORIGINS 就根本不挂载
+export GATEWAY_CORS_ORIGINS="${GATEWAY_CORS_ORIGINS:-http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,app://-,tauri://localhost}"
+
 # 找到 uvicorn
 UVICORN_BIN="${UVICORN_BIN:-uvicorn}"
 if ! command -v "$UVICORN_BIN" >/dev/null 2>&1; then
