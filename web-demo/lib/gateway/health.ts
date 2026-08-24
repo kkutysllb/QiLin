@@ -11,7 +11,7 @@ export interface HealthStatus {
 export async function checkGatewayHealth(): Promise<HealthStatus> {
   const start = Date.now();
   try {
-    const res = await fetch(`${GATEWAY_BASE_URL}/api/health`, {
+    const res = await fetch(`${GATEWAY_BASE_URL}/health`, {
       signal: AbortSignal.timeout(5000),
       cache: 'no-store'
     });

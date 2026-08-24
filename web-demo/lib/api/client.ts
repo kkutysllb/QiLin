@@ -44,6 +44,26 @@ export async function gatewayFetch<T>(path: string, options: RequestOptions = {}
       } catch {
         apiError = { message: `HTTP ${res.status}`, code: `HTTP_${res.status}`, status: res.status };
       }
+
+      // 401 → 客户端跳转登录(避免循环:在 /login 页面不发触发)
+      if (
+        res.status === 401 &&
+        typeof window !== 'undefined' &&
+        !window.location.pathname.startsWith('/login') &&
+        !window.location.pathname.startsWith('/api/')
+      ) {
+        try {
+          const flagKey = 'qilin-401-redirected';
+          if (!sessionStorage.getItem(flagKey)) {
+            sessionStorage.setItem(flagKey, '1');
+            const next = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?next=${next}`;
+          }
+        } catch {
+          /* ignore sessionStorage errors */
+        }
+      }
+
       throw new GatewayError(apiError);
     }
 
