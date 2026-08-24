@@ -62,26 +62,42 @@ async function handle(req: Request, ctx: { params: { path: string[] } }) {
   const cookieStore = await cookies();
   const csrf = cookieStore.get('csrf_token')?.value;
   const access = cookieStore.get('access_token')?.value;
-  if (!csrf || !access) {
+
+  // 公开端点(auth 端点)不需要 cookie,直接转发到 gateway
+  const isPublicAuth = path.startsWith('/api/v1/auth/');
+  if (!isPublicAuth && (!csrf || !access)) {
     return NextResponse.json(
       { detail: 'Not authenticated', code: 'NO_AUTH' },
       { status: 401 }
     );
   }
 
-  // 构造完整的 cookie 串给 gateway
-  const cookieStr = `csrf_token=${csrf}; access_token=${access}; ${
-    cookieStore.get('qilin_session_persistent')?.value
-      ? 'qilin_session_persistent=' + cookieStore.get('qilin_session_persistent')!.value
-      : ''
-  }`.trim();
+  // 构造完整的 cookie 串给 gateway(公开端点用浏览器传来的 cookie 即可)
+  const cookieStr = csrf && access
+    ? `csrf_token=${csrf}; access_token=${access}; ${
+        cookieStore.get('qilin_session_persistent')?.value
+          ? 'qilin_session_persistent=' + cookieStore.get('qilin_session_persistent')!.value
+          : ''
+      }`.trim()
+    : req.headers.get('cookie') ?? '';
 
   const body =
     req.method === 'GET' || req.method === 'HEAD' ? undefined : await req.arrayBuffer();
 
   const gatewayResp = await fetch(url, {
     method: req.method,
-    headers: buildGatewayHeaders(req, csrf, cookieStr),
+    headers: csrf && access
+      ? buildGatewayHeaders(req, csrf, cookieStr)
+      : (() => {
+          // 公开端点:只转发 cookie,不加 csrf header
+          const h = new Headers();
+          for (const [k, v] of req.headers.entries()) {
+            if (!HOP_BY_HOP.has(k.toLowerCase())) h.set(k, v);
+          }
+          if (cookieStr) h.set('Cookie', cookieStr);
+          h.set('Host', new URL(GATEWAY_BASE_URL).host);
+          return h;
+        })(),
     body: body && body.byteLength > 0 ? body : undefined,
     cache: 'no-store',
     // @ts-expect-error: Node fetch supports duplex

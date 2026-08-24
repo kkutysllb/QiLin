@@ -62,13 +62,24 @@ export default function LoginPage() {
         return;
       }
       if (mode === 'login') {
-        await authApi.login({ username, password });
+        // 同源 /api/auth/login/local proxy:让 web-demo 把 gateway cookie 镜像到
+        // 自己域名下,解决 host-only cookie 跨端口不可靠的问题
+        const r = await fetch('/api/auth/login/local', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include'
+        });
+        if (!r.ok) {
+          const detail = await r.json().catch(() => ({}));
+          throw new Error(detail?.detail?.message ?? detail?.message ?? `HTTP ${r.status}`);
+        }
         toast.success('登录成功');
         router.push('/');
         return;
       }
       if (mode === 'register') {
-        const r = await fetch(`${GATEWAY_BASE_URL}/api/v1/auth/register`, {
+        const r = await fetch(`/api/proxy/api/v1/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, email, password }),
@@ -79,7 +90,13 @@ export default function LoginPage() {
           throw new Error(detail?.detail?.message ?? `HTTP ${r.status}`);
         }
         toast.success('注册成功,正在登录…');
-        await authApi.login({ username, password });
+        // 注册后再走一次同源 login proxy 拿 cookie
+        await fetch('/api/auth/login/local', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include'
+        });
         router.push('/');
         return;
       }
