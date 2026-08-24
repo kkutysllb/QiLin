@@ -9,3 +9,4 @@ export { skillsApi } from './skills';
 export { uploadsApi } from './uploads';
 export { memoryApi } from './memory';
 export { mcpApi } from './mcp';
+export { toolsApi } from './tools';

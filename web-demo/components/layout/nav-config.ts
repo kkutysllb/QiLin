@@ -1,4 +1,4 @@
-import { Home, MessageSquare, ListTree, Activity, Sparkles } from 'lucide-react';
+import { Home, MessageSquare, ListTree, Activity, Sparkles, Wrench, Plug, Brain, Upload } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -14,14 +14,14 @@ export const NAV_ITEMS: NavItem[] = [
   { title: '对话', href: '/chat', icon: MessageSquare, badge: 'P0' },
   { title: '线程', href: '/threads', icon: ListTree, badge: 'P0' },
   { title: '运行', href: '/runs', icon: Activity, badge: 'P0' },
-  { title: '技能市场', href: '/skills', icon: Sparkles, badge: 'P0' }
+  { title: '技能市场', href: '/skills', icon: Sparkles, badge: 'P0' },
+  { title: '工具', href: '/tools', icon: Wrench, badge: 'P1' },
+  { title: 'MCP', href: '/mcp', icon: Plug, badge: 'P1' },
+  { title: '记忆', href: '/memory', icon: Brain, badge: 'P1' },
+  { title: '上传', href: '/uploads', icon: Upload, badge: 'P1' }
 ];
 
 export const FUTURE_NAV_ITEMS: NavItem[] = [
-  { title: '工具', href: '/tools', icon: Sparkles, badge: 'P1', disabled: true },
-  { title: 'MCP', href: '/mcp', icon: Sparkles, badge: 'P1', disabled: true },
-  { title: '记忆', href: '/memory', icon: Sparkles, badge: 'P1', disabled: true },
-  { title: '上传', href: '/uploads', icon: Sparkles, badge: 'P1', disabled: true },
   { title: '渠道', href: '/channels', icon: Sparkles, badge: 'P2', disabled: true },
   { title: '调度', href: '/scheduler', icon: Sparkles, badge: 'P2', disabled: true },
   { title: '模型', href: '/models', icon: Sparkles, badge: 'P2', disabled: true },
