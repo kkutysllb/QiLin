@@ -133,7 +133,9 @@ def _make_test_request_stub() -> Any:
     Used when decorated route handlers are invoked without FastAPI's
     request injection. Includes fields accessed by auth helpers.
     """
-    return SimpleNamespace(state=SimpleNamespace(), cookies={}, _qilin_test_bypass_auth=True)
+    return SimpleNamespace(
+        state=SimpleNamespace(), cookies={}, _qilin_test_bypass_auth=True
+    )
 
 
 def _get_route_authorization_config() -> AuthorizationConfig:
@@ -158,7 +160,9 @@ _route_provider_config_id: int | None = None
 _route_provider_config_sig: str | None = None
 
 
-def _get_cached_route_provider(config: AuthorizationConfig) -> AuthorizationProvider | None:
+def _get_cached_route_provider(
+    config: AuthorizationConfig,
+) -> AuthorizationProvider | None:
     """Resolve (or reuse) the authorization provider for route permissions.
 
     The provider is cached per config object identity. When ``get_app_config()``
@@ -209,9 +213,13 @@ async def resolve_route_permissions(user: User, *, is_internal: bool) -> list[st
     try:
         provider = _get_cached_route_provider(config)
         if provider is None:
-            raise ValueError("authorization is enabled but provider resolution returned None")
+            raise ValueError(
+                "authorization is enabled but provider resolution returned None"
+            )
     except Exception:
-        logger.warning("Failed to resolve authorization provider for Gateway routes", exc_info=True)
+        logger.warning(
+            "Failed to resolve authorization provider for Gateway routes", exc_info=True
+        )
         return [] if config.fail_closed else list(_ALL_PERMISSIONS)
 
     # Align with Phase 1B's tool path: internal callers (IM channel workers,
@@ -247,7 +255,9 @@ async def resolve_route_permissions(user: User, *, is_internal: bool) -> list[st
         try:
             decision = await provider.aauthorize(request)
             if not isinstance(decision, AuthzDecision):
-                raise TypeError("AuthorizationProvider.aauthorize must return AuthzDecision")
+                raise TypeError(
+                    "AuthorizationProvider.aauthorize must return AuthzDecision"
+                )
         except asyncio.CancelledError:
             raise
         except Exception:
@@ -296,13 +306,26 @@ def _is_internal_caller(request: Request, user: Any) -> bool:
         is_valid_internal_auth_token,
     )
 
-    if getattr(getattr(request, "state", None), "auth_source", None) == AUTH_SOURCE_INTERNAL:
+    if (
+        getattr(getattr(request, "state", None), "auth_source", None)
+        == AUTH_SOURCE_INTERNAL
+    ):
         return True
     if getattr(user, "system_role", None) == INTERNAL_SYSTEM_ROLE:
         return True
-    # Decorator-only path: check the internal token header directly.
-    internal_token = request.headers.get(INTERNAL_AUTH_HEADER_NAME) if hasattr(request, "headers") else None
-    if internal_token and is_valid_internal_auth_token(internal_token):
+    # Decorator-only path: check the internal token header directly. Bind to
+    # the claimed owner — a token minted for user A cannot be replayed with
+    # the owner header set to user B.
+    if not hasattr(request, "headers"):
+        return False
+    from app.gateway.internal_auth import INTERNAL_OWNER_USER_ID_HEADER_NAME
+
+    internal_token = request.headers.get(INTERNAL_AUTH_HEADER_NAME)
+    owner_header = request.headers.get(INTERNAL_OWNER_USER_ID_HEADER_NAME)
+    if internal_token and is_valid_internal_auth_token(
+        internal_token,
+        expected_owner=owner_header.strip() if owner_header else None,
+    ):
         return True
     return False
 
@@ -446,7 +469,9 @@ def require_permission(
 
                 thread_id = kwargs.get("thread_id")
                 if thread_id is None:
-                    raise ValueError("require_permission with owner_check=True requires 'thread_id' parameter")
+                    raise ValueError(
+                        "require_permission with owner_check=True requires 'thread_id' parameter"
+                    )
 
                 from app.gateway.deps import get_thread_store
 
@@ -456,7 +481,10 @@ def require_permission(
                     str(auth.user.id),
                     require_existing=require_existing,
                 )
-                if not allowed and getattr(auth.user, "system_role", None) == INTERNAL_SYSTEM_ROLE:
+                if (
+                    not allowed
+                    and getattr(auth.user, "system_role", None) == INTERNAL_SYSTEM_ROLE
+                ):
                     # Trusted internal callers (channel workers) also act for
                     # the connection owner carried in X-QiLin-Owner-User-Id.
                     # Scope the check to that owner instead of bypassing it; a
@@ -465,7 +493,9 @@ def require_permission(
                     # the caller holds the internal token (mirrors
                     # get_trusted_internal_owner_user_id, which keys off the
                     # middleware-stamped ``request.state.user``).
-                    header_owner = (request.headers.get(INTERNAL_OWNER_USER_ID_HEADER_NAME) or "").strip()
+                    header_owner = (
+                        request.headers.get(INTERNAL_OWNER_USER_ID_HEADER_NAME) or ""
+                    ).strip()
                     if header_owner:
                         allowed = await thread_store.check_access(
                             thread_id,

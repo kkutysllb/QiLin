@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import requests
+import httpx
 
 from qilin.runtime.user_context import get_effective_user_id
 from qilin.skills.storage import user_should_see_legacy_skills
@@ -42,6 +42,13 @@ _PROVISIONER_EXTRA_MOUNT_PATHS = {
 _LARK_CLI_RUNTIME_CONTAINER_PATH = "/mnt/integrations/lark-cli/runtime"
 _LARK_CLI_CONFIG_CONTAINER_PATH = "/mnt/integrations/lark-cli/config"
 _LARK_CLI_DATA_CONTAINER_PATH = "/mnt/integrations/lark-cli/data"
+
+# Per-call HTTP timeouts. ``httpx.Client(timeout=...)`` would apply globally;
+# we keep per-operation budgets here so a slow create can't starve a fast poll.
+_PROVISIONER_LIST_TIMEOUT = httpx.Timeout(10.0, connect=5.0)
+_PROVISIONER_CREATE_TIMEOUT = httpx.Timeout(30.0, connect=5.0)
+_PROVISIONER_DESTROY_TIMEOUT = httpx.Timeout(15.0, connect=5.0)
+_PROVISIONER_HEALTH_TIMEOUT = httpx.Timeout(10.0, connect=5.0)
 
 
 def _provisioner_extra_mounts_payload(
@@ -111,6 +118,14 @@ class RemoteSandboxBackend(SandboxBackend):
         """
         self._provisioner_url = provisioner_url.rstrip("/")
         self._api_key = api_key
+        # Reuse a single sync HTTP client across calls — requests forked a new
+        # TCP/TLS connection per call which added 100-300 ms of handshake on
+        # every provisioner round-trip. Per-call timeouts (10/15/30s) live in
+        # the helpers below as ``_PROVISIONER_*_TIMEOUT`` so we don't ship a
+        # single global 30s timeout for short polls.
+        self._provisioner_client = httpx.Client(
+            headers={"User-Agent": "qilin-aio-sandbox/1.0"},
+        )
 
     @property
     def provisioner_url(self) -> str:
@@ -178,32 +193,51 @@ class RemoteSandboxBackend(SandboxBackend):
     def _provisioner_list(self) -> list[SandboxInfo]:
         """GET /api/sandboxes → list all running sandboxes."""
         try:
-            resp = requests.get(f"{self._provisioner_url}/api/sandboxes", headers=self._auth_headers(), timeout=10)
+            resp = self._provisioner_client.get(
+                f"{self._provisioner_url}/api/sandboxes",
+                headers=self._auth_headers(),
+                timeout=_PROVISIONER_LIST_TIMEOUT,
+            )
             resp.raise_for_status()
             data = resp.json()
             if not isinstance(data, dict):
-                logger.warning("Provisioner list_running returned non-dict payload: %r", type(data))
+                logger.warning(
+                    "Provisioner list_running returned non-dict payload: %r", type(data)
+                )
                 return []
 
             sandboxes = data.get("sandboxes", [])
             if not isinstance(sandboxes, list):
-                logger.warning("Provisioner list_running returned non-list sandboxes: %r", type(sandboxes))
+                logger.warning(
+                    "Provisioner list_running returned non-list sandboxes: %r",
+                    type(sandboxes),
+                )
                 return []
 
             infos: list[SandboxInfo] = []
             for sandbox in sandboxes:
                 if not isinstance(sandbox, dict):
-                    logger.warning("Provisioner list_running entry is not a dict: %r", type(sandbox))
+                    logger.warning(
+                        "Provisioner list_running entry is not a dict: %r",
+                        type(sandbox),
+                    )
                     continue
 
                 sandbox_id = sandbox.get("sandbox_id")
                 sandbox_url = sandbox.get("sandbox_url")
-                if isinstance(sandbox_id, str) and sandbox_id and isinstance(sandbox_url, str) and sandbox_url:
-                    infos.append(SandboxInfo(sandbox_id=sandbox_id, sandbox_url=sandbox_url))
+                if (
+                    isinstance(sandbox_id, str)
+                    and sandbox_id
+                    and isinstance(sandbox_url, str)
+                    and sandbox_url
+                ):
+                    infos.append(
+                        SandboxInfo(sandbox_id=sandbox_id, sandbox_url=sandbox_url)
+                    )
 
             logger.info("Provisioner list_running: %d sandbox(es) found", len(infos))
             return infos
-        except requests.RequestException as exc:
+        except httpx.HTTPError as exc:
             logger.warning("Provisioner list_running failed: %s", exc)
             return []
 
@@ -236,53 +270,61 @@ class RemoteSandboxBackend(SandboxBackend):
         if provisioner_extra_mounts:
             payload["extra_mounts"] = provisioner_extra_mounts
         try:
-            resp = requests.post(
+            resp = self._provisioner_client.post(
                 f"{self._provisioner_url}/api/sandboxes",
                 json=payload,
                 headers=self._auth_headers(),
-                timeout=30,
+                timeout=_PROVISIONER_CREATE_TIMEOUT,
             )
             resp.raise_for_status()
             data = resp.json()
-            logger.info(f"Provisioner created sandbox {sandbox_id}: sandbox_url={data['sandbox_url']}")
+            logger.info(
+                f"Provisioner created sandbox {sandbox_id}: sandbox_url={data['sandbox_url']}"
+            )
             return SandboxInfo(
                 sandbox_id=sandbox_id,
                 sandbox_url=data["sandbox_url"],
             )
-        except requests.RequestException as exc:
+        except httpx.HTTPError as exc:
             logger.error(f"Provisioner create failed for {sandbox_id}: {exc}")
             raise RuntimeError(f"Provisioner create failed: {exc}") from exc
 
     def _provisioner_destroy(self, sandbox_id: str) -> None:
         """DELETE /api/sandboxes/{sandbox_id} → destroy Pod + Service."""
         try:
-            resp = requests.delete(
+            resp = self._provisioner_client.delete(
                 f"{self._provisioner_url}/api/sandboxes/{sandbox_id}",
                 headers=self._auth_headers(),
-                timeout=15,
+                timeout=_PROVISIONER_DESTROY_TIMEOUT,
             )
-            if resp.ok:
+            if resp.status_code < 400:
                 logger.info(f"Provisioner destroyed sandbox {sandbox_id}")
             else:
-                logger.warning(f"Provisioner destroy returned {resp.status_code}: {resp.text}")
-        except requests.RequestException as exc:
+                logger.warning(
+                    f"Provisioner destroy returned {resp.status_code}: {resp.text}"
+                )
+        except httpx.HTTPError as exc:
             logger.warning(f"Provisioner destroy failed for {sandbox_id}: {exc}")
 
     def _provisioner_is_alive(self, sandbox_id: str) -> bool:
         """GET /api/sandboxes/{sandbox_id} → check Pod phase."""
         try:
-            resp = requests.get(
+            resp = self._provisioner_client.get(
                 f"{self._provisioner_url}/api/sandboxes/{sandbox_id}",
                 headers=self._auth_headers(),
-                timeout=10,
+                timeout=_PROVISIONER_HEALTH_TIMEOUT,
             )
-        except requests.RequestException as exc:
-            raise RuntimeError(f"Provisioner health check failed for {sandbox_id}: {exc}") from exc
+        except httpx.HTTPError as exc:
+            raise RuntimeError(
+                f"Provisioner health check failed for {sandbox_id}: {exc}"
+            ) from exc
 
         if resp.status_code == 404:
             return False
-        if not resp.ok:
-            raise RuntimeError(f"Provisioner health check failed for {sandbox_id}: HTTP {resp.status_code} {resp.text}")
+        if resp.status_code >= 400:
+            raise RuntimeError(
+                f"Provisioner health check failed for {sandbox_id}: HTTP {resp.status_code} {resp.text}"
+            )
 
         data = resp.json()
         return data.get("status") == "Running"
@@ -290,10 +332,10 @@ class RemoteSandboxBackend(SandboxBackend):
     def _provisioner_discover(self, sandbox_id: str) -> SandboxInfo | None:
         """GET /api/sandboxes/{sandbox_id} → discover existing sandbox."""
         try:
-            resp = requests.get(
+            resp = self._provisioner_client.get(
                 f"{self._provisioner_url}/api/sandboxes/{sandbox_id}",
                 headers=self._auth_headers(),
-                timeout=10,
+                timeout=_PROVISIONER_HEALTH_TIMEOUT,
             )
             if resp.status_code == 404:
                 return None
@@ -303,6 +345,6 @@ class RemoteSandboxBackend(SandboxBackend):
                 sandbox_id=sandbox_id,
                 sandbox_url=data["sandbox_url"],
             )
-        except requests.RequestException as exc:
+        except httpx.HTTPError as exc:
             logger.debug(f"Provisioner discover failed for {sandbox_id}: {exc}")
             return None

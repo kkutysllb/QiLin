@@ -112,7 +112,9 @@ LARK_CLI_BROKER_LAUNCHER_TEMPLATE = (
 
 def render_launcher_script(shim_path: str) -> str:
     """Render the ``/bin/sh`` launcher with the shim body's absolute path baked in."""
-    return LARK_CLI_BROKER_LAUNCHER_TEMPLATE.replace(_LARK_CLI_BROKER_SHIM_PATH_PLACEHOLDER, shim_path)
+    return LARK_CLI_BROKER_LAUNCHER_TEMPLATE.replace(
+        _LARK_CLI_BROKER_SHIM_PATH_PLACEHOLDER, shim_path
+    )
 
 
 # The shim reads argv/stdin, POSTs to the broker, and replays the broker's
@@ -160,7 +162,12 @@ def main():
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=600) as resp:
+        # 30s is enough for normal CLI subprocess round-trips. The previous
+        # 600s timeout meant a hung Lark broker would freeze the agent for 10
+        # minutes per call (which compounds in long-running agents). The
+        # subprocess-level timeout inside the broker still bounds individual
+        # commands.
+        with urllib.request.urlopen(req, timeout=30) as resp:
             body = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         detail = ""
@@ -237,7 +244,9 @@ def parse_deny_subcommands(raw: str | None) -> tuple[tuple[str, ...], ...]:
     return tuple(prefixes)
 
 
-def _denied_subcommand(deny: tuple[tuple[str, ...], ...], args: list[str]) -> tuple[str, ...] | None:
+def _denied_subcommand(
+    deny: tuple[tuple[str, ...], ...], args: list[str]
+) -> tuple[str, ...] | None:
     """Return the matched denylist prefix if ``args`` is a denied subcommand.
 
     Matches against the leading non-flag tokens (options and their values are
@@ -269,7 +278,9 @@ def run_lark_cli(config: BrokerConfig, args: list[str], stdin: bytes) -> ExecRes
     """
     denied = _denied_subcommand(config.deny_subcommands, args)
     if denied is not None:
-        message = f"lark-cli: subcommand '{' '.join(denied)}' is disabled in broker mode\n"
+        message = (
+            f"lark-cli: subcommand '{' '.join(denied)}' is disabled in broker mode\n"
+        )
         return ExecResult(126, b"", message.encode("utf-8"), False)
     env = {**os.environ, **config.credential_env()}
     try:
@@ -345,7 +356,9 @@ def make_handler(config: BrokerConfig) -> type[BaseHTTPRequestHandler]:
             try:
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
                 args = request["args"]
-                if not isinstance(args, list) or not all(isinstance(a, str) for a in args):
+                if not isinstance(args, list) or not all(
+                    isinstance(a, str) for a in args
+                ):
                     raise ValueError("args must be a list of strings")
                 stdin = base64.b64decode(request.get("stdin_b64", "") or "")
             except Exception:
@@ -384,8 +397,13 @@ def make_handler(config: BrokerConfig) -> type[BaseHTTPRequestHandler]:
 
 def serve(config: BrokerConfig) -> ThreadingHTTPServer:
     """Start the broker HTTP server bound to loopback and return it."""
-    if not shutil.which(config.lark_cli_path) and not os.path.isfile(config.lark_cli_path):
-        logger.warning("lark-cli not found at %s; broker will report 127 for exec", config.lark_cli_path)
+    if not shutil.which(config.lark_cli_path) and not os.path.isfile(
+        config.lark_cli_path
+    ):
+        logger.warning(
+            "lark-cli not found at %s; broker will report 127 for exec",
+            config.lark_cli_path,
+        )
     server = ThreadingHTTPServer((config.host, config.port), make_handler(config))
     logger.info("lark-cli broker listening on %s:%d", config.host, config.port)
     return server
@@ -430,9 +448,17 @@ def _config_from_env() -> BrokerConfig:
         config_dir=os.environ.get("LARKSUITE_CLI_CONFIG_DIR", "/var/lark/config"),
         data_dir=os.environ.get("LARKSUITE_CLI_DATA_DIR", "/var/lark/data"),
         host=os.environ.get("QILIN_LARK_BROKER_HOST", LARK_BROKER_DEFAULT_HOST),
-        port=int(os.environ.get("QILIN_LARK_BROKER_PORT", str(LARK_BROKER_DEFAULT_PORT))),
-        timeout_seconds=int(os.environ.get("QILIN_LARK_BROKER_TIMEOUT", str(LARK_BROKER_DEFAULT_TIMEOUT_SECONDS))),
-        deny_subcommands=parse_deny_subcommands(os.environ.get(LARK_BROKER_DENY_SUBCOMMANDS_ENV)),
+        port=int(
+            os.environ.get("QILIN_LARK_BROKER_PORT", str(LARK_BROKER_DEFAULT_PORT))
+        ),
+        timeout_seconds=int(
+            os.environ.get(
+                "QILIN_LARK_BROKER_TIMEOUT", str(LARK_BROKER_DEFAULT_TIMEOUT_SECONDS)
+            )
+        ),
+        deny_subcommands=parse_deny_subcommands(
+            os.environ.get(LARK_BROKER_DENY_SUBCOMMANDS_ENV)
+        ),
     )
 
 
@@ -440,7 +466,13 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO)
     argv = sys.argv[1:]
     if argv and argv[0] == "install-shim":
-        dest = argv[1] if len(argv) > 1 else os.environ.get("LARK_CLI_RUNTIME_DEST", "/mnt/integrations/lark-cli/runtime")
+        dest = (
+            argv[1]
+            if len(argv) > 1
+            else os.environ.get(
+                "LARK_CLI_RUNTIME_DEST", "/mnt/integrations/lark-cli/runtime"
+            )
+        )
         launcher = install_shim(dest, version=os.environ.get("LARK_CLI_VERSION"))
         logger.info("Installed lark-cli broker shim at %s", launcher)
         return

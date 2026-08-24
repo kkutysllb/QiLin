@@ -11,6 +11,7 @@ Supports:
 - Retry with exponential backoff
 """
 
+import asyncio
 import json
 import logging
 import time
@@ -104,9 +105,13 @@ class CodexChatModel(BaseChatModel):
         if cred:
             self._access_token = cred.access_token
             self._account_id = cred.account_id
-            logger.info(f"Using Codex CLI credential (account: {self._account_id[:8]}...)")
+            logger.info(
+                f"Using Codex CLI credential (account: {self._account_id[:8]}...)"
+            )
         else:
-            raise ValueError("Codex CLI credential not found. Expected ~/.codex/auth.json or CODEX_AUTH_PATH.")
+            raise ValueError(
+                "Codex CLI credential not found. Expected ~/.codex/auth.json or CODEX_AUTH_PATH."
+            )
 
         super().model_post_init(__context)
 
@@ -168,7 +173,9 @@ class CodexChatModel(BaseChatModel):
                             {
                                 "type": "function_call",
                                 "name": tc["name"],
-                                "arguments": json.dumps(tc["args"]) if isinstance(tc["args"], dict) else tc["args"],
+                                "arguments": json.dumps(tc["args"])
+                                if isinstance(tc["args"], dict)
+                                else tc["args"],
                                 "call_id": tc["id"],
                             }
                         )
@@ -210,8 +217,16 @@ class CodexChatModel(BaseChatModel):
                 )
         return responses_tools
 
-    def _call_codex_api(self, messages: list[BaseMessage], tools: list[dict] | None = None) -> dict:
-        """Call the Codex Responses API and return the completed response."""
+    def _call_codex_api(
+        self, messages: list[BaseMessage], tools: list[dict] | None = None
+    ) -> dict:
+        """Call the Codex Responses API and return the completed response.
+
+        Synchronous variant — kept for backward compatibility. Prefer
+        ``_acall_codex_api`` from any async path: the retry ``time.sleep`` and
+        the streaming ``httpx.Client`` would otherwise block the event loop
+        for 2-30 seconds per retry and for the full stream lifetime.
+        """
         instructions, input_items = self._convert_messages(messages)
 
         payload = {
@@ -220,7 +235,9 @@ class CodexChatModel(BaseChatModel):
             "input": input_items,
             "store": False,
             "stream": True,
-            "reasoning": {"effort": self.reasoning_effort, "summary": "detailed"} if self.reasoning_effort != "none" else {"effort": "none"},
+            "reasoning": {"effort": self.reasoning_effort, "summary": "detailed"}
+            if self.reasoning_effort != "none"
+            else {"effort": "none"},
         }
 
         if tools:
@@ -244,7 +261,9 @@ class CodexChatModel(BaseChatModel):
                     if attempt >= self.retry_max_attempts:
                         raise
                     wait_ms = 2000 * (1 << (attempt - 1))
-                    logger.warning(f"Codex API error {e.response.status_code}, retrying {attempt}/{self.retry_max_attempts} after {wait_ms}ms")
+                    logger.warning(
+                        f"Codex API error {e.response.status_code}, retrying {attempt}/{self.retry_max_attempts} after {wait_ms}ms"
+                    )
                     time.sleep(wait_ms / 1000)
                 else:
                     raise
@@ -255,13 +274,81 @@ class CodexChatModel(BaseChatModel):
             raise RuntimeError("Codex API request failed without an exception")
         raise last_error
 
+    async def _acall_codex_api(
+        self, messages: list[BaseMessage], tools: list[dict] | None = None
+    ) -> dict:
+        """Async variant of ``_call_codex_api``.
+
+        Uses ``await asyncio.sleep`` for backoff and ``_astream_response`` so
+        neither retries nor the streaming body block the event loop. This is
+        the only Codex entry point the LangChain async path should reach.
+        """
+        instructions, input_items = self._convert_messages(messages)
+
+        payload = {
+            "model": self.model,
+            "instructions": instructions,
+            "input": input_items,
+            "store": False,
+            "stream": True,
+            "reasoning": {"effort": self.reasoning_effort, "summary": "detailed"}
+            if self.reasoning_effort != "none"
+            else {"effort": "none"},
+        }
+
+        if tools:
+            payload["tools"] = self._convert_tools(tools)
+
+        headers = {
+            "Authorization": f"Bearer {self._access_token}",
+            "ChatGPT-Account-ID": self._account_id,
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+            "originator": "codex_cli_rs",
+        }
+
+        last_error = None
+        for attempt in range(1, self.retry_max_attempts + 1):
+            try:
+                return await self._astream_response(headers, payload)
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                if e.response.status_code in (429, 500, 529):
+                    if attempt >= self.retry_max_attempts:
+                        raise
+                    wait_ms = 2000 * (1 << (attempt - 1))
+                    logger.warning(
+                        "Codex API error %s, retrying %d/%d after %dms",
+                        e.response.status_code,
+                        attempt,
+                        self.retry_max_attempts,
+                        wait_ms,
+                    )
+                    await asyncio.sleep(wait_ms / 1000)
+                else:
+                    raise
+            except Exception:
+                raise
+
+        if last_error is None:
+            raise RuntimeError("Codex API request failed without an exception")
+        raise last_error
+
     def _stream_response(self, headers: dict, payload: dict) -> dict:
-        """Stream SSE from Codex API and collect the final response."""
+        """Stream SSE from Codex API and collect the final response.
+
+        Synchronous variant — kept for backward compatibility. Prefer
+        ``_astream_response`` from any async path: sync streaming freezes the
+        event loop for the entire stream lifetime (typically several seconds,
+        tens of seconds for long outputs).
+        """
         completed_response = None
         streamed_output_items: dict[int, dict[str, Any]] = {}
 
         with httpx.Client(timeout=300) as client:
-            with client.stream("POST", f"{CODEX_BASE_URL}/responses", headers=headers, json=payload) as resp:
+            with client.stream(
+                "POST", f"{CODEX_BASE_URL}/responses", headers=headers, json=payload
+            ) as resp:
                 resp.raise_for_status()
                 for line in resp.iter_lines():
                     data = self._parse_sse_data_line(line)
@@ -272,13 +359,17 @@ class CodexChatModel(BaseChatModel):
                     if event_type == "response.output_item.done":
                         output_index = data.get("output_index")
                         output_item = data.get("item")
-                        if isinstance(output_index, int) and isinstance(output_item, dict):
+                        if isinstance(output_index, int) and isinstance(
+                            output_item, dict
+                        ):
                             streamed_output_items[output_index] = output_item
                     elif event_type == "response.completed":
                         completed_response = data["response"]
 
         if not completed_response:
-            raise RuntimeError("Codex API stream ended without response.completed event")
+            raise RuntimeError(
+                "Codex API stream ended without response.completed event"
+            )
 
         # ChatGPT Codex can emit the final assistant content only in stream events.
         # When response.completed arrives, response.output may still be empty.
@@ -298,7 +389,68 @@ class CodexChatModel(BaseChatModel):
                     merged_output[output_index] = output_item
 
             completed_response = dict(completed_response)
-            completed_response["output"] = [item for item in merged_output if isinstance(item, dict)]
+            completed_response["output"] = [
+                item for item in merged_output if isinstance(item, dict)
+            ]
+
+        return completed_response
+
+    async def _astream_response(self, headers: dict, payload: dict) -> dict:
+        """Async variant of ``_stream_response`` — use from any async context.
+
+        Switches to ``httpx.AsyncClient.stream`` so a long token stream does not
+        block the event loop while the upstream SSE is open. Event-loop
+        blocking during streaming was the top performance regression found in
+        the v2 audit (PERFORMANCE.md finding #4).
+        """
+        completed_response = None
+        streamed_output_items: dict[int, dict[str, Any]] = {}
+
+        async with httpx.AsyncClient(timeout=300) as client:
+            async with client.stream(
+                "POST", f"{CODEX_BASE_URL}/responses", headers=headers, json=payload
+            ) as resp:
+                resp.raise_for_status()
+                async for line in resp.aiter_lines():
+                    data = self._parse_sse_data_line(line)
+                    if not data:
+                        continue
+
+                    event_type = data.get("type")
+                    if event_type == "response.output_item.done":
+                        output_index = data.get("output_index")
+                        output_item = data.get("item")
+                        if isinstance(output_index, int) and isinstance(
+                            output_item, dict
+                        ):
+                            streamed_output_items[output_index] = output_item
+                    elif event_type == "response.completed":
+                        completed_response = data["response"]
+
+        if not completed_response:
+            raise RuntimeError(
+                "Codex API stream ended without response.completed event"
+            )
+
+        if streamed_output_items:
+            merged_output = []
+            response_output = completed_response.get("output")
+            if isinstance(response_output, list):
+                merged_output = list(response_output)
+
+            max_index = max(max(streamed_output_items), len(merged_output) - 1)
+            if max_index >= 0 and len(merged_output) <= max_index:
+                merged_output.extend([None] * (max_index + 1 - len(merged_output)))
+
+            for output_index, output_item in streamed_output_items.items():
+                existing_item = merged_output[output_index]
+                if not isinstance(existing_item, dict):
+                    merged_output[output_index] = output_item
+
+            completed_response = dict(completed_response)
+            completed_response["output"] = [
+                item for item in merged_output if isinstance(item, dict)
+            ]
 
         return completed_response
 
@@ -320,7 +472,9 @@ class CodexChatModel(BaseChatModel):
 
         return data if isinstance(data, dict) else None
 
-    def _parse_tool_call_arguments(self, output_item: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    def _parse_tool_call_arguments(
+        self, output_item: dict[str, Any]
+    ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
         """Parse function-call arguments, surfacing malformed payloads safely."""
         raw_arguments = output_item.get("arguments", "{}")
         if isinstance(raw_arguments, dict):
@@ -360,7 +514,10 @@ class CodexChatModel(BaseChatModel):
             if output_item.get("type") == "reasoning":
                 # Extract reasoning summary text
                 for summary_item in output_item.get("summary", []):
-                    if isinstance(summary_item, dict) and summary_item.get("type") == "summary_text":
+                    if (
+                        isinstance(summary_item, dict)
+                        and summary_item.get("type") == "summary_text"
+                    ):
                         reasoning_content += summary_item.get("text", "")
                     elif isinstance(summary_item, str):
                         reasoning_content += summary_item
@@ -369,7 +526,9 @@ class CodexChatModel(BaseChatModel):
                     if part.get("type") == "output_text":
                         content += part.get("text", "")
             elif output_item.get("type") == "function_call":
-                parsed_arguments, invalid_tool_call = self._parse_tool_call_arguments(output_item)
+                parsed_arguments, invalid_tool_call = self._parse_tool_call_arguments(
+                    output_item
+                )
                 if invalid_tool_call:
                     invalid_tool_calls.append(invalid_tool_call)
                     continue
@@ -420,9 +579,26 @@ class CodexChatModel(BaseChatModel):
         run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> ChatResult:
-        """Generate a response using Codex Responses API."""
+        """Generate a response using Codex Responses API (sync)."""
         tools = kwargs.get("tools")
         response = self._call_codex_api(messages, tools=tools)
+        return self._parse_response(response)
+
+    async def _agenerate(
+        self,
+        messages: list[BaseMessage],
+        stop: list[str] | None = None,
+        run_manager: Any = None,
+        **kwargs: Any,
+    ) -> ChatResult:
+        """Generate a response using Codex Responses API (async).
+
+        Uses ``_acall_codex_api`` so neither the streaming body nor the retry
+        backoff blocks the event loop. Mirrors the sync ``_generate`` so the
+        LangChain BaseChatModel async path takes this route.
+        """
+        tools = kwargs.get("tools")
+        response = await self._acall_codex_api(messages, tools=tools)
         return self._parse_response(response)
 
     def bind_tools(self, tools: Sequence[Any], **kwargs: Any) -> Runnable[Any, Any]:

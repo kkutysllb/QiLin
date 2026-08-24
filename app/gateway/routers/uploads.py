@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 
 from app.gateway.authz import require_permission
 from app.gateway.deps import get_config
+from app.gateway.rate_limit import rate_limit
 from qilin.config.app_config import AppConfig
 from qilin.config.paths import get_paths
 from qilin.runtime.user_context import get_effective_user_id
@@ -271,11 +272,45 @@ def _make_uploaded_paths_sandbox_readable(paths: list[os.PathLike[str] | str]) -
         _make_file_sandbox_readable(file_path)
 
 
+def _read_upload_bytes_no_follow(file_path: os.PathLike[str] | str) -> bytes:
+    """Read upload bytes without following symlinks and without the TOCTOU gap
+    that the previous chmod-then-read pattern opened.
+
+    The legacy flow was:
+
+        chmod S_IWGRP/...     # window A: another local user could rename()
+        Path(file_path).read_bytes()  # window B: another local user could truncate()/swap()
+        sandbox.update_file(virtual_path, content)
+
+    Between chmod and read, a a co-tenant user on the host could ``rename(2)`` the
+    target to a symlink pointing at e.g. ``~/.ssh/id_rsa``, causing the LLM
+    to ingest attacker-controlled content. The new flow reads the bytes via
+    ``O_NOFOLLOW | O_RDONLY`` first — there is no intermediate state where the
+    path is writable to the world — and only then chmod's to grant the sandbox
+    runtime the group-write bit it needs for in-place edits. ``O_NOFOLLOW``
+    closes the symlink-swap vector; reading first closes the rename-swap vector.
+    """
+    fd = os.open(file_path, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        with os.fdopen(fd, "rb") as fh:
+            return fh.read()
+    except Exception:
+        # Make sure we never leak the fd if reading raised mid-stream.
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
+
+
 def _sync_upload_to_sandbox(
     sandbox, file_path: os.PathLike[str] | str, virtual_path: str
 ) -> None:
+    content = _read_upload_bytes_no_follow(file_path)
+    # Only loosen the permission *after* we've captured the bytes — no window
+    # in which another local user can swap the file's content.
     _make_file_sandbox_writable(file_path)
-    sandbox.update_file(virtual_path, Path(file_path).read_bytes())
+    sandbox.update_file(virtual_path, content)
 
 
 def _list_uploaded_files_for_thread(thread_id: str, user_id: str) -> dict:
@@ -358,6 +393,7 @@ async def upload_files(
     request: Request,
     files: list[UploadFile] = File(...),
     config: AppConfig = Depends(get_config),
+    _rl: None = Depends(rate_limit),
 ) -> UploadResponse:
     """Upload multiple files to a thread's uploads directory."""
     if not files:

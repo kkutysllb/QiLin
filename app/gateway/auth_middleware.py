@@ -94,18 +94,26 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         internal_user = None
-        if is_valid_internal_auth_token(request.headers.get(INTERNAL_AUTH_HEADER_NAME)):
+        from app.gateway.internal_auth import INTERNAL_OWNER_USER_ID_HEADER_NAME
+
+        owner_header = request.headers.get(INTERNAL_OWNER_USER_ID_HEADER_NAME)
+        if owner_header:
+            owner_header = owner_header.strip() or None
+        # Bind the internal token to the claimed owner: a token minted for
+        # ``alice`` cannot be replayed with an ``X-QiLin-Owner-User-Id`` of
+        # ``bob`` — the new validator (v2 SECURITY.md P1 #6 fix) returns
+        # False in that case. Wildcard ``*`` tokens (no owner at mint time)
+        # are accepted for any owner; that is the gateway-internal case.
+        if is_valid_internal_auth_token(
+            request.headers.get(INTERNAL_AUTH_HEADER_NAME),
+            expected_owner=owner_header,
+        ):
             # Extract the channel owner user ID from the trusted header.
             # When present, the synthetic internal user carries the actual
             # owner identity so that get_effective_user_id() and per-user
             # filesystem paths (custom skills, memory, thread data) resolve
             # to the IM channel user instead of falling back to "default".
-            from app.gateway.internal_auth import INTERNAL_OWNER_USER_ID_HEADER_NAME
-
-            owner_user_id = request.headers.get(INTERNAL_OWNER_USER_ID_HEADER_NAME)
-            if owner_user_id:
-                owner_user_id = owner_user_id.strip()
-            internal_user = get_internal_user(owner_user_id=owner_user_id or None)
+            internal_user = get_internal_user(owner_user_id=owner_header)
 
         auth_source = AUTH_SOURCE_SESSION
         # Prefer the HttpOnly ``access_token`` cookie; fall back to the
@@ -141,7 +149,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 user = await get_current_user_from_request(request)
             except HTTPException as exc:
                 if not is_auth_disabled():
-                    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+                    return JSONResponse(
+                        status_code=exc.status_code, content={"detail": exc.detail}
+                    )
                 user = get_auth_disabled_user()
                 auth_source = AUTH_SOURCE_AUTH_DISABLED
         elif is_auth_disabled():

@@ -9,11 +9,12 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from app.gateway.authz import require_permission
 from app.gateway.deps import get_current_user, get_feedback_repo, get_run_store
+from app.gateway.rate_limit import rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["feedback"])
@@ -25,13 +26,19 @@ router = APIRouter(prefix="/api/threads", tags=["feedback"])
 
 
 class FeedbackCreateRequest(BaseModel):
-    rating: int = Field(..., description="Feedback rating: +1 (positive) or -1 (negative)")
+    rating: int = Field(
+        ..., description="Feedback rating: +1 (positive) or -1 (negative)"
+    )
     comment: str | None = Field(default=None, description="Optional text feedback")
-    message_id: str | None = Field(default=None, description="Optional: scope feedback to a specific message")
+    message_id: str | None = Field(
+        default=None, description="Optional: scope feedback to a specific message"
+    )
 
 
 class FeedbackUpsertRequest(BaseModel):
-    rating: int = Field(..., description="Feedback rating: +1 (positive) or -1 (negative)")
+    rating: int = Field(
+        ..., description="Feedback rating: +1 (positive) or -1 (negative)"
+    )
     comment: str | None = Field(default=None, description="Optional text feedback")
 
 
@@ -65,6 +72,7 @@ async def upsert_feedback(
     run_id: str,
     body: FeedbackUpsertRequest,
     request: Request,
+    _rl: None = Depends(rate_limit),
 ) -> dict[str, Any]:
     """Create or update feedback for a run (idempotent)."""
     if body.rating not in (1, -1):
@@ -77,7 +85,9 @@ async def upsert_feedback(
     if run is None:
         raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
     if run.get("thread_id") != thread_id:
-        raise HTTPException(status_code=404, detail=f"Run {run_id} not found in thread {thread_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Run {run_id} not found in thread {thread_id}"
+        )
 
     feedback_repo = get_feedback_repo(request)
     return await feedback_repo.upsert(
@@ -95,6 +105,7 @@ async def delete_run_feedback(
     thread_id: str,
     run_id: str,
     request: Request,
+    _rl: None = Depends(rate_limit),
 ) -> dict[str, bool]:
     """Delete the current user's feedback for a run."""
     user_id = await get_current_user(request)
@@ -116,6 +127,7 @@ async def create_feedback(
     run_id: str,
     body: FeedbackCreateRequest,
     request: Request,
+    _rl: None = Depends(rate_limit),
 ) -> dict[str, Any]:
     """Submit feedback (thumbs-up/down) for a run."""
     if body.rating not in (1, -1):
@@ -129,7 +141,9 @@ async def create_feedback(
     if run is None:
         raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
     if run.get("thread_id") != thread_id:
-        raise HTTPException(status_code=404, detail=f"Run {run_id} not found in thread {thread_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Run {run_id} not found in thread {thread_id}"
+        )
 
     feedback_repo = get_feedback_repo(request)
     return await feedback_repo.create(
@@ -142,7 +156,9 @@ async def create_feedback(
     )
 
 
-@router.get("/{thread_id}/runs/{run_id}/feedback", response_model=list[FeedbackResponse])
+@router.get(
+    "/{thread_id}/runs/{run_id}/feedback", response_model=list[FeedbackResponse]
+)
 @require_permission("threads", "read", owner_check=True)
 async def list_feedback(
     thread_id: str,
@@ -154,7 +170,9 @@ async def list_feedback(
     return await feedback_repo.list_by_run(thread_id, run_id)
 
 
-@router.get("/{thread_id}/runs/{run_id}/feedback/stats", response_model=FeedbackStatsResponse)
+@router.get(
+    "/{thread_id}/runs/{run_id}/feedback/stats", response_model=FeedbackStatsResponse
+)
 @require_permission("threads", "read", owner_check=True)
 async def feedback_stats(
     thread_id: str,
@@ -173,6 +191,7 @@ async def delete_feedback(
     run_id: str,
     feedback_id: str,
     request: Request,
+    _rl: None = Depends(rate_limit),
 ) -> dict[str, bool]:
     """Delete a feedback record."""
     feedback_repo = get_feedback_repo(request)
@@ -181,7 +200,9 @@ async def delete_feedback(
     if existing is None:
         raise HTTPException(status_code=404, detail=f"Feedback {feedback_id} not found")
     if existing.get("thread_id") != thread_id or existing.get("run_id") != run_id:
-        raise HTTPException(status_code=404, detail=f"Feedback {feedback_id} not found in run {run_id}")
+        raise HTTPException(
+            status_code=404, detail=f"Feedback {feedback_id} not found in run {run_id}"
+        )
     deleted = await feedback_repo.delete(feedback_id)
     if not deleted:
         raise HTTPException(status_code=404, detail=f"Feedback {feedback_id} not found")

@@ -27,10 +27,18 @@ def _get_infoquest_client() -> InfoQuestClient:
 
     image_search_config = get_app_config().get_tool_config("image_search")
     image_search_time_range = -1
-    if image_search_config is not None and "image_search_time_range" in image_search_config.model_extra:
-        image_search_time_range = image_search_config.model_extra.get("image_search_time_range")
+    if (
+        image_search_config is not None
+        and "image_search_time_range" in image_search_config.model_extra
+    ):
+        image_search_time_range = image_search_config.model_extra.get(
+            "image_search_time_range"
+        )
     image_size = "i"
-    if image_search_config is not None and "image_size" in image_search_config.model_extra:
+    if (
+        image_search_config is not None
+        and "image_size" in image_search_config.model_extra
+    ):
         image_size = image_search_config.model_extra.get("image_size")
 
     return InfoQuestClient(
