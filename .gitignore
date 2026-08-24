@@ -87,3 +87,10 @@ site/
 *.swp
 *._*
 Thumbs.db
+
+# === Web Demo (Node.js 子项目) ===
+web-demo/node_modules/
+web-demo/.next/
+web-demo/out/
+web-demo/coverage/
+web-demo/.pnpm-store/
