@@ -94,4 +94,7 @@ web-demo/.next/
 web-demo/out/
 web-demo/coverage/
 web-demo/.pnpm-store/
-web-demo/.pnpm-store/
+web-demo/tsconfig.tsbuildinfo
+
+# Repository-level pnpm temp
+.pnpm-store/
