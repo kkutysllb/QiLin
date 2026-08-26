@@ -8,7 +8,7 @@
 import process from "node:process";
 
 const BASE = process.env.BASE || "http://127.0.0.1:28080";
-const EMAIL = process.env.SMOKE_EMAIL || "admin@qilin.local";
+const EMAIL = process.env.SMOKE_EMAIL || "admin@example.com";
 const PASSWORD = process.env.SMOKE_PASSWORD || "QiLin#Demo2026";
 
 function cookiesFrom(res) {

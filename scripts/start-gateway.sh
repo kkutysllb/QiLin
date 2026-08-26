@@ -36,6 +36,11 @@ cd "$PROJECT_ROOT"
 LOG_FILE="/tmp/qilin-gateway.log"
 PID_FILE="/tmp/qilin-gateway.pid"
 
+# 加载本地 .env(如 MINIMAX_API_KEY 等被 config.yaml 以 $VAR 引用的密钥;不存在则跳过)
+if [[ -f .env ]]; then
+  set -a; source .env; set +a
+fi
+
 # 颜色
 RED='\033[0;31m'
 GREEN='\033[0;32m'
