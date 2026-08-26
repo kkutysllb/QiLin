@@ -42,8 +42,8 @@ const config = {
       }
     : {
         i18n: {
-          locales: ["en", "zh"],
-          defaultLocale: "en",
+          locales: ["zh", "en"],
+          defaultLocale: "zh",
         },
         async rewrites() {
           // Rewrites are ONLY used in web dev mode (non-desktop). Desktop dev
@@ -51,8 +51,8 @@ const config = {
           // getLangGraphBaseURL(), bypassing the Next.js proxy entirely.
           const rewrites = [];
           const gatewayURL = getInternalServiceURL(
-            "KWORKS_INTERNAL_GATEWAY_BASE_URL",
-            "http://127.0.0.1:9193",
+            "QILIN_GATEWAY_URL",
+            "http://127.0.0.1:28081",
           );
 
           // LangGraph SDK routes keep their /api/langgraph prefix in web
