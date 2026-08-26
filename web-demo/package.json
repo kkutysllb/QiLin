@@ -4,20 +4,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "demo:save": "node scripts/save-demo.js",
+    "dev": "node server.js",
+    "dev:next": "next dev --webpack",
     "build": "next build",
+    "start": "NODE_ENV=production node server.js",
     "check": "eslint . --ext .ts,.tsx && pnpm run typecheck",
-    "dev": "next dev --webpack",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "preview": "next build && next start",
-    "start": "next start",
+    "preview": "next build && pnpm start",
     "test": "vitest run",
-    "build:desktop": "node scripts/desktop-build.mjs",
     "test:e2e": "playwright test",
-    "typecheck": "node scripts/typecheck.mjs"
+    "typecheck": "node scripts/typecheck.mjs",
+    "smoke": "node scripts/smoke-proxy.mjs"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",
