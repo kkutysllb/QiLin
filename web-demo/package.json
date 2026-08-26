@@ -70,6 +70,7 @@
     "embla-carousel-react": "^8.6.0",
     "gsap": "^3.13.0",
     "hast": "^1.0.0",
+    "http-proxy-middleware": "^4.2.0",
     "js-yaml": "^4.2.0",
     "katex": "^0.16.28",
     "lucide-react": "^0.562.0",
