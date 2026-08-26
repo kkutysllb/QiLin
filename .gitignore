@@ -99,3 +99,4 @@ web-demo/tsconfig.tsbuildinfo
 # Repository-level pnpm temp
 .pnpm-store/
 .qilin-internal-token
+deepseek-harness/

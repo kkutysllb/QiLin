@@ -11,7 +11,16 @@ import {
   Radio,
   Clock,
   Cpu,
-  Settings
+  Settings,
+  ShieldCheck,
+  ShieldAlert,
+  Box,
+  Activity as ActivityIcon,
+  Database,
+  Wand2,
+  FileEdit,
+  Globe,
+  Network
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -36,17 +45,16 @@ export const NAV_ITEMS: NavItem[] = [
   { title: '渠道', href: '/channels', icon: Radio, badge: 'P2' },
   { title: '调度', href: '/scheduler', icon: Clock, badge: 'P2' },
   { title: '模型', href: '/models', icon: Cpu, badge: 'P2' },
-  { title: '配置', href: '/config', icon: Settings, badge: 'P2' }
+  { title: '配置', href: '/config', icon: Settings, badge: 'P2' },
+  { title: '授权', href: '/authz', icon: ShieldCheck, badge: 'P3' },
+  { title: '护栏', href: '/guardrails', icon: ShieldAlert, badge: 'P3' },
+  { title: '沙箱', href: '/sandbox', icon: Box, badge: 'P3' },
+  { title: '追踪', href: '/tracing', icon: ActivityIcon, badge: 'P3' },
+  { title: '持久化', href: '/persistence', icon: Database, badge: 'P3' },
+  { title: '反射', href: '/reflection', icon: Wand2, badge: 'P3' },
+  { title: '工作区变更', href: '/workspace-changes', icon: FileEdit, badge: 'P3' },
+  { title: '社区', href: '/community', icon: Globe, badge: 'P3' },
+  { title: '集成', href: '/integrations', icon: Network, badge: 'P3' }
 ];
 
-export const FUTURE_NAV_ITEMS: NavItem[] = [
-  { title: '授权', href: '/authz', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '护栏', href: '/guardrails', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '沙箱', href: '/sandbox', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '追踪', href: '/tracing', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '持久化', href: '/persistence', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '反射', href: '/reflection', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '工作区变更', href: '/workspace-changes', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '社区', href: '/community', icon: Sparkles, badge: 'P3', disabled: true },
-  { title: '集成', href: '/integrations', icon: Sparkles, badge: 'P3', disabled: true }
-];
+export const FUTURE_NAV_ITEMS: NavItem[] = [];

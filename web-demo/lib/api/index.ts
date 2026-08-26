@@ -13,3 +13,6 @@ export { toolsApi } from './tools';
 export { channelsApi } from './channels';
 export { schedulerApi } from './scheduler';
 export { configApi } from './config';
+export { integrationsApi } from './integrations';
+export { persistenceApi } from './persistence';
+export { consoleApi } from './console';

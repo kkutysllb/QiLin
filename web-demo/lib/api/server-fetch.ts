@@ -56,7 +56,10 @@ export {
   toolsApi,
   channelsApi,
   schedulerApi,
-  configApi
+  configApi,
+  integrationsApi,
+  persistenceApi,
+  consoleApi
 } from './index';
 
 export { GatewayError } from './types';
