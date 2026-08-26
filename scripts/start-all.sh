@@ -58,11 +58,16 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     --clean)
-      echo -e "${BOLD}═══ 清缓存并重启 ═══${NC}"
+      echo -e "${BOLD}═══ 完全清缓存并重启 ═══${NC}"
       "$SCRIPT_DIR/start-all.sh" --stop || true
       sleep 1
-      echo -e "${YELLOW}删除 web-demo/.next ...${NC}"
+      echo -e "${YELLOW}pkill -9 残留 node 进程...${NC}"
+      pkill -9 -f "next dev" 2>/dev/null || true
+      pkill -9 -f "next-server" 2>/dev/null || true
+      sleep 1
+      echo -e "${YELLOW}删除 .next + node_modules/.cache ...${NC}"
       rm -rf "$PROJECT_ROOT/web-demo/.next" 2>/dev/null || true
+      rm -rf "$PROJECT_ROOT/web-demo/node_modules/.cache" 2>/dev/null || true
       exec "$0"
       ;;
     --fg)
