@@ -23,7 +23,8 @@ const handle = app.getRequestHandler();
 const apiProxy = createProxyMiddleware({
   target: gatewayTarget,
   changeOrigin: false,
-  ws: true, // WebSocket upgrade forwarding
+  // WebSocket upgrades are forwarded via apiProxy.upgrade() in the "upgrade"
+  // handler below (http-proxy-middleware v4 removed the v3 `ws: true` option).
   // Frontend LangGraph SDK calls use /api/langgraph/*; the gateway natively
   // exposes /api/* (same mapping as KWorks next.config rewrites).
   pathRewrite: { "^/api/langgraph": "/api" },
