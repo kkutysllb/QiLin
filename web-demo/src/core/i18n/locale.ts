@@ -33,6 +33,10 @@ export function normalizeLocale(locale: string | null | undefined): Locale {
     return locale;
   }
 
+  if (locale.toLowerCase().startsWith("en")) {
+    return "en-US";
+  }
+
   if (locale.toLowerCase().startsWith("zh")) {
     return "zh-CN";
   }

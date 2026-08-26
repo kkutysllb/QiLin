@@ -17,7 +17,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh" suppressHydrationWarning>
       <body>
         {/*
          * Windows frameless shell: stamp the desktop platform onto <html>

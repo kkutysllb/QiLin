@@ -7,7 +7,7 @@
 
 export default function GlobalError() {
   return (
-    <html lang="en">
+    <html lang="zh">
       <body
         style={{
           display: "flex",
