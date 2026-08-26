@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="115" y1="140" x2="402" y2="396" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="22%" stop-color="#FCD34D"/>
+      <stop offset="48%" stop-color="#FBBF24"/>
+      <stop offset="74%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <filter id="kGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="#FBBF24" flood-opacity="0.14"/>
+    </filter>
+    <filter id="dotGlow" x="-150%" y="-150%" width="400%" height="400%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#FCD34D" flood-opacity="0.28"/>
+    </filter>
+    <filter id="bgBlur">
+      <feGaussianBlur stdDeviation="78"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="90" ry="90" fill="url(#bgGrad)"/>
+  <circle cx="258" cy="278" r="175" fill="#FBBF24" opacity="0.035" filter="url(#bgBlur)"/>
+
+  <!-- K-Book: plump rounded strokes -->
+  <g filter="url(#kGlow)" stroke="url(#goldGrad)" stroke-linecap="round" fill="none">
+    <!-- Spine (book spine = vertical bar of K) -->
+    <line x1="156" y1="188" x2="156" y2="352" stroke-width="84"/>
+    <!-- Upper arm (upper page curving up-right) -->
+    <path d="M 192 274 Q 286 220, 372 162" stroke-width="66"/>
+    <!-- Lower arm (lower page curving down-right) -->
+    <path d="M 192 266 Q 286 320, 372 378" stroke-width="66"/>
+  </g>
+
+  <!-- Subtle top highlight on spine for polish -->
+  <path d="M 140 168 Q 156 158, 172 168" stroke="#FEF3C7" stroke-opacity="0.3" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Three scattered dots: knowledge & connection -->
+  <g filter="url(#dotGlow)">
+    <circle cx="212" cy="112" r="16" fill="#FDE68A"/>
+    <circle cx="264" cy="88" r="12" fill="#FCD34D"/>
+    <circle cx="310" cy="114" r="9" fill="#FBBF24"/>
+  </g>
+</svg>

@@ -94,3 +94,12 @@ Thumbs.db
 .pnpm-store/
 .qilin-internal-token
 deepseek-harness/
+
+# web-demo (KWorks-aligned)
+web-demo/node_modules/
+web-demo/.next/
+web-demo/out/
+web-demo/test-results/
+web-demo/playwright-report/
+web-demo/.env.local
+web-demo/tsconfig.tsbuildinfo
