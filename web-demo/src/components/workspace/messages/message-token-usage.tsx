@@ -98,7 +98,7 @@ export function MessageTokenUsageList({
  * Renders one row per AI message (built by {@link buildTokenDebugSteps}), with
  * the step label, optional secondary attribution badges, and input/output/total
  * counts. This is the richer debug view; the base {@link MessageTokenUsage} and
- * {@link MessageTokenUsageList} above preserve KWorks's existing rendering.
+ * {@link MessageTokenUsageList} above preserve QiLin's existing rendering.
  */
 export function MessageTokenUsageDebugList({
   className,

@@ -82,11 +82,11 @@ export const enUS: Translations = {
       evening: "Good evening, great job today",
     },
     description:
-      "Welcome to KWorks, an open source super agent. With built-in and custom skills, KWorks helps you search on the web, analyze data, and generate artifacts like slides, web pages and do almost anything.",
+      "Welcome to QiLin, an open source super agent. With built-in and custom skills, QiLin helps you search on the web, analyze data, and generate artifacts like slides, web pages and do almost anything.",
 
     createYourOwnSkill: "Create Your Own Skill",
     createYourOwnSkillDescription:
-      "Create your own skill to release the power of KWorks. With customized skills,\nKWorks can help you search on the web, analyze data, and generate\n artifacts like slides, web pages and do almost anything.",
+      "Create your own skill to release the power of QiLin. With customized skills,\nQiLin can help you search on the web, analyze data, and generate\n artifacts like slides, web pages and do almost anything.",
     createCronJob: "Create Cron Job",
     createCronJobDescription:
       "Describe the cron job you want through conversation. The agent will help you set up the schedule, choose an agent and prompt. For example, generate a daily summary at 9 AM, send weekly reports every Friday, etc.",
@@ -274,13 +274,13 @@ export const enUS: Translations = {
     save: "Save agent",
     saving: "Saving agent...",
     saveRequested:
-      "Save requested. KWorks is generating and saving an initial version now.",
+      "Save requested. QiLin is generating and saving an initial version now.",
     saveHint:
       "You can save this agent at any time from the top-right menu, even if this is only a first draft.",
     saveCommandMessage:
       "Please save this custom agent now based on everything we have discussed so far. Treat this as my explicit confirmation to save. If some details are still missing, make reasonable assumptions, generate a concise first SOUL.md in English, and call setup_agent immediately without asking me for more confirmation.",
     agentCreatedPendingRefresh:
-      "The agent was created, but KWorks could not load it yet. Please refresh this page in a moment.",
+      "The agent was created, but QiLin could not load it yet. Please refresh this page in a moment.",
     more: "More actions",
     agentCreated: "Agent created!",
     startChatting: "Start chatting",
@@ -309,7 +309,7 @@ export const enUS: Translations = {
   // MCP
   mcp: {
     title: "MCP Management",
-    description: "Manage Model Context Protocol (MCP) servers to extend KWorks with additional tools and data access capabilities.",
+    description: "Manage Model Context Protocol (MCP) servers to extend QiLin with additional tools and data access capabilities.",
     addServer: "Add Server",
     editServer: "Edit Server",
     deleteServer: "Delete Server",
@@ -344,11 +344,11 @@ export const enUS: Translations = {
     clientSecret: "Client Secret",
     scope: "Scope",
     emptyTitle: "No MCP servers yet",
-    emptyDescription: "Add MCP servers to extend KWorks with external tools like GitHub, filesystem, and database access.",
+    emptyDescription: "Add MCP servers to extend QiLin with external tools like GitHub, filesystem, and database access.",
     guide: "Setup Guide",
-    guideIntro: "Model Context Protocol (MCP) is an open protocol that enables AI applications to securely access local and remote data sources. By configuring MCP servers, KWorks gains additional tool capabilities such as filesystem access, web search, and database queries.",
+    guideIntro: "Model Context Protocol (MCP) is an open protocol that enables AI applications to securely access local and remote data sources. By configuring MCP servers, QiLin gains additional tool capabilities such as filesystem access, web search, and database queries.",
     guideStdioTitle: "STDIO Transport",
-    guideStdioSteps: "1. Select STDIO type for locally-running MCP servers.\n2. Enter the launch command (e.g. npx, python) and required arguments.\n3. Configure environment variables if needed (e.g. API keys).\n4. After saving, KWorks will automatically start and manage the MCP server process.",
+    guideStdioSteps: "1. Select STDIO type for locally-running MCP servers.\n2. Enter the launch command (e.g. npx, python) and required arguments.\n3. Configure environment variables if needed (e.g. API keys).\n4. After saving, QiLin will automatically start and manage the MCP server process.",
     guideSseTitle: "SSE / HTTP Transport",
     guideSseSteps: "1. Select SSE or HTTP type for remote MCP servers.\n2. Enter the server's SSE or HTTP endpoint URL.\n3. Add authentication headers (e.g. Authorization) if the server requires it.\n4. OAuth 2.0 is supported — configure Token URL for automatic token acquisition and refresh.",
     guideLinks: "Popular MCP Servers",
@@ -408,7 +408,7 @@ export const enUS: Translations = {
     promptHint: "The prompt/message sent to the agent when triggered",
     promptPlaceholder: "e.g. Generate a daily summary based on today's conversations.",
     emptyTitle: "No automation tasks yet",
-    emptyDescription: "Create automation tasks to let KWorks run scheduled AI conversations automatically, such as daily summaries and periodic reports.",
+    emptyDescription: "Create automation tasks to let QiLin run scheduled AI conversations automatically, such as daily summaries and periodic reports.",
     guide: "Help",
     guideIntro: "Automation tasks use cron expressions or one-time schedules to trigger AI conversations at specific times. Ideal for daily summaries, periodic data checks, and automated report generation.",
     guideCronSyntax: "Cron Expression Syntax",
@@ -432,7 +432,7 @@ export const enUS: Translations = {
 
   // Page titles (document title)
   pages: {
-    appName: "KWorks",
+    appName: "QiLin",
     chats: "Chats",
     newChat: "New chat",
     untitled: "Untitled",
@@ -525,7 +525,7 @@ export const enUS: Translations = {
     actions: "Actions",
     keyboardShortcuts: "Keyboard Shortcuts",
     keyboardShortcutsDescription:
-      "Navigate KWorks faster with keyboard shortcuts.",
+      "Navigate QiLin faster with keyboard shortcuts.",
     openCommandPalette: "Open Command Palette",
     toggleSidebar: "Toggle Sidebar",
   },
@@ -577,7 +577,7 @@ export const enUS: Translations = {
   },
   settings: {
     title: "Settings",
-    description: "Adjust how KWorks looks and behaves for you.",
+    description: "Adjust how QiLin looks and behaves for you.",
     sections: {
       models: "Models",
       general: "General",

@@ -14,7 +14,7 @@ const meta: MetaRecord = {
     title: "使用记忆系统",
   },
   "deploy-your-own-kworks": {
-    title: "部署你的 KWorks",
+    title: "部署你的 QiLin",
   },
 };
 

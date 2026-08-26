@@ -7,7 +7,7 @@ import { type ReactNode } from "react";
 import { DesktopProviders } from "@/components/desktop/providers";
 
 export const metadata: Metadata = {
-  title: "KWorks",
+  title: "QiLin",
   icons: {
     icon: "/favicon.svg",
   },

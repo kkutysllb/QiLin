@@ -83,7 +83,7 @@ export function Hero({ className }: { className?: string }) {
             ]}
           />{" "}
           <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-            就用 KWorks
+            就用 QiLin
           </span>
         </h1>
         <p className="text-muted-foreground mt-4 max-w-xl text-base leading-relaxed">

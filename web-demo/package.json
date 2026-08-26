@@ -1,5 +1,6 @@
 {
   "name": "qilin-web-demo",
+  "description": "QiLin Web Demo — KWorks-aligned web workspace for the QiLin agent engine",
   "version": "1.0.9",
   "private": true,
   "type": "module",

@@ -185,7 +185,7 @@ export function UpdateChecker() {
           <DialogHeader>
             <DialogTitle>已是最新版本</DialogTitle>
             <DialogDescription>
-              KWorks 当前版本已是最新，无需更新。
+              QiLin 当前版本已是最新，无需更新。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

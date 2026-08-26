@@ -1,6 +1,6 @@
 ---
 title: 快速上手
-description: 学习如何使用 create_qilin_agent 创建并运行 KWorks Agent，从模型初始化到流式响应。
+description: 学习如何使用 create_qilin_agent 创建并运行 QiLin Agent，从模型初始化到流式响应。
 ---
 
 import { Callout, Cards, Steps } from "nextra/components";
@@ -9,14 +9,14 @@ import { Callout, Cards, Steps } from "nextra/components";
 
 <Callout type="info" emoji="🚀">
   本指南介绍如何在 Python 中通过 <code>create_qilin_agent</code>
-  创建并运行一个 KWorks Agent。
+  创建并运行一个 QiLin Agent。
 </Callout>
 
 理解 Qilin Harness 的最快方式，是直接在代码里创建一个 Agent。本快速上手指南将带你完成模型初始化、Agent 创建，以及响应流式输出。
 
 ## 前置条件
 
-Qilin Harness 需要 Python 3.12 或更高版本。该包是 `KWorks` 代码库的一部分，位于 `backend/packages/harness` 下。
+Qilin Harness 需要 Python 3.12 或更高版本。该包是 `QiLin` 代码库的一部分，位于 `backend/packages/harness` 下。
 
 如果你从仓库克隆开始：
 
@@ -53,7 +53,7 @@ model = ChatOpenAI(
 agent = create_qilin_agent(model)
 ```
 
-这会返回一个已经编译好的 LangGraph Agent，并带有 KWorks 默认的中间件链。
+这会返回一个已经编译好的 LangGraph Agent，并带有 QiLin 默认的中间件链。
 
 ### 流式获取响应
 

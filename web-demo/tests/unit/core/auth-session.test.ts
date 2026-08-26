@@ -22,6 +22,6 @@ describe("desktop auth session helpers", () => {
     expect(getDesktopAuthHeaders()).toEqual({});
 
     setDesktopMode(true);
-    expect(getDesktopAuthHeaders()).toEqual({ "X-KWorks-Desktop": "1" });
+    expect(getDesktopAuthHeaders()).toEqual({ "X-QiLin-Desktop": "1" });
   });
 });

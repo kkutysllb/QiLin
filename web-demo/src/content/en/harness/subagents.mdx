@@ -24,7 +24,7 @@ Subagents solve two key problems in long-horizon workflows:
 
 ## Built-in subagents
 
-KWorks ships with three built-in subagents:
+QiLin ships with three built-in subagents:
 
 ### general-purpose
 
@@ -104,7 +104,7 @@ If the agent tries to call more subagents than the limit allows, the middleware 
 
 ## ACP agents (external agents)
 
-In addition to the built-in subagents, KWorks supports delegating to external agents through the **Agent Connect Protocol (ACP)**. ACP allows KWorks to invoke agents running as separate processes (including third-party CLI tools wrapped with an ACP adapter).
+In addition to the built-in subagents, QiLin supports delegating to external agents through the **Agent Connect Protocol (ACP)**. ACP allows QiLin to invoke agents running as separate processes (including third-party CLI tools wrapped with an ACP adapter).
 
 Configure ACP agents in `config.yaml`:
 
@@ -129,7 +129,7 @@ acp_agents:
 The Lead Agent invokes ACP agents through the `invoke_acp_agent` built-in tool.
 
 <Callout type="tip">
-  ACP agents run as child processes managed by KWorks. They communicate over
+  ACP agents run as child processes managed by QiLin. They communicate over
   the ACP wire protocol. The standard CLI tools (like the plain `claude` or
   `codex` commands) are not ACP-compatible by default — use the adapter packages
   listed above or a compatible ACP wrapper.
@@ -137,7 +137,7 @@ The Lead Agent invokes ACP agents through the `invoke_acp_agent` built-in tool.
 
 ## Custom agents as subagents
 
-Custom agents created through the KWorks App UI can also be invoked as subagents using the `task` tool. When you specify `agent="my-custom-agent"`, the runtime loads that agent's configuration (skills, tool groups, model) and runs it as a subagent for the delegated task.
+Custom agents created through the QiLin App UI can also be invoked as subagents using the `task` tool. When you specify `agent="my-custom-agent"`, the runtime loads that agent's configuration (skills, tool groups, model) and runs it as a subagent for the delegated task.
 
 <Cards num={2}>
   <Cards.Card title="Sandbox" href="/en/docs/harness/sandbox" />

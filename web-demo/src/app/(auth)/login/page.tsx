@@ -188,7 +188,7 @@ function LoginPageInner() {
           >
         <div className="text-center">
           <h1 className="bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-4xl font-bold text-transparent">
-            KWorks
+            QiLin
           </h1>
           <p className="text-muted-foreground mt-2">
             {isLogin ? "登录您的账户" : "创建新账户"}

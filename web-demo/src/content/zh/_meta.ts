@@ -11,7 +11,7 @@ const meta: MetaRecord = {
     title: "Qilin Harness",
   },
   application: {
-    title: "KWorks 应用",
+    title: "QiLin 应用",
   },
   tutorials: {
     title: "教程",

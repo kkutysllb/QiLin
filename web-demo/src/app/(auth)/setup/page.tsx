@@ -205,7 +205,7 @@ export default function SetupPage() {
             >
           <div className="text-center">
             <h1 className="bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-4xl font-bold text-transparent">
-              KWorks
+              QiLin
             </h1>
             <p className="text-muted-foreground mt-2">创建管理员账户</p>
             <p className="text-muted-foreground mt-1 text-xs">
@@ -312,7 +312,7 @@ export default function SetupPage() {
           >
         <div className="text-center">
           <h1 className="bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-4xl font-bold text-transparent">
-            KWorks
+            QiLin
           </h1>
           <p className="text-muted-foreground mt-2">
             完成管理员账户设置

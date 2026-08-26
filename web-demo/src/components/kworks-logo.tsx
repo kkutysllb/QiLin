@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * KWorks 官方品牌 Logo（内联 favicon.svg / desktop build/icon-source.svg 设计）。
+ * QiLin 官方品牌 Logo（内联 favicon.svg / desktop build/icon-source.svg 设计）。
  * 深色圆角底 + 金色 K-Book（书脊 + 上下翻页）+ 三个金色圆点。
  * 内联 SVG 不受 static-export / Electron app:// scheme 影响，任意尺寸缩放。
  */
-export function KWorksLogo({
+export function QiLinLogo({
   size = 24,
   className,
 }: {
@@ -18,7 +18,7 @@ export function KWorksLogo({
       height={size}
       viewBox="0 0 512 512"
       role="img"
-      aria-label="KWorks logo"
+      aria-label="QiLin logo"
       className={className}
     >
       <defs>

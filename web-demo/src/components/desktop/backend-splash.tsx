@@ -125,7 +125,7 @@ export function BackendSplashScreen() {
           </div>
           <div className="text-center">
             <h2 className="text-lg font-semibold text-foreground">
-              {hasError ? "启动遇到问题" : `正在启动 KWorks${".".repeat(dots)}`}
+              {hasError ? "启动遇到问题" : `正在启动 QiLin${".".repeat(dots)}`}
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {hasError ? "请检查下方的服务状态" : "正在初始化后端服务"}

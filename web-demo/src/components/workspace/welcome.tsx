@@ -36,7 +36,7 @@ export function Welcome({
         className,
       )}
     >
-      {/* Ambient KWorks wordmark — large, low contrast, sits behind the
+      {/* Ambient QiLin wordmark — large, low contrast, sits behind the
           tagline so it reads as brand background rather than a second
           headline. Anchored to the welcome container (which spans the
           full chat area) so the watermark is centred relative to chat,
@@ -47,7 +47,7 @@ export function Welcome({
         className="text-foreground/8 pointer-events-none absolute inset-x-0 top-1/2 flex select-none items-center justify-center"
       >
         <span className="-translate-y-1/2 text-[clamp(8rem,18vw,14rem)] font-extrabold tracking-tighter whitespace-nowrap">
-          KWorks
+          QiLin
         </span>
       </div>
 

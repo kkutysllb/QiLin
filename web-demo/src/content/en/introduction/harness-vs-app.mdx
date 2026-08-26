@@ -1,6 +1,6 @@
 ---
 title: Harness vs App
-description: "KWorks has two layers that are closely related but serve different purposes."
+description: "QiLin has two layers that are closely related but serve different purposes."
 ---
 
 import { Callout, Cards } from "nextra/components";
@@ -8,15 +8,15 @@ import { Callout, Cards } from "nextra/components";
 # Harness vs App
 
 <Callout type="info" emoji="⚙️">
-  KWorks App is the best-practice Super Agent application built on top of
+  QiLin App is the best-practice Super Agent application built on top of
   Qilin Harness, while Qilin Harness is the Python SDK and runtime
   foundation for building your own agent system.
 </Callout>
 
-KWorks has two layers that are closely related but serve different purposes:
+QiLin has two layers that are closely related but serve different purposes:
 
 - **Qilin Harness** is the runtime foundation.
-- **KWorks App** is the best-practice application built on top of that foundation.
+- **QiLin App** is the best-practice application built on top of that foundation.
 
 Understanding this distinction makes the rest of the documentation much easier to navigate.
 
@@ -24,7 +24,7 @@ Understanding this distinction makes the rest of the documentation much easier t
 
 The **Qilin Harness** is the reusable system for building and operating long-horizon agents.
 
-It is also delivered as a **Python library SDK**, so developers can use KWorks as a programmable foundation for building their own Super Agent systems instead of starting from scratch.
+It is also delivered as a **Python library SDK**, so developers can use QiLin as a programmable foundation for building their own Super Agent systems instead of starting from scratch.
 
 It provides the core runtime capabilities that make an agent useful in real work:
 
@@ -36,34 +36,34 @@ It provides the core runtime capabilities that make an agent useful in real work
 - context management, and
 - configurable runtime behavior.
 
-If you want to build your own agent product, integrate KWorks into an existing system, or customize the runtime deeply, the Harness is the part you should focus on.
+If you want to build your own agent product, integrate QiLin into an existing system, or customize the runtime deeply, the Harness is the part you should focus on.
 
-The Harness is the foundation. It is the part that makes KWorks programmable, extensible, and reusable.
+The Harness is the foundation. It is the part that makes QiLin programmable, extensible, and reusable.
 
 ## The App is the reference implementation
 
-The **KWorks App** is a complete Super Agent application built with the Harness.
+The **QiLin App** is a complete Super Agent application built with the Harness.
 
-Instead of only exposing runtime primitives, it shows what a production-oriented KWorks experience looks like when those primitives are assembled into a usable product. In other words, the App is not separate from the Harness. It is the best-practice implementation of what the Harness enables.
+Instead of only exposing runtime primitives, it shows what a production-oriented QiLin experience looks like when those primitives are assembled into a usable product. In other words, the App is not separate from the Harness. It is the best-practice implementation of what the Harness enables.
 
-That is why the App is the easiest way to understand KWorks as a working system: it demonstrates how the runtime, UI, workflows, and operational pieces come together in one place.
+That is why the App is the easiest way to understand QiLin as a working system: it demonstrates how the runtime, UI, workflows, and operational pieces come together in one place.
 
 ## Why the App matters
 
 Many teams do not just want agent infrastructure. They want a usable application that already solves the common product and operations problems around running agents.
 
-The KWorks App addresses that need.
+The QiLin App addresses that need.
 
-It presents KWorks as a **Super Agent application** rather than only a set of low-level building blocks. That means users interact with a complete system that can manage conversations, run tasks, produce artifacts, and expose the core KWorks capabilities through an opinionated product surface.
+It presents QiLin as a **Super Agent application** rather than only a set of low-level building blocks. That means users interact with a complete system that can manage conversations, run tasks, produce artifacts, and expose the core QiLin capabilities through an opinionated product surface.
 
 The App is therefore useful in two different ways:
 
-1. as a ready-to-run product for teams that want to deploy KWorks directly, and
+1. as a ready-to-run product for teams that want to deploy QiLin directly, and
 2. as a reference architecture for teams that want to build their own application on top of the Harness.
 
 ## Best practices encoded in the App
 
-The App is where KWorks's recommended patterns become concrete.
+The App is where QiLin's recommended patterns become concrete.
 
 It reflects best practices for:
 
@@ -71,38 +71,38 @@ It reflects best practices for:
 - how threads and artifacts are organized,
 - how runtime capabilities are exposed in a product workflow,
 - how the system is configured and operated, and
-- how a self-hosted KWorks deployment should be structured.
+- how a self-hosted QiLin deployment should be structured.
 
-So when we say the App is built on the Harness, we do not only mean it imports the runtime. We mean it packages KWorks's preferred way to deliver a Super Agent experience end to end.
+So when we say the App is built on the Harness, we do not only mean it imports the runtime. We mean it packages QiLin's preferred way to deliver a Super Agent experience end to end.
 
 ## Self-hosting and deployment
 
-A key property of KWorks App is that it can be **self-hosted**.
+A key property of QiLin App is that it can be **self-hosted**.
 
-That matters for teams that want control over infrastructure, data handling, runtime configuration, and integration with their own environment. The App is designed so you can run KWorks in your own setup instead of treating it as a closed hosted service.
+That matters for teams that want control over infrastructure, data handling, runtime configuration, and integration with their own environment. The App is designed so you can run QiLin in your own setup instead of treating it as a closed hosted service.
 
-This makes KWorks practical for internal tools, team workflows, and organization-specific deployments where control and extensibility matter as much as raw model capability.
+This makes QiLin practical for internal tools, team workflows, and organization-specific deployments where control and extensibility matter as much as raw model capability.
 
 ## How to choose between them
 
 The simplest rule is:
 
 - Choose the **Harness** if you want to build your own agent system.
-- Choose the **App** if you want KWorks as a complete Super Agent product.
+- Choose the **App** if you want QiLin as a complete Super Agent product.
 - Use both if you want to start from the App while still keeping access to the underlying runtime.
 
 The two layers are complementary. The Harness gives you the agent runtime. The App turns that runtime into a concrete product with deployment, operations, and user workflows already thought through.
 
 <Cards num={2}>
   <Cards.Card title="Qilin Harness" href="/en/docs/harness" />
-  <Cards.Card title="KWorks App" href="/en/docs/app" />
+  <Cards.Card title="QiLin App" href="/en/docs/app" />
 </Cards>
 
 ## One foundation, two entry points
 
-KWorks is not split into two unrelated products. It is one system with two entry points.
+QiLin is not split into two unrelated products. It is one system with two entry points.
 
 The **Harness** is the core runtime for developers.
 The **App** is the best-practice Super Agent application built on top of that runtime.
 
-If you want to go deeper into the runtime itself, continue with the [Qilin Harness](/docs/harness). If you want to run KWorks as a product, continue with the [KWorks App](/docs/app).
+If you want to go deeper into the runtime itself, continue with the [Qilin Harness](/docs/harness). If you want to run QiLin as a product, continue with the [QiLin App](/docs/app).

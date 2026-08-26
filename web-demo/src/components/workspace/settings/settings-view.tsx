@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { KWorksLogo } from "@/components/kworks-logo";
+import { QiLinLogo } from "@/components/kworks-logo";
 import { Input } from "@/components/ui/input";
 import { ResizeHandle } from "@/components/ui/resize-handle";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -185,8 +185,8 @@ export function SettingsView({
           className="bg-sidebar kworks-win-pad-top flex shrink-0 flex-col"
         >
           <div className="[-webkit-app-region:drag] flex items-center gap-2 px-4 py-3">
-            <KWorksLogo size={24} className="shrink-0" />
-            <span className="text-base font-bold text-foreground">KWorks</span>
+            <QiLinLogo size={24} className="shrink-0" />
+            <span className="text-base font-bold text-foreground">QiLin</span>
           </div>
           <button
             type="button"

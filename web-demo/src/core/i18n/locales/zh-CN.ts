@@ -81,11 +81,11 @@ export const zhCN: Translations = {
       evening: "晚上好，今天辛苦了",
     },
     description:
-      "欢迎使用 KWorks，一个完全开源的超级智能体。通过内置和自定义的 Skills，\nKWorks 可以帮你搜索网络、分析数据，还能为你生成幻灯片、\n图片、视频、播客及网页等，几乎可以做任何事情。",
+      "欢迎使用 QiLin，一个完全开源的超级智能体。通过内置和自定义的 Skills，\nQiLin 可以帮你搜索网络、分析数据，还能为你生成幻灯片、\n图片、视频、播客及网页等，几乎可以做任何事情。",
 
     createYourOwnSkill: "创建你自己的 Agent SKill",
     createYourOwnSkillDescription:
-      "创建你的 Agent Skill 来释放 KWorks 的潜力。通过自定义技能，KWorks\n可以帮你搜索网络、分析数据，还能为你生成幻灯片、\n网页等作品，几乎可以做任何事情。",
+      "创建你的 Agent Skill 来释放 QiLin 的潜力。通过自定义技能，QiLin\n可以帮你搜索网络、分析数据，还能为你生成幻灯片、\n网页等作品，几乎可以做任何事情。",
     createCronJob: "创建定时任务",
     createCronJobDescription:
       "通过对话描述你想要的定时任务，Agent 会帮你设置时间表、选择智能体和提示词。例如每天早9点生成工作总结、每周五下午发送报告等。",
@@ -264,13 +264,13 @@ export const zhCN: Translations = {
     save: "保存智能体",
     saving: "正在保存智能体...",
     saveRequested:
-      "已提交保存请求，KWorks 正在根据当前对话生成并保存初版智能体。",
+      "已提交保存请求，QiLin 正在根据当前对话生成并保存初版智能体。",
     saveHint:
       "你可以在右上角的菜单里随时保存这个智能体，就算目前还只是初稿也可以。",
     saveCommandMessage:
       "请现在根据我们目前已经讨论的全部内容保存这个自定义智能体。这就是我明确的保存确认。如果仍有少量细节缺失，请根据上下文做出合理假设，生成一份简洁的英文初始 SOUL.md，并直接调用 setup_agent，不要再向我索要额外确认。",
     agentCreatedPendingRefresh:
-      "智能体已创建，但 KWorks 暂时还无法读取到它。请稍后刷新当前页面。",
+      "智能体已创建，但 QiLin 暂时还无法读取到它。请稍后刷新当前页面。",
     more: "更多操作",
     agentCreated: "智能体已创建！",
     startChatting: "开始对话",
@@ -299,7 +299,7 @@ export const zhCN: Translations = {
   // MCP
   mcp: {
     title: "MCP 管理",
-    description: "管理 Model Context Protocol (MCP) 服务器，扩展 KWorks 的工具与数据访问能力。",
+    description: "管理 Model Context Protocol (MCP) 服务器，扩展 QiLin 的工具与数据访问能力。",
     addServer: "添加服务器",
     editServer: "编辑服务器",
     deleteServer: "删除服务器",
@@ -334,11 +334,11 @@ export const zhCN: Translations = {
     clientSecret: "Client Secret",
     scope: "Scope",
     emptyTitle: "暂无 MCP 服务器",
-    emptyDescription: "添加 MCP 服务器以扩展 KWorks 的能力，例如接入 GitHub、文件系统、数据库等外部工具。",
+    emptyDescription: "添加 MCP 服务器以扩展 QiLin 的能力，例如接入 GitHub、文件系统、数据库等外部工具。",
     guide: "配置帮助",
-    guideIntro: "Model Context Protocol (MCP) 是一个开放协议，允许 AI 应用安全地访问本地和远程数据源。通过配置 MCP 服务器，KWorks 可以获得额外的工具能力，如访问文件系统、搜索网页、查询数据库等。",
+    guideIntro: "Model Context Protocol (MCP) 是一个开放协议，允许 AI 应用安全地访问本地和远程数据源。通过配置 MCP 服务器，QiLin 可以获得额外的工具能力，如访问文件系统、搜索网页、查询数据库等。",
     guideStdioTitle: "STDIO 传输类型",
-    guideStdioSteps: "1. 选择 STDIO 类型，适用于本地运行的 MCP 服务器。\n2. 填写启动命令（如 npx、python），以及需要的启动参数。\n3. 如有需要，配置环境变量（如 API Key）。\n4. 保存配置后，KWorks 将自动启动并管理该 MCP 服务器进程。",
+    guideStdioSteps: "1. 选择 STDIO 类型，适用于本地运行的 MCP 服务器。\n2. 填写启动命令（如 npx、python），以及需要的启动参数。\n3. 如有需要，配置环境变量（如 API Key）。\n4. 保存配置后，QiLin 将自动启动并管理该 MCP 服务器进程。",
     guideSseTitle: "SSE / HTTP 传输类型",
     guideSseSteps: "1. 选择 SSE 或 HTTP 类型，适用于远程 MCP 服务器。\n2. 填写服务器的 SSE 或 HTTP 端点 URL。\n3. 如服务器需要认证，在 Headers 中添加 Authorization 等头信息。\n4. 支持 OAuth 2.0 认证，可配置 Token URL 自动获取和刷新令牌。",
     guideLinks: "常用 MCP 服务器",
@@ -398,7 +398,7 @@ export const zhCN: Translations = {
     promptHint: "自动化触发时发送给 Agent 的提示词/消息",
     promptPlaceholder: "例如：请根据今天的对话记录，生成一份工作总结。",
     emptyTitle: "暂无自动化任务",
-    emptyDescription: "创建自动化任务，让 KWorks 按计划自动执行对话，例如每日总结、定期报告等。",
+    emptyDescription: "创建自动化任务，让 QiLin 按计划自动执行对话，例如每日总结、定期报告等。",
     guide: "配置帮助",
     guideIntro: "自动化任务通过 Cron 表达式或一次性调度，在指定时间自动触发 AI 对话。适合每日总结、定期数据检查、定时报告生成等场景。",
     guideCronSyntax: "Cron 表达式语法",
@@ -422,7 +422,7 @@ export const zhCN: Translations = {
 
   // Page titles (document title)
   pages: {
-    appName: "KWorks",
+    appName: "QiLin",
     chats: "对话",
     newChat: "新对话",
     untitled: "未命名",
@@ -447,7 +447,7 @@ export const zhCN: Translations = {
     writeFile: "写入文件",
     clickToViewContent: "点击查看文件内容",
     writeTodos: "更新 To-do 列表",
-    skillInstallTooltip: "安装技能并使其可在 KWorks 中使用",
+    skillInstallTooltip: "安装技能并使其可在 QiLin 中使用",
   },
 
   // 结构化人机协同澄清表单
@@ -512,7 +512,7 @@ export const zhCN: Translations = {
     noResults: "未找到结果。",
     actions: "操作",
     keyboardShortcuts: "键盘快捷键",
-    keyboardShortcutsDescription: "使用键盘快捷键更快地操作 KWorks。",
+    keyboardShortcutsDescription: "使用键盘快捷键更快地操作 QiLin。",
     openCommandPalette: "打开命令面板",
     toggleSidebar: "切换侧边栏",
   },
@@ -563,7 +563,7 @@ export const zhCN: Translations = {
   },
   settings: {
     title: "设置",
-    description: "根据你的偏好调整 KWorks 的界面和行为。",
+    description: "根据你的偏好调整 QiLin 的界面和行为。",
     sections: {
       models: "模型",
       general: "常规",

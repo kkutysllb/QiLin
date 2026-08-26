@@ -4,7 +4,7 @@ import { MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { KWorksLogo } from "@/components/kworks-logo";
+import { QiLinLogo } from "@/components/kworks-logo";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -31,21 +31,21 @@ export function WorkspaceHeader({ className }: { className?: string }) {
     >
       {collapsed ? (
         <div className="flex items-center justify-center py-1">
-          <KWorksLogo size={20} className="shrink-0" />
+          <QiLinLogo size={20} className="shrink-0" />
         </div>
       ) : (
         <div className="flex items-center gap-2 px-2 py-1">
-          <KWorksLogo size={24} className="shrink-0" />
+          <QiLinLogo size={24} className="shrink-0" />
           {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" ? (
             <Link
               href="/"
               className="text-base font-bold text-foreground hover:text-foreground/80 transition-colors"
             >
-              KWorks
+              QiLin
             </Link>
           ) : (
             <span className="text-base font-bold text-foreground">
-              KWorks
+              QiLin
             </span>
           )}
         </div>

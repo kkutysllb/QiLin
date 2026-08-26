@@ -45,7 +45,7 @@ export function LogLevelForm() {
       <div>
         <h4 className="text-sm font-semibold">日志级别</h4>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          控制 KWorks 模块的日志输出详细程度
+          控制 QiLin 模块的日志输出详细程度
         </p>
       </div>
 

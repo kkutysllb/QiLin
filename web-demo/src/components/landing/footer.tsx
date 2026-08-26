@@ -22,7 +22,7 @@ export function Footer({ className }: FooterProps) {
         </p>
       </div>
       <div className="text-muted-foreground container mb-4 flex flex-col items-center justify-center text-xs">
-        <p>基于 MIT 协议开源 · &copy; {year} KWorks</p>
+        <p>基于 MIT 协议开源 · &copy; {year} QiLin</p>
       </div>
     </footer>
   );

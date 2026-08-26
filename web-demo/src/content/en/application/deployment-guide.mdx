@@ -1,17 +1,17 @@
 ---
 title: Deployment Guide
-description: "This guide covers all supported deployment methods for KWorks App: local development, Docker Compose, and production with Kubernetes-managed sandboxes."
+description: "This guide covers all supported deployment methods for QiLin App: local development, Docker Compose, and production with Kubernetes-managed sandboxes."
 ---
 
 import { Callout, Cards, Steps, Tabs } from "nextra/components";
 
 # Deployment Guide
 
-This guide covers all supported deployment methods for KWorks App: local development, Docker Compose, and production with Kubernetes-managed sandboxes.
+This guide covers all supported deployment methods for QiLin App: local development, Docker Compose, and production with Kubernetes-managed sandboxes.
 
 ## Local development deployment
 
-The local workflow is the fastest way to run KWorks. All services run as native processes on your machine.
+The local workflow is the fastest way to run QiLin. All services run as native processes on your machine.
 
 <Tabs items={["Start", "Stop", "Logs"]}>
   <Tabs.Tab>
@@ -67,8 +67,8 @@ Docker Compose runs all services in containers. Use this for a more production-l
 ### Development compose
 
 ```bash
-# Set the absolute path to your KWorks repo root
-export QILIN_ROOT=/path/to/KWorks
+# Set the absolute path to your QiLin repo root
+export QILIN_ROOT=/path/to/QiLin
 
 docker compose -f docker/docker-compose-dev.yaml up --build
 ```
@@ -84,7 +84,7 @@ Create a `.env` file in the repo root for secrets and runtime configuration:
 ```bash
 # .env
 OPENAI_API_KEY=sk-...
-QILIN_ROOT=/absolute/path/to/KWorks
+QILIN_ROOT=/absolute/path/to/QiLin
 BETTER_AUTH_SECRET=your-secret-here-min-32-chars
 ```
 
@@ -132,7 +132,7 @@ Set required environment variables in your `.env` or compose override:
 ```bash
 K8S_NAMESPACE=kworks
 SANDBOX_IMAGE=enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
-QILIN_ROOT=/absolute/path/to/KWorks
+QILIN_ROOT=/absolute/path/to/QiLin
 ```
 
 #### Configure the sandbox provider
@@ -171,7 +171,7 @@ These are set in the Docker Compose environment and processed by `envsubst` at c
 
 ### Authentication
 
-KWorks App uses [Better Auth](https://www.better-auth.com/) for session management. In production:
+QiLin App uses [Better Auth](https://www.better-auth.com/) for session management. In production:
 
 1. Set `BETTER_AUTH_SECRET` to a strong random string (minimum 32 characters).
 2. Set `BETTER_AUTH_URL` to your public-facing URL (e.g., `https://your-domain.com`).

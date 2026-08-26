@@ -48,7 +48,7 @@ The `SKILL.md` file is the authoritative definition of the skill. It is parsed b
 
 ## Built-in skills
 
-KWorks ships with the following public skills:
+QiLin ships with the following public skills:
 
 | Skill                          | Description                                                                      |
 | ------------------------------ | -------------------------------------------------------------------------------- |
@@ -116,7 +116,7 @@ The `container_path` is important: it tells the agent where to find skill resour
 
 Skill availability is tracked in `extensions_config.json` (separate from `config.yaml`). You can manage skill state:
 
-- **Through the KWorks App UI**: the skills panel lets you toggle skills on and off.
+- **Through the QiLin App UI**: the skills panel lets you toggle skills on and off.
 - **Through the Gateway API**: `POST /api/extensions/skills/{name}/enable` and `/disable`.
 - **By editing `extensions_config.json` directly**.
 
@@ -141,7 +141,7 @@ skills:
 
 ## Skill evolution
 
-KWorks includes an optional **skill evolution** feature that allows the agent to autonomously create and improve skills in the `skills/custom/` directory:
+QiLin includes an optional **skill evolution** feature that allows the agent to autonomously create and improve skills in the `skills/custom/` directory:
 
 ```yaml
 skill_evolution:

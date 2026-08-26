@@ -3,7 +3,7 @@
 import { isDesktop } from "@/core/config";
 
 const DESKTOP_SESSION_TOKEN_KEY = "kworksDesktopSessionToken";
-const DESKTOP_AUTH_HEADER = "X-KWorks-Desktop";
+const DESKTOP_AUTH_HEADER = "X-QiLin-Desktop";
 
 export function getDesktopSessionToken(): string | null {
   if (typeof window === "undefined") return null;

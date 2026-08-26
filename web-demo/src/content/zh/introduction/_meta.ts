@@ -2,7 +2,7 @@ import type { MetaRecord } from "nextra";
 
 const meta: MetaRecord = {
   "why-kworks": {
-    title: "为什么选择 KWorks",
+    title: "为什么选择 QiLin",
   },
   "core-concepts": {
     title: "核心概念",

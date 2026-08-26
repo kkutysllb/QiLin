@@ -707,7 +707,7 @@ export function stripUploadedFilesTag(content: string): string {
  * are *not* user copy and can leak through to the markdown renderer.
  *
  * Used by the streamdown preprocessing path (``core/streamdown/preprocess.ts``)
- * to strip leaked tag markers while preserving inner content. KWorks's
+ * to strip leaked tag markers while preserving inner content. QiLin's
  * ``stripUploadedFilesTag`` handles the uploads-specific case separately.
  */
 export const INTERNAL_MARKER_TAGS = [

@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: "KWorks's configuration system is designed around one goal: every meaningful behavior should be expressible in a config file, not hardcoded in the application. This makes deployments reproducible, auditable, and easy to customize per environment."
+description: "QiLin's configuration system is designed around one goal: every meaningful behavior should be expressible in a config file, not hardcoded in the application. This makes deployments reproducible, auditable, and easy to customize per environment."
 ---
 
 import { Callout, Cards } from "nextra/components";
@@ -13,11 +13,11 @@ import { Callout, Cards } from "nextra/components";
   loaded, and how each subsystem behaves.
 </Callout>
 
-KWorks's configuration system is designed around one goal: every meaningful behavior should be expressible in a config file, not hardcoded in the application. This makes deployments reproducible, auditable, and easy to customize per environment.
+QiLin's configuration system is designed around one goal: every meaningful behavior should be expressible in a config file, not hardcoded in the application. This makes deployments reproducible, auditable, and easy to customize per environment.
 
 ## Config file location
 
-KWorks resolves `config.yaml` using the following priority order:
+QiLin resolves `config.yaml` using the following priority order:
 
 1. The path passed to `AppConfig.from_file(config_path)` explicitly.
 2. The `QILIN_CONFIG_PATH` environment variable.
@@ -69,7 +69,7 @@ tools:
     api_key: $TAVILY_API_KEY
 ```
 
-This pattern is how KWorks achieves pluggability without hardcoding class references.
+This pattern is how QiLin achieves pluggability without hardcoding class references.
 
 ## Extra fields are passed through
 

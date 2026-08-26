@@ -56,7 +56,7 @@ export function WhatsNewSection({ className }: { className?: string }) {
   return (
     <Section
       className={cn("", className)}
-      title="KWorks 平台特性"
+      title="QiLin 平台特性"
       subtitle="从深度研究智能体进化为全栈超级智能体。"
     >
       <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 lg:grid-cols-3">

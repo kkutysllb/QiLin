@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Learn how to create and run a KWorks agent with create_qilin_agent, from model setup to streaming responses.
+description: Learn how to create and run a QiLin agent with create_qilin_agent, from model setup to streaming responses.
 ---
 
 import { Callout, Cards, Steps } from "nextra/components";
@@ -8,7 +8,7 @@ import { Callout, Cards, Steps } from "nextra/components";
 # Quick Start
 
 <Callout type="info" emoji="🚀">
-  This guide shows you how to build and run a KWorks agent in Python with
+  This guide shows you how to build and run a QiLin agent in Python with
   <code>create_qilin_agent</code>.
 </Callout>
 
@@ -16,7 +16,7 @@ The fastest way to understand Qilin Harness is to create an agent directly in co
 
 ## Prerequisites
 
-Qilin Harness requires Python 3.12 or later. The package is part of the `KWorks` repository under `backend/packages/harness`.
+Qilin Harness requires Python 3.12 or later. The package is part of the `QiLin` repository under `backend/packages/harness`.
 
 If you are working from the repository clone:
 
@@ -53,7 +53,7 @@ model = ChatOpenAI(
 agent = create_qilin_agent(model)
 ```
 
-This returns a compiled LangGraph agent with KWorks's default middleware chain.
+This returns a compiled LangGraph agent with QiLin's default middleware chain.
 
 ### Stream a response
 

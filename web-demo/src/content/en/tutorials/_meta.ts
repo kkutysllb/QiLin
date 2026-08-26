@@ -14,7 +14,7 @@ const meta: MetaRecord = {
     title: "Work with Memory",
   },
   "deploy-your-own-kworks": {
-    title: "Deploy Your Own KWorks",
+    title: "Deploy Your Own QiLin",
   },
 };
 
