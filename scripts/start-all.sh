@@ -1,131 +1,47 @@
 #!/usr/bin/env bash
-# 一键启动 QiLin 完整开发环境(gateway + web-demo)
-#
-# Usage:
-#   ./scripts/start-all.sh                # 后台起 gateway + web-demo
-#   ./scripts/start-all.sh --stop         # 停两个
-#   ./scripts/start-all.sh --status       # 看状态
-#   ./scripts/start-all.sh --restart      # 全停重启
-#   ./scripts/start-all.sh --logs         # 同时 tail 两个日志
-#   ./scripts/start-all.sh --clean        # 停 + 清 .next 缓存 + 重启(webpack 缓存破坏时用)
-#   ./scripts/start-all.sh --fg           # 前台起(Ctrl+C 全停)— 用于调试
-#
-# 端口:
-#   - Gateway:  8081(默认,可用 GATEWAY_PORT 覆盖)
-#   - Web Demo: 3000(Next.js 自动选可用端口)
-#
-# 日志:
-#   - /tmp/qilin-gateway.log
-#   - /tmp/web-demo-dev.log
-
+# 一键启动: QiLin gateway (28081) + web-demo (28080)
+# 硬约束: 不影响本机已安装的 KWorks 应用 (19987/18569/~/.kworks) —— 只检测、不杀进程
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m'
+GATEWAY_PORT="${GATEWAY_PORT:-28081}"
+WEB_DEMO_PORT="${WEB_DEMO_PORT:-28080}"
 
-# 解析参数
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --stop)
-      echo -e "${BOLD}═══ 停止 Gateway ═══${NC}"
-      "$SCRIPT_DIR/start-gateway.sh" --stop || true
-      echo ""
-      echo -e "${BOLD}═══ 停止 Web Demo ═══${NC}"
-      "$SCRIPT_DIR/start-web-demo.sh" --stop || true
-      exit 0
-      ;;
-    --status|-s)
-      echo -e "${BOLD}═══ Gateway ═══${NC}"
-      "$SCRIPT_DIR/start-gateway.sh" --status
-      echo ""
-      echo -e "${BOLD}═══ Web Demo ═══${NC}"
-      "$SCRIPT_DIR/start-web-demo.sh" --status
-      exit 0
-      ;;
-    --restart|-r)
-      "$SCRIPT_DIR/start-all.sh" --stop || true
-      sleep 1
-      exec "$0"
-      ;;
-    --logs)
-      tail -F /tmp/qilin-gateway.log /tmp/web-demo-dev.log 2>/dev/null
-      exit 0
-      ;;
-    --clean)
-      echo -e "${BOLD}═══ 完全清缓存并重启 ═══${NC}"
-      "$SCRIPT_DIR/start-all.sh" --stop || true
-      sleep 1
-      echo -e "${YELLOW}pkill -9 残留 node 进程...${NC}"
-      pkill -9 -f "next dev" 2>/dev/null || true
-      pkill -9 -f "next-server" 2>/dev/null || true
-      sleep 1
-      echo -e "${YELLOW}删除 .next + node_modules/.cache ...${NC}"
-      rm -rf "$PROJECT_ROOT/web-demo/.next" 2>/dev/null || true
-      rm -rf "$PROJECT_ROOT/web-demo/node_modules/.cache" 2>/dev/null || true
-      exec "$0"
-      ;;
-    --fg)
-      MODE="fg"
-      shift
-      ;;
-    --help|-h)
-      sed -n '2,17p' "$0"; exit 0 ;;
-    *)
-      echo -e "${RED}未知参数: $1${NC}"
-      exit 1
-      ;;
-  esac
+# ── 端口冲突检测: 只报错退出, 绝不杀进程 ──
+for P in "$GATEWAY_PORT" "$WEB_DEMO_PORT"; do
+  if lsof -nP -iTCP:"$P" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "❌ 端口 $P 已被占用:"
+    lsof -nP -iTCP:"$P" -sTCP:LISTEN
+    echo "提示: GATEWAY_PORT=28083 WEB_DEMO_PORT=28082 $0   (env 覆盖)"
+    exit 1
+  fi
 done
 
-# 默认:后台启动两个
-echo -e "${GREEN}╔════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║   QiLin Dev Stack — Gateway + Web Demo            ║${NC}"
-echo -e "${GREEN}╚════════════════════════════════════════════════════╝${NC}"
-echo ""
+# ── 依赖检查 ──
+[[ -d web-demo/node_modules ]] || { echo "❌ web-demo 未安装依赖: cd web-demo && pnpm install"; exit 1; }
+[[ -f config.yaml ]] || { echo "❌ config.yaml 不存在: cp config.example.yaml config.yaml"; exit 1; }
 
-# 1. 启动 Gateway(已在跑则跳过)
-echo -e "${BOLD}[1/2]${NC} Gateway..."
-if [[ -f /tmp/qilin-gateway.pid ]] && kill -0 "$(cat /tmp/qilin-gateway.pid)" 2>/dev/null; then
-  echo -e "  ${YELLOW}已在跑(PID $(cat /tmp/qilin-gateway.pid))${NC} — 跳过"
-else
-  "$SCRIPT_DIR/start-gateway.sh" --daemon || {
-    echo -e "${RED}❌ Gateway 启动失败,继续启动 web-demo? (y/N)${NC}"
-    read -r ans
-    [[ "$ans" != "y" ]] && exit 1
-  }
-fi
-echo ""
+# ── 启动 gateway (daemon, 复用 start-gateway.sh 的 token/CORS 逻辑) ──
+"$SCRIPT_DIR/start-gateway.sh" --daemon "$GATEWAY_PORT"
 
-# 2. 启动 Web Demo(已在跑则跳过)
-echo -e "${BOLD}[2/2]${NC} Web Demo..."
-if [[ -f /tmp/qilin-web-demo.pid ]] && kill -0 "$(cat /tmp/qilin-web-demo.pid)" 2>/dev/null; then
-  echo -e "  ${YELLOW}已在跑(PID $(cat /tmp/qilin-web-demo.pid))${NC} — 跳过"
-else
-  "$SCRIPT_DIR/start-web-demo.sh" --daemon || {
-    echo -e "${RED}❌ Web Demo 启动失败${NC}"
+# ── 等待 gateway 健康 ──
+for i in $(seq 1 30); do
+  if curl -fsS "http://127.0.0.1:${GATEWAY_PORT}/health" >/dev/null 2>&1; then break; fi
+  sleep 1
+  if [[ "$i" == "30" ]]; then
+    echo "❌ gateway 30s 内未就绪: tail -f /tmp/qilin-gateway.log"
     exit 1
-  }
-fi
-echo ""
+  fi
+done
+echo "✓ gateway healthy: http://127.0.0.1:${GATEWAY_PORT}/health"
 
-# 3. 总结
-echo ""
-echo -e "${GREEN}══════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✓ 全部启动完成${NC}"
-echo -e "${GREEN}══════════════════════════════════════════════════════${NC}"
-echo ""
-echo -e "  Gateway  :  ${CYAN}http://127.0.0.1:${GATEWAY_PORT:-8081}${NC}"
-echo -e "  Web Demo :  ${CYAN}http://localhost:3000${NC} (或 3001)"
-echo ""
-echo -e "  ${BOLD}查看状态${NC}: ${CYAN}$0 --status${NC}"
-echo -e "  ${BOLD}查看日志${NC}: ${CYAN}$0 --logs${NC}    (gateway + web-demo 双 tail)"
-echo -e "  ${BOLD}停止全部${NC}: ${CYAN}$0 --stop${NC}"
-echo -e "  ${BOLD}重启全部${NC}: ${CYAN}$0 --restart${NC}"
-echo ""
-echo -e "  ${YELLOW}默认账号${NC}: admin@example.com / AdminPass2024!secure"
+# ── 启动 web-demo (前台; Ctrl+C 仅退出前端, gateway 保持 daemon) ──
+export GATEWAY_TARGET_URL="http://127.0.0.1:${GATEWAY_PORT}"
+export WEB_DEMO_PORT
+echo "✓ web-demo   : http://localhost:${WEB_DEMO_PORT}"
+echo "  (Ctrl+C 退出前端; 停 gateway: scripts/start-gateway.sh --stop)"
+cd web-demo
+exec node server.js

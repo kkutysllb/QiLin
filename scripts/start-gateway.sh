@@ -2,10 +2,10 @@
 # 一键启动 QiLin Gateway(自动配置 internal auth token + CORS + 端口检测)
 #
 # Usage:
-#   ./scripts/start-gateway.sh              # 前台运行(默认端口 8081)
-#   ./scripts/start-gateway.sh 8080         # 前台,自定义端口
+#   ./scripts/start-gateway.sh              # 前台运行(默认端口 28081)
+#   ./scripts/start-gateway.sh 28083        # 前台,自定义端口
 #   ./scripts/start-gateway.sh --daemon     # 后台(用 nohup 脱离 session),默认端口
-#   ./scripts/start-gateway.sh --daemon 8080
+#   ./scripts/start-gateway.sh --daemon 28083
 #   ./scripts/start-gateway.sh --stop       # 停掉后台运行的 gateway
 #   ./scripts/start-gateway.sh --status     # 查看 gateway 状态
 #
@@ -17,7 +17,7 @@ set -euo pipefail
 
 # 解析参数
 MODE="foreground"
-PORT="8081"
+PORT="28081"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --daemon|-d) MODE="daemon"; shift ;;
@@ -80,7 +80,7 @@ if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   echo -e "${RED}❌ 端口 $PORT 已被占用:${NC}"
   lsof -nP -iTCP:"$PORT" -sTCP:LISTEN
   echo ""
-  echo -e "${YELLOW}提示:${NC} 换一个端口: $0 --daemon 8082"
+  echo -e "${YELLOW}提示:${NC} 换一个端口: $0 --daemon 28083"
   echo "       或停掉占用: $0 --stop"
   exit 1
 fi
@@ -107,7 +107,7 @@ fi
 
 # CORS:默认放行本地 web-demo 端口(可被环境变量覆盖)
 # Gateway 的 CORS middleware 是 opt-in:不设置 GATEWAY_CORS_ORIGINS 就根本不挂载
-export GATEWAY_CORS_ORIGINS="${GATEWAY_CORS_ORIGINS:-http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,app://-,tauri://localhost}"
+export GATEWAY_CORS_ORIGINS="${GATEWAY_CORS_ORIGINS:-http://localhost:28080,http://127.0.0.1:28080,http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,app://-,tauri://localhost}"
 
 # 找到 uvicorn
 UVICORN_BIN="${UVICORN_BIN:-uvicorn}"

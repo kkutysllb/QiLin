@@ -13,13 +13,14 @@ function getInternalServiceURL(envKey, fallbackURL) {
 import nextra from "nextra";
 
 const isDesktopBuild = process.env.DESKTOP_BUILD === "true" || process.env.DESKTOP_BUILD === "1";
+const disableDocs = process.env.WEB_DEMO_DISABLE_DOCS === "true";
 const desktopDevOrigins = ["127.0.0.1", "localhost"];
 
 // Nextra injects documentation routes and its own _global-error handling that
 // are incompatible with `output: "export"` (causes LayoutRouterContext null
 // errors during prerendering). Skip the Nextra wrapper entirely for desktop
 // static-export builds — the desktop app doesn't include the docs site.
-const withNextra = isDesktopBuild
+const withNextra = isDesktopBuild || disableDocs
   ? (config) => config
   : nextra({});
 
