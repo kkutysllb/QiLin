@@ -7,6 +7,7 @@
 #   ./scripts/start-all.sh --status       # 看状态
 #   ./scripts/start-all.sh --restart      # 全停重启
 #   ./scripts/start-all.sh --logs         # 同时 tail 两个日志
+#   ./scripts/start-all.sh --clean        # 停 + 清 .next 缓存 + 重启(webpack 缓存破坏时用)
 #   ./scripts/start-all.sh --fg           # 前台起(Ctrl+C 全停)— 用于调试
 #
 # 端口:
@@ -55,6 +56,14 @@ while [[ $# -gt 0 ]]; do
     --logs)
       tail -F /tmp/qilin-gateway.log /tmp/web-demo-dev.log 2>/dev/null
       exit 0
+      ;;
+    --clean)
+      echo -e "${BOLD}═══ 清缓存并重启 ═══${NC}"
+      "$SCRIPT_DIR/start-all.sh" --stop || true
+      sleep 1
+      echo -e "${YELLOW}删除 web-demo/.next ...${NC}"
+      rm -rf "$PROJECT_ROOT/web-demo/.next" 2>/dev/null || true
+      exec "$0"
       ;;
     --fg)
       MODE="fg"
