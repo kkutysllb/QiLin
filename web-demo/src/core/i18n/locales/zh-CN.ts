@@ -130,7 +130,7 @@ export const zhCN: Translations = {
     // Workspace selector (per-thread local directory)
     workspace: "工作区",
     workspaceDefault: "默认工作区",
-    workspaceDefaultDescription: "用户数据目录 (~/.kworks)",
+    workspaceDefaultDescription: "用户数据目录 (仓库内 .qilin/)",
     workspaceSelectDirectory: "选择目录...",
     workspaceEnterPath: "输入路径...",
     workspaceEnterPathPlaceholder: "/Users/you/Documents/Projects",

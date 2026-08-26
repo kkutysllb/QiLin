@@ -14,7 +14,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.WEB_DEMO_HOST || "127.0.0.1";
 const port = Number.parseInt(process.env.WEB_DEMO_PORT || "28080", 10);
-if (!Number.isInteger(port) || port < 0 || port > 65535) {
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
   console.error(`[web-demo] invalid WEB_DEMO_PORT: "${process.env.WEB_DEMO_PORT}"`);
   process.exit(1);
 }

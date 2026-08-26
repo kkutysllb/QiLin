@@ -133,7 +133,7 @@ export const enUS: Translations = {
     // Workspace selector (per-thread local directory)
     workspace: "Workspace",
     workspaceDefault: "Default workspace",
-    workspaceDefaultDescription: "User data directory (~/.kworks)",
+    workspaceDefaultDescription: "User data directory (.qilin/ in the repo)",
     workspaceSelectDirectory: "Select directory...",
     workspaceEnterPath: "Enter path...",
     workspaceEnterPathPlaceholder: "/Users/you/Documents/Projects",
