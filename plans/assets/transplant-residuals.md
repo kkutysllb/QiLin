@@ -120,10 +120,115 @@ rescope(3deb573)后第一次真实类型级检验。门禁结果:
 
 `grep -rn '@deepseek-ai/dsh'`(排除 vendor/node_modules/dist/.git)全树命中 1 文件 2 行 = R1/R2;带引号的 `"@deepseek-ai/dsh"` 依赖键在全部 package.json 命中 0;pnpm-workspace.yaml/tsconfig*.json 中 `@deepseek-ai/*` 引用全部为 vendor 上游保留名(D6 边界)。
 
+## P1-S5 测试基线(2026-08-28,零修复,引擎仓无新提交,HEAD 保持 6c7a8b1)
+
+rescope(3deb573)与品牌改名(8be4e61)后第一次全量测试检验。三套件门禁结果:
+
+| 套件 | exit | 耗时(wall) | 统计 |
+|---|---|---|---|
+| pnpm run test(vitest 全量单测) | 1 | 1m21.7s | 文件 16 failed / 847 passed / 9 skipped(872);用例 29 failed / 14564 passed / 114 skipped(14707) |
+| pnpm run test:snapshot(keyless ACP/headless 回放) | 1 | 56.4s | 文件 2 failed / 11 passed(13);用例 2 failed / 124 passed / 2 skipped(128);Snapshots 2 failed |
+| pnpm run test:e2e | 1 | 19.0s | 文件 1 failed / 31 passed / 29 skipped(61);用例 1 failed / 128 passed / 75 skipped(204) |
+
+e2e 说明:本机无 DEEPSEEK_API_KEY,需 key 的真实 API 用例按预期自跳(29 文件 / 75 用例 skip);但 keyless built-bin 冒烟实际执行并暴露 1 条 S3 漏网生产字符串(见 c 类子清单 2),故 e2e 非纯自跳。全部失败仅记录与分类,未修复(修复属 S6);无挂起超时,vitest 全程自然结束,未动用 shard/bail。
+
+### 四分类计数(共 32 条失败 = 单测 29 + 快照 2 + e2e 1)
+
+| 分类 | 失败条数 | 位点数 | 说明 |
+|---|---|---|---|
+| a. import 名漏改 | 0 | 0 | 与预期 0 一致;引擎仓无修复提交 |
+| b. 脚本硬编码 | 7 | 3 | 生产侧脚本/门禁仍引用旧名,致门禁静默失效或错误报错(均为 rescope 漏改) |
+| c. fixture 期望串 | 24 | — | 细分见下两张子清单 |
+| d. 真回归(疑似) | 1 | 1 | 与改名无字面关联,待 S6 基线对照定性 |
+
+b 类位点(3,留给 S6):
+
+1. `scripts/verify-dsh-package-licenses.ts:10` —— `DSH_PACKAGE_NAME = /^@deepseek-ai\/dsh(?:-|$)/`:rescope 后 0 包命中,license 门禁空转(packageCount 0,期望 3),对应失败 2 条。
+2. `packages/client/tsdown.client.ts:488` —— 纯度门禁入口 `if (!source.startsWith('@deepseek-ai/')) return null`:对 `@qilin/*` 全部放行,client bundle 纯度门禁整体静默失效;同文件 :61 `INLINE_SAFE`、:72 `GENERATED_REMOTE` 两个 regex 同为旧名。对应失败 4 条(spec :73/:84/:91/:96)。S4 build 绿正是因该门禁失效——S6 修复后须重跑 build 复核。
+3. `scripts/release/families.ts:142` —— `if (!name.startsWith('@deepseek-ai/')) throw`:遍历真实 workspace 时对 `@qilin/cli` 抛 "apps/cli/package.json must name an @deepseek-ai package",对应失败 1 条(spec「excludes private experimental packages from the dsh release」)。
+
+c 类子清单 1:预期红(21 条)——测试断言/fixture/录制快照冻结旧品牌串,生产行为已随改名而变,S6 同步断言或再生成快照即可收敛:
+
+| # | 文件:行(引擎仓) | 测试侧期望(旧) | 生产现状(已改) |
+|---|---|---|---|
+| 1 | packages/bundle/headless/tests/headless.spec.ts:167 | err `dsh: SERVER: provider unavailable` | `qilin: SERVER: …` |
+| 2 | 同上 :194 | toBe `'dsh: factory exploded\n'` | `qilin: factory exploded\n` |
+| 3 | 同上 :216 | 同 :2 | 同 :2 |
+| 4 | packages/bundle/web-app/tests/web-app.spec.ts:130 | log `'dsh web: http://…(LAN:…)'` | `qilin web: …`(同文件 :131/:135/:313 已断言 qilin——S3 部分同步实证) |
+| 5 | 同上 :134 | 同 :4(第二次 log 调用) | 同 :4 |
+| 6 | 同上 :196 | log `'dsh web: http://127.0.0.1:4567'` | `qilin web: …` |
+| 7 | 同上 :213 | 同 :6(SSH_TTY 用例) | 同 :6 |
+| 8 | 同上 :236 | 同 :6(SSH_CONNECTION 用例) | 同 :6 |
+| 9 | packages/host/apiproxy/tests/api-proxy-config.spec.ts:276 | toContain `'dsh-settings-file'` | api-proxy.ts:1812 已 `@qilin/settings-file` |
+| 10 | 同上 :619 | toContain `'dsh-credentials-local'` | api-proxy.ts:1866 已 `@qilin/credentials-local` |
+| 11 | packages/jobs/jobs/tests/service.spec.ts:93 | 正则含 `@deepseek-ai/dsh-jobs-local` | 已 `@qilin/jobs … @qilin/jobs-local` |
+| 12 | packages/credentials/credentials/tests/invariant.spec.ts:25 | 正则 `"@deepseek-ai/dsh-credentials"` | 已 `"@qilin/credentials"`(同文件 :34 已注册新名,部分同步实证) |
+| 13 | packages/core/session/tests/gen-persistence-catalog.spec.ts:70 | 正则 `…is outside @deepseek-ai/dsh-session (package @deepseek-ai/dsh-alien)` | 已 `@qilin/session (package @qilin/alien)` |
+| 14 | packages/core/tools/tests/gen-tool-catalog.spec.ts:127 | 正则 `@deepseek-ai/dsh-tool-demo booted…` | 已 `@qilin/tool-demo booted…` |
+| 15 | scripts/release/families.spec.ts:212 | 正则 `no publish order honours @deepseek-ai/dsh-charlie -> @deepseek-ai/dsh-alpha` | 已 `@qilin/charlie -> @qilin/alpha` |
+| 16 | apps/cli/tests/source-launch.compat.spec.ts:24 | `rootPackage.scripts?.dsh` | 根 package.json 键已改 `qilin` |
+| 17 | packages/client/ui-conversation/tests/chat-branch-tails.client.spec.tsx:667 | 按钮名正则 `@deepseek-ai/dsh-system-prompt` | 同测试 fixture :658-662 已用 `@qilin/system-prompt` |
+| 18 | packages/boot/app-boot/tests/app-boot.spec.ts:566-567 | fixture node_modules 目录 `join(dir,'node_modules','@deepseek-ai','dsh-system-prompt')`(join 分段字符串规避了 S2 codemod;同 fixture package.json name 字段 :571/:582 已新名,路径与名不一致致 Cannot find package '@qilin/system-prompt') | 应建 `node_modules/@qilin/system-prompt` |
+| 19 | scripts/gen-third-party-notices.spec.ts:30(提交版 THIRD_PARTY_NOTICES.md) | 文案 ``dsh` CLI`` | 生成器已输出 ``qilin` CLI``;S6 跑 `pnpm run gen-third-party-notices` 再生成 |
+| 20 | scripts/translation-prompt.snapshot.ts(录制快照) | 快照含旧 `# DeepSeek Harness` README 双语段 | 生成器现产 `# QiLin` + fork 出处行;S6 `vitest -u` 更新 |
+| 21 | apps/cli/tests/fixtures/web-browser-open/register.mjs:27 | 就绪探针 `args[0].startsWith('dsh web: ')` | 生产已打印 `qilin web: `,前缀永不命中 → 进程不退出、30s 被 SIGKILL(exitCode undefined);S3 同步了同目录 open.mjs 却漏本文件;非真回归 |
+
+c 类子清单 2:S3 漏网生产字符串(2 位点 / 3 条失败)——生产侧输出仍是旧品牌,S6 须改生产而非测试:
+
+| # | 位点(引擎仓) | 内容 | 暴露失败 |
+|---|---|---|---|
+| 1 | packages/bundle/web-app/src/startup.ts:48 | `new Command().name('dsh --profile web')` → built CLI 帮助输出 `Usage: dsh --profile web [options]`;同簇 :49 `.description('Serve the DeepSeek Harness browser UI.')`(同函数 :55-60 Examples S3 已改 `qilin`,:48-:49 漏改) | apps/cli/tests/built-bin.e2e.ts:338(e2e 1 条;lib/bin.js mtime 晚于 8be4e61,已排除构建物过期) |
+| 2 | packages/client/ui-settings-plugin-inventory/src/client/PluginInventorySettingsTab.tsx:53 | `moduleShortName` 内 `.replace(/^dsh-(?:host-|client-)?/, '')` 旧品牌前缀剥离规则未随 rescope 更新,新包名(`@qilin/host-*`)下剥离失效,卡片标题/aria-label 显示滞后 | ui-settings-plugin-inventory/tests/components.client.spec.tsx :75、:87(2 条;测试 fixture :31 已用新名并期望新行为) |
+
+另查备查(非失败驱动,不计入上表):生产侧仍有 "DeepSeek Harness" 宽义品牌文案若干——app-boot/src/index.ts:827(checkout 指引)、bundle/web-app/src/index.ts:146(Web GUI 系统提示)、apps/web/public/manifest.webmanifest:3(name 字段)、各包 package.json description、ui-settings-models onboarding-copy、ui-brand-official 注释等。S3 范围为 CLI bin 与定向用户可见字符串,上述不在其已处置清单亦无测试断言覆盖;是否随品牌收口批改由 S6/后续阶段定夺,本步仅登记。
+
+d 类候选(1 条):
+
+- scripts/gen-client-catalog.spec.ts:139「collects every declared slot with a teachable contract」:gen-client-catalog 报 130 条契约违规(slot 注册指向 SlotMap merge 未声明的 slot / 声明未类型化 child slot,集中在 packages/client/ui-* 各注册点)。gen-client-catalog.ts 全文无 dsh/deepseek 字面量依赖,违规均为结构类;与改名无字面关联,疑似上游既有或环境差异。S6 处置前应以 pristine-dsh-0.1.1-rc.2 基线复跑对照定性(基线同红则非移植残差)。
+
+### 全部失败清单(32 条,文件:行:摘要)
+
+单测(29):
+
+| 套件文件 | 条数 | 分类 | 摘要 |
+|---|---|---|---|
+| packages/boot/app-boot/tests/app-boot.spec.ts:609 | 1 | c | 影子工程 fixture 目录旧名,Cannot find package '@qilin/system-prompt' |
+| packages/bundle/headless/tests/headless.spec.ts:167,194,216 | 3 | c | err 前缀 `dsh:` → 生产已 `qilin:` |
+| packages/bundle/web-app/tests/web-app.spec.ts:130,134,196,213,236 | 5 | c | URL 行 `dsh web:` → 生产已 `qilin web:` |
+| packages/client/ui-conversation/tests/chat-branch-tails.client.spec.tsx:667 | 1 | c | 按钮名正则旧包名 |
+| packages/client/ui-settings-plugin-inventory/tests/components.client.spec.tsx:75,87 | 2 | c(S3 漏网) | moduleShortName 旧前缀剥离失效 |
+| packages/host/apiproxy/tests/api-proxy-config.spec.ts:276,619 | 2 | c | provider 示例名已改 @qilin/* |
+| packages/jobs/jobs/tests/service.spec.ts:93 | 1 | c | 错误消息正则旧名 |
+| packages/credentials/credentials/tests/invariant.spec.ts:25 | 1 | c | 不变式消息正则旧名 |
+| packages/core/session/tests/gen-persistence-catalog.spec.ts:70 | 1 | c | 越界接口错误正则旧名 |
+| packages/core/tools/tests/gen-tool-catalog.spec.ts:127 | 1 | c | 空注册错误正则旧名 |
+| scripts/release/families.spec.ts:141 起 | 1 | b | families.ts:142 旧 scope 检查误伤 @qilin/cli |
+| scripts/release/families.spec.ts:212 | 1 | c | publish order 错误正则旧名 |
+| scripts/client-bundle-purity.spec.ts:73,84,91,96 | 4 | b | tsdown.client.ts 门禁整体失效,expected throw 但无 throw |
+| scripts/gen-client-catalog.spec.ts:139 | 1 | d(疑似) | 130 条契约违规,与改名无字面关联 |
+| scripts/gen-third-party-notices.spec.ts:30 | 1 | c | stale notices(`dsh` CLI → `qilin` CLI) |
+| scripts/verify-dsh-package-licenses.spec.ts | 2 | b | 门禁 regex 旧名,packageCount 0 |
+| apps/cli/tests/source-launch.compat.spec.ts:24 | 1 | c | scripts?.dsh 旧键 |
+
+快照(2):
+
+| 套件文件 | 条数 | 分类 | 摘要 |
+|---|---|---|---|
+| scripts/translation-prompt.snapshot.ts | 1 | c | 录制快照内嵌旧 README |
+| apps/cli/tests/web-browser-open.snapshot.ts:181 | 1 | c | register.mjs:27 就绪探针旧前缀致挂起 30s 被 SIGKILL |
+
+e2e(1):
+
+| 套件文件 | 条数 | 分类 | 摘要 |
+|---|---|---|---|
+| apps/cli/tests/built-bin.e2e.ts:338 | 1 | c(S3 漏网) | built 帮助输出 `Usage: dsh --profile web`(startup.ts:48) |
+
+> **归档日志 gitignore 豁免重申(S5)**:本步归档的三个测试日志(plans/assets/s5-logs/qilin-s5-test.log、qilin-s5-snapshot.log、qilin-s5-e2e.log,源自 /tmp/qilin-s5-*.log 同名文件)与仓根 .gitignore `*.log` 规则冲突,按 S4 披露条款以 `git add -f` 强制纳入并在此重申豁免——测试门禁证据留痕优先于日志忽略规则;日志总量约 424KB,未压缩。
+
 ## 分类为空声明(截至本档)
 
-- import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改。
-- 真回归:0 —— S4 已实测构建与类型门禁双绿(build/typecheck exit 0、0 错误,含 --force 全量复核),详见 P1-S4 段;运行时/测试套件回归风险(URL 行/错误前缀相关 e2e 与快照用例)仍留待 P1 测试阶段验证。
+- import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改;P1-S5 全量测试未出现 import 解析类失败(唯一 Cannot find package 系 fixture 目录名漏改,归 S5 段 c 类 #18),维持 0。
+- 真回归:0 —— S4 已实测构建与类型门禁双绿(build/typecheck exit 0、0 错误,含 --force 全量复核),详见 P1-S4 段;P1-S5 全量测试出现 1 条疑似真回归候选(gen-client-catalog 130 契约违规,与改名无字面关联,待 S6 基线对照定性,见 S5 段 d 类候选),定性前真回归按「0 + 1 候选」口径登记;URL 行/错误前缀相关 e2e 与快照用例的回归风险已在 S5 段全部实证归类。
 
 ## 边界声明(非残差)
 
