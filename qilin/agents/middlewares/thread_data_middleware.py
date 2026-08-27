@@ -107,6 +107,11 @@ class ThreadDataMiddleware(AgentMiddleware[ThreadDataMiddlewareState]):
         # keep uploads/outputs on the per-thread staging area. Anything else —
         # missing key (legacy/unbound), nonexistent path — degrades silently
         # to the staging default.
+        # Folded sandbox policy rides the same server-owned channel: the
+        # gateway resolves it from the per-thread event log, so tools can
+        # gate mutating calls without touching persistence from the agent
+        # process. Absent → treated as danger-full-access (legacy default).
+        paths = {**paths, "sandbox_mode": context.get("sandbox_mode") or ""}
         workspace_cwd = context.get("workspace_cwd")
         if isinstance(workspace_cwd, str) and workspace_cwd:
             try:

@@ -281,3 +281,10 @@ M4 回滚安全：迁移前 `.qilin/data/qilin.db.bak-*` 惯例延续，脚本�
 - **middleware 锚点**：`workspace_cwd` 指向存在的目录 → `workspace_path` 切换为真实目录（uploads/outputs 保持每线程暂存区）；键缺失/目录不存在/OSError 三态全部静默降级暂存区并 warning。
 - **前端无需改动**：B 切片已把 workspace_id 放入 context，spread 后随白名单自然抵达。
 - 验证：tests/test_workspace_anchor.py 5 用例（白名单词汇/绑定锚定/unbound 回退/ghost 回退/空值忽略）+ capture 矩阵 5 用例回归；后端全量 **742 passed**；ruff clean。
+
+### 7.5 sandbox_mode 分档执行（第 15 轮，✅ 闭环）
+- **gateway**：start_run 经 `SandboxModeRepository.folded(thread_id)` 折叠事件日志 → server-owned 无条件覆盖注入 `configurable["sandbox_mode"]` + `context["sandbox_mode"]`（客户端伪造免疫；store 缺失/失败→默认 danger-full-access）。
+- **middleware**：`sandbox_mode` 随 thread_data 一并下发（缺省空串=legacy 语义默认 danger）。
+- **tools 门禁**：`_enforce_sandbox_write_gate` —— read-only 拒绝 `bash`（shell 全禁，启发式命令解析不可靠、文档化妥协）与 `write_file` / `str_replace`（可读文案引导切换模式）；workspace-write / danger-full-access 放行。
+- 已登记局限：容器执行器 bind-mount 真实目录属运行时改造（前端/网关链路已就绪）；read-only 粒度为工具级而非命令级。
+- 验证：tests/test_sandbox_mode_gate.py 8 用例（gate 单元/工具级拒绝/legacy 回退/middleware 透传/锚点共存/wiring 检查）；后端全量 **750 passed**；ruff clean。提交 f3cb62f 之后新增。

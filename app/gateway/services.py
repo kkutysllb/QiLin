@@ -1371,6 +1371,27 @@ async def start_run(
             if isinstance(cfg_ctx, dict):
                 cfg_ctx["workspace_cwd"] = config_configurable["workspace_cwd"]
 
+            # Folded sandbox policy — same server-owned channel. Tools gate
+            # mutating calls on this value; client-supplied values are
+            # overwritten unconditionally.
+            sandbox_mode_value = "danger-full-access"
+            sandbox_store = getattr(request.app.state, "sandbox_mode_store", None)
+            if sandbox_store is not None:
+                try:
+                    folded = await sandbox_store.folded(thread_id)
+                    mode = (folded or {}).get("mode")
+                    if isinstance(mode, str) and mode:
+                        sandbox_mode_value = mode
+                except Exception:
+                    logger.warning(
+                        "Failed to fold sandbox mode for %s (non-fatal)",
+                        sanitize_log_param(thread_id),
+                        exc_info=True,
+                    )
+            config_configurable["sandbox_mode"] = sandbox_mode_value
+            if isinstance(cfg_ctx, dict):
+                cfg_ctx["sandbox_mode"] = sandbox_mode_value
+
         async def run_after_metadata(record: RunRecord) -> None:
             metadata_task = asyncio.create_task(
                 _ensure_thread_metadata(

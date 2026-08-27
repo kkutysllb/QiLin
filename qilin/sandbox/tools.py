@@ -1298,6 +1298,35 @@ def replace_virtual_paths_in_command(command: str, thread_data: ThreadDataState 
     return result
 
 
+_DEFAULT_SANDBOX_MODE = "danger-full-access"
+_SANDBOX_READ_ONLY = "read-only"
+# Aligned with qilin.persistence.sandbox_mode.sql.SANDBOX_MODES vocabulary;
+# kept literal here so the sandbox layer stays free of persistence imports.
+_READ_ONLY_BASH_BLOCK = (
+    "Error: this thread's sandbox policy is read-only; shell execution is "
+    "disabled because arbitrary commands can mutate the filesystem. Read-only "
+    "tools (read_file/grep/glob/ls) remain available, or ask the user to "
+    "switch the thread to workspace-write."
+)
+_READ_ONLY_WRITE_BLOCK = (
+    "Error: this thread's sandbox policy is read-only; writing files is "
+    "denied. Ask the user to switch the thread to workspace-write or "
+    "danger-full-access."
+)
+
+
+def _thread_sandbox_mode(thread_data: ThreadDataState | None) -> str:
+    mode = (thread_data or {}).get("sandbox_mode")
+    return mode if isinstance(mode, str) and mode else _DEFAULT_SANDBOX_MODE
+
+
+def _enforce_sandbox_write_gate(thread_data: ThreadDataState | None) -> str | None:
+    """Return a user-facing rejection when the folded mode is read-only."""
+    if _thread_sandbox_mode(thread_data) == _SANDBOX_READ_ONLY:
+        return _READ_ONLY_WRITE_BLOCK
+    return None
+
+
 def _apply_cwd_prefix(command: str, thread_data: ThreadDataState | None) -> str:
     """Prepend 'cd <workspace> &&' so relative paths are anchored to the thread workspace.
 
@@ -1802,6 +1831,12 @@ def bash_tool(runtime: Runtime, description: str, command: str) -> str:
         command: The bash command to execute. Always use absolute paths for files and directories.
     """
     try:
+        # Sandbox-policy gate (folded per-thread mode, server-owned): a
+        # read-only thread disables shell wholesale — arbitrary commands can
+        # mutate the filesystem, so allow-listing syntax would be unsound.
+        bash_gate = _enforce_sandbox_write_gate(get_thread_data(runtime))
+        if bash_gate:
+            return bash_gate
         sandbox = ensure_sandbox_initialized(runtime)
         # Request-scoped secrets resolved for the active skill (#3861), plus a
         # short-lived GitHub App installation token threaded through by the
@@ -2299,6 +2334,9 @@ def write_file_tool(
         ensure_thread_directories_exist(runtime)
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
+            write_gate = _enforce_sandbox_write_gate(thread_data)
+            if write_gate:
+                return write_gate
             validate_local_tool_path(path, thread_data)
             if not _is_custom_mount_path(path):
                 assert thread_data is not None  # validate_local_tool_path already raised otherwise
@@ -2366,6 +2404,9 @@ def str_replace_tool(
         requested_path = path
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
+            write_gate = _enforce_sandbox_write_gate(thread_data)
+            if write_gate:
+                return write_gate
             validate_local_tool_path(path, thread_data)
             if not _is_custom_mount_path(path):
                 assert thread_data is not None  # validate_local_tool_path already raised otherwise
