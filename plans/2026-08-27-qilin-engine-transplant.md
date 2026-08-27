@@ -56,7 +56,7 @@
 - Create: plans/assets/dsh-qilin-mapping.md(包级映射表)
 - Modify: .gitignore(追加 reference/)
 
-- [ ] **Step 1: 固化快照指纹**
+- [x] **Step 1: 固化快照指纹**
 
 Run:
 
@@ -66,13 +66,13 @@ find deepseek-harness -type f -not -path "*/node_modules/*" -not -path "*/.git/*
 
 把输出哈希与日期回填至本计划附录(上游无 git 历史可依,以内容指纹定基线)。
 
-- [ ] **Step 2: 建只读参照副本**
+- [x] **Step 2: 建只读参照副本**
 
 Run: `cp -R deepseek-harness reference/dsh-upstream`(剔除内嵌 .git;快照内无 node_modules),随后 `chmod -R a-w reference/dsh-upstream`
 
 预期:目录存在且只读;.gitignore 增加 reference/ 后 git status 干净。
 
-- [ ] **Step 3: 生成包级映射表初稿**
+- [x] **Step 3: 生成包级映射表初稿**
 
 Run:
 
@@ -82,21 +82,23 @@ find deepseek-harness/packages -maxdepth 2 -mindepth 2 -type d | sort
 
 把全部包逐一填入 plans/assets/dsh-qilin-mapping.md 表格(旧名/新名/分组/备注),vendor/* 标注「保留原名」。
 
-- [ ] **Step 4: 定案 D5(仓库形态)并落档**
+- [x] **Step 4: 定案 D5(仓库形态)并落档**
 
 在映射表头部写明选定的仓库方案与理由。
 
 ## §3 Phase 1 — 移植落地(约 2–4 天)
 
+> **✅ P1 完成(2026-08-28,S8 收官)**:S2–S8 八步全部执行完毕,引擎仓 main @ 795b8dc,附注标签 `qilin-engine-v0`;终态五门禁 + translation-pairing + archived-agent-notes 七门禁全绿(test 14593 passed / 失败 0)。残差与顺延全景、全链 SHA 表见 plans/assets/transplant-residuals.md 的 S8 段与 P1 总结段。**P2(引擎实跑验证)待启**,触发条件与冒烟口径:`pnpm qilin` CLI + `pnpm run dev:web`(总计划 §4)。
+
 **Files:**
 - Create: 新引擎仓(或仓内 engine/ 目录,依 D5 定案)
 - 来源: reference/dsh-upstream/ 整树复制
 
-- [ ] **Step 1: 复制整树**
+- [x] **Step 1: 复制整树**
 
 `cp -R reference/dsh-upstream/ <目标根>/`(剔除 node_modules 后复制);目标仓 `git init` 并首次提交——此提交即 100% dsh 原貌基线。
 
-- [ ] **Step 2: 第一批 codemod——npm scope 与包名**
+- [x] **Step 2: 第一批 codemod——npm scope 与包名**
 
 Run(macOS):
 
@@ -106,11 +108,11 @@ rg -l '@deepseek-ai/dsh-' --glob '!vendor/**' | xargs sed -i '' 's|@deepseek-ai/
 
 再处理根 package.json 的 name 与 workspace 声明;vendor/ 目录与 @deepseek-ai/cordis、cosmokit 字样一律跳过。
 
-- [ ] **Step 3: CLI 与用户可见字符串**
+- [x] **Step 3: CLI 与用户可见字符串**
 
 apps/cli 的 bin 名、pnpm dsh 脚本别名、README 首屏品牌段。逐文件 sed 后 git diff --stat 复核无 vendor/ 误伤。
 
-- [ ] **Step 4: 安装与门禁**
+- [x] **Step 4: 安装与门禁**
 
 Run:
 
@@ -120,7 +122,7 @@ pnpm install && pnpm run build && pnpm run typecheck
 
 预期:全绿。失败项进入残差清单(Step 6),不顺手改语义。
 
-- [ ] **Step 5: 测试基线**
+- [x] **Step 5: 测试基线**
 
 Run:
 
@@ -130,11 +132,11 @@ pnpm run test
 
 预期:与上游同版本行为一致(snapshot fixture 内含旧名字符串属预期残差)。test:coverage 门禁留到残差清零后跑一次确认。
 
-- [ ] **Step 6: 残差清单 triage**
+- [x] **Step 6: 残差清单 triage**
 
 把 Step 4/5 全部失败按四类登记到 plans/assets/transplant-residuals.md:import 名漏改 / fixture 期望串 / 脚本硬编码 / 真回归。逐条修复;每修一类跑一次对应包的 vitest filter。
 
-- [ ] **Step 7: 第二批 codemod——环境变量前缀**
+- [x] **Step 7: 第二批 codemod——环境变量前缀**
 
 ```bash
 rg -l 'DSH_' --glob '!vendor/**' --glob '!*.env*' | xargs sed -i '' 's/DSH_/QILIN_/g'
@@ -142,7 +144,7 @@ rg -l 'DSH_' --glob '!vendor/**' --glob '!*.env*' | xargs sed -i '' 's/DSH_/QILI
 
 同步更新 README 环境变量表;重跑 pnpm run test。
 
-- [ ] **Step 8: 许可合规与 tag**
+- [x] **Step 8: 许可合规与 tag**
 
 核对各包 LICENSE 头保留;Run: `pnpm run gen-third-party-notices`;然后 `git tag qilin-engine-v0`,tag message 记录 §2 Step 1 的上游指纹哈希。
 

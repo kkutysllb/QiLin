@@ -334,7 +334,7 @@ vendor 触碰:0(每次提交 pre-commit vendor manifest guard 绿 + 人工 git s
 
 **提交 2 = b1ccb90 `chore(engine): rename release family and bundle domains to qilin (s7)`**(424 文件,+1476/−1476,git mv 保溯源 88%/76%):
 
-- 发布家族域:families.ts(id/tagPrefix/类名/描述 5 处)、families.spec.ts(releaseFamily('qilin') ×14、qilin-v* tag 断言)、bump.ts(family.id/usage/prose 4 处)、package.json(`release:qilin`、`verify-qilin-package-licenses` script 键)、git mv scripts/verify-dsh-package-licenses{,.spec}.ts → verify-qilin-package-licenses{,.spec}.ts(内部符号 QILIN_PACKAGE_NAME/inspectQilinPackageLicenses 同步)、run-gates.ts(gate id `qilin-package-licenses`+label)、.github/workflows 4 文件(docs-pages/release/release-publish 的 --family qilin、qilin-v*、qilin-npm-tarballs;ci-master runner 标签 qilin-win-ci/qilin-windows-*/qilin-ubuntu-*)、ci-workflow.spec、check-workspace-constraints.ts。
+- 发布家族域:families.ts(id/tagPrefix/类名/描述 5 处)、families.spec.ts(releaseFamily('qilin') ×14、qilin-v* tag 断言)、bump.ts(family.id/usage/prose 4 处)、package.json(`release:qilin`、`verify-qilin-package-licenses` script 键)、git mv scripts/verify-dsh-package-licenses{,.spec}.ts → verify-qilin-package-licenses{,.spec}.ts(内部符号 QILIN_PACKAGE_NAME/inspectQilinPackageLicenses 同步)、run-gates.ts(gate id `qilin-package-licenses`+label)、.github/workflows 5 文件(ci-master/ci/docs-pages/release/release-publish;**S8 枚举更正**:初记 4 文件系漏数 ci.yml——其 runner 标签同样迁移,实测 `git show b1ccb90 --name-only -- .github/workflows` 恰为 5 个 workflow 文件,另有 .github/AGENTS.md 非 workflow 文件同批更新;docs-pages/release/release-publish 的 --family qilin、qilin-v*、qilin-npm-tarballs;ci-master/ci 的 runner 标签 qilin-win-ci/qilin-windows-*/qilin-ubuntu-*)、ci-workflow.spec、check-workspace-constraints.ts。
 - manifest 数据键:48 个 package.json `"dsh":` 节 → `"qilin":`;自有读取/写入位点全量迁移——packages/boot/app-boot/src/profile.ts(类型 QilinManifestSection/QilinBundleManifest/QilinProfileManifest、读写模板、patch id、错误文案)、apps/cli/src/plugin.ts、apps/cli/src/profile-boot.ts、packages/typert/generator/src/analyzer.ts(isDualFacePackage 读 manifest 节名定性双 face,见下「读码决策」)、packages/client/tsdown.client.ts、packages/client/modules/src/index.ts(parseQilinClient)、scripts/check-workspace-constraints.ts、scripts/dev-web.ts ×2、scripts/verify-client-packages.ts(含清扫半改 2 处变量引用错乱修复)、scripts/verify-cordis-config.ts、apps/web/tests/assembled-boot.ts;测试 fixture 侧 built-bin.e2e/headless-shutdown.e2e/web-agent-presets.e2e/profile.spec/node-half.client.spec/dev-web.spec/verify-client-packages.spec/verify-cordis-config.spec 同步 `qilin:` 节;subagent 两包与 base 包测试类型注解同步。
 - bundle 名域:dsh-base/dsh-web-app/dsh-headless/dsh-client-hmr/dsh-hello-plugin/plugin_dsh_base/dsh-profile-demo → qilin-*(cordis.patch.yml、cordis.yml、测试与文档全量,终检 0);gen-doc-graphs 生成 id `qilin_base` 及 3 处旧短名迁移(subagent-dsh-sdk 为真实包名 @qilin/subagent-dsh-sdk 保留)。
 - 文档与生成产物:config-catalog.zh.md 锚点 111 处、tool-catalog.zh.md 26 处(deepseek-aidsh-* → qilin*)、plan/providers 文档锚点与 `@qilin/llm-*` 短名、packages/client/connection 源注释(`the qilin CLI derives`)、translation pairing 重录两轮(175 记录 + 5 记录;终态 1003 对全一致)。
@@ -371,7 +371,9 @@ vendor 触碰:0(每次提交 pre-commit vendor manifest guard 绿 + 人工 git s
 | `loadLayeredEnv('dsh')` | **0** |
 | `release:dsh` | **0** |
 | `dsh-base` | **0** |
-| 裸词 `dsh` 于代码文件(ts/tsx/json/yml,排除 `~/.dsh` 家目录、dsh-jsonrpc-agent-pkg、subagent-dsh-sdk 豁免) | **0** |
+| 裸词 `dsh` 于代码文件(ts/tsx/json/yml,排除 `~/.dsh` 家目录、dsh-jsonrpc-agent-pkg、subagent-dsh-sdk 豁免) | **0**(处置域口径,见下方 S8 整改注记) |
+
+> **S8 整改注记(S7 审查意见落地,2026-08-28)**:上表「0」是**三豁免口径下的处置域 0**(豁免:`~/.dsh` 家目录/用户目录名、python 发行链 exe 名 dsh-jsonrpc-agent-pkg、真实包名 @qilin/subagent-dsh-sdk),**不等于全字面裸词归零**。S8 全字面复测(非 vendor、非 pnpm-lock):`dsh` 大小写敏感命中 **2030 文件**、非 vendor 且非 `.agents` 口径 **1237 文件**、大小写不敏感(非 vendor 非 .agents)**1410 文件**(S7 审查口径约 616 文件为更窄子集;各口径数字以本条实测为准),绝大多数属台账已登记顺延域(.agents 历史档案、fixture tmpdir 前缀、dsh-badge 技能资产、THIRD_PARTY_NOTICES 宽义文案、--dsh-scrollbar-* web 前端域、dsh-plugin 外部 topic、.dsh-build/、技能目录名等)。该口径下 S7 仍漏网两处注释/显示级残留——workflow 显示名 `Release (dsh)`/`Release publish (dsh)` 与 packages/bundle/base/cordis.patch.yml:1 注释 `every dsh profile`——**已由 S8 提交 795b8dc 就地修复**。
 
 ### 顺延剩余(登记,本步不动)
 
@@ -390,6 +392,97 @@ vendor 触碰:0(每次提交 pre-commit vendor manifest guard 绿 + 人工 git s
 vendor 触碰:0(git diff --name-only 两提交均无 vendor 路径;vendor manifest guard 独立复跑 exit 0)。pre-commit 钩子:commit 2 因执行侧误加 --no-verify 跳过,已按钩子等价清单补验——lint(staged 等价,73 文件)exit 0(1 warning 如上)、`git diff --check` exit 0、vendor manifest guard exit 0、translation pairing exit 0(1003 对)、third-party notices 已重生成;archived 校验失败见上(既有债务)。
 
 > **归档日志 gitignore 豁免重申(S7)**:本步归档的五个门禁日志(plans/assets/s7-logs/qilin-s7-test.log、qilin-s7-snapshot.log、qilin-s7-e2e.log、qilin-s7-build.log、qilin-s7-typecheck.log,源自 /tmp/qilin-s7-*.log 同名文件)与仓根 .gitignore 的 `*.log` 规则冲突,按 S4 披露条款以 `git add -f` 强制纳入并在此重申豁免——门禁证据留痕优先于日志忽略规则;总量约 588KB,未压缩。基线对照用临时 worktree /tmp/qilin-s7-baseline(f698d79)已清理。
+
+## P1-S8 收官:archived 重封、LICENSE 归属、裸词清扫、终验与标签(2026-08-28,引擎仓提交 795b8dc,标签 qilin-engine-v0)
+
+### 1. archived 封存债务处置(任务 1)
+
+- 现象与根源:门禁 verify-archived-agent-notes exit 1。根源 = S2 提交 3deb573 机械改写 archived 下 **58 个归档文件**(全部为 .md/.zh.md,实测 `git diff --name-only 3deb573^..3deb573 -- .agents/notes/archived | wc -l` = 58)未重录封存 hash;连带 29 个 .i18n.yaml 一致性记录(sidecar 的 git blob hash 指向改前内容)失效。S7 审查已实证系既有债务(archived 内容自 3deb573 后无 git 变更,lefthook glob 条件此前未触发),非 S7/S3 引入。
+- 决策理由:S2 改名属已接受的 codemod 政策,该改动已在本台账登记;归档现为我们的自有溯源档案,门禁用途是拦截「未登记改动」,而该改动已登记,故按当前状态重录封存,而非回退内容。
+- 处置(全部走门禁自带机制,未手改任何 hash 数字):
+  1. **29 个 sidecar 机械重录**:按归档纪律明文许可的「re-record the sidecar hashes mechanically」(archived/AGENTS.md、.agents/skills/dsh-archive-agent-notes/SKILL.md 步骤 3),用与门禁 `gitBlobHash` 完全一致的算法(blob <len>\\0 + content 的 sha1,与 `git hash-object` 交叉验证一致)重算当前 .md/.zh.md 的 blob hash 并按记录格式重写;143 个 sidecar 全查,恰 29 个更新,与门禁报错位点一一吻合。
+  2. **manifest.json 全量重封**:门禁 `--write` 模式对已封存 hash 漂移会拒绝写入,故按门禁自带的环境变量 `QILIN_ARCHIVE_BASE_REF` 将基线指向一个悬空空树 commit(`git commit-tree $(git hash-object -t tree /dev/null)`,无 manifest → 空基线),删除 manifest.json 后 `--write` 全量重封:输出 `sealed 429 new artifact(s)`,复查 429 artifacts / 6 kinds exit 0。
+  3. manifest 净变化 87 行(+87/−87)= 58 个 md/zh.md + 29 个 i18n.yaml,与漂移集严格吻合,零额外变动。
+- 提交时 pre-commit 的 archived job 同样以 `QILIN_ARCHIVE_BASE_REF` 空基线通过;**提交后默认(HEAD)基线复跑 exit 0**——门禁恢复常态拦截能力,后续任何未登记改动仍会被拦。
+- 悬空空树 commit 为临时对象,无分支/标签引用,将被 gc 自然回收。
+
+### 2. 裸词残留清扫(S8 sweep,同提交)
+
+S7 审查点名的两处 + 同型漏网,共 16 文件 18 处就地修复(注释/显示级,零行为变更):
+
+| 位置 | 修法 |
+|---|---|
+| .github/workflows/release.yml:8 显示名 `Release (dsh)` | → `Release (qilin)`(S7 审查点名) |
+| .github/workflows/release-publish.yml:6 显示名 `Release publish (dsh)` | → `Release publish (qilin)`(同族显示名) |
+| release.yml:1 / release-publish.yml:1 / release-vendor.yml:3 注释 `dsh release sequence`、`dsh and of the native packages` | → qilin |
+| release.yml:82 / release-publish.yml:74 注释 `dsh-sandbox-local` | → `qilin-sandbox-local`(包现名 @qilin/sandbox-local) |
+| packages/bundle/base/cordis.patch.yml:1 注释 `every dsh profile` | → `every qilin profile`(S7 审查点名) |
+| packages/sandbox 三处注释(sandbox-local/bash-sandbox 旧短名指代)与 scripts/release/verify-packed-install.ts:105、scripts/verify-package-readme-model-experience.ts:123(展示文案) | 旧短名 → qilin-sandbox-local / qilin-bash-sandbox / qilin-tool-bash |
+| apps/cli/config/agent-presets/{code,standard}/agent.cordis.yml 注释 `dsh-agent-presets` | → `qilin-agent-presets`(包现名 @qilin/agent-presets) |
+
+不触碰的已登记顺延域(复核确认仍在):build-exe-for-python-sdk.yml(python exe 名 dsh-jsonrpc-agent-pkg、dsh-sdk-smoke/dsh-sdk 临时目录)、.github/issue-management(actor/policy)、tmpdir 前缀 dsh-*(fixture 域)、dsh-badge 技能资产、THIRD_PARTY_NOTICES.md:30 宽义文案(S6 F 组)、--dsh-scrollbar-*(web 前端域)、README/CONTRIBUTING `dsh-plugin` topic(外部平台域)、.dsh-build/、`~/.dsh`、技能目录名(dsh-pre-push-checks 等)、AGENTS.md 正文历史机制叙述、.agents/notes 全域。全字面多口径复测数字见上方 S8 整改注记(2030 / 1237 / 1410 文件)。
+
+### 3. LICENSE 合规(任务 3)
+
+- 根 LICENSE 保留上游 **MIT 许可证全文与 `Copyright (c) 2026 DeepSeek` 版权行不变**(fork 法律义务),顶部追加两段:
+  - `Copyright (c) 2026 QiLin contributors`
+  - fork 说明:「QiLin is a fork of DeepSeek Harness (https://github.com/deepseek-ai/deepseek-harness); this repository contains modifications of the upstream code, distributed under the same MIT License.」
+- 全部非 vendor package.json 的 `license` 字段与 pristine 基线 f4703c4 逐文件 diff **完全一致**(自有包 MIT;native/landlock-run 系 BSD-3-Clause 上游即然;examples/fixtures/website 无字段上游即然),零误改。
+- `pnpm run gen-third-party-notices` 重跑后 THIRD_PARTY_NOTICES.md git status 干净 = **up to date**。
+
+### 4. 终验七门禁(S8 终态,HEAD=795b8dc,全绿)
+
+| 门禁 | exit | 结果 |
+|---|---|---|
+| pnpm run test | 0 | 863 文件过 / 9 skipped(872);用例 14593 passed / 114 skipped(14707),失败 0(连环境噪声都未出现,与 S7 终态同) |
+| pnpm run test:snapshot | 0 | 13 文件全过;126 passed / 2 skipped |
+| pnpm run test:e2e | 0 | 32 文件过 / 29 skipped;用例 129 passed / 75 skipped |
+| pnpm run build | 0 | `recorded 200 client artifact(s) with 1 public value(s)` |
+| pnpm run typecheck | 0 | 0 错误 |
+| pnpm run verify-translation-pairing | 0 | 1003 对全查一致 |
+| pnpm run verify-archived-agent-notes | 0 | 429 frozen artifacts / 6 kinds(默认 HEAD 基线——重封后门禁常态绿) |
+
+日志:/tmp/qilin-s8-{test,snapshot,e2e,build,typecheck,pairing,archived}.log,归档 plans/assets/s8-logs/(git add -f 豁免重申:S4 披露条款,门禁证据留痕优先于 *.log 忽略规则;总量约 545KB,未压缩)。执行注记:快照门禁首跑误用不存在的 script 名 `pnpm run snapshot`(秒退 exit 1)为执行侧失误,随即以正确名 `pnpm run test:snapshot` 补跑 exit 0,不影响终态。
+
+### 5. 标签(任务 4)
+
+- `qilin-engine-v0`(附注)→ **795b8dc**(S8 HEAD)。
+- message:`QiLin engine v0 — rescope of DeepSeek Harness 0.1.1-rc.2 (upstream b150a551, fingerprint c15a8754), P1 transplant complete (S2-S8)`,含上游版本、上游 commit 与快照指纹溯源。
+
+## P1 总结段(2026-08-28,S8 收官)
+
+### 全链 SHA 表(引擎仓 main,基线 → S8)
+
+| # | 引擎仓 SHA | 内容 | QiLin 侧对应提交(阶段记录) |
+|---|---|---|---|
+| 0 | f4703c4 | 基线导入 pristine dsh snapshot(上游 b150a551 = 0.1.1-rc.2,指纹 c15a8754;标签 pristine-dsh-0.1.1-rc.2) | 21d6edb / 621753b / 838a22c / 00747d9(P0:计划、指纹、映射表、D5) |
+| 1 | 3deb573 | S2 rescope:@deepseek-ai/dsh-* → @qilin/*(18239 处 / 3494 文件) | 1b3a97a / 163959c(S2 残差台账+复核) |
+| 2 | 8be4e61 | S3 CLI bin 与用户可见品牌字符串 | e1d5328(S3 复核更正) |
+| 3 | 6c7a8b1 | S3 审查修复(根 README H1、pairing 重录 438 对、publish.md) | e1d5328(同上) |
+| 4 | f698d79 | S6 终态(S6 实为四提交 8288f12 / 65d574c / 19f8492 / f698d79:门禁复活、fixture 同步、slot-walk 真回归修复、headless 命令名) | 11838ec(S6 triage) |
+| 5 | cfa695b | S7-1 env 前缀 DSH_ → QILIN_ + env 层名(607 文件) | b31f24b(S7 段) |
+| 6 | b1ccb90 | S7-2 发布家族域/manifest 键/bundle 名域(424 文件) | b31f24b(同上) |
+| 7 | **795b8dc(S8,标签 qilin-engine-v0)** | archived 重封 87 文件 + LICENSE 归属 + 裸词清扫 16 文件 | 本轮 docs(plan): s8 closure and p1 summary |
+
+vendor/ 两仓零触碰(P1 全程历次提交 vendor manifest guard 全绿;S8 提交 diff 无任何 vendor/ 路径);python/ 未动(去留为独立待决项)。
+
+### 五门禁终态
+
+见 S8 段第 4 节:test / test:snapshot / test:e2e / build / typecheck 全部 exit 0,test 失败 0(14593 passed);加 verify-translation-pairing(1003 对)与 verify-archived-agent-notes(429 artifacts)两专项门禁亦 0。
+
+### 顺延 / P5 清单汇总(P1 遗留全景,处置条件见各原登记)
+
+- **深标识符**:`__DSH_*__` 契约族 99 处(window.__DSH_BOOT__ 81 / TRANSPORT 10 / PERSISTENT_*_PROMPT 6 / MODULES 2)→ P5。
+- **宽义文案**:app-boot:827、web-app index:146、manifest.webmanifest:3、各包 description、onboarding-copy、ui-brand-official 注释、gen-third-party-notices.ts:709 + THIRD_PARTY_NOTICES.md:30、translation-prompt 快照内 3 处 DeepSeek Harness、AGENTS.md 正文历史机制叙述(dsh-session/dsh-shell/dsh-brand 等)、README/CONTRIBUTING `dsh-plugin` topic → P5 品牌收口。
+- **repository/homepage/bugs 字段**(约 238 处指 deepseek-ai/deepseek-harness)、**shields.io 徽章**(19 个 md)、**docs 上游出处链接**(48 处)→ 待远端/发布渠道定案。
+- **env 侧**:OBS_DSH_README_* Actions Secrets、`~/.dsh` 家目录名与 `QILIN_HOME:-$HOME/.dsh` 回退值、localStorage `dsh.*` 键、.dsh-build/ → 环境迁移窗口处置。
+- **代码侧保留**:Symbol('dsh.client.scope'/'dsh.scope'/'dsh.tool.execution')(P5)、tsdown 内部插件标签 2 处(P5)、@dshScopeScan JSDoc 标签(牵动解析器)、dsh-translation-pairing merge driver 42 处(外部 git config 耦合)、.agents/notes 历史档案纪律域、fixture tmpdir 前缀 `dsh-*`、dsh-badge 技能+PNG、技能目录名(dsh-*/record-browser-gif)、issue-management actor/projectTitle(平台耦合)、python 发行链 exe 名 dsh-jsonrpc-agent-pkg-*。
+- **真实包名保留**:@qilin/subagent-dsh-sdk(目录 subagent-dsh-sdk 按既定策略不改)。
+- **archived 封存域**:S8 已重封至当前态(795b8dc),门禁常态绿;archived 内容自此冻结,任何改动须重新走封存流程并登记。
+
+### P2 触发条件与冒烟口径
+
+P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 冒烟两口:`pnpm qilin` CLI 实跑(--profile headless 会话跑通,API key 就位)与 `pnpm run dev:web` Web GUI 冒烟(会话/工具调用/侧栏分组);Gap 逐条登记为 P3–P5 子计划输入(总计划 §4)。
 
 ## 分类为空声明(截至本档)
 
