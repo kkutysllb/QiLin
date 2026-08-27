@@ -3,6 +3,9 @@
 Revision ID: 0011_workspaces
 Revises: 0010_run_cancel_request
 Create Date: 2026-08-27
+
+QiLin is multi-user: all four registry tables carry a ``user_id`` scope
+(unlike single-process DSH where the registry is process-global).
 """
 
 from __future__ import annotations
@@ -24,22 +27,24 @@ def _create_workspaces() -> None:
     op.create_table(
         "workspaces",
         sa.Column("id", sa.String(length=64), nullable=False),
+        sa.Column("user_id", sa.String(length=64), nullable=False),
         sa.Column("canonical_path", sa.String(length=1024), nullable=False),
         sa.Column("title", sa.String(length=256), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("canonical_path", name="uq_workspaces_canonical_path"),
+        sa.UniqueConstraint("user_id", "canonical_path", name="uq_workspaces_user_path"),
     )
+    with op.batch_alter_table("workspaces", schema=None) as batch_op:
+        batch_op.create_index("ix_workspaces_user_id", ["user_id"], unique=False)
 
 
 def _create_workspace_order() -> None:
     op.create_table(
         "workspace_order",
-        sa.Column("position", sa.Integer(), nullable=False),
         sa.Column("workspace_id", sa.String(length=64), nullable=False),
-        sa.PrimaryKeyConstraint("position"),
-        sa.UniqueConstraint("workspace_id", name="uq_workspace_order_ws_id"),
+        sa.Column("position", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint("workspace_id"),
     )
 
 
@@ -60,9 +65,10 @@ def _create_workspace_sessions() -> None:
 def _create_workspace_meta() -> None:
     op.create_table(
         "workspace_meta",
+        sa.Column("user_id", sa.String(length=64), nullable=False),
         sa.Column("key", sa.String(length=64), nullable=False),
         sa.Column("value", sa.JSON(), nullable=True),
-        sa.PrimaryKeyConstraint("key"),
+        sa.PrimaryKeyConstraint("user_id", "key"),
     )
 
 
@@ -72,6 +78,12 @@ _TABLE_CREATORS = (
     ("workspace_sessions", _create_workspace_sessions),
     ("workspace_meta", _create_workspace_meta),
 )
+
+_DROPPED_INDEXES = {
+    # table -> index names created in upgrade (dropped child-first)
+    "workspaces": ("ix_workspaces_user_id",),
+    "workspace_sessions": ("ix_workspace_sessions_thread_id",),
+}
 
 
 def upgrade() -> None:
@@ -101,7 +113,7 @@ def downgrade() -> None:
     safe_drop_column("threads_meta", "cwd")
 
     for table_name, _creator in reversed(_TABLE_CREATORS):
-        if table_name == "workspace_sessions":
+        for index_name in _DROPPED_INDEXES.get(table_name, ()):
             with op.batch_alter_table(table_name, schema=None) as batch_op:
-                batch_op.drop_index("ix_workspace_sessions_thread_id")
+                batch_op.drop_index(index_name)
         op.drop_table(table_name)
