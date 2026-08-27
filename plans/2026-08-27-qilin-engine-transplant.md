@@ -18,7 +18,7 @@
 | D2 | 所有权口径 | 不做商业套壳——引擎代码 100% 归 QiLin。执行方式 = 整体移植改造(§0),不是从零重打 |
 | D3 | 旧数据 | 不迁移。Python 侧 .qilin 线程/账号/检查点随退役一并废弃 |
 | D4 | V1 能力 | 多 Provider 模型 + 多用户 RBAC(含登录/JWT/CSRF);IM 渠道进 backlog;TUI 放弃(DSH 有 CLI) |
-| D5 | 仓库形态 | 推荐:现有 QiLin 仓保留品牌壳/文档/plans;新建 qilin-engine 仓承载移植产物(独立 git 历史,自 v0 tag 起)。P1 开工前定案 |
+| D5 | 仓库形态 | 已定案(2026-08-27):双仓。新建 /Users/libing/kk_Projects/qilin-engine 承载 @qilin/* 引擎树,自原貌基线提交起独立 git 历史;QiLin 仓保留品牌壳/文档/plans;上游 diff 移植在引擎仓内进行 |
 | D6 | cordis 内核 | 不改名。vendored pinned 上游 + rescope 映射 + verify-cordis-* 门禁全系依赖原名;产品品牌在 QiLin 层完成(类比 Edge 不改名 Chromium)。所有者可推翻,代价是断开 vendor 同步机制 |
 
 ---

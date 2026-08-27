@@ -269,6 +269,6 @@
 - vendor 行数:9 行
 - name 字段实测自 239 个 package.json(packages 227 + apps 2 + 根包 1 + vendor 9);packages/apps/根包无一缺 package.json
 
-## D5 仓库形态(待定案)
+## D5 仓库形态(已定案)
 
-P0 Step 4 定案后在此补记目标仓库与迁移方式。
+已定案双仓,引擎树落位 /Users/libing/kk_Projects/qilin-engine(独立仓库),本映射表是引擎仓内 rescope 与上游移植的对照依据。上游跟踪采用 git fetch 方式(已在 P0 评审中确认):deepseek-harness/ 内嵌上游仓库(remote deepseek-ai/deepseek-harness,基线 b150a551 = 0.1.1-rc.2),更新时 git fetch origin 后 diff b150a551..origin/master 生成移植清单;deepseek-harness/ 保持只读纪律,永不 commit。
