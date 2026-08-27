@@ -3,9 +3,12 @@
 import type { ChatStatus } from "ai";
 import {
   CheckIcon,
+  ChevronDownIcon,
+  FolderIcon,
   GraduationCapIcon,
   LightbulbIcon,
   PaperclipIcon,
+  PlusIcon,
   SparklesIcon,
   RocketIcon,
   SquareIcon,
@@ -62,6 +65,7 @@ import { useModels } from "@/core/models/hooks";
 import type { AgentThreadContext } from "@/core/threads";
 import type { QueuedMessage } from "@/core/threads/queue-store";
 import { textOfMessage } from "@/core/threads/utils";
+import { useWorkspaceTree, useCreateWorkspace } from "@/core/workspaces/hooks";
 import { cn } from "@/lib/utils";
 
 import {
@@ -226,6 +230,56 @@ export function InputBox({
   const { models } = useModels();
   const { thread, isMock } = useThread();
   const { textInput } = usePromptInputController();
+
+  // ── 工作区选择器（新任务，DSH 截图二） ──────────────────────────
+  const { data: workspaceTree } = useWorkspaceTree();
+  const { mutateAsync: createWorkspaceMutate } = useCreateWorkspace();
+  const [wsMenuOpen, setWsMenuOpen] = useState(false);
+  const [wsDialogOpen, setWsDialogOpen] = useState(false);
+  const [wsNewPath, setWsNewPath] = useState("");
+  const [wsNewTitle, setWsNewTitle] = useState("");
+  const workspaces = useMemo(() => workspaceTree?.workspaces ?? [], [workspaceTree]);
+  const selectedWsId = context?.workspace_id;
+  const selectedWorkspace = useMemo(
+    () => workspaces.find((w) => w.id === selectedWsId),
+    [workspaces, selectedWsId],
+  );
+
+  const pickWorkspace = useCallback(
+    (id: string | undefined) => {
+      onContextChange?.({
+        ...context,
+        workspace_id: id,
+        user_workspace_path: id
+          ? (workspaces.find((w) => w.id === id)?.path ?? context?.user_workspace_path)
+          : undefined,
+      } as Parameters<typeof onContextChange>[0]);
+      try {
+        if (typeof window !== "undefined") {
+          if (id) window.localStorage.setItem("kworks.thread-workspace-id", id);
+          else window.localStorage.removeItem("kworks.thread-workspace-id");
+        }
+      } catch {}
+    },
+    [context, onContextChange, workspaces],
+  );
+
+  const submitNewWorkspace = useCallback(async () => {
+    const trimmed = wsNewPath.trim();
+    if (!trimmed) return;
+    try {
+      const created = await createWorkspaceMutate({
+        path: trimmed,
+        title: wsNewTitle.trim() || undefined,
+      });
+      setWsDialogOpen(false);
+      setWsNewPath("");
+      setWsNewTitle("");
+      pickWorkspace(created.id);
+    } catch (error) {
+      console.error("create workspace failed", error);
+    }
+  }, [createWorkspaceMutate, pickWorkspace, wsNewPath, wsNewTitle]);
   const hasText = (textInput.value ?? "").trim().length > 0;
   const promptRootRef = useRef<HTMLDivElement | null>(null);
 
@@ -716,6 +770,45 @@ export function InputBox({
             </PromptInputActionMenu>
           </PromptInputTools>
           <PromptInputTools>
+            {isNewThread && (
+              <DropdownMenu open={wsMenuOpen} onOpenChange={setWsMenuOpen}>
+                <DropdownMenuTrigger asChild>
+                  <PromptInputButton title={t.inputBox.pickWorkspace}>
+                    <FolderIcon className="size-4" />
+                    <span className="max-w-24 truncate text-xs font-normal">
+                      {(context?.workspace_id
+                        ? workspaces.find((w) => w.id === context.workspace_id)?.title
+                        : undefined) ?? t.inputBox.ungroupedOption}
+                    </span>
+                    <ChevronDownIcon className="text-muted-foreground size-3" />
+                  </PromptInputButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="max-h-72 overflow-auto">
+                  {workspaces.map((w) => (
+                    <DropdownMenuItem key={w.id} onSelect={() => pickWorkspace(w.id)}>
+                      <FolderIcon className="text-muted-foreground size-3.5" />
+                      <span className="truncate">{w.title}</span>
+                      {context?.workspace_id === w.id && (
+                        <CheckIcon className="ml-auto size-4" />
+                      )}
+                      {context?.workspace_id !== w.id && (
+                        <div className="ml-auto size-4" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => pickWorkspace(undefined)}>
+                    <span className="truncate">{t.inputBox.ungroupedOption}</span>
+                    {!context?.workspace_id && <CheckIcon className="ml-auto size-4" />}
+                    {!context?.workspace_id && <div className="ml-auto size-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setWsDialogOpen(true)}>
+                    <PlusIcon className="size-3.5" />
+                    <span>{t.inputBox.addWorkspace}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <ModelSelector
               open={modelDialogOpen}
               onOpenChange={setModelDialogOpen}
@@ -784,6 +877,34 @@ export function InputBox({
           <div className="bg-background absolute right-0 -bottom-[17px] left-0 z-0 h-4"></div>
         )}
       </PromptInput>
+      <Dialog open={wsDialogOpen} onOpenChange={setWsDialogOpen}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>{t.inputBox.addWorkspace}</DialogTitle>
+            <DialogDescription>{t.inputBox.addWorkspacePath}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-2">
+            <input
+              value={wsNewPath}
+              onChange={(e) => setWsNewPath(e.target.value)}
+              placeholder={t.inputBox.addWorkspacePath}
+              className="border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm outline-none"
+            />
+            <input
+              value={wsNewTitle}
+              onChange={(e) => setWsNewTitle(e.target.value)}
+              placeholder={t.inputBox.addWorkspaceTitle}
+              className="border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm outline-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setWsDialogOpen(false)}>
+              {t.common.cancel}
+            </Button>
+            <Button onClick={() => void submitNewWorkspace()}>{t.common.save}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

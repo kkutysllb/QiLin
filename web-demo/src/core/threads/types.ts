@@ -38,6 +38,8 @@ export interface AgentThreadContext extends Record<string, unknown> {
    * default user data root (~/.kworks) when absent.
    */
   user_workspace_path?: string;
+  /** Registry workspace id (uuid) chosen for new threads; drives grouping. */
+  workspace_id?: string;
 }
 
 export interface AgentThread extends Thread<AgentThreadState> {

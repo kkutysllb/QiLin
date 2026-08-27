@@ -101,6 +101,11 @@ export const zhCN: Translations = {
 
   // Input Box
   inputBox: {
+  pickWorkspace: "选择工作区",
+  ungroupedOption: "未分组",
+  addWorkspace: "添加工作区…",
+  addWorkspacePath: "绝对路径（如 /Users/me/projects/X）",
+  addWorkspaceTitle: "显示名称（可选）",
     placeholder: "今天我能为你做些什么？",
     createSkillPrompt:
       "我们一起用 skill-creator 技能来创建一个技能吧。先问问我希望这个技能能做什么。",

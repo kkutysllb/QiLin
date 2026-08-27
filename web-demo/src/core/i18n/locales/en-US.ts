@@ -102,6 +102,11 @@ export const enUS: Translations = {
 
   // Input Box
   inputBox: {
+  pickWorkspace: "Pick workspace",
+  ungroupedOption: "Ungrouped",
+  addWorkspace: "Add workspace…",
+  addWorkspacePath: "Absolute path (e.g. /Users/me/projects/X)",
+  addWorkspaceTitle: "Display name (optional)",
     placeholder: "How can I assist you today?",
     createSkillPrompt:
       "We're going to build a new skill step by step with `skill-creator`. To start, what do you want this skill to do?",

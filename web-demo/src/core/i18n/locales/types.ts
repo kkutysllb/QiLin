@@ -85,6 +85,11 @@ export interface Translations {
 
   // Input Box
   inputBox: {
+  pickWorkspace: string;
+  ungroupedOption: string;
+  addWorkspace: string;
+  addWorkspacePath: string;
+  addWorkspaceTitle: string;
     placeholder: string;
     createSkillPrompt: string;
     createCronPrompt: string;
