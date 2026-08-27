@@ -53,6 +53,31 @@ def render_goal_round_prompt(objective: str, round_number: int, max_goal_rounds:
     )
 
 
+def consecutive_blocked_streak(history: list[dict[str, Any]]) -> int:
+    """Count the latest uninterrupted streak of same-reason blocks.
+
+    Mirrors the reference "same-condition blocked >= N rounds" safety
+    valve: a streak is broken by any non-block operation (resume, edit,
+    …), and consecutive blocks only count together when their reason code
+    matches — different blockers mean progress between stalls.
+    """
+    code: str | None = None
+    streak = 0
+    for item in reversed(history):
+        if item.get("operation") != "block":
+            break
+        reason = (item.get("payload") or {}).get("goal", {}).get("blocked_reason")
+        item_code = (reason or {}).get("code") if isinstance(reason, dict) else None
+        if code is None:
+            code = item_code
+            streak = 1
+        elif item_code == code:
+            streak += 1
+        else:
+            break
+    return streak
+
+
 @dataclass
 class DriveOutcome:
     """What one quiescent drive pass decided (for logs/tests/SSE)."""
@@ -70,6 +95,8 @@ async def drive(
     activation: str,
     *,
     inject: Callable[[str, int], Awaitable[None]],
+    history: list[dict[str, Any]] | None = None,
+    blocked_streak_limit: int = 0,
 ) -> DriveOutcome:
     """Evaluate the quiescence gate and maybe inject the next round.
 
@@ -79,6 +106,13 @@ async def drive(
     Admission into the durable counter happens only after a successful
     injection, mirroring the reference where counting rides on the
     committed session message.
+
+    ``history``/``blocked_streak_limit`` carry the safety-valve hook
+    (§1.4 "same-condition blocked ≥ N rounds"): when the limit is > 0 and
+    the change log already ends in that many same-reason blocks, driving
+    stops even though resume semantics would allow it. The model-side
+    self-report channel is not wired yet, so with no block rows this is a
+    structural no-op today.
     """
     if projection is None or projection.get("operation") == "clear":
         return DriveOutcome(status="dropped", reason="no-current-goal")
@@ -92,6 +126,7 @@ async def drive(
         return DriveOutcome(status="dropped", reason="disarmed")
 
     ref = {"id": goal["id"], "revision": goal["revision"]}
+
     rounds = projection.get("rounds_started", 0)
     cap = goal["max_goal_rounds"]
     if rounds >= cap:
@@ -108,6 +143,15 @@ async def drive(
             logger.warning("goal-round-driver: limit block failed: %s", exc.code)
             return DriveOutcome(status="dropped", reason=f"block-failed:{exc.code}", ref=ref)
         return DriveOutcome(status="blocked-limit", ref=ref)
+
+    if blocked_streak_limit > 0 and history is not None:
+        streak = consecutive_blocked_streak(history)
+        if streak >= blocked_streak_limit:
+            return DriveOutcome(
+                status="dropped",
+                reason=f"blocked-streak>={streak}",
+                ref=ref,
+            )
 
     round_number = rounds + 1
     prompt = render_goal_round_prompt(goal["objective"], round_number, cap)

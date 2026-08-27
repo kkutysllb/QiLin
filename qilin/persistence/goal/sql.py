@@ -172,12 +172,18 @@ class GoalRepository:
                     "rounds_started": row.rounds_started,
                     "created_at": row.created_at.isoformat() if row.created_at else None,
                 }
-                snap = self._snapshot_dict(row) if row.operation != "clear" else None
+                snap = (
+                    self._snapshot_dict(row)
+                    if row.operation not in {"clear", "round"}
+                    else None
+                )
                 if snap is not None:
                     item["ref"] = {"id": snap["id"], "revision": snap["revision"]}
                     item["goal"] = snap
-                else:
+                elif row.operation == "clear":
                     item["cleared"] = row.payload.get("cleared")
+                else:
+                    item["round"] = (row.payload or {}).get("round")
                 out.append(item)
             return out
 

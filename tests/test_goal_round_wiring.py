@@ -18,9 +18,10 @@ from app.gateway.goal_round_wiring import (
 from qilin.persistence.goal.sql import GoalRepository
 
 
-def _record(thread_id: str, user_id: str = "u1") -> SimpleNamespace:
+def _record(thread_id: str, user_id: str = "u1", status: str = "success") -> SimpleNamespace:
     return SimpleNamespace(
-        run_id="r-1", thread_id=thread_id, assistant_id=None, user_id=user_id
+        run_id="r-1", thread_id=thread_id, assistant_id=None, user_id=user_id,
+        status=SimpleNamespace(value=status),
     )
 
 

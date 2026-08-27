@@ -121,6 +121,16 @@
 - ✅ tests/test_goal_round_driver.py 七用例（prompt 快照 parity/三 drop 分支/预算耗尽 block 文案/成功注入两连轮记账/失败不记账）。后端全量 726 passed，ruff clean。
 - ✅ P6b（第 11 轮）：idle 终态边接线完成——复用 worker 现有 `ctx.on_run_completed` 单槽钩子，`compose_run_completed` 链式组合 scheduled_task 观察器与 goal driver 观察器（逐环异常隔离）；注入通道走 `launch_scheduled_thread_run`（internal caller），metadata["goal_round"] 携带 {kind, round, id, revision} 归因；轮次成功后经 goal_broker 广播 `operation='round'` SSE；feature flag `QILIN_GOAL_ROUND_DRIVER`（默认关，观察器无条件装配、flag 运行期可翻）。tests/test_goal_round_wiring.py 6 用例。后端全量 732 passed，ruff clean。
 
+**P6c 终态语义完善 + P6 验收 e2e（第 12 轮）**：
+- ✅ 状态闸门（§1.4「取消不留活口」）：仅 success 触发 drive；interrupted 且 armed→自动 pause 并广播，杜绝人离开后被后续 idle 边复活；error/timeout 不驱动不改相位（防错误循环自旋轮次）。
+- ✅ blocked-limit 广播补全：driver 自动 block 绕过 REST 层，wiring 补发 operation='block' SSE，否则 UI 停显 active 相位。
+- ✅ 安全阀结构钩子 `GOAL_BLOCK_AFTER_ROUNDS`（默认 3，<1 关闭）：change log 连续同 reason.code block 段计数≥阈值即停注；模型端自报通道未接（P8+），当前无 block 行时为无害空转，钩子先行就位。
+- ✅ 顺带修复：history() 对 round 行 KeyError；e2e 揭示的广播缺口。
+- ✅ **P6 验收达成（计划 §5：模拟 LLM 半途停止→自动续跑）**：tests/test_goal_loop_e2e.py——REST create(armed,cap=1)→observer(success)→`<goal_round>` 注入+归因 metadata+round SSE+rounds_started=1→第二次完成边预算耗尽自动 block(round-limit)+block SSE→此后不再驱动；interrupted 停车/再武装复跑、error 保相位不驱动两配套用例。goal 域合计 29 用例。
+- 后端全量 735 passed；本轮触达文件 ruff clean（routers/files·workspaces 存量 lint 债非本轮引入，保持原样）。
+
+**目标③完成判定（第 12 轮）**：存储(0013+context 读法)→七动词 CAS API→activation 进程位→SSE 整快照/round/block 广播→驱动内核(逐字 prompt+静默闸门)→idle 边接线(flag)→终态语义闸门→验收 e2e 全链闭环。裁剪项与既存差异如实登记：prompt 模板逐字一致；事件溯源以表代日志（§5.3）；安全阀信号源待模型端；旧评审员循环仍由 legacy /goal PUT 通道独立驱动（键域不同天然互斥），收敛退役留 P8 清理单。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。
