@@ -392,6 +392,9 @@ class RunContext:
     event_store: Any | None = field(default=None)
     run_events_config: Any | None = field(default=None)
     thread_store: Any | None = field(default=None)
+    # Workspace registry repository (DSH dsh-workspace alignment); None
+    # without SQL storage — consumers must tolerate absence.
+    workspace_store: Any | None = field(default=None)
     app_config: AppConfig | None = field(default=None)
     checkpoint_channel_mode: CheckpointChannelMode = "full"
     # Delta snapshot cadence frozen at startup; ``None`` means "not frozen in

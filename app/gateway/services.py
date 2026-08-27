@@ -177,8 +177,18 @@ async def _ensure_thread_metadata(
     record: RunRecord,
     *,
     owner_user_id: str | None,
+    workspace_id: str | None = None,
 ) -> None:
-    """Ensure an admitted run's thread exists without delaying task attachment."""
+    """Ensure an admitted run's thread exists without delaying task attachment.
+
+    Workspace capture (DSH SessionHeader.cwd alignment): on the *first*
+    materialization only, a ``workspace_id`` carried in the run context
+    resolves through the registry to its canonical path and is written once
+    as ``threads_meta.cwd``; the thread then auto-attaches to that
+    workspace's account. Existing threads are never touched — cwd is
+    immutable after creation, and account failures are non-fatal
+    bookkeeping.
+    """
     thread_store = run_ctx.thread_store
     existing = await thread_store.get(record.thread_id)
     if existing is None and owner_user_id:
@@ -190,11 +200,39 @@ async def _ensure_thread_metadata(
                 )
             existing = await thread_store.get(record.thread_id)
     if existing is None:
+        workspace_cwd: str | None = None
+        workspace_store = getattr(run_ctx, "workspace_store", None)
+        if workspace_store is not None and workspace_id and owner_user_id:
+            try:
+                ws = await workspace_store.get(workspace_id, user_id=owner_user_id)
+                workspace_cwd = ws.get("path") if ws else None
+            except Exception:
+                logger.warning(
+                    "Failed to resolve workspace %s for thread %s (non-fatal)",
+                    sanitize_log_param(str(workspace_id)),
+                    sanitize_log_param(record.thread_id),
+                    exc_info=True,
+                )
         await thread_store.create(
             record.thread_id,
             assistant_id=record.assistant_id,
             metadata=record.metadata,
+            cwd=workspace_cwd,
         )
+        if workspace_store is not None and workspace_cwd and owner_user_id:
+            try:
+                await workspace_store.attach_thread(
+                    workspace_id,
+                    record.thread_id,
+                    user_id=owner_user_id,
+                    thread_cwd=workspace_cwd,
+                )
+            except Exception:
+                logger.warning(
+                    "Workspace attach failed for thread %s (non-fatal)",
+                    sanitize_log_param(record.thread_id),
+                    exc_info=True,
+                )
 
 
 async def _terminal_record_stream_missing(
@@ -1284,12 +1322,28 @@ async def start_run(
             request_context=getattr(body, "context", None),
         )
 
+        # Workspace capture rides on the run context's configurable dict
+        # (frontend: config.configurable.workspace_id). Absent → cwd=NULL,
+        # rendering the thread under Ungrouped.
+        run_workspace_id: str | None = None
+        cfg_configurable = (
+            body_config.get("configurable") if isinstance(body_config, dict) else None
+        )
+        raw_workspace_id = (
+            cfg_configurable.get("workspace_id")
+            if isinstance(cfg_configurable, dict)
+            else None
+        )
+        if isinstance(raw_workspace_id, str) and raw_workspace_id:
+            run_workspace_id = raw_workspace_id
+
         async def run_after_metadata(record: RunRecord) -> None:
             metadata_task = asyncio.create_task(
                 _ensure_thread_metadata(
                     run_ctx,
                     record,
                     owner_user_id=owner_user_id,
+                    workspace_id=run_workspace_id,
                 )
             )
             abort_task = asyncio.create_task(record.abort_event.wait())

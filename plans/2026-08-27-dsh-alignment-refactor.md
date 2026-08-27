@@ -82,8 +82,18 @@
 **迁移敏感点清单**（子代理）：所有按 thread_id 查询 runs/threads_meta/checkpoints 的路径不受影响（加列不改键）；SSE stream/wait/cancel 路由按线程语义照旧；run 唯一约束按 thread 而非 workspace（同工作区多线程天然允许）；workspace_sessions 无外键 → 孤儿靠业务修剪（已实现 _prune_account）。
 
 
-### 2.2 前端（web-demo）
-TBD-REQUESTED：侧边栏渲染链与数据 hook / 线程创建流 / kworks.* localStorage 全景 / 布局上下文 / drag-drop 现状 / 命令面板注册。
+### 2.2 前端（web-demo）—— 已取证（子代理 82c5c3da）
+
+**侧栏现状**：`workspace-sidebar.tsx` → `RecentChatList`；数据来自 TanStack Query `useThreads()`（hooks.ts:1146-1210，LangGraph threads.search 分页 50/页、按 updated_at desc、窗口聚焦不刷新）；分组是**时间桶** recent3/thisWeek/thisMonth/earlier（recent-chat-list.tsx:109-133），非工作区。行操作 rename/share/export/delete；无 archive/拖拽/Show more。
+
+**线程创建流**：无显式 POST；SDK `useStream` 首次 submit 时自建线程（hooks.ts:333-355），thread id 经 onThreadId/onCreated 回填。context 含 `user_workspace_path` 等（:900-915）。→ **cwd 捕获的传参通道 = stream submit 的 configurable**（后端 start_run 从 config.configurable 取值已接线）。
+
+**状态管理基座**：workspace-layout-context 管右面板/历史折叠/settings 节（含 runtime）；侧栏折叠在 SidebarProvider cookie（⌘B），宽度 ResizeHandle 存 localStorage(180-360)。
+
+**无既有 DnD**：需引入 @dnd-kit/core+sortable 或先用上移/下移菜单替代（P3 决策点）。
+
+**P3 改造文件清单**（子代理预估 + 主线校准）：改 recent-chat-list / workspace-layout-context；新建 core/workspaces hooks（getWorkspaces/createWorkspace/moveThread/archive mutations）与 lib/workspace-tree.ts（tree.ts 直译）；command-palette 加「新工作区」动作。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。

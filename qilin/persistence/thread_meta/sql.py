@@ -48,6 +48,7 @@ class ThreadMetaRepository(ThreadMetaStore):
         user_id: str | _AutoSentinel | None = AUTO,
         display_name: str | None = None,
         metadata: dict | None = None,
+        cwd: str | None = None,
     ) -> dict:
         # Auto-resolve user_id from contextvar when AUTO; explicit None
         # creates an orphan row (used by migration scripts).
@@ -57,6 +58,9 @@ class ThreadMetaRepository(ThreadMetaStore):
             thread_id=thread_id,
             assistant_id=assistant_id,
             user_id=resolved_user_id,
+            # Creation-time working directory (DSH SessionHeader.cwd
+            # alignment): written only here; no code path updates it later.
+            cwd=cwd,
             display_name=display_name,
             metadata_json=metadata or {},
             created_at=now,

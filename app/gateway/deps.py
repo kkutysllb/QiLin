@@ -473,6 +473,12 @@ async def langgraph_runtime(
 
         app.state.thread_store = make_thread_store(sf, app.state.store)
         if sf is not None:
+            from qilin.persistence.workspace.sql import WorkspaceRepository
+
+            app.state.workspace_store = WorkspaceRepository(sf)
+        else:
+            app.state.workspace_store = None
+        if sf is not None:
             from qilin.persistence.scheduled_task_runs import (
                 ScheduledTaskRunRepository,
             )
@@ -623,6 +629,11 @@ def get_store(request: Request):
     return getattr(request.app.state, "store", None)
 
 
+def get_workspace_store(request: Request):
+    """Return the workspace registry repository (None without SQL storage)."""
+    return getattr(request.app.state, "workspace_store", None)
+
+
 def get_thread_store(request: Request) -> ThreadMetaStore:
     """Return the thread metadata store (SQL or memory-backed)."""
     val = getattr(request.app.state, "thread_store", None)
@@ -680,6 +691,7 @@ def get_run_context(request: Request) -> RunContext:
             request.app.state, "checkpoint_snapshot_frequency", None
         ),
         thread_store=get_thread_store(request),
+        workspace_store=get_workspace_store(request),
         app_config=get_config(),
         on_run_completed=getattr(
             request.app.state, "scheduled_task_service", None
