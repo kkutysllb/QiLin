@@ -225,10 +225,95 @@ e2e(1):
 
 > **归档日志 gitignore 豁免重申(S5)**:本步归档的三个测试日志(plans/assets/s5-logs/qilin-s5-test.log、qilin-s5-snapshot.log、qilin-s5-e2e.log,源自 /tmp/qilin-s5-*.log 同名文件)与仓根 .gitignore `*.log` 规则冲突,按 S4 披露条款以 `git add -f` 强制纳入并在此重申豁免——测试门禁证据留痕优先于日志忽略规则;日志总量约 424KB,未压缩。
 
+## P1-S6 修复与定性(2026-08-28,引擎仓四提交 8288f12 / 65d574c / 19f8492 / f698d79)
+
+S5 段 32 条改名相关失败的修复执行段。执行基线:引擎仓 main @ 6c7a8b1。环境噪声警示沿用任务口径:hooks/sandbox 系 timeout(5000ms)+SandboxUnavailableError 类失败与本机 sandbox 后端缺失相关,不追、不修、单列。
+
+### A 组:b 类门禁复活(3 位点 + 读码翻出 2 脚本 4 处同构漏网)
+
+| 位点 | 处置 | 保义要点 |
+|---|---|---|
+| scripts/verify-dsh-package-licenses.ts:10 | regex 改 `/^@qilin\//` | spec 已期望 packageCount 3(root @qilin/engine-root + @qilin/cli + @qilin/agent),vendor `@deepseek-ai/cordis` 等不命中;2 条失败收敛 |
+| packages/client/tsdown.client.ts:488 入口 | `!startsWith('@qilin/') && !startsWith('@deepseek-ai/')` 双 scope | 改前门禁覆盖整个 @deepseek-ai scope(自有产品+vendor rescope);若入口只切 @qilin/,vendor scope 值导入(如 cordis)会从「门禁拦截」降级为「静默放行」,门禁弱化;双 scope 保持原覆盖拓扑,VENDORED_LIBRARY(:69,@deepseek-ai/cosmokit|schemastery,现名无误)及注释继续有效 |
+| 同 :61 INLINE_SAFE | 随包名迁移 `/^@qilin\/(host-apiproxy|file-reference|session|llm|tools|brand)(\/|$)/` | 六包新名逐一核实(@qilin/host-apiproxy、@qilin/file-reference、@qilin/session、@qilin/llm、@qilin/tools、@qilin/brand) |
+| 同 :72 GENERATED_REMOTE | `/^@qilin\/[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/` | spec 期望 @qilin/goal/remote 放行、@qilin/goal 与 /client、/remote/nested 拒绝,全部通过 |
+| scripts/release/families.ts:142 | members() 为基类共用方法,改为 family 自报 `abstract readonly nameScope`(dsh=@qilin/,vendor=@deepseek-ai/),错误消息参数化 | 直接字面替换会误伤 vendor 家族(vendor manifest 本名 @deepseek-ai/cordis,spec :76 期望 vendor-cordis-v* tag 佐证);:386 的 replace('@deepseek-ai/','') 属 VendorFamily tag 前缀,现名正确,不动;dsh- tag 前缀属家族命名域顺延项,不动 |
+
+读码翻出的同构 codemod 漏网(无测试覆盖故 S5 未暴露,就地修,归提交 1):
+
+1. scripts/publish-npm-baseline.ts:263 —— 遍历 vendor/+packages/+apps/ 全部 manifest 统一要求 @deepseek-ai/,rescope 后一跑即炸;改按 origin 分命名域(vendor=@deepseek-ai/,harness=@qilin/)。同文件 :266 的 '@qilin/engine-root' 已是新名而 :263 漏改,坐实漏网。
+2. scripts/publish-npm-baseline.ts:808 —— release manifest 解析校验 harness origin 必须 @deepseek-ai/,同炸;改 @qilin/。
+3. scripts/check-workspace-constraints.ts:308 与 :317 —— 发布文件(files)策略对自有包静默失效;同文件 appPackageFiles 表键已被 codemod 改为 @qilin/cli、@qilin/web-frontend 而门禁条件漏改;改 @qilin/。其 spec fixture 全新名且无 apps/ fixture,复活不影响现有用例(实测 6/6 绿)。
+
+**build 复活翻出物清单:空**。门禁复活后 pnpm run build exit 0,200 client artifacts,0 条真违规翻出(S4 绿正是因门禁失效的担忧解除:现网 client 产物对新门禁无违规)。
+
+### B 组:S3 漏网生产字符串(S5 清单 2 位点 + 重跑翻出第 3 位点)
+
+1. packages/bundle/web-app/src/startup.ts:48-49 —— `.name('qilin --profile web')`、`'Serve the QiLin browser UI.'`(同函数 :55-60 Examples S3 已改)。e2e :338 断言收敛。
+2. packages/client/ui-settings-plugin-inventory/src/client/PluginInventorySettingsTab.tsx:53 —— **任务字面方案不成立,按读码修正**:该正则作用于 :49 已剥 scope 的 unscoped 名(@qilin/host-X → `host-X`,不含 qilin- 段),字面方案 `/^qilin-(?:host-|client-)?/` 无法命中;测试 :75/:87 期望 `directory-picker-native`,保义修复为 `/^(?:host-|client-)?/`(旧 dsh- 段对应旧产品前缀,rescope 后不复存在;旧名映射逐例对齐:dsh-host-X→X ≡ host-X→X)。2 条失败收敛。
+3. packages/bundle/headless/src/startup.ts:33(S6 重跑翻出,提交 4)—— `.name('dsh --profile headless')`,同函数 :39 Examples 已是 qilin(与 web startup 同型半改函数);S5 e2e 仅报 :338 因 web 断言在前先行失败遮蔽本位点,web 修好后 e2e 断言推进即暴露 :357。已改 qilin 并同步两条 startup spec 帮助断言(见 C 组补记)。
+
+### C 组:c 类预期红 21 条 + 伴生 2 条,全部收敛
+
+c1-c18、c21 按 S5 清单逐条断言/fixture 同步(headless err 前缀×3、web-app URL 行×5、apiproxy provider 名×2、jobs/credentials 不变式正则×2、persistence/tool catalog 生成器消息×2、families publish-order 消息、source-launch scripts 键、system-prompt 标签正则、app-boot 影子 fixture 目录 @qilin/system-prompt、register.mjs 就绪探针前缀)。所在套件全绿。
+
+补记(S6 执行中新暴露的伴生断言,均因 S5 时生产串未改而绿、S6 改生产后红,非环境噪声):
+
+- packages/bundle/web-app/tests/startup.spec.ts:121(d→qilin --profile web,提交 4)
+- packages/bundle/headless/tests/startup.spec.ts:101(d→qilin --profile headless,提交 4)
+
+c19 特别记录:gen-third-party-notices 再生成即收敛;S5 记「生成器已输出 qilin CLI」系误读——生成器 scripts/gen-third-party-notices.ts:709 模板仍为 `dsh` CLI 宽义文案且无断言覆盖,该 spec 真实失败原因是 notices 文件 stale(manifest 漂移)。:709 文案归 F 类宽义文案登记。
+
+### D 组:R1/R2 快照再生成
+
+机制:scripts/translation-prompt.snapshot.ts 以 DSH_SNAPSHOT=record + vitest.snapshot.config.ts --update 调 verify-translation-prompt.ts --snapshot 从当前 README 重新生成 request-response.expected.json(未手改)。结果:@deepseek-ai/dsh 旧包名口径归零(grep 0),新内容含 `# QiLin` 与 `npx @qilin/cli web`。快照内仍存 3 处 DeepSeek Harness 字样,均为当前 README 正文固有(术语表「项目本身不是 SDK」、Discord 社区、企微群),属 F 类宽义文案随 P5,不在本组口径。
+
+### E 组:d 类定性(协议执行完整记录)
+
+- 基线:git worktree add /tmp/qilin-pristine pristine-dsh-0.1.1-rc.2(f4703c4),worktree 内 pnpm install 9.7s(pnpm 共享存储),只跑该 spec:gen-client-catalog.spec 18/18 全绿(collects every declared slot with a teachable contract,741ms)。
+- HEAD(修复前):同 spec 报 130 条契约违规(S5 记录)。
+- 判定:基线绿 → 按协议属「我们的回归」,深入定位。
+- 根因:rescope codemod 漏改 scripts/slot-walk.ts:18 —— MERGE_HEAD 词法预过滤 regex 仍找 `@deepseek-ai/dsh-client-ui-slots`,而源码已 82 文件全部 `declare module '@qilin/client-ui-slots'`(旧名 0 命中);prefilter 失效致 scanSlotFiles 跳过所有仅含 SlotMap merge 的文件(:101 MERGE_HEAD||REGISTER_HEAD 短路),声明丢失 → 注册被报「SlotMap merge 未声明」等 130 条违规。与 S5「与改名无字面关联」的初判相反:违规消息无旧名字面,但根因正是改名漏网。
+- 修复:MERGE_HEAD → @qilin/client-ui-slots(提交 3 19f8492);修复后 HEAD 同 spec 18/18 绿(710ms)。
+- 结论:非上游既有问题,属移植 rescope 漏网回归,已修复。S5 段「真回归 0 + 1 候选」口径收敛为「真回归 1(已修复)」。
+- 清理:git worktree remove --force + rm -rf /tmp/qilin-pristine,worktree list 仅剩主树;vendor 触碰 0。
+
+### F 组:宽义文案登记(本次不动,归品牌阶段 P5)
+
+S5 原登记照录(app-boot:827、web-app index:146、manifest.webmanifest:3、各包 description、onboarding-copy、ui-brand-official 注释等)。S6 新增登记:
+
+- scripts/gen-third-party-notices.ts:709 与生成产物 THIRD_PARTY_NOTICES.md:30 的 `dsh` CLI 文案(见 C 组 c19 特别记录)
+- translation-prompt-v4 expected.json 内嵌 README 的 3 处 DeepSeek Harness(社区/术语指称,见 D 组)
+- scripts/client-bundle-purity.spec.ts:91 用例标题 'throws on any other @deepseek-ai leak'(测试描述文案,scope 语义实指 vendor scope,无断言影响)
+- packages/bundle/headless/src/startup.ts 等函数内注释/帮助文案中的既有旧指称以 S3 顺延项口径为准,不另展开
+
+### 终验五门禁(S6 终态,HEAD=f698d79)
+
+| 门禁 | exit | 结果 |
+|---|---|---|
+| pnpm run test | 1 | 文件 11 failed / 852 passed / 9 skipped(872);用例 64 failed / 14529 passed / 114 skipped(14707) |
+| pnpm run test:snapshot | 0 | 13 文件全过;126 passed / 2 skipped(S5 的 2 条快照失败收敛) |
+| pnpm run test:e2e | 0 | 32 文件过 / 29 skipped;用例 129 passed / 75 skipped(S5 的 1 条 e2e 失败收敛) |
+| pnpm run build | 0 | 200 client artifacts |
+| pnpm run typecheck | 0 | 0 错误 |
+
+test 门禁剩余 64 条失败逐条归类:全部为环境噪声,零条改名相关——错误体为 SandboxUnavailableError(sandbox mode "read-only" is requested but no sandbox backend is usable on this host,本机无可用 sandbox 后端)与 hook 用例 timeout 5000ms,分布 11 文件:hooks-codex(bridge 3、coverage-result-shape 6、coverage-prompt 5、coverage-post-tool 5)、hooks-claude-code(coverage-edge-paths 6、coverage-stop 5、bridge 7、coverage-context 8、coverage-config 6)、sandbox/sandbox-local(4)、shell/bash-sandbox partial-landlock(9)。排除 hooks/sandbox/landlock 后失败为 0。与 S5 口径一致(hooks/sandbox 系约 70 条量级;本机 S5 实测约同系失败,本轮 64 条,轮次间数量随机器负载波动,S5 轮同源)。不追、不修。32 条改名相关失败全部收敛(29 单测+2 快照+1 e2e),另收敛 S6 执行中新暴露伴生 3 条(web startup 帮助断言、headless startup 帮助断言、headless 生产位点,e2e 断言推进所致)。
+
+### 引擎仓提交清单(S6)
+
+1. 8288f12 fix(engine): revive scope gates and remaining s3 misses (s6) —— A 组 3 位点+同构 4 处,B 组 2 位点
+2. 65d574c test(engine): sync fixtures and regenerate snapshots (s6) —— C 组 21 条+D 组 R1/R2
+3. 19f8492 fix(engine): repair slot-walk merge prefilter rescoped name (s6) —— E 组 d 类生产修复
+4. f698d79 fix(engine): rename headless command name and sync help assertions (s6) —— B 组第 3 位点+伴生断言(重跑翻出,单独提交说明)
+
+vendor 触碰:0(每次提交 pre-commit vendor manifest guard 绿 + 人工 git status 复核)。
+
+> **归档日志 gitignore 豁免重申(S6)**:本步归档的六个门禁日志(plans/assets/s6-logs/qilin-s6-test.log、qilin-s6-snapshot.log、qilin-s6-e2e.log、qilin-s6-build.log、qilin-s6-typecheck.log、qilin-s6-build-precheck.log,源自 /tmp/qilin-s6-*.log 同名文件;末者为 A 组门禁复活后的首次 build 复核现场)与仓根 .gitignore 的 `*.log` 规则冲突,按 S4 披露条款以 `git add -f` 强制纳入并在此重申豁免——测试门禁证据留痕优先于日志忽略规则;日志总量约 884KB,未压缩。
+
 ## 分类为空声明(截至本档)
 
-- import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改;P1-S5 全量测试未出现 import 解析类失败(唯一 Cannot find package 系 fixture 目录名漏改,归 S5 段 c 类 #18),维持 0。
-- 真回归:0 —— S4 已实测构建与类型门禁双绿(build/typecheck exit 0、0 错误,含 --force 全量复核),详见 P1-S4 段;P1-S5 全量测试出现 1 条疑似真回归候选(gen-client-catalog 130 契约违规,与改名无字面关联,待 S6 基线对照定性,见 S5 段 d 类候选),定性前真回归按「0 + 1 候选」口径登记;URL 行/错误前缀相关 e2e 与快照用例的回归风险已在 S5 段全部实证归类。
+- import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改;P1-S5 全量测试未出现 import 解析类失败(唯一 Cannot find package 系 fixture 目录名漏改,归 S5 段 c 类 #18),维持 0。**S6 更新(2026-08-28)**:R1/R2 已按生成机制再生成收敛,`@deepseek-ai/dsh` 全仓跟踪文件(除 vendor/)命中归零,本条维持 0 且其唯一例外消除。
+- 真回归:1(已修复) —— S4 已实测构建与类型门禁双绿;P1-S5 出现的 1 条疑似真回归候选(gen-client-catalog 130 契约违规)已经 S6 按 pristine-dsh-0.1.1-rc.2 基线对照定性:基线绿、属我们侧回归,根因为 rescope codemod 漏改 slot-walk.ts MERGE_HEAD 预过滤(详见 S6 段 E 组),提交 19f8492 修复后 HEAD 全绿,定性收敛为「1 条真回归,已修复」;此外无新增真回归。
 
 ## 边界声明(非残差)
 
