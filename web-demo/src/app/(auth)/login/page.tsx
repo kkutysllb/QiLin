@@ -4,16 +4,20 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+import {
+  AuthShell,
+  authErrorClass,
+  authFieldClass,
+  authLabelClass,
+  authSubmitClass,
+} from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
-import { FlickeringGrid } from "@/components/ui/flickering-grid";
-import Galaxy from "@/components/ui/galaxy";
 import { Input } from "@/components/ui/input";
-import { ShineBorder } from "@/components/ui/shine-border";
-import SpotlightCard from "@/components/ui/spotlight-card";
 import { useAuth } from "@/core/auth/AuthProvider";
 import { getDesktopAuthHeaders, setDesktopSessionToken } from "@/core/auth/session";
 import { type LoginResponse, parseAuthError } from "@/core/auth/types";
 import { getBackendBaseURL, isDesktop } from "@/core/config";
+import { cn } from "@/lib/utils";
 
 /**
  * Validate next parameter
@@ -150,124 +154,70 @@ function LoginPageInner() {
   };
 
   return (
-    <div className="dark bg-background text-foreground relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Galaxy WebGL starfield background */}
-      <div className="absolute inset-0 z-0 bg-black/50">
-        <Galaxy
-          mouseRepulsion={false}
-          starSpeed={0.2}
-          density={0.6}
-          glowIntensity={0.35}
-          twinkleIntensity={0.3}
-          speed={0.5}
-        />
-      </div>
-      {/* Animated tech grid overlay */}
-      <FlickeringGrid
-        className="absolute inset-0 z-10 opacity-20"
-        squareSize={4}
-        gridGap={4}
-        color="#6366f1"
-        maxOpacity={0.1}
-        flickerChance={0.12}
-      />
-      {/* Orb glow effects */}
-      <div className="absolute top-1/4 left-1/4 size-96 rounded-full bg-purple-500/20 blur-[120px]" />
-      <div className="absolute bottom-1/4 right-1/4 size-96 rounded-full bg-cyan-500/20 blur-[120px]" />
-      {/* Login card */}
-      <div className="relative z-20 w-full max-w-md">
-        <div className="relative overflow-hidden rounded-3xl">
-          <ShineBorder
-            borderWidth={2}
-            duration={10}
-            shineColor={["#06b6d4", "#a855f7", "#ec4899"]}
+    <AuthShell
+      title={isLogin ? "登录控制台" : "创建账户"}
+      subtitle={isLogin ? "登录您的账户" : "创建新账户"}
+    >
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="email" className={authLabelClass}>
+            邮箱
+          </label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="请输入邮箱地址"
+            required
+            className={authFieldClass}
           />
-          <SpotlightCard
-            className="border-border/40 bg-background/70 space-y-6 rounded-3xl border p-8 backdrop-blur-xl"
-            spotlightColor="rgba(168, 85, 247, 0.15)"
-          >
-        <div className="text-center">
-          <h1 className="bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-4xl font-bold text-transparent">
-            QiLin
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {isLogin ? "登录您的账户" : "创建新账户"}
-          </p>
+        </div>
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="password" className={authLabelClass}>
+            密码
+          </label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="请输入密码"
+            required
+            minLength={isLogin ? 6 : 8}
+            className={authFieldClass}
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-2">
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="email" className="text-foreground text-sm font-medium">
-              邮箱
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="请输入邮箱地址"
-              required
-              className="border-border/50 text-foreground placeholder:text-muted-foreground/80 focus:border-purple-500/50 transition-colors"
-            />
-          </div>
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="password" className="text-foreground text-sm font-medium">
-              密码
-            </label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="请输入密码"
-              required
-              minLength={isLogin ? 6 : 8}
-              className="border-border/50 text-foreground placeholder:text-muted-foreground/80 focus:border-purple-500/50 transition-colors"
-            />
-          </div>
+        {error && <p className={cn("text-sm", authErrorClass)}>{error}</p>}
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+        <Button type="submit" className={authSubmitClass} disabled={loading}>
+          {loading ? "请稍候…" : isLogin ? "登录" : "创建账户"}
+        </Button>
+      </form>
 
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-linear-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-500" />
-            <Button
-              type="submit"
-              className="relative w-full bg-linear-to-r from-cyan-600 via-purple-600 to-pink-600 hover:from-cyan-700 hover:via-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 transition-all duration-300"
-              disabled={loading}
-            >
-              {loading
-                ? "请稍候…"
-                : isLogin
-                  ? "登录"
-                  : "创建账户"}
-            </Button>
-          </div>
-        </form>
-
-        <div className="text-center text-sm">
-          <button
-            type="button"
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError("");
-            }}
-            className="text-purple-400 hover:text-purple-300 transition-colors hover:underline"
-          >
-            {isLogin
-              ? "没有账户？立即注册"
-              : "已有账户？立即登录"}
-          </button>
-        </div>
-
-        <div className="text-muted-foreground text-center text-xs">
-          <Link href="/" className="hover:text-purple-400 transition-colors hover:underline">
-            ← 返回首页
-          </Link>
-        </div>
-          </SpotlightCard>
-        </div>
+      <div className="text-center text-sm">
+        <button
+          type="button"
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setError("");
+          }}
+          className="text-ql-gold-300 transition-colors hover:text-ql-gold-500 hover:underline"
+        >
+          {isLogin ? "没有账户？立即注册" : "已有账户？立即登录"}
+        </button>
       </div>
-    </div>
+
+      <div className="text-center text-xs">
+        <Link
+          href="/"
+          className="text-ql-ink-low transition-colors hover:text-ql-ink-mid hover:underline"
+        >
+          ← 返回首页
+        </Link>
+      </div>
+    </AuthShell>
   );
 }
 
