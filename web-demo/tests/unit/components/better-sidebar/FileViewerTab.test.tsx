@@ -12,10 +12,11 @@ vi.mock("@/core/files/api", () => ({
 
 const unregisters: Array<() => void> = [];
 beforeEach(() => {
-  // Built-in viewer registration is app-level wiring (Task 6); unit tests
+  // Built-in viewer registration is app-level wiring; unit tests
   // register on demand because dispatch goes through the global singleton.
-  const dispose = registerBuiltinViewers();
-  unregisters.push(dispose);
+  // registerBuiltinViewers() now returns one disposer per registration
+  // (file-viewer + sidebar-panel entries), so flatten before pushing.
+  unregisters.push(...registerBuiltinViewers());
 });
 afterEach(() => {
   while (unregisters.length) unregisters.pop()?.();
