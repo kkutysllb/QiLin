@@ -431,6 +431,19 @@ class Paths:
         return actual
 
 
+class QiLinPaths(Paths):
+    """``Paths`` alias exposing the per-thread workspace browse root.
+
+    Better Sidebar web file browsing scopes every FS operation to one
+    thread's ``user-data/workspace`` directory; ``user_workspace_dir``
+    names that root explicitly so callers never touch uploads/outputs.
+    """
+
+    def user_workspace_dir(self, thread_id: str) -> Path:
+        """Thread workspace root: ``{base}/threads/{tid}/user-data/workspace``."""
+        return self.sandbox_work_dir(thread_id)
+
+
 # ── Singleton ────────────────────────────────────────────────────────────
 
 _paths: Paths | None = None
