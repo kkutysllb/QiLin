@@ -1313,8 +1313,19 @@ async def start_run(
         # The ``context`` field is a custom extension for the langgraph-compat layer
         # that carries agent configuration (model_name, thinking_enabled, etc.).
         # Only agent-relevant keys are forwarded; unknown keys (e.g. thread_id) are ignored.
+        # The client ships overrides either at the top level (legacy) or
+        # inside ``config.context`` (LangGraph >=0.6 style — what the web
+        # demo sends). Honor both so whitelisted keys actually land in
+        # ``configurable``/``context``.
         merge_run_context_overrides(
-            config, getattr(body, "context", None), internal=is_internal_caller
+            config,
+            getattr(body, "context", None)
+            or (
+                body_config.get("context")
+                if isinstance(body_config, dict)
+                else None
+            ),
+            internal=is_internal_caller,
         )
         inject_sandbox_environment_secrets(config)
         if not is_internal_caller:
@@ -1331,18 +1342,17 @@ async def start_run(
             request_context=getattr(body, "context", None),
         )
 
-        # Workspace capture rides on the run context's configurable dict
-        # (frontend: config.configurable.workspace_id). Absent → cwd=NULL,
-        # rendering the thread under Ungrouped.
+        # Workspace capture reads the MERGED run config: the web client
+        # declares the binding inside ``config.context``, and the whitelist
+        # merge above mirrors it into ``configurable``. Reading the raw
+        # request here silently dropped the binding (thread stuck in
+        # Ungrouped, sandbox anchored to the staging area).
         run_workspace_id: str | None = None
         cfg_configurable = (
-            body_config.get("configurable") if isinstance(body_config, dict) else None
+            config.get("configurable") if isinstance(config.get("configurable"), dict) else {}
         )
-        raw_workspace_id = (
-            cfg_configurable.get("workspace_id")
-            if isinstance(cfg_configurable, dict)
-            else None
-        )
+        cfg_context = config.get("context") if isinstance(config.get("context"), dict) else {}
+        raw_workspace_id = cfg_configurable.get("workspace_id") or cfg_context.get("workspace_id")
         if isinstance(raw_workspace_id, str) and raw_workspace_id:
             run_workspace_id = raw_workspace_id
 
