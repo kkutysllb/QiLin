@@ -462,7 +462,7 @@ S7 审查点名的两处 + 同型漏网,共 16 文件 18 处就地修复(注释/
 | 4 | f698d79 | S6 终态(S6 实为四提交 8288f12 / 65d574c / 19f8492 / f698d79:门禁复活、fixture 同步、slot-walk 真回归修复、headless 命令名) | 11838ec(S6 triage) |
 | 5 | cfa695b | S7-1 env 前缀 DSH_ → QILIN_ + env 层名(607 文件) | b31f24b(S7 段) |
 | 6 | b1ccb90 | S7-2 发布家族域/manifest 键/bundle 名域(424 文件) | b31f24b(同上) |
-| 7 | **795b8dc(S8,标签 qilin-engine-v0)** | archived 重封 87 文件 + LICENSE 归属 + 裸词清扫 16 文件 | 本轮 docs(plan): s8 closure and p1 summary |
+| 7 | **795b8dc(S8,标签 qilin-engine-v0)** | archived 重封 87 条目 / 30 文件 + LICENSE 归属 + 裸词清扫 14 文件(与 S8 段口径一致) | 本轮 docs(plan): s8 closure and p1 summary |
 
 vendor/ 两仓零触碰(P1 全程历次提交 vendor manifest guard 全绿;S8 提交 diff 无任何 vendor/ 路径);python/ 未动(去留为独立待决项)。
 
@@ -482,7 +482,7 @@ vendor/ 两仓零触碰(P1 全程历次提交 vendor manifest guard 全绿;S8 �
 
 ### P2 触发条件与冒烟口径
 
-P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 冒烟两口:`pnpm qilin` CLI 实跑(--profile headless 会话跑通,API key 就位)与 `pnpm run dev:web` Web GUI 冒烟(会话/工具调用/侧栏分组);Gap 逐条登记为 P3–P5 子计划输入(总计划 §4)。
+P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 冒烟两口:`pnpm qilin` CLI 实跑(--profile headless 会话跑通,API key 就位)与 `pnpm run dev:web` Web GUI 冒烟(会话/工具调用/侧栏分组);Gap 逐条登记为 P3–P5 子计划输入(总计划 §4)。**重跑 `pnpm run test` 见红时,先对照 S6 段登记的噪声基线**(hooks/sandbox/landlock 域 timeout + SandboxUnavailableError 两态波动,S6=64 → S7=0 → 关账审=49)再定性,勿误判为新增回归。
 
 ## 分类为空声明(截至本档)
 
