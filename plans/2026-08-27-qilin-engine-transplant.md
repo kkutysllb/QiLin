@@ -58,19 +58,27 @@
 
 - [ ] **Step 1: 固化快照指纹**
 
-Run: find deepseek-harness -type f -not -path "*/node_modules/*" | sort | xargs shasum -a 256 | shasum -a 256
+Run:
+
+```bash
+find deepseek-harness -type f -not -path "*/node_modules/*" -not -path "*/.git/*" | sort | xargs shasum -a 256 | shasum -a 256
+```
 
 把输出哈希与日期回填至本计划附录(上游无 git 历史可依,以内容指纹定基线)。
 
 - [ ] **Step 2: 建只读参照副本**
 
-Run: cp -R deepseek-harness reference/dsh-upstream(先剔除 node_modules),随后 chmod -R a-w reference/dsh-upstream
+Run: `cp -R deepseek-harness reference/dsh-upstream`(剔除内嵌 .git;快照内无 node_modules),随后 `chmod -R a-w reference/dsh-upstream`
 
 预期:目录存在且只读;.gitignore 增加 reference/ 后 git status 干净。
 
 - [ ] **Step 3: 生成包级映射表初稿**
 
-Run: find deepseek-harness/packages -maxdepth 2 -mindepth 2 -type d | sort
+Run:
+
+```bash
+find deepseek-harness/packages -maxdepth 2 -mindepth 2 -type d | sort
+```
 
 把全部包逐一填入 plans/assets/dsh-qilin-mapping.md 表格(旧名/新名/分组/备注),vendor/* 标注「保留原名」。
 
@@ -86,11 +94,15 @@ Run: find deepseek-harness/packages -maxdepth 2 -mindepth 2 -type d | sort
 
 - [ ] **Step 1: 复制整树**
 
-cp -R reference/dsh-upstream/ <目标根>/(剔除 node_modules 后复制);目标仓 git init 并首次提交——此提交即 100% dsh 原貌基线。
+`cp -R reference/dsh-upstream/ <目标根>/`(剔除 node_modules 后复制);目标仓 `git init` 并首次提交——此提交即 100% dsh 原貌基线。
 
 - [ ] **Step 2: 第一批 codemod——npm scope 与包名**
 
-Run(macOS): rg -l '@deepseek-ai/dsh-' --glob '!vendor/**' | xargs sed -i '' 's|@deepseek-ai/dsh-|@qilin/|g'
+Run(macOS):
+
+```bash
+rg -l '@deepseek-ai/dsh-' --glob '!vendor/**' | xargs sed -i '' 's|@deepseek-ai/dsh-|@qilin/|g'
+```
 
 再处理根 package.json 的 name 与 workspace 声明;vendor/ 目录与 @deepseek-ai/cordis、cosmokit 字样一律跳过。
 
@@ -100,13 +112,21 @@ apps/cli 的 bin 名、pnpm dsh 脚本别名、README 首屏品牌段。逐文�
 
 - [ ] **Step 4: 安装与门禁**
 
-Run: pnpm install && pnpm run build && pnpm run typecheck
+Run:
+
+```bash
+pnpm install && pnpm run build && pnpm run typecheck
+```
 
 预期:全绿。失败项进入残差清单(Step 6),不顺手改语义。
 
 - [ ] **Step 5: 测试基线**
 
-Run: pnpm run test
+Run:
+
+```bash
+pnpm run test
+```
 
 预期:与上游同版本行为一致(snapshot fixture 内含旧名字符串属预期残差)。test:coverage 门禁留到残差清零后跑一次确认。
 
@@ -116,23 +136,25 @@ Run: pnpm run test
 
 - [ ] **Step 7: 第二批 codemod——环境变量前缀**
 
+```bash
 rg -l 'DSH_' --glob '!vendor/**' --glob '!*.env*' | xargs sed -i '' 's/DSH_/QILIN_/g'
+```
 
 同步更新 README 环境变量表;重跑 pnpm run test。
 
 - [ ] **Step 8: 许可合规与 tag**
 
-核对各包 LICENSE 头保留;Run: pnpm run gen-third-party-notices;然后 git tag qilin-engine-v0,tag message 记录 §2 Step 1 的上游指纹哈希。
+核对各包 LICENSE 头保留;Run: `pnpm run gen-third-party-notices`;然后 `git tag qilin-engine-v0`,tag message 记录 §2 Step 1 的上游指纹哈希。
 
 ## §4 Phase 2 — 引擎实跑验证(约 1 天)
 
 - [ ] **Step 1: CLI 冒烟**
 
-Run: pnpm run build && pnpm qilin --profile headless "echo smoke"(API key 就位)。预期:会话完整跑通并产出 transcript。
+Run: `pnpm run build && pnpm qilin --profile headless "echo smoke"`(API key 就位)。预期:会话完整跑通并产出 transcript。
 
 - [ ] **Step 2: Web GUI 冒烟**
 
-Run: pnpm run dev:web,浏览器打开终端给出的 URL,验证会话/工具调用/侧栏分组可用。预期:与 DSH 上游体验一致。
+Run: `pnpm run dev:web`,浏览器打开终端给出的 URL,验证会话/工具调用/侧栏分组可用。预期:与 DSH 上游体验一致。
 
 - [ ] **Step 3: Gap 记录**
 
@@ -176,3 +198,5 @@ Run: pnpm run dev:web,浏览器打开终端给出的 URL,验证会话/工具调�
 - 目录体积:`du -sh deepseek-harness` = 194M(全目录口径,含内嵌 .git 目录 126M;快照内无 node_modules,含/不含 node_modules 口径一致);文件内容合计(排除 node_modules/.git)= 51,116,148 bytes ≈ 48.75 MB
 - 采集命令原文:`find deepseek-harness -type f -not -path "*/node_modules/*" -not -path "*/.git/*" | sort | xargs shasum -a 256 | shasum -a 256`
 - 采集日期: 2026-08-27
+- 副本自校验指纹(2026-08-27 实跑): `189b87a4e308314fdb574db21e13227a7dcf79b0b24535479203f709731ea15f`
+- 副本自校验命令原文:`cd reference/dsh-upstream && find . -type f | sort | xargs shasum -a 256 | shasum -a 256`

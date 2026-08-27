@@ -106,4 +106,6 @@ web-demo/tsconfig.tsbuildinfo
 
 # 会话内视觉工具产物目录
 .dsh-vision-router/
+
+# === 只读上游参照(永不提交) ===
 reference/
