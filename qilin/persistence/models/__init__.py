@@ -29,6 +29,12 @@ from qilin.persistence.scheduled_tasks.model import ScheduledTaskRow
 from qilin.persistence.thread_meta.model import ThreadMetaRow
 from qilin.persistence.user.model import UserRow
 from qilin.persistence.webhook_delivery.model import WebhookDeliveryRow
+from qilin.persistence.workspace.model import (
+    WorkspaceMetaRow,
+    WorkspaceOrderRow,
+    WorkspaceRow,
+    WorkspaceSessionRow,
+)
 
 __all__ = [
     "AgentRow",
@@ -44,4 +50,8 @@ __all__ = [
     "ThreadMetaRow",
     "UserRow",
     "WebhookDeliveryRow",
+    "WorkspaceMetaRow",
+    "WorkspaceOrderRow",
+    "WorkspaceRow",
+    "WorkspaceSessionRow",
 ]

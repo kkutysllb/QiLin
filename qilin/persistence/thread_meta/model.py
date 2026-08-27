@@ -16,6 +16,11 @@ class ThreadMetaRow(Base):
     thread_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     assistant_id: Mapped[str | None] = mapped_column(String(128), index=True)
     user_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    # Creation-time working directory (DSH SessionHeader.cwd alignment):
+    # written once at thread creation; no code path updates it afterwards.
+    # NULL = unassigned → the thread renders under the sidebar's Ungrouped
+    # pseudo-group. Also surfaced to runs as user_workspace_path.
+    cwd: Mapped[str | None] = mapped_column(String(1024))
     display_name: Mapped[str | None] = mapped_column(String(256))
     status: Mapped[str] = mapped_column(String(20), default="idle")
     metadata_json: Mapped[dict] = mapped_column(JSON, default=dict)
