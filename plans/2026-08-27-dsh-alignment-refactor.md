@@ -288,3 +288,20 @@ M4 回滚安全：迁移前 `.qilin/data/qilin.db.bak-*` 惯例延续，脚本�
 - **tools 门禁**：`_enforce_sandbox_write_gate` —— read-only 拒绝 `bash`（shell 全禁，启发式命令解析不可靠、文档化妥协）与 `write_file` / `str_replace`（可读文案引导切换模式）；workspace-write / danger-full-access 放行。
 - 已登记局限：容器执行器 bind-mount 真实目录属运行时改造（前端/网关链路已就绪）；read-only 粒度为工具级而非命令级。
 - 验证：tests/test_sandbox_mode_gate.py 8 用例（gate 单元/工具级拒绝/legacy 回退/middleware 透传/锚点共存/wiring 检查）；后端全量 **750 passed**；ruff clean。提交 f3cb62f 之后新增。
+
+
+---
+
+## 8. 工作区体验第三轮（第 15-16 轮，✅ 四点全部交付）
+
+### 8.1 DSH 取证（live GUI + bundle + 网络面板）
+- **侧边栏**：无「历史任务」折叠标签——工作区组与 Ungrouped 会话直接构成顶层树；每会话标题+相对时间+「进行中」徽标。
+- **选择本地目录**：`POST /api/host.pickDirectory` → 宿主进程弹**原生 OS 目录选择对话框**（截图证实 macOS "Select Workspace Directory"，含 New Folder）→ 返回绝对路径。
+- **composer 解剖**：工作区选择器在输入框**上方外部**（顶部行，仅新会话可见；历史会话实测 `wsPickerVisible=false`）；访问模式菜单在**下方工具行左侧**，三档 `Read Only / Workspace Write / Full access`；新会话切换访问模式**无落库请求**（纯草稿，随 run 提交）。
+
+### 8.2 实施
+1. **删除「历史任务」标签**（38415eb）：RecentChatList 去标签/折叠分支/重复 return 死代码；layout context 移除 historyCollapsed 全套（含 localStorage 键）；测试改写为新不变量。
+2. **本地目录选择**（b6cee91）：网关 `POST /api/fs/pick-directory`（macOS osascript choose folder / Linux zenity|kdialog / Windows FolderBrowserDialog；空输出=取消）；前端 `pickDirectory` API + hook，两个创建对话框（侧栏/输入区）均加「浏览…」回填。
+3. **工作区选择器外移**（febcbf6）：从输入工具行移到 composer 左上角外部顶行（outline 胶囊按钮）；`isNewThread` 条件保持=任务开始即隐藏。
+4. **访问模式菜单**（febcbf6）：footer 左下三档菜单（只读/工作区可写/完全访问）走 context 管线并记忆；引擎 `sandbox_mode` 入白名单，**客户端显式值优先于折叠默认**（三词汇校验；fold 仅作回退），工具门禁不变。
+- 门禁：后端 **751 passed**、前端 **338 passed**、tsc/eslint/ruff clean。提交链：38415eb → b6cee91 → 65df99a → febcbf6。
