@@ -22,9 +22,11 @@ export function WorkspaceSidebar({
   return (
     <>
       <Sidebar variant="sidebar" collapsible="offcanvas" {...props}>
-        {/* pt-10 reserves the macOS traffic-light strip; on the Windows
-            frameless shell it collapses to a compact pad (no buttons there). */}
-        <SidebarHeader className="kworks-win-pad-top pt-10 pb-0">
+        {/* Per-platform top pad comes from .kworks-win-pad-top in
+            globals.css: macOS reserves the traffic-light strip (2.5rem),
+            Windows frameless gets a compact pad, plain web gets none.
+            Do NOT add a static pt-* here — it would blank-strip the web UI. */}
+        <SidebarHeader className="kworks-win-pad-top pb-0">
           <WorkspaceHeader />
         </SidebarHeader>
         <SidebarContent>
