@@ -140,11 +140,15 @@ class GoalRepository:
 
     async def projection(self, thread_id: str) -> dict[str, Any] | None:
         """The folded head of the change log: full snapshot shape while a
-        goal is current, a clear-tombstone shape (no ``goal`` key) after
+        goal is current (with live ``rounds_started`` even after round
+        admissions), a clear-tombstone shape (no ``goal`` key) after
         clear, and None only on threads that never created one."""
         async with self._sf() as session:
-            row = await self._head(session, thread_id)
-            return self._head_to_projection(row)
+            head, rounds = await self._context(session, thread_id)
+            proj = self._head_to_projection(head)
+            if proj is not None:
+                proj["rounds_started"] = rounds
+            return proj
 
     async def history(self, thread_id: str, *, limit: int = 200) -> list[dict[str, Any]]:
         """Change log in append order (oldest first)."""
@@ -180,7 +184,10 @@ class GoalRepository:
     # ------------------------------------------------------------------
     # write side — CAS-guarded appends inside one short transaction
 
-    async def _head(self, session: AsyncSession, thread_id: str) -> GoalChangeRow | None:
+    async def _head(
+        self, session: AsyncSession, thread_id: str
+    ) -> GoalChangeRow | None:
+        """Latest row of ANY kind (round rows included)."""
         res = await session.execute(
             select(GoalChangeRow)
             .where(GoalChangeRow.thread_id == thread_id)
@@ -188,6 +195,38 @@ class GoalRepository:
             .limit(1)
         )
         return res.scalars().first()
+
+    async def _context(
+        self, session: AsyncSession, thread_id: str
+    ) -> tuple[GoalChangeRow | None, int]:
+        """Read the (goal-head row, rounds_started) pair that all guards and
+        folds are expressed against.
+
+        ``goal_changes`` mixes seven-verb snapshot rows with round-admission
+        rows (``operation='round'``). The goal identity/phase/CAS anchor is
+        the latest *non-round* row; the round counter lives on the latest
+        row of any kind. Splitting the two here is what keeps every verb
+        guard correct once rounds start flowing.
+        """
+        rows = (
+            (
+                await session.execute(
+                    select(GoalChangeRow)
+                    .where(GoalChangeRow.thread_id == thread_id)
+                    .order_by(GoalChangeRow.id.desc())
+                    .limit(50)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        latest = rows[0] if rows else None
+        rounds = latest.rounds_started if latest is not None else 0
+        goal_head = next((r for r in rows if r.operation != "round"), None)
+        return goal_head, rounds
+
+    def _rounds_guard_ok(self, head: GoalChangeRow | None) -> bool:
+        return head is not None and head.operation != "clear"
 
     async def _append(
         self,
@@ -197,31 +236,35 @@ class GoalRepository:
         operation: str,
         revision: int,
         payload: dict[str, Any],
-        rounds_started: int,
         current_id: str | None,
     ) -> dict[str, Any]:
-        """Append one change after re-checking the head inside the write
+        """Append one change after re-checking the goal head inside the write
         transaction. ``current_id`` is the goal id the caller based its
-        mutation on (None for clear, which anchors on the cleared ref)."""
+        mutation on (None for clear, which anchors on the cleared ref).
+
+        ``rounds_started`` is re-read here rather than taken from the caller
+        so a concurrent admission can never be rolled back by a mutation
+        writing an older counter into a later row.
+        """
         async with self._sf() as session:
             async with session.begin():
-                head = await self._head(session, thread_id)
+                goal_head, rounds_now = await self._context(session, thread_id)
                 expected_head_rev = revision - 1
                 head_current_ref = (
                     None
-                    if head is None or head.operation == "clear"
-                    else head.payload["goal"]["id"]
+                    if goal_head is None or goal_head.operation == "clear"
+                    else goal_head.payload["goal"]["id"]
                 )
-                if head is None:
+                if goal_head is None:
                     stale = expected_head_rev != 0
                 else:
-                    # Clear resets the chain: the next create starts at
-                    # revision 1 with no predecessor anchor.
+                    # create guards live in its own tx; every other verb
+                    # must advance exactly the anchored goal revision.
                     if operation == "create":
-                        stale = False  # create guard lives in its own tx
+                        stale = False
                     else:
                         stale = (
-                            head.revision != expected_head_rev
+                            goal_head.revision != expected_head_rev
                             or (head_current_ref or "") != (current_id or "")
                         )
                 if stale:
@@ -232,7 +275,7 @@ class GoalRepository:
                     operation=operation,
                     revision=revision,
                     payload=payload,
-                    rounds_started=rounds_started,
+                    rounds_started=rounds_now,
                 )
                 session.add(row)
             await session.refresh(row)
@@ -240,7 +283,7 @@ class GoalRepository:
                 "operation": operation,
                 "revision": revision,
                 "payload": payload,
-                "rounds_started": rounds_started,
+                "rounds_started": rounds_now,
                 "row_id": row.id,
             }
 
@@ -264,16 +307,16 @@ class GoalRepository:
         )
         async with self._sf() as session:
             async with session.begin():
-                head = await self._head(session, thread_id)
+                goal_head, _rounds = await self._context(session, thread_id)
                 if (
-                    head is not None
-                    and head.operation != "clear"
-                    and head.payload["goal"]["phase"] != "complete"
+                    goal_head is not None
+                    and goal_head.operation != "clear"
+                    and goal_head.payload["goal"]["phase"] != "complete"
                 ):
                     raise GoalError(
                         "GOAL_ALREADY_EXISTS",
                         f'thread "{thread_id}" already has a goal in phase '
-                        f'"{head.payload["goal"]["phase"]}"',
+                        f'"{goal_head.payload["goal"]["phase"]}"',
                     )
                 next_revision = 1
                 goal_id = f"goal-{uuid.uuid4()}"
@@ -341,7 +384,7 @@ class GoalRepository:
     async def resume(
         self, thread_id: str, *, ref: dict[str, int | str], user_id: str | None = None
     ) -> dict[str, Any]:
-        head = await self._require_head(thread_id, ref)
+        head, rounds = await self._require_context(thread_id, ref)
         snap = self._snapshot_dict(head)
         resumable = ("active", "paused", "blocked")
         if snap["phase"] not in resumable:
@@ -353,10 +396,10 @@ class GoalRepository:
             raise GoalError(
                 "GOAL_INVALID_TRANSITION", 'goal is already active'
             )
-        if head.rounds_started >= snap["max_goal_rounds"]:
+        if rounds >= snap["max_goal_rounds"]:
             raise GoalError(
                 "GOAL_INVALID_TRANSITION",
-                f'round budget exhausted ({snap["max_goal_rounds"]}); '
+f'round budget exhausted ({snap["max_goal_rounds"]}); '
                 "increase maxGoalRounds first",
             )
         return await self._write_phase(
@@ -366,6 +409,7 @@ class GoalRepository:
             phase="active",
             operation="resume",
             user_id=user_id,
+            rounds=rounds,
         )
 
     async def complete(
@@ -384,7 +428,7 @@ class GoalRepository:
         user_id: str | None = None,
     ) -> dict[str, Any]:
         validated = validate_block_reason(reason)
-        head = await self._require_head(thread_id, ref)
+        head, rounds = await self._require_context(thread_id, ref)
         snap = self._snapshot_dict(head)
         if snap["phase"] != "active":
             raise GoalError("GOAL_INVALID_TRANSITION", "only an active goal can block")
@@ -394,12 +438,15 @@ class GoalRepository:
             "blocked_reason": validated,
             "revision": snap["revision"] + 1,
         }
-        return await self._append_snapshot(thread_id, head=head, operation="block", snap=new_snap, user_id=user_id)
+        return await self._append_snapshot(
+            thread_id, head=head, operation="block", snap=new_snap, user_id=user_id,
+            rounds=rounds,
+        )
 
     async def clear(
         self, thread_id: str, *, ref: dict[str, int | str], user_id: str | None = None
     ) -> dict[str, Any]:
-        head = await self._require_head(thread_id, ref)
+        head, _rounds = await self._require_context(thread_id, ref)
         tombstone = {
             "id": head.payload["goal"]["id"],
             "revision": head.revision + 1,
@@ -410,7 +457,6 @@ class GoalRepository:
             operation="clear",
             revision=tombstone["revision"],
             payload={"cleared": tombstone},
-            rounds_started=head.rounds_started,
             # The change anchors on the cleared goal's identity.
             current_id=tombstone["id"],
         )
@@ -423,14 +469,71 @@ class GoalRepository:
         async with self._sf() as session:
             return await self._head(session, thread_id)
 
+    async def admit_round(
+        self,
+        thread_id: str,
+        *,
+        ref: dict[str, int | str],
+        round: int,
+        user_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Record one admitted continuation round (driver-injected).
+
+        This is the storage-side twin of DSH ``applyGoalEvent``'s
+        ``user/message`` branch (fold.ts): the round counter advances only
+        when the attributed message is the *next* admitted round of the
+        current active goal — same id, same revision, round == head's
+        rounds_started + 1, within the cap. Any mismatch fails closed.
+        """
+        async with self._sf() as session:
+            async with session.begin():
+                goal_head, rounds = await self._context(session, thread_id)
+                if (
+                    goal_head is None
+                    or goal_head.operation == "clear"
+                    or goal_head.payload["goal"]["phase"] != "active"
+                    or goal_head.payload["goal"]["id"] != ref.get("id")
+                    or goal_head.revision != ref.get("revision")
+                ):
+                    raise GoalError("GOAL_STALE_REVISION", f"stale ref on {thread_id}")
+                if round != rounds + 1 or round > goal_head.payload["goal"]["max_goal_rounds"]:
+                    raise GoalError(
+                        "GOAL_INVALID_TRANSITION",
+                        f"round {round} is not the next admitted round "
+                        f"(expected {rounds + 1}, cap "
+                        f"{goal_head.payload['goal']['max_goal_rounds']})",
+                    )
+                row = GoalChangeRow(
+                    thread_id=thread_id,
+                    user_id=user_id,
+                    operation="round",
+                    revision=goal_head.revision,
+                    payload={
+                        "goal_id": goal_head.payload["goal"]["id"],
+                        "round": round,
+                        "source": {"kind": "goal", "goal_id": goal_head.payload["goal"]["id"],
+                                   "revision": goal_head.revision, "round": round},
+                    },
+                    rounds_started=round,
+                )
+                session.add(row)
+            await session.refresh(row)
+            return {
+                "operation": "round",
+                "ref": {"id": goal_head.payload["goal"]["id"], "revision": goal_head.revision},
+                "round": round,
+                "rounds_started": row.rounds_started,
+            }
+
     # ------------------------------------------------------------------
     # shared internals
 
-    async def _require_head(
+    async def _require_context(
         self, thread_id: str, ref: dict[str, int | str]
-    ) -> GoalChangeRow:
+    ) -> tuple[GoalChangeRow, int]:
+        """CAS-anchor read: latest non-round goal row plus its round counter."""
         async with self._sf() as session:
-            head = await self._head(session, thread_id)
+            head, rounds = await self._context(session, thread_id)
         if head is None or head.operation == "clear":
             raise GoalError("GOAL_NOT_FOUND", f'no current goal on "{thread_id}"')
         expected_id = ref.get("id")
@@ -443,7 +546,7 @@ class GoalRepository:
                 "GOAL_STALE_REVISION",
                 f'stale ref revision {expected_rev}; current is {head.revision}',
             )
-        return head
+        return head, rounds
 
     async def _mutate_snapshot(
         self,
@@ -454,13 +557,14 @@ class GoalRepository:
         mutate,
         user_id: str | None,
     ) -> dict[str, Any]:
-        head = await self._require_head(thread_id, ref)
+        head, rounds = await self._require_context(thread_id, ref)
         snap = self._snapshot_dict(head)
         # DSH edit has no phase restriction — any current goal may be edited.
         new_snap = mutate(snap)
         new_snap["revision"] = snap["revision"] + 1
         return await self._append_snapshot(
-            thread_id, head=head, operation=operation, snap=new_snap, user_id=user_id
+            thread_id, head=head, operation=operation, snap=new_snap, user_id=user_id,
+            rounds=rounds,
         )
 
     async def _transition(
@@ -473,7 +577,7 @@ class GoalRepository:
         *,
         user_id: str | None,
     ) -> dict[str, Any]:
-        head = await self._require_head(thread_id, ref)
+        head, rounds = await self._require_context(thread_id, ref)
         snap = self._snapshot_dict(head)
         if snap["phase"] not in allowed_phases:
             raise GoalError(
@@ -484,7 +588,8 @@ class GoalRepository:
         new_snap["phase"] = target_phase
         new_snap["revision"] = snap["revision"] + 1
         return await self._append_snapshot(
-            thread_id, head=head, operation=operation, snap=new_snap, user_id=user_id
+            thread_id, head=head, operation=operation, snap=new_snap, user_id=user_id,
+            rounds=rounds,
         )
 
     async def _write_phase(
@@ -496,10 +601,12 @@ class GoalRepository:
         phase: str,
         operation: str,
         user_id: str | None,
+        rounds: int,
     ) -> dict[str, Any]:
         new_snap = {**snap, "phase": phase, "revision": snap["revision"] + 1}
         return await self._append_snapshot(
-            thread_id, head=head, operation=operation, snap=new_snap, user_id=user_id
+            thread_id, head=head, operation=operation, snap=new_snap, user_id=user_id,
+            rounds=rounds,
         )
 
     async def _append_snapshot(
@@ -510,6 +617,7 @@ class GoalRepository:
         operation: str,
         snap: dict[str, Any],
         user_id: str | None,
+        rounds: int,
     ) -> dict[str, Any]:
         result = await self._append(
             thread_id,
@@ -520,7 +628,6 @@ class GoalRepository:
                 "goal": snap,
                 "created_at": head.payload.get("created_at"),
             },
-            rounds_started=head.rounds_started,
             current_id=head.payload["goal"]["id"],
         )
         result["view"] = self._projection_from_row_values(snap, result)

@@ -114,6 +114,13 @@
 - ✅ 载荷验证：13 个 pytest 用例（创建/重复 create/edit CAS 暴改拒绝/pause-resume 循环/双 resume 409/block reason 校验/clear tombstone 后重建 revision 重置/跨用户 404/SSE 广播整快照）。后端全量 719 passed；ruff clean。
 - ⏳ P6 待做：GoalRoundDriver 挂 run worker idle 终态边、prompt 注入模板对齐 DSH prompt.ts、rounds_started 仅由 driver 注入递增、blocked 三连安全阀（GOAL_BLOCK_AFTER_ROUNDS 配置）。
 
+**P6 goal 轮次驱动（回填于第 10 轮，内核已落）**：
+- 取证修正：worker 现存旧「评审员式」goal 续跑（qilin/runtime/goal.py + runs/worker.py 的 continuation caps / no-progress 阀），目标③即以 DSH armed-gate + `<goal_round>` 注入语义取代之；DSH `roundsStarted` 记账真相 = fold.ts `applyGoalEvent` 对带 source{kind:'goal',round} 的 user message 入日志时校验 round==counter+1 后递增（消息即凭据）。
+- ✅ 存储侧 `admit_round`（sql.py）：active+同 id/revision+round==rounds_started+1+≤cap 全部 fail-closed；引入 `_context` 读法（最近非 round 行=goal 头/全任意行最新计数），所有七动词 guard/CAS/projection 均改为上下文语义，并发 admit 不再可被 mutation 用旧计数回滚（事务内实读 rounds_now）。
+- ✅ `app/gateway/goal_round_driver.py`：prompt 渲染逐字移植 prompt.ts（测试锁死段落快照）；`drive()` 静默闸门：无目标/clear/paused/disarmed→drop，预算耗尽→自动 block(round-limit, DSH 同文案)，注入成功后才 admit 记账，投递失败不污染计数。
+- ✅ tests/test_goal_round_driver.py 七用例（prompt 快照 parity/三 drop 分支/预算耗尽 block 文案/成功注入两连轮记账/失败不记账）。后端全量 726 passed，ruff clean。
+- ⏳ P6b 待做：idle 终态边接线（run worker finalize 处调 drive()，feature flag 控制）、注入通道接 services/chat 补全并携带 goal 归因 metadata、SSE goal/round 广播、安全阀配置。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。
