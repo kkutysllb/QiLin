@@ -108,17 +108,6 @@ export interface Translations {
     followupConfirmDescription: string;
     followupConfirmAppend: string;
     followupConfirmReplace: string;
-    // Workspace selector (per-thread local directory)
-    workspace: string;
-    workspaceDefault: string;
-    workspaceDefaultDescription: string;
-    workspaceSelectDirectory: string;
-    workspaceEnterPath: string;
-    workspaceEnterPathPlaceholder: string;
-    workspaceUsePath: string;
-    workspaceRecent: string;
-    workspaceClear: string;
-    workspaceClearConfirm: string;
     suggestions: {
       suggestion: string;
       prompt: string;

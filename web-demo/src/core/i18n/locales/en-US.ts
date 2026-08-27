@@ -130,17 +130,6 @@ export const enUS: Translations = {
       "You already have text in the input. Choose how to send it.",
     followupConfirmAppend: "Append & send",
     followupConfirmReplace: "Replace & send",
-    // Workspace selector (per-thread local directory)
-    workspace: "Workspace",
-    workspaceDefault: "Default workspace",
-    workspaceDefaultDescription: "User data directory (.qilin/ in the repo)",
-    workspaceSelectDirectory: "Select directory...",
-    workspaceEnterPath: "Enter path...",
-    workspaceEnterPathPlaceholder: "/Users/you/Documents/Projects",
-    workspaceUsePath: "Use this path",
-    workspaceRecent: "Recent",
-    workspaceClear: "Clear recent",
-    workspaceClearConfirm: "Clear all recent workspace paths?",
     suggestions: [
       {
         suggestion: "Write",

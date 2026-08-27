@@ -84,7 +84,6 @@ import { useThread } from "./messages/context";
 import { QueuedMessagesBar } from "./queued-messages-bar";
 import { SlashCommandMenu } from "./slash-command-menu";
 import { Tooltip } from "./tooltip";
-import { WorkspaceSelector } from "./workspace-selector";
 
 type ReasoningEffort = "minimal" | "low" | "medium" | "high";
 
@@ -565,12 +564,6 @@ export function InputBox({
             </PromptInputActionMenuContent>
           </PromptInputActionMenu> */}
             <AddAttachmentsButton className="px-2!" />
-            <WorkspaceSelector
-              selectedPath={context.user_workspace_path as string | undefined}
-              onSelect={(user_workspace_path) =>
-                onContextChange?.({ ...context, user_workspace_path })
-              }
-            />
             <PromptInputActionMenu>
               <Tooltip
                 content={`${t.inputBox.reasoningEffort}: ${t.inputBox[getEffortLabelKey(currentEffort)]} - ${t.inputBox[getEffortDescriptionKey(currentEffort)]}`}

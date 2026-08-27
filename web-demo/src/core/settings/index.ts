@@ -4,7 +4,6 @@ export {
   saveThreadWorkspacePath,
   getThreadWorkspacePath,
   applyThreadWorkspacePathOverride,
-  getRecentWorkspacePaths,
 } from "./local";
 export type {
   LocalSettings,

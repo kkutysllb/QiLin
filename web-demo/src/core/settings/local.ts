@@ -33,7 +33,6 @@ export const LOCAL_SETTINGS_KEY = "kworks.local-settings";
 export const THREAD_MODEL_KEY_PREFIX = "kworks.thread-model.";
 export const THREAD_AGENT_KEY_PREFIX = "kworks.thread-agent.";
 export const THREAD_WORKSPACE_PATH_KEY_PREFIX = "kworks.thread-workspace-path.";
-export const RECENT_WORKSPACE_PATHS_KEY = "kworks.recent-workspace-paths";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -214,8 +213,6 @@ export function saveThreadWorkspacePath(
     localStorage.setItem(key, "");
   } else {
     localStorage.setItem(key, workspacePath);
-    // Also track in recent paths list (most-recent-first, deduped, max 5)
-    addRecentWorkspacePath(workspacePath);
   }
 }
 
@@ -234,48 +231,6 @@ export function applyThreadWorkspacePathOverride(
       user_workspace_path: threadWorkspacePath,
     },
   };
-}
-
-// ------------------------------------------------------------------
-// Recent workspace paths (cross-thread, for the selector dropdown)
-// ------------------------------------------------------------------
-
-export function getRecentWorkspacePaths(): string[] {
-  if (!isBrowser()) {
-    return [];
-  }
-  try {
-    const raw = localStorage.getItem(RECENT_WORKSPACE_PATHS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is string => typeof item === "string").slice(0, 5);
-  } catch {
-    return [];
-  }
-}
-
-export function addRecentWorkspacePath(path: string): void {
-  if (!isBrowser() || !path) {
-    return;
-  }
-  const current = getRecentWorkspacePaths();
-  // Dedupe (case-insensitive on macOS/Windows, case-sensitive on Linux)
-  const deduped = current.filter(
-    (item) => item.toLowerCase() !== path.toLowerCase(),
-  );
-  deduped.unshift(path);
-  localStorage.setItem(
-    RECENT_WORKSPACE_PATHS_KEY,
-    JSON.stringify(deduped.slice(0, 5)),
-  );
-}
-
-export function clearRecentWorkspacePaths(): void {
-  if (!isBrowser()) {
-    return;
-  }
-  localStorage.removeItem(RECENT_WORKSPACE_PATHS_KEY);
 }
 
 export function getLocalSettings(): LocalSettings {

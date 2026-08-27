@@ -127,17 +127,6 @@ export const zhCN: Translations = {
     followupConfirmDescription: "当前输入框已有内容，选择发送方式。",
     followupConfirmAppend: "追加并发送",
     followupConfirmReplace: "替换并发送",
-    // Workspace selector (per-thread local directory)
-    workspace: "工作区",
-    workspaceDefault: "默认工作区",
-    workspaceDefaultDescription: "用户数据目录 (仓库内 .qilin/)",
-    workspaceSelectDirectory: "选择目录...",
-    workspaceEnterPath: "输入路径...",
-    workspaceEnterPathPlaceholder: "/Users/you/Documents/Projects",
-    workspaceUsePath: "使用此路径",
-    workspaceRecent: "最近使用",
-    workspaceClear: "清除最近记录",
-    workspaceClearConfirm: "确定要清除最近工作区路径记录吗？",
     suggestions: [
       {
         suggestion: "写作",
