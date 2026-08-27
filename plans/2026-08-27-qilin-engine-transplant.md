@@ -150,17 +150,19 @@ rg -l 'DSH_' --glob '!vendor/**' --glob '!*.env*' | xargs sed -i '' 's/DSH_/QILI
 
 ## §4 Phase 2 — 引擎实跑验证(约 1 天)
 
-- [ ] **Step 1: CLI 冒烟**
+- [x] **Step 1: CLI 冒烟**
 
 Run: `pnpm run build && pnpm qilin --profile headless "echo smoke"`(API key 就位)。预期:会话完整跑通并产出 transcript。
 
-- [ ] **Step 2: Web GUI 冒烟**
+- [x] **Step 2: Web GUI 冒烟**
 
 Run: `pnpm run dev:web`,浏览器打开终端给出的 URL,验证会话/工具调用/侧栏分组可用。预期:与 DSH 上游体验一致。
 
-- [ ] **Step 3: Gap 记录**
+- [x] **Step 3: Gap 记录**
 
 实跑中发现的商业差距(IM 渠道、多 Provider、账号)逐条登记,作为 P3–P5 子计划输入。
+
+> **✅ P2 完成(2026-08-28,双口冒烟)**:Step 1–3 全部执行。CLI 实跑 `pnpm qilin --profile headless` 通过(会话建立 / 模型完成 / 内置 read 工具真实执行,transcript 落盘);Web GUI 冒烟经 `pnpm run dev:web`(仅 watch 构建)+ 另起 `pnpm qilin web`(web profile 服务器,`qilin web: http://127.0.0.1:3080`)通过(加载 / 新建会话 / 发消息 / Read 工具行与模型回复渲染 / 侧栏工作区分组)。Step 2 口径修正:`dev:web` 依设计仅启动 watch 构建链(tsc/tsdown/vite),不打印 URL、不启动服务器,web 服务器需另起 `qilin web`,已在台账 P2 段登记为观察项。详情、Gap 清单与截图路径见 plans/assets/transplant-residuals.md 的 P2 段;日志与截图归档 plans/assets/p2-logs/。
 
 ## §5 Phase 3–5 — 子计划登记(各自独立立计划,前置取证后产出)
 

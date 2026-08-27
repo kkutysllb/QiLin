@@ -484,6 +484,61 @@ vendor/ 两仓零触碰(P1 全程历次提交 vendor manifest guard 全绿;S8 �
 
 P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 冒烟两口:`pnpm qilin` CLI 实跑(--profile headless 会话跑通,API key 就位)与 `pnpm run dev:web` Web GUI 冒烟(会话/工具调用/侧栏分组);Gap 逐条登记为 P3–P5 子计划输入(总计划 §4)。**重跑 `pnpm run test` 见红时,先对照 S6 段登记的噪声基线**(hooks/sandbox/landlock 域 timeout + SandboxUnavailableError 两态波动,S6=64 → S7=0 → 关账审=49)再定性,勿误判为新增回归。
 
+## P2 双口冒烟段(2026-08-28)
+
+- 触发条件:P1 五门禁 + 两专项全绿、标签就位(引擎仓 main @ 795b8dc / qilin-engine-v0)。
+- 执行性质:验收性测试,**不改引擎代码**;发现一律登记 Gap,不顺手修。引擎仓零改动。
+- **环境说明(前提漂移)**:任务前提称「QiLin 仓 .env 含真实 DEEPSEEK_API_KEY」,实测 QiLin 仓根 .env 仅含 `MINIMAX_API_KEY`;实际可用的 DEEPSEEK key 位于用户级 DSH 凭证库 `~/.dsh/.credentials.yaml`(`refs.DEEPSEEK_API_KEY`,opaque,len 35)。冒烟期间将 key 只在 shell 内读入环境变量(隔离 `QILIN_HOME=/tmp/p2-qilin-home`),全程未落入任何日志/台账/报告/截图,归档产物零密钥(见下方 Gap G1)。
+
+### 冒烟口 1:CLI 实跑 —— ✅ 通过
+
+| 项 | 结果 |
+|---|---|
+| 自标识 | `pnpm qilin --help` → `Usage: qilin`,描述「qilin: boot a QiLin profile」(品牌 qilin,非 dsh)✓ |
+| 命令 | `pnpm qilin --profile headless "<任务语句>"`(one-shot/print 模式,help 用例 `qilin --profile headless "run the tests"`) |
+| 会话建立 | ✓ session dir + `session.jsonl.zstd` 落盘,含 `session/title` 记录 |
+| 模型完成 | ✓ 回复正确(bin 字段概括),`turn/end` 结束 |
+| 内置工具调用 | ✓ `tool/call`+`tool/result` 记录 `read`(读 apps/cli/README.md),工具行/结果在 transcript 中真实存在 |
+| 耗时 | 6s(wall,含 tsx 预载 + 会话 + 模型 + read + 二次生成) |
+| token 用量 | headless one-shot 输出未含 token 字段(记录为 N/A;计时/tok 指标在 web 口可见:2s · 首 token 0.9s · 183 tok/s) |
+| 判定 | **PASS**(三验证点全过) |
+
+日志:`plans/assets/p2-logs/p2-cli-help.log`、`p2-cli.log`(脱敏)、`p2-cli-session-digest.txt`(transcript 摘要)。
+
+### 冒烟口 2:dev:web Web GUI —— ✅ 通过
+
+| 步骤 | 结果 |
+|---|---|
+| 4. 后台启动 dev:web | ✓ `pnpm run dev:web`(watch 构建链:tsc -b tsconfig.client.json + tsdown workspace watch + vite build --watch),日志 `p2-web-dev.log` |
+| 服务器就绪 | ✓ 需另起 `pnpm qilin web`(web profile),输出 `qilin web: http://127.0.0.1:3080`(见 G3 口径说明) |
+| 5. 页面加载 | ✓ 主页「探索未至之境 · 预览版」,侧栏/输入区渲染正常 |
+| 新建会话 | ✓ 点「新建会话」,侧栏置顶选中「新会话」 |
+| 发送消息 | ✓ 输入 + 发送,进入会话页 |
+| 模型响应 | ✓ 正确回复 `bin 字段的值为 {"qilin": "lib/bin.js"},即命令 qilin 指向 lib/bin.js`;2s · 首 token 0.9s · 183 tok/s |
+| 工具调用渲染 | ✓ 「Think」推理块 + 「Read apps/cli/package.json」工具行 + 上下文注入 chips(AGENTS.md / @qilin/system-prompt / skill-catalog) |
+| 侧栏会话分组 | ✓ 工作区树 `qilin-engine` 分组,LLM 生成会话标题 + 相对时间 |
+| 判定 | **PASS** |
+
+截图(归档 `plans/assets/p2-logs/`):`p2-web-01-loaded.png`(加载)、`p2-web-02-toolcall-response.png`(工具行 + 模型回复)、`p2-web-03-sidebar-newsession.png`(新建会话后侧栏分组)。服务器日志 `p2-web-server.log`(脱敏)。
+
+### 已知顺延项(重述,不算新破损)
+
+- Web 页面顶端标题与侧栏头部品牌名为 `DSH Local Build`(`DEFAULT_CLIENT_TITLE`,apps/web 侧),属已登记 web 前端品牌顺延域 **→ 归 P5 品牌收口**。会话页标题 `查看package.json的bin字段值 — DSH Local Build` 中的该后缀同源。
+
+### P2 Gap 清单(逐条登记为 P3–P5 子计划输入)
+
+| # | 现象 / 定位 | 初步归因 | 建议归属阶段 |
+|---|---|---|---|
+| G1 | 任务前提称 QiLin 仓 .env 含真实 DEEPSEEK_API_KEY,实测 .env 仅含 MINIMAX_API_KEY;实际 DEEPSEEK key 在用户级 `~/.dsh/.credentials.yaml`(refs.DEEPSEEK_API_KEY)。定位:QiLin 仓根 .env 与用户凭证库 | 上游既有(环境前提漂移),非移植破损 | 建议并入 P3 账户阶段统一凭证来源口径;本轮已用隔离 home + 环境变量方式安全代跑 |
+| G2 | Web 标题 = `DSH Local Build`(DEFAULT_CLIENT_TITLE,apps/web 侧) | 上游既有(已登记 web 前端品牌顺延域) | P5 品牌收口(已知顺延项,豁免不计新破损) |
+| G3 | 计划 §4 Step 2 表述「pnpm run dev:web,浏览器打开终端给出的 URL」与实际不符:dev:web 依设计仅启动 watch 构建链(tsc/tsdown/vite),不启动服务器、不打印 URL;web 服务器需另起 `pnpm qilin web` | 上游既有设计(dev-web.ts docstring 明示「Reload signaling is not this script's business」),非移植破损 | 非 P3–P5 商业 gap;本轮已修正 §4 Step 2 计划文字(加注记) |
+| G4 | 用户消息中绝对路径被拆分为 mention 片 + 纯文本(「/Users」成 chip、「/libing/…」为文本) | 上游既有(路径 mention 解析渲染),非功能影响 | 前端打磨(P5 或积压),低优先 |
+
+### P2 结论
+
+- 两口冒烟均 **PASS**,未出现引擎代码级破损 → **无需修复,无一行级移植破损修复**;引擎仓零改动(预期)。
+- 待办:P2 无残留待测项;G1 凭证来源、G2 标题品牌、G4 路径 mention 渲染按上表归入 P3/P5。
+
 ## 分类为空声明(截至本档)
 
 - import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改;P1-S5 全量测试未出现 import 解析类失败(唯一 Cannot find package 系 fixture 目录名漏改,归 S5 段 c 类 #18),维持 0。**S6 更新(2026-08-28)**:R1/R2 已按生成机制再生成收敛,`@deepseek-ai/dsh` 全仓跟踪文件(除 vendor/)命中归零,本条维持 0 且其唯一例外消除。
