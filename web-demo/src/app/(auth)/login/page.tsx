@@ -139,7 +139,6 @@ function LoginPageInner() {
       const data = (await res.json()) as LoginResponse;
       if (isDesktop() && data.access_token) {
         setDesktopSessionToken(data.access_token);
-      } else {
       }
 
       // Both login and register set a cookie — redirect to workspace
