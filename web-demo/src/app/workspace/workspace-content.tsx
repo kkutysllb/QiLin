@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
-import { BetterSidebarRoot } from "@/components/better-sidebar/BetterSidebarRoot";
 import { PromptInputProvider } from "@/components/ai-elements/prompt-input";
+import { BetterSidebarDrawer } from "@/components/better-sidebar/BetterSidebarDrawer";
+import { BetterSidebarRoot } from "@/components/better-sidebar/BetterSidebarRoot";
 import { QueryClientProvider } from "@/components/query-client-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ArtifactsProvider } from "@/components/workspace/artifacts";
@@ -17,8 +18,8 @@ import {
 } from "@/components/workspace/workspace-layout-context";
 import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
 import { WorkspaceTopbar } from "@/components/workspace/workspace-topbar";
-import { useActiveThreadId } from "@/hooks/use-active-thread";
 import { SubtasksProvider } from "@/core/tasks/context";
+import { useActiveThreadId } from "@/hooks/use-active-thread";
 
 // Desktop static export: no cookies() access
 export function WorkspaceContent({
@@ -41,7 +42,9 @@ function WorkspaceContentInner({ children }: { children: ReactNode }) {
     openSettings,
     closeSettings,
     rightPanelMode,
+    rightPanelOpen,
   } = useWorkspaceLayout();
+  const activeThreadId = useActiveThreadId();
 
   if (settingsOpen) {
     return (
@@ -80,6 +83,12 @@ function WorkspaceContentInner({ children }: { children: ReactNode }) {
           </ArtifactsProvider>
         </SubtasksProvider>
       </SidebarInset>
+      {/* 移动端（< 768px）Better Sidebar 兜底入口：bottom sheet。 */}
+      {rightPanelMode === "sidebar" &&
+        rightPanelOpen &&
+        activeThreadId !== null && (
+          <BetterSidebarDrawer threadId={activeThreadId} />
+        )}
       <CommandPalette />
     </SidebarProvider>
   );
