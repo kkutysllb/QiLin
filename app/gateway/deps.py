@@ -473,14 +473,21 @@ async def langgraph_runtime(
 
         app.state.thread_store = make_thread_store(sf, app.state.store)
         if sf is not None:
+            from qilin.persistence.goal.sql import GoalRepository
             from qilin.persistence.sandbox_mode.sql import SandboxModeRepository
             from qilin.persistence.workspace.sql import WorkspaceRepository
 
             app.state.workspace_store = WorkspaceRepository(sf)
             app.state.sandbox_mode_store = SandboxModeRepository(sf)
+            app.state.goal_store = GoalRepository(sf)
         else:
             app.state.workspace_store = None
             app.state.sandbox_mode_store = None
+            app.state.goal_store = None
+        # Goal change fan-out is process-local regardless of storage backend.
+        from app.gateway.goal_events import GoalChangeBroker
+
+        app.state.goal_broker = GoalChangeBroker()
         if sf is not None:
             from qilin.persistence.scheduled_task_runs import (
                 ScheduledTaskRunRepository,

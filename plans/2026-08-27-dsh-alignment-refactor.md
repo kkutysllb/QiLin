@@ -106,6 +106,14 @@
 - ✅ 验证：新增 4 pytest 用例；空库 bootstrap→head 形状核对；纯 Alembic 链 upgrade/downgrade/re-upgrade 往返；仓储往返断言。全后端 706 passed。
 - ⏳ 后续：执行端按折叠值分档执行（依赖沙箱执行器分档改造）、前端开关 UI、SSE 变更广播并入 P5 管线。
 
+**P5 goal 领域（回填于第 9 轮，核心已落）**：
+- ✅ 持久层 `goal_changes`（0013 迁移）：append-only 整快照 change log，payload 贴 DSH GoalChangeMeta 形态（{"goal":snap,"created_at"} / {"cleared":ref}）；revision 独立成列供 CAS 头校验；自增 id 即 fold 序。
+- ✅ 七动词 REST `/api/threads/{tid}/goals`（POST=create、PATCH=edit、/pause /resume /complete /block /delete=clear）：CAS ref 校验在写事务内重读 head；转移矩阵照搬 DSH（pause 仅 active；resume 可 active/paused/blocked 且 activearmed/预算耗尽拒绝；complete 三相可达；block 仅 active 必带 reason{code,message}；clear 出版本化 tombstone）；create 替换 completed 目标为新 id revision 1。错误码九词全接：404 GOAL_NOT_FOUND / 409 ALREADY_EXISTS·STALE·TRANSITION / 400 INVALID_*。
+- ✅ activation 进程字典 `app/gateway/goal_activation.py`：create/resume→armed，其余→disarmed，读取缺省即 disarmed（重启红线）。不入库。
+- ✅ SSE 整快照广播：`GoalChangeBroker`（app.state.goal_broker，per-(user,thread) 订阅队列、慢消费者丢旧保新）+ GET /goals/stream (text/event-stream)；载荷 {operation, ref, goal|cleared}。
+- ✅ 载荷验证：13 个 pytest 用例（创建/重复 create/edit CAS 暴改拒绝/pause-resume 循环/双 resume 409/block reason 校验/clear tombstone 后重建 revision 重置/跨用户 404/SSE 广播整快照）。后端全量 719 passed；ruff clean。
+- ⏳ P6 待做：GoalRoundDriver 挂 run worker idle 终态边、prompt 注入模板对齐 DSH prompt.ts、rounds_started 仅由 driver 注入递增、blocked 三连安全阀（GOAL_BLOCK_AFTER_ROUNDS 配置）。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。

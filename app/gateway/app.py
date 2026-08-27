@@ -31,6 +31,7 @@ from app.gateway.routers import (
     feedback,
     files,
     github_webhooks,
+    goals,
     input_polish,
     integrations,
     mcp,
@@ -672,6 +673,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Sandbox-mode knob events (DSH sandbox/mode alignment — record + fold)
     app.include_router(sandbox_mode.router)
+
+    # Goal domain (DSH dsh-goal seven-verb + SSE whole-snapshot broadcast)
+    app.include_router(goals.router)
 
     # Files API — per-thread workspace browsing & editing (Better Sidebar web)
     app.include_router(files.router)

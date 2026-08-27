@@ -22,6 +22,7 @@ from qilin.persistence.channel_connections.model import (
     ChannelOAuthStateRow,
 )
 from qilin.persistence.feedback.model import FeedbackRow
+from qilin.persistence.goal.model import GoalChangeRow
 from qilin.persistence.models.run_event import RunEventRow
 from qilin.persistence.run.model import RunRow
 from qilin.persistence.sandbox_mode.model import SandboxModeEventRow
@@ -44,6 +45,7 @@ __all__ = [
     "ChannelCredentialRow",
     "ChannelOAuthStateRow",
     "FeedbackRow",
+    "GoalChangeRow",
     "RunEventRow",
     "RunRow",
     "SandboxModeEventRow",
