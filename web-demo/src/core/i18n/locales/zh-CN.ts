@@ -194,6 +194,17 @@ export const zhCN: Translations = {
     crons: "自动化",
     tokenUsage: "Token 用量",
     customModes: "自定义模式",
+    ungroupedGroup: "未分组",
+    archivedSection: "已归档",
+    archiveThread: "归档",
+    unarchiveThread: "取消归档",
+    moveToWorkspace: "移动到工作区",
+    renameWorkspace: "重命名工作区",
+    deleteWorkspaceAction: "删除工作区",
+    deleteWorkspaceHint: "仅解除登记，目录与历史会话保留",
+    moveUpItem: "上移",
+    moveDownItem: "下移",
+    emptyWorkspaceCount: "空",
   },
 
   // Topbar

@@ -29,7 +29,8 @@ export default defineConfig({
     env: {
       SKIP_ENV_VALIDATION: "1",
       KWORKS_AUTH_DISABLED: "1",
-      PORT: "9192",
+      // server.js 只识别 WEB_DEMO_PORT（PORT 会被忽略并回落到 28080）
+      WEB_DEMO_PORT: "9192",
     },
   },
 });

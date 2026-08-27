@@ -94,6 +94,11 @@
 
 **P3 改造文件清单**（子代理预估 + 主线校准）：改 recent-chat-list / workspace-layout-context；新建 core/workspaces hooks（getWorkspaces/createWorkspace/moveThread/archive mutations）与 lib/workspace-tree.ts（tree.ts 直译）；command-palette 加「新工作区」动作。
 
+**P3 实施进度（回填于第 7 轮）**：
+- ✅ P3a `lib/workspace-tree.ts` 纯函数直译 + 13 用例（3a2d0af）。
+- ✅ P3b `core/workspaces/{types,api,hooks}.ts` 注册表数据面 + 9 用例（e167f93）。
+- ✅ P3c 侧栏重写：`sidebar-inputs.ts`（线程×树投影组装）/`view-state.ts`（collapsedGroups 折叠记忆，方向取「仅记主动折叠」使新组默认展开）；`recent-chat-list.tsx` 全量替换为 deriveGroups 双级树——组头折叠/计数/containsCurrent 着色、Ungrouped 尾随、行菜单增 归档+移动到工作区 submenu+组内上移/下移（相邻交换语义）、组头菜单 重命名/上移/下移/删除登记（解绑不删目录，hint 文案）、底部 ARCHIVED(n) 管理区配取消归档。i18n 三文件同步加键。vitest：builder/view-state/组件渲染共 15 新用例；Playwright 真机走查 `tests/e2e/workspace-groups.spec.ts`（build+chrome 实渲染断言分组/折叠持久化/归档隐藏 + 截图留证）。顺带修复 playwright.config webServer 注入 PORT 而非 WEB_DEMO_PORT 导致自起服务必撞 28080 的既有缺陷。拖拽按决策点以上移/下移替代。验证基线：vitest 336/336、eslint 0 error、tsc 0 error。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。

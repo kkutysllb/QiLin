@@ -142,6 +142,17 @@ export interface Translations {
     crons: string;
     tokenUsage: string;
     customModes: string;
+    ungroupedGroup: string;
+    archivedSection: string;
+    archiveThread: string;
+    unarchiveThread: string;
+    moveToWorkspace: string;
+    renameWorkspace: string;
+    deleteWorkspaceAction: string;
+    deleteWorkspaceHint: string;
+    moveUpItem: string;
+    moveDownItem: string;
+    emptyWorkspaceCount: string;
   };
 
   // Topbar

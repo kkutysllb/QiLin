@@ -198,6 +198,17 @@ export const enUS: Translations = {
     crons: "Automation",
     tokenUsage: "Token Usage",
     customModes: "Custom modes",
+    ungroupedGroup: "Ungrouped",
+    archivedSection: "Archived",
+    archiveThread: "Archive",
+    unarchiveThread: "Unarchive",
+    moveToWorkspace: "Move to workspace",
+    renameWorkspace: "Rename workspace",
+    deleteWorkspaceAction: "Delete workspace",
+    deleteWorkspaceHint: "Removes registration only; directory and history stay",
+    moveUpItem: "Move up",
+    moveDownItem: "Move down",
+    emptyWorkspaceCount: "empty",
   },
 
   // Topbar
