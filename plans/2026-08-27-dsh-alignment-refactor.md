@@ -131,6 +131,8 @@
 
 **目标③完成判定（第 12 轮）**：存储(0013+context 读法)→七动词 CAS API→activation 进程位→SSE 整快照/round/block 广播→驱动内核(逐字 prompt+静默闸门)→idle 边接线(flag)→终态语义闸门→验收 e2e 全链闭环。裁剪项与既存差异如实登记：prompt 模板逐字一致；事件溯源以表代日志（§5.3）；安全阀信号源待模型端；旧评审员循环仍由 legacy /goal PUT 通道独立驱动（键域不同天然互斥），收敛退役留 P8 清理单。
 
+**M2 回填接线补全（第 12 轮收尾）**：取证发现 `is_initialized/mark_initialized` 原语已备但无调用方——目标⑤「平滑迁移」闭环缺口。✅ `app/gateway/workspace_backfill.py` `ensure_user_backfilled`：首询触发、逐用户 once 标记短路；distinct cwd→幂等 create 登记+attach 挂账；cwd 列缺失时 metadata.cwd 兜底（M3 冻结语义）；NULL-cwd 不虚构，保持 Ungrouped；失败不落标记可重试。挂点=workspaces 列表路由入口（用户首次打开侧栏即完成迁移，等同 DSH 首启 UI 语义）。tests/test_workspace_backfill.py 2 用例（推导分组+Ungrouped 保全 / 二次列表标记短路零重复）。后端全量 737 passed。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。

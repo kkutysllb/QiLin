@@ -17,7 +17,7 @@ import logging
 import os
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from app.gateway.authz import require_permission
@@ -75,9 +75,31 @@ def _require_store(request: Request):
 @router.get("")
 @require_permission("threads", "read")
 async def list_workspaces(request: Request) -> list[dict[str, Any]]:
-    """The caller's workspaces in durable display order."""
+    """The caller's workspaces in durable display order.
+
+    The first call for a user also performs the one-shot M2 backfill:
+    legacy threads with a real cwd are grouped into derived registry
+    entries; NULL-cwd threads stay Ungrouped. Marker-guarded, so later
+    lists skip straight through.
+    """
     user_id = await get_current_user(request)
     store = _require_store(request)
+
+    from app.gateway.workspace_backfill import ensure_user_backfilled
+
+    thread_store = getattr(request.app.state, "thread_store", None)
+    if thread_store is not None:
+        try:
+            await ensure_user_backfilled(
+                threads_store=thread_store,
+                workspace_store=store,
+                user_id=str(user_id),
+            )
+        except Exception:
+            logger.exception(
+                "workspace backfill skipped for %s (listing continues)", user_id
+            )
+
     return await store.list_for_user(user_id=user_id)
 
 
