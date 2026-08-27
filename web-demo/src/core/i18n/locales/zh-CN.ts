@@ -102,6 +102,10 @@ export const zhCN: Translations = {
   // Input Box
   inputBox: {
   pickWorkspace: "选择工作区",
+  accessMode: "访问模式",
+  sandboxReadOnly: "只读",
+  sandboxWorkspaceWrite: "工作区可写",
+  sandboxFullAccess: "完全访问",
   ungroupedOption: "未分组",
   addWorkspace: "添加工作区…",
   addWorkspacePath: "绝对路径（如 /Users/me/projects/X）",

@@ -108,17 +108,26 @@ class TestMiddlewareRelay:
 
 
 class TestGatewayInjection:
-    def test_server_owned_overwrite_is_unconditional(self):
-        """Wiring check: the gateway's mode write clobbers client values and
-        runs after the whitelist merge in start_run."""
+    def test_client_mode_wins_folded_is_default(self):
+        """Wiring check: a client-declared access mode (whitelisted) wins;
+        the folded event-log value applies only when no explicit choice
+        exists."""
         import inspect
 
         import app.gateway.services as services
 
         src = inspect.getsource(services)
-        assert "sandbox_mode_value = \"danger-full-access\"" in src
-        assert 'config_configurable["sandbox_mode"] = sandbox_mode_value' in src
-        # unconditional overwrite, not setdefault (which a client could pre-seed)
-        assert 'cfg_ctx["sandbox_mode"] = sandbox_mode_value' in src
-        # folded from the per-thread event log:
+        assert '"sandbox_mode",' in src  # whitelisted
+        assert 'sandbox_mode_value = "danger-full-access"' in src
+        assert 'client_mode in {"read-only", "workspace-write", "danger-full-access"}' in src
+        assert 'sandbox_mode_value = client_mode' in src
+        # fold only consulted as the default fallback:
+        assert 'if sandbox_store is not None and sandbox_mode_value == "danger-full-access":' in src
         assert "sandbox_store.folded(thread_id)" in src
+        assert 'config_configurable["sandbox_mode"] = sandbox_mode_value' in src
+        assert 'cfg_ctx["sandbox_mode"] = sandbox_mode_value' in src
+
+    def test_whitelist_admits_sandbox_mode(self):
+        from app.gateway.services import _CONTEXT_CONFIGURABLE_KEYS
+
+        assert "sandbox_mode" in _CONTEXT_CONFIGURABLE_KEYS

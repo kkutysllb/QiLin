@@ -86,6 +86,10 @@ export interface Translations {
   // Input Box
   inputBox: {
   pickWorkspace: string;
+  accessMode: string;
+  sandboxReadOnly: string;
+  sandboxWorkspaceWrite: string;
+  sandboxFullAccess: string;
   ungroupedOption: string;
   addWorkspace: string;
   addWorkspacePath: string;

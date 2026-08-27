@@ -40,6 +40,8 @@ export interface AgentThreadContext extends Record<string, unknown> {
   user_workspace_path?: string;
   /** Registry workspace id (uuid) chosen for new threads; drives grouping. */
   workspace_id?: string;
+  /** Folded sandbox policy for this thread (read-only / workspace-write / danger-full-access). */
+  sandbox_mode?: string;
 }
 
 export interface AgentThread extends Thread<AgentThreadState> {

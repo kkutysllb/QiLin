@@ -367,6 +367,11 @@ _CONTEXT_CONFIGURABLE_KEYS: frozenset[str] = frozenset(
         # only a *reference*; authorization happens when the gateway resolves
         # it through the per-user registry, never by trusting the id itself.
         "workspace_id",
+        # Sandbox access mode chosen in the composer (DSH access-mode menu).
+        # A client-declared value wins over the folded event-log default —
+        # same trust model as DSH (local, single-user tool); the tool gates
+        # still enforce whatever lands in the run context.
+        "sandbox_mode",
     }
 )
 
@@ -1374,9 +1379,18 @@ async def start_run(
             # Folded sandbox policy — same server-owned channel. Tools gate
             # mutating calls on this value; client-supplied values are
             # overwritten unconditionally.
+            # Client-declared mode (composer access menu) wins; the folded
+            # event-log value is only the default for threads without an
+            # explicit selection.
             sandbox_mode_value = "danger-full-access"
+            client_mode = config_configurable.get("sandbox_mode")
+            if (
+                isinstance(client_mode, str)
+                and client_mode in {"read-only", "workspace-write", "danger-full-access"}
+            ):
+                sandbox_mode_value = client_mode
             sandbox_store = getattr(request.app.state, "sandbox_mode_store", None)
-            if sandbox_store is not None:
+            if sandbox_store is not None and sandbox_mode_value == "danger-full-access":
                 try:
                     folded = await sandbox_store.folded(thread_id)
                     mode = (folded or {}).get("mode")

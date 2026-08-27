@@ -11,6 +11,7 @@ import {
   PlusIcon,
   SparklesIcon,
   RocketIcon,
+  ShieldIcon,
   SquareIcon,
   ZapIcon,
 } from "lucide-react";
@@ -239,16 +240,13 @@ export function InputBox({
   const { data: workspaceTree } = useWorkspaceTree();
   const { mutateAsync: createWorkspaceMutate } = useCreateWorkspace();
   const { mutateAsync: pickDirectoryMutate } = usePickDirectory();
+  const [accessMenuOpen, setAccessMenuOpen] = useState(false);
   const [wsMenuOpen, setWsMenuOpen] = useState(false);
   const [wsDialogOpen, setWsDialogOpen] = useState(false);
   const [wsNewPath, setWsNewPath] = useState("");
   const [wsNewTitle, setWsNewTitle] = useState("");
   const workspaces = useMemo(() => workspaceTree?.workspaces ?? [], [workspaceTree]);
   const selectedWsId = context?.workspace_id;
-  const selectedWorkspace = useMemo(
-    () => workspaces.find((w) => w.id === selectedWsId),
-    [workspaces, selectedWsId],
-  );
 
   const pickWorkspace = useCallback(
     (id: string | undefined) => {
@@ -277,6 +275,29 @@ export function InputBox({
       console.error("pick directory failed", error);
     }
   }, [pickDirectoryMutate]);
+
+  const currentSandboxMode = (
+    context?.sandbox_mode === "read-only" ||
+    context?.sandbox_mode === "workspace-write" ||
+    context?.sandbox_mode === "danger-full-access"
+  )
+    ? context.sandbox_mode
+    : "workspace-write";
+
+  const selectSandboxMode = useCallback(
+    (mode: string) => {
+      onContextChange?.({
+        ...context,
+        sandbox_mode: mode,
+      } as Parameters<typeof onContextChange>[0]);
+      try {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("kworks.sandbox-mode", mode);
+        }
+      } catch {}
+    },
+    [context, onContextChange],
+  );
 
   const submitNewWorkspace = useCallback(async () => {
     const trimmed = wsNewPath.trim();
@@ -597,6 +618,52 @@ export function InputBox({
           onSendAll={onSendAllQueued ?? (() => undefined)}
         />
       )}
+      {isNewThread && (
+        <div className="flex w-full items-center gap-2 px-1">
+          <DropdownMenu open={wsMenuOpen} onOpenChange={setWsMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-foreground/90 h-7 rounded-full px-3"
+                title={t.inputBox.pickWorkspace}
+              >
+                <FolderIcon className="size-3.5" />
+                <span className="max-w-40 truncate text-xs font-normal">
+                  {(context?.workspace_id
+                    ? workspaces.find((w) => w.id === context.workspace_id)?.title
+                    : undefined) ?? t.inputBox.ungroupedOption}
+                </span>
+                <ChevronDownIcon className="text-muted-foreground size-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="max-h-72 overflow-auto">
+              {workspaces.map((w) => (
+                <DropdownMenuItem key={w.id} onSelect={() => pickWorkspace(w.id)}>
+                  <FolderIcon className="text-muted-foreground size-3.5" />
+                  <span className="truncate">{w.title}</span>
+                  {context?.workspace_id === w.id && (
+                    <CheckIcon className="ml-auto size-4" />
+                  )}
+                  {context?.workspace_id !== w.id && (
+                    <div className="ml-auto size-4" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => pickWorkspace(undefined)}>
+                <span className="truncate">{t.inputBox.ungroupedOption}</span>
+                {!context?.workspace_id && <CheckIcon className="ml-auto size-4" />}
+                {!context?.workspace_id && <div className="ml-auto size-4" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setWsDialogOpen(true)}>
+                <PlusIcon className="size-3.5" />
+                <span>{t.inputBox.addWorkspace}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
       <PromptInput
         className={cn(
           "bg-background/85 rounded-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
@@ -632,6 +699,61 @@ export function InputBox({
             </PromptInputActionMenuContent>
           </PromptInputActionMenu> */}
             <AddAttachmentsButton className="px-2!" />
+            {/* 访问模式（DSH access-mode 对齐）：左下角三档沙箱策略 */}
+            <DropdownMenu open={accessMenuOpen} onOpenChange={setAccessMenuOpen}>
+              <DropdownMenuTrigger asChild>
+                <PromptInputButton
+                  title={`${t.inputBox.accessMode}: ${t.inputBox[
+                    currentSandboxMode === "read-only"
+                      ? "sandboxReadOnly"
+                      : currentSandboxMode === "danger-full-access"
+                        ? "sandboxFullAccess"
+                        : "sandboxWorkspaceWrite"
+                  ]}`}
+                >
+                  <ShieldIcon className="size-3.5" />
+                  <span className="text-muted-foreground hidden text-xs sm:inline">
+                    {t.inputBox.accessMode}
+                  </span>
+                  <span className="text-xs font-medium">
+                    {t.inputBox[
+                      currentSandboxMode === "read-only"
+                        ? "sandboxReadOnly"
+                        : currentSandboxMode === "danger-full-access"
+                          ? "sandboxFullAccess"
+                          : "sandboxWorkspaceWrite"
+                    ]}
+                  </span>
+                </PromptInputButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  {t.inputBox.accessMode}
+                </DropdownMenuLabel>
+                {(
+                  [
+                    ["read-only", "sandboxReadOnly"],
+                    ["workspace-write", "sandboxWorkspaceWrite"],
+                    ["danger-full-access", "sandboxFullAccess"],
+                  ] as const
+                ).map(([value, labelKey]) => (
+                  <DropdownMenuItem
+                    key={value}
+                    onSelect={() => selectSandboxMode(value)}
+                    className={cn(
+                      currentSandboxMode === value
+                        ? "text-accent-foreground"
+                        : "text-muted-foreground/65",
+                    )}
+                  >
+                    {t.inputBox[labelKey]}
+                    {currentSandboxMode === value && (
+                      <CheckIcon className="ml-auto size-4" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <PromptInputActionMenu>
               <Tooltip
                 content={`${t.inputBox.reasoningEffort}: ${t.inputBox[getEffortLabelKey(currentEffort)]} - ${t.inputBox[getEffortDescriptionKey(currentEffort)]}`}
@@ -784,45 +906,7 @@ export function InputBox({
             </PromptInputActionMenu>
           </PromptInputTools>
           <PromptInputTools>
-            {isNewThread && (
-              <DropdownMenu open={wsMenuOpen} onOpenChange={setWsMenuOpen}>
-                <DropdownMenuTrigger asChild>
-                  <PromptInputButton title={t.inputBox.pickWorkspace}>
-                    <FolderIcon className="size-4" />
-                    <span className="max-w-24 truncate text-xs font-normal">
-                      {(context?.workspace_id
-                        ? workspaces.find((w) => w.id === context.workspace_id)?.title
-                        : undefined) ?? t.inputBox.ungroupedOption}
-                    </span>
-                    <ChevronDownIcon className="text-muted-foreground size-3" />
-                  </PromptInputButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="max-h-72 overflow-auto">
-                  {workspaces.map((w) => (
-                    <DropdownMenuItem key={w.id} onSelect={() => pickWorkspace(w.id)}>
-                      <FolderIcon className="text-muted-foreground size-3.5" />
-                      <span className="truncate">{w.title}</span>
-                      {context?.workspace_id === w.id && (
-                        <CheckIcon className="ml-auto size-4" />
-                      )}
-                      {context?.workspace_id !== w.id && (
-                        <div className="ml-auto size-4" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => pickWorkspace(undefined)}>
-                    <span className="truncate">{t.inputBox.ungroupedOption}</span>
-                    {!context?.workspace_id && <CheckIcon className="ml-auto size-4" />}
-                    {!context?.workspace_id && <div className="ml-auto size-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setWsDialogOpen(true)}>
-                    <PlusIcon className="size-3.5" />
-                    <span>{t.inputBox.addWorkspace}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+
             <ModelSelector
               open={modelDialogOpen}
               onOpenChange={setModelDialogOpen}

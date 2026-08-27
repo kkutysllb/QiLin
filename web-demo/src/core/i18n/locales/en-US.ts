@@ -103,6 +103,10 @@ export const enUS: Translations = {
   // Input Box
   inputBox: {
   pickWorkspace: "Pick workspace",
+  accessMode: "Access mode",
+  sandboxReadOnly: "Read-only",
+  sandboxWorkspaceWrite: "Workspace write",
+  sandboxFullAccess: "Full access",
   ungroupedOption: "Ungrouped",
   addWorkspace: "Add workspace…",
   addWorkspacePath: "Absolute path (e.g. /Users/me/projects/X)",
