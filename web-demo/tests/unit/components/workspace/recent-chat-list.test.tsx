@@ -101,6 +101,7 @@ vi.mock("@/core/workspaces/hooks", () => ({
   useWorkspaceTree: () => ({ data: treeQueryData.current }),
   useArchiveThreads: () => ({ mutateAsync: vi.fn() }),
   useAttachThread: () => ({ mutateAsync: vi.fn() }),
+  useCreateWorkspace: () => ({ mutateAsync: vi.fn(async () => ({ id: "ws-new" })) }),
   useDeleteWorkspace: () => ({ mutateAsync: vi.fn() }),
   useDetachThread: () => ({ mutateAsync: vi.fn() }),
   useRenameWorkspace: () => ({ mutateAsync: vi.fn() }),

@@ -128,6 +128,16 @@ export interface Translations {
   // Sidebar
   sidebar: {
     recentChats: string;
+    workspacesSection: string;
+    searchWorkspaces: string;
+    sortBy: string;
+    sortManual: string;
+    sortRecent: string;
+    addWorkspace: string;
+    addWorkspacePath: string;
+    addWorkspaceTitle: string;
+    pickWorkspace: string;
+    ungroupedOption: string;
     recent3: string;
     thisWeek: string;
     thisMonth: string;

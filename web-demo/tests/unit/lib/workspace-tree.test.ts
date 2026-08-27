@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  sortWorkspacesByRecent,
   byRecency,
   deriveFlat,
   deriveGroups,
@@ -199,5 +200,36 @@ describe("relativeTime", () => {
     expect(relativeTime(now - 2 * 86_400_000, now)).toEqual({ unit: "days", n: 2 });
     expect(relativeTime(now - 60 * 86_400_000, now)).toEqual({ unit: "months", n: 2 });
     expect(relativeTime(0, now)).toEqual({ unit: "years", n: 1 });
+  });
+});
+
+describe("sortWorkspacesByRecent", () => {
+  const mk = (id: string, title: string, threadIds: string[]) => ({
+    id,
+    canonicalPath: `/p/${title}`,
+    title,
+    createdAt: "2026-01-01",
+    threadIds,
+  });
+  const byId = new Map([
+    ["t1", { id: "t1", title: "", updatedAt: 100 }],
+    ["t2", { id: "t2", title: "", updatedAt: 500 }],
+    ["t3", { id: "t3", title: "", updatedAt: 300 }],
+  ]);
+
+  it("按组内最新成员降序，Ungrouped 恒在末尾", () => {
+    const ordered = sortWorkspacesByRecent(
+      [mk(UNGROUPED_KEY, "Ungrouped", ["t1"]), mk("ws-a", "A", ["t2"]), mk("ws-b", "B", [])],
+      byId,
+    );
+    expect(ordered.map((w) => w.title)).toEqual(["A", "B", "Ungrouped"]);
+  });
+
+  it("平局保持注册表原序（稳定）", () => {
+    const ordered = sortWorkspacesByRecent(
+      [mk("ws-a", "A", []), mk("ws-b", "B", [])],
+      byId,
+    );
+    expect(ordered.map((w) => w.title)).toEqual(["A", "B"]);
   });
 });

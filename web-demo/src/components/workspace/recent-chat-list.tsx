@@ -12,6 +12,7 @@
 
 import {
   Archive,
+  ArrowUpDown,
   ArchiveRestore,
   ChevronDown,
   ChevronRight,
@@ -21,7 +22,9 @@ import {
   FolderInput,
   MoreHorizontal,
   Pencil,
+  Search,
   Share2,
+  SquarePlus,
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
@@ -77,6 +80,7 @@ import {
 import {
   useArchiveThreads,
   useAttachThread,
+  useCreateWorkspace,
   useDeleteWorkspace,
   useDetachThread,
   useRenameWorkspace,
@@ -94,6 +98,7 @@ import { env } from "@/env";
 import { isIMEComposing } from "@/lib/ime";
 import {
   deriveGroups,
+  sortWorkspacesByRecent,
   UNGROUPED_KEY,
   type GroupNode,
 } from "@/lib/workspace-tree";
@@ -302,17 +307,6 @@ export function RecentChatList() {
   const currentThreadId =
     threadIdFromPath === "new" ? undefined : threadIdFromPath;
 
-  const groupNodes = useMemo(
-    () =>
-      deriveGroups(
-        inputs.list,
-        inputs.groups,
-        tree?.archived_thread_ids ?? [],
-        { expandedGroups: [...expandedGroups] },
-        currentThreadId,
-      ),
-    [inputs, tree, expandedGroups, currentThreadId],
-  );
 
   // 注册表持久序（父级兄弟排序的锚点来源）
   const orderedGroupMeta = useMemo(
@@ -320,10 +314,6 @@ export function RecentChatList() {
     [inputs.groups],
   );
 
-  const visibleCount = useMemo(
-    () => groupNodes.reduce((sum, g) => sum + g.sessionCount, 0),
-    [groupNodes],
-  );
 
   const archivedEntries = useMemo(() => {
     const entries = (tree?.archived_thread_ids ?? []).map((id) => ({
@@ -355,6 +345,100 @@ export function RecentChatList() {
       }
     },
     [agentNameFromPath, deleteThread, router, threadIdFromPath, threads],
+  );
+
+// ── 工作区节：搜索 / 排序 / 添加（DSH 截图一） ─────────────────
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [sortMode, setSortMode] = useState<"manual" | "recent">(() => {
+    if (typeof window === "undefined") return "manual";
+    try {
+      return window.localStorage.getItem("kworks.workspace.sortMode") === "recent"
+        ? "recent"
+        : "manual";
+    } catch {
+      return "manual";
+    }
+  });
+  const { mutateAsync: createWorkspaceMutate } = useCreateWorkspace();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createPath, setCreatePath] = useState("");
+  const [createTitle, setCreateTitle] = useState("");
+
+  const toggleSearch = useCallback(() => {
+    setSearchOpen((open) => {
+      if (open) setSearchText("");
+      return !open;
+    });
+  }, []);
+
+  const changeSortMode = useCallback((mode: "manual" | "recent") => {
+    setSortMode(mode);
+    try {
+      window.localStorage.setItem("kworks.workspace.sortMode", mode);
+    } catch {
+      // 忽略持久化失败，会话内状态即可
+    }
+  }, []);
+
+  const submitCreateWorkspace = useCallback(async () => {
+    const trimmed = createPath.trim();
+    if (!trimmed) return;
+    try {
+      await createWorkspaceMutate({
+        path: trimmed,
+        title: createTitle.trim() || undefined,
+      });
+      toast.success(t.sidebar.addWorkspace);
+      setCreateOpen(false);
+      setCreatePath("");
+      setCreateTitle("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
+    }
+  }, [createPath, createTitle, createWorkspaceMutate, t]);
+
+  const orderedGroupsForTree = useMemo(() => {
+    if (sortMode !== "recent") return inputs.groups;
+    const byId = new Map(inputs.list.ids.map((id) => [id, inputs.list.byId[id]!]));
+    return sortWorkspacesByRecent(inputs.groups, byId);
+  }, [inputs, sortMode]);
+
+  const groupNodes = useMemo(
+    () =>
+      deriveGroups(
+        inputs.list,
+        sortMode === "recent" ? orderedGroupsForTree : inputs.groups,
+        tree?.archived_thread_ids ?? [],
+        { expandedGroups: [...expandedGroups] },
+        currentThreadId,
+      ),
+    [inputs, tree, expandedGroups, currentThreadId, orderedGroupsForTree, sortMode],
+  );
+  const filteredGroupNodes = useMemo(() => {
+    const needle = searchText.trim().toLowerCase();
+    if (!needle) return groupNodes;
+    return groupNodes
+      .map((node) => ({
+        ...node,
+        expanded: true,
+        sessions: node.sessions.filter(
+          (session) =>
+            session.title.toLowerCase().includes(needle) ||
+            node.label.toLowerCase().includes(needle),
+        ),
+      }))
+      .filter(
+        (node) =>
+          node.label.toLowerCase().includes(needle) ||
+          node.sessions.length > 0 ||
+          node.sessionCount > 0,
+      );
+  }, [groupNodes, searchText]);
+
+  const visibleCount = useMemo(
+    () => groupNodes.reduce((sum, g) => sum + g.sessionCount, 0),
+    [groupNodes],
   );
 
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
@@ -653,6 +737,68 @@ export function RecentChatList() {
   // 历史会话段整体折叠：只显示标题条
   if (historyCollapsed) {
     return (
+      <>
+      <SidebarGroup className="pt-1">
+        <SidebarGroupLabel>
+          <span className="truncate">{t.sidebar.workspacesSection}</span>
+          <span className="ml-auto flex items-center gap-0.5 text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={toggleSearch}
+              aria-label={t.sidebar.searchWorkspaces}
+              title={t.sidebar.searchWorkspaces}
+            >
+              <Search className="size-3.5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  aria-label={t.sidebar.sortBy}
+                  title={t.sidebar.sortBy}
+                >
+                  <ArrowUpDown className="size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => changeSortMode("manual")}>
+                  {sortMode === "manual" ? "✓ " : ""}
+                  {t.sidebar.sortManual}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => changeSortMode("recent")}>
+                  {sortMode === "recent" ? "✓ " : ""}
+                  {t.sidebar.sortRecent}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => setCreateOpen(true)}
+              aria-label={t.sidebar.addWorkspace}
+              title={t.sidebar.addWorkspace}
+            >
+              <SquarePlus className="size-3.5" />
+            </Button>
+          </span>
+        </SidebarGroupLabel>
+        {(searchOpen || searchText) && (
+          <SidebarGroupContent>
+            <Input
+              autoFocus
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder={t.sidebar.searchWorkspaces}
+              className="h-7 bg-muted/40 text-xs"
+            />
+          </SidebarGroupContent>
+        )}
+      </SidebarGroup>
       <SidebarGroup className="pt-1">
         <SidebarGroupLabel asChild className="cursor-pointer">
           <button type="button" onClick={toggleHistory}>
@@ -666,11 +812,73 @@ export function RecentChatList() {
           </button>
         </SidebarGroupLabel>
       </SidebarGroup>
+      </>
     );
   }
 
   return (
     <>
+      <SidebarGroup className="pt-1">
+        <SidebarGroupLabel>
+          <span className="truncate">{t.sidebar.workspacesSection}</span>
+          <span className="ml-auto flex items-center gap-0.5 text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={toggleSearch}
+              aria-label={t.sidebar.searchWorkspaces}
+              title={t.sidebar.searchWorkspaces}
+            >
+              <Search className="size-3.5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  aria-label={t.sidebar.sortBy}
+                  title={t.sidebar.sortBy}
+                >
+                  <ArrowUpDown className="size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => changeSortMode("manual")}>
+                  {sortMode === "manual" ? "✓ " : ""}
+                  {t.sidebar.sortManual}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => changeSortMode("recent")}>
+                  {sortMode === "recent" ? "✓ " : ""}
+                  {t.sidebar.sortRecent}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => setCreateOpen(true)}
+              aria-label={t.sidebar.addWorkspace}
+              title={t.sidebar.addWorkspace}
+            >
+              <SquarePlus className="size-3.5" />
+            </Button>
+          </span>
+        </SidebarGroupLabel>
+        {(searchOpen || searchText) && (
+          <SidebarGroupContent>
+            <Input
+              autoFocus
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder={t.sidebar.searchWorkspaces}
+              className="h-7 bg-muted/40 text-xs"
+            />
+          </SidebarGroupContent>
+        )}
+      </SidebarGroup>
       <SidebarGroup className="pt-1">
         <SidebarGroupLabel asChild className="cursor-pointer">
           <button type="button" onClick={toggleHistory}>
@@ -686,7 +894,7 @@ export function RecentChatList() {
         <SidebarGroupContent className="group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0">
           <SidebarMenu>
             <div className="flex w-full flex-col gap-1">
-              {groupNodes.map((node) => (
+              {filteredGroupNodes.map((node) => (
                 <div key={node.key} className="flex flex-col gap-0.5">
                   {renderGroupHeader(node)}
                   {node.expanded &&
@@ -726,6 +934,48 @@ export function RecentChatList() {
               {t.common.cancel}
             </Button>
             <Button onClick={handleRenameSubmit}>{t.common.save}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Dialog (工作区) */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t.sidebar.addWorkspace}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-4">
+            <Input
+              autoFocus
+              value={createPath}
+              onChange={(e) => setCreatePath(e.target.value)}
+              placeholder={t.sidebar.addWorkspacePath}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !isIMEComposing(e)) {
+                  e.preventDefault();
+                  void submitCreateWorkspace();
+                }
+              }}
+            />
+            <Input
+              value={createTitle}
+              onChange={(e) => setCreateTitle(e.target.value)}
+              placeholder={t.sidebar.addWorkspaceTitle}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !isIMEComposing(e)) {
+                  e.preventDefault();
+                  void submitCreateWorkspace();
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              {t.common.cancel}
+            </Button>
+            <Button onClick={() => void submitCreateWorkspace()}>
+              {t.common.save}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

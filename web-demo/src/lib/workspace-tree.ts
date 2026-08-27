@@ -268,3 +268,35 @@ export function relativeTime(updatedAt: number, now: number): RelativeTime {
   if (diff < 365 * DAY) return { unit: "months", n: Math.floor(diff / (30 * DAY)) };
   return { unit: "years", n: Math.floor(diff / (365 * DAY)) };
 }
+
+/**
+ * 「最近更新」排序（侧栏节标题的排序按钮）：工作区间按组内最新成员
+ * updatedAt 降序；Ungrouped 桶固定保持在末尾。平局保持注册表原序
+ * （稳定排序语义）。manual 模式不经过此函数，直接使用注册表持久序。
+ */
+export function sortWorkspacesByRecent(
+  workspaces: readonly WorkspaceGroupInput[],
+  byId: ReadonlyMap<string, ThreadSummary>,
+): WorkspaceGroupInput[] {
+  const lastActive = (ids: readonly string[]): number => {
+    let max = -Infinity;
+    for (const id of ids) {
+      const summary = byId.get(id);
+      const at = summary?.updatedAt ?? Number.NEGATIVE_INFINITY;
+      if (at > max) max = at;
+    }
+    return max;
+  };
+  const decorated = workspaces.map((ws, index) => ({
+    ws,
+    index,
+    isUngrouped: ws.id === UNGROUPED_KEY,
+    keyTs: lastActive(ws.threadIds),
+  }));
+  decorated.sort((a, b) => {
+    if (a.isUngrouped !== b.isUngrouped) return a.isUngrouped ? 1 : -1;
+    if (b.keyTs !== a.keyTs) return b.keyTs - a.keyTs;
+    return a.index - b.index;
+  });
+  return decorated.map((d) => d.ws);
+}
