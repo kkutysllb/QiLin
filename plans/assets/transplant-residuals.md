@@ -114,6 +114,8 @@ rescope(3deb573)后第一次真实类型级检验。门禁结果:
 
 - R1/R2(唯一顺延项,无新增):translation-prompt v4 期望快照内嵌旧 README 串,须随 P1 测试阶段快照再生成流程收敛,不手工改写。完整现场见归档日志 plans/assets/s4-logs/(qilin-s4-build.log、qilin-s4-typecheck.log、qilin-s4-typecheck-force.log,源自 /tmp/qilin-s4-*.log 同名文件)。
 
+> **归档日志 gitignore 豁免披露**:上述三个归档日志(plans/assets/s4-logs/*.log)与仓根 .gitignore 第 58 行的 `*.log` 规则冲突,提交 022d243 使用 `git add -f` 强制纳入;此为有意豁免——构建/类型门禁证据留痕优先于日志忽略规则。后续 S5 若归档测试日志,沿用同一豁免并在当时重申。
+
 ### 普查口径留痕
 
 `grep -rn '@deepseek-ai/dsh'`(排除 vendor/node_modules/dist/.git)全树命中 1 文件 2 行 = R1/R2;带引号的 `"@deepseek-ai/dsh"` 依赖键在全部 package.json 命中 0;pnpm-workspace.yaml/tsconfig*.json 中 `@deepseek-ai/*` 引用全部为 vendor 上游保留名(D6 边界)。
