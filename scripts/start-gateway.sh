@@ -70,12 +70,15 @@ if [[ "$MODE" == "stop" ]]; then
       sleep 0.5
     done
   fi
-  # 端口兜底: PID 文件丢失(如机器重启后残留进程)时, 按端口监听 + uvicorn 命令行特征定位
-  # (只杀命令行匹配 uvicorn/app.gateway.app 的进程, 陌生占用者只报告不杀)
+  # 端口兜底: PID 文件丢失(如机器重启后残留进程)时, 按端口监听 + 身份特征定位:
+  # 命令行匹配 uvicorn/app.gateway.app, 或进程 cwd 位于本项目内(ps 被受限环境
+  # 静默拒绝时的第二判据)。两者皆不匹配的陌生占用者只报告、绝不杀。
   while IFS= read -r PID; do
     [[ -z "$PID" ]] && continue
     CMD="$(ps -p "$PID" -o command= 2>/dev/null || true)"
-    if echo "$CMD" | grep -qE "uvicorn|app\.gateway\.app"; then
+    CWD="$(lsof -a -p "$PID" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | tail -1)"
+    if echo "$CMD" | grep -qE "uvicorn|app\.gateway\.app" \
+       || [[ "$CWD"/ == "$PROJECT_ROOT/"* ]]; then
       kill "$PID" 2>/dev/null || true
       echo -e "${GREEN}✓ Gateway (PID $PID, 端口 $PORT) 已停止${NC}"
       STOPPED=1

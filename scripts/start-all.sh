@@ -12,7 +12,7 @@
 # 端口可用环境变量覆盖: GATEWAY_PORT(默认 28081) / WEB_DEMO_PORT(默认 28080)
 #
 # 硬约束: 不影响本机已安装的 KWorks 应用 (19987/18569/~/.kworks)
-#   停止时仅按 "本项目 PID 文件 + 端口监听 + 命令行特征" 定位进程;
+#   停止时仅按 "本项目 PID 文件 + 端口监听 + 命令行特征/进程工作目录" 定位进程;
 #   端口上的陌生进程只报告、绝不杀。
 set -euo pipefail
 
@@ -53,9 +53,19 @@ done
 
 # ── 进程定位辅助(只认本项目特征, 避免误杀) ───────────────────────────
 is_web_demo_pid() {
-  local cmd
-  cmd="$(ps -p "$1" -o command= 2>/dev/null || true)"
-  [[ "$cmd" == *node*server.js* ]]
+  local pid="$1"
+  local cmd cwd
+  # 特征一(主): 命令行含 node...server.js
+  cmd="$(ps -p "$pid" -o command= 2>/dev/null || true)"
+  if [[ "$cmd" == *node*server.js* ]]; then
+    return 0
+  fi
+  # 特征二(兜底): 进程工作目录位于本项目 web-demo 下。
+  # 受限执行环境可能拒绝 /bin/ps(读到空命令行), 此时用 lsof 读 cwd 判定归属。
+  # 注意: -Fn 行以 n 开头输出路径, 需 sed -n 只保留替换行;
+  # cwd 可能恰好是目录本身(无尾斜杠), 故给取到的路径补 / 再做前缀比对。
+  cwd="$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | tail -1)"
+  [[ "$cwd"/ == "$PROJECT_ROOT/web-demo/"* ]]
 }
 
 web_pids_on_port() {
