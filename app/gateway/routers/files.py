@@ -133,3 +133,121 @@ async def list_dir(
     if path:
         parent_rel = str(FsPath(path).parent) if str(FsPath(path).parent) != "." else ""
     return FileListResponse(entries=entries, parent=parent_rel)
+
+
+# --- helpers used by read / write ---------------------------------------
+_TEXT_EXTS = {
+    ".md", ".markdown", ".txt", ".json", ".yaml", ".yml", ".toml", ".ini",
+    ".csv", ".tsv", ".sql", ".sh", ".bash", ".zsh", ".py", ".ipynb",
+    ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".vue", ".svelte",
+    ".css", ".scss", ".sass", ".less", ".html", ".htm", ".xml", ".env",
+    ".gitignore", ".gitattributes", ".editorconfig", "Makefile", "Dockerfile",
+    ".rb", ".go", ".rs", ".java", ".kt", ".swift", ".c", ".h", ".cpp", ".hpp",
+    ".lua", ".php", ".r", ".scala", ".dart", ".ex", ".exs", ".clj", ".cljs",
+    ".hs", ".ml", ".fs", ".zig",
+}
+
+
+def _looks_textual(path: FsPath) -> bool:
+    if path.suffix.lower() in _TEXT_EXTS:
+        return True
+    if path.name in {"Makefile", "Dockerfile", "Procfile", "Rakefile", "Gemfile"}:
+        return True
+    mime, _ = mimetypes.guess_type(path.name)
+    return bool(mime and mime.startswith("text/"))
+
+
+# --- endpoints ---------------------------------------------------------
+class FileContent(BaseModel):
+    content: str
+    mime: str | None
+
+
+class RawQuery(BaseModel):
+    thread_id: str
+    path: str
+
+
+@router.get("/read", response_model=FileContent)
+@_envelope_files_errors
+@require_permission("threads", "read")
+async def read_file(
+    request: Request,
+    thread_id: Annotated[str, Query(pattern=r"^[A-Za-z0-9_\-]{1,128}$")],
+    path: Annotated[str, Query(max_length=4096)],
+) -> FileContent:
+    target = _resolve_workspace_path(thread_id, path)
+    if not target.exists() or not target.is_file():
+        raise WorkspacePathError("file_not_found", "file not found", 404)
+    if not _looks_textual(target):
+        raise WorkspacePathError(
+            "binary_not_editable", "binary file — use /api/files/raw", 400
+        )
+    return FileContent(content=target.read_text(encoding="utf-8"), mime=mimetypes.guess_type(target.name)[0])
+
+
+@router.get("/raw")
+@_envelope_files_errors
+@require_permission("threads", "read")
+async def read_raw(
+    request: Request,
+    thread_id: Annotated[str, Query(pattern=r"^[A-Za-z0-9_\-]{1,128}$")],
+    path: Annotated[str, Query(max_length=4096)],
+):
+    from fastapi.responses import Response
+    target = _resolve_workspace_path(thread_id, path)
+    if not target.exists() or not target.is_file():
+        raise WorkspacePathError("file_not_found", "file not found", 404)
+    mime = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
+    return Response(content=target.read_bytes(), media_type=mime)
+
+
+class PathOnlyRequest(BaseModel):
+    thread_id: str = Field(pattern=r"^[A-Za-z0-9_\-]{1,128}$")
+    path: str = Field(min_length=1, max_length=4096)
+
+
+@router.post("/write")
+@_envelope_files_errors
+@require_permission("threads", "write")
+async def write_file(req: WriteRequest) -> dict:
+    target = _resolve_workspace_path(req.thread_id, req.path)
+    if not _looks_textual(target):
+        raise WorkspacePathError("not_text_file", "refusing to write non-text file", 400)
+    if len(req.content.encode("utf-8")) > 1_048_576:
+        raise WorkspacePathError("file_too_large", "max 1 MiB", 413)
+    parent = target.parent
+    if not parent.exists():
+        raise WorkspacePathError("parent_not_found", "parent directory does not exist", 400)
+    target.write_text(req.content, encoding="utf-8")
+    return {"ok": True, "size": target.stat().st_size}
+
+
+@router.post("/mkdir")
+@_envelope_files_errors
+@require_permission("threads", "write")
+async def mkdir(req: PathOnlyRequest) -> dict:
+    target = _resolve_workspace_path(req.thread_id, req.path)
+    try:
+        target.mkdir(parents=True, exist_ok=False)
+    except FileExistsError as exc:
+        raise WorkspacePathError("path_exists", "path already exists", 400) from exc
+    except FileNotFoundError as exc:
+        raise WorkspacePathError("parent_not_found", "parent directory does not exist", 400) from exc
+    return {"ok": True}
+
+
+@router.delete("/delete")
+@_envelope_files_errors
+@require_permission("threads", "delete")
+async def delete_path(req: PathOnlyRequest) -> dict:
+    target = _resolve_workspace_path(req.thread_id, req.path)
+    if target.is_dir():
+        if any(target.iterdir()):
+            raise WorkspacePathError("dir_not_empty", "directory not empty", 400)
+        target.rmdir()
+    elif target.exists():
+        target.unlink()
+    else:
+        raise WorkspacePathError("path_not_found", "path not found", 404)
+    return {"ok": True}

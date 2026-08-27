@@ -86,3 +86,56 @@ async def test_list_root_returns_entries(client):
     names = {e["name"] for e in body["entries"]}
     assert {"README.md", "src"} <= names
     assert body["parent"] is None
+
+
+@pytest.mark.asyncio
+async def test_read_text_returns_content(client):
+    r = await client.get("/api/files/read", params={"thread_id": THREAD, "path": "README.md"})
+    assert r.status_code == 200
+    assert r.json()["content"] == "# hello"
+
+
+@pytest.mark.asyncio
+async def test_write_then_read_roundtrip(client):
+    r = await client.post(
+        "/api/files/write",
+        json={"thread_id": THREAD, "path": "notes.txt", "content": "abc"},
+    )
+    assert r.status_code == 200, r.text
+    r2 = await client.get("/api/files/read", params={"thread_id": THREAD, "path": "notes.txt"})
+    assert r2.json()["content"] == "abc"
+
+
+@pytest.mark.asyncio
+async def test_write_rejects_binary_ext(client):
+    r = await client.post(
+        "/api/files/write",
+        json={"thread_id": THREAD, "path": "evil.exe", "content": "x"},
+    )
+    assert r.status_code == 400
+    assert r.json()["error"]["code"] == "not_text_file"
+
+
+@pytest.mark.asyncio
+async def test_write_rejects_parent_missing(client):
+    r = await client.post(
+        "/api/files/write",
+        json={"thread_id": THREAD, "path": "missing/sub/x.txt", "content": "x"},
+    )
+    assert r.status_code == 400
+    assert r.json()["error"]["code"] == "parent_not_found"
+
+
+@pytest.mark.asyncio
+async def test_mkdir_and_delete(client):
+    r = await client.post(
+        "/api/files/mkdir",
+        json={"thread_id": THREAD, "path": "newdir/sub"},
+    )
+    assert r.status_code == 200, r.text
+    r = await client.request(
+        "DELETE",
+        "/api/files/delete",
+        json={"thread_id": THREAD, "path": "newdir/sub"},
+    )
+    assert r.status_code == 200

@@ -29,6 +29,7 @@ from app.gateway.routers import (
     datasources,
     features,
     feedback,
+    files,
     github_webhooks,
     input_polish,
     integrations,
@@ -666,6 +667,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Workspace registry API (DSH dsh-workspace alignment)
     app.include_router(workspaces.router)
+
+    # Files API — per-thread workspace browsing & editing (Better Sidebar web)
+    app.include_router(files.router)
 
     # Thread Runs API (LangGraph Platform-compatible runs lifecycle)
     app.include_router(thread_runs.router)
