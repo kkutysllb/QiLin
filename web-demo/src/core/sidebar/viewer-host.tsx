@@ -1,14 +1,15 @@
 "use client";
-import { fileViewerRegistry } from "./viewer-registry";
-import { sidebarPanelRegistry } from "./panel-registry";
-import type { FileViewerProps } from "./protocol";
 import { FileViewerTab } from "@/components/better-sidebar/panels/FileViewerTab";
 import { CodeMirrorViewer } from "@/components/better-sidebar/viewers/CodeMirrorViewer";
 import { HtmlViewer } from "@/components/better-sidebar/viewers/HtmlViewer";
 import { ImageViewer } from "@/components/better-sidebar/viewers/ImageViewer";
 import { MarkdownViewer } from "@/components/better-sidebar/viewers/MarkdownViewer";
 import { PdfViewer } from "@/components/better-sidebar/viewers/PdfViewer";
+
+import { sidebarPanelRegistry } from "./panel-registry";
+import type { FileViewerProps } from "./protocol";
 import type { FileEntryLike } from "./protocol";
+import { fileViewerRegistry } from "./viewer-registry";
 
 // Built-in viewers are statically linked to keep first viewer open fast;
 // extensions can still register additional viewers at runtime.

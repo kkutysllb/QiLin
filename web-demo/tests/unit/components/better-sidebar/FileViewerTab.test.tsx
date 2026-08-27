@@ -2,9 +2,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
 import { FileViewerTab } from "@/components/better-sidebar/panels/FileViewerTab";
-import { fileViewerRegistry } from "@/core/sidebar/viewer-registry";
 import { registerBuiltinViewers } from "@/core/sidebar/viewer-host";
+import { fileViewerRegistry } from "@/core/sidebar/viewer-registry";
 
 vi.mock("@/core/files/api", () => ({
   readFile: vi.fn().mockResolvedValue("# hi"),
