@@ -16,6 +16,7 @@ import {
   Settings2Icon,
   SparklesIcon,
   UsersIcon,
+  WorkflowIcon,
   WrenchIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -35,6 +36,7 @@ import { GeneralSettingsPage } from "./general-settings-page";
 import { McpSettingsPage } from "./mcp-settings-page";
 import { MemorySummarySettingsPage } from "./memory-summary-settings-page";
 import { ModelsSettingsPage } from "./models/models-settings-page";
+import { RuntimeSettingsPage } from "./runtime-settings-page";
 import { SkillModelsSettingsPage } from "./skill-models-settings-page";
 import { SkillSettingsPage } from "./skill-settings-page";
 import { SubagentsSettingsPage } from "./subagents-settings-page";
@@ -62,7 +64,8 @@ type SectionId =
   | "skillModels"
   | "skill"
   | "agents"
-  | "subagents";
+  | "subagents"
+  | "runtime";
 
 type SectionGroup = "personal" | "engine" | "agent" | "toolsData";
 
@@ -80,6 +83,7 @@ const SECTIONS: SectionDef[] = [
   { id: "skill", icon: SparklesIcon, groupKey: "agent" },
   { id: "mcp", icon: WrenchIcon, groupKey: "toolsData" },
   { id: "dataSources", icon: DatabaseIcon, groupKey: "toolsData" },
+  { id: "runtime", icon: WorkflowIcon, groupKey: "engine" },
   { id: "models", icon: CpuIcon, groupKey: "engine" },
   { id: "dataPersistence", icon: HardDriveIcon, groupKey: "engine" },
   { id: "memorySummary", icon: ScrollTextIcon, groupKey: "engine" },
@@ -269,6 +273,7 @@ export function SettingsView({
           <ScrollArea className="min-h-0 flex-1">
             <div className="mx-auto w-full max-w-4xl px-8 py-6">
               {active.id === "general" && <GeneralSettingsPage />}
+              {active.id === "runtime" && <RuntimeSettingsPage />}
               {active.id === "models" && <ModelsSettingsPage />}
               {active.id === "memorySummary" && <MemorySummarySettingsPage />}
               {active.id === "tokenUsageBudget" && <TokenUsageBudgetSettingsPage />}

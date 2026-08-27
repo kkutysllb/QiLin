@@ -522,6 +522,7 @@ export interface Translations {
       skillModels: string;
       agents: string;
       subagents: string;
+      runtime: string;
     };
     view: {
       backToApp: string;
@@ -548,6 +549,7 @@ export interface Translations {
         skillModels: string;
         agents: string;
         subagents: string;
+        runtime: string;
       };
       summaries: {
         general: string;
@@ -564,6 +566,7 @@ export interface Translations {
         skillModels: string;
         agents: string;
         subagents: string;
+        runtime: string;
       };
     };
     backend: {

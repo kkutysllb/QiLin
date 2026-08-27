@@ -595,6 +595,7 @@ export const enUS: Translations = {
       skillModels: "Skill Models",
       agents: "Agents",
       subagents: "Sub-agents",
+      runtime: "Runtime",
     },
     view: {
       backToApp: "Back to app",
@@ -621,6 +622,7 @@ export const enUS: Translations = {
         skillModels: "Skill Models",
         agents: "Agents",
         subagents: "Sub-agents",
+        runtime: "Runtime",
       },
       summaries: {
         general: "Account info, password, theme, language, log level, and YAML editor.",
@@ -637,6 +639,7 @@ export const enUS: Translations = {
         skillModels: "Desktop skill model API credential management.",
         agents: "Manage custom agents, enable/disable the agent API.",
         subagents: "Configure sub-agent global parameters and multi-agent orchestration.",
+        runtime: "Interactive visualization of the QiLin runtime architecture.",
       },
     },
     backend: {

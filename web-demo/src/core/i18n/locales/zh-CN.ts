@@ -581,6 +581,7 @@ export const zhCN: Translations = {
       skillModels: "技能模型",
       agents: "代理",
       subagents: "子代理与编排",
+      runtime: "运行时",
     },
     view: {
       backToApp: "返回应用",
@@ -607,6 +608,7 @@ export const zhCN: Translations = {
         skillModels: "技能模型",
         agents: "代理",
         subagents: "子代理与编排",
+        runtime: "运行时",
       },
       summaries: {
         general: "账户信息、密码、主题、语言偏好、日志级别与 YAML 配置编辑器。",
@@ -623,6 +625,7 @@ export const zhCN: Translations = {
         skillModels: "桌面端技能模型 API 凭证管理。",
         agents: "管理自定义代理、启用/禁用代理 API。",
         subagents: "配置子代理全局参数与多 Agent 编排模式。",
+        runtime: "QiLin 运行时架构可视化总览（可交互视图）。",
       },
     },
     backend: {

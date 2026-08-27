@@ -111,6 +111,7 @@
 | 8.8 | 回归基线 | ✅ | vitest 264 pass / 1 fail（既有 thread-stream-cache worker OOM）；`pnpm build` 成功；tsc 零错误 |
 | 8.9 | workspace 不受影响 | ✅ | 生产构建下登录后侧边栏 header padding-top=8px（pt-10 移除修复保持有效），布局无异常 |
 | 8.10 | 质量评审整改 | ✅ | ink-low 提亮 #857c6c(WCAG AA≥4.5:1)；ScalePattern useId 防冲突；hero 改 Button asChild 消除嵌套交互元素 |
+| 8.11 | 设置页「运行时」架构图菜单 | ✅ | archify 导出 HTML 字节级原样拷贝至 `public/architecture/`；设置-引擎组新增「运行时」首位菜单，iframe 以 `?embed=1&theme=dark` 内嵌（隐藏其工具栏、交互完整）；tsc 零错 / vitest 264 pass / 浏览器走查深色主题与 UI 融合无裁切 |
 
 截图存档：`.playwright-mcp/vi-{landing-1440,landing-390,login-1440}-v2.png`（kcoder-runtime 目录）。
 

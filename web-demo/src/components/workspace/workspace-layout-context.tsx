@@ -41,7 +41,8 @@ export type SettingsSectionId =
   | "skillModels"
   | "skill"
   | "agents"
-  | "subagents";
+  | "subagents"
+  | "runtime";
 
 interface WorkspaceLayoutValue {
   rightPanelOpen: boolean;
