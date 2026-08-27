@@ -271,7 +271,13 @@ export function SettingsView({
             </div>
           </div>
           <ScrollArea className="min-h-0 flex-1">
-            <div className="mx-auto w-full max-w-4xl px-8 py-6">
+            {/* 运行时为沉浸式架构图, 放开 4xl 宽度约束; 表单类节维持窄栏可读性 */}
+            <div
+              className={cn(
+                "mx-auto w-full px-8 py-6",
+                active.id === "runtime" ? "max-w-none" : "max-w-4xl",
+              )}
+            >
               {active.id === "general" && <GeneralSettingsPage />}
               {active.id === "runtime" && <RuntimeSettingsPage />}
               {active.id === "models" && <ModelsSettingsPage />}
