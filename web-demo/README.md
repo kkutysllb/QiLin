@@ -16,6 +16,11 @@ cd web-demo && pnpm install
 cd .. && ./scripts/start-all.sh
 
 # 3. 打开 http://localhost:28080 完成首次初始化（或用已有账号登录）
+
+# 停止 / 状态 / 重启（gateway + web-demo 一起）
+./scripts/start-all.sh --stop
+./scripts/start-all.sh --status
+./scripts/start-all.sh --restart
 ```
 
 > 端口占用时报错退出（绝不杀已有进程）；如本机装有 KWorks 桌面应用
@@ -53,7 +58,8 @@ next.config rewrites 作为 fallback，但该路径会缓冲 SSE（流式退化�
 - `pnpm start` — 生产模式（需先 `pnpm build`）
 - `pnpm smoke` — 代理/认证/SSE 冒烟测试（期望 `✅ PASS`，SSE 首字节 < 500ms）
 - `pnpm typecheck` / `pnpm test` / `pnpm lint`
-- `./scripts/start-gateway.sh --stop|--status` — 网关停止 / 状态
+- `./scripts/start-all.sh --stop|--status|--restart` — 停止 / 状态 / 重启（gateway + web-demo）
+- `./scripts/start-gateway.sh --stop|--status` — 仅网关（PID 文件丢失时按端口 + 命令行特征兜底）
 
 ## 故障排查
 

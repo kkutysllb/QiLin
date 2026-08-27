@@ -78,7 +78,26 @@
 | 6.4 | server.js 健壮性 | ✅ | 端口校验/升级 socket 销毁/语义状态码（504/502） |
 | 6.5 | Next 缓存损坏恢复 | ✅ | 清 .next 冷重启即恢复（已记录 README 排障） |
 
-## 7. 未验收 / 已知限制（与上游一致或环境约束）
+## 7. 生命周期管理命令（2026-08-27 修复验收）
+
+> 背景：`start-all.sh` 曾无参数解析，`--stop` 被静默忽略并直接走启动流程
+> （用户实测"前后端整体重启了一遍"）。已重写为完整子命令并实测。
+
+| # | 项目 | 结果 | 证据 |
+|---|---|---|---|
+| 7.1 | `--help` | ✅ | 输出 usage，exit 0 |
+| 7.2 | 未知参数（`--bogus`） | ✅ | ❌ 报错 + usage，exit 1，端口进程不变（不再静默启动） |
+| 7.3 | `--status`（运行中） | ✅ | gateway PID + web-demo PID + 端口，exit 0 |
+| 7.4 | `--stop`（运行中） | ✅ | gateway 走 PID 文件；web-demo 无 PID 文件走端口+命令行兜底；双端口释放，exit 0 |
+| 7.5 | `--stop` 幂等 | ✅ | 再次执行输出"没有运行中的"，exit 0 |
+| 7.6 | `--status`（停止态） | ✅ | 双"未运行"，exit 0 |
+| 7.7 | `--restart` | ✅ | 先各停一次（无重复消息）→ gateway healthy → 首页 HTTP 200 |
+| 7.8 | web-demo PID 文件 | ✅ | `/tmp/qilin-web-demo.pid` 与 28080 监听进程一致 |
+| 7.9 | start-gateway.sh `--stop` 端口兜底 | ✅ | PID 文件丢失场景按"端口 + uvicorn/app.gateway.app 命令行特征"定位 |
+| 7.10 | 误杀防护 | ✅ | 停止只 kill 命令行匹配 `node*server.js` / `uvicorn` 的进程；陌生占用者只报告 |
+| 7.11 | `set -e` 健壮性 | ✅ | web_pids_on_port 显式 return 0（端口被陌生进程占用时 status/stop 不中断） |
+
+## 8. 未验收 / 已知限制（与上游一致或环境约束）
 
 - 交付物预览抽查了 HTML；XLSX/DOCX/PPTX/PDF 预览路径未逐一实测（上游组件未改动）
 - browser_* 工具组未启用（QiLin 主仓未装 playwright extra，README 已记录启用方法）

@@ -6,7 +6,8 @@
 #   ./scripts/start-gateway.sh 28083        # 前台,自定义端口
 #   ./scripts/start-gateway.sh --daemon     # 后台(用 nohup 脱离 session),默认端口
 #   ./scripts/start-gateway.sh --daemon 28083
-#   ./scripts/start-gateway.sh --stop       # 停掉后台运行的 gateway
+#   ./scripts/start-gateway.sh --stop       # 停掉后台运行的 gateway(PID 文件丢失时按端口+命令行兜底)
+#   ./scripts/start-gateway.sh --stop 28083 # 停掉自定义端口上的 gateway
 #   ./scripts/start-gateway.sh --status     # 查看 gateway 状态
 #
 # 依赖:
@@ -50,17 +51,40 @@ NC='\033[0m'
 
 # ── stop / status 子命令 ─────────────────────────────────────────────
 if [[ "$MODE" == "stop" ]]; then
+  STOPPED=0
   if [[ -f "$PID_FILE" ]]; then
     PID="$(cat "$PID_FILE")"
     if kill -0 "$PID" 2>/dev/null; then
       kill "$PID"
       echo -e "${GREEN}✓ Gateway (PID $PID) 已停止${NC}"
-      rm -f "$PID_FILE"
+      STOPPED=1
     else
       echo -e "${YELLOW}⚠ PID $PID 不存在,清理 PID 文件${NC}"
-      rm -f "$PID_FILE"
     fi
-  else
+    rm -f "$PID_FILE"
+  fi
+  # 等待已 kill 的进程释放端口(最多 5s), 避免兜底扫描对垂死进程重复 kill/重复报消息
+  if [[ "$STOPPED" -eq 1 ]]; then
+    for _ in $(seq 1 10); do
+      lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1 || break
+      sleep 0.5
+    done
+  fi
+  # 端口兜底: PID 文件丢失(如机器重启后残留进程)时, 按端口监听 + uvicorn 命令行特征定位
+  # (只杀命令行匹配 uvicorn/app.gateway.app 的进程, 陌生占用者只报告不杀)
+  while IFS= read -r PID; do
+    [[ -z "$PID" ]] && continue
+    CMD="$(ps -p "$PID" -o command= 2>/dev/null || true)"
+    if echo "$CMD" | grep -qE "uvicorn|app\.gateway\.app"; then
+      kill "$PID" 2>/dev/null || true
+      echo -e "${GREEN}✓ Gateway (PID $PID, 端口 $PORT) 已停止${NC}"
+      STOPPED=1
+    else
+      echo -e "${YELLOW}⚠ 端口 $PORT 被 PID $PID 占用但非 gateway 进程, 不处理:${NC}"
+      echo "    $CMD"
+    fi
+  done < <(lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null || true)
+  if [[ "$STOPPED" -eq 0 ]]; then
     echo -e "${YELLOW}⚠ 没有运行中的 gateway${NC}"
   fi
   exit 0
@@ -143,9 +167,9 @@ if [[ "$MODE" == "daemon" ]]; then
   if kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
     echo -e "${GREEN}✓ 启动成功(PID $(cat "$PID_FILE"))${NC}"
     echo ""
-    echo "查看日志: ${CYAN}tail -f $LOG_FILE${NC}"
-    echo "停止服务: ${CYAN}$0 --stop${NC}"
-    echo "查看状态: ${CYAN}$0 --status${NC}"
+    echo -e "查看日志: ${CYAN}tail -f $LOG_FILE${NC}"
+    echo -e "停止服务: ${CYAN}$0 --stop${NC}"
+    echo -e "查看状态: ${CYAN}$0 --status${NC}"
   else
     echo -e "${RED}❌ 启动失败,请查看日志: $LOG_FILE${NC}"
     cat "$LOG_FILE" | tail -20
