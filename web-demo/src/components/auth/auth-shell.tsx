@@ -46,12 +46,17 @@ export function AuthShell({
             className="h-0.5 bg-gradient-to-r from-transparent via-ql-gold-500 to-transparent"
           />
           <div className="space-y-6 p-8">
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-1 text-center">
+              {/* 品牌与页面标题同一行(细竖线分隔)，整体居中；副标题独占一行 */}
+              <div className="flex items-center justify-center gap-2">
                 <QilinSeal size={18} />
                 <span className="font-serif text-xl text-ql-ink-hi">QiLin</span>
+                <span
+                  aria-hidden="true"
+                  className="mx-0.5 h-4 w-px bg-gradient-to-b from-transparent via-white/25 to-transparent"
+                />
+                <h1 className="text-base font-semibold text-ql-ink-hi">{title}</h1>
               </div>
-              <h1 className="text-base font-semibold text-ql-ink-hi">{title}</h1>
               {subtitle && <p className="text-sm text-ql-ink-mid">{subtitle}</p>}
             </div>
             {children}
