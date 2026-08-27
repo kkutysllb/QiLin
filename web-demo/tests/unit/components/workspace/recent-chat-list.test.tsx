@@ -102,6 +102,7 @@ vi.mock("@/core/workspaces/hooks", () => ({
   useArchiveThreads: () => ({ mutateAsync: vi.fn() }),
   useAttachThread: () => ({ mutateAsync: vi.fn() }),
   useCreateWorkspace: () => ({ mutateAsync: vi.fn(async () => ({ id: "ws-new" })) }),
+  usePickDirectory: () => ({ mutateAsync: vi.fn(async () => null) }),
   useDeleteWorkspace: () => ({ mutateAsync: vi.fn() }),
   useDetachThread: () => ({ mutateAsync: vi.fn() }),
   useRenameWorkspace: () => ({ mutateAsync: vi.fn() }),
