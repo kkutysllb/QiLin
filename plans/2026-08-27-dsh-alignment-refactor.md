@@ -67,8 +67,20 @@
 
 ## 2. QiLin 现状（待子代理报告回填）
 
-### 2.1 后端（qilin/ + app/）
-TBD-REQUESTED：线程生命周期 / 数据目录全景 / run context(user_workspace_path) 接收与使用 / 进程 cwd / 运行循环与 orchestration / 沙箱现状 / 迁移敏感查询清单。
+### 2.1 后端（qilin/ + app/）—— 已取证（子代理 08caf106 + 主线复核）
+
+**线程生命周期**：无独立 `/api/threads` CRUD；线程经 `app/gateway/routers/runs.py:38-70` 的 SSE 流式接口在 `start_run()`（`app/gateway/services.py:1204-1388`）中隐式物化——从 `config.configurable.thread_id` 取 ID（缺省生成 UUID），写 threads_meta 首行 + RunRow（部分唯一索引保证每线程一个 pending/running）+ `asyncio.create_task(worker)`。运行循环在 `qilin/runtime/runs/worker.py:568-624`（bridge/manager/context/graph input/checkpoint/journal），RunManager 有心跳与孤儿恢复。
+
+**引擎已有每线程数据目录**：`.qilin/threads/{thread_id}/user-data/{workspace,uploads,outputs}`（`qilin/config/paths.py:104-128`），middleware 注入 ThreadDataState 三路径（`qilin/agents/middlewares/thread_data_middleware.py:81-118`），sandbox 把 `/mnt/user-data/workspace/*` 映射进去、shell 命令以字符串前置 `cd <workspace> &&`（`qilin/sandbox/tools.py:1302-1314`）。**这是暂存区概念，非 DSH「真实外部项目目录」** —— 与注册表分层并存，边界写入 §3.7。
+
+**关键更正**：`user_workspace_path` 在后端 grep 为零命中——它是纯前端状态（threads-api 测试锁定的是前端类型形状）。前端传的 context 到 LangGraph config 之间该字段被丢弃。→ 重设计可自由定义新契约而不破坏后端；旧字段仅作前端兼容读取。
+
+**权限现状**：非全放行但分散——run 级 thread ownership 校验（services.py:1214-1240）、ID 字符集白名单（paths.py:27-37）、ACP workspace 写拒绝（sandbox/tools.py:888-899）、LocalSandbox 杀进程组超时（local_sandbox.py:556-632）。无 DSH 式 read-only/workspace-write 模位 → 沙箱事件化先做记录+折叠层（§0 裁剪理由成立）。
+
+**编排现状**：multi 模式 orchestrator+worker（tests/test_mode_switch.py:128-149）、subagent 并发/失败/共识矩阵（test_orchestration_patterns.py:51-100）——goal 轮次驱动（P6）挂 run worker 的 idle 终态边。
+
+**迁移敏感点清单**（子代理）：所有按 thread_id 查询 runs/threads_meta/checkpoints 的路径不受影响（加列不改键）；SSE stream/wait/cancel 路由按线程语义照旧；run 唯一约束按 thread 而非 workspace（同工作区多线程天然允许）；workspace_sessions 无外键 → 孤儿靠业务修剪（已实现 _prune_account）。
+
 
 ### 2.2 前端（web-demo）
 TBD-REQUESTED：侧边栏渲染链与数据 hook / 线程创建流 / kworks.* localStorage 全景 / 布局上下文 / drag-drop 现状 / 命令面板注册。
@@ -124,10 +136,10 @@ CREATE TABLE goals (
 );
 ```
 
-### 3.2 线程创建流变更
-- `POST /api/threads` 请求体可选 `workspace_id` 或 `cwd`（二选一）；服务端 realpath 归一后**一次性写入 threads.cwd，此后无更新路径**（不提供修改 API）。
-- 无参创建 → cwd=NULL，前端归类 Ungrouped（沿用现状语义的显式化）。
-- 响应携带完整 thread 头（含 cwd），前端不再自行维护 per-thread 路径本地存储。
+### 3.2 线程 cwd 捕获（依后端实证修正）
+- 无独立创建 API → cwd 在 **`start_run()` 首次物化 threads_meta 行时一次性写入**：运行请求 body 的 `config.configurable.workspace_id`（推荐，指向注册表实体）→ 服务端解析 canonical path 落 threads_meta.cwd；此后无更新路径。
+- 请求未带 workspace_id → cwd=NULL（Ungrouped）。注册表 attach 由服务端在新线程落行后自动执行（cwd 已验证相等）。
+- 兼容：已删除的输入框 selector 曾维护的 `user_workspace_path` 前端字段退役；本地存储 `kworks.thread-workspace-path.*` 冻结只读一个版本周期（M3）。
 
 ### 3.3 run context 契约保持
 - `user_workspace_path` 字段名不变（测试锁定的原因）——语义从「前端临时传」变为「后端 threads.cwd 的影子输出」；过渡期前端缺省不传时由后端以 threads.cwd 补齐。
@@ -157,6 +169,10 @@ GET    /api/threads/{tid}/goal        # GoalView（含 rounds_started；activati
 - 续跑投递：复用现有 chat 补全通道，以 `<goal_round>` 系统包裹消息注入（模板逐字对齐 DSH prompt.ts）。
 - 轮次记账：只有 driver 注入的消息递增 rounds_started；人在循环中的发言零消耗。
 - 安全阀：连续 3 轮 blocked 门槛（`GOAL_BLOCK_AFTER_ROUNDS` 配置）；重启后 goals 表相位保留但 driver 不武装——需人类在 UI 按 Resume 才续跑（activation 位保存在 gateway 进程内存字典）。
+### 3.7 概念边界：引擎暂存区 vs 注册表工作区（后端取证后新增）
+- `.qilin/threads/{tid}/user-data/workspace` = 引擎沙箱暂存区（产物/上传/输出落点，挂载 `/mnt/user-data`）——**不动**。
+- 注册表工作区 = 真实外部目录的分组与授权锚点（DSH 语义）。P1-P2 阶段仅承担**归组与 UI**；授权接线（sandbox 增发真实目录读写）留待 §0 jobs/subagent 同批后续。
+- 命名纪律：代码中引擎侧沿用 `workspace_path`（既有），注册表侧新名 `registry workspace` / 表前缀 `workspace_*` 已就位。
 
 ## 4. 平滑迁移方案（.qilin 零破坏）
 
