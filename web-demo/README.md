@@ -86,3 +86,13 @@ next.config rewrites 作为 fallback，但该路径会缓冲 SSE（流式退化�
 ## 验收
 
 验收清单见 `docs/web-demo-acceptance-checklist.md`。
+
+## Better Sidebar (right panel)
+
+A multi-tab right sidebar modeled on [DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar):
+files / markdown / HTML / image / PDF / code viewer tabs, with per-thread tab
+state persisted via `/api/threads/{id}/sidebar-tabs`. Plugin protocol:
+`sidebarPanelRegistry.register({ id, title, render, ... })`.
+
+Toggle mode in Settings → General → Right panel mode (context | sidebar).
+On < 768px viewports the right sidebar collapses into a bottom sheet.
