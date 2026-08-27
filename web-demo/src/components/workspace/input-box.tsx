@@ -46,14 +46,6 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -242,9 +234,6 @@ export function InputBox({
   const { mutateAsync: pickDirectoryMutate } = usePickDirectory();
   const [accessMenuOpen, setAccessMenuOpen] = useState(false);
   const [wsMenuOpen, setWsMenuOpen] = useState(false);
-  const [wsDialogOpen, setWsDialogOpen] = useState(false);
-  const [wsNewPath, setWsNewPath] = useState("");
-  const [wsNewTitle, setWsNewTitle] = useState("");
   const workspaces = useMemo(() => workspaceTree?.workspaces ?? [], [workspaceTree]);
   const selectedWsId = context?.workspace_id;
 
@@ -266,15 +255,6 @@ export function InputBox({
     },
     [context, onContextChange, workspaces],
   );
-
-  const browseWorkspaceDirectory = useCallback(async () => {
-    try {
-      const path = await pickDirectoryMutate();
-      if (path) setWsNewPath(path);
-    } catch (error) {
-      console.error("pick directory failed", error);
-    }
-  }, [pickDirectoryMutate]);
 
   const currentSandboxMode = (
     context?.sandbox_mode === "read-only" ||
@@ -299,22 +279,17 @@ export function InputBox({
     [context, onContextChange],
   );
 
-  const submitNewWorkspace = useCallback(async () => {
-    const trimmed = wsNewPath.trim();
-    if (!trimmed) return;
+  // 添加工作区一步到位：菜单项点击 → 系统目录选择器 → 直接创建并选中。
+  const quickAddWorkspace = useCallback(async () => {
     try {
-      const created = await createWorkspaceMutate({
-        path: trimmed,
-        title: wsNewTitle.trim() || undefined,
-      });
-      setWsDialogOpen(false);
-      setWsNewPath("");
-      setWsNewTitle("");
+      const path = await pickDirectoryMutate();
+      if (!path) return;
+      const created = await createWorkspaceMutate({ path });
       pickWorkspace(created.id);
     } catch (error) {
       console.error("create workspace failed", error);
     }
-  }, [createWorkspaceMutate, pickWorkspace, wsNewPath, wsNewTitle]);
+  }, [createWorkspaceMutate, pickDirectoryMutate, pickWorkspace]);
   const hasText = (textInput.value ?? "").trim().length > 0;
   const promptRootRef = useRef<HTMLDivElement | null>(null);
 
@@ -656,7 +631,7 @@ export function InputBox({
                 {!context?.workspace_id && <CheckIcon className="ml-auto size-4" />}
                 {!context?.workspace_id && <div className="ml-auto size-4" />}
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setWsDialogOpen(true)}>
+              <DropdownMenuItem onSelect={() => void quickAddWorkspace()}>
                 <PlusIcon className="size-3.5" />
                 <span>{t.inputBox.addWorkspace}</span>
               </DropdownMenuItem>
@@ -975,43 +950,6 @@ export function InputBox({
           <div className="bg-background absolute right-0 -bottom-[17px] left-0 z-0 h-4"></div>
         )}
       </PromptInput>
-      <Dialog open={wsDialogOpen} onOpenChange={setWsDialogOpen}>
-        <DialogContent className="sm:max-w-[420px]">
-          <DialogHeader>
-            <DialogTitle>{t.inputBox.addWorkspace}</DialogTitle>
-            <DialogDescription>{t.inputBox.addWorkspacePath}</DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 py-2">
-            <div className="flex items-center gap-2">
-              <input
-                value={wsNewPath}
-                onChange={(e) => setWsNewPath(e.target.value)}
-                placeholder={t.inputBox.addWorkspacePath}
-                className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm outline-none"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void browseWorkspaceDirectory()}
-              >
-                {t.sidebar.browse}
-              </Button>
-            </div>
-            <input
-              value={wsNewTitle}
-              onChange={(e) => setWsNewTitle(e.target.value)}
-              placeholder={t.inputBox.addWorkspaceTitle}
-              className="border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm outline-none"
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setWsDialogOpen(false)}>
-              {t.common.cancel}
-            </Button>
-            <Button onClick={() => void submitNewWorkspace()}>{t.common.save}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

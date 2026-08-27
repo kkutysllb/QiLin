@@ -108,8 +108,6 @@ export const zhCN: Translations = {
   sandboxFullAccess: "完全访问",
   ungroupedOption: "未分组",
   addWorkspace: "添加工作区…",
-  addWorkspacePath: "绝对路径（如 /Users/me/projects/X）",
-  addWorkspaceTitle: "显示名称（可选）",
     placeholder: "今天我能为你做些什么？",
     createSkillPrompt:
       "我们一起用 skill-creator 技能来创建一个技能吧。先问问我希望这个技能能做什么。",
@@ -193,7 +191,6 @@ export const zhCN: Translations = {
     recentChats: "历史任务",
     workspacesSection: "工作区",
     searchWorkspaces: "搜索会话",
-    browse: "浏览…",
     sortBy: "排序方式",
     sortManual: "手动排序（注册表）",
     sortRecent: "最近更新",

@@ -360,9 +360,6 @@ export function RecentChatList() {
   });
   const { mutateAsync: createWorkspaceMutate } = useCreateWorkspace();
   const { mutateAsync: pickDirectoryMutate } = usePickDirectory();
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createPath, setCreatePath] = useState("");
-  const [createTitle, setCreateTitle] = useState("");
 
   const toggleSearch = useCallback(() => {
     setSearchOpen((open) => {
@@ -380,31 +377,18 @@ export function RecentChatList() {
     }
   }, []);
 
-  const submitCreateWorkspace = useCallback(async () => {
-    const trimmed = createPath.trim();
-    if (!trimmed) return;
+  // 添加工作区一步到位（DSH host.pickDirectory 语义）：点击即弹系统目录
+  // 选择器，选中后以目录 basename 作为默认标题直接创建；用户取消则静默返回。
+  const quickAddWorkspace = useCallback(async () => {
     try {
-      await createWorkspaceMutate({
-        path: trimmed,
-        title: createTitle.trim() || undefined,
-      });
+      const path = await pickDirectoryMutate();
+      if (!path) return;
+      await createWorkspaceMutate({ path });
       toast.success(t.sidebar.addWorkspace);
-      setCreateOpen(false);
-      setCreatePath("");
-      setCreateTitle("");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
     }
-  }, [createPath, createTitle, createWorkspaceMutate, t]);
-
-  const browseWorkspaceDirectory = useCallback(async () => {
-    try {
-      const path = await pickDirectoryMutate();
-      if (path) setCreatePath(path);
-    } catch (error) {
-      console.error("pick directory failed", error);
-    }
-  }, [pickDirectoryMutate]);
+  }, [createWorkspaceMutate, pickDirectoryMutate, t]);
 
   const orderedGroupsForTree = useMemo(() => {
     if (sortMode !== "recent") return inputs.groups;
@@ -740,29 +724,29 @@ export function RecentChatList() {
   return (
     <>
       <SidebarGroup className="pt-1">
-        <SidebarGroupLabel>
+        <SidebarGroupLabel className="text-sm text-foreground font-medium">
           <span className="truncate">{t.sidebar.workspacesSection}</span>
-          <span className="ml-auto flex items-center gap-0.5 text-muted-foreground">
+          <span className="ml-auto flex items-center gap-1 text-muted-foreground">
             <Button
               variant="ghost"
               size="icon"
-              className="size-6"
+              className="h-7 w-7"
               onClick={toggleSearch}
               aria-label={t.sidebar.searchWorkspaces}
               title={t.sidebar.searchWorkspaces}
             >
-              <Search className="size-3.5" />
+              <Search className="size-4" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-6"
+                  className="h-7 w-7"
                   aria-label={t.sidebar.sortBy}
                   title={t.sidebar.sortBy}
                 >
-                  <ArrowUpDown className="size-3.5" />
+                  <ArrowUpDown className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -779,12 +763,12 @@ export function RecentChatList() {
             <Button
               variant="ghost"
               size="icon"
-              className="size-6"
-              onClick={() => setCreateOpen(true)}
+              className="h-7 w-7"
+              onClick={() => void quickAddWorkspace()}
               aria-label={t.sidebar.addWorkspace}
               title={t.sidebar.addWorkspace}
             >
-              <SquarePlus className="size-3.5" />
+              <SquarePlus className="size-4" />
             </Button>
           </span>
         </SidebarGroupLabel>
@@ -844,57 +828,6 @@ export function RecentChatList() {
               {t.common.cancel}
             </Button>
             <Button onClick={handleRenameSubmit}>{t.common.save}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Dialog (工作区) */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{t.sidebar.addWorkspace}</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 py-4">
-            <div className="flex items-center gap-2">
-              <Input
-                autoFocus
-                value={createPath}
-                onChange={(e) => setCreatePath(e.target.value)}
-                placeholder={t.sidebar.addWorkspacePath}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isIMEComposing(e)) {
-                    e.preventDefault();
-                    void submitCreateWorkspace();
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void browseWorkspaceDirectory()}
-              >
-                {t.sidebar.browse}
-              </Button>
-            </div>
-            <Input
-              value={createTitle}
-              onChange={(e) => setCreateTitle(e.target.value)}
-              placeholder={t.sidebar.addWorkspaceTitle}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isIMEComposing(e)) {
-                  e.preventDefault();
-                  void submitCreateWorkspace();
-                }
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              {t.common.cancel}
-            </Button>
-            <Button onClick={() => void submitCreateWorkspace()}>
-              {t.common.save}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

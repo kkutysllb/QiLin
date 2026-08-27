@@ -92,8 +92,6 @@ export interface Translations {
   sandboxFullAccess: string;
   ungroupedOption: string;
   addWorkspace: string;
-  addWorkspacePath: string;
-  addWorkspaceTitle: string;
     placeholder: string;
     createSkillPrompt: string;
     createCronPrompt: string;
@@ -139,7 +137,6 @@ export interface Translations {
     recentChats: string;
     workspacesSection: string;
     searchWorkspaces: string;
-    browse: string;
     sortBy: string;
     sortManual: string;
     sortRecent: string;

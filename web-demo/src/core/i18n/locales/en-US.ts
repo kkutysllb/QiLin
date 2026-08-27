@@ -109,8 +109,6 @@ export const enUS: Translations = {
   sandboxFullAccess: "Full access",
   ungroupedOption: "Ungrouped",
   addWorkspace: "Add workspace…",
-  addWorkspacePath: "Absolute path (e.g. /Users/me/projects/X)",
-  addWorkspaceTitle: "Display name (optional)",
     placeholder: "How can I assist you today?",
     createSkillPrompt:
       "We're going to build a new skill step by step with `skill-creator`. To start, what do you want this skill to do?",
@@ -197,7 +195,6 @@ export const enUS: Translations = {
     recentChats: "Recent tasks",
     workspacesSection: "Workspaces",
     searchWorkspaces: "Search sessions",
-    browse: "Browse…",
     sortBy: "Sort by",
     sortManual: "Manual (registry order)",
     sortRecent: "Recently updated",
