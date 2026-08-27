@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@/styles/qilin-brand.css";
 import "katex/dist/katex.min.css";
 
 import type { Metadata } from "next";

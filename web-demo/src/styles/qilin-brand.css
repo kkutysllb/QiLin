@@ -1,0 +1,33 @@
+/* qilin-brand.css — QiLin 品牌 VI「玄金麒麟」token 层。
+   仅供 landing 与 auth 页面使用；不得在此改动全局 --background 等 shadcn 变量。 */
+:root {
+  /* 基底 */
+  --ql-bg: #0d0b09;
+  --ql-surface: #16130f;
+  --ql-raised: #1d1915;
+  /* 鎏金阶 */
+  --ql-gold-300: #f3dc9e;
+  --ql-gold-500: #c9a24a;
+  --ql-gold-700: #8f6f2e;
+  /* 三级墨色文字 */
+  --ql-ink-hi: #efe9df;
+  --ql-ink-mid: #a89f90;
+  --ql-ink-low: #6b6459;
+  /* 朱砂（印章 / 错误文案） */
+  --ql-cinnabar: #c3402f;
+  --ql-cinnabar-hi: #e0684f;
+}
+
+@theme inline {
+  --color-ql-bg: var(--ql-bg);
+  --color-ql-surface: var(--ql-surface);
+  --color-ql-raised: var(--ql-raised);
+  --color-ql-gold-300: var(--ql-gold-300);
+  --color-ql-gold-500: var(--ql-gold-500);
+  --color-ql-gold-700: var(--ql-gold-700);
+  --color-ql-ink-hi: var(--ql-ink-hi);
+  --color-ql-ink-mid: var(--ql-ink-mid);
+  --color-ql-ink-low: var(--ql-ink-low);
+  --color-ql-cinnabar: var(--ql-cinnabar);
+  --color-ql-cinnabar-hi: var(--ql-cinnabar-hi);
+}
