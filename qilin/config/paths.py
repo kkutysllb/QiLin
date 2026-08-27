@@ -286,6 +286,12 @@ class Paths:
         """
         return self.thread_dir(thread_id, user_id=user_id) / "user-data" / "workspace"
 
+    def user_workspace_dir(self, thread_id: str, *, user_id: str | None = None) -> Path:
+        """Alias for :meth:`sandbox_work_dir` — names the per-thread workspace
+        browse root explicitly for callers that should never touch uploads or
+        outputs. Identical implementation; provided for read-site clarity."""
+        return self.sandbox_work_dir(thread_id, user_id=user_id)
+
     def sandbox_uploads_dir(self, thread_id: str, *, user_id: str | None = None) -> Path:
         """
         Host path for user-uploaded files.
@@ -429,19 +435,6 @@ class Paths:
             raise ValueError("Access denied: path traversal detected")
 
         return actual
-
-
-class QiLinPaths(Paths):
-    """``Paths`` alias exposing the per-thread workspace browse root.
-
-    Better Sidebar web file browsing scopes every FS operation to one
-    thread's ``user-data/workspace`` directory; ``user_workspace_dir``
-    names that root explicitly so callers never touch uploads/outputs.
-    """
-
-    def user_workspace_dir(self, thread_id: str) -> Path:
-        """Thread workspace root: ``{base}/threads/{tid}/user-data/workspace``."""
-        return self.sandbox_work_dir(thread_id)
 
 
 # ── Singleton ────────────────────────────────────────────────────────────

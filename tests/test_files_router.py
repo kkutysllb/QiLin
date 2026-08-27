@@ -15,7 +15,7 @@ import qilin.persistence.models  # noqa: F401
 import app.gateway.routers.files as files_module
 from app.gateway.authz import AuthContext
 from app.gateway.deps import get_current_user
-from qilin.config.paths import QiLinPaths
+from qilin.config.paths import Paths
 from qilin.persistence.base import Base
 
 
@@ -28,9 +28,9 @@ async def client(tmp_path, monkeypatch):
     # Redirect QILIN_HOME so per-thread workspace path is inside tmp_path.
     home = tmp_path / ".qilin"
     home.mkdir()
-    monkeypatch.setattr("qilin.config.paths.QiLinPaths", lambda: QiLinPaths(home))
+    monkeypatch.setattr("qilin.config.paths.get_paths", lambda: Paths(home))
     # Pre-create thread workspace dir with a sample tree.
-    ws = QiLinPaths(home).user_workspace_dir(THREAD)
+    ws = Paths(home).user_workspace_dir(THREAD)
     ws.mkdir(parents=True)
     (ws / "README.md").write_text("# hello", encoding="utf-8")
     (ws / "src").mkdir()

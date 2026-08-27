@@ -55,9 +55,10 @@ def _thread_workspace_root(thread_id: str) -> FsPath:
         raise WorkspacePathError("thread_id_invalid", "thread_id has invalid characters", 404)
     if len(thread_id) > 128:
         raise WorkspacePathError("thread_id_invalid", "thread_id too long", 404)
-    # Late-bind through the module attribute so tests can monkeypatch
-    # qilin.config.paths.QiLinPaths to redirect the workspace root.
-    paths = qilin_paths.QiLinPaths()
+    # Use the module-level singleton accessor so tests can monkeypatch
+    # qilin.config.paths.get_paths to redirect the workspace root. Late-bind
+    # through the module attribute so the patch is actually observed here.
+    paths = qilin_paths.get_paths()
     root = paths.user_workspace_dir(thread_id).resolve()
     return root
 
