@@ -249,3 +249,28 @@ M4 回滚安全：迁移前 `.qilin/data/qilin.db.bak-*` 惯例延续，脚本�
 ## 6. 待决问题（不阻塞 P1-P3）
 - SQLite 并发写与 gateway 多实例（现单实例假设是否成立？）
 - threads.cwd 对历史非空情形是否需要 CLI 手动指定工具？（默认：一律 Ungrouped，人工 GUI 归组即可，量少）
+
+
+---
+
+## 7. 工作区体验第二轮（第 13 轮起，目标新开）
+
+### 7.1 侧边栏工作区节标题（截图一）—— ✅ 第 13 轮 (79f8b8f)
+- 「历史任务」之上新增独立节：标题 + 右侧三个线性图标按钮（搜索🔍 / 排序↕ / 添加工作区⊞）。
+- 搜索：就地过滤会话行（大小写不敏感），组名匹配也保留空组；排序：注册表手动序 ↔ 最近更新（组内最新成员降序，Ungrouped 钉尾、平局稳定），`kworks.workspace.sortMode` 持久化；添加：路径+可选标题 Dialog 走既有 create API。
+- `sortWorkspacesByRecent` 纯函数 + 2 单测；vitest 338/338。
+
+### 7.2 新任务输入区工作区下拉（截图二）—— ✅ 第 13 轮 (417ead4)
+- InputBox 仅 isNewThread 模式渲染 Folder+title+chevron 下拉：已登记工作区清单 / 未分组（清除选择）/「添加工作区…」内联 Dialog。
+- 选择走既有 context 管线：AgentThreadContext 新增 `workspace_id`，连同 `user_workspace_path` 一并 localStorage 记忆为新建默认。
+
+### 7.3 引擎目录机制对齐（分析定稿，实施待下轮）
+**取证**：前端 hooks 已向 runs.config.context 透传 user_workspace_path；但后端 grep 零消费——即链路在前端完备、后端断开。现状引擎锚点=每线程暂存区 `.qilin/threads/{tid}/user-data/workspace`（容器挂 `/mnt/user-data` + LocalSandbox `cd` 前缀），uploads/outputs 为文件上传下载落点。
+
+**决策（结论）**：
+1. 绑定了注册表工作区的线程：**真实外部目录成为执行主目录**（LocalSandbox cd 锚点直接指向 canonical_path）；未绑定线程/无注册表环境保持暂存区行为不变（平滑兼容）。
+2. `/mnt/user-data` **降级为兼容隔离层**：uploads/outputs 落点保留；workspace 子目录仅对未绑定线程作为默认 cd 目标。容器执行器 bind-mount 真实目录属运行时改造，单列依赖。
+3. 授权分档接入目标②的 sandbox_mode 折叠值：danger-full-access 维持现行为；workspace-write 允许写 cwd；read-only 注入只读约束。深度写监控后置。
+4. 落库闭环：start_run 消费 configurable 的 workspace_id/user_workspace_path → threads.cwd 创建时一次性写定（不可变语义）→ 归组投影天然生效。
+
+**验证面**：ThreadDataMiddleware 单测（优先级矩阵：绑定>暂存）、LocalSandbox cd 锚点用例、start_run cwd 落库断言、后端全量门禁。
