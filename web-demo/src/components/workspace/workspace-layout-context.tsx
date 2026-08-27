@@ -13,7 +13,6 @@ import {
 const RIGHT_PANEL_KEY = "kworks.workspace.rightPanelOpen";
 const RIGHT_PANEL_WIDTH_KEY = "kworks.workspace.rightPanelWidth";
 const RIGHT_PANEL_MODE_KEY = "kworks.workspace.rightPanelMode";
-const HISTORY_KEY = "kworks.workspace.historyCollapsed";
 const SECTIONS_KEY = "kworks.workspace.panelSections";
 
 const RIGHT_PANEL_MIN_WIDTH = 280;
@@ -56,8 +55,6 @@ interface WorkspaceLayoutValue {
   setRightPanelWidth: (width: number) => void;
   rightPanelMode: RightPanelMode;
   setRightPanelMode: (mode: RightPanelMode) => void;
-  historyCollapsed: boolean;
-  toggleHistory: () => void;
   isSectionCollapsed: (id: PanelSectionId) => boolean;
   toggleSection: (id: PanelSectionId) => void;
   /** 设置全屏视图状态。 */
@@ -124,7 +121,6 @@ export function WorkspaceLayoutProvider({
   const [rightPanelOpen, setRightPanelOpenState] = useState(false);
   const [rightPanelWidth, setRightPanelWidthState] = useState(RIGHT_PANEL_DEFAULT_WIDTH);
   const [rightPanelMode, setRightPanelModeState] = useState<RightPanelMode>("context");
-  const [historyCollapsed, setHistoryCollapsed] = useState(false);
   const [sections, setSections] = useState<Record<PanelSectionId, boolean>>({
     todos: false,
     subagents: false,
@@ -149,7 +145,6 @@ export function WorkspaceLayoutProvider({
   useEffect(() => {
     setRightPanelOpenState(readBoolean(RIGHT_PANEL_KEY, false));
     setRightPanelModeState(readMode());
-    setHistoryCollapsed(readBoolean(HISTORY_KEY, false));
     setSections(readSections());
     try {
       const raw = localStorage.getItem(RIGHT_PANEL_WIDTH_KEY);
@@ -202,17 +197,6 @@ export function WorkspaceLayoutProvider({
     [rightPanelOpen, setRightPanelOpen],
   );
 
-  const toggleHistory = useCallback(() => {
-    setHistoryCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(HISTORY_KEY, String(next));
-      } catch {
-        /* ignore */
-      }
-      return next;
-    });
-  }, []);
 
   const isSectionCollapsed = useCallback(
     (id: PanelSectionId) => sections[id] ?? false,
@@ -240,8 +224,6 @@ export function WorkspaceLayoutProvider({
       setRightPanelWidth,
       rightPanelMode,
       setRightPanelMode,
-      historyCollapsed,
-      toggleHistory,
       isSectionCollapsed,
       toggleSection,
       settingsOpen,
@@ -257,8 +239,6 @@ export function WorkspaceLayoutProvider({
       setRightPanelWidth,
       rightPanelMode,
       setRightPanelMode,
-      historyCollapsed,
-      toggleHistory,
       isSectionCollapsed,
       toggleSection,
       settingsOpen,

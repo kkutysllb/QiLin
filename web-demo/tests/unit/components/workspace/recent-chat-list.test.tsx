@@ -173,10 +173,10 @@ describe("RecentChatList 工作区分组渲染", () => {
     expect(looseHeader.className).not.toContain("bg-muted/60");
   });
 
-  test("历史段折叠时只保留标题条", async () => {
-    localStorage.setItem("kworks.workspace.historyCollapsed", "true");
+  test("无「历史任务」顶层标签：工作区树直接铺开（DSH 对齐）", async () => {
     const view = render(<RecentChatList />, { wrapper: Wrapper });
-    await waitFor(() => expect(view.container.textContent).toContain("历史任务"));
-    expect(screen.queryByText("demo")).toBeNull();
+    await waitFor(() => expect(view.container.textContent).toContain("demo"));
+    // the legacy collapsible history header is gone
+    expect(screen.queryByText("历史任务")).toBeNull();
   });
 });

@@ -103,8 +103,6 @@ import {
   type GroupNode,
 } from "@/lib/workspace-tree";
 
-import { useWorkspaceLayout } from "./workspace-layout-context";
-
 function parseThreadIdFromPath(pathname: string | null): string {
   if (!pathname) return "new";
   const match = /\/chats\/([^/?#]+)/.exec(pathname);
@@ -255,7 +253,6 @@ export function RecentChatList() {
   const { t, locale } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
-  const { historyCollapsed, toggleHistory } = useWorkspaceLayout();
   // In the Electron desktop build, useParams() returns stale values from the
   // pre-rendered new.html RSC payload. Parse thread_id and agent_name from
   // the real URL pathname instead.
@@ -435,11 +432,6 @@ export function RecentChatList() {
           node.sessionCount > 0,
       );
   }, [groupNodes, searchText]);
-
-  const visibleCount = useMemo(
-    () => groupNodes.reduce((sum, g) => sum + g.sessionCount, 0),
-    [groupNodes],
-  );
 
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [renameThreadId, setRenameThreadId] = useState<string | null>(null);
@@ -734,88 +726,6 @@ export function RecentChatList() {
     ],
   );
 
-  // 历史会话段整体折叠：只显示标题条
-  if (historyCollapsed) {
-    return (
-      <>
-      <SidebarGroup className="pt-1">
-        <SidebarGroupLabel>
-          <span className="truncate">{t.sidebar.workspacesSection}</span>
-          <span className="ml-auto flex items-center gap-0.5 text-muted-foreground">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={toggleSearch}
-              aria-label={t.sidebar.searchWorkspaces}
-              title={t.sidebar.searchWorkspaces}
-            >
-              <Search className="size-3.5" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  aria-label={t.sidebar.sortBy}
-                  title={t.sidebar.sortBy}
-                >
-                  <ArrowUpDown className="size-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => changeSortMode("manual")}>
-                  {sortMode === "manual" ? "✓ " : ""}
-                  {t.sidebar.sortManual}
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => changeSortMode("recent")}>
-                  {sortMode === "recent" ? "✓ " : ""}
-                  {t.sidebar.sortRecent}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => setCreateOpen(true)}
-              aria-label={t.sidebar.addWorkspace}
-              title={t.sidebar.addWorkspace}
-            >
-              <SquarePlus className="size-3.5" />
-            </Button>
-          </span>
-        </SidebarGroupLabel>
-        {(searchOpen || searchText) && (
-          <SidebarGroupContent>
-            <Input
-              autoFocus
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder={t.sidebar.searchWorkspaces}
-              className="h-7 bg-muted/40 text-xs"
-            />
-          </SidebarGroupContent>
-        )}
-      </SidebarGroup>
-      <SidebarGroup className="pt-1">
-        <SidebarGroupLabel asChild className="cursor-pointer">
-          <button type="button" onClick={toggleHistory}>
-            <span className="truncate">{t.sidebar.recentChats}</span>
-            <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-              {visibleCount}
-            </span>
-            <span className="ml-1.5 text-muted-foreground">
-              <ChevronRight className="size-3.5" />
-            </span>
-          </button>
-        </SidebarGroupLabel>
-      </SidebarGroup>
-      </>
-    );
-  }
-
   return (
     <>
       <SidebarGroup className="pt-1">
@@ -880,17 +790,6 @@ export function RecentChatList() {
         )}
       </SidebarGroup>
       <SidebarGroup className="pt-1">
-        <SidebarGroupLabel asChild className="cursor-pointer">
-          <button type="button" onClick={toggleHistory}>
-            <span className="truncate">{t.sidebar.recentChats}</span>
-            <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-              {visibleCount}
-            </span>
-            <span className="ml-1.5 text-muted-foreground">
-              <ChevronDown className="size-3.5" />
-            </span>
-          </button>
-        </SidebarGroupLabel>
         <SidebarGroupContent className="group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0">
           <SidebarMenu>
             <div className="flex w-full flex-col gap-1">
