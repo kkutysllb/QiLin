@@ -42,7 +42,7 @@
 | H10 | scripts/check-workspace-constraints.ts:60 | '@deepseek-ai/dsh' 允许产物映射键 | '@qilin/cli' |
 | H11 | scripts/verify-dsh-package-licenses.spec.ts:33 | '@deepseek-ai/dsh' | '@qilin/cli' |
 
-> **H9 行号复核(S2 质量审查意见「:243 → :242」)**:经 git 实测,基线 3deb573^ 与现行 HEAD 的 families.spec.ts 中第三处包名引用均在 **:243**(`expect(releaseFamily('dsh').installedEntry)…` 行;:242 为 it 起始行),该更正意见不成立,**维持 :243 不变**,留痕备查。
+> **H9 行号复核(S2 质量审查意见「:243 → :242」)**:经 git 实测,基线 3deb573^ 与现行 HEAD 的 families.spec.ts 中第三处包名引用均在 **:243**(`expect(releaseFamily('dsh').installedEntry)…` 行;:242 为 it 起始行),该更正意见不成立,**维持 :243 不变**,留痕备查。实测命令:`git grep -n "'@deepseek-ai/dsh'" 3deb573^ -- scripts/release/families.spec.ts`(恰命中 3 行::72、:85、:243)。
 
 apps/cli 的 `@module` 注释、根与 apps/cli 的 README(中英)、packages/bundle/base/README(中英)及 .agents/notes 历史笔记中的裸名引用(合计 42 处 / 29 文件)已随 CLI 特例一并改为 `@qilin/cli`,不属残差。
 
@@ -60,10 +60,13 @@ apps/cli 的 `@module` 注释、根与 apps/cli 的 README(中英)、packages/bu
 | CLI 自标识字符串 | 28 处 | apps/cli/src:commander `.name`/`.description`、HELP_EXAMPLES、argument 帮助文本、错误消息、NAME 诊断前缀(dump-config/plugin/profile-boot)及注释命令名 |
 | 包内品牌错误前缀/输出 | 约 27 处 | app-boot profile.ts 错误消息与注释、web-app(opening 提示、URL 行、系统提示段)、headless(错误前缀、usage)、cmdline、acp-demo/jsonrpc-demo NAME、apps/web/package.json description、apps/cli/tsdown.config.ts |
 | 测试断言/探针同步 | 58 处 / 9 文件 | built-bin.e2e、web-browser-open.snapshot(URL 正则 `dsh web:`→`qilin web:`、`dsh browser-open:` 前缀)、smoke-real.e2e、windows-shell、headless-shutdown、source-launch.compat、web-app.spec、fixtures/open.mjs |
-| 快照同步 | 3 文件 | headless-profile/stderr.expected.txt(`dsh:`→`qilin:` 错误前缀)、acp skill-load/session.jsonl 与 apps/web skill-tool-row/ui.expected.md(SKILL.md 文本随源同步);README.i18n.yaml 双语 blob hash 重算 |
-| 品牌标题/生成器 | 6 处 | composition.md 标题、gen-doc-graphs.ts(标题+title map)、graph-atlas(中英)、根 README 首屏品牌段(中英)、AGENTS.md 首段 |
+| 快照同步 | 数据快照 3 个 + 测试代码快照(.snapshot.ts)3 个 | 数据快照:headless-profile/stderr.expected.txt(`dsh:`→`qilin:` 错误前缀)、acp skill-load/session.jsonl、apps/web skill-tool-row/ui.expected.md(SKILL.md 文本随源同步);测试代码快照:apps/cli/tests/web-browser-open.snapshot.ts、examples/acp-agent/tests/acp.snapshot.ts、examples/jsonrpc-agent/tests/sdk.snapshot.ts;README.i18n.yaml 双语 blob hash 重算仅 apps/cli 一对(S3 时点) |
+| 品牌标题/生成器 | 6 处 | composition.md 标题、gen-doc-graphs.ts(标题+title map)、graph-atlas(中英)、根 README 首屏品牌段(中文侧完整;英文 H1 `# DeepSeek Harness` 在 S3 初版遗漏,由引擎仓修复提交 6c7a8b1 补齐为 `# QiLin`,并中英对称补 fork 出处行)、AGENTS.md 首段 |
+| translation pairing 门禁重录 | 438 对基线 | 门禁自 S2 rescope 起漂移、S3 品牌改名再增(质量审查口径:S2 期 854 文件级 + S3 新增 74,合计 876 文件级 = 438 对 × 2,其中仅 apps/cli 一对曾随 S3 重录);已由引擎仓修复提交 6c7a8b1 以 `pnpm run verify-translation-pairing --write --all` 全量重录收敛,重录后 `pnpm run verify-translation-pairing` 实测 1003 对全查一致(exit 0),无内容真不同步残留 |
 
 变更合计:128 文件 / 395 行(8be4e61);`git diff --name-only | grep -c '^vendor/'` = 0。
+
+> **S3 计数口径(S4 复核用)**:总量以 `git show 8be4e61 --shortstat` 复核(实测 128 files changed, 395 insertions(+), 395 deletions(-))。分项计数(274 处/81 文件、58 处/9 文件、28 处、约 27 处等)为 S3 执行时按改动行人工归类的分项口径,与 git grep -o 全量口径不可直接相比——后者含未随 S3 改动的历史引用,如 `git grep -oE '(pnpm |npx )?dsh([ <]|$)' 8be4e61^ -- ':!vendor'` 实测 946 处 / 309 文件。S3 后命令调用残留以 `git grep -nE '(pnpm|npx) dsh\b' HEAD -- ':!vendor'` 实测为准(0 处);其余旧名残留按「其他登记」各条目口径跟踪。
 
 ### 顺延项(三条,含定案条件)
 
@@ -78,7 +81,7 @@ apps/cli 的 `@module` 注释、根与 apps/cli 的 README(中英)、packages/bu
 - **.agents/notes 历史档案**:旧短包名(`dsh-session`/`dsh-tools`/`dsh-mode` 等)约 495 处及历史命令 `pnpm dsh` 引用;属历史决策记录,按档案纪律不改写。
 - **manifest 数据键**:`dsh.profile`/`dsh.bundle`/`dsh.client` 及 `"dsh": { … }` manifest 节(含 apps/cli src、app-boot、scripts 校验器、测试 fixture、文档示例);属线上数据格式,S 计划数据格式阶段处置。
 - **env 前缀**:`DSH_HOME`/`DSH_SNAPSHOT`/`DSH_TELEMETRY_DISABLED`/`DSH_WEB_URL`/`DSH_TOOLS_MODE`/`DSH_BUILD_FACE`/`__DSH_BOOT__` 等(S7);apps/cli `loadLayeredEnv('dsh')` 的 env 层参数与 env 诊断前缀 `dsh:` 随 S7 一并定案,当前过渡态下 web 消息前缀已为 `qilin`、env 诊断前缀仍为 `dsh`。
-- **bundle 名域**:`dsh-base`/`dsh-web-app`/`dsh-headless`/`dsh-client-hmr` 链接文本与 mermaid 节点 ID(`plugin_dsh_base_*`、composition.md、module-graph)、示例插件名 `dsh-hello-plugin`、badge 资产(`dsh-badge`/`skill-badge`)与 `.dsh/` 用户目录名;待 bundle/资产命名定案。
+- **bundle 名域**:`dsh-base`/`dsh-web-app`/`dsh-headless`/`dsh-client-hmr` 链接文本与 mermaid 节点 ID(`plugin_dsh_base_*`、composition.md、module-graph)、示例插件名 `dsh-hello-plugin`、badge 资产(`dsh-badge`/`skill-badge`)与 `.dsh/` 用户目录名;**generator 旧短名扩围(S3 质量审查补登记)**:scripts/gen-doc-graphs.ts 文案 4 处——:156 `dsh-typert-loader`、:366 `dsh-agent`、:486 `subagent-dsh-sdk`、:1327 `dsh-compaction-basic`,及其对应生成文档(graph-atlas 等)。定案条件:与 bundle 名域一起在发布家族改名时批量处置。
 - **web UI 前端品牌**:`DEFAULT_CLIENT_TITLE = 'DSH Local Build'`(apps/web/vite.config.ts)及前端 UI 品牌字符串;牵动 web 快照集,待 web 前端阶段处置。
 - **杂项**:`dsh-llm-mock-server`(llm-mock-server usage 文本,无对应 bin 字段)、translation-prompt v4 快照内嵌的旧版 README(见 R1/R2 同文件)、`BRAND_GUIDELINES.md/.zh` 与 `CONTRIBUTING.md/.zh` 的 DeepSeek Harness 品牌句(上游品牌/社区文档)、THIRD_PARTY_NOTICES 之外的第三方声明、测试 fixture 内部标识(`dsh>` prompt、tmpdir 前缀 `dsh-*`)。
 
