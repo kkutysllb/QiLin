@@ -59,6 +59,14 @@ export function getWorkspaceTree(): Promise<WorkspaceTreeResponse> {
   return call<WorkspaceTreeResponse>("GET", "/api/workspaces/tree");
 }
 
+/** 宿主弹原生目录选择器（DSH host.pickDirectory 对齐）；取消返回 null。 */
+export function pickDirectory(): Promise<string | null> {
+  return call<{ path: string | null; cancelled?: boolean; error?: string }>(
+    "POST",
+    "/api/fs/pick-directory",
+  ).then((r) => (r.cancelled ? null : r.path));
+}
+
 export function createWorkspace(
   path: string,
   title?: string,

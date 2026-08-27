@@ -78,6 +78,7 @@ import {
   formatSmartTime,
 } from "@/core/utils/datetime";
 import {
+  usePickDirectory,
   useArchiveThreads,
   useAttachThread,
   useCreateWorkspace,
@@ -358,6 +359,7 @@ export function RecentChatList() {
     }
   });
   const { mutateAsync: createWorkspaceMutate } = useCreateWorkspace();
+  const { mutateAsync: pickDirectoryMutate } = usePickDirectory();
   const [createOpen, setCreateOpen] = useState(false);
   const [createPath, setCreatePath] = useState("");
   const [createTitle, setCreateTitle] = useState("");
@@ -394,6 +396,15 @@ export function RecentChatList() {
       toast.error(error instanceof Error ? error.message : String(error));
     }
   }, [createPath, createTitle, createWorkspaceMutate, t]);
+
+  const browseWorkspaceDirectory = useCallback(async () => {
+    try {
+      const path = await pickDirectoryMutate();
+      if (path) setCreatePath(path);
+    } catch (error) {
+      console.error("pick directory failed", error);
+    }
+  }, [pickDirectoryMutate]);
 
   const orderedGroupsForTree = useMemo(() => {
     if (sortMode !== "recent") return inputs.groups;
@@ -844,18 +855,27 @@ export function RecentChatList() {
             <DialogTitle>{t.sidebar.addWorkspace}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-4">
-            <Input
-              autoFocus
-              value={createPath}
-              onChange={(e) => setCreatePath(e.target.value)}
-              placeholder={t.sidebar.addWorkspacePath}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isIMEComposing(e)) {
-                  e.preventDefault();
-                  void submitCreateWorkspace();
-                }
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                autoFocus
+                value={createPath}
+                onChange={(e) => setCreatePath(e.target.value)}
+                placeholder={t.sidebar.addWorkspacePath}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isIMEComposing(e)) {
+                    e.preventDefault();
+                    void submitCreateWorkspace();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void browseWorkspaceDirectory()}
+              >
+                {t.sidebar.browse}
+              </Button>
+            </div>
             <Input
               value={createTitle}
               onChange={(e) => setCreateTitle(e.target.value)}

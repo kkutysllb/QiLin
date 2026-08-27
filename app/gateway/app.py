@@ -30,6 +30,7 @@ from app.gateway.routers import (
     features,
     feedback,
     files,
+    fs_picker,
     github_webhooks,
     goals,
     input_polish,
@@ -670,6 +671,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Workspace registry API (DSH dsh-workspace alignment)
     app.include_router(workspaces.router)
+
+    # Native directory picker (DSH host.pickDirectory alignment)
+    app.include_router(fs_picker.router)
 
     # Sandbox-mode knob events (DSH sandbox/mode alignment — record + fold)
     app.include_router(sandbox_mode.router)

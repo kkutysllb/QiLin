@@ -42,6 +42,11 @@ export function useCreateWorkspace() {
   );
 }
 
+/** 宿主原生目录选择器（DSH host.pickDirectory 对齐）；取消返回 null。 */
+export function usePickDirectory() {
+  return useMutation({ mutationFn: () => api.pickDirectory() });
+}
+
 export function useRenameWorkspace() {
   return useInvalidatingMutation((input: { workspaceId: string; title: string }) =>
     api.renameWorkspace(input.workspaceId, input.title),

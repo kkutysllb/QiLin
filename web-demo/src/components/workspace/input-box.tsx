@@ -65,7 +65,11 @@ import { useModels } from "@/core/models/hooks";
 import type { AgentThreadContext } from "@/core/threads";
 import type { QueuedMessage } from "@/core/threads/queue-store";
 import { textOfMessage } from "@/core/threads/utils";
-import { useWorkspaceTree, useCreateWorkspace } from "@/core/workspaces/hooks";
+import {
+  useWorkspaceTree,
+  useCreateWorkspace,
+  usePickDirectory,
+} from "@/core/workspaces/hooks";
 import { cn } from "@/lib/utils";
 
 import {
@@ -234,6 +238,7 @@ export function InputBox({
   // ── 工作区选择器（新任务，DSH 截图二） ──────────────────────────
   const { data: workspaceTree } = useWorkspaceTree();
   const { mutateAsync: createWorkspaceMutate } = useCreateWorkspace();
+  const { mutateAsync: pickDirectoryMutate } = usePickDirectory();
   const [wsMenuOpen, setWsMenuOpen] = useState(false);
   const [wsDialogOpen, setWsDialogOpen] = useState(false);
   const [wsNewPath, setWsNewPath] = useState("");
@@ -263,6 +268,15 @@ export function InputBox({
     },
     [context, onContextChange, workspaces],
   );
+
+  const browseWorkspaceDirectory = useCallback(async () => {
+    try {
+      const path = await pickDirectoryMutate();
+      if (path) setWsNewPath(path);
+    } catch (error) {
+      console.error("pick directory failed", error);
+    }
+  }, [pickDirectoryMutate]);
 
   const submitNewWorkspace = useCallback(async () => {
     const trimmed = wsNewPath.trim();
@@ -884,12 +898,21 @@ export function InputBox({
             <DialogDescription>{t.inputBox.addWorkspacePath}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
-            <input
-              value={wsNewPath}
-              onChange={(e) => setWsNewPath(e.target.value)}
-              placeholder={t.inputBox.addWorkspacePath}
-              className="border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm outline-none"
-            />
+            <div className="flex items-center gap-2">
+              <input
+                value={wsNewPath}
+                onChange={(e) => setWsNewPath(e.target.value)}
+                placeholder={t.inputBox.addWorkspacePath}
+                className="border-input bg-background focus-visible:ring-ring h-9 w-full rounded-md border px-3 text-sm outline-none"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void browseWorkspaceDirectory()}
+              >
+                {t.sidebar.browse}
+              </Button>
+            </div>
             <input
               value={wsNewTitle}
               onChange={(e) => setWsNewTitle(e.target.value)}

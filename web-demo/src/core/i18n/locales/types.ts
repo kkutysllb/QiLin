@@ -135,6 +135,7 @@ export interface Translations {
     recentChats: string;
     workspacesSection: string;
     searchWorkspaces: string;
+    browse: string;
     sortBy: string;
     sortManual: string;
     sortRecent: string;

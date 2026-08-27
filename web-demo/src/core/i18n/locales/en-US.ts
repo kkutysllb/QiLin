@@ -193,6 +193,7 @@ export const enUS: Translations = {
     recentChats: "Recent tasks",
     workspacesSection: "Workspaces",
     searchWorkspaces: "Search sessions",
+    browse: "Browse…",
     sortBy: "Sort by",
     sortManual: "Manual (registry order)",
     sortRecent: "Recently updated",

@@ -189,6 +189,7 @@ export const zhCN: Translations = {
     recentChats: "历史任务",
     workspacesSection: "工作区",
     searchWorkspaces: "搜索会话",
+    browse: "浏览…",
     sortBy: "排序方式",
     sortManual: "手动排序（注册表）",
     sortRecent: "最近更新",
