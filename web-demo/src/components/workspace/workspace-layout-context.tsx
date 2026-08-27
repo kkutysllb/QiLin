@@ -12,6 +12,7 @@ import {
 
 const RIGHT_PANEL_KEY = "kworks.workspace.rightPanelOpen";
 const RIGHT_PANEL_WIDTH_KEY = "kworks.workspace.rightPanelWidth";
+const RIGHT_PANEL_MODE_KEY = "kworks.workspace.rightPanelMode";
 const HISTORY_KEY = "kworks.workspace.historyCollapsed";
 const SECTIONS_KEY = "kworks.workspace.panelSections";
 
@@ -25,6 +26,9 @@ export type PanelSectionId =
   | "resources"
   | "artifacts"
   | "workspaceChanges";
+
+/** 右侧面板形态：context 为既有摘要面板，sidebar 为 Better Sidebar 多 tab 工作台。 */
+export type RightPanelMode = "context" | "sidebar";
 
 /** 设置页可用的 section id，与 SettingsView 内部保持一致。 */
 export type SettingsSectionId =
@@ -50,6 +54,8 @@ interface WorkspaceLayoutValue {
   setRightPanelOpen: (open: boolean) => void;
   rightPanelWidth: number;
   setRightPanelWidth: (width: number) => void;
+  rightPanelMode: RightPanelMode;
+  setRightPanelMode: (mode: RightPanelMode) => void;
   historyCollapsed: boolean;
   toggleHistory: () => void;
   isSectionCollapsed: (id: PanelSectionId) => boolean;
@@ -71,6 +77,15 @@ function readBoolean(key: string, fallback: boolean): boolean {
     return v === null ? fallback : v === "true";
   } catch {
     return fallback;
+  }
+}
+
+function readMode(): RightPanelMode {
+  try {
+    const v = localStorage.getItem(RIGHT_PANEL_MODE_KEY);
+    return v === "sidebar" ? "sidebar" : "context";
+  } catch {
+    return "context";
   }
 }
 
@@ -108,6 +123,7 @@ export function WorkspaceLayoutProvider({
 }) {
   const [rightPanelOpen, setRightPanelOpenState] = useState(false);
   const [rightPanelWidth, setRightPanelWidthState] = useState(RIGHT_PANEL_DEFAULT_WIDTH);
+  const [rightPanelMode, setRightPanelModeState] = useState<RightPanelMode>("context");
   const [historyCollapsed, setHistoryCollapsed] = useState(false);
   const [sections, setSections] = useState<Record<PanelSectionId, boolean>>({
     todos: false,
@@ -132,6 +148,7 @@ export function WorkspaceLayoutProvider({
   // 初始化从 localStorage 恢复
   useEffect(() => {
     setRightPanelOpenState(readBoolean(RIGHT_PANEL_KEY, false));
+    setRightPanelModeState(readMode());
     setHistoryCollapsed(readBoolean(HISTORY_KEY, false));
     setSections(readSections());
     try {
@@ -166,6 +183,15 @@ export function WorkspaceLayoutProvider({
     setRightPanelWidthState(clamped);
     try {
       localStorage.setItem(RIGHT_PANEL_WIDTH_KEY, String(clamped));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setRightPanelMode = useCallback((mode: RightPanelMode) => {
+    setRightPanelModeState(mode);
+    try {
+      localStorage.setItem(RIGHT_PANEL_MODE_KEY, mode);
     } catch {
       /* ignore */
     }
@@ -212,6 +238,8 @@ export function WorkspaceLayoutProvider({
       setRightPanelOpen,
       rightPanelWidth,
       setRightPanelWidth,
+      rightPanelMode,
+      setRightPanelMode,
       historyCollapsed,
       toggleHistory,
       isSectionCollapsed,
@@ -227,6 +255,8 @@ export function WorkspaceLayoutProvider({
       setRightPanelOpen,
       rightPanelWidth,
       setRightPanelWidth,
+      rightPanelMode,
+      setRightPanelMode,
       historyCollapsed,
       toggleHistory,
       isSectionCollapsed,
