@@ -274,3 +274,10 @@ M4 回滚安全：迁移前 `.qilin/data/qilin.db.bak-*` 惯例延续，脚本�
 4. 落库闭环：start_run 消费 configurable 的 workspace_id/user_workspace_path → threads.cwd 创建时一次性写定（不可变语义）→ 归组投影天然生效。
 
 **验证面**：ThreadDataMiddleware 单测（优先级矩阵：绑定>暂存）、LocalSandbox cd 锚点用例、start_run cwd 落库断言、后端全量门禁。
+
+### 7.4 引擎目录机制实施（第 14 轮，✅ 全链闭环）
+- **白名单放行**：`_CONTEXT_CONFIGURABLE_KEYS` 增加 `workspace_id`（客户端仅声明引用；授权在解析端）。刻意不放行 `user_workspace_path`/`workspace_cwd`——路径不可由客户端声明。
+- **server-owned 注入**：start_run 读取 configurable.workspace_id → 经 owner 校验从 registry 解析 canonical path → **无条件覆盖**写入 `configurable["workspace_cwd"]` + `context["workspace_cwd"]`（伪造免疫）；未绑定/解析失败写空串=回退暂存区。threads.cwd 落库与 auto-attach 复用既有 `_ensure_thread_metadata`（5 用例矩阵已在）。
+- **middleware 锚点**：`workspace_cwd` 指向存在的目录 → `workspace_path` 切换为真实目录（uploads/outputs 保持每线程暂存区）；键缺失/目录不存在/OSError 三态全部静默降级暂存区并 warning。
+- **前端无需改动**：B 切片已把 workspace_id 放入 context，spread 后随白名单自然抵达。
+- 验证：tests/test_workspace_anchor.py 5 用例（白名单词汇/绑定锚定/unbound 回退/ghost 回退/空值忽略）+ capture 矩阵 5 用例回归；后端全量 **742 passed**；ruff clean。

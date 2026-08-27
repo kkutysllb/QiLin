@@ -1,5 +1,6 @@
 import logging
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import NotRequired, override
 
 from langchain.agents import AgentState
@@ -98,6 +99,31 @@ class ThreadDataMiddleware(AgentMiddleware[ThreadDataMiddlewareState]):
             # Eager initialization: create directories immediately
             paths = self._create_thread_directories(thread_id, user_id=user_id)
             logger.debug("Created thread data directories for thread %s", thread_id)
+
+        # Registry-bound threads execute against their REAL external directory:
+        # the gateway injects ``workspace_cwd`` (server-owned; resolved through
+        # the per-user registry, so a client cannot point it anywhere). When it
+        # names an existing directory we anchor ``workspace_path`` there and
+        # keep uploads/outputs on the per-thread staging area. Anything else —
+        # missing key (legacy/unbound), nonexistent path — degrades silently
+        # to the staging default.
+        workspace_cwd = context.get("workspace_cwd")
+        if isinstance(workspace_cwd, str) and workspace_cwd:
+            try:
+                real_dir = Path(workspace_cwd)
+                if real_dir.is_dir():
+                    paths = {**paths, "workspace_path": str(real_dir)}
+                else:
+                    logger.warning(
+                        "workspace_cwd %s does not exist; falling back to staging",
+                        workspace_cwd,
+                    )
+            except OSError:
+                logger.warning(
+                    "workspace_cwd %s is not usable; falling back to staging",
+                    workspace_cwd,
+                    exc_info=True,
+                )
 
         messages = list(state.get("messages", []))
         last_message = messages[-1] if messages else None

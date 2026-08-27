@@ -363,6 +363,10 @@ _CONTEXT_CONFIGURABLE_KEYS: frozenset[str] = frozenset(
         "max_total_subagents",
         "agent_name",
         "is_bootstrap",
+        # Registry-declared workspace binding (frontend picker). The id is
+        # only a *reference*; authorization happens when the gateway resolves
+        # it through the per-user registry, never by trusting the id itself.
+        "workspace_id",
     }
 )
 
@@ -1336,6 +1340,36 @@ async def start_run(
         )
         if isinstance(raw_workspace_id, str) and raw_workspace_id:
             run_workspace_id = raw_workspace_id
+
+        # Resolve the bound registry workspace to its canonical path and
+        # inject it as a SERVER-OWNED key. Downstream (ThreadDataMiddleware /
+        # LocalSandbox cd anchor) trusts ``workspace_cwd`` unconditionally,
+        # so this write must always overwrite whatever the client sent.
+        config_configurable = (
+            config.get("configurable") if isinstance(config.get("configurable"), dict) else None
+        )
+        if config_configurable is not None:
+            workspace_cwd_value: str | None = None
+            if run_workspace_id and owner_user_id:
+                workspace_store = getattr(run_ctx, "workspace_store", None)
+                if workspace_store is not None:
+                    try:
+                        ws_row = await workspace_store.get(
+                            run_workspace_id, user_id=owner_user_id
+                        )
+                        candidate = ws_row.get("path") if ws_row else None
+                        if isinstance(candidate, str) and candidate:
+                            workspace_cwd_value = candidate
+                    except Exception:
+                        logger.warning(
+                            "Failed to pre-resolve workspace %s (non-fatal)",
+                            sanitize_log_param(run_workspace_id),
+                            exc_info=True,
+                        )
+            config_configurable["workspace_cwd"] = workspace_cwd_value or ""
+            cfg_ctx = config.get("context")
+            if isinstance(cfg_ctx, dict):
+                cfg_ctx["workspace_cwd"] = config_configurable["workspace_cwd"]
 
         async def run_after_metadata(record: RunRecord) -> None:
             metadata_task = asyncio.create_task(
