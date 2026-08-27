@@ -69,6 +69,8 @@ Tailwind 映射方式（定死）：`qilin-brand.css` 内先在 `:root` 定义�
 - 保留 `kworks-landing-header` class 与桌面拖拽区约束（`[-webkit-app-region:drag]`、macOS `pl-[80px]`、Windows 无红灯的 `.kworks-win-titlebar` 兼容逻辑全部原样）。
 - 左侧：「QiLin」衬线字（暖白色）+ 右上标小号 `QilinSeal`。
 - 新增右侧 mono 小字链「进入控制台 →」（`text-[var(--ql-ink-mid)]`，hover 转 gold-300）。
+  实现备注：为避免链接贴视口右缘，头部追加水平内边距 `px-6 md:px-10`（macOS 段
+  `pl-[calc(80px+1rem)]`，Windows/浏览器随平台 class 收窄）——属计划外的最小 UX 补全，经评审确认保留。
 
 ### Hero
 
