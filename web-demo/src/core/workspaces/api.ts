@@ -3,6 +3,8 @@
  * ``{detail: {code, message}}``（WorkspaceError 稳定码）与字符串 detail，
  * 归一为带 code 的 WorkspaceApiError。
  */
+import { fetch } from "@/core/api/fetcher";
+
 import type {
   WorkspaceTreeResponse,
   WorkspaceView,
