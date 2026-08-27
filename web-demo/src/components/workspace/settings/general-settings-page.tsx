@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useWorkspaceLayout } from "@/components/workspace/workspace-layout-context";
 import { fetch, getCsrfHeaders } from "@/core/api/fetcher";
 import { useAuth } from "@/core/auth/AuthProvider";
 import { setDesktopSessionToken } from "@/core/auth/session";
@@ -84,6 +85,7 @@ export function GeneralSettingsPage() {
   const { user, logout, refreshUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const { locale, changeLocale } = useI18n();
+  const { rightPanelMode, setRightPanelMode } = useWorkspaceLayout();
   const currentTheme = (theme ?? "system") as "system" | "light" | "dark";
   const [localSettings, setLocalSettings] = useLocalSettings();
 
@@ -389,6 +391,31 @@ export function GeneralSettingsPage() {
               <SelectItem value="relaxed">
                 {t.settings.appearance.messageLineHeightRelaxed}
               </SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsRow>
+      </SettingsGroup>
+
+      {/* 右侧面板 */}
+      <SettingsGroup title="Right panel">
+        <SettingsRow
+          label="Right panel mode"
+          description="Context shows subagents / skills / workspace changes. Sidebar switches the right panel to the Better Sidebar workbench (files / viewers / plugins)."
+        >
+          <Select
+            value={rightPanelMode}
+            onValueChange={(value) => {
+              if (value === "context" || value === "sidebar") {
+                setRightPanelMode(value);
+              }
+            }}
+          >
+            <SelectTrigger aria-label="right panel mode" className="h-8 w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="context">Context</SelectItem>
+              <SelectItem value="sidebar">Sidebar</SelectItem>
             </SelectContent>
           </Select>
         </SettingsRow>
