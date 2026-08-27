@@ -39,8 +39,9 @@ const treeFixture = {
   archived_thread_ids: [],
 };
 
+const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: pushMock }),
   usePathname: () => "/workspace/chats/t-owned",
 }));
 
@@ -53,6 +54,7 @@ const t = {
   sidebar: {
     recentChats: "历史任务",
     ungroupedGroup: "未分组",
+    newSessionInWorkspace: "在此工作区新建会话",
     archivedSection: "已归档",
     archiveThread: "归档",
     unarchiveThread: "取消归档",
@@ -93,7 +95,7 @@ vi.mock("@/core/api", () => ({
 }));
 
 vi.mock("@/env", () => ({
-  env: { NEXT_PUBLIC_STATIC_WEBSITE_ONLY: "true" },
+  env: { NEXT_PUBLIC_STATIC_WEBSITE_ONLY: "false" },
 }));
 
 const treeQueryData = { current: treeFixture };
@@ -179,5 +181,18 @@ describe("RecentChatList 工作区分组渲染", () => {
     await waitFor(() => expect(view.container.textContent).toContain("demo"));
     // the legacy collapsible history header is gone
     expect(screen.queryByText("历史任务")).toBeNull();
+  });
+
+  test("组头「+」快捷按钮：新会话锚定到对应工作区", async () => {
+    pushMock.mockClear();
+    const view = render(<RecentChatList />, { wrapper: Wrapper });
+    await waitFor(() => expect(view.container.textContent).toContain("demo"));
+    const add = await screen.findByTitle("在此工作区新建会话");
+    add.click();
+    await waitFor(() =>
+      expect(pushMock).toHaveBeenCalledWith(
+        expect.stringContaining("/workspace/chats/new?workspace="),
+      ),
+    );
   });
 });

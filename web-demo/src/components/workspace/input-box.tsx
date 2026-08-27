@@ -280,6 +280,25 @@ export function InputBox({
   );
 
   // 添加工作区一步到位：菜单项点击 → 系统目录选择器 → 直接创建并选中。
+  // 组头「+ 新会话」跳转 /workspace/chats/new?workspace=<id>：在草稿态把该
+  // 工作区预置进 context（与下拉选择同一条数据通路），只生效一次。
+  const workspaceParam = searchParams.get("workspace");
+  useEffect(() => {
+    if (!isNewThread || !workspaceParam || context?.workspace_id) return;
+    if (workspaces.length === 0) return;
+    const target = workspaces.find((w) => w.id === workspaceParam);
+    if (!target) return;
+    onContextChange?.({
+      ...context,
+      workspace_id: target.id,
+      user_workspace_path: target.path,
+    } as Parameters<typeof onContextChange>[0]);
+    try {
+      window.localStorage.setItem("kworks.thread-workspace-id", target.id);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNewThread, workspaceParam, workspaces, context?.workspace_id]);
+
   const quickAddWorkspace = useCallback(async () => {
     try {
       const path = await pickDirectoryMutate();

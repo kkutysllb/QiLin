@@ -195,6 +195,7 @@ export const enUS: Translations = {
     recentChats: "Recent tasks",
     workspacesSection: "Workspaces",
     searchWorkspaces: "Search sessions",
+    newSessionInWorkspace: "New session in workspace",
     sortBy: "Sort by",
     sortManual: "Manual (registry order)",
     sortRecent: "Recently updated",

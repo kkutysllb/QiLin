@@ -16,6 +16,8 @@ import {
   ArchiveRestore,
   ChevronDown,
   ChevronRight,
+  FolderIcon,
+  PlusIcon,
   Download,
   FileJson,
   FileText,
@@ -685,11 +687,28 @@ export function RecentChatList() {
           ) : (
             <ChevronRight className="size-3 shrink-0" />
           )}
+          {!isUngrouped && <FolderIcon className="size-3.5 shrink-0" />}
           <span className="truncate">{label}</span>
           <span className="ml-auto flex shrink-0 items-center gap-1">
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-normal tabular-nums">
               {node.sessionCount > 0 ? node.sessionCount : t.sidebar.emptyWorkspaceCount}
             </span>
+            {!isUngrouped && !staticWebsiteOnly && (
+              <span
+                role="button"
+                tabIndex={0}
+                aria-label={t.sidebar.newSessionInWorkspace}
+                title={t.sidebar.newSessionInWorkspace}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void router.push(`/workspace/chats/new?workspace=${node.workspaceId}`);
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+                className="hover:text-foreground text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+              >
+                <PlusIcon className="size-3.5" />
+              </span>
+            )}
             {!isUngrouped && !staticWebsiteOnly && (
               <WorkspaceHeaderMenu
                 onRename={() =>
