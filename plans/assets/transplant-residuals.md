@@ -500,7 +500,7 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 | 模型完成 | ✓ 回复正确(bin 字段概括),`turn/end` 结束 |
 | 内置工具调用 | ✓ `tool/call`+`tool/result` 记录 `read`(读 apps/cli/README.md),工具行/结果在 transcript 中真实存在 |
 | 耗时 | 6s(wall,含 tsx 预载 + 会话 + 模型 + read + 二次生成) |
-| token 用量 | headless one-shot 输出未含 token 字段(记录为 N/A;计时/tok 指标在 web 口可见:2s · 首 token 0.9s · 183 tok/s) |
+| token 用量 | headless one-shot 输出未含 token 字段(记录为 N/A;计时/tok 指标在 web 口可见:2.7s · 首 token 1s · 183 tok/s,以截图底栏实值为准;初稿误记 2s/0.9s,已补正) |
 | 判定 | **PASS**(三验证点全过) |
 
 日志:`plans/assets/p2-logs/p2-cli-help.log`、`p2-cli.log`(脱敏)、`p2-cli-session-digest.txt`(transcript 摘要)。
@@ -514,12 +514,16 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 | 5. 页面加载 | ✓ 主页「探索未至之境 · 预览版」,侧栏/输入区渲染正常 |
 | 新建会话 | ✓ 点「新建会话」,侧栏置顶选中「新会话」 |
 | 发送消息 | ✓ 输入 + 发送,进入会话页 |
-| 模型响应 | ✓ 正确回复 `bin 字段的值为 {"qilin": "lib/bin.js"},即命令 qilin 指向 lib/bin.js`;2s · 首 token 0.9s · 183 tok/s |
+| 模型响应 | ✓ 正确回复 `bin 字段的值为 {"qilin": "lib/bin.js"},即命令 qilin 指向 lib/bin.js`;2.7s · 首 token 1s · 183 tok/s(截图底栏实值) |
 | 工具调用渲染 | ✓ 「Think」推理块 + 「Read apps/cli/package.json」工具行 + 上下文注入 chips(AGENTS.md / @qilin/system-prompt / skill-catalog) |
 | 侧栏会话分组 | ✓ 工作区树 `qilin-engine` 分组,LLM 生成会话标题 + 相对时间 |
 | 判定 | **PASS** |
 
 截图(归档 `plans/assets/p2-logs/`):`p2-web-01-loaded.png`(加载)、`p2-web-02-toolcall-response.png`(工具行 + 模型回复)、`p2-web-03-sidebar-newsession.png`(新建会话后侧栏分组)。服务器日志 `p2-web-server.log`(脱敏)。
+
+> **归档日志 gitignore 豁免重申(P2,兑现 S4 披露条款)**:p2-logs 中 4 个 .log(p2-cli-help/p2-cli/p2-web-dev/p2-web-server)与仓根 .gitignore:58 `*.log` 规则冲突,提交 f6038f8 使用 `git add -f` 强制纳入,属既有既定豁免(证据留痕优先);digest.txt 与 3 张 PNG 不受该规则约束。
+>
+> **记录口径补正**:p2-cli-session-digest.txt 所记「记录数 46」为摘要快照时点值,实测非空行 47——快照后 transcript 追加 1 条空事件(seq=189),良性,以实测为准。初稿计时「2s/0.9s」系摘要转写误差,已按截图底栏实值(2.7s/1s/183 tok/s)补正。
 
 ### 已知顺延项(重述,不算新破损)
 
