@@ -85,10 +85,43 @@ apps/cli 的 `@module` 注释、根与 apps/cli 的 README(中英)、packages/bu
 - **web UI 前端品牌**:`DEFAULT_CLIENT_TITLE = 'DSH Local Build'`(apps/web/vite.config.ts)及前端 UI 品牌字符串;牵动 web 快照集,待 web 前端阶段处置。
 - **杂项**:`dsh-llm-mock-server`(llm-mock-server usage 文本,无对应 bin 字段)、translation-prompt v4 快照内嵌的旧版 README(见 R1/R2 同文件)、`BRAND_GUIDELINES.md/.zh` 与 `CONTRIBUTING.md/.zh` 的 DeepSeek Harness 品牌句(上游品牌/社区文档)、THIRD_PARTY_NOTICES 之外的第三方声明、测试 fixture 内部标识(`dsh>` prompt、tmpdir 前缀 `dsh-*`)。
 
+## P1-S4 构建与类型门禁(2026-08-28,零修复,引擎仓无新提交,HEAD 保持 6c7a8b1)
+
+rescope(3deb573)后第一次真实类型级检验。门禁结果:
+
+| 门禁 | exit | 耗时 | 错误数 | 备注 |
+|---|---|---|---|---|
+| pnpm install | 0 | 238ms | — | 幂等确认,Already up to date(246 workspace projects) |
+| pnpm run build(scripts/build.ts) | 0 | 44.36s | 0 | 200 client artifacts;仅 vite chunk-size 提示,非错误 |
+| pnpm run typecheck(host tsc -b + tsdown host + client tsc -b) | 0 | 7.22s | 0 | 首跑含构建,绿 |
+| 附加:tsc -b tsconfig.host.json --force | 0 | 18.05s | 0 | 排除 tsbuildinfo 增量缓存掩盖的复核 |
+| 附加:tsc -b tsconfig.client.json --force | 0 | 15.06s | 0 | 同上 |
+
+### 四分类计数
+
+| 分类 | 计数 | 说明 |
+|---|---|---|
+| a. import 名漏改 | 0 | 全树普查(排除 vendor/node_modules/dist/.git)旧 dsh 名仅命中 fixture 期望文件(见 c 类);package.json workspace 依赖、tsconfig paths 均无旧 dsh 名 |
+| b. 脚本硬编码 | 0 | 根 scripts 的 `--filter @deepseek-ai/website` 与 website 包实际名一致(website 不在 rescope 映射范围,D6 边界),非残留;tsconfig.base.json `@deepseek-ai/*` vendor paths 与 pnpm-workspace.yaml vendor link 为有意保留;tsconfig.host.json:276 引用的是磁盘目录路径 `packages/subagent/subagent-dsh-sdk`(目录名按既定策略不改,包名已为 `@qilin/subagent-dsh-sdk`),路径有效 |
+| c. fixture 期望串 | 1 文件 / 2 处 | 即既有 R1/R2(scripts/snapshots/translation-prompt-v4/request-response.expected.json:11、:15,内嵌旧版 README 的 `npx @deepseek-ai/dsh web`),状态不变(未处置,遗留);本步构建不跑测试,不影响门禁 |
+| d. 真回归/语义问题 | 0 | build 与 typecheck 全绿,无类型不匹配/缺失导出/逻辑错误 |
+
+### 已修复项(a/b)
+
+无 —— a/b 类均为 0,按「零修复则不提交」规则引擎仓未产生修复提交,HEAD 保持 6c7a8b1。
+
+### 顺延项(c/d)
+
+- R1/R2(唯一顺延项,无新增):translation-prompt v4 期望快照内嵌旧 README 串,须随 P1 测试阶段快照再生成流程收敛,不手工改写。完整现场见归档日志 plans/assets/s4-logs/(qilin-s4-build.log、qilin-s4-typecheck.log、qilin-s4-typecheck-force.log,源自 /tmp/qilin-s4-*.log 同名文件)。
+
+### 普查口径留痕
+
+`grep -rn '@deepseek-ai/dsh'`(排除 vendor/node_modules/dist/.git)全树命中 1 文件 2 行 = R1/R2;带引号的 `"@deepseek-ai/dsh"` 依赖键在全部 package.json 命中 0;pnpm-workspace.yaml/tsconfig*.json 中 `@deepseek-ai/*` 引用全部为 vendor 上游保留名(D6 边界)。
+
 ## 分类为空声明(截至本档)
 
 - import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改。
-- 真回归:0 已发现 —— 本次未运行构建/测试套件,由 P1 后续 install/build/test 验证阶段跟踪;S3 改动含测试断言与快照同步,回归风险集中在 URL 行/错误前缀相关的 e2e 与快照用例。
+- 真回归:0 —— S4 已实测构建与类型门禁双绿(build/typecheck exit 0、0 错误,含 --force 全量复核),详见 P1-S4 段;运行时/测试套件回归风险(URL 行/错误前缀相关 e2e 与快照用例)仍留待 P1 测试阶段验证。
 
 ## 边界声明(非残差)
 
