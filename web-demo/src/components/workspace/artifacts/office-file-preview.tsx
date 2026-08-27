@@ -99,18 +99,18 @@ function XlsxRenderer({ data }: { data: ArrayBuffer }) {
   const [error, setError] = useState<string>();
   const tableRef = useRef<HTMLDivElement>(null);
   // 保存 XLSX 模块和工作簿，用于切换 sheet 时重新生成 HTML
-  const xlsxRef = useRef<{ wb: any; XLSX: any } | null>(null);
+  const xlsxRef = useRef<{ wb: import("xlsx").WorkBook; XLSX: typeof import("xlsx") } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     import("xlsx")
-      .then((XLSX: any) => {
+      .then((XLSX) => {
         if (cancelled) return;
         try {
           const wb = XLSX.read(data, { type: "array" });
           xlsxRef.current = { wb, XLSX };
           if (!cancelled) {
-            setSheetNames(wb.SheetNames as string[]);
+            setSheetNames(wb.SheetNames);
             setActiveSheet(0);
           }
         } catch {
@@ -132,8 +132,8 @@ function XlsxRenderer({ data }: { data: ArrayBuffer }) {
     const sheetName = sheetNames[activeSheet];
     const sheet = sheetName ? wb.Sheets[sheetName] : undefined;
     if (sheet) {
-      const full = XLSX.utils.sheet_to_html(sheet, { editable: false }) as string;
-      const match = full.match(/<table[\s\S]*?<\/table>/i);
+      const full = XLSX.utils.sheet_to_html(sheet, { editable: false });
+      const match = /<table[\s\S]*?<\/table>/i.exec(full);
       tableRef.current.innerHTML = match ? match[0] : full;
     } else {
       tableRef.current.innerHTML = "";

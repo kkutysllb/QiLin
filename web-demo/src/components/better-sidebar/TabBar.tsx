@@ -1,6 +1,7 @@
 "use client";
 import { X } from "lucide-react";
 import { useMemo, type FC } from "react";
+
 import type { SidebarTabState } from "@/core/sidebar/protocol";
 
 interface Props {

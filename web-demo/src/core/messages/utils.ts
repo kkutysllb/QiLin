@@ -868,7 +868,7 @@ export function tryExtractInlineHumanInputForm(
   if (markerIdx === -1 && fields.length < 2) return null;
 
   // Question preamble is everything before the first numbered field, trimmed.
-  const firstFieldMatch = content.match(/(?:^|\n)\s*1\.\s+/);
+  const firstFieldMatch = /(?:^|\n)\s*1\.\s+/.exec(content);
   const preambleEnd = firstFieldMatch
     ? content.indexOf(firstFieldMatch[0])
     : markerIdx === -1

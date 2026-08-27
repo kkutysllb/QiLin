@@ -10,10 +10,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { DataDirectoryTable } from "./data-directory-table";
-import { PersistenceStatusDashboard } from "./persistence-status-dashboard";
 import { DatabaseForm } from "./config/settings-forms/database-form";
 import { RunEventsForm } from "./config/settings-forms/run-events-form";
+import { DataDirectoryTable } from "./data-directory-table";
+import { PersistenceStatusDashboard } from "./persistence-status-dashboard";
 import { useApplyAndRestart } from "./use-apply-and-restart";
 
 export function DataPersistenceSettingsPage() {

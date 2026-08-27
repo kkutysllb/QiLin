@@ -10,9 +10,9 @@ vi.mock("@/core/desktop", () => ({
   openFolder: vi.fn(),
 }));
 
-import { loadPersistenceUsage } from "@/core/persistence/api";
-import { openFolder } from "@/core/desktop";
 import { DataDirectoryTable } from "@/components/workspace/settings/data-directory-table";
+import { openFolder } from "@/core/desktop";
+import { loadPersistenceUsage } from "@/core/persistence/api";
 
 function withClient(ui: React.ReactElement) {
   const client = new QueryClient({

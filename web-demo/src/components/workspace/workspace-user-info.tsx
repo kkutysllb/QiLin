@@ -24,8 +24,8 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/core/auth/AuthProvider";
 import { useI18n } from "@/core/i18n/hooks";
 
-import { useWorkspaceLayout } from "./workspace-layout-context";
 import { UpdateInstallBadge } from "./update-install-badge";
+import { useWorkspaceLayout } from "./workspace-layout-context";
 
 function getRoleLabel(
   role: string,

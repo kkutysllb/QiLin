@@ -55,7 +55,8 @@ function formatArgs(args: unknown): string {
   try {
     return JSON.stringify(args).slice(0, 60);
   } catch {
-    return String(args).slice(0, 60);
+    // args 含循环引用等无法序列化的结构时，原样 String 化只会得到 [object Object]。
+    return "[unserializable arguments]";
   }
 }
 

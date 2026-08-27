@@ -2,11 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, ChevronDown, File as FileIcon, Folder } from "lucide-react";
 import { useState, type FC } from "react";
+
 import { listDir, type FileEntry } from "@/core/files/api";
 import { sortEntries, joinRel, parentRel } from "@/core/files/tree";
-import { useSidebarApi } from "@/core/sidebar/scope";
 import { sidebarPanelRegistry } from "@/core/sidebar/panel-registry";
 import type { SidebarPanelProps } from "@/core/sidebar/protocol";
+import { useSidebarApi } from "@/core/sidebar/scope";
 
 interface Props {
   scope: { threadId: string };

@@ -1,5 +1,6 @@
 "use client";
 import type { FC } from "react";
+
 import type { FileViewerProps } from "@/core/sidebar/protocol";
 
 // Sandbox iframe — same-origin so DOMPurify-cleaned local content can lay out,

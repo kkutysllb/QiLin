@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useBackendStatus } from "@/core/desktop/use-backend-status";
 import { useI18n } from "@/core/i18n/hooks";
-import { useModels } from "@/core/models/hooks";
 import { stripUploadedFilesTag } from "@/core/messages/utils";
+import { useModels } from "@/core/models/hooks";
 import { useActiveThreadMessages } from "@/hooks/use-active-thread";
 import { cn } from "@/lib/utils";
 

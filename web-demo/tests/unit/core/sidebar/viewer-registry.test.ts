@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from "vitest";
+
 import { fileViewerRegistry } from "@/core/sidebar/viewer-registry";
 
 const V_MD = { id: "v:md", exts: [".md"], component: () => null };

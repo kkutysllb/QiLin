@@ -1,5 +1,6 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import type { SidebarTabState } from "./protocol";
 
 async function fetchTabs(threadId: string): Promise<SidebarTabState> {

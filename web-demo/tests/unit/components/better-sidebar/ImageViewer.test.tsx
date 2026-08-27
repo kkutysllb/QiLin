@@ -2,6 +2,7 @@
 // @vitest-environment happy-dom
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
+
 import { ImageViewer } from "@/components/better-sidebar/viewers/ImageViewer";
 
 describe("ImageViewer", () => {

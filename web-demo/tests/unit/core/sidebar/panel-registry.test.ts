@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from "vitest";
+
 import { sidebarPanelRegistry } from "@/core/sidebar/panel-registry";
 import type { SidebarPanelSpec } from "@/core/sidebar/protocol";
 

@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
+
 import { useSidebarTabs } from "@/core/sidebar/use-sidebar-tabs";
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (

@@ -46,7 +46,6 @@ import {
 } from "@/components/ui/sidebar";
 import { getAPIClient } from "@/core/api";
 import { useI18n } from "@/core/i18n/hooks";
-import { useWorkspaceLayout } from "./workspace-layout-context";
 import {
   exportThreadAsJSON,
   exportThreadAsMarkdown,
@@ -62,6 +61,8 @@ import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 import { bucketOfThread, formatSmartTime, type ThreadTimeBucket } from "@/core/utils/datetime";
 import { env } from "@/env";
 import { isIMEComposing } from "@/lib/ime";
+
+import { useWorkspaceLayout } from "./workspace-layout-context";
 
 function parseThreadIdFromPath(pathname: string | null): string {
   if (!pathname) return "new";

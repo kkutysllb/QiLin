@@ -6,17 +6,17 @@ import { toast } from "sonner";
 import { type PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { ArtifactTrigger } from "@/components/workspace/artifacts";
 import {
+  MESSAGE_FEED_DEFAULT_PADDING_BOTTOM,
+  MessageFeed,
+} from "@/components/workspace/chat/message-feed";
+import {
   ChatBox,
   useSpecificChatMode,
   useThreadChat,
 } from "@/components/workspace/chats";
-import { TaskTokenSummary } from "@/components/workspace/token-usage/task-token-summary";
 import { InputBox } from "@/components/workspace/input-box";
-import {
-  MESSAGE_FEED_DEFAULT_PADDING_BOTTOM,
-  MessageFeed,
-} from "@/components/workspace/chat/message-feed";
 import { ThreadContext } from "@/components/workspace/messages/context";
+import { TaskTokenSummary } from "@/components/workspace/token-usage/task-token-summary";
 import { Welcome } from "@/components/workspace/welcome";
 import { useI18n } from "@/core/i18n/hooks";
 import type { HumanInputResponse } from "@/core/messages/human-input";

@@ -36,8 +36,12 @@ describe("FileViewerTab", () => {
       <FileViewerTab
         scope={{ threadId: "thr" }}
         payload={{ path: "README.md" }}
-        onPayloadChange={() => {}}
-        api={{ openTab: () => {}, closeSelf: () => {}, toast: () => {} }}
+        onPayloadChange={() => undefined}
+        api={{
+          openTab: () => undefined,
+          closeSelf: () => undefined,
+          toast: () => undefined,
+        }}
       />,
       { wrapper },
     );

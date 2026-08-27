@@ -4,6 +4,7 @@ import { PlusIcon, SparklesIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
+import { usePromptInputController } from "@/components/ai-elements/prompt-input";
 import {
   Suggestion,
   Suggestions,
@@ -17,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePromptInputController } from "@/components/ai-elements/prompt-input";
 import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 

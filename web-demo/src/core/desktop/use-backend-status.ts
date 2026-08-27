@@ -32,7 +32,7 @@ export function useBackendStatus(): BackendStatus {
     }
 
     void check();
-    const timer = setInterval(check, POLL_INTERVAL_MS);
+    const timer = setInterval(() => void check(), POLL_INTERVAL_MS);
     return () => {
       cancelled = true;
       clearInterval(timer);

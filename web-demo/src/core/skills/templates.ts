@@ -110,8 +110,8 @@ export function buildCopyTemplate(
       // Rewrite the frontmatter `name:` line to the new chosen name so
       // validate_skill_markdown_content (which requires name match) passes.
       // We only touch the first `name:` occurrence inside the frontmatter.
-      const fmMatch = sourceContent.match(/^---\n([\s\S]*?)\n---/);
-      if (!fmMatch || fmMatch[0] === undefined || fmMatch[1] === undefined) {
+      const fmMatch = /^---\n([\s\S]*?)\n---/.exec(sourceContent);
+      if (fmMatch?.[0] === undefined || fmMatch[1] === undefined) {
         // No frontmatter — return as-is, backend validator will reject.
         return sourceContent;
       }

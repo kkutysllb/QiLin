@@ -1,8 +1,8 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { useMemo } from "react";
 
-import type { SkillContextEntry } from "@/core/threads/types";
 import { extractPresentFilesFromMessage } from "@/core/messages/utils";
+import type { SkillContextEntry } from "@/core/threads/types";
 
 export interface ThreadResources {
   /** 本任务实际加载的技能列表（来自后端 skill_context 状态频道）。 */

@@ -7,8 +7,8 @@ vi.mock("@/core/persistence/api", () => ({
   loadPersistenceStatus: vi.fn(),
 }));
 
-import { loadPersistenceStatus } from "@/core/persistence/api";
 import { PersistenceStatusDashboard } from "@/components/workspace/settings/persistence-status-dashboard";
+import { loadPersistenceStatus } from "@/core/persistence/api";
 import type { PersistenceStatusResponse } from "@/core/persistence/types";
 
 const sample: PersistenceStatusResponse = {

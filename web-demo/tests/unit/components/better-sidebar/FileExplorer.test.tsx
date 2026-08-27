@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
+
 import { FileExplorerPanel } from "@/components/better-sidebar/panels/FileExplorer";
 import { SidebarScopeProvider } from "@/core/sidebar/scope";
 
@@ -15,7 +16,11 @@ vi.mock("@/core/files/api", () => ({
   }),
 }));
 
-const noopApi = { openTab: () => {}, closeSelf: () => {}, toast: () => {} };
+const noopApi = {
+  openTab: () => undefined,
+  closeSelf: () => undefined,
+  toast: () => undefined,
+};
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
     <SidebarScopeProvider scope={{ threadId: "thr" }} api={noopApi}>

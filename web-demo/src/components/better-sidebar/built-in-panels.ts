@@ -1,7 +1,8 @@
-import { sidebarPanelRegistry } from "@/core/sidebar/panel-registry";
-import { FileExplorerPanel } from "@/components/better-sidebar/panels/FileExplorer";
-import { createElement } from "react";
 import { FolderOpen } from "lucide-react";
+import { createElement } from "react";
+
+import { FileExplorerPanel } from "@/components/better-sidebar/panels/FileExplorer";
+import { sidebarPanelRegistry } from "@/core/sidebar/panel-registry";
 
 // The plan snippet uses JSX (<FolderOpen ... />) but this file is intentionally
 // .ts per the task instructions — createElement keeps it JSX-free and valid.

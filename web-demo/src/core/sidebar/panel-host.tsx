@@ -1,5 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
+
 import { sidebarPanelRegistry } from "./panel-registry";
 import type { SidebarPanelProps } from "./protocol";
 import { useSidebarApi, useSidebarScope } from "./scope";

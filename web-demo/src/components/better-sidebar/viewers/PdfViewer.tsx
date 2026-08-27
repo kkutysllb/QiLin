@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { FC } from "react";
+
 import type { FileViewerProps } from "@/core/sidebar/protocol";
 
 const PdfViewer: FC<FileViewerProps> = ({ entry, content }) => {
@@ -12,7 +13,7 @@ const PdfViewer: FC<FileViewerProps> = ({ entry, content }) => {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       try {
         const pdfjs = await import("pdfjs-dist");
         // Vite-friendly worker URL — bundle worker via ?url import.
@@ -37,7 +38,6 @@ const PdfViewer: FC<FileViewerProps> = ({ entry, content }) => {
     })();
     return () => { cancelled = true; };
   }, [content, entry.name]);
-
   if (error) return <div className="p-2 text-xs text-rose-500">pdf error: {error}</div>;
   if (loading) return <div className="p-2 text-xs text-muted-foreground">loading pdf…</div>;
   return (

@@ -1,16 +1,17 @@
 "use client";
-import { useState } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
-import { markdown } from "@codemirror/lang-markdown";
-import { json } from "@codemirror/lang-json";
-import { python } from "@codemirror/lang-python";
-import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
+import { html } from "@codemirror/lang-html";
+import { javascript } from "@codemirror/lang-javascript";
+import { json } from "@codemirror/lang-json";
+import { markdown } from "@codemirror/lang-markdown";
+import { python } from "@codemirror/lang-python";
+import CodeMirror from "@uiw/react-codemirror";
+import { useState } from "react";
 import type { FC } from "react";
-import type { FileViewerProps } from "@/core/sidebar/protocol";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import type { FileViewerProps } from "@/core/sidebar/protocol";
 
 // NOTE: @codemirror/lang-yaml / @codemirror/lang-sql are not project dependencies
 // (Task 4 allows no new deps besides pdfjs-dist), so .yaml/.sql fall back below.

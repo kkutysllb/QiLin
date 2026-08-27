@@ -16,6 +16,10 @@ const {
   updateSubtask,
   streamOptions,
   toastError,
+  joinsStreamMock,
+  getMessagesMetadataMock,
+  subtaskTasks,
+  setSubtasksMock,
 } = vi.hoisted(() => ({
   streamState: {
     messages: [] as Message[],
@@ -39,9 +43,18 @@ const {
     current: undefined as { onError?: (error: unknown) => void } | undefined,
   },
   toastError: vi.fn(),
+  joinsStreamMock: vi.fn(),
+  getMessagesMetadataMock: vi.fn((message: Message, index?: number) => {
+    const key = message.id ?? String(index ?? "");
+    return streamState.messageMetadata[key];
+  }),
+  subtaskTasks: {},
+  setSubtasksMock: vi.fn(),
 }));
 
 vi.mock("@langchain/langgraph-sdk/react", () => ({
+  // 回调身份必须跨渲染稳定：真实 hooks 依赖流对象的引用一致性，
+  // 内联新建会诱发无界重渲染直至 worker 堆内存耗尽。
   useStream: vi.fn((options) => {
     streamOptions.current = options;
     return {
@@ -51,11 +64,8 @@ vi.mock("@langchain/langgraph-sdk/react", () => ({
       error: null,
       submit: submitMock,
       stop: stopMock,
-      joinStream: vi.fn(),
-      getMessagesMetadata: vi.fn((message: Message, index?: number) => {
-        const key = message.id ?? String(index ?? "");
-        return streamState.messageMetadata[key];
-      }),
+      joinStream: joinsStreamMock,
+      getMessagesMetadata: getMessagesMetadataMock,
     };
   }),
 }));
@@ -105,7 +115,9 @@ vi.mock("@/core/config", () => ({
 
 vi.mock("@/core/tasks/context", () => ({
   useUpdateSubtask: () => updateSubtask,
-  useSubtaskContext: () => ({ tasks: {}, setTasks: () => {} }),
+  // 回调身份必须跨渲染稳定：useThreadStream 的重置 effect 依赖 setTasks，
+  // 内联新建函数会与 setOptimisticMessages 叠加成无界渲染循环（OOM）。
+  useSubtaskContext: () => ({ tasks: subtaskTasks, setTasks: setSubtasksMock }),
 }));
 
 vi.mock("@/core/uploads", () => ({

@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, type ReactNode } from "react";
+
 import type { SidebarScope, SidebarPanelApi } from "./protocol";
 
 const ScopeCtx = createContext<SidebarScope | null>(null);

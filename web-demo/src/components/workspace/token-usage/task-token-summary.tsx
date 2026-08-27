@@ -9,11 +9,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useI18n } from "@/core/i18n/hooks";
 import {
   accumulateUsageDetail,
   formatTokenCount,
 } from "@/core/messages/usage";
-import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 
 interface TaskTokenSummaryProps {

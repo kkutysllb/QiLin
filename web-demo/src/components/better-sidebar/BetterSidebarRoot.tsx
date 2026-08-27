@@ -1,10 +1,12 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSidebarTabs } from "@/core/sidebar/use-sidebar-tabs";
+
+import type { SidebarPanelApi, SidebarTabState } from "@/core/sidebar/protocol";
 import { SidebarScopeProvider } from "@/core/sidebar/scope";
+import { useSidebarTabs } from "@/core/sidebar/use-sidebar-tabs";
+
 import TabBar from "./TabBar";
 import { TabContent } from "./TabContent";
-import type { SidebarPanelApi, SidebarTabState } from "@/core/sidebar/protocol";
 
 interface Props {
   threadId: string;
@@ -38,8 +40,8 @@ export function BetterSidebarRoot({ threadId, open }: Props) {
         };
       });
     },
-    closeSelf: () => {},
-    toast: () => {},
+    closeSelf: () => undefined,
+    toast: () => undefined,
   }), []);
 
   if (!open) return null;
@@ -72,7 +74,7 @@ function BetterSidebarInner({ state, setLocal }: {
   const onChangePayload = useCallback(
     (next: Record<string, unknown>) =>
       setLocal((s) => {
-        if (!s || !s.active) return s;
+        if (!s?.active) return s;
         return { ...s, tabs: s.tabs.map((t) => (t.key === s.active ? { ...t, payload: { ...t.payload, ...next } } : t)) };
       }),
     [setLocal],

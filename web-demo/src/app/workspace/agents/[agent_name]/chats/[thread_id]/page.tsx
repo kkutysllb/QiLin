@@ -9,11 +9,11 @@ import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import { AgentWelcome } from "@/components/workspace/agent-welcome";
 import { ArtifactTrigger } from "@/components/workspace/artifacts";
-import { ChatBox, useThreadChat } from "@/components/workspace/chats";
 import {
   MESSAGE_FEED_DEFAULT_PADDING_BOTTOM,
   MessageFeed,
 } from "@/components/workspace/chat/message-feed";
+import { ChatBox, useThreadChat } from "@/components/workspace/chats";
 import { InputBox } from "@/components/workspace/input-box";
 import { ThreadContext } from "@/components/workspace/messages/context";
 import { ThreadTitle } from "@/components/workspace/thread-title";

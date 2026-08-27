@@ -24,7 +24,10 @@ export function DesktopInit() {
     // In packaged desktop, Electron owns the embedded backend. In desktop dev
     // the gateway is owned by desktop-electron/scripts/dev.mjs.
     if (isDesktopBackendManagedMode()) {
-      void startBackend().catch(() => {});
+      // 启动失败由 useBackendStatus 轮询上报为 disconnected，这里只留痕。
+      void startBackend().catch((error) => {
+        console.debug("desktop backend failed to start", error);
+      });
     }
 
     void initDragDrop().then((fn) => {

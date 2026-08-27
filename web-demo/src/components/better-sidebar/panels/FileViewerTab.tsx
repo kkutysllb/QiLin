@@ -1,8 +1,9 @@
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fileViewerRegistry } from "@/core/sidebar/viewer-registry";
+
 import { readFile, writeFile, readRaw, FileApiError } from "@/core/files/api";
 import type { SidebarPanelProps } from "@/core/sidebar/protocol";
+import { fileViewerRegistry } from "@/core/sidebar/viewer-registry";
 
 interface Payload { path: string }
 

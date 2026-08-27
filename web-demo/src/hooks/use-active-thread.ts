@@ -16,14 +16,12 @@ export function useActiveThreadId(): string | null {
   const pathname = usePathname();
   if (!pathname) return null;
 
-  const chatMatch = pathname.match(/\/workspace\/chats\/([^/]+)/);
+  const chatMatch = /\/workspace\/chats\/([^/]+)/.exec(pathname);
   if (chatMatch?.[1] && chatMatch[1] !== "new") {
     return chatMatch[1];
   }
 
-  const agentMatch = pathname.match(
-    /\/workspace\/agents\/[^/]+\/chats\/([^/]+)/,
-  );
+  const agentMatch = /\/workspace\/agents\/[^/]+\/chats\/([^/]+)/.exec(pathname);
   if (agentMatch?.[1] && agentMatch[1] !== "new") {
     return agentMatch[1];
   }

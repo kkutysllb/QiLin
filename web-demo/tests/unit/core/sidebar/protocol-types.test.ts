@@ -1,5 +1,6 @@
 // web-demo/tests/unit/core/sidebar/protocol-types.test.ts
 import { describe, expect, test } from "vitest";
+
 import type {
   SidebarPanelSpec, SidebarPanelProps, SidebarScope,
   FileViewerSpec, FileViewerProps, SidebarTabState,

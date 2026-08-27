@@ -230,7 +230,7 @@ export function DatasourcesSettingsPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={isTesting || (!ds.configured && !edited)}
+                        disabled={(isTesting ?? false) || (!ds.configured && !edited)}
                         onClick={() => void handleTest(ds.key)}
                       >
                         {isTesting ? (

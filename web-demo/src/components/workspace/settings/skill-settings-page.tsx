@@ -39,8 +39,9 @@ import {
 import type { CustomSkillContent, Skill } from "@/core/skills/type";
 import { env } from "@/env";
 
-import { SettingsSection } from "./settings-section";
 import { useWorkspaceLayout } from "../workspace-layout-context";
+
+import { SettingsSection } from "./settings-section";
 
 /* ── Category metadata ────────────────────────────────── */
 

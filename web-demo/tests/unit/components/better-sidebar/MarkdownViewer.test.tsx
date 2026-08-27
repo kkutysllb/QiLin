@@ -2,6 +2,7 @@
 // @vitest-environment happy-dom
 import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
+
 import { MarkdownViewer } from "@/components/better-sidebar/viewers/MarkdownViewer";
 
 describe("MarkdownViewer", () => {

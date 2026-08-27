@@ -1,11 +1,12 @@
 "use client";
-import { Streamdown } from "streamdown";
-// unified-ecosystem packages ship default exports only (named imports would be undefined at runtime).
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
+import type { FC } from "react";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
-import type { FC } from "react";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import { Streamdown } from "streamdown";
+// unified-ecosystem packages ship default exports only (named imports would be undefined at runtime).
+
 import type { FileViewerProps } from "@/core/sidebar/protocol";
 
 const MarkdownViewer: FC<FileViewerProps> = ({ content }) => (

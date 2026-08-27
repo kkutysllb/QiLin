@@ -4,14 +4,15 @@ import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 
 const repoRoot = resolve(__dirname, "../../..");
-const qilinRoot = resolve(repoRoot, "..", "qilin");
+// 仓库根（app/ 后端与 web-demo 同级），注意不是 Python 包目录 qilin/。
+const backendRepoRoot = resolve(repoRoot, "..");
 
 function read(path: string): string {
   return readFileSync(resolve(repoRoot, path), "utf8");
 }
 
-function readQilin(path: string): string {
-  return readFileSync(resolve(qilinRoot, path), "utf8");
+function readBackend(path: string): string {
+  return readFileSync(resolve(backendRepoRoot, path), "utf8");
 }
 
 describe("token-usage-budget settings page", () => {
@@ -114,7 +115,7 @@ describe("token-usage-budget i18n", () => {
 
 describe("backend config_router registers token_budget", () => {
   test("SECTION_MODELS includes token_budget", () => {
-    const source = readQilin("app/gateway/routers/config_router.py");
+    const source = readBackend("app/gateway/routers/config_router.py");
 
     expect(source).toContain(
       '"token_budget": "qilin.config.token_budget_config:TokenBudgetConfig"',
