@@ -103,3 +103,6 @@ web-demo/test-results/
 web-demo/playwright-report/
 web-demo/.env.local
 web-demo/tsconfig.tsbuildinfo
+
+# 会话内视觉工具产物目录
+.dsh-vision-router/

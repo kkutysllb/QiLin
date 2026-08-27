@@ -827,3 +827,21 @@ html[data-desktop-platform="win32"] .kworks-settings-header {
   -webkit-app-region: drag;
   padding-right: calc(var(--kworks-titlebar-inset) + 2rem);
 }
+
+/* ── QiLin 玄金麒麟 VI 品牌工具类映射（2026-08-27 追加段）────────────────
+   变量本体定义在 qilin-brand.css（本文件同样式规则零改动，仅追加）。
+   @theme inline 必须位于 Tailwind 入口文件内才会生成 bg-ql-* 等语义工具类；
+   放在独立引入的非入口 css 中会被静默忽略（已实测踩坑）。 */
+@theme inline {
+  --color-ql-bg: var(--ql-bg);
+  --color-ql-surface: var(--ql-surface);
+  --color-ql-raised: var(--ql-raised);
+  --color-ql-gold-300: var(--ql-gold-300);
+  --color-ql-gold-500: var(--ql-gold-500);
+  --color-ql-gold-700: var(--ql-gold-700);
+  --color-ql-ink-hi: var(--ql-ink-hi);
+  --color-ql-ink-mid: var(--ql-ink-mid);
+  --color-ql-ink-low: var(--ql-ink-low);
+  --color-ql-cinnabar: var(--ql-cinnabar);
+  --color-ql-cinnabar-hi: var(--ql-cinnabar-hi);
+}

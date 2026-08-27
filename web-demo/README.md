@@ -81,6 +81,7 @@ next.config rewrites 作为 fallback，但该路径会缓冲 SSE（流式退化�
 | 保留 `kworksDesktop` 等内部标识符 | web 模式下为死代码，保留以便上游同步 |
 | browser_* 工具组未启用 | QiLin 主仓未装 playwright extra；启用需 `pip install "qilin[browser]" && playwright install chromium` 后在 config.yaml 恢复 browser 组 |
 | `X-QiLin-Desktop` header 常量 | 品牌化 sed 连带改名，前后端自洽（后端无引用） |
+| landing 与认证页视觉为自研「玄金麒麟」VI（暖玄黑×鎏金，token 见 `src/styles/qilin-brand.css`） | 门面品牌自主化；workspace 内部交互仍保持 KWorks 对齐（规格见 `docs/superpowers/specs/2026-08-27-qilin-brand-redesign-design.md`） |
 
 ## 验收
 

@@ -97,7 +97,24 @@
 | 7.10 | 误杀防护 | ✅ | 停止只 kill 命令行匹配 `node*server.js` / `uvicorn` 的进程；陌生占用者只报告 |
 | 7.11 | `set -e` 健壮性 | ✅ | web_pids_on_port 显式 return 0（端口被陌生进程占用时 status/stop 不中断） |
 
-## 8. 未验收 / 已知限制（与上游一致或环境约束）
+## 8. 玄金麒麟 VI 改版验收（2026-08-27）
+
+| # | 项目 | 结果 | 证据 |
+|---|------|------|------|
+| 8.1 | 品牌 token 层生效 | ✅ | `@theme inline` 段落在 globals.css 尾部后语义类正常生成；landing 背景 computed=`rgb(13,11,9)`=#0d0b09 |
+| 8.2 | QilinMark 组件单测 | ✅ | vitest 7/7（aria 边界/outline/pattern id 唯一性/GoldDivider 结构） |
+| 8.3 | landing 双档布局 | ✅ | 1440 与 390 下无横向滚动；小屏 eyebrow 与固定 header 重叠已修（main pt-16，实测 eyebrowTop 104 > headerBottom 64） |
+| 8.4 | CTA 与旧视觉清除 | ✅ | CTA computed=`rgb(201,162,74)` 金色实底；视觉复查确认彩虹渐变/星空/流光零残留 |
+| 8.5 | login 卡片与登录链路 | ✅ | 窄卡 352px + rounded-xl + hairline + 顶部 2px 金渐变饰条；admin 真实登录直达 /workspace |
+| 8.6 | setup 三分支换壳 | ✅/⚠️ | tsc 零错误；change_password 补齐可见 label；init_admin 运行态需全新数据目录，未做浏览器实测 |
+| 8.7 | 退役组件清理 | ✅ | Galaxy/FlickeringGrid/ShineBorder/SpotlightCard/AnimatedBackground 共 7 文件 grep 零引用后 `git rm` |
+| 8.8 | 回归基线 | ✅ | vitest 264 pass / 1 fail（既有 thread-stream-cache worker OOM）；`pnpm build` 成功；tsc 零错误 |
+| 8.9 | workspace 不受影响 | ✅ | 生产构建下登录后侧边栏 header padding-top=8px（pt-10 移除修复保持有效），布局无异常 |
+| 8.10 | 质量评审整改 | ✅ | ink-low 提亮 #857c6c(WCAG AA≥4.5:1)；ScalePattern useId 防冲突；hero 改 Button asChild 消除嵌套交互元素 |
+
+截图存档：`.playwright-mcp/vi-{landing-1440,landing-390,login-1440}-v2.png`（kcoder-runtime 目录）。
+
+## 9. 未验收 / 已知限制（与上游一致或环境约束）
 
 - 交付物预览抽查了 HTML；XLSX/DOCX/PPTX/PDF 预览路径未逐一实测（上游组件未改动）
 - browser_* 工具组未启用（QiLin 主仓未装 playwright extra，README 已记录启用方法）

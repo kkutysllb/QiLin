@@ -1,5 +1,6 @@
 /* qilin-brand.css — QiLin 品牌 VI「玄金麒麟」token 层。
-   仅供 landing 与 auth 页面使用；不得在此改动全局 --background 等 shadcn 变量。 */
+   本文件只承载 CSS 变量定义；bg-ql-* 等语义工具类的生成映射
+   位于 globals.css 尾部的 @theme inline 段（必须在 Tailwind 入口内才生效）。 */
 :root {
   /* 基底 */
   --ql-bg: #0d0b09;

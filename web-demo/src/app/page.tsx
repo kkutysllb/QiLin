@@ -21,7 +21,8 @@ export default function LandingPage() {
       </div>
       <div className="relative z-10 flex min-h-screen w-full flex-col">
         <Header />
-        <main className="flex w-full flex-1 flex-col justify-center">
+        {/* pt-16 防止内容顶入 h-16 固定头部之下(小屏纵向布局时首行会重叠) */}
+        <main className="flex w-full flex-1 flex-col justify-center pt-16">
           <Hero />
         </main>
         <Footer />
