@@ -38,6 +38,7 @@ from app.gateway.routers import (
     models,
     persistence,
     runs,
+    sandbox_mode,
     scheduled_tasks,
     sidebar_tabs,
     skills,
@@ -668,6 +669,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Workspace registry API (DSH dsh-workspace alignment)
     app.include_router(workspaces.router)
+
+    # Sandbox-mode knob events (DSH sandbox/mode alignment — record + fold)
+    app.include_router(sandbox_mode.router)
 
     # Files API — per-thread workspace browsing & editing (Better Sidebar web)
     app.include_router(files.router)

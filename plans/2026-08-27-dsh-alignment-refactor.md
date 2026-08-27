@@ -99,6 +99,13 @@
 - ✅ P3b `core/workspaces/{types,api,hooks}.ts` 注册表数据面 + 9 用例（e167f93）。
 - ✅ P3c 侧栏重写：`sidebar-inputs.ts`（线程×树投影组装）/`view-state.ts`（collapsedGroups 折叠记忆，方向取「仅记主动折叠」使新组默认展开）；`recent-chat-list.tsx` 全量替换为 deriveGroups 双级树——组头折叠/计数/containsCurrent 着色、Ungrouped 尾随、行菜单增 归档+移动到工作区 submenu+组内上移/下移（相邻交换语义）、组头菜单 重命名/上移/下移/删除登记（解绑不删目录，hint 文案）、底部 ARCHIVED(n) 管理区配取消归档。i18n 三文件同步加键。vitest：builder/view-state/组件渲染共 15 新用例；Playwright 真机走查 `tests/e2e/workspace-groups.spec.ts`（build+chrome 实渲染断言分组/折叠持久化/归档隐藏 + 截图留证）。顺带修复 playwright.config webServer 注入 PORT 而非 WEB_DEMO_PORT 导致自起服务必撞 28080 的既有缺陷。拖拽按决策点以上移/下移替代。验证基线：vitest 336/336、eslint 0 error、tsc 0 error。
 
+**目标② 沙箱模式事件化（裁剪版，回填于第 8 轮）**：
+- ✅ 事件记录层：`sandbox_mode_events` 表（0012 迁移；append-only，自增 id 即折叠序）+ `qilin/persistence/sandbox_mode/{model,sql}.py`（`SANDBOX_MODES` 词表逐字对齐 DSH `SandboxMode`：read-only/workspace-write/danger-full-access；`DEFAULT_SANDBOX_MODE='danger-full-access'` 保持现单机全放行行为）。已修 create_all 注册缺口（models/__init__ 补 SandboxModeEventRow 导出）。
+- ✅ 折叠解析：`folded()` 取日志序最后一条 = DSH permission-presets 的 last-write-wins 语义；无事件线程解析为默认值（resolution total，不报错）。
+- ✅ REST 面：`/api/threads/{thread_id}/sandbox-mode` GET（折叠值+defaulted 标记）/ POST（追加事件，require_existing 反枚举）/ GET /events（原始日志升序）；GET 读容忍未登记遗留线程、POST 严格拒绝他人线程。权限 threads:read/write，错误码 SANDBOX_MODE_INVALID / SANDBOX_MODE_STORE_UNAVAILABLE。
+- ✅ 验证：新增 4 pytest 用例；空库 bootstrap→head 形状核对；纯 Alembic 链 upgrade/downgrade/re-upgrade 往返；仓储往返断言。全后端 706 passed。
+- ⏳ 后续：执行端按折叠值分档执行（依赖沙箱执行器分档改造）、前端开关 UI、SSE 变更广播并入 P5 管线。
+
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
 - 本地键：`kworks.thread-workspace-path.<threadId>`（""=显式默认工作区哨兵）、线程页 onStart 时写入 `saveThreadWorkspacePath`（input-box.tsx:568 已删挂载点，page.tsx:78 保存链仍在）。

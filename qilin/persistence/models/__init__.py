@@ -24,6 +24,7 @@ from qilin.persistence.channel_connections.model import (
 from qilin.persistence.feedback.model import FeedbackRow
 from qilin.persistence.models.run_event import RunEventRow
 from qilin.persistence.run.model import RunRow
+from qilin.persistence.sandbox_mode.model import SandboxModeEventRow
 from qilin.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
 from qilin.persistence.scheduled_tasks.model import ScheduledTaskRow
 from qilin.persistence.thread_meta.model import ThreadMetaRow
@@ -45,6 +46,7 @@ __all__ = [
     "FeedbackRow",
     "RunEventRow",
     "RunRow",
+    "SandboxModeEventRow",
     "ScheduledTaskRow",
     "ScheduledTaskRunRow",
     "ThreadMetaRow",
