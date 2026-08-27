@@ -488,6 +488,12 @@ async def langgraph_runtime(
         from app.gateway.goal_events import GoalChangeBroker
 
         app.state.goal_broker = GoalChangeBroker()
+        # Goal round driver observer (P6b): installed unconditionally; the
+        # QILIN_GOAL_ROUND_DRIVER flag decides whether it acts, so flipping
+        # the env var needs no re-assembly.
+        from app.gateway.goal_round_wiring import make_goal_driver_observer
+
+        app.state.goal_driver_observer = make_goal_driver_observer(app)
         if sf is not None:
             from qilin.persistence.scheduled_task_runs import (
                 ScheduledTaskRunRepository,
@@ -694,6 +700,13 @@ def get_run_context(request: Request) -> RunContext:
     captured in :func:`langgraph_runtime` so callers never see a store bound
     to one backend paired with a config pointing at another.
     """
+    base_hook = (
+        getattr(request.app.state, "scheduled_task_service", None)
+    ).handle_run_completion if getattr(request.app.state, "scheduled_task_service", None) is not None else None
+    # Goal round driver (P6b): chain onto the single worker completion slot
+    # as a flag-gated no-op when the feature is off.
+    from app.gateway.goal_round_wiring import compose_run_completed
+
     return RunContext(
         checkpointer=get_checkpointer(request),
         store=get_store(request),
@@ -708,11 +721,10 @@ def get_run_context(request: Request) -> RunContext:
         thread_store=get_thread_store(request),
         workspace_store=get_workspace_store(request),
         app_config=get_config(),
-        on_run_completed=getattr(
-            request.app.state, "scheduled_task_service", None
-        ).handle_run_completion
-        if getattr(request.app.state, "scheduled_task_service", None) is not None
-        else None,
+        on_run_completed=compose_run_completed(
+            base_hook,
+            getattr(request.app.state, "goal_driver_observer", None),
+        ),
     )
 
 

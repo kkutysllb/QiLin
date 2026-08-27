@@ -119,7 +119,7 @@
 - ✅ 存储侧 `admit_round`（sql.py）：active+同 id/revision+round==rounds_started+1+≤cap 全部 fail-closed；引入 `_context` 读法（最近非 round 行=goal 头/全任意行最新计数），所有七动词 guard/CAS/projection 均改为上下文语义，并发 admit 不再可被 mutation 用旧计数回滚（事务内实读 rounds_now）。
 - ✅ `app/gateway/goal_round_driver.py`：prompt 渲染逐字移植 prompt.ts（测试锁死段落快照）；`drive()` 静默闸门：无目标/clear/paused/disarmed→drop，预算耗尽→自动 block(round-limit, DSH 同文案)，注入成功后才 admit 记账，投递失败不污染计数。
 - ✅ tests/test_goal_round_driver.py 七用例（prompt 快照 parity/三 drop 分支/预算耗尽 block 文案/成功注入两连轮记账/失败不记账）。后端全量 726 passed，ruff clean。
-- ⏳ P6b 待做：idle 终态边接线（run worker finalize 处调 drive()，feature flag 控制）、注入通道接 services/chat 补全并携带 goal 归因 metadata、SSE goal/round 广播、安全阀配置。
+- ✅ P6b（第 11 轮）：idle 终态边接线完成——复用 worker 现有 `ctx.on_run_completed` 单槽钩子，`compose_run_completed` 链式组合 scheduled_task 观察器与 goal driver 观察器（逐环异常隔离）；注入通道走 `launch_scheduled_thread_run`（internal caller），metadata["goal_round"] 携带 {kind, round, id, revision} 归因；轮次成功后经 goal_broker 广播 `operation='round'` SSE；feature flag `QILIN_GOAL_ROUND_DRIVER`（默认关，观察器无条件装配、flag 运行期可翻）。tests/test_goal_round_wiring.py 6 用例。后端全量 732 passed，ruff clean。
 
 
 ### 2.3 已知存量事实（主线取证，含 SQLite 实测）
