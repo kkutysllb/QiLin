@@ -63,15 +63,16 @@ export function Hero({ className }: { className?: string }) {
           一个开源的智能体编排平台，由沙箱、记忆、工具、技能和子智能体驱动，
           可自主完成从数分钟到数小时的复杂任务。
         </p>
-        <Link href="/workspace" className="group mt-8">
-          <Button
-            size="lg"
-            className="h-11 rounded-lg border-0 bg-ql-gold-500 px-8 text-base font-semibold text-[#141006] shadow-lg shadow-black/40 transition-colors hover:bg-ql-gold-300 active:bg-ql-gold-500"
-          >
+        <Button
+          size="lg"
+          asChild
+          className="group h-11 rounded-lg border-0 bg-ql-gold-500 px-8 text-base font-semibold text-[#141006] shadow-lg shadow-black/40 transition-colors hover:bg-ql-gold-300 active:bg-ql-gold-500"
+        >
+          <Link href="/workspace">
             <span>探索平台</span>
             <ChevronRightIcon className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <div className="mt-6 flex flex-wrap justify-center gap-2 lg:justify-start">
           {["多沙箱隔离", "多模型", "MIT 开源"].map((tag) => (
             <span

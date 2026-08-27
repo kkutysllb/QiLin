@@ -9,10 +9,10 @@
   --ql-gold-300: #f3dc9e;
   --ql-gold-500: #c9a24a;
   --ql-gold-700: #8f6f2e;
-  /* 三级墨色文字 */
+  /* 三级墨色文字（ink-low 已按 WCAG AA 提亮：对 --ql-bg 对比度 ≥4.5:1） */
   --ql-ink-hi: #efe9df;
   --ql-ink-mid: #a89f90;
-  --ql-ink-low: #6b6459;
+  --ql-ink-low: #857c6c;
   /* 朱砂（印章 / 错误文案） */
   --ql-cinnabar: #c3402f;
   --ql-cinnabar-hi: #e0684f;

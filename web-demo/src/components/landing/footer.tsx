@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-
 import { GoldDivider, QilinSeal } from "@/components/brand/qilin-mark";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +6,7 @@ export type FooterProps = {
 };
 
 export function Footer({ className }: FooterProps) {
-  const year = useMemo(() => new Date().getFullYear(), []);
+  const year = new Date().getFullYear();
   return (
     <footer
       className={cn(

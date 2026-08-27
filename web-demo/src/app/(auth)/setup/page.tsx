@@ -234,40 +234,64 @@ export default function SetupPage() {
   return (
     <AuthShell title="完成管理员账户设置" subtitle="请设置您的真实邮箱和新密码。">
       <form onSubmit={handleChangePassword} className="space-y-4">
-        <Input
-          type="email"
-          placeholder="您的邮箱"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className={authFieldClass}
-        />
-        <Input
-          type="password"
-          placeholder="当前密码"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          required
-          className={authFieldClass}
-        />
-        <Input
-          type="password"
-          placeholder="新密码"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-          minLength={8}
-          className={authFieldClass}
-        />
-        <Input
-          type="password"
-          placeholder="确认新密码"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          minLength={8}
-          className={authFieldClass}
-        />
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="change-email" className={authLabelClass}>
+            邮箱
+          </label>
+          <Input
+            id="change-email"
+            type="email"
+            placeholder="您的邮箱"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={authFieldClass}
+          />
+        </div>
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="current-password" className={authLabelClass}>
+            当前密码
+          </label>
+          <Input
+            id="current-password"
+            type="password"
+            placeholder="当前密码"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            required
+            className={authFieldClass}
+          />
+        </div>
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="new-password" className={authLabelClass}>
+            新密码
+          </label>
+          <Input
+            id="new-password"
+            type="password"
+            placeholder="新密码（至少8位）"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            minLength={8}
+            className={authFieldClass}
+          />
+        </div>
+        <div className="flex flex-col space-y-1">
+          <label htmlFor="confirm-new-password" className={authLabelClass}>
+            确认新密码
+          </label>
+          <Input
+            id="confirm-new-password"
+            type="password"
+            placeholder="再次输入新密码"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={8}
+            className={authFieldClass}
+          />
+        </div>
         {error && <p className={cn("text-sm", authErrorClass)}>{error}</p>}
         <Button type="submit" className={authSubmitClass} disabled={loading}>
           {loading ? "正在设置…" : "完成设置"}
