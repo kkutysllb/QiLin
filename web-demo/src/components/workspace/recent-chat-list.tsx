@@ -99,6 +99,7 @@ import {
 import { useWorkspaceViewCollapse } from "@/core/workspaces/view-state";
 import { env } from "@/env";
 import { isIMEComposing } from "@/lib/ime";
+import { cn } from "@/lib/utils";
 import {
   deriveGroups,
   sortWorkspacesByRecent,
@@ -676,21 +677,27 @@ export function RecentChatList() {
         <button
           type="button"
           onClick={() => toggleCollapse(node.key)}
-          className={`group/wshead flex w-full items-center gap-1.5 rounded px-2 py-1 text-[11px] font-medium uppercase tracking-wide ${
-            node.containsCurrent
-              ? "bg-muted/60 text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+          className={`group/wshead flex h-[34px] w-full items-center gap-1.5 rounded px-2 text-sm font-normal normal-case tracking-normal text-foreground ${
+            node.containsCurrent ? "bg-muted/60" : "hover:bg-muted/50"
           }`}
         >
-          {node.expanded ? (
-            <ChevronDown className="size-3 shrink-0" />
-          ) : (
-            <ChevronRight className="size-3 shrink-0" />
+          {!isUngrouped && (
+            // DSH 三态目录图标：折叠灰 → hover 灰（行底泛亮）→ 展开蓝
+            <FolderIcon
+              className={cn(
+                "size-4 shrink-0 transition-colors",
+                node.expanded ? "text-blue-500" : "text-muted-foreground",
+              )}
+            />
           )}
-          {!isUngrouped && <FolderIcon className="size-3.5 shrink-0" />}
+          {node.expanded ? (
+            <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70" />
+          ) : (
+            <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70" />
+          )}
           <span className="truncate">{label}</span>
           <span className="ml-auto flex shrink-0 items-center gap-1">
-            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-normal tabular-nums">
+            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-normal tabular-nums text-muted-foreground">
               {node.sessionCount > 0 ? node.sessionCount : t.sidebar.emptyWorkspaceCount}
             </span>
             {!isUngrouped && !staticWebsiteOnly && (
@@ -706,7 +713,7 @@ export function RecentChatList() {
                 onKeyDown={(e) => e.stopPropagation()}
                 className="hover:text-foreground text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
               >
-                <PlusIcon className="size-3.5" />
+                <PlusIcon className="size-4" />
               </span>
             )}
             {!isUngrouped && !staticWebsiteOnly && (
@@ -917,7 +924,7 @@ function WorkspaceHeaderMenu({
           onKeyDown={(e) => e.stopPropagation()}
           className="hover:text-foreground text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
         >
-          <MoreHorizontal className="size-3.5" />
+          <MoreHorizontal className="size-4" />
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="right" onClick={(e) => e.stopPropagation()}>
