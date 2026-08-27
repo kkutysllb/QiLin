@@ -154,17 +154,21 @@ CREATE TABLE goals (
 ### 3.3 run context 契约保持
 - `user_workspace_path` 字段名不变（测试锁定的原因）——语义从「前端临时传」变为「后端 threads.cwd 的影子输出」；过渡期前端缺省不传时由后端以 threads.cwd 补齐。
 
-### 3.4 API 面（增量，全部挂现有 /api 前缀）
+### 3.4 API 面（P1d 已实现，全部挂 /api/workspaces，权限复用 threads:read/write/delete）
 ```
-GET    /api/workspaces                # 持久顺序列表（含 status 实时合成字段）
-POST   /api/workspaces                # {path,title?} realpath 校验、重路径幂等返回既有
-PATCH  /api/workspaces/{id}           # title / reorder(beforeId?) / move_session
-DELETE /api/workspaces/{id}           # 仅删注册；线程原样→Ungrouped
-PUT    /api/workspaces/{id}/archive/{thread_id} | DELETE …   # 全局归档集合
-GET    /api/threads?grouped=1         # 前端一次取 workspaces+threads 归组投影
-POST   /api/threads/{tid}/goal        # create/edit/pause/resume/complete/blocked 动词族
-GET    /api/threads/{tid}/goal        # GoalView（含 rounds_started；activation 为进程态经 SSE 心跳广播）
+GET    /api/workspaces                     # 持久顺序列表(含 position 与 session_ids 账户序)
+POST   /api/workspaces                     # {path,title?} realpath 校验、重路径幂等返回既有
+PATCH  /api/workspaces/{id}                # {title}
+POST   /api/workspaces/{id}/reorder        # {before_id?} DOM-insertBefore, 归位即不写
+DELETE /api/workspaces/{id}                # 仅删注册; 线程原样→Ungrouped
+GET    /api/workspaces/{id}/threads        # 账户序 thread_ids
+POST   /api/workspaces/{id}/threads        # {thread_id} 显式归组(注册表权威, 不复核 cwd)
+DELETE /api/workspaces/{id}/threads/{tid}  # 幂等分离; cwd 不可变不动
+POST   /api/workspaces/{id}/threads/{tid}/reorder  # {before_thread_id?}
+PUT|DELETE /api/workspaces/archive          # {thread_ids[]} 全局归档集合/恢复
+GET    /api/workspaces/tree                # 侧栏投影: workspaces(Ungrouped)/archived 三桶 id 列表
 ```
+投影规则：组成员=账户∩存活 header−archived（**只滤 header 消失, 不做 cwd 复核**——注册表权威对齐 DSH 树推导）；Ungrouped=归属且可见且未被任何组认领。
 
 ### 3.5 前端（对齐 client-ui-workspace README 描述的行为表）
 - 侧边栏两级树：workspace 行（目录 basename + missing-dir 状态点）→ 会话行；顶部 Ungrouped 与「全部平铺」切换。

@@ -43,6 +43,7 @@ from app.gateway.routers import (
     thread_runs,
     threads,
     uploads,
+    workspaces,
 )
 from app.gateway.trace_middleware import TraceMiddleware, resolve_trace_enabled
 from qilin.config import app_config as qilin_app_config
@@ -662,6 +663,9 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Feedback API is mounted at /api/threads/{thread_id}/runs/{run_id}/feedback
     app.include_router(feedback.router)
+
+    # Workspace registry API (DSH dsh-workspace alignment)
+    app.include_router(workspaces.router)
 
     # Thread Runs API (LangGraph Platform-compatible runs lifecycle)
     app.include_router(thread_runs.router)

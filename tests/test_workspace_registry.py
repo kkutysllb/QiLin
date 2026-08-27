@@ -124,17 +124,16 @@ class TestRename:
 
 
 class TestThreadAccount:
-    async def test_attach_validates_cwd_against_workspace_path(self, repo):
+    async def test_attach_accepts_any_thread_registry_authoritative(self, repo):
+        """Explicit attachment is trusted: a thread whose stored cwd differs
+        (legacy NULL-cwd, moved dir) still joins the account — the tree
+        derives from the registry, never re-checks paths."""
         r, _ = repo
         w1 = await r.create(user_id=USER, canonical_path=ALPHA)
-        with pytest.raises(WorkspaceError) as mismatch:
-            await r.attach_thread(w1["id"], "t1", user_id=USER, thread_cwd="/other")
-        assert mismatch.value.code == "WORKSPACE_CWD_MISMATCH"
-        with pytest.raises(WorkspaceError) as none_cwd:
-            await r.attach_thread(w1["id"], "t1", user_id=USER, thread_cwd=None)
-        assert none_cwd.value.code == "WORKSPACE_CWD_MISMATCH"
-        await r.attach_thread(w1["id"], "t1", user_id=USER, thread_cwd=ALPHA)
-        assert await account(r, w1["id"]) == ["t1"]
+        await r.attach_thread(w1["id"], "t-null", user_id=USER)
+        assert await account(r, w1["id"]) == ["t-null"]
+        await r.attach_thread(w1["id"], "t-other", user_id=USER, thread_cwd="/elsewhere")
+        assert await account(r, w1["id"]) == ["t-other", "t-null"]
 
     async def test_attach_prepends_and_is_idempotent(self, repo):
         r, _ = repo

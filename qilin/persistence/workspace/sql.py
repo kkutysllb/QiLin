@@ -116,8 +116,9 @@ class WorkspaceRepository:
     # ordered listing
 
     async def list_for_user(self, *, user_id: str) -> list[dict]:
-        """All of a user's workspaces in durable order. Order rows missing
-        their workspace (corruption) sort last and never abort the read."""
+        """All of a user's workspaces in durable order, each carrying its
+        accounted ``session_ids`` in manual order. Order rows missing their
+        workspace (corruption) sort last and never abort the read."""
         async with self._sf() as session:
             rows = (
                 (
@@ -138,8 +139,31 @@ class WorkspaceRepository:
                     await session.execute(select(WorkspaceOrderRow))
                 ).scalars()
             }
+            ids = [r.id for r in rows]
+            accounts: dict[str, list[str]] = {}
+            account_rows = (
+                (
+                    await session.execute(
+                        select(WorkspaceSessionRow)
+                        .where(WorkspaceSessionRow.workspace_id.in_(ids))
+                        .order_by(
+                            WorkspaceSessionRow.workspace_id,
+                            WorkspaceSessionRow.position,
+                            WorkspaceSessionRow.thread_id,
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for a in account_rows:
+                accounts.setdefault(a.workspace_id, []).append(a.thread_id)
             out = [
-                self._ws_to_dict(r, position=positions.get(r.id, 1 << 30))
+                self._ws_to_dict(
+                    r,
+                    position=positions.get(r.id, 1 << 30),
+                    session_ids=accounts.get(r.id, []),
+                )
                 for r in rows
             ]
             out.sort(key=lambda w: (w["position"], w["created_at"]))
@@ -207,20 +231,18 @@ class WorkspaceRepository:
 
     async def attach_thread(
         self, workspace_id: str, thread_id: str, *,
-        user_id: str, thread_cwd: str | None,
+        user_id: str,
+        thread_cwd: str | None = None,
     ) -> None:
-        """Prepend a thread to the account. The caller passes the thread's
-        stored cwd so membership validates against the workspace path —
-        mismatches reject without writing (DSH header-validation alignment).
+        """Prepend a thread to the account (registry-authoritative: explicit
+        attachment is trusted regardless of the thread's stored cwd — the
+        projection prunes only *missing* headers, never path mismatches,
+        matching DSH's registry-driven tree). ``thread_cwd`` is accepted for
+        call-site symmetry with the capture path and is not validated.
         Already-accounted threads resolve without writing."""
         ws = await self.get(workspace_id, user_id=user_id)
         if ws is None:
             raise WorkspaceError("WORKSPACE_NOT_FOUND", f"unknown workspace {workspace_id}")
-        if thread_cwd != ws["path"]:
-            raise WorkspaceError(
-                "WORKSPACE_CWD_MISMATCH",
-                f"thread {thread_id} cwd {thread_cwd!r} does not match workspace path",
-            )
         async with self._sf() as session:
             existing = (
                 await session.execute(
