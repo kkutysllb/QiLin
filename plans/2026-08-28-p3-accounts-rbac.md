@@ -577,3 +577,38 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   (`qilin/`、`app/`),`vendor/`、`python/` 未触碰。
 - 本文件引用的全部 文件:行 号以两仓上述提交为快照基准;后续提交若移动行号,
   以语义描述为准。
+---
+
+## 8. S5 执行日志(滚动)
+
+### S5-A 账户核与会话(已收口)
+- 引擎提交 `0902b2d` feat(engine): account disabled_at with admin store ops and DISABLED sessions (p3-s5-a)。
+- 要点:users.disabled_at 可空列 + PRAGMA 探测幂等迁移(schema v2);store 增 listUsers/updateRole/setDisabled;
+  SessionService 禁用账户 issue 拒发/validate 抛 DISABLED;projectUser 透出 disabledAt;decodeDisabledAt 走 corrupt 通道。
+- 亲测证据:vitest account-core 35 + account-auth 44 = 79/79 绿;pairing 1012 一致;oxlint 0 错。
+
+### S5-B 管理路由(已收口)
+- 引擎提交 `b62f46e` feat(engine): admin user management routes (p3-s5-b)。
+- 实现:admin-users-router(GET 列表/PATCH 角色启停/POST reset-password),plugin.ts 注册 /api/v1/admin/users;
+  服务端 admin 强制(403 forbidden)、cookie 写 CSRF 双提交(Bearer 豁免)、auth-disabled 合成 admin 直通;
+  self_protected(400) 先于 last_admin_protected(409);未知 id 404;weak_password 400;重置走 updatePassword 吊销旧会话。
+- 实现者注:该包原委派代理产出密集写法(26 oxlint 错)且误剥离 principal.ts 文档,已由主代理接管重写:
+  路由展开式+完整 JSDoc,principal.ts 恢复文档仅增 disabledAt:null。
+- 亲测证据:admin-users-router.spec 全矩阵 20/20;account-http 12 文件 128/128;accounts 三包 435/435;
+  tsc -b 干净;oxlint 0;diff-check 干净;pairing 1012;pre-commit 四钩绿。
+
+### S5-C 浏览器 AuthClient(已收口)
+- 引擎提交 `3bdec6f` feat(engine): browser auth client with shared 401 signal (p3-s5-c)。
+- 实现:client-connection 新 auth-client.ts(AuthError/UnauthorizedSignal/AuthClient:同源 fetch、
+  csrf_token cookie 双提交头、typed 错误、401 可观测信号;login/logout/me/changePassword/setupStatus/initialize
+  + 管理面 listUsers/updateUser/resetPassword);WebApiClient 增 401 tap 与注入式 fetch;
+  ConnectionHandle 增 auth + onUnauthorized;FixtureAuthClient 桩(登出态起步,带 self_protected 语义)。
+- 已知基线:client/connection 双面 Context 类型债(18 tsc 错)与 lint error-typed 误报类维持原样,未新增同类以外的错误;
+  新增 lint 仅 1 处同基线类(tests 程序对 index 类型链解析)。
+- 亲测证据:auth-client spec 9/9;connection 套件 11 文件 132/132;tsc -b 仅余基线 18 错且 src/client 零新增;钩全绿。
+
+### S5-D ui-accounts(进行中)
+- 设计:新包 packages/client/ui-accounts 镜像 ui-settings-plugin-inventory 脚手架;
+  shell.overlay 注册账户遮罩(未登录全屏登录/needsSetup 仅 initialize);settings 段管理员用户管理
+  (列表+改角色+启停+重置口令);locales zh/en;消费 connection handle 的 auth。
+- 状态:未开始编码。
