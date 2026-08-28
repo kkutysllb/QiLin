@@ -480,6 +480,7 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 - **前端界面(ui-accounts 新包)**:登录/注册/initialize 全屏 overlay(`shell.overlay` 席位)+ settings「账户」section(当前账户改密/登出卡 + admin 用户管理卡);启动 probe `setup-status`+`me`;空库仅提供 initialize(注册不得抢先创建 user),非空库按注册开关显隐注册入口;401→匿名 overlay;错误码→中英文案(契约 C 对齐);loading/空态/a11y(aria-live、焦点管理、label 关联)。会话 store 归属 ui-accounts(对计划原文「client-runtime 侧 store」的偏差:本步无第二消费者,不扩平台服务面,此处登记)。
 - **组合顺延**:web-app bundle patch 的 `account-http`/`ui-accounts` 行归 S6(默认 profile 行为不变、auth-disabled 全透明在 S6 验收);S5 手动验收以 `--patch` overlay 组合真实服务执行,步骤写入本台账。
 - **门禁**:每包新 src 文件四项 per-file 覆盖 100%;account-core/account-auth/account-http/connection/ui-accounts 目标测试全绿;oxlint 新文件 0 错;单包 tsc 干净;staged 预提交钩全过;`verify-translation-pairing` 保持全一致(新包 README 双语 + i18n yaml);收尾跑 CI 同口径分区 coverage 与串行全仓 test;不触碰 `vendor/` 与 `python/`。
+
 ### S6 组合、文档与收口(规模:S,依赖 S1–S5)
 
 - **范围**:`web-app` bundle patch 增补账户行(默认 profile 行为不变、auth-disabled
