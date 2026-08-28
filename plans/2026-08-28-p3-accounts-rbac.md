@@ -625,3 +625,12 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   类型增强经 tsconfig 引用 + client 面空导入引入。
 - 亲测证据:3 spec 11/11(遮罩状态机 4、管理面 4、注册与词典 3);oxlint 0 错;tsc -b 零新增
   (仅余 connection 包既有 18 错基线);pairing 1013 全一致(新增包 README 对);pre-commit 四钩绿。
+
+### S5-E 覆盖率与回归(进行中)
+- 提交 \`41bf935\` fix(engine): ui-accounts branch coverage and submit re-entry latch (p3-s5-e):
+  遮罩 submit 增 useRef 再入门闩(状态守卫受渲染闭包陈旧化影响,回车连提可穿透——顺带修复的真实缺陷);
+  section retry 改 attempt 计数重跑 effect(原为无效双 setState);补遮罩分支用例 4、管理面分支用例 3、
+  connection 401-emit 分支用例 1;ui-accounts 18/18、connection client-apply 14/14。
+- RBAC 禁用会话回归双层面既有:auth 层 session-service.spec(§553 validate 拒 DISABLED)、
+  HTTP 层 admin-users-router.spec(§86 401 account_disabled)。
+- 门禁:串行全量首轮 exit 0;4 分区覆盖率首轮卡 4 文件 100% 阈值(见上修复),复跑中。
