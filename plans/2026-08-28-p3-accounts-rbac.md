@@ -331,11 +331,11 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   两态、initialize 幂等与 409、ws 拒升与 Origin 分层、429 + Retry-After;契约
   D/E/F/G/H/J/K 逐条映射(映射表见台账 P3 段 S3 小节)。src 全文件 per-file 100%。
 - **审**:spec 审(路由表与状态码契约)✅(路由表与偏差登记见台账:错误信封、
-  QILIN_CORS_ORIGINS 新名、Origin 白名单端点集、rate limit 全尝试计数与内存态局限);
+  QILIN_CORS_ORIGINS 新名、Origin 白名单端点集、rate limit 全尝试计数、login/register 共享每 IP 预算与内存态局限);
   质量审(安全专项:cookie 属性、错误信息不泄露账户存在性——注册重名响应沿用旧语义
   但评估枚举风险)✅(枚举暴露已评估并登记为已知取舍,login 侧统一 401 + 时序垫片)。
 
-### S4 RBAC 包 `packages/accounts/account-rbac`(规模:L,依赖 S1–S3;受 D5 影响 M→L)
+### S4 RBAC 包 `packages/accounts/account-rbac`(规模:L,依赖 S1–S3;受 D5 影响 M→L)✅ 完成(2026-08-28,引擎仓提交 cde3b91)
 
 - **范围**:B1 先行:`system_role` 校验 + `resource:action` 权限串 + owner_check
   等价物(函数式,包 route handler);策略配置 schema(校验失败拒启,fail_closed);
@@ -347,6 +347,45 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   一个真实 /api 方法被 admin 放行、user 拒绝的集成测试;覆盖率门禁。
 - **审**:spec 审(对照旧契约 L/M/N 逐条)+ 质量审(Principal 构造唯一性、
   策略热加载语义:初期定义为「重启生效」,热加载列顺延)。
+
+✅ **S4 结果(2026-08-28,引擎仓提交 `cde3b91`)**:
+
+- **交付面**:`packages/accounts/account-rbac`(`@qilin/account-rbac`,src 9 文件)+ client-connection
+  强制点接线(`rbac-auth-gate.ts` 新契约文件 + `/api` 主路由与专用通道 `rpc-host` 在 apiAuth 判定后
+  按名征询 `rbacAuth`,镜像 S3 apiAuth 结构契约,依赖箭头单向);根 `tsconfig.host.json`、knip.json、
+  verify-package-readme-model-experience(none 行)、docs/module-graph 三语均已挂载。
+- **契约映射**:L(默认关闭:插件 `enabled` 默认 false 不 provide,行为与 S3 逐字节一致;策略文件装配期
+  一次性读取,缺失=warn+仅基线,非法=`PolicyConfigError` 拒启;**deny 恒胜**,显式 admin deny 同样绑定;
+  未知角色/未解析身份 fail_closed)✅;M(Principal 单一构造点:`RbacAuthorizer.resolvePrincipal`
+  cookie 优先/Bearer 兜底,按请求对象 WeakMap memoize,阀合成 admin 不触库,失败落匿名且全拒)✅;
+  N(权限串 `resource:action`,端点首个点转冒号,`session.list`→`session:list`,无点端点归 `route:`;
+  owner_check 函数式 `ownerCheck(principal, ownerId)`:属主/阀 admin 通过,其余连缺失参照一律失败)✅。
+- **默认权限矩阵(依据)**:admin `*:*`(D5-a 确定性首管,单实例无威胁模型);user `*:read/:list/:get/
+  :status/:search/:stats` + `session:*`(读类保开放注册可用;会话域=契约 N 旧 plain-user threads/runs
+  路由集的引擎后裔;其余默认拒,写访问须策略显式授予);匿名/未知=无。矩阵全文及逐条依据在包 README
+  (md/zh 双语,i18n.yaml 已登记)。
+- **B2 资源策略**:version 1 JSON,`role × resource(tool/model/skill/mcp_server/route)allow/deny`,
+  模式=精确名/尾 `*` 前缀/`*` 段/裸 `*`;校验器拒未知键/角色/kind、空数组、段内星号错位、route 单冒号
+  语法错、非 route 含冒号→拒启;示例与 Known Limitations 在包 README。
+- **装配期能力过滤实证**:`filterCatalog` 以运行时同谓词投影真实目录——user 段 `tool.deny
+  ["schedule_create"]` 时,真实引擎工具 `schedule_create`(@qilin/schedule)从 user 目录消失而 admin
+  保留(catalog.spec 用真实工具注册表实证);运行时同谓词拒分发(表驱动+集成双覆盖)。
+- **终验数字**:两包 vitest **258 用例全绿**(account-rbac 136:permissions 33/policy 37/authorizer 22/
+  catalog 13/owner 10/plugin 9/principal 4/invariant 1/barrel 1/集成 6;connection 122 含 S4 新增 4 条
+  传输层测试);per-file 覆盖率 **100%**(account-rbac/src 与 client-connection/src 双 100/100/100/100);
+  oxlint 本包 **0 错**(connection +4 条为 S4 接线新增,与 S3 已登记的 Context 双面解析噪声同族,见
+  残差档更新);staged 预提交三钩(whitespace/vendor manifest/lint)全过;verify-translation-pairing
+  **1012 对全一致**;verify-package-readme-model-experience 含本包 none 行;knip 本包 0 噪声(存量
+  apps/cli、web-app 正则失配 2 hints 另册已登记);**typecheck 与 type-aware lint 为基线既有阻断**
+  (clean-HEAD stash 双向对照复现:connection Context 双面不一致,源为 vendor/cordis lib/src 面分裂,
+  S3 残差档已登记同族基线,非本步引入;本步新增文件 0 残留)。
+- **Known Limitations(已写入 README)**:策略重启生效(热加载与装配期目录过滤不相容,顺延);须与
+  account-http 同 `dbPath`(双 SQLite 连接为受支持形态);专用通道无点端点归 `route:` 域须写全前缀;
+  ws 升级仅 authN(事件流无可授权方法面);授权决策无逐请求审计(顺延)。
+- **清尾**:a. 引擎仓 `packages/typert/generator/tests/.generated-model-Go0yu7/` 已删(未跟踪,直接清除);
+  b. QiLin 仓 `qilin-engine/` 纯拷贝已删(rsync 校验仅 knip.json/tsbuildinfo 两生成物差异,真仓更新后删);
+  c. 本档 S3 段 rate limit 描述补「共享」二字(与引擎包注释逐字对齐,见下);新发现已跟踪历史残渣
+  `.generated-model-O7FJNT/`、`.generated-model-qwn8sk/` 仅登记未处置(残差档 R3/R4)。
 
 ### S5 前端账户面(规模:M,依赖 S3)
 

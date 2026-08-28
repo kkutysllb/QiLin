@@ -698,3 +698,14 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 - 非 dsh 的 `@deepseek-ai/*` scope 按 D6 保留原名,机械规则未触碰:`@deepseek-ai/cordis`(2137 处)、`@deepseek-ai/schemastery`(400 处)、`@deepseek-ai/cordis-plugin-loader`(219 处)等 vendor 上游包名及其引用。
 - CLAUDE.md 与 examples/CLAUDE.md 为符号链接(→ AGENTS.md / examples/AGENTS.md),BSD sed 不支持对符号链接就地编辑而跳过;两个目标文件均已完成机械改写,链接视图随目标更新,无残差(计数口径影响见上方复核注记)。
 - S3 未触碰 vendor/ 一切(验证:改动文件清单 0 个 vendor 路径)。
+
+## P3-S4 期间新发现残渣(2026-08-28,登记不处置)
+
+S4(RBAC 包)执行期间清尾复核新发现两处**已跟踪**的历史残渣——生成器测试运行的临时目录被早期提交误入版本库;非本步产物,本步仅登记,留 generator 测试阶段随快照/临时目录治理一并处置(加 ignore 规则 + `git rm -r --cached` + 删盘),本步不改动 generator 域。
+
+| # | 位置(引擎仓相对路径) | 分类 | 状态 | 说明 |
+|---|---|---|---|---|
+| R3 | packages/typert/generator/tests/.generated-model-O7FJNT/host.mjs | fixture 期望串(测试运行产物) | 未处置(历史残渣) | 生成器测试跑出的 `.generated-model-*` 临时目录被历史提交跟踪;清尾 a 已删的 `Go0yu7` 为同族未跟踪实例(直接删盘即可),R3/R4 因已跟踪须走 git 移除流程,故仅登记 |
+| R4 | packages/typert/generator/tests/.generated-model-qwn8sk/host.mjs | fixture 期望串(测试运行产物) | 未处置(历史残渣) | 同 R3 |
+
+> **S4 type-aware 噪声基线增量(登记)**:S3 档登记的 connection Context 双面解析噪声(clean-HEAD 同环境复现,待 tsgolint 项目解析修复)在 S4 后实测 **41 条**(S3 基线 37 + S4 接线新增 4:rpc-host 专用通道 `rbacAuth` 征询行与 /api 主路由同构行,与相邻 `apiAuth` 行同族同源);S4 新增文件(account-rbac 全包 19 文件 + connection/rbac-auth-gate.ts)type-aware 错误 **0 残留**(就地修复达标);佐证同 S3 口径:account-rbac 单包 `tsc -p --noEmit` 全绿、258 用例全绿、clean-HEAD stash 双向对照同报错。
