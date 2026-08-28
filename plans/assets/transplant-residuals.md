@@ -543,6 +543,61 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 - 两口冒烟均 **PASS**,未出现引擎代码级破损 → **无需修复,无一行级移植破损修复**;引擎仓零改动(预期)。
 - 待办:P2 无残留待测项;G1 凭证来源、G2 标题品牌、G4 路径 mention 渲染按上表归入 P3/P5。
 
+## P3 段(2026-08-28):S0 核验 + S1 账户核心域包
+
+> 执行基线:引擎仓 main @ 795b8dc(标签 qilin-engine-v0)起步,S1 落地为提交 30e0a97;
+> QiLin 仓计划定稿 v1 @ 1f16488。vendor/ 与 python/ 全程未触碰(引擎侧仅只读搜索)。
+
+### S0-1 MINIMAX 凭证键名核验(计划 §2.3-3 疑点)—— 已处置:改 .env 键名,保值
+
+**结论:产品实际引用键名是 `MINIMAX_CN_API_KEY`。已将 QiLin 仓根 .env 键名 `MINIMAX_API_KEY` 改为 `MINIMAX_CN_API_KEY`(值原样保留,单行改名,零代码改动)。
+
+实测取证(引擎仓 @ 795b8dc,排除 vendor/ 与 python/):
+
+1. **唯一派生点**:`packages/client/ui-settings-models/src/client/store.ts:70-72` 的 `deriveKeyRef(provider)` 按 provider 大写化、非 [A-Z0-9] 折下划线、后缀 _API_KEY 生成;provider 路由 minimax-cn 即 MINIMAX_CN_API_KEY(同文件 :63-68 JSDoc 明示该例)。
+2. **产品断言面**:`apps/web/tests/models-settings.e2e.ts`(:116/:151/:157/:176/:308)与 `apps/web/tests/onboarding-usable-provider.e2e.ts`(:97/:99)全部断言 apiKeyEnv 与凭证文档键均为 `MINIMAX_CN_API_KEY`;`packages/client/ui-settings-models/tests/components.client.spec.tsx:330` 直接断言派生取值。
+3. **分层取值按 ref 名精确匹配**(`packages/credentials/credentials-local/src/index.ts:3-15`:进程 env > 凭证文档 > cwd/.env > $QILIN_HOME/.env);键名不符则永不被读——疑点成立。
+4. **旧 Python 网关生态仍按 `MINIMAX_API_KEY` 书写**:`scripts/start-gateway.sh:40`、`config.example.yaml`(6 处注释)、web-demo/(model-templates.ts:104、README.md:37/:70)、`app/gateway/routers/models.py:126`、`qilin/sandbox/local/local_sandbox.py:493`(注释)。它们属退役表面(P3 语义移植对象,不再运行),本次不改其文字;若临时复用旧网关需自行回填。home 凭证文档 `~/.dsh/.credentials.yaml` 已有 `MINIMAX_CN_API_KEY` 在管(§2.3-2),.env 改名后仅作同 ref 的低优先兜底,分层语义不变。
+
+修正方式取舍:改 .env 键名(选定;.env 是用户配置文件,单行改名零风险);补 ref 映射(需动引擎引用面或在管理面加别名,污染凭证缝,弃)。
+
+### S0-2 密码哈希确认 —— scrypt(node:crypto),参数固化
+
+**结论:采用 `node:crypto` 内置 scrypt(免新依赖);引擎内无既有 scrypt 用法(rg 全仓非 vendor 零命中),参数按固化建议落地:N=16384、r=8、p=1、32B salt、64B key;存储编码自描述(scrypt$N$r$p$salt$hash),校验从编码内参数重算、以 `crypto.timingSafeEqual` 恒时比较,非本模块产出的存储值一律返回 false 不抛错。已随 S1 实装于 `@qilin/account-core` `src/password.ts`(`SCRYPT_PARAMS` 固化常量 + 断言)。
+
+### S1 账户核心域包 `packages/accounts/account-core` —— 已交付(引擎仓提交 30e0a97)
+
+**范围兑现(计划 §4 S1,D5/D6 约束内)**:实体 TS 类型 + 存储接口(`src/types.ts`;`src/index.ts` 为纯转发 barrel)、类型化冲突(`src/errors.ts`,AccountConflictError,kind: email|oauth)、scrypt 哈希(`src/password.ts`)、SQLite 实现(`src/sqlite-store.ts`,`node:sqlite` 同步 API,路径可注入,默认 `$QILIN_HOME/qilin-accounts/accounts.db`,支持 :memory:)、幂等建表(CREATE TABLE/UNIQUE INDEX IF NOT EXISTS + user_version pragma,ACCOUNTS_SCHEMA_VERSION = 1,拒服务更高版本库)、每包 invariant 伴生(`src/invariant.ts`,空安装器,持久关系由 schema 约束强制并有依据)。**不含任何 HTTP/路由/UI。**
+
+表结构(DDL 摘要;不变量由 CHECK/UNIQUE/FK 强制):
+
+| 表 | 列与约束 |
+|---|---|
+| users | id PK;email NOT NULL + 唯一索引;password_hash 可空(OAuth-only 用户);system_role CHECK IN (admin,user);needs_setup CHECK IN (0,1);oauth_provider/oauth_id 预留 + 部分唯一索引(非空对唯一);session_version NOT NULL CHECK >= 1(承接旧 token_version 语义);created_at/updated_at(epoch ms) |
+| sessions | id PK;user_id FK → users(id);issued_version CHECK >= 1(签发时账户 session_version 快照);persistent CHECK IN (0,1)(记住我);created_at/expires_at(绝对 epoch ms,时钟回拨=提前过期) |
+
+导出面:`@qilin/account-core`(实体类型、AccountStore、SqliteAccountStore、defaultAccountsDbPath、SCRYPT_PARAMS/hashPassword/verifyPassword、AccountConflictError、ACCOUNTS_SCHEMA_VERSION)+ `@qilin/account-core/invariant`。
+
+注册面(引擎仓):tsconfig.base.json 双 wildcard(accounts 组)、tsconfig.host.json reference、packages/README(.zh).md 组表 + 新组 README 双语、scripts/verify-package-readme-model-experience.ts 审核句清单一条(kind: none 带理由)、docs/module-graph(.zh).md 再生成同步、包 README 三件套、Agent Note 三件套。窄接口按计划给了 S2/S3 直接消费面(countUsers 空库判定、updatePassword 推进版本、clearNeedsSetup、insertSession/findSession/deleteSession(s))。
+
+**覆盖率分区挂载方式(实测)**:run-gates/coverage 无命名分区注册表——分区即分片(`scripts/run-coverage-partitions.ts` 按 `QILIN_COVERAGE_PARTITIONS` 做 vitest 单 worker 轮转),测试发现与覆盖 include 都是 glob(packages/*/*/tests/**、packages/*/*/src/**),`packages/accounts/account-core` 天然命中,accounts 分区自动挂上,无需注册表改动;门禁沿用全仓 per-file 100%(与相邻包同标,不另立)。
+
+**终验数字(引擎 HEAD = 30e0a97)**:
+
+| 门禁 | 结果 |
+|---|---|
+| 新包 vitest | 3 spec / 47 tests 全绿(表驱动) |
+| 覆盖率 | per-file 100%(statements/branches/functions/lines);barrel index.ts 为纯转发,带理由 v8 ignore |
+| pnpm run typecheck | 通过(tsc -b host + client 全绿) |
+| pnpm run lint(oxlint) | 通过,0 warnings 0 errors(2621 文件) |
+| pnpm run build | 通过(200 client artifacts) |
+| pnpm run test(全仓) | 通过:866 文件通过 / 9 跳过;14640 tests 通过 / 114 跳过,零失败 |
+| pnpm run test:snapshot | 1 failed / 139 passed / 2 skipped——**基线同现**:stash 全部改动后在干净 795b8dc 上 rebuild+复跑,同为 1 failed / 139 passed / 2 skipped(失败项 apps/web 前端 SVG 断言,与本域包无涉),非新回归 |
+| 噪声基线对照 | verify-package-readme-model-experience 的 25 处 tool-catalog fragment 失败在干净基线同为 25 处;hooks/sandbox 两态波动条款示外,无新增 |
+| 静态纪律门 | verify-package-invariants(228 companions)、verify-package-readme-limitations、verify-export-jsdoc、verify-md-wrap、verify-doc-refs、constraints、translation-pairing(1006 对)全绿 |
+
+两仓提交:引擎仓 `30e0a97 feat(engine): account-core domain package (p3-s1)`;QiLin 仓本提交(docs(plan): p3 s0 verification and s1 results)。注意:.env 不入库,键名改名只落工作区,本档为唯一书面记录。
+
 ## 分类为空声明(截至本档)
 
 - import 名漏改:0 —— 全仓跟踪文件(除 vendor/)扫描,`@deepseek-ai/dsh` 仅剩 R1/R2 两处 fixture 串,无代码/配置漏改;P1-S5 全量测试未出现 import 解析类失败(唯一 Cannot find package 系 fixture 目录名漏改,归 S5 段 c 类 #18),维持 0。**S6 更新(2026-08-28)**:R1/R2 已按生成机制再生成收敛,`@deepseek-ai/dsh` 全仓跟踪文件(除 vendor/)命中归零,本条维持 0 且其唯一例外消除。

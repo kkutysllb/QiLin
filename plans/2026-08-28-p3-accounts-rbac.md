@@ -143,6 +143,11 @@ vitest(测试与覆盖率门禁)/ scrypt 或 bcrypt(密码哈希,S1 定)。
    键名不匹配;凭证分层解析按 ref 名取值,`cwd/.env` 只是只读回退层
    (`packages/credentials/credentials-local/src/index.ts:3-15`),若产品配置引用的是
    `MINIMAX_CN_API_KEY`,`.env` 里那枚键永远不会被读到。**列为 P3-S0 联调核验项。**
+   ✅ **S0 已核验(2026-08-28)**:产品实际引用键名为 `MINIMAX_CN_API_KEY`
+   (唯一派生点 `deriveKeyRef`(`ui-settings-models/src/client/store.ts:70-72`),
+   providerId `minimax-cn` → `MINIMAX_CN_API_KEY`;e2e 与组件测试断言同);
+   已按机械风险最小落地:改仓根 `.env` 键名为 `MINIMAX_CN_API_KEY`(值原样保留,
+   零代码改动)。详见台账 P3 段 S0-1。
 4. **引擎全部凭证读取位点清单**(统一凭证源 D4 的事实基础):
    - 唯一管理面:`LocalCredentialProvider`,默认 `$QILIN_HOME/.credentials.yaml`
      (即 `~/.dsh/.credentials.yaml`,watch 热发布,跨进程写锁,注释保留的叶子级补丁)
@@ -271,23 +276,28 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 → 质量审(测试/覆盖率/边界)→ commit**。规模:S ≤0.5 天、M ≈1 天、L ≈2 天(单人)。
 > ~~S0 完成前(D 系列拍板)后续步骤不得开工。~~ 已满足:D 系列于 2026-08-28 拍板,本文件已定稿。
 
-### S0 决策冻结与 G1 核验(规模:S)
+### S0 决策冻结与 G1 核验(规模:S)✅ 完成(2026-08-28)
 
 - **范围**(定稿后收窄):决策回填已完成(本文件 v1);剩余:核验 `.env MINIMAX_API_KEY` vs
   `MINIMAX_CN_API_KEY` 命名疑点(§2.3-3),确认产品实际引用键名并给出修正
   (改 .env 键名或补 ref 映射,以实测引用方为准);确定密码哈希
   算法(node:crypto scrypt 为默认候选,免新依赖)。
 - **验收门禁**:~~本文件去掉 DRAFT 标头;§3 每项有「已拍板」结论~~(已完成,2026-08-28);
-  核验项有书面结论。
+  核验项有书面结论。✅ 两项书面结论见台账 P3 段:S0-1 MINIMAX 键名(改 `.env`
+  键名落地)、S0-2 密码哈希定 scrypt(node:crypto,参数固化 N=16384/r=8/p=1/
+  32B salt/64B key,恒时比较)。
 - **审**:用户本人审阅即视为 spec 审(决策面板已履行)。
 
-### S1 账户核心域包 `packages/accounts/account-core`(规模:M)
+### S1 账户核心域包 `packages/accounts/account-core`(规模:M)✅ 完成(2026-08-28,引擎仓提交 30e0a97)
 
 - **范围**:用户与会话实体(TS 类型)、存储接口、SQLite 实现(users/sessions 表,
   含 `system_role`、`needs_setup`、会话版本字段(承接 token_version 语义)、oauth 联结列
   预留)、密码哈希(scrypt,参数固化)、幂等建表 DDL。**不含任何 HTTP。**
 - **验收门禁**:vitest 单测覆盖实体/存储/哈希(错误口令、并发建表幂等、唯一约束
   冲突分类);覆盖率不低于包所在分区门禁;spec 文档列出表结构与不变量。
+  ✅ 47 个表驱动用例全绿,src 全文件 per-file 100%(与全仓门禁一致);并发建表幂等、
+  email/oauth 冲突分类、损坏行 fail-loud、错误口令与哈希篡改矩阵均有用例;表结构与
+  不变量见包 README 与台账 P3 段 S1 小节。终验与分区挂载方式见台账。
 - **审**:spec 审(对照 D5/D6 结论)+ 质量审(测试边界:时区/时钟回拨/损坏 DB 文件)。
 
 ### S2 会话与凭据服务包 `packages/accounts/account-auth`(规模:M)
