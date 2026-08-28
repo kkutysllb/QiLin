@@ -484,6 +484,17 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 - 门禁:两包 vitest **286 全绿**;双包 per-file 覆盖率 **100×4**;oxlint 本包 **0/0**;单包 tsc
   干净;staged 三钩全过;pairing **1012 对一致**。R3/R4 维持「未处置(登记)」。
 
+### S4 修复增量五(2026-08-28,引擎仓提交 `61b4dd0`;carrier disposer 世代边界)
+
+- 实现:carrier 绑定改为 `{ principal, token }` 世代结构(`594228b`,评审代理先行落地)——
+  disposer 仅在**当前绑定 token === 自己 token** 时删除,旧 disposer 在重绑后不再误删新 principal
+  (fail-closed 可用性问题,非提权);readBoundRbacPrincipal 读 `?.principal`。
+- 本轮补齐评审点名的回归测试(`61b4dd0`):bind(A)→bind(B)→旧 disposer 触发 → 同 scope assemble
+  断言 **B 仍生效**(被拒工具仍被过滤、对照工具在场),而非 fail-closed 空目录;再 unbind(B) → 空目录
+  (正常清理路径)。该测试在无条件 delete 旧实现语义下必然为红,token 守卫下绿。
+- 门禁:两包 vitest **287 全绿**;双包 per-file 覆盖率 **100×4**;oxlint 本包 **0/0**;单包 tsc
+  干净;git diff --check 干净;staged 三钩全过;pairing **1012 对一致**。R3/R4 维持「未处置(登记)」。
+
 ### S5 前端账户面(规模:M,依赖 S3)
 
 - **范围**:`packages/client/ui-accounts`:登录页、注册页(D5 开放注册,含开关关闭时的
