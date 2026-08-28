@@ -478,9 +478,9 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 
 - late-load 测试补 **schedule_list 对照工具**:deny schedule_create 的 user assemble 后断言
   **不含** schedule_create **且含** schedule_list——消除 `toEqual([])` 的歧义(空 assembly 可能
-  只是注册表为空)。红绿实证:临时移除 listener → 红(`expected ['schedule_create','schedule_list']
-  to not include 'schedule_create'`,对照在场、过滤缺席);恢复无条件注册 listener → 绿。plugin.ts
-  与 HEAD 逐字节一致,本轮纯测试强化。
+  只是注册表为空)。红绿实证:临时移除 listener → 红,错误信息为 expected
+  ['schedule_create','schedule_list'] to not include 'schedule_create'(对照在场、过滤缺席);
+  恢复无条件注册 listener → 绿。plugin.ts 与 HEAD 逐字节一致,本轮纯测试强化。
 - 门禁:两包 vitest **286 全绿**;双包 per-file 覆盖率 **100×4**;oxlint 本包 **0/0**;单包 tsc
   干净;staged 三钩全过;pairing **1012 对一致**。R3/R4 维持「未处置(登记)」。
 
