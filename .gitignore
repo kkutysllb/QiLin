@@ -93,7 +93,6 @@ Thumbs.db
 # Repository-level pnpm temp
 .pnpm-store/
 .qilin-internal-token
-deepseek-harness/
 
 # web-demo (KWorks-aligned)
 web-demo/node_modules/
@@ -109,3 +108,8 @@ web-demo/tsconfig.tsbuildinfo
 
 # === 只读上游参照(永不提交) ===
 reference/
+AUDIT_REPORT.md
+.audit/
+
+# 会话内截图/附件临时目录
+.drops/
