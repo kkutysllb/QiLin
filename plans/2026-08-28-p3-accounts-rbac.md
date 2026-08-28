@@ -612,3 +612,16 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   shell.overlay 注册账户遮罩(未登录全屏登录/needsSetup 仅 initialize);settings 段管理员用户管理
   (列表+改角色+启停+重置口令);locales zh/en;消费 connection handle 的 auth。
 - 状态:未开始编码。
+
+### S5-D ui-accounts(已收口)
+- 引擎提交 \`02cdefa\` feat(engine): ui-accounts overlay and admin settings section (p3-s5-d)。
+- 实现:新包 @qilin/client-ui-accounts(镜像 ui-settings-plugin-inventory 脚手架):
+  shell.overlay 条目(id account)未登录遮罩——needsSetup 仅 initialize 表单,匿名见登录表单,
+  已登录渲染 null,401 信号翻转回登录并提示会话结束;settings.section(id accounts)管理员账户管理——
+  账户表格+逐行角色切换/启停/重置口令(内联确认行),self_protected/last_admin_protected/weak_password/forbidden
+  本地化内联呈现,非管理员见 adminRequired 态;locales zh/en 平面词典;注入面延读连接句柄(激活期零连接访问)。
+- 实现注:ui-slots 的 InjectFace<I>=I 为平铺组合,组件 props 以平铺成员声明;
+  401 订阅走 handle.onUnauthorized 注入面(IAuthClient 不含订阅);shell.overlay 槽型声明在 ui-layout,
+  类型增强经 tsconfig 引用 + client 面空导入引入。
+- 亲测证据:3 spec 11/11(遮罩状态机 4、管理面 4、注册与词典 3);oxlint 0 错;tsc -b 零新增
+  (仅余 connection 包既有 18 错基线);pairing 1013 全一致(新增包 README 对);pre-commit 四钩绿。
