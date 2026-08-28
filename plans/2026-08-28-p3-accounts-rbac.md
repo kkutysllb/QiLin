@@ -348,7 +348,7 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 - **审**:spec 审(对照旧契约 L/M/N 逐条)+ 质量审(Principal 构造唯一性、
   策略热加载语义:初期定义为「重启生效」,热加载列顺延)。
 
-✅ **S4 结果(2026-08-28,引擎仓提交 `cde3b91`)**:
+✅ **S4 结果(2026-08-28,引擎仓提交 `cde3b91`;修复增量见下)**:
 
 - **交付面**:`packages/accounts/account-rbac`(`@qilin/account-rbac`,src 9 文件)+ client-connection
   强制点接线(`rbac-auth-gate.ts` 新契约文件 + `/api` 主路由与专用通道 `rpc-host` 在 apiAuth 判定后
@@ -386,6 +386,43 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   b. QiLin 仓 `qilin-engine/` 纯拷贝已删(rsync 校验仅 knip.json/tsbuildinfo 两生成物差异,真仓更新后删);
   c. 本档 S3 段 rate limit 描述补「共享」二字(与引擎包注释逐字对齐,见下);新发现已跟踪历史残渣
   `.generated-model-O7FJNT/`、`.generated-model-qwn8sk/` 仅登记未处置(残差档 R3/R4)。
+
+### S4 修复增量(2026-08-28,引擎仓提交 `7096270`;S4 评审 NEEDS_FIXES 四阻断项全部处置)
+
+- **阻断 1(身份/存储故障不得降级 403)**:`constructPrincipal` 只捕预期客户端侧
+  `SessionValidationError`(归一匿名→403);`SessionCorruptError` 与未知存储异常向上传播,
+  provider 侧(logger 边界,plugin 持有 ctx.logger)记日志后重抛,client-connection 的 /api 主路由与
+  专用通道 gate 调用点捕获映射为稳定 `500 {error:{code:'internal_error'}}`(契约常量
+  `RBAC_GATE_FAULT_RESPONSE`),依赖单向保持(connection 不 import account-rbac)。回归:corrupt
+  行/未知异常抛出断言、SessionValidationError 仍归一匿名(不回归)、provider 侧真实 SQLite 注入
+  幽灵 session 抛 `SessionCorruptError`、集成层真实 node:http 更新 sessions 行(FK pragma 关闭)
+  断言 HTTP 500 而非 403、传输层注入 gate 抛错断言 500 信封且非 permission_denied(两通道)。
+- **阻断 2(策略文件错误脱敏)**:`PolicyConfigError` 增稳定码 `policy-file-unreadable /
+  policy-file-json / policy-schema`;message 不含配置路径、fs errno、JSON parser 片段;原始 cause
+  仅挂错误 `cause` 供内部 logger。回归:绝对路径/ENOENT/Unexpected token/position 三类不泄露断言 +
+  code 断言 + schema 拒绝消息保留内容原因(ghost)但不含路径。README 双语补「错误语义」节。
+- **阻断 3(权限输入边界)**:新增 `isPermissionString / isValidResourceName`(barrel 导出);
+  `authorize / authorizeResource / baselineAllows` 对空串、缺/多冒号、空段、空白、非字符串运行时
+  输入一律 false(fail-closed);`routePermissionForEndpoint` 对非字符串/空返回空串(dispatch 404 路径),
+  合法映射(session.list→session:list、health/probe→route:health/probe、多点段)回归不破。
+- **阻断 4(目录接缝必须真实消费)**:推翻 visibleTools-only 方案,改为 **system-prompt/assemble
+  waterfall 末端过滤**——插件挂 `system-prompt/assemble` listener,先 `await next()`(此时
+  @qilin/tools 经 provider 贡献的工具已进 assembly.tools)再按策略过滤;身份经新增显式服务端绑定契约
+  `bindRbacPrincipal(scopedCtx, principal)`(`src/carrier.ts`,scope 标签为键,未带 scope 拒绑;
+  **未绑定 scope fail-closed 为空目录**,不默认 admin/user,不从客户端 metadata/ALS/cookie 猜身份);
+  listener 不变异注册表;无 systemPrompt 服务则不挂 listener、默认行为不变;依赖方向:account-rbac
+  dev/peer 依赖 @qilin/system-prompt、@qilin/scope(类型级),core/tools 零改动,未用 tools.restrict。
+  回归(真实组合):真实 Context + SystemPrompt + ToolRuntime + 两个真实 defineTool,listener 在
+  ToolRuntime 挂载**之前**注册(顺序覆盖),`ctx.systemPrompt.assemble({scope})` 断言绑 user 移除
+  schedule_create、绑 admin 保留、未绑定 scope 空、无 scope 空、policy null 绑定合法 principal 全量
+  可见(默认 parity)、注册表 schemas 本身不变异;另覆盖 bind 拒绝未绑定上下文。
+- **文档修正**:README.md/zh.md 权限矩阵未闭合反引号已修(双侧),pairing 重录;
+  verify-translation-pairing 全仓 **1012 对全一致**。
+- **修复后门禁**:两包 vitest **278 用例全绿**(account-rbac 155 + connection 123);per-file 覆盖率
+  双包 **100/100/100/100**;oxlint account-rbac **0 错**;单包 `tsc --noEmit` 干净;staged 预提交
+  三钩全过;knip 本包 0 噪声(存量 apps/cli、web-app 2 hints 维持另册登记);typecheck 与 type-aware
+  lint 的基线既有阻断(vendor/cordis lib/src 双面,残差档已登记)维持原状,非本步引入。R3/R4 维持
+  「未处置(登记)」状态不变,本步未触碰 generator 域。
 
 ### S5 前端账户面(规模:M,依赖 S3)
 
