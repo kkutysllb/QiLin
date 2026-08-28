@@ -46,6 +46,14 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -234,6 +242,7 @@ export function InputBox({
   const { mutateAsync: pickDirectoryMutate } = usePickDirectory();
   const [accessMenuOpen, setAccessMenuOpen] = useState(false);
   const [wsMenuOpen, setWsMenuOpen] = useState(false);
+  const [confirmFullAccess, setConfirmFullAccess] = useState(false);
   const workspaces = useMemo(() => workspaceTree?.workspaces ?? [], [workspaceTree]);
   const selectedWsId = context?.workspace_id;
 
@@ -258,7 +267,7 @@ export function InputBox({
     ? context.sandbox_mode
     : "workspace-write";
 
-  const selectSandboxMode = useCallback(
+  const applySandboxMode = useCallback(
     (mode: string) => {
       onContextChange?.({
         ...context,
@@ -271,6 +280,19 @@ export function InputBox({
       } catch {}
     },
     [context, onContextChange],
+  );
+
+  // 「完全访问」是危险档：切到它之前先弹确认对话框，用户确认后才真正应用。
+  // 其余档（只读/工作区可写）直接生效。
+  const selectSandboxMode = useCallback(
+    (mode: string) => {
+      if (mode === "danger-full-access" && currentSandboxMode !== "danger-full-access") {
+        setConfirmFullAccess(true);
+        return;
+      }
+      applySandboxMode(mode);
+    },
+    [applySandboxMode, currentSandboxMode],
   );
 
   // 添加工作区一步到位：菜单项点击 → 系统目录选择器 → 直接创建并选中。
@@ -960,6 +982,35 @@ export function InputBox({
           <div className="bg-background absolute right-0 -bottom-[17px] left-0 z-0 h-4"></div>
         )}
       </PromptInput>
+
+      {/* 完全访问（danger-full-access）确认对话框：用户确认后才切换 */}
+      <Dialog open={confirmFullAccess} onOpenChange={setConfirmFullAccess}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t.inputBox.sandboxFullAccessConfirmTitle}</DialogTitle>
+            <DialogDescription>
+              {t.inputBox.sandboxFullAccessConfirmDesc}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmFullAccess(false)}
+            >
+              {t.inputBox.sandboxFullAccessCancel}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                applySandboxMode("danger-full-access");
+                setConfirmFullAccess(false);
+              }}
+            >
+              {t.inputBox.sandboxFullAccessConfirm}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

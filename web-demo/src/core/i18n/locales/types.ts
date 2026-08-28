@@ -90,6 +90,10 @@ export interface Translations {
   sandboxReadOnly: string;
   sandboxWorkspaceWrite: string;
   sandboxFullAccess: string;
+  sandboxFullAccessConfirmTitle: string;
+  sandboxFullAccessConfirmDesc: string;
+  sandboxFullAccessConfirm: string;
+  sandboxFullAccessCancel: string;
   ungroupedOption: string;
   addWorkspace: string;
     placeholder: string;
