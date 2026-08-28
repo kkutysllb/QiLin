@@ -195,6 +195,7 @@ export const enUS: Translations = {
   // Sidebar
   sidebar: {
     newChat: "New task",
+    expandSidebar: "Expand sidebar",
     chats: "Tasks",
     recentChats: "Recent tasks",
     workspacesSection: "Workspaces",

@@ -146,11 +146,7 @@ export function UserPrompt({
         <div className="flex flex-col items-end gap-1">
           {hasText && (
             <article
-              className="text-foreground rounded-2xl px-3.5 py-2.5 text-right whitespace-pre-wrap leading-relaxed"
-              style={{
-                background:
-                  "linear-gradient(135deg, hsl(var(--primary)/0.12), hsl(var(--primary)/0.06))",
-              }}
+              className="text-foreground rounded-2xl rounded-br-md border border-border/40 bg-primary/5 px-4 py-2.5 text-right text-sm leading-relaxed whitespace-pre-wrap shadow-sm"
             >
               {displayText}
             </article>

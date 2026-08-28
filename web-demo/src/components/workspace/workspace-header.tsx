@@ -15,10 +15,11 @@ import {
 import { useI18n } from "@/core/i18n/hooks";
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
+import pkg from "../../../package.json";
 
 export function WorkspaceHeader({ className }: { className?: string }) {
   const { t } = useI18n();
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const pathname = usePathname();
   const collapsed = state === "collapsed";
 
@@ -31,7 +32,15 @@ export function WorkspaceHeader({ className }: { className?: string }) {
     >
       {collapsed ? (
         <div className="flex items-center justify-center py-1">
-          <QiLinLogo size={20} className="shrink-0" />
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            aria-label={t.sidebar.expandSidebar}
+            title={t.sidebar.expandSidebar}
+            className="group/sidebar-logo rounded-md p-1 transition-colors hover:bg-sidebar-accent"
+          >
+            <QiLinLogo size={20} className="shrink-0" />
+          </button>
         </div>
       ) : (
         <div className="flex items-center gap-2 px-2 py-1">
@@ -48,6 +57,9 @@ export function WorkspaceHeader({ className }: { className?: string }) {
               QiLin
             </span>
           )}
+          <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+            v{pkg.version}
+          </span>
         </div>
       )}
       {!collapsed && (

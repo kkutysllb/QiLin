@@ -155,6 +155,7 @@ export interface Translations {
     thisMonth: string;
     earlier: string;
     newChat: string;
+    expandSidebar: string;
     chats: string;
     demoChats: string;
     agents: string;

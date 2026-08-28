@@ -191,6 +191,7 @@ export const zhCN: Translations = {
   // Sidebar
   sidebar: {
     newChat: "新任务",
+    expandSidebar: "展开侧边栏",
     chats: "任务",
     recentChats: "历史任务",
     workspacesSection: "工作区",

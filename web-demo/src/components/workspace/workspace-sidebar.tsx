@@ -21,7 +21,7 @@ export function WorkspaceSidebar({
   const { open: isSidebarOpen, state } = useSidebar();
   return (
     <>
-      <Sidebar variant="sidebar" collapsible="offcanvas" {...props}>
+      <Sidebar variant="sidebar" collapsible="icon" {...props}>
         {/* Per-platform top pad comes from .kworks-win-pad-top in
             globals.css: macOS reserves the traffic-light strip (2.5rem),
             Windows frameless gets a compact pad, plain web gets none.

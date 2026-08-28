@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -50,14 +50,12 @@ function pageTitle(
 
 export function WorkspaceTopbar() {
   const { t } = useI18n();
-  const { state } = useSidebar();
   const pathname = usePathname();
   const backendStatus = useBackendStatus();
   const { rightPanelOpen, toggleRightPanel } = useWorkspaceLayout();
   const { messages, values } = useActiveThreadMessages();
   const { tokenUsageEnabled } = useModels();
 
-  const collapsed = state === "collapsed";
   const statusLabel =
     backendStatus === "connected"
       ? t.topbar.backendConnected
@@ -74,7 +72,6 @@ export function WorkspaceTopbar() {
         // clear of the native window-control overlay (minimize / maximize /
         // close) pinned to the top-right. Resolves to 0px everywhere else.
         "pr-[var(--kworks-titlebar-inset)]",
-        collapsed && "pl-[78px]",
       )}
     >
       {/* 左段：折叠按钮 */}
