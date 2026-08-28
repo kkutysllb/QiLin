@@ -462,6 +462,18 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   `apps/web/tests/built-boot.snapshot.ts:45` 的既有 `DSH Local Build` 标识差异,本轮无 web 改动。
 - **提交前纪律**:`a407521` staged lint、whitespace、vendor manifest hooks 全过;R3/R4 继续登记未处置。
 
+### S4 修复增量三(2026-08-28,引擎仓提交 `d948d08`;评审最终口径:无条件注册 waterfall listener)
+
+- `system-prompt/assemble` listener 改为 **apply 时无条件注册**(撤去上轮的 `ctx.inject` 门):
+  RBAC 先于 systemPrompt 启动也必然最终挂上 listener;从不挂载 systemPrompt 的组合根本不会发出
+  该事件,listener 永不触发,默认组合两种顺序下都不变。晚加载回归(apply enabled → plugin
+  SystemPrompt → plugin ToolRuntime → assemble 按绑定 Principal 过滤,deny 工具消失)维持绿灯。
+- `bindRbacPrincipal` disposer 与未绑定 fail-closed 空目录维持增量二(`3e07fa6`)形态;policy=null
+  时已绑定 principal 保持完整目录(默认 parity)的 README 双语语义不变,仅把挂载表述同步为无条件注册。
+- 顺带:policy.spec 两处同族冗余 double 断言按 unknown 中转改写,oxlint 本包维持 0/0。
+- 门禁:两包 vitest **286 全绿**(含他方新增 policy 输入测试);双包 per-file 覆盖率 **100×4**;
+  单包 tsc 干净;staged 三钩全过;pairing **1012 对全一致**。R3/R4 维持「未处置(登记)」。
+
 ### S5 前端账户面(规模:M,依赖 S3)
 
 - **范围**:`packages/client/ui-accounts`:登录页、注册页(D5 开放注册,含开关关闭时的
