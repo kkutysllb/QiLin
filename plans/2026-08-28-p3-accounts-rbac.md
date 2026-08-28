@@ -634,3 +634,23 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 - RBAC 禁用会话回归双层面既有:auth 层 session-service.spec(§553 validate 拒 DISABLED)、
   HTTP 层 admin-users-router.spec(§86 401 account_disabled)。
 - 门禁:串行全量首轮 exit 0;4 分区覆盖率首轮卡 4 文件 100% 阈值(见上修复),复跑中。
+
+### S5-E 覆盖率门禁(移交快照——轮次预算将尽)
+- 当前门禁状态:串行全量 \`pnpm test -- --fileParallelism=false --maxWorkers=1\` 通过(唯一失败为
+  boot/app-boot user-patches HMR 监视器 10s 超时的既有 flaky,单独复跑 16/16 绿,与 S5 无关);
+  ui-accounts 22/22、connection auth-client 13/13、account-http admin 30/30、plugin 6/6 全绿;
+  pairing 1013;oxlint 双包 0(仅余 connection 既有 error-typed 基线类)。
+- 4 分区覆盖率门禁尚红,余 4 文件未达 per-file 100%(完整未覆盖行清单见
+  引擎仓 /tmp/cov-solo2.log 或复跑输出 "Uncovered locations" 段,共 41 处):
+  admin-users-router.ts(余 97/135/148/189/237/268/287 附近分支:URL 兜底、405/404 臂、
+  非 DISABLED 校验错、promotion 组合臂、reset 缺参/未知 id 组合);
+  auth-client.ts(余 144 eq<=0 两臂、249 401-emit 臂、253 空 body 成功臂);
+  AccountOverlay.tsx(余 61/63 卸载竞态两臂、156:58 busy-true 标签臂、158 notice 臂);
+  AccountsSettingsSection.tsx(余 29:58 非 AuthError 臂、30/33 卸载竞态臂、56 apply busy 臂、
+  69/85 confirm 空值臂、76 map FALSE 臂、132/143 busy 禁用臂)。
+- 复跑指令:\`QILIN_COVERAGE_EXEMPT_HEAVY=1 QILIN_COVERAGE_PARTITIONS=4 pnpm run test:coverage:partitioned\`
+  (务必独占运行,与串行全量并行会因 CPU 争用污染分区报告,见 21:06 一轮的假阳性 hooks-codex)。
+- 断言注意:jsdom 下 fireEvent.click 会穿透 disabled 按钮,勿依赖 disabled 阻止第二次提交;
+  弱口令/缺参用例的桩需在 fake 内复现服务端语义;plugin.warn 接缝一次故障记两条 warn 属正常。
+- 引擎 HEAD @ main 34cd398(工作区干净);本文件 QiLin 侧同步。
+
