@@ -246,12 +246,6 @@ export function InputBox({
           ? (workspaces.find((w) => w.id === id)?.path ?? context?.user_workspace_path)
           : undefined,
       } as Parameters<typeof onContextChange>[0]);
-      try {
-        if (typeof window !== "undefined") {
-          if (id) window.localStorage.setItem("kworks.thread-workspace-id", id);
-          else window.localStorage.removeItem("kworks.thread-workspace-id");
-        }
-      } catch {}
     },
     [context, onContextChange, workspaces],
   );
@@ -293,9 +287,6 @@ export function InputBox({
       workspace_id: target.id,
       user_workspace_path: target.path,
     } as Parameters<typeof onContextChange>[0]);
-    try {
-      window.localStorage.setItem("kworks.thread-workspace-id", target.id);
-    } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNewThread, workspaceParam, workspaces, context?.workspace_id]);
 

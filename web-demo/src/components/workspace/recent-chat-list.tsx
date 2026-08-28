@@ -31,8 +31,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -264,6 +266,33 @@ export function RecentChatList() {
   const agentNameFromPath = parseAgentNameFromPath(pathname);
   const { data: threads = [] } = useThreads();
   const { data: tree } = useWorkspaceTree();
+  const queryClient = useQueryClient();
+
+  // 新会话（线程列表的新增 id）出现时，注册表树可能尚未反映其 workspace
+  // 归组：后端在 run 启动时 attach，而前端 tree query 仅被 workspace mutation
+  // 失效，与线程列表 query 相互独立。若只刷新线程列表，新线程会被兜底进
+  // Ungrouped。这里检测到列表新增 id 后失效 ["workspaces"] 让树重取最新分组。
+  // 用 ref 记录上轮 id 集，避免真正未分组线程反复触发失效。
+  const knownThreadIdsRef = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const listIds = new Set(threads.map((t) => t.thread_id));
+    if (knownThreadIdsRef.current === null) {
+      knownThreadIdsRef.current = listIds;
+      return;
+    }
+    let hasNew = false;
+    for (const id of listIds) {
+      if (!knownThreadIdsRef.current.has(id)) {
+        hasNew = true;
+        break;
+      }
+    }
+    knownThreadIdsRef.current = listIds;
+    if (hasNew && tree !== undefined) {
+      void queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    }
+  }, [threads, tree, queryClient]);
+
   const { mutate: deleteThread } = useDeleteThread();
   const { mutate: renameThread } = useRenameThread();
 

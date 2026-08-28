@@ -24,6 +24,7 @@ import { useNotification } from "@/core/notification/hooks";
 import {
   useThreadSettings,
   saveThreadAgentName,
+  saveThreadWorkspaceId,
   saveThreadWorkspacePath,
 } from "@/core/settings";
 import { useThreadStream } from "@/core/threads/hooks";
@@ -78,6 +79,13 @@ export default function ChatPage() {
       saveThreadWorkspacePath(
         createdThreadId,
         settings.context.user_workspace_path as string | undefined,
+      );
+      // Lock the user-selected registry workspace id so reopening the thread
+      // restores the same sidebar grouping / backend workspace binding after
+      // a page refresh (per-thread snapshot, mirroring user_workspace_path).
+      saveThreadWorkspaceId(
+        createdThreadId,
+        settings.context.workspace_id as string | undefined,
       );
     },
     onFinish: (state) => {

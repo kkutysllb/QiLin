@@ -3,12 +3,15 @@ import {
   LOCAL_SETTINGS_KEY,
   THREAD_AGENT_KEY_PREFIX,
   THREAD_MODEL_KEY_PREFIX,
+  THREAD_WORKSPACE_ID_KEY_PREFIX,
   THREAD_WORKSPACE_PATH_KEY_PREFIX,
   getLocalSettings,
   getThreadModelName,
+  getThreadWorkspaceId,
   saveLocalSettings,
   saveThreadAgentName,
   saveThreadModelName,
+  saveThreadWorkspaceId,
   saveThreadWorkspacePath,
   type LocalSettings,
 } from "./local";
@@ -32,6 +35,8 @@ const threadAgentNames = new Map<string, string | undefined>();
 const threadAgentHasOverride = new Set<string>();
 const threadWorkspacePaths = new Map<string, string | undefined>();
 const threadWorkspacePathHasOverride = new Set<string>();
+const threadWorkspaceIds = new Map<string, string | undefined>();
+const threadWorkspaceIdHasOverride = new Set<string>();
 
 let baseSettings: LocalSettings = DEFAULT_LOCAL_SETTINGS;
 let baseSettingsLoaded = false;
@@ -89,6 +94,8 @@ function handleStorage(event: StorageEvent) {
     threadAgentHasOverride.clear();
     threadWorkspacePaths.clear();
     threadWorkspacePathHasOverride.clear();
+    threadWorkspaceIds.clear();
+    threadWorkspaceIdHasOverride.clear();
     emitChange();
     return;
   }
@@ -111,6 +118,14 @@ function handleStorage(event: StorageEvent) {
         THREAD_WORKSPACE_PATH_KEY_PREFIX.length,
       );
       _refreshThreadWorkspacePathSnapshot(threadId);
+      emitChange();
+      return;
+    }
+    if (event.key.startsWith(THREAD_WORKSPACE_ID_KEY_PREFIX)) {
+      const threadId = event.key.slice(
+        THREAD_WORKSPACE_ID_KEY_PREFIX.length,
+      );
+      _refreshThreadWorkspaceIdSnapshot(threadId);
       emitChange();
       return;
     }
@@ -220,6 +235,46 @@ export function hasThreadWorkspacePathOverride(threadId: string): boolean {
   return threadWorkspacePathHasOverride.has(threadId);
 }
 
+// ------------------------------------------------------------------
+// Per-thread workspace_id snapshot
+// ------------------------------------------------------------------
+
+function _refreshThreadWorkspaceIdSnapshot(threadId: string) {
+  const raw = localStorage.getItem(
+    `${THREAD_WORKSPACE_ID_KEY_PREFIX}${threadId}`,
+  );
+  if (raw === null) {
+    threadWorkspaceIds.delete(threadId);
+    threadWorkspaceIdHasOverride.delete(threadId);
+  } else {
+    threadWorkspaceIdHasOverride.add(threadId);
+    // Empty string sentinel = explicit default workspace (id = undefined).
+    threadWorkspaceIds.set(threadId, raw === "" ? undefined : raw);
+  }
+}
+
+export function getThreadWorkspaceIdSnapshot(
+  threadId: string,
+): string | undefined {
+  ensureBaseSettingsLoaded();
+
+  if (!threadWorkspaceIdHasOverride.has(threadId)) {
+    _refreshThreadWorkspaceIdSnapshot(threadId);
+  }
+
+  return threadWorkspaceIds.get(threadId);
+}
+
+export function hasThreadWorkspaceIdOverride(threadId: string): boolean {
+  ensureBaseSettingsLoaded();
+
+  if (!threadWorkspaceIdHasOverride.has(threadId)) {
+    _refreshThreadWorkspaceIdSnapshot(threadId);
+  }
+
+  return threadWorkspaceIdHasOverride.has(threadId);
+}
+
 export const updateLocalSettings: LocalSettingsSetter = (key, value) => {
   ensureBaseSettingsLoaded();
   ensureStorageListenerRegistered();
@@ -262,6 +317,13 @@ export function updateThreadSettings<K extends keyof LocalSettings>(
       threadWorkspacePathHasOverride.add(threadId);
       threadWorkspacePaths.set(threadId, threadWorkspacePath);
       saveThreadWorkspacePath(threadId, threadWorkspacePath);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(value, "workspace_id")) {
+      const threadWorkspaceId = contextValue.workspace_id as string | undefined;
+      threadWorkspaceIdHasOverride.add(threadId);
+      threadWorkspaceIds.set(threadId, threadWorkspaceId);
+      saveThreadWorkspaceId(threadId, threadWorkspaceId);
     }
   }
 

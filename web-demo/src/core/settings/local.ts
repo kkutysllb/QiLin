@@ -33,6 +33,7 @@ export const LOCAL_SETTINGS_KEY = "kworks.local-settings";
 export const THREAD_MODEL_KEY_PREFIX = "kworks.thread-model.";
 export const THREAD_AGENT_KEY_PREFIX = "kworks.thread-agent.";
 export const THREAD_WORKSPACE_PATH_KEY_PREFIX = "kworks.thread-workspace-path.";
+export const THREAD_WORKSPACE_ID_KEY_PREFIX = "kworks.thread-workspace-id.";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -229,6 +230,64 @@ export function applyThreadWorkspacePathOverride(
     context: {
       ...settings.context,
       user_workspace_path: threadWorkspacePath,
+    },
+  };
+}
+
+// ------------------------------------------------------------------
+// Per-thread workspace_id snapshot
+// ------------------------------------------------------------------
+// The user-selected registry workspace id (drives sidebar grouping) lives
+// globally in baseSettings.context, which leaks across threads and is not
+// durable per thread. Snapshot it per-thread exactly like user_workspace_path
+// so reopening a thread restores the same workspace binding after refresh.
+
+function getThreadWorkspaceIdStorageKey(threadId: string): string {
+  return `${THREAD_WORKSPACE_ID_KEY_PREFIX}${threadId}`;
+}
+
+export function getThreadWorkspaceId(threadId: string): string | undefined {
+  if (!isBrowser()) {
+    return undefined;
+  }
+  const raw = localStorage.getItem(getThreadWorkspaceIdStorageKey(threadId));
+  // null = no stored value -> fall back to the global workspace default.
+  // The empty string "" represents an explicit "default workspace" (id =
+  // undefined) so it can be distinguished from "no value".
+  if (raw === null) return undefined;
+  return raw === "" ? undefined : raw;
+}
+
+export function saveThreadWorkspaceId(
+  threadId: string,
+  workspaceId: string | undefined,
+) {
+  if (!isBrowser()) {
+    return;
+  }
+  const key = getThreadWorkspaceIdStorageKey(threadId);
+  if (workspaceId === undefined) {
+    // Store a sentinel so we know the thread was explicitly created in the
+    // default workspace (vs. an old thread with no override).
+    localStorage.setItem(key, "");
+  } else {
+    localStorage.setItem(key, workspaceId);
+  }
+}
+
+export function applyThreadWorkspaceIdOverride(
+  settings: LocalSettings,
+  threadWorkspaceId: string | undefined,
+  hasThreadWorkspaceIdOverride: boolean,
+): LocalSettings {
+  if (!hasThreadWorkspaceIdOverride) {
+    return settings;
+  }
+  return {
+    ...settings,
+    context: {
+      ...settings.context,
+      workspace_id: threadWorkspaceId,
     },
   };
 }
