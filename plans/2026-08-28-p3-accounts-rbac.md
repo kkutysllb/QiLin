@@ -472,6 +472,14 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   手动验收脚本写进 PR 描述(浏览器全流程);不破坏既有 client-plugin HMR。
 - **审**:spec 审(UI 流对照契约 D/E)+ 质量审(a11y 与空态)。
 
+#### S5 设计定稿(2026-08-28,用户拍板「完整管理员管理」)
+
+- **后端存储与会话(account-core/account-auth)**:users 增 `disabled_at`(可空 epoch 毫秒;新建库直含列,旧库以 PRAGMA 探测后 ALTER 迁移,非法值 corrupt 拒载);store 新增 `listUsers`、`updateRole`、`setDisabled`;`projectUser` 与 `GET /me` 透出 `disabledAt`;`validateSession` 对禁用账户抛码为 DISABLED 的 `SessionValidationError`,auth 面映射 401 `account_disabled`,connection gate 与 RBAC 沿既有匿名折叠。
+- **管理契约(全新稳定码,非旧契约移植)**:`GET /api/v1/admin/users`;`PATCH /api/v1/admin/users/:id`(body `systemRole` 或 `disabled`,至少一项);`POST /api/v1/admin/users/:id/reset-password`(body `newPassword` ≥8 字符)。三者均在服务端要求 live session 且 `systemRole=admin`(403 `forbidden`);写操作 cookie 态走 CSRF 双提交、Bearer 沿 change-password 先例豁免;auth-disabled 阀按合成 admin 直通。禁止自降级/自禁用(400 `self_protected`);最后一个启用 admin 被降级或禁用拒(409 `last_admin_protected`);重置密码复用 `updatePassword` 即升 sessionVersion 吊销旧会话,不强制下次改密;无硬删除、无 OAuth/邀请制;列表响应为无 `passwordHash` 投影。
+- **前端传输(connection)**:新增浏览器安全 auth client——同源 fetch、自动读非 HttpOnly `csrf_token` cookie 附 `X-CSRF-Token`、非 2xx 抛稳定 `AuthError(status/code/message)`、401 触发可观察 auth-required 信号;`WebApiClient.doFetch` 对 401 发同一信号;`ConnectionHandle` 增量暴露 `auth` 与 `onUnauthorized`(fixture 模式提供确定性 stub)。
+- **前端界面(ui-accounts 新包)**:登录/注册/initialize 全屏 overlay(`shell.overlay` 席位)+ settings「账户」section(当前账户改密/登出卡 + admin 用户管理卡);启动 probe `setup-status`+`me`;空库仅提供 initialize(注册不得抢先创建 user),非空库按注册开关显隐注册入口;401→匿名 overlay;错误码→中英文案(契约 C 对齐);loading/空态/a11y(aria-live、焦点管理、label 关联)。会话 store 归属 ui-accounts(对计划原文「client-runtime 侧 store」的偏差:本步无第二消费者,不扩平台服务面,此处登记)。
+- **组合顺延**:web-app bundle patch 的 `account-http`/`ui-accounts` 行归 S6(默认 profile 行为不变、auth-disabled 全透明在 S6 验收);S5 手动验收以 `--patch` overlay 组合真实服务执行,步骤写入本台账。
+- **门禁**:每包新 src 文件四项 per-file 覆盖 100%;account-core/account-auth/account-http/connection/ui-accounts 目标测试全绿;oxlint 新文件 0 错;单包 tsc 干净;staged 预提交钩全过;`verify-translation-pairing` 保持全一致(新包 README 双语 + i18n yaml);收尾跑 CI 同口径分区 coverage 与串行全仓 test;不触碰 `vendor/` 与 `python/`。
 ### S6 组合、文档与收口(规模:S,依赖 S1–S5)
 
 - **范围**:`web-app` bundle patch 增补账户行(默认 profile 行为不变、auth-disabled
