@@ -543,9 +543,10 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 - 两口冒烟均 **PASS**,未出现引擎代码级破损 → **无需修复,无一行级移植破损修复**;引擎仓零改动(预期)。
 - 待办:P2 无残留待测项;G1 凭证来源、G2 标题品牌、G4 路径 mention 渲染按上表归入 P3/P5。
 
-## P3 段(2026-08-28):S0 核验 + S1 账户核心域包
+## P3 段(2026-08-28):S0 核验 + S1 账户核心域包 + S2 会话与凭据服务包
 
-> 执行基线:引擎仓 main @ 795b8dc(标签 qilin-engine-v0)起步,S1 落地为提交 30e0a97;
+> 执行基线:引擎仓 main @ 795b8dc(标签 qilin-engine-v0)起步,S1 落地为提交 30e0a97,
+> S2 落地为提交 70aba2c;
 > QiLin 仓计划定稿 v1 @ 1f16488。vendor/ 与 python/ 全程未触碰(引擎侧仅只读搜索)。
 
 ### S0-1 MINIMAX 凭证键名核验(计划 §2.3-3 疑点)—— 已处置:改 .env 键名,保值
@@ -597,6 +598,48 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 | 静态纪律门 | verify-package-invariants(228 companions)、verify-package-readme-limitations、verify-export-jsdoc、verify-md-wrap、verify-doc-refs、constraints、translation-pairing(1006 对)全绿 |
 
 两仓提交:引擎仓 `30e0a97 feat(engine): account-core domain package (p3-s1)`;QiLin 仓本提交(docs(plan): p3 s0 verification and s1 results)。注意:.env 不入库,键名改名只落工作区,本档为唯一书面记录。
+
+### S2 会话与凭据服务包 `packages/accounts/account-auth` —— 已交付(引擎仓提交 70aba2c)
+
+**范围兑现(计划 §4 S2,契约 A/B/C/F/G/H 内)**:会话签发/校验/吊销(`src/session-service.ts`,`SessionService`:issueSession 两档 persistent、validateSession 绝对过期 + issuedVersion vs user.sessionVersion 比对、revokeSession 幂等单登出、revokeAllForUser 账户级全灭、changePassword=改密全灭旧会话即契约 B 的 token_version 语义)、typed 会话错误(`src/errors.ts`,`SessionErrorCode = EXPIRED | INVALID | MALFORMED` 对齐契约 C,`SessionCorruptError` 为损坏行 fail-loud 服务端故障)、CSRF 令牌签发与双提交校验器(`src/csrf.ts`,纯函数:mintCsrfToken 每会话一枚服务端不存储、verifyCsrfTokens 固定摘要恒时比对、requiresCsrfCheck 方法矩阵、evaluateCsrfRequest 全矩阵判定)、auth-disabled 逃生阀(`src/auth-disabled.ts`,契约 G:resolveAuthDisabled/assertAuthDisabledAllowed/authDisabledWarning 三函数 + `AuthDisabledProhibitedError`)。恒时比较统一走 `src/compare.ts`(`timingSafeStringEquals`:两侧 SHA-256 定长摘要后 `crypto.timingSafeEqual`,长度归一消除早退侧信道)。**不含任何 HTTP/路由/cookie 设置**(S3 面)。上游评审观察项已处理:会话行读取自带守卫——validateSession 对 durable 行校验 issuedVersion 整数 ≥1、时间戳有限且 expiresAt>createdAt、persistent 布尔、属主在册(S1 存储解码不复读 session 列),损坏行抛 typed 错误而非继续下流。
+
+校验裁决顺序(每步有专属用例):格式门(MALFORMED,规范 UUID 形状,垃圾 cookie 绝不触达存储=契约 H,测试断言存储零探查)→ 存储查找 + 恒时令牌比对(INVALID)→ 行不变量(SessionCorruptError)→ 绝对过期(EXPIRED)→ 版本比对(INVALID,契约 B 通道)。
+
+导出面(`@qilin/account-auth` barrel,26 个运行时导出 + invariant 子路径):`SessionService`(issueSession/validateSession/revokeSession/revokeAllForUser/changePassword)、`projectUser`/`SessionUser`(剥除 passwordHash 的投影)、`DEFAULT_SESSION_TTL_MS`(7 天,契约 A 默认)、`SESSION_ID_PATTERN`;`SessionValidationError`/`SessionCorruptError`/`SessionErrorCode`;`timingSafeStringEquals`;CSRF 系(`mintCsrfToken`/`verifyCsrfTokens`/`requiresCsrfCheck`/`evaluateCsrfRequest`/`defaultRandomToken`/`RandomToken`/`CsrfRequestFacts`/`CsrfExemptions`/`CsrfDecision`/`CsrfSkipReason`/`CsrfRejectReason`/`CSRF_COOKIE_NAME`/`CSRF_HEADER_NAME`/`CSRF_TOKEN_BYTES`/`CSRF_SAFE_METHODS`/`CSRF_WRITE_METHODS`);逃生阀系(`isAuthDisabledRequested`/`isExplicitProductionEnvironment`/`resolveAuthDisabled`/`assertAuthDisabledAllowed`/`authDisabledWarning`/`AuthDisabledProhibitedError`/`AUTH_DISABLED_ENV_VAR`/`PRODUCTION_ENV_VARS`/`PRODUCTION_ENV_VALUES`)。
+
+契约映射表(用例文件 packages/accounts/account-auth/tests/*.spec.ts,89 用例):
+
+| 契约 | 语义 | 用例组 |
+|---|---|---|
+| A | 令牌签发默认 7 天、claims 快照 | session-service「session issuing (contract A)」:默认 7 天绝对过期、两档独立寿命、issuedVersion 签发快照、未知账户拒绝、CSRF 令牌铸造、随机缝注入、非法寿命拒构造、待补全 OAuth 账户 |
+| B | token_version 递增旧令牌全灭 | session-service「revocation (contract B)」:改密后旧会话必死(行删除形态)、版本递增单独通道即可杀(行存留形态)、新登录以新版本存活、账户级踢人只杀本账户、单登出幂等(含垃圾令牌幂等) |
+| C | EXPIRED/INVALID/MALFORMED 三分类 | session-service「session validation (contracts C and H)」+「durable row invariants」:垃圾 cookie 形状表→MALFORMED、未知/已登出/版本滞后→INVALID、两档过期及边界→EXPIRED、过期先于版本裁决序、异 id 行恒时守卫→INVALID;损坏行矩阵(fake store 补丁 14 类 + 账户纪元 3 类 + 孤儿行 + raw-SQL 文本注入 expires_at)→SessionCorruptError |
+| F | CSRF 双提交 + 方法矩阵 | csrf「method matrix (contract F)」:GET/HEAD/OPTIONS/TRACE 免检、POST/PUT/DELETE/PATCH 强制、方法大小写归一、清单外方法 fail-closed(与旧实现豁免未知方法的差异已在 README 限制节显式登记);「double-submit comparator」11 行表(缺/空/异/长度不等→false,相等→true,恒时不抛);「request evaluation」15 行全矩阵(含路径豁免精确尾斜杠归一/前缀/webhook 风格、空前缀忽略、D2 Bearer 免检、auth-disabled 跳过、缺令牌/不匹配两拒绝理由) |
+| G | auth-disabled 逃生阀 | auth-disabled「escape valve (contract G)」:仅精确 `=1` 计为请求(7 行表)、生产标记两侧变量含trim/大小写(10 行表)、两态解析(未配置=开启;dev 放行;生产拒绝,3 行表)、boot 守卫两态(生产+请求=类型化拒绝)、警示文案有无 |
+| H | 垃圾 cookie 防绕过 | session-service「rejects a row returned under a different id」及「classifies garbage cookie shapes as MALFORMED before storage is consulted」:8 类垃圾形状全拒且存储零探查;大写呈递经归一化接受 |
+
+注册面(照 S1 先例):tsconfig.host.json reference、packages/README(.zh).md accounts 组行描述更新、packages/accounts/README(.zh).md 增 account-auth 行、包 README 三件套(Model Experience 采 audited `None, as` 句式 + Known Limitations 五条)、scripts/verify-package-readme-model-experience.ts 审计句清单 +1、docs/module-graph(.zh).md 再生成同步(zh 侧 mermaid 块与主表行按 pairing 门禁对齐 EN 位序)、Agent Note 三件套、tsconfig.base.json 双 wildcard 已由 accounts 组覆盖零改动、knip.json 零改动。
+
+**覆盖率分区挂载**:与 S1 同——分区即分片 glob 自动命中,无注册表改动;门禁沿用全仓 per-file 100%。
+
+**终验数字(引擎 HEAD = 70aba2c)**:
+
+| 门禁 | 结果 |
+|---|---|
+| 新包 vitest | 5 spec / 89 tests 全绿(表驱动) |
+| 覆盖率 | per-file 100%(statements/branches/functions/lines;barrel index.ts 为零语句纯转发,带理由 v8 ignore,与 S1 同口径) |
+| pnpm run typecheck | 通过(tsc -b host + client 全绿;exactOptionalPropertyTypes 下两测试侧类型先行修正) |
+| pnpm run lint(oxlint) | 通过,0 warnings 0 errors(2633 文件;no-confusing-void-expression/no-unnecessary-type-assertion/eol-last 三类就地修) |
+| pnpm run build | 通过(200 client artifacts) |
+| pnpm run test(全仓) | 通过:871 文件通过 / 9 跳过;14729 tests 通过 / 114 跳过,零失败 |
+| pnpm run test:snapshot | 通过:13 文件全过;126 passed / 2 skipped,exit 0(S1 轮的 built-boot SVG 红本轮未现,见下方噪声基线条目) |
+| 静态纪律门 | constraints、verify-package-invariants(229 companions)、verify-built-package-invariants(229)、verify-package-readme-limitations(229)、verify-export-jsdoc、verify-md-wrap(2002 文件)、verify-doc-refs(2140 文件)、verify-module-graph(新鲜)、verify-translation-pairing(1008 对)、duplication(0 clones)全绿 |
+| 首轮并行噪声(已定性) | 首轮与 snapshot 并行抢负载跑全仓 test 得 9 failed(hooks-codex/hooks-claude-code/sandbox-local/bash-sandbox/app-boot user-patches HMR,全部 5000ms/10499ms timeout);单独复跑 exit 0 零失败,与 S6 噪声基线同源两态,非回归 |
+| model-experience 基线噪声 | 25 处 tool-catalog fragment 失败与 S1 登记数持平,无一涉及 accounts |
+
+**噪声基线登记条目(P3-S2,S8 关账复核口径)**:评审裁决——lib 模式 snapshot `apps/web/tests/built-boot.snapshot.ts:45` 的 SVG 断言(`svg[viewBox="26 0 156 24"]`)在 795b8dc 与 HEAD 双态确定性红,非回归;S8 关账用 source 口径,官方门禁为 lib 口径,后续以 lib 口径复核。S2 终验轮实测:build 后 lib 口径复跑 test:snapshot 全绿(126 passed / 2 skipped),该断言本轮为绿——双态之「绿态」,后续轮次若再见红,先对照本条并复核 lib 产物新鲜度再定性,勿误判为新增回归。
+
+两仓提交:引擎仓 `70aba2c feat(engine): account-auth session and csrf services (p3-s2)`;QiLin 仓本提交(docs(plan): p3 s2 results and noise baseline)。vendor/ 触碰 0(暂存清单核对 + 提交前 grep)。
 
 ## 分类为空声明(截至本档)
 

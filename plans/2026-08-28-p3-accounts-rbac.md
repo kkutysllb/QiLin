@@ -300,15 +300,21 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   不变量见包 README 与台账 P3 段 S1 小节。终验与分区挂载方式见台账。
 - **审**:spec 审(对照 D5/D6 结论)+ 质量审(测试边界:时区/时钟回拨/损坏 DB 文件)。
 
-### S2 会话与凭据服务包 `packages/accounts/account-auth`(规模:M)
+### S2 会话与凭据服务包 `packages/accounts/account-auth`(规模:M)✅ 完成(2026-08-28,引擎仓提交 70aba2c)
 
 - **范围**:会话签发/校验/吊销(登录、登出、改密全灭旧会话=契约 B 的 token_version 语义)、
   typed 会话错误(EXPIRED/INVALID/MALFORMED 对齐契约 C)、CSRF 令牌签发与双提交
   校验器(纯函数,不含 HTTP)、auth-disabled 逃生阀(显式生产禁用,契约 G)。
 - **验收门禁**:vitest 全语义表驱动测试(对照 §2.2.1 契约 A/B/C/F/G/H 逐条);
   改密后旧会话必死的吊销测试;CSRF 方法矩阵测试。
+  ✅ 89 个表驱动用例全绿,契约 A/B/C/F/G/H 逐条映射(映射表见台账 P3 段 S2 小节);
+  改密全灭以「行删除」与「版本递增单独通道」双形态覆盖;CSRF 方法矩阵含清单外方法
+  fail-closed;src 全文件 per-file 100%。终验与注册面见台账。
 - **审**:spec 审(逐条对照契约表)+ 质量审(时序攻击面:比较函数恒时;垃圾
-  cookie 防绕过用例,契约 H)。
+  cookie 防绕过用例,契约 H)。✅ 恒时比较统一走 SHA-256 定长摘要 + timingSafeEqual
+  (长度归一消除早退侧信道);垃圾 cookie 形状门在存储探查前拒绝(用例断言零探查);
+  上游评审观察项——会话行读取自带不变量守卫、损坏行 fail-loud typed 错误——已实现
+  并有 14+3 类损坏矩阵与 raw-SQL 注入用例。
 
 ### S3 HTTP 面:`/api/v1/auth` 路由 + /api 强制点(规模:L)
 
