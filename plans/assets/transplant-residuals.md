@@ -709,3 +709,10 @@ S4(RBAC 包)执行期间清尾复核新发现两处**已跟踪**的历史残渣�
 | R4 | packages/typert/generator/tests/.generated-model-qwn8sk/host.mjs | fixture 期望串(测试运行产物) | 未处置(历史残渣) | 同 R3 |
 
 > **S4 type-aware 噪声基线增量(登记)**:S3 档登记的 connection Context 双面解析噪声(clean-HEAD 同环境复现,待 tsgolint 项目解析修复)在 S4 后实测 **41 条**(S3 基线 37 + S4 接线新增 4:rpc-host 专用通道 `rbacAuth` 征询行与 /api 主路由同构行,与相邻 `apiAuth` 行同族同源);S4 新增文件(account-rbac 全包 19 文件 + connection/rbac-auth-gate.ts)type-aware 错误 **0 残留**(就地修复达标);佐证同 S3 口径:account-rbac 单包 `tsc -p --noEmit` 全绿、258 用例全绿、clean-HEAD stash 双向对照同报错。
+> **S4 最终复核增量(登记,2026-08-28)**:引擎仓提交链为 `3e07fa6`、`594228b`、`2b9cfc7`、
+> `ebd267c`、`a407521`;QiLin 仓计划在 `0802a04` 后继续同步。account-rbac **163** 用例、
+> connection **123** 用例共 **286** 全绿;affected 组合 188 全绿;CI 同口径分区 coverage exit 0,
+> 两包 src 四项 per-file 均 100%;串行全仓 test exit 0;source snapshot 126 passed/2 skipped。
+> `pnpm run typecheck` 与 `pnpm run build` 仍复现已登记的 client/connection 与 vendor/cordis Context
+> 双面类型噪声;lib snapshot 仍仅在 `apps/web/tests/built-boot.snapshot.ts:45` 复现既有 `DSH Local Build`
+> 标识差异,本轮无 web 改动。

@@ -424,7 +424,7 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   lint 的基线既有阻断(vendor/cordis lib/src 双面,残差档已登记)维持原状,非本步引入。R3/R4 维持
   「未处置(登记)」状态不变,本步未触碰 generator 域。
 
-### S4 修复增量二(2026-08-28,引擎仓提交 `3e07fa6`;评审二轮两点 + README 语义补强)
+### S4 修复增量二(2026-08-28,引擎仓提交 `3e07fa6`、`594228b`;评审二轮两点 + README 语义补强)
 
 - **listener 挂载改 `ctx.inject(['systemPrompt'], ...)`**:废除 apply 时一次性
   `readOptionalService`(RBAC 先于 systemPrompt 启动时会永久漏挂 listener)。inject 语义下:
@@ -432,14 +432,35 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   不变)。回归:「晚加载」测试(apply 时无 systemPrompt,之后挂 SystemPrompt+ToolRuntime,deny
   策略下真实 assemble 断言被拒工具消失)——先行验证为红(一次性 get 漏挂、未过滤),改后绿。
 - **`bindRbacPrincipal` 返回 disposer**:同一 scope 重新绑定替换旧 principal(后绑者胜,复用
-  scope 不残留旧身份);返回的 disposer 从绑定表删除该 scope,供 scope teardown 调用。回归:
+  scope 不残留旧身份);返回的 disposer 携 generation token,仅清除仍属于自己的绑定,供 scope teardown 调用。回归:
   绑定→assemble 全量可见→unbind→同一 scope assemble 空目录(fail-closed 恢复)。
 - **policy=null 语义钉死(README 双语)**:未加载策略时,已绑定 principal 保持与 RBAC 之前完全
   一致的完整目录(默认 parity);唯一新增是未绑定 scope 的 fail-closed 空投影。
 - **顺带清账**:本包测试 4 处 `toThrowError`→`toThrow`、5 处冗余 double 断言改 unknown 中转单步
   断言(oxlint type-aware 规则;此前轮次的 tail-only 读取漏报,本轮按 0 错复核口径修净)。
-- **门禁**:两包 vitest **280 全绿**;双包 per-file 覆盖率 **100×4**;oxlint 本包 **0 错**;单包
-  tsc 干净;staged 四钩全过(含 whitespace);pairing **1012 对全一致**。R3/R4 维持「未处置(登记)」。
+- **门禁**:两包 vitest **286 全绿**(account-rbac 163 + connection 123);双包 per-file
+  覆盖率 **100×4**;oxlint 本包 **0 错**;单包 tsc 干净;staged 四钩全过(含 whitespace);pairing
+  **1012 对全一致**。R3/R4 维持「未处置(登记)」。
+
+### S4 修复增量三(2026-08-28,引擎仓提交 `2b9cfc7`、`ebd267c`、`a407521`;专项补充审查)
+
+- **未知资源域 fail-closed**:新增 `isResourceKind` 并纳入包 barrel;`authorizeResource`、
+  `resourceRulesFor`、`evaluatePolicy`、`resourceVisible` 与公开 `filterCatalog` 对未知字符串、数字、
+  null、对象等运行时 `kind` 不再落入“无规则=允许”,而是分别返回 false/undefined/undecided/空目录。
+- **输入边界稳定化**:`parsePermission` 对非字符串抛稳定 permission error;`matchesPattern` 对非字符串
+  pattern/candidate 返回 false;`evaluatePolicy` 对非法 candidate 返回 `undecided`;合法权限、route 映射、
+  deny-wins 语义不变。新增边界回归与 barrel 导出契约,覆盖 policy-null 和有策略两条路径。
+- **生命周期与目录接缝回归延续**:与上一增量合并后,真实 Context/SystemPrompt/ToolRuntime/assemble、
+  late-load、scope disposer generation 隔离均保持通过。
+- **新鲜门禁证据**:affected account-rbac + connection 测试 **188 全绿**;完整两包测试 **286 全绿**;
+  CI 同口径 `QILIN_COVERAGE_EXEMPT_HEAVY=1 QILIN_COVERAGE_PARTITIONS=4 pnpm run
+  test:coverage:partitioned` **exit 0**, account-rbac/src 与 client/connection/src per-file
+  statement/branch/function/line 均 100%;串行全仓 `pnpm test -- --fileParallelism=false --maxWorkers=1`
+  **exit 0**;source snapshot **126 passed/2 skipped**。
+- **登记的非本步基线**:完整 `pnpm run typecheck`/`pnpm run build` 仍被
+  `client/connection` 与 vendor Cordis `Context` 双类型面既有错误阻断;lib snapshot 唯一失败仍为
+  `apps/web/tests/built-boot.snapshot.ts:45` 的既有 `DSH Local Build` 标识差异,本轮无 web 改动。
+- **提交前纪律**:`a407521` staged lint、whitespace、vendor manifest hooks 全过;R3/R4 继续登记未处置。
 
 ### S5 前端账户面(规模:M,依赖 S3)
 
