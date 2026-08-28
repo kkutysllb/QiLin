@@ -471,6 +471,9 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 - `bindRbacPrincipal` disposer 与未绑定 fail-closed 空目录维持增量二(`3e07fa6`)形态;policy=null
   时已绑定 principal 保持完整目录(默认 parity)的 README 双语语义不变,仅把挂载表述同步为无条件注册。
 - 顺带:policy.spec 两处同族冗余 double 断言按 unknown 中转改写,oxlint 本包维持 0/0。
+- 文档对齐修正(引擎仓 `77762fe`,主控亲自修复):增量三初稿在 README 双语末句与 plugin.ts
+  注释残留「未挂服务则不挂 listener」旧口径,与新开头「无条件注册、无事件则不触发」自相矛盾;
+  已删除/合并改写,pairing 重录后全仓仍 **1012 对全一致**,staged 四钩全过。
 - 门禁:两包 vitest **286 全绿**(含他方新增 policy 输入测试);双包 per-file 覆盖率 **100×4**;
   单包 tsc 干净;staged 三钩全过;pairing **1012 对全一致**。R3/R4 维持「未处置(登记)」。
 
