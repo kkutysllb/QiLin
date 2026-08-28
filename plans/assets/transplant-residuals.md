@@ -637,9 +637,56 @@ P1 五门禁+两专项全绿、标签就位 → **P2(P1 收官后即启)**。P2 
 | 首轮并行噪声(已定性) | 首轮与 snapshot 并行抢负载跑全仓 test 得 9 failed(hooks-codex/hooks-claude-code/sandbox-local/bash-sandbox/app-boot user-patches HMR,全部 5000ms/10499ms timeout);单独复跑 exit 0 零失败,与 S6 噪声基线同源两态,非回归 |
 | model-experience 基线噪声 | 25 处 tool-catalog fragment 失败与 S1 登记数持平,无一涉及 accounts |
 
-**噪声基线登记条目(P3-S2,S8 关账复核口径)**:评审裁决——lib 模式 snapshot `apps/web/tests/built-boot.snapshot.ts:45` 的 SVG 断言(`svg[viewBox="26 0 156 24"]`)在 795b8dc 与 HEAD 双态确定性红,非回归;S8 关账用 source 口径,官方门禁为 lib 口径,后续以 lib 口径复核。S2 终验轮实测:build 后 lib 口径复跑 test:snapshot 全绿(126 passed / 2 skipped),该断言本轮为绿——双态之「绿态」,后续轮次若再见红,先对照本条并复核 lib 产物新鲜度再定性,勿误判为新增回归。
+**噪声基线登记条目(P3-S2,S8 关账复核口径)**:评审裁决——lib 模式 snapshot `apps/web/tests/built-boot.snapshot.ts:45` 的 SVG 断言(`svg[viewBox="26 0 156 24"]`)在 795b8dc 与 HEAD 双态确定性红,非回归;S8 关账用 source 口径,官方门禁为 lib 口径,后续以 lib 口径复核。**S3 勘误**:S2 原记「S2 终验轮实测:build 后 lib 口径复跑 test:snapshot 全绿(126 passed / 2 skipped),该断言本轮为绿——双态之『绿态』」与复核事实不符——S3 评审轮以新鲜 build(lib 口径)复测,该断言为**红**:1 failed / 139 passed / 2 skipped,红态复现且与 S1 基线逐字同数,非回归;原「绿态」记录作废。双态结论修正:该断言为 source 口径绿、lib 口径红的双态用例,后续轮次以 lib 口径红为默认预期,若转绿须复核产物新鲜度与用例变更,勿误判为新增回归。
 
 两仓提交:引擎仓 `70aba2c feat(engine): account-auth session and csrf services (p3-s2)`;QiLin 仓本提交(docs(plan): p3 s2 results and noise baseline)。vendor/ 触碰 0(暂存清单核对 + 提交前 grep)。
+
+### S3 HTTP 面 `packages/accounts/account-http` + connection 强制点 —— 已交付(引擎仓提交 72682c8)
+
+**范围兑现(计划 §4 S3,契约 D/E/F/G/H/J/K 内)**:路由族插件(`src/plugin.ts`,cordis 服务名 `account-http`,按名 provide 结构契约 `apiAuth`,本包不 import connection 依赖倒置单向)注册 7 端点于 `AUTH_ROUTE_PREFIX = /api/v1/auth`:POST login/local、POST register(默认开放,受 `auth-config.json` registration 开关即时生效)、POST logout、POST change-password(改密全灭旧会话)、GET me、GET setup-status、POST initialize(确定性建 admin,仅空库,幂等 409)。统一鉴权包装 `src/gate.ts`(`ApiAuthorizer`:authenticate 裁决序 = 格式门 MALFORMED → 存储+恒时比对 INVALID → 过期 EXPIRED → 版本比对;Bearer 兜底仅会话创建端点回传 token 且免 CSRF;valve 合成 admin 放行 + boot 警告)以 `checkRequest`/`checkUpgrade` 被 connection 三处消费:`/api` 前缀路由 handler、rpc channel 路由 handler(`rpc-host.ts`)、ws 升级 handler(与既有 untrusted-upgrade 栅栏串联,拒升 reason 参数化 401/403/其它)。cookie 安全策略(`src/cookies.ts`,契约 E 五 reason 解析 + persistent 标记 cookie + CSRF 双提交)与 Origin 白名单(`src/origin.ts`,Forwarded/X-Forwarded-* 链、括号化 IPv6、逐段 URL 校验拒绝 path/query/credentials 形态)均移植自旧网关。rate limit(`src/rate-limit.ts`):login/register 每 IP 内存滑窗,默认 300s/10 次,注入时钟,超限 429 + Retry-After(秒,向上取整)。
+
+**S2 小疵路由层归一**:issueSession 未知账户裸 Error → login 路径 401 `invalid_credentials`(issueAndRespond 统一归一,非 Error 值同样归一);provision 路径(installer/admin)500 `internal_error`;SessionCorruptError → 500 `internal_error`(不泄露存储细节);响应已提交后的 fault 改为 log + destroy。
+
+**契约映射表**(用例文件 packages/accounts/account-http/tests/*.spec.ts + e2e,109 用例):
+
+| 契约 | 语义 | 用例组 |
+|---|---|---|
+| D | cookie 优先、Bearer 兜底、未登录 401 | gate「authenticate resolution order」、auth-router「me」双凭证、connection 集成「未登录 /api 401(路由+channel+upgrade 三面)」 |
+| E | Secure/loopback 豁免/持久化/逃生开关 | cookies「serializeSessionCookies/resolveSessionCookiePolicy」五 reason 表 + persistent 标记 cookie |
+| F | CSRF 双提交 + 方法矩阵 | gate「double submit」缺/不匹配;auth-router change-password 403 csrf_missing/csrf_mismatch;Bearer 免检 |
+| G | auth-disabled 逃生阀 | gate「valve」、me 合成 admin 200、change-password 400、integration valve boot 警告 + Origin 栅栏豁免 |
+| H | 垃圾 cookie 防绕过 | gate/auth-router 垃圾形状 → 401 token_invalid;存储零探查继承 S2 |
+| J | setup-status/initialize | initialize 空库 201(确定性 admin,system_role=admin)、非空 409 system_already_initialized、竞态 AccountConflict → 409、setup-status needsSetup |
+| K | 路由族 + 状态码契约 | auth-router 全路由表 + 方法 405 + 未知 404 + 415 + 413 + 400;completions/login 校验/rememberMe 三态/时序垫片 |
+
+**语义决定与偏差登记**(对照 D5 旧文的差异,均为有意取舍):
+1. **错误信封**统一 `{ "error": { "code", "message" } }`(旧文个别端点仅 `{message}`);S2 typed code 全数保留。
+2. **CORS 环境变量新名** `QILIN_CORS_ORIGINS`(逗号分隔,跳过空与 `*`,normalize 失败原样收录),替代旧 GATEWAY_CORS_ORIGINS。
+3. **Origin 白名单施于** POST {login/local, register, logout, initialize}(legacy login-CSRF 防御面);change-password 走 CSRF 双提交故不施;跨站 auth POST 无白名单直接 403 `cross_site_denied`。
+4. **rate limit 计全部尝试**(含成功登录),默认 300s/10 次;内存态:单进程、重启清零、多副本不共享;setup-status 不限流(无 per-IP 缓存,读为 O(1) 计数);initialize 不参与(空库门槛本身一次性)。
+5. **账户枚举**:register 重名沿用旧 400 `email_already_exists`——枚举暴露已评估并登记为已知取舍(修复需改语义,涉 D5 后续);login 侧统一 401 + 恒时 scrypt 时序垫片,不泄露存在性。
+6. **弱口令黑名单 scope cut**(D5 适配):仅长度 ≥8 校验,无泄露型黑名单/站点定制词表。
+
+**上游接线**:api-auth-gate.ts(结构契约 + cordis Context augmentation `apiAuth?`)、connection 三消费点、websocket-downlink 拒升 reason 参数化、tsconfig.host.json reference、docs/module-graph(.zh).md 再生成同步、knip.json 包条目(e2e 入口 + schemastery 反射消费豁免)、README 三件套与 model-experience 审计行、Agent Note 三件套。
+
+**覆盖率分区挂载**:与 S1/S2 同——分区即分片 glob 自动命中;门禁全仓 per-file 100%(本包 src 全文件,含条件 spread 与防御分支,均有用例)。
+
+**终验数字(引擎 HEAD = 72682c8)**:
+
+| 门禁 | 结果 |
+|---|---|
+| 新包 vitest | account-http 9 spec/108 tests + e2e 冷启动 1 条全绿;connection node-half 含 gate 4 用例全绿 |
+| 覆盖率 | per-file 100%(statements/branches/functions/lines;全仓聚合含跨包测试计入) |
+| pnpm run typecheck | 通过(tsc -b host + client) |
+| pnpm run build | 通过(200 client artifacts) |
+| pnpm run test(全仓) | 14844 passed / 114 skipped,0 failed(hmr-config 定时用例本周期未复现) |
+| pnpm run test:snapshot | source 口径 128 passed / 2 skipped,exit 0(lib 口径红态见上方勘误条目) |
+| pnpm run test:coverage | exit 0,全仓 per-file 100% |
+| pnpm run verify-translation-pairing | 1010 对全一致 |
+| 静态纪律门 | verify-package-readme-model-experience(account-http 审计行通过)、verify-module-graph(新鲜)、knip(account-http 零噪声;apps/cli 存量 unused-deps 236 条为 S2 rescope 时 `@deepseek-ai/.+` ignoreDependencies 正则失配所致,与本面无关,另册登记) |
+| 工具链噪声(已定性) | oxlint+tsgolint 7.0.2001 于本周期 pnpm install 激活 type-aware 规则后,对 solution-structured 包(connection)的 Context 类型图产生误报(error typed):connection/src 37 条(index 31 + rpc-host 6),其中 24 条为 70aba2c 既有内容,13 条为 S3 接线新增行;佐证:tsc -b 全绿、14958 用例全绿、HEAD@70aba2c 在同环境同样报错(worktree 对照 26884 条全仓)。S3 已将本包新增文件的 type-aware 错误全数就地修复(0 残留);connection 存量 37 条登记为工具链噪声基线,待 tsgolint 项目解析修复后复核 |
+
+两仓提交:引擎仓 `72682c8 feat(engine): account-http routes and api auth enforcement (p3-s3)`;QiLin 仓本提交(docs(plan): p3 s3 results and erratum)。vendor/ 触碰 0(暂存清单核对 + 提交前 grep)。
 
 ## 分类为空声明(截至本档)
 

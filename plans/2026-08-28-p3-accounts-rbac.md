@@ -316,7 +316,7 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
   上游评审观察项——会话行读取自带不变量守卫、损坏行 fail-loud typed 错误——已实现
   并有 14+3 类损坏矩阵与 raw-SQL 注入用例。
 
-### S3 HTTP 面:`/api/v1/auth` 路由 + /api 强制点(规模:L)
+### S3 HTTP 面:`/api/v1/auth` 路由 + /api 强制点(规模:L)✅ 完成(2026-08-28,引擎仓提交 72682c8)
 
 - **范围**:新插件注册到 `webServer`:`/api/v1/auth/*` 路由族(契约 K 的 P3 子集:
   login/local、register(**默认开放**,受 D5 开关可收紧)、logout、change-password、me、setup-status、
@@ -326,9 +326,14 @@ provider,届时只需按会话归属解析,无需改动账户模型。多服务�
 - **验收门禁**:vitest + webserver 集成测试(真实 node:http 起服):未登录访问
   /api 业务路由 401;CSRF 缺头写请求 403;login→me→logout 全链路;register 开关
   两态;ws 无会话升级被拒;e2e(`vitest.e2e.config.ts`)一条冷启动登录流。
-- **审**:spec 审(路由表与状态码契约)+ 质量审
-  (安全专项:cookie 属性、错误信息不泄露账户存在性——注册重名响应沿用旧语义
-  但评估枚举风险)。
+  ✅ 109 个用例全绿(7 spec + 独立 e2e 冷启动流):真实 node:http 集成覆盖未登录
+  401、CSRF 缺头/不匹配 403、login→me→logout→change-password 全链路、register 开关
+  两态、initialize 幂等与 409、ws 拒升与 Origin 分层、429 + Retry-After;契约
+  D/E/F/G/H/J/K 逐条映射(映射表见台账 P3 段 S3 小节)。src 全文件 per-file 100%。
+- **审**:spec 审(路由表与状态码契约)✅(路由表与偏差登记见台账:错误信封、
+  QILIN_CORS_ORIGINS 新名、Origin 白名单端点集、rate limit 全尝试计数与内存态局限);
+  质量审(安全专项:cookie 属性、错误信息不泄露账户存在性——注册重名响应沿用旧语义
+  但评估枚举风险)✅(枚举暴露已评估并登记为已知取舍,login 侧统一 401 + 时序垫片)。
 
 ### S4 RBAC 包 `packages/accounts/account-rbac`(规模:L,依赖 S1–S3;受 D5 影响 M→L)
 
