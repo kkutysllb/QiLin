@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ import { useThreadStream } from "@/core/threads/hooks";
 import type { QueuedMessage } from "@/core/threads/queue-store";
 import { useQueueCoordinator } from "@/core/threads/use-queue-coordinator";
 import { textOfMessage } from "@/core/threads/utils";
+import { useWorkspaceDraftReset } from "@/core/workspaces/use-workspace-draft-reset";
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +39,23 @@ export default function ChatPage() {
   const { threadId, setThreadId, isNewThread, setIsNewThread, isMock } =
     useThreadChat();
   const [settings, setSettings] = useThreadSettings(threadId);
+  // 全局「新任务」入口（/workspace/chats/new，无 ?workspace=）：草稿不继承
+  // 任何工作区选择记录——清掉从全局设置回落的选择，保持「未分组（未选择）」
+  // 状态。显式 ?workspace= 的工作区预设由 InputBox 的 useWorkspaceParamPreset
+  // 负责，这里不插手。放在 mountedRef 之前，保证 InputBox 首帧就是未选择态。
+  const searchParams = useSearchParams();
+  useWorkspaceDraftReset({
+    isNewThread,
+    hasWorkspaceParam: searchParams.has("workspace"),
+    workspaceId: settings.context.workspace_id as string | undefined,
+    workspacePath: settings.context.user_workspace_path as string | undefined,
+    onReset: () => {
+      setSettings("context", {
+        workspace_id: undefined,
+        user_workspace_path: undefined,
+      });
+    },
+  });
   const mountedRef = useRef(false);
   useSpecificChatMode();
 
