@@ -8,9 +8,7 @@ import {
   RefreshCwIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import {
-  useStickToBottomContext,
-} from "use-stick-to-bottom";
+import { useStickToBottomContext } from "use-stick-to-bottom";
 
 import {
   Conversation,
@@ -31,6 +29,7 @@ import {
   hasContent,
   hasPresentFiles,
   isHiddenFromUIMessage,
+  type MessageGroup,
 } from "@/core/messages/utils";
 import { useUpdateSubtask } from "@/core/tasks/context";
 import type { AgentThreadState } from "@/core/threads";
@@ -52,6 +51,7 @@ import { MarkdownContent } from "../messages/markdown-content";
 import { MessageListSkeleton } from "../messages/skeleton";
 import { SubtaskCard } from "../messages/subtask-card";
 
+import { AssistantMessageFooter } from "./assistant-message-footer";
 import { MessageItem } from "./message-item";
 import { NeuralWaveSpinner } from "./segments/neural-wave-spinner";
 import { ReportCard } from "./segments/report-card";
@@ -80,6 +80,7 @@ export function MessageFeed({
   loadMoreHistory,
   isHistoryLoading,
   onHumanInputSubmit,
+  onBranchThread,
 }: {
   className?: string;
   threadId: string;
@@ -92,8 +93,9 @@ export function MessageFeed({
   onHumanInputSubmit?: (
     response: HumanInputResponse,
   ) => HumanInputSubmitResult | Promise<HumanInputSubmitResult>;
+  /** Copies the current thread into a new conversation. */
+  onBranchThread?: () => Promise<void>;
 }) {
-  const { t } = useI18n();
   const updateSubtask = useUpdateSubtask();
 
   // Memoize the filtered message list so it has a stable reference across
@@ -104,6 +106,20 @@ export function MessageFeed({
     () => thread.messages.filter((msg) => !isHiddenFromUIMessage(msg)),
     [thread.messages],
   );
+
+  const groupedMessages = useMemo<MessageGroup[]>(
+    () =>
+      groupMessages(messages, (group) => group, {
+        isCurrentTurnLoading: thread.isLoading,
+      }),
+    [messages, thread.isLoading],
+  );
+  const lastGroup = groupedMessages[groupedMessages.length - 1];
+  const footerGroupId =
+    lastGroup?.type === "assistant" ||
+    lastGroup?.type === "assistant:processing"
+      ? lastGroup.id
+      : undefined;
 
   // Only the last visible message is actively streaming — every earlier
   // message is history and must render in its final (done) state.
@@ -128,7 +144,9 @@ export function MessageFeed({
   // edited human message re-submitted with the same id replaces it).
   const submitThreadMessages = useCallback(
     (inputMessages: Message[]) => {
-      void thread.submit({ messages: inputMessages } as Partial<AgentThreadState>);
+      void thread.submit({
+        messages: inputMessages,
+      } as Partial<AgentThreadState>);
     },
     [thread],
   );
@@ -142,10 +160,13 @@ export function MessageFeed({
           ? await prepareRegenerate(threadId, lastAi.id)
           : null;
       if (prepared) {
-        await thread.submit(prepared.input as Partial<AgentThreadState>, {
-          checkpoint: prepared.checkpoint,
-          metadata: prepared.metadata,
-        } as Parameters<typeof thread.submit>[1]);
+        await thread.submit(
+          prepared.input as Partial<AgentThreadState>,
+          {
+            checkpoint: prepared.checkpoint,
+            metadata: prepared.metadata,
+          } as Parameters<typeof thread.submit>[1],
+        );
         return;
       }
       const fallback = buildRegenerateMessages(thread.messages);
@@ -221,174 +242,177 @@ export function MessageFeed({
           hasMore={hasMoreHistory}
           loadMore={loadMoreHistory}
         />
-        {groupMessages(
-          messages,
-          (group) => {
-            if (group.type === "human") {
-              return group.messages.map((msg) => (
+        {groupedMessages.map((group) => {
+          if (group.type === "human") {
+            return group.messages.map((msg) => (
+              <MessageItem
+                key={`${group.id}/${msg.id}`}
+                threadId={threadId}
+                message={msg}
+                contextMessages={messages}
+                isLoading={msg.id != null && msg.id === streamingMessageId}
+                onEditMessage={handleEditMessage}
+              />
+            ));
+          }
+          if (group.type === "assistant") {
+            // Only render AI messages as primary content. Orphan tool
+            // messages that were pushed into this group by the fallback
+            // in groupMessages are skipped — their results are surfaced
+            // inside ToolGroup entries via findToolCallResult.
+            return group.messages
+              .filter((msg) => msg.type === "ai")
+              .map((msg) => (
                 <MessageItem
                   key={`${group.id}/${msg.id}`}
                   threadId={threadId}
                   message={msg}
                   contextMessages={messages}
-                  isLoading={
-                    msg.id != null && msg.id === streamingMessageId
-                  }
+                  isLoading={msg.id != null && msg.id === streamingMessageId}
                   onEditMessage={handleEditMessage}
+                  onBranchThread={
+                    group.id === footerGroupId ? onBranchThread : undefined
+                  }
+                  onRegenerate={
+                    group.id === footerGroupId && canRegenerate
+                      ? handleRegenerate
+                      : undefined
+                  }
                 />
               ));
-            }
-            if (group.type === "assistant") {
-              // Only render AI messages as primary content. Orphan tool
-              // messages that were pushed into this group by the fallback
-              // in groupMessages are skipped — their results are surfaced
-              // inside ToolGroup entries via findToolCallResult.
-              return group.messages
-                .filter((msg) => msg.type === "ai")
-                .map((msg) => (
-                  <MessageItem
-                    key={`${group.id}/${msg.id}`}
-                    threadId={threadId}
-                    message={msg}
-                    contextMessages={messages}
-                    isLoading={
-                      msg.id != null && msg.id === streamingMessageId
+          }
+          if (group.type === "assistant:processing") {
+            // Intermediate AI messages — reasoning, prose chunks and tool
+            // calls — parsed into ONE execution-order segment stream so
+            // consecutive tool calls across messages merge into a single
+            // ToolGroup row per prose gap. Tool-result messages are
+            // skipped because their content is resolved into the steps
+            // via findToolCallResult(contextMessages).
+            return (
+              <ProcessingFlow
+                key={group.id}
+                groupMessages={group.messages}
+                contextMessages={messages}
+                threadId={threadId}
+                isLoading={group.messages.some(
+                  (msg) => msg.id != null && msg.id === streamingMessageId,
+                )}
+                showFooter={group.id === footerGroupId}
+                onBranchThread={onBranchThread}
+                onRegenerate={canRegenerate ? handleRegenerate : undefined}
+              />
+            );
+          }
+          if (group.type === "assistant:clarification") {
+            const message = group.messages[0];
+            if (!message) return null;
+            // Extract the structured HumanInputRequest from the tool
+            // message artifact. If found, render an interactive card;
+            // otherwise fall back to plain markdown text.
+            const request = extractHumanInputRequest(message);
+            if (request) {
+              return (
+                <div key={group.id} className="w-full">
+                  <HumanInputCard
+                    request={request}
+                    onSubmit={onHumanInputSubmit}
+                    answeredResponse={
+                      answeredResponses.get(request.request_id) ?? null
                     }
-                    onEditMessage={handleEditMessage}
                   />
-                ));
-            }
-            if (group.type === "assistant:processing") {
-              // Intermediate AI messages — reasoning, prose chunks and tool
-              // calls — parsed into ONE execution-order segment stream so
-              // consecutive tool calls across messages merge into a single
-              // ToolGroup row per prose gap. Tool-result messages are
-              // skipped because their content is resolved into the steps
-              // via findToolCallResult(contextMessages).
-              return (
-                <ProcessingFlow
-                  key={group.id}
-                  groupMessages={group.messages}
-                  contextMessages={messages}
-                  threadId={threadId}
-                  isLoading={group.messages.some(
-                    (msg) => msg.id != null && msg.id === streamingMessageId,
-                  )}
-                />
-              );
-            }
-            if (group.type === "assistant:clarification") {
-              const message = group.messages[0];
-              if (!message) return null;
-              // Extract the structured HumanInputRequest from the tool
-              // message artifact. If found, render an interactive card;
-              // otherwise fall back to plain markdown text.
-              const request = extractHumanInputRequest(message);
-              if (request) {
-                return (
-                  <div key={group.id} className="w-full">
-                    <HumanInputCard
-                      request={request}
-                      onSubmit={onHumanInputSubmit}
-                      answeredResponse={
-                        answeredResponses.get(request.request_id) ?? null
-                      }
-                    />
-                  </div>
-                );
-              }
-              if (hasContent(message)) {
-                return (
-                  <div key={group.id} className="w-full">
-                    <MarkdownContent
-                      content={extractContentFromMessage(message)}
-                      isLoading={thread.isLoading}
-                      className="streamdown-tight"
-                    />
-                  </div>
-                );
-              }
-              return null;
-            }
-            if (group.type === "assistant:present-files") {
-              const files: string[] = [];
-              for (const message of group.messages) {
-                if (hasPresentFiles(message)) {
-                  files.push(...extractPresentFilesFromMessage(message));
-                }
-              }
-              // HTML 报告在对话流内联预览（图文并茂、可全屏），
-              // 其余交付文件仍以文件卡片列表展示。
-              const htmlReports = files.filter(
-                (file) => checkCodeFile(file).language === "html",
-              );
-              const otherFiles = files.filter(
-                (file) => checkCodeFile(file).language !== "html",
-              );
-              return (
-                <div className="w-full" key={group.id}>
-                  {group.messages[0] && hasContent(group.messages[0]) && (
-                    <MarkdownContent
-                      content={extractContentFromMessage(group.messages[0])}
-                      isLoading={thread.isLoading}
-                      className="streamdown-tight mb-4"
-                    />
-                  )}
-                  {htmlReports.length > 0 && (
-                    <div className="mb-4 flex flex-col gap-3">
-                      {htmlReports.map((file) => (
-                        <ReportCard
-                          key={file}
-                          filepath={file}
-                          threadId={threadId}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  {otherFiles.length > 0 && (
-                    <ArtifactFileList files={otherFiles} threadId={threadId} />
-                  )}
                 </div>
               );
             }
-            if (group.type === "assistant:subagent") {
-              // Subtask definitions are registered into context via the
-              // useEffect above — NOT during render (which would cause an
-              // infinite loop via setTasks).
-              const results: React.ReactNode[] = [];
-              for (const message of group.messages) {
-                if (message.type === "ai") {
-                  const taskIds = message.tool_calls
-                    ?.filter((toolCall) => toolCall.name === "task")
-                    .map((toolCall) => toolCall.id);
-                  for (const taskId of taskIds ?? []) {
-                    results.push(
-                      <SubtaskCard
-                        key={"task-group-" + taskId}
-                        taskId={taskId!}
-                        isLoading={thread.isLoading}
-                      />,
-                    );
-                  }
-                }
-              }
+            if (hasContent(message)) {
               return (
-                <div
-                  key={"subtask-group-" + group.id}
-                  className="relative z-1 flex flex-col gap-2"
-                >
-                  {results}
+                <div key={group.id} className="w-full">
+                  <MarkdownContent
+                    content={extractContentFromMessage(message)}
+                    isLoading={thread.isLoading}
+                    className="streamdown-tight"
+                  />
                 </div>
               );
             }
             return null;
-          },
-          { isCurrentTurnLoading: thread.isLoading },
-        )}
+          }
+          if (group.type === "assistant:present-files") {
+            const files: string[] = [];
+            for (const message of group.messages) {
+              if (hasPresentFiles(message)) {
+                files.push(...extractPresentFilesFromMessage(message));
+              }
+            }
+            // HTML 报告在对话流内联预览（图文并茂、可全屏），
+            // 其余交付文件仍以文件卡片列表展示。
+            const htmlReports = files.filter(
+              (file) => checkCodeFile(file).language === "html",
+            );
+            const otherFiles = files.filter(
+              (file) => checkCodeFile(file).language !== "html",
+            );
+            return (
+              <div className="w-full" key={group.id}>
+                {group.messages[0] && hasContent(group.messages[0]) && (
+                  <MarkdownContent
+                    content={extractContentFromMessage(group.messages[0])}
+                    isLoading={thread.isLoading}
+                    className="streamdown-tight mb-4"
+                  />
+                )}
+                {htmlReports.length > 0 && (
+                  <div className="mb-4 flex flex-col gap-3">
+                    {htmlReports.map((file) => (
+                      <ReportCard
+                        key={file}
+                        filepath={file}
+                        threadId={threadId}
+                      />
+                    ))}
+                  </div>
+                )}
+                {otherFiles.length > 0 && (
+                  <ArtifactFileList files={otherFiles} threadId={threadId} />
+                )}
+              </div>
+            );
+          }
+          if (group.type === "assistant:subagent") {
+            // Subtask definitions are registered into context via the
+            // useEffect above — NOT during render (which would cause an
+            // infinite loop via setTasks).
+            const results: React.ReactNode[] = [];
+            for (const message of group.messages) {
+              if (message.type === "ai") {
+                const taskIds = message.tool_calls
+                  ?.filter((toolCall) => toolCall.name === "task")
+                  .map((toolCall) => toolCall.id);
+                for (const taskId of taskIds ?? []) {
+                  results.push(
+                    <SubtaskCard
+                      key={"task-group-" + taskId}
+                      taskId={taskId!}
+                      isLoading={thread.isLoading}
+                    />,
+                  );
+                }
+              }
+            }
+            return (
+              <div
+                key={"subtask-group-" + group.id}
+                className="relative z-1 flex flex-col gap-2"
+              >
+                {results}
+              </div>
+            );
+          }
+          return null;
+        })}
         {/* Regenerate the last turn: removes everything after the latest
             user message and re-runs the model against it. Only offered
             when the thread is idle and there is a turn to redo. */}
-        {canRegenerate && (
+        {canRegenerate && !footerGroupId && (
           <div className="flex">
             <Button
               type="button"
@@ -407,7 +431,7 @@ export function MessageFeed({
             currently being rendered, so the user always sees motion
             until the turn completes. */}
         {thread.isLoading && (
-          <div className="flex items-center gap-2 px-1 text-muted-foreground text-sm">
+          <div className="text-muted-foreground flex items-center gap-2 px-1 text-sm">
             <NeuralWaveSpinner />
             <span>处理中…</span>
           </div>
@@ -437,16 +461,25 @@ function ProcessingFlow({
   contextMessages,
   threadId,
   isLoading,
+  showFooter,
+  onBranchThread,
+  onRegenerate,
 }: {
   groupMessages: Message[];
   contextMessages: Message[];
   threadId: string;
   isLoading: boolean;
+  showFooter: boolean;
+  onBranchThread?: () => Promise<void>;
+  onRegenerate?: () => void;
 }) {
   const segments = useMemo(
     () => parseAssistantSegments(groupMessages, contextMessages),
     [groupMessages, contextMessages],
   );
+  const lastAssistantMessage = [...groupMessages]
+    .reverse()
+    .find((message) => message.type === "ai");
 
   return (
     <div className="group/conversation-message flex w-full flex-col gap-3.5">
@@ -455,6 +488,16 @@ function ProcessingFlow({
         threadId={threadId}
         isLoading={isLoading}
       />
+      {showFooter && lastAssistantMessage && (
+        <AssistantMessageFooter
+          message={lastAssistantMessage}
+          segments={segments}
+          threadId={threadId}
+          isLoading={isLoading}
+          onBranchThread={onBranchThread}
+          onRegenerate={onRegenerate}
+        />
+      )}
     </div>
   );
 }
@@ -464,7 +507,7 @@ function ScrollToBottomButton() {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
   if (isAtBottom) return null;
   return (
-    <div className="pointer-events-none absolute bottom-32 left-0 right-0 flex justify-center">
+    <div className="pointer-events-none absolute right-0 bottom-32 left-0 flex justify-center">
       <button
         type="button"
         aria-label="回到底部"

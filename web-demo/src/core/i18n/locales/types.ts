@@ -83,19 +83,30 @@ export interface Translations {
     linkCopied: string;
   };
 
+  messageActions: {
+    copy: string;
+    copied: string;
+    copyFailed: string;
+    branch: string;
+    branching: string;
+    branchFailed: string;
+    regenerate: string;
+    noVisibleContent: string;
+  };
+
   // Input Box
   inputBox: {
-  pickWorkspace: string;
-  accessMode: string;
-  sandboxReadOnly: string;
-  sandboxWorkspaceWrite: string;
-  sandboxFullAccess: string;
-  sandboxFullAccessConfirmTitle: string;
-  sandboxFullAccessConfirmDesc: string;
-  sandboxFullAccessConfirm: string;
-  sandboxFullAccessCancel: string;
-  ungroupedOption: string;
-  addWorkspace: string;
+    pickWorkspace: string;
+    accessMode: string;
+    sandboxReadOnly: string;
+    sandboxWorkspaceWrite: string;
+    sandboxFullAccess: string;
+    sandboxFullAccessConfirmTitle: string;
+    sandboxFullAccessConfirmDesc: string;
+    sandboxFullAccessConfirm: string;
+    sandboxFullAccessCancel: string;
+    ungroupedOption: string;
+    addWorkspace: string;
     placeholder: string;
     createSkillPrompt: string;
     createCronPrompt: string;

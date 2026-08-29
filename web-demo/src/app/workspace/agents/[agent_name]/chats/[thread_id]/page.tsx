@@ -2,23 +2,21 @@
 
 import { BotIcon, PlusSquare } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import { AgentWelcome } from "@/components/workspace/agent-welcome";
 import { ArtifactTrigger } from "@/components/workspace/artifacts";
-import {
-  MESSAGE_FEED_DEFAULT_PADDING_BOTTOM,
-  MessageFeed,
-} from "@/components/workspace/chat/message-feed";
+import { MessageFeed } from "@/components/workspace/chat/message-feed";
 import { ChatBox, useThreadChat } from "@/components/workspace/chats";
 import { InputBox } from "@/components/workspace/input-box";
 import { ThreadContext } from "@/components/workspace/messages/context";
 import { ThreadTitle } from "@/components/workspace/thread-title";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { useAgent } from "@/core/agents";
+import { getAPIClient } from "@/core/api/api-client";
 import { useI18n } from "@/core/i18n/hooks";
 import type { HumanInputResponse } from "@/core/messages/human-input";
 import { useNotification } from "@/core/notification/hooks";
@@ -116,6 +114,22 @@ export default function AgentChatPage() {
     },
     [sendMessage, threadId, agent_name],
   );
+
+  const handleBranchThread = useCallback(async () => {
+    if (isNewThread || !threadId) return;
+    const copiedThread = await getAPIClient().threads.copy(threadId);
+    if (!copiedThread.thread_id) {
+      throw new Error("Copied thread did not return an id");
+    }
+    setThreadId(copiedThread.thread_id);
+    setIsNewThread(false);
+    router.push(
+      "/workspace/agents/" +
+        encodeURIComponent(agent_name) +
+        "/chats/" +
+        copiedThread.thread_id,
+    );
+  }, [agent_name, isNewThread, router, setIsNewThread, setThreadId, threadId]);
 
   // ── 队列协调器（Task 16） ──────────────────────────────────────────
   // sendMessage 签名适配：ThreadStreamLike 期望 (content, attachments)，
@@ -217,6 +231,7 @@ export default function AgentChatPage() {
                 loadMoreHistory={loadMoreHistory}
                 isHistoryLoading={isHistoryLoading}
                 onHumanInputSubmit={handleHumanInputSubmit}
+                onBranchThread={handleBranchThread}
               />
             </div>
 
@@ -231,13 +246,20 @@ export default function AgentChatPage() {
                 )}
               >
                 {isNewThread && (
-                  <div className={cn("max-w-(--container-width-sm) mx-auto w-full")}>
+                  <div
+                    className={cn(
+                      "mx-auto w-full max-w-(--container-width-sm)",
+                    )}
+                  >
                     <AgentWelcome agent={agent} agentName={agent_name} />
                   </div>
                 )}
 
                 <InputBox
-                  className={cn("bg-background/5 w-full", isNewThread ? "" : "-translate-y-4")}
+                  className={cn(
+                    "bg-background/5 w-full",
+                    isNewThread ? "" : "-translate-y-4",
+                  )}
                   isNewThread={isNewThread}
                   threadId={threadId}
                   autoFocus={isNewThread}

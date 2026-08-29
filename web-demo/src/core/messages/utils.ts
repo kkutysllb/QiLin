@@ -1,6 +1,10 @@
 import type { AIMessage, Message } from "@langchain/langgraph-sdk";
 
-import type { HumanInputField, HumanInputOption, HumanInputRequest } from "./human-input";
+import type {
+  HumanInputField,
+  HumanInputOption,
+  HumanInputRequest,
+} from "./human-input";
 
 interface GenericMessageGroup<T = string> {
   type: T;
@@ -82,7 +86,11 @@ export function groupMessages<T>(
     }
 
     if (message.type === "human") {
-      groups.push({ id: nextGroupId(message.id), type: "human", messages: [message] });
+      groups.push({
+        id: nextGroupId(message.id),
+        type: "human",
+        messages: [message],
+      });
       continue;
     }
 
@@ -176,7 +184,11 @@ export function groupMessages<T>(
       }
 
       if (becomesAssistantBubble) {
-        groups.push({ id: nextGroupId(message.id), type: "assistant", messages: [message] });
+        groups.push({
+          id: nextGroupId(message.id),
+          type: "assistant",
+          messages: [message],
+        });
       }
     }
   }
@@ -204,6 +216,103 @@ export function extractTextFromMessage(message: Message) {
 
 const THINK_OPEN_TAG = "<think>";
 const THINK_CLOSE_TAG = "</think>";
+
+/** An inline prose/reasoning run inside a string AI message, in tag order. */
+export type OrderedInlineSegment =
+  | { kind: "prose"; content: string }
+  | { kind: "reasoning"; content: string };
+
+/**
+ * Split a message string into prose/reasoning segments that preserve the
+ * position of EVERY <think> tag — not just the first one. Unclosed tags
+ * are safe: the run extends to the end of the content (still-streaming
+ * reasoning) and never throws.
+ */
+export function splitInlineReasoningInOrder(
+  content: string,
+): OrderedInlineSegment[] {
+  const segments: OrderedInlineSegment[] = [];
+  const lowerContent = content.toLowerCase();
+  let cursor = 0;
+
+  const pushSegment = (
+    kind: OrderedInlineSegment["kind"],
+    raw: string,
+  ): void => {
+    const normalized = raw.trim();
+    if (!normalized) return;
+    segments.push({ kind, content: normalized });
+  };
+
+  while (cursor < content.length) {
+    const openIndex = lowerContent.indexOf(THINK_OPEN_TAG, cursor);
+    if (openIndex === -1) {
+      pushSegment("prose", content.slice(cursor));
+      break;
+    }
+    pushSegment("prose", content.slice(cursor, openIndex));
+    const reasoningStart = openIndex + THINK_OPEN_TAG.length;
+    const closeIndex = lowerContent.indexOf(THINK_CLOSE_TAG, reasoningStart);
+    pushSegment(
+      "reasoning",
+      content.slice(
+        reasoningStart,
+        closeIndex === -1 ? content.length : closeIndex,
+      ),
+    );
+    cursor =
+      closeIndex === -1 ? content.length : closeIndex + THINK_CLOSE_TAG.length;
+  }
+
+  return segments;
+}
+
+/** Content-block fields that may carry reasoning text, by provider dialect. */
+const REASONING_TEXT_FIELDS = [
+  "thinking",
+  "reasoning",
+  "reasoning_content",
+  "text",
+  "content",
+] as const;
+
+/**
+ * Whether a content block carries model thinking/reasoning: a thinking-typed
+ * block (Anthropic gateway), reasoning / reasoning_content (GLM / OpenRouter
+ * style), or a type-less block that carries a thinking string field.
+ */
+export function isReasoningContentBlock(block: unknown): boolean {
+  if (typeof block !== "object" || block === null) return false;
+  const type = (block as { type?: unknown }).type;
+  const typedReasoning =
+    type === "thinking" || type === "reasoning" || type === "reasoning_content";
+  if (!typedReasoning && type !== undefined) {
+    return false;
+  }
+  const fields = typedReasoning
+    ? REASONING_TEXT_FIELDS
+    : (["thinking", "reasoning", "reasoning_content"] as const);
+  return fields.some(
+    (field) => typeof (block as Record<string, unknown>)[field] === "string",
+  );
+}
+
+/** Read the reasoning text carried by an {@link isReasoningContentBlock}. */
+export function reasoningTextFromContentBlock(block: unknown): string | null {
+  if (!isReasoningContentBlock(block)) return null;
+  const record = block as Record<string, unknown>;
+  const type = record.type;
+  const typedReasoning =
+    type === "thinking" || type === "reasoning" || type === "reasoning_content";
+  const fields = typedReasoning
+    ? REASONING_TEXT_FIELDS
+    : (["thinking", "reasoning", "reasoning_content"] as const);
+  for (const field of fields) {
+    const value = record[field];
+    if (typeof value === "string") return value;
+  }
+  return null;
+}
 
 function splitInlineReasoning(content: string) {
   const reasoningParts: string[] = [];
@@ -257,7 +366,7 @@ export function extractContentFromMessage(message: Message) {
   if (typeof message.content === "string") {
     return sanitizeForDisplay(
       splitInlineReasoningFromAIMessage(message)?.content ??
-      message.content.trim()
+        message.content.trim(),
     );
   }
   if (Array.isArray(message.content)) {
@@ -340,9 +449,9 @@ export function hasReasoning(message: Message) {
     return true;
   }
   if (Array.isArray(message.content)) {
-    const part = message.content[0];
-    // Compatible with the Anthropic gateway
-    return (part as unknown as { type: "thinking" })?.type === "thinking";
+    // Check EVERY block — interleaved stream content may place thinking /
+    // reasoning blocks after text or tool blocks, not only at index 0.
+    return message.content.some((block) => isReasoningContentBlock(block));
   }
   if (typeof message.content === "string") {
     return splitInlineReasoning(message.content).reasoning !== null;
@@ -419,7 +528,8 @@ const KNOWN_INTERNAL_REMINDER_NAMES = new Set([
   "todo_reminder",
   "todo_completion_reminder",
 ]);
-const SYSTEM_REMINDER_RE = /^\s*<system[-_]reminder>[\s\S]*<\/system[-_]reminder>\s*$/i;
+const SYSTEM_REMINDER_RE =
+  /^\s*<system[-_]reminder>[\s\S]*<\/system[-_]reminder>\s*$/i;
 
 type MessageMetadataLike = Record<string, unknown> | null | undefined;
 
@@ -473,8 +583,10 @@ export function isHiddenFromUIMessage(
 ) {
   if (
     message.additional_kwargs?.hide_from_ui === true ||
-    typeof message.additional_kwargs?.internal_middleware_message === "string" ||
-    (typeof message.name === "string" && INTERNAL_MESSAGE_NAMES.has(message.name))
+    typeof message.additional_kwargs?.internal_middleware_message ===
+      "string" ||
+    (typeof message.name === "string" &&
+      INTERNAL_MESSAGE_NAMES.has(message.name))
   ) {
     return true;
   }
@@ -490,14 +602,20 @@ export function isHiddenFromUIMessage(
   // These are AI agent internal planning blocks that should never be shown to users.
   // We check the full extracted content AND individual content blocks (for array
   // content where the header might not be at the start of the joined text).
-  if (message.type !== "tool" && !("tool_calls" in message && message.tool_calls?.length)) {
+  if (
+    message.type !== "tool" &&
+    !("tool_calls" in message && message.tool_calls?.length)
+  ) {
     const content = extractContentFromMessage(message);
     if (content && AGENT_ARTIFACT_HEADER_RE.test(content.trim())) {
       return true;
     }
     // Also check individual content blocks
     if (Array.isArray(message.content)) {
-      for (const block of message.content as Array<{ type?: string; text?: string }>) {
+      for (const block of message.content as Array<{
+        type?: string;
+        text?: string;
+      }>) {
         if (
           block.type === "text" &&
           typeof block.text === "string" &&
@@ -580,7 +698,10 @@ export function stripInternalContent(text: string): string {
     result.push(line);
   }
 
-  let output = result.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  let output = result
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 
   // Strip uploaded_files / current_uploads / working_directory tags injected
   // by middlewares so file listings and outline metadata never leak into the
@@ -883,8 +1004,7 @@ export function tryExtractInlineHumanInputForm(
     kind: "human_input_request",
     source: "inline-form",
     request_id: `inline-${Date.now().toString(36)}`,
-    question:
-      question.length > 0 ? question : "请回答以下问题：",
+    question: question.length > 0 ? question : "请回答以下问题：",
     input_mode: "form",
     fields,
   };

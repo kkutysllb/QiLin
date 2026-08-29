@@ -69,9 +69,12 @@ export function UserPrompt({
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => {
-    if (copyTimer.current) clearTimeout(copyTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    },
+    [],
+  );
 
   const displayText = editedText ?? prompt.content;
 
@@ -103,7 +106,12 @@ export function UserPrompt({
   const hasText = displayText.trim().length > 0;
 
   return (
-    <div className={cn("ml-auto flex w-full max-w-[85%] flex-col gap-1.5", className)}>
+    <div
+      className={cn(
+        "ml-auto flex w-full max-w-[72%] flex-col gap-1.5",
+        className,
+      )}
+    >
       {prompt.files.length > 0 && (
         <div className="flex justify-end">
           <FilesCard files={prompt.files} threadId={threadId} />
@@ -119,7 +127,7 @@ export function UserPrompt({
             onChange={(event) => setEditText(event.target.value)}
             rows={Math.max(3, editText.split("\n").length)}
             autoFocus
-            className="border-border/60 bg-muted/40 focus:border-primary/50 text-foreground min-h-20 w-full resize-y rounded-xl border px-3.5 py-2.5 text-sm leading-relaxed outline-none transition-colors"
+            className="border-border/60 bg-muted/40 focus:border-primary/50 text-foreground min-h-20 w-full resize-y rounded-xl border px-3.5 py-2.5 text-sm leading-relaxed transition-colors outline-none"
             aria-label="编辑消息"
           />
           <div className="flex justify-end gap-1.5">
@@ -145,9 +153,7 @@ export function UserPrompt({
       ) : (
         <div className="flex flex-col items-end gap-1">
           {hasText && (
-            <article
-              className="text-foreground rounded-2xl rounded-br-md border border-border/40 bg-primary/5 px-4 py-2.5 text-right text-sm leading-relaxed whitespace-pre-wrap shadow-sm"
-            >
+            <article className="text-foreground bg-muted rounded-[22px] px-4 py-2.5 text-left text-base leading-6 whitespace-pre-wrap">
               {displayText}
             </article>
           )}
@@ -161,7 +167,7 @@ export function UserPrompt({
               onClick={handleCopy}
             >
               {copied ? (
-                <CheckIcon className="text-emerald-500 size-3" />
+                <CheckIcon className="size-3 text-emerald-500" />
               ) : (
                 <CopyIcon className="text-muted-foreground size-3" />
               )}

@@ -8,15 +8,19 @@ import { ClipboardSafeStreamdown } from "@/components/ai-elements/streamdown";
 import { reasoningPlugins } from "@/core/streamdown/plugins";
 import { cn } from "@/lib/utils";
 
+function reasoningSummary(content: string): string {
+  const firstLine = content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+  if (!firstLine) return "";
+  return firstLine.length > 120 ? firstLine.slice(0, 117) + "…" : firstLine;
+}
 
 /**
- * ReasoningBlock — collapsible "thinking" segment.
- * Left accent border (emerald when done / blue while streaming),
- * inline summary chip, italic muted content.
- *
- * Always collapsed by default — during execution and after completion —
- * so thinking never interrupts the reading flow; the user expands it
- * manually.
+ * ReasoningBlock — a compact, borderless DSH-style thinking row.
+ * It stays collapsed by default so reasoning remains available without
+ * interrupting the assistant's readable response flow.
  */
 export function ReasoningBlock({
   content,
@@ -28,37 +32,43 @@ export function ReasoningBlock({
   className?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const summary = reasoningSummary(content);
 
   return (
-    <div
-      className={cn(
-        "border-l-2 border-emerald-500/25 pl-3",
-        isStreaming && "border-blue-500/50",
-        className,
-      )}
-    >
+    <div className={cn("w-full min-w-0", className)}>
       <button
         type="button"
         aria-expanded={expanded}
         onClick={() => setExpanded((value) => !value)}
         className={cn(
-          "inline-flex items-center gap-1.5 border-none bg-transparent px-2 py-1 text-xs transition-colors",
-          "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
-          isStreaming && "text-blue-500 hover:text-blue-400",
+          "flex w-full min-w-0 items-center gap-2 rounded-md px-1 py-1 text-left text-sm leading-6 transition-colors",
+          "text-muted-foreground hover:bg-muted/30 hover:text-foreground focus-visible:ring-ring focus-visible:ring-2",
+          isStreaming && "text-primary",
         )}
       >
-        <BrainIcon className="size-3.5" />
-        <span>{isStreaming ? <Shimmer duration={1}>思考中…</Shimmer> : "已思考"}</span>
+        <BrainIcon className="size-3.5 shrink-0" />
+        <span className="shrink-0 font-medium">
+          {isStreaming ? <Shimmer duration={1}>思考中</Shimmer> : "已思考"}
+        </span>
+        <span
+          aria-hidden="true"
+          className="bg-border size-1 shrink-0 rounded-full"
+        />
+        <span className="min-w-0 flex-1 truncate" title={summary}>
+          {summary}
+        </span>
         <ChevronRightIcon
           className={cn(
-            "size-3 transition-transform duration-150",
+            "size-3 shrink-0 transition-transform duration-150",
             expanded && "rotate-90",
           )}
         />
       </button>
       {expanded && (
-        <div className="text-muted-foreground mt-2 text-[13px] leading-7 italic">
-          <ClipboardSafeStreamdown {...reasoningPlugins}>{content}</ClipboardSafeStreamdown>
+        <div className="text-muted-foreground border-border/40 mt-1 ml-6 max-h-96 overflow-auto border-l pl-3 text-[13px] leading-6">
+          <ClipboardSafeStreamdown {...reasoningPlugins}>
+            {content}
+          </ClipboardSafeStreamdown>
         </div>
       )}
     </div>

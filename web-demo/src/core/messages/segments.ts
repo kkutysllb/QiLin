@@ -5,6 +5,9 @@ import {
   extractContentFromMessage,
   extractReasoningContentFromMessage,
   findToolCallResult,
+  isReasoningContentBlock,
+  reasoningTextFromContentBlock,
+  splitInlineReasoningInOrder,
   stripInternalContent,
   stripUploadedFilesTag,
   type FileInMessage,
@@ -60,9 +63,13 @@ type ToolCallLike = {
 };
 
 /** Content-block shapes that carry a tool invocation (LC v1 `tool_call`, Anthropic `tool_use`). */
-function isToolBlock(
-  block: unknown,
-): block is { type: string; id?: string; name?: string; input?: unknown; args?: unknown } {
+function isToolBlock(block: unknown): block is {
+  type: string;
+  id?: string;
+  name?: string;
+  input?: unknown;
+  args?: unknown;
+} {
   if (typeof block !== "object" || block === null) return false;
   const type = (block as { type?: unknown }).type;
   return type === "tool_call" || type === "tool_use";
@@ -91,19 +98,32 @@ function toolStepFromCall(
   return step;
 }
 
+function appendSegment(
+  segments: MessageSegment[],
+  segment: MessageSegment,
+): void {
+  const last = segments[segments.length - 1];
+  if (segment.kind === "tool_activity" && last?.kind === "tool_activity") {
+    last.steps.push(...segment.steps);
+    return;
+  }
+  if (segment.kind === "reasoning" && last?.kind === "reasoning") {
+    last.content = [last.content, segment.content].filter(Boolean).join("\n\n");
+    return;
+  }
+  if (segment.kind === "prose" && last?.kind === "prose") {
+    last.content = [last.content, segment.content].filter(Boolean).join("\n");
+    return;
+  }
+  segments.push(segment);
+}
+
 function pushSteps(
   segments: MessageSegment[],
   steps: ToolActivityStep[],
 ): void {
   if (steps.length === 0) return;
-  const last = segments[segments.length - 1];
-  // Consecutive tool batches merge into one activity block so the UI
-  // renders a single continuous step list between prose chunks.
-  if (last?.kind === "tool_activity") {
-    last.steps.push(...steps);
-  } else {
-    segments.push({ kind: "tool_activity", steps });
-  }
+  appendSegment(segments, { kind: "tool_activity", steps });
 }
 
 /**
@@ -127,12 +147,46 @@ export function parseMessageSegments(
   contextMessages: Message[] = [],
 ): MessageSegment[] {
   const segments: MessageSegment[] = [];
+  const content = message.content;
+  const rawAdditionalReasoning =
+    typeof message.additional_kwargs?.reasoning_content === "string"
+      ? message.additional_kwargs.reasoning_content
+      : null;
 
-  const reasoning = extractReasoningContentFromMessage(message);
-  if (reasoning) {
-    const cleaned = stripInternalContent(reasoning);
-    if (cleaned) segments.push({ kind: "reasoning", content: cleaned });
-  }
+  const textFromTextBlock = (block: unknown): string | null => {
+    if (
+      typeof block !== "object" ||
+      block === null ||
+      (block as { type?: unknown }).type !== "text"
+    ) {
+      return null;
+    }
+    const text = (block as { text?: unknown }).text;
+    return typeof text === "string" ? text : null;
+  };
+
+  const hasInlineReasoning = (text: string): boolean =>
+    splitInlineReasoningInOrder(text).some((part) => part.kind === "reasoning");
+
+  const hasPositionedReasoning =
+    (typeof content === "string" && hasInlineReasoning(content)) ||
+    (Array.isArray(content) &&
+      content.some((block) => {
+        const text = textFromTextBlock(block);
+        return (
+          isReasoningContentBlock(block) ||
+          (text !== null && hasInlineReasoning(text))
+        );
+      }));
+
+  const appendFallbackReasoning = () => {
+    const cleaned = rawAdditionalReasoning
+      ? stripInternalContent(rawAdditionalReasoning)
+      : "";
+    if (cleaned && !hasPositionedReasoning) {
+      appendSegment(segments, { kind: "reasoning", content: cleaned });
+    }
+  };
 
   const toolCalls = ((message as { tool_calls?: unknown }).tool_calls ??
     []) as ToolCallLike[];
@@ -140,58 +194,106 @@ export function parseMessageSegments(
     (toolCall) => !DEFERRED_TOOLS.has(toolCall.name),
   );
 
-  const content = message.content;
-  const hasToolBlocks =
-    Array.isArray(content) && content.some((block) => isToolBlock(block));
+  const appendInlineParts = (text: string) => {
+    for (const part of splitInlineReasoningInOrder(text)) {
+      const cleaned = stripInternalContent(part.content);
+      if (!cleaned) continue;
+      appendSegment(segments, { kind: part.kind, content: cleaned });
+    }
+  };
 
-  if (hasToolBlocks) {
-    // Walk the content blocks in order, preserving the model's true
-    // text/tool interleaving. Tool blocks already seen here must not be
-    // re-emitted from `tool_calls` below.
+  const hasOrderedArrayBlocks =
+    Array.isArray(content) &&
+    content.some((block) => {
+      const text = textFromTextBlock(block);
+      return (
+        isToolBlock(block) ||
+        isReasoningContentBlock(block) ||
+        (text !== null && hasInlineReasoning(text))
+      );
+    });
+
+  if (hasOrderedArrayBlocks) {
+    appendFallbackReasoning();
+
     const emittedToolIds = new Set<string>();
-    let textRun: string[] = [];
-    const flushText = () => {
-      const joined = textRun.join("\n").trim();
-      textRun = [];
-      if (!joined) return;
-      const cleaned = stripInternalContent(joined);
-      if (cleaned) segments.push({ kind: "prose", content: cleaned });
-    };
+    const textRun: string[] = [];
+    const reasoningRun: string[] = [];
     let stepIndex = 0;
+
+    const flushText = () => {
+      const cleaned = stripInternalContent(textRun.join("\n").trim());
+      textRun.length = 0;
+      if (cleaned) {
+        appendSegment(segments, { kind: "prose", content: cleaned });
+      }
+    };
+
+    const flushReasoning = () => {
+      const cleaned = stripInternalContent(reasoningRun.join("\n\n").trim());
+      reasoningRun.length = 0;
+      if (cleaned) {
+        appendSegment(segments, { kind: "reasoning", content: cleaned });
+      }
+    };
+
+    const appendTextBlock = (text: string) => {
+      for (const part of splitInlineReasoningInOrder(text)) {
+        if (part.kind === "reasoning") {
+          flushText();
+          reasoningRun.push(part.content);
+        } else {
+          flushReasoning();
+          textRun.push(part.content);
+        }
+      }
+    };
+
     for (const block of content as unknown[]) {
       if (isToolBlock(block)) {
         flushText();
+        flushReasoning();
+        if (block.id) emittedToolIds.add(block.id);
         const name = block.name ?? "tool";
         if (DEFERRED_TOOLS.has(name)) continue;
-        if (block.id) emittedToolIds.add(block.id);
-        pushSteps(segments, [
-          toolStepFromCall(
-            {
-              id: block.id,
-              name,
-              args:
-                (block.args as Record<string, unknown> | undefined) ??
-                (block.input as Record<string, unknown> | undefined) ??
-                {},
-            },
-            stepIndex++,
-            contextMessages,
-          ),
-        ]);
+        appendSegment(segments, {
+          kind: "tool_activity",
+          steps: [
+            toolStepFromCall(
+              {
+                id: block.id,
+                name,
+                args:
+                  (block.args as Record<string, unknown> | undefined) ??
+                  (block.input as Record<string, unknown> | undefined) ??
+                  {},
+              },
+              stepIndex++,
+              contextMessages,
+            ),
+          ],
+        });
         continue;
       }
-      if (
-        typeof block === "object" &&
-        block !== null &&
-        (block as { type?: unknown }).type === "text"
-      ) {
-        textRun.push((block as { text?: unknown }).text as string);
+
+      if (isReasoningContentBlock(block)) {
+        const reasoning = reasoningTextFromContentBlock(block);
+        if (reasoning?.trim()) {
+          flushText();
+          reasoningRun.push(reasoning);
+        }
+        continue;
+      }
+
+      const text = textFromTextBlock(block);
+      if (text !== null) {
+        appendTextBlock(text);
       }
     }
-    flushText();
 
-    // Any tool_calls not represented by a content block (some gateways
-    // keep calls only in `tool_calls`) render after the preceding text.
+    flushText();
+    flushReasoning();
+
     const remaining = visibleToolCalls.filter(
       (toolCall) => !toolCall.id || !emittedToolIds.has(toolCall.id),
     );
@@ -201,12 +303,19 @@ export function parseMessageSegments(
         toolStepFromCall(toolCall, stepIndex + index, contextMessages),
       ),
     );
+  } else if (typeof content === "string" && hasInlineReasoning(content)) {
+    appendInlineParts(content);
+    pushSteps(
+      segments,
+      visibleToolCalls.map((toolCall, index) =>
+        toolStepFromCall(toolCall, index, contextMessages),
+      ),
+    );
   } else {
-    // String / text-only content: the model writes the text first and
-    // emits tool calls afterwards, so prose precedes the tool steps.
+    appendFallbackReasoning();
     const rawProse = extractContentFromMessage(message);
     if (rawProse) {
-      segments.push({ kind: "prose", content: rawProse });
+      appendSegment(segments, { kind: "prose", content: rawProse });
     }
     pushSteps(
       segments,
@@ -223,7 +332,6 @@ export function parseMessageSegments(
 
   return segments;
 }
-
 /**
  * Parse a run of consecutive assistant messages into ONE segment stream —
  * the Cursor/Cline aggregation layer. Tool calls that are adjacent across
@@ -240,12 +348,7 @@ export function parseAssistantSegments(
   for (const message of messages) {
     if (message.type !== "ai") continue;
     for (const segment of parseMessageSegments(message, contextMessages)) {
-      const last = merged[merged.length - 1];
-      if (segment.kind === "tool_activity" && last?.kind === "tool_activity") {
-        last.steps.push(...segment.steps);
-      } else {
-        merged.push(segment);
-      }
+      appendSegment(merged, segment);
     }
   }
   return merged;
@@ -281,13 +384,15 @@ export function parseUserPrompt(message: Message): UserPromptSegment {
     "";
   const sanitized = stripUploadedFilesTag(raw);
   const images: string[] = [];
-  const withoutImages = sanitized.replace(INLINE_IMAGE_MD_RE, (_match, url: string) => {
-    images.push(url);
-    return "";
-  });
+  const withoutImages = sanitized.replace(
+    INLINE_IMAGE_MD_RE,
+    (_match, url: string) => {
+      images.push(url);
+      return "";
+    },
+  );
   const content = stripHumanInputFormValuesTrailer(withoutImages);
-  const files = (message.additional_kwargs?.files as
-    | FileInMessage[]
-    | undefined) ?? [];
+  const files =
+    (message.additional_kwargs?.files as FileInMessage[] | undefined) ?? [];
   return { kind: "user", content, files, images };
 }

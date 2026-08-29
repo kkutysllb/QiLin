@@ -99,24 +99,37 @@ export const zhCN: Translations = {
     linkCopied: "链接已复制到剪贴板",
   },
 
+  messageActions: {
+    copy: "复制",
+    copied: "已复制",
+    copyFailed: "复制失败",
+    branch: "复制当前线程到新会话",
+    branching: "复制中",
+    branchFailed: "创建分支失败",
+    regenerate: "重新生成",
+    noVisibleContent: "没有可复制的正文",
+  },
+
   // Input Box
   inputBox: {
-  pickWorkspace: "选择工作区",
-  accessMode: "访问模式",
-  sandboxReadOnly: "只读",
-  sandboxWorkspaceWrite: "工作区可写",
-  sandboxFullAccess: "完全访问",
-  sandboxFullAccessConfirmTitle: "确认完全访问",
-  sandboxFullAccessConfirmDesc: "完全访问允许代理不受沙箱限制地读写工作区之外的任意文件与系统，可能带来不可逆影响。确定要切换到完全访问吗？",
-  sandboxFullAccessConfirm: "仍然允许",
-  sandboxFullAccessCancel: "取消",
-  ungroupedOption: "未分组",
-  addWorkspace: "添加工作区…",
+    pickWorkspace: "选择工作区",
+    accessMode: "访问模式",
+    sandboxReadOnly: "只读",
+    sandboxWorkspaceWrite: "工作区可写",
+    sandboxFullAccess: "完全访问",
+    sandboxFullAccessConfirmTitle: "确认完全访问",
+    sandboxFullAccessConfirmDesc:
+      "完全访问允许代理不受沙箱限制地读写工作区之外的任意文件与系统，可能带来不可逆影响。确定要切换到完全访问吗？",
+    sandboxFullAccessConfirm: "仍然允许",
+    sandboxFullAccessCancel: "取消",
+    ungroupedOption: "未分组",
+    addWorkspace: "添加工作区…",
     placeholder: "今天我能为你做些什么？",
     createSkillPrompt:
       "我们一起用 skill-creator 技能来创建一个技能吧。先问问我希望这个技能能做什么。",
     skillModeBanner: "技能创建模式",
-    skillModeBannerHint: "新技能将自动绑定到下方选中的工作模式，切换模式可改变绑定目标",
+    skillModeBannerHint:
+      "新技能将自动绑定到下方选中的工作模式，切换模式可改变绑定目标",
     createCronPrompt:
       "我们一起创建一个定时任务吧。请告诉我：你想在什么时间、执行什么任务？例如每天早上9点生成工作总结。",
     addAttachments: "添加附件",
@@ -322,11 +335,12 @@ export const zhCN: Translations = {
   // MCP
   mcp: {
     title: "MCP 管理",
-    description: "管理 Model Context Protocol (MCP) 服务器，扩展 QiLin 的工具与数据访问能力。",
+    description:
+      "管理 Model Context Protocol (MCP) 服务器，扩展 QiLin 的工具与数据访问能力。",
     addServer: "添加服务器",
     editServer: "编辑服务器",
     deleteServer: "删除服务器",
-    deleteConfirm: "确定要删除 MCP 服务器 \"{name}\" 吗？此操作不可撤销。",
+    deleteConfirm: '确定要删除 MCP 服务器 "{name}" 吗？此操作不可撤销。',
     deleteSuccess: "MCP 服务器已删除",
     saveSuccess: "MCP 服务器配置已保存",
     createSuccess: "MCP 服务器已创建",
@@ -357,24 +371,29 @@ export const zhCN: Translations = {
     clientSecret: "Client Secret",
     scope: "Scope",
     emptyTitle: "暂无 MCP 服务器",
-    emptyDescription: "添加 MCP 服务器以扩展 QiLin 的能力，例如接入 GitHub、文件系统、数据库等外部工具。",
+    emptyDescription:
+      "添加 MCP 服务器以扩展 QiLin 的能力，例如接入 GitHub、文件系统、数据库等外部工具。",
     guide: "配置帮助",
-    guideIntro: "Model Context Protocol (MCP) 是一个开放协议，允许 AI 应用安全地访问本地和远程数据源。通过配置 MCP 服务器，QiLin 可以获得额外的工具能力，如访问文件系统、搜索网页、查询数据库等。",
+    guideIntro:
+      "Model Context Protocol (MCP) 是一个开放协议，允许 AI 应用安全地访问本地和远程数据源。通过配置 MCP 服务器，QiLin 可以获得额外的工具能力，如访问文件系统、搜索网页、查询数据库等。",
     guideStdioTitle: "STDIO 传输类型",
-    guideStdioSteps: "1. 选择 STDIO 类型，适用于本地运行的 MCP 服务器。\n2. 填写启动命令（如 npx、python），以及需要的启动参数。\n3. 如有需要，配置环境变量（如 API Key）。\n4. 保存配置后，QiLin 将自动启动并管理该 MCP 服务器进程。",
+    guideStdioSteps:
+      "1. 选择 STDIO 类型，适用于本地运行的 MCP 服务器。\n2. 填写启动命令（如 npx、python），以及需要的启动参数。\n3. 如有需要，配置环境变量（如 API Key）。\n4. 保存配置后，QiLin 将自动启动并管理该 MCP 服务器进程。",
     guideSseTitle: "SSE / HTTP 传输类型",
-    guideSseSteps: "1. 选择 SSE 或 HTTP 类型，适用于远程 MCP 服务器。\n2. 填写服务器的 SSE 或 HTTP 端点 URL。\n3. 如服务器需要认证，在 Headers 中添加 Authorization 等头信息。\n4. 支持 OAuth 2.0 认证，可配置 Token URL 自动获取和刷新令牌。",
+    guideSseSteps:
+      "1. 选择 SSE 或 HTTP 类型，适用于远程 MCP 服务器。\n2. 填写服务器的 SSE 或 HTTP 端点 URL。\n3. 如服务器需要认证，在 Headers 中添加 Authorization 等头信息。\n4. 支持 OAuth 2.0 认证，可配置 Token URL 自动获取和刷新令牌。",
     guideLinks: "常用 MCP 服务器",
   },
 
   // Crons / 自动化
   crons: {
     title: "自动化任务",
-    description: "管理定时和一次性自动化任务，按计划自动触发 AI 对话，实现自动化汇报、定期检查等工作流。",
+    description:
+      "管理定时和一次性自动化任务，按计划自动触发 AI 对话，实现自动化汇报、定期检查等工作流。",
     addJob: "添加任务",
     editJob: "编辑任务",
     deleteJob: "删除任务",
-    deleteConfirm: "确定要删除自动化任务 \"{name}\" 吗？此操作不可撤销。",
+    deleteConfirm: '确定要删除自动化任务 "{name}" 吗？此操作不可撤销。',
     deleteSuccess: "自动化任务已删除",
     createSuccess: "自动化任务已创建",
     updateSuccess: "自动化任务已更新",
@@ -421,9 +440,11 @@ export const zhCN: Translations = {
     promptHint: "自动化触发时发送给 Agent 的提示词/消息",
     promptPlaceholder: "例如：请根据今天的对话记录，生成一份工作总结。",
     emptyTitle: "暂无自动化任务",
-    emptyDescription: "创建自动化任务，让 QiLin 按计划自动执行对话，例如每日总结、定期报告等。",
+    emptyDescription:
+      "创建自动化任务，让 QiLin 按计划自动执行对话，例如每日总结、定期报告等。",
     guide: "配置帮助",
-    guideIntro: "自动化任务通过 Cron 表达式或一次性调度，在指定时间自动触发 AI 对话。适合每日总结、定期数据检查、定时报告生成等场景。",
+    guideIntro:
+      "自动化任务通过 Cron 表达式或一次性调度，在指定时间自动触发 AI 对话。适合每日总结、定期数据检查、定时报告生成等场景。",
     guideCronSyntax: "Cron 表达式语法",
     guideCronFormat: "5 字段格式：分 时 日 月 周（每个字段用空格分隔）",
     guideExamples: "常用示例",
@@ -547,7 +568,7 @@ export const zhCN: Translations = {
     addModel: "新增模型",
     editModel: "编辑模型",
     deleteModel: "删除模型",
-    deleteConfirm: "确定要删除模型 \"{name}\" 吗？此操作不可撤销。",
+    deleteConfirm: '确定要删除模型 "{name}" 吗？此操作不可撤销。',
     deleteSuccess: "模型已删除",
     createSuccess: "模型已创建",
     updateSuccess: "模型已更新",
@@ -564,7 +585,8 @@ export const zhCN: Translations = {
     baseUrlHint: "Provider API 的 Base URL",
     maxTokens: "Max Tokens",
     maxInputTokens: "Max Input Tokens",
-    maxInputTokensHint: "模型上下文窗口大小（输入 token 上限）。用于自动摘要和模型 profile 注入。",
+    maxInputTokensHint:
+      "模型上下文窗口大小（输入 token 上限）。用于自动摘要和模型 profile 注入。",
     maxRetries: "Max Retries",
     temperature: "Temperature",
     requestTimeout: "超时时间（秒）",
@@ -635,9 +657,11 @@ export const zhCN: Translations = {
       },
       summaries: {
         general: "账户信息、密码、主题、语言偏好、日志级别与 YAML 配置编辑器。",
-        models: "管理可用 LLM 模型，从 provider 模板快速创建，配置思考、视觉等能力。",
+        models:
+          "管理可用 LLM 模型，从 provider 模板快速创建，配置思考、视觉等能力。",
         memorySummary: "配置长期记忆机制、对话历史摘要压缩和标题生成策略。",
-        tokenUsageBudget: "配置 Token 使用统计开关与每次运行的 Token 预算限制。",
+        tokenUsageBudget:
+          "配置 Token 使用统计开关与每次运行的 Token 预算限制。",
         skill: "启停内置与自定义技能，管理技能矩阵。",
         mcp: "MCP 服务器 CRUD 管理、内置预设一键安装。",
         toolsSandbox: "沙箱环境、工具输出截断、延迟加载、进度追踪与循环检测。",
@@ -720,8 +744,7 @@ export const zhCN: Translations = {
       description: "管理 Agent Skill 配置和启用状态。",
       createSkill: "添加技能",
       emptyTitle: "还没有技能",
-      emptyDescription:
-        "通过 AI 引导创建，或上传 .skill / .zip 技能包来安装。",
+      emptyDescription: "通过 AI 引导创建，或上传 .skill / .zip 技能包来安装。",
       emptyButton: "安装第一个技能",
     },
     createSkillWizard: {
@@ -778,8 +801,10 @@ export const zhCN: Translations = {
       scriptsSubdirAssets: "assets/ (二进制资源)",
       scriptsAddMore: "继续添加文件",
       scriptsRemove: "移除",
-      scriptsUploadHint: "脚本会被放到 skills/custom/{name}/{subdir}/ 并通过安全扫描。",
-      scriptsPartialFailure: "技能已创建,但脚本上传失败:{error}。可在编辑界面重试。",
+      scriptsUploadHint:
+        "脚本会被放到 skills/custom/{name}/{subdir}/ 并通过安全扫描。",
+      scriptsPartialFailure:
+        "技能已创建,但脚本上传失败:{error}。可在编辑界面重试。",
       scriptsCreateAndUpload: "创建技能并上传脚本",
       scriptsCreateAndUploading: "创建中...",
     },

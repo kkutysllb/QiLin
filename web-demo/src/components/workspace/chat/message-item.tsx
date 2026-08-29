@@ -3,9 +3,13 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { memo, useMemo } from "react";
 
-import { parseMessageSegments, parseUserPrompt } from "@/core/messages/segments";
+import {
+  parseMessageSegments,
+  parseUserPrompt,
+} from "@/core/messages/segments";
 import { cn } from "@/lib/utils";
 
+import { AssistantMessageFooter } from "./assistant-message-footer";
 import { SegmentList } from "./segments/segment-list";
 import { UserPrompt } from "./segments/user-prompt";
 
@@ -16,6 +20,8 @@ interface MessageItemProps {
   isLoading?: boolean;
   /** Called when the user edits + saves a human message. */
   onEditMessage?: (messageId: string, replacementText: string) => void;
+  onBranchThread?: () => Promise<void>;
+  onRegenerate?: () => void;
   className?: string;
 }
 
@@ -27,53 +33,58 @@ interface MessageItemProps {
  * order (reasoning, then prose and tool activity interleaved as the model
  * produced them) and rendered via {@link SegmentList}.
  */
-export const MessageItem = memo(
-  function MessageItem({
-    message,
-    contextMessages,
-    threadId,
-    isLoading = false,
-    onEditMessage,
-    className,
-  }: MessageItemProps) {
-    const isHuman = message.type === "human";
+export const MessageItem = memo(function MessageItem({
+  message,
+  contextMessages,
+  threadId,
+  isLoading = false,
+  onEditMessage,
+  onBranchThread,
+  onRegenerate,
+  className,
+}: MessageItemProps) {
+  const isHuman = message.type === "human";
 
-    // Memoize segment parsing — during SSE streaming, the parent re-renders
-    // on every token. Without this, parseMessageSegments re-parses every
-    // message in the list each tick (O(n²) with contextMessages scanning
-    // for tool results), which freezes the UI on long conversations.
-    const segments = useMemo(
-      () =>
-        isHuman ? [] : parseMessageSegments(message, contextMessages),
-      [isHuman, message, contextMessages],
-    );
+  // Memoize segment parsing — during SSE streaming, the parent re-renders
+  // on every token. Without this, parseMessageSegments re-parses every
+  // message in the list each tick (O(n²) with contextMessages scanning
+  // for tool results), which freezes the UI on long conversations.
+  const segments = useMemo(
+    () => (isHuman ? [] : parseMessageSegments(message, contextMessages)),
+    [isHuman, message, contextMessages],
+  );
 
-    if (isHuman) {
-      const prompt = parseUserPrompt(message);
-      return (
-        <div
-          className={cn("group/conversation-message flex w-full", className)}
-        >
-          <UserPrompt
-            prompt={prompt}
-            threadId={threadId}
-            messageId={message.id}
-            onEditMessage={onEditMessage}
-          />
-        </div>
-      );
-    }
-
+  if (isHuman) {
+    const prompt = parseUserPrompt(message);
     return (
       <div className={cn("group/conversation-message flex w-full", className)}>
-        <div className="flex w-full flex-col gap-3.5">
-          <SegmentList
-            segments={segments}
-            threadId={threadId}
-            isLoading={isLoading}
-          />
-        </div>
+        <UserPrompt
+          prompt={prompt}
+          threadId={threadId}
+          messageId={message.id}
+          onEditMessage={onEditMessage}
+        />
       </div>
     );
-  },
-);
+  }
+
+  return (
+    <div className={cn("group/conversation-message flex w-full", className)}>
+      <div className="flex w-full flex-col gap-3.5">
+        <SegmentList
+          segments={segments}
+          threadId={threadId}
+          isLoading={isLoading}
+        />
+        <AssistantMessageFooter
+          message={message}
+          segments={segments}
+          threadId={threadId}
+          isLoading={isLoading}
+          onBranchThread={onBranchThread}
+          onRegenerate={onRegenerate}
+        />
+      </div>
+    </div>
+  );
+});

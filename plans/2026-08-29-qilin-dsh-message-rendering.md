@@ -35,7 +35,7 @@
 **Files:**
 - Modify: web-demo/tests/unit/core/message-segments.test.ts
 
-- [ ] **Step 1: 添加数组 block 交替顺序测试**
+- [x] **Step 1: 添加数组 block 交替顺序测试**
 
 在现有 execution-order 测试组中加入：
 
@@ -67,7 +67,7 @@
  });
 ```
 
-- [ ] **Step 2: 添加多个内联 think 区段测试**
+- [x] **Step 2: 添加多个内联 think 区段测试**
 
 ```ts
  test("keeps multiple inline think blocks in order", () => {
@@ -85,7 +85,7 @@
  });
 ```
 
-- [ ] **Step 3: 运行测试确认当前实现失败**
+- [x] **Step 3: 运行测试确认当前实现失败**
 
 运行：
 
@@ -102,7 +102,7 @@ pnpm -C web-demo exec vitest run tests/unit/core/message-segments.test.ts
 - Modify: web-demo/src/core/messages/segments.ts
 - Test: web-demo/tests/unit/core/message-segments.test.ts
 
-- [ ] **Step 1: 在 utils.ts 增加内联 think 顺序切分函数**
+- [x] **Step 1: 在 utils.ts 增加内联 think 顺序切分函数**
 
 新增导出类型和函数，保留现有 splitInlineReasoning 的调用兼容性：
 
@@ -147,7 +147,7 @@ export function splitInlineReasoningInOrder(
 }
 ```
 
-- [ ] **Step 2: 扩展思考 block 识别**
+- [x] **Step 2: 扩展思考 block 识别**
 
 在 segments.ts 增加局部 type guard，识别 type 为 thinking、reasoning 或 reasoning_content 的 block，并读取 thinking、reasoning、reasoning_content、text、content 中第一个字符串值。没有 type 但含 thinking 字段的兼容 block 也要识别。
 
@@ -174,7 +174,7 @@ function textFromReasoningBlock(block: Record<string, unknown>): string {
 
 同时将 utils.ts 的 hasReasoning 改为检查全部 content blocks，而不是只检查第一个 block。
 
-- [ ] **Step 3: 改写 parseMessageSegments 的 block 遍历**
+- [x] **Step 3: 改写 parseMessageSegments 的 block 遍历**
 
 删除当前函数一开始无条件追加 reasoning 的逻辑。把 hasToolBlocks 分支条件改为 hasOrderedBlocks：数组 content 只要含 tool block 或 reasoning block 就走有序遍历。对数组内容维护 textRun 和 reasoningRun，类型切换时先 flush 当前 run。使用以下条件决定是否进入有序 block 分支：
 
@@ -262,11 +262,11 @@ if (isToolBlock(block)) {
 
 数组遍历结束后依次 flushText 和 flushReasoning，并把 content block 之外的 tool_calls 追加到最后。更新现有 pushSteps，使它调用同一个 appendSegment，避免产生第二套合并规则。字符串 content 使用 splitInlineReasoningInOrder 的结果；只有没有可定位 reasoning 时，才把 additional_kwargs.reasoning_content 作为前置段。文件 segment 仍在全部可见内容之后追加。
 
-- [ ] **Step 4: 更新 parseAssistantSegments 的相邻段合并**
+- [x] **Step 4: 更新 parseAssistantSegments 的相邻段合并**
 
 跨 AI 消息合并时调用同一个模块级 appendSegment，只合并相邻 tool_activity、reasoning 和 prose；绝不跨越另一种 segment 合并。
 
-- [ ] **Step 5: 运行顺序测试确认通过**
+- [x] **Step 5: 运行顺序测试确认通过**
 
 运行：
 
@@ -276,7 +276,7 @@ pnpm -C web-demo exec vitest run tests/unit/core/message-segments.test.ts
 
 预期：全部 message-segments 测试通过，新增交替顺序测试通过。
 
-- [ ] **Step 6: 提交顺序解析阶段**
+- [x] **Step 6: 提交顺序解析阶段**
 
 ```bash
 git add web-demo/src/core/messages/utils.ts web-demo/src/core/messages/segments.ts web-demo/tests/unit/core/message-segments.test.ts
@@ -289,7 +289,7 @@ git commit -m "feat(web-demo): preserve interleaved message segment order"
 - Create: web-demo/src/core/messages/rendering.ts
 - Create: web-demo/tests/unit/core/message-rendering.test.ts
 
-- [ ] **Step 1: 编写纯函数失败测试**
+- [x] **Step 1: 编写纯函数失败测试**
 
 测试可见正文只取 prose，且按顺序拼接；测试 ISO 时间、epoch 秒、嵌套 metadata、模型名和 token 总数；测试缺失字段返回 undefined。
 
@@ -317,7 +317,7 @@ expect(getAssistantPresentationMetadata(messageWithMetadata)).toMatchObject({
 });
 ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
 运行：
 
@@ -327,7 +327,7 @@ pnpm -C web-demo exec vitest run tests/unit/core/message-rendering.test.ts
 
 预期：因 rendering.ts 尚不存在而失败。
 
-- [ ] **Step 3: 实现 rendering.ts**
+- [x] **Step 3: 实现 rendering.ts**
 
 导出以下稳定接口：
 
@@ -352,13 +352,13 @@ export function formatAssistantTime(timestamp: number, locale?: string): string;
 - token 总数直接使用现有 getUsageMetadata(message)?.totalTokens。
 - formatAssistantTime 使用 Intl.DateTimeFormat，默认只显示小时和分钟，所有调用点传入当前 i18n locale。
 
-- [ ] **Step 4: 运行纯函数测试确认通过**
+- [x] **Step 4: 运行纯函数测试确认通过**
 
 ```bash
 pnpm -C web-demo exec vitest run tests/unit/core/message-rendering.test.ts
 ```
 
-- [ ] **Step 5: 提交纯函数阶段**
+- [x] **Step 5: 提交纯函数阶段**
 
 ```bash
 git add web-demo/src/core/messages/rendering.ts web-demo/tests/unit/core/message-rendering.test.ts
@@ -376,7 +376,7 @@ git commit -m "feat(web-demo): add assistant message presentation metadata"
 - Modify: web-demo/tests/unit/core/reasoning-trigger.test.ts
 - Modify: web-demo/tests/unit/core/tool-group.test.tsx
 
-- [ ] **Step 1: 给 SegmentList 增加顺序标识包装层**
+- [x] **Step 1: 给 SegmentList 增加顺序标识包装层**
 
 每个 segment 外层使用同一个宽度约束，并设置 data-segment-kind；不对 segments 排序：
 
@@ -392,7 +392,7 @@ git commit -m "feat(web-demo): add assistant message presentation metadata"
 
 HumanInputCard 仍在 prose 对应的位置渲染，FilesCard 仍在 files segment 位置渲染。
 
-- [ ] **Step 2: 移除 ProseContent 内的独立复制按钮**
+- [x] **Step 2: 移除 ProseContent 内的独立复制按钮**
 
 删除 CheckIcon、CopyIcon、Button、copy state 和绝对定位操作栏，保留以下职责：
 
@@ -408,7 +408,7 @@ return (
 );
 ```
 
-- [ ] **Step 3: 重写 ReasoningBlock 行结构**
+- [x] **Step 3: 重写 ReasoningBlock 行结构**
 
 保留 expanded state 和 Markdown body，改用无背景、无外层边框的行。行内包含 BrainIcon、思考中/已思考、单行摘要和 ChevronRightIcon：
 
@@ -442,7 +442,7 @@ return (
 
 summary 取思考内容第一个非空行，长度超过 120 个字符时截断为 117 个字符加省略号。
 
-- [ ] **Step 4: 重写 ToolGroup 为平级无卡片工具行**
+- [x] **Step 4: 重写 ToolGroup 为平级无卡片工具行**
 
 保留 toolIcon、groupLabel、toolLabel、stepSummary、DetailBlock 和结果解析；替换外层 class 为 w-full，不再使用 rounded-lg border bg-muted/20。多个工具调用显示调用数量标题，展开后显示各个平级 ToolEntry；单个工具调用直接显示工具行。默认折叠行为保持不变。ToolEntry 使用以下结构：
 
@@ -469,7 +469,7 @@ summary 取思考内容第一个非空行，长度超过 120 个字符时截断�
 
 参数/结果详情改为左侧细线、无填充卡片的文本块；详情 max-height 保持 48 以防止长结果撑高消息流。
 
-- [ ] **Step 5: 调整 UserPrompt 的 DSH 气泡，同时保留编辑流程**
+- [x] **Step 5: 调整 UserPrompt 的 DSH 气泡，同时保留编辑流程**
 
 将当前 UserPrompt JSX 中的容器和 article class 改为：
 
@@ -484,7 +484,7 @@ const userBubbleClass =
 
 删除 article 的 border、shadow、text-right；编辑 textarea 继续保持可见边框和保存/取消按钮，附件图片继续右对齐。
 
-- [ ] **Step 6: 更新组件静态测试**
+- [x] **Step 6: 更新组件静态测试**
 
 在 reasoning-trigger.test.ts 保留现有 createElement/renderToStaticMarkup 方式，并加入：
 
@@ -507,7 +507,7 @@ expect(html).not.toContain("执行结果");
 
 默认折叠仍不渲染参数/执行结果；展开测试继续验证详情可以出现。若 className 顺序经 formatter 调整，断言改为分别检查 rounded-lg、border-border/50 和 bg-muted/20 均不存在。
 
-- [ ] **Step 7: 运行相关测试与 typecheck**
+- [x] **Step 7: 运行相关测试与 typecheck**
 
 ```bash
 pnpm -C web-demo exec vitest run tests/unit/core/reasoning-trigger.test.ts tests/unit/core/tool-group.test.tsx tests/unit/core/message-segments.test.ts
@@ -516,7 +516,7 @@ pnpm -C web-demo exec tsc --noEmit
 
 预期：测试和 typecheck 均通过。
 
-- [ ] **Step 8: 提交 segment 视觉阶段**
+- [x] **Step 8: 提交 segment 视觉阶段**
 
 ```bash
 git add web-demo/src/components/workspace/chat/segments web-demo/tests/unit/core/reasoning-trigger.test.ts web-demo/tests/unit/core/tool-group.test.tsx
@@ -532,7 +532,7 @@ git commit -m "feat(web-demo): align message segments with DSH flow"
 - Modify: web-demo/src/core/i18n/locales/en-US.ts
 - Create: web-demo/tests/unit/components/workspace/chat/assistant-message-footer.test.tsx
 
-- [ ] **Step 1: 增加 messageActions 类型和中英文文案**
+- [x] **Step 1: 增加 messageActions 类型和中英文文案**
 
 在 Translations 增加：
 
@@ -551,7 +551,7 @@ messageActions: {
 
 中文值：复制、已复制、复制失败、复制当前线程到新会话、复制中、创建分支失败、重新生成、没有可复制的正文。英文值提供等义文案。现有 clipboard 分组继续供 UserPrompt 使用。
 
-- [ ] **Step 2: 编写 footer 状态测试**
+- [x] **Step 2: 编写 footer 状态测试**
 
 测试 props 接口：
 
@@ -586,7 +586,7 @@ expect(branch).toHaveBeenCalledTimes(1);
 ```
 
 
-- [ ] **Step 3: 实现 AssistantMessageFooter**
+- [x] **Step 3: 实现 AssistantMessageFooter**
 
 组件结构固定为一个 hover/focus 可见的 flex 行。组件开头使用 const { locale, t } = useI18n()，把 locale 传给时间格式化函数：
 
@@ -611,13 +611,13 @@ expect(branch).toHaveBeenCalledTimes(1);
 - 导入现有 formatTokenCount，并使用 Lucide 的 CopyIcon、CheckIcon、GitBranchIcon、RefreshCwIcon、Loader2Icon；给每个 icon button 设置固定尺寸。
 - footer 不显示 reasoning、tool_activity 和 files 的复制内容。
 
-- [ ] **Step 4: 运行 footer 测试**
+- [x] **Step 4: 运行 footer 测试**
 
 ```bash
 pnpm -C web-demo exec vitest run tests/unit/components/workspace/chat/assistant-message-footer.test.tsx
 ```
 
-- [ ] **Step 5: 提交 footer 阶段**
+- [x] **Step 5: 提交 footer 阶段**
 
 ```bash
 git add web-demo/src/components/workspace/chat/assistant-message-footer.tsx web-demo/src/core/i18n/locales/types.ts web-demo/src/core/i18n/locales/zh-CN.ts web-demo/src/core/i18n/locales/en-US.ts web-demo/tests/unit/components/workspace/chat/assistant-message-footer.test.tsx
@@ -632,7 +632,7 @@ git commit -m "feat(web-demo): add assistant turn action footer"
 - Modify: web-demo/src/app/workspace/chats/[thread_id]/page.tsx
 - Modify: web-demo/src/app/workspace/agents/[agent_name]/chats/[thread_id]/page.tsx
 
-- [ ] **Step 1: 给 MessageItem 增加 footer 回调 props**
+- [x] **Step 1: 给 MessageItem 增加 footer 回调 props**
 
 增加 props：
 
@@ -656,7 +656,7 @@ onRegenerate?: () => void;
 
 用户消息分支保持不变，不给 human message 添加 assistant footer。
 
-- [ ] **Step 2: 让 MessageFeed 先得到稳定的 group 列表**
+- [x] **Step 2: 让 MessageFeed 先得到稳定的 group 列表**
 
 从 core/messages/utils.ts 引入 MessageGroup 类型，在 MessageFeed props type 增加 onBranchThread?: () => Promise<void>，再把现在直接调用 groupMessages 的 JSX 改为 useMemo，保留同样的 isCurrentTurnLoading 选项：
 
@@ -679,7 +679,7 @@ const footerGroupId = [...groupedMessages]
 
 渲染改为 groupedMessages.map。现有 human、clarification、present-files、subagent 分支内部逻辑保持原样。
 
-- [ ] **Step 3: 为普通 assistant group 和 processing group 接入 footer**
+- [x] **Step 3: 为普通 assistant group 和 processing group 接入 footer**
 
 在普通 assistant group 中把 isFooterGroup 传入 MessageItem。先在现有 group 渲染分支中加入：
 
@@ -695,7 +695,7 @@ const messageItemActions = {
 
 ProcessingFlow 新增 showFooter、onBranchThread、onRegenerate props，类型固定为 showFooter: boolean、onBranchThread?: () => Promise<void>、onRegenerate?: () => void。在 SegmentList 后追加同一份 AssistantMessageFooter，message 使用 groupMessages 中最后一个 AI 消息，segments 使用当前聚合结果。isLoading 时 footer 自动隐藏。删除原来 MessageFeed 末尾的独立重新生成按钮，避免重复；对于 present-files 等没有普通 footer 的终态组，保留一个同位置的 regenerate fallback。
 
-- [ ] **Step 4: 普通会话增加复制线程回调**
+- [x] **Step 4: 普通会话增加复制线程回调**
 
 在 web-demo/src/app/workspace/chats/[thread_id]/page.tsx 引入 getAPIClient，并加入：
 
@@ -713,7 +713,7 @@ const handleBranchThread = useCallback(async () => {
 
 将 onBranchThread={isMock ? undefined : handleBranchThread} 传给 MessageFeed。使用 native history，避免当前页面因为分支动作重新挂载并丢失状态。
 
-- [ ] **Step 5: Agent 会话增加带 agent_name 的复制线程回调**
+- [x] **Step 5: Agent 会话增加带 agent_name 的复制线程回调**
 
 在 AgentChatPage 添加同样的 threads.copy 调用，URL 使用：
 
@@ -723,14 +723,14 @@ const handleBranchThread = useCallback(async () => {
 
 将回调传给 AgentChatPage 的 MessageFeed；静态 demo 或线程 id 为空时不显示分支按钮。
 
-- [ ] **Step 6: 运行 typecheck 和相关单元测试**
+- [x] **Step 6: 运行 typecheck 和相关单元测试**
 
 ```bash
 pnpm -C web-demo exec tsc --noEmit
 pnpm -C web-demo exec vitest run tests/unit/core/message-segments.test.ts tests/unit/core/message-rendering.test.ts tests/unit/core/reasoning-trigger.test.ts tests/unit/core/tool-group.test.tsx tests/unit/components/workspace/chat/assistant-message-footer.test.tsx
 ```
 
-- [ ] **Step 7: 提交页面接入阶段**
+- [x] **Step 7: 提交页面接入阶段**
 
 ```bash
 git add web-demo/src/components/workspace/chat/message-item.tsx web-demo/src/components/workspace/chat/message-feed.tsx web-demo/src/app/workspace/chats/[thread_id]/page.tsx web-demo/src/app/workspace/agents/[agent_name]/chats/[thread_id]/page.tsx
@@ -743,7 +743,7 @@ git commit -m "feat(web-demo): wire assistant footer and thread branching"
 - Modify: web-demo/tests/e2e/utils/mock-api.ts
 - Modify: web-demo/tests/e2e/chat.spec.ts
 
-- [ ] **Step 1: 增加交替消息流 mock**
+- [x] **Step 1: 增加交替消息流 mock**
 
 新增 handleInterleavedRunStream，使用与 handleRunStream 相同的 SSE 序列化方式，返回以下确定消息：
 
@@ -782,7 +782,7 @@ export function handleInterleavedRunStream(route: Route) {
 
 消息同时满足 tool_call 和 tool result 的关联格式，确保 ToolGroup 能回填执行结果。
 
-- [ ] **Step 2: 增加线程 copy mock**
+- [x] **Step 2: 增加线程 copy mock**
 
 在 mockLangGraphAPI 中注册 POST 路径 /api/langgraph/threads/*/copy，返回：
 
@@ -797,7 +797,7 @@ export function handleInterleavedRunStream(route: Route) {
 }
 ```
 
-- [ ] **Step 3: 添加交替顺序和 footer E2E 测试**
+- [x] **Step 3: 添加交替顺序和 footer E2E 测试**
 
 从 web-demo/tests/e2e/utils/mock-api.ts 引入 handleInterleavedRunStream，从 @playwright/test 引入 expect 和 test；测试操作使用以下完整代码：
 
@@ -828,7 +828,7 @@ export function handleInterleavedRunStream(route: Route) {
 
 断言用户气泡的 computed max-width 不超过视口宽度的 72%，并在点击分支后确认页面没有新增 console error。
 
-- [ ] **Step 4: 运行 E2E 测试**
+- [x] **Step 4: 运行 E2E 测试**
 
 ```bash
 pnpm -C web-demo exec playwright test tests/e2e/chat.spec.ts
@@ -836,7 +836,7 @@ pnpm -C web-demo exec playwright test tests/e2e/chat.spec.ts
 
 预期：现有新会话、输入、发送测试和新增交替渲染/分支测试全部通过。
 
-- [ ] **Step 5: 启动 QiLin 前端并做人工浏览器检查**
+- [x] **Step 5: 启动 QiLin 前端并做人工浏览器检查**
 
 使用持久 terminal 启动：
 
@@ -853,7 +853,7 @@ pnpm -C web-demo run dev
 5. 分支复制完成后进入新 thread；失败时保留当前 thread 并显示错误提示。
 6. 桌面宽度和窄屏宽度下无重叠、无横向滚动；console 无新增错误。
 
-- [ ] **Step 6: 完成全量前端验证**
+- [x] **Step 6: 完成全量前端验证**
 
 ```bash
 pnpm -C web-demo exec tsc --noEmit
@@ -864,7 +864,7 @@ pnpm -C web-demo run build
 
 预期：typecheck、lint、Vitest 和 Next build 全部成功。
 
-- [ ] **Step 7: 检查差异并提交验证阶段**
+- [x] **Step 7: 检查差异并提交验证阶段**
 
 ```bash
 git diff --check

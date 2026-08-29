@@ -12,11 +12,7 @@ import type { ToolActivityStep } from "@/core/messages/segments";
 import { cn } from "@/lib/utils";
 
 function toolIcon(name: string) {
-  if (
-    name === "web_search" ||
-    name === "image_search" ||
-    name === "grep"
-  )
+  if (name === "web_search" || name === "image_search" || name === "grep")
     return "search";
   if (name === "web_fetch" || name === "web_request") return "globe";
   if (name === "bash" || name === "python") return "terminal";
@@ -36,14 +32,32 @@ function iconGlyph(kind: string): React.ReactNode {
   switch (kind) {
     case "search":
       return (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.3-4.3" />
         </svg>
       );
     case "globe":
       return (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <circle cx="12" cy="12" r="10" />
           <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
           <path d="M2 12h20" />
@@ -51,14 +65,32 @@ function iconGlyph(kind: string): React.ReactNode {
       );
     case "terminal":
       return (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="4 17 10 11 4 5" />
           <line x1="12" x2="20" y1="19" y2="19" />
         </svg>
       );
     case "file":
       return (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
           <path d="M14 2v4a2 2 0 0 0 2 2h4" />
         </svg>
@@ -181,7 +213,9 @@ function groupLabel(steps: ToolActivityStep[]): React.ReactNode {
   return (
     <>
       <span className="shrink-0">{steps.length} 个工具调用</span>
-      <span className="text-muted-foreground truncate">{labels.join("、")}</span>
+      <span className="text-muted-foreground truncate">
+        {labels.join("、")}
+      </span>
     </>
   );
 }
@@ -208,18 +242,13 @@ export function ToolGroup({
   const running = isLoading && steps.some((step) => step.result === undefined);
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border border-border/50 bg-muted/20",
-        className,
-      )}
-    >
+    <div className={cn("w-full min-w-0", className)}>
       <button
         type="button"
         aria-expanded={expanded}
         onClick={() => setExpanded((value) => !value)}
         className={cn(
-          "flex w-full items-center gap-2 border-none bg-transparent px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-muted/30",
+          "hover:bg-muted/30 focus-visible:ring-ring flex w-full min-w-0 items-center gap-2 rounded-md px-1 py-1 text-left text-sm leading-6 transition-colors focus-visible:ring-2",
           running ? "text-blue-500" : "text-muted-foreground",
         )}
       >
@@ -228,7 +257,7 @@ export function ToolGroup({
         ) : (
           <CheckIcon className="size-3.5 shrink-0 text-emerald-500" />
         )}
-        <span className="text-violet-500 shrink-0">
+        <span className="shrink-0 text-violet-500">
           <WrenchIcon className="size-3.5" />
         </span>
         <span className="flex min-w-0 flex-1 items-center gap-2">
@@ -242,7 +271,7 @@ export function ToolGroup({
         />
       </button>
       {expanded && (
-        <div className="space-y-0.5 border-t border-border/40 py-1">
+        <div className="mt-0.5 space-y-0.5 pl-5">
           {steps.map((step) => (
             <ToolEntry key={step.id} step={step} isLoading={isLoading} />
           ))}
@@ -277,7 +306,7 @@ function ToolEntry({
         title={step.name}
         onClick={() => expandable && setOpen((value) => !value)}
         className={cn(
-          "flex w-full items-center gap-2 border-none bg-transparent px-2.5 py-1 text-left text-xs transition-colors",
+          "flex w-full min-w-0 items-center gap-2 rounded-md px-1.5 py-1 text-left text-xs leading-6 transition-colors",
           expandable && "hover:bg-muted/30",
           !expandable && "cursor-default",
         )}
@@ -287,7 +316,7 @@ function ToolEntry({
         ) : (
           <CheckIcon className="size-3 shrink-0 text-emerald-500" />
         )}
-        <span className="text-violet-500 shrink-0">{iconGlyph(kind)}</span>
+        <span className="shrink-0 text-violet-500">{iconGlyph(kind)}</span>
         <span className="shrink-0 font-medium">{toolLabel(step.name)}</span>
         {summary && (
           <span className="text-muted-foreground min-w-0 flex-1 truncate font-mono text-[11px]">
@@ -306,16 +335,10 @@ function ToolEntry({
       {open && expandable && (
         <div className="space-y-1 py-1 pr-2.5 pl-8">
           {hasArgs && (
-            <DetailBlock
-              label="参数"
-              text={formatValue(step.args)}
-            />
+            <DetailBlock label="参数" text={formatValue(step.args)} />
           )}
           {hasResult && (
-            <DetailBlock
-              label="执行结果"
-              text={stringify(step.result)}
-            />
+            <DetailBlock label="执行结果" text={stringify(step.result)} />
           )}
         </div>
       )}
@@ -326,7 +349,7 @@ function ToolEntry({
 /** Inline plain-text detail block — no nested bordered cards. */
 function DetailBlock({ label, text }: { label: string; text: string }) {
   return (
-    <div className="rounded-md border-l-2 border-border/60 bg-muted/30 py-1 pr-2 pl-2">
+    <div className="border-border/50 border-l py-1 pr-2 pl-3">
       <div className="text-muted-foreground/70 text-[10px]">{label}</div>
       <pre className="text-muted-foreground max-h-48 overflow-auto font-mono text-[11px] leading-relaxed whitespace-pre-wrap">
         {text}

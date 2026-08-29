@@ -6,6 +6,10 @@ import {
   parseMessageSegments,
   parseUserPrompt,
 } from "@/core/messages/segments";
+import {
+  hasReasoning,
+  splitInlineReasoningInOrder,
+} from "@/core/messages/utils";
 
 type AIMessageLike = Partial<Omit<AIMessage, "type">> & { id: string };
 
@@ -43,7 +47,12 @@ describe("parseMessageSegments — execution-order interleaving", () => {
       id: "m2",
       content: [
         { type: "text", text: "第一步" },
-        { type: "tool_call", id: "tc-1", name: "bash", args: { command: "ls" } },
+        {
+          type: "tool_call",
+          id: "tc-1",
+          name: "bash",
+          args: { command: "ls" },
+        },
         { type: "text", text: "第二步" },
         { type: "tool_call", id: "tc-2", name: "grep", args: { pattern: "x" } },
       ] as unknown as Message["content"],
@@ -62,7 +71,12 @@ describe("parseMessageSegments — execution-order interleaving", () => {
       id: "m3",
       content: [
         { type: "text", text: "查一下" },
-        { type: "tool_use", id: "tu-1", name: "web_search", input: { query: "q" } },
+        {
+          type: "tool_use",
+          id: "tu-1",
+          name: "web_search",
+          input: { query: "q" },
+        },
       ] as unknown as Message["content"],
     });
 
@@ -71,7 +85,8 @@ describe("parseMessageSegments — execution-order interleaving", () => {
     ]);
 
     expect(segments.map((s) => s.kind)).toEqual(["prose", "tool_activity"]);
-    const steps = segments[1]?.kind === "tool_activity" ? segments[1].steps : [];
+    const steps =
+      segments[1]?.kind === "tool_activity" ? segments[1].steps : [];
     expect(steps[0]).toMatchObject({
       id: "tu-1",
       name: "web_search",
@@ -82,10 +97,10 @@ describe("parseMessageSegments — execution-order interleaving", () => {
   test("tool_calls not present as content blocks render after the text", () => {
     const message = aiMessage({
       id: "m4",
-      content: [{ type: "text", text: "正文" }] as unknown as Message["content"],
-      tool_calls: [
-        { id: "call-9", name: "bash", args: { command: "pwd" } },
-      ],
+      content: [
+        { type: "text", text: "正文" },
+      ] as unknown as Message["content"],
+      tool_calls: [{ id: "call-9", name: "bash", args: { command: "pwd" } }],
     });
 
     const segments = parseMessageSegments(message);
@@ -96,8 +111,18 @@ describe("parseMessageSegments — execution-order interleaving", () => {
     const message = aiMessage({
       id: "m5",
       content: [
-        { type: "tool_call", id: "t1", name: "read_file", args: { file_path: "x" } },
-        { type: "tool_call", id: "t2", name: "write_file", args: { file_path: "y" } },
+        {
+          type: "tool_call",
+          id: "t1",
+          name: "read_file",
+          args: { file_path: "x" },
+        },
+        {
+          type: "tool_call",
+          id: "t2",
+          name: "write_file",
+          args: { file_path: "y" },
+        },
       ] as unknown as Message["content"],
     });
 
@@ -282,5 +307,184 @@ describe("parseUserPrompt — screenshot / upload bubble sanitization", () => {
 
     expect(prompt.content).toBe("");
     expect(prompt.images).toEqual([PNG_DATA_URL]);
+  });
+});
+
+describe("parseMessageSegments — in-place thinking blocks", () => {
+  test("block order thinking → text → tool_call → thinking → text is preserved", () => {
+    const message = aiMessage({
+      id: "m7",
+      content: [
+        { type: "thinking", thinking: "先拆解一下问题", signature: "sig-1" },
+        { type: "text", text: "第一步" },
+        {
+          type: "tool_call",
+          id: "tc-7",
+          name: "bash",
+          args: { command: "ls" },
+        },
+        { type: "reasoning", reasoning: "结果符合预期，继续" },
+        { type: "text", text: "第二步" },
+      ] as unknown as Message["content"],
+      additional_kwargs: { reasoning_content: "kwargs 兜底思考" },
+    });
+
+    const segments = parseMessageSegments(message);
+
+    expect(segments.map((s) => s.kind)).toEqual([
+      "reasoning",
+      "prose",
+      "tool_activity",
+      "reasoning",
+      "prose",
+    ]);
+    expect(segments[0]).toMatchObject({
+      kind: "reasoning",
+      content: "先拆解一下问题",
+    });
+    expect(segments[1]).toMatchObject({ kind: "prose", content: "第一步" });
+    if (segments[2]?.kind === "tool_activity") {
+      expect(segments[2].steps.map((s) => s.id)).toEqual(["tc-7"]);
+    }
+    expect(segments[3]).toMatchObject({
+      kind: "reasoning",
+      content: "结果符合预期，继续",
+    });
+    expect(segments[4]).toMatchObject({ kind: "prose", content: "第二步" });
+  });
+
+  test("reasoning_content typed blocks and type-less thinking fields are recognized in order", () => {
+    const message = aiMessage({
+      id: "m8",
+      content: [
+        { type: "reasoning_content", reasoning_content: "kwarg 风格思考" },
+        { thinking: "无 type 的思考块" },
+        { type: "text", text: "正文" },
+      ] as unknown as Message["content"],
+    });
+
+    const segments = parseMessageSegments(message);
+
+    // Adjacent reasoning segments coalesce into one.
+    expect(segments.map((s) => s.kind)).toEqual(["reasoning", "prose"]);
+    expect(segments[0]).toMatchObject({
+      kind: "reasoning",
+      content: "kwarg 风格思考\n\n无 type 的思考块",
+    });
+    expect(segments[1]).toMatchObject({ kind: "prose", content: "正文" });
+  });
+
+  test("additional_kwargs.reasoning_content only prepends when no thinking is locatable", () => {
+    const withBlocks = aiMessage({
+      id: "m9",
+      content: [
+        { type: "text", text: "正文" },
+        { type: "thinking", thinking: "块内思考" },
+      ] as unknown as Message["content"],
+      additional_kwargs: { reasoning_content: "kwargs 兜底思考" },
+    });
+    const segments = parseMessageSegments(withBlocks);
+    expect(segments.map((s) => s.kind)).toEqual(["prose", "reasoning"]);
+    expect(segments[0]).toMatchObject({ kind: "prose", content: "正文" });
+    expect(segments[1]).toMatchObject({
+      kind: "reasoning",
+      content: "块内思考",
+    });
+
+    const withoutBlocks = aiMessage({
+      id: "m10",
+      content: "纯文本",
+      additional_kwargs: { reasoning_content: "kwargs 兜底思考" },
+    });
+    expect(parseMessageSegments(withoutBlocks).map((s) => s.kind)).toEqual([
+      "reasoning",
+      "prose",
+    ]);
+  });
+});
+
+describe("parseMessageSegments — multiple inline <think> tags in string content", () => {
+  test("prose/reasoning keep tag order; unclosed trailing tag stays safe", () => {
+    const message = aiMessage({
+      id: "m11",
+      content:
+        "前言\n<think>思考一</think>\n中间\n<think>思考二</think><think>未闭合的思考",
+    });
+
+    const segments = parseMessageSegments(message);
+
+    expect(segments.map((s) => s.kind)).toEqual([
+      "prose",
+      "reasoning",
+      "prose",
+      "reasoning",
+    ]);
+    expect(segments[0]).toMatchObject({ kind: "prose", content: "前言" });
+    expect(segments[1]).toMatchObject({ kind: "reasoning", content: "思考一" });
+    expect(segments[2]).toMatchObject({ kind: "prose", content: "中间" });
+    // The two adjacent reasoning runs (last one unclosed) coalesce.
+    expect(segments[3]).toMatchObject({
+      kind: "reasoning",
+      content: "思考二\n\n未闭合的思考",
+    });
+  });
+
+  test("splitInlineReasoningInOrder returns positionally ordered segments", () => {
+    expect(
+      splitInlineReasoningInOrder("a<think>x</think>b<think>y</think><think>z"),
+    ).toEqual([
+      { kind: "prose", content: "a" },
+      { kind: "reasoning", content: "x" },
+      { kind: "prose", content: "b" },
+      { kind: "reasoning", content: "y" },
+      { kind: "reasoning", content: "z" },
+    ]);
+    expect(splitInlineReasoningInOrder("no tags here")).toEqual([
+      { kind: "prose", content: "no tags here" },
+    ]);
+    expect(splitInlineReasoningInOrder("")).toEqual([]);
+  });
+});
+
+describe("hasReasoning — array content checks every block", () => {
+  test("finds a thinking block positioned after the first entry", () => {
+    const message = aiMessage({
+      id: "m12",
+      content: [
+        { type: "text", text: "正文" },
+        { type: "thinking", thinking: "后置思考" },
+      ] as unknown as Message["content"],
+    });
+    expect(hasReasoning(message)).toBe(true);
+  });
+
+  test("recognizes reasoning and reasoning_content typed blocks", () => {
+    const reasoning = aiMessage({
+      id: "m13",
+      content: [
+        { type: "text", text: "正文" },
+        { type: "reasoning", reasoning: "r" },
+      ] as unknown as Message["content"],
+    });
+    const reasoningContent = aiMessage({
+      id: "m14",
+      content: [
+        { type: "text", text: "正文" },
+        { type: "reasoning_content", reasoning_content: "rc" },
+      ] as unknown as Message["content"],
+    });
+    expect(hasReasoning(reasoning)).toBe(true);
+    expect(hasReasoning(reasoningContent)).toBe(true);
+  });
+
+  test("plain text blocks do not count as reasoning", () => {
+    const message = aiMessage({
+      id: "m15",
+      content: [
+        { type: "text", text: "正文" },
+        { type: "text", text: "更多正文" },
+      ] as unknown as Message["content"],
+    });
+    expect(hasReasoning(message)).toBe(false);
   });
 });

@@ -1,14 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 import { type PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { ArtifactTrigger } from "@/components/workspace/artifacts";
-import {
-  MESSAGE_FEED_DEFAULT_PADDING_BOTTOM,
-  MessageFeed,
-} from "@/components/workspace/chat/message-feed";
+import { MessageFeed } from "@/components/workspace/chat/message-feed";
 import {
   ChatBox,
   useSpecificChatMode,
@@ -18,6 +15,7 @@ import { InputBox } from "@/components/workspace/input-box";
 import { ThreadContext } from "@/components/workspace/messages/context";
 import { TaskTokenSummary } from "@/components/workspace/token-usage/task-token-summary";
 import { Welcome } from "@/components/workspace/welcome";
+import { getAPIClient } from "@/core/api/api-client";
 import { useI18n } from "@/core/i18n/hooks";
 import type { HumanInputResponse } from "@/core/messages/human-input";
 import { useNotification } from "@/core/notification/hooks";
@@ -73,7 +71,10 @@ export default function ChatPage() {
       history.replaceState(null, "", nextPath);
       // Lock the lead agent for this thread so reopening it always
       // uses the same AgentConfig preset.
-      saveThreadAgentName(createdThreadId, settings.context.agent_name as string | undefined);
+      saveThreadAgentName(
+        createdThreadId,
+        settings.context.agent_name as string | undefined,
+      );
       // Lock the user-selected workspace path so reopening the thread
       // restores the same directory sandbox permissions.
       saveThreadWorkspacePath(
@@ -118,15 +119,31 @@ export default function ChatPage() {
 
   const handleHumanInputSubmit = useCallback(
     (response: HumanInputResponse) => {
-      void sendMessage(threadId, {
-        text: response.value,
-        files: [],
-      }, undefined, {
-        additionalKwargs: { human_input_response: response },
-      });
+      void sendMessage(
+        threadId,
+        {
+          text: response.value,
+          files: [],
+        },
+        undefined,
+        {
+          additionalKwargs: { human_input_response: response },
+        },
+      );
     },
     [sendMessage, threadId],
   );
+
+  const handleBranchThread = useCallback(async () => {
+    if (isNewThread || !threadId) return;
+    const copiedThread = await getAPIClient(isMock).threads.copy(threadId);
+    if (!copiedThread.thread_id) {
+      throw new Error("Copied thread did not return an id");
+    }
+    setThreadId(copiedThread.thread_id);
+    setIsNewThread(false);
+    history.pushState(null, "", "/workspace/chats/" + copiedThread.thread_id);
+  }, [isMock, isNewThread, setIsNewThread, setThreadId, threadId]);
 
   // ── 队列协调器（Task 16） ──────────────────────────────────────────
   // sendMessage 签名适配：ThreadStreamLike 期望 (content, attachments)，
@@ -209,6 +226,7 @@ export default function ChatPage() {
                   loadMoreHistory={loadMoreHistory}
                   isHistoryLoading={isHistoryLoading}
                   onHumanInputSubmit={handleHumanInputSubmit}
+                  onBranchThread={handleBranchThread}
                 />
               </div>
             )}

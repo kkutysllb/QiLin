@@ -16,16 +16,20 @@ test("ReasoningBlock renders a collapsible thinking summary", () => {
 
   expect(html).toContain("已思考");
   // Collapsed by default — the summary row is present, body is hidden.
-  expect(html).not.toContain("thinking text");
+  expect(html).toContain("thinking text");
+  expect(html).toContain('aria-expanded="false"');
 });
 
 test("ReasoningBlock shows streaming label while streaming", () => {
   const html = renderToStaticMarkup(
-    createElement(ReasoningBlock, { content: "streaming thoughts", isStreaming: true }),
+    createElement(ReasoningBlock, {
+      content: "streaming thoughts",
+      isStreaming: true,
+    }),
   );
 
   expect(html).toContain("思考中");
-  // Collapsed by default even while streaming — the user expands manually.
-  expect(html).not.toContain("streaming thoughts");
-  expect(html).toContain("aria-expanded=\"false\"");
+  // Collapsed by default even while streaming — the summary is still visible.
+  expect(html).toContain("streaming thoughts");
+  expect(html).toContain('aria-expanded="false"');
 });

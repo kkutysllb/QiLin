@@ -6,7 +6,9 @@ import { describe, expect, test } from "vitest";
 import { ToolGroup } from "@/components/workspace/chat/segments/tool-group";
 import { parseMessageSegments } from "@/core/messages/segments";
 
-function aiToolMessage(toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }>): Message {
+function aiToolMessage(
+  toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }>,
+): Message {
   return {
     type: "ai",
     id: "m1",
@@ -55,8 +57,11 @@ describe("ToolGroup — one collapsed row per prose gap", () => {
     expect(html).toContain("执行命令");
     expect(html).toContain("ls -la");
     expect(html).not.toContain("执行结果");
-    // The expand affordance is present.
-    expect(html).toContain("aria-expanded=\"false\"");
+    // The expand affordance is present and the outer card treatment is gone.
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).not.toContain("rounded-lg");
+    expect(html).not.toContain("border-border/50");
+    expect(html).not.toContain("bg-muted/20");
   });
 
   test("unknown MCP tools fall back to a readable label", () => {

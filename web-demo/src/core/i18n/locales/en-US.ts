@@ -100,24 +100,37 @@ export const enUS: Translations = {
     linkCopied: "Link copied to clipboard",
   },
 
+  messageActions: {
+    copy: "Copy",
+    copied: "Copied",
+    copyFailed: "Copy failed",
+    branch: "Copy thread to new conversation",
+    branching: "Copying",
+    branchFailed: "Failed to create branch",
+    regenerate: "Regenerate",
+    noVisibleContent: "No visible response to copy",
+  },
+
   // Input Box
   inputBox: {
-  pickWorkspace: "Pick workspace",
-  accessMode: "Access mode",
-  sandboxReadOnly: "Read-only",
-  sandboxWorkspaceWrite: "Workspace write",
-  sandboxFullAccess: "Full access",
-  sandboxFullAccessConfirmTitle: "Confirm full access",
-  sandboxFullAccessConfirmDesc: "Full access lets the agent read/write any file and system outside the workspace without sandbox restrictions, which may be irreversible. Continue to full access?",
-  sandboxFullAccessConfirm: "Still allow",
-  sandboxFullAccessCancel: "Cancel",
-  ungroupedOption: "Ungrouped",
-  addWorkspace: "Add workspace…",
+    pickWorkspace: "Pick workspace",
+    accessMode: "Access mode",
+    sandboxReadOnly: "Read-only",
+    sandboxWorkspaceWrite: "Workspace write",
+    sandboxFullAccess: "Full access",
+    sandboxFullAccessConfirmTitle: "Confirm full access",
+    sandboxFullAccessConfirmDesc:
+      "Full access lets the agent read/write any file and system outside the workspace without sandbox restrictions, which may be irreversible. Continue to full access?",
+    sandboxFullAccessConfirm: "Still allow",
+    sandboxFullAccessCancel: "Cancel",
+    ungroupedOption: "Ungrouped",
+    addWorkspace: "Add workspace…",
     placeholder: "How can I assist you today?",
     createSkillPrompt:
       "We're going to build a new skill step by step with `skill-creator`. To start, what do you want this skill to do?",
     skillModeBanner: "Skill Creation Mode",
-    skillModeBannerHint: "The new skill will be auto-bound to the selected work mode below. Switch modes to change the binding target.",
+    skillModeBannerHint:
+      "The new skill will be auto-bound to the selected work mode below. Switch modes to change the binding target.",
     createCronPrompt:
       "Let's create a scheduled cron job together. Tell me: when should it run and what should it do? For example, generate a daily summary every morning at 9 AM.",
     addAttachments: "Add attachments",
@@ -217,7 +230,7 @@ export const enUS: Translations = {
     agents: "Agents",
     models: "Models",
     skills: "Skills",
-        mcp: "MCP",
+    mcp: "MCP",
     crons: "Automation",
     tokenUsage: "Token Usage",
     customModes: "Custom modes",
@@ -228,7 +241,8 @@ export const enUS: Translations = {
     moveToWorkspace: "Move to workspace",
     renameWorkspace: "Rename workspace",
     deleteWorkspaceAction: "Delete workspace",
-    deleteWorkspaceHint: "Removes registration only; directory and history stay",
+    deleteWorkspaceHint:
+      "Removes registration only; directory and history stay",
     moveUpItem: "Move up",
     moveDownItem: "Move down",
     emptyWorkspaceCount: "empty",
@@ -332,11 +346,13 @@ export const enUS: Translations = {
   // MCP
   mcp: {
     title: "MCP Management",
-    description: "Manage Model Context Protocol (MCP) servers to extend QiLin with additional tools and data access capabilities.",
+    description:
+      "Manage Model Context Protocol (MCP) servers to extend QiLin with additional tools and data access capabilities.",
     addServer: "Add Server",
     editServer: "Edit Server",
     deleteServer: "Delete Server",
-    deleteConfirm: "Are you sure you want to delete MCP server \"{name}\"? This action cannot be undone.",
+    deleteConfirm:
+      'Are you sure you want to delete MCP server "{name}"? This action cannot be undone.',
     deleteSuccess: "MCP server deleted",
     saveSuccess: "MCP server config saved",
     createSuccess: "MCP server created",
@@ -367,24 +383,30 @@ export const enUS: Translations = {
     clientSecret: "Client Secret",
     scope: "Scope",
     emptyTitle: "No MCP servers yet",
-    emptyDescription: "Add MCP servers to extend QiLin with external tools like GitHub, filesystem, and database access.",
+    emptyDescription:
+      "Add MCP servers to extend QiLin with external tools like GitHub, filesystem, and database access.",
     guide: "Setup Guide",
-    guideIntro: "Model Context Protocol (MCP) is an open protocol that enables AI applications to securely access local and remote data sources. By configuring MCP servers, QiLin gains additional tool capabilities such as filesystem access, web search, and database queries.",
+    guideIntro:
+      "Model Context Protocol (MCP) is an open protocol that enables AI applications to securely access local and remote data sources. By configuring MCP servers, QiLin gains additional tool capabilities such as filesystem access, web search, and database queries.",
     guideStdioTitle: "STDIO Transport",
-    guideStdioSteps: "1. Select STDIO type for locally-running MCP servers.\n2. Enter the launch command (e.g. npx, python) and required arguments.\n3. Configure environment variables if needed (e.g. API keys).\n4. After saving, QiLin will automatically start and manage the MCP server process.",
+    guideStdioSteps:
+      "1. Select STDIO type for locally-running MCP servers.\n2. Enter the launch command (e.g. npx, python) and required arguments.\n3. Configure environment variables if needed (e.g. API keys).\n4. After saving, QiLin will automatically start and manage the MCP server process.",
     guideSseTitle: "SSE / HTTP Transport",
-    guideSseSteps: "1. Select SSE or HTTP type for remote MCP servers.\n2. Enter the server's SSE or HTTP endpoint URL.\n3. Add authentication headers (e.g. Authorization) if the server requires it.\n4. OAuth 2.0 is supported — configure Token URL for automatic token acquisition and refresh.",
+    guideSseSteps:
+      "1. Select SSE or HTTP type for remote MCP servers.\n2. Enter the server's SSE or HTTP endpoint URL.\n3. Add authentication headers (e.g. Authorization) if the server requires it.\n4. OAuth 2.0 is supported — configure Token URL for automatic token acquisition and refresh.",
     guideLinks: "Popular MCP Servers",
   },
 
   // Crons / Automation
   crons: {
     title: "Automation Tasks",
-    description: "Manage scheduled and one-time automation tasks that trigger AI conversations at specified times for automated reports, periodic checks, and more.",
+    description:
+      "Manage scheduled and one-time automation tasks that trigger AI conversations at specified times for automated reports, periodic checks, and more.",
     addJob: "Add Task",
     editJob: "Edit Task",
     deleteJob: "Delete Task",
-    deleteConfirm: "Are you sure you want to delete automation task \"{name}\"? This action cannot be undone.",
+    deleteConfirm:
+      'Are you sure you want to delete automation task "{name}"? This action cannot be undone.',
     deleteSuccess: "Automation task deleted",
     createSuccess: "Automation task created",
     updateSuccess: "Automation task updated",
@@ -429,15 +451,20 @@ export const enUS: Translations = {
     modelPlaceholder: "Use default model",
     prompt: "Prompt",
     promptHint: "The prompt/message sent to the agent when triggered",
-    promptPlaceholder: "e.g. Generate a daily summary based on today's conversations.",
+    promptPlaceholder:
+      "e.g. Generate a daily summary based on today's conversations.",
     emptyTitle: "No automation tasks yet",
-    emptyDescription: "Create automation tasks to let QiLin run scheduled AI conversations automatically, such as daily summaries and periodic reports.",
+    emptyDescription:
+      "Create automation tasks to let QiLin run scheduled AI conversations automatically, such as daily summaries and periodic reports.",
     guide: "Help",
-    guideIntro: "Automation tasks use cron expressions or one-time schedules to trigger AI conversations at specific times. Ideal for daily summaries, periodic data checks, and automated report generation.",
+    guideIntro:
+      "Automation tasks use cron expressions or one-time schedules to trigger AI conversations at specific times. Ideal for daily summaries, periodic data checks, and automated report generation.",
     guideCronSyntax: "Cron Expression Syntax",
-    guideCronFormat: "5-field format: minute hour day month weekday (space-separated)",
+    guideCronFormat:
+      "5-field format: minute hour day month weekday (space-separated)",
     guideExamples: "Common Examples",
-    guideModelNote: "When model is left empty, the system default model will be used.",
+    guideModelNote:
+      "When model is left empty, the system default model will be used.",
     jobCount: "tasks",
     retry: "Retry",
   },
@@ -560,7 +587,8 @@ export const enUS: Translations = {
     addModel: "Add Model",
     editModel: "Edit Model",
     deleteModel: "Delete Model",
-    deleteConfirm: "Are you sure you want to delete model \"{name}\"? This action cannot be undone.",
+    deleteConfirm:
+      'Are you sure you want to delete model "{name}"? This action cannot be undone.',
     deleteSuccess: "Model deleted",
     createSuccess: "Model created",
     updateSuccess: "Model updated",
@@ -577,7 +605,8 @@ export const enUS: Translations = {
     baseUrlHint: "Base URL for the provider API",
     maxTokens: "Max Tokens",
     maxInputTokens: "Max Input Tokens",
-    maxInputTokensHint: "Context window size (max input tokens). Used by auto-summarization and model profile injection.",
+    maxInputTokensHint:
+      "Context window size (max input tokens). Used by auto-summarization and model profile injection.",
     maxRetries: "Max Retries",
     temperature: "Temperature",
     requestTimeout: "Timeout (seconds)",
@@ -595,7 +624,8 @@ export const enUS: Translations = {
     thinkingEnabled: "When Thinking Enabled",
     thinkingDisabled: "When Thinking Disabled",
     emptyTitle: "No models configured yet",
-    emptyDescription: "Click \"Add Model\" to add your first model configuration.",
+    emptyDescription:
+      'Click "Add Model" to add your first model configuration.',
     badJson: "Invalid JSON format",
   },
   settings: {
@@ -648,20 +678,30 @@ export const enUS: Translations = {
         runtime: "Runtime",
       },
       summaries: {
-        general: "Account info, password, theme, language, log level, and YAML editor.",
-        models: "Manage LLM models, create from provider templates, configure thinking/vision capabilities.",
-        memorySummary: "Configure long-term memory, conversation summarization, and title generation.",
-        tokenUsageBudget: "Configure token usage tracking and per-run token budget limits.",
+        general:
+          "Account info, password, theme, language, log level, and YAML editor.",
+        models:
+          "Manage LLM models, create from provider templates, configure thinking/vision capabilities.",
+        memorySummary:
+          "Configure long-term memory, conversation summarization, and title generation.",
+        tokenUsageBudget:
+          "Configure token usage tracking and per-run token budget limits.",
         skill: "Enable built-in and custom skills, manage the skill matrix.",
         mcp: "MCP server CRUD management and one-click preset installation.",
-        toolsSandbox: "Sandbox environment, tool output truncation, lazy loading, progress tracking, and loop detection.",
-        webTools: "Network proxy, search tools, and browser automation settings.",
-        uploads: "File upload count and size limits, PDF/Word/Excel auto-conversion.",
-        dataSources: "Configure external data source credentials (e.g. Tushare Pro).",
-        dataPersistence: "Manage persistence backends, view status and disk usage.",
+        toolsSandbox:
+          "Sandbox environment, tool output truncation, lazy loading, progress tracking, and loop detection.",
+        webTools:
+          "Network proxy, search tools, and browser automation settings.",
+        uploads:
+          "File upload count and size limits, PDF/Word/Excel auto-conversion.",
+        dataSources:
+          "Configure external data source credentials (e.g. Tushare Pro).",
+        dataPersistence:
+          "Manage persistence backends, view status and disk usage.",
         skillModels: "Desktop skill model API credential management.",
         agents: "Manage custom agents, enable/disable the agent API.",
-        subagents: "Configure sub-agent global parameters and multi-agent orchestration.",
+        subagents:
+          "Configure sub-agent global parameters and multi-agent orchestration.",
         runtime: "Interactive visualization of the QiLin runtime architecture.",
       },
     },
@@ -752,7 +792,8 @@ export const enUS: Translations = {
       namePlaceholder: "my-cool-skill",
       nameHint: "Lowercase letters, digits and hyphens, e.g. data-analyzer",
       descriptionLabel: "Short description",
-      descriptionPlaceholder: "What does this skill do? When should it be used?",
+      descriptionPlaceholder:
+        "What does this skill do? When should it be used?",
       descriptionCount: "{count} / 1024",
       templateLabel: "Choose a template to start from",
       templateBlank: "Blank",
@@ -772,10 +813,11 @@ export const enUS: Translations = {
       creating: "Creating...",
       nameRequired: "Please enter a skill name",
       descriptionRequired: "Please enter a short description",
-      success: "Skill \"{name}\" created successfully",
+      success: 'Skill "{name}" created successfully',
       enhanceInChat: "Refine this skill in chat",
       homeTitle: "Choose how to create",
-      homeDescription: "Start from a template, install a .skill package, or generate from your scripts.",
+      homeDescription:
+        "Start from a template, install a .skill package, or generate from your scripts.",
       modeTemplate: "From template",
       modeTemplateDesc: "Blank / task / coding — edit SKILL.md in the wizard",
       modeUpload: "From .skill package",
@@ -795,8 +837,10 @@ export const enUS: Translations = {
       scriptsSubdirAssets: "assets/ (binary assets)",
       scriptsAddMore: "Add more files",
       scriptsRemove: "Remove",
-      scriptsUploadHint: "Scripts land in skills/custom/{name}/{subdir}/ and pass a security scan.",
-      scriptsPartialFailure: "Skill created, but script upload failed: {error}. You can retry from the edit UI.",
+      scriptsUploadHint:
+        "Scripts land in skills/custom/{name}/{subdir}/ and pass a security scan.",
+      scriptsPartialFailure:
+        "Skill created, but script upload failed: {error}. You can retry from the edit UI.",
       scriptsCreateAndUpload: "Create skill and upload scripts",
       scriptsCreateAndUploading: "Creating...",
     },
@@ -835,7 +879,8 @@ export const enUS: Translations = {
     title: "Queued",
     sendAll: "Send all",
     sendAllAllTitle: "Send all",
-    sendAllStreamingTitle: "Task running; messages will auto-send after it ends",
+    sendAllStreamingTitle:
+      "Task running; messages will auto-send after it ends",
     status: {
       pending: "Queued",
       injecting: "Injecting",

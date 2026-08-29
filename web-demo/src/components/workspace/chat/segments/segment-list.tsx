@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 
 import type { MessageSegment } from "@/core/messages/segments";
 import { tryExtractInlineHumanInputForm } from "@/core/messages/utils";
@@ -17,70 +17,62 @@ import { ToolGroup } from "./tool-group";
  * tool groups / files) exactly as parsed, preserving the execution-order
  * interleaving between prose chunks and tool activity.
  */
-export const SegmentList = memo(
-  function SegmentList({
-    segments,
-    threadId,
-    isLoading = false,
-  }: {
-    segments: MessageSegment[];
-    threadId: string;
-    isLoading?: boolean;
-  }) {
-    return (
-      <>
-        {segments.map((segment, index) => {
-          switch (segment.kind) {
-            case "reasoning":
-              return (
-                <ReasoningBlock
-                  key={`reasoning-${index}`}
-                  content={segment.content}
-                  isStreaming={isLoading}
-                />
-              );
-            case "tool_activity":
-              return (
-                <ToolGroup
-                  key={`tools-${index}`}
-                  steps={segment.steps}
-                  isLoading={isLoading}
-                />
-              );
-            case "prose": {
-              // If the assistant wrote a structured clarification as
-              // plain markdown instead of calling ask_clarification,
-              // render it as an interactive form card.
-              const inlineForm = tryExtractInlineHumanInputForm(
-                segment.content,
-              );
-              if (inlineForm) {
-                return (
-                  <HumanInputCard
-                    key={`form-${index}`}
-                    request={inlineForm}
-                  />
-                );
-              }
-              return (
-                <ProseContent
-                  key={`prose-${index}`}
-                  content={segment.content}
-                  isLoading={isLoading}
-                />
-              );
-            }
-            case "files":
-              return (
-                <FilesCard
-                  key={`files-${index}`}
-                  files={segment.files}
-                  threadId={threadId}
-                />
-              );
+export const SegmentList = memo(function SegmentList({
+  segments,
+  threadId,
+  isLoading = false,
+}: {
+  segments: MessageSegment[];
+  threadId: string;
+  isLoading?: boolean;
+}) {
+  return (
+    <>
+      {segments.map((segment, index) => {
+        let renderedSegment: ReactNode;
+        switch (segment.kind) {
+          case "reasoning":
+            renderedSegment = (
+              <ReasoningBlock
+                content={segment.content}
+                isStreaming={isLoading}
+              />
+            );
+            break;
+          case "tool_activity":
+            renderedSegment = (
+              <ToolGroup steps={segment.steps} isLoading={isLoading} />
+            );
+            break;
+          case "prose": {
+            // If the assistant wrote a structured clarification as
+            // plain markdown instead of calling ask_clarification,
+            // render it as an interactive form card.
+            const inlineForm = tryExtractInlineHumanInputForm(segment.content);
+            renderedSegment = inlineForm ? (
+              <HumanInputCard request={inlineForm} />
+            ) : (
+              <ProseContent content={segment.content} isLoading={isLoading} />
+            );
+            break;
           }
-        })}
-      </>
-    );
-  },
-);
+          case "files":
+            renderedSegment = (
+              <FilesCard files={segment.files} threadId={threadId} />
+            );
+            break;
+        }
+
+        return (
+          <div
+            key={segment.kind + "-" + index}
+            data-segment-kind={segment.kind}
+            className="w-full min-w-0"
+          >
+            {renderedSegment}
+          </div>
+        );
+      })}
+    </>
+  );
+});
