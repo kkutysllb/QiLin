@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ChevronRight,
   FolderIcon,
+  FolderOpen,
   PlusIcon,
   Download,
   FileJson,
@@ -100,7 +101,6 @@ import {
 import { useWorkspaceViewCollapse } from "@/core/workspaces/view-state";
 import { env } from "@/env";
 import { isIMEComposing } from "@/lib/ime";
-import { cn } from "@/lib/utils";
 import {
   deriveGroups,
   sortWorkspacesByRecent,
@@ -710,19 +710,21 @@ export function RecentChatList() {
           }`}
         >
           {!isUngrouped && (
-            // DSH 三态目录图标：折叠灰 → hover 灰（行底泛亮）→ 展开蓝
-            <FolderIcon
-              className={cn(
-                "size-4 shrink-0 transition-colors",
-                node.expanded ? "text-blue-500" : "text-muted-foreground",
-              )}
-            />
+            // 工作区组：折叠为合上的灰色文件夹，展开切换为蓝色打开形态；
+            // 展开状态由文件夹开合表达，不再显示折叠箭头。
+            node.expanded ? (
+              <FolderOpen className="size-4 shrink-0 text-blue-500 transition-colors" />
+            ) : (
+              <FolderIcon className="size-4 shrink-0 text-muted-foreground transition-colors" />
+            )
           )}
-          {node.expanded ? (
-            <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70" />
-          ) : (
-            <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70" />
-          )}
+          {isUngrouped &&
+            // Ungrouped 无文件夹图标，箭头是其唯一的展开状态指示，保留。
+            (node.expanded ? (
+              <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70" />
+            ) : (
+              <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70" />
+            ))}
           <span className="truncate">{label}</span>
           <span className="ml-auto flex shrink-0 items-center gap-1">
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-normal tabular-nums text-muted-foreground">
