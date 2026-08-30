@@ -46,15 +46,14 @@ export type CreateMode = "template" | "upload" | "scripts";
 /**
  * Allowed support-file subdirectories under a custom skill.
  * Mirrors the backend `_ALLOWED_SUPPORT_SUBDIRS` in
- * `SkillStorage.ensure_safe_support_path`.
+ * `SkillStorage.ensure_safe_support_path` (authoritative whitelist — the
+ * gateway rejects anything else with 400).
  */
 export type SupportSubdir =
   | "references"
   | "templates"
   | "scripts"
-  | "assets"
-  | "models"
-  | "adapters";
+  | "assets";
 
 /** All valid support subdirs (for UI dropdowns / validation). */
 export const SUPPORT_SUBDIRS: readonly SupportSubdir[] = [
@@ -62,8 +61,6 @@ export const SUPPORT_SUBDIRS: readonly SupportSubdir[] = [
   "templates",
   "scripts",
   "assets",
-  "models",
-  "adapters",
 ] as const;
 
 /**

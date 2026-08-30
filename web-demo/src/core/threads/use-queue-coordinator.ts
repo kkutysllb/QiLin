@@ -80,7 +80,7 @@ export function useQueueCoordinator(
       }
       storeUpdateStatus(threadId, msg.id, "injecting");
       try {
-        const resp = await injectMessage(threadId, currentRunId, {
+        await injectMessage(threadId, currentRunId, {
           content: msg.content,
           attachments: msg.attachments,
           messageId: msg.id,
@@ -89,8 +89,15 @@ export function useQueueCoordinator(
         storeUpdateStatus(threadId, msg.id, "injected");
       } catch (e) {
         console.error("[injectNow] API failed", e);
-        if (e instanceof InjectError && e.code === "run_not_active") {
-          // 降级：任务已结束，转 pending 等待自动/手动发送。
+        const runNotActive =
+          e instanceof InjectError &&
+          (e.code === "run_not_active" ||
+            // 后端尚未实现 /inject 端点（KWorks 对齐待补，见 inject.ts 契约）：
+            // 404 说明网关无此路由，与"run 已结束"同路降级——消息留在队列，
+            // 由 autoSendNext 在 run 结束后自动发送，不再标为错误。
+            e.status === 404);
+        if (runNotActive) {
+          // 降级：任务已结束（或端点缺失），转 pending 等待自动/手动发送。
           storeUpdateStatus(threadId, msg.id, "pending");
         } else {
           const errMsg = e instanceof Error ? e.message : String(e);

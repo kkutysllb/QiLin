@@ -204,8 +204,11 @@ class TestRateLimitMiddleware:
         )
 
         _store.reset()
-        # Path under STRICT_PATHS uses the strict policy.
-        request = self._make_request("/api/v1/runs", user_id="u1")
+        # Path under STRICT_PATHS uses the strict policy. The P0 audit fix
+        # replaced the fictional /api/v1/* literals with real route paths
+        # (the gateway serves /api/*), so this pins a path that actually
+        # exists in the route table.
+        request = self._make_request("/api/skills/install", user_id="u1")
         cap = int(_STRICT_POLICY.capacity)
         for _ in range(cap):
             rate_limit(request)

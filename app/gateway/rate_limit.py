@@ -67,23 +67,30 @@ class RateLimitPolicy:
 _DEFAULT_POLICY = RateLimitPolicy(capacity=30, refill_per_sec=5)
 _STRICT_POLICY = RateLimitPolicy(capacity=10, refill_per_sec=1)
 
-# Endpoint paths that always get the strict policy. These are the
+# Endpoint route templates that always get the strict policy. These are the
 # operations the audit flagged as needing rate limits: thread/run creation
 # (expensive LLM calls), uploads (disk), skill writes (can pull arbitrary
-# packages), feedback (cheap but easy to amplify). Matches are exact path
-# equality, no wildcards.
+# packages), feedback (cheap but easy to amplify).
+#
+# Entries are FastAPI *route templates* (``scope["route"].path``), e.g.
+# ``/api/threads/{thread_id}/uploads`` — the real API namespace is ``/api/*``
+# (only auth lives under ``/api/v1/*``). _policy_for_request compares the
+# matched route template first and falls back to the raw request path, so
+# parameterized routes are covered without wildcards.
 STRICT_PATHS: frozenset[str] = frozenset(
     {
         # Thread / run lifecycle — triggers LLM calls + DB writes.
-        "/api/v1/threads",
-        "/api/v1/runs",
+        "/api/threads",
+        "/api/threads/{thread_id}/runs",
+        "/api/threads/{thread_id}/runs/stream",
+        "/api/threads/{thread_id}/runs/wait",
         # Uploads — disk + bandwidth.
-        "/api/v1/uploads",
-        "/api/v1/threads/{thread_id}/uploads",
+        "/api/threads/{thread_id}/uploads",
         # Skill writes — install endpoint can pull arbitrary packages.
-        "/api/v1/skills",
+        "/api/skills/install",
+        "/api/skills/install-upload",
         # Feedback — used for thumbs up/down; cheap but easy to amplify.
-        "/api/v1/feedback",
+        "/api/threads/{thread_id}/runs/{run_id}/feedback",
     }
 )
 
@@ -157,7 +164,15 @@ def _key_for_request(request: Request) -> str:
 
 
 def _policy_for_request(request: Request) -> RateLimitPolicy:
-    if request.url.path in STRICT_PATHS:
+    path = request.url.path
+    if path in STRICT_PATHS:
+        return _STRICT_POLICY
+    # Prefer the matched route template so parameterized endpoints (e.g.
+    # POST /api/threads/{thread_id}/uploads) hit the strict policy without
+    # wildcard matching. ``scope["route"]`` is set by the router before
+    # dependencies resolve; fall back to the raw path outside a router.
+    route_path = getattr(request.scope.get("route"), "path", None)
+    if isinstance(route_path, str) and route_path in STRICT_PATHS:
         return _STRICT_POLICY
     return _DEFAULT_POLICY
 

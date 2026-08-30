@@ -27,6 +27,7 @@ import {
   createHumanInputOptionResponse,
   createHumanInputTextResponse,
   formatHumanInputAnsweredValue,
+  isEmptyFormValue,
   readHumanInputFormValue,
   type HumanInputField,
   type HumanInputFormValue,
@@ -52,17 +53,14 @@ export function shouldSubmitHumanInputTextOnKeyDown(
   );
 }
 
+/**
+ * Required-field emptiness: the shared structural check plus an explicit
+ * checkbox semantic — an unchecked `false` counts as missing so a required
+ * consent checkbox blocks submission. (The summary renderer intentionally
+ * keeps `false` as a visible "no"; see core isEmptyFormValue.)
+ */
 function isEmptyFieldValue(value: HumanInputFormValue | undefined) {
-  if (value === undefined) {
-    return true;
-  }
-  if (typeof value === "string") {
-    return value.trim().length === 0;
-  }
-  if (Array.isArray(value)) {
-    return value.length === 0;
-  }
-  return value === false;
+  return isEmptyFormValue(value) || value === false;
 }
 
 export function findMissingRequiredFields(

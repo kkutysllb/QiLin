@@ -37,7 +37,9 @@ export async function fetchTaskEvents(
   runId: string,
   taskId: string,
 ): Promise<SubagentStepEvent[]> {
-  const url = `${getBackendBaseURL()}/threads/${encodeURIComponent(threadId)}/runs/${encodeURIComponent(runId)}/events?task_id=${encodeURIComponent(taskId)}`;
+  // getBackendBaseURL() is the bare origin (no /api) — every gateway route
+  // lives under /api/*, matching workspace-changes.ts / inject.ts.
+  const url = `${getBackendBaseURL()}/api/threads/${encodeURIComponent(threadId)}/runs/${encodeURIComponent(runId)}/events?task_id=${encodeURIComponent(taskId)}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Failed to fetch task events: ${res.statusText}`);

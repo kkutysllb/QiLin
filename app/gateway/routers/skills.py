@@ -5,11 +5,12 @@ import tempfile
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
 from app.gateway.deps import get_config, require_admin_user
 from app.gateway.path_utils import resolve_thread_virtual_path
+from app.gateway.rate_limit import rate_limit
 from qilin.agents.lead_agent.prompt import (
     clear_skills_system_prompt_cache,
     refresh_skills_system_prompt_cache_async,
@@ -26,7 +27,11 @@ from qilin.config.extensions_config import (
 )
 from qilin.runtime.user_context import get_effective_user_id
 from qilin.skills import Skill
-from qilin.skills.installer import SkillAlreadyExistsError, SkillSecurityScanError
+from qilin.skills.installer import (
+    SkillAlreadyExistsError,
+    SkillSecurityScanError,
+    _is_code_file,
+)
 from qilin.skills.security_scanner import scan_skill_content
 from qilin.skills.security_static_scanner import (
     StaticFinding,
@@ -196,6 +201,7 @@ async def list_skills(config: AppConfig = Depends(get_config)) -> SkillsListResp
     response_model=SkillInstallResponse,
     summary="Install Skill",
     description="Install a skill from a .skill file (ZIP archive) located in the thread's user-data directory.",
+    dependencies=[Depends(rate_limit)],
 )
 async def install_skill(
     request: Request, body: SkillInstallRequest, config: AppConfig = Depends(get_config)
@@ -242,6 +248,7 @@ _SKILL_UPLOAD_MAX_SIZE = 512 * 1024 * 1024
     response_model=SkillInstallResponse,
     summary="Install Skill from Upload",
     description="Install a skill from a directly-uploaded ``.skill`` or ``.zip`` archive (multipart). No thread context required.",
+    dependencies=[Depends(rate_limit)],
 )
 async def install_skill_from_upload(
     request: Request,
@@ -479,6 +486,167 @@ async def update_custom_skill(
         )
         raise HTTPException(
             status_code=500, detail=f"Failed to update custom skill: {e!s}"
+        )
+
+
+# Per-file / per-request caps for support-file uploads. Support files are
+# small companion assets (scripts, references, templates); 20 MB per file is
+# generous and well below the 512 MB archive cap above.
+_SUPPORT_FILE_MAX_SIZE = 20 * 1024 * 1024
+_SUPPORT_FILE_TOTAL_MAX_SIZE = 64 * 1024 * 1024
+
+
+@router.post(
+    "/skills/custom/{skill_name}/support-files",
+    response_model=CustomSkillContentResponse,
+    summary="Upload Custom Skill Support Files",
+    description=(
+        "Upload one or more support files (scripts / references / templates / "
+        "assets) into an existing custom skill. Text files go through the "
+        "skill security scanner; ``scripts/`` uploads additionally require an "
+        "explicit scanner ``allow`` (``warn`` is rejected). Binary files skip "
+        "the LLM content scan."
+    ),
+    dependencies=[Depends(rate_limit)],
+)
+async def upload_custom_skill_support_files(
+    skill_name: str,
+    request: Request,
+    files: list[UploadFile] = File(..., description="Support files to upload"),
+    subdir: str = Form(..., description="Target support subdirectory"),
+    config: AppConfig = Depends(get_config),
+) -> CustomSkillContentResponse:
+    await require_admin_user(request, detail=_ADMIN_REQUIRED_DETAIL)
+    skill_name = skill_name.replace("\r\n", "").replace("\n", "")
+    if not files:
+        raise HTTPException(status_code=400, detail="No files uploaded.")
+    if subdir not in {"references", "templates", "scripts", "assets"}:
+        raise HTTPException(
+            status_code=400,
+            detail="subdir must be one of: assets, references, scripts, templates.",
+        )
+    storage = _get_user_skill_storage(config)
+    try:
+        storage.ensure_custom_skill_is_editable(skill_name)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Stage all uploads into a temp skill dir mirroring the target layout so
+    # the scanners can inspect everything before anything is persisted; any
+    # failure rejects the whole batch.
+    staged: list[tuple[str, Path, bytes, bool]] = []  # (rel_path, path, data, llm_scanned)
+    total_size = 0
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            stage_root = Path(tmp) / skill_name
+            for file in files:
+                original_name = Path(file.filename or "").name
+                if not original_name or original_name in {".", ".."}:
+                    raise HTTPException(
+                        status_code=400, detail="Invalid support file name."
+                    )
+                relative_path = f"{subdir}/{original_name}"
+                try:
+                    # Defence in depth: subdir whitelist, traversal and
+                    # containment are all enforced here.
+                    storage.ensure_safe_support_path(skill_name, relative_path)
+                except ValueError as e:
+                    raise HTTPException(status_code=400, detail=str(e))
+                data = await file.read()
+                total_size += len(data)
+                if len(data) > _SUPPORT_FILE_MAX_SIZE:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"Support file '{original_name}' is too large.",
+                    )
+                if total_size > _SUPPORT_FILE_TOTAL_MAX_SIZE:
+                    raise HTTPException(
+                        status_code=413, detail="Support file upload is too large."
+                    )
+                dest = stage_root / relative_path
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(data)
+                staged.append((relative_path, dest, data, False))
+
+            # Static scan first (mirrors the archive install flow); it also
+            # covers binary payloads. Blocked findings reject the batch.
+            static_findings: list[StaticFinding] = []
+            try:
+                static_findings = enforce_static_scan(
+                    stage_root, skill_name=skill_name, app_config=config
+                )
+            except StaticScanBlockedError as e:
+                raise HTTPException(
+                    status_code=400, detail=_static_scan_http_detail(e)
+                ) from e
+            except StaticScannerError as e:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Static security scan failed for skill '{skill_name}': {e}",
+                ) from e
+
+            # LLM content scan: UTF-8 text files only — binary uploads skip
+            # it (content inspection is not meaningful there). Actual code
+            # files get the executable scan policy; ``scripts/`` uploads must
+            # be explicitly allowed by the scanner (``warn`` is rejected)
+            # because of where they end up relative to execution.
+            for index, (relative_path, path, _, _) in enumerate(staged):
+                try:
+                    content = path.read_text(encoding="utf-8")
+                except UnicodeDecodeError:
+                    continue  # binary file — keep llm_scanned=False
+                executable = await _is_code_file(path, Path(relative_path))
+                scan = await scan_skill_content(
+                    content,
+                    executable=executable,
+                    location=f"{skill_name}/{relative_path}",
+                    static_findings=(
+                        [dict(f) for f in static_findings] if static_findings else None
+                    ),
+                )
+                decision = getattr(scan, "decision", None)
+                reason = str(getattr(scan, "reason", "") or "")
+                if decision == "block" or (subdir == "scripts" and decision == "warn"):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Security scan blocked {skill_name}/{relative_path}: {reason}",
+                    )
+                rel, p, d, _ = staged[index]
+                staged[index] = (rel, p, d, True)
+
+            # All scans passed — persist and record history.
+            for relative_path, _, data, llm_scanned in staged:
+                storage.write_support_file(skill_name, relative_path, data)
+                storage.append_history(
+                    skill_name,
+                    {
+                        "action": "human_support_file_upload",
+                        "author": "human",
+                        "thread_id": None,
+                        "file_path": relative_path,
+                        "scanner": {
+                            "content_scanned": llm_scanned,
+                            "static_findings": static_findings,
+                        },
+                    },
+                )
+        await refresh_user_skills_system_prompt_cache_async(get_effective_user_id())
+        return await _read_custom_skill_response(skill_name, config)
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(
+            "Failed to upload support files to custom skill %s: %s",
+            skill_name,
+            e,
+            exc_info=True,
+        )
+        raise HTTPException(
+            status_code=500, detail=f"Failed to upload support files: {e!s}"
         )
 
 

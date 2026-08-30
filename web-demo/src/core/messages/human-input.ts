@@ -518,7 +518,14 @@ function formatFormValue(value: HumanInputFormValue) {
   return String(value);
 }
 
-function isEmptyFormValue(value: HumanInputFormValue | undefined) {
+/**
+ * Structural emptiness shared by summary rendering and required-field
+ * validation: undefined, blank strings and empty arrays count as empty.
+ * Booleans are decided by the caller — a summary renders `false` as "no",
+ * while required-checkbox validation treats an unchecked `false` as missing
+ * (see findMissingRequiredFields in human-input-card.tsx).
+ */
+export function isEmptyFormValue(value: HumanInputFormValue | undefined) {
   if (value === undefined) {
     return true;
   }
