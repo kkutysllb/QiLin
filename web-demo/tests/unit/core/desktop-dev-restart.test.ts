@@ -39,10 +39,21 @@ describe("desktop dev restart flow", () => {
   });
 
   test("desktop backend status UI is not exported from the renderer bundle", () => {
-    const source = read("src/components/desktop/index.ts");
-
-    expect(source).not.toContain("BackendStatusIndicator");
-    expect(source).not.toContain("backend-status");
+    // The desktop barrel (src/components/desktop/index.ts) was removed in
+    // the dead-code cleanup, so there is no barrel left to re-export desktop
+    // status UI. The guard now asserts the barrel stays gone and that none
+    // of the remaining desktop modules reintroduce a status-UI export.
+    expect(() => read("src/components/desktop/index.ts")).toThrow();
+    for (const file of [
+      "src/components/desktop/desktop-init.tsx",
+      "src/components/desktop/providers.tsx",
+      "src/components/desktop/backend-splash.tsx",
+      "src/components/desktop/update-checker.tsx",
+    ]) {
+      const source = read(file);
+      expect(source).not.toContain("BackendStatusIndicator");
+      expect(source).not.toContain("from \"./backend-status\"");
+    }
   });
 
   test("Next dev proxies gateway health checks and allows Electron localhost origins", () => {

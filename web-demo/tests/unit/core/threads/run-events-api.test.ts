@@ -39,7 +39,7 @@ describe("fetchTaskEvents", () => {
     const result = await fetchTaskEvents("thread-1", "run-1", "t1");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/threads/thread-1/runs/run-1/events?task_id=t1",
+      "/api/threads/thread-1/runs/run-1/events?task_id=t1",
     );
     expect(result).toHaveLength(2);
     expect(result[0]?.event_type).toBe("subagent.start");

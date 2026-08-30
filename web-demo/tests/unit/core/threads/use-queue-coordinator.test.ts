@@ -108,6 +108,24 @@ describe("useQueueCoordinator", () => {
     expect(result.current.messages[0]!.status).toBe("pending");
   });
 
+  it("injectNow on 404 (backend endpoint not implemented) downgrades to pending", async () => {
+    // 网关尚未实现 /inject 端点：404 必须与 run_not_active 同路降级，
+    // 消息留在队列等 run 结束后自动发送，而不是标成 error。
+    vi.spyOn(injectApi, "injectMessage").mockRejectedValue(
+      new injectApi.InjectError(undefined, "Not Found", 404),
+    );
+    const { result } = renderHook(() =>
+      useQueueCoordinator(THREAD_ID, { sendMessage: vi.fn() }, "run1"),
+    );
+    act(() => result.current.enqueue("x"));
+    const msg = result.current.messages[0]!;
+    await act(async () => {
+      await result.current.injectNow(msg);
+    });
+    expect(result.current.messages[0]!.status).toBe("pending");
+    expect(result.current.messages[0]!.error).toBeFalsy();
+  });
+
   it("injectNow on other error marks error", async () => {
     vi.spyOn(injectApi, "injectMessage").mockRejectedValue(
       new injectApi.InjectError(undefined, "boom", 500),
