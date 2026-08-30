@@ -41,8 +41,14 @@ def strip_markdown_code_fence(text: str) -> str:
     return stripped
 
 
-def extract_response_text(content: object) -> str:
-    """Extract textual content from common chat-model response content shapes."""
+def extract_response_text(content: object, *, separator: str = "\n") -> str:
+    """Extract textual content from common chat-model response content shapes.
+
+    List blocks (plain strings and ``{"text": ...}`` blocks with type
+    ``text``/``output_text``) are joined with *separator*. The default ``"\\n"``
+    is the canonical joining strategy; callers preserving a historical
+    no-separator strategy pass ``separator=""`` explicitly (audit R11).
+    """
     if isinstance(content, str):
         return content
     if isinstance(content, list):
@@ -54,7 +60,43 @@ def extract_response_text(content: object) -> str:
                 text = block.get("text")
                 if isinstance(text, str):
                     parts.append(text)
-        return "\n".join(parts)
+        return separator.join(parts)
     if content is None:
         return ""
+    return str(content)
+
+
+def extract_chunked_response_text(content: object) -> str:
+    """Extract text treating string list items as streaming deltas.
+
+    Consecutive plain-string blocks are concatenated *without* separators —
+    they may be token/character deltas or chunks of one JSON payload — while
+    dict ``{"text": ...}`` blocks are treated as full texts and joined with
+    newlines. This is the shared extraction strategy of ``QiLinClient`` and
+    the qilinmem memory updater (audit R11); the client's chunk_like
+    all-string heuristic stays at the call site because it is
+    content-dependent, not a join-strategy constant.
+    """
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        pieces: list[str] = []
+        pending_str_parts: list[str] = []
+
+        def flush_pending_str_parts() -> None:
+            if pending_str_parts:
+                pieces.append("".join(pending_str_parts))
+                pending_str_parts.clear()
+
+        for block in content:
+            if isinstance(block, str):
+                pending_str_parts.append(block)
+            elif isinstance(block, dict):
+                flush_pending_str_parts()
+                text_val = block.get("text")
+                if isinstance(text_val, str):
+                    pieces.append(text_val)
+
+        flush_pending_str_parts()
+        return "\n".join(pieces)
     return str(content)

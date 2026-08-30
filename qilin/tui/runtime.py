@@ -16,6 +16,8 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any, Protocol
 
+from qilin.utils.llm_text import extract_response_text
+
 from .view_state import (
     Action,
     AssistantDelta,
@@ -115,16 +117,10 @@ def stream_actions(client: _ClientLike, message: str, *, thread_id: str | None =
 
 
 def _extract_text(content: Any) -> str:
-    if content is None:
-        return ""
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts: list[str] = []
-        for block in content:
-            if isinstance(block, str):
-                parts.append(block)
-            elif isinstance(block, dict) and block.get("type") == "text" and isinstance(block.get("text"), str):
-                parts.append(block["text"])
-        return "".join(parts)
-    return str(content)
+    """Extract display text from stream-event content.
+
+    Delegates to the canonical :func:`qilin.utils.llm_text.extract_response_text`
+    with ``separator=""`` (audit R11): strings glued, ``{"type": "text"}``
+    blocks glued, ``None`` → ``""``, non-list fallback ``str(content)``.
+    """
+    return extract_response_text(content, separator="")

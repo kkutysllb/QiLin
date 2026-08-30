@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
+from qilin.utils.messages import message_id
+
 
 class CheckpointLineageError(RuntimeError):
     """Raised when a requested checkpoint ancestor cannot be resolved safely."""
@@ -18,11 +20,23 @@ class CheckpointLineageIntegrityError(CheckpointLineageError):
     """Raised when recorded checkpoint lineage is present but unsafe to use."""
 
 
-def checkpoint_messages(checkpoint_tuple: Any) -> list[Any]:
+def checkpoint_messages(
+    checkpoint_tuple: Any, *, raw_checkpoint_fallback: bool = True
+) -> list[Any]:
+    """Read the message list from a checkpoint tuple / state snapshot.
+
+    ``raw_checkpoint_fallback=True`` (the lineage / thread_runs default) also
+    recovers messages from the raw ``checkpoint["channel_values"]`` payload on
+    the degraded read path. ``raw_checkpoint_fallback=False`` mirrors the
+    threads-router variant, which only consults ``values`` and returns ``[]``
+    when it is absent (audit R10: parameterized difference, not a silent merge).
+    """
     values = getattr(checkpoint_tuple, "values", None)
     if isinstance(values, dict):
         messages = values.get("messages", [])
         return list(messages) if isinstance(messages, list) else []
+    if not raw_checkpoint_fallback:
+        return []
     checkpoint = getattr(checkpoint_tuple, "checkpoint", None) or {}
     channel_values = (
         checkpoint.get("channel_values", {}) if isinstance(checkpoint, dict) else {}
@@ -67,10 +81,7 @@ def has_pending_tasks(checkpoint_tuple: Any) -> bool:
 
 
 def _message_id(message: Any) -> str | None:
-    value = getattr(message, "id", None)
-    if value is None and isinstance(message, dict):
-        value = message.get("id")
-    return str(value) if value else None
+    return message_id(message)
 
 
 def _config_identity(config: dict[str, Any]) -> tuple[str, str, str] | None:

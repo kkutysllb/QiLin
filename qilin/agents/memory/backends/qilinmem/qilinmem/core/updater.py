@@ -14,6 +14,8 @@ from collections import OrderedDict
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from qilin.utils.llm_text import extract_chunked_response_text
+
 from ..config import QiLinMemConfig
 from .lexical import (
     exact_match_key,
@@ -105,30 +107,14 @@ def _extract_text(content: Any) -> str:
     String chunks are concatenated without separators to avoid corrupting
     chunked JSON/text payloads. Dict-based text blocks are treated as full text
     blocks and joined with newlines for readability.
+
+    Delegates to the shared
+    :func:`qilin.utils.llm_text.extract_chunked_response_text` (audit R11).
+    NOTE: this module belongs to the *vendored* qilinmem package — this
+    delegation is the single intentional upstream-coupling point of the
+    convergence; keep the wrapper when re-vendoring upstream changes.
     """
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        pieces: list[str] = []
-        pending_str_parts: list[str] = []
-
-        def flush_pending_str_parts() -> None:
-            if pending_str_parts:
-                pieces.append("".join(pending_str_parts))
-                pending_str_parts.clear()
-
-        for block in content:
-            if isinstance(block, str):
-                pending_str_parts.append(block)
-            elif isinstance(block, dict):
-                flush_pending_str_parts()
-                text_val = block.get("text")
-                if isinstance(text_val, str):
-                    pieces.append(text_val)
-
-        flush_pending_str_parts()
-        return "\n".join(pieces)
-    return str(content)
+    return extract_chunked_response_text(content)
 
 
 _REQUIRED_MEMORY_UPDATE_TOP_LEVEL_KEYS = frozenset({"user", "history", "newFacts"})

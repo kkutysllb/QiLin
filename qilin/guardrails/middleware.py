@@ -127,6 +127,58 @@ class GuardrailMiddleware(AgentMiddleware[AgentState]):
         except Exception:
             logger.warning("Failed to record middleware:guardrail event", exc_info=True)
 
+    def _handle_provider_error(
+        self,
+        context: dict,
+        guardrail_request: GuardrailRequest,
+        request: ToolCallRequest,
+    ) -> ToolMessage | None:
+        """Build the fail-closed/fail-open response to a provider evaluator error.
+
+        Shared by ``wrap_tool_call``/``awrap_tool_call`` (the "(sync)"/"(async)"
+        log prefix stays at the call site where the provider's raise was
+        actually observed). Returns the blocking ``ToolMessage`` for
+        fail-closed, or ``None`` for fail-open (caller proceeds to the
+        handler).
+        """
+        if self.fail_closed:
+            decision = GuardrailDecision(allow=False, reasons=[GuardrailReason(code="oap.evaluator_error", message="guardrail provider error (fail-closed)")])
+            self._record_guardrail_event(
+                context,
+                guardrail_request,
+                decision,
+                action="deny_tool_call",
+                provider_error=True,
+            )
+            return self._build_denied_message(request, decision)
+        decision = GuardrailDecision(allow=True, reasons=[GuardrailReason(code="oap.evaluator_error", message="guardrail provider error (fail-open)")])
+        self._record_guardrail_event(
+            context,
+            guardrail_request,
+            decision,
+            action="allow_tool_call_after_provider_error",
+            provider_error=True,
+        )
+        return None
+
+    def _deny_tool_call(
+        self,
+        context: dict,
+        guardrail_request: GuardrailRequest,
+        request: ToolCallRequest,
+        decision: GuardrailDecision,
+    ) -> ToolMessage:
+        """Log, record, and build the denial message for a policy denial."""
+        logger.warning("Guardrail denied: tool=%s policy=%s code=%s", guardrail_request.tool_name, decision.policy_id, decision.reasons[0].code if decision.reasons else "unknown")
+        self._record_guardrail_event(
+            context,
+            guardrail_request,
+            decision,
+            action="deny_tool_call",
+            provider_error=False,
+        )
+        return self._build_denied_message(request, decision)
+
     @override
     def wrap_tool_call(
         self,
@@ -142,36 +194,12 @@ class GuardrailMiddleware(AgentMiddleware[AgentState]):
             raise
         except Exception:
             logger.exception("Guardrail provider error (sync)")
-            if self.fail_closed:
-                decision = GuardrailDecision(allow=False, reasons=[GuardrailReason(code="oap.evaluator_error", message="guardrail provider error (fail-closed)")])
-                self._record_guardrail_event(
-                    context,
-                    gr,
-                    decision,
-                    action="deny_tool_call",
-                    provider_error=True,
-                )
-                return self._build_denied_message(request, decision)
-            else:
-                decision = GuardrailDecision(allow=True, reasons=[GuardrailReason(code="oap.evaluator_error", message="guardrail provider error (fail-open)")])
-                self._record_guardrail_event(
-                    context,
-                    gr,
-                    decision,
-                    action="allow_tool_call_after_provider_error",
-                    provider_error=True,
-                )
-                return handler(request)
+            denied = self._handle_provider_error(context, gr, request)
+            if denied is not None:
+                return denied
+            return handler(request)
         if not decision.allow:
-            logger.warning("Guardrail denied: tool=%s policy=%s code=%s", gr.tool_name, decision.policy_id, decision.reasons[0].code if decision.reasons else "unknown")
-            self._record_guardrail_event(
-                context,
-                gr,
-                decision,
-                action="deny_tool_call",
-                provider_error=False,
-            )
-            return self._build_denied_message(request, decision)
+            return self._deny_tool_call(context, gr, request, decision)
         return handler(request)
 
     @override
@@ -189,34 +217,10 @@ class GuardrailMiddleware(AgentMiddleware[AgentState]):
             raise
         except Exception:
             logger.exception("Guardrail provider error (async)")
-            if self.fail_closed:
-                decision = GuardrailDecision(allow=False, reasons=[GuardrailReason(code="oap.evaluator_error", message="guardrail provider error (fail-closed)")])
-                self._record_guardrail_event(
-                    context,
-                    gr,
-                    decision,
-                    action="deny_tool_call",
-                    provider_error=True,
-                )
-                return self._build_denied_message(request, decision)
-            else:
-                decision = GuardrailDecision(allow=True, reasons=[GuardrailReason(code="oap.evaluator_error", message="guardrail provider error (fail-open)")])
-                self._record_guardrail_event(
-                    context,
-                    gr,
-                    decision,
-                    action="allow_tool_call_after_provider_error",
-                    provider_error=True,
-                )
-                return await handler(request)
+            denied = self._handle_provider_error(context, gr, request)
+            if denied is not None:
+                return denied
+            return await handler(request)
         if not decision.allow:
-            logger.warning("Guardrail denied: tool=%s policy=%s code=%s", gr.tool_name, decision.policy_id, decision.reasons[0].code if decision.reasons else "unknown")
-            self._record_guardrail_event(
-                context,
-                gr,
-                decision,
-                action="deny_tool_call",
-                provider_error=False,
-            )
-            return self._build_denied_message(request, decision)
+            return self._deny_tool_call(context, gr, request, decision)
         return await handler(request)

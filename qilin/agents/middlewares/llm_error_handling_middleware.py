@@ -9,6 +9,7 @@ import threading
 import time
 from collections import deque
 from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from typing import Any, override
 
@@ -123,6 +124,23 @@ _STREAM_DROP_EXCEPTIONS: frozenset[str] = frozenset(
         "StreamChunkTimeoutError",
     }
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _RetryDecision:
+    """Outcome of the shared retry/circuit decision for one failed attempt.
+
+    Pure data: classification, effective budget, and the next backoff delay.
+    The sync and async wrappers consume it with their own IO primitives
+    (``time.sleep`` vs ``asyncio.sleep``, ``_emit_retry_event`` vs
+    ``_aemit_retry_event``) so the decision logic has exactly one copy.
+    """
+
+    retry: bool
+    retriable: bool
+    reason: str
+    max_attempts: int
+    wait_ms: int
 
 
 # Process-global LLM call concurrency cap. ONE limiter is shared across every
@@ -772,6 +790,75 @@ class LLMErrorHandlingMiddleware(AgentMiddleware[AgentState]):
         except Exception:
             logger.debug("Failed to emit async llm_retry event", exc_info=True)
 
+    def _retry_decision(
+        self,
+        attempt: int,
+        exc: Exception,
+        prev_delay_ms: int | None,
+    ) -> _RetryDecision:
+        """Pure decision kernel shared by ``wrap_model_call``/``awrap_model_call``.
+
+        Classifies the failure, resolves the effective attempt budget
+        (``_max_attempts_for``), and computes the next backoff delay
+        (``_build_retry_delay_ms``). No IO here: the wrappers apply the
+        decision with their own sleep / event-emit primitives, so the retry
+        classification, jitter sequencing, and burst-rate budget can never
+        fork between the sync and async loops.
+        """
+        retriable, reason = self._classify_error(exc)
+        max_attempts = self._max_attempts_for(exc, reason)
+        if retriable and attempt < max_attempts:
+            return _RetryDecision(
+                retry=True,
+                retriable=True,
+                reason=reason,
+                max_attempts=max_attempts,
+                wait_ms=self._build_retry_delay_ms(prev_delay_ms, exc, reason),
+            )
+        return _RetryDecision(
+            retry=False,
+            retriable=retriable,
+            reason=reason,
+            max_attempts=max_attempts,
+            wait_ms=0,
+        )
+
+    def _finalize_failed_call(
+        self,
+        attempt: int,
+        exc: Exception,
+        decision: _RetryDecision,
+    ) -> AIMessage:
+        """Apply circuit accounting for a final (non-retried) failure.
+
+        Retriable failures count toward the circuit breaker; non-retriable
+        ones and ``burst_rate`` (a transient provider slope-throttle, not
+        "provider down") only release the half-open probe without recording a
+        failure, so the circuit doesn't trip and fast-fail ALL calls for the
+        recovery window — the exact self-inflicted outage #4290 is trying to
+        prevent.
+        """
+        logger.warning(
+            "LLM call failed after %d attempt(s): %s",
+            attempt,
+            _extract_error_detail(exc),
+            exc_info=exc,
+        )
+        if decision.retriable and decision.reason != "burst_rate":
+            self._record_failure()
+        else:
+            self._release_half_open_probe()
+        return self._build_user_fallback_message(exc, decision.reason)
+
+    def _circuit_open_response(self) -> AIMessage:
+        """Fast-fail response returned while the circuit breaker is open."""
+        return self._build_error_fallback_message(
+            self._build_circuit_breaker_message(),
+            error_type="CircuitBreakerOpen",
+            reason="circuit_open",
+            detail="LLM circuit breaker is open",
+        )
+
     @override
     def wrap_model_call(
         self,
@@ -779,12 +866,7 @@ class LLMErrorHandlingMiddleware(AgentMiddleware[AgentState]):
         handler: Callable[[ModelRequest], ModelResponse],
     ) -> ModelCallResult:
         if self._check_circuit():
-            return self._build_error_fallback_message(
-                self._build_circuit_breaker_message(),
-                error_type="CircuitBreakerOpen",
-                reason="circuit_open",
-                detail="LLM circuit breaker is open",
-            )
+            return self._circuit_open_response()
 
         attempt = 1
         prev_delay_ms: int | None = None
@@ -798,38 +880,26 @@ class LLMErrorHandlingMiddleware(AgentMiddleware[AgentState]):
                 self._release_half_open_probe()
                 raise
             except Exception as exc:
-                retriable, reason = self._classify_error(exc)
-                max_attempts = self._max_attempts_for(exc, reason)
-                if retriable and attempt < max_attempts:
-                    wait_ms = self._build_retry_delay_ms(prev_delay_ms, exc, reason)
-                    prev_delay_ms = wait_ms
+                decision = self._retry_decision(attempt, exc, prev_delay_ms)
+                if decision.retry:
+                    prev_delay_ms = decision.wait_ms
                     logger.warning(
                         "Transient LLM error on attempt %d/%d; retrying in %dms: %s",
                         attempt,
-                        max_attempts,
-                        wait_ms,
+                        decision.max_attempts,
+                        decision.wait_ms,
                         _extract_error_detail(exc),
                     )
-                    self._emit_retry_event(attempt, wait_ms, reason, max_attempts=max_attempts)
-                    time.sleep(wait_ms / 1000)
+                    self._emit_retry_event(
+                        attempt,
+                        decision.wait_ms,
+                        decision.reason,
+                        max_attempts=decision.max_attempts,
+                    )
+                    time.sleep(decision.wait_ms / 1000)
                     attempt += 1
                     continue
-                logger.warning(
-                    "LLM call failed after %d attempt(s): %s",
-                    attempt,
-                    _extract_error_detail(exc),
-                    exc_info=exc,
-                )
-                if retriable and reason != "burst_rate":
-                    self._record_failure()
-                else:
-                    # Non-retriable, OR burst_rate (a transient provider
-                    # slope-throttle, not "provider down"): release the half-open
-                    # probe without recording a failure so the circuit doesn't
-                    # trip and fast-fail ALL calls for the recovery window - the
-                    # exact self-inflicted outage #4290 is trying to prevent.
-                    self._release_half_open_probe()
-                return self._build_user_fallback_message(exc, reason)
+                return self._finalize_failed_call(attempt, exc, decision)
 
     @override
     async def awrap_model_call(
@@ -838,12 +908,7 @@ class LLMErrorHandlingMiddleware(AgentMiddleware[AgentState]):
         handler: Callable[[ModelRequest], Awaitable[ModelResponse]],
     ) -> ModelCallResult:
         if self._check_circuit():
-            return self._build_error_fallback_message(
-                self._build_circuit_breaker_message(),
-                error_type="CircuitBreakerOpen",
-                reason="circuit_open",
-                detail="LLM circuit breaker is open",
-            )
+            return self._circuit_open_response()
 
         attempt = 1
         prev_delay_ms: int | None = None
@@ -857,38 +922,26 @@ class LLMErrorHandlingMiddleware(AgentMiddleware[AgentState]):
                 self._release_half_open_probe()
                 raise
             except Exception as exc:
-                retriable, reason = self._classify_error(exc)
-                max_attempts = self._max_attempts_for(exc, reason)
-                if retriable and attempt < max_attempts:
-                    wait_ms = self._build_retry_delay_ms(prev_delay_ms, exc, reason)
-                    prev_delay_ms = wait_ms
+                decision = self._retry_decision(attempt, exc, prev_delay_ms)
+                if decision.retry:
+                    prev_delay_ms = decision.wait_ms
                     logger.warning(
                         "Transient LLM error on attempt %d/%d; retrying in %dms: %s",
                         attempt,
-                        max_attempts,
-                        wait_ms,
+                        decision.max_attempts,
+                        decision.wait_ms,
                         _extract_error_detail(exc),
                     )
-                    await self._aemit_retry_event(attempt, wait_ms, reason, max_attempts=max_attempts)
-                    await asyncio.sleep(wait_ms / 1000)
+                    await self._aemit_retry_event(
+                        attempt,
+                        decision.wait_ms,
+                        decision.reason,
+                        max_attempts=decision.max_attempts,
+                    )
+                    await asyncio.sleep(decision.wait_ms / 1000)
                     attempt += 1
                     continue
-                logger.warning(
-                    "LLM call failed after %d attempt(s): %s",
-                    attempt,
-                    _extract_error_detail(exc),
-                    exc_info=exc,
-                )
-                if retriable and reason != "burst_rate":
-                    self._record_failure()
-                else:
-                    # Non-retriable, OR burst_rate (a transient provider
-                    # slope-throttle, not "provider down"): release the half-open
-                    # probe without recording a failure so the circuit doesn't
-                    # trip and fast-fail ALL calls for the recovery window - the
-                    # exact self-inflicted outage #4290 is trying to prevent.
-                    self._release_half_open_probe()
-                return self._build_user_fallback_message(exc, reason)
+                return self._finalize_failed_call(attempt, exc, decision)
 
 
 def _matches_any(detail: str, patterns: tuple[str, ...]) -> bool:

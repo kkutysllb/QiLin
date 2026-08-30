@@ -28,6 +28,7 @@ from app.gateway.authz import require_permission
 from app.gateway.checkpoint_lineage import (
     CheckpointLineageError,
     CheckpointParentMissingError,
+    checkpoint_messages,
     find_checkpoint_before_message,
     find_checkpoint_before_message_chronologically,
     is_duration_only_checkpoint,
@@ -45,6 +46,7 @@ from app.gateway.utils import sanitize_log_param
 from qilin.agents.thread_state import THREAD_STATE_REDUCER_FIELDS
 from qilin.config.paths import Paths, get_paths
 from qilin.config.summarization_config import ContextSize
+from qilin.constants import HIDE_FROM_UI_KEY
 from qilin.persistence.thread_meta import THREAD_PINNED_METADATA_KEY
 from qilin.runtime import serialize_channel_values_for_api
 from qilin.runtime.checkpoint_mode import (
@@ -75,8 +77,8 @@ from qilin.runtime.runs.worker import valid_duration_entry
 from qilin.runtime.secret_context import redact_metadata_secrets
 from qilin.runtime.user_context import get_effective_user_id
 from qilin.utils.file_io import run_file_io
+from qilin.utils.messages import message_additional_kwargs, message_id
 from qilin.utils.time import coerce_iso, now_iso
-from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["threads"])
@@ -139,14 +141,16 @@ def _is_pin_metadata_patch(metadata: dict[str, Any]) -> bool:
 
 
 def _message_id(message: Any) -> str | None:
-    if isinstance(message, dict):
-        raw = message.get("id")
-    else:
-        raw = getattr(message, "id", None)
-    return raw if isinstance(raw, str) and raw else None
+    # strict_str=True: the threads variant only accepts real string ids.
+    return message_id(message, strict_str=True)
 
 
 def _message_type(message: Any) -> str | None:
+    # Drift note (audit R10): deliberately NOT the thread_runs variant —
+    # no "assistant"→"ai" mapping, no "role" key fallback, and strict-str
+    # (non-string types yield None). Branch visibility below was
+    # characterized (tests/test_message_field_accessors.py) as relying on
+    # this stricter behavior; keep the two accessors separate.
     if isinstance(message, dict):
         raw = message.get("type")
     else:
@@ -155,11 +159,9 @@ def _message_type(message: Any) -> str | None:
 
 
 def _message_additional_kwargs(message: Any) -> dict[str, Any]:
-    if isinstance(message, dict):
-        raw = message.get("additional_kwargs")
-    else:
-        raw = getattr(message, "additional_kwargs", None)
-    return raw if isinstance(raw, dict) else {}
+    # copy=False: the threads variant returns the original mapping (branch
+    # code only reads it, and must not reshape the message).
+    return message_additional_kwargs(message)
 
 
 def _is_branch_visible_message(message: Any) -> bool:
@@ -173,9 +175,12 @@ def _is_branch_assistant_message(message: Any) -> bool:
 
 
 def _checkpoint_messages(snapshot: Any) -> list[Any]:
-    values = getattr(snapshot, "values", None) or {}
-    messages = values.get("messages") if isinstance(values, dict) else None
-    return list(messages) if isinstance(messages, list) else []
+    # raw_checkpoint_fallback=False: the threads variant only consults
+    # `values` and returns [] on the degraded raw-checkpoint path (unlike
+    # the lineage/thread_runs canonical, which falls back to
+    # checkpoint["channel_values"]). Characterized in
+    # tests/test_message_field_accessors.py.
+    return checkpoint_messages(snapshot, raw_checkpoint_fallback=False)
 
 
 def _checkpoint_id(snapshot: Any) -> str | None:

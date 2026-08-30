@@ -78,7 +78,7 @@ from qilin.trace_context import (
     resolve_qilin_trace_id,
 )
 from qilin.tracing import inject_langfuse_metadata
-from qilin.utils.messages import message_to_text
+from qilin.utils.messages import message_id, message_to_text
 from qilin.workspace_changes import (
     capture_workspace_snapshot,
     get_changed_output_paths,
@@ -2219,15 +2219,13 @@ def _error_fallback_message_from_metadata(metadata: dict[str, Any], content: Any
 
 
 def _message_id(obj: Any) -> str | None:
-    """Best-effort extraction of a stable message id from a message-like object."""
-    msg_id = getattr(obj, "id", None)
-    if isinstance(msg_id, str) and msg_id:
-        return msg_id
-    if isinstance(obj, dict):
-        raw = obj.get("id")
-        if isinstance(raw, str) and raw:
-            return raw
-    return None
+    """Best-effort extraction of a stable message id from a message-like object.
+
+    strict_str=True (audit R10): the worker feeds these ids into
+    pre-existing-id bookkeeping, so non-string ids must be rejected rather
+    than stringified — the runs-worker variant of the shared accessor.
+    """
+    return message_id(obj, strict_str=True)
 
 
 def _try_extract_from_message(obj: Any, pre_existing_ids: set[str] | None = None) -> str | None:

@@ -31,9 +31,9 @@ from qilin.agents.middlewares.delegation_ledger import (
 from qilin.agents.middlewares.skill_context import extract_skills, render_skill_context
 from qilin.agents.thread_state import _DELEGATION_LEDGER_MAX_ENTRIES, TERMINAL_STATUSES
 from qilin.config.summarization_config import DEFAULT_SKILL_FILE_READ_TOOL_NAMES
-from qilin.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from qilin.constants import DEFAULT_SKILLS_CONTAINER_PATH, HIDE_FROM_UI_KEY
 from qilin.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
-from qilin.constants import HIDE_FROM_UI_KEY
+from qilin.utils.messages import message_id
 
 _DURABLE_CONTEXT_DATA_KEY = "durable_context_data"
 _SUMMARY_RENDER_CHAR_BUDGET = 6000
@@ -141,11 +141,7 @@ def _runtime_pre_existing_message_ids(runtime: Runtime | None) -> frozenset[str]
 
 
 def _message_id(message: object) -> str | None:
-    if isinstance(message, dict):
-        message_id = message.get("id")
-    else:
-        message_id = getattr(message, "id", None)
-    return str(message_id) if message_id else None
+    return message_id(message)
 
 
 def _messages_after_pre_existing_boundary(messages: list[AnyMessage], pre_existing_message_ids: frozenset[str]) -> list[AnyMessage]:

@@ -56,6 +56,7 @@ from app.gateway.utils import sanitize_log_param
 from qilin.agents.middlewares.dynamic_context_middleware import (
     strip_injected_user_message_id_suffix,
 )
+from qilin.constants import HIDE_FROM_UI_KEY
 from qilin.persistence.engine import get_session_factory
 from qilin.persistence.run.model import RunRow
 from qilin.runtime import (
@@ -68,10 +69,11 @@ from qilin.runtime.secret_context import redact_config_secrets, redact_metadata_
 from qilin.utils.messages import (
     ORIGINAL_USER_CONTENT_KEY,
     get_original_user_content_text,
+    message_additional_kwargs,
+    message_id,
     message_to_text,
 )
 from qilin.workspace_changes import get_workspace_changes_response
-from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["runs"])
@@ -324,13 +326,16 @@ def _record_to_response(record: RunRecord) -> RunResponse:
 
 
 def _message_id(message: Any) -> str | None:
-    value = getattr(message, "id", None)
-    if value is None and isinstance(message, dict):
-        value = message.get("id")
-    return str(value) if value else None
+    return message_id(message)
 
 
 def _message_type(message: Any) -> str | None:
+    # Drift note (audit R10): this variant intentionally maps "assistant"→"ai",
+    # falls back to the "role" mapping key, and coerces via str(). The
+    # threads-router `_message_type` does none of those (strict-str, no
+    # mapping); its branch-visibility logic was characterized (see
+    # tests/test_message_field_accessors.py) as relying on the stricter
+    # behavior, so the two accessors remain separate on purpose.
     value = getattr(message, "type", None)
     if value is None and isinstance(message, dict):
         value = message.get("type") or message.get("role")
@@ -357,10 +362,8 @@ def _message_text(message: Any) -> str:
 
 
 def _message_additional_kwargs(message: Any) -> dict[str, Any]:
-    value = getattr(message, "additional_kwargs", None)
-    if value is None and isinstance(message, dict):
-        value = message.get("additional_kwargs")
-    return dict(value or {}) if isinstance(value, dict) else {}
+    # copy=True: the thread_runs variant returns a defensive copy.
+    return message_additional_kwargs(message, copy=True)
 
 
 def _message_tool_calls(message: Any) -> list[Any]:

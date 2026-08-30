@@ -51,7 +51,10 @@ from qilin.runtime.user_context import get_effective_user_id
 from qilin.skills.slash import parse_slash_skill_reference
 from qilin.skills.storage import get_or_new_skill_storage
 from qilin.skills.storage.skill_storage import SkillStorage
-from qilin.utils.messages import ORIGINAL_USER_CONTENT_KEY
+from qilin.utils.messages import (
+    ORIGINAL_USER_CONTENT_KEY,
+    content_shapes_to_text,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -459,29 +462,14 @@ def _thread_channel_metadata(msg: InboundMessage) -> dict[str, Any]:
 
 
 def _extract_text_content(content: Any) -> str:
-    """Extract text from a streaming payload content field."""
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts: list[str] = []
-        for block in content:
-            if isinstance(block, str):
-                parts.append(block)
-            elif isinstance(block, Mapping):
-                text = block.get("text")
-                if isinstance(text, str):
-                    parts.append(text)
-                else:
-                    nested = block.get("content")
-                    if isinstance(nested, str):
-                        parts.append(nested)
-        return "".join(parts)
-    if isinstance(content, Mapping):
-        for key in ("text", "content"):
-            value = content.get(key)
-            if isinstance(value, str):
-                return value
-    return ""
+    """Extract text from a streaming payload content field.
+
+    Delegates to :func:`qilin.utils.messages.content_shapes_to_text` (audit
+    R11): identical semantics — string / ``{"text": ...}`` / nested
+    ``{"content": ...}`` blocks joined without a separator, mapping
+    ``text``/``content`` keys, ``""`` fallback.
+    """
+    return content_shapes_to_text(content)
 
 
 def _merge_stream_text(existing: str, chunk: str) -> str:

@@ -92,6 +92,7 @@ from qilin.uploads.manager import (
     get_uploads_dir,
     list_files_in_dir,
 )
+from qilin.utils.llm_text import extract_chunked_response_text
 
 logger = logging.getLogger(__name__)
 
@@ -516,34 +517,17 @@ class QiLinClient:
         token/character deltas or chunked JSON payloads. Dict-based text blocks
         are treated as full text blocks and joined with newlines to preserve
         readability.
+
+        Delegates to the shared :func:`extract_chunked_response_text` (audit
+        R11); only the content-dependent chunk_like fast path — short
+        JSON-punctuation-bearing strings glued with no separator even when
+        they are the whole list — remains local to this call site.
         """
-        if isinstance(content, str):
-            return content
-        if isinstance(content, list):
-            if content and all(isinstance(block, str) for block in content):
-                chunk_like = len(content) > 1 and all(isinstance(block, str) and len(block) <= 20 and any(ch in block for ch in '{}[]":,') for block in content)
-                return "".join(content) if chunk_like else "\n".join(content)
+        if isinstance(content, list) and content and all(isinstance(block, str) for block in content):
+            chunk_like = len(content) > 1 and all(isinstance(block, str) and len(block) <= 20 and any(ch in block for ch in '{}[]":,') for block in content)
+            return "".join(content) if chunk_like else "\n".join(content)
 
-            pieces: list[str] = []
-            pending_str_parts: list[str] = []
-
-            def flush_pending_str_parts() -> None:
-                if pending_str_parts:
-                    pieces.append("".join(pending_str_parts))
-                    pending_str_parts.clear()
-
-            for block in content:
-                if isinstance(block, str):
-                    pending_str_parts.append(block)
-                elif isinstance(block, dict):
-                    flush_pending_str_parts()
-                    text_val = block.get("text")
-                    if isinstance(text_val, str):
-                        pieces.append(text_val)
-
-            flush_pending_str_parts()
-            return "\n".join(pieces) if pieces else ""
-        return str(content)
+        return extract_chunked_response_text(content)
 
     # ------------------------------------------------------------------
     # Public API — threads

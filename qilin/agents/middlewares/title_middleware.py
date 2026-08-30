@@ -1,7 +1,6 @@
 """Middleware for automatic thread title generation."""
 
 import logging
-import re
 from typing import TYPE_CHECKING, Any, NotRequired, override
 
 from langchain.agents import AgentState
@@ -15,6 +14,7 @@ from qilin.agents.middlewares.dynamic_context_middleware import (
 )
 from qilin.config.title_config import get_title_config
 from qilin.models import create_chat_model
+from qilin.utils.llm_text import strip_think_blocks
 
 if TYPE_CHECKING:
     from qilin.config.app_config import AppConfig
@@ -149,8 +149,18 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
         return prompt, user_msg
 
     def _strip_think_tags(self, text: str) -> str:
-        """Remove <think>...</think> blocks emitted by reasoning models (e.g. minimax, DeepSeek-R1)."""
-        return re.sub(r"<think>[\s\S]*?</think>", "", text, flags=re.IGNORECASE).strip()
+        """Remove <think>...</think> blocks emitted by reasoning models (e.g. minimax, DeepSeek-R1).
+
+        Delegates to the canonical :func:`llm_text.strip_think_blocks` with
+        ``truncate_unclosed=False`` (audit R11): an unclosed ``<think>`` (model
+        truncated mid-thought) is PRESERVED — matching this method's
+        characterized behavior, since title input may legitimately mention the
+        tag and must not be cut at it. Note the canonical pattern is wider
+        than the previous hand-rolled one: attributed open tags
+        (``<think foo=...>``) with a closing ``</think>`` are now also
+        stripped, aligning title extraction with every other canonical user.
+        """
+        return strip_think_blocks(text, truncate_unclosed=False)
 
     def _parse_title(self, content: object) -> str:
         """Normalize model output into a clean title string."""
