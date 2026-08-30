@@ -12,8 +12,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
-import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
 import pkg from "../../../package.json";
@@ -46,7 +46,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
       ) : (
         <div className="flex items-center gap-2 px-2 py-1">
           <QiLinLogo size={24} className="shrink-0" />
-          {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" ? (
+          {isStaticWebsiteOnly ? (
             <Link
               href="/"
               className="text-base font-bold text-foreground hover:text-foreground/80 transition-colors"

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 
 import { getBackendBaseURL } from "@/core/config";
 
-export type BackendStatus = "connected" | "disconnected" | "checking";
+/**
+ * /health 轮询态字符串联合。与 core/desktop/types.ts 的 ``BackendStatus``
+ * （IPC 状态对象）同名异形，故此处改名 ``BackendHealthState`` 消歧。
+ */
+export type BackendHealthState = "connected" | "disconnected" | "checking";
 
 const POLL_INTERVAL_MS = 3000;
 
@@ -12,8 +16,8 @@ const POLL_INTERVAL_MS = 3000;
  * 轮询后端 /health 端点，返回连接状态。
  * 3s 间隔，避免侵入 SSE 流。
  */
-export function useBackendStatus(): BackendStatus {
-  const [status, setStatus] = useState<BackendStatus>("checking");
+export function useBackendStatus(): BackendHealthState {
+  const [status, setStatus] = useState<BackendHealthState>("checking");
 
   useEffect(() => {
     let cancelled = false;

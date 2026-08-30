@@ -18,6 +18,7 @@ import { useAuthenticatedArtifactObjectUrl } from "@/core/artifacts/authenticate
 import { resolveArtifactURL, uploadArtifactPath } from "@/core/artifacts/utils";
 import { useI18n } from "@/core/i18n/hooks";
 import type { FileInMessage } from "@/core/messages/utils";
+import { formatBytes } from "@/core/persistence/format";
 import { cn } from "@/lib/utils";
 
 const FILE_TYPE_MAP: Record<string, string> = {
@@ -153,13 +154,6 @@ export function getFileTypeIcon(filename: string): {
   iconClass: string;
 } {
   return FILE_ICON_CONFIG[getFileExt(filename)] ?? DEFAULT_FILE_ICON;
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return "—";
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${kb.toFixed(1)} KB`;
-  return `${(kb / 1024).toFixed(1)} MB`;
 }
 
 /**

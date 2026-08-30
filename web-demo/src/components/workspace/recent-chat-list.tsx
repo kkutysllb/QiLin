@@ -65,6 +65,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { getAPIClient } from "@/core/api";
+import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   exportThreadAsJSON,
@@ -77,7 +78,12 @@ import {
 } from "@/core/threads/hooks";
 import { prefetchThreadState } from "@/core/threads/prefetch";
 import type { AgentThreadState } from "@/core/threads/types";
-import { pathOfThread, titleOfThread } from "@/core/threads/utils";
+import {
+  parseAgentNameFromPath,
+  parseThreadIdFromPath,
+  pathOfThread,
+  titleOfThread,
+} from "@/core/threads/utils";
 import {
   formatSmartTime,
 } from "@/core/utils/datetime";
@@ -99,38 +105,17 @@ import {
   type ThreadLike,
 } from "@/core/workspaces/sidebar-inputs";
 import { useWorkspaceViewCollapse } from "@/core/workspaces/view-state";
-import { env } from "@/env";
 import { isIMEComposing } from "@/lib/ime";
 import {
   deriveGroups,
+  siblingBeforeId,
   sortWorkspacesByRecent,
   UNGROUPED_KEY,
   type GroupNode,
 } from "@/lib/workspace-tree";
 
-function parseThreadIdFromPath(pathname: string | null): string {
-  if (!pathname) return "new";
-  const match = /\/chats\/([^/?#]+)/.exec(pathname);
-  const raw = match?.[1];
-  if (!raw) return "new";
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw;
-  }
-}
-
-function parseAgentNameFromPath(pathname: string | null): string | undefined {
-  if (!pathname) return undefined;
-  const match = /\/workspace\/agents\/([^/]+)\//.exec(pathname);
-  const raw = match?.[1];
-  if (!raw) return undefined;
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw;
-  }
-}
+/** 侧栏工作区排序模式的 localStorage 持久化键。 */
+const WORKSPACE_SORT_MODE_STORAGE_KEY = "kworks.workspace.sortMode";
 
 interface ThreadActionHandlers {
   locale: string;
@@ -254,6 +239,58 @@ function siblingsOverflow(ids: readonly string[]): boolean {
   return ids.length > 1;
 }
 
+/**
+ * 受控单输入对话框（会话重命名 / 工作区重命名共用）。
+ * Enter 提交需过 IME 组字检测（isIMEComposing），取消仅关闭不回写。
+ */
+function PromptDialog({
+  open,
+  value,
+  onChange,
+  onSubmit,
+  onOpenChange,
+  title,
+  placeholder,
+}: {
+  open: boolean;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  placeholder: string;
+}) {
+  const { t } = useI18n();
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !isIMEComposing(e)) {
+                e.preventDefault();
+                onSubmit();
+              }
+            }}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {t.common.cancel}
+          </Button>
+          <Button onClick={onSubmit}>{t.common.save}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function RecentChatList() {
   const { t, locale } = useI18n();
   const router = useRouter();
@@ -352,7 +389,7 @@ export function RecentChatList() {
     return entries.sort((a, b) => a.title.localeCompare(b.title));
   }, [tree, inputs.list]);
 
-  const staticWebsiteOnly = env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true";
+  const staticWebsiteOnly = isStaticWebsiteOnly;
 
   // ── 会话级行为（保留原有语义） ───────────────────────────────────
   const handleDelete = useCallback(
@@ -382,7 +419,10 @@ export function RecentChatList() {
   const [sortMode, setSortMode] = useState<"manual" | "recent">(() => {
     if (typeof window === "undefined") return "manual";
     try {
-      return window.localStorage.getItem("kworks.workspace.sortMode") === "recent"
+      return (
+        window.localStorage.getItem(WORKSPACE_SORT_MODE_STORAGE_KEY) ===
+        "recent"
+      )
         ? "recent"
         : "manual";
     } catch {
@@ -402,7 +442,7 @@ export function RecentChatList() {
   const changeSortMode = useCallback((mode: "manual" | "recent") => {
     setSortMode(mode);
     try {
-      window.localStorage.setItem("kworks.workspace.sortMode", mode);
+      window.localStorage.setItem(WORKSPACE_SORT_MODE_STORAGE_KEY, mode);
     } catch {
       // 忽略持久化失败，会话内状态即可
     }
@@ -551,14 +591,7 @@ export function RecentChatList() {
     (direction: "up" | "down", threadId: string, siblingIds: readonly string[]) => {
       const index = siblingIds.indexOf(threadId);
       if (index < 0) return;
-      const beforeId =
-        direction === "up"
-          ? index > 0
-            ? (siblingIds[index - 1] ?? null)
-            : undefined // 已在顶部：no-op
-          : index + 2 <= siblingIds.length
-            ? (siblingIds[index + 2] ?? null)
-            : undefined;
+      const beforeId = siblingBeforeId(siblingIds, index, direction);
       if (beforeId === undefined) return;
       const groupId = owningGroupKey(inputs, threadId);
       if (!groupId) return;
@@ -576,12 +609,7 @@ export function RecentChatList() {
       const ids = orderedGroupMeta.map((g) => g.id);
       const index = ids.indexOf(workspaceId);
       if (index < 0) return;
-      let beforeId: string | null | undefined;
-      if (direction === "up") {
-        beforeId = index > 0 ? (ids[index - 1] ?? null) : undefined;
-      } else {
-        beforeId = index + 2 <= ids.length ? (ids[index + 2] ?? null) : undefined;
-      }
+      const beforeId = siblingBeforeId(ids, index, direction);
       if (beforeId === undefined) return;
       void reorderWorkspaceMutate({ workspaceId, beforeId }).catch(() =>
         toast.error(t.sidebar.moveDownItem),
@@ -861,60 +889,26 @@ export function RecentChatList() {
       </SidebarGroup>
 
       {/* Rename Dialog (会话) */}
-      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{t.common.rename}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Input
-              value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
-              placeholder={t.common.rename}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isIMEComposing(e)) {
-                  e.preventDefault();
-                  handleRenameSubmit();
-                }
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRenameDialogOpen(false)}>
-              {t.common.cancel}
-            </Button>
-            <Button onClick={handleRenameSubmit}>{t.common.save}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PromptDialog
+        open={renameDialogOpen}
+        onOpenChange={setRenameDialogOpen}
+        value={renameValue}
+        onChange={setRenameValue}
+        onSubmit={handleRenameSubmit}
+        title={t.common.rename}
+        placeholder={t.common.rename}
+      />
 
       {/* Rename Dialog (工作区) */}
-      <Dialog open={wsDialogOpen} onOpenChange={setWsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{t.sidebar.renameWorkspace}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Input
-              value={wsDialogValue}
-              onChange={(e) => setWsDialogValue(e.target.value)}
-              placeholder={t.sidebar.renameWorkspace}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isIMEComposing(e)) {
-                  e.preventDefault();
-                  submitWorkspaceRename();
-                }
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setWsDialogOpen(false)}>
-              {t.common.cancel}
-            </Button>
-            <Button onClick={submitWorkspaceRename}>{t.common.save}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PromptDialog
+        open={wsDialogOpen}
+        onOpenChange={setWsDialogOpen}
+        value={wsDialogValue}
+        onChange={setWsDialogValue}
+        onSubmit={submitWorkspaceRename}
+        title={t.sidebar.renameWorkspace}
+        placeholder={t.sidebar.renameWorkspace}
+      />
     </>
   );
 }

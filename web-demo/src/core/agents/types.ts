@@ -3,7 +3,11 @@ export interface AgentModelSettings {
   max_tokens?: number | null;
 }
 
-export type ReasoningEffort = "low" | "medium" | "high";
+/**
+ * 推理深度档位，即原「模式」档位（minimal→闪速 / low→思考 / medium→Pro /
+ * high→Ultra）。全局唯一来源：input-box 与本地设置层均从此 import。
+ */
+export type ReasoningEffort = "minimal" | "low" | "medium" | "high";
 
 export interface Agent {
   name: string;

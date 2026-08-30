@@ -3,24 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { usePromptInputController } from "@/components/ai-elements/prompt-input";
 import { useI18n } from "@/core/i18n/hooks";
-
-/**
- * Extract the thread_id segment from a workspace chat URL.
- *
- * See ``use-thread-chat.ts`` for why we parse from ``usePathname()`` rather
- * than ``useParams()`` in the Electron desktop static-export build.
- */
-function parseThreadIdFromPath(pathname: string | null): string {
-  if (!pathname) return "new";
-  const match = /\/chats\/([^/?#]+)/.exec(pathname);
-  const raw = match?.[1];
-  if (!raw) return "new";
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw;
-  }
-}
+import { parseThreadIdFromPath } from "@/core/threads/utils";
 
 /**
  * Hook to determine if the chat is in a specific mode based on URL parameters, and to set an initial prompt input value accordingly.

@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import { useSidebar } from "@/components/ui/sidebar";
-import { env } from "@/env";
+import { isStaticWebsiteOnly } from "@/core/config";
 
 export interface ArtifactsContextType {
   artifacts: string[];
@@ -35,16 +35,14 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
   const [artifacts, setArtifacts] = useState<string[]>([]);
   const [selectedArtifact, setSelectedArtifact] = useState<string | null>(null);
   const [autoSelect, setAutoSelect] = useState(true);
-  const [open, setOpen] = useState(
-    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true",
-  );
+  const [open, setOpen] = useState(isStaticWebsiteOnly);
   const [autoOpen, setAutoOpen] = useState(true);
   const { setOpen: setSidebarOpen } = useSidebar();
 
   const select = useCallback(
     (artifact: string, autoSelect = false) => {
       setSelectedArtifact(artifact);
-      if (env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY !== "true") {
+      if (!isStaticWebsiteOnly) {
         setSidebarOpen(false);
       }
       if (!autoSelect) {

@@ -35,10 +35,10 @@ import {
 } from "@/core/artifacts/authenticated-url";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
+import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
 import { useInstallSkill } from "@/core/skills/hooks";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
-import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
 import { useOptionalThread } from "../messages/context";
@@ -215,7 +215,7 @@ export function ArtifactFileDetail({
                   tooltip={t.common.install}
                   disabled={
                     isInstalling ||
-                    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"
+                    isStaticWebsiteOnly
                   }
                   onClick={handleInstallSkill}
                 />

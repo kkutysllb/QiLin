@@ -1,3 +1,4 @@
+import type { ReasoningEffort } from "../agents/types";
 import type { AgentThreadContext } from "../threads";
 
 export type MessageWidth = "narrow" | "medium" | "wide";
@@ -35,6 +36,15 @@ export const THREAD_AGENT_KEY_PREFIX = "kworks.thread-agent.";
 export const THREAD_WORKSPACE_PATH_KEY_PREFIX = "kworks.thread-workspace-path.";
 export const THREAD_WORKSPACE_ID_KEY_PREFIX = "kworks.thread-workspace-id.";
 
+/**
+ * localStorage sentinel meaning "explicitly reset to the default value":
+ * writing it distinguishes "user picked the default" from "no stored value"
+ * (``null``), which still falls back to the global settings. Used for the
+ * per-thread agent_name field (``kworks.thread-agent.*``); the agent wizard
+ * reuses the same literal as the neutral "默认" Select option value.
+ */
+export const DEFAULT_SENTINEL = "__default__";
+
 function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
@@ -54,7 +64,7 @@ export interface LocalSettings {
     | "reasoning_effort"
   > & {
     model_name?: string | undefined;
-    reasoning_effort?: "minimal" | "low" | "medium" | "high";
+    reasoning_effort?: ReasoningEffort;
   };
 }
 
@@ -135,10 +145,10 @@ export function getThreadAgentName(threadId: string): string | undefined {
   }
   const raw = localStorage.getItem(getThreadAgentStorageKey(threadId));
   // ``null`` = no stored value → fall back to global settings.
-  // The string "__default__" represents the explicit "office" mode
+  // The sentinel represents the explicit "office" mode
   // (agent_name = undefined) so it can be distinguished from "no value".
   if (raw === null) return undefined;
-  return raw === "__default__" ? undefined : raw;
+  return raw === DEFAULT_SENTINEL ? undefined : raw;
 }
 
 export function saveThreadAgentName(
@@ -152,7 +162,7 @@ export function saveThreadAgentName(
   if (agentName === undefined) {
     // Store a sentinel so we know the thread was explicitly created
     // in the default "office" mode (vs. an old thread with no override).
-    localStorage.setItem(key, "__default__");
+    localStorage.setItem(key, DEFAULT_SENTINEL);
   } else {
     localStorage.setItem(key, agentName);
   }
@@ -313,7 +323,7 @@ export function getLocalSettings(): LocalSettings {
             pro: "medium",
             thinking: "low",
             flash: "minimal",
-          } as Record<string, "minimal" | "low" | "medium" | "high">
+          } as Record<string, ReasoningEffort>
         )[rawMode];
         if (migrated && !ctx.reasoning_effort) {
           ctx.reasoning_effort = migrated;

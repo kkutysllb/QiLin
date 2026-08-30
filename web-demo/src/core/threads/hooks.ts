@@ -9,6 +9,7 @@ import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 import { getAPIClient } from "../api";
 import { fetch } from "../api/fetcher";
+import { streamReconnectStorageKey } from "../api/stream-reconnect-key";
 import { getBackendBaseURL, isDesktop } from "../config";
 import { useI18n } from "../i18n/hooks";
 import { isHiddenFromUIMessage, type FileInMessage } from "../messages/utils";
@@ -199,7 +200,7 @@ function clearStoredStreamReconnectKey(threadId: string | null | undefined) {
     return;
   }
   try {
-    window.localStorage.removeItem(`lg:stream:${threadId}`);
+    window.localStorage.removeItem(streamReconnectStorageKey(threadId));
   } catch {
     // ignore storage failures
   }

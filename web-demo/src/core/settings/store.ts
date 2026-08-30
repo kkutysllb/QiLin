@@ -1,5 +1,6 @@
 import {
   DEFAULT_LOCAL_SETTINGS,
+  DEFAULT_SENTINEL,
   LOCAL_SETTINGS_KEY,
   THREAD_AGENT_KEY_PREFIX,
   THREAD_MODEL_KEY_PREFIX,
@@ -169,7 +170,7 @@ function _refreshThreadAgentSnapshot(threadId: string) {
     threadAgentHasOverride.delete(threadId);
   } else {
     threadAgentHasOverride.add(threadId);
-    threadAgentNames.set(threadId, raw === "__default__" ? undefined : raw);
+    threadAgentNames.set(threadId, raw === DEFAULT_SENTINEL ? undefined : raw);
   }
 }
 

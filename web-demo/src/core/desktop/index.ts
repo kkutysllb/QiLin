@@ -14,9 +14,9 @@ import { isDesktop } from "../config";
 export type {
   BackendStatus,
   BackendStatusKind,
+  DesktopGatewayConfig,
   EmbeddedTerminalSession,
   FileDialogOptions,
-  GatewayConfig,
   PickedFile,
   UpdateInfo,
 } from "./types";

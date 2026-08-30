@@ -42,6 +42,7 @@ import type {
   UpdateAgentRequest,
 } from "@/core/agents/types";
 import { useModels } from "@/core/models/hooks";
+import { DEFAULT_SENTINEL } from "@/core/settings/local";
 import { useSkills } from "@/core/skills/hooks";
 import { cn } from "@/lib/utils";
 
@@ -776,16 +777,16 @@ function StepModel({
       <div className="space-y-1.5">
         <label className="text-sm font-medium">推理力度 (reasoning_effort)</label>
         <Select
-          value={form.reasoningEffort ?? "__default__"}
+          value={form.reasoningEffort ?? DEFAULT_SENTINEL}
           onValueChange={(v) =>
-            update("reasoningEffort", v === "__default__" ? null : (v as ReasoningEffort))
+            update("reasoningEffort", v === DEFAULT_SENTINEL ? null : (v as ReasoningEffort))
           }
         >
           <SelectTrigger className="h-9">
             <SelectValue placeholder="默认" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__default__">默认</SelectItem>
+            <SelectItem value={DEFAULT_SENTINEL}>默认</SelectItem>
             <SelectItem value="low">low - 最小推理</SelectItem>
             <SelectItem value="medium">medium - 中等推理</SelectItem>
             <SelectItem value="high">high - 深度推理</SelectItem>

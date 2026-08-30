@@ -1,11 +1,12 @@
 "use client";
 
 import { CheckIcon, CopyIcon, PencilIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/core/i18n/hooks";
 import type { UserPromptSegment } from "@/core/messages/segments";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
 
 import { FilesCard } from "./files-card";
@@ -66,24 +67,13 @@ export function UserPrompt({
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState("");
   const [editedText, setEditedText] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (copyTimer.current) clearTimeout(copyTimer.current);
-    },
-    [],
-  );
+  const { copied, copy } = useCopyToClipboard(1500);
 
   const displayText = editedText ?? prompt.content;
 
   const handleCopy = useCallback(() => {
-    void navigator.clipboard.writeText(displayText);
-    setCopied(true);
-    if (copyTimer.current) clearTimeout(copyTimer.current);
-    copyTimer.current = setTimeout(() => setCopied(false), 1500);
-  }, [displayText]);
+    void copy(displayText);
+  }, [copy, displayText]);
 
   const startEditing = useCallback(() => {
     setEditText(displayText);

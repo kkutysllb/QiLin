@@ -19,7 +19,7 @@ export interface BackendStatus {
   error?: string;
 }
 
-export interface GatewayConfig {
+export interface DesktopGatewayConfig {
   port: number;
 }
 
@@ -54,35 +54,32 @@ export interface PickedFile {
 }
 
 // ── Skill model credentials (mirrors skill-models-env.ts) ───────────────
-
-export interface SkillModelField {
-  key: string;
-  label: string;
-  secret: boolean;
-  placeholder?: string;
-}
-
-export interface SkillModelProvider {
-  id: string;
-  category: "image" | "av";
-  title: string;
-  description: string;
-  /** Provider-name substrings used for smart-import from dialog models. */
-  matchKeywords: string[];
-  fields: SkillModelField[];
-}
-
-export interface SkillModelVar {
-  key: string;
-  /** Redacted value for UI display. Secrets show `***` + last 4 chars. */
-  value: string;
-  configured: boolean;
-  isSecret: boolean;
-}
-
-export interface SkillModelsConfig {
-  providers: SkillModelProvider[];
-  vars: SkillModelVar[];
+// Structural shape of the redacted skill-model `.env` snapshot. Kept
+// unexported: it is only referenced by the DesktopBridge methods below, and
+// the settings page keeps its own local mirror
+// (components/workspace/settings/skill-models-settings-page.tsx).
+interface SkillModelsEnvSnapshot {
+  providers: {
+    id: string;
+    category: "image" | "av";
+    title: string;
+    description: string;
+    /** Provider-name substrings used for smart-import from dialog models. */
+    matchKeywords: string[];
+    fields: {
+      key: string;
+      label: string;
+      secret: boolean;
+      placeholder?: string;
+    }[];
+  }[];
+  vars: {
+    key: string;
+    /** Redacted value for UI display. Secrets show `***` + last 4 chars. */
+    value: string;
+    configured: boolean;
+    isSecret: boolean;
+  }[];
   filePath: string;
 }
 
@@ -116,7 +113,7 @@ export interface DesktopBridge {
   frontendPort?: number;
 
   // ── Backend lifecycle ──────────────────────────────────────────────
-  getGatewayConfig(): Promise<GatewayConfig>;
+  getGatewayConfig(): Promise<DesktopGatewayConfig>;
   getBackendStatus(): Promise<BackendStatus>;
   startBackend(): Promise<BackendStatus>;
   stopBackend(): Promise<BackendStatus>;
@@ -186,9 +183,11 @@ export interface DesktopBridge {
 
   // ── Skill model credentials ────────────────────────────────────────
   /** Read the redacted skill-model `.env` snapshot. */
-  getSkillModels(): Promise<SkillModelsConfig>;
+  getSkillModels(): Promise<SkillModelsEnvSnapshot>;
   /** Merge updates into the `.env` (redaction placeholders are preserved). */
-  setSkillModels(updates: Record<string, string>): Promise<SkillModelsConfig>;
+  setSkillModels(
+    updates: Record<string, string>,
+  ): Promise<SkillModelsEnvSnapshot>;
 }
 
 declare global {

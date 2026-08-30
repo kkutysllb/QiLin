@@ -17,6 +17,7 @@ import { ThreadTitle } from "@/components/workspace/thread-title";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { useAgent } from "@/core/agents";
 import { getAPIClient } from "@/core/api/api-client";
+import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
 import type { HumanInputResponse } from "@/core/messages/human-input";
 import { useNotification } from "@/core/notification/hooks";
@@ -24,21 +25,11 @@ import { useThreadSettings } from "@/core/settings";
 import { useThreadStream } from "@/core/threads/hooks";
 import type { QueuedMessage } from "@/core/threads/queue-store";
 import { useQueueCoordinator } from "@/core/threads/use-queue-coordinator";
-import { textOfMessage } from "@/core/threads/utils";
-import { env } from "@/env";
+import {
+  parseAgentNameFromPath,
+  textOfMessage,
+} from "@/core/threads/utils";
 import { cn } from "@/lib/utils";
-
-function parseAgentNameFromPath(pathname: string | null): string {
-  if (!pathname) return "";
-  const match = /\/workspace\/agents\/([^/]+)\//.exec(pathname);
-  const raw = match?.[1];
-  if (!raw) return "";
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw;
-  }
-}
 
 export default function AgentChatPage() {
   const { t } = useI18n();
@@ -47,7 +38,9 @@ export default function AgentChatPage() {
 
   // In the Electron desktop build, useParams() returns stale values from the
   // pre-rendered new.html RSC payload. Parse agent_name from the real URL.
-  const agent_name = parseAgentNameFromPath(pathname);
+  // This route requires an agent segment, so an unparseable pathname falls
+  // back to "" exactly as the previous local parser did.
+  const agent_name = parseAgentNameFromPath(pathname) ?? "";
 
   const { agent } = useAgent(agent_name);
 
@@ -271,7 +264,7 @@ export default function AgentChatPage() {
                         : "ready"
                   }
                   context={settings.context}
-                  disabled={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"}
+                  disabled={isStaticWebsiteOnly}
                   onContextChange={(context) => setSettings("context", context)}
                   onSubmit={handleSubmit}
                   onStop={handleStop}
@@ -284,7 +277,7 @@ export default function AgentChatPage() {
                   onReorderQueued={coordinator.reorder}
                   onSendAllQueued={coordinator.manualSendAll}
                 />
-                {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" && (
+                {isStaticWebsiteOnly && (
                   <div className="text-muted-foreground/67 w-full translate-y-12 text-center text-xs">
                     {t.common.notAvailableInDemoMode}
                   </div>

@@ -6,6 +6,7 @@ import {
   deriveFlat,
   deriveGroups,
   relativeTime,
+  siblingBeforeId,
   UNGROUPED_KEY,
   UNGROUPED_LABEL,
   workspaceLabel,
@@ -231,5 +232,32 @@ describe("sortWorkspacesByRecent", () => {
       byId,
     );
     expect(ordered.map((w) => w.title)).toEqual(["A", "B"]);
+  });
+});
+
+describe("siblingBeforeId", () => {
+  const ids = ["a", "b", "c"];
+
+  it("up：中间位锚定前一个成员", () => {
+    expect(siblingBeforeId(ids, 1, "up")).toBe("a");
+    expect(siblingBeforeId(ids, 2, "up")).toBe("b");
+  });
+
+  it("up：已在顶部时返回 undefined（no-op）", () => {
+    expect(siblingBeforeId(ids, 0, "up")).toBeUndefined();
+  });
+
+  it("down：锚定 index+2（插到原后继之后），移动到桶首时锚点为 null", () => {
+    expect(siblingBeforeId(ids, 0, "down")).toBe("c");
+    expect(siblingBeforeId(ids, 1, "down")).toBeNull();
+  });
+
+  it("down：已在底部时返回 undefined（no-op），稀疏缺位补 null", () => {
+    expect(siblingBeforeId(ids, 2, "down")).toBeUndefined();
+    // 稀疏数组（空洞位）下缺位应回退为 null 而非 undefined。
+    const sparse = new Array<string>(3);
+    sparse[0] = "a";
+    sparse[2] = "c";
+    expect(siblingBeforeId(sparse, 2, "up")).toBeNull();
   });
 });

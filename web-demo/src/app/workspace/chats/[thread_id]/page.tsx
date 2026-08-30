@@ -17,6 +17,7 @@ import { ThreadContext } from "@/components/workspace/messages/context";
 import { TaskTokenSummary } from "@/components/workspace/token-usage/task-token-summary";
 import { Welcome } from "@/components/workspace/welcome";
 import { getAPIClient } from "@/core/api/api-client";
+import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
 import type { HumanInputResponse } from "@/core/messages/human-input";
 import { useNotification } from "@/core/notification/hooks";
@@ -31,7 +32,6 @@ import type { QueuedMessage } from "@/core/threads/queue-store";
 import { useQueueCoordinator } from "@/core/threads/use-queue-coordinator";
 import { textOfMessage } from "@/core/threads/utils";
 import { useWorkspaceDraftReset } from "@/core/workspaces/use-workspace-draft-reset";
-import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
@@ -267,7 +267,7 @@ export default function ChatPage() {
                     }
                     context={settings.context}
                     disabled={
-                      env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" ||
+                      isStaticWebsiteOnly ||
                       isUploading
                     }
                     onContextChange={(context) =>
@@ -290,7 +290,7 @@ export default function ChatPage() {
                     className="bg-background/5 h-32 w-full rounded-2xl"
                   />
                 )}
-                {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" && (
+                {isStaticWebsiteOnly && (
                   <div className="text-muted-foreground/67 w-full translate-y-12 text-center text-xs">
                     {t.common.notAvailableInDemoMode}
                   </div>

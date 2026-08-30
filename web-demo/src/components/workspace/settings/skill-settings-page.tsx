@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
 import { getCustomSkill, updateCustomSkill } from "@/core/skills/api";
 import {
@@ -37,7 +38,6 @@ import {
   useSkills,
 } from "@/core/skills/hooks";
 import type { CustomSkillContent, Skill } from "@/core/skills/type";
-import { env } from "@/env";
 
 import { useWorkspaceLayout } from "../workspace-layout-context";
 
@@ -60,7 +60,7 @@ export function SkillSettingsPage() {
   const { t } = useI18n();
   const { skills, isLoading, error } = useSkills();
   const { mutate: enableSkill } = useEnableSkill();
-  const isStatic = env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true";
+  const isStatic = isStaticWebsiteOnly;
 
   const [installOpen, setInstallOpen] = useState(false);
   const [editSkill, setEditSkill] = useState<string | null>(null);

@@ -7,6 +7,9 @@ import { getLangGraphBaseURL, isDesktop } from "../config";
 
 import { isStateChangingMethod, readCsrfCookie } from "./fetcher";
 import { sanitizeRunStreamOptions } from "./stream-mode";
+import { streamReconnectStorageKey } from "./stream-reconnect-key";
+
+export { streamReconnectStorageKey } from "./stream-reconnect-key";
 
 /**
  * SDK ``onRequest`` hook that mints the ``X-CSRF-Token`` header from the
@@ -155,7 +158,7 @@ export function clearReconnectRun(
 ): void {
   if (typeof window === "undefined" || !threadId) return;
 
-  const key = `lg:stream:${threadId}`;
+  const key = streamReconnectStorageKey(threadId);
   try {
     const storage = window.sessionStorage;
     if (storage.getItem(key) === runId) {

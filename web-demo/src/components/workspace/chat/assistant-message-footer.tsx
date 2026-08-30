@@ -8,7 +8,7 @@ import {
   Loader2Icon,
   RefreshCwIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 } from "@/core/messages/rendering";
 import type { MessageSegment } from "@/core/messages/segments";
 import { formatTokenCount } from "@/core/messages/usage";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 export type AssistantMessageFooterProps = {
   message: Message;
@@ -39,9 +40,8 @@ export function AssistantMessageFooter({
   onRegenerate,
 }: AssistantMessageFooterProps) {
   const { locale, t } = useI18n();
-  const [copied, setCopied] = useState(false);
   const [isBranching, setIsBranching] = useState(false);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { copied, copy } = useCopyToClipboard(1500);
   const metadata = getAssistantPresentationMetadata(message);
   const visibleText = getVisibleAssistantText(segments);
   const hasActions = [
@@ -50,25 +50,13 @@ export function AssistantMessageFooter({
     onRegenerate !== undefined,
   ].some(Boolean);
 
-  useEffect(
-    () => () => {
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    },
-    [],
-  );
-
   const handleCopy = useCallback(async () => {
     if (!visibleText) return;
-    try {
-      if (!navigator.clipboard) throw new Error("Clipboard API unavailable");
-      await navigator.clipboard.writeText(visibleText);
-      setCopied(true);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopied(false), 1500);
-    } catch {
+    const ok = await copy(visibleText);
+    if (!ok) {
       toast.error(t.messageActions.copyFailed);
     }
-  }, [t.messageActions.copyFailed, visibleText]);
+  }, [copy, t.messageActions.copyFailed, visibleText]);
 
   const handleBranch = useCallback(async () => {
     if (!onBranchThread || isBranching) return;

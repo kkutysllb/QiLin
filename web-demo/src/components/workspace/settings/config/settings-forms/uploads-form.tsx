@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { formatBytes } from "@/core/persistence/format";
 
 import { useConfigSection } from "../use-config-section";
 
@@ -35,12 +36,6 @@ const defaultConfig: UploadsConfig = {
   auto_convert_documents: false,
   pdf_converter: "auto",
 };
-
-function formatBytes(bytes: number): string {
-  if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(1)} MiB`;
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KiB`;
-  return `${bytes} B`;
-}
 
 export function UploadsForm() {
   const { data, loading, saving, save } = useConfigSection<UploadsConfig>(

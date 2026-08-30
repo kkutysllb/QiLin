@@ -179,6 +179,27 @@ function groupByWorkspace(
 }
 
 /**
+ * 计算相邻换位（上移/下移）的 beforeId 锚点，供注册表 reorder mutation 使用。
+ *
+ * 语义与 recent-chat-list 既有 handler 逐字节一致：
+ * - `up`：锚点为前一个成员（``ids[index - 1]``，缺失位补 null）；
+ * - `down`：锚点为被移动成员的新后继之后再往后一位（``ids[index + 2]``，
+ *   即把成员插到原后继之后），越界（已在底部）返回 undefined 表示 no-op。
+ *
+ * @returns `undefined` 表示已在边界、无需移动；`null` 表示移动到桶首。
+ */
+export function siblingBeforeId(
+  ids: readonly string[],
+  index: number,
+  direction: "up" | "down",
+): string | null | undefined {
+  if (direction === "up") {
+    return index > 0 ? (ids[index - 1] ?? null) : undefined;
+  }
+  return index + 2 <= ids.length ? (ids[index + 2] ?? null) : undefined;
+}
+
+/**
  * 推导工作区分组树（每组会话都是顶层行）。
  *
  * 所有组都出现；会话行只在所属组展开时投影。归档会话在任何视图下都不出现，

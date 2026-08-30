@@ -16,6 +16,15 @@ const DESKTOP_BRIDGE_KEY = "kworksDesktop";
 // never set `frontendPort` on the bridge (e.g. older desktop-electron builds).
 const LEGACY_ELECTRON_DEV_PORT = "18569";
 
+/**
+ * True when this build is the static demo website only (no desktop shell,
+ * no embedded backend features). Build-time constant: bake the flag once
+ * here instead of repeating `env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"`
+ * at every call site.
+ */
+export const isStaticWebsiteOnly =
+  env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true";
+
 let _desktopPort: number =
   typeof window !== "undefined" && window.kworksDesktop?.gatewayPort != null
     ? window.kworksDesktop.gatewayPort

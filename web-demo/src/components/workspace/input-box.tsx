@@ -58,6 +58,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import type { ReasoningEffort } from "@/core/agents/types";
 import { fetch } from "@/core/api/fetcher";
 import { getBackendBaseURL } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
@@ -94,8 +95,6 @@ import { useThread } from "./messages/context";
 import { QueuedMessagesBar } from "./queued-messages-bar";
 import { SlashCommandMenu } from "./slash-command-menu";
 import { Tooltip } from "./tooltip";
-
-type ReasoningEffort = "minimal" | "low" | "medium" | "high";
 
 function getResolvedEffort(
   effort: ReasoningEffort | undefined,
@@ -274,11 +273,6 @@ export function InputBox({
         ...context,
         sandbox_mode: mode,
       } as Parameters<typeof onContextChange>[0]);
-      try {
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("kworks.sandbox-mode", mode);
-        }
-      } catch {}
     },
     [context, onContextChange],
   );
