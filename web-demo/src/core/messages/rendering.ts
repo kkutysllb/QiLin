@@ -99,6 +99,39 @@ export function getVisibleAssistantText(segments: MessageSegment[]): string {
     .join("\n\n");
 }
 
+/**
+ * Resolve the run that produced an assistant message, for per-run feedback.
+ *
+ * The gateway stamps the triggering run id onto the human input that started
+ * a turn (`thread_data_middleware` writes ``additional_kwargs.run_id``), so
+ * the run behind an assistant turn is found on the nearest *preceding*
+ * human message. Walks backwards from the assistant message, skipping
+ * interleaved tool/AI messages, and stops at the first human message
+ * (older turns are irrelevant). Returns undefined when the turn boundary
+ * cannot be resolved — callers should hide run-scoped actions then.
+ */
+export function getAssistantRunId(
+  messages: readonly Message[],
+  assistantMessageId: string | undefined,
+): string | undefined {
+  if (!assistantMessageId) return undefined;
+  const index = messages.findIndex(
+    (candidate) => candidate.id === assistantMessageId,
+  );
+  if (index < 0) return undefined;
+  for (let cursor = index - 1; cursor >= 0; cursor--) {
+    const candidate = messages[cursor];
+    if (!candidate || candidate.type !== "human") continue;
+    return firstNonEmptyString([
+      readPath(candidate, ["additional_kwargs", "run_id"]),
+      readPath(candidate, ["metadata", "run_id"]),
+      readPath(candidate, ["metadata", "langgraph_run_id"]),
+      readPath(candidate, ["response_metadata", "langgraph_run_id"]),
+    ]);
+  }
+  return undefined;
+}
+
 export function getAssistantPresentationMetadata(
   message: Message,
 ): AssistantPresentationMetadata {

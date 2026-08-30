@@ -6,12 +6,25 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { AssistantMessageFooter } from "@/components/workspace/chat/assistant-message-footer";
 import type { MessageSegment } from "@/core/messages/segments";
 
-const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }));
+const { toastError, toastSuccess, upsertFeedback, deleteFeedback } = vi.hoisted(
+  () => ({
+    toastError: vi.fn(),
+    toastSuccess: vi.fn(),
+    upsertFeedback: vi.fn(),
+    deleteFeedback: vi.fn(),
+  }),
+);
 
 vi.mock("sonner", () => ({
   toast: {
     error: toastError,
+    success: toastSuccess,
   },
+}));
+
+vi.mock("@/core/api/feedback", () => ({
+  upsertFeedback,
+  deleteFeedback,
 }));
 
 vi.mock("@/core/i18n/hooks", () => ({
@@ -27,6 +40,11 @@ vi.mock("@/core/i18n/hooks", () => ({
         branchFailed: "创建分支失败",
         regenerate: "重新生成",
         noVisibleContent: "没有可复制的正文",
+        feedbackUp: "点赞此回复",
+        feedbackDown: "点踩此回复",
+        feedbackSubmitted: "已提交反馈",
+        feedbackRemoved: "已撤销反馈",
+        feedbackFailed: "反馈提交失败",
       },
     },
   }),
@@ -142,5 +160,122 @@ describe("AssistantMessageFooter", () => {
     await waitFor(() =>
       expect((button as HTMLButtonElement).disabled).toBe(false),
     );
+  });
+
+  test("keeps the action row permanently visible (no hover gating)", () => {
+    render(
+      <AssistantMessageFooter
+        message={message}
+        segments={prose}
+        threadId="thread-1"
+        runId="run-1"
+        onBranchThread={vi.fn()}
+      />,
+    );
+
+    const row = screen.getByTestId("assistant-action-copy").parentElement!;
+    expect(row.className).not.toContain("opacity-0");
+    expect(row.className).not.toContain("group-hover");
+  });
+
+  test("hides feedback buttons without runId and shows them with runId", () => {
+    const withoutRun = render(
+      <AssistantMessageFooter
+        message={message}
+        segments={prose}
+        threadId="thread-1"
+      />,
+    );
+    expect(
+      screen.queryByTestId("assistant-action-feedback-up"),
+    ).toBeNull();
+    withoutRun.unmount();
+
+    render(
+      <AssistantMessageFooter
+        message={message}
+        segments={prose}
+        threadId="thread-1"
+        runId="run-1"
+      />,
+    );
+    expect(screen.getByTestId("assistant-action-feedback-up")).toBeTruthy();
+    expect(screen.getByTestId("assistant-action-feedback-down")).toBeTruthy();
+  });
+
+  test("like submits rating 1 for the resolved run", async () => {
+    upsertFeedback.mockResolvedValue({
+      feedback_id: "f1",
+      rating: 1,
+      comment: null,
+    });
+    render(
+      <AssistantMessageFooter
+        message={message}
+        segments={prose}
+        threadId="thread-1"
+        runId="run-1"
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("assistant-action-feedback-up"));
+    await waitFor(() => {
+      expect(upsertFeedback).toHaveBeenCalledWith("thread-1", "run-1", 1);
+    });
+    expect(
+      screen
+        .getByTestId("assistant-action-feedback-up")
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(toastSuccess).toHaveBeenCalledWith("已提交反馈");
+  });
+
+  test("clicking the active rating withdraws it via deleteFeedback", async () => {
+    deleteFeedback.mockResolvedValue(undefined);
+    render(
+      <AssistantMessageFooter
+        message={message}
+        segments={prose}
+        threadId="thread-1"
+        runId="run-1"
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("assistant-action-feedback-down"));
+    await waitFor(() => {
+      expect(upsertFeedback).toHaveBeenCalledWith("thread-1", "run-1", -1);
+    });
+    fireEvent.click(screen.getByTestId("assistant-action-feedback-down"));
+    await waitFor(() => {
+      expect(deleteFeedback).toHaveBeenCalledWith("thread-1", "run-1");
+    });
+    expect(
+      screen
+        .getByTestId("assistant-action-feedback-down")
+        .getAttribute("aria-pressed"),
+    ).toBe("false");
+    expect(toastSuccess).toHaveBeenCalledWith("已撤销反馈");
+  });
+
+  test("failed feedback reverts the selection and toasts the error", async () => {
+    upsertFeedback.mockRejectedValue(new Error("gateway down"));
+    render(
+      <AssistantMessageFooter
+        message={message}
+        segments={prose}
+        threadId="thread-1"
+        runId="run-1"
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("assistant-action-feedback-up"));
+    await waitFor(() => {
+      expect(toastError).toHaveBeenCalledWith("反馈提交失败");
+    });
+    expect(
+      screen
+        .getByTestId("assistant-action-feedback-up")
+        .getAttribute("aria-pressed"),
+    ).toBe("false");
   });
 });

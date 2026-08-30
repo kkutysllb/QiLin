@@ -7,11 +7,14 @@ import {
   GitBranchIcon,
   Loader2Icon,
   RefreshCwIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { deleteFeedback, upsertFeedback } from "@/core/api/feedback";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   formatAssistantTime,
@@ -21,11 +24,14 @@ import {
 import type { MessageSegment } from "@/core/messages/segments";
 import { formatTokenCount } from "@/core/messages/usage";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { cn } from "@/lib/utils";
 
 export type AssistantMessageFooterProps = {
   message: Message;
   segments: MessageSegment[];
   threadId: string;
+  /** Run that produced this turn — enables per-run like/dislike feedback. */
+  runId?: string;
   isLoading?: boolean;
   onBranchThread?: () => Promise<void>;
   onRegenerate?: () => void;
@@ -35,12 +41,16 @@ export type AssistantMessageFooterProps = {
 export function AssistantMessageFooter({
   message,
   segments,
+  threadId,
+  runId,
   isLoading = false,
   onBranchThread,
   onRegenerate,
 }: AssistantMessageFooterProps) {
   const { locale, t } = useI18n();
   const [isBranching, setIsBranching] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState<1 | -1 | undefined>();
+  const [feedbackPending, setFeedbackPending] = useState(false);
   const { copied, copy } = useCopyToClipboard(1500);
   const metadata = getAssistantPresentationMetadata(message);
   const visibleText = getVisibleAssistantText(segments);
@@ -70,12 +80,49 @@ export function AssistantMessageFooter({
     }
   }, [isBranching, onBranchThread, t.messageActions.branchFailed]);
 
+  /**
+   * Like/dislike toggle: clicking the active rating withdraws it (DELETE),
+   * switching ratings overwrites via upsert. Optimistic UI with revert.
+   */
+  const handleFeedback = useCallback(
+    async (value: 1 | -1) => {
+      if (!runId || feedbackPending) return;
+      const previous = feedbackRating;
+      const next = previous === value ? undefined : value;
+      setFeedbackRating(next);
+      setFeedbackPending(true);
+      try {
+        if (next === undefined) {
+          await deleteFeedback(threadId, runId);
+          toast.success(t.messageActions.feedbackRemoved);
+        } else {
+          await upsertFeedback(threadId, runId, next);
+          toast.success(t.messageActions.feedbackSubmitted);
+        }
+      } catch {
+        setFeedbackRating(previous);
+        toast.error(t.messageActions.feedbackFailed);
+      } finally {
+        setFeedbackPending(false);
+      }
+    },
+    [
+      feedbackPending,
+      feedbackRating,
+      runId,
+      t.messageActions.feedbackFailed,
+      t.messageActions.feedbackRemoved,
+      t.messageActions.feedbackSubmitted,
+      threadId,
+    ],
+  );
+
   if (isLoading) return null;
 
   return (
     <div className="text-muted-foreground mt-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs">
       {hasActions && (
-        <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/conversation-message:opacity-100 focus-within:opacity-100">
+        <div className="flex items-center gap-0.5">
           {visibleText && (
             <Button
               data-testid="assistant-action-copy"
@@ -133,6 +180,46 @@ export function AssistantMessageFooter({
             >
               <RefreshCwIcon className="size-3" />
             </Button>
+          )}
+          {runId && (
+            <>
+              <Button
+                data-testid="assistant-action-feedback-up"
+                size="icon-sm"
+                variant="ghost"
+                type="button"
+                disabled={feedbackPending}
+                aria-label={t.messageActions.feedbackUp}
+                title={t.messageActions.feedbackUp}
+                aria-pressed={feedbackRating === 1}
+                onClick={() => void handleFeedback(1)}
+              >
+                <ThumbsUpIcon
+                  className={cn(
+                    "size-3",
+                    feedbackRating === 1 && "text-emerald-500",
+                  )}
+                />
+              </Button>
+              <Button
+                data-testid="assistant-action-feedback-down"
+                size="icon-sm"
+                variant="ghost"
+                type="button"
+                disabled={feedbackPending}
+                aria-label={t.messageActions.feedbackDown}
+                title={t.messageActions.feedbackDown}
+                aria-pressed={feedbackRating === -1}
+                onClick={() => void handleFeedback(-1)}
+              >
+                <ThumbsDownIcon
+                  className={cn(
+                    "size-3",
+                    feedbackRating === -1 && "text-rose-500",
+                  )}
+                />
+              </Button>
+            </>
           )}
         </div>
       )}

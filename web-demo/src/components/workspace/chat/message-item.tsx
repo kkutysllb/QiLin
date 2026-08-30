@@ -7,6 +7,7 @@ import {
   parseMessageSegments,
   parseUserPrompt,
 } from "@/core/messages/segments";
+import { getAssistantRunId } from "@/core/messages/rendering";
 import { cn } from "@/lib/utils";
 
 import { AssistantMessageFooter } from "./assistant-message-footer";
@@ -80,6 +81,7 @@ export const MessageItem = memo(function MessageItem({
           message={message}
           segments={segments}
           threadId={threadId}
+          runId={getAssistantRunId(contextMessages, message.id)}
           isLoading={isLoading}
           onBranchThread={onBranchThread}
           onRegenerate={onRegenerate}

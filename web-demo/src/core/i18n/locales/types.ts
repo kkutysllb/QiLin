@@ -56,6 +56,11 @@ export interface Translations {
     branching: string;
     branchFailed: string;
     regenerate: string;
+    feedbackUp: string;
+    feedbackDown: string;
+    feedbackSubmitted: string;
+    feedbackRemoved: string;
+    feedbackFailed: string;
   };
 
   // Input Box

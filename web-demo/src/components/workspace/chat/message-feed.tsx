@@ -22,6 +22,7 @@ import {
   type HumanInputResponse,
 } from "@/core/messages/human-input";
 import { parseAssistantSegments } from "@/core/messages/segments";
+import { getAssistantRunId } from "@/core/messages/rendering";
 import {
   extractContentFromMessage,
   extractPresentFilesFromMessage,
@@ -493,6 +494,7 @@ function ProcessingFlow({
           message={lastAssistantMessage}
           segments={segments}
           threadId={threadId}
+          runId={getAssistantRunId(groupMessages, lastAssistantMessage.id)}
           isLoading={isLoading}
           onBranchThread={onBranchThread}
           onRegenerate={onRegenerate}

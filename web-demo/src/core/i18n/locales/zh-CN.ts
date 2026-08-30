@@ -67,6 +67,11 @@ export const zhCN: Translations = {
     branching: "复制中",
     branchFailed: "创建分支失败",
     regenerate: "重新生成",
+    feedbackUp: "点赞此回复",
+    feedbackDown: "点踩此回复",
+    feedbackSubmitted: "已提交反馈",
+    feedbackRemoved: "已撤销反馈",
+    feedbackFailed: "反馈提交失败",
   },
 
   // Input Box

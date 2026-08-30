@@ -67,6 +67,11 @@ export const enUS: Translations = {
     branching: "Copying",
     branchFailed: "Failed to create branch",
     regenerate: "Regenerate",
+    feedbackUp: "Like this response",
+    feedbackDown: "Dislike this response",
+    feedbackSubmitted: "Feedback submitted",
+    feedbackRemoved: "Feedback removed",
+    feedbackFailed: "Failed to submit feedback",
   },
 
   // Input Box
