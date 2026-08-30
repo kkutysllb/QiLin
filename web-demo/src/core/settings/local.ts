@@ -1,6 +1,8 @@
 import type { ReasoningEffort } from "../agents/types";
 import type { AgentThreadContext } from "../threads";
 
+import { isBrowser, parseRawThreadFieldValue } from "./thread-field";
+
 export type MessageWidth = "narrow" | "medium" | "wide";
 export type MessageFontSize = "small" | "medium" | "large";
 export type MessageLineHeight = "compact" | "comfortable" | "relaxed";
@@ -45,10 +47,6 @@ export const THREAD_WORKSPACE_ID_KEY_PREFIX = "kworks.thread-workspace-id.";
  */
 export const DEFAULT_SENTINEL = "__default__";
 
-function isBrowser(): boolean {
-  return typeof window !== "undefined";
-}
-
 export interface LocalSettings {
   notification: {
     enabled: boolean;
@@ -86,86 +84,176 @@ function mergeLocalSettings(settings?: Partial<LocalSettings>): LocalSettings {
   };
 }
 
-function getThreadModelStorageKey(threadId: string): string {
-  return `${THREAD_MODEL_KEY_PREFIX}${threadId}`;
+// ------------------------------------------------------------------
+// Per-thread 覆写字段工厂（settings 内部共享件）
+// ------------------------------------------------------------------
+// model / agent / workspace-path / workspace-id 四组「storage key + 读写 +
+// apply 覆写」样板仅 key 前缀、context 字段名、sentinel 三者不同，统一由
+// createThreadOverrideField 参数化生成；sentinel 三态解析复用 thread-field.ts
+// 的唯一实现。下方 4 个 field 实例导出供 store.ts 复用（前缀 + sentinel 的
+// 单一来源），不属于对外稳定 API。
+
+/** per-thread 覆写写穿到 ``LocalSettings.context`` 的字段名。 */
+export type ThreadContextFieldName =
+  | "model_name"
+  | "agent_name"
+  | "user_workspace_path"
+  | "workspace_id";
+
+interface ThreadOverrideFieldConfig {
+  /** localStorage key 前缀；完整 key = ``${keyPrefix}${threadId}``。 */
+  keyPrefix: string;
+  /** 覆写写穿到 ``LocalSettings.context`` 的字段名。 */
+  field: ThreadContextFieldName;
+  /**
+   * 「显式恢复默认」sentinel：保存 ``undefined`` 时写入该字符串而非删除
+   * key，用于区分「用户显式选了默认」与「从未存储」（后者回落全局设置）。
+   * 缺省表示无三态语义：保存 falsy 直接移除 key（如 model_name）。
+   */
+  sentinel?: string;
 }
 
+interface ThreadOverrideField {
+  readonly keyPrefix: string;
+  readonly sentinel: string | undefined;
+  storageKey(threadId: string): string;
+  /** 读取覆写值：key 不存在 / sentinel → ``undefined``，否则原值。 */
+  read(threadId: string): string | undefined;
+  save(threadId: string, value: string | undefined): void;
+  apply(
+    settings: LocalSettings,
+    value: string | undefined,
+    hasOverride?: boolean,
+  ): LocalSettings;
+}
+
+function createThreadOverrideField(
+  config: ThreadOverrideFieldConfig,
+): ThreadOverrideField {
+  const { keyPrefix, field, sentinel } = config;
+  const storageKey = (threadId: string) => `${keyPrefix}${threadId}`;
+  return {
+    keyPrefix,
+    sentinel,
+    storageKey,
+    read(threadId) {
+      if (!isBrowser()) {
+        return undefined;
+      }
+      return parseRawThreadFieldValue(
+        localStorage.getItem(storageKey(threadId)),
+        sentinel,
+      ).value;
+    },
+    save(threadId, value) {
+      if (!isBrowser()) {
+        return;
+      }
+      const key = storageKey(threadId);
+      if (sentinel === undefined) {
+        // 无三态语义：清空即移除 key，回落全局设置。
+        if (!value) {
+          localStorage.removeItem(key);
+          return;
+        }
+        localStorage.setItem(key, value);
+        return;
+      }
+      if (value === undefined) {
+        // 写入 sentinel，把「显式恢复默认」与「从未存储」区分开。
+        localStorage.setItem(key, sentinel);
+        return;
+      }
+      localStorage.setItem(key, value);
+    },
+    apply(settings, value, hasOverride) {
+      // 无 sentinel 型：值为 falsy 时不覆写；sentinel 型：仅存在显式覆写
+      // （hasOverride）时写穿——值可为 undefined，代表「显式恢复默认」。
+      if (sentinel === undefined) {
+        if (!value) {
+          return settings;
+        }
+      } else if (!hasOverride) {
+        return settings;
+      }
+      return {
+        ...settings,
+        context: {
+          ...settings.context,
+          [field]: value,
+        } as LocalSettings["context"],
+      };
+    },
+  };
+}
+
+/** Per-thread model 覆写字段：无 sentinel，保存 falsy 直接移除 key。 */
+export const threadModelField = createThreadOverrideField({
+  keyPrefix: THREAD_MODEL_KEY_PREFIX,
+  field: "model_name",
+});
+
+// Once a thread is created with a specific lead agent, the agent_name
+// is "locked" for that thread so reopening it always uses the same
+// Lead Agent preset.
+export const threadAgentField = createThreadOverrideField({
+  keyPrefix: THREAD_AGENT_KEY_PREFIX,
+  field: "agent_name",
+  sentinel: DEFAULT_SENTINEL,
+});
+
+// Stores the user-selected workspace directory so the sandbox can grant
+// bash/read/write access to it for the current thread. The empty string ""
+// sentinel represents the explicit default workspace.
+export const threadWorkspacePathField = createThreadOverrideField({
+  keyPrefix: THREAD_WORKSPACE_PATH_KEY_PREFIX,
+  field: "user_workspace_path",
+  sentinel: "",
+});
+
+// The user-selected registry workspace id (drives sidebar grouping) lives
+// globally in baseSettings.context, which leaks across threads and is not
+// durable per thread. Snapshot it per-thread exactly like user_workspace_path
+// so reopening a thread restores the same workspace binding after refresh.
+export const threadWorkspaceIdField = createThreadOverrideField({
+  keyPrefix: THREAD_WORKSPACE_ID_KEY_PREFIX,
+  field: "workspace_id",
+  sentinel: "",
+});
+
+// ------------------------------------------------------------------
+// 对外导出面（历史签名逐字保持；实现委托给上方 field 实例）
+// ------------------------------------------------------------------
+
 export function getThreadModelName(threadId: string): string | undefined {
-  if (!isBrowser()) {
-    return undefined;
-  }
-  return localStorage.getItem(getThreadModelStorageKey(threadId)) ?? undefined;
+  return threadModelField.read(threadId);
 }
 
 export function saveThreadModelName(
   threadId: string,
   modelName: string | undefined,
 ) {
-  if (!isBrowser()) {
-    return;
-  }
-  const key = getThreadModelStorageKey(threadId);
-  if (!modelName) {
-    localStorage.removeItem(key);
-    return;
-  }
-  localStorage.setItem(key, modelName);
+  threadModelField.save(threadId, modelName);
 }
 
 export function applyThreadModelOverride(
   settings: LocalSettings,
   threadModelName: string | undefined,
 ): LocalSettings {
-  if (!threadModelName) {
-    return settings;
-  }
-  return {
-    ...settings,
-    context: {
-      ...settings.context,
-      model_name: threadModelName,
-    },
-  };
+  return threadModelField.apply(settings, threadModelName);
 }
 
-// ------------------------------------------------------------------
-// Per-thread agent_name persistence
-// ------------------------------------------------------------------
-// Once a thread is created with a specific lead agent, the agent_name
-// is "locked" for that thread so reopening it always uses the same
-// Lead Agent preset.
-
-function getThreadAgentStorageKey(threadId: string): string {
-  return `${THREAD_AGENT_KEY_PREFIX}${threadId}`;
-}
+// Per-thread agent_name persistence（语义见 threadAgentField 注释）。
 
 export function getThreadAgentName(threadId: string): string | undefined {
-  if (!isBrowser()) {
-    return undefined;
-  }
-  const raw = localStorage.getItem(getThreadAgentStorageKey(threadId));
-  // ``null`` = no stored value → fall back to global settings.
-  // The sentinel represents the explicit "office" mode
-  // (agent_name = undefined) so it can be distinguished from "no value".
-  if (raw === null) return undefined;
-  return raw === DEFAULT_SENTINEL ? undefined : raw;
+  return threadAgentField.read(threadId);
 }
 
 export function saveThreadAgentName(
   threadId: string,
   agentName: string | undefined,
 ) {
-  if (!isBrowser()) {
-    return;
-  }
-  const key = getThreadAgentStorageKey(threadId);
-  if (agentName === undefined) {
-    // Store a sentinel so we know the thread was explicitly created
-    // in the default "office" mode (vs. an old thread with no override).
-    localStorage.setItem(key, DEFAULT_SENTINEL);
-  } else {
-    localStorage.setItem(key, agentName);
-  }
+  threadAgentField.save(threadId, agentName);
 }
 
 export function applyThreadAgentOverride(
@@ -173,58 +261,27 @@ export function applyThreadAgentOverride(
   threadAgentName: string | undefined,
   hasThreadAgentOverride: boolean,
 ): LocalSettings {
-  if (!hasThreadAgentOverride) {
-    return settings;
-  }
-  return {
-    ...settings,
-    context: {
-      ...settings.context,
-      agent_name: threadAgentName,
-    },
-  };
+  return threadAgentField.apply(
+    settings,
+    threadAgentName,
+    hasThreadAgentOverride,
+  );
 }
 
-// ------------------------------------------------------------------
-// Per-thread user_workspace_path persistence
-// ------------------------------------------------------------------
-// Stores the user-selected workspace directory so the sandbox can grant
-// bash/read/write access to it for the current thread.
-
-function getThreadWorkspacePathStorageKey(threadId: string): string {
-  return `${THREAD_WORKSPACE_PATH_KEY_PREFIX}${threadId}`;
-}
+// Per-thread user_workspace_path persistence（语义见 threadWorkspacePathField
+// 注释）。
 
 export function getThreadWorkspacePath(
   threadId: string,
 ): string | undefined {
-  if (!isBrowser()) {
-    return undefined;
-  }
-  const raw = localStorage.getItem(getThreadWorkspacePathStorageKey(threadId));
-  // ``null`` = no stored value → fall back to default workspace.
-  // The empty string "" represents the explicit default workspace
-  // (user_workspace_path = undefined) so it can be distinguished from
-  // "no value".
-  if (raw === null) return undefined;
-  return raw === "" ? undefined : raw;
+  return threadWorkspacePathField.read(threadId);
 }
 
 export function saveThreadWorkspacePath(
   threadId: string,
   workspacePath: string | undefined,
 ) {
-  if (!isBrowser()) {
-    return;
-  }
-  const key = getThreadWorkspacePathStorageKey(threadId);
-  if (workspacePath === undefined) {
-    // Store a sentinel so we know the thread was explicitly created
-    // in the default workspace (vs. an old thread with no override).
-    localStorage.setItem(key, "");
-  } else {
-    localStorage.setItem(key, workspacePath);
-  }
+  threadWorkspacePathField.save(threadId, workspacePath);
 }
 
 export function applyThreadWorkspacePathOverride(
@@ -232,57 +289,24 @@ export function applyThreadWorkspacePathOverride(
   threadWorkspacePath: string | undefined,
   hasThreadWorkspacePathOverride: boolean,
 ): LocalSettings {
-  if (!hasThreadWorkspacePathOverride) {
-    return settings;
-  }
-  return {
-    ...settings,
-    context: {
-      ...settings.context,
-      user_workspace_path: threadWorkspacePath,
-    },
-  };
+  return threadWorkspacePathField.apply(
+    settings,
+    threadWorkspacePath,
+    hasThreadWorkspacePathOverride,
+  );
 }
 
-// ------------------------------------------------------------------
-// Per-thread workspace_id snapshot
-// ------------------------------------------------------------------
-// The user-selected registry workspace id (drives sidebar grouping) lives
-// globally in baseSettings.context, which leaks across threads and is not
-// durable per thread. Snapshot it per-thread exactly like user_workspace_path
-// so reopening a thread restores the same workspace binding after refresh.
-
-function getThreadWorkspaceIdStorageKey(threadId: string): string {
-  return `${THREAD_WORKSPACE_ID_KEY_PREFIX}${threadId}`;
-}
+// Per-thread workspace_id snapshot（语义见 threadWorkspaceIdField 注释）。
 
 export function getThreadWorkspaceId(threadId: string): string | undefined {
-  if (!isBrowser()) {
-    return undefined;
-  }
-  const raw = localStorage.getItem(getThreadWorkspaceIdStorageKey(threadId));
-  // null = no stored value -> fall back to the global workspace default.
-  // The empty string "" represents an explicit "default workspace" (id =
-  // undefined) so it can be distinguished from "no value".
-  if (raw === null) return undefined;
-  return raw === "" ? undefined : raw;
+  return threadWorkspaceIdField.read(threadId);
 }
 
 export function saveThreadWorkspaceId(
   threadId: string,
   workspaceId: string | undefined,
 ) {
-  if (!isBrowser()) {
-    return;
-  }
-  const key = getThreadWorkspaceIdStorageKey(threadId);
-  if (workspaceId === undefined) {
-    // Store a sentinel so we know the thread was explicitly created in the
-    // default workspace (vs. an old thread with no override).
-    localStorage.setItem(key, "");
-  } else {
-    localStorage.setItem(key, workspaceId);
-  }
+  threadWorkspaceIdField.save(threadId, workspaceId);
 }
 
 export function applyThreadWorkspaceIdOverride(
@@ -290,16 +314,11 @@ export function applyThreadWorkspaceIdOverride(
   threadWorkspaceId: string | undefined,
   hasThreadWorkspaceIdOverride: boolean,
 ): LocalSettings {
-  if (!hasThreadWorkspaceIdOverride) {
-    return settings;
-  }
-  return {
-    ...settings,
-    context: {
-      ...settings.context,
-      workspace_id: threadWorkspaceId,
-    },
-  };
+  return threadWorkspaceIdField.apply(
+    settings,
+    threadWorkspaceId,
+    hasThreadWorkspaceIdOverride,
+  );
 }
 
 export function getLocalSettings(): LocalSettings {

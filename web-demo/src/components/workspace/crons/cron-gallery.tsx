@@ -2,7 +2,7 @@
 
 import { AlertTriangleIcon, ZapIcon, PlusIcon, RefreshCwIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  deleteScheduledTask,
-  fetchScheduledTasks,
-} from "@/core/crons/api";
-import type { ScheduledTask } from "@/core/crons/types";
+  useDeleteScheduledTask,
+  useScheduledTasks,
+} from "@/core/crons/hooks";
 import { useI18n } from "@/core/i18n/hooks";
 
 import { CronCard } from "./cron-card";
@@ -26,32 +25,14 @@ import { CronCard } from "./cron-card";
 export function CronGallery() {
   const { t } = useI18n();
   const router = useRouter();
-  const [tasks, setTasks] = useState<ScheduledTask[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { tasks, isLoading: loading, error, refetch } = useScheduledTasks();
+  const { mutateAsync: deleteTask } = useDeleteScheduledTask();
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     title: string;
   } | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchScheduledTasks();
-      setTasks(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load tasks");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   const handleAdd = () => {
     router.push("/workspace/chats/new?mode=cron");
@@ -60,10 +41,9 @@ export function CronGallery() {
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteScheduledTask(deleteTarget.id);
+      await deleteTask(deleteTarget.id);
       toast.success(t.crons.deleteSuccess);
       setDeleteTarget(null);
-      await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Delete failed");
     }
@@ -124,8 +104,10 @@ export function CronGallery() {
             <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
               <ZapIcon className="size-7" />
             </div>
-            <p className="mb-3 text-sm font-medium text-destructive">{error}</p>
-            <Button variant="outline" onClick={load}>
+            <p className="mb-3 text-sm font-medium text-destructive">
+              {error instanceof Error ? error.message : "Failed to load tasks"}
+            </p>
+            <Button variant="outline" onClick={() => void refetch()}>
               <RefreshCwIcon className="mr-1.5 h-4 w-4" />
               {t.crons.retry}
             </Button>
@@ -155,7 +137,7 @@ export function CronGallery() {
               <CronCard
                 key={task.task_id}
                 task={task}
-                onRefresh={load}
+                onRefresh={() => void refetch()}
                 onDelete={(id, title) => setDeleteTarget({ id, title })}
               />
             ))}

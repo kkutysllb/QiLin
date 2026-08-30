@@ -1,10 +1,8 @@
 "use client";
 
-import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,12 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 
+import { ConfigFormShell, SettingSwitchRow } from "../config-form-shell";
+import { hintCls, labelCls } from "../form-styles";
 import { useConfigSection } from "../use-config-section";
-
-const labelCls = "text-sm font-medium leading-none";
-const hintCls = "mt-0.5 text-xs text-muted-foreground";
+import { useLocalDraft } from "../use-local-draft";
 
 type ContextSizeType = "fraction" | "tokens" | "messages";
 
@@ -56,14 +53,8 @@ function normalizeConfig(raw: Partial<SummarizationConfig> | undefined): Summari
 export function SummarizationForm() {
   const { data: rawData, loading, saving, save } =
     useConfigSection<SummarizationConfig>("summarization", defaultConfig);
-  const data = normalizeConfig(rawData);
-  const [local, setLocal] = useState<SummarizationConfig>(data);
-
-  useEffect(() => {
-    setLocal(normalizeConfig(rawData));
-  }, [rawData]);
-
-  const dirty = JSON.stringify(local) !== JSON.stringify(data);
+  const data = useMemo(() => normalizeConfig(rawData), [rawData]);
+  const { draft: local, setDraft: setLocal, dirty, reset } = useLocalDraft(data);
 
   const update = <K extends keyof SummarizationConfig>(
     key: K,
@@ -91,33 +82,24 @@ export function SummarizationForm() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" />
-        加载中…
-      </div>
-    );
-  }
-
   const disabled = saving || !local.enabled;
 
   return (
-    <div className="space-y-4">
-      {/* Enabled switch */}
-      <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3">
-        <div>
-          <p className={labelCls}>启用对话摘要</p>
-          <p className={hintCls}>
-            当上下文接近模型限制时自动压缩历史对话，保留近期内容
-          </p>
-        </div>
-        <Switch
-          checked={local.enabled}
-          onCheckedChange={(v) => update("enabled", v)}
-          disabled={saving}
-        />
-      </div>
+    <ConfigFormShell
+      loading={loading}
+      saving={saving}
+      dirty={dirty}
+      onSave={handleSave}
+      onReset={reset}
+      bodyClassName="space-y-4"
+    >
+      <SettingSwitchRow
+        label="启用对话摘要"
+        hint="当上下文接近模型限制时自动压缩历史对话，保留近期内容"
+        checked={local.enabled}
+        onCheckedChange={(v) => update("enabled", v)}
+        disabled={saving}
+      />
 
       {/* Model name */}
       <div className="grid gap-1.5">
@@ -224,27 +206,6 @@ export function SummarizationForm() {
           准备摘要消息时的最大 Token 数；设为 0 或 null 跳过裁剪
         </p>
       </div>
-
-      {/* Actions */}
-      <div className="flex gap-2 pt-1">
-        <Button
-          size="sm"
-          disabled={!dirty || saving}
-          onClick={handleSave}
-        >
-          {saving ? "保存中…" : "保存"}
-        </Button>
-        {dirty && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setLocal(data)}
-            disabled={saving}
-          >
-            重置
-          </Button>
-        )}
-      </div>
-    </div>
+    </ConfigFormShell>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangleIcon,
   BoxesIcon,
@@ -11,7 +12,7 @@ import {
   SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -26,12 +27,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
-  loadModels,
   createModel,
-  updateModel,
   deleteModel,
+  updateModel,
 } from "@/core/models/api";
-import type { Model, ModelRequest } from "@/core/models/types";
+import { useModels } from "@/core/models/hooks";
+import type { Model, ModelRequest, ModelsResponse } from "@/core/models/types";
 import { cn } from "@/lib/utils";
 
 import {
@@ -61,10 +62,11 @@ function templateToRequest(tpl: ModelTemplate): Partial<ModelRequest> {
   };
 }
 
+const MODELS_QUERY_KEY = ["models"] as const;
+
 export function ModelsSettingsPage() {
-  const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { models, isLoading: loading, error: loadError } = useModels();
 
   // 内联展开表单状态
   const [activeTemplate, setActiveTemplate] = useState<ModelTemplate | null>(
@@ -74,23 +76,20 @@ export function ModelsSettingsPage() {
 
   const [deletingModel, setDeletingModel] = useState<Model | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // 增删改动作失败信息，与查询加载错误共用同一条错误展示位
+  const [actionError, setActionError] = useState<string | null>(null);
+  const error =
+    actionError ??
+    (loadError instanceof Error
+      ? loadError.message
+      : loadError
+        ? "加载失败"
+        : null);
 
-  const refresh = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await loadModels();
-      setModels(data.models);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "加载失败");
-    } finally {
-      setLoading(false);
-    }
+  const refresh = () => {
+    setActionError(null);
+    void queryClient.invalidateQueries({ queryKey: MODELS_QUERY_KEY });
   };
-
-  useEffect(() => {
-    void refresh();
-  }, []);
 
   const handleEdit = (model: Model) => {
     setEditingModel(model);
@@ -101,17 +100,26 @@ export function ModelsSettingsPage() {
     if (!deletingModel) return;
     const target = deletingModel;
     setDeleting(true);
-    setModels((prev) => prev.filter((m) => m.name !== target.name));
     setDeletingModel(null);
+    // 乐观移除，失败时回滚到删除前的缓存快照
+    const previous = queryClient.getQueryData<ModelsResponse>(MODELS_QUERY_KEY);
+    queryClient.setQueryData<ModelsResponse>(
+      MODELS_QUERY_KEY,
+      (old) =>
+        old
+          ? {
+              ...old,
+              models: old.models.filter((m) => m.name !== target.name),
+            }
+          : old,
+    );
     try {
       await deleteModel(target.name);
-      await refresh();
+      await queryClient.invalidateQueries({ queryKey: MODELS_QUERY_KEY });
       toast.success(`模型「${target.name}」已删除`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "删除失败");
-      setModels((prev) =>
-        prev.some((m) => m.name === target.name) ? prev : [...prev, target],
-      );
+      setActionError(e instanceof Error ? e.message : "删除失败");
+      queryClient.setQueryData(MODELS_QUERY_KEY, previous);
     } finally {
       setDeleting(false);
     }
@@ -132,7 +140,7 @@ export function ModelsSettingsPage() {
       toast.success(`模型「${req.name}」已创建`);
       setActiveTemplate(null);
     }
-    await refresh();
+    await queryClient.invalidateQueries({ queryKey: MODELS_QUERY_KEY });
   };
 
   const handleCancelInline = () => {

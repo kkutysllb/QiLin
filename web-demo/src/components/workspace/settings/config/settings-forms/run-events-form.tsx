@@ -1,10 +1,7 @@
 "use client";
 
-import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,12 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 
+import { ConfigFormShell, SettingSwitchRow } from "../config-form-shell";
+import { hintCls, labelCls } from "../form-styles";
 import { useConfigSection } from "../use-config-section";
-
-const labelCls = "text-sm font-medium leading-none";
-const hintCls = "mt-0.5 text-xs text-muted-foreground";
+import { useLocalDraft } from "../use-local-draft";
 
 interface RunEventsConfig {
   backend: "memory" | "db" | "jsonl";
@@ -37,13 +33,7 @@ export function RunEventsForm() {
     "run_events",
     defaultConfig,
   );
-  const [local, setLocal] = useState<RunEventsConfig>(data);
-
-  useEffect(() => {
-    setLocal(data);
-  }, [data]);
-
-  const dirty = JSON.stringify(local) !== JSON.stringify(data);
+  const { draft: local, setDraft: setLocal, dirty, reset } = useLocalDraft(data);
 
   const update = <K extends keyof RunEventsConfig>(
     key: K,
@@ -59,17 +49,15 @@ export function RunEventsForm() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2Icon className="size-4 animate-spin" />
-        加载中…
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4">
+    <ConfigFormShell
+      loading={loading}
+      saving={saving}
+      dirty={dirty}
+      onSave={handleSave}
+      onReset={reset}
+      bodyClassName="space-y-4"
+    >
       <div className="grid gap-2">
         <label className={labelCls}>存储后端</label>
         <Select
@@ -112,35 +100,13 @@ export function RunEventsForm() {
         </p>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3">
-        <div>
-          <p className={labelCls}>记录 Token 用量</p>
-          <p className={hintCls}>
-            在运行 trace 中记录每次模型调用的 token 消耗
-          </p>
-        </div>
-        <Switch
-          checked={local.track_token_usage}
-          onCheckedChange={(v) => update("track_token_usage", v)}
-          disabled={saving}
-        />
-      </div>
-
-      <div className="flex gap-2 pt-1">
-        <Button size="sm" disabled={!dirty || saving} onClick={handleSave}>
-          {saving ? "保存中…" : "保存"}
-        </Button>
-        {dirty && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setLocal(data)}
-            disabled={saving}
-          >
-            重置
-          </Button>
-        )}
-      </div>
-    </div>
+      <SettingSwitchRow
+        label="记录 Token 用量"
+        hint="在运行 trace 中记录每次模型调用的 token 消耗"
+        checked={local.track_token_usage}
+        onCheckedChange={(v) => update("track_token_usage", v)}
+        disabled={saving}
+      />
+    </ConfigFormShell>
   );
 }

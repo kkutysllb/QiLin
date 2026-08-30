@@ -1,17 +1,14 @@
 "use client";
 
-import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 
+import { ConfigFormShell, SettingSwitchRow } from "../config-form-shell";
+import { labelCls } from "../form-styles";
 import { useConfigSection } from "../use-config-section";
-
-const labelCls = "text-sm font-medium leading-none";
-const hintCls = "mt-0.5 text-xs text-muted-foreground";
+import { useLocalDraft } from "../use-local-draft";
 
 interface BrowserConfig {
   browser_headless: boolean;
@@ -33,14 +30,11 @@ export function BrowserForm() {
     defaultConfig,
   );
   // Merge defaults so partial API data never leaves fields undefined.
-  const data: BrowserConfig = { ...defaultConfig, ...rawData };
-  const [local, setLocal] = useState<BrowserConfig>(data);
-
-  useEffect(() => {
-    setLocal({ ...defaultConfig, ...rawData });
-  }, [rawData]);
-
-  const dirty = JSON.stringify(local) !== JSON.stringify(data);
+  const data = useMemo<BrowserConfig>(
+    () => ({ ...defaultConfig, ...rawData }),
+    [rawData],
+  );
+  const { draft: local, setDraft: setLocal, dirty, reset } = useLocalDraft(data);
 
   const update = <K extends keyof BrowserConfig>(
     key: K,
@@ -57,96 +51,66 @@ export function BrowserForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h4 className="text-sm font-semibold">浏览器自动化</h4>
-        <p className={hintCls}>
-          Playwright Chromium 无头浏览器的运行参数
-        </p>
+    <ConfigFormShell
+      title="浏览器自动化"
+      description="Playwright Chromium 无头浏览器的运行参数"
+      loading={loading}
+      saving={saving}
+      dirty={dirty}
+      onSave={handleSave}
+      onReset={reset}
+    >
+      {/* Headless toggle */}
+      <SettingSwitchRow
+        label="无头模式 (Headless)"
+        hint="开启后浏览器在后台运行，不显示窗口"
+        checked={local.browser_headless}
+        onCheckedChange={(v) => update("browser_headless", v)}
+        disabled={saving}
+      />
+
+      {/* Viewport + timeout */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="grid gap-1.5">
+          <label className={labelCls}>视口宽度</label>
+          <Input
+            type="number"
+            min={320}
+            max={3840}
+            value={local.browser_viewport_width}
+            onChange={(e) =>
+              update("browser_viewport_width", Number(e.target.value))
+            }
+            disabled={saving}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <label className={labelCls}>视口高度</label>
+          <Input
+            type="number"
+            min={240}
+            max={2160}
+            value={local.browser_viewport_height}
+            onChange={(e) =>
+              update("browser_viewport_height", Number(e.target.value))
+            }
+            disabled={saving}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <label className={labelCls}>超时（毫秒）</label>
+          <Input
+            type="number"
+            min={1000}
+            max={120000}
+            value={local.browser_timeout_ms}
+            onChange={(e) =>
+              update("browser_timeout_ms", Number(e.target.value))
+            }
+            disabled={saving}
+          />
+        </div>
       </div>
-
-      {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" />
-          加载中…
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {/* Headless toggle */}
-          <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3">
-            <div>
-              <p className={labelCls}>无头模式 (Headless)</p>
-              <p className={hintCls}>
-                开启后浏览器在后台运行，不显示窗口
-              </p>
-            </div>
-            <Switch
-              checked={local.browser_headless}
-              onCheckedChange={(v) => update("browser_headless", v)}
-              disabled={saving}
-            />
-          </div>
-
-          {/* Viewport + timeout */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="grid gap-1.5">
-              <label className={labelCls}>视口宽度</label>
-              <Input
-                type="number"
-                min={320}
-                max={3840}
-                value={local.browser_viewport_width}
-                onChange={(e) =>
-                  update("browser_viewport_width", Number(e.target.value))
-                }
-                disabled={saving}
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <label className={labelCls}>视口高度</label>
-              <Input
-                type="number"
-                min={240}
-                max={2160}
-                value={local.browser_viewport_height}
-                onChange={(e) =>
-                  update("browser_viewport_height", Number(e.target.value))
-                }
-                disabled={saving}
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <label className={labelCls}>超时（毫秒）</label>
-              <Input
-                type="number"
-                min={1000}
-                max={120000}
-                value={local.browser_timeout_ms}
-                onChange={(e) =>
-                  update("browser_timeout_ms", Number(e.target.value))
-                }
-                disabled={saving}
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-2 pt-1">
-            <Button size="sm" disabled={!dirty || saving} onClick={handleSave}>
-              {saving ? "保存中…" : "保存"}
-            </Button>
-            {dirty && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setLocal(data)}
-                disabled={saving}
-              >
-                重置
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+    </ConfigFormShell>
   );
 }

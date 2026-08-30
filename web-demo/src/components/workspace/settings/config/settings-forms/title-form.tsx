@@ -1,17 +1,15 @@
 "use client";
 
 import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 
+import { ConfigFormShell, SettingSwitchRow } from "../config-form-shell";
+import { hintCls, labelCls } from "../form-styles";
 import { useConfigSection } from "../use-config-section";
-
-const labelCls = "text-sm font-medium leading-none";
-const hintCls = "mt-0.5 text-xs text-muted-foreground";
+import { useLocalDraft } from "../use-local-draft";
 
 interface TitleConfig {
   enabled: boolean;
@@ -33,14 +31,11 @@ export function TitleForm() {
     defaultConfig,
   );
   // Merge defaults over partial API data so no field is ever undefined.
-  const data: TitleConfig = { ...defaultConfig, ...rawData };
-  const [local, setLocal] = useState<TitleConfig>(data);
-
-  useEffect(() => {
-    setLocal({ ...defaultConfig, ...rawData });
-  }, [rawData]);
-
-  const dirty = JSON.stringify(local) !== JSON.stringify(data);
+  const data = useMemo<TitleConfig>(
+    () => ({ ...defaultConfig, ...rawData }),
+    [rawData],
+  );
+  const { draft: local, setDraft: setLocal, dirty, reset } = useLocalDraft(data);
 
   const update = <K extends keyof TitleConfig>(
     key: K,
@@ -56,6 +51,7 @@ export function TitleForm() {
     }
   };
 
+  // 整段早退式加载块保持内联（与其他表单的共享壳三元渲染语义等价）。
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -66,20 +62,20 @@ export function TitleForm() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3">
-        <div>
-          <p className={labelCls}>启用标题生成</p>
-          <p className={hintCls}>
-            关闭后新对话将使用默认标题（如「新对话」）
-          </p>
-        </div>
-        <Switch
-          checked={local.enabled}
-          onCheckedChange={(v) => update("enabled", v)}
-          disabled={saving}
-        />
-      </div>
+    <ConfigFormShell
+      saving={saving}
+      dirty={dirty}
+      onSave={handleSave}
+      onReset={reset}
+      bodyClassName="space-y-4"
+    >
+      <SettingSwitchRow
+        label="启用标题生成"
+        hint="关闭后新对话将使用默认标题（如「新对话」）"
+        checked={local.enabled}
+        onCheckedChange={(v) => update("enabled", v)}
+        disabled={saving}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <div className="grid gap-1.5">
@@ -120,26 +116,6 @@ export function TitleForm() {
           指定模型名称以启用 LLM 标题生成；留空则使用本地启发式回退
         </p>
       </div>
-
-      <div className="flex gap-2 pt-1">
-        <Button
-          size="sm"
-          disabled={!dirty || saving}
-          onClick={handleSave}
-        >
-          {saving ? "保存中…" : "保存"}
-        </Button>
-        {dirty && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setLocal(data)}
-            disabled={saving}
-          >
-            重置
-          </Button>
-        )}
-      </div>
-    </div>
+    </ConfigFormShell>
   );
 }

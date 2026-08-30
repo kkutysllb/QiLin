@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import {
   BotIcon,
   CrownIcon,
@@ -10,17 +11,17 @@ import {
   Trash2Icon,
   WrenchIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { getAgent } from "@/core/agents/api";
 import {
-  deleteAgent,
-  getAgent,
-  listAgents,
-} from "@/core/agents/api";
+  useAgents,
+  useDeleteAgent,
+} from "@/core/agents/hooks";
 import type { Agent } from "@/core/agents/types";
 
 import { AgentWizardDialog } from "./agent-wizard-dialog";
@@ -32,6 +33,7 @@ interface AgentsApiConfig {
 }
 
 export function AgentsSettingsPage() {
+  const queryClient = useQueryClient();
   const { data, loading, saving, save } = useConfigSection<AgentsApiConfig>(
     "agents_api",
     { enabled: false },
@@ -47,6 +49,8 @@ export function AgentsSettingsPage() {
   const handleSave = async () => {
     try {
       await save({ enabled });
+      // 保存开关后刷新代理列表（原先由 AgentsList 的 useEffect [enabled] 触发）。
+      void queryClient.invalidateQueries({ queryKey: ["agents"] });
       toast.success("代理 API 设置已更新");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败");
@@ -124,35 +128,17 @@ export function AgentsSettingsPage() {
 /* ── Agent list ───────────────────────────────────────── */
 
 function AgentsList({ enabled }: { enabled: boolean }) {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { agents, isLoading: loading, error } = useAgents();
+  const { mutateAsync: deleteAgentMutation } = useDeleteAgent();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
 
-  const loadAgents = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const list = await listAgents();
-      setAgents(list);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "加载代理列表失败");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadAgents();
-  }, [loadAgents, enabled]);
-
   const handleDelete = async (name: string) => {
     setDeleting(name);
     try {
-      await deleteAgent(name);
-      setAgents((prev) => prev.filter((a) => a.name !== name));
+      await deleteAgentMutation(name);
       toast.success(`已删除代理「${name}」`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "删除失败");
@@ -181,7 +167,7 @@ function AgentsList({ enabled }: { enabled: boolean }) {
   };
 
   const handleDialogSuccess = () => {
-    void loadAgents();
+    void queryClient.invalidateQueries({ queryKey: ["agents"] });
   };
 
   return (
@@ -203,7 +189,7 @@ function AgentsList({ enabled }: { enabled: boolean }) {
         </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 px-4 py-4 text-sm text-red-500">
-          {error}
+          {error instanceof Error ? error.message : "加载代理列表失败"}
         </div>
       ) : agents.length === 0 ? (
         <div className="rounded-xl border px-4 py-8 text-center text-sm text-muted-foreground">

@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangleIcon, PlusIcon, SparklesIcon, TerminalIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { useI18n } from "@/core/i18n/hooks";
 import {
-  addMCPServer,
-  deleteMCPServer,
-  loadMCPConfig,
-  updateMCPConfig,
-} from "@/core/mcp/api";
+  useAddMCPServer,
+  useDeleteMCPServer,
+  useMCPConfig,
+  useUpdateMCPServer,
+} from "@/core/mcp/hooks";
 import type { MCPServerConfig } from "@/core/mcp/types";
 
 import { McpCard } from "./mcp-card";
@@ -86,9 +86,11 @@ const MCP_PRESETS: MCPServerConfig[] = [
 
 export function McpGallery({ embedded = false }: { embedded?: boolean }) {
   const { t } = useI18n();
-  const [servers, setServers] = useState<Record<string, MCPServerConfig>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { config, isLoading: loading, error, refetch } = useMCPConfig();
+  const servers = config?.mcp_servers ?? {};
+  const { mutateAsync: addServer } = useAddMCPServer();
+  const { mutateAsync: updateServer } = useUpdateMCPServer();
+  const { mutateAsync: deleteServer } = useDeleteMCPServer();
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -100,23 +102,6 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
   // Delete state
   const [deletingName, setDeletingName] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await loadMCPConfig();
-      setServers(data.mcp_servers);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load MCP config");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
 
   const handleAdd = () => {
     setEditingName(null);
@@ -136,31 +121,22 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
     config: MCPServerConfig,
   ) => {
     if (isNew) {
-      await addMCPServer(name, config);
+      await addServer({ name, config });
       toast.success(t.mcp.createSuccess);
     } else {
-      // Update via full config PUT
-      const current = await loadMCPConfig();
-      const updated = {
-        mcp_servers: {
-          ...current.mcp_servers,
-          [name]: config,
-        },
-      };
-      await updateMCPConfig(updated);
+      // Update via full config PUT (handled inside useUpdateMCPServer).
+      await updateServer({ name, config });
       toast.success(t.mcp.updateSuccess);
     }
-    await refresh();
   };
 
   const handleDelete = async () => {
     if (!deletingName) return;
     setDeleting(true);
     try {
-      await deleteMCPServer(deletingName);
+      await deleteServer(deletingName);
       toast.success(t.mcp.deleteSuccess);
       setDeletingName(null);
-      await refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to delete");
     } finally {
@@ -208,9 +184,8 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
       name = `${baseName}-${suffix++}`;
     }
     try {
-      await addMCPServer(name, preset);
+      await addServer({ name, config: preset });
       toast.success(t.mcp.createSuccess);
-      await refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to add preset");
     }
@@ -298,8 +273,12 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
             <div className="size-16 rounded-2xl bg-red-500/10 flex items-center justify-center">
               <TerminalIcon className="size-7 text-red-400" />
             </div>
-            <p className="text-destructive text-sm font-medium">{error}</p>
-            <Button variant="outline" onClick={refresh}>
+            <p className="text-destructive text-sm font-medium">
+              {error instanceof Error
+                ? error.message
+                : "Failed to load MCP config"}
+            </p>
+            <Button variant="outline" onClick={() => void refetch()}>
               Retry
             </Button>
           </div>

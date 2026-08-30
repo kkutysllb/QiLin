@@ -1,10 +1,7 @@
 "use client";
 
-import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,13 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { formatBytes } from "@/core/persistence/format";
 
+import { ConfigFormShell, SettingSwitchRow } from "../config-form-shell";
+import { hintCls, labelCls } from "../form-styles";
 import { useConfigSection } from "../use-config-section";
-
-const labelCls = "text-sm font-medium leading-none";
-const hintCls = "mt-0.5 text-xs text-muted-foreground";
+import { useLocalDraft } from "../use-local-draft";
 
 interface UploadsConfig {
   max_files: number;
@@ -42,13 +38,7 @@ export function UploadsForm() {
     "uploads",
     defaultConfig,
   );
-  const [local, setLocal] = useState<UploadsConfig>(data);
-
-  useEffect(() => {
-    setLocal(data);
-  }, [data]);
-
-  const dirty = JSON.stringify(local) !== JSON.stringify(data);
+  const { draft: local, setDraft: setLocal, dirty, reset } = useLocalDraft(data);
 
   const update = <K extends keyof UploadsConfig>(
     key: K,
@@ -65,112 +55,80 @@ export function UploadsForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h4 className="text-sm font-semibold">上传限制 (Uploads)</h4>
-        <p className={hintCls}>控制用户上传文件的数量和大小限制</p>
+    <ConfigFormShell
+      title="上传限制 (Uploads)"
+      description="控制用户上传文件的数量和大小限制"
+      loading={loading}
+      saving={saving}
+      dirty={dirty}
+      onSave={handleSave}
+      onReset={reset}
+    >
+      <div className="grid grid-cols-3 gap-3">
+        <div className="grid gap-1.5">
+          <label className={labelCls}>最大文件数</label>
+          <Input
+            type="number"
+            min={1}
+            max={100}
+            value={local.max_files}
+            onChange={(e) => update("max_files", Number(e.target.value))}
+            disabled={saving}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <label className={labelCls}>单文件上限 (bytes)</label>
+          <Input
+            type="number"
+            min={1}
+            value={local.max_file_size}
+            onChange={(e) =>
+              update("max_file_size", Number(e.target.value))
+            }
+            disabled={saving}
+          />
+          <p className={hintCls}>{formatBytes(local.max_file_size)}</p>
+        </div>
+        <div className="grid gap-1.5">
+          <label className={labelCls}>总大小上限 (bytes)</label>
+          <Input
+            type="number"
+            min={1}
+            value={local.max_total_size}
+            onChange={(e) =>
+              update("max_total_size", Number(e.target.value))
+            }
+            disabled={saving}
+          />
+          <p className={hintCls}>{formatBytes(local.max_total_size)}</p>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" />
-          加载中…
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="grid gap-1.5">
-              <label className={labelCls}>最大文件数</label>
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                value={local.max_files}
-                onChange={(e) => update("max_files", Number(e.target.value))}
-                disabled={saving}
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <label className={labelCls}>单文件上限 (bytes)</label>
-              <Input
-                type="number"
-                min={1}
-                value={local.max_file_size}
-                onChange={(e) =>
-                  update("max_file_size", Number(e.target.value))
-                }
-                disabled={saving}
-              />
-              <p className={hintCls}>{formatBytes(local.max_file_size)}</p>
-            </div>
-            <div className="grid gap-1.5">
-              <label className={labelCls}>总大小上限 (bytes)</label>
-              <Input
-                type="number"
-                min={1}
-                value={local.max_total_size}
-                onChange={(e) =>
-                  update("max_total_size", Number(e.target.value))
-                }
-                disabled={saving}
-              />
-              <p className={hintCls}>{formatBytes(local.max_total_size)}</p>
-            </div>
-          </div>
+      <SettingSwitchRow
+        label="自动转换文档"
+        hint="将 PDF / Word / Excel 等文档自动转换为纯文本"
+        checked={local.auto_convert_documents}
+        onCheckedChange={(v) => update("auto_convert_documents", v)}
+        disabled={saving}
+      />
 
-          <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3">
-            <div>
-              <p className={labelCls}>自动转换文档</p>
-              <p className={hintCls}>
-                将 PDF / Word / Excel 等文档自动转换为纯文本
-              </p>
-            </div>
-            <Switch
-              checked={local.auto_convert_documents}
-              onCheckedChange={(v) => update("auto_convert_documents", v)}
-              disabled={saving}
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label className={labelCls}>PDF 转换器</label>
-            <Select
-              value={local.pdf_converter}
-              onValueChange={(v) => update("pdf_converter", v)}
-            >
-              <SelectTrigger className="w-48" disabled={saving}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="auto">自动检测 (auto)</SelectItem>
-                <SelectItem value="pymupdf4llm">pymupdf4llm</SelectItem>
-                <SelectItem value="markitdown">markitdown</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className={hintCls}>指定 PDF 文件转文本时使用的库</p>
-          </div>
-
-          <div className="flex gap-2 pt-1">
-            <Button
-              size="sm"
-              disabled={!dirty || saving}
-              onClick={handleSave}
-            >
-              {saving ? "保存中…" : "保存"}
-            </Button>
-            {dirty && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setLocal(data)}
-                disabled={saving}
-              >
-                重置
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="grid gap-2">
+        <label className={labelCls}>PDF 转换器</label>
+        <Select
+          value={local.pdf_converter}
+          onValueChange={(v) => update("pdf_converter", v)}
+        >
+          <SelectTrigger className="w-48" disabled={saving}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="auto">自动检测 (auto)</SelectItem>
+            <SelectItem value="pymupdf4llm">pymupdf4llm</SelectItem>
+            <SelectItem value="markitdown">markitdown</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className={hintCls}>指定 PDF 文件转文本时使用的库</p>
+      </div>
+    </ConfigFormShell>
   );
 }

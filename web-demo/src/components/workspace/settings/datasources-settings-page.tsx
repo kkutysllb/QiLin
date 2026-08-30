@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2Icon,
   DatabaseIcon,
@@ -42,56 +43,60 @@ interface TestResult {
 
 const MASK_SUFFIX = "***";
 
+const DATASOURCES_QUERY_KEY = ["datasources"] as const;
+
 function isMasked(v: string): boolean {
   return v.endsWith(MASK_SUFFIX);
 }
 
+/** GET /api/datasources/ — redacted .env snapshot for the current user. */
+async function fetchDatasources(): Promise<DatasourcesResponse> {
+  const res = await fetch(`${getBackendBaseURL()}/api/datasources/`, {
+    headers: getCsrfHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+  return (await res.json()) as DatasourcesResponse;
+}
+
 export function DatasourcesSettingsPage() {
-  const [datasources, setDatasources] = useState<DatasourceItem[]>([]);
-  const [envFile, setEnvFile] = useState("");
+  const queryClient = useQueryClient();
+  const {
+    data,
+    isLoading: loading,
+    error: loadError,
+  } = useQuery({
+    queryKey: DATASOURCES_QUERY_KEY,
+    queryFn: fetchDatasources,
+  });
+  const datasources = data?.datasources ?? [];
+  const envFile = data?.env_file ?? "";
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [showSecret, setShowSecret] = useState<Record<string, boolean>>({});
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [saveError, setSaveError] = useState("");
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${getBackendBaseURL()}/api/datasources/`, {
-        headers: getCsrfHeaders(),
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      const data = (await res.json()) as DatasourcesResponse;
-      setDatasources(data.datasources);
-      setEnvFile(data.env_file);
-      const initialEdits: Record<string, string> = {};
-      for (const ds of data.datasources) {
-        initialEdits[ds.key] = ds.masked_value;
-      }
-      setEdits(initialEdits);
-      setTestResults({});
-    } catch {
-      setError("加载数据源配置失败，请确认网关已启动。");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const error = saveError || (loadError ? "加载数据源配置失败，请确认网关已启动。" : "");
 
+  // 数据（重新）加载后重置草稿与测试结果（原 reload 成功路径的行为）
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    if (!data) return;
+    const initialEdits: Record<string, string> = {};
+    for (const ds of data.datasources) {
+      initialEdits[ds.key] = ds.masked_value;
+    }
+    setEdits(initialEdits);
+    setTestResults({});
+  }, [data]);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
     setMessage("");
-    setError("");
+    setSaveError("");
     try {
       const res = await fetch(`${getBackendBaseURL()}/api/datasources/`, {
         method: "PUT",
@@ -102,20 +107,14 @@ export function DatasourcesSettingsPage() {
         throw new Error(`HTTP ${res.status}`);
       }
       const data = (await res.json()) as DatasourcesResponse;
-      setDatasources(data.datasources);
-      const nextEdits: Record<string, string> = {};
-      for (const ds of data.datasources) {
-        nextEdits[ds.key] = ds.masked_value;
-      }
-      setEdits(nextEdits);
-      setTestResults({});
+      queryClient.setQueryData(DATASOURCES_QUERY_KEY, data);
       setMessage("凭证已保存到用户数据空间 .env。");
     } catch {
-      setError("保存失败，请重试。");
+      setSaveError("保存失败，请重试。");
     } finally {
       setSaving(false);
     }
-  }, [edits]);
+  }, [edits, queryClient]);
 
   const handleTest = useCallback(
     async (key: string) => {

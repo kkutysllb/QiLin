@@ -15,7 +15,7 @@ import {
   UploadIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -30,14 +30,15 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { isStaticWebsiteOnly } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
-import { getCustomSkill, updateCustomSkill } from "@/core/skills/api";
 import {
+  useCustomSkill,
   useDeleteCustomSkill,
   useEnableSkill,
   useInstallSkillFromUpload,
   useSkills,
+  useUpdateCustomSkill,
 } from "@/core/skills/hooks";
-import type { CustomSkillContent, Skill } from "@/core/skills/type";
+import type { Skill } from "@/core/skills/type";
 
 import { useWorkspaceLayout } from "../workspace-layout-context";
 
@@ -540,43 +541,40 @@ function EditSkillDialog({
   skillName: string;
   onClose: () => void;
 }) {
-  const [skill, setSkill] = useState<CustomSkillContent | null>(null);
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getCustomSkill(skillName);
-      setSkill(data);
-      setContent(data.content);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "加载技能失败");
-      onClose();
-    } finally {
-      setLoading(false);
-    }
-  }, [skillName, onClose]);
+  const { skill, isLoading: loading, error: loadError } =
+    useCustomSkill(skillName);
+  const { mutateAsync: updateSkill, isPending: saving } =
+    useUpdateCustomSkill();
+  // 编辑草稿：null 表示尚未用加载到的内容初始化
+  const [content, setContent] = useState<string | null>(null);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (skill && content === null) {
+      setContent(skill.content);
+    }
+  }, [skill, content]);
 
-  const dirty = skill !== null && content !== skill.content;
+  useEffect(() => {
+    if (loadError) {
+      toast.error(
+        loadError instanceof Error ? loadError.message : "加载技能失败",
+      );
+      onClose();
+    }
+  }, [loadError, onClose]);
+
+  const dirty =
+    skill !== null && content !== null && content !== skill.content;
 
   const handleSave = async () => {
-    setSaving(true);
+    if (content === null) return;
     try {
-      const updated = await updateCustomSkill(skillName, content);
-      setSkill(updated);
+      const updated = await updateSkill({ skillName, content });
       setContent(updated.content);
       toast.success(`已更新技能「${skillName}」`);
       onClose();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -596,7 +594,7 @@ function EditSkillDialog({
         ) : (
           <>
             <Textarea
-              value={content}
+              value={content ?? ""}
               onChange={(e) => setContent(e.target.value)}
               disabled={saving}
               className="min-h-64 font-mono text-xs"
