@@ -213,11 +213,6 @@ class DatabaseConfig(BaseModel):
         return self.sqlite_path
 
     @property
-    def app_sqlite_path(self) -> str:
-        """SQLite file path for application ORM data (alias for sqlite_path)."""
-        return self.sqlite_path
-
-    @property
     def app_sqlalchemy_url(self) -> str:
         """SQLAlchemy async URL for the application ORM engine."""
         if self.backend == "sqlite":

@@ -153,19 +153,3 @@ def shutdown_sandbox_provider() -> None:
         _default_sandbox_provider = None
     if provider is not None and hasattr(provider, "shutdown"):
         provider.shutdown()
-
-
-def set_sandbox_provider(provider: SandboxProvider) -> None:
-    """Set a custom sandbox provider instance.
-
-    This allows injecting a custom or mock provider for testing purposes.
-
-    Note: any previously installed provider is replaced but not shut down; the
-    caller owns the lifecycle of the instance it is overwriting.
-
-    Args:
-        provider: The SandboxProvider instance to use.
-    """
-    global _default_sandbox_provider
-    with _provider_lock:
-        _default_sandbox_provider = provider

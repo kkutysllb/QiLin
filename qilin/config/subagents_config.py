@@ -166,20 +166,6 @@ class SubagentsAppConfig(BaseModel):
         super().__init__(**data)
         self._token_budget_is_default = "token_budget" not in self.model_fields_set
 
-    def get_timeout_for(self, agent_name: str) -> int:
-        """Get the effective timeout for a specific agent.
-
-        Args:
-            agent_name: The name of the subagent.
-
-        Returns:
-            The timeout in seconds, using per-agent override if set, otherwise global default.
-        """
-        override = self.agents.get(agent_name)
-        if override is not None and override.timeout_seconds is not None:
-            return override.timeout_seconds
-        return self.timeout_seconds
-
     def get_model_for(self, agent_name: str) -> str | None:
         """Get the model override for a specific agent.
 
@@ -193,15 +179,6 @@ class SubagentsAppConfig(BaseModel):
         if override is not None and override.model is not None:
             return override.model
         return None
-
-    def get_max_turns_for(self, agent_name: str, builtin_default: int) -> int:
-        """Get the effective max_turns for a specific agent."""
-        override = self.agents.get(agent_name)
-        if override is not None and override.max_turns is not None:
-            return override.max_turns
-        if self.max_turns is not None:
-            return self.max_turns
-        return builtin_default
 
     def get_skills_for(self, agent_name: str) -> list[str] | None:
         """Get the skills override for a specific agent.

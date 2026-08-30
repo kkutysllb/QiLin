@@ -203,18 +203,6 @@ class MemoryRunStore(RunStore):
                     self._runs[run_id][key] = value
             self._runs[run_id]["updated_at"] = datetime.now(UTC).isoformat()
 
-    async def list_pending(self, *, before=None):
-        now = before or datetime.now(UTC).isoformat()
-        results = [r for r in self._runs.values() if r.get("operation_kind", "run") == "run" and r["status"] == "pending" and r["created_at"] <= now]
-        results.sort(key=lambda r: r["created_at"])
-        return results
-
-    async def list_inflight(self, *, before=None):
-        now = before or datetime.now(UTC).isoformat()
-        results = [r for r in self._runs.values() if r["status"] in ("pending", "running") and r["created_at"] <= now]
-        results.sort(key=lambda r: r["created_at"])
-        return results
-
     async def aggregate_tokens_by_thread(self, thread_id: str, *, include_active: bool = False) -> dict[str, Any]:
         statuses = ("success", "error", "running") if include_active else ("success", "error")
         # Use the thread index for an O(runs-in-thread) lookup instead of

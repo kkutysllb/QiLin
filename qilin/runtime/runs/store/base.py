@@ -222,14 +222,6 @@ class RunStore(abc.ABC):
         return
 
     @abc.abstractmethod
-    async def list_pending(self, *, before: str | None = None) -> list[dict[str, Any]]:
-        pass
-
-    @abc.abstractmethod
-    async def list_inflight(self, *, before: str | None = None) -> list[dict[str, Any]]:
-        """Return persisted runs that are still ``pending`` or ``running``."""
-
-    @abc.abstractmethod
     async def aggregate_tokens_by_thread(self, thread_id: str, *, include_active: bool = False) -> dict[str, Any]:
         """Aggregate token usage for completed runs in a thread.
 

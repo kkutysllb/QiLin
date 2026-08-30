@@ -186,10 +186,6 @@ class Paths:
         """Legacy per-agent directory (no user isolation): `{base_dir}/agents/{name}/`."""
         return self.agents_dir / name.lower()
 
-    def agent_memory_file(self, name: str) -> Path:
-        """Legacy per-agent memory file: `{base_dir}/agents/{name}/memory.json`."""
-        return self.agent_dir(name) / "memory.json"
-
     def user_dir(self, user_id: str) -> Path:
         """Directory for a specific user: `{base_dir}/users/{user_id}/`."""
         return self.base_dir / "users" / _validate_user_id(user_id)
@@ -220,10 +216,6 @@ class Paths:
             logger.exception("Failed to migrate legacy unsafe-id user directory")
         return safe_user_id
 
-    def user_memory_file(self, user_id: str) -> Path:
-        """Per-user memory file: `{base_dir}/users/{user_id}/memory.json`."""
-        return self.user_dir(user_id) / "memory.json"
-
     def user_agents_dir(self, user_id: str) -> Path:
         """Per-user root for that user's custom agents: `{base_dir}/users/{user_id}/agents/`."""
         return self.user_dir(user_id) / "agents"
@@ -231,10 +223,6 @@ class Paths:
     def user_agent_dir(self, user_id: str, agent_name: str) -> Path:
         """Per-user per-agent directory: `{base_dir}/users/{user_id}/agents/{name}/`."""
         return self.user_agents_dir(user_id) / agent_name.lower()
-
-    def user_agent_memory_file(self, user_id: str, agent_name: str) -> Path:
-        """Per-user per-agent memory: `{base_dir}/users/{user_id}/agents/{name}/memory.json`."""
-        return self.user_agent_dir(user_id, agent_name) / "memory.json"
 
     def user_skills_dir(self, user_id: str) -> Path:
         """Per-user root for that user's custom skills: `{base_dir}/users/{user_id}/skills/`."""
@@ -352,10 +340,6 @@ class Paths:
     def host_acp_workspace_dir(self, thread_id: str, *, user_id: str | None = None) -> str:
         """Host path for the ACP workspace mount source."""
         return _join_host_path(self.host_thread_dir(thread_id, user_id=user_id), "acp-workspace")
-
-    def host_user_custom_skills_dir(self, user_id: str) -> str:
-        """Host path for a user's custom skills directory, preserving Windows path syntax."""
-        return _join_host_path(self._host_base_dir_str(), "users", _validate_user_id(user_id), "skills", "custom")
 
     def host_integration_skills_dir(self) -> str:
         """Host path for globally installed managed integration skills."""

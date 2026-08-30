@@ -50,11 +50,6 @@ def freeze_checkpoint_channel_mode(mode: CheckpointChannelMode) -> CheckpointCha
     return _frozen_checkpoint_channel_mode
 
 
-def frozen_checkpoint_snapshot_frequency() -> int | None:
-    """Return the process-frozen delta snapshot frequency, if already frozen."""
-    return _frozen_checkpoint_snapshot_frequency
-
-
 def freeze_checkpoint_snapshot_frequency(snapshot_frequency: int) -> int:
     """Freeze the delta snapshot cadence alongside the channel mode.
 

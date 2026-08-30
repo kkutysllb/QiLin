@@ -259,50 +259,6 @@ class FTS5Retrieval:
             )
             self._conn.commit()
 
-    def rebuild_from_facts(
-        self,
-        facts: list[dict[str, Any]],
-        *,
-        scope_user: str | None = None,
-        scope_agent: str | None = None,
-    ) -> None:
-        """Rebuild the entire index from a list of fact dicts."""
-        with self._lock:
-            conn = self._conn
-            try:
-                conn.execute("BEGIN")
-                conn.execute("DELETE FROM memory_fts")
-                for fact in facts:
-                    fact_id = fact.get("id", "")
-                    content = fact.get("content", "")
-                    if not fact_id or not isinstance(content, str) or not content:
-                        continue
-                    now = datetime.now(UTC).isoformat().replace("+00:00", "Z")
-                    conn.execute(
-                        """
-                        INSERT INTO memory_fts(
-                            doc_id, content, raw_content, category, scope_user, scope_agent,
-                            created_at, confidence, source, fact_json
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            fact_id,
-                            self._preprocess_content(content),
-                            content,
-                            fact.get("category", "context"),
-                            scope_user or "",
-                            scope_agent or "",
-                            fact.get("createdAt") or now,
-                            fact.get("confidence", 0.5),
-                            fact.get("source"),
-                            json.dumps(fact, ensure_ascii=False, default=str),
-                        ),
-                    )
-                conn.commit()
-            except Exception:
-                conn.rollback()
-                raise
-
     # ── Search ─────────────────────────────────────────────────────────
 
     def search(

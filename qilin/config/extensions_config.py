@@ -400,18 +400,6 @@ def reset_extensions_config() -> None:
     _extensions_config = None
 
 
-def set_extensions_config(config: ExtensionsConfig) -> None:
-    """Set a custom extensions config instance.
-
-    This allows injecting a custom or mock config for testing purposes.
-
-    Args:
-        config: The ExtensionsConfig instance to use.
-    """
-    global _extensions_config
-    _extensions_config = config
-
-
 def atomic_write_extensions_config(config_path: Path, config_data: dict[str, Any]) -> None:
     """Atomically write extensions config JSON to *config_path*.
 

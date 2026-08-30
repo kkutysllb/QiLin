@@ -443,15 +443,6 @@ class MemoryManager(BaseModel):
     ) -> None:
         return self.add(thread_id, messages, agent_name=agent_name, user_id=user_id, trace_id=trace_id)
 
-    async def aget_context(
-        self,
-        user_id: str | None,
-        *,
-        agent_name: str | None = None,
-        thread_id: str | None = None,
-    ) -> str:
-        return self.get_context(user_id, agent_name=agent_name, thread_id=thread_id)
-
     async def asearch(
         self,
         query: str,

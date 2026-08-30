@@ -308,17 +308,6 @@ async def _get_shared_page() -> Page:
         return state.page
 
 
-async def close_shared_browser() -> None:
-    """Close the shared browser explicitly (async shutdown path)."""
-    global _browser_state
-    state = _browser_state
-    if state is None:
-        return
-    await _retire_state(state)
-    if _browser_state is state:
-        _browser_state = None
-
-
 def _shutdown_shared_browser() -> None:
     """Close the shared Chromium at interpreter shutdown; never leak processes."""
     state = _browser_state

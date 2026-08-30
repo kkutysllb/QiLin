@@ -361,13 +361,6 @@ class RunManager:
             lambda: self._store.put(record.run_id, **self._store_put_payload(record)),
         )
 
-    async def _persist_to_store(self, record: RunRecord, *, error: str | None = None) -> bool:
-        """Best-effort persist run record to backing store."""
-        return await self._persist_snapshot_to_store(
-            record.run_id,
-            self._store_put_payload(record, error=error),
-        )
-
     async def _persist_status(self, record: RunRecord, status: RunStatus, *, error: str | None = None, stop_reason: str | None = None) -> bool:
         """Best-effort persist a status transition to the backing store."""
         if record.ownership_lost:
@@ -1046,18 +1039,6 @@ class RunManager:
             except TimeoutError:
                 continue
             return
-
-    async def has_later_run(self, thread_id: str, run_id: str) -> bool:
-        """Return whether a newer in-memory run has been admitted for the thread."""
-        async with self._lock:
-            seen_current = False
-            for record in self._thread_records_locked(thread_id):
-                if record.run_id == run_id:
-                    seen_current = True
-                    continue
-                if seen_current:
-                    return True
-        return False
 
     async def has_later_started_run(self, thread_id: str, run_id: str) -> bool:
         """Return whether a newer same-thread run may have already advanced state."""
@@ -1782,11 +1763,6 @@ class RunManager:
         if recovered:
             logger.warning("Recovered %d orphaned inflight run(s) as error", len(recovered))
         return recovered
-
-    async def has_inflight(self, thread_id: str) -> bool:
-        """Return ``True`` if *thread_id* has a pending or running run."""
-        async with self._lock:
-            return any(r.operation_kind == ThreadOperationKind.run and (r.status in (RunStatus.pending, RunStatus.running) or r.finalizing) for r in self._thread_records_locked(thread_id))
 
     async def cleanup(self, run_id: str, *, delay: float = 300) -> None:
         """Remove a run record after an optional delay."""

@@ -141,14 +141,6 @@ def prime_enabled_skills_cache() -> None:
     _ensure_enabled_skills_cache()
 
 
-def warm_enabled_skills_cache(timeout_seconds: float = _ENABLED_SKILLS_REFRESH_WAIT_TIMEOUT_SECONDS) -> bool:
-    if _ensure_enabled_skills_cache().wait(timeout=timeout_seconds):
-        return True
-
-    logger.warning("Timed out waiting %.1fs for enabled skills cache warm-up", timeout_seconds)
-    return False
-
-
 def _get_enabled_skills():
     return get_cached_enabled_skills()
 

@@ -385,10 +385,6 @@ class UserScopedSkillStorage(LocalSkillStorage):
         """Host path to this user's custom skills root directory."""
         return self._user_custom_root
 
-    def get_user_integrations_root(self) -> Path:
-        """Host path to this user's managed integration skills root directory."""
-        return self._integrations_root
-
     # ------------------------------------------------------------------
     # Path validation — accept per-user custom root as well as global root
     # ------------------------------------------------------------------

@@ -35,12 +35,6 @@ def get_checkpointer_config() -> CheckpointerConfig | None:
     return _checkpointer_config
 
 
-def set_checkpointer_config(config: CheckpointerConfig | None) -> None:
-    """Set the checkpointer configuration."""
-    global _checkpointer_config
-    _checkpointer_config = config
-
-
 def ensure_config_loaded() -> None:
     """Lazily load app config when checkpointer config has not been initialized."""
     from qilin.config.app_config import _app_config, get_app_config

@@ -27,8 +27,6 @@ prose.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
-
 #: The standardised prefix every restart-required field description starts
 #: with. ``test_reload_boundary`` enforces both directions: registered
 #: fields must use this prefix in the schema, and any schema field using
@@ -78,21 +76,6 @@ STARTUP_ONLY_FIELDS: dict[str, str] = {
         "(in-process memory or shared Postgres) is captured onto ChannelManager and is not rebuilt on config.yaml edits."
     ),
 }
-
-
-def iter_startup_only_field_paths() -> Iterator[str]:
-    """Yield every registered restart-required field path."""
-    return iter(STARTUP_ONLY_FIELDS)
-
-
-def is_startup_only_field(field_path: str) -> bool:
-    """Return ``True`` when *field_path* is registered as restart-required.
-
-    Accepts only top-level paths (``"database"``, ``"sandbox"`` etc.);
-    nested keys like ``"database.url"`` are not modelled here because the
-    boundary is per-section, not per-leaf.
-    """
-    return field_path in STARTUP_ONLY_FIELDS
 
 
 def format_field_description(field_path: str, *, field_doc: str | None = None) -> str:

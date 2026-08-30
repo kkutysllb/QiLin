@@ -35,22 +35,8 @@ class AuthorizationConfig(BaseModel):
 _authorization_config: AuthorizationConfig | None = None
 
 
-def get_authorization_config() -> AuthorizationConfig:
-    """Get the authorization config, returning defaults if not loaded."""
-    global _authorization_config
-    if _authorization_config is None:
-        _authorization_config = AuthorizationConfig()
-    return _authorization_config
-
-
 def load_authorization_config_from_dict(data: dict) -> AuthorizationConfig:
     """Load authorization config from a dict (called during AppConfig loading)."""
     global _authorization_config
     _authorization_config = AuthorizationConfig.model_validate(data)
     return _authorization_config
-
-
-def reset_authorization_config() -> None:
-    """Reset the cached config instance. Used in tests to prevent singleton leaks."""
-    global _authorization_config
-    _authorization_config = None

@@ -170,28 +170,6 @@ def reset_skill_storage() -> None:
         _user_scoped_storages.clear()
 
 
-def reset_user_skill_storage(user_id: str | None = None) -> None:
-    """Clear per-user skill storage cache for a specific user, or all users.
-
-    ``user_id`` is normalised via :func:`make_safe_user_id` so that the
-    cache key matches the one used by :func:`get_or_new_user_skill_storage`.
-    Without normalisation, IM-channel user IDs (e.g. ``feishu:xxx``) would
-    fail to clear their stale cache entries.
-
-    Args:
-        user_id: If provided, remove only that user's cached storage.
-            If ``None``, clear the entire per-user cache.
-    """
-    from qilin.config.paths import make_safe_user_id
-
-    with _user_scoped_storage_lock:
-        if user_id is not None:
-            safe_id = make_safe_user_id(user_id)
-            _user_scoped_storages.pop(safe_id, None)
-        else:
-            _user_scoped_storages.clear()
-
-
 __all__ = [
     "LocalSkillStorage",
     "SkillStorage",
@@ -199,6 +177,5 @@ __all__ = [
     "get_or_new_skill_storage",
     "get_or_new_user_skill_storage",
     "reset_skill_storage",
-    "reset_user_skill_storage",
     "user_should_see_legacy_skills",
 ]

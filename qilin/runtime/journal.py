@@ -849,18 +849,6 @@ class RunJournal(BaseCallbackHandler):
                 by_tool.setdefault(tool_name, []).append(path)
         return {"presented": len(paths), "paths": paths, "by_tool": by_tool}
 
-    def record_delivery(self) -> None:
-        """Buffer the terminal ``run.delivery`` event for this run (#4272 slice 1).
-
-        Kept for direct journal users. The worker uses the event store's
-        idempotent singleton write so crash recovery can safely backfill it.
-        """
-        self._put(
-            event_type="run.delivery",
-            category="outputs",
-            content=self.get_delivery_content(),
-        )
-
     async def flush(self) -> None:
         """Force flush remaining buffer. Called in worker's finally block."""
         if self._pending_flush_tasks:

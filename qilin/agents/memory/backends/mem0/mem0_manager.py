@@ -211,20 +211,6 @@ class Mem0Manager(MemoryManager):
             context = context[: self._config.max_injection_chars]
         return context
 
-    async def aget_context(
-        self,
-        user_id: str | None,
-        *,
-        agent_name: str | None = None,
-        thread_id: str | None = None,
-    ) -> str:
-        return await asyncio.to_thread(
-            self.get_context,
-            user_id,
-            agent_name=agent_name,
-            thread_id=thread_id,
-        )
-
     # ── Tier 2: search ───────────────────────────────────────────────────
     def search(
         self,

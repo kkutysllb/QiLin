@@ -20,12 +20,6 @@ def get_agents_api_config() -> AgentsApiConfig:
     return _agents_api_config
 
 
-def set_agents_api_config(config: AgentsApiConfig) -> None:
-    """Set the agents API configuration."""
-    global _agents_api_config
-    _agents_api_config = config
-
-
 def load_agents_api_config_from_dict(config_dict: dict) -> None:
     """Load agents API configuration from a dictionary."""
     global _agents_api_config

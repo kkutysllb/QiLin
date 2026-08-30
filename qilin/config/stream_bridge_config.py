@@ -58,12 +58,6 @@ def get_stream_bridge_config() -> StreamBridgeConfig | None:
     return _stream_bridge_config
 
 
-def set_stream_bridge_config(config: StreamBridgeConfig | None) -> None:
-    """Set the stream bridge configuration."""
-    global _stream_bridge_config
-    _stream_bridge_config = config
-
-
 def load_stream_bridge_config_from_dict(config_dict: dict | None) -> None:
     """Load stream bridge configuration from a dictionary."""
     global _stream_bridge_config

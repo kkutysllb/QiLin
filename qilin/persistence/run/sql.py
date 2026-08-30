@@ -312,38 +312,6 @@ class RunRepository(RunStore):
             await session.commit()
             return cast(CursorResult[Any], result).rowcount or 0
 
-    async def list_pending(self, *, before=None):
-        if before is None:
-            before_dt = datetime.now(UTC)
-        elif isinstance(before, datetime):
-            before_dt = before
-        else:
-            before_dt = datetime.fromisoformat(before)
-        stmt = select(RunRow).where(RunRow.operation_kind == "run", RunRow.status == "pending", RunRow.created_at <= before_dt).order_by(RunRow.created_at.asc())
-        async with self._sf() as session:
-            result = await session.execute(stmt)
-            return [self._row_to_dict(r) for r in result.scalars()]
-
-    async def list_inflight(self, *, before=None):
-        """Return persisted active runs for startup recovery."""
-        if before is None:
-            before_dt = datetime.now(UTC)
-        elif isinstance(before, datetime):
-            before_dt = before
-        else:
-            before_dt = datetime.fromisoformat(before)
-        stmt = (
-            select(RunRow)
-            .where(
-                RunRow.status.in_(("pending", "running")),
-                RunRow.created_at <= before_dt,
-            )
-            .order_by(RunRow.created_at.asc())
-        )
-        async with self._sf() as session:
-            result = await session.execute(stmt)
-            return [self._row_to_dict(r) for r in result.scalars()]
-
     async def update_run_completion(
         self,
         run_id: str,

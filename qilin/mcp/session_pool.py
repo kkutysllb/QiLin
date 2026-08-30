@@ -370,30 +370,6 @@ class MCPSessionPool:
                 except RuntimeError:
                     pass
 
-    async def close_scope(self, scope_key: str) -> None:
-        """Close all sessions for a given scope (e.g. thread_id)."""
-        with self._lock:
-            keys = [k for k in self._entries if k[1] == scope_key]
-            entries = [(self._entries.pop(k)) for k in keys]
-            inflight_keys = [k for k in self._inflight if k[1] == scope_key]
-            inflight = [self._inflight.pop(k) for k in inflight_keys]
-        for _session, loop, task, close_evt in entries:
-            await self._shutdown_entry(loop, task, close_evt)
-        for loop, _ready, task, close_evt in inflight:
-            await self._shutdown_entry(loop, task, close_evt, cancel=True)
-
-    async def close_server(self, server_name: str) -> None:
-        """Close all sessions for a given server."""
-        with self._lock:
-            keys = [k for k in self._entries if k[0] == server_name]
-            entries = [(self._entries.pop(k)) for k in keys]
-            inflight_keys = [k for k in self._inflight if k[0] == server_name]
-            inflight = [self._inflight.pop(k) for k in inflight_keys]
-        for _session, loop, task, close_evt in entries:
-            await self._shutdown_entry(loop, task, close_evt)
-        for loop, _ready, task, close_evt in inflight:
-            await self._shutdown_entry(loop, task, close_evt, cancel=True)
-
     async def close_all(self) -> None:
         """Close every managed session."""
         with self._lock:

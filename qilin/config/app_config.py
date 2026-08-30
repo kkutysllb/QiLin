@@ -675,7 +675,6 @@ _app_config_mtime: float | None = None
 _app_config_signature: _ConfigSignature | None = None
 _app_config_is_custom = False
 _current_app_config: ContextVar[AppConfig | None] = ContextVar("qilin_current_app_config", default=None)
-_current_app_config_stack: ContextVar[tuple[AppConfig | None, ...]] = ContextVar("qilin_current_app_config_stack", default=())
 
 
 def _get_config_mtime(config_path: Path) -> float | None:
@@ -764,42 +763,3 @@ def reset_app_config() -> None:
     _app_config_mtime = None
     _app_config_signature = None
     _app_config_is_custom = False
-
-
-def set_app_config(config: AppConfig) -> None:
-    """Set a custom config instance.
-
-    This allows injecting a custom or mock config for testing purposes.
-
-    Args:
-        config: The AppConfig instance to use.
-    """
-    global _app_config, _app_config_path, _app_config_mtime, _app_config_signature, _app_config_is_custom
-    _app_config = config
-    _app_config_path = None
-    _app_config_mtime = None
-    _app_config_signature = None
-    _app_config_is_custom = True
-
-
-def peek_current_app_config() -> AppConfig | None:
-    """Return the runtime-scoped AppConfig override, if one is active."""
-    return _current_app_config.get()
-
-
-def push_current_app_config(config: AppConfig) -> None:
-    """Push a runtime-scoped AppConfig override for the current execution context."""
-    stack = _current_app_config_stack.get()
-    _current_app_config_stack.set((*stack, _current_app_config.get()))
-    _current_app_config.set(config)
-
-
-def pop_current_app_config() -> None:
-    """Pop the latest runtime-scoped AppConfig override for the current execution context."""
-    stack = _current_app_config_stack.get()
-    if not stack:
-        _current_app_config.set(None)
-        return
-    previous = stack[-1]
-    _current_app_config_stack.set(stack[:-1])
-    _current_app_config.set(previous)

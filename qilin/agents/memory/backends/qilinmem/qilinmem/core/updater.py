@@ -1263,36 +1263,6 @@ class MemoryUpdater:
             expected_revision=int(current_memory.get("revision") or 0),
         )
 
-    async def aupdate_memory(
-        self,
-        messages: list[Any],
-        thread_id: str | None = None,
-        agent_name: str | None = None,
-        signals: frozenset[str] = frozenset(),
-        user_id: str | None = None,
-        trace_id: str | None = None,
-        *,
-        bypass_watermark: bool = False,
-    ) -> bool:
-        """Update memory asynchronously by delegating to the sync path.
-
-        Uses ``asyncio.to_thread`` to run the *sync* ``model.invoke()`` path
-        in a worker thread so no second event loop is created and the
-        langchain async httpx client pool (shared with the lead agent) is
-        never touched.  This eliminates the cross-loop connection-reuse bug
-        described in issue #2615.
-        """
-        return await asyncio.to_thread(
-            self._do_update_memory_sync,
-            messages=messages,
-            thread_id=thread_id,
-            agent_name=agent_name,
-            signals=signals,
-            user_id=user_id,
-            trace_id=trace_id,
-            bypass_watermark=bypass_watermark,
-        )
-
     def _do_update_memory_sync(
         self,
         messages: list[Any],

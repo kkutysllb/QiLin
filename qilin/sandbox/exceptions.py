@@ -29,21 +29,6 @@ class SandboxRuntimeError(SandboxError):
     """Raised when sandbox runtime is not available or misconfigured."""
 
 
-
-class SandboxCommandError(SandboxError):
-    """Raised when a command execution fails in the sandbox."""
-
-    def __init__(self, message: str, command: str | None = None, exit_code: int | None = None):
-        details: dict[str, object] = {}
-        if command:
-            details["command"] = command[:100] + "..." if len(command) > 100 else command
-        if exit_code is not None:
-            details["exit_code"] = exit_code
-        super().__init__(message, details)
-        self.command = command
-        self.exit_code = exit_code
-
-
 class SandboxFileError(SandboxError):
     """Raised when a file operation fails in the sandbox."""
 
@@ -56,16 +41,6 @@ class SandboxFileError(SandboxError):
         super().__init__(message, details)
         self.path = path
         self.operation = operation
-
-
-class SandboxPermissionError(SandboxFileError):
-    """Raised when a permission error occurs during file operations."""
-
-
-
-class SandboxFileNotFoundError(SandboxFileError):
-    """Raised when a file or directory is not found."""
-
 
 
 class SandboxCapacityExceededError(SandboxError):

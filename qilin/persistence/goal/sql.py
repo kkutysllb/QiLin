@@ -231,9 +231,6 @@ class GoalRepository:
         goal_head = next((r for r in rows if r.operation != "round"), None)
         return goal_head, rounds
 
-    def _rounds_guard_ok(self, head: GoalChangeRow | None) -> bool:
-        return head is not None and head.operation != "clear"
-
     async def _append(
         self,
         thread_id: str,

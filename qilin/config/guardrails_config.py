@@ -27,22 +27,8 @@ class GuardrailsConfig(BaseModel):
 _guardrails_config: GuardrailsConfig | None = None
 
 
-def get_guardrails_config() -> GuardrailsConfig:
-    """Get the guardrails config, returning defaults if not loaded."""
-    global _guardrails_config
-    if _guardrails_config is None:
-        _guardrails_config = GuardrailsConfig()
-    return _guardrails_config
-
-
 def load_guardrails_config_from_dict(data: dict) -> GuardrailsConfig:
     """Load guardrails config from a dict (called during AppConfig loading)."""
     global _guardrails_config
     _guardrails_config = GuardrailsConfig.model_validate(data)
     return _guardrails_config
-
-
-def reset_guardrails_config() -> None:
-    """Reset the cached config instance. Used in tests to prevent singleton leaks."""
-    global _guardrails_config
-    _guardrails_config = None

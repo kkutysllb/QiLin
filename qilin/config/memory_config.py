@@ -154,12 +154,6 @@ def get_memory_config() -> MemoryConfig:
     return _memory_config
 
 
-def set_memory_config(config: MemoryConfig) -> None:
-    """Set the memory configuration."""
-    global _memory_config
-    _memory_config = config
-
-
 def load_memory_config_from_dict(config_dict: dict) -> None:
     """Load memory configuration from a dictionary.
 

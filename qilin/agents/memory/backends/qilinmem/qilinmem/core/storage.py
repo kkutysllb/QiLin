@@ -1317,28 +1317,6 @@ class FileMemoryStorage(MemoryStorage):
             "deletedFactIds": [str(value) for action, value, _ in notifications if action == "remove"],
         }
 
-    def upsert_fact(
-        self,
-        fact: dict[str, Any],
-        *,
-        user_id: str | None = None,
-        agent_name: str | None = None,
-        expected_manifest_revision: int | None = None,
-        expected_fact_revision: int | None = None,
-    ) -> dict[str, Any]:
-        if agent_name is None:
-            raise ValueError("agent_name is required to upsert a fact")
-        incoming = copy.deepcopy(fact)
-        incoming["id"] = str(incoming.get("id") or f"fact_{uuid.uuid4().hex}")
-        fact_id = incoming["id"]
-        return self.apply_changes(
-            {"upserts": [incoming], "upsertRevisions": {fact_id: expected_fact_revision}},
-            user_id=user_id,
-            agent_name=agent_name,
-            expected_manifest_revision=expected_manifest_revision,
-            allow_manifest_rebase=True,
-        )
-
     def delete_fact(
         self,
         fact_id: str,
@@ -1361,42 +1339,11 @@ class FileMemoryStorage(MemoryStorage):
             allow_manifest_rebase=True,
         )
 
-    def get_summaries(
-        self,
-        *,
-        user_id: str | None = None,
-        agent_name: str | None = None,
-    ) -> dict[str, Any]:
-        document = self.load(agent_name, user_id=user_id)
-        return {"user": copy.deepcopy(document.get("user", {})), "history": copy.deepcopy(document.get("history", {})), "revision": document.get("revision", 0)}
-
-    def update_summaries(
-        self,
-        summaries: dict[str, Any],
-        *,
-        user_id: str | None = None,
-        agent_name: str | None = None,
-        expected_revision: int | None = None,
-    ) -> dict[str, Any]:
-        # Summaries are always user-global, never agent-specific.
-        document = self.load(user_id=user_id)
-        document.update({key: copy.deepcopy(value) for key, value in summaries.items() if key in {"user", "history"}})
-        expected = int(document.get("revision") or 0) if expected_revision is None else expected_revision
-        if not self.save(document, user_id=user_id, expected_revision=expected):
-            raise MemoryStorageError("Failed to update global memory summaries")
-        return self.reload(user_id=user_id)
-
     def notify_fact_upsert(self, fact: dict[str, Any], *, path: str = "") -> bool:
         if self._retrieval is None:
             return False
         scope = fact.get("scope") if isinstance(fact.get("scope"), dict) else {}
         self._retrieval.upsert(copy.deepcopy(fact), scope=copy.deepcopy(scope), path=path)
-        return True
-
-    def notify_fact_remove(self, fact_id: str, *, scope: dict[str, str | None]) -> bool:
-        if self._retrieval is None:
-            return False
-        self._retrieval.remove(fact_id, scope=copy.deepcopy(scope))
         return True
 
     def search_facts(

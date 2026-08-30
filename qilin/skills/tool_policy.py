@@ -49,17 +49,3 @@ def allowed_tool_names_for_skills(skills: list[Skill]) -> set[str] | None:
     if not has_explicit_declaration:
         return None
     return allowed
-
-
-def filter_tools_by_skill_allowed_tools[ToolT: NamedTool](
-    tools: list[ToolT],
-    skills: list[Skill],
-    *,
-    always_allowed_tool_names: set[str] | frozenset[str] = frozenset(),
-) -> list[ToolT]:
-    allowed = allowed_tool_names_for_skills(skills)
-    if allowed is None:
-        return tools
-
-    allowed_with_framework_tools = allowed | set(always_allowed_tool_names)
-    return [tool for tool in tools if tool.name in allowed_with_framework_tools]

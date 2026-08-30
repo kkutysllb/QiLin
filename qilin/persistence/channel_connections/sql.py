@@ -319,34 +319,6 @@ class ChannelConnectionRepository:
     def hash_state(state: str) -> str:
         return hashlib.sha256(state.encode("utf-8")).hexdigest()
 
-    async def create_oauth_state(
-        self,
-        *,
-        owner_user_id: str,
-        provider: str,
-        state: str,
-        expires_at: datetime,
-        code_verifier: str | None = None,
-        nonce_hash: str | None = None,
-        redirect_after: str | None = None,
-        requested_scopes: list[str] | None = None,
-        metadata: dict[str, Any] | None = None,
-    ) -> None:
-        row = ChannelOAuthStateRow(
-            state_hash=self.hash_state(state),
-            owner_user_id=owner_user_id,
-            provider=provider,
-            code_verifier_encrypted=self._encrypt_optional_secret(code_verifier),
-            nonce_hash=nonce_hash,
-            redirect_after=redirect_after,
-            requested_scopes_json=list(requested_scopes or []),
-            metadata_json=dict(metadata or {}),
-            expires_at=expires_at,
-        )
-        async with self.session_factory() as session:
-            session.add(row)
-            await session.commit()
-
     async def create_oauth_state_within_cap(
         self,
         *,
@@ -456,35 +428,6 @@ class ChannelConnectionRepository:
             )
             await session.commit()
             return int(cast("CursorResult[Any]", result).rowcount or 0)
-
-    async def count_oauth_states(
-        self,
-        *,
-        owner_user_id: str,
-        provider: str,
-        active_only: bool = False,
-        now: datetime | None = None,
-    ) -> int:
-        current_time = now or datetime.now(UTC)
-        conditions = [
-            ChannelOAuthStateRow.owner_user_id == owner_user_id,
-            ChannelOAuthStateRow.provider == provider,
-        ]
-        if active_only:
-            conditions.extend(
-                [
-                    ChannelOAuthStateRow.consumed_at.is_(None),
-                    ChannelOAuthStateRow.expires_at >= current_time,
-                ]
-            )
-
-        async with self.session_factory() as session:
-            result = await session.execute(
-                select(func.count())
-                .select_from(ChannelOAuthStateRow)
-                .where(*conditions)
-            )
-            return int(result.scalar_one())
 
     async def consume_oauth_state(
         self,

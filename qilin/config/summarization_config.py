@@ -65,17 +65,6 @@ class SummarizationConfig(BaseModel):
 _summarization_config: SummarizationConfig = SummarizationConfig()
 
 
-def get_summarization_config() -> SummarizationConfig:
-    """Get the current summarization configuration."""
-    return _summarization_config
-
-
-def set_summarization_config(config: SummarizationConfig) -> None:
-    """Set the summarization configuration."""
-    global _summarization_config
-    _summarization_config = config
-
-
 def load_summarization_config_from_dict(config_dict: dict) -> None:
     """Load summarization configuration from a dictionary."""
     global _summarization_config

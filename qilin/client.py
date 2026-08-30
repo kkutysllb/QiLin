@@ -22,7 +22,6 @@ import json
 import logging
 import mimetypes
 import os
-import shutil
 import tempfile
 import uuid
 from collections.abc import Generator, Mapping, Sequence
@@ -59,7 +58,6 @@ from qilin.config.extensions_config import (
 )
 from qilin.config.paths import get_paths
 from qilin.models import create_chat_model
-from qilin.runtime import CheckpointStateAccessor
 from qilin.runtime.checkpoint_mode import (
     ensure_checkpoint_mode_compatible,
     freeze_checkpoint_channel_mode,
@@ -90,14 +88,9 @@ from qilin.trace_context import (
 )
 from qilin.tracing import build_tracing_callbacks, inject_langfuse_metadata
 from qilin.uploads.manager import (
-    claim_unique_filename,
-    delete_file_safe,
     enrich_file_listing,
-    ensure_uploads_dir,
     get_uploads_dir,
     list_files_in_dir,
-    upload_artifact_url,
-    upload_virtual_path,
 )
 
 logger = logging.getLogger(__name__)
@@ -654,53 +647,6 @@ class QiLinClient:
 
         return {"thread_list": threads[:limit]}
 
-    def get_thread(self, thread_id: str) -> dict:
-        """Get the complete materialized checkpoint history for a thread."""
-        checkpointer = self._get_thread_checkpointer()
-        config = self._get_runnable_config(thread_id)
-        self._ensure_agent(config)
-        if self._agent is None:
-            raise RuntimeError("Agent was not initialized")
-
-        accessor = CheckpointStateAccessor.bind(
-            self._agent,
-            checkpointer,
-            mode=self._checkpoint_channel_mode,
-        )
-        # One streaming walk collects pending_writes per checkpoint id; a
-        # per-snapshot get_tuple would cost one round-trip per checkpoint.
-        pending_writes_by_checkpoint: dict[str, list] = {}
-        for raw_tuple in checkpointer.list(config):
-            raw_checkpoint_id = raw_tuple.config.get("configurable", {}).get("checkpoint_id")
-            if raw_checkpoint_id:
-                pending_writes_by_checkpoint[raw_checkpoint_id] = list(getattr(raw_tuple, "pending_writes", ()) or ())
-
-        checkpoints = []
-        for snapshot in accessor.history(config):
-            values = dict(snapshot.values or {})
-            if "messages" in values:
-                values["messages"] = [self._serialize_message(message) if hasattr(message, "content") else message for message in values["messages"]]
-
-            snapshot_config = snapshot.config or {}
-            configurable = snapshot_config.get("configurable", {})
-            parent_config = snapshot.parent_config or {}
-            parent_configurable = parent_config.get("configurable", {})
-            pending_writes = pending_writes_by_checkpoint.get(configurable.get("checkpoint_id"), [])
-
-            checkpoints.append(
-                {
-                    "checkpoint_id": configurable.get("checkpoint_id"),
-                    "parent_checkpoint_id": parent_configurable.get("checkpoint_id"),
-                    "ts": snapshot.created_at,
-                    "metadata": snapshot.metadata,
-                    "values": values,
-                    "pending_writes": [{"task_id": write[0], "channel": write[1], "value": write[2]} for write in pending_writes],
-                }
-            )
-
-        checkpoints.sort(key=lambda checkpoint: checkpoint["ts"] or "")
-        return {"thread_id": thread_id, "checkpoints": checkpoints}
-
     # ------------------------------------------------------------------
     # Public API — conversation
     # ------------------------------------------------------------------
@@ -1201,28 +1147,6 @@ class QiLinClient:
 
         return get_memory_manager().import_memory(memory_data, user_id=get_effective_user_id())
 
-    def get_model(self, name: str) -> dict | None:
-        """Get a specific model's configuration by name.
-
-        Args:
-            name: Model name.
-
-        Returns:
-            Model info dict matching the Gateway API ``ModelResponse``
-            schema, or None if not found.
-        """
-        model = self._app_config.get_model_config(name)
-        if model is None:
-            return None
-        return {
-            "name": model.name,
-            "model": getattr(model, "model", None),
-            "display_name": getattr(model, "display_name", None),
-            "description": getattr(model, "description", None),
-            "supports_thinking": getattr(model, "supports_thinking", False),
-            "supports_reasoning_effort": getattr(model, "supports_reasoning_effort", False),
-        }
-
     # ------------------------------------------------------------------
     # Public API — MCP configuration
     # ------------------------------------------------------------------
@@ -1237,62 +1161,9 @@ class QiLinClient:
         config = get_extensions_config()
         return {"mcp_servers": {name: server.model_dump() for name, server in config.mcp_servers.items()}}
 
-    def update_mcp_config(self, mcp_servers: dict[str, dict]) -> dict:
-        """Update MCP server configurations.
-
-        Writes to extensions_config.json and reloads the cache.
-
-        Args:
-            mcp_servers: Dict mapping server name to config dict.
-                Each value should contain keys like enabled, type, command, args, env, url, etc.
-
-        Returns:
-            Dict with "mcp_servers" key, matching the Gateway API
-            ``McpConfigResponse`` schema.
-
-        Raises:
-            OSError: If the config file cannot be written.
-        """
-        config_path = ExtensionsConfig.resolve_config_path()
-        if config_path is None:
-            raise FileNotFoundError("Cannot locate extensions_config.json. Set QILIN_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
-
-        current_config = get_extensions_config()
-
-        config_data = current_config.to_file_dict()
-        config_data["mcpServers"] = mcp_servers
-
-        self._atomic_write_json(config_path, config_data)
-
-        self._agent = None
-        self._agent_config_key = None
-        reloaded = reload_extensions_config()
-        return {"mcp_servers": {name: server.model_dump() for name, server in reloaded.mcp_servers.items()}}
-
     # ------------------------------------------------------------------
     # Public API — skills management
     # ------------------------------------------------------------------
-
-    def get_skill(self, name: str) -> dict | None:
-        """Get a specific skill by name.
-
-        Args:
-            name: Skill name.
-
-        Returns:
-            Skill info dict, or None if not found.
-        """
-        storage = get_or_new_user_skill_storage(get_effective_user_id(), app_config=self._app_config)
-        skill = next((s for s in storage.load_skills(enabled_only=False) if s.name == name), None)
-        if skill is None:
-            return None
-        return {
-            "name": skill.name,
-            "description": skill.description,
-            "license": skill.license,
-            "category": skill.category,
-            "enabled": skill.enabled,
-        }
 
     def update_skill(self, name: str, *, enabled: bool) -> dict:
         """Update a skill's enabled status.
@@ -1387,21 +1258,6 @@ class QiLinClient:
             "enabled": updated.enabled,
         }
 
-    def install_skill(self, skill_path: str | Path) -> dict:
-        """Install a skill from a .skill archive (ZIP).
-
-        Args:
-            skill_path: Path to the .skill file.
-
-        Returns:
-            Dict with success, skill_name, message.
-
-        Raises:
-            FileNotFoundError: If the file does not exist.
-            ValueError: If the file is invalid.
-        """
-        return get_or_new_user_skill_storage(get_effective_user_id(), app_config=self._app_config).install_skill_from_archive(skill_path)
-
     # ------------------------------------------------------------------
     # Public API — memory management
     # ------------------------------------------------------------------
@@ -1490,133 +1346,9 @@ class QiLinClient:
             "backend_config": config.backend_config,
         }
 
-    def get_memory_status(self) -> dict:
-        """Get memory status: config + current data.
-
-        Returns:
-            Dict with "config" and "data" keys.
-        """
-        return {
-            "config": self.get_memory_config(),
-            "data": self.get_memory(),
-        }
-
     # ------------------------------------------------------------------
     # Public API — file uploads
     # ------------------------------------------------------------------
-
-    def upload_files(self, thread_id: str, files: list[str | Path]) -> dict:
-        """Upload local files into a thread's uploads directory.
-
-        For PDF, PPT, Excel, and Word files, they are also converted to Markdown.
-
-        Args:
-            thread_id: Target thread ID.
-            files: List of local file paths to upload.
-
-        Returns:
-            Dict with success, files, message — matching the Gateway API
-            ``UploadResponse`` schema.
-
-        Raises:
-            FileNotFoundError: If any file does not exist.
-            ValueError: If any supplied path exists but is not a regular file.
-        """
-        from qilin.utils.file_conversion import (
-            CONVERTIBLE_EXTENSIONS,
-            convert_file_to_markdown,
-        )
-
-        # Validate all files upfront to avoid partial uploads.
-        resolved_files = []
-        seen_names: set[str] = set()
-        has_convertible_file = False
-        for f in files:
-            p = Path(f)
-            if not p.exists():
-                raise FileNotFoundError(f"File not found: {f}")
-            if not p.is_file():
-                raise ValueError(f"Path is not a file: {f}")
-            dest_name = claim_unique_filename(p.name, seen_names)
-            resolved_files.append((p, dest_name))
-            if not has_convertible_file and p.suffix.lower() in CONVERTIBLE_EXTENSIONS:
-                has_convertible_file = True
-
-        uploads_dir = ensure_uploads_dir(thread_id)
-        uploaded_files: list[dict] = []
-
-        conversion_pool = None
-        if has_convertible_file:
-            try:
-                asyncio.get_running_loop()
-            except RuntimeError:
-                conversion_pool = None
-            else:
-                import concurrent.futures
-
-                # Reuse one worker when already inside an event loop to avoid
-                # creating a new ThreadPoolExecutor per converted file.
-                conversion_pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-
-        def _convert_in_thread(path: Path, output_path: Path | None = None):
-            return asyncio.run(convert_file_to_markdown(path, output_path=output_path))
-
-        try:
-            for src_path, dest_name in resolved_files:
-                dest = uploads_dir / dest_name
-                shutil.copy2(src_path, dest)
-
-                info: dict[str, Any] = {
-                    "filename": dest_name,
-                    "size": dest.stat().st_size,
-                    "path": str(dest),
-                    "virtual_path": upload_virtual_path(dest_name),
-                    "artifact_url": upload_artifact_url(thread_id, dest_name),
-                }
-                if dest_name != src_path.name:
-                    info["original_filename"] = src_path.name
-
-                if src_path.suffix.lower() in CONVERTIBLE_EXTENSIONS:
-                    # Reserve companion .md name before convert so two stems
-                    # that collapse to the same .md (or a prior .md upload)
-                    # cannot silently overwrite each other.
-                    provisional_md_name = Path(dest_name).with_suffix(".md").name
-                    unique_md_name = claim_unique_filename(provisional_md_name, seen_names)
-                    md_output = dest.with_name(unique_md_name)
-                    try:
-                        if conversion_pool is not None:
-                            md_path = conversion_pool.submit(_convert_in_thread, dest, md_output).result()
-                        else:
-                            md_path = asyncio.run(convert_file_to_markdown(dest, output_path=md_output))
-                    except Exception:
-                        logger.warning(
-                            "Failed to convert %s to markdown",
-                            src_path.name,
-                            exc_info=True,
-                        )
-                        md_path = None
-
-                    if md_path is not None:
-                        info["markdown_file"] = md_path.name
-                        info["markdown_path"] = str(uploads_dir / md_path.name)
-                        info["markdown_virtual_path"] = upload_virtual_path(md_path.name)
-                        info["markdown_artifact_url"] = upload_artifact_url(thread_id, md_path.name)
-                    else:
-                        # Conversion failed and wrote nothing, so release the
-                        # claim; holding it would rename a later same-stem
-                        # upload against a name nothing occupies.
-                        seen_names.discard(unique_md_name)
-
-                uploaded_files.append(info)
-        finally:
-            if conversion_pool is not None:
-                conversion_pool.shutdown(wait=True)
-
-        return {
-            "success": True,
-            "files": uploaded_files,
-            "message": f"Successfully uploaded {len(uploaded_files)} file(s)",
-        }
 
     def list_uploads(self, thread_id: str) -> dict:
         """List files in a thread's uploads directory.
@@ -1631,26 +1363,6 @@ class QiLinClient:
         uploads_dir = get_uploads_dir(thread_id)
         result = list_files_in_dir(uploads_dir)
         return enrich_file_listing(result, thread_id)
-
-    def delete_upload(self, thread_id: str, filename: str) -> dict:
-        """Delete a file from a thread's uploads directory.
-
-        Args:
-            thread_id: Thread ID.
-            filename: Filename to delete.
-
-        Returns:
-            Dict with success and message, matching the Gateway API
-            ``delete_uploaded_file`` response.
-
-        Raises:
-            FileNotFoundError: If the file does not exist.
-            PermissionError: If path traversal is detected.
-        """
-        from qilin.utils.file_conversion import CONVERTIBLE_EXTENSIONS
-
-        uploads_dir = get_uploads_dir(thread_id)
-        return delete_file_safe(uploads_dir, filename, convertible_extensions=CONVERTIBLE_EXTENSIONS)
 
     # ------------------------------------------------------------------
     # Public API — artifacts

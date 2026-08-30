@@ -198,15 +198,3 @@ def is_monocle_tracing_enabled() -> bool:
     callback.
     """
     return get_tracing_config().monocle.is_enabled
-
-
-def reset_tracing_config() -> None:
-    """Discard the cached :class:`TracingConfig` so the next call rebuilds it.
-
-    Public API so that tests do not have to reach into the private
-    ``_tracing_config`` module attribute. A future internal rename would
-    silently break callers that mutate the attribute directly.
-    """
-    global _tracing_config
-    with _config_lock:
-        _tracing_config = None

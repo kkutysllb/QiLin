@@ -309,27 +309,6 @@ class WorkspaceRepository:
                 by_id[tid].position = new_pos
             await session.commit()
 
-    # (delete path mirrors detach above but for whole-table sweeps)
-    async def _prune_account(self, workspace_id: str, live_thread_ids: set[str], *,
-                             user_id: str) -> None:
-        """Drop accounted ids whose thread header vanished (filtered-candidate
-        prune, DSH alignment: every accepted workspace mutation prunes)."""
-        ws = await self.get(workspace_id, user_id=user_id)
-        if ws is None:
-            raise WorkspaceError("WORKSPACE_NOT_FOUND", f"unknown workspace {workspace_id}")
-        accounted = await self.session_account(workspace_id, user_id=user_id)
-        stale = [tid for tid in accounted if tid not in live_thread_ids]
-        if not stale:
-            return
-        async with self._sf() as session:
-            await session.execute(
-                delete(WorkspaceSessionRow).where(
-                    WorkspaceSessionRow.workspace_id == workspace_id,
-                    WorkspaceSessionRow.thread_id.in_(stale),
-                )
-            )
-            await session.commit()
-
     async def detach_thread(self, workspace_id: str, thread_id: str, *, user_id: str) -> None:
         """Idempotent removal from the account; never touches thread data."""
         async with self._sf() as session:
