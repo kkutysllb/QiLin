@@ -19,58 +19,26 @@ export const enUS: Translations = {
 
   // Common
   common: {
-    home: "Home",
     settings: "Settings",
     delete: "Delete",
-    edit: "Edit",
     rename: "Rename",
     share: "Share",
     openInNewWindow: "Open in new window",
     close: "Close",
     more: "More",
-    search: "Search",
     loadMore: "Load more",
     download: "Download",
     thinking: "Thinking",
     artifacts: "Artifacts",
-    public: "Public",
-    custom: "Custom",
-    builtin: "Builtin",
-    locked: "Locked",
     notAvailableInDemoMode: "Not available in demo mode",
     loading: "Loading...",
-    version: "Version",
-    all: "All",
-    lastUpdated: "Last updated",
-    code: "Code",
-    preview: "Preview",
     cancel: "Cancel",
     save: "Save",
     install: "Install",
-    create: "Create",
-    import: "Import",
     export: "Export",
     exportAsMarkdown: "Export as Markdown",
     exportAsJSON: "Export as JSON",
     exportSuccess: "Conversation exported",
-  },
-
-  runDuration: {
-    reasoning: "Reasoning",
-    working: "Working…",
-    completedIn: (duration) => `Completed in ${duration}`,
-    description:
-      "Total task time, including model reasoning, tool calls, and waiting.",
-    lessThanSecond: "<1s",
-    hours: (value) => `${value}h`,
-    minutes: (value) => `${value}m`,
-    seconds: (value) => `${value}s`,
-    separator: " ",
-  },
-
-  // Home
-  home: {
-    docs: "Docs",
   },
 
   // Welcome
@@ -81,15 +49,6 @@ export const enUS: Translations = {
       afternoon: "Good afternoon, hope your work goes well",
       evening: "Good evening, great job today",
     },
-    description:
-      "Welcome to QiLin, an open source super agent. With built-in and custom skills, QiLin helps you search on the web, analyze data, and generate artifacts like slides, web pages and do almost anything.",
-
-    createYourOwnSkill: "Create Your Own Skill",
-    createYourOwnSkillDescription:
-      "Create your own skill to release the power of QiLin. With customized skills,\nQiLin can help you search on the web, analyze data, and generate\n artifacts like slides, web pages and do almost anything.",
-    createCronJob: "Create Cron Job",
-    createCronJobDescription:
-      "Describe the cron job you want through conversation. The agent will help you set up the schedule, choose an agent and prompt. For example, generate a daily summary at 9 AM, send weekly reports every Friday, etc.",
   },
 
   // Clipboard
@@ -108,7 +67,6 @@ export const enUS: Translations = {
     branching: "Copying",
     branchFailed: "Failed to create branch",
     regenerate: "Regenerate",
-    noVisibleContent: "No visible response to copy",
   },
 
   // Input Box
@@ -209,8 +167,6 @@ export const enUS: Translations = {
   sidebar: {
     newChat: "New task",
     expandSidebar: "Expand sidebar",
-    chats: "Tasks",
-    recentChats: "Recent tasks",
     workspacesSection: "Workspaces",
     searchWorkspaces: "Search sessions",
     newSessionInWorkspace: "New session in workspace",
@@ -218,22 +174,9 @@ export const enUS: Translations = {
     sortManual: "Manual (registry order)",
     sortRecent: "Recently updated",
     addWorkspace: "Add workspace",
-    addWorkspacePath: "Absolute path (e.g. /Users/me/projects/X)",
-    addWorkspaceTitle: "Display name (optional)",
-    pickWorkspace: "Pick workspace",
-    ungroupedOption: "Ungrouped",
-    recent3: "Recent 3 days",
-    thisWeek: "This week",
-    thisMonth: "This month",
-    earlier: "Earlier",
-    demoChats: "Demo tasks",
     agents: "Agents",
-    models: "Models",
-    skills: "Skills",
-    mcp: "MCP",
     crons: "Automation",
     tokenUsage: "Token Usage",
-    customModes: "Custom modes",
     ungroupedGroup: "Ungrouped",
     archivedSection: "Archived",
     archiveThread: "Archive",
@@ -250,12 +193,10 @@ export const enUS: Translations = {
 
   // Topbar
   topbar: {
-    toggleSidebar: "Toggle sidebar",
     toggleRightPanel: "Toggle context panel",
     backendConnected: "Backend connected",
     backendDisconnected: "Backend disconnected",
     backendChecking: "Connecting…",
-    tokens: "tokens",
     noActiveSession: "No active session",
   },
 
@@ -268,60 +209,16 @@ export const enUS: Translations = {
     uploads: "Uploads",
     artifacts: "Artifacts",
     empty: "No content",
-    noSession: "No active session",
   },
 
   // Toolbar
   toolbar: {
     refresh: "Refresh",
-    refreshing: "Refreshing…",
   },
 
   // Agents
   agents: {
-    title: "Agents",
-    description:
-      "Create and manage custom agents with specialized prompts and capabilities.",
-    newAgent: "New Agent",
-    emptyTitle: "No custom agents yet",
-    emptyDescription:
-      "Create your first custom agent with a specialized system prompt.",
-    chat: "Chat",
-    delete: "Delete",
-    deleteConfirm:
-      "Are you sure you want to delete this agent? This action cannot be undone.",
-    deleteSuccess: "Agent deleted",
     newChat: "New chat",
-    createPageTitle: "Design your Agent",
-    createPageSubtitle:
-      "Describe the agent you want — I'll help you create it through conversation.",
-    nameStepTitle: "Name your new Agent",
-    nameStepHint:
-      "Letters, digits, and hyphens only — stored lowercase (e.g. code-reviewer)",
-    nameStepPlaceholder: "e.g. code-reviewer",
-    nameStepContinue: "Continue",
-    nameStepInvalidError:
-      "Invalid name — use only letters, digits, and hyphens",
-    nameStepAlreadyExistsError: "An agent with this name already exists",
-    nameStepNetworkError:
-      "Network request failed — check your network or backend connection",
-    nameStepCheckError: "Could not verify name availability — please try again",
-    nameStepBootstrapMessage:
-      "The new custom agent name is {name}. Let's bootstrap it's **SOUL**.",
-    save: "Save agent",
-    saving: "Saving agent...",
-    saveRequested:
-      "Save requested. QiLin is generating and saving an initial version now.",
-    saveHint:
-      "You can save this agent at any time from the top-right menu, even if this is only a first draft.",
-    saveCommandMessage:
-      "Please save this custom agent now based on everything we have discussed so far. Treat this as my explicit confirmation to save. If some details are still missing, make reasonable assumptions, generate a concise first SOUL.md in English, and call setup_agent immediately without asking me for more confirmation.",
-    agentCreatedPendingRefresh:
-      "The agent was created, but QiLin could not load it yet. Please refresh this page in a moment.",
-    more: "More actions",
-    agentCreated: "Agent created!",
-    startChatting: "Start chatting",
-    backToGallery: "Back to Gallery",
   },
 
   // Breadcrumb
@@ -333,11 +230,8 @@ export const enUS: Translations = {
   // Workspace
   workspace: {
     settings: "Settings",
-    settingsAndMore: "Settings and more",
     logout: "Log out",
     userInfo: {
-      email: "Email",
-      role: "Role",
       admin: "Admin",
       user: "User",
     },
@@ -354,7 +248,6 @@ export const enUS: Translations = {
     deleteConfirm:
       'Are you sure you want to delete MCP server "{name}"? This action cannot be undone.',
     deleteSuccess: "MCP server deleted",
-    saveSuccess: "MCP server config saved",
     createSuccess: "MCP server created",
     updateSuccess: "MCP server updated",
     enabled: "Enabled",
@@ -472,41 +365,22 @@ export const enUS: Translations = {
   // Conversation
   conversation: {
     noMessages: "No messages yet",
-    startConversation: "Start a conversation to see messages here",
-  },
-
-  // Chats
-  chats: {
-    searchChats: "Search chats",
   },
 
   // Page titles (document title)
   pages: {
     appName: "QiLin",
-    chats: "Chats",
     newChat: "New chat",
     untitled: "Untitled",
   },
 
   // Tool calls
   toolCalls: {
-    moreSteps: (count: number) => `${count} more step${count === 1 ? "" : "s"}`,
-    lessSteps: "Less steps",
-    executeCommand: "Execute command",
     presentFiles: "Present files",
     needYourHelp: "Need your help",
     useTool: (toolName: string) => `Use "${toolName}" tool`,
     searchFor: (query: string) => `Search for "${query}"`,
-    searchForRelatedInfo: "Search for related information",
-    searchForRelatedImages: "Search for related images",
-    searchForRelatedImagesFor: (query: string) =>
-      `Search for related images for "${query}"`,
-    searchOnWebFor: (query: string) => `Search on the web for "${query}"`,
     viewWebPage: "View web page",
-    listFolder: "List folder",
-    readFile: "Read file",
-    writeFile: "Write file",
-    clickToViewContent: "Click to view file content",
     writeTodos: "Update to-do list",
     skillInstallTooltip: "Install skill and make it available to the agent",
   },
@@ -534,8 +408,6 @@ export const enUS: Translations = {
 
   subtasks: {
     subtask: "Subtask",
-    executing: (count: number) =>
-      `Executing ${count === 1 ? "" : count + " "}subtask${count === 1 ? "" : "s in parallel"}`,
     in_progress: "Running subtask",
     completed: "Subtask completed",
     failed: "Subtask failed",
@@ -550,15 +422,6 @@ export const enUS: Translations = {
     total: "Total",
     unavailable:
       "No token usage yet. Usage appears only after a successful model response when the provider returns usage_metadata.",
-    unavailableShort: "No usage returned",
-    finalAnswer: "Final answer",
-    stepTotal: "Step total",
-    sharedAttribution: "Shared across multiple actions in this step",
-    subagent: (description: string) => `Subagent: ${description}`,
-    startTodo: (content: string) => `Start To-do: ${content}`,
-    completeTodo: (content: string) => `Complete To-do: ${content}`,
-    updateTodo: (content: string) => `Update To-do: ${content}`,
-    removeTodo: (content: string) => `Remove To-do: ${content}`,
     // Per-task summary bar (rendered below the input box on the chat page)
     taskTitle: "This task",
     taskEmpty: "No token usage yet",
@@ -582,16 +445,8 @@ export const enUS: Translations = {
 
   // Models
   models: {
-    title: "Models",
-    description: "Manage and configure available LLM models.",
     addModel: "Add Model",
     editModel: "Edit Model",
-    deleteModel: "Delete Model",
-    deleteConfirm:
-      'Are you sure you want to delete model "{name}"? This action cannot be undone.',
-    deleteSuccess: "Model deleted",
-    createSuccess: "Model created",
-    updateSuccess: "Model updated",
     name: "Name",
     nameHint: "Unique identifier for the model, e.g. gpt-4",
     displayName: "Display Name",
@@ -623,33 +478,12 @@ export const enUS: Translations = {
       "Reference values: minimal / none / low / medium / high / xhigh / max. Leave empty to forward as-is.",
     thinkingEnabled: "When Thinking Enabled",
     thinkingDisabled: "When Thinking Disabled",
-    emptyTitle: "No models configured yet",
     emptyDescription:
       'Click "Add Model" to add your first model configuration.',
     badJson: "Invalid JSON format",
   },
   settings: {
     title: "Settings",
-    description: "Adjust how QiLin looks and behaves for you.",
-    sections: {
-      models: "Models",
-      general: "General",
-      account: "Account",
-      appearance: "Appearance",
-      memorySummary: "Memory & Summary",
-      tokenUsageBudget: "Token & Budget",
-      mcp: "MCP",
-      toolsSandbox: "Tools & Sandbox",
-      webTools: "Web Tools",
-      uploads: "Uploads",
-      skills: "Skills",
-      tokenUsage: "Token Usage",
-      dataSources: "Data Sources",
-      skillModels: "Skill Models",
-      agents: "Agents",
-      subagents: "Sub-agents",
-      runtime: "Runtime",
-    },
     view: {
       backToApp: "Back to app",
       searchPlaceholder: "Search settings…",
@@ -705,24 +539,10 @@ export const enUS: Translations = {
         runtime: "Interactive visualization of the QiLin runtime architecture.",
       },
     },
-    backend: {
-      title: "Backend Maintenance",
-      description:
-        "Restart the gateway after changing config to apply changes. This briefly interrupts all active sessions.",
-      restartButton: "Restart Backend",
-      restarting: "Restarting…",
-      restartingToast: "Restarting backend…",
-      restartSuccess: "Backend restarted, config applied",
-      restartFailedTray:
-        "Restart failed, use the tray menu to restart manually",
-      restartTimeout: "Backend restart timed out, check service status",
-      restartFailed: "Restart failed",
-    },
     general: {
       accountGroup: "Account",
       appearanceGroup: "Appearance",
       systemGroup: "System",
-      advancedGroup: "Advanced",
     },
     account: {
       email: "Email",
@@ -746,9 +566,6 @@ export const enUS: Translations = {
       system: "System",
       light: "Light",
       dark: "Dark",
-      systemDescription: "Match the operating system preference automatically.",
-      lightDescription: "Bright palette with higher contrast for daytime.",
-      darkDescription: "Dim palette that reduces glare for focus.",
       languageTitle: "Language",
       languageDescription: "Switch between languages.",
       messageWidthTitle: "Message width",
@@ -767,10 +584,6 @@ export const enUS: Translations = {
       messageLineHeightComfortable: "Comfortable",
       messageLineHeightRelaxed: "Relaxed",
     },
-    mcpSettings: {
-      title: "MCP",
-      description: "Manage the configuration and enabled status of MCP tools.",
-    },
     skills: {
       title: "Agent Skills",
       description:
@@ -781,80 +594,12 @@ export const enUS: Translations = {
         "Create via AI guidance, or upload a .skill / .zip package to install.",
       emptyButton: "Install Your First Skill",
     },
-    createSkillWizard: {
-      title: "Create a new skill",
-      stepBasics: "Basics",
-      stepTemplate: "Template",
-      stepEdit: "Edit",
-      stepPreview: "Preview",
-      stepOf: "Step {current} / {total}",
-      nameLabel: "Skill name",
-      namePlaceholder: "my-cool-skill",
-      nameHint: "Lowercase letters, digits and hyphens, e.g. data-analyzer",
-      descriptionLabel: "Short description",
-      descriptionPlaceholder:
-        "What does this skill do? When should it be used?",
-      descriptionCount: "{count} / 1024",
-      templateLabel: "Choose a template to start from",
-      templateBlank: "Blank",
-      templateTask: "Task",
-      templateCoding: "Coding",
-      templateCopy: "Copy from existing",
-      templateCopyHint: "Pick an existing skill as the starting point",
-      editLabel: "Edit SKILL.md",
-      editHint: "The frontmatter name and description stay in sync.",
-      previewLabel: "Preview the final content",
-      previewHint: "Once it looks right, click Create.",
-      willCreateAt: "Will be created at: skills/custom/{name}/SKILL.md",
-      cancel: "Cancel",
-      back: "Back",
-      next: "Next",
-      create: "Create",
-      creating: "Creating...",
-      nameRequired: "Please enter a skill name",
-      descriptionRequired: "Please enter a short description",
-      success: 'Skill "{name}" created successfully',
-      enhanceInChat: "Refine this skill in chat",
-      homeTitle: "Choose how to create",
-      homeDescription:
-        "Start from a template, install a .skill package, or generate from your scripts.",
-      modeTemplate: "From template",
-      modeTemplateDesc: "Blank / task / coding — edit SKILL.md in the wizard",
-      modeUpload: "From .skill package",
-      modeUploadDesc: "Upload a .skill ZIP and install it automatically",
-      modeScripts: "From scripts",
-      modeScriptsDesc: "Upload script files and generate a skill structure",
-      backToHome: "Back to create modes",
-      uploadDropHere: "Click or drop a .skill file here",
-      uploadButton: "Select .skill file",
-      uploadSelected: "Selected: {name}",
-      uploadSize: "{size}",
-      uploadReplace: "Choose a different file",
-      scriptsSubdir: "Support subdirectory",
-      scriptsSubdirScripts: "scripts/ (executable scripts)",
-      scriptsSubdirReferences: "references/ (reference docs)",
-      scriptsSubdirTemplates: "templates/ (template files)",
-      scriptsSubdirAssets: "assets/ (binary assets)",
-      scriptsAddMore: "Add more files",
-      scriptsRemove: "Remove",
-      scriptsUploadHint:
-        "Scripts land in skills/custom/{name}/{subdir}/ and pass a security scan.",
-      scriptsPartialFailure:
-        "Skill created, but script upload failed: {error}. You can retry from the edit UI.",
-      scriptsCreateAndUpload: "Create skill and upload scripts",
-      scriptsCreateAndUploading: "Creating...",
-    },
     tokenUsage: {
       title: "Token Usage Statistics",
-      description: "View token usage distribution across different models.",
-      summaryTotalTokens: "Total Tokens",
       summaryTotalRuns: "Total Runs",
       summaryApiCalls: "API Calls",
-      summaryModels: "Models Used",
       byModel: "By Model",
       byCaller: "By Caller",
-      modelColumn: "Model",
-      tokensColumn: "Tokens",
       runsColumn: "Runs",
       leadAgent: "Lead Agent",
       subagent: "Sub-agent",
@@ -867,10 +612,6 @@ export const enUS: Translations = {
       cacheMiss: "Cache Miss",
       cacheSavedHint: "Input Tokens Saved",
       timezoneHint: "All dates are shown in Beijing time (UTC+8)",
-    },
-    acknowledge: {
-      emptyTitle: "Acknowledgements",
-      emptyDescription: "Credits and acknowledgements will show here.",
     },
   },
 
@@ -889,7 +630,6 @@ export const enUS: Translations = {
       error: "Failed",
     },
     action: {
-      inject: "Inject now",
       injectActiveTitle: "Inject into the running task",
       injectInactiveTitle: "Task not running; send directly",
       edit: "Edit",
@@ -899,18 +639,7 @@ export const enUS: Translations = {
       moveUp: "Move up",
     },
     toast: {
-      injected: "Injected into the running task",
-      runNotActive: "Task ended; message will auto-send",
-      limitExceeded: "Queue full (max 20)",
       queued: "Added to send queue",
     },
-    sendButtonStreaming: "Add to send queue (task running)",
-  },
-
-  // Todo panel
-  todoPanel: {
-    title: "Task List",
-    empty: "No tasks yet",
-    close: "Close",
   },
 };

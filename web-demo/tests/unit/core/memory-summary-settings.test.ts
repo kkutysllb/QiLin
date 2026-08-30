@@ -51,18 +51,19 @@ describe("memory-summary settings page", () => {
 });
 
 describe("memory-summary i18n", () => {
-  test("zh-CN has memorySummary keys in sections, titles, and summaries", () => {
+  test("zh-CN has memorySummary keys in view titles and summaries", () => {
     const source = read("src/core/i18n/locales/zh-CN.ts");
 
-    expect(source).toMatch(/sections:\s*\{[^}]*memorySummary:/s);
+    // The legacy settings.sections.* labels (only consumed by the removed
+    // workspace-nav-menu) were deleted in the dead-code cleanup; the live
+    // wiring sources section titles/summaries from settings.view.*.
     expect(source).toMatch(/titles:\s*\{[^}]*memorySummary:/s);
     expect(source).toMatch(/summaries:\s*\{[^}]*memorySummary:/s);
   });
 
-  test("en-US has memorySummary keys in sections, titles, and summaries", () => {
+  test("en-US has memorySummary keys in view titles and summaries", () => {
     const source = read("src/core/i18n/locales/en-US.ts");
 
-    expect(source).toMatch(/sections:\s*\{[^}]*memorySummary:/s);
     expect(source).toMatch(/titles:\s*\{[^}]*memorySummary:/s);
     expect(source).toMatch(/summaries:\s*\{[^}]*memorySummary:/s);
   });

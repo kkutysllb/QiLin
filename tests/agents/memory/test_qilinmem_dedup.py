@@ -14,7 +14,6 @@ Covered write paths: the manual ``create_fact`` CRUD surface (memory_add tool
 """
 
 import copy
-import json
 from pathlib import Path
 
 from qilin.agents.memory.backends.qilinmem.qilin_mem import QiLinMem
@@ -27,12 +26,6 @@ from qilin.agents.memory.backends.qilinmem.qilinmem.core.updater import MemoryUp
 
 USER = "u1"
 AGENT = "lead-agent"
-
-
-def make_backend(tmp_path: Path, backend_config: dict | None = None) -> QiLinMem:
-    config: dict = {"storage_path": str(tmp_path), "retrieval_adapter": ""}
-    config.update(backend_config or {})
-    return QiLinMem(backend_config=config)
 
 
 def make_updater(tmp_path: Path, dedup_threshold: float = 0.85) -> MemoryUpdater:
@@ -50,61 +43,24 @@ def stored_fact(backend: QiLinMem, fact_id: str) -> dict:
     return matches[0]
 
 
-def write_legacy_v1_memory(tmp_path: Path, fact_id: str, content: str) -> None:
-    """Write a pre-v2 user memory.json (facts inlined in the global document)."""
-    memory_dir = tmp_path / "users" / USER
-    memory_dir.mkdir(parents=True, exist_ok=True)
-    (memory_dir / "memory.json").write_text(
-        json.dumps(
-            {
-                "version": "1.0",
-                "revision": 3,
-                "lastUpdated": "2026-01-01T00:00:00Z",
-                "user": {
-                    "workContext": {"summary": "", "updatedAt": ""},
-                    "personalContext": {"summary": "", "updatedAt": ""},
-                    "topOfMind": {"summary": "", "updatedAt": ""},
-                },
-                "history": {
-                    "recentMonths": {"summary": "", "updatedAt": ""},
-                    "earlierContext": {"summary": "", "updatedAt": ""},
-                    "longTermBackground": {"summary": "", "updatedAt": ""},
-                },
-                "facts": [
-                    {
-                        "id": fact_id,
-                        "content": content,
-                        "category": "context",
-                        "confidence": 0.8,
-                        "createdAt": "2026-01-02T00:00:00Z",
-                        "updatedAt": "2026-01-02T00:00:00Z",
-                        "source": "manual",
-                    }
-                ],
-            }
-        ),
-        encoding="utf-8",
-    )
-
-
 class TestCreateFactDedup:
     """Dedup on the manual create_fact path."""
 
-    def test_exact_duplicate_skips_and_returns_existing_id(self, tmp_path: Path) -> None:
+    def test_exact_duplicate_skips_and_returns_existing_id(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path)
         _memory, first_id = backend.create_fact("User lives in Tokyo", agent_name=AGENT, user_id=USER)
         _memory, second_id = backend.create_fact("USER LIVES IN TOKYO.", agent_name=AGENT, user_id=USER)
         assert second_id == first_id
         assert fact_ids(backend) == {first_id}
 
-    def test_exact_duplicate_ignores_diacritics_and_punctuation(self, tmp_path: Path) -> None:
+    def test_exact_duplicate_ignores_diacritics_and_punctuation(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path)
         _memory, first_id = backend.create_fact("User drinks Café au lait!", agent_name=AGENT, user_id=USER)
         _memory, second_id = backend.create_fact("user drinks cafe au lait", agent_name=AGENT, user_id=USER)
         assert second_id == first_id
         assert fact_ids(backend) == {first_id}
 
-    def test_exact_duplicate_does_not_touch_timestamps(self, tmp_path: Path) -> None:
+    def test_exact_duplicate_does_not_touch_timestamps(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path)
         _memory, fact_id = backend.create_fact("User lives in Tokyo", agent_name=AGENT, user_id=USER)
         created = stored_fact(backend, fact_id)
@@ -114,7 +70,7 @@ class TestCreateFactDedup:
         assert after["updatedAt"] == created["updatedAt"]
         assert after["revision"] == created["revision"]
 
-    def test_near_duplicate_merges_into_existing_fact(self, tmp_path: Path) -> None:
+    def test_near_duplicate_merges_into_existing_fact(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path)
         _memory, base_id = backend.create_fact("User prefers Python 3", category="preference", confidence=0.7, agent_name=AGENT, user_id=USER)
         base = stored_fact(backend, base_id)
@@ -130,7 +86,7 @@ class TestCreateFactDedup:
         assert merged["revision"] == base["revision"] + 1
         assert fact_ids(backend) == {base_id}
 
-    def test_near_duplicate_without_material_change_skips_write(self, tmp_path: Path) -> None:
+    def test_near_duplicate_without_material_change_skips_write(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path)
         _memory, base_id = backend.create_fact("User prefers Python 3.12", confidence=0.9, agent_name=AGENT, user_id=USER)
         base = stored_fact(backend, base_id)
@@ -141,14 +97,14 @@ class TestCreateFactDedup:
         assert after == base
         assert fact_ids(backend) == {base_id}
 
-    def test_distinct_fact_inserts_normally(self, tmp_path: Path) -> None:
+    def test_distinct_fact_inserts_normally(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path)
         _memory, tokyo_id = backend.create_fact("User lives in Tokyo", agent_name=AGENT, user_id=USER)
         _memory, train_id = backend.create_fact("User commutes by train", agent_name=AGENT, user_id=USER)
         assert train_id != tokyo_id
         assert fact_ids(backend) == {tokyo_id, train_id}
 
-    def test_threshold_one_disables_near_merge_but_keeps_exact_skip(self, tmp_path: Path) -> None:
+    def test_threshold_one_disables_near_merge_but_keeps_exact_skip(self, tmp_path: Path, make_backend) -> None:
         backend = make_backend(tmp_path, {"dedup_similarity_threshold": 1.0})
         _memory, base_id = backend.create_fact("User prefers Python 3", agent_name=AGENT, user_id=USER)
         # Exact still dedups.
@@ -159,7 +115,7 @@ class TestCreateFactDedup:
         assert near_id != base_id
         assert fact_ids(backend) == {base_id, near_id}
 
-    def test_old_record_participates_in_dedup(self, tmp_path: Path) -> None:
+    def test_old_record_participates_in_dedup(self, tmp_path: Path, make_backend, write_legacy_v1_memory) -> None:
         write_legacy_v1_memory(tmp_path, "fact_legacy01", "User maintains legacy memory format facts")
         backend = make_backend(tmp_path)
         # No agent_name -> default bucket, where the migrated legacy facts live.

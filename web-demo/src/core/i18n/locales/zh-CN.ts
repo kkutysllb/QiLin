@@ -19,57 +19,26 @@ export const zhCN: Translations = {
 
   // Common
   common: {
-    home: "首页",
     settings: "设置",
     delete: "删除",
-    edit: "编辑",
     rename: "重命名",
     share: "分享",
     openInNewWindow: "在新窗口打开",
     close: "关闭",
     more: "更多",
-    search: "搜索",
     loadMore: "加载更多",
     download: "下载",
     thinking: "思考",
     artifacts: "文件",
-    public: "公共",
-    custom: "自定义",
-    builtin: "内置",
-    locked: "已锁定",
     notAvailableInDemoMode: "在演示模式下不可用",
     loading: "加载中...",
-    version: "版本",
-    all: "全部",
-    lastUpdated: "最后更新",
-    code: "代码",
-    preview: "预览",
     cancel: "取消",
     save: "保存",
     install: "安装",
-    create: "创建",
-    import: "导入",
     export: "导出",
     exportAsMarkdown: "导出为 Markdown",
     exportAsJSON: "导出为 JSON",
     exportSuccess: "对话已导出",
-  },
-
-  runDuration: {
-    reasoning: "思考过程",
-    working: "执行中…",
-    completedIn: (duration) => `本次任务耗时 ${duration}`,
-    description: "任务总耗时，包括模型推理、工具调用和等待时间。",
-    lessThanSecond: "不足 1 秒",
-    hours: (value) => `${value} 小时`,
-    minutes: (value) => `${value} 分`,
-    seconds: (value) => `${value} 秒`,
-    separator: " ",
-  },
-
-  // Home
-  home: {
-    docs: "文档",
   },
 
   // Welcome
@@ -80,15 +49,6 @@ export const zhCN: Translations = {
       afternoon: "下午好，愿你工作顺利",
       evening: "晚上好，今天辛苦了",
     },
-    description:
-      "欢迎使用 QiLin，一个完全开源的超级智能体。通过内置和自定义的 Skills，\nQiLin 可以帮你搜索网络、分析数据，还能为你生成幻灯片、\n图片、视频、播客及网页等，几乎可以做任何事情。",
-
-    createYourOwnSkill: "创建你自己的 Agent SKill",
-    createYourOwnSkillDescription:
-      "创建你的 Agent Skill 来释放 QiLin 的潜力。通过自定义技能，QiLin\n可以帮你搜索网络、分析数据，还能为你生成幻灯片、\n网页等作品，几乎可以做任何事情。",
-    createCronJob: "创建定时任务",
-    createCronJobDescription:
-      "通过对话描述你想要的定时任务，Agent 会帮你设置时间表、选择智能体和提示词。例如每天早9点生成工作总结、每周五下午发送报告等。",
   },
 
   // Clipboard
@@ -107,7 +67,6 @@ export const zhCN: Translations = {
     branching: "复制中",
     branchFailed: "创建分支失败",
     regenerate: "重新生成",
-    noVisibleContent: "没有可复制的正文",
   },
 
   // Input Box
@@ -205,8 +164,6 @@ export const zhCN: Translations = {
   sidebar: {
     newChat: "新任务",
     expandSidebar: "展开侧边栏",
-    chats: "任务",
-    recentChats: "历史任务",
     workspacesSection: "工作区",
     searchWorkspaces: "搜索会话",
     newSessionInWorkspace: "在此工作区新建会话",
@@ -214,22 +171,9 @@ export const zhCN: Translations = {
     sortManual: "手动排序（注册表）",
     sortRecent: "最近更新",
     addWorkspace: "添加工作区",
-    addWorkspacePath: "绝对路径（如 /Users/me/projects/X）",
-    addWorkspaceTitle: "显示名称（可选）",
-    pickWorkspace: "选择工作区",
-    ungroupedOption: "未分组",
-    recent3: "近三天",
-    thisWeek: "本周",
-    thisMonth: "本月",
-    earlier: "更早",
-    demoChats: "演示任务",
     agents: "智能体",
-    models: "模型管理",
-    skills: "技能",
-    mcp: "MCP 管理",
     crons: "自动化",
     tokenUsage: "Token 用量",
-    customModes: "自定义模式",
     ungroupedGroup: "未分组",
     archivedSection: "已归档",
     archiveThread: "归档",
@@ -245,12 +189,10 @@ export const zhCN: Translations = {
 
   // Topbar
   topbar: {
-    toggleSidebar: "切换侧边栏",
     toggleRightPanel: "切换上下文面板",
     backendConnected: "后端已连接",
     backendDisconnected: "后端连接断开",
     backendChecking: "连接中…",
-    tokens: "tokens",
     noActiveSession: "无活动会话",
   },
 
@@ -263,54 +205,16 @@ export const zhCN: Translations = {
     uploads: "上传文件",
     artifacts: "产出文件",
     empty: "暂无内容",
-    noSession: "当前无活动会话",
   },
 
   // Toolbar
   toolbar: {
     refresh: "刷新",
-    refreshing: "刷新中…",
   },
 
   // Agents
   agents: {
-    title: "智能体",
-    description: "创建和管理具有专属 Prompt 与能力的自定义智能体。",
-    newAgent: "新建智能体",
-    emptyTitle: "还没有自定义智能体",
-    emptyDescription: "创建你的第一个自定义智能体，设置专属系统提示词。",
-    chat: "对话",
-    delete: "删除",
-    deleteConfirm: "确定要删除该智能体吗？此操作不可撤销。",
-    deleteSuccess: "智能体已删除",
     newChat: "新对话",
-    createPageTitle: "设计你的智能体",
-    createPageSubtitle: "描述你想要的智能体，我来帮你通过对话创建。",
-    nameStepTitle: "给新智能体起个名字",
-    nameStepHint:
-      "只允许字母、数字和连字符，存储时自动转为小写（例如 code-reviewer）",
-    nameStepPlaceholder: "例如 code-reviewer",
-    nameStepContinue: "继续",
-    nameStepInvalidError: "名称无效，只允许字母、数字和连字符",
-    nameStepAlreadyExistsError: "已存在同名智能体",
-    nameStepNetworkError: "网络请求失败，请检查网络或后端连接",
-    nameStepCheckError: "无法验证名称可用性，请稍后重试",
-    nameStepBootstrapMessage:
-      "新智能体的名称是 {name}，现在开始为它生成 **SOUL**。",
-    save: "保存智能体",
-    saving: "正在保存智能体...",
-    saveRequested:
-      "已提交保存请求，QiLin 正在根据当前对话生成并保存初版智能体。",
-    saveHint:
-      "你可以在右上角的菜单里随时保存这个智能体，就算目前还只是初稿也可以。",
-    saveCommandMessage:
-      "请现在根据我们目前已经讨论的全部内容保存这个自定义智能体。这就是我明确的保存确认。如果仍有少量细节缺失，请根据上下文做出合理假设，生成一份简洁的英文初始 SOUL.md，并直接调用 setup_agent，不要再向我索要额外确认。",
-    agentCreatedPendingRefresh:
-      "智能体已创建，但 QiLin 暂时还无法读取到它。请稍后刷新当前页面。",
-    more: "更多操作",
-    agentCreated: "智能体已创建！",
-    startChatting: "开始对话",
-    backToGallery: "返回 Gallery",
   },
 
   // Breadcrumb
@@ -322,11 +226,8 @@ export const zhCN: Translations = {
   // Workspace
   workspace: {
     settings: "设置",
-    settingsAndMore: "设置和更多",
     logout: "退出登录",
     userInfo: {
-      email: "邮箱",
-      role: "角色",
       admin: "管理员",
       user: "用户",
     },
@@ -342,7 +243,6 @@ export const zhCN: Translations = {
     deleteServer: "删除服务器",
     deleteConfirm: '确定要删除 MCP 服务器 "{name}" 吗？此操作不可撤销。',
     deleteSuccess: "MCP 服务器已删除",
-    saveSuccess: "MCP 服务器配置已保存",
     createSuccess: "MCP 服务器已创建",
     updateSuccess: "MCP 服务器已更新",
     enabled: "已启用",
@@ -456,40 +356,22 @@ export const zhCN: Translations = {
   // Conversation
   conversation: {
     noMessages: "还没有消息",
-    startConversation: "开始新的对话以查看消息",
-  },
-
-  // Chats
-  chats: {
-    searchChats: "搜索对话",
   },
 
   // Page titles (document title)
   pages: {
     appName: "QiLin",
-    chats: "对话",
     newChat: "新对话",
     untitled: "未命名",
   },
 
   // Tool calls
   toolCalls: {
-    moreSteps: (count: number) => `查看其他 ${count} 个步骤`,
-    lessSteps: "隐藏步骤",
-    executeCommand: "执行命令",
     presentFiles: "展示文件",
     needYourHelp: "需要你的协助",
     useTool: (toolName: string) => `使用 “${toolName}” 工具`,
     searchFor: (query: string) => `搜索 “${query}”`,
-    searchForRelatedInfo: "搜索相关信息",
-    searchForRelatedImages: "搜索相关图片",
-    searchForRelatedImagesFor: (query: string) => `搜索相关图片 “${query}”`,
-    searchOnWebFor: (query: string) => `在网络上搜索 “${query}”`,
     viewWebPage: "查看网页",
-    listFolder: "列出文件夹",
-    readFile: "读取文件",
-    writeFile: "写入文件",
-    clickToViewContent: "点击查看文件内容",
     writeTodos: "更新 To-do 列表",
     skillInstallTooltip: "安装技能并使其可在 QiLin 中使用",
   },
@@ -516,8 +398,6 @@ export const zhCN: Translations = {
 
   subtasks: {
     subtask: "子任务",
-    executing: (count: number) =>
-      `${count > 1 ? "并行" : ""}执行 ${count} 个子任务`,
     in_progress: "子任务运行中",
     completed: "子任务已完成",
     failed: "子任务失败",
@@ -532,15 +412,6 @@ export const zhCN: Translations = {
     total: "总计",
     unavailable:
       "暂无 Token 用量。只有模型成功返回且供应商提供 usage_metadata 时才会显示。",
-    unavailableShort: "未返回用量",
-    finalAnswer: "最终回复",
-    stepTotal: "步骤总计",
-    sharedAttribution: "该 token 由此步骤中的多个动作共同消耗",
-    subagent: (description: string) => `子任务：${description}`,
-    startTodo: (content: string) => `开始 To-do：${content}`,
-    completeTodo: (content: string) => `完成 To-do：${content}`,
-    updateTodo: (content: string) => `更新 To-do：${content}`,
-    removeTodo: (content: string) => `移除 To-do：${content}`,
     // Per-task summary bar (rendered below the input box on the chat page)
     taskTitle: "本次任务",
     taskEmpty: "尚无 token 用量",
@@ -563,15 +434,8 @@ export const zhCN: Translations = {
 
   // Models
   models: {
-    title: "模型管理",
-    description: "管理和配置可用的 LLM 模型。",
     addModel: "新增模型",
     editModel: "编辑模型",
-    deleteModel: "删除模型",
-    deleteConfirm: '确定要删除模型 "{name}" 吗？此操作不可撤销。',
-    deleteSuccess: "模型已删除",
-    createSuccess: "模型已创建",
-    updateSuccess: "模型已更新",
     name: "名称",
     nameHint: "模型的唯一标识符，例如 gpt-4",
     displayName: "显示名称",
@@ -602,32 +466,11 @@ export const zhCN: Translations = {
       "可选值参考：minimal / none / low / medium / high / xhigh / max。留空则原样转发。",
     thinkingEnabled: "思考启用时配置",
     thinkingDisabled: "思考禁用时配置",
-    emptyTitle: "还没有配置模型",
     emptyDescription: "点击「新增模型」按钮来添加第一个模型配置。",
     badJson: "JSON 格式无效",
   },
   settings: {
     title: "设置",
-    description: "根据你的偏好调整 QiLin 的界面和行为。",
-    sections: {
-      models: "模型",
-      general: "常规",
-      account: "账号",
-      appearance: "外观",
-      memorySummary: "记忆与摘要",
-      tokenUsageBudget: "Token 统计与预算",
-      mcp: "MCP 管理",
-      toolsSandbox: "工具与沙箱",
-      webTools: "Web 工具",
-      uploads: "附件上传",
-      skills: "技能",
-      tokenUsage: "Token 用量",
-      dataSources: "数据源",
-      skillModels: "技能模型",
-      agents: "代理",
-      subagents: "子代理与编排",
-      runtime: "运行时",
-    },
     view: {
       backToApp: "返回应用",
       searchPlaceholder: "搜索设置…",
@@ -675,23 +518,10 @@ export const zhCN: Translations = {
         runtime: "QiLin 运行时架构可视化总览（可交互视图）。",
       },
     },
-    backend: {
-      title: "后端维护",
-      description:
-        "修改配置后需要重启 gateway 才能生效。此操作会短暂中断所有进行中的会话。",
-      restartButton: "重启后端",
-      restarting: "重启中…",
-      restartingToast: "正在重启后端…",
-      restartSuccess: "后端已重启，配置已生效",
-      restartFailedTray: "重启失败，请查看托盘菜单手动重启",
-      restartTimeout: "后端重启超时，请检查服务状态",
-      restartFailed: "重启失败",
-    },
     general: {
       accountGroup: "账户",
       appearanceGroup: "外观",
       systemGroup: "系统",
-      advancedGroup: "高级",
     },
     account: {
       email: "邮箱",
@@ -714,9 +544,6 @@ export const zhCN: Translations = {
       system: "系统",
       light: "浅色",
       dark: "深色",
-      systemDescription: "自动跟随系统主题。",
-      lightDescription: "更明亮的配色，适合日间使用。",
-      darkDescription: "更暗的配色，减少眩光方便专注。",
       languageTitle: "语言",
       languageDescription: "在不同语言之间切换。",
       messageWidthTitle: "消息宽度",
@@ -735,10 +562,6 @@ export const zhCN: Translations = {
       messageLineHeightComfortable: "舒适",
       messageLineHeightRelaxed: "宽松",
     },
-    mcpSettings: {
-      title: "MCP 管理",
-      description: "管理 MCP 工具的配置和启用状态。",
-    },
     skills: {
       title: "技能",
       description: "管理 Agent Skill 配置和启用状态。",
@@ -747,78 +570,12 @@ export const zhCN: Translations = {
       emptyDescription: "通过 AI 引导创建，或上传 .skill / .zip 技能包来安装。",
       emptyButton: "安装第一个技能",
     },
-    createSkillWizard: {
-      title: "创建新技能",
-      stepBasics: "基础信息",
-      stepTemplate: "选择模板",
-      stepEdit: "编辑内容",
-      stepPreview: "预览并创建",
-      stepOf: "步骤 {current} / {total}",
-      nameLabel: "技能名称",
-      namePlaceholder: "my-cool-skill",
-      nameHint: "小写字母、数字和连字符,例如 data-analyzer",
-      descriptionLabel: "简短描述",
-      descriptionPlaceholder: "这个技能做什么?何时使用?",
-      descriptionCount: "{count} / 1024",
-      templateLabel: "选择一个模板作为起点",
-      templateBlank: "空白技能",
-      templateTask: "任务技能",
-      templateCoding: "编码技能",
-      templateCopy: "从现有技能复制",
-      templateCopyHint: "选择一个现有技能作为起点",
-      editLabel: "编辑 SKILL.md",
-      editHint: "frontmatter 的 name 和 description 会自动同步。",
-      previewLabel: "预览最终内容",
-      previewHint: "确认无误后点击「创建」。",
-      willCreateAt: "将创建到:skills/custom/{name}/SKILL.md",
-      cancel: "取消",
-      back: "上一步",
-      next: "下一步",
-      create: "创建",
-      creating: "创建中...",
-      nameRequired: "请输入技能名称",
-      descriptionRequired: "请输入简短描述",
-      success: "技能「{name}」已创建成功",
-      enhanceInChat: "在聊天中完善此技能",
-      homeTitle: "选择创建方式",
-      homeDescription: "你可以从模板创建,从 .skill 包安装,或上传脚本自动生成。",
-      modeTemplate: "从模板创建",
-      modeTemplateDesc: "空白 / 任务 / 编码,逐字编辑 SKILL.md",
-      modeUpload: "从 .skill 包安装",
-      modeUploadDesc: "上传一个 .skill 压缩包,自动解压安装",
-      modeScripts: "从脚本生成",
-      modeScriptsDesc: "上传脚本文件,自动生成技能结构",
-      backToHome: "返回选择创建方式",
-      uploadDropHere: "点击或拖拽 .skill 文件到这里",
-      uploadButton: "选择 .skill 文件",
-      uploadSelected: "已选择:{name}",
-      uploadSize: "{size}",
-      uploadReplace: "重新选择",
-      scriptsSubdir: "脚本/资源子目录",
-      scriptsSubdirScripts: "scripts/ (可执行脚本)",
-      scriptsSubdirReferences: "references/ (参考文档)",
-      scriptsSubdirTemplates: "templates/ (模板文件)",
-      scriptsSubdirAssets: "assets/ (二进制资源)",
-      scriptsAddMore: "继续添加文件",
-      scriptsRemove: "移除",
-      scriptsUploadHint:
-        "脚本会被放到 skills/custom/{name}/{subdir}/ 并通过安全扫描。",
-      scriptsPartialFailure:
-        "技能已创建,但脚本上传失败:{error}。可在编辑界面重试。",
-      scriptsCreateAndUpload: "创建技能并上传脚本",
-      scriptsCreateAndUploading: "创建中...",
-    },
     tokenUsage: {
       title: "Token 用量统计",
-      description: "查看不同模型的 Token 用量分布和趋势。",
-      summaryTotalTokens: "总 Token 用量",
       summaryTotalRuns: "总运行次数",
       summaryApiCalls: "API 调用次数",
-      summaryModels: "使用模型数",
       byModel: "按模型分布",
       byCaller: "按调用者分布",
-      modelColumn: "模型",
-      tokensColumn: "Tokens",
       runsColumn: "运行次数",
       leadAgent: "主智能体",
       subagent: "子智能体",
@@ -831,10 +588,6 @@ export const zhCN: Translations = {
       cacheMiss: "缓存未命中",
       cacheSavedHint: "节省输入 Tokens",
       timezoneHint: "所有日期均按北京时间（UTC+8）显示",
-    },
-    acknowledge: {
-      emptyTitle: "致谢",
-      emptyDescription: "相关的致谢信息会展示在这里。",
     },
   },
 
@@ -852,7 +605,6 @@ export const zhCN: Translations = {
       error: "失败",
     },
     action: {
-      inject: "立即注入",
       injectActiveTitle: "立即注入到运行中的任务",
       injectInactiveTitle: "任务未运行，请直接发送",
       edit: "编辑",
@@ -862,18 +614,7 @@ export const zhCN: Translations = {
       moveUp: "上移",
     },
     toast: {
-      injected: "已注入到运行中的任务",
-      runNotActive: "任务已结束，消息将自动发送",
-      limitExceeded: "队列已满（最多 20 条）",
       queued: "已加入待发送队列",
     },
-    sendButtonStreaming: "加入待发送队列（任务执行中）",
-  },
-
-  // Todo panel
-  todoPanel: {
-    title: "任务清单",
-    empty: "暂无任务清单",
-    close: "关闭",
   },
 };

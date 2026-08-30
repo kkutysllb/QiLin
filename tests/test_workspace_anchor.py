@@ -8,11 +8,8 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from types import SimpleNamespace
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from qilin.agents.middlewares.thread_data_middleware import (
     ThreadDataMiddleware,

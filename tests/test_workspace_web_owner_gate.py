@@ -20,8 +20,6 @@ workspace capture uses the authenticated web user as the effective owner.
 from __future__ import annotations
 
 import inspect
-import sys
-from pathlib import Path
 from types import SimpleNamespace
 
 import pytest_asyncio
@@ -29,14 +27,12 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 import qilin.persistence.models  # noqa: F401
+
+# services pulls gateway auth config which demands QILIN_INTERNAL_AUTH_TOKEN.
+from app.gateway.services import _ensure_thread_metadata
 from qilin.persistence.base import Base
 from qilin.persistence.thread_meta.sql import ThreadMetaRepository
 from qilin.persistence.workspace.sql import WorkspaceRepository
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-# services pulls gateway auth config which demands QILIN_INTERNAL_AUTH_TOKEN.
-from app.gateway.services import _ensure_thread_metadata  # noqa: E402
 
 OWNER = "web-user-A"
 

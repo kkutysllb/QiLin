@@ -61,22 +61,6 @@ class OkHandler:
         )
 
 
-def make_request(
-    name: str,
-    path: str | None,
-    state: dict[str, Any] | None = None,
-    *,
-    tool_call_id: str = "call-1",
-) -> ToolCallRequest:
-    args: dict[str, Any] = {"path": path} if path is not None else {"command": "ls"}
-    return ToolCallRequest(
-        tool_call={"name": name, "args": args, "id": tool_call_id},
-        tool=None,
-        state=state if state is not None else {"messages": []},
-        runtime=None,
-    )
-
-
 def read_mark_message(path: str, content: str) -> ToolMessage:
     """A ToolMessage carrying a read mark, as state["messages"] would hold it."""
     return ToolMessage(
@@ -102,7 +86,7 @@ def content_hash(content: str) -> str:
 
 
 class TestWriteGate:
-    def test_write_to_new_file_allowed(self) -> None:
+    def test_write_to_new_file_allowed(self, make_request) -> None:
         middleware = ReadBeforeWriteMiddleware(content_reader=FakeContentStore().read)
         handler = OkHandler()
 
@@ -111,7 +95,7 @@ class TestWriteGate:
         assert result.content == "ok"
         assert len(handler.calls) == 1
 
-    def test_write_to_existing_unread_file_blocked(self) -> None:
+    def test_write_to_existing_unread_file_blocked(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -131,7 +115,7 @@ class TestWriteGate:
         # classification (ToolProgressMiddleware).
         assert TOOL_META_KEY in result.additional_kwargs
 
-    def test_str_replace_is_gated_like_write_file(self) -> None:
+    def test_str_replace_is_gated_like_write_file(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -142,7 +126,7 @@ class TestWriteGate:
         assert result.status == "error"
         assert "str_replace" in result.content
 
-    def test_write_allowed_after_read_of_current_version(self) -> None:
+    def test_write_allowed_after_read_of_current_version(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -157,7 +141,7 @@ class TestWriteGate:
 
         assert result.content == "ok"
 
-    def test_write_blocked_against_stale_read_mark(self) -> None:
+    def test_write_blocked_against_stale_read_mark(self, make_request) -> None:
         """Any successful write changes the hash, so the earlier read mark no
         longer matches the file's current version."""
         store = FakeContentStore()
@@ -177,7 +161,7 @@ class TestWriteGate:
         assert isinstance(result, ToolMessage)
         assert result.status == "error"
 
-    def test_state_without_any_mark_blocks(self) -> None:
+    def test_state_without_any_mark_blocks(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -190,7 +174,7 @@ class TestWriteGate:
         assert isinstance(result, ToolMessage)
         assert result.status == "error"
 
-    def test_latest_mark_wins(self) -> None:
+    def test_latest_mark_wins(self, make_request) -> None:
         """Only the most recent read of a path counts — an older matching
         read does not rescue a newer mismatching one, and vice versa."""
         store = FakeContentStore()
@@ -205,7 +189,7 @@ class TestWriteGate:
         assert isinstance(result, ToolMessage)
         assert result.status == "error"
 
-    def test_mark_for_other_path_does_not_authorize(self) -> None:
+    def test_mark_for_other_path_does_not_authorize(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         store.write("/w/b.txt", "v1")
@@ -217,7 +201,7 @@ class TestWriteGate:
         assert isinstance(result, ToolMessage)
         assert result.status == "error"
 
-    def test_path_spelling_normalized_between_read_and_write(self) -> None:
+    def test_path_spelling_normalized_between_read_and_write(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/n.txt", "same")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -241,7 +225,7 @@ class TestWriteGate:
 
 
 class TestFailOpen:
-    def test_missing_file_fails_open_for_write_file(self) -> None:
+    def test_missing_file_fails_open_for_write_file(self, make_request) -> None:
         """FileNotFoundError means the write creates the file — allowed."""
         middleware = ReadBeforeWriteMiddleware(content_reader=FakeContentStore().read)
         handler = OkHandler()
@@ -251,7 +235,7 @@ class TestFailOpen:
         assert result.content == "ok"
         assert len(handler.calls) == 1
 
-    def test_error_string_read_channel_fails_open(self) -> None:
+    def test_error_string_read_channel_fails_open(self, make_request) -> None:
         """AIO/E2B sandboxes report read failures as "Error: ..." strings; the
         gate cannot distinguish missing from unreadable, so it allows the
         write and lets the tool surface any real failure."""
@@ -265,7 +249,7 @@ class TestFailOpen:
         assert result.content == "ok"
         assert len(handler.calls) == 1
 
-    def test_reader_exception_fails_open(self) -> None:
+    def test_reader_exception_fails_open(self, make_request) -> None:
         def broken_reader(runtime: Any, path: str) -> str:
             raise OSError("sandbox unavailable")
 
@@ -284,7 +268,7 @@ class TestFailOpen:
 
 
 class TestReadMarkStamping:
-    def test_successful_read_stamps_mark_with_current_hash(self) -> None:
+    def test_successful_read_stamps_mark_with_current_hash(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -294,7 +278,7 @@ class TestReadMarkStamping:
         mark = result.additional_kwargs[READ_MARK_KEY]
         assert mark == {"path": "/w/a.txt", "hash": content_hash("v1")}
 
-    def test_failed_read_stamps_no_mark(self) -> None:
+    def test_failed_read_stamps_no_mark(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -311,7 +295,7 @@ class TestReadMarkStamping:
 
         assert READ_MARK_KEY not in result.additional_kwargs
 
-    def test_mark_stamped_on_command_wrapped_result(self) -> None:
+    def test_mark_stamped_on_command_wrapped_result(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -331,7 +315,7 @@ class TestReadMarkStamping:
         inner = result.update["messages"][0]
         assert inner.additional_kwargs[READ_MARK_KEY]["hash"] == content_hash("v1")
 
-    def test_error_string_read_stamps_no_mark(self) -> None:
+    def test_error_string_read_stamps_no_mark(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "Error: cannot read binary")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -347,7 +331,7 @@ class TestReadMarkStamping:
 
 
 class TestPassthrough:
-    def test_ungated_tool_result_untouched(self) -> None:
+    def test_ungated_tool_result_untouched(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -359,7 +343,7 @@ class TestPassthrough:
         assert READ_MARK_KEY not in result.additional_kwargs
         assert len(handler.calls) == 1
 
-    def test_gated_tool_without_path_arg_passthrough(self) -> None:
+    def test_gated_tool_without_path_arg_passthrough(self, make_request) -> None:
         middleware = ReadBeforeWriteMiddleware(content_reader=FakeContentStore().read)
         handler = OkHandler()
 
@@ -376,7 +360,7 @@ class TestPassthrough:
 
 
 class TestAsyncWrapToolCall:
-    async def test_block_read_allow_cycle(self) -> None:
+    async def test_block_read_allow_cycle(self, make_request) -> None:
         store = FakeContentStore()
         store.write("/w/a.txt", "v1")
         middleware = ReadBeforeWriteMiddleware(content_reader=store.read)
@@ -396,7 +380,7 @@ class TestAsyncWrapToolCall:
         )
         assert allowed.content == "ok"
 
-    async def test_ungated_tool_passthrough(self) -> None:
+    async def test_ungated_tool_passthrough(self, make_request) -> None:
         middleware = ReadBeforeWriteMiddleware(content_reader=FakeContentStore().read)
         handler = OkHandler()
 

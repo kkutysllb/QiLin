@@ -15,13 +15,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install test dependencies
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      # Dependency source: the uv.lock lockfile via `uv sync --all-extras`
+      # (chosen over `uv export | pip install` so CI resolves the exact same
+      # dependency set as the local .venv, including every
+      # [project.optional-dependencies] extra the gateway tests import).
+      # ruff / pytest / pytest-asyncio / mypy are NOT declared in pyproject
+      # (there is no [dependency-groups] section yet), so they are layered
+      # into the same .venv with `uv pip install`.
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install ruff pytest pytest-asyncio croniter mypy==2.3.0
+          uv sync --all-extras
+          uv pip install ruff pytest pytest-asyncio mypy==2.3.0
 
       - name: Lint
-        run: ruff check .
+        run: uv run ruff check .
 
       # mypy gate for the clean modules (4b backlog: agents/community/runtime
       # are still excluded until their errors are worked off -- see
@@ -30,7 +40,7 @@ jobs:
       # every statement in the listed modules.
       - name: Type check (clean-module gate)
         run: |
-          mypy --follow-imports=silent \
+          uv run mypy --follow-imports=silent \
             qilin/authz qilin/config qilin/guardrails qilin/integrations \
             qilin/mcp qilin/models qilin/orchestration qilin/persistence \
             qilin/reflection qilin/sandbox qilin/scheduler qilin/skills \
@@ -41,23 +51,23 @@ jobs:
             qilin/runtime/user_context.py qilin/runtime/secret_context.py
 
       - name: Unit tests
-        run: pytest tests -v
+        env:
+          # Must match tests/conftest.py (which backstops local runs): the
+          # gateway internal-auth module fail-fasts at import time without it.
+          QILIN_INTERNAL_AUTH_TOKEN: unit-test-secret-0123456789abcdef
+        run: uv run pytest tests -v
 
       # Packaging gate: the wheel must ship both qilin/ and the app/ service
       # surface (gateway/channels/scheduler). Regression guard for
       # [tool.hatch.build.targets.wheel] packages.
+      # NOTE: the verification script is one `python -c` line because a
+      # multi-line block scalar may not dedent to column 0 (the previous
+      # unindented here-doc made this whole workflow invalid YAML).
       - name: Build wheel (packaging gate)
         run: |
           pip install build
           python -m build --wheel --outdir /tmp/wheelcheck
-          python -c "
-import glob, zipfile
-names = zipfile.ZipFile(glob.glob('/tmp/wheelcheck/*.whl')[0]).namelist()
-app_files = [n for n in names if n.startswith('app/')]
-assert app_files, 'app/ missing from wheel'
-assert any(n.startswith('qilin/') for n in names), 'qilin/ missing from wheel'
-print(f'wheel OK: {len(app_files)} app files, {len(names)} total')
-"
+          python -c "import glob, zipfile; names = zipfile.ZipFile(glob.glob('/tmp/wheelcheck/*.whl')[0]).namelist(); app_files = [n for n in names if n.startswith('app/')]; assert app_files, 'app/ missing from wheel'; assert any(n.startswith('qilin/') for n in names), 'qilin/ missing from wheel'; print(f'wheel OK: {len(app_files)} app files, {len(names)} total')"
 
       - name: Byte-compile check
         run: python -m compileall -q qilin app

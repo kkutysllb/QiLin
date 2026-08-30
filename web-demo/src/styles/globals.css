@@ -77,35 +77,6 @@
     ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
 
-  --animate-fade-in: fade-in 1.1s;
-  @keyframes fade-in {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  --animate-fade-in-up: fade-in-up 0.15s ease-in-out forwards;
-  @keyframes fade-in-up {
-    0% {
-      opacity: 0;
-      transform: translateY(1rem) scale(1.2);
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  --animate-bouncing: bouncing 0.5s infinite alternate;
-  @keyframes bouncing {
-    to {
-      opacity: 0.1;
-      transform: translateY(-8px);
-    }
-  }
-
   --animate-skeleton-entrance: skeleton-entrance 0.35s ease-out forwards;
   @keyframes skeleton-entrance {
     0% {
@@ -116,63 +87,6 @@
       opacity: 1;
       transform: scaleX(1);
     }
-  }
-
-  --animate-suggestion-in: suggestion-in 0.2s ease-out forwards;
-  @keyframes suggestion-in {
-    0% {
-      opacity: 0;
-      transform: translateY(-1.25rem);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  --animate-wave: wave 0.6s ease-in-out 2;
-  @keyframes wave {
-    0%,
-    100% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(20deg);
-    }
-    50% {
-      transform: rotate(0deg);
-    }
-    75% {
-      transform: rotate(20deg);
-    }
-  }
-
-  --animate-loading-bar: loading-bar 1s ease-in-out infinite;
-  @keyframes loading-bar {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(400%);
-    }
-  }
-
-  --animate-flywheel: flywheel-spin 0.8s linear infinite;
-  --animate-neural-wave: neural-wave 0.9s linear infinite;
-}
-
-/* NOTE: Tailwind v4 only allows CSS variables inside @theme — @keyframes
-   must live at the top level or the animation is silently dropped. */
-@keyframes flywheel-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Neural wave — one full sine period (8 SVG units) */
-@keyframes neural-wave {
-  to {
-    transform: translateX(-8px);
   }
 }
 
@@ -450,11 +364,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -486,18 +395,6 @@
       transform: rotate(-5deg) scale(0.9);
     }
   }
-  --animate-shine: shine var(--duration) infinite linear;
-  @keyframes shine {
-    0% {
-      background-position: 0% 0%;
-    }
-    50% {
-      background-position: 100% 100%;
-    }
-    to {
-      background-position: 0% 0%;
-    }
-  }
 }
 
 :root {
@@ -520,11 +417,6 @@
   --border: oklch(0.922 0.0098 87.47);
   --input: oklch(0.88 0.0098 87.47);
   --ring: oklch(0.696 0.142 168.5);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.965 0.0098 87.47);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0.0098 87.47);
@@ -554,11 +446,6 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.75 0.13 168.5);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
   --sidebar: oklch(0.245 0.0036 106.64);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -663,13 +550,10 @@
 }
 
 :root {
-  --container-width-xs: calc(var(--spacing) * 72);
   --container-width-sm: calc(var(--spacing) * 144);
-  --container-width-md: calc(var(--spacing) * 240);
-  --container-width-lg: calc(var(--spacing) * 256);
 
   /* 消息正文阅读外观 —— 默认值；常规设置会按用户选择在运行时覆盖。
-     宽度默认对齐 --container-width-md，字体/行距对齐 .streamdown-tight。 */
+     宽度默认 240px（原 --container-width-md 的值），字体/行距对齐 .streamdown-tight。 */
   --chat-message-width: calc(var(--spacing) * 240);
   --chat-message-font-size: 0.875rem;
   --chat-message-line-height: 1.9;

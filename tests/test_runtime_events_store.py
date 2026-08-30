@@ -242,11 +242,6 @@ class TestMemoryStore:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
-def jsonl_store(tmp_path: Path) -> JsonlRunEventStore:
-    return JsonlRunEventStore(tmp_path)
-
-
 class TestJsonlStore:
     async def test_put_persists_and_new_instance_continues_seq(self, tmp_path: Path) -> None:
         first = JsonlRunEventStore(tmp_path)

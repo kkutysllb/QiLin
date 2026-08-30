@@ -11,10 +11,6 @@ sandbox never anchored to the real directory — the agent then reported
 from __future__ import annotations
 
 import inspect
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.gateway.services import (
     build_run_config,

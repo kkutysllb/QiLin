@@ -18,23 +18,6 @@ from qilin.agents.middlewares.tool_approval_middleware import ToolApprovalMiddle
 from qilin.config.tool_approval_config import ToolApprovalConfig
 
 
-def make_request(
-    name: str,
-    args: dict[str, Any],
-    *,
-    tool_call_id: str = "call-1",
-    messages: list[Any] | None = None,
-    runtime: Any = None,
-) -> ToolCallRequest:
-    """Build a ToolCallRequest fake shaped like the ToolNode dispatch payload."""
-    return ToolCallRequest(
-        tool_call={"name": name, "args": args, "id": tool_call_id},
-        tool=None,
-        state={"messages": messages or []},
-        runtime=runtime,
-    )
-
-
 def make_handler() -> tuple[list[ToolCallRequest], Any]:
     """A recording handler standing in for real tool execution."""
     calls: list[ToolCallRequest] = []
@@ -79,7 +62,7 @@ def prompt_payload(result: Command) -> tuple[ToolMessage, dict[str, Any]]:
 
 
 class TestSafeCallsPassThrough:
-    def test_safe_bash_passes_through_untouched(self) -> None:
+    def test_safe_bash_passes_through_untouched(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         calls, handler = make_handler()
         request = make_request("bash", {"command": "ls -la /mnt/user-data/workspace"})
@@ -90,7 +73,7 @@ class TestSafeCallsPassThrough:
         assert isinstance(result, ToolMessage)
         assert result.content == "executed"
 
-    def test_unlisted_tool_never_prompts_even_in_all_mode(self) -> None:
+    def test_unlisted_tool_never_prompts_even_in_all_mode(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="all")
         calls, handler = make_handler()
         request = make_request("read_file", {"path": "/mnt/user-data/workspace/a.txt"})
@@ -100,7 +83,7 @@ class TestSafeCallsPassThrough:
         assert calls == [request]
         assert result.content == "executed"
 
-    def test_safe_write_inside_workspace_passes_through(self) -> None:
+    def test_safe_write_inside_workspace_passes_through(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         calls, handler = make_handler()
         request = make_request("write_file", {"path": "/mnt/user-data/workspace/report.md", "content": "hi"})
@@ -131,7 +114,7 @@ class TestRiskyBashPrompts:
             ": > .env",
         ],
     )
-    def test_risky_bash_commands_prompt(self, command: str) -> None:
+    def test_risky_bash_commands_prompt(self, command: str, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         calls, handler = make_handler()
         request = make_request("bash", {"command": command}, tool_call_id="call-risky")
@@ -147,7 +130,7 @@ class TestRiskyBashPrompts:
         assert message.tool_call_id == "call-risky"
         assert message.name == "ask_clarification"
 
-    def test_prompt_payload_shape(self) -> None:
+    def test_prompt_payload_shape(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         _, handler = make_handler()
         args = {"command": "rm -rf /tmp/x"}
@@ -175,7 +158,7 @@ class TestRiskyBashPrompts:
         assert "bash" in payload["question"]
         assert "rm -rf /tmp/x" in payload["question"]
 
-    def test_question_truncates_long_commands(self) -> None:
+    def test_question_truncates_long_commands(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         _, handler = make_handler()
         long_command = "sudo " + "a" * 500
@@ -185,7 +168,7 @@ class TestRiskyBashPrompts:
         _, payload = prompt_payload(result)
         assert len(payload["question"]) < 300
 
-    async def test_async_prompt_path(self) -> None:
+    async def test_async_prompt_path(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         calls: list[ToolCallRequest] = []
 
@@ -202,7 +185,7 @@ class TestRiskyBashPrompts:
 
 
 class TestApprovalLoopPrevention:
-    def test_approved_fingerprint_executes_without_reprompting(self) -> None:
+    def test_approved_fingerprint_executes_without_reprompting(self, make_request) -> None:
         """After approval, the re-issued call (NEW tool_call_id) must execute."""
         middleware = ToolApprovalMiddleware(mode="dangerous")
         args = {"command": "rm -rf /tmp/cache"}
@@ -221,7 +204,7 @@ class TestApprovalLoopPrevention:
         assert calls == [request], "approved call must execute exactly once"
         assert result.content == "executed"
 
-    def test_denied_fingerprint_returns_denial_without_execution(self) -> None:
+    def test_denied_fingerprint_returns_denial_without_execution(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         args = {"command": "sudo rm /etc/hosts"}
         request_id = ToolApprovalMiddleware._request_id("bash", args)
@@ -238,7 +221,7 @@ class TestApprovalLoopPrevention:
         assert result.status == "error"
         assert "denied" in result.content.lower()
 
-    def test_unrelated_request_id_still_prompts(self) -> None:
+    def test_unrelated_request_id_still_prompts(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         state_messages = [approval_reply("approval-deadbeefdeadbeef", value="approve")]
         calls, handler = make_handler()
@@ -249,7 +232,7 @@ class TestApprovalLoopPrevention:
         assert calls == []
         assert isinstance(result, Command)
 
-    def test_json_string_args_prompt_and_fingerprint_like_dict_args(self) -> None:
+    def test_json_string_args_prompt_and_fingerprint_like_dict_args(self, make_request) -> None:
         """Some providers serialize args as a JSON string; treat both alike."""
         middleware = ToolApprovalMiddleware(mode="dangerous")
         args = {"command": "rm -rf /tmp/x"}
@@ -265,7 +248,7 @@ class TestApprovalLoopPrevention:
         assert calls == []
         assert isinstance(result, Command)
 
-    def test_malformed_human_input_response_treated_as_not_found(self) -> None:
+    def test_malformed_human_input_response_treated_as_not_found(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         args = {"command": "mkfs /dev/sda"}
         request_id = ToolApprovalMiddleware._request_id("bash", args)
@@ -281,7 +264,7 @@ class TestApprovalLoopPrevention:
         assert calls == []
         assert isinstance(result, Command), "malformed reply must prompt again, not execute"
 
-    def test_non_human_messages_ignored(self) -> None:
+    def test_non_human_messages_ignored(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         args = {"command": "npm publish"}
         request_id = ToolApprovalMiddleware._request_id("bash", args)
@@ -310,7 +293,7 @@ class TestModeOff:
             ("str_replace", {"path": "~/.ssh/authorized_keys", "old_str": "a", "new_str": "b"}),
         ],
     )
-    def test_mode_off_passes_everything(self, name: str, args: dict[str, Any]) -> None:
+    def test_mode_off_passes_everything(self, name: str, args: dict[str, Any], make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="off")
         calls, handler = make_handler()
         request = make_request(name, args)
@@ -320,7 +303,7 @@ class TestModeOff:
         assert calls == [request]
         assert result.content == "executed"
 
-    async def test_mode_off_async_passthrough(self) -> None:
+    async def test_mode_off_async_passthrough(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="off")
         calls: list[ToolCallRequest] = []
 
@@ -350,7 +333,7 @@ class TestRiskyWritePaths:
             ("write_file", {"file_path": "/etc/hosts", "content": "x"}),
         ],
     )
-    def test_risky_write_paths_prompt(self, tool: str, args: dict[str, Any]) -> None:
+    def test_risky_write_paths_prompt(self, tool: str, args: dict[str, Any], make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         calls, handler = make_handler()
         request = make_request(tool, args, tool_call_id="call-write")
@@ -368,7 +351,7 @@ class TestRiskyWritePaths:
 
 
 class TestModeAll:
-    def test_mode_all_prompts_for_safe_call(self) -> None:
+    def test_mode_all_prompts_for_safe_call(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="all")
         calls, handler = make_handler()
         request = make_request("bash", {"command": "echo hello"})
@@ -379,7 +362,7 @@ class TestModeAll:
         assert isinstance(result, Command)
         assert result.goto == END
 
-    def test_mode_all_still_honors_approved_fingerprint(self) -> None:
+    def test_mode_all_still_honors_approved_fingerprint(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="all")
         args = {"command": "echo hello"}
         request_id = ToolApprovalMiddleware._request_id("bash", args)
@@ -393,7 +376,7 @@ class TestModeAll:
 
 
 class TestNonInteractiveSuppression:
-    def test_disabled_clarification_denies_without_prompt(self) -> None:
+    def test_disabled_clarification_denies_without_prompt(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         runtime = SimpleNamespace(context={"disable_clarification": True})
         calls, handler = make_handler()
@@ -408,7 +391,7 @@ class TestNonInteractiveSuppression:
         assert result.name == "bash"
         assert "non-interactive" in result.content
 
-    def test_disabled_clarification_leaves_safe_calls_alone(self) -> None:
+    def test_disabled_clarification_leaves_safe_calls_alone(self, make_request) -> None:
         middleware = ToolApprovalMiddleware(mode="dangerous")
         runtime = SimpleNamespace(context={"disable_clarification": True})
         calls, handler = make_handler()

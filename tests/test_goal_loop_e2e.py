@@ -6,14 +6,10 @@ store, and real SSE broker, with only the LLM launch itself faked.
 from __future__ import annotations
 
 import asyncio
-import sys
-from pathlib import Path
 from types import SimpleNamespace
 
 import httpx
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.gateway import goal_activation
 from app.gateway.goal_round_wiring import make_goal_driver_observer

@@ -88,26 +88,25 @@ describe("token-budget-form config structure", () => {
 });
 
 describe("token-usage-budget i18n", () => {
-  test("zh-CN has tokenUsageBudget keys", () => {
+  test("zh-CN has tokenUsageBudget keys in view titles and summaries", () => {
     const source = read("src/core/i18n/locales/zh-CN.ts");
 
-    expect(source).toMatch(/sections:\s*\{[^}]*tokenUsageBudget:/s);
+    // settings.sections.* labels died with workspace-nav-menu (dead-code
+    // cleanup); the live wiring uses settings.view.{titles,summaries}.
     expect(source).toMatch(/titles:\s*\{[^}]*tokenUsageBudget:/s);
     expect(source).toMatch(/summaries:\s*\{[^}]*tokenUsageBudget:/s);
   });
 
-  test("en-US has tokenUsageBudget keys", () => {
+  test("en-US has tokenUsageBudget keys in view titles and summaries", () => {
     const source = read("src/core/i18n/locales/en-US.ts");
 
-    expect(source).toMatch(/sections:\s*\{[^}]*tokenUsageBudget:/s);
     expect(source).toMatch(/titles:\s*\{[^}]*tokenUsageBudget:/s);
     expect(source).toMatch(/summaries:\s*\{[^}]*tokenUsageBudget:/s);
   });
 
-  test("types.ts has tokenUsageBudget in sections, titles, and summaries", () => {
+  test("types.ts has tokenUsageBudget in titles and summaries", () => {
     const source = read("src/core/i18n/locales/types.ts");
 
-    expect(source).toMatch(/sections:\s*\{[^}]*tokenUsageBudget:\s*string;/s);
     expect(source).toMatch(/titles:\s*\{[^}]*tokenUsageBudget:\s*string;/s);
     expect(source).toMatch(/summaries:\s*\{[^}]*tokenUsageBudget:\s*string;/s);
   });
