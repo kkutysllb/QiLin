@@ -14,6 +14,8 @@ from collections.abc import Mapping
 from copy import copy
 from typing import Any
 
+from qilin.constants import HIDE_FROM_UI_KEY
+
 _UPLOAD_BLOCK_RE = re.compile(r"<(?P<tag>uploaded_files|current_uploads)>[\s\S]*?</(?P=tag)>\n*", re.IGNORECASE)
 
 
@@ -67,7 +69,7 @@ def filter_messages_for_memory(messages: list[Any]) -> list[Any]:
         msg_type = getattr(msg, "type", None)
         if msg_type == "human":
             additional_kwargs = getattr(msg, "additional_kwargs", {}) or {}
-            if additional_kwargs.get("hide_from_ui") and not _is_human_clarification_response(additional_kwargs):
+            if additional_kwargs.get(HIDE_FROM_UI_KEY) and not _is_human_clarification_response(additional_kwargs):
                 continue
             text = extract_message_text(msg)
             if "<uploaded_files>" in text.lower() or "<current_uploads>" in text.lower():

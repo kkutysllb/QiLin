@@ -12,6 +12,7 @@ from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, Tool
 from langgraph.runtime import Runtime
 
 from qilin.agents.thread_state import ThreadState
+from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -229,7 +230,7 @@ class ViewImageMiddleware(AgentMiddleware[ViewImageMiddlewareState]):
             id=f"{_IMAGE_CONTEXT_MESSAGE_ID_PREFIX}{uuid4().hex}",
             content=content,
             additional_kwargs={
-                "hide_from_ui": True,
+                HIDE_FROM_UI_KEY: True,
                 _IMAGE_CONTEXT_MESSAGE_MARKER_KEY: True,
             },
         )

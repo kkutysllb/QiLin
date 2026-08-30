@@ -10,7 +10,6 @@ import os
 import shutil
 import tempfile
 from collections.abc import Iterable
-from datetime import UTC, datetime
 from pathlib import Path
 
 from qilin.config.runtime_paths import resolve_path
@@ -18,6 +17,7 @@ from qilin.constants import DEFAULT_SKILLS_CONTAINER_PATH
 from qilin.skills.permissions import make_skill_written_path_sandbox_readable
 from qilin.skills.storage.skill_storage import SKILL_MD_FILE, SkillStorage
 from qilin.skills.types import SkillCategory
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -227,7 +227,7 @@ class LocalSkillStorage(SkillStorage):
 
     def append_history(self, name: str, record: dict) -> None:
         self.validate_skill_name(name)
-        payload = {"ts": datetime.now(UTC).isoformat(), **record}
+        payload = {"ts": now_iso(), **record}
         history_path = self.get_skill_history_file(name)
         history_path.parent.mkdir(parents=True, exist_ok=True)
         with history_path.open("a", encoding="utf-8") as f:

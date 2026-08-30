@@ -21,7 +21,6 @@ import asyncio
 import logging
 import time
 from collections.abc import Awaitable, Callable, Mapping, Sequence
-from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
 
@@ -49,6 +48,8 @@ from qilin.runtime.events.catalog import (
     RUN_START_EVENT,
 )
 from qilin.utils.messages import message_to_text, restore_original_human_message
+from qilin.utils.time import now_iso
+from qilin.constants import HIDE_FROM_UI_KEY
 
 if TYPE_CHECKING:
     from qilin.runtime.events.store.base import RunEventStore
@@ -65,7 +66,7 @@ def _should_persist_human_input_message(message: BaseMessage) -> bool:
         return False
     if message.name == _LEGACY_SUMMARY_MESSAGE_NAME:
         return False
-    if message.additional_kwargs.get("hide_from_ui") is not True:
+    if message.additional_kwargs.get(HIDE_FROM_UI_KEY) is not True:
         return True
     response = read_human_input_response(message.additional_kwargs)
     return response is not None and response["source"] in _PERSISTED_HIDDEN_HUMAN_INPUT_RESPONSE_SOURCES
@@ -142,7 +143,7 @@ def build_branch_history_seed_events(
     usage panel is run-scoped, not fed from the message feed).
     """
     events: list[dict] = []
-    created_at = datetime.now(UTC).isoformat()
+    created_at = now_iso()
     seed_metadata = {"branch_seed": True, "branch_parent_thread_id": parent_thread_id}
     # Messages ahead of the first human turn (none in practice) stay in turn 0.
     turn_index = 0
@@ -590,7 +591,7 @@ class RunJournal(BaseCallbackHandler):
         return []
 
     def _should_reconcile_tool_message(self, message: ToolMessage) -> bool:
-        if message.additional_kwargs.get("hide_from_ui") is True:
+        if message.additional_kwargs.get(HIDE_FROM_UI_KEY) is True:
             return False
         tool_call_id = getattr(message, "tool_call_id", None)
         if not isinstance(tool_call_id, str) or not tool_call_id:
@@ -620,7 +621,7 @@ class RunJournal(BaseCallbackHandler):
                 "category": category,
                 "content": content,
                 "metadata": metadata or {},
-                "created_at": datetime.now(UTC).isoformat(),
+                "created_at": now_iso(),
             }
         )
         if len(self._buffer) >= self._flush_threshold:

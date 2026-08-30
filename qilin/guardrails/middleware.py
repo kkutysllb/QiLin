@@ -2,7 +2,6 @@
 
 import logging
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
 from typing import override
 
 from langchain.agents import AgentState
@@ -20,6 +19,7 @@ from qilin.guardrails.provider import (
     GuardrailRequest,
 )
 from qilin.runtime.events.catalog import MIDDLEWARE_GUARDRAIL_TAG
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class GuardrailMiddleware(AgentMiddleware[AgentState]):
             agent_id=self.passport,
             thread_id=context.get("thread_id"),
             is_subagent=bool(context.get("is_subagent")),
-            timestamp=datetime.now(UTC).isoformat(),
+            timestamp=now_iso(),
             user_id=context.get("user_id"),
             user_role=context.get("user_role"),
             oauth_provider=context.get("oauth_provider"),

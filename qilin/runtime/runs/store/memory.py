@@ -9,6 +9,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from qilin.runtime.runs.store.base import LeaseRenewal, RunStore, StatusFinalization
+from qilin.utils.time import now_iso
 
 
 class MemoryRunStore(RunStore):
@@ -51,7 +52,7 @@ class MemoryRunStore(RunStore):
         owner_worker_id=None,
         lease_expires_at=None,
     ):
-        now = datetime.now(UTC).isoformat()
+        now = now_iso()
         existing = self._runs.get(run_id)
         self._runs[run_id] = {
             "run_id": run_id,
@@ -143,7 +144,7 @@ class MemoryRunStore(RunStore):
             run["error"] = error
         if stop_reason is not None:
             run["stop_reason"] = stop_reason
-        run["updated_at"] = datetime.now(UTC).isoformat()
+        run["updated_at"] = now_iso()
         return True
 
     async def start_run(self, run_id) -> bool:
@@ -151,13 +152,13 @@ class MemoryRunStore(RunStore):
         if run is None or run["status"] != "pending":
             return False
         run["status"] = "running"
-        run["updated_at"] = datetime.now(UTC).isoformat()
+        run["updated_at"] = now_iso()
         return True
 
     async def update_model_name(self, run_id, model_name):
         if run_id in self._runs:
             self._runs[run_id]["model_name"] = model_name
-            self._runs[run_id]["updated_at"] = datetime.now(UTC).isoformat()
+            self._runs[run_id]["updated_at"] = now_iso()
 
     async def delete(self, run_id, *, user_id=None):
         run = self._runs.pop(run_id, None)
@@ -193,7 +194,7 @@ class MemoryRunStore(RunStore):
         for key, value in kwargs.items():
             if value is not None:
                 run[key] = value
-        run["updated_at"] = datetime.now(UTC).isoformat()
+        run["updated_at"] = now_iso()
         return True
 
     async def update_run_progress(self, run_id, **kwargs):
@@ -201,7 +202,7 @@ class MemoryRunStore(RunStore):
             for key, value in kwargs.items():
                 if value is not None:
                     self._runs[run_id][key] = value
-            self._runs[run_id]["updated_at"] = datetime.now(UTC).isoformat()
+            self._runs[run_id]["updated_at"] = now_iso()
 
     async def aggregate_tokens_by_thread(self, thread_id: str, *, include_active: bool = False) -> dict[str, Any]:
         statuses = ("success", "error", "running") if include_active else ("success", "error")
@@ -259,7 +260,7 @@ class MemoryRunStore(RunStore):
             return False
         run["owner_worker_id"] = owner_worker_id
         run["lease_expires_at"] = lease_expires_at
-        run["updated_at"] = datetime.now(UTC).isoformat()
+        run["updated_at"] = now_iso()
         return True
 
     async def renew_lease(
@@ -292,8 +293,8 @@ class MemoryRunStore(RunStore):
             return None
         if run.get("cancel_action") is None:
             run["cancel_action"] = action
-            run["cancel_requested_at"] = datetime.now(UTC).isoformat()
-        run["updated_at"] = datetime.now(UTC).isoformat()
+            run["cancel_requested_at"] = now_iso()
+        run["updated_at"] = now_iso()
         return run["cancel_action"]
 
     async def finalize_if_not_cancelled(
@@ -319,7 +320,7 @@ class MemoryRunStore(RunStore):
             run["error"] = error
         if stop_reason is not None:
             run["stop_reason"] = stop_reason
-        run["updated_at"] = datetime.now(UTC).isoformat()
+        run["updated_at"] = now_iso()
         return StatusFinalization(finalized=True)
 
     async def claim_for_takeover(
@@ -344,7 +345,7 @@ class MemoryRunStore(RunStore):
         run["error"] = error
         if stop_reason is not None:
             run["stop_reason"] = stop_reason
-        run["updated_at"] = datetime.now(UTC).isoformat()
+        run["updated_at"] = now_iso()
         return True
 
     async def list_inflight_with_expired_lease(
@@ -408,7 +409,7 @@ class MemoryRunStore(RunStore):
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         from qilin.runtime.runs.manager import ConflictError
 
-        now = datetime.now(UTC).isoformat()
+        now = now_iso()
         cutoff = datetime.now(UTC) - timedelta(seconds=grace_seconds)
 
         # For reject: check if any active run exists

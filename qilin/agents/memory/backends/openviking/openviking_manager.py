@@ -24,6 +24,7 @@ from pydantic import PrivateAttr
 
 # ABC contract -- the only QiLin import in this backend package.
 from qilin.agents.memory.manager import MemoryManager
+from qilin.constants import HIDE_FROM_UI_KEY
 
 from .client import OpenVikingClientError, OpenVikingHttpClient
 from .config import OpenVikingConfig
@@ -448,7 +449,7 @@ def _convert_messages(
         additional_kwargs = _message_value(message, "additional_kwargs", {})
         if not isinstance(additional_kwargs, dict):
             additional_kwargs = {}
-        if additional_kwargs.get("hide_from_ui") and not (should_keep_hidden_message and should_keep_hidden_message(additional_kwargs)):
+        if additional_kwargs.get(HIDE_FROM_UI_KEY) and not (should_keep_hidden_message and should_keep_hidden_message(additional_kwargs)):
             continue
         tool_calls = _message_value(message, "tool_calls", [])
         if role == "assistant" and tool_calls:

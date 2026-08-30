@@ -1580,6 +1580,33 @@ def mask_secret_values(output: str, injected_env: dict[str, str] | None) -> str:
     return output
 
 
+def _marker_budget_kept(max_chars: int, marker_max_len: int) -> int:
+    """Output chars kept once the worst-case truncation marker is budgeted."""
+    return max(0, max_chars - marker_max_len)
+
+
+def _truncate_head(output: str, max_chars: int, hint: str) -> str:
+    """Head-truncate *output*, reserving budget for the truncation marker.
+
+    The returned string (including the truncation marker) is guaranteed to be
+    no longer than max_chars characters. Pass max_chars=0 to disable truncation
+    and return the full output unchanged.
+    """
+    if max_chars == 0:
+        return output
+    if len(output) <= max_chars:
+        return output
+    total = len(output)
+    # Compute the exact worst-case marker length: both numeric fields are at
+    # their maximum (total chars), so this is a tight upper bound.
+    marker_max_len = len(f"\n... [truncated: showing first {total} of {total} chars. {hint}] ...")
+    kept = _marker_budget_kept(max_chars, marker_max_len)
+    if kept == 0:
+        return output[:max_chars]
+    marker = f"\n... [truncated: showing first {kept} of {total} chars. {hint}] ..."
+    return f"{output[:kept]}{marker}"
+
+
 def _truncate_bash_output(output: str, max_chars: int) -> str:
     """Middle-truncate bash output, preserving head and tail (50/50 split).
 
@@ -1598,7 +1625,7 @@ def _truncate_bash_output(output: str, max_chars: int) -> str:
     # Compute the exact worst-case marker length: skipped chars is at most
     # total_len, so this is a tight upper bound.
     marker_max_len = len(f"\n... [middle truncated: {total_len} chars skipped] ...\n")
-    kept = max(0, max_chars - marker_max_len)
+    kept = _marker_budget_kept(max_chars, marker_max_len)
     if kept == 0:
         return output[:max_chars]
     head_len = kept // 2
@@ -1613,24 +1640,8 @@ def _truncate_read_file_output(output: str, max_chars: int) -> str:
 
     Source code and documents are read top-to-bottom; the head contains the
     most context (imports, class definitions, function signatures).
-
-    The returned string (including the truncation marker) is guaranteed to be
-    no longer than max_chars characters. Pass max_chars=0 to disable truncation
-    and return the full output unchanged.
     """
-    if max_chars == 0:
-        return output
-    if len(output) <= max_chars:
-        return output
-    total = len(output)
-    # Compute the exact worst-case marker length: both numeric fields are at
-    # their maximum (total chars), so this is a tight upper bound.
-    marker_max_len = len(f"\n... [truncated: showing first {total} of {total} chars. Use start_line/end_line to read a specific range] ...")
-    kept = max(0, max_chars - marker_max_len)
-    if kept == 0:
-        return output[:max_chars]
-    marker = f"\n... [truncated: showing first {kept} of {total} chars. Use start_line/end_line to read a specific range] ..."
-    return f"{output[:kept]}{marker}"
+    return _truncate_head(output, max_chars, "Use start_line/end_line to read a specific range")
 
 
 def _truncate_ls_output(output: str, max_chars: int) -> str:
@@ -1638,22 +1649,8 @@ def _truncate_ls_output(output: str, max_chars: int) -> str:
 
     Directory listings are read top-to-bottom; the head shows the most
     relevant structure.
-
-    The returned string (including the truncation marker) is guaranteed to be
-    no longer than max_chars characters. Pass max_chars=0 to disable truncation
-    and return the full output unchanged.
     """
-    if max_chars == 0:
-        return output
-    if len(output) <= max_chars:
-        return output
-    total = len(output)
-    marker_max_len = len(f"\n... [truncated: showing first {total} of {total} chars. Use a more specific path to see fewer results] ...")
-    kept = max(0, max_chars - marker_max_len)
-    if kept == 0:
-        return output[:max_chars]
-    marker = f"\n... [truncated: showing first {kept} of {total} chars. Use a more specific path to see fewer results] ..."
-    return f"{output[:kept]}{marker}"
+    return _truncate_head(output, max_chars, "Use a more specific path to see fewer results")
 
 
 # Fixed env var exposing the IM-channel platform user id (Feishu open_id,

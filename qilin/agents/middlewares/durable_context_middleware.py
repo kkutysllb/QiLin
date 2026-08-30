@@ -33,6 +33,7 @@ from qilin.agents.thread_state import _DELEGATION_LEDGER_MAX_ENTRIES, TERMINAL_S
 from qilin.config.summarization_config import DEFAULT_SKILL_FILE_READ_TOOL_NAMES
 from qilin.constants import DEFAULT_SKILLS_CONTAINER_PATH
 from qilin.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
+from qilin.constants import HIDE_FROM_UI_KEY
 
 _DURABLE_CONTEXT_DATA_KEY = "durable_context_data"
 _SUMMARY_RENDER_CHAR_BUDGET = 6000
@@ -269,7 +270,7 @@ class DurableContextMiddleware(AgentMiddleware[AgentState]):
                 HumanMessage(
                     content=data_block,
                     additional_kwargs={
-                        "hide_from_ui": True,
+                        HIDE_FROM_UI_KEY: True,
                         _DURABLE_CONTEXT_DATA_KEY: True,
                     },
                 ),

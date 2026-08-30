@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime, timedelta
 
-__all__ = ["coerce_iso", "is_lease_expired", "now_iso"]
+__all__ = ["coerce_iso", "is_lease_expired", "now_iso", "now_iso_z"]
 
 
 def is_lease_expired(lease_expires_at: str | None, *, grace_seconds: int) -> bool:
@@ -53,6 +53,19 @@ def now_iso() -> str:
     Example: ``"2026-04-27T03:19:46.511479+00:00"``.
     """
     return datetime.now(UTC).isoformat()
+
+
+def now_iso_z() -> str:
+    """Return the current UTC time as an ISO 8601 string ending in ``Z``.
+
+    Example: ``"2026-04-27T03:19:46.511479Z"``.
+
+    This is the canonical form of the ``"+00:00"`` → ``"Z"`` suffix
+    rewrite that the delegation ledger and the qilinmem storage/retrieval
+    cores previously hand-rolled; the suffix swap is byte-identical for
+    any UTC-aware ``datetime.isoformat()`` output.
+    """
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def coerce_iso(value: object) -> str:

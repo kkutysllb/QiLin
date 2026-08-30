@@ -8,6 +8,8 @@ from typing import Any
 
 import httpx
 
+from qilin.utils.backoff import backoff_delay_seconds
+
 from .config import OpenVikingConfig
 from .models import (
     OpenVikingCommitResult,
@@ -249,5 +251,5 @@ class OpenVikingHttpClient:
 
 
 def _retry_delay(attempt: int) -> float:
-    base_delay = 0.05 * (2**attempt)
+    base_delay = backoff_delay_seconds(attempt + 1, 0.05)
     return base_delay + random.uniform(0.0, base_delay)

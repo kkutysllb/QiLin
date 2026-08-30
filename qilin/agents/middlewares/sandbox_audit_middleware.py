@@ -5,7 +5,6 @@ import logging
 import re
 import shlex
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
 from typing import override
 
 from langchain.agents.middleware import AgentMiddleware
@@ -14,6 +13,7 @@ from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command
 
 from qilin.agents.thread_state import ThreadState
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -236,7 +236,7 @@ class SandboxAuditMiddleware(AgentMiddleware[ThreadState]):
         if truncate and len(command) > self._AUDIT_COMMAND_LIMIT:
             audited_command = f"{command[: self._AUDIT_COMMAND_LIMIT]}... ({len(command)} chars)"
         record = {
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": now_iso(),
             "thread_id": thread_id or "unknown",
             "command": audited_command,
             "verdict": verdict,

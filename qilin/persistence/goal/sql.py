@@ -323,9 +323,9 @@ class GoalRepository:
                     )
                 next_revision = 1
                 goal_id = f"goal-{uuid.uuid4()}"
-                from datetime import UTC, datetime
+                from qilin.utils.time import now_iso
 
-                created_iso = datetime.now(UTC).isoformat()
+                created_iso = now_iso()
                 row = GoalChangeRow(
                     thread_id=thread_id,
                     user_id=user_id,

@@ -18,6 +18,7 @@ import logging
 import os
 from collections.abc import AsyncIterator
 
+from qilin.constants import DEFAULT_REDIS_URL
 from qilin.config.app_config import AppConfig
 from qilin.config.stream_bridge_config import (
     StreamBridgeConfig,
@@ -45,7 +46,7 @@ def _resolve_config(app_config: AppConfig | None) -> StreamBridgeConfig | None:
 
 
 def _resolve_redis_url(config: StreamBridgeConfig) -> str:
-    return config.redis_url or os.getenv(_ENV_REDIS_URL) or os.getenv("REDIS_URL") or "redis://localhost:6379/0"
+    return config.redis_url or os.getenv(_ENV_REDIS_URL) or os.getenv("REDIS_URL") or DEFAULT_REDIS_URL
 
 
 @contextlib.asynccontextmanager

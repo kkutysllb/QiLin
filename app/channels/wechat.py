@@ -13,7 +13,7 @@ import mimetypes
 import secrets
 import tempfile
 import time
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from enum import IntEnum
 from pathlib import Path
 from typing import Any
@@ -1052,103 +1052,128 @@ class WechatChannel(Channel):
                     files.append(file_info)
         return files
 
-    async def _extract_image_file(self, item: Mapping[str, Any], *, message_id: str, index: int) -> dict[str, Any] | None:
-        image_item = item.get("image_item")
-        if not isinstance(image_item, Mapping):
+    async def _extract_cdn_media(
+        self,
+        item: Mapping[str, Any],
+        item_key: str,
+        *,
+        message_id: str,
+        index: int,
+        media_kind: str,
+        max_bytes: int,
+        message_item_type: int,
+        prepare: Callable[[Mapping[str, Any]], Awaitable[tuple[str, str] | None]] | None,
+        finalize: Callable[[bytes], tuple[str, str]],
+    ) -> dict[str, Any] | None:
+        """Shared CDN download/decrypt/stage pipeline for image and file items.
+
+        The per-kind steps are injected: *prepare* runs media-specific
+        validation before the download (file-type whitelist) and may return
+        the ``(filename, mime_type)`` pair early; *finalize* derives the pair
+        from the decrypted bytes (image extension sniffing).
+        """
+        item_payload = item.get(item_key)
+        if not isinstance(item_payload, Mapping):
             return None
 
-        media = image_item.get("media")
+        media = item_payload.get("media")
         if not isinstance(media, Mapping):
             return None
 
         full_url = self._extract_cdn_full_url(media)
         if not full_url:
-            logger.warning("[WeChat] inbound image missing full_url, skipping message_id=%s", message_id)
+            logger.warning("[WeChat] inbound %s missing full_url, skipping message_id=%s", media_kind, message_id)
             return None
 
-        aes_key = self._resolve_media_aes_key(item, image_item, media)
+        aes_key = self._resolve_media_aes_key(item, item_payload, media)
         if not aes_key:
             logger.warning(
-                "[WeChat] inbound image missing aes key, skipping message_id=%s diagnostics=%s",
+                "[WeChat] inbound %s missing aes key, skipping message_id=%s diagnostics=%s",
+                media_kind,
                 message_id,
-                self._describe_media_key_state(item=item, item_payload=image_item, media=media),
+                self._describe_media_key_state(item=item, item_payload=item_payload, media=media),
             )
             return None
 
+        filename_mime: tuple[str, str] | None = None
+        if prepare is not None:
+            filename_mime = await prepare(item_payload)
+            if filename_mime is None:
+                return None
+
         encrypted = await self._download_cdn_bytes(full_url)
         decrypted = _decrypt_aes_128_ecb(encrypted, aes_key)
-        if self._max_inbound_image_bytes > 0 and len(decrypted) > self._max_inbound_image_bytes:
-            logger.warning("[WeChat] inbound image exceeds size limit (%d bytes), skipping message_id=%s", len(decrypted), message_id)
+        if max_bytes > 0 and len(decrypted) > max_bytes:
+            logger.warning("[WeChat] inbound %s exceeds size limit (%d bytes), skipping message_id=%s", media_kind, len(decrypted), message_id)
             return None
 
-        detected_image = _detect_image_extension_and_mime(decrypted)
-        image_extension = detected_image[0] if detected_image else ".jpg"
-        filename = _safe_media_filename("wechat-image", image_extension, message_id=message_id, index=index)
+        if filename_mime is None:
+            filename_mime = finalize(decrypted)
+        filename, mime_type = filename_mime
+
         stored_path = await asyncio.to_thread(self._stage_downloaded_file, filename, decrypted)
         if stored_path is None:
             return None
 
-        mime_type = detected_image[1] if detected_image else mimetypes.guess_type(filename)[0] or "image/jpeg"
         return {
-            "type": "image",
+            "type": media_kind,
             "filename": stored_path.name,
             "size": len(decrypted),
             "path": str(stored_path),
             "mime_type": mime_type,
             "source": "wechat",
-            "message_item_type": int(MessageItemType.IMAGE),
+            "message_item_type": message_item_type,
             "full_url": full_url,
         }
+
+    async def _extract_image_file(self, item: Mapping[str, Any], *, message_id: str, index: int) -> dict[str, Any] | None:
+        def finalize(decrypted: bytes) -> tuple[str, str]:
+            detected_image = _detect_image_extension_and_mime(decrypted)
+            image_extension = detected_image[0] if detected_image else ".jpg"
+            filename = _safe_media_filename("wechat-image", image_extension, message_id=message_id, index=index)
+            mime_type = detected_image[1] if detected_image else mimetypes.guess_type(filename)[0] or "image/jpeg"
+            return filename, mime_type
+
+        return await self._extract_cdn_media(
+            item,
+            "image_item",
+            message_id=message_id,
+            index=index,
+            media_kind="image",
+            max_bytes=self._max_inbound_image_bytes,
+            message_item_type=int(MessageItemType.IMAGE),
+            prepare=None,
+            finalize=finalize,
+        )
 
     async def _extract_file_item(self, item: Mapping[str, Any], *, message_id: str, index: int) -> dict[str, Any] | None:
-        file_item = item.get("file_item")
-        if not isinstance(file_item, Mapping):
-            return None
+        prepared: tuple[str, str] | None = None
 
-        media = file_item.get("media")
-        if not isinstance(media, Mapping):
-            return None
+        async def prepare(file_item: Mapping[str, Any]) -> tuple[str, str] | None:
+            nonlocal prepared
+            filename = self._normalize_inbound_filename(file_item.get("file_name"), default_prefix="wechat-file", message_id=message_id, index=index)
+            mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+            if not self._is_allowed_file_type(filename, mime_type):
+                logger.warning("[WeChat] inbound file type blocked, skipping message_id=%s filename=%s", message_id, filename)
+                return None
+            prepared = (filename, mime_type)
+            return prepared
 
-        full_url = self._extract_cdn_full_url(media)
-        if not full_url:
-            logger.warning("[WeChat] inbound file missing full_url, skipping message_id=%s", message_id)
-            return None
+        def finalize(decrypted: bytes) -> tuple[str, str]:
+            assert prepared is not None  # prepare ran in the shared pipeline
+            return prepared
 
-        aes_key = self._resolve_media_aes_key(item, file_item, media)
-        if not aes_key:
-            logger.warning(
-                "[WeChat] inbound file missing aes key, skipping message_id=%s diagnostics=%s",
-                message_id,
-                self._describe_media_key_state(item=item, item_payload=file_item, media=media),
-            )
-            return None
-
-        filename = self._normalize_inbound_filename(file_item.get("file_name"), default_prefix="wechat-file", message_id=message_id, index=index)
-        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
-        if not self._is_allowed_file_type(filename, mime_type):
-            logger.warning("[WeChat] inbound file type blocked, skipping message_id=%s filename=%s", message_id, filename)
-            return None
-
-        encrypted = await self._download_cdn_bytes(full_url)
-        decrypted = _decrypt_aes_128_ecb(encrypted, aes_key)
-        if self._max_inbound_file_bytes > 0 and len(decrypted) > self._max_inbound_file_bytes:
-            logger.warning("[WeChat] inbound file exceeds size limit (%d bytes), skipping message_id=%s", len(decrypted), message_id)
-            return None
-
-        stored_path = await asyncio.to_thread(self._stage_downloaded_file, filename, decrypted)
-        if stored_path is None:
-            return None
-
-        return {
-            "type": "file",
-            "filename": stored_path.name,
-            "size": len(decrypted),
-            "path": str(stored_path),
-            "mime_type": mime_type,
-            "source": "wechat",
-            "message_item_type": int(MessageItemType.FILE),
-            "full_url": full_url,
-        }
+        return await self._extract_cdn_media(
+            item,
+            "file_item",
+            message_id=message_id,
+            index=index,
+            media_kind="file",
+            max_bytes=self._max_inbound_file_bytes,
+            message_item_type=int(MessageItemType.FILE),
+            prepare=prepare,
+            finalize=finalize,
+        )
 
     def _stage_downloaded_file(self, filename: str, content: bytes) -> Path | None:
         download_dir = self._download_dir()

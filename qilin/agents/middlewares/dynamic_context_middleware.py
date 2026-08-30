@@ -42,6 +42,7 @@ from langgraph.runtime import Runtime
 
 from qilin.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
 from qilin.runtime.user_context import resolve_runtime_user_id
+from qilin.constants import HIDE_FROM_UI_KEY
 
 if TYPE_CHECKING:
     from qilin.config.app_config import AppConfig
@@ -235,7 +236,7 @@ class DynamicContextMiddleware(AgentMiddleware):
         stable_id = original.id or str(uuid.uuid4())
         messages: list[SystemMessage | HumanMessage] = []
 
-        reminder_kwargs = {"hide_from_ui": True, _DYNAMIC_CONTEXT_REMINDER_KEY: True}
+        reminder_kwargs = {HIDE_FROM_UI_KEY: True, _DYNAMIC_CONTEXT_REMINDER_KEY: True}
         if reminder_date is not None:
             reminder_kwargs[_REMINDER_DATE_KEY] = reminder_date
         messages.append(
@@ -251,7 +252,7 @@ class DynamicContextMiddleware(AgentMiddleware):
                 HumanMessage(
                     content=memory_content,
                     id=f"{stable_id}__memory",
-                    additional_kwargs={"hide_from_ui": True, _DYNAMIC_CONTEXT_REMINDER_KEY: True},
+                    additional_kwargs={HIDE_FROM_UI_KEY: True, _DYNAMIC_CONTEXT_REMINDER_KEY: True},
                 )
             )
 

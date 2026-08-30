@@ -25,13 +25,16 @@ from collections.abc import AsyncIterator
 from langgraph.store.base import BaseStore
 
 from qilin.config.app_config import AppConfig, get_app_config
+from qilin.runtime._langgraph_backend import import_backend_class
+from qilin.runtime.store._sqlite_utils import (
+    ensure_sqlite_parent_dir,
+    resolve_sqlite_conn_str,
+)
 from qilin.runtime.store.provider import (
     POSTGRES_CONN_REQUIRED,
     POSTGRES_STORE_INSTALL,
     SQLITE_STORE_INSTALL,
     _resolve_store_config,
-    ensure_sqlite_parent_dir,
-    resolve_sqlite_conn_str,
 )
 
 logger = logging.getLogger(__name__)
@@ -56,10 +59,9 @@ async def _async_store(config) -> AsyncIterator[BaseStore]:
         return
 
     if config.type == "sqlite":
-        try:
-            from langgraph.store.sqlite.aio import AsyncSqliteStore
-        except ImportError as exc:
-            raise ImportError(SQLITE_STORE_INSTALL) from exc
+        AsyncSqliteStore = import_backend_class(
+            "langgraph.store.sqlite.aio", "AsyncSqliteStore", SQLITE_STORE_INSTALL
+        )
 
         conn_str = resolve_sqlite_conn_str(config.connection_string or "store.db")
         await asyncio.to_thread(ensure_sqlite_parent_dir, conn_str)
@@ -71,12 +73,9 @@ async def _async_store(config) -> AsyncIterator[BaseStore]:
         return
 
     if config.type == "postgres":
-        try:
-            from langgraph.store.postgres.aio import (
-                AsyncPostgresStore,  # type: ignore[import]
-            )
-        except ImportError as exc:
-            raise ImportError(POSTGRES_STORE_INSTALL) from exc
+        AsyncPostgresStore = import_backend_class(
+            "langgraph.store.postgres.aio", "AsyncPostgresStore", POSTGRES_STORE_INSTALL
+        )
 
         if not config.connection_string:
             raise ValueError(POSTGRES_CONN_REQUIRED)

@@ -11,11 +11,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
+
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/assistants", tags=["assistants-compat"])
@@ -43,7 +44,7 @@ class AssistantSearchRequest(BaseModel):
 
 def _get_default_assistant() -> AssistantResponse:
     """Return the default lead_agent assistant."""
-    now = datetime.now(UTC).isoformat()
+    now = now_iso()
     return AssistantResponse(
         assistant_id="lead_agent",
         graph_id="lead_agent",
@@ -66,7 +67,7 @@ def _list_assistants() -> list[AssistantResponse]:
         from qilin.config.agents_config import list_custom_agents
 
         for agent_cfg in list_custom_agents():
-            now = datetime.now(UTC).isoformat()
+            now = now_iso()
             assistants.append(
                 AssistantResponse(
                     assistant_id=agent_cfg.name,

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from contextlib import contextmanager
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -378,6 +379,28 @@ async def install_lark(
         )
 
 
+@contextmanager
+def lark_http_errors(op: str):
+    """Map Lark CLI errors to HTTP responses for the config/auth endpoints.
+
+    404/400/504 carry the exception text verbatim; anything else becomes a
+    500 whose detail is ``Failed to {op}.`` and is logged at error level.
+    """
+    try:
+        yield
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except TimeoutError as e:
+        raise HTTPException(status_code=504, detail=str(e))
+    except Exception as e:
+        logger.error("Failed to %s: %s", op, e, exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to {op}."
+        )
+
+
 @router.post(
     "/lark/config/start",
     response_model=LarkConfigStartResponse,
@@ -386,24 +409,13 @@ async def install_lark(
 async def start_lark_app_config(
     body: LarkConfigStartRequest,
 ) -> LarkConfigStartResponse:
-    try:
+    with lark_http_errors("start Lark connection setup"):
         result = await asyncio.to_thread(
             start_lark_config,
             get_effective_user_id(),
             brand=body.brand,
         )
         return _config_start_to_response(result)
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except TimeoutError as e:
-        raise HTTPException(status_code=504, detail=str(e))
-    except Exception as e:
-        logger.error("Failed to start Lark connection setup: %s", e, exc_info=True)
-        raise HTTPException(
-            status_code=500, detail="Failed to start Lark connection setup."
-        )
 
 
 @router.post(
@@ -416,7 +428,7 @@ async def complete_lark_app_config(
     body: LarkConfigCompleteRequest,
     config: AppConfig = Depends(get_config),
 ) -> LarkConfigCompleteResponse:
-    try:
+    with lark_http_errors("complete Lark connection setup"):
         result = await asyncio.to_thread(
             complete_lark_config,
             get_effective_user_id(),
@@ -429,17 +441,6 @@ async def complete_lark_app_config(
         return _config_complete_to_response(
             result, include_host_paths=await _is_admin_user(request)
         )
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except TimeoutError as e:
-        raise HTTPException(status_code=504, detail=str(e))
-    except Exception as e:
-        logger.error("Failed to complete Lark connection setup: %s", e, exc_info=True)
-        raise HTTPException(
-            status_code=500, detail="Failed to complete Lark connection setup."
-        )
 
 
 @router.post(
@@ -448,7 +449,7 @@ async def complete_lark_app_config(
     summary="Start Lark/Feishu Browser Authorization",
 )
 async def start_lark_browser_auth(body: LarkAuthStartRequest) -> LarkAuthStartResponse:
-    try:
+    with lark_http_errors("start Lark authorization"):
         result = await asyncio.to_thread(
             start_lark_auth,
             get_effective_user_id(),
@@ -457,17 +458,6 @@ async def start_lark_browser_auth(body: LarkAuthStartRequest) -> LarkAuthStartRe
             recommend=body.recommend,
         )
         return _auth_start_to_response(result)
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except TimeoutError as e:
-        raise HTTPException(status_code=504, detail=str(e))
-    except Exception as e:
-        logger.error("Failed to start Lark authorization: %s", e, exc_info=True)
-        raise HTTPException(
-            status_code=500, detail="Failed to start Lark authorization."
-        )
 
 
 @router.post(
@@ -480,7 +470,7 @@ async def complete_lark_browser_auth(
     body: LarkAuthCompleteRequest,
     config: AppConfig = Depends(get_config),
 ) -> LarkAuthCompleteResponse:
-    try:
+    with lark_http_errors("complete Lark authorization"):
         result = await asyncio.to_thread(
             complete_lark_auth,
             get_effective_user_id(),
@@ -490,15 +480,4 @@ async def complete_lark_browser_auth(
         )
         return _auth_complete_to_response(
             result, include_host_paths=await _is_admin_user(request)
-        )
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except TimeoutError as e:
-        raise HTTPException(status_code=504, detail=str(e))
-    except Exception as e:
-        logger.error("Failed to complete Lark authorization: %s", e, exc_info=True)
-        raise HTTPException(
-            status_code=500, detail="Failed to complete Lark authorization."
         )

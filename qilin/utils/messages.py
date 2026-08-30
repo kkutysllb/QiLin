@@ -6,6 +6,8 @@ from typing import Any
 
 from langchain_core.messages import HumanMessage
 
+from qilin.constants import HIDE_FROM_UI_KEY
+
 ORIGINAL_USER_CONTENT_KEY = "original_user_content"
 SUMMARY_MESSAGE_NAME = "summary"
 
@@ -145,6 +147,6 @@ def is_real_user_message(message: object) -> bool:
         return False
     if message.name == SUMMARY_MESSAGE_NAME:
         return False
-    if message.additional_kwargs.get("hide_from_ui"):
+    if message.additional_kwargs.get(HIDE_FROM_UI_KEY):
         return False
     return True

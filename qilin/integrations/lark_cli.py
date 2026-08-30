@@ -61,7 +61,6 @@ import urllib.request
 import zipfile
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -82,6 +81,7 @@ from qilin.skills.installer import (
 from qilin.skills.parser import parse_skill_file
 from qilin.skills.permissions import make_skill_tree_sandbox_readable
 from qilin.skills.types import SKILL_MD_FILE, SkillCategory
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -1952,7 +1952,7 @@ def _write_manifest(
         "version": resolved_version,
         "source": _lark_archive_url(resolved_version),
         "content_sha256": content_sha256,
-        "installed_at": datetime.now(UTC).isoformat(),
+        "installed_at": now_iso(),
         "skills": sorted(installed_skills),
     }
     (root / LARK_CLI_MANIFEST_FILE).write_text(

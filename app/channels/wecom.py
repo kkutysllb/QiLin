@@ -235,43 +235,37 @@ class WeComChannel(Channel):
             text = "(receive image/file)"
         await self._publish_ws_inbound(frame, text, files=files)
 
-    async def _on_ws_image(self, frame: dict[str, Any]) -> None:
+    async def _on_ws_media(
+        self,
+        frame: dict[str, Any],
+        key: str,
+        media_type: str,
+        placeholder: str,
+    ) -> None:
+        """Shared body of the WS image/file callbacks (identical skeletons)."""
         body = frame.get("body", {}) or {}
-        image = body.get("image") or {}
-        url = image.get("url")
-        aeskey = image.get("aeskey")
+        payload = body.get(key) or {}
+        url = payload.get("url")
+        aeskey = payload.get("aeskey")
         if not isinstance(url, str) or not url:
             return
         await self._publish_ws_inbound(
             frame,
-            "(receive image )",
+            placeholder,
             files=[
                 {
-                    "type": "image",
+                    "type": media_type,
                     "url": url,
                     "aeskey": aeskey if isinstance(aeskey, str) and aeskey else None,
                 }
             ],
         )
 
+    async def _on_ws_image(self, frame: dict[str, Any]) -> None:
+        await self._on_ws_media(frame, "image", "image", "(receive image )")
+
     async def _on_ws_file(self, frame: dict[str, Any]) -> None:
-        body = frame.get("body", {}) or {}
-        file_obj = body.get("file") or {}
-        url = file_obj.get("url")
-        aeskey = file_obj.get("aeskey")
-        if not isinstance(url, str) or not url:
-            return
-        await self._publish_ws_inbound(
-            frame,
-            "(receive file)",
-            files=[
-                {
-                    "type": "file",
-                    "url": url,
-                    "aeskey": aeskey if isinstance(aeskey, str) and aeskey else None,
-                }
-            ],
-        )
+        await self._on_ws_media(frame, "file", "file", "(receive file)")
 
     async def _publish_ws_inbound(
         self,

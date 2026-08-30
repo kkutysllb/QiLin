@@ -33,6 +33,7 @@ from langgraph.errors import GraphBubbleUp
 
 from qilin.agents.human_input import read_human_input_response
 from qilin.utils.messages import ORIGINAL_USER_CONTENT_KEY, message_content_to_text
+from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +184,7 @@ def _is_genuine_user_message(message: object) -> bool:
         return False
     if message.name == _SUMMARY_MESSAGE_NAME:
         return False
-    if message.additional_kwargs.get("hide_from_ui") and read_human_input_response(message.additional_kwargs) is None:
+    if message.additional_kwargs.get(HIDE_FROM_UI_KEY) and read_human_input_response(message.additional_kwargs) is None:
         return False
     return True
 
@@ -293,7 +294,7 @@ class InputSanitizationMiddleware(AgentMiddleware[AgentState]):
                         "_process_request: skipping non-genuine HumanMessage at pos=%d name=%s hide_from_ui=%s content_preview=%.80r",
                         i,
                         msg.name,
-                        msg.additional_kwargs.get("hide_from_ui"),
+                        msg.additional_kwargs.get(HIDE_FROM_UI_KEY),
                         msg.content,
                     )
                 continue

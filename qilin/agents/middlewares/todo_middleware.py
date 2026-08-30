@@ -31,6 +31,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.runtime import Runtime
 
 from qilin.agents.thread_state import ThreadState
+from qilin.constants import HIDE_FROM_UI_KEY
 
 
 def _todos_in_messages(messages: list[Any]) -> bool:
@@ -142,7 +143,7 @@ class TodoMiddleware(TodoListMiddleware):
         formatted = _format_todos(todos)
         reminder = HumanMessage(
             name="todo_reminder",
-            additional_kwargs={"hide_from_ui": True},
+            additional_kwargs={HIDE_FROM_UI_KEY: True},
             content=(
                 "<system_reminder>\n"
                 "Your todo list from earlier is no longer visible in the current context window, "
@@ -331,7 +332,7 @@ class TodoMiddleware(TodoListMiddleware):
             HumanMessage(
                 content=self._format_pending_completion_reminders(reminders),
                 name="todo_completion_reminder",
-                additional_kwargs={"hide_from_ui": True},
+                additional_kwargs={HIDE_FROM_UI_KEY: True},
             ),
         ]
         return request.override(messages=new_messages)

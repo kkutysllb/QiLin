@@ -7,10 +7,10 @@ since all mutations happen within the same event loop).
 from __future__ import annotations
 
 import bisect
-from datetime import UTC, datetime
 
 from qilin.runtime.events.store.base import RunEventStore
 from qilin.runtime.user_context import AUTO, _AutoSentinel
+from qilin.utils.time import now_iso
 
 
 class MemoryRunEventStore(RunEventStore):
@@ -56,7 +56,7 @@ class MemoryRunEventStore(RunEventStore):
             "content": content,
             "metadata": metadata or {},
             "seq": seq,
-            "created_at": created_at or datetime.now(UTC).isoformat(),
+            "created_at": created_at or now_iso(),
         }
         self._events.setdefault(thread_id, []).append(record)
         self._events_by_run.setdefault(thread_id, {}).setdefault(run_id, []).append(record)

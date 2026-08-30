@@ -44,6 +44,7 @@ from app.gateway.github import run_policy as _github_run_policy  # noqa: F401
 from app.gateway.internal_auth import create_internal_auth_headers
 from qilin.config.agents_config import load_agent_config
 from qilin.config.paths import make_safe_user_id
+from qilin.constants import DEFAULT_GATEWAY_URL, DEFAULT_LANGGRAPH_URL, HIDE_FROM_UI_KEY
 from qilin.runtime import END_SENTINEL, StreamBridge
 from qilin.runtime.goal import parse_goal_command
 from qilin.runtime.user_context import get_effective_user_id
@@ -54,8 +55,6 @@ from qilin.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_LANGGRAPH_URL = "http://localhost:8001/api"
-DEFAULT_GATEWAY_URL = "http://localhost:8001"
 DEFAULT_ASSISTANT_ID = "lead_agent"
 CUSTOM_AGENT_NAME_PATTERN = re.compile(r"^[A-Za-z0-9-]+$")
 
@@ -600,7 +599,7 @@ def _is_hidden_human_control_message(msg: Mapping[str, Any]) -> bool:
     if not isinstance(additional_kwargs, Mapping):
         return False
 
-    return additional_kwargs.get("hide_from_ui") is True
+    return additional_kwargs.get(HIDE_FROM_UI_KEY) is True
 
 
 def _format_artifact_text(artifacts: list[str]) -> str:

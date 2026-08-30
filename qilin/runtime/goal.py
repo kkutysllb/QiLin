@@ -29,6 +29,7 @@ from qilin.tracing import inject_langfuse_metadata
 from qilin.utils import llm_text
 from qilin.utils.messages import message_to_text
 from qilin.utils.time import now_iso
+from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -198,7 +199,7 @@ def _additional_kwargs(message: Any) -> dict[str, Any]:
 
 
 def _is_visible_message(message: Any) -> bool:
-    if _additional_kwargs(message).get("hide_from_ui") is True:
+    if _additional_kwargs(message).get(HIDE_FROM_UI_KEY) is True:
         return False
     return _message_type(message) in {"human", "ai"}
 
@@ -402,7 +403,7 @@ def make_goal_continuation_message(goal: GoalState, evaluation: GoalEvaluation) 
     return HumanMessage(
         content=content,
         additional_kwargs={
-            "hide_from_ui": True,
+            HIDE_FROM_UI_KEY: True,
             "qilin_goal_continuation": True,
         },
     )

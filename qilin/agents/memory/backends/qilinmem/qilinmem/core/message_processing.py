@@ -11,6 +11,8 @@ from typing import Any
 
 import yaml
 
+from qilin.constants import HIDE_FROM_UI_KEY
+
 logger = logging.getLogger(__name__)
 
 _UPLOAD_BLOCK_RE = re.compile(r"<(?P<tag>uploaded_files|current_uploads)>[\s\S]*?</(?P=tag)>\n*", re.IGNORECASE)
@@ -170,7 +172,7 @@ def filter_messages_for_memory(messages: list[Any], *, should_keep_hidden_messag
             # framework-internal text pollutes long-term memory (and the p0 __memory
             # payload could trigger a self-amplification loop).
             additional_kwargs = getattr(msg, "additional_kwargs", {}) or {}
-            if additional_kwargs.get("hide_from_ui"):
+            if additional_kwargs.get(HIDE_FROM_UI_KEY):
                 # Framework-injected hidden messages (TodoMiddleware reminders,
                 # ViewImage payloads, p0 __memory self-amplification guard) are
                 # excluded. User-authored clarification answers (a well-formed

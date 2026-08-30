@@ -26,12 +26,12 @@ import asyncio
 import json
 import logging
 import re
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from qilin.runtime.events.store.base import RunEventStore
 from qilin.runtime.user_context import AUTO, _AutoSentinel
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ class JsonlRunEventStore(RunEventStore):
                 "content": content,
                 "metadata": metadata or {},
                 "seq": seq,
-                "created_at": created_at or datetime.now(UTC).isoformat(),
+                "created_at": created_at or now_iso(),
             }
             await asyncio.to_thread(self._write_record, record)
             return record
@@ -203,7 +203,7 @@ class JsonlRunEventStore(RunEventStore):
                 "content": content,
                 "metadata": metadata or {},
                 "seq": self._next_seq(thread_id),
-                "created_at": created_at or datetime.now(UTC).isoformat(),
+                "created_at": created_at or now_iso(),
             }
             await asyncio.to_thread(self._write_record, record)
             return record, True
@@ -222,7 +222,7 @@ class JsonlRunEventStore(RunEventStore):
                     "content": ev.get("content", ""),
                     "metadata": ev.get("metadata") or {},
                     "seq": seq,
-                    "created_at": ev.get("created_at") or datetime.now(UTC).isoformat(),
+                    "created_at": ev.get("created_at") or now_iso(),
                 }
                 records.append(record)
             path = self._run_file(thread_id, batch[0]["run_id"])

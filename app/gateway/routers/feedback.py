@@ -61,6 +61,33 @@ class FeedbackStatsResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Shared validation
+# ---------------------------------------------------------------------------
+
+
+async def _validate_run_feedback_target(
+    thread_id: str, run_id: str, request: Request
+) -> tuple[str, Any]:
+    """Resolve the current user and validate the feedback target run.
+
+    Returns ``(user_id, run)``; raises 404 when the run does not exist or
+    does not belong to *thread_id*.
+    """
+    user_id = await get_current_user(request)
+
+    # Validate run exists and belongs to thread
+    run_store = get_run_store(request)
+    run = await run_store.get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
+    if run.get("thread_id") != thread_id:
+        raise HTTPException(
+            status_code=404, detail=f"Run {run_id} not found in thread {thread_id}"
+        )
+    return user_id, run
+
+
+# ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
 
@@ -78,16 +105,7 @@ async def upsert_feedback(
     if body.rating not in (1, -1):
         raise HTTPException(status_code=400, detail="rating must be +1 or -1")
 
-    user_id = await get_current_user(request)
-
-    run_store = get_run_store(request)
-    run = await run_store.get(run_id)
-    if run is None:
-        raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
-    if run.get("thread_id") != thread_id:
-        raise HTTPException(
-            status_code=404, detail=f"Run {run_id} not found in thread {thread_id}"
-        )
+    user_id, _run = await _validate_run_feedback_target(thread_id, run_id, request)
 
     feedback_repo = get_feedback_repo(request)
     return await feedback_repo.upsert(
@@ -133,17 +151,7 @@ async def create_feedback(
     if body.rating not in (1, -1):
         raise HTTPException(status_code=400, detail="rating must be +1 or -1")
 
-    user_id = await get_current_user(request)
-
-    # Validate run exists and belongs to thread
-    run_store = get_run_store(request)
-    run = await run_store.get(run_id)
-    if run is None:
-        raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
-    if run.get("thread_id") != thread_id:
-        raise HTTPException(
-            status_code=404, detail=f"Run {run_id} not found in thread {thread_id}"
-        )
+    user_id, _run = await _validate_run_feedback_target(thread_id, run_id, request)
 
     feedback_repo = get_feedback_repo(request)
     return await feedback_repo.create(

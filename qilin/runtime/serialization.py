@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from qilin.constants import HIDE_FROM_UI_KEY
+
 
 def serialize_lc_object(obj: Any) -> Any:
     """Recursively serialize a LangChain object to a JSON-serialisable dict."""
@@ -92,7 +94,7 @@ def strip_data_url_image_blocks(messages: list[dict[str, Any]]) -> list[dict[str
 
         # Only touch messages explicitly flagged as hidden from the UI.
         additional_kwargs = msg.get("additional_kwargs")
-        if not (isinstance(additional_kwargs, dict) and additional_kwargs.get("hide_from_ui") is True):
+        if not (isinstance(additional_kwargs, dict) and additional_kwargs.get(HIDE_FROM_UI_KEY) is True):
             result.append(msg)
             continue
 

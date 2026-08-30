@@ -1,5 +1,4 @@
 import logging
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import NotRequired, override
 
@@ -12,6 +11,7 @@ from langgraph.runtime import Runtime
 from qilin.agents.thread_state import ThreadDataState
 from qilin.config.paths import Paths, get_paths
 from qilin.runtime.user_context import resolve_runtime_user_id
+from qilin.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ class ThreadDataMiddleware(AgentMiddleware[ThreadDataMiddlewareState]):
                 content=last_message.content,
                 id=last_message.id,
                 name=last_message.name or "user-input",
-                additional_kwargs={**last_message.additional_kwargs, "run_id": context.get("run_id"), "timestamp": datetime.now(UTC).isoformat()},
+                additional_kwargs={**last_message.additional_kwargs, "run_id": context.get("run_id"), "timestamp": now_iso()},
             )
 
         return {

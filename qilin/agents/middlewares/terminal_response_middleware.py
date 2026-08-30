@@ -18,6 +18,7 @@ from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, Tool
 from langgraph.runtime import Runtime
 
 from qilin.agents.middlewares._bounded_dict import BoundedDict
+from qilin.constants import HIDE_FROM_UI_KEY
 
 _RECOVERY_PROMPT = (
     "<system_reminder>\n"
@@ -65,7 +66,7 @@ def _tool_result_in_current_turn(messages: list[Any]) -> bool:
     for index, message in enumerate(messages):
         if not isinstance(message, HumanMessage):
             continue
-        if (message.additional_kwargs or {}).get("hide_from_ui"):
+        if (message.additional_kwargs or {}).get(HIDE_FROM_UI_KEY):
             continue
         latest_user_index = index
     # Scope: #4027 covers interactive post-tool turns. Scheduled/internal
@@ -163,7 +164,7 @@ class TerminalResponseMiddleware(AgentMiddleware[AgentState]):
         reminder = HumanMessage(
             content=_RECOVERY_PROMPT,
             name="terminal_response_recovery",
-            additional_kwargs={"hide_from_ui": True},
+            additional_kwargs={HIDE_FROM_UI_KEY: True},
         )
         return request.override(messages=[*request.messages, reminder])
 

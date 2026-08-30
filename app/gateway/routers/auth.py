@@ -47,6 +47,7 @@ from app.gateway.csrf_middleware import (
 )
 from app.gateway.deps import get_current_user_from_request, get_local_provider
 from qilin.config.auth_config import OIDCProviderConfig
+from qilin.constants import DEFAULT_GATEWAY_HOST
 
 logger = logging.getLogger(__name__)
 
@@ -726,7 +727,7 @@ def _resolve_oidc_redirect_uri(
     origin = _request_origin(request)
     if not origin:
         origin = (
-            f"{request.url.scheme}://{request.headers.get('host', 'localhost:8001')}"
+            f"{request.url.scheme}://{request.headers.get('host', DEFAULT_GATEWAY_HOST)}"
         )
     return f"{origin}/api/v1/auth/callback/{provider_id}"
 

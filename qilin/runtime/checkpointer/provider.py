@@ -32,9 +32,9 @@ from qilin.config.checkpointer_config import (
     ensure_config_loaded,
     get_checkpointer_config,
 )
-from qilin.runtime.store._sqlite_utils import (
-    ensure_sqlite_parent_dir,
-    resolve_sqlite_conn_str,
+from qilin.runtime._langgraph_backend import (
+    SyncBackendSpec,
+    open_sync_langgraph_backend,
 )
 
 logger = logging.getLogger(__name__)
@@ -48,6 +48,22 @@ POSTGRES_INSTALL = (
     "langgraph-checkpoint-postgres is required for the PostgreSQL checkpointer. Install the package extra with: pip install 'qilin[postgres]' (or use: uv sync --all-packages --extra postgres when developing locally)"
 )
 POSTGRES_CONN_REQUIRED = "checkpointer.connection_string is required for the postgres backend"
+
+
+_SYNC_CHECKPOINTER_SPEC = SyncBackendSpec(
+    label="Checkpointer",
+    logger=logger,
+    memory_module="langgraph.checkpoint.memory",
+    memory_class="InMemorySaver",
+    sqlite_module="langgraph.checkpoint.sqlite",
+    sqlite_class="SqliteSaver",
+    sqlite_install_hint=SQLITE_INSTALL,
+    postgres_module="langgraph.checkpoint.postgres",
+    postgres_class="PostgresSaver",
+    postgres_install_hint=POSTGRES_INSTALL,
+    conn_required_message=POSTGRES_CONN_REQUIRED,
+    unknown_backend_message="Unknown checkpointer type: {backend!r}",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -99,52 +115,20 @@ def _get_checkpointer_config() -> CheckpointerConfig:
 # ---------------------------------------------------------------------------
 
 
-@contextlib.contextmanager
-def _sync_checkpointer_cm(config: CheckpointerConfig) -> Iterator[Checkpointer]:
+def _sync_checkpointer_cm(config: CheckpointerConfig):
     """Context manager that creates and tears down a sync checkpointer.
 
     Returns a configured ``Checkpointer`` instance. Resource cleanup for any
     underlying connections or pools is handled by higher-level helpers in
     this module (such as the singleton factory or context manager); this
     function does not return a separate cleanup callback.
+
+    The backend skeleton itself lives in the shared
+    :func:`qilin.runtime._langgraph_backend.open_sync_langgraph_backend`.
     """
-    if config.type == "memory":
-        from langgraph.checkpoint.memory import InMemorySaver
-
-        logger.info("Checkpointer: using InMemorySaver (in-process, not persistent)")
-        yield InMemorySaver()
-        return
-
-    if config.type == "sqlite":
-        try:
-            from langgraph.checkpoint.sqlite import SqliteSaver
-        except ImportError as exc:
-            raise ImportError(SQLITE_INSTALL) from exc
-
-        conn_str = resolve_sqlite_conn_str(config.connection_string or "store.db")
-        ensure_sqlite_parent_dir(conn_str)
-        with SqliteSaver.from_conn_string(conn_str) as saver:
-            saver.setup()
-            logger.info("Checkpointer: using SqliteSaver (%s)", conn_str)
-            yield saver
-        return
-
-    if config.type == "postgres":
-        try:
-            from langgraph.checkpoint.postgres import PostgresSaver
-        except ImportError as exc:
-            raise ImportError(POSTGRES_INSTALL) from exc
-
-        if not config.connection_string:
-            raise ValueError(POSTGRES_CONN_REQUIRED)
-
-        with PostgresSaver.from_conn_string(config.connection_string) as saver:
-            saver.setup()
-            logger.info("Checkpointer: using PostgresSaver")
-            yield saver
-        return
-
-    raise ValueError(f"Unknown checkpointer type: {config.type!r}")
+    return open_sync_langgraph_backend(
+        _SYNC_CHECKPOINTER_SPEC, config.type, config.connection_string
+    )
 
 
 # ---------------------------------------------------------------------------

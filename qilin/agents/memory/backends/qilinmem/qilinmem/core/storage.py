@@ -24,11 +24,12 @@ import uuid
 import weakref
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol
 
 import yaml
+
+from qilin.utils.time import now_iso_z
 
 from ..config import QiLinMemConfig
 from .paths import (
@@ -85,7 +86,7 @@ ScopedRetrievalNotifications = tuple[str, list[RetrievalNotification]]
 
 
 def utc_now_iso_z() -> str:
-    return datetime.now(UTC).isoformat().removesuffix("+00:00") + "Z"
+    return now_iso_z()
 
 
 def create_empty_memory() -> dict[str, Any]:

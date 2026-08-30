@@ -76,6 +76,7 @@ from qilin.runtime.secret_context import redact_metadata_secrets
 from qilin.runtime.user_context import get_effective_user_id
 from qilin.utils.file_io import run_file_io
 from qilin.utils.time import coerce_iso, now_iso
+from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["threads"])
@@ -162,7 +163,7 @@ def _message_additional_kwargs(message: Any) -> dict[str, Any]:
 
 
 def _is_branch_visible_message(message: Any) -> bool:
-    if _message_additional_kwargs(message).get("hide_from_ui") is True:
+    if _message_additional_kwargs(message).get(HIDE_FROM_UI_KEY) is True:
         return False
     return _message_type(message) in {"human", "ai"}
 

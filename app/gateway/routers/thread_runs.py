@@ -71,6 +71,7 @@ from qilin.utils.messages import (
     message_to_text,
 )
 from qilin.workspace_changes import get_workspace_changes_response
+from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["runs"])
@@ -377,7 +378,7 @@ def _is_hidden_or_control_message(message: Any) -> bool:
     return (
         message_type == "remove"
         or _message_name(message) == "summary"
-        or additional_kwargs.get("hide_from_ui") is True
+        or additional_kwargs.get(HIDE_FROM_UI_KEY) is True
     )
 
 
@@ -431,7 +432,7 @@ def _clean_human_message_for_regenerate(message: Any) -> dict[str, Any]:
         _message_content(message), additional_kwargs
     )
     additional_kwargs.pop(ORIGINAL_USER_CONTENT_KEY, None)
-    additional_kwargs.pop("hide_from_ui", None)
+    additional_kwargs.pop(HIDE_FROM_UI_KEY, None)
 
     clean_message: dict[str, Any] = {
         "type": "human",

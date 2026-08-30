@@ -24,6 +24,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from qilin.utils.time import now_iso_z
+
 logger = logging.getLogger(__name__)
 
 # ── Scoring weights ──────────────────────────────────────────────────
@@ -155,7 +157,7 @@ class FTS5Retrieval:
         return content
 
     def _row_from_document(self, document: dict[str, Any]) -> tuple[Any, ...]:
-        now = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+        now = now_iso_z()
         return (
             document["fact_id"],
             self._preprocess_content(document["content"]),

@@ -34,9 +34,9 @@ from qilin.config.checkpointer_config import (
     ensure_config_loaded,
     get_checkpointer_config,
 )
-from qilin.runtime.store._sqlite_utils import (
-    ensure_sqlite_parent_dir,
-    resolve_sqlite_conn_str,
+from qilin.runtime._langgraph_backend import (
+    SyncBackendSpec,
+    open_sync_langgraph_backend,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,6 +50,22 @@ POSTGRES_STORE_INSTALL = (
     "langgraph-checkpoint-postgres is required for the PostgreSQL store. Install the package extra with: pip install 'qilin[postgres]' (or use: uv sync --all-packages --extra postgres when developing locally)"
 )
 POSTGRES_CONN_REQUIRED = "checkpointer.connection_string is required for the postgres backend"
+
+
+_SYNC_STORE_SPEC = SyncBackendSpec(
+    label="Store",
+    logger=logger,
+    memory_module="langgraph.store.memory",
+    memory_class="InMemoryStore",
+    sqlite_module="langgraph.store.sqlite",
+    sqlite_class="SqliteStore",
+    sqlite_install_hint=SQLITE_STORE_INSTALL,
+    postgres_module="langgraph.store.postgres",
+    postgres_class="PostgresStore",
+    postgres_install_hint=POSTGRES_STORE_INSTALL,
+    conn_required_message=POSTGRES_CONN_REQUIRED,
+    unknown_backend_message="Unknown store backend type: {backend!r}",
+)
 
 
 def _resolve_store_config(app_config: AppConfig) -> CheckpointerConfig:
@@ -94,52 +110,19 @@ def _get_store_config() -> CheckpointerConfig:
 # ---------------------------------------------------------------------------
 
 
-@contextlib.contextmanager
-def _sync_store_cm(config) -> Iterator[BaseStore]:
+def _sync_store_cm(config):
     """Context manager that creates and tears down a sync Store.
 
     The ``config`` argument is a
     :class:`~qilin.config.checkpointer_config.CheckpointerConfig` instance —
     the same object used by the checkpointer factory.
+
+    The backend skeleton itself lives in the shared
+    :func:`qilin.runtime._langgraph_backend.open_sync_langgraph_backend`.
     """
-    if config.type == "memory":
-        from langgraph.store.memory import InMemoryStore
-
-        logger.info("Store: using InMemoryStore (in-process, not persistent)")
-        yield InMemoryStore()
-        return
-
-    if config.type == "sqlite":
-        try:
-            from langgraph.store.sqlite import SqliteStore
-        except ImportError as exc:
-            raise ImportError(SQLITE_STORE_INSTALL) from exc
-
-        conn_str = resolve_sqlite_conn_str(config.connection_string or "store.db")
-        ensure_sqlite_parent_dir(conn_str)
-
-        with SqliteStore.from_conn_string(conn_str) as store:
-            store.setup()
-            logger.info("Store: using SqliteStore (%s)", conn_str)
-            yield store
-        return
-
-    if config.type == "postgres":
-        try:
-            from langgraph.store.postgres import PostgresStore  # type: ignore[import]
-        except ImportError as exc:
-            raise ImportError(POSTGRES_STORE_INSTALL) from exc
-
-        if not config.connection_string:
-            raise ValueError(POSTGRES_CONN_REQUIRED)
-
-        with PostgresStore.from_conn_string(config.connection_string) as store:
-            store.setup()
-            logger.info("Store: using PostgresStore")
-            yield store
-        return
-
-    raise ValueError(f"Unknown store backend type: {config.type!r}")
+    return open_sync_langgraph_backend(
+        _SYNC_STORE_SPEC, config.type, config.connection_string
+    )
 
 
 # ---------------------------------------------------------------------------

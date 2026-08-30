@@ -17,6 +17,7 @@ from app.channels.message_bus import (
     OutboundMessage,
     ResolvedAttachment,
 )
+from qilin.utils.backoff import backoff_delay_seconds
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +96,7 @@ class Channel(ABC):
             except Exception as exc:
                 last_exc = exc
                 if attempt < max_retries - 1:
-                    delay = 2**attempt
+                    delay = backoff_delay_seconds(attempt + 1, 1)
                     logger.warning(
                         "%s %s failed (attempt %d/%d), retrying in %ds: %s",
                         prefix,

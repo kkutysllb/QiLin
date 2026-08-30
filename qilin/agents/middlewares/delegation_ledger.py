@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import UTC, datetime
 from html import escape
 from typing import Any
 
@@ -13,6 +12,7 @@ from qilin.agents.thread_state import DelegationEntry
 from qilin.subagents.status_contract import (
     read_subagent_result_metadata,
 )
+from qilin.utils.time import now_iso_z
 
 _RESULT_BRIEF_CAP = 2000
 _DESCRIPTION_CAP = 200
@@ -25,9 +25,6 @@ _STATUS_ONLY_RESULT_BRIEFS = {
     "polling_timed_out": "Task polling timed out.",
 }
 
-
-def _utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _bound_text(text: str, cap: int = _RESULT_BRIEF_CAP) -> str:
@@ -99,7 +96,7 @@ def extract_delegations(messages: list[AnyMessage]) -> list[DelegationEntry]:
     """Enumerate `task` delegations from AI tool calls and paired results."""
     entries_by_id: dict[str, DelegationEntry] = {}
     order: list[str] = []
-    now = _utc_now_iso()
+    now = now_iso_z()
     for message in messages:
         if not isinstance(message, AIMessage):
             continue

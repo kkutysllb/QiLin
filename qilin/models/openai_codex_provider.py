@@ -32,10 +32,46 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable
 
 from qilin.models.credential_loader import CodexCliCredential, load_codex_cli_credential
+from qilin.utils.backoff import backoff_delay_ms
 
 logger = logging.getLogger(__name__)
 
 CODEX_BASE_URL = "https://chatgpt.com/backend-api/codex"
+
+
+def _codex_backoff_ms(attempt: int) -> int:
+    """Exponential retry backoff shared by the sync and async API channels."""
+    return backoff_delay_ms(attempt, 2000)
+
+
+def _merge_completed_response(
+    completed_response: dict[str, Any],
+    streamed_output_items: dict[int, dict[str, Any]],
+) -> dict[str, Any]:
+    """Merge streamed output items into a completed Codex response (pure).
+
+    ChatGPT Codex can emit the final assistant content only in stream events.
+    When response.completed arrives, response.output may still be empty.
+    """
+    merged_output = []
+    response_output = completed_response.get("output")
+    if isinstance(response_output, list):
+        merged_output = list(response_output)
+
+    max_index = max(max(streamed_output_items), len(merged_output) - 1)
+    if max_index >= 0 and len(merged_output) <= max_index:
+        merged_output.extend([None] * (max_index + 1 - len(merged_output)))
+
+    for output_index, output_item in streamed_output_items.items():
+        existing_item = merged_output[output_index]
+        if not isinstance(existing_item, dict):
+            merged_output[output_index] = output_item
+
+    merged_response = dict(completed_response)
+    merged_response["output"] = [
+        item for item in merged_output if isinstance(item, dict)
+    ]
+    return merged_response
 
 
 def _build_usage_metadata(oai_usage: dict) -> dict:
@@ -260,7 +296,7 @@ class CodexChatModel(BaseChatModel):
                 if e.response.status_code in (429, 500, 529):
                     if attempt >= self.retry_max_attempts:
                         raise
-                    wait_ms = 2000 * (1 << (attempt - 1))
+                    wait_ms = _codex_backoff_ms(attempt)
                     logger.warning(
                         f"Codex API error {e.response.status_code}, retrying {attempt}/{self.retry_max_attempts} after {wait_ms}ms"
                     )
@@ -316,7 +352,7 @@ class CodexChatModel(BaseChatModel):
                 if e.response.status_code in (429, 500, 529):
                     if attempt >= self.retry_max_attempts:
                         raise
-                    wait_ms = 2000 * (1 << (attempt - 1))
+                    wait_ms = _codex_backoff_ms(attempt)
                     logger.warning(
                         "Codex API error %s, retrying %d/%d after %dms",
                         e.response.status_code,
@@ -374,24 +410,9 @@ class CodexChatModel(BaseChatModel):
         # ChatGPT Codex can emit the final assistant content only in stream events.
         # When response.completed arrives, response.output may still be empty.
         if streamed_output_items:
-            merged_output = []
-            response_output = completed_response.get("output")
-            if isinstance(response_output, list):
-                merged_output = list(response_output)
-
-            max_index = max(max(streamed_output_items), len(merged_output) - 1)
-            if max_index >= 0 and len(merged_output) <= max_index:
-                merged_output.extend([None] * (max_index + 1 - len(merged_output)))
-
-            for output_index, output_item in streamed_output_items.items():
-                existing_item = merged_output[output_index]
-                if not isinstance(existing_item, dict):
-                    merged_output[output_index] = output_item
-
-            completed_response = dict(completed_response)
-            completed_response["output"] = [
-                item for item in merged_output if isinstance(item, dict)
-            ]
+            completed_response = _merge_completed_response(
+                completed_response, streamed_output_items
+            )
 
         return completed_response
 
@@ -433,24 +454,9 @@ class CodexChatModel(BaseChatModel):
             )
 
         if streamed_output_items:
-            merged_output = []
-            response_output = completed_response.get("output")
-            if isinstance(response_output, list):
-                merged_output = list(response_output)
-
-            max_index = max(max(streamed_output_items), len(merged_output) - 1)
-            if max_index >= 0 and len(merged_output) <= max_index:
-                merged_output.extend([None] * (max_index + 1 - len(merged_output)))
-
-            for output_index, output_item in streamed_output_items.items():
-                existing_item = merged_output[output_index]
-                if not isinstance(existing_item, dict):
-                    merged_output[output_index] = output_item
-
-            completed_response = dict(completed_response)
-            completed_response["output"] = [
-                item for item in merged_output if isinstance(item, dict)
-            ]
+            completed_response = _merge_completed_response(
+                completed_response, streamed_output_items
+            )
 
         return completed_response
 

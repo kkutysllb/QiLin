@@ -33,6 +33,8 @@ from langchain_core.callbacks.manager import (
 from langchain_core.messages import BaseMessage
 from pydantic import PrivateAttr
 
+from qilin.utils.backoff import backoff_delay_ms
+
 logger = logging.getLogger(__name__)
 
 MAX_RETRIES = 3
@@ -390,7 +392,7 @@ class ClaudeChatModel(ChatAnthropic):
     @staticmethod
     def _calc_backoff_ms(attempt: int, error: Exception) -> int:
         """Exponential backoff with a fixed 20% buffer."""
-        backoff_ms = 2000 * (1 << (attempt - 1))
+        backoff_ms = backoff_delay_ms(attempt, 2000)
         jitter_ms = int(backoff_ms * 0.2)
         total_ms = backoff_ms + jitter_ms
 
