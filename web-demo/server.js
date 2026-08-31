@@ -7,6 +7,7 @@
  * this server intercepts first when running via `pnpm dev`.
  */
 import { createServer } from "node:http";
+import net from "node:net";
 import { parse } from "node:url";
 import next from "next";
 import { createProxyMiddleware } from "http-proxy-middleware";
@@ -20,6 +21,10 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 }
 const gatewayTarget =
   process.env.GATEWAY_TARGET_URL || "http://127.0.0.1:28081";
+
+const gatewayUrl = new URL(gatewayTarget);
+const GATEWAY_HOST = gatewayUrl.hostname;
+const GATEWAY_PORT = Number.parseInt(gatewayUrl.port || "80", 10);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -88,13 +93,31 @@ const server = createServer((req, res) => {
 
 server.on("upgrade", (req, socket, head) => {
   const pathname = parse(req.url || "").pathname || "";
-  if (shouldProxy(pathname)) {
-    apiProxy.upgrade(req, socket, head);
+  if (!shouldProxy(pathname)) {
+    // Non-proxied upgrades (Next dev HMR) must be delegated back to Next,
+    // otherwise the dev hot-reload websocket drops.
+    app.getUpgradeHandler()(req, socket, head);
     return;
   }
-  // Non-proxied upgrades (Next dev HMR) must be delegated back to Next,
-  // otherwise the dev hot-reload websocket drops.
-  app.getUpgradeHandler()(req, socket, head);
+  // Raw WS tunnel. http-proxy-middleware v4's apiProxy.upgrade forwards the
+  // handshake but NOT data frames, so terminal streams die with 1006 after
+  // a few seconds. Relay the raw TCP both ways instead - frames stay opaque.
+  const upstream = net.connect(GATEWAY_PORT, GATEWAY_HOST, () => {
+    const headerLines = [
+      `${req.method} ${req.url} HTTP/1.1`,
+      ...Object.entries(req.headers).map(
+        ([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`
+      ),
+      "",
+      "",
+    ];
+    upstream.write(headerLines.join("\r\n"));
+    if (head && head.length) upstream.write(head);
+    socket.pipe(upstream);
+    upstream.pipe(socket);
+  });
+  upstream.on("error", () => socket.destroy());
+  socket.on("error", () => upstream.destroy());
 });
 
 server.listen(port, hostname, () => {

@@ -83,8 +83,14 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
           /* container may be zero-sized at mount; resize observer retries */
         }
 
-        const proto = location.protocol === "https:" ? "wss:" : "ws:";
-        ws = new WebSocket(`${proto}//${location.host}/api/threads/${threadId}/terminals/stream`);
+        // The WS data plane connects straight to the gateway origin
+        // (NEXT_PUBLIC_GATEWAY_WS, e.g. ws://127.0.0.1:28081). Same-origin
+        // proxying works for HTTP REST but dev WS proxies are unreliable;
+        // the gateway's CORS/origin check governs cross-origin sockets.
+        const wsOrigin =
+          process.env.NEXT_PUBLIC_GATEWAY_WS ||
+          `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}`;
+        ws = new WebSocket(`${wsOrigin}/api/threads/${threadId}/terminals/stream`);
         ws.binaryType = "arraybuffer";
         wsRef.current = ws;
 
