@@ -58,6 +58,10 @@ class SurfaceOpenEvent(BaseModel):
     surface: SurfaceKind
     target: str
     title: str
+    # QiLin extension (additive, not part of the DSH mirror): workspace-
+    # relative path for filesystem targets, so UI adapters can fetch
+    # content via the files API without knowing the workspace root.
+    read_path: str | None = Field(default=None, alias="readPath")
 
 
 PortEventKind = Literal["terminal.output", "terminal.exited", "surface.open"]

@@ -153,3 +153,108 @@ def teardown_function() -> None:
 
 def test_get_default_registry_is_singleton() -> None:
     assert get_default_surface_registry() is get_default_surface_registry()
+
+
+def test_registry_open_passes_read_path_to_event() -> None:
+    registry = SurfaceRegistry()
+    queue = registry.subscribe("thr-rp")
+    asyncio.run(registry.open("thr-rp", "file", "/abs/x.md", "x.md", read_path="x.md"))
+    _, event = queue.get_nowait()
+    assert event.read_path == "x.md"
+    assert event.model_dump(by_alias=True)["readPath"] == "x.md"
+
+
+class TestOpenSurfaceHelper:
+    def test_url_target_skips_fs_and_has_no_read_path(self) -> None:
+        import qilin.ports.surface as surface_module
+
+        registry = SurfaceRegistry()
+        queue = registry.subscribe("thr-help")
+        result = asyncio.run(
+            surface_module.open_surface(
+                "thr-help", "https://example.com/docs", registry=registry
+            )
+        )
+        assert result.model_dump(by_alias=True) == {
+            "kind": "url",
+            "target": "https://example.com/docs",
+            "title": "example.com",
+            "delivered": True,
+        }
+        kind, event = queue.get_nowait()
+        assert kind == "surface"
+        assert event.surface == "url"
+        assert event.read_path is None
+
+    def test_workspace_relative_file_carries_read_path(self, tmp_path, monkeypatch) -> None:
+        import qilin.ports.surface as surface_module
+
+        monkeypatch.setattr(surface_module, "_workspace_dir", lambda _tid: tmp_path)
+        docs = tmp_path / "docs"
+        docs.mkdir()
+        plan = docs / "plan.md"
+        plan.write_text("# plan", encoding="utf-8")
+
+        registry = SurfaceRegistry()
+        queue = registry.subscribe("thr-ws")
+        result = asyncio.run(
+            surface_module.open_surface("thr-ws", "docs/plan.md", registry=registry)
+        )
+        payload = result.model_dump(by_alias=True)
+        assert payload["kind"] == "file"
+        assert payload["target"] == str(plan.resolve())
+        assert payload["title"] == "plan.md"
+        _, event = queue.get_nowait()
+        assert event.read_path == "docs/plan.md"
+
+    def test_absolute_outside_workspace_has_no_read_path(self, tmp_path, monkeypatch) -> None:
+        import qilin.ports.surface as surface_module
+
+        ws = tmp_path / "ws"
+        ws.mkdir()
+        outside = tmp_path / "outside.txt"
+        outside.write_text("hi", encoding="utf-8")
+        monkeypatch.setattr(surface_module, "_workspace_dir", lambda _tid: ws)
+
+        registry = SurfaceRegistry()
+        queue = registry.subscribe("thr-out")
+        asyncio.run(
+            surface_module.open_surface("thr-out", str(outside), registry=registry)
+        )
+        _, event = queue.get_nowait()
+        assert event.read_path is None
+
+    def test_missing_target_raises_bad_request(self, monkeypatch) -> None:
+        import qilin.ports.surface as surface_module
+        from qilin.ports.errors import PortError
+
+        monkeypatch.setattr(surface_module, "_workspace_dir", lambda _tid: None)
+        registry = SurfaceRegistry()
+        try:
+            asyncio.run(
+                surface_module.open_surface(
+                    "thr-x", "/nope/missing.md", registry=registry
+                )
+            )
+        except PortError as exc:
+            assert exc.code == "bad-request"
+            assert "missing.md" in exc.message
+        else:
+            raise AssertionError("expected PortError")
+
+    def test_cwd_fallback_resolves_relative_target(self, tmp_path, monkeypatch) -> None:
+        import qilin.ports.surface as surface_module
+
+        monkeypatch.setattr(surface_module, "_workspace_dir", lambda _tid: None)
+        marker = tmp_path / "cwd-file.md"
+        marker.write_text("x", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+
+        registry = SurfaceRegistry()
+        queue = registry.subscribe("thr-cwd")
+        result = asyncio.run(
+            surface_module.open_surface("thr-cwd", "cwd-file.md", registry=registry)
+        )
+        assert result.target == str(marker.resolve())
+        _, event = queue.get_nowait()
+        assert event.read_path is None

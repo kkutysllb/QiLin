@@ -39,6 +39,7 @@ from app.gateway.routers import (
     memory,
     models,
     persistence,
+    ports_surface,
     ports_terminal,
     runs,
     sandbox_mode,
@@ -684,6 +685,7 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
 
     # Files API — per-thread workspace browsing & editing (Better Sidebar web)
     app.include_router(files.router)
+    app.include_router(ports_surface.router)
     app.include_router(ports_terminal.router)
 
     # Sidebar tabs API — per-thread tab state persistence (Better Sidebar web)
