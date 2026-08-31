@@ -32,11 +32,11 @@
 - [x] 8 个 terminal_* LangChain 工具（P4a 落码;config.example.yaml 注释示例条目已随 P3 commit 0631985 补齐）
 - [x] web-demo xterm.js 终端页 + WS 直连（P4b，commits f331ea5 + 8f093e4；浏览器 E2E 全链路通过）
 
-### P5 SurfacePort + sidebar_open 工具 —— ✅ 后端 complete（web-demo 查看器为下一片）
-- [x] qilin/ports/surface.py —— SurfaceRegistry（附着即达/分离排队/drain/有界丢弃）
-- [x] gateway WS surface.open 事件流（附着即 UI 适配器，teardown 注销）
+### P5 SurfacePort + sidebar_open 工具 —— ✅ complete
+- [x] qilin/ports/surface.py —— SurfaceRegistry（附着即达/分离排队/drain/有界丢弃）+ open_surface 共享解析（工具与 REST 同策略）
+- [x] gateway WS surface.open 事件流（附着即 UI 适配器，teardown 注销）+ REST POST /surfaces（readPath 事件扩展，UI 免知 workspace 根）
 - [x] sidebar_open LangChain 工具（DSH 契约镜像，config 启用制；收编 present_file/view_image 的文件/URL 目标解析）
-- [ ] web-demo surface 查看器（消费 surface.open 事件 → 文件/URL 渲染面板）
+- [x] web-demo surface 查看器（file 文本/图片 + folder 列表 + url 沙箱 iframe；去重聚焦/排队 drain；E2E 4 passed）
 
 ### P6 dsh-plugin adapter（QiLin-in-DSH，远期）
 - [ ] registerTab 代理:DSH 侧边栏 tab 内嵌 QiLin web-demo（WS/HTTP 经 server.js 隧道）;前置:P5 查看器 + 安装文档落地
@@ -81,7 +81,7 @@
 - 2026-08-31: P3 完成(commit 0631985)+ Playwright E2E 脚本化完成(独立提交)。E2E 三用例(echo 回环/SIGINT 控制面/new 强制新建)全绿(4.8s,复用 28080 dev 服务);期间修正:①playwright 端口/host 参数化(E2E_WEB_DEMO_PORT/HOST,网关 WS origin 检查 host 严格);②按钮 locator 需匹配 aria-label 而非可见文本;③terminal-panel "new" 按钮语义改为 attempt 状态驱动的强制新建(原实现会误重连旧终端)。**剩余遗留**:config.example.yaml 已补注释示例(已提交);安装文档(KMP_INIT_AT_FORK 说明);P5 sidebar_open SurfacePort;P6 dsh-plugin adapter。
 - 2026-08-31: P5 后端完成(commit c302b97):qilin/ports/surface.py SurfaceRegistry(附着即达/分离排队 drain/有界丢弃 8 上限) + gateway WS surface.open 泵 + sidebar_open 工具(DSH 契约镜像,收编 present_file/view_image 的目标解析)。
 - 2026-08-31: **断网后全面复核**(用户要求)。git 提交链完整(7 commits ahead: a2007db P1 → c302b97 P5)、23 个交付文件在位、config terminal 块在位、无残留监听进程。验证:.venv pytest tests/ports+router → 68 passed + 6 skipped(sandbox 无 pty,跳卫生效)→ danger-full-access 提权重跑 → **74 passed 全过**;`ruff check .` 全仓 35 个存量错误清零至 All checks passed(29 自动修 + 5 手修);web-demo `tsc --noEmit` 通过。顺带修复 F401 误删重导出(见 Errors)。下一步:P5 web-demo surface 查看器。
-
+- 2026-08-31: P5 全栈完成,commits 2adacc3(后端)+ 4c079bd(前端)。后端:open_surface 共享解析助手(sidebar_open 工具瘦身为其包装)+ 新 REST 路由 POST /api/threads/{tid}/surfaces + SurfaceOpenEvent 可选 readPath(QiLin 扩展,事件侧携带 workspace 相对路径,DSH 工具结果契约不动);测试 +9。前端:SurfaceViewer(file 文本/图片、folder 列表、url 无 same-origin 沙箱 iframe;按 target 去重保最新、新开即聚焦、本地可关),TerminalPanel 以 latest-callback ref 透出 surface.open(WS 不随父重渲染重连)。**E2E 4 passed(5.5s)**,含新用例:REST 开面(detach 排队)→ 页面 attach drain → 文件内容断言 + iframe 可见。调试期间修复:①SIGINT 用例 flake——zsh 未就绪时击键落入 tty 行缓冲污染后续流程,改为先 warm-up(poll 到 echo 真执行)再走中断;②React duplicate key(兄弟组件同 key={threadId})。
 ## Errors
 - events.py 首版漏导入 Annotated（NameError,收集期失败）→ 已修。
 - ruff UP 规则要求 PEP 604 联合（Union[...] → X | Y）→ 已改。
@@ -92,3 +92,5 @@
 - 分页集成测试初版断言「干净输出」,实际 pty 上 transcript 含提示符/回显（DSH 同款现实）→ 改为结构化断言(窗口切片一致性)。
 - **ruff F401 误删重导出**(--fix 把 validation.py 的 ALLOWED_FRONTMATTER_PROPERTIES 导入当未用删除,而 qilin/skills/__init__ 恰从这里转发)→ 恢复导入 + `# noqa: F401 -- re-exported`。教训:对库代码跑 --fix 后必须重跑收集期测试;另:裸 `python3` 是 Xcode 系统 Python(无 ruff/依赖),一律用 `.venv/bin/python`。
 - 计划文档自身欠账(本次复核发现):P3 完成后 checklist 未勾选、P4 的「config 条目待补」注记过时、Progress Log 标题+前两条目重复 → 已对账修正。
+- 本地起 gateway 的完整环境(缺一不可,已验证):`QILIN_AUTH_DISABLED=1 QILIN_INTERNAL_AUTH_TOKEN=<≥32字符>`(internal_auth 模块级强校验,太短直接拒启) `KMP_INIT_AT_FORK=FALSE GATEWAY_CORS_ORIGINS=http://127.0.0.1:28080`(否则浏览器 WS 握手 403——WS 升级绕过 AuthMiddleware 但 origin 白名单仍生效)。
+- **沙箱内起的 gateway 继承 pty 禁令与 workspace 写限制**(terminal create 500、files write 拒绝),E2E 全挂;同命令 danger-full-access 重启即愈。另 files/write 有意不建父目录,新线程先 POST /api/files/mkdir path="." 引导 workspace 根。
