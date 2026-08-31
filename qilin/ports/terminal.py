@@ -120,12 +120,23 @@ class TerminalPort(ABC):
 
 
 def make_backend(argv: list[str], cwd: str | None, cols: int, rows: int) -> TerminalPort:
-    """Instantiate the platform backend (Windows pywinpty lands in P3)."""
+    """Instantiate the platform backend.
+
+    Windows uses the ConPTY backend (pywinpty, lazy import); POSIX uses
+    openpty + asyncio. A missing Windows dependency surfaces as a clean
+    pty-deps-missing error instead of an ImportError.
+    """
     if sys.platform == "win32":
-        raise PortError(
-            "pty-deps-missing",
-            "the Windows ConPTY backend (pywinpty) is not wired yet (planned P3)",
-        )
+        try:
+            import winpty  # noqa: F401
+        except ImportError as exc:
+            raise PortError(
+                "pty-deps-missing",
+                "the Windows ConPTY backend needs pywinpty: pip install pywinpty",
+            ) from exc
+        from qilin.ports.backends.windows import WindowsConPtyTerminal
+
+        return WindowsConPtyTerminal(argv, cwd, cols, rows)
     from qilin.ports.backends.posix import PosixPtyTerminal
 
     return PosixPtyTerminal(argv, cwd, cols, rows)

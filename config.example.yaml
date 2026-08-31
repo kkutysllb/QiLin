@@ -688,6 +688,39 @@ tools:
     # region: wt-wt          # wt-wt is normalized for Wikipedia when backend includes auto/all/wikipedia.
     # safesearch: moderate   # on, moderate, off
 
+  # ── Terminal ports (DSH-compatible terminal_* vocabulary) ─────────────
+  # Eight model-facing tools over qilin.ports.TerminalRegistry: the agent
+  # can open persistent PTY terminals in the web UI sidebar, send keystrokes
+  # (tmux semantics), read scrollback, wait for completion cues, resize,
+  # signal (Ctrl+C etc.), and close. Ownership is the calling thread; every
+  # verb is server-scoped. Prereqs: gateway + web-demo running; on Windows
+  # install pywinpty (pip install pywinpty) and set KMP_INIT_AT_FORK=FALSE
+  # when uvloop + OpenMP/torch share the process (fork-deadlock workaround).
+  # - name: terminal_create
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_create_tool
+  # - name: terminal_list
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_list_tool
+  # - name: terminal_send
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_send_tool
+  # - name: terminal_read
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_read_tool
+  # - name: terminal_wait_for
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_wait_for_tool
+  # - name: terminal_resize
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_resize_tool
+  # - name: terminal_signal
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_signal_tool
+  # - name: terminal_close
+  #   group: ports
+  #   use: qilin.tools.builtins.terminal_port_tools:terminal_close_tool
+
   # Web search tool (uses SearXNG, self-hosted, no API key required)
   # SearXNG is a free internet metasearch engine which aggregates results from
   # various search services. Deploy your own instance: https://github.com/searxng/searxng
