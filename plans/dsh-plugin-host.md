@@ -21,12 +21,12 @@
 - [x] 插件分级：T1 自包含面板 / T2 agent 运行时 / T3 源码构建重插件；金丝雀 = kcoder-stats-panel
 - [x] @deepseek-ai 运行时包可得性：本地 harness checkout 完整可得（npm 公共源待网络验证）
 
-### H1 最小宿主内核 —— ✅ 内核 complete（第三方金丝雀为下一片）
+### H1 最小宿主内核 —— ✅ complete（真实第三方插件已跑通）
 - [x] 浏览器端插件协议 shim：`window.__ModuleLoader__.load({id,factory})`（inject/apply 服务注入、replace-on-reload、插件错误不落页面）——实测 T1 插件 client 零静态 import，仅需该协议面，无需内嵌完整 cordis
 - [x] 插件清单 + 同源 script 注入（public/plugins/manifest.json；模块级单例 boot 兼容 React strict-mode 双跑）
 - [x] qiLin.sidebar 服务桥：DOM mount 适配为 SidebarPanelSpec 进 sidebarPanelRegistry；BetterSidebarRoot 🧩 chips 行曝光插件面板
 - [x] hello-tab 样例全链跑通（浏览器实测：chip → tab → mount 内容渲染；tsc+eslint 绿）
-- [ ] 真实第三方插件跑通（候选 git-panel / terminal——需 host 半：同源 RPC 安全边界 + node:exec/pty 桥）
+- [x] 真实第三方插件跑通：**kcoder-git-panel**（浏览器实测：浮动面板渲染 verify-thread-1 真实 git 快照——变更统计/main 分支/任务计划扫描；GET 405 守卫实测）
 
 ### H2 Typert 能力桥
 - [ ] gateway 实现 api-remotes 协议端点（翻译层，南向接 QiLin 现有 API）
@@ -106,5 +106,16 @@
   验证需注册账号登录(KWORKS_AUTH_DISABLED 实际不被 src 消费,仅 E2E terminal 页
   因不在门内而幸免)。下一片:真实第三方插件(git-panel/terminal)——需 host 半
   (同源 RPC isTrusted 边界 + node:exec / node-pty 桥接 QiLin ports)。
+- 2026-08-31: **H1 全部完成——真实第三方插件 kcoder-git-panel 在麒麟跑通**(commit
+  a0f81a4)。架构:插件 server 半挂载进 server.js(Node 宿主面)——plugins-host-runtime.mjs
+  提供最小 cordis ctx shim(webServer.register prefix 路由挂原生 req/res / ctx.effect /
+  ctx.get 软服务表),长前缀匹配先于 /api 代理;**协议实测修正:apply 恒收 ctx 首参**
+  (inject:[] 也传,client 用 ctx.get 软探测 services——与 hello-tab 初版的 positional
+  注入设想不同,已全部对齐 DSH 真实形态);sessions 软服务(ISessions 倒影)+
+  files/workspace-path 端点(thread→host 工作区路径,H2 首步)+
+  __dsh_desktop_titlebar 锚点 shim(插件入口按钮挂载)。验证:浏览器真实加载
+  @kcoder/git-panel,浮动面板渲染 verify-thread-1 真实 git 快照(变更统计/main 分支/
+  任务计划扫描/相对时间),GET 405 守卫实测;tsc+eslint+ruff 绿。剩余:H2 Typert 桥
+  泛化(hostServices 表扩容)、H3 生命周期 CLI/UI、H4 conversation 挂点、H5 port 化。
 
 ## Errors
