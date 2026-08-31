@@ -25,19 +25,28 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
 
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string>("");
+  // 0 = first attach (prefers reattaching to a live terminal); every
+  // increment forces a BRAND-NEW terminal (the "new" button semantics).
+  const [attempt, setAttempt] = useState(0);
 
   const sendControl = useCallback((payload: Record<string, unknown>) => {
     wsRef.current?.send(JSON.stringify({ uuid: uuidRef.current ?? "", ...payload }));
   }, []);
 
-  const spawnTerminal = useCallback(async (): Promise<string> => {
-    // Reattach to the newest non-exited terminal of this thread, if any.
-    const listRes = await fetch(`/api/threads/${threadId}/terminals`, { credentials: "include" });
-    if (listRes.ok) {
-      const list = (await listRes.json()) as Array<{ uuid: string; exited: boolean }>;
-      const alive = [...list].reverse().find((t) => !t.exited);
-      if (alive) return alive.uuid;
-    }
+  const spawnTerminal = useCallback(
+    async (forceNew: boolean): Promise<string> => {
+      // Reattach to the newest non-exited terminal of this thread unless a
+      // new one was explicitly requested ("new" button).
+      if (!forceNew) {
+        const listRes = await fetch(`/api/threads/${threadId}/terminals`, {
+          credentials: "include",
+        });
+        if (listRes.ok) {
+          const list = (await listRes.json()) as Array<{ uuid: string; exited: boolean }>;
+          const alive = [...list].reverse().find((t) => !t.exited);
+          if (alive) return alive.uuid;
+        }
+      }
     const res = await fetch(`/api/threads/${threadId}/terminals`, {
       method: "POST",
       credentials: "include",
@@ -47,7 +56,9 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
     if (!res.ok) throw new Error(`terminal create failed: ${res.status}`);
     const created = (await res.json()) as { uuid: string };
     return created.uuid;
-  }, [threadId]);
+    },
+    [threadId],
+  );
 
   useEffect(() => {
     if (!threadId) return;
@@ -58,7 +69,7 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
     void (async () => {
       try {
         setStatus("starting");
-        const terminalUuid = await spawnTerminal();
+        const terminalUuid = await spawnTerminal(attempt > 0);
         if (disposed) return;
         uuidRef.current = terminalUuid;
 
@@ -88,7 +99,7 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
         // proxying works for HTTP REST but dev WS proxies are unreliable;
         // the gateway's CORS/origin check governs cross-origin sockets.
         const wsOrigin =
-          process.env.NEXT_PUBLIC_GATEWAY_WS ||
+          process.env.NEXT_PUBLIC_GATEWAY_WS ??
           `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}`;
         ws = new WebSocket(`${wsOrigin}/api/threads/${threadId}/terminals/stream`);
         ws.binaryType = "arraybuffer";
@@ -190,12 +201,10 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
       fitRef.current = null;
       uuidRef.current = null;
     };
-  }, [threadId, spawnTerminal]);
+  }, [threadId, attempt, spawnTerminal]);
 
   const restart = useCallback(() => {
-    // New pty, same socket contract: full remount via key change is the
-    // simplest correct path (page passes key={attempt}).
-    window.dispatchEvent(new CustomEvent("qilin-terminal-restart"));
+    setAttempt((a) => a + 1); // force the next bootstrap to spawn a new pty
   }, []);
 
   const sendSignal = useCallback(

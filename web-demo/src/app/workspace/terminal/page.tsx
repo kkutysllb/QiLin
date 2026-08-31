@@ -14,7 +14,6 @@ function TerminalInner() {
   const threadParam = searchParams.get("thread") ?? "";
   const [threadId, setThreadId] = useState<string>(threadParam);
   const [draft, setDraft] = useState(threadParam);
-  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (threadParam) {
@@ -43,12 +42,6 @@ function TerminalInner() {
     [router],
   );
 
-  useEffect(() => {
-    const handler = () => setAttempt((n) => n + 1);
-    window.addEventListener("qilin-terminal-restart", handler);
-    return () => window.removeEventListener("qilin-terminal-restart", handler);
-  }, []);
-
   return (
     <div className="flex h-dvh flex-col bg-background">
       <div className="flex items-center gap-2 border-b px-3 py-2 text-xs">
@@ -76,7 +69,7 @@ function TerminalInner() {
         )}
       </div>
       {threadId ? (
-        <TerminalPanel key={`${threadId}:${attempt}`} threadId={threadId} className="flex min-h-0 flex-1 flex-col" />
+        <TerminalPanel key={threadId} threadId={threadId} className="flex min-h-0 flex-1 flex-col" />
       ) : (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
           paste a thread id above to attach a terminal
