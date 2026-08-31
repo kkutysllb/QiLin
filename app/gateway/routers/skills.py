@@ -319,7 +319,7 @@ async def install_skill_from_upload(
             )
     finally:
         try:
-            tmp_path.unlink(missing_ok=True)
+            tmp_path.unlink(missing_ok=True)  # noqa: ASYNC240 -- intentional sync temp-file cleanup in finally
         except OSError:
             pass
 

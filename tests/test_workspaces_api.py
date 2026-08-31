@@ -18,8 +18,8 @@ from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
-import qilin.persistence.models  # noqa: F401
 import app.gateway.routers.workspaces as ws_router_module
+import qilin.persistence.models  # noqa: F401
 from app.gateway.authz import AuthContext
 from qilin.persistence.base import Base
 from qilin.persistence.thread_meta.sql import ThreadMetaRepository
@@ -153,7 +153,7 @@ class TestGroupingApi:
     async def test_explicit_attach_detach_and_tree(self, client):
         """Legacy NULL-cwd threads join via explicit attach; tree derives
         from the registry; Ungrouped holds the rest."""
-        c, ws_repo, thread_repo, base = client
+        c, _ws_repo, thread_repo, base = client
         (base / "proj").mkdir()
         w1 = await _register(c, base / "proj")
 

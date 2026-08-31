@@ -17,6 +17,7 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain.agents.middleware.types import ModelRequest, ModelResponse
 from langchain_core.messages import AIMessage, HumanMessage
 
+from qilin.constants import HIDE_FROM_UI_KEY
 from qilin.runtime.events.catalog import (
     MIDDLEWARE_SKILL_ACTIVATION_TAG,
     MIDDLEWARE_SKILL_SECRETS_TAG,
@@ -34,7 +35,6 @@ from qilin.skills.storage import get_or_new_skill_storage, get_or_new_user_skill
 from qilin.skills.storage.skill_storage import SkillStorage
 from qilin.skills.types import SKILL_MD_FILE, SecretRequirement, Skill, SkillCategory
 from qilin.utils.messages import get_original_user_content_text, is_real_user_message
-from qilin.constants import HIDE_FROM_UI_KEY
 
 if TYPE_CHECKING:
     from qilin.config.app_config import AppConfig

@@ -212,7 +212,7 @@ class WorkspaceRepository:
             else:
                 ids_in_order.insert(ids_in_order.index(before_workspace_id), workspace_id)
             for new_pos, ws_id in enumerate(ids_in_order):
-                next((r for r in orders if r.workspace_id == ws_id)).position = new_pos
+                next(r for r in orders if r.workspace_id == ws_id).position = new_pos
             await session.commit()
 
     async def set_title(self, workspace_id: str, title: str, *, user_id: str) -> dict:

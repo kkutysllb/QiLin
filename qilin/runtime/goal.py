@@ -24,12 +24,12 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.checkpoint.base import empty_checkpoint, uuid6
 
 from qilin.agents.goal_state import GoalBlocker, GoalEvaluation, GoalState
+from qilin.constants import HIDE_FROM_UI_KEY
 from qilin.models import create_chat_model
 from qilin.tracing import inject_langfuse_metadata
 from qilin.utils import llm_text
 from qilin.utils.messages import message_to_text
 from qilin.utils.time import now_iso
-from qilin.constants import HIDE_FROM_UI_KEY
 
 logger = logging.getLogger(__name__)
 

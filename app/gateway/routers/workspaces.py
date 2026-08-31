@@ -114,10 +114,11 @@ async def create_workspace(
     user_id = await get_current_user(request)
     store = _require_store(request)
     try:
-        canonical = os.path.realpath(body.path)
+        # realpath canonicalization is intentionally sync: cheap stat + OSError contract below
+        canonical = os.path.realpath(body.path)  # noqa: ASYNC240
     except OSError as exc:
         raise HTTPException(status_code=400, detail=f"invalid path: {exc}") from exc
-    if not os.path.isdir(canonical):
+    if not os.path.isdir(canonical):  # noqa: ASYNC240 -- same rationale
         raise HTTPException(status_code=400, detail="path is not an existing directory")
     return await store.create(
         user_id=user_id, canonical_path=canonical, title=body.title

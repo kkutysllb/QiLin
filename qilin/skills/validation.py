@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from qilin.skills.frontmatter import (
-    ALLOWED_FRONTMATTER_PROPERTIES,
+    ALLOWED_FRONTMATTER_PROPERTIES,  # noqa: F401 -- re-exported via qilin.skills.__init__
     split_skill_markdown,
 )
 from qilin.skills.parser import parse_allowed_tools

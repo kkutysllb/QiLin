@@ -1,10 +1,8 @@
 """Unit tests for the AI-guided agent suggestion endpoint and helpers."""
 
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import HTTPException
 
 from app.gateway.routers.agents import (
     _parse_suggestion_json,

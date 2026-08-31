@@ -18,7 +18,7 @@ os.environ.setdefault(
     "QILIN_INTERNAL_AUTH_TOKEN", "unit-test-secret-0123456789abcdef"
 )
 
-from app.gateway.rate_limit import (  # noqa: E402
+from app.gateway.rate_limit import (
     _DEFAULT_POLICY,
     _STRICT_POLICY,
     STRICT_PATHS,

@@ -17,13 +17,13 @@ os.environ.setdefault(
     "QILIN_INTERNAL_AUTH_TOKEN", "unit-test-secret-0123456789abcdef"
 )
 
-import pytest  # noqa: E402
-from fastapi import FastAPI  # noqa: E402
-from httpx import ASGITransport, AsyncClient  # noqa: E402
+import pytest
+from fastapi import FastAPI
+from httpx import ASGITransport, AsyncClient
 
-import app.gateway.routers.skills as skills_module  # noqa: E402
-from qilin.config.paths import Paths  # noqa: E402
-from qilin.skills.storage.user_scoped_skill_storage import (  # noqa: E402
+import app.gateway.routers.skills as skills_module
+from qilin.config.paths import Paths
+from qilin.skills.storage.user_scoped_skill_storage import (
     UserScopedSkillStorage,
 )
 

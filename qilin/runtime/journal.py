@@ -36,6 +36,7 @@ from langchain_core.messages import (
 from langgraph.types import Command
 
 from qilin.agents.human_input import read_human_input_response
+from qilin.constants import HIDE_FROM_UI_KEY
 from qilin.runtime.events.catalog import (
     LLM_AI_RESPONSE_EVENT,
     LLM_ERROR_EVENT,
@@ -49,7 +50,6 @@ from qilin.runtime.events.catalog import (
 )
 from qilin.utils.messages import message_to_text, restore_original_human_message
 from qilin.utils.time import now_iso
-from qilin.constants import HIDE_FROM_UI_KEY
 
 if TYPE_CHECKING:
     from qilin.runtime.events.store.base import RunEventStore

@@ -19,13 +19,13 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import StaticPool
 
 import qilin.persistence.models  # noqa: F401
-from qilin.persistence.base import Base
-from qilin.persistence.thread_meta.sql import ThreadMetaRepository
-from qilin.persistence.workspace.sql import WorkspaceRepository
 
 # imported eagerly below the storage imports; services pulls gateway auth
 # config which demands QILIN_INTERNAL_AUTH_TOKEN in the environment.
-from app.gateway.services import _ensure_thread_metadata  # noqa: E402
+from app.gateway.services import _ensure_thread_metadata
+from qilin.persistence.base import Base
+from qilin.persistence.thread_meta.sql import ThreadMetaRepository
+from qilin.persistence.workspace.sql import WorkspaceRepository
 
 
 class _Recorder:
@@ -88,7 +88,6 @@ async def env():
 OWNER = "user-A"
 
 # imported lazily so module-level auth-free import stays possible elsewhere
-from app.gateway.services import _ensure_thread_metadata  # noqa: E402
 
 
 pytestmark = pytest.mark.asyncio

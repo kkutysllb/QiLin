@@ -1,23 +1,21 @@
 """Files router path-guard + basic list behavior."""
 from __future__ import annotations
 
-from pathlib import Path
 from types import SimpleNamespace
 
 import httpx
 import pytest
 import pytest_asyncio
-from fastapi import APIRouter, FastAPI
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from fastapi import FastAPI
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import StaticPool
 
-import qilin.persistence.models  # noqa: F401
 import app.gateway.routers.files as files_module
+import qilin.persistence.models  # noqa: F401
 from app.gateway.authz import AuthContext
 from app.gateway.deps import get_current_user
 from qilin.config.paths import Paths
 from qilin.persistence.base import Base
-
 
 OWNER = "user-A"
 THREAD = "thr-001"

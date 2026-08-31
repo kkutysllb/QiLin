@@ -11,7 +11,7 @@ import functools
 import mimetypes
 from collections.abc import Awaitable, Callable
 from pathlib import Path as FsPath
-from typing import Annotated, Any, Literal, ParamSpec, TypeVar
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
@@ -22,9 +22,6 @@ from qilin.config import paths as qilin_paths
 
 router = APIRouter(prefix="/api/files", tags=["files"])
 
-P = ParamSpec("P")
-T = TypeVar("T")
-
 
 class WorkspacePathError(Exception):
     def __init__(self, code: str, message: str, status: int = 400):
@@ -34,7 +31,7 @@ class WorkspacePathError(Exception):
         self.status = status
 
 
-def _envelope_files_errors(fn: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+def _envelope_files_errors[**P, T](fn: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     """Render WorkspacePathError as the §3.3 ``{"error": {...}}`` envelope."""
 
     @functools.wraps(fn)
@@ -76,7 +73,7 @@ def _resolve_workspace_path(thread_id: str, rel: str) -> FsPath:
     candidate = (root / rel).resolve()
     try:
         candidate.relative_to(root)
-    except ValueError as exc:  # noqa: PERF203 — explicit is clearer
+    except ValueError as exc:
         raise WorkspacePathError(
             "path_outside_workspace",
             "path resolves outside the thread workspace",
