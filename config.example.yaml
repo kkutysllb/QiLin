@@ -720,6 +720,11 @@ tools:
   # - name: terminal_close
   #   group: ports
   #   use: qilin.tools.builtins.terminal_port_tools:terminal_close_tool
+  # Open a local file/folder or HTTP(S) page in the session's surface panel
+  # (DSH sidebar_open contract; queued while the panel is detached).
+  # - name: sidebar_open
+  #   group: ports
+  #   use: qilin.tools.builtins.sidebar_open_tool:sidebar_open_tool
 
   # Web search tool (uses SearXNG, self-hosted, no API key required)
   # SearXNG is a free internet metasearch engine which aggregates results from

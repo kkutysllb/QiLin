@@ -175,6 +175,7 @@ uvicorn app.gateway.app:app --port 8080
 | [subagents 模块](docs/modules/subagents.md) | [subagents](docs/modules/subagents.md) | 子代理执行与注册 |
 | [orchestration 模块](docs/modules/orchestration.md) | [orchestration](docs/modules/orchestration.md) | 多智能体编排（handoff/图/消息总线/协作模式） |
 | [tools 模块](docs/modules/tools.md) | [tools](docs/modules/tools.md) | 工具装配流水线 |
+| [ports 模块](docs/modules/ports.md) | [ports](docs/modules/ports.md) | 一切皆 port——DSH 兼容终端/表面端口（安装、环境变量、E2E） |
 | [skills 模块](docs/modules/skills.md) | [skills](docs/modules/skills.md) | 技能系统 |
 | [mcp 模块](docs/modules/mcp.md) | [mcp](docs/modules/mcp.md) | MCP 协议适配 |
 | [runtime 模块](docs/modules/runtime.md) | [runtime](docs/modules/runtime.md) | LangGraph 运行 + checkpoint |
@@ -306,7 +307,7 @@ echo "What is 2+2?" | qilin --json
 │   └── scheduler/         # Scheduled-task HTTP service
 ├── docs/
 │   ├── architecture.md
-│   └── modules/*.md       # 21 module docs
+│   └── modules/*.md       # 25 module docs
 └── README.md              # This file
 ```
 
