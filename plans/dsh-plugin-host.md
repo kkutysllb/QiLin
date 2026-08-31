@@ -16,10 +16,10 @@
 
 ## Task List
 
-### H0 兼容性盘点 —— 进行中
-- [ ] 8 插件 × 宿主 API 面矩阵（inject / patch / mount 点 / host 半 / 数据源）
-- [ ] 插件分级：纯面板类 / 重 host 能力类 / agent 运行时类；选金丝雀
-- [ ] @deepseek-ai 运行时包可得性确认（npm 公共源 / 本地 checkout）
+### H0 兼容性盘点 —— ✅ complete
+- [x] 8 插件 × 宿主 API 面矩阵（inject / patch / mount 点 / host 半 / 数据源）
+- [x] 插件分级：T1 自包含面板 / T2 agent 运行时 / T3 源码构建重插件；金丝雀 = kcoder-stats-panel
+- [x] @deepseek-ai 运行时包可得性：本地 harness checkout 完整可得（npm 公共源待网络验证）
 
 ### H1 最小宿主内核
 - [ ] web-demo 内嵌 cordis + DSH client 运行时（0.1.2-alpha.2 面）
@@ -45,11 +45,48 @@
 
 ## Findings
 
+### H0 盘点矩阵（2026-08-31，源: ~/kk_Projects/dsh-plugins 8 插件实扫）
+
+**插件分两个世界**——兼容难度天差地别：
+
+| 级 | 插件 | client 半 | host 半 | 宿主依赖面 |
+|----|------|-----------|---------|------------|
+| **T1 自包含面板** | kcoder-stats-panel | 打包产物,**零静态 import** | entry 零 require | 纯运行时服务面(cordis service 发现) |
+| | kcoder-git-panel | 自包含 | node:child_process 跑 git CLI | + better-sidebar service(panel/sidebar/settings 高频) |
+| | kcoder-terminal | 自包含(含 registerTab 调用) | node-pty 多标签(vendor 自带) | + better-sidebar registerTab |
+| **T2 agent 运行时** | kcoder-language | 无 client 半 | system-prompt section 注入 | agent 运行时注入口 |
+| | kcoder-skills | 无 client 半 | 技能包物化 | 技能系统格式 |
+| **T3 源码构建重插件** | DSH-better-sidebar | **26× ui-primitives**、7× cordis、5× dsh-tools、3× dsh-llm/agent、chat.* 深 slots | typert remotes(fs/git/pty) | 完整宿主运行时 |
+| | dsh-file-review-tab | 6× typert-protocol、conversation turnTail、消费 better-sidebar service | undo/redo remote | 宿主 + 插件间服务 |
+| | dsh-super-ppts | inject runtime | dsh-tools/tool-subagent/workflow/web 面 | agent 工具面 |
+
+**关键结论**:
+1. T1 对宿主的依赖是**运行时服务面**(cordis service 发现 + 服务名约定),不是编译期
+   import——client.js 自包含零依赖。兼容 T1 ≈ 实现 cordis 内核 + 两个服务:
+   **better-sidebar tab service(registerTab/registerFileViewer)** 与宿主环境注入。
+   其中 tab service 与 QiLin 现有 sidebar 协议(openTab/SidebarPanelApi)天然对齐。
+2. T1 的 host 半只用 node: 内置(git CLI/pty)——沙箱/安全模型按 DSH 约定
+   (isTrusted loopback、POST-only、execFile 无 shell)实现即可,PTY 桥可接 ports。
+3. T3 需要完整 ui-primitives + conversation slots——后置到 H4,不作 H1 目标。
+4. **金丝雀选定:kcoder-stats-panel**(最纯:entry 零 require、client 自包含、单面板);
+   次选 git-panel / terminal(引入 better-sidebar service 面 + host exec/pty 桥)。
+5. **运行时包可得性 ✅**:DSH harness checkout 的 node_modules 有完整 @deepseek-ai 族
+   (cordis/cordis-plugin-* /dsh-api-remotes/dsh-agent* 等);DSH 本体源码仓在
+   ~/kk_Projects/deepseek-harness。npm 公共源待网络环境验证(沙箱内 EPERM)。
+6. 插件安装模型(dsh-plugins README):`dsh plugin --profile web add <pkg|path>` →
+   profile bundle stack merge(cordis.patch.yml insert)→ 重启生效——H1/H3 的对齐蓝本。
+
 （H0 盘点矩阵待填）
 
 ## Progress Log
 
 - 2026-08-31: 计划创建。三项决策落定（同构安装模式 / 面板类先行+运行时类 port 化 /
   锚定 0.1.2-alpha.2 长期跟踪）。开工 H0。
+- 2026-08-31: H0 完成。核心发现:**插件分两个世界**——T1 自包含面板（stats-panel/
+  git-panel/terminal:client 零静态 import、host 半纯 node:内置,依赖只是运行时服务面）
+  vs T3 源码构建重插件（better-sidebar/file-review/super-ppts:静态 import ui-primitives/
+  typert/dsh-tools,深绑定）。兼容层最小集 = cordis 内核 + better-sidebar tab service
+  (registerTab/registerFileViewer,与 QiLin 现有 SidebarPanelApi 天然对齐)。金丝雀 =
+  kcoder-stats-panel。运行时包本地可得 ✅。下一步 H1:最小宿主内核。
 
 ## Errors
