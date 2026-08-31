@@ -21,11 +21,12 @@
 - [x] 插件分级：T1 自包含面板 / T2 agent 运行时 / T3 源码构建重插件；金丝雀 = kcoder-stats-panel
 - [x] @deepseek-ai 运行时包可得性：本地 harness checkout 完整可得（npm 公共源待网络验证）
 
-### H1 最小宿主内核
-- [ ] web-demo 内嵌 cordis + DSH client 运行时（0.1.2-alpha.2 面）
-- [ ] 插件清单 + 构建期注入（安装 = 改清单 + 重建 bundle + 重启）
-- [ ] 自研 hello-tab 样例插件自测兼容层
-- [ ] 第三方金丝雀插件在麒麟跑通（渲染 + 卸载干净）
+### H1 最小宿主内核 —— ✅ 内核 complete（第三方金丝雀为下一片）
+- [x] 浏览器端插件协议 shim：`window.__ModuleLoader__.load({id,factory})`（inject/apply 服务注入、replace-on-reload、插件错误不落页面）——实测 T1 插件 client 零静态 import，仅需该协议面，无需内嵌完整 cordis
+- [x] 插件清单 + 同源 script 注入（public/plugins/manifest.json；模块级单例 boot 兼容 React strict-mode 双跑）
+- [x] qiLin.sidebar 服务桥：DOM mount 适配为 SidebarPanelSpec 进 sidebarPanelRegistry；BetterSidebarRoot 🧩 chips 行曝光插件面板
+- [x] hello-tab 样例全链跑通（浏览器实测：chip → tab → mount 内容渲染；tsc+eslint 绿）
+- [ ] 真实第三方插件跑通（候选 git-panel / terminal——需 host 半：同源 RPC 安全边界 + node:exec/pty 桥）
 
 ### H2 Typert 能力桥
 - [ ] gateway 实现 api-remotes 协议端点（翻译层，南向接 QiLin 现有 API）
@@ -65,6 +66,12 @@
    import——client.js 自包含零依赖。兼容 T1 ≈ 实现 cordis 内核 + 两个服务:
    **better-sidebar tab service(registerTab/registerFileViewer)** 与宿主环境注入。
    其中 tab service 与 QiLin 现有 sidebar 协议(openTab/SidebarPanelApi)天然对齐。
+   **H1 实测修正**:①注册协议实为 `window.__ModuleLoader__.load({id,factory})`(client
+   经宿主 /plugins combo 以普通 script 拼接执行),factory 返回 cordis 惯例
+   {inject,apply};②terminal 里的 registerTab 是其自绘多标签的**局部函数**——T1
+   插件并不消费 better-sidebar service,而是自绘 UI + 依赖宿主 DOM 锚点(如
+   `__dsh_desktop_titlebar`);③stats-panel 依赖 DSH 聊天页特有 DOM(StatsLine),
+   不适合作金丝雀——改用自研 hello-tab 验证协议链(已完成)。
 2. T1 的 host 半只用 node: 内置(git CLI/pty)——沙箱/安全模型按 DSH 约定
    (isTrusted loopback、POST-only、execFile 无 shell)实现即可,PTY 桥可接 ports。
 3. T3 需要完整 ui-primitives + conversation slots——后置到 H4,不作 H1 目标。
@@ -88,5 +95,16 @@
   typert/dsh-tools,深绑定）。兼容层最小集 = cordis 内核 + better-sidebar tab service
   (registerTab/registerFileViewer,与 QiLin 现有 SidebarPanelApi 天然对齐)。金丝雀 =
   kcoder-stats-panel。运行时包本地可得 ✅。下一步 H1:最小宿主内核。
+- 2026-08-31: H1 内核完成(commit fec79a8)。落盘 web-demo/src/plugins-host/{module-loader,
+  services,plugin-host} + public/plugins/{manifest.json,hello-tab/client.js} + sidebar
+  🧩 chips 行。**浏览器端到端实测通过**:manifest 驱动 script 注入 → __ModuleLoader__
+  注册 → inject:['qiLin.sidebar'] 服务注入 → registerTab 进 registry → 侧边栏 tab
+  渲染 mount 内容(截图证据)。调试修掉两个真问题:①React strict-mode 双跑 + 模块级
+  bootStarted 守卫导致首次 boot 被 cleanup 取消后永不重试 → 改模块级单例 promise
+  (失败重置可重试);②rightPanelMode 持久化 readMode 只认裸字符串 'sidebar'。
+  发现:web-demo /workspace 主页有独立登录门(与 gateway QILIN_AUTH_DISABLED 无关),
+  验证需注册账号登录(KWORKS_AUTH_DISABLED 实际不被 src 消费,仅 E2E terminal 页
+  因不在门内而幸免)。下一片:真实第三方插件(git-panel/terminal)——需 host 半
+  (同源 RPC isTrusted 边界 + node:exec / node-pty 桥接 QiLin ports)。
 
 ## Errors
