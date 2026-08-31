@@ -8,6 +8,11 @@
       "id": "git-panel",
       "script": "/plugins/git-panel/client.js",
       "server": "plugins/git-panel/entry.js"
+    },
+    {
+      "id": "kcoder-terminal",
+      "script": "/plugins/kcoder-terminal/client.js",
+      "server": "plugins/kcoder-terminal/entry.js"
     }
   ]
 }
