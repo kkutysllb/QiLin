@@ -34,7 +34,7 @@
 - [ ] fs → files API（已有）、pty → ports（已有）、git → 新增评估
 
 ### H3 生命周期管理
-- [ ] 等价 `dsh plugin add/remove/upgrade` 的麒麟命令或 UI
+- [x] CLI `scripts/plugin.mjs`：add（本地 dsh-plugins 形态目录）/ remove / upgrade / list——文件分发（client→public、server+vendor→plugins/ 非公开区）+ manifest 原子重写；与 DSH 官方同构（安装后需重启 web-demo）
 - [ ] semver + dsh 版本兼容声明检查
 - [ ] 插件管理面板（清单/启停/卸载）
 
@@ -123,5 +123,11 @@
   pty 引擎层 node-pty posix_spawn 被本机 macOS 拒绝(完全脱离沙箱仍复现——上游
   native 模块环境限制,DSH-Desktop Electron 环境才工作;反证 ports PTY 选型纯
   Python 正确)。安装状态入库:manifest 三插件(hello-tab/git-panel/terminal)。
+- 2026-08-31: **H3 生命周期 CLI 完成**(commit d4b6dec):scripts/plugin.mjs
+  add/remove/upgrade/list——本地 dsh-plugins 形态目录一键安装(client→public、
+  server+vendor→plugins/ 非公开区)、manifest 原子重写、remove 双半清净、source
+  路径记录;与 DSH 官方同构(安装后重启 web-demo)。实测:remove→add→list 全链
+  + 浏览器 smoke(三插件并存,git-panel 数据渲染)。管理面板与 semver 兼容检查
+  留待后续;剩余主线:H2 Typert 桥泛化、H4 conversation 挂点、H5 port 化。
 
 ## Errors
