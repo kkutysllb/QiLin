@@ -12,7 +12,6 @@ import {
 
 const RIGHT_PANEL_KEY = "kworks.workspace.rightPanelOpen";
 const RIGHT_PANEL_WIDTH_KEY = "kworks.workspace.rightPanelWidth";
-const RIGHT_PANEL_MODE_KEY = "kworks.workspace.rightPanelMode";
 const SECTIONS_KEY = "kworks.workspace.panelSections";
 
 const RIGHT_PANEL_MIN_WIDTH = 280;
@@ -25,9 +24,6 @@ export type PanelSectionId =
   | "resources"
   | "artifacts"
   | "workspaceChanges";
-
-/** 右侧面板形态：context 为既有摘要面板，sidebar 为 Better Sidebar 多 tab 工作台。 */
-export type RightPanelMode = "context" | "sidebar";
 
 /** 设置页可用的 section id，与 SettingsView 内部保持一致。 */
 export type SettingsSectionId =
@@ -53,8 +49,6 @@ interface WorkspaceLayoutValue {
   setRightPanelOpen: (open: boolean) => void;
   rightPanelWidth: number;
   setRightPanelWidth: (width: number) => void;
-  rightPanelMode: RightPanelMode;
-  setRightPanelMode: (mode: RightPanelMode) => void;
   isSectionCollapsed: (id: PanelSectionId) => boolean;
   toggleSection: (id: PanelSectionId) => void;
   /** 设置全屏视图状态。 */
@@ -74,15 +68,6 @@ function readBoolean(key: string, fallback: boolean): boolean {
     return v === null ? fallback : v === "true";
   } catch {
     return fallback;
-  }
-}
-
-function readMode(): RightPanelMode {
-  try {
-    const v = localStorage.getItem(RIGHT_PANEL_MODE_KEY);
-    return v === "sidebar" ? "sidebar" : "context";
-  } catch {
-    return "context";
   }
 }
 
@@ -113,14 +98,11 @@ function readSections(): Record<PanelSectionId, boolean> {
   };
 }
 
-export function WorkspaceLayoutProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function WorkspaceLayoutProvider({ children }: { children: ReactNode }) {
   const [rightPanelOpen, setRightPanelOpenState] = useState(false);
-  const [rightPanelWidth, setRightPanelWidthState] = useState(RIGHT_PANEL_DEFAULT_WIDTH);
-  const [rightPanelMode, setRightPanelModeState] = useState<RightPanelMode>("context");
+  const [rightPanelWidth, setRightPanelWidthState] = useState(
+    RIGHT_PANEL_DEFAULT_WIDTH,
+  );
   const [sections, setSections] = useState<Record<PanelSectionId, boolean>>({
     todos: false,
     subagents: false,
@@ -144,7 +126,6 @@ export function WorkspaceLayoutProvider({
   // 初始化从 localStorage 恢复
   useEffect(() => {
     setRightPanelOpenState(readBoolean(RIGHT_PANEL_KEY, false));
-    setRightPanelModeState(readMode());
     setSections(readSections());
     try {
       const raw = localStorage.getItem(RIGHT_PANEL_WIDTH_KEY);
@@ -152,7 +133,10 @@ export function WorkspaceLayoutProvider({
         const parsed = parseInt(raw, 10);
         if (!Number.isNaN(parsed)) {
           setRightPanelWidthState(
-            Math.min(RIGHT_PANEL_MAX_WIDTH, Math.max(RIGHT_PANEL_MIN_WIDTH, parsed)),
+            Math.min(
+              RIGHT_PANEL_MAX_WIDTH,
+              Math.max(RIGHT_PANEL_MIN_WIDTH, parsed),
+            ),
           );
         }
       }
@@ -183,20 +167,10 @@ export function WorkspaceLayoutProvider({
     }
   }, []);
 
-  const setRightPanelMode = useCallback((mode: RightPanelMode) => {
-    setRightPanelModeState(mode);
-    try {
-      localStorage.setItem(RIGHT_PANEL_MODE_KEY, mode);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
   const toggleRightPanel = useCallback(
     () => setRightPanelOpen(!rightPanelOpen),
     [rightPanelOpen, setRightPanelOpen],
   );
-
 
   const isSectionCollapsed = useCallback(
     (id: PanelSectionId) => sections[id] ?? false,
@@ -222,8 +196,6 @@ export function WorkspaceLayoutProvider({
       setRightPanelOpen,
       rightPanelWidth,
       setRightPanelWidth,
-      rightPanelMode,
-      setRightPanelMode,
       isSectionCollapsed,
       toggleSection,
       settingsOpen,
@@ -237,8 +209,6 @@ export function WorkspaceLayoutProvider({
       setRightPanelOpen,
       rightPanelWidth,
       setRightPanelWidth,
-      rightPanelMode,
-      setRightPanelMode,
       isSectionCollapsed,
       toggleSection,
       settingsOpen,

@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 import { installModuleLoader } from "./module-loader";
+import { PluginPanelDock } from "./panel-dock";
 import { setCurrentThread } from "./services";
 
 /**
@@ -79,18 +80,21 @@ export function PluginHostBoot() {
   // mount their entry buttons onto #__dsh_desktop_titlebar. Provide a
   // fixed top-right strip so those buttons appear over any QiLin page.
   return (
-    <div
-      id="__dsh_desktop_titlebar"
-      data-plugin-anchor="dsh-titlebar"
-      style={{
-        position: "fixed",
-        top: 8,
-        right: 48,
-        zIndex: 2147483000,
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-      }}
-    />
+    <>
+      <div
+        id="__dsh_desktop_titlebar"
+        data-plugin-anchor="dsh-titlebar"
+        style={{
+          position: "fixed",
+          top: 8,
+          right: 48,
+          zIndex: 2147483000,
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      />
+      <PluginPanelDock />
+    </>
   );
 }

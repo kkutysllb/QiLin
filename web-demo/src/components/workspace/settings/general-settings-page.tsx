@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useWorkspaceLayout } from "@/components/workspace/workspace-layout-context";
 import { fetch, getCsrfHeaders } from "@/core/api/fetcher";
 import { useAuth } from "@/core/auth/AuthProvider";
 import { setDesktopSessionToken } from "@/core/auth/session";
@@ -50,7 +49,9 @@ function SettingsGroup({
       <h3 className="text-muted-foreground px-1 text-xs font-medium tracking-wide uppercase">
         {title}
       </h3>
-      <div className="divide-y overflow-hidden rounded-xl border">{children}</div>
+      <div className="divide-y overflow-hidden rounded-xl border">
+        {children}
+      </div>
     </section>
   );
 }
@@ -85,7 +86,6 @@ export function GeneralSettingsPage() {
   const { user, logout, refreshUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const { locale, changeLocale } = useI18n();
-  const { rightPanelMode, setRightPanelMode } = useWorkspaceLayout();
   const currentTheme = (theme ?? "system") as "system" | "light" | "dark";
   const [localSettings, setLocalSettings] = useLocalSettings();
 
@@ -156,7 +156,11 @@ export function GeneralSettingsPage() {
     label: string;
     icon: typeof SunIcon;
   }[] = [
-    { value: "system", label: t.settings.appearance.system, icon: MonitorSmartphoneIcon },
+    {
+      value: "system",
+      label: t.settings.appearance.system,
+      icon: MonitorSmartphoneIcon,
+    },
     { value: "light", label: t.settings.appearance.light, icon: SunIcon },
     { value: "dark", label: t.settings.appearance.dark, icon: MoonIcon },
   ];
@@ -230,7 +234,12 @@ export function GeneralSettingsPage() {
           {error && <p className="text-sm text-red-500">{error}</p>}
           {message && <p className="text-sm text-green-500">{message}</p>}
           <div className="flex justify-end">
-            <Button type="submit" variant="outline" size="sm" disabled={loading}>
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              disabled={loading}
+            >
               {loading
                 ? t.settings.account.updating
                 : t.settings.account.update}
@@ -244,7 +253,7 @@ export function GeneralSettingsPage() {
             variant="outline"
             size="sm"
             onClick={logout}
-            className="gap-2 text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground gap-2"
           >
             <LogOutIcon className="size-4" />
             {t.settings.account.logout}
@@ -313,7 +322,11 @@ export function GeneralSettingsPage() {
           <Select
             value={localSettings.appearance.width}
             onValueChange={(value) => {
-              if (value === "narrow" || value === "medium" || value === "wide") {
+              if (
+                value === "narrow" ||
+                value === "medium" ||
+                value === "wide"
+              ) {
                 setLocalSettings("appearance", { width: value });
               }
             }}
@@ -341,7 +354,11 @@ export function GeneralSettingsPage() {
           <Select
             value={localSettings.appearance.fontSize}
             onValueChange={(value) => {
-              if (value === "small" || value === "medium" || value === "large") {
+              if (
+                value === "small" ||
+                value === "medium" ||
+                value === "large"
+              ) {
                 setLocalSettings("appearance", { fontSize: value });
               }
             }}
@@ -396,31 +413,6 @@ export function GeneralSettingsPage() {
         </SettingsRow>
       </SettingsGroup>
 
-      {/* 右侧面板 */}
-      <SettingsGroup title="Right panel">
-        <SettingsRow
-          label="Right panel mode"
-          description="Context shows subagents / skills / workspace changes. Sidebar switches the right panel to the Better Sidebar workbench (files / viewers / plugins)."
-        >
-          <Select
-            value={rightPanelMode}
-            onValueChange={(value) => {
-              if (value === "context" || value === "sidebar") {
-                setRightPanelMode(value);
-              }
-            }}
-          >
-            <SelectTrigger aria-label="right panel mode" className="h-8 w-[160px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="context">Context</SelectItem>
-              <SelectItem value="sidebar">Sidebar</SelectItem>
-            </SelectContent>
-          </Select>
-        </SettingsRow>
-      </SettingsGroup>
-
       {/* 系统 */}
       <section className="space-y-2">
         <h3 className="text-muted-foreground px-1 text-xs font-medium tracking-wide uppercase">
@@ -435,7 +427,6 @@ export function GeneralSettingsPage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

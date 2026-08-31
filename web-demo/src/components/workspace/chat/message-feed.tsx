@@ -21,8 +21,8 @@ import {
   extractHumanInputRequest,
   type HumanInputResponse,
 } from "@/core/messages/human-input";
-import { parseAssistantSegments } from "@/core/messages/segments";
 import { getAssistantRunId } from "@/core/messages/rendering";
+import { parseAssistantSegments } from "@/core/messages/segments";
 import {
   extractContentFromMessage,
   extractPresentFilesFromMessage,

@@ -3,11 +3,11 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { memo, useMemo } from "react";
 
+import { getAssistantRunId } from "@/core/messages/rendering";
 import {
   parseMessageSegments,
   parseUserPrompt,
 } from "@/core/messages/segments";
-import { getAssistantRunId } from "@/core/messages/rendering";
 import { cn } from "@/lib/utils";
 
 import { AssistantMessageFooter } from "./assistant-message-footer";

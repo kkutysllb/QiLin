@@ -13,6 +13,10 @@
   port 插件。
 - **版本基线**：锚定 **dsh 0.1.2-alpha.2**，长期实时跟踪上游。契约层（宿主 API 面）
   不变的版本，插件零适配；上游破坏性变更届时逐个分析。
+- **自研侧边栏下线删除（用户拍板 2026-08-31，随 H4 执行）**：web-demo 的
+  better-sidebar 自研实现整体删除；插件契约面（`core/sidebar/panel-registry` +
+  `protocol`、`qiLin.sidebar` 服务桥）保持不变——插件零适配。插件面板改由宿主
+  极简 dock 挂点承载。
 
 ## Task List
 
@@ -39,9 +43,18 @@
 - [x] 版本记录与基线校验位：entry 记录 version + source；宿主基线 DSH_BASELINE=0.1.2-alpha.2 常量（生态暂无标准兼容声明字段，声明出现时在此扩展比对）
 - [x] 插件管理面板 `/workspace/plugins`：清单表格（版本/client/server/状态）+ 停用/启用/卸载（loopback 管理 API POST /qilin-plugins/api）+ 重启提示横幅；CLI 与面板共用 runtime 管理逻辑
 
-### H4 面板类挂点铺开
-- [ ] sidebar tab / file viewer / dock 挂点对齐 0.1.2-alpha.2 契约
-- [ ] conversation turnTail 链（后置，依赖聊天 UI 插槽对齐）
+### H4 面板类挂点铺开 —— H4-a/H4-b ✅ complete；H4-c/H4-d 待做
+- [x] H4-a 自研侧边栏删除：components/better-sidebar（11 文件）+ core/sidebar 支撑层
+      （panel-host/scope/use-sidebar-tabs/viewer-host/viewer-registry）+ gateway
+      sidebar-tabs 持久化端点与路由测试 + better-sidebar e2e/单测/截图；
+      rightPanelMode 布局机制一并移除（右栏恒为 RightContextPanel）
+- [x] H4-b 插件面板 dock 挂点：PluginPanelDock（🧩 抽屉，titlebar 锚点同侧）承载
+      sidebarPanelRegistry 的 plugin: 面板——qiLin.sidebar 契约不变，渲染面换宿主
+      极简实现（registry 增加订阅通知，additive 不破坏契约）
+- [ ] H4-c file viewer / dock 挂点对齐 0.1.2-alpha.2 契约（registerFileViewer 等
+      better-sidebar service 面；protocol.ts 的 FileViewer*/SidebarTabState 契约
+      类型保留，届时直接使用）
+- [ ] H4-d conversation turnTail 链（后置，依赖聊天 UI 插槽对齐）
 
 ### H5 agent 运行时 port 化（远期）
 - [ ] language（system-prompt section）/ skills 按「一切皆 port」封装为 port 型插件
@@ -86,6 +99,26 @@
    profile bundle stack merge(cordis.patch.yml insert)→ 重启生效——H1/H3 的对齐蓝本。
 
 （H0 盘点矩阵待填）
+
+### H4 开工侦察（2026-08-31，自研侧边栏下线切割面）
+
+- **自研侧边栏占地**：`src/components/better-sidebar/` 11 文件 589 行（Root/Drawer/
+  TabBar/TabContent + FileExplorer/FileViewerTab + 5 viewers）；`src/core/sidebar/`
+  7 文件中 **5 个只被 better-sidebar 消费**（panel-host←TabContent、use-sidebar-tabs←
+  Root、scope←Root/FileExplorer、viewer-registry←FileViewerTab、viewer-host **已无
+  消费者**＝死代码）。仅 panel-registry + protocol 被插件宿主（services.tsx）引用。
+- **插件契约面（不动）**：`qiLin.sidebar.registerTab` → sidebarPanelRegistry（id
+  前缀 `plugin:`）；hello-tab 是唯一消费者；git-panel/terminal 自绘（titlebar 锚点）。
+  🧩 chips 行在 BetterSidebarRoot 内——删除后由新 PluginPanelDock 承接。
+- **rightPanelMode**：仅 3 处消费（workspace-content 三元、layout-context 读写、
+  settings 页选择器）；layout-context 单测只测 mode → 随机制一起删。
+- **sidebar-tabs 持久化**：gateway `routers/sidebar_tabs.py`（threads_meta
+  metadata_json.sidebar_tabs）+ app.py 两行注册 + tests/test_sidebar_tabs_router.py
+  ——功能随侧边栏死，端点一并删除（存量 metadata 字段惰性留存，无需迁移）。
+- **测试牵连**：删 tests/unit/components/better-sidebar/（7 文件）、core/sidebar 的
+  use-sidebar-tabs/viewer-registry 单测、e2e better-sidebar.spec.ts + 3 截图；
+  **保留** panel-registry/protocol-types 单测（契约仍在）与 e2e sidebar.spec.ts
+  （那是左侧 WorkspaceSidebar 导航，无关）。
 
 ## Progress Log
 
@@ -148,5 +181,24 @@
   路径记录;与 DSH 官方同构(安装后重启 web-demo)。实测:remove→add→list 全链
   + 浏览器 smoke(三插件并存,git-panel 数据渲染)。管理面板与 semver 兼容检查
   留待后续;剩余主线:H2 Typert 桥泛化、H4 conversation 挂点、H5 port 化。
+- 2026-08-31: **H4 开工——用户拍板自研侧边栏下线删除**。侦察完成（见 Findings），
+  切割面锁定：删 better-sidebar UI + core/sidebar 支撑层 5 文件 + gateway
+  sidebar-tabs 端点 + rightPanelMode 机制；保 panel-registry/protocol 契约与
+  qiLin.sidebar 服务桥；新增 PluginPanelDock 作为插件面板宿主挂点。
+- 2026-09-01: **H4-a + H4-b 完成（自研侧边栏下线 + PluginPanelDock 新挂点）**。
+  变更 42 文件：删 components/better-sidebar（11）+ core/sidebar 支撑层（5）+
+  gateway sidebar_tabs.py/app.py 注册/路由测试 + 单测 e2e 截图（12）；改
+  workspace-content（右栏恒 RightContextPanel）/layout-context（mode 机制摘除）/
+  settings 页（Right panel 组删除）/panel-registry（subscribe+缓存快照，
+  additive）/plugin-host（挂 dock）/message-feed+message-item（import/order
+  既有 lint 欠账顺手清）；新增 plugins-host/panel-dock.tsx（🧩 切换钮 + 抽屉：
+  chips 行 + activeSpec.render(scope/payload/api)，api.openTab/closeSelf/toast
+  → sonner，useSyncExternalStore 订阅注册表）。**验证全绿**：tsc 0 错、eslint
+  --quiet 0 错、vitest 67 文件 381 测试全过、ruff 清、gateway import OK（带
+  env）；浏览器实测：dock 打开渲染 hello-tab（mount 时间戳）、git-panel 新任务页
+  预期降级「等待工作区」/线程页解析真实工作区（+2−0 统计）、terminal 经 pty 桥
+  出 zsh 提示符、RightContextPanel 右栏完整、设置页 Right panel 组已消失。
+  截图 h4-dock-open.png / h4-gitpanel.png / h4-terminal.png。剩余 H4-c
+  （file viewer/dock 挂点对齐 registerFileViewer 契约面）、H4-d（turnTail）。
 
 ## Errors

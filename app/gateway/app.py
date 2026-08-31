@@ -44,7 +44,6 @@ from app.gateway.routers import (
     runs,
     sandbox_mode,
     scheduled_tasks,
-    sidebar_tabs,
     skills,
     suggestions,
     thread_runs,
@@ -688,8 +687,6 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
     app.include_router(ports_surface.router)
     app.include_router(ports_terminal.router)
 
-    # Sidebar tabs API — per-thread tab state persistence (Better Sidebar web)
-    app.include_router(sidebar_tabs.router)
 
     # Thread Runs API (LangGraph Platform-compatible runs lifecycle)
     app.include_router(thread_runs.router)
