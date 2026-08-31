@@ -97,6 +97,15 @@ test.describe("terminal port surface", () => {
     const sigint = page.getByRole("button", { name: /send SIGINT/i });
     await expect(sigint).toBeVisible({ timeout: 15_000 });
 
+    // Warm the shell first: keystrokes typed before zsh finishes booting
+    // land in the tty line buffer and corrupt the later flow (flaky paste
+    // mode). Poll until a warm-up echo actually executes.
+    await page.locator(".xterm").click();
+    const warm = `warm-${Date.now() % 100000}`;
+    await page.keyboard.type(`echo ${warm}`);
+    await page.keyboard.press("Enter");
+    await pollTranscript(page, threadId, warm);
+
     // Start a sleeper, then interrupt it from the UI control plane.
     await page.locator(".xterm").click();
     await page.keyboard.type("sleep 30");
@@ -140,5 +149,61 @@ test.describe("terminal port surface", () => {
       return list.length;
     }, threadId);
     expect(count).toBeGreaterThanOrEqual(2);
+  });
+
+  test("surface.open events land in the viewer (file + url)", async ({
+    page,
+    request,
+  }) => {
+    const threadId = `e2e-surface-${Date.now()}`;
+    const marker = `surface-${Math.random().toString(36).slice(2, 8)}`;
+
+    // Seed a workspace file through the files API, then open surfaces via
+    // the surface REST route (same shared policy as the sidebar_open tool).
+    // A fresh synthetic thread has no workspace yet: mkdir bootstraps it
+    // (files/write intentionally refuses to create parent directories).
+    const mkdir = await request.post(`${GATEWAY}/api/files/mkdir`, {
+      data: { thread_id: threadId, path: "." },
+    });
+    expect(mkdir.ok()).toBeTruthy();
+    const write = await request.post(`${GATEWAY}/api/files/write`, {
+      data: {
+        thread_id: threadId,
+        path: "surface-demo.md",
+        content: `# ${marker}\nbody line\n`,
+      },
+    });
+    expect(write.ok()).toBeTruthy();
+    const fileOpen = await request.post(
+      `${GATEWAY}/api/threads/${threadId}/surfaces`,
+      { data: { target: "surface-demo.md" } },
+    );
+    expect(fileOpen.ok()).toBeTruthy();
+    const urlOpen = await request.post(
+      `${GATEWAY}/api/threads/${threadId}/surfaces`,
+      {
+        data: {
+          target: `${GATEWAY}/api/files/raw?thread_id=${threadId}&path=surface-demo.md`,
+        },
+      },
+    );
+    expect(urlOpen.ok()).toBeTruthy();
+
+    // Both opens happened while detached: loading the page attaches the
+    // WS, which drains the queue into the viewer.
+    await page.goto(`/workspace/terminal?thread=${threadId}`);
+    await expect(page.getByTestId("surface-tab")).toHaveCount(2, {
+      timeout: 15_000,
+    });
+    // Newest (the url open) takes focus.
+    await expect(page.getByTestId("surface-frame")).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Switch to the file tab: content renders through the files API.
+    await page.getByRole("button", { name: /surface-demo\.md/ }).first().click();
+    await expect(page.getByTestId("surface-content")).toContainText(marker, {
+      timeout: 10_000,
+    });
   });
 });

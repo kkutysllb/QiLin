@@ -4,6 +4,8 @@ import { FitAddon } from "@xterm/addon-fit";
 import type { Terminal as XTerm } from "@xterm/xterm";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { SurfaceOpenEventWire } from "@/components/surface/surface-viewer";
+
 type Status = "idle" | "starting" | "ready" | "exited" | "error";
 
 /**
@@ -16,7 +18,22 @@ type Status = "idle" | "starting" | "ready" | "exited" | "error";
  * (subscribe / unsubscribe / resize / signal), events are JSON text
  * ("terminal.exited").
  */
-export function TerminalPanel({ threadId, className }: { threadId: string; className?: string }) {
+export function TerminalPanel({
+  threadId,
+  className,
+  onSurfaceEvent,
+}: {
+  threadId: string;
+  className?: string;
+  onSurfaceEvent?: (event: SurfaceOpenEventWire) => void;
+}) {
+  // Latest-callback ref: the WS effect must not reconnect when the parent
+  // re-renders with a fresh callback identity.
+  const onSurfaceEventRef = useRef(onSurfaceEvent);
+  useEffect(() => {
+    onSurfaceEventRef.current = onSurfaceEvent;
+  }, [onSurfaceEvent]);
+
   const hostRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<XTerm | null>(null);
   const fitRef = useRef<FitAddon | null>(null);
@@ -123,7 +140,33 @@ export function TerminalPanel({ threadId, className }: { threadId: string; class
             return;
           }
           try {
-            const evt = JSON.parse(String(event.data)) as { type?: string; message?: string; exitCode?: number | null; exitSignal?: string | null };
+            const evt = JSON.parse(String(event.data)) as {
+              type?: string;
+              kind?: string;
+              message?: string;
+              exitCode?: number | null;
+              exitSignal?: string | null;
+              sessionId?: string;
+              surface?: string;
+              target?: string;
+              title?: string;
+              readPath?: string | null;
+            };
+            if (
+              evt.kind === "surface.open" &&
+              (evt.surface === "file" || evt.surface === "folder" || evt.surface === "url") &&
+              evt.target
+            ) {
+              onSurfaceEventRef.current?.({
+                kind: "surface.open",
+                sessionId: evt.sessionId ?? "",
+                surface: evt.surface,
+                target: evt.target,
+                title: evt.title ?? evt.target,
+                readPath: evt.readPath ?? null,
+              });
+              return;
+            }
             if (evt.type === "terminal.exited") {
               setStatus("exited");
               setMessage(

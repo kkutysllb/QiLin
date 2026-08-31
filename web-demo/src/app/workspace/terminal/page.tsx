@@ -4,6 +4,7 @@ import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
+import { SurfaceViewer, type SurfaceOpenEventWire } from "@/components/surface/surface-viewer";
 import { TerminalPanel } from "@/components/terminal/terminal-panel";
 
 const LAST_THREAD_KEY = "qilin.terminal.lastThread";
@@ -14,8 +15,15 @@ function TerminalInner() {
   const threadParam = searchParams.get("thread") ?? "";
   const [threadId, setThreadId] = useState<string>(threadParam);
   const [draft, setDraft] = useState(threadParam);
+  const [surfaceEvents, setSurfaceEvents] = useState<SurfaceOpenEventWire[]>([]);
+
+  const handleSurfaceEvent = useCallback((evt: SurfaceOpenEventWire) => {
+    // Bounded history; the viewer dedupes per target (newest wins).
+    setSurfaceEvents((prev) => [...prev.slice(-19), evt]);
+  }, []);
 
   useEffect(() => {
+    setSurfaceEvents([]); // surfaces are per-thread session state
     if (threadParam) {
       setThreadId(threadParam);
       try {
@@ -69,7 +77,20 @@ function TerminalInner() {
         )}
       </div>
       {threadId ? (
-        <TerminalPanel key={threadId} threadId={threadId} className="flex min-h-0 flex-1 flex-col" />
+        <div className="flex min-h-0 flex-1">
+          <TerminalPanel
+            key={threadId}
+            threadId={threadId}
+            onSurfaceEvent={handleSurfaceEvent}
+            className="flex min-h-0 min-w-0 flex-1 flex-col"
+          />
+          <SurfaceViewer
+            key={`surface-${threadId}`}
+            threadId={threadId}
+            events={surfaceEvents}
+            className="hidden w-[420px] shrink-0 flex-col border-l lg:flex"
+          />
+        </div>
       ) : (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
           paste a thread id above to attach a terminal
