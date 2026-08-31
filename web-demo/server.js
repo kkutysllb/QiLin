@@ -29,6 +29,11 @@ const GATEWAY_PORT = Number.parseInt(gatewayUrl.port || "80", 10);
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
+// Plugin server halves (DSH third-party plugins, T1 self-contained):
+// mounted on the raw Node server, prefix-matched before /api proxying.
+import { initPluginServers, matchPluginRoute } from "./plugins-host-runtime.mjs";
+await initPluginServers();
+
 const apiProxy = createProxyMiddleware({
   target: gatewayTarget,
   changeOrigin: false,
@@ -84,6 +89,13 @@ await app.prepare();
 
 const server = createServer((req, res) => {
   const parsedUrl = parse(req.url || "", true);
+  // Plugin server halves win over proxying and Next (longest prefix match
+  // inside matchPluginRoute; handlers own their isTrusted/method checks).
+  const pluginHandler = matchPluginRoute(parsedUrl.pathname || "");
+  if (pluginHandler) {
+    pluginHandler(req, res);
+    return;
+  }
   if (shouldProxy(parsedUrl.pathname || "")) {
     apiProxy(req, res, () => handle(req, res, parsedUrl));
     return;

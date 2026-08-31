@@ -90,3 +90,47 @@ function registerSidebarTab(spec: PluginTabDescriptor): () => void {
 registerPluginService("qiLin.sidebar", {
   registerTab: registerSidebarTab,
 } as QiLinSidebarService);
+
+/**
+ * DSH ISessions soft-parity: git-panel-style plugins probe
+ * ctx.get('sessions').list.getSnapshot() for the active session cwd.
+ * The host UI keeps the active thread id current via setCurrentThread;
+ * cwd stays null until H2 bridges thread -> host workspace path (the
+ * plugins' own cwd-override UI covers manual selection meanwhile).
+ */
+let currentThread: string | null = null;
+
+/** thread id -> host workspace path (resolved via the files API). */
+const cwdByThread = new Map<string, string>();
+
+export function setCurrentThread(threadId: string | null): void {
+  currentThread = threadId;
+  if (threadId && !cwdByThread.has(threadId)) {
+    // H2 bridge step: resolve the host workspace path once per thread so
+    // plugin server halves (git snapshot etc.) operate on the right tree.
+    void fetch(
+      `/api/files/workspace-path?thread_id=${encodeURIComponent(threadId)}`,
+      { credentials: "include" },
+    )
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((body: { path: string }) => {
+        cwdByThread.set(threadId, body.path);
+      })
+      .catch(() => {
+        /* stays absent; plugins see a null cwd and degrade */
+      });
+  }
+}
+
+registerPluginService("sessions", {
+  list: {
+    getSnapshot: () => ({
+      current: currentThread,
+      byId: Object.fromEntries(
+        currentThread
+          ? [[currentThread, { cwd: cwdByThread.get(currentThread) ?? null }]]
+          : [],
+      ),
+    }),
+  },
+});

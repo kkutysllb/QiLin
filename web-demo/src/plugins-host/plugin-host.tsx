@@ -1,7 +1,9 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 import { installModuleLoader } from "./module-loader";
+import { setCurrentThread } from "./services";
 
 /**
  * Plugin host boot — reads the build-time plugin manifest (installed
@@ -51,7 +53,18 @@ function injectScript(src: string): Promise<void> {
   });
 }
 
-export function PluginHostBoot(): null {
+export function PluginHostBoot() {
+  const pathname = usePathname();
+
+  // Keep the DSH ISessions soft-parity current: plugins (git-panel etc.)
+  // probe sessions.list.getSnapshot() for the active thread.
+  useEffect(() => {
+    const m = /\/workspace\/(?:chats|agents\/[^/]+\/chats)\/([^/]+)/.exec(
+      pathname ?? "",
+    );
+    setCurrentThread(m?.[1] === "new" ? null : (m?.[1] ?? null));
+  }, [pathname]);
+
   useEffect(() => {
     startBoot().catch((err) => {
       // One broken manifest/plugin never takes down the shell (DSH parity).
@@ -59,5 +72,23 @@ export function PluginHostBoot(): null {
       console.error("[plugin-host] boot error:", err);
     });
   }, []);
-  return null;
+
+  // DSH host DOM anchor shim: T1 plugins (git-panel, kcoder-terminal...)
+  // mount their entry buttons onto #__dsh_desktop_titlebar. Provide a
+  // fixed top-right strip so those buttons appear over any QiLin page.
+  return (
+    <div
+      id="__dsh_desktop_titlebar"
+      data-plugin-anchor="dsh-titlebar"
+      style={{
+        position: "fixed",
+        top: 8,
+        right: 48,
+        zIndex: 2147483000,
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+      }}
+    />
+  );
 }

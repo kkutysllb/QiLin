@@ -221,6 +221,23 @@ async def write_file(req: WriteRequest) -> dict:
     return {"ok": True, "size": target.stat().st_size}
 
 
+@router.get("/workspace-path")
+@_envelope_files_errors
+@require_permission("threads", "read")
+async def workspace_path(
+    request: Request,
+    thread_id: Annotated[str, Query(pattern=r"^[A-Za-z0-9_\-]{1,128}$")],
+) -> dict:
+    """Absolute host path of the thread workspace root.
+
+    Plugin-host bridge (dsh-plugin-host H2): client-side plugin halves
+    (git-panel etc.) pass this path as their RPC cwd so server halves
+    operate on the right working tree. Returns the path even when the
+    directory does not exist yet (callers may bootstrap it via /mkdir).
+    """
+    return {"path": str(_thread_workspace_root(thread_id))}
+
+
 @router.post("/mkdir")
 @_envelope_files_errors
 @require_permission("threads", "write")

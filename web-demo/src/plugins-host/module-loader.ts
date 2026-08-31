@@ -42,7 +42,11 @@ type ModuleLoaderShape = {
 
 const registry: LoadedPlugin[] = [];
 
-function load(spec: { id: string; factory: () => PluginModule }): LoadedPlugin {
+function load(spec: {
+  id: string;
+  /** Receives the cordis-like ctx (soft service probe). */
+  factory: (ctx: { get(name: string): unknown }) => PluginModule;
+}): LoadedPlugin {
   // Replace-on-reload: a later load() with the same id supersedes the
   // earlier registration (hot reload / re-injection semantics).
   const prevIndex = registry.findIndex((p) => p.id === spec.id);
@@ -59,7 +63,7 @@ function load(spec: { id: string; factory: () => PluginModule }): LoadedPlugin {
     registry.splice(prevIndex, 1);
   }
 
-  const exports = spec.factory() ?? {};
+  const exports = spec.factory(makePluginCtx()) ?? {};
   const inject = Array.isArray(exports.inject) ? exports.inject : [];
   const applied = applyPlugin(spec.id, exports, inject);
 
@@ -83,7 +87,10 @@ function load(spec: { id: string; factory: () => PluginModule }): LoadedPlugin {
 function applyPlugin(id: string, exports: PluginModule, inject: string[]): () => void {
   const services = inject.map((name) => getPluginService(name));
   try {
-    exports.apply?.(...services);
+    // DSH convention: apply ALWAYS receives the ctx first (plugins soft-probe
+    // services via ctx.get with optional chaining); inject names resolve to
+    // additional positional services after it.
+    exports.apply?.(makePluginCtx(), ...services);
   } catch (err) {
     // A broken plugin must not take down the host page.
     console.error("[plugin-host] apply() failed for " + id + ":", err);
@@ -95,6 +102,15 @@ function applyPlugin(id: string, exports: PluginModule, inject: string[]): () =>
       /* ignore dispose errors on unload */
     }
   };
+}
+
+/**
+ * Cordis-like context handed to plugin factories: `ctx.get(name)` is the
+ * soft service probe DSH plugins use (optional-chaining — unknown services
+ * degrade to undefined and plugins fall back gracefully).
+ */
+function makePluginCtx(): { get(name: string): unknown } {
+  return { get: (name: string) => getPluginService(name) };
 }
 
 export function installModuleLoader(): void {

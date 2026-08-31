@@ -3,6 +3,11 @@
     {
       "id": "hello-tab",
       "script": "/plugins/hello-tab/client.js"
+    },
+    {
+      "id": "git-panel",
+      "script": "/plugins/git-panel/client.js",
+      "server": "plugins/git-panel/entry.js"
     }
   ]
 }

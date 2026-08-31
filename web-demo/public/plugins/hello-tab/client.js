@@ -3,10 +3,12 @@
  *
  * Mirrors the DSH third-party plugin contract (baseline dsh 0.1.2-alpha.2):
  * plain script, registers via window.__ModuleLoader__.load({id, factory}),
- * factory returns the cordis convention object {inject, apply}. Here we
- * consume the host service "qiLin.sidebar" to register a sidebar panel —
- * proving the full chain: script injection -> loader -> service injection
- * -> sidebar registry -> rendered tab.
+ * factory returns the cordis convention object {inject, apply(ctx)}.
+ * apply ALWAYS receives the host ctx; services are soft-probed via
+ * ctx.get(name) with optional chaining, so a missing service degrades
+ * instead of throwing. Here we probe "qiLin.sidebar" to register a
+ * sidebar panel — proving the full chain: script injection -> loader ->
+ * ctx service probe -> sidebar registry -> rendered tab.
  *
  * The window.__qilinHelloWired guard is the DSH idempotency convention
  * against SPA re-injection double runs.
@@ -16,11 +18,17 @@ window.__ModuleLoader__.load({
   factory: function () {
     var exports = {};
 
-    exports.inject = ["qiLin.sidebar"];
+    exports.inject = [];
 
-    exports.apply = function (sidebar) {
+    exports.apply = function apply(ctx) {
       if (window.__qilinHelloWired) return;
       window.__qilinHelloWired = true;
+
+      var sidebar = ctx.get("qiLin.sidebar");
+      if (!sidebar || typeof sidebar.registerTab !== "function") {
+        console.error("[hello-tab] qiLin.sidebar service unavailable");
+        return;
+      }
 
       sidebar.registerTab({
         id: "plugin:hello-tab:main",
@@ -38,7 +46,7 @@ window.__ModuleLoader__.load({
           body.style.color = "var(--muted-foreground, #888)";
           body.textContent =
             "This panel was registered by public/plugins/hello-tab/client.js " +
-            "through window.__ModuleLoader__.load + the qiLin.sidebar service. " +
+            "through window.__ModuleLoader__.load + ctx.get('qiLin.sidebar'). " +
             "If you can read this inside the sidebar, the plugin host chain works.";
           var stamp = document.createElement("div");
           stamp.style.fontFamily = "monospace";
