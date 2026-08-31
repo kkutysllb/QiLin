@@ -13,11 +13,16 @@
  */
 
 import { execFile } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { join, dirname, relative, resolve as resolvePath } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+/** Thread workspace roots: only these trees are exposed to plugin bridges. */
+const THREADS_ROOT = resolvePath(ROOT, "..", ".qilin", "threads");
 const MANIFEST_PATH = join(ROOT, "public", "plugins", "manifest.json");
 const PUBLIC_PLUGINS_ROOT = join(ROOT, "public", "plugins");
 const SERVER_PLUGINS_ROOT = join(ROOT, "plugins");
@@ -27,7 +32,12 @@ export const DSH_BASELINE = "0.1.2-alpha.2";
 /** @type {Map<string, { prefix: string, handler: (req, res) => void }>} */
 const pluginRoutes = new Map();
 /** Soft service table - extend as more host surfaces get bridged (H2). */
-const hostServices = { webRuntime: { trustedHosts: [] } };
+const hostServices = { webRuntime: { trustedHosts: [] }, fs: makeFsService(), git: makeGitService() };
+
+/** Test/smoke access to the bridged capability services. */
+export function pluginServices() {
+  return hostServices;
+}
 
 function makeCtx() {
   const disposers = [];
@@ -97,6 +107,53 @@ export function matchPluginRoute(pathname) {
     }
   }
   return best;
+}
+
+// ----- H2 capability bridges: fenced fs / git over thread workspaces -----
+
+function threadWorkspaceScope(absPath) {
+  const rel = relative(THREADS_ROOT, resolvePath(absPath));
+  if (!rel || rel.startsWith("..")) return null;
+  const parts = rel.split("/");
+  if (parts.length < 3 || parts[1] !== "user-data" || parts[2] !== "workspace") return null;
+  return { threadId: parts[0], relPath: parts.slice(3).join("/") };
+}
+
+function fsList(absPath) {
+  if (!threadWorkspaceScope(absPath)) throw new Error("fs bridge: outside thread workspaces");
+  return readdirSync(absPath, { withFileTypes: true }).map((d) => ({ name: d.name, dir: d.isDirectory() }));
+}
+
+function fsReadText(absPath) {
+  if (!threadWorkspaceScope(absPath)) throw new Error("fs bridge: outside thread workspaces");
+  const st = statSync(absPath);
+  if (!st.isFile()) throw new Error("not a file");
+  if (st.size > 1048576) throw new Error("file too large (1 MiB cap)");
+  return readFileSync(absPath, "utf-8");
+}
+
+function fsWriteText(absPath, content) {
+  if (!threadWorkspaceScope(absPath)) throw new Error("fs bridge: outside thread workspaces");
+  writeFileSync(absPath, String(content), "utf-8");
+}
+
+function makeFsService() {
+  return { list: fsList, readText: fsReadText, writeText: fsWriteText };
+}
+
+function makeGitService() {
+  return {
+    async exec(args, cwd) {
+      if (!Array.isArray(args) || args.some((a) => typeof a !== "string")) {
+        throw new Error("git.exec: args must be string[]");
+      }
+      if (!cwd || !threadWorkspaceScope(cwd)) {
+        throw new Error("git bridge: cwd outside thread workspaces");
+      }
+      const { stdout } = await execFileAsync("git", args, { cwd, maxBuffer: 4194304 });
+      return stdout;
+    },
+  };
 }
 
 // ----- management surface (admin page + CLI share one source of truth) -----
