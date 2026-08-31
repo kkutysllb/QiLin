@@ -38,8 +38,9 @@
 - [x] sidebar_open LangChain 工具（DSH 契约镜像，config 启用制；收编 present_file/view_image 的文件/URL 目标解析）
 - [x] web-demo surface 查看器（file 文本/图片 + folder 列表 + url 沙箱 iframe；去重聚焦/排队 drain；E2E 4 passed）
 
-### P6 dsh-plugin adapter（QiLin-in-DSH，远期）
-- [ ] registerTab 代理:DSH 侧边栏 tab 内嵌 QiLin web-demo（WS/HTTP 经 server.js 隧道）;前置(P5 查看器 + 安装文档)均已落地
+### P6 dsh-plugin adapter（QiLin-in-DSH）—— ❌ 作废（用户决策 2026-08-31）
+- 原设想：registerTab 把 QiLin web-demo 嵌入 DSH 侧边栏（前置的 P5 查看器 + 安装文档均已落地，技术可行——better-sidebar 暴露 registerTab(TabDescriptor)，dsh-file-review-tab 为现成样例）。
+- 作废理由（用户拍板）：QiLin 与 DSH 是不同的 agent 引擎，能做的工作基本相同，UI 嵌入无增量价值。ports v1 的价值在工具协议互通（P1-P5 已交付），不在宿主 UI 归属。
 
 ## Findings
 
@@ -82,7 +83,8 @@
 - 2026-08-31: P5 后端完成(commit c302b97):qilin/ports/surface.py SurfaceRegistry(附着即达/分离排队 drain/有界丢弃 8 上限) + gateway WS surface.open 泵 + sidebar_open 工具(DSH 契约镜像,收编 present_file/view_image 的目标解析)。
 - 2026-08-31: **断网后全面复核**(用户要求)。git 提交链完整(7 commits ahead: a2007db P1 → c302b97 P5)、23 个交付文件在位、config terminal 块在位、无残留监听进程。验证:.venv pytest tests/ports+router → 68 passed + 6 skipped(sandbox 无 pty,跳卫生效)→ danger-full-access 提权重跑 → **74 passed 全过**;`ruff check .` 全仓 35 个存量错误清零至 All checks passed(29 自动修 + 5 手修);web-demo `tsc --noEmit` 通过。顺带修复 F401 误删重导出(见 Errors)。下一步:P5 web-demo surface 查看器。
 - 2026-08-31: P5 全栈完成,commits 2adacc3(后端)+ 4c079bd(前端)。后端:open_surface 共享解析助手(sidebar_open 工具瘦身为其包装)+ 新 REST 路由 POST /api/threads/{tid}/surfaces + SurfaceOpenEvent 可选 readPath(QiLin 扩展,事件侧携带 workspace 相对路径,DSH 工具结果契约不动);测试 +9。前端:SurfaceViewer(file 文本/图片、folder 列表、url 无 same-origin 沙箱 iframe;按 target 去重保最新、新开即聚焦、本地可关),TerminalPanel 以 latest-callback ref 透出 surface.open(WS 不随父重渲染重连)。**E2E 4 passed(5.5s)**,含新用例:REST 开面(detach 排队)→ 页面 attach drain → 文件内容断言 + iframe 可见。调试期间修复:①SIGINT 用例 flake——zsh 未就绪时击键落入 tty 行缓冲污染后续流程,改为先 warm-up(poll 到 echo 真执行)再走中断;②React duplicate key(兄弟组件同 key={threadId})。
-- 2026-08-31: 安装文档完成:docs/modules/ports.md(双语房规)——安装依赖(Windows pywinpty/KMP_INIT_AT_FORK 死锁机理)、gateway 环境变量完整清单(INTERNAL_AUTH_TOKEN≥32/CORS_ORIGINS WS 403/已验证启动命令)、config tools 启用示例、REST/WS 端点表、web-demo 接线与 E2E 跑法;README 导航 + config.example.yaml 补 sidebar_open 条目。计划内遗留清零,剩 P6(远期)与 CI Windows matrix。
+- 2026-08-31: 安装文档完成:docs/modules/ports.md(双语房规)——安装依赖(Windows pywinpty/KMP_INIT_AT_FORK 死锁机理)、gateway 环境变量完整清单(INTERNAL_AUTH_TOKEN≥32/CORS_ORIGINS WS 403/已验证启动命令)、config tools 启用示例、REST/WS 端点表、web-demo 接线与 E2E 跑法;README 导航 + config.example.yaml 补 sidebar_open 条目。
+- 2026-08-31: **P6 作废**(用户决策:两引擎能力重叠,UI 嵌入无增量价值)。ports v1 计划就此收束——P1-P5 + 安装文档全部交付;可选遗留仅 CI Windows matrix(pywinpty 真机验证)。
 ## Errors
 - events.py 首版漏导入 Annotated（NameError,收集期失败）→ 已修。
 - ruff UP 规则要求 PEP 604 联合（Union[...] → X | Y）→ 已改。
