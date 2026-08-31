@@ -20,6 +20,7 @@ import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
 import { WorkspaceTopbar } from "@/components/workspace/workspace-topbar";
 import { SubtasksProvider } from "@/core/tasks/context";
 import { useActiveThreadId } from "@/hooks/use-active-thread";
+import { PluginHostBoot } from "@/plugins-host/plugin-host";
 
 // Desktop static export: no cookies() access
 export function WorkspaceContent({
@@ -73,6 +74,7 @@ function WorkspaceContentInner({ children }: { children: ReactNode }) {
               <WorkspaceTopbar />
               <div className="flex min-h-0 flex-1">
                 <main className="min-w-0 flex-1">{children}</main>
+                <PluginHostBoot />
                 {rightPanelMode === "sidebar" ? (
                   <BetterSidebarMount />
                 ) : (
