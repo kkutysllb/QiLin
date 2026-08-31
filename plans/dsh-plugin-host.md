@@ -33,10 +33,10 @@
 - [ ] gateway 实现 api-remotes 协议端点（翻译层，南向接 QiLin 现有 API）
 - [ ] fs → files API（已有）、pty → ports（已有）、git → 新增评估
 
-### H3 生命周期管理
-- [x] CLI `scripts/plugin.mjs`：add（本地 dsh-plugins 形态目录）/ remove / upgrade / list——文件分发（client→public、server+vendor→plugins/ 非公开区）+ manifest 原子重写；与 DSH 官方同构（安装后需重启 web-demo）
-- [ ] semver + dsh 版本兼容声明检查
-- [ ] 插件管理面板（清单/启停/卸载）
+### H3 生命周期管理 —— ✅ complete
+- [x] CLI `scripts/plugin.mjs`：add（本地 dsh-plugins 形态目录）/ remove / upgrade / enable / disable / list——文件分发（client→public、server+vendor→plugins/ 非公开区）+ manifest 原子重写；与 DSH 官方同构（安装后需重启 web-demo）
+- [x] 版本记录与基线校验位：entry 记录 version + source；宿主基线 DSH_BASELINE=0.1.2-alpha.2 常量（生态暂无标准兼容声明字段，声明出现时在此扩展比对）
+- [x] 插件管理面板 `/workspace/plugins`：清单表格（版本/client/server/状态）+ 停用/启用/卸载（loopback 管理 API POST /qilin-plugins/api）+ 重启提示横幅；CLI 与面板共用 runtime 管理逻辑
 
 ### H4 面板类挂点铺开
 - [ ] sidebar tab / file viewer / dock 挂点对齐 0.1.2-alpha.2 契约
@@ -123,6 +123,12 @@
   pty 引擎层 node-pty posix_spawn 被本机 macOS 拒绝(完全脱离沙箱仍复现——上游
   native 模块环境限制,DSH-Desktop Electron 环境才工作;反证 ports PTY 选型纯
   Python 正确)。安装状态入库:manifest 三插件(hello-tab/git-panel/terminal)。
+- 2026-08-31: **H3 收尾完成——管理面板**(commit 28c36be)。/workspace/plugins 管理页:
+  清单表格(版本/client/server/状态)+停用/启用/卸载按钮(POST /qilin-plugins/api,
+  loopback-only)+重启提示横幅;CLI 对齐(enable/disable+version 记录+基线显示);
+  manifest 支持 disabled 字段(client 注入与 server 挂载双跳过)。浏览器实测:
+  停用→已停用→启用往返通过,截图证据。修复:runtime 重写漏 import writeFileSync
+  (setDisabled 500,日志定位)。H3 ✅ 全部完成。
 - 2026-08-31: **H3 生命周期 CLI 完成**(commit d4b6dec):scripts/plugin.mjs
   add/remove/upgrade/list——本地 dsh-plugins 形态目录一键安装(client→public、
   server+vendor→plugins/ 非公开区)、manifest 原子重写、remove 双半清净、source
