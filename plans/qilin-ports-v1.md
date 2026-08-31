@@ -28,8 +28,9 @@
 - [ ] 平台探测 + 后端选择
 
 ### P4 gateway 接线 + web-demo surface
-- [ ] gateway WS 事件流 + terminal.* REST 挂载
-- [ ] web-demo xterm.js 终端 tab + sidebar open 查看器
+- [x] gateway WS 事件流 + terminal.* REST 挂载（P4a 完成，见 Progress Log）
+- [ ] 8 个 terminal_* LangChain 工具接入 config 启用（P4a 完成，代码就绪；config.example.yaml 示例条目待补）
+- [ ] web-demo xterm.js 终端 tab + sidebar open 查看器（P4b，待开工）
 
 ### P5 SurfacePort + sidebar_open 工具
 - [ ] sidebar_open 等价 LangChain 工具（收编 present_file/view_image）
@@ -75,6 +76,7 @@
 - 2026-08-31: 完成 DSH 协议盘点（tools.ts 482 行 + agent-opens.ts sidebar_open 全 schema + ALLOWED_SIGNALS）;创建本计划文件。
 - 2026-08-31: P1 完成。落盘 6 个源文件（ports/__init__、protocol/{__init__,terminal,surface,events,capabilities}.py）+ tests/ports/test_protocol.py（26 用例）。验证:`.venv/bin/python -m pytest tests/ports/test_protocol.py -q` → 26 passed；`.venv/bin/ruff check qilin/ports tests/ports` → All checks passed。附加决策:复合类型（裸数组/判别联合）经 TypeAdapter 校验——协议模块保持纯类型别名,不预建 adapter 实例;classify_target_kind 对 Windows 盘符（单字母 scheme）显式判为文件系统路径。
 - 2026-08-31: P2 完成。落盘 qilin/ports/{errors.py,terminal.py,backends/{__init__,posix}.py} + tests/ports/test_terminal.py（21 用例:TranscriptBuffer 纯逻辑 8 + registry 策略(faker backend) 7 + POSIX pty 集成 6）。验证:`pytest tests/ports/ -q` → 47 passed(含 P1 的 26)；ruff 全绿。要点:close 幂等契约靠 tombstone 实现(owned 已关闭 → closed=False,foreign → forbidden,unknown → not-found)；signal 语义 = SIGKILL 杀进程、其余 tcgetpgrp+killpg 打前台进程组；命令注入走「spawn 裸 shell + stdin 写 command+回车」（DSH 同款）；wait_for 50ms 轮询全量 retained transcript。集成测试带 _pty_available() 跳卫,无 pty 设备的环境自动 skip。
+- 2026-08-31: P4a（gateway 后端）完成,commit a2007db 之后的独立提交。落盘:①registry 升级——订阅扇出(("data",bytes)/("exit",code,sig) 队列,慢消费者丢帧、scrollback 保持权威)+ write_bytes(WS 数据面用)+ get/set_default_registry 单例;②app/gateway/routers/ports_terminal.py——8 条 REST(/api/threads/{tid}/terminals…,require_permission threads read/write,PortError→状态码映射)+ WS /stream(复用 browser 路由的 _authenticate_ws/_ws_origin_allowed,uuid\n 前缀二进制帧复用 N 终端,JSON 控制帧 subscribe/unsubscribe/resize/signal);③qilin/tools/builtins/terminal_port_tools.py——8 个 LangChain 工具(DSH 同名同 schema,owner=thread_id,结果 camelCase JSON;启用走 config.yaml tools 条目,平台惯例)。测试 +6(router REST 全动词/fake backend,WS 数据面留待 web-demo E2E——TestClient 跨线程驱动 loop-bound asyncio.Queue 不安全)。验证:53 passed + ruff 全绿。app.py 已 include_router。遗留:config.example.yaml 增加 terminal tools 示例条目;HTTPException detail 为字符串(与 files.py §3.3 envelope 的统一待 web-demo 接入时定)。
 
 ## Errors
 - events.py 首版漏导入 Annotated（NameError,收集期失败）→ 已修。

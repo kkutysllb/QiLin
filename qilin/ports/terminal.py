@@ -221,6 +221,9 @@ class _TerminalEntry:
         self.command = command
         self.backend = backend
         self.transcript = TranscriptBuffer()
+        #: Live output fan-out; queue items are ("data", bytes) or
+        #: ("exit", exit_code | None, exit_signal | None).
+        self.subscribers: set[asyncio.Queue] = set()
 
 
 class TerminalRegistry:
@@ -271,13 +274,63 @@ class TerminalRegistry:
         entry = _TerminalEntry(owner, title, command, backend)
         if self._scrollback_bytes != SCROLLBACK_BYTE_LIMIT:
             entry.transcript = TranscriptBuffer(byte_budget=self._scrollback_bytes)
-        backend.on_output = entry.transcript.feed
+        backend.on_output = self._make_output_sink(entry)
+        backend.on_exit = self._make_exit_publisher(entry)
         await backend.start()
         terminal_uuid = str(uuid_module.uuid4())
         self._entries[terminal_uuid] = entry
         if command:
             backend.write((command + "\r").encode("utf-8"))
         return terminal_uuid
+
+    # -- live output fan-out ---------------------------------------------------
+
+    def _make_output_sink(self, entry: _TerminalEntry) -> Callable[[bytes], None]:
+        """Feed the transcript and fan raw chunks out to live subscribers.
+
+        A slow consumer's queue drops frames (QueueFull) - the scrollback
+        transcript stays authoritative; streams are best-effort.
+        """
+
+        def sink(data: bytes) -> None:
+            entry.transcript.feed(data)
+            for queue in tuple(entry.subscribers):
+                try:
+                    queue.put_nowait(("data", data))
+                except asyncio.QueueFull:
+                    pass
+
+        return sink
+
+    def _make_exit_publisher(
+        self, entry: _TerminalEntry
+    ) -> Callable[[int | None, str | None], None]:
+        def publish(exit_code: int | None, exit_signal: str | None) -> None:
+            for queue in tuple(entry.subscribers):
+                try:
+                    queue.put_nowait(("exit", exit_code, exit_signal))
+                except asyncio.QueueFull:
+                    pass
+
+        return publish
+
+    def subscribe(self, terminal_uuid: str, owner: str) -> asyncio.Queue:
+        """Attach one live-output queue to an owned terminal."""
+        entry = self.assert_owned(terminal_uuid, owner)
+        queue: asyncio.Queue = asyncio.Queue(maxsize=256)
+        entry.subscribers.add(queue)
+        return queue
+
+    def unsubscribe(self, terminal_uuid: str, owner: str, queue: asyncio.Queue) -> None:
+        entry = self._entries.get(terminal_uuid)
+        if entry is not None and entry.owner == owner:
+            entry.subscribers.discard(queue)
+
+    def write_bytes(self, terminal_uuid: str, owner: str, data: bytes) -> int:
+        """Write raw bytes (WS data plane); unlike send() there is no Enter
+        appending and the payload may be arbitrary (non-UTF-8) bytes."""
+        entry = self.assert_owned(terminal_uuid, owner)
+        return entry.backend.write(data)
 
     # -- ownership ------------------------------------------------------------
 
@@ -425,10 +478,32 @@ class TerminalRegistry:
             await self.close(terminal_uuid, owner)
 
 
+# ---------------------------------------------------------------------------
+# Process-wide singleton (gateway app.state and LangChain tools share one
+# registry instance; tests may swap it via set_default_registry)
+# ---------------------------------------------------------------------------
+
+_default_registry: TerminalRegistry | None = None
+
+
+def get_default_registry() -> TerminalRegistry:
+    global _default_registry
+    if _default_registry is None:
+        _default_registry = TerminalRegistry()
+    return _default_registry
+
+
+def set_default_registry(registry: TerminalRegistry | None) -> None:
+    global _default_registry
+    _default_registry = registry
+
+
 __all__ = [
     "WAIT_POLL_INTERVAL_MS",
     "TerminalPort",
     "TerminalRegistry",
     "TranscriptBuffer",
     "default_shell",
+    "get_default_registry",
+    "set_default_registry",
 ]
