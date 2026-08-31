@@ -64,7 +64,7 @@
 - 工具 = langchain `@tool` + `Runtime = ToolRuntime[dict, ThreadState]`（qilin/tools/types.py）；返回 Command/ToolMessage
 - UI 事件通道已存在：`aemit_custom_event`；present_file_tool.py / view_image_tool.py 是 sidebar_open 雏形
 - web-demo server.js 已把 /api/* 与 **WebSocket upgrade** 同源代理到 gateway(127.0.0.1:28081)
-- qilin/mcp 是 MCP 客户端（client/session_pool/oauth）——远期可反向暴露 ports 为 MCP server
+- qilin/mcp 是 MCP 客户端（client/session_pool/oauth）——~~远期可反向暴露 ports 为 MCP server~~（❌ 作废 2026-08-31，用户决策：与 P6 同理，两引擎能力重叠，反向暴露无增量价值）
 - plans/ 目录已存在（含一个不相关的历史任务文件）
 
 ### 已定决策（用户拍板 2026-08-31）
