@@ -29,10 +29,10 @@
 - [x] 真实第三方插件跑通：**kcoder-git-panel**（浏览器实测：浮动面板渲染 verify-thread-1 真实 git 快照——变更统计/main 分支/任务计划扫描；GET 405 守卫实测）
 - [x] 第二个真实插件 **kcoder-terminal**：titlebar 锚点按钮挂载 / vendor xterm 自托管 / RPC prefix 分发 / SSE 数据面路由全通；pty 引擎层 node-pty `posix_spawn` 被本机 macOS 拒绝（脱离沙箱复现——上游 native 模块环境限制，非集成缺陷；反证 ports PTY 选型纯 Python 正确）
 
-### H2 Typert 能力桥 —— ✅ 第一片 complete（fs/git 围栏桥；Typert 端点随 H4 对齐）
+### H2 Typert 能力桥 —— ✅ fs/git/pty 桥 complete（api-remotes 端点随 H4 对齐）
 - [x] hostServices 能力桥：`fs.list/readText/writeText` + `git.exec`（execFile 无 shell、4MiB 上限），统一 `threadWorkspaceScope` 围栏——插件经 ctx.get 软探测即用，路径强制限定 thread workspace 树内
+- [x] **pty → ports 桥**：node-pty 兼容 shim（CJS，插件就近 node_modules 优先解析）——spawn 返回异步初始化门面（早期 write/resize 排队），输出走 gateway WS stream（binaryType=arraybuffer），write/resize/kill 走 ports REST，终端驻留保留线程 `__pty_bridge__`；**kcoder-terminal 引擎摆脱 native node-pty 完整跑通**（浏览器 dock 键入 echo 全回显）
 - [ ] api-remotes 协议端点对齐（依赖 H4 client 运行时；Typert 形状侦察后定形状）
-- [ ] pty → ports 桥（node-pty 环境受限，桥向 QiLin ports TerminalPort 是替代正解）
 
 ### H3 生命周期管理 —— ✅ complete
 - [x] CLI `scripts/plugin.mjs`：add（本地 dsh-plugins 形态目录）/ remove / upgrade / enable / disable / list——文件分发（client→public、server+vendor→plugins/ 非公开区）+ manifest 原子重写；与 DSH 官方同构（安装后需重启 web-demo）
@@ -130,6 +130,12 @@
   manifest 支持 disabled 字段(client 注入与 server 挂载双跳过)。浏览器实测:
   停用→已停用→启用往返通过,截图证据。修复:runtime 重写漏 import writeFileSync
   (setDisabled 500,日志定位)。H3 ✅ 全部完成。
+- 2026-08-31: **H2 pty→ports 桥完成**(commit 09c4147):node-pty 兼容 shim 让
+  kcoder-terminal 引擎摆脱 native 限制——spawn 返回异步初始化门面(早期操作排队),
+  输出走 gateway WS stream(binaryType=arraybuffer),写操作走 ports REST,终端驻留
+  保留线程 __pty_bridge__。**浏览器实测 dock 键入 echo 全回显**(zsh 提示符往返)。
+  修复:Node undici WebSocket 默认 binaryType=Blob,帧处理按 ArrayBuffer 匹配
+  导致输出全丢(浏览器默认 arraybuffer 故 P4b 未踩)。
 - 2026-08-31: **H2 第一片完成——fs/git 能力桥**(commit 9f55ee3)。hostServices 扩容:
   fs.list/readText/writeText + git.exec(execFile 无 shell),统一 threadWorkspaceScope
   围栏(路径强制位于 .qilin/threads/<tid>/user-data/workspace 树内,越界抛错);
