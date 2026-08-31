@@ -31,7 +31,7 @@ const handle = app.getRequestHandler();
 
 // Plugin server halves (DSH third-party plugins, T1 self-contained):
 // mounted on the raw Node server, prefix-matched before /api proxying.
-import { initPluginServers, matchPluginRoute } from "./plugins-host-runtime.mjs";
+import { handleManagementApi, initPluginServers, matchPluginRoute } from "./plugins-host-runtime.mjs";
 await initPluginServers();
 
 const apiProxy = createProxyMiddleware({
@@ -89,6 +89,12 @@ await app.prepare();
 
 const server = createServer((req, res) => {
   const parsedUrl = parse(req.url || "", true);
+  // Plugin lifecycle management API (loopback-only, POST; used by the
+  // admin page and the scripts/plugin.mjs CLI).
+  if (parsedUrl.pathname === "/qilin-plugins/api") {
+    handleManagementApi(req, res);
+    return;
+  }
   // Plugin server halves win over proxying and Next (longest prefix match
   // inside matchPluginRoute; handlers own their isTrusted/method checks).
   const pluginHandler = matchPluginRoute(parsedUrl.pathname || "");

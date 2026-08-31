@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 /**
- * QiLin plugin lifecycle CLI — install / list / remove / upgrade DSH
- * third-party plugins (T1 self-contained family) into the web-demo host.
+ * QiLin plugin lifecycle CLI - install / list / remove / upgrade /
+ * enable / disable DSH third-party plugins (T1 self-contained family)
+ * into the web-demo host.
  *
  * Isomorphic with the DSH official model (install = files + manifest +
  * RESTART; no hot-swap), minus the network: sources are local plugin
- * directories laid out like the dsh-plugins monorepo (package.json with
- * dsh.bundle/dsh.client + client.js + entry.js).
+ * directories laid out like the dsh-plugins monorepo. File-level install
+ * lives here; manifest/disabled state goes through the shared runtime.
  *
  * Usage:
- *   node scripts/plugin.mjs add <plugin-dir>      install
- *   node scripts/plugin.mjs remove <id>           uninstall by id
- *   node scripts/plugin.mjs upgrade <id> <dir>    re-install over existing
- *   node scripts/plugin.mjs list                  show installed plugins
+ *   node scripts/plugin.mjs add <plugin-dir>
+ *   node scripts/plugin.mjs remove <id>
+ *   node scripts/plugin.mjs upgrade <id> <dir>
+ *   node scripts/plugin.mjs enable <id> | disable <id>
+ *   node scripts/plugin.mjs list
  *
- * After add/remove/upgrade: RESTART the web-demo dev server. Server
- * halves mount at boot; client scripts are injected per page load.
+ * After any mutation: RESTART the web-demo dev server (DSH-isomorphic).
  */
 
 import {
@@ -23,13 +24,13 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { DSH_BASELINE, listInstalled, setPluginDisabled, uninstallPlugin } from "../plugins-host-runtime.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = resolve(ROOT, "public/plugins/manifest.json");
@@ -52,19 +53,6 @@ function readManifest() {
   }
 }
 
-function writeManifest(manifest) {
-  mkdirSync(PUBLIC_DIR, { recursive: true });
-  const tmp = MANIFEST + ".tmp";
-  writeFileSync(tmp, JSON.stringify(manifest, null, 2) + "\n");
-  renameSync(tmp, MANIFEST);
-}
-
-function readPkg(dir) {
-  const pkgPath = resolve(dir, "package.json");
-  if (!existsSync(pkgPath)) fail("not a plugin dir (no package.json): " + dir);
-  return JSON.parse(readFileSync(pkgPath, "utf-8"));
-}
-
 function dirOrFail(dir) {
   const abs = resolve(dir);
   if (!existsSync(abs) || !statSync(abs).isDirectory()) {
@@ -77,14 +65,15 @@ function dirOrFail(dir) {
 function install(sourceDir, manifest) {
   const src = dirOrFail(sourceDir);
   const id = basename(src);
-  readPkg(src); // sanity: must look like a plugin dir
+  const pkgPath = resolve(src, "package.json");
+  const version = existsSync(pkgPath) ? (JSON.parse(readFileSync(pkgPath, "utf-8")).version ?? null) : null;
   const clientEntry = existsSync(resolve(src, "client.js"));
   const serverEntry = existsSync(resolve(src, "entry.js"));
   if (!clientEntry && !serverEntry) {
-    fail("no client.js / entry.js in " + src + " — not a T1 self-contained plugin");
+    fail("no client.js / entry.js in " + src + " - not a T1 self-contained plugin");
   }
 
-  const entry = { id, source: src, script: "/plugins/" + id + "/client.js" };
+  const entry = { id, version, source: src, script: "/plugins/" + id + "/client.js" };
 
   // Client half -> public (browser loads it as a same-origin script).
   if (clientEntry) {
@@ -112,14 +101,17 @@ function install(sourceDir, manifest) {
   const others = manifest.plugins.filter((p) => p.id !== id);
   const replaced = others.length !== manifest.plugins.length;
   manifest.plugins = [...others, entry];
-  writeManifest(manifest);
+  const tmp = MANIFEST + ".tmp";
+  writeFileSync(tmp, JSON.stringify(manifest, null, 2) + "\n");
+  renameSync(tmp, MANIFEST);
 
   console.log(
     (replaced ? "upgraded:" : "installed:") + " " + id,
+    "| version:", version ?? "-",
     "| client:", clientEntry ? "yes" : "no",
     "| server:", serverEntry ? "yes" : "no",
   );
-  console.log("restart the web-demo dev server to (re)mount server halves.");
+  console.log("baseline: dsh " + DSH_BASELINE, "| restart web-demo to (re)mount server halves.");
 }
 
 function main() {
@@ -134,31 +126,39 @@ function main() {
   }
   if (command === "remove" && args[1]) {
     const id = args[1];
-    const before = manifest.plugins.length;
-    manifest.plugins = manifest.plugins.filter((p) => p.id !== id);
-    if (manifest.plugins.length === before) fail("plugin not in manifest: " + id);
-    writeManifest(manifest);
-    rmSync(resolve(PUBLIC_DIR, id), { recursive: true, force: true });
-    rmSync(resolve(SERVER_DIR, id), { recursive: true, force: true });
-    console.log("removed:", id, "| restart web-demo to fully unload.");
+    if (uninstallPlugin(id)) {
+      console.log("removed:", id, "| restart web-demo to fully unload.");
+    } else {
+      fail("plugin not found in manifest: " + id);
+    }
+    return;
+  }
+  if (command === "enable" && args[1]) {
+    console.log(setPluginDisabled(args[1], false) ? "enabled:" + args[1] : "not found: " + args[1]);
+    return;
+  }
+  if (command === "disable" && args[1]) {
+    console.log(setPluginDisabled(args[1], true) ? "disabled:" + args[1] : "not found: " + args[1]);
     return;
   }
   if (command === "list") {
-    if (manifest.plugins.length === 0) {
+    const plugins = listInstalled();
+    if (plugins.length === 0) {
       console.log("(no plugins installed)");
       return;
     }
-    for (const p of manifest.plugins) {
+    for (const p of plugins) {
       console.log(
         p.id.padEnd(20),
-        "client:" + (p.script ? "y" : "-"),
+        ("v" + (p.version ?? "-")).padEnd(8),
+        "client:" + (p.client ? "y" : "-"),
         "server:" + (p.server ? "y" : "-"),
-        p.source ?? "",
+        p.disabled ? "DISABLED" : "",
       );
     }
     return;
   }
-  fail("usage: plugin.mjs add <dir> | remove <id> | upgrade <id> <dir> | list");
+  fail("usage: plugin.mjs add <dir> | remove <id> | upgrade <id> <dir> | enable <id> | disable <id> | list");
 }
 
 main();

@@ -2,7 +2,8 @@
   "plugins": [
     {
       "id": "hello-tab",
-      "script": "/plugins/hello-tab/client.js"
+      "script": "/plugins/hello-tab/client.js",
+      "disabled": false
     },
     {
       "id": "kcoder-terminal",

@@ -3,52 +3,40 @@
  *
  * Loads installed DSH plugin server halves (entry.js, ESM) behind the
  * same isomorphic lifecycle as the client halves: install = files +
- * manifest entry + restart. Each entry exports the cordis convention
- *
- *   export const inject = ['webServer']        // services it needs
- *   export function apply(ctx)                 // registers routes via ctx
- *
- * The shim ctx provides the minimal DSH service surface those plugins
- * use in practice:
- *
- *   ctx.webServer.register({ kind: 'prefix', path, handler(req, res) })
- *       — handler receives the RAW Node req/res (plugins write their own
- *         JSON: isTrusted / POST-only / readJsonBody are plugin-owned,
- *         matching the dsh security conventions).
- *   ctx.effect(setup, name) — run setup now, collect its disposer.
- *   ctx.get(name) — soft service lookup (webRuntime, sessions, …);
- *       unknown services resolve to undefined so plugins degrade
- *       gracefully (optional-chaining soft probes are the T1 convention).
- *
+ * manifest entry + restart. Each entry exports the cordis convention:
+ *   export const inject = ["webServer"]
+ *   export function apply(ctx)
+ * The shim ctx provides: webServer.register (prefix route on raw
+ * req/res), ctx.effect, and ctx.get soft service lookup. It also hosts
+ * the management API used by the admin page and the lifecycle CLI.
  * Baseline: dsh 0.1.2-alpha.2, T1 self-contained plugins.
  */
 
-import { pathToFileURL } from "node:url";
-import { readFileSync } from "node:fs";
+import { execFile } from "node:child_process";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+const MANIFEST_PATH = join(ROOT, "public", "plugins", "manifest.json");
+const PUBLIC_PLUGINS_ROOT = join(ROOT, "public", "plugins");
+const SERVER_PLUGINS_ROOT = join(ROOT, "plugins");
+/** Host compatibility baseline (user-pinned; tracked upstream). */
+export const DSH_BASELINE = "0.1.2-alpha.2";
 
 /** @type {Map<string, { prefix: string, handler: (req, res) => void }>} */
 const pluginRoutes = new Map();
-
-/** Soft service table — extend as more host surfaces get bridged (H2). */
-const hostServices = {
-  webRuntime: { trustedHosts: [] },
-};
+/** Soft service table - extend as more host surfaces get bridged (H2). */
+const hostServices = { webRuntime: { trustedHosts: [] } };
 
 function makeCtx() {
   const disposers = [];
   return {
     id: "qilin-plugin-host",
-    scope: null,
     config: {},
     webServer: {
       register({ kind, path, handler }) {
-        if (kind !== "prefix") {
-          throw new Error("unsupported route kind: " + kind);
-        }
+        if (kind !== "prefix") throw new Error("unsupported route kind: " + kind);
         pluginRoutes.set(path, { prefix: path, handler });
       },
     },
@@ -63,40 +51,30 @@ function makeCtx() {
   };
 }
 
-/**
- * Load one plugin server half. entryPath is resolved relative to the
- * web-demo root (the manifest stores a root-relative path).
- */
 export async function loadPluginServer(entryPath) {
   const abs = join(ROOT, entryPath);
   const mod = await import(pathToFileURL(abs).href);
   const ctx = makeCtx();
   const apply = mod.apply ?? mod.default?.apply;
-  if (typeof apply !== "function") {
-    throw new Error("plugin server has no apply(): " + entryPath);
-  }
+  if (typeof apply !== "function") throw new Error("plugin server has no apply(): " + entryPath);
   const inject = mod.inject ?? mod.default?.inject ?? [];
-  const args = inject.map((name) =>
-    name === "webServer" ? ctx.webServer : ctx.get(name),
-  );
+  const args = inject.map((name) => (name === "webServer" ? ctx.webServer : ctx.get(name)));
   apply(ctx, ...args);
 }
 
-/**
- * Boot all installed plugin server halves from the manifest. Safe to call
- * once per process; failures are logged per-plugin and never fatal.
- */
 export async function initPluginServers() {
   let manifest;
   try {
-    manifest = JSON.parse(
-      readFileSync(join(ROOT, "public", "plugins", "manifest.json"), "utf-8"),
-    );
+    manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
   } catch (err) {
     console.error("[plugin-servers] manifest unreadable:", err.message);
     return;
   }
   for (const entry of manifest.plugins ?? []) {
+    if (entry.disabled) {
+      console.log("[plugin-servers] skipped (disabled):", entry.id);
+      continue;
+    }
     if (!entry.server) continue;
     try {
       await loadPluginServer(entry.server);
@@ -107,10 +85,6 @@ export async function initPluginServers() {
   }
 }
 
-/**
- * Find the plugin handler whose registered prefix matches the request
- * pathname. Longest prefix wins.
- */
 export function matchPluginRoute(pathname) {
   let best = null;
   let bestLen = -1;
@@ -123,4 +97,83 @@ export function matchPluginRoute(pathname) {
     }
   }
   return best;
+}
+
+// ----- management surface (admin page + CLI share one source of truth) -----
+
+function readManifest() {
+  try {
+    return JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
+  } catch {
+    return { plugins: [] };
+  }
+}
+
+function writeManifest(manifest) {
+  writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n");
+}
+
+export function listInstalled() {
+  const manifest = readManifest();
+  return (manifest.plugins ?? []).map((p) => ({
+    id: p.id,
+    client: Boolean(p.script),
+    server: Boolean(p.server),
+    disabled: Boolean(p.disabled),
+    version: p.version ?? null,
+    source: p.source ?? null,
+  }));
+}
+
+export function setPluginDisabled(id, disabled) {
+  const manifest = readManifest();
+  const entry = (manifest.plugins ?? []).find((p) => p.id === id);
+  if (!entry) return false;
+  entry.disabled = disabled;
+  writeManifest(manifest);
+  return true;
+}
+
+export function uninstallPlugin(id) {
+  const manifest = readManifest();
+  const before = (manifest.plugins ?? []).length;
+  manifest.plugins = (manifest.plugins ?? []).filter((p) => p.id !== id);
+  if (manifest.plugins.length === before) return false;
+  writeManifest(manifest);
+  rmSync(join(PUBLIC_PLUGINS_ROOT, id), { recursive: true, force: true });
+  rmSync(join(SERVER_PLUGINS_ROOT, id), { recursive: true, force: true });
+  return true;
+}
+
+/**
+ * Management HTTP API - POST /qilin-plugins/api
+ * Body: { action: "list" | "setDisabled" | "remove", id?, disabled? }
+ * Loopback-only (DSH isTrusted convention) and POST-only.
+ */
+export function handleManagementApi(req, res) {
+  const remote = req.socket?.remoteAddress ?? "";
+  const loopback = ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(remote);
+  const writeJson = (code, obj) => {
+    res.statusCode = code;
+    res.setHeader("content-type", "application/json");
+    res.end(JSON.stringify(obj));
+  };
+  if (!loopback) return writeJson(403, { ok: false, error: "forbidden" });
+  if (req.method !== "POST") return writeJson(405, { ok: false, error: "method not allowed" });
+  let body = "";
+  req.on("data", (c) => {
+    body += c;
+    if (body.length > 65536) req.destroy();
+  });
+  req.on("end", () => {
+    try {
+      const { action, id, disabled } = JSON.parse(body || "{}");
+      if (action === "list") return writeJson(200, { ok: true, baseline: DSH_BASELINE, plugins: listInstalled() });
+      if (action === "setDisabled" && id) return writeJson(200, { ok: setPluginDisabled(id, Boolean(disabled)) });
+      if (action === "remove" && id) return writeJson(200, { ok: uninstallPlugin(id) });
+      writeJson(400, { ok: false, error: "unknown action" });
+    } catch (err) {
+      writeJson(400, { ok: false, error: String(err?.message ?? err) });
+    }
+  });
 }

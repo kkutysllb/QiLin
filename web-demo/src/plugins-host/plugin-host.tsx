@@ -21,6 +21,7 @@ import { setCurrentThread } from "./services";
 interface PluginManifestEntry {
   id: string;
   script: string;
+  disabled?: boolean;
 }
 
 interface PluginManifest {
@@ -36,6 +37,7 @@ function startBoot(): Promise<void> {
     if (!res.ok) throw new Error("manifest " + res.status);
     const manifest = (await res.json()) as PluginManifest;
     for (const entry of manifest.plugins) {
+      if (entry.disabled) continue; // disabled: manifest stays, host skips
       await injectScript(entry.script);
     }
   })();
