@@ -27,6 +27,7 @@
 - [x] qiLin.sidebar 服务桥：DOM mount 适配为 SidebarPanelSpec 进 sidebarPanelRegistry；BetterSidebarRoot 🧩 chips 行曝光插件面板
 - [x] hello-tab 样例全链跑通（浏览器实测：chip → tab → mount 内容渲染；tsc+eslint 绿）
 - [x] 真实第三方插件跑通：**kcoder-git-panel**（浏览器实测：浮动面板渲染 verify-thread-1 真实 git 快照——变更统计/main 分支/任务计划扫描；GET 405 守卫实测）
+- [x] 第二个真实插件 **kcoder-terminal**：titlebar 锚点按钮挂载 / vendor xterm 自托管 / RPC prefix 分发 / SSE 数据面路由全通；pty 引擎层 node-pty `posix_spawn` 被本机 macOS 拒绝（脱离沙箱复现——上游 native 模块环境限制，非集成缺陷；反证 ports PTY 选型纯 Python 正确）
 
 ### H2 Typert 能力桥
 - [ ] gateway 实现 api-remotes 协议端点（翻译层，南向接 QiLin 现有 API）
@@ -117,5 +118,10 @@
   @kcoder/git-panel,浮动面板渲染 verify-thread-1 真实 git 快照(变更统计/main 分支/
   任务计划扫描/相对时间),GET 405 守卫实测;tsc+eslint+ruff 绿。剩余:H2 Typert 桥
   泛化(hostServices 表扩容)、H3 生命周期 CLI/UI、H4 conversation 挂点、H5 port 化。
+- 2026-08-31: **第二个真实插件 kcoder-terminal 安装验证**(commit 4378eea)。titlebar
+  锚点按钮挂载/vendor xterm 自托管(200)/RPC prefix 分发/SSE 数据面路由全通;
+  pty 引擎层 node-pty posix_spawn 被本机 macOS 拒绝(完全脱离沙箱仍复现——上游
+  native 模块环境限制,DSH-Desktop Electron 环境才工作;反证 ports PTY 选型纯
+  Python 正确)。安装状态入库:manifest 三插件(hello-tab/git-panel/terminal)。
 
 ## Errors
