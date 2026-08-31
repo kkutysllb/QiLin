@@ -49,6 +49,7 @@ from qilin.ports.protocol.terminal import (
     TerminalSnapshot,
     TerminalWaitResult,
 )
+from qilin.ports.surface import SurfaceRegistry, get_default_surface_registry
 from qilin.ports.terminal import TerminalRegistry, get_default_registry
 
 router = APIRouter(prefix="/api/threads/{thread_id}/terminals", tags=["ports-terminal"])
@@ -280,8 +281,24 @@ async def terminals_stream(websocket: WebSocket, thread_id: str) -> None:
     registry: TerminalRegistry = getattr(
         websocket.app.state, "terminal_registry", None
     ) or get_default_registry()
+    surface_registry: SurfaceRegistry = getattr(
+        websocket.app.state, "surface_registry", None
+    ) or get_default_surface_registry()
 
     await websocket.accept()
+
+    # Surface port: this socket is the session's UI adapter while alive.
+    # Attaching drains any opens queued while the UI was detached.
+    surface_queue = surface_registry.subscribe(thread_id)
+
+    async def pump_surface() -> None:
+        while True:
+            item = await surface_queue.get()
+            if item[0] == "surface":
+                await send_json(item[1].model_dump(by_alias=True))
+
+    surface_pump = asyncio.create_task(pump_surface())
+
     subscriptions: dict[str, asyncio.Queue] = {}
     pump_tasks: dict[str, asyncio.Task] = {}
     send_lock = asyncio.Lock()
@@ -314,6 +331,8 @@ async def terminals_stream(websocket: WebSocket, thread_id: str) -> None:
         return asyncio.create_task(_pump())
 
     def teardown() -> None:
+        surface_registry.unsubscribe(thread_id, surface_queue)
+        surface_pump.cancel()
         for terminal_uuid, queue in subscriptions.items():
             registry.unsubscribe(terminal_uuid, thread_id, queue)
         for task in pump_tasks.values():
