@@ -85,7 +85,19 @@
       plugin.mjs 修复（readdirSync import + 内容目录随 server 半分发）——**验收 =
       kcoder-skills v0.4.0 原样安装，37 个 runtime skills 注册物化，storage
       enabled 列表全含，真实对话 describe_skill 查询成功**
-- [x] H5-d 切片 1 ✅ **uiConversation 会话面 + T3 require shim**：
+- [~] H5-d 切片 2（进行中）：**已落地**——require shim（factory(require) 约定
+      修正：DSH 客户端 bundle 首参即 require，此前传 (ctx, require) 导致 T3
+      bundle 必崩）；typert 服务实例分发（TypertRemoteService shim 自注册 →
+      runtime 挂 service 键路由 → agent 桩 {id, session.header.cwd,
+      runMaintenance} 注入）；@deepseek-ai/dsh-typert-protocol + dsh-atomic-write
+      插件本地 shim；dsh-file-review-tab v0.5.5 安装（server 半挂载成功 + 客户端
+      **引导成功**）。**剩余精确缺口**：①slot select/matched 契约（读
+      selectDeliverablePaths:6539 实现宿主每轮 matched 计算，ProducedFiles 无
+      matched 不渲染——本轮 turnTail 仅 hello-turntail 行的原因）②remote
+      status/apply E2E（server 路由已挂， ProducedFiles 有行才会触发）③
+      recordMutation 需事件 result.value 携带 {path,before,after}（H5-b 桥当前
+      value undefined）。注：awrap_tool_call 缺失会弄坏工具执行（NotImplemented
+      Error，agent 实测复现）——已修，同步/异步双钩子均在。
       conversation-store.ts（binding/target("chat")/getSnapshot/subscribe，
       timeline={turnOrder,turns(data Map)}）+ setTurnData 发布 API + message-feed
       每 assistant 轮发布 deliverables（write_file/str_replace 工具调用路径 +
@@ -410,6 +422,22 @@
   server 半 + @deepseek-ai 依赖 + undo/redo）、before/after 内容捕获、
   ProducedFiles matched/select 契约核实——file-review 完整实装为 H5-d 切片 2。
   回归：vitest 391 / pytest 995 全绿；tsc/eslint/prettier 清。
+
+- 2026-09-01(七续): **H5-d 切片 2 推进——T3 客户端引导成功 + typert 双端就位**。
+  ①require shim 修正为 DSH 约定 factory(require)（首参即 require；实测
+  (ctx, require) 传参使 bundle 内 require=ctx 必崩 require is not a function）。
+  ②runtime typert 服务实例分发：TypertRemoteService shim（构造即自注册
+  ctx.__typertServices）→ loadPluginServer 后 mountTypertServiceRoutes 按
+  service 键挂路由 → agent 桩（session.header.cwd 解析 users/default/threads
+  布局 + runMaintenance 直通）。③@dsh-typert-protocol/@dsh-atomic-write 插件
+  本地 node_modules shim（atomic = tmp+rename+mode）。④dsh-file-review-tab
+  v0.5.5 安装：server 半 mounted、客户端 **在麒麟引导成功**（plugins 列表含
+  @kcoder/file-review）。⑤eslint ignores 加 plugins/**/public/plugins/**
+  （第三方安装物不 lint）。E2E：真实轮 write_file 完成、hello-turntail 行渲染。
+  **剩余（下轮首选）**：selectDeliverablePaths(6539) 实现宿主 matched 计算 →
+  ProducedFiles 行渲染；status/apply E2E；recordMutation 桥接 value 增强。
+  教训：第三方安装物必须 eslint ignore；探针脚本的转义在写入 python 文件时需
+  双倍转义。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

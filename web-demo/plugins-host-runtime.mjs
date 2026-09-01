@@ -38,6 +38,9 @@ export const DSH_BASELINE = "0.1.2-alpha.2";
 
 /** @type {Map<string, { prefix: string, handler: (req, res) => void }>} */
 const pluginRoutes = new Map();
+/** Typert service instances registered by plugin server halves
+ * (TypertRemoteService base-class shim pushes { service, instance }). */
+const typertServices = [];
 /** Soft service table - extend as more host surfaces get bridged (H2). */
 const hostServices = {
   webRuntime: { trustedHosts: [] },
@@ -355,6 +358,7 @@ function makeCtx() {
     typertHost: {
       mount: mountTypertHost,
     },
+    __typertServices: typertServices,
     systemPrompt: systemPromptService,
     skills: skillsService,
     on(event, handler) {
@@ -376,6 +380,98 @@ function makeCtx() {
   };
 }
 
+function threadWorkspaceCwd(sessionId) {
+  const candidates = [
+    resolvePath(
+      ROOT,
+      "..",
+      ".qilin",
+      "users",
+      "default",
+      "threads",
+      sessionId,
+      "user-data",
+      "workspace",
+    ),
+    resolvePath(
+      ROOT,
+      "..",
+      ".qilin",
+      "threads",
+      sessionId,
+      "user-data",
+      "workspace",
+    ),
+    resolvePath(THREADS_ROOT, sessionId, "user-data", "workspace"),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return undefined;
+}
+
+function agentStubFor(sessionId) {
+  const cwd = threadWorkspaceCwd(sessionId);
+  return {
+    id: sessionId,
+    session: { header: { cwd } },
+    runMaintenance: async (fn) => fn(),
+  };
+}
+
+/** Mount service-keyed typert dispatch routes for instances the plugin's
+ * apply() registered (TypertRemoteService shim self-registers).
+ * POST /qilin-plugins/typert/service/<service> {method, sessionId, request}. */
+function mountTypertServiceRoutes(services) {
+  for (const { service, instance } of services) {
+    const prefix = "/qilin-plugins/typert/service/" + service;
+    pluginRoutes.set(prefix, {
+      prefix,
+      handler: async (req, res) => {
+        if (!isLoopbackReq(req)) {
+          writeJson(res, 403, { ok: false, error: { message: "forbidden" } });
+          return;
+        }
+        if (req.method !== "POST") {
+          writeJson(res, 405, {
+            ok: false,
+            error: { message: "method not allowed" },
+          });
+          return;
+        }
+        let body;
+        try {
+          body = JSON.parse((await readBody(req)) || "{}");
+        } catch (err) {
+          writeJson(res, 400, {
+            ok: false,
+            error: { message: "bad json: " + err.message },
+          });
+          return;
+        }
+        const method = String(body.method ?? "");
+        if (typeof instance[method] !== "function") {
+          writeJson(res, 200, {
+            ok: false,
+            error: { message: "no such invocation: " + method },
+          });
+          return;
+        }
+        try {
+          const agent = agentStubFor(String(body.sessionId ?? ""));
+          const value = await instance[method](agent, body.request);
+          writeJson(res, 200, { ok: true, value });
+        } catch (err) {
+          writeJson(res, 200, {
+            ok: false,
+            error: { message: String(err.message ?? err) },
+          });
+        }
+      },
+    });
+  }
+}
+
 export async function loadPluginServer(entryPath) {
   const abs = join(ROOT, entryPath);
   const mod = await import(pathToFileURL(abs).href);
@@ -388,6 +484,9 @@ export async function loadPluginServer(entryPath) {
     name === "webServer" ? ctx.webServer : ctx.get(name),
   );
   apply(ctx, ...args);
+  if (Array.isArray(ctx.__typertServices) && ctx.__typertServices.length > 0) {
+    mountTypertServiceRoutes(ctx.__typertServices.splice(0));
+  }
 }
 
 export async function initPluginServers() {

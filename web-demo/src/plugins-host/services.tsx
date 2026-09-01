@@ -188,8 +188,8 @@ registerPluginService("remote", {
       }
       svc[inv.method] = async (request?: unknown) => {
         const res = await fetch(
-          "/qilin-plugins/typert/" +
-            pkg.split("/").map(encodeURIComponent).join("/"),
+          "/qilin-plugins/typert/service/" +
+            encodeURIComponent(inv.service ?? ""),
           {
             method: "POST",
             credentials: "include",

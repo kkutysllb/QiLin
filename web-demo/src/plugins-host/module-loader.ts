@@ -47,11 +47,10 @@ const registry: LoadedPlugin[] = [];
 
 function load(spec: {
   id: string;
-  /** Receives the cordis-like ctx (soft service probe) + host require. */
-  factory: (
-    ctx: { get(name: string): unknown },
-    require?: (name: string) => unknown,
-  ) => PluginModule;
+  /** DSH convention: client bundles receive the host require —
+   * factory(require) (T3 bundles pull react/jsx-runtime through it).
+   * T1 factories take no arguments; apply() receives (ctx, ...services). */
+  factory: (require?: (name: string) => unknown) => PluginModule;
 }): LoadedPlugin {
   // Replace-on-reload: a later load() with the same id supersedes the
   // earlier registration (hot reload / re-injection semantics).
@@ -69,7 +68,7 @@ function load(spec: {
     registry.splice(prevIndex, 1);
   }
 
-  const exports = spec.factory(makePluginCtx(), makeRequire()) ?? {};
+  const exports = spec.factory(makeRequire()) ?? {};
   const inject = Array.isArray(exports.inject) ? exports.inject : [];
   const applied = applyPlugin(spec.id, exports, inject);
 

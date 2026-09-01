@@ -38,6 +38,13 @@
       "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-skills",
       "script": "",
       "server": "plugins/kcoder-skills/entry.js"
+    },
+    {
+      "id": "dsh-file-review-tab",
+      "version": "0.5.5",
+      "source": "/Users/libing/kk_Projects/dsh-plugins/dsh-file-review-tab",
+      "script": "/plugins/dsh-file-review-tab/client.js",
+      "server": "plugins/dsh-file-review-tab/lib/index.js"
     }
   ]
 }

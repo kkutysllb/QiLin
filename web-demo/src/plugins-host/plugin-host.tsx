@@ -39,6 +39,7 @@ function startBoot(): Promise<void> {
     const manifest = (await res.json()) as PluginManifest;
     for (const entry of manifest.plugins) {
       if (entry.disabled) continue; // disabled: manifest stays, host skips
+      if (!entry.script) continue; // server-half-only plugin (e.g. kcoder-language)
       await injectScript(entry.script);
     }
   })();

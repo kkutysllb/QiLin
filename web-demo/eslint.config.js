@@ -13,6 +13,8 @@ export default tseslint.config(
       "out/**",
       "src/components/ui/**",
       "src/components/ai-elements/**",
+      "plugins/**",
+      "public/plugins/**",
       "*.js",
     ],
   },
