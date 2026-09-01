@@ -24,27 +24,6 @@
       "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-git-panel",
       "script": "/plugins/kcoder-git-panel/client.js",
       "server": "plugins/kcoder-git-panel/entry.js"
-    },
-    {
-      "id": "kcoder-language",
-      "version": "0.1.1",
-      "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-language",
-      "script": "",
-      "server": "plugins/kcoder-language/entry.js"
-    },
-    {
-      "id": "kcoder-skills",
-      "version": "0.4.0",
-      "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-skills",
-      "script": "",
-      "server": "plugins/kcoder-skills/entry.js"
-    },
-    {
-      "id": "dsh-file-review-tab",
-      "version": "0.5.5",
-      "source": "/Users/libing/kk_Projects/dsh-plugins/dsh-file-review-tab",
-      "script": "/plugins/dsh-file-review-tab/client.js",
-      "server": "plugins/dsh-file-review-tab/lib/index.js"
     }
   ]
 }
