@@ -72,8 +72,12 @@
       kcoder-language 原样安装（v0.1.1 纯 server 半），真实对话回复为简体中文**
       （中性提示词 →「我是 QiLin 2.0，一个开源的超级智能体…」；用户明示可用英文时
       回复英文＝指令语义正确：防惯性、不压明示偏好）
-- [ ] H5-b **tools/post-execute 事件面**（file-review server 半依赖）：
-      QiLin 工具执行后置事件 → gateway 事件端口 → Node 插件可订阅
+- [x] H5-b **tools/post-execute 事件面** ✅：qilin/ports/tool_events.py 事件环
+      （seq 单调/cursor 快照）+ ToolEventMiddleware（wrap_tool_call + **awrap_tool_call
+      委托**——运行时走异步路径，缺 awrap 会 NotImplementedError 弄坏工具）+ gateway
+      /api/ports/tools/events（cursor 长轮询）+ Node ctx.on("tools/post-execute")
+      1.5s 轮询分发（next()={kind:accept}）——**E2E 验收：真实 write_file → 环内
+      单事件（真实 callId/threadId）→ 金丝雀 decision:accept 分发**
 - [ ] H5-c **skills port**：kcoder-skills 技能包物化对接 qilin/skills
 - [ ] H5-d uiConversation 时间线 store + file-review-tab 实装（收拢 H4-d 尾）
 
@@ -353,6 +357,17 @@
   图装配无关），入参即 path/前后文；发射后金丝雀日志 [hello-toolevents] tool:
   即为验收。注意：工作区写路径是 sandbox /mnt/user-data/workspace/...（隔离挂
   载），path 归一化到 thread workspace 需在发射层处理。
+
+- 2026-09-01(四续): **H5-b 完成——tools/post-execute 事件面全链验收**。中间件
+  补 awrap_tool_call（委托 wrap_tool_call）后全链打通：真实 write_file → 事件环
+  单事件（真实 callId/threadId/sandbox 路径）→ Node 轮询 → 金丝雀 decision:accept。
+  **排障三课**：①lead graph 不走 create_agent wrap_tool_call 组合的假设被证伪——
+  真因是运行时只走异步工具路径，同步中间件缺 awrap 即 NotImplementedError 且
+  **弄坏工具执行**（agent 亲口报告）；②E2E 完成判定不能匹配侧栏消息列表文本
+  （旧线程标题常驻误匹配）；③background web-demo 重复启动会撞 .next/dev/lock，
+  重启前必须 lsof 清端口。双发射去重：中间件（带 callId）为唯一源，sandbox 函数
+  层发射已撤。待续：H5-c skills port；H5-d file-review 实装（事件面已备，补
+  before/after 内容捕获与 uiConversation）。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

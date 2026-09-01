@@ -26,7 +26,6 @@ class ToolEventMiddleware(AgentMiddleware):
     @override
     async def wrap_tool_call(self, request: ToolCallRequest, handler) -> Any:
         name = request.tool_call.get("name")
-        logger.info("[tool-events] wrap name=%r", name)
         if name not in self._MUTATING:
             return await handler(request)
         result = await handler(request)
@@ -42,6 +41,12 @@ class ToolEventMiddleware(AgentMiddleware):
         except Exception:
             logger.exception("tool event publication failed")
         return result
+
+    @override
+    async def awrap_tool_call(self, request: ToolCallRequest, handler) -> Any:
+        # Runs execute through the async tool path (langgraph astream); without
+        # this the base class raises NotImplementedError and BREAKS the tool.
+        return await self.wrap_tool_call(request, handler)
 
     @staticmethod
     def _thread_id(request: ToolCallRequest) -> str:
