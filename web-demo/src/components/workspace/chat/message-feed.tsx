@@ -42,6 +42,7 @@ import {
 } from "@/core/threads/regenerate";
 import { checkCodeFile } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
+import { ConversationSlotMount } from "@/plugins-host/conversation-slots";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
 import {
@@ -261,26 +262,39 @@ export function MessageFeed({
             // messages that were pushed into this group by the fallback
             // in groupMessages are skipped — their results are surfaced
             // inside ToolGroup entries via findToolCallResult.
-            return group.messages
-              .filter((msg) => msg.type === "ai")
-              .map((msg) => (
-                <MessageItem
-                  key={`${group.id}/${msg.id}`}
-                  threadId={threadId}
-                  message={msg}
-                  contextMessages={messages}
-                  isLoading={msg.id != null && msg.id === streamingMessageId}
-                  onEditMessage={handleEditMessage}
-                  onBranchThread={
-                    group.id === footerGroupId ? onBranchThread : undefined
-                  }
-                  onRegenerate={
-                    group.id === footerGroupId && canRegenerate
-                      ? handleRegenerate
-                      : undefined
-                  }
+            return (
+              <div key={group.id} className="w-full">
+                {group.messages
+                  .filter((msg) => msg.type === "ai")
+                  .map((msg) => (
+                    <MessageItem
+                      key={`${group.id}/${msg.id}`}
+                      threadId={threadId}
+                      message={msg}
+                      contextMessages={messages}
+                      isLoading={
+                        msg.id != null && msg.id === streamingMessageId
+                      }
+                      onEditMessage={handleEditMessage}
+                      onBranchThread={
+                        group.id === footerGroupId ? onBranchThread : undefined
+                      }
+                      onRegenerate={
+                        group.id === footerGroupId && canRegenerate
+                          ? handleRegenerate
+                          : undefined
+                      }
+                    />
+                  ))}
+                {/* H4-d: plugin contributions at the tail of each completed
+                    assistant turn ("conversation.chat.turnTail"). */}
+                <ConversationSlotMount
+                  name="conversation.chat.turnTail"
+                  sessionId={threadId}
+                  turn={group.id}
                 />
-              ));
+              </div>
+            );
           }
           if (group.type === "assistant:processing") {
             // Intermediate AI messages — reasoning, prose chunks and tool

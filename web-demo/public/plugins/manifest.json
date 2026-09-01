@@ -6,6 +6,11 @@
       "disabled": false
     },
     {
+      "id": "hello-turntail",
+      "script": "/plugins/hello-turntail/client.js",
+      "disabled": false
+    },
+    {
       "id": "kcoder-terminal",
       "script": "/plugins/kcoder-terminal/client.js",
       "server": "plugins/kcoder-terminal/entry.js"

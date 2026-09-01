@@ -43,7 +43,7 @@
 - [x] 版本记录与基线校验位：entry 记录 version + source；宿主基线 DSH_BASELINE=0.1.2-alpha.2 常量（生态暂无标准兼容声明字段，声明出现时在此扩展比对）
 - [x] 插件管理面板 `/workspace/plugins`：清单表格（版本/client/server/状态）+ 停用/启用/卸载（loopback 管理 API POST /qilin-plugins/api）+ 重启提示横幅；CLI 与面板共用 runtime 管理逻辑
 
-### H4 面板类挂点铺开 —— H4-a/H4-b/H4-c ✅ complete；H4-d 待做
+### H4 面板类挂点铺开 —— H4-a/H4-b/H4-c ✅；H4-d 切片 1 ✅（slots 骨架），切片 2 待做
 - [x] H4-a 自研侧边栏删除：components/better-sidebar（11 文件）+ core/sidebar 支撑层
       （panel-host/scope/use-sidebar-tabs/viewer-host/viewer-registry）+ gateway
       sidebar-tabs 持久化端点与路由测试 + better-sidebar e2e/单测/截图；
@@ -152,6 +152,27 @@
   prefs 面 stub（T3 消费者才需要）。宿主内建编辑器 = 线程围栏内取文 + 行号
   pre（>5000 行截断提示）；插件注册的 viewer 组件按 fetchStrategy 喂参数。
 
+### H4-d 侦察（2026-09-01，file-review 依赖深度 + 切片决策）
+
+- **dsh-file-review-tab 依赖五件**：①ctx.slots（inject(name,factory,label) +
+  register(contribution, component)，contribution={name,select,priority,locale,
+  registrant,inject(sessionId)→props 袋}）；②ctx.remote.$mount(TYPERT_REMOTE)
+  ——插件自带 typert 三件套（remote.js/typert-descriptors/typert.host.js，
+  server 半用 @deepseek-ai/dsh-typert-protocol + dsh-atomic-write），经
+  sessions.scope(sessionId).get("remote.fileReview") 逐会话取 status/apply；
+  ③uiConversation 服务：binding(sessionId)?.target("chat") → {getSnapshot,
+  subscribe}，face={legacy,timeline.turns(Map)→data(Map,fileReviewChanges)}；
+  ④locale（t()）；⑤betterSidebar（H4-c 已覆盖：updateTab/openTab/activateTab
+  带 meta 全支持）。
+- **关键形状发现**：T3 插件用 ctx.sessions / ctx.betterSidebar / ctx.slots /
+  ctx.remote **属性访问**（cordis ctx 本态），T1 用 ctx.get()——宿主 shim 应改
+  Proxy：属性访问回落 getPluginService(name)，一次修好两面。
+- **切片决策**：file-review 完整功能（typert server + uiConversation 时间线
+  store）是 T3 级，单轮吞不下。H4-d 切片 1 = ctx Proxy + slots 服务 + 聊天 UI
+  turnTail 挂点 + remote/locale 骨架 + hello-turntail 金丝雀（DOM mount 形态
+  contribution，宿主双支持 React component / DOM mount）；typert 传输与
+  uiConversation 时间线留切片 2+。
+
 ## Progress Log
 
 - 2026-08-31: 计划创建。三项决策落定（同构安装模式 / 面板类先行+运行时类 port 化 /
@@ -247,5 +268,24 @@
   git 面板点 README.md（相对）与 计划（绝对）→ dock 抽屉自动展开、chips 就位、
   内建编辑器行号渲染真实内容（截图 h4c-dock-editor.png / h4c-editor-tabs.png）。
   H4 面板类挂点仅剩 H4-d（turnTail，依赖聊天 UI 插槽 + slots/remote 面）。
+
+- 2026-09-01: **H4-d 切片 1 完成——slots 服务 + 聊天 turnTail 挂点 + ctx Proxy**。
+  ①module-loader makePluginCtx 改 Proxy：未知属性访问回落 getPluginService——
+  T3 插件的 ctx.slots/ctx.sessions/ctx.betterSidebar 属性访问形态一次修好，
+  T1 的 ctx.get 不受影响（回归浏览器验证 terminal/git/dock 全在）。
+  ②新增 plugins-host/slots.ts：inject(name,factory,label) + register(contribution,
+  component?)（priority 升序、快照缓存供 useSyncExternalStore）；contribution
+  支持 React component（DSH 形态）与 mount/unmount DOM 钩子（宿主扩展，纯脚本
+  插件可用）。③新增 conversation-slots.tsx：ConversationSlotMount 渲染挂点
+  （inject(sessionId) 产 props 袋 + SlotErrorBoundary 兜底 + DOM mount memo）。
+  ④message-feed assistant 组尾部挂 turnTail（turn=group.id，div 包裹对齐其他
+  分支布局）。⑤services.tsx 增 sessions.scope(id).get("remote.<pkg>") +
+  remote.$mount 注册表（typert HTTP 传输留切片 2）。⑥locale.ts stub（register/
+  bind/t，点路径查字典，缺键回落键名）。⑦金丝雀 hello-turntail（纯脚本 +
+  DOM mount）入 manifest。验证：tsc/eslint/prettier 清，vitest 391 全过；
+  浏览器新线程发真实消息（MiniMax-M3），助手轮尾渲染 🧩 turnTail[lc_run--…]
+  hello from hello-turntail（9s 内），a11y 快照为证。**待切片 2**：typert
+  HTTP 传输（remote.fileReview status/apply 落地）、uiConversation 时间线
+  store（face={legacy,timeline}）、file-review-tab 实装。
 
 ## Errors

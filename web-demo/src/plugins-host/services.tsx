@@ -48,7 +48,10 @@ export function getPluginService(name: string): unknown {
 }
 
 /** DOM-mount to React adapter (host-side; plugins stay React-free). */
-function PluginMountBoundary({ mount, unmount }: {
+function PluginMountBoundary({
+  mount,
+  unmount,
+}: {
   mount: (el: HTMLElement) => void;
   unmount?: (el: HTMLElement) => void;
 }) {
@@ -69,17 +72,18 @@ function registerSidebarTab(spec: PluginTabDescriptor): () => void {
     id: spec.id,
     title: spec.title,
     order: spec.order ?? 90,
-    render: spec.render
-      ?? ((props) => (
-          <PluginMountBoundary
-            mount={(el) => {
-              // Surface the resolved thread scope for DOM-only plugins.
-              el.dataset.threadId = props.scope.threadId;
-              spec.mount?.(el);
-            }}
-            unmount={spec.unmount}
-          />
-        )),
+    render:
+      spec.render ??
+      ((props) => (
+        <PluginMountBoundary
+          mount={(el) => {
+            // Surface the resolved thread scope for DOM-only plugins.
+            el.dataset.threadId = props.scope.threadId;
+            spec.mount?.(el);
+          }}
+          unmount={spec.unmount}
+        />
+      )),
   };
   if (sidebarPanelRegistry.get(spec.id)) {
     sidebarPanelRegistry.unregister(spec.id); // replace-on-reload
@@ -112,7 +116,9 @@ export function setCurrentThread(threadId: string | null): void {
       `/api/files/workspace-path?thread_id=${encodeURIComponent(threadId)}`,
       { credentials: "include" },
     )
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((r) =>
+        r.ok ? r.json() : Promise.reject(new Error(String(r.status))),
+      )
       .then((body: { path: string }) => {
         cwdByThread.set(threadId, body.path);
       })
@@ -132,6 +138,40 @@ registerPluginService("sessions", {
           : [],
       ),
     }),
+  },
+  /**
+   * Per-session service scope (H4-d slice 1): T3 plugins resolve
+   * session-scoped remotes via sessions.scope(id).get("remote.<pkg>").
+   * The typert HTTP transport is slice 2 — mounted remotes are tracked,
+   * unresolved lookups degrade to undefined (plugins handle absence).
+   */
+  scope: (_sessionId: string) => ({
+    get: (name: string) => {
+      if (name.startsWith("remote.")) {
+        return mountedRemotes.get(name.slice("remote.".length));
+      }
+      return undefined;
+    },
+  }),
+});
+
+/** Mounted typert remote clients by package name (dsh-api-remotes face). */
+const mountedRemotes = new Map<string, unknown>();
+
+registerPluginService("remote", {
+  /**
+   * Mount a typert remote client descriptor. Resolves to the disposer.
+   * Slice 2 wires the HTTP transport (stubs against plugin host routes);
+   * today the registry only tracks the mount.
+   */
+  $mount: async (descriptor: unknown): Promise<() => void> => {
+    const name =
+      (descriptor as { package?: string }).package ??
+      "anon:" + String(mountedRemotes.size);
+    mountedRemotes.set(name, descriptor);
+    return () => {
+      if (mountedRemotes.get(name) === descriptor) mountedRemotes.delete(name);
+    };
   },
 });
 

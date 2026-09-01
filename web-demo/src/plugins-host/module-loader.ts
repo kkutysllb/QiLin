@@ -84,7 +84,11 @@ function load(spec: {
 }
 
 /** Resolve inject names against the service bridge and invoke apply. */
-function applyPlugin(id: string, exports: PluginModule, inject: string[]): () => void {
+function applyPlugin(
+  id: string,
+  exports: PluginModule,
+  inject: string[],
+): () => void {
   const services = inject.map((name) => getPluginService(name));
   try {
     // DSH convention: apply ALWAYS receives the ctx first (plugins soft-probe
@@ -105,17 +109,32 @@ function applyPlugin(id: string, exports: PluginModule, inject: string[]): () =>
 }
 
 /**
- * Cordis-like context handed to plugin factories: `ctx.get(name)` is the
- * soft service probe DSH plugins use (optional-chaining — unknown services
- * degrade to undefined and plugins fall back gracefully).
+ * Cordis-like context handed to plugin factories. Two access styles exist
+ * in the wild (H4-d): T1 plugins soft-probe via `ctx.get(name)`, while T3
+ * plugins read services as CONTEXT PROPERTIES (`ctx.slots`, `ctx.sessions`,
+ * `ctx.betterSidebar`, `ctx.remote`, `ctx.locale` — cordis ctx is a
+ * service-accessor object). A Proxy unifies both: unknown property reads
+ * fall back to the service bridge.
  */
 function makePluginCtx(): { get(name: string): unknown } {
-  return { get: (name: string) => getPluginService(name) };
+  const target = { get: (name: string) => getPluginService(name) };
+  return new Proxy(target, {
+    get(t, prop, receiver) {
+      if (typeof prop !== "string") return undefined;
+      if (prop in t) return Reflect.get(t, prop, receiver);
+      return getPluginService(prop);
+    },
+  });
 }
 
 export function installModuleLoader(): void {
   const w = window as unknown as Record<string, unknown>;
-  const shape: ModuleLoaderShape = { load, get plugins() { return registry; } };
+  const shape: ModuleLoaderShape = {
+    load,
+    get plugins() {
+      return registry;
+    },
+  };
   w.__ModuleLoader__ ??= shape;
 }
 
