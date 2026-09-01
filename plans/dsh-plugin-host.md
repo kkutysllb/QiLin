@@ -63,8 +63,19 @@
       git-panel 端到端验证（变更行 + 计划点击两种路径形态均落 dock 渲染内容）
 - [ ] H4-d conversation turnTail 链（后置，依赖聊天 UI 插槽对齐）
 
-### H5 agent 运行时 port 化（远期）
-- [ ] language（system-prompt section）/ skills 按「一切皆 port」封装为 port 型插件
+### H5 agent 运行时 port 化 —— 切片 1（system-prompt section port）设计定稿
+- [ ] H5-a **语言 port**：gateway 新增 ports 路由（注册/注销/列举 system-prompt
+      sections，internal-auth POST /api/ports/system-prompt/sections）+ lead agent
+      prompt.py 组装时并入注册 sections（order 升序，参照既有 skills system-prompt
+      cache 机制）+ plugins-host-runtime 增 `ctx.systemPrompt.section(...)` 桥
+      （POST 到 gateway，QILIN_GATEWAY_URL + internal token）——**验收 =
+      kcoder-language 原样安装，真实对话回复为简体中文**（其 entry 契约：
+      inject ['systemPrompt'] → ctx.systemPrompt.section({name:'kcoder:language',
+      order:900, text:中文指令}) → disposer，零依赖纯 ESM）
+- [ ] H5-b **tools/post-execute 事件面**（file-review server 半依赖）：
+      QiLin 工具执行后置事件 → gateway 事件端口 → Node 插件可订阅
+- [ ] H5-c **skills port**：kcoder-skills 技能包物化对接 qilin/skills
+- [ ] H5-d uiConversation 时间线 store + file-review-tab 实装（收拢 H4-d 尾）
 
 ## Findings
 
@@ -303,5 +314,17 @@
   mount→route→envelope / throwing→error envelope / GET→405；tsc/eslint/prettier
   清；vitest 391 全过。H4-d 剩余：uiConversation 时间线 store + file-review
   实装——**均依赖 H5**（system-prompt/tools 事件面），随 H5 排期。
+
+- 2026-09-01: **H5 开工侦察**。①T2 契约实拍：kcoder-language entry 仅
+  inject ['systemPrompt'] → ctx.systemPrompt.section({name,order,text})→disposer，
+  零依赖纯 ESM，order 900 语义（升序拼接近末尾、recency 最高，对抗英文历史
+  惯性）；开关由 patch 层 disabled 控制。②QiLin 侧挂点确认：
+  qilin/agents/lead_agent/prompt.py 已有 skills system-prompt cache 机制
+  （clear/refresh(_async)/per-user 变体）——注册式 section 可循同一模式并入；
+  qilin/ports/ 目前是终端类设备 port（posix/windows backend + protocol），尚无
+  system-prompt registry；gateway 无 ports 路由。③架构判断：DSH 单进程 cordis
+  直注册；QiLin 分进程（Python agent + Node 插件宿主）——language port 设计为
+  gateway 注册端口（internal-auth）+ prompt 组装时并入 + Node 桥转发，跨进程
+  保持「一切皆 port」。切片 1 设计已定稿（见 Task List H5-a），含验收标准。
 
 ## Errors
