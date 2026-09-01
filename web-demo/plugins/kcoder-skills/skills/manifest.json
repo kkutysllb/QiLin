@@ -1,0 +1,189 @@
+{
+  "skills": [
+    {
+      "dir": "planning-with-files",
+      "name": "planning-with-files",
+      "description": "File-based planning for complex or multi-step work. Maintains a living plan document under plans/ in the workspace, updated as work proceeds, so goals and progress survive context loss and stay reviewable by the user. Use when a task needs 5+ tool calls, spans multiple files or phases, when the user asks to plan, break down, or organize work, or when resuming unfinished work."
+    },
+    {
+      "dir": "task-decomposition",
+      "name": "task-decomposition",
+      "description": "Use this skill when breaking broad coding requests into Qiongqi tasks, task ids, staged work, implementation phases, or independent subtasks."
+    },
+    {
+      "dir": "writing-plans",
+      "name": "writing-plans",
+      "description": "Use when you have a spec or requirements for a multi-step task, before touching code"
+    },
+    {
+      "dir": "executing-plans",
+      "name": "executing-plans",
+      "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints"
+    },
+    {
+      "dir": "verification-before-completion",
+      "name": "verification-before-completion",
+      "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always"
+    },
+    {
+      "dir": "test-driven-development",
+      "name": "test-driven-development",
+      "description": "Use when implementing any feature or bugfix, before writing implementation code"
+    },
+    {
+      "dir": "subagent-driven-development",
+      "name": "subagent-driven-development",
+      "description": "Use when executing implementation plans with independent tasks in the current session"
+    },
+    {
+      "dir": "dispatching-parallel-agents",
+      "name": "dispatching-parallel-agents",
+      "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies"
+    },
+    {
+      "dir": "using-git-worktrees",
+      "name": "using-git-worktrees",
+      "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback"
+    },
+    {
+      "dir": "brainstorming",
+      "name": "brainstorming",
+      "description": "\"You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.\""
+    },
+    {
+      "dir": "requesting-code-review",
+      "name": "requesting-code-review",
+      "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements"
+    },
+    {
+      "dir": "receiving-code-review",
+      "name": "receiving-code-review",
+      "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation"
+    },
+    {
+      "dir": "finishing-a-development-branch",
+      "name": "finishing-a-development-branch",
+      "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup"
+    },
+    {
+      "dir": "webapp-testing",
+      "name": "webapp-testing",
+      "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs."
+    },
+    {
+      "dir": "implement",
+      "name": "implement",
+      "description": "Use this skill when the user asks to implement a feature, add functionality, or build something new in code. Trigger on requests like \"implement this feature\", \"add this function\", \"create this endpoint\", \"build this module\", \"write a function that\", \"add support for\", or when the user provides a specification, requirements document, or user story for implementation."
+    },
+    {
+      "dir": "refactor",
+      "name": "refactor",
+      "description": "Use this skill when the user asks to refactor, clean up, restructure, or improve code quality without changing behavior. Trigger on requests like \"refactor this\", \"clean up this code\", \"simplify this function\", \"extract this method\", \"reduce duplication\", \"improve code structure\", \"remove dead code\", or when reviewing code that has maintainability issues. Also trigger for design-pattern introductions and architecture improvements."
+    },
+    {
+      "dir": "debug",
+      "name": "debug",
+      "description": "Use this skill when the user reports a bug, error, crash, or unexpected behavior in code. Trigger on requests like \"debug this\", \"fix this bug\", \"why is this erroring\", \"something is wrong\", \"it's not working\", \"investigate this issue\", or when a stack trace, error message, or test failure is shared. Also trigger when the user asks to diagnose performance problems or memory leaks."
+    },
+    {
+      "dir": "test-writer",
+      "name": "test-writer",
+      "description": "Use this skill when the coding task requires adding, fixing, or improving automated tests. Trigger on requests mentioning tests, pytest, vitest, jest, regression coverage, failing tests, test gaps, snapshots, fixtures, or TDD."
+    },
+    {
+      "dir": "architecture",
+      "name": "architecture",
+      "description": "Use this skill for module design, boundaries, dependency direction, service extraction, core engine design, plugin systems, and cross-cutting technical decisions."
+    },
+    {
+      "dir": "api-design",
+      "name": "api-design",
+      "description": "Use this skill when adding or changing HTTP APIs, RPC endpoints, request and response schemas, pagination, validation, status codes, or backwards-compatible API behavior."
+    },
+    {
+      "dir": "technical-design",
+      "name": "technical-design",
+      "description": "Use this skill when producing a technical design, module plan, data flow, interface contract, risk analysis, or implementation strategy before coding."
+    },
+    {
+      "dir": "codebase-analysis",
+      "name": "codebase-analysis",
+      "description": "Use this skill before modifying unfamiliar code, when analyzing project architecture, finding feature ownership, tracing data flow, or assessing how an existing implementation works."
+    },
+    {
+      "dir": "diff-analysis",
+      "name": "diff-analysis",
+      "description": "Use this skill when analyzing project diffs, task changes, changed hunks, additions/deletions, file-level risk, before/after code comparisons, or review findings that must be grounded in concrete changed lines."
+    },
+    {
+      "dir": "requirements-analysis",
+      "name": "requirements-analysis",
+      "description": "Use this skill when clarifying user needs, business goals, constraints, user roles, workflows, edge cases, and project scope before implementation."
+    },
+    {
+      "dir": "typescript",
+      "name": "typescript",
+      "description": "Use this skill for TypeScript typing, strictness errors, generics, React prop types, API contracts, discriminated unions, and type-safe refactors."
+    },
+    {
+      "dir": "frontend-engineering",
+      "name": "frontend-engineering",
+      "description": "Use this skill for React, Next.js, state management, data fetching, component behavior, hydration bugs, routing, forms, and frontend integration work."
+    },
+    {
+      "dir": "react-nextjs",
+      "name": "react-nextjs",
+      "description": "Use this skill for React and Next.js coding: client/server component boundaries, hooks, hydration, routing, data fetching, query invalidation, layouts, and component composition."
+    },
+    {
+      "dir": "error-handling",
+      "name": "error-handling",
+      "description": "Use this skill when improving exceptions, API error responses, retries, timeout handling, stale-state errors, user-facing failure messages, or recoverability."
+    },
+    {
+      "dir": "performance",
+      "name": "performance",
+      "description": "Use this skill when the user asks to improve speed, latency, throughput, memory use, rendering performance, query efficiency, or startup time."
+    },
+    {
+      "dir": "security-hardening",
+      "name": "security-hardening",
+      "description": "Use this skill for security-sensitive coding work, including authentication, authorization, secrets, input validation, SSRF, CSRF, path traversal, command execution, dependency risk, and hardening existing code."
+    },
+    {
+      "dir": "release-engineering",
+      "name": "release-engineering",
+      "description": "Use this skill for versioning, changelogs, release notes, packaging, deployment readiness, rollback planning, and release risk checks."
+    },
+    {
+      "dir": "image-generation",
+      "name": "image-generation",
+      "description": "Use this skill when the user requests to generate, create, imagine, or visualize images including characters, scenes, products, or any visual content. Supports structured prompts and reference images for guided generation."
+    },
+    {
+      "dir": "video-generation",
+      "name": "video-generation",
+      "description": "Use this skill when the user requests to generate, create, or imagine videos. Supports structured prompts and reference image for guided generation."
+    },
+    {
+      "dir": "music-generation",
+      "name": "music-generation",
+      "description": "Generate music and songs using MiniMax Music-2.6, Music-Cover, and Lyrics Generation APIs. Supports text-to-music, cover/remix, lyrics writing, and full song creation."
+    },
+    {
+      "dir": "podcast-generation",
+      "name": "podcast-generation",
+      "description": "Use this skill when the user requests to generate, create, or produce podcasts from text content. Converts written content into a two-host conversational podcast audio format with natural dialogue."
+    },
+    {
+      "dir": "comic",
+      "name": "comic",
+      "description": "知识漫画创作器——将知识、教育、传记、教程类文本内容转化为多页叙事型漫画。支持 5 种艺术风格 × 7 种色调 × 7 种布局的自由组合，自动根据内容信号选择最佳视觉方案。触发词：知识漫画、教育漫画、传记漫画、教程漫画、科普漫画、Logicomix 风格、baoyu-comic、把这段内容画成漫画。"
+    },
+    {
+      "dir": "deep-research",
+      "name": "deep-research",
+      "description": "Use this skill instead of WebSearch for ANY question requiring web research. Trigger on queries like \"what is X\", \"explain X\", \"compare X and Y\", \"research X\", or before content generation tasks. Provides systematic multi-angle research methodology instead of single superficial searches. Use this proactively when the user's question needs online information."
+    }
+  ]
+}

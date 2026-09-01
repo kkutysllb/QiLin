@@ -31,6 +31,13 @@
       "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-language",
       "script": "",
       "server": "plugins/kcoder-language/entry.js"
+    },
+    {
+      "id": "kcoder-skills",
+      "version": "0.4.0",
+      "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-skills",
+      "script": "",
+      "server": "plugins/kcoder-skills/entry.js"
     }
   ]
 }

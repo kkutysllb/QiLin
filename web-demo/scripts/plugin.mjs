@@ -23,6 +23,7 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   renameSync,
   rmSync,
@@ -63,6 +64,20 @@ function dirOrFail(dir) {
 }
 
 /** Install (or overwrite) one plugin dir into the host. */
+/** Top-level directories of a plugin source that must ship with the
+ * server half (everything except dot-dirs and node_modules). */
+function listContentDirs(src) {
+  return readdirSync(src, { withFileTypes: true })
+    .filter(
+      (e) =>
+        e.isDirectory() &&
+        !e.name.startsWith(".") &&
+        e.name !== "node_modules" &&
+        e.name !== "vendor",
+    )
+    .map((e) => e.name);
+}
+
 function install(sourceDir, manifest) {
   const src = dirOrFail(sourceDir);
   const id = basename(src);
@@ -95,6 +110,13 @@ function install(sourceDir, manifest) {
     if (existsSync(vendor)) {
       rmSync(resolve(dst, "vendor"), { recursive: true, force: true });
       cpSync(vendor, resolve(dst, "vendor"), { recursive: true });
+    }
+    // H5-c: content directories a server half may resolve at runtime
+    // (e.g. kcoder-skills reads skills/manifest.json next to entry.js).
+    for (const name of listContentDirs(src)) {
+      const contentDir = resolve(src, name);
+      rmSync(resolve(dst, name), { recursive: true, force: true });
+      cpSync(contentDir, resolve(dst, name), { recursive: true });
     }
     entry.server = "plugins/" + id + "/entry.js";
   }

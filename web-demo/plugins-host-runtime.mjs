@@ -65,7 +65,10 @@ function internalAuthToken() {
   }
   try {
     // start-gateway.sh persists the generated secret here.
-    return readFileSync(resolvePath(ROOT, "..", ".qilin-internal-token"), "utf8").trim();
+    return readFileSync(
+      resolvePath(ROOT, "..", ".qilin-internal-token"),
+      "utf8",
+    ).trim();
   } catch {
     return undefined;
   }
@@ -74,16 +77,24 @@ function internalAuthToken() {
 async function announceSection(section, method = "POST") {
   const token = internalAuthToken();
   if (!token) {
-    console.error("[system-prompt] no internal token; section not announced:", section.name);
+    console.error(
+      "[system-prompt] no internal token; section not announced:",
+      section.name,
+    );
     return;
   }
   const url =
     method === "DELETE"
-      ? GATEWAY_URL + "/api/ports/system-prompt/sections/" + encodeURIComponent(section.name)
+      ? GATEWAY_URL +
+        "/api/ports/system-prompt/sections/" +
+        encodeURIComponent(section.name)
       : GATEWAY_URL + "/api/ports/system-prompt/sections";
   const res = await fetch(url, {
     method,
-    headers: { "content-type": "application/json", "X-QiLin-Internal-Token": token },
+    headers: {
+      "content-type": "application/json",
+      "X-QiLin-Internal-Token": token,
+    },
     body: method === "DELETE" ? undefined : JSON.stringify(section),
   });
   if (!res.ok) {
@@ -107,7 +118,9 @@ function ensureToolEventPoller() {
     if (!token || toolEventHandlers.size === 0) return;
     try {
       const res = await fetch(
-        GATEWAY_URL + "/api/ports/tools/events?cursor=" + String(toolEventCursor),
+        GATEWAY_URL +
+          "/api/ports/tools/events?cursor=" +
+          String(toolEventCursor),
         { headers: { "X-QiLin-Internal-Token": token } },
       );
       if (!res.ok) return;
@@ -142,7 +155,12 @@ function ensureToolEventPoller() {
 const systemPromptService = {
   /** Register a prompt section; returns the disposer (de-announce). */
   section({ name, order = 100, text, source = "plugin" }) {
-    const section = { name: String(name), order: Number(order), text: String(text), source };
+    const section = {
+      name: String(name),
+      order: Number(order),
+      text: String(text),
+      source,
+    };
     void announceSection(section, "POST").catch((err) =>
       console.error("[system-prompt] announce error:", err.message),
     );
@@ -156,6 +174,80 @@ const systemPromptService = {
 
 hostServices.systemPrompt = systemPromptService;
 
+// ----- H5-c: skills port — materialize plugin skill packages -----
+// T2 runtime plugins (kcoder-skills) register skill packages via
+// ctx.skills.register({name, description, whenToUse?, content, resourceBase});
+// the runtime composes SKILL.md (frontmatter from metadata + content body),
+// walks resourceBase for support files, and POSTs the package to the gateway
+// ports API, which materializes it as a custom skill (native describe_skill /
+// read_file / slash-activation integration). Disposer de-registers.
+function walkResourceDir(dir, prefix, out) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    const rel = prefix ? prefix + "/" + entry.name : entry.name;
+    if (entry.isDirectory()) walkResourceDir(full, rel, out);
+    else out.push({ path: rel, content: readFileSync(full, "utf8") });
+  }
+}
+
+const skillsService = {
+  register(spec) {
+    const files = [
+      {
+        path: "SKILL.md",
+        content:
+          "---\n" +
+          "name: " +
+          spec.name +
+          "\n" +
+          "description: " +
+          String(spec.description ?? "").replace(/\n/g, " ") +
+          "\n" +
+          (spec.whenToUse
+            ? "when-to-use: " +
+              String(spec.whenToUse).replace(/\n/g, " ") +
+              "\n"
+            : "") +
+          "---\n" +
+          String(spec.content ?? ""),
+      },
+    ];
+    if (spec.resourceBase && spec.resourceBase.kind === "directory") {
+      walkResourceDir(spec.resourceBase.path, "", files);
+    }
+    const announce = () =>
+      fetch(GATEWAY_URL + "/api/ports/skills", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-QiLin-Internal-Token": internalAuthToken() ?? "",
+        },
+        body: JSON.stringify({ name: spec.name, files }),
+      });
+    void announce()
+      .then(async (res) => {
+        if (!res.ok) {
+          console.error("[skills] materialize failed:", spec.name, res.status);
+        }
+      })
+      .catch((err) =>
+        console.error("[skills] materialize error:", spec.name, err.message),
+      );
+    return () => {
+      fetch(
+        GATEWAY_URL + "/api/ports/skills/" + encodeURIComponent(spec.name),
+        {
+          method: "DELETE",
+          headers: { "X-QiLin-Internal-Token": internalAuthToken() ?? "" },
+        },
+      ).catch(() => {
+        /* best effort */
+      });
+    };
+  },
+};
+hostServices.skills = skillsService;
+
 // ----- H4-d slice 2: typert host facility (api-remotes endpoint face) -----
 // Plugins with a typert server half mount it via ctx.typertHost.mount(pkg,
 // handler); the runtime exposes POST /qilin-plugins/typert/<pkg> taking
@@ -168,7 +260,6 @@ function isLoopbackReq(req) {
   const addr = req.socket?.remoteAddress ?? "";
   return addr === "127.0.0.1" || addr === "::1" || addr === "::ffff:127.0.0.1";
 }
-
 function readBody(req, limit = 4 * 1024 * 1024) {
   return new Promise((resolveBody, rejectBody) => {
     let size = 0;
@@ -265,6 +356,7 @@ function makeCtx() {
       mount: mountTypertHost,
     },
     systemPrompt: systemPromptService,
+    skills: skillsService,
     on(event, handler) {
       if (event !== "tools/post-execute") return () => {};
       toolEventHandlers.add(handler);

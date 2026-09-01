@@ -78,7 +78,13 @@
       /api/ports/tools/events（cursor 长轮询）+ Node ctx.on("tools/post-execute")
       1.5s 轮询分发（next()={kind:accept}）——**E2E 验收：真实 write_file → 环内
       单事件（真实 callId/threadId）→ 金丝雀 decision:accept 分发**
-- [ ] H5-c **skills port**：kcoder-skills 技能包物化对接 qilin/skills
+- [x] H5-c **skills port** ✅：gateway /api/ports/skills（POST 物化/DELETE 注销，
+      经 write_custom_skill 存储原生 API——custom 命名空间默认 enabled，零 schema
+      改动获得 describe_skill/read_file/斜杠激活全链）+ Node ctx.skills.register
+      桥（SKILL.md frontmatter 组装 + resourceBase 资源目录递归打包上传）+
+      plugin.mjs 修复（readdirSync import + 内容目录随 server 半分发）——**验收 =
+      kcoder-skills v0.4.0 原样安装，37 个 runtime skills 注册物化，storage
+      enabled 列表全含，真实对话 describe_skill 查询成功**
 - [ ] H5-d uiConversation 时间线 store + file-review-tab 实装（收拢 H4-d 尾）
 
 ## Findings
@@ -368,6 +374,19 @@
   重启前必须 lsof 清端口。双发射去重：中间件（带 callId）为唯一源，sandbox 函数
   层发射已撤。待续：H5-c skills port；H5-d file-review 实装（事件面已备，补
   before/after 内容捕获与 uiConversation）。
+
+- 2026-09-01(五续): **H5-c 完成——skills port 全链验收通过**。设计抉择：不做
+  内存注册表，而是经 write_custom_skill 存储原生 API 把插件技能包**物化为
+  custom 命名空间技能**（custom 默认 enabled；原生获得 describe_skill/read_file/
+  斜杠激活/skill_evolution 全链，零 skills 子系统改动）。实现：①ports.py
+  POST /api/ports/skills（SKILL.md + templates/scripts/references/assets 资源
+  白名单校验）+ DELETE /skills/{name}；②runtime ctx.skills.register 桥（SKILL.md
+  frontmatter 由 manifest 元数据组装 + resourceBase 递归打包）；③plugin.mjs 两修
+  （readdirSync import 漏 + server 半内容目录随装分发——kcoder-skills 的
+  skills/ 目录即由此入库）。**验收链**：注册日志 37 runtime skills → storage
+  load_skills(enabled_only=True) 含全部样例 → 真实对话 describe_skill 查询
+  planning-with-files 成功（24s）。剩余：H5-d uiConversation + file-review
+  （事件面/语言面已备）。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

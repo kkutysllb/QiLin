@@ -77,3 +77,62 @@ async def tool_events_endpoint(request: Request, cursor: int = 0) -> Any:
         return _forbidden()
     events, head = tool_events_snapshot(cursor)
     return {"events": events, "cursor": head}
+
+
+# ── skills port (H5-c): materialize plugin skill packages as custom skills ──
+
+class SkillFile(BaseModel):
+    path: str  # "SKILL.md" or "templates|scripts|references|assets/<rel>"
+    content: str
+
+
+class SkillRegistration(BaseModel):
+    name: str
+    files: list[SkillFile]
+
+
+_ALLOWED_SUPPORT_TOP_DIRS = {"references", "templates", "scripts", "assets"}
+
+
+@router.post("/skills")
+async def register_skill_endpoint(request: Request, req: SkillRegistration) -> Any:
+    """Materialize one plugin skill package as a custom skill (upsert)."""
+    if not _authorized(request):
+        return _forbidden()
+    from qilin.skills.storage import get_or_new_skill_storage
+
+    storage = get_or_new_skill_storage()
+    try:
+        for f in req.files:
+            top = f.path.split("/")[0] if "/" in f.path else f.path
+            if f.path != "SKILL.md" and top not in _ALLOWED_SUPPORT_TOP_DIRS:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "detail": (
+                            f"unsupported file path '{f.path}': must be SKILL.md "
+                            f"or under one of {sorted(_ALLOWED_SUPPORT_TOP_DIRS)}"
+                        )
+                    },
+                )
+        for f in req.files:
+            storage.write_custom_skill(req.name, f.path, f.content)
+        return {"ok": True, "name": req.name, "files": len(req.files)}
+    except ValueError as exc:
+        return JSONResponse(status_code=400, content={"detail": str(exc)})
+
+
+@router.delete("/skills/{name}")
+async def unregister_skill_endpoint(request: Request, name: str) -> Any:
+    if not _authorized(request):
+        return _forbidden()
+    import shutil
+
+    from qilin.skills.storage import get_or_new_skill_storage
+
+    storage = get_or_new_skill_storage()
+    skill_dir = storage.get_custom_skill_dir(name)
+    if not skill_dir.exists():
+        return {"ok": True, "removed": False}
+    shutil.rmtree(skill_dir)
+    return {"ok": True, "removed": True}
