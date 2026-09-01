@@ -43,7 +43,7 @@
 - [x] 版本记录与基线校验位：entry 记录 version + source；宿主基线 DSH_BASELINE=0.1.2-alpha.2 常量（生态暂无标准兼容声明字段，声明出现时在此扩展比对）
 - [x] 插件管理面板 `/workspace/plugins`：清单表格（版本/client/server/状态）+ 停用/启用/卸载（loopback 管理 API POST /qilin-plugins/api）+ 重启提示横幅；CLI 与面板共用 runtime 管理逻辑
 
-### H4 面板类挂点铺开 —— H4-a/H4-b ✅ complete；H4-c/H4-d 待做
+### H4 面板类挂点铺开 —— H4-a/H4-b/H4-c ✅ complete；H4-d 待做
 - [x] H4-a 自研侧边栏删除：components/better-sidebar（11 文件）+ core/sidebar 支撑层
       （panel-host/scope/use-sidebar-tabs/viewer-host/viewer-registry）+ gateway
       sidebar-tabs 持久化端点与路由测试 + better-sidebar e2e/单测/截图；
@@ -51,9 +51,13 @@
 - [x] H4-b 插件面板 dock 挂点：PluginPanelDock（🧩 抽屉，titlebar 锚点同侧）承载
       sidebarPanelRegistry 的 plugin: 面板——qiLin.sidebar 契约不变，渲染面换宿主
       极简实现（registry 增加订阅通知，additive 不破坏契约）
-- [ ] H4-c file viewer / dock 挂点对齐 0.1.2-alpha.2 契约（registerFileViewer 等
-      better-sidebar service 面；protocol.ts 的 FileViewer*/SidebarTabState 契约
-      类型保留，届时直接使用）
+- [x] H4-c betterSidebar service 对齐（0.1.2-alpha.2 契约面）：plugins-host/
+      better-sidebar.ts 发布 ctx.get("betterSidebar")——editor openTab/openFile
+      全语义（path 去重 + 内容种自动开抽屉）+ registerTab/registerFileViewer
+      注册表（fetchStrategy 五态/priority/detect/exts/catch-all）+ 生命周期回调 +
+      closeTab/activateTab/updateTab；宿主内建编辑器走 /api/files/read（相对路径
+      直通 = DSH session-cwd 语义，绝对路径 cwd 前缀相对化，越界诚实降级）；真插件
+      git-panel 端到端验证（变更行 + 计划点击两种路径形态均落 dock 渲染内容）
 - [ ] H4-d conversation turnTail 链（后置，依赖聊天 UI 插槽对齐）
 
 ### H5 agent 运行时 port 化（远期）
@@ -119,6 +123,34 @@
   use-sidebar-tabs/viewer-registry 单测、e2e better-sidebar.spec.ts + 3 截图；
   **保留** panel-registry/protocol-types 单测（契约仍在）与 e2e sidebar.spec.ts
   （那是左侧 WorkspaceSidebar 导航，无关）。
+
+### H4-c 侦察（2026-09-01，betterSidebar service 契约）
+
+- **契约源**：dsh-plugins/DSH-better-sidebar/src/client/service.ts（插件版本
+  0.12.0）——BetterSidebarService 共 17 方法：registerTab / registerFileViewer /
+  openTab(OpenTabSeed) / openFile / matchFileViewer / closeTab / activateTab /
+  updateTab / getSnapshot / subscribe(State) / getTabs / getTab / is*Enabled。
+  OpenTabSeed = {type,title?,path?,diff?,id?,url?,meta?}；内容种（path/url）必须
+  「落进视野」（面板收起时自动展开）；类型种不展开。
+- **消费面分层**：已装 git-panel 只用 openTab({type:'editor',title,path,id})
+  （计划预览 + 变更文件点击；服务缺席有 server open-plan 回退链）；
+  dsh-file-review-tab inject [betterSidebar,sessions,locale,remote,slots] 并动态
+  解析 uiConversation.events——T3 面依赖 slots/remote（H4-d/H2 尾），不在本片。
+- **面板让位协议（用户确认）**：git-panel ↔ better-sidebar 互斥走 **DOM 探测**
+  （[data-dsh-better-sidebar] + panelHidden 类）而非服务；义务债务（yielded 反向 /
+  sideYielded 正向）+ MutationObserver 沿触发去重 + 设置页同构让位。QiLin 恒缺席
+  → 协议休眠；dock 为浮层无布局争夺，**故意不模拟该属性**（模拟会空唤醒对方的
+  收起/履约逻辑）。
+- **文件读取**：gateway /api/files/read?thread_id&path（path 相对 thread
+  workspace、仅 textual；binary 400 提示走 /api/files/raw）+ /api/files/raw
+  （bytes，可作 mediaUrl）。git-panel 给**绝对路径** → 由 sessions cwd
+  （cwdByThread）转相对；worktree 覆盖路径在 workspace 外 → 诚实降级提示。
+- **H4-c 范围落定**：betterSidebar 服务落进 plugins-host——editor openTab /
+  openFile 全语义（path 去重、内容种自动开抽屉）、registerTab/registerFileViewer
+  注册表（fetchStrategy 五态 + priority desc + detect/exts/catch-all 匹配）、
+  生命周期回调、features=[openFile,tabLifecycle,updateTab]；SidebarStore/设置/
+  prefs 面 stub（T3 消费者才需要）。宿主内建编辑器 = 线程围栏内取文 + 行号
+  pre（>5000 行截断提示）；插件注册的 viewer 组件按 fetchStrategy 喂参数。
 
 ## Progress Log
 
@@ -200,5 +232,20 @@
   出 zsh 提示符、RightContextPanel 右栏完整、设置页 Right panel 组已消失。
   截图 h4-dock-open.png / h4-gitpanel.png / h4-terminal.png。剩余 H4-c
   （file viewer/dock 挂点对齐 registerFileViewer 契约面）、H4-d（turnTail）。
+
+- 2026-09-01: **H4-c 完成——betterSidebar service 落地 + 真插件端到端验证**。
+  新增 plugins-host/better-sidebar.ts（431 行：契约类型 BsTab/BsOpenTabSeed/
+  BsTabDescriptor/BsFileViewerDescriptor 结构对齐 DSH 0.12.0 + 开页存储 + 服务
+  对象注册 "betterSidebar"）；panel-dock 扩展为双源（registry panels + bs tabs，
+  内容种自动开抽屉对齐 DSH「content open must land in sight」，chips 双行 +
+  activeBs/activeId 互斥选择）；services.tsx 导出 getCurrentThread/peekThreadCwd。
+  关键发现落 Findings：git-panel 变更行走 **git 相对路径**（porcelain 截断）、
+  计划行走绝对路径——toThreadRelPath 按形态分流（相对直通=DSH session-cwd 语义；
+  绝对按 cwd 前缀相对化，越界 null → 诚实降级提示）。单测 10 个（探测面/去重/
+  生命周期/matchFileViewer/detach/openFile/toThreadRelPath）全过；tsc/eslint/
+  prettier 清；vitest 全量 68 文件 390 测试全过。浏览器端到端：verify-thread-1
+  git 面板点 README.md（相对）与 计划（绝对）→ dock 抽屉自动展开、chips 就位、
+  内建编辑器行号渲染真实内容（截图 h4c-dock-editor.png / h4c-editor-tabs.png）。
+  H4 面板类挂点仅剩 H4-d（turnTail，依赖聊天 UI 插槽 + slots/remote 面）。
 
 ## Errors

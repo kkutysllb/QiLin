@@ -134,3 +134,14 @@ registerPluginService("sessions", {
     }),
   },
 });
+
+/** Host-side accessors for the betterSidebar service (H4-c): the editor
+ * viewer converts absolute plugin paths to thread-relative via the cwd
+ * resolved here by the sessions bridge. */
+export function getCurrentThread(): string | null {
+  return currentThread;
+}
+
+export function peekThreadCwd(threadId: string): string | null {
+  return cwdByThread.get(threadId) ?? null;
+}
