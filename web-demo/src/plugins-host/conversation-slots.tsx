@@ -79,10 +79,14 @@ function SlotContributionView({
     [sessionId, turn, bag],
   );
   if (contribution.component !== undefined) {
-    const Contrib = contribution.component;
+    const Contrib = contribution.component as unknown as (
+      props: Record<string, unknown>,
+    ) => ReactNode;
+    // DSH slot hosts render the contribution component with the inject()
+    // bag spread at the top level alongside the positional fields.
     return (
       <SlotErrorBoundary name={contribution.name}>
-        <Contrib {...props} />
+        <Contrib {...props.bag} sessionId={props.sessionId} turn={props.turn} />
       </SlotErrorBoundary>
     );
   }

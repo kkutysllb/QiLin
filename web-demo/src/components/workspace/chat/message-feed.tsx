@@ -43,6 +43,7 @@ import {
 import { checkCodeFile } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 import { ConversationSlotMount } from "@/plugins-host/conversation-slots";
+import { setTurnData } from "@/plugins-host/conversation-store";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
 import {
@@ -210,6 +211,42 @@ export function MessageFeed({
     !thread.isLoading &&
     messages.length > 0 &&
     messages[messages.length - 1]?.type !== "human";
+
+  // H5-d: publish per-turn deliverables to the uiConversation face so
+  // plugin slots (dsh-file-review-tab) can derive per-turn file rows.
+  useEffect(() => {
+    if (threadId == null) return;
+    for (const group of groupedMessages) {
+      if (group.type !== "assistant") continue;
+      const produced: string[] = [];
+      const seen = new Set<string>();
+      for (const msg of group.messages) {
+        if (msg.type !== "ai") continue;
+        for (const call of msg.tool_calls ?? []) {
+          const p = (call.args as { path?: string } | undefined)?.path;
+          if (typeof p === "string" && p && !seen.has(p)) {
+            seen.add(p);
+            produced.push(p);
+          }
+        }
+        for (const p of extractPresentFilesFromMessage(msg)) {
+          if (!seen.has(p)) {
+            seen.add(p);
+            produced.push(p);
+          }
+        }
+      }
+      if (produced.length > 0) {
+        setTurnData(
+          threadId,
+          group.id ?? "",
+          "deliverables",
+          { produced: produced.map((path) => ({ path })) },
+          "closed",
+        );
+      }
+    }
+  }, [groupedMessages, threadId]);
 
   // Populate subtask context from AI messages that contain `task` tool
   // calls.  This MUST be in useEffect — calling updateSubtask (which calls

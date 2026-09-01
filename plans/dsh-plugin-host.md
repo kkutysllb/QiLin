@@ -85,7 +85,16 @@
       plugin.mjs 修复（readdirSync import + 内容目录随 server 半分发）——**验收 =
       kcoder-skills v0.4.0 原样安装，37 个 runtime skills 注册物化，storage
       enabled 列表全含，真实对话 describe_skill 查询成功**
-- [ ] H5-d uiConversation 时间线 store + file-review-tab 实装（收拢 H4-d 尾）
+- [x] H5-d 切片 1 ✅ **uiConversation 会话面 + T3 require shim**：
+      conversation-store.ts（binding/target("chat")/getSnapshot/subscribe，
+      timeline={turnOrder,turns(data Map)}）+ setTurnData 发布 API + message-feed
+      每 assistant 轮发布 deliverables（write_file/str_replace 工具调用路径 +
+      present-files 提取）+ slots 组件顶层展开 inject 袋（DSH slot 宿主形状）+
+      module-loader **require shim**（React/jsx-runtime——T3 客户端 bundle 的
+      factory(require) 依赖面）。**file-review 客户端半可启动**（五服务注入全通：
+      betterSidebar/sessions/locale/remote/slots）， ProducedFiles 渲染与
+      remote.fileReview 传输（undo/redo server 半 + @deepseek-ai 依赖）为
+      后续切片
 
 ## Findings
 
@@ -387,6 +396,20 @@
   load_skills(enabled_only=True) 含全部样例 → 真实对话 describe_skill 查询
   planning-with-files 成功（24s）。剩余：H5-d uiConversation + file-review
   （事件面/语言面已备）。
+
+- 2026-09-01(六续): **H5-d 切片 1 落地——uiConversation 面 + require shim**。
+  ①conversation-store.ts：binding(sessionId).target("chat")→{getSnapshot,
+  subscribe}，timeline={turnOrder, turns(data Map)}，setTurnData 发布 deliverables；
+  注册 "uiConversation" 服务。②message-feed 每 assistant 组发布 deliverables
+  （write_file/str_replace 工具调用 args.path + present-files 提取，去重）。
+  ③conversation-slots 组件改为顶层展开 inject 袋（DSH slot 宿主形状——
+  ProducedFiles 直接解构 projectRoot/collectReviews 等字段）。④module-loader
+  require shim：factory(require) 收到 react/react/jsx-runtime（T3 bundle 的
+  factory(require) 依赖面），未知模块警告返回 undefined。
+  file-review 客户端五服务注入面全通；**遗留**：remote.fileReview 传输（typert
+  server 半 + @deepseek-ai 依赖 + undo/redo）、before/after 内容捕获、
+  ProducedFiles matched/select 契约核实——file-review 完整实装为 H5-d 切片 2。
+  回归：vitest 391 / pytest 995 全绿；tsc/eslint/prettier 清。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

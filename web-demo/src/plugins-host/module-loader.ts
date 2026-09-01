@@ -1,5 +1,8 @@
 "use client";
 
+import * as React from "react";
+import * as ReactJsxRuntime from "react/jsx-runtime";
+
 import { getPluginService } from "./services";
 
 /**
@@ -44,8 +47,11 @@ const registry: LoadedPlugin[] = [];
 
 function load(spec: {
   id: string;
-  /** Receives the cordis-like ctx (soft service probe). */
-  factory: (ctx: { get(name: string): unknown }) => PluginModule;
+  /** Receives the cordis-like ctx (soft service probe) + host require. */
+  factory: (
+    ctx: { get(name: string): unknown },
+    require?: (name: string) => unknown,
+  ) => PluginModule;
 }): LoadedPlugin {
   // Replace-on-reload: a later load() with the same id supersedes the
   // earlier registration (hot reload / re-injection semantics).
@@ -63,7 +69,7 @@ function load(spec: {
     registry.splice(prevIndex, 1);
   }
 
-  const exports = spec.factory(makePluginCtx()) ?? {};
+  const exports = spec.factory(makePluginCtx(), makeRequire()) ?? {};
   const inject = Array.isArray(exports.inject) ? exports.inject : [];
   const applied = applyPlugin(spec.id, exports, inject);
 
@@ -125,6 +131,24 @@ function makePluginCtx(): { get(name: string): unknown } {
       return getPluginService(prop);
     },
   });
+}
+
+/**
+ * T3 client bundles declare `factory: (require) => {...}` and pull host
+ * runtime modules through it (at minimum "react" and "react/jsx-runtime").
+ * Unknown modules resolve to undefined — the bundle's own guards handle
+ * degraded operation, and the missing dependency is visible in console.
+ */
+function makeRequire(): (name: string) => unknown {
+  const modules: Record<string, unknown> = {
+    react: React,
+    "react/jsx-runtime": ReactJsxRuntime,
+  };
+  return (name: string) => {
+    if (name in modules) return modules[name];
+    console.warn("[plugin-host] require not available:", name);
+    return undefined;
+  };
 }
 
 export function installModuleLoader(): void {
