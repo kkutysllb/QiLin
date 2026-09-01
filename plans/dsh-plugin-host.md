@@ -45,6 +45,13 @@
 - [x] CLI `scripts/plugin.mjs`：add（本地 dsh-plugins 形态目录）/ remove / upgrade / enable / disable / list——文件分发（client→public、server+vendor→plugins/ 非公开区）+ manifest 原子重写；与 DSH 官方同构（安装后需重启 web-demo）
 - [x] 版本记录与基线校验位：entry 记录 version + source；宿主基线 DSH_BASELINE=0.1.2-alpha.2 常量（生态暂无标准兼容声明字段，声明出现时在此扩展比对）
 - [x] 插件管理面板 `/workspace/plugins`：清单表格（版本/client/server/状态）+ 停用/启用/卸载（loopback 管理 API POST /qilin-plugins/api）+ 重启提示横幅；CLI 与面板共用 runtime 管理逻辑
+- [x] H3-b **npm 安装 + 前端安装入口**（dsh-plugins 全量上 npm 后）：管理 API 增
+      install action（installPluginFromNpm：npm pack 两级回退——用户 npm 配置原样 →
+      官方源 + staging 私有缓存，绕镜像同步滞后与 ~/.npm 权限坑）+ installPluginDir
+      单一分发实现（CLI/管理 API 共用；client→public、entry+vendor+内容目录→
+      plugins/ 非公开区、清单 upsert，npm 来源记为 npm:<name>@<ver>）+
+      /workspace/plugins 页「从 npm 安装」卡（包名输入/加载态/内联成败信息/
+      重启横幅复用）+ 清单表格来源列
 
 ### H4 面板类挂点铺开 —— ✅ complete（H4-d turnTail 实质随 H2 typert + H5-d 实装落地）
 - [x] H4-a 自研侧边栏删除：components/better-sidebar（11 文件）+ core/sidebar 支撑层
@@ -513,6 +520,24 @@
   无裁切，截图为证。回归 vitest 391 / tsc / eslint / prettier 全清。调试基建：
   auth 开启后 Playwright 无会话——从 .qilin/.jwt_secret 本地铸 1h JWT 注入
   access_token cookie 完成（jwt 形状 sub/exp/iat/ver HS256，users 表取 UUID）。
+
+- 2026-09-01(十三续): **H3-b npm 安装 + 前端插件管理入口**。背景：dsh-plugins
+  仓库大改版重组（目录重命名，混合 scope 包名 @kkutysllb/dsh-git-panel、
+  @kkutysllb/dsh-terminal、@kkutysllb/dsh-file-attach 与裸名 dsh-animations、
+  dsh-super-ppts、dsh-skills-bundle 等），全量发布 npm（npm view 实测可达）；
+  新式包为扁平结构（entry.js server 半 + client.js client 半 + package.json
+  dsh 字段声明 bundle/client），官方 dsh plugin --profile web add 即 pnpm
+  转义安装。实现：①runtime installPluginDir 单一分发（CLI plugin.mjs 改薄壳
+  共用）；②installPluginFromNpm（npm pack 两级回退：用户 npm 配置 → 官方源 +
+  staging 私有缓存——实测踩中 ~/.npmrc 钉 npmmirror 镜像 404 新包 + ~/.npm
+  root 属主 EPERM 双坑）+ 管理 API install action（loopback POST，失败
+  200+ok:false 供前端内联展示）；③/workspace/plugins 页「从 npm 安装」卡 +
+  来源列。E2E：installPluginFromNpm('@kkutysllb/dsh-git-panel') 实弹全链
+  （拉包→分发→清单 npm:@kkutysllb/dsh-git-panel@1.0.0）后卸载留净现场。
+  同时：应用户要求卸载 H5 期后台安装的 kcoder-language / kcoder-skills /
+  dsh-file-review-tab 三插件（旧一代 kcoder-terminal / kcoder-git-panel
+  保留，其 source 路径因仓库重构已悬空，继任包可从前端重装）。回归 vitest
+  391 / tsc / eslint / prettier 全清。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

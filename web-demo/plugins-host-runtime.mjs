@@ -14,14 +14,18 @@
 
 import { execFile } from "node:child_process";
 import {
+  cpSync,
   existsSync,
+  mkdirSync,
+  mkdtempSync,
   readdirSync,
   readFileSync,
   rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
-import { join, dirname, relative, resolve as resolvePath } from "node:path";
+import { basename, join, dirname, relative, resolve as resolvePath } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
@@ -629,9 +633,148 @@ export function uninstallPlugin(id) {
   return true;
 }
 
+/** Top-level dirs of a plugin source that ship with the server half
+ * (everything except dot-dirs, node_modules, vendor). */
+function listContentDirs(src) {
+  return readdirSync(src, { withFileTypes: true })
+    .filter(
+      (e) =>
+        e.isDirectory() &&
+        !e.name.startsWith(".") &&
+        e.name !== "node_modules" &&
+        e.name !== "vendor",
+    )
+    .map((e) => e.name);
+}
+
+/**
+ * Install (or overwrite = upgrade) one plugin from a source directory.
+ * Single source of truth shared by the CLI (scripts/plugin.mjs) and the
+ * management API npm action: client.js -> public (same-origin script),
+ * entry.js + vendor + content dirs -> plugins/ (Node-only), manifest
+ * entry upsert. Returns the install summary; caller reminds about the
+ * DSH-isomorphic restart.
+ */
+export function installPluginDir(sourceDir, opts = {}) {
+  const src = String(sourceDir ?? "");
+  if (!existsSync(src) || !statSync(src).isDirectory()) {
+    throw new Error("source dir not found: " + src);
+  }
+  const pkgPath = join(src, "package.json");
+  const version = existsSync(pkgPath)
+    ? JSON.parse(readFileSync(pkgPath, "utf-8")).version ?? null
+    : null;
+  const id = opts.id ?? basename(src);
+  if (!id || id.startsWith(".") || id.includes("/") || id.includes("\\")) {
+    throw new Error("invalid plugin id: " + id);
+  }
+  const clientEntry = existsSync(join(src, "client.js"));
+  const serverEntry = existsSync(join(src, "entry.js"));
+  if (!clientEntry && !serverEntry) {
+    throw new Error("no client.js / entry.js in " + src + " - not a T1 self-contained plugin");
+  }
+  const manifest = readManifest();
+  const replaced = (manifest.plugins ?? []).some((p) => p.id === id);
+
+  if (clientEntry) {
+    const dst = join(PUBLIC_PLUGINS_ROOT, id);
+    mkdirSync(dst, { recursive: true });
+    cpSync(join(src, "client.js"), join(dst, "client.js"));
+  }
+  if (serverEntry) {
+    const dst = join(SERVER_PLUGINS_ROOT, id);
+    mkdirSync(dst, { recursive: true });
+    cpSync(join(src, "entry.js"), join(dst, "entry.js"));
+    const vendor = join(src, "vendor");
+    if (existsSync(vendor)) {
+      rmSync(join(dst, "vendor"), { recursive: true, force: true });
+      cpSync(vendor, join(dst, "vendor"), { recursive: true });
+    }
+    for (const name of listContentDirs(src)) {
+      rmSync(join(dst, name), { recursive: true, force: true });
+      cpSync(join(src, name), join(dst, name), { recursive: true });
+    }
+  }
+
+  const entry = {
+    id,
+    version,
+    source: opts.sourceLabel ?? src,
+    script: clientEntry ? "/plugins/" + id + "/client.js" : "",
+  };
+  if (serverEntry) entry.server = "plugins/" + id + "/entry.js";
+  manifest.plugins = [...(manifest.plugins ?? []).filter((p) => p.id !== id), entry];
+  writeManifest(manifest);
+  return { id, version, client: clientEntry, server: serverEntry, replaced };
+}
+
+/** npm 包名合法形态（scope 可选）；execFile 数组传参本身即无 shell 注入面。 */
+const NPM_PKG_RE = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+
+/**
+ * Install a plugin from the npm registry (the npm-published dsh-plugins
+ * family). Mirrors the official `dsh plugin --profile web add <pkg>`
+ * (a pnpm passthrough) for our file-distribution host model:
+ * npm pack -> extract to a private staging dir -> installPluginDir.
+ * id = unscoped package basename; manifest source = "npm:<name>@<version>".
+ */
+export async function installPluginFromNpm(pkg) {
+  const name = String(pkg ?? "").trim();
+  if (!NPM_PKG_RE.test(name)) {
+    throw new Error("invalid npm package name: " + name);
+  }
+  const staging = mkdtempSync(join(tmpdir(), "qilin-plugin-"));
+  try {
+    // 两级取包回退：① 用户 npm 配置（镜像源等）原样尊重；② 失败则官方源
+    // + staging 私有缓存（绕开镜像同步滞后、~/.npm 属主/权限问题）。
+    const attempts = [
+      ["pack", name, "--pack-destination", staging],
+      [
+        "pack",
+        name,
+        "--pack-destination",
+        staging,
+        "--registry",
+        "https://registry.npmjs.org",
+        "--cache",
+        join(staging, "npm-cache"),
+      ],
+    ];
+    const failures = [];
+    let packed = false;
+    for (const args of attempts) {
+      try {
+        await execFileAsync("npm", args, { cwd: staging, maxBuffer: 4194304 });
+        packed = true;
+        break;
+      } catch (err) {
+        failures.push(String(err?.message ?? err).split("\n").slice(0, 3).join(" | "));
+      }
+    }
+    if (!packed) {
+      throw new Error("npm pack failed for " + name + ": " + failures.join(" || "));
+    }
+    const tgz = readdirSync(staging).find((f) => f.endsWith(".tgz"));
+    if (!tgz) throw new Error("npm pack produced no tarball for " + name);
+    await execFileAsync("tar", ["-xzf", tgz, "-C", staging], { cwd: staging });
+    const src = join(staging, "package");
+    const pkgJson = JSON.parse(readFileSync(join(src, "package.json"), "utf-8"));
+    const id = String(pkgJson.name ?? name).split("/").pop();
+    if (!id) throw new Error("package has no name: " + name);
+    const out = installPluginDir(src, {
+      id,
+      sourceLabel: "npm:" + pkgJson.name + "@" + (pkgJson.version ?? "?"),
+    });
+    return { ...out, pkg: pkgJson.name };
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
+}
+
 /**
  * Management HTTP API - POST /qilin-plugins/api
- * Body: { action: "list" | "setDisabled" | "remove", id?, disabled? }
+ * Body: { action: "list" | "setDisabled" | "remove" | "install",
+ *         id?, disabled?, pkg? }
  * Loopback-only (DSH isTrusted convention) and POST-only.
  */
 export function handleManagementApi(req, res) {
@@ -650,9 +793,9 @@ export function handleManagementApi(req, res) {
     body += c;
     if (body.length > 65536) req.destroy();
   });
-  req.on("end", () => {
+  req.on("end", async () => {
     try {
-      const { action, id, disabled } = JSON.parse(body || "{}");
+      const { action, id, disabled, pkg } = JSON.parse(body || "{}");
       if (action === "list")
         return writeJson(200, {
           ok: true,
@@ -663,6 +806,16 @@ export function handleManagementApi(req, res) {
         return writeJson(200, { ok: setPluginDisabled(id, Boolean(disabled)) });
       if (action === "remove" && id)
         return writeJson(200, { ok: uninstallPlugin(id) });
+      if (action === "install" && pkg) {
+        // npm 安装（网络 + pack + 分发）可能耗时数秒；失败以 200+ok:false
+        // 回给前端内联展示，不走 400（前端把非 2xx 当网络错误处理）。
+        try {
+          const out = await installPluginFromNpm(pkg);
+          return writeJson(200, { ok: true, restart: true, ...out });
+        } catch (err) {
+          return writeJson(200, { ok: false, error: String(err?.message ?? err) });
+        }
+      }
       writeJson(400, { ok: false, error: "unknown action" });
     } catch (err) {
       writeJson(400, { ok: false, error: String(err?.message ?? err) });
