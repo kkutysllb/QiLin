@@ -46,7 +46,7 @@
 - [x] 版本记录与基线校验位：entry 记录 version + source；宿主基线 DSH_BASELINE=0.1.2-alpha.2 常量（生态暂无标准兼容声明字段，声明出现时在此扩展比对）
 - [x] 插件管理面板 `/workspace/plugins`：清单表格（版本/client/server/状态）+ 停用/启用/卸载（loopback 管理 API POST /qilin-plugins/api）+ 重启提示横幅；CLI 与面板共用 runtime 管理逻辑
 
-### H4 面板类挂点铺开 —— H4-a/H4-b/H4-c ✅；H4-d 切片 1 ✅（slots 骨架），切片 2 待做
+### H4 面板类挂点铺开 —— ✅ complete（H4-d turnTail 实质随 H2 typert + H5-d 实装落地）
 - [x] H4-a 自研侧边栏删除：components/better-sidebar（11 文件）+ core/sidebar 支撑层
       （panel-host/scope/use-sidebar-tabs/viewer-host/viewer-registry）+ gateway
       sidebar-tabs 持久化端点与路由测试 + better-sidebar e2e/单测/截图；
@@ -61,9 +61,9 @@
       closeTab/activateTab/updateTab；宿主内建编辑器走 /api/files/read（相对路径
       直通 = DSH session-cwd 语义，绝对路径 cwd 前缀相对化，越界诚实降级）；真插件
       git-panel 端到端验证（变更行 + 计划点击两种路径形态均落 dock 渲染内容）
-- [ ] H4-d conversation turnTail 链（后置，依赖聊天 UI 插槽对齐）
+- [x] H4-d conversation turnTail 链（✅ 切片 1 slots 骨架 + typert 传输随 H2 + file-review 实装与 undo/redo 全环随 H5-d）
 
-### H5 agent 运行时 port 化 —— H5-a ✅；H5-b/c/d 待做
+### H5 agent 运行时 port 化 —— ✅ complete（H5-a/b/c/d 全部验收通过）
 - [x] H5-a **语言 port**：gateway 新增 ports 路由（注册/注销/列举 system-prompt
       sections，internal-auth POST /api/ports/system-prompt/sections）+ lead agent
       prompt.py 组装时并入注册 sections（order 升序，参照既有 skills system-prompt
@@ -472,6 +472,16 @@
   POST 200 全链。回归：tsc/eslint/prettier/vitest 391 全绿，调试句柄已清。
   **剩余（下轮）**：recordMutation 事件 result.value {path,before,after} →
   fileReviewChanges turn data → 真实 hunks undo/redo；随后 H5-d 收尾评审。
+
+- 2026-09-01(十续): **账目收官（纯 bookkeeping，零代码改动）**。①勾掉 H4-d——
+  实质已随三处落地并验收：切片 1 slots 骨架、typert 传输（随 H2）、file-review
+  实装与 undo/redo 全环（随 H5-d）；②修 H4/H5 两节标题状态文字（均 ✅
+  complete）；③确认 H5-d 收官提交 106712d（skills port pytest 4 例 +
+  scripts/../evil.md 路径校验收紧 + react-nextjs SKILL.md YAML 修复 37/37
+  全载）。最终验证基线：pytest 999 / vitest 391 / tsc+eslint+prettier 清；
+  领先 origin 4 commits 待用户审阅后手动推送。**后续暂缓**：用户告知
+  dsh-plugins 仓库已有大修改——剩余 3 插件（dsh-super-ppts /
+  DSH-better-sidebar / kcoder-stats-panel）实装与 H6 规划待上游变化明确后再议。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收
