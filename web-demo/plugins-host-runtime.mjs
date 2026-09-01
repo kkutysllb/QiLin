@@ -51,6 +51,63 @@ export function pluginServices() {
   return hostServices;
 }
 
+// ----- H5-a: language port — system-prompt section bridge -----
+// T2 runtime plugins (kcoder-language) register prompt sections via
+// ctx.systemPrompt.section({name, order, text}); the runtime announces
+// them to the gateway port (in-process registry consumed by the lead
+// agent at prompt assembly). Fire-and-forget: apply() is sync, and the
+// announcement races nothing that matters (agent runs follow boot).
+const GATEWAY_URL = process.env.QILIN_GATEWAY_URL ?? "http://127.0.0.1:28081";
+
+function internalAuthToken() {
+  if (process.env.QILIN_INTERNAL_AUTH_TOKEN) {
+    return process.env.QILIN_INTERNAL_AUTH_TOKEN;
+  }
+  try {
+    // start-gateway.sh persists the generated secret here.
+    return readFileSync(resolvePath(ROOT, "..", ".qilin-internal-token"), "utf8").trim();
+  } catch {
+    return undefined;
+  }
+}
+
+async function announceSection(section, method = "POST") {
+  const token = internalAuthToken();
+  if (!token) {
+    console.error("[system-prompt] no internal token; section not announced:", section.name);
+    return;
+  }
+  const url =
+    method === "DELETE"
+      ? GATEWAY_URL + "/api/ports/system-prompt/sections/" + encodeURIComponent(section.name)
+      : GATEWAY_URL + "/api/ports/system-prompt/sections";
+  const res = await fetch(url, {
+    method,
+    headers: { "content-type": "application/json", "X-QiLin-Internal-Token": token },
+    body: method === "DELETE" ? undefined : JSON.stringify(section),
+  });
+  if (!res.ok) {
+    console.error("[system-prompt] announce failed:", section.name, res.status);
+  }
+}
+
+const systemPromptService = {
+  /** Register a prompt section; returns the disposer (de-announce). */
+  section({ name, order = 100, text, source = "plugin" }) {
+    const section = { name: String(name), order: Number(order), text: String(text), source };
+    void announceSection(section, "POST").catch((err) =>
+      console.error("[system-prompt] announce error:", err.message),
+    );
+    return () => {
+      void announceSection(section, "DELETE").catch(() => {
+        /* best effort */
+      });
+    };
+  },
+};
+
+hostServices.systemPrompt = systemPromptService;
+
 // ----- H4-d slice 2: typert host facility (api-remotes endpoint face) -----
 // Plugins with a typert server half mount it via ctx.typertHost.mount(pkg,
 // handler); the runtime exposes POST /qilin-plugins/typert/<pkg> taking
@@ -159,6 +216,7 @@ function makeCtx() {
     typertHost: {
       mount: mountTypertHost,
     },
+    systemPrompt: systemPromptService,
     effect(setup) {
       const dispose = setup();
       if (typeof dispose === "function") disposers.push(dispose);

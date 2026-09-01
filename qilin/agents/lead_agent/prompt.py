@@ -20,6 +20,7 @@ from qilin.skills.storage import get_or_new_skill_storage, get_or_new_user_skill
 from qilin.skills.types import Skill, SkillCategory
 from qilin.subagents import get_available_subagent_names
 from qilin.tools.builtins.tool_search import get_deferred_tools_prompt_section
+from qilin.ports.system_prompt import render_sections as render_ports_prompt_sections
 
 if TYPE_CHECKING:
     from qilin.config.app_config import AppConfig
@@ -1103,11 +1104,14 @@ def apply_prompt_template(
 
     memory_tool_section = _build_memory_tool_section(app_config=app_config)
 
-    # Build and return the fully static system prompt.
+    # H5 language port: sections registered by external plugin hosts. Global
+    # (identity-stable across users/sessions — prefix-cache safe) and appended
+    # last: registered orders are ascending, and a tail directive carries the
+    # highest recency weight (kcoder-language relies on this).
     # Memory and current date are injected per-turn via DynamicContextMiddleware
     # as a <system-reminder> in the first HumanMessage, keeping this prompt
     # identical across users and sessions for maximum prefix-cache reuse.
-    return SYSTEM_PROMPT_TEMPLATE.format(
+    prompt = SYSTEM_PROMPT_TEMPLATE.format(
         agent_name=agent_name or "QiLin 2.0",
         soul=get_agent_soul(agent_name, user_id=user_id),
         self_update_section=_build_self_update_section(agent_name),
@@ -1121,3 +1125,7 @@ def apply_prompt_template(
         subagent_thinking=subagent_thinking,
         acp_section=acp_and_mounts_section,
     )
+    ports_block = render_ports_prompt_sections()
+    if ports_block:
+        prompt = f"{prompt}\n\n{ports_block}"
+    return prompt

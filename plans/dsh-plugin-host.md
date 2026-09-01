@@ -63,15 +63,15 @@
       git-panel 端到端验证（变更行 + 计划点击两种路径形态均落 dock 渲染内容）
 - [ ] H4-d conversation turnTail 链（后置，依赖聊天 UI 插槽对齐）
 
-### H5 agent 运行时 port 化 —— 切片 1（system-prompt section port）设计定稿
-- [ ] H5-a **语言 port**：gateway 新增 ports 路由（注册/注销/列举 system-prompt
+### H5 agent 运行时 port 化 —— H5-a ✅；H5-b/c/d 待做
+- [x] H5-a **语言 port**：gateway 新增 ports 路由（注册/注销/列举 system-prompt
       sections，internal-auth POST /api/ports/system-prompt/sections）+ lead agent
       prompt.py 组装时并入注册 sections（order 升序，参照既有 skills system-prompt
       cache 机制）+ plugins-host-runtime 增 `ctx.systemPrompt.section(...)` 桥
-      （POST 到 gateway，QILIN_GATEWAY_URL + internal token）——**验收 =
-      kcoder-language 原样安装，真实对话回复为简体中文**（其 entry 契约：
-      inject ['systemPrompt'] → ctx.systemPrompt.section({name:'kcoder:language',
-      order:900, text:中文指令}) → disposer，零依赖纯 ESM）
+      （POST 到 gateway，QILIN_GATEWAY_URL + internal token）——**验收通过 =
+      kcoder-language 原样安装（v0.1.1 纯 server 半），真实对话回复为简体中文**
+      （中性提示词 →「我是 QiLin 2.0，一个开源的超级智能体…」；用户明示可用英文时
+      回复英文＝指令语义正确：防惯性、不压明示偏好）
 - [ ] H5-b **tools/post-execute 事件面**（file-review server 半依赖）：
       QiLin 工具执行后置事件 → gateway 事件端口 → Node 插件可订阅
 - [ ] H5-c **skills port**：kcoder-skills 技能包物化对接 qilin/skills
@@ -326,6 +326,20 @@
   直注册；QiLin 分进程（Python agent + Node 插件宿主）——language port 设计为
   gateway 注册端口（internal-auth）+ prompt 组装时并入 + Node 桥转发，跨进程
   保持「一切皆 port」。切片 1 设计已定稿（见 Task List H5-a），含验收标准。
+
+- 2026-09-01(再续): **H5-a 完成——语言 port 全链验收通过**。①prompt.py 汇入：
+  apply_prompt_template 末尾追加 render_ports_prompt_sections()（全局稳定不破
+  prefix-cache；尾随追加正合 order 900 recency 语义；单测 INTEGRATION OK）。
+  ②Node 桥：plugins-host-runtime systemPrompt 服务（section→POST announce、
+  disposer→DELETE；token 读 env 或 .qilin-internal-token；fire-and-forget）；
+  修 TDZ（hostServices 提前引用）与 plugin.mjs 漏 import renameSync 两个既有 bug。
+  ③internal_auth 增 matches_internal_secret（常量时间裸 secret 比对）——ports
+  路由接受 minted token 或裸 secret（本地插件宿主信任面）。④plugin.mjs add
+  kcoder-language（v0.1.1 纯 server 半）成功。**E2E 验收**：gateway 端口确认
+  section 注册 → 新线程真实对话 → 简体中文回复（截图 h5a-chinese-reply.png）。
+  教训：坑 1——internal token 是签名结构非裸 secret（补 matches_internal_secret
+  降级面）；坑 2——E2E 首测提示词自带「可用英文」削弱了被测指令，E2E 提示词
+  设计不能与验收断言冲突。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

@@ -9,7 +9,10 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from app.gateway.internal_auth import is_valid_internal_auth_token
+from app.gateway.internal_auth import (
+    is_valid_internal_auth_token,
+    matches_internal_secret,
+)
 from qilin.ports.system_prompt import (
     list_sections,
     register_section,
@@ -28,7 +31,8 @@ class SectionRequest(BaseModel):
 
 def _authorized(request: Request) -> bool:
     token = request.headers.get("X-QiLin-Internal-Token")
-    return is_valid_internal_auth_token(token)
+    # Plugin hosts hold the raw shared secret; minted tokens also accepted.
+    return is_valid_internal_auth_token(token) or matches_internal_secret(token)
 
 
 def _forbidden() -> JSONResponse:

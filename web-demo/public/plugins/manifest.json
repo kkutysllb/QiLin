@@ -20,6 +20,13 @@
       "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-git-panel",
       "script": "/plugins/kcoder-git-panel/client.js",
       "server": "plugins/kcoder-git-panel/entry.js"
+    },
+    {
+      "id": "kcoder-language",
+      "version": "0.1.1",
+      "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-language",
+      "script": "",
+      "server": "plugins/kcoder-language/entry.js"
     }
   ]
 }

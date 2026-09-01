@@ -161,6 +161,19 @@ def _parse_token(token: str | None) -> dict[str, Any] | None:
     return claims
 
 
+def matches_internal_secret(token: str | None) -> bool:
+    """Constant-time compare a presented credential against the shared secret.
+
+    For LOCAL infrastructure faces (e.g. the plugin-host ports API) whose
+    callers hold the raw shared secret but do not mint structured tokens.
+    """
+    import hmac as _hmac
+
+    if not token:
+        return False
+    return _hmac.compare_digest(token.encode("utf-8"), _INTERNAL_AUTH_SECRET)
+
+
 def is_valid_internal_auth_token(
     token: str | None,
     *,
