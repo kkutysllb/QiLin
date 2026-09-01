@@ -32,19 +32,17 @@ describe("token-usage-budget settings page", () => {
   });
 
   test("settings-view routes tokenUsageBudget to the new page", () => {
-    const source = read(
-      "src/components/workspace/settings/settings-view.tsx",
-    );
+    const source = read("src/components/workspace/settings/settings-view.tsx");
 
     expect(source).toContain(
       'import { TokenUsageBudgetSettingsPage } from "./token-usage-budget-settings-page"',
     );
-    expect(source).toContain(
-      'active.id === "tokenUsageBudget" && <TokenUsageBudgetSettingsPage />',
-    );
+    // prettier may break the JSX line at printWidth (and add wrapping
+    // parens) — assert with a formatting-agnostic regex instead.
     expect(source).toMatch(
-      /id: "tokenUsageBudget"[^}]*groupKey: "engine"/,
+      /active\.id === "tokenUsageBudget" && \(?\s*<TokenUsageBudgetSettingsPage \/>\s*\)?/,
     );
+    expect(source).toMatch(/id: "tokenUsageBudget"[^}]*groupKey: "engine"/);
   });
 });
 
@@ -53,9 +51,7 @@ describe("settings-view removes legacy token_usage", () => {
     // The old config-settings-page.tsx was removed in the settings
     // refactor — the legacy token_usage NavItem must not resurface
     // (tokenUsageBudget is the new replacement and is allowed).
-    const source = read(
-      "src/components/workspace/settings/settings-view.tsx",
-    );
+    const source = read("src/components/workspace/settings/settings-view.tsx");
 
     expect(source).not.toMatch(/id:\s*["']token_usage["']/);
     expect(source).toMatch(/id:\s*["']tokenUsageBudget["']/);
