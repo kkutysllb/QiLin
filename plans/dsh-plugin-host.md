@@ -101,7 +101,10 @@
       hunk 不可逆→撤销禁用=插件正确语义）；纯 str_replace 轮 +1/-1 撤销启用 →
       点击撤销 → typert server 真实回滚（磁盘 GAMMA→gamma）→ 按钮翻转重新应用
       → redo 真实重放（gamma→GAMMA）。回归 tsc/eslint/prettier/vitest 391 全绿。
-      待办杂项：/api/ports/skills pytest 补测；37/36 skills 计数杂音。
+      收尾杂项已清（九续末）：tests/test_skills_port.py 4 用例（403/物化+upsert/
+      非法路径 400/注销回路）——测试抓出端点路径校验缺口（scripts/../evil.md 逃过
+      顶层目录检查）已收紧；react-nextjs SKILL.md description 未加引号致 YAML
+      解析失败被跳过（37/36 差一的真因）——源包+物化副本均已修复，37/37 全载。
 
 ## Findings
 

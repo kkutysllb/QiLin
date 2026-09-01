@@ -104,8 +104,12 @@ async def register_skill_endpoint(request: Request, req: SkillRegistration) -> A
     storage = get_or_new_skill_storage()
     try:
         for f in req.files:
-            top = f.path.split("/")[0] if "/" in f.path else f.path
-            if f.path != "SKILL.md" and top not in _ALLOWED_SUPPORT_TOP_DIRS:
+            parts = [p for p in f.path.split("/") if p not in ("", ".")]
+            top = parts[0] if parts else f.path
+            allowed = f.path == "SKILL.md" or (
+                ".." not in parts and top in _ALLOWED_SUPPORT_TOP_DIRS
+            )
+            if not allowed:
                 return JSONResponse(
                     status_code=400,
                     content={
