@@ -12,7 +12,7 @@ export type QilinSealProps = ComponentPropsWithoutRef<"svg"> & {
 };
 
 /**
- * 「麟」字方印 — 玄金麒麟 VI 的品牌印章。
+ * 「麒麟」双字方印 — 玄金麒麟 VI 的品牌印章。
  * 默认纯装饰(aria-hidden)；作为 logo 语义使用时传入 label 以暴露给读屏。
  */
 export function QilinSeal({
@@ -44,10 +44,21 @@ export function QilinSeal({
         strokeWidth={solid ? 0 : 1.5}
       />
       <text
-        x="12"
-        y="16.4"
+        x="7.1"
+        y="15.4"
         textAnchor="middle"
-        fontSize="13"
+        fontSize="9.6"
+        fontWeight="700"
+        fill={solid ? "#fff5eb" : "var(--ql-cinnabar-hi)"}
+        fontFamily="'Noto Serif SC','Songti SC','STSong',serif"
+      >
+        麒
+      </text>
+      <text
+        x="16.9"
+        y="15.4"
+        textAnchor="middle"
+        fontSize="9.6"
         fontWeight="700"
         fill={solid ? "#fff5eb" : "var(--ql-cinnabar-hi)"}
         fontFamily="'Noto Serif SC','Songti SC','STSong',serif"
@@ -75,9 +86,20 @@ export function ScalePattern({ patternId, className }: ScalePatternProps) {
   const safeId =
     patternId ?? `ql-scale-${autoId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
-    <svg aria-hidden="true" focusable="false" width="260" height="180" className={className}>
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="260"
+      height="180"
+      className={className}
+    >
       <defs>
-        <pattern id={safeId} width="24" height="16" patternUnits="userSpaceOnUse">
+        <pattern
+          id={safeId}
+          width="24"
+          height="16"
+          patternUnits="userSpaceOnUse"
+        >
           <path
             d="M0 16a12 12 0 0 1 24 0M-12 8a12 12 0 0 1 24 0M12 8a12 12 0 0 1 24 0M0 0a12 12 0 0 1 24 0"
             fill="none"
@@ -86,7 +108,12 @@ export function ScalePattern({ patternId, className }: ScalePatternProps) {
           />
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill={`url(#${safeId})`} opacity="0.05" />
+      <rect
+        width="100%"
+        height="100%"
+        fill={`url(#${safeId})`}
+        opacity="0.05"
+      />
     </svg>
   );
 }
@@ -94,10 +121,13 @@ export function ScalePattern({ patternId, className }: ScalePatternProps) {
 /** 中点菱形金色分隔线（◆ 两翼渐隐细线）。装饰性元素。 */
 export function GoldDivider({ className }: { className?: string }) {
   return (
-    <div aria-hidden="true" className={cn("flex items-center gap-3", className)}>
-      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-ql-gold-700" />
-      <span className="size-1.5 rotate-45 bg-ql-gold-500" />
-      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-ql-gold-700" />
+    <div
+      aria-hidden="true"
+      className={cn("flex items-center gap-3", className)}
+    >
+      <span className="to-ql-gold-700 h-px flex-1 bg-gradient-to-r from-transparent" />
+      <span className="bg-ql-gold-500 size-1.5 rotate-45" />
+      <span className="to-ql-gold-700 h-px flex-1 bg-gradient-to-l from-transparent" />
     </div>
   );
 }
