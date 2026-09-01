@@ -44,6 +44,7 @@ from app.gateway.routers import (
     runs,
     sandbox_mode,
     scheduled_tasks,
+    ports,
     skills,
     suggestions,
     thread_runs,
@@ -626,6 +627,8 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
     app.include_router(memory.router)
 
     # Skills API is mounted at /api/skills
+    # H5 ports — external plugin hosts register agent-runtime contributions
+    app.include_router(ports.router)
     app.include_router(skills.router)
 
     # First-party integrations API is mounted at /api/integrations
