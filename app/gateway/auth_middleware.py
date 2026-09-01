@@ -29,6 +29,7 @@ from app.gateway.internal_auth import (
     INTERNAL_AUTH_HEADER_NAME,
     get_internal_user,
     is_valid_internal_auth_token,
+    matches_internal_secret,
 )
 from qilin.runtime.user_context import reset_current_user, set_current_user
 
@@ -104,10 +105,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # ``bob`` — the new validator (v2 SECURITY.md P1 #6 fix) returns
         # False in that case. Wildcard ``*`` tokens (no owner at mint time)
         # are accepted for any owner; that is the gateway-internal case.
+        presented_internal_token = request.headers.get(INTERNAL_AUTH_HEADER_NAME)
+        # The raw shared secret authenticates LOCAL plugin-host infrastructure
+        # (H5 ports): routers/ports.py documents "plugin hosts hold the raw
+        # shared secret; minted tokens also accepted". Accepting it here grants
+        # nothing new — _sign() keys off the same secret, so any holder could
+        # mint arbitrary tokens anyway.
         if is_valid_internal_auth_token(
-            request.headers.get(INTERNAL_AUTH_HEADER_NAME),
+            presented_internal_token,
             expected_owner=owner_header,
-        ):
+        ) or matches_internal_secret(presented_internal_token):
             # Extract the channel owner user ID from the trusted header.
             # When present, the synthetic internal user carries the actual
             # owner identity so that get_effective_user_id() and per-user

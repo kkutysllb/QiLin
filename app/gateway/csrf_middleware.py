@@ -58,6 +58,13 @@ def should_check_csrf(request: Request) -> bool:
     # (e.g. GitHub's X-Hub-Signature-256), not the CSRF double-submit cookie.
     if request.url.path.startswith("/api/webhooks/"):
         return False
+    # H5 plugin-host ports (/api/ports/*) are loopback infrastructure calls:
+    # the caller presents X-QiLin-Internal-Token, constant-time checked in
+    # routers/ports.py. The credential is explicitly supplied by script and
+    # never ambiently attached by a browser, so there is no ambient-cookie
+    # confusion for CSRF to prevent — exempt like the webhooks above.
+    if request.url.path.startswith("/api/ports/"):
+        return False
     return True
 
 

@@ -483,5 +483,23 @@
   dsh-plugins 仓库已有大修改——剩余 3 插件（dsh-super-ppts /
   DSH-better-sidebar / kcoder-stats-panel）实装与 H6 规划待上游变化明确后再议。
 
+- 2026-09-01(十一续): **ports 面在 auth 开启部署下的 403/401 修复**。现象：web-demo
+  启动日志 [skills] materialize failed ×12 + [system-prompt] announce failed
+  (ui:file-review-references) 全 403。归因：①403 不是 internal-token 校验失败，
+  是 CSRFMiddleware 双提交拦截（POST）；GET 则被 AuthMiddleware 401
+  (not_authenticated)；②触发条件 = 网关重启未带 QILIN_AUTH_DISABLED=1（auth 从
+  开发禁用态变为开启态），两个全局中间件从短路变为实拦；③插件宿主裸 secret 凭据
+  两道闸都不认——AuthMiddleware 只认 minted token，CSRF 只豁免 Bearer/webhooks。
+  修复（app/gateway 两处 + 测试）：AuthMiddleware 增 matches_internal_secret 接受
+  裸共享 secret（_sign 同密钥，零新权限面）；should_check_csrf 豁免 /api/ports/
+  前缀（凭据由脚本显式提供、无环境 cookie 可混淆，同 webhooks 先例；路由级
+  internal-token 校验保留＝纵深防御）。tests/test_ports_gateway_middleware.py
+  6 例（raw secret 过双闸 / minted 回归 / 无凭据 fail-closed 401 / 非 ports POST
+  仍 CSRF 403 / 非 ports GET 仍 401 / 裸 secret 过 GET）。回归：pytest
+  999(=993+6) 全绿 ruff 清。E2E：start-all --restart 后 POST/DELETE 200、
+  GET sections 含 ui:file-review-references+kcoder:language、原失败 12 技能全部
+  物化（skills/custom 37/37）、运行时日志零失败。背景：dsh-plugins 仓库大修改 =
+  kcoder-skills 技能集换血（37 个新技能名）。
+
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收
