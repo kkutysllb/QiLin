@@ -43,7 +43,10 @@ import {
 import { checkCodeFile } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 import { ConversationSlotMount } from "@/plugins-host/conversation-slots";
-import { setTurnData } from "@/plugins-host/conversation-store";
+import {
+  dispatchConversationEvent,
+  setTurnData,
+} from "@/plugins-host/conversation-store";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
 import {
@@ -64,6 +67,65 @@ export const MESSAGE_FEED_DEFAULT_PADDING_BOTTOM = 160;
 export const MESSAGE_FEED_FOLLOWUPS_EXTRA_PADDING_BOTTOM = 80;
 
 const LOAD_MORE_HISTORY_THROTTLE_MS = 1200;
+
+/** The sandbox's virtual workspace root, prefixed to every tool path.
+ * The file-review server resolves relative paths against the thread's
+ * user-data/workspace dir, so the workspace segment is stripped too. */
+const SANDBOX_ROOT_RE = /^\/mnt\/user-data\/(?:workspace\/)?/;
+
+function relWorkspacePath(value: unknown): string | null {
+  if (typeof value !== "string" || value.trim().length === 0) return null;
+  return value.replace(SANDBOX_ROOT_RE, "");
+}
+
+/**
+ * Map a QiLin mutation tool call onto the DSH mutation vocabulary the
+ * file-review Definition recognizes (write / edit; hunks derive from the
+ * call's own arguments — creations are all-green and non-undoable,
+ * old/new text pairs are reversible). Returns null for non-mutations,
+ * which still flow through as pass-through tool/call events (bash
+ * deletions are recognized from their raw command argument).
+ */
+function normalizeMutationToolCall(
+  name: string,
+  rawArgs: unknown,
+): { name: string; arguments: string } | null {
+  const args = rawArgs as Record<string, unknown> | undefined;
+  if (args === undefined || args === null || typeof args !== "object") {
+    return null;
+  }
+  switch (name) {
+    case "write_file": {
+      const path = relWorkspacePath(args.path);
+      if (path === null || typeof args.content !== "string") return null;
+      return {
+        name: "write",
+        arguments: JSON.stringify({ file_path: path, content: args.content }),
+      };
+    }
+    case "str_replace":
+    case "edit_file": {
+      const path = relWorkspacePath(args.path);
+      if (
+        path === null ||
+        typeof args.old_str !== "string" ||
+        typeof args.new_str !== "string"
+      ) {
+        return null;
+      }
+      return {
+        name: "edit",
+        arguments: JSON.stringify({
+          file_path: path,
+          old_string: args.old_str,
+          new_string: args.new_str,
+        }),
+      };
+    }
+    default:
+      return null;
+  }
+}
 
 /**
  * MessageFeed — the new chat message container (Layer 0).
@@ -217,10 +279,21 @@ export function MessageFeed({
   // A closed assistant group's persisted ai messages drop tool_calls —
   // they survive only in the preceding assistant:processing segment —
   // so each closed group collects paths from itself plus every
-  // processing group after the last human turn.
+  // processing group after the last human turn. The same merged segment
+  // feeds the uiConversation events registry (fileReviewChanges turn
+  // data with reversible hunks), keyed by the closed group's id.
   useEffect(() => {
     if (threadId == null) return;
     type FeedMessage = (typeof groupedMessages)[number]["messages"][number];
+    const isErrorResult = (callId: string) =>
+      messages.some(
+        (m) =>
+          m.type === "tool" &&
+          m.tool_call_id === callId &&
+          (m as { status?: string }).status === "error",
+      );
+    const hasResult = (callId: string) =>
+      messages.some((m) => m.type === "tool" && m.tool_call_id === callId);
     const collect = (messages: readonly FeedMessage[]) => {
       const produced: string[] = [];
       const seen = new Set<string>();
@@ -242,7 +315,7 @@ export function MessageFeed({
       }
       return produced;
     };
-    const processingSegment: Parameters<typeof collect>[0][] = [];
+    const processingSegment: FeedMessage[][] = [];
     for (const group of groupedMessages) {
       if (group.type === "human") {
         processingSegment.length = 0;
@@ -254,6 +327,45 @@ export function MessageFeed({
       }
       if (group.type !== "assistant") continue;
       processingSegment.push(group.messages);
+      const turnId = group.id ?? "";
+      dispatchConversationEvent(threadId, {
+        type: "turn/start",
+        data: { turn: turnId },
+      });
+      for (const segMessages of processingSegment) {
+        for (const msg of segMessages) {
+          if (msg.type !== "ai") continue;
+          for (const call of msg.tool_calls ?? []) {
+            const callId = String(call.id ?? "");
+            if (callId === "") continue;
+            const normalized = normalizeMutationToolCall(call.name, call.args);
+            dispatchConversationEvent(threadId, {
+              type: "tool/call",
+              data: {
+                turn: turnId,
+                callId,
+                name: normalized?.name ?? call.name,
+                arguments:
+                  normalized?.arguments ?? JSON.stringify(call.args ?? {}),
+              },
+            });
+            if (hasResult(callId)) {
+              dispatchConversationEvent(threadId, {
+                type: "tool/result",
+                surfaceOp: "append",
+                data: {
+                  turn: turnId,
+                  callId,
+                  message: {
+                    content: [{ isError: isErrorResult(callId) }],
+                    source: { callId },
+                  },
+                },
+              });
+            }
+          }
+        }
+      }
       const produced = [
         ...new Set(processingSegment.flatMap((messages) => collect(messages))),
       ];
@@ -268,7 +380,7 @@ export function MessageFeed({
         );
       }
     }
-  }, [groupedMessages, threadId]);
+  }, [groupedMessages, threadId, messages]);
 
   // Populate subtask context from AI messages that contain `task` tool
   // calls.  This MUST be in useEffect — calling updateSubtask (which calls

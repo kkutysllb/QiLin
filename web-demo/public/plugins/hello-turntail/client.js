@@ -40,7 +40,9 @@
                     "color:#71717a;border:1px dashed #d4d4d8;border-radius:6px";
                   row.textContent =
                     "🧩 turnTail[" +
-                    props.turn +
+                    (props.turn && typeof props.turn === "object"
+                      ? String(props.turn.turn ?? "")
+                      : String(props.turn ?? "")) +
                     "] " +
                     String(props.bag.note ?? "");
                   el.appendChild(row);

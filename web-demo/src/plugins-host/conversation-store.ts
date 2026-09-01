@@ -103,6 +103,128 @@ export function subscribeConversation(listener: () => void): () => void {
 }
 
 /** The uiConversation service: binding(sessionId).target("chat") → source. */
+
+/**
+ * DSH uiConversation session-wide events (H5-d slice 2): Definitions
+ * (file-review-tab) match synthesized conversation events and publish
+ * per-turn Location data (key "fileReviewChanges") into the timeline.
+ * The host synthesizes turn/start + tool/call + tool/result events from
+ * the chat message stream (message-feed); the registry maintains each
+ * definition's per-turn state and lands buildLocationData() output via
+ * setTurnData. Definition calls are contained — a broken plugin never
+ * breaks the host.
+ */
+export interface ConversationEvent {
+  type: "turn/start" | "tool/call" | "tool/result";
+  /** DSH surface operation; the file-review match requires "append". */
+  surfaceOp?: "append";
+  data: {
+    turn: string;
+    name?: string;
+    /** JSON string of the tool-call arguments (DSH contract). */
+    arguments?: string;
+    callId?: string;
+    message?: {
+      content: { isError: boolean }[];
+      source: { callId: string };
+    };
+  };
+}
+
+interface MatchResult {
+  id: string;
+  role: "start" | "update";
+}
+
+interface ConversationDefinition {
+  match: (event: ConversationEvent) => MatchResult | null;
+  start?: (context: unknown, match: { event: ConversationEvent }) => unknown;
+  update?: (
+    context: { state: unknown },
+    match: { event: ConversationEvent },
+  ) => unknown;
+  buildLocationData?: (
+    context: { state: unknown },
+    scope: string,
+  ) => { kind: string; turn: number; key: string; value: unknown } | null;
+}
+
+const definitions = new Set<ConversationDefinition>();
+const defTurnStates = new Map<ConversationDefinition, Map<string, unknown>>();
+const defSeenEvents = new Map<ConversationDefinition, Set<string>>();
+
+function definitionEntry(definition: ConversationDefinition): {
+  states: Map<string, unknown>;
+  seen: Set<string>;
+} {
+  let states = defTurnStates.get(definition);
+  if (states === undefined) {
+    states = new Map();
+    defTurnStates.set(definition, states);
+  }
+  let seen = defSeenEvents.get(definition);
+  if (seen === undefined) {
+    seen = new Set();
+    defSeenEvents.set(definition, seen);
+  }
+  return { states, seen };
+}
+
+/** Bounded replay log: definitions registering mid-session (the plugin
+ * polls uiConversation for up to 30s after script injection) receive the
+ * full event history, matching DSH's session-wide semantics. */
+const eventLog: { sessionId: string; event: ConversationEvent }[] = [];
+const MAX_EVENT_LOG = 1000;
+
+function runDefinitionEvent(
+  definition: ConversationDefinition,
+  sessionId: string,
+  event: ConversationEvent,
+): void {
+  try {
+    const match = definition.match(event);
+    if (match === null) return;
+    const turnKey = match.id;
+    const stateKey = sessionId + "\u0000" + turnKey;
+    const { states, seen } = definitionEntry(definition);
+    // The chat re-derives messages on every stream tick — replaying the
+    // same synthesized event must be a no-op (hunks would duplicate).
+    const eventId =
+      event.type === "turn/start"
+        ? "start"
+        : event.type + ":" + (event.data.callId ?? "");
+    const dedupeKey = stateKey + ":" + eventId;
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+    if (match.role === "start") {
+      states.set(stateKey, definition.start?.({}, { event }) ?? {});
+      return;
+    }
+    const state = states.get(stateKey);
+    if (state === undefined) return; // update before start — drop
+    const next = definition.update?.({ state: state }, { event }) ?? state;
+    states.set(stateKey, next);
+    const data = definition.buildLocationData?.({ state: next }, "turn");
+    if (data !== null && data !== undefined && typeof data.key === "string") {
+      setTurnData(sessionId, turnKey, data.key, data.value, "closed");
+    }
+  } catch (err) {
+    console.error("[uiConversation] definition dispatch failed:", err);
+  }
+}
+
+/** Feed one synthesized conversation event to every registered Definition. */
+export function dispatchConversationEvent(
+  sessionId: string,
+  event: ConversationEvent,
+): void {
+  eventLog.push({ sessionId, event });
+  if (eventLog.length > MAX_EVENT_LOG) eventLog.shift();
+  for (const definition of definitions) {
+    runDefinitionEvent(definition, sessionId, event);
+  }
+}
+
 export const uiConversationService = {
   binding(sessionId: string) {
     return {
@@ -114,6 +236,32 @@ export const uiConversationService = {
         };
       },
     };
+  },
+  /** DSH events registry: register(definition) -> disposer. */
+  events: {
+    register(definition: ConversationDefinition): () => void {
+      if (
+        definition === null ||
+        typeof definition !== "object" ||
+        typeof definition.match !== "function"
+      ) {
+        return () => {
+          /* malformed register arguments are a no-op */
+        };
+      }
+      definitions.add(definition);
+      // Session-wide semantics: a definition registering after events
+      // already flowed receives the bounded replay log (dedupe guards
+      // make replays idempotent).
+      for (const entry of eventLog) {
+        runDefinitionEvent(definition, entry.sessionId, entry.event);
+      }
+      return () => {
+        definitions.delete(definition);
+        defTurnStates.delete(definition);
+        defSeenEvents.delete(definition);
+      };
+    },
   },
 };
 

@@ -16,7 +16,9 @@ import { registerPluginService } from "./services";
 
 export interface SlotRenderProps {
   sessionId: string;
-  turn?: string;
+  /** Registry-level: raw turn id; the component-facing `turn` prop is
+   * widened to the DSH TurnLocation object ({ turn }) at render time. */
+  turn?: string | { turn: string };
   bag: Record<string, unknown>;
 }
 

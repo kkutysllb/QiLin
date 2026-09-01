@@ -85,24 +85,23 @@
       plugin.mjs 修复（readdirSync import + 内容目录随 server 半分发）——**验收 =
       kcoder-skills v0.4.0 原样安装，37 个 runtime skills 注册物化，storage
       enabled 列表全含，真实对话 describe_skill 查询成功**
-- [~] H5-d 切片 2（进行中）：**ProducedFiles 行已渲染（八续）**——slot
-      select/matched 契约落地（SelectGatedContribution：select({turn:{data},
-      seq:Infinity}) 非空数组才挂载并作 matched prop；t=boundTranslator
-      (contribution.locale)）；宿主修复三处后才真正点亮：①T1 ctx.effect(fn,
-      label?)（disposer 挂 unload，之前 apply 第一行即崩 TypeError——"引导成功"
-      实为只 load 未 apply）②plugin-host 顶层 eager side-effect import 四服务
-      模块（此前 slots 注册晚于脚本注入→inject 解析 unknown service）③locale
-      register 双形式（register(NS,{zh,en}) 对象包）+ **扁平键查找优先**（DSH
-      词典是字面 "produced.editedOne" 键，嵌套下钻查不到）+ conversation-store
-      快照 legacy 空窗口（resolveConversationStore 适配器要求 legacy 非空才保留
-      timeline，否则走 legacy derive 在 turnEnds 上炸）+ message-feed 发布合并
-      processing 组（closed 组持久化 ai 消息丢 tool_calls，仅存于前置
-      assistant:processing 段——此前 produced 恒空从未发布过）。**E2E 全链**：
-      卡片"已编辑 1 个文件"+文件行+审查/撤销按钮（zh 本地化）；typert
-      status 请求 POST /qilin-plugins/typert/service/fileReview 200 全链通。
-      **剩余**：①recordMutation 需事件 result.value 携带 {path,before,after}
-      （H5-b 桥当前 value undefined）→ 真实 hunks → undo/redo 可用 ②37/36
-      skills 计数杂音。注：awrap_tool_call 缺失会弄坏工具执行（已修，双钩子）。
+- [x] H5-d 切片 2 **完成（九续：undo/redo 全环验证通过）**—— ProducedFiles
+      卡片点亮（八续：select/matched 契约 + 宿主五层修复）+ 九续三件套：
+      ①uiConversation **events registry**（session-wide Definition 注册/回放：
+      eventLog 上限 1000 + 注册时全量重放，per-(session,turn,callId) 去重使
+      流式重放幂等；buildLocationData → setTurnData 落 fileReviewChanges）
+      ②message-feed 合成 turn/start / tool/call / tool/result 事件 +
+      **归一化**（write_file→write{file_path,content}；str_replace/edit_file→
+      edit{file_path,old_string,new_string}；沙箱前缀 /mnt/user-data/workspace/
+      整段剥除——只剥 user-data 会 workspace/workspace 双拼）；hunks 纯凭 args
+      派生（mutationDetail 契约），**无需沙箱 before/after 感知**（原计划方案
+      作废，大幅简化）③组件 **turn prop = TurnLocation 对象**（
+      turnLocation.turn 才是 turns Map 键——传裸字符串使 collectReviews(undefined)
+      恒空 +0/-0，九续最深一坑）。**E2E 全环**：write+edit 轮卡片 +4/-1（创建
+      hunk 不可逆→撤销禁用=插件正确语义）；纯 str_replace 轮 +1/-1 撤销启用 →
+      点击撤销 → typert server 真实回滚（磁盘 GAMMA→gamma）→ 按钮翻转重新应用
+      → redo 真实重放（gamma→GAMMA）。回归 tsc/eslint/prettier/vitest 391 全绿。
+      待办杂项：/api/ports/skills pytest 补测；37/36 skills 计数杂音。
 
 ## Findings
 
@@ -434,6 +433,23 @@
   ProducedFiles 行渲染；status/apply E2E；recordMutation 桥接 value 增强。
   教训：第三方安装物必须 eslint ignore；探针脚本的转义在写入 python 文件时需
   双倍转义。
+
+- 2026-09-01(九续): **H5-d 切片 2 收官——undo/redo 全环打通**。①事件合成层：
+  message-feed 发布 effect 扩展为三合一（deliverables 发布 + turn/start +
+  tool/call/tool/result 合成），closed 组合并前置 assistant:processing 段的
+  tool_calls（closed 组持久化丢 tool_calls）；归一化 write_file→write、
+  str_replace/edit_file→edit（参数键 file_path/old_string/new_string），
+  沙箱路径剥 /mnt/user-data/workspace/ 双段。②registry 层：conversation-store
+  增 events.register + dispatchConversationEvent + 有界回放 eventLog（修复
+  definition 晚注册丢事件的竞态——历史先于注册到达且 effect 不重跑）；React
+  useMemo 的 memoizedState=[value,deps] 元组误导了三轮 fiber 取证（教训）。
+  ③turn prop 契约：组件需 TurnLocation 对象（.turn 为 turns Map 键），宿主传
+  裸字符串导致 collectReviews(undefined) 恒空——+0/-0 与撤销禁用的真因；
+  hello-turntail canary 同步解包。④E2E：撤销→typert server 真实回滚文件
+  （GAMMA→gamma）→重新应用→重放（gamma→GAMMA）；路径双拼 workspace/workspace
+  由错误响应 ENOENT 直接定位（错误信封可观测性立功）。⑤途中修复：python 写
+  NUL 分隔符进源码致 read 工具判 binary（JSON 转义陷阱，改用运行时转义文本）。
+  剩余杂项：/api/ports/skills pytest 补测（H5-d 收尾附带）；37/36 skills 计数。
 
 - 2026-09-01(八续): **H5-d 切片 2 残留 ①② 落地——ProducedFiles 卡片点亮**。
   契约（读 selectDeliverablePaths:6539 + register 块 7210）：select({turn:{data

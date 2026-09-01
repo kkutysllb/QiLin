@@ -83,6 +83,14 @@ function SlotContributionView({
     () => ({ sessionId, turn, bag }),
     [sessionId, turn, bag],
   );
+  // DSH contract: the component's `turn` prop is a TurnLocation object —
+  // the map key lives at `turn.turn` (ProducedFiles reads
+  // `turnLocation.turn` as the collectReviews key). The registry-level
+  // SlotRenderProps.turn stays the raw string id.
+  const turnLocation = useMemo(
+    () => (turn === undefined ? undefined : { turn }),
+    [turn],
+  );
   if (contribution.component !== undefined) {
     const Contrib = contribution.component as unknown as (
       props: Record<string, unknown>,
@@ -102,12 +110,21 @@ function SlotContributionView({
     }
     return (
       <SlotErrorBoundary name={contribution.name}>
-        <Contrib {...props.bag} sessionId={props.sessionId} turn={props.turn} />
+        <Contrib
+          {...props.bag}
+          sessionId={props.sessionId}
+          turn={turnLocation}
+        />
       </SlotErrorBoundary>
     );
   }
   if (contribution.mount !== undefined) {
-    return <SlotDomMount contribution={contribution} props={props} />;
+    return (
+      <SlotDomMount
+        contribution={contribution}
+        props={{ ...props, turn: turnLocation }}
+      />
+    );
   }
   return null;
 }
@@ -169,7 +186,7 @@ function SelectGatedContribution({
       <Contrib
         {...bag}
         sessionId={sessionId}
-        turn={turn}
+        turn={turn === undefined ? undefined : { turn }}
         matched={matched}
         t={t}
       />
