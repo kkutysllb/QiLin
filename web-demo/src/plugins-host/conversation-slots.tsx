@@ -10,6 +10,11 @@ import {
 } from "react";
 
 import {
+  conversationSnapshot,
+  subscribeConversation,
+} from "./conversation-store";
+import { boundTranslator } from "./locale";
+import {
   getSlotEntries,
   subscribeSlots,
   type SlotContribution,
@@ -84,6 +89,17 @@ function SlotContributionView({
     ) => ReactNode;
     // DSH slot hosts render the contribution component with the inject()
     // bag spread at the top level alongside the positional fields.
+    if (contribution.select !== undefined) {
+      return (
+        <SelectGatedContribution
+          contribution={contribution}
+          Contrib={Contrib}
+          sessionId={sessionId}
+          turn={turn}
+          bag={props.bag}
+        />
+      );
+    }
     return (
       <SlotErrorBoundary name={contribution.name}>
         <Contrib {...props.bag} sessionId={props.sessionId} turn={props.turn} />
@@ -94,6 +110,71 @@ function SlotContributionView({
     return <SlotDomMount contribution={contribution} props={props} />;
   }
   return null;
+}
+
+/**
+ * DSH turn-tail claim contract: a contribution carrying select(owner)
+ * mounts only when its match is non-null, and the match becomes the
+ * component's `matched` prop (file-review-tab ProducedFiles shape:
+ * select reads the turn's own "fileReviewChanges" data first, falling
+ * back to the built-in "deliverables" data). The host re-runs select
+ * whenever the conversation face emits.
+ */
+function SelectGatedContribution({
+  contribution,
+  Contrib,
+  sessionId,
+  turn,
+  bag,
+}: {
+  contribution: SlotContribution;
+  Contrib: (props: Record<string, unknown>) => ReactNode;
+  sessionId: string;
+  turn?: string;
+  bag: Record<string, unknown>;
+}) {
+  const snapshot = useSyncExternalStore(
+    subscribeConversation,
+    () => conversationSnapshot(sessionId),
+    () => conversationSnapshot(sessionId),
+  );
+  const select = contribution.select;
+  const matched = useMemo<string[] | null>(() => {
+    if (select === undefined) return null;
+    const location = snapshot.timeline.turns.get(turn ?? "");
+    if (location === undefined) return null;
+    try {
+      // QiLin turns carry no seq currency; Infinity keeps every produced
+      // entry (select's own guard is `produced.seq > seq`).
+      const result = select({
+        turn: location,
+        seq: Number.POSITIVE_INFINITY,
+      });
+      return Array.isArray(result) && result.length > 0 ? result : null;
+    } catch (err) {
+      console.error(
+        "[slots] select failed for " + contribution.name + ":",
+        err,
+      );
+      return null;
+    }
+  }, [contribution.name, select, snapshot, turn]);
+  if (matched === null) return null;
+  const t =
+    contribution.locale !== undefined
+      ? boundTranslator(contribution.locale)
+      : undefined;
+  return (
+    <SlotErrorBoundary name={contribution.name}>
+      <Contrib
+        {...bag}
+        sessionId={sessionId}
+        turn={turn}
+        matched={matched}
+        t={t}
+      />
+    </SlotErrorBoundary>
+  );
 }
 
 /** A throwing contribution must never take down the chat (host parity). */

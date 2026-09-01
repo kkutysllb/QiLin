@@ -214,13 +214,17 @@ export function MessageFeed({
 
   // H5-d: publish per-turn deliverables to the uiConversation face so
   // plugin slots (dsh-file-review-tab) can derive per-turn file rows.
+  // A closed assistant group's persisted ai messages drop tool_calls —
+  // they survive only in the preceding assistant:processing segment —
+  // so each closed group collects paths from itself plus every
+  // processing group after the last human turn.
   useEffect(() => {
     if (threadId == null) return;
-    for (const group of groupedMessages) {
-      if (group.type !== "assistant") continue;
+    type FeedMessage = (typeof groupedMessages)[number]["messages"][number];
+    const collect = (messages: readonly FeedMessage[]) => {
       const produced: string[] = [];
       const seen = new Set<string>();
-      for (const msg of group.messages) {
+      for (const msg of messages) {
         if (msg.type !== "ai") continue;
         for (const call of msg.tool_calls ?? []) {
           const p = (call.args as { path?: string } | undefined)?.path;
@@ -236,6 +240,24 @@ export function MessageFeed({
           }
         }
       }
+      return produced;
+    };
+    const processingSegment: Parameters<typeof collect>[0][] = [];
+    for (const group of groupedMessages) {
+      if (group.type === "human") {
+        processingSegment.length = 0;
+        continue;
+      }
+      if (group.type === "assistant:processing") {
+        processingSegment.push(group.messages);
+        continue;
+      }
+      if (group.type !== "assistant") continue;
+      processingSegment.push(group.messages);
+      const produced = [
+        ...new Set(processingSegment.flatMap((messages) => collect(messages))),
+      ];
+      processingSegment.length = 0;
       if (produced.length > 0) {
         setTurnData(
           threadId,

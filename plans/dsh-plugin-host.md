@@ -85,28 +85,24 @@
       plugin.mjs 修复（readdirSync import + 内容目录随 server 半分发）——**验收 =
       kcoder-skills v0.4.0 原样安装，37 个 runtime skills 注册物化，storage
       enabled 列表全含，真实对话 describe_skill 查询成功**
-- [~] H5-d 切片 2（进行中）：**已落地**——require shim（factory(require) 约定
-      修正：DSH 客户端 bundle 首参即 require，此前传 (ctx, require) 导致 T3
-      bundle 必崩）；typert 服务实例分发（TypertRemoteService shim 自注册 →
-      runtime 挂 service 键路由 → agent 桩 {id, session.header.cwd,
-      runMaintenance} 注入）；@deepseek-ai/dsh-typert-protocol + dsh-atomic-write
-      插件本地 shim；dsh-file-review-tab v0.5.5 安装（server 半挂载成功 + 客户端
-      **引导成功**）。**剩余精确缺口**：①slot select/matched 契约（读
-      selectDeliverablePaths:6539 实现宿主每轮 matched 计算，ProducedFiles 无
-      matched 不渲染——本轮 turnTail 仅 hello-turntail 行的原因）②remote
-      status/apply E2E（server 路由已挂， ProducedFiles 有行才会触发）③
-      recordMutation 需事件 result.value 携带 {path,before,after}（H5-b 桥当前
-      value undefined）。注：awrap_tool_call 缺失会弄坏工具执行（NotImplemented
-      Error，agent 实测复现）——已修，同步/异步双钩子均在。
-      conversation-store.ts（binding/target("chat")/getSnapshot/subscribe，
-      timeline={turnOrder,turns(data Map)}）+ setTurnData 发布 API + message-feed
-      每 assistant 轮发布 deliverables（write_file/str_replace 工具调用路径 +
-      present-files 提取）+ slots 组件顶层展开 inject 袋（DSH slot 宿主形状）+
-      module-loader **require shim**（React/jsx-runtime——T3 客户端 bundle 的
-      factory(require) 依赖面）。**file-review 客户端半可启动**（五服务注入全通：
-      betterSidebar/sessions/locale/remote/slots）， ProducedFiles 渲染与
-      remote.fileReview 传输（undo/redo server 半 + @deepseek-ai 依赖）为
-      后续切片
+- [~] H5-d 切片 2（进行中）：**ProducedFiles 行已渲染（八续）**——slot
+      select/matched 契约落地（SelectGatedContribution：select({turn:{data},
+      seq:Infinity}) 非空数组才挂载并作 matched prop；t=boundTranslator
+      (contribution.locale)）；宿主修复三处后才真正点亮：①T1 ctx.effect(fn,
+      label?)（disposer 挂 unload，之前 apply 第一行即崩 TypeError——"引导成功"
+      实为只 load 未 apply）②plugin-host 顶层 eager side-effect import 四服务
+      模块（此前 slots 注册晚于脚本注入→inject 解析 unknown service）③locale
+      register 双形式（register(NS,{zh,en}) 对象包）+ **扁平键查找优先**（DSH
+      词典是字面 "produced.editedOne" 键，嵌套下钻查不到）+ conversation-store
+      快照 legacy 空窗口（resolveConversationStore 适配器要求 legacy 非空才保留
+      timeline，否则走 legacy derive 在 turnEnds 上炸）+ message-feed 发布合并
+      processing 组（closed 组持久化 ai 消息丢 tool_calls，仅存于前置
+      assistant:processing 段——此前 produced 恒空从未发布过）。**E2E 全链**：
+      卡片"已编辑 1 个文件"+文件行+审查/撤销按钮（zh 本地化）；typert
+      status 请求 POST /qilin-plugins/typert/service/fileReview 200 全链通。
+      **剩余**：①recordMutation 需事件 result.value 携带 {path,before,after}
+      （H5-b 桥当前 value undefined）→ 真实 hunks → undo/redo 可用 ②37/36
+      skills 计数杂音。注：awrap_tool_call 缺失会弄坏工具执行（已修，双钩子）。
 
 ## Findings
 
@@ -438,6 +434,25 @@
   ProducedFiles 行渲染；status/apply E2E；recordMutation 桥接 value 增强。
   教训：第三方安装物必须 eslint ignore；探针脚本的转义在写入 python 文件时需
   双倍转义。
+
+- 2026-09-01(八续): **H5-d 切片 2 残留 ①② 落地——ProducedFiles 卡片点亮**。
+  契约（读 selectDeliverablePaths:6539 + register 块 7210）：select({turn:{data
+  Map}, seq}) 返回路径数组|null；turn prop = turns Map 键（turnId 即可）；
+  组件 props = {matched, ...inject 袋, turn, t}。实现 SelectGatedContribution
+  （conversation-slots.tsx：useSyncExternalStore(conversation store) → useMemo
+  select，null 不挂载，matched+t 传入）。**点亮前的五层修复**（每层都真实挡住
+  过）：①ctx.effect 缺失→apply 首行崩（"引导成功"假象=只 load 未 apply，效果
+  全没注册）②服务注册晚于脚本注入（slots.ts 随聊天页 chunk 懒加载→inject 解析
+  unknown service: slots）→plugin-host eager side-effect import ③locale 对象
+  形 register(NS,{zh,en}) 未支持 ④词典扁平键 vs 嵌套下钻 ⑤conversation 快照
+  legacy:undefined 使插件适配器丢 timeline→legacy derive 崩 turnEnds。
+  ⑥message-feed 发布盲区：closed 组持久化 ai 消息丢 tool_calls（live 时 tc:1
+  存于 assistant:processing 组，关闭后 tc:0）——合并前置 processing 段收集，
+  此前 produced 恒空、turns 表从未有过条目。E2E：两轮 write_file 历史恢复即
+  渲染两张卡（已编辑 1 个文件/文件名/审查/撤销 全 zh 本地化）；typert status
+  POST 200 全链。回归：tsc/eslint/prettier/vitest 391 全绿，调试句柄已清。
+  **剩余（下轮）**：recordMutation 事件 result.value {path,before,after} →
+  fileReviewChanges turn data → 真实 hunks undo/redo；随后 H5-d 收尾评审。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

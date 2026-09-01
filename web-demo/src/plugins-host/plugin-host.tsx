@@ -6,6 +6,16 @@ import { installModuleLoader } from "./module-loader";
 import { PluginPanelDock } from "./panel-dock";
 import { setCurrentThread } from "./services";
 
+// Eager service registration: plugin scripts inject in a layout-level
+// effect, which can run BEFORE the chat-page chunk (the previous lazy
+// import path for slots/locale/conversation-store) has loaded. Register
+// everything the plugins inject up front — lookups during apply() must
+// not race the bundle graph.
+import "./better-sidebar";
+import "./conversation-store";
+import "./locale";
+import "./slots";
+
 /**
  * Plugin host boot — reads the build-time plugin manifest (installed
  * plugins, per the DSH-isomorphic lifecycle: install/uninstall = manifest

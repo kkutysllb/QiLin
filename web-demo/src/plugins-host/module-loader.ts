@@ -95,16 +95,27 @@ function applyPlugin(
   inject: string[],
 ): () => void {
   const services = inject.map((name) => getPluginService(name));
+  const effectDisposers: (() => void)[] = [];
   try {
     // DSH convention: apply ALWAYS receives the ctx first (plugins soft-probe
     // services via ctx.get with optional chaining); inject names resolve to
     // additional positional services after it.
-    exports.apply?.(makePluginCtx(), ...services);
+    exports.apply?.(makePluginCtx(effectDisposers), ...services);
   } catch (err) {
     // A broken plugin must not take down the host page.
     console.error("[plugin-host] apply() failed for " + id + ":", err);
   }
   return () => {
+    // Unload order: the plugin's ctx.effect registrations first (reverse
+    // registration order, cordis convention), then the module dispose.
+    while (effectDisposers.length > 0) {
+      const off = effectDisposers.pop();
+      try {
+        off?.();
+      } catch {
+        /* effect dispose errors stay contained */
+      }
+    }
     try {
       exports.dispose?.();
     } catch {
@@ -121,8 +132,50 @@ function applyPlugin(
  * service-accessor object). A Proxy unifies both: unknown property reads
  * fall back to the service bridge.
  */
-function makePluginCtx(): { get(name: string): unknown } {
-  const target = { get: (name: string) => getPluginService(name) };
+interface PluginCtx {
+  get(name: string): unknown;
+  /**
+   * DSH ctx.effect: run setup now, collect its disposer for plugin unload
+   * (reverse order). Returns an unsubscribe for early teardown. A throwing
+   * setup degrades to a console error, never breaks apply().
+   */
+  effect(setup: () => void | (() => void), label?: string): () => void;
+}
+
+function makePluginCtx(effectDisposers: (() => void)[]): PluginCtx {
+  const target: PluginCtx = {
+    get: (name: string) => getPluginService(name),
+    effect(setup, label) {
+      let dispose: (() => void) | undefined;
+      let off = false;
+      const run = () => {
+        if (off) return;
+        off = true;
+        dispose = undefined;
+        const i = effectDisposers.indexOf(run);
+        if (i !== -1) effectDisposers.splice(i, 1);
+      };
+      try {
+        dispose = setup() ?? undefined;
+      } catch (err) {
+        console.error(
+          "[plugin-host] effect failed" +
+            (label ? " (" + label + ")" : "") +
+            ":",
+          err,
+        );
+      }
+      if (dispose !== undefined) effectDisposers.push(run);
+      return () => {
+        try {
+          dispose?.();
+        } catch {
+          /* contained */
+        }
+        run();
+      };
+    },
+  };
   return new Proxy(target, {
     get(t, prop, receiver) {
       if (typeof prop !== "string") return undefined;

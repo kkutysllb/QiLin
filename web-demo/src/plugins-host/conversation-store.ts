@@ -22,8 +22,22 @@ interface Timeline {
   turnOrder: string[];
 }
 
+/**
+ * Legacy windowed-snapshot shape, as dsh-file-review-tab's
+ * resolveConversationStore adapter expects it: a timeline carrier keeps its
+ * timeline only when `legacy` is non-null, and the legacy derive touches
+ * turnEnds / nodes / runningCalls / partial. QiLin has no windowed legacy
+ * source, so we publish an empty window.
+ */
+export interface LegacyWindow {
+  turnEnds: Map<number, number>;
+  nodes: readonly unknown[];
+  runningCalls: readonly unknown[];
+  partial: null;
+}
+
 export interface ConversationSnapshot {
-  legacy: undefined;
+  legacy: LegacyWindow;
   timeline: Timeline;
 }
 
@@ -65,13 +79,19 @@ export function setTurnData(
   }
   location.status = status;
   if (location.data.get(key) !== value) location.data.set(key, value);
+  // Drop the cached snapshot so useSyncExternalStore consumers (plugin
+  // changesStore, slot select gates) observe a new identity on mutation.
+  state.cachedSnapshot = undefined;
   emit();
 }
 
 /** Snapshot for one thread — referentially stable between mutations. */
 export function conversationSnapshot(sessionId: string): ConversationSnapshot {
   const state = threadState(sessionId);
-  state.cachedSnapshot ??= { legacy: undefined, timeline: state.timeline };
+  state.cachedSnapshot ??= {
+    legacy: { turnEnds: new Map(), nodes: [], runningCalls: [], partial: null },
+    timeline: state.timeline,
+  };
   return state.cachedSnapshot;
 }
 

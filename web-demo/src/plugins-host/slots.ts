@@ -20,12 +20,22 @@ export interface SlotRenderProps {
   bag: Record<string, unknown>;
 }
 
+/** DSH select owner currency: the claiming turn plus the closing seq. */
+export interface SlotSelectOwner {
+  turn: { data: Map<string, unknown> };
+  seq: number;
+}
+
 export interface SlotContribution {
   name: string;
   /** Ascending sort; default 0. */
   priority?: number;
   registrant?: string;
-  select?: unknown;
+  /** Locale namespace for the host-supplied t() (file-review-tab: "file-review"). */
+  locale?: string;
+  /** Claim the mount per turn (DSH turn-tail contract): a non-empty match
+   * becomes the component's `matched` prop; null declines before mount. */
+  select?: (owner: SlotSelectOwner) => string[] | null;
   /** Produce the props bag for one session (per-mount). */
   inject?: (sessionId: string) => unknown;
   /** DSH form: React component. */
