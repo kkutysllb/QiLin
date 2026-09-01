@@ -341,5 +341,18 @@
   降级面）；坑 2——E2E 首测提示词自带「可用英文」削弱了被测指令，E2E 提示词
   设计不能与验收断言冲突。
 
+- 2026-09-01(三续): **H5-b 进行中——事件面两端就绪，发射点待改层**。已落：
+  qilin/ports/tool_events.py（seq 环 + cursor 快照）+ 中间件 + gateway
+  /api/ports/tools/events（cursor 长轮询）+ Node ctx.on("tools/post-execute")
+  轮询分发 + hello-toolevents 金丝雀（已 mounted）+ 4 pytest。
+  **关键发现（实证）**：lead agent 的 LangGraph 图工厂**不走 langchain
+  create_agent 的 wrap_tool_call 组合路径**（site-packages 探针零输出，恢复
+  原状）——中间件钩子在该图里静默不分发；wrap 逻辑本身已单测验证正确。
+  **下一步（唯一关键步）**：把 publish_tool_event 移到 **qilin/sandbox/tools.py
+  的 write_file / str_replace 函数体内**（工具实现层＝一切皆 port 的正确发射点，
+  图装配无关），入参即 path/前后文；发射后金丝雀日志 [hello-toolevents] tool:
+  即为验收。注意：工作区写路径是 sandbox /mnt/user-data/workspace/...（隔离挂
+  载），path 归一化到 thread workspace 需在发射层处理。
+
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

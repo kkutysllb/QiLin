@@ -11,6 +11,10 @@
       "disabled": false
     },
     {
+      "id": "hello-toolevents",
+      "server": "plugins/hello-toolevents/entry.js"
+    },
+    {
       "id": "kcoder-terminal",
       "script": "/plugins/kcoder-terminal/client.js",
       "server": "plugins/kcoder-terminal/entry.js"

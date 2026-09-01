@@ -365,6 +365,13 @@ def build_middlewares(
 
     middlewares.append(DynamicContextMiddleware(agent_name=agent_name, app_config=resolved_app_config))
 
+    # H5-b: ports tool events (file-mutating post-execute fan-out).
+    from qilin.agents.middlewares.tool_events_middleware import (
+        ToolEventMiddleware,
+    )
+
+    middlewares.append(ToolEventMiddleware())
+
     # Deterministically load a full SKILL.md when the user starts the turn with
     # /skill-name. This keeps the base system prompt metadata-only while giving
     # explicit user activation priority over model-side relevance guessing.

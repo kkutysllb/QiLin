@@ -254,6 +254,11 @@ def _assemble_from_features(
     # --- [5] ToolErrorHandling (always) ---
     chain.append(ToolErrorHandlingMiddleware())
 
+    # --- H5-b: ports tool events (file-mutating post-execute fan-out) ---
+    from qilin.agents.middlewares.tool_events_middleware import ToolEventMiddleware
+
+    chain.append(ToolEventMiddleware())
+
     # --- [6] Summarization ---
     if feat.summarization is not False:
         if isinstance(feat.summarization, AgentMiddleware):

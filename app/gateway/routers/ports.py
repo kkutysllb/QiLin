@@ -18,8 +18,9 @@ from qilin.ports.system_prompt import (
     register_section,
     unregister_section,
 )
+from qilin.ports.tool_events import snapshot_after as tool_events_snapshot
 
-router = APIRouter(prefix="/api/ports/system-prompt", tags=["ports"])
+router = APIRouter(prefix="/api/ports", tags=["ports"])
 
 
 class SectionRequest(BaseModel):
@@ -42,7 +43,7 @@ def _forbidden() -> JSONResponse:
     )
 
 
-@router.post("/sections")
+@router.post("/system-prompt/sections")
 async def register_section_endpoint(request: Request, req: SectionRequest) -> Any:
     if not _authorized(request):
         return _forbidden()
@@ -50,7 +51,7 @@ async def register_section_endpoint(request: Request, req: SectionRequest) -> An
     return {"ok": True, "name": section.name, "order": section.order}
 
 
-@router.get("/sections")
+@router.get("/system-prompt/sections")
 async def list_sections_endpoint(request: Request) -> Any:
     if not _authorized(request):
         return _forbidden()
@@ -62,8 +63,17 @@ async def list_sections_endpoint(request: Request) -> Any:
     }
 
 
-@router.delete("/sections/{name}")
+@router.delete("/system-prompt/sections/{name}")
 async def unregister_section_endpoint(request: Request, name: str) -> Any:
     if not _authorized(request):
         return _forbidden()
     return {"ok": True, "removed": unregister_section(name)}
+
+
+@router.get("/tools/events")
+async def tool_events_endpoint(request: Request, cursor: int = 0) -> Any:
+    """Events with seq > cursor (long-poll friendly ring read)."""
+    if not _authorized(request):
+        return _forbidden()
+    events, head = tool_events_snapshot(cursor)
+    return {"events": events, "cursor": head}

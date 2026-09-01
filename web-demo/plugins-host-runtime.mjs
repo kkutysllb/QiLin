@@ -91,6 +91,54 @@ async function announceSection(section, method = "POST") {
   }
 }
 
+// ----- H5-b: tools/post-execute event face -----
+// Polls the gateway ports ring and fans events out to handlers registered
+// via ctx.on("tools/post-execute", (exec, result, next) => ...). Cross-
+// process semantics are observability-only: next() resolves {kind:"accept"}
+// because execution has already happened when an event is published.
+const toolEventHandlers = new Set();
+let toolEventCursor = 0;
+let toolEventTimer = null;
+
+function ensureToolEventPoller() {
+  if (toolEventTimer !== null) return;
+  toolEventTimer = setInterval(async () => {
+    const token = internalAuthToken();
+    if (!token || toolEventHandlers.size === 0) return;
+    try {
+      const res = await fetch(
+        GATEWAY_URL + "/api/ports/tools/events?cursor=" + String(toolEventCursor),
+        { headers: { "X-QiLin-Internal-Token": token } },
+      );
+      if (!res.ok) return;
+      const body = await res.json();
+      toolEventCursor = body.cursor ?? toolEventCursor;
+      for (const ev of body.events ?? []) {
+        const exec = {
+          name: ev.name,
+          callId: ev.callId,
+          rootCallId: ev.callId,
+          threadId: ev.threadId,
+          parent: { id: ev.threadId },
+          agent: { id: ev.threadId },
+        };
+        const result = { value: undefined };
+        const next = async () => ({ kind: "accept" });
+        for (const handler of toolEventHandlers) {
+          try {
+            await handler(exec, result, next);
+          } catch (err) {
+            console.error("[tool-events] handler failed:", err.message);
+          }
+        }
+      }
+    } catch {
+      /* gateway unreachable — retry next tick */
+    }
+  }, 1500);
+  if (typeof toolEventTimer.unref === "function") toolEventTimer.unref();
+}
+
 const systemPromptService = {
   /** Register a prompt section; returns the disposer (de-announce). */
   section({ name, order = 100, text, source = "plugin" }) {
@@ -217,6 +265,14 @@ function makeCtx() {
       mount: mountTypertHost,
     },
     systemPrompt: systemPromptService,
+    on(event, handler) {
+      if (event !== "tools/post-execute") return () => {};
+      toolEventHandlers.add(handler);
+      ensureToolEventPoller();
+      return () => {
+        toolEventHandlers.delete(handler);
+      };
+    },
     effect(setup) {
       const dispose = setup();
       if (typeof dispose === "function") disposers.push(dispose);
