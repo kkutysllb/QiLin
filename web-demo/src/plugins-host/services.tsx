@@ -148,7 +148,7 @@ registerPluginService("sessions", {
   scope: (_sessionId: string) => ({
     get: (name: string) => {
       if (name.startsWith("remote.")) {
-        return mountedRemotes.get(name.slice("remote.".length));
+        return serviceRemotes.get(name.slice("remote.".length));
       }
       return undefined;
     },
@@ -157,20 +157,67 @@ registerPluginService("sessions", {
 
 /** Mounted typert remote clients by package name (dsh-api-remotes face). */
 const mountedRemotes = new Map<string, unknown>();
+/** service key ("fileReview") -> method stubs, filled from descriptors. */
+const serviceRemotes = new Map<
+  string,
+  Record<string, (request?: unknown) => Promise<unknown>>
+>();
 
 registerPluginService("remote", {
   /**
-   * Mount a typert remote client descriptor. Resolves to the disposer.
-   * Slice 2 wires the HTTP transport (stubs against plugin host routes);
-   * today the registry only tracks the mount.
+   * Mount a typert remote client descriptor {package, descriptors} and
+   * build HTTP stubs against the runtime typert route (H4-d slice 2):
+   * POST /qilin-plugins/typert/<package> {service, method, sessionId,
+   * request} -> {ok:true,value}|{ok:false,error:{message}}. Consumers
+   * resolve per-session faces via sessions.scope(id).get("remote.<svc>").
    */
   $mount: async (descriptor: unknown): Promise<() => void> => {
-    const name =
-      (descriptor as { package?: string }).package ??
-      "anon:" + String(mountedRemotes.size);
-    mountedRemotes.set(name, descriptor);
+    const desc = descriptor as {
+      package?: string;
+      descriptors?: ReadonlyArray<{ service?: string; method?: string }>;
+    };
+    const pkg = desc.package ?? "anon:" + String(mountedRemotes.size);
+    mountedRemotes.set(pkg, descriptor);
+    for (const inv of desc.descriptors ?? []) {
+      if (typeof inv.service !== "string" || typeof inv.method !== "string")
+        continue;
+      let svc = serviceRemotes.get(inv.service);
+      if (svc === undefined) {
+        svc = {};
+        serviceRemotes.set(inv.service, svc);
+      }
+      svc[inv.method] = async (request?: unknown) => {
+        const res = await fetch(
+          "/qilin-plugins/typert/" +
+            pkg.split("/").map(encodeURIComponent).join("/"),
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              service: inv.service,
+              method: inv.method,
+              sessionId: getCurrentThread() ?? undefined,
+              request,
+            }),
+          },
+        );
+        const body = (await res.json().catch(() => null)) as {
+          ok: boolean;
+          value?: unknown;
+          error?: { message?: string };
+        } | null;
+        if (body === null) {
+          return {
+            ok: false as const,
+            error: { message: "bad typert envelope" },
+          };
+        }
+        return body;
+      };
+    }
     return () => {
-      if (mountedRemotes.get(name) === descriptor) mountedRemotes.delete(name);
+      if (mountedRemotes.get(pkg) === descriptor) mountedRemotes.delete(pkg);
     };
   },
 });

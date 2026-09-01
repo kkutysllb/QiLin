@@ -33,10 +33,13 @@
 - [x] 真实第三方插件跑通：**kcoder-git-panel**（浏览器实测：浮动面板渲染 verify-thread-1 真实 git 快照——变更统计/main 分支/任务计划扫描；GET 405 守卫实测）
 - [x] 第二个真实插件 **kcoder-terminal**：titlebar 锚点按钮挂载 / vendor xterm 自托管 / RPC prefix 分发 / SSE 数据面路由全通；pty 引擎层 node-pty `posix_spawn` 被本机 macOS 拒绝（脱离沙箱复现——上游 native 模块环境限制，非集成缺陷；反证 ports PTY 选型纯 Python 正确）
 
-### H2 Typert 能力桥 —— ✅ fs/git/pty 桥 complete（api-remotes 端点随 H4 对齐）
+### H2 Typert 能力桥 —— ✅ complete（含 api-remotes 端点对齐，随 H4-d 切片 2 落地）
 - [x] hostServices 能力桥：`fs.list/readText/writeText` + `git.exec`（execFile 无 shell、4MiB 上限），统一 `threadWorkspaceScope` 围栏——插件经 ctx.get 软探测即用，路径强制限定 thread workspace 树内
 - [x] **pty → ports 桥**：node-pty 兼容 shim（CJS，插件就近 node_modules 优先解析）——spawn 返回异步初始化门面（早期 write/resize 排队），输出走 gateway WS stream（binaryType=arraybuffer），write/resize/kill 走 ports REST，终端驻留保留线程 `__pty_bridge__`；**kcoder-terminal 引擎摆脱 native node-pty 完整跑通**（浏览器 dock 键入 echo 全回显）
-- [ ] api-remotes 协议端点对齐（依赖 H4 client 运行时；Typert 形状侦察后定形状）
+- [x] api-remotes 协议端点对齐（H4-d 切片 2）：runtime `ctx.typertHost.mount(pkg,
+      handler)` + POST /qilin-plugins/typert/<pkg>（loopback-only、typert 结果
+      信封）；client `remote.$mount({package,descriptors})` 产 HTTP stubs 按
+      service 分组，sessions.scope(id).get("remote.<svc>") 解析——smoke 三例全过
 
 ### H3 生命周期管理 —— ✅ complete
 - [x] CLI `scripts/plugin.mjs`：add（本地 dsh-plugins 形态目录）/ remove / upgrade / enable / disable / list——文件分发（client→public、server+vendor→plugins/ 非公开区）+ manifest 原子重写；与 DSH 官方同构（安装后需重启 web-demo）
@@ -287,5 +290,18 @@
   hello from hello-turntail（9s 内），a11y 快照为证。**待切片 2**：typert
   HTTP 传输（remote.fileReview status/apply 落地）、uiConversation 时间线
   store（face={legacy,timeline}）、file-review-tab 实装。
+
+- 2026-09-01: **H4-d 切片 2 完成——typert 传输双端落地（H2 api-remotes 欠账
+  闭环）**。runtime 新增 `ctx.typertHost.mount(pkg, handler)`：自动注册
+  POST /qilin-plugins/typert/<pkg>（loopback-only、4MiB body、typert 结果信封
+  {ok,value}|{ok:false,error}，throwing handler 转信封不 500）；client
+  `remote.$mount({package,descriptors})` 按 descriptors 产 HTTP stubs（按
+  service 分组挂 serviceRemotes，sessions.scope(id).get("remote.<svc>") 解析，
+  sessionId 注入 wire）。关键侦察：file-review server 半需要
+  ctx.systemPrompt.section + tools/post-execute 事件——**其实装是 H5 级**（agent
+  运行时面），H4 范围交付通用设施。smoke（scripts/smoke-typert.mjs）三例全过：
+  mount→route→envelope / throwing→error envelope / GET→405；tsc/eslint/prettier
+  清；vitest 391 全过。H4-d 剩余：uiConversation 时间线 store + file-review
+  实装——**均依赖 H5**（system-prompt/tools 事件面），随 H5 排期。
 
 ## Errors

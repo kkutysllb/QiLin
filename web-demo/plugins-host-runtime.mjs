@@ -13,7 +13,14 @@
  */
 
 import { execFile } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { join, dirname, relative, resolve as resolvePath } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
@@ -32,11 +39,109 @@ export const DSH_BASELINE = "0.1.2-alpha.2";
 /** @type {Map<string, { prefix: string, handler: (req, res) => void }>} */
 const pluginRoutes = new Map();
 /** Soft service table - extend as more host surfaces get bridged (H2). */
-const hostServices = { webRuntime: { trustedHosts: [] }, fs: makeFsService(), git: makeGitService() };
+const hostServices = {
+  webRuntime: { trustedHosts: [] },
+  fs: makeFsService(),
+  git: makeGitService(),
+  typertHost: { mount: mountTypertHost },
+};
 
 /** Test/smoke access to the bridged capability services. */
 export function pluginServices() {
   return hostServices;
+}
+
+// ----- H4-d slice 2: typert host facility (api-remotes endpoint face) -----
+// Plugins with a typert server half mount it via ctx.typertHost.mount(pkg,
+// handler); the runtime exposes POST /qilin-plugins/typert/<pkg> taking
+// {service, method, sessionId, request} and answering the typert result
+// envelope {ok:true,value}|{ok:false,error:{message}}. Loopback-only, same
+// trust stance as the rest of the plugin surface.
+const typertHosts = new Map();
+
+function isLoopbackReq(req) {
+  const addr = req.socket?.remoteAddress ?? "";
+  return addr === "127.0.0.1" || addr === "::1" || addr === "::ffff:127.0.0.1";
+}
+
+function readBody(req, limit = 4 * 1024 * 1024) {
+  return new Promise((resolveBody, rejectBody) => {
+    let size = 0;
+    const chunks = [];
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > limit) {
+        rejectBody(new Error("payload too large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolveBody(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", rejectBody);
+  });
+}
+
+function writeJson(res, status, body) {
+  res.writeHead(status, { "Content-Type": "application/json" });
+  res.end(JSON.stringify(body));
+}
+
+/**
+ * Mount one typert host: handler(method, payload) -> value|Promise<value>,
+ * payload = { sessionId, request }. A throwing handler becomes the typert
+ * error envelope (never a 500 with a stack).
+ */
+function mountTypertHost(packageName, handler) {
+  if (typeof handler !== "function") throw new Error("typert handler required");
+  typertHosts.set(packageName, handler);
+  const prefix = "/qilin-plugins/typert/" + packageName;
+  pluginRoutes.set(prefix, {
+    prefix,
+    handler: async (req, res) => {
+      if (!isLoopbackReq(req)) {
+        writeJson(res, 403, { ok: false, error: { message: "forbidden" } });
+        return;
+      }
+      if (req.method !== "POST") {
+        writeJson(res, 405, {
+          ok: false,
+          error: { message: "method not allowed" },
+        });
+        return;
+      }
+      let body;
+      try {
+        body = JSON.parse((await readBody(req)) || "{}");
+      } catch (err) {
+        writeJson(res, 400, {
+          ok: false,
+          error: { message: "bad json: " + err.message },
+        });
+        return;
+      }
+      const fn = typertHosts.get(packageName);
+      if (fn === undefined) {
+        writeJson(res, 404, {
+          ok: false,
+          error: { message: "typert host not mounted" },
+        });
+        return;
+      }
+      try {
+        const value = await fn(String(body.method ?? ""), {
+          sessionId: body.sessionId,
+          request: body.request,
+        });
+        writeJson(res, 200, { ok: true, value });
+      } catch (err) {
+        writeJson(res, 200, {
+          ok: false,
+          error: { message: String(err.message ?? err) },
+        });
+      }
+    },
+  });
 }
 
 function makeCtx() {
@@ -46,9 +151,13 @@ function makeCtx() {
     config: {},
     webServer: {
       register({ kind, path, handler }) {
-        if (kind !== "prefix") throw new Error("unsupported route kind: " + kind);
+        if (kind !== "prefix")
+          throw new Error("unsupported route kind: " + kind);
         pluginRoutes.set(path, { prefix: path, handler });
       },
+    },
+    typertHost: {
+      mount: mountTypertHost,
     },
     effect(setup) {
       const dispose = setup();
@@ -66,9 +175,12 @@ export async function loadPluginServer(entryPath) {
   const mod = await import(pathToFileURL(abs).href);
   const ctx = makeCtx();
   const apply = mod.apply ?? mod.default?.apply;
-  if (typeof apply !== "function") throw new Error("plugin server has no apply(): " + entryPath);
+  if (typeof apply !== "function")
+    throw new Error("plugin server has no apply(): " + entryPath);
   const inject = mod.inject ?? mod.default?.inject ?? [];
-  const args = inject.map((name) => (name === "webServer" ? ctx.webServer : ctx.get(name)));
+  const args = inject.map((name) =>
+    name === "webServer" ? ctx.webServer : ctx.get(name),
+  );
   apply(ctx, ...args);
 }
 
@@ -115,17 +227,23 @@ function threadWorkspaceScope(absPath) {
   const rel = relative(THREADS_ROOT, resolvePath(absPath));
   if (!rel || rel.startsWith("..")) return null;
   const parts = rel.split("/");
-  if (parts.length < 3 || parts[1] !== "user-data" || parts[2] !== "workspace") return null;
+  if (parts.length < 3 || parts[1] !== "user-data" || parts[2] !== "workspace")
+    return null;
   return { threadId: parts[0], relPath: parts.slice(3).join("/") };
 }
 
 function fsList(absPath) {
-  if (!threadWorkspaceScope(absPath)) throw new Error("fs bridge: outside thread workspaces");
-  return readdirSync(absPath, { withFileTypes: true }).map((d) => ({ name: d.name, dir: d.isDirectory() }));
+  if (!threadWorkspaceScope(absPath))
+    throw new Error("fs bridge: outside thread workspaces");
+  return readdirSync(absPath, { withFileTypes: true }).map((d) => ({
+    name: d.name,
+    dir: d.isDirectory(),
+  }));
 }
 
 function fsReadText(absPath) {
-  if (!threadWorkspaceScope(absPath)) throw new Error("fs bridge: outside thread workspaces");
+  if (!threadWorkspaceScope(absPath))
+    throw new Error("fs bridge: outside thread workspaces");
   const st = statSync(absPath);
   if (!st.isFile()) throw new Error("not a file");
   if (st.size > 1048576) throw new Error("file too large (1 MiB cap)");
@@ -133,7 +251,8 @@ function fsReadText(absPath) {
 }
 
 function fsWriteText(absPath, content) {
-  if (!threadWorkspaceScope(absPath)) throw new Error("fs bridge: outside thread workspaces");
+  if (!threadWorkspaceScope(absPath))
+    throw new Error("fs bridge: outside thread workspaces");
   writeFileSync(absPath, String(content), "utf-8");
 }
 
@@ -150,7 +269,10 @@ function makeGitService() {
       if (!cwd || !threadWorkspaceScope(cwd)) {
         throw new Error("git bridge: cwd outside thread workspaces");
       }
-      const { stdout } = await execFileAsync("git", args, { cwd, maxBuffer: 4194304 });
+      const { stdout } = await execFileAsync("git", args, {
+        cwd,
+        maxBuffer: 4194304,
+      });
       return stdout;
     },
   };
@@ -216,7 +338,8 @@ export function handleManagementApi(req, res) {
     res.end(JSON.stringify(obj));
   };
   if (!loopback) return writeJson(403, { ok: false, error: "forbidden" });
-  if (req.method !== "POST") return writeJson(405, { ok: false, error: "method not allowed" });
+  if (req.method !== "POST")
+    return writeJson(405, { ok: false, error: "method not allowed" });
   let body = "";
   req.on("data", (c) => {
     body += c;
@@ -225,9 +348,16 @@ export function handleManagementApi(req, res) {
   req.on("end", () => {
     try {
       const { action, id, disabled } = JSON.parse(body || "{}");
-      if (action === "list") return writeJson(200, { ok: true, baseline: DSH_BASELINE, plugins: listInstalled() });
-      if (action === "setDisabled" && id) return writeJson(200, { ok: setPluginDisabled(id, Boolean(disabled)) });
-      if (action === "remove" && id) return writeJson(200, { ok: uninstallPlugin(id) });
+      if (action === "list")
+        return writeJson(200, {
+          ok: true,
+          baseline: DSH_BASELINE,
+          plugins: listInstalled(),
+        });
+      if (action === "setDisabled" && id)
+        return writeJson(200, { ok: setPluginDisabled(id, Boolean(disabled)) });
+      if (action === "remove" && id)
+        return writeJson(200, { ok: uninstallPlugin(id) });
       writeJson(400, { ok: false, error: "unknown action" });
     } catch (err) {
       writeJson(400, { ok: false, error: String(err?.message ?? err) });
