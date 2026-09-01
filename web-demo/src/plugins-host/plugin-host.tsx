@@ -16,6 +16,17 @@ import "./conversation-store";
 import "./locale";
 import "./slots";
 
+// Plugin entry buttons arrive with DSH titlebar conventions (absolute
+// right-offsets); pull direct children of the anchor back into the flex
+// flow. Direct children only — inner badges keep their own positioning.
+const CSS_NORMALIZE_CHILDREN = [
+  "#__dsh_desktop_titlebar > * {",
+  "  position: relative !important;",
+  "  inset: auto !important;",
+  "  transform: none !important;",
+  "}",
+].join("\n");
+
 /**
  * Plugin host boot — reads the build-time plugin manifest (installed
  * plugins, per the DSH-isomorphic lifecycle: install/uninstall = manifest
@@ -88,21 +99,29 @@ export function PluginHostBoot() {
   }, []);
 
   // DSH host DOM anchor shim: T1 plugins (git-panel, kcoder-terminal...)
-  // mount their entry buttons onto #__dsh_desktop_titlebar. Provide a
-  // fixed top-right strip so those buttons appear over any QiLin page.
+  // mount their entry buttons onto #__dsh_desktop_titlebar. DSH’s desktop
+  // titlebar is a full-width chrome row where plugins self-position with
+  // absolute right-offsets (right:44/108px + translateY(-50%)) — inside a
+  // content-sized strip those offsets scatter the buttons and push them
+  // half out of the viewport. So: host the anchor as a row aligned to
+  // QiLin’s own h-12 header, and normalize DIRECT children back into the
+  // flex flow. position:relative (not static) keeps each button the
+  // containing block for its inner absolutely-positioned badges.
   return (
     <>
+      <style>{CSS_NORMALIZE_CHILDREN}</style>
       <div
         id="__dsh_desktop_titlebar"
         data-plugin-anchor="dsh-titlebar"
         style={{
           position: "fixed",
-          top: 8,
-          right: 48,
+          top: 0,
+          height: 48,
+          right: 56,
           zIndex: 2147483000,
           display: "flex",
           alignItems: "center",
-          gap: 6,
+          gap: 8,
         }}
       />
       <PluginPanelDock />

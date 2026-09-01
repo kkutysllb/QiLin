@@ -501,5 +501,18 @@
   物化（skills/custom 37/37）、运行时日志零失败。背景：dsh-plugins 仓库大修改 =
   kcoder-skills 技能集换血（37 个新技能名）。
 
+- 2026-09-01(十二续): **T1 titlebar 锚点布局修复（插件仓库 0.5.x 大改版后）**。
+  现象：git-panel/terminal 入口按钮悬浮页顶、半裁切、横向散乱。归因：插件按钮
+  沿用 DSH 全宽标题栏自定位约定（absolute + right:44/108px +
+  translateY(-50%)），而宿主锚点条内容自适应、子元素全绝对定位（锚点实测 0×0），
+  偏移在条内失去参照。修复（plugin-host.tsx，插件客户端零改动）：①锚点条对齐
+  QiLin 真实头栏（fixed top:0 height:48 right:56 + align-items:center）；
+  ②注入直接子元素归一化样式（position:relative!important + inset:auto +
+  transform:none——relative 而非 static，保按钮为内部徽章的包含块）。
+  E2E：Playwright 实测两按钮 26×26 @ y=11（垂直居中于 48px 头栏）、并排 gap8、
+  无裁切，截图为证。回归 vitest 391 / tsc / eslint / prettier 全清。调试基建：
+  auth 开启后 Playwright 无会话——从 .qilin/.jwt_secret 本地铸 1h JWT 注入
+  access_token cookie 完成（jwt 形状 sub/exp/iat/ver HS256，users 表取 UUID）。
+
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收
