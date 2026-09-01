@@ -536,8 +536,12 @@
   （拉包→分发→清单 npm:@kkutysllb/dsh-git-panel@1.0.0）后卸载留净现场。
   同时：应用户要求卸载 H5 期后台安装的 kcoder-language / kcoder-skills /
   dsh-file-review-tab 三插件（旧一代 kcoder-terminal / kcoder-git-panel
-  保留，其 source 路径因仓库重构已悬空，继任包可从前端重装）。回归 vitest
-  391 / tsc / eslint / prettier 全清。
+  保留，其 source 路径因仓库重构已悬空，继任包可从前端重装）。④入口可达性（用户拍板「别让用户敲路径」）：设置页挂「插件管理」菜单节
+  （toolsData 组、Puzzle 图标）——管理内容抽为 PluginsSettingsPage 组件，
+  设置节与 /workspace/plugins 路由薄壳共用；i18n zh/en/types 补 plugins
+  键；SettingsSectionId 同步扩展。回归 vitest 391 / tsc / eslint /
+  prettier 全清（含 token-usage 断言改格式无关正则——prettier 断行加括号
+  曾误伤源码文本断言）。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

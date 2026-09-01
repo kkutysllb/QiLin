@@ -434,6 +434,7 @@ export interface Translations {
         memorySummary: string;
         tokenUsageBudget: string;
         mcp: string;
+        plugins: string;
         toolsSandbox: string;
         webTools: string;
         uploads: string;
@@ -452,6 +453,7 @@ export interface Translations {
         tokenUsageBudget: string;
         skill: string;
         mcp: string;
+        plugins: string;
         toolsSandbox: string;
         webTools: string;
         uploads: string;

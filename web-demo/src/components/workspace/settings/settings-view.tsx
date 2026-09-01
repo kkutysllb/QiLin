@@ -11,6 +11,7 @@ import {
   KeyRoundIcon,
   type LucideIcon,
   PaperclipIcon,
+  PuzzleIcon,
   ScrollTextIcon,
   SearchIcon,
   Settings2Icon,
@@ -36,6 +37,7 @@ import { GeneralSettingsPage } from "./general-settings-page";
 import { McpSettingsPage } from "./mcp-settings-page";
 import { MemorySummarySettingsPage } from "./memory-summary-settings-page";
 import { ModelsSettingsPage } from "./models/models-settings-page";
+import { PluginsSettingsPage } from "./plugins-settings-page";
 import { RuntimeSettingsPage } from "./runtime-settings-page";
 import { SkillModelsSettingsPage } from "./skill-models-settings-page";
 import { SkillSettingsPage } from "./skill-settings-page";
@@ -56,6 +58,7 @@ type SectionId =
   | "memorySummary"
   | "tokenUsageBudget"
   | "mcp"
+  | "plugins"
   | "toolsSandbox"
   | "webTools"
   | "uploads"
@@ -82,6 +85,7 @@ const SECTIONS: SectionDef[] = [
   { id: "subagents", icon: UsersIcon, groupKey: "agent" },
   { id: "skill", icon: SparklesIcon, groupKey: "agent" },
   { id: "mcp", icon: WrenchIcon, groupKey: "toolsData" },
+  { id: "plugins", icon: PuzzleIcon, groupKey: "toolsData" },
   { id: "dataSources", icon: DatabaseIcon, groupKey: "toolsData" },
   { id: "runtime", icon: WorkflowIcon, groupKey: "engine" },
   { id: "models", icon: CpuIcon, groupKey: "engine" },
@@ -99,7 +103,12 @@ const SECTIONS: SectionDef[] = [
   },
 ];
 
-const GROUP_ORDER: SectionGroup[] = ["personal", "agent", "toolsData", "engine"];
+const GROUP_ORDER: SectionGroup[] = [
+  "personal",
+  "agent",
+  "toolsData",
+  "engine",
+];
 
 interface SettingsViewProps {
   activeSection: SectionId;
@@ -188,9 +197,9 @@ export function SettingsView({
           style={{ width: sidebarWidth }}
           className="bg-sidebar kworks-win-pad-top flex shrink-0 flex-col"
         >
-          <div className="[-webkit-app-region:drag] flex items-center gap-2 px-4 py-3">
+          <div className="flex items-center gap-2 px-4 py-3 [-webkit-app-region:drag]">
             <QiLinLogo size={24} className="shrink-0" />
-            <span className="text-base font-bold text-foreground">QiLin</span>
+            <span className="text-foreground text-base font-bold">QiLin</span>
           </div>
           <button
             type="button"
@@ -202,7 +211,7 @@ export function SettingsView({
           </button>
           <div className="px-3 pb-2">
             <div className="relative">
-              <SearchIcon className="text-muted-foreground absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2" />
+              <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -282,13 +291,18 @@ export function SettingsView({
               {active.id === "runtime" && <RuntimeSettingsPage />}
               {active.id === "models" && <ModelsSettingsPage />}
               {active.id === "memorySummary" && <MemorySummarySettingsPage />}
-              {active.id === "tokenUsageBudget" && <TokenUsageBudgetSettingsPage />}
+              {active.id === "tokenUsageBudget" && (
+                <TokenUsageBudgetSettingsPage />
+              )}
               {active.id === "skill" && <SkillSettingsPage />}
               {active.id === "mcp" && <McpSettingsPage />}
+              {active.id === "plugins" && <PluginsSettingsPage />}
               {active.id === "toolsSandbox" && <ToolsSandboxSettingsPage />}
               {active.id === "webTools" && <WebToolsSettingsPage />}
               {active.id === "uploads" && <UploadsSettingsPage />}
-              {active.id === "dataPersistence" && <DataPersistenceSettingsPage />}
+              {active.id === "dataPersistence" && (
+                <DataPersistenceSettingsPage />
+              )}
               {active.id === "dataSources" && <DatasourcesSettingsPage />}
               {active.id === "agents" && <AgentsSettingsPage />}
               {active.id === "subagents" && <SubagentsSettingsPage />}

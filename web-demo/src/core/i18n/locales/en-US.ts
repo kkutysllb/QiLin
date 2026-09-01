@@ -505,6 +505,7 @@ export const enUS: Translations = {
         memorySummary: "Memory & Summary",
         tokenUsageBudget: "Token & Budget",
         mcp: "MCP",
+        plugins: "Plugins",
         toolsSandbox: "Tools & Sandbox",
         webTools: "Web Tools",
         uploads: "Uploads",
@@ -527,6 +528,8 @@ export const enUS: Translations = {
           "Configure token usage tracking and per-run token budget limits.",
         skill: "Enable built-in and custom skills, manage the skill matrix.",
         mcp: "MCP server CRUD management and one-click preset installation.",
+        plugins:
+          "Install DSH plugins from npm, enable/disable or remove installed ones, and view the host baseline.",
         toolsSandbox:
           "Sandbox environment, tool output truncation, lazy loading, progress tracking, and loop detection.",
         webTools:
