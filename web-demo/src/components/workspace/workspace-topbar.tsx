@@ -32,7 +32,9 @@ function StatusDot({
       : status === "disconnected"
         ? "bg-rose-500"
         : "bg-amber-500";
-  return <span className={cn("size-2 rounded-full", color)} aria-hidden="true" />;
+  return (
+    <span className={cn("size-2 rounded-full", color)} aria-hidden="true" />
+  );
 }
 
 function pageTitle(
@@ -42,7 +44,6 @@ function pageTitle(
   if (!pathname) return t.topbar.noActiveSession;
   if (pathname.startsWith("/workspace/chats")) return t.breadcrumb.chats;
   if (pathname.startsWith("/workspace/agents")) return t.sidebar.agents;
-  if (pathname.startsWith("/workspace/crons")) return t.sidebar.crons;
   if (pathname.startsWith("/workspace/token-usage"))
     return t.sidebar.tokenUsage;
   return t.breadcrumb.workspace;
@@ -66,7 +67,7 @@ export function WorkspaceTopbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 flex h-12 shrink-0 items-center border-b bg-background/80 backdrop-blur-sm",
+        "bg-background/80 sticky top-0 z-20 flex h-12 shrink-0 items-center border-b backdrop-blur-sm",
         "[-webkit-app-region:drag]",
         // Windows frameless shell: keep the toolbar buttons and session tag
         // clear of the native window-control overlay (minimize / maximize /
@@ -85,7 +86,9 @@ export function WorkspaceTopbar() {
       {/* 中段：当前会话标题（动态）｜ 状态 */}
       <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
         <span className="truncate text-sm font-medium">
-          {values?.title ? stripUploadedFilesTag(values.title) || pageTitle(pathname, t) : pageTitle(pathname, t)}
+          {values?.title
+            ? stripUploadedFilesTag(values.title) || pageTitle(pathname, t)
+            : pageTitle(pathname, t)}
         </span>
         <Separator orientation="vertical" className="h-4" />
         <Tooltip>

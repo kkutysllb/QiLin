@@ -542,6 +542,15 @@
   键；SettingsSectionId 同步扩展。回归 vitest 391 / tsc / eslint /
   prettier 全清（含 token-usage 断言改格式无关正则——prettier 断行加括号
   曾误伤源码文本断言）。
+- 2026-09-01(十四续): **定时任务（自动化 / crons）前端 UI 整体下线——后续以
+  插件方式回归**。删除：/workspace/crons 路由 + CronGallery/CronCard 组件 +
+  core/crons 客户端层（/api/scheduled-tasks fetcher）+ 侧边栏「自动化」入口
+  （WorkspaceNavChatList 整组件，唯一内容即该项）+ topbar 面包屑分支 +
+  i18n 三处（sidebar.crons 键 + crons 字典段 zh 66 行/en 70 行/types 63 行）。
+  保留：gateway /api/scheduled-tasks 后端与 settings 配置表单的 cron 节
+  （那是 config.yaml 的 cron 子系统配置，与任务管理 UI 是两回事）。
+  回归 vitest 391 / tsc / eslint / prettier 全清（.next 生成物里的旧路由
+  类型随 dev 重启自动重建）。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收
