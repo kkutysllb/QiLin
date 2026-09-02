@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { isStaticWebsiteOnly } from "@/core/config";
@@ -42,6 +43,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
           <button
             type="button"
             onClick={toggleSidebar}
+            data-testid="workspace-sidebar-trigger"
             aria-label={t.sidebar.expandSidebar}
             title={t.sidebar.expandSidebar}
             className="group/sidebar-logo hover:bg-sidebar-accent flex size-8 items-center justify-center rounded-md transition-colors"
@@ -50,7 +52,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
           </button>
         </div>
       ) : (
-        <div className="flex items-center gap-2 px-2 py-1">
+        <div className="flex items-center gap-2 px-2 py-1 [-webkit-app-region:no-drag]">
           <QiLinLogo size={24} className="shrink-0" />
           {isStaticWebsiteOnly ? (
             <Link
@@ -65,6 +67,12 @@ export function WorkspaceHeader({ className }: { className?: string }) {
           <span className="border-border/60 bg-muted/40 text-muted-foreground inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium tabular-nums">
             v{pkg.version}
           </span>
+          {/* 折叠侧边栏：从 topbar 挪入品牌行右端；折叠态由上方 logo
+              按钮接管展开（同 testid，互斥渲染，e2e 两态均可点） */}
+          <SidebarTrigger
+            data-testid="workspace-sidebar-trigger"
+            className="ml-auto size-7"
+          />
         </div>
       )}
       <SidebarGroup className="p-0">

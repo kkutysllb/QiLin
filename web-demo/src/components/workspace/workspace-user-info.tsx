@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/core/auth/AuthProvider";
 import { useI18n } from "@/core/i18n/hooks";
 
@@ -86,9 +86,6 @@ export function WorkspaceUserInfo() {
       <div className="flex flex-col items-center gap-2 px-2 pt-2">
         <Separator className="mb-1" />
         <UpdateInstallBadge />
-        {/* 折叠/展开侧边栏：从 topbar 挪入底栏，窄条模式下居中可见，
-            保留 workspace-sidebar-trigger testid 供 e2e 使用 */}
-        <SidebarTrigger data-testid="workspace-sidebar-trigger" className="size-7" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button type="button" className="outline-none">
@@ -149,8 +146,6 @@ export function WorkspaceUserInfo() {
           </DropdownMenu>
         </div>
         <UpdateInstallBadge className="mr-0.5" />
-        {/* 折叠侧边栏：从 topbar 挪入底栏最右（topbar 左段按钮已移除） */}
-        <SidebarTrigger data-testid="workspace-sidebar-trigger" className="size-7 shrink-0" />
       </div>
     </div>
   );
