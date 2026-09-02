@@ -373,7 +373,6 @@ export interface Translations {
         webTools: string;
         uploads: string;
         skill: string;
-        dataSources: string;
         dataPersistence: string;
         skillModels: string;
         agents: string;
@@ -391,7 +390,6 @@ export interface Translations {
         toolsSandbox: string;
         webTools: string;
         uploads: string;
-        dataSources: string;
         dataPersistence: string;
         skillModels: string;
         agents: string;

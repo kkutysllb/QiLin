@@ -4,7 +4,6 @@ import {
   ArrowLeftIcon,
   BotIcon,
   CpuIcon,
-  DatabaseIcon,
   GaugeIcon,
   GlobeIcon,
   HardDriveIcon,
@@ -32,7 +31,6 @@ import { cn } from "@/lib/utils";
 
 import { AgentsSettingsPage } from "./agents-settings-page";
 import { DataPersistenceSettingsPage } from "./data-persistence-settings-page";
-import { DatasourcesSettingsPage } from "./datasources-settings-page";
 import { GeneralSettingsPage } from "./general-settings-page";
 import { McpSettingsPage } from "./mcp-settings-page";
 import { MemorySummarySettingsPage } from "./memory-summary-settings-page";
@@ -62,7 +60,6 @@ type SectionId =
   | "toolsSandbox"
   | "webTools"
   | "uploads"
-  | "dataSources"
   | "dataPersistence"
   | "skillModels"
   | "skill"
@@ -86,7 +83,6 @@ const SECTIONS: SectionDef[] = [
   { id: "skill", icon: SparklesIcon, groupKey: "agent" },
   { id: "mcp", icon: WrenchIcon, groupKey: "toolsData" },
   { id: "plugins", icon: PuzzleIcon, groupKey: "toolsData" },
-  { id: "dataSources", icon: DatabaseIcon, groupKey: "toolsData" },
   { id: "runtime", icon: WorkflowIcon, groupKey: "engine" },
   { id: "models", icon: CpuIcon, groupKey: "engine" },
   { id: "dataPersistence", icon: HardDriveIcon, groupKey: "engine" },
@@ -303,7 +299,6 @@ export function SettingsView({
               {active.id === "dataPersistence" && (
                 <DataPersistenceSettingsPage />
               )}
-              {active.id === "dataSources" && <DatasourcesSettingsPage />}
               {active.id === "agents" && <AgentsSettingsPage />}
               {active.id === "subagents" && <SubagentsSettingsPage />}
               {active.id === "skillModels" && <SkillModelsSettingsPage />}

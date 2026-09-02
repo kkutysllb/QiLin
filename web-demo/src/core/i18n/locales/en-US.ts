@@ -437,7 +437,6 @@ export const enUS: Translations = {
         webTools: "Web Tools",
         uploads: "Uploads",
         skill: "Skills",
-        dataSources: "Data Sources",
         dataPersistence: "Data & Persistence",
         skillModels: "Skill Models",
         agents: "Agents",
@@ -463,8 +462,6 @@ export const enUS: Translations = {
           "Network proxy, search tools, and browser automation settings.",
         uploads:
           "File upload count and size limits, PDF/Word/Excel auto-conversion.",
-        dataSources:
-          "Configure external data source credentials (e.g. Tushare Pro).",
         dataPersistence:
           "Manage persistence backends, view status and disk usage.",
         skillModels: "Desktop skill model API credential management.",

@@ -60,16 +60,23 @@ async function fetchEnvKeys(): Promise<EnvKeyItem[]> {
 }
 
 export function SandboxForm() {
-  const { data: rawData, loading, saving, save } = useConfigSection<SandboxConfig>(
-    "sandbox",
-    defaultConfig,
-  );
+  const {
+    data: rawData,
+    loading,
+    saving,
+    save,
+  } = useConfigSection<SandboxConfig>("sandbox", defaultConfig);
   // Merge defaults so partial API data never leaves fields undefined.
   const data = useMemo<SandboxConfig>(
     () => ({ ...defaultConfig, ...rawData }),
     [rawData],
   );
-  const { draft: local, setDraft: setLocal, dirty, reset } = useLocalDraft(data);
+  const {
+    draft: local,
+    setDraft: setLocal,
+    dirty,
+    reset,
+  } = useLocalDraft(data);
   const [providerKey, setProviderKey] = useState("local");
   const [envKeys, setEnvKeys] = useState<EnvKeyItem[]>([]);
   const [envKeysLoading, setEnvKeysLoading] = useState(true);
@@ -181,10 +188,7 @@ export function SandboxForm() {
             type="number"
             value={local.bash_output_max_chars}
             onChange={(e) =>
-              update(
-                "bash_output_max_chars",
-                Number(e.target.value),
-              )
+              update("bash_output_max_chars", Number(e.target.value))
             }
             disabled={saving}
           />
@@ -195,10 +199,7 @@ export function SandboxForm() {
             type="number"
             value={local.read_file_output_max_chars}
             onChange={(e) =>
-              update(
-                "read_file_output_max_chars",
-                Number(e.target.value),
-              )
+              update("read_file_output_max_chars", Number(e.target.value))
             }
             disabled={saving}
           />
@@ -237,33 +238,35 @@ export function SandboxForm() {
       {/* Credential passthrough */}
       <div className="space-y-2 border-t pt-3">
         <div className="flex items-center gap-1.5">
-          <KeyRoundIcon className="size-3.5 text-muted-foreground" />
+          <KeyRoundIcon className="text-muted-foreground size-3.5" />
           <label className={labelCls}>凭证透传</label>
         </div>
         <p className={hintCls}>
-          沙箱默认清除 <code className="text-xs">*KEY</code> / <code className="text-xs">*TOKEN</code> / <code className="text-xs">*SECRET</code> 环境变量。
+          沙箱默认清除 <code className="text-xs">*KEY</code> /{" "}
+          <code className="text-xs">*TOKEN</code> /{" "}
+          <code className="text-xs">*SECRET</code> 环境变量。
           开启需要的凭证后，智能体的 bash/python 脚本才能读取它们。
         </p>
         {envKeysLoading ? (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
             <Loader2Icon className="size-3 animate-spin" />
             加载凭证列表…
           </div>
         ) : envKeys.length === 0 ? (
-          <p className="text-xs text-muted-foreground">
-            .env 中没有已配置的凭证。请在「数据源」或「技能模型」中先配置。
+          <p className="text-muted-foreground text-xs">
+            .env 中没有已配置的凭证。请在「技能模型」中先配置。
           </p>
         ) : (
           <div className="space-y-1.5">
             {envKeys.map((item) => (
               <div
                 key={item.key}
-                className="flex items-center justify-between rounded-md border bg-muted/20 px-3 py-1.5"
+                className="bg-muted/20 flex items-center justify-between rounded-md border px-3 py-1.5"
               >
                 <div className="min-w-0">
                   <span className="font-mono text-xs">{item.key}</span>
                   {!item.configured && (
-                    <span className="ml-1.5 text-xs text-muted-foreground">
+                    <span className="text-muted-foreground ml-1.5 text-xs">
                       （未配置）
                     </span>
                   )}

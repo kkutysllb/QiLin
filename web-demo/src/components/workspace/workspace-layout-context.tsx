@@ -36,7 +36,6 @@ export type SettingsSectionId =
   | "toolsSandbox"
   | "webTools"
   | "uploads"
-  | "dataSources"
   | "dataPersistence"
   | "skillModels"
   | "skill"
