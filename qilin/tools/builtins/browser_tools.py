@@ -43,7 +43,13 @@ from qilin.config.network_config import NetworkConfig
 from qilin.tools.types import Runtime
 
 if TYPE_CHECKING:
-    from playwright.async_api import Browser, BrowserContext, Page, Playwright
+    from playwright.async_api import (
+        Browser,
+        BrowserContext,
+        Page,
+        Playwright,
+        ViewportSize,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +177,7 @@ def _validate_url(tool_name: str, url: str) -> str | None:
     )
 
 
-def _launch_options() -> tuple[bool, dict[str, int], int, str | None]:
+def _launch_options() -> tuple[bool, ViewportSize, int, str | None]:
     """Read headless/viewport/navigation-timeout/proxy launch settings.
 
     Like the agentic browser tools, launch config is read from a single
