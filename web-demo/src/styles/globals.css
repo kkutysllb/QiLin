@@ -729,3 +729,41 @@ html[data-desktop-platform="win32"] .kworks-settings-header {
   --color-ql-cinnabar: var(--ql-cinnabar);
   --color-ql-cinnabar-hi: var(--ql-cinnabar-hi);
 }
+
+/* ── QiLin turn 尾状态字「QiLin....」：字符波光 + 实时用时（追加段）──────
+   基色取品牌朱砂 --ql-cinnabar（与麒麟方印 logo 底色一致）。波光 =
+   每个字符的颜色/光晕以 110ms 相位差依次浮起（见 qilin-turn-status.tsx
+   的 animation-delay），形成自左向右周期性扫过的光波；用时统计使用
+   tabular-nums，避免数字跳动引起的宽度抖动。 */
+@keyframes ql-char-wave {
+  0%,
+  100% {
+    color: var(--ql-cinnabar);
+    text-shadow: none;
+  }
+  50% {
+    color: var(--ql-cinnabar-hi);
+    text-shadow:
+      0 0 6px rgb(224 104 79 / 0.5),
+      0 0 16px rgb(243 220 158 / 0.35);
+  }
+}
+
+.ql-turn-word {
+  display: inline-flex;
+  align-items: baseline;
+  letter-spacing: 0.01em;
+}
+
+.ql-turn-char {
+  display: inline-block;
+  color: var(--ql-cinnabar);
+  font-weight: 600;
+  animation: ql-char-wave 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ql-turn-char {
+    animation: none;
+  }
+}

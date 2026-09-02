@@ -22,6 +22,7 @@ import {
   getVisibleAssistantText,
 } from "@/core/messages/rendering";
 import type { MessageSegment } from "@/core/messages/segments";
+import { formatTurnDuration } from "@/core/messages/turn-timing";
 import { formatTokenCount } from "@/core/messages/usage";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,8 @@ export type AssistantMessageFooterProps = {
   /** Run that produced this turn — enables per-run like/dislike feedback. */
   runId?: string;
   isLoading?: boolean;
+  /** 本轮 turn 的实测总用时（毫秒）；仅本会话实时观测过的 turn 有值。 */
+  turnDurationMs?: number;
   onBranchThread?: () => Promise<void>;
   onRegenerate?: () => void;
 };
@@ -44,6 +47,7 @@ export function AssistantMessageFooter({
   threadId,
   runId,
   isLoading = false,
+  turnDurationMs,
   onBranchThread,
   onRegenerate,
 }: AssistantMessageFooterProps) {
@@ -236,6 +240,11 @@ export function AssistantMessageFooter({
       {metadata.totalTokens !== undefined && (
         <span className="whitespace-nowrap">
           {formatTokenCount(metadata.totalTokens)} tokens
+        </span>
+      )}
+      {turnDurationMs !== undefined && (
+        <span className="whitespace-nowrap tabular-nums">
+          {formatTurnDuration(turnDurationMs)}
         </span>
       )}
     </div>

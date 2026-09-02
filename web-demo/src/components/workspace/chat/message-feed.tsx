@@ -7,7 +7,7 @@ import {
   Loader2Icon,
   RefreshCwIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStickToBottomContext } from "use-stick-to-bottom";
 
 import {
@@ -23,6 +23,10 @@ import {
 } from "@/core/messages/human-input";
 import { getAssistantRunId } from "@/core/messages/rendering";
 import { parseAssistantSegments } from "@/core/messages/segments";
+import {
+  pushTurnDuration,
+  type TurnDurations,
+} from "@/core/messages/turn-timing";
 import {
   extractContentFromMessage,
   extractPresentFilesFromMessage,
@@ -60,6 +64,7 @@ import { SubtaskCard } from "../messages/subtask-card";
 import { AssistantMessageFooter } from "./assistant-message-footer";
 import { MessageItem } from "./message-item";
 import { NeuralWaveSpinner } from "./segments/neural-wave-spinner";
+import { QilinTurnStatus } from "./segments/qilin-turn-status";
 import { ReportCard } from "./segments/report-card";
 import { SegmentList } from "./segments/segment-list";
 
@@ -403,6 +408,35 @@ export function MessageFeed({
     }
   }, [messages, updateSubtask]);
 
+  // Turn wall-clock timing: false→true stamps the start, true→false freezes
+  // the total and files it by the turn's assistant run id — resolved from
+  // the settled messages exactly the way ProcessingFlow / MessageItem resolve
+  // it for the footer, so both sides key identically. Held in component
+  // state (not a module map) so the settle itself re-renders the footer with
+  // the frozen value. Turns restored from history were never observed live
+  // and intentionally stay unmeasured.
+  const [turnDurations, setTurnDurations] = useState<TurnDurations>({});
+  const turnStartRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (thread.isLoading) {
+      turnStartRef.current ??= Date.now();
+      return;
+    }
+    const startedAt = turnStartRef.current;
+    if (startedAt === null) return;
+    turnStartRef.current = null;
+    const lastAiMessage = [...messages]
+      .reverse()
+      .find((message) => message.type === "ai");
+    const runId = lastAiMessage
+      ? getAssistantRunId(messages, lastAiMessage.id)
+      : undefined;
+    if (!runId) return;
+    setTurnDurations((prev) =>
+      pushTurnDuration(prev, runId, Date.now() - startedAt),
+    );
+  }, [thread.isLoading, messages]);
+
   if (thread.isThreadLoading && messages.length === 0) {
     return <MessageListSkeleton />;
   }
@@ -455,6 +489,7 @@ export function MessageFeed({
                           ? handleRegenerate
                           : undefined
                       }
+                      turnDurations={turnDurations}
                     />
                   ))}
                 {/* H4-d: plugin contributions at the tail of each completed
@@ -484,6 +519,7 @@ export function MessageFeed({
                   (msg) => msg.id != null && msg.id === streamingMessageId,
                 )}
                 showFooter={group.id === footerGroupId}
+                turnDurations={turnDurations}
                 onBranchThread={onBranchThread}
                 onRegenerate={canRegenerate ? handleRegenerate : undefined}
               />
@@ -617,9 +653,11 @@ export function MessageFeed({
             currently being rendered, so the user always sees motion
             until the turn completes. */}
         {thread.isLoading && (
-          <div className="text-muted-foreground flex items-center gap-2 px-1 text-sm">
+          <div className="flex items-center gap-2 px-1 text-sm">
             <NeuralWaveSpinner />
-            <span>处理中…</span>
+            {/* 品牌 turn 尾状态字：QiLin....（朱砂色 + 字符波光）
+                + 本轮 turn 实时用时统计。 */}
+            <QilinTurnStatus />
           </div>
         )}
         <div style={{ height: `${paddingBottom}px` }} />
@@ -648,6 +686,7 @@ function ProcessingFlow({
   threadId,
   isLoading,
   showFooter,
+  turnDurations,
   onBranchThread,
   onRegenerate,
 }: {
@@ -656,6 +695,7 @@ function ProcessingFlow({
   threadId: string;
   isLoading: boolean;
   showFooter: boolean;
+  turnDurations: TurnDurations;
   onBranchThread?: () => Promise<void>;
   onRegenerate?: () => void;
 }) {
@@ -666,6 +706,10 @@ function ProcessingFlow({
   const lastAssistantMessage = [...groupMessages]
     .reverse()
     .find((message) => message.type === "ai");
+  // Footer 的 runId / turn 用时共享一次解析结果，保证两处键一致。
+  const runId = lastAssistantMessage
+    ? getAssistantRunId(groupMessages, lastAssistantMessage.id)
+    : undefined;
 
   return (
     <div className="group/conversation-message flex w-full flex-col gap-3.5">
@@ -679,8 +723,11 @@ function ProcessingFlow({
           message={lastAssistantMessage}
           segments={segments}
           threadId={threadId}
-          runId={getAssistantRunId(groupMessages, lastAssistantMessage.id)}
+          runId={runId}
           isLoading={isLoading}
+          turnDurationMs={
+            runId !== undefined ? turnDurations[runId] : undefined
+          }
           onBranchThread={onBranchThread}
           onRegenerate={onRegenerate}
         />

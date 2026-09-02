@@ -8,6 +8,7 @@ import {
   parseMessageSegments,
   parseUserPrompt,
 } from "@/core/messages/segments";
+import type { TurnDurations } from "@/core/messages/turn-timing";
 import { cn } from "@/lib/utils";
 
 import { AssistantMessageFooter } from "./assistant-message-footer";
@@ -23,6 +24,8 @@ interface MessageItemProps {
   onEditMessage?: (messageId: string, replacementText: string) => void;
   onBranchThread?: () => Promise<void>;
   onRegenerate?: () => void;
+  /** 本会话实测的 turn 总用时归档（runId → ms），供 footer 固定展示。 */
+  turnDurations?: TurnDurations;
   className?: string;
 }
 
@@ -42,9 +45,14 @@ export const MessageItem = memo(function MessageItem({
   onEditMessage,
   onBranchThread,
   onRegenerate,
+  turnDurations,
   className,
 }: MessageItemProps) {
   const isHuman = message.type === "human";
+  // Footer 的 runId / turn 用时共享一次解析结果，保证两处键一致。
+  const runId = isHuman
+    ? undefined
+    : getAssistantRunId(contextMessages, message.id);
 
   // Memoize segment parsing — during SSE streaming, the parent re-renders
   // on every token. Without this, parseMessageSegments re-parses every
@@ -81,8 +89,11 @@ export const MessageItem = memo(function MessageItem({
           message={message}
           segments={segments}
           threadId={threadId}
-          runId={getAssistantRunId(contextMessages, message.id)}
+          runId={runId}
           isLoading={isLoading}
+          turnDurationMs={
+            runId !== undefined ? turnDurations?.[runId] : undefined
+          }
           onBranchThread={onBranchThread}
           onRegenerate={onRegenerate}
         />
