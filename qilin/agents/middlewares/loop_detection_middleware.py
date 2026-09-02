@@ -3,17 +3,29 @@
 P0 safety: prevents the agent from calling the same tool with the same
 arguments indefinitely until the recursion limit kills the run.
 
-Detection strategy:
-  1. After each model response, hash the tool calls (name + args).
-  2. Track recent hashes in a sliding window.
-  3. If the same hash appears >= warn_threshold times, queue a
-     "you are repeating yourself — wrap up" warning for the current
-     thread/run. The warning is **injected at the next model call** (in
-     ``wrap_model_call``) as a ``HumanMessage`` appended to the message
-     list, *after* all ToolMessage responses to the previous
-     AIMessage(tool_calls).
-  4. If it appears >= hard_limit times, strip all tool_calls from the
-     response so the agent is forced to produce a final text answer.
+Detection strategy (two layers):
+
+  1. **Chain-based** (Layer 1): the canonical identity of the WHOLE
+     tool-call set of each AI response — name plus full canonical arguments,
+     volatile free-text fields (``description``) excluded, line ranges
+     participating exactly (no range folding). Each thread tracks one
+     *consecutive* chain: the same identity repeating increments its run
+     length; any different tracked call starts a new chain, so progressive
+     reading of one file region (lines 401-600, then 528-585) never
+     accumulates toward the thresholds. Escalating reminders fire at
+     ``reminder_thresholds`` (default 3/5/8): a gentle nudge at the first
+     tier, a detailed reminder quoting the canonical arguments at later
+     tiers. At ``hard_limit`` (default 12) all tool_calls are stripped so
+     the agent is forced to produce a final text answer.
+
+  2. **Frequency-based** (Layer 2): catches the same *tool type* being
+     called many times with varying arguments (e.g. ``read_file`` on 40
+     different files) — the shape Layer 1 deliberately tolerates.
+
+A newer human message resets the chain: repetition across a user turn is
+not a loop. Reminders are advice — the model keeps the freedom to choose
+its next action; the hard stop is the last-resort backstop, and Layer 2's
+per-tool hard limit independently caps varied-argument loops.
 
 Why the warning is injected at ``wrap_model_call`` instead of
 ``after_model``:
@@ -51,14 +63,14 @@ Stop-reason surfacing (#3875 Phase 2):
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import threading
 from collections import Counter, OrderedDict, defaultdict, deque
 from collections.abc import Awaitable, Callable
 from copy import deepcopy
-from typing import TYPE_CHECKING, override
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
@@ -78,13 +90,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Defaults — can be overridden via constructor
-_DEFAULT_WARN_THRESHOLD = 3  # inject warning after 3 identical calls
-_DEFAULT_HARD_LIMIT = 5  # force-stop after 5 identical calls
-_DEFAULT_WINDOW_SIZE = 20  # track last N tool calls
+_DEFAULT_REMINDER_THRESHOLDS = (3, 5, 8)  # escalating reminder tiers (consecutive repeats)
+_DEFAULT_HARD_LIMIT = 12  # force-stop after this many consecutive identical sets
+_DEFAULT_WINDOW_SIZE = 20  # legacy Layer 1 window; now only a floor for the Layer 2 window
 _DEFAULT_MAX_TRACKED_THREADS = 100  # LRU eviction limit
 _DEFAULT_TOOL_FREQ_WARN = 30  # warn after 30 calls to the same tool type
 _DEFAULT_TOOL_FREQ_HARD_LIMIT = 50  # force-stop after 50 calls to the same tool type
+_DEFAULT_ARGUMENTS_PREVIEW_CHARS = 400  # cap on args quoted in a detailed reminder
 _MAX_PENDING_WARNINGS_PER_RUN = 4
+
+# Free-text justification fields that vary per call while the operation is
+# identical (``read_file``'s ``description``). Excluded from call identity;
+# everything else — including line ranges — participates exactly.
+_VOLATILE_ARGUMENT_FIELDS = frozenset({"description"})
 
 
 def _normalize_tool_call_args(raw_args: object) -> tuple[dict, str | None]:
@@ -113,100 +131,141 @@ def _normalize_tool_call_args(raw_args: object) -> tuple[dict, str | None]:
     return {}, json.dumps(raw_args, sort_keys=True, default=str)
 
 
-def _stable_tool_key(name: str, args: dict, fallback_key: str | None) -> str:
-    """Derive a stable key from salient args without overfitting to noise."""
-    if name == "read_file" and fallback_key is None:
-        path = args.get("path") or ""
-        start_line = args.get("start_line")
-        end_line = args.get("end_line")
-
-        bucket_size = 200
-        try:
-            start_line = int(start_line) if start_line is not None else 1
-        except (TypeError, ValueError):
-            start_line = 1
-        try:
-            end_line = int(end_line) if end_line is not None else start_line
-        except (TypeError, ValueError):
-            end_line = start_line
-
-        start_line, end_line = sorted((start_line, end_line))
-        bucket_start = max(start_line, 1)
-        bucket_end = max(end_line, 1)
-        bucket_start = (bucket_start - 1) // bucket_size
-        bucket_end = (bucket_end - 1) // bucket_size
-        return f"{path}:{bucket_start}-{bucket_end}"
-
-    # write_file / str_replace are content-sensitive: same path may be updated
-    # with different payloads during iteration. Using only salient fields (path)
-    # can collapse distinct calls, so we hash full args to reduce false positives.
-    if name in {"write_file", "str_replace"}:
-        if fallback_key is not None:
-            return fallback_key
-        return json.dumps(args, sort_keys=True, default=str)
-
-    salient_fields = ("path", "url", "query", "command", "pattern", "glob", "cmd")
-    stable_args = {field: args[field] for field in salient_fields if args.get(field) is not None}
-    if stable_args:
-        return json.dumps(stable_args, sort_keys=True, default=str)
-
-    if fallback_key is not None:
-        return fallback_key
-
-    return json.dumps(args, sort_keys=True, default=str)
+def _prune_volatile_fields(value: object) -> object:
+    """Deep-copy a JSON-domain value, dropping volatile fields at every level."""
+    if isinstance(value, dict):
+        return {
+            key: _prune_volatile_fields(item)
+            for key, item in sorted(value.items())
+            if key not in _VOLATILE_ARGUMENT_FIELDS
+        }
+    if isinstance(value, list):
+        return [_prune_volatile_fields(item) for item in value]
+    return value
 
 
-def _hash_tool_calls(tool_calls: list[dict]) -> str:
-    """Deterministic hash of a set of tool calls (name + stable key).
+def _canonical_tool_arguments(args: dict) -> str:
+    """Canonical string form of one call's arguments.
 
-    This is intended to be order-independent: the same multiset of tool calls
-    should always produce the same hash, regardless of their input order.
+    Volatile free-text fields are pruned, then the remaining value is deep
+    key-sorted and JSON-serialized, so two argument objects that differ only
+    in property order (or only in a ``description``) canonicalize identically,
+    and two calls differing in any operational field — line ranges included —
+    canonicalize differently.
     """
-    # Normalize each tool call to a stable (name, key) structure.
-    normalized: list[str] = []
+    return json.dumps(_prune_volatile_fields(args), sort_keys=True, ensure_ascii=False, default=str)
+
+
+def _canonical_call_set_key(tool_calls: list[dict]) -> str:
+    """Stable identity for one AI response's set of tool calls.
+
+    Per call: ``name:canonical-args``; the per-call strings are sorted so
+    permutations of the same multiset of calls yield the same key. The result
+    is a readable multi-line string (also quoted in detailed reminders and
+    logged truncated) rather than a digest, for observability.
+    """
+    parts: list[str] = []
     for tc in tool_calls:
         name = tc.get("name", "")
         args, fallback_key = _normalize_tool_call_args(tc.get("args", {}))
-        key = _stable_tool_key(name, args, fallback_key)
-
-        normalized.append(f"{name}:{key}")
-
-    # Sort so permutations of the same multiset of calls yield the same ordering.
-    normalized.sort()
-    blob = json.dumps(normalized, sort_keys=True, default=str)
-    return hashlib.md5(blob.encode()).hexdigest()[:12]
+        if fallback_key is not None:
+            parts.append(f"{name}:{fallback_key}")
+        else:
+            parts.append(f"{name}:{_canonical_tool_arguments(args)}")
+    parts.sort()
+    return "\n".join(parts)
 
 
-_WARNING_MSG = "[LOOP DETECTED] You are repeating the same tool calls. Stop calling tools and produce your final answer now. If you cannot complete the task, summarize what you accomplished so far."
+def _nearest_turn_marker(messages: list[Any]) -> str | None:
+    """Identity of the nearest preceding human message — the current turn's marker.
+
+    Scans backwards past tool results and earlier assistant steps; the first
+    human message found is the user turn the current response belongs to.
+    Returns the message id when present, else None — a None on either side of
+    the comparison means "unknown", and callers must skip reset detection
+    rather than guess.
+    """
+    for message in reversed(messages):
+        if getattr(message, "type", None) == "human":
+            marker = getattr(message, "id", None)
+            return str(marker) if marker else None
+    return None
+
+
+_GENTLE_REMINDER = (
+    "[REPEATED TOOL CALLS] You are repeating the exact same set of tool calls. "
+    "Analyze the previous results carefully before repeating them: if the task is not "
+    "complete, try a different approach or different arguments; if you were verifying "
+    "an edit, trust the edit tool's success or error output instead of re-reading the file."
+)
+
+
+def _detailed_reminder(call_key: str, count: int, preview_chars: int) -> str:
+    """Later-tier reminder: names the repeated set, the run length, and the arguments."""
+    preview = call_key
+    if len(preview) > preview_chars:
+        preview = f"{preview[:preview_chars]}… (+{len(call_key) - preview_chars} more chars)"
+    return (
+        "[REPEATED TOOL CALLS] The identical tool-call set has now repeated "
+        f"{count} consecutive times without making progress:\n"
+        f"{preview}\n"
+        "Do not issue these exact calls again. Inspect the latest results and choose a "
+        "different action, different arguments, or finish if enough evidence has been "
+        "gathered. If you were verifying an edit, trust the edit tool's success or error "
+        "output instead of re-reading the file."
+    )
+
+
+def _hard_stop_message(count: int) -> str:
+    return (
+        "[FORCED STOP] The identical tool-call set repeated "
+        f"{count} consecutive times without progress. Tool calls are disabled for this "
+        "response — produce your final answer from the evidence collected so far."
+    )
+
 
 _TOOL_FREQ_WARNING_MSG = (
     "[LOOP DETECTED] You have called {tool_name} {count} times without producing a final answer. Stop calling tools and produce your final answer now. If you cannot complete the task, summarize what you accomplished so far."
 )
 
-_HARD_STOP_MSG = "[FORCED STOP] Repeated tool calls exceeded the safety limit. Producing final answer with results collected so far."
-
 _TOOL_FREQ_HARD_STOP_MSG = "[FORCED STOP] Tool {tool_name} called {count} times — exceeded the per-tool safety limit. Producing final answer with results collected so far."
+
+
+@dataclass
+class _RepeatChain:
+    """One thread's consecutive-repeat chain (Layer 1 state).
+
+    ``turn_marker`` pins the human message this chain started under; a
+    different marker on a later response means the user reframed the work and
+    the chain restarts. ``reminded_tiers`` remembers which escalation tiers
+    already fired for the current chain so each reminds at most once.
+    """
+
+    key: str
+    count: int
+    turn_marker: str | None
+    reminded_tiers: set[int] = field(default_factory=set)
 
 
 class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
     """Detects and breaks repetitive tool call loops.
 
-    Threshold parameters are validated upstream by :class:`LoopDetectionConfig`;
-    construct via :meth:`from_config` to ensure values pass Pydantic validation.
-
     Args:
-        warn_threshold: Number of identical tool call sets before injecting
-            a warning message. Default: 3.
-        hard_limit: Number of identical tool call sets before stripping
-            tool_calls entirely. Default: 5.
-        window_size: Size of the sliding window for tracking calls.
-            Default: 20.
-        max_tracked_threads: Maximum number of threads to track before
-            evicting the least recently used. Default: 100.
+        reminder_thresholds: Consecutive identical tool-call counts that
+            inject an escalating reminder. The first tier sends a gentle
+            nudge; later tiers send a detailed reminder quoting the canonical
+            arguments. Default: ``(3, 5, 8)``.
+        hard_limit: Consecutive identical tool-call count at which
+            tool_calls are stripped and a final answer is forced. Must be
+            >= ``max(reminder_thresholds)``. Default: 12.
+        window_size: Legacy Layer 1 sliding-window size, retained only as
+            the floor for the Layer 2 frequency window. Default: 20.
+        max_tracked_threads: Maximum number of thread chain states to keep
+            before evicting the least recently used. Default: 100.
         tool_freq_warn: Maximum number of same-tool-type calls within a
             sliding window of ``_tool_freq_window`` before injecting a
             frequency warning. Catches cross-file read loops that
-            hash-based detection misses. Default: 30 (within a window
+            chain-based detection misses. Default: 30 (within a window
             of 50).
         tool_freq_hard_limit: Maximum number of same-tool-type calls within
             a sliding window of ``_tool_freq_window`` before forcing a
@@ -219,45 +278,73 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
             high-frequency tools (e.g. ``bash`` in batch pipelines) without
             weakening protection on all other tools. Default: ``None``
             (no overrides).
+        arguments_preview_chars: Cap on canonical-argument characters quoted
+            inside a detailed reminder. Detection always compares full
+            canonical arguments; this bounds only the model-visible preview.
+            Default: 400.
+
+    Threshold parameters are validated upstream by :class:`LoopDetectionConfig`;
+    construct via :meth:`from_config` to ensure values pass Pydantic validation.
+    The constructor re-validates and fails loud — a misconfigured threshold
+    never silently falls back.
     """
 
     def __init__(
         self,
-        warn_threshold: int = _DEFAULT_WARN_THRESHOLD,
+        reminder_thresholds: int | list[int] | tuple[int, ...] | None = None,
         hard_limit: int = _DEFAULT_HARD_LIMIT,
         window_size: int = _DEFAULT_WINDOW_SIZE,
         max_tracked_threads: int = _DEFAULT_MAX_TRACKED_THREADS,
         tool_freq_warn: int = _DEFAULT_TOOL_FREQ_WARN,
         tool_freq_hard_limit: int = _DEFAULT_TOOL_FREQ_HARD_LIMIT,
         tool_freq_overrides: dict[str, tuple[int, int]] | None = None,
+        arguments_preview_chars: int = _DEFAULT_ARGUMENTS_PREVIEW_CHARS,
     ):
         super().__init__()
-        self.warn_threshold = warn_threshold
+        if reminder_thresholds is None:
+            thresholds: list[int] = list(_DEFAULT_REMINDER_THRESHOLDS)
+        elif isinstance(reminder_thresholds, int):
+            thresholds = [reminder_thresholds]
+        else:
+            thresholds = list(reminder_thresholds)
+        if not thresholds:
+            raise ValueError("reminder_thresholds must not be empty")
+        if any(not isinstance(t, int) or t < 2 for t in thresholds):
+            raise ValueError("every reminder threshold must be an integer >= 2")
+        if len(set(thresholds)) != len(thresholds):
+            raise ValueError("reminder_thresholds must not contain duplicates")
+        self.reminder_thresholds = sorted(thresholds)
+        self._reminder_threshold_set = frozenset(self.reminder_thresholds)
+        self._first_reminder_threshold = self.reminder_thresholds[0]
+        if hard_limit < self.reminder_thresholds[-1]:
+            raise ValueError("hard_limit must be >= max(reminder_thresholds)")
+        if not isinstance(arguments_preview_chars, int) or arguments_preview_chars < 1:
+            raise ValueError("arguments_preview_chars must be an integer >= 1")
         self.hard_limit = hard_limit
         self.window_size = window_size
         self.max_tracked_threads = max_tracked_threads
         self.tool_freq_warn = tool_freq_warn
         self.tool_freq_hard_limit = tool_freq_hard_limit
+        self.arguments_preview_chars = arguments_preview_chars
         self._tool_freq_overrides: dict[str, tuple[int, int]] = tool_freq_overrides or {}
         # Layer 2's windowed frequency count can never exceed the deque length,
         # so the deque MUST be at least as long as the largest hard limit it is
         # compared against — otherwise the hard-stop branch is dead code. Do NOT
-        # reuse Layer 1's ``window_size`` (which is unrelated and defaults below
-        # the freq thresholds, e.g. 20 < hard 50); size the frequency window to
-        # the largest hard limit in play (global + every per-tool override) so a
-        # tight burst can actually reach it while spread-out calls still decay
-        # out of the window. Warn thresholds are intentionally excluded: a sane
-        # config enforces warn <= hard (covered by sizing to hard), and a misconfig
-        # with warn > hard would hard-stop first anyway, so an unreachable warn
-        # is harmless and must not inflate the window.
+        # reuse Layer 1's legacy ``window_size`` (which is unrelated and defaults
+        # below the freq thresholds, e.g. 20 < hard 50); size the frequency
+        # window to the largest hard limit in play (global + every per-tool
+        # override) so a tight burst can actually reach it while spread-out
+        # calls still decay out of the window. Warn thresholds are intentionally
+        # excluded: a sane config enforces warn <= hard (covered by sizing to
+        # hard), and a misconfig with warn > hard would hard-stop first anyway,
+        # so an unreachable warn is harmless and must not inflate the window.
         self._tool_freq_window = max(
             self.window_size,
             self.tool_freq_hard_limit,
             *(hard for _, hard in self._tool_freq_overrides.values()),
         )
         self._lock = threading.Lock()
-        self._history: OrderedDict[str, list[str]] = OrderedDict()
-        self._warned: dict[str, set[str]] = defaultdict(set)
+        self._chains: OrderedDict[str, _RepeatChain] = OrderedDict()
         # Windowed per-tool-type frequency: recent tool names per thread,
         # trimmed to ``window_size`` so the count decays instead of growing
         # monotonically (replaces the old monotonic ``_tool_freq`` integer).
@@ -271,7 +358,7 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
         # Per-thread set of tool names already warned about in Layer 2, so a
         # frequency warning is enqueued once rather than on every subsequent
         # call. Cleared per name when the windowed count decays back below the
-        # warn threshold, mirroring the hash-layer ``_warned`` pruning.
+        # warn threshold, mirroring the chain-layer tier bookkeeping.
         self._tool_freq_warned: dict[str, set[str]] = defaultdict(set)
         # Per-thread/run queue of warnings to inject at the next model call.
         # Populated by ``after_model`` (detection) and drained by
@@ -292,13 +379,14 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
     def from_config(cls, config: LoopDetectionConfig) -> LoopDetectionMiddleware:
         """Construct from a Pydantic-validated config, trusting its validation."""
         return cls(
-            warn_threshold=config.warn_threshold,
+            reminder_thresholds=config.reminder_thresholds,
             hard_limit=config.hard_limit,
             window_size=config.window_size,
             max_tracked_threads=config.max_tracked_threads,
             tool_freq_warn=config.tool_freq_warn,
             tool_freq_hard_limit=config.tool_freq_hard_limit,
             tool_freq_overrides={name: (o.warn, o.hard_limit) for name, o in config.tool_freq_overrides.items()},
+            arguments_preview_chars=config.arguments_preview_chars,
         )
 
     def _get_thread_id(self, runtime: Runtime) -> str:
@@ -357,9 +445,8 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
 
         Must be called while holding self._lock.
         """
-        while len(self._history) > self.max_tracked_threads:
-            evicted_id, _ = self._history.popitem(last=False)
-            self._warned.pop(evicted_id, None)
+        while len(self._chains) > self.max_tracked_threads:
+            evicted_id, _ = self._chains.popitem(last=False)
             self._tool_name_history.pop(evicted_id, None)
             self._tool_name_counter.pop(evicted_id, None)
             self._tool_freq_warned.pop(evicted_id, None)
@@ -413,10 +500,11 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
         """Track tool calls and check for loops.
 
         Two detection layers:
-          1. **Hash-based** (existing): catches identical tool call sets.
-          2. **Frequency-based** (new): catches the same *tool type* being
-             called many times with varying arguments (e.g. ``read_file``
-             on 40 different files).
+          1. **Chain-based** (Layer 1): catches *consecutive* identical
+             tool-call sets — the canonical identity repeats back-to-back.
+          2. **Frequency-based** (Layer 2): catches the same *tool type*
+             being called many times with varying arguments (e.g.
+             ``read_file`` on 40 different files).
 
         Returns:
             (warning_message_or_none, should_hard_stop)
@@ -434,57 +522,68 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
             return None, False
 
         thread_id = self._get_thread_id(runtime)
-        call_hash = _hash_tool_calls(tool_calls)
+        call_key = _canonical_call_set_key(tool_calls)
 
         with self._lock:
             # Touch / create entry (move to end for LRU)
-            if thread_id in self._history:
-                self._history.move_to_end(thread_id)
+            if thread_id in self._chains:
+                self._chains.move_to_end(thread_id)
             else:
-                self._history[thread_id] = []
                 self._evict_if_needed()
 
-            history = self._history[thread_id]
-            history.append(call_hash)
-            if len(history) > self.window_size:
-                history[:] = history[-self.window_size :]
+            chain = self._chains.get(thread_id)
+            turn_marker = _nearest_turn_marker(messages)
+            if (
+                chain is not None
+                and chain.turn_marker is not None
+                and turn_marker is not None
+                and turn_marker != chain.turn_marker
+            ):
+                # A newer user message reframed the work; repetition across a
+                # user turn is not a loop. Unknown markers (missing ids) on
+                # either side skip the reset rather than guess.
+                chain = None
 
-            warned_hashes = self._warned.get(thread_id)
-            if warned_hashes is not None:
-                warned_hashes.intersection_update(history)
-                if not warned_hashes:
-                    self._warned.pop(thread_id, None)
-
-            count = history.count(call_hash)
+            if chain is not None and chain.key == call_key:
+                chain.count += 1
+            else:
+                chain = _RepeatChain(key=call_key, count=1, turn_marker=turn_marker)
+            self._chains[thread_id] = chain
+            count = chain.count
             tool_names = [tc.get("name", "?") for tc in tool_calls]
 
-            # --- Layer 1: hash-based (identical call sets) ---
+            # --- Layer 1: consecutive identical call sets ---
             if count >= self.hard_limit:
                 logger.error(
-                    "Loop hard limit reached — forcing stop",
+                    "Consecutive identical tool-call chain reached the hard limit — forcing stop",
                     extra={
                         "thread_id": thread_id,
-                        "call_hash": call_hash,
+                        "call_key": call_key[:200],
                         "count": count,
                         "tools": tool_names,
                     },
                 )
-                return _HARD_STOP_MSG, True
+                return _hard_stop_message(count), True
 
-            if count >= self.warn_threshold:
-                warned = self._warned[thread_id]
-                if call_hash not in warned:
-                    warned.add(call_hash)
-                    logger.warning(
-                        "Repetitive tool calls detected — injecting warning",
-                        extra={
-                            "thread_id": thread_id,
-                            "call_hash": call_hash,
-                            "count": count,
-                            "tools": tool_names,
-                        },
-                    )
-                    return _WARNING_MSG, False
+            if count in self._reminder_threshold_set and count not in chain.reminded_tiers:
+                chain.reminded_tiers.add(count)
+                if count == self._first_reminder_threshold:
+                    message = _GENTLE_REMINDER
+                    tier = "gentle"
+                else:
+                    message = _detailed_reminder(call_key, count, self.arguments_preview_chars)
+                    tier = "detailed"
+                logger.warning(
+                    "Consecutive identical tool-call chain — injecting %s reminder",
+                    tier,
+                    extra={
+                        "thread_id": thread_id,
+                        "call_key": call_key[:200],
+                        "count": count,
+                        "tools": tool_names,
+                    },
+                )
+                return message, False
 
             # --- Layer 2: per-tool-type frequency (windowed) ---
             tool_name_history = self._tool_name_history[thread_id]
@@ -608,7 +707,7 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
             # is safe for OpenAI/Moonshot pairing validators.
             messages = state.get("messages", [])
             last_msg = messages[-1]
-            content = self._append_text(last_msg.content, warning or _HARD_STOP_MSG)
+            content = self._append_text(last_msg.content, warning or _hard_stop_message(self.hard_limit))
             stripped_msg = last_msg.model_copy(update=self._build_hard_stop_update(last_msg, content))
             return {"messages": [stripped_msg]}
 
@@ -720,8 +819,7 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
         """Clear tracking state. If thread_id given, clear only that thread."""
         with self._lock:
             if thread_id:
-                self._history.pop(thread_id, None)
-                self._warned.pop(thread_id, None)
+                self._chains.pop(thread_id, None)
                 self._tool_name_history.pop(thread_id, None)
                 self._tool_name_counter.pop(thread_id, None)
                 self._tool_freq_warned.pop(thread_id, None)
@@ -729,8 +827,7 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
                     if key[0] == thread_id:
                         self._drop_pending_warning_key_locked(key)
             else:
-                self._history.clear()
-                self._warned.clear()
+                self._chains.clear()
                 self._tool_name_history.clear()
                 self._tool_name_counter.clear()
                 self._tool_freq_warned.clear()

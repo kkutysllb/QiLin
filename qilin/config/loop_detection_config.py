@@ -22,31 +22,57 @@ class ToolFreqOverride(BaseModel):
 
 
 class LoopDetectionConfig(BaseModel):
-    """Configuration for repetitive tool-call loop detection."""
+    """Configuration for repetitive tool-call loop detection.
+
+    Layer 1 tracks the *consecutive* chain of identical tool-call sets and
+    responds with escalating reminders before the hard limit; Layer 2 tracks
+    per-tool-type frequency inside a sliding window. See the middleware
+    module docstring for the full strategy.
+    """
 
     enabled: bool = Field(
         default=True,
         description="Whether to enable repetitive tool-call loop detection",
     )
-    warn_threshold: int = Field(
-        default=3,
-        ge=1,
-        description="Number of identical tool-call sets before injecting a warning",
+    reminder_thresholds: list[int] = Field(
+        default_factory=lambda: [3, 5, 8],
+        description=(
+            "Consecutive identical tool-call counts that inject an escalating "
+            "reminder. The first tier sends a gentle nudge; later tiers send a "
+            "detailed reminder naming the tool and quoting an argument preview."
+        ),
     )
     hard_limit: int = Field(
-        default=5,
+        default=12,
         ge=1,
-        description="Number of identical tool-call sets before forcing a stop",
+        description=(
+            "Consecutive identical tool-call count at which tool_calls are "
+            "stripped and a final answer is forced. Must be >= "
+            "max(reminder_thresholds)."
+        ),
+    )
+    arguments_preview_chars: int = Field(
+        default=400,
+        ge=1,
+        description=(
+            "Cap on canonical-argument characters quoted inside a detailed "
+            "reminder. Detection always compares full canonical arguments; "
+            "this bounds only the model-visible preview."
+        ),
     )
     window_size: int = Field(
         default=20,
         ge=1,
-        description="Number of recent tool-call sets to track per thread",
+        description=(
+            "Legacy Layer 1 sliding-window size, retained as the floor for the "
+            "Layer 2 per-tool frequency window. Layer 1 no longer counts in a "
+            "window; it tracks the consecutive chain instead."
+        ),
     )
     max_tracked_threads: int = Field(
         default=100,
         ge=1,
-        description="Maximum number of thread histories to keep in memory",
+        description="Maximum number of thread chain states to keep in memory",
     )
     tool_freq_warn: int = Field(
         default=30,
@@ -65,9 +91,16 @@ class LoopDetectionConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_thresholds(self) -> "LoopDetectionConfig":
-        """Ensure hard stop cannot happen before the warning threshold."""
-        if self.hard_limit < self.warn_threshold:
-            raise ValueError("hard_limit must be greater than or equal to warn_threshold")
+        """Ensure the reminder ladder is well-formed and below the hard limit."""
+        thresholds = self.reminder_thresholds
+        if not thresholds:
+            raise ValueError("reminder_thresholds must not be empty")
+        if any(not isinstance(t, int) or t < 2 for t in thresholds):
+            raise ValueError("every reminder threshold must be an integer >= 2")
+        if len(set(thresholds)) != len(thresholds):
+            raise ValueError("reminder_thresholds must not contain duplicates")
+        if self.hard_limit < max(thresholds):
+            raise ValueError("hard_limit must be >= max(reminder_thresholds)")
         if self.tool_freq_hard_limit < self.tool_freq_warn:
-            raise ValueError("tool_freq_hard_limit must be greater than or equal to tool_freq_warn")
+            raise ValueError("tool_freq_hard_limit must be >= tool_freq_warn")
         return self

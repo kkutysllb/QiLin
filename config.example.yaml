@@ -1163,13 +1163,25 @@ input_polish:
 # ============================================================================
 # Loop Detection Configuration
 # ============================================================================
-# Detect and interrupt repeated identical tool-call loops.
-# Frequency thresholds are safety limits for repeated use of the same tool type.
+# Layer 1 tracks the *consecutive* chain of identical tool-call sets (exact
+# argument identity; free-text description fields excluded; line ranges
+# participate exactly, so progressive reading never accumulates) and responds
+# with escalating reminders before the hard limit. A newer user message resets
+# the chain. Layer 2 is a windowed per-tool-type frequency guard for
+# varied-argument loops (e.g. scanning many files with read_file).
 
 loop_detection:
   enabled: true
-  warn_threshold: 3
-  hard_limit: 5
+  # Consecutive identical tool-call counts that inject an escalating reminder:
+  # first tier = gentle nudge, later tiers = detailed (names the tool and
+  # quotes an argument preview capped at arguments_preview_chars).
+  reminder_thresholds: [3, 5, 8]
+  # Consecutive identical tool-call count that strips tool_calls and forces a
+  # final answer. Must be >= max(reminder_thresholds).
+  hard_limit: 12
+  arguments_preview_chars: 400
+  # Legacy Layer 1 sliding-window size; now only a floor for the Layer 2
+  # frequency window.
   window_size: 20
   max_tracked_threads: 100
   tool_freq_warn: 30
