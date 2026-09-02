@@ -89,7 +89,7 @@ def _import_client() -> type[Client]:
     try:
         from tenki_sandbox import Client
     except ImportError as e:  # pragma: no cover - depends on the optional dependency
-        raise ImportError("TenkiSandboxProvider requires the optional 'tenki-sandbox' dependency. Install it with: pip install 'qilin[tenki]' or pip install tenki-sandbox.") from e
+        raise ImportError("TenkiSandboxProvider requires the optional 'tenki-sandbox' dependency, which is no longer published on PyPI. Install it manually from the Tenki distribution (see https://tenki.cloud) if available.") from e
     return Client
 
 

@@ -76,7 +76,6 @@ postgres = [
 redis = ["redis>=5.0.0"]
 pymupdf = ["pymupdf4llm>=0.0.17"]
 boxlite = ["boxlite>=0.9.7"]
-tenki = ["tenki-sandbox>=0.4.0"]
 monocle = ["monocle_apptrace>=0.8.8"]
 browser = ["playwright>=1.40"]
 memory-zh = ["jieba>=0.42.1"]
