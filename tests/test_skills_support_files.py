@@ -22,6 +22,7 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 import app.gateway.routers.skills as skills_module
+from qilin.config.app_config import reset_app_config
 from qilin.config.paths import Paths
 from qilin.skills.storage.user_scoped_skill_storage import (
     UserScopedSkillStorage,
@@ -72,9 +73,41 @@ def client(tmp_path, monkeypatch):
     # Static scanner: disabled in unit tests (covered by its own suite).
     monkeypatch.setattr(skills_module, "enforce_static_scan", lambda *a, **k: [])
 
+    # The support-files routes resolve AppConfig at request time. CI has no
+    # repo-local config.yaml (it is a gitignored runtime artifact), so pin a
+    # minimal one via QILIN_CONFIG_PATH and keep the singleton cache clean.
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        "\n".join(
+            [
+                "config_version: 32",
+                "log_level: info",
+                "sandbox:",
+                "  type: local",
+                "  use: qilin.sandbox.local:LocalSandboxProvider",
+                "  allow_host_bash: true",
+                "  bash_command_timeout: 600",
+                "database:",
+                "  backend: sqlite",
+                "  sqlite_dir: .qilin/data",
+                "checkpointer:",
+                "  type: sqlite",
+                "  connection_string: .qilin/checkpoints.db",
+                "memory:",
+                "  backend: noop",
+                "  facts_file: .qilin/memory.json",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("QILIN_CONFIG_PATH", str(config_file))
+    reset_app_config()
+
     app = FastAPI()
     app.include_router(skills_module.router)
-    return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
+    yield AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
+    reset_app_config()
 
 
 async def _post(client: AsyncClient, *, subdir: str, files: list[tuple]):

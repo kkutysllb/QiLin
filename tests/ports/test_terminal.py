@@ -294,7 +294,12 @@ class TestPosixPtyIntegration:
             await asyncio.sleep(0.3)  # let the trailing prompt land
             full = registry.read(terminal_uuid, "s1", offset=0, count=500)
             lines = full.text.splitlines()
-            assert "l1" in lines and "l2" in lines and "l3" in lines
+            # Prompt and output can coalesce onto one line on some platforms
+            # (e.g. dash on Linux echoes "$ l1"), so content presence is
+            # asserted at substring level; paging is asserted structurally
+            # against the actual transcript lines below.
+            for marker in ("l1", "l2", "l3"):
+                assert marker in full.text
 
             head = registry.read(terminal_uuid, "s1", offset=0, count=1)
             assert (head.line_begin, head.line_end) == (0, 1)
