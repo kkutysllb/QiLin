@@ -39,7 +39,10 @@ export function MessageAppearanceSync() {
     const root = document.documentElement;
     const { width, fontSize, lineHeight } = settings.appearance;
     root.style.setProperty("--chat-message-width", WIDTH_VALUES[width]);
-    root.style.setProperty("--chat-message-font-size", FONT_SIZE_VALUES[fontSize]);
+    root.style.setProperty(
+      "--chat-message-font-size",
+      FONT_SIZE_VALUES[fontSize],
+    );
     root.style.setProperty(
       "--chat-message-line-height",
       LINE_HEIGHT_VALUES[lineHeight],

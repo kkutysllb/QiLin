@@ -48,9 +48,5 @@ export function ThreadTitle({
   if (!title) {
     return null;
   }
-  return (
-    <FlipDisplay uniqueKey={threadId}>
-      {title ?? "Untitled"}
-    </FlipDisplay>
-  );
+  return <FlipDisplay uniqueKey={threadId}>{title ?? "Untitled"}</FlipDisplay>;
 }

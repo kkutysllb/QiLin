@@ -877,6 +877,7 @@ export function RecentChatList() {
       orderedGroupMeta,
       staticWebsiteOnly,
       t,
+      router,
     ],
   );
 

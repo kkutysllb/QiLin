@@ -19,11 +19,7 @@ import { Tooltip } from "./tooltip";
  * as a download button with a red dot. One click quits the app, installs
  * the new version, and relaunches.
  */
-export function UpdateInstallBadge({
-  className,
-}: {
-  className?: string;
-}) {
+export function UpdateInstallBadge({ className }: { className?: string }) {
   const [ready, setReady] = useState<UpdateReadyInfo | null>(null);
   const [installing, setInstalling] = useState(false);
 
@@ -48,7 +44,7 @@ export function UpdateInstallBadge({
         onClick={handleInstall}
         disabled={installing}
         className={cn(
-          "text-muted-foreground hover:text-foreground relative flex size-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-sidebar-accent",
+          "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent relative flex size-7 shrink-0 items-center justify-center rounded-md transition-colors",
           className,
         )}
       >
@@ -58,7 +54,7 @@ export function UpdateInstallBadge({
           <DownloadIcon className="size-3.5" />
         )}
         {!installing && (
-          <span className="bg-red-500 absolute top-1 right-1 size-1.5 rounded-full" />
+          <span className="absolute top-1 right-1 size-1.5 rounded-full bg-red-500" />
         )}
       </button>
     </Tooltip>

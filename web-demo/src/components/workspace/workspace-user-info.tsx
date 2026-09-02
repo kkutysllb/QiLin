@@ -7,10 +7,7 @@ import {
   UserIcon,
 } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,8 +43,8 @@ export function WorkspaceUserInfo() {
   if (!user) return null;
 
   const avatar = (
-    <Avatar className="size-8 shrink-0 ring-2 ring-offset-1 ring-offset-background ring-zinc-400/40">
-      <AvatarFallback className="bg-gradient-to-br from-zinc-500 via-zinc-600 to-neutral-700 text-white text-sm font-bold shadow-sm">
+    <Avatar className="ring-offset-background size-8 shrink-0 ring-2 ring-zinc-400/40 ring-offset-1">
+      <AvatarFallback className="bg-gradient-to-br from-zinc-500 via-zinc-600 to-neutral-700 text-sm font-bold text-white shadow-sm">
         <UserIcon className="size-4" />
       </AvatarFallback>
     </Avatar>
@@ -68,7 +65,7 @@ export function WorkspaceUserInfo() {
       <div className="flex flex-col gap-1">
         <p className="truncate text-sm font-medium">{user.email}</p>
         <div className="flex items-center gap-1.5">
-          <ShieldCheckIcon className="size-3.5 text-muted-foreground" />
+          <ShieldCheckIcon className="text-muted-foreground size-3.5" />
           <span className="text-muted-foreground text-xs">
             {getRoleLabel(user.system_role, t)}
           </span>
@@ -119,10 +116,13 @@ export function WorkspaceUserInfo() {
         <div className="min-w-0 flex-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button type="button" className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left outline-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+              <button
+                type="button"
+                className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left outline-none"
+              >
                 {avatar}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium leading-tight">
+                  <p className="truncate text-sm leading-tight font-medium">
                     {user.email}
                   </p>
                   <p className="text-muted-foreground truncate text-xs leading-tight">

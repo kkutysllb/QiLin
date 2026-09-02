@@ -28,11 +28,7 @@ function getWrapper(el: HTMLElement | null): HTMLElement | null {
  * 不依赖任何容器 rect —— 避免 wrapper 是整页布局（sidebar + 内容 +
  * 右面板）时把中间区域宽度算进去。
  */
-export function SidebarResizeHandle({
-  collapsed,
-}: {
-  collapsed: boolean;
-}) {
+export function SidebarResizeHandle({ collapsed }: { collapsed: boolean }) {
   const handleRef = useRef<HTMLDivElement>(null);
 
   // 初始化：从 localStorage 恢复宽度
@@ -125,7 +121,7 @@ export function SidebarResizeHandle({
       onKeyDown={onKeyDown}
       className={cn(
         "absolute top-0 right-0 z-30 hidden h-full w-1 cursor-col-resize",
-        "bg-transparent transition-colors hover:bg-primary/20",
+        "hover:bg-primary/20 bg-transparent transition-colors",
         "md:block",
       )}
     />

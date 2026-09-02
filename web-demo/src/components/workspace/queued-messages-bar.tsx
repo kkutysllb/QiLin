@@ -91,9 +91,9 @@ export function QueuedMessagesBar({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex flex-col gap-1.5 border-t bg-background px-3 py-2">
+      <div className="bg-background flex flex-col gap-1.5 border-t px-3 py-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">
+          <span className="text-muted-foreground text-xs font-medium">
             {t.queue.title} ({pendingCount})
           </span>
           <Button
@@ -131,8 +131,9 @@ export function QueuedMessagesBar({
                 key={msg.id}
                 role="listitem"
                 className={cn(
-                  "flex items-start gap-2 rounded-md border bg-muted/40 px-2.5 py-1.5 text-xs",
-                  msg.status === "error" && "border-red-300 dark:border-red-800",
+                  "bg-muted/40 flex items-start gap-2 rounded-md border px-2.5 py-1.5 text-xs",
+                  msg.status === "error" &&
+                    "border-red-300 dark:border-red-800",
                 )}
               >
                 {/* 左侧状态色条 */}
@@ -146,7 +147,7 @@ export function QueuedMessagesBar({
 
                 {/* 中间：状态标签 + 内容 */}
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                  <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
                     {(msg.status === "injecting" ||
                       msg.status === "sending") && (
                       <Loader2Icon className="size-2.5 animate-spin" />
@@ -178,11 +179,11 @@ export function QueuedMessagesBar({
                           setEditingId(null);
                         }
                       }}
-                      className="w-full resize-none rounded border bg-background px-1.5 py-1 text-xs outline-none"
+                      className="bg-background w-full resize-none rounded border px-1.5 py-1 text-xs outline-none"
                       rows={2}
                     />
                   ) : (
-                    <p className="whitespace-pre-wrap break-words text-foreground">
+                    <p className="text-foreground break-words whitespace-pre-wrap">
                       {msg.content}
                     </p>
                   )}

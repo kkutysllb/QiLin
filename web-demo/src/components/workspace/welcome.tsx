@@ -23,8 +23,9 @@ export function Welcome({
 
   // Compute the greeting on the client only to avoid SSR/CSR hydration
   // mismatch (the server renders in UTC; the client uses local time).
-  const [greetingKey, setGreetingKey] =
-    useState<"morning" | "afternoon" | "evening">("morning");
+  const [greetingKey, setGreetingKey] = useState<
+    "morning" | "afternoon" | "evening"
+  >("morning");
   useEffect(() => {
     setGreetingKey(greetingKeyForHour(new Date().getHours()));
   }, []);
@@ -44,7 +45,7 @@ export function Welcome({
           is clamped so it never exceeds the chat column width. */}
       <div
         aria-hidden
-        className="text-foreground/8 pointer-events-none absolute inset-x-0 top-1/2 flex select-none items-center justify-center"
+        className="text-foreground/8 pointer-events-none absolute inset-x-0 top-1/2 flex items-center justify-center select-none"
       >
         <span className="-translate-y-1/2 text-[clamp(8rem,18vw,14rem)] font-extrabold tracking-tighter whitespace-nowrap">
           QiLin

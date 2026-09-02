@@ -158,16 +158,14 @@ export function SlashCommandMenu({
 
   // Keep the selected item in view when navigating with arrows.
   useEffect(() => {
-    const node = listRef.current?.children[selected] as
-      | HTMLElement
-      | undefined;
+    const node = listRef.current?.children[selected] as HTMLElement | undefined;
     node?.scrollIntoView({ block: "nearest" });
   }, [selected]);
 
   if (query === null || filtered.length === 0) return null;
 
   return (
-    <div className="bg-background/95 absolute bottom-full left-0 right-0 z-20 mb-2 overflow-hidden rounded-xl border shadow-lg backdrop-blur">
+    <div className="bg-background/95 absolute right-0 bottom-full left-0 z-20 mb-2 overflow-hidden rounded-xl border shadow-lg backdrop-blur">
       <div className="text-muted-foreground flex items-center gap-3 border-b px-3 py-1.5 text-[11px]">
         <span>技能命令</span>
         <span className="ml-auto flex items-center gap-2">
@@ -200,7 +198,7 @@ export function SlashCommandMenu({
               setSelected(index);
             }}
           >
-            <span className="font-mono text-emerald-600 shrink-0 dark:text-emerald-400">
+            <span className="shrink-0 font-mono text-emerald-600 dark:text-emerald-400">
               /{skill.name}
             </span>
             <span className="text-muted-foreground line-clamp-1 text-xs">
