@@ -1,29 +1,3 @@
 {
-  "plugins": [
-    {
-      "id": "hello-tab",
-      "script": "/plugins/hello-tab/client.js",
-      "disabled": false
-    },
-    {
-      "id": "hello-turntail",
-      "script": "/plugins/hello-turntail/client.js",
-      "disabled": false
-    },
-    {
-      "id": "hello-toolevents",
-      "server": "plugins/hello-toolevents/entry.js"
-    },
-    {
-      "id": "kcoder-terminal",
-      "script": "/plugins/kcoder-terminal/client.js",
-      "server": "plugins/kcoder-terminal/entry.js"
-    },
-    {
-      "id": "kcoder-git-panel",
-      "source": "/Users/libing/kk_Projects/dsh-plugins/kcoder-git-panel",
-      "script": "/plugins/kcoder-git-panel/client.js",
-      "server": "plugins/kcoder-git-panel/entry.js"
-    }
-  ]
+  "plugins": []
 }
