@@ -1,6 +1,11 @@
 "use client";
 
-import { AlertTriangleIcon, PlusIcon, SparklesIcon, TerminalIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  PlusIcon,
+  SparklesIcon,
+  TerminalIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -38,7 +43,8 @@ const MCP_PRESETS: MCPServerConfig[] = [
     type: "stdio",
     command: "npx",
     args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-    description: "Dynamic and reflective problem-solving through thought sequences",
+    description:
+      "Dynamic and reflective problem-solving through thought sequences",
   },
   {
     enabled: true,
@@ -152,7 +158,9 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
     // Skip flags (--*), version specifiers (contain <>=), and paths (/tmp)
     const pkg =
       preset.args
-        ?.filter((a) => !a.startsWith("-") && !/[<>=]/.test(a) && !a.startsWith("/"))
+        ?.filter(
+          (a) => !a.startsWith("-") && !/[<>=]/.test(a) && !a.startsWith("/"),
+        )
         .pop() ?? "";
     if (pkg) {
       const base = pkg
@@ -199,17 +207,11 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
           : "relative flex items-center justify-between px-6 py-5"
       }
     >
-      <div
-        className={
-          embedded
-            ? "flex items-center gap-2"
-            : "space-y-1.5"
-        }
-      >
+      <div className={embedded ? "flex items-center gap-2" : "space-y-1.5"}>
         {embedded ? (
           <div className="flex items-center gap-2">
             {serverEntries.length > 0 && !loading && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-2 text-xs">
                 <span className="inline-flex size-2 rounded-full bg-amber-400" />
                 {serverEntries.length} {t.mcp.title}
               </div>
@@ -217,38 +219,40 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
           </div>
         ) : (
           <>
-            <h1 className="text-2xl font-extrabold tracking-tight flex items-center gap-2">
-              <TerminalIcon className="w-6 h-6 text-rose-500" />
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+              <TerminalIcon className="h-6 w-6 text-rose-500" />
               <span className="bg-gradient-to-r from-amber-500 via-orange-400 to-rose-400 bg-clip-text text-transparent">
                 {t.mcp.title}
               </span>
             </h1>
-            <p className="text-muted-foreground text-sm max-w-xl">
+            <p className="text-muted-foreground max-w-xl text-sm">
               {t.mcp.description}
             </p>
           </>
         )}
       </div>
-      <Button
-        onClick={handleAdd}
-        className={
-          embedded
-            ? "gap-1.5"
-            : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 shadow-md shadow-amber-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/30"
-        }
-      >
-        <PlusIcon className="mr-1.5 h-4 w-4" />
-        {t.mcp.addServer}
-      </Button>
+      {(loading || serverEntries.length > 0) && (
+        <Button
+          onClick={handleAdd}
+          className={
+            embedded
+              ? "gap-1.5"
+              : "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25 transition-all duration-200 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-500/30"
+          }
+        >
+          <PlusIcon className="mr-1.5 h-4 w-4" />
+          {t.mcp.addServer}
+        </Button>
+      )}
     </div>
   );
 
   return (
     <div className={embedded ? "space-y-6" : "flex size-full flex-col"}>
       {!embedded && (
-        <div className="relative shrink-0 border-b bg-gradient-to-b from-muted/30 to-transparent">
+        <div className="from-muted/30 relative shrink-0 border-b bg-gradient-to-b to-transparent">
           {/* Decorative background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <div className="absolute -top-24 -right-24 size-64 rounded-full bg-amber-500/5 blur-3xl" />
             <div className="absolute -bottom-16 left-1/3 size-48 rounded-full bg-orange-500/5 blur-3xl" />
           </div>
@@ -264,13 +268,13 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="h-14 animate-pulse rounded-lg border bg-muted/30"
+                className="bg-muted/30 h-14 animate-pulse rounded-lg border"
               />
             ))}
           </div>
         ) : error ? (
           <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
-            <div className="size-16 rounded-2xl bg-red-500/10 flex items-center justify-center">
+            <div className="flex size-16 items-center justify-center rounded-2xl bg-red-500/10">
               <TerminalIcon className="size-7 text-red-400" />
             </div>
             <p className="text-destructive text-sm font-medium">
@@ -285,14 +289,14 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
         ) : serverEntries.length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-muted blur-xl" />
-              <div className="relative bg-muted flex h-16 w-16 items-center justify-center rounded-2xl ring-1 ring-border">
+              <div className="bg-muted absolute inset-0 rounded-full blur-xl" />
+              <div className="bg-muted ring-border relative flex h-16 w-16 items-center justify-center rounded-2xl ring-1">
                 <TerminalIcon className="h-8 w-8" />
               </div>
             </div>
             <div>
-              <p className="font-semibold text-lg">{t.mcp.emptyTitle}</p>
-              <p className="text-muted-foreground mt-1 text-sm max-w-sm">
+              <p className="text-lg font-semibold">{t.mcp.emptyTitle}</p>
+              <p className="text-muted-foreground mt-1 max-w-sm text-sm">
                 {t.mcp.emptyDescription}
               </p>
             </div>
@@ -325,7 +329,9 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
           <div className="flex items-center gap-2">
             <SparklesIcon className="size-4 text-amber-500" />
             <h3
-              className={embedded ? "text-sm font-semibold" : "text-sm font-semibold"}
+              className={
+                embedded ? "text-sm font-semibold" : "text-sm font-semibold"
+              }
             >
               {t.mcp.guideLinks}
             </h3>
@@ -337,7 +343,7 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
               return (
                 <div
                   key={i}
-                  className="flex items-center justify-between gap-3 rounded-lg border bg-card px-3 py-2.5"
+                  className="bg-card flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -396,10 +402,7 @@ export function McpGallery({ embedded = false }: { embedded?: boolean }) {
               {t.mcp.deleteServer}
             </DialogTitle>
             <DialogDescription className="pl-10">
-              {t.mcp.deleteConfirm.replace(
-                "{name}",
-                deletingName ?? "",
-              )}
+              {t.mcp.deleteConfirm.replace("{name}", deletingName ?? "")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="px-6 pb-5">
