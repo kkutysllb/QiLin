@@ -27,6 +27,16 @@ not a loop. Reminders are advice — the model keeps the freedom to choose
 its next action; the hard stop is the last-resort backstop, and Layer 2's
 per-tool hard limit independently caps varied-argument loops.
 
+File-version awareness is delegated, not duplicated: the read-before-write
+gate (``ReadBeforeWriteMiddleware``, issue #3857) already refuses writes to
+files changed since their last read and forces the re-read, so this
+middleware does not track file state. What it adds on top is a *denial-aware
+early break*: when the previous identical attempt's tool results signalled
+failure (gate rejection, permission denial, tool error), repeating the call
+unchanged is already a loop at the second attempt — a dedicated reminder
+fires immediately (and on every further failed repeat) instead of waiting
+for the reminder ladder.
+
 Why the warning is injected at ``wrap_model_call`` instead of
 ``after_model``:
 
@@ -192,11 +202,44 @@ def _nearest_turn_marker(messages: list[Any]) -> str | None:
     return None
 
 
+def _previous_attempt_failed(messages: list[Any]) -> bool:
+    """Whether the previous identical response's tool results signalled failure.
+
+    Scans the ToolMessage results sitting between the previous AI response and
+    the current trailing one. Any ``status="error"`` result — the
+    read-before-write gate's rejection, permission denials, tool errors — or
+    any ``"Error: ..."`` content string counts as failure. Content that is not
+    a plain string (content blocks) is judged by ``status`` alone.
+    """
+    failed_seen = False
+    for message in reversed(messages[:-1]):
+        mtype = getattr(message, "type", None)
+        if mtype == "tool":
+            if failed_seen:
+                continue
+            if getattr(message, "status", None) == "error":
+                failed_seen = True
+                continue
+            content = getattr(message, "content", "")
+            if isinstance(content, str) and content.startswith("Error:"):
+                failed_seen = True
+        elif mtype in ("ai", "human"):
+            break
+    return failed_seen
+
+
 _GENTLE_REMINDER = (
     "[REPEATED TOOL CALLS] You are repeating the exact same set of tool calls. "
     "Analyze the previous results carefully before repeating them: if the task is not "
     "complete, try a different approach or different arguments; if you were verifying "
     "an edit, trust the edit tool's success or error output instead of re-reading the file."
+)
+
+_DENIED_REPEAT_REMINDER = (
+    "[REPEATED FAILED CALL] The previous identical tool call failed, and you are repeating "
+    "it unchanged. Retrying identically will not change the outcome: if a file changed, "
+    "re-read it first; if the call was denied, do not retry it — use a different approach "
+    "or different arguments, or report the blocker to the user."
 )
 
 
@@ -239,12 +282,15 @@ class _RepeatChain:
     different marker on a later response means the user reframed the work and
     the chain restarts. ``reminded_tiers`` remembers which escalation tiers
     already fired for the current chain so each reminds at most once.
+    ``failed_repeats`` counts consecutive repeats whose previous attempt
+    failed — the denial-aware early break escalates on these immediately.
     """
 
     key: str
     count: int
     turn_marker: str | None
     reminded_tiers: set[int] = field(default_factory=set)
+    failed_repeats: int = 0
 
 
 class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
@@ -564,6 +610,27 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
                     },
                 )
                 return _hard_stop_message(count), True
+
+            # Denial-aware early break: when the previous identical attempt
+            # failed (read-before-write gate rejection, permission denial,
+            # tool error), the repetition is already futile at the second
+            # attempt — remind now, and on every further failed repeat,
+            # instead of waiting for the reminder ladder. A successful
+            # attempt clears the streak and hands control back to the ladder.
+            if count >= 2 and _previous_attempt_failed(messages):
+                chain.failed_repeats += 1
+                logger.warning(
+                    "Chain repeats a failed attempt — injecting denied-repeat reminder",
+                    extra={
+                        "thread_id": thread_id,
+                        "call_key": call_key[:200],
+                        "count": count,
+                        "failed_repeats": chain.failed_repeats,
+                        "tools": tool_names,
+                    },
+                )
+                return _DENIED_REPEAT_REMINDER, False
+            chain.failed_repeats = 0
 
             if count in self._reminder_threshold_set and count not in chain.reminded_tiers:
                 chain.reminded_tiers.add(count)

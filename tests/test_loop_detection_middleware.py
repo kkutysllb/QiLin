@@ -149,6 +149,88 @@ class TestChainSemantics:
         assert warning is not None and hard is False
 
 
+class TestDeniedRepeatEarlyBreak:
+    """A repeat whose previous attempt failed breaks immediately, not at tier 3."""
+
+    def test_failed_previous_attempt_reminds_at_second_repeat(self):
+        mw = LoopDetectionMiddleware()
+        call = read_call("f.py", 1, 2)
+        messages = [HumanMessage(content="go", id="h1"), ai_response(call)]
+        assert track(mw, messages) == (None, False)
+        # Read-before-write gate rejection shape: status="error" + Error: content.
+        messages.append(
+            ToolMessage(
+                content="Error: write_file blocked — f.py already exists and you have not read its current version.",
+                tool_call_id="call_0",
+                status="error",
+            )
+        )
+        messages.append(ai_response(call))
+        warning, hard = track(mw, messages)
+        assert warning is not None and "REPEATED FAILED CALL" in warning
+        assert hard is False
+
+    def test_denied_reminder_fires_on_every_failed_repeat(self):
+        mw = LoopDetectionMiddleware()
+        call = read_call("f.py", 1, 2)
+        messages = [HumanMessage(content="go", id="h1"), ai_response(call)]
+        assert track(mw, messages) == (None, False)  # count 1 — not a repeat yet
+        messages.append(ToolMessage(content="Error: denied", tool_call_id="call_0", status="error"))
+        for _expected_count in (2, 3, 4):  # every failed repeat reminds
+            messages.append(ai_response(call))
+            warning, hard = track(mw, messages)
+            assert warning is not None and "REPEATED FAILED CALL" in warning
+            assert hard is False
+            messages.append(ToolMessage(content="Error: denied", tool_call_id="call_0", status="error"))
+
+    def test_success_clears_the_denied_streak_and_restores_the_ladder(self):
+        mw = LoopDetectionMiddleware()  # tiers (3, 5, 8), hard 12
+        call = read_call("f.py", 1, 2)
+        messages = [HumanMessage(content="go", id="h1"), ai_response(call)]
+        track(mw, messages)  # count 1
+        messages.append(ToolMessage(content="Error: denied", tool_call_id="call_0", status="error"))
+        messages.append(ai_response(call))
+        warning, _ = track(mw, messages)  # failed repeat @2 → denied reminder
+        assert warning is not None and "REPEATED FAILED CALL" in warning
+        # A successful attempt clears the streak: repeat @3 falls back to the
+        # ladder — gentle tier fires (not the denial reminder).
+        messages.append(ToolMessage(content="ok", tool_call_id="call_0"))
+        messages.append(ai_response(call))
+        warning, hard = track(mw, messages)
+        assert warning is not None and "REPEATED FAILED CALL" not in warning
+        assert "exact same set" in warning and hard is False
+        # count 4 — between tiers, silent.
+        messages.append(ToolMessage(content="ok", tool_call_id="call_0"))
+        messages.append(ai_response(call))
+        assert track(mw, messages) == (None, False)
+        # count 5 — detailed tier.
+        messages.append(ToolMessage(content="ok", tool_call_id="call_0"))
+        messages.append(ai_response(call))
+        warning, hard = track(mw, messages)
+        assert warning is not None and "5 consecutive" in warning
+        assert "REPEATED FAILED CALL" not in warning
+
+    def test_error_prefix_content_counts_even_without_error_status(self):
+        mw = LoopDetectionMiddleware()
+        call = read_call("f.py", 1, 2)
+        messages = [HumanMessage(content="go", id="h1"), ai_response(call)]
+        track(mw, messages)
+        # Default ToolMessage status is "success"; the Error: prefix alone counts.
+        messages.append(ToolMessage(content="Error: String to replace not found in file: f.py", tool_call_id="call_0"))
+        messages.append(ai_response(call))
+        warning, _ = track(mw, messages)
+        assert warning is not None and "REPEATED FAILED CALL" in warning
+
+    def test_tool_message_without_failure_does_not_escalate(self):
+        mw = LoopDetectionMiddleware()
+        call = read_call("f.py", 1, 2)
+        messages = [HumanMessage(content="go", id="h1"), ai_response(call)]
+        track(mw, messages)
+        messages.append(ToolMessage(content="ok", tool_call_id="call_0"))
+        messages.append(ai_response(call))
+        assert track(mw, messages) == (None, False)  # count 2, success → ladder path
+
+
 class TestEscalationLadder:
     def test_gentle_then_detailed_then_hard_with_default_ladder(self):
         mw = LoopDetectionMiddleware()  # thresholds (3, 5, 8), hard 12
