@@ -16,10 +16,9 @@ import base64
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
-
 
 # =============================================================================
 # Constants
@@ -93,15 +92,15 @@ def _submit_lro(
     model: str,
     prompt: str,
     aspect_ratio: str,
-    image_b64: Optional[str],
+    image_b64: str | None,
     negative_prompt: str = "",
 ) -> str:
     """Submit a predictLongRunning request and return the operation name."""
-    instance: Dict[str, Any] = {"prompt": prompt}
+    instance: dict[str, Any] = {"prompt": prompt}
     if image_b64:
         instance["image"] = {"bytesBase64Encoded": image_b64}
 
-    parameters: Dict[str, Any] = {
+    parameters: dict[str, Any] = {
         "aspectRatio": _normalize_aspect_ratio(aspect_ratio),
         "sampleCount": 1,
         # Veo 3.x can generate native audio; enable for richer output.
@@ -118,7 +117,7 @@ def _submit_lro(
     key = _api_key()
     url = f"{GEMINI_BASE}/v1beta/models/{model}:predictLongRunning?key={key}"
 
-    print(f"Submitting Gemini Veo LRO...")
+    print("Submitting Gemini Veo LRO...")
     print(f"  Model: {model}")
     print(f"  Aspect: {aspect_ratio}")
     print(f"  Image input: {'yes' if image_b64 else 'no'}")
@@ -143,7 +142,7 @@ def _submit_lro(
     return name
 
 
-def _poll_lro(model: str, op_name: str) -> Dict[str, Any]:
+def _poll_lro(model: str, op_name: str) -> dict[str, Any]:
     """Poll a long-running operation until done. Returns the full response dict."""
     key = _api_key()
     # The polling URL uses a path-prefixed operation name.
@@ -152,7 +151,7 @@ def _poll_lro(model: str, op_name: str) -> Dict[str, Any]:
         f"{GEMINI_BASE}/v1beta/models/{model}:predictLongRunning/{op_name}?key={key}"
     )
 
-    print(f"Waiting for Gemini Veo operation to complete...")
+    print("Waiting for Gemini Veo operation to complete...")
     start = time.time()
 
     while True:
@@ -184,7 +183,7 @@ def _poll_lro(model: str, op_name: str) -> Dict[str, Any]:
         time.sleep(POLL_INTERVAL_SEC)
 
 
-def _extract_video_uri(response: Dict[str, Any]) -> str:
+def _extract_video_uri(response: dict[str, Any]) -> str:
     """Extract a downloadable video URI from the LRO response.
 
     Veo responses look like:
@@ -217,7 +216,7 @@ def _download_video(uri: str, output_path: str) -> str:
             f"returns HTTPS URIs instead."
         )
 
-    print(f"Downloading Gemini Veo video...")
+    print("Downloading Gemini Veo video...")
     print(f"  URI: {uri}")
     print(f"  Save to: {output_path}")
 
@@ -250,7 +249,7 @@ def _download_video(uri: str, output_path: str) -> str:
 
 def generate(
     prompt_text: str,
-    reference_images: List[str],
+    reference_images: list[str],
     output_file: str,
     aspect_ratio: str = "16:9",
     fast_mode: bool = False,
@@ -264,7 +263,7 @@ def generate(
     """
     model = _model_for(fast_mode)
 
-    image_b64: Optional[str] = None
+    image_b64: str | None = None
     for img in reference_images:
         if img and os.path.exists(img) and os.path.getsize(img) > 0:
             print(f"  Loading reference image: {Path(img).name}")

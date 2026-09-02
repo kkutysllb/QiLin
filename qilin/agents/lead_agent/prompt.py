@@ -16,11 +16,11 @@ from qilin.config.subagents_config import (
     clamp_total_subagents_per_run,
 )
 from qilin.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from qilin.ports.system_prompt import render_sections as render_ports_prompt_sections
 from qilin.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
 from qilin.skills.types import Skill, SkillCategory
 from qilin.subagents import get_available_subagent_names
 from qilin.tools.builtins.tool_search import get_deferred_tools_prompt_section
-from qilin.ports.system_prompt import render_sections as render_ports_prompt_sections
 
 if TYPE_CHECKING:
     from qilin.config.app_config import AppConfig

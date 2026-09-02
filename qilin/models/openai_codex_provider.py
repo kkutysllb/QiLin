@@ -41,7 +41,7 @@ CODEX_BASE_URL = "https://chatgpt.com/backend-api/codex"
 
 def _codex_backoff_ms(attempt: int) -> int:
     """Exponential retry backoff shared by the sync and async API channels."""
-    return backoff_delay_ms(attempt, 2000)
+    return int(backoff_delay_ms(attempt, 2000))
 
 
 def _merge_completed_response(

@@ -382,7 +382,7 @@ class GoalRepository:
     async def pause(
         self, thread_id: str, *, ref: dict[str, int | str], user_id: str | None = None
     ) -> dict[str, Any]:
-        return await self._transition(thread_id, ref, "pause", ["active"], "paused", user_id=user_id)
+        return await self._transition(thread_id, ref, "pause", ("active",), "paused", user_id=user_id)
 
     async def resume(
         self, thread_id: str, *, ref: dict[str, int | str], user_id: str | None = None
@@ -419,7 +419,7 @@ f'round budget exhausted ({snap["max_goal_rounds"]}); '
         self, thread_id: str, *, ref: dict[str, int | str], user_id: str | None = None
     ) -> dict[str, Any]:
         return await self._transition(
-            thread_id, ref, "complete", ["active", "paused", "blocked"], "complete", user_id=user_id
+            thread_id, ref, "complete", ("active", "paused", "blocked"), "complete", user_id=user_id
         )
 
     async def block(

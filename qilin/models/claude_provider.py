@@ -404,4 +404,4 @@ class ClaudeChatModel(ChatAnthropic):
                 except (ValueError, TypeError):
                     pass
 
-        return total_ms
+        return int(total_ms)

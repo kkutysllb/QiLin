@@ -1,9 +1,7 @@
 import base64
-import io
 import json
 import mimetypes
 import os
-import sys
 
 import requests
 from PIL import Image
@@ -68,7 +66,7 @@ def generate_image(
     output_file: str,
     aspect_ratio: str = "16:9",
 ) -> str:
-    with open(prompt_file, "r", encoding="utf-8") as f:
+    with open(prompt_file, encoding="utf-8") as f:
         prompt = f.read()
 
     # Validate reference images

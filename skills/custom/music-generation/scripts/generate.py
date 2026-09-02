@@ -1,7 +1,6 @@
 import base64
 import json
 import os
-import tempfile
 
 import requests
 
@@ -371,7 +370,7 @@ if __name__ == "__main__":
 
     # ── Resolve prompt ──
     if args.prompt_file:
-        with open(args.prompt_file, "r", encoding="utf-8") as f:
+        with open(args.prompt_file, encoding="utf-8") as f:
             prompt = f.read().strip()
     else:
         prompt = args.prompt.strip()
@@ -379,7 +378,7 @@ if __name__ == "__main__":
     # ── Resolve lyrics ──
     lyrics = ""
     if args.lyrics_file:
-        with open(args.lyrics_file, "r", encoding="utf-8") as f:
+        with open(args.lyrics_file, encoding="utf-8") as f:
             lyrics = f.read().strip()
     elif args.lyrics:
         lyrics = args.lyrics.strip()

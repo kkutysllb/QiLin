@@ -133,8 +133,8 @@ class ReasoningCaptureMixin:
             restore_reasoning_content,
         )
 
-        original_messages = self._convert_input(input_).to_messages()
-        payload = super()._get_request_payload(input_, stop=stop, **kwargs)
+        original_messages = self._convert_input(input_).to_messages()  # type: ignore[attr-defined]
+        payload = super()._get_request_payload(input_, stop=stop, **kwargs)  # type: ignore[misc]
 
         restore_assistant_payloads(
             payload.get("messages", []),
@@ -153,7 +153,7 @@ class ReasoningCaptureMixin:
         base_generation_info: dict | None,
     ) -> ChatGenerationChunk | None:
         """Capture provider reasoning fields from streaming deltas."""
-        generation_chunk = super()._convert_chunk_to_generation_chunk(
+        generation_chunk = super()._convert_chunk_to_generation_chunk(  # type: ignore[misc]
             chunk,
             default_chunk_class,
             base_generation_info,
@@ -188,7 +188,7 @@ class ReasoningCaptureMixin:
         generation_info: dict | None = None,
     ) -> ChatResult:
         """Capture provider reasoning fields from non-streaming responses."""
-        result = super()._create_chat_result(response, generation_info)
+        result = super()._create_chat_result(response, generation_info)  # type: ignore[misc]
         response_dict = (
             response if isinstance(response, dict) else response.model_dump()
         )

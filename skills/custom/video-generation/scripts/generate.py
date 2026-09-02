@@ -1,17 +1,17 @@
-import base64
 import json
 import mimetypes
 import os
 import shutil
 import subprocess
 import tempfile
-import time
 
 import requests
 
 # Provider modules live alongside this script.
-from gemini_veo_provider import generate as gemini_generate, is_configured as gemini_ok
-from kling_provider import generate as kling_generate, is_configured as kling_ok
+from gemini_veo_provider import generate as gemini_generate
+from gemini_veo_provider import is_configured as gemini_ok
+from kling_provider import generate as kling_generate
+from kling_provider import is_configured as kling_ok
 
 # MiniMax API base URL for TTS / music (domestic: api.minimaxi.com).
 # Note: Only audio endpoints (TTS + music) still use MiniMax; video generation
@@ -27,7 +27,7 @@ MAX_WAIT_SEC = 1800
 DEFAULT_VOICE_ID = "male-qn-qingse"
 # Default female voice for dialogue
 DEFAULT_FEMALE_VOICE_ID = "female-shaonv"
-# TTS model – use speech-2.8-hd for Token Plan (best quality with emotion tags)
+# TTS model - use speech-2.8-hd for Token Plan (best quality with emotion tags)
 TTS_MODEL = "speech-2.8-hd"
 
 
@@ -46,7 +46,7 @@ def _has_ffmpeg() -> bool:
 
 def _load_prompt_json(prompt_file: str) -> dict:
     """Load and parse the JSON prompt file."""
-    with open(prompt_file, "r", encoding="utf-8") as f:
+    with open(prompt_file, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -138,11 +138,8 @@ def _call_tts(text: str, voice_id: str, emotion: str = "neutral") -> str:
     if not hex_audio:
         raise RuntimeError("TTS returned no audio data")
 
-    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-    try:
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         tmp.write(bytes.fromhex(hex_audio))
-    finally:
-        tmp.close()
 
     return tmp.name
 
@@ -197,11 +194,8 @@ def _call_music_generation(
     if not hex_audio:
         raise RuntimeError("Music generation returned no audio data")
 
-    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-    try:
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         tmp.write(bytes.fromhex(hex_audio))
-    finally:
-        tmp.close()
 
     return tmp.name
 
@@ -251,8 +245,8 @@ def _merge_audio_tracks(
 
     filter_str = ";".join(filters)
 
-    out = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-    out.close()
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as out:
+        out_name = out.name
 
     cmd = [
         "ffmpeg", "-y",
@@ -261,14 +255,14 @@ def _merge_audio_tracks(
         "-map", "[audio]",
         "-c:a", "libmp3lame",
         "-q:a", "2",
-        out.name,
+        out_name,
     ]
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"⚠ ffmpeg audio merge failed: {result.stderr[-800:]}")
         try:
-            os.unlink(out.name)
+            os.unlink(out_name)
         except OSError:
             pass
         return None
@@ -296,8 +290,8 @@ def _merge_audio_with_video(
     # MiniMax TTS returns MP3; some MP4 muxers have trouble with certain
     # MP3 encodings.  Transcoding to AAC first eliminates this class
     # of compatibility issues.
-    aac_tmp = tempfile.NamedTemporaryFile(suffix=".m4a", delete=False)
-    aac_tmp.close()
+    with tempfile.NamedTemporaryFile(suffix=".m4a", delete=False) as aac_file:
+        aac_tmp = aac_file.name
 
     transcode_cmd = [
         "ffmpeg", "-y",
@@ -305,13 +299,13 @@ def _merge_audio_with_video(
         "-c:a", "aac",
         "-b:a", "192k",
         "-vn",
-        aac_tmp.name,
+        aac_tmp,
     ]
     result1 = subprocess.run(transcode_cmd, capture_output=True, text=True)
     if result1.returncode != 0:
         print(f"⚠ ffmpeg audio-transcode failed: {result1.stderr[-800:]}")
         try:
-            os.unlink(aac_tmp.name)
+            os.unlink(aac_tmp)
         except OSError:
             pass
         return False
@@ -322,7 +316,7 @@ def _merge_audio_with_video(
     mux_cmd = [
         "ffmpeg", "-y",
         "-i", video_path,
-        "-i", aac_tmp.name,
+        "-i", aac_tmp,
         "-c", "copy",
         "-shortest",
         "-movflags", "+faststart",
@@ -332,7 +326,7 @@ def _merge_audio_with_video(
 
     # Clean up the temp AAC file regardless of outcome
     try:
-        os.unlink(aac_tmp.name)
+        os.unlink(aac_tmp)
     except OSError:
         pass
 
@@ -385,7 +379,6 @@ def _generate_audio_for_prompt(
     # ---------- Determine text source for TTS ----------
     audio_tracks: list[tuple[str, float, float]] = []  # (path, delay, volume)
     current_delay: float = 0.0
-    speech_duration_estimate: float = 3.0  # seconds per ~15 chars
 
     # 1. Dialogue lines (each character speaks)
     if isinstance(dialogue, list) and dialogue:
@@ -467,7 +460,7 @@ def _generate_audio_for_prompt(
 
     if speech_mix and bgm_tracks:
         # Mix speech with BGM (BGM plays from start at low volume)
-        all_tracks = [(speech_mix, 0.0, 1.0)] + bgm_tracks
+        all_tracks = [(speech_mix, 0.0, 1.0), *bgm_tracks]
         final_mix = _merge_audio_tracks(all_tracks)
         if final_mix:
             cleanup.append(final_mix)

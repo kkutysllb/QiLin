@@ -16,11 +16,10 @@ import base64
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import jwt
 import requests
-
 
 # =============================================================================
 # Constants
@@ -55,7 +54,7 @@ def is_configured() -> bool:
     return False
 
 
-def _auth_headers() -> Dict[str, str]:
+def _auth_headers() -> dict[str, str]:
     """Build Authorization headers.
 
     Prefers official JWT when access_key + secret_key are both set; falls back
@@ -126,12 +125,12 @@ def _create_text2video_task(
     duration: str,
     mode: str,
     aspect_ratio: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a text-to-video generation task.
 
     Returns the task data dict (with task_id, task_status).
     """
-    body: Dict[str, Any] = {
+    body: dict[str, Any] = {
         "model_name": model_name,
         "prompt": prompt,
         "duration": duration,
@@ -139,7 +138,7 @@ def _create_text2video_task(
         "aspect_ratio": _normalize_aspect_ratio(aspect_ratio),
     }
 
-    print(f"Creating Kling text2video task...")
+    print("Creating Kling text2video task...")
     print(f"  Model: {model_name}")
     print(f"  Mode: {mode}")
     print(f"  Duration: {duration}s")
@@ -160,8 +159,8 @@ def _create_image2video_task(
     duration: str,
     mode: str,
     aspect_ratio: str,
-    image_end: Optional[str] = None,
-) -> Dict[str, Any]:
+    image_end: str | None = None,
+) -> dict[str, Any]:
     """Create an image-to-video generation task.
 
     image_start is used as the first frame. If image_end is provided, it acts
@@ -176,7 +175,7 @@ def _create_image2video_task(
             return _image_to_base64(img)
         return img  # assume already base64-encoded
 
-    body: Dict[str, Any] = {
+    body: dict[str, Any] = {
         "model_name": model_name,
         "image": _load_image(image_start),
         "prompt": prompt,
@@ -201,7 +200,7 @@ def _create_image2video_task(
     return _parse_task_response(resp, "create image2video task")
 
 
-def _query_task(task_id: str, kind: str) -> Dict[str, Any]:
+def _query_task(task_id: str, kind: str) -> dict[str, Any]:
     """Query a task by id. `kind` is 'text2video' or 'image2video'."""
     url = f"{KLING_BASE_URL}/v1/videos/{kind}/{task_id}"
     resp = requests.get(url, headers=_auth_headers())
@@ -223,7 +222,7 @@ def _query_task(task_id: str, kind: str) -> Dict[str, Any]:
     return result.get("data", result)
 
 
-def _wait_for_completion(task_id: str, kind: str) -> Dict[str, Any]:
+def _wait_for_completion(task_id: str, kind: str) -> dict[str, Any]:
     """Poll a task until it reaches a terminal state."""
     print(f"Waiting for Kling task completion (ID: {task_id})...")
     start = time.time()
@@ -253,7 +252,7 @@ def _wait_for_completion(task_id: str, kind: str) -> Dict[str, Any]:
 
 def _download_video(url: str, output_path: str) -> str:
     """Download a video to output_path, creating parent dirs as needed."""
-    print(f"Downloading Kling video...")
+    print("Downloading Kling video...")
     print(f"  URL: {url}")
     print(f"  Save to: {output_path}")
 
@@ -279,7 +278,7 @@ def _download_video(url: str, output_path: str) -> str:
 # Response Parsing
 # =============================================================================
 
-def _parse_task_response(resp: requests.Response, action: str) -> Dict[str, Any]:
+def _parse_task_response(resp: requests.Response, action: str) -> dict[str, Any]:
     """Validate a task-creation response and return the inner `data` object."""
     if resp.status_code != 200:
         raise RuntimeError(
@@ -302,10 +301,10 @@ def _parse_task_response(resp: requests.Response, action: str) -> Dict[str, Any]
     return data
 
 
-def _extract_video_url(data: Dict[str, Any]) -> str:
+def _extract_video_url(data: dict[str, Any]) -> str:
     """Extract the first video URL from a completed task data object."""
     result = data.get("task_result", {})
-    videos: List[Dict[str, Any]] = result.get("videos", []) if isinstance(result, dict) else []
+    videos: list[dict[str, Any]] = result.get("videos", []) if isinstance(result, dict) else []
     if not videos:
         raise RuntimeError(f"Kling task succeeded but no videos returned: {data}")
     url = videos[0].get("url")
@@ -320,7 +319,7 @@ def _extract_video_url(data: Dict[str, Any]) -> str:
 
 def generate(
     prompt_text: str,
-    reference_images: List[str],
+    reference_images: list[str],
     output_file: str,
     aspect_ratio: str = "16:9",
     fast_mode: bool = False,

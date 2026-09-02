@@ -135,9 +135,9 @@ def message_to_text(message: Any, *, text_attribute_fallback: bool = False) -> s
         # Degenerate mapping without str text/content keys falls through to
         # the text-attribute fallback, exactly as before the extraction.
     if text_attribute_fallback:
-        text = getattr(message, "text", None)
-        if isinstance(text, str):
-            return text
+        fallback_text = getattr(message, "text", None)
+        if isinstance(fallback_text, str):
+            return fallback_text
     return ""
 
 

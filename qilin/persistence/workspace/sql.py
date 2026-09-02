@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -41,7 +42,7 @@ class WorkspaceRepository:
     @staticmethod
     def _ws_to_dict(row: WorkspaceRow, position: int | None = None,
                     session_ids: list[str] | None = None) -> dict:
-        d = {
+        d: dict[str, Any] = {
             "id": row.id,
             "user_id": row.user_id,
             "path": row.canonical_path,
@@ -210,6 +211,7 @@ class WorkspaceRepository:
             if anchor_position is None:
                 ids_in_order.append(workspace_id)
             else:
+                assert before_workspace_id is not None  # anchor_position is set only above
                 ids_in_order.insert(ids_in_order.index(before_workspace_id), workspace_id)
             for new_pos, ws_id in enumerate(ids_in_order):
                 next(r for r in orders if r.workspace_id == ws_id).position = new_pos
@@ -447,7 +449,7 @@ def order_user_filter(user_id: str):
 
 
 async def _upsert_meta(
-    session: AsyncSession, user_id: str, key: str, value: object
+    session: AsyncSession, user_id: str, key: str, value: Any
 ) -> None:
     row = await session.get(WorkspaceMetaRow, (user_id, key))
     if row is None:

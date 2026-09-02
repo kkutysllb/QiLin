@@ -3,7 +3,7 @@ from qilin.ports.tool_events import publish_tool_event, snapshot_after
 
 
 def test_publish_and_cursor_roundtrip() -> None:
-    events_before, head_before = snapshot_after(0)
+    _events_before, head_before = snapshot_after(0)
     event = publish_tool_event(
         name="write_file", call_id="c1", thread_id="t1", path="a.md"
     )
