@@ -14,11 +14,9 @@ import {
 import { useBackendStatus } from "@/core/desktop/use-backend-status";
 import { useI18n } from "@/core/i18n/hooks";
 import { stripUploadedFilesTag } from "@/core/messages/utils";
-import { useModels } from "@/core/models/hooks";
 import { useActiveThreadMessages } from "@/hooks/use-active-thread";
 import { cn } from "@/lib/utils";
 
-import { TokenUsageIndicator } from "./token-usage-indicator";
 import { useWorkspaceLayout } from "./workspace-layout-context";
 
 function StatusDot({
@@ -54,8 +52,7 @@ export function WorkspaceTopbar() {
   const pathname = usePathname();
   const backendStatus = useBackendStatus();
   const { rightPanelOpen, toggleRightPanel } = useWorkspaceLayout();
-  const { messages, values } = useActiveThreadMessages();
-  const { tokenUsageEnabled } = useModels();
+  const { values } = useActiveThreadMessages();
 
   const statusLabel =
     backendStatus === "connected"
@@ -101,12 +98,8 @@ export function WorkspaceTopbar() {
         </Tooltip>
       </div>
 
-      {/* 右段：token 计数 ｜ 右面板开关 */}
+      {/* 右段：右面板开关 */}
       <div className="flex items-center gap-1 pr-2 [-webkit-app-region:no-drag]">
-        {/* 仅在有会话消息时显示 token 计数，避免设置/技能等页面出现空计数 */}
-        {tokenUsageEnabled && messages.length > 0 && (
-          <TokenUsageIndicator enabled messages={messages} />
-        )}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
