@@ -18,6 +18,15 @@ import { cn } from "@/lib/utils";
 
 import pkg from "../../../package.json";
 
+/**
+ * Sidebar header: brand row + the New Task primary action.
+ *
+ * Mirrors the DSH ui-sidebar rail contract: expanded, New Task is a full
+ * width 38px bar (border + elevated fill, 12px radius); collapsed it snaps
+ * to the same 32px icon box as every other rail control (shadcn icon-mode
+ * size-8) with a tooltip carrying the label. The collapsed rail's logo is
+ * the expand toggle.
+ */
 export function WorkspaceHeader({ className }: { className?: string }) {
   const { t } = useI18n();
   const { state, toggleSidebar } = useSidebar();
@@ -26,10 +35,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn(
-        "flex flex-col gap-1 [-webkit-app-region:drag]",
-        className,
-      )}
+      className={cn("flex flex-col gap-1 [-webkit-app-region:drag]", className)}
     >
       {collapsed ? (
         <div className="flex items-center justify-center py-1">
@@ -38,7 +44,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
             onClick={toggleSidebar}
             aria-label={t.sidebar.expandSidebar}
             title={t.sidebar.expandSidebar}
-            className="group/sidebar-logo rounded-md p-1 transition-colors hover:bg-sidebar-accent"
+            className="group/sidebar-logo hover:bg-sidebar-accent flex size-8 items-center justify-center rounded-md transition-colors"
           >
             <QiLinLogo size={20} className="shrink-0" />
           </button>
@@ -49,40 +55,39 @@ export function WorkspaceHeader({ className }: { className?: string }) {
           {isStaticWebsiteOnly ? (
             <Link
               href="/"
-              className="text-base font-bold text-foreground hover:text-foreground/80 transition-colors"
+              className="text-foreground hover:text-foreground/80 text-base font-bold transition-colors"
             >
               QiLin
             </Link>
           ) : (
-            <span className="text-base font-bold text-foreground">
-              QiLin
-            </span>
+            <span className="text-foreground text-base font-bold">QiLin</span>
           )}
-          <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+          <span className="border-border/60 bg-muted/40 text-muted-foreground inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium tabular-nums">
             v{pkg.version}
           </span>
         </div>
       )}
-      {!collapsed && (
-        <SidebarGroup className="p-0">
-          <SidebarMenu className="[-webkit-app-region:no-drag]">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                isActive={pathname === "/workspace/chats/new"}
-                asChild
-              >
-                <Link
-                  className="text-muted-foreground"
-                  href="/workspace/chats/new"
-                >
-                  <MessageSquarePlus className="size-4 shrink-0" />
-                  <span>{t.sidebar.newChat}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-      )}
+      <SidebarGroup className="p-0">
+        <SidebarMenu className="[-webkit-app-region:no-drag]">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/workspace/chats/new"}
+              tooltip={t.sidebar.newChat}
+              className={cn(
+                collapsed
+                  ? "size-8 bg-transparent"
+                  : "bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-3 font-medium shadow-xs",
+              )}
+            >
+              <Link href="/workspace/chats/new">
+                <MessageSquarePlus className="size-4 shrink-0" />
+                <span>{t.sidebar.newChat}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
     </div>
   );
 }

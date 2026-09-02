@@ -551,6 +551,17 @@
   （那是 config.yaml 的 cron 子系统配置，与任务管理 UI 是两回事）。
   回归 vitest 391 / tsc / eslint / prettier 全清（.next 生成物里的旧路由
   类型随 dev 重启自动重建）。
+- 2026-09-02(十五续): **侧边栏新任务大按钮 + 折叠轨图标一致性（DSH rail
+  对齐）**。参考 DSH ui-sidebar SidebarRoot（56px rail、统一规格图标钮、
+  rail 上 tooltip）。①新任务：展开=38px 全宽悬浮条（描边+浅底+圆角+
+  icon+标签），折叠=32px 图标钮 + tooltip，不再随折叠卸载；②工作区组：
+  折叠时组头整行 hidden，搜索/排序/新建以同规格 32px 图标钮竖排（排序
+  菜单 side=right）；③组体列表折叠从 -mt-8+透明 改 hidden；④根因修复：
+  workspace-sidebar 曾以 isSidebarOpen && 条件卸载 RecentChatList——折叠
+  即整个组件离开 DOM，任何折叠样式无从谈起，改无条件渲染（折叠呈现由
+  组件内 icon-mode 类自理）。实拍两态截图验证：轨上 logo 开关 + 新任务 +
+  三钮全部 32×32 同规格。回归 vitest 391 / tsc / prettier 清（eslint
+  router 缺依赖警告与 workspace 目录 9 文件 prettier 漂移均为既有，未动）。
 
 ## Errors
 - 2026-09-01(续): **H5-a 第一砖落地——语言 port 注册端**。qilin/ports/system_prompt.py（线程安全注册表：upsert by name/order 升序 render_sections）+ app/gateway/routers/ports.py（/api/ports/system-prompt/sections POST/GET/DELETE，X-QiLin-Internal-Token 校验）+ app.py 接线 + 3 pytest 全过 ruff 清。**下一步**：①prompt 组装汇入（grep get_skills_prompt_section 消费点旁并入 render_sections()）②Node 桥 ctx.systemPrompt.section→POST（token 读 .qilin-internal-token）③kcoder-language 安装 + 中文回复验收

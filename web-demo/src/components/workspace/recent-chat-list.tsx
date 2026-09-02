@@ -84,9 +84,7 @@ import {
   pathOfThread,
   titleOfThread,
 } from "@/core/threads/utils";
-import {
-  formatSmartTime,
-} from "@/core/utils/datetime";
+import { formatSmartTime } from "@/core/utils/datetime";
 import {
   usePickDirectory,
   useArchiveThreads,
@@ -122,7 +120,11 @@ interface ThreadActionHandlers {
   onDelete: (threadId: string) => void;
   onRenameClick: (threadId: string, currentTitle: string) => void;
   onShare: (threadId: string) => void;
-  onExport: (threadId: string, title: string, format: "markdown" | "json") => void;
+  onExport: (
+    threadId: string,
+    title: string,
+    format: "markdown" | "json",
+  ) => void;
   onArchive: (threadId: string) => void;
   onMoveTo: (workspaceId: string | null, threadId: string) => void;
   onMoveUpDown: (
@@ -148,13 +150,22 @@ function ThreadActionsMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <SidebarMenuAction showOnHover className="bg-background/50 hover:bg-background">
+        <SidebarMenuAction
+          showOnHover
+          className="bg-background/50 hover:bg-background"
+        >
           <MoreHorizontal />
           <span className="sr-only">{t.common.more}</span>
         </SidebarMenuAction>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48 rounded-lg" side="right" align="start">
-        <DropdownMenuItem onSelect={() => handlers.onRenameClick(threadId, title)}>
+      <DropdownMenuContent
+        className="w-48 rounded-lg"
+        side="right"
+        align="start"
+      >
+        <DropdownMenuItem
+          onSelect={() => handlers.onRenameClick(threadId, title)}
+        >
           <Pencil className="text-blue-500" />
           <span>{t.common.rename}</span>
         </DropdownMenuItem>
@@ -168,11 +179,15 @@ function ThreadActionsMenu({
             <span>{t.common.export}</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuItem onSelect={() => handlers.onExport(threadId, title, "markdown")}>
+            <DropdownMenuItem
+              onSelect={() => handlers.onExport(threadId, title, "markdown")}
+            >
               <FileText className="text-cyan-500" />
               <span>{t.common.exportAsMarkdown}</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => handlers.onExport(threadId, title, "json")}>
+            <DropdownMenuItem
+              onSelect={() => handlers.onExport(threadId, title, "json")}
+            >
               <FileJson className="text-amber-500" />
               <span>{t.common.exportAsJSON}</span>
             </DropdownMenuItem>
@@ -191,11 +206,16 @@ function ThreadActionsMenu({
                   <span>{t.sidebar.moveToWorkspace}</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onSelect={() => handlers.onMoveTo(null, threadId)}>
+                  <DropdownMenuItem
+                    onSelect={() => handlers.onMoveTo(null, threadId)}
+                  >
                     <span>{t.sidebar.ungroupedGroup}</span>
                   </DropdownMenuItem>
                   {handlers.groupOptions.map((g) => (
-                    <DropdownMenuItem key={g.id} onSelect={() => handlers.onMoveTo(g.id, threadId)}>
+                    <DropdownMenuItem
+                      key={g.id}
+                      onSelect={() => handlers.onMoveTo(g.id, threadId)}
+                    >
                       <span className="truncate">{g.label}</span>
                     </DropdownMenuItem>
                   ))}
@@ -206,18 +226,26 @@ function ThreadActionsMenu({
               <>
                 <DropdownMenuItem
                   onSelect={() =>
-                    handlers.onMoveUpDown("up", threadId, handlers.siblingsOf(threadId))
+                    handlers.onMoveUpDown(
+                      "up",
+                      threadId,
+                      handlers.siblingsOf(threadId),
+                    )
                   }
                 >
-                  <ChevronRight className="size-3 -rotate-90 text-muted-foreground" />
+                  <ChevronRight className="text-muted-foreground size-3 -rotate-90" />
                   <span>{t.sidebar.moveUpItem}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() =>
-                    handlers.onMoveUpDown("down", threadId, handlers.siblingsOf(threadId))
+                    handlers.onMoveUpDown(
+                      "down",
+                      threadId,
+                      handlers.siblingsOf(threadId),
+                    )
                   }
                 >
-                  <ChevronRight className="size-3 rotate-90 text-muted-foreground" />
+                  <ChevronRight className="text-muted-foreground size-3 rotate-90" />
                   <span>{t.sidebar.moveDownItem}</span>
                 </DropdownMenuItem>
               </>
@@ -351,7 +379,8 @@ export function RecentChatList() {
     return buildSidebarInputs(summaries, tree);
   }, [threads, tree]);
 
-  const { isCollapsed, toggleCollapse, retainKeys } = useWorkspaceViewCollapse();
+  const { isCollapsed, toggleCollapse, retainKeys } =
+    useWorkspaceViewCollapse();
 
   const knownKeys = useMemo(() => {
     const keys = inputs.groups.map((g) => g.id);
@@ -373,13 +402,11 @@ export function RecentChatList() {
   const currentThreadId =
     threadIdFromPath === "new" ? undefined : threadIdFromPath;
 
-
   // 注册表持久序（父级兄弟排序的锚点来源）
   const orderedGroupMeta = useMemo(
     () => inputs.groups.map((g) => ({ id: g.id, title: g.title })),
     [inputs.groups],
   );
-
 
   const archivedEntries = useMemo(() => {
     const entries = (tree?.archived_thread_ids ?? []).map((id) => ({
@@ -413,16 +440,14 @@ export function RecentChatList() {
     [agentNameFromPath, deleteThread, router, threadIdFromPath, threads],
   );
 
-// ── 工作区节：搜索 / 排序 / 添加（DSH 截图一） ─────────────────
+  // ── 工作区节：搜索 / 排序 / 添加（DSH 截图一） ─────────────────
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [sortMode, setSortMode] = useState<"manual" | "recent">(() => {
     if (typeof window === "undefined") return "manual";
     try {
-      return (
-        window.localStorage.getItem(WORKSPACE_SORT_MODE_STORAGE_KEY) ===
+      return window.localStorage.getItem(WORKSPACE_SORT_MODE_STORAGE_KEY) ===
         "recent"
-      )
         ? "recent"
         : "manual";
     } catch {
@@ -463,7 +488,9 @@ export function RecentChatList() {
 
   const orderedGroupsForTree = useMemo(() => {
     if (sortMode !== "recent") return inputs.groups;
-    const byId = new Map(inputs.list.ids.map((id) => [id, inputs.list.byId[id]!]));
+    const byId = new Map(
+      inputs.list.ids.map((id) => [id, inputs.list.byId[id]!]),
+    );
     return sortWorkspacesByRecent(inputs.groups, byId);
   }, [inputs, sortMode]);
 
@@ -476,7 +503,14 @@ export function RecentChatList() {
         { expandedGroups: [...expandedGroups] },
         currentThreadId,
       ),
-    [inputs, tree, expandedGroups, currentThreadId, orderedGroupsForTree, sortMode],
+    [
+      inputs,
+      tree,
+      expandedGroups,
+      currentThreadId,
+      orderedGroupsForTree,
+      sortMode,
+    ],
   );
   const filteredGroupNodes = useMemo(() => {
     const needle = searchText.trim().toLowerCase();
@@ -503,11 +537,14 @@ export function RecentChatList() {
   const [renameThreadId, setRenameThreadId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
 
-  const handleRenameClick = useCallback((threadId: string, currentTitle: string) => {
-    setRenameThreadId(threadId);
-    setRenameValue(currentTitle);
-    setRenameDialogOpen(true);
-  }, []);
+  const handleRenameClick = useCallback(
+    (threadId: string, currentTitle: string) => {
+      setRenameThreadId(threadId);
+      setRenameValue(currentTitle);
+      setRenameDialogOpen(true);
+    },
+    [],
+  );
 
   const handleRenameSubmit = useCallback(() => {
     if (renameThreadId && renameValue.trim()) {
@@ -539,7 +576,8 @@ export function RecentChatList() {
       if (!thread) return;
       try {
         const apiClient = getAPIClient();
-        const state = await apiClient.threads.getState<AgentThreadState>(threadId);
+        const state =
+          await apiClient.threads.getState<AgentThreadState>(threadId);
         const messages = state.values?.messages ?? [];
         if (messages.length === 0) {
           toast.error(t.conversation.noMessages);
@@ -588,7 +626,11 @@ export function RecentChatList() {
   );
 
   const handleThreadMoveUpDown = useCallback(
-    (direction: "up" | "down", threadId: string, siblingIds: readonly string[]) => {
+    (
+      direction: "up" | "down",
+      threadId: string,
+      siblingIds: readonly string[],
+    ) => {
       const index = siblingIds.indexOf(threadId);
       if (index < 0) return;
       const beforeId = siblingBeforeId(siblingIds, index, direction);
@@ -632,15 +674,21 @@ export function RecentChatList() {
   const [wsDialogId, setWsDialogId] = useState<string | null>(null);
   const [wsDialogValue, setWsDialogValue] = useState("");
 
-  const openWorkspaceRename = useCallback((workspaceId: string, title: string) => {
-    setWsDialogId(workspaceId);
-    setWsDialogValue(title);
-    setWsDialogOpen(true);
-  }, []);
+  const openWorkspaceRename = useCallback(
+    (workspaceId: string, title: string) => {
+      setWsDialogId(workspaceId);
+      setWsDialogValue(title);
+      setWsDialogOpen(true);
+    },
+    [],
+  );
 
   const submitWorkspaceRename = useCallback(() => {
     if (wsDialogId && wsDialogValue.trim()) {
-      void renameWorkspace({ workspaceId: wsDialogId, title: wsDialogValue.trim() });
+      void renameWorkspace({
+        workspaceId: wsDialogId,
+        title: wsDialogValue.trim(),
+      });
     }
     setWsDialogOpen(false);
     setWsDialogId(null);
@@ -653,13 +701,15 @@ export function RecentChatList() {
       onDelete: handleDelete,
       onRenameClick: handleRenameClick,
       onShare: (threadId) => void handleShare(threadId),
-      onExport: (threadId, title, format) => void handleExport(threadId, title, format),
+      onExport: (threadId, title, format) =>
+        void handleExport(threadId, title, format),
       onArchive: handleArchive,
       onMoveTo: handleMoveTo,
       onMoveUpDown: handleThreadMoveUpDown,
       groupOptions: orderedGroupMeta.map((g) => ({ id: g.id, label: g.title })),
       siblingsOf: (threadId: string) =>
-        inputs.groups.find((g) => g.threadIds.includes(threadId))?.threadIds ?? [],
+        inputs.groups.find((g) => g.threadIds.includes(threadId))?.threadIds ??
+        [],
       staticWebsiteOnly,
     }),
     [
@@ -680,19 +730,28 @@ export function RecentChatList() {
   const renderSessionRow = useCallback(
     (node: GroupNode, session: { id: string; title: string }) => {
       const thread = threads.find((t) => t.thread_id === session.id);
-      const isActive = thread ? pathOfThread(thread) === pathname : session.id === currentThreadId;
+      const isActive = thread
+        ? pathOfThread(thread) === pathname
+        : session.id === currentThreadId;
       return (
-        <SidebarMenuItem key={`${node.key}:${session.id}`} className="group/side-menu-item">
+        <SidebarMenuItem
+          key={`${node.key}:${session.id}`}
+          className="group/side-menu-item"
+        >
           <SidebarMenuButton isActive={isActive} asChild>
             <div className="flex w-full items-center gap-2 pl-3">
               <Link
                 className="text-muted-foreground min-w-0 flex-1 truncate"
                 href={thread ? pathOfThread(thread) : "#"}
                 onMouseEnter={
-                  thread ? () => void prefetchThreadState(session.id) : undefined
+                  thread
+                    ? () => void prefetchThreadState(session.id)
+                    : undefined
                 }
                 onFocus={
-                  thread ? () => void prefetchThreadState(session.id) : undefined
+                  thread
+                    ? () => void prefetchThreadState(session.id)
+                    : undefined
                 }
               >
                 {session.title}
@@ -714,12 +773,21 @@ export function RecentChatList() {
         </SidebarMenuItem>
       );
     },
-    [currentThreadId, locale, pathname, staticWebsiteOnly, threadHandlers, threads],
+    [
+      currentThreadId,
+      locale,
+      pathname,
+      staticWebsiteOnly,
+      threadHandlers,
+      threads,
+    ],
   );
 
   const renderGroupHeader = useCallback(
     (node: GroupNode) => {
-      const metaIndex = orderedGroupMeta.findIndex((m) => m.id === node.workspaceId);
+      const metaIndex = orderedGroupMeta.findIndex(
+        (m) => m.id === node.workspaceId,
+      );
       const isUngrouped = node.workspaceId === undefined;
       // 标签回退链：标题为空串时退 basename，再退实体键（?? 不处理空串）。
       const label = isUngrouped
@@ -733,30 +801,31 @@ export function RecentChatList() {
         <button
           type="button"
           onClick={() => toggleCollapse(node.key)}
-          className={`group/wshead flex h-[34px] w-full items-center gap-1.5 rounded px-2 text-sm font-normal normal-case tracking-normal text-foreground ${
+          className={`group/wshead text-foreground flex h-[34px] w-full items-center gap-1.5 rounded px-2 text-sm font-normal tracking-normal normal-case ${
             node.containsCurrent ? "bg-muted/60" : "hover:bg-muted/50"
           }`}
         >
-          {!isUngrouped && (
+          {!isUngrouped &&
             // 工作区组：折叠为合上的灰色文件夹，展开切换为蓝色打开形态；
             // 展开状态由文件夹开合表达，不再显示折叠箭头。
-            node.expanded ? (
+            (node.expanded ? (
               <FolderOpen className="size-4 shrink-0 text-blue-500 transition-colors" />
             ) : (
-              <FolderIcon className="size-4 shrink-0 text-muted-foreground transition-colors" />
-            )
-          )}
+              <FolderIcon className="text-muted-foreground size-4 shrink-0 transition-colors" />
+            ))}
           {isUngrouped &&
             // Ungrouped 无文件夹图标，箭头是其唯一的展开状态指示，保留。
             (node.expanded ? (
-              <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70" />
+              <ChevronDown className="text-muted-foreground/70 size-3.5 shrink-0" />
             ) : (
-              <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70" />
+              <ChevronRight className="text-muted-foreground/70 size-3.5 shrink-0" />
             ))}
           <span className="truncate">{label}</span>
           <span className="ml-auto flex shrink-0 items-center gap-1">
-            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-normal tabular-nums text-muted-foreground">
-              {node.sessionCount > 0 ? node.sessionCount : t.sidebar.emptyWorkspaceCount}
+            <span className="bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 text-[10px] font-normal tabular-nums">
+              {node.sessionCount > 0
+                ? node.sessionCount
+                : t.sidebar.emptyWorkspaceCount}
             </span>
             {!isUngrouped && !staticWebsiteOnly && (
               <span
@@ -766,7 +835,9 @@ export function RecentChatList() {
                 title={t.sidebar.newSessionInWorkspace}
                 onClick={(e) => {
                   e.stopPropagation();
-                  void router.push(`/workspace/chats/new?workspace=${node.workspaceId}`);
+                  void router.push(
+                    `/workspace/chats/new?workspace=${node.workspaceId}`,
+                  );
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
                 className="hover:text-foreground text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
@@ -784,10 +855,14 @@ export function RecentChatList() {
                   )
                 }
                 onMoveUp={() => handleWorkspaceMove("up", node.workspaceId!)}
-                onMoveDown={() => handleWorkspaceMove("down", node.workspaceId!)}
+                onMoveDown={() =>
+                  handleWorkspaceMove("down", node.workspaceId!)
+                }
                 onDelete={() => handleWorkspaceDelete(node.workspaceId!)}
                 canUp={metaIndex > 0}
-                canDown={metaIndex >= 0 && metaIndex < orderedGroupMeta.length - 1}
+                canDown={
+                  metaIndex >= 0 && metaIndex < orderedGroupMeta.length - 1
+                }
               />
             )}
           </span>
@@ -808,9 +883,9 @@ export function RecentChatList() {
   return (
     <>
       <SidebarGroup className="pt-1">
-        <SidebarGroupLabel className="text-sm text-foreground font-medium">
+        <SidebarGroupLabel className="text-foreground text-sm font-medium group-data-[collapsible=icon]:hidden">
           <span className="truncate">{t.sidebar.workspacesSection}</span>
-          <span className="ml-auto flex items-center gap-1 text-muted-foreground">
+          <span className="text-muted-foreground ml-auto flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
@@ -856,6 +931,52 @@ export function RecentChatList() {
             </Button>
           </span>
         </SidebarGroupLabel>
+        {/* 折叠轨：工作区按钮组以同规格图标钮竖排（DSH rail 对齐） */}
+        <div className="hidden flex-col items-center gap-1 pb-2 group-data-[collapsible=icon]:flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            onClick={toggleSearch}
+            aria-label={t.sidebar.searchWorkspaces}
+            title={t.sidebar.searchWorkspaces}
+          >
+            <Search className="size-4" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                aria-label={t.sidebar.sortBy}
+                title={t.sidebar.sortBy}
+              >
+                <ArrowUpDown className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start">
+              <DropdownMenuItem onSelect={() => changeSortMode("manual")}>
+                {sortMode === "manual" ? "✓ " : ""}
+                {t.sidebar.sortManual}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => changeSortMode("recent")}>
+                {sortMode === "recent" ? "✓ " : ""}
+                {t.sidebar.sortRecent}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            onClick={() => void quickAddWorkspace()}
+            aria-label={t.sidebar.addWorkspace}
+            title={t.sidebar.addWorkspace}
+          >
+            <SquarePlus className="size-4" />
+          </Button>
+        </div>
         {(searchOpen || searchText) && (
           <SidebarGroupContent>
             <Input
@@ -863,26 +984,31 @@ export function RecentChatList() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder={t.sidebar.searchWorkspaces}
-              className="h-7 bg-muted/40 text-xs"
+              className="bg-muted/40 h-7 text-xs"
             />
           </SidebarGroupContent>
         )}
       </SidebarGroup>
       <SidebarGroup className="pt-1">
-        <SidebarGroupContent className="group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0">
+        <SidebarGroupContent className="group-data-[collapsible=icon]:hidden">
           <SidebarMenu>
             <div className="flex w-full flex-col gap-1">
               {filteredGroupNodes.map((node) => (
                 <div key={node.key} className="flex flex-col gap-0.5">
                   {renderGroupHeader(node)}
                   {node.expanded &&
-                    node.sessions.map((session) => renderSessionRow(node, session))}
+                    node.sessions.map((session) =>
+                      renderSessionRow(node, session),
+                    )}
                 </div>
               ))}
             </div>
 
             {archivedEntries.length > 0 && !staticWebsiteOnly && (
-              <ArchivedSection entries={archivedEntries} onUnarchive={(id) => unarchiveThreadsMutate([id])} />
+              <ArchivedSection
+                entries={archivedEntries}
+                onUnarchive={(id) => unarchiveThreadsMutate([id])}
+              />
             )}
           </SidebarMenu>
         </SidebarGroupContent>
@@ -951,20 +1077,24 @@ function WorkspaceHeaderMenu({
           <MoreHorizontal className="size-4" />
         </span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="right" onClick={(e) => e.stopPropagation()}>
+      <DropdownMenuContent
+        align="start"
+        side="right"
+        onClick={(e) => e.stopPropagation()}
+      >
         <DropdownMenuItem onSelect={onRename}>
           <Pencil className="text-blue-500" />
           <span>{t.sidebar.renameWorkspace}</span>
         </DropdownMenuItem>
         {canUp && (
           <DropdownMenuItem onSelect={onMoveUp}>
-            <ChevronRight className="-rotate-90 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground -rotate-90" />
             <span>{t.sidebar.moveUpItem}</span>
           </DropdownMenuItem>
         )}
         {canDown && (
           <DropdownMenuItem onSelect={onMoveDown}>
-            <ChevronRight className="rotate-90 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground rotate-90" />
             <span>{t.sidebar.moveDownItem}</span>
           </DropdownMenuItem>
         )}
@@ -997,7 +1127,11 @@ function ArchivedSection({
         onClick={() => setOpen((v) => !v)}
         className="text-muted-foreground hover:text-foreground flex w-full items-center gap-1.5 px-2 py-1 text-[11px] tracking-wide uppercase"
       >
-        {open ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+        {open ? (
+          <ChevronDown className="size-3" />
+        ) : (
+          <ChevronRight className="size-3" />
+        )}
         <span>
           {t.sidebar.archivedSection} ({entries.length})
         </span>

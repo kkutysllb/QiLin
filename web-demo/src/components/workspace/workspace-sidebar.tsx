@@ -17,7 +17,7 @@ import { WorkspaceUserInfo } from "./workspace-user-info";
 export function WorkspaceSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { open: isSidebarOpen, state } = useSidebar();
+  const { state } = useSidebar();
   return (
     <>
       <Sidebar variant="sidebar" collapsible="icon" {...props}>
@@ -28,7 +28,9 @@ export function WorkspaceSidebar({
         <SidebarHeader className="kworks-win-pad-top pb-0">
           <WorkspaceHeader />
         </SidebarHeader>
-        <SidebarContent>{isSidebarOpen && <RecentChatList />}</SidebarContent>
+        <SidebarContent>
+          <RecentChatList />
+        </SidebarContent>
         <SidebarFooter>
           <WorkspaceUserInfo />
         </SidebarFooter>
