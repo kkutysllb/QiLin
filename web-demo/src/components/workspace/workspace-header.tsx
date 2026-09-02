@@ -77,7 +77,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
               className={cn(
                 collapsed
                   ? "size-8 bg-transparent"
-                  : "bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-3 font-medium shadow-xs",
+                  : "bg-background text-foreground hover:bg-muted h-9 justify-center rounded-lg border px-3 font-medium shadow-xs",
               )}
             >
               <Link href="/workspace/chats/new">
