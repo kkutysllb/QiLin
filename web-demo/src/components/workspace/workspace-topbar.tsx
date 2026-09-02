@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -72,15 +71,8 @@ export function WorkspaceTopbar() {
         "pr-[var(--kworks-titlebar-inset)]",
       )}
     >
-      {/* 左段：折叠按钮 */}
-      <div className="flex items-center [-webkit-app-region:no-drag]">
-        <SidebarTrigger
-          data-testid="workspace-sidebar-trigger"
-          className="size-7"
-        />
-      </div>
-
-      {/* 中段：当前会话标题（动态）｜ 状态 */}
+      {/* 会话标题（动态）｜ 状态。折叠侧边栏按钮已挪至侧边栏底栏右端
+          （workspace-user-info），topbar 不再重复放置。 */}
       <div className="flex min-w-0 flex-1 items-center gap-2 px-3">
         <span className="truncate text-sm font-medium">
           {values?.title
