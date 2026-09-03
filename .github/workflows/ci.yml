@@ -1,9 +1,12 @@
 name: CI
 
+# Also callable from release.yml: a vX.Y.Z tag push gates the release on
+# this exact workflow so nothing can be published from a red commit.
 on:
   push:
     branches: [main, master]
   pull_request:
+  workflow_call:
 
 jobs:
   lint-and-test:

@@ -1,0 +1,59 @@
+name: Release
+
+# Publishes a GitHub Release whenever a vX.Y.Z tag is pushed.
+#
+# Flow: tag push (v*) -> run the full CI gates (reused from ci.yml via
+# workflow_call, so the release always rides the same lint/type/test/
+# packaging checks as main) -> create the Release.
+#
+# Body convention: RELEASE_NOTES_<tag>.md at the repo root (e.g.
+# RELEASE_NOTES_v2.0.3.md for tag v2.0.3). When the file is absent the
+# release falls back to GitHub auto-generated notes.
+#
+# Title convention: "QiLin <tag>" (matches the manually published
+# v1.0.0 - v2.0.2 releases).
+#
+# Idempotent: if the Release object already exists (e.g. created by hand
+# before this workflow landed, or after a re-run) the title/notes are
+# refreshed in place instead of failing.
+
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gates:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: gates
+    runs-on: ubuntu-latest
+    permissions:
+      # Least privilege: only this job may create/edit Releases; the gates
+      # job inherits the repo default (read-only usage) from ci.yml.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: QiLin ${{ github.ref_name }}
+        run: |
+          NOTES="RELEASE_NOTES_${GITHUB_REF_NAME}.md"
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Release ${GITHUB_REF_NAME} already exists -- refreshing title/notes."
+            if [[ -f "${NOTES}" ]]; then
+              gh release edit "${GITHUB_REF_NAME}" --title "${TITLE}" --notes-file "${NOTES}"
+            else
+              gh release edit "${GITHUB_REF_NAME}" --title "${TITLE}"
+            fi
+          elif [[ -f "${NOTES}" ]]; then
+            gh release create "${GITHUB_REF_NAME}" --title "${TITLE}" --verify-tag --notes-file "${NOTES}"
+          else
+            gh release create "${GITHUB_REF_NAME}" --title "${TITLE}" --verify-tag --generate-notes
+          fi
