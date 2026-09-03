@@ -44,3 +44,9 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# DSH plugin host runtime state (installed plugins + manifest):
+# install-and-use, clone-is-clean. Layout/schema doc: plugins/README.md.
+/plugins/*
+!/plugins/README.md
+/public/plugins/

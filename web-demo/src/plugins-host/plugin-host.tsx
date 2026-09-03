@@ -28,10 +28,12 @@ const CSS_NORMALIZE_CHILDREN = [
 ].join("\n");
 
 /**
- * Plugin host boot — reads the build-time plugin manifest (installed
- * plugins, per the DSH-isomorphic lifecycle: install/uninstall = manifest
- * change + rebuild + restart) and injects each plugin's client.js as a
- * same-origin script. Scripts self-register via window.__ModuleLoader__.
+ * Plugin host boot — reads the runtime plugin manifest (gitignored
+ * web-demo/plugins/manifest.json, served by server.js at
+ * /qilin-plugins/manifest; installed plugins per the DSH-isomorphic
+ * lifecycle: install/uninstall = manifest change + restart) and injects
+ * each plugin's client.js as a same-origin script. Scripts self-register
+ * via window.__ModuleLoader__.
  *
  * The boot is a module-level singleton promise: React strict-mode double
  * effects (and any number of mounts) share one injection sequence, and a
@@ -55,7 +57,7 @@ let bootPromise: Promise<void> | null = null;
 function startBoot(): Promise<void> {
   bootPromise ??= (async () => {
     installModuleLoader();
-    const res = await fetch("/plugins/manifest.json", { cache: "no-store" });
+    const res = await fetch("/qilin-plugins/manifest", { cache: "no-store" });
     if (!res.ok) throw new Error("manifest " + res.status);
     const manifest = (await res.json()) as PluginManifest;
     for (const entry of manifest.plugins) {

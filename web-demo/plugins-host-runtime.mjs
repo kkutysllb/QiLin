@@ -34,7 +34,9 @@ const execFileAsync = promisify(execFile);
 const ROOT = dirname(fileURLToPath(import.meta.url));
 /** Thread workspace roots: only these trees are exposed to plugin bridges. */
 const THREADS_ROOT = resolvePath(ROOT, "..", ".qilin", "threads");
-const MANIFEST_PATH = join(ROOT, "public", "plugins", "manifest.json");
+// Runtime install state lives in the gitignored server-side tree (see
+// plugins/README.md); a fresh clone starts with no manifest at all.
+const MANIFEST_PATH = join(ROOT, "plugins", "manifest.json");
 const PUBLIC_PLUGINS_ROOT = join(ROOT, "public", "plugins");
 const SERVER_PLUGINS_ROOT = join(ROOT, "plugins");
 /** Host compatibility baseline (user-pinned; tracked upstream). */
@@ -497,8 +499,11 @@ export async function initPluginServers() {
   let manifest;
   try {
     manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf-8"));
-  } catch (err) {
-    console.error("[plugin-servers] manifest unreadable:", err.message);
+  } catch {
+    // Missing (fresh clone - install state is gitignored) or corrupt:
+    // nothing to mount either way. Corrupt manifests still surface loudly
+    // on the next management-API / install interaction.
+    console.log("[plugin-servers] no readable manifest; skipping mount.");
     return;
   }
   for (const entry of manifest.plugins ?? []) {
@@ -598,7 +603,28 @@ function readManifest() {
 }
 
 function writeManifest(manifest) {
+  // Manifest sits in the gitignored plugins/ tree; the dir may not exist
+  // on a fresh clone before the very first install.
+  mkdirSync(dirname(MANIFEST_PATH), { recursive: true });
   writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n");
+}
+
+/**
+ * GET /qilin-plugins/manifest - browser boot face for the plugin host:
+ * serves the runtime install manifest (gitignored plugins/manifest.json)
+ * same-origin, replacing the static public/plugins/manifest.json. GET-only.
+ */
+export async function handleManifestApi(req, res) {
+  if (req.method !== "GET") {
+    res.writeHead(405, { "content-type": "application/json" });
+    res.end(JSON.stringify({ error: "method_not_allowed" }));
+    return;
+  }
+  res.writeHead(200, {
+    "content-type": "application/json",
+    "cache-control": "no-store",
+  });
+  res.end(JSON.stringify(readManifest()));
 }
 
 export function listInstalled() {

@@ -31,7 +31,12 @@ const handle = app.getRequestHandler();
 
 // Plugin server halves (DSH third-party plugins, T1 self-contained):
 // mounted on the raw Node server, prefix-matched before /api proxying.
-import { handleManagementApi, initPluginServers, matchPluginRoute } from "./plugins-host-runtime.mjs";
+import {
+  handleManagementApi,
+  handleManifestApi,
+  initPluginServers,
+  matchPluginRoute,
+} from "./plugins-host-runtime.mjs";
 await initPluginServers();
 
 const apiProxy = createProxyMiddleware({
@@ -93,6 +98,14 @@ const server = createServer((req, res) => {
   // admin page and the scripts/plugin.mjs CLI).
   if (parsedUrl.pathname === "/qilin-plugins/api") {
     handleManagementApi(req, res);
+    return;
+  }
+  // Plugin runtime manifest (GET) - browser boot face of the plugin host;
+  // serves the gitignored plugins/manifest.json (see plugins/README.md).
+  // Same family as /qilin-plugins/api: only exists under this custom
+  // server, which the plugin host requires anyway.
+  if (parsedUrl.pathname === "/qilin-plugins/manifest") {
+    handleManifestApi(req, res);
     return;
   }
   // Plugin server halves win over proxying and Next (longest prefix match

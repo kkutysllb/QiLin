@@ -225,6 +225,18 @@
 
 ## Progress Log
 
+
+- 2026-09-03: **插件安装状态出库（gitignore 化）**。原实现把 manifest 放在
+      tracked 的 public/plugins/manifest.json 且插件目录未 ignore——安装即脏
+      工作树。改法：运行时清单迁 plugins/manifest.json（server 非公开区），
+      client boot 改走 **GET /qilin-plugins/manifest**（server.js 分支，与
+      /qilin-plugins/api 同族；裸 next dev 下插件面整体不启、boot 失败优雅
+      捕获，语义更自洽）；web-demo/.gitignore 忽略 /plugins/*（白名单
+      README.md）与 /public/plugins/；新增 plugins/README.md（布局/schema/
+      生命周期文档）。明确约束：**QiLin 插件世界与用户 ~/.dsh 零关联**（全仓
+      零 .dsh/homedir 引用；npm 安装 --cache 指 staging 私有缓存）。验证：
+      装卸回环冒烟全绿 + server.js 实启 curl 路由（GET 200 no-store / POST
+      405 / fresh clone 优雅跳过）+ tsc 0 错。
 - 2026-08-31: 计划创建。三项决策落定（同构安装模式 / 面板类先行+运行时类 port 化 /
   锚定 0.1.2-alpha.2 长期跟踪）。开工 H0。
 - 2026-08-31: H0 完成。核心发现:**插件分两个世界**——T1 自包含面板（stats-panel/
