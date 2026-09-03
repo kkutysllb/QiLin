@@ -4,34 +4,84 @@
 
 # QiLin
 
-> 中文版（Chinese version follows below）· [English Version](#english-version)
+**简体中文** · [English](README.en.md)
 
 **QiLin** —— 生产级的智能体（Agent）引擎。
-一个统一的 Python 包，把 LangGraph 状态机、模型调用、工具/技能生态、子代理递归、沙箱隔离、权限模型、可观测性与定时调度整合在同一二进制 / 同进程中运行。
+一个统一的 Python 包，把 LangGraph 状态机、模型调用、工具/技能生态、多智能体编排、子代理递归、沙箱隔离、权限模型、可观测性与定时调度整合在同一二进制 / 同进程中运行；并配套 **Web 工作台**与 **DSH 兼容插件生态**。
 
 - **包名称 / Package**：`qilin`
-- **核心代码量 / Codebase**：约 517 文件，25 个子模块
-- **Python 版本 / Python**：≥ 3.12
+- **当前版本 / Current**：**v2.0.2**（[版本演进](#-版本演进--release-history)）
+- **引擎代码量 / Engine codebase**：`qilin/` 约 500 文件 · 23 个子系统；`web-demo/` 约 400 文件
+- **Python**：≥ 3.12
 - **CLI**：`qilin`
-- **版本路线 / Roadmap**：v1.0.0 单智能体框架 → **v2.0.0 多智能体框架（当前）**
 
 ## ✨ 核心能力 / Core Capabilities
 
-| 中文 | English |
-|------|---------|
-| 嵌入式 & 服务化双模运行 | Embedded or service-mode runtime |
-| 25 个高内聚子系统 | 25 cohesive subsystems |
-| LangGraph 兼容的内核 | LangGraph-compatible kernel |
-| 多 Provider 模型适配（OpenAI / Anthropic / DeepSeek / Gemini / Ollama） | Multi-provider model adapters |
-| 子代理递归 + 独立 checkpoint | Recursive sub-agents with independent checkpoints |
-| 多智能体编排（single/multi 配置切换 + 并行批次 + 协作模式） | Multi-agent orchestration (single/multi mode switch, parallel batch, collaboration patterns) |
-| HTTP Agent Server（REST API + JWT 认证 + CSRF + GitHub Webhook） | HTTP Agent Server (REST API + JWT auth + CSRF + GitHub webhooks) |
-| 8 大 IM 渠道接入（飞书/Discord/Slack/Telegram/钉钉/企微/微信/GitHub） | 8 IM channel adapters (Feishu/Discord/Slack/Telegram/DingTalk/WeCom/WeChat/GitHub) |
-| 多沙箱后端（Local / aio_sandbox / boxlite / E2B / Tenki） | Multi-backend sandbox |
-| RBAC 风格的资源授权 | RBAC-style resource authorization |
-| Langfuse / Monocle 双 trace 适配 | Langfuse / Monocle trace adapters |
-| 技能市场 + 静态/动态扫描 | Skill catalog with static + dynamic scanning |
-| SkillACP 兼容（Agent Client Protocol） | ACP-compatible (Agent Client Protocol) |
+- **嵌入式 & 服务化双模运行** —— `QiLinClient` 进程内嵌入，或 FastAPI HTTP Agent Server 独立部署
+- **LangGraph 兼容的内核** —— 状态机 + 中间件链，23 个高内聚子系统
+- **多 Provider 模型适配** —— OpenAI / Anthropic / DeepSeek / Gemini / Ollama 等
+- **多智能体编排** —— single/multi 配置切换、handoff 协议、编排图、AgentInbox 消息总线、并行批次、协作模式（orchestrator-workers / peer-consensus）
+- **子代理递归 + 独立 checkpoint**
+- **HTTP Agent Server** —— REST API + JWT 认证 + CSRF + GitHub Webhook
+- **8 大 IM 渠道接入** —— 飞书 / Discord / Slack / Telegram / 钉钉 / 企微 / 微信 / GitHub
+- **多沙箱后端** —— Local / aio_sandbox / boxlite / E2B
+- **RBAC 风格的资源授权 + 多层循环检测护栏**
+- **Langfuse / Monocle 双 trace 适配**
+- **技能市场 + 静态/动态扫描 + SkillACP 兼容**（Agent Client Protocol）
+- **Web 工作台**（Next.js）—— 会话流、工作区文件树与多格式查看器、xterm.js 终端、插件管理
+- **DSH 插件生态兼容宿主** —— T1/T2/T3 插件协议 + 生命周期 CLI + npm 安装链路
+- **「一切皆 port」架构** —— 终端 PTY / surface 查看器 / skills / language / fs-git 能力桥
+
+## 🗺️ 版本演进 / Release History
+
+### v1.0.0 · 单智能体框架（2026-07-29）
+
+首个正式稳定版本。从 `deer-flow` 提取引擎内核并重命名为 `qilin`，确立「单主代理 + 工具式子代理」形态（lead agent 经 `task_tool` 层级委派，调用-返回-用完即弃）：
+
+- LangGraph 状态机内核 + 中间件链，嵌入式 `QiLinClient` 入口
+- 多 Provider 模型适配、工具/技能/MCP 生态、子代理递归
+- 沙箱隔离、记忆与持久化 checkpoint、安全护栏、RBAC 授权
+- Langfuse/Monocle 可观测性、Textual TUI、定时调度
+
+### v2.0.0 · 多智能体框架 + 服务面（2026-08-07）
+
+在单智能体基座上完成两大跨越（`orchestration.mode` 配置驱动，`single` 默认且 v1 行为完全不变）：
+
+- **多智能体编排**：handoff 协议（`AgentHandoff/HandoffResult/HandoffError`）→ OrchestratorGraph 编排图 → AgentInbox 消息总线（每 agent 队列 + 订阅广播）→ 协作模式（orchestrator-workers / peer-consensus）
+- **子代理并行批次执行**：Semaphore 限流 + 失败隔离
+- **agent 身份 + per-agent token 配额 + trace 关联**
+- **完整服务面 `app/`**：FastAPI HTTP Agent Server（REST + JWT/CSRF/Webhook）、8 大 IM 渠道接入层、定时任务 HTTP 服务；随 wheel 分发并建立 CI 打包门禁
+
+### v2.0.1 · Web 工作台 + DSH 交互对齐（2026-08-29）
+
+`web-demo`（Next.js）工作台首次交付，并对齐 DSH 交互范式：
+
+- **工作区侧边栏**：工作区分组树、TanStack Query 数据层、移动端 drawer（<768px 底部抽屉）
+- **文件查看器体系**：Markdown（mermaid + katex）/ PDF / 图片 / HTML（沙箱 iframe）/ CodeMirror 可编辑查看器，TabBar 面板 + 防抖持久化
+- **DSH 风格消息时间流**：思考、正文与工具调用按真实顺序交替渲染，去卡片化；用户消息简约气泡
+- **assistant 统一操作栏**：复制 / 线程分支（复制为新会话）/ 重新生成 + 响应时间、模型与 token 用量元数据；URL 路由同步
+- **gateway 引擎侧**：工作区注册表（registry 线程在真实目录执行）、`sandbox_mode` 贯通至工具门、goal round-driver（事件溯源 CAS + SSE）、terminal-edge 语义
+- 侧边栏折叠保留窄图标条、完全访问模式二次确认、版本徽章
+
+### v2.0.2 · DSH 插件生态兼容宿主 + 一切皆 port（2026-09-02）
+
+QiLin Web 工作台正式兼容 **DSH 插件生态**，并建立「**一切皆 port**」架构：
+
+- **插件宿主内核**：DSH 插件协议 shim——`window.__ModuleLoader__.load` 加载协议、T1 tab 面板、T2 sidebar 服务（`qiLin.sidebar` 服务桥）、T3 会话内文件评审（uiConversation 事件 registry + undo/redo 全环）
+- **真实第三方插件端到端**：kcoder-git-panel、kcoder-terminal、kcoder-language（中文回复验收）、kcoder-skills（37 技能物化验收）
+- **插件生命周期**：`dsh plugin add/remove/upgrade/list` CLI + npm 安装链路（`npm pack` → 分发 → 清单 upsert）+ `/workspace/plugins` 管理页（安装/启停/卸载）
+- **ports 架构**：终端端口（DSH 兼容协议 + POSIX PTY + Windows ConPTY 后端 + 8 个 DSH 兼容 LangChain 工具 + xterm.js 终端页）、SurfacePort + `sidebar_open` 工具、skills port、language port、tools/post-execute 事件面
+- **能力桥**：围栏化 fs/git 服务注入插件宿主；pty→ports 桥摆脱 native 限制
+- **品牌与体验**：麒麟双字方印 logo（favicon 同步）、消息页脚操作栏常驻 + 点赞点踩、新任务大按钮
+- **质量**：ports 面鉴权兼容修复（403/401）、全仓审计清理（净删 1071 行、ruff 告警清零）；后端 pytest 999+、前端 vitest 391 全绿
+
+### 开发中 / Unreleased
+
+- **循环检测重构**：Layer 1 改连续链语义 + 精确参数规范化、阶梯式提醒（3/5/8 次提醒、12 次硬停）、被拒/失败重复调用提前打断；Layer 2 窗口频率检测保留
+- **Web 体验**：turn 尾 `QiLin....` 朱砂波光状态字 + turn 用时统计、折叠侧边栏按钮归位品牌行
+- **工程**：`release.yml` —— `v*` tag 推送自动过 CI 门禁并发布 GitHub Release
+
+> 各版本完整说明见 [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) / [v2.0.0](RELEASE_NOTES_v2.0.0.md) / [v2.0.1](RELEASE_NOTES_v2.0.1.md) / [v2.0.2](RELEASE_NOTES_v2.0.2.md)。
 
 ## 📦 安装 / Installation
 
@@ -43,7 +93,7 @@ pip install qilin
 pip install "qilin[tui]"
 
 # 完整可选功能
-pip install "qilin[postgres,redis,tenki,monocle,browser,boxlite]"
+pip install "qilin[postgres,redis,monocle,browser,boxlite]"
 ```
 
 可选 Extras：
@@ -54,7 +104,6 @@ pip install "qilin[postgres,redis,tenki,monocle,browser,boxlite]"
 | `postgres` | asyncpg + langgraph-checkpoint-postgres |
 | `redis` | Redis 流桥 |
 | `monocle` | OpenTelemetry 观测 |
-| `tenki` | Tenki 云沙箱 |
 | `boxlite` | BoxLite 内核级沙箱 |
 | `browser` | Playwright 浏览器自动化 |
 | `pymupdf` | PyMuPDF Llama-text 增强 |
@@ -95,6 +144,18 @@ qilin --print "What is the capital of France?"
 echo "What is 2+2?" | qilin --json
 ```
 
+### Web 工作台（Web Workbench）
+
+```bash
+# 1) 启动引擎服务面（默认端口 28081）
+uvicorn app.gateway.app:app --port 28081
+
+# 2) 另开终端，启动 Web 工作台（默认 http://localhost:28080，自动代理 gateway）
+cd web-demo
+pnpm install
+pnpm dev
+```
+
 ### 配置 / Configuration
 
 将 `config.example.yaml` 拷贝为 `config.yaml`，填入至少一个 model：
@@ -121,20 +182,21 @@ pip install "qilin[gateway,channels]"
 uvicorn app.gateway.app:app --port 8080
 ```
 
-服务端提供 agents / threads / runs / memory / skills / mcp / uploads / channels 等 REST API，
-详见 [gateway 模块文档](docs/modules/gateway.md)；IM 渠道接入见 [channels 模块文档](docs/modules/channels.md)。
+服务端提供 agents / threads / runs / memory / skills / mcp / uploads / channels / ports 等 REST API，
+详见 [gateway 模块文档](docs/modules/gateway.md)；IM 渠道接入见 [channels 模块文档](docs/modules/channels.md)；
+终端/表面等端口见 [ports 模块文档](docs/modules/ports.md)。
 
 ## 📂 项目结构 / Project Layout
 
 ```
 .
 ├── pyproject.toml         # 包元信息 + CLI 注册
-├── qilin/                 # 核心引擎代码（517 文件）
+├── qilin/                 # 核心引擎（约 500 文件 / 23 个子系统）
 │   ├── client.py          # QiLinClient 嵌入式入口
-│   ├── constants.py       # 共享运行时常量
 │   ├── agents/            # Lead Agent + 中间件 + 记忆后端
 │   ├── subagents/         # 子代理执行器 + 注册中心
 │   ├── orchestration/     # 多智能体编排（handoff/图/消息总线/协作）
+│   ├── ports/             # 一切皆 port（终端 PTY/surface/skills/language 端口）
 │   ├── tools/             # 工具注册与装配
 │   ├── skills/            # 技能系统（含扫描器）
 │   ├── mcp/               # MCP 协议适配
@@ -143,7 +205,7 @@ uvicorn app.gateway.app:app --port 8080
 │   ├── scheduler/         # 定时任务调度
 │   ├── config/            # Pydantic 配置 + 热重载
 │   ├── sandbox/           # 沙箱抽象层
-│   ├── guardrails/        # 安全护栏中间件
+│   ├── guardrails/        # 安全护栏中间件（含循环检测）
 │   ├── authz/             # RBAC 资源授权
 │   ├── tracing/           # Langfuse / Monocle 追踪
 │   ├── reflection/        # 变量解析（SkillACP）
@@ -158,166 +220,54 @@ uvicorn app.gateway.app:app --port 8080
 │   ├── gateway/           # FastAPI HTTP Agent Server（REST + 认证 + webhook）
 │   ├── channels/          # IM 渠道接入层（8 大渠道）
 │   └── scheduler/         # 定时任务 HTTP 调度服务
-├── docs/                  # 项目文档（架构 + 各模块详解）
+├── web-demo/              # Web 工作台（Next.js + Tailwind：会话流/文件树/终端/插件管理）
+├── skills/                # 内置技能资产
+├── tests/                 # pytest 测试套件
+├── docs/                  # 项目文档（架构 + 25 份模块详解）
 │   ├── architecture.md
-│   └── modules/*.md       # 24 份模块文档
-└── README.md              # 本文件
+│   └── modules/*.md
+└── scripts/               # 工程与验收脚本
 ```
 
 ## 📑 文档导航 / Documentation Index
 
-| 文档 | Document | 简介 / Summary |
-|------|----------|----------------|
-| [架构总览](docs/architecture.md) | [Architecture](docs/architecture.md) | 三层架构、运行机制、可观测性、安全模型 |
-| [gateway 模块](docs/modules/gateway.md) | [gateway](docs/modules/gateway.md) | HTTP Agent Server（REST API + 认证） |
-| [channels 模块](docs/modules/channels.md) | [channels](docs/modules/channels.md) | IM 渠道接入（8 大渠道） |
-| [agents 模块](docs/modules/agents.md) | [agents](docs/modules/agents.md) | Lead Agent 工厂与中间件链 |
-| [subagents 模块](docs/modules/subagents.md) | [subagents](docs/modules/subagents.md) | 子代理执行与注册 |
-| [orchestration 模块](docs/modules/orchestration.md) | [orchestration](docs/modules/orchestration.md) | 多智能体编排（handoff/图/消息总线/协作模式） |
-| [tools 模块](docs/modules/tools.md) | [tools](docs/modules/tools.md) | 工具装配流水线 |
-| [ports 模块](docs/modules/ports.md) | [ports](docs/modules/ports.md) | 一切皆 port——DSH 兼容终端/表面端口（安装、环境变量、E2E） |
-| [skills 模块](docs/modules/skills.md) | [skills](docs/modules/skills.md) | 技能系统 |
-| [mcp 模块](docs/modules/mcp.md) | [mcp](docs/modules/mcp.md) | MCP 协议适配 |
-| [runtime 模块](docs/modules/runtime.md) | [runtime](docs/modules/runtime.md) | LangGraph 运行 + checkpoint |
-| [persistence 模块](docs/modules/persistence.md) | [persistence](docs/modules/persistence.md) | 持久化层 |
-| [scheduler 模块](docs/modules/scheduler.md) | [scheduler](docs/modules/scheduler.md) | 定时任务 |
-| [config 模块](docs/modules/config.md) | [config](docs/modules/config.md) | 配置与热重载 |
-| [sandbox 模块](docs/modules/sandbox.md) | [sandbox](docs/modules/sandbox.md) | 沙箱抽象 |
-| [guardrails 模块](docs/modules/guardrails.md) | [guardrails](docs/modules/guardrails.md) | 安全护栏 |
-| [authz 模块](docs/modules/authz.md) | [authz](docs/modules/authz.md) | 资源授权 |
-| [tracing 模块](docs/modules/tracing.md) | [tracing](docs/modules/tracing.md) | 可观测性追踪 |
-| [reflection 模块](docs/modules/reflection.md) | [reflection](docs/modules/reflection.md) | 变量解析 |
-| [models 模块](docs/modules/models.md) | [models](docs/modules/models.md) | 模型适配层 |
-| [community 模块](docs/modules/community.md) | [community](docs/modules/community.md) | 第三方生态 |
-| [integrations 模块](docs/modules/integrations.md) | [integrations](docs/modules/integrations.md) | 渠道集成 |
-| [tui 模块](docs/modules/tui.md) | [tui](docs/modules/tui.md) | 终端 UI |
-| [uploads 模块](docs/modules/uploads.md) | [uploads](docs/modules/uploads.md) | 用户上传 |
-| [utils 模块](docs/modules/utils.md) | [utils](docs/modules/utils.md) | 通用工具 |
-| [workspace_changes 模块](docs/modules/workspace_changes.md) | [workspace_changes](docs/modules/workspace_changes.md) | 工作区变更 |
+| 文档 | 简介 |
+|------|------|
+| [架构总览](docs/architecture.md) | 三层架构、运行机制、可观测性、安全模型 |
+| [gateway 模块](docs/modules/gateway.md) | HTTP Agent Server（REST API + 认证） |
+| [channels 模块](docs/modules/channels.md) | IM 渠道接入（8 大渠道） |
+| [agents 模块](docs/modules/agents.md) | Lead Agent 工厂与中间件链 |
+| [subagents 模块](docs/modules/subagents.md) | 子代理执行与注册 |
+| [orchestration 模块](docs/modules/orchestration.md) | 多智能体编排（handoff/图/消息总线/协作模式） |
+| [ports 模块](docs/modules/ports.md) | 一切皆 port——DSH 兼容终端/表面端口（安装、环境变量、E2E） |
+| [tools 模块](docs/modules/tools.md) | 工具装配流水线 |
+| [skills 模块](docs/modules/skills.md) | 技能系统 |
+| [mcp 模块](docs/modules/mcp.md) | MCP 协议适配 |
+| [runtime 模块](docs/modules/runtime.md) | LangGraph 运行 + checkpoint |
+| [persistence 模块](docs/modules/persistence.md) | 持久化层 |
+| [scheduler 模块](docs/modules/scheduler.md) | 定时任务 |
+| [config 模块](docs/modules/config.md) | 配置与热重载 |
+| [sandbox 模块](docs/modules/sandbox.md) | 沙箱抽象 |
+| [guardrails 模块](docs/modules/guardrails.md) | 安全护栏 |
+| [authz 模块](docs/modules/authz.md) | 资源授权 |
+| [tracing 模块](docs/modules/tracing.md) | 可观测性追踪 |
+| [reflection 模块](docs/modules/reflection.md) | 变量解析 |
+| [models 模块](docs/modules/models.md) | 模型适配层 |
+| [community 模块](docs/modules/community.md) | 第三方生态 |
+| [integrations 模块](docs/modules/integrations.md) | 渠道集成 |
+| [tui 模块](docs/modules/tui.md) | 终端 UI |
+| [uploads 模块](docs/modules/uploads.md) | 用户上传 |
+| [utils 模块](docs/modules/utils.md) | 通用工具 |
+| [workspace_changes 模块](docs/modules/workspace_changes.md) | 工作区变更 |
 
 ## ⚙️ 系统要求 / Requirements
 
 - Python ≥ 3.12
 - macOS / Linux（亦支持 WSL2）
+- Node.js ≥ 20 + pnpm（仅 Web 工作台开发需要）
 - 可选：Docker（用于 `aio_sandbox`）
 - 可选：PostgreSQL ≥ 13、Redis ≥ 5（如启用）
 
 ## 📜 许可证 / License
-
-Apache-2.0
-
----
-
-## English Version
-
-**QiLin** — a production-grade agent engine.
-A single Python package that consolidates LangGraph state machines, model orchestration, tool/skill ecosystems, recursive sub-agents, sandbox isolation, fine-grained authorization, observability, and scheduled tasks — all in one binary / one process.
-
-- **Package**：`qilin`
-- **Codebase**：~517 files, 25 sub-modules
-- **Python**：≥ 3.12
-- **CLI**：`qilin`
-- **Roadmap**：v1.0.0 single-agent → **v2.0.0 multi-agent (current)**
-
-### ✨ Core Capabilities
-
-| Capability |
-|------------|
-| Embedded or service-mode runtime |
-| 25 cohesive subsystems |
-| LangGraph-compatible kernel |
-| Multi-provider model adapters (OpenAI / Anthropic / DeepSeek / Gemini / Ollama) |
-| Recursive sub-agents with independent checkpoints |
-| Multi-agent orchestration (single/multi mode switch, parallel batch, collaboration patterns) |
-| HTTP Agent Server (REST API + JWT auth + CSRF + GitHub webhooks) |
-| 8 IM channel adapters (Feishu/Discord/Slack/Telegram/DingTalk/WeCom/WeChat/GitHub) |
-| Multi-backend sandbox (Local / aio_sandbox / boxlite / E2B / Tenki) |
-| RBAC-style resource authorization |
-| Langfuse / Monocle trace adapters |
-| Skill catalog with static + dynamic scanning |
-| ACP-compatible (Agent Client Protocol) |
-
-### 📦 Installation
-
-```bash
-# Core installation (kernel only)
-pip install qilin
-
-# With TUI workbench
-pip install "qilin[tui]"
-
-# All optional features
-pip install "qilin[postgres,redis,tenki,monocle,browser,boxlite]"
-
-# Agent Server / IM channels
-pip install "qilin[gateway,channels]"
-```
-
-### 🚀 Quick Start
-
-```python
-from qilin.client import QiLinClient
-
-client = QiLinClient()
-print(client.chat("Explain the transformer self-attention mechanism.", thread_id="my-thread"))
-```
-
-```bash
-# Interactive TUI
-qilin
-# One-shot
-qilin --print "What is the capital of France?"
-# JSON streaming
-echo "What is 2+2?" | qilin --json
-```
-
-### 📂 Project Layout
-
-```
-.
-├── pyproject.toml         # Package metadata + CLI registration
-├── qilin/                 # Core engine (517 files, 25 sub-modules)
-│   ├── client.py          # QiLinClient — embedded entry
-│   ├── constants.py       # Shared runtime constants
-│   ├── agents/            # Lead Agent + middlewares + memory backends
-│   ├── subagents/         # Sub-agent executor + registry
-│   ├── orchestration/     # Multi-agent orchestration (handoff/graph/bus/patterns)
-│   ├── tools/             # Tool registry & assembly
-│   ├── skills/            # Skill system
-│   ├── mcp/               # MCP adapters
-│   ├── runtime/           # LangGraph runner + checkpoint + stream bridge
-│   ├── persistence/       # Multi-backend storage
-│   ├── scheduler/         # Cron / one-shot tasks
-│   ├── config/            # Pydantic config + hot reload
-│   ├── sandbox/           # Sandbox abstraction
-│   ├── guardrails/        # Safety middleware
-│   ├── authz/             # RBAC authorization
-│   ├── tracing/           # Langfuse / Monocle
-│   ├── reflection/        # SkillACP variable resolution
-│   ├── community/         # 3rd-party ecosystem (search, sandbox, ...)
-│   ├── integrations/      # Lark, Lark CLI, ...
-│   ├── models/            # Model adapters
-│   ├── tui/               # Textual terminal UI
-│   ├── uploads/           # Upload management
-│   ├── utils/             # Generic utilities
-│   └── workspace_changes/ # Workspace change tracker
-├── app/                   # Service surface (HTTP Agent Server + IM channels, shipped in the wheel)
-│   ├── gateway/           # FastAPI HTTP Agent Server (REST + auth + webhooks)
-│   ├── channels/          # IM channel adapters (8 channels)
-│   └── scheduler/         # Scheduled-task HTTP service
-├── docs/
-│   ├── architecture.md
-│   └── modules/*.md       # 25 module docs
-└── README.md              # This file
-```
-
-### ⚙️ Requirements
-
-- Python ≥ 3.12
-- macOS / Linux (WSL2 supported)
-- Optional: Docker (for `aio_sandbox`)
-- Optional: PostgreSQL ≥ 13, Redis ≥ 5
-
-### 📜 License
 
 Apache-2.0
