@@ -9,12 +9,15 @@ type DraftState = {
   hasWorkspaceParam: boolean;
   workspaceId: string | undefined;
   workspacePath: string | undefined;
+  /** 该草稿是否已有线程级 context 覆盖（用户选择或 reset 写入的显式空）。 */
+  hasOverride?: boolean;
 };
 
 function renderReset(initial: DraftState) {
   const onReset = vi.fn();
   const hook = renderHook(
-    (props: DraftState) => useWorkspaceDraftReset({ ...props, onReset }),
+    (props: DraftState) =>
+      useWorkspaceDraftReset({ hasOverride: false, ...props, onReset }),
     { initialProps: initial },
   );
   const rerenderWith = (next: Partial<DraftState>) => {
@@ -102,5 +105,36 @@ describe("useWorkspaceDraftReset", () => {
     // 模拟另一标签页写入全局记录后，同步进本草稿的回落值
     rerenderWith({ workspaceId: "ws-c", workspacePath: "/projects/c" });
     expect(onReset).toHaveBeenCalledTimes(1);
+  });
+
+  test("用户在草稿里主动选择的工作区不被清除（回归：新任务选工作区发送后 agent 看到空目录）", () => {
+    // 场景：草稿挂载时全局回落值已被清（显式空覆盖已写入），用户随后在
+    // 输入框工作区下拉里主动选了 ws-a。线程级覆盖已存在 → 不清。
+    const { onReset, rerenderWith } = renderReset({
+      isNewThread: true,
+      hasWorkspaceParam: false,
+      workspaceId: undefined,
+      workspacePath: undefined,
+    });
+    expect(onReset).not.toHaveBeenCalled();
+
+    // 用户选择：workspace_id 写入线程级覆盖，值变为 ws-a
+    rerenderWith({
+      hasOverride: true,
+      workspaceId: "ws-a",
+      workspacePath: "/projects/a",
+    });
+    expect(onReset).not.toHaveBeenCalled();
+  });
+
+  test("线程级覆盖已存在时不清除回落进来的同值/异值", () => {
+    const { onReset } = renderReset({
+      isNewThread: true,
+      hasWorkspaceParam: false,
+      workspaceId: "ws-a",
+      workspacePath: "/projects/a",
+      hasOverride: true,
+    });
+    expect(onReset).not.toHaveBeenCalled();
   });
 });

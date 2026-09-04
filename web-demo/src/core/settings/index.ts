@@ -1,4 +1,8 @@
-export { useLocalSettings, useThreadSettings } from "./hooks";
+export {
+  useLocalSettings,
+  useThreadSettings,
+  useThreadWorkspaceOverrideFlag,
+} from "./hooks";
 export {
   saveThreadAgentName,
   saveThreadWorkspaceId,

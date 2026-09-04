@@ -16,6 +16,7 @@ import {
   saveThreadWorkspaceId,
   saveThreadWorkspacePath,
   useThreadSettings,
+  useThreadWorkspaceOverrideFlag,
   type LocalSettings,
 } from "@/core/settings";
 import { useThreadStream } from "@/core/threads/hooks";
@@ -143,6 +144,9 @@ export function useChatPageController({
   const { threadId, setThreadId, isNewThread, setIsNewThread, isMock } =
     useThreadChat();
   const [settings, setSettings] = useThreadSettings(threadId);
+  // 该草稿是否已有线程级 workspace 覆盖。草稿重置 hook 用它区分「全局
+  // 回落的上一个任务工作区（该清）」与「用户主动选择（绝不能清）」。
+  const hasWorkspaceOverride = useThreadWorkspaceOverrideFlag(threadId);
 
   // 全局「新任务」入口（/workspace/chats/new，无 ?workspace=）：草稿不继承
   // 任何工作区选择记录——清掉从全局设置回落的选择，保持「未分组（未选择）」
@@ -153,6 +157,7 @@ export function useChatPageController({
   useWorkspaceDraftReset({
     isNewThread: scopeConfig.draftReset && isNewThread,
     hasWorkspaceParam: searchParams.has("workspace"),
+    hasOverride: hasWorkspaceOverride,
     workspaceId: settings.context.workspace_id as string | undefined,
     workspacePath: settings.context.user_workspace_path as string | undefined,
     onReset: () => {

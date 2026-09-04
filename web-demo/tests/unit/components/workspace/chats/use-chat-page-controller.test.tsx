@@ -48,6 +48,7 @@ const settingsMock = vi.hoisted(() => {
     saveAgentName: vi.fn(),
     saveWorkspacePath: vi.fn(),
     saveWorkspaceId: vi.fn(),
+    hasWorkspaceOverride: false,
   };
 });
 
@@ -95,6 +96,7 @@ vi.mock("@/core/threads/hooks", () => ({
 
 vi.mock("@/core/settings", () => ({
   useThreadSettings: () => [settingsMock.settings, settingsMock.setSettings],
+  useThreadWorkspaceOverrideFlag: () => settingsMock.hasWorkspaceOverride ?? false,
   useLocalSettings: () => [settingsMock.settings, vi.fn()],
   saveThreadAgentName: settingsMock.saveAgentName,
   saveThreadWorkspacePath: settingsMock.saveWorkspacePath,

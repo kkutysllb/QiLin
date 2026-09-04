@@ -129,3 +129,23 @@ export function useThreadSettings(
 
   return [settings, setSettings];
 }
+
+/**
+ * 该 thread 是否存在线程级 workspace 覆盖（workspace_id /
+ * user_workspace_path 任一）。用于区分「全局 baseSettings 回落值」与
+ * 「用户/流程在本线程里显式写入的选择」：新草稿无覆盖时读到的
+ * workspace_id 才是可清除的遗留回落值。
+ */
+export function useThreadWorkspaceOverrideFlag(threadId: string): boolean {
+  const hasWorkspaceIdOverride = useSyncExternalStore(
+    subscribe,
+    () => hasThreadWorkspaceIdOverride(threadId),
+    () => false,
+  );
+  const hasWorkspacePathOverride = useSyncExternalStore(
+    subscribe,
+    () => hasThreadWorkspacePathOverride(threadId),
+    () => false,
+  );
+  return hasWorkspaceIdOverride || hasWorkspacePathOverride;
+}
