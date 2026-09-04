@@ -476,6 +476,14 @@ export const enUS: Translations = {
       appearanceGroup: "Appearance",
       systemGroup: "System",
     },
+    composer: {
+      groupTitle: "Composer",
+      busyEnterTitle: "Enter behavior while busy",
+      busyEnterDescription:
+        "Applies only while the agent is running; Cmd/Ctrl+Enter uses the other behavior",
+      busyEnterQueue: "Queue",
+      busyEnterSteer: "Steer",
+    },
     account: {
       email: "Email",
       role: "Role",
@@ -550,6 +558,7 @@ export const enUS: Translations = {
   // Queued messages
   queue: {
     title: "Queued",
+    count: "queued message(s)",
     sendAll: "Send all",
     sendAllAllTitle: "Send all",
     sendAllStreamingTitle:
@@ -568,7 +577,10 @@ export const enUS: Translations = {
       delete: "Delete",
       deleteInjectedTitle: "Delete (injected; removes from queue only)",
       retry: "Retry",
-      moveUp: "Move up",
+      steer: "Steer now",
+      steerUnavailable: "Only available while the agent is running",
+      save: "Save",
+      cancelEdit: "Cancel editing",
     },
     toast: {
       queued: "Added to send queue",

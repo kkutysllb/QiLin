@@ -53,8 +53,9 @@ export function ChatPageComposer({
           onRemoveFromQueue={controller.coordinator.remove}
           onEditQueued={controller.coordinator.editContent}
           onRetryQueued={controller.handleRetryQueued}
-          onReorderQueued={controller.coordinator.reorder}
           onSendAllQueued={controller.coordinator.manualSendAll}
+          busyEnter={controller.settings.composer.busyEnter}
+          onSteer={controller.handleSteer}
         />
       ) : (
         <div

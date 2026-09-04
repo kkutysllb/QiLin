@@ -459,6 +459,14 @@ export const zhCN: Translations = {
       appearanceGroup: "外观",
       systemGroup: "系统",
     },
+    composer: {
+      groupTitle: "输入行为",
+      busyEnterTitle: "繁忙时 Enter 键行为",
+      busyEnterDescription:
+        "仅在智能体运行时生效；Cmd/Ctrl+Enter 使用另一行为",
+      busyEnterQueue: "排队发送",
+      busyEnterSteer: "插话发送",
+    },
     account: {
       email: "邮箱",
       role: "角色",
@@ -530,6 +538,7 @@ export const zhCN: Translations = {
   // Queued messages
   queue: {
     title: "待发送",
+    count: "条排队消息",
     sendAll: "全部发送",
     sendAllAllTitle: "全部发送",
     sendAllStreamingTitle: "任务执行中，将在结束后自动发送",
@@ -547,7 +556,10 @@ export const zhCN: Translations = {
       delete: "删除",
       deleteInjectedTitle: "删除（已注入，仅从队列移除）",
       retry: "重试",
-      moveUp: "上移",
+      steer: "插话发送",
+      steerUnavailable: "仅运行中可插话发送",
+      save: "保存",
+      cancelEdit: "取消编辑",
     },
     toast: {
       queued: "已加入待发送队列",

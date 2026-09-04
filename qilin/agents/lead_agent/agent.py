@@ -516,6 +516,15 @@ def build_middlewares(
     if configured_middlewares:
         middlewares.extend(configured_middlewares)
 
+    # InjectMiddleware — drain gateway mid-run injections (插话, DSH
+    # 'next-step' semantics) into state right before each model call.
+    # Registered late (after summarization / dangling-tool-call patches)
+    # so the appended HumanMessage lands after every message repair pass
+    # and is not re-processed by earlier context-reduction middlewares.
+    from qilin.agents.middlewares.inject_middleware import InjectMiddleware
+
+    middlewares.append(InjectMiddleware())
+
     # A provider may return an empty AIMessage after tool execution. Retry the
     # final response once, then persist a visible error fallback rather than
     # allowing LangChain's no-tool-call router to end a silent successful run.

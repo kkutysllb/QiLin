@@ -7,6 +7,16 @@ export type MessageWidth = "narrow" | "medium" | "wide";
 export type MessageFontSize = "small" | "medium" | "large";
 export type MessageLineHeight = "compact" | "comfortable" | "relaxed";
 
+/**
+ * 繁忙态回车行为（DSH BusyEnterBehavior 同款二选一）：
+ * queue=排队发送（run 结束后作为新 turn 自动发出），steer=插话发送（经
+ * /inject 并入运行中任务的下一次模型调用）。Cmd/Ctrl+Enter 恒取另一行为。
+ */
+export type BusyEnterBehavior = "queue" | "steer";
+export interface ComposerSettings {
+  busyEnter: BusyEnterBehavior;
+}
+
 /** 消息正文区域的阅读外观设置（全局，非 per-thread）。 */
 export interface MessageAppearanceSettings {
   /** 消息正文最大宽度。 */
@@ -25,6 +35,9 @@ export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
     width: "medium",
     fontSize: "medium",
     lineHeight: "comfortable",
+  },
+  composer: {
+    busyEnter: "queue",
   },
   context: {
     model_name: undefined,
@@ -52,6 +65,7 @@ export interface LocalSettings {
     enabled: boolean;
   };
   appearance: MessageAppearanceSettings;
+  composer: ComposerSettings;
   context: Omit<
     AgentThreadContext,
     | "thread_id"
@@ -80,6 +94,10 @@ function mergeLocalSettings(settings?: Partial<LocalSettings>): LocalSettings {
     appearance: {
       ...DEFAULT_LOCAL_SETTINGS.appearance,
       ...settings?.appearance,
+    },
+    composer: {
+      ...DEFAULT_LOCAL_SETTINGS.composer,
+      ...settings?.composer,
     },
   };
 }

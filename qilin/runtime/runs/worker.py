@@ -35,6 +35,10 @@ from langgraph.errors import GraphRecursionError
 from langgraph.types import Overwrite
 
 from qilin.agents.goal_state import GoalEvaluation, GoalState
+from qilin.agents.middlewares.inject_middleware import (
+    drain_injections,
+    injected_human_message,
+)
 from qilin.config.app_config import AppConfig
 from qilin.config.database_config import CheckpointChannelMode
 from qilin.runtime.checkpoint_mode import (
@@ -1147,6 +1151,40 @@ async def run_agent(
         # abort/exception paths, where the stream loop broke before its own flush.
         if not record.ownership_lost and subagent_events is not None:
             await subagent_events.flush()
+
+        # Drain unconsumed mid-run injections (插话) — no silent loss: an
+        # accepted injection that never reached a model call (the race where
+        # the run finished right after the 202) is appended to thread history
+        # as a plain human message, so delivery stays visible and the next
+        # turn answers it naturally. Skipped when fenced: the worker that owns
+        # the lease owns the durable history too.
+        if not record.ownership_lost and accessor is not None:
+            leftover_injections = drain_injections(thread_id)
+            if leftover_injections:
+                try:
+                    await accessor.aupdate(
+                        {"configurable": {"thread_id": thread_id}},
+                        {
+                            "messages": [
+                                injected_human_message(p)
+                                for p in leftover_injections
+                            ]
+                        },
+                    )
+                    logger.info(
+                        "Run %s flushed %d unconsumed injection(s) into thread %s history",
+                        run_id,
+                        len(leftover_injections),
+                        thread_id,
+                    )
+                except Exception:
+                    logger.warning(
+                        "Run %s failed to flush %d unconsumed injection(s) for thread %s",
+                        run_id,
+                        len(leftover_injections),
+                        thread_id,
+                        exc_info=True,
+                    )
 
         if not record.ownership_lost and event_store is not None and pre_run_workspace_snapshot is not None:
             try:

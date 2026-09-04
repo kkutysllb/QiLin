@@ -64,6 +64,7 @@ import { getBackendBaseURL } from "@/core/config";
 import { useI18n } from "@/core/i18n/hooks";
 import type { Translations } from "@/core/i18n/locales/types";
 import { useModels } from "@/core/models/hooks";
+import type { BusyEnterBehavior } from "@/core/settings";
 import type { AgentThreadContext } from "@/core/threads";
 import type { QueuedMessage } from "@/core/threads/queue-store";
 import { textOfMessage } from "@/core/threads/utils";
@@ -192,8 +193,9 @@ export function InputBox({
   onRemoveFromQueue,
   onEditQueued,
   onRetryQueued,
-  onReorderQueued,
   onSendAllQueued,
+  busyEnter = "queue",
+  onSteer,
   ...props
 }: Omit<ComponentProps<typeof PromptInput>, "onSubmit"> & {
   assistantId?: string | null;
@@ -226,8 +228,14 @@ export function InputBox({
   onRemoveFromQueue?: (id: string) => void;
   onEditQueued?: (id: string, content: string) => void;
   onRetryQueued?: (msg: QueuedMessage) => void;
-  onReorderQueued?: (id: string, direction: "up" | "down") => void;
   onSendAllQueued?: () => void;
+  /** 繁忙态回车行为偏好（设置页可改；Cmd/Ctrl+Enter 恒取另一行为）。 */
+  busyEnter?: BusyEnterBehavior;
+  /**
+   * 插话发送（DSH steer 语义）：把消息注入运行中任务的下一次模型调用。
+   * 返回 false（无活动 run / 409 / 404）时调用方降级回排队。
+   */
+  onSteer?: (message: PromptInputMessage) => Promise<boolean>;
 }) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
@@ -412,10 +420,23 @@ export function InputBox({
     [onContextChange, context],
   );
 
+  // 捕获阶段记录回车修饰键：DSH 约定 Cmd/Ctrl+Enter 取 busyEnter 的相反行为。
+  const cmdEnterRef = useRef(false);
+
   const handleSubmit = useCallback(
     async (message: PromptInputMessage) => {
       if (status === "streaming") {
         if (!message.text?.trim()) return;
+        // 繁忙行为选择（DSH BusyEnterBehavior）：偏好与修饰键异或——
+        // 偏好 steer 且裸 Enter，或偏好 queue 但 Cmd/Ctrl+Enter → 插话。
+        const wantsSteer =
+          (busyEnter === "steer") !== cmdEnterRef.current;
+        if (wantsSteer && onSteer) {
+          void onSteer(message).then((steered) => {
+            if (!steered) onEnqueue?.(message);
+          });
+          return;
+        }
         onEnqueue?.(message);
         return;
       }
@@ -444,9 +465,11 @@ export function InputBox({
       onSubmit?.(message);
     },
     [
+      busyEnter,
       context,
       onContextChange,
       onEnqueue,
+      onSteer,
       onSubmit,
       resolvedModelName,
       selectedModel?.supports_thinking,
@@ -609,7 +632,15 @@ export function InputBox({
   // on the whole context object — otherwise the effect re-runs every time the
   // Provider's value identity changes, calling setData again and looping.
   return (
-    <div ref={promptRootRef} className="relative flex flex-col gap-4">
+    <div
+      ref={promptRootRef}
+      className="relative flex flex-col gap-4"
+      onKeyDownCapture={(e) => {
+        if (e.key === "Enter") {
+          cmdEnterRef.current = e.metaKey || e.ctrlKey;
+        }
+      }}
+    >
       <SlashCommandMenu rootRef={promptRootRef} />
       {queuedMessages && queuedMessages.length > 0 && (
         <QueuedMessagesBar
@@ -621,7 +652,6 @@ export function InputBox({
           onRemove={onRemoveFromQueue ?? (() => undefined)}
           onEdit={onEditQueued ?? (() => undefined)}
           onRetry={onRetryQueued ?? (() => undefined)}
-          onReorder={onReorderQueued ?? (() => undefined)}
           onSendAll={onSendAllQueued ?? (() => undefined)}
         />
       )}

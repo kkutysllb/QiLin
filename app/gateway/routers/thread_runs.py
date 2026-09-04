@@ -56,6 +56,10 @@ from app.gateway.utils import sanitize_log_param
 from qilin.agents.middlewares.dynamic_context_middleware import (
     strip_injected_user_message_id_suffix,
 )
+from qilin.agents.middlewares.inject_middleware import (
+    InjectPayload,
+    enqueue_injection,
+)
 from qilin.constants import HIDE_FROM_UI_KEY
 from qilin.persistence.engine import get_session_factory
 from qilin.persistence.run.model import RunRow
@@ -1249,6 +1253,113 @@ async def cancel_run(
 
     # not_cancellable, not_active_locally, unknown
     raise HTTPException(status_code=409, detail=_cancel_conflict_detail(run_id, record))
+
+
+class InjectRequest(BaseModel):
+    """Body of the mid-run message-injection (插话) endpoint."""
+
+    content: str = Field(min_length=1, description="Injected message text")
+    attachments: list[Any] | None = Field(
+        default=None, description="Opaque attachment payloads, forwarded verbatim"
+    )
+    message_id: str | None = Field(
+        default=None,
+        description="Client-side queue item id, echoed back and stamped on the "
+        "consumed HumanMessage for correlation",
+    )
+    queued_at: int | None = Field(
+        default=None, description="Client-side enqueue epoch ms, stamped through"
+    )
+
+
+class InjectResponse(BaseModel):
+    """202 body: the injection was queued for the next model call."""
+
+    run_id: str
+    message_id: str | None = None
+    status: Literal["accepted"]
+    note: str
+
+
+@router.post(
+    "/{thread_id}/runs/{run_id}/inject",
+    response_model=InjectResponse,
+    dependencies=[Depends(rate_limit)],
+)
+@require_permission("runs", "create", owner_check=True, require_existing=True)
+async def inject_into_run(
+    thread_id: str,
+    run_id: str,
+    body: InjectRequest,
+    request: Request,
+) -> InjectResponse:
+    """Steer a supplement message into a running agent mid-run (插话).
+
+    DSH 'next-step' semantics: the message does NOT interrupt the run; the
+    lead agent's InjectMiddleware drains it right before the next model
+    call, where it lands as a HumanMessage in graph state (checkpointed,
+    visible on the SSE message stream).
+
+    409 run_not_active (structured detail, consumed by the web client's
+    downgrade-to-queue path) when the run is not consuming injections any
+    more: unknown status, already finalizing, or not running. The client
+    falls back to its local queue and sends the message as a follow-up
+    turn after the run finishes — mirroring DSH's steer→next-turn
+    reclassification at the inbox level.
+    """
+    run_mgr = get_run_manager(request)
+    record = await run_mgr.get(run_id)
+    if record is None or record.thread_id != thread_id:
+        raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
+    if record.status != RunStatus.running or record.finalizing:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "run_not_active",
+                "message": (
+                    f"Run {run_id} is not accepting injections "
+                    f"(status: {record.status.value}"
+                    f"{', finalizing' if record.finalizing else ''})"
+                ),
+                "run_status": record.status.value,
+            },
+        )
+    if record.owner_worker_id != run_mgr.worker_id:
+        # The injection queue is process-local: only the owning worker's
+        # InjectMiddleware would ever drain it. A None owner (store-only /
+        # cross-process registration) rejects too — a locally running run
+        # always stamps its owner at creation. Degrade to the client queue
+        # (a follow-up run is cross-process correct by construction).
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "run_not_active",
+                "message": (
+                    f"Run {run_id} is owned by another worker; "
+                    "injections are not available cross-process"
+                ),
+                "run_status": record.status.value,
+            },
+        )
+    payload = InjectPayload(
+        content=body.content,
+        attachments=body.attachments,
+        message_id=body.message_id,
+        queued_at=body.queued_at,
+    )
+    depth = enqueue_injection(thread_id, payload)
+    logger.info(
+        "[inject] accepted injection for thread %s run %s (queue depth: %d)",
+        sanitize_log_param(thread_id),
+        sanitize_log_param(run_id),
+        depth,
+    )
+    return InjectResponse(
+        run_id=run_id,
+        message_id=body.message_id,
+        status="accepted",
+        note="Queued; consumed before the next model call",
+    )
 
 
 @router.get("/{thread_id}/runs/{run_id}/join")

@@ -413,6 +413,35 @@ export function GeneralSettingsPage() {
         </SettingsRow>
       </SettingsGroup>
 
+      {/* 输入行为 */}
+      <SettingsGroup title={t.settings.composer.groupTitle}>
+        <SettingsRow
+          label={t.settings.composer.busyEnterTitle}
+          description={t.settings.composer.busyEnterDescription}
+        >
+          <Select
+            value={localSettings.composer.busyEnter}
+            onValueChange={(value) => {
+              if (value === "queue" || value === "steer") {
+                setLocalSettings("composer", { busyEnter: value });
+              }
+            }}
+          >
+            <SelectTrigger className="h-8 w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="queue">
+                {t.settings.composer.busyEnterQueue}
+              </SelectItem>
+              <SelectItem value="steer">
+                {t.settings.composer.busyEnterSteer}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </SettingsRow>
+      </SettingsGroup>
+
       {/* 系统 */}
       <section className="space-y-2">
         <h3 className="text-muted-foreground px-1 text-xs font-medium tracking-wide uppercase">

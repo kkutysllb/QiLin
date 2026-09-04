@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { type PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { ThreadContextType } from "@/components/workspace/messages/context";
 import { getAPIClient } from "@/core/api/api-client";
+import { injectMessage } from "@/core/api/inject";
 import { useI18n } from "@/core/i18n/hooks";
 import type { HumanInputResponse } from "@/core/messages/human-input";
 import { useNotification } from "@/core/notification/hooks";
@@ -337,6 +338,30 @@ export function useChatPageController({
     [coordinator, t.queue.toast.queued],
   );
 
+  // 插话发送（DSH steer 语义）：把消息直接注入运行中任务的下一次模型
+  // 调用，不进本地队列。返回是否成功——false（无活动 run / 409
+  // run_not_active / 404 端点缺失 / 网络失败）时 InputBox 降级回排队。
+  const handleSteer = useCallback(
+    async (message: PromptInputMessage): Promise<boolean> => {
+      if (!currentRunId || !message.text?.trim()) return false;
+      try {
+        await injectMessage(threadId, currentRunId, {
+          content: message.text,
+          attachments: message.files ?? [],
+          messageId: `steer_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2, 8)}`,
+          queuedAt: Date.now(),
+        });
+        return true;
+      } catch (e) {
+        console.error("[steer] inject failed; fallback to queue", e);
+        return false;
+      }
+    },
+    [currentRunId, threadId],
+  );
+
   // 重试处于 error 态的队列消息：先降级回 pending，再触发 autoSendNext。
   // 若当前无运行任务（currentRunId 为空），injectNow 会 no-op，所以用
   // "降级 + autoSendNext" 让消息在不依赖活动 run 的情况下也能发出。
@@ -393,6 +418,7 @@ export function useChatPageController({
     handleEnqueue,
     handleRetryQueued,
     handleContextChange,
+    handleSteer,
   };
 }
 

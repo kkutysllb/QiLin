@@ -402,6 +402,13 @@ export interface Translations {
       appearanceGroup: string;
       systemGroup: string;
     };
+    composer: {
+      groupTitle: string;
+      busyEnterTitle: string;
+      busyEnterDescription: string;
+      busyEnterQueue: string;
+      busyEnterSteer: string;
+    };
     account: {
       email: string;
       role: string;
@@ -473,6 +480,7 @@ export interface Translations {
   // Queued messages
   queue: {
     title: string;
+    count: string;
     sendAll: string;
     sendAllAllTitle: string;
     sendAllStreamingTitle: string;
@@ -490,7 +498,10 @@ export interface Translations {
       delete: string;
       deleteInjectedTitle: string;
       retry: string;
-      moveUp: string;
+      steer: string;
+      steerUnavailable: string;
+      save: string;
+      cancelEdit: string;
     };
     toast: {
       queued: string;

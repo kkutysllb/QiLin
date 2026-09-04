@@ -9,6 +9,8 @@ export {
   applyThreadWorkspacePathOverride,
 } from "./local";
 export type {
+  BusyEnterBehavior,
+  ComposerSettings,
   LocalSettings,
   MessageAppearanceSettings,
   MessageFontSize,

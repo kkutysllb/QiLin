@@ -1,16 +1,25 @@
 "use client";
 
+// 繁忙态消息队列 dock——交互与视觉对齐 DSH ui-conversation QueueDock：
+// 多条时折叠为「N 条排队消息」计数头（默认收起），单条直接铺开；
+// 行内单行省略预览 + 右侧 28px 圆形图标操作（编辑/删除/插话发送）。
+// 插话（steer）= DSH next-step 语义：仅在运行中可用，经 /inject
+// 并入当前任务的下一次模型调用；不可用时按钮禁用并给出解释 tooltip。
+
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  LayersIcon,
   Loader2Icon,
   PencilIcon,
   RotateCwIcon,
   SendHorizonalIcon,
+  SendIcon,
   Trash2Icon,
-  ZapIcon,
+  XIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,21 +35,28 @@ import type {
 } from "@/core/threads/queue-store";
 import { cn } from "@/lib/utils";
 
-// 左侧状态色条（更克制的视觉，替代原来花哨的 Badge 背景）
-const STATUS_BAR_CLASS: Record<QueuedMessageStatus, string> = {
-  pending: "bg-muted-foreground/40",
-  injecting: "bg-blue-500",
-  injected: "bg-emerald-500",
-  sending: "bg-blue-500",
-  error: "bg-red-500",
+// 非 pending 态的小状态徽标（pending 行保持 DSH 式干净单行）。
+const STATUS_BADGE: Partial<
+  Record<
+    QueuedMessageStatus,
+    {
+      labelKey: "injecting" | "injected" | "sending" | "error";
+      className: string;
+    }
+  >
+> = {
+  injecting: { labelKey: "injecting", className: "text-blue-500" },
+  injected: { labelKey: "injected", className: "text-emerald-500" },
+  sending: { labelKey: "sending", className: "text-blue-500" },
+  error: { labelKey: "error", className: "text-red-500" },
 };
 
 interface Props {
   /** 所有队列消息（含 pending/injecting/injected/sending/error 各态） */
   messages: QueuedMessage[];
-  /** 当前是否有运行中的任务（决定⚡按钮可用性） */
+  /** 当前是否有运行中的任务（决定插话按钮可用性） */
   isStreaming: boolean;
-  /** 立即注入回调 */
+  /** 立即注入回调（插话发送） */
   onInject: (msg: QueuedMessage) => void;
   /** 删除回调 */
   onRemove: (id: string) => void;
@@ -48,8 +64,6 @@ interface Props {
   onEdit: (id: string, newContent: string) => void;
   /** 重试回调（error 态） */
   onRetry: (msg: QueuedMessage) => void;
-  /** 重排回调 */
-  onReorder: (id: string, direction: "up" | "down") => void;
   /** 全部发送回调 */
   onSendAll: () => void;
 }
@@ -61,215 +75,240 @@ export function QueuedMessagesBar({
   onRemove,
   onEdit,
   onRetry,
-  onReorder,
   onSendAll,
 }: Props) {
   const { t } = useI18n();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
+  const listId = useId();
+  const [editing, setEditing] = useState<{ id: string; text: string } | null>(
+    null,
+  );
+  const [collapsed, setCollapsed] = useState(true);
 
   if (messages.length === 0) return null;
 
-  const statusLabel: Record<QueuedMessageStatus, string> = {
-    pending: t.queue.status.pending,
-    injecting: t.queue.status.injecting,
-    injected: t.queue.status.injected,
-    sending: t.queue.status.sending,
-    error: t.queue.status.error,
-  };
-
+  const rowCount = messages.length;
   const pendingCount = messages.filter((m) => m.status === "pending").length;
+  const expanded = !collapsed || editing !== null;
+  const listVisible = rowCount === 1 || expanded;
 
-  const startEdit = (msg: QueuedMessage) => {
-    setEditingId(msg.id);
-    setEditValue(msg.content);
-  };
-  const commitEdit = () => {
-    if (editingId && editValue.trim()) onEdit(editingId, editValue.trim());
-    setEditingId(null);
-  };
+  function commitEdit() {
+    if (editing?.text.trim()) {
+      onEdit(editing.id, editing.text.trim());
+    }
+    setEditing(null);
+  }
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="bg-background flex flex-col gap-1.5 border-t px-3 py-2">
-        <div className="flex items-center justify-between">
-          <span className="text-muted-foreground text-xs font-medium">
-            {t.queue.title} ({pendingCount})
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 gap-1 text-xs"
-            disabled={pendingCount === 0 || isStreaming}
-            onClick={onSendAll}
-            title={
-              isStreaming
-                ? t.queue.sendAllStreamingTitle
-                : t.queue.sendAllAllTitle
-            }
-          >
-            <SendHorizonalIcon className="size-3" />
-            {t.queue.sendAll}
-          </Button>
-        </div>
-
-        <div
-          role="list"
-          aria-label={t.queue.title}
-          className="flex max-h-48 flex-col gap-1 overflow-y-auto"
-        >
-          {messages.map((msg) => {
-            const pendingMsgs = messages.filter((m) => m.status === "pending");
-            const pendingPos = pendingMsgs.findIndex((m) => m.id === msg.id);
-            const canMoveUp = msg.status === "pending" && pendingPos > 0;
-            const canMoveDown =
-              msg.status === "pending" &&
-              pendingPos >= 0 &&
-              pendingPos < pendingMsgs.length - 1;
-            return (
-              <div
-                key={msg.id}
-                role="listitem"
-                className={cn(
-                  "bg-muted/40 flex items-start gap-2 rounded-md border px-2.5 py-1.5 text-xs",
-                  msg.status === "error" &&
-                    "border-red-300 dark:border-red-800",
-                )}
+      {/* 负外边距吸收父容器 gap-4 的一部分，让 dock 视觉上贴住下方输入卡；
+          圆角只留顶部，底边由输入卡自己的顶边框闭合（DSH 同款造型）。 */}
+      <div className="-mb-2" data-queue-dock="">
+        <div className="overflow-hidden rounded-t-xl border border-b-0 bg-muted/40 px-1 py-0.5">
+          {rowCount > 1 && (
+            <div className="flex items-center">
+              <button
+                type="button"
+                aria-controls={listId}
+                aria-expanded={expanded}
+                onClick={() => setCollapsed((value) => !value)}
+                className="text-foreground/90 hover:bg-muted/60 flex h-9 min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 text-left text-[13px] font-medium"
               >
-                {/* 左侧状态色条 */}
-                <span
-                  className={cn(
-                    "mt-0.5 h-3 w-1 shrink-0 rounded-full",
-                    STATUS_BAR_CLASS[msg.status],
-                  )}
+                <LayersIcon
                   aria-hidden
+                  className="text-muted-foreground size-3.5 shrink-0"
                 />
+                <span className="min-w-0 flex-1 truncate">
+                  {rowCount} {t.queue.count}
+                </span>
+                {expanded ? (
+                  <ChevronDownIcon
+                    aria-hidden
+                    className="text-muted-foreground size-3.5 shrink-0"
+                  />
+                ) : (
+                  <ChevronUpIcon
+                    aria-hidden
+                    className="text-muted-foreground size-3.5 shrink-0"
+                  />
+                )}
+              </button>
+              <ActionIconBtn
+                label={
+                  isStreaming
+                    ? t.queue.sendAllStreamingTitle
+                    : t.queue.sendAllAllTitle
+                }
+                disabled={pendingCount === 0 || isStreaming}
+                onClick={onSendAll}
+              >
+                <SendHorizonalIcon className="size-3.5" />
+              </ActionIconBtn>
+            </div>
+          )}
 
-                {/* 中间：状态标签 + 内容 */}
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-medium">
-                    {(msg.status === "injecting" ||
-                      msg.status === "sending") && (
-                      <Loader2Icon className="size-2.5 animate-spin" />
+          <ul
+            id={listId}
+            role="list"
+            aria-label={t.queue.title}
+            className="max-h-44 list-none overflow-y-auto p-0"
+            hidden={!listVisible}
+          >
+            {listVisible &&
+              messages.map((msg) => {
+                const badge = STATUS_BADGE[msg.status];
+                const isEditing = editing?.id === msg.id;
+                return (
+                  <li
+                    key={msg.id}
+                    role="listitem"
+                    className={cn(
+                      "flex h-9 items-center gap-2.5 rounded-lg py-1 pr-1 pl-2.5",
+                      rowCount > 1 &&
+                        "border-border/60 border-t first:border-t-0",
+                      msg.status === "error" && "bg-red-500/5",
                     )}
-                    {statusLabel[msg.status]}
-                    {msg.status === "error" && msg.error && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="max-w-40 truncate text-red-600">
-                            {msg.error}
+                  >
+                    {rowCount === 1 && (
+                      <LayersIcon
+                        aria-hidden
+                        className="text-muted-foreground size-3.5 shrink-0"
+                      />
+                    )}
+
+                    {isEditing ? (
+                      <input
+                        autoFocus
+                        aria-label={t.queue.action.edit}
+                        value={editing.text}
+                        onChange={(e) =>
+                          setEditing({ id: msg.id, text: e.currentTarget.value })
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") {
+                            setEditing(null);
+                            return;
+                          }
+                          if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                            e.preventDefault();
+                            commitEdit();
+                          }
+                        }}
+                        className="border-input bg-background focus:border-primary h-7 min-w-0 flex-1 rounded-md border px-2 text-xs outline-none"
+                      />
+                    ) : (
+                      <>
+                        <span
+                          className={cn(
+                            "text-foreground/80 min-w-0 flex-1 truncate text-[13px]",
+                            msg.status === "error" && "text-red-500",
+                          )}
+                          title={msg.content}
+                        >
+                          {msg.content}
+                        </span>
+                        {badge && (
+                          <span
+                            className={cn(
+                              "flex shrink-0 items-center gap-1 text-[10px] font-medium",
+                              badge.className,
+                            )}
+                          >
+                            {(msg.status === "injecting" ||
+                              msg.status === "sending") && (
+                              <Loader2Icon className="size-2.5 animate-spin" />
+                            )}
+                            {msg.status === "injected" && (
+                              <CheckIcon className="size-2.5" />
+                            )}
+                            {t.queue.status[badge.labelKey]}
                           </span>
-                        </TooltipTrigger>
-                        <TooltipContent>{msg.error}</TooltipContent>
-                      </Tooltip>
-                    )}
-                  </span>
-
-                  {editingId === msg.id ? (
-                    <textarea
-                      autoFocus
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onBlur={commitEdit}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          commitEdit();
-                        } else if (e.key === "Escape") {
-                          setEditingId(null);
-                        }
-                      }}
-                      className="bg-background w-full resize-none rounded border px-1.5 py-1 text-xs outline-none"
-                      rows={2}
-                    />
-                  ) : (
-                    <p className="text-foreground break-words whitespace-pre-wrap">
-                      {msg.content}
-                    </p>
-                  )}
-                </div>
-
-                {/* 右侧操作按钮组 */}
-                <div className="flex shrink-0 items-center gap-0.5">
-                  {msg.status === "pending" && (
-                    <>
-                      <IconBtn
-                        label={t.queue.action.moveUp}
-                        onClick={() => onReorder(msg.id, "up")}
-                        disabled={!canMoveUp}
-                      >
-                        <ArrowUpIcon className="size-3" />
-                      </IconBtn>
-                      <IconBtn
-                        label="下移"
-                        onClick={() => onReorder(msg.id, "down")}
-                        disabled={!canMoveDown}
-                      >
-                        <ArrowDownIcon className="size-3" />
-                      </IconBtn>
-                      <IconBtn
-                        label={t.queue.action.edit}
-                        onClick={() => startEdit(msg)}
-                      >
-                        <PencilIcon className="size-3" />
-                      </IconBtn>
-                      <IconBtn
-                        label={t.queue.action.delete}
-                        onClick={() => onRemove(msg.id)}
-                      >
-                        <Trash2Icon className="size-3" />
-                      </IconBtn>
-                      <IconBtn
-                        label={
-                          isStreaming
-                            ? t.queue.action.injectActiveTitle
-                            : t.queue.action.injectInactiveTitle
-                        }
-                        disabled={!isStreaming}
-                        onClick={() => onInject(msg)}
-                        className={cn(
-                          isStreaming && "text-blue-600 hover:text-blue-700",
                         )}
-                      >
-                        <ZapIcon className="size-3.5" />
-                      </IconBtn>
-                    </>
-                  )}
-                  {msg.status === "injected" && (
-                    <IconBtn
-                      label={t.queue.action.deleteInjectedTitle}
-                      onClick={() => onRemove(msg.id)}
-                    >
-                      <Trash2Icon className="size-3" />
-                    </IconBtn>
-                  )}
-                  {msg.status === "error" && (
-                    <>
-                      <IconBtn
-                        label={t.queue.action.retry}
-                        onClick={() => onRetry(msg)}
-                      >
-                        <RotateCwIcon className="size-3" />
-                      </IconBtn>
-                      <IconBtn
-                        label={t.queue.action.delete}
-                        onClick={() => onRemove(msg.id)}
-                      >
-                        <Trash2Icon className="size-3" />
-                      </IconBtn>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                      </>
+                    )}
+
+                    <div className="flex shrink-0 items-center gap-0.5">
+                      {isEditing ? (
+                        <>
+                          <ActionIconBtn
+                            label={t.queue.action.save}
+                            disabled={editing.text.trim() === ""}
+                            onClick={() => commitEdit()}
+                          >
+                            <CheckIcon className="size-3.5" />
+                          </ActionIconBtn>
+                          <ActionIconBtn
+                            label={t.queue.action.cancelEdit}
+                            onClick={() => setEditing(null)}
+                          >
+                            <XIcon className="size-3.5" />
+                          </ActionIconBtn>
+                        </>
+                      ) : msg.status === "pending" ? (
+                        <>
+                          <ActionIconBtn
+                            label={t.queue.action.edit}
+                            onClick={() =>
+                              setEditing({ id: msg.id, text: msg.content })
+                            }
+                          >
+                            <PencilIcon className="size-3.5" />
+                          </ActionIconBtn>
+                          <ActionIconBtn
+                            label={t.queue.action.delete}
+                            onClick={() => onRemove(msg.id)}
+                          >
+                            <Trash2Icon className="size-3.5" />
+                          </ActionIconBtn>
+                          <ActionIconBtn
+                            label={
+                              isStreaming
+                                ? t.queue.action.steer
+                                : t.queue.action.steerUnavailable
+                            }
+                            disabled={!isStreaming}
+                            onClick={() => onInject(msg)}
+                            className={cn(
+                              isStreaming && "text-blue-600 dark:text-blue-400",
+                            )}
+                          >
+                            <SendIcon className="size-3.5" />
+                          </ActionIconBtn>
+                        </>
+                      ) : msg.status === "error" ? (
+                        <>
+                          <ActionIconBtn
+                            label={t.queue.action.retry}
+                            onClick={() => onRetry(msg)}
+                          >
+                            <RotateCwIcon className="size-3" />
+                          </ActionIconBtn>
+                          <ActionIconBtn
+                            label={t.queue.action.delete}
+                            onClick={() => onRemove(msg.id)}
+                          >
+                            <Trash2Icon className="size-3.5" />
+                          </ActionIconBtn>
+                        </>
+                      ) : msg.status === "injected" ? (
+                        <ActionIconBtn
+                          label={t.queue.action.deleteInjectedTitle}
+                          onClick={() => onRemove(msg.id)}
+                        >
+                          <Trash2Icon className="size-3.5" />
+                        </ActionIconBtn>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+          </ul>
         </div>
       </div>
     </TooltipProvider>
   );
 }
 
-function IconBtn({
+function ActionIconBtn({
   children,
   label,
   onClick,
@@ -289,8 +328,8 @@ function IconBtn({
           variant="ghost"
           size="icon"
           className={cn(
-            "size-6",
-            disabled && "cursor-not-allowed opacity-40",
+            "text-muted-foreground hover:text-foreground size-7 rounded-full",
+            disabled && "cursor-default opacity-45",
             className,
           )}
           onClick={onClick}
