@@ -13,3 +13,11 @@
     personaPrefix: >-
       You are QiLin, a coding agent powered by the {{model}} model.
     personaSuffix: Your working directory is {{cwd}}.
+
+# ── the QiLin browser roster ────────────────────────────────────────────────
+
+# `dsh.client` rows are scanned into the browser module roster. The brand color
+# layer stacks over whichever palette the user selected in Settings.
+- insert:
+    - id: ui-theme-qilin
+      name: '@deepseek-ai/dsh-client-ui-theme-qilin'

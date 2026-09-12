@@ -22,6 +22,18 @@ const OFFICIAL_CLIENT_BUILD_ENVIRONMENT = {
   DSH_CLIENT_TITLE: 'DeepSeek Harness',
 } as const
 
+/** Public client environment required by QiLin product artifacts. */
+const QILIN_CLIENT_BUILD_ENVIRONMENT = {
+  DSH_CLIENT_BUILD_PROFILE: 'qilin',
+  DSH_CLIENT_TITLE: 'QiLin',
+} as const
+
+/** Named complete-build profiles and the public values each embeds. */
+const CLIENT_BUILD_PROFILES = {
+  official: OFFICIAL_CLIENT_BUILD_ENVIRONMENT,
+  qilin: QILIN_CLIENT_BUILD_ENVIRONMENT,
+} as const
+
 /** Public variable carrying the source commit embedded in client artifacts. */
 const CLIENT_COMMIT_HASH_VARIABLE = 'DSH_CLIENT_COMMIT_HASH'
 
@@ -187,22 +199,22 @@ export function resolveClientBuildEnvironment(
   profile: string | undefined = environment[CLIENT_BUILD_PROFILE_SELECTOR],
 ): ClientBuildEnvironment {
   if (profile === undefined) return clientBuildEnvironment(environment)
-  if (profile === 'official') {
-    const commitHash = environment[CLIENT_COMMIT_HASH_VARIABLE]
-    const version = environment[CLIENT_VERSION_VARIABLE]
-    if (commitHash === undefined) {
-      throw new Error(`${CLIENT_COMMIT_HASH_VARIABLE} is required for the official client build profile`)
-    }
-    if (version === undefined) {
-      throw new Error(`${CLIENT_VERSION_VARIABLE} is required for the official client build profile`)
-    }
-    return {
-      DSH_CLIENT_COMMIT_HASH: commitHash,
-      DSH_CLIENT_VERSION: version,
-      ...OFFICIAL_CLIENT_BUILD_ENVIRONMENT,
-    }
+  if (profile !== 'official' && profile !== 'qilin') {
+    throw new Error(`unknown client build profile ${JSON.stringify(profile)}; expected "official" or "qilin"`)
   }
-  throw new Error(`unknown client build profile ${JSON.stringify(profile)}; expected "official"`)
+  const commitHash = environment[CLIENT_COMMIT_HASH_VARIABLE]
+  const version = environment[CLIENT_VERSION_VARIABLE]
+  if (commitHash === undefined) {
+    throw new Error(`${CLIENT_COMMIT_HASH_VARIABLE} is required for the ${profile} client build profile`)
+  }
+  if (version === undefined) {
+    throw new Error(`${CLIENT_VERSION_VARIABLE} is required for the ${profile} client build profile`)
+  }
+  return {
+    DSH_CLIENT_COMMIT_HASH: commitHash,
+    DSH_CLIENT_VERSION: version,
+    ...CLIENT_BUILD_PROFILES[profile],
+  }
 }
 
 /**
