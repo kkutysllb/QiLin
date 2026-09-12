@@ -75,6 +75,7 @@ function rejectElectronProfile(program: Command, profile: string): void {
 const HELP_EXAMPLES = `
 Examples:
   dsh --profile web                          boot the web profile (same as: dsh web)
+  dsh qilin                                  boot the QiLin product profile (same as: dsh --profile qilin)
   dsh --profile rescue --from-default-profile web
                                              create rescue from the shipped web template, then boot it
   dsh --profile headless "run the tests"     answer one task, print the result, and exit
@@ -185,6 +186,21 @@ export function parseDshArgs(argv: readonly string[], version: string): DshInvoc
     .action((args: string[], options: BootOptions) => {
       rejectParentOptions('web')
       resolved = resolveBoot(web, 'web', options, args)
+    })
+
+  const qilin = program.command('qilin').description('boot the QiLin product profile (alias of --profile qilin); the app\'s own flags follow')
+  qilin
+    .helpOption(false)
+    .allowUnknownOption()
+    .passThroughOptions()
+    .enablePositionalOptions()
+    .argument('[args...]', 'arguments for the QiLin app (see: dsh qilin --help)')
+    .option('--patch <path>', 'extra patch-list overlay applied after the profile layer (repeatable)', collect)
+    .option('--dump-config', 'print the composed QiLin-profile tree (with the user layer and any --patch) and exit')
+    .option('--dump-default-config', 'print the QiLin profile\'s bundle layers (no user layer) and exit')
+    .action((args: string[], options: BootOptions) => {
+      rejectParentOptions('qilin')
+      resolved = resolveBoot(qilin, 'qilin', options, args)
     })
 
   const plugin = program.command('plugin').description('manage a profile\'s plugins by forwarding the remaining arguments to pnpm in the profile directory')

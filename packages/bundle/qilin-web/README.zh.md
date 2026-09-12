@@ -15,6 +15,7 @@ kind: "package-bundle"
 
 - [使用本包](#use-this-package)
 - [模型体验](#model-experience)
+- [已知限制与待办](#known-limitations-and-deferred-work)
 - [开发说明](#dev-note)
 
 -----
@@ -38,12 +39,19 @@ kind: "package-bundle"
 }
 ```
 
-随附的 `qilin` profile 模板已按该顺序列出这些 bundle。
+随附的 `qilin` profile 模板按该顺序列出这些 bundle，`dsh qilin` 即启动它。
 
+<a id="model-experience"></a>
 ## 模型体验
 
-`system-prompt` 行决定每个模型请求携带的人格文本。本 bundle 将产品名声明为 QiLin，并保留 `dsh-web-app` 设定的工作目录语句，使模型看到一致的产品身份。
+`system-prompt` 行决定每个模型请求携带的人格文本。本 bundle 将产品名声明为 QiLin，并保留 `dsh-web-app` 设定的工作目录语句，使 QiLin 会话中每个模型请求都收到同一产品身份。
 
+<a id="known-limitations-and-deferred-work"></a>
+## 已知限制与待办
+
+- 本层只重述产品身份。QiLin 品牌的客户端呈现——侧边栏品牌美术字、输入框、消息渲染与交付物界面——尚未纳入本 bundle，因此 qilin profile 目前以 QiLin 身份渲染 `dsh-web-app` 的呈现。
+
+<a id="dev-note"></a>
 ## 开发说明
 
 无。

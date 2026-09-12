@@ -15,6 +15,7 @@ Run the QiLin Web surface with a `qilin` profile whose bundle list stacks this p
 
 - [Use this package](#use-this-package)
 - [Model Experience](#model-experience)
+- [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
 - [Dev Note](#dev-note)
 
 -----
@@ -38,12 +39,19 @@ Name the package last in a profile's `dsh.profile.bundles` list so its rows win 
 }
 ```
 
-The shipped `qilin` profile template already lists those bundles in that order.
+The shipped `qilin` profile template lists those bundles in that order, and `dsh qilin` boots it.
 
+<a id="model-experience"></a>
 ## Model Experience
 
-The `system-prompt` row decides the persona text every model request carries. This bundle states QiLin as the product name and keeps the working-directory sentence `dsh-web-app` set, so the model sees one consistent product identity.
+The `system-prompt` row decides the persona text every model request carries. This bundle names QiLin as the product and keeps the working-directory sentence `dsh-web-app` set, so one product identity reaches the model in every QiLin session.
 
+<a id="known-limitations-and-deferred-work"></a>
+## Known Limitations and Deferred Work
+
+- The layer restates product identity only. QiLin-branded client presentation — the sidebar brand artwork, composer, message rendering, and deliverables surfaces — is not part of this bundle yet, so a QiLin profile renders the `dsh-web-app` presentation under QiLin identity.
+
+<a id="dev-note"></a>
 ## Dev Note
 
 None.
