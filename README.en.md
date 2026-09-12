@@ -166,6 +166,9 @@ pnpm dev
 > One-command startup: `./scripts/start-all.sh` (gateway + web-demo). It creates `.venv` and installs
 > dependencies when missing, and runs `pnpm install` when `web-demo/node_modules` is absent.
 > Disable bootstrapping with `QILIN_SKIP_AUTO_INSTALL=1`.
+> For using (not developing) the UI, prefer `./scripts/start-all.sh --prod`: it runs `next build` once and
+> serves the production bundle — roughly 5x less JS than dev, with a production React build, which keeps
+> long conversations noticeably smoother while streaming and scrolling. Re-run with `--rebuild` after code changes.
 
 ### Configuration
 

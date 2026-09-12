@@ -32,20 +32,28 @@ Usage:
   ./scripts/start-all.sh --stop       # 停止 gateway + web-demo
   ./scripts/start-all.sh --status     # 查看运行状态
   ./scripts/start-all.sh --restart    # 停止后重新启动
+  ./scripts/start-all.sh --prod       # 前端以生产模式运行(缺构建产物时自动 next build)
+  ./scripts/start-all.sh --rebuild    # 强制重新 next build 后以生产模式运行
   ./scripts/start-all.sh --help       # 本帮助
 
 端口可用环境变量覆盖: GATEWAY_PORT(默认 28081) / WEB_DEMO_PORT(默认 28080)
+前端模式: 默认 dev(Turbopack, 改代码热更新); --prod 为生产构建(渲染更流畅, 改代码需 --rebuild)
 EOF
 }
 
 # ── 参数解析(未识别参数直接报错退出, 绝不静默当作启动) ────────────────
 MODE="start"
+# 前端运行模式: dev(默认, Turbopack 热更新) / prod(生产构建, 渲染更流畅)
+WEB_DEMO_PROD="${QILIN_WEB_PROD:-0}"
+WEB_DEMO_REBUILD="0"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     start|--start)      MODE="start"; shift ;;
     --stop|stop)        MODE="stop"; shift ;;
     --status|status|-s) MODE="status"; shift ;;
     --restart|restart)  MODE="restart"; shift ;;
+    --prod|prod)        WEB_DEMO_PROD="1"; shift ;;
+    --rebuild)          WEB_DEMO_PROD="1"; WEB_DEMO_REBUILD="1"; shift ;;
     --help|-h)          usage; exit 0 ;;
     *)                  echo "❌ 未知参数: $1"; echo; usage; exit 1 ;;
   esac
@@ -198,11 +206,28 @@ for i in $(seq 1 30); do
 done
 echo "✓ gateway healthy: http://127.0.0.1:${GATEWAY_PORT}/health"
 
+# 生产模式: 确保有构建产物(缺 BUILD_ID 或 --rebuild 时构建一次)
+if [[ "$WEB_DEMO_PROD" == "1" ]]; then
+  if [[ "$WEB_DEMO_REBUILD" == "1" || ! -f web-demo/.next/BUILD_ID ]]; then
+    echo "── 生产构建: cd web-demo && pnpm build(数分钟,期间前端不可用) ──"
+    ( cd web-demo && pnpm build ) || { echo "❌ 生产构建失败"; exit 1; }
+  else
+    echo "ℹ 复用已有生产构建(web-demo/.next/BUILD_ID);改代码后请用 --rebuild"
+  fi
+fi
+
 # 启动 web-demo (前台; Ctrl+C 仅退出前端, gateway 保持 daemon)
 export GATEWAY_TARGET_URL="http://127.0.0.1:${GATEWAY_PORT}"
 export WEB_DEMO_PORT
-echo "✓ web-demo   : http://localhost:${WEB_DEMO_PORT}"
+if [[ "$WEB_DEMO_PROD" == "1" ]]; then
+  echo "✓ web-demo   : http://localhost:${WEB_DEMO_PORT} (生产模式)"
+else
+  echo "✓ web-demo   : http://localhost:${WEB_DEMO_PORT} (dev / Turbopack)"
+fi
 echo "  (Ctrl+C 退出前端; 全部停止: $0 --stop)"
 cd web-demo
 echo $$ > "$WEB_PID_FILE"   # 供 --stop 使用(exec 后 PID 不变)
+if [[ "$WEB_DEMO_PROD" == "1" ]]; then
+  exec env NODE_ENV=production node server.js
+fi
 exec node server.js

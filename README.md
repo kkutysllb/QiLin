@@ -162,6 +162,8 @@ pnpm dev
 ```
 > 一键启动：`./scripts/start-all.sh`（gateway + web-demo）。仓库内没有 `.venv` 时会自动创建虚拟环境并安装依赖，
 > `web-demo/node_modules` 缺失时会自动 `pnpm install`；关闭自举用 `QILIN_SKIP_AUTO_INSTALL=1`。
+> 只使用（不改前端代码）建议 `./scripts/start-all.sh --prod`：首次自动 `next build` 后以生产模式运行，
+> 相比 dev 少约 5 倍的 JS 载荷且 React 为生产版，长对话的流式渲染与滚动明显更顺；改代码后需 `--rebuild`。
 
 ### 配置 / Configuration
 
