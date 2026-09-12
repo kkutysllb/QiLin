@@ -8,6 +8,15 @@
 在 packages/bundle/base/cordis.patch.yml 与 packages/bundle/web-app/cordis.patch.yml 中按**包名**检索，而不是按包所在的目录名检索。
 这一点必须强调：按目录名 guard 检索会得出「循环检测未挂载」的错误结论，而 base 实际以包名 @deepseek-ai/dsh-repeat-tool-reminder 挂载了它。
 
+还必须覆盖三层组合，只看 profile bundle 会误判：
+
+1. profile bundle 层：packages/bundle/base 与 packages/bundle/web-app 的 cordis.patch.yml。
+2. 预设层：packages/preset/agent-presets/presets/*/agent.cordis.yml，按会话级组合智能体能力。
+   例如 dsh-tool-ask-user 与 dsh-tool-present 都不在 profile bundle 中，而在这三个预设里。
+3. 示例 overlay 层：apps/cli/config/examples/*/cordis.yml，属于按需启用的可选组合。
+
+只有三层都不出现，才能判定某项能力默认未启用。本节结论均按此口径核验。
+
 ## 2. 已由 dsh 默认承担（无需迁移动作）
 
 | 2.x 配置 | dsh 归属 | 证据 |
@@ -50,7 +59,29 @@
 | orchestration | dsh 的 subagent 与 preset 组合模型 |
 | token_usage / token_budget | dsh 的上下文窗口与压缩策略；预算语义不同，需要逐项复核 |
 
-## 5. 下一步
+## 5. 2.x 中间件栈的归属
+
+2.x 的中间件是 LangChain AgentMiddleware，直接读写 AgentState 与 RunnableConfig；dsh 没有等价的大中间件栈，
+对应行为拆分为 Cordis 插件、预设中的工具包与事件监听。逐项归属如下（层按第 1 节口径）：
+
+| 2.x 中间件 | dsh 归属 | 层 |
+|---|---|---|
+| ClarificationMiddleware | dsh-tool-ask-user 与 dsh-user-questions | 预设（3 个预设均挂载） |
+| LoopDetectionMiddleware | dsh-repeat-tool-reminder | bundle（base，阈值 3/5/8） |
+| SummarizationMiddleware | dsh-compaction-basic | bundle（base） |
+| TitleMiddleware | dsh-session-title | bundle（base） |
+| TodoMiddleware | dsh-tool-todo | bundle（base） |
+| TokenUsageMiddleware | dsh-token-meter | bundle（base） |
+| ViewImageMiddleware | dsh-tool-fs 的 read_image | bundle（base 挂载 dsh-tool-fs） |
+| ToolErrorHandlingMiddleware | dsh 的工具注册表与执行管线 | bundle（内置） |
+| SubagentLimitMiddleware | dsh-tool-subagent 及其配置 | 预设（3 个预设均挂载） |
+| TerminalResponseMiddleware | 未见直接对应 | 需要逐项复核 |
+| MemoryMiddleware | 无对应 | 缺口 |
+| SafetyFinishReason / ModelLengthFinishReason | dsh-deepseek-llm-api-extensions 与结束原因处理 | bundle（base） |
+
+结论：中间件层没有需要搬运的代码，只有 MemoryMiddleware 与 TerminalResponseMiddleware 两项需要产品取舍。
+
+## 6. 下一步
 
 1. 先由产品侧确认第 3 节每个缺口是「实现」还是「放弃」，避免无依据地新建插件。
 2. scheduler 与 mcp 是唯一「dsh 已有能力、只差挂载或语义补齐」的两项，应优先处理。
