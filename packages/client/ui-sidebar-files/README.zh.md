@@ -1,5 +1,5 @@
 ---
-description: "dsh Web 客户端右侧 Sidebar 的文件树 tab 类型：逐层经线上列出会话工作区根目录，按资源地址把文件打开到 Sidebar。"
+description: "qilin Web 客户端右侧 Sidebar 的文件树 tab 类型：逐层经线上列出会话工作区根目录，按资源地址把文件打开到 Sidebar。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-右侧 Sidebar 的导航器 tab 类型：把会话的工作区根目录画成一棵树，逐层经线上列出，并把文件打开到 Sidebar 里。它是从引导页进入的页类型，不认领任何地址；它按地址打开文件，交给 `dsh-resource://file` 的查看器认领：`ui-sidebar-right` 里没有任何东西认识本包。
+右侧 Sidebar 的导航器 tab 类型：把会话的工作区根目录画成一棵树，逐层经线上列出，并把文件打开到 Sidebar 里。它是从引导页进入的页类型，不认领任何地址；它按地址打开文件，交给 `qilin-resource://file` 的查看器认领：`ui-sidebar-right` 里没有任何东西认识本包。
 
 ## 目录
 
@@ -38,7 +38,7 @@ kind: "package-reference"
 | 条目类型 | 行 |
 |---|---|
 | `directory` | 切换展开与折叠；该层在首次打开时拉取，折叠期间保留。 |
-| `file` | 经 `useTabInfo().tab.actions.openResource` 打开 `dsh-resource://file/session/<sessionId>/<encoded path relative to the root>`，地址由 `@qilin/util-workspace-path` 的 `fileAddressFor` 从条目的绝对路径与树的根生成，落在该 tab 自己的 pane 里。 |
+| `file` | 经 `useTabInfo().tab.actions.openResource` 打开 `qilin-resource://file/session/<sessionId>/<encoded path relative to the root>`，地址由 `@qilin/util-workspace-path` 的 `fileAddressFor` 从条目的绝对路径与树的根生成，落在该 tab 自己的 pane 里。 |
 | `other` | 灰显且不可点击，使目录被完整报告。 |
 
 被端点条目上限截断的层以一条标记收尾；空层如实说明；失败的层按错误码各显示一行（`workspace-file/not-found`、`outside-workspace`、`not-directory`），其他情况显示传输层自己的消息。重新读取丢弃所有已列出的层并只对展开中的层重新请求；折叠的层在下次打开时重新拉取。没有工作目录的会话只显示一行说明，而不是树。

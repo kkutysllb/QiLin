@@ -176,7 +176,7 @@ class SessionOpenBenchmarkSuite {
   private rootIndex = 0
 
   async prepare(): Promise<void> {
-    this.scratch = await mkdtemp(join(tmpdir(), 'dsh-session-open-bench-'))
+    this.scratch = await mkdtemp(join(tmpdir(), 'qilin-session-open-bench-'))
     this.facts = await writeSyntheticReleasedV0Session(join(this.scratch, 'source'), SHAPE)
     this.legacySourcePath = this.facts.path
     // Produce one real post-upgrade directory outside every measured interval.
@@ -324,7 +324,7 @@ describe('Session opening benchmark prerequisites', () => {
   })
 
   it('migrates the generated workload and reopens its successor without changing V0', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-session-bench-fixture-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-session-bench-fixture-'))
     const contexts: Context[] = []
     const mount = async () => {
       const ctx = new Context()

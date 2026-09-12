@@ -382,7 +382,7 @@ function normalizeProjectedHeader(header: Readonly<Record<string, unknown>>): Re
     normalized['delegationDepth'] = 0
   }
   if (typeof header['cwd'] === 'string' && /^\{\{cwd\}\}(?:\/|$)/.test(header['cwd'])) {
-    normalized['cwd'] = header['cwd'].replace('{{cwd}}', '/dsh-snapshot-cwd')
+    normalized['cwd'] = header['cwd'].replace('{{cwd}}', '/qilin-snapshot-cwd')
   }
   return normalized
 }
@@ -1119,14 +1119,14 @@ export function installLlmReplay(ctx: Context, config: ReplayConfig): ReplayHand
 export const name = 'llm-replay'
 export const inject = ['llm']
 
-/** Plugin config: the {@link ReplayConfig} inputs, each defaulting to its `DSH_SNAPSHOT_*` env var in `apply`. */
+/** Plugin config: the {@link ReplayConfig} inputs, each defaulting to its `QILIN_SNAPSHOT_*` env var in `apply`. */
 export interface Config {
-  /** Override the fixture path; defaults to `$DSH_SNAPSHOT_FILE`. */
+  /** Override the fixture path; defaults to `$QILIN_SNAPSHOT_FILE`. */
   file?: string
-  /** Override the sidecar path; defaults to `$DSH_SNAPSHOT_OVERRIDE`. */
+  /** Override the sidecar path; defaults to `$QILIN_SNAPSHOT_OVERRIDE`. */
   overrideFile?: string
   /**
-   * Override the child-log paths; defaults to `$DSH_SNAPSHOT_CHILD_FILES` (a
+   * Override the child-log paths; defaults to `$QILIN_SNAPSHOT_CHILD_FILES` (a
    * path-separator-delimited list). Each is a recorded subagent session log for
    * a nested-agent scenario; absent/empty for a single-session scenario.
    */
@@ -1177,13 +1177,13 @@ function validateConfiguredModels(providers: ReplayProviderConfig[] | undefined)
 }
 
 export function apply(ctx: Context, config: Config = {}): void {
-  const file = config.file ?? process.env.DSH_SNAPSHOT_FILE
+  const file = config.file ?? process.env.QILIN_SNAPSHOT_FILE
   if (file === undefined || file.length === 0) {
-    throw new Error('llm-replay: a fixture path is required (Config.file or $DSH_SNAPSHOT_FILE)')
+    throw new Error('llm-replay: a fixture path is required (Config.file or $QILIN_SNAPSHOT_FILE)')
   }
   validateConfiguredModels(config.providers)
-  const overrideFile = config.overrideFile ?? process.env.DSH_SNAPSHOT_OVERRIDE
-  const childEnv = process.env.DSH_SNAPSHOT_CHILD_FILES
+  const overrideFile = config.overrideFile ?? process.env.QILIN_SNAPSHOT_OVERRIDE
+  const childEnv = process.env.QILIN_SNAPSHOT_CHILD_FILES
   const childFiles = config.childFiles
     ?? (childEnv !== undefined && childEnv.length > 0 ? childEnv.split(pathDelimiter) : [])
   installLlmReplay(ctx, {

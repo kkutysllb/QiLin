@@ -16,7 +16,7 @@ import { runShellProcess } from '@qilin/experimental-webworker-runtime/src/shell
 import { isShellStartFrame } from '@qilin/experimental-webworker-runtime/src/shell/process/protocol.ts'
 import type { FromProcessFrame, ToProcessFrame } from '@qilin/experimental-webworker-runtime/src/shell/process/protocol.ts'
 
-const WORKSPACE = '/dsh/workspace'
+const WORKSPACE = '/qilin/workspace'
 const WORKER_URL = 'https://example.test/assets/worker.js'
 
 let vfs: MemoryVfs
@@ -104,7 +104,7 @@ async function run(script: string, stdin = ''): Promise<{ code: number; stdout: 
       script,
       argv: ['bash', '-c', script],
       cwd: WORKSPACE,
-      env: { HOME: '/dsh/home' },
+      env: { HOME: '/qilin/home' },
       stdin,
       onOutput: (stream, text) => {
         if (stream === 'stdout') stdout += text

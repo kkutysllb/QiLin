@@ -76,7 +76,7 @@ try {
     graceMs: 500,
     env: {
       'FOO-BAR': 'hyphen-value',
-      DSH_EXPLICIT: 'managed-value',
+      QILIN_EXPLICIT: 'managed-value',
       TOKEN_EXPLICIT: 'credential-value',
     },
   })
@@ -88,7 +88,7 @@ try {
   const environmentLines = new Set(environmentText.trimEnd().split('\n'))
   const explicitEnvironment = [
     'FOO-BAR=hyphen-value',
-    'DSH_EXPLICIT=managed-value',
+    'QILIN_EXPLICIT=managed-value',
     'TOKEN_EXPLICIT=credential-value',
   ].every(entry => environmentLines.has(entry))
   if (!explicitEnvironment) throw new Error(`E2B subprocess dropped an explicit environment entry: ${environmentText}`)
@@ -108,7 +108,7 @@ try {
 
   const outputDrainStarted = Date.now()
   const outputDrainHandle = ctx.subprocess.spawn({
-    argv: ['bash', '-c', "bash -c 'exec -a dsh-output-drain-descendant sleep 30' & printf 'leader-done\\n'"],
+    argv: ['bash', '-c', "bash -c 'exec -a qilin-output-drain-descendant sleep 30' & printf 'leader-done\\n'"],
     cwd: process.cwd(),
     stdio: { stdin: 'ignore', stdout: { maxBytes: 64 }, stderr: { maxBytes: 4_096 } },
     graceMs: 250,
@@ -121,7 +121,7 @@ try {
   const outputDrainExited = await outputDrainHandle.waitForExit(AbortSignal.timeout(5_000))
   const outputDrainProcesses = await sandbox.commands.list()
   const outputDrainClean = !outputDrainProcesses.some(processInfo =>
-    JSON.stringify([processInfo.cmd, processInfo.args]).includes('dsh-output-drain-descendant'),
+    JSON.stringify([processInfo.cmd, processInfo.args]).includes('qilin-output-drain-descendant'),
   )
   if (outputDrainOutcome.exitCode !== 0 || outputDrainText !== 'leader-done\n'
     || outputDrainElapsedMs >= 10_000 || !outputDrainExited || !outputDrainClean) {
@@ -155,14 +155,14 @@ try {
     submit: true,
   }).done
   const sleeping = ctx.terminals.startSend(owner, terminal.sessionId, {
-    text: "printf 'DSH_SLEEP_%s\\n' READY; sleep 30",
+    text: "printf 'QILIN_SLEEP_%s\\n' READY; sleep 30",
     submit: true,
   })
   let sleepReadyOutput = ''
   const sleepReadyDeadline = Date.now() + 5_000
-  while (!sleepReadyOutput.includes('DSH_SLEEP_READY\n')) {
+  while (!sleepReadyOutput.includes('QILIN_SLEEP_READY\n')) {
     sleepReadyOutput += sleeping.readOutput().delta
-    if (sleepReadyOutput.includes('DSH_SLEEP_READY\n')) break
+    if (sleepReadyOutput.includes('QILIN_SLEEP_READY\n')) break
     const settled = await Promise.race([
       sleeping.done.then(result => ({ result })),
       new Promise<undefined>(resolveDelay => setTimeout(() => { resolveDelay(undefined) }, 25)),
@@ -175,10 +175,10 @@ try {
   const terminalSignal = await ctx.terminals.signal(owner, terminal.sessionId, 'SIGINT')
   const interrupted = await sleeping.done
   const stubborn = await ctx.terminals.startSend(owner, terminal.sessionId, {
-    text: "bash -c 'trap \"\" TERM; exec sleep 30' & printf 'DSH_STUBBORN_PID=%s\\n' \"$!\"",
+    text: "bash -c 'trap \"\" TERM; exec sleep 30' & printf 'QILIN_STUBBORN_PID=%s\\n' \"$!\"",
     submit: true,
   }).done
-  const stubbornMatch = /DSH_STUBBORN_PID=([1-9][0-9]*)/.exec(stubborn.viewport)
+  const stubbornMatch = /QILIN_STUBBORN_PID=([1-9][0-9]*)/.exec(stubborn.viewport)
   if (stubbornMatch?.[1] === undefined) throw new Error(`E2B PTY did not report its stubborn child: ${stubborn.viewport}`)
   const stubbornPid = Number(stubbornMatch[1])
   const terminalScrollback = ctx.terminals.read(owner, terminal.sessionId, { count: 50 })

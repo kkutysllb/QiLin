@@ -92,7 +92,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
   }
   await act(async () => {
     runtime.ctx.sidebarRightTabs.register({
-      id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['dsh-resource://file/**'],
+      id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['qilin-resource://file/**'],
       title: address => address.slice(address.lastIndexOf('/') + 1),
       guide: Array.from({ length: entryCount }, (_, order) => ({ order, title: () => 'Test', description: () => 'Test page' })),
     })
@@ -104,7 +104,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
   const controller = runtime.ctx.sidebarRight
   const layout = () => instance.getSnapshot().bySession[SESSION]!.layout
   const open = (name = 'a.txt', options?: Parameters<typeof controller.openResource>[1]) => {
-    act(() => { controller.openResource(`dsh-resource://file/session/s-test/${name}`, options) })
+    act(() => { controller.openResource(`qilin-resource://file/session/s-test/${name}`, options) })
     return controller.active()!
   }
   return { runtime, feature, controller, instance, actions: instance.actions, layout, open, frame, pin, bodies, titles, hooks, view }
@@ -347,7 +347,7 @@ describe('RightbarSeat fullscreen entry', () => {
     else if (change === 'push') fireEvent.click(element(h.view.container, '[data-sidebar-right-mode]'))
     else if (change === 'session') {
       await h.runtime.sessions.add({ id: OTHER })
-      act(() => { h.controller.openResource('dsh-resource://file/session/s-other/b.txt') })
+      act(() => { h.controller.openResource('qilin-resource://file/session/s-other/b.txt') })
     } else await h.runtime.dispose()
     const openCalls = [...h.frame.openRightbar.mock.calls]
     const closeCalls = h.frame.closeRightbar.mock.calls.length
@@ -430,12 +430,12 @@ describe('slot-owned useTabInfo', () => {
     await h.runtime.sessions.add({ id: OTHER })
     expect(h.instance.getSnapshot()).toBe(stored)
     expect(info.tab.signal.aborted).toBe(false)
-    act(() => { h.controller.openResource('dsh-resource://file/session/s-other/other.txt', { params: { line: 9 } }) })
+    act(() => { h.controller.openResource('qilin-resource://file/session/s-other/other.txt', { params: { line: 9 } }) })
     const otherTab = h.controller.active()!
     expect(otherTab.id).toBe(own.id)
     const otherInfo = h.bodies.get(otherTab.id)!
     expect(otherInfo.tab.signal).not.toBe(info.tab.signal)
-    act(() => { info.tab.actions.openResource('dsh-resource://file/session/s-test/b.txt') })
+    act(() => { info.tab.actions.openResource('qilin-resource://file/session/s-test/b.txt') })
     expect(Object.values(h.layout().tabs).map(tab => tab.title)).toContain('b.txt')
     expect(h.controller.active()?.contentId).toBe(otherTab.contentId)
     expect(h.bodies.get(otherTab.id)?.tab.navigation.params).toEqual({ line: 9 })

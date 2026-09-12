@@ -1,4 +1,4 @@
-/** Generic keyless ACP v1 automation-control conformance over the real dsh profile. */
+/** Generic keyless ACP v1 automation-control conformance over the real qilin profile. */
 
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -38,9 +38,9 @@ function selectValue(
 
 describe('standard ACP v1 control surface', () => {
   it('selects, mounts MCP, closes, restarts, resumes, and cancels through the SDK only', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'dsh-acp-control-'))
+    const cwd = await mkdtemp(join(tmpdir(), 'qilin-acp-control-'))
     const persistenceRoot = join(cwd, '.sessions')
-    const env = { DSH_CONFORMANCE_PERSISTENCE_ROOT: persistenceRoot, DSH_TELEMETRY_DISABLED: '1' }
+    const env = { QILIN_CONFORMANCE_PERSISTENCE_ROOT: persistenceRoot, QILIN_TELEMETRY_DISABLED: '1' }
     const mcpServers = [{ name: 'fixture', command: process.execPath, args: [mcpServer], env: [] }]
     let first: LaunchedAcpTestAgent | undefined
     let second: LaunchedAcpTestAgent | undefined

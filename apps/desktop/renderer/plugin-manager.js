@@ -1,4 +1,4 @@
-const api = window.dshDesktop
+const api = window.qilinDesktop
 
 async function main() {
   const locale = await api.locale()

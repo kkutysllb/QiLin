@@ -32,7 +32,7 @@ export const SESSION = 's-1' as SessionId
 export const PATH = 'work/notes.md'
 export const ABSOLUTE_PATH = '/host/project/work/notes.md'
 /** The tab's address: the file under this session's scope. */
-export const ADDRESS = 'dsh-resource://file/session/s-1/work/notes.md'
+export const ADDRESS = 'qilin-resource://file/session/s-1/work/notes.md'
 /** What the address names, as the face receives it. */
 export const FILE: SessionFile = { sessionId: SESSION, path: PATH }
 

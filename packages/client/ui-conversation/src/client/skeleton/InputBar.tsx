@@ -467,7 +467,7 @@ export const InputBar = memo(function InputBar({
               aria-expanded={workspaceTrigger ? workspacePickerOpen : undefined}
               tabIndex={workspaceTrigger ? 0 : undefined}
               onKeyDown={workspaceTrigger ? onWorkspaceKeyDown : undefined}
-              style={hint === null ? undefined : { '--dsh-composer-hint': JSON.stringify(hint) } as CSSProperties}
+              style={hint === null ? undefined : { '--qilin-composer-hint': JSON.stringify(hint) } as CSSProperties}
             />
             {draft === '' && attachments.length === 0 && !claimActive && (
               <div aria-hidden className={css.placeholder} data-composer-placeholder>

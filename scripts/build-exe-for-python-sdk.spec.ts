@@ -59,7 +59,7 @@ describe('Python runtime executable builder CLI', () => {
 
     expect(result.status).toBe(0)
     expect(result.stdout).toContain(`${process.execPath} C:\\tools\\pnpm.cjs run verify-runtime-closure`)
-    expect(result.stdout).toContain(`${process.execPath} C:\\tools\\pnpm.cjs --filter dsh-python-runtime-closure deploy`)
+    expect(result.stdout).toContain(`${process.execPath} C:\\tools\\pnpm.cjs --filter qilin-python-runtime-closure deploy`)
     expect(result.stdout).not.toContain(resolve(root, 'python/sdk-runtime/runtime-bootstrap.mjs'))
     expect(result.stdout).toContain('"bin":"runtime-bootstrap.mjs"')
     expect(result.stdout).toContain(`${process.execPath} C:\\tools\\pnpm.cjs exec pkg`)
@@ -67,7 +67,7 @@ describe('Python runtime executable builder CLI', () => {
   })
 
   it('resolves the pnpm package behind a Windows command shim', () => {
-    const setup = mkdtempSync(join(tmpdir(), 'dsh-pnpm-home-'))
+    const setup = mkdtempSync(join(tmpdir(), 'qilin-pnpm-home-'))
     temporaryDirectories.push(setup)
     const home = join(setup, 'node_modules', '.bin')
     const entrypoint = join(setup, 'node_modules', 'pnpm', 'bin', 'pnpm.mjs')

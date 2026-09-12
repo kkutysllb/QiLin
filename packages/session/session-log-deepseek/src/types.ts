@@ -71,7 +71,7 @@ export interface DeepSeekSessionLogExtension {
 
 declare module '@qilin/deepseek-llm-api-extensions/types' {
   interface DeepSeekLlmApiExtensionMap {
-    dsh_session_log: DeepSeekSessionLogExtension
+    qilin_session_log: DeepSeekSessionLogExtension
   }
 }
 

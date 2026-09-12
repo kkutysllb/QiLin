@@ -182,9 +182,9 @@ describe('LocalSubprocessRuntime', () => {
       .rejects.toThrow('is a relative path')
     await expect(ctx.subprocess.resolveExecutable('node_modules/.bin/server'))
       .rejects.toThrow('is a relative path')
-    await expect(ctx.subprocess.resolveExecutable('dsh-command-that-does-not-exist', { PATH: '' }))
+    await expect(ctx.subprocess.resolveExecutable('qilin-command-that-does-not-exist', { PATH: '' }))
       .rejects.toThrow('was not found on PATH')
-    await expect(ctx.subprocess.resolveExecutable('/dsh-absolute-command-that-does-not-exist'))
+    await expect(ctx.subprocess.resolveExecutable('/qilin-absolute-command-that-does-not-exist'))
       .rejects.toThrow('is not an executable file')
     await expect(ctx.subprocess.resolveExecutable(process.cwd()))
       .rejects.toThrow('is not an executable file')
@@ -693,7 +693,7 @@ describe('LocalSubprocessRuntime', () => {
     const probeLinuxNative = vi.fn(() => true)
     const probeLinuxManager = vi.fn(() => true)
     const probeWindowsJob = vi.fn(() => true)
-    const prepareManagedProcessBinding = vi.fn(() => ({ spillDir: '/tmp/dsh-test-spill' }))
+    const prepareManagedProcessBinding = vi.fn(() => ({ spillDir: '/tmp/qilin-test-spill' }))
     const handles = [true, false, false].map((failFirstWait) => {
       let waits = 0
       return {
@@ -866,7 +866,7 @@ describe('LocalSubprocessRuntime', () => {
   it('disposal tolerates a handle whose spawn already failed', async () => {
     const ctx = new Context()
     const fiber = await ctx.plugin(LocalSubprocessRuntime)
-    const handle = ctx.subprocess.spawn(spec('true', { cwd: '/nonexistent-dir-dsh-subprocess-test' }))
+    const handle = ctx.subprocess.spawn(spec('true', { cwd: '/nonexistent-dir-qilin-subprocess-test' }))
     await expect(handle.done).rejects.toThrow()
     await fiber.dispose()
   })
@@ -876,7 +876,7 @@ describe('LocalSubprocessRuntime', () => {
     const fiber = await ctx.plugin(LocalSubprocessRuntime)
     // Dispose before the rejection continuation removes the handle from the
     // live set, so teardown itself must swallow the rejected done.
-    const handle = ctx.subprocess.spawn(spec('true', { cwd: '/nonexistent-dir-dsh-subprocess-test' }))
+    const handle = ctx.subprocess.spawn(spec('true', { cwd: '/nonexistent-dir-qilin-subprocess-test' }))
     await fiber.dispose()
     await expect(handle.done).rejects.toThrow()
   })

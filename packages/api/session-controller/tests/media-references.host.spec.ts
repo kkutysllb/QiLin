@@ -19,7 +19,7 @@ describe('SessionMediaReferences /api/file', () => {
   const contexts: Context[] = []
 
   beforeEach(async () => {
-    root = await realpath(await mkdtemp(join(tmpdir(), 'dsh-media-references-')))
+    root = await realpath(await mkdtemp(join(tmpdir(), 'qilin-media-references-')))
   })
 
   afterEach(async () => {
@@ -166,7 +166,7 @@ describe('SessionMediaReferences /api/file', () => {
 
   it('reads files and symlink targets outside the default cwd without a workspace registry', async () => {
     const route = await mount()
-    const outside = await mkdtemp(join(tmpdir(), 'dsh-media-outside-'))
+    const outside = await mkdtemp(join(tmpdir(), 'qilin-media-outside-'))
     try {
       const path = join(outside, 'image.png')
       await writeFile(path, PNG_BYTES)

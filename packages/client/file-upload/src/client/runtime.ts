@@ -151,7 +151,7 @@ export function fileUploadWorker(
 }
 
 interface ClientFileUploadGlobal {
-  __DSH_FILE_UPLOAD__?: ClientFileUploadHooks
+  __QILIN_FILE_UPLOAD__?: ClientFileUploadHooks
 }
 
 interface FileUploadTransport {
@@ -166,7 +166,7 @@ export class FileUploadRuntime extends Service implements FileUploadService {
   /** @param ctx - providing Client context. */
   constructor(ctx: Context) {
     super(ctx, 'fileUpload')
-    const hook = (globalThis as ClientFileUploadGlobal).__DSH_FILE_UPLOAD__
+    const hook = (globalThis as ClientFileUploadGlobal).__QILIN_FILE_UPLOAD__
     this.available = hook !== undefined || !isFixturePage()
     this.transport = hook === undefined ? workerTransport() : customTransport(hook.fetch)
   }
@@ -252,7 +252,7 @@ function workerTransport(): FileUploadTransport {
       const workerUrl = URL.createObjectURL(new Blob([
         `(${fileUploadWorker.toString()})()`,
       ], { type: 'text/javascript' }))
-      const worker = new Worker(workerUrl, { name: 'dsh-file-upload' })
+      const worker = new Worker(workerUrl, { name: 'qilin-file-upload' })
       URL.revokeObjectURL(workerUrl)
       return new Promise((resolve, reject) => {
         let settled = false
@@ -308,7 +308,7 @@ function resolveUrl(path: string): URL {
     && 'origin' in pageLocation && typeof pageLocation.origin === 'string'
     ? pageLocation.origin
     : undefined
-  return new URL(path, origin === undefined || origin === 'null' ? 'http://dsh.internal' : origin)
+  return new URL(path, origin === undefined || origin === 'null' ? 'http://qilin.internal' : origin)
 }
 
 function isFixturePage(): boolean {

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-subprocess-e2b` runs the agent's shell commands and interactive terminals inside an E2B remote sandbox instead of the host. Existing command, terminal, and language-server workflows continue without E2B-specific tools. Host environment variables and secrets are excluded; only explicitly requested environment entries enter the sandbox. Use it with `dsh-e2b` and `dsh-fs-e2b` so commands, terminals, and files share one sandbox. Remote execution adds latency because each command requires asynchronous setup.
+`qilin-subprocess-e2b` runs the agent's shell commands and interactive terminals inside an E2B remote sandbox instead of the host. Existing command, terminal, and language-server workflows continue without E2B-specific tools. Host environment variables and secrets are excluded; only explicitly requested environment entries enter the sandbox. Use it with `qilin-e2b` and `qilin-fs-e2b` so commands, terminals, and files share one sandbox. Remote execution adds latency because each command requires asynchronous setup.
 
 ## Table of Contents
 
@@ -97,7 +97,7 @@ The synchronous seam returns a handle immediately while the command starts async
 
 ### Environment boundary
 
-One trusted control-shell probe resolves the sandbox user's login home from its passwd entry and transports the sandbox environment as base64 ASCII for one strict UTF-8 decode; the wrapper then removes ambient `DSH_*` and credential-shaped (`*KEY*`, `*SECRET*`, `*TOKEN*`) names and restores every valid `spec.env` entry as an explicit caller opt-in. Empty names, `=`, and NUL framing violations reject before launch; subsequent command and PTY login shells receive a fresh randomized root-level `HOME` plus empty overrides for every scrubbed ambient name before user profiles can run. Private environment files are removed after consumption.
+One trusted control-shell probe resolves the sandbox user's login home from its passwd entry and transports the sandbox environment as base64 ASCII for one strict UTF-8 decode; the wrapper then removes ambient `QILIN_*` and credential-shaped (`*KEY*`, `*SECRET*`, `*TOKEN*`) names and restores every valid `spec.env` entry as an explicit caller opt-in. Empty names, `=`, and NUL framing violations reject before launch; subsequent command and PTY login shells receive a fresh randomized root-level `HOME` plus empty overrides for every scrubbed ambient name before user profiles can run. Private environment files are removed after consumption.
 
 ### Output handling
 
@@ -142,8 +142,8 @@ No direct invalidation: the consumer seams own any request-prefix changes; this 
 These limits define when the provider is a poor fit or needs special operational care. They are current package constraints, not a task backlog.
 
 - **The SDK still retains complete command output in host memory** — E2B `CommandHandle.stdout` and `.stderr` accumulate the base64 transport even when this adapter exposes bounded raw-byte tails, so the subprocess seam's normal host-memory bound is not achieved and transport retention is larger than the source stream.
-- **Private state lives for the sandbox lifetime** — process directories and valid spill files remain under `.dsh-e2b` until the owner deletes the sandbox; this POC supplies no in-sandbox sweep.
-- **Control state shares the sandbox user's UID** — E2B runs every command as the same default user, so `0700`/`0600` modes cannot isolate `.dsh-e2b` control files from concurrently running sandbox processes; real isolation needs an E2B per-command user or an out-of-band control channel.
+- **Private state lives for the sandbox lifetime** — process directories and valid spill files remain under `.qilin-e2b` until the owner deletes the sandbox; this POC supplies no in-sandbox sweep.
+- **Control state shares the sandbox user's UID** — E2B runs every command as the same default user, so `0700`/`0600` modes cannot isolate `.qilin-e2b` control files from concurrently running sandbox processes; real isolation needs an E2B per-command user or an out-of-band control channel.
 - **Numeric process identities are not reuse-fenced** — E2B exposes numeric PID/PGID input, signalling, and cleanup operations but no atomic identity-bound alternative; replacement is deferred until E2B adds an identity primitive or a failure demonstrates a narrower protocol.
 - **The initial environment probe inherits sandbox defaults** — E2B merges command overrides with default environment entries, so the probe cannot blank unknown credential-shaped names before enumerating them; this POC therefore does not support secrets in sandbox-default environment variables.
 - **E2B exposes no signal fact** — an adapter-requested `SIGTERM` or `SIGKILL` is reported only when no wrapper-published direct exit code wins; every unrequested SDK exit remains an exit code, including values equal to `128 + signal`.

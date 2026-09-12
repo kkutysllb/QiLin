@@ -102,7 +102,7 @@ const recordedPreset = (agent: Agent): unknown =>
 
 describe('the roster a client reads', () => {
   it('projects path-free rows, marking the default and carrying published metadata', async () => {
-    const userRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-remote-'))
+    const userRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-remote-'))
     roots.push(userRoot)
     await mkdir(join(userRoot, 'documented'), { recursive: true })
     await writeFile(join(userRoot, 'documented', COMPOSITION_FILE), VALID)
@@ -128,7 +128,7 @@ describe('the roster a client reads', () => {
   })
 
   it('keeps a broken preset on the roster with its reason', async () => {
-    const userRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-remote-'))
+    const userRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-remote-'))
     roots.push(userRoot)
     await mkdir(join(userRoot, 'damaged'), { recursive: true })
     const ctx = await harness({
@@ -181,7 +181,7 @@ describe('reading one composition', () => {
   })
 
   it('carries the display metadata a preset published', async () => {
-    const userRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-remote-'))
+    const userRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-remote-'))
     roots.push(userRoot)
     await mkdir(join(userRoot, 'documented'), { recursive: true })
     await writeFile(join(userRoot, 'documented', COMPOSITION_FILE), VALID)
@@ -249,7 +249,7 @@ describe('authoring over Remote', () => {
   })
 
   it('copies and deletes through the Remote adapters', async () => {
-    const userRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-remote-'))
+    const userRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-remote-'))
     roots.push(userRoot)
     const ctx = await harness({
       default: 'standard',
@@ -441,7 +441,7 @@ describe('switching one session\'s composition', () => {
   })
 
   it('reports an unusable composition with its discovery reason', async () => {
-    const userRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-remote-'))
+    const userRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-remote-'))
     roots.push(userRoot)
     await mkdir(join(userRoot, 'damaged'), { recursive: true })
     const ctx = await harness({

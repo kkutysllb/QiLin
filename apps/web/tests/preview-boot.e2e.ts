@@ -130,7 +130,7 @@ function requirePreviewPages(): void {
  */
 function requireVfsAssets(): PreviewAssets {
   const fixtureDefinitions = previewFixtures(REPO_ROOT)
-  const directory = mkdtempSync(join(tmpdir(), 'dsh-preview-boot-'))
+  const directory = mkdtempSync(join(tmpdir(), 'qilin-preview-boot-'))
   const overrides = new Map<string, string>()
   const writeAsset = (relativePath: string, bytes: Uint8Array | string): void => {
     const path = join(directory, relativePath)
@@ -325,7 +325,7 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
       interface PreviewTransport {
         fetch(input: string, init: RequestInit): Promise<Response>
       }
-      const transport = (globalThis as typeof globalThis & { __DSH_TRANSPORT__?: PreviewTransport }).__DSH_TRANSPORT__
+      const transport = (globalThis as typeof globalThis & { __QILIN_TRANSPORT__?: PreviewTransport }).__QILIN_TRANSPORT__
       if (transport === undefined) throw new Error('preview transport is absent after boot')
       const response = await transport.fetch('/api/session/list', {
         method: 'POST',
@@ -373,7 +373,7 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
           'skills/list', { request: { sessionId } },
         )
       }
-      await createDirectory('/dsh/workspace/.agents/skills', 'runtime-created')
+      await createDirectory('/qilin/workspace/.agents/skills', 'runtime-created')
       // Settings and credentials both answer over the Remote carrier, so this
       // half of the sweep posts the generated endpoints directly like the
       // session read above.
@@ -472,8 +472,8 @@ async function bootEmptyPreview(origin: string, browser: Browser): Promise<void>
     await page.getByRole('textbox', { name: 'Choose workspace' }).waitFor({ timeout: HERO_TIMEOUT_MS })
     const sessionCount = await page.evaluate(async () => {
       const transport = (globalThis as typeof globalThis & {
-        __DSH_TRANSPORT__?: { fetch(input: string, init: RequestInit): Promise<Response> }
-      }).__DSH_TRANSPORT__
+        __QILIN_TRANSPORT__?: { fetch(input: string, init: RequestInit): Promise<Response> }
+      }).__QILIN_TRANSPORT__
       if (transport === undefined) throw new Error('empty preview transport is absent after boot')
       const response = await transport.fetch('/api/session/list', {
         method: 'POST',

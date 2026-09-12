@@ -5,7 +5,7 @@
  */
 
 import { basename, dirname } from 'node:path'
-import { DEFAULT_DSH_HOME_DISPLAY, DSH_HOME_ENV } from '@qilin/home-paths'
+import { DEFAULT_QILIN_HOME_DISPLAY, QILIN_HOME_ENV } from '@qilin/home-paths'
 import type { InstructionFile, LoadedInstructionFile } from './files.ts'
 
 const SYSTEM_REMINDER_OPEN = '<system-reminder>'
@@ -91,8 +91,8 @@ function sectionText(file: LoadedInstructionFile): string {
 export const USER_GLOBAL_DIRECTORY = 'user-global'
 
 /**
- * File name of the single user-global instruction file under `$DSH_HOME`.
- * Discovery (`$DSH_HOME/<name>`) and reconciliation (the user-global scope key's
+ * File name of the single user-global instruction file under `$QILIN_HOME`.
+ * Discovery (`$QILIN_HOME/<name>`) and reconciliation (the user-global scope key's
  * candidate component) both key on this name, so it lives in one place: were the
  * two to disagree, the user-global instruction would load but never reconcile.
  */
@@ -104,8 +104,8 @@ export const USER_GLOBAL_FILE = 'AGENTS.md'
  * @returns `user-global`, `.`, or the containing project-relative directory.
  */
 export function scopeForDisplayPath(displayPath: string): string {
-  if (displayPath === `${DEFAULT_DSH_HOME_DISPLAY}/${USER_GLOBAL_FILE}`
-    || displayPath === `$${DSH_HOME_ENV}/${USER_GLOBAL_FILE}`) return USER_GLOBAL_DIRECTORY
+  if (displayPath === `${DEFAULT_QILIN_HOME_DISPLAY}/${USER_GLOBAL_FILE}`
+    || displayPath === `$${QILIN_HOME_ENV}/${USER_GLOBAL_FILE}`) return USER_GLOBAL_DIRECTORY
   return dirname(displayPath)
 }
 

@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-使用 `dsh-atomic-write` 替换文件时，不会暴露部分内容，也不会跟随指向临时路径的符号链接。它的写锁会跨进程串行化读-修改-写入循环，因此并发写入方不会用陈旧状态相互覆盖。每次替换都会在全新 inode 上使用调用方选择的权限位，从而安全地收窄现有文件的权限。这个零依赖库只接受字符串；它不提供 `cordis.yml` 插件，也不保证崩溃持久性，因为它不调用 `fsync`。
+使用 `qilin-atomic-write` 替换文件时，不会暴露部分内容，也不会跟随指向临时路径的符号链接。它的写锁会跨进程串行化读-修改-写入循环，因此并发写入方不会用陈旧状态相互覆盖。每次替换都会在全新 inode 上使用调用方选择的权限位，从而安全地收窄现有文件的权限。这个零依赖库只接受字符串；它不提供 `cordis.yml` 插件，也不保证崩溃持久性，因为它不调用 `fsync`。
 
 ## 目录
 
@@ -33,7 +33,7 @@ kind: "package-library"
 import { writeFileAtomic } from '@qilin/atomic-write'
 
 declare const text: string
-await writeFileAtomic('/home/u/.dsh/settings.yaml', text, { mode: 0o600 })
+await writeFileAtomic('/home/u/.qilin/settings.yaml', text, { mode: 0o600 })
 ```
 
 父目录会按需创建，读取方只会观察到旧内容或完整的新内容。在 Windows 上，报告为 `EACCES`、`EBUSY` 或 `EPERM` 的瞬时替换干扰会在有界时间内重试；任何剩余失败都会移除临时文件，并保持目标文件不变。
@@ -48,9 +48,9 @@ import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
 declare const render: (previous: string) => string
 declare const readCurrent: () => Promise<string>
 
-await withFileLock('/home/u/.dsh/settings.yaml', async () => {
+await withFileLock('/home/u/.qilin/settings.yaml', async () => {
   const previous = await readCurrent()
-  await writeFileAtomic('/home/u/.dsh/settings.yaml', render(previous), { mode: 0o600 })
+  await writeFileAtomic('/home/u/.qilin/settings.yaml', render(previous), { mode: 0o600 })
 })
 ```
 

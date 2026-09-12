@@ -51,7 +51,7 @@ describe('Markdown implementation registration', () => {
         kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: documentTabInfoFactory } },
       },
     }, ({ renderSlot }) => renderSlot('sidebar.right.tab.document', {
-      resourceAddress: 'dsh-resource://file/session/markdown-registration/notes.md',
+      resourceAddress: 'qilin-resource://file/session/markdown-registration/notes.md',
       content: { kind: 'text', text: '# Notes\n\n```ts\nconst value = 1\n```', pages: [], eof: true },
       wrap: false,
       scrollportRef: vi.fn(),

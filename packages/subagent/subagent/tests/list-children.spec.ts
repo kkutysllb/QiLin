@@ -51,13 +51,13 @@ async function setup(
 ) {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
-  const root = mkdtempSync(join(tmpdir(), 'dsh-subagent-list-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-subagent-list-'))
   roots.push(root)
   const persistence = await ctx.plugin(JsonlSessionPersistence, { root })
   persistenceDisposers.push(() => persistence.dispose())
   await ctx.plugin(AgentLoop, { agents: [] })
   if (options.projectionCache === true) {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-subagent-projcache-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-subagent-projcache-'))
     projCacheRoots.push(root)
     // The cache opens its domain through the storage stack; the json backend
     // lands it under this tmp root.

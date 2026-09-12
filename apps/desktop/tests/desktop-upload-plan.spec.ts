@@ -28,7 +28,7 @@ async function fixture(
   version = '1.2.3',
   environment: 'test' | 'production' = 'test',
 ): Promise<Fixture> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-desktop-upload-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-desktop-upload-'))
   temporaryDirectories.push(root)
   const repositoryRoot = join(root, 'repository')
   const appRoot = join(repositoryRoot, 'apps', 'desktop')
@@ -79,12 +79,12 @@ async function fixture(
     artifactsRoot,
     environment: environment === 'test'
       ? {
-        DSH_DESKTOP_AUTO_UPDATE_ENV: 'test',
+        QILIN_DESKTOP_AUTO_UPDATE_ENV: 'test',
         DOWNLOAD_TEST_ORIGIN: TEST_ORIGIN,
         DOWNLOAD_TEST_COS_BUCKET: TEST_BUCKET,
       }
       : {
-        DSH_DESKTOP_AUTO_UPDATE_ENV: 'production',
+        QILIN_DESKTOP_AUTO_UPDATE_ENV: 'production',
         DOWNLOAD_PROD_COS_BUCKET: PRODUCTION_BUCKET,
       },
   }
@@ -157,7 +157,7 @@ describe('desktop upload plan', () => {
     await expect(createDesktopUploadPlan('win-x64', paths)).rejects.toThrow(/blockMapSize/u)
   })
 
-  it('rejects a completed build from another dsh version or deployment', async () => {
+  it('rejects a completed build from another qilin version or deployment', async () => {
     const paths = await fixture('mac-x64')
     await writeFile(join(paths.repositoryRoot, 'package.json'), '{"version":"1.2.4"}\n')
     await writeFile(join(paths.appRoot, 'package.json'), '{"version":"1.2.4"}\n')
@@ -167,7 +167,7 @@ describe('desktop upload plan', () => {
     await expect(createDesktopUploadPlan('mac-x64', {
       ...productionPaths,
       environment: {
-        DSH_DESKTOP_AUTO_UPDATE_ENV: 'test',
+        QILIN_DESKTOP_AUTO_UPDATE_ENV: 'test',
         DOWNLOAD_TEST_ORIGIN: TEST_ORIGIN,
         DOWNLOAD_TEST_COS_BUCKET: TEST_BUCKET,
       },

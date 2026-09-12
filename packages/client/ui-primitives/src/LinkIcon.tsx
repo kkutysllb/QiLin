@@ -125,7 +125,7 @@ const PaperDocGlyph = ({ size, className }: IconProps) => (
   </svg>
 )
 
-/** Local exhaustiveness helper — this package does not depend on `dsh-llm`. */
+/** Local exhaustiveness helper — this package does not depend on `qilin-llm`. */
 /* v8 ignore next 3 -- closed-union backstop; only reached if a kind is forged */
 function assertNever(value: never): never {
   throw new Error(`unreachable link icon kind: ${String(value)}`)

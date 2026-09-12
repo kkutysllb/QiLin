@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-client-ui-cordis` adds a frame-wide control panel, conversation tool cards, and `@pluginId` completion for dynamic Cordis packages in a web client. A person can approve or decline a blocked model request from any session, run, stop, or remove definitions, and inspect their live status. Conversation cards replay recorded calls and results. The package adds no model-visible content or session events, and definitions must be run again after the page reloads.
+`qilin-client-ui-cordis` adds a frame-wide control panel, conversation tool cards, and `@pluginId` completion for dynamic Cordis packages in a web client. A person can approve or decline a blocked model request from any session, run, stop, or remove definitions, and inspect their live status. Conversation cards replay recorded calls and results. The package adds no model-visible content or session events, and definitions must be run again after the page reloads.
 
 ## Table of Contents
 

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-settings-file` keeps every namespace's user settings in one YAML or JSON document, by default `settings.yaml` under the harness home: users can edit the document directly — changes take effect live — or write through the service, which merges concurrent edits safely. YAML writes preserve comments, anchors, and formatting on every untouched node, and a section owned by a plugin that is not loaded is never dropped. Boot fails loud on an invalid document; a live reload that fails keeps the last good sections and warns rather than taking the process down.
+`qilin-settings-file` keeps every namespace's user settings in one YAML or JSON document, by default `settings.yaml` under the harness home: users can edit the document directly — changes take effect live — or write through the service, which merges concurrent edits safely. YAML writes preserve comments, anchors, and formatting on every untouched node, and a section owned by a plugin that is not loaded is never dropped. Boot fails loud on an invalid document; a live reload that fails keeps the last good sections and warns rather than taking the process down.
 
 ## Table of Contents
 
@@ -42,7 +42,7 @@ Choose it as the default user-settings store: one human-readable document that u
 | Field | Default | Meaning |
 |---|---|---|
 | `path` | `<harness home>/settings.yaml` | Settings document path; the extension picks the format (`.yaml`, `.yml`, or `.json`) |
-| `dshHome` | `$DSH_HOME` or `~/.dsh` | Harness home used when `path` is omitted |
+| `qilinHome` | `$QILIN_HOME` or `~/.qilin` | Harness home used when `path` is omitted |
 | `watch` | `true` | Watch the document and hot-publish external edits |
 | `debounceMs` | `100` | Watcher write-settle window, in milliseconds |
 
@@ -113,7 +113,7 @@ Read these pages when the provider-level contract is not enough. They move from 
 - [Settings subsystem reference](../../../docs/subsystems/settings.md) — namespaces, resolution order, descriptors, and change commits.
 - [Settings package map](../README.md) — the two packages of the user-settings capability.
 - [Atomic write](../../util/atomic-write/README.md) — the writer lock and atomic replacement every write uses.
-- [Home paths](../../util/home-paths/README.md) — `$DSH_HOME` resolution and canonical watch paths.
+- [Home paths](../../util/home-paths/README.md) — `$QILIN_HOME` resolution and canonical watch paths.
 - [Generated configuration catalog](../../../docs/config-catalog.md#qilinsettings-file) — every accepted config field and its source declaration.
 
 -----

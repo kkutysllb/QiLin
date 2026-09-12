@@ -10,7 +10,7 @@ import { launchLinuxScope, probeLinuxScope } from '../src/linux-scope.ts'
 import { targetEnvironment } from '../src/runner-launch.ts'
 import { bindManagedProcess } from '../src/spawn.ts'
 
-const scratch = mkdtempSync(join(tmpdir(), 'dsh-native-containment-'))
+const scratch = mkdtempSync(join(tmpdir(), 'qilin-native-containment-'))
 afterAll(() => { rmSync(scratch, { recursive: true, force: true }) })
 
 function spec(argv: string[], graceMs = 100): SubprocessSpawnSpec {

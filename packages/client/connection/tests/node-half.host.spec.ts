@@ -133,7 +133,7 @@ describe('connection node half', () => {
       const rows: IndexInjection[] = []
       ctx.emit('webserver/index-inject', rows)
       expect(rows).toEqual([{
-        kind: 'global', name: '__DSH_CONNECTION_RECOVERY__', value: {
+        kind: 'global', name: '__QILIN_CONNECTION_RECOVERY__', value: {
           backoffBaseMs: 500, backoffFactor: 2, backoffMaxMs: 10_000,
           generationReadyWarnMs: 3_000, generationReadyTimeoutMs: 25_000,
         },

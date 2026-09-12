@@ -54,7 +54,7 @@ async function seedPreset(
 }
 
 beforeEach(async () => {
-  userRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-authoring-'))
+  userRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-authoring-'))
   roots.push(userRoot)
   ctx = new Context()
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'
@@ -207,7 +207,7 @@ describe('deleting a preset', () => {
 
 describe('a deployment with more than one user root', () => {
   it('refuses to delete a preset the writable root does not own', async () => {
-    const second = await mkdtemp(join(tmpdir(), 'dsh-preset-second-'))
+    const second = await mkdtemp(join(tmpdir(), 'qilin-preset-second-'))
     roots.push(second)
     await seedPreset(second, 'elsewhere')
     const layered = new Context()
@@ -254,7 +254,7 @@ describe('a deployment with no writable root', () => {
 
 describe('a user root that does not exist yet', () => {
   it('is created by the first copy', async () => {
-    const absentRoot = await mkdtemp(join(tmpdir(), 'dsh-preset-absent-'))
+    const absentRoot = await mkdtemp(join(tmpdir(), 'qilin-preset-absent-'))
     roots.push(absentRoot)
     const absent = join(absentRoot, 'nested', 'preset')
     const fresh = new Context()

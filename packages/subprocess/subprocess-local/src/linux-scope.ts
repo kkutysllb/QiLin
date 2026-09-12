@@ -110,7 +110,7 @@ export function probeLinuxBootstrap(internals: LinuxScopeInternals = {}): boolea
  * @returns whether the current user manager supports the required scope invocation.
  */
 export function probeLinuxScope(internals: LinuxScopeInternals = {}): boolean {
-  const unitBase = unitStem('dsh-subprocess-probe')
+  const unitBase = unitStem('qilin-subprocess-probe')
   const result = (internals.spawnSync ?? spawnSync)(internals.systemdRun ?? 'systemd-run', [
     '--user',
     '--scope',
@@ -423,7 +423,7 @@ export function prepareLinuxTerminalScope(
 ): LinuxTerminalScopeLaunch {
   const invocation = internals.runnerInvocation ?? spawnRunnerInvocation()
   const files = createLinuxLaunchFiles({ cwd: spec.cwd, env: targetEnv })
-  const unitBase = unitStem('dsh-terminal')
+  const unitBase = unitStem('qilin-terminal')
   return {
     command: internals.systemdRun ?? 'systemd-run',
     args: scopeArgs(unitBase, invocation, spec.argv),
@@ -464,7 +464,7 @@ export function launchLinuxScope(
 ): ManagedProcessLaunch {
   const invocation = internals.runnerInvocation ?? spawnRunnerInvocation()
   const files = createLinuxLaunchFiles({ cwd: spec.cwd, env: targetEnv })
-  const unitBase = unitStem('dsh-subprocess')
+  const unitBase = unitStem('qilin-subprocess')
   let child: ReturnType<typeof spawn>
   try {
     child = (internals.spawn ?? spawn)(internals.systemdRun ?? 'systemd-run', scopeArgs(

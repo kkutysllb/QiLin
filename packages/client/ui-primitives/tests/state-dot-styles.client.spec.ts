@@ -18,6 +18,6 @@ describe('StateDot.module.css', () => {
 
   it('keeps ongoing on the animated matrix rather than a solid-dot rule', () => {
     expect(css).not.toContain(".dot[data-state='ongoing']")
-    expect(css).toContain('@keyframes dsh-state-dot-chase')
+    expect(css).toContain('@keyframes qilin-state-dot-chase')
   })
 })

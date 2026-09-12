@@ -5,7 +5,7 @@
  * POSIX owners stage TERM before KILL; Windows owners terminate immediately.
  * This layer reacts to an abort signal; callers own deadlines, teardown
  * ladders, and cause classification.
- * @module dsh-subprocess-local/spawn
+ * @module qilin-subprocess-local/spawn
  */
 
 import { type ChildProcess, type SpawnOptions, spawn, spawnSync } from 'node:child_process'
@@ -101,7 +101,7 @@ let defaultSpillDir: string | undefined
  * recovery artifacts until an external cleanup).
  */
 function privateSpillDir(): string {
-  defaultSpillDir ??= mkdtempSync(join(tmpdir(), 'dsh-subprocess-'))
+  defaultSpillDir ??= mkdtempSync(join(tmpdir(), 'qilin-subprocess-'))
   return defaultSpillDir
 }
 
@@ -200,7 +200,7 @@ export class OutputCollector {
       // prediction and symlink planting in shared tmp dirs.
       this.spillFile = join(
         this.spillDir,
-        `dsh-subprocess-${process.pid}-${++spillCounter}-${randomBytes(6).toString('hex')}-${this.label}.log`,
+        `qilin-subprocess-${process.pid}-${++spillCounter}-${randomBytes(6).toString('hex')}-${this.label}.log`,
       )
       this.spillFd = openSync(this.spillFile, 'wx', 0o600)
       for (const prior of this.chunks) writeSync(this.spillFd, prior)

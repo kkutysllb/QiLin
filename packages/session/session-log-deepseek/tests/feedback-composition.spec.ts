@@ -32,8 +32,8 @@ afterEach(async () => {
 })
 
 it('uploads freeform feedback and message put/edit/delete through the unchanged provider route', async () => {
-  root = await mkdtemp(join(tmpdir(), 'dsh-feedback-upload-'))
-  vi.stubEnv('DSH_HOME', root)
+  root = await mkdtemp(join(tmpdir(), 'qilin-feedback-upload-'))
+  vi.stubEnv('QILIN_HOME', root)
   vi.stubEnv('DEEPSEEK_API_KEY', 'feedback-test-key')
   server = await startMockLlmServer({ sequence: ['invalid_request', 'success', 'success'] })
   const modules = new Map<string, unknown>([
@@ -93,8 +93,8 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'error' } })
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'stop' } })
-    const first = (server.requests[0]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
-    const retry = (server.requests[1]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
+    const first = (server.requests[0]!.body as { qilin_session_log: DeepSeekSessionLogExtension }).qilin_session_log
+    const retry = (server.requests[1]!.body as { qilin_session_log: DeepSeekSessionLogExtension }).qilin_session_log
     expect(retry).toEqual(first)
     expect(first.events).toEqual(initialPrefix)
     expect(first.events.slice(-2)).toMatchObject([
@@ -112,7 +112,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
       sessionId: session.id, messageId: assistant.id, ifVersion: edited.value.version,
     })).toEqual({ ok: true, value: { absent: true } })
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'stop' } })
-    const suffix = (server.requests[2]!.body as { dsh_session_log: DeepSeekSessionLogExtension }).dsh_session_log
+    const suffix = (server.requests[2]!.body as { qilin_session_log: DeepSeekSessionLogExtension }).qilin_session_log
     expect(suffix.afterSeq).toBe(first.throughSeq)
     expect(suffix.events).toMatchObject([
       { type: 'session-log-deepseek/delivery-accepted' },
@@ -125,7 +125,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     expect(await ctx.messageFeedback.list({ sessionId: session.id })).toEqual({ ok: true, value: { items: [] } })
     for (const wire of server.requests) {
       expect(wire.path).toBe('/chat/completions')
-      expect(wire.body).not.toHaveProperty('dsh_feedback')
+      expect(wire.body).not.toHaveProperty('qilin_feedback')
       expect(wire.body).toMatchObject({ model: 'deepseek-v4-flash', messages: [
         { role: 'user', content: 'Question' },
         { role: 'assistant', content: 'Answer' },

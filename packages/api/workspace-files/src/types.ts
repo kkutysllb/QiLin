@@ -6,7 +6,7 @@
  *
  * - `read`, `readBytes`, `stat`, and `changes` name a file by its absolute path in the
  *   filesystem's execution world, because their consumer is the Client
- *   resource system, whose `dsh-resource://file/session/<id>/<path>` address carries that
+ *   resource system, whose `qilin-resource://file/session/<id>/<path>` address carries that
  *   same path.
  * - `list` speaks workspace paths — the same syntax its `path` argument accepts —
  *   because its consumer is a tree rooted at the workspace root.
@@ -23,8 +23,8 @@ export interface WorkspaceFileStat {
   /**
    * Absolute path of the file in the filesystem's execution world, symlinks
    * resolved: `/`-separated on POSIX, drive-rooted with the platform separator
-   * on Windows. What a `dsh-resource://file/absolute/…` address carries, and
-   * what a `dsh-resource://file/session/<sessionId>/…` address's
+   * on Windows. What a `qilin-resource://file/absolute/…` address carries, and
+   * what a `qilin-resource://file/session/<sessionId>/…` address's
    * workspace-relative path resolves to against that Session's root.
    */
   readonly absolutePath: string

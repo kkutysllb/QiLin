@@ -1,13 +1,13 @@
 // Web e2e scenario: fresh round trip. A real chromium types a prompt into the
 // real composer; the wire, Remote gateway, agent loop, and the REAL bash tool (echo
-// in the temp workspace) all run; the model adapter is dsh-llm-replay (keyless)
+// in the temp workspace) all run; the model adapter is qilin-llm-replay (keyless)
 // or the live adapter (record). Drive steps run in every mode and wait only
 // on generic completion (whenTurnSettled — never model-content selectors, so
 // record cannot hang on a live model answering differently); assertion steps
 // run in replay/refresh only. Settled states only — streaming fidelity is
 // asserted from the durable embedded Assistant stream, not transient DOM.
-// Record: DSH_SNAPSHOT=record writes session.v3.jsonl, then a keyless
-// DSH_SNAPSHOT=refresh regenerates ui.expected.md.
+// Record: QILIN_SNAPSHOT=record writes session.v3.jsonl, then a keyless
+// QILIN_SNAPSHOT=refresh regenerates ui.expected.md.
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -134,7 +134,7 @@ describe('web e2e: fresh round trip through the real assembly', () => {
       callId: ToolCallId('web-url-probe'),
       name: 'bash',
       arguments: {
-        command: 'printf \'%s\\n\' "$DSH_WEB_URL"',
+        command: 'printf \'%s\\n\' "$QILIN_WEB_URL"',
         description: 'Print current Web runtime',
       },
       agent,

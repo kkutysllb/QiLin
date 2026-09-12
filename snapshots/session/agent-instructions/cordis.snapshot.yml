@@ -13,16 +13,16 @@
 - id: session-persistence-jsonl
   name: '@qilin/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
   name: '@qilin/agent-instructions'
   config:
     maxBytes: 65536
-    dshHome: !!js process.cwd() + '/.dsh'
+    qilinHome: !!js process.cwd() + '/.qilin'
     projectRootMarkers:
-      - .dsh-project
+      - .qilin-project
 
 - id: system-prompt
   name: '@qilin/system-prompt'

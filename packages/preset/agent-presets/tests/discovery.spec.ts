@@ -43,7 +43,7 @@ beforeEach(() => {
 
 describe('display order', () => {
   it('puts declared order first, then everything else by id', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-order-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-order-'))
     roots.push(root)
     for (const [id, order] of [['zulu', 1], ['alpha', 2]] as const) {
       await mkdir(join(root, id), { recursive: true })
@@ -63,7 +63,7 @@ describe('display order', () => {
   })
 
   it('breaks a tie between equal declared orders by id', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-order-tie-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-order-tie-'))
     roots.push(root)
     for (const id of ['yankee', 'alpha']) {
       await mkdir(join(root, id), { recursive: true })
@@ -101,7 +101,7 @@ describe('preset discovery', () => {
   })
 
   it('skips a directory whose name no preset id could ever claim', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-oddname-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-oddname-'))
     roots.push(root)
     await mkdir(join(root, '.hidden'))
     await mkdir(join(root, 'Has_Caps'))
@@ -137,7 +137,7 @@ describe('preset discovery', () => {
   })
 
   it('ignores a plain file sitting beside the preset directories', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-'))
     roots.push(root)
     await writeFile(join(root, 'stray.yml'), '- id: x\n')
     await mkdir(join(root, 'real'))
@@ -149,7 +149,7 @@ describe('preset discovery', () => {
   })
 
   it('reports a root it cannot read rather than treating it as empty', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-'))
     roots.push(root)
     const notADirectory = join(root, 'file-as-root')
     await writeFile(notADirectory, 'not a directory\n')
@@ -178,7 +178,7 @@ describe('composition health', () => {
    * @returns the reported reason, or undefined when the composition is healthy.
    */
   async function scanned(composition: string): Promise<string | undefined> {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-health-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-health-'))
     roots.push(root)
     await mkdir(join(root, 'probe'))
     await writeFile(join(root, 'probe', COMPOSITION_FILE), composition)
@@ -219,7 +219,7 @@ describe('composition health', () => {
   })
 
   it('reports a composition that stats but cannot be read', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-unreadable-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-unreadable-'))
     roots.push(root)
     await mkdir(join(root, 'sealed'))
     const path = join(root, 'sealed', COMPOSITION_FILE)
@@ -247,7 +247,7 @@ describe('composition health', () => {
 describe('rows naming a plugin that cannot be resolved', () => {
   /** One directory under a fresh root holding `composition`, scanned. */
   async function scanned(composition: string): Promise<string | undefined> {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-resolve-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-resolve-'))
     roots.push(root)
     await mkdir(join(root, 'probe'))
     await writeFile(join(root, 'probe', COMPOSITION_FILE), composition)
@@ -285,7 +285,7 @@ describe('rows naming a plugin that cannot be resolved', () => {
   })
 
   it('resolves a preset-relative row against the preset\'s own directory', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-presets-relative-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-presets-relative-'))
     roots.push(root)
     await mkdir(join(root, 'probe'))
     await writeFile(join(root, 'probe', 'own-plugin.mjs'), 'export function apply() {}\n')
@@ -318,14 +318,14 @@ describe('rows naming a plugin that cannot be resolved', () => {
   it('reports a file: URL whose target is not there', async () => {
     // The Loader accepts a `file:` URL for the same thing an absolute path
     // names; a resolver handed one only normalizes it and never looks.
-    const missing = pathToFileURL(join(tmpdir(), 'dsh-presets-absent', 'nope.mjs')).href
+    const missing = pathToFileURL(join(tmpdir(), 'qilin-presets-absent', 'nope.mjs')).href
     expect(await scanned(`- id: url\n  name: '${missing}'\n`)).toMatch(/cannot be resolved/)
   })
 
   it('reads an installed package off disk without asking the resolver', async () => {
     // The fast path, and the one that has to answer alone: this package has a
     // directory and nothing to import, so a resolver would reject it.
-    const home = await mkdtemp(join(tmpdir(), 'dsh-presets-installed-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-presets-installed-'))
     roots.push(home)
     await mkdir(join(home, 'node_modules', '@scope', 'pkg'), { recursive: true })
     await writeFile(join(home, 'node_modules', '@scope', 'pkg', 'package.json'), '{"name":"@scope/pkg"}\n')
@@ -341,7 +341,7 @@ describe('rows naming a plugin that cannot be resolved', () => {
   it('reports a package whose install link dangles', async () => {
     // What a stale profile install leaves behind: the name is still in
     // `node_modules`, pointing at a checkout that is gone.
-    const home = await mkdtemp(join(tmpdir(), 'dsh-presets-dangling-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-presets-dangling-'))
     roots.push(home)
     await mkdir(join(home, 'node_modules', '@scope'), { recursive: true })
     await symlink(join(home, 'deleted-checkout'), join(home, 'node_modules', '@scope', 'pkg'))

@@ -93,14 +93,14 @@ function bench() {
 }
 
 describe('protocolOf', () => {
-  it('reads the dsh-resource host, lower-cased, and reports none for any other address', () => {
-    expect(protocolOf('dsh-resource://file/session/s1/home/ys/b.txt')).toBe('file')
-    expect(protocolOf('DSH-RESOURCE://File/session/s1/a')).toBe('file')
-    expect(protocolOf('dsh-resource://chat/node/1')).toBe('chat')
+  it('reads the qilin-resource host, lower-cased, and reports none for any other address', () => {
+    expect(protocolOf('qilin-resource://file/session/s1/home/ys/b.txt')).toBe('file')
+    expect(protocolOf('QILIN-RESOURCE://File/session/s1/a')).toBe('file')
+    expect(protocolOf('qilin-resource://chat/node/1')).toBe('chat')
     // A navigation address is not a resource.
     expect(protocolOf('sidebar://guide')).toBeUndefined()
     expect(protocolOf('file://sessions/s1/a.txt')).toBeUndefined()
-    expect(protocolOf('dsh-resource:///no-host')).toBeUndefined()
+    expect(protocolOf('qilin-resource:///no-host')).toBeUndefined()
     expect(protocolOf('/a/b.txt')).toBeUndefined()
     expect(protocolOf('')).toBeUndefined()
   })
@@ -428,7 +428,7 @@ describe('ResourceRegistry stream generations', () => {
       },
     })
     onTestFinished(dispose)
-    const source = b.registry.source('dsh-resource://counter/one')
+    const source = b.registry.source('qilin-resource://counter/one')
     const unsubscribe = source.subscribe(() => {})
     await closed.promise
     expect(source.getSnapshot()).toEqual({ status: 'live', value: 1, failure: undefined })

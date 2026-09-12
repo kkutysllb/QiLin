@@ -46,18 +46,18 @@ Choose this backend when the child must run with its own runtime, model, and too
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilinsubagent-acp) is the exhaustive source for every accepted field and its JSDoc.
 
-A DeepSeek Harness child uses the product launcher and an explicit absolute `DSH_HOME`. The isolated home prevents a nested runtime from discovering the launching person's profiles or credentials; the generic ACP provider does not impose this requirement on non-DSH agents.
+A DeepSeek Harness child uses the product launcher and an explicit absolute `QILIN_HOME`. The isolated home prevents a nested runtime from discovering the launching person's profiles or credentials; the generic ACP provider does not impose this requirement on non-QILIN agents.
 
 ```yaml
 - id: subagent-acp
   name: '@qilin/subagent-acp'
   config:
     providerName: acp
-    command: dsh
+    command: qilin
     args: ['--profile', 'acp', '--patch', '/absolute/path/to/acp.patch.yml']
     permission: reject
     env:
-      DSH_HOME: /absolute/path/to/isolated-child-home
+      QILIN_HOME: /absolute/path/to/isolated-child-home
       DEEPSEEK_API_KEY: !!js process.env.DEEPSEEK_API_KEY
 ```
 
@@ -111,9 +111,9 @@ The child spawns through the subprocess seam: credential-shaped ambient variable
 Read these pages when the package-level contract is not enough. They move from this backend to the seam it plugs into and the protocol it drives.
 
 - [Subagent subsystem](../../../docs/subsystems/subagent.md) — the service contract, provider contract, and terminal result semantics.
-- [dsh-subagent seam](../subagent/README.md) — the registry and start API this provider registers on.
+- [qilin-subagent seam](../subagent/README.md) — the registry and start API this provider registers on.
 - [Agent Client Protocol automation server](../../acp/acp/README.md) — the automation-only server this provider drives as a client.
-- [dsh-subprocess seam](../../subprocess/subprocess/README.md) — the process-spawn and teardown machinery behind each run.
+- [qilin-subprocess seam](../../subprocess/subprocess/README.md) — the process-spawn and teardown machinery behind each run.
 - [Generated configuration catalog](../../../docs/config-catalog.md#qilinsubagent-acp) — every accepted config field and its source declaration.
 
 -----
@@ -139,7 +139,7 @@ Independent of the parent request cache. Each ACP child can reuse only prefixes 
 
 #### What the model sees
 
-Through `dsh-tool-subagent`, the parent receives only the child's final streamed assistant text or that consumer's exact stop-reason error, not intermediate messages or tool traffic. Non-completed results present the safe diagnostic before separately preserved partial assistant output. A request already cancelled before publication becomes exactly `Error: subagent request was aborted before the ACP child started`; another start failure contains only the fixed `Subagent failure (...)` line.
+Through `qilin-tool-subagent`, the parent receives only the child's final streamed assistant text or that consumer's exact stop-reason error, not intermediate messages or tool traffic. Non-completed results present the safe diagnostic before separately preserved partial assistant output. A request already cancelled before publication becomes exactly `Error: subagent request was aborted before the ACP child started`; another start failure contains only the fixed `Subagent failure (...)` line.
 
 #### Token effect
 

@@ -27,7 +27,7 @@ describe('native V3 event admission at EOF', () => {
   let ctx: Context
 
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-v3-admission-'))
+    root = await mkdtemp(join(tmpdir(), 'qilin-v3-admission-'))
     ctx = new Context()
     await ctx.plugin(JsonlSessionPersistence, { root, compression: 'none' })
   })

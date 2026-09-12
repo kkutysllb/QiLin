@@ -8,7 +8,7 @@ import { targetEnvironment } from '../src/runner-launch.ts'
 import { bindManagedProcess } from '../src/spawn.ts'
 import { launchWindowsJob, probeWindowsJob } from '../src/windows-job.ts'
 
-const scratch = mkdtempSync(join(tmpdir(), 'dsh-native-windows-'))
+const scratch = mkdtempSync(join(tmpdir(), 'qilin-native-windows-'))
 afterAll(() => { rmSync(scratch, { recursive: true, force: true }) })
 
 function spec(argv: string[], graceMs = 100, env?: NodeJS.ProcessEnv): SubprocessSpawnSpec {

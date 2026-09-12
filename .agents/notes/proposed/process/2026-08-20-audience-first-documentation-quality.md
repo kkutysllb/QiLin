@@ -48,7 +48,7 @@ Adopt one audience-first quality contract with five definitions:
 
 ### Prototype rules
 
-The [dsh-doc skill](../../../skills/dsh-doc/SKILL.md) owns the first executable version of these rules. The `session-persistence-jsonl` README pair uses the shipped append, recovery, and encoding behavior as evidence rather than treating its prior prose as authority.
+The [dsh-doc skill](../../../skills/qilin-doc/SKILL.md) owns the first executable version of these rules. The `session-persistence-jsonl` README pair uses the shipped append, recovery, and encoding behavior as evidence rather than treating its prior prose as authority.
 
 - Every authored package README starts with searchable YAML. A Skill-style `description` and mechanically derived `kind` are required. Four kinds map one-to-one to four skill templates: `package-group` (group map), `package-reference` (plugin or service package), `package-library` (plain module entry), and `package-bundle` (`dsh.bundle.patch`). The counterpart path, hashes, and physical line alignment belong to the merge-safe sidecar and its gate, so README frontmatter contains no `i18n` block. The title or package manifest already owns the name, the document job expresses its audience, and tags remain absent until a governed taxonomy and search consumer proves value beyond full-text search.
 - Authored pages start with a three-to-five-sentence `Summary`, then a linked `Table of Contents`. An English package README Summary stays within 100 `wc -w`-style words. It describes reader-visible capability instead of Cordis roles, registrations, or internal components, and omits source identifiers unless readers use them directly in configuration, commands, or a public API. Format-owned Agent Notes, postmortems, generated fragments, and machine files keep their required skeletons.
@@ -114,7 +114,7 @@ This proposal does not shorten exhaustive facts, merge audience tiers, publish i
 ## Acceptance criteria
 
 - One canonical quality reference defines brief, intuitive, friendly, accurate, and agent-readable documentation by document job.
-- `.agents/skills/dsh-doc` validates and directly links its metadata, structure/hierarchy, and review/prototype references without duplicating their detailed rules in `SKILL.md`.
+- `.agents/skills/qilin-doc` validates and directly links its metadata, structure/hierarchy, and review/prototype references without duplicating their detailed rules in `SKILL.md`.
 - The `session-persistence-jsonl` README pair demonstrates searchable YAML, Summary, Table of Contents, user-to-developer progression, Further Exploration, final Dev Note, structural parity, and exact line-count equality while preserving verified package contracts.
 - Every English package README Summary stays within 100 `wc -w`-style words; the focused gate reports the measured count and directs failures to `dsh-doc` and the selected kind template.
 - `docs/AGENTS.md` links that reference, remains sufficient as standing instruction, and is below its target with at least 5% headroom.

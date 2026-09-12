@@ -4,12 +4,12 @@
  */
 
 export type {
-  DshBundleManifest,
-  DshClientManifest,
-  DshConfigTreeDeclaration,
-  DshManifest,
-  DshModuleFallbackManifest,
-  DshProfileManifest,
-  DshSessionFormatMigrationManifest,
+  QilinBundleManifest,
+  QilinClientManifest,
+  QilinConfigTreeDeclaration,
+  QilinManifest,
+  QilinModuleFallbackManifest,
+  QilinProfileManifest,
+  QilinSessionFormatMigrationManifest,
   ProfilePatchReload,
 } from './types.ts'

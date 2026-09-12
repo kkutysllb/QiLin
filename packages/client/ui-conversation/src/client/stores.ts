@@ -3,7 +3,7 @@ import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 import type { ConversationStoreState } from './contract/views.ts'
 
-const CONVERSATION_STORE_KEY = 'dsh.conversation'
+const CONVERSATION_STORE_KEY = 'qilin.conversation'
 
 /** Declared write set for the Conversation shell. */
 type ConversationActions = {

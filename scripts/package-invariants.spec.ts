@@ -42,7 +42,7 @@ function fixture(options: {
   buildEntry?: boolean
   omissionReason?: boolean
 } = {}): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-package-invariants-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-package-invariants-'))
   roots.push(root)
   const packageDirectory = options.packageDirectory ?? 'packages/core/probe'
   const dir = join(root, packageDirectory)

@@ -2,10 +2,10 @@
 
 import { describe, expect, it } from 'vitest'
 import {
-  checkDshFamilyVersion,
+  checkQilinFamilyVersion,
   checkExperimentalDependencyIsolation,
   checkExperimentalManifest,
-  expectedDshPackageFiles,
+  expectedQilinPackageFiles,
   type WorkspaceManifest,
 } from './check-workspace-constraints.ts'
 
@@ -99,41 +99,41 @@ describe('experimental workspace constraints', () => {
   })
 })
 
-describe('dsh family version coherence', () => {
+describe('qilin family version coherence', () => {
   it('rejects a package carrying a stale shared version', () => {
-    expect(checkDshFamilyVersion(
+    expect(checkQilinFamilyVersion(
       { name: '@qilin/http-proxy', version: '0.1.2-alpha.5' },
       '0.1.2-rc.1',
     )).toBe('@qilin/http-proxy: package.json version must match root version 0.1.2-rc.1')
   })
 
   it('rejects the root-named CLI app on a stale shared version', () => {
-    expect(checkDshFamilyVersion(
+    expect(checkQilinFamilyVersion(
       { name: '@qilin/cli', version: '0.1.2-alpha.5' },
       '0.1.2-rc.1',
     )).toBe('@qilin/cli: package.json version must match root version 0.1.2-rc.1')
   })
 
   it('accepts a manifest carrying the shared version', () => {
-    expect(checkDshFamilyVersion(
+    expect(checkQilinFamilyVersion(
       { name: '@qilin/http-proxy', version: '0.1.2-rc.1' },
       '0.1.2-rc.1',
     )).toBeUndefined()
   })
 
   it('leaves other sequences to their own version lines', () => {
-    expect(checkDshFamilyVersion({ name: '@deepseek-ai/cordis', version: '4.0.1' }, '0.1.2-rc.1')).toBeUndefined()
-    expect(checkDshFamilyVersion(
+    expect(checkQilinFamilyVersion({ name: '@deepseek-ai/cordis', version: '4.0.1' }, '0.1.2-rc.1')).toBeUndefined()
+    expect(checkQilinFamilyVersion(
       { name: '@deepseek-ai/node-addon-system', version: '0.1.1' },
       '0.1.2-rc.1',
     )).toBeUndefined()
-    expect(checkDshFamilyVersion({ version: '0.1.2-alpha.5' }, '0.1.2-rc.1')).toBeUndefined()
+    expect(checkQilinFamilyVersion({ version: '0.1.2-alpha.5' }, '0.1.2-rc.1')).toBeUndefined()
   })
 })
 
 describe('package payload constraints', () => {
   it('includes a declared profile patch without a package-name allowlist', () => {
-    expect(expectedDshPackageFiles({
+    expect(expectedQilinPackageFiles({
       name: '@qilin/private-profile',
       qilin: { bundle: { patch: './cordis.patch.yml' } },
     })).toEqual([

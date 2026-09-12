@@ -12,7 +12,7 @@ describe('workspace snapshots', () => {
   const roots: string[] = []
 
   async function root(): Promise<string> {
-    const value = await mkdtemp(join(tmpdir(), 'dsh-workspace-snapshot-'))
+    const value = await mkdtemp(join(tmpdir(), 'qilin-workspace-snapshot-'))
     roots.push(value)
     return value
   }

@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-在 Windows 上，本包将子进程的写入限制在工作区和私有临时目录内。`workspace-write` 授予对这两个位置的写入权限，`read-only` 则均不授予。挂载 `dsh-sandbox-local` 后，受限的 bash 和 PowerShell 命令会自动获得此行为；调用方也可以直接使用公开 `AclSandbox` API，并捕获标准流。任何 Win32 操作失败都会阻止子进程在不受限制的情况下启动。该保证特意标记为部分强制，因为进程启动会保留 Everyone 访问权限，NTFS 硬链接也可以通过其他路径暴露同一文件；调用方可通过报告的 `partial` 强制级别检测此限制。
+在 Windows 上，本包将子进程的写入限制在工作区和私有临时目录内。`workspace-write` 授予对这两个位置的写入权限，`read-only` 则均不授予。挂载 `qilin-sandbox-local` 后，受限的 bash 和 PowerShell 命令会自动获得此行为；调用方也可以直接使用公开 `AclSandbox` API，并捕获标准流。任何 Win32 操作失败都会阻止子进程在不受限制的情况下启动。该保证特意标记为部分强制，因为进程启动会保留 Everyone 访问权限，NTFS 硬链接也可以通过其他路径暴露同一文件；调用方可通过报告的 `partial` 强制级别检测此限制。
 
 ## 目录
 
@@ -42,7 +42,7 @@ import { join } from 'node:path'
 import { AclSandbox, tempWriteSid, workspaceWriteSid } from '@qilin/sandbox-windows-acl'
 
 const workspaceRoot = process.cwd()
-const tempDir = mkdtempSync(join(tmpdir(), 'dsh-'))
+const tempDir = mkdtempSync(join(tmpdir(), 'qilin-'))
 
 // mode selects the token's restricting-SID list (see Modes below) and must
 // match the grant shape. workspace-write requires distinct workspace and
@@ -87,7 +87,7 @@ rmSync(tempDir, { recursive: true, force: true })
 
 ### 机制
 
-调用者令牌被复制为 `WRITE_RESTRICTED` 受限令牌，其 restricting SIDs 携带彼此独立的工作区与私有临时目录能力。Windows 执行两次访问检查——先对正常 SID，再对 restricting SID——并且只在两次检查都通过时才授予写类访问。工作区 SID 由规范工作区路径确定性派生（`workspaceWriteSid`），因此工作区根目录 ACE 每台机器每个工作区只物化一次，之后每次会话、调用或重启都命中精确 ACE 跳过。每个活跃的会话/工作区对则获得一个随机私有临时目录，以及一个从该路径派生的 SID（`tempWriteSid`），因此各会话共享预期的工作区权限，却不会继承彼此的临时目录权限。每个策略专用 Win32 调用和 [`dsh-win32-process`](../../subprocess/win32-process/README.zh.md) 提供的进程原语都有检查；失败抛出携带 API 名、精确错误码、系统文本与失败上下文的 `Win32Error`——从构造上 fail-closed。
+调用者令牌被复制为 `WRITE_RESTRICTED` 受限令牌，其 restricting SIDs 携带彼此独立的工作区与私有临时目录能力。Windows 执行两次访问检查——先对正常 SID，再对 restricting SID——并且只在两次检查都通过时才授予写类访问。工作区 SID 由规范工作区路径确定性派生（`workspaceWriteSid`），因此工作区根目录 ACE 每台机器每个工作区只物化一次，之后每次会话、调用或重启都命中精确 ACE 跳过。每个活跃的会话/工作区对则获得一个随机私有临时目录，以及一个从该路径派生的 SID（`tempWriteSid`），因此各会话共享预期的工作区权限，却不会继承彼此的临时目录权限。每个策略专用 Win32 调用和 [`qilin-win32-process`](../../subprocess/win32-process/README.zh.md) 提供的进程原语都有检查；失败抛出携带 API 名、精确错误码、系统文本与失败上下文的 `Win32Error`——从构造上 fail-closed。
 
 ### 模式与令牌列表
 
@@ -99,7 +99,7 @@ Authenticated Users 在两种列表中都不存在——WMI 命名空间安全�
 
 ### 隔离 runner
 
-面向 seam 的形态是 runner 入口（`./runner`）：`dsh-sandbox-local` 在调用者命令的位置 spawn 的 argv 前缀包装——与 bwrap/landlock-run/sandbox-exec 同一架构。runner 创建受限令牌，在它之下 spawn 包装后的 argv，调用者的 stdio 直接透传，把子进程包进 `KILL_ON_JOB_CLOSE` job，镜像子进程的退出码，并在退出时撤销其自行管理的临时授权。每个 runner 侧失败都会向 stderr 打印 `windows-acl-run: <detail>` 并以 127 退出——seam 的 runner 失败规则匹配该签名。
+面向 seam 的形态是 runner 入口（`./runner`）：`qilin-sandbox-local` 在调用者命令的位置 spawn 的 argv 前缀包装——与 bwrap/landlock-run/sandbox-exec 同一架构。runner 创建受限令牌，在它之下 spawn 包装后的 argv，调用者的 stdio 直接透传，把子进程包进 `KILL_ON_JOB_CLOSE` job，镜像子进程的退出码，并在退出时撤销其自行管理的临时授权。每个 runner 侧失败都会向 stderr 打印 `windows-acl-run: <detail>` 并以 127 退出——seam 的 runner 失败规则匹配该签名。
 
 ```sh
 node runner.js --workspace <dir> --temp <dir> --mode <read-only|workspace-write> [--write-sid <S-1-4-…> --temp-write-sid <S-1-4-…>] -- <argv...>
@@ -151,7 +151,7 @@ seam 先把确定性工作区 SID 的 ACE 常驻物化（每个工作区每服�
 <a id="model-experience"></a>
 ## 模型体验
 
-间接地通过 [`dsh-bash-sandbox`](../../shell/bash-sandbox/README.zh.md)、[`dsh-pwsh-sandbox`](../../shell/pwsh-sandbox/README.zh.md) 及其工具呈现；它们渲染此后端的部分强制执行与拒绝事实（工具层通过 `denialSignatures` 分类的受限 stderr），而 [`dsh-sandbox`](../sandbox/README.zh.md) seam 拥有 `SANDBOX_UNAVAILABLE` 文本、`sandbox-local` 拥有 runner 选择。
+间接地通过 [`qilin-bash-sandbox`](../../shell/bash-sandbox/README.zh.md)、[`qilin-pwsh-sandbox`](../../shell/pwsh-sandbox/README.zh.md) 及其工具呈现；它们渲染此后端的部分强制执行与拒绝事实（工具层通过 `denialSignatures` 分类的受限 stderr），而 [`qilin-sandbox`](../sandbox/README.zh.md) seam 拥有 `SANDBOX_UNAVAILABLE` 文本、`sandbox-local` 拥有 runner 选择。
 
 #### KV Cache 影响
 

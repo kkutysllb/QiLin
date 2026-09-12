@@ -4,7 +4,7 @@
  * matchers, snake_case payloads without a trailing newline, no hook environment
  * or command substitution, and no pre-tool approval or rewrite path; only
  * blocking decisions are honored. Shared execution and parsing live in
- * `dsh-hook-protocol`.
+ * `qilin-hook-protocol`.
  * @module @qilin/hooks-codex
  */
 

@@ -39,7 +39,7 @@ export interface LocaleNamespaceMap {}
  * Resource protocol (URL scheme) → the value its provider streams. Declared
  * empty here, the zero-dependency merge point; each protocol owner merges its
  * own member (`file`, later `chat`), and `useResource<P>(address)` narrows its
- * value by `P`. The resource service itself lives in `dsh-client-resources`.
+ * value by `P`. The resource service itself lives in `qilin-client-resources`.
  */
 export interface ResourceProtocolMap {}
 

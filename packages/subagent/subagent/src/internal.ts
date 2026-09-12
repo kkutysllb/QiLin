@@ -12,7 +12,7 @@ import type SubagentRuntime from './index.ts'
 import type { SubagentDelivery } from './inbox.ts'
 
 /** Process-stable identity carried only by the standard adjacent-Agent messaging tool. */
-export const adjacentAgentSendMessageTool = Symbol.for('dsh.subagent.adjacentAgentSendMessageTool')
+export const adjacentAgentSendMessageTool = Symbol.for('qilin.subagent.adjacentAgentSendMessageTool')
 
 /**
  * Mark the standard adjacent-Agent messaging tool without changing its model-visible schema.
@@ -39,7 +39,7 @@ export function isAdjacentAgentSendMessageTool(definition: ToolDefinition | unde
  * entry and this unbundled internal subpath.
  * @internal
  */
-export const deliverSubagentPrompt = Symbol.for('dsh.subagent.deliverPrompt')
+export const deliverSubagentPrompt = Symbol.for('qilin.subagent.deliverPrompt')
 
 /** Runtime face required by the host-only prompt adapters. */
 export interface HostPromptDeliverer {

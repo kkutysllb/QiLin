@@ -25,7 +25,7 @@ describe('web e2e: repairs a stored provider after catalog drift', () => {
   let tripwire: ReturnType<typeof watchConsole>
 
   beforeAll(async () => {
-    home = await mkdtemp(join(tmpdir(), 'dsh-models-recovery-'))
+    home = await mkdtemp(join(tmpdir(), 'qilin-models-recovery-'))
     await writeFile(join(home, 'settings.yaml'), [
       'llm-pi-ai:', '  providers:', '    openrouter:', '      models:',
       '        - id: "111"', '    zai: {}', '    acme-gateway:',

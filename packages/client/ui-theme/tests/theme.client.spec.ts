@@ -36,13 +36,13 @@ describe('ThemeRuntime', () => {
   it('seeds the initial font size from the boot-script body variable, ignoring junk', () => {
     // The Host boot script writes the durable size on body before any plugin
     // runs; the first snapshot must match it so activation never flashes 14.
-    document.body.style.setProperty('--dsh-content-font-size', '16px')
+    document.body.style.setProperty('--qilin-content-font-size', '16px')
     try {
       expect(make().theme.getTheme().fontSize).toBe(16)
-      document.body.style.setProperty('--dsh-content-font-size', '99px')
+      document.body.style.setProperty('--qilin-content-font-size', '99px')
       expect(make().theme.getTheme().fontSize).toBe(14)
     } finally {
-      document.body.style.removeProperty('--dsh-content-font-size')
+      document.body.style.removeProperty('--qilin-content-font-size')
     }
   })
 

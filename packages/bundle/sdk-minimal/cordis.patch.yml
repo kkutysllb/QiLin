@@ -1,5 +1,5 @@
 # Standalone minimal SDK application. Unlike the ordinary SDK profile, this
-# bundle does not layer over dsh-base: this insert is the complete Cordis tree.
+# bundle does not layer over qilin-base: this insert is the complete Cordis tree.
 # User profile, home, and invocation patches still apply above it.
 
 - insert:
@@ -27,7 +27,7 @@
       name: '@qilin/llm-deepseek'
       config:
         apiKeyEnv: DEEPSEEK_API_KEY
-        defaultContextWindow: !!js Number(process.env.DSH_CONTEXT_WINDOW ?? 1000000)
+        defaultContextWindow: !!js Number(process.env.QILIN_CONTEXT_WINDOW ?? 1000000)
         streamIdleTimeoutMs: 172800000
 
     - id: sandbox
@@ -63,7 +63,7 @@
         shellDialect: pwsh
         timeoutMs: 300000
 
-    # Keep the minimal agent kernel explicit: unlike dsh-base, this profile
+    # Keep the minimal agent kernel explicit: unlike qilin-base, this profile
     # owns each service row and omits every optional producer it does not use.
     - id: timer
       name: '@deepseek-ai/cordis-plugin-timer'
@@ -86,7 +86,7 @@
       config:
         includeHarnessIdentity: false
         includeRuntimeContext: false
-        personaPrefix: !!js process.env.DSH_SYSTEM_PROMPT ?? 'You are a helpful software engineer assistant.'
+        personaPrefix: !!js process.env.QILIN_SYSTEM_PROMPT ?? 'You are a helpful software engineer assistant.'
 
     - id: tools
       name: '@qilin/tools'
@@ -151,5 +151,5 @@
     - id: sessions
       name: '@qilin/session-persistence-jsonl'
       config:
-        root: !!js dshHomePath('sessions')
+        root: !!js qilinHomePath('sessions')
         compression: none

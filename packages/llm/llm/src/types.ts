@@ -404,8 +404,8 @@ export type StreamChunk =
 /**
  * JSON-schema description of a tool, as sent to the model.
  *
- * Declared here (not in dsh-tools) because it is part of {@link GenerateOptions};
- * dsh-tools' ToolDefinition and dsh-system-prompt's PromptAssembly both import
+ * Declared here (not in qilin-tools) because it is part of {@link GenerateOptions};
+ * qilin-tools' ToolDefinition and qilin-system-prompt's PromptAssembly both import
  * it from this package.
  */
 export interface ToolSchema {
@@ -424,7 +424,7 @@ export interface GenerateOptions {
   reasoningEffort?: ReasoningEffortId
   /**
    * Ordered conversation messages, exactly as the provider sees them. A
-   * loop-built request passes the derived history (dsh-agent-loop), whose
+   * loop-built request passes the derived history (qilin-agent-loop), whose
    * leading system-role message carries the system prompt; a hand-built
    * one-shot passes any list.
    */

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`@qilin/home-paths` lets package authors resolve one DeepSeek Harness data root and derive child paths from it. An explicit path wins over `$DSH_HOME`, which wins over `~/.dsh`; blank environment values are ignored. Its public helpers can render the root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
+`@qilin/home-paths` lets package authors resolve one DeepSeek Harness data root and derive child paths from it. An explicit path wins over `$QILIN_HOME`, which wins over `~/.qilin`; blank environment values are ignored. Its public helpers can render the root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
 
 ## Table of Contents
 
@@ -29,17 +29,17 @@ Use these helpers wherever a package must agree with the rest of the harness abo
 ### Resolving the home
 
 ```ts
-import { resolveDshHome, dshHomePath } from '@qilin/home-paths'
+import { resolveQilinHome, qilinHomePath } from '@qilin/home-paths'
 
-const home = resolveDshHome()                // configured path, else $DSH_HOME, else ~/.dsh
-const settings = dshHomePath('settings')     // join one child onto the resolved home
+const home = resolveQilinHome()                // configured path, else $QILIN_HOME, else ~/.qilin
+const settings = qilinHomePath('settings')     // join one child onto the resolved home
 ```
 
-An explicit configured path has the highest precedence, then `$DSH_HOME`, then the default `~/.dsh`. An empty or whitespace-only `$DSH_HOME` is treated as unset, so a blank override never resolves the home to the current working directory.
+An explicit configured path has the highest precedence, then `$QILIN_HOME`, then the default `~/.qilin`. An empty or whitespace-only `$QILIN_HOME` is treated as unset, so a blank override never resolves the home to the current working directory.
 
 ### Displaying a home
 
-For user-facing paths, render the root symbolically rather than as a machine path: the default home displays as `~/.dsh` and any configured home displays as `$DSH_HOME`. The display form never leaks an absolute machine path.
+For user-facing paths, render the root symbolically rather than as a machine path: the default home displays as `~/.qilin` and any configured home displays as `$QILIN_HOME`. The display form never leaks an absolute machine path.
 
 ### Expanding user paths
 
@@ -68,7 +68,7 @@ The package is built on one principle: all harness user data lives under one roo
 
 ### Resolution rules
 
-`resolveDshHome` reads the explicit override, then `$DSH_HOME`, then falls back to the operating-system home joined with `.dsh`. The chosen value is tilde-expanded and normalized to an absolute path; `dshHomePath` joins child segments with Node's platform path rules. `dshHomeDisplay` compares the resolved path against the default root and returns the symbolic label, so a configured home never leaks its absolute path.
+`resolveQilinHome` reads the explicit override, then `$QILIN_HOME`, then falls back to the operating-system home joined with `.qilin`. The chosen value is tilde-expanded and normalized to an absolute path; `qilinHomePath` joins child segments with Node's platform path rules. `qilinHomeDisplay` compares the resolved path against the default root and returns the symbolic label, so a configured home never leaks its absolute path.
 
 ### Canonicalization mechanics
 
@@ -84,7 +84,7 @@ The package is built on one principle: all harness user data lives under one roo
 Read these pages when you need the launcher or the consumers that depend on a single home root.
 
 - [Boot package](../../boot/app-boot/README.md) — the launcher that resolves the home before any plugin mounts.
-- [Shell environment](../../shell/shell-env/README.md) — how `DSH_HOME` reaches model shell calls.
+- [Shell environment](../../shell/shell-env/README.md) — how `QILIN_HOME` reaches model shell calls.
 - [Anonymous user id](../../identity/anonymous-user-id/README.md) — a stored identity file under the resolved home.
 
 -----

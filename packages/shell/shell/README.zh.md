@@ -42,11 +42,11 @@ console.log(result.exitCode, result.stdout.text)
 
 ### 请求与已解析 spec
 
-每次执行都从带可选字段的 `ShellExecRequest` 开始；执行器的 `resolve()` 在任何东西运行之前，把它变成默认值与上限都已显式填好的 `ShellExecSpec`。这一请求/spec 拆分正是仓库在包边界显式解析的模板：调用方绝不依赖 `run` 或 `start` 内部隐藏的默认值。`resolve()` 从执行器配置填充工作目录与超时、对每次调用的覆盖值设上限，并按原样携带可选输入——`stdin`、普通 `env` 与受信任的 `DSH_*` 快照。
+每次执行都从带可选字段的 `ShellExecRequest` 开始；执行器的 `resolve()` 在任何东西运行之前，把它变成默认值与上限都已显式填好的 `ShellExecSpec`。这一请求/spec 拆分正是仓库在包边界显式解析的模板：调用方绝不依赖 `run` 或 `start` 内部隐藏的默认值。`resolve()` 从执行器配置填充工作目录与超时、对每次调用的覆盖值设上限，并按原样携带可选输入——`stdin`、普通 `env` 与受信任的 `QILIN_*` 快照。
 
 ### 选择并组合一个执行器
 
-seam 本身不是执行器：每个组合只挂载一个提供方，工具即可不加改动地工作。在 POSIX 上，`dsh-bash-local` 以全新的 `bash -c` 进程运行命令，`dsh-bash-sandbox` 则通过沙箱能力限制每条命令；在 Windows 上，对应实现是 `dsh-pwsh-local` 与 `dsh-pwsh-sandbox`。`bash` 与 `pwsh` 工具只在挂载沙箱执行器时公布升权字段。最小的组合只需执行器本身：
+seam 本身不是执行器：每个组合只挂载一个提供方，工具即可不加改动地工作。在 POSIX 上，`qilin-bash-local` 以全新的 `bash -c` 进程运行命令，`qilin-bash-sandbox` 则通过沙箱能力限制每条命令；在 Windows 上，对应实现是 `qilin-pwsh-local` 与 `qilin-pwsh-sandbox`。`bash` 与 `pwsh` 工具只在挂载沙箱执行器时公布升权字段。最小的组合只需执行器本身：
 
 ```yaml
 - id: bash
@@ -113,7 +113,7 @@ seam 本身不是执行器：每个组合只挂载一个提供方，工具即可
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `dsh-tool-bash` 间接影响；该工具会将执行器输出与沙箱事实转为指引和保留的工具结果 token。
+通过 `qilin-tool-bash` 间接影响；该工具会将执行器输出与沙箱事实转为指引和保留的工具结果 token。
 
 #### KV Cache 影响
 

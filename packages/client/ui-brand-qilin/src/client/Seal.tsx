@@ -60,7 +60,7 @@ export function QilinSealArtist({ size = 24, className }: { size?: number; class
  * @returns the seal at the sidebar's requested size.
  */
 export function QilinSealMark({ size }: SidebarBrandMarkOwnerProps) {
-  return <QilinSealArtist size={size ?? 24} />
+  return <QilinSealArtist size={size} />
 }
 
 /**
@@ -69,5 +69,5 @@ export function QilinSealMark({ size }: SidebarBrandMarkOwnerProps) {
  * @returns the seal at the hero's requested size and placement class.
  */
 export function QilinSealHeroMark({ size, className }: HeroBrandMarkOwnerProps) {
-  return <QilinSealArtist size={size ?? 34} className={className} />
+  return <QilinSealArtist size={size} className={className} />
 }

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-workflow-worker-thread` to run model-written workflow scripts away from the host event loop. Each run receives its own worker thread, so synchronous loops do not stall the harness and scripts that ignore cancellation can be terminated. The engine supports the `workflow` and `ralph` tools in shipped compositions and can be paired with `dsh-tool-workflow` to expose `workflow` in another composition. This isolation limits availability failures but is not a security boundary; genuinely untrusted scripts require a separate process or container.
+Use `qilin-workflow-worker-thread` to run model-written workflow scripts away from the host event loop. Each run receives its own worker thread, so synchronous loops do not stall the harness and scripts that ignore cancellation can be terminated. The engine supports the `workflow` and `ralph` tools in shipped compositions and can be paired with `qilin-tool-workflow` to expose `workflow` in another composition. This isolation limits availability failures but is not a security boundary; genuinely untrusted scripts require a separate process or container.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ Mount this engine when a composition needs the workflow capability: each orchest
 
 ### Minimal configuration
 
-Loading the engine registers `ctx.workflowEngine`; adding `dsh-tool-workflow` on top gives the model the `workflow` tool. Every config field is optional:
+Loading the engine registers `ctx.workflowEngine`; adding `qilin-tool-workflow` on top gives the model the `workflow` tool. Every config field is optional:
 
 ```yaml
 - name: '@qilin/workflow-worker-thread'
@@ -147,7 +147,7 @@ Independent of the parent request cache and of sibling children. Each child can 
 
 #### What the model sees
 
-Through [`dsh-tool-workflow`](../tool-workflow/README.md), success exposes only the materialized final JSON value and child count in that consumer's wrapper. This engine supplies stable errors including `workflow script does not parse: <error>`, `invalid meta: <violations>`, `agent() requires a non-empty prompt string`, `agent() could not start a child: <error>`, and `child agent run failed: <error>`, plus its exact `parallel()`, `pipeline()`, `phase()`, option, schema, and JSON-boundary validation messages. Intermediate child outputs are available to the script but not the parent model.
+Through [`qilin-tool-workflow`](../tool-workflow/README.md), success exposes only the materialized final JSON value and child count in that consumer's wrapper. This engine supplies stable errors including `workflow script does not parse: <error>`, `invalid meta: <violations>`, `agent() requires a non-empty prompt string`, `agent() could not start a child: <error>`, and `child agent run failed: <error>`, plus its exact `parallel()`, `pipeline()`, `phase()`, option, schema, and JSON-boundary validation messages. Intermediate child outputs are available to the script but not the parent model.
 
 #### Token effect
 

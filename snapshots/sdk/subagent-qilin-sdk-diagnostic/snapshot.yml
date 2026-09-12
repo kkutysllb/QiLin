@@ -1,0 +1,8 @@
+version: 1
+scenario: subagent-qilin-sdk-diagnostic
+profile: sdk
+composition: sdk-qilin-sdk-diagnostic
+recording: live
+header:
+  class: sdk-qilin-sdk-diagnostic
+  pin: true

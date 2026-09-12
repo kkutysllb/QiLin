@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import config from './config.json' with { type: 'json' }
 
 const API_VERSION = '2026-03-10'
-const AUDIT_MARKER = '<!-- dsh-issue-policy -->'
+const AUDIT_MARKER = '<!-- qilin-issue-policy -->'
 const TYPES = new Set(['Idea', 'Feature', 'Bug', 'Research', 'Task'])
 const PRIORITIES = ['p0', 'p1', 'p2', 'p3']
 const PR_KINDS = new Set([
@@ -321,7 +321,7 @@ async function api(path, options = {}) {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${token()}`,
       'X-GitHub-Api-Version': API_VERSION,
-      'User-Agent': 'dsh-issue-policy',
+      'User-Agent': 'qilin-issue-policy',
       ...options.headers,
     },
   })

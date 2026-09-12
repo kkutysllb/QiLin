@@ -30,17 +30,17 @@ import { asError, commandOpts, delay, signalOpts, signalRemoteGroups } from './r
 const TERMINAL_RUNNER_SOURCE = [
   '#!/bin/bash',
   'set -euo pipefail',
-  'dsh_state=$1',
-  'mapfile -d \'\' -t dsh_env < "$dsh_state/environment"',
-  'mapfile -d \'\' -t dsh_argv < "$dsh_state/argv"',
-  'dsh_output_marker=$(<"$dsh_state/output-marker")',
-  'rm -f -- "$dsh_state/environment" "$dsh_state/argv" "$dsh_state/output-marker" "$dsh_state/runner.bash"',
-  'if (( ${#dsh_argv[@]} == 0 )); then',
+  'qilin_state=$1',
+  'mapfile -d \'\' -t qilin_env < "$qilin_state/environment"',
+  'mapfile -d \'\' -t qilin_argv < "$qilin_state/argv"',
+  'qilin_output_marker=$(<"$qilin_state/output-marker")',
+  'rm -f -- "$qilin_state/environment" "$qilin_state/argv" "$qilin_state/output-marker" "$qilin_state/runner.bash"',
+  'if (( ${#qilin_argv[@]} == 0 )); then',
   "  printf 'terminal runner received empty argv\\n' >&2",
   '  exit 125',
   'fi',
-  'printf \'%s\' "$dsh_output_marker"',
-  'exec env -i -- "${dsh_env[@]}" "${dsh_argv[@]}"',
+  'printf \'%s\' "$qilin_output_marker"',
+  'exec env -i -- "${qilin_env[@]}" "${qilin_argv[@]}"',
   '',
 ].join('\n')
 
@@ -469,7 +469,7 @@ export async function spawnE2BTerminal(
     argv: posix.join(stateDir, 'argv'),
     outputMarker: posix.join(stateDir, 'output-marker'),
   }
-  const outputMarker = Buffer.from(`dsh-e2b-bootstrap:${randomUUID()}`)
+  const outputMarker = Buffer.from(`qilin-e2b-bootstrap:${randomUUID()}`)
   const output = new PassThrough()
   const outputFilter = new BootstrapOutputFilter(outputMarker, output)
   let handle: CommandHandle | undefined

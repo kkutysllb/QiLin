@@ -1,4 +1,4 @@
-/** Standard ACP MCP-server declarations translated into Agent-scoped DSH MCP clients. */
+/** Standard ACP MCP-server declarations translated into Agent-scoped QILIN MCP clients. */
 
 import type { Context } from '@deepseek-ai/cordis'
 import { createHash } from 'node:crypto'
@@ -107,7 +107,7 @@ function entriesToRecord(
   return result
 }
 
-/** Produce a stable DSH tool namespace from ACP's human-readable server name. */
+/** Produce a stable QILIN tool namespace from ACP's human-readable server name. */
 function normalizeServerName(name: string): string {
   if (name.trim().length === 0 || /[\u0000-\u001f\u007f]/.test(name)) {
     throw new AcpMcpConfigError('mcpServers contains an invalid server name')

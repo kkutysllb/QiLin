@@ -45,7 +45,7 @@ const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
 |---|---|
 | Inherited process environment | What the launching shell, CI job, or container passed in — this run's explicit intent |
 | `<invocation cwd>/.env` | The project the harness was launched in, which the product trusts to configure its own agent |
-| `$DSH_HOME/.env` | The user's own machine-level defaults |
+| `$QILIN_HOME/.env` | The user's own machine-level defaults |
 
 Names match the way the platform matches them: exactly on POSIX, case-insensitively on Windows. A case-sensitive lookup on Windows would rank the wrong layer — a shell's `deepseek_api_key` and a project `.env`'s `DEEPSEEK_API_KEY` are one variable to the OS.
 
@@ -100,7 +100,7 @@ Read these pages when you need the launcher that builds the snapshot or the cons
 
 These limits define when the snapshot is not a security boundary. They are current package constraints, not a task backlog.
 
-- **The snapshot is not a subprocess boundary** — every layer is also materialized into `process.env`, so ordinary project variables reach child processes under [`dsh-subprocess`](../../subprocess/subprocess/README.md)'s scrub; the product launcher's [`.env` contract](../../boot/app-boot/README.md) rejects bootstrap variables before materialization.
+- **The snapshot is not a subprocess boundary** — every layer is also materialized into `process.env`, so ordinary project variables reach child processes under [`qilin-subprocess`](../../subprocess/subprocess/README.md)'s scrub; the product launcher's [`.env` contract](../../boot/app-boot/README.md) rejects bootstrap variables before materialization.
 - **No per-workspace layer** — the project layer is the invoking directory, fixed at launch; a workspace selected later in the Web UI contributes nothing, deliberately, because following it would let a model's own workspace change the harness environment mid-session.
 
 <a id="dev-note"></a>

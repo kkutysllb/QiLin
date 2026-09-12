@@ -1,15 +1,15 @@
 /**
- * File-backed credentials provider over `$DSH_HOME/.credentials.yaml`, layered
+ * File-backed credentials provider over `$QILIN_HOME/.credentials.yaml`, layered
  * against the environment by how much each layer is trusted:
  *
  * ```text
  * inherited process environment      (read-only, wins)
- * > $DSH_HOME/.credentials.yaml      (provider-managed, writable)
+ * > $QILIN_HOME/.credentials.yaml      (provider-managed, writable)
  * > <invocation cwd>/.env            (read-only fallback)
- * > $DSH_HOME/.env                   (read-only fallback)
+ * > $QILIN_HOME/.env                   (read-only fallback)
  * ```
  *
- * The inherited environment wins because `DEEPSEEK_API_KEY=… dsh`, a CI
+ * The inherited environment wins because `DEEPSEEK_API_KEY=… qilin`, a CI
  * secret, or a container `-e` is this run's explicit intent; it cannot be
  * edited from inside, so it must be *visibly* read-only rather than silently
  * shadow writes. Everything below it loses to the managed store, so a key the
@@ -42,7 +42,7 @@ import { mkdir, readFile, stat } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { Document, isMap, isScalar, parseDocument, type YAMLError } from 'yaml'
 import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
-import { canonicalizeWatchPath, resolveDshHome } from '@qilin/home-paths'
+import { canonicalizeWatchPath, resolveQilinHome } from '@qilin/home-paths'
 import { launchEnvironmentOf } from '@qilin/launch-environment'
 import { CredentialProvider, credentialRef, parseCredentialKey } from '@qilin/credentials'
 import type {
@@ -64,8 +64,8 @@ export const CREDENTIALS_FILENAME = '.credentials.yaml'
 export interface Config {
   /** Credentials document path; defaults to `.credentials.yaml` under the harness home. */
   path?: string
-  /** Harness home used when `path` is omitted; defaults to `$DSH_HOME` or `~/.qilin`. */
-  dshHome?: string
+  /** Harness home used when `path` is omitted; defaults to `$QILIN_HOME` or `~/.qilin`. */
+  qilinHome?: string
   /** Watch the document and hot-publish external edits; defaults to true. */
   watch?: boolean
   /** Watcher write-settle window in milliseconds; defaults to 100. */
@@ -87,7 +87,7 @@ interface ResolvedSpec {
  */
 export function resolveSpec(config: Config): ResolvedSpec {
   return {
-    filename: resolve(config.path ?? join(resolveDshHome(config.dshHome), CREDENTIALS_FILENAME)),
+    filename: resolve(config.path ?? join(resolveQilinHome(config.qilinHome), CREDENTIALS_FILENAME)),
     watch: config.watch ?? true,
     debounceMs: config.debounceMs ?? 100,
   }
@@ -105,7 +105,7 @@ const GROUP_OTHER_BITS = 0o077
  * wait is sized by the longest holder it can meet, and refs and records share
  * one file and one lock, so every writer of this document — reference writes
  * and record deletes included — waits this long, not only the mutation that
- * holds it. Like the retry cadence in `dsh-atomic-write`, this is a
+ * holds it. Like the retry cadence in `qilin-atomic-write`, this is a
  * robustness bound of the write protocol rather than a deployment choice: it
  * is sized by what a provider request costs, which no deployment varies.
  */
@@ -509,14 +509,14 @@ function sameJsonValue(left: unknown, right: unknown): boolean {
     && sameJsonValue((left as Record<string, unknown>)[key], (right as Record<string, unknown>)[key]))
 }
 
-/** File-backed credentials provider (`$DSH_HOME/.credentials.yaml`). */
+/** File-backed credentials provider (`$QILIN_HOME/.credentials.yaml`). */
 export class LocalCredentialProvider extends CredentialProvider {
   /* jscpd:ignore-start -- deliberate config-surface and lifecycle symmetry with
      settings-file (prefer symmetry for parallel values); extracting the shared
      shape would couple the two providers' teardown semantics across packages. */
   static Config: z<Config> = z.object({
     path: z.string(),
-    dshHome: z.string(),
+    qilinHome: z.string(),
     watch: z.boolean().default(true),
     debounceMs: z.number().min(0).default(100),
   })
@@ -795,7 +795,7 @@ export class LocalCredentialProvider extends CredentialProvider {
     if (this.inherited(ref) !== undefined) {
       throw new Error(
         `credentials-local: "${ref}" is supplied read-only by the launching environment, so ${verb} would be`
-        + ' shadowed; unset it in the shell you start dsh from instead',
+        + ' shadowed; unset it in the shell you start qilin from instead',
       )
     }
   }

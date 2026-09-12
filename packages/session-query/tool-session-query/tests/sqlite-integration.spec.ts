@@ -39,7 +39,7 @@ function registerTurnBoundary(ctx: Context): void {
 
 describe('tool-session-query with the real SQLite provider', () => {
   it('searches live prior-step history and a persisted same-workspace log', { timeout: 20_000 }, async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-tool-session-query-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-tool-session-query-'))
     temporaryDirectories.push(root)
     const ctx = new Context()
     contexts.push(ctx)
@@ -112,7 +112,7 @@ describe('tool-session-query with the real SQLite provider', () => {
   })
 
   it('passes finite fractional epoch-millisecond bounds through SQLite comparisons', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-tool-session-query-fractional-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-tool-session-query-fractional-'))
     temporaryDirectories.push(root)
     const ctx = new Context()
     contexts.push(ctx)

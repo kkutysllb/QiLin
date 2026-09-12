@@ -31,7 +31,7 @@ function filesUnder(root: string): string[] {
 }
 
 function readSession(id: string): ReturnType<typeof scanLog> {
-  const path = `home/sessions/--dsh-workspace--/${id}/${generationLogFilename(SESSION_FORMAT_VERSION, 'none')}`
+  const path = `home/sessions/--qilin-workspace--/${id}/${generationLogFilename(SESSION_FORMAT_VERSION, 'none')}`
   const generated = buildVfsExampleFiles().get(path)
   if (generated === undefined) throw new Error(`missing generated VFS example Session ${path}`)
   return scanLog(Buffer.from(generated))
@@ -51,7 +51,7 @@ describe('WebWorker preview VFS example', () => {
   it('matches its deterministic source byte for byte', () => {
     const expected = buildVfsExampleFiles()
     const predecessors = Object.values(VFS_EXAMPLE_SESSION_IDS)
-      .map(id => `home/sessions/--dsh-workspace--/${id}/session.v2.jsonl`)
+      .map(id => `home/sessions/--qilin-workspace--/${id}/session.v2.jsonl`)
     expect(filesUnder(VFS_EXAMPLE_ROOT)).toEqual([...expected.keys(), ...predecessors].sort())
     for (const [path, content] of expected) {
       expect(readFileSync(join(VFS_EXAMPLE_ROOT, path), 'utf8'), path).toBe(content)
@@ -91,7 +91,7 @@ describe('WebWorker preview VFS example', () => {
       identity: {
         formatVersion: SESSION_FORMAT_VERSION,
         createdAt: 1_787_472_000_000,
-        cwd: '/dsh/workspace',
+        cwd: '/qilin/workspace',
         isSeeded: false,
         inheritedEventCount: 0,
       },
@@ -108,7 +108,7 @@ describe('WebWorker preview VFS example', () => {
     const { meta, inheritedEventCount, events } = readSession(VFS_EXAMPLE_SESSION_IDS.main)
     expect(meta).toMatchObject({
       id: VFS_EXAMPLE_SESSION_IDS.main,
-      cwd: '/dsh/workspace',
+      cwd: '/qilin/workspace',
       delegationDepth: 0,
       agentPreset: 'standard',
     })
@@ -147,7 +147,7 @@ describe('WebWorker preview VFS example', () => {
       const { meta, inheritedEventCount, events } = readSession(id)
       expect(meta).toMatchObject({
         id,
-        cwd: '/dsh/workspace',
+        cwd: '/qilin/workspace',
         parentSession: VFS_EXAMPLE_SESSION_IDS.main,
         origin: 'subagent',
         delegationDepth: 1,

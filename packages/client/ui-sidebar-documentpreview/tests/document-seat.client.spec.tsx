@@ -66,7 +66,7 @@ async function boot() {
   await rt.mount({ inject: [...inject], apply })
   const view = rt.renderSlot('rightbar', { width: 600, viewportWidth: 1440, canShow: true })
   const open = (name: string): void => {
-    act(() => { rt.ctx.sidebarRight.openResource('dsh-resource://file/session/documents/' + name) })
+    act(() => { rt.ctx.sidebarRight.openResource('qilin-resource://file/session/documents/' + name) })
   }
   const register = (id: string, loading: DocumentLoadMode, priority: 'builtin' | 'extension') => rt.ctx.effect(() => {
     const removeDefinition = rt.ctx.documentPreviews.register({ id, extensions: ['md'], priority, title: () => id, loading, wrap: loading === 'text-pages' })

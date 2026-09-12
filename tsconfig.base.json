@@ -124,9 +124,9 @@
       "@qilin/scope/invariant": ["./packages/core/scope/src/invariant.ts"],
       "@qilin/agent-loop/invariant": ["./packages/core/agent-loop/src/invariant.ts"],
       "@qilin/experimental-agent-team/invariant": ["./packages/experimental/agent-team/src/invariant.ts"],
-      // host/client package names prefix the group dir (dsh-client-<dir>), so
+      // host/client package names prefix the group dir (qilin-client-<dir>), so
       // the generated aliases below — which map a package only when its name is
-      // exactly dsh-<dir> — skip them; strip the group prefix with a dedicated
+      // exactly qilin-<dir> — skip them; strip the group prefix with a dedicated
       // wildcard per group instead.
       "@qilin/host-*/invariant": ["./packages/host/*/src/invariant.ts"],
       "@qilin/client-*/invariant": ["./packages/client/*/src/invariant.ts"],
@@ -249,7 +249,7 @@
       "@qilin/util-crypto": ["./packages/util/crypto/src"],
       "@qilin/util-values": ["./packages/util/values/src"],
       // util/ folders are role-named without the util- prefix their npm names carry,
-      // so these aliases stay hand-written like dsh-util-crypto above.
+      // so these aliases stay hand-written like qilin-util-crypto above.
       "@qilin/util-time": ["./packages/util/time/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@qilin/acp": ["./packages/acp/acp/src"],
@@ -406,7 +406,7 @@
       "@qilin/subagent-acp": ["./packages/subagent/subagent-acp/src"],
       "@qilin/subagent-claude-code": ["./packages/subagent/subagent-claude-code/src"],
       "@qilin/subagent-codex": ["./packages/subagent/subagent-codex/src"],
-      "@qilin/subagent-dsh-sdk": ["./packages/subagent/subagent-dsh-sdk/src"],
+      "@qilin/subagent-qilin-sdk": ["./packages/subagent/subagent-qilin-sdk/src"],
       "@qilin/subagent-fork-in-process": ["./packages/subagent/subagent-fork-in-process/src"],
       "@qilin/subagent-in-process-driver": ["./packages/subagent/subagent-in-process-driver/src"],
       "@qilin/subagent-spawn-in-process": ["./packages/subagent/subagent-spawn-in-process/src"],

@@ -27,9 +27,9 @@ function write(path: string, content: string): void {
 }
 
 function buildFixture(environment: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-release-build-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-release-build-'))
   roots.push(root)
-  write(join(root, 'package.json'), `${JSON.stringify({ version: environment.DSH_CLIENT_VERSION ?? '0.0.1' })}\n`)
+  write(join(root, 'package.json'), `${JSON.stringify({ version: environment.QILIN_CLIENT_VERSION ?? '0.0.1' })}\n`)
   write(join(root, 'apps/web/dist/index.html'), '<main></main>')
   write(join(root, 'packages/client/example/lib/client.js'), 'module.exports = {}\n')
   writeClientBuildRecord(root, environment)
@@ -43,7 +43,7 @@ afterEach(() => {
 
 describe('release families', () => {
   it('publishes Agent Teams while excluding private experimental packages', () => {
-    const members = releaseFamily('dsh').members(resolve(import.meta.dirname, '../..'))
+    const members = releaseFamily('qilin').members(resolve(import.meta.dirname, '../..'))
 
     expect(members
       .filter(member => member.directory.startsWith('packages/experimental/'))
@@ -58,57 +58,57 @@ describe('release families', () => {
   })
 
   it('excludes private applications from the publish set', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-release-private-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-release-private-'))
     roots.push(root)
     write(join(root, 'apps/public/package.json'), '{"name":"@qilin/public","version":"0.0.1"}\n')
     write(join(root, 'apps/private/package.json'), '{"name":"@qilin/private","version":"0.0.1","private":true}\n')
 
-    expect(releaseFamily('dsh').members(root).map(entry => entry.name)).toEqual(['@qilin/public'])
+    expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual(['@qilin/public'])
   })
 
-  it('bumps private dsh workspaces without adding release tags', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-release-version-'))
+  it('bumps private qilin workspaces without adding release tags', () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-release-version-'))
     roots.push(root)
     write(join(root, 'package.json'), '{"version":"0.0.1"}\n')
     write(join(root, 'apps/desktop/package.json'), '{"version":"0.0.1","private":true}\n')
     write(join(root, 'packages/experimental/prototype/package.json'), '{"version":"0.0.1","private":true}\n')
     write(join(root, 'packages/core/unselected/package.json'), '{"version":"0.0.1"}\n')
 
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const published = member('packages/core/published', '@qilin/published')
-    const { planned } = planShared(dsh, root, [published], '0.0.2')
+    const { planned } = planShared(qilin, root, [published], '0.0.2')
 
     expect(planned.map(entry => ({ path: entry.manifestPath, tag: entry.tag }))).toEqual([
       { path: 'package.json', tag: undefined },
-      { path: 'packages/core/published/package.json', tag: 'dsh-v0.0.2' },
+      { path: 'packages/core/published/package.json', tag: 'qilin-v0.0.2' },
       { path: 'apps/desktop/package.json', tag: undefined },
       { path: 'packages/experimental/prototype/package.json', tag: undefined },
     ])
   })
 
   it.each(['0.0.2-alpha.1', '0.0.2-canary.1', '0.0.2-rc.1'])(
-    'accepts the explicit dsh prerelease version %s',
+    'accepts the explicit qilin prerelease version %s',
     (version) => {
-      const root = mkdtempSync(join(tmpdir(), 'dsh-release-prerelease-'))
+      const root = mkdtempSync(join(tmpdir(), 'qilin-release-prerelease-'))
       roots.push(root)
       write(join(root, 'package.json'), '{"version":"0.0.1"}\n')
 
-      const dsh = releaseFamily('dsh')
+      const qilin = releaseFamily('qilin')
       const published = member('packages/core/published', '@qilin/published')
-      const plan = planShared(dsh, root, [published], version)
+      const plan = planShared(qilin, root, [published], version)
 
       expect(plan.version).toBe(version)
-      expect(plan.planned[1]?.tag).toBe(`dsh-v${version}`)
+      expect(plan.planned[1]?.tag).toBe(`qilin-v${version}`)
     },
   )
 
-  it('names one tag for the whole dsh family and one per vendored package', () => {
-    const dsh = releaseFamily('dsh')
+  it('names one tag for the whole qilin family and one per vendored package', () => {
+    const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
     const cli = member('apps/cli', '@qilin/cli')
     const cordis = { ...member('vendor/cordis', '@deepseek-ai/cordis'), version: '4.0.1' }
 
-    expect(dsh.tagFor(cli)).toBe('dsh-v0.0.1')
+    expect(qilin.tagFor(cli)).toBe('qilin-v0.0.1')
     expect(vendor.tagFor(cordis)).toBe('vendor-cordis-v4.0.1')
     // The prefix is constructed, not recovered from a tag: a version with a
     // hyphen would defeat any suffix-stripping.
@@ -116,24 +116,24 @@ describe('release families', () => {
     expect(vendor.tagFor({ ...cordis, version: '4.0.0-rc.7' })).toBe('vendor-cordis-v4.0.0-rc.7')
   })
 
-  it('assigns alpha and canary dist-tags only to dsh releases', () => {
-    const dsh = releaseFamily('dsh')
+  it('assigns alpha and canary dist-tags only to qilin releases', () => {
+    const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
 
-    expect(dsh.distTagForVersion('0.0.2-alpha.1')).toBe('alpha')
-    expect(dsh.distTagForVersion('0.0.2-canary.1')).toBe('canary')
-    expect(dsh.distTagForVersion('0.0.2-rc.1')).toBe('next')
-    expect(dsh.distTagForVersion('0.0.2')).toBeUndefined()
+    expect(qilin.distTagForVersion('0.0.2-alpha.1')).toBe('alpha')
+    expect(qilin.distTagForVersion('0.0.2-canary.1')).toBe('canary')
+    expect(qilin.distTagForVersion('0.0.2-rc.1')).toBe('next')
+    expect(qilin.distTagForVersion('0.0.2')).toBeUndefined()
     expect(vendor.distTagForVersion('4.0.1-alpha.1')).toBe('next')
     expect(vendor.distTagForVersion('4.0.1-canary.1')).toBe('next')
   })
 
   it('rejects a family whose members disagree on the shared version', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [member('apps/cli', '@qilin/cli'), { ...member('apps/web', '@qilin/web-frontend'), version: '0.0.2' }]
 
-    expect(() => { dsh.verifyVersions(members) }).toThrow(/must share one version/)
-    expect(() => { dsh.verifyVersions([members[0]!]) }).not.toThrow()
+    expect(() => { qilin.verifyVersions(members) }).toThrow(/must share one version/)
+    expect(() => { qilin.verifyVersions([members[0]!]) }).not.toThrow()
   })
 
   it('accepts independent vendored versions and rejects an unpublishable one', () => {
@@ -147,34 +147,34 @@ describe('release families', () => {
     expect(() => { vendor.verifyVersions([{ ...members[0]!, version: 'latest' }]) }).toThrow(/unpublishable version/)
   })
 
-  it('requires a current official client build only for dsh artifacts', () => {
-    const dsh = releaseFamily('dsh')
+  it('requires a current official client build only for qilin artifacts', () => {
+    const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
     const officialEnvironment = officialClientBuildEnvironment(resolve(import.meta.dirname, '../..'))
-    vi.stubEnv('DSH_CLIENT_COMMIT_HASH', officialEnvironment.DSH_CLIENT_COMMIT_HASH)
+    vi.stubEnv('QILIN_CLIENT_COMMIT_HASH', officialEnvironment.QILIN_CLIENT_COMMIT_HASH)
     const official = buildFixture(officialEnvironment)
     const defaultBuild = buildFixture({})
     const missing = join(defaultBuild, 'missing')
-    write(join(missing, 'package.json'), `${JSON.stringify({ version: officialEnvironment.DSH_CLIENT_VERSION })}\n`)
+    write(join(missing, 'package.json'), `${JSON.stringify({ version: officialEnvironment.QILIN_CLIENT_VERSION })}\n`)
 
-    expect(() => { dsh.verifyBuildArtifacts(official) }).not.toThrow()
-    expect(() => { dsh.verifyBuildArtifacts(defaultBuild) }).toThrow(/DSH_CLIENT_TITLE/)
-    expect(() => { dsh.verifyBuildArtifacts(missing) }).toThrow(/record.*missing/)
+    expect(() => { qilin.verifyBuildArtifacts(official) }).not.toThrow()
+    expect(() => { qilin.verifyBuildArtifacts(defaultBuild) }).toThrow(/QILIN_CLIENT_TITLE/)
+    expect(() => { qilin.verifyBuildArtifacts(missing) }).toThrow(/record.*missing/)
     expect(() => { vendor.verifyBuildArtifacts(missing) }).not.toThrow()
 
     write(join(official, 'packages/client/example/lib/client.js'), 'module.exports = { changed: true }\n')
-    expect(() => { dsh.verifyBuildArtifacts(official) }).toThrow(/artifacts differ/)
+    expect(() => { qilin.verifyBuildArtifacts(official) }).toThrow(/artifacts differ/)
   })
 
   it('publishes a dependency before its consumer, and orders ties by name', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/consumer', '@qilin/consumer', { dependencies: { '@qilin/library': 'workspace:^' } }),
       member('packages/a/library', '@qilin/library'),
       member('packages/a/zebra', '@qilin/zebra'),
     ]
 
-    expect(dsh.publishOrder(members).order.map(entry => entry.name)).toEqual([
+    expect(qilin.publishOrder(members).order.map(entry => entry.name)).toEqual([
       '@qilin/library',
       '@qilin/consumer',
       '@qilin/zebra',
@@ -182,31 +182,31 @@ describe('release families', () => {
   })
 
   it('reports a runtime dependency cycle instead of emitting an arbitrary order', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/left', '@qilin/left', { dependencies: { '@qilin/right': 'workspace:^' } }),
       member('packages/a/right', '@qilin/right', { dependencies: { '@qilin/left': 'workspace:^' } }),
     ]
 
-    expect(() => { dsh.publishOrder(members) }).toThrow(/dependency cycle/)
+    expect(() => { qilin.publishOrder(members) }).toThrow(/dependency cycle/)
   })
 
   it('publishes a peer before its consumer', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/consumer', '@qilin/consumer', { peerDependencies: { '@qilin/zebra': 'workspace:^' } }),
       member('packages/a/zebra', '@qilin/zebra'),
     ]
 
     // Name order alone would place the consumer first; the peer edge moves it.
-    expect(dsh.publishOrder(members).order.map(entry => entry.name)).toEqual([
+    expect(qilin.publishOrder(members).order.map(entry => entry.name)).toEqual([
       '@qilin/zebra',
       '@qilin/consumer',
     ])
   })
 
   it('orders around a peer cycle rather than refusing to publish, and reports the edge it dropped', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/left', '@qilin/left', { peerDependencies: { '@qilin/right': 'workspace:^' } }),
       member('packages/a/right', '@qilin/right', { peerDependencies: { '@qilin/left': 'workspace:^' } }),
@@ -214,7 +214,7 @@ describe('release families', () => {
 
     // Sibling packages declare each other as peers, and npm treats an unmet peer
     // as a warning, so this pair has to publish rather than fail the release.
-    const plan = dsh.publishOrder(members)
+    const plan = qilin.publishOrder(members)
     expect(plan.order.map(entry => entry.name)).toEqual([
       '@qilin/right',
       '@qilin/left',
@@ -226,7 +226,7 @@ describe('release families', () => {
   })
 
   it('honours an install edge even when a peer cycle surrounds it', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/base', '@qilin/base', { peerDependencies: { '@qilin/consumer': 'workspace:^' } }),
       member('packages/a/consumer', '@qilin/consumer', {
@@ -237,7 +237,7 @@ describe('release families', () => {
 
     // The install edge is absolute: base publishes first, and the peer edge that
     // would reverse it is the one dropped.
-    const plan = dsh.publishOrder(members)
+    const plan = qilin.publishOrder(members)
     expect(plan.order.map(entry => entry.name)).toEqual([
       '@qilin/base',
       '@qilin/consumer',
@@ -248,7 +248,7 @@ describe('release families', () => {
   })
 
   it('refuses an order that would publish a consumer before a dependency it installs', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/alpha', '@qilin/alpha', { peerDependencies: { '@qilin/bravo': 'workspace:^' } }),
       member('packages/a/bravo', '@qilin/bravo', { peerDependencies: { '@qilin/charlie': 'workspace:^' } }),
@@ -259,11 +259,11 @@ describe('release families', () => {
     // would order this, and the traversal drops the install edge instead. That
     // order would publish charlie before the alpha it installs, so it is refused
     // here rather than published.
-    expect(() => { dsh.publishOrder(members) }).toThrow(/no publish order honours @qilin\/charlie -> @qilin\/alpha/)
+    expect(() => { qilin.publishOrder(members) }).toThrow(/no publish order honours @qilin\/charlie -> @qilin\/alpha/)
   })
 
   it('ignores devDependencies when ordering', () => {
-    const dsh = releaseFamily('dsh')
+    const qilin = releaseFamily('qilin')
     const members = [
       member('packages/a/alpha', '@qilin/alpha', { devDependencies: { '@qilin/zebra': 'workspace:^' } }),
       member('packages/a/zebra', '@qilin/zebra'),
@@ -271,26 +271,26 @@ describe('release families', () => {
 
     // A dev dependency is absent from the published package, so it must not move
     // the consumer behind it.
-    expect(dsh.publishOrder(members).order.map(entry => entry.name)).toEqual([
+    expect(qilin.publishOrder(members).order.map(entry => entry.name)).toEqual([
       '@qilin/alpha',
       '@qilin/zebra',
     ])
   })
 
-  it('applies the harness payload policy to dsh and keeps upstream payloads for vendored packages', () => {
-    const dsh = releaseFamily('dsh')
+  it('applies the harness payload policy to qilin and keeps upstream payloads for vendored packages', () => {
+    const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
     const harness = member('packages/a/library', '@qilin/library')
     const vendored = member('vendor/cordis', '@deepseek-ai/cordis')
 
-    expect(() => { dsh.validatePayload(harness, ['package/lib/index.js', 'package/src/index.ts']) })
+    expect(() => { qilin.validatePayload(harness, ['package/lib/index.js', 'package/src/index.ts']) })
       .toThrow(/publishes source file/)
     expect(() => { vendor.validatePayload(vendored, ['package/lib/index.js', 'package/src/index.ts']) }).not.toThrow()
     expect(() => { vendor.validatePayload(vendored, []) }).toThrow(/empty tarball/)
   })
 
   it('drives the installed entry only for the family that publishes one', () => {
-    expect(releaseFamily('dsh').installedEntry).toEqual({ packageName: '@qilin/cli', binPath: 'lib/bin.js' })
+    expect(releaseFamily('qilin').installedEntry).toEqual({ packageName: '@qilin/cli', binPath: 'lib/bin.js' })
     expect(releaseFamily('vendor').installedEntry).toBeUndefined()
   })
 

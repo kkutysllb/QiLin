@@ -29,9 +29,9 @@ import { spawnSubprocess } from '@qilin/subprocess-local/src/spawn.ts'
 vi.mock('node:child_process', async () =>
   await import('@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/child_process.ts'))
 
-const WORKSPACE = '/dsh/workspace'
-const HOME = '/dsh/home'
-const TMP = '/dsh/tmp'
+const WORKSPACE = '/qilin/workspace'
+const HOME = '/qilin/home'
+const TMP = '/qilin/tmp'
 
 let vfs: MemoryVfs
 
@@ -128,10 +128,10 @@ it('keeps the native Landlock package API and CLI failure contract', async () =>
     stderr: 'landlock-run: usage error: --rw requires a path\n',
     code: 125,
   })
-  const missingGrant = spawn(launcherPath(), ['--rw', '/dsh/missing', '--', 'touch', `${WORKSPACE}/never`], { cwd: WORKSPACE })
+  const missingGrant = spawn(launcherPath(), ['--rw', '/qilin/missing', '--', 'touch', `${WORKSPACE}/never`], { cwd: WORKSPACE })
   expect(await collect(missingGrant)).toEqual({
     stdout: '',
-    stderr: 'landlock-run: cannot open rule path: /dsh/missing: No such file or directory\n',
+    stderr: 'landlock-run: cannot open rule path: /qilin/missing: No such file or directory\n',
     code: 125,
   })
   expect(vfs.existsSync(`${WORKSPACE}/never`)).toBe(false)

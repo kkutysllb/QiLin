@@ -26,7 +26,7 @@ it.skipIf(process.platform === 'win32')('resolves the exact spill verifier, reta
       disposers.push(() => fiber.dispose())
       await fiber
     }
-    const logical = resolve('/tmp/dsh-acp-snap-query-verifier')
+    const logical = resolve('/tmp/qilin-acp-snap-query-verifier')
     const mapping = ctx.plugin(locators, { root, locatorRoot: logical })
     disposers.push(() => mapping.dispose())
     await mapping

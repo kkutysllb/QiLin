@@ -4,15 +4,15 @@
  *
  * The library half takes all of this as parameters. Keeping the lookup here is what
  * lets the same library pack a different tree, and what keeps `pack.ts` free of
- * assumptions about pnpm workspaces or the `dsh` CLI.
+ * assumptions about pnpm workspaces or the `qilin` CLI.
  * @module @qilin/experimental-webworker-packer/src/repository
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
-import { DSH_HOME_ENV } from '@qilin/home-paths'
-import type { DshConfigTreeDeclaration } from '@qilin/package-manifest'
+import { QILIN_HOME_ENV } from '@qilin/home-paths'
+import type { QilinConfigTreeDeclaration } from '@qilin/package-manifest'
 import type { ConfigTree, ImageTree, PackResult } from './pack.ts'
 
 /**
@@ -23,10 +23,10 @@ import type { ConfigTree, ImageTree, PackResult } from './pack.ts'
  */
 const WORKSPACE_SCAN_ROOTS = ['vendor', 'packages', 'native/system/packages', 'apps']
 
-/** Composition entry point package: the `dsh` CLI, run from source. */
+/** Composition entry point package: the `qilin` CLI, run from source. */
 const CLI_PACKAGE = 'apps/cli'
 
-/** Composition entry point: the `dsh` CLI, run from source. */
+/** Composition entry point: the `qilin` CLI, run from source. */
 const CLI_ENTRY = `${CLI_PACKAGE}/src/bin.ts`
 
 /** Repository-owned deterministic filesystem content offered by the preview. */
@@ -76,7 +76,7 @@ export function indexWorkspacePackages(repoRoot: string): Map<string, string> {
 /**
  * Compose one profile through the real CLI dump path, leaving `!!js`
  * unevaluated. The dump runs against a throwaway Harness home and default
- * layers only, so the image is the shipped profile: the machine's `$DSH_HOME`
+ * layers only, so the image is the shipped profile: the machine's `$QILIN_HOME`
  * — its profile manifest with locally installed bundles, and its patch files —
  * would otherwise leak this machine's plugins into the image and break the
  * same-tree-same-bytes guarantee.
@@ -85,12 +85,12 @@ export function indexWorkspacePackages(repoRoot: string): Map<string, string> {
  * @returns The composed YAML.
  */
 export function composeProfile(repoRoot: string, profile: string): string {
-  const home = mkdtempSync(join(tmpdir(), 'dsh-pack-home-'))
+  const home = mkdtempSync(join(tmpdir(), 'qilin-pack-home-'))
   try {
     return execFileSync(
       process.execPath,
       ['--import', 'tsx/esm', join(repoRoot, CLI_ENTRY), '--profile', profile, '--dump-default-config'],
-      { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, [DSH_HOME_ENV]: home } },
+      { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, [QILIN_HOME_ENV]: home } },
     )
   } finally {
     rmSync(home, { recursive: true, force: true })
@@ -99,7 +99,7 @@ export function composeProfile(repoRoot: string, profile: string): string {
 
 /**
  * Config trees the CLI package declares for deployment images
- * (`dsh.configTrees` in its package.json): `path` is relative to the CLI
+ * (`qilin.configTrees` in its package.json): `path` is relative to the CLI
  * package root, `mount` is the image path, `scanRoster` feeds the tree's yml
  * plugin rows into the pack roster. The CLI owns its config layout; this
  * reader follows the declaration instead of naming directories. A malformed
@@ -115,12 +115,12 @@ export function configTrees(repoRoot: string): ConfigTree[] {
   const declared = manifest.qilin?.configTrees
   if (declared === undefined) return []
   if (!Array.isArray(declared)) {
-    throw new Error(`vfs image: ${CLI_PACKAGE} dsh.configTrees must be an array`)
+    throw new Error(`vfs image: ${CLI_PACKAGE} qilin.configTrees must be an array`)
   }
   const mounts = new Set<string>()
   return declared.map((entry, index) => {
-    const tree = entry as Partial<DshConfigTreeDeclaration> | null
-    const at = `${CLI_PACKAGE} dsh.configTrees[${String(index)}]`
+    const tree = entry as Partial<QilinConfigTreeDeclaration> | null
+    const at = `${CLI_PACKAGE} qilin.configTrees[${String(index)}]`
     if (tree === null || typeof tree !== 'object'
       || typeof tree.mount !== 'string' || tree.mount === ''
       || typeof tree.path !== 'string' || tree.path === ''

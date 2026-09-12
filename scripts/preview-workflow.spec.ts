@@ -26,7 +26,7 @@ describe('PR preview workflow', () => {
 
   it('keeps the immutable full build and restore-only dependency cache', () => {
     expect(workflow.env.PRIMARY_NODE_VERSION).toBe('24')
-    expect(workflow.env.DSH_TELEMETRY_DISABLED).toBe('1')
+    expect(workflow.env.QILIN_TELEMETRY_DISABLED).toBe('1')
     const commands = preview.steps.map(step => step.run)
     expect(commands).toContain('pnpm install --frozen-lockfile')
     expect(commands).toContain('pnpm run build')
@@ -43,7 +43,7 @@ describe('PR preview workflow', () => {
       group: 'build-preview-cloudflare-${{ github.event.pull_request.number }}',
       'cancel-in-progress': true,
     })
-    expect(workflow.env.CF_PROJECT).toBe('dsh-build-preview')
+    expect(workflow.env.CF_PROJECT).toBe('qilin-build-preview')
     const shape = preview.steps.find(step => step.name === 'Shape the upload')!
     expect(shape.run).toContain("find apps/web/dist -name '*.map' -delete")
     expect(shape.run).toContain('cp apps/web/dist/preview.html apps/web/dist/index.html')
@@ -57,7 +57,7 @@ describe('PR preview workflow', () => {
     expect(verify.run).toContain('"$magic" != "1f8b"')
     expect(verify.env?.CF_ACCESS_CLIENT_SECRET).toBe('${{ secrets.CF_ACCESS_CLIENT_SECRET }}')
     const comment = preview.steps.find(step => step.name === 'Comment the preview URL')!
-    expect(comment.run).toContain('<!-- dsh-preview-url -->')
+    expect(comment.run).toContain('<!-- qilin-preview-url -->')
     expect(comment.run).toContain('gh pr comment "$PR" --body-file -')
   })
 })

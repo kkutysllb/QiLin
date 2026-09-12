@@ -28,7 +28,7 @@ it.each([false, true])('keeps concurrent physical spill files private while reta
       await fsFiber
 
 
-      const locatorRoot = resolve('/tmp/dsh-acp-snap-123456789')
+      const locatorRoot = resolve('/tmp/qilin-acp-snap-123456789')
       const fork = ctx.plugin(locators, { root, locatorRoot })
       disposers.push(() => fork.dispose())
       await fork

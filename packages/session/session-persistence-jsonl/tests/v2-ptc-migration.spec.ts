@@ -17,7 +17,7 @@ const userMessage = {
 }
 const titleMessage = {
   id: 'tools-code-mode:title-input', role: 'user',
-  source: { kind: 'plugin', plugin: 'dsh-session-title-llm' },
+  source: { kind: 'plugin', plugin: 'qilin-session-title-llm' },
   content: [{ type: 'text', text: 'Generate the session title from this JSON array of human messages:\n[{"seq":2,"text":"Keep tools-code-mode and tool/code-dispatch in this text. 图片"}]' }],
 }
 const toolCall = {
@@ -104,7 +104,7 @@ describe('JSONL V2 PTC publication and restore', () => {
   let ctx: Context | undefined
 
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-jsonl-v2-ptc-'))
+    root = await mkdtemp(join(tmpdir(), 'qilin-jsonl-v2-ptc-'))
     ctx = new Context()
     await ctx.plugin(JsonlSessionPersistence, { root, compression: 'none' })
   })

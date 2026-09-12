@@ -50,10 +50,10 @@ function shellArgv(command: string): string[] {
     case 'echo "$EXTRA_ONE/$EXTRA_TWO"': return node('console.log(process.env.EXTRA_ONE + "/" + process.env.EXTRA_TWO)')
     case 'echo "$EXPLICIT_OVERRIDE_PASSWORD"': return node('console.log(process.env.EXPLICIT_OVERRIDE_PASSWORD)')
     case 'echo "${SUBPROCESS_TOMBSTONE_PROBE:-absent}"': return node('console.log(process.env.SUBPROCESS_TOMBSTONE_PROBE ?? "absent")')
-    case 'echo "[${DSH_STALE:-absent}|$DSH_SHELL|$DSH_SESSION_ID]"':
-      return node('console.log("[" + [process.env.DSH_STALE ?? "absent", process.env.DSH_SHELL, process.env.DSH_SESSION_ID].join("|") + "]")')
-    case 'echo "[${DSH_TEST_API_KEY:-absent}|${DSH_TEST_TOKEN:-absent}|${SUBPROCESS_TEST_PASSWORD:-absent}|${DSH_TEST_PLAIN:-absent}]"':
-      return node('console.log("[" + [process.env.DSH_TEST_API_KEY ?? "absent", process.env.DSH_TEST_TOKEN ?? "absent", process.env.SUBPROCESS_TEST_PASSWORD ?? "absent", process.env.DSH_TEST_PLAIN ?? "absent"].join("|") + "]")')
+    case 'echo "[${QILIN_STALE:-absent}|$QILIN_SHELL|$QILIN_SESSION_ID]"':
+      return node('console.log("[" + [process.env.QILIN_STALE ?? "absent", process.env.QILIN_SHELL, process.env.QILIN_SESSION_ID].join("|") + "]")')
+    case 'echo "[${QILIN_TEST_API_KEY:-absent}|${QILIN_TEST_TOKEN:-absent}|${SUBPROCESS_TEST_PASSWORD:-absent}|${QILIN_TEST_PLAIN:-absent}]"':
+      return node('console.log("[" + [process.env.QILIN_TEST_API_KEY ?? "absent", process.env.QILIN_TEST_TOKEN ?? "absent", process.env.SUBPROCESS_TEST_PASSWORD ?? "absent", process.env.QILIN_TEST_PLAIN ?? "absent"].join("|") + "]")')
     case 'printf "%.0sx" $(seq 1 500)': return node('process.stdout.write("x".repeat(500))')
     case 'printf "%.0sx" $(seq 1 500); printf "%.0se" $(seq 1 500) >&2':
       return node('process.stdout.write("x".repeat(500)); process.stderr.write("e".repeat(500))')
@@ -89,7 +89,7 @@ vi.mock('node:fs', async (importOriginal) => {
   }
 })
 
-const spillDir = mkdtempSync(join(tmpdir(), 'dsh-subprocess-spec-'))
+const spillDir = mkdtempSync(join(tmpdir(), 'qilin-subprocess-spec-'))
 
 /** The per-process default spill dir captured by the default-spill test. */
 let defaultSpillDir: string | undefined
@@ -349,7 +349,7 @@ describe('spawnSubprocess', () => {
   })
 
   it('rejects with a spawn error for a nonexistent cwd', async () => {
-    await expect(spawnSubprocess(spec('echo hi', { cwd: '/nonexistent-dir-dsh-test' })).done)
+    await expect(spawnSubprocess(spec('echo hi', { cwd: '/nonexistent-dir-qilin-test' })).done)
       .rejects.toThrow(/ENOENT/)
   })
 
@@ -1094,7 +1094,7 @@ describe('coverage seams', () => {
   it('childEnv keeps the POSIX spread on non-Windows hosts', () => {
     const platform = vi.spyOn(process, 'platform', 'get').mockReturnValue('linux')
     try {
-      expect(childEnv({ DSH_X: '1' }).DSH_X).toBe('1')
+      expect(childEnv({ QILIN_X: '1' }).QILIN_X).toBe('1')
     } finally {
       platform.mockRestore()
     }
@@ -1136,7 +1136,7 @@ describe('coverage seams', () => {
   })
 
   it('a spawn-failed handle rejects done while waitForExit reports gone', async () => {
-    const running = spawnSubprocess(spec('true', { cwd: '/nonexistent-dir-dsh-dispose-test' }))
+    const running = spawnSubprocess(spec('true', { cwd: '/nonexistent-dir-qilin-dispose-test' }))
     await expect(running.done).rejects.toThrow()
     await expect(running.waitForExit()).resolves.toBe(true)
   })
@@ -1203,7 +1203,7 @@ describe('coverage seams', () => {
   })
 
   it('waitForExit on a failed spawn reports exited immediately', async () => {
-    const running = spawnSubprocess(spec('true', { cwd: '/nonexistent-dir-dsh-spawn-test' }))
+    const running = spawnSubprocess(spec('true', { cwd: '/nonexistent-dir-qilin-spawn-test' }))
     await expect(running.done).rejects.toThrow()
     await expect(running.waitForExit()).resolves.toBe(true)
   })
@@ -1313,35 +1313,35 @@ describe('abort edge cases', () => {
 })
 
 describe('environment and spill-file hardening', () => {
-  it('scrubs credential-shaped and ambient DSH env vars from child processes', async () => {
-    process.env.DSH_TEST_API_KEY = 'super-secret'
-    process.env.DSH_TEST_TOKEN = 'also-secret'
+  it('scrubs credential-shaped and ambient QILIN env vars from child processes', async () => {
+    process.env.QILIN_TEST_API_KEY = 'super-secret'
+    process.env.QILIN_TEST_TOKEN = 'also-secret'
     process.env.SUBPROCESS_TEST_PASSWORD = 'password-secret'
-    process.env.DSH_TEST_PLAIN = 'visible'
+    process.env.QILIN_TEST_PLAIN = 'visible'
     try {
       const result = await finish(spawnSubprocess(spec(
-        'echo "[${DSH_TEST_API_KEY:-absent}|${DSH_TEST_TOKEN:-absent}|${SUBPROCESS_TEST_PASSWORD:-absent}|${DSH_TEST_PLAIN:-absent}]"',
+        'echo "[${QILIN_TEST_API_KEY:-absent}|${QILIN_TEST_TOKEN:-absent}|${SUBPROCESS_TEST_PASSWORD:-absent}|${QILIN_TEST_PLAIN:-absent}]"',
       )))
       expect(result.stdout.text.trim()).toBe('[absent|absent|absent|absent]')
     } finally {
-      delete process.env.DSH_TEST_API_KEY
-      delete process.env.DSH_TEST_TOKEN
+      delete process.env.QILIN_TEST_API_KEY
+      delete process.env.QILIN_TEST_TOKEN
       delete process.env.SUBPROCESS_TEST_PASSWORD
-      delete process.env.DSH_TEST_PLAIN
+      delete process.env.QILIN_TEST_PLAIN
     }
   })
 
-  it('forwards explicit DSH_* env entries while scrubbing ambient ones', async () => {
-    // Both facts through one explicit map: the ambient DSH_STALE is dropped by
+  it('forwards explicit QILIN_* env entries while scrubbing ambient ones', async () => {
+    // Both facts through one explicit map: the ambient QILIN_STALE is dropped by
     // the scrub, and the deliberately supplied current values merge after it.
-    process.env.DSH_STALE = 'old-value'
+    process.env.QILIN_STALE = 'old-value'
     try {
-      const result = await finish(spawnSubprocess(spec('echo "[${DSH_STALE:-absent}|$DSH_SHELL|$DSH_SESSION_ID]"', {
-        env: { DSH_SHELL: '1', DSH_SESSION_ID: 'current-session' },
+      const result = await finish(spawnSubprocess(spec('echo "[${QILIN_STALE:-absent}|$QILIN_SHELL|$QILIN_SESSION_ID]"', {
+        env: { QILIN_SHELL: '1', QILIN_SESSION_ID: 'current-session' },
       })))
       expect(result.stdout.text.trim()).toBe('[absent|1|current-session]')
     } finally {
-      delete process.env.DSH_STALE
+      delete process.env.QILIN_STALE
     }
   })
 
@@ -1351,7 +1351,7 @@ describe('environment and spill-file hardening', () => {
       { spillDir },
     ))
     const path = result.stdout.spillPath!
-    expect(path).toMatch(/dsh-subprocess-\d+-\d+-[0-9a-f]{12}-stdout\.log$/)
+    expect(path).toMatch(/qilin-subprocess-\d+-\d+-[0-9a-f]{12}-stdout\.log$/)
     const mode = statSync(path).mode & 0o777
     expect(mode).toBe(0o600)
   })
@@ -1362,7 +1362,7 @@ describe('environment and spill-file hardening', () => {
     ))
     const dir = dirname(result.stdout.spillPath!)
     defaultSpillDir = dir
-    expect(dir).toMatch(/dsh-subprocess-/)
+    expect(dir).toMatch(/qilin-subprocess-/)
     const mode = statSync(dir).mode & 0o777
     expect(mode).toBe(0o700)
   })

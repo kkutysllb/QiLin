@@ -15,7 +15,7 @@
 - id: session-persistence-jsonl
   name: '@qilin/session-persistence-jsonl'
   config:
-    root: !!js process.env.DSH_SNAPSHOT_SESSIONS_ROOT ?? dshHomePath('sessions')
+    root: !!js process.env.QILIN_SNAPSHOT_SESSIONS_ROOT ?? qilinHomePath('sessions')
     compression: none
 
 - id: sandbox
@@ -47,6 +47,6 @@
     - id: snapshot-shell-path
       name: ../../../scripts/snapshot-shell-path.ts
       config:
-        command: "printf 'escalated\\n' > /tmp/dsh-escalated.txt && cat /tmp/dsh-escalated.txt && rm /tmp/dsh-escalated.txt"
-        recordedPath: /tmp/dsh-escalated.txt
-        livePath: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT + '/dsh-escalated.txt'
+        command: "printf 'escalated\\n' > /tmp/qilin-escalated.txt && cat /tmp/qilin-escalated.txt && rm /tmp/qilin-escalated.txt"
+        recordedPath: /tmp/qilin-escalated.txt
+        livePath: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT + '/qilin-escalated.txt'

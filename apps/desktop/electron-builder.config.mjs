@@ -25,19 +25,19 @@ export function createElectronBuilderConfig(
   hostArch = process.arch,
 ) {
   const appId = resolveDesktopAppId(env)
-  const targetPlatform = env.DSH_DESKTOP_TARGET_PLATFORM
+  const targetPlatform = env.QILIN_DESKTOP_TARGET_PLATFORM
   const resolvedPlatform = targetPlatform ?? hostPlatform
-  const resolvedArch = env.DSH_DESKTOP_TARGET_ARCH ?? hostArch
+  const resolvedArch = env.QILIN_DESKTOP_TARGET_ARCH ?? hostArch
   const packagesMacOS = targetPlatform === 'darwin' || (targetPlatform === undefined && hostPlatform === 'darwin')
   const packagesWindows = targetPlatform === 'win32'
   const macOSSigning = packagesMacOS ? resolveMacOSSigningEnvironment(env) : undefined
   if (packagesMacOS) resolveMacOSNotarizationEnvironment(env)
   const windowsSigner = packagesWindows
     ? createWindowsTokenSigner({
-        certificateFile: env.DSH_DESKTOP_WINDOWS_CER_FILE,
-        signTool: env.DSH_DESKTOP_WINDOWS_SIGNTOOL,
-        tokenPin: env.DSH_DESKTOP_WINDOWS_TOKEN_PIN,
-        keyContainer: env.DSH_DESKTOP_WINDOWS_KEY_CONTAINER,
+        certificateFile: env.QILIN_DESKTOP_WINDOWS_CER_FILE,
+        signTool: env.QILIN_DESKTOP_WINDOWS_SIGNTOOL,
+        tokenPin: env.QILIN_DESKTOP_WINDOWS_TOKEN_PIN,
+        keyContainer: env.QILIN_DESKTOP_WINDOWS_KEY_CONTAINER,
       })
     : undefined
   if (windowsSigner !== undefined) {

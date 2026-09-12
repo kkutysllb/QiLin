@@ -80,7 +80,7 @@ const carriers = [
   ['assistant', (value: SessionFormatJsonObject) => row('assistant/message', { turn: 1, step: 1, stream: [], message: { ...value, role: 'assistant', source: { kind: 'model', provider: 'mock', model: 'mock' } } }, { surfaceOp: 'append' })],
   ['tool', (value: SessionFormatJsonObject) => row('tool/result', { turn: 1, step: 1, message: { ...value, source: { kind: 'tool', callId: 'call' }, content: [{ type: 'tool-result', toolCallId: 'call', content: [] }] } }, { surfaceOp: 'append' })],
   ['inbox', (value: SessionFormatJsonObject) => row('agent/inbox/spliced', { target: 'next-turn', start: 0, inserted: [value] })],
-  ['title', (value: SessionFormatJsonObject) => row('session/title-llm-request', { titleProvider: 'mock', messageSeqs: [2], route: config, system: 'title', messages: [{ ...value, source: { kind: 'plugin', plugin: 'dsh-session-title-llm' } }], maxTokens: 20 })],
+  ['title', (value: SessionFormatJsonObject) => row('session/title-llm-request', { titleProvider: 'mock', messageSeqs: [2], route: config, system: 'title', messages: [{ ...value, source: { kind: 'plugin', plugin: 'qilin-session-title-llm' } }], maxTokens: 20 })],
 ] satisfies [string, (value: SessionFormatJsonObject) => SessionFormatEvent][]
 
 describe('structural prompt history regressions', () => {
@@ -176,7 +176,7 @@ describe('structural inherited ownership and reference regressions', () => {
   it('remaps references on both sides of a prompt insertion without reinterpreting same-Session captures or framed title input', () => {
     const capture = { sessionId: header.id, label: 'same-session', capturedThroughSeq: 2, capturedFormatVersion: 2, compacted: false, originalMessages: 1, retainedMessages: 1, omittedMessages: 0, omittedBytes: 0, truncated: false, inputIndex: 0 }
     const recalled = { ...message('capture'), source: { kind: 'session-reference', form: 'recall', version: 1, references: [capture] } }
-    const titleInput = { ...message('title-input'), source: { kind: 'plugin', plugin: 'dsh-session-title-llm' }, content: [{ type: 'text', text: 'Generate the session title from this JSON array of human messages:\n[{"seq":2,"text":"a"},{"seq":4,"text":"b"}]' }] }
+    const titleInput = { ...message('title-input'), source: { kind: 'plugin', plugin: 'qilin-session-title-llm' }, content: [{ type: 'text', text: 'Generate the session title from this JSON array of human messages:\n[{"seq":2,"text":"a"},{"seq":4,"text":"b"}]' }] }
     const input = dense([
       ...opening(), user('a'), request('prompt'), user('b'),
       row('user/message', recalled, { surfaceOp: 'append', sourceEventSeqs: [2, 4] }),

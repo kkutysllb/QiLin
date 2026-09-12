@@ -20,7 +20,7 @@ import {
   loadOverlayPatches,
 } from '@qilin/app-boot'
 import { provideCmdline } from '@qilin/cmdline'
-import { DSH_LAUNCH_ENVIRONMENT_KEY } from '@qilin/launch-environment'
+import { QILIN_LAUNCH_ENVIRONMENT_KEY } from '@qilin/launch-environment'
 import type {} from '@qilin/api-gateway'
 import type { ConnectionFetchHandler } from '@qilin/client-connection'
 import type {} from '@qilin/client-modules'
@@ -40,7 +40,7 @@ import {
 
 export { DESKTOP_HOST_PROTOCOL_VERSION } from './wire.ts'
 
-/** One request forwarded from Electron's `dsh-app://` handler. */
+/** One request forwarded from Electron's `qilin-app://` handler. */
 export interface DesktopHostFetchCommand {
   readonly streamId: number
   readonly request: {
@@ -59,7 +59,7 @@ export type DesktopHostCommand = {
 export type DesktopHostEvent = {
   readonly type: 'ready'
   readonly protocolVersion: typeof DESKTOP_HOST_PROTOCOL_VERSION
-  readonly dshVersion: string
+  readonly qilinVersion: string
 } | {
   readonly type: 'fatal'
   readonly message: string
@@ -67,8 +67,8 @@ export type DesktopHostEvent = {
 
 /** Controller returned to tests and the self-executing process entry. */
 export interface DesktopHostController {
-  /** Installed dsh version carried by this host. */
-  readonly dshVersion: string
+  /** Installed qilin version carried by this host. */
+  readonly qilinVersion: string
   /** Dispatch one custom-protocol request and stream its response to the response pipe. */
   fetch(command: DesktopHostFetchCommand, body: ReadableStream<Uint8Array> | null): Promise<void>
   /** Abort one in-flight request. */
@@ -96,7 +96,7 @@ const ROOT_CONFIG = '# Electron desktop composition root; package transactions o
 const ROOT_CONFIG_FILENAME = 'desktop.cordis.yml'
 const DESKTOP_STREAM_PATH = '/.qilin/remote-stream'
 
-const DESKTOP_TRANSPORT_SCRIPT = `globalThis.__DSH_TRANSPORT__={
+const DESKTOP_TRANSPORT_SCRIPT = `globalThis.__QILIN_TRANSPORT__={
   ownsHost:true,
   async *openStream(endpoint,payload,signal){
     const response=await fetch(${JSON.stringify(DESKTOP_STREAM_PATH)},{
@@ -130,7 +130,7 @@ const MIME: Readonly<Record<string, string>> = {
 
 function readManifest(path: string): PackageManifest {
   const value: unknown = JSON.parse(readFileSync(path, 'utf8'))
-  if (!isRecord(value)) throw new Error(`dsh desktop: ${path} must contain a package manifest`)
+  if (!isRecord(value)) throw new Error(`qilin desktop: ${path} must contain a package manifest`)
   return {
     ...(typeof value.name === 'string' ? { name: value.name } : {}),
     ...(typeof value.version === 'string' ? { version: value.version } : {}),
@@ -139,7 +139,7 @@ function readManifest(path: string): PackageManifest {
 
 function packageManifestPath(projectDir: string, packageName: string): string {
   const path = join(projectDir, 'node_modules', ...packageName.split('/'), 'package.json')
-  if (!existsSync(path)) throw new Error(`dsh desktop: installed package ${JSON.stringify(packageName)} has no manifest`)
+  if (!existsSync(path)) throw new Error(`qilin desktop: installed package ${JSON.stringify(packageName)} has no manifest`)
   return path
 }
 
@@ -150,17 +150,17 @@ function isProjectPath(projectDir: string, target: string): boolean {
 }
 
 function desktopPatches(projectDir: string, allowLinkedPackages: boolean): PatchOptions[] {
-  const dshRoot = dirname(packageManifestPath(projectDir, '@qilin/cli'))
-  const profile = loadProfileDirectory('dsh desktop', projectDir, join(dshRoot, 'package.json'))
+  const qilinRoot = dirname(packageManifestPath(projectDir, '@qilin/cli'))
+  const profile = loadProfileDirectory('qilin desktop', projectDir, join(qilinRoot, 'package.json'))
   for (const layer of profile.layers) {
     if (!allowLinkedPackages && !isProjectPath(projectDir, layer.packageDir)) {
-      throw new Error(`dsh desktop: profile bundle ${JSON.stringify(layer.packageName)} resolved outside the desktop profile`)
+      throw new Error(`qilin desktop: profile bundle ${JSON.stringify(layer.packageName)} resolved outside the desktop profile`)
     }
   }
   const layers = [
     ...profile.layers.map(layer => layer.patches),
     profile.patches,
-    loadOverlayPatches('dsh desktop', DESKTOP_PATCH),
+    loadOverlayPatches('qilin desktop', DESKTOP_PATCH),
   ]
   const rows = new Map(composeEntries(layers).flatMap(row => typeof row.id === 'string' ? [[row.id, row] as const] : []))
   const agentPresets = rows.get('agent-presets')
@@ -169,16 +169,16 @@ function desktopPatches(projectDir: string, allowLinkedPackages: boolean): Patch
       id: 'agent-presets',
       config: {
         ...(agentPresets.config ?? {}) as Record<string, unknown>,
-        roots: [{ path: join(dshRoot, 'config', 'agent-presets'), trust: 'system' }],
+        roots: [{ path: join(qilinRoot, 'config', 'agent-presets'), trust: 'system' }],
       },
     }])
   }
   return layers.flat()
 }
 
-function dshVersion(projectDir: string): string {
+function qilinVersion(projectDir: string): string {
   const manifest = readManifest(packageManifestPath(projectDir, '@qilin/cli'))
-  if (typeof manifest.version !== 'string') throw new Error('dsh desktop: installed dsh manifest has no version')
+  if (typeof manifest.version !== 'string') throw new Error('qilin desktop: installed qilin manifest has no version')
   return manifest.version
 }
 
@@ -284,14 +284,14 @@ export async function runDesktopHost(
   mkdirSync(absoluteProject, { recursive: true })
   const rootConfig = join(absoluteProject, ROOT_CONFIG_FILENAME)
   writeFileSync(rootConfig, ROOT_CONFIG)
-  const environment = loadLayeredEnv('dsh desktop')
+  const environment = loadLayeredEnv('qilin desktop')
   let current: Context | undefined
-  const ctx = await boot('dsh desktop', rootConfig, structuredClone(desktopPatches(
+  const ctx = await boot('qilin desktop', rootConfig, structuredClone(desktopPatches(
     absoluteProject,
     options.allowLinkedPackages === true,
   )), (hostCtx) => {
     current = hostCtx
-    hostCtx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, environment)
+    hostCtx.provide(QILIN_LAUNCH_ENVIRONMENT_KEY, environment)
     provideCmdline(hostCtx, { args: [], exit: () => {} })
   })
   current = ctx
@@ -300,7 +300,7 @@ export async function runDesktopHost(
   const gateway = ctx.get('typertGateway')
   if (connection === undefined || clientModules === undefined || gateway === undefined) {
     await ctx.fiber.dispose()
-    throw new Error('dsh desktop: composition did not provide connection, typertGateway, and clientModules')
+    throw new Error('qilin desktop: composition did not provide connection, typertGateway, and clientModules')
   }
   const api = connection.createSharedFetchHandler('/api')
   const assets = assetHandler(ctx, absoluteProject)
@@ -319,12 +319,12 @@ export async function runDesktopHost(
   }
 
   return {
-    dshVersion: dshVersion(absoluteProject),
+    qilinVersion: qilinVersion(absoluteProject),
     cancel(streamId) {
       requests.get(streamId)?.abort()
     },
     async fetch(command, body) {
-      if (disposing !== undefined) throw new Error('dsh desktop: host is disposing')
+      if (disposing !== undefined) throw new Error('qilin desktop: host is disposing')
       const controller = new AbortController()
       requests.set(command.streamId, controller)
       try {
@@ -376,18 +376,18 @@ export async function runDesktopHost(
 async function main(): Promise<void> {
   const projectDir = process.argv[2]
   if (projectDir === undefined || process.send === undefined) {
-    throw new Error('dsh desktop: expected project directory, byte pipes, and a Node IPC channel')
+    throw new Error('qilin desktop: expected project directory, byte pipes, and a Node IPC channel')
   }
   const option = process.argv[3]
   if (option !== undefined && option !== '--allow-linked-profile') {
-    throw new Error(`dsh desktop: unsupported internal option ${JSON.stringify(option)}`)
+    throw new Error(`qilin desktop: unsupported internal option ${JSON.stringify(option)}`)
   }
   const requestPipe = createReadStream('', { fd: DESKTOP_REQUEST_PIPE_FD, autoClose: false })
   const responsePipe = createWriteStream('', { fd: DESKTOP_RESPONSE_PIPE_FD, autoClose: false })
   let responseWriteTail: Promise<void> = Promise.resolve()
   const writeResponse = (frame: Buffer): Promise<void> => {
     const write = responseWriteTail.then(async () => {
-      if (responsePipe.destroyed) throw new Error('dsh desktop: Electron response pipe is unavailable')
+      if (responsePipe.destroyed) throw new Error('qilin desktop: Electron response pipe is unavailable')
       if (!responsePipe.write(frame)) await once(responsePipe, 'drain')
     })
     responseWriteTail = write.catch(() => undefined)
@@ -407,7 +407,7 @@ async function main(): Promise<void> {
   send({
     type: 'ready',
     protocolVersion: DESKTOP_HOST_PROTOCOL_VERSION,
-    dshVersion: controller.dshVersion,
+    qilinVersion: controller.qilinVersion,
   })
   const decoder = new DesktopHostRequestDecoder()
   const requestBodies = new Map<number, ReadableStreamDefaultController<Uint8Array>>()
@@ -427,7 +427,7 @@ async function main(): Promise<void> {
     stopping ??= (async () => {
       requestPipe.pause()
       requestPipe.removeAllListeners('data')
-      const stopped = new Error('dsh desktop: Host is stopping')
+      const stopped = new Error('qilin desktop: Host is stopping')
       for (const body of requestBodies.values()) body.error(stopped)
       requestBodies.clear()
       blockedRequests.clear()
@@ -456,7 +456,7 @@ async function main(): Promise<void> {
 
   const beginRequest = (frame: Extract<DesktopHostRequestFrame, { type: 'start' }>): void => {
     if (frame.streamId <= lastStreamId) {
-      throw new Error(`dsh desktop: Electron reused or reordered request stream ${String(frame.streamId)}`)
+      throw new Error(`qilin desktop: Electron reused or reordered request stream ${String(frame.streamId)}`)
     }
     lastStreamId = frame.streamId
     let body: ReadableStream<Uint8Array> | null = null
@@ -490,7 +490,7 @@ async function main(): Promise<void> {
       runs.delete(run)
       const openBody = requestBodies.get(frame.streamId)
       if (openBody === undefined) return
-      openBody.error(new Error('dsh desktop: response completed before the request body ended'))
+      openBody.error(new Error('qilin desktop: response completed before the request body ended'))
       requestBodies.delete(frame.streamId)
       blockedRequests.delete(frame.streamId)
       discardedRequestBodies.add(frame.streamId)
@@ -507,7 +507,7 @@ async function main(): Promise<void> {
         const body = requestBodies.get(frame.streamId)
         if (body === undefined) {
           if (discardedRequestBodies.has(frame.streamId)) return
-          throw new Error(`dsh desktop: Electron sent body data for inactive stream ${String(frame.streamId)}`)
+          throw new Error(`qilin desktop: Electron sent body data for inactive stream ${String(frame.streamId)}`)
         }
         body.enqueue(frame.data)
         if ((body.desiredSize ?? 0) <= 0) {
@@ -520,7 +520,7 @@ async function main(): Promise<void> {
         const body = requestBodies.get(frame.streamId)
         if (body === undefined) {
           if (discardedRequestBodies.delete(frame.streamId)) return
-          throw new Error(`dsh desktop: Electron ended inactive body stream ${String(frame.streamId)}`)
+          throw new Error(`qilin desktop: Electron ended inactive body stream ${String(frame.streamId)}`)
         }
         body.close()
         requestBodies.delete(frame.streamId)
@@ -530,10 +530,10 @@ async function main(): Promise<void> {
       }
       case 'cancel': {
         if (frame.streamId > lastStreamId) {
-          throw new Error(`dsh desktop: Electron canceled unknown stream ${String(frame.streamId)}`)
+          throw new Error(`qilin desktop: Electron canceled unknown stream ${String(frame.streamId)}`)
         }
         const body = requestBodies.get(frame.streamId)
-        body?.error(new Error('dsh desktop: Electron canceled the request'))
+        body?.error(new Error('qilin desktop: Electron canceled the request'))
         requestBodies.delete(frame.streamId)
         blockedRequests.delete(frame.streamId)
         discardedRequestBodies.delete(frame.streamId)
@@ -557,7 +557,7 @@ async function main(): Promise<void> {
     if (stopping !== undefined) return
     try {
       decoder.finish()
-      failTransport(new Error('dsh desktop: Electron request pipe ended'))
+      failTransport(new Error('qilin desktop: Electron request pipe ended'))
     } catch (error) {
       failTransport(error)
     }
@@ -566,7 +566,7 @@ async function main(): Promise<void> {
   responsePipe.once('error', failTransport)
   process.on('message', (message: unknown) => {
     if (!isDesktopHostCommand(message)) {
-      send({ type: 'fatal', message: 'dsh desktop: invalid Electron IPC command' })
+      send({ type: 'fatal', message: 'qilin desktop: invalid Electron IPC command' })
       void stop(1)
       return
     }
@@ -581,7 +581,7 @@ if (import.meta.main) {
   main().catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error)
     if (process.send !== undefined) process.send({ type: 'fatal', message } satisfies DesktopHostEvent)
-    else process.stderr.write(`dsh desktop: ${message}\n`)
+    else process.stderr.write(`qilin desktop: ${message}\n`)
     process.exitCode = 1
   })
 }

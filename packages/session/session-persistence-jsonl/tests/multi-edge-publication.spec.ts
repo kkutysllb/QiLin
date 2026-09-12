@@ -97,7 +97,7 @@ async function mount(root: string, compression: JsonlCompression) {
 }
 
 async function seed(version: 0 | 1, compression: JsonlCompression, refuse = false) {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-multi-edge-publication-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-multi-edge-publication-'))
   roots.push(root)
   const path = generationLogPath(root, undefined, id, version, compression)
   await mkdir(dirname(path), { recursive: true })

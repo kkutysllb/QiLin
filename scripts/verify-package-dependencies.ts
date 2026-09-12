@@ -167,7 +167,7 @@ export function discoverPackageDependencyScope(
     if (pkg !== undefined && pkg.manifestPath.startsWith('packages/client/')) {
       violations.push(`clientFaceExclude cannot exempt packages/client package ${name}`)
     } else if (pkg !== undefined && !hasClientDeclaration(pkg.manifest.qilin)) {
-      violations.push(`clientFaceExclude names ${name}, which declares no dsh.client entry`)
+      violations.push(`clientFaceExclude names ${name}, which declares no qilin.client entry`)
     }
   }
 
@@ -583,7 +583,7 @@ export function expectedPackageDependencies(
     }
   }
   for (const name of facts.clientInject) {
-    if (facts.workspaceNames.has(name)) add(name, 'devDependencies', 'dsh.client.inject')
+    if (facts.workspaceNames.has(name)) add(name, 'devDependencies', 'qilin.client.inject')
   }
   for (const name of facts.configurationOnlyDevDependencies) {
     if (facts.workspaceNames.has(name)) add(name, 'devDependencies', 'configured development-only relationship')

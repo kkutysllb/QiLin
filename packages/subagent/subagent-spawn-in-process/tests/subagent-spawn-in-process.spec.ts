@@ -73,7 +73,7 @@ function systemPromptOf(request: GenerateOptions): string {
   return head.content.flatMap(block => block.type === 'text' ? [block.text] : []).join('')
 }
 
-describe('dsh-subagent-spawn-in-process', () => {
+describe('qilin-subagent-spawn-in-process', () => {
   it('runs a fresh child to completion and returns its final assistant output', async () => {
     // One model call for the child: a plain text answer.
     const { ctx, parent } = await setup([textResponse('child answer')])

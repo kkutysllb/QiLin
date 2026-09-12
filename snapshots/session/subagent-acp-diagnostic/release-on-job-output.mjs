@@ -4,7 +4,7 @@ import { rmSync, writeFileSync } from 'node:fs'
 export const name = 'acp-diagnostic-release-on-job-output'
 export const inject = ['tools', 'jobs']
 
-const HOLD = '.dsh/acp-diagnostic-prompt-hold'
+const HOLD = '.qilin/acp-diagnostic-prompt-hold'
 
 /** Install the scenario-local response barrier without changing tool output. */
 export function apply(ctx) {

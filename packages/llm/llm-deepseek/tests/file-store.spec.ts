@@ -53,7 +53,7 @@ function uploadFetch(now: () => number = () => NOW) {
         object: 'file',
         bytes: 3,
         created_at: createdAt,
-        filename: `dsh-${'a'.repeat(16)}-${'b'.repeat(8)}.png`,
+        filename: `qilin-${'a'.repeat(16)}-${'b'.repeat(8)}.png`,
         purpose: 'user_data',
         expires_at: createdAt + POLICY.expiresAfterSeconds,
       }), { status: 200 })
@@ -69,7 +69,7 @@ function uploadFetch(now: () => number = () => NOW) {
 
 describe('DeepSeekFileStore', () => {
   it('singleflights the first upload and reuses the durable mapping across store instances', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const remote = uploadFetch()
@@ -90,7 +90,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('keeps a shared upload alive while another waiter remains', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     let complete: ((response: Response) => void) | undefined
@@ -122,7 +122,7 @@ describe('DeepSeekFileStore', () => {
       object: 'file',
       bytes: 3,
       created_at: NOW / 1_000,
-      filename: `dsh-${'a'.repeat(16)}-${'b'.repeat(8)}.png`,
+      filename: `qilin-${'a'.repeat(16)}-${'b'.repeat(8)}.png`,
       purpose: 'user_data',
       expires_at: NOW / 1_000 + POLICY.expiresAfterSeconds,
     }), { status: 200 }))
@@ -130,7 +130,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('aborts the shared upload after its only waiter cancels', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     let uploadSignal: AbortSignal | undefined
@@ -157,7 +157,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('normalizes a non-Error cancellation reason', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const fetchImpl = vi.fn((_url: string | URL | Request, init?: RequestInit) => (
       new Promise<Response>((_resolve, reject) => {
@@ -185,7 +185,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('starts a fresh upload while the cancelled transport is settling', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     let requests = 0
     const fetchImpl = vi.fn((_url: string | URL | Request, init?: RequestInit) => {
@@ -201,7 +201,7 @@ describe('DeepSeekFileStore', () => {
       }
       return Promise.resolve(new Response(JSON.stringify({
         id: 'file-api-retry', object: 'file', bytes: 3, created_at: NOW / 1_000,
-        filename: 'dsh-retry.png', purpose: 'user_data',
+        filename: 'qilin-retry.png', purpose: 'user_data',
         expires_at: NOW / 1_000 + POLICY.expiresAfterSeconds,
       }), { status: 200 }))
     }) as typeof fetch
@@ -232,7 +232,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('does not persist an upload whose response is missing and retries on the next request', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const good = uploadFetch()
@@ -253,11 +253,11 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('rejects an upload response whose byte count differs from the request version', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const fetchImpl = vi.fn(() => Promise.resolve(new Response(JSON.stringify({
       id: 'file-api-wrong-size', object: 'file', bytes: 2, created_at: NOW / 1_000,
-      filename: 'dsh-wrong.png', purpose: 'user_data',
+      filename: 'qilin-wrong.png', purpose: 'user_data',
       expires_at: NOW / 1_000 + POLICY.expiresAfterSeconds,
     }), { status: 200 }))) as typeof fetch
     const store = new DeepSeekFileStore({
@@ -274,7 +274,7 @@ describe('DeepSeekFileStore', () => {
     ['image/webp', 'webp'],
     ['image/gif', 'gif'],
   ] as const)('uses the %s filename extension for uploads', async (mediaType, extension) => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const remote = uploadFetch()
     const store = new DeepSeekFileStore({
@@ -292,7 +292,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('normalizes a non-Error failure from the durable upload index', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     vi.spyOn(index, 'get').mockRejectedValue('index unavailable')
@@ -305,7 +305,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('reuses local expires_at above the refresh margin and uploads again at the margin', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     let now = NOW
@@ -326,7 +326,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('releases an indexed file through DELETE and removes only that mapping', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const remote = uploadFetch()
@@ -339,7 +339,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('removes a losing upload and keeps the winning durable mapping when duplicate cleanup fails', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     vi.spyOn(index, 'commit').mockResolvedValue({
@@ -369,7 +369,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('reclaims one owned file after quota rejection and retries the upload once', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     let uploads = 0
     const fetchImpl = vi.fn((input: string | URL | Request, init?: RequestInit) => {
@@ -380,7 +380,7 @@ describe('DeepSeekFileStore', () => {
         }), { status: 400 }))
         return Promise.resolve(new Response(JSON.stringify({
           id: 'file-api-recovered', object: 'file', bytes: 3, created_at: NOW / 1_000,
-          filename: 'dsh-recovered.png', purpose: 'user_data',
+          filename: 'qilin-recovered.png', purpose: 'user_data',
           expires_at: NOW / 1_000 + POLICY.expiresAfterSeconds,
         }), { status: 200 }))
       }
@@ -394,7 +394,7 @@ describe('DeepSeekFileStore', () => {
         object: 'list',
         data: [{
           id: 'file-api-old', object: 'file', bytes: 3, created_at: NOW / 1_000,
-          filename: 'dsh-old.png', purpose: 'user_data',
+          filename: 'qilin-old.png', purpose: 'user_data',
         }],
         first_id: 'file-api-old', last_id: 'file-api-old', has_more: false,
       }), { status: 200 }))
@@ -412,7 +412,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('preserves a quota error when no harness-owned file can be reclaimed', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const fetchImpl = vi.fn((_input: string | URL | Request, init?: RequestInit) => {
       if (init?.method === 'POST') return Promise.resolve(new Response(JSON.stringify({
@@ -437,7 +437,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('finishes pagination before deleting cursor files during quota recovery', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const deleted = new Set<string>()
     const fetchImpl = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
@@ -457,7 +457,7 @@ describe('DeepSeekFileStore', () => {
           object: 'file',
           bytes: 3,
           created_at: NOW / 1_000,
-          filename: `dsh-${id}.png`,
+          filename: `qilin-${id}.png`,
           purpose: 'user_data',
         }],
         first_id: id,
@@ -476,7 +476,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('stops pagination when a page omits or repeats its cursor', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     for (const mode of ['missing', 'repeated'] as const) {
       let page = 0
@@ -503,7 +503,7 @@ describe('DeepSeekFileStore', () => {
   })
 
   it('releases every batch and clears the scoped upload index', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-file-store-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: vi.fn() as typeof fetch })

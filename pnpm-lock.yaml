@@ -10,7 +10,7 @@ overrides:
 
 patchedDependencies:
   '@yao-pkg/pkg@6.21.0': 28edd2180c36691c481522ef81f6f6614505f45e491aad542ac4663d4e6b3ff8
-  node-pty@1.2.0-beta.15: b40ae545608897914bd25fb009c97eeac478c34e8a910298ddcb01b746534bb0
+  node-pty@1.2.0-beta.15: 94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd
 
 importers:
 
@@ -148,6 +148,9 @@ importers:
       '@deepseek-ai/cordis-plugin-timer':
         specifier: workspace:^
         version: link:../../vendor/timer
+      '@deepseek-ai/schemastery':
+        specifier: link:../../vendor/schemastery
+        version: link:../../vendor/schemastery
       '@qilin/acp-app':
         specifier: workspace:^
         version: link:../../packages/bundle/acp-app
@@ -340,9 +343,6 @@ importers:
       '@qilin/workflow-worker-thread':
         specifier: workspace:^
         version: link:../../packages/workflow/workflow-worker-thread
-      '@deepseek-ai/schemastery':
-        specifier: link:../../vendor/schemastery
-        version: link:../../vendor/schemastery
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -501,12 +501,12 @@ importers:
       '@aws-sdk/client-s3':
         specifier: 3.1067.0
         version: 3.1067.0
-      '@qilin/home-paths':
-        specifier: workspace:^
-        version: link:../../packages/util/home-paths
       '@electron/notarize':
         specifier: 2.5.0
         version: 2.5.0
+      '@qilin/home-paths':
+        specifier: workspace:^
+        version: link:../../packages/util/home-paths
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -552,15 +552,15 @@ importers:
       '@deepseek-ai/cordis-plugin-include':
         specifier: workspace:^
         version: link:../../vendor/include
-      '@qilin/cli':
-        specifier: workspace:^
-        version: link:../cli
       '@qilin/api-gateway':
         specifier: workspace:^
         version: link:../../packages/api/gateway
       '@qilin/app-boot':
         specifier: workspace:^
         version: link:../../packages/boot/app-boot
+      '@qilin/cli':
+        specifier: workspace:^
+        version: link:../cli
       '@qilin/client-connection':
         specifier: workspace:^
         version: link:../../packages/client/connection
@@ -788,12 +788,12 @@ importers:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
         version: 1.4.0(zod@4.4.3)
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -840,6 +840,9 @@ importers:
 
   packages/api/gateway:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/deque':
         specifier: workspace:^
         version: link:../../util/deque
@@ -849,9 +852,6 @@ importers:
       '@qilin/typert-protocol':
         specifier: workspace:^
         version: link:../../typert/protocol
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       ws:
         specifier: ^8.21.0
         version: 8.21.0
@@ -977,15 +977,15 @@ importers:
 
   packages/api/session-controller:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/deque':
         specifier: workspace:^
         version: link:../../util/deque
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       mime-types:
         specifier: ^3.0.2
         version: 3.0.2
@@ -1181,15 +1181,15 @@ importers:
 
   packages/api/workspace-files:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/deque':
         specifier: workspace:^
         version: link:../../util/deque
       '@qilin/typert-protocol':
         specifier: workspace:^
         version: link:../../typert/protocol
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -1594,6 +1594,9 @@ importers:
 
   packages/bundle/headless:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -1606,9 +1609,6 @@ importers:
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -1662,15 +1662,15 @@ importers:
 
   packages/bundle/sdk-app:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/cmdline':
         specifier: workspace:^
         version: link:../../boot/cmdline
       '@qilin/sdk-jsonrpc-server':
         specifier: workspace:^
         version: link:../../sdk/server
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -1772,6 +1772,9 @@ importers:
 
   packages/bundle/web-app:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/agent-presets':
         specifier: workspace:^
         version: link:../../preset/agent-presets
@@ -2003,9 +2006,6 @@ importers:
       '@qilin/workspace':
         specifier: workspace:^
         version: link:../../workspace/workspace
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -2028,12 +2028,12 @@ importers:
 
   packages/client/connection:
     dependencies:
-      '@qilin/credentials':
-        specifier: workspace:^
-        version: link:../../credentials/credentials
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/credentials':
+        specifier: workspace:^
+        version: link:../../credentials/credentials
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -2616,6 +2616,21 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@lexical/headless':
+        specifier: ^0.49.0
+        version: 0.49.0(typescript@6.0.3)
+      '@lexical/history':
+        specifier: ^0.49.0
+        version: 0.49.0(typescript@6.0.3)
+      '@lexical/plain-text':
+        specifier: ^0.49.0
+        version: 0.49.0(typescript@6.0.3)
+      '@lexical/text':
+        specifier: ^0.49.0
+        version: 0.49.0(typescript@6.0.3)
+      '@lexical/utils':
+        specifier: ^0.49.0
+        version: 0.49.0(typescript@6.0.3)
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -2703,21 +2718,6 @@ importers:
       '@qilin/workspace':
         specifier: workspace:^
         version: link:../../workspace/workspace
-      '@lexical/headless':
-        specifier: ^0.49.0
-        version: 0.49.0(typescript@6.0.3)
-      '@lexical/history':
-        specifier: ^0.49.0
-        version: 0.49.0(typescript@6.0.3)
-      '@lexical/plain-text':
-        specifier: ^0.49.0
-        version: 0.49.0(typescript@6.0.3)
-      '@lexical/text':
-        specifier: ^0.49.0
-        version: 0.49.0(typescript@6.0.3)
-      '@lexical/utils':
-        specifier: ^0.49.0
-        version: 0.49.0(typescript@6.0.3)
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -3598,6 +3598,9 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3616,9 +3619,6 @@ importers:
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -4626,12 +4626,12 @@ importers:
 
   packages/code-runtime/code-runtime-worker-thread:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -4696,12 +4696,12 @@ importers:
 
   packages/compaction/compaction-basic:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -4754,12 +4754,12 @@ importers:
 
   packages/compaction/compaction-tool-result-pruner:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -4791,12 +4791,12 @@ importers:
 
   packages/context/agent-instructions:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -4877,15 +4877,15 @@ importers:
 
   packages/context/session-reference:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -4953,12 +4953,12 @@ importers:
 
   packages/context/time-context:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -5100,15 +5100,15 @@ importers:
 
   packages/core/agent-loop:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -5239,15 +5239,15 @@ importers:
 
   packages/core/tools:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -5430,12 +5430,12 @@ importers:
 
   packages/experimental/agent-team:
     dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -5597,6 +5597,9 @@ importers:
 
   packages/experimental/inspector:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -5606,9 +5609,6 @@ importers:
       '@qilin/util-crypto':
         specifier: workspace:^
         version: link:../../util/crypto
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       ws:
         specifier: ^8.21.0
         version: 8.21.0
@@ -5723,12 +5723,12 @@ importers:
 
   packages/experimental/webworker-runtime:
     dependencies:
-      '@qilin/util-crypto':
-        specifier: workspace:^
-        version: link:../../util/crypto
       '@noble/hashes':
         specifier: ^2.3.0
         version: 2.3.0
+      '@qilin/util-crypto':
+        specifier: workspace:^
+        version: link:../../util/crypto
       '@yarnpkg/parsers':
         specifier: ^3.1.0
         version: 3.1.0
@@ -5751,6 +5751,9 @@ importers:
       '@deepseek-ai/cordis-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
+      '@deepseek-ai/node-addon-system':
+        specifier: workspace:^
+        version: link:../../../native/system/packages/entry
       '@qilin/api-gateway':
         specifier: workspace:^
         version: link:../../api/gateway
@@ -5790,9 +5793,6 @@ importers:
       '@qilin/subprocess-local':
         specifier: workspace:^
         version: link:../../subprocess/subprocess-local
-      '@deepseek-ai/node-addon-system':
-        specifier: workspace:^
-        version: link:../../../native/system/packages/entry
       '@types/picomatch':
         specifier: ^3.0.2
         version: 3.0.2
@@ -5835,12 +5835,12 @@ importers:
 
   packages/extensions/cordis-host-runner:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -6668,12 +6668,12 @@ importers:
 
   packages/host/directory-picker-browse:
     dependencies:
-      '@qilin/host-directory-picker':
-        specifier: workspace:^
-        version: link:../directory-picker
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/host-directory-picker':
+        specifier: workspace:^
+        version: link:../directory-picker
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -6722,6 +6722,9 @@ importers:
 
   packages/host/open-in-app:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -6731,9 +6734,6 @@ importers:
       '@qilin/subprocess':
         specifier: workspace:^
         version: link:../../subprocess/subprocess
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7042,6 +7042,9 @@ importers:
 
   packages/llm/llm:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -7057,9 +7060,6 @@ importers:
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -7076,15 +7076,15 @@ importers:
 
   packages/llm/llm-deepseek:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       eventsource-parser:
         specifier: ^3.1.0
         version: 3.1.0
@@ -7146,18 +7146,18 @@ importers:
 
   packages/llm/llm-pi-ai:
     dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
       '@earendil-works/pi-ai':
         specifier: ^0.85.1
         version: 0.85.1(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7256,12 +7256,12 @@ importers:
 
   packages/llm/plugin-package-inventory-deepseek:
     dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7293,12 +7293,12 @@ importers:
 
   packages/llm/token-meter:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -7336,12 +7336,12 @@ importers:
 
   packages/lsp/lsp-stdio:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7379,12 +7379,12 @@ importers:
 
   packages/lsp/tool-lsp:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7438,6 +7438,12 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@modelcontextprotocol/server-everything':
+        specifier: ^2026.7.4
+        version: 2026.7.4
+      '@modelcontextprotocol/server-filesystem':
+        specifier: ^2026.7.4
+        version: 2026.7.10(zod@4.4.3)
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../../attachment/attachment
@@ -7462,12 +7468,6 @@ importers:
       '@qilin/tools':
         specifier: workspace:^
         version: link:../../core/tools
-      '@modelcontextprotocol/server-everything':
-        specifier: ^2026.7.4
-        version: 2026.7.4
-      '@modelcontextprotocol/server-filesystem':
-        specifier: ^2026.7.4
-        version: 2026.7.10(zod@4.4.3)
 
   packages/plan/plan-mode:
     dependencies:
@@ -7623,18 +7623,18 @@ importers:
 
   packages/sandbox/sandbox-local:
     dependencies:
-      '@qilin/sandbox-windows-acl':
-        specifier: workspace:^
-        version: link:../sandbox-windows-acl
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/node-addon-system':
         specifier: workspace:^
         version: link:../../../native/system/packages/entry
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/sandbox-windows-acl':
+        specifier: workspace:^
+        version: link:../sandbox-windows-acl
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7784,12 +7784,12 @@ importers:
 
   packages/sdk/server:
     dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -7836,15 +7836,15 @@ importers:
 
   packages/session-query/session-log-export:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/session-format':
         specifier: workspace:^
         version: link:../../session/session-format
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       fflate:
         specifier: ^0.8.2
         version: 0.8.3
@@ -7967,12 +7967,12 @@ importers:
 
   packages/session-query/tool-session-query:
     dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -8147,15 +8147,15 @@ importers:
 
   packages/session/session-log-deepseek:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -8218,6 +8218,12 @@ importers:
 
   packages/session/session-persistence-jsonl:
     dependencies:
+      '@deepseek-ai/node-addon-system':
+        specifier: workspace:^
+        version: link:../../../native/system/packages/entry
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8230,12 +8236,6 @@ importers:
       '@qilin/session-format-v2-to-v3':
         specifier: workspace:^
         version: link:../session-format-v2-to-v3
-      '@deepseek-ai/node-addon-system':
-        specifier: workspace:^
-        version: link:../../../native/system/packages/entry
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       koffi:
         specifier: ^3.1.0
         version: 3.1.1
@@ -8268,12 +8268,12 @@ importers:
 
   packages/session/session-projection-cache:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -8409,12 +8409,12 @@ importers:
 
   packages/session/session-title:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -8514,12 +8514,12 @@ importers:
 
   packages/session/session-title-llm:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -8564,12 +8564,12 @@ importers:
 
   packages/settings/settings:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -8586,12 +8586,12 @@ importers:
 
   packages/settings/settings-file:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -8642,6 +8642,9 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@deepseek-ai/node-addon-system':
+        specifier: workspace:^
+        version: link:../../../native/system/packages/entry
       '@qilin/bash-local':
         specifier: workspace:^
         version: link:../bash-local
@@ -8663,9 +8666,6 @@ importers:
       '@qilin/subprocess-local':
         specifier: workspace:^
         version: link:../../subprocess/subprocess-local
-      '@deepseek-ai/node-addon-system':
-        specifier: workspace:^
-        version: link:../../../native/system/packages/entry
 
   packages/shell/pwsh-local:
     dependencies:
@@ -9005,12 +9005,12 @@ importers:
 
   packages/skill/skill:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -9308,12 +9308,12 @@ importers:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
         version: 1.4.0(zod@4.4.3)
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -9369,15 +9369,15 @@ importers:
       '@anthropic-ai/sdk':
         specifier: 0.93.0
         version: 0.93.0(zod@4.4.3)
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.4.3)
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -9436,18 +9436,18 @@ importers:
 
   packages/subagent/subagent-codex:
     dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
-      '@qilin/sdk-protocol':
-        specifier: workspace:^
-        version: link:../../sdk/protocol
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
       '@openai/codex':
         specifier: 0.153.4
         version: 0.153.4
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
+      '@qilin/sdk-protocol':
+        specifier: workspace:^
+        version: link:../../sdk/protocol
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -9500,73 +9500,6 @@ importers:
       '@qilin/tools':
         specifier: workspace:^
         version: link:../../core/tools
-
-  packages/subagent/subagent-dsh-sdk:
-    dependencies:
-      '@qilin/brand':
-        specifier: workspace:^
-        version: link:../../util/brand
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
-      '@qilin/agent':
-        specifier: workspace:^
-        version: link:../../core/agent
-      '@qilin/agent-instructions':
-        specifier: workspace:^
-        version: link:../../context/agent-instructions
-      '@qilin/app-boot':
-        specifier: workspace:^
-        version: link:../../boot/app-boot
-      '@qilin/llm':
-        specifier: workspace:^
-        version: link:../../llm/llm
-      '@qilin/llm-deepseek':
-        specifier: workspace:^
-        version: link:../../llm/llm-deepseek
-      '@qilin/loader-smoke':
-        specifier: workspace:^
-        version: link:../../test-support/loader-smoke
-      '@qilin/sdk-client':
-        specifier: workspace:^
-        version: link:../../sdk/client
-      '@qilin/sdk-protocol':
-        specifier: workspace:^
-        version: link:../../sdk/protocol
-      '@qilin/session':
-        specifier: workspace:^
-        version: link:../../core/session
-      '@qilin/session-checkpoint-policy':
-        specifier: workspace:^
-        version: link:../../session/session-checkpoint-policy
-      '@qilin/session-persistence-jsonl':
-        specifier: workspace:^
-        version: link:../../session/session-persistence-jsonl
-      '@qilin/session-projection':
-        specifier: workspace:^
-        version: link:../../session/session-projection
-      '@qilin/skill-filesystem':
-        specifier: workspace:^
-        version: link:../../skill/skill-filesystem
-      '@qilin/subagent':
-        specifier: workspace:^
-        version: link:../subagent
-      '@qilin/subprocess':
-        specifier: workspace:^
-        version: link:../../subprocess/subprocess
-      '@qilin/system-prompt':
-        specifier: workspace:^
-        version: link:../../core/system-prompt
-      '@qilin/tool-subagent':
-        specifier: workspace:^
-        version: link:../tool-subagent
 
   packages/subagent/subagent-fork-in-process:
     dependencies:
@@ -9671,6 +9604,73 @@ importers:
       '@qilin/user-approval':
         specifier: workspace:^
         version: link:../../interaction/user-approval
+
+  packages/subagent/subagent-qilin-sdk:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin/brand':
+        specifier: workspace:^
+        version: link:../../util/brand
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/cordis-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
+      '@qilin/agent':
+        specifier: workspace:^
+        version: link:../../core/agent
+      '@qilin/agent-instructions':
+        specifier: workspace:^
+        version: link:../../context/agent-instructions
+      '@qilin/app-boot':
+        specifier: workspace:^
+        version: link:../../boot/app-boot
+      '@qilin/llm':
+        specifier: workspace:^
+        version: link:../../llm/llm
+      '@qilin/llm-deepseek':
+        specifier: workspace:^
+        version: link:../../llm/llm-deepseek
+      '@qilin/loader-smoke':
+        specifier: workspace:^
+        version: link:../../test-support/loader-smoke
+      '@qilin/sdk-client':
+        specifier: workspace:^
+        version: link:../../sdk/client
+      '@qilin/sdk-protocol':
+        specifier: workspace:^
+        version: link:../../sdk/protocol
+      '@qilin/session':
+        specifier: workspace:^
+        version: link:../../core/session
+      '@qilin/session-checkpoint-policy':
+        specifier: workspace:^
+        version: link:../../session/session-checkpoint-policy
+      '@qilin/session-persistence-jsonl':
+        specifier: workspace:^
+        version: link:../../session/session-persistence-jsonl
+      '@qilin/session-projection':
+        specifier: workspace:^
+        version: link:../../session/session-projection
+      '@qilin/skill-filesystem':
+        specifier: workspace:^
+        version: link:../../skill/skill-filesystem
+      '@qilin/subagent':
+        specifier: workspace:^
+        version: link:../subagent
+      '@qilin/subprocess':
+        specifier: workspace:^
+        version: link:../../subprocess/subprocess
+      '@qilin/system-prompt':
+        specifier: workspace:^
+        version: link:../../core/system-prompt
+      '@qilin/tool-subagent':
+        specifier: workspace:^
+        version: link:../tool-subagent
 
   packages/subagent/subagent-spawn-in-process:
     dependencies:
@@ -9865,7 +9865,7 @@ importers:
         version: 3.1.1
       node-pty:
         specifier: 1.2.0-beta.15
-        version: 1.2.0-beta.15(patch_hash=b40ae545608897914bd25fb009c97eeac478c34e8a910298ddcb01b746534bb0)
+        version: 1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd)
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -9910,15 +9910,15 @@ importers:
 
   packages/terminal/terminal-bash:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/pwsh-local':
         specifier: workspace:^
         version: link:../../shell/pwsh-local
       '@qilin/session-projection':
         specifier: workspace:^
         version: link:../../session/session-projection
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       '@xterm/headless':
         specifier: ^6.0.0
         version: 6.0.0
@@ -10450,15 +10450,15 @@ importers:
 
   packages/web/tool-web:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
       '@joplin/turndown-plugin-gfm':
         specifier: ^1.0.67
         version: 1.0.67
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
       turndown:
         specifier: ^7.2.4
         version: 7.2.4
@@ -10664,15 +10664,15 @@ importers:
 
   packages/webhook/webhook-github:
     dependencies:
-      '@qilin/util-values':
-        specifier: workspace:^
-        version: link:../../util/values
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
       '@octokit/webhooks':
         specifier: ^14.2.0
         version: 14.2.0
+      '@qilin/util-values':
+        specifier: workspace:^
+        version: link:../../util/values
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -10811,15 +10811,15 @@ importers:
 
   packages/workflow/workflow-worker-thread:
     dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -10918,9 +10918,9 @@ importers:
       '@deepseek-ai/cosmokit':
         specifier: link:../../vendor/cosmokit
         version: link:../../vendor/cosmokit
-      '@qilin/cli':
-        specifier: workspace:^
-        version: link:../../apps/cli
+      '@deepseek-ai/schemastery':
+        specifier: link:../../vendor/schemastery
+        version: link:../../vendor/schemastery
       '@qilin/acp':
         specifier: workspace:^
         version: link:../../packages/acp/acp
@@ -10957,6 +10957,9 @@ importers:
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../packages/util/brand
+      '@qilin/cli':
+        specifier: workspace:^
+        version: link:../../apps/cli
       '@qilin/code-runtime':
         specifier: workspace:^
         version: link:../../packages/code-runtime/code-runtime
@@ -11275,9 +11278,6 @@ importers:
       '@qilin/workflow-worker-thread':
         specifier: workspace:^
         version: link:../../packages/workflow/workflow-worker-thread
-      '@deepseek-ai/schemastery':
-        specifier: link:../../vendor/schemastery
-        version: link:../../vendor/schemastery
 
   vendor/cordis:
     dependencies:
@@ -23832,7 +23832,7 @@ snapshots:
 
   node-int64@0.4.0: {}
 
-  node-pty@1.2.0-beta.15(patch_hash=b40ae545608897914bd25fb009c97eeac478c34e8a910298ddcb01b746534bb0):
+  node-pty@1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd):
     dependencies:
       node-addon-api: 7.1.1
 

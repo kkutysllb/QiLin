@@ -1104,7 +1104,7 @@ describe('sessionFormatV1ToV2', () => {
               text: 'Generate the session title from this JSON array of human messages:\n'
                 + JSON.stringify([{ seq: 1, text: 'question' }]),
             }],
-            source: { kind: 'plugin', plugin: 'dsh-session-title-llm' },
+            source: { kind: 'plugin', plugin: 'qilin-session-title-llm' },
           }],
           maxTokens: 20,
         }),
@@ -1166,7 +1166,7 @@ describe('sessionFormatV1ToV2', () => {
           system: 'title',
           messages: [{
             id: 'title-request', role: 'user', content: [{ type: 'text', text: framed }],
-            source: { kind: 'plugin', plugin: 'dsh-session-title-llm' },
+            source: { kind: 'plugin', plugin: 'qilin-session-title-llm' },
           }],
           maxTokens: 20,
         }),

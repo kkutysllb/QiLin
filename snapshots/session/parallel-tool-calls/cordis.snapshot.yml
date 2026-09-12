@@ -1,5 +1,5 @@
 # Keyless filesystem snapshots combine spill settings with replay. The
-# sandboxed filesystem stack already lives in `dsh-base`; the ACP row re-pins
+# sandboxed filesystem stack already lives in `qilin-base`; the ACP row re-pins
 # `deepseek-v4-flash` for the recorded corpus.
 - id: llm-deepseek
   name: '@qilin/llm-deepseek'
@@ -14,7 +14,7 @@
 - id: session-persistence-jsonl
   name: '@qilin/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
@@ -44,7 +44,7 @@
 - id: spill-local
   name: '@qilin/spill-local'
   config:
-    root: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT ?? './.spill'
+    root: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT ?? './.spill'
 
 - id: spill-policy
   name: '@qilin/spill-policy'
@@ -55,5 +55,5 @@
     - id: snapshot-spill-locators
       name: ../../../scripts/snapshot-spill-locators.ts
       config:
-        root: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT
-        locatorRoot: !!js process.env.DSH_SNAPSHOT_SPILL_LOCATOR_ROOT
+        root: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT
+        locatorRoot: !!js process.env.QILIN_SNAPSHOT_SPILL_LOCATOR_ROOT

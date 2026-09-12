@@ -12,7 +12,7 @@ let harness: Harness
 const closeStreams: Array<() => Promise<unknown>> = []
 
 beforeEach(async () => {
-  harness = await openWorkspace('dsh-workspace-files-changes-')
+  harness = await openWorkspace('qilin-workspace-files-changes-')
 })
 
 afterEach(async () => {

@@ -1,4 +1,4 @@
-/** Verify npm's physical package placement for two incompatible DSH releases. */
+/** Verify npm's physical package placement for two incompatible QILIN releases. */
 
 import { readFileSync } from 'node:fs'
 import { posix, resolve } from 'node:path'
@@ -10,15 +10,15 @@ import {
   type RegistryIndex,
 } from './benchmark-npm-resolution.ts'
 
-const DSH_PACKAGE = '@qilin/cli'
+const QILIN_PACKAGE = '@qilin/cli'
 const CORDIS_PACKAGE = '@deepseek-ai/cordis'
-const NESTED_DSH_ALIAS = 'dsh-previous'
-const NESTED_DSH_PATH = `node_modules/${NESTED_DSH_ALIAS}`
+const NESTED_QILIN_ALIAS = 'qilin-previous'
+const NESTED_QILIN_PATH = `node_modules/${NESTED_QILIN_ALIAS}`
 const DEPENDENCY_FIELDS = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
 const TIMEOUT_MS = 300_000
 
 /** Synthetic incompatible versions used to expose cross-release placement errors. */
-export const SYNTHETIC_DSH_VERSIONS = ['0.1.0', '0.2.0'] as const
+export const SYNTHETIC_QILIN_VERSIONS = ['0.1.0', '0.2.0'] as const
 
 interface MutableRegistryManifest {
   name: string
@@ -30,13 +30,13 @@ interface MutableRegistryManifest {
 }
 
 /** Summary of a verified two-release npm layout. */
-export interface DshInstallLayoutSummary {
-  readonly dshPackagesPerVersion: number
-  readonly checkedDshEdges: number
+export interface QilinInstallLayoutSummary {
+  readonly qilinPackagesPerVersion: number
+  readonly checkedQilinEdges: number
 }
 
-function isDshPackage(name: string): boolean {
-  return name === DSH_PACKAGE || name.startsWith(`${DSH_PACKAGE}-`)
+function isQilinPackage(name: string): boolean {
+  return name === QILIN_PACKAGE || name.startsWith('@qilin/')
 }
 
 function cloneForVersion(manifest: object, version: string): MutableRegistryManifest {
@@ -46,35 +46,35 @@ function cloneForVersion(manifest: object, version: string): MutableRegistryMani
     const dependencies = cloned[field]
     if (dependencies === undefined) continue
     for (const name of Object.keys(dependencies)) {
-      if (isDshPackage(name)) dependencies[name] = `^${version}`
+      if (isQilinPackage(name)) dependencies[name] = `^${version}`
     }
   }
   return cloned
 }
 
 /**
- * Replace the working release with two incompatible, internally consistent DSH releases.
+ * Replace the working release with two incompatible, internally consistent QILIN releases.
  * @param index - Registry metadata containing the working release.
  * @param sourceVersion - Workspace version copied into each synthetic release.
- * @returns Registry metadata containing both synthetic DSH releases and unchanged external packages.
+ * @returns Registry metadata containing both synthetic QILIN releases and unchanged external packages.
  */
-export function buildDualDshRegistry(index: RegistryIndex, sourceVersion: string): RegistryIndex {
+export function buildDualQilinRegistry(index: RegistryIndex, sourceVersion: string): RegistryIndex {
   const output = new Map(index)
-  let dshPackages = 0
+  let qilinPackages = 0
   for (const [name, versions] of index) {
-    if (!isDshPackage(name)) {
+    if (!isQilinPackage(name)) {
       output.set(name, versions)
       continue
     }
     const source = versions.get(sourceVersion)
     if (source === undefined) throw new Error(`${name} has no workspace version ${sourceVersion}`)
-    dshPackages++
-    output.set(name, new Map(SYNTHETIC_DSH_VERSIONS.map(version => [
+    qilinPackages++
+    output.set(name, new Map(SYNTHETIC_QILIN_VERSIONS.map(version => [
       version,
       cloneForVersion(source, version),
     ])))
   }
-  if (dshPackages === 0) throw new Error('registry contains no DSH packages')
+  if (qilinPackages === 0) throw new Error('registry contains no QILIN packages')
   return output
 }
 
@@ -110,44 +110,44 @@ function setDifference(left: ReadonlySet<string>, right: ReadonlySet<string>): s
 }
 
 /**
- * Assert that npm isolates both DSH releases while sharing the Cordis runtime.
+ * Assert that npm isolates both QILIN releases while sharing the Cordis runtime.
  * @param packageLock - Metadata-only package lock produced by npm.
- * @returns Counts for the verified DSH packages and dependency edges.
+ * @returns Counts for the verified QILIN packages and dependency edges.
  */
-export function assertDualDshInstallLayout(packageLock: NpmPackageLock): DshInstallLayoutSummary {
-  const [nestedVersion, rootVersion] = SYNTHETIC_DSH_VERSIONS
+export function assertDualQilinInstallLayout(packageLock: NpmPackageLock): QilinInstallLayoutSummary {
+  const [nestedVersion, rootVersion] = SYNTHETIC_QILIN_VERSIONS
   const errors: string[] = []
   const namesByVersion = new Map<string, Set<string>>([
     [nestedVersion, new Set()],
     [rootVersion, new Set()],
   ])
   const installed = Object.entries(packageLock.packages)
-  let checkedDshEdges = 0
+  let checkedQilinEdges = 0
 
   for (const [path, manifest] of installed) {
     const name = packageNameAtPath(path, manifest)
     if (name === 'react' || name === 'react-dom') {
-      errors.push(`${path}: ${name} is a browser build input, not a dependency of the synthetic DSH-only consumer`)
+      errors.push(`${path}: ${name} is a browser build input, not a dependency of the synthetic QILIN-only consumer`)
     }
-    if (name === undefined || !isDshPackage(name)) continue
+    if (name === undefined || !isQilinPackage(name)) continue
     const version = manifest.version
     if (version !== nestedVersion && version !== rootVersion) {
-      errors.push(`${path}: expected DSH version ${nestedVersion} or ${rootVersion}, got ${String(version)}`)
+      errors.push(`${path}: expected QILIN version ${nestedVersion} or ${rootVersion}, got ${String(version)}`)
       continue
     }
     namesByVersion.get(version)?.add(name)
     const expectedPath = version === rootVersion
       ? `node_modules/${name}`
-      : name === DSH_PACKAGE
-        ? NESTED_DSH_PATH
-        : `${NESTED_DSH_PATH}/node_modules/${name}`
+      : name === QILIN_PACKAGE
+        ? NESTED_QILIN_PATH
+        : `${NESTED_QILIN_PATH}/node_modules/${name}`
     if (path !== expectedPath) {
       errors.push(`${path}: expected ${name}@${version} at ${expectedPath}`)
     }
 
     for (const field of DEPENDENCY_FIELDS) {
       for (const dependency of Object.keys(manifest[field] ?? {})) {
-        if (!isDshPackage(dependency)) continue
+        if (!isQilinPackage(dependency)) continue
         const targetPath = resolvePackagePath(packageLock.packages, path, dependency)
         const optionalPeer = field === 'peerDependencies'
           && manifest.peerDependenciesMeta?.[dependency]?.optional === true
@@ -156,7 +156,7 @@ export function assertDualDshInstallLayout(packageLock: NpmPackageLock): DshInst
           errors.push(`${path}: ${field} ${dependency} does not resolve`)
           continue
         }
-        checkedDshEdges++
+        checkedQilinEdges++
         const targetVersion = packageLock.packages[targetPath]?.version
         if (targetVersion !== version) {
           errors.push(
@@ -169,8 +169,8 @@ export function assertDualDshInstallLayout(packageLock: NpmPackageLock): DshInst
 
   const nestedNames = namesByVersion.get(nestedVersion) ?? new Set<string>()
   const rootNames = namesByVersion.get(rootVersion) ?? new Set<string>()
-  if (!nestedNames.has(DSH_PACKAGE)) errors.push(`${NESTED_DSH_PATH}: missing ${DSH_PACKAGE}@${nestedVersion}`)
-  if (!rootNames.has(DSH_PACKAGE)) errors.push(`node_modules/${DSH_PACKAGE}: missing ${DSH_PACKAGE}@${rootVersion}`)
+  if (!nestedNames.has(QILIN_PACKAGE)) errors.push(`${NESTED_QILIN_PATH}: missing ${QILIN_PACKAGE}@${nestedVersion}`)
+  if (!rootNames.has(QILIN_PACKAGE)) errors.push(`node_modules/${QILIN_PACKAGE}: missing ${QILIN_PACKAGE}@${rootVersion}`)
   const onlyNested = setDifference(nestedNames, rootNames)
   const onlyRoot = setDifference(rootNames, nestedNames)
   if (onlyNested.length > 0) errors.push(`only ${nestedVersion} contains: ${onlyNested.join(', ')}`)
@@ -183,7 +183,7 @@ export function assertDualDshInstallLayout(packageLock: NpmPackageLock): DshInst
   }
 
   if (errors.length > 0) throw new Error(`invalid npm install layout:\n${errors.map(error => `  - ${error}`).join('\n')}`)
-  return { dshPackagesPerVersion: rootNames.size, checkedDshEdges }
+  return { qilinPackagesPerVersion: rootNames.size, checkedQilinEdges }
 }
 
 function workspaceVersion(root: string): string {
@@ -194,17 +194,17 @@ function workspaceVersion(root: string): string {
 
 async function main(): Promise<void> {
   const root = resolve(import.meta.dirname, '..')
-  const index = buildDualDshRegistry(buildRegistryIndex(root), workspaceVersion(root))
-  const [nestedVersion, rootVersion] = SYNTHETIC_DSH_VERSIONS
+  const index = buildDualQilinRegistry(buildRegistryIndex(root), workspaceVersion(root))
+  const [nestedVersion, rootVersion] = SYNTHETIC_QILIN_VERSIONS
   const result = await resolveNpmPackageLock(index, {
-    [DSH_PACKAGE]: rootVersion,
-    [NESTED_DSH_ALIAS]: `npm:${DSH_PACKAGE}@${nestedVersion}`,
+    [QILIN_PACKAGE]: rootVersion,
+    [NESTED_QILIN_ALIAS]: `npm:${QILIN_PACKAGE}@${nestedVersion}`,
   }, TIMEOUT_MS)
   if (result.archiveRequests !== 0) throw new Error(`npm requested ${String(result.archiveRequests)} package archive(s)`)
-  const summary = assertDualDshInstallLayout(result.packageLock)
+  const summary = assertDualQilinInstallLayout(result.packageLock)
   console.log(
-    `verify-npm-install-layout: ${String(summary.dshPackagesPerVersion)} DSH package(s) per release and `
-    + `${String(summary.checkedDshEdges)} internal edge(s) verified in ${(result.durationMs / 1000).toFixed(2)} s; `
+    `verify-npm-install-layout: ${String(summary.qilinPackagesPerVersion)} QILIN package(s) per release and `
+    + `${String(summary.checkedQilinEdges)} internal edge(s) verified in ${(result.durationMs / 1000).toFixed(2)} s; `
     + `both releases share one Cordis installation; ${String(result.unknownPackages.length)} unavailable optional `
     + 'package name(s) ignored by npm.',
   )

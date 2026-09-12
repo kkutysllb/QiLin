@@ -1,5 +1,5 @@
 ---
-description: "dsh Web 客户端的 ask_user_question 功能：接管编辑器的提问 UI 与 plan-review 审批卡片。"
+description: "qilin Web 客户端的 ask_user_question 功能：接管编辑器的提问 UI 与 plan-review 审批卡片。"
 kind: "package-reference"
 ---
 
@@ -33,7 +33,7 @@ kind: "package-reference"
 
 ### plan-review 卡片
 
-`plan-review` 意图——由 `dsh-plan-mode` 在 `exit_plan_mode` 审阅上设置——渲染等待审批卡片的布局：一条 `Plan review` 条带、计划作为可滚动的 markdown 主体，以及一行 `Chat about it` / `Refuse` / `Approve` 的决定操作。Approve 与 Refuse 用提问方自己的选项标签回答；`Chat about it` 以 `ASK_CANCELLED` 拒绝该等待，让编辑器归位，用户可以直接说出他想说的话。
+`plan-review` 意图——由 `qilin-plan-mode` 在 `exit_plan_mode` 审阅上设置——渲染等待审批卡片的布局：一条 `Plan review` 条带、计划作为可滚动的 markdown 主体，以及一行 `Chat about it` / `Refuse` / `Approve` 的决定操作。Approve 与 Refuse 用提问方自己的选项标签回答；`Chat about it` 以 `ASK_CANCELLED` 拒绝该等待，让编辑器归位，用户可以直接说出他想说的话。
 
 ### 失败与恢复
 
@@ -55,7 +55,7 @@ kind: "package-reference"
 
 ### 文案与 locale
 
-编辑器外框文案（翻页器、按钮、占位符、校验提示）是双语的：插件在 `dsh-client-locale` 的 `question` 命名空间下注册 zh/en 词典，并通过 inject face 把绑定的翻译函数和 locale 快照源交给该条目，因此切换语言会重新渲染已挂载的编辑器。问题与选项文本来自模型并原样渲染；载体失败消息也不经翻译直接显示。
+编辑器外框文案（翻页器、按钮、占位符、校验提示）是双语的：插件在 `qilin-client-locale` 的 `question` 命名空间下注册 zh/en 词典，并通过 inject face 把绑定的翻译函数和 locale 快照源交给该条目，因此切换语言会重新渲染已挂载的编辑器。问题与选项文本来自模型并原样渲染；载体失败消息也不经翻译直接显示。
 
 </details>
 
@@ -76,11 +76,11 @@ kind: "package-reference"
 <a id="model-experience"></a>
 ## 模型体验
 
-间接影响模型体验：本包在 Web 客户端呈现 `dsh-tool-ask-user` 所拥有的模型可见 schema 与答案渲染。
+间接影响模型体验：本包在 Web 客户端呈现 `qilin-tool-ask-user` 所拥有的模型可见 schema 与答案渲染。
 
 #### KV Cache 影响
 
-不会直接失效；模型可见的工具调用与结果由 `dsh-tool-ask-user` 拥有。
+不会直接失效；模型可见的工具调用与结果由 `qilin-tool-ask-user` 拥有。
 
 ## 已知限制与延期工作
 

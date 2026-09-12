@@ -9,7 +9,7 @@ let harness: Harness
 let workspace: string
 
 beforeEach(async () => {
-  harness = await openWorkspace('dsh-workspace-files-read-bytes-')
+  harness = await openWorkspace('qilin-workspace-files-read-bytes-')
   workspace = harness.workspace
 })
 

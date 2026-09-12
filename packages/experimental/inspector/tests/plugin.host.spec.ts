@@ -33,9 +33,9 @@ describe('experimental Inspector Host plugin', () => {
 
     const rows: IndexInjection[] = []
     context.emit('webserver/index-inject', rows)
-    const bootstrap = rows.find(row => row.kind === 'global' && row.name === '__DSH_INSPECTOR__')
-    expect(bootstrap).toMatchObject({ kind: 'global', name: '__DSH_INSPECTOR__' })
-    expect(log).toHaveBeenCalledWith(expect.stringMatching(/^dsh inspector: devtools:\/\//u))
+    const bootstrap = rows.find(row => row.kind === 'global' && row.name === '__QILIN_INSPECTOR__')
+    expect(bootstrap).toMatchObject({ kind: 'global', name: '__QILIN_INSPECTOR__' })
+    expect(log).toHaveBeenCalledWith(expect.stringMatching(/^qilin inspector: devtools:\/\//u))
     expect(context.inspector).toBeDefined()
     await vi.waitFor(async () => {
       const tree = await context!.inspector.cordis.getTree()
@@ -63,7 +63,7 @@ describe('experimental Inspector Host plugin', () => {
         if (message.id === 1) resolve(message)
       })
     })
-    socket.send(JSON.stringify({ id: 1, method: 'DSHInspector.getSources' }))
+    socket.send(JSON.stringify({ id: 1, method: 'QILINInspector.getSources' }))
     await vi.waitFor(async () => {
       const sources = (await response).result?.sources as Array<{ topics: Record<string, number> }>
       expect(sources.some(source => source.topics['host/plugin-probe'] === 1)).toBe(true)

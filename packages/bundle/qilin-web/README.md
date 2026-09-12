@@ -1,5 +1,5 @@
 ---
-description: "The QiLin product layer over the dsh Web surface: a patch bundle that restates the model-facing product identity for QiLin profiles."
+description: "The QiLin product layer over the qilin Web surface: a patch bundle that restates the model-facing product identity for QiLin profiles."
 kind: "package-bundle"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Run the QiLin Web surface with a `qilin` profile whose bundle list stacks this package after [`dsh-web-app`](../web-app/README.md). The package carries no runtime API: its substance is `cordis.patch.yml`, which restates the rows that carry QiLin product identity over the `dsh-web-app` composition. A deployment or user patch layer still replaces every row it declares.
+Run the QiLin Web surface with a `qilin` profile whose bundle list stacks this package after [`qilin-web-app`](../web-app/README.md). The package carries no runtime API: its substance is `cordis.patch.yml`, which restates the rows that carry QiLin product identity over the `qilin-web-app` composition. A deployment or user patch layer still replaces every row it declares.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ Run the QiLin Web surface with a `qilin` profile whose bundle list stacks this p
 <a id="use-this-package"></a>
 ## Use this package
 
-Name the package last in a profile's `dsh.profile.bundles` list so its rows win over `dsh-base` and `dsh-web-app`:
+Name the package last in a profile's `qilin.profile.bundles` list so its rows win over `qilin-base` and `qilin-web-app`:
 
 ```json
 {
@@ -39,19 +39,32 @@ Name the package last in a profile's `dsh.profile.bundles` list so its rows win 
 }
 ```
 
-The shipped `qilin` profile template lists those bundles in that order, and `dsh qilin` boots it.
-
-<a id="model-experience"></a>
-## Model Experience
-
-The `system-prompt` row decides the persona text every model request carries. This bundle names QiLin as the product and keeps the working-directory sentence `dsh-web-app` set, so one product identity reaches the model in every QiLin session.
-
-<a id="known-limitations-and-deferred-work"></a>
-## Known Limitations and Deferred Work
-
-- The layer restates product identity only. QiLin-branded client presentation — the sidebar brand artwork, composer, message rendering, and deliverables surfaces — is not part of this bundle yet, so a QiLin profile renders the `dsh-web-app` presentation under QiLin identity.
+The shipped `qilin` profile template lists those bundles in that order, and `qilin qilin` boots it.
 
 <a id="dev-note"></a>
 ## Dev Note
 
 None.
+
+<a id="model-experience"></a>
+## Model Experience
+
+### Product identity
+
+#### What the model sees
+
+The `system-prompt` row contributes the QiLin product identity and the working-directory sentence `qilin-web-app`, so every QiLin session request carries one product identity.
+
+#### Token effect
+
+One identity paragraph per session; constant per process.
+
+#### KV Cache effect
+
+The identity section follows first-party reusable instructions, so a different working-directory path leaves the preceding prefix unchanged.
+
+## Known Limitations and Deferred Work
+
+<a id="known-limitations-and-deferred-work"></a>
+
+- The layer restates product identity only. QiLin-branded client presentation — the sidebar brand artwork, composer, message rendering, and deliverables surfaces — is not part of this bundle yet, so a QiLin profile renders the `qilin-web-app` presentation under QiLin identity.

@@ -31,8 +31,8 @@ const TEST_USER_ID = '00000000-0000-4000-8000-000000000001' as AnonymousUserId
 let testHome: string
 
 beforeEach(() => {
-  testHome = mkdtempSync(join(tmpdir(), 'dsh-llm-deepseek-'))
-  vi.stubEnv('DSH_HOME', testHome)
+  testHome = mkdtempSync(join(tmpdir(), 'qilin-llm-deepseek-'))
+  vi.stubEnv('QILIN_HOME', testHome)
 })
 
 afterEach(async () => {
@@ -192,7 +192,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const accept = vi.fn()
     const prepareExtensions = vi.fn(async () => ({
-      fields: { dsh_test: { version: 1 } },
+      fields: { qilin_test: { version: 1 } },
       accept: async () => { accept() },
     }))
     const adapter = new DeepSeekAdapter({
@@ -203,7 +203,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
 
     await drain(adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [], sessionId: SessionId('s') }))
-    expect(server.requests[0]).toMatchObject({ dsh_test: { version: 1 } })
+    expect(server.requests[0]).toMatchObject({ qilin_test: { version: 1 } })
     expect(prepareExtensions).toHaveBeenCalledWith(expect.objectContaining({ sessionId: 's' }))
     expect(accept).toHaveBeenCalledOnce()
   })
@@ -305,7 +305,7 @@ describe('DeepSeekAdapter against a mock server', () => {
       options: () => resolveAdapterOptions({ baseURL: server.url }),
       resolveApiKey: () => Promise.resolve('k'),
       resolveUserId: () => TEST_USER_ID,
-      prepareExtensions: () => Promise.resolve({ fields: { dsh_test: 1 }, accept: async () => { accept() } }) as never,
+      prepareExtensions: () => Promise.resolve({ fields: { qilin_test: 1 }, accept: async () => { accept() } }) as never,
     })
     const request = { provider: 'deepseek-official', model: 'm', messages: [] }
 
@@ -323,7 +323,7 @@ describe('DeepSeekAdapter against a mock server', () => {
       resolveApiKey: () => Promise.resolve('k'),
       resolveUserId: () => TEST_USER_ID,
       prepareExtensions: () => Promise.resolve({
-        fields: { dsh_test: 1 },
+        fields: { qilin_test: 1 },
         accept: () => Promise.reject(failure),
       }) as never,
     })
@@ -403,7 +403,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     expect(server.fileRequests).toEqual([{
       method: 'POST',
       path: '/files',
-      filename: `dsh-${'a'.repeat(16)}-${'b'.repeat(8)}.png`,
+      filename: `qilin-${'a'.repeat(16)}-${'b'.repeat(8)}.png`,
       bytes: 3,
     }])
     expect(signalSeen[0]).toBeInstanceOf(AbortSignal)

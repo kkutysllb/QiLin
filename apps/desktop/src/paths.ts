@@ -1,7 +1,7 @@
 /** Filesystem ownership for the Electron-managed desktop installation. */
 
 import { join } from 'node:path'
-import { resolveDshHome } from '@qilin/home-paths'
+import { resolveQilinHome } from '@qilin/home-paths'
 
 /** Stable desktop installation paths under the shared Harness home. */
 export interface DesktopPaths {
@@ -23,15 +23,15 @@ export interface DesktopPaths {
 
 /**
  * Resolve every Electron-owned path without changing the shared data roots.
- * @param dshHome - Harness home shared with npm-installed dsh.
+ * @param qilinHome - Harness home shared with npm-installed qilin.
  * @returns immutable desktop path set.
  */
-export function resolveDesktopPaths(dshHome: string = resolveDshHome()): DesktopPaths {
-  const root = join(dshHome, 'desktop')
+export function resolveDesktopPaths(qilinHome: string = resolveQilinHome()): DesktopPaths {
+  const root = join(qilinHome, 'desktop')
   const pnpm = join(root, 'pnpm')
   return {
     root,
-    profile: join(dshHome, 'profiles', 'desktop'),
+    profile: join(qilinHome, 'profiles', 'desktop'),
     staging: join(root, 'staging'),
     rollback: join(root, 'rollback', 'profile'),
     pending: join(root, 'pending.json'),

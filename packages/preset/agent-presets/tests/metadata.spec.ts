@@ -20,7 +20,7 @@ afterEach(async () => {
 
 /** A preset directory holding exactly the given metadata text. */
 async function presetDir(content?: string): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-preset-meta-'))
+  const dir = await mkdtemp(join(tmpdir(), 'qilin-preset-meta-'))
   tempDirs.push(dir)
   await mkdir(dir, { recursive: true })
   if (content !== undefined) await writeFile(join(dir, METADATA_FILE), content)

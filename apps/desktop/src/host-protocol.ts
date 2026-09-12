@@ -1,6 +1,6 @@
 /** Versioned control messages and framed byte transport for the Desktop Host child. */
 
-/** Protocol version implemented by the Electron shell and installed dsh Host. */
+/** Protocol version implemented by the Electron shell and installed qilin Host. */
 export const DESKTOP_HOST_PROTOCOL_VERSION = 3 as const
 
 /** Child descriptor Electron writes request frames to. */
@@ -48,7 +48,7 @@ export type DesktopHostCommand = {
 export type DesktopHostEvent = {
   readonly type: 'ready'
   readonly protocolVersion: typeof DESKTOP_HOST_PROTOCOL_VERSION
-  readonly dshVersion: string
+  readonly qilinVersion: string
 } | {
   readonly type: 'fatal'
   readonly message: string
@@ -85,7 +85,7 @@ function isHeaders(value: unknown): value is readonly [string, string][] {
 
 function assertStreamId(streamId: number): void {
   if (!Number.isInteger(streamId) || streamId < 1 || streamId > 0xffff_ffff) {
-    throw new Error(`dsh desktop: invalid pipe stream id ${String(streamId)}`)
+    throw new Error(`qilin desktop: invalid pipe stream id ${String(streamId)}`)
   }
 }
 
@@ -93,7 +93,7 @@ function encodeFrame(type: RequestFrameType, streamId: number, payload: Buffer):
   assertStreamId(streamId)
   const limit = type === REQUEST_FRAME_DATA ? DESKTOP_PIPE_CHUNK_BYTES : MAX_CONTROL_PAYLOAD_BYTES
   if (payload.byteLength > limit) {
-    throw new Error(`dsh desktop: request pipe frame exceeds the ${String(limit)}-byte limit`)
+    throw new Error(`qilin desktop: request pipe frame exceeds the ${String(limit)}-byte limit`)
   }
   const frame = Buffer.allocUnsafe(FRAME_HEADER_BYTES + payload.byteLength)
   frame.writeUInt32BE(FRAME_MAGIC, 0)
@@ -149,19 +149,19 @@ export class DesktopHostResponseDecoder {
 
   /** Reject EOF that splits a frame. */
   finish(): void {
-    if (this.buffer.byteLength !== 0) throw new Error('dsh desktop: Host response pipe ended inside a frame')
+    if (this.buffer.byteLength !== 0) throw new Error('qilin desktop: Host response pipe ended inside a frame')
   }
 
   private next(): DesktopHostResponseFrame | undefined {
     if (this.buffer.byteLength < FRAME_HEADER_BYTES) return undefined
-    if (this.buffer.readUInt32BE(0) !== FRAME_MAGIC) throw new Error('dsh desktop: invalid Host response frame marker')
+    if (this.buffer.readUInt32BE(0) !== FRAME_MAGIC) throw new Error('qilin desktop: invalid Host response frame marker')
     const rawType = this.buffer.readUInt8(4)
     const streamId = this.buffer.readUInt32BE(5)
     const payloadLength = this.buffer.readUInt32BE(9)
     assertStreamId(streamId)
     const limit = rawType === RESPONSE_FRAME_DATA ? DESKTOP_PIPE_CHUNK_BYTES : MAX_CONTROL_PAYLOAD_BYTES
     if (payloadLength > limit) {
-      throw new Error(`dsh desktop: Host response frame exceeds the ${String(limit)}-byte limit`)
+      throw new Error(`qilin desktop: Host response frame exceeds the ${String(limit)}-byte limit`)
     }
     const frameLength = FRAME_HEADER_BYTES + payloadLength
     if (this.buffer.byteLength < frameLength) return undefined
@@ -173,12 +173,12 @@ export class DesktopHostResponseDecoder {
       case RESPONSE_FRAME_DATA:
         return { type: 'data', streamId, data: payload }
       case RESPONSE_FRAME_END:
-        if (payloadLength !== 0) throw new Error('dsh desktop: Host response end frame carried a payload')
+        if (payloadLength !== 0) throw new Error('qilin desktop: Host response end frame carried a payload')
         return { type: 'end', streamId }
       case RESPONSE_FRAME_ERROR:
         return this.parseError(streamId, payload)
       default:
-        throw new Error(`dsh desktop: unknown Host response frame type ${String(rawType)}`)
+        throw new Error(`qilin desktop: unknown Host response frame type ${String(rawType)}`)
     }
   }
 
@@ -186,7 +186,7 @@ export class DesktopHostResponseDecoder {
     const value = this.parseJson(payload, 'start')
     if (!isRecord(value) || !Number.isInteger(value.status) || (value.status as number) < 100
       || (value.status as number) > 599 || !isHeaders(value.headers) || typeof value.hasBody !== 'boolean') {
-      throw new Error('dsh desktop: invalid Host response start payload')
+      throw new Error('qilin desktop: invalid Host response start payload')
     }
     return {
       type: 'start',
@@ -200,7 +200,7 @@ export class DesktopHostResponseDecoder {
   private parseError(streamId: number, payload: Buffer): DesktopHostResponseFrame {
     const value = this.parseJson(payload, 'error')
     if (!isRecord(value) || typeof value.message !== 'string') {
-      throw new Error('dsh desktop: invalid Host response error payload')
+      throw new Error('qilin desktop: invalid Host response error payload')
     }
     return { type: 'error', streamId, message: value.message }
   }
@@ -209,7 +209,7 @@ export class DesktopHostResponseDecoder {
     try {
       return JSON.parse(payload.toString('utf8')) as unknown
     } catch (error) {
-      throw new Error(`dsh desktop: Host response ${subject} payload is not JSON: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(`qilin desktop: Host response ${subject} payload is not JSON: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 }

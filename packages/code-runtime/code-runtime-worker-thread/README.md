@@ -25,7 +25,7 @@ This package lets PTC compositions execute model-written TypeScript with host-pr
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this backend with the code-runtime seam when a composition should execute model-written TypeScript programs; PTC mode in `dsh-tools` then drives it through `ctx.codeRuntime` whenever the model calls `run_code`. Every execution cap is validated config, so you can size the runtime for your deployment from `cordis.yml`.
+Mount this backend with the code-runtime seam when a composition should execute model-written TypeScript programs; PTC mode in `qilin-tools` then drives it through `ctx.codeRuntime` whenever the model calls `run_code`. Every execution cap is validated config, so you can size the runtime for your deployment from `cordis.yml`.
 
 ### Minimal configuration
 
@@ -116,7 +116,7 @@ Source mode loads erasable-only `src/worker.ts` through Node's native type strip
 Read these when the backend contract is not enough. They move from the seam definition to the consumer and the configuration surface.
 
 - [Code runtime seam](../code-runtime/README.md) — the abstract contract this backend implements.
-- [PTC mode Agent Note](../../../.agents/notes/implemented/feature/2026-06-15-ptc.md) — how `dsh-tools` consumes `ctx.codeRuntime` and presents `run_code`.
+- [PTC mode Agent Note](../../../.agents/notes/implemented/feature/2026-06-15-ptc.md) — how `qilin-tools` consumes `ctx.codeRuntime` and presents `run_code`.
 - [Code runtime subsystem reference](../../../docs/subsystems/code-runtime.md) — request/result vocabulary, bindings, and failure taxonomy.
 - [Generated configuration catalog](../../../docs/config-catalog.md#qilincode-runtime-worker-thread) — every accepted config field and its source declaration.
 
@@ -125,7 +125,7 @@ Read these when the backend contract is not enough. They move from the seam defi
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through PTC mode in `dsh-tools`, which renders the exact outer value when it fits or an explicit `invalid-output` / `output-limit` failure, while only the outer `run_code` result enters model context under its ordinary spill policy and binding traffic plus intermediate values remain execution-local.
+Indirectly, through PTC mode in `qilin-tools`, which renders the exact outer value when it fits or an explicit `invalid-output` / `output-limit` failure, while only the outer `run_code` result enters model context under its ordinary spill policy and binding traffic plus intermediate values remain execution-local.
 
 #### KV Cache effect
 

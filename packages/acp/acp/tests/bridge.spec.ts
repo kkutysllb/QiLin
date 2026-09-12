@@ -483,7 +483,7 @@ describe('automation-only ACP bridge', () => {
   })
 
   it('lists and resumes persisted sessions after an equivalent process restart', async () => {
-    const persistenceRoot = await mkdtemp(join(tmpdir(), 'dsh-acp-restart-'))
+    const persistenceRoot = await mkdtemp(join(tmpdir(), 'qilin-acp-restart-'))
     try {
       harness = await makeBridgeHarness({ persistenceRoot, script: [textResponse('before restart')] })
       await harness.client.initialize({ protocolVersion: PROTOCOL_VERSION, clientCapabilities: {} })

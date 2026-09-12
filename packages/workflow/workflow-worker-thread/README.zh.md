@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用 `dsh-workflow-worker-thread` 可让模型编写的工作流脚本在宿主事件循环之外运行。每次运行使用独立的 worker thread，因此同步循环不会阻塞 harness，忽略取消的脚本也可以被终止。本引擎支持已发布组合中的 `workflow` 与 `ralph` 工具，也可与 `dsh-tool-workflow` 配合，在其他组合中公开 `workflow`。这种隔离可以限制可用性故障，但不是安全边界；真正不可信的脚本需要独立进程或容器。
+使用 `qilin-workflow-worker-thread` 可让模型编写的工作流脚本在宿主事件循环之外运行。每次运行使用独立的 worker thread，因此同步循环不会阻塞 harness，忽略取消的脚本也可以被终止。本引擎支持已发布组合中的 `workflow` 与 `ralph` 工具，也可与 `qilin-tool-workflow` 配合，在其他组合中公开 `workflow`。这种隔离可以限制可用性故障，但不是安全边界；真正不可信的脚本需要独立进程或容器。
 
 ## 目录
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 
 ### 最小配置
 
-加载本引擎即注册 `ctx.workflowEngine`；在其上添加 `dsh-tool-workflow` 会把 `workflow` 工具交给模型。每个配置字段都是可选的：
+加载本引擎即注册 `ctx.workflowEngine`；在其上添加 `qilin-tool-workflow` 会把 `workflow` 工具交给模型。每个配置字段都是可选的：
 
 ```yaml
 - name: '@qilin/workflow-worker-thread'
@@ -147,7 +147,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-通过 [`dsh-tool-workflow`](../tool-workflow/README.zh.md)，成功结果只会在该消费方的包装层中公开实体化的最终 JSON 值与子 agent 数量。本引擎提供稳定错误，包括 `workflow script does not parse: <error>`、`invalid meta: <violations>`、`agent() requires a non-empty prompt string`、`agent() could not start a child: <error>` 与 `child agent run failed: <error>`，以及其精确的 `parallel()`、`pipeline()`、`phase()`、选项、schema 与 JSON 边界校验消息。中间子 agent 输出可供脚本使用，但不提供给父模型。
+通过 [`qilin-tool-workflow`](../tool-workflow/README.zh.md)，成功结果只会在该消费方的包装层中公开实体化的最终 JSON 值与子 agent 数量。本引擎提供稳定错误，包括 `workflow script does not parse: <error>`、`invalid meta: <violations>`、`agent() requires a non-empty prompt string`、`agent() could not start a child: <error>` 与 `child agent run failed: <error>`，以及其精确的 `parallel()`、`pipeline()`、`phase()`、选项、schema 与 JSON 边界校验消息。中间子 agent 输出可供脚本使用，但不提供给父模型。
 
 #### Token 影响
 

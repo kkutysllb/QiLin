@@ -11,7 +11,7 @@ const expectedPath = fileURLToPath(new URL('./expected/mcp-pagination/stderr-cau
 it('reports a repeated MCP discovery cursor and exits before starting a turn', async () => {
   const { stdout, stderr } = await runLoaderSmoke({
     label: 'MCP discovery pagination cycle',
-    tempDirPrefix: 'dsh-mcp-pagination-',
+    tempDirPrefix: 'qilin-mcp-pagination-',
     binScript: fileURLToPath(new URL('../../../../src/bin.ts', import.meta.url)),
     libBinScript: fileURLToPath(new URL('../../../../lib/bin.js', import.meta.url)),
     configPath,
@@ -19,8 +19,8 @@ it('reports a repeated MCP discovery cursor and exits before starting a turn', a
     tsconfigPath: fileURLToPath(new URL('../../../../../../tsconfig.json', import.meta.url)),
     expectedExitCode: 1,
     env: {
-      DSH_MCP_PAGINATION_FIXTURE: fileURLToPath(new URL('repeated-cursor-server.ts', fixtureRoot)),
-      DSH_TELEMETRY_DISABLED: '1',
+      QILIN_MCP_PAGINATION_FIXTURE: fileURLToPath(new URL('repeated-cursor-server.ts', fixtureRoot)),
+      QILIN_TELEMETRY_DISABLED: '1',
     },
   })
   expect(stdout).toBe('')

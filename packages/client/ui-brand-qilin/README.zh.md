@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-把本插件挂在 [`ui-sidebar`](../ui-sidebar/README.md) 与 [`ui-conversation`](../ui-conversation/README.md) 旁边，即可用麒麟印章替换通用品牌回退：圆角方框内上麒下麟。印章是以路径数据内嵌的矢量图，不依赖运行时字体，并从渲染它的表面继承 `currentColor`。侧边栏品牌名保留外壳自身的回退，因此产品标签与构建版本徽章仍由外壳拥有。
+把本插件挂在 [`ui-sidebar`](../ui-sidebar/README.zh.md) 与 [`ui-conversation`](../ui-conversation/README.zh.md) 旁边，即可用麒麟印章替换通用品牌回退：圆角方框内上麒下麟。印章是以路径数据内嵌的矢量图，不依赖运行时字体，并从渲染它的表面继承 `currentColor`。侧边栏品牌名保留外壳自身的回退，因此产品标签与构建版本徽章仍由外壳拥有。
 
 ## 目录
 
@@ -32,19 +32,24 @@ kind: "package-reference"
 
 [`glyphs.ts`](src/client/glyphs.ts) 中的两个字形轮廓取自系统 CJK 字体并归一化到单位框；组件在渲染时把它们组合进方框。
 
-<a id="model-experience"></a>
-## 模型体验
-
-无。印章属于浏览器呈现，不进入模型请求或会话日志。
-
-<a id="known-limitations-and-deferred-work"></a>
-## 已知限制与待办
-
-- 印章取自正文字体轮廓，而非设计师的篆书稿。委托绘制的篆书标记只需替换两个路径常量，无需改动组件。
-- 标记是单色的：它继承 `currentColor`，没有朱红印章底色；若要彩色印章需要先定主题令牌。
-- 这两个槽位尚无浏览器级断言；随附规格覆盖的是槽位注册，组装面的检查目前为手工执行。
-
 <a id="dev-note"></a>
 ## 开发备注
 
 无。
+
+<a id="model-experience"></a>
+## 模型体验
+
+无；印章属于浏览器呈现，不进入模型请求或会话日志。
+
+#### KV Cache 影响
+
+无；印章不贡献任何提示文本。
+
+## 已知限制与待办
+
+<a id="known-limitations-and-deferred-work"></a>
+
+- 印章取自正文字体轮廓，而非设计师的篆书稿。委托绘制的篆书标记只需替换两个路径常量，无需改动组件。
+- 标记是单色的：它继承 `currentColor`，没有朱红印章底色；若要彩色印章需要先定主题令牌。
+- 这两个槽位尚无浏览器级断言；随附规格覆盖的是槽位注册，组装面的检查目前为手工执行。

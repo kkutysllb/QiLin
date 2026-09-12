@@ -32,7 +32,7 @@ const HOLDER = fileURLToPath(new URL('./fixtures/lease-holder.mjs', import.meta.
 
 describe('two-process write lock (built lib)', () => {
   it('excludes a live holder process and takes over immediately after its crash', { timeout: 30_000 }, async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-lease-2proc-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-lease-2proc-'))
     dirs.push(root)
 
     const holder = spawn(process.execPath, [HOLDER, root, SESSION], {

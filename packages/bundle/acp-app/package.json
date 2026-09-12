@@ -1,6 +1,6 @@
 {
   "name": "@qilin/acp-app",
-  "description": "The dsh ACP profile bundle: automation-only JSON-RPC stdio and process lifecycle over dsh-base",
+  "description": "The qilin ACP profile bundle: automation-only JSON-RPC stdio and process lifecycle over qilin-base",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

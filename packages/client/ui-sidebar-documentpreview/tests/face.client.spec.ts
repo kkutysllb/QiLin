@@ -38,7 +38,7 @@ function bytesFailure(): RemoteResult<never> {
     ok: false,
     error: {
       name: 'RemoteError',
-      isDSHRemoteError: true,
+      isQILINRemoteError: true,
       code: 'workspace-file/outside-workspace',
       message: 'The file is outside the caller workspace',
       details: { path: ABSOLUTE_PATH },

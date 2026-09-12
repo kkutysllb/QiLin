@@ -5,14 +5,14 @@ import type { DesktopLocale } from './locale.ts'
 
 /** IPC channel names kept private to the desktop application bundle. */
 export const DESKTOP_IPC = {
-  localeGet: 'dsh-desktop:locale-get',
-  pluginsList: 'dsh-desktop:plugins-list',
-  pluginsAdd: 'dsh-desktop:plugins-add',
-  pluginsRemove: 'dsh-desktop:plugins-remove',
-  pluginsUpdate: 'dsh-desktop:plugins-update',
-  updatesCheck: 'dsh-desktop:updates-check',
-  updatesInstall: 'dsh-desktop:updates-install',
-  updatesState: 'dsh-desktop:updates-state',
+  localeGet: 'qilin-desktop:locale-get',
+  pluginsList: 'qilin-desktop:plugins-list',
+  pluginsAdd: 'qilin-desktop:plugins-add',
+  pluginsRemove: 'qilin-desktop:plugins-remove',
+  pluginsUpdate: 'qilin-desktop:plugins-update',
+  updatesCheck: 'qilin-desktop:updates-check',
+  updatesInstall: 'qilin-desktop:updates-install',
+  updatesState: 'qilin-desktop:updates-state',
 } as const
 
 /** Desktop release update state rendered by desktop-owned UI. */
@@ -23,7 +23,7 @@ export interface DesktopUpdateState {
 }
 
 /** Narrow bridge exposed through context isolation. */
-export interface DshDesktopApi {
+export interface QilinDesktopApi {
   readonly protocolVersion: 1
   locale(): Promise<DesktopLocale>
   readonly plugins: {

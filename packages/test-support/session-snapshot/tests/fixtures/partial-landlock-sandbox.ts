@@ -3,7 +3,7 @@ import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
 import { SandboxProvider } from '@qilin/sandbox'
 
 const NOTICE = 'landlock-run: partial enforcement (older Landlock ABI)'
-const MISSING_RUNNER_ENV = 'DSH_SNAPSHOT_MISSING_SANDBOX_RUNNER'
+const MISSING_RUNNER_ENV = 'QILIN_SNAPSHOT_MISSING_SANDBOX_RUNNER'
 
 /**
  * Snapshot-only provider for deterministic runner classification. Its default

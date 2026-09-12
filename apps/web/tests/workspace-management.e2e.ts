@@ -226,18 +226,18 @@ describe('web e2e: workspace management (create / rename / flat view / hover aff
         slotConsoleErrors.push(message.text())
       }
     })
-    await page.exposeFunction('recordDshSlotError', (key: string) => {
+    await page.exposeFunction('recordQilinSlotError', (key: string) => {
       if (!transientSlotErrors.includes(key)) transientSlotErrors.push(key)
     })
     await page.evaluate(() => {
-      const target = window as unknown as { recordDshSlotError(key: string): Promise<void> }
+      const target = window as unknown as { recordQilinSlotError(key: string): Promise<void> }
       const seen = new Set<string>()
       const collect = (): void => {
         for (const node of document.querySelectorAll<HTMLElement>('[data-slot-error]')) {
           const key = node.dataset.slotError ?? ''
           if (!seen.has(key)) {
             seen.add(key)
-            void target.recordDshSlotError(key)
+            void target.recordQilinSlotError(key)
           }
         }
       }
@@ -367,17 +367,17 @@ describe('web e2e: workspace management (create / rename / flat view / hover aff
     page.on('console', (message) => {
       if (message.type() === 'error') consoleErrors.push(message.text())
     })
-    await page.exposeFunction('recordDshTransientWorkspaceError', (message: string) => {
+    await page.exposeFunction('recordQilinTransientWorkspaceError', (message: string) => {
       if (!transientErrors.includes(message)) transientErrors.push(message)
     })
     await page.evaluate(() => {
       const target = window as unknown as {
-        recordDshTransientWorkspaceError(message: string): Promise<void>
+        recordQilinTransientWorkspaceError(message: string): Promise<void>
       }
       const collect = (): void => {
         for (const node of document.querySelectorAll<HTMLElement>('[data-slot-error], [role="alert"]')) {
           const message = node.dataset.slotError ?? node.textContent?.trim() ?? ''
-          if (message !== '') void target.recordDshTransientWorkspaceError(message)
+          if (message !== '') void target.recordQilinTransientWorkspaceError(message)
         }
       }
       new MutationObserver(collect).observe(document.documentElement, { childList: true, subtree: true })
@@ -422,7 +422,7 @@ describe('web e2e: workspace management (create / rename / flat view / hover aff
     await expect.poll(() => page.getByText('Sessions', { exact: true }).count(), { timeout: 10_000 }).toBeGreaterThanOrEqual(1)
     await expect.poll(() => page.getByText('Ungrouped', { exact: true }).count(), { timeout: 5_000 }).toBe(0)
     await expect.poll(() => page.locator('[role="treeitem"]').count(), { timeout: 10_000 }).toBeGreaterThanOrEqual(1)
-    expect(await page.evaluate(() => localStorage.getItem('dsh.workspace.view.v5'))).toContain('flat')
+    expect(await page.evaluate(() => localStorage.getItem('qilin.workspace.view.v5'))).toContain('flat')
     // Persisted across reload; then restore grouped for inter-spec hygiene.
     const warningStart = tripwire.warnings.length
     await page.reload({ waitUntil: 'load' })

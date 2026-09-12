@@ -1,22 +1,22 @@
 /**
  * Profile discovery, initialization, and patch-layer composition for the
- * `dsh --profile` launcher family.
+ * `qilin --profile` launcher family.
  *
- * A profile is a directory under `$DSH_HOME/profiles/<name>` holding a
+ * A profile is a directory under `$QILIN_HOME/profiles/<name>` holding a
  * `package.json` (out-of-tree plugin dependencies plus the profile manifest
- * `dsh.profile` with its ordered `bundles` list) and a `cordis.patch.yml`
+ * `qilin.profile` with its ordered `bundles` list) and a `cordis.patch.yml`
  * (the user's own patch layer, applied after every bundle layer). Bundles are
  * npm packages whose manifest declares
  * `"qilin": { "bundle": { "patch": "./cordis.patch.yml" } }`; the tree is
- * composed by applying each bundle's patch list in `dsh.profile.bundles` order over
+ * composed by applying each bundle's patch list in `qilin.profile.bundles` order over
  * an empty entry list, then the profile's own patches, then any launcher
  * layers (`--patch` files and flag-derived patches).
  *
  * Module resolution is two-anchor by construction: a bundle name resolves
- * first from the dsh installation (the launcher's own package), then from the
+ * first from the qilin installation (the launcher's own package), then from the
  * profile directory. Pnpm-managed entries in the profile's `node_modules`
- * resolve first. Dsh-owned links add packages carried only by selected
- * bundles, while `$DSH_HOME/profiles/node_modules` supplies the installation
+ * resolve first. Qilin-owned links add packages carried only by selected
+ * bundles, while `$QILIN_HOME/profiles/node_modules` supplies the installation
  * dependency closure through Node's ordinary parent-walk. Plain Node uses
  * symlinks for that shared fallback; packaged executables use ESM proxies so
  * external plugins retain the installation's module instances.
@@ -33,8 +33,8 @@ import { pathToFileURL } from 'node:url'
 import { withFileLock } from '@qilin/atomic-write'
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import { resolveDshHome } from '@qilin/home-paths'
-import type { DshManifest, DshModuleFallbackManifest, ProfilePatchReload } from '@qilin/package-manifest'
+import { resolveQilinHome } from '@qilin/home-paths'
+import type { QilinManifest, QilinModuleFallbackManifest, ProfilePatchReload } from '@qilin/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { loadOverlayPatches } from './index.ts'
 
@@ -60,12 +60,12 @@ export interface ProfileManifest {
   name?: string
   dependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
-  qilin?: DshManifest
+  qilin?: QilinManifest
 }
 
 /** One resolved bundle layer of a profile. */
 export interface ProfileLayer {
-  /** The bundle's package name, as listed in `dsh.profile.bundles`. */
+  /** The bundle's package name, as listed in `qilin.profile.bundles`. */
   packageName: string
   /** Absolute directory of the resolved bundle package. */
   packageDir: string
@@ -81,7 +81,7 @@ export interface Profile {
   name: string
   /** Absolute profile directory. */
   dir: string
-  /** Bundle layers in `dsh.profile.bundles` order. */
+  /** Bundle layers in `qilin.profile.bundles` order. */
   layers: ProfileLayer[]
   /** Absolute path of the profile's own patch file. */
   patchPath: string
@@ -93,15 +93,15 @@ export interface Profile {
 
 /**
  * Resolve a profile's directory under the Harness home.
- * @param name - the profile name (`dsh --profile <name>`).
- * @param home - the Harness home; defaults to {@link resolveDshHome}.
+ * @param name - the profile name (`qilin --profile <name>`).
+ * @param home - the Harness home; defaults to {@link resolveQilinHome}.
  * @returns the absolute profile directory (which may not exist yet).
  */
-export function resolveProfileDir(name: string, home: string = resolveDshHome()): string {
+export function resolveProfileDir(name: string, home: string = resolveQilinHome()): string {
   if (name === '' || name.includes('/') || name.includes('\\') || name === '.' || name === '..'
     // The launcher-maintained flat module fallback lives at this sibling path.
     || name === 'node_modules') {
-    throw new Error(`dsh: invalid profile name ${JSON.stringify(name)}`)
+    throw new Error(`qilin: invalid profile name ${JSON.stringify(name)}`)
   }
   return join(home, PROFILES_DIR, name)
 }
@@ -139,13 +139,13 @@ const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
 }
 
-/** The bundle list a `dsh plugin` init uses for a name with no shipped template. */
+/** The bundle list a `qilin plugin` init uses for a name with no shipped template. */
 export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
 
 /** Custom profiles retain the historical live patch-file behavior. */
 export const DEFAULT_PROFILE_PATCH_RELOAD: ProfilePatchReload = 'live'
 
-const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this dsh profile, applied after every bundle layer:
+const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:
 # a top-level YAML array of loader patch entries (id-targeted config
 # overrides, disables, and insert lists; \`!!js\` expressions allowed).
 []
@@ -168,7 +168,7 @@ autoInstallPeers: false
  * pnpm settings out-of-tree plugins need. Existing files are never touched,
  * so re-running is a no-op on an initialized profile.
  * @param dir - the profile directory from {@link resolveProfileDir}.
- * @param bundles - the initial `dsh.profile.bundles` layer list.
+ * @param bundles - the initial `qilin.profile.bundles` layer list.
  * @param patchReload - user patch-file lifecycle; custom profiles default to live reload.
  */
 export function initProfile(
@@ -180,7 +180,7 @@ export function initProfile(
   const manifestPath = join(dir, 'package.json')
   if (!existsSync(manifestPath)) {
     const manifest: ProfileManifest & { private: boolean } = {
-      name: `dsh-profile-${basename(dir)}`,
+      name: `qilin-profile-${basename(dir)}`,
       private: true,
       dependencies: {},
       qilin: { profile: { bundles: [...bundles], patchReload } },
@@ -202,7 +202,7 @@ function readModuleProxyRecord(link: string): ModuleProxyRecord | undefined {
   }
 }
 
-/** Ensure `link` is a symlink to `target`, replacing a wrong link or a dsh-managed packaged proxy. */
+/** Ensure `link` is a symlink to `target`, replacing a wrong link or a qilin-managed packaged proxy. */
 function ensureSymlink(link: string, target: string): void {
   let stat
   try {
@@ -216,7 +216,7 @@ function ensureSymlink(link: string, target: string): void {
     if (!stat.isSymbolicLink()) {
       const existing = stat.isDirectory() ? readModuleProxyRecord(link) : undefined
       if (existing?.qilin?.moduleFallback?.targets === undefined) {
-        throw new Error(`dsh: ${link} exists and is not a symlink or dsh-managed module proxy; remove it so dsh can manage the installation fallback`)
+        throw new Error(`qilin: ${link} exists and is not a symlink or qilin-managed module proxy; remove it so qilin can manage the installation fallback`)
       }
       rmSync(link, { recursive: true })
       stat = undefined
@@ -312,7 +312,7 @@ interface ModuleProxyManifest {
   private: true
   type: 'module'
   exports: Record<string, string>
-  qilin: { moduleFallback: DshModuleFallbackManifest }
+  qilin: { moduleFallback: QilinModuleFallbackManifest }
 }
 
 interface ModuleProxyRecord {
@@ -338,14 +338,14 @@ function packageEntryFromPackage(
   } catch (error) {
     if ((error as Error).message.startsWith('No known conditions for ')) return undefined
     const specifier = subpath === '.' ? packageName : packageName + subpath.slice(1)
-    throw new Error(`dsh: cannot resolve ESM export ${specifier} from installed package ${packageName}`, { cause: error })
+    throw new Error(`qilin: cannot resolve ESM export ${specifier} from installed package ${packageName}`, { cause: error })
   }
   for (const candidate of candidates ?? []) {
     const target = candidate
     const entry = resolve(packageDir, target)
     const relativeEntry = relative(packageDir, entry)
     if (!target.startsWith('./') || /^\.\.(?:[\\/]|$)/u.test(relativeEntry)) {
-      throw new Error(`dsh: installed package ${packageName} export ${subpath} resolves outside its package: ${target}`)
+      throw new Error(`qilin: installed package ${packageName} export ${subpath} resolves outside its package: ${target}`)
     }
     if (existsSync(entry) && statSync(entry).isFile()) return pathToFileURL(entry).href
   }
@@ -366,7 +366,7 @@ function packageProxySource(
     version?: unknown
   }
   if (typeof manifest.version !== 'string' || manifest.version.length === 0) {
-    throw new Error(`dsh: installed package ${packageName} must declare a non-empty version`)
+    throw new Error(`qilin: installed package ${packageName} must declare a non-empty version`)
   }
   const declared = manifest.exports
   if (declared === undefined) {
@@ -380,7 +380,7 @@ function packageProxySource(
         && (manifest.bin !== undefined || manifest.types !== undefined || manifest.typings !== undefined)) {
         return { version: manifest.version, targets: {} }
       }
-      throw new Error(`dsh: installed package ${packageName} main entry is missing at ${entry}`, { cause: error })
+      throw new Error(`qilin: installed package ${packageName} main entry is missing at ${entry}`, { cause: error })
     }
   }
   const subpaths = declared !== null && typeof declared === 'object' && !Array.isArray(declared)
@@ -438,7 +438,7 @@ function ensureModuleProxy(
   if (stat !== undefined) {
     const existing = readModuleProxyRecord(link)
     if (existing?.qilin?.moduleFallback?.targets === undefined) {
-      throw new Error(`dsh: ${link} exists and is not a dsh-managed module proxy; remove it so dsh can manage the installation fallback`)
+      throw new Error(`qilin: ${link} exists and is not a qilin-managed module proxy; remove it so qilin can manage the installation fallback`)
     }
     if (existing.version === version
       && JSON.stringify(existing.qilin.moduleFallback.targets) === JSON.stringify(targets)
@@ -482,8 +482,8 @@ function resolveModuleFallbackEntries(
   // map itself (first resolution wins, matching Node's own nearest-wins).
   const queue: { anchor: string; manifest: ProfileManifest }[] = [{ anchor: installAnchor, manifest: appManifest }]
   for (let next = queue.shift(); next !== undefined; next = queue.shift()) {
-    // Peer dependencies participate: Service Definition packages (dsh-subprocess,
-    // dsh-compaction, ...) are peers of their implementations, never plain
+    // Peer dependencies participate: Service Definition packages (qilin-subprocess,
+    // qilin-compaction, ...) are peers of their implementations, never plain
     // dependencies, yet out-of-tree plugins import them directly.
     /* v8 ignore next -- a real app manifest always declares dependencies */
     for (const dep of profileDependencyNames(next.manifest)) {
@@ -533,17 +533,17 @@ function moduleFallbackCurrent(modulesDir: string, entries: readonly ModuleFallb
 
 /** Inputs for {@link healProfilesModuleFallback}. */
 export interface ProfileModuleFallbackOptions {
-  /** Absolute package.json path of the running dsh installation. */
+  /** Absolute package.json path of the running qilin installation. */
   installAnchor: string
   /** Loaded profile whose selected bundles may carry profile-local plugins. */
   profile?: Profile
-  /** Harness home; defaults to {@link resolveDshHome}. */
+  /** Harness home; defaults to {@link resolveQilinHome}. */
   home?: string
 }
 
 /**
  * Maintain module fallbacks for one profile launch. The shared
- * `$DSH_HOME/profiles/node_modules` mirrors the dsh installation dependency
+ * `$QILIN_HOME/profiles/node_modules` mirrors the qilin installation dependency
  * closure. Plain Node writes symlinks; a packaged executable writes ESM
  * proxies under a cross-process lock because operating-system links cannot
  * enter pkg's virtual filesystem. Missing packages carried only by selected
@@ -554,7 +554,7 @@ export interface ProfileModuleFallbackOptions {
  * @returns settlement after the shared fallback and profile-local links are current.
  */
 export async function healProfilesModuleFallback(options: ProfileModuleFallbackOptions): Promise<void> {
-  const { installAnchor, profile, home = resolveDshHome() } = options
+  const { installAnchor, profile, home = resolveQilinHome() } = options
   const profilesDir = join(home, PROFILES_DIR)
   const modulesDir = join(profilesDir, 'node_modules')
   mkdirSync(modulesDir, { recursive: true })
@@ -744,11 +744,11 @@ function packageDirFromAnchor(
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
  * `@qilin/base` (and every other in-box bundle) always comes from
- * the same installation as the running dsh, never from a profile-local copy.
+ * the same installation as the running qilin, never from a profile-local copy.
  * Resolution does not require the package to export `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.
- * @param packageName - the bundle's package name from `dsh.profile.bundles`.
- * @param installAnchor - absolute path of a file inside the dsh app package (its package.json).
+ * @param packageName - the bundle's package name from `qilin.profile.bundles`.
+ * @param installAnchor - absolute path of a file inside the qilin app package (its package.json).
  * @param profileDir - the profile directory (second anchor).
  * @returns the bundle package's absolute directory.
  */
@@ -760,8 +760,8 @@ export function resolveBundleDir(
     if (dir !== undefined) return dir
   }
   throw new Error(
-    `${binName}: cannot resolve profile bundle ${JSON.stringify(packageName)} from the dsh installation or ${profileDir}; `
-    + `run 'dsh plugin --profile ${basename(profileDir)} install' if its dependency is not installed`,
+    `${binName}: cannot resolve profile bundle ${JSON.stringify(packageName)} from the qilin installation or ${profileDir}; `
+    + `run 'qilin plugin --profile ${basename(profileDir)} install' if its dependency is not installed`,
   )
 }
 
@@ -771,7 +771,7 @@ export function resolveBundleDir(
  * package project and lifecycle belong to that application.
  * @param binName - the diagnostic prefix on thrown errors.
  * @param dir - absolute profile package directory.
- * @param installAnchor - absolute path of the owning dsh app's package.json.
+ * @param installAnchor - absolute path of the owning qilin app's package.json.
  * @param options - `userLayer: false` skips reading `cordis.patch.yml`.
  * @returns the resolved bundle layers and optional user patch layer.
  */
@@ -786,7 +786,7 @@ export function loadProfileDirectory(
   const rawPatchReload: unknown = manifest.qilin?.profile?.patchReload
   if (rawPatchReload !== undefined && rawPatchReload !== 'live' && rawPatchReload !== 'startup') {
     throw new Error(
-      `${binName}: profile manifest ${join(dir, 'package.json')} dsh.profile.patchReload must be "live" or "startup"`,
+      `${binName}: profile manifest ${join(dir, 'package.json')} qilin.profile.patchReload must be "live" or "startup"`,
     )
   }
   const patchReload = rawPatchReload ?? DEFAULT_PROFILE_PATCH_RELOAD
@@ -795,7 +795,7 @@ export function loadProfileDirectory(
     const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
     const declared = bundleManifest.qilin?.bundle?.patch
     if (declared === undefined) {
-      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no dsh.bundle in its package.json`)
+      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle in its package.json`)
     }
     const patchPath = join(packageDir, declared)
     return { packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) }
@@ -808,21 +808,21 @@ export function loadProfileDirectory(
 }
 
 /**
- * Load a profile: resolve every `dsh.profile.bundles` entry to its patch
+ * Load a profile: resolve every `qilin.profile.bundles` entry to its patch
  * layer and parse the profile's own patch file. A listed bundle without a
- * `dsh.bundle` manifest fails loud — naming a bundle-less package as a layer
+ * `qilin.bundle` manifest fails loud — naming a bundle-less package as a layer
  * is a misconfiguration, not "no patches".
  * @param binName - the diagnostic prefix on thrown errors.
  * @param name - the profile name.
- * @param installAnchor - absolute path of the dsh app's package.json (first resolution anchor).
- * @param home - the Harness home; defaults to {@link resolveDshHome}.
+ * @param installAnchor - absolute path of the qilin app's package.json (first resolution anchor).
+ * @param home - the Harness home; defaults to {@link resolveQilinHome}.
  * @param options - `userLayer: false` skips reading `cordis.patch.yml`, so a
  * bundles-only consumer (`--dump-default-config`, a recovery diagnostic)
  * cannot fail on a broken user layer.
  * @returns the loaded profile (empty `patches` when the user layer is skipped).
  */
 export function loadProfile(
-  binName: string, name: string, installAnchor: string, home: string = resolveDshHome(),
+  binName: string, name: string, installAnchor: string, home: string = resolveQilinHome(),
   options: { userLayer?: boolean } = {},
 ): Profile {
   const dir = resolveProfileDir(name, home)
@@ -830,7 +830,7 @@ export function loadProfile(
     const template = PROFILE_TEMPLATES[name]
     if (template === undefined) {
       throw new Error(
-        `${binName}: profile ${JSON.stringify(name)} does not exist; create it with 'dsh plugin --profile ${name} add <package>'`,
+        `${binName}: profile ${JSON.stringify(name)} does not exist; create it with 'qilin plugin --profile ${name} add <package>'`,
       )
     }
     initProfile(dir, template.bundles, template.patchReload)

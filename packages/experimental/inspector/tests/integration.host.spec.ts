@@ -89,7 +89,7 @@ describe('experimental Inspector real Worker', () => {
     await client.publish('client/probe', { value: 2 })
 
     await vi.waitFor(async () => {
-      const response = await cdp!.call('DSHInspector.getSources')
+      const response = await cdp!.call('QILINInspector.getSources')
       const sources = response.result?.sources as Array<{ kind: string; topics: Record<string, number> }>
       expect(sources.find(source => source.kind === 'host')?.topics).toEqual({ 'host/probe': 1 })
       expect(sources.find(source => source.kind === 'client')?.topics).toMatchObject({ 'client/probe': 1 })
@@ -368,7 +368,7 @@ describe('experimental Inspector real Worker', () => {
     cdp = await TestCdpClient.connect(inspector.endpoint.webSocketDebuggerUrl)
     secondCdp = await TestCdpClient.connect(inspector.endpoint.webSocketDebuggerUrl)
     await vi.waitFor(async () => {
-      const response = await cdp!.call('DSHInspector.getSources')
+      const response = await cdp!.call('QILINInspector.getSources')
       expect(recordArray(response.result?.sources).some(source => source.kind === 'client')).toBe(true)
     })
     // The MessagePort can deliver log requests before ingest receives Console subscriptions.
@@ -641,8 +641,8 @@ describe('experimental Inspector real Worker', () => {
       && event.params?.requestId === requestId)).toBe(false)
     const body = await cdp.call('Network.getResponseBody', { requestId })
     expect(Buffer.from(String(body.result?.body), 'base64').toString('utf8')).toBe(eventStream)
-    expect(body.result?.dshInspectorTruncated).toBe(true)
-    expect(String(body.result?.dshInspectorCaptureError)).toContain('AbortError')
+    expect(body.result?.qilinInspectorTruncated).toBe(true)
+    expect(String(body.result?.qilinInspectorCaptureError)).toContain('AbortError')
   })
 })
 

@@ -40,15 +40,15 @@ FS_SEARCH_TEXT = "filesystem search smoke ok"
 FS_SEARCH_MARKER = "PACKAGED_FS_SEARCH_OK"
 MCP_PROMPT = "Exercise the packaged MCP client with one external stdio server."
 MCP_TEXT = "MCP client smoke ok"
-PROFILE_PLUGIN_PROMPT = "Verify the Python-installed dsh profile plugin."
+PROFILE_PLUGIN_PROMPT = "Verify the Python-installed qilin profile plugin."
 PROFILE_PLUGIN_TEXT = "profile plugin smoke ok"
-PROFILE_PLUGIN_MARKER = "PYTHON_INSTALLED_DSH_PROFILE_PLUGIN"
+PROFILE_PLUGIN_MARKER = "PYTHON_INSTALLED_QILIN_PROFILE_PLUGIN"
 IS_WINDOWS = sys.platform == "win32"
 MINIMAL_SHELL_TOOL = "pwsh" if IS_WINDOWS else "bash"
 MINIMAL_SHELL_COMMAND = (
-    "$global:dshSdkCounter = [int]$global:dshSdkCounter + 1; "
-    'Write-Output "COUNT=$global:dshSdkCounter CWD=$((Get-Location).Path)"; '
-    "if ($global:dshSdkCounter -eq 1) { Set-Location $env:TEMP }"
+    "$global:qilinSdkCounter = [int]$global:qilinSdkCounter + 1; "
+    'Write-Output "COUNT=$global:qilinSdkCounter CWD=$((Get-Location).Path)"; '
+    "if ($global:qilinSdkCounter -eq 1) { Set-Location $env:TEMP }"
     if IS_WINDOWS
     else (
         "counter=$(( ${counter:-0} + 1 )); export counter; "
@@ -228,7 +228,7 @@ def write_profile_patch(
     sessions: Path,
     patches: list[dict[str, object]],
 ) -> Path:
-    """Write one JSON-form dsh profile patch with deterministic persistence."""
+    """Write one JSON-form qilin profile patch with deterministic persistence."""
     path = root / name
     path.write_text(json.dumps([
         {
@@ -819,8 +819,8 @@ def assert_installed_wheel_environment() -> Path:
         raise AssertionError("installed-wheel smoke must run inside a virtual environment")
     if os.environ.get("PYTHONPATH"):
         raise AssertionError("installed-wheel smoke requires PYTHONPATH to be unset")
-    if os.environ.get("DSH_RUNTIME_MODE"):
-        raise AssertionError("installed-wheel smoke requires DSH_RUNTIME_MODE to be unset")
+    if os.environ.get("QILIN_RUNTIME_MODE"):
+        raise AssertionError("installed-wheel smoke requires QILIN_RUNTIME_MODE to be unset")
 
     repo_root = Path(__file__).resolve().parent.parent
     cwd = Path.cwd().resolve()
@@ -876,10 +876,10 @@ def smoke_sdk_live() -> None:
     if not base_url:
         raise AssertionError("sdk-live requires an explicit DEEPSEEK_BASE_URL")
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-live-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-live-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         marker = root / "live-api-marker.txt"
         session_id = "installed-wheel-live-api"
         shell_tool = "pwsh" if IS_WINDOWS else "bash"
@@ -892,10 +892,10 @@ def smoke_sdk_live() -> None:
             provider="deepseek-official",
             model="deepseek-v4-flash",
             cwd=str(root),
-            dsh_home=str(dsh_home),
+            qilin_home=str(qilin_home),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key=api_key,
             base_url=base_url,
@@ -979,18 +979,18 @@ def safe_turn_end(value: object) -> object:
 def smoke_sdk_default(base_url: str) -> None:
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-default-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-default-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         with DeepSeekHarness(
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_home=str(dsh_home),
+            qilin_home=str(qilin_home),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1008,21 +1008,21 @@ def smoke_sdk_default(base_url: str) -> None:
 def smoke_sdk_custom(base_url: str, executable: Path) -> None:
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-custom-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-custom-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patch = write_advanced_profile_patch(root, "custom.patch.yml", sessions)
         with DeepSeekHarness(
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_bin=str(executable),
-            dsh_home=str(dsh_home),
+            qilin_bin=str(executable),
+            qilin_home=str(qilin_home),
             patches=(str(patch),),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1045,10 +1045,10 @@ def smoke_sdk_minimal(
 
     # One mock model serves every scenario of a run, so the snapshot takes this turn's slice.
     first_request = len(MockModelHandler.requests)
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-minimal-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-minimal-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patches = ()
         if in_history:
             patch = root / "in-history.patch.yml"
@@ -1066,8 +1066,8 @@ def smoke_sdk_minimal(
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_bin=str(executable),
-            dsh_home=str(dsh_home),
+            qilin_bin=str(executable),
+            qilin_home=str(qilin_home),
             profile="sdk-minimal",
             patches=patches,
             api_key="sk-keyless-smoke",
@@ -1099,11 +1099,11 @@ def smoke_sdk_fs_search(base_url: str, executable: Path) -> None:
     """Exercise real grep and glob spawns through the packaged executable."""
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-fs-search-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-fs-search-") as temporary:
         root = Path(temporary).resolve()
         (root / "needle.txt").write_text(f"{FS_SEARCH_MARKER}\n")
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patch = write_profile_patch(root, "fs-search.patch.yml", sessions, [
             {"id": "skill-filesystem", "disabled": True},
             {"id": "tool-fs-search", "config": {"sampleOverCapGlobResults": False}},
@@ -1112,12 +1112,12 @@ def smoke_sdk_fs_search(base_url: str, executable: Path) -> None:
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_bin=str(executable),
-            dsh_home=str(dsh_home),
+            qilin_bin=str(executable),
+            qilin_home=str(qilin_home),
             patches=(str(patch),),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1133,21 +1133,21 @@ def smoke_sdk_spawn_node(base_url: str, executable: Path) -> None:
     """A shell command starting with `node` must reach the machine's Node, not the executable."""
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-spawn-node-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-spawn-node-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patch = write_profile_patch(root, "spawn-node.patch.yml", sessions, [])
         with DeepSeekHarness(
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_bin=str(executable),
-            dsh_home=str(dsh_home),
+            qilin_bin=str(executable),
+            qilin_home=str(qilin_home),
             patches=(str(patch),),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1163,10 +1163,10 @@ def smoke_sdk_mcp(base_url: str, executable: Path | None) -> None:
     """Discover and call an external stdio MCP tool through the packaged client."""
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-mcp-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-mcp-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         server_script = root / "mcp_server.py"
         server_script.write_text(MCP_SERVER_SCRIPT)
         patch = write_mcp_patch(root, sessions, server_script)
@@ -1175,12 +1175,12 @@ def smoke_sdk_mcp(base_url: str, executable: Path | None) -> None:
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_bin=None if executable is None else str(executable),
-            dsh_home=str(dsh_home),
+            qilin_bin=None if executable is None else str(executable),
+            qilin_home=str(qilin_home),
             patches=(str(patch),),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1199,16 +1199,16 @@ def smoke_sdk_mcp(base_url: str, executable: Path | None) -> None:
 
 
 def smoke_sdk_profile_plugin(base_url: str) -> None:
-    """Install an external bundle through Python's dsh command and load it in the SDK."""
+    """Install an external bundle through Python's qilin command and load it in the SDK."""
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-profile-plugin-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-profile-plugin-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
+        qilin_home = root / "home"
         plugin = root / "plugin"
         plugin.mkdir()
         (plugin / "package.json").write_text(json.dumps({
-            "name": "dsh-python-blackbox-plugin",
+            "name": "qilin-python-blackbox-plugin",
             "version": "1.0.0",
             "private": True,
             "type": "module",
@@ -1230,13 +1230,13 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
             "}\n"
         )
         (plugin / "cordis.patch.yml").write_text(json.dumps([{
-            "insert": [{"id": "python-sdk-blackbox-plugin", "name": "dsh-python-blackbox-plugin"}],
+            "insert": [{"id": "python-sdk-blackbox-plugin", "name": "qilin-python-blackbox-plugin"}],
         }], indent=2))
 
-        dsh = Path(sysconfig.get_path("scripts")) / ("dsh.exe" if IS_WINDOWS else "dsh")
-        environment = {**os.environ, "DSH_HOME": str(dsh_home)}
+        qilin = Path(sysconfig.get_path("scripts")) / ("qilin.exe" if IS_WINDOWS else "qilin")
+        environment = {**os.environ, "QILIN_HOME": str(qilin_home)}
         installed = subprocess.run(
-            [str(dsh), "plugin", "--profile", "sdk", "add", f"file:{plugin}"],
+            [str(qilin), "plugin", "--profile", "sdk", "add", f"file:{plugin}"],
             cwd=root,
             env=environment,
             text=True,
@@ -1245,24 +1245,24 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
         )
         if installed.returncode != 0:
             raise AssertionError(
-                f"Python-installed dsh could not add the external profile plugin: "
+                f"Python-installed qilin could not add the external profile plugin: "
                 f"returncode={installed.returncode} (0x{installed.returncode & 0xffffffff:08x}) "
                 f"stdout={installed.stdout!r} stderr={installed.stderr!r}"
             )
-        manifest = json.loads((dsh_home / "profiles" / "sdk" / "package.json").read_text())
-        if "dsh-python-blackbox-plugin" not in manifest.get("dependencies", {}):
-            raise AssertionError(f"dsh plugin did not record the external dependency: {manifest}")
-        if "dsh-python-blackbox-plugin" not in manifest["dsh"]["profile"]["bundles"]:
-            raise AssertionError(f"dsh plugin did not activate the external bundle: {manifest}")
+        manifest = json.loads((qilin_home / "profiles" / "sdk" / "package.json").read_text())
+        if "qilin-python-blackbox-plugin" not in manifest.get("dependencies", {}):
+            raise AssertionError(f"qilin plugin did not record the external dependency: {manifest}")
+        if "qilin-python-blackbox-plugin" not in manifest["qilin"]["profile"]["bundles"]:
+            raise AssertionError(f"qilin plugin did not activate the external bundle: {manifest}")
 
         harness = DeepSeekHarness(
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_home=str(dsh_home),
+            qilin_home=str(qilin_home),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1277,17 +1277,17 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
             ) from error
 
         assert result.final_response == PROFILE_PLUGIN_TEXT, result.final_response
-        assert_zstd_session_log(dsh_home / "sessions")
+        assert_zstd_session_log(qilin_home / "sessions")
 
 
 def smoke_sdk_snapshot(base_url: str, executable: Path, update_snapshots: bool) -> None:
     """Drive and compare the advanced SDK/executable behavioral snapshot."""
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-snapshot-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-snapshot-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patch = write_advanced_profile_patch(root, "snapshot.patch.yml", sessions)
         feedback_patch = write_profile_patch(root, "feedback.patch.yml", sessions, [{"insert": [
             {"id": "snapshot-workflow-order", "name": (
@@ -1305,12 +1305,12 @@ def smoke_sdk_snapshot(base_url: str, executable: Path, update_snapshots: bool) 
             provider="deepseek-official",
             model="smoke-model",
             cwd=str(root),
-            dsh_bin=str(executable),
-            dsh_home=str(dsh_home),
+            qilin_bin=str(executable),
+            qilin_home=str(qilin_home),
             patches=(str(patch), str(feedback_patch)),
             env={
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             api_key="sk-keyless-smoke",
             base_url=base_url,
@@ -1356,10 +1356,10 @@ def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots
     """Snapshot two isolated sessions across complete SDK runtime restarts."""
     from deepseek_harness import DeepSeekHarness
 
-    with tempfile.TemporaryDirectory(prefix="dsh-sdk-restart-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-sdk-restart-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patch = write_advanced_profile_patch(root, "restart.patch.yml", sessions)
         first_request = len(MockModelHandler.requests)
 
@@ -1368,12 +1368,12 @@ def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots
                 provider="deepseek-official",
                 model="smoke-model",
                 cwd=str(root),
-                dsh_bin=str(executable),
-                dsh_home=str(dsh_home),
+                qilin_bin=str(executable),
+                qilin_home=str(qilin_home),
                 patches=(str(patch),),
                 env={
-                    "DSH_PERMISSION_MODE": "danger-full-access",
-                    "DSH_TELEMETRY_DISABLED": "1",
+                    "QILIN_PERMISSION_MODE": "danger-full-access",
+                    "QILIN_TELEMETRY_DISABLED": "1",
                 },
                 api_key="sk-keyless-smoke",
                 base_url=base_url,
@@ -1419,16 +1419,16 @@ def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots
 
 
 def smoke_direct(base_url: str, executable: Path) -> None:
-    with tempfile.TemporaryDirectory(prefix="dsh-direct-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-direct-") as temporary:
         root = Path(temporary).resolve()
-        dsh_home = root / "home"
-        sessions = dsh_home / "sessions"
+        qilin_home = root / "home"
+        sessions = qilin_home / "sessions"
         patch = write_profile_patch(root, "direct.patch.yml", sessions, [])
         environment = {
             **os.environ,
-            "DSH_HOME": str(dsh_home),
-            "DSH_PERMISSION_MODE": "danger-full-access",
-            "DSH_TELEMETRY_DISABLED": "1",
+            "QILIN_HOME": str(qilin_home),
+            "QILIN_PERMISSION_MODE": "danger-full-access",
+            "QILIN_TELEMETRY_DISABLED": "1",
             "DEEPSEEK_API_KEY": "sk-keyless-smoke",
             "DEEPSEEK_BASE_URL": base_url,
         }
@@ -1461,18 +1461,18 @@ def smoke_direct(base_url: str, executable: Path) -> None:
 
 def smoke_packaged_runner(executable: Path) -> None:
     """Exercise the private subprocess runner through the single-file entry."""
-    with tempfile.TemporaryDirectory(prefix="dsh-packaged-runner-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="qilin-packaged-runner-") as temporary:
         root = Path(temporary).resolve()
         target_script = (
             "import os,sys; "
             "ok = (os.getcwd() == os.environ['PACKAGED_RUNNER_EXPECTED_CWD'] "
-            "and os.environ.get('DSH_SUBPROCESS_RUNNER') == 'target-collision-restored'); "
+            "and os.environ.get('QILIN_SUBPROCESS_RUNNER') == 'target-collision-restored'); "
             "sys.exit(7 if ok else 9)"
         )
         if not IS_WINDOWS:
             request_path = root / "launch-request.json"
             target_env = dict(os.environ)
-            target_env["DSH_SUBPROCESS_RUNNER"] = "target-collision-restored"
+            target_env["QILIN_SUBPROCESS_RUNNER"] = "target-collision-restored"
             target_env["PACKAGED_RUNNER_EXPECTED_CWD"] = str(root)
             request_path.write_text(
                 json.dumps({"cwd": str(root), "env": target_env}),
@@ -1480,7 +1480,7 @@ def smoke_packaged_runner(executable: Path) -> None:
             )
             request_path.chmod(0o600)
             environment = dict(os.environ)
-            environment["DSH_SUBPROCESS_RUNNER"] = str(request_path)
+            environment["QILIN_SUBPROCESS_RUNNER"] = str(request_path)
             result = subprocess.run(
                 [str(executable), "--", sys.executable, "-c", target_script],
                 cwd=root,
@@ -1506,7 +1506,7 @@ def smoke_packaged_runner(executable: Path) -> None:
 const [runtime, target, cwd, targetScript] = process.argv.slice(2)
 const child = spawn(runtime, ['--', target, '-c', targetScript], {
   cwd,
-  env: { ...process.env, DSH_SUBPROCESS_RUNNER: 'windows' },
+  env: { ...process.env, QILIN_SUBPROCESS_RUNNER: 'windows' },
   stdio: ['ignore', 'ignore', 'ignore', 'ipc', 'pipe', 'pipe', 'pipe'],
 })
 const messages = []
@@ -1524,7 +1524,7 @@ const result = await new Promise((resolve, reject) => {
       cwd,
       env: {
         ...process.env,
-        DSH_SUBPROCESS_RUNNER: 'target-collision-restored',
+        QILIN_SUBPROCESS_RUNNER: 'target-collision-restored',
         PACKAGED_RUNNER_EXPECTED_CWD: cwd,
       },
     }, error => { if (error) reject(error) })

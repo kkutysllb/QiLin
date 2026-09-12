@@ -32,7 +32,7 @@ afterEach(() => {
 
 function props(path = 'asset.png', data: Uint8Array<ArrayBuffer> = new Uint8Array([1, 2, 3])): ImageBodyProps {
   return {
-    resourceAddress: `dsh-resource://file/session/image/${path}`,
+    resourceAddress: `qilin-resource://file/session/image/${path}`,
     content: { kind: 'bytes', data },
     wrap: false,
     sessionId: 'image' as SessionId,

@@ -1,5 +1,5 @@
 ---
-description: "Shared TypeScript declarations for package.json.dsh metadata, usable by boot, client, build, and external packages."
+description: "Shared TypeScript declarations for package.json.qilin metadata, usable by boot, client, build, and external packages."
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `DshManifest` to type a package's Harness metadata, or a member type such as `DshClientManifest` for one declaration. Boot, client, build, and external packages import the same types; each reader owns JSON validation and default resolution.
+Use `QilinManifest` to type a package's Harness metadata, or a member type such as `QilinClientManifest` for one declaration. Boot, client, build, and external packages import the same types; each reader owns JSON validation and default resolution.
 
 ## Table of Contents
 
@@ -28,16 +28,16 @@ Use `DshManifest` to type a package's Harness metadata, or a member type such as
 Import from the package root. Use a development dependency when only checking your own source; use a production dependency if your published declarations reference these types.
 
 ```ts
-import type { DshClientManifest, DshManifest } from '@qilin/package-manifest'
+import type { QilinClientManifest, QilinManifest } from '@qilin/package-manifest'
 
-const client: DshClientManifest = { platform: 'web' }
-const dsh: DshManifest = {
+const client: QilinClientManifest = { platform: 'web' }
+const qilin: QilinManifest = {
   bundle: { patch: './cordis.patch.yml' },
   client,
 }
 ```
 
-`DshManifest` describes `bundle`, `profile`, `client`, `configTrees`, `sessionFormatMigration`, and `moduleFallback`, not the surrounding npm manifest. `moduleFallback` is launcher-generated metadata and is not an author configuration entry. TypeScript checks this object and erases `import type` during compilation; JSON files cannot import types, and this example does not write a `package.json`. See [`src/types.ts`](src/types.ts) for the declarations.
+`QilinManifest` describes `bundle`, `profile`, `client`, `configTrees`, `sessionFormatMigration`, and `moduleFallback`, not the surrounding npm manifest. `moduleFallback` is launcher-generated metadata and is not an author configuration entry. TypeScript checks this object and erases `import type` during compilation; JSON files cannot import types, and this example does not write a `package.json`. See [`src/types.ts`](src/types.ts) for the declarations.
 
 -----
 

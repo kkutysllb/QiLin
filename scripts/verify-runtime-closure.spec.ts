@@ -7,7 +7,7 @@ import { verifyRuntimeClosure } from './verify-runtime-closure.ts'
 const roots: string[] = []
 
 function fixture(files: Record<string, string | Record<string, unknown>>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-runtime-closure-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-runtime-closure-'))
   roots.push(root)
   for (const [relative, value] of Object.entries(files)) {
     const path = join(root, relative)
@@ -77,7 +77,7 @@ describe('verifyRuntimeClosure', () => {
       'packages/preset/agent-presets/presets/standard/agent.cordis.yml': `
 - id: conditional
   name: '@scope/conditional'
-  disabled: !!js process.env.DSH_DISABLE_CONDITIONAL === '1'
+  disabled: !!js process.env.QILIN_DISABLE_CONDITIONAL === '1'
 `,
     })
 

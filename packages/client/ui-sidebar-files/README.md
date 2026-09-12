@@ -1,5 +1,5 @@
 ---
-description: "The right Sidebar's file-tree tab type for the dsh web client: the session workspace root listed one level at a time over the wire, opening files into the Sidebar by resource address."
+description: "The right Sidebar's file-tree tab type for the qilin web client: the session workspace root listed one level at a time over the wire, opening files into the Sidebar by resource address."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The right Sidebar's navigator tab type: the session's workspace root as a tree, listed one level at a time over the wire, opening files into the Sidebar. It is a page type reached from the guide and claims no address; it opens files by address for the `dsh-resource://file` viewers to claim — nothing in `ui-sidebar-right` knows this package.
+The right Sidebar's navigator tab type: the session's workspace root as a tree, listed one level at a time over the wire, opening files into the Sidebar. It is a page type reached from the guide and claims no address; it opens files by address for the `qilin-resource://file` viewers to claim — nothing in `ui-sidebar-right` knows this package.
 
 ## Table of Contents
 
@@ -38,7 +38,7 @@ The root is the session's working directory, read from `useSessions().byId[sessi
 | Entry type | Row |
 |---|---|
 | `directory` | Toggles; the level is fetched the first time it opens and kept while collapsed. |
-| `file` | Opens `dsh-resource://file/session/<sessionId>/<encoded path relative to the root>`, built by `fileAddressFor` from `@qilin/util-workspace-path` from the entry's absolute path and the tree's root, through `useTabInfo().tab.actions.openResource`, landing in the tab's own pane. |
+| `file` | Opens `qilin-resource://file/session/<sessionId>/<encoded path relative to the root>`, built by `fileAddressFor` from `@qilin/util-workspace-path` from the entry's absolute path and the tree's root, through `useTabInfo().tab.actions.openResource`, landing in the tab's own pane. |
 | `other` | Shown greyed and not clickable, so the directory is reported whole. |
 
 A level cut by the endpoint's entry cap ends with a marker; an empty level says so; a level that failed shows one line per code — `workspace-file/not-found`, `outside-workspace`, `not-directory` — and the transport's own message otherwise. Reload drops every listed level and asks again for the expanded ones; collapsed levels are fetched again when they next open. A session without a working directory shows a single line instead of a tree.

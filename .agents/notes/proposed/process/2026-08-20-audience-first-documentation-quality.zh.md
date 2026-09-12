@@ -48,7 +48,7 @@ Status: proposed
 
 ### 原型规则
 
-[dsh-doc skill](../../../skills/dsh-doc/SKILL.md) 负责这些规则的首个可执行版本。`session-persistence-jsonl` README 对以已交付的追加、恢复与编码行为为证据，而不把其旧版正文当作权威。
+[dsh-doc skill](../../../skills/qilin-doc/SKILL.md) 负责这些规则的首个可执行版本。`session-persistence-jsonl` README 对以已交付的追加、恢复与编码行为为证据，而不把其旧版正文当作权威。
 
 - 每个撰写型包 README 都以可搜索 YAML 开头。Skill 风格的 `description` 与按机制推导的 `kind` 为必填字段。四种 kind 与四个技能模板一一对应：`package-group`（组地图）、`package-reference`（插件或服务包）、`package-library`（纯模块入口）与 `package-bundle`（`dsh.bundle.patch`）。对照文件路径、哈希与物理行对齐由支持自动合并的 sidecar 及其门禁负责，因此 README frontmatter 不包含 `i18n` 块。名称已由标题或包 manifest 归属，受众已由文档职责表达；在受治理的标签分类与搜索消费方证明其价值超过全文检索之前，不加入标签。
 - 撰写型页面先写三至五句的 `Summary`，再写带链接的 `Table of Contents`。英文包 README 的 Summary 不超过 100 个按 `wc -w` 语义统计的词。它描述读者可见能力，而不是 Cordis 角色、注册项或内部组件；除非读者会在配置、命令或公开 API 中直接使用某个源码标识符，否则不得写入该标识符。由格式约束的 Agent Note、事故复盘、生成片段和机器文件保留其必需骨架。
@@ -114,7 +114,7 @@ Status: proposed
 ## 验收标准
 
 - 一份规范质量参考按文档职责定义简短、直观、友好、准确和便于 agent 阅读的文档。
-- `.agents/skills/dsh-doc` 通过验证，并直接链接其元数据、结构或层级及评审或原型参考，而不在 `SKILL.md` 中复制这些参考的详细规则。
+- `.agents/skills/qilin-doc` 通过验证，并直接链接其元数据、结构或层级及评审或原型参考，而不在 `SKILL.md` 中复制这些参考的详细规则。
 - `session-persistence-jsonl` README 对展示可搜索 YAML、Summary、Table of Contents、从用户到开发者的渐进结构、Further Exploration、结尾 Dev Note、结构一致性和精确行数相等，同时保留已验证的包约定。
 - 每个英文包 README Summary 都不超过 100 个按 `wc -w` 语义统计的词；聚焦门禁报告实测词数，并引导失败项阅读 `dsh-doc` 与所选 kind 模板。
 - `docs/AGENTS.md` 链接该参考，仍足以充当常驻指令，并低于其目标且至少保留 5% 余量。

@@ -33,7 +33,7 @@ const roots: string[] = []
 const locks: string[] = []
 
 async function workspace(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-file-autocomplete-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-file-autocomplete-'))
   roots.push(root)
   await mkdir(join(root, 'src'), { recursive: true })
   await mkdir(join(root, 'docs'), { recursive: true })
@@ -134,7 +134,7 @@ describe('WorkspaceFileSearch', () => {
 
   it('does not traverse directory symlinks during direct completion', async () => {
     const root = await workspace()
-    const outside = await mkdtemp(join(tmpdir(), 'dsh-file-autocomplete-outside-'))
+    const outside = await mkdtemp(join(tmpdir(), 'qilin-file-autocomplete-outside-'))
     roots.push(outside)
     await writeFile(join(outside, 'outside-secret.txt'), 'secret')
     await symlink(

@@ -59,11 +59,11 @@ describe('HTML registration', () => {
     const injected = registration?.inject()
     expect(typeof injected?.readRelated).toBe('function')
     const signal = new AbortController().signal
-    await injected?.readRelated('dsh-resource://file/session/explicit-session/sub/index.html', '../app.js', signal)
+    await injected?.readRelated('qilin-resource://file/session/explicit-session/sub/index.html', '../app.js', signal)
     expect(readRelated).toHaveBeenLastCalledWith('explicit-session', 'sub/index.html', '../app.js', signal)
     await injected?.readRelated(sessionFileAddress('absolute-session', '/workspace/index.html'), './app.js', signal)
     expect(readRelated).toHaveBeenLastCalledWith('absolute-session', '/workspace/index.html', './app.js', signal)
-    expect(() => injected?.readRelated('dsh-resource://file/absolute/workspace/index.html', './app.js', signal))
+    expect(() => injected?.readRelated('qilin-resource://file/absolute/workspace/index.html', './app.js', signal))
       .toThrow('not a session file address')
     expect(readRelated).toHaveBeenCalledTimes(2)
     await dispose()

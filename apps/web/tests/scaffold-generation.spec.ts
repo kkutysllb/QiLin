@@ -16,7 +16,7 @@ afterEach(async () => {
 
 describe('Web snapshot generation filenames', () => {
   it('selects the highest parent and child generations without counting retained inputs twice', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-web-fixture-generations-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-web-fixture-generations-'))
     roots.push(root)
     for (const [name, version] of [
       ['session.jsonl', 0],
@@ -38,7 +38,7 @@ describe('Web snapshot generation filenames', () => {
   })
 
   it('leaves an absent override-only parent fixture unresolved', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-web-fixture-generations-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-web-fixture-generations-'))
     roots.push(root)
 
     await expect(selectedSessionFixture(join(root, 'session.jsonl'), true))
@@ -60,7 +60,7 @@ describe('Web snapshot generation filenames', () => {
   })
 
   it('treats retained generations as one exact inventory role', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-web-fixture-inventory-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-web-fixture-inventory-'))
     roots.push(root)
     await writeFile(join(root, 'session.jsonl'), `${JSON.stringify({
       type: 'session', version: 0, id: '{{session:1}}', createdAt: 0, delegationDepth: 0,

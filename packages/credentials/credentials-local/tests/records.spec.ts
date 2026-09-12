@@ -27,7 +27,7 @@ afterEach(async () => {
 })
 
 async function tempDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-cred-records-'))
+  const dir = await mkdtemp(join(tmpdir(), 'qilin-cred-records-'))
   cleanups.push(() => rm(dir, { recursive: true, force: true }))
   return dir
 }
@@ -120,15 +120,15 @@ describe('record storage', () => {
     const dir = await tempDir()
     const path = join(dir, '.credentials.yaml')
     const ctx = await boot({ path, watch: false })
-    await ctx.credentials.set(credentialRef('DSH_RECORDS_KEY'), 'sk-live')
+    await ctx.credentials.set(credentialRef('QILIN_RECORDS_KEY'), 'sk-live')
     await put(ctx, CODEX, { kind: 'grant', payload: { token: 't' } })
 
     const text = await readFile(path, 'utf8')
     expect(text).toBe(
-      'version: 1\nrefs:\n  DSH_RECORDS_KEY: sk-live\nrecords:\n'
+      'version: 1\nrefs:\n  QILIN_RECORDS_KEY: sk-live\nrecords:\n'
       + '  llm-pi-ai/openai-codex:\n    kind: grant\n    payload:\n      token: t\n',
     )
-    expect(await ctx.credentials.resolve(credentialRef('DSH_RECORDS_KEY'))).toEqual({ value: 'sk-live', source: 'file' })
+    expect(await ctx.credentials.resolve(credentialRef('QILIN_RECORDS_KEY'))).toEqual({ value: 'sk-live', source: 'file' })
   })
 
   it('reads every record shape back off disk', async () => {

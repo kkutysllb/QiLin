@@ -1,4 +1,4 @@
-# TypeScript SDK snapshot-record patch over `dsh --profile sdk`.
+# TypeScript SDK snapshot-record patch over `qilin --profile sdk`.
 
 # The fixture corpus must not depend on the developer's personal skill roots.
 # Ordinary product launches retain the sdk profile's default skill discovery.
@@ -16,8 +16,8 @@
 - id: session-persistence-jsonl
   name: '@qilin/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
-    compression: !!js "process.env.DSH_SNAPSHOT === undefined ? 'zstd' : 'none'"
+    root: !!js qilinHomePath('sessions')
+    compression: !!js "process.env.QILIN_SNAPSHOT === undefined ? 'zstd' : 'none'"
 
 - id: tool-subagent
   name: '@qilin/tool-subagent'
@@ -36,9 +36,9 @@
 - insert:
     - id: snapshot-message-feedback
       name: '@qilin/message-feedback'
-      disabled: !!js "process.env.DSH_SNAPSHOT_FEEDBACK !== '1'"
+      disabled: !!js "process.env.QILIN_SNAPSHOT_FEEDBACK !== '1'"
       config:
         maxNoteBytes: 1024
     - id: snapshot-feedback-producer
       name: './feedback-producer.mjs'
-      disabled: !!js "process.env.DSH_SNAPSHOT_FEEDBACK !== '1'"
+      disabled: !!js "process.env.QILIN_SNAPSHOT_FEEDBACK !== '1'"

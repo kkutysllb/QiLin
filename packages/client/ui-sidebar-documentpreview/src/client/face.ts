@@ -150,7 +150,7 @@ export function textFace(
         } catch (error) {
           actions.failed(tabId, Object.assign(
             new Error('document file byte response has malformed base64 data', { cause: error }),
-            { name: 'RemoteError', isDSHRemoteError: true as const, code: 'gateway/internal' as const, details: {} },
+            { name: 'RemoteError', isQILINRemoteError: true as const, code: 'gateway/internal' as const, details: {} },
           ))
           return
         }

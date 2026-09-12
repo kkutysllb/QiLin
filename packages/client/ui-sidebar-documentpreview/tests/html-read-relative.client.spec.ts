@@ -4,7 +4,7 @@ import { RemoteError } from '@qilin/client-test-runtime'
 import { createReadHtmlRelative } from '../src/client/html/read-relative.ts'
 import type { ReadHtmlRelated } from '../src/client/html/read-relative.ts'
 
-const ADDRESS = 'dsh-resource://file/session/html/sub/index.html'
+const ADDRESS = 'qilin-resource://file/session/html/sub/index.html'
 
 describe('HTML relative file reader', () => {
   it('decodes a relative URL once and converts the Remote result to native bytes', async () => {

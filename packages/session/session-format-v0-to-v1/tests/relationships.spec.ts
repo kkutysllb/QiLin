@@ -358,7 +358,7 @@ describe('released v1 whole-artifact relationships', () => {
       type: 'session/title-llm-request', seq: 2, time: 3,
       data: {
         titleProvider: 'p', messageSeqs: [1], route: { provider: 'p', model: 'm' }, system: 's',
-        messages: [user('unrelated', { kind: 'plugin', plugin: 'dsh-session-title-llm' })], maxTokens: 1,
+        messages: [user('unrelated', { kind: 'plugin', plugin: 'qilin-session-title-llm' })], maxTokens: 1,
       },
     }])).toThrow(/do not represent/)
   })
@@ -644,7 +644,7 @@ describe('released v1 whole-artifact relationships', () => {
         titleProvider: 'p', messageSeqs: [1], route: { provider: 'p', model: 'm' }, system: 's', maxTokens: 1,
         messages: [{
           id: 'framed', role: 'user', content: [{ type: 'text', text: framed }],
-          source: { kind: 'plugin', plugin: 'dsh-session-title-llm' },
+          source: { kind: 'plugin', plugin: 'qilin-session-title-llm' },
         }],
       },
     }
@@ -666,7 +666,7 @@ describe('released v1 whole-artifact relationships', () => {
         ...request.data,
         messages: [{
           id: 'mixed-frame', role: 'user', content: [{ type: 'text', text: mixedFramed }],
-          source: { kind: 'plugin', plugin: 'dsh-session-title-llm' },
+          source: { kind: 'plugin', plugin: 'qilin-session-title-llm' },
         }],
       },
     }

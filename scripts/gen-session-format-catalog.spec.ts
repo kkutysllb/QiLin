@@ -15,7 +15,7 @@ afterEach(() => {
 })
 
 function fixture(edges: Array<[number, number]>): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-session-format-catalog-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-session-format-catalog-'))
   fixtureRoots.push(root)
   mkdirSync(join(root, 'packages/core/session/src'), { recursive: true })
   writeFileSync(join(root, 'packages/core/session/src/types.ts'), 'export const SESSION_FORMAT_VERSION = 2\n')

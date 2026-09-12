@@ -120,7 +120,7 @@ function meta(id: string, cwd = '/work'): SessionHeader {
 }
 
 async function freshRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-jsonl-lease-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-jsonl-lease-'))
   dirs.push(root)
   return root
 }

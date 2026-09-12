@@ -4,33 +4,33 @@
  * @module @qilin/package-manifest/types
  */
 
-/** The `dsh` property of an npm manifest; a package may declare several roles. */
-export interface DshManifest {
+/** The `qilin` property of an npm manifest; a package may declare several roles. */
+export interface QilinManifest {
   /** Bundle metadata consumed by the profile launcher. */
-  bundle?: DshBundleManifest
+  bundle?: QilinBundleManifest
   /** Profile metadata consumed by the profile launcher. */
-  profile?: DshProfileManifest
+  profile?: QilinProfileManifest
   /** Client module loading and build metadata. */
-  client?: DshClientManifest
+  client?: QilinClientManifest
   /** Config directories consumed by the experimental deployment-image packer. */
-  configTrees?: DshConfigTreeDeclaration[]
+  configTrees?: QilinConfigTreeDeclaration[]
   /** Adjacent Session migration metadata consumed by the workspace catalog generator. */
-  sessionFormatMigration?: DshSessionFormatMigrationManifest
+  sessionFormatMigration?: QilinSessionFormatMigrationManifest
   /**
    * Launcher-generated module proxy metadata, not an author configuration entry.
    * @internal
    */
-  moduleFallback?: DshModuleFallbackManifest
+  moduleFallback?: QilinModuleFallbackManifest
 }
 
 /** The configuration layer exported by a bundle package. */
-export interface DshBundleManifest {
+export interface QilinBundleManifest {
   /** Patch file path relative to the declaring package root. */
   patch: string
 }
 
 /** The bundle composition declared by a profile directory. */
-export interface DshProfileManifest {
+export interface QilinProfileManifest {
   /** Ordered bundle layer list, using installed package names. */
   bundles?: string[]
   /** User patch lifecycle; omitted means `live` for custom profiles. */
@@ -41,7 +41,7 @@ export interface DshProfileManifest {
 export type ProfilePatchReload = 'live' | 'startup'
 
 /** Client module declaration read by client-modules and the client build. */
-export interface DshClientManifest {
+export interface QilinClientManifest {
   /** Client platform identifier; the Web consumer selects `web`. */
   platform: string
   /** Informational package-name dependencies, not Cordis service injection. */
@@ -57,7 +57,7 @@ export interface DshClientManifest {
 }
 
 /** One config directory read from the CLI package by the experimental image packer. */
-export interface DshConfigTreeDeclaration {
+export interface QilinConfigTreeDeclaration {
   /** Non-empty destination path in the image; mount values must be unique. */
   mount: string
   /** Non-empty source directory path relative to the declaring package root. */
@@ -70,7 +70,7 @@ export interface DshConfigTreeDeclaration {
  * Adjacent Session migration metadata declared on disk. The catalog generator
  * discovers only packages/session/session-format-vN-to-vN+1, not external plugins.
  */
-export interface DshSessionFormatMigrationManifest {
+export interface QilinSessionFormatMigrationManifest {
   /** Non-negative safe integer source version; negative zero is rejected. */
   from: number
   /** Non-negative safe integer target version, exactly from + 1. */
@@ -93,7 +93,7 @@ export interface DshSessionFormatMigrationManifest {
  * Metadata generated and read by the launcher's module fallback proxies.
  * @internal
  */
-export interface DshModuleFallbackManifest {
+export interface QilinModuleFallbackManifest {
   /** Package export subpaths mapped to resolved target file URLs. */
   targets: Record<string, string>
 }

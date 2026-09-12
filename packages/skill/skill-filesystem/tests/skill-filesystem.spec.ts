@@ -14,7 +14,7 @@ afterEach(async () => {
 })
 
 async function tempDir(name: string): Promise<string> {
-  const dir = await import('node:fs/promises').then(fs => fs.mkdtemp(join(tmpdir(), `dsh-${name}-`)))
+  const dir = await import('node:fs/promises').then(fs => fs.mkdtemp(join(tmpdir(), `qilin-${name}-`)))
   tempDirs.push(dir)
   return dir
 }
@@ -154,7 +154,7 @@ async function setupLocal(home: string, config: Partial<SkillFileSystem.Config> 
   const ctx = new Context()
   await ctx.plugin(SkillRegistry)
   await ctx.plugin(SkillFileSystem, {
-    dshHome: join(home, '.qilin'),
+    qilinHome: join(home, '.qilin'),
     agentsHome: join(home, '.agents'),
     watch: false,
     ...config,
@@ -172,7 +172,7 @@ async function waitFor<T>(read: () => Promise<T>, accept: (value: T) => boolean)
   }
 }
 
-describe('dsh-skill-filesystem plugin exports', () => {
+describe('qilin-skill-filesystem plugin exports', () => {
   it('declares stable plugin metadata', () => {
     expect(SkillFileSystem.name).toBe('skill-filesystem')
     expect(SkillFileSystem.inject).toEqual(['skills'])
@@ -187,10 +187,10 @@ describe('FileSystemSkillProvider', () => {
     await mkdir(join(project, '.git'), { recursive: true })
 
     await writeSkill(join(home, '.agents/skills'), 'same', 'user agents skill')
-    await writeSkill(join(home, '.qilin/skills'), 'same', 'user dsh skill')
+    await writeSkill(join(home, '.qilin/skills'), 'same', 'user qilin skill')
     await writeSkill(custom, 'same', 'custom skill')
     await writeSkill(join(project, '.agents/skills'), 'same', 'project agents skill')
-    await writeSkill(join(project, '.qilin/skills'), 'same', 'project dsh skill')
+    await writeSkill(join(project, '.qilin/skills'), 'same', 'project qilin skill')
     await writeSkill(custom, 'custom-only', 'custom only')
     await writeSkill(join(home, '.qilin/skills/.system'), 'hidden-system', 'hidden system')
 
@@ -206,8 +206,8 @@ describe('FileSystemSkillProvider', () => {
       'same',
     ])
     expect(skills.find(skill => skill.name === 'custom-only')?.description).toBe('custom only')
-    expect(skills.find(skill => skill.name === 'same')?.description).toBe('project dsh skill')
-    expect(skills.find(skill => skill.name === 'same')?.source).toBe('project-dsh')
+    expect(skills.find(skill => skill.name === 'same')?.description).toBe('project qilin skill')
+    expect(skills.find(skill => skill.name === 'same')?.source).toBe('project-qilin')
     expect(skills.find(skill => skill.name === 'hidden-system')).toBeUndefined()
     expect(skills.find(skill => skill.name === 'bundled-only')).toMatchObject({ source: 'bundled' })
     expect((await ctx.skills.get('bundled-only'))?.content).toBe('Use the skill.')
@@ -465,11 +465,11 @@ describe('FileSystemSkillProvider', () => {
       size: 0,
     })
     await ctx.plugin(SkillRegistry)
-    await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.qilin'), agentsHome: join(home, '.agents'), watch: false })
+    await ctx.plugin(SkillFileSystem, { qilinHome: join(home, '.qilin'), agentsHome: join(home, '.agents'), watch: false })
 
     expect((await ctx.skills.list({ cwd: nestedCwd })).map(skill => [skill.name, skill.source])).toEqual([
       ['backend-root', 'project-agents'],
-      ['text-skill', 'user-dsh'],
+      ['text-skill', 'user-qilin'],
     ])
     expect(fs.listDirCalls).toBeGreaterThan(0)
     expect(await ctx.skills.get('binary-skill')).toBeUndefined()
@@ -482,7 +482,7 @@ describe('FileSystemSkillProvider', () => {
     bundledFs.failResolvePaths.add(bundled)
     await bundledCtx.plugin(SkillRegistry)
     await bundledCtx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       bundledSkillDir: bundled,
     })
@@ -498,7 +498,7 @@ describe('FileSystemSkillProvider', () => {
     const fs = ctx.fs as TestFileSystem
     await ctx.plugin(SkillRegistry)
     await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: false,
     })
@@ -534,7 +534,7 @@ describe('FileSystemSkillProvider', () => {
     const fs = ctx.fs as TestFileSystem
     await ctx.plugin(SkillRegistry)
     await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: false,
     })
@@ -583,7 +583,7 @@ describe('FileSystemSkillProvider', () => {
     await ctx.plugin(TestFileSystem)
     const fs = ctx.fs as TestFileSystem
     await ctx.plugin(SkillRegistry)
-    await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.qilin'), agentsHome: join(home, '.agents'), watch: false })
+    await ctx.plugin(SkillFileSystem, { qilinHome: join(home, '.qilin'), agentsHome: join(home, '.agents'), watch: false })
     expect((await ctx.skills.list()).map(skill => skill.name)).toEqual(['abortable-skill'])
 
     fs.statSignals = []
@@ -616,7 +616,7 @@ describe('FileSystemSkillProvider', () => {
     const ctx = new Context()
     await ctx.plugin(SkillRegistry)
     const fiber = await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: true,
       watchStabilityThresholdMs: 20,
@@ -724,7 +724,7 @@ describe('FileSystemSkillProvider', () => {
     const ctx = new Context()
     await ctx.plugin(SkillRegistry)
     const fiber = await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       customSkillDirs: [join(first, '.agents/skills')],
       watch: true,
@@ -746,7 +746,7 @@ describe('FileSystemSkillProvider', () => {
     const noWatch = new Context()
     await noWatch.plugin(SkillRegistry)
     await noWatch.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: false,
       watchMaxProjects: 1,
@@ -765,7 +765,7 @@ describe('FileSystemSkillProvider', () => {
     let provider!: SkillFileSystem.FileSystemSkillProvider
     const disposeProvider = ctx.skills.registerProvider((control) => {
       provider = new SkillFileSystem.FileSystemSkillProvider(ctx, control, {
-        dshHome: join(home, '.qilin'),
+        qilinHome: join(home, '.qilin'),
         agentsHome: join(home, '.agents'),
         customSkillDirs: [nonDirectoryRoot],
         watch: true,
@@ -798,7 +798,7 @@ describe('FileSystemSkillProvider', () => {
     const ctx = new Context()
     await ctx.plugin(SkillRegistry)
     const fiber = await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.qilin'),
+      qilinHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: true,
       watchFollowSymlinks: true,
@@ -828,15 +828,15 @@ describe('FileSystemSkillProvider', () => {
   })
 
   it('uses default home root resolution without exposing builtin skills', async () => {
-    const previousDshHome = process.env.DSH_HOME
-    const previousAgentsHome = process.env.DSH_AGENTS_HOME
-    const previousBundledSkillDir = process.env.DSH_BUNDLED_SKILL_DIR
+    const previousQilinHome = process.env.QILIN_HOME
+    const previousAgentsHome = process.env.QILIN_AGENTS_HOME
+    const previousBundledSkillDir = process.env.QILIN_BUNDLED_SKILL_DIR
     const envHome = await tempDir('skill-env-home')
     try {
-      process.env.DSH_HOME = join(envHome, '.qilin')
-      process.env.DSH_AGENTS_HOME = join(envHome, '.agents')
+      process.env.QILIN_HOME = join(envHome, '.qilin')
+      process.env.QILIN_AGENTS_HOME = join(envHome, '.agents')
       const bundled = join(envHome, 'bundled-skills')
-      process.env.DSH_BUNDLED_SKILL_DIR = bundled
+      process.env.QILIN_BUNDLED_SKILL_DIR = bundled
       await writeSkill(join(envHome, '.qilin/skills'), 'env-skill', 'Env skill')
       await writeSkill(bundled, 'env-bundled-skill', 'Env bundled skill')
       const ctx = new Context()
@@ -860,34 +860,34 @@ describe('FileSystemSkillProvider', () => {
       expect((await isolated.skills.list()).map(skill => skill.name)).toEqual(['custom-isolated-skill'])
       await isolated.fiber.dispose()
 
-      process.env.DSH_HOME = join(envHome, 'empty-dsh')
-      delete process.env.DSH_BUNDLED_SKILL_DIR
-      process.env.DSH_AGENTS_HOME = join(envHome, 'empty-agents')
+      process.env.QILIN_HOME = join(envHome, 'empty-qilin')
+      delete process.env.QILIN_BUNDLED_SKILL_DIR
+      process.env.QILIN_AGENTS_HOME = join(envHome, 'empty-agents')
       const empty = new Context()
       await empty.plugin(SkillRegistry)
       SkillFileSystem.apply(empty, { watch: false })
       expect(await empty.skills.list()).toEqual([])
 
-      delete process.env.DSH_AGENTS_HOME
+      delete process.env.QILIN_AGENTS_HOME
       expect(new SkillFileSystem.FileSystemSkillProvider(empty, {
         signal: new AbortController().signal,
         invalidate() {},
-      }, { dshHome: join(envHome, 'empty-dsh') }).name).toBe('filesystem')
+      }, { qilinHome: join(envHome, 'empty-qilin') }).name).toBe('filesystem')
     } finally {
-      if (previousDshHome === undefined) {
-        delete process.env.DSH_HOME
+      if (previousQilinHome === undefined) {
+        delete process.env.QILIN_HOME
       } else {
-        process.env.DSH_HOME = previousDshHome
+        process.env.QILIN_HOME = previousQilinHome
       }
       if (previousAgentsHome === undefined) {
-        delete process.env.DSH_AGENTS_HOME
+        delete process.env.QILIN_AGENTS_HOME
       } else {
-        process.env.DSH_AGENTS_HOME = previousAgentsHome
+        process.env.QILIN_AGENTS_HOME = previousAgentsHome
       }
       if (previousBundledSkillDir === undefined) {
-        delete process.env.DSH_BUNDLED_SKILL_DIR
+        delete process.env.QILIN_BUNDLED_SKILL_DIR
       } else {
-        process.env.DSH_BUNDLED_SKILL_DIR = previousBundledSkillDir
+        process.env.QILIN_BUNDLED_SKILL_DIR = previousBundledSkillDir
       }
     }
   })

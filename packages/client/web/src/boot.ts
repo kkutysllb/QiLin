@@ -7,7 +7,7 @@
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import type {
-  BootManifest, ClientModuleCreateOptions, ClientModuleSystem, DshWindow,
+  BootManifest, ClientModuleCreateOptions, ClientModuleSystem, QilinWindow,
 } from '@qilin/client-modules/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import { BootPage } from './boot-page.ts'
@@ -51,8 +51,8 @@ export class AppWebEntry {
       // next microtask; an asynchronous bootstrap resolves it after its last
       // row, or rejects it into the failure rendering below. An absent global
       // means no bootstrap owns the document and there is nothing to wait for.
-      await (globalThis as { __DSH_BOOT_READY__?: { promise: Promise<void> } }).__DSH_BOOT_READY__?.promise
-      const win = globalThis as DshWindow
+      await (globalThis as { __QILIN_BOOT_READY__?: { promise: Promise<void> } }).__QILIN_BOOT_READY__?.promise
+      const win = globalThis as QilinWindow
       const moduleLoader = win.__ModuleLoader__
       if (moduleLoader === undefined) {
         throw new Error('web boot: window.__ModuleLoader__ bootstrap facade is missing')
@@ -63,10 +63,10 @@ export class AppWebEntry {
       // this structural slice reads one optional member without adding a
       // package edge.
       const transport = (globalThis as {
-        __DSH_TRANSPORT__?: { loadBundle?: ClientModuleCreateOptions['loadBundle'] }
-      }).__DSH_TRANSPORT__
+        __QILIN_TRANSPORT__?: { loadBundle?: ClientModuleCreateOptions['loadBundle'] }
+      }).__QILIN_TRANSPORT__
       this.modules = moduleLoader.create({
-        boot: win.__DSH_BOOT__,
+        boot: win.__QILIN_BOOT__,
         staticModules: getStaticModules(),
         ...transport?.loadBundle === undefined ? {} : { loadBundle: transport.loadBundle },
         ...this.seams,

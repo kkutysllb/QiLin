@@ -16,7 +16,7 @@ const flutter: FileTypeProjectContext = {
 }
 
 function normalizeCodeIconIds(html: string): string {
-  return html.replace(/dsh-code-icon-[A-Za-z0-9_-]+/gu, 'dsh-code-icon-instance')
+  return html.replace(/qilin-code-icon-[A-Za-z0-9_-]+/gu, 'qilin-code-icon-instance')
 }
 
 describe('code-file classification', () => {

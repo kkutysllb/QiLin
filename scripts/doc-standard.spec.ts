@@ -1,6 +1,6 @@
 /**
  * Quick comprehensive documentation-standard tests: the reference example
- * stays valid, the consolidated `dsh-doc` skill carries no stale copied
+ * stays valid, the consolidated `qilin-doc` skill carries no stale copied
  * website values or prototype-era language, and the kind system maps each
  * label to exactly one skill template. Session release records match the
  * writer bound, bilingual counterpart, and evidence links. These run in `pnpm run test` and
@@ -32,22 +32,22 @@ function packageReadmes(): string[] {
 }
 
 /**
- * The kind system: each label maps to exactly one template in the dsh-doc
+ * The kind system: each label maps to exactly one template in the qilin-doc
  * skill. The check derives the expected kind from the same mechanical facts
  * the skill documents; a kind without a template, a template without a kind,
  * or a document whose kind does not match its position fails here.
  */
 const KIND_TEMPLATES: Readonly<Record<string, string>> = {
-  'package-group': '.agents/skills/dsh-doc/templates/package-group.md',
-  'package-reference': '.agents/skills/dsh-doc/templates/package-reference.md',
-  'package-library': '.agents/skills/dsh-doc/templates/package-library.md',
-  'package-bundle': '.agents/skills/dsh-doc/templates/package-bundle.md',
+  'package-group': '.agents/skills/qilin-doc/templates/package-group.md',
+  'package-reference': '.agents/skills/qilin-doc/templates/package-reference.md',
+  'package-library': '.agents/skills/qilin-doc/templates/package-library.md',
+  'package-bundle': '.agents/skills/qilin-doc/templates/package-bundle.md',
 }
 
 /**
  * Audited packages whose entry is a plain module API rather than a Cordis
  * plugin (`apply` export or a default service export) or an installable
- * bundle (`dsh.bundle.patch`). Each entry names why the package is a
+ * bundle (`qilin.bundle.patch`). Each entry names why the package is a
  * library; the check re-derives the entry shape so a stale entry fails loud.
  */
 const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
@@ -110,7 +110,7 @@ function packageDir(file: string): string {
   return file.replaceAll('\\', '/').replace(/\/README\.zh\.md$/, '').replace(/\/README\.md$/, '')
 }
 
-/** Whether the package manifest declares `dsh.bundle.patch`. */
+/** Whether the package manifest declares `qilin.bundle.patch`. */
 function declaresBundle(dir: string): boolean {
   const manifest = resolve(root, dir, 'package.json')
   if (!existsSync(manifest)) return false
@@ -177,8 +177,8 @@ function validateSessionFormatRelease(source: string, currentWriterVersion: numb
     throw new Error('latestReleasedVersion must not exceed the current writer version')
   }
   if (typeof evidenceTag !== 'string'
-    || !/^dsh-v\d+\.\d+\.\d+(?:-[\dA-Za-z]+(?:[.-][\dA-Za-z]+)*)?(?:\+[\dA-Za-z]+(?:[.-][\dA-Za-z]+)*)?$/u.test(evidenceTag)) {
-    throw new Error('evidenceTag must be a non-empty dsh-v version tag without URL delimiters')
+    || !/^qilin-v\d+\.\d+\.\d+(?:-[\dA-Za-z]+(?:[.-][\dA-Za-z]+)*)?(?:\+[\dA-Za-z]+(?:[.-][\dA-Za-z]+)*)?$/u.test(evidenceTag)) {
+    throw new Error('evidenceTag must be a non-empty qilin-v version tag without URL delimiters')
   }
   const repository = 'https://github.com/deepseek-harness/deepseek-harness'
   for (const link of [
@@ -268,12 +268,12 @@ describe('Session format release authority', () => {
   it('rejects empty, malformed, and URL-injecting evidence tags', () => {
     const { record, links } = sessionFormatReleaseFixture()
     for (const tag of [
-      null, true, 1, '', ' ', 'dsh-v', record.evidenceTag.replace('dsh-v', 'v'),
+      null, true, 1, '', ' ', 'qilin-v', record.evidenceTag.replace('qilin-v', 'v'),
       `${record.evidenceTag}/other`, `${record.evidenceTag}?query`, `${record.evidenceTag}#fragment`,
       `${record.evidenceTag}%2Fother`, `${record.evidenceTag})`, `${record.evidenceTag}\n`,
     ]) {
       const source = releaseDocument(`latestReleasedVersion: ${record.latestReleasedVersion}\nevidenceTag: ${JSON.stringify(tag)}`, links)
-      expect(() => validateSessionFormatRelease(source, record.latestReleasedVersion), String(tag)).toThrow('dsh-v version tag')
+      expect(() => validateSessionFormatRelease(source, record.latestReleasedVersion), String(tag)).toThrow('qilin-v version tag')
     }
   })
 
@@ -293,15 +293,15 @@ describe('Session format release authority', () => {
   })
 })
 
-describe('dsh-doc skill consolidation', () => {
+describe('qilin-doc skill consolidation', () => {
   it('carries no prototype-era language', () => {
     const files = [
-      '.agents/skills/dsh-doc/SKILL.md',
-      '.agents/skills/dsh-doc/references/metadata-links-i18n.md',
-      '.agents/skills/dsh-doc/references/structure-hierarchy.md',
-      '.agents/skills/dsh-doc/references/style.md',
-      '.agents/skills/dsh-doc/references/review.md',
-      '.agents/skills/dsh-doc/references/website-sync.md',
+      '.agents/skills/qilin-doc/SKILL.md',
+      '.agents/skills/qilin-doc/references/metadata-links-i18n.md',
+      '.agents/skills/qilin-doc/references/structure-hierarchy.md',
+      '.agents/skills/qilin-doc/references/style.md',
+      '.agents/skills/qilin-doc/references/review.md',
+      '.agents/skills/qilin-doc/references/website-sync.md',
     ]
     for (const file of files) {
       const source = readFileSync(resolve(root, file), 'utf8')
@@ -310,20 +310,20 @@ describe('dsh-doc skill consolidation', () => {
   })
 
   it('copies no stale website sidebar or section-owner values', () => {
-    const source = readFileSync(resolve(root, '.agents/skills/dsh-doc/references/website-sync.md'), 'utf8')
+    const source = readFileSync(resolve(root, '.agents/skills/qilin-doc/references/website-sync.md'), 'utf8')
     expect(source).not.toContain('en-docs')
     expect(source).not.toContain('sectionOrder')
   })
 
   it('keeps the reference example linked from the skill', () => {
-    const skill = readFileSync(resolve(root, '.agents/skills/dsh-doc/SKILL.md'), 'utf8')
+    const skill = readFileSync(resolve(root, '.agents/skills/qilin-doc/SKILL.md'), 'utf8')
     expect(skill).toContain('session-persistence-jsonl/README.md')
     expect(skill).toContain('session-persistence-jsonl/README.zh.md')
   })
 
   it('defines controlled English as a precision-preserving review discipline', () => {
-    const skill = readFileSync(resolve(root, '.agents/skills/dsh-doc/SKILL.md'), 'utf8')
-    const style = readFileSync(resolve(root, '.agents/skills/dsh-doc/references/style.md'), 'utf8')
+    const skill = readFileSync(resolve(root, '.agents/skills/qilin-doc/SKILL.md'), 'utf8')
+    const style = readFileSync(resolve(root, '.agents/skills/qilin-doc/references/style.md'), 'utf8')
     expect(skill).toContain('references/style.md#controlled-technical-english')
     expect(style).toContain('not certified ASD-STE100 compliance')
     expect(style).toContain('review prompts, not mechanical gates')
@@ -331,7 +331,7 @@ describe('dsh-doc skill consolidation', () => {
   })
 
   it('maps every kind label to exactly one skill template that exists', () => {
-    const templateFiles = globSync('.agents/skills/dsh-doc/templates/*.md', { cwd: root }).map(path => path.split(sep).join('/')).sort()
+    const templateFiles = globSync('.agents/skills/qilin-doc/templates/*.md', { cwd: root }).map(path => path.split(sep).join('/')).sort()
     const registered = Object.values(KIND_TEMPLATES).sort()
     expect(templateFiles).toEqual(registered)
     for (const [kind, template] of Object.entries(KIND_TEMPLATES)) {

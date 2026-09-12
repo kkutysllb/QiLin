@@ -22,7 +22,7 @@ describe('DeepSeekUploadIndex', () => {
   })
 
   it('isolates API-key namespaces and reuses only records above the refresh margin', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const first = deepSeekFileScope('https://api.deepseek.com', 'first-key')
@@ -44,7 +44,7 @@ describe('DeepSeekUploadIndex', () => {
   })
 
   it('keeps a reusable cross-process winner and removes only an exact generation', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const scope = deepSeekFileScope('https://api.deepseek.com', 'key')
@@ -63,7 +63,7 @@ describe('DeepSeekUploadIndex', () => {
   })
 
   it('treats a corrupt upload cache as empty and repairs it on the next commit', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const path = join(dir, 'index.json')
     await writeFile(path, '{bad', 'utf8')
@@ -136,7 +136,7 @@ describe('DeepSeekUploadIndex', () => {
       fileId: 'file-api-one', bytes: 3, createdAt: 1, expiresAt: 1.5,
     })}]}`,
   ])('treats an invalid persisted index as empty %#', async (text) => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const path = join(dir, 'index.json')
     await writeFile(path, text, 'utf8')
@@ -147,7 +147,7 @@ describe('DeepSeekUploadIndex', () => {
   })
 
   it('rejects duplicate persisted mappings as a corrupt cache', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const path = join(dir, 'index.json')
     const scope = deepSeekFileScope('https://api.deepseek.com', 'key')
@@ -161,7 +161,7 @@ describe('DeepSeekUploadIndex', () => {
   })
 
   it('drops expired records on commit and clears only the selected namespace', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const first = deepSeekFileScope('https://api.deepseek.com', 'first')
@@ -182,7 +182,7 @@ describe('DeepSeekUploadIndex', () => {
   })
 
   it('propagates non-cache filesystem read failures', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-upload-index-'))
     roots.push(dir)
     const path = join(dir, 'directory')
     await mkdir(path)

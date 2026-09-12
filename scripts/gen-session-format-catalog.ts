@@ -3,13 +3,13 @@
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { DshSessionFormatMigrationManifest } from '@qilin/package-manifest'
+import type { QilinSessionFormatMigrationManifest } from '@qilin/package-manifest'
 
 const root = resolve(import.meta.dirname, '..')
 const OUT = 'packages/session/session-format-catalog/src/generated.ts'
 
 /** Validated adjacent migration metadata with its resolved package import path. */
-export interface SessionFormatMigrationManifest extends Readonly<Omit<DshSessionFormatMigrationManifest, 'export'>> {
+export interface SessionFormatMigrationManifest extends Readonly<Omit<QilinSessionFormatMigrationManifest, 'export'>> {
   readonly packageName: string
   readonly importPath: string
 }
@@ -70,9 +70,9 @@ export function collectSessionFormatMigrations(
     const manifest = readJson(resolve(scanRoot, rel))
     const metadata = manifest.qilin?.sessionFormatMigration
     if (metadata === undefined) {
-      throw new Error(`gen-session-format-catalog: ${rel} lacks dsh.sessionFormatMigration`)
+      throw new Error(`gen-session-format-catalog: ${rel} lacks qilin.sessionFormatMigration`)
     }
-    const allowed: ReadonlySet<string> = new Set<keyof DshSessionFormatMigrationManifest>([
+    const allowed: ReadonlySet<string> = new Set<keyof QilinSessionFormatMigrationManifest>([
       'from', 'to', 'export', 'migration', 'sourceCodec', 'targetCodec',
       'targetHeaderValidator', 'targetRestorer',
     ])

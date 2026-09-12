@@ -3,7 +3,7 @@
  * lets the browser half recognize final-response file references and serves
  * authenticated native opens of declared files. The browser
  * half ships via exports["./client"], discovered through the package.json
- * dsh.client declaration.
+ * qilin.client declaration.
  */
 
 import type { Context } from '@deepseek-ai/cordis'

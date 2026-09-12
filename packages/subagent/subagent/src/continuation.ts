@@ -527,7 +527,7 @@ export class SubagentContinuationManager {
     const persistence = this.ctx.get('sessionPersistence')
     if (persistence === undefined) {
       throw new SubagentError(
-        'continuable subagents require session persistence (load a dsh-session-persistence backend)',
+        'continuable subagents require session persistence (load a qilin-session-persistence backend)',
         'PERSISTENCE_UNAVAILABLE',
       )
     }

@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-在 [agent preset](../../preset/agent-presets/README.zh.md) 中使用 `dsh-agent-tool-presentation`，可固定模型看到全部原生工具 schema、只有带生成 SDK 的 `run_code`，还是同时看到两种形态。每个 preset 可独立选择，因此 native 与 PTC agent 可以共享同一进程，而不共享工具目录。选择 `ptc` 或 `both` 需要兼容的代码运行时；没有该运行时的部署会在挂载时拒绝 preset，不会等到第一次请求。使用本包时 `mode` 字段为必填；省略本包则沿用部署默认值。
+在 [agent preset](../../preset/agent-presets/README.zh.md) 中使用 `qilin-agent-tool-presentation`，可固定模型看到全部原生工具 schema、只有带生成 SDK 的 `run_code`，还是同时看到两种形态。每个 preset 可独立选择，因此 native 与 PTC agent 可以共享同一进程，而不共享工具目录。选择 `ptc` 或 `both` 需要兼容的代码运行时；没有该运行时的部署会在挂载时拒绝 preset，不会等到第一次请求。使用本包时 `mode` 字段为必填；省略本包则沿用部署默认值。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-把这一行加入 agent preset，以固定每个加入该 preset 的 agent 看到其工具的方式。`native` 以函数定义的形式呈现每个可见工具 schema；`ptc` 只呈现 `run_code` 传输、一份生成的 SDK 以及「只有 `run_code` 可被直接调用」这条规则；`both` 同时呈现两种形态。未作声明的 agent 会拿到 [`dsh-tools`](../tools/README.zh.md) 那一行上的部署级 `mode`。
+把这一行加入 agent preset，以固定每个加入该 preset 的 agent 看到其工具的方式。`native` 以函数定义的形式呈现每个可见工具 schema；`ptc` 只呈现 `run_code` 传输、一份生成的 SDK 以及「只有 `run_code` 可被直接调用」这条规则；`both` 同时呈现两种形态。未作声明的 agent 会拿到 [`qilin-tools`](../tools/README.zh.md) 那一行上的部署级 `mode`。
 
 ### 把这一行加入 preset
 
@@ -43,7 +43,7 @@ kind: "package-reference"
 
 ### PTC 模式需要什么
 
-选择 `ptc` 或 `both` 需要已组合的代码运行时（`ctx.codeRuntime`），且其语言有已注册的 SDK 渲染器——TypeScript 运行时经 [`dsh-code-runtime-worker-thread`](../../code-runtime/code-runtime-worker-thread/README.zh.md) 交付，TypeScript 与 Python 的 SDK 渲染器都内置在 `dsh-tools` 中。针对未组装此类运行时的部署选择 PTC 模式的 preset 会拒绝挂载并点名这一行，使失败落在操作者可以行动的地方，而不是落在会话的第一次请求上。
+选择 `ptc` 或 `both` 需要已组合的代码运行时（`ctx.codeRuntime`），且其语言有已注册的 SDK 渲染器——TypeScript 运行时经 [`qilin-code-runtime-worker-thread`](../../code-runtime/code-runtime-worker-thread/README.zh.md) 交付，TypeScript 与 Python 的 SDK 渲染器都内置在 `qilin-tools` 中。针对未组装此类运行时的部署选择 PTC 模式的 preset 会拒绝挂载并点名这一行，使失败落在操作者可以行动的地方，而不是落在会话的第一次请求上。
 
 ### 每个 agent 只声明一次呈现方式
 
@@ -68,11 +68,11 @@ kind: "package-reference"
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 插件入口：`mode` 配置、把 `ctx.tools.presentAs` 接到挂载作用域的 `apply` |
-| — | 不发布运行时不变式伴生入口；本包只对 `ctx.tools` 发起一次 scoped 调用，不持有事件或快照；所选 presentation 的关系由 tool registry 持有并由 `dsh-tools` 观察。 |
+| — | 不发布运行时不变式伴生入口；本包只对 `ctx.tools` 发起一次 scoped 调用，不持有事件或快照；所选 presentation 的关系由 tool registry 持有并由 `qilin-tools` 观察。 |
 
 ### 行为说明
 
-`native` 立即生效。PTC 模式则等待 `ctx.codeRuntime`——这是一个宿主平面服务：针对未组装运行时的部署选择 PTC mode 的 preset 会让这一行停在 pending，`dsh-agent-presets` 会指名此 id 拒绝挂载。`presentAs` 本身就是 effect，因此该声明随这一行撤销，无需第二个包装层拥有它。
+`native` 立即生效。PTC 模式则等待 `ctx.codeRuntime`——这是一个宿主平面服务：针对未组装运行时的部署选择 PTC mode 的 preset 会让这一行停在 pending，`qilin-agent-presets` 会指名此 id 拒绝挂载。`presentAs` 本身就是 effect，因此该声明随这一行撤销，无需第二个包装层拥有它。
 
 </details>
 
@@ -94,7 +94,7 @@ kind: "package-reference"
 <a id="model-experience"></a>
 ## 模型体验
 
-通过在 `dsh-tools` 中选择的工具呈现方式间接影响——这一行只在 `dsh-tools` 拥有的两种投影之间选择，本身不注册任何提示词、schema 或结果。
+通过在 `qilin-tools` 中选择的工具呈现方式间接影响——这一行只在 `qilin-tools` 拥有的两种投影之间选择，本身不注册任何提示词、schema 或结果。
 
 #### KV Cache 影响
 

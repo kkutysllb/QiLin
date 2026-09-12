@@ -10,7 +10,7 @@ import {
 import { Deque } from '@qilin/deque'
 import { randomUUID } from '@qilin/util-crypto'
 
-const INTERNAL_BASE = 'http://dsh.internal'
+const INTERNAL_BASE = 'http://qilin.internal'
 
 /** Physical Remote stream socket failure that may be retried by a domain transport. */
 export class RemoteStreamCarrierError extends Error {

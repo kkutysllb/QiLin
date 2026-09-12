@@ -121,7 +121,7 @@ export function apply(ctx: Context): void {
           // content stays in the product, beside the conversation that produced
           // it. A relative path, or an absolute one inside the session's
           // workspace, is addressed under this session's scope,
-          // `dsh-resource://file/session/<id>/<path>`; an absolute path
+          // `qilin-resource://file/session/<id>/<path>`; an absolute path
           // elsewhere keeps its absolute spelling in the same Session's address.
           // Which tab type claims the
           // address is the Sidebar's decision, not this call site's.

@@ -13,7 +13,7 @@
  * survivors are ranked by priority band, then by matched-pattern length, then by
  * registration order. Addresses are `scheme://` URIs; the one local change to
  * VS Code's glob rule is that a pattern containing `:` matches the whole address
- * (`dsh-resource://file/**`, `sidebar://guide`) rather than the URI's path.
+ * (`qilin-resource://file/**`, `sidebar://guide`) rather than the URI's path.
  *
  * A kind may carry one `builtin` and one `extension` registration at once: the
  * extension is the one in force — claims, `get`, the guide page, and the body
@@ -100,8 +100,8 @@ export interface SidebarRightTabDefinition {
    * opened by kind and recognizes no address.
    *
    * A pattern containing `:` is matched against the whole address
-   * (`dsh-resource://file/**`); one without is matched against the URI's path at
-   * any depth (`*.md` matches `dsh-resource://file/session/s1/home/me/notes.md`),
+   * (`qilin-resource://file/**`); one without is matched against the URI's path at
+   * any depth (`*.md` matches `qilin-resource://file/session/s1/home/me/notes.md`),
    * and an address that is not a URI matches no such pattern. Matching ignores
    * case and does not hide dotfiles.
    */
@@ -183,7 +183,7 @@ interface Ranked {
 
 /**
  * The address's URI path: what a pattern with no scheme separator matches
- * against. `dsh-resource://file/session/s1/home/me/b.md` gives `/session/s1/home/me/b.md`;
+ * against. `qilin-resource://file/session/s1/home/me/b.md` gives `/session/s1/home/me/b.md`;
  * `sidebar://guide` gives `''`; an address that is not a URI gives nothing.
  */
 function pathOf(address: string): string | undefined {

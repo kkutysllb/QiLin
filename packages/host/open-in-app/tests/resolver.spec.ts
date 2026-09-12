@@ -26,7 +26,7 @@ afterEach(async () => {
 })
 
 async function tempRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-spec-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-spec-'))
   roots.push(root)
   return root
 }
@@ -660,7 +660,7 @@ describe('launchDetachedApp', () => {
   })
 
   it('rejects a spawn failure, carrying the ENOENT code', async () => {
-    await expect(launchDetachedApp('dsh-definitely-missing-launcher', [], { watchMs: TIMEOUT_MS }))
+    await expect(launchDetachedApp('qilin-definitely-missing-launcher', [], { watchMs: TIMEOUT_MS }))
       .rejects.toMatchObject({ code: 'ENOENT' })
   })
 

@@ -27,7 +27,7 @@ import {
 } from '@qilin/e2b'
 import type { EntryInfo, Sandbox } from '@qilin/e2b'
 
-const VERSION_METADATA_KEY = 'dsh-version'
+const VERSION_METADATA_KEY = 'qilin-version'
 const BINARY_SAMPLE_BYTES = 8192
 const BASE64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
 

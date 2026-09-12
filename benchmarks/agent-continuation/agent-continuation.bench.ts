@@ -137,7 +137,7 @@ describe('continuing tool-heavy Sessions with large histories', () => {
   const sources = new Map<Scenario, string>()
 
   beforeAll(async () => {
-    scratch = await mkdtemp(join(tmpdir(), 'dsh-agent-continuation-bench-'))
+    scratch = await mkdtemp(join(tmpdir(), 'qilin-agent-continuation-bench-'))
     for (const scenario of ['request-history', 'catalog'] as const) {
       const root = join(scratch, 'source-' + scenario)
       await run(root, scenario, 'seed')

@@ -25,7 +25,7 @@ declare module '@qilin/client-ui-slots' {
   }
 }
 
-const A = 'dsh-resource://feed/one'
+const A = 'qilin-resource://feed/one'
 let runtime: SlotTestRuntime | undefined
 
 afterEach(async () => {

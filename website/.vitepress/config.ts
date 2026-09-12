@@ -215,7 +215,7 @@ const siteIdentity = {
  */
 const wordmark = readFileSync(resolve(import.meta.dirname, '../public/wordmark.svg'), 'utf8')
   .trim()
-  .replace('<svg ', '<svg class="dsh-wordmark" ')
+  .replace('<svg ', '<svg class="qilin-wordmark" ')
 
 /**
  * Styles the default theme does not provide, carried inline because the site
@@ -289,7 +289,7 @@ const scrollbarScript = `
  * @returns Markup placed beside the navigation-bar home link.
  */
 function siteTitle(previewTag: string): string {
-  return `<span class="dsh-lockup">${wordmark}<span class="dsh-tag">${previewTag}</span></span>`
+  return `<span class="qilin-lockup">${wordmark}<span class="qilin-tag">${previewTag}</span></span>`
 }
 
 export default withMermaid({

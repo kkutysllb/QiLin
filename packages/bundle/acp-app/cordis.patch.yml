@@ -1,4 +1,4 @@
-# The automation-only ACP application over dsh-base. Stdout belongs to ACP.
+# The automation-only ACP application over qilin-base. Stdout belongs to ACP.
 
 - id: system-prompt
   config:

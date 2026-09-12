@@ -1,7 +1,7 @@
 /**
  * Stage one of this package's registration: what the `text` tab type IS.
  *
- * The type claims every `dsh-resource://file/session/<sessionId>/<path>`
+ * The type claims every `qilin-resource://file/session/<sessionId>/<path>`
  * address at the `fallback` band: it
  * is the plain viewer that any more specific type for the same address should
  * beat, the position VS Code's text editor holds among its editors. `canOpen`
@@ -46,7 +46,7 @@ export function textDefinition(): SidebarRightTabDefinition {
   return {
     id: TEXTPREVIEW_ID,
     kind: TEXTPREVIEW_KIND,
-    patterns: ['dsh-resource://file/**'],
+    patterns: ['qilin-resource://file/**'],
     priority: 'fallback',
     canOpen: address => parseFileAddress(address)?.scope === 'session',
     title: basenameOf,

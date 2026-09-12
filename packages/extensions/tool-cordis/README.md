@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-tool-cordis` lets a model inspect the live Cordis runtime and create, run, stop, update, or remove temporary dynamic packages with host code, browser code, or both. Package versions are immutable, so a failed package can be corrected by adding a new version and updating the active one. Definitions exist only in process memory and disappear when DSH restarts; the package does not write repository files, install dependencies, or change `cordis.yml`. It also teaches the model this workflow. Compose it with `@qilin/cordis-host-runner`, which provides the sandbox and run round trip.
+`qilin-tool-cordis` lets a model inspect the live Cordis runtime and create, run, stop, update, or remove temporary dynamic packages with host code, browser code, or both. Package versions are immutable, so a failed package can be corrected by adding a new version and updating the active one. Definitions exist only in process memory and disappear when QILIN restarts; the package does not write repository files, install dependencies, or change `cordis.yml`. It also teaches the model this workflow. Compose it with `@qilin/cordis-host-runner`, which provides the sandbox and run round trip.
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ Inspect before writing, then define, then run: `cordis_inspect_query` reads the 
 
 ### Boundaries to plan around
 
-Definitions are session-scoped and process-local: a package is visible and controllable only in the session that defined it, stays active across later turns, and can affect other sessions in the same process while running. Stopping, removing, unloading the toolset, or restarting DSH clears it. The sandbox isolates globals but is not a security boundary — treat a dynamic package like bash access, and load this plugin as deliberately as you would grant one.
+Definitions are session-scoped and process-local: a package is visible and controllable only in the session that defined it, stays active across later turns, and can affect other sessions in the same process while running. Stopping, removing, unloading the toolset, or restarting QILIN clears it. The sandbox isolates globals but is not a security boundary — treat a dynamic package like bash access, and load this plugin as deliberately as you would grant one.
 
 -----
 
@@ -133,7 +133,7 @@ This package registers one system-prompt section (`tool:cordis`, order 115) teac
 ```markdown
 # Dynamic Cordis Plugins
 
-Dynamic Cordis plugins temporarily extend the current DSH process. A Plugin uses apply(ctx) to consume Services, listen to Events, provide Services, register model Tools, or register browser UI in Slots.
+Dynamic Cordis plugins temporarily extend the current QILIN process. A Plugin uses apply(ctx) to consume Services, listen to Events, provide Services, register model Tools, or register browser UI in Slots.
 ```
 
 #### Token effect

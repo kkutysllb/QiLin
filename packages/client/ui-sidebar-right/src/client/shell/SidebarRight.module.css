@@ -102,7 +102,7 @@
   margin: 0;
   padding: 12px;
   color: var(--dsw-alias-label-tertiary);
-  font-size: var(--dsh-content-font-size-secondary, 13px);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
 }
 
 /*

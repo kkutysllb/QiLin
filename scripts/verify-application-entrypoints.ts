@@ -1,5 +1,5 @@
 /**
- * Enforce dsh profiles as the only supported Node application launcher.
+ * Enforce qilin profiles as the only supported Node application launcher.
  * Vendor CLIs, build tools, and test tools are explicit classifications
  * rather than implicit holes.
  */
@@ -19,19 +19,19 @@ interface RootManifest {
 }
 
 interface DemoPolicy {
-  readonly kind: 'dsh-direct' | 'dsh-wrapper'
+  readonly kind: 'qilin-direct' | 'qilin-wrapper'
   readonly wrapper?: string
 }
 
 /** Public product launcher plus the private build-only WebWorker packer. */
 const MANIFEST_BIN_ALLOWLIST = new Map<string, ManifestBin>([
   ['apps/cli/package.json', { qilin: 'lib/bin.js' }],
-  ['packages/experimental/webworker-packer/package.json', { 'dsh-pack-vfs-image': './bin.js' }],
+  ['packages/experimental/webworker-packer/package.json', { 'qilin-pack-vfs-image': './bin.js' }],
 ])
 
 /** Every JavaScript executable in an application or packaging workspace has one explicit role. */
 const EXECUTABLE_SOURCE_ALLOWLIST = new Map<string, string>([
-  ['apps/cli/src/bin.ts', 'supported dsh application launcher'],
+  ['apps/cli/src/bin.ts', 'supported qilin application launcher'],
   ['packages/context/time-context/tests/fixtures/driver.ts', 'test-only subprocess driver'],
   ['packages/experimental/webworker-packer/bin.js', 'private build-only wrapper'],
   ['packages/experimental/webworker-packer/src/bin.ts', 'private build-only implementation'],
@@ -41,16 +41,16 @@ const EXECUTABLE_SOURCE_ALLOWLIST = new Map<string, string>([
   ['packages/subagent/subagent-acp/tests/fixtures/loader/driver.ts', 'test-only subprocess driver'],
   ['packages/subagent/subagent-claude-code/tests/fixtures/loader/driver.ts', 'test-only subprocess driver'],
   ['packages/subagent/subagent-codex/tests/fixtures/loader/driver.ts', 'test-only subprocess driver'],
-  ['packages/subagent/subagent-dsh-sdk/tests/fixtures/loader/driver.ts', 'test-only subprocess driver'],
+  ['packages/subagent/subagent-qilin-sdk/tests/fixtures/loader/driver.ts', 'test-only subprocess driver'],
   ['packages/test-support/loader-smoke/tests/fixtures/headless-driver.ts', 'test-only subprocess driver'],
   ['packages/test-support/llm-mock-server/src/bin.ts', 'test-only model server'],
   ['python/sdk-runtime/runtime-bootstrap.mjs', 'private packaging-only runtime dispatcher'],
 ])
 
-/** Root demos are application wrappers and therefore must visibly select dsh. */
+/** Root demos are application wrappers and therefore must visibly select qilin. */
 const ROOT_DEMO_POLICIES = new Map<string, DemoPolicy>([
-  ['demo:ptc', { kind: 'dsh-wrapper', wrapper: 'scripts/demo-ptc.mjs' }],
-  ['demo:inspector', { kind: 'dsh-direct' }],
+  ['demo:ptc', { kind: 'qilin-wrapper', wrapper: 'scripts/demo-ptc.mjs' }],
+  ['demo:inspector', { kind: 'qilin-direct' }],
 ])
 
 const SOURCE_PATTERNS = [
@@ -99,7 +99,7 @@ function manifestBinViolations(root: string): string[] {
     if (manifest.bin === undefined) continue
     const expected = MANIFEST_BIN_ALLOWLIST.get(path)
     if (expected === undefined) {
-      failures.push(`${path}: package bin bypasses the dsh launcher; applications use apps/cli profiles`)
+      failures.push(`${path}: package bin bypasses the qilin launcher; applications use apps/cli profiles`)
       continue
     }
     if (normalizedBin(manifest.bin) !== normalizedBin(expected)) {
@@ -122,7 +122,7 @@ function executableSourceViolations(root: string): string[] {
   return failures
 }
 
-function referencesDshCli(source: string): boolean {
+function referencesQilinCli(source: string): boolean {
   return source.includes('apps/cli/src/bin.ts')
 }
 
@@ -140,11 +140,11 @@ function rootDemoViolations(root: string): string[] {
     const command = typeof commandValue === 'string' ? commandValue : ''
     const policy = ROOT_DEMO_POLICIES.get(name)
     if (policy === undefined) {
-      failures.push(`package.json scripts.${name}: demo launcher has no explicit dsh or in-process classification`)
+      failures.push(`package.json scripts.${name}: demo launcher has no explicit qilin or in-process classification`)
       continue
     }
-    if (policy.kind === 'dsh-direct') {
-      if (!referencesDshCli(command)) failures.push(`package.json scripts.${name}: application demo must launch apps/cli/src/bin.ts`)
+    if (policy.kind === 'qilin-direct') {
+      if (!referencesQilinCli(command)) failures.push(`package.json scripts.${name}: application demo must launch apps/cli/src/bin.ts`)
       if (referencesPackageEntry(command)) failures.push(`package.json scripts.${name}: application demo must not launch a package entry directly`)
       continue
     }
@@ -159,7 +159,7 @@ function rootDemoViolations(root: string): string[] {
       continue
     }
     const source = readFileSync(wrapperPath, 'utf8')
-    if (!referencesDshCli(source)) failures.push(`${wrapper}: application demo wrapper must launch apps/cli/src/bin.ts`)
+    if (!referencesQilinCli(source)) failures.push(`${wrapper}: application demo wrapper must launch apps/cli/src/bin.ts`)
     if (referencesPackageEntry(source)) failures.push(`${wrapper}: application demo wrapper must not launch a package entry directly`)
   }
   return failures
@@ -190,6 +190,6 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(resolve(p
     for (const failure of failures) console.error(`  ${failure}`)
     process.exitCode = 1
   } else {
-    console.log('verify-application-entrypoints: dsh is the only supported Node application launcher.')
+    console.log('verify-application-entrypoints: qilin is the only supported Node application launcher.')
   }
 }

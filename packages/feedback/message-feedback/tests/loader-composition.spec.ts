@@ -52,7 +52,7 @@ async function loadComposition(configPath: string): Promise<Context> {
 
 describe('message feedback through a real Loader composition', () => {
   it('persists canonical feedback across live and cold operations', async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-message-feedback-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'qilin-message-feedback-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
       "- name: '@qilin/session'",

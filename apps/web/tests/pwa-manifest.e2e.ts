@@ -13,7 +13,7 @@ it('ships install metadata with the built web application', async () => {
   expect(manifest).toEqual({
     id: '/',
     name: 'DeepSeek Harness',
-    short_name: 'DSH',
+    short_name: 'QILIN',
     start_url: '/',
     scope: '/',
     display: 'fullscreen',

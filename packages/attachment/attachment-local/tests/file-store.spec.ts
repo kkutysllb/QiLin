@@ -14,7 +14,7 @@ import { publishImmutableAlias } from '../src/store.ts'
 const roots: string[] = []
 
 async function makeRoot(): Promise<string> {
-  const root = join(await mkdtemp(join(tmpdir(), 'dsh-file-store-')), 'attachments', 'v1')
+  const root = join(await mkdtemp(join(tmpdir(), 'qilin-file-store-')), 'attachments', 'v1')
   roots.push(root)
   return root
 }

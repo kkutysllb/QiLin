@@ -18,8 +18,8 @@ export function resolveDesktopBuildTarget(
   hostPlatform = process.platform,
   hostArch = process.arch,
 ) {
-  const platform = env.DSH_DESKTOP_TARGET_PLATFORM ?? env.npm_config_platform ?? hostPlatform
-  const arch = env.DSH_DESKTOP_TARGET_ARCH ?? env.npm_config_arch ?? hostArch
+  const platform = env.QILIN_DESKTOP_TARGET_PLATFORM ?? env.npm_config_platform ?? hostPlatform
+  const arch = env.QILIN_DESKTOP_TARGET_ARCH ?? env.npm_config_arch ?? hostArch
   const os = platform === 'darwin' ? 'mac' : platform === 'win32' || platform === 'win' ? 'win' : platform
   const target = `${os}-${arch}`
   if (!SUPPORTED_TARGETS.has(target)) {
@@ -31,7 +31,7 @@ export function resolveDesktopBuildTarget(
 /**
  * Return the mutable preparation and artifact directories owned by one release target.
  * @param {'mac-arm64' | 'mac-x64' | 'win-x64'} target - Supported Desktop target name.
- * @returns {{ root: string, artifacts: string, runtime: string, packageSet: string, seed: string, seedPnpm: string, nodeExtract: string, packedDsh: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
+ * @returns {{ root: string, artifacts: string, runtime: string, packageSet: string, seed: string, seedPnpm: string, nodeExtract: string, packedQilin: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
  */
 export function desktopTargetBuildPaths(target) {
   if (!SUPPORTED_TARGETS.has(target)) {
@@ -47,7 +47,7 @@ export function desktopTargetBuildPaths(target) {
     seed: join(root, 'seed'),
     seedPnpm: join(root, 'seed-pnpm'),
     nodeExtract: join(root, 'node-extract'),
-    packedDsh: join(packed, 'dsh'),
+    packedQilin: join(packed, 'qilin'),
     packedVendor: join(packed, 'vendor'),
     packedLandlock: join(packed, 'landlock'),
     downloads: join(BUILD_ROOT, 'downloads'),

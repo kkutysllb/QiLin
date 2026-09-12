@@ -43,7 +43,7 @@ afterEach(async () => {
 })
 
 async function temporaryPath(name = 'search.db'): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-session-search-'))
+  const directory = await mkdtemp(join(tmpdir(), 'qilin-session-search-'))
   temporaryDirectories.push(directory)
   return join(directory, name)
 }

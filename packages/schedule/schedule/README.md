@@ -33,10 +33,10 @@ Choose Schedule when you want reminders delivered as messages in the same live c
 
 ### Enable Schedule
 
-Add the Schedule overlay to a `dsh web` session; the reminder tools then appear in the conversation and the model can use them right away:
+Add the Schedule overlay to a `qilin web` session; the reminder tools then appear in the conversation and the model can use them right away:
 
 ```sh
-dsh web --patch apps/cli/config/examples/schedule/cordis.yml
+qilin web --patch apps/cli/config/examples/schedule/cordis.yml
 ```
 
 Success looks like this: ask the model "remind me in 10 minutes to review the PR", and it replies with the reminder's id, its target time, and a `scheduled` state. If storage cannot be confirmed at that moment, the tool reports `persistence_uncertain` and suggests re-listing instead of claiming success.
@@ -104,7 +104,7 @@ A normal Session folds its complete event stream. A fork folds only `session.own
 
 The optional `schedule` projection checkpoints `{ inheritedEventCount, active, seenIds }` as strict plain JSON and publishes only the complete `active` array. Its schema reuses the durable Schedule decoder, rejects duplicate or inconsistent ids, and propagates corrupt durable events through the existing Session read failure instead of publishing a partial catalog. Live lazy build, event-driven build, cold restore, history reads, and detached Subagent reads all use the exact Session cut and the same owned-suffix transition.
 
-The projection carries durable records only. It does not persist or transmit scheduled-versus-overdue status, localized text, relative time, browser-local time, sorting state, popover state, runtime liveness, or delivery receipts. [`dsh-client-ui-schedule`](../../client/ui-schedule/README.md) derives catalog presentation from the complete array and the viewing browser's clock. [`dsh-client-ui-workspace`](../../client/ui-workspace/README.md) derives only whether the list value is a non-empty array, so ordinary and search rows may briefly omit or retain the alarm when the durable projection cache is missing or stale.
+The projection carries durable records only. It does not persist or transmit scheduled-versus-overdue status, localized text, relative time, browser-local time, sorting state, popover state, runtime liveness, or delivery receipts. [`qilin-client-ui-schedule`](../../client/ui-schedule/README.md) derives catalog presentation from the complete array and the viewing browser's clock. [`qilin-client-ui-workspace`](../../client/ui-workspace/README.md) derives only whether the list value is a non-empty array, so ordinary and search rows may briefly omit or retain the alarm when the durable projection cache is missing or stale.
 
 ### Time validation
 

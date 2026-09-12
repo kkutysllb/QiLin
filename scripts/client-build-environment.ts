@@ -11,21 +11,21 @@ import {
 import { dirname, resolve } from 'node:path'
 
 /** Prefix reserved for build-time values that may be embedded in browser artifacts. */
-const CLIENT_BUILD_ENV_PREFIX = 'DSH_CLIENT_'
+const CLIENT_BUILD_ENV_PREFIX = 'QILIN_CLIENT_'
 
 /** Non-public selector used by build orchestration to request a named client profile. */
-export const CLIENT_BUILD_PROFILE_SELECTOR = 'DSH_BUILD_CLIENT_PROFILE'
+export const CLIENT_BUILD_PROFILE_SELECTOR = 'QILIN_BUILD_CLIENT_PROFILE'
 
-/** Public client environment required by official DSH artifacts. */
+/** Public client environment required by official QILIN artifacts. */
 const OFFICIAL_CLIENT_BUILD_ENVIRONMENT = {
-  DSH_CLIENT_BUILD_PROFILE: 'official',
-  DSH_CLIENT_TITLE: 'DeepSeek Harness',
+  QILIN_CLIENT_BUILD_PROFILE: 'official',
+  QILIN_CLIENT_TITLE: 'DeepSeek Harness',
 } as const
 
 /** Public client environment required by QiLin product artifacts. */
 const QILIN_CLIENT_BUILD_ENVIRONMENT = {
-  DSH_CLIENT_BUILD_PROFILE: 'qilin',
-  DSH_CLIENT_TITLE: 'QiLin',
+  QILIN_CLIENT_BUILD_PROFILE: 'qilin',
+  QILIN_CLIENT_TITLE: 'QiLin',
 } as const
 
 /** Named complete-build profiles and the public values each embeds. */
@@ -35,10 +35,10 @@ const CLIENT_BUILD_PROFILES = {
 } as const
 
 /** Public variable carrying the source commit embedded in client artifacts. */
-const CLIENT_COMMIT_HASH_VARIABLE = 'DSH_CLIENT_COMMIT_HASH'
+const CLIENT_COMMIT_HASH_VARIABLE = 'QILIN_CLIENT_COMMIT_HASH'
 
 /** Public variable carrying the repository package version embedded in client artifacts. */
-const CLIENT_VERSION_VARIABLE = 'DSH_CLIENT_VERSION'
+const CLIENT_VERSION_VARIABLE = 'QILIN_CLIENT_VERSION'
 
 /** Repository-relative path of the complete client build record. */
 export const CLIENT_BUILD_RECORD_PATH = '.qilin-build/client-build-environment.json'
@@ -130,15 +130,15 @@ export function repositoryClientBuildEnvironment(
   environment: NodeJS.ProcessEnv = process.env,
 ): ClientBuildEnvironment {
   const inherited = { ...clientBuildEnvironment(environment) }
-  delete inherited.DSH_CLIENT_COMMIT_HASH
-  delete inherited.DSH_CLIENT_GIT_DIRTY
-  delete inherited.DSH_CLIENT_VERSION
+  delete inherited.QILIN_CLIENT_COMMIT_HASH
+  delete inherited.QILIN_CLIENT_GIT_DIRTY
+  delete inherited.QILIN_CLIENT_VERSION
   const dirty = repositoryGitDirty(root)
   return {
     ...inherited,
-    DSH_CLIENT_COMMIT_HASH: repositoryCommitHash(root, environment),
-    ...(dirty === true ? { DSH_CLIENT_GIT_DIRTY: 'true' } : {}),
-    DSH_CLIENT_VERSION: repositoryVersion(root),
+    QILIN_CLIENT_COMMIT_HASH: repositoryCommitHash(root, environment),
+    ...(dirty === true ? { QILIN_CLIENT_GIT_DIRTY: 'true' } : {}),
+    QILIN_CLIENT_VERSION: repositoryVersion(root),
   }
 }
 
@@ -151,10 +151,10 @@ export function repositoryClientBuildEnvironment(
 export function officialClientBuildEnvironment(
   root: string,
   environment: NodeJS.ProcessEnv = process.env,
-): Readonly<Record<`DSH_CLIENT_${string}`, string>> {
+): Readonly<Record<`QILIN_CLIENT_${string}`, string>> {
   return {
-    DSH_CLIENT_COMMIT_HASH: repositoryCommitHash(root, environment),
-    DSH_CLIENT_VERSION: repositoryVersion(root),
+    QILIN_CLIENT_COMMIT_HASH: repositoryCommitHash(root, environment),
+    QILIN_CLIENT_VERSION: repositoryVersion(root),
     ...OFFICIAL_CLIENT_BUILD_ENVIRONMENT,
   }
 }
@@ -180,7 +180,7 @@ export interface ClientBuildRecord {
 /**
  * Collect the public client environment in deterministic key order.
  * @param environment - environment inherited by the build process.
- * @returns defined `DSH_CLIENT_*` values only.
+ * @returns defined `QILIN_CLIENT_*` values only.
  */
 function clientBuildEnvironment(environment: NodeJS.ProcessEnv): ClientBuildEnvironment {
   return Object.fromEntries(Object.entries(environment)
@@ -211,8 +211,8 @@ export function resolveClientBuildEnvironment(
     throw new Error(`${CLIENT_VERSION_VARIABLE} is required for the ${profile} client build profile`)
   }
   return {
-    DSH_CLIENT_COMMIT_HASH: commitHash,
-    DSH_CLIENT_VERSION: version,
+    QILIN_CLIENT_COMMIT_HASH: commitHash,
+    QILIN_CLIENT_VERSION: version,
     ...CLIENT_BUILD_PROFILES[profile],
   }
 }
@@ -247,7 +247,7 @@ export function clientBuildProcessEnvironment(
  */
 export function assertClientBuildEnvironment(
   environment: Readonly<Record<string, string | undefined>>,
-  expected: Readonly<Record<`DSH_CLIENT_${string}`, string>>,
+  expected: Readonly<Record<`QILIN_CLIENT_${string}`, string>>,
 ): void {
   const actual = Object.fromEntries(Object.entries(environment)
     .filter(([name, value]) => name.startsWith(CLIENT_BUILD_ENV_PREFIX) && value !== undefined)
@@ -311,7 +311,7 @@ export function writeClientBuildRecord(
  */
 export function readClientBuildRecord(
   root: string,
-  expected?: Readonly<Record<`DSH_CLIENT_${string}`, string>>,
+  expected?: Readonly<Record<`QILIN_CLIENT_${string}`, string>>,
 ): ClientBuildRecord {
   const path = resolve(root, CLIENT_BUILD_RECORD_PATH)
   if (!existsSync(path)) {

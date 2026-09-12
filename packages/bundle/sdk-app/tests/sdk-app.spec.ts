@@ -7,7 +7,7 @@ import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
 import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
 
-describe('dsh-sdk-app bundle', () => {
+describe('qilin-sdk-app bundle', () => {
   it('declares startup-gated JSON-RPC serving without overriding base HMR policy', () => {
     const root = fileURLToPath(new URL('..', import.meta.url))
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {

@@ -11,7 +11,7 @@ type Fetch = (input: string | URL, init?: RequestInit) => Promise<Response>
 /** Resolve the browser's Host base with the connection carrier's null-origin fallback. */
 function hostBase(): string {
   const origin = (globalThis as { location?: { origin?: string } }).location?.origin
-  return origin !== undefined && origin !== 'null' ? origin : 'http://dsh.internal'
+  return origin !== undefined && origin !== 'null' ? origin : 'http://qilin.internal'
 }
 
 /**
@@ -24,7 +24,7 @@ export class OpenInAppController {
   readonly apps: SnapshotStore<readonly string[] | null> = createSnapshotStore<readonly string[] | null>(null)
   /** Last chosen app id, or empty before the first choice, shared across sessions and browser restarts. */
   readonly choice: SnapshotStore<string> = createSnapshotStore<string>('', {
-    persist: { name: 'dsh.open-in-app.choice' },
+    persist: { name: 'qilin.open-in-app.choice' },
   })
 
   private loading: Promise<void> | undefined

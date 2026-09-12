@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Command-line entry for dsh.
+ * Command-line entry for qilin.
  * @module @qilin/cli/bin
  */
 
@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { loadLayeredEnv } from '@qilin/app-boot'
-import { parseDshArgs } from './args.ts'
+import { parseQilinArgs } from './args.ts'
 
 // Both the source tree (apps/cli/src) and the bundled bin (apps/cli/lib) sit
 // one directory under apps/cli, so the checked-in manifest resolves with the
@@ -22,17 +22,17 @@ function readVersion(): string {
 }
 
 /**
- * Run the public dsh command-line interface.
+ * Run the public qilin command-line interface.
  * @returns a promise that settles when the selected command mode finishes.
  */
 export async function runCli(): Promise<void> {
-  const invocation = parseDshArgs(process.argv.slice(2), readVersion())
+  const invocation = parseQilinArgs(process.argv.slice(2), readVersion())
 
   switch (invocation.mode) {
     case 'profile': {
       const { runProfile } = await import('./profile-boot.ts')
       await runProfile({
-        environment: loadLayeredEnv('dsh'),
+        environment: loadLayeredEnv('qilin'),
         profile: invocation.profile,
         fromDefaultProfile: invocation.fromDefaultProfile,
         patchFiles: invocation.patches,
@@ -57,7 +57,7 @@ export async function runCli(): Promise<void> {
     }
     default:
       invocation satisfies never
-      throw new Error(`dsh: unhandled invocation mode ${JSON.stringify(invocation)}`)
+      throw new Error(`qilin: unhandled invocation mode ${JSON.stringify(invocation)}`)
   }
 }
 

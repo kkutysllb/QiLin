@@ -34,7 +34,7 @@ describe.skipIf(MODE === 'record')('web e2e: Open In under SSH', () => {
     page = await newEnglishPage(browser)
     tripwire = watchConsole(page)
     await page.addInitScript(() => {
-      localStorage.setItem('dsh.open-in-app.choice', JSON.stringify('vscode'))
+      localStorage.setItem('qilin.open-in-app.choice', JSON.stringify('vscode'))
     })
   })
 
@@ -62,7 +62,7 @@ describe.skipIf(MODE === 'record')('web e2e: Open In under SSH', () => {
     expect(await response.json()).toEqual({ apps: [] })
     expect(await page.getByRole('button', { name: /^Open workspace in / }).count()).toBe(0)
     expect(await page.getByRole('button', { name: 'Choose an app to open in', exact: true }).count()).toBe(0)
-    expect(await page.evaluate(() => localStorage.getItem('dsh.open-in-app.choice'))).toBe('"vscode"')
+    expect(await page.evaluate(() => localStorage.getItem('qilin.open-in-app.choice'))).toBe('"vscode"')
     const snapshot = (await captureStableAria(page, 'role=banner', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'header.expected.md'), snapshot, MODE)

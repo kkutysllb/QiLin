@@ -1,5 +1,5 @@
 ---
-description: "dsh app bin 的应用自有命令行：应用从启动器剩余参数中解析自己的 flag、--help 与退出行为。"
+description: "qilin app bin 的应用自有命令行：应用从启动器剩余参数中解析自己的 flag、--help 与退出行为。"
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-`dsh-cmdline` 让应用从启动器 flag 之后原样留下的参数中解析自己的 flag、`--help` 与错误。解析值可以覆盖配置默认值，而无需改写配置。应用还可以通过启动器的关停路径请求进程退出。适用于拥有自有命令行界面的应用 bin。它不增加提示词、schema 或模型可见内容。
+`qilin-cmdline` 让应用从启动器 flag 之后原样留下的参数中解析自己的 flag、`--help` 与错误。解析值可以覆盖配置默认值，而无需改写配置。应用还可以通过启动器的关停路径请求进程退出。适用于拥有自有命令行界面的应用 bin。它不增加提示词、schema 或模型可见内容。
 
 ## 目录
 
@@ -31,7 +31,7 @@ kind: "package-library"
 
 启动器向你的应用提供三样东西：
 
-- `ctx.cmdlineArgs`——本次调用的内层参数。读取它返回一份不可变快照，且绝不会消费或修改它们：`dsh --profile tui --resume abc` 给你的应用 `['--resume', 'abc']`。
+- `ctx.cmdlineArgs`——本次调用的内层参数。读取它返回一份不可变快照，且绝不会消费或修改它们：`qilin --profile tui --resume abc` 给你的应用 `['--resume', 'abc']`。
 - `ctx.appExit`——在整棵树关闭后请求进程退出的方式，接到启动器的关停控制器上。
 - `ctx.appReady`——成功启动信号，只在 Loader 树与 launcher 自有设置成功后提交。
 
@@ -59,7 +59,7 @@ kind: "package-library"
     port: !!js ctx.webStartup.port ?? 3080
 ```
 
-结果：即使配置写的是 3080，`dsh --profile web --port 8080` 也会让服务器监听 8080 端口，因为 flag 优先。`--help` 打印你的应用帮助并以 0 退出、不启动任何内容；被拒绝的值（例如非数字端口）打印你的错误并以非零码退出，任何依赖解析值的行都不会启动。
+结果：即使配置写的是 3080，`qilin --profile web --port 8080` 也会让服务器监听 8080 端口，因为 flag 优先。`--help` 打印你的应用帮助并以 0 退出、不启动任何内容；被拒绝的值（例如非数字端口）打印你的错误并以非零码退出，任何依赖解析值的行都不会启动。
 
 ### flag 如何胜过配置值
 
@@ -108,9 +108,9 @@ kind: "package-library"
 
 当包级约定不够用时阅读以下页面。它们从交接机制逐步进入消费它的应用。
 
-- [dsh-app-boot](../app-boot/README.zh.md)——提供这些启动器值的启动序列。
-- [dsh-web-app 组合包](../../bundle/web-app/README.zh.md)——通过此包持有 Web flag 家族的应用。
-- [dsh-headless 组合包](../../bundle/headless/README.zh.md)——从命令行读取任务的一次性 runner。
+- [qilin-app-boot](../app-boot/README.zh.md)——提供这些启动器值的启动序列。
+- [qilin-web-app 组合包](../../bundle/web-app/README.zh.md)——通过此包持有 Web flag 家族的应用。
+- [qilin-headless 组合包](../../bundle/headless/README.zh.md)——从命令行读取任务的一次性 runner。
 
 -----
 

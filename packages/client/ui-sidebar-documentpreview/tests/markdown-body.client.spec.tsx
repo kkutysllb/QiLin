@@ -22,7 +22,7 @@ function content(pageTexts: readonly string[], eof: boolean): DocumentContent {
 
 // The body reads content and locale only; the other standard seats belong to the slot integration tests.
 function props(value: DocumentContent, t: MarkdownBodyProps['t'] = makeTranslate(en)): MarkdownBodyProps {
-  return { resourceAddress: 'dsh-resource://file/session/markdown/notes.md', content: value, wrap: false, t } as MarkdownBodyProps
+  return { resourceAddress: 'qilin-resource://file/session/markdown/notes.md', content: value, wrap: false, t } as MarkdownBodyProps
 }
 
 describe('MarkdownBody', () => {

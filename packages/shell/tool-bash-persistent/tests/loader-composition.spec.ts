@@ -71,7 +71,7 @@ const suite = process.platform === 'linux' || process.platform === 'darwin' ? de
 
 suite('persistent Bash through a real cordis.yml Loader composition', () => {
   it('preserves cwd and environment across calls', async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-persistent-bash-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'qilin-persistent-bash-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
       "- name: '@qilin/agent'",
@@ -143,14 +143,14 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
     await execute('state', 'export KEEP=loader; mkdir -p nested; cd nested')
     const observed = text(await execute('observe', 'printf "cwd=%s keep=%s\\n" "$PWD" "$KEEP"'))
     expect(observed).toContain(`cwd=${join(root, 'nested')} keep=loader`)
-    expect(observed).not.toContain('DSH_PERSISTENT_BASH')
+    expect(observed).not.toContain('QILIN_PERSISTENT_BASH')
 
     const multiline = text(await execute(
       'multiline',
       'value="line one"\nprintf "%s:%s\\n" "$value" "it\'s fine"',
     ))
     expect(multiline).toBe("line one:it's fine\n[Command finished with exit code 0]")
-    expect(multiline).not.toContain('DSH_PERSISTENT_BASH')
+    expect(multiline).not.toContain('QILIN_PERSISTENT_BASH')
 
     const heredoc = text(await execute(
       'heredoc',
@@ -179,7 +179,7 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
     // stdin_read readiness is what returns the replacement shell's prompt
     // instead of spinning until the tool deadline.
     const execed = text(await execute('exec-replacement', 'exec bash --noprofile --norc -i'))
-    expect(execed).toBe('dsh> ')
+    expect(execed).toBe('qilin> ')
 
     const exited = text(await execute('exit', 'exit'))
     expect(exited).toContain('next bash call starts from the workspace')

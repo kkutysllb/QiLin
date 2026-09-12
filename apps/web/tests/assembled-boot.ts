@@ -80,7 +80,7 @@ function resolveClientExport(packagePath: string, pkg: ClientPackageManifest): s
   const declared = pkg.exports?.['./client']
   const relative = typeof declared === 'string' ? declared : declared?.default
   if (relative === undefined) {
-    throw new Error(`assembled boot: ${pkg.name ?? packagePath} declares dsh.client without a ./client export`)
+    throw new Error(`assembled boot: ${pkg.name ?? packagePath} declares qilin.client without a ./client export`)
   }
   return resolve(dirname(packagePath), relative)
 }
@@ -88,7 +88,7 @@ function resolveClientExport(packagePath: string, pkg: ClientPackageManifest): s
 const comboUrl = (ids: readonly string[], rev: string): string =>
   `/plugins/??${ids.map(id => `${id}/client.js`).join(',')}&rev=${rev}`
 
-/** Derive the assembled browser graph from the same bundle patches and package declarations as `dsh web`. */
+/** Derive the assembled browser graph from the same bundle patches and package declarations as `qilin web`. */
 function loadAssembledPlugins(): readonly AssembledPlugin[] {
   const entries = appBoot.composeEntries(BUNDLE_LAYERS.map(layer =>
     appBoot.loadOverlayPatches('assembled boot', layer.patch)))
@@ -172,7 +172,7 @@ function bundleTable(graph: WebBootGraph, plugins: readonly AssembledPlugin[]): 
 }
 
 interface FixtureWindow extends Window {
-  __DSH_BOOT__?: WebBootGraph
+  __QILIN_BOOT__?: WebBootGraph
   __ModuleLoader__?: ClientModuleLoaderTarget
 }
 
@@ -231,7 +231,7 @@ export function installAssembledBootEnv(): void {
     await act(async () => { await unmount?.() })
     unmount = undefined
     cleanup()
-    delete win.__DSH_BOOT__
+    delete win.__QILIN_BOOT__
     delete win.__ModuleLoader__
     document.body.innerHTML = ''
     document.head.querySelectorAll('style[data-plugin]').forEach((style) => { style.remove() })
@@ -261,8 +261,8 @@ export function mountAssembledApp(search = '?fixture', options: AssembledBootOpt
   document.body.appendChild(root)
   const graph = bootGraph(plugins)
   const bundles = bundleTable(graph, plugins)
-  win.__DSH_BOOT__ = graph
-  const [facadeRow] = bootInjections(win.__DSH_BOOT__)
+  win.__QILIN_BOOT__ = graph
+  const [facadeRow] = bootInjections(win.__QILIN_BOOT__)
   if (facadeRow?.kind !== 'script') throw new Error('missing injected ModuleLoader facade row')
   ;(0, eval)(facadeRow.text)
   // Mirror the blocking Host-injected bootstrap batch before the Vite entry calls create().
@@ -299,7 +299,7 @@ export function hasClass(el: Element, name: string): boolean {
 
 /**
  * Whether this run rewrites its golden instead of comparing against it, set by
- * the snapshot gate's `DSH_SNAPSHOT` mode (`record` re-runs the scenarios from
+ * the snapshot gate's `QILIN_SNAPSHOT` mode (`record` re-runs the scenarios from
  * scratch, `refresh` re-derives the expected text from the existing ones).
  */
-export const REFRESHING_GOLDEN = process.env.DSH_SNAPSHOT === 'record' || process.env.DSH_SNAPSHOT === 'refresh'
+export const REFRESHING_GOLDEN = process.env.QILIN_SNAPSHOT === 'record' || process.env.QILIN_SNAPSHOT === 'refresh'

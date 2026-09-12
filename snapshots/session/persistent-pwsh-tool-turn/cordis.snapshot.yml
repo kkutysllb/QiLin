@@ -42,7 +42,7 @@
 - id: session-persistence-jsonl
   name: '@qilin/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions

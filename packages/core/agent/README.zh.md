@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用 `dsh-agent` 创建或恢复实时 agent、发送后续或 steering 输入、注入面向模型的上下文、取消工作，并等待 agent 进入空闲状态。插件、UI、钩子与编排器还可以观察或拦截 agent 活动，并仅为一个 agent 应用能力而不影响其他 agent。当代码需要通过公共 `Agent` API 控制或扩展实时 agent 时，请选择本包。请将它与 `dsh-agent-loop` 等 agent 驱动器配合使用；本包本身不会创建模型请求。发起方归因仅存在于进程内，跨 worker、进程、持久队列与重启时必须显式传递。
+使用 `qilin-agent` 创建或恢复实时 agent、发送后续或 steering 输入、注入面向模型的上下文、取消工作，并等待 agent 进入空闲状态。插件、UI、钩子与编排器还可以观察或拦截 agent 活动，并仅为一个 agent 应用能力而不影响其他 agent。当代码需要通过公共 `Agent` API 控制或扩展实时 agent 时，请选择本包。请将它与 `qilin-agent-loop` 等 agent 驱动器配合使用；本包本身不会创建模型请求。发起方归因仅存在于进程内，跨 worker、进程、持久队列与重启时必须显式传递。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在存在实时 agent 的任何地方挂载 `dsh-agent`：它提供 `ctx.agents` 以及插件、UI、钩子和编排器所面向编程的 `Agent` 句柄。在没有驱动器注册工厂之前，该服务保持惰性——随附驱动器是 `dsh-agent-loop`，因此最小的可用组合需要同时加载两者。
+在存在实时 agent 的任何地方挂载 `qilin-agent`：它提供 `ctx.agents` 以及插件、UI、钩子和编排器所面向编程的 `Agent` 句柄。在没有驱动器注册工厂之前，该服务保持惰性——随附驱动器是 `qilin-agent-loop`，因此最小的可用组合需要同时加载两者。
 
 ### 创建或恢复 agent
 
@@ -78,7 +78,7 @@ await handle.agent.whenIdle()
 
 ### 设计理念
 
-该包建立在一个分离之上：公开的 `Agent` 表面与注册表在此处，而构造与驱动位于循环包中、注册工厂之后。消费方因此依赖 `dsh-agent` 而从不依赖 `dsh-agent-loop`，驱动器保持可替换。第二个理念是发起方作用域：一条 `AsyncLocalStorage` 链把确切的实时 `Agent` 携带经过它启动的异步驱动器工作，使驱动器之下的辅助函数无需逐调用转发 agent 即可归因自己的工作。
+该包建立在一个分离之上：公开的 `Agent` 表面与注册表在此处，而构造与驱动位于循环包中、注册工厂之后。消费方因此依赖 `qilin-agent` 而从不依赖 `qilin-agent-loop`，驱动器保持可替换。第二个理念是发起方作用域：一条 `AsyncLocalStorage` 链把确切的实时 `Agent` 携带经过它启动的异步驱动器工作，使驱动器之下的辅助函数无需逐调用转发 agent 即可归因自己的工作。
 
 ### 步骤准入
 
@@ -86,7 +86,7 @@ await handle.agent.whenIdle()
 
 ### 持久 inbox
 
-`Agent.inbox` 只暴露结构化 `Inbox` 接口，投影词汇仍位于本包。dsh-agent-loop 持有包内部的 `ReactLoopInbox` 与标准 `inbox` 投影；构造具体 inbox 时会确保投影注册表为持久 `agent/inbox/spliced` fold 持有一份注册。注册表继续作为实时 `{ 'next-turn', 'next-step' }` 状态的唯一所有者。重建过程会拒绝不安全或越界的 splice 坐标，以及跨两份待处理列表重复的 `MessageId`，并报告出错事件的 seq。
+`Agent.inbox` 只暴露结构化 `Inbox` 接口，投影词汇仍位于本包。qilin-agent-loop 持有包内部的 `ReactLoopInbox` 与标准 `inbox` 投影；构造具体 inbox 时会确保投影注册表为持久 `agent/inbox/spliced` fold 持有一份注册。注册表继续作为实时 `{ 'next-turn', 'next-step' }` 状态的唯一所有者。重建过程会拒绝不安全或越界的 splice 坐标，以及跨两份待处理列表重复的 `MessageId`，并报告出错事件的 seq。
 
 `Inbox` 暴露待处理的 `nextTurn` 与 `nextStep` 消息，并通过 `append`、`prepend`、`replace`、`remove`、`clear` 与 `splice` 变更它们。普通删除和 `clear()` 都是持久取消。在步骤边界，循环的内部实现会通过纯删除 splice 领取待处理输入。实时通知刻意采用逐消息的最小载荷：`agent/inbox/inserted { message }`、`agent/inbox/claimed { message, turn }` 与 `agent/inbox/discarded { message }`。
 

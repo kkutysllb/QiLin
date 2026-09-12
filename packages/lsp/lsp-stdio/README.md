@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-lsp-stdio` to give agents definitions, references, implementations, and hover from explicitly configured local language servers. It maps file extensions to language identifiers, starts one server per workspace on demand, and reads each queried file afresh without retaining document state between queries. Language-server processes and source reads share the mounted filesystem and subprocess environment. The package does not install servers or provide a sandbox: deployments supply commands, mappings, and any required confinement. Queries are serialized per server and workspace, while different workspaces can run in parallel.
+Use `qilin-lsp-stdio` to give agents definitions, references, implementations, and hover from explicitly configured local language servers. It maps file extensions to language identifiers, starts one server per workspace on demand, and reads each queried file afresh without retaining document state between queries. Language-server processes and source reads share the mounted filesystem and subprocess environment. The package does not install servers or provide a sandbox: deployments supply commands, mappings, and any required confinement. Queries are serialized per server and workspace, while different workspaces can run in parallel.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Use `dsh-lsp-stdio` to give agents definitions, references, implementations, and
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this provider when a deployment has local language servers — for example `typescript-language-server` — and wants the harness to navigate code through them. It needs filesystem and subprocess providers for the same execution world, plus the `dsh-lsp` seam and, for model access, `dsh-tool-lsp`.
+Mount this provider when a deployment has local language servers — for example `typescript-language-server` — and wants the harness to navigate code through them. It needs filesystem and subprocess providers for the same execution world, plus the `qilin-lsp` seam and, for model access, `qilin-tool-lsp`.
 
 ### Minimal configuration
 
@@ -51,7 +51,7 @@ The `servers` record maps each stable provider id to one server command. The pro
 | `command` | required | Executable to spawn — absolute, or resolved on the child PATH at load; launched without a shell |
 | `extensionToLanguage` | required | Lowercase leading-dot extension → LSP language id (e.g. `{ '.ts': 'typescript' }`) |
 | `args` | `[]` | Arguments passed to the executable |
-| `env` | `{}` | Extra env merged over the credential-scrubbed ambient env; variables matching `KEY`/`PASSWORD`/`SECRET`/`TOKEN` and all `DSH_*` names are not forwarded |
+| `env` | `{}` | Extra env merged over the credential-scrubbed ambient env; variables matching `KEY`/`PASSWORD`/`SECRET`/`TOKEN` and all `QILIN_*` names are not forwarded |
 | `initializationOptions` | `null` | Static `initialize` options forwarded to the server |
 | `configuration` | `null` | Static answer to every `workspace/configuration` item |
 | `maxMessageBytes` | `16000000` | Largest single framed message accepted from the server |
@@ -122,8 +122,8 @@ Initialization advertises UTF-16 positions, workspace folders and configuration,
 Read these pages when the package-level contract is not enough. They move from the shared navigation model to the seam and the tool.
 
 - [LSP navigation subsystem](../../../docs/subsystems/lsp.md) — operations, coordinates, requests and results, and `LspError` codes.
-- [dsh-lsp](../lsp/README.md) — the seam this provider registers against.
-- [dsh-tool-lsp](../tool-lsp/README.md) — the model-facing tool over the seam.
+- [qilin-lsp](../lsp/README.md) — the seam this provider registers against.
+- [qilin-tool-lsp](../tool-lsp/README.md) — the model-facing tool over the seam.
 - [lsp group map](../README.md) — the three-package family and its related documentation.
 
 -----
@@ -131,11 +131,11 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `dsh-tool-lsp`, which surfaces this provider's normalized results while this host contributes no prompt or schema itself.
+Indirectly, through `qilin-tool-lsp`, which surfaces this provider's normalized results while this host contributes no prompt or schema itself.
 
 #### KV Cache effect
 
-No direct invalidation; `dsh-tool-lsp` owns request-prefix changes.
+No direct invalidation; `qilin-tool-lsp` owns request-prefix changes.
 
 ## Known Limitations and Deferred Work
 

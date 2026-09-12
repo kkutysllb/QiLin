@@ -6,9 +6,9 @@ import react from '@vitejs/plugin-react'
 import { clientBuildEnvironmentDefines } from '../../scripts/client-build-environment.ts'
 
 const src = (rel: string): string => fileURLToPath(new URL(rel, import.meta.url))
-const STANDALONE_ERROR = 'apps/web is not a standalone application: bare Vite cannot inject window.__DSH_BOOT__. '
-  + 'From a repository checkout, run `pnpm dsh web`; an installed package uses `dsh web`. '
-  + 'For client-plugin HMR, run `pnpm dsh web` together with `pnpm run dev:web`.'
+const STANDALONE_ERROR = 'apps/web is not a standalone application: bare Vite cannot inject window.__QILIN_BOOT__. '
+  + 'From a repository checkout, run `pnpm qilin web`; an installed package uses `qilin web`. '
+  + 'For client-plugin HMR, run `pnpm qilin web` together with `pnpm run dev:web`.'
 const DEFAULT_CLIENT_TITLE = 'QiLin Local Build'
 
 /** Escape build-time text before placing it in the HTML title element. */
@@ -18,9 +18,9 @@ function escapeHtmlText(value: string): string {
 
 /** Project the public build title into the initial HTML document. */
 function clientDocumentTitle(): Plugin {
-  const title = escapeHtmlText(process.env.DSH_CLIENT_TITLE ?? DEFAULT_CLIENT_TITLE)
+  const title = escapeHtmlText(process.env.QILIN_CLIENT_TITLE ?? DEFAULT_CLIENT_TITLE)
   return {
-    name: 'dsh-client-document-title',
+    name: 'qilin-client-document-title',
     transformIndexHtml(html) {
       return html.replace('<title>QiLin Local Build</title>', `<title>${title}</title>`)
     },
@@ -30,7 +30,7 @@ function clientDocumentTitle(): Plugin {
 /** Fail before a Vite dev or preview server can expose the boot-manifest-free shell. */
 function rejectStandaloneServe(): Plugin {
   return {
-    name: 'dsh-reject-standalone-web-serve',
+    name: 'qilin-reject-standalone-web-serve',
     config(_config, env) {
       if (env.command === 'serve') throw new Error(STANDALONE_ERROR)
     },
@@ -48,7 +48,7 @@ function emitPreviewPage(): Plugin {
   let bootstrapFile: string | undefined
   let write = true
   return {
-    name: 'dsh-emit-preview-page',
+    name: 'qilin-emit-preview-page',
     configResolved(config) {
       write = config.build.write
     },

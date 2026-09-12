@@ -1,5 +1,5 @@
 ---
-description: "Slot registry pure core for the dsh web client: SlotMap declaration merging, the single register composition API, four-share props types, store seats, and the renderer install contract."
+description: "Slot registry pure core for the qilin web client: SlotMap declaration merging, the single register composition API, four-share props types, store seats, and the renderer install contract."
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-client-ui-slots` lets web client plugins define and compose typed UI regions. Callers can add components, declare nested regions, attach scoped state, and supply business props through one compile-time-checked API. It supports single, ordered-list, keyed, and self-selecting chain composition, and reports conflicting compositions during plugin loading. Choose it for framework-neutral slot composition; pair it with `ui-renderer` when the client needs React rendering.
+`qilin-client-ui-slots` lets web client plugins define and compose typed UI regions. Callers can add components, declare nested regions, attach scoped state, and supply business props through one compile-time-checked API. It supports single, ordered-list, keyed, and self-selecting chain composition, and reports conflicting compositions during plugin loading. Choose it for framework-neutral slot composition; pair it with `ui-renderer` when the client needs React rendering.
 
 ## Table of Contents
 

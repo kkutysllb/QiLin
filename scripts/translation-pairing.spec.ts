@@ -59,7 +59,7 @@ function fixtureSignature(
 }
 
 function gitSupportsObjectFormat(format: 'sha256'): boolean {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-git-object-format-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-git-object-format-'))
   try {
     return spawnSync('git', ['init', '--quiet', `--object-format=${format}`, root], {
       stdio: 'ignore',
@@ -84,7 +84,7 @@ describe('translation pairing snapshots', () => {
 
       expect(objectId).toBe(gitBlobHash(content))
       expect(execFileSync('git', [
-        '-C', root, 'rev-parse', `refs/dsh/translation-pairing/snapshots/${objectId}`,
+        '-C', root, 'rev-parse', `refs/qilin/translation-pairing/snapshots/${objectId}`,
       ], { encoding: 'utf8' }).trim()).toBe(objectId)
       execFileSync('git', ['-C', root, 'gc', '--prune=now'])
       expect(execFileSync('git', ['-C', root, 'cat-file', '-p', objectId])).toEqual(content)
@@ -231,7 +231,7 @@ describe('translation pairing switchers', () => {
   })
 
   it('excludes only the header switcher from the structural links', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-switcher-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-switcher-'))
     try {
       writeFileSync(join(root, 'guide.md'), '# Guide\n')
       writeFileSync(join(root, 'guide.zh.md'), '# 指南\n')
@@ -243,7 +243,7 @@ describe('translation pairing switchers', () => {
           repoRoot: root, sourcePath: 'guide.zh.md',
           isTranslationPairSource: fixturePairSource, markdown,
         },
-      ).links).toEqual(['dsh-translation-target:guide.md'])
+      ).links).toEqual(['qilin-translation-target:guide.md'])
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -357,7 +357,7 @@ describe('translation structural signature', () => {
   })
 
   it('treats target-locale siblings as one semantic link target', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-structure-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-structure-'))
     try {
       writeFileSync(join(root, 'reference.md'), '# Reference\n')
       writeFileSync(join(root, 'reference.zh.md'), '# 参考\n')
@@ -372,7 +372,7 @@ describe('translation structural signature', () => {
   })
 
   it('includes reference-style document links but excludes image-only definitions', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-structure-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-structure-'))
     try {
       writeFileSync(join(root, 'reference.md'), '# Reference\n')
       writeFileSync(join(root, 'reference.zh.md'), '# 参考\n')
@@ -392,14 +392,14 @@ describe('translation structural signature', () => {
           repoRoot: root, sourcePath: 'guide.md',
           isTranslationPairSource: fixturePairSource, markdown,
         },
-      ).links).toEqual(['dsh-translation-target:reference.md'])
+      ).links).toEqual(['qilin-translation-target:reference.md'])
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
   })
 
   it('compares the first duplicate reference definition that CommonMark resolves', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-structure-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-structure-'))
     try {
       for (const name of ['reference', 'different', 'other']) {
         writeFileSync(join(root, `${name}.md`), `# ${name}\n`)
@@ -410,7 +410,7 @@ describe('translation structural signature', () => {
       const source = fixtureSignature(root, 'guide.md', sourceMarkdown, 'guide.zh.md')
       const counterpart = fixtureSignature(root, 'guide.zh.md', counterpartMarkdown, 'guide.md')
       expect(translationStructureDiff(source, counterpart)).toEqual([
-        'link target #1 diverges between the pair: "dsh-translation-target:reference.md" vs "dsh-translation-target:different.md"',
+        'link target #1 diverges between the pair: "qilin-translation-target:reference.md" vs "qilin-translation-target:different.md"',
       ])
     } finally {
       rmSync(root, { recursive: true, force: true })

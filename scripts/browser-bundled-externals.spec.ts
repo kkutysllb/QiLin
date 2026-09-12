@@ -12,7 +12,7 @@ afterEach(() => {
 })
 
 function fixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-browser-notices-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-browser-notices-'))
   roots.push(root)
   write(root, 'package.json', '{"type":"module"}')
   write(root, 'tsconfig.base.json', JSON.stringify({

@@ -37,11 +37,11 @@ describe('OpenInAppController availability', () => {
   })
 
   it('resolves routes against the page origin when the page has one', async () => {
-    vi.stubGlobal('location', { origin: 'http://dsh.example:8080' })
+    vi.stubGlobal('location', { origin: 'http://qilin.example:8080' })
     const fetcher = vi.fn(async (input: string | URL) => { void input; return jsonResponse({ apps: [] }) })
     const controller = new OpenInAppController(fetcher)
     await controller.load()
-    expect(String(fetcher.mock.calls[0]?.[0])).toBe('http://dsh.example:8080/open-in-app/apps')
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe('http://qilin.example:8080/open-in-app/apps')
   })
 
   it('falls back to the internal host base under a null origin', async () => {
@@ -49,7 +49,7 @@ describe('OpenInAppController availability', () => {
     const fetcher = vi.fn(async (input: string | URL) => { void input; return jsonResponse({ apps: [] }) })
     const controller = new OpenInAppController(fetcher)
     await controller.load()
-    expect(String(fetcher.mock.calls[0]?.[0])).toBe('http://dsh.internal/open-in-app/apps')
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe('http://qilin.internal/open-in-app/apps')
   })
 })
 
@@ -63,7 +63,7 @@ describe('OpenInAppController launching', () => {
     const controller = new OpenInAppController(async () => jsonResponse({ apps: [] }))
     controller.choose('cursor')
     expect(controller.choice.getSnapshot()).toBe('cursor')
-    expect(values.get('dsh.open-in-app.choice')).toBe('"cursor"')
+    expect(values.get('qilin.open-in-app.choice')).toBe('"cursor"')
     const reloaded = new OpenInAppController(async () => jsonResponse({ apps: [] }))
     expect(reloaded.choice.getSnapshot()).toBe('cursor')
   })

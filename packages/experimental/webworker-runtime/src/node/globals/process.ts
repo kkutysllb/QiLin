@@ -13,7 +13,7 @@ import { processAlive, signalProcess } from '../process-table.ts'
 export interface ProcessShimOptions {
   /** Virtual root reported by `cwd()`. */
   readonly cwd: string
-  /** Environment the tree reads; `DSH_HOME` belongs here. */
+  /** Environment the tree reads; `QILIN_HOME` belongs here. */
   readonly env: Readonly<Record<string, string>>
   /** Argument vector reported to the tree. */
   readonly argv?: readonly string[]
@@ -87,9 +87,9 @@ export function installProcessGlobal(options: ProcessShimOptions): ProcessShim {
   }
   const shim: ProcessShim = {
     env: { ...options.env },
-    argv: [...(options.argv ?? ['node', 'dsh-webworker'])],
+    argv: [...(options.argv ?? ['node', 'qilin-webworker'])],
     execArgv: [],
-    title: 'dsh-webworker',
+    title: 'qilin-webworker',
     platform: 'linux',
     arch: 'x64',
     pid: 1,

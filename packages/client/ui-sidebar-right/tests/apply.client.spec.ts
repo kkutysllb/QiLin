@@ -129,7 +129,7 @@ describe('ui-sidebar-right apply', () => {
     expect(injected.hooks.tabTypes.getSnapshot().find(type => type.kind === 'guide')?.id).toBe(GUIDE_ID)
     const seen = vi.fn()
     const unsubscribe = injected.hooks.tabTypes.subscribe(seen)
-    ctx.sidebarRightTabs.register({ id: 'spec/text', kind: 'text', patterns: ['dsh-resource://file/**'], title: () => 'text' })
+    ctx.sidebarRightTabs.register({ id: 'spec/text', kind: 'text', patterns: ['qilin-resource://file/**'], title: () => 'text' })
     expect(seen).toHaveBeenCalledOnce()
     unsubscribe()
     // The binding makes the service act on this seat's session; the seat's
@@ -158,7 +158,7 @@ describe('ui-sidebar-right apply', () => {
     instance.actions.open(SESSION)
     // The first expansion seeds the guide; a second tab beside it makes it closable.
     instance.actions.setExpanded(SESSION, true)
-    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s/a.txt', title: 'a' }, () => {})
+    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'qilin-resource://file/session/s/a.txt', title: 'a' }, () => {})
     const guide = Object.values(instance.getSnapshot().bySession[SESSION]?.layout.tabs ?? {}).find(tab => tab.kind === 'guide')
     if (guide === undefined) throw new Error('expected the seeded guide')
     // Held and pinned from the store's own commit: no seat synced anything.

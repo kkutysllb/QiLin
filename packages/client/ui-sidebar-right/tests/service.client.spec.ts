@@ -42,7 +42,7 @@ function harness() {
   tabs.register({
     id: 'test/text',
     kind: 'text',
-    patterns: ['dsh-resource://file/**'],
+    patterns: ['qilin-resource://file/**'],
     priority: 'fallback',
     title: address => address.slice(address.lastIndexOf('/') + 1),
   })
@@ -82,7 +82,7 @@ function harness() {
 describe('SidebarRightController — opening', () => {
   it('refuses every write while no seat is mounted', () => {
     const { controller } = harness()
-    expect(() => { controller.openResource('dsh-resource://file/session/s-test/a.txt') }).toThrow('no session surface is mounted')
+    expect(() => { controller.openResource('qilin-resource://file/session/s-test/a.txt') }).toThrow('no session surface is mounted')
     expect(() => { controller.openTab('guide') }).toThrow('no session surface is mounted')
     expect(() => { controller.close('tab1' as TabId) }).toThrow('no session surface is mounted')
     expect(() => { controller.toggleExpanded() }).toThrow('no session surface is mounted')
@@ -102,7 +102,7 @@ describe('SidebarRightController — opening', () => {
   it('opens claimed content and reveals the column in one history entry', () => {
     const { controller, publish, layout, titles, entries } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
     expect(layout().expanded).toBe(true)
     expect(titles()).toContain('readme.txt')
     // One intent, one entry: stepping back removes the tab and re-collapses.
@@ -116,11 +116,11 @@ describe('SidebarRightController — opening', () => {
   it('focuses the tab already showing the same (kind, contentId) instead of opening a second one', () => {
     const { controller, publish, titles, layout, tabOf } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
     publish()
     controller.openTab('guide')
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
     expect(titles().filter(title => title === 'readme.txt')).toHaveLength(1)
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('readme.txt'))
   })
@@ -129,11 +129,11 @@ describe('SidebarRightController — opening', () => {
     const { controller, tabs, publish, titles } = harness()
     tabs.register({ id: 'test/hex', kind: 'hex', patterns: [], title: () => 'hex view' })
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt', { revealIfOpened: false })
+    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt', { revealIfOpened: false })
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt', { kind: 'hex' })
+    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt', { kind: 'hex' })
     expect(titles().filter(title => title === 'readme.txt')).toHaveLength(2)
     expect(titles()).toContain('hex view')
   })
@@ -146,20 +146,20 @@ describe('SidebarRightController — opening', () => {
     publish()
     const [left, right] = Object.values(layout().nodes).filter(node => node.kind === 'pane').map(node => node.id)
     if (left === undefined || right === undefined) throw new Error('expected two panes')
-    controller.openResource('dsh-resource://file/session/s-test/a.txt', { paneId: left })
+    controller.openResource('qilin-resource://file/session/s-test/a.txt', { paneId: left })
     expect(findTabPane(layout(), tabOf('a.txt')).id).toBe(left)
   })
 
   it('takes the replaced tab\'s pane and slot, closes it, and records one entry', () => {
     const { controller, publish, layout, tabOf, entries } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/b.txt')
+    controller.openResource('qilin-resource://file/session/s-test/b.txt')
     publish()
     const a = tabOf('a.txt')
     const before = entries()
-    controller.openResource('dsh-resource://file/session/s-test/c.txt', { replaceTab: a })
+    controller.openResource('qilin-resource://file/session/s-test/c.txt', { replaceTab: a })
     const pane = findTabPane(layout(), tabOf('c.txt'))
     // a took slot 0 of the lazily-seeded (still empty) surface; c took a's slot.
     expect(pane.tabs.indexOf(tabOf('c.txt'))).toBe(0)
@@ -174,12 +174,12 @@ describe('SidebarRightController — opening', () => {
   it('still closes the replaced tab when the address is already open elsewhere', () => {
     const { controller, publish, layout, tabOf, titles } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/b.txt')
+    controller.openResource('qilin-resource://file/session/s-test/b.txt')
     publish()
     const spare = tabOf('b.txt')
-    controller.openResource('dsh-resource://file/session/s-test/a.txt', { replaceTab: spare })
+    controller.openResource('qilin-resource://file/session/s-test/a.txt', { replaceTab: spare })
     expect(layout().tabs[spare]).toBeUndefined()
     expect(titles().filter(title => title === 'a.txt')).toHaveLength(1)
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('a.txt'))
@@ -190,7 +190,7 @@ describe('SidebarRightController — opening', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     const before = entries()
     instance.actions.duplicateTab(SESSION, tabOf('seed'))
@@ -206,7 +206,7 @@ describe('SidebarRightController — opening', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     controller.openTab('guide')
     expect(Object.values(layout().tabs).filter(tab => tab.contentId === 'sidebar://guide')).toHaveLength(1)
@@ -218,7 +218,7 @@ describe('SidebarRightController — opening', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     const root = getPane(layout(), layout().rootId).id
     let settled: TabId | undefined
@@ -277,18 +277,18 @@ describe('SidebarRightController — opening', () => {
   it('records the navigation in the Tab domain: params delivered, revision counting every open', () => {
     const { controller, publish, tabOf } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt', { params: { line: 3 } })
+    controller.openResource('qilin-resource://file/session/s-test/a.txt', { params: { line: 3 } })
     const occurrence = controller.tabDomain.occurrence(SESSION, { id: tabOf('a.txt') })
-    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-test/a.txt', params: { line: 3 }, revision: 1 })
+    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'qilin-resource://file/session/s-test/a.txt', params: { line: 3 }, revision: 1 })
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
-    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-test/a.txt', params: undefined, revision: 2 })
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'qilin-resource://file/session/s-test/a.txt', params: undefined, revision: 2 })
   })
 
   it('closes a tab of the mounted session', () => {
     const { controller, publish, tabOf, titles } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     controller.close(tabOf('a.txt'))
     expect(titles()).not.toContain('a.txt')
@@ -308,14 +308,14 @@ describe('SidebarRightController — opening', () => {
 })
 
 describe('SidebarRightController — the two opens', () => {
-  it('refuses an address outside dsh-resource:// on the same path as an unclaimed one', () => {
+  it('refuses an address outside qilin-resource:// on the same path as an unclaimed one', () => {
     const { controller, instance, publish, entries } = harness()
     instance.actions.open(SESSION)
     publish()
     const before = entries()
     expect(() => { controller.openResource('sidebar://guide') }).toThrow('no registered tab type claims')
     expect(() => { controller.openResource('https://example.com/a.txt') }).toThrow('no registered tab type claims')
-    expect(() => { controller.openResource('dsh-resource://unknown/x') }).toThrow('no registered tab type claims')
+    expect(() => { controller.openResource('qilin-resource://unknown/x') }).toThrow('no registered tab type claims')
     expect(entries()).toBe(before)
   })
 
@@ -323,7 +323,7 @@ describe('SidebarRightController — the two opens', () => {
     const { controller, instance, publish, layout, entries } = harness()
     instance.actions.open(SESSION)
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     // No pane holds the page yet: opening it by kind opens its tab.
     controller.openTab('guide')
@@ -340,7 +340,7 @@ describe('SidebarRightController — the two opens', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     const before = entries()
     controller.openTab('guide', { replaceTab: tabOf('a.txt') })
@@ -354,7 +354,7 @@ describe('SidebarRightController — layout operations', () => {
     const { controller, publish, layout, tabOf, entries, expand } = harness()
     expand()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('a.txt'))
     const before = entries()
@@ -405,7 +405,7 @@ describe('SidebarRightController — layout operations', () => {
   it('floats a docked tab, and leaves a floating or missing tab alone', () => {
     const { controller, publish, layout, tabOf, entries } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     controller.float(tabOf('a.txt'), { x: 10, y: 20, width: 300, height: 200 })
     expect(layout().floats).toHaveLength(1)
@@ -421,7 +421,7 @@ describe('SidebarRightController — layout operations', () => {
   it('docks a floating panel back into the active docked pane, and leaves a docked or missing pane alone', () => {
     const { controller, publish, layout, tabOf, entries } = harness()
     publish()
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
     controller.float(tabOf('a.txt'))
     publish()
@@ -440,8 +440,8 @@ describe('SidebarRightController — layout operations', () => {
 
 describe('SidebarRightController — a tab\'s own actions', () => {
   const OTHER = 's-other' as SessionId
-  const A_TXT = 'dsh-resource://file/session/s-test/a.txt'
-  const B_TXT = 'dsh-resource://file/session/s-test/b.txt'
+  const A_TXT = 'qilin-resource://file/session/s-test/a.txt'
+  const B_TXT = 'qilin-resource://file/session/s-test/b.txt'
 
   it('land in the session the tab is in through its own adopted store, after another session\'s seat took over', () => {
     const { controller, adopt, instance, publish, layout, expand } = harness()
@@ -534,7 +534,7 @@ describe('SidebarRightController — a tab\'s own actions', () => {
     const replacement = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create()
     const third = adopt(SESSION, replacement)
     const pins = pin.mock.calls.length
-    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/c.txt', title: 'c' }, () => {})
+    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'qilin-resource://file/session/s-test/c.txt', title: 'c' }, () => {})
     expect(pin.mock.calls.length).toBe(pins)
     expect(held.signal.aborted).toBe(false)
     replacement.actions.open(SESSION)
@@ -557,10 +557,10 @@ describe('SidebarRightController — the readable slice', () => {
     controller.toggleExpanded()
     publish()
     expect(controller.isExpanded()).toBe(true)
-    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    controller.openResource('qilin-resource://file/session/s-test/a.txt')
     publish()
-    expect(Object.values(layout().tabs).filter(tab => tab.contentId === 'dsh-resource://file/session/s-test/a.txt')).toHaveLength(1)
-    expect(controller.active()?.contentId).toBe('dsh-resource://file/session/s-test/a.txt')
+    expect(Object.values(layout().tabs).filter(tab => tab.contentId === 'qilin-resource://file/session/s-test/a.txt')).toHaveLength(1)
+    expect(controller.active()?.contentId).toBe('qilin-resource://file/session/s-test/a.txt')
   })
 })
 

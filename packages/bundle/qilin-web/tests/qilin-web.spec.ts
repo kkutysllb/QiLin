@@ -1,7 +1,7 @@
 /**
- * The bundle's substance is its patch file: the `dsh.bundle.patch` manifest
+ * The bundle's substance is its patch file: the `qilin.bundle.patch` manifest
  * field must name a real, parseable patch list that restates the QiLin
- * model-facing identity instead of inheriting the dsh wording.
+ * model-facing identity instead of inheriting the qilin wording.
  */
 
 import { readFileSync } from 'node:fs'
@@ -16,7 +16,7 @@ interface PatchRow {
   config?: Record<string, unknown>
 }
 
-describe('dsh-qilin-web bundle', () => {
+describe('qilin-qilin-web bundle', () => {
   it('declares a parseable patch list that names QiLin as the product', () => {
     const root = fileURLToPath(new URL('..', import.meta.url))
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {

@@ -175,7 +175,7 @@ export interface RunOptions {
   /**
    * Recorded SUBAGENT child-session fixture paths (replay). A nested-agent
    * scenario ships one per child (`session.1.jsonl`, …); the harness forwards
-   * them to `dsh-llm-replay` via `$DSH_SNAPSHOT_CHILD_FILES` so each child
+   * them to `qilin-llm-replay` via `$QILIN_SNAPSHOT_CHILD_FILES` so each child
    * session replays from its own recorded script. Empty for single-session
    * scenarios. Ignored in record mode (children are harvested, not replayed).
    */
@@ -224,7 +224,7 @@ export function snapshotSpillRoot(
   const scenario = basename(dirname(fixtureFile))
   const key = createHash('sha256').update(scenario).digest('hex').slice(0, 9)
   const root = platform === 'win32' ? '/t' : '/tmp'
-  return `${root}/dsh-acp-snap-${key}`
+  return `${root}/qilin-acp-snap-${key}`
 }
 
 /**
@@ -266,16 +266,16 @@ export async function runScenario(input: InputScript, opts: RunOptions): Promise
       // host and record that proxy's error page as the expected output. `undefined` removes the
       // name from the child rather than setting it empty.
       ...clearedProxyEnv(),
-      DSH_SNAPSHOT: opts.mode,
-      DSH_SNAPSHOT_FILE: opts.fixtureFile,
-      DSH_SNAPSHOT_SESSIONS_ROOT: sessionsRoot,
-      DSH_SNAPSHOT_SPILL_ROOT: spillRoot,
-      DSH_SNAPSHOT_SPILL_LOCATOR_ROOT: snapshotSpillRoot(opts.fixtureFile),
-      DSH_HOME: join(cwd, '.qilin'),
-      DSH_AGENTS_HOME: join(cwd, '.agents'),
-      ...opts.overrideFile !== undefined ? { DSH_SNAPSHOT_OVERRIDE: opts.overrideFile } : {},
+      QILIN_SNAPSHOT: opts.mode,
+      QILIN_SNAPSHOT_FILE: opts.fixtureFile,
+      QILIN_SNAPSHOT_SESSIONS_ROOT: sessionsRoot,
+      QILIN_SNAPSHOT_SPILL_ROOT: spillRoot,
+      QILIN_SNAPSHOT_SPILL_LOCATOR_ROOT: snapshotSpillRoot(opts.fixtureFile),
+      QILIN_HOME: join(cwd, '.qilin'),
+      QILIN_AGENTS_HOME: join(cwd, '.agents'),
+      ...opts.overrideFile !== undefined ? { QILIN_SNAPSHOT_OVERRIDE: opts.overrideFile } : {},
       ...opts.childFiles !== undefined && opts.childFiles.length > 0
-        ? { DSH_SNAPSHOT_CHILD_FILES: opts.childFiles.join(delimiter) }
+        ? { QILIN_SNAPSHOT_CHILD_FILES: opts.childFiles.join(delimiter) }
         : {},
     }
 
@@ -803,7 +803,7 @@ async function harvestSessionLogs(root: string): Promise<HarvestedLog[]> {
   // synchronously and strictly sequentially, so their createdAt values are
   // strictly ordered; the recordedId tiebreak only keeps a degenerate
   // same-millisecond collision (unreachable here) deterministic. This harvest
-  // order must match the replay load order in dsh-llm-replay's loadSessionScripts
+  // order must match the replay load order in qilin-llm-replay's loadSessionScripts
   // so session.<n>.jsonl maps to the same child on record and replay — replay
   // re-sorts childFiles by the same key, so the two stay consistent.
   logs.sort((a, b) => {

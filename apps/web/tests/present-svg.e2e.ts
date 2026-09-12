@@ -31,7 +31,7 @@ describe('web e2e: requested SVG is explicitly delivered', () => {
   beforeAll(async () => {
     let replayOverride: string | undefined
     if (MODE !== 'record') {
-      replayRoot = await mkdtemp(join(tmpdir(), 'dsh-present-svg-replay-'))
+      replayRoot = await mkdtemp(join(tmpdir(), 'qilin-present-svg-replay-'))
       replayOverride = join(replayRoot, 'replay.override.json')
       const script = deriveReplayScript(parseSessionLog(await readFile(FIXTURE, 'utf8')))
       // Recorded absolute paths must follow each isolated Session's working directory.

@@ -33,9 +33,9 @@ describe('ripgrep resolution', () => {
   it('uses the native sidecar beside the current executable', async () => {
     Reflect.defineProperty(process, 'pkg', { configurable: true, value: {} })
     Reflect.defineProperty(process, 'platform', { configurable: true, enumerable: true, value: 'linux' })
-    process.execPath = '/runtime/dsh'
+    process.execPath = '/runtime/qilin'
     existsSync.mockReturnValue(true)
-    const sidecar = '/runtime/dsh-rg'
+    const sidecar = '/runtime/qilin-rg'
     const { resolveRgPath } = await import('@qilin/tool-fs-search')
 
     await expect(resolveRgPath()).resolves.toBe(sidecar)

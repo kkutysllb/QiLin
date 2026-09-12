@@ -115,7 +115,7 @@ export interface SidebarRightTabPlacement {
 export interface SidebarRightTabActions {
   /**
    * Open a resource from this tab; see `ISidebarRight.openResource`.
-   * @param address - a `dsh-resource://` address.
+   * @param address - a `qilin-resource://` address.
    * @param options - placement and the resource's navigation parameters.
    */
   openResource(address: string, options?: SidebarRightTabPlacement & { readonly params?: SidebarRightResourceParams }): void

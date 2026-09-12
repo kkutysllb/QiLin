@@ -113,7 +113,7 @@ hooks-codex/coverage-{post-tool,prompt}、code-runtime-python/runtime、webworke
 - CLI 可执行名 dsh 改为 qilin，pnpm dsh 脚本改为 pnpm qilin。
 - DSH_* 环境变量前缀（产品源码内 61 个去重，DSH_HOME 出现 60 处）。
 - 技能来源标识 project-dsh / user-dsh 改为 project-qilin / user-qilin。
-- 文件名与技能名中残留的 dsh：scripts/verify-dsh-package-licenses.ts、.agents/skills/dsh-doc 等。
+- 文件名与技能名中残留的 dsh：scripts/verify-dsh-package-licenses.ts、.agents/skills/qilin-doc 等。
 
 ### 过程记录：一次自伤与修复
 - 在替换转义形式的包名时，我误用 Array.join(函数) 作分隔符，把函数源码插入了 14 个文件的 24 处正则字面量。

@@ -27,7 +27,7 @@ import {
   DESKTOP_PACKAGE_SET_FILE,
   DESKTOP_HOST_PACKAGE,
   desktopCorePackageOverrides,
-  desktopDshPackageSpec,
+  desktopQilinPackageSpec,
   readDesktopCorePackageSet,
   verifyDesktopCorePackageSet,
 } from './core-package-set.ts'
@@ -100,7 +100,7 @@ interface DesktopSeedIntegrityRecord {
 }
 
 const PROJECT_NAME = '@qilin/desktop-runtime'
-const DSH_PACKAGE = '@qilin/cli'
+const QILIN_PACKAGE = '@qilin/cli'
 const CORE_BUILD_PACKAGE = '@qilin/subprocess-local'
 const DESKTOP_PROFILE_BUNDLES = ['@qilin/base', '@qilin/web-app'] as const
 const WORKSPACE_SETTINGS = 'nodeLinker: hoisted\nautoInstallPeers: false\nstrictDepBuilds: true\n'
@@ -253,8 +253,8 @@ export function verifySeedIntegrity(seedDir: string): void {
 function projectManifest(projectDir: string): DesktopProjectManifest {
   const path = join(projectDir, 'package.json')
   const value = readJson(path)
-  const dsh = isRecord(value) && isRecord(value.qilin) ? value.qilin : undefined
-  const profile = isRecord(dsh?.profile) ? dsh.profile : undefined
+  const qilin = isRecord(value) && isRecord(value.qilin) ? value.qilin : undefined
+  const profile = isRecord(qilin?.profile) ? qilin.profile : undefined
   if (!isRecord(value) || value.name !== PROJECT_NAME || value.private !== true
     || typeof value.version !== 'string' || !isRecord(value.dependencies)
     || !Array.isArray(profile?.bundles) || !profile.bundles.every(bundle => typeof bundle === 'string')) {
@@ -263,7 +263,7 @@ function projectManifest(projectDir: string): DesktopProjectManifest {
   const manifest = value as unknown as DesktopProjectManifest
   const packageSet = readDesktopCorePackageSet(projectDir, releaseFile(projectDir).version)
   const expectedOverrides = desktopCorePackageOverrides(packageSet)
-  if (manifest.dependencies[DSH_PACKAGE] !== desktopDshPackageSpec(packageSet)
+  if (manifest.dependencies[QILIN_PACKAGE] !== desktopQilinPackageSpec(packageSet)
     || Object.entries(expectedOverrides).some(([name, spec]) => manifest.dependencies[name] !== spec)
     || readFileSync(join(projectDir, 'pnpm-workspace.yaml'), 'utf8') !== workspaceFile(expectedOverrides)) {
     throw new Error(`desktop project: core package mapping does not match ${DESKTOP_PACKAGE_SET_FILE}`)
@@ -311,11 +311,11 @@ function inspectPlugin(projectDir: string, requestedName: string): DesktopPlugin
   if (!isRecord(manifest) || manifest.name !== requestedName || typeof manifest.version !== 'string') {
     throw new Error(`desktop project: installed package ${JSON.stringify(requestedName)} has inconsistent name or version`)
   }
-  const dsh = manifest.qilin
-  const bundle = isRecord(dsh) ? dsh.bundle : undefined
+  const qilin = manifest.qilin
+  const bundle = isRecord(qilin) ? qilin.bundle : undefined
   const patch = isRecord(bundle) ? bundle.patch : undefined
   if (typeof patch !== 'string' || patch === '') {
-    throw new Error(`desktop project: ${requestedName}@${manifest.version} does not declare dsh.bundle.patch`)
+    throw new Error(`desktop project: ${requestedName}@${manifest.version} does not declare qilin.bundle.patch`)
   }
   const packageDir = dirname(manifestPath)
   const patchPath = resolve(packageDir, patch)
@@ -368,10 +368,10 @@ export class DesktopProjectManager {
     return pluginRecords(this.paths.profile)
   }
 
-  /** Read the exact dsh version installed in the active desktop project. */
-  dshVersion(): string {
+  /** Read the exact qilin version installed in the active desktop project. */
+  qilinVersion(): string {
     if (!existsSync(this.paths.profile)) throw new Error('desktop project: active profile is not installed')
-    return this.installedPackageVersion(DSH_PACKAGE)
+    return this.installedPackageVersion(QILIN_PACKAGE)
   }
 
   private installedPackageVersion(packageName: string): string {
@@ -401,7 +401,7 @@ export class DesktopProjectManager {
         throw new Error(`desktop project: seed ${target.version} does not match Electron ${electronVersion}`)
       }
       if (existsSync(this.paths.profile) && this.releaseVersion() === target.version
-        && this.dshVersion() === target.version
+        && this.qilinVersion() === target.version
         && this.installedPackageVersion(DESKTOP_HOST_PACKAGE) === target.version) {
         verifyDesktopCorePackageSet(this.paths.profile, target.version)
         return false
@@ -558,7 +558,7 @@ export class DesktopProjectManager {
     const npmrc = join(this.paths.pnpm.config, 'npmrc')
     if (!existsSync(npmrc)) writeFileSync(npmrc, '', { mode: 0o600 })
     const inherited = Object.fromEntries(Object.entries(process.env).filter(([name]) => (
-      !/^DSH_DESKTOP_/u.test(name) && !/^(?:npm|pnpm|corepack)_/iu.test(name)
+      !/^QILIN_DESKTOP_/u.test(name) && !/^(?:npm|pnpm|corepack)_/iu.test(name)
     )))
     await new Promise<void>((settle, reject) => {
       const child = spawn(this.runtime.node, [
@@ -682,7 +682,7 @@ export class DesktopProjectManager {
   }
 }
 
-/** Create seed metadata for one exact Electron and dsh release. */
+/** Create seed metadata for one exact Electron and qilin release. */
 export function createSeedMetadata(seedDir: string, release: DesktopRelease): void {
   mkdirSync(seedDir, { recursive: true, mode: 0o700 })
   const packageSet = verifyDesktopCorePackageSet(seedDir, release.version)
@@ -714,7 +714,7 @@ export function createDevelopmentProjectMetadata(projectDir: string, release: De
     private: true,
     version: '0.0.0',
     dependencies: {
-      [DSH_PACKAGE]: release.version,
+      [QILIN_PACKAGE]: release.version,
       [DESKTOP_HOST_PACKAGE]: release.version,
     },
     qilin: { profile: { bundles: [...DESKTOP_PROFILE_BUNDLES] } },

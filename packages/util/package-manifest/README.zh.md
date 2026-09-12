@@ -1,5 +1,5 @@
 ---
-description: "供启动器、客户端、构建工具和外部包共同使用的 package.json.dsh 元数据 TypeScript 声明。"
+description: "供启动器、客户端、构建工具和外部包共同使用的 package.json.qilin 元数据 TypeScript 声明。"
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-使用 `DshManifest` 为包的 Harness 元数据添加类型，也可用 `DshClientManifest` 等成员类型描述单项声明。启动器、客户端、构建工具和外部包导入同一组类型；各读取方负责 JSON 校验和默认值解析。
+使用 `QilinManifest` 为包的 Harness 元数据添加类型，也可用 `QilinClientManifest` 等成员类型描述单项声明。启动器、客户端、构建工具和外部包导入同一组类型；各读取方负责 JSON 校验和默认值解析。
 
 ## 目录
 
@@ -28,16 +28,16 @@ kind: "package-library"
 从包根导入类型。仅检查自己的源码时使用开发依赖；若发布的声明文件引用这些类型，则使用生产依赖。
 
 ```ts
-import type { DshClientManifest, DshManifest } from '@qilin/package-manifest'
+import type { QilinClientManifest, QilinManifest } from '@qilin/package-manifest'
 
-const client: DshClientManifest = { platform: 'web' }
-const dsh: DshManifest = {
+const client: QilinClientManifest = { platform: 'web' }
+const qilin: QilinManifest = {
   bundle: { patch: './cordis.patch.yml' },
   client,
 }
 ```
 
-`DshManifest` 描述 `bundle`、`profile`、`client`、`configTrees`、`sessionFormatMigration` 和 `moduleFallback`，不包含外层 npm manifest。`moduleFallback` 是启动器生成的元数据，不是作者配置项。TypeScript 检查该对象，并在编译时删除 `import type`；JSON 文件不能导入类型，此示例也不会写入 `package.json`。声明见 [`src/types.ts`](src/types.ts)。
+`QilinManifest` 描述 `bundle`、`profile`、`client`、`configTrees`、`sessionFormatMigration` 和 `moduleFallback`，不包含外层 npm manifest。`moduleFallback` 是启动器生成的元数据，不是作者配置项。TypeScript 检查该对象，并在编译时删除 `import type`；JSON 文件不能导入类型，此示例也不会写入 `package.json`。声明见 [`src/types.ts`](src/types.ts)。
 
 -----
 

@@ -137,7 +137,7 @@ function twoPanes(
   const [first, second] = dockPaneIds(controller.getSnapshot().state)
   if (first === undefined || second === undefined) throw new Error('expected two docked panes')
   const fileTabId = controller.openContent({
-    contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', paneId: first,
+    contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', paneId: first,
   })
   const seedTabId = getPane(controller.getSnapshot().state, first).tabs[0]
   if (seedTabId === undefined) throw new Error('expected the seeded tab')
@@ -163,12 +163,12 @@ function gestureIntents(intents: ReturnType<typeof spyIntents>): string[] {
 describe('DockSurface', () => {
   it('renders each pane with its tabs and the active tab body', () => {
     const controller = seededController()
-    controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     renderSurface(controller, spyIntents())
 
     // The chip's text is its title alone: the close control is an icon.
     expect(screen.getAllByRole('tab').map(tab => tab.textContent)).toEqual(['Start', 'a.txt'])
-    expect(screen.getByTestId('body').textContent).toBe('dsh-resource://file/session/s/a.txt')
+    expect(screen.getByTestId('body').textContent).toBe('qilin-resource://file/session/s/a.txt')
     expect(screen.getByRole('tab', { name: /a\.txt/u }).getAttribute('aria-selected')).toBe('true')
   })
 
@@ -180,7 +180,7 @@ describe('DockSurface', () => {
 
   it('reports one focus intent when a tab is clicked, not when it is pressed, and none for the pane', () => {
     const controller = seededController()
-    controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const intents = spyIntents()
     renderSurface(controller, intents)
     const tab = screen.getByRole('tab', { name: /Start/u })
@@ -523,7 +523,7 @@ describe('DockSurface', () => {
       const { rerender } = render(surface(controller))
       // The seeded chip is in view: nothing moves.
       expect(scrollLeft).toBe(0)
-      openedTab = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
+      openedTab = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
       rerender(surface(controller))
       // Past the right edge by 140, plus the 24px fade.
       expect(scrollLeft).toBe(164)
@@ -624,7 +624,7 @@ describe('DockSurface', () => {
 
   it('withholds a tab\'s close control and menu close item where the embedder\'s canCloseTab denies, tab by tab', () => {
     const controller = seededController()
-    controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const snapshot = controller.getSnapshot()
     const seedTabId = getPane(snapshot.state, snapshot.state.activePaneId).tabs[0]
     if (seedTabId === undefined) throw new Error('expected seeded tab')
@@ -677,7 +677,7 @@ describe('DockSurface', () => {
 
   it('lets the embedder render a chip\'s title, and shows the record\'s text when it does not', () => {
     const controller = seededController()
-    controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const snapshot = controller.getSnapshot()
     render(
       <DockSurface
@@ -1071,8 +1071,8 @@ describe('keyboard tabs', () => {
   /** One pane holding the seed and two files, the last opened selected, with the chips by title. */
   function threeChips(): { intents: ReturnType<typeof spyIntents>; chip: (title: string) => HTMLElement; ids: Record<string, TabId> } {
     const controller = seededController()
-    const a = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
-    const b = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
+    const a = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const b = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
     const seed = getPane(controller.getSnapshot().state, controller.getSnapshot().state.rootId).tabs[0]
     if (seed === undefined) throw new Error('expected the seeded tab')
     const intents = spyIntents()
@@ -1139,7 +1139,7 @@ describe('divider drags', () => {
     controller.splitPane()
     const [first, second] = dockPaneIds(controller.getSnapshot().state)
     if (first === undefined || second === undefined) throw new Error('expected two docked panes')
-    const opened = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', paneId: second })
+    const opened = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file', paneId: second })
     controller.dropTab(opened, second, 'bottom')
     const state = controller.getSnapshot().state
     const root = state.nodes[state.rootId]
@@ -1220,8 +1220,8 @@ describe('FloatLayer', () => {
     part: (attribute: string, paneId: PaneId) => Element
   } {
     const controller = seededController()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
+    const first = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const second = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
     const lower = controller.floatTab(first, { x: 100, y: 80, width: 300, height: 200 })
     const upper = controller.floatTab(second, { x: 500, y: 80, width: 300, height: 200 })
     const intents = spyIntents()
@@ -1247,7 +1247,7 @@ describe('FloatLayer', () => {
     panel: HTMLElement
   } {
     const controller = seededController()
-    const tabId = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const tabId = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const paneId = controller.floatTab(tabId, { x: 100, y: 80, width: 300, height: 200 })
     const intents = spyIntents()
     render(
@@ -1313,8 +1313,8 @@ describe('FloatLayer', () => {
 
   it('raises the active panel when another has been drawn over it', () => {
     const controller = seededController()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
+    const first = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const second = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
     const lower = controller.floatTab(first, { x: 100, y: 80, width: 300, height: 200 })
     const upper = controller.floatTab(second, { x: 500, y: 80, width: 300, height: 200 })
     // Focus on the lower panel while the upper stays on top: only a recorded
@@ -1332,8 +1332,8 @@ describe('FloatLayer', () => {
 
   it('moves a panel by its grip as one intent, previewing the position and the panel on top', () => {
     const controller = seededController()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
+    const first = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const second = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
     const lower = controller.floatTab(first, { x: 100, y: 80, width: 300, height: 200 })
     controller.floatTab(second, { x: 500, y: 80, width: 300, height: 200 })
     const intents = spyIntents()
@@ -1384,8 +1384,8 @@ describe('FloatLayer', () => {
 
   it('stacks panels in the model z order', () => {
     const controller = seededController()
-    const first = controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
-    const second = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
+    const first = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const second = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file' })
     controller.floatTab(first)
     controller.floatTab(second)
     render(
@@ -1414,7 +1414,7 @@ describe('surface chrome', () => {
     if (rightPaneId === undefined) throw new Error('expected a row split')
     const seeded = controller.getSnapshot().state.nodes[rightPaneId]
     if (seeded === undefined || seeded.kind !== 'pane' || seeded.tabs[0] === undefined) throw new Error('expected a seeded pane')
-    const opened = controller.openContent({ contentId: 'dsh-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file', paneId: seeded.id })
+    const opened = controller.openContent({ contentId: 'qilin-resource://file/session/s/b.txt', title: 'b.txt', kind: 'file', paneId: seeded.id })
     controller.dropTab(opened, seeded.id, 'bottom')
 
     const snapshot = controller.getSnapshot()
@@ -1467,7 +1467,7 @@ describe('surface chrome', () => {
   // controls after it are the strip's own children, in this order.
   it('keeps the chips in their own box ahead of the add, split, and chrome controls', () => {
     const controller = seededController()
-    controller.openContent({ contentId: 'dsh-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
     const snapshot = controller.getSnapshot()
     render(
       <DockSurface
@@ -1507,6 +1507,6 @@ describe('a controller satisfies the intent contract', () => {
 
 describe('fileTab', () => {
   it('builds a content tab the kit treats as opaque', () => {
-    expect(fileTab(asTab('t1'), 'dsh-resource://file/session/s/x', 'x').kind).toBe('file')
+    expect(fileTab(asTab('t1'), 'qilin-resource://file/session/s/x', 'x').kind).toBe('file')
   })
 })

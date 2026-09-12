@@ -99,7 +99,7 @@ describe('workspace-write containment', () => {
   })
 
   it('a write to the platform temp area lands (parity with the bash runner grant)', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'dsh-fssbx-tmp-'))
+    const dir = await mkdtemp(join(tmpdir(), 'qilin-fssbx-tmp-'))
     try {
       const path = join(dir, 'temp.txt')
       await fs.writeText(await target(path), 'temp')

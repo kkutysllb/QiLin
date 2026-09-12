@@ -33,7 +33,7 @@ export function browserPackageOfFile(file: string): string | undefined {
 
 function recorder(seen: Set<string>, workspaceNames: ReadonlySet<string>, followWorkspace = false) {
   return {
-    name: 'dsh-browser-direct-dependencies',
+    name: 'qilin-browser-direct-dependencies',
     enforce: 'pre' as const,
     resolveId: {
       order: 'pre' as const,

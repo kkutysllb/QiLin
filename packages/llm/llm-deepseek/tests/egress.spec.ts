@@ -42,8 +42,8 @@ import * as LlmDeepSeek from '../src/index.ts'
 
 let home: string
 beforeAll(() => {
-  home = mkdtempSync(join(tmpdir(), 'dsh-deepseek-egress-'))
-  vi.stubEnv('DSH_HOME', home)
+  home = mkdtempSync(join(tmpdir(), 'qilin-deepseek-egress-'))
+  vi.stubEnv('QILIN_HOME', home)
   vi.stubEnv('DEEPSEEK_API_KEY', 'probe-key')
 })
 afterAll(() => {

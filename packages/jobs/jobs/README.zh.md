@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`dsh-jobs` 让工具可以在 agent 继续推进时保持长时间工作运行。每项任务都会获得稳定的 `<kind>-N` id，拥有它的 agent 可以读取输出、带超时等待或请求取消。归属范围限定在 agent 会话内，因此其他 agent 无法查看或停止任务；任务完成时会通过会话内通知送达，无需轮询。只有部署提供任务执行能力时，后台任务才能启动。
+`qilin-jobs` 让工具可以在 agent 继续推进时保持长时间工作运行。每项任务都会获得稳定的 `<kind>-N` id，拥有它的 agent 可以读取输出、带超时等待或请求取消。归属范围限定在 agent 会话内，因此其他 agent 无法查看或停止任务；任务完成时会通过会话内通知送达，无需轮询。只有部署提供任务执行能力时，后台任务才能启动。
 
 ## 目录
 
@@ -25,11 +25,11 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在组合后台任务能力或编写注册长时间工作的生产方时使用本包。本包本身定义约定；组合通过加载 `dsh-jobs-local` 这样的实现，以及模型侧的 `dsh-tool-jobs`，获得该功能。
+在组合后台任务能力或编写注册长时间工作的生产方时使用本包。本包本身定义约定；组合通过加载 `qilin-jobs-local` 这样的实现，以及模型侧的 `qilin-tool-jobs`，获得该功能。
 
 ### 后台任务提供什么
 
-生产方以 kind 和一行标签注册工作；注册表返回 `<kind>-N` id，例如 `bash-1`。拥有任务的任何一方都可以读取输出、列出任务、带超时等待结算或请求取消——每次调用都返回任务状态的全新快照，从 `running`、`stopping` 到终止态的 `completed`、`killed` 或 `failed`。任务结算时，拥有它的 agent 会通过 `dsh-tool-jobs` 转成会话内通知的完成监听器得到通知，因此无需轮询。生产方还可以附加可选的字节上限，让每次完整的模型侧输出读取或完成通知保持有界。
+生产方以 kind 和一行标签注册工作；注册表返回 `<kind>-N` id，例如 `bash-1`。拥有任务的任何一方都可以读取输出、列出任务、带超时等待结算或请求取消——每次调用都返回任务状态的全新快照，从 `running`、`stopping` 到终止态的 `completed`、`killed` 或 `failed`。任务结算时，拥有它的 agent 会通过 `qilin-tool-jobs` 转成会话内通知的完成监听器得到通知，因此无需轮询。生产方还可以附加可选的字节上限，让每次完整的模型侧输出读取或完成通知保持有界。
 
 ### 归属边界
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 
 ### 启动后台工作需要一个控制器
 
-只有附加了服务于所有者的控制器时，生产方才能启动工作——加载 `dsh-tool-jobs` 即附加一个。组合中未加载任何控制器的 agent 无法启动后台工作；`start()` 会以指出缺失控制器的消息失败，而不会启动 agent 永远无法收集或停止的工作。
+只有附加了服务于所有者的控制器时，生产方才能启动工作——加载 `qilin-tool-jobs` 即附加一个。组合中未加载任何控制器的 agent 无法启动后台工作；`start()` 会以指出缺失控制器的消息失败，而不会启动 agent 永远无法收集或停止的工作。
 
 ### 最小可用组合
 
@@ -46,7 +46,7 @@ kind: "package-reference"
 - name: '@qilin/tool-jobs'
 ```
 
-在已提供 agent、tools 与 system-prompt 服务的 harness 基础上加载这两个插件，即可获得完整功能：`dsh-jobs-local` 提供进程内后台任务注册表，`dsh-tool-jobs` 提供 `job_output`、`job_list`、`job_kill` 工具以及完成通知投递。
+在已提供 agent、tools 与 system-prompt 服务的 harness 基础上加载这两个插件，即可获得完整功能：`qilin-jobs-local` 提供进程内后台任务注册表，`qilin-tool-jobs` 提供 `job_output`、`job_list`、`job_kill` 工具以及完成通知投递。
 
 ### 可能出什么问题
 

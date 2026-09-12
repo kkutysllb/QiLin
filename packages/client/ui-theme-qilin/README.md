@@ -32,18 +32,23 @@ The `qilin` profile mounts this package through its bundle patch, so no configur
 
 Feature components consume these through the `--dsw-alias-*` aliases they already use, so the palette reaches the sidebar, composer, conversation, and deliverables without any component being aware of QiLin.
 
-<a id="model-experience"></a>
-## Model Experience
-
-None. Colors are browser presentation and never enter a model request or the session log.
-
-<a id="known-limitations-and-deferred-work"></a>
-## Known Limitations and Deferred Work
-
-- The layer covers brand surfaces only. A complete QiLin palette needs the brand design's full token set, and the sidebar brand artwork is a separate client plugin.
-- The shipped spec exercises the production theme runtime and its override stack. A booted-Web-surface assertion for this layer is not in place yet; the assembled-surface check is manual.
-
 <a id="dev-note"></a>
 ## Dev Note
 
 None.
+
+<a id="model-experience"></a>
+## Model Experience
+
+None, as colors are browser presentation and never enter a model request or the session log.
+
+#### KV Cache effect
+
+None; the theme contributes no prompt text.
+
+## Known Limitations and Deferred Work
+
+<a id="known-limitations-and-deferred-work"></a>
+
+- The layer covers brand surfaces only. A complete QiLin palette needs the brand design's full token set, and the sidebar brand artwork is a separate client plugin.
+- The shipped spec exercises the production theme runtime and its override stack. A booted-Web-surface assertion for this layer is not in place yet; the assembled-surface check is manual.

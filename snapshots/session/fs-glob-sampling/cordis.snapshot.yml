@@ -25,7 +25,7 @@
 - id: session-persistence-jsonl
   name: '@qilin/session-persistence-jsonl'
   config:
-    root: !!js dshHomePath('sessions')
+    root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
@@ -78,11 +78,11 @@
 - id: spill-local
   name: '@qilin/spill-local'
   config:
-    root: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT ?? './.spill'
+    root: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT ?? './.spill'
 
 - insert:
     - id: snapshot-spill-locators
       name: ../../../scripts/snapshot-spill-locators.ts
       config:
-        root: !!js process.env.DSH_SNAPSHOT_SPILL_ROOT
-        locatorRoot: !!js process.env.DSH_SNAPSHOT_SPILL_LOCATOR_ROOT
+        root: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT
+        locatorRoot: !!js process.env.QILIN_SNAPSHOT_SPILL_LOCATOR_ROOT

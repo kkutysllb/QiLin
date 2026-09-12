@@ -1,6 +1,6 @@
 {
   "name": "@qilin/package-manifest",
-  "description": "Shared type declarations for package.json.dsh configuration fields",
+  "description": "Shared type declarations for package.json.qilin configuration fields",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

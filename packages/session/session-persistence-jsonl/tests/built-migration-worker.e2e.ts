@@ -18,7 +18,7 @@ describe.skipIf(!built)('built migration verifier (plain node)', () => {
       import { Context } from '@deepseek-ai/cordis'
       import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 
-      const root = await mkdtemp(join(tmpdir(), 'dsh-built-migration-'))
+      const root = await mkdtemp(join(tmpdir(), 'qilin-built-migration-'))
       const id = 'built-migration-worker'
       const directory = join(root, '_no-cwd', id)
       const ctx = new Context()

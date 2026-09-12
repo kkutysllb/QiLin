@@ -69,7 +69,7 @@ function harness() {
     const bytes = useMemo(() => new TextEncoder().encode(data), [data])
     // The PDF body reads these standard seats; the remaining framework seats are unused here.
     const props = {
-      resourceAddress: 'dsh-resource://file/session/s/report.pdf',
+      resourceAddress: 'qilin-resource://file/session/s/report.pdf',
       content: kind === 'bytes' ? { kind, data: bytes } : { kind, text: '', pages: [], eof: true }, wrap: false,
       useTabInfo: () => ({ tab: { id: tabId, signal: controller.signal } }),
       useStore, actions: instance.actions, retainTab: vi.fn(), t: makeTranslate(en),

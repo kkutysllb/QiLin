@@ -29,13 +29,13 @@ describe.skipIf(!process.env.E2B_API_KEY)('E2B live Loader composition', () => {
     if (apiKey === undefined) throw new Error('E2B_API_KEY disappeared before the PTY environment test')
     const sandbox = await Sandbox.create({
       apiKey,
-      envs: { NPM_TOKEN: 'sentinel-secret', DSH_STALE: 'sentinel-stale', KEEP: 'visible' },
+      envs: { NPM_TOKEN: 'sentinel-secret', QILIN_STALE: 'sentinel-stale', KEEP: 'visible' },
       timeoutMs: 60_000,
       secure: true,
       lifecycle: { onTimeout: 'kill' },
     })
     try {
-      const profileLeakPath = '/home/user/dsh-e2b-bootstrap-profile-leak'
+      const profileLeakPath = '/home/user/qilin-e2b-bootstrap-profile-leak'
       const hostileProfile = [
         'if [[ "${NPM_TOKEN-}" == "sentinel-secret" ]]; then',
         `  printf leaked > ${profileLeakPath}`,
@@ -66,12 +66,12 @@ describe.skipIf(!process.env.E2B_API_KEY)('E2B live Loader composition', () => {
       await expect(sandbox.files.read(profileLeakPath)).rejects.toBeInstanceOf(FileNotFoundError)
       const environmentProbe = ctx.subprocess.spawn({
         argv: ['/bin/bash', '-c', [
-          'dsh_leak=0',
-          'for dsh_pid in "$PPID" $(ps -o pid= --ppid "$PPID"); do',
-          '  [[ "$dsh_pid" == "$$" ]] && continue',
-          '  if tr "\\0" "\\n" < "/proc/$dsh_pid/environ" 2>/dev/null | grep -Fqx "NPM_TOKEN=sentinel-secret"; then dsh_leak=1; fi',
+          'qilin_leak=0',
+          'for qilin_pid in "$PPID" $(ps -o pid= --ppid "$PPID"); do',
+          '  [[ "$qilin_pid" == "$$" ]] && continue',
+          '  if tr "\\0" "\\n" < "/proc/$qilin_pid/environ" 2>/dev/null | grep -Fqx "NPM_TOKEN=sentinel-secret"; then qilin_leak=1; fi',
           'done',
-          'printf "DIRECT=<%s> LEAK=<%s>\\n" "${NPM_TOKEN-}" "$dsh_leak"',
+          'printf "DIRECT=<%s> LEAK=<%s>\\n" "${NPM_TOKEN-}" "$qilin_leak"',
         ].join('\n')],
         cwd: '/home/user',
         stdio: { stdin: 'ignore', stdout: { maxBytes: 1_024 }, stderr: { maxBytes: 1_024 } },
@@ -107,10 +107,10 @@ describe.skipIf(!process.env.E2B_API_KEY)('E2B live Loader composition', () => {
       })
       const session = await backend.spawn({ sessionId: TerminalSessionId('env'), owner, type: 'shell' })
       const result = await session.startSend({
-        text: "printf 'NPM=<%s> DSH=<%s> KEEP=<%s>\\n' \"$NPM_TOKEN\" \"$DSH_STALE\" \"$KEEP\"",
+        text: "printf 'NPM=<%s> QILIN=<%s> KEEP=<%s>\\n' \"$NPM_TOKEN\" \"$QILIN_STALE\" \"$KEEP\"",
         submit: true,
       }).done
-      expect(result.viewport).toContain('NPM=<> DSH=<> KEEP=<visible>')
+      expect(result.viewport).toContain('NPM=<> QILIN=<> KEEP=<visible>')
       expect(result.viewport).not.toContain('sentinel-secret')
       expect(result.viewport).not.toContain('sentinel-stale')
       await expect(sandbox.files.read(profileLeakPath)).rejects.toBeInstanceOf(FileNotFoundError)
@@ -127,7 +127,7 @@ describe.skipIf(!process.env.E2B_API_KEY)('E2B live Loader composition', () => {
   it('runs FS, Bash, PTY, and LSP in one sandbox and deletes it', async () => {
     const { stdout, stderr } = await runLoaderSmoke({
       label: 'E2B composition',
-      tempDirPrefix: 'dsh-e2b-composition-',
+      tempDirPrefix: 'qilin-e2b-composition-',
       binScript,
       libBinScript: binScript,
       configPath,

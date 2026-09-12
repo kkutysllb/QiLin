@@ -108,7 +108,7 @@ class FakeSandbox {
   sdkKillStops = true
   alive = true
   zombieOnly = false
-  ambient = 'PATH=/ambient/bin\0KEEP=safe\0UNICODE=你好\0NPM_TOKEN=secret\0DSH_STALE=old\0BROKEN\0=bad\0'
+  ambient = 'PATH=/ambient/bin\0KEEP=safe\0UNICODE=你好\0NPM_TOKEN=secret\0QILIN_STALE=old\0BROKEN\0=bad\0'
   environmentHome = '/home/user'
   environmentWire: string | undefined
   environmentRequest: ((signal: AbortSignal | undefined) => Promise<void>) | undefined
@@ -395,7 +395,7 @@ describe('E2BSubprocessHandle', () => {
         'FOO-BAR': 'hyphen-value',
         '--split-string': 'literal-value',
         DEEPSEEK_API_KEY: 'explicit-secret',
-        DSH_MODE: 'test',
+        QILIN_MODE: 'test',
         // The seam's tombstone: an explicit undefined removes the ambient entry.
         KEEP: undefined,
       },
@@ -411,26 +411,26 @@ describe('E2BSubprocessHandle', () => {
     expect(controlEnvs).toEqual({
       TERM: 'dumb',
       NPM_TOKEN: '',
-      DSH_STALE: '',
+      QILIN_STALE: '',
       HOME: controlEnvs?.HOME,
     })
-    const command = fake.commandsSeen.find(value => value.includes('exec "$dsh_e2b_env_bin" -i'))!
-    expect(command).toContain('"$dsh_e2b_setsid" --wait -- "$dsh_e2b_bash" -c')
+    const command = fake.commandsSeen.find(value => value.includes('exec "$qilin_e2b_env_bin" -i'))!
+    expect(command).toContain('"$qilin_e2b_setsid" --wait -- "$qilin_e2b_bash" -c')
     expect(command).not.toContain('DEEPSEEK_API_KEY')
-    expect(command).not.toContain('DSH_MODE')
+    expect(command).not.toContain('QILIN_MODE')
     expect(command).not.toContain('FOO-BAR')
     expect(command).not.toContain('explicit-secret')
     expect(command).not.toContain('hyphen-value')
-    expect(command).not.toContain('${!dsh_e2b_name}')
+    expect(command).not.toContain('${!qilin_e2b_name}')
     const environmentProbe = fake.commandsSeen.find(value => value.includes('env -0 | base64'))
     expect(environmentProbe).toContain('getent passwd "$(id -u)"')
-    expect(environmentProbe).toContain('test -n "$dsh_e2b_home" -a -d "$dsh_e2b_home"')
+    expect(environmentProbe).toContain('test -n "$qilin_e2b_home" -a -d "$qilin_e2b_home"')
     expect(environmentProbe).not.toContain('"$PWD"')
     expect(command).toContain('mapfile -d')
-    expect(command).toContain('dsh_e2b_node="$(command -v node)"')
-    expect(command).toContain('"$dsh_e2b_env_bin" -i "$dsh_e2b_node" -e')
-    expect(command).toContain('"$dsh_e2b_env_bin" -i -- "${dsh_e2b_env[@]}" "$@"')
-    expect(command).toContain('exec "$dsh_e2b_env_bin" -i -- "${dsh_e2b_env[@]}"')
+    expect(command).toContain('qilin_e2b_node="$(command -v node)"')
+    expect(command).toContain('"$qilin_e2b_env_bin" -i "$qilin_e2b_node" -e')
+    expect(command).toContain('"$qilin_e2b_env_bin" -i -- "${qilin_e2b_env[@]}" "$@"')
+    expect(command).toContain('exec "$qilin_e2b_env_bin" -i -- "${qilin_e2b_env[@]}"')
     expect(command).toContain('>&2 2>/dev/null')
     expect(command).not.toContain('2>/dev/null >&2')
     expect(command).toContain('base64')
@@ -441,7 +441,7 @@ describe('E2BSubprocessHandle', () => {
       '/workspace/.qilin-e2b/processes/one/stderr.log',
     ])
     expect(fake.writtenFileData.get('/workspace/.qilin-e2b/processes/one/environment')).toBe(
-      'PATH=/bin\0UNICODE=你好\0HOME=/home/user\0FOO-BAR=hyphen-value\0--split-string=literal-value\0DEEPSEEK_API_KEY=explicit-secret\0DSH_MODE=test\0',
+      'PATH=/bin\0UNICODE=你好\0HOME=/home/user\0FOO-BAR=hyphen-value\0--split-string=literal-value\0DEEPSEEK_API_KEY=explicit-secret\0QILIN_MODE=test\0',
     )
 
     let piped = ''
@@ -762,10 +762,10 @@ describe('E2BSubprocessHandle', () => {
     await handle.done
     expect(handle.collected.stdout!.readFrom(0)).toEqual({ text: 'cd', nextOffset: 4, lossy: true })
     expect(fake.removed).toContain('/runtime/oversize/stdout.log')
-    const command = fake.commandsSeen.find(value => value.includes('dsh_e2b_tee='))!
-    expect(command).toContain('"$dsh_e2b_head" -c 3')
+    const command = fake.commandsSeen.find(value => value.includes('qilin_e2b_tee='))!
+    expect(command).toContain('"$qilin_e2b_head" -c 3')
     expect(command).toContain('/runtime/oversize/stdout.log')
-    expect(command).toContain('"$dsh_e2b_tee" --output-error=warn-nopipe')
+    expect(command).toContain('"$qilin_e2b_tee" --output-error=warn-nopipe')
     expect(command).not.toContain('tee -a')
   })
 

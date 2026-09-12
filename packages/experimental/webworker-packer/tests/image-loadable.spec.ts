@@ -307,7 +307,7 @@ const archive = async (): Promise<Uint8Array> =>
       loader: tree,
       deepseekLlmApiExtensions: {
         register: (field: string, contribution: { readonly prepare: Prepare }): void => {
-          expect(field).toBe('dsh_plugin_packages')
+          expect(field).toBe('qilin_plugin_packages')
           prepare = contribution.prepare
         },
       },

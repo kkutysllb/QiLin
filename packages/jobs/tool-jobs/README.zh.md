@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用 `dsh-tool-jobs`，可通过 `job_output`、`job_list` 与 `job_kill` 检查和控制后台命令、PTY 工作与 subagent。读取可在配置的超时内等待，列表结果标识各任务的 kind 与状态，而取消只有在工作停止后才结算。归属明确的工作完成时，agent 会收到会话内通知：繁忙的 agent 在下一步收到通知，空闲的 agent 则可能由有界的 follow-up 轮次唤醒。配置控制等待上限、完成投递与连续唤醒次数。流输出仅供单一读取方消费，待领通知无法在所有者释放后存活。
+使用 `qilin-tool-jobs`，可通过 `job_output`、`job_list` 与 `job_kill` 检查和控制后台命令、PTY 工作与 subagent。读取可在配置的超时内等待，列表结果标识各任务的 kind 与状态，而取消只有在工作停止后才结算。归属明确的工作完成时，agent 会收到会话内通知：繁忙的 agent 在下一步收到通知，空闲的 agent 则可能由有界的 follow-up 轮次唤醒。配置控制等待上限、完成投递与连续唤醒次数。流输出仅供单一读取方消费，待领通知无法在所有者释放后存活。
 
 ## 目录
 

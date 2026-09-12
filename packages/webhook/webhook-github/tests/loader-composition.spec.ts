@@ -22,7 +22,7 @@ afterEach(async () => {
 
 describe('real Loader composition', () => {
   it('registers on a real WebServer and dispatches a signed request', { timeout: 60_000 }, async () => {
-    root = await mkdtemp(join(tmpdir(), 'dsh-webhook-github-loader-'))
+    root = await mkdtemp(join(tmpdir(), 'qilin-webhook-github-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
       '- name: fixture-dependencies',
@@ -34,7 +34,7 @@ describe('real Loader composition', () => {
       '  config:',
       '    source: loader',
       '    path: /github',
-      '    secretEnv: DSH_GITHUB_WEBHOOK_SECRET',
+      '    secretEnv: QILIN_GITHUB_WEBHOOK_SECRET',
       '    maxBodyBytes: 1024',
       '',
     ].join('\n'))

@@ -40,7 +40,7 @@ afterEach(async () => {
  * @returns the resolved service value and observed runner/process effects.
  */
 async function bootStartup(args: string[]): Promise<{ task: HeadlessStartupValues | undefined; observed: Observed }> {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-headless-startup-'))
+  const dir = mkdtempSync(join(tmpdir(), 'qilin-headless-startup-'))
   tempDirs.push(dir)
   const observed: Observed = { exits: [], out: '' }
   writeFileSync(join(dir, 'row.mjs'), 'export function apply(_ctx, config) { globalThis.__headlessStartupObserved.runnerConfig = config }\n')
@@ -103,7 +103,7 @@ describe('headless command-line provider', () => {
 
   it('prints its own help and leaves the runner pending', async () => {
     const { task, observed } = await bootStartup(['--help'])
-    expect(observed.out).toContain('dsh --profile headless')
+    expect(observed.out).toContain('qilin --profile headless')
     expect(observed.out).toContain('stream reasoning to stderr')
     expect(task).toBeUndefined()
     expect(observed.runnerConfig).toBeUndefined()

@@ -8,7 +8,7 @@
  * and publish it with `MoveFileExW(..., MOVEFILE_WRITE_THROUGH)` without
  * replacement or cross-volume copy fallback.
  *
- * @module dsh-session-persistence-jsonl/win32
+ * @module qilin-session-persistence-jsonl/win32
  */
 
 import { createHash } from 'node:crypto'
@@ -150,7 +150,7 @@ export async function publishNewFileWin32(existing: string, replacement: string)
  */
 export async function acquireLockHandleWin32(path: string): Promise<number> {
   const api = await win32()
-  const name = `Local\\dsh-session-lock-${createHash('sha256').update(resolve(path).toLowerCase()).digest('hex')}`
+  const name = `Local\\qilin-session-lock-${createHash('sha256').update(resolve(path).toLowerCase()).digest('hex')}`
   const handle = api.createSemaphoreW(null, 1, 1, name)
   if (handle === 0) throw win32Error('CreateSemaphoreW', api.getLastError(), path, name)
   const wait = api.waitForSingleObject(handle, 0)

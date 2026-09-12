@@ -59,7 +59,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
   let outsideRoot: string | undefined
 
   beforeAll(async () => {
-    outsideRoot = await mkdtemp(join(tmpdir(), 'dsh-preview-outside-'))
+    outsideRoot = await mkdtemp(join(tmpdir(), 'qilin-preview-outside-'))
     scaffold = await launchWebScaffold({ replayFixture: FIXTURE, paceMs: 5, compareReplaySession: false, extraOverlayPath: PAGING_PATCH })
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
@@ -284,7 +284,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     const firstColor = await canvasColor(canvas)
     expect(firstColor).toBe('red')
     const workerNames = await Promise.all(page.workers().map(worker => worker.evaluate(() => self.name)))
-    expect(workerNames).toContain('dsh-pdf')
+    expect(workerNames).toContain('qilin-pdf')
     await preview.locator('[data-pdf-page="2"]').scrollIntoViewIfNeeded()
     const secondPage = preview.getByRole('img', { name: 'PDF page 2', exact: true })
     await secondPage.waitFor({ state: 'visible', timeout: 30_000 })
@@ -308,7 +308,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     sections.push([
       '## PDF', '',
       `- Viewer: ${await viewer.innerText()}`,
-      `- Worker: ${workerNames.find(name => name === 'dsh-pdf')}`,
+      `- Worker: ${workerNames.find(name => name === 'qilin-pdf')}`,
       `- Continuous pages: ${await preview.locator('[data-pdf-page]').count()}`,
       `- Horizontal overflow: ${String(await body.evaluate(node => node.scrollWidth > node.clientWidth))}`,
       `- Canvas fills: ${[firstColor, secondColor, restoredColor].join(' -> ')}`,

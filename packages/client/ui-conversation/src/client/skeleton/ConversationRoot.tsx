@@ -14,7 +14,7 @@ import css from './ConversationRoot.module.css'
 export type ConversationRootProps = ConversationSlotProps
 
 /** localStorage key for the dragged transcript width preference (px). */
-const WIDTH_PREF_KEY = 'dsh.conversation.contentWidth'
+const WIDTH_PREF_KEY = 'qilin.conversation.contentWidth'
 /** Floor for a dragged content width; matches the layout center-column minimum. */
 const CONTENT_MIN = 640
 /** Column budget the content must leave free: 88px per side keeps the width
@@ -81,7 +81,7 @@ function WidthHandle(props: {
   }, [])
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const box = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.setProperty('--dsh-width-handle-pointer-y', `${e.clientY - box.top}px`)
+    e.currentTarget.style.setProperty('--qilin-width-handle-pointer-y', `${e.clientY - box.top}px`)
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return
     latest.current = e.clientX
     frame.current ??= requestAnimationFrame(() => {
@@ -154,9 +154,9 @@ export function ConversationRoot({
   const pickerAnchor = useRef<HTMLButtonElement>(null)
 
   // Publishes the two live measurements floating View chrome reads off the
-  // scroll body: the seat's height as --dsh-composer-height, so controls clear
+  // scroll body: the seat's height as --qilin-composer-height, so controls clear
   // the composer as it grows, and the scrollport's own height as
-  // --dsh-conversation-viewport-height, so a control can sit in the band the
+  // --qilin-conversation-viewport-height, so a control can sit in the band the
   // seat leaves visible. Callback ref, not an effect; stable identity prevents
   // observer churn while the first blank session fills the resident body
   // outlet.
@@ -167,9 +167,9 @@ export function ConversationRoot({
     const scroller = seat?.parentElement ?? null
     if (seat === null || scroller === null) return
     seatObserver.current = new ResizeObserver(() => {
-      scroller.style.setProperty('--dsh-composer-height', `${seat.offsetHeight}px`)
+      scroller.style.setProperty('--qilin-composer-height', `${seat.offsetHeight}px`)
       scroller.style.setProperty(
-        '--dsh-conversation-viewport-height',
+        '--qilin-conversation-viewport-height',
         `${scroller.clientHeight}px`,
       )
     })
@@ -177,7 +177,7 @@ export function ConversationRoot({
     seatObserver.current.observe(scroller)
   }, [])
 
-  // Publishes the column's live width as --dsh-conversation-column-width so
+  // Publishes the column's live width as --qilin-conversation-column-width so
   // the shared width axis can adapt (see the .root CSS), and re-clamps a
   // dragged preference against the shrunken column WITHOUT rewriting the
   // stored preference — widening the window restores it (the AppFrame
@@ -186,12 +186,12 @@ export function ConversationRoot({
   const rootObserver = useRef<ResizeObserver | null>(null)
   const publishWidths = useCallback((root: HTMLDivElement): void => {
     const column = root.offsetWidth
-    root.style.setProperty('--dsh-conversation-column-width', `${column}px`)
+    root.style.setProperty('--qilin-conversation-column-width', `${column}px`)
     const preference = readWidthPreference()
     if (preference === null) {
-      root.style.removeProperty('--dsh-chat-user-width')
+      root.style.removeProperty('--qilin-chat-user-width')
     } else {
-      root.style.setProperty('--dsh-chat-user-width', `${resolveContentWidth(column, preference)}px`)
+      root.style.setProperty('--qilin-chat-user-width', `${resolveContentWidth(column, preference)}px`)
     }
   }, [])
   const rootResizeRef = useCallback((root: HTMLDivElement | null): void => {
@@ -221,7 +221,7 @@ export function ConversationRoot({
     /* v8 ignore next -- handles render inside the root, so the ref is always attached. */
     if (root === null) return
     const clamped = resolveContentWidth(root.offsetWidth, width)
-    root.style.setProperty('--dsh-chat-user-width', `${clamped}px`)
+    root.style.setProperty('--qilin-chat-user-width', `${clamped}px`)
   }, [])
   const onHandleCommit = useCallback((width: number): void => {
     const root = rootEl.current

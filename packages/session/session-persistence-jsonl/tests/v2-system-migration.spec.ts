@@ -17,7 +17,7 @@ let root: string
 const contexts: Context[] = []
 
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'dsh-v2-system-migration-'))
+  root = await mkdtemp(join(tmpdir(), 'qilin-v2-system-migration-'))
 })
 
 afterEach(async () => {

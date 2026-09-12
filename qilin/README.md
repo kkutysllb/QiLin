@@ -1,6 +1,6 @@
 # QiLin 3.0.0 开发与验证指南
 
-本文件只描述 QiLin 3.0.0 分支的运行方式；上游 dsh 的通用开发说明见 docs/development.md。
+本文件只描述 QiLin 3.0.0 分支的运行方式；上游 qilin 的通用开发说明见 docs/development.md。
 下面每条命令都在本机实测过，实测环境为 Node v24.18.0 与 pnpm 11.7.0。
 
 ## 1. 前置要求
@@ -26,7 +26,7 @@ pnpm run build
 ```
 
 构建产出两类产物，缺一不可：apps/web/dist 是浏览器外壳，packages/*/lib 是宿主与客户端插件产物。
-想要带 QiLin 客户端构建画像的产物（DSH_CLIENT_BUILD_PROFILE 为 qilin、DSH_CLIENT_TITLE 为 QiLin）可改用：
+想要带 QiLin 客户端构建画像的产物（QILIN_CLIENT_BUILD_PROFILE 为 qilin、QILIN_CLIENT_TITLE 为 QiLin）可改用：
 
 ```sh
 pnpm run build:qilin
@@ -35,7 +35,7 @@ pnpm run build:qilin
 ## 4. 启动产品
 
 ```sh
-pnpm dsh qilin --port 3090
+pnpm qilin qilin --port 3090
 ```
 
 启动后终端打印一行带令牌的地址，用**完整地址**打开浏览器：
@@ -44,7 +44,7 @@ pnpm dsh qilin --port 3090
 qilin: http://127.0.0.1:3090/?token=<一次性令牌>
 ```
 
-`qilin` 是产品 profile 的启动别名，等效于 `pnpm dsh --profile qilin`。首次运行会在 Harness home 下自动生成该 profile，模板已内置，无需手工创建。
+`qilin` 是产品 profile 的启动别名，等效于 `pnpm qilin --profile qilin`。首次运行会在 Harness home 下自动生成该 profile，模板已内置，无需手工创建。
 
 常用参数：`--no-open` 不自动打开浏览器；`--port <n>` 指定端口。
 
@@ -53,7 +53,7 @@ qilin: http://127.0.0.1:3090/?token=<一次性令牌>
 
 ### 用户数据目录
 
-QiLin 的默认数据目录是 `~/.qilin`（上游 dsh 用的是 `~/.dsh`，本分支已改为 QiLin 自己的目录）。
+QiLin 的默认数据目录是 `~/.qilin`（上游 qilin 用的是 `~/.qilin`，本分支已改为 QiLin 自己的目录）。
 profile、设置、凭据、附件、技能与会话日志都在这一棵树下：
 
 ```
@@ -66,28 +66,28 @@ profile、设置、凭据、附件、技能与会话日志都在这一棵树下�
   sessions/           会话日志
 ```
 
-两种覆盖方式，优先级从高到低：显式配置的 home、环境变量 `DSH_HOME`、默认 `~/.qilin`。
+两种覆盖方式，优先级从高到低：显式配置的 home、环境变量 `QILIN_HOME`、默认 `~/.qilin`。
 想隔离到仓库内（例如并行验证多份状态）：
 
 ```sh
-DSH_HOME="$PWD/.qilin-home" pnpm dsh qilin --port 3090
+QILIN_HOME="$PWD/.qilin-home" pnpm qilin qilin --port 3090
 ```
 
-`.qilin-home/` 已在 .gitignore 中。想让 QiLin 复用一份已有的 dsh 数据，把 `DSH_HOME` 指过去即可。
+`.qilin-home/` 已在 .gitignore 中。想让 QiLin 复用一份已有的 qilin 数据，把 `QILIN_HOME` 指过去即可。
 
 ### 项目级目录
 
-技能的项目级目录同样用 `.qilin`：`<projectRoot>/.qilin/skills`（上游 dsh 用的是 `.dsh/skills`）。
+技能的项目级目录同样用 `.qilin`：`<projectRoot>/.qilin/skills`（上游 qilin 用的是 `.qilin/skills`）。
 三层技能根按优先级叠加，项目级覆盖用户级：
 
 | 优先级 | 来源 | 位置 |
 |---|---|---|
-| 100 | `project-dsh` | `<projectRoot>/.qilin/skills` |
+| 100 | `project-qilin` | `<projectRoot>/.qilin/skills` |
 | 200 | `project-agents` | `<projectRoot>/.agents/skills` |
-| 400 | `user-dsh` | `<dshHome>/skills`，默认即 `~/.qilin/skills` |
+| 400 | `user-qilin` | `<qilinHome>/skills`，默认即 `~/.qilin/skills` |
 | 500 | `user-agents` | `<agentsHome>/skills`，默认即 `~/.agents/skills` |
 
-来源标识仍是上游的 `project-dsh` / `user-dsh` 字符串，尚未改名。
+来源标识仍是上游的 `project-qilin` / `user-qilin` 字符串，尚未改名。
 
 ## 5. 开发态（改代码即时生效）
 
@@ -98,14 +98,14 @@ DSH_HOME="$PWD/.qilin-home" pnpm dsh qilin --port 3090
 pnpm run dev:web
 
 # 终端 B：启动产品
-pnpm dsh qilin --port 3090
+pnpm qilin qilin --port 3090
 ```
 
 三条来自实测的约束：
 
 1. 必须先成功跑过一次 `pnpm run build`。dev:web 是增量构建，它不会自举一棵缺失的产物树，缺阶段时不会报错，只会静默使用旧产物，表现为改了代码没反应。
 2. 不要与 `pnpm run build` 并发运行：两者都写 lib/ 与 apps/web/dist/。
-3. dev:web 本身不做刷新广播；运行中的 `dsh qilin` 的 web 服务器会轮询它服务的产物并广播 rebuilt 帧，所以浏览器会自行重载。改动后仍无变化时，先看终端 A 是否真的重跑了三个阶段。
+3. dev:web 本身不做刷新广播；运行中的 `qilin qilin` 的 web 服务器会轮询它服务的产物并广播 rebuilt 帧，所以浏览器会自行重载。改动后仍无变化时，先看终端 A 是否真的重跑了三个阶段。
 
 ## 6. 验收清单
 
@@ -130,5 +130,5 @@ pnpm run test:snapshot  # 免密钥录制回放，132 项中 127 项通过
 ## 7. 已知现象（不是故障）
 
 - 构建输出里的 `Some chunks are larger than 500 kB after minification` 是 Vite 的体积警告，不是错误；构建本身以 `✓ built in` 结束即为成功。
-- `pnpm run test:snapshot` 有 3 项失败（bash-tool、persistent-tools、session-sandbox-root），`test:web` 有 12 个文件失败；这些用例依赖 dsh 内部的 macOS Seatbelt 沙箱，在外层沙箱下会因 sandbox-exec 被拒而失败。已在原始基线提交的独立 worktree 上复跑确认，失败数与本次重构无关。
+- `pnpm run test:snapshot` 有 3 项失败（bash-tool、persistent-tools、session-sandbox-root），`test:web` 有 12 个文件失败；这些用例依赖 qilin 内部的 macOS Seatbelt 沙箱，在外层沙箱下会因 sandbox-exec 被拒而失败。已在原始基线提交的独立 worktree 上复跑确认，失败数与本次重构无关。
 - 未配置 API Key 时，界面会一直停留在 API Key 引导；点稍后配置即可跳过并浏览四区。

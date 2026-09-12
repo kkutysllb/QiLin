@@ -44,14 +44,14 @@ function waitForLine(
   })
 }
 
-describe('Python SDK dsh profile keyless smoke', () => {
+describe('Python SDK qilin profile keyless smoke', () => {
   it.each([
     { label: 'reports max-token turns with the default mapping config', envValue: undefined, editorEnabled: false },
     { label: 'reports max-token turns with mapping enabled through env', envValue: 'true', editorEnabled: false },
     { label: 'reports max-token turns with mapping disabled through env', envValue: 'false', editorEnabled: false },
     { label: 'allows an explicit patch to enable str_replace_editor', envValue: undefined, editorEnabled: true },
   ])('$label', async ({ envValue, editorEnabled }) => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-python-sdk-runtime-smoke-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-python-sdk-runtime-smoke-'))
     const editorPatch = join(root, 'editor.patch.yml')
     if (editorEnabled) await writeFile(editorPatch, [
       '- insert:',
@@ -88,12 +88,12 @@ describe('Python SDK dsh profile keyless smoke', () => {
     ], {
       cwd: repoRoot,
       env: {
-        DSH_HOME: join(root, '.qilin'),
-        DSH_PERMISSION_MODE: 'danger-full-access',
-        DSH_TELEMETRY_DISABLED: '1',
+        QILIN_HOME: join(root, '.qilin'),
+        QILIN_PERMISSION_MODE: 'danger-full-access',
+        QILIN_TELEMETRY_DISABLED: '1',
         DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
         DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
-        ...(envValue === undefined ? {} : { DSH_MAX_TOKENS_AS_SUCCESS: envValue }),
+        ...(envValue === undefined ? {} : { QILIN_MAX_TOKENS_AS_SUCCESS: envValue }),
       },
       timeout: 35_000,
       killSignal: 'SIGKILL',
@@ -193,7 +193,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
     { label: 'boots the standalone minimal profile through its generated manifest', editorEnabled: false },
     { label: 'executes the documented editor opt-in patch with sdk-minimal', editorEnabled: true },
   ])('$label', async ({ editorEnabled }) => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-python-sdk-minimal-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-python-sdk-minimal-'))
     const editorPatch = join(root, 'editor.patch.yml')
     if (editorEnabled) {
       const guide = await readFile(join(repoRoot, 'docs/user/guide/python-sdk.md'), 'utf8')
@@ -248,8 +248,8 @@ describe('Python SDK dsh profile keyless smoke', () => {
     ], {
       cwd: repoRoot,
       env: {
-        DSH_HOME: join(root, '.qilin'),
-        DSH_SYSTEM_PROMPT: 'Minimal allowlist prompt.',
+        QILIN_HOME: join(root, '.qilin'),
+        QILIN_SYSTEM_PROMPT: 'Minimal allowlist prompt.',
         DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
         DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
       },
@@ -331,7 +331,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
   }, 40_000)
 
   it('rejects an invalid max-token success env value', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-python-sdk-runtime-invalid-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-python-sdk-runtime-invalid-'))
     try {
       const { exitCode, stdout, stderr } = await execa(process.execPath, [
         '--import',
@@ -342,9 +342,9 @@ describe('Python SDK dsh profile keyless smoke', () => {
       ], {
         cwd: repoRoot,
         env: {
-          DSH_HOME: join(root, '.qilin'),
+          QILIN_HOME: join(root, '.qilin'),
           DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
-          DSH_MAX_TOKENS_AS_SUCCESS: 'sometimes',
+          QILIN_MAX_TOKENS_AS_SUCCESS: 'sometimes',
         },
         stdin: 'ignore',
         timeout: 25_000,

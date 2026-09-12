@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use client resources when a component knows live data only by URL address, such as a tab record, link, or mention, while another client package owns the data. Resource addresses use `dsh-resource://<type>/…`; protocols that need a scope encode it in the path. Components receive the current value and later updates through the public `useResource` hook. Unsupported protocols and non-resource schemes, such as `sidebar://guide`, resolve to no resource.
+Use client resources when a component knows live data only by URL address, such as a tab record, link, or mention, while another client package owns the data. Resource addresses use `qilin-resource://<type>/…`; protocols that need a scope encode it in the path. Components receive the current value and later updates through the public `useResource` hook. Unsupported protocols and non-resource schemes, such as `sidebar://guide`, resolve to no resource.
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@ Nothing needs configuration to mount: the plugin provides `ctx.resources` and co
 <a id="read-a-resource"></a>
 ### Read a resource
 
-Every slot component receives `useResource` in its props. `useResource<P>(address)` names the protocol as the type argument and returns `{ status, value, failure }`: `none` when no provider is registered for the address's protocol (or the address is not a `dsh-resource://` URL), `loading` while the provider has not yielded, `live` with the latest `ok` frame's value, and `failed` when the latest frame reported a failure, with that failure beside the last value. Subscribing through the hook is what holds the resource open; a component that mounts while another holder keeps the resource alive reads the latest value at once.
+Every slot component receives `useResource` in its props. `useResource<P>(address)` names the protocol as the type argument and returns `{ status, value, failure }`: `none` when no provider is registered for the address's protocol (or the address is not a `qilin-resource://` URL), `loading` while the provider has not yielded, `live` with the latest `ok` frame's value, and `failed` when the latest frame reported a failure, with that failure beside the last value. Subscribing through the hook is what holds the resource open; a component that mounts while another holder keeps the resource alive reads the latest value at once.
 
 <a id="provide-a-protocol"></a>
 ### Provide a protocol

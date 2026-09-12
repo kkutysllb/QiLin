@@ -21,7 +21,7 @@ import type { DirectoryPicker } from '@qilin/host-directory-picker'
 import BrowseDirectoryPicker from '@qilin/host-directory-picker-browse'
 import NativeDirectoryPicker from '@qilin/host-directory-picker-native'
 import {
-  createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot,
+  createLaunchEnvironmentSnapshot, QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot,
 } from '@qilin/launch-environment'
 import * as DirectoryPickerAuto from '../src/index.ts'
 
@@ -95,7 +95,7 @@ async function loadComposition(
   bindHost: '127.0.0.1' | '0.0.0.0',
   options: { failSurface?: boolean; launchEnvironment?: LaunchEnvironmentSnapshot } = {},
 ): Promise<{ ctx: Context; configPath: string }> {
-  root = await mkdtemp(join(tmpdir(), 'dsh-directory-picker-auto-'))
+  root = await mkdtemp(join(tmpdir(), 'qilin-directory-picker-auto-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
     "- name: '@qilin/host-webserver'",
@@ -107,7 +107,7 @@ async function loadComposition(
   ].join('\n'))
 
   context = new Context()
-  if (options.launchEnvironment !== undefined) context.provide(DSH_LAUNCH_ENVIRONMENT_KEY, options.launchEnvironment)
+  if (options.launchEnvironment !== undefined) context.provide(QILIN_LAUNCH_ENVIRONMENT_KEY, options.launchEnvironment)
   context.baseUrl = pathToFileURL(root).href + '/'
   await context.plugin(Loader)
   context.loader.builtins.include = Include
@@ -156,7 +156,7 @@ function includeTree(ctx: Context): Include {
  * probe resolves identically on hosts with and without zenity/kdialog.
  */
 function stubAttendedHost(): void {
-  fakeBin = mkdtempSync(join(tmpdir(), 'dsh-picker-bin-'))
+  fakeBin = mkdtempSync(join(tmpdir(), 'qilin-picker-bin-'))
   const zenity = join(fakeBin, 'zenity')
   writeFileSync(zenity, '#!/bin/sh\n')
   chmodSync(zenity, 0o755)

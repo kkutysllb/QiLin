@@ -1,6 +1,6 @@
 {
   "name": "@qilin/qilin-web",
-  "description": "The QiLin browser-surface bundle: QiLin product identity layered over the dsh web surface",
+  "description": "The QiLin browser-surface bundle: QiLin product identity layered over the qilin web surface",
   "version": "0.1.5-rc.2",
   "private": true,
   "type": "module",

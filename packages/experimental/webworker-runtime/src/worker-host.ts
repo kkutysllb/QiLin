@@ -102,7 +102,7 @@ export interface WorkerHostOptions {
   readonly cmdlineArgs?: readonly string[]
   /** Port named on the default command line; defaults to {@link DEFAULT_PORT}. */
   readonly port?: number
-  /** Environment for the process shim; `DSH_HOME` defaults to `<root>/home`. */
+  /** Environment for the process shim; `QILIN_HOME` defaults to `<root>/home`. */
   readonly env?: Readonly<Record<string, string>>
   /**
    * Image manifest path; defaults to `<root>/config/vfs-manifest.json`. Its
@@ -183,7 +183,7 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
   const start = async (): Promise<void> => {
     try {
       const home = join(root, IMAGE_HOME_DIRECTORY)
-      installProcessGlobal({ cwd: root, env: { DSH_HOME: home, HOME: home, ...options.env } })
+      installProcessGlobal({ cwd: root, env: { QILIN_HOME: home, HOME: home, ...options.env } })
 
       const [bytes, overlays] = await Promise.all([
         readImage(options.image),
@@ -231,7 +231,7 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
       }
 
       const { patches, presetOverlay } = bootPatches(loader, mounted, configPath, root)
-      const ctx = await appBoot.boot('dsh-webworker', configPath, patches, (hostCtx) => {
+      const ctx = await appBoot.boot('qilin-webworker', configPath, patches, (hostCtx) => {
         // Before any entry mounts: the Loader would otherwise fall back to the
         // runtime's own dynamic import for every row.
         hostCtx.loader.internal = loader.internal

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `dsh-code-runtime` to run one model-written program against host-provided asynchronous functions through a configured backend. A request returns a lossless-JSON value, ordered per-channel logs, or a structured error; program failures resolve in the result, while rejected promises indicate caller misuse. Each run is isolated from prior runs, and the runtime has no knowledge of tools or sessions. Choose an execution backend separately; its language and isolation descriptors identify the required source language and execution substrate but do not themselves promise a security boundary.
+Use `qilin-code-runtime` to run one model-written program against host-provided asynchronous functions through a configured backend. A request returns a lossless-JSON value, ordered per-channel logs, or a structured error; program failures resolve in the result, while rejected promises indicate caller misuse. Each run is isolated from prior runs, and the runtime has no knowledge of tools or sessions. Choose an execution backend separately; its language and isolation descriptors identify the required source language and execution substrate but do not themselves promise a security boundary.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Use `dsh-code-runtime` to run one model-written program against host-provided as
 <a id="use-this-package"></a>
 ## Use this package
 
-Choose this package when you compose a deployment that executes model-written programs, consume `ctx.codeRuntime` directly, or build a backend that runs programs. In the shipped composition, PTC mode in `dsh-tools` is the consumer: only what the program printed and returned re-enters the conversation.
+Choose this package when you compose a deployment that executes model-written programs, consume `ctx.codeRuntime` directly, or build a backend that runs programs. In the shipped composition, PTC mode in `qilin-tools` is the consumer: only what the program printed and returned re-enters the conversation.
 
 ### Run a program
 
@@ -41,7 +41,7 @@ const result = await ctx.codeRuntime.run({
 
 ### Choose a backend
 
-Backends declare two descriptors you can rely on: `language` — what the program must be written in, with `'typescript'` and `'python'` as the well-known values — and `isolation` — the execution substrate (`'worker-thread'`, `'process'`, `'container'`), a label for deployments and diagnostics, not a security claim. [`dsh-code-runtime-worker-thread`](../code-runtime-worker-thread/README.md) executes TypeScript in a fresh Node worker thread; the private [`dsh-experimental-code-runtime-python`](../../experimental/code-runtime-python/README.md) package executes Python in a fresh CPython subprocess for opt-in compositions.
+Backends declare two descriptors you can rely on: `language` — what the program must be written in, with `'typescript'` and `'python'` as the well-known values — and `isolation` — the execution substrate (`'worker-thread'`, `'process'`, `'container'`), a label for deployments and diagnostics, not a security claim. [`qilin-code-runtime-worker-thread`](../code-runtime-worker-thread/README.md) executes TypeScript in a fresh Node worker thread; the private [`qilin-experimental-code-runtime-python`](../../experimental/code-runtime-python/README.md) package executes Python in a fresh CPython subprocess for opt-in compositions.
 
 ### Name your bindings portably
 
@@ -63,7 +63,7 @@ This section explains the design behind the seam; observable behavior is fully c
 
 ### Design concept
 
-The package is the Service Definition role of the code-execution capability seam ([capability seams](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md)): an abstract `CodeRuntime extends Service` registered as `ctx.codeRuntime`, plus the vocabulary both backends and the consumer share. Providers subclass `CodeRuntime`, implement `run`, and register the service; the consumer (PTC mode in `dsh-tools`) generates the model-facing SDK and bridges tool dispatch. The runtime stays ignorant of tools and sessions by contract: it receives a program and named async bindings and returns `{ value, logs, error? }`.
+The package is the Service Definition role of the code-execution capability seam ([capability seams](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md)): an abstract `CodeRuntime extends Service` registered as `ctx.codeRuntime`, plus the vocabulary both backends and the consumer share. Providers subclass `CodeRuntime`, implement `run`, and register the service; the consumer (PTC mode in `qilin-tools`) generates the model-facing SDK and bridges tool dispatch. The runtime stays ignorant of tools and sessions by contract: it receives a program and named async bindings and returns `{ value, logs, error? }`.
 
 ### Service API
 
@@ -77,7 +77,7 @@ The exhaustive semantics live in the [code runtime subsystem reference](../../..
 
 ### Portable identifiers
 
-Binding-global and error-class names are language-portable: they must match the identifier subset `[A-Za-z_][A-Za-z0-9_]*` (no JS-only `$`) and clear the seam-exported exclusion sets, so one `bindings` list is valid against every backend. The package exports the contract every backend enforces — `PORTABLE_RESERVED_WORDS` (ECMAScript ∪ Python reserved words), `RESERVED_BINDING_GLOBALS` (backend-owned globals such as `console` and `__dsh_main__`), `RESERVED_ERROR_MEMBERS` and `DUNDER_MEMBER` (error-member exclusions) — so a name like `$tools`, `lambda`, or `__dsh_main__` makes `run()` reject as seam misuse on any backend. See `src/index.ts` for the exact sets.
+Binding-global and error-class names are language-portable: they must match the identifier subset `[A-Za-z_][A-Za-z0-9_]*` (no JS-only `$`) and clear the seam-exported exclusion sets, so one `bindings` list is valid against every backend. The package exports the contract every backend enforces — `PORTABLE_RESERVED_WORDS` (ECMAScript ∪ Python reserved words), `RESERVED_BINDING_GLOBALS` (backend-owned globals such as `console` and `__qilin_main__`), `RESERVED_ERROR_MEMBERS` and `DUNDER_MEMBER` (error-member exclusions) — so a name like `$tools`, `lambda`, or `__qilin_main__` makes `run()` reject as seam misuse on any backend. See `src/index.ts` for the exact sets.
 
 ### Source map
 
@@ -107,7 +107,7 @@ Read these when the package-level contract is not enough. They move from the PTC
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through PTC mode in `dsh-tools`, which exposes `run_code` and returns program logs, values, or failures as retained tool-result tokens.
+Indirectly, through PTC mode in `qilin-tools`, which exposes `run_code` and returns program logs, values, or failures as retained tool-result tokens.
 
 #### KV Cache effect
 

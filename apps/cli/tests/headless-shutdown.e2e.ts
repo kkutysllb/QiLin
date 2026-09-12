@@ -6,7 +6,7 @@ import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
 import { LOADER_SMOKE_TEST_TIMEOUT_MS, resolveExampleLaunch } from '@qilin/loader-smoke'
 
-const dshBinScript = fileURLToPath(new URL('../src/bin.ts', import.meta.url))
+const qilinBinScript = fileURLToPath(new URL('../src/bin.ts', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
 const neverDisposePlugin = pathToFileURL(
   fileURLToPath(new URL('./fixtures/never-dispose.mjs', import.meta.url)),
@@ -22,7 +22,7 @@ if pid == 0:
     os.chdir(cwd)
     os.execvpe(node, [node, *json.loads(launch_args_json)], env)
 
-markers = [b"dsh-test: never-dispose ready", b"dsh-test: never-dispose started"]
+markers = [b"qilin-test: never-dispose ready", b"qilin-test: never-dispose started"]
 output = bytearray()
 marker_index = 0
 deadline = time.monotonic() + float(timeout_seconds)
@@ -62,7 +62,7 @@ if actual_exit != 130:
 `
 
 async function runHeadlessPtySmoke(): Promise<string> {
-  const cwd = await mkdtemp(join(tmpdir(), 'dsh-headless-shutdown-'))
+  const cwd = await mkdtemp(join(tmpdir(), 'qilin-headless-shutdown-'))
   try {
     const home = join(cwd, '.qilin')
     // Pre-initialize the headless profile with the never-dispose row in its
@@ -70,7 +70,7 @@ async function runHeadlessPtySmoke(): Promise<string> {
     const profileDir = join(home, 'profiles', 'headless')
     await mkdir(profileDir, { recursive: true })
     await writeFile(join(profileDir, 'package.json'), JSON.stringify({
-      name: 'dsh-profile-headless',
+      name: 'qilin-profile-headless',
       private: true,
       dependencies: {},
       qilin: { profile: { bundles: ['@qilin/base', '@qilin/headless'] } },
@@ -82,15 +82,15 @@ async function runHeadlessPtySmoke(): Promise<string> {
       '',
     ].join('\n'))
     const launch = resolveExampleLaunch({
-      srcBin: dshBinScript,
+      srcBin: qilinBinScript,
       configArgs: ['--profile', 'headless', 'never complete'],
       tsconfigPath,
       env: {
-        DSH_HOME: home,
-        DSH_AGENTS_HOME: join(cwd, '.agents'),
+        QILIN_HOME: home,
+        QILIN_AGENTS_HOME: join(cwd, '.agents'),
         DEEPSEEK_API_KEY: 'keyless-shutdown-no-call',
-        DSH_TELEMETRY_DISABLED: '1',
-        DSH_TEST_SHUTDOWN_ARM_FILE: join(cwd, 'shutdown-armed'),
+        QILIN_TELEMETRY_DISABLED: '1',
+        QILIN_TEST_SHUTDOWN_ARM_FILE: join(cwd, 'shutdown-armed'),
       },
     })
     const timeoutMs = 15_000
@@ -110,10 +110,10 @@ async function runHeadlessPtySmoke(): Promise<string> {
       stripFinalNewline: false,
     })
     if (result.timedOut) {
-      throw new Error(`dsh headless PTY driver did not exit. stdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
+      throw new Error(`qilin headless PTY driver did not exit. stdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
     }
     if (result.failed) {
-      throw new Error(`dsh headless PTY driver exited ${String(result.exitCode)}. stdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
+      throw new Error(`qilin headless PTY driver exited ${String(result.exitCode)}. stdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
     }
     return result.stdout
   } finally {
@@ -124,8 +124,8 @@ async function runHeadlessPtySmoke(): Promise<string> {
 describe.skipIf(process.platform === 'win32')('headless process shutdown (real Loader tree in a PTY)', () => {
   it('lets a second Ctrl+C force exit while the first signal is draining', async () => {
     const output = await runHeadlessPtySmoke()
-    expect(output).not.toContain('dsh: observing at ')
-    expect(output).toContain('dsh-test: never-dispose ready')
-    expect(output).toContain('dsh-test: never-dispose started')
+    expect(output).not.toContain('qilin: observing at ')
+    expect(output).toContain('qilin-test: never-dispose ready')
+    expect(output).toContain('qilin-test: never-dispose started')
   }, LOADER_SMOKE_TEST_TIMEOUT_MS)
 })

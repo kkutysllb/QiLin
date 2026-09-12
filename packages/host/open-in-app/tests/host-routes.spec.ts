@@ -21,7 +21,7 @@ import Include from '@deepseek-ai/cordis-plugin-include'
 import WebServer from '@qilin/host-webserver'
 import type { NativeCommandRunner } from '@qilin/native-command'
 import {
-  createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentLayerInput,
+  createLaunchEnvironmentSnapshot, QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentLayerInput,
 } from '@qilin/launch-environment'
 import * as OpenInApp from '../src/index.ts'
 import { internals } from '../src/internals.ts'
@@ -50,7 +50,7 @@ function pathTable(entries: Record<string, string> = {}): (name: string) => Prom
 /** Boot webserver + open-in-app rows through the real Loader. */
 async function boot(layers: readonly LaunchEnvironmentLayerInput[] = []): Promise<string> {
   internals.catalog = { env: {}, ...internals.catalog }
-  root = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-loader-'))
+  root = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
     "- name: '@qilin/host-webserver'",
@@ -66,7 +66,7 @@ async function boot(layers: readonly LaunchEnvironmentLayerInput[] = []): Promis
   ].join('\n'))
 
   context = new Context()
-  context.provide(DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot(layers))
+  context.provide(QILIN_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot(layers))
   context.baseUrl = pathToFileURL(root).href + '/'
   context.provide('connection', { requestRejection: () => trust.rejection } as never)
   // The plugin resolves PATH names through the composition's subprocess
@@ -190,7 +190,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
 
   it('serves the resolved catalog, one cached icon, and launches from the same resolution', async () => {
     const launches: string[][] = []
-    const home = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-home-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-home-'))
     const workspace = join(home, 'workspace')
     await cursorBundle(home)
     await mkdir(workspace, { recursive: true })
@@ -227,7 +227,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
 
   it('resolves the catalog once: list reads, menu opens, and launches share the pass', async () => {
     const launches: string[][] = []
-    const home = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-home-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-home-'))
     const workspace = join(home, 'workspace')
     await cursorBundle(home)
     await mkdir(workspace, { recursive: true })
@@ -255,7 +255,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
   })
 
   it('refreshes one entry after a missing launcher and drops it when it no longer resolves', async () => {
-    const home = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-home-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-home-'))
     const workspace = join(home, 'workspace')
     await cursorBundle(home)
     await mkdir(workspace, { recursive: true })
@@ -306,7 +306,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
 
   it('rejects wrong methods, non-JSON content, malformed bodies, unknown apps, and bad paths', async () => {
     const launches: string[][] = []
-    const home = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-home-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-home-'))
     await cursorBundle(home)
     darwinFixture(home, launches)
     const base = await boot()
@@ -358,7 +358,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
   })
 
   it('reports a failed launcher as 502 and an empty catalog on a platform without entries', async () => {
-    const home = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-home-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-home-'))
     const workspace = join(home, 'workspace')
     await mkdir(workspace, { recursive: true })
     internals.catalog = {
@@ -391,7 +391,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
   })
 
   it('serves a Linux catalog resolved in-process and its desktop-entry SVG icon', async () => {
-    const home = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-home-'))
+    const home = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-home-'))
     const workspace = join(home, 'workspace')
     await mkdir(workspace, { recursive: true })
     const applications = join(home, '.local', 'share', 'applications')

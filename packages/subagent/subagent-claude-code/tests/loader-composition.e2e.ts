@@ -26,7 +26,7 @@ describe('product-provider public Loader composition', () => {
   it('loads the Bundle default, two named Claude instances, their tools, and Codex without starting either product', async () => {
     const { stdout, stderr } = await runLoaderSmoke({
       label: 'product-provider Loader composition',
-      tempDirPrefix: 'dsh-product-provider-loader-',
+      tempDirPrefix: 'qilin-product-provider-loader-',
       binScript: driver,
       libBinScript: driver,
       configPath,

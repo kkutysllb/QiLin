@@ -1,13 +1,13 @@
 # The QiLin browser-surface bundle patch: QiLin product identity layered over
-# the dsh-web-app composition. Applied after dsh-web-app and before the
+# the qilin-web-app composition. Applied after qilin-web-app and before the
 # profile's own cordis.patch.yml, so a deployment or user layer can still
 # replace every row below.
 #
 # A patch replaces the targeted row's whole `config`, so each row below
 # restates every key it owns.
 
-# The model-facing product identity. dsh-web-app states the same two keys for
-# the dsh surface; QiLin names itself here instead.
+# The model-facing product identity. qilin-web-app states the same two keys for
+# the qilin surface; QiLin names itself here instead.
 - id: system-prompt
   config:
     personaPrefix: >-
@@ -15,7 +15,7 @@
     personaSuffix: Your working directory is {{cwd}}.
 
 # The QiLin product label on the startup URL line, the browser handoff line,
-# and the launch-failure hint. dsh-web-app states the same row for the dsh
+# and the launch-failure hint. qilin-web-app states the same row for the qilin
 # surface, so QiLin restates every key it owns.
 - id: web-runtime
   config:
@@ -31,7 +31,7 @@
 # sidebar brand name keeps the shell's own fallback, which carries the build
 # version badge.
 
-# `dsh.client` rows are scanned into the browser module roster. The brand color
+# `qilin.client` rows are scanned into the browser module roster. The brand color
 # layer stacks over whichever palette the user selected in Settings.
 - insert:
     - id: ui-brand-qilin

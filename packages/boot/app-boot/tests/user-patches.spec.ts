@@ -1,5 +1,5 @@
 /**
- * User patch-layer behavior of `dsh-app-boot`: the optional patch-list loader
+ * User patch-layer behavior of `qilin-app-boot`: the optional patch-list loader
  * (a profile's `cordis.patch.yml`) and `boot()` applying the user layer over
  * a real Loader tree, kept live through transactional HMR.
  */
@@ -23,7 +23,7 @@ import {
   watchUserPatches,
 } from '../src/index.ts'
 
-const NAME = 'dsh-test-bin'
+const NAME = 'qilin-test-bin'
 
 const configWatch = vi.hoisted(() => ({
   create: undefined as ((options?: ChokidarOptions) => FSWatcher) | undefined,
@@ -45,7 +45,7 @@ afterAll(() => {
 })
 
 const tmp = (): string => {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-user-patches-'))
+  const dir = mkdtempSync(join(tmpdir(), 'qilin-user-patches-'))
   tempRoots.push(dir)
   return dir
 }
@@ -60,7 +60,7 @@ async function eventually(test: () => boolean, message: string): Promise<void> {
 
 describe('loadOptionalPatches', () => {
   afterEach(() => {
-    delete process.env.DSH_HOME
+    delete process.env.QILIN_HOME
   })
 
   it('returns undefined when no user patch file exists', () => {
@@ -73,7 +73,7 @@ describe('loadOptionalPatches', () => {
       '- id: agent-loop',
       "  name: '@qilin/agent-loop'",
       '  config:',
-      '    model: !!js process.env.DSH_SPEC_MODEL',
+      '    model: !!js process.env.QILIN_SPEC_MODEL',
       '- insert:',
       '    - id: llm',
       "      name: '@qilin/llm-pi-ai'",
@@ -83,7 +83,7 @@ describe('loadOptionalPatches', () => {
     expect(patches).toHaveLength(2)
     expect(patches?.[0]).toMatchObject({
       id: 'agent-loop',
-      config: { model: { __jsExpr: 'process.env.DSH_SPEC_MODEL' } },
+      config: { model: { __jsExpr: 'process.env.QILIN_SPEC_MODEL' } },
     })
     expect(patches?.[1]?.insert).toHaveLength(1)
   })
@@ -366,13 +366,13 @@ describe('boot with user patches', () => {
       '- id: noop',
       '  name: ./noop.mjs',
       '  config:',
-      '    value: !!js process.env.DSH_APP_BOOT_USER_SPEC',
+      '    value: !!js process.env.QILIN_APP_BOOT_USER_SPEC',
       '- insert:',
       '    - id: user-extra',
       '      name: ./noop.mjs',
       '',
     ].join('\n'))
-    process.env['DSH_APP_BOOT_USER_SPEC'] = 'user-value'
+    process.env['QILIN_APP_BOOT_USER_SPEC'] = 'user-value'
     const ctx = await boot(NAME, writeTree(dir), loadOptionalPatches(NAME, join(userDir, PROFILE_PATCH_FILENAME)))
     try {
       const noop = [...ctx.loader.entries()].find(entry => entry.options.id === 'noop')
@@ -381,7 +381,7 @@ describe('boot with user patches', () => {
       expect([...ctx.loader.entries()].some(entry => entry.options.id === 'user-extra')).toBe(true)
     } finally {
       await ctx.fiber.dispose()
-      delete process.env['DSH_APP_BOOT_USER_SPEC']
+      delete process.env['QILIN_APP_BOOT_USER_SPEC']
     }
   })
 

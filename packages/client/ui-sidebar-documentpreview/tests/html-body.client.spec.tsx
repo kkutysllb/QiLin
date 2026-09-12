@@ -34,7 +34,7 @@ afterEach(() => {
 function props(text = '<p>hello</p>'): HtmlBodyProps {
   const signal = new AbortController().signal
   return {
-    resourceAddress: 'dsh-resource://file/session/html/index.html',
+    resourceAddress: 'qilin-resource://file/session/html/index.html',
     content: { kind: 'bytes', data: utf8(text) },
     wrap: false,
     sessionId: 'html' as SessionId,
@@ -71,7 +71,7 @@ describe('HtmlBody', () => {
     expect(await screen.findByTitle(en.frame)).not.toBe(first)
     expect(first.isConnected).toBe(false)
     expect(revoke).toHaveBeenCalledWith('blob:https://preview.invalid/1')
-    view.rerender(<HtmlBody {...changed} resourceAddress="dsh-resource://file/session/html/other.html" />)
+    view.rerender(<HtmlBody {...changed} resourceAddress="qilin-resource://file/session/html/other.html" />)
     await screen.findByTitle(en.frame)
     expect(revoke).toHaveBeenCalledWith('blob:https://preview.invalid/2')
     view.unmount()

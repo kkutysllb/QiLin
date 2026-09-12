@@ -21,7 +21,7 @@ const roots: string[] = []
 const releaseWorkers: Array<() => Promise<void>> = []
 
 function temporaryRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-desktop-test-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-desktop-test-'))
   roots.push(root)
   return root
 }
@@ -56,10 +56,10 @@ function archiveStore(seed: string): void {
 
 function writeCorePackageSet(seed: string, version: string): void {
   const packages = [
-    { name: '@qilin/cli', file: `deepseek-ai-dsh-${version}.tgz`, body: Buffer.from(`dsh-${version}`) },
+    { name: '@qilin/cli', file: `deepseek-ai-qilin-${version}.tgz`, body: Buffer.from(`qilin-${version}`) },
     {
       name: '@qilin/desktop-host',
-      file: `deepseek-ai-dsh-desktop-host-${version}.tgz`,
+      file: `deepseek-ai-qilin-desktop-host-${version}.tgz`,
       body: Buffer.from(`desktop-host-${version}`),
     },
   ]
@@ -223,7 +223,7 @@ describe('desktop project transactions', () => {
       if (previousRegistry === undefined) delete process.env.npm_config_registry
       else process.env.npm_config_registry = previousRegistry
     }
-    expect(manager.dshVersion()).toBe('1.0.0')
+    expect(manager.qilinVersion()).toBe('1.0.0')
     expect(manager.releaseVersion()).toBe('1.0.0')
     expect(paths.profile).toBe(join(root, '.qilin', 'profiles', 'desktop'))
     expect(existsSync(join(paths.profile, 'node_modules', '@qilin', 'cli'))).toBe(true)
@@ -264,7 +264,7 @@ describe('desktop project transactions', () => {
       },
     }))).rejects.toThrow(/backend rejected staged graph/u)
     expect(manager.listPlugins()).toEqual([])
-    expect(manager.dshVersion()).toBe('1.0.0')
+    expect(manager.qilinVersion()).toBe('1.0.0')
     expect(starts).toBe(2)
   })
 
@@ -369,7 +369,7 @@ describe('desktop project transactions', () => {
     expect(invocation.env.NPM_CONFIG_REGISTRY).toBe('https://registry.npmjs.org/')
   })
 
-  it('reconciles dsh to the packaged release without removing desktop plugins', async () => {
+  it('reconciles qilin to the packaged release without removing desktop plugins', async () => {
     const root = temporaryRoot()
     const paths = resolveDesktopPaths(join(root, '.qilin'))
     const manager = new DesktopProjectManager(paths, { node: process.execPath, pnpm: writeFakePnpm(root) })
@@ -393,7 +393,7 @@ describe('desktop project transactions', () => {
 
     await expect(manager.applyRelease(nextSeed, '1.1.0', hooks())).resolves.toBe(true)
     expect(manager.releaseVersion()).toBe('1.1.0')
-    expect(manager.dshVersion()).toBe('1.1.0')
+    expect(manager.qilinVersion()).toBe('1.1.0')
     expect(manager.listPlugins()).toEqual([{ name: '@scope/plugin', version: '2.0.0' }])
     const profile = JSON.parse(readFileSync(join(paths.profile, 'package.json'), 'utf8')) as {
       qilin: { profile: { bundles: string[] } }

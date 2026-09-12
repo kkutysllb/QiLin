@@ -149,7 +149,7 @@ describe('package modes', () => {
     }))
     expect(found).toHaveLength(2)
     expect(found.join('\n')).toContain('does not use the staticLinked preset')
-    expect(found.join('\n')).toContain('has no dynamic dsh.client row')
+    expect(found.join('\n')).toContain('has no dynamic qilin.client row')
   })
 
   it('requires every preloaded external to have a parser preload row', () => {
@@ -200,7 +200,7 @@ describe('module requests', () => {
     expect(collectClientPackageViolations(facts([], {
       declarations: [gateway, stale, live],
     }))).toEqual([
-      stale.manifest + ': dsh.client.external "@qilin/api-gateway/client"'
+      stale.manifest + ': qilin.client.external "@qilin/api-gateway/client"'
       + ' has no runtime import or re-export in production source; remove the stale declaration',
     ])
   })
@@ -219,7 +219,7 @@ describe('module requests', () => {
       },
     }), manifest: 'packages/api/session-controller/package.json' }
     expect(collectClientPackageViolations(facts([], { declarations: [gateway, subject] }))).toEqual([
-      subject.manifest + ': dsh.client.external "@qilin/api-gateway/client"'
+      subject.manifest + ': qilin.client.external "@qilin/api-gateway/client"'
       + ' has no runtime import or re-export in production source; remove the stale declaration',
     ])
   })
@@ -230,7 +230,7 @@ describe('module requests', () => {
       declarations: [ui],
       platformModules: ['react'],
     }))).toEqual([
-      ui.manifest + ': dsh.client.external repeats baseline module "react"; remove the explicit declaration',
+      ui.manifest + ': qilin.client.external repeats baseline module "react"; remove the explicit declaration',
     ])
   })
 
@@ -241,8 +241,8 @@ describe('module requests', () => {
     })
     const found = collectClientPackageViolations(facts([], { declarations: [ui] }))
     expect(found).toHaveLength(6)
-    expect(found.join('\n')).toContain('dsh.client.external contains an empty value')
-    expect(found.join('\n')).toContain('dsh.client.inject contains an empty value')
+    expect(found.join('\n')).toContain('qilin.client.external contains an empty value')
+    expect(found.join('\n')).toContain('qilin.client.inject contains an empty value')
     expect(found.join('\n')).toContain('names its own row')
     expect(found.join('\n')).toContain('has no supplier')
   })
@@ -262,7 +262,7 @@ describe('module requests', () => {
     }), manifest: 'packages/api/b/package.json' }
     const found = collectClientPackageViolations(facts([], { declarations: [a, b] }))
     expect(found).toHaveLength(1)
-    expect(found[0]).toContain('synchronous dsh.client.external cycle')
+    expect(found[0]).toContain('synchronous qilin.client.external cycle')
   })
 })
 
@@ -284,8 +284,8 @@ describe('manifest declarations', () => {
     const result = readClientDeclarations(root)
     expect(result.declarations).toHaveLength(2)
     expect(result.malformed).toEqual([
-      'packages/g/a/package.json: @f/a dsh.client.external must be a string array',
-      'packages/g/a/package.json: @f/a dsh.client.inject must be a string array',
+      'packages/g/a/package.json: @f/a qilin.client.external must be a string array',
+      'packages/g/a/package.json: @f/a qilin.client.inject must be a string array',
     ])
   })
 

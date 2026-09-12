@@ -5,7 +5,7 @@
  * a single `dockkit.module.css` makes that collision impossible.
  *
  * Colours come from the embedder's token layer; the kit names no literal. Type
- * follows the embedder's content axis (`--dsh-content-font-size` and its
+ * follows the embedder's content axis (`--qilin-content-font-size` and its
  * secondary step) so a surface reads at the same size as the page around it.
  * Emphasis — the drop caret, the drop-zone hint — takes the platform's accent
  * (`--dsw-alias-brand-primary-new-colorprimary-new-color`), not
@@ -265,7 +265,7 @@
   height: 28px;
   padding: 0 10px;
   color: var(--dsw-alias-label-secondary);
-  font-size: var(--dsh-content-font-size-secondary, 13px);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1;
   white-space: nowrap;
   border-radius: 12px;
@@ -460,7 +460,7 @@
 .menuItem {
   padding: 5px 8px;
   color: var(--dsw-alias-label-primary);
-  font-size: var(--dsh-content-font-size-secondary, 13px);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
   text-align: left;
   background: transparent;
   border: none;
@@ -483,15 +483,15 @@
   overflow: auto;  /* This sheet draws elevated surfaces (the strip and the menu), so a scroller
      inside it rebinds the thumb indirection in a complete pair — a base-surface
      thumb on an elevated ground reads as a smudge. */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .empty {
   margin: 0;
   padding: 12px;
   color: var(--dsw-alias-label-tertiary);
-  font-size: var(--dsh-content-font-size-secondary, 13px);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
 }
 
 /* The drop hint is a scrim and, over it, one box pair per landing region.
@@ -593,7 +593,7 @@
 .dockHintLabel {
   max-width: 100%;
   overflow: hidden;
-  font-size: var(--dsh-content-font-size-secondary, 13px);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
   font-weight: 500;
   line-height: 1.4;
   white-space: nowrap;
@@ -689,8 +689,8 @@
   overflow: auto;  /* This sheet draws elevated surfaces (the strip and the menu), so a scroller
      inside it rebinds the thumb indirection in a complete pair — a base-surface
      thumb on an elevated ground reads as a smudge. */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .floatResize {

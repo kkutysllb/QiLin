@@ -33,10 +33,10 @@ Schedule 让你向模型请求持久提醒；提醒会作为普通 follow-up 消
 
 ### 启用 Schedule
 
-把 Schedule overlay 添加到 `dsh web` 会话；提醒工具随即出现在会话中，模型可以立即使用它们：
+把 Schedule overlay 添加到 `qilin web` 会话；提醒工具随即出现在会话中，模型可以立即使用它们：
 
 ```sh
-dsh web --patch apps/cli/config/examples/schedule/cordis.yml
+qilin web --patch apps/cli/config/examples/schedule/cordis.yml
 ```
 
 成功的样子如下：让模型「10 分钟后提醒我审阅 PR」，它会回复提醒的 id、目标时间与 `scheduled` 状态。如果那一刻存储无法确认，工具会报告 `persistence_uncertain` 并建议重新列出，而不是声称成功。
@@ -104,7 +104,7 @@ Session projection 是可选能力。`ctx.sessionProjections` 存在时，插件
 
 可选的 `schedule` projection 将 `{ inheritedEventCount, active, seenIds }` 作为严格的纯 JSON 检查点，并且只发布完整的 `active` 数组。其 schema 复用持久 Schedule decoder，拒绝重复或不一致的 id，并让损坏的持久事件通过既有 Session 读取失败传播，而不是发布部分目录。live 惰性构建、事件驱动构建、cold restore、history 读取与 detached Subagent 读取都使用精确 Session 切点与同一套自有后缀 transition。
 
-projection 只携带持久记录。它不持久化或传输 scheduled／overdue 状态、本地化文本、相对时间、浏览器本地时间、排序状态、popover 状态、runtime 存活或交付回执。[`dsh-client-ui-schedule`](../../client/ui-schedule/README.zh.md) 从完整数组与查看方浏览器时钟派生目录呈现。[`dsh-client-ui-workspace`](../../client/ui-workspace/README.zh.md) 只派生列表值是否为非空数组，因此持久 projection cache 缺失或陈旧时，普通行与搜索结果的闹钟可能短暂漏显或残留。
+projection 只携带持久记录。它不持久化或传输 scheduled／overdue 状态、本地化文本、相对时间、浏览器本地时间、排序状态、popover 状态、runtime 存活或交付回执。[`qilin-client-ui-schedule`](../../client/ui-schedule/README.zh.md) 从完整数组与查看方浏览器时钟派生目录呈现。[`qilin-client-ui-workspace`](../../client/ui-workspace/README.zh.md) 只派生列表值是否为非空数组，因此持久 projection cache 缺失或陈旧时，普通行与搜索结果的闹钟可能短暂漏显或残留。
 
 ### 时间校验
 

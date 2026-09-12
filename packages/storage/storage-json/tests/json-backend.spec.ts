@@ -10,7 +10,7 @@ import { Config, JsonStorageBackend, apply } from '../src/index.ts'
 const roots: string[] = []
 
 async function freshRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-storage-json-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-storage-json-'))
   roots.push(root)
   return root
 }

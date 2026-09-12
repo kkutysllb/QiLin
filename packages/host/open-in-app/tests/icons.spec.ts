@@ -22,7 +22,7 @@ afterEach(async () => {
 })
 
 async function tempRoot(): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'dsh-open-in-app-spec-'))
+  const root = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-spec-'))
   roots.push(root)
   return root
 }

@@ -213,7 +213,7 @@ async function awaitTableLayout(target: Page): Promise<void> {
       && element.getAnimations().every(animation =>
         animation.playState === 'finished' || animation.playState === 'idle')
       && root !== null
-      && root.style.getPropertyValue('--dsh-conversation-column-width') === `${String(root.offsetWidth)}px`
+      && root.style.getPropertyValue('--qilin-conversation-column-width') === `${String(root.offsetWidth)}px`
   }, undefined, { timeout: 10_000 })
 }
 

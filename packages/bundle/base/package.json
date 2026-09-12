@@ -1,6 +1,6 @@
 {
   "name": "@qilin/base",
-  "description": "The shared dsh core as a profile bundle: the first patch layer of base-backed profiles, inserting core rows over the empty profile root",
+  "description": "The shared qilin core as a profile bundle: the first patch layer of base-backed profiles, inserting core rows over the empty profile root",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

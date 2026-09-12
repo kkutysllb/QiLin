@@ -135,7 +135,7 @@ async function expectCode(promise: Promise<unknown>, codes: readonly string[]): 
 }
 
 async function freshRoot(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-jsonl-'))
+  const dir = await mkdtemp(join(tmpdir(), 'qilin-jsonl-'))
   dirs.push(dir)
   return dir
 }
@@ -310,7 +310,7 @@ afterEach(async () => {
 })
 
 runPersistenceContract('jsonl-none', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-jsonl-'))
+  const dir = await mkdtemp(join(tmpdir(), 'qilin-jsonl-'))
   const instance = async (): Promise<{ persistence: SessionPersistence; dispose: () => Promise<void> }> => {
     const ctx = new Context()
     const fiber = await ctx.plugin(JsonlSessionPersistence, { root: dir, compression: 'none' })
@@ -336,7 +336,7 @@ runPersistenceContract('jsonl-none', async () => {
 })
 
 runLiveWritePathContract('jsonl', LIVE_WRITE_BATCH_MAX_DELAY_MS, async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'dsh-jsonl-live-'))
+  const dir = await mkdtemp(join(tmpdir(), 'qilin-jsonl-live-'))
   dirs.push(dir)
   const mount = async (): Promise<Context> => {
     const ctx = new Context()

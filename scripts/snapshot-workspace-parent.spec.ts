@@ -33,7 +33,7 @@ describe('snapshot workspace parent', () => {
   })
 
   it('rejects automatically writable temporary workspaces, including symlink aliases', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-snapshot-parent-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-snapshot-parent-'))
     try {
       expect(() => { assertWorkspaceOutsideTemp(root) }).toThrow('must be outside temporary writable root')
       const alias = join(root, 'alias')
@@ -45,7 +45,7 @@ describe('snapshot workspace parent', () => {
   })
 
   it('allows the allocated workspace but denies sibling writes and cleans the complete tree', async () => {
-    const base = await mkdtemp(join(outsideTempWorkspaceParent(), 'dsh-snapshot-parent-'))
+    const base = await mkdtemp(join(outsideTempWorkspaceParent(), 'qilin-snapshot-parent-'))
     const ctx = new Context()
     const fibers: Awaited<ReturnType<Context['plugin']>>[] = []
     try {

@@ -14,6 +14,6 @@ export interface DeepSeekPluginPackageInventoryExtension {
 
 declare module '@qilin/deepseek-llm-api-extensions/types' {
   interface DeepSeekLlmApiExtensionMap {
-    dsh_plugin_packages: DeepSeekPluginPackageInventoryExtension
+    qilin_plugin_packages: DeepSeekPluginPackageInventoryExtension
   }
 }

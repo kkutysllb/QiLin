@@ -50,11 +50,11 @@ describe('LspConnection', () => {
     expect(result).toMatchObject({ capabilities: { hoverProvider: true } })
   })
 
-  it('forwards explicit DSH_* env entries to the child', async () => {
-    // A configured DSH_* fact must reach the child: the seam scrubs only the
+  it('forwards explicit QILIN_* env entries to the child', async () => {
+    // A configured QILIN_* fact must reach the child: the seam scrubs only the
     // ambient namespace, and the explicit entry merges after that scrub. The
     // fixture echoes the named variable back as hover text.
-    const conn = connect({ LSP_FAKE_ECHO_ENV: 'DSH_LSP_TEST_FACT', DSH_LSP_TEST_FACT: 'managed' })
+    const conn = connect({ LSP_FAKE_ECHO_ENV: 'QILIN_LSP_TEST_FACT', QILIN_LSP_TEST_FACT: 'managed' })
     await conn.request('initialize', { capabilities: {} })
     expect(await conn.request('textDocument/hover', {})).toEqual({ contents: 'managed' })
   })

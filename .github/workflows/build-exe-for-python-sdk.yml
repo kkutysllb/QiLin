@@ -55,7 +55,7 @@ permissions:
 env:
   # CI runs must never report to the production telemetry endpoint baked
   # into apps/cli/cordis.yml (AppCLIEntry disables the row when set).
-  DSH_TELEMETRY_DISABLED: '1'
+  QILIN_TELEMETRY_DISABLED: '1'
 
 jobs:
   # Job-level conditions cannot inspect `matrix`, so validate target names and
@@ -248,7 +248,7 @@ jobs:
 
       - name: Build single-exe
         env:
-          DSH_BUILD_CLIENT_PROFILE: official
+          QILIN_BUILD_CLIENT_PROFILE: official
         run: pnpm exec tsx scripts/build-exe-for-python-sdk.ts --targets=${{ matrix.target }}
 
       - name: Resolve platform outputs (POSIX)
@@ -311,7 +311,7 @@ jobs:
           SDK_WHEEL: deepseek_harness_sdk-${{ needs.plan.outputs.version }}-py3-none-any.whl
         run: |
           set -euo pipefail
-          venv="$(python -c 'import tempfile; print(tempfile.mkdtemp(prefix="dsh-sdk-smoke-"))')"
+          venv="$(python -c 'import tempfile; print(tempfile.mkdtemp(prefix="qilin-sdk-smoke-"))')"
           python -m venv "$venv"
           smoke_python="$venv/bin/python"
           "$smoke_python" -m pip install \
@@ -327,7 +327,7 @@ jobs:
           RUNTIME_WHEEL: ${{ steps.runtime-windows.outputs.wheel }}
           SDK_WHEEL: deepseek_harness_sdk-${{ needs.plan.outputs.version }}-py3-none-any.whl
         run: |
-          $venv = (& python -c 'import tempfile; print(tempfile.mkdtemp(prefix="dsh-sdk-smoke-"))').Trim()
+          $venv = (& python -c 'import tempfile; print(tempfile.mkdtemp(prefix="qilin-sdk-smoke-"))').Trim()
           python -m venv $venv
           $smokePython = Join-Path $venv 'Scripts\python.exe'
           & $smokePython -m pip install "dist-python/$env:SDK_WHEEL" "dist-python/$env:RUNTIME_WHEEL"
@@ -338,9 +338,9 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           set -euo pipefail
-          blackbox_root="$(python -c 'import tempfile; print(tempfile.mkdtemp(prefix="dsh-sdk-blackbox-"))')"
+          blackbox_root="$(python -c 'import tempfile; print(tempfile.mkdtemp(prefix="qilin-sdk-blackbox-"))')"
           cd "$blackbox_root"
-          env -u PYTHONPATH -u DSH_RUNTIME_MODE \
+          env -u PYTHONPATH -u QILIN_RUNTIME_MODE \
             "${{ steps.smoke-venv-posix.outputs.python }}" \
             "$GITHUB_WORKSPACE/scripts/smoke-python-runtime.py" \
             --scenario all \
@@ -350,9 +350,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $blackboxRoot = (& python -c 'import tempfile; print(tempfile.mkdtemp(prefix="dsh-sdk-blackbox-"))').Trim()
+          $blackboxRoot = (& python -c 'import tempfile; print(tempfile.mkdtemp(prefix="qilin-sdk-blackbox-"))').Trim()
           Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-          Remove-Item Env:DSH_RUNTIME_MODE -ErrorAction SilentlyContinue
+          Remove-Item Env:QILIN_RUNTIME_MODE -ErrorAction SilentlyContinue
           Push-Location $blackboxRoot
           try {
             & "${{ steps.smoke-venv-windows.outputs.python }}" "$env:GITHUB_WORKSPACE\scripts\smoke-python-runtime.py" --scenario all --installed-wheel
@@ -404,9 +404,9 @@ jobs:
           DEEPSEEK_BASE_URL: https://api.deepseek.com
         run: |
           set -euo pipefail
-          blackbox_root="$(python -c 'import tempfile; print(tempfile.mkdtemp(prefix="dsh-sdk-blackbox-live-"))')"
+          blackbox_root="$(python -c 'import tempfile; print(tempfile.mkdtemp(prefix="qilin-sdk-blackbox-live-"))')"
           cd "$blackbox_root"
-          env -u PYTHONPATH -u DSH_RUNTIME_MODE \
+          env -u PYTHONPATH -u QILIN_RUNTIME_MODE \
             "${{ steps.smoke-venv-posix.outputs.python }}" \
             "$GITHUB_WORKSPACE/scripts/smoke-python-runtime.py" \
             --scenario sdk-live \
@@ -424,9 +424,9 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}
           DEEPSEEK_BASE_URL: https://api.deepseek.com
         run: |
-          $blackboxRoot = (& python -c 'import tempfile; print(tempfile.mkdtemp(prefix="dsh-sdk-blackbox-live-"))').Trim()
+          $blackboxRoot = (& python -c 'import tempfile; print(tempfile.mkdtemp(prefix="qilin-sdk-blackbox-live-"))').Trim()
           Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-          Remove-Item Env:DSH_RUNTIME_MODE -ErrorAction SilentlyContinue
+          Remove-Item Env:QILIN_RUNTIME_MODE -ErrorAction SilentlyContinue
           Push-Location $blackboxRoot
           try {
             & "${{ steps.smoke-venv-windows.outputs.python }}" "$env:GITHUB_WORKSPACE\scripts\smoke-python-runtime.py" --scenario sdk-live --installed-wheel
@@ -478,13 +478,13 @@ jobs:
             ARM64) image=quay.io/pypa/manylinux_2_28_aarch64 ;;
             *) echo "::error::Unsupported Linux runner architecture $RUNNER_ARCH"; exit 1 ;;
           esac
-          docker run --rm -e RUNTIME_WHEEL -e SDK_WHEEL -e DSH_TELEMETRY_DISABLED -v "$PWD:/work" -w /work "$image" bash -euxo pipefail -c '
-            /opt/python/cp310-cp310/bin/python -m venv /tmp/dsh-sdk
-            /tmp/dsh-sdk/bin/python -m pip install "/work/dist-python/$SDK_WHEEL" "/work/dist-python/$RUNTIME_WHEEL"
-            mkdir -p /tmp/dsh-sdk-manylinux-smoke
-            cd /tmp/dsh-sdk-manylinux-smoke
-            env -u PYTHONPATH -u DSH_RUNTIME_MODE /tmp/dsh-sdk/bin/python /work/scripts/smoke-python-runtime.py --scenario sdk-default --installed-wheel
-            env -u PYTHONPATH -u DSH_RUNTIME_MODE /tmp/dsh-sdk/bin/python /work/scripts/smoke-python-runtime.py --scenario sdk-mcp --installed-wheel
+          docker run --rm -e RUNTIME_WHEEL -e SDK_WHEEL -e QILIN_TELEMETRY_DISABLED -v "$PWD:/work" -w /work "$image" bash -euxo pipefail -c '
+            /opt/python/cp310-cp310/bin/python -m venv /tmp/qilin-sdk
+            /tmp/qilin-sdk/bin/python -m pip install "/work/dist-python/$SDK_WHEEL" "/work/dist-python/$RUNTIME_WHEEL"
+            mkdir -p /tmp/qilin-sdk-manylinux-smoke
+            cd /tmp/qilin-sdk-manylinux-smoke
+            env -u PYTHONPATH -u QILIN_RUNTIME_MODE /tmp/qilin-sdk/bin/python /work/scripts/smoke-python-runtime.py --scenario sdk-default --installed-wheel
+            env -u PYTHONPATH -u QILIN_RUNTIME_MODE /tmp/qilin-sdk/bin/python /work/scripts/smoke-python-runtime.py --scenario sdk-mcp --installed-wheel
           '
 
       - uses: actions/upload-artifact@v7

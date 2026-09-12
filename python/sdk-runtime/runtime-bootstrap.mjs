@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Private entry owned by the Python single-file runtime packaging. */
 
-const selectorName = 'DSH_SUBPROCESS_RUNNER'
+const selectorName = 'QILIN_SUBPROCESS_RUNNER'
 const selection = process.env[selectorName]
 
 if (selection === undefined) {

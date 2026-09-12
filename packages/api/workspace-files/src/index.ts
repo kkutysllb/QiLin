@@ -469,7 +469,7 @@ export class WorkspaceFiles extends TypertRemoteService {
 
 /**
  * The backend's non-text refusal, recognized by its code alone: the error class
- * belongs to whichever `dsh-fs` instance the provider loaded, so no class
+ * belongs to whichever `qilin-fs` instance the provider loaded, so no class
  * identity is shared across the package boundary.
  */
 function isNotTextRefusal(error: unknown): boolean {

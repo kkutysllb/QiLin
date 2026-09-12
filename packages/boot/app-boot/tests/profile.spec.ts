@@ -1,5 +1,5 @@
 /**
- * Profile machinery of `dsh-app-boot`: directory resolution and init,
+ * Profile machinery of `qilin-app-boot`: directory resolution and init,
  * manifest round-trips, two-anchor bundle resolution, patch-layer loading,
  * empty-root composition, and the installation module-fallback healing.
  */
@@ -33,7 +33,7 @@ afterAll(() => {
 })
 
 const tmp = (): string => {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-profile-'))
+  const dir = mkdtempSync(join(tmpdir(), 'qilin-profile-'))
   tempRoots.push(dir)
   return dir
 }
@@ -41,7 +41,7 @@ const tmp = (): string => {
 /** Stage a fake installed app: package.json with deps and a node_modules holding bundles. */
 function stageInstallation(
   bundles: Record<string, { patch?: string; deps?: Record<string, string> }>,
-  appName = 'dsh-app',
+  appName = 'qilin-app',
 ): string {
   const root = tmp()
   const appDir = join(root, 'app')
@@ -174,7 +174,7 @@ describe('loadProfile', () => {
     expect(profile.layers.map(layer => layer.packageName)).toEqual(['bundle-a'])
   })
 
-  it('resolves each dsh.profile.bundles entry to its patch layer in order, plus the user layer', () => {
+  it('resolves each qilin.profile.bundles entry to its patch layer in order, plus the user layer', () => {
     const anchor = stageInstallation({
       'bundle-a': { patch: '- insert:\n    - id: a\n      name: pkg-a\n' },
       'bundle-b': { patch: '- id: a\n  config:\n    v: 2\n' },
@@ -192,7 +192,7 @@ describe('loadProfile', () => {
       profile.patches,
     ])
     expect(entries).toEqual([{ id: 'a', name: 'pkg-a', config: { v: 3 } }])
-    // A hand-made profile without the user layer file or dsh section: empty layers, no throw.
+    // A hand-made profile without the user layer file or qilin section: empty layers, no throw.
     rmSync(join(dir, PROFILE_PATCH_FILENAME))
     expect(loadProfile('t', 'demo', anchor, home).patches).toEqual([])
     writeProfileManifest(dir, { name: 'bare' })
@@ -299,12 +299,12 @@ describe('loadProfile', () => {
     expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('patchReload must be "live" or "startup"')
   })
 
-  it('fails loud when a listed bundle declares no dsh.bundle', () => {
+  it('fails loud when a listed bundle declares no qilin.bundle', () => {
     const anchor = stageInstallation({ 'not-a-bundle': {} })
     const home = tmp()
     const dir = resolveProfileDir('demo', home)
     initProfile(dir, ['not-a-bundle'])
-    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('declares no dsh.bundle')
+    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('declares no qilin.bundle')
   })
 })
 
@@ -341,7 +341,7 @@ describe('healProfilesModuleFallback', () => {
     const fallback = join(home, 'profiles', 'node_modules')
     // App deps, the bundle's own deps, and the bundle itself are linked; the
     // plain library is linked as an app dep (harmless), the app itself too.
-    for (const name of ['bundle-a', 'plain-lib', 'dep-of-a', 'dsh-app']) {
+    for (const name of ['bundle-a', 'plain-lib', 'dep-of-a', 'qilin-app']) {
       expect(lstatSync(join(fallback, name)).isSymbolicLink(), name).toBe(true)
     }
     // Idempotent, and a moved target is re-pointed.
@@ -354,7 +354,7 @@ describe('healProfilesModuleFallback', () => {
     const anchor = stageInstallation({})
     for (const kind of ['file', 'directory']) {
       const home = tmp()
-      const entry = join(home, 'profiles', 'node_modules', 'dsh-app')
+      const entry = join(home, 'profiles', 'node_modules', 'qilin-app')
       mkdirSync(join(entry, '..'), { recursive: true })
       if (kind === 'directory') mkdirSync(entry)
       else writeFileSync(entry, '')
@@ -598,9 +598,9 @@ describe('healProfilesModuleFallback', () => {
     const home = tmp()
     const fallback = join(home, 'profiles', 'node_modules')
     mkdirSync(fallback, { recursive: true })
-    symlinkSync(tmp(), join(fallback, 'dsh-app'), 'junction')
+    symlinkSync(tmp(), join(fallback, 'qilin-app'), 'junction')
     await healProfilesModuleFallback({ installAnchor: anchor, home })
-    expect(readlinkSync(join(fallback, 'dsh-app'))).toContain('app')
+    expect(readlinkSync(join(fallback, 'qilin-app'))).toContain('app')
   })
 
   it('retains current links while repairing a missing sibling', async () => {
@@ -608,12 +608,12 @@ describe('healProfilesModuleFallback', () => {
     const home = tmp()
     const fallback = join(home, 'profiles', 'node_modules')
     await healProfilesModuleFallback({ installAnchor: anchor, home })
-    const appTarget = readlinkSync(join(fallback, 'dsh-app'))
+    const appTarget = readlinkSync(join(fallback, 'qilin-app'))
     unlinkSync(join(fallback, 'bundle-a'))
 
     await healProfilesModuleFallback({ installAnchor: anchor, home })
 
-    expect(readlinkSync(join(fallback, 'dsh-app'))).toBe(appTarget)
+    expect(readlinkSync(join(fallback, 'qilin-app'))).toBe(appTarget)
     expect(lstatSync(join(fallback, 'bundle-a')).isSymbolicLink()).toBe(true)
   })
 
@@ -625,7 +625,7 @@ describe('healProfilesModuleFallback', () => {
       healProfilesModuleFallback({ installAnchor: anchor, home }),
     ])
     const fallback = join(home, 'profiles', 'node_modules')
-    expect(lstatSync(join(fallback, 'dsh-app')).isSymbolicLink()).toBe(true)
+    expect(lstatSync(join(fallback, 'qilin-app')).isSymbolicLink()).toBe(true)
   })
 
   it('does not acquire the writer lock for a complete generation', async () => {
@@ -670,10 +670,10 @@ describe('healProfilesModuleFallback', () => {
 
     const healer = healProfilesModuleFallback({ installAnchor: anchor, home })
     await new Promise(resolve => setTimeout(resolve, 20))
-    expect(existsSync(join(modules, 'dsh-app'))).toBe(false)
+    expect(existsSync(join(modules, 'qilin-app'))).toBe(false)
     releaseLock?.()
     await Promise.all([holder, healer])
-    expect(lstatSync(join(modules, 'dsh-app')).isSymbolicLink()).toBe(true)
+    expect(lstatSync(join(modules, 'qilin-app')).isSymbolicLink()).toBe(true)
   })
 
   it('writes real ESM proxies for a packaged executable', async () => {
@@ -836,7 +836,7 @@ describe('healProfilesModuleFallback', () => {
       const anchor = stageInstallation({ 'bundle-a': { patch: '[]\n' } })
       const manifest = JSON.parse(readFileSync(anchor, 'utf8')) as Record<string, unknown>
       delete manifest.main
-      manifest[marker] = marker === 'bin' ? { dsh: './lib/bin.js' } : './index.d.ts'
+      manifest[marker] = marker === 'bin' ? { qilin: './lib/bin.js' } : './index.d.ts'
       if (marker === 'types') manifest.main = ''
       writeFileSync(anchor, JSON.stringify(manifest))
       rmSync(join(anchor, '..', 'index.js'))
@@ -845,7 +845,7 @@ describe('healProfilesModuleFallback', () => {
         const home = tmp()
         await healProfilesModuleFallback({ installAnchor: anchor, home })
         const fallback = join(home, 'profiles', 'node_modules')
-        expect(existsSync(join(fallback, 'dsh-app'))).toBe(false)
+        expect(existsSync(join(fallback, 'qilin-app'))).toBe(false)
         expect(existsSync(join(fallback, 'bundle-a', 'entry-0.js'))).toBe(true)
       } finally {
         delete (process as NodeJS.Process & { pkg?: unknown }).pkg
@@ -968,7 +968,7 @@ describe('healProfilesModuleFallback', () => {
         mkdirSync(proxy, { recursive: true })
         writeFileSync(join(proxy, 'package.json'), metadata)
         await expect(healProfilesModuleFallback({ installAnchor: anchor, home })).rejects.toThrow(
-          'exists and is not a dsh-managed module proxy',
+          'exists and is not a qilin-managed module proxy',
         )
       }
     } finally {

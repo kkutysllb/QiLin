@@ -42,7 +42,7 @@ function runPnpm(args: string[], cwd: string, timeout: number): string {
 
 describe('published PDF.js licenses', () => {
   it.skipIf(!existsSync(bundlePath))('keeps every bundled license in the packed client artifact', ({ task }) => {
-    const output = mkdtempSync(join(tmpdir(), 'dsh-document-preview-pack-'))
+    const output = mkdtempSync(join(tmpdir(), 'qilin-document-preview-pack-'))
     try {
       const packed = JSON.parse(runPnpm([
         'pack', '--json', '--pack-destination', output,

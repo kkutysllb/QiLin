@@ -1,5 +1,5 @@
 ---
-description: "dsh Web 客户端的 slot 注册表纯核心：SlotMap 声明合并、单一 register 组合 API、四 share props 类型、store 席位与渲染器安装约定。"
+description: "qilin Web 客户端的 slot 注册表纯核心：SlotMap 声明合并、单一 register 组合 API、四 share props 类型、store 席位与渲染器安装约定。"
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-`dsh-client-ui-slots` 让 Web 客户端插件定义并组合带类型检查的 UI 区域。调用方可以通过一个在编译期检查的 API 添加组件、声明嵌套区域、附加作用域状态并提供业务 props。它支持单项、有序列表、键控和自行选择的 chain 组合，并会在插件加载期间报告冲突组合。需要与框架无关的 slot 组合时选择本包；客户端需要 React 渲染时与 `ui-renderer` 配合使用。
+`qilin-client-ui-slots` 让 Web 客户端插件定义并组合带类型检查的 UI 区域。调用方可以通过一个在编译期检查的 API 添加组件、声明嵌套区域、附加作用域状态并提供业务 props。它支持单项、有序列表、键控和自行选择的 chain 组合，并会在插件加载期间报告冲突组合。需要与框架无关的 slot 组合时选择本包；客户端需要 React 渲染时与 `ui-renderer` 配合使用。
 
 ## 目录
 

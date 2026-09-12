@@ -80,7 +80,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-该策略刻意保持狭窄：它只决定**何时** spill，并组合通知。它不注册服务、不负责存储、也不负责预览机制——`dsh-output-retention` 的 `TextRetainer` 负责构建首尾预览。两个不变式塑造了代码：面向模型的替换永远不会超过 `maxInlineBytes`（先为通知预留字节成本），且 spill 失败永远不会改变工具调用的结果。
+该策略刻意保持狭窄：它只决定**何时** spill，并组合通知。它不注册服务、不负责存储、也不负责预览机制——`qilin-output-retention` 的 `TextRetainer` 负责构建首尾预览。两个不变式塑造了代码：面向模型的替换永远不会超过 `maxInlineBytes`（先为通知预留字节成本），且 spill 失败永远不会改变工具调用的结果。
 
 ### 两条分支
 
@@ -114,8 +114,8 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面。
 
 - [spill 存储服务](../spill/README.zh.md)——策略替换背后的 `saveText` 约定。
-- [dsh-spill-local](../spill-local/README.zh.md)——保存 spill 文本的本地后端。
-- [dsh-output-retention](../../util/output-retention/README.zh.md)——策略组合的预览机制（`TextRetainer`）。
+- [qilin-spill-local](../spill-local/README.zh.md)——保存 spill 文本的本地后端。
+- [qilin-output-retention](../../util/output-retention/README.zh.md)——策略组合的预览机制（`TextRetainer`）。
 - [工具输出 spill 决策](../../../.agents/notes/implemented/architecture/2026-07-08-tool-output-spill-files.zh.md)——能力边界与设计依据。
 
 -----

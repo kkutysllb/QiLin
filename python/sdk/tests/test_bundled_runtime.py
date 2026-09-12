@@ -1,4 +1,4 @@
-"""Keyless boot tests for the production exe and development dsh carrier.
+"""Keyless boot tests for the production exe and development qilin carrier.
 
 Each carrier skips independently when absent. The dummy API key only satisfies
 adapter loading; initialize and shutdown do not call a model.
@@ -30,15 +30,15 @@ def _client(tmp_path: Path, mode: str, monkeypatch: pytest.MonkeyPatch, *patches
     _select_mode(mode, monkeypatch)
     return HarnessClient(
         HarnessConfig(
-            dsh_home=str(tmp_path / "home"),
+            qilin_home=str(tmp_path / "home"),
             patches=tuple(str(patch) for patch in patches),
             cwd=str(tmp_path),
             env={
                 # The lazily mounted adapter requires a key even without a model call.
                 "DEEPSEEK_API_KEY": "sk-dummy-for-boot",
                 "DEEPSEEK_BASE_URL": "http://127.0.0.1:9",
-                "DSH_PERMISSION_MODE": "danger-full-access",
-                "DSH_TELEMETRY_DISABLED": "1",
+                "QILIN_PERMISSION_MODE": "danger-full-access",
+                "QILIN_TELEMETRY_DISABLED": "1",
             },
             request_timeout_seconds=120,
         )
@@ -55,7 +55,7 @@ def test_bundled_runtime_boots_the_sdk_profile(
     assert init.serverInfo is not None
     assert init.serverInfo.name == "deepseek-harness-sdk-runtime"
     profile = json.loads((tmp_path / "home" / "profiles" / "sdk" / "package.json").read_text())
-    assert profile["dsh"]["profile"]["bundles"] == [
+    assert profile["qilin"]["profile"]["bundles"] == [
         "@qilin/base",
         "@qilin/sdk-app",
     ]
@@ -74,9 +74,9 @@ def test_python_sdk_applies_an_ordered_profile_patch(
     harness = DeepSeekHarness(
         model="deepseek-v4-pro",
         cwd=str(tmp_path),
-        dsh_home=str(tmp_path / "home"),
+        qilin_home=str(tmp_path / "home"),
         patches=(str(patch),),
-        env={"DSH_PERMISSION_MODE": "danger-full-access"},
+        env={"QILIN_PERMISSION_MODE": "danger-full-access"},
         api_key="sk-dummy-for-boot",
         base_url="http://127.0.0.1:9",
         request_timeout_seconds=120,

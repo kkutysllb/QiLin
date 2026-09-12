@@ -9,7 +9,7 @@ import type { DesktopRelease } from '../src/release.ts'
 const roots: string[] = []
 
 function temporaryRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-desktop-development-test-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-desktop-development-test-'))
   roots.push(root)
   return root
 }
@@ -29,7 +29,7 @@ afterEach(() => {
 })
 
 describe('desktop development project', () => {
-  it('projects the built dsh and Desktop Host applications with their dependency graph', () => {
+  it('projects the built qilin and Desktop Host applications with their dependency graph', () => {
     const root = temporaryRoot()
     const cli = join(root, 'apps', 'cli')
     const host = join(root, 'apps', 'desktop-host')
