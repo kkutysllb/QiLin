@@ -118,13 +118,15 @@ export class McpServers extends TypertRemoteService {
   }
 
   /**
-   * Remove one server's entry from the layer.
+   * Remove one server's entry from the layer. The wire verb is `delete`
+   * because every Remote namespace service answers `remove` itself, and an
+   * installed method may not shadow the namespace service's own member.
    * @param serverName - the namespace to remove; an unknown name is not an error.
    * @param signal - caller cancellation.
    * @returns the fresh snapshot after the write.
    */
   @Remote
-  async remove(serverName: string, signal: AbortSignal): Promise<McpServersSnapshot> {
+  async delete(serverName: string, signal: AbortSignal): Promise<McpServersSnapshot> {
     signal.throwIfAborted()
     await this.mutate(() => this.file.remove(serverName))
     return await this.list(signal)

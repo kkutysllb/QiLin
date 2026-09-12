@@ -73,7 +73,7 @@ export class McpServersStore {
    * @returns whether the removal landed.
    */
   async remove(serverName: string): Promise<boolean> {
-    return await this.call(serverName, signal => this.ctx.remote.mcpServers.remove(serverName, signal))
+    return await this.call(serverName, signal => this.ctx.remote.mcpServers.delete(serverName, signal))
   }
 
   /**

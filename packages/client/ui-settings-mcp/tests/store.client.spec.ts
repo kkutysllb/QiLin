@@ -15,7 +15,7 @@ function snapshot(overrides: Partial<McpServersSnapshot> = {}): McpServersSnapsh
 function bench(answers: {
   list?: () => Promise<Answer>
   save?: (draft: unknown, signal?: AbortSignal) => Promise<Answer>
-  remove?: (serverName: string, signal?: AbortSignal) => Promise<Answer>
+  delete?: (serverName: string, signal?: AbortSignal) => Promise<Answer>
   setEnabled?: (serverName: string, enabled: boolean, signal?: AbortSignal) => Promise<Answer>
   addBuiltin?: (id: string, signal?: AbortSignal) => Promise<Answer>
 }) {
@@ -23,7 +23,7 @@ function bench(answers: {
   const mcpServers = {
     list: vi.fn(answers.list ?? fallback),
     save: vi.fn(answers.save ?? fallback),
-    remove: vi.fn(answers.remove ?? fallback),
+    delete: vi.fn(answers.delete ?? fallback),
     setEnabled: vi.fn(answers.setEnabled ?? fallback),
     addBuiltin: vi.fn(answers.addBuiltin ?? fallback),
   }
@@ -126,7 +126,7 @@ describe('McpServersStore', () => {
     await store.remove('fetch')
     await store.setEnabled('fetch', false)
     await store.addBuiltin('context7')
-    expect(mcpServers.remove).toHaveBeenCalledWith('fetch', expect.anything())
+    expect(mcpServers.delete).toHaveBeenCalledWith('fetch', expect.anything())
     expect(mcpServers.setEnabled).toHaveBeenCalledWith('fetch', false, expect.anything())
     expect(mcpServers.addBuiltin).toHaveBeenCalledWith('context7', expect.anything())
   })
@@ -134,7 +134,7 @@ describe('McpServersStore', () => {
   it('marks the namespace a write is in flight for', async () => {
     let release: ((answer: Answer) => void) | undefined
     const pending = new Promise<Answer>((resolve) => { release = resolve })
-    const { store } = bench({ remove: async () => await pending })
+    const { store } = bench({ delete: async () => await pending })
     const removal = store.remove('fetch')
     expect(store.store.getSnapshot().busy).toBe('fetch')
     release?.({ ok: true, value: snapshot() })

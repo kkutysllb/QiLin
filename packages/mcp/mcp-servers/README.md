@@ -25,7 +25,7 @@ The settings page reads and writes the `mcp-client` entries of the home-level us
 <a id="use-this-package"></a>
 ## Use this package
 
-Call `mcpServers/list` to render the server list, and the four mutations — `save`, `remove`, `setEnabled`, `addBuiltin` — to change it. Each mutation returns a fresh snapshot, so a client never needs a second read to see what its own write produced.
+Call `mcpServers/list` to render the server list, and the four mutations — `save`, `delete`, `setEnabled`, `addBuiltin` — to change it. Each mutation returns a fresh snapshot, so a client never needs a second read to see what its own write produced.
 
 ### What a snapshot contains
 

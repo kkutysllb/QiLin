@@ -50,7 +50,7 @@ describe('McpServers', () => {
     expect(remoteMethods(service)).toEqual([
       { method: 'list', invocation: { kind: 'direct' } },
       { method: 'save', invocation: { kind: 'direct' } },
-      { method: 'remove', invocation: { kind: 'direct' } },
+      { method: 'delete', invocation: { kind: 'direct' } },
       { method: 'setEnabled', invocation: { kind: 'direct' } },
       { method: 'addBuiltin', invocation: { kind: 'direct' } },
     ])
@@ -144,7 +144,7 @@ describe('McpServers', () => {
   it('removes a saved server', async () => {
     const service = await harness()
     await service.save({ serverName: 'added', transport: 'stdio', command: 'npx' }, signal)
-    expect((await service.remove('added', signal)).servers).toEqual([])
+    expect((await service.delete('added', signal)).servers).toEqual([])
   })
 
   it('adds a recommended server in place', async () => {
@@ -205,7 +205,7 @@ describe('McpServers', () => {
     expect(snapshot.servers).toEqual([])
     await expect(service.save({ serverName: 'added', transport: 'stdio', command: 'npx' }, signal))
       .rejects.toThrow(/is not a Loader patch list/u)
-    await expect(service.remove('added', signal)).rejects.toThrow(/is not a Loader patch list/u)
+    await expect(service.delete('added', signal)).rejects.toThrow(/is not a Loader patch list/u)
     await expect(service.setEnabled('added', false, signal)).rejects.toThrow(/is not a Loader patch list/u)
     await expect(service.addBuiltin('fetch', signal)).rejects.toThrow(/is not a Loader patch list/u)
   })
@@ -240,7 +240,7 @@ describe('McpServers', () => {
     await expect(service.list(cancelled.signal)).rejects.toThrow()
     await expect(service.save({ serverName: 'added', transport: 'stdio', command: 'npx' }, cancelled.signal))
       .rejects.toThrow()
-    await expect(service.remove('added', cancelled.signal)).rejects.toThrow()
+    await expect(service.delete('added', cancelled.signal)).rejects.toThrow()
     await expect(service.setEnabled('added', false, cancelled.signal)).rejects.toThrow()
     await expect(service.addBuiltin('fetch', cancelled.signal)).rejects.toThrow()
   })

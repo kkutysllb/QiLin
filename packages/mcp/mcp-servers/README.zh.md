@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-调用 `mcpServers/list` 渲染服务器列表，用四个变更方法——`save`、`remove`、`setEnabled`、`addBuiltin`——改动它。每个变更方法都返回一份新快照，因此客户端无需再读一次就能看到自己写入的结果。
+调用 `mcpServers/list` 渲染服务器列表，用四个变更方法——`save`、`delete`、`setEnabled`、`addBuiltin`——改动它。每个变更方法都返回一份新快照，因此客户端无需再读一次就能看到自己写入的结果。
 
 ### 快照包含什么
 
