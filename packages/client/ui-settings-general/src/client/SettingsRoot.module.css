@@ -63,8 +63,6 @@
   inset: 0;
   z-index: 1000;
   display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .mask {
@@ -84,13 +82,10 @@
   position: relative;
   z-index: 1;
   display: flex;
-  width: 800px;
-  height: min(800px, calc(100vh - 48px));
-  max-width: calc(100vw - 48px);
-  border-radius: 32px;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background: var(--dsw-alias-bg-layer-2);
-  box-shadow: var(--dsw-elevation-prominent);
+  background: var(--dsw-alias-bg-layer-1);
   /* Elevated surface: the scrollbar thumb takes the l2 elevation tokens.
      Declared on the panel rather than the scrolling `.options` child so the
      elevation choice sits with the surface; the custom properties inherit
@@ -110,6 +105,8 @@
   width: 188px;
   padding: 22px 12px 0;
   box-sizing: border-box;
+  background: var(--dsw-specific-sidebar-fill);
+  border-right: 1px solid var(--dsw-alias-border-l1);
 }
 
 /* Title row (figma 501:29959): 16/500 lh24, 12px side padding. */
@@ -223,6 +220,13 @@
   min-height: 0;
   padding: 0 24px 24px;
   overflow-y: auto;
+}
+
+/* Single-page form column: cap the measure so wide windows do not stretch
+   setting rows into sparse bands. */
+.options > * {
+  max-width: 960px;
+  margin-inline: auto;
 }
 
 /* Visually-hidden text seat (close button accessible name from slot content). */
