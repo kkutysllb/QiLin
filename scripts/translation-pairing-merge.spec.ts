@@ -111,7 +111,7 @@ function startMergeWithFakeNode(
 }
 
 function createFixture(attributes = true): Fixture {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-merge-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-translation-pairing-merge-'))
   fixtures.push(root)
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -125,7 +125,7 @@ function createFixture(attributes = true): Fixture {
   }
   const fixture = { env, root }
   execFileSync('git', ['init', '--quiet', '--initial-branch=master', root], { env })
-  if (attributes) write(root, '.gitattributes', '*.i18n.yaml merge=dsh-translation-pairing\n')
+  if (attributes) write(root, '.gitattributes', '*.i18n.yaml merge=qilin-translation-pairing\n')
   return fixture
 }
 

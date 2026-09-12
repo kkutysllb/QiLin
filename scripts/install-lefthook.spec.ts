@@ -175,11 +175,11 @@ function commonDirectory(fixture: Fixture): string {
 }
 
 function hooksPath(fixture: Fixture, root: string): string {
-  return join(gitDirectory(fixture, root), 'dsh-hooks')
+  return join(gitDirectory(fixture, root), 'qilin-hooks')
 }
 
 function installLockPath(fixture: Fixture): string {
-  return join(commonDirectory(fixture), 'dsh-lefthook-install.lock')
+  return join(commonDirectory(fixture), 'qilin-lefthook-install.lock')
 }
 
 async function waitForPath(path: string): Promise<void> {
@@ -341,7 +341,7 @@ describe('worktree-local Lefthook installer', { timeout: 90_000 }, () => {
     ])
     for (const result of repeated) expect(result.status, result.stderr).toBe(0)
     expect(readFileSync(mainHookPath, 'utf8')).toBe(initialHook)
-    expect(existsSync(join(commonDirectory(fixture), 'dsh-lefthook-install.lock'))).toBe(false)
+    expect(existsSync(join(commonDirectory(fixture), 'qilin-lefthook-install.lock'))).toBe(false)
     expect(existsSync(join(hooksPath(fixture, fixture.main), '.fake-lefthook-running'))).toBe(false)
   })
 

@@ -73,7 +73,7 @@ const supportsSha256ObjectFormat = gitSupportsObjectFormat('sha256')
 
 describe('translation pairing snapshots', () => {
   it('stores exact uncommitted bytes for later recovery by object ID', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-pairing-'))
     try {
       execFileSync('git', ['init', '--quiet', root], {
         env: { ...process.env, GIT_DEFAULT_HASH: 'sha1' },
@@ -94,7 +94,7 @@ describe('translation pairing snapshots', () => {
   })
 
   it('fails before a sidecar can reference an unavailable object', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-pairing-'))
     try {
       expect(() => storeGitBlob(root, Buffer.from('snapshot'))).toThrow('git hash-object -w --stdin failed')
     } finally {
@@ -113,7 +113,7 @@ describe('translation pairing snapshots', () => {
   })
 
   it('reads staged bytes independently of the working tree', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-index-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-pairing-index-'))
     try {
       execFileSync('git', ['init', '--quiet', root], {
         env: { ...process.env, GIT_DEFAULT_HASH: 'sha1' },
@@ -135,7 +135,7 @@ describe('translation pairing snapshots', () => {
   })
 
   it('lists exact index files without treating a directory prefix as one entry', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-index-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-pairing-index-'))
     try {
       execFileSync('git', ['init', '--quiet', root], {
         env: { ...process.env, GIT_DEFAULT_HASH: 'sha1' },
@@ -155,7 +155,7 @@ describe('translation pairing snapshots', () => {
   })
 
   it.skipIf(!supportsSha256ObjectFormat)('rejects an object format that pairing records cannot represent', () => {
-    const root = mkdtempSync(join(tmpdir(), 'dsh-translation-pairing-'))
+    const root = mkdtempSync(join(tmpdir(), 'qilin-translation-pairing-'))
     try {
       execFileSync('git', ['init', '--quiet', '--object-format=sha256', root])
       expect(() => storeGitBlob(root, Buffer.from('snapshot'))).toThrow('returned unexpected object ID')
