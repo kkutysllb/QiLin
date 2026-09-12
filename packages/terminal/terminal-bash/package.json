@@ -1,6 +1,6 @@
 {
   "name": "@qilin/terminal-bash",
-  "description": "Persistent shell PTY backend over the DeepSeek Harness subprocess terminal primitive",
+  "description": "Persistent shell PTY backend over the QiLin subprocess terminal primitive",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

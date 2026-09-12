@@ -1,5 +1,5 @@
 /**
- * Shared filesystem path helpers for DeepSeek Harness user data.
+ * Shared filesystem path helpers for QiLin user data.
  *
  * @module @qilin/home-paths
  */
@@ -74,7 +74,7 @@ export function expandHomePath(path: string): string {
 }
 
 /**
- * Resolve the single-root DeepSeek Harness home.
+ * Resolve the single-root QiLin home.
  *
  * Precedence, highest first: an explicit configured path, `$QILIN_HOME`, then
  * `~/.qilin`. The harness keeps all user data under one root. An empty or
@@ -91,7 +91,7 @@ export function resolveQilinHome(configured?: string, env: Record<string, string
 }
 
 /**
- * Join path segments onto the resolved DeepSeek Harness home.
+ * Join path segments onto the resolved QiLin home.
  * @param segments - path segments appended to the Harness home; an empty list returns the home itself.
  * @returns the normalized absolute joined path.
  */

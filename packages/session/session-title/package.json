@@ -1,6 +1,6 @@
 {
   "name": "@qilin/session-title",
-  "description": "Log-backed session title service and provider registry for the DeepSeek Harness",
+  "description": "Log-backed session title service and provider registry for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

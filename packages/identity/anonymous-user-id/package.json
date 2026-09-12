@@ -1,6 +1,6 @@
 {
   "name": "@qilin/anonymous-user-id",
-  "description": "Shared anonymous user identity for DeepSeek Harness telemetry and feedback correlation",
+  "description": "Shared anonymous user identity for QiLin telemetry and feedback correlation",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

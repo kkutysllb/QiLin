@@ -1,6 +1,6 @@
 {
   "name": "@qilin/bash-local",
-  "description": "Local-subprocess implementation of the DeepSeek Harness bash executor seam",
+  "description": "Local-subprocess implementation of the QiLin bash executor seam",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

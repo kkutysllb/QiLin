@@ -22,7 +22,7 @@ it('samples one local environment at startup without validating watcher outputs'
     writeClientBuildRecord(root, {
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: 'fffffff',
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.2',
     })
     await writeFile(join(root, 'packages/client/example/lib/client.js'), 'module.exports = { changed: true }\n')

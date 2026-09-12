@@ -1,6 +1,6 @@
 {
   "name": "@qilin/llm-deepseek",
-  "description": "DeepSeek chat-completions adapter for the DeepSeek Harness LLM seam",
+  "description": "DeepSeek chat-completions adapter for the QiLin LLM seam",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

@@ -1,4 +1,4 @@
-# DeepSeek Harness 桌面端
+# QiLin 桌面端
 
 [English](README.md) | 中文
 

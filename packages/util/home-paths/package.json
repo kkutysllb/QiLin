@@ -1,6 +1,6 @@
 {
   "name": "@qilin/home-paths",
-  "description": "Shared filesystem path helpers for the DeepSeek Harness",
+  "description": "Shared filesystem path helpers for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

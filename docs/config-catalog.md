@@ -2160,7 +2160,7 @@ Source: [`packages/settings/settings-file/src/index.ts:22`](../packages/settings
 ```ts config-catalog
 /** Plugin config (all optional — the built-in facts resolve without defaults). */
 export interface Config {
-  /** DeepSeek Harness home directory exposed as `QILIN_HOME`; defaults to `$QILIN_HOME` or `~/.qilin`. */
+  /** QiLin home directory exposed as `QILIN_HOME`; defaults to `$QILIN_HOME` or `~/.qilin`. */
   qilinHome?: string
 }
 ```
@@ -2194,7 +2194,7 @@ export interface Config {
   providerName?: string
   /** Whether project and user roots are included around custom roots. */
   includeDefaultRoots?: boolean
-  /** DeepSeek Harness config root. Defaults to `$QILIN_HOME` or `~/.qilin`. */
+  /** QiLin config root. Defaults to `$QILIN_HOME` or `~/.qilin`. */
   qilinHome?: string
   /** Shared agent config root. Defaults to `$QILIN_AGENTS_HOME` or `~/.agents`. */
   agentsHome?: string
@@ -2584,7 +2584,7 @@ Source: [`packages/e2b/subprocess-e2b/src/index.ts:26`](../packages/e2b/subproce
 ```ts config-catalog
 /** Plugin config: the deployment-authored fragment of the system prompt (see {@link Config.personaPrefix} for its contract). */
 export interface Config {
-  /** Include the fixed DeepSeek Harness identity before the deployment persona (default true). */
+  /** Include the fixed QiLin identity before the deployment persona (default true). */
   includeHarnessIdentity?: boolean
   /** Include dynamic runtime-context snapshots in model history (default true). */
   includeRuntimeContext?: boolean

@@ -1,6 +1,6 @@
 {
   "name": "@qilin/subprocess-e2b",
-  "description": "E2B subprocess implementation for DeepSeek Harness",
+  "description": "E2B subprocess implementation for QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

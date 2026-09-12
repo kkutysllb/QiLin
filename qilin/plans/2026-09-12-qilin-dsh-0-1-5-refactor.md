@@ -36,7 +36,7 @@
 ### 文案
 - brand.localBuild 改为 QiLin，使侧边栏显示 QiLin 加构建版本徽章。
 - hero.headline 由探索未至之境 / Into the Unknown 改为 QiLin。
-- 首启声明改为 QiLin 版本：标题与正文不再引用 DeepSeek Harness 与 DSH 生态。
+- 首启声明改为 QiLin 版本：标题与正文不再引用 QiLin 与 DSH 生态。
 - pnpm run test:snapshot：132 项中 127 项通过、3 项失败、2 项跳过，引擎与会话路径在 QiLin 树上端到端可用。
 - 交付物浏览器验收：apps/web/tests/produced-files.e2e.ts 通过，produced files 行在真实浏览器中渲染正确。
 - 交付物另一用例 apps/web/tests/present.e2e.ts 在本机 2 项失败；已在原始基线提交的独立 worktree 上复跑，失败完全一致（1 文件 / 2 项），因此归因于环境（PTC code-runtime 交付路径）而非本次重构。

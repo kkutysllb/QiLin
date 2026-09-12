@@ -1,6 +1,6 @@
 {
   "name": "@qilin/llm-pi-ai",
-  "description": "pi-ai-backed DeepSeek adapter for the DeepSeek Harness LLM seam (design-verification twin of qilin-llm-deepseek)",
+  "description": "pi-ai-backed DeepSeek adapter for the QiLin LLM seam (design-verification twin of qilin-llm-deepseek)",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

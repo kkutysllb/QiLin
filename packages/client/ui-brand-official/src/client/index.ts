@@ -1,4 +1,4 @@
-/** Official DeepSeek Harness occupants for the generic browser-brand slots. */
+/** Official QiLin occupants for the generic browser-brand slots. */
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-sidebar/client'

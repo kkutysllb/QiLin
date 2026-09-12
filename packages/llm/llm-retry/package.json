@@ -1,6 +1,6 @@
 {
   "name": "@qilin/llm-retry",
-  "description": "Provider-routed LLM request retry policy for the DeepSeek Harness",
+  "description": "Provider-routed LLM request retry policy for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

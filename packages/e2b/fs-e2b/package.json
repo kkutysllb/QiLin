@@ -1,6 +1,6 @@
 {
   "name": "@qilin/fs-e2b",
-  "description": "E2B filesystem implementation for DeepSeek Harness",
+  "description": "E2B filesystem implementation for QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

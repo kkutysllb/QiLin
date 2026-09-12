@@ -1,6 +1,6 @@
 {
   "name": "@qilin/e2b",
-  "description": "Shared E2B sandbox lifecycle for DeepSeek Harness provider adapters",
+  "description": "Shared E2B sandbox lifecycle for QiLin provider adapters",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

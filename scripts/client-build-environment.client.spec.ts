@@ -83,7 +83,7 @@ describe('client build environment', () => {
     const expected = {
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.3',
     } as const
 
@@ -113,7 +113,7 @@ describe('client build environment', () => {
     expect(resolveClientBuildEnvironment(parent)).toEqual({
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.3',
     })
     expect(() => {
@@ -129,13 +129,13 @@ describe('client build environment', () => {
     expect(clientBuildProcessEnvironment(parent, {
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.3',
     })).toEqual({
       PATH: '/bin',
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.3',
     })
     expect(repositoryCommitHash('/unused', { QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH })).toBe(COMMIT_HASH.slice(0, 7))
@@ -160,7 +160,7 @@ describe('client build environment', () => {
     expect(officialClientBuildEnvironment(fixtureRoot)).toEqual({
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: commit,
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.3-rc.4',
     })
 
@@ -264,7 +264,7 @@ describe('client build environment', () => {
     const officialEnvironment = {
       QILIN_CLIENT_BUILD_PROFILE: 'official',
       QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
-      QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+      QILIN_CLIENT_TITLE: 'QiLin',
       QILIN_CLIENT_VERSION: '1.2.3',
     }
     const official = buildFixture(officialEnvironment)

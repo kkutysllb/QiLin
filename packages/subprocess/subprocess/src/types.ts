@@ -9,13 +9,13 @@
 
 import type { Readable, Writable } from 'node:stream'
 
-/** Namespace prefix reserved for DeepSeek Harness-managed child environment facts. */
+/** Namespace prefix reserved for QiLin-managed child environment facts. */
 export const QILIN_ENV_PREFIX = 'QILIN_' as const
 
 /** One environment key inside the managed {@link QILIN_ENV_PREFIX} namespace. */
 export type QilinEnvironmentKey = `${typeof QILIN_ENV_PREFIX}${string}`
 
-/** Trusted DeepSeek Harness variables for one child-process execution. */
+/** Trusted QiLin variables for one child-process execution. */
 export type QilinEnvironment = Readonly<Record<QilinEnvironmentKey, string>>
 
 /** One captured stream: the (possibly truncated) text plus recovery info. */

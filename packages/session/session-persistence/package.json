@@ -1,6 +1,6 @@
 {
   "name": "@qilin/session-persistence",
-  "description": "Abstract durable session persistence seam (ctx.sessionPersistence) for the DeepSeek Harness",
+  "description": "Abstract durable session persistence seam (ctx.sessionPersistence) for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

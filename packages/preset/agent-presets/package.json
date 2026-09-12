@@ -1,6 +1,6 @@
 {
   "name": "@qilin/agent-presets",
-  "description": "Per-session agent composition from preset cordis.yml files for the DeepSeek Harness",
+  "description": "Per-session agent composition from preset cordis.yml files for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

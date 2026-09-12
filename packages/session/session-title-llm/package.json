@@ -1,6 +1,6 @@
 {
   "name": "@qilin/session-title-llm",
-  "description": "Shared LLM generation policy for DeepSeek Harness session-title providers",
+  "description": "Shared LLM generation policy for QiLin session-title providers",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

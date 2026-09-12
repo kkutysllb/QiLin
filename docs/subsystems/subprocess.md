@@ -20,7 +20,7 @@ type QilinEnvironmentKey = `${typeof QILIN_ENV_PREFIX}${string}`
 ```
 
 ```ts type-equiv
-/** Trusted DeepSeek Harness variables for one child-process execution. */
+/** Trusted QiLin variables for one child-process execution. */
 type QilinEnvironment = Readonly<Record<QilinEnvironmentKey, string>>
 ```
 

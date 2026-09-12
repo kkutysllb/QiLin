@@ -1,5 +1,5 @@
 ---
-description: "Automation-only Agent Client Protocol server for programmatic clients and maintainers driving DeepSeek Harness agents over JSON-RPC stdio."
+description: "Automation-only Agent Client Protocol server for programmatic clients and maintainers driving QiLin agents over JSON-RPC stdio."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-acp` lets trusted programs automate persistent DeepSeek Harness agents through the standard [Agent Client Protocol](https://agentclientprotocol.com): create or resume sessions, select a model and reasoning effort, attach MCP servers, submit or cancel work, receive semantic updates, and close sessions independently. Choose it for out-of-process subagents, test runners, and scripted controllers; it intentionally omits QILIN-specific presentation data and interactive UI features. Persistence supports listing, resuming, and closing sessions across process restarts, but deletion, forks, transcript replay, and additional directories are unsupported. Run `pnpm qilin --profile acp` to start the server; use `qilin-subagent-acp` as the repository client.
+`qilin-acp` lets trusted programs automate persistent QiLin agents through the standard [Agent Client Protocol](https://agentclientprotocol.com): create or resume sessions, select a model and reasoning effort, attach MCP servers, submit or cancel work, receive semantic updates, and close sessions independently. Choose it for out-of-process subagents, test runners, and scripted controllers; it intentionally omits QILIN-specific presentation data and interactive UI features. Persistence supports listing, resuming, and closing sessions across process restarts, but deletion, forks, transcript replay, and additional directories are unsupported. Run `pnpm qilin --profile acp` to start the server; use `qilin-subagent-acp` as the repository client.
 
 ## Table of Contents
 

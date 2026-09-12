@@ -1,6 +1,6 @@
 {
   "name": "@qilin/webhook",
-  "description": "Fire-and-forget webhook rule runtime that creates Workspace-backed DeepSeek Harness Sessions",
+  "description": "Fire-and-forget webhook rule runtime that creates Workspace-backed QiLin Sessions",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

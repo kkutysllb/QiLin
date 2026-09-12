@@ -1,6 +1,6 @@
 {
   "name": "@qilin/storage-sqlite",
-  "description": "SQLite storage backend (kv facet) for the DeepSeek Harness storage hub",
+  "description": "SQLite storage backend (kv facet) for the QiLin storage hub",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

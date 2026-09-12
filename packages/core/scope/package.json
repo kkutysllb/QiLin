@@ -1,6 +1,6 @@
 {
   "name": "@qilin/scope",
-  "description": "Scoped-context registration primitive (scope tags, scope-filtered event dispatch) for the DeepSeek Harness",
+  "description": "Scoped-context registration primitive (scope tags, scope-filtered event dispatch) for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

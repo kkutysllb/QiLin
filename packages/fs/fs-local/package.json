@@ -1,6 +1,6 @@
 {
   "name": "@qilin/fs-local",
-  "description": "Local-filesystem implementation of the DeepSeek Harness filesystem seam (ctx.fs)",
+  "description": "Local-filesystem implementation of the QiLin filesystem seam (ctx.fs)",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@qilin/compaction",
-  "description": "Abstract compaction service seam (ctx.compaction) for the DeepSeek Harness",
+  "description": "Abstract compaction service seam (ctx.compaction) for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

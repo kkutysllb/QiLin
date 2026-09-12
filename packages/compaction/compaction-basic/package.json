@@ -1,6 +1,6 @@
 {
   "name": "@qilin/compaction-basic",
-  "description": "Token-meter-driven compaction policy and LLM summarization backend for the DeepSeek Harness",
+  "description": "Token-meter-driven compaction policy and LLM summarization backend for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

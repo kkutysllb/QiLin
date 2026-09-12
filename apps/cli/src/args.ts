@@ -132,7 +132,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   program
     .name('qilin')
     .version(version, '-V, --version', 'output the version number')
-    .description('qilin: boot a DeepSeek Harness profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
+    .description('qilin: boot a QiLin profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
     // The launcher's flags come first and end at the first token it does not

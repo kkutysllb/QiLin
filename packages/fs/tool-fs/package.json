@@ -1,6 +1,6 @@
 {
   "name": "@qilin/tool-fs",
-  "description": "Model-facing filesystem tools (read, write, edit) over the DeepSeek Harness filesystem seam (ctx.fs)",
+  "description": "Model-facing filesystem tools (read, write, edit) over the QiLin filesystem seam (ctx.fs)",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

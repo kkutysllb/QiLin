@@ -1,6 +1,6 @@
 {
   "name": "@qilin/agent-loop",
-  "description": "The concrete agent loop plugin for the DeepSeek Harness",
+  "description": "The concrete agent loop plugin for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

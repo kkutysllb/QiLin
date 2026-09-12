@@ -145,7 +145,7 @@ export class InspectorEndpoint {
     }
     const session = new CdpSession(
       transport,
-      { targetId: this.config.targetId, title: 'DeepSeek Harness Host' },
+      { targetId: this.config.targetId, title: 'QiLin Host' },
       this.sources,
       this.network,
       this.realms,
@@ -224,7 +224,7 @@ export class InspectorEndpoint {
     return {
       id: this.config.targetId,
       type: 'page',
-      title: 'DeepSeek Harness Host',
+      title: 'QiLin Host',
       description: 'Experimental cross-realm Inspector target',
       url: 'qilin://host',
       webSocketDebuggerUrl: this.cdpUrl(),

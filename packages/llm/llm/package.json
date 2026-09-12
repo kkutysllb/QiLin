@@ -1,6 +1,6 @@
 {
   "name": "@qilin/llm",
-  "description": "Provider-neutral LLM service interface for the DeepSeek Harness",
+  "description": "Provider-neutral LLM service interface for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@qilin/storage-json",
-  "description": "JSON file KV storage backend for the DeepSeek Harness storage hub",
+  "description": "JSON file KV storage backend for the QiLin storage hub",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"

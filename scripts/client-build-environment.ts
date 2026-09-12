@@ -19,7 +19,7 @@ export const CLIENT_BUILD_PROFILE_SELECTOR = 'QILIN_BUILD_CLIENT_PROFILE'
 /** Public client environment required by official QILIN artifacts. */
 const OFFICIAL_CLIENT_BUILD_ENVIRONMENT = {
   QILIN_CLIENT_BUILD_PROFILE: 'official',
-  QILIN_CLIENT_TITLE: 'DeepSeek Harness',
+  QILIN_CLIENT_TITLE: 'QiLin',
 } as const
 
 /** Public client environment required by QiLin product artifacts. */

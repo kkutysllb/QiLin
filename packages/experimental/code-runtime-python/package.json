@@ -1,6 +1,6 @@
 {
   "name": "@qilin/experimental-code-runtime-python",
-  "description": "CPython subprocess implementation of the DeepSeek Harness code-execution seam",
+  "description": "CPython subprocess implementation of the QiLin code-execution seam",
   "version": "0.1.5-rc.2",
   "repository": {
     "type": "git",

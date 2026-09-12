@@ -1,6 +1,6 @@
 {
   "name": "@qilin/session-stats",
-  "description": "Whole-log conversation counts and wall times projection (sessionStats) for the DeepSeek Harness",
+  "description": "Whole-log conversation counts and wall times projection (sessionStats) for the QiLin",
   "version": "0.1.5-rc.2",
   "publishConfig": {
     "access": "public"
