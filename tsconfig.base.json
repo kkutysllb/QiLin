@@ -226,6 +226,7 @@
       "@qilin/client-ui-settings-models": ["./packages/client/ui-settings-models/src"],
       "@qilin/client-ui-settings-plugin-inventory": ["./packages/client/ui-settings-plugin-inventory/src"],
       "@qilin/client-ui-settings-mcp": ["./packages/client/ui-settings-mcp/src"],
+      "@qilin/client-ui-settings-skills": ["./packages/client/ui-settings-skills/src"],
       "@qilin/client-locale": ["./packages/client/locale/src"],
       "@qilin/client-web": ["./packages/client/web/src"],
       "@qilin/schedule/client": ["./packages/schedule/schedule/src/client.ts"],

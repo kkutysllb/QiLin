@@ -235,9 +235,6 @@ importers:
       '@qilin/pwsh-sandbox':
         specifier: workspace:^
         version: link:../../packages/shell/pwsh-sandbox
-      '@qilin/web-brand':
-        specifier: workspace:^
-        version: link:../../packages/bundle/web-brand
       '@qilin/schedule':
         specifier: workspace:^
         version: link:../../packages/schedule/schedule
@@ -334,6 +331,9 @@ importers:
       '@qilin/web-app':
         specifier: workspace:^
         version: link:../../packages/bundle/web-app
+      '@qilin/web-brand':
+        specifier: workspace:^
+        version: link:../../packages/bundle/web-brand
       '@qilin/webhook':
         specifier: workspace:^
         version: link:../../packages/webhook/webhook
@@ -1641,28 +1641,6 @@ importers:
         specifier: workspace:^
         version: link:../../core/session
 
-  packages/bundle/web-brand:
-    dependencies:
-      '@qilin/client-ui-brand':
-        specifier: workspace:^
-        version: link:../../client/ui-brand
-      '@qilin/client-ui-theme-brand':
-        specifier: workspace:^
-        version: link:../../client/ui-theme-brand
-    devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
-      js-yaml:
-        specifier: ^4.1.0
-        version: 4.3.1
-
   packages/bundle/sdk-app:
     dependencies:
       '@deepseek-ai/schemastery':
@@ -1907,6 +1885,9 @@ importers:
       '@qilin/client-ui-settings-plugins':
         specifier: workspace:^
         version: link:../../client/ui-settings-plugins
+      '@qilin/client-ui-settings-skills':
+        specifier: workspace:^
+        version: link:../../client/ui-settings-skills
       '@qilin/client-ui-sidebar':
         specifier: workspace:^
         version: link:../../client/ui-sidebar
@@ -2034,6 +2015,28 @@ importers:
       '@qilin/system-prompt':
         specifier: workspace:^
         version: link:../../core/system-prompt
+
+  packages/bundle/web-brand:
+    dependencies:
+      '@qilin/client-ui-brand':
+        specifier: workspace:^
+        version: link:../../client/ui-brand
+      '@qilin/client-ui-theme-brand':
+        specifier: workspace:^
+        version: link:../../client/ui-theme-brand
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/cordis-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@deepseek-ai/cordis-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.3.1
 
   packages/client/connection:
     dependencies:
@@ -2387,11 +2390,17 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
-  packages/client/ui-brand-official:
+  packages/client/ui-brand:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@qilin/client-test-runtime':
+        specifier: workspace:^
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-conversation':
+        specifier: workspace:^
+        version: link:../ui-conversation
       '@qilin/client-ui-primitives':
         specifier: workspace:^
         version: link:../ui-primitives
@@ -2414,17 +2423,11 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
-  packages/client/ui-brand:
+  packages/client/ui-brand-official:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@qilin/client-test-runtime':
-        specifier: workspace:^
-        version: link:../../test-support/client-runtime
-      '@qilin/client-ui-conversation':
-        specifier: workspace:^
-        version: link:../ui-conversation
       '@qilin/client-ui-primitives':
         specifier: workspace:^
         version: link:../ui-primitives
@@ -3860,6 +3863,57 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+
+  packages/client/ui-settings-skills:
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/api-remotes':
+        specifier: workspace:^
+        version: link:../../api/remotes
+      '@qilin/client-locale':
+        specifier: workspace:^
+        version: link:../locale
+      '@qilin/client-store':
+        specifier: workspace:^
+        version: link:../store
+      '@qilin/client-test-runtime':
+        specifier: workspace:^
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-primitives':
+        specifier: workspace:^
+        version: link:../ui-primitives
+      '@qilin/client-ui-renderer':
+        specifier: workspace:^
+        version: link:../ui-renderer
+      '@qilin/client-ui-session':
+        specifier: workspace:^
+        version: link:../ui-session
+      '@qilin/client-ui-settings':
+        specifier: workspace:^
+        version: link:../ui-settings
+      '@qilin/client-ui-slots':
+        specifier: workspace:^
+        version: link:../ui-slots
+      '@qilin/session':
+        specifier: workspace:^
+        version: link:../../core/session
+      '@qilin/typert-protocol':
+        specifier: workspace:^
+        version: link:../../typert/protocol
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
 
   packages/client/ui-sidebar:
     devDependencies:

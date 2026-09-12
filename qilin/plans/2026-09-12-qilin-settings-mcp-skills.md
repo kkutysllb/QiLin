@@ -1,6 +1,6 @@
 # 设置页面单页化 + MCP / 技能分区（参考 KCoder）
 
-状态：待实施
+状态：已实施（2026-09-12；与计划的偏差见文末「实施记录」）
 参照实现：`/Users/libing/kk_Projects/KCoder`（QiLin 的 Electron 桌面分叉）
 
 ## 目标
@@ -90,3 +90,27 @@ GUI 条目约定 `id = mcp-<serverName>`；每个实例 = 补丁层一个 `- ins
 ### C. 校验
 
 `pnpm run typecheck` / `pnpm run lint` / `pnpm run test`（新包单测 + 客户端组件测试）/ `pnpm run test:gui` / `pnpm run test:docs` / `pnpm run verify-package-dependencies` / `pnpm run verify-client-packages`。
+
+
+-----
+
+## 实施记录（2026-09-12）
+
+**落地范围**
+
+1. 设置页单页化：`packages/client/ui-settings-general` 的 SettingsRoot 由居中模态改为铺满窗口的两分栏。
+2. MCP 服务器分区：`packages/mcp/mcp-servers`（host，list/save/delete/setEnabled/addBuiltin）+ `packages/client/ui-settings-mcp`。
+3. 技能分区：`packages/client/ui-settings-skills`，读 `skills/list`；host 侧 `SkillEntry` 增加 `source` 与 `provider` 两个字段。
+4. 首次启动的「内测声明」欢迎弹窗连同它的 `ui-onboarding` 设置命名空间一并删除——产品不是内测版本，首启只剩 API Key 引导。
+
+**与计划的偏差（均已确认或已记录）**
+
+| 计划 | 实际 | 原因 |
+|---|---|---|
+| 删除方法叫 `remove` | 改为 `delete` | Remote 命名空间服务自身拥有 `remove`（卸载已挂载方法），命名空间方法不得遮蔽它；客户端装配会在启动时拒绝整个条目。`delete` 也是 workspace-controller / message-feedback 已用的删除动词 |
+| 推荐 MCP 首启自动写入 | 用户点击「添加」才写入 | AGENTS.md「Keep opt-ins out of shipped defaults」；避免每次启动多拉子进程；无 `uvx`/`npx` 的机器不应在启动时报错 |
+| 技能分区展示正文预览 | 未实现（列出来源与提供方） | `ctx.skills.list()` 返回 `SkillSummary`，不含 path；预览需要按名字寻址且只服务最近一次枚举命中的读取，等有消费方再做 |
+| 「启用 optional 技能」= 拷进 `~/.qilin/skills` | 未实现 | QiLin 目前不分发未注册技能的来源池（`QILIN_BUNDLED_SKILL_DIR` 没有任何部署设置它），没有可拷贝的源 |
+| 技能目录按来源分组、不自己扫盘 | 按会话寻址读 `skills/list` | web profile 里宿主平面的 `skill-filesystem` 行是关闭的——本地发现归每个 Agent 预设所有，因此产品级「全局技能表」不存在；会话寻址是该架构下唯一真实的目录 |
+
+**校验**：`typecheck` / `lint` / `test:gui` / `test:docs` / `verify-package-*` / `verify-client-packages` / `constraints` / `test:e2e`（`packages/api/remotes/tests/built-lib.e2e.ts` 装配整条 Remote 装配链）全绿；MCP 分区与技能分区已在运行中的 GUI 里人工验收。

@@ -231,6 +231,10 @@ export interface SkillEntry {
   readonly whenToUse?: string
   /** Whether the same skill is also advertised to the model. */
   readonly modelInvocable: boolean
+  /** Discovery bucket that produced this winning skill; a deployment may add its own. */
+  readonly source: string
+  /** Provider that owns this skill body. */
+  readonly provider: string
 }
 
 /** Human-invocable skills visible through one Session's composition. */

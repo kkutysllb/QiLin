@@ -252,6 +252,10 @@
     - id: ui-settings-mcp
       name: '@qilin/client-ui-settings-mcp'
 
+    # The skills page: the current Session's catalog over the skills Remote.
+    - id: ui-settings-skills
+      name: '@qilin/client-ui-settings-skills'
+
     - id: ui-settings-plugin-inventory
       name: '@qilin/client-ui-settings-plugin-inventory'
 

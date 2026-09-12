@@ -81,6 +81,7 @@
     "@qilin/client-ui-settings-mcp": "workspace:^",
     "@qilin/client-ui-settings-models": "workspace:^",
     "@qilin/client-ui-settings-plugin-inventory": "workspace:^",
+    "@qilin/client-ui-settings-skills": "workspace:^",
     "@qilin/client-ui-settings-plugins": "workspace:^",
     "@qilin/client-ui-sidebar": "workspace:^",
     "@qilin/client-ui-sidebar-files": "workspace:^",
