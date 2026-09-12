@@ -1,7 +1,7 @@
 {
   "name": "@qilin/desktop",
   "description": "Electron desktop shell for an isolated pnpm-installed qilin runtime",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "private": true,
   "license": "MIT",
   "type": "module",

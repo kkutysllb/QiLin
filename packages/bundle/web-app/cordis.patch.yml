@@ -239,6 +239,11 @@
     - id: ui-sidebar
       name: '@qilin/client-ui-sidebar'
 
+    # The sidebar foot's account button: the theme and language switches, the
+    # Settings entry, and sign-out, over the account gate's status read.
+    - id: ui-account
+      name: '@qilin/client-ui-account'
+
     # The right Sidebar: one docking surface per session over ui-dockkit.
     - id: ui-sidebar-right
       name: '@qilin/client-ui-sidebar-right'

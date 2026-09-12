@@ -89,7 +89,7 @@ Host 通过 settings 服务为 loopback 页面持久化偏好。Client 会刻意
 
 | 文件 | 职责 |
 |---|---|
-| [`src/client/index.ts`](src/client/index.ts) | `LocaleRuntime`、词典注册表、Language 行注册、`locale/change` 事件 |
+| [`src/client/index.ts`](src/client/index.ts) | `LocaleRuntime`、词典注册表、文档语言同步、`locale/change` 事件 |
 | [`src/index.ts`](src/index.ts) | node 半侧：注册 `locale` 设置命名空间 |
 | [`src/locale-settings.ts`](src/locale-settings.ts) | `locale.preference` 的持久 schema |
 | [`src/locales/`](src/locales/) | 已发布的 `zh`／`en` 词典 |

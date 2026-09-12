@@ -89,7 +89,7 @@ The typed object form requires complete dictionaries for both built-in locales. 
 
 | File | Role |
 |---|---|
-| [`src/client/index.ts`](src/client/index.ts) | `LocaleRuntime`, dictionary registry, Language row registration, `locale/change` event |
+| [`src/client/index.ts`](src/client/index.ts) | `LocaleRuntime`, dictionary registry, document language synchronization, `locale/change` event |
 | [`src/index.ts`](src/index.ts) | Node half: registers the `locale` settings namespace |
 | [`src/locale-settings.ts`](src/locale-settings.ts) | The durable schema for `locale.preference` |
 | [`src/locales/`](src/locales/) | The shipped `zh`/`en` dictionaries |

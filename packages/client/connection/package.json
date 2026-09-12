@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-connection",
   "description": "Authenticated RPC transport, generation lifecycle, and browser fixture",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

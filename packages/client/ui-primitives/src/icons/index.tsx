@@ -936,3 +936,24 @@ export const IconArchiveOutline20 = ({ size = 20, className }: IconProps) => (
     <path d="M12.7962 12.5661V11.0832H7.20548V12.5661L12.7962 12.5661Z" fill="currentColor" />
   </svg>
 )
+
+/** Sign out: the door leaf left behind and an arrow leaving it. */
+export const IconLogoutOutline16 = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M9.6 2.6h2.4a1.3 1.3 0 0 1 1.3 1.3v8.2a1.3 1.3 0 0 1-1.3 1.3H9.6"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6.7 5.3 3.9 8l2.8 2.7"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path d="M3.9 8h5.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+)

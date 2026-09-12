@@ -1,7 +1,7 @@
 {
   "name": "@qilin/experimental-agent-team-profile",
   "description": "Experimental profile bundle enabling Agent Teams over qilin-base",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

@@ -21,7 +21,7 @@ import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
 import type {
-  SettingsOnboardingStep, SettingsRootInjected, SettingsSectionRow,
+  SettingsOnboardingStep, SettingsRootInjected, SettingsSectionRow, SettingsShell,
 } from './shell-contract.ts'
 import { SettingsRoot } from './SettingsRoot.tsx'
 import { CloseLabel, HeaderContent, TriggerContent } from './chrome.tsx'
@@ -31,6 +31,7 @@ import type { SettingsDocumentActionInjected } from './SettingsDocumentAction.ts
 import { SettingsDocumentStore } from './settings-document-store.ts'
 import { en, zh, type SettingsKey } from './locales.ts'
 
+export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
 export type {
   CloseLabelProps, HeaderContentProps, TriggerContentProps,
 } from './chrome.tsx'
@@ -93,8 +94,18 @@ export function apply(ctx: ClientContext): void {
   let rows: readonly SettingsSectionRow[] = []
   let onboardingVersion = -1
   let onboardingSteps: readonly SettingsOnboardingStep[] = []
+  // The open channel other surfaces call: the shell occupant registers its own
+  // reveal action here while it is mounted, and an unclaimed channel is a no-op.
+  let revealPanel: ((sectionId?: string) => void) | undefined
+  ctx.reflect.provide('settingsShell', {
+    open: (sectionId?: string) => { revealPanel?.(sectionId) },
+  } satisfies SettingsShell)
   const shellInjected = (): SettingsRootInjected => ({
     reconnect: () => { connection.reconnect() },
+    registerOpen: (handler) => {
+      revealPanel = handler
+      return () => { revealPanel = undefined }
+    },
     hooks: {
       connectionState: connection.state,
       sections: {

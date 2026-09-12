@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tool-todo",
   "description": "Model-facing todo_write tool over the QiLin event-sourced session log",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

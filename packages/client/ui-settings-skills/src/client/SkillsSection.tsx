@@ -28,22 +28,22 @@ export interface SkillsSectionInjected {
 /** Props the renderer binds for this section. */
 export type SkillsSectionProps = PropsRuntime<'settings.section'> & InjectFace<SkillsSectionInjected>
 
-/** One rendered group: the label it shows and the sources it owns. */
+/** One rendered group: the dictionary key it shows and the sources it owns. */
 interface SkillGroup {
   readonly id: string
-  readonly label: keyof typeof en
+  readonly labelKey: keyof typeof en
   readonly sources: readonly string[]
 }
 
 // Sources a deployment may add fall into the custom group rather than
 // disappearing: the page reports what the composition resolved, not a
 // whitelist of root names it happens to know.
-const CUSTOM_GROUP: SkillGroup = { id: 'custom', label: 'groupCustom', sources: ['custom'] }
+const CUSTOM_GROUP: SkillGroup = { id: 'custom', labelKey: 'groupCustom', sources: ['custom'] }
 
 const GROUPS: readonly SkillGroup[] = [
-  { id: 'plugin', label: 'groupPlugin', sources: ['runtime', 'bundled'] },
-  { id: 'project', label: 'groupProject', sources: ['project-qilin', 'project-agents'] },
-  { id: 'user', label: 'groupUser', sources: ['user-qilin', 'user-agents'] },
+  { id: 'plugin', labelKey: 'groupPlugin', sources: ['runtime', 'bundled'] },
+  { id: 'project', labelKey: 'groupProject', sources: ['project-qilin', 'project-agents'] },
+  { id: 'user', labelKey: 'groupUser', sources: ['user-qilin', 'user-agents'] },
   CUSTOM_GROUP,
 ]
 
@@ -113,7 +113,7 @@ export function SkillsSection(props: SkillsSectionProps): ReactNode {
 
       {buckets.map(bucket => (
         <div className={styles.group} key={bucket.group.id}>
-          <h3 className={styles.groupTitle}>{t(bucket.group.label)}</h3>
+          <h3 className={styles.groupTitle}>{t(bucket.group.labelKey)}</h3>
           <ul className={styles.list}>
             {bucket.skills.map(skill => (
               <li className={styles.row} key={skill.name}>

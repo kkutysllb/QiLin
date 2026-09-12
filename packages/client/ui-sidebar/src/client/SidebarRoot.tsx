@@ -38,14 +38,28 @@ const COLLAPSE_SETTLE_MS = 150
  */
 const SCROLLBAR_LINGER_MS = 2000
 
-/** Format complete-build metadata for the local brand badge. */
-function localBuildVersion(): string | undefined {
+/** Build identity for the brand badge: the chip's version and the full build string. */
+interface LocalBuild {
+  /** Product version the badge shows. */
+  readonly version: string
+  /** Version with the commit and dirty suffix, carried as the badge's tooltip. */
+  readonly detail: string
+}
+
+/**
+ * Read the build identity the client artifact was compiled with.
+ * @returns the badge facts, or undefined when the artifact carries no version.
+ */
+function localBuild(): LocalBuild | undefined {
   const version = process.env.QILIN_CLIENT_VERSION
   if (version === undefined) return undefined
   const commit = process.env.QILIN_CLIENT_COMMIT_HASH
-  return version
-    + (commit === undefined ? '' : `-${commit}`)
-    + (process.env.QILIN_CLIENT_GIT_DIRTY === 'true' ? '-dirty' : '')
+  return {
+    version,
+    detail: version
+      + (commit === undefined ? '' : `-${commit}`)
+      + (process.env.QILIN_CLIENT_GIT_DIRTY === 'true' ? '-dirty' : ''),
+  }
 }
 
 type PanelRowProps =
@@ -161,7 +175,7 @@ export function SidebarRoot({
     }
   }, [pointerInside])
 
-  const buildVersion = localBuildVersion()
+  const build = localBuild()
 
   return (
     <div
@@ -190,17 +204,15 @@ export function SidebarRoot({
             <span className={css.brandIdentity} aria-hidden="true">
               <span className={css.brandMark}>
                 {renderSlot('sidebar.brand.mark', { size: 24 }, { fallback: <FishLogo size={24} /> })}
+                {/* The build chip rides the mark's top-right corner: the version
+                    identifies the product without taking a line of its own. */}
+                {build !== undefined && (
+                  <span className={css.buildBadge} title={build.detail}>{build.version}</span>
+                )}
               </span>
               <span className={css.brandName}>
                 {renderSlot('sidebar.brand.name', {}, {
-                  fallback: buildVersion === undefined
-                    ? <span className={css.fallbackBrandName}>{t('brand.localBuild')}</span>
-                    : (
-                      <span className={css.localBuildBrand}>
-                        <span className={css.localBuildTitle}>{t('brand.localBuild')}</span>
-                        <span className={css.buildVersion}>{buildVersion}</span>
-                      </span>
-                    ),
+                  fallback: <span className={css.fallbackBrandName}>{t('brand.localBuild')}</span>,
                 })}
               </span>
             </span>

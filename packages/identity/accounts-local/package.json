@@ -1,7 +1,7 @@
 {
   "name": "@qilin/accounts-local",
   "description": "Local browser accounts for the Web surface: one account file under the harness home, scrypt password hashes, signed HttpOnly session cookies, the /api/auth endpoints, and the transport's account-session gate",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

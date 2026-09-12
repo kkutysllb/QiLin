@@ -1,0 +1,50 @@
+/* The sidebar footer action: one round icon button, right-aligned in the wide
+ * column and centered by the collapsed rail's own footer rules. */
+
+.slot {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  /* Full-round radius: state the arc back against the universal superellipse. */
+  corner-shape: round;
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+/* Option rows draw their own check: submenu rows get no selection marker from
+ * the menu primitive, which marks the top-level rows named in selectedIds. */
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.optionText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.check {
+  flex: none;
+  color: var(--dsw-alias-label-primary);
+}

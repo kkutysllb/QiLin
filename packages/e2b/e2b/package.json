@@ -1,7 +1,7 @@
 {
   "name": "@qilin/e2b",
   "description": "Shared E2B sandbox lifecycle for QiLin provider adapters",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

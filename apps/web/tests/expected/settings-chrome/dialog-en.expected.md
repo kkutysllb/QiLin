@@ -13,6 +13,12 @@
     - button "Agent presets":
       - img
       - text: Agent presets
+    - button "MCP servers":
+      - img
+      - text: MCP servers
+    - button "Skills":
+      - img
+      - text: Skills
   - button "Open configuration file"
   - button "Close":
     - img
@@ -21,20 +27,6 @@
   - button "Workspace Write":
     - text: Workspace Write
     - img
-  - text: Language
-  - button "English":
-    - text: English
-    - img
-  - text: Appearance
-  - button "Light":
-    - img
-    - text: Light
-  - button "Dark":
-    - img
-    - text: Dark
-  - button "System" [pressed]:
-    - img
-    - text: System
   - text: Font size Only affects conversation content 14
   - button "Increase font size":
     - img

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/web-app",
   "description": "The qilin browser-surface bundle: the web patch layer over qilin-base plus the runtime glue plugin (frontend dist serving, web-surface prompt, bash runtime variables, URL line)",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },
@@ -53,6 +53,7 @@
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-modules": "workspace:^",
     "@qilin/client-resources": "workspace:^",
+    "@qilin/client-ui-account": "workspace:^",
     "@qilin/client-ui-agent-preset": "workspace:^",
     "@qilin/client-ui-approval": "workspace:^",
     "@qilin/client-ui-attachment": "workspace:^",

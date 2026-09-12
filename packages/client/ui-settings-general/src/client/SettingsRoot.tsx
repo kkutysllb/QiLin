@@ -108,7 +108,8 @@ function SettingsPanel({ rows, renderSlot, activeId, onSelect, onClose }: PanelP
  */
 export function SettingsRoot(props: SettingsRootComponentProps) {
   const {
-    wide, reconnect, useConnectionState, useSections, useOnboardingSteps, useSessions, renderSlot, t,
+    wide, reconnect, registerOpen, useConnectionState, useSections, useOnboardingSteps, useSessions,
+    renderSlot, t,
   } = props
   const [open, setOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | undefined>(undefined)
@@ -129,6 +130,15 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
     setActiveId(id)
     setOpen(true)
   }, [])
+  // Publish this occupant's reveal action: ctx.settingsShell.open() reaches the
+  // panel through it, and the panel keeps its state component-local.
+  useEffect(() => registerOpen((sectionId) => {
+    if (sectionId === undefined) {
+      setOpen(true)
+      return
+    }
+    openSection(sectionId)
+  }), [registerOpen, openSection])
 
   // The ledger tick keeps the nav rows fresh: registrants re-register with
   // freshly localized text on locale change, and the trigger/header/close

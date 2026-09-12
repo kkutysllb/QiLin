@@ -88,3 +88,12 @@
 - landing 与认证页是中文静态文档，不接入客户端 locale 系统；`© 2026` 为字面量。
 - 会话 cookie 无服务端注销表：登出清 cookie，改密靠凭据代际失效。
 - 账户文件在激活时读取：运行中删除该文件不影响当前进程，重启后回到首次初始化。
+## 追加记录（2026-09-12 晚）：版本徽章、账户菜单与设置项迁移
+
+用户反馈（workspace 顶部 logo 徽章 + 底部用户菜单 + 设置页清理）：
+
+1. **版本徽章**：从「QiLin」下方的小胶囊移到麒麟印章**右上角**（绝对定位、11px 字号、16px 高、描边胶囊），显示**产品版本号**，完整构建串（含提交号/dirty）挂在 title 上。产品版本按用户选择整体提升到 3.0.0：根 manifest 与 279 个 @qilin/* 清单同步（constraints 门禁要求家族版本一致，@deepseek-ai/* 保持不变）。
+2. **底部用户菜单**（新包 @qilin/client-ui-account）：占 sidebar.footer.action，头像按钮打开 Menu：账户邮箱行（GET /api/auth/status）、设置、主题样式（浅色/深色/跟随系统子菜单）、语言（中文/English 子菜单）、退出登录（POST /api/auth/logout → /login；门禁关闭或未登录时不显示）。
+3. **设置页迁移**：删除「通用」里的语言选择（ui-locale 的 LanguageRow）与外观选择（ui-theme 的 AppearanceRow）；偏好写入分别由 ctx.locale.setLocale() / ctx.theme.setTheme() 提供，菜单直接调用；字号行保留。
+4. ui-settings-general 新增 ctx.settingsShell.open(sectionId?) 服务：菜单的「设置」项通过它展开面板（面板状态仍由 occupant 持有，服务只传请求）。
+5. ui-primitives 新增 IconLogoutOutline16。

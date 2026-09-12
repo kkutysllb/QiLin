@@ -61,6 +61,8 @@ function mount({
   let currentConnectionState = connectionState
   const listeners = new Set<() => void>()
   const connectionListeners = new Set<() => void>()
+  /** Reveal actions the mounted shell hands to ctx.settingsShell. */
+  const openHandlers = new Set<(sectionId?: string) => void>()
   const reconnect = vi.fn()
   const renderSlot = vi.fn(
     ((key: string, _owner: unknown, opts?: { only?: string }) => {
@@ -83,6 +85,10 @@ function mount({
     useWorkspaces: unusedHook,
     wide,
     reconnect,
+    registerOpen: (handler) => {
+      openHandlers.add(handler)
+      return () => { openHandlers.delete(handler) }
+    },
     t: makeTranslate(dictionary),
     useConnectionState: (select) => {
       const [, force] = useState(0)
@@ -118,7 +124,13 @@ function mount({
       for (const fn of [...connectionListeners]) fn()
     })
   }
-  return { view, renderSlot, bump, listeners, reconnect, setConnectionState }
+  /** Reveal the panel the way ctx.settingsShell does. */
+  const requestOpen = (sectionId?: string) => {
+    act(() => {
+      for (const handler of [...openHandlers]) handler(sectionId)
+    })
+  }
+  return { view, renderSlot, bump, listeners, reconnect, setConnectionState, requestOpen, openHandlers }
 }
 
 function openPanel() {
@@ -127,6 +139,33 @@ function openPanel() {
   fireEvent.click(trigger)
   return trigger
 }
+
+describe('settings shell open channel', () => {
+  it('reveals the panel, optionally on one section, through the shell reveal action', () => {
+    const b = mount()
+    // The channel is unclaimed until the occupant mounts, so an early request
+    // is a no-op rather than an error.
+    expect(b.openHandlers.size).toBe(1)
+    expect(screen.queryByRole('dialog')).toBeNull()
+
+    b.requestOpen('models')
+    expect(screen.getByRole('dialog')).toBeTruthy()
+    expect(screen.getByTestId('section-models')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+
+    // A request without a section id still reveals the panel.
+    b.requestOpen()
+    expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
+  it('releases the channel when the occupant unmounts', () => {
+    const b = mount()
+    expect(b.openHandlers.size).toBe(1)
+    b.view.unmount()
+    expect(b.openHandlers.size).toBe(0)
+  })
+})
 
 describe('SettingsRoot trigger', () => {
   it.each([

@@ -120,14 +120,16 @@ describe('SidebarRoot shell', () => {
     />)
 
     expect(screen.getByText('QiLin')).toBeTruthy()
-    expect(screen.getByText('1.2.3-rc.4-0123456-dirty')).toBeTruthy()
+    // The badge shows the version; the commit and dirty suffixes ride its tooltip.
+    const badge = screen.getByText('1.2.3-rc.4')
+    expect(badge.getAttribute('title')).toBe('1.2.3-rc.4-0123456-dirty')
     expect(container.querySelector('svg')).not.toBeNull()
   })
 
   it.each([
-    [{ QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3'],
-    [{ QILIN_CLIENT_COMMIT_HASH: 'abcdef0', QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3-abcdef0'],
-  ])('omits unavailable build-version suffixes from %j', (environment, expected) => {
+    [{ QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3', '1.2.3'],
+    [{ QILIN_CLIENT_COMMIT_HASH: 'abcdef0', QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3', '1.2.3-abcdef0'],
+  ])('omits unavailable build-version suffixes from %j', (environment, version, detail) => {
     for (const [name, value] of Object.entries(environment)) vi.stubEnv(name, value)
     render(<SidebarRoot
       collapsed={false} width={300}
@@ -140,7 +142,7 @@ describe('SidebarRoot shell', () => {
     />)
 
     expect(screen.getByText('QiLin')).toBeTruthy()
-    expect(screen.getByText(expected)).toBeTruthy()
+    expect(screen.getByText(version).getAttribute('title')).toBe(detail)
   })
 
   it('retains the local-build fallback without complete build metadata', () => {

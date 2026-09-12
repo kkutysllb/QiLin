@@ -30,13 +30,40 @@ export interface SettingsOnboardingStep {
 }
 
 /**
+ * The settings panel's open channel, provided as `ctx.settingsShell` so a
+ * surface outside this package can reveal the panel (the account menu's own
+ * Settings row). The panel state stays with the shell occupant; this service
+ * only carries the request, and it is inert until that occupant mounts.
+ */
+export interface SettingsShell {
+  /**
+   * Reveal the settings panel, optionally selecting one section.
+   * @param sectionId - section to select; omitted keeps the current selection.
+   */
+  open(sectionId?: string): void
+}
+
+declare module '@deepseek-ai/cordis' {
+  interface Context {
+    settingsShell: SettingsShell
+  }
+}
+
+/**
  * Registrant-private injected share of the settings shell (assembled in
  * apply): connection state and ledger projections arrive as hook-compartment
- * sources, while the reconnect command remains a plain callback.
+ * sources, while the reconnect command and the open-channel registration
+ * remain plain callbacks.
  */
 export type SettingsRootInjected = {
   /** Request a fresh logical generation and physical WebSocket immediately. */
   reconnect: () => void
+  /**
+   * Hand the shell occupant's own reveal action to {@link SettingsShell}.
+   * @param handler - invoked with the requested section id.
+   * @returns the disposer releasing the channel.
+   */
+  registerOpen: (handler: (sectionId?: string) => void) => () => void
   hooks: {
     /** Connection-owned state for the current Host connection. */
     connectionState: HostObservable<ConnectionState | undefined>

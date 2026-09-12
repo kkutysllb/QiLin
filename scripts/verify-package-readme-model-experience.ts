@@ -44,6 +44,7 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  * blocks. A package moves on or off this list with its context behavior.
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
+  'packages/client/ui-account': { kind: 'none', reason: 'The account menu renders browser chrome and registers nothing model-facing.' },
   'packages/client/ui-brand': { kind: 'none', reason: 'The seal renders in the browser only; it contributes no prompt text or session event.' },
   'packages/client/ui-settings-mcp': { kind: 'none', reason: 'The page writes the user patch layer through the mcpServers Remote; it contributes no prompt text, tool, or session event of its own.' },
   'packages/client/ui-settings-skills': { kind: 'none', reason: 'The page reads the Session-addressed skills Remote; it contributes no prompt text, tool, or session event of its own.' },

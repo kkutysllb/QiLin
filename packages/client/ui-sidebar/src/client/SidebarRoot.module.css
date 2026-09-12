@@ -136,10 +136,13 @@
 }
 
 .brandMark {
+  position: relative;
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* The build chip sits outside the mark box. */
+  overflow: visible;
 }
 
 .brandName {
@@ -158,23 +161,6 @@
   font-size: 17px;
   letter-spacing: 0px;
   white-space: nowrap;
-}
-
-.localBuildBrand {
-  flex: none;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 1px;
-  height: 24px;
-  white-space: nowrap;
-}
-
-.localBuildTitle {
-  font-size: 12px;
-  line-height: 13px;
-  letter-spacing: 0;
 }
 
 .iconButton {
@@ -229,19 +215,25 @@
   color: var(--dsw-alias-label-primary);
 }
 
-.buildVersion {
-  flex: none;
+/* The product version, pinned to the brand mark's top-right corner. */
+.buildBadge {
+  position: absolute;
+  top: -9px;
+  right: -14px;
   display: inline-flex;
   align-items: center;
-  height: 10px;
-  padding: 0 3px;
-  border-radius: 2px;
-  color: var(--dsw-alias-label-primary-inverted);
-  background: var(--dsw-alias-label-primary);
+  height: 16px;
+  padding: 0 5px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  /* Full-round radius: state the arc back against the universal superellipse. */
+  corner-shape: round;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-1);
   font-family: var(--ds-font-family-code);
-  font-size: 6px;
+  font-size: 10px;
   font-weight: 500;
-  line-height: 10px;
+  line-height: 16px;
   white-space: nowrap;
 }
 

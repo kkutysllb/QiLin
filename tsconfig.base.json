@@ -253,6 +253,8 @@
       // util/ folders are role-named without the util- prefix their npm names carry,
       // so these aliases stay hand-written like qilin-util-crypto above.
       "@qilin/util-time": ["./packages/util/time/src"],
+      "@qilin/client-ui-account": ["./packages/client/ui-account/src"],
+      "@qilin/client-ui-account/client": ["./packages/client/ui-account/src/client"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@qilin/accounts-local": ["./packages/identity/accounts-local/src"],
       "@qilin/acp": ["./packages/acp/acp/src"],

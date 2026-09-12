@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-brand",
   "description": "QiLin brand occupants for the Web client's sidebar and conversation-hero brand slots: the 麒麟 seal mark",
-  "version": "0.1.5-rc.2",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },
