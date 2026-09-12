@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { apply, inject } from '../src/client/index.ts'
-import { QilinSealArtist, QilinSealMark } from '../src/client/Seal.tsx'
+import { QilinSealArtist, QilinSealHeroMark, QilinSealMark } from '../src/client/Seal.tsx'
 import { apply as hostApply } from '../src/index.ts'
 
 afterEach(() => { cleanup() })
@@ -60,6 +60,13 @@ describe('qilin brand plugin', () => {
   it('renders the sidebar occupant at the requested size', () => {
     const { container } = render(<QilinSealMark size={18} />)
     expect(container.querySelector('svg')?.getAttribute('width')).toBe('18')
+  })
+
+  it('renders the hero occupant at the requested size and placement class', () => {
+    const { container } = render(<QilinSealHeroMark size={40} className="hero-mark" />)
+    const svg = container.querySelector('svg')
+    expect(svg?.getAttribute('width')).toBe('40')
+    expect(svg?.getAttribute('class')).toBe('hero-mark')
   })
 
   it('fills both holes and removes every occupant on teardown', async () => {

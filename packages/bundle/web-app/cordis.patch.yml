@@ -248,6 +248,10 @@
     - id: ui-settings-models
       name: '@qilin/client-ui-settings-models'
 
+    # The MCP servers page: patch-layer CRUD over the mcpServers Remote.
+    - id: ui-settings-mcp
+      name: '@qilin/client-ui-settings-mcp'
+
     - id: ui-settings-plugin-inventory
       name: '@qilin/client-ui-settings-plugin-inventory'
 

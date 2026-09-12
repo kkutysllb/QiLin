@@ -45,6 +45,7 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/client/ui-brand-qilin': { kind: 'none', reason: 'The seal renders in the browser only; it contributes no prompt text or session event.' },
+  'packages/client/ui-settings-mcp': { kind: 'none', reason: 'The page writes the user patch layer through the mcpServers Remote; it contributes no prompt text, tool, or session event of its own.' },
   'packages/client/ui-theme-qilin': { kind: 'none', reason: 'The theme sets browser CSS custom properties only; it contributes no prompt text or session event.' },
   'packages/attachment/attachment': { kind: 'indirect', reason: 'The storage seam delegates model request rendering to provider adapters.' },
   'packages/attachment/attachment-local': { kind: 'indirect', reason: 'The local backend delegates model request rendering to provider adapters.' },

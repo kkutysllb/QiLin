@@ -8,6 +8,7 @@ import goalsRemote from '@qilin/goal/remote'
 import llmRemote from '@qilin/llm/remote'
 import dynamicRemote from '@qilin/cordis-host-runner/remote'
 import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
+import mcpServersRemote from '@qilin/mcp-servers/remote'
 import messageFeedbackRemote from '@qilin/message-feedback/remote'
 import sessionFeedbackRemote from '@qilin/command-feedback/remote'
 import fileUploadsRemote from '@qilin/client-file-upload/remote'
@@ -26,6 +27,7 @@ export type {} from '@qilin/api-settings-controller/remote'
 export type {} from '@qilin/goal/remote'
 export type {} from '@qilin/llm/remote'
 export type {} from '@qilin/host-plugin-inventory/remote'
+export type {} from '@qilin/mcp-servers/remote'
 export type {} from '@qilin/message-feedback/remote'
 export type {} from '@qilin/command-feedback/remote'
 export type {} from '@qilin/client-file-upload/remote'
@@ -152,8 +154,8 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
   try {
     for (const contribution of [
       agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote,
-      pluginInventoryRemote, messageFeedbackRemote, sessionFeedbackRemote, fileUploadsRemote, sessionReferencesRemote,
-      subagentsRemote, sessionRemote, workspaceRemote, workspaceFilesRemote,
+      pluginInventoryRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote, fileUploadsRemote,
+      sessionReferencesRemote, subagentsRemote, sessionRemote, workspaceRemote, workspaceFilesRemote,
     ]) {
       disposers.push(await ctx.remote.$mount(contribution))
     }

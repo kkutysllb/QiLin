@@ -204,14 +204,33 @@ function configData(document: Document, node: unknown): Readonly<Record<string, 
  */
 export function describeEntry(entry: UserPatchEntry): { transport: 'stdio' | 'streamable-http'; detail: string } {
   if (entry.config.transport === 'streamable-http') {
-    const url = typeof entry.config.url === 'string' ? entry.config.url : ''
-    return { transport: 'streamable-http', detail: url }
+    return { transport: 'streamable-http', detail: configString(entry.config, 'url', '') }
   }
-  const command = typeof entry.config.command === 'string' ? entry.config.command : entry.serverName
-  const args = Array.isArray(entry.config.args)
-    ? entry.config.args.filter((arg): arg is string => typeof arg === 'string')
-    : []
-  return { transport: 'stdio', detail: [command, ...args].join(' ') }
+  const command = configString(entry.config, 'command', entry.serverName)
+  return { transport: 'stdio', detail: [command, ...configStringList(entry.config, 'args')].join(' ') }
+}
+
+/**
+ * One string key of a parsed config.
+ * @param config - the entry's config as plain data.
+ * @param key - the config key to read.
+ * @param fallback - the value to use when the key holds no string.
+ * @returns the string value, or the fallback.
+ */
+export function configString(config: Readonly<Record<string, unknown>>, key: string, fallback: string): string {
+  const value = config[key]
+  return typeof value === 'string' ? value : fallback
+}
+
+/**
+ * One string-list key of a parsed config, dropping entries that are not strings.
+ * @param config - the entry's config as plain data.
+ * @param key - the config key to read.
+ * @returns the strings in order, or an empty list when the key holds no list.
+ */
+export function configStringList(config: Readonly<Record<string, unknown>>, key: string): readonly string[] {
+  const value = config[key]
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
 /** Read-modify-write access to one patch layer's `mcp-client` entries. */

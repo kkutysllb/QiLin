@@ -18,6 +18,8 @@ import {
   McpServerNameError,
   UserPatchFile,
   UserPatchFileError,
+  configString,
+  configStringList,
   describeEntry,
   type UserPatchEntry,
 } from './patch-file.ts'
@@ -36,6 +38,11 @@ function serverView(entry: UserPatchEntry): McpServerView {
     detail: described.detail,
     enabled: entry.enabled,
     builtin: builtinByName(entry.serverName)?.id ?? null,
+    command: configString(entry.config, 'command', ''),
+    args: configStringList(entry.config, 'args'),
+    cwd: configString(entry.config, 'cwd', ''),
+    url: configString(entry.config, 'url', ''),
+    failOnStartupError: entry.config.failOnStartupError === true,
   }
 }
 

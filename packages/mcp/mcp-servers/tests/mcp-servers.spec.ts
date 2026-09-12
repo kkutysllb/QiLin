@@ -102,6 +102,11 @@ describe('McpServers', () => {
         detail: 'npx -y @upstash/context7-mcp',
         enabled: true,
         builtin: 'context7',
+        command: 'npx',
+        args: ['-y', '@upstash/context7-mcp'],
+        cwd: '',
+        url: '',
+        failOnStartupError: false,
       },
     ])
   })
@@ -120,6 +125,11 @@ describe('McpServers', () => {
         detail: 'https://example.test/mcp',
         enabled: true,
         builtin: null,
+        command: '',
+        args: [],
+        cwd: '',
+        url: 'https://example.test/mcp',
+        failOnStartupError: false,
       },
     ])
   })
@@ -148,6 +158,11 @@ describe('McpServers', () => {
         detail: 'uvx mcp-server-fetch',
         enabled: true,
         builtin: 'fetch',
+        command: 'uvx',
+        args: ['mcp-server-fetch'],
+        cwd: '',
+        url: '',
+        failOnStartupError: false,
       },
     ])
     expect((await service.addBuiltin('fetch', signal)).servers).toHaveLength(1)

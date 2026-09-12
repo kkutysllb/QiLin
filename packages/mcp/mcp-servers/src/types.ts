@@ -41,6 +41,16 @@ export interface McpServerView {
   readonly enabled: boolean
   /** Recommended-server id this entry matches; null for a server the user configured. */
   readonly builtin: string | null
+  /** stdio: executable the entry runs; empty for a Streamable HTTP entry. */
+  readonly command: string
+  /** stdio: arguments in order; empty for a Streamable HTTP entry. */
+  readonly args: readonly string[]
+  /** stdio: child working directory the entry sets; empty when it sets none. */
+  readonly cwd: string
+  /** Streamable HTTP: endpoint URL; empty for a stdio entry. */
+  readonly url: string
+  /** Whether a failed initial connection fails entry activation. */
+  readonly failOnStartupError: boolean
 }
 
 /** One recommended MCP server the settings section can add. */

@@ -106,7 +106,7 @@
   padding: 22px 12px 0;
   box-sizing: border-box;
   background: var(--dsw-specific-sidebar-fill);
-  border-right: 1px solid var(--dsw-alias-border-l1);
+  border-right: 0.5px solid var(--dsw-alias-border-l1);
 }
 
 /* Title row (figma 501:29959): 16/500 lh24, 12px side padding. */
