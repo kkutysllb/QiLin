@@ -91,7 +91,25 @@
 3. 改名前已存在：scripts/doc-standard.spec.ts 报 packages/bundle/qilin-web/README.zh.md 缺少标准中文章节标题（概述、开发备注），
    与本轮改名无关，是更早提交的 README 章节命名问题。
 
-### A 层尚未开始
+### 门禁判定同步（ab52e3d4f7）
+- 根因：多处门禁按 '@deepseek-ai/' 前缀判定本仓库包，改名后整体失效或误判。
+- 已修：客户端打包纯度门禁、工作区约束、发布家族、发布基线、桌面包集选择、应用入口清单。
+- 已修：桌面夹具的路径分段与闭包排序期望、三个自建 README 的中文章节名。
+- 效果：全量单测由 82 项失败降到 65 项（16 个文件），通过项 22084。
+
+### 剩余失败文件（16）
+环境限制：fs-sandbox、bash-sandbox/partial-landlock、tool-bash-persistent、terminal-bash、tool-terminal、run-gates、install-lefthook。
+待同步：browser-bundled-externals、lint-rule-fingerprint、package-invariants、snapshot-workspace-parent、
+translation-pairing-merge、verify-npm-install-layout、hooks-claude-code/coverage-edge-paths、
+hooks-codex/coverage-{post-tool,prompt}、code-runtime-python/runtime、webworker-runtime/transform-corpus。
+注：doc-standard 已在本轮修复（19 项通过），上表来自修复前的运行。
+
+### A 层部分完成（顺带）
+- 清单字段规则 'dsh': 同时命中了 bin 与 npm 脚本，因此 apps/cli 的 bin 已为 qilin、根脚本已为 pnpm qilin。
+- 待办：CLI 内部程序名与错误前缀仍为 dsh；DSH_* 环境变量仍为旧前缀；技能来源标识未改；
+  文档与代码中仍有裸 dsh 包短名（如 dsh-web-app）与 pnpm dsh 引用。
+
+### A 层尚未开始（原清单）
 - CLI 可执行名 dsh 改为 qilin，pnpm dsh 脚本改为 pnpm qilin。
 - DSH_* 环境变量前缀（产品源码内 61 个去重，DSH_HOME 出现 60 处）。
 - 技能来源标识 project-dsh / user-dsh 改为 project-qilin / user-qilin。
