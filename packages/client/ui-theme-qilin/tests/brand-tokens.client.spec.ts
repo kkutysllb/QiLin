@@ -1,14 +1,32 @@
+// @vitest-environment jsdom
 /**
- * The QiLin brand layer is one `ctx.theme` override source: it must name a
- * stable source, state both palette modes for every token, and leave no layer
- * behind when its plugin fiber unloads.
+ * The QiLin brand layer is one `ctx.theme` override source over the real
+ * theme runtime: it must name a stable source, resolve per palette mode, and
+ * leave no layer behind when its plugin fiber unloads.
  */
 
 import { Context } from '@deepseek-ai/cordis'
-import { describe, expect, it, vi } from 'vitest'
+import { stubSettingsScope } from '@deepseek-ai/dsh-client-test-runtime'
+import { ThemeRuntime } from '@deepseek-ai/dsh-client-ui-theme/client'
+import type { ThemeSettings } from '@deepseek-ai/dsh-client-ui-theme/client'
+import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
-import { QILIN_THEME_SOURCE, QILIN_TOKENS } from '../src/client/tokens.ts'
+import { QILIN_TOKENS } from '../src/client/tokens.ts'
+
+const BRAND = '--dsw-alias-brand-primary'
+const SIDEBAR = '--dsw-specific-sidebar-fill'
+
+/**
+ * Boot the production theme runtime and expose it as the `theme` service the
+ * plugin injects, so the layer composes through the shipped override stack.
+ */
+function bench() {
+  const ctx = new Context()
+  const theme = new ThemeRuntime(ctx, stubSettingsScope<ThemeSettings>().scope)
+  ctx.provide('theme', theme)
+  return { ctx, theme }
+}
 
 describe('qilin brand theme plugin', () => {
   it('keeps the host Loader entry inert', () => {
@@ -21,23 +39,27 @@ describe('qilin brand theme plugin', () => {
 
   it('states both palette modes for every QiLin token', () => {
     for (const [name, modes] of Object.entries(QILIN_TOKENS)) {
-      expect(name.startsWith('--dsw-'), JSON.stringify(name)).toBe(true)
+      expect(name.startsWith('--dsw-'), name).toBe(true)
       expect(modes.light, name).toMatch(/^#[0-9a-f]{6}$/)
       expect(modes.dark, name).toMatch(/^#[0-9a-f]{6}$/)
       expect(modes.light, name).not.toBe(modes.dark)
     }
   })
 
-  it('stacks the layer under its package source and removes it on unload', async () => {
-    const ctx = new Context()
-    const dispose = vi.fn()
-    const overrideTokens = vi.fn(() => dispose)
-    ctx.provide('theme', { overrideTokens } as never)
+  it('stacks the QiLin palette over the active theme and removes it on unload', async () => {
+    const { ctx, theme } = bench()
+    expect(theme.getTheme().active.tokens[BRAND]).toBeUndefined()
+
     const fiber = ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
-    expect(overrideTokens).toHaveBeenCalledTimes(1)
-    expect(overrideTokens).toHaveBeenCalledWith(QILIN_THEME_SOURCE, QILIN_TOKENS)
+    expect(theme.getTheme().active.tokens[BRAND]).toBe(QILIN_TOKENS[BRAND]?.light)
+    expect(theme.getTheme().active.tokens[SIDEBAR]).toBe(QILIN_TOKENS[SIDEBAR]?.light)
+
+    theme.setTheme('dark')
+    expect(theme.getTheme().active.tokens[BRAND]).toBe(QILIN_TOKENS[BRAND]?.dark)
+
     await fiber.dispose()
-    expect(dispose).toHaveBeenCalledTimes(1)
+    expect(theme.getTheme().active.tokens[BRAND]).toBeUndefined()
+    expect(theme.getTheme().active.tokens[SIDEBAR]).toBeUndefined()
   })
 })

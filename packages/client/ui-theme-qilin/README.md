@@ -41,7 +41,7 @@ None. Colors are browser presentation and never enter a model request or the ses
 ## Known Limitations and Deferred Work
 
 - The layer covers brand surfaces only. A complete QiLin palette needs the brand design's full token set, and the sidebar brand artwork is a separate client plugin.
-- Component-level real-composition coverage is not in place yet: the shipped spec asserts the layer contract, not a booted Web surface.
+- The shipped spec exercises the production theme runtime and its override stack. A booted-Web-surface assertion for this layer is not in place yet; the assembled-surface check is manual.
 
 <a id="dev-note"></a>
 ## Dev Note
