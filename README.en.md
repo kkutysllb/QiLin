@@ -163,6 +163,9 @@ cd web-demo
 pnpm install
 pnpm dev
 ```
+> One-command startup: `./scripts/start-all.sh` (gateway + web-demo). It creates `.venv` and installs
+> dependencies when missing, and runs `pnpm install` when `web-demo/node_modules` is absent.
+> Disable bootstrapping with `QILIN_SKIP_AUTO_INSTALL=1`.
 
 ### Configuration
 

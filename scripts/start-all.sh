@@ -166,9 +166,23 @@ for P in "$GATEWAY_PORT" "$WEB_DEMO_PORT"; do
   fi
 done
 
-# 依赖检查
-[[ -d web-demo/node_modules ]] || { echo "❌ web-demo 未安装依赖: cd web-demo && pnpm install"; exit 1; }
-[[ -f config.yaml ]] || { echo "❌ config.yaml 不存在: cp config.example.yaml config.yaml"; exit 1; }
+# 依赖检查:web-demo 缺少 node_modules 时按 lockfile 自动安装(关闭: QILIN_SKIP_AUTO_INSTALL=1)
+# 网关侧(.venv 与 config.yaml)由 start-gateway.sh 负责自举。
+if [[ ! -d web-demo/node_modules ]]; then
+  if [[ -n "${QILIN_SKIP_AUTO_INSTALL:-}" ]]; then
+    echo "❌ web-demo 未安装依赖: cd web-demo && pnpm install"
+    exit 1
+  fi
+  if ! command -v pnpm >/dev/null 2>&1; then
+    echo "❌ web-demo 未安装依赖,且未找到 pnpm;请先 cd web-demo && pnpm install"
+    exit 1
+  fi
+  echo "⚠ web-demo 未安装依赖,自动执行: cd web-demo && pnpm install --frozen-lockfile"
+  ( cd web-demo && pnpm install --frozen-lockfile ) || {
+    echo "❌ pnpm install 失败,请手动执行: cd web-demo && pnpm install"
+    exit 1
+  }
+fi
 
 # 启动 gateway (daemon, 复用 start-gateway.sh 的 token/CORS 逻辑)
 "$SCRIPT_DIR/start-gateway.sh" --daemon "$GATEWAY_PORT"

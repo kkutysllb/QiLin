@@ -11,7 +11,7 @@
 #   ./scripts/start-gateway.sh --status     # 查看 gateway 状态
 #
 # 依赖:
-#   - uvicorn in PATH(或 miniconda 的 uvicorn)
+#   - uvicorn:优先项目内 .venv/bin/uvicorn,其次 PATH,最后 $HOME/miniconda3
 #   - python3(用于生成 secret)
 
 set -euo pipefail
@@ -130,26 +130,93 @@ if [[ -z "${QILIN_INTERNAL_AUTH_TOKEN:-}" ]]; then
   fi
 fi
 
-# 检查 config.yaml
+# 检查 config.yaml:缺失时从示例自动生成(绝不覆盖已有文件;QILIN_CONFIG_PATH 优先)
 if [[ ! -f config.yaml ]]; then
-  echo -e "${RED}❌ config.yaml 不存在${NC}"
-  echo "   请先 cp config.example.yaml config.yaml 并按需修改"
-  exit 1
+  if [[ -n "${QILIN_CONFIG_PATH:-}" ]]; then
+    echo -e "${RED}❌ QILIN_CONFIG_PATH 指向的配置文件不存在: $QILIN_CONFIG_PATH${NC}"
+    exit 1
+  fi
+  if [[ ! -f config.example.yaml ]]; then
+    echo -e "${RED}❌ config.yaml 不存在,且找不到 config.example.yaml${NC}"
+    exit 1
+  fi
+  cp config.example.yaml config.yaml
+  echo -e "${YELLOW}⚠ config.yaml 不存在,已从 config.example.yaml 复制一份${NC}"
+  echo -e "${YELLOW}  注意: 示例的 models 段默认全部注释,需按需放开至少一个模型才能对话${NC}"
 fi
 
 # CORS:默认放行本地 web-demo 端口(可被环境变量覆盖)
 # Gateway 的 CORS middleware 是 opt-in:不设置 GATEWAY_CORS_ORIGINS 就根本不挂载
 export GATEWAY_CORS_ORIGINS="${GATEWAY_CORS_ORIGINS:-http://localhost:28080,http://127.0.0.1:28080,http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,app://-,tauri://localhost}"
 
-# 找到 uvicorn
-UVICORN_BIN="${UVICORN_BIN:-uvicorn}"
-if ! command -v "$UVICORN_BIN" >/dev/null 2>&1; then
-  if [[ -x /Users/libing/miniconda3/bin/uvicorn ]]; then
-    UVICORN_BIN="/Users/libing/miniconda3/bin/uvicorn"
-  else
-    echo -e "${RED}❌ uvicorn 不在 PATH,也无法找到 /Users/libing/miniconda3/bin/uvicorn${NC}"
+# ── 依赖自举:仓库内没有 .venv 时,按 pyproject 依赖自动创建并安装 ──────
+# 关闭方式: QILIN_SKIP_AUTO_INSTALL=1  指定解释器: QILIN_PYTHON=/path/to/python3.13
+_qilin_find_python() {
+  local cand p
+  for cand in "${QILIN_PYTHON:-}" python3.13 python3.12 python3 \
+              /opt/homebrew/bin/python3.13 /opt/homebrew/bin/python3.12 \
+              /usr/local/bin/python3.13 /usr/local/bin/python3.12; do
+    [[ -z "$cand" ]] && continue
+    p="$(command -v "$cand" 2>/dev/null || true)"
+    if [[ -z "$p" && -x "$cand" ]]; then p="$cand"; fi
+    [[ -z "$p" ]] && continue
+    # 解释器必须能 import socket(排除损坏的 Python 安装)且版本 >= 3.12
+    if "$p" -c "import socket, sys; raise SystemExit(0 if sys.version_info[:2] >= (3, 12) else 1)" >/dev/null 2>&1; then
+      printf "%s" "$p"; return 0
+    fi
+  done
+  return 1
+}
+
+_qilin_bootstrap_venv() {
+  local venv="$PROJECT_ROOT/.venv" py cache_default own_cache=0
+  echo -e "${YELLOW}⚠ 未找到 $venv/bin/uvicorn,自动创建虚拟环境并安装依赖(首次较慢)${NC}"
+  if ! py="$(_qilin_find_python)"; then
+    echo -e "${RED}❌ 未找到可用的 Python >=3.12(需能正常 import socket)${NC}"
+    echo "   请安装 python@3.13 / python@3.12,或用 QILIN_PYTHON=/path/to/python3.13 指定"
     exit 1
   fi
+  echo "   解释器: $py ($("$py" -V 2>&1))"
+  if [[ ! -x "$venv/bin/python" ]]; then
+    "$py" -m venv "$venv" || { echo -e "${RED}❌ 创建虚拟环境失败: $venv${NC}"; exit 1; }
+  fi
+  cache_default="$venv/.pip-cache"
+  if [[ -z "${PIP_CACHE_DIR:-}" ]]; then export PIP_CACHE_DIR="$cache_default"; own_cache=1; fi
+  echo "   安装依赖: .venv/bin/pip install -e \".[gateway,channels,browser]\""
+  "$venv/bin/python" -m pip install --upgrade pip >/dev/null 2>&1 || true
+  ( cd "$PROJECT_ROOT" && "$venv/bin/python" -m pip install -e ".[gateway,channels,browser]" ) || {
+    echo -e "${RED}❌ 依赖安装失败${NC}"
+    exit 1
+  }
+  [[ "$own_cache" == 1 ]] && rm -rf "$cache_default"
+  [[ -x "$venv/bin/uvicorn" ]] || { echo -e "${RED}❌ 安装完成但未找到 $venv/bin/uvicorn${NC}"; exit 1; }
+  echo -e "${GREEN}✓ 虚拟环境就绪: $venv${NC}"
+}
+
+if [[ ! -x "$PROJECT_ROOT/.venv/bin/uvicorn" && -z "${QILIN_SKIP_AUTO_INSTALL:-}" ]]; then
+  _qilin_bootstrap_venv
+fi
+
+# 找到 uvicorn:优先项目内 .venv(自带解释器与依赖,不依赖系统 Python/conda),
+# 其次 PATH(已 activate 的环境),最后兜底 $HOME/miniconda3。
+if [[ -n "${UVICORN_BIN:-}" ]]; then
+  if ! command -v "$UVICORN_BIN" >/dev/null 2>&1 && [[ ! -x "$UVICORN_BIN" ]]; then
+    echo -e "${RED}❌ UVICORN_BIN 指定的 uvicorn 不可执行: $UVICORN_BIN${NC}"
+    exit 1
+  fi
+elif [[ -x "$PROJECT_ROOT/.venv/bin/uvicorn" ]]; then
+  UVICORN_BIN="$PROJECT_ROOT/.venv/bin/uvicorn"
+  echo -e "${CYAN}ℹ 使用项目内 .venv: $UVICORN_BIN${NC}"
+elif command -v uvicorn >/dev/null 2>&1; then
+  UVICORN_BIN="$(command -v uvicorn)"
+elif [[ -x "$HOME/miniconda3/bin/uvicorn" ]]; then
+  UVICORN_BIN="$HOME/miniconda3/bin/uvicorn"
+else
+  echo -e "${RED}❌ 未找到 uvicorn${NC}"
+  echo "   推荐在项目内建虚拟环境:"
+  echo "     python3 -m venv .venv && .venv/bin/pip install -e \".[gateway,channels]\""
+  echo "   也可显式指定: UVICORN_BIN=/path/to/uvicorn $0"
+  exit 1
 fi
 
 # ── daemon 模式 ──────────────────────────────────────────────────────

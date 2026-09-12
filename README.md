@@ -160,6 +160,8 @@ cd web-demo
 pnpm install
 pnpm dev
 ```
+> 一键启动：`./scripts/start-all.sh`（gateway + web-demo）。仓库内没有 `.venv` 时会自动创建虚拟环境并安装依赖，
+> `web-demo/node_modules` 缺失时会自动 `pnpm install`；关闭自举用 `QILIN_SKIP_AUTO_INSTALL=1`。
 
 ### 配置 / Configuration
 
