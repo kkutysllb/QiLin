@@ -3,8 +3,8 @@ import { mkdir, readdir, readFile, rename, rm, stat, symlink, writeFile } from '
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { Context } from '@deepseek-ai/cordis'
-import SkillRegistry from '@deepseek-ai/dsh-skill'
-import { FileSystem, FsError, FsVersion, type FsDirEntry, type FsEditOutcome, type FsEditRequest, type FsInfo, type FsPathInfo, type FsTarget, type FsWriteOutcome } from '@deepseek-ai/dsh-fs'
+import SkillRegistry from '@qilin/skill'
+import { FileSystem, FsError, FsVersion, type FsDirEntry, type FsEditOutcome, type FsEditRequest, type FsInfo, type FsPathInfo, type FsTarget, type FsWriteOutcome } from '@qilin/fs'
 import * as SkillFileSystem from '../src/index.ts'
 
 /** Every temp dir created by this file, removed after each test. */
@@ -154,7 +154,7 @@ async function setupLocal(home: string, config: Partial<SkillFileSystem.Config> 
   const ctx = new Context()
   await ctx.plugin(SkillRegistry)
   await ctx.plugin(SkillFileSystem, {
-    dshHome: join(home, '.dsh'),
+    dshHome: join(home, '.qilin'),
     agentsHome: join(home, '.agents'),
     watch: false,
     ...config,
@@ -187,12 +187,12 @@ describe('FileSystemSkillProvider', () => {
     await mkdir(join(project, '.git'), { recursive: true })
 
     await writeSkill(join(home, '.agents/skills'), 'same', 'user agents skill')
-    await writeSkill(join(home, '.dsh/skills'), 'same', 'user dsh skill')
+    await writeSkill(join(home, '.qilin/skills'), 'same', 'user dsh skill')
     await writeSkill(custom, 'same', 'custom skill')
     await writeSkill(join(project, '.agents/skills'), 'same', 'project agents skill')
     await writeSkill(join(project, '.qilin/skills'), 'same', 'project dsh skill')
     await writeSkill(custom, 'custom-only', 'custom only')
-    await writeSkill(join(home, '.dsh/skills/.system'), 'hidden-system', 'hidden system')
+    await writeSkill(join(home, '.qilin/skills/.system'), 'hidden-system', 'hidden system')
 
     const bundled = await tempDir('skill-bundled')
     await writeSkill(bundled, 'bundled-only', 'bundled skill')
@@ -225,7 +225,7 @@ describe('FileSystemSkillProvider', () => {
 
     await writeSkill(join(project, '.qilin/skills'), 'project-name', 'Project wins')
     await writeSkill(custom, 'runtime-name', 'Custom loses')
-    await writeSkill(join(home, '.dsh/skills'), 'runtime-name', 'User loses')
+    await writeSkill(join(home, '.qilin/skills'), 'runtime-name', 'User loses')
 
     const ctx = await setupLocal(home, { customSkillDirs: [custom] })
     ctx.skills.register({
@@ -247,7 +247,7 @@ describe('FileSystemSkillProvider', () => {
 
   it('parses flat skills and filters invalid skills from the invocation-neutral listing', async () => {
     const home = await tempDir('skill-flat')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await writeFlatSkill(root, 'flat-skill', 'flat description', 'Flat instructions.')
     await writeFile(join(root, 'rich-skill.md'), [
       '---',
@@ -312,7 +312,7 @@ describe('FileSystemSkillProvider', () => {
 
   it('accepts the documented boolean spellings for invocation frontmatter', async () => {
     const home = await tempDir('skill-invocation-booleans')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await mkdir(root, { recursive: true })
     const truthy = ['true', 'TRUE', '"true"', 'yes', 'ON', '1', '"1"']
     const falsy = ['false', 'FALSE', '"false"', 'no', 'OFF', '0', '"0"']
@@ -357,7 +357,7 @@ describe('FileSystemSkillProvider', () => {
 
   it('rejects legacy and invalid invocation frontmatter without hiding valid siblings', async () => {
     const home = await tempDir('skill-invalid-invocation')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await writeSkill(root, 'good-skill', 'Good skill')
     const invalid = [
       ['legacy-model', 'disableModelInvocation: true'],
@@ -377,7 +377,7 @@ describe('FileSystemSkillProvider', () => {
 
   it('supports CRLF frontmatter and ignores delimiter-looking text inside YAML values', async () => {
     const home = await tempDir('skill-frontmatter-crlf')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await mkdir(root, { recursive: true })
     await writeFile(join(root, 'crlf-skill.md'), [
       '---',
@@ -409,7 +409,7 @@ describe('FileSystemSkillProvider', () => {
 
   it('skips invalid YAML skill files without hiding valid siblings', async () => {
     const home = await tempDir('skill-invalid-yaml')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await writeSkill(root, 'good-skill', 'Good skill')
     await writeFile(join(root, 'bad-yaml.md'), '---\nname: bad-yaml\ndescription: [unclosed\n---\n\nBad body.\n')
 
@@ -423,11 +423,11 @@ describe('FileSystemSkillProvider', () => {
     const external = await tempDir('skill-symlink-external')
     await writeSkill(external, 'linked-dir', 'Linked directory')
     await writeFlatSkill(external, 'linked-flat', 'Linked flat')
-    await mkdir(join(home, '.dsh/skills'), { recursive: true })
-    await symlink(join(external, 'linked-dir'), join(home, '.dsh/skills/linked-dir'))
-    await symlink(join(external, 'linked-flat.md'), join(home, '.dsh/skills/linked-flat.md'))
-    await symlink(join(external, 'missing'), join(home, '.dsh/skills/broken-link'))
-    await symlink('/dev/null', join(home, '.dsh/skills/device-link'))
+    await mkdir(join(home, '.qilin/skills'), { recursive: true })
+    await symlink(join(external, 'linked-dir'), join(home, '.qilin/skills/linked-dir'))
+    await symlink(join(external, 'linked-flat.md'), join(home, '.qilin/skills/linked-flat.md'))
+    await symlink(join(external, 'missing'), join(home, '.qilin/skills/broken-link'))
+    await symlink('/dev/null', join(home, '.qilin/skills/device-link'))
 
     const ctx = await setupLocal(home)
 
@@ -438,7 +438,7 @@ describe('FileSystemSkillProvider', () => {
     const home = await tempDir('skill-read-fs')
     const project = await tempDir('skill-project-root-backend')
     const nestedCwd = join(project, 'packages/app')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await mkdir(nestedCwd, { recursive: true })
     await writeFlatSkill(root, 'text-skill', 'Text skill', 'Text body.')
     await writeFlatSkill(root, 'resolve-fail', 'Resolve fail', 'Resolve body.')
@@ -465,7 +465,7 @@ describe('FileSystemSkillProvider', () => {
       size: 0,
     })
     await ctx.plugin(SkillRegistry)
-    await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.dsh'), agentsHome: join(home, '.agents'), watch: false })
+    await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.qilin'), agentsHome: join(home, '.agents'), watch: false })
 
     expect((await ctx.skills.list({ cwd: nestedCwd })).map(skill => [skill.name, skill.source])).toEqual([
       ['backend-root', 'project-agents'],
@@ -482,7 +482,7 @@ describe('FileSystemSkillProvider', () => {
     bundledFs.failResolvePaths.add(bundled)
     await bundledCtx.plugin(SkillRegistry)
     await bundledCtx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       bundledSkillDir: bundled,
     })
@@ -498,7 +498,7 @@ describe('FileSystemSkillProvider', () => {
     const fs = ctx.fs as TestFileSystem
     await ctx.plugin(SkillRegistry)
     await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: false,
     })
@@ -534,7 +534,7 @@ describe('FileSystemSkillProvider', () => {
     const fs = ctx.fs as TestFileSystem
     await ctx.plugin(SkillRegistry)
     await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: false,
     })
@@ -577,13 +577,13 @@ describe('FileSystemSkillProvider', () => {
 
   it('forwards cancellation to filesystem reads while loading a skill', async () => {
     const home = await tempDir('skill-read-abort')
-    await writeSkill(join(home, '.dsh/skills'), 'abortable-skill', 'Abortable skill')
+    await writeSkill(join(home, '.qilin/skills'), 'abortable-skill', 'Abortable skill')
 
     const ctx = new Context()
     await ctx.plugin(TestFileSystem)
     const fs = ctx.fs as TestFileSystem
     await ctx.plugin(SkillRegistry)
-    await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.dsh'), agentsHome: join(home, '.agents'), watch: false })
+    await ctx.plugin(SkillFileSystem, { dshHome: join(home, '.qilin'), agentsHome: join(home, '.agents'), watch: false })
     expect((await ctx.skills.list()).map(skill => skill.name)).toEqual(['abortable-skill'])
 
     fs.statSignals = []
@@ -616,7 +616,7 @@ describe('FileSystemSkillProvider', () => {
     const ctx = new Context()
     await ctx.plugin(SkillRegistry)
     const fiber = await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: true,
       watchStabilityThresholdMs: 20,
@@ -700,7 +700,7 @@ describe('FileSystemSkillProvider', () => {
     emitObserved(join(home, 'outside.md'), { name: 'write' })
     emitObserved(root, { name: 'write' })
     emitObserved(join(root, 'observed-skill/references/notes.md'), { name: 'write' })
-    emitObserved(join(home, '.dsh/skills/.system/SKILL.md'), { name: 'write' })
+    emitObserved(join(home, '.qilin/skills/.system/SKILL.md'), { name: 'write' })
     emitObserved(join(root, 'flat-skill.md'), { name: 'write' })
     ctx.emit(
       'fs/observed',
@@ -724,7 +724,7 @@ describe('FileSystemSkillProvider', () => {
     const ctx = new Context()
     await ctx.plugin(SkillRegistry)
     const fiber = await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       customSkillDirs: [join(first, '.agents/skills')],
       watch: true,
@@ -746,7 +746,7 @@ describe('FileSystemSkillProvider', () => {
     const noWatch = new Context()
     await noWatch.plugin(SkillRegistry)
     await noWatch.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: false,
       watchMaxProjects: 1,
@@ -765,7 +765,7 @@ describe('FileSystemSkillProvider', () => {
     let provider!: SkillFileSystem.FileSystemSkillProvider
     const disposeProvider = ctx.skills.registerProvider((control) => {
       provider = new SkillFileSystem.FileSystemSkillProvider(ctx, control, {
-        dshHome: join(home, '.dsh'),
+        dshHome: join(home, '.qilin'),
         agentsHome: join(home, '.agents'),
         customSkillDirs: [nonDirectoryRoot],
         watch: true,
@@ -791,14 +791,14 @@ describe('FileSystemSkillProvider', () => {
   it('refreshes frontmatter through a followed skill symlink', { timeout: 10000 }, async () => {
     const home = await tempDir('skill-watch-symlink-home')
     const external = await tempDir('skill-watch-symlink-external')
-    const root = join(home, '.dsh/skills')
+    const root = join(home, '.qilin/skills')
     await writeSkill(external, 'linked-skill', 'First linked description')
     await mkdir(root, { recursive: true })
     await symlink(join(external, 'linked-skill'), join(root, 'linked-skill'))
     const ctx = new Context()
     await ctx.plugin(SkillRegistry)
     const fiber = await ctx.plugin(SkillFileSystem, {
-      dshHome: join(home, '.dsh'),
+      dshHome: join(home, '.qilin'),
       agentsHome: join(home, '.agents'),
       watch: true,
       watchFollowSymlinks: true,
@@ -833,11 +833,11 @@ describe('FileSystemSkillProvider', () => {
     const previousBundledSkillDir = process.env.DSH_BUNDLED_SKILL_DIR
     const envHome = await tempDir('skill-env-home')
     try {
-      process.env.DSH_HOME = join(envHome, '.dsh')
+      process.env.DSH_HOME = join(envHome, '.qilin')
       process.env.DSH_AGENTS_HOME = join(envHome, '.agents')
       const bundled = join(envHome, 'bundled-skills')
       process.env.DSH_BUNDLED_SKILL_DIR = bundled
-      await writeSkill(join(envHome, '.dsh/skills'), 'env-skill', 'Env skill')
+      await writeSkill(join(envHome, '.qilin/skills'), 'env-skill', 'Env skill')
       await writeSkill(bundled, 'env-bundled-skill', 'Env bundled skill')
       const ctx = new Context()
       await ctx.plugin(SkillRegistry)

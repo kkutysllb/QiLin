@@ -82,7 +82,7 @@ describe('Windows Job capability', () => {
       ...await importOriginal<typeof import('node:child_process')>(),
       spawn,
     }))
-    vi.doMock('@deepseek-ai/dsh-win32-process', () => ({
+    vi.doMock('@qilin/win32-process', () => ({
       loadWin32ProcessBindings: load,
       probeCurrentTokenJobSupport: probe,
     }))
@@ -102,7 +102,7 @@ describe('Windows Job capability', () => {
       await expect(result.owner.waitForExit()).resolves.toBeUndefined()
     } finally {
       vi.doUnmock('node:child_process')
-      vi.doUnmock('@deepseek-ai/dsh-win32-process')
+      vi.doUnmock('@qilin/win32-process')
       vi.resetModules()
     }
   })

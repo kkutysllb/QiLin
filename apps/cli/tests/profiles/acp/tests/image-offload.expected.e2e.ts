@@ -6,7 +6,7 @@ import { expect, it } from 'vitest'
 import {
   runScenario,
   type InputScript,
-} from '@deepseek-ai/dsh-session-snapshot'
+} from '@qilin/session-snapshot'
 
 const AGENT = {
   binScript: fileURLToPath(new URL('../../../../src/bin.ts', import.meta.url)),
@@ -126,7 +126,7 @@ it('pins native DeepSeek Files offload and inline fallback in assembled requests
     const accessText = (cwd: string): string => {
       const attachmentPath = join(
         cwd,
-        '.dsh',
+        '.qilin',
         'attachments',
         'v1',
         'objects',

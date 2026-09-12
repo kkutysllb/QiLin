@@ -11,7 +11,7 @@ import {
   dshHomePath,
   expandHomePath,
   resolveDshHome,
-} from '@deepseek-ai/dsh-home-paths'
+} from '@qilin/home-paths'
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -28,8 +28,8 @@ describe('dsh path helpers', () => {
     expect(expandHomePath('~')).toBe(homedir())
     expect(expandHomePath('~/.qilin')).toBe(join(homedir(), '.qilin'))
     expect(expandHomePath('~\\.qilin')).toBe(join(homedir(), '.qilin'))
-    expect(expandHomePath('/tmp/.dsh')).toBe('/tmp/.dsh')
-    expect(expandHomePath('~other/.dsh')).toBe('~other/.dsh')
+    expect(expandHomePath('/tmp/.qilin')).toBe('/tmp/.qilin')
+    expect(expandHomePath('~other/.qilin')).toBe('~other/.qilin')
   })
 
   it('resolves explicit path before DSH_HOME and the default', () => {

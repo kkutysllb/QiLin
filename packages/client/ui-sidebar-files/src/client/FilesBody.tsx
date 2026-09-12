@@ -13,13 +13,13 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
-import type { RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
-import type { PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
+import type { RemoteFailure } from '@qilin/api-remotes/client'
+import type { PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@qilin/client-ui-slots'
 import {
   FileTypeIcon, IconFolderClose16, IconFolderOpen16, IconRefreshOutline16, classifyFileType,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import { fileAddressFor, pathPartsOf } from '@deepseek-ai/dsh-util-workspace-path'
-import type { WorkspaceDirectoryEntry } from '@deepseek-ai/dsh-api-workspace-files/types'
+} from '@qilin/client-ui-primitives'
+import { fileAddressFor, pathPartsOf } from '@qilin/util-workspace-path'
+import type { WorkspaceDirectoryEntry } from '@qilin/api-workspace-files/types'
 import { childPath } from './face.ts'
 import type { FilesInjected } from './face.ts'
 import type {} from './locales.ts'

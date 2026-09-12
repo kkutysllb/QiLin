@@ -1,7 +1,7 @@
 /**
  * Electron child-process entry: boots the desktop project without a listening
  * socket and carries API plus validated Web assets over framed byte pipes.
- * @module @deepseek-ai/dsh-desktop-host
+ * @module @qilin/desktop-host
  */
 
 import { createRequire } from 'node:module'
@@ -18,13 +18,13 @@ import {
   loadLayeredEnv,
   loadProfileDirectory,
   loadOverlayPatches,
-} from '@deepseek-ai/dsh-app-boot'
-import { provideCmdline } from '@deepseek-ai/dsh-cmdline'
-import { DSH_LAUNCH_ENVIRONMENT_KEY } from '@deepseek-ai/dsh-launch-environment'
-import type {} from '@deepseek-ai/dsh-api-gateway'
-import type { ConnectionFetchHandler } from '@deepseek-ai/dsh-client-connection'
-import type {} from '@deepseek-ai/dsh-client-modules'
-import { renderIndexInjections, type IndexInjection } from '@deepseek-ai/dsh-host-webserver'
+} from '@qilin/app-boot'
+import { provideCmdline } from '@qilin/cmdline'
+import { DSH_LAUNCH_ENVIRONMENT_KEY } from '@qilin/launch-environment'
+import type {} from '@qilin/api-gateway'
+import type { ConnectionFetchHandler } from '@qilin/client-connection'
+import type {} from '@qilin/client-modules'
+import { renderIndexInjections, type IndexInjection } from '@qilin/host-webserver'
 import {
   DESKTOP_HOST_PROTOCOL_VERSION,
   DESKTOP_PIPE_CHUNK_BYTES,
@@ -94,7 +94,7 @@ interface PackageManifest {
 const DESKTOP_PATCH = fileURLToPath(new URL('../config/desktop.cordis.patch.yml', import.meta.url))
 const ROOT_CONFIG = '# Electron desktop composition root; package transactions own this file.\n[]\n'
 const ROOT_CONFIG_FILENAME = 'desktop.cordis.yml'
-const DESKTOP_STREAM_PATH = '/.dsh/remote-stream'
+const DESKTOP_STREAM_PATH = '/.qilin/remote-stream'
 
 const DESKTOP_TRANSPORT_SCRIPT = `globalThis.__DSH_TRANSPORT__={
   ownsHost:true,
@@ -150,7 +150,7 @@ function isProjectPath(projectDir: string, target: string): boolean {
 }
 
 function desktopPatches(projectDir: string, allowLinkedPackages: boolean): PatchOptions[] {
-  const dshRoot = dirname(packageManifestPath(projectDir, '@deepseek-ai/dsh'))
+  const dshRoot = dirname(packageManifestPath(projectDir, '@qilin/cli'))
   const profile = loadProfileDirectory('dsh desktop', projectDir, join(dshRoot, 'package.json'))
   for (const layer of profile.layers) {
     if (!allowLinkedPackages && !isProjectPath(projectDir, layer.packageDir)) {
@@ -177,14 +177,14 @@ function desktopPatches(projectDir: string, allowLinkedPackages: boolean): Patch
 }
 
 function dshVersion(projectDir: string): string {
-  const manifest = readManifest(packageManifestPath(projectDir, '@deepseek-ai/dsh'))
+  const manifest = readManifest(packageManifestPath(projectDir, '@qilin/cli'))
   if (typeof manifest.version !== 'string') throw new Error('dsh desktop: installed dsh manifest has no version')
   return manifest.version
 }
 
 function assetHandler(ctx: Context, projectDir: string): ConnectionFetchHandler {
   const require = createRequire(join(projectDir, 'package.json'))
-  const distIndex = require.resolve('@deepseek-ai/dsh-web-frontend/dist/index.html')
+  const distIndex = require.resolve('@qilin/web-frontend/dist/index.html')
   const distRoot = realpathSync(dirname(distIndex))
   const renderIndex = async (): Promise<Response> => {
     const rows: IndexInjection[] = [{ kind: 'script', placement: 'head', text: DESKTOP_TRANSPORT_SCRIPT }]

@@ -1,7 +1,7 @@
 /** QiLin brand color layer for the Web client theme. */
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-theme/client'
+import type {} from '@qilin/client-ui-theme/client'
 import { QILIN_THEME_SOURCE, QILIN_TOKENS } from './tokens.ts'
 
 /** Required service: the theme registry and override stack. */

@@ -5,9 +5,9 @@ import {
   Session,
   SessionId,
   SessionLogOffset,
-} from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
-import type { SessionFormatArtifact, SessionFormatHeader } from '@deepseek-ai/dsh-session-format'
+} from '@qilin/session'
+import type { SessionEvent, SessionHeader } from '@qilin/session'
+import type { SessionFormatArtifact, SessionFormatHeader } from '@qilin/session-format'
 
 /**
  * Validate current logical metadata through the installed Session package.

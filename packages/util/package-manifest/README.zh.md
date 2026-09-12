@@ -3,7 +3,7 @@ description: "供启动器、客户端、构建工具和外部包共同使用的
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-package-manifest
+# @qilin/package-manifest
 
 [English](README.md) | 中文
 
@@ -28,7 +28,7 @@ kind: "package-library"
 从包根导入类型。仅检查自己的源码时使用开发依赖；若发布的声明文件引用这些类型，则使用生产依赖。
 
 ```ts
-import type { DshClientManifest, DshManifest } from '@deepseek-ai/dsh-package-manifest'
+import type { DshClientManifest, DshManifest } from '@qilin/package-manifest'
 
 const client: DshClientManifest = { platform: 'web' }
 const dsh: DshManifest = {

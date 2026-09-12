@@ -36,7 +36,7 @@ lsp 组让 agent 通过配置好的语言服务器导航代码：转到定义、
 ## 相关文档
 
 - [LSP 导航子系统](../../docs/subsystems/lsp.zh.md)——操作、坐标、请求与结果，以及 `LspError` code。
-- [生成的工具目录](../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-lsp)——模型接收的 `lsp` schema。
+- [生成的工具目录](../../docs/tool-catalog.zh.md#qilintool-lsp)——模型接收的 `lsp` schema。
 
 -----
 

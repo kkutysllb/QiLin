@@ -1,4 +1,4 @@
-import { brandNumber, brandString, type Branded, type BrandedNumber } from '@deepseek-ai/dsh-brand'
+import { brandNumber, brandString, type Branded, type BrandedNumber } from '@qilin/brand'
 import type {
   AssistantMessage,
   AssistantStreamRecord,
@@ -12,8 +12,8 @@ import type {
   ToolResultMessage,
   ToolSchema,
   UserMessage,
-} from '@deepseek-ai/dsh-llm'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@qilin/llm'
+import type { JsonValue } from '@qilin/util-values'
 
 /** Identifies one session in the store (and its persistence artifacts). */
 export type SessionId = Branded<'SessionId'>
@@ -487,7 +487,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
   })
 }[T]
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@qilin/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The named Session does not exist; produced by every layer that resolves a SessionId. */
     'session/not-found': { readonly sessionId: SessionId }

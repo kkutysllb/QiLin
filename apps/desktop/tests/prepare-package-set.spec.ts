@@ -23,14 +23,14 @@ describe('desktop package-set selection', () => {
 
   it('includes only the available internal production closure', () => {
     const available = new Map<string, PackedDesktopPackage>([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh', {
-        dependencies: { '@deepseek-ai/dsh-base': '^1.0.0', external: '^2.0.0' },
+      ['@qilin/cli', packed('@qilin/cli', {
+        dependencies: { '@qilin/base': '^1.0.0', external: '^2.0.0' },
         optionalDependencies: { '@deepseek-ai/platform-package': '1.0.0', '@deepseek-ai/missing-platform': '1.0.0' },
       })],
-      ['@deepseek-ai/dsh-desktop-host', packed('@deepseek-ai/dsh-desktop-host', {
-        dependencies: { '@deepseek-ai/dsh': '^1.0.0' },
+      ['@qilin/desktop-host', packed('@qilin/desktop-host', {
+        dependencies: { '@qilin/cli': '^1.0.0' },
       })],
-      ['@deepseek-ai/dsh-base', packed('@deepseek-ai/dsh-base', {
+      ['@qilin/base', packed('@qilin/base', {
         peerDependencies: { '@deepseek-ai/cordis': '^1.0.0' },
       })],
       ['@deepseek-ai/cordis', packed('@deepseek-ai/cordis')],
@@ -39,26 +39,26 @@ describe('desktop package-set selection', () => {
     ])
     expect(selectDesktopPackageClosure(available).map(entry => entry.manifest.name)).toEqual([
       '@deepseek-ai/cordis',
-      '@deepseek-ai/dsh',
-      '@deepseek-ai/dsh-base',
-      '@deepseek-ai/dsh-desktop-host',
+      '@qilin/cli',
+      '@qilin/base',
+      '@qilin/desktop-host',
       '@deepseek-ai/platform-package',
     ])
   })
 
   it('rejects a required internal package absent from the packed release inputs', () => {
     const available = new Map<string, PackedDesktopPackage>([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh', {
-        dependencies: { '@deepseek-ai/dsh-base': '^1.0.0' },
+      ['@qilin/cli', packed('@qilin/cli', {
+        dependencies: { '@qilin/base': '^1.0.0' },
       })],
-      ['@deepseek-ai/dsh-desktop-host', packed('@deepseek-ai/dsh-desktop-host', {
-        dependencies: { '@deepseek-ai/dsh': '^1.0.0' },
+      ['@qilin/desktop-host', packed('@qilin/desktop-host', {
+        dependencies: { '@qilin/cli': '^1.0.0' },
       })],
     ])
     expect(() => selectDesktopPackageClosure(available)).toThrow(/unpacked internal package/u)
     expect(() => selectDesktopPackageClosure(new Map([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh')],
-    ]))).toThrow(/omit @deepseek-ai\/dsh-desktop-host/u)
+      ['@qilin/cli', packed('@qilin/cli')],
+    ]))).toThrow(/omit @qilin\/desktop-host/u)
   })
 
   it('requires the Desktop Host entry and its packaged overlay', () => {

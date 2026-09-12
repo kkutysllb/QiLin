@@ -4,11 +4,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import type { Agent } from '@qilin/agent'
+import SubagentRuntime from '@qilin/subagent'
+import SessionProjectionRegistry from '@qilin/session-projection'
+import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import { resolveExampleLaunch } from '@qilin/loader-smoke'
 import * as acp from '../src/index.ts'
 
 /**
@@ -56,7 +56,7 @@ afterEach(async () => {
 describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive our own acp-agent)', () => {
   it('drives the real acp-agent example process to answer a prompt', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'dsh-subagent-acp-e2e-'))
-    const childLaunch = resolveChildLaunch(join(workdir, '.dsh-child'))
+    const childLaunch = resolveChildLaunch(join(workdir, '.qilin-child'))
     ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(SubagentRuntime)
@@ -88,7 +88,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive 
 
   it('drives the child to do real file work via its own bash tool', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'dsh-subagent-acp-e2e-'))
-    const childLaunch = resolveChildLaunch(join(workdir, '.dsh-child'))
+    const childLaunch = resolveChildLaunch(join(workdir, '.qilin-child'))
     ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(SubagentRuntime)

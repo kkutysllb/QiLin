@@ -1,13 +1,13 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION, Session, SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
+import { SESSION_FORMAT_VERSION, Session, SessionId, type SessionEvent } from '@qilin/session'
 import {
   generationLogFilename,
   scanLog,
-} from '@deepseek-ai/dsh-session-persistence-jsonl/src/format.ts'
-import { foldSubagentDescriptor } from '@deepseek-ai/dsh-subagent'
-import { projectionCacheDomainSpec } from '@deepseek-ai/dsh-session-projection-cache'
+} from '@qilin/session-persistence-jsonl/src/format.ts'
+import { foldSubagentDescriptor } from '@qilin/subagent'
+import { projectionCacheDomainSpec } from '@qilin/session-projection-cache'
 import {
   buildVfsExampleFiles,
   VFS_EXAMPLE_OLDEST_MESSAGE,

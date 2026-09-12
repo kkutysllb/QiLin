@@ -6,7 +6,7 @@
  * every mutable residency decision to this registry, so delivery and teardown
  * share one child lock and one Activation map.
  *
- * @module @deepseek-ai/dsh-subagent/continuation-activation
+ * @module @qilin/subagent/continuation-activation
  */
 
 import type { Context } from '@deepseek-ai/cordis'
@@ -15,16 +15,16 @@ import type {
   AgentHandle,
   AgentOptions,
   CreateAgentOptions,
-} from '@deepseek-ai/dsh-agent'
-import { errorChain } from '@deepseek-ai/dsh-llm'
-import type { MessageId } from '@deepseek-ai/dsh-llm'
+} from '@qilin/agent'
+import { errorChain } from '@qilin/llm'
+import type { MessageId } from '@qilin/llm'
 import type {
   SessionEvent,
   SessionId,
   SessionLogOffset as SessionLogOffsetType,
   UserMessage,
-} from '@deepseek-ai/dsh-session'
-import type { ToolRestriction } from '@deepseek-ai/dsh-tools'
+} from '@qilin/session'
+import type { ToolRestriction } from '@qilin/tools'
 import {
   appendDelegatedPolicyOverrides,
   applyChildComposition,

@@ -1,22 +1,22 @@
 /** Register the Chat Conversation target, renderers, stats, and details surface. */
 import type { Context } from '@deepseek-ai/cordis'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type { SessionBinding } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
+import type { ImageAttachmentRef } from '@qilin/attachment'
+import type {} from '@qilin/api-remotes/client'
+import type { SessionBinding } from '@qilin/api-session-controller/client'
+import type { ObservableSnapshot } from '@qilin/client-store'
+import type { SessionId } from '@qilin/session/types'
+import type {} from '@qilin/client-ui-sidebar-right/client'
 // The `file` entry of `SidebarRightResourceParamsMap`, which types `{ params: { line } }` below.
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/client'
-import { fileAddressFor } from '@deepseek-ai/dsh-util-workspace-path'
+import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
+import { fileAddressFor } from '@qilin/util-workspace-path'
 // Type-only service and declaration merges used by the apply world.
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
+import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin/client-ui-layout/client'
+import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin/client-ui-settings/client'
+import type {} from '@qilin/client-ui-workspace/client'
 import type {
   ChatNodeTurnDataInjected, ChatScrollPosition, ChatViewInjected,
   TurnTailOwnerProps,

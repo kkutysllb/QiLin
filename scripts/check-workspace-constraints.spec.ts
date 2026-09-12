@@ -11,13 +11,13 @@ import {
 
 const experimental: WorkspaceManifest = {
   dir: 'packages/experimental/prototype',
-  manifest: { name: '@deepseek-ai/dsh-experimental-prototype', private: true },
+  manifest: { name: '@qilin/experimental-prototype', private: true },
 }
 
 const publicExperimental: WorkspaceManifest = {
   dir: 'packages/experimental/agent-team',
   manifest: {
-    name: '@deepseek-ai/dsh-experimental-agent-team',
+    name: '@qilin/experimental-agent-team',
     publishConfig: { access: 'public' },
   },
 }
@@ -26,9 +26,9 @@ describe('experimental workspace constraints', () => {
   it('requires the experimental package-name prefix', () => {
     expect(checkExperimentalManifest({
       ...experimental,
-      manifest: { ...experimental.manifest, name: '@deepseek-ai/dsh-prototype' },
+      manifest: { ...experimental.manifest, name: '@qilin/prototype' },
     })).toEqual([
-      '@deepseek-ai/dsh-prototype: experimental package name must start with "@deepseek-ai/dsh-experimental-"',
+      '@qilin/prototype: experimental package name must start with "@qilin/experimental-"',
     ])
   })
 
@@ -38,8 +38,8 @@ describe('experimental workspace constraints', () => {
       ...experimental,
       manifest: { ...experimental.manifest, private: false, publishConfig: { access: 'public' } },
     })).toEqual([
-      '@deepseek-ai/dsh-experimental-prototype: experimental package must set "private": true',
-      '@deepseek-ai/dsh-experimental-prototype: experimental package must omit publishConfig',
+      '@qilin/experimental-prototype: experimental package must set "private": true',
+      '@qilin/experimental-prototype: experimental package must omit publishConfig',
     ])
   })
 
@@ -48,12 +48,12 @@ describe('experimental workspace constraints', () => {
     expect(checkExperimentalManifest({
       ...publicExperimental,
       manifest: {
-        name: '@deepseek-ai/dsh-experimental-agent-team',
+        name: '@qilin/experimental-agent-team',
         private: true,
       },
     })).toEqual([
-      '@deepseek-ai/dsh-experimental-agent-team: public experimental package must not set "private": true',
-      '@deepseek-ai/dsh-experimental-agent-team: public experimental package must set publishConfig.access to "public"',
+      '@qilin/experimental-agent-team: public experimental package must not set "private": true',
+      '@qilin/experimental-agent-team: public experimental package must set publishConfig.access to "public"',
     ])
   })
 
@@ -63,11 +63,11 @@ describe('experimental workspace constraints', () => {
       expect(checkExperimentalDependencyIsolation([experimental, {
         dir: 'packages/core/consumer',
         manifest: {
-          name: '@deepseek-ai/dsh-consumer',
-          [section]: { '@deepseek-ai/dsh-experimental-prototype': 'workspace:^' },
+          name: '@qilin/consumer',
+          [section]: { '@qilin/experimental-prototype': 'workspace:^' },
         },
       }])).toEqual([
-        `@deepseek-ai/dsh-consumer: ${section}.@deepseek-ai/dsh-experimental-prototype must not reference an experimental package`,
+        `@qilin/consumer: ${section}.@qilin/experimental-prototype must not reference an experimental package`,
       ])
     },
   )
@@ -76,25 +76,25 @@ describe('experimental workspace constraints', () => {
     const manifests: WorkspaceManifest[] = [experimental, {
       dir: 'packages/core/test-only',
       manifest: {
-        name: '@deepseek-ai/dsh-test-only',
-        devDependencies: { '@deepseek-ai/dsh-experimental-prototype': 'workspace:^' },
+        name: '@qilin/test-only',
+        devDependencies: { '@qilin/experimental-prototype': 'workspace:^' },
       },
     }, {
       dir: 'packages/experimental/consumer',
       manifest: {
-        name: '@deepseek-ai/dsh-experimental-consumer',
-        dependencies: { '@deepseek-ai/dsh-experimental-prototype': 'workspace:^' },
+        name: '@qilin/experimental-consumer',
+        dependencies: { '@qilin/experimental-prototype': 'workspace:^' },
       },
     }, {
       dir: 'python/sdk-runtime',
       manifest: {
-        name: '@deepseek-ai/dsh-python-runtime',
-        dependencies: { '@deepseek-ai/dsh-experimental-prototype': 'workspace:^' },
+        name: '@qilin/python-runtime',
+        dependencies: { '@qilin/experimental-prototype': 'workspace:^' },
       },
     }]
 
     expect(checkExperimentalDependencyIsolation(manifests)).toEqual([
-      '@deepseek-ai/dsh-python-runtime: dependencies.@deepseek-ai/dsh-experimental-prototype must not reference an experimental package',
+      '@qilin/python-runtime: dependencies.@qilin/experimental-prototype must not reference an experimental package',
     ])
   })
 })
@@ -102,21 +102,21 @@ describe('experimental workspace constraints', () => {
 describe('dsh family version coherence', () => {
   it('rejects a package carrying a stale shared version', () => {
     expect(checkDshFamilyVersion(
-      { name: '@deepseek-ai/dsh-http-proxy', version: '0.1.2-alpha.5' },
+      { name: '@qilin/http-proxy', version: '0.1.2-alpha.5' },
       '0.1.2-rc.1',
-    )).toBe('@deepseek-ai/dsh-http-proxy: package.json version must match root version 0.1.2-rc.1')
+    )).toBe('@qilin/http-proxy: package.json version must match root version 0.1.2-rc.1')
   })
 
   it('rejects the root-named CLI app on a stale shared version', () => {
     expect(checkDshFamilyVersion(
-      { name: '@deepseek-ai/dsh', version: '0.1.2-alpha.5' },
+      { name: '@qilin/cli', version: '0.1.2-alpha.5' },
       '0.1.2-rc.1',
-    )).toBe('@deepseek-ai/dsh: package.json version must match root version 0.1.2-rc.1')
+    )).toBe('@qilin/cli: package.json version must match root version 0.1.2-rc.1')
   })
 
   it('accepts a manifest carrying the shared version', () => {
     expect(checkDshFamilyVersion(
-      { name: '@deepseek-ai/dsh-http-proxy', version: '0.1.2-rc.1' },
+      { name: '@qilin/http-proxy', version: '0.1.2-rc.1' },
       '0.1.2-rc.1',
     )).toBeUndefined()
   })
@@ -134,8 +134,8 @@ describe('dsh family version coherence', () => {
 describe('package payload constraints', () => {
   it('includes a declared profile patch without a package-name allowlist', () => {
     expect(expectedDshPackageFiles({
-      name: '@deepseek-ai/dsh-private-profile',
-      dsh: { bundle: { patch: './cordis.patch.yml' } },
+      name: '@qilin/private-profile',
+      qilin: { bundle: { patch: './cordis.patch.yml' } },
     })).toEqual([
       'lib/index.js',
       'cordis.patch.yml',

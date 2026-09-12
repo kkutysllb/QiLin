@@ -41,7 +41,7 @@ export interface PackageDependencyManifest {
   optionalDependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
   peerDependenciesMeta?: Record<string, unknown>
-  dsh?: { client?: { inject?: string[] } }
+  qilin?: { client?: { inject?: string[] } }
 }
 
 /** One workspace package and its source location. */
@@ -158,7 +158,7 @@ export function discoverPackageDependencyScope(
     if (exclude.has(name)) violations.push(`${name} appears in both clientFaceInclude and clientFaceExclude`)
     const pkg = byName.get(name)
     if (pkg !== undefined
-      && (pkg.manifestPath.startsWith('packages/client/') || hasClientDeclaration(pkg.manifest.dsh))) {
+      && (pkg.manifestPath.startsWith('packages/client/') || hasClientDeclaration(pkg.manifest.qilin))) {
       violations.push(`clientFaceInclude redundantly names automatically discovered package ${name}`)
     }
   }
@@ -166,7 +166,7 @@ export function discoverPackageDependencyScope(
     const pkg = byName.get(name)
     if (pkg !== undefined && pkg.manifestPath.startsWith('packages/client/')) {
       violations.push(`clientFaceExclude cannot exempt packages/client package ${name}`)
-    } else if (pkg !== undefined && !hasClientDeclaration(pkg.manifest.dsh)) {
+    } else if (pkg !== undefined && !hasClientDeclaration(pkg.manifest.qilin)) {
       violations.push(`clientFaceExclude names ${name}, which declares no dsh.client entry`)
     }
   }
@@ -174,7 +174,7 @@ export function discoverPackageDependencyScope(
   const selected: Array<WorkspacePackageManifest & { role: PackageDependencyRole }> = []
   for (const pkg of packages) {
     const clientDirectory = pkg.manifestPath.startsWith('packages/client/')
-    const clientHost = (hasClientDeclaration(pkg.manifest.dsh) || include.has(pkg.name)) && !exclude.has(pkg.name)
+    const clientHost = (hasClientDeclaration(pkg.manifest.qilin) || include.has(pkg.name)) && !exclude.has(pkg.name)
     const clientOnly = clientDirectory && !clientHost
     const configuredHost = host.has(pkg.name)
     if (configuredHost && (clientHost || clientOnly)) {
@@ -440,7 +440,7 @@ export function readPackageDependencyFacts(
   policy: PackageDependencyPolicy = PACKAGE_DEPENDENCY_POLICY,
   generatedHostSource?: string,
 ): PackageDependencyFacts {
-  const inject = pkg.manifest.dsh?.client?.inject ?? []
+  const inject = pkg.manifest.qilin?.client?.inject ?? []
   const hostRuntime = role === 'client-only'
     ? { packageUses: new Map<string, string[]>(), exportUses: [] }
     : readHostRuntimeUses(root, pkg, generatedHostSource)

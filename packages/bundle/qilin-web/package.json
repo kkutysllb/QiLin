@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-qilin-web",
+  "name": "@qilin/qilin-web",
   "description": "The QiLin browser-surface bundle: QiLin product identity layered over the dsh web surface",
   "version": "0.1.5-rc.2",
   "private": true,
@@ -21,14 +21,14 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "qilin": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-client-ui-brand-qilin": "workspace:^",
-    "@deepseek-ai/dsh-client-ui-theme-qilin": "workspace:^"
+    "@qilin/client-ui-brand-qilin": "workspace:^",
+    "@qilin/client-ui-theme-qilin": "workspace:^"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:^",

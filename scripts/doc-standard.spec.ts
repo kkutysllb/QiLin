@@ -114,8 +114,8 @@ function packageDir(file: string): string {
 function declaresBundle(dir: string): boolean {
   const manifest = resolve(root, dir, 'package.json')
   if (!existsSync(manifest)) return false
-  const metadata = JSON.parse(readFileSync(manifest, 'utf8')) as { dsh?: { bundle?: { patch?: string } } }
-  return metadata.dsh?.bundle?.patch !== undefined
+  const metadata = JSON.parse(readFileSync(manifest, 'utf8')) as { qilin?: { bundle?: { patch?: string } } }
+  return metadata.qilin?.bundle?.patch !== undefined
 }
 
 /** The expected kind for one package README, from the facts the skill documents. */

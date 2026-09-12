@@ -3,7 +3,7 @@ description: "Standalone single-tool SDK profile for users who need a minimal cr
 kind: "package-bundle"
 ---
 
-# `@deepseek-ai/dsh-sdk-minimal`
+# `@qilin/sdk-minimal`
 
 English | [中文](README.zh.md)
 

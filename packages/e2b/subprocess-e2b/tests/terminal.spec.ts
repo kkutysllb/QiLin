@@ -9,10 +9,10 @@ import {
   type CommandHandle,
   type CommandResult,
   type Sandbox,
-} from '@deepseek-ai/dsh-e2b'
-import type E2BRuntime from '@deepseek-ai/dsh-e2b'
-import type { SubprocessTerminalSpawnSpec } from '@deepseek-ai/dsh-subprocess'
-import E2BSubprocessRuntime from '@deepseek-ai/dsh-subprocess-e2b'
+} from '@qilin/e2b'
+import type E2BRuntime from '@qilin/e2b'
+import type { SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
+import E2BSubprocessRuntime from '@qilin/subprocess-e2b'
 import { spawnE2BTerminal } from '../src/terminal.ts'
 
 function commandError(exitCode: number): CommandExitError {
@@ -229,7 +229,7 @@ class FakeTerminalSandbox {
 function runtime(fake: FakeTerminalSandbox): E2BRuntime {
   return {
     cwd: '/workspace',
-    runtimeRoot: '/workspace/.dsh-e2b',
+    runtimeRoot: '/workspace/.qilin-e2b',
     getSandbox: async () => fake.sandbox,
   } as unknown as E2BRuntime
 }
@@ -282,7 +282,7 @@ describe('E2B terminal allocation', () => {
     expect(output).not.toContain('runner.bash')
     expect(fake.createOptions).toMatchObject({ rows: 24, cols: 80, cwd: '/workspace', timeoutMs: 0 })
     const controlEnvs = fake.createOptions?.envs
-    expect(controlEnvs?.HOME).toMatch(/^\/\.dsh-e2b-control-/)
+    expect(controlEnvs?.HOME).toMatch(/^\/\.qilin-e2b-control-/)
     expect(controlEnvs).toEqual({
       TERM: 'dumb',
       NPM_TOKEN: '',
@@ -795,7 +795,7 @@ describe('E2B subprocess terminal service', () => {
       .resolves.toBe('/workspace/tools/bin/node')
     const commandOptions = fake.commandOptions.at(-1)
     expect(commandOptions).toMatchObject({ cwd: '/workspace' })
-    expect(commandOptions?.envs?.HOME).toMatch(/^\/\.dsh-e2b-control-/)
+    expect(commandOptions?.envs?.HOME).toMatch(/^\/\.qilin-e2b-control-/)
     expect(commandOptions?.envs).toEqual({ HOME: commandOptions?.envs?.HOME })
     expect((ctx.e2b)).toBeDefined()
   })

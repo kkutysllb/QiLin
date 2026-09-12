@@ -21,11 +21,11 @@
  * the stream: the next write stats again. One {@link ChangeFeed}
  * serves every open file of the Client.
  */
-import type { ResourceProvider } from '@deepseek-ai/dsh-client-resources/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import { parseFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
+import type { ResourceProvider } from '@qilin/client-resources/client'
+import type { SessionId } from '@qilin/session/types'
+import { RemoteError } from '@qilin/typert-protocol'
+import type { RemoteResult } from '@qilin/typert-protocol'
+import { parseFileAddress } from '@qilin/util-workspace-path'
 import type { WorkspaceFileStat } from '../types.ts'
 import type { ChangeFeed } from './change-feed.ts'
 import type { WorkspaceFilesRemote } from './remote.ts'

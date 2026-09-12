@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ui-brand-qilin",
+  "name": "@qilin/client-ui-brand-qilin",
   "description": "QiLin brand occupants for the Web client's sidebar and conversation-hero brand slots: the 麒麟 seal mark",
   "version": "0.1.5-rc.2",
   "private": true,
@@ -18,12 +18,12 @@
     "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
-  "dsh": {
+  "qilin": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-ui-renderer",
-        "@deepseek-ai/dsh-client-ui-sidebar",
-        "@deepseek-ai/dsh-client-ui-conversation"
+        "@qilin/client-ui-renderer",
+        "@qilin/client-ui-sidebar",
+        "@qilin/client-ui-conversation"
       ],
       "platform": "web"
     }
@@ -38,11 +38,11 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:^",
-    "@deepseek-ai/dsh-client-ui-conversation": "workspace:^",
-    "@deepseek-ai/dsh-client-ui-primitives": "workspace:^",
-    "@deepseek-ai/dsh-client-ui-renderer": "workspace:^",
-    "@deepseek-ai/dsh-client-ui-sidebar": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-sidebar": "workspace:^",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",

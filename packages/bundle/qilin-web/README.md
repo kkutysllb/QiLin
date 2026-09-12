@@ -3,7 +3,7 @@ description: "The QiLin product layer over the dsh Web surface: a patch bundle t
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-qilin-web
+# @qilin/qilin-web
 
 English | [中文](README.zh.md)
 
@@ -27,12 +27,12 @@ Name the package last in a profile's `dsh.profile.bundles` list so its rows win 
 
 ```json
 {
-  "dsh": {
+  "qilin": {
     "profile": {
       "bundles": [
-        "@deepseek-ai/dsh-base",
-        "@deepseek-ai/dsh-web-app",
-        "@deepseek-ai/dsh-qilin-web"
+        "@qilin/base",
+        "@qilin/web-app",
+        "@qilin/qilin-web"
       ]
     }
   }

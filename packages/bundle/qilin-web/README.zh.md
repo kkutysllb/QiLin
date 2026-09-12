@@ -3,7 +3,7 @@ description: "QiLin 在 dsh Web 表面之上的产品层：一个补丁 bundle�
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-qilin-web
+# @qilin/qilin-web
 
 [English](README.md) | 中文
 
@@ -27,12 +27,12 @@ kind: "package-bundle"
 
 ```json
 {
-  "dsh": {
+  "qilin": {
     "profile": {
       "bundles": [
-        "@deepseek-ai/dsh-base",
-        "@deepseek-ai/dsh-web-app",
-        "@deepseek-ai/dsh-qilin-web"
+        "@qilin/base",
+        "@qilin/web-app",
+        "@qilin/qilin-web"
       ]
     }
   }

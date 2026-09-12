@@ -36,7 +36,7 @@ const DEPENDENCY_SECTIONS = [
   'peerDependencies',
 ] as const
 const RELEASE_MANIFEST_NAME = 'manifest.json'
-const RELEASE_ENTRY_PACKAGE = '@deepseek-ai/dsh'
+const RELEASE_ENTRY_PACKAGE = '@qilin/cli'
 const LATEST_DIST_TAG = 'latest'
 const POSIX_WEB_PROBE = String.raw`
 import errno, os, pty, select, signal, sys, time
@@ -265,7 +265,7 @@ class WorkspacePackageSet {
       if (!name.startsWith('@deepseek-ai/')) {
         throw new Error(`${manifestPath} must name an @deepseek-ai package`)
       }
-      if (name === '@deepseek-ai/dsh-root') {
+      if (name === '@qilin/root') {
         throw new Error(`${manifestPath} unexpectedly selected the workspace root`)
       }
       if (names.has(name)) throw new Error(`duplicate package name: ${name}`)
@@ -456,7 +456,7 @@ class InstalledBundleSmoke {
         `--registry=${this.bundle.manifest.registry}`,
       ], consumerRoot, npmClientEnvironment())
 
-      const bin = resolve(consumerRoot, 'node_modules/@deepseek-ai/dsh/lib/bin.js')
+      const bin = resolve(consumerRoot, 'node_modules/@qilin/cli/lib/bin.js')
       assertPathWithin(consumerRoot, bin, 'installed dsh bin')
       const environment = installedArtifactEnvironment(consumerRoot)
       const version = this.runner.capture(
@@ -807,7 +807,7 @@ function parsePackedPackage(value: unknown, index: number): PackedPackage {
   if (origin !== 'harness' && origin !== 'vendor') {
     throw new Error(`invalid package origin in release manifest: ${JSON.stringify(origin)}`)
   }
-  if (origin === 'harness' && (!name.startsWith('@deepseek-ai/') || name === '@deepseek-ai/dsh-root')) {
+  if (origin === 'harness' && (!name.startsWith('@deepseek-ai/') || name === '@qilin/root')) {
     throw new Error(`invalid package name in release manifest: ${name}`)
   }
   return {
@@ -914,7 +914,7 @@ function installedArtifactEnvironment(consumerRoot: string): NodeJS.ProcessEnv {
   const environment = npmClientEnvironment()
   delete environment.NODE_OPTIONS
   delete environment.NODE_PATH
-  environment.DSH_HOME = resolve(consumerRoot, '.dsh')
+  environment.DSH_HOME = resolve(consumerRoot, '.qilin')
   environment.DSH_AGENTS_HOME = resolve(consumerRoot, '.agents')
   environment.DSH_TELEMETRY_DISABLED = '1'
   environment.DEEPSEEK_API_KEY = 'keyless-installed-web-no-call'

@@ -56,9 +56,9 @@ function archiveStore(seed: string): void {
 
 function writeCorePackageSet(seed: string, version: string): void {
   const packages = [
-    { name: '@deepseek-ai/dsh', file: `deepseek-ai-dsh-${version}.tgz`, body: Buffer.from(`dsh-${version}`) },
+    { name: '@qilin/cli', file: `deepseek-ai-dsh-${version}.tgz`, body: Buffer.from(`dsh-${version}`) },
     {
-      name: '@deepseek-ai/dsh-desktop-host',
+      name: '@qilin/desktop-host',
       file: `deepseek-ai-dsh-desktop-host-${version}.tgz`,
       body: Buffer.from(`desktop-host-${version}`),
     },
@@ -110,17 +110,17 @@ rmSync(join(project, 'node_modules'), { recursive: true, force: true })
 for (const [name, version] of Object.entries(manifest.dependencies)) {
   const packageRoot = join(project, 'node_modules', ...name.split('/'))
   mkdirSync(packageRoot, { recursive: true })
-  const core = name === '@deepseek-ai/dsh' || name === '@deepseek-ai/dsh-desktop-host'
+  const core = name === '@qilin/cli' || name === '@qilin/desktop-host'
   const plugin = !core
   const installedVersion = plugin
     ? version
     : JSON.parse(readFileSync(join(project, 'desktop-release.json'), 'utf8')).version
   writeFileSync(join(packageRoot, 'package.json'), JSON.stringify({
     name, version: installedVersion,
-    ...(plugin ? { dsh: { bundle: { patch: './bundle.yml' } } } : {}),
+    ...(plugin ? { qilin: { bundle: { patch: './bundle.yml' } } } : {}),
   }))
   if (plugin) writeFileSync(join(packageRoot, 'bundle.yml'), '[]\n')
-  else if (name === '@deepseek-ai/dsh-desktop-host') {
+  else if (name === '@qilin/desktop-host') {
     mkdirSync(join(packageRoot, 'lib'), { recursive: true })
     writeFileSync(join(packageRoot, 'lib', 'index.js'), '')
   }
@@ -203,7 +203,7 @@ describe('desktop project transactions', () => {
     writeFileSync(join(seed, 'store', 'seed-entry'), 'content')
     archiveStore(seed)
     writeIntegrity(seed)
-    const paths = resolveDesktopPaths(join(root, '.dsh'))
+    const paths = resolveDesktopPaths(join(root, '.qilin'))
     const manager = new DesktopProjectManager(paths, { node: process.execPath, pnpm: writeFakePnpm(root) })
     const previousLog = process.env.TEST_PNPM_LOG
     const previousRegistry = process.env.npm_config_registry
@@ -214,7 +214,7 @@ describe('desktop project transactions', () => {
       await manager.applyRelease(seed, '1.0.0', hooks())
       writeFileSync(
         join(paths.profile, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'package.json'),
-        '{"name":"@deepseek-ai/dsh-desktop-host","version":"0.9.0"}\n',
+        '{"name":"@qilin/desktop-host","version":"0.9.0"}\n',
       )
       await expect(manager.applyRelease(seed, '1.0.0', hooks())).resolves.toBe(true)
     } finally {
@@ -225,7 +225,7 @@ describe('desktop project transactions', () => {
     }
     expect(manager.dshVersion()).toBe('1.0.0')
     expect(manager.releaseVersion()).toBe('1.0.0')
-    expect(paths.profile).toBe(join(root, '.dsh', 'profiles', 'desktop'))
+    expect(paths.profile).toBe(join(root, '.qilin', 'profiles', 'desktop'))
     expect(existsSync(join(paths.profile, 'node_modules', '@deepseek-ai', 'dsh'))).toBe(true)
     const installedHost = JSON.parse(readFileSync(
       join(paths.profile, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'package.json'),
@@ -253,7 +253,7 @@ describe('desktop project transactions', () => {
     writeFileSync(join(seed, 'pnpm-lock.yaml'), 'lockfileVersion: 9\n')
     archiveStore(seed)
     writeIntegrity(seed)
-    const paths = resolveDesktopPaths(join(root, '.dsh'))
+    const paths = resolveDesktopPaths(join(root, '.qilin'))
     const manager = new DesktopProjectManager(paths, { node: process.execPath, pnpm: writeFakePnpm(root) })
     await manager.applyRelease(seed, '1.0.0', hooks())
     let starts = 0
@@ -275,7 +275,7 @@ describe('desktop project transactions', () => {
     writeFileSync(join(seed, 'pnpm-lock.yaml'), 'lockfileVersion: 9\n')
     archiveStore(seed)
     writeIntegrity(seed)
-    const paths = resolveDesktopPaths(join(root, '.dsh'))
+    const paths = resolveDesktopPaths(join(root, '.qilin'))
     const manager = new DesktopProjectManager(paths, { node: process.execPath, pnpm: writeFakePnpm(root) })
     await manager.applyRelease(seed, '1.0.0', hooks())
     await manager.mutate({ type: 'plugin-add', spec: '@scope/plugin@2.0.0' }, hooks())
@@ -308,7 +308,7 @@ describe('desktop project transactions', () => {
     writeFileSync(join(seed, 'pnpm-lock.yaml'), 'lockfileVersion: 9\n')
     archiveStore(seed)
     writeIntegrity(seed)
-    const paths = resolveDesktopPaths(join(root, '.dsh'))
+    const paths = resolveDesktopPaths(join(root, '.qilin'))
     const runtime = { node: process.execPath, pnpm: writeBlockingFakePnpm(root, ready, releaseWorker) }
     const manager = new DesktopProjectManager(paths, runtime)
     const installing = manager.applyRelease(seed, '1.0.0', hooks())
@@ -342,7 +342,7 @@ describe('desktop project transactions', () => {
     writeFileSync(join(seed, 'pnpm-lock.yaml'), 'lockfileVersion: 9\n')
     archiveStore(seed)
     writeIntegrity(seed)
-    const paths = resolveDesktopPaths(join(root, '.dsh'))
+    const paths = resolveDesktopPaths(join(root, '.qilin'))
     const manager = new DesktopProjectManager(paths, { node: process.execPath, pnpm: writeFakePnpm(root) })
     await manager.applyRelease(seed, '1.0.0', hooks())
     const previousLog = process.env.TEST_PNPM_LOG
@@ -357,10 +357,10 @@ describe('desktop project transactions', () => {
     const manifest = JSON.parse(readFileSync(join(paths.profile, 'package.json'), 'utf8')) as {
       dependencies: Record<string, string>
     }
-    const coreSpec = manifest.dependencies['@deepseek-ai/dsh']
+    const coreSpec = manifest.dependencies['@qilin/cli']
     expect(coreSpec).toMatch(/^file:\.\/desktop-packages\//u)
     expect(readFileSync(join(paths.profile, 'pnpm-workspace.yaml'), 'utf8'))
-      .toContain(`${JSON.stringify('@deepseek-ai/dsh')}: ${JSON.stringify(coreSpec)}`)
+      .toContain(`${JSON.stringify('@qilin/cli')}: ${JSON.stringify(coreSpec)}`)
     expect(manifest.dependencies['@scope/plugin']).toBe('2.0.0')
     const invocation = JSON.parse(readFileSync(log, 'utf8')) as { args: string[]; env: Record<string, string> }
     expect(invocation.args).toContain('add')
@@ -371,7 +371,7 @@ describe('desktop project transactions', () => {
 
   it('reconciles dsh to the packaged release without removing desktop plugins', async () => {
     const root = temporaryRoot()
-    const paths = resolveDesktopPaths(join(root, '.dsh'))
+    const paths = resolveDesktopPaths(join(root, '.qilin'))
     const manager = new DesktopProjectManager(paths, { node: process.execPath, pnpm: writeFakePnpm(root) })
     const firstSeed = join(root, 'seed-1')
     createTestSeedMetadata(firstSeed, release('1.0.0'))
@@ -396,11 +396,11 @@ describe('desktop project transactions', () => {
     expect(manager.dshVersion()).toBe('1.1.0')
     expect(manager.listPlugins()).toEqual([{ name: '@scope/plugin', version: '2.0.0' }])
     const profile = JSON.parse(readFileSync(join(paths.profile, 'package.json'), 'utf8')) as {
-      dsh: { profile: { bundles: string[] } }
+      qilin: { profile: { bundles: string[] } }
     }
-    expect(profile.dsh.profile.bundles).toEqual([
-      '@deepseek-ai/dsh-base',
-      '@deepseek-ai/dsh-web-app',
+    expect(profile.qilin.profile.bundles).toEqual([
+      '@qilin/base',
+      '@qilin/web-app',
       '@scope/plugin',
     ])
     expect(readFileSync(join(paths.pnpm.store, 'release-1'), 'utf8')).toBe('one')

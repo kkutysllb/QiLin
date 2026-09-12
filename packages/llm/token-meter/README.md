@@ -3,7 +3,7 @@ description: "Replay-aware token and context-pressure measurement for users and 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-token-meter
+# @qilin/token-meter
 
 English | [中文](README.zh.md)
 
@@ -53,8 +53,8 @@ When the composition provides `ctx.sessionProjections`, token-meter registers th
 ### Composition
 
 ```yaml
-- name: '@deepseek-ai/dsh-token-meter'
-- name: '@deepseek-ai/dsh-compaction-basic'
+- name: '@qilin/token-meter'
+- name: '@qilin/compaction-basic'
 ```
 
 Both plugins have usable defaults. The meter consumes only the optional `llm` service, and only to resolve route-declared request-image pricing; compaction remains optional. A deployment configures capacity and image pricing on its LLM adapter and compaction policy on `dsh-compaction-basic`.

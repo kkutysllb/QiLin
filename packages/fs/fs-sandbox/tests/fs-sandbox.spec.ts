@@ -14,12 +14,12 @@ import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, parse } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import { FsError, FsTargetKey } from '@deepseek-ai/dsh-fs'
-import type { FsTarget } from '@deepseek-ai/dsh-fs'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import { SandboxedFileSystem } from '@deepseek-ai/dsh-fs-sandbox'
+import { FsError, FsTargetKey } from '@qilin/fs'
+import type { FsTarget } from '@qilin/fs'
+import SandboxPolicyService from '@qilin/sandbox-policy'
+import SessionProjectionRegistry from '@qilin/session-projection'
+import type { SandboxMode } from '@qilin/sandbox'
+import { SandboxedFileSystem } from '@qilin/fs-sandbox'
 import { assertWorkspaceOutsideTemp, outsideTempWorkspaceParent } from '../../../../scripts/snapshot-workspace-parent.ts'
 
 let base: string
@@ -39,7 +39,7 @@ async function boot(mode: SandboxMode): Promise<void> {
 
 beforeEach(async ({ onTestFinished }) => {
   // Both siblings must be outside automatic temp grants for containment denials to be meaningful.
-  const directory = await mkdtemp(join(outsideTempWorkspaceParent(), '.dsh-fssbx-'))
+  const directory = await mkdtemp(join(outsideTempWorkspaceParent(), '.qilin-fssbx-'))
   onTestFinished(async () => { await rm(directory, { recursive: true, force: true }) })
   base = directory
   assertWorkspaceOutsideTemp(base)

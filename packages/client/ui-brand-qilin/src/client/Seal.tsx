@@ -4,8 +4,8 @@
  * surface, so one definition serves every theme.
  */
 
-import type { HeroBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { SidebarBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import type { HeroBrandMarkOwnerProps } from '@qilin/client-ui-conversation/client'
+import type { SidebarBrandMarkOwnerProps } from '@qilin/client-ui-sidebar/client'
 import { SEAL_GLYPH_LIN, SEAL_GLYPH_QI } from './glyphs.ts'
 
 /** Frame square, its corner radius, and the stroke that draws the seal body. */

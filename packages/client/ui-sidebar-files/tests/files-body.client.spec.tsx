@@ -11,9 +11,9 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent } from '@testing-library/react'
-import { makeTranslate, RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import type { RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
-import { fileAddressFor } from '@deepseek-ai/dsh-util-workspace-path'
+import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
+import type { RemoteFailure } from '@qilin/api-remotes/client'
+import { fileAddressFor } from '@qilin/util-workspace-path'
 import { failureLine, orderEntries } from '../src/client/FilesBody.tsx'
 import type { DirLevel } from '../src/client/store.ts'
 import { zh } from '../src/client/locales.ts'

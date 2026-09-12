@@ -3,7 +3,7 @@ description: "面向用户与维护者的 DeepSeek chat-completions 适配器说
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm-deepseek
+# @qilin/llm-deepseek
 
 [English](README.md) | 中文
 
@@ -34,7 +34,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@deepseek-ai/dsh-llm-deepseek'
+- name: '@qilin/llm-deepseek'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY  # credential reference, resolved per request
     baseURL: https://api.deepseek.com # optional; $DEEPSEEK_BASE_URL then this default
@@ -70,7 +70,7 @@ kind: "package-reference"
 | `fileQuotaCleanupBatch` | `100` | 配额重试前删除的最旧 harness 文件数 |
 | `retryPolicy` | normal，5 次重试 | 由 `dsh-llm-retry` 执行的提供方自有重试策略 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-llm-deepseek)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilinllm-deepseek)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 带 thinking 与图片的流式调用
 

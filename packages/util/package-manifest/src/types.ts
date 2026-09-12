@@ -1,7 +1,7 @@
 /**
- * Shared declarations for `package.json.dsh`.
+ * Shared declarations for `package.json.qilin`.
  * Each reader owns JSON validation and resolved defaults.
- * @module @deepseek-ai/dsh-package-manifest/types
+ * @module @qilin/package-manifest/types
  */
 
 /** The `dsh` property of an npm manifest; a package may declare several roles. */

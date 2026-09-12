@@ -7,7 +7,7 @@
  * `dsh.profile` with its ordered `bundles` list) and a `cordis.patch.yml`
  * (the user's own patch layer, applied after every bundle layer). Bundles are
  * npm packages whose manifest declares
- * `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`; the tree is
+ * `"qilin": { "bundle": { "patch": "./cordis.patch.yml" } }`; the tree is
  * composed by applying each bundle's patch list in `dsh.profile.bundles` order over
  * an empty entry list, then the profile's own patches, then any launcher
  * layers (`--patch` files and flag-derived patches).
@@ -20,7 +20,7 @@
  * dependency closure through Node's ordinary parent-walk. Plain Node uses
  * symlinks for that shared fallback; packaged executables use ESM proxies so
  * external plugins retain the installation's module instances.
- * @module @deepseek-ai/dsh-app-boot/profile
+ * @module @qilin/app-boot/profile
  */
 
 import { createRequire } from 'node:module'
@@ -30,11 +30,11 @@ import {
 } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { withFileLock } from '@deepseek-ai/dsh-atomic-write'
+import { withFileLock } from '@qilin/atomic-write'
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
-import type { DshManifest, DshModuleFallbackManifest, ProfilePatchReload } from '@deepseek-ai/dsh-package-manifest'
+import { resolveDshHome } from '@qilin/home-paths'
+import type { DshManifest, DshModuleFallbackManifest, ProfilePatchReload } from '@qilin/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { loadOverlayPatches } from './index.ts'
 
@@ -45,7 +45,7 @@ export const PROFILES_DIR = 'profiles'
 export const PROFILE_PATCH_FILENAME = 'cordis.patch.yml'
 
 /** Profile-private package links projected into its pnpm-managed node_modules. */
-const PROFILE_MODULE_FALLBACK_DIR = '.dsh-module-fallback'
+const PROFILE_MODULE_FALLBACK_DIR = '.qilin-module-fallback'
 
 /** Installation-owned defaults used when a shipped profile is first opened. */
 export interface ProfileTemplate {
@@ -60,7 +60,7 @@ export interface ProfileManifest {
   name?: string
   dependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
-  dsh?: DshManifest
+  qilin?: DshManifest
 }
 
 /** One resolved bundle layer of a profile. */
@@ -109,38 +109,38 @@ export function resolveProfileDir(name: string, home: string = resolveDshHome())
 /** The shipped profile templates auto-initialized on first use, by name. */
 export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
   acp: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-acp-app'],
+    bundles: ['@qilin/base', '@qilin/acp-app'],
     patchReload: 'startup',
   },
   web: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'],
+    bundles: ['@qilin/base', '@qilin/web-app'],
     patchReload: 'live',
   },
   headless: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless'],
+    bundles: ['@qilin/base', '@qilin/headless'],
     patchReload: 'startup',
   },
   qilin: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-qilin-web'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/qilin-web'],
     patchReload: 'live',
   },
   sdk: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-sdk-app'],
+    bundles: ['@qilin/base', '@qilin/sdk-app'],
     patchReload: 'startup',
   },
   'sdk-minimal': {
-    bundles: ['@deepseek-ai/dsh-sdk-minimal'],
+    bundles: ['@qilin/sdk-minimal'],
     patchReload: 'startup',
   },
 }
 
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
-  headless: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless'],
+  headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
 }
 
 /** The bundle list a `dsh plugin` init uses for a name with no shipped template. */
-export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@deepseek-ai/dsh-base']
+export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
 
 /** Custom profiles retain the historical live patch-file behavior. */
 export const DEFAULT_PROFILE_PATCH_RELOAD: ProfilePatchReload = 'live'
@@ -183,7 +183,7 @@ export function initProfile(
       name: `dsh-profile-${basename(dir)}`,
       private: true,
       dependencies: {},
-      dsh: { profile: { bundles: [...bundles], patchReload } },
+      qilin: { profile: { bundles: [...bundles], patchReload } },
     }
     writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2) + '\n')
   }
@@ -215,7 +215,7 @@ function ensureSymlink(link: string, target: string): void {
   if (stat !== undefined) {
     if (!stat.isSymbolicLink()) {
       const existing = stat.isDirectory() ? readModuleProxyRecord(link) : undefined
-      if (existing?.dsh?.moduleFallback?.targets === undefined) {
+      if (existing?.qilin?.moduleFallback?.targets === undefined) {
         throw new Error(`dsh: ${link} exists and is not a symlink or dsh-managed module proxy; remove it so dsh can manage the installation fallback`)
       }
       rmSync(link, { recursive: true })
@@ -312,12 +312,12 @@ interface ModuleProxyManifest {
   private: true
   type: 'module'
   exports: Record<string, string>
-  dsh: { moduleFallback: DshModuleFallbackManifest }
+  qilin: { moduleFallback: DshModuleFallbackManifest }
 }
 
 interface ModuleProxyRecord {
   version?: unknown
-  dsh?: { moduleFallback?: { targets?: unknown } }
+  qilin?: { moduleFallback?: { targets?: unknown } }
 }
 
 /** Return whether the process reads application modules from pkg's virtual filesystem. */
@@ -423,7 +423,7 @@ function ensureModuleProxy(
     private: true,
     type: 'module',
     exports: proxyExports,
-    dsh: { moduleFallback: { targets } },
+    qilin: { moduleFallback: { targets } },
   }
   let stat
   try {
@@ -437,11 +437,11 @@ function ensureModuleProxy(
   }
   if (stat !== undefined) {
     const existing = readModuleProxyRecord(link)
-    if (existing?.dsh?.moduleFallback?.targets === undefined) {
+    if (existing?.qilin?.moduleFallback?.targets === undefined) {
       throw new Error(`dsh: ${link} exists and is not a dsh-managed module proxy; remove it so dsh can manage the installation fallback`)
     }
     if (existing.version === version
-      && JSON.stringify(existing.dsh.moduleFallback.targets) === JSON.stringify(targets)
+      && JSON.stringify(existing.qilin.moduleFallback.targets) === JSON.stringify(targets)
       && Object.keys(targets).every((_, index) => existsSync(join(link, `entry-${index}.js`)))) return
     rmSync(link, { recursive: true })
   }
@@ -519,7 +519,7 @@ function moduleFallbackEntryCurrent(modulesDir: string, entry: ModuleFallbackEnt
     if (!stat.isDirectory()) return false
     const existing = readModuleProxyRecord(link)
     return existing?.version === entry.version
-      && JSON.stringify(existing.dsh?.moduleFallback?.targets) === JSON.stringify(entry.targets)
+      && JSON.stringify(existing.qilin?.moduleFallback?.targets) === JSON.stringify(entry.targets)
       && Object.keys(entry.targets).every((_, index) => existsSync(join(link, `entry-${index}.js`)))
   } catch {
     return false
@@ -698,20 +698,20 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
 function normalizeShippedProfile(name: string, dir: string, manifest: ProfileManifest): ProfileManifest {
   const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[name]
   const template = PROFILE_TEMPLATES[name]
-  const bundles = manifest.dsh?.profile?.bundles
+  const bundles = manifest.qilin?.profile?.bundles
   if (template === undefined || bundles === undefined) return manifest
   const isRetiredTuple = installationOwned !== undefined && sameBundles(bundles, installationOwned)
   const isCurrentTuple = sameBundles(bundles, template.bundles)
-  const needsReloadDefault = manifest.dsh?.profile?.patchReload === undefined && isCurrentTuple
+  const needsReloadDefault = manifest.qilin?.profile?.patchReload === undefined && isCurrentTuple
   if (!isRetiredTuple && !needsReloadDefault) return manifest
   const normalized: ProfileManifest = {
     ...manifest,
-    dsh: {
-      ...manifest.dsh,
+    qilin: {
+      ...manifest.qilin,
       profile: {
-        ...manifest.dsh?.profile,
+        ...manifest.qilin?.profile,
         bundles: [...template.bundles],
-        patchReload: manifest.dsh?.profile?.patchReload ?? template.patchReload,
+        patchReload: manifest.qilin?.profile?.patchReload ?? template.patchReload,
       },
     },
   }
@@ -743,7 +743,7 @@ function packageDirFromAnchor(
 /**
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
- * `@deepseek-ai/dsh-base` (and every other in-box bundle) always comes from
+ * `@qilin/base` (and every other in-box bundle) always comes from
  * the same installation as the running dsh, never from a profile-local copy.
  * Resolution does not require the package to export `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.
@@ -782,8 +782,8 @@ export function loadProfileDirectory(
   options: { userLayer?: boolean } = {},
 ): Profile {
   const manifest = readProfileManifest(binName, dir)
-  const bundles = manifest.dsh?.profile?.bundles ?? []
-  const rawPatchReload: unknown = manifest.dsh?.profile?.patchReload
+  const bundles = manifest.qilin?.profile?.bundles ?? []
+  const rawPatchReload: unknown = manifest.qilin?.profile?.patchReload
   if (rawPatchReload !== undefined && rawPatchReload !== 'live' && rawPatchReload !== 'startup') {
     throw new Error(
       `${binName}: profile manifest ${join(dir, 'package.json')} dsh.profile.patchReload must be "live" or "startup"`,
@@ -793,7 +793,7 @@ export function loadProfileDirectory(
   const layers = bundles.map((packageName): ProfileLayer => {
     const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
     const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
-    const declared = bundleManifest.dsh?.bundle?.patch
+    const declared = bundleManifest.qilin?.bundle?.patch
     if (declared === undefined) {
       throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no dsh.bundle in its package.json`)
     }

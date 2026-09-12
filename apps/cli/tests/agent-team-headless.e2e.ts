@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@qilin/loader-smoke'
 
 const dshBinScript = fileURLToPath(new URL('../src/bin.ts', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
@@ -20,7 +20,7 @@ describe('dsh run with Agent Teams enabled', () => {
   it('runs two teammates, durable peer mail, dependent tasks, waiting, and final aggregation', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'dsh-agent-team-headless-'))
     try {
-      const home = join(cwd, '.dsh')
+      const home = join(cwd, '.qilin')
       const sessions = join(home, 'sessions')
       const profileDir = join(home, 'profiles', 'headless')
       await mkdir(profileDir, { recursive: true })
@@ -28,14 +28,14 @@ describe('dsh run with Agent Teams enabled', () => {
         name: 'dsh-profile-headless',
         private: true,
         dependencies: {
-          '@deepseek-ai/dsh-experimental-agent-team-profile': 'workspace:^',
+          '@qilin/experimental-agent-team-profile': 'workspace:^',
         },
-        dsh: {
+        qilin: {
           profile: {
             bundles: [
-              '@deepseek-ai/dsh-base',
-              '@deepseek-ai/dsh-headless',
-              '@deepseek-ai/dsh-experimental-agent-team-profile',
+              '@qilin/base',
+              '@qilin/headless',
+              '@qilin/experimental-agent-team-profile',
             ],
           },
         },

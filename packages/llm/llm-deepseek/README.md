@@ -3,7 +3,7 @@ description: "The DeepSeek chat-completions adapter for users and maintainers co
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm-deepseek
+# @qilin/llm-deepseek
 
 English | [中文](README.zh.md)
 
@@ -34,7 +34,7 @@ Choose this adapter when the deployment targets DeepSeek's official API, optiona
 ### Minimal configuration
 
 ```yaml
-- name: '@deepseek-ai/dsh-llm-deepseek'
+- name: '@qilin/llm-deepseek'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY  # credential reference, resolved per request
     baseURL: https://api.deepseek.com # optional; $DEEPSEEK_BASE_URL then this default
@@ -70,7 +70,7 @@ A request selects the route with `provider: deepseek-official`; the model id pas
 | `fileQuotaCleanupBatch` | `100` | Oldest harness-owned files removed before one quota retry |
 | `retryPolicy` | normal, 5 retries | Provider-owned retry policy executed by `dsh-llm-retry` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-llm-deepseek) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilinllm-deepseek) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Streaming with thinking and images
 

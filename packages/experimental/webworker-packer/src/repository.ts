@@ -5,14 +5,14 @@
  * The library half takes all of this as parameters. Keeping the lookup here is what
  * lets the same library pack a different tree, and what keeps `pack.ts` free of
  * assumptions about pnpm workspaces or the `dsh` CLI.
- * @module @deepseek-ai/dsh-experimental-webworker-packer/src/repository
+ * @module @qilin/experimental-webworker-packer/src/repository
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
-import { DSH_HOME_ENV } from '@deepseek-ai/dsh-home-paths'
-import type { DshConfigTreeDeclaration } from '@deepseek-ai/dsh-package-manifest'
+import { DSH_HOME_ENV } from '@qilin/home-paths'
+import type { DshConfigTreeDeclaration } from '@qilin/package-manifest'
 import type { ConfigTree, ImageTree, PackResult } from './pack.ts'
 
 /**
@@ -110,9 +110,9 @@ export function composeProfile(repoRoot: string, profile: string): string {
 export function configTrees(repoRoot: string): ConfigTree[] {
   const packageDir = join(repoRoot, CLI_PACKAGE)
   const manifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as {
-    dsh?: { configTrees?: unknown }
+    qilin?: { configTrees?: unknown }
   }
-  const declared = manifest.dsh?.configTrees
+  const declared = manifest.qilin?.configTrees
   if (declared === undefined) return []
   if (!Array.isArray(declared)) {
     throw new Error(`vfs image: ${CLI_PACKAGE} dsh.configTrees must be an array`)

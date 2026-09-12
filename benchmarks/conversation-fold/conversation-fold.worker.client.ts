@@ -1,11 +1,11 @@
 /** Compiled worker for the cold Client conversation-fold benchmark. */
 
 import { performance } from 'node:perf_hooks'
-import { AssistantStreamAccumulator } from '@deepseek-ai/dsh-llm/assistant-stream'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { SessionEvent } from '@deepseek-ai/dsh-session/types'
-import type { ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { SessionEventLikeEntry } from '@deepseek-ai/dsh-api-session-controller/client'
+import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
+import type { StreamChunk } from '@qilin/llm'
+import type { SessionEvent } from '@qilin/session/types'
+import type { ChatSnapshot } from '@qilin/client-ui-chat/client'
+import type { SessionEventLikeEntry } from '@qilin/api-session-controller/client'
 // These Client-only fold modules have no plain-Node package export and are compiled into this worker.
 import { ConversationNodeAssembler } from '../../packages/client/ui-conversation/src/client/conversation/assembler.ts'
 import { inspectRequestPrompt } from '../../packages/client/ui-conversation/src/client/contract/request-inspection.ts'
@@ -174,10 +174,10 @@ function positiveInteger(value: string | undefined, label: string): number {
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
-  '@deepseek-ai/dsh-client-store': import.meta.resolve('@deepseek-ai/dsh-client-store'),
-  '@deepseek-ai/dsh-llm/assistant-stream': import.meta.resolve('@deepseek-ai/dsh-llm/assistant-stream'),
-  '@deepseek-ai/dsh-session/surface': import.meta.resolve('@deepseek-ai/dsh-session/surface'),
-  '@deepseek-ai/dsh-token-meter/client': import.meta.resolve('@deepseek-ai/dsh-token-meter/client'),
+  '@qilin/client-store': import.meta.resolve('@qilin/client-store'),
+  '@qilin/llm/assistant-stream': import.meta.resolve('@qilin/llm/assistant-stream'),
+  '@qilin/session/surface': import.meta.resolve('@qilin/session/surface'),
+  '@qilin/token-meter/client': import.meta.resolve('@qilin/token-meter/client'),
 })
 const [turnsValue, smallDeltasValue, largeDeltasValue, attemptsValue] = process.argv.slice(2)
 const turns = positiveInteger(turnsValue, 'turns')

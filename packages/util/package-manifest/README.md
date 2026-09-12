@@ -3,7 +3,7 @@ description: "Shared TypeScript declarations for package.json.dsh metadata, usab
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-package-manifest
+# @qilin/package-manifest
 
 English | [中文](README.zh.md)
 
@@ -28,7 +28,7 @@ Use `DshManifest` to type a package's Harness metadata, or a member type such as
 Import from the package root. Use a development dependency when only checking your own source; use a production dependency if your published declarations reference these types.
 
 ```ts
-import type { DshClientManifest, DshManifest } from '@deepseek-ai/dsh-package-manifest'
+import type { DshClientManifest, DshManifest } from '@qilin/package-manifest'
 
 const client: DshClientManifest = { platform: 'web' }
 const dsh: DshManifest = {

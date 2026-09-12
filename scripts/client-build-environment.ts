@@ -41,7 +41,7 @@ const CLIENT_COMMIT_HASH_VARIABLE = 'DSH_CLIENT_COMMIT_HASH'
 const CLIENT_VERSION_VARIABLE = 'DSH_CLIENT_VERSION'
 
 /** Repository-relative path of the complete client build record. */
-export const CLIENT_BUILD_RECORD_PATH = '.dsh-build/client-build-environment.json'
+export const CLIENT_BUILD_RECORD_PATH = '.qilin-build/client-build-environment.json'
 
 const CLIENT_BUILD_RECORD_FORMAT = 1
 const CLIENT_ARTIFACT_PATTERNS = [

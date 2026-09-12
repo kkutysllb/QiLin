@@ -14,21 +14,21 @@ describe('Agent Teams Web profile bundle', () => {
       private?: boolean
       publishConfig?: { access?: string }
       dependencies?: Record<string, string>
-      dsh?: { bundle?: { patch?: string } }
+      qilin?: { bundle?: { patch?: string } }
     }
     expect(manifest.private).toBeUndefined()
     expect(manifest.publishConfig?.access).toBe('public')
-    expect(manifest.dsh?.bundle?.patch).toBe('./cordis.patch.yml')
+    expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(manifest.dependencies).toEqual({
-      '@deepseek-ai/dsh-experimental-client-ui-agent-team': 'workspace:^',
+      '@qilin/experimental-client-ui-agent-team': 'workspace:^',
     })
 
     const parsed = yaml.load(
-      readFileSync(resolve(root, manifest.dsh!.bundle!.patch!), 'utf8'),
+      readFileSync(resolve(root, manifest.qilin!.bundle!.patch!), 'utf8'),
       { schema: entryListSchema },
     ) as { insert?: { id?: string; name?: string }[] }[]
     expect(parsed.flatMap(patch => patch.insert ?? [])).toEqual([
-      { id: 'ui-agent-team', name: '@deepseek-ai/dsh-experimental-client-ui-agent-team' },
+      { id: 'ui-agent-team', name: '@qilin/experimental-client-ui-agent-team' },
     ])
   })
 })

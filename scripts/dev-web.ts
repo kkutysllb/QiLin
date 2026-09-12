@@ -46,7 +46,7 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url))
 const CLIENT_TYPE_PROGRAM = 'tsconfig.client.json'
 
 /** Compile-shell workspace whose dist `dsh web` serves. */
-const SHELL_PACKAGE = '@deepseek-ai/dsh-web-frontend'
+const SHELL_PACKAGE = '@qilin/web-frontend'
 
 /**
  * Test infrastructure builds through the client preset but never enters the
@@ -79,9 +79,9 @@ export function discoverPluginDirs(root = repoRoot): string[] {
   const dirs: string[] = []
   for (const manifestPath of globSync('packages/*/*/package.json', { cwd: root }).sort()) {
     const manifest = JSON.parse(readFileSync(join(root, manifestPath), 'utf8')) as {
-      dsh?: { client?: { platform?: unknown } }
+      qilin?: { client?: { platform?: unknown } }
     }
-    if (manifest.dsh?.client?.platform === 'web') dirs.push(dirname(manifestPath).split(sep).join('/'))
+    if (manifest.qilin?.client?.platform === 'web') dirs.push(dirname(manifestPath).split(sep).join('/'))
   }
   return dirs
 }
@@ -105,9 +105,9 @@ export function discoverLibraryDirs(root = repoRoot): string[] {
     if (dir.startsWith(TEST_INFRASTRUCTURE_PREFIX)) continue
     if (!readFileSync(join(root, configPath), 'utf8').includes('tsdown.client.ts')) continue
     const manifest = JSON.parse(readFileSync(join(root, dir, 'package.json'), 'utf8')) as {
-      dsh?: { client?: unknown }
+      qilin?: { client?: unknown }
     }
-    if (manifest.dsh?.client === undefined) dirs.push(dir)
+    if (manifest.qilin?.client === undefined) dirs.push(dir)
   }
   return dirs
 }

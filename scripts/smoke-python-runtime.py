@@ -264,9 +264,9 @@ def write_advanced_profile_patch(root: Path, name: str, sessions: Path) -> Path:
             },
         },
         {"insert": [
-            {"id": "code-runtime", "name": "@deepseek-ai/dsh-code-runtime-worker-thread"},
-            {"id": "cordis-host-runner", "name": "@deepseek-ai/dsh-cordis-host-runner"},
-            {"id": "cordis-tool", "name": "@deepseek-ai/dsh-tool-cordis"},
+            {"id": "code-runtime", "name": "@qilin/code-runtime-worker-thread"},
+            {"id": "cordis-host-runner", "name": "@qilin/cordis-host-runner"},
+            {"id": "cordis-tool", "name": "@qilin/tool-cordis"},
         ]},
     ])
 
@@ -276,7 +276,7 @@ def write_mcp_patch(root: Path, sessions: Path, server_script: Path) -> Path:
     return write_profile_patch(root, "mcp.patch.yml", sessions, [{
         "insert": [{
             "id": "mcp-fixture",
-            "name": "@deepseek-ai/dsh-mcp-client",
+            "name": "@qilin/mcp-client",
             "config": {
                 "serverName": "fixture",
                 "transport": "stdio",
@@ -1214,7 +1214,7 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
             "type": "module",
             "exports": "./index.js",
             "peerDependencies": {"@deepseek-ai/cordis": "*"},
-            "dsh": {"bundle": {"patch": "./cordis.patch.yml"}},
+            "qilin": {"bundle": {"patch": "./cordis.patch.yml"}},
         }, indent=2))
         (plugin / "index.js").write_text(
             "import { Context } from '@deepseek-ai/cordis'\n"
@@ -1295,7 +1295,7 @@ def smoke_sdk_snapshot(base_url: str, executable: Path, update_snapshots: bool) 
             ).as_uri(), "config": {
                 "parentSessionId": SNAPSHOT_SESSION_ID, "prompt": SNAPSHOT_WORKFLOW_CHILD_PROMPT,
             }},
-            {"id": "snapshot-message-feedback", "name": "@deepseek-ai/dsh-message-feedback",
+            {"id": "snapshot-message-feedback", "name": "@qilin/message-feedback",
              "config": {"maxNoteBytes": 1024}},
             {"id": "snapshot-feedback-producer", "name": (
                 Path(__file__).resolve().parent.parent / "snapshots/sdk/text-turn/feedback-producer.mjs"

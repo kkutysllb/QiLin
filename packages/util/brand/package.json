@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-brand",
+  "name": "@qilin/brand",
   "description": "Stateless branded primitive types for the DeepSeek Harness",
   "version": "0.1.5-rc.2",
   "publishConfig": {

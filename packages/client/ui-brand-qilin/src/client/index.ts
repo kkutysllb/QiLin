@@ -1,9 +1,9 @@
 /** QiLin occupants for the generic sidebar and conversation brand slots. */
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin/client-ui-sidebar/client'
 import { QilinSealHeroMark, QilinSealMark } from './Seal.tsx'
 
 /** Required service: the UI slot registry. */

@@ -56,7 +56,7 @@ interface DesktopProjectManifest {
   readonly private: true
   readonly version: string
   readonly dependencies: Record<string, string>
-  readonly dsh: {
+  readonly qilin: {
     readonly profile: {
       readonly bundles: string[]
     }
@@ -99,10 +99,10 @@ interface DesktopSeedIntegrityRecord {
   readonly sha256: string
 }
 
-const PROJECT_NAME = '@deepseek-ai/dsh-desktop-runtime'
-const DSH_PACKAGE = '@deepseek-ai/dsh'
-const CORE_BUILD_PACKAGE = '@deepseek-ai/dsh-subprocess-local'
-const DESKTOP_PROFILE_BUNDLES = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'] as const
+const PROJECT_NAME = '@qilin/desktop-runtime'
+const DSH_PACKAGE = '@qilin/cli'
+const CORE_BUILD_PACKAGE = '@qilin/subprocess-local'
+const DESKTOP_PROFILE_BUNDLES = ['@qilin/base', '@qilin/web-app'] as const
 const WORKSPACE_SETTINGS = 'nodeLinker: hoisted\nautoInstallPeers: false\nstrictDepBuilds: true\n'
 const PACKAGE_NAME_PATTERN = /^(?:@[a-z0-9][a-z0-9._~-]*\/[a-z0-9][a-z0-9._~-]*|[a-z0-9][a-z0-9._~-]*)$/u
 const VERSION_PATTERN = /^[0-9A-Za-z][0-9A-Za-z.+_-]*$/u
@@ -253,7 +253,7 @@ export function verifySeedIntegrity(seedDir: string): void {
 function projectManifest(projectDir: string): DesktopProjectManifest {
   const path = join(projectDir, 'package.json')
   const value = readJson(path)
-  const dsh = isRecord(value) && isRecord(value.dsh) ? value.dsh : undefined
+  const dsh = isRecord(value) && isRecord(value.qilin) ? value.qilin : undefined
   const profile = isRecord(dsh?.profile) ? dsh.profile : undefined
   if (!isRecord(value) || value.name !== PROJECT_NAME || value.private !== true
     || typeof value.version !== 'string' || !isRecord(value.dependencies)
@@ -272,7 +272,7 @@ function projectManifest(projectDir: string): DesktopProjectManifest {
 }
 
 function profilePluginNames(projectDir: string): readonly string[] {
-  const bundles = projectManifest(projectDir).dsh.profile.bundles
+  const bundles = projectManifest(projectDir).qilin.profile.bundles
   if (!DESKTOP_PROFILE_BUNDLES.every((bundle, index) => bundles[index] === bundle)) {
     throw new Error('desktop project: profile must begin with the built-in desktop bundle list')
   }
@@ -292,10 +292,10 @@ function writeProfilePlugins(projectDir: string, plugins: readonly DesktopPlugin
   const manifest = projectManifest(projectDir)
   writeJson(join(projectDir, 'package.json'), {
     ...manifest,
-    dsh: {
-      ...manifest.dsh,
+    qilin: {
+      ...manifest.qilin,
       profile: {
-        ...manifest.dsh.profile,
+        ...manifest.qilin.profile,
         bundles: [...DESKTOP_PROFILE_BUNDLES, ...plugins.map(plugin => plugin.name)],
       },
     },
@@ -311,7 +311,7 @@ function inspectPlugin(projectDir: string, requestedName: string): DesktopPlugin
   if (!isRecord(manifest) || manifest.name !== requestedName || typeof manifest.version !== 'string') {
     throw new Error(`desktop project: installed package ${JSON.stringify(requestedName)} has inconsistent name or version`)
   }
-  const dsh = manifest.dsh
+  const dsh = manifest.qilin
   const bundle = isRecord(dsh) ? dsh.bundle : undefined
   const patch = isRecord(bundle) ? bundle.patch : undefined
   if (typeof patch !== 'string' || patch === '') {
@@ -691,7 +691,7 @@ export function createSeedMetadata(seedDir: string, release: DesktopRelease): vo
     private: true,
     version: '0.0.0',
     dependencies: desktopCorePackageOverrides(packageSet),
-    dsh: { profile: { bundles: [...DESKTOP_PROFILE_BUNDLES] } },
+    qilin: { profile: { bundles: [...DESKTOP_PROFILE_BUNDLES] } },
   }
   writeJson(join(seedDir, 'package.json'), manifest)
   writeFileSync(
@@ -717,7 +717,7 @@ export function createDevelopmentProjectMetadata(projectDir: string, release: De
       [DSH_PACKAGE]: release.version,
       [DESKTOP_HOST_PACKAGE]: release.version,
     },
-    dsh: { profile: { bundles: [...DESKTOP_PROFILE_BUNDLES] } },
+    qilin: { profile: { bundles: [...DESKTOP_PROFILE_BUNDLES] } },
   }
   writeJson(join(projectDir, 'package.json'), manifest)
   writeFileSync(join(projectDir, 'pnpm-workspace.yaml'), workspaceFile(), { mode: 0o600 })

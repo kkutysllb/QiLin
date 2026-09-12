@@ -4,13 +4,13 @@ import { tmpdir } from 'node:os'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import * as workspaceContext from '@deepseek-ai/dsh-agent-instructions'
-import LlmRuntime, { createUserMessage, ToolCallId, type Message, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId, SessionSeq, type SessionEvent, type SurfaceIntent, type UserMessage } from '@deepseek-ai/dsh-session'
-import AgentRegistry, { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop, { turnBoundaryProjectionDefinition } from '@deepseek-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { FileSystem, FsTargetKey, FsVersion } from '@deepseek-ai/dsh-fs'
+import * as workspaceContext from '@qilin/agent-instructions'
+import LlmRuntime, { createUserMessage, ToolCallId, type Message, type StreamChunk } from '@qilin/llm'
+import SessionStore, { SessionId, SessionSeq, type SessionEvent, type SurfaceIntent, type UserMessage } from '@qilin/session'
+import AgentRegistry, { agentEvents, type Agent } from '@qilin/agent'
+import AgentLoop, { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
+import SessionProjectionRegistry from '@qilin/session-projection'
+import { FileSystem, FsTargetKey, FsVersion } from '@qilin/fs'
 import type {
   FsDirEntry,
   FsEditOutcome,
@@ -20,20 +20,20 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@deepseek-ai/dsh-fs'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
+} from '@qilin/fs'
+import LocalFileSystem from '@qilin/fs-local'
+import SystemPrompt from '@qilin/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
 import type {
   ToolExecution,
   ToolExecutionToken,
-} from '@deepseek-ai/dsh-tools'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
+} from '@qilin/tools'
+import * as ToolFs from '@qilin/tool-fs'
 import {
   discoverBaselineInstructionFiles,
   loadBaselineInstructions,
   renderWorkspaceContext,
-} from '@deepseek-ai/dsh-agent-instructions'
+} from '@qilin/agent-instructions'
 import {
   applyInstructionVersionUpdates,
   baselineInstructionState,
@@ -46,7 +46,7 @@ import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@qilin/agent-loop-testkit'
 
 /** Per-candidate reconciliation scope key: directory paired with the file name. */
 const sk = (directory: string, candidateName: string): string => candidateScopeKey(directory, candidateName)
@@ -617,9 +617,9 @@ describe('workspace context instruction discovery', () => {
     const root = await tempRepo()
     const emptyHome = await tempRepo()
     // Isolate the default-home fallback: blank DSH_HOME is treated as unset, and
-    // the home dirs point at an empty dir so the default ~/.dsh holds no global
+    // the home dirs point at an empty dir so the default ~/.qilin holds no global
     // scope. Windows homedir() reads USERPROFILE (not HOME), so both must be
-    // stubbed or a real ~/.dsh/AGENTS.md would otherwise leak in.
+    // stubbed or a real ~/.qilin/AGENTS.md would otherwise leak in.
     vi.stubEnv('DSH_HOME', '')
     vi.stubEnv('HOME', emptyHome)
     if (process.platform === 'win32') vi.stubEnv('USERPROFILE', emptyHome)
@@ -667,7 +667,7 @@ describe('workspace context instruction discovery', () => {
       vi.stubEnv('DSH_HOME', '')
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@qilin/agent-instructions')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root })
 
       expect(files.map(file => file.displayPath)).toEqual(['~/.qilin/AGENTS.md'])
@@ -688,7 +688,7 @@ describe('workspace context instruction discovery', () => {
 
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@qilin/agent-instructions')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root, dshHome: '~/.qilin' })
 
       expect(files).toEqual([{ absolutePath: join(home, '.qilin/AGENTS.md'), displayPath: '~/.qilin/AGENTS.md' }])
@@ -2491,7 +2491,7 @@ describe('workspace context request injection', () => {
     }
   })
 
-  it('labels a custom dshHome as DSH_HOME instead of pretending it is ~/.dsh', async () => {
+  it('labels a custom dshHome as DSH_HOME instead of pretending it is ~/.qilin', async () => {
     const root = await tempRepo()
     const home = await tempRepo()
     try {
@@ -2524,7 +2524,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@qilin/agent-instructions')
       await isolated.loadBaselineInstructions({ cwd: root, dshHome: home, maxBytes: 65536 })
       observedStats.clear()
       await isolated.loadBaselineInstructions({ cwd: root, dshHome: home, maxBytes: 65536 })
@@ -2557,7 +2557,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@qilin/agent-instructions')
 
       const rendered = await isolated.loadBaselineInstructions({ cwd: root, dshHome: home, maxBytes: 65536 })
 
@@ -2594,7 +2594,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@qilin/agent-instructions')
 
       await expect(isolated.loadBaselineInstructions({ cwd, dshHome: home, maxBytes: 65536 }))
         .rejects.toBe(failure)

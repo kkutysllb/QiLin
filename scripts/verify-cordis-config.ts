@@ -22,7 +22,7 @@ export interface PackageManifest {
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   optionalDependencies?: Record<string, string>
-  dsh?: { bundle?: { patch?: string } }
+  qilin?: { bundle?: { patch?: string } }
 }
 
 export interface PluginReference {
@@ -39,7 +39,7 @@ const appOverlayFiles = new Set([
 const metadataFields = ['id', 'name', 'group', 'inject', 'intercept', 'isolate'] as const
 
 /** The adaptive directory-picker chooser package (mounts a backend row at boot). */
-const CHOOSER_PACKAGE = '@deepseek-ai/dsh-host-directory-picker-auto'
+const CHOOSER_PACKAGE = '@qilin/host-directory-picker-auto'
 
 /**
  * The packages the chooser mounts by runtime string (mirror of its exported
@@ -49,10 +49,10 @@ const CHOOSER_PACKAGE = '@deepseek-ai/dsh-host-directory-picker-auto'
  * until a macOS boot.
  */
 const CHOOSER_BACKEND_PACKAGES = [
-  '@deepseek-ai/dsh-host-directory-picker-native',
-  '@deepseek-ai/dsh-host-directory-picker-browse',
-  '@deepseek-ai/dsh-client-ui-directory-picker-browse',
-  '@deepseek-ai/dsh-client-ui-directory-picker-native',
+  '@qilin/host-directory-picker-native',
+  '@qilin/host-directory-picker-browse',
+  '@qilin/client-ui-directory-picker-browse',
+  '@qilin/client-ui-directory-picker-native',
 ]
 const errors: string[] = []
 const pluginReferences: PluginReference[] = []
@@ -105,10 +105,10 @@ function validateClientHalvesDeclared(): string[] {
   return globSync('packages/client/*/package.json', { cwd: root }).flatMap((manifestPath) => {
     const manifest = readManifest(manifestPath) as PackageManifest & {
       exports?: Record<string, unknown>
-      dsh?: { client?: unknown }
+      qilin?: { client?: unknown }
     }
     const shipsClient = manifest.exports !== undefined && Object.hasOwn(manifest.exports, './client')
-    const declaresClient = manifest.dsh?.client !== undefined
+    const declaresClient = manifest.qilin?.client !== undefined
     if (shipsClient === declaresClient) return []
     return [shipsClient
       ? `${manifestPath}: exports "./client" but declares no dsh.client, so its browser half is never served`
@@ -257,7 +257,7 @@ function validateAppResolution(): string[] {
   for (const manifestPath of bundleManifests) {
     const bundleDir = manifestPath.replace(/\/package\.json$/, '')
     const manifest = readManifest(manifestPath)
-    const patch = manifest.dsh?.bundle?.patch
+    const patch = manifest.qilin?.bundle?.patch
     if (typeof patch !== 'string') continue
     const patchFile = relative(root, resolve(root, bundleDir, patch)).replaceAll('\\', '/')
     const references = pluginReferences.filter(reference => reference.file === patchFile)
@@ -362,7 +362,7 @@ function packageTestManifestPath(file: string): string | undefined {
  */
 export function bundleManifestPaths(repoRoot: string = root): string[] {
   return globSync('packages/*/*/package.json', { cwd: repoRoot })
-    .filter(path => typeof readManifest(path, repoRoot).dsh?.bundle?.patch === 'string')
+    .filter(path => typeof readManifest(path, repoRoot).qilin?.bundle?.patch === 'string')
     .map(path => path.replaceAll('\\', '/'))
     .sort()
 }

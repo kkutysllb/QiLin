@@ -374,7 +374,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real 
         DSH_GITHUB_E2E_WORKSPACE: workspacePath,
         DSH_GITHUB_WEBHOOK_PORT: String(webhookPort),
         DSH_GITHUB_WEBHOOK_SECRET: SECRET,
-        DSH_HOME: join(root, '.dsh'),
+        DSH_HOME: join(root, '.qilin'),
         DSH_TELEMETRY_DISABLED: '1',
       },
       stdio: ['ignore', 'pipe', 'pipe'],

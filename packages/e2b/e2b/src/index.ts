@@ -1,7 +1,7 @@
 /**
  * Shared ownership of one E2B sandbox. Capability adapters await the same SDK
  * handle, so filesystem and process operations inhabit one remote Linux world.
- * @module @deepseek-ai/dsh-e2b
+ * @module @qilin/e2b
  */
 
 import { randomUUID } from 'node:crypto'
@@ -9,7 +9,7 @@ import { posix } from 'node:path'
 import { Context, Service } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { FileType, Sandbox, SandboxNotFoundError } from 'e2b'
-import { proxyRouteFor } from '@deepseek-ai/dsh-http-proxy'
+import { proxyRouteFor } from '@qilin/http-proxy'
 import { e2bApiUrl } from './api-url.ts'
 
 export {
@@ -38,7 +38,7 @@ export function quoteE2BShellArg(value: string): string {
 export function e2bControlEnvs(
   overrides: Readonly<Record<string, string>> = {},
 ): Record<string, string> {
-  return { ...overrides, HOME: `/.dsh-e2b-control-${randomUUID()}` }
+  return { ...overrides, HOME: `/.qilin-e2b-control-${randomUUID()}` }
 }
 
 /** Configuration for the shared E2B sandbox owner. */
@@ -102,7 +102,7 @@ export class E2BRuntime extends Service {
     }
     this.validate()
     this.cwd = this.config.cwd
-    this.runtimeRoot = posix.join(this.cwd, '.dsh-e2b')
+    this.runtimeRoot = posix.join(this.cwd, '.qilin-e2b')
     this.ready = this.open()
     // A deployment may load the owner before any adapter uses it. Keep a
     // failed eager connection observed; getSandbox() still returns the error.

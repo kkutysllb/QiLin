@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-file-upload",
+  "name": "@qilin/client-file-upload",
   "description": "Agent-scoped browser file upload, streaming intake, and staged receipt service",
   "version": "0.1.5-rc.2",
   "publishConfig": {
@@ -37,10 +37,10 @@
     "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
-  "dsh": {
+  "qilin": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-api-remotes"
+        "@qilin/api-remotes"
       ],
       "platform": "web",
       "immediately": true
@@ -63,22 +63,22 @@
   ],
   "dependencies": {
     "zod": "^4.4.3",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:^",
-    "@deepseek-ai/dsh-brand": "workspace:^"
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/brand": "workspace:^"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-scope": "workspace:^"
+    "@qilin/scope": "workspace:^"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-agent": "workspace:^",
-    "@deepseek-ai/dsh-client-connection": "workspace:^",
-    "@deepseek-ai/dsh-commands": "workspace:^",
-    "@deepseek-ai/dsh-scope": "workspace:^",
-    "@deepseek-ai/dsh-util-crypto": "workspace:^",
-    "@deepseek-ai/dsh-api-remotes": "workspace:^",
-    "@deepseek-ai/dsh-session": "workspace:^",
-    "@deepseek-ai/dsh-attachment": "workspace:^"
+    "@qilin/agent": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/commands": "workspace:^",
+    "@qilin/scope": "workspace:^",
+    "@qilin/util-crypto": "workspace:^",
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/attachment": "workspace:^"
   }
 }

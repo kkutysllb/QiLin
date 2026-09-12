@@ -20,11 +20,11 @@ describe('dsh-qilin-web bundle', () => {
   it('declares a parseable patch list that names QiLin as the product', () => {
     const root = fileURLToPath(new URL('..', import.meta.url))
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {
-      dsh?: { bundle?: { patch?: string } }
+      qilin?: { bundle?: { patch?: string } }
     }
-    expect(manifest.dsh?.bundle?.patch).toBe('./cordis.patch.yml')
+    expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
     const parsed = yaml.load(
-      readFileSync(resolve(root, manifest.dsh!.bundle!.patch!), 'utf8'),
+      readFileSync(resolve(root, manifest.qilin!.bundle!.patch!), 'utf8'),
       { schema: entryListSchema },
     ) as PatchRow[]
     expect(Array.isArray(parsed)).toBe(true)

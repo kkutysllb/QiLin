@@ -6,9 +6,9 @@
  */
 
 import { Context } from '@deepseek-ai/cordis'
-import { stubSettingsScope } from '@deepseek-ai/dsh-client-test-runtime'
-import { ThemeRuntime } from '@deepseek-ai/dsh-client-ui-theme/client'
-import type { ThemeSettings } from '@deepseek-ai/dsh-client-ui-theme/client'
+import { stubSettingsScope } from '@qilin/client-test-runtime'
+import { ThemeRuntime } from '@qilin/client-ui-theme/client'
+import type { ThemeSettings } from '@qilin/client-ui-theme/client'
 import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'

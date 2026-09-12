@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent, AgentStatus } from '@deepseek-ai/dsh-agent'
-import CommandRuntime from '@deepseek-ai/dsh-commands'
-import GoalService from '@deepseek-ai/dsh-goal'
-import type { GoalRef } from '@deepseek-ai/dsh-goal'
-import SessionStore, { Session, SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import * as commandGoal from '@deepseek-ai/dsh-command-goal'
-import { createInboxStub } from '@deepseek-ai/dsh-agent-loop-testkit'
+import AgentRegistry from '@qilin/agent'
+import type { Agent, AgentStatus } from '@qilin/agent'
+import CommandRuntime from '@qilin/commands'
+import GoalService from '@qilin/goal'
+import type { GoalRef } from '@qilin/goal'
+import SessionStore, { Session, SessionId, type SessionEvent } from '@qilin/session'
+import SessionProjectionRegistry from '@qilin/session-projection'
+import * as commandGoal from '@qilin/command-goal'
+import { createInboxStub } from '@qilin/agent-loop-testkit'
 
 interface Harness {
   readonly ctx: Context
@@ -88,7 +88,7 @@ function ref(goal: NonNullable<ReturnType<GoalService['get']>>): GoalRef {
   return { id: goal.id, revision: goal.revision }
 }
 
-describe('@deepseek-ai/dsh-command-goal registration', () => {
+describe('@qilin/command-goal registration', () => {
   it('registers one global command with Loader-safe exports and disposes it', async () => {
     const test = await harness()
     expect(commandGoal.name).toBe('command-goal')

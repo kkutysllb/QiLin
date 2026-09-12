@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-agent-team-profile",
+  "name": "@qilin/experimental-agent-team-profile",
   "description": "Experimental profile bundle enabling Agent Teams over dsh-base",
   "version": "0.1.5-rc.2",
   "publishConfig": {
@@ -28,14 +28,14 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "dsh": {
+  "qilin": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-experimental-agent-team": "workspace:^",
-    "@deepseek-ai/dsh-experimental-tool-agent-team": "workspace:^"
+    "@qilin/experimental-agent-team": "workspace:^",
+    "@qilin/experimental-tool-agent-team": "workspace:^"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:^"

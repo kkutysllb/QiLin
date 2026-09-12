@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-modules",
+  "name": "@qilin/client-modules",
   "description": "Client module system, dual-face: node half composes the __DSH_BOOT__ entry graph (incremental dsh.client scan, bundle route, index tap, webPlugins service); browser half is the lazy-CJS module table the vendored cordis Loader consumes as its internal seam",
   "version": "0.1.5-rc.2",
   "publishConfig": {
@@ -29,7 +29,7 @@
     "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
-  "dsh": {
+  "qilin": {
     "client": {
       "platform": "web",
       "inject": [],
@@ -43,10 +43,10 @@
   "license": "MIT",
   "devDependencies": {
     "@deepseek-ai/cordis-plugin-loader": "workspace:^",
-    "@deepseek-ai/dsh-host-webserver": "workspace:^",
-    "@deepseek-ai/dsh-invariants": "workspace:^",
+    "@qilin/host-webserver": "workspace:^",
+    "@qilin/invariants": "workspace:^",
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-package-manifest": "workspace:^"
+    "@qilin/package-manifest": "workspace:^"
   },
   "files": [
     "lib/index.js",

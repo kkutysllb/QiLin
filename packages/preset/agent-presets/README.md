@@ -3,7 +3,7 @@ description: "Per-session agent composition from preset cordis.yml files, for us
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-agent-presets
+# @qilin/agent-presets
 
 English | [中文](README.zh.md)
 
@@ -40,7 +40,7 @@ The presets you can choose from come from two places: the presets shipped inside
 The plugin needs a `default` preset id and scans `roots` for presets:
 
 ```yaml
-- name: '@deepseek-ai/dsh-agent-presets'
+- name: '@qilin/agent-presets'
   config:
     default: standard
     roots:
@@ -55,7 +55,7 @@ The plugin needs a `default` preset id and scans `roots` for presets:
 | `includeShippedRoot` | `true` | Prepend the package's bundled presets as a `system` root before every configured root |
 | `includeUserRoot` | `true` | Append `<dshHome>/.agent-presets` as a `user` root, after every configured root |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-agent-presets) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilinagent-presets) is the exhaustive source for every accepted field and its JSDoc.
 
 The shipped root is prepended before every configured root, so the built-in set remains available and wins duplicate ids even when a patch replaces the roster configuration. `includeShippedRoot: false` drops that built-in set for deployments that supply all presets themselves. `includeUserRoot: false` drops the derived writable root; tests that pin an exact roster disable both derived roots.
 
@@ -149,7 +149,7 @@ Read these pages when the package-level contract is not enough; they move from t
 - [Scope subsystem](../../../docs/subsystems/scope.md) — scope keys and the parent chain agents join through.
 - [System prompt subsystem](../../../docs/subsystems/system-prompt.md) — how preset prompt sections register and assemble.
 - [Session package map](../../session/README.md) — the durable session record a preset switch appends to.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-agent-presets) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilinagent-presets) — every accepted config field and its source declaration.
 - [Per-session agent presets note](../../../.agents/notes/implemented/architecture/2026-08-03-per-session-agent-presets.md) — design rationale and alternatives.
 
 -----

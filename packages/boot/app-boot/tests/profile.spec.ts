@@ -10,7 +10,7 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { withFileLock } from '@deepseek-ai/dsh-atomic-write'
+import { withFileLock } from '@qilin/atomic-write'
 import { afterAll, describe, expect, it } from 'vitest'
 import {
   composeEntries,
@@ -57,7 +57,7 @@ function stageInstallation(
       type: 'module',
       main: './index.js',
       dependencies: spec.deps ?? {},
-      ...spec.patch === undefined ? {} : { dsh: { bundle: { patch: './cordis.patch.yml' } } },
+      ...spec.patch === undefined ? {} : { qilin: { bundle: { patch: './cordis.patch.yml' } } },
     }))
     writeFileSync(join(dir, 'index.js'), `export const packageName = ${JSON.stringify(name)}\n`)
     if (spec.patch !== undefined) writeFileSync(join(dir, 'cordis.patch.yml'), spec.patch)
@@ -103,17 +103,17 @@ describe('initProfile', () => {
   it('creates manifest, user patch layer, and pnpm workspace once, never overwriting', () => {
     const home = tmp()
     const dir = resolveProfileDir('tui', home)
-    initProfile(dir, ['@deepseek-ai/dsh-base'])
+    initProfile(dir, ['@qilin/base'])
     const manifest = readProfileManifest('t', dir)
-    expect(manifest.dsh?.profile?.bundles).toEqual(['@deepseek-ai/dsh-base'])
-    expect(manifest.dsh?.profile?.patchReload).toBe('live')
+    expect(manifest.qilin?.profile?.bundles).toEqual(['@qilin/base'])
+    expect(manifest.qilin?.profile?.patchReload).toBe('live')
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
     expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
     // Re-init keeps user edits.
     writeFileSync(join(dir, PROFILE_PATCH_FILENAME), '- id: x\n  config: {}\n')
     initProfile(dir, ['other'], 'startup')
-    expect(readProfileManifest('t', dir).dsh?.profile?.bundles).toEqual(['@deepseek-ai/dsh-base'])
-    expect(readProfileManifest('t', dir).dsh?.profile?.patchReload).toBe('live')
+    expect(readProfileManifest('t', dir).qilin?.profile?.bundles).toEqual(['@qilin/base'])
+    expect(readProfileManifest('t', dir).qilin?.profile?.patchReload).toBe('live')
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('- id: x')
   })
 })
@@ -121,8 +121,8 @@ describe('initProfile', () => {
 describe('manifest round-trip', () => {
   it('writes and reads back, and fails loud on a broken manifest', () => {
     const dir = tmp()
-    writeProfileManifest(dir, { name: 'p', dsh: { profile: { bundles: ['a'] } } })
-    expect(readProfileManifest('t', dir).dsh?.profile?.bundles).toEqual(['a'])
+    writeProfileManifest(dir, { name: 'p', qilin: { profile: { bundles: ['a'] } } })
+    expect(readProfileManifest('t', dir).qilin?.profile?.bundles).toEqual(['a'])
     writeFileSync(join(dir, 'package.json'), '[]')
     expect(() => readProfileManifest('t', dir)).toThrow('must hold a JSON object')
     expect(() => readProfileManifest('t', join(dir, 'nope'))).toThrow('failed to read profile manifest')
@@ -155,7 +155,7 @@ describe('resolveBundleDir', () => {
       name: 'sealed-bundle',
       version: '0.0.0',
       exports: { '.': './index.js' },
-      dsh: { bundle: { patch: './cordis.patch.yml' } },
+      qilin: { bundle: { patch: './cordis.patch.yml' } },
     }))
     writeFileSync(join(dir, 'index.js'), '')
     writeFileSync(join(dir, 'cordis.patch.yml'), '[]\n')
@@ -209,19 +209,19 @@ describe('loadProfile', () => {
     // The web template auto-initializes on first load. Bundle resolution
     // cannot be asserted to fail here: the source-plane test runner resolves
     // @deepseek-ai/* through tsconfig paths regardless of the staged anchor.
-    expect(PROFILE_TEMPLATES.web?.bundles).toContain('@deepseek-ai/dsh-base')
+    expect(PROFILE_TEMPLATES.web?.bundles).toContain('@qilin/base')
     expect(PROFILE_TEMPLATES.web?.patchReload).toBe('live')
     expect(PROFILE_TEMPLATES.headless?.patchReload).toBe('startup')
     expect(PROFILE_TEMPLATES.acp).toEqual({
-      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-acp-app'],
+      bundles: ['@qilin/base', '@qilin/acp-app'],
       patchReload: 'startup',
     })
     expect(PROFILE_TEMPLATES.sdk).toEqual({
-      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-sdk-app'],
+      bundles: ['@qilin/base', '@qilin/sdk-app'],
       patchReload: 'startup',
     })
     expect(PROFILE_TEMPLATES['sdk-minimal']).toEqual({
-      bundles: ['@deepseek-ai/dsh-sdk-minimal'],
+      bundles: ['@qilin/sdk-minimal'],
       patchReload: 'startup',
     })
     try {
@@ -229,57 +229,57 @@ describe('loadProfile', () => {
     } catch {
       // Resolution failure is the plain-Node outcome for this empty anchor.
     }
-    expect(readProfileManifest('t', resolveProfileDir('web', home)).dsh?.profile?.bundles)
+    expect(readProfileManifest('t', resolveProfileDir('web', home)).qilin?.profile?.bundles)
       .toEqual([...PROFILE_TEMPLATES.web?.bundles ?? []])
-    expect(readProfileManifest('t', resolveProfileDir('web', home)).dsh?.profile?.patchReload)
+    expect(readProfileManifest('t', resolveProfileDir('web', home)).qilin?.profile?.patchReload)
       .toBe('live')
   })
 
   it('normalizes only the exact installation-owned headless bundle tuple', () => {
     const anchor = stageInstallation({
-      '@deepseek-ai/dsh-base': { patch: '[]\n' },
-      '@deepseek-ai/dsh-web-app': { patch: '[]\n' },
-      '@deepseek-ai/dsh-headless': { patch: '[]\n' },
+      '@qilin/base': { patch: '[]\n' },
+      '@qilin/web-app': { patch: '[]\n' },
+      '@qilin/headless': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const home = tmp()
     const stock = resolveProfileDir('headless', home)
     initProfile(stock, [
-      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless',
+      '@qilin/base', '@qilin/web-app', '@qilin/headless',
     ])
     const retiredManifest = readProfileManifest('t', stock)
-    delete retiredManifest.dsh!.profile!.patchReload
+    delete retiredManifest.qilin!.profile!.patchReload
     writeProfileManifest(stock, retiredManifest)
     loadProfile('t', 'headless', anchor, home)
-    expect(readProfileManifest('t', stock).dsh?.profile).toEqual({
-      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless'],
+    expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
+      bundles: ['@qilin/base', '@qilin/headless'],
       patchReload: 'startup',
     })
 
     const customHome = tmp()
     const custom = resolveProfileDir('headless', customHome)
     initProfile(custom, [
-      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless', 'custom-bundle',
+      '@qilin/base', '@qilin/web-app', '@qilin/headless', 'custom-bundle',
     ])
     loadProfile('t', 'headless', anchor, customHome)
-    expect(readProfileManifest('t', custom).dsh?.profile?.bundles).toEqual([
-      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless', 'custom-bundle',
+    expect(readProfileManifest('t', custom).qilin?.profile?.bundles).toEqual([
+      '@qilin/base', '@qilin/web-app', '@qilin/headless', 'custom-bundle',
     ])
   })
 
   it('adds a shipped reload default only to an exact stock tuple and preserves explicit choices', () => {
     const anchor = stageInstallation({
-      '@deepseek-ai/dsh-base': { patch: '[]\n' },
-      '@deepseek-ai/dsh-web-app': { patch: '[]\n' },
+      '@qilin/base': { patch: '[]\n' },
+      '@qilin/web-app': { patch: '[]\n' },
     })
     const stockHome = tmp()
     const stock = resolveProfileDir('web', stockHome)
     initProfile(stock, PROFILE_TEMPLATES.web?.bundles ?? [])
     const stockManifest = readProfileManifest('t', stock)
-    delete stockManifest.dsh!.profile!.patchReload
+    delete stockManifest.qilin!.profile!.patchReload
     writeProfileManifest(stock, stockManifest)
     expect(loadProfile('t', 'web', anchor, stockHome).patchReload).toBe('live')
-    expect(readProfileManifest('t', stock).dsh?.profile?.patchReload).toBe('live')
+    expect(readProfileManifest('t', stock).qilin?.profile?.patchReload).toBe('live')
 
     const explicitHome = tmp()
     const explicit = resolveProfileDir('web', explicitHome)
@@ -293,7 +293,7 @@ describe('loadProfile', () => {
     const dir = resolveProfileDir('demo', home)
     initProfile(dir, [])
     const manifest = readProfileManifest('t', dir)
-    const rawProfile = manifest.dsh!.profile as { patchReload?: string }
+    const rawProfile = manifest.qilin!.profile as { patchReload?: string }
     rawProfile.patchReload = 'sometimes'
     writeProfileManifest(dir, manifest)
     expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('patchReload must be "live" or "startup"')
@@ -373,8 +373,8 @@ describe('healProfilesModuleFallback', () => {
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile: profileA, home })
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile: profileB, home })
     const sharedFallback = join(home, 'profiles', 'node_modules')
-    const ownedA = join(profileA.dir, '.dsh-module-fallback', 'node_modules', '@scope', 'bundle-only')
-    const ownedB = join(profileB.dir, '.dsh-module-fallback', 'node_modules', '@scope', 'bundle-only')
+    const ownedA = join(profileA.dir, '.qilin-module-fallback', 'node_modules', '@scope', 'bundle-only')
+    const ownedB = join(profileB.dir, '.qilin-module-fallback', 'node_modules', '@scope', 'bundle-only')
 
     expect(realpathSync.native(readlinkSync(join(sharedFallback, 'shared'))))
       .toBe(realpathSync.native(join(installationAnchor, '..', 'node_modules', 'shared')))
@@ -447,7 +447,7 @@ describe('healProfilesModuleFallback', () => {
 
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
 
-    expect(readlinkSync(join(dir, '.dsh-module-fallback', 'node_modules', 'bundle-only')))
+    expect(readlinkSync(join(dir, '.qilin-module-fallback', 'node_modules', 'bundle-only')))
       .toBe(realpathSync.native(realDependency))
   })
 
@@ -492,7 +492,7 @@ describe('healProfilesModuleFallback', () => {
 
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
 
-    const ownedModules = join(dir, '.dsh-module-fallback', 'node_modules')
+    const ownedModules = join(dir, '.qilin-module-fallback', 'node_modules')
     expect(readlinkSync(join(ownedModules, 'nested-only'))).toBe(realpathSync.native(nestedOnly))
     expect(readlinkSync(join(ownedModules, 'explicit-only'))).toBe(realpathSync.native(explicitOnly))
   })
@@ -533,7 +533,7 @@ describe('healProfilesModuleFallback', () => {
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
 
-    const owned = join(dir, '.dsh-module-fallback', 'node_modules', 'bundle-only')
+    const owned = join(dir, '.qilin-module-fallback', 'node_modules', 'bundle-only')
     expect(readlinkSync(owned)).toBe(realpathSync.native(nested))
     expect(JSON.parse(readFileSync(join(profileModules, 'bundle-only', 'package.json'), 'utf8')))
       .toMatchObject({ name: 'bundle-only' })
@@ -545,7 +545,7 @@ describe('healProfilesModuleFallback', () => {
     const home = tmp()
     const profile = stageProfile(home, 'managed', bundleAnchor)
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
-    const ownedModules = join(profile.dir, '.dsh-module-fallback', 'node_modules')
+    const ownedModules = join(profile.dir, '.qilin-module-fallback', 'node_modules')
     const profileModules = join(profile.dir, 'node_modules')
     const foreignTarget = tmp()
     unlinkSync(join(profileModules, 'managed-dir'))
@@ -579,7 +579,7 @@ describe('healProfilesModuleFallback', () => {
     const profile = stageProfile(home, 'canonical', bundleAnchor)
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
     const profileLink = join(profile.dir, 'node_modules', 'fallback')
-    const ownedModules = join(profile.dir, '.dsh-module-fallback', 'node_modules')
+    const ownedModules = join(profile.dir, '.qilin-module-fallback', 'node_modules')
     unlinkSync(profileLink)
     symlinkSync(join(realpathSync(ownedModules), 'fallback'), profileLink, 'junction')
 
@@ -698,13 +698,13 @@ describe('healProfilesModuleFallback', () => {
       const proxyManifest = JSON.parse(readFileSync(join(proxy, 'package.json'), 'utf8')) as {
         version: unknown
         exports: unknown
-        dsh: { moduleFallback: { targets: Record<string, unknown> } }
+        qilin: { moduleFallback: { targets: Record<string, unknown> } }
       }
       expect(proxyManifest).toMatchObject({
         version: '0.0.0',
         exports: { '.': './entry-0.js', './feature': './entry-1.js' },
       })
-      expect(proxyManifest.dsh.moduleFallback.targets['.']).toEqual(expect.stringContaining('/bundle-a/index.js'))
+      expect(proxyManifest.qilin.moduleFallback.targets['.']).toEqual(expect.stringContaining('/bundle-a/index.js'))
       await expect(import(join(proxy, 'entry-0.js'))).resolves.toMatchObject({ packageName: 'bundle-a' })
       await expect(import(join(proxy, 'entry-1.js'))).resolves.toMatchObject({ feature: 'proxied' })
       await healProfilesModuleFallback({ installAnchor: anchor, home })
@@ -790,8 +790,8 @@ describe('healProfilesModuleFallback', () => {
       const proxyManifest = JSON.parse(readFileSync(
         join(home, 'profiles', 'node_modules', 'linked-esm', 'package.json'),
         'utf8',
-      )) as { dsh: { moduleFallback: { targets: Record<string, string> } } }
-      expect(proxyManifest.dsh.moduleFallback.targets['.']).toContain('/app/node_modules/linked-esm/index.js')
+      )) as { qilin: { moduleFallback: { targets: Record<string, string> } } }
+      expect(proxyManifest.qilin.moduleFallback.targets['.']).toContain('/app/node_modules/linked-esm/index.js')
     } finally {
       delete (process as NodeJS.Process & { pkg?: unknown }).pkg
     }

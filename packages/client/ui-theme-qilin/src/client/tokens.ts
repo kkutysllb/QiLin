@@ -1,12 +1,12 @@
 /** QiLin alias-token overrides, applied as one layer over the active palette. */
 
-import type { ThemeTokenOverrides } from '@deepseek-ai/dsh-client-ui-theme/client'
+import type { ThemeTokenOverrides } from '@qilin/client-ui-theme/client'
 
 /**
  * The layer source id. One layer per source, so this names the origin in
  * `ctx.theme` inspection and makes re-application replace rather than stack.
  */
-export const QILIN_THEME_SOURCE = '@deepseek-ai/dsh-client-ui-theme-qilin'
+export const QILIN_THEME_SOURCE = '@qilin/client-ui-theme-qilin'
 
 /**
  * QiLin's brand surfaces. Both palette modes are stated because an override

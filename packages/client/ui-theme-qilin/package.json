@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ui-theme-qilin",
+  "name": "@qilin/client-ui-theme-qilin",
   "description": "QiLin brand color layer for the Web client theme: alias-token overrides stacked over the user's active palette",
   "version": "0.1.5-rc.2",
   "private": true,
@@ -18,10 +18,10 @@
     "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
-  "dsh": {
+  "qilin": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-ui-theme"
+        "@qilin/client-ui-theme"
       ],
       "platform": "web"
     }
@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:^",
-    "@deepseek-ai/dsh-client-ui-theme": "workspace:^"
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-theme": "workspace:^"
   },
   "files": [
     "lib/index.js",

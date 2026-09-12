@@ -7,22 +7,22 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import TerminalSessionService from '@deepseek-ai/dsh-terminal'
-import * as TerminalBash from '@deepseek-ai/dsh-terminal-bash'
-import SandboxProvider from '@deepseek-ai/dsh-sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import LocalSubprocessService from '@deepseek-ai/dsh-subprocess-local'
-import { resolvePwshPath } from '@deepseek-ai/dsh-pwsh-local/src/resolve.ts'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRegistry from '@deepseek-ai/dsh-tools'
-import * as ToolPwshPersistent from '@deepseek-ai/dsh-tool-pwsh-persistent'
-import { unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { ToolCallId } from '@qilin/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
+import AgentRegistry from '@qilin/agent'
+import SessionProjectionRegistry from '@qilin/session-projection'
+import type { Agent } from '@qilin/agent'
+import TerminalSessionService from '@qilin/terminal'
+import * as TerminalBash from '@qilin/terminal-bash'
+import SandboxProvider from '@qilin/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
+import SandboxPolicyService from '@qilin/sandbox-policy'
+import LocalSubprocessService from '@qilin/subprocess-local'
+import { resolvePwshPath } from '@qilin/pwsh-local/src/resolve.ts'
+import SystemPrompt from '@qilin/system-prompt'
+import ToolRegistry from '@qilin/tools'
+import * as ToolPwshPersistent from '@qilin/tool-pwsh-persistent'
+import { unsupportedInbox } from '@qilin/agent-loop-testkit'
 
 const hasPwsh = spawnSync(
   resolvePwshPath(), ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$true'],
@@ -79,18 +79,18 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     root = await realpath(await mkdtemp(join(tmpdir(), 'dsh-persistent-pwsh-loader-')))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@deepseek-ai/dsh-agent'",
-      "- name: '@deepseek-ai/dsh-system-prompt'",
-      "- name: '@deepseek-ai/dsh-tools'",
-      "- name: '@deepseek-ai/dsh-terminal'",
-      "- name: '@deepseek-ai/dsh-test-sandbox'",
-      "- name: '@deepseek-ai/dsh-session-projection'",
-      "- name: '@deepseek-ai/dsh-sandbox-policy'",
+      "- name: '@qilin/agent'",
+      "- name: '@qilin/system-prompt'",
+      "- name: '@qilin/tools'",
+      "- name: '@qilin/terminal'",
+      "- name: '@qilin/test-sandbox'",
+      "- name: '@qilin/session-projection'",
+      "- name: '@qilin/sandbox-policy'",
       '  config:',
       '    mode: danger-full-access',
       `    workspaceRoot: ${JSON.stringify(root)}`,
-      "- name: '@deepseek-ai/dsh-subprocess-local'",
-      "- name: '@deepseek-ai/dsh-terminal-bash'",
+      "- name: '@qilin/subprocess-local'",
+      "- name: '@qilin/terminal-bash'",
       '  config:',
       '    shellDialect: pwsh',
       '    pollIntervalMs: 10',
@@ -108,7 +108,7 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
       // would not).
       '    timeoutMs: 300000',
       '    disposeGraceMs: 500',
-      "- name: '@deepseek-ai/dsh-tool-pwsh-persistent'",
+      "- name: '@qilin/tool-pwsh-persistent'",
       '  config:',
       '    timeoutMs: 300000',
       '',
@@ -119,16 +119,16 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-agent', AgentRegistry],
-      ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
-      ['@deepseek-ai/dsh-tools', ToolRegistry],
-      ['@deepseek-ai/dsh-terminal', TerminalSessionService],
-      ['@deepseek-ai/dsh-test-sandbox', PassthroughSandbox],
-      ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-      ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-      ['@deepseek-ai/dsh-subprocess-local', LocalSubprocessService],
-      ['@deepseek-ai/dsh-terminal-bash', TerminalBash],
-      ['@deepseek-ai/dsh-tool-pwsh-persistent', ToolPwshPersistent],
+      ['@qilin/agent', AgentRegistry],
+      ['@qilin/system-prompt', SystemPrompt],
+      ['@qilin/tools', ToolRegistry],
+      ['@qilin/terminal', TerminalSessionService],
+      ['@qilin/test-sandbox', PassthroughSandbox],
+      ['@qilin/session-projection', SessionProjectionRegistry],
+      ['@qilin/sandbox-policy', SandboxPolicyService],
+      ['@qilin/subprocess-local', LocalSubprocessService],
+      ['@qilin/terminal-bash', TerminalBash],
+      ['@qilin/tool-pwsh-persistent', ToolPwshPersistent],
     ])
     context.loader.internal = {
       version: 'v2',

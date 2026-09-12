@@ -3,7 +3,7 @@
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { DshSessionFormatMigrationManifest } from '@deepseek-ai/dsh-package-manifest'
+import type { DshSessionFormatMigrationManifest } from '@qilin/package-manifest'
 
 const root = resolve(import.meta.dirname, '..')
 const OUT = 'packages/session/session-format-catalog/src/generated.ts'
@@ -19,7 +19,7 @@ interface RawManifest {
   readonly dependencies?: Readonly<Record<string, unknown>>
   readonly peerDependencies?: Readonly<Record<string, unknown>>
   readonly devDependencies?: Readonly<Record<string, unknown>>
-  readonly dsh?: {
+  readonly qilin?: {
     readonly sessionFormatMigration?: Readonly<Record<string, unknown>>
   }
 }
@@ -68,7 +68,7 @@ export function collectSessionFormatMigrations(
   for (const discovered of globSync('packages/session/session-format-v*-to-v*/package.json', { cwd: scanRoot }).sort()) {
     const rel = discovered.replaceAll('\\', '/')
     const manifest = readJson(resolve(scanRoot, rel))
-    const metadata = manifest.dsh?.sessionFormatMigration
+    const metadata = manifest.qilin?.sessionFormatMigration
     if (metadata === undefined) {
       throw new Error(`gen-session-format-catalog: ${rel} lacks dsh.sessionFormatMigration`)
     }
@@ -82,7 +82,7 @@ export function collectSessionFormatMigrations(
     const from = safeVersion(metadata['from'], `${rel} from`)
     const to = safeVersion(metadata['to'], `${rel} to`)
     if (to !== from + 1) throw new Error(`gen-session-format-catalog: ${rel} must declare adjacent v${from}->v${from + 1}`)
-    const expectedPackageName = `@deepseek-ai/dsh-session-format-v${from}-to-v${to}`
+    const expectedPackageName = `@qilin/session-format-v${from}-to-v${to}`
     if (packageName !== expectedPackageName) {
       throw new Error(`gen-session-format-catalog: ${rel} name must be ${expectedPackageName}`)
     }
@@ -115,11 +115,11 @@ export function collectSessionFormatMigrations(
     throw new Error(`gen-session-format-catalog: migration inventory does not end exactly at current v${currentVersion}`)
   }
   const catalog = readJson(resolve(scanRoot, 'packages/session/session-format-catalog/package.json'))
-  if (catalog.dependencies?.['@deepseek-ai/dsh-session'] !== undefined
-    || catalog.peerDependencies?.['@deepseek-ai/dsh-session'] === undefined
-    || catalog.devDependencies?.['@deepseek-ai/dsh-session'] === undefined) {
+  if (catalog.dependencies?.['@qilin/session'] !== undefined
+    || catalog.peerDependencies?.['@qilin/session'] === undefined
+    || catalog.devDependencies?.['@qilin/session'] === undefined) {
     throw new Error(
-      'gen-session-format-catalog: catalog must share @deepseek-ai/dsh-session through peer + dev dependencies',
+      'gen-session-format-catalog: catalog must share @qilin/session through peer + dev dependencies',
     )
   }
   for (const [index, declaration] of declarations.entries()) {
@@ -182,8 +182,8 @@ export function renderSessionFormatCatalog(
     ' * The direct imports make historical readability independent of mounted plugins.',
     ' */',
     '',
-    "import { KNOWN_SESSION_EVENT_TYPES } from '@deepseek-ai/dsh-session'",
-    "import { createSessionFormatCatalog } from '@deepseek-ai/dsh-session-format'",
+    "import { KNOWN_SESSION_EVENT_TYPES } from '@qilin/session'",
+    "import { createSessionFormatCatalog } from '@qilin/session-format'",
     "import { validateInstalledCurrentSessionArtifact, validateInstalledCurrentSessionHeader } from './current.ts'",
     ...imports,
     '',

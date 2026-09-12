@@ -1,12 +1,12 @@
 /** Sidebar shell slot registration and its Session/layout callbacks. */
 import { Context, type Fiber } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { apply, inject } from '@deepseek-ai/dsh-client-ui-sidebar/client'
-import type { SidebarRootInjected } from '@deepseek-ai/dsh-client-ui-sidebar/client'
-import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
+import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import type { PropsRenderSlots } from '@qilin/client-ui-slots'
+import { LocaleRuntime } from '@qilin/client-locale/client'
+import { apply, inject } from '@qilin/client-ui-sidebar/client'
+import type { SidebarRootInjected } from '@qilin/client-ui-sidebar/client'
+import type { MainPanelId } from '@qilin/client-ui-layout/client'
 import { apply as hostApply } from '../src/index.ts'
 
 const owners = new Set<Fiber>()

@@ -1,11 +1,11 @@
 /**
  * Model-facing workspace instruction rendering within an explicit byte budget.
  *
- * @module @deepseek-ai/dsh-agent-instructions/render
+ * @module @qilin/agent-instructions/render
  */
 
 import { basename, dirname } from 'node:path'
-import { DEFAULT_DSH_HOME_DISPLAY, DSH_HOME_ENV } from '@deepseek-ai/dsh-home-paths'
+import { DEFAULT_DSH_HOME_DISPLAY, DSH_HOME_ENV } from '@qilin/home-paths'
 import type { InstructionFile, LoadedInstructionFile } from './files.ts'
 
 const SYSTEM_REMINDER_OPEN = '<system-reminder>'

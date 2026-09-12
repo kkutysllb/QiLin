@@ -6,7 +6,7 @@
 ## 1. 核验方法
 
 在 packages/bundle/base/cordis.patch.yml 与 packages/bundle/web-app/cordis.patch.yml 中按**包名**检索，而不是按包所在的目录名检索。
-这一点必须强调：按目录名 guard 检索会得出「循环检测未挂载」的错误结论，而 base 实际以包名 @deepseek-ai/dsh-repeat-tool-reminder 挂载了它。
+这一点必须强调：按目录名 guard 检索会得出「循环检测未挂载」的错误结论，而 base 实际以包名 @qilin/repeat-tool-reminder 挂载了它。
 
 还必须覆盖三层组合，只看 profile bundle 会误判：
 

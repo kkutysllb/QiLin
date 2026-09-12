@@ -11,7 +11,7 @@ import {
   readProfileManifest,
   resolveProfileDir,
   writeProfileManifest,
-} from '@deepseek-ai/dsh-app-boot'
+} from '@qilin/app-boot'
 import { describe, expect, it } from 'vitest'
 import { execa } from 'execa'
 import { initializeProfileFromDefault } from '../src/profile-boot.ts'
@@ -51,7 +51,7 @@ describe('initializeProfileFromDefault', () => {
           name: 'dsh-profile-custom',
           private: true,
           dependencies: {},
-          dsh: { profile: { bundles: [...template.bundles], patchReload: template.patchReload } },
+          qilin: { profile: { bundles: [...template.bundles], patchReload: template.patchReload } },
         })
         expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
         expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
@@ -73,7 +73,7 @@ describe('initializeProfileFromDefault', () => {
       const targetDir = resolveProfileDir('rescue', home)
       const target = readProfileManifest('test', targetDir)
       expect(target.dependencies).toEqual({})
-      expect(target.dsh?.profile).toEqual({
+      expect(target.qilin?.profile).toEqual({
         bundles: [...PROFILE_TEMPLATES.web!.bundles],
         patchReload: PROFILE_TEMPLATES.web!.patchReload,
       })
@@ -148,7 +148,7 @@ describe('initializeProfileFromDefault', () => {
       writeFileSync(gate, '')
       const results = await Promise.all(children)
       expect(results.map(result => result.exitCode).sort()).toEqual([0, 1])
-      expect(readProfileManifest('test', resolveProfileDir('rescue', home)).dsh?.profile)
+      expect(readProfileManifest('test', resolveProfileDir('rescue', home)).qilin?.profile)
         .toEqual(PROFILE_TEMPLATES.web)
     } finally {
       for (const child of children) child.kill('SIGKILL')

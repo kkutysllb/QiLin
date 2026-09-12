@@ -7,10 +7,10 @@ import {
   FileType,
   type EntryInfo,
   type Sandbox,
-} from '@deepseek-ai/dsh-e2b'
-import type E2BRuntime from '@deepseek-ai/dsh-e2b'
-import { FsTargetKey, FsVersion } from '@deepseek-ai/dsh-fs'
-import E2BFileSystem from '@deepseek-ai/dsh-fs-e2b'
+} from '@qilin/e2b'
+import type E2BRuntime from '@qilin/e2b'
+import { FsTargetKey, FsVersion } from '@qilin/fs'
+import E2BFileSystem from '@qilin/fs-e2b'
 import { describe, expect, it, vi } from 'vitest'
 
 interface RemoteNode {
@@ -238,7 +238,7 @@ class FakeRemote {
       ): Promise<{ exitCode: number; stdout: string; stderr: string }> => {
         this.checkAbort(options)
         const home = options?.envs?.HOME
-        expect(home).toMatch(/^\/\.dsh-e2b-control-/)
+        expect(home).toMatch(/^\/\.qilin-e2b-control-/)
         expect(options?.envs).toEqual({ HOME: home })
         this.commands.push(command)
         if (this.nextCommandError !== undefined) {
@@ -307,7 +307,7 @@ async function setup(remote = new FakeRemote()): Promise<{ ctx: Context; fs: E2B
   const ctx = new Context()
   const runtime = {
     cwd: '/workspace',
-    runtimeRoot: '/workspace/.dsh-e2b',
+    runtimeRoot: '/workspace/.qilin-e2b',
     getSandbox: async () => remote.sandbox,
   } as unknown as E2BRuntime
   ctx.provide('e2b', runtime)
@@ -360,7 +360,7 @@ describe('E2BFileSystem identity, metadata, and reads', () => {
     const outside = await fs.resolve('/outside.ts')
 
     expect(fs.processPath(nested)).toBe('/workspace/nested/multibyte # file.ts')
-    expect(fs.processPathFromHostPath('/Users/alice/.dsh/attachments/object')).toBeUndefined()
+    expect(fs.processPathFromHostPath('/Users/alice/.qilin/attachments/object')).toBeUndefined()
     expect(fs.fileUrl(nested)).toBe('file:///workspace/nested/multibyte%20%23%20file.ts')
     expect(fs.contains(workspace, workspace)).toBe(true)
     expect(fs.contains(workspace, nested)).toBe(true)

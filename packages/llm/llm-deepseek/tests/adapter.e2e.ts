@@ -6,11 +6,11 @@ import { randomBytes } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import LlmRuntime, { createUserMessage, ToolCallId, ReasoningEffortId, createMessage, createSystemMessage } from '@deepseek-ai/dsh-llm'
-import type { Message, ToolSchema } from '@deepseek-ai/dsh-llm'
-import AttachmentStore, { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment'
-import LocalAttachments from '@deepseek-ai/dsh-attachment-local'
+import AgentRegistry from '@qilin/agent'
+import LlmRuntime, { createUserMessage, ToolCallId, ReasoningEffortId, createMessage, createSystemMessage } from '@qilin/llm'
+import type { Message, ToolSchema } from '@qilin/llm'
+import AttachmentStore, { AttachmentId, ImageVariantId } from '@qilin/attachment'
+import LocalAttachments from '@qilin/attachment-local'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -18,14 +18,14 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@deepseek-ai/dsh-attachment'
-import { LocalCredentialProvider } from '@deepseek-ai/dsh-credentials-local'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as PluginPackageInventoryDeepSeek from '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
-import * as SessionLogDeepSeek from '@deepseek-ai/dsh-session-log-deepseek'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek'
-import type { Config } from '@deepseek-ai/dsh-llm-deepseek'
+} from '@qilin/attachment'
+import { LocalCredentialProvider } from '@qilin/credentials-local'
+import SessionStore, { SessionId } from '@qilin/session'
+import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
+import * as PluginPackageInventoryDeepSeek from '@qilin/plugin-package-inventory-deepseek'
+import * as SessionLogDeepSeek from '@qilin/session-log-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import type { Config } from '@qilin/llm-deepseek'
 import type { WireMessage, WireRequest } from '../src/types.ts'
 import { assemble, type AssembledResult } from './assemble.ts'
 

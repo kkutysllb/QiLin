@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconChevronDownOutline14, Menu, Tooltip, type MenuItem } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { IconChevronDownOutline14, Menu, Tooltip, type MenuItem } from '@qilin/client-ui-primitives'
+import type { ObservableSnapshot } from '@qilin/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type {} from '@qilin/client-ui-conversation/client'
 import { NS, type OpenInAppKey } from './locales.ts'
 import css from './OpenInAppAction.module.css'
 

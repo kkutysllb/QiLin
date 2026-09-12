@@ -3,7 +3,7 @@ description: "QiLin occupants for the Web client sidebar and conversation-hero b
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-brand-qilin
+# @qilin/client-ui-brand-qilin
 
 English | [中文](README.zh.md)
 

@@ -19,23 +19,23 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
 import { z } from 'zod'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionHeader } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
-import Storage from '@deepseek-ai/dsh-storage'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset } from '@qilin/session'
+import type { SessionHeader } from '@qilin/session'
+import SessionProjectionRegistry from '@qilin/session-projection'
+import type { ProjectionDefinition } from '@qilin/session-projection'
+import Storage from '@qilin/storage'
 import {
   apply as storageJsonApply, Config as storageJsonConfig, inject as storageJsonInject, name as storageJsonName,
-} from '@deepseek-ai/dsh-storage-json'
+} from '@qilin/storage-json'
 import {
   apply as storageDomainApply, Config as storageDomainConfig, inject as storageDomainInject, name as storageDomainName,
-} from '@deepseek-ai/dsh-storage-domain'
+} from '@qilin/storage-domain'
 import SessionProjectionCache from '../src/index.ts'
 import { projectionCacheDomainSpec } from '../src/spec.ts'
 
 // Declarations must match the shipped title unit's exactly (the repo-wide
 // compile face sees both).
-declare module '@deepseek-ai/dsh-session-projection/types' {
+declare module '@qilin/session-projection/types' {
   interface SessionProjectionStateMap {
     title: string | null
   }
@@ -44,7 +44,7 @@ declare module '@deepseek-ai/dsh-session-projection/types' {
   }
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@qilin/session/types' {
   interface SessionEventMap {
     'fixtures-test/set-title': { title: string }
   }

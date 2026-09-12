@@ -7,10 +7,10 @@ import {
   type CommandHandle,
   type CommandResult,
   type Sandbox,
-} from '@deepseek-ai/dsh-e2b'
-import type E2BRuntime from '@deepseek-ai/dsh-e2b'
-import type { SubprocessSpawnSpec } from '@deepseek-ai/dsh-subprocess'
-import E2BSubprocessRuntime from '@deepseek-ai/dsh-subprocess-e2b'
+} from '@qilin/e2b'
+import type E2BRuntime from '@qilin/e2b'
+import type { SubprocessSpawnSpec } from '@qilin/subprocess'
+import E2BSubprocessRuntime from '@qilin/subprocess-e2b'
 import { E2BBase64Decoder, E2B_OUTPUT_COMPLETE_FRAME, E2BOutputReader } from '../src/output.ts'
 import { E2BSubprocessHandle } from '../src/process.ts'
 import { describe, expect, it, vi } from 'vitest'
@@ -313,7 +313,7 @@ function spec(overrides: Partial<SubprocessSpawnSpec> = {}): SubprocessSpawnSpec
 function runtime(fake: FakeSandbox, getSandbox: () => Promise<Sandbox> = async () => fake.sandbox): E2BRuntime {
   return {
     cwd: '/workspace',
-    runtimeRoot: '/workspace/.dsh-e2b',
+    runtimeRoot: '/workspace/.qilin-e2b',
     getSandbox,
   } as unknown as E2BRuntime
 }
@@ -399,7 +399,7 @@ describe('E2BSubprocessHandle', () => {
         // The seam's tombstone: an explicit undefined removes the ambient entry.
         KEEP: undefined,
       },
-    }), '/workspace/.dsh-e2b/processes/one')
+    }), '/workspace/.qilin-e2b/processes/one')
     handle.stdin!.write('hello')
     handle.stdin!.end()
     fake.releaseStart()
@@ -407,7 +407,7 @@ describe('E2BSubprocessHandle', () => {
     expect(fake.handle.sent.map(value => String(value))).toEqual(['hello'])
     expect(fake.handle.closes).toBe(1)
     const controlEnvs = fake.startOptions?.envs
-    expect(controlEnvs?.HOME).toMatch(/^\/\.dsh-e2b-control-/)
+    expect(controlEnvs?.HOME).toMatch(/^\/\.qilin-e2b-control-/)
     expect(controlEnvs).toEqual({
       TERM: 'dumb',
       NPM_TOKEN: '',
@@ -435,12 +435,12 @@ describe('E2BSubprocessHandle', () => {
     expect(command).not.toContain('2>/dev/null >&2')
     expect(command).toContain('base64')
     expect(fake.writtenFiles[0]).toEqual([
-      '/workspace/.dsh-e2b/processes/one/pid',
-      '/workspace/.dsh-e2b/processes/one/exit-code',
-      '/workspace/.dsh-e2b/processes/one/environment',
-      '/workspace/.dsh-e2b/processes/one/stderr.log',
+      '/workspace/.qilin-e2b/processes/one/pid',
+      '/workspace/.qilin-e2b/processes/one/exit-code',
+      '/workspace/.qilin-e2b/processes/one/environment',
+      '/workspace/.qilin-e2b/processes/one/stderr.log',
     ])
-    expect(fake.writtenFileData.get('/workspace/.dsh-e2b/processes/one/environment')).toBe(
+    expect(fake.writtenFileData.get('/workspace/.qilin-e2b/processes/one/environment')).toBe(
       'PATH=/bin\0UNICODE=你好\0HOME=/home/user\0FOO-BAR=hyphen-value\0--split-string=literal-value\0DEEPSEEK_API_KEY=explicit-secret\0DSH_MODE=test\0',
     )
 
@@ -452,7 +452,7 @@ describe('E2BSubprocessHandle', () => {
     await expect(handle.done).resolves.toEqual({ exitCode: 0, signal: null })
     expect(piped).toBe('pipe-data')
     expect(handle.collected.stderr!.readFrom(0)).toMatchObject({ text: 'err', lossy: false })
-    expect(fake.removed).toContain('/workspace/.dsh-e2b/processes/one/stderr.log')
+    expect(fake.removed).toContain('/workspace/.qilin-e2b/processes/one/stderr.log')
     await expect(handle.waitForExit()).resolves.toBe(true)
   })
 

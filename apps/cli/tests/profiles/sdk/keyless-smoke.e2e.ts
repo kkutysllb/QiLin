@@ -56,7 +56,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
     if (editorEnabled) await writeFile(editorPatch, [
       '- insert:',
       '    - id: tool-str-replace-editor',
-      "      name: '@deepseek-ai/dsh-tool-str-replace-editor'",
+      "      name: '@qilin/tool-str-replace-editor'",
       '',
     ].join('\n'))
     const modelRequests: Record<string, unknown>[] = []
@@ -88,7 +88,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
     ], {
       cwd: repoRoot,
       env: {
-        DSH_HOME: join(root, '.dsh'),
+        DSH_HOME: join(root, '.qilin'),
         DSH_PERMISSION_MODE: 'danger-full-access',
         DSH_TELEMETRY_DISABLED: '1',
         DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
@@ -173,7 +173,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       expect(shutdown).toMatchObject({ jsonrpc: '2.0', id: 3, result: {} })
       const exit = await child
       expect(exit.exitCode, `signal=${String(exit.signal)}; stderr=${stderr}`).toBe(0)
-      const sessionsRoot = join(root, '.dsh', 'sessions')
+      const sessionsRoot = join(root, '.qilin', 'sessions')
       const files = await readdir(sessionsRoot, { recursive: true })
       const log = files.find(file => file.endsWith('.jsonl.zstd'))
       expect(log).toBeDefined()
@@ -248,7 +248,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
     ], {
       cwd: repoRoot,
       env: {
-        DSH_HOME: join(root, '.dsh'),
+        DSH_HOME: join(root, '.qilin'),
         DSH_SYSTEM_PROMPT: 'Minimal allowlist prompt.',
         DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
         DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
@@ -292,10 +292,10 @@ describe('Python SDK dsh profile keyless smoke', () => {
       })
 
       const profile = JSON.parse(
-        await readFile(join(root, '.dsh', 'profiles', 'sdk-minimal', 'package.json'), 'utf8'),
-      ) as { dsh?: { profile?: { bundles?: string[]; patchReload?: string } } }
-      expect(profile.dsh?.profile).toEqual({
-        bundles: ['@deepseek-ai/dsh-sdk-minimal'],
+        await readFile(join(root, '.qilin', 'profiles', 'sdk-minimal', 'package.json'), 'utf8'),
+      ) as { qilin?: { profile?: { bundles?: string[]; patchReload?: string } } }
+      expect(profile.qilin?.profile).toEqual({
+        bundles: ['@qilin/sdk-minimal'],
         patchReload: 'startup',
       })
       expect(modelRequests[0]?.tools).toEqual(expect.any(Array))
@@ -342,7 +342,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       ], {
         cwd: repoRoot,
         env: {
-          DSH_HOME: join(root, '.dsh'),
+          DSH_HOME: join(root, '.qilin'),
           DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
           DSH_MAX_TOKENS_AS_SUCCESS: 'sometimes',
         },
@@ -355,7 +355,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       expect(exitCode, stderr).toBe(1)
       expect(stdout).toBe('')
       expect(stderr).toContain('plugin tree failed to load')
-      expect(stderr).toContain('failed to apply loader entry sdk-jsonrpc-server (@deepseek-ai/dsh-sdk-jsonrpc-server)')
+      expect(stderr).toContain('failed to apply loader entry sdk-jsonrpc-server (@qilin/sdk-jsonrpc-server)')
       expect(stderr).toContain('sometimes')
     } finally {
       await rm(root, { recursive: true, force: true })

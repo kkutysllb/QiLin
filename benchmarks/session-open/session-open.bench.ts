@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { Session, SessionId, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin/session'
+import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 import {
   runBuiltBenchmarkWorker,
   type BuiltBenchmarkWorkerRun,
@@ -75,7 +75,7 @@ const AGENT_RETAINED_HEAP_BUDGET_MB = Math.ceil(
   EXPECTED_AGENT_RETAINED_HEAP_MB * PERFORMANCE_BUDGET_HEADROOM,
 )
 
-const WORKER = join(import.meta.dirname, '..', '.dsh-build', 'session-open', 'session-open.worker.js')
+const WORKER = join(import.meta.dirname, '..', '.qilin-build', 'session-open', 'session-open.worker.js')
 
 type WorkerRun = BuiltBenchmarkWorkerRun<SessionOpenWorkerReport>
 

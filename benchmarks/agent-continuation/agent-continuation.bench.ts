@@ -27,7 +27,7 @@ const CATALOG_BUDGET_MS = Math.ceil(EXPECTED_CATALOG_CI_MS * PERFORMANCE_BUDGET_
 /** Reviewed hosted limit: floor(238 × 1.25); calibration records the original reference. */
 const REQUEST_HISTORY_BUDGET_MS = 297
 const EXPECTED_RETAINED_HEAP_MB = 23
-const WORKERS = join(import.meta.dirname, '..', '.dsh-build', 'agent-continuation')
+const WORKERS = join(import.meta.dirname, '..', '.qilin-build', 'agent-continuation')
 
 type Scenario = 'request-history' | 'catalog' | 'tool-continuation' | keyof typeof EXPECTED_MS
 type Report = ContinuationReport | CatalogReport | ProfileReport

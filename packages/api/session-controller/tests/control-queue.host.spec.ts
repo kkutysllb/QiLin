@@ -1,14 +1,14 @@
 import { Context } from '@deepseek-ai/cordis'
-import type { Agent, Inbox } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import type { Agent, Inbox } from '@qilin/agent'
+import { createUserMessage } from '@qilin/llm'
+import { SessionId } from '@qilin/session'
 import { afterEach, describe, expect, it } from 'vitest'
 import { SessionControlController } from '../src/control.ts'
 import type { SessionControlFrame } from '../src/types.ts'
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@qilin/agent-loop-testkit'
 
 const ownedContexts = new Set<Context>()
 afterEach(async () => {
