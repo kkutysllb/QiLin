@@ -3,7 +3,7 @@ description: "The QiLin product layer over the qilin Web surface: a patch bundle
 kind: "package-bundle"
 ---
 
-# @qilin/qilin-web
+# @qilin/web-brand
 
 English | [中文](README.zh.md)
 
@@ -32,14 +32,14 @@ Name the package last in a profile's `qilin.profile.bundles` list so its rows wi
       "bundles": [
         "@qilin/base",
         "@qilin/web-app",
-        "@qilin/qilin-web"
+        "@qilin/web-brand"
       ]
     }
   }
 }
 ```
 
-The shipped `qilin` profile template lists those bundles in that order, and `qilin qilin` boots it.
+The shipped `qilin` profile template lists those bundles in that order, and a bare `qilin` boots it.
 
 <a id="dev-note"></a>
 ## Dev Note

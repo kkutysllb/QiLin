@@ -69,7 +69,7 @@
     "@qilin/skill-filesystem": "workspace:^",
     "@qilin/terminal": "workspace:^",
     "@qilin/terminal-bash": "workspace:^",
-    "@qilin/qilin-web": "workspace:^",
+    "@qilin/web-brand": "workspace:^",
     "@qilin/time-context": "workspace:^",
     "@qilin/tmux-context": "workspace:^",
     "@qilin/token-meter": "workspace:^",

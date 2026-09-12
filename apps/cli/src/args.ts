@@ -71,11 +71,26 @@ function rejectElectronProfile(program: Command, profile: string): void {
   }
 }
 
+/**
+ * Profile a bare `qilin` boots: the QiLin product surface. It is the only
+ * profile a user has to know, so naming it again on the command line would
+ * only repeat the product's own name.
+ */
+const PRODUCT_PROFILE = 'qilin'
+
+/**
+ * The subcommand this launcher used to expose for the product profile. Its
+ * first positional is now inner argv, so a stale spelling would reach the app
+ * as an argument; naming it here keeps that failure a usage error instead.
+ */
+const RETIRED_PRODUCT_COMMAND = 'qilin'
+
 /** The launcher's own help text; each app prints its own. */
 const HELP_EXAMPLES = `
 Examples:
-  qilin --profile web                          boot the web profile (same as: qilin web)
-  qilin qilin                                  boot the QiLin product profile (same as: qilin --profile qilin)
+  qilin                                        boot the QiLin product surface, then serve it
+  qilin --no-open                              the same, without opening a browser
+  qilin --profile web                          boot the unbranded web surface (same as: qilin web)
   qilin --profile rescue --from-default-profile web
                                              create rescue from the shipped web template, then boot it
   qilin --profile headless "run the tests"     answer one task, print the result, and exit
@@ -132,7 +147,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   program
     .name('qilin')
     .version(version, '-V, --version', 'output the version number')
-    .description('qilin: boot a QiLin profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
+    .description('qilin: boot the QiLin product surface, or any profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
     // The launcher's flags come first and end at the first token it does not
@@ -151,11 +166,13 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
     .action((args: string[], options: BootOptions & { profile?: string }) => {
       // With the app owning -h, the launcher's own help is what a bare
       // `qilin -h` (no profile to hand it to) must print.
-      if (options.profile === undefined) {
-        if (args.some(argument => argument === '-h' || argument === '--help')) program.help()
-        program.error('error: --profile <name> is required')
+      if (options.profile === undefined && args.some(argument => argument === '-h' || argument === '--help')) {
+        program.help()
       }
-      const profile = options.profile
+      if (args[0] === RETIRED_PRODUCT_COMMAND) {
+        program.error(`error: ${RETIRED_PRODUCT_COMMAND} is no longer a subcommand; bare qilin boots that profile`)
+      }
+      const profile = options.profile ?? PRODUCT_PROFILE
       if (profile === '') program.error('error: --profile needs a name')
       rejectElectronProfile(program, profile)
       resolved = resolveBoot(program, profile, options, args)
@@ -186,21 +203,6 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
     .action((args: string[], options: BootOptions) => {
       rejectParentOptions('web')
       resolved = resolveBoot(web, 'web', options, args)
-    })
-
-  const qilin = program.command('qilin').description('boot the QiLin product profile (alias of --profile qilin); the app\'s own flags follow')
-  qilin
-    .helpOption(false)
-    .allowUnknownOption()
-    .passThroughOptions()
-    .enablePositionalOptions()
-    .argument('[args...]', 'arguments for the QiLin app (see: qilin qilin --help)')
-    .option('--patch <path>', 'extra patch-list overlay applied after the profile layer (repeatable)', collect)
-    .option('--dump-config', 'print the composed QiLin-profile tree (with the user layer and any --patch) and exit')
-    .option('--dump-default-config', 'print the QiLin profile\'s bundle layers (no user layer) and exit')
-    .action((args: string[], options: BootOptions) => {
-      rejectParentOptions('qilin')
-      resolved = resolveBoot(qilin, 'qilin', options, args)
     })
 
   const plugin = program.command('plugin').description('manage a profile\'s plugins by forwarding the remaining arguments to pnpm in the profile directory')

@@ -35,7 +35,7 @@ pnpm run build:qilin
 ## 4. 启动产品
 
 ```sh
-pnpm qilin qilin --port 3090
+pnpm qilin --port 3090
 ```
 
 启动后终端打印一行带令牌的地址，用**完整地址**打开浏览器：
@@ -44,7 +44,7 @@ pnpm qilin qilin --port 3090
 qilin: http://127.0.0.1:3090/?token=<一次性令牌>
 ```
 
-`qilin` 是产品 profile 的启动别名，等效于 `pnpm qilin --profile qilin`。首次运行会在 Harness home 下自动生成该 profile，模板已内置，无需手工创建。
+不带 profile 的 `qilin` 直接启动产品 profile（`qilin`），等效于 `pnpm qilin --profile qilin`；`qilin web` 则启动无品牌的上游形态。首次运行会在 QiLin home 下自动生成该 profile，模板已内置，无需手工创建。
 
 常用参数：`--no-open` 不自动打开浏览器；`--port <n>` 指定端口。
 
@@ -70,7 +70,7 @@ profile、设置、凭据、附件、技能与会话日志都在这一棵树下�
 想隔离到仓库内（例如并行验证多份状态）：
 
 ```sh
-QILIN_HOME="$PWD/.qilin-home" pnpm qilin qilin --port 3090
+QILIN_HOME="$PWD/.qilin-home" pnpm qilin --port 3090
 ```
 
 `.qilin-home/` 已在 .gitignore 中。想让 QiLin 复用一份已有的 qilin 数据，把 `QILIN_HOME` 指过去即可。
@@ -98,14 +98,14 @@ QILIN_HOME="$PWD/.qilin-home" pnpm qilin qilin --port 3090
 pnpm run dev:web
 
 # 终端 B：启动产品
-pnpm qilin qilin --port 3090
+pnpm qilin --port 3090
 ```
 
 三条来自实测的约束：
 
 1. 必须先成功跑过一次 `pnpm run build`。dev:web 是增量构建，它不会自举一棵缺失的产物树，缺阶段时不会报错，只会静默使用旧产物，表现为改了代码没反应。
 2. 不要与 `pnpm run build` 并发运行：两者都写 lib/ 与 apps/web/dist/。
-3. dev:web 本身不做刷新广播；运行中的 `qilin qilin` 的 web 服务器会轮询它服务的产物并广播 rebuilt 帧，所以浏览器会自行重载。改动后仍无变化时，先看终端 A 是否真的重跑了三个阶段。
+3. dev:web 本身不做刷新广播；运行中的 `qilin` 的 web 服务器会轮询它服务的产物并广播 rebuilt 帧，所以浏览器会自行重载。改动后仍无变化时，先看终端 A 是否真的重跑了三个阶段。
 
 ## 6. 验收清单
 

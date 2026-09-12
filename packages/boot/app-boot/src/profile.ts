@@ -121,7 +121,7 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     patchReload: 'startup',
   },
   qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/qilin-web'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
     patchReload: 'live',
   },
   sdk: {

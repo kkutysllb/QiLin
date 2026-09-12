@@ -34,8 +34,8 @@
 # `qilin.client` rows are scanned into the browser module roster. The brand color
 # layer stacks over whichever palette the user selected in Settings.
 - insert:
-    - id: ui-brand-qilin
-      name: '@qilin/client-ui-brand-qilin'
+    - id: ui-brand
+      name: '@qilin/client-ui-brand'
 
-    - id: ui-theme-qilin
-      name: '@qilin/client-ui-theme-qilin'
+    - id: ui-theme-brand
+      name: '@qilin/client-ui-theme-brand'

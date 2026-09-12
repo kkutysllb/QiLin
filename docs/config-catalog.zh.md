@@ -3458,8 +3458,8 @@ export interface Config {
 - `@qilin/client-ui-agent-preset`（[`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts)）
 - `@qilin/client-ui-approval`（[`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts)）
 - `@qilin/client-ui-attachment`（[`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts)）
+- `@qilin/client-ui-brand`（[`packages/client/ui-brand/src/index.ts`](../packages/client/ui-brand/src/index.ts)）
 - `@qilin/client-ui-brand-official`（[`packages/client/ui-brand-official/src/index.ts`](../packages/client/ui-brand-official/src/index.ts)）
-- `@qilin/client-ui-brand-qilin`（[`packages/client/ui-brand-qilin/src/index.ts`](../packages/client/ui-brand-qilin/src/index.ts)）
 - `@qilin/client-ui-chat`（[`packages/client/ui-chat/src/index.ts`](../packages/client/ui-chat/src/index.ts)）
 - `@qilin/client-ui-commands`（[`packages/client/ui-commands/src/index.ts`](../packages/client/ui-commands/src/index.ts)）
 - `@qilin/client-ui-conversation`（[`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts)）
@@ -3482,6 +3482,7 @@ export interface Config {
 - `@qilin/client-ui-session`（[`packages/client/ui-session/src/index.ts`](../packages/client/ui-session/src/index.ts)）
 - `@qilin/client-ui-settings`（[`packages/client/ui-settings/src/index.ts`](../packages/client/ui-settings/src/index.ts)）
 - `@qilin/client-ui-settings-general`（[`packages/client/ui-settings-general/src/index.ts`](../packages/client/ui-settings-general/src/index.ts)）
+- `@qilin/client-ui-settings-mcp`（[`packages/client/ui-settings-mcp/src/index.ts`](../packages/client/ui-settings-mcp/src/index.ts)）
 - `@qilin/client-ui-settings-models`（[`packages/client/ui-settings-models/src/index.ts`](../packages/client/ui-settings-models/src/index.ts)）
 - `@qilin/client-ui-settings-plugin-inventory`（[`packages/client/ui-settings-plugin-inventory/src/index.ts`](../packages/client/ui-settings-plugin-inventory/src/index.ts)）
 - `@qilin/client-ui-settings-plugins`（[`packages/client/ui-settings-plugins/src/index.ts`](../packages/client/ui-settings-plugins/src/index.ts)）
@@ -3492,7 +3493,7 @@ export interface Config {
 - `@qilin/client-ui-skill`（[`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts)）
 - `@qilin/client-ui-subagent`（[`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts)）
 - `@qilin/client-ui-theme`（[`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts)）
-- `@qilin/client-ui-theme-qilin`（[`packages/client/ui-theme-qilin/src/index.ts`](../packages/client/ui-theme-qilin/src/index.ts)）
+- `@qilin/client-ui-theme-brand`（[`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts)）
 - `@qilin/client-ui-tool`（[`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts)）
 - `@qilin/client-ui-trajectory`（[`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts)）
 - `@qilin/client-ui-user-questions`（[`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts)）
@@ -3513,6 +3514,7 @@ export interface Config {
 - `@qilin/host-plugin-inventory` — 需要 `loader`（[`packages/host/plugin-inventory/src/index.ts`](../packages/host/plugin-inventory/src/index.ts)）
 - `@qilin/llm`（[`packages/llm/llm/src/index.ts`](../packages/llm/llm/src/index.ts)）
 - `@qilin/lsp`（[`packages/lsp/lsp/src/index.ts`](../packages/lsp/lsp/src/index.ts)）
+- `@qilin/mcp-servers` — 需要 `subprocess`（[`packages/mcp/mcp-servers/src/index.ts`](../packages/mcp/mcp-servers/src/index.ts)）
 - `@qilin/schedule` — 需要 `agents` · `sessions` · `tools` · `sessionPersistence`（[`packages/schedule/schedule/src/index.ts`](../packages/schedule/schedule/src/index.ts)）
 - `@qilin/session`（[`packages/core/session/src/index.ts`](../packages/core/session/src/index.ts)）
 - `@qilin/session-checkpoint-policy` — 需要 `llm` · `sessionPersistence` · `sessions` · `tools`（[`packages/session/session-checkpoint-policy/src/index.ts`](../packages/session/session-checkpoint-policy/src/index.ts)）
@@ -3584,7 +3586,6 @@ export interface Config {
 - `@qilin/native-command`（[`packages/util/native-command/src/index.ts`](../packages/util/native-command/src/index.ts)）
 - `@qilin/output-retention`（[`packages/util/output-retention/src/index.ts`](../packages/util/output-retention/src/index.ts)）
 - `@qilin/package-manifest` ([`packages/util/package-manifest/src/index.ts`](../packages/util/package-manifest/src/index.ts))
-- `@qilin/qilin-web`（[`packages/bundle/qilin-web/src/index.ts`](../packages/bundle/qilin-web/src/index.ts)）
 - `@qilin/sandbox-windows-acl`（[`packages/sandbox/sandbox-windows-acl/src/index.ts`](../packages/sandbox/sandbox-windows-acl/src/index.ts)）
 - `@qilin/scope`（[`packages/core/scope/src/index.ts`](../packages/core/scope/src/index.ts)）
 - `@qilin/sdk-client`（[`packages/sdk/client/src/index.ts`](../packages/sdk/client/src/index.ts)）
@@ -3607,4 +3608,5 @@ export interface Config {
 - `@qilin/util-time`（[`packages/util/time/src/index.ts`](../packages/util/time/src/index.ts)）
 - `@qilin/util-values`（[`packages/util/values/src/index.ts`](../packages/util/values/src/index.ts)）
 - `@qilin/util-workspace-path`（[`packages/util/workspace-path/src/index.ts`](../packages/util/workspace-path/src/index.ts)）
+- `@qilin/web-brand`（[`packages/bundle/web-brand/src/index.ts`](../packages/bundle/web-brand/src/index.ts)）
 - `@qilin/win32-process`（[`packages/subprocess/win32-process/src/index.ts`](../packages/subprocess/win32-process/src/index.ts)）

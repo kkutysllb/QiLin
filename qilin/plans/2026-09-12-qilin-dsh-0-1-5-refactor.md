@@ -27,7 +27,7 @@
 - pnpm run test:gui：377 个文件、5348 项通过（1 项跳过）。
 
 ### 品牌落地（公章印章）
-- 新增 packages/client/ui-brand-qilin：麒麟汉字印章占用 sidebar.brand.mark 与 conversation.hero.brand.mark。
+- 新增 packages/client/ui-brand：麒麟汉字印章占用 sidebar.brand.mark 与 conversation.hero.brand.mark。
 - 字形来源：以 fontTools 从系统 CJK 字面提取麒、麟轮廓，归一化到单位框后作为路径数据内嵌（无运行时字体依赖）。
 - 浏览器实测：印章出现 2 处；品牌行为 QiLin 加版本徽章；hero 标语为 QiLin；document.title 为 QiLin。
 - 几何实测：边框 1.6-22.4，字块 x 6.2-17.8、两行 y 2.6-11.8 与 12.3-21.4，全部位于边框内。
@@ -88,7 +88,7 @@
 2. 改名引入：需要同步旧包名或旧文件名的门禁脚本与桌面应用用例，例如
    scripts/verify-application-entrypoints.spec.ts、apps/desktop/tests/{core-package-set,prepare-package-set,project-manager}.spec.ts、
    scripts/{browser-bundled-externals,client-bundle-purity,lint-rule-fingerprint,package-invariants,release/families,translation-pairing-merge,verify-npm-install-layout}.spec.ts。
-3. 改名前已存在：scripts/doc-standard.spec.ts 报 packages/bundle/qilin-web/README.zh.md 缺少标准中文章节标题（概述、开发备注），
+3. 改名前已存在：scripts/doc-standard.spec.ts 报 packages/bundle/web-brand/README.zh.md 缺少标准中文章节标题（概述、开发备注），
    与本轮改名无关，是更早提交的 README 章节命名问题。
 
 ### 门禁判定同步（ab52e3d4f7）

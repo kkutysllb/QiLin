@@ -32,16 +32,18 @@ describe('parseQilinArgs', () => {
       .toEqual({ mode: 'profile', profile: 'web', patches: ['web.yml'], args: [] })
   })
 
-  it('routes the qilin product alias and hands the rest to the app', () => {
-    expect(parse(['qilin'])).toEqual({ mode: 'profile', profile: 'qilin', patches: [], args: [] })
-    expect(parse(['qilin', '--port', '3081', '--no-open', '--future-app-flag']))
+  it('boots the product profile when no profile is named, handing the rest to the app', () => {
+    expect(parse([])).toEqual({ mode: 'profile', profile: 'qilin', patches: [], args: [] })
+    expect(parse(['--port', '3081', '--no-open', '--future-app-flag']))
       .toEqual({ mode: 'profile', profile: 'qilin', patches: [], args: ['--port', '3081', '--no-open', '--future-app-flag'] })
-    expect(parse(['qilin', '--dump-config']))
+    expect(parse(['--dump-config']))
       .toEqual({ mode: 'dump-config', profile: 'qilin', defaultOnly: false, patches: [] })
-    expect(parse(['qilin', '--dump-default-config']))
+    expect(parse(['--dump-default-config']))
       .toEqual({ mode: 'dump-config', profile: 'qilin', defaultOnly: true, patches: [] })
-    expect(parse(['qilin', '--dump-config', '--patch', 'q.yml']))
+    expect(parse(['--dump-config', '--patch', 'q.yml']))
       .toEqual({ mode: 'dump-config', profile: 'qilin', defaultOnly: false, patches: ['q.yml'] })
+    // An explicit profile still wins over the product default.
+    expect(parse(['--profile', 'tui'])).toEqual({ mode: 'profile', profile: 'tui', patches: [], args: [] })
   })
 
   it('ends the launcher flags at the first token it does not own', () => {
@@ -101,25 +103,23 @@ describe('parseQilinArgs', () => {
       .toEqual({ mode: 'dump-config', profile: 'web', defaultOnly: true, patches: [] })
   })
 
-  it('rejects missing profile, removed flags, and contradictory inputs', () => {
-    expect(exitCode([])).toBe(1)
-    expect(exitCode(['tui'])).toBe(1) // an app argument without --profile has no app to reach
-    expect(exitCode(['--config', 'c.yml'])).toBe(1) // removed
-    expect(exitCode(['-p', 'task'])).toBe(1) // removed
-    expect(exitCode(['run', 'task'])).toBe(1) // app-owned task replaced the launcher subcommand
+  it('rejects a retired spelling and the contradictory or incomplete inputs it owns', () => {
+    // A bare command boots the product profile, so a stray flag or positional
+    // is forwarded to that app, which owns its own argv and rejects it there.
+    expect(exitCode(['qilin'])).toBe(1)
     expect(exitCode(['--profile', ''])).toBe(1)
     expect(exitCode(['--profile', 'x', '--from-default-profile='])).toBe(1)
     expect(exitCode(['--profile', 'x', '--from-default-profile'])).toBe(1)
     expect(exitCode(['--profile', 'x', '--patch='])).toBe(1)
-    expect(exitCode(['--dump-config'])).toBe(1)
     expect(exitCode(['--profile', 'x', '--dump-config', '--dump-default-config'])).toBe(1)
     expect(exitCode(['--profile', 'x', '--dump-default-config', '--patch', 'p.yml'])).toBe(1)
     expect(exitCode(['--profile', 'x', '--dump-config', 'task'])).toBe(1)
-    expect(exitCode(['--bogus'])).toBe(1)
     expect(exitCode(['--profile', 'x', 'web'])).toBe(1)
     expect(exitCode(['--profile', 'x', 'qilin'])).toBe(1)
     expect(exitCode(['qilin', '--dump-config', '--dump-default-config'])).toBe(1)
     expect(exitCode(['qilin', '--dump-config', '--port', '3081'])).toBe(1)
+    expect(exitCode(['--dump-config', '--dump-default-config'])).toBe(1)
+    expect(exitCode(['--dump-config', 'task'])).toBe(1)
     expect(exitCode(['web', '--dump-config', '--dump-default-config'])).toBe(1)
     expect(exitCode(['web', '--dump-default-config', '--patch', 'w.yml'])).toBe(1)
     expect(exitCode(['web', '--patch='])).toBe(1)

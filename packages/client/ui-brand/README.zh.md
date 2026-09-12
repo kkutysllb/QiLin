@@ -3,7 +3,7 @@ description: "QiLin 在 Web 客户端侧边栏与会话 hero 品牌槽位的占�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-brand-qilin
+# @qilin/client-ui-brand
 
 [English](README.md) | 中文
 

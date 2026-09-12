@@ -3,7 +3,7 @@ description: "QiLin 在 qilin Web 表面之上的产品层：一个补丁 bundle
 kind: "package-bundle"
 ---
 
-# @qilin/qilin-web
+# @qilin/web-brand
 
 [English](README.md) | 中文
 
@@ -32,14 +32,14 @@ kind: "package-bundle"
       "bundles": [
         "@qilin/base",
         "@qilin/web-app",
-        "@qilin/qilin-web"
+        "@qilin/web-brand"
       ]
     }
   }
 }
 ```
 
-随附的 `qilin` profile 模板按该顺序列出这些 bundle，`qilin qilin` 即启动它。
+随附的 `qilin` profile 模板按该顺序列出这些 bundle，裸命令 `qilin` 即启动它。
 
 <a id="dev-note"></a>
 ## 开发备注

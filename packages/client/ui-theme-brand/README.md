@@ -3,7 +3,7 @@ description: "QiLin brand color layer for the Web client: alias-token overrides 
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-theme-qilin
+# @qilin/client-ui-theme-brand
 
 English | [中文](README.zh.md)
 

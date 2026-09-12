@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/qilin-web",
+  "name": "@qilin/web-brand",
   "description": "The QiLin browser-surface bundle: QiLin product identity layered over the qilin web surface",
   "version": "0.1.5-rc.2",
   "publishConfig": {
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
-    "directory": "packages/bundle/qilin-web"
+    "directory": "packages/bundle/web-brand"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "@qilin/client-ui-brand-qilin": "workspace:^",
-    "@qilin/client-ui-theme-qilin": "workspace:^"
+    "@qilin/client-ui-brand": "workspace:^",
+    "@qilin/client-ui-theme-brand": "workspace:^"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:^"

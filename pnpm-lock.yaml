@@ -235,9 +235,9 @@ importers:
       '@qilin/pwsh-sandbox':
         specifier: workspace:^
         version: link:../../packages/shell/pwsh-sandbox
-      '@qilin/qilin-web':
+      '@qilin/web-brand':
         specifier: workspace:^
-        version: link:../../packages/bundle/qilin-web
+        version: link:../../packages/bundle/web-brand
       '@qilin/schedule':
         specifier: workspace:^
         version: link:../../packages/schedule/schedule
@@ -1641,14 +1641,14 @@ importers:
         specifier: workspace:^
         version: link:../../core/session
 
-  packages/bundle/qilin-web:
+  packages/bundle/web-brand:
     dependencies:
-      '@qilin/client-ui-brand-qilin':
+      '@qilin/client-ui-brand':
         specifier: workspace:^
-        version: link:../../client/ui-brand-qilin
-      '@qilin/client-ui-theme-qilin':
+        version: link:../../client/ui-brand
+      '@qilin/client-ui-theme-brand':
         specifier: workspace:^
-        version: link:../../client/ui-theme-qilin
+        version: link:../../client/ui-theme-brand
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -2414,7 +2414,7 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
-  packages/client/ui-brand-qilin:
+  packages/client/ui-brand:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^
@@ -4282,7 +4282,7 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
-  packages/client/ui-theme-qilin:
+  packages/client/ui-theme-brand:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: workspace:^

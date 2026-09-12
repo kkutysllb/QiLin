@@ -3,7 +3,7 @@ description: "QiLin 在 Web 客户端上的品牌配色层：以别名令牌覆�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-theme-qilin
+# @qilin/client-ui-theme-brand
 
 [English](README.md) | 中文
 
