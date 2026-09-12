@@ -34,7 +34,7 @@ export class BootPage {
     this.root = div(css.boot)
     this.root.dataset.qilinBoot = ''
     this.card = div(css.card)
-    this.wordmark = div(css.wordmark, 'HARNESS')
+    this.wordmark = div(css.wordmark, 'QiLin')
     this.spinner = div(css.spinner)
     this.spinner.dataset.qilinBootSpinner = ''
     this.hint = div(css.hint, 'Loading plugins…')
