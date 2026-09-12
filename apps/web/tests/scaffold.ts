@@ -498,6 +498,12 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     ...mode === 'record' || options.deepSeekMissingCredential === true
       ? []
       : [{ id: 'agent-default-model', config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } }],
+    // The shipped surface requires an account session. Every ordinary scenario
+    // drives the application itself, so the lane turns the gate off and reaches
+    // the app exactly as it did before. It sits above the scenario overlay, which
+    // is what lets the accounts-auth scenario turn the gate back on and own the
+    // sign-in journey; the account file stays in the harness home either way.
+    { id: 'accounts', config: { enabled: false, qilinHome: harnessHome } },
     ...extraOverlayPatches,
     // The roster's shipped presets are the plugin's own, bundled inside
     // `qilin-agent-presets` and prepended by it. Pin only the machine-local
@@ -758,8 +764,10 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     authenticatedUrl = ctx.connection.authenticatedUrl(baseUrl)
     const login = await fetch(authenticatedUrl, { redirect: 'manual' })
     const setCookie = login.headers.get('set-cookie')
-    if (login.status !== 303 || login.headers.get('location') !== '/' || setCookie === null) {
-      throw new Error('web e2e scaffold: browser token exchange did not return its session cookie')
+    // The handoff redirects to the application entry path the transport publishes.
+    if (login.status !== 303 || login.headers.get('location') !== '/workspace' || setCookie === null) {
+      throw new Error('web e2e scaffold: browser token exchange did not return its session cookie'
+        + ` (status=${String(login.status)}, location=${String(login.headers.get('location'))})`)
     }
     cookieHeader = setCookie.split(';', 1)[0] ?? ''
     if (cookieHeader.length === 0) {

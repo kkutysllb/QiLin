@@ -21,6 +21,7 @@ import z from '@deepseek-ai/schemastery'
 import { addHarnessSourceSection } from '@qilin/app-boot'
 import type {} from '@qilin/client-connection'
 import * as FrontendStatic from '@qilin/host-frontend-static'
+import type { StaticDocument } from '@qilin/host-frontend-static'
 import { launchedThroughSsh, launchEnvironmentOf } from '@qilin/launch-environment'
 import { scrubbedParentEnv } from '@qilin/subprocess'
 import type {} from '@deepseek-ai/cordis-plugin-loader'
@@ -77,6 +78,21 @@ export interface WebRuntimeValues {
 
 /** Environment variable naming the canonical local URL of this Web GUI. */
 const QILIN_WEB_URL = 'QILIN_WEB_URL' as const
+
+/**
+ * Public documents of this bundle, served before the index gate: the site root
+ * shows the landing page, and the two paths the account surface redirects a
+ * browser to show the sign-in document. They are assembly facts of this bundle,
+ * never user config — and the redirect targets must be listed here, because a
+ * gate that sends a browser to a path this server does not answer lands it on a
+ * 404. The application document itself is served at the transport's entry path
+ * by the index default.
+ */
+const PUBLIC_DOCUMENTS: readonly StaticDocument[] = [
+  { path: '/', file: 'landing.html' },
+  { path: '/login', file: 'auth.html' },
+  { path: '/setup', file: 'auth.html' },
+]
 
 // Display-only mirror of the webserver schema's loopback host: the address the
 // local URL always prints. Not a source of truth — the schema is.
@@ -232,7 +248,10 @@ export function apply(ctx: Context, config: Config): void {
   const handoffBrowser = config.openBrowser && !launchedThroughSsh(launchEnvironmentOf(ctx))
   // Release dependent rows only after bind-dependent trust has been sampled once.
   ctx.provide(WEB_RUNTIME_SERVICE, runtime)
-  ctx.plugin(FrontendStatic, { distIndex: internals.resolveDistIndex() })
+  ctx.plugin(FrontendStatic, {
+    distIndex: internals.resolveDistIndex(),
+    documents: [...PUBLIC_DOCUMENTS],
+  })
   if (config.surfaceContext) {
     ctx.inject(['systemPrompt'], (promptCtx) => {
       addHarnessSourceSection(promptCtx, SOURCE_ROOT)

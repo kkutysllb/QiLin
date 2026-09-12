@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-12-qilin-local-accounts-and-landing.md
+2026-09-12-qilin-local-accounts-and-landing.md: 4509372041050c110d7bf47156ca9a51a4a4df09
+2026-09-12-qilin-local-accounts-and-landing.zh.md: 30a2a7be0ea7df9190825a7ac6b2610f539fdb4d

@@ -1,16 +1,19 @@
-/** Seal geometry: the frame, the two glyph cells, and the transform each needs. */
+/** Seal geometry: the cinnabar body, its gold hairline ring, and the two glyph cells. */
 
-/** Frame square, its corner radius, and the stroke that draws the seal body. */
-export const SEAL_FRAME = { inset: 1.6, side: 20.8, radius: 2.6, stroke: 1.8 } as const
+/** The seal body: a rounded square filling the viewBox. */
+export const SEAL_BODY = { inset: 0, side: 24, radius: 5.2 } as const
 
-/** The character cell: left inset, width, height, and the two row origins. */
-export const SEAL_CELL = { x: 6.2, width: 11.6, height: 9.2, rows: [2.6, 12.2] } as const
+/** The gold hairline ring inside the body, close to its edge. */
+export const SEAL_RING = { inset: 0.94, side: 22.13, radius: 4.31, stroke: 0.375 } as const
+
+/** The glyph cells: side by side and centered vertically in the body. */
+export const SEAL_CELL = { size: 9.6, top: 7.2, lefts: [2.28, 12.12] as const }
 
 /**
  * Placement transform for one glyph cell.
- * @param row - top edge of the cell in viewBox units.
+ * @param left - left edge of the cell in viewBox units.
  * @returns the transform placing the unit-box outline into that cell.
  */
-export function cellTransform(row: number | undefined): string {
-  return `translate(${SEAL_CELL.x} ${row}) scale(${SEAL_CELL.width} ${SEAL_CELL.height})`
+export function cellTransform(left: number): string {
+  return `translate(${String(left)} ${String(SEAL_CELL.top)}) scale(${String(SEAL_CELL.size)})`
 }

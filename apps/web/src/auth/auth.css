@@ -1,0 +1,293 @@
+/*
+ * auth.css — pre-session authentication document served at /login and /setup.
+ *
+ * Token layer of the "玄金麒麟" brand: warm near-black ground, one weak gold top
+ * glow, one narrow card carrying a 2px gold top rule. Geometry mirrors the
+ * 2.0.x reference card: rounded-xl (14px) card, rounded-lg (10px) submit,
+ * rounded-md (8px) fields.
+ */
+
+:root {
+  /* Ground */
+  --ql-bg: #0d0b09;
+  --ql-surface: #16130f;
+  --ql-raised: #1d1915;
+  /* Gold ramp */
+  --ql-gold-300: #f3dc9e;
+  --ql-gold-500: #c9a24a;
+  --ql-gold-700: #8f6f2e;
+  /* Three ink levels (ink-low raised to WCAG AA against --ql-bg) */
+  --ql-ink-hi: #efe9df;
+  --ql-ink-mid: #a89f90;
+  --ql-ink-low: #857c6c;
+  /* Cinnabar (seal and failure copy) */
+  --ql-cinnabar: #c3402f;
+  --ql-cinnabar-hi: #e0684f;
+
+  /* Page-local type and geometry */
+  --ql-radius-card: 14px;
+  --ql-radius-button: 10px;
+  --ql-radius-field: 8px;
+  --ql-ring-gold: 0 0 0 3px rgb(201 162 74 / 40%);
+  --ql-font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --ql-font-serif: "Noto Serif SC", "Songti SC", "STSong", ui-serif, Georgia, serif;
+  --ql-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Markup hides the confirm field and the toggle row with the hidden attribute;
+   their own display rules must not win over it. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--ql-bg);
+  color: var(--ql-ink-hi);
+  font-family: var(--ql-font-ui);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ql-gold-300);
+  outline-offset: 2px;
+}
+
+/* ── Page ground ───────────────────────────────────────────────────── */
+
+.ql-auth {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--ql-bg);
+}
+
+/* The single background layer: one weak gold glow at the top edge. */
+.ql-auth__glow {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 16rem;
+  pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 0%, rgb(201 162 74 / 8%), transparent 70%);
+}
+
+.ql-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 24rem;
+  padding: 0 1rem;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────── */
+
+.ql-card {
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--ql-radius-card);
+  background: rgb(0 0 0 / 30%);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 50%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.ql-card__rule {
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--ql-gold-500), transparent);
+}
+
+.ql-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
+
+.ql-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+/* Seal, wordmark, separator and page title share one centered row. */
+.ql-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ql-seal {
+  flex: none;
+  display: block;
+}
+
+.ql-wordmark {
+  font-family: var(--ql-font-serif);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  color: var(--ql-ink-hi);
+}
+
+.ql-brand__divider {
+  margin: 0 0.125rem;
+  width: 1px;
+  height: 1rem;
+  background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 25%), transparent);
+}
+
+.ql-title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  color: var(--ql-ink-hi);
+}
+
+.ql-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--ql-ink-mid);
+}
+
+/* ── Form ──────────────────────────────────────────────────────────── */
+
+.ql-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ql-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ql-label {
+  font-family: var(--ql-font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ql-ink-mid);
+}
+
+.ql-input {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: var(--ql-radius-field);
+  background: transparent;
+  color: var(--ql-ink-hi);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: border-color 0.15s ease;
+}
+
+.ql-input::placeholder {
+  color: var(--ql-ink-low);
+}
+
+.ql-input:focus-visible {
+  outline: none;
+  border-color: var(--ql-gold-500);
+  box-shadow: var(--ql-ring-gold);
+}
+
+.ql-error {
+  margin: 0;
+  padding-left: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--ql-cinnabar-hi);
+}
+
+/* Gold solid submit with near-black text. */
+.ql-submit {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: var(--ql-radius-button);
+  background: var(--ql-gold-500);
+  color: #141006;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ql-submit:hover:not(:disabled) {
+  background: var(--ql-gold-300);
+}
+
+.ql-submit:disabled {
+  background: var(--ql-gold-700);
+  color: #141006;
+  cursor: not-allowed;
+}
+
+/* ── Footer links ──────────────────────────────────────────────────── */
+
+.ql-toggle {
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.ql-toggle__button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ql-gold-300);
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.ql-toggle__button:hover {
+  color: var(--ql-gold-500);
+  text-decoration: underline;
+}
+
+.ql-back {
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.ql-back__link {
+  color: var(--ql-ink-low);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.ql-back__link:hover {
+  color: var(--ql-ink-mid);
+  text-decoration: underline;
+}

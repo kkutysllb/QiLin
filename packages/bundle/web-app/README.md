@@ -34,7 +34,7 @@ qilin --profile web
 qilin --profile web --no-open --port 8080
 ```
 
-After startup you see a `qilin web:` line whose root URL carries a fresh process token. Unless `--no-open` or an SSH session suppresses it, the default browser opens that URL, receives a signed cookie, and redirects to the clean root page. You know it worked when the page loads and you can chat with the agent. Two failures to expect: if the frontend is not built, startup stops with a build hint (`pnpm run build` in a checkout); if the browser cannot be opened, a credential-free diagnostic prints to stderr while the server keeps running — open the printed startup URL yourself.
+After startup you see a `qilin web:` line whose URL carries a fresh process token and names the application entry path (`/workspace`). Unless `--no-open` or an SSH session suppresses it, the default browser opens that URL, the transport exchanges the token for a signed cookie, and the browser lands on the console. A harness home with no account yet sends that first browser to the first-run document instead, and the console opens once an account session exists. You know it worked when the page loads and you can chat with the agent. Two failures to expect: if the frontend is not built, startup stops with a build hint (`pnpm run build` in a checkout); if the browser cannot be opened, a credential-free diagnostic prints to stderr while the server keeps running — open the printed startup URL yourself.
 
 ### Configuration
 
@@ -50,9 +50,13 @@ Most users never set these; the command-line flags feed the four settings below 
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilinweb-app) is the exhaustive source for every accepted field and its JSDoc.
 
+### Accounts and the entry documents
+
+The patch mounts `@qilin/accounts-local` as the `accounts` row with `enabled: true`, `registration: open`, and `sessionMaxAgeDays: 30`, so a browser needs an account session for the console and for every `/api` request outside the authentication surface. The shipped loopback bind holds one user, which is why registration stays open; a deployment that binds beyond loopback sets `registration: closed` on that row, because anyone who can reach the port could otherwise create an account with full harness access. The glue plugin serves three public documents before any session exists — the product landing page at `/` and the sign-in or first-run document at `/login` and `/setup` — while the application document itself is the configured index at the transport's entry path. `enabled: false` on the row restores the launch-token handoff.
+
 ### LAN access and trusted hosts
 
-By default the GUI accepts connections from this machine only. A deployment that binds all network interfaces also allows browsers from the LAN, and the printed URL then includes a LAN address; `--trusted-host` adds extra hosts in either case. Host and Origin checks control reachability, while the token exchange authenticates every Host API method and WebSocket stream. The LAN addresses are sampled once at startup, so a network change later is not picked up — restart the GUI to re-advertise.
+By default the GUI accepts connections from this machine only. A deployment that binds all network interfaces also allows browsers from the LAN, and the printed URL then includes a LAN address; `--trusted-host` adds extra hosts in either case. Host and Origin checks control reachability, while the account session authenticates every Host API method and WebSocket stream; the launch token only cleans the printed URL into the entry redirect. The LAN addresses are sampled once at startup, so a network change later is not picked up — restart the GUI to re-advertise.
 
 ### Running over SSH
 
@@ -70,7 +74,7 @@ Each browser session composes its own agent from the shipped presets (the `stand
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The bundle is one patch plus one runtime glue plugin. The storage stack and projection cache come from `qilin-base`; the web overlay's workspace and message-feedback rows consume that shared `storageDomain` service. The patch restates the surface-specific values the base deliberately omits, inserts the web-only host rows and browser roster, then moves the agent plane behind presets. The glue plugin owns dist serving, trust sampling, prompt sections, the bash variable, and the readiness announcements.
+The bundle is one patch plus one runtime glue plugin. The storage stack and projection cache come from `qilin-base`; the web overlay's workspace and message-feedback rows consume that shared `storageDomain` service. The patch restates the surface-specific values the base deliberately omits, inserts the web-only host rows — the account row among them — and the browser roster, then moves the agent plane behind presets. The glue plugin owns dist serving, the public document table, trust sampling, prompt sections, the bash variable, and the readiness announcements.
 
 ### Patch semantics
 
@@ -88,9 +92,9 @@ The URL line and browser handoff are readiness signals: supervisors RPC as soon 
 
 | File | Role |
 |---|---|
-| [`src/index.ts`](src/index.ts) | The `web-app` glue plugin: dist resolution, LAN trust sampling, prompt sections, bash variable, URL line, browser handoff |
+| [`src/index.ts`](src/index.ts) | The `web-app` glue plugin: dist resolution, the public document table, LAN trust sampling, prompt sections, bash variable, URL line, browser handoff |
 | [`src/startup.ts`](src/startup.ts) | The `web-startup` provider: `--host`, `--port`, `--trusted-host`, `--no-open`, `--help` |
-| [`cordis.patch.yml`](cordis.patch.yml) | The web patch: restated base values, web host rows, browser roster, agent plane behind presets |
+| [`cordis.patch.yml`](cordis.patch.yml) | The web patch: restated base values, web host rows (the accounts row included), browser roster, agent plane behind presets |
 | — | No runtime invariant companion is published; every contribution (frontend-static child plugin, prompt section, bashEnv registration) is registry-disposed with the fiber, and each owning registry's package carries that relation's invariant; the package holds no mutable state of its own to audit. |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | Dist resolution, fallback seat, prompt sections, readiness |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | Command-line parsing over a real Loader tree |
@@ -148,6 +152,7 @@ These limits tell you what to expect in unusual setups — a source checkout, SS
 - **SSH sessions keep the URL but skip the browser handoff** — the printed URL names the remote host's loopback endpoint; the SSH client or editor must expose and open the local forwarded address.
 - **`BROWSER` overrides only come from the environment** — a discovered `.env` cannot set `BROWSER`; only an inherited value can choose the executable for the automatic handoff.
 - **Binding all network interfaces is not supported** — `--host 0.0.0.0` is rejected at startup for safety; use the default loopback host.
+- **The launch token no longer opens the console by itself** — with the shipped accounts row the browser lands on the first-run or sign-in document and needs an account session; `enabled: false` on that row restores the token-only handoff.
 
 <a id="dev-note"></a>
 ### Dev Note

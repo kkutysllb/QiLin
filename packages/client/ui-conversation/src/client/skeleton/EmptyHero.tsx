@@ -124,18 +124,38 @@ function HeroFish({ hovering }: { hovering: boolean }) {
   )
 }
 
+/** One greeting key of the hero locale seat. */
+type HeroGreetingKey = 'hero.greeting.morning' | 'hero.greeting.afternoon' | 'hero.greeting.evening'
+
 /**
- * Render the hero chrome (headline only; no composer, no workspace row).
+ * Greeting key for one local hour.
+ * @param hour - local hour in 0..23.
+ * @returns the key naming that part of the day.
+ */
+function greetingKeyForHour(hour: number): HeroGreetingKey {
+  if (hour < 12) return 'hero.greeting.morning'
+  if (hour < 18) return 'hero.greeting.afternoon'
+  return 'hero.greeting.evening'
+}
+
+/**
+ * Render the hero chrome (brand mark, greeting, tagline; no composer, no
+ * workspace row). The ambient wordmark behind the text is decoration: it carries
+ * the product name at a size that reads as background rather than a second
+ * headline, and it is hidden from the accessibility tree.
  * @param props - see {@link HeroShellProps}.
  * @returns the centered hero element tree.
  */
 export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
   const [hovering, setHovering] = useState(false)
+  // Read once per mount: a greeting that rewrote itself mid-session would be a
+  // clock reading, not a welcome.
+  const [greeting] = useState(() => greetingKeyForHour(new Date().getHours()))
   return (
     <div className={css.root}>
+      <div className={css.watermark} aria-hidden="true">{t('hero.headline')}</div>
       <div className={css.stack}>
-        <div className={css.headline}>
-          {/* figma 34:10412: fish 34×25 leading the headline, gap 10. */}
+        <div className={css.mark}>
           <span
             className={css.fishHitbox}
             onMouseEnter={() => {
@@ -149,12 +169,9 @@ export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
               fallback: <HeroFish hovering={hovering} />,
             })}
           </span>
-          <span className={css.titleGroup}>
-            {/* Own element: keeps the headline text addressable apart from the badge. */}
-            <span>{t('hero.headline')}</span>
-            <span className={css.previewBadge}>{t('hero.preview')}</span>
-          </span>
         </div>
+        <p className={css.greeting}>{t(greeting)}</p>
+        <h1 className={css.tagline}>{t('hero.tagline')}</h1>
         <div className={css.body}>
           {/* The composer remains mounted outside this component. */}
         </div>

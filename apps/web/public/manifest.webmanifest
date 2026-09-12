@@ -1,8 +1,8 @@
 {
-  "id": "/",
+  "id": "/workspace",
   "name": "QiLin",
   "short_name": "QILIN",
-  "start_url": "/",
+  "start_url": "/workspace",
   "scope": "/",
   "display": "fullscreen",
   "icons": [

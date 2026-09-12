@@ -156,6 +156,12 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: src('./index.html'),
+        // The public documents: the landing page the site root serves, and the
+        // sign-in page the session gate redirects to. Both are plain static
+        // pages of this shell, so they share its asset pipeline without
+        // importing the React entry.
+        landing: src('./landing.html'),
+        auth: src('./auth.html'),
         // Standalone entry, not an index.html script tag: Vite folds every
         // module tag of one page into a single synthetic entry, and only a
         // separate input keeps the shared page chunks bootstrap-free.

@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "@qilin/accounts-local": "workspace:^",
     "@qilin/agent-presets": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",

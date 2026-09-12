@@ -11,6 +11,38 @@
 
 `Requires:` 行列出插件通过 `inject` 注入的服务键：其 `cordis.yml` 树还必须加载这些服务的提供者。范围限定为 harness 层级（`packages/`）；配置树还可能加载的 vendored cordis 插件（`hmr`、控制台日志记录器等）固定为上游源代码（参见 [vendoring policy](../vendor/README.md)），未收录于此目录。
 
+<a id="qilinaccounts-local"></a>
+
+## `@qilin/accounts-local`
+
+需要：`connection` · `credentials`
+
+```ts config-catalog
+/** Plugin config: the account surface's deployment choices. */
+export interface Config {
+  /**
+   * Require an account session for every gated index document and every
+   * `/api` request. A disabled gate leaves the endpoints mounted and returns
+   * the launch-token authentication of the transport in its place.
+   * @default true
+   */
+  enabled?: boolean
+  /**
+   * Whether an anonymous visitor may create an additional account. An open
+   * registration lets anyone who can reach this server use the harness, so a
+   * deployment binding beyond loopback closes it.
+   * @default 'open'
+   */
+  registration?: 'open' | 'closed'
+  /** Absolute browser-session lifetime in days. @default 30 */
+  sessionMaxAgeDays?: number
+  /** Explicit harness home; omitted follows `QILIN_HOME`, then `~/.qilin`. */
+  qilinHome?: string
+}
+```
+
+来源：[`packages/identity/accounts-local/src/index.ts:43`](../packages/identity/accounts-local/src/index.ts)
+
 <a id="qilinacp"></a>
 
 ## `@qilin/acp`
@@ -385,7 +417,7 @@ export interface ConnectionRecoveryConfig {
 }
 ```
 
-来源： [`packages/client/connection/src/index.ts:72`](../packages/client/connection/src/index.ts)
+来源： [`packages/client/connection/src/index.ts:75`](../packages/client/connection/src/index.ts)
 
 <a id="qilinclient-hmr"></a>
 
@@ -914,14 +946,35 @@ export interface Config {
 需要：`webServer` · `connection`
 
 ```ts config-catalog
-/** Plugin config: the dist anchor. */
+/** Plugin config: the dist anchor, its index entry paths, and its public documents. */
 export interface Config {
   /** Absolute path of index.html inside the dist root. */
   distIndex: string
+  /**
+   * Request paths that serve the index document. Each one passes Connection's
+   * index authorization before its bytes are read. An omitted or empty list
+   * follows the transport's entry path plus `/index.html`, so the path a
+   * deployment hands a browser is always one this server answers.
+   */
+  indexPaths?: string[]
+  /**
+   * Public documents served without index authorization: the landing page and
+   * the sign-in page of an assembly whose entry path is the application.
+   * @default []
+   */
+  documents?: StaticDocument[]
+}
+
+/** One public document served at a fixed request path, before index authorization. */
+export interface StaticDocument {
+  /** Absolute request pathname, no trailing slash. */
+  path: string
+  /** File name inside the dist root. */
+  file: string
 }
 ```
 
-来源：[`packages/host/frontend-static/src/index.ts:30`](../packages/host/frontend-static/src/index.ts)
+来源：[`packages/host/frontend-static/src/index.ts:41`](../packages/host/frontend-static/src/index.ts)
 
 <a id="qilinhost-open-in-app"></a>
 
@@ -3288,7 +3341,7 @@ export interface Config {
 }
 ```
 
-来源：[`packages/bundle/web-app/src/index.ts:44`](../packages/bundle/web-app/src/index.ts)
+来源：[`packages/bundle/web-app/src/index.ts:45`](../packages/bundle/web-app/src/index.ts)
 
 <a id="qilinweb-fetch-http"></a>
 

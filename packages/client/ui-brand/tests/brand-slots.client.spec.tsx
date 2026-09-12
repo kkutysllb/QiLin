@@ -43,18 +43,28 @@ describe('qilin brand plugin', () => {
     expect(inject).toEqual(['slots'])
   })
 
-  it('renders the seal as one framed square carrying both glyph outlines', () => {
+  it('renders the seal as a cinnabar body with a gold ring and both glyph outlines', () => {
     const { container } = render(<QilinSealArtist size={24} />)
     const svg = container.querySelector('svg')
     expect(svg?.getAttribute('viewBox')).toBe('0 0 24 24')
     expect(svg?.getAttribute('aria-hidden')).toBe('true')
-    expect(container.querySelectorAll('rect')).toHaveLength(1)
+    // The cinnabar body and the gold hairline ring.
+    expect(container.querySelectorAll('rect')).toHaveLength(2)
+    expect(container.querySelector('rect')?.getAttribute('fill')).toMatch(/^url\(#qilin-seal-body-/u)
+    expect(container.querySelectorAll('stop')).toHaveLength(3)
     const glyphs = [...container.querySelectorAll('path')]
     expect(glyphs).toHaveLength(2)
     for (const glyph of glyphs) {
       expect(glyph.getAttribute('d')?.length ?? 0).toBeGreaterThan(1000)
+      expect(glyph.getAttribute('fill')).toBe('#fff5eb')
       expect(glyph.getAttribute('transform')).toContain('scale(')
     }
+  })
+
+  it('gives concurrent seals their own body gradient', () => {
+    const { container } = render(<><QilinSealArtist size={24} /><QilinSealArtist size={24} /></>)
+    const fills = [...container.querySelectorAll('rect')].map(rect => rect.getAttribute('fill'))
+    expect(fills[0]).not.toBe(fills[2])
   })
 
   it('renders the sidebar occupant at the requested size', () => {

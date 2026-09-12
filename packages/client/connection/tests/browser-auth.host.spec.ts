@@ -101,7 +101,7 @@ describe('BrowserAuth', () => {
       status: 303,
       headers: {
         'cache-control': 'no-store',
-        'location': '/',
+        'location': '/workspace',
         'referrer-policy': 'no-referrer',
       },
     })
@@ -134,7 +134,7 @@ describe('BrowserAuth', () => {
       status: 303,
       headers: {
         'cache-control': 'no-store',
-        'location': '/',
+        'location': '/workspace',
         'referrer-policy': 'no-referrer',
       },
     })

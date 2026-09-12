@@ -1,0 +1,10 @@
+# The accounts scenario drives the shipped sign-in journey, so it turns the
+# account gate back on — the ordinary web scenarios patch it off to reach the
+# application without a session. A patch replaces the row's complete config, and
+# the omitted harness home follows the QILIN_HOME this scaffold exports into the
+# process, so the account file stays inside the scenario's own temp world.
+- id: accounts
+  config:
+    enabled: true
+    registration: open
+    sessionMaxAgeDays: 1

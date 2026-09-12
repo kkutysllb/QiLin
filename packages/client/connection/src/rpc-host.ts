@@ -11,13 +11,16 @@ import { clientRequestSchema } from './rpc-schema.ts'
 import { bridge } from './http-bridge.ts'
 import { isTrustedApiRequest } from './api-request-trust.ts'
 import { API_PATH } from './api-path.ts'
+import { WEB_ENTRY_PATH } from './web-entry.ts'
 import type { BrowserAuth } from './browser-auth.ts'
 import type {
   ConnectionIndexRequest,
   ConnectionIndexResponse,
   ConnectionFetchRoute,
   ConnectionFetchHandler,
+  ConnectionSessionAuthority,
   HostConnectionFetch,
+  HostConnectionSession,
   ConnectionRpcEndpointMatcher,
   ConnectionRpcFailure,
   ConnectionRpcHandler,
@@ -60,6 +63,7 @@ declare module '@deepseek-ai/cordis' {
 export class HostConnectionService extends Service implements HostConnectionHandle {
   private readonly interceptors = new Map<string, ConnectionRpcInterceptor>()
   private readonly fetchRoutes = new Map<string, RegisteredFetchRoute>()
+  private sessionAuthority: ConnectionSessionAuthority | undefined
 
   /**
    * Provide the Host half over the active HTTP server.
@@ -93,15 +97,44 @@ export class HostConnectionService extends Service implements HostConnectionHand
     }
   }
 
-  /** Apply the configured Host/Origin fence, then browser authentication. */
-  requestRejection(request: ConnectionTrustRequest): ConnectionRequestRejection {
-    if (!isTrustedApiRequest(request, this.trustedHosts)) return 403
-    return this.browserAuth.isAuthenticated(request) ? undefined : 401
+  /** Request path serving the application document. */
+  get entryPath(): string {
+    return WEB_ENTRY_PATH
   }
 
-  /** Authenticate an index request through the process-token exchange or cookie. */
+  /** Account-session gate seat scoped to the Context reading this service. */
+  get session(): HostConnectionSession {
+    const owner = this.ctx
+    return {
+      install: (authority) => { this.installSessionAuthority(owner, authority) },
+    }
+  }
+
+  /**
+   * Apply the configured Host/Origin fence, then whichever authentication owns
+   * this deployment: an installed account-session authority, or the device
+   * cookie minted by the launch-token exchange.
+   */
+  requestRejection(request: ConnectionTrustRequest): ConnectionRequestRejection {
+    if (!isTrustedApiRequest(request, this.trustedHosts)) return 403
+    const authority = this.sessionAuthority
+    if (authority === undefined) return this.browserAuth.isAuthenticated(request) ? undefined : 401
+    if (authority.isPublicApiRequest(request)) return undefined
+    return authority.verify(request) ? undefined : 401
+  }
+
+  /**
+   * Authenticate an index request: the launch-token exchange first, then the
+   * installed account-session authority, or the device cookie when no
+   * authority claims the seat.
+   */
   authorizeIndex(request: ConnectionIndexRequest, response: ConnectionIndexResponse): boolean {
-    return this.browserAuth.authorizeIndex(request, response)
+    const authority = this.sessionAuthority
+    if (authority === undefined) return this.browserAuth.authorizeIndex(request, response)
+    // The exchange only cleans the printed URL into the entry redirect; an
+    // absent or stale token leaves the decision to the account session.
+    if (this.browserAuth.exchangeToken(request, response)) return false
+    return authority.authorizeIndex(request, response)
   }
 
   /** Add this process's launch token to the clean application URL. */
@@ -134,6 +167,19 @@ export class HostConnectionService extends Service implements HostConnectionHand
         return interceptor.fetchHandler.fetch(request)
       },
     }
+  }
+
+  private installSessionAuthority(
+    owner: Context,
+    authority: ConnectionSessionAuthority,
+  ): void {
+    owner.effect(() => {
+      if (this.sessionAuthority !== undefined) {
+        throw new Error('connection: an account-session authority is already installed')
+      }
+      this.sessionAuthority = authority
+      return () => { this.sessionAuthority = undefined }
+    }, 'client-connection: account-session authority')
   }
 
   private registerFetchRoute(

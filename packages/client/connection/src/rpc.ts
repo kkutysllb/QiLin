@@ -79,16 +79,17 @@ export type RpcMessage = ClientRequest | ServerResponse
 export interface ConnectionTrustRequest {
   /** Request headers supplied by either the Fetch or node:http representation. */
   readonly headers: Headers | Readonly<Record<string, string | readonly string[] | undefined>>
+  /** Request method as received; node:http and Fetch callers always supply it. */
+  readonly method?: string | undefined
+  /** Request target as received; node:http and Fetch callers always supply it. */
+  readonly url?: string | undefined
 }
 
 /** HTTP status returned before dispatch, or undefined when the request may proceed. */
 export type ConnectionRequestRejection = 401 | 403 | undefined
 
-/** Root/index request facts used by the browser-token exchange. */
-export interface ConnectionIndexRequest extends ConnectionTrustRequest {
-  readonly method?: string | undefined
-  readonly url?: string | undefined
-}
+/** Entry and configured-index request facts used by the browser-token exchange and the account-session gate. */
+export type ConnectionIndexRequest = ConnectionTrustRequest
 
 /** Root/index response operations owned by the browser-token exchange. */
 export interface ConnectionIndexResponse {
@@ -161,12 +162,63 @@ export interface HostConnectionRpc {
   ): () => Promise<void>
 }
 
+/**
+ * One account session's verdicts for the transport gates. The authentication
+ * plugin owns them; Connection owns the enforcement points (every configured
+ * index path and the shared `/api` route) and never inspects session state
+ * itself.
+ */
+export interface ConnectionSessionAuthority {
+  /**
+   * Own the browser response for one gated index request.
+   * @param request - entry or configured-index HTTP request.
+   * @param response - response owned when this returns false.
+   * @returns true when the caller may serve the index document.
+   */
+  authorizeIndex(request: ConnectionIndexRequest, response: ConnectionIndexResponse): boolean
+
+  /**
+   * Whether one `/api` request needs no session because it belongs to the
+   * authentication surface itself.
+   * @param request - incoming request headers and target.
+   * @returns true when the request may proceed without an account session.
+   */
+  isPublicApiRequest(request: ConnectionTrustRequest): boolean
+
+  /**
+   * Verify the request's account session.
+   * @param request - incoming request headers.
+   * @returns true only for an unexpired session this authority issued.
+   */
+  verify(request: ConnectionTrustRequest): boolean
+}
+
+/** Registration seat for the one account-session authority of this transport. */
+export interface HostConnectionSession {
+  /**
+   * Install the account-session authority consulted by the index and `/api`
+   * gates. One owner: a second installation fails the installing plugin's
+   * load, because two session authorities cannot compose. The seat belongs to
+   * the installing plugin's fiber, so disposing it releases the seat.
+   * @param authority - the authentication capability's verdicts.
+   */
+  install(authority: ConnectionSessionAuthority): void
+}
+
 /** Host `ctx.connection` shape consumed by transport-independent adapters. */
 export interface HostConnectionHandle {
   /** Generic RPC channel registry. */
   readonly rpc: HostConnectionRpc
   /** Exact Fetch routes for streaming or browser-native responses. */
   readonly fetch: HostConnectionFetch
+  /** Account-session gate seat; unclaimed keeps device-token authentication. */
+  readonly session: HostConnectionSession
+
+  /**
+   * Request path serving the application document: the launch-token handoff
+   * target, and therefore the index path every dist server must mount.
+   */
+  readonly entryPath: string
 
   /**
    * Compose exact Fetch routes and the shared-channel RPC interceptor.

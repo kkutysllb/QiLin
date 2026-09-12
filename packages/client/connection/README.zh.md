@@ -32,7 +32,9 @@ kind: "package-reference"
 <a id="browser-authentication-and-request-trust"></a>
 ## 浏览器认证与请求信任
 
-每个 Host RPC 方法和 WebSocket stream 都要求同一个浏览器会话，不存在按方法区分的 loopback 层。每个进程生成一个随机启动令牌。`qilin-web-app` 打印并打开带 `?token=...` 的普通根 URL；`frontend-static` 把根路径和 index 请求交给 `ctx.connection.authorizeIndex`，后者只在 `GET /` 接受该令牌，写入绑定 authority 的签名 cookie，再重定向到干净的 `/`。缺失、过期、畸形或 authority 不匹配的 cookie 会在 RPC 分发前得到 401。静态资源保持公开。HTTP 载体不在根路径交换之外接受 query token，也不接受 Authorization header token。
+每个 Host RPC 方法和 WebSocket stream 都要求同一个浏览器会话，不存在按方法区分的 loopback 层；该会话由拥有本次部署的认证方式提供。每个进程生成一个随机启动令牌，`qilin-web-app` 打印并打开携带它的应用入口 URL——`GET /workspace?token=...`。`frontend-static` 把每个配置的 index 请求交给 `ctx.connection.authorizeIndex`，后者只在 `GET /workspace` 接受该令牌，写入绑定 authority 的签名 cookie，再重定向到干净的入口路径；缺失、过期、畸形或 authority 不匹配的 cookie 随后会在 RPC 分发前得到 401。静态资源与配置的公开文档保持公开。HTTP 载体不在入口交换之外接受 query token，也不接受 Authorization header token。入口路径由 `src/web-entry.ts` 以 `WEB_ENTRY_PATH` 定义，并由 `ctx.connection.entryPath` 发布，因此 index 服务器挂载的值与交接目标始终是同一个。
+
+`ctx.connection.session` 是认证能力安置账户会话 authority 的席位。`install(authority)` 安置唯一的 `ConnectionSessionAuthority` 并返回释放该席位的 disposer；第二次安置会让安装方插件加载失败，因为两个会话 authority 无法组合。authority 拥有三项判定：`authorizeIndex` 拥有受门禁 index 请求的浏览器响应，`isPublicApiRequest` 标记属于认证表层本身、无需会话的请求，`verify` 校验请求的会话。authority 占据席位期间，`requestRejection` 对该 authority 未声明为公开的每个 `/api` 请求都要求 `verify` 通过；`authorizeIndex` 先执行启动令牌交换——把打印出的 URL 清理为入口重定向——再只为通过校验的会话提供受门禁 index。没有 authority 时，设备 cookie 仍是唯一的浏览器凭据，这正是禁用门禁的部署所保留的行为。
 
 cookie 签名密钥是 `ctx.credentials` 中由 `client-connection/browser-session` 拥有的 grant 记录。本地提供方把它持久化到 `$QILIN_HOME/.credentials.yaml`；`BrowserAuth` 在 Connection 激活期间加载或创建该记录，并把密钥留在内存中，因此请求认证同步执行。删除或替换该记录会在下一次 Connection 激活时生效。cookie 携带绝对签发与过期区间，`cookieMaxAgeDays` 默认设为 30 天，并在确定性名称与签名 payload 中同时绑定规范化 hostname 和 port。它是 host-only、`Path=/`、`HttpOnly`、`SameSite=Strict`；随附服务器使用 loopback HTTP，因此刻意不设置 `Secure`。
 
@@ -65,7 +67,7 @@ API Gateway Client 把内部 `$events` logical stream 注册为唯一 generation
 
 - **缓冲型 `/api` 路由会把每个请求体保留在内存里**：`maxRequestBodyBytes`（默认 300 MiB，按默认 200 MiB 图片总量上限经 base64 膨胀加信封余量得出）限制普通图片与 RPC 信封。显式启用的流式路由接收带背压的分块并绕过总量上限；路由实现负责持久化、取消与存储配额。
 - **浏览器 cookie 不带 `Secure`**：随附载体是 loopback HTTP；若部署经明文网络暴露同一 authority，bearer cookie 可能在传输中泄露。
-- **没有 logout 操作**：清除浏览器 cookie 会结束单个浏览器会话；删除 owner 凭据记录并重启 `qilin` 会撤销全部会话。
+- **设备 cookie 没有 logout 操作**：清除浏览器 cookie 会结束单个浏览器会话；删除 owner 凭据记录并重启 `qilin` 会撤销全部会话。
 
 
 <a id="dev-note"></a>

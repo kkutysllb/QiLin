@@ -34,7 +34,7 @@ qilin --profile web
 qilin --profile web --no-open --port 8080
 ```
 
-启动后你会看到 `qilin web:` 行，其根 URL 携带新的进程 token。除非 `--no-open` 或 SSH 会话抑制，否则默认浏览器会打开该 URL、取得签名 cookie，再重定向到干净的根页面。页面加载且你可以与 agent（智能体）对话，就说明成功了。两种可预期的失败：前端未构建时，启动会以构建提示停止（checkout 中运行 `pnpm run build`）；浏览器无法打开时，stderr 会打印不含凭据的诊断，但服务器会继续运行——请自行打开已打印的启动 URL。
+启动后你会看到 `qilin web:` 行，其 URL 携带新的进程 token，并指向应用入口路径（`/workspace`）。除非 `--no-open` 或 SSH 会话抑制，否则默认浏览器会打开该 URL、将 token 交换为签名 cookie，并落在控制台。尚无账户的 harness home 会先把该浏览器送到首次运行文档，账户会话建立后控制台才打开。页面加载且你可以与 agent（智能体）对话，就说明成功了。两种可预期的失败：前端未构建时，启动会以构建提示停止（checkout 中运行 `pnpm run build`）；浏览器无法打开时，stderr 会打印不含凭据的诊断，但服务器会继续运行——请自行打开已打印的启动 URL。
 
 ### 配置
 
@@ -50,9 +50,13 @@ qilin --profile web --no-open --port 8080
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilinweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
+### 账户与入口文档
+
+patch 以 `accounts` 行挂载 `@qilin/accounts-local`，配置为 `enabled: true`、`registration: open`、`sessionMaxAgeDays: 30`，因此控制台以及认证表层之外的每个 `/api` 请求都要求账户会话。随附的 loopback 绑定只服务一个用户，所以注册保持开放；绑定到 loopback 之外的部署要在该行上设置 `registration: closed`，否则任何能到达该端口的人都可以创建拥有完整 harness 访问权限的账户。粘合插件在任何会话建立之前提供三份公开文档——站点根路径 `/` 的产品落地页，以及 `/login` 与 `/setup` 上的登录或首次运行文档——而应用文档本身是 transport 入口路径上配置的 index。把该行设为 `enabled: false` 会恢复启动令牌交接。
+
 ### LAN 访问与可信主机
 
-默认情况下 GUI 只接受本机的连接。绑定所有网络接口的部署也会允许 LAN 内的浏览器访问，此时打印的 URL 会附带一个 LAN 地址；`--trusted-host` 在两种情况下都能添加额外主机。Host 与 Origin 检查控制可达性，token 交换则认证每个 Host API 方法与 WebSocket stream。LAN 地址只在启动时采样一次，因此之后的网络变化不会被感知——重启 GUI 以重新公告。
+默认情况下 GUI 只接受本机的连接。绑定所有网络接口的部署也会允许 LAN 内的浏览器访问，此时打印的 URL 会附带一个 LAN 地址；`--trusted-host` 在两种情况下都能添加额外主机。Host 与 Origin 检查控制可达性，账户会话则认证每个 Host API 方法与 WebSocket stream；启动令牌只负责把打印出的 URL 清理为入口重定向。LAN 地址只在启动时采样一次，因此之后的网络变化不会被感知——重启 GUI 以重新公告。
 
 ### 通过 SSH 运行
 
@@ -70,7 +74,7 @@ qilin --profile web --no-open --port 8080
 <details>
 <summary>实现细节——点击展开</summary>
 
-本组合包是一份 patch 加一个运行时粘合插件。patch 重述 base 刻意省略的表层专属值，插入仅 Web 使用的宿主行与浏览器名录，然后把 agent 层移到 preset 之后；粘合插件负责 dist 服务、信任采样、提示词段落、bash 变量与就绪宣告。
+本组合包是一份 patch 加一个运行时粘合插件。patch 重述 base 刻意省略的表层专属值，插入仅 Web 使用的宿主行——账户行也在其中——与浏览器名录，然后把 agent 层移到 preset 之后；粘合插件负责 dist 服务、公开文档表、信任采样、提示词段落、bash 变量与就绪宣告。
 
 ### patch 语义
 
@@ -88,9 +92,9 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 
 | 文件 | 职责 |
 |---|---|
-| [`src/index.ts`](src/index.ts) | `web-app` 粘合插件：dist 解析、LAN 信任采样、提示词段落、bash 变量、URL 行、浏览器交接 |
+| [`src/index.ts`](src/index.ts) | `web-app` 粘合插件：dist 解析、公开文档表、LAN 信任采样、提示词段落、bash 变量、URL 行、浏览器交接 |
 | [`src/startup.ts`](src/startup.ts) | `web-startup` 提供方：`--host`、`--port`、`--trusted-host`、`--no-open`、`--help` |
-| [`cordis.patch.yml`](cordis.patch.yml) | Web patch：重述的基础值、Web 宿主行、浏览器名录、preset 之后的 agent 层 |
+| [`cordis.patch.yml`](cordis.patch.yml) | Web patch：重述的基础值、Web 宿主行（含账户行）、浏览器名录、preset 之后的 agent 层 |
 | — | 不发布运行时不变式伴生入口；本包只持有静态 contribution 列表，每项 contribution 都由其 registry 释放。 |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | dist 解析、fallback 席位、提示词段落、就绪宣告 |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | 在真实 Loader 树上的命令行解析 |
@@ -148,6 +152,7 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 - **SSH 会话保留 URL 但跳过浏览器交接**——打印的 URL 指向远端宿主机 loopback 端点；SSH 客户端或编辑器必须暴露并打开本地转发地址。
 - **`BROWSER` 覆盖只能来自环境**——被发现的 `.env` 不能设置 `BROWSER`；只有继承值能为自动交接选择可执行文件。
 - **不支持绑定所有网络接口**——出于安全考虑，`--host 0.0.0.0` 会在启动时被拒绝；请使用默认 loopback 主机。
+- **启动令牌本身不再打开控制台**——使用随附账户行时，浏览器会落在首次运行或登录文档，并需要账户会话；把该行设为 `enabled: false` 会恢复仅靠令牌的交接。
 
 <a id="dev-note"></a>
 ### 开发备注

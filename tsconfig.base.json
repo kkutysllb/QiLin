@@ -254,6 +254,7 @@
       // so these aliases stay hand-written like qilin-util-crypto above.
       "@qilin/util-time": ["./packages/util/time/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
+      "@qilin/accounts-local": ["./packages/identity/accounts-local/src"],
       "@qilin/acp": ["./packages/acp/acp/src"],
       "@qilin/acp-app": ["./packages/bundle/acp-app/src"],
       "@qilin/agent": ["./packages/core/agent/src"],

@@ -1,0 +1,525 @@
+/*
+ * Landing page styles for the QiLin product front page.
+ * Visual reference: the 2.0.x product landing page ("玄金麒麟" VI), reproduced
+ * here without a CSS framework. landing.html owns every visible string.
+ */
+
+:root {
+  /* Brand tokens, copied verbatim from the 2.0.x VI layer. */
+  --ql-bg: #0d0b09;
+  --ql-surface: #16130f;
+  --ql-raised: #1d1915;
+  --ql-gold-300: #f3dc9e;
+  --ql-gold-500: #c9a24a;
+  --ql-gold-700: #8f6f2e;
+  --ql-ink-hi: #efe9df;
+  --ql-ink-mid: #a89f90;
+  --ql-ink-low: #857c6c;
+  --ql-cinnabar: #c3402f;
+  --ql-cinnabar-hi: #e0684f;
+
+  /* Presentation-only stacks: the page fetches no web font. */
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ql-bg);
+}
+
+body {
+  margin: 0;
+  background: var(--ql-bg);
+  color: var(--ql-ink-hi);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--ql-bg);
+  color: var(--ql-ink-hi);
+}
+
+/* Decorative layers: never hit-testable, never announced. */
+.page__backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.page__glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 420px;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(201, 162, 74, 0.1), transparent 70%);
+}
+
+.page__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(239, 233, 223, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239, 233, 223, 0.03) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.page__scale {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.page__body {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Header */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  /* The 2.0.x desktop shell inset this row for the macOS traffic lights; the
+     browser document keeps the plain page padding. */
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+@media (min-width: 48rem) {
+  .site-header {
+    padding-inline: 2.5rem;
+  }
+}
+
+.site-header__home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ql-ink-hi);
+  text-decoration: none;
+}
+
+.site-header__wordmark {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.site-header__link {
+  color: var(--ql-ink-mid);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.site-header__link:hover {
+  color: var(--ql-gold-300);
+}
+
+/* Hairline at the header's lower edge, brightest at mid-page. */
+.site-header__rule {
+  position: absolute;
+  top: 4rem;
+  right: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-image: linear-gradient(90deg, transparent, rgba(239, 233, 223, 0.66), transparent);
+}
+
+/* Hero */
+
+.site-main {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding-top: 4rem;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 2.5rem 1.5rem;
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    flex-direction: row;
+    align-items: center;
+    gap: 3.5rem;
+  }
+}
+
+.hero__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+@media (min-width: 64rem) {
+  .hero__intro {
+    align-items: flex-start;
+    width: 45%;
+    text-align: left;
+  }
+}
+
+.hero__kicker {
+  margin: 0;
+  color: var(--ql-gold-500);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.35em;
+}
+
+.hero__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (min-width: 64rem) {
+  .hero__headline {
+    justify-content: flex-start;
+    font-size: 3rem;
+  }
+}
+
+/* Rotating capability word: the 2.0.x headline tinted it with the aurora
+   gradient, whose visible slice is this amber range. */
+.word-rotate {
+  display: inline-block;
+  overflow: hidden;
+  /* The 2.0.x headline padded the rotating word with a fixed 8px. */
+  padding-block: 0.5rem;
+}
+
+.word-rotate__word {
+  display: inline-block;
+  background-image: linear-gradient(135deg, #e9c665, #e3a812);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero__headline-accent {
+  background-image: linear-gradient(90deg, var(--ql-gold-300), var(--ql-gold-500));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@supports not (background-clip: text) {
+  .word-rotate__word {
+    color: #e9c665;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .hero__headline-accent {
+    color: var(--ql-gold-300);
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+@keyframes word-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.25em);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.word-rotate__word--enter {
+  animation: word-enter 300ms ease-out;
+}
+
+.hero__tagline {
+  max-width: 36rem;
+  margin: 1rem 0 0;
+  color: var(--ql-ink-mid);
+  font-size: 1rem;
+  line-height: 1.625;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding-inline: 1rem;
+  border-radius: 0.5rem;
+  background: var(--ql-gold-500);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  color: #141006;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 150ms ease;
+}
+
+.hero__cta:hover {
+  background: var(--ql-gold-300);
+}
+
+.hero__cta:active {
+  background: var(--ql-gold-500);
+}
+
+.hero__cta-icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 300ms ease;
+}
+
+.hero__cta:hover .hero__cta-icon {
+  transform: translateX(0.25rem);
+}
+
+.hero__tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 64rem) {
+  .hero__tags {
+    justify-content: flex-start;
+  }
+}
+
+.hero__tag {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem;
+  color: var(--ql-ink-mid);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+/* Feature cards */
+
+.hero__features {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .hero__features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .hero__features {
+    width: 55%;
+  }
+}
+
+.feature {
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.feature:hover {
+  border-color: var(--ql-gold-700);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.feature__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feature__index {
+  color: var(--ql-gold-700);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.feature__icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--ql-gold-500);
+}
+
+.feature__title {
+  margin: 0.75rem 0 0;
+  color: #f4f4f5;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.feature__desc {
+  margin: 0.125rem 0 0;
+  color: var(--ql-ink-mid);
+  font-size: 0.75rem;
+  line-height: 1.625;
+}
+
+/* Footer */
+
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 80rem;
+  margin: 1rem auto 0;
+}
+
+.gold-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 36rem;
+}
+
+.gold-divider__line {
+  flex: 1 1 0%;
+  height: 1px;
+}
+
+.gold-divider__line--start {
+  background-image: linear-gradient(90deg, transparent, var(--ql-gold-700));
+}
+
+.gold-divider__line--end {
+  background-image: linear-gradient(90deg, var(--ql-gold-700), transparent);
+}
+
+.gold-divider__diamond {
+  flex: none;
+  width: 0.375rem;
+  height: 0.375rem;
+  background: var(--ql-gold-500);
+  transform: rotate(45deg);
+}
+
+.site-footer__quote-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  color: var(--ql-ink-mid);
+  font-size: 0.875rem;
+}
+
+.site-footer__quote {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+@media (min-width: 48rem) {
+  .site-footer__quote {
+    font-size: 1rem;
+  }
+}
+
+.site-footer__meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--ql-ink-low);
+  font-size: 0.75rem;
+}
+
+.site-footer__meta p {
+  margin: 0;
+}
+
+/* Keyboard focus for every interactive element on the page. */
+.hero__cta:focus-visible,
+.site-header__home:focus-visible,
+.site-header__link:focus-visible {
+  outline: 2px solid var(--ql-gold-300);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-rotate__word--enter {
+    animation: none;
+  }
+
+  .hero__cta,
+  .hero__cta-icon,
+  .site-header__link,
+  .feature {
+    transition: none;
+  }
+}

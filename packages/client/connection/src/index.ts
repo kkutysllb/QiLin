@@ -18,6 +18,8 @@ export type {
   ConnectionFetchRoute,
   ConnectionIndexRequest,
   ConnectionIndexResponse,
+  ConnectionSessionAuthority,
+  HostConnectionSession,
   ConnectionRpcEndpointMatcher,
   ConnectionRpcFailure,
   ConnectionRpcHandler,
@@ -44,6 +46,7 @@ export {
 export { HostConnectionService } from './rpc-host.ts'
 
 export { API_PATH } from './api-path.ts'
+export { WEB_ENTRY_PATH } from './web-entry.ts'
 
 /** Stable Cordis plugin name. */
 export const name = 'client-connection'

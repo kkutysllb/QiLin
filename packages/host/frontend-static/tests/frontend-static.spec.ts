@@ -1,9 +1,10 @@
 /**
  * REAL-composition coverage: a test-only cordis.yml booted through the
  * vendored Loader mounts the webserver and frontend-static rows, and every
- * assertion observes the served HTTP surface — asset serving, explicit index
- * entry points with index taps, 404 misses, traversal rejection, 405 on non-
- * GET/HEAD, and seat release on fiber disposal (HMR safety).
+ * assertion observes the served HTTP surface — public documents, explicit
+ * index entry points with index taps, asset serving, 404 misses, traversal
+ * rejection, 405 on non-GET/HEAD, and seat release on fiber disposal (HMR
+ * safety). Configuration rows that cannot compose fail at load instead.
  */
 
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
@@ -36,6 +37,7 @@ async function loadComposition(): Promise<Context> {
   await mkdir(dist)
   const distIndex = join(dist, 'index.html')
   await writeFile(distIndex, '<head></head><body>shell</body>')
+  await writeFile(join(dist, 'landing.html'), '<head></head><body>landing</body>')
   await writeFile(join(dist, 'app.js'), 'export {}')
   await writeFile(join(dist, 'blob.bin'), 'BLOB')
   await writeFile(join(dist, 'manifest.webmanifest'), '{}')
@@ -55,6 +57,9 @@ async function loadComposition(): Promise<Context> {
     "  name: '@qilin/host-frontend-static'",
     '  config:',
     `    distIndex: '${distIndex}'`,
+    "    indexPaths: ['/workspace', '/index.html']",
+    '    documents:',
+    "      - { path: '/', file: 'landing.html' }",
     '',
   ].join('\n'))
 
@@ -94,7 +99,7 @@ async function request(port: number, path: string, init?: RequestInit): Promise<
 }
 
 describe('real Loader composition', () => {
-  it('serves explicit index entries and files while preserving HTTP error semantics', { timeout: 60_000 }, async () => {
+  it('serves public documents, gated index entries, and files while preserving HTTP error semantics', { timeout: 60_000 }, async () => {
     const loaded = await loadComposition()
     const unloaded = [...loaded.loader.entries()]
       .filter(entry => entry.fiber === undefined && !entry.disabled)
@@ -105,7 +110,7 @@ describe('real Loader composition', () => {
     const launchUrl = loaded.connection.authenticatedUrl(`http://127.0.0.1:${String(port)}`)
     const exchange = await fetch(launchUrl, { redirect: 'manual' })
     expect(exchange.status).toBe(303)
-    expect(exchange.headers.get('location')).toBe('/')
+    expect(exchange.headers.get('location')).toBe('/workspace')
     const setCookie = exchange.headers.get('set-cookie')
     if (setCookie === null) throw new Error('authenticated frontend did not set a cookie')
     const cookie = setCookie.split(';', 1)[0]!
@@ -115,7 +120,14 @@ describe('real Loader composition', () => {
       return { ...init, headers }
     }
 
+    // The public document needs no cookie and anchors its assets at the root.
     expect(await request(port, '/')).toMatchObject({
+      status: 200,
+      type: 'text/html; charset=utf-8',
+      body: '<head><base href="/"></head><body>landing</body>',
+    })
+    // A gated index path without the cookie is refused with the same response.
+    expect(await request(port, '/workspace')).toMatchObject({
       status: 401,
       type: 'text/plain; charset=utf-8',
       body: 'qilin web authentication required; reopen the URL printed by qilin web.\n',
@@ -139,32 +151,37 @@ describe('real Loader composition', () => {
     // Unknown extension ships as octet-stream.
     expect(await request(port, '/blob.bin')).toMatchObject({ status: 200, type: 'application/octet-stream', body: 'BLOB' })
 
-    // Only the root and index path render index.html through registered taps.
+    // Each configured index path renders index.html through the registered taps.
     const untap = server.tapIndex(html => html.replace('<head>', '<head><script>window.__T__=1</script>'))
-    for (const path of ['/', '/index.html', '/?fixture']) {
+    for (const path of ['/workspace', '/index.html', '/workspace?fixture']) {
       const got = await request(port, path, authenticated())
       expect(got.status).toBe(200)
       expect(got.type).toBe('text/html; charset=utf-8')
       expect(got.body).toContain('__T__')
       expect(got.body).toContain('shell')
     }
-    expect(await request(port, '/', authenticated({ method: 'HEAD' }))).toEqual({
+    // The public document is served as its own bytes, never through the taps.
+    expect((await request(port, '/')).body).not.toContain('__T__')
+    expect(await request(port, '/workspace', authenticated({ method: 'HEAD' }))).toEqual({
       status: 200,
       type: 'text/html; charset=utf-8',
       body: '',
     })
     untap()
-    expect((await request(port, '/', authenticated())).body).not.toContain('__T__')
+    expect((await request(port, '/workspace', authenticated())).body).not.toContain('__T__')
 
-    // A missing configured index follows the same empty-404 contract for both
-    // of its public entry paths and for both supported methods.
+    // A missing configured index follows the same empty-404 contract for every
+    // entry path and for both supported methods.
     await rm(join(root!, 'dist', 'index.html'))
-    for (const path of ['/', '/index.html']) {
+    for (const path of ['/workspace', '/index.html']) {
       const get = await request(port, path, authenticated())
       const head = await request(port, path, authenticated({ method: 'HEAD' }))
       expect(get).toEqual({ status: 404, type: null, body: '' })
       expect(head).toEqual(get)
     }
+    // A missing public document is equally an empty 404.
+    await rm(join(root!, 'dist', 'landing.html'))
+    expect(await request(port, '/')).toEqual({ status: 404, type: null, body: '' })
 
     // Ordinary unknown paths and static-resource misses are empty 404s for
     // both GET and HEAD; neither class can be mistaken for the HTML shell.
@@ -202,5 +219,49 @@ describe('real Loader composition', () => {
     await frontendEntry!.fiber?.dispose()
     expect((await request(port, '/no/such/route')).status).toBe(404)
     expect(() => server.registerFallback(() => {})).not.toThrow()
+  })
+})
+
+describe('configuration', () => {
+  const distIndex = join(tmpdir(), 'qilin-frontend-static-config', 'dist', 'index.html')
+
+  /** A context with just enough web surface for the fallback seat claim and the index default. */
+  function stubContext(): Context {
+    const ctx = new Context()
+    ctx.provide('webServer', { registerFallback: () => () => {} } as never)
+    ctx.provide('connection', {
+      entryPath: '/workspace',
+      authorizeIndex: () => true,
+    } as never)
+    return ctx
+  }
+
+  it('admits the default paths and refuses a document row that could escape the dist', () => {
+    // The defaults are applied in code because a hand-built config may omit them.
+    expect(() => { FrontendStatic.apply(stubContext(), { distIndex }) }).not.toThrow()
+    expect(() => { FrontendStatic.apply(stubContext(), {
+      distIndex,
+      indexPaths: ['/'],
+      documents: [{ path: '/', file: 'landing.html' }],
+    }) }).toThrow(/both a document and an index path/u)
+
+    const rows: readonly (readonly [string, FrontendStatic.StaticDocument])[] = [
+      ['a relative path', { path: 'landing', file: 'landing.html' }],
+      ['a trailing slash', { path: '/landing/', file: 'landing.html' }],
+      ['an empty segment', { path: '//landing', file: 'landing.html' }],
+      ['a nested file', { path: '/landing', file: 'nested/landing.html' }],
+      ['a parent file', { path: '/landing', file: '..' }],
+      ['a backslash file', { path: '/landing', file: 'nested\\landing.html' }],
+    ]
+    for (const [name, document] of rows) {
+      expect(() => { FrontendStatic.apply(stubContext(), { distIndex, documents: [document] }) }, name)
+        .toThrow(/frontend-static/u)
+    }
+    expect(() => {
+      FrontendStatic.apply(stubContext(), {
+        distIndex,
+        documents: [{ path: '/landing', file: 'a.html' }, { path: '/landing', file: 'b.html' }],
+      })
+    }).toThrow(/duplicate document path/u)
   })
 })

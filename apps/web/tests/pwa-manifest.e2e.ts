@@ -11,10 +11,10 @@ it('ships install metadata with the built web application', async () => {
 
   const manifest: unknown = JSON.parse(await readFile(join(DIST_ROOT, 'manifest.webmanifest'), 'utf8'))
   expect(manifest).toEqual({
-    id: '/',
+    id: '/workspace',
     name: 'QiLin',
     short_name: 'QILIN',
-    start_url: '/',
+    start_url: '/workspace',
     scope: '/',
     display: 'fullscreen',
     icons: [{
@@ -26,10 +26,13 @@ it('ships install metadata with the built web application', async () => {
   })
 })
 
-it('ships a favicon that switches to a light mark under dark color scheme', async () => {
+it('ships the cinnabar seal as the tab icon', async () => {
   const favicon = await readFile(join(DIST_ROOT, 'favicon.svg'), 'utf8')
-  // The light fill must live inside the dark-scheme media query, so the icon
-  // stays black in light mode and only turns white under a dark scheme.
-  expect(favicon).toMatch(/@media \(prefers-color-scheme: dark\)\s*{\s*path\s*{[^}]*fill:\s*#fff/i)
-  expect(favicon).toContain('fill="#000"')
+  // The brand stamp: cinnabar body gradient, gold hairline ring, warm-white
+  // glyph outlines, and no font dependency in the icon itself.
+  expect(favicon).toContain('<linearGradient id="bgGrad"')
+  expect(favicon).toContain('stop-color="#c3402f"')
+  expect(favicon).toContain('stroke="#f3dc9e"')
+  expect(favicon).toContain('fill="#fff5eb"')
+  expect(favicon).not.toContain('<text')
 })

@@ -8,6 +8,7 @@ import type {
   ConnectionIndexResponse,
   ConnectionTrustRequest,
 } from './rpc.ts'
+import { WEB_ENTRY_PATH } from './web-entry.ts'
 
 const AUTH_RECORD_KEY = credentialKey('client-connection', 'browser-session')
 const DAY_MILLISECONDS = 24 * 60 * 60 * 1000
@@ -126,6 +127,22 @@ function signature(secret: Buffer, body: string): Buffer {
   return createHmac('sha256', secret).update(body).digest()
 }
 
+/** Request URL of one index request; a caller-supplied URL is optional because node:http always sets it. */
+function requestUrl(req: ConnectionIndexRequest): URL {
+  /* v8 ignore next -- `?? '/'` arm: node:http always sets url on server requests */
+  return new URL(req.url ?? '/', 'http://qilin.invalid')
+}
+
+/** Redirect one already-authenticated request to the clean entry path. */
+function writeEntryRedirect(res: ConnectionIndexResponse): void {
+  res.writeHead(303, {
+    'cache-control': 'no-store',
+    'location': WEB_ENTRY_PATH,
+    'referrer-policy': 'no-referrer',
+  })
+  res.end()
+}
+
 function encodeCookie(payload: BrowserCookiePayload, secret: Buffer): string {
   const body = encodeBase64Url(Buffer.from(JSON.stringify(payload), 'utf8'))
   return `v1.${body}.${encodeBase64Url(signature(secret, body))}`
@@ -222,7 +239,7 @@ export class BrowserAuth {
    */
   authenticatedUrl(baseUrl: string): string {
     const url = new URL(baseUrl)
-    url.pathname = '/'
+    url.pathname = WEB_ENTRY_PATH
     url.search = ''
     url.hash = ''
     url.searchParams.set(TOKEN_QUERY, this.launchToken)
@@ -230,47 +247,21 @@ export class BrowserAuth {
   }
 
   /**
-   * Authenticate an index request. A valid root query token mints the cookie
-   * and redirects to clean `/`; a valid cookie lets the caller serve the
-   * index; every other request receives the same minimal 401 response.
-   * @param req - incoming root or configured-index request.
+   * Authenticate an index request. A valid entry-path query token mints the
+   * device cookie and redirects to the clean entry path; a valid cookie lets
+   * the caller serve the index; every other request receives the same minimal
+   * 401 response.
+   * @param req - incoming entry or configured-index request.
    * @param res - response owned when this method returns false.
    * @returns true only when the caller may serve index.html.
    */
   authorizeIndex(req: ConnectionIndexRequest, res: ConnectionIndexResponse): boolean {
-    /* v8 ignore next -- node:http always supplies url on server requests. */
-    const url = new URL(req.url ?? '/', 'http://qilin.invalid')
+    const url = requestUrl(req)
     const tokens = url.searchParams.getAll(TOKEN_QUERY)
     if (tokens.length > 0) {
-      const authority = requestAuthority(req.headers)
-      if (req.method === 'GET' && url.pathname === '/' && tokens.length === 1
-        && authority !== undefined && tokenMatches(tokens.join(''), this.launchToken)) {
-        const issuedAt = Date.now()
-        const expiresAt = issuedAt + this.maxAgeMilliseconds
-        const value = encodeCookie({
-          version: COOKIE_PAYLOAD_VERSION,
-          authority,
-          issuedAt,
-          expiresAt,
-        }, this.secret)
-        res.writeHead(303, {
-          'cache-control': 'no-store',
-          'location': '/',
-          'referrer-policy': 'no-referrer',
-          'set-cookie': sessionCookie(
-            cookieName(authority), value, expiresAt, Math.floor(this.maxAgeMilliseconds / 1000),
-          ),
-        })
-        res.end()
-        return false
-      }
-      if (req.method === 'GET' && url.pathname === '/' && this.isAuthenticated(req)) {
-        res.writeHead(303, {
-          'cache-control': 'no-store',
-          'location': '/',
-          'referrer-policy': 'no-referrer',
-        })
-        res.end()
+      if (this.exchangeToken(req, res)) return false
+      if (req.method === 'GET' && url.pathname === WEB_ENTRY_PATH && this.isAuthenticated(req)) {
+        writeEntryRedirect(res)
         return false
       }
       this.writeUnauthorized(req, res)
@@ -279,6 +270,41 @@ export class BrowserAuth {
     if (this.isAuthenticated(req)) return true
     this.writeUnauthorized(req, res)
     return false
+  }
+
+  /**
+   * Mint the device cookie for one valid launch token and redirect to the clean
+   * entry path: the handoff that turns the printed URL into a browser session.
+   * @param req - incoming request; its only token input is the query.
+   * @param res - response owned when the exchange applies.
+   * @returns true when a valid token was exchanged and the redirect written.
+   */
+  exchangeToken(req: ConnectionIndexRequest, res: ConnectionIndexResponse): boolean {
+    const url = requestUrl(req)
+    const tokens = url.searchParams.getAll(TOKEN_QUERY)
+    const authority = requestAuthority(req.headers)
+    if (req.method !== 'GET' || url.pathname !== WEB_ENTRY_PATH || tokens.length !== 1
+      || authority === undefined || !tokenMatches(tokens.join(''), this.launchToken)) {
+      return false
+    }
+    const issuedAt = Date.now()
+    const expiresAt = issuedAt + this.maxAgeMilliseconds
+    const value = encodeCookie({
+      version: COOKIE_PAYLOAD_VERSION,
+      authority,
+      issuedAt,
+      expiresAt,
+    }, this.secret)
+    res.writeHead(303, {
+      'cache-control': 'no-store',
+      'location': WEB_ENTRY_PATH,
+      'referrer-policy': 'no-referrer',
+      'set-cookie': sessionCookie(
+        cookieName(authority), value, expiresAt, Math.floor(this.maxAgeMilliseconds / 1000),
+      ),
+    })
+    res.end()
+    return true
   }
 
   /**

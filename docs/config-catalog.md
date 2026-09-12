@@ -9,6 +9,38 @@ This file is GENERATED from source (`scripts/gen-config-catalog.ts`) and verifie
 
 A `Requires:` line lists the service keys the plugin `inject`s: its `cordis.yml` tree must also load providers for those services. Scope is the harness tier (`packages/`); the vendored cordis plugins a config tree may also load (`hmr`, the console logger, …) are pinned upstream source ([vendoring policy](../vendor/README.md)) and not catalogued here.
 
+<a id="qilinaccounts-local"></a>
+
+## `@qilin/accounts-local`
+
+Requires: `connection` · `credentials`
+
+```ts config-catalog
+/** Plugin config: the account surface's deployment choices. */
+export interface Config {
+  /**
+   * Require an account session for every gated index document and every
+   * `/api` request. A disabled gate leaves the endpoints mounted and returns
+   * the launch-token authentication of the transport in its place.
+   * @default true
+   */
+  enabled?: boolean
+  /**
+   * Whether an anonymous visitor may create an additional account. An open
+   * registration lets anyone who can reach this server use the harness, so a
+   * deployment binding beyond loopback closes it.
+   * @default 'open'
+   */
+  registration?: 'open' | 'closed'
+  /** Absolute browser-session lifetime in days. @default 30 */
+  sessionMaxAgeDays?: number
+  /** Explicit harness home; omitted follows `QILIN_HOME`, then `~/.qilin`. */
+  qilinHome?: string
+}
+```
+
+Source: [`packages/identity/accounts-local/src/index.ts:43`](../packages/identity/accounts-local/src/index.ts)
+
 <a id="qilinacp"></a>
 
 ## `@qilin/acp`
@@ -383,7 +415,7 @@ export interface ConnectionRecoveryConfig {
 }
 ```
 
-Source: [`packages/client/connection/src/index.ts:72`](../packages/client/connection/src/index.ts)
+Source: [`packages/client/connection/src/index.ts:75`](../packages/client/connection/src/index.ts)
 
 <a id="qilinclient-hmr"></a>
 
@@ -912,14 +944,35 @@ Source: [`packages/host/directory-picker-browse/src/index.ts:181`](../packages/h
 Requires: `webServer` · `connection`
 
 ```ts config-catalog
-/** Plugin config: the dist anchor. */
+/** Plugin config: the dist anchor, its index entry paths, and its public documents. */
 export interface Config {
   /** Absolute path of index.html inside the dist root. */
   distIndex: string
+  /**
+   * Request paths that serve the index document. Each one passes Connection's
+   * index authorization before its bytes are read. An omitted or empty list
+   * follows the transport's entry path plus `/index.html`, so the path a
+   * deployment hands a browser is always one this server answers.
+   */
+  indexPaths?: string[]
+  /**
+   * Public documents served without index authorization: the landing page and
+   * the sign-in page of an assembly whose entry path is the application.
+   * @default []
+   */
+  documents?: StaticDocument[]
+}
+
+/** One public document served at a fixed request path, before index authorization. */
+export interface StaticDocument {
+  /** Absolute request pathname, no trailing slash. */
+  path: string
+  /** File name inside the dist root. */
+  file: string
 }
 ```
 
-Source: [`packages/host/frontend-static/src/index.ts:30`](../packages/host/frontend-static/src/index.ts)
+Source: [`packages/host/frontend-static/src/index.ts:41`](../packages/host/frontend-static/src/index.ts)
 
 <a id="qilinhost-open-in-app"></a>
 
@@ -3286,7 +3339,7 @@ export interface Config {
 }
 ```
 
-Source: [`packages/bundle/web-app/src/index.ts:44`](../packages/bundle/web-app/src/index.ts)
+Source: [`packages/bundle/web-app/src/index.ts:45`](../packages/bundle/web-app/src/index.ts)
 
 <a id="qilinweb-fetch-http"></a>
 

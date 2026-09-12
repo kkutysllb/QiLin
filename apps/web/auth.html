@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="./src/auth/auth.css" />
+    <title>QiLin</title>
+  </head>
+  <body>
+    <!--
+      Pre-session authentication document served at /login and /setup. It is a
+      static page: every user-visible string lives in this file, and
+      src/auth/auth.ts only binds behaviour to the markup below. The server
+      injects <base href="/">, so every relative URL resolves from the site root.
+    -->
+    <main class="ql-auth">
+      <div class="ql-auth__glow" aria-hidden="true"></div>
+
+      <!--
+        Copy table. Each entry is keyed by data-copy and read by the module;
+        nothing in src/auth/auth.ts carries product text. The inline strings in
+        the markup below are the no-script rendering of the login-mode entries.
+      -->
+      <template id="auth-copy">
+        <span data-copy="title.login">登录控制台</span>
+        <span data-copy="title.register">创建账户</span>
+        <span data-copy="title.setup">初始化管理员</span>
+        <span data-copy="subtitle.login">登录您的账户</span>
+        <span data-copy="subtitle.register">创建新账户</span>
+        <span data-copy="subtitle.setup">请设置管理员账户以开始使用。</span>
+        <span data-copy="submit.login">登录</span>
+        <span data-copy="submit.register">创建账户</span>
+        <span data-copy="submit.setup">创建管理员账户</span>
+        <span data-copy="busy.login">请稍候…</span>
+        <span data-copy="busy.register">正在创建账户…</span>
+        <span data-copy="busy.setup">正在创建账户…</span>
+        <span data-copy="toggle.toRegister">没有账户？立即注册</span>
+        <span data-copy="toggle.toLogin">已有账户？立即登录</span>
+        <span data-copy="error.mismatch">两次密码不一致</span>
+        <span data-copy="error.passwordLength">密码长度不能少于 8 位</span>
+        <span data-copy="error.network">网络错误，请重试。</span>
+        <span data-copy="error.invalid-credentials">邮箱或密码不正确</span>
+        <span data-copy="error.unauthorized">登录状态已失效，请重新登录</span>
+        <span data-copy="error.password-too-short">密码长度不能少于 8 位</span>
+        <span data-copy="error.invalid-email">请输入有效的邮箱地址</span>
+        <span data-copy="error.invalid-body">请填写完整的邮箱与密码</span>
+        <span data-copy="error.invalid-authority">请通过启动时打印的链接访问本页面</span>
+        <span data-copy="error.email-taken">该邮箱已注册，请直接登录</span>
+        <span data-copy="error.already-initialized">管理员账户已存在，请直接登录</span>
+        <span data-copy="error.registration-closed">本部署未开放注册</span>
+      </template>
+
+      <div class="ql-shell">
+        <section class="ql-card">
+          <div class="ql-card__rule" aria-hidden="true"></div>
+          <div class="ql-card__body">
+            <header class="ql-head">
+              <div class="ql-brand">
+                <svg
+                  class="ql-seal"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <rect x="1" y="1" width="22" height="22" rx="3.5" fill="#c3402f" />
+                  <text
+                    x="7.1"
+                    y="15.4"
+                    text-anchor="middle"
+                    font-size="9.6"
+                    font-weight="700"
+                    fill="#fff5eb"
+                    font-family="'Noto Serif SC','Songti SC','STSong',serif"
+                  >麒</text>
+                  <text
+                    x="16.9"
+                    y="15.4"
+                    text-anchor="middle"
+                    font-size="9.6"
+                    font-weight="700"
+                    fill="#fff5eb"
+                    font-family="'Noto Serif SC','Songti SC','STSong',serif"
+                  >麟</text>
+                </svg>
+                <span class="ql-wordmark">QiLin</span>
+                <span class="ql-brand__divider" aria-hidden="true"></span>
+                <h1 class="ql-title" id="auth-title">登录控制台</h1>
+              </div>
+              <p class="ql-subtitle" id="auth-subtitle">登录您的账户</p>
+            </header>
+
+            <form class="ql-form" id="auth-form">
+              <div class="ql-field">
+                <label class="ql-label" for="auth-email">邮箱</label>
+                <input
+                  class="ql-input"
+                  id="auth-email"
+                  name="email"
+                  type="email"
+                  autocomplete="username"
+                  placeholder="请输入邮箱地址"
+                  required
+                />
+              </div>
+              <div class="ql-field">
+                <label class="ql-label" for="auth-password">密码</label>
+                <input
+                  class="ql-input"
+                  id="auth-password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="请输入密码"
+                  minlength="8"
+                  required
+                />
+              </div>
+              <div class="ql-field" id="auth-confirm-field" hidden>
+                <label class="ql-label" for="auth-confirm">确认密码</label>
+                <input
+                  class="ql-input"
+                  id="auth-confirm"
+                  name="confirm"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="再次输入密码"
+                  minlength="8"
+                  required
+                  disabled
+                />
+              </div>
+              <p class="ql-error" id="auth-error" aria-live="polite" hidden></p>
+              <button class="ql-submit" id="auth-submit" type="submit">登录</button>
+            </form>
+
+            <p class="ql-toggle" id="auth-toggle-row" hidden>
+              <button class="ql-toggle__button" id="auth-toggle" type="button">没有账户？立即注册</button>
+            </p>
+
+            <p class="ql-back">
+              <a class="ql-back__link" href="/">← 返回首页</a>
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="./src/auth/auth.ts"></script>
+  </body>
+</html>

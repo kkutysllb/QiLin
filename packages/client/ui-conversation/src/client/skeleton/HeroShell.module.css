@@ -1,14 +1,38 @@
-/* NEW SESSION hero (figma Input_Bottom 75:8208): fish + title, workspace chip
-   above the shared InputBar card. The input itself is InputBar — only stack
-   geometry and the chip live here. */
+/* NEW SESSION hero: the brand mark, a time-of-day greeting, and the product
+   tagline over an ambient wordmark, with the workspace chip above the shared
+   InputBar card. The input itself is InputBar — only stack geometry, the
+   ambient layer, and the chip live here. */
 
 .root {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
   min-width: 0;
   padding: 0 24px;
+  overflow: hidden;
+}
+
+/* Ambient product wordmark: brand background, not a second headline. Sized so
+   it reads as texture behind the greeting and never widens the column. */
+.watermark {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  transform: translateY(-50%);
+  color: var(--dsw-alias-label-primary);
+  font-size: clamp(64px, 18vw, 224px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* Cap matches the InputBar card. Glow may paint past the sides. */
@@ -16,62 +40,44 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  /* figma 75:8208: 12 between title block / workspace / card. */
+  /* 12 between the hero lines, the workspace row, and the input card. */
   gap: 12px;
   width: 100%;
   max-width: var(--qilin-composer-card-max-width);
   overflow: visible;
 }
 
-/* figma 34:10411: fish + title, gap 10, centered; 26/32 wt500. The preview
-   badge is a product addition outside that source: a mono superscript pill
-   riding the title's top-right. */
-.headline {
+/* The brand row: one centered mark above the greeting. */
+.mark {
   display: flex;
-  /* Overflow-driven: the fish and the title group are two wrap units sharing
-     one centered line while they fit; squeezed, the fish takes its own line
-     above the group. No breakpoint. */
-  flex-wrap: wrap;
-  column-gap: 10px;
-  /* Wrapped, the fish sits on its own line; more air than the 10px side gap
-     keeps it reading as a mark above the title, not a squeezed inline glyph. */
-  row-gap: 12px;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
-  line-height: 32px;
+}
+
+/* Time-of-day greeting: the small line that opens the session. */
+.greeting {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 18px;
   font-weight: 500;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* Product tagline: the hero's one large line. */
+.tagline {
+  margin: 0;
   color: var(--dsw-alias-label-primary);
-}
-
-/* Title text + badge as one wrap unit so the title never breaks mid-text with
-   the badge stranded beside a fragment. When the badge no longer fits beside
-   the title it wraps to its own centered line below; while both fit, the group
-   is content-sized and centering is a no-op, keeping the superscript snug. */
-.titleGroup {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  /* Superscript sits 7 from the title. */
-  column-gap: 7px;
-  row-gap: 4px;
-  min-width: 0;
-}
-
-.previewBadge {
-  align-self: flex-start;
-  margin-top: 2px;
-  padding: 1px 7px 0;
-  border: 0.5px solid var(--dsw-alias-interactive-bg-hover);
-  border-radius: 24px;
-  background: var(--dsw-alias-state-business-tertiary);
-  color: var(--dsw-alias-label-primary-bluish);
-  font-family: var(--ds-font-family-code);
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 500;
-  white-space: nowrap;
+  /* Sized to the composer column: the longest shipped tagline holds two
+     balanced lines rather than orphaning its last word. */
+  font-size: clamp(24px, 3.4vw, 40px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
 }
 
 /* Keep hover detection on a stationary box while the mark moves within it;

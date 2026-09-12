@@ -325,11 +325,12 @@ function mount(
 }
 
 describe('Hero chrome', () => {
-  it('renders the English preview badge through the hero locale seat', () => {
+  it('renders the ambient wordmark, the tagline, and the brand mark through the hero locale seat', () => {
     const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
-    expect(view.getByText('QiLin')).toBeTruthy()
-    expect(view.getByText('Preview')).toBeTruthy()
+    // The ambient wordmark is decoration and carries no heading role.
+    expect(view.getByText('QiLin').getAttribute('aria-hidden')).toBe('true')
+    expect(view.getByRole('heading', { level: 1 }).textContent).toBe("Give me a request, and I'll surprise you")
     expect(renderSlot).toHaveBeenCalledOnce()
     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
     const brandMarkOwner = renderSlot.mock.calls[0]?.[1]
@@ -339,6 +340,27 @@ describe('Hero chrome', () => {
     expect(brandMarkOwner.size).toBe(34)
     expect(brandMarkOwner.className).toBeTypeOf('string')
     expect(renderSlot.mock.calls[0]?.[2]?.fallback).toBeTruthy()
+  })
+
+  it('greets the hour the session opens in', () => {
+    vi.useFakeTimers()
+    try {
+      const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
+      const cases: readonly (readonly [number, string])[] = [
+        [9, 'Good morning, a fresh start to a new day'],
+        [14, 'Good afternoon, hope your work goes well'],
+        [20, 'Good evening, great job today'],
+      ]
+      for (const [hour, expected] of cases) {
+        // Local-time construction keeps the assertion independent of the host zone.
+        vi.setSystemTime(new Date(2026, 7, 24, hour, 30, 0))
+        const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
+        expect(view.getByText(expected)).toBeTruthy()
+        view.unmount()
+      }
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 
@@ -476,7 +498,8 @@ describe('ConversationRoot resident composer', () => {
     expect(host).not.toBeNull()
     expect(header?.getAttribute('aria-hidden')).toBe('true')
     expect(b.view.getByText('QiLin')).toBeTruthy()
-    expect(b.view.getByText('预览版')).toBeTruthy()
+    // Hero copy reaches the component through the owner's locale seat.
+    expect(b.view.getByText('给我一个需求，还你一份惊喜')).toBeTruthy()
     expect(b.view.queryByTestId('view-chat')).toBeNull()
     // The same machine-backed textarea is live in the hero, and the
     // persistence mirror stays bound (ConversationSession mounts chrome-hidden

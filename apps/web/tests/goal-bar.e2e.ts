@@ -33,7 +33,9 @@ describe('web e2e: goal bar clear convergence', () => {
     tripwire = watchConsole(page)
     const login = await page.context().request.get(scaffold.authenticatedUrl, { maxRedirects: 0 })
     expect(login.status()).toBe(303)
-    await page.goto(`${scaffold.baseUrl}?fixture`, { waitUntil: 'load' })
+    // The site root serves the landing page; the application document lives at
+    // the transport's entry path, which keeps the fixture flag.
+    await page.goto(`${scaffold.baseUrl}/workspace?fixture`, { waitUntil: 'load' })
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
   }, 120_000)
 

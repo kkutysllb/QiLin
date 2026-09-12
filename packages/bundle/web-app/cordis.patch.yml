@@ -106,6 +106,20 @@
     - id: mcp-servers
       name: '@qilin/mcp-servers'
 
+    # Local browser accounts: the account file under the harness home, the
+    # /api/auth endpoints, and the account-session gate over the application
+    # entry and every /api request. Sign-in is required by default; a deployment
+    # wanting the launch-token handoff alone sets enabled: false. Registration
+    # stays open for the single-user loopback default — before binding beyond
+    # loopback, set registration: closed, because anyone who can reach the
+    # server could otherwise create an account with full harness access.
+    - id: accounts
+      name: '@qilin/accounts-local'
+      config:
+        enabled: true
+        registration: open
+        sessionMaxAgeDays: 30
+
     # Session commands, cold reads, and live control over Typert Remote.
     - id: session-controller
       name: '@qilin/api-session-controller'
