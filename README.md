@@ -10,7 +10,7 @@
 一个统一的 Python 包，把 LangGraph 状态机、模型调用、工具/技能生态、多智能体编排、子代理递归、沙箱隔离、权限模型、可观测性与定时调度整合在同一二进制 / 同进程中运行；并配套 **Web 工作台**与 **DSH 兼容插件生态**。
 
 - **包名称 / Package**：`qilin`
-- **当前版本 / Current**：**v2.0.2**（[版本演进](#-版本演进--release-history)）
+- **当前版本 / Current**：**v2.0.3**（[版本演进](#-版本演进--release-history)）
 - **引擎代码量 / Engine codebase**：`qilin/` 约 500 文件 · 23 个子系统；`web-demo/` 约 400 文件
 - **Python**：≥ 3.12
 - **CLI**：`qilin`
@@ -75,13 +75,18 @@ QiLin Web 工作台正式兼容 **DSH 插件生态**，并建立「**一切皆 p
 - **品牌与体验**：麒麟双字方印 logo（favicon 同步）、消息页脚操作栏常驻 + 点赞点踩、新任务大按钮
 - **质量**：ports 面鉴权兼容修复（403/401）、全仓审计清理（净删 1071 行、ruff 告警清零）；后端 pytest 999+、前端 vitest 391 全绿
 
-### 开发中 / Unreleased
+### v2.0.3 · 运行中插话 + 循环检测护栏重构（2026-09-12）
 
-- **循环检测重构**：Layer 1 改连续链语义 + 精确参数规范化、阶梯式提醒（3/5/8 次提醒、12 次硬停）、被拒/失败重复调用提前打断；Layer 2 窗口频率检测保留
-- **Web 体验**：turn 尾 `QiLin....` 朱砂波光状态字 + turn 用时统计、折叠侧边栏按钮归位品牌行
+agent 运行中可直接插话，循环检测护栏完成一轮重构：
+
+- **运行中插话（steer）**：`InjectMiddleware` per-thread 注入注册表 + `POST /api/threads/{tid}/runs/{rid}/inject`（404/409/202 语义），每次模型调用前排空注入并随 checkpoint 持久化；worker finally 排空未消费注入回写历史防丢失
+- **前端忙碌交互**：queued-messages-bar 折叠计数头 + 单行预览 + 插话按钮（仅运行中可用、失败自动降级排队）、`busyEnter` 偏好（排队 / 插话，`Cmd/Ctrl+Enter` 取反）、通用设置页新增「繁忙时 Enter 键行为」
+- **循环检测重构**：Layer 1 改连续链语义 + 精确参数规范化（剔除 description、行号精确参与）、阶梯式提醒（3/5/8 次提醒、12 次硬停）、被拒/失败重复调用提前打断（denial-aware early break）；Layer 2 窗口频率检测保留
+- **Web 体验**：turn 尾 `QiLin....` 朱砂波光状态字 + turn 用时统计、折叠侧边栏按钮归位品牌行、移除 topbar token 徽章
+- **插件运行时清单出库**：manifest 迁 gitignored 区 + `GET /qilin-plugins/manifest` 路由，装卸不再脏工作树
 - **工程**：`release.yml` —— `v*` tag 推送自动过 CI 门禁并发布 GitHub Release
 
-> 各版本完整说明见 [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) / [v2.0.0](RELEASE_NOTES_v2.0.0.md) / [v2.0.1](RELEASE_NOTES_v2.0.1.md) / [v2.0.2](RELEASE_NOTES_v2.0.2.md)。
+> 各版本完整说明见 [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) / [v2.0.0](RELEASE_NOTES_v2.0.0.md) / [v2.0.1](RELEASE_NOTES_v2.0.1.md) / [v2.0.2](RELEASE_NOTES_v2.0.2.md) / [v2.0.3](RELEASE_NOTES_v2.0.3.md)。
 
 ## 📦 安装 / Installation
 

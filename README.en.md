@@ -10,7 +10,7 @@
 A single Python package that consolidates LangGraph state machines, model orchestration, tool/skill ecosystems, multi-agent orchestration, recursive sub-agents, sandbox isolation, fine-grained authorization, observability, and scheduled tasks — all in one binary / one process. It ships with a **Web workbench** and a **DSH-compatible plugin ecosystem**.
 
 - **Package**: `qilin`
-- **Current version**: **v2.0.2** ([release history](#️-release-history))
+- **Current version**: **v2.0.3** ([release history](#️-release-history))
 - **Engine codebase**: `qilin/` ~500 files · 23 subsystems; `web-demo/` ~400 files
 - **Python**: ≥ 3.12
 - **CLI**: `qilin`
@@ -75,13 +75,18 @@ The QiLin web workbench officially joins the **DSH plugin ecosystem**, and the "
 - **Brand & UX**: two-character Qilin seal logo (favicon synced), persistent message footer with like/dislike, prominent new-task button
 - **Quality**: ports-surface auth-compatibility fix (403/401), repo-wide audit cleanup (−1,071 lines, zero ruff warnings); backend pytest 999+, frontend vitest 391 all green
 
-### Unreleased
+### v2.0.3 · Steer-While-Running + Loop-Guard Rework (2026-09-12)
 
-- **Loop-detection rework**: Layer 1 consecutive-chain semantics + exact argument canonicalization, tiered reminders (reminders at 3/5/8, hard stop at 12), denial-aware early break for rejected/failed repeats; Layer 2 windowed frequency retained
-- **Web UX**: turn-tail `QiLin....` cinnabar shimmer status + per-turn duration stats, collapsed-sidebar trigger relocated to the brand row
+Steer a running agent directly, plus a full rework of the loop-detection guardrail:
+
+- **Steer while running**: `InjectMiddleware` per-thread injection registry + `POST /api/threads/{tid}/runs/{rid}/inject` (404/409/202 semantics); injections are drained before each model call and persisted with the checkpoint; the worker's `finally` drains unconsumed injections back into thread history so nothing is lost
+- **Busy-input UX**: queued-messages-bar with a collapsible count header, one-line previews and a steer button (running-only, auto-fallback to queueing on failure), `busyEnter` preference (queue / steer, `Cmd/Ctrl+Enter` inverts), new "Enter key while busy" setting on the general settings page
+- **Loop-detection rework**: Layer 1 consecutive-chain semantics + exact argument canonicalization (description dropped, line ranges kept exact), tiered reminders (reminders at 3/5/8, hard stop at 12), denial-aware early break for rejected/failed repeats; Layer 2 windowed frequency retained
+- **Web UX**: turn-tail `QiLin....` cinnabar shimmer status + per-turn duration stats, collapsed-sidebar trigger relocated to the brand row, topbar token badge removed
+- **Plugin runtime manifest out of the tree**: manifest moved to the gitignored area behind `GET /qilin-plugins/manifest`, so installs/uninstalls no longer dirty the worktree
 - **Engineering**: `release.yml` — `v*` tag pushes automatically pass the CI gate and publish a GitHub Release
 
-> Full notes per release: [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) / [v2.0.0](RELEASE_NOTES_v2.0.0.md) / [v2.0.1](RELEASE_NOTES_v2.0.1.md) / [v2.0.2](RELEASE_NOTES_v2.0.2.md).
+> Full notes per release: [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) / [v2.0.0](RELEASE_NOTES_v2.0.0.md) / [v2.0.1](RELEASE_NOTES_v2.0.1.md) / [v2.0.2](RELEASE_NOTES_v2.0.2.md) / [v2.0.3](RELEASE_NOTES_v2.0.3.md).
 
 ## 📦 Installation
 
