@@ -44,3 +44,13 @@ worktrees/
 .agents/worktrees/
 .typert-*/
 native/system/test/bin/
+
+# === QiLin product ===
+# 工作区内的 Harness home，用于本地验证 qiLin profile。
+.qilin-home/
+# 2.x 产品配置，仅作 S4 迁移参照；新架构用 settings.yaml 与 cordis patch。
+config.yaml
+# 2.x 遗留的本地状态与临时目录。
+.qilin/
+.qilin-internal-token
+.drops/

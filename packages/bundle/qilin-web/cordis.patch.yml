@@ -1,0 +1,15 @@
+# The QiLin browser-surface bundle patch: QiLin product identity layered over
+# the dsh-web-app composition. Applied after dsh-web-app and before the
+# profile's own cordis.patch.yml, so a deployment or user layer can still
+# replace every row below.
+#
+# A patch replaces the targeted row's whole `config`, so each row below
+# restates every key it owns.
+
+# The model-facing product identity. dsh-web-app states the same two keys for
+# the dsh surface; QiLin names itself here instead.
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You are QiLin, a coding agent powered by the {{model}} model.
+    personaSuffix: Your working directory is {{cwd}}.
