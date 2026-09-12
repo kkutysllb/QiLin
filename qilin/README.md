@@ -51,15 +51,29 @@ qilin: http://127.0.0.1:3090/?token=<一次性令牌>
 首次进入界面会有两层弹窗，按顺序处理：先点内测声明的继续，再点 API Key 引导的稍后配置。
 没有配置 API Key 时无法跑通真实对话，但界面四区可以完整验证。
 
-### 隔离的用户数据目录
+### 用户数据目录
 
-不想污染默认 home（`~/.dsh`）时，把 DSH_HOME 指向仓库内的目录：
+QiLin 的默认数据目录是 `~/.qilin`（上游 dsh 用的是 `~/.dsh`，本分支已改为 QiLin 自己的目录）。
+profile、设置、凭据、附件、技能与会话日志都在这一棵树下：
+
+```
+~/.qilin/
+  profiles/qilin/     启动时自动生成的 qilin profile
+  settings.yaml       外观、模型等设置
+  storages/           工作区注册表等
+  attachments/v1/     内容寻址的上传附件
+  skills/             用户级技能
+  sessions/           会话日志
+```
+
+两种覆盖方式，优先级从高到低：显式配置的 home、环境变量 `DSH_HOME`、默认 `~/.qilin`。
+想隔离到仓库内（例如并行验证多份状态）：
 
 ```sh
 DSH_HOME="$PWD/.qilin-home" pnpm dsh qilin --port 3090
 ```
 
-`.qilin-home/` 已在 .gitignore 中。
+`.qilin-home/` 已在 .gitignore 中。想让 QiLin 复用一份已有的 dsh 数据，把 `DSH_HOME` 指过去即可。
 
 ## 5. 开发态（改代码即时生效）
 
