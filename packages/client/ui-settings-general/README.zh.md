@@ -63,7 +63,7 @@ kind: "package-reference"
 
 ### 宿主端
 
-宿主端在用户设置 seam 中注册 `ui-onboarding`。`ui-settings-models` 提供的欢迎步骤通过既有公开 settings 边界读写其中的 `welcomeNoticeVersion`；外壳本身仍不持有产品策略。
+宿主端是一个惰性的 Loader 条目：外壳的产品事实与策略完全位于浏览器半边。
 
 </details>
 
