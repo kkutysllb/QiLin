@@ -16,14 +16,27 @@
 - [x] 交付物浏览器验收：produced-files 用例通过
 - [x] 核心引擎免密钥回放验收：132 项中 127 项通过
 - [x] S4 调研：完成 2.x 配置到 dsh 的迁移映射与缺口清点
-- [ ] S2 其余：品牌美术字、首页标语、首启声明（需要品牌输入）
+- [x] S2 品牌落地：麒麟汉字印章（侧边栏与 hero）、QiLin 标签与版本徽章、首页标语、首启声明
+- [ ] S3 渠道 TS 重写（8 个渠道）
 - [ ] S4 实施：按产品取舍补齐缺口（scheduler、mcp、memory、RBAC 等）
 - [ ] S3 渠道 TS 重写（8 个渠道）
 - [ ] S5 收尾与主分支切换
 
 ## 验证证据
 ### 单测、引擎回放与交付物
-- pnpm run test:gui：376 个文件、5342 项通过（1 项跳过）。
+- pnpm run test:gui：377 个文件、5348 项通过（1 项跳过）。
+
+### 品牌落地（公章印章）
+- 新增 packages/client/ui-brand-qilin：麒麟汉字印章占用 sidebar.brand.mark 与 conversation.hero.brand.mark。
+- 字形来源：以 fontTools 从系统 CJK 字面提取麒、麟轮廓，归一化到单位框后作为路径数据内嵌（无运行时字体依赖）。
+- 浏览器实测：印章出现 2 处；品牌行为 QiLin 加版本徽章；hero 标语为 QiLin；document.title 为 QiLin。
+- 几何实测：边框 1.6-22.4，字块 x 6.2-17.8、两行 y 2.6-11.8 与 12.3-21.4，全部位于边框内。
+- 证据截图：qilin/acceptance/2026-09-12-qilin-seal.png 与 2026-09-12-qilin-seal-in-ui.png。
+
+### 文案
+- brand.localBuild 改为 QiLin，使侧边栏显示 QiLin 加构建版本徽章。
+- hero.headline 由探索未至之境 / Into the Unknown 改为 QiLin。
+- 首启声明改为 QiLin 版本：标题与正文不再引用 DeepSeek Harness 与 DSH 生态。
 - pnpm run test:snapshot：132 项中 127 项通过、3 项失败、2 项跳过，引擎与会话路径在 QiLin 树上端到端可用。
 - 交付物浏览器验收：apps/web/tests/produced-files.e2e.ts 通过，produced files 行在真实浏览器中渲染正确。
 - 交付物另一用例 apps/web/tests/present.e2e.ts 在本机 2 项失败；已在原始基线提交的独立 worktree 上复跑，失败完全一致（1 文件 / 2 项），因此归因于环境（PTC code-runtime 交付路径）而非本次重构。

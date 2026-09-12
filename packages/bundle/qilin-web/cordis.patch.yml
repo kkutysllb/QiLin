@@ -27,8 +27,15 @@
 
 # ── the QiLin browser roster ────────────────────────────────────────────────
 
+# The 麒麟 seal occupies the sidebar and conversation-hero brand marks; the
+# sidebar brand name keeps the shell's own fallback, which carries the build
+# version badge.
+
 # `dsh.client` rows are scanned into the browser module roster. The brand color
 # layer stacks over whichever palette the user selected in Settings.
 - insert:
+    - id: ui-brand-qilin
+      name: '@deepseek-ai/dsh-client-ui-brand-qilin'
+
     - id: ui-theme-qilin
       name: '@deepseek-ai/dsh-client-ui-theme-qilin'

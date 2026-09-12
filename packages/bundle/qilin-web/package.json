@@ -27,6 +27,7 @@
     }
   },
   "dependencies": {
+    "@deepseek-ai/dsh-client-ui-brand-qilin": "workspace:^",
     "@deepseek-ai/dsh-client-ui-theme-qilin": "workspace:^"
   },
   "devDependencies": {
