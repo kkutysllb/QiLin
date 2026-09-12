@@ -262,8 +262,8 @@ class WorkspacePackageSet {
       const isVendored = manifestPath.startsWith('vendor/')
       // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@deepseek-ai/')) {
-        throw new Error(`${manifestPath} must name an @deepseek-ai package`)
+      if (!name.startsWith('@qilin/') && !name.startsWith('@deepseek-ai/')) {
+        throw new Error(`${manifestPath} must name a @qilin or rescoped @deepseek-ai package`)
       }
       if (name === '@qilin/root') {
         throw new Error(`${manifestPath} unexpectedly selected the workspace root`)
@@ -807,7 +807,7 @@ function parsePackedPackage(value: unknown, index: number): PackedPackage {
   if (origin !== 'harness' && origin !== 'vendor') {
     throw new Error(`invalid package origin in release manifest: ${JSON.stringify(origin)}`)
   }
-  if (origin === 'harness' && (!name.startsWith('@deepseek-ai/') || name === '@qilin/root')) {
+  if (origin === 'harness' && (!name.startsWith('@qilin/') || name === '@qilin/root')) {
     throw new Error(`invalid package name in release manifest: ${name}`)
   }
   return {

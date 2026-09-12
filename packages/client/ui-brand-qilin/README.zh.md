@@ -7,7 +7,7 @@ kind: "package-reference"
 
 [English](README.md) | 中文
 
-## 摘要
+## 概述
 
 把本插件挂在 [`ui-sidebar`](../ui-sidebar/README.md) 与 [`ui-conversation`](../ui-conversation/README.md) 旁边，即可用麒麟印章替换通用品牌回退：圆角方框内上麒下麟。印章是以路径数据内嵌的矢量图，不依赖运行时字体，并从渲染它的表面继承 `currentColor`。侧边栏品牌名保留外壳自身的回退，因此产品标签与构建版本徽章仍由外壳拥有。
 
@@ -45,6 +45,6 @@ kind: "package-reference"
 - 这两个槽位尚无浏览器级断言；随附规格覆盖的是槽位注册，组装面的检查目前为手工执行。
 
 <a id="dev-note"></a>
-## 开发说明
+## 开发备注
 
 无。

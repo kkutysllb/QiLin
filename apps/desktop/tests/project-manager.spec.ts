@@ -213,7 +213,7 @@ describe('desktop project transactions', () => {
       await expect(manager.applyRelease(seed, '2.0.0', hooks())).rejects.toThrow(/does not match Electron/u)
       await manager.applyRelease(seed, '1.0.0', hooks())
       writeFileSync(
-        join(paths.profile, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'package.json'),
+        join(paths.profile, 'node_modules', '@qilin', 'desktop-host', 'package.json'),
         '{"name":"@qilin/desktop-host","version":"0.9.0"}\n',
       )
       await expect(manager.applyRelease(seed, '1.0.0', hooks())).resolves.toBe(true)
@@ -226,9 +226,9 @@ describe('desktop project transactions', () => {
     expect(manager.dshVersion()).toBe('1.0.0')
     expect(manager.releaseVersion()).toBe('1.0.0')
     expect(paths.profile).toBe(join(root, '.qilin', 'profiles', 'desktop'))
-    expect(existsSync(join(paths.profile, 'node_modules', '@deepseek-ai', 'dsh'))).toBe(true)
+    expect(existsSync(join(paths.profile, 'node_modules', '@qilin', 'cli'))).toBe(true)
     const installedHost = JSON.parse(readFileSync(
-      join(paths.profile, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'package.json'),
+      join(paths.profile, 'node_modules', '@qilin', 'desktop-host', 'package.json'),
       'utf8',
     )) as { version: string }
     expect(installedHost.version).toBe('1.0.0')

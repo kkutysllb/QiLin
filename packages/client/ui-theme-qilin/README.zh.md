@@ -7,7 +7,7 @@ kind: "package-reference"
 
 [English](README.md) | 中文
 
-## 摘要
+## 概述
 
 把本插件挂在 [`ui-theme`](../ui-theme/README.md) 旁边，即可让 QiLin Web 表面拥有自己的品牌配色。插件注册一个 `ctx.theme` 覆盖层：用户的 `light`、`dark` 或 `system` 偏好与全部基础令牌保持不变，只替换 QiLin 拥有的令牌。由于该层是 Cordis effect，卸载插件即恢复被覆盖的令牌。
 
@@ -44,6 +44,6 @@ kind: "package-reference"
 - 随附规格跑在生产主题运行时及其覆盖栈上。针对本层的启动后 Web 表面断言尚未建立，组装面的检查目前为手工执行。
 
 <a id="dev-note"></a>
-## 开发说明
+## 开发备注
 
 无。

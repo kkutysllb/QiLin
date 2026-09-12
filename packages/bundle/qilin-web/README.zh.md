@@ -7,7 +7,7 @@ kind: "package-bundle"
 
 [English](README.md) | 中文
 
-## 摘要
+## 概述
 
 用 `qilin` profile 运行 QiLin Web 表面，其 bundle 列表把本包叠加在 [`dsh-web-app`](../web-app/README.md) 之后。本包不含运行时 API：其实质是 `cordis.patch.yml`，在 `dsh-web-app` 组合之上重述承载 QiLin 产品身份的行。部署层或用户补丁层仍可替换它声明的每一行。
 
@@ -52,6 +52,6 @@ kind: "package-bundle"
 - 本层只重述产品身份。QiLin 品牌的客户端呈现——侧边栏品牌美术字、输入框、消息渲染与交付物界面——尚未纳入本 bundle，因此 qilin profile 目前以 QiLin 身份渲染 `dsh-web-app` 的呈现。
 
 <a id="dev-note"></a>
-## 开发说明
+## 开发备注
 
 无。

@@ -39,10 +39,10 @@ describe('desktop package-set selection', () => {
     ])
     expect(selectDesktopPackageClosure(available).map(entry => entry.manifest.name)).toEqual([
       '@deepseek-ai/cordis',
-      '@qilin/cli',
-      '@qilin/base',
-      '@qilin/desktop-host',
       '@deepseek-ai/platform-package',
+      '@qilin/base',
+      '@qilin/cli',
+      '@qilin/desktop-host',
     ])
   })
 

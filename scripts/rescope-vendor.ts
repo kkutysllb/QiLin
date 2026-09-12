@@ -216,7 +216,7 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     find: '      if (!isVendored && !name.startsWith(\'@deepseek-ai/\')) {',
     replace: `      // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@deepseek-ai/')) {`,
+      if (!name.startsWith('@qilin/') && !name.startsWith('@deepseek-ai/')) {`,
     expect: 1,
   },
   {
