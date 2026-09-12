@@ -62,6 +62,45 @@
 - 未证归因：引擎回放的 3 项失败用例名指向沙箱或原生插件，但未重跑基线对比。
 - 复现基线对比的方法：git worktree add .worktrees/baseline 3083f37c3f，随后在该 worktree 执行 pnpm install --frozen-lockfile 与 pnpm run build，再跑目标用例。
 
+## 去 dsh 化（A+B 层）
+
+### B 层已完成并推送（4b2cc182be）
+- 274 个工作区包名 @deepseek-ai/dsh-* 改为 @qilin/*；CLI 包改为 @qilin/cli。
+- package.json 清单字段 dsh 改为 qilin，并同步代码侧字段访问与类型声明。
+- 转义形式（正则内的 @deepseek-ai\/dsh-）一并改名，含 tsdown.client.ts 的 INLINE_SAFE。
+- gen-tsconfig-paths 重写 tsconfig 别名；lock 与 node_modules 链接重建。
+- 重新生成全部目录文档，并把 258 个文件里 611 处旧锚点改为新锚点。
+- 规模：4032 个文件，+22336 / -22298。
+
+### 保留不动
+- vendored 框架：@deepseek-ai/cordis、cosmokit、schemastery、cordis-plugin-*。
+- native 的 @deepseek-ai/node-addon-system 与第三方 @deepseek-ai/pi-ai。
+- .agents/notes 下的历史记录（仓库规则：已归档笔记冻结，不改写）。
+- .gitattributes 的 merge=dsh-translation-pairing（该名字仅此一处出现、仓库内无驱动定义，属用户级 git 配置；改名会静默失效）。
+
+### B 层验证
+- pnpm run build 通过（238 个客户端产物）；pnpm run typecheck 0 错误。
+- pnpm run test:gui 5348 项通过；pnpm run test 22067 项通过；verify-md-links 恢复通过。
+
+### 失败分类（24 个文件 / 82 项）
+1. 本机沙箱限制：fs-sandbox（EPERM mkdtemp 于用户主目录）、terminal-bash 与 tool-terminal（真实 shell）、
+   tool-bash-persistent、scripts/run-gates.spec.ts（进程组与信号）、install-lefthook（git worktree 操作）。
+2. 改名引入：需要同步旧包名或旧文件名的门禁脚本与桌面应用用例，例如
+   scripts/verify-application-entrypoints.spec.ts、apps/desktop/tests/{core-package-set,prepare-package-set,project-manager}.spec.ts、
+   scripts/{browser-bundled-externals,client-bundle-purity,lint-rule-fingerprint,package-invariants,release/families,translation-pairing-merge,verify-npm-install-layout}.spec.ts。
+3. 改名前已存在：scripts/doc-standard.spec.ts 报 packages/bundle/qilin-web/README.zh.md 缺少标准中文章节标题（概述、开发备注），
+   与本轮改名无关，是更早提交的 README 章节命名问题。
+
+### A 层尚未开始
+- CLI 可执行名 dsh 改为 qilin，pnpm dsh 脚本改为 pnpm qilin。
+- DSH_* 环境变量前缀（产品源码内 61 个去重，DSH_HOME 出现 60 处）。
+- 技能来源标识 project-dsh / user-dsh 改为 project-qilin / user-qilin。
+- 文件名与技能名中残留的 dsh：scripts/verify-dsh-package-licenses.ts、.agents/skills/dsh-doc 等。
+
+### 过程记录：一次自伤与修复
+- 在替换转义形式的包名时，我误用 Array.join(函数) 作分隔符，把函数源码插入了 14 个文件的 24 处正则字面量。
+- 已定位并全部回修为 @qilin\/ 形式；INLINE_SAFE 与相关断言经复跑确认恢复，hooks-codex 等由此产生的失败已消失。
+
 ## 待用户输入
 - QiLin 品牌美术字与文案（侧边栏与 hero 字标、首页标语、首启声明）。
 - S4 缺口取舍：scheduler、mcp、memory、RBAC、guardrails 各自是实现还是放弃。
