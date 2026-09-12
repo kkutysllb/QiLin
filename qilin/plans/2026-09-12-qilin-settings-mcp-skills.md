@@ -29,8 +29,25 @@ KCoder 的 DOM 注入 + console 通道是 Electron 形态的妥协（数据在�
 4. `packages/client/ui-settings-skills`（新）：技能分区。
 5. RPC 描述符、locale 词条、组件与行为测试、双语 README。
 
+## 技能分区：技能是插件机制（关键约束）
+
+KCoder 的技能面板把**技能当插件产物**，与插件页严格分开（插件=引擎组成层；技能=提示词能力包）：
+
+| KCoder 来源 | 含义 | QiLin 对应 |
+|---|---|---|
+| `builtin` | 随 skills bundle 分发的核心批，**插件激活时注册 runtime skill** | 插件在 `apply()` 内调 `ctx.skills.register()`（`SkillSource = 'runtime'`）或 `registerProvider()` 贡献的 `bundled` |
+| `optional` | 随 bundle 分发但**不注册**的长尾批（零目录税）；拷到用户技能目录即启用 | 用户目录 = `~/.qilin/skills`（`user-qilin` rank 400，已由 `skill-filesystem` 扫描） |
+| `project` | 工作区 `.dsh/skills`（rank 100）/ `.agents/skills`（rank 200） | `.qilin/skills`（`project-qilin`）/ `.agents/skills`（`project-agents`） |
+| `user` | `$DSH_HOME/skills`（rank 400）+ `~/.agents/skills`（rank 500） | `~/.qilin/skills`（`user-qilin`）+ `~/.agents/skills`（`user-agents`） |
+
+落地要点：
+
+- 技能分区读 **`ctx.skills.list()`**（host 服务），按 `source` 分组成「插件提供 / 工作区 / 用户 / 自定义」，不自己扫盘。
+- 「启用 optional 技能」= 把 bundle 内 `optional/<name>/` 拷到 `~/.qilin/skills/<name>/`（用户已确认此方案），复用 `skill-filesystem` 既有 rank 机制，无需新增扫描路径。
+- 技能的注册/注销走 Cordis effect（`register`/方案 `registerProvider` 返回 disposer），插件销毁即摘除。
+- 分区只读展示 + 正文预览走 `ctx.skills.get()`；白名单只放行最近一次枚举命中的路径。
+
 ## 待定
 
-- QiLin 内置 MCP 集合是否照搬 KCoder（fetch / context7 / sequential-thinking / playwright）。
-- 技能启用是否写用户目录副本（KCoder 做法）还是用 `skill-filesystem` 已有 rank 机制。
+- QiLin 内置 MCP 集合照搬 KCoder 四个（fetch / context7 / sequential-thinking / playwright）——用户已确认。
 - 单页化后侧边栏设置入口的返回路径（KCoder 注入「返回工作区」按钮）。
