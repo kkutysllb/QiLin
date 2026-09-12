@@ -52,3 +52,5 @@ None; the theme contributes no prompt text.
 
 - The layer covers brand surfaces only. A complete QiLin palette needs the brand design's full token set, and the sidebar brand artwork is a separate client plugin.
 - The shipped spec exercises the production theme runtime and its override stack. A booted-Web-surface assertion for this layer is not in place yet; the assembled-surface check is manual.
+
+**Runtime invariant:** No companion is published. The theme runtime that owns the override stack is the observed authority; this layer only contributes entries to it.

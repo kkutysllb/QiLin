@@ -101,6 +101,11 @@
     - id: plugin-inventory
       name: '@qilin/host-plugin-inventory'
 
+    # MCP server settings over the user patch layer: lists and rewrites the
+    # mcp-client entries the settings page manages.
+    - id: mcp-servers
+      name: '@qilin/mcp-servers'
+
     # Session commands, cold reads, and live control over Typert Remote.
     - id: session-controller
       name: '@qilin/api-session-controller'

@@ -68,3 +68,5 @@ kind: "package-bundle"
 <a id="known-limitations-and-deferred-work"></a>
 
 - 本层只重述产品身份。QiLin 品牌的客户端呈现——侧边栏品牌美术字、输入框、消息渲染与交付物界面——尚未纳入本 bundle，因此 qilin profile 目前以 QiLin 身份渲染 `qilin-web-app` 的呈现。
+
+**运行时不变式：** 不发布伴生入口。本层只是一个清单加一个补丁文件，组合产出了什么由 bundle 门禁检查。

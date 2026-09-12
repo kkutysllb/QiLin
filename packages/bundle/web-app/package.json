@@ -107,6 +107,7 @@
     "@qilin/host-plugin-inventory": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
     "@qilin/launch-environment": "workspace:^",
+    "@qilin/mcp-servers": "workspace:^",
     "@qilin/message-feedback": "workspace:^",
     "@qilin/session-log-export": "workspace:^",
     "@qilin/session-reference": "workspace:^",

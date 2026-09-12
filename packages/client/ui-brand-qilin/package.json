@@ -2,7 +2,14 @@
   "name": "@qilin/client-ui-brand-qilin",
   "description": "QiLin brand occupants for the Web client's sidebar and conversation-hero brand slots: the 麒麟 seal mark",
   "version": "0.1.5-rc.2",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-brand-qilin"
+  },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

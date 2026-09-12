@@ -1979,6 +1979,9 @@ importers:
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
+      '@qilin/mcp-servers':
+        specifier: workspace:^
+        version: link:../../mcp/mcp-servers
       '@qilin/message-feedback':
         specifier: workspace:^
         version: link:../../feedback/message-feedback
@@ -7468,6 +7471,34 @@ importers:
       '@qilin/tools':
         specifier: workspace:^
         version: link:../../core/tools
+
+  packages/mcp/mcp-servers:
+    dependencies:
+      '@qilin/atomic-write':
+        specifier: workspace:^
+        version: link:../../util/atomic-write
+      '@qilin/home-paths':
+        specifier: workspace:^
+        version: link:../../util/home-paths
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/subprocess':
+        specifier: workspace:^
+        version: link:../../subprocess/subprocess
+      '@qilin/subprocess-local':
+        specifier: workspace:^
+        version: link:../../subprocess/subprocess-local
+      '@qilin/typert-protocol':
+        specifier: workspace:^
+        version: link:../../typert/protocol
 
   packages/plan/plan-mode:
     dependencies:

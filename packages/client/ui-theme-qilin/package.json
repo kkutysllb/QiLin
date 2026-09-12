@@ -2,7 +2,14 @@
   "name": "@qilin/client-ui-theme-qilin",
   "description": "QiLin brand color layer for the Web client theme: alias-token overrides stacked over the user's active palette",
   "version": "0.1.5-rc.2",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-theme-qilin"
+  },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

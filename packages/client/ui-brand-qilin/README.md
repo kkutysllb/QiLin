@@ -53,3 +53,5 @@ None; the seal contributes no prompt text.
 - The seal is authored from a text-face outline, not from a designer's seal-script drawing. A commissioned 篆书 mark would replace the two path constants without touching the component.
 - The mark is monochrome: it inherits `currentColor` instead of carrying a vermilion seal field, so a colored seal would need a theme-token decision.
 - No browser-level assertion covers these slots yet; the shipped spec exercises the slot registry, and the assembled-surface check is manual.
+
+**Runtime invariant:** No companion is published. The seal component holds no durable state that two independent observations could disagree about.

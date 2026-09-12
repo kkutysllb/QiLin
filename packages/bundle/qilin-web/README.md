@@ -68,3 +68,5 @@ The identity section follows first-party reusable instructions, so a different w
 <a id="known-limitations-and-deferred-work"></a>
 
 - The layer restates product identity only. QiLin-branded client presentation — the sidebar brand artwork, composer, message rendering, and deliverables surfaces — is not part of this bundle yet, so a QiLin profile renders the `qilin-web-app` presentation under QiLin identity.
+
+**Runtime invariant:** No companion is published. The layer is a manifest plus a patch file, and the bundle gates check what the composition produces.
