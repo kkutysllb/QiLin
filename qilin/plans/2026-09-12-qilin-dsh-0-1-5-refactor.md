@@ -13,51 +13,37 @@
 - 主分支切换：S5 验收通过后再切换。
 
 ## 任务清单
-- [x] 推送已完成提交到 origin/main（8d55202）
-- [x] 创建并推送 3.0.0 分支
-- [x] 完成调研与设计规格，获用户批准
-- [x] S0：dsh 源码入树（3083f37c3f）、qilin profile 与 bundle、dsh qilin 启动别名
+- [x] S0：dsh 源码入树、qilin profile 与 bundle、dsh qilin 启动别名
 - [x] S1：确认 3.0.0 树无虚拟路径机制
-- [x] S2 第一步：QiLin 品牌配色插件与客户端构建画像，浏览器验收通过
-- [ ] S2 其余：QiLin 品牌美术字与 dsh 文案替换
+- [x] S2 配色与标题：品牌令牌层、qilin 客户端构建画像、启动前缀可配置
+- [x] 四区 GUI 单测验收：376 个文件、5342 项通过
+- [ ] S2 其余：品牌美术字、首页标语、首启声明（需要品牌输入）
 - [ ] S3 渠道 TS 重写（8 个渠道）
 - [ ] S4 产品能力迁移
 - [ ] S5 收尾与主分支切换
 
 ## 进展记录
-### 调研与决策
-- 三个只读调研代理完成核心引擎、前端四区、物理路径对照，结论已汇总进设计规格。
-- 关键事实：dsh 无 /mnt/user-data 虚拟路径层，该机制为 QiLin 独有；dsh 渠道能力仅通用 webhook 与 GitHub 适配器。
-
-### 分支与基线
-- main 推送至 8d55202；3.0.0 创建并推送。
-- dsh 源码入树提交 3083f37c3f：1288 项删除、10168 项新增；2.x 代码在 main 与 2.0.0 保留。
-
-### S0 骨架
-- packages/bundle/qilin-web（@deepseek-ai/dsh-qilin-web）重述 system-prompt 的 QiLin 产品身份。
-- packages/boot/app-boot/src/profile.ts 新增 qilin 模板（dsh-base + dsh-web-app + dsh-qilin-web）。
-- apps/cli 新增 qilin 子命令，等效 --profile qilin；dsh web 仍绑定 web profile。
-
-### S1 物理路径
-- 3.0.0 树中 /mnt/user-data 只出现在 QiLin 文档与本阶段记录；virtual_path 只出现在设计规格。
-- 代码层由 dsh 的物理路径模型承担：session cwd 解析、fs-sandbox 规范化围栏、typed FsTarget 与内容寻址附件。
-
-### S2 品牌配色与构建画像
-- 新增 packages/client/ui-theme-qilin（@deepseek-ai/dsh-client-ui-theme-qilin）：以 ctx.theme.overrideTokens 叠加一个品牌令牌层。
-- qilin-web bundle 插入 ui-theme-qilin 行，并把该包声明为依赖。
-- scripts/client-build-environment.ts 新增 qilin 客户端构建画像（DSH_CLIENT_TITLE 为 QiLin），package.json 新增 build:qilin。
+### 已完成的阶段
+- main 推送至 8d55202；3.0.0 创建并推送；dsh 源码入树 3083f37c3f。
+- packages/bundle/qilin-web 重述 system-prompt 与 web-runtime 行；apps/cli 新增 qilin 子命令。
+- packages/client/ui-theme-qilin 叠加品牌令牌层；scripts/client-build-environment.ts 新增 qilin 客户端构建画像与 build:qilin。
+- dsh-web-app 的启动前缀改为可配置 label（默认 dsh web），QiLin 画像取 qilin。
 
 ## 验证证据
-- typecheck 通过；args.spec 7 项、theme 插件规格 4 项、client-build-environment 规格 8 项、profile 相关 59 项全部通过。
-- 门禁：verify-package-paths、verify-md-links、verify-md-wrap、verify-package-readme-limitations、verify-subsystem-pages、verify-package-dependencies、verify-client-packages 全部通过。
-- 构建：pnpm run build 记录 234 到 236 个客户端产物；pnpm run build:qilin 记录 4 个公开值（含 QiLin 标题）。
-- 浏览器验收（Chromium，http://127.0.0.1:3083）：document.title 为 QiLin；--dsw-alias-brand-primary 为 #0b7a5a；--dsw-specific-sidebar-fill 为 #f1f7f4。
-- 截图证据：qilin/acceptance/2026-09-12-s0-qilin-surface.png。
+- 单测：pnpm run test:gui 通过 376 个文件、5342 项（1 项跳过），覆盖侧边栏、输入框、消息渲染与交付物。
+- 类型与门禁：pnpm run typecheck 0 错误；verify-client-packages、verify-package-dependencies、verify-package-paths、verify-md-links、verify-md-wrap、verify-package-readme-limitations、verify-subsystem-pages、verify-config-catalog、verify-doc-budgets 全部通过。
+- 浏览器：dsh qilin 启动后 document.title 为 QiLin；--dsw-alias-brand-primary 为 #0b7a5a；--dsw-specific-sidebar-fill 为 #f1f7f4；启动行打印 `qilin: <url>`。
+- 截图：qilin/acceptance/2026-09-12-s0-qilin-surface.png。
 
-## 未决与下一步
-- 品牌美术字：品牌槽位 owner props 不含本地化席位，QiLin 字标需要真实 SVG 设计稿。
-- 仍为 dsh 文案的位置：侧边栏品牌行为 DSH 本地构建、首页为探索未至之境、首启内测声明。
-- 启动日志仍打印 dsh web: 前缀，需改为 QiLin 产品前缀。
-- 主题插件尚未建立组件级真实组合覆盖（已在包 README 的 Known Limitations 中声明）。
-- 包命名：QiLin 产品包暂时沿用 @deepseek-ai/dsh-* 以满足门禁。
-- 本地验证需把 DSH_HOME 指向工作区内。
+## 已知环境限制：浏览器回放验收无法在本机完成
+- 现象：DSH_SNAPSHOT=replay pnpm run test:web:built 得到 12 个文件、31 项失败；这些用例经 dsh 的 bash 工具驱动，工具卡片始终不出现。
+- 根因：本机外层沙箱阻止 dsh 内部的 macOS Seatbelt 沙箱。用例内的真实报错为
+  `sandbox mode "workspace-write" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted`。
+- 归因证据：在原始基线提交 3083f37c3f 的独立 worktree 上复跑同一用例，失败数完全一致（3 失败 / 5 通过），与重构无关。
+- 另有一次因构建画像引起的偏差已修正：用 build:qilin 构建产物会让期望 DSH Local Build 的断言失败；默认画像重建后 built-boot.expected.e2e.ts 恢复通过。
+- 复现基线对比的方法：git worktree add .worktrees/baseline 3083f37c3f，随后在该 worktree 执行 pnpm install --frozen-lockfile 与 pnpm run build。
+
+## 待用户输入
+- QiLin 品牌美术字（侧边栏品牌槽位需要 SVG 字标；槽位 props 不含本地化席位）。
+- QiLin 首页标语与首启声明文案（现为探索未至之境与内测声明）。
+- 是否以更宽的主机权限重跑浏览器回放验收，以覆盖 dsh 内部沙箱依赖的用例。
