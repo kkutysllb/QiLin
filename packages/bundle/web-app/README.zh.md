@@ -42,8 +42,9 @@ dsh --profile web --no-open --port 8080
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
+| `label` | `dsh web` | 产品标签，作为启动 URL 行、浏览器交接行与启动失败提示的前缀 |
 | `openBrowser` | `true` | 启动后用默认浏览器打开；SSH 启动会抑制它 |
-| `printUrl` | `true` | 启动时打印 `dsh web:` URL 行 |
+| `printUrl` | `true` | 启动时打印带 `label` 前缀的 URL 行 |
 | `surfaceContext` | `true` | 给 agent（智能体）提供 GUI 定位上下文，并把 `DSH_WEB_URL` 暴露给其 shell 命令 |
 | `trustedHosts` | `[]` | 允许从网络访问 GUI 的额外主机 |
 

@@ -42,8 +42,9 @@ Most users never set these; the command-line flags feed the four settings below 
 
 | Field | Default | Meaning |
 |---|---|---|
+| `label` | `dsh web` | Product label prefixed to the startup URL line, the browser handoff line, and the launch-failure hint |
 | `openBrowser` | `true` | Open the default browser after startup; SSH launches suppress it |
-| `printUrl` | `true` | Print the `dsh web:` URL line at startup |
+| `printUrl` | `true` | Print the startup URL line, prefixed with `label` |
 | `surfaceContext` | `true` | Give the agent GUI-orientation context and expose `DSH_WEB_URL` to its shell commands |
 | `trustedHosts` | `[]` | Extra hosts allowed to reach the GUI from the network |
 

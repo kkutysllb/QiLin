@@ -14,6 +14,17 @@
       You are QiLin, a coding agent powered by the {{model}} model.
     personaSuffix: Your working directory is {{cwd}}.
 
+# The QiLin product label on the startup URL line, the browser handoff line,
+# and the launch-failure hint. dsh-web-app states the same row for the dsh
+# surface, so QiLin restates every key it owns.
+- id: web-runtime
+  config:
+    label: qilin
+    openBrowser: !!js ctx.webStartup.openBrowser
+    printUrl: true
+    surfaceContext: true
+    trustedHosts: !!js ctx.webStartup.trustedHosts
+
 # ── the QiLin browser roster ────────────────────────────────────────────────
 
 # `dsh.client` rows are scanned into the browser module roster. The brand color

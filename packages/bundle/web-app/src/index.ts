@@ -44,6 +44,8 @@ export const inject = ['webServer']
 export interface Config {
   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
   openBrowser: boolean
+  /** Product label prefixed to the startup URL line, the browser handoff line, and the launch-failure hint. */
+  label: string
   /** Print the URL line on activation; a non-interactive layer can turn it off. */
   printUrl: boolean
   /**
@@ -58,6 +60,7 @@ export interface Config {
 }
 
 export const Config: z<Config> = z.object({
+  label: z.string().default('dsh web'),
   openBrowser: z.boolean().default(true),
   printUrl: z.boolean().default(true),
   surfaceContext: z.boolean().default(true),
@@ -268,13 +271,13 @@ export function apply(ctx: Context, config: Config): void {
           : connectionCtx.connection.authenticatedUrl(`http://${lanCandidate}:${String(port)}`)
         ANNOUNCED_ROOTS.add(connectionCtx.root)
         if (config.printUrl) {
-          console.log(`dsh web: ${authenticatedUrl}${lanUrl === undefined ? '' : ` (LAN: ${lanUrl})`}`)
+          console.log(`${config.label}: ${authenticatedUrl}${lanUrl === undefined ? '' : ` (LAN: ${lanUrl})`}`)
         }
         if (handoffBrowser) {
-          console.log('dsh web: opening the default browser; pass --no-open to disable')
+          console.log(`${config.label}: opening the default browser; pass --no-open to disable`)
           void internals.openBrowser(authenticatedUrl).catch((error: unknown) => {
             const reason = error instanceof Error ? error.message : String(error)
-            console.error(`web-app: could not open the default browser because ${reason}; use the dsh web URL printed at startup`)
+            console.error(`web-app: could not open the default browser because ${reason}; use the ${config.label} URL printed at startup`)
           })
         }
       }

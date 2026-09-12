@@ -33,5 +33,7 @@ describe('dsh-qilin-web bundle', () => {
     const systemPrompt = [...overrides, ...rows].find(row => row.id === 'system-prompt')
     expect(systemPrompt?.config?.['personaPrefix']).toContain('QiLin')
     expect(systemPrompt?.config?.['personaSuffix']).toBe('Your working directory is {{cwd}}.')
+    const webRuntime = overrides.find(row => row.id === 'web-runtime')
+    expect(webRuntime?.config?.['label']).toBe('qilin')
   })
 })
