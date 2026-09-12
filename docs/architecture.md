@@ -1,532 +1,160 @@
-# QiLin 引擎整体技术架构
+# DeepSeek Harness Architecture
 
-> QiLin Engine — Overall Technical Architecture
->
-> 版本 / Version: 2.0.0 · 更新 / Updated: 2026-08
+English | [中文](architecture.zh.md)
 
----
+Read this before changing anything under `packages/`. It assumes you know Cordis; if you do not, start with the [primer](cordis-primer.md) or the [tutorial](cordis-tutorial/index.md).
 
-## 中文版
+We recommend using an agent to explore the codebase and understand its architecture.
 
-### 1. 概述
+## Cordis
 
-**QiLin** 是一个面向生产场景的智能体（Agent）引擎框架，提供从模型调用、工具执行、记忆管理、权限授权、技能扩展到端到端运行调度的完整能力栈。其设计目标是：在不牺牲可扩展性的前提下，把 LangGraph 的图执行能力与长生命周期任务（队列、定时、后台运行）封装为可独立部署、嵌入式运行、也可服务化托管的引擎。
+[Cordis](cordis-primer.md) is the framework under dsh: plugins contribute services, typed events, and reversible effects to a shared context. Every part of the product is a plugin, including the model adapter, the tool registry, the session log, and the agent loop itself, so each is replaceable from configuration.
 
-核心设计哲学：
+There is no privileged core to patch: you extend dsh by mounting a plugin beside the others, and registrations are effects that unwind when their plugin unloads.
 
-| 设计原则 | 落地手段 |
-|---------|---------|
-| **嵌入式优先** | `QiLinClient` 暴露纯 Python API，无需启动 LangGraph Server / Gateway 进程 |
-| **服务化可托管** | 同一份代码可被 Gateway / Service 进程加载，对外暴露 HTTP/SSE |
-| **配置驱动 / 热重载** | `config.yaml` + 环境变量双重配置，文件签名变更即热重载 |
-| **子代理是一等公民** | SubAgent 执行器与 Lead Agent 同构，可无限嵌套、并行、审批门控 |
-| **沙箱隔离** | `sandbox` 抽象层为工具调用提供本地/Docker/E2B/BoxLite 多后端隔离 |
-| **可观测性自带** | `tracing` 内置 Langfuse/Monocle 适配；`run events` 持久化到 DB/SQLite/JSONL |
+## Profiles and bundles
 
-### 2. 分层架构
+A running `dsh` is a plugin tree composed at boot from ordered layers.
 
-QiLin 采用经典的"内核 + 外延 + 服务面"三层架构：
+A **profile** is a named composition stored in the Harness home. It lists the bundles it stacks, holds any out-of-tree plugins it installs, and keeps the user's own `cordis.patch.yml`. `web`, `headless`, `sdk`, `sdk-minimal`, and `acp` ship as templates.
 
-```
-┌────────────────────────────────────────────────────────────┐
-│  Service Surface (服务面)                                  │
-│    └─ TUI · Gateway · Channels · Scheduler API ·           │
-│       LangGraph Server · Embedded Client                   │
-├────────────────────────────────────────────────────────────┤
-│  Engine Core (内核)                                         │
-│    ├─ agents · subagents · orchestration · tools · skills  │
-│    ├─ mcp · runtime · persistence · scheduler              │
-│    ├─ config · sandbox · memory · guardrails · authz       │
-├────────────────────────────────────────────────────────────┤
-│  Foundation (基础层)                                       │
-│    ├─ models · tracing · reflection · utils · uploads      │
-│    └─ LangChain / LangGraph · Pydantic · SQLAlchemy · ACP  │
-└────────────────────────────────────────────────────────────┘
+A **bundle** is a distribution format for Cordis config rows and the code they mount, so whatever it inserts stays patchable by the layers above it.
+
+Each declares itself in its own `package.json` under a `dsh` field: `dsh.profile` lists a profile's bundles, and `dsh.bundle` points at a bundle's patch file.
+
+[`dsh-base`](../packages/bundle/base/README.md) is the shared first layer of the `web`, `headless`, `sdk`, and `acp` profiles: model adapters, tools, persistence, sandbox and approval policy, settings, credentials, telemetry. [`dsh-web-app`](../packages/bundle/web-app/README.md) adds the browser application, [`dsh-headless`](../packages/bundle/headless/README.md) adds a one-shot runner with no server, [`dsh-sdk-app`](../packages/bundle/sdk-app/README.md) adds the SDK JSON-RPC server, and [`dsh-acp-app`](../packages/bundle/acp-app/README.md) adds the automation-only ACP server. [`dsh-sdk-minimal`](../packages/bundle/sdk-minimal/README.md) is the deliberate exception: one bundle owns its complete explicit SDK tree and does not apply `dsh-base`.
+
+Layers apply to an empty entry list in this order: each bundle in the profile's listed order, then the profile's `cordis.patch.yml`, then the home-level one, then any `--patch` overlay. A patch targets a row by id and replaces its whole config, or inserts new rows.
+
+Custom profiles default to live patch reload. The shipped `web` profile is live; `headless`, `sdk`, `sdk-minimal`, and `acp` apply all layers once at startup because replacing a one-shot or stdio application's dependencies after it owns work would invalidate that lifecycle.
+
+To see the tree your machine boots:
+
+```sh
+dsh --profile web --dump-config
 ```
 
-#### 2.1 基础层（Foundation）
+Any row it prints can be replaced by a patch of your own.
 
-- **models**：统一的聊天模型工厂层，封装 OpenAI / Anthropic / DeepSeek / Google GenAI / Ollama / 自定义 Provider
-- **tracing**：Langfuse + Monocle 双适配的可观测性中枢，提供请求级 trace_id 贯穿
-- **reflection**：从配置中解析 `${VAR}` 形式的变量引用，并发安全且支持默认值
-- **utils**：与业务无关的纯函数工具（日志、JSON、文件 I/O、限流、Hash 等）
-- **uploads**：用户上传文件的统一管理、虚拟路径映射、生命周期跟踪
+Composition mechanics are in [app-boot](../packages/boot/app-boot/README.md#profiles); config fields are in the generated [config catalog](config-catalog.md).
 
-#### 2.2 引擎内核（Engine Core）
+## Application launch
 
-内核层是 QiLin 的核心，由 15 个相互协作的子系统组成：
+Every supported Node application starts at the `dsh` CLI with a named profile. The shipped applications are `dsh web` (the deliberate alias for `--profile web`), `dsh --profile headless`, `dsh --profile sdk`, `dsh --profile sdk-minimal`, and `dsh --profile acp`. The TypeScript SDK resolves its same-version `dsh` dependency and selects `sdk`; custom plugin composition remains a profile plus ordered patch files, not another executable or inline application tree. `sdk-minimal` is a repository-owned standalone bundle behind the same launcher, not a caller-supplied Cordis tree.
 
-| 模块 | 职责 |
-|------|------|
-| **agents** | Lead Agent 工厂、LangGraph 中间件链、线程状态模式、记忆后端抽象、目标状态 |
-| **subagents** | 子代理执行器、注册中心、配置解析、内置（general-purpose / bash_agent）、并行批次执行 |
-| **orchestration** | v2.0.0 多智能体编排：handoff 协议、OrchestratorGraph 编排图、AgentInbox 消息总线、协作模式 |
-| **tools** | 工具清单注册与装配（含 MCP 工具、内建工具、子代理任务工具、ACP 代理工具） |
-| **skills** | 技能清单、Markdown 描述、解析器、安装器、安全扫描器、目录权限控制 |
-| **mcp** | MCP（Model Context Protocol）服务器适配：客户端、连接池、缓存、工具元数据 |
-| **runtime** | LangGraph 运行器、checkpoint、Store、事件流、SSE 流桥、定时器、用户上下文 |
-| **persistence** | 多后端持久化层：agents · run · thread · feedback · scheduled_task · channel · webhook |
-| **scheduler** | 一次性 + Cron 定时任务的轮询与派发 |
-| **config** | Pydantic 化的配置加载、env 解析、运行时热重载、签名检测 |
-| **sandbox** | 抽象沙箱接口 + 本地 / AIO / Docker / E2B / BoxLite / Tenki 多实现 |
-| **memory** | 事实抽取、合并、防抖去重、注入格式化、检索索引（FTS5 / Mem0 / Noop） |
-| **guardrails** | 中间件式安全护栏（内置 provider + 自定义），用于拦截不安全输入/输出 |
-| **authz** | RBAC 风格的资源授权过滤器、principal 适配器、运行时强制 |
-| **integrations** | 第三方渠道集成（飞书 Lark / Lark CLI 等） |
+Vendored CLIs, build-only and test-only executables, direct in-process plugin mounting, and the private browser WebWorker preview are not Harness application launchers. [`verify-application-entrypoints`](../scripts/verify-application-entrypoints.ts) keeps every package bin, executable source, and root demo in an explicit class and rejects a Node application path that bypasses `dsh`.
 
-#### 2.3 服务面（Service Surface）
+The Python SDK follows the same application architecture. Its runtime wheel packages the normal `dsh` CLI as `deepseek-harness-sdk-runtime-<platform>-<arch>`, and the client launches `dsh --profile sdk` with an explicit Harness home by default. The minimal example selects the shipped `sdk-minimal` profile. Python exposes profile selection and ordered patch files rather than a complete Cordis tree; persistent external plugins are installed through `dsh plugin`. The removed private direct-config carrier has no compatibility bin or fallback parser.
 
-服务面负责把内核的能力暴露给外部消费者：
+## Desktop application
 
-- **TUI** (`qilin.tui`)：基于 Textual 的终端工作台，支持交互式会话、流式渲染、命令面板、剪贴板视图
-- **Embedded Client** (`QiLinClient`)：纯 Python 编程接口，可在同进程内启用 `client.chat()` / `client.stream()`
-- **Gateway** (`app/gateway`)：FastAPI HTTP Agent Server，提供 agents / threads / runs / memory / skills / mcp / uploads / artifacts / channels / scheduled_tasks 等 20+ 组 REST 路由，内置 JWT 认证、CSRF / CORS 防护、trace 中间件与 GitHub Webhook 接入
-- **Channels** (`app/channels`)：IM 渠道接入层，统一管理飞书 / Discord / Slack / Telegram / 钉钉 / 企微 / 微信 / GitHub 8 大渠道的连接、消息收发、去重与运行策略
-- **Scheduler API** (`app/scheduler`)：定时任务的 HTTP 管理服务，复用 `qilin.scheduler` 调度内核
-- **LangGraph Server 兼容**：内核本身遵循 LangGraph API 协议，可被 `langgraph dev` / `langgraph up` 直接加载
+The [Electron desktop application](../apps/desktop/README.md) owns the reserved `$DSH_HOME/profiles/desktop` npm project. Each signed Electron release binds one exact dsh version and carries a first-party offline seed; startup installs that version into the writable profile with the bundled pnpm, while retaining exact desktop-plugin versions from the previous profile. CLI profiles share supported product data under `$DSH_HOME`, but never executable packages, plugin activation, lockfiles, or `node_modules` with Desktop.
 
-> 注：`app/` 服务面随 `qilin` wheel 一并分发，需通过 `qilin[gateway]` / `qilin[channels]` extras 安装依赖后启用。
+Electron starts the private Desktop Host package under its bundled upstream Node.js process; that package loads the installed dsh backend and matching client graph from the reserved profile. Unary RPC, Remote streams, and version-matched client assets cross versioned framed byte pipes with Node IPC reserved for lifecycle control, then reach the renderer through the secure `dsh-app://` protocol; the desktop composition opens no Web server or loopback port. Only shell-owned UI can run plugin transactions through the bundled pnpm and its private `$DSH_HOME/desktop/pnpm/store`.
 
-### 3. 关键运行机制
+## Core packages
 
-#### 3.1 请求生命周期
+Here are some core packages that contribute to the Cordis tree.
 
-```mermaid
-flowchart LR
-    A[User Input] --> B[InputPolish]
-    B --> C[Lead Agent Loop]
-    C --> D{需要子代理?}
-    D -- 是 --> E[SubAgent Executor]
-    D -- 否 --> F[Tool Call]
-    E --> F
-    F --> G[Sandbox]
-    G --> H[Safety Finish Reason Check]
-    H --> I[Guardrails]
-    I --> J[Stream Bridge]
-    J --> K[Checkpoint]
-    K --> L[Run Events Store]
+| Package | Owns | `ctx` key |
+|---|---|---|
+| [`core/session`](subsystems/session.md) | The append-only `SessionEvent` log and in-memory store | `ctx.sessions` |
+| [`core/system-prompt`](subsystems/system-prompt.md) | Prompt-section and tool-schema assembly | `ctx.systemPrompt` |
+| [`core/tools`](subsystems/tools.md) | The scoped tool registry and guarded execution pipeline | `ctx.tools` |
+| [`core/agent`](subsystems/core.md) | The `Agent` interface, live registry, and `agent/*` events | `ctx.agents` |
+| [`core/agent-loop`](subsystems/core.md) | The default driver implementing that interface | `ctx.agentLoop` |
+| [`core/scope`](subsystems/scope.md) | The per-agent scoped-registration primitive | library, no key |
+| [`llm/llm`](subsystems/llm-streaming.md) | Message and stream vocabulary plus the adapter seam | `ctx.llm` |
+| [`webhook/webhook`](subsystems/webhook.md) | Authenticated-delivery dispatch and Workspace Session creation | `ctx.webhookRuntime` |
+
+## Events
+
+Events are the extension points, and picking the right domain is the first decision in most changes.
+
+- **Session events** are durable facts appended to the log and broadcast through `session/event`. Use one when the fact must survive a reload.
+- **Agent events** (`agent/*`) carry a live `Agent`: inbox, step, status, request, validation, continuation. Use one to observe or intercept work in flight.
+- **Capability events** attach policy and adapters to a seam (`fs/*`, `tools/*`, `telemetry/*`) without importing the loop.
+
+The [event map](event-producer-consumer.md) lists every event's producers and consumers.
+
+## Turn flow
+
+A **step** is one model request plus the tools it calls. A **turn** is zero or more steps: it opens before its first input is claimed and closes once nothing is owed.
+
+```text
+turn/start
+  claim next-step input plus one queued message
+  assemble prompt sections + tool schemas; project runtime context
+  -> agent/pre-step                   reject | enter(messages, startsRequestSeries?)
+     reject, or a first enter rewritten empty -> close the turn with no step
+     step/start
+     agent/request -> prepareCall (cancellation commits neither system nor users)
+     reconcile system/message using the prepared call capability
+     append entered messages as user/message; log request/header and request/context as needed
+     derive and freeze model history from the log
+     stream the bound prepared call -> llm/stream -> agent/assistant-stream start
+       agent/assistant-stream chunk*
+       assistant/message | assistant/attempt -> agent/assistant-stream end
+     tool/call* -> tools/pre-execute -> tools/execute -> tools/post-execute -> tool/result*
+     step/end
+     tools owe another request, or next-step input arrived -> claim -> next step
+  -> agent/turn-stopping
+turn/end
 ```
 
-每一跳都有对应的中间件（middleware）兜底：循环检测、读取前置写入、工具进度状态机、Token 预算熔断。
+`turn/*`, `step/*`, `system/message`, `user/message`, `assistant/message`, `assistant/attempt`, and `tool/*` are durable session events; the rest are live extension points across three domains. `agent/assistant-stream` publishes process-local start, transient chunk, and end frames. The loop commits the complete compact stream as one message or log-only attempt before a committed end frame, and the Web Session-follow adapter is the live event's only remote consumer. `agent/pre-step`, `agent/request`, `llm/stream`, and the three `tools/*` events are waterfalls, whose listeners must call `next()` to delegate; `agent/turn-stopping` is serial and has no `next()`.
 
-#### 3.2 工具调用流水线
+Input reaches the driver through one inbox. Some messages wake it immediately; injected context waits in the inbox until another message does.
 
-工具从"声明"到"调用"经过四层抽象：
+`agent/pre-step` decides the accepted input. Listeners may rewrite or reject claimed messages; a rejected or empty first claim closes a durable turn without a step. An enter decision may set `startsRequestSeries`: the loop logs a fresh `request/header` (reason `series`, or `change` with `startsSeries: true` when the envelope also changed). Wrapping listeners preserve that declaration with `{ ...decision, messages }`. After assembly and `step/start`, `agent/request` and `prepareCall()` resolve the actual route before the system prompt and accepted users are committed; cancellation during either async phase commits neither. The prepared call capability governs prompt admission, not the preceding `request/context`. Every attempt synchronously reconciles the same rendered assembly, appends users only on the first attempt, logs header/context as needed, and derives and freezes the request before streaming the bound call. Retries do not repeat assembly or `agent/pre-step`. Surface replacements after attachment start a new request series, including during the first resumed pre-step; unchanged resume continues the series. The first admitted step reserves the system head before user messages even for an empty prompt (no wire message). The prompt travels only as `system/message` history: an empty rendering clears all active system nodes, leaving no old prompt model-visible; capable routes can append non-empty updates after the cached prefix; incapable routes and new request series consolidate non-empty prompt text at the first system node, with logged empty replacements for non-empty later system nodes ([decision](../.agents/notes/implemented/architecture/2026-09-02-system-prompt-as-surface-node.md); [decision rule](../packages/core/agent-loop/README.md#understand-the-implementation)).
 
-1. **声明层**（`config/tool_config.py`）：通过 `ToolConfig` / `ToolGroupConfig` 在 YAML 中声明
-2. **装配层**（`tools/tools.py`）：根据声明将工具绑定到 Runtime，会引入 MCP 工具 / 子代理工具
-3. **同步包装层**（`tools/sync.py`）：为同步流式客户端提供 async→sync 的桥接
-4. **元数据层**（`tools/mcp_metadata.py`）：为 MCP 工具贴 `mcp_sourced` 标签，便于路由与审计
+The loop sends immutable requests while keeping cancellation live. It reuses message-freeze provenance only for identities it has fully frozen; [agent-loop](../packages/core/agent-loop/README.md) owns the request construction rules.
 
-#### 3.3 子代理递归执行
+Details: the [sequence diagram](agent-lifecycle.md), the [tool pipeline](tool-execution-pipeline.md), and [cancellation and error recovery](subsystems/core.md#the-agent-handle).
 
-子代理是 QiLin 区分于普通图执行器的关键能力：
+## Session log
 
-- 拥有独立 LangGraph 实例、独立 checkpoint 通道、独立 callbacks
-- 可以再嵌套子代理，深度可配置（默认递归 ≤ 配置上限）
-- 通过 `task_tool` 与 `invoke_acp_agent_tool` 触发
-- 通过 `status_contract.py` 与 `step_events.py` 统一上报协议
+The session log is the source of the context the model sees. `deriveMessages()` projects model history from it. Each `assistant/message` embeds the exact compact timed stream that produced its assembled content; `assistant/attempt` retains settled failed, retried, cancelled, and stream-error attempts without adding model history. Fork, resume, transcripts, telemetry, and persistence all derive from these durable settlements, while live UI incrementality comes from `agent/assistant-stream`; a hard process loss before settlement leaves no durable attempt stream ([decision](../.agents/notes/implemented/architecture/2026-09-01-v2-embedded-assistant-streams.md)).
 
-#### 3.4 沙箱抽象
+Session consumers know only the current logical format. Header-only `stat` and `list` rescan each Session directory, select its numerically highest canonical generation, and translate a supported historical header without loading events or publishing a successor. A stored-session `open` selects that same generation, refuses a future version, or decodes and composes the static adjacent migration chain once before returning validated current logical events. A read open uses that in-memory result without publishing a successor; a write open first encodes, verifies, and exclusively publishes the final version-named successor beside the unchanged source. Ordinary repair of an unsealed interrupted tail remains a handle consumer responsibility; migration inserts a missing interrupted `turn/end` only for the bounded released restart already sealed by a later `turn/start`. JSONL v0 uses `session.jsonl[.zstd]`, v1 and later use lowercase `session.vN.jsonl[.zstd]`, and committed generation paths are never renamed, replaced, or deleted. The JSONL provider owns physical framing, compression, generation selection, and exclusive publication, while each adjacent migration package owns exactly one `vN -> vN+1` step ([decision](../.agents/notes/implemented/architecture/2026-08-31-released-session-format-migrations.md)).
 
-`SandboxProvider` 接口提供：
+**Model-visible means logged.** Anything that reaches a model request must be reconstructable from the log, and a runtime invariant asserts it. This is why a new model-visible input requires a new session event: extend `SessionEventMap` and render from the log.
 
-```python
-async with sandbox.open() as sb:
-    result = await sb.run(cmd, **kwargs)
-```
+**Projection seam.** `dsh-session-projection` owns `ctx.sessionProjections`: registered units fold committed events incrementally, host consumers read one typed state with `stateOf()`, and carriers batch cropped client views with `snapshot()`. A host reader either requires this service during activation or fails explicitly when the registry or required key is absent. Contributors may retain `ctx.inject(['sessionProjections'], ...)` registration without silently defaulting a missing host value. The agent loop registers shared `turnBoundary` state for its readers ([decision](../.agents/notes/implemented/architecture/2026-08-19-session-projection-mandatory-seam.md)).
 
-实现包括：
+## Capability seams
 
-- `LocalSandbox`：本机 fork+namespace 隔离（开发用）
-- `aio_sandbox`：本地 Docker 异步沙箱（生产首选）
-- `boxlite`：BoxLite 内核级沙箱（强隔离）
-- `e2b_sandbox`：云端 E2B SDK
-- `tenki`：Tenki 商业云沙箱
+A **seam** is a swappable capability with three roles: a **Service Definition** declaring the interface, a **Service Provider** implementing it, and a **Consumer** using it, commonly a model-facing tool. A package may combine roles, but one role alone is not a seam; adding a capability means designing all three ([capability graph](capability-seams.md)).
 
-#### 3.5 持久化分层
+Seams are why one provider swap changes the whole product. Filesystem and subprocess providers share one execution world, so pointing them at a remote sandbox moves Bash, PTY, and LSP with them, with no provider forks. [Subagent providers](subsystems/subagent.md) vary just as widely behind one interface, from a fresh child agent to a delegated turn in another product.
 
-| 对象 | 默认存储 | 可选存储 |
-|------|---------|---------|
-| Agent 定义 | 文件 + DB | – |
-| Run / Thread 状态 | SQLite (WAL) / PostgreSQL | – |
-| Run Events | SQLite（嵌入式 / `events-store=db`） | JSONL / Memory |
-| Token 用量 | DB | – |
-| 技能存储 | File + Scanner | – |
-| Skills 状态 | DB | – |
-| Webhook 去重 | Memory / PostgreSQL | Auto |
-| 渠道连接 | DB | – |
+[Experimental Agent Teams](subsystems/agent-team.md) is a published opt-in coordination seam on `ctx.agentTeams`, with a durable roster, task board, and mailbox layered over continuable subagents.
 
-#### 3.6 多智能体编排（v2.0.0）
+## Where new behavior goes
 
-v2.0.0 在单智能体基座上新增编排层，运行形态由 `orchestration.mode` 选择：
+New behavior attaches to a documented extension point. Changing the loop itself updates this map.
 
-- **single**（默认）：v1.0.0 lead agent + `task_tool` 委派行为完全不变
-- **multi**：`make_lead_agent` 构建 OrchestratorGraph（1 个 orchestrator 节点 + N 个 worker 节点），按 `to_agent` 路由，`max_rounds` 防死循环
+| Goal | Mechanism |
+|---|---|
+| Add a model provider | register its adapter on `ctx.llm` |
+| Add a model-facing capability | register on `ctx.tools`; its schema joins prompt assembly |
+| Give one session a different capability set | compose an agent preset; a service row there needs an `isolate` realm |
+| Add shell execution | register a `ctx.shell` backend; the local one spawns through `ctx.subprocess` |
+| Add persistent terminal execution | register a `ctx.terminals` backend plus `dsh-tool-terminal` |
+| Add a human command | register on `ctx.commands`; it dispatches without a model turn |
+| Add background work | register on `ctx.jobs`; `job_*` tools collect or stop it |
+| Start a Session from an external webhook | register a trusted rule on `ctx.webhookRuntime` and mount a provider adapter |
+| Add filesystem access or policy | register a `ctx.fs` provider or listen to `fs/*` events |
+| Confine spawned processes | use a `ctx.sandbox` backend; consumers wrap argv before spawning |
+| Intercept a request, tool, or turn | use its `agent/*` or `tools/*` event; `agent/turn-stopping` stops a turn |
+| Add model-facing context | call `agent.inject()`; it lands in the next admitted request |
+| Add UI or editor integration | drive `ctx.agents` and render from `session/event` |
+| Add a Web Client Chat node | register a `ConversationNodeDefinition` + keyed renderer |
+| Add durable session state | extend `SessionEventMap`; render and replay from the log |
+| Generate session titles | register the sole `ctx.sessionTitle` provider |
+| Manage a same-session objective | use `ctx.goals`; continue through `agent/*` |
+| Fork a session at a turn boundary | `ctx.agents.create({ sessionId, seed, meta: { parentSession, seedLength } })` — only agent-loop-published sessions persist |
+| Store sessions in a new backend | implement `SessionPersistence` (`create`/`open`/`stat`/`list`/`export`) over the shared handle scaffolding |
+| Scope a registration to one agent | use that agent's `agent.ctx` |
 
-编排栈（自底向上）：
-
-1. **subagents/batch**（P0）：`run_batch_async` 有界并发执行独立子代理任务，失败隔离 + 保序返回
-2. **orchestration/handoff**（P1）：`AgentHandoff` 结构化上下文转移协议，`inherit_trace_id` 跨 agent 贯穿 trace
-3. **orchestration/graph**（P1）：OrchestratorGraph 编排图构建器
-4. **orchestration/inbox**（P2）：`AgentInbox` 每 agent 一个 `asyncio.Queue` 的消息总线 + 订阅广播
-5. **orchestration/patterns**（P2）：orchestrator-workers（同任务并行分派 + 聚合）与 peer-consensus（对等共识）协作模式
-
-治理与可观测：`authz.principal.normalize_agent_identity` 提供 agent 维度身份；`TokenBudgetConfig.per_agent` 提供 per-agent 配额；模式切换属图结构变更，注册为 startup-only（需重启）。
-
-### 4. 配置系统
-
-#### 4.1 配置加载优先级
-
-```
-1) 命令行 config_path 参数
-2) QILIN_CONFIG_PATH 环境变量
-3) 工程根目录 config.yaml
-4) 源码树内 backend/config.yaml（向后兼容）
-```
-
-#### 4.2 热重载
-
-- **签名检测**：`ConfigSignature` 对文件做内容签名哈希，内容变化即重载
-- **重载分层**：模型 / 工具 / 沙箱 provider 等子配置有独立的 `load_X_config_from_dict` 函数，变更不会重新初始化 DB 连接池
-- **重载禁区**：`sandbox` / `database` / `checkpointer` 等结构性配置需重启进程
-
-#### 4.3 环境变量约定
-
-所有环境变量名以 `QILIN_` 为前缀，例如：
-
-```
-QILIN_CONFIG_PATH
-QILIN_HOME
-QILIN_HOST_BASE_DIR
-QILIN_SANDBOX_HOST
-QILIN_SANDBOX_BIND_HOST
-QILIN_ENV                       # 部署环境标签 (dev/staging/prod)
-QILIN_TUI                       # 启用 TUI 替代 headless
-QILIN_FILE_IO_WORKERS           # 文件 I/O 工作线程数
-```
-
-### 5. 可观测性
-
-#### 5.1 Trace 上下文
-
-每个请求头携带 `X-Trace-Id`，经 `TraceMiddleware` 校验后存入 `ContextVar`，在日志、RunEvent、Langfuse metadata 中保持一致。
-
-#### 5.2 多后端追踪
-
-```
-tracing/
-├── metadata.py        # 把 trace_id 注入 Langfuse / Monocle
-├── monocle.py         # OpenTelemetry 风格追踪
-└── factory.py         # 多 provider 路由
-```
-
-#### 5.3 Run Events
-
-所有运行事件通过统一的 `run-event` envelope 持久化，支持：
-
-- `type`：32 字符以内的语义化类型
-- `category`：16 字符以内的分类
-- `payload`：结构化 JSON
-
-### 6. 安全模型
-
-#### 6.1 攻击面
-
-- **输入面**：`InputPolish` 中间件清理用户输入
-- **输出面**：`SafetyFinishReason` 拦截 provider 返回的安全过滤信号
-- **工具执行面**：子代理通过 `is_host_bash_allowed` 控制主机 Bash 调用；其他工具跑在沙箱里
-- **权限面**：`authz.principal` + `authz.rbac` 提供基于属性的资源授权
-
-#### 6.2 技能安全
-
-```mermaid
-flowchart LR
-    A[Skill Source] --> B[Static Scanner]
-    B --> C{Yaml/json 安全?}
-    C -- 否 --> D[拒绝]
-    C -- 是 --> E[Review Pipeline]
-    E --> F[LLM Reader]
-    F --> G[最终裁决]
-    G -- 通过 --> H[Inventory]
-    G -- 拒绝 --> D
-```
-
-每个技能都经 `skillscan.orchestrator` 走静态分析 + LLM 双审，签名通过后入 `inventory`。
-
-### 7. 扩展点
-
-| 扩展点 | 入口 |
-|--------|------|
-| 新 Provider | `models/` 子类化 `BaseChatModel` |
-| 新 Sandbox | `sandbox/SandboxProvider` |
-| 新 Memory Backend | `agents/memory/backends/`（基于 `MemoryManager` ABC） |
-| 新 Tool | `tools/builtins/` 或通过 MCP 自动注入 |
-| 新协作模式 | `orchestration/patterns`（复用 `run_batch_async` / `AgentInbox`） |
-| 新 Subagent | `subagents/builtins/` + `subagents/registry.register` |
-| 新 Guardrail | `guardrails/GuardrailProvider` |
-| 新 Authorization 策略 | `authz/enforcement` |
-| 新 Tracing Provider | `tracing/factory.register` |
-
-### 8. 数据流示例
-
-**场景：用户上传 PDF + 提问"摘要 PDF 关键观点"**
-
-1. 上传文件 → `uploads` 模块虚拟路径映射
-2. 用户消息进入 → Lead Agent 在 `agents/lead_agent/prompt.py` 加载系统 prompt
-3. LLM 决定调用 `read_doc` 工具 → `tools/builtins/present_file_tool.py`
-4. 工具通过 `sandbox`（默认 aio_sandbox）执行 `markitdown` 转 Markdown
-5. LLM 拿到提取结果生成回答
-6. 全程通过 `tracing` 上报 Langfuse；run event 落入 `persistence/run/`
-
----
-
-## English Version
-
-### 1. Overview
-
-**QiLin** is a production-grade agent-engine framework that consolidates model orchestration, tool execution, memory management, fine-grained authorization, skill extensions, and end-to-end run scheduling into a single deployable unit. The engine is designed for three runtime modes: embedded (same-process Python), hosted (LangGraph Server / Gateway), or hybrid (both concurrently), without code duplication.
-
-| Principle | Implementation |
-|-----------|----------------|
-| **Embedded-first** | `QiLinClient` exposes a pure-Python API; no LangGraph Server / Gateway required |
-| **Service-ready** | The same code can be loaded by a Gateway / service and exposed via HTTP/SSE |
-| **Config-driven hot reload** | `config.yaml` plus env vars; signature change triggers reload |
-| **Sub-agents are first-class** | SubAgent executor is isomorphic with Lead Agent — infinite nesting, parallel, gateable |
-| **Hardened sandbox isolation** | Pluggable sandbox: local / Docker / E2B / BoxLite / Tenki |
-| **Observability by default** | `tracing` adapts Langfuse / Monocle; `run events` persist to DB / SQLite / JSONL |
-
-### 2. Layered Architecture
-
-```
-┌────────────────────────────────────────────────────────────┐
-│  Service Surface                                          │
-│    └─ TUI · Gateway · Channels · Scheduler API ·          │
-│       LangGraph Server · Embedded Client                  │
-├────────────────────────────────────────────────────────────┤
-│  Engine Core                                               │
-│    ├─ agents · subagents · orchestration · tools · skills │
-│    ├─ mcp · runtime · persistence · scheduler             │
-│    ├─ config · sandbox · memory · guardrails · authz      │
-├────────────────────────────────────────────────────────────┤
-│  Foundation                                                │
-│    ├─ models · tracing · reflection · utils · uploads      │
-│    └─ LangChain / LangGraph · Pydantic · SQLAlchemy · ACP  │
-└────────────────────────────────────────────────────────────┘
-```
-
-#### 2.1 Foundation
-
-- **models** — Unifying chat-model factory; OpenAI / Anthropic / DeepSeek / Google GenAI / Ollama / custom providers
-- **tracing** — Langfuse + Monocle dual-trace adapters with request-level `trace_id`
-- **reflection** — `${VAR}` resolution from config with concurrency safety
-- **utils** — Business-agnostic helpers (logging, JSON, file I/O, rate-limit, hashing)
-- **uploads** — Unified upload manager; virtual-path mapping and lifecycle tracking
-
-#### 2.2 Engine Core
-
-| Module | Responsibility |
-|--------|----------------|
-| **agents** | Lead-Agent factory, LangGraph middleware chain, thread-state schema, memory backend abstraction, goal state |
-| **subagents** | Sub-agent executor, registry, config resolver, built-ins (general-purpose / bash_agent), parallel batch execution |
-| **orchestration** | v2.0.0 multi-agent orchestration: handoff protocol, OrchestratorGraph, AgentInbox message bus, collaboration patterns |
-| **tools** | Tool registry & assembly: built-ins, MCP tools, sub-agent task tool, ACP agent tool |
-| **skills** | Skill catalog, Markdown descriptor, parser, installer, security scanner, path-based permissions |
-| **mcp** | Model Context Protocol client, connection pool, cache, tool metadata |
-| **runtime** | LangGraph runner, checkpoint, Store, event stream, SSE stream bridge, journal, user context |
-| **persistence** | Pluggable storage: agents · run · thread · feedback · scheduled_task · channel · webhook |
-| **scheduler** | One-shot + cron polling & dispatch |
-| **config** | Pydantic-driven config loading, env resolution, hot reload, signature detection |
-| **sandbox** | Sandbox abstraction with local / AIO / Docker / E2B / BoxLite / Tenki implementations |
-| **memory** | Fact extraction, merge, debounce, injection format, retrieval index (FTS5 / Mem0 / Noop) |
-| **guardrails** | Middleware-style safety guardrails (built-in + custom) |
-| **authz** | RBAC-style resource authorization filter, principal adapter, runtime enforcement |
-| **integrations** | 3rd-party channel integrations (Lark / Lark CLI, etc.) |
-
-#### 2.3 Service Surface
-
-- **TUI** (`qilin.tui`) — Textual-based terminal workbench: interactive sessions, streaming, command palette, clipboard view
-- **Embedded Client** (`QiLinClient`) — Pure-Python API; `client.chat()` / `client.stream()` in process
-- **Gateway** (`app/gateway`) — FastAPI HTTP Agent Server: 20+ REST route groups (agents / threads / runs / memory / skills / mcp / uploads / artifacts / channels / scheduled_tasks), with JWT auth, CSRF / CORS protection, trace middleware, and GitHub webhook ingestion
-- **Channels** (`app/channels`) — IM channel adapter layer: Feishu / Discord / Slack / Telegram / DingTalk / WeCom / WeChat / GitHub, covering connection, messaging, dedupe, and run policies
-- **Scheduler API** (`app/scheduler`) — HTTP management service for scheduled tasks, reusing the `qilin.scheduler` kernel
-- **LangGraph Server compatible** — Kernel follows LangGraph API contract; loadable via `langgraph dev`
-
-> Note: the `app/` service surface ships in the wheel; install `qilin[gateway]` / `qilin[channels]` to enable it.
-
-### 3. Runtime Mechanisms
-
-#### 3.1 Request Lifecycle
-
-```
-User Input → InputPolish → Lead Agent Loop → (Sub-Agent?) → Tool Call
-   → Sandbox → Safety Finish Reason → Guardrails → Stream Bridge
-   → Checkpoint → Run Events Store
-```
-
-Each hop is guarded by a middleware: loop detection, read-before-write gate, tool progress state machine, token budget circuit breaker.
-
-#### 3.2 Tool-Call Pipeline
-
-From declaration to invocation, tools pass through four layers:
-
-1. **Declaration layer** (`config/tool_config.py`) — `ToolConfig` / `ToolGroupConfig` declared in YAML
-2. **Assembly layer** (`tools/tools.py`) — Binds tool to Runtime, pulls MCP / sub-agent tools
-3. **Sync wrapper** (`tools/sync.py`) — Provides async→sync bridge for synchronous streaming clients
-4. **Metadata layer** (`tools/mcp_metadata.py`) — Tags MCP tools with `mcp_sourced` for routing / audit
-
-#### 3.3 Sub-Agent Recursion
-
-Sub-agents are the defining capability of QiLin versus plain graph runners:
-
-- Each sub-agent has its own LangGraph instance, checkpoint channel, callbacks
-- Arbitrary nesting (with configured depth cap)
-- Triggered via `task_tool` / `invoke_acp_agent_tool`
-- Standardized reporting via `status_contract.py` and `step_events.py`
-
-#### 3.4 Sandbox Abstraction
-
-```python
-async with sandbox.open() as sb:
-    result = await sb.run(cmd, **kwargs)
-```
-
-Implementations:
-
-- `LocalSandbox` — local fork + namespace (dev)
-- `aio_sandbox` — local Docker async sandbox (production)
-- `boxlite` — BoxLite kernel-level sandbox
-- `e2b_sandbox` — E2B cloud SDK
-- `tenki` — Tenki commercial sandbox
-
-#### 3.5 Persistence Layers
-
-| Object | Default | Optional |
-|--------|---------|----------|
-| Agent definitions | File + DB | — |
-| Run / Thread state | SQLite (WAL) / PostgreSQL | — |
-| Run Events | SQLite (embedded / `events-store=db`) | JSONL / Memory |
-| Token usage | DB | — |
-| Skill storage | File + Scanner | — |
-| Skills state | DB | — |
-| Webhook dedupe | Memory / PostgreSQL | Auto |
-| Channel connections | DB | — |
-
-#### 3.6 Multi-Agent Orchestration (v2.0.0)
-
-v2.0.0 adds an orchestration layer on top of the single-agent base. The runtime shape is chosen by `orchestration.mode`:
-
-- **single** (default) — v1.0.0 lead agent + `task_tool` delegation, unchanged
-- **multi** — `make_lead_agent` builds an OrchestratorGraph (1 orchestrator node + N worker nodes), routed by `to_agent`, with `max_rounds` guarding against loops
-
-The stack (bottom-up):
-
-1. **subagents/batch** (P0) — `run_batch_async` executes independent subagent tasks with bounded concurrency, failure isolation, and order-preserving results
-2. **orchestration/handoff** (P1) — `AgentHandoff` structured context transfer; `inherit_trace_id` keeps one trace across agents
-3. **orchestration/graph** (P1) — OrchestratorGraph builder
-4. **orchestration/inbox** (P2) — `AgentInbox` message bus (one `asyncio.Queue` per agent) with subscription broadcast
-5. **orchestration/patterns** (P2) — orchestrator-workers (parallel dispatch + aggregation) and peer-consensus collaboration patterns
-
-Governance & observability: `authz.principal.normalize_agent_identity` adds an agent dimension to authorization; `TokenBudgetConfig.per_agent` provides per-agent quotas; mode switching rebuilds the graph and is registered as startup-only (restart required).
-
-### 4. Configuration System
-
-#### 4.1 Load Order
-
-```
-1) CLI config_path argument
-2) QILIN_CONFIG_PATH environment variable
-3) Project root config.yaml
-4) Source-tree backend/config.yaml (backward compat)
-```
-
-#### 4.2 Hot Reload
-
-- **Signature detection** — `ConfigSignature` computes a content signature; reload on change
-- **Layered reload** — Each sub-config has its own `load_X_config_from_dict`; partial changes don't rebuild DB pools
-- **Reload forbidden zones** — `sandbox` / `database` / `checkpointer` need process restart
-
-#### 4.3 Env Var Convention
-
-All env vars are prefixed with `QILIN_`:
-
-```
-QILIN_CONFIG_PATH
-QILIN_HOME
-QILIN_HOST_BASE_DIR
-QILIN_SANDBOX_HOST
-QILIN_SANDBOX_BIND_HOST
-QILIN_ENV                       # deployment label (dev/staging/prod)
-QILIN_TUI                       # enable TUI over headless
-QILIN_FILE_IO_WORKERS           # file I/O worker count
-```
-
-### 5. Observability
-
-#### 5.1 Trace Context
-
-Request header `X-Trace-Id` is validated by `TraceMiddleware` and stored in a `ContextVar`. The same id appears in logs, RunEvents and Langfuse metadata.
-
-#### 5.2 Multi-Backend Tracing
-
-```
-tracing/
-├── metadata.py        # inject trace_id into Langfuse / Monocle
-├── monocle.py         # OTel-style tracing
-└── factory.py         # multi-provider router
-```
-
-#### 5.3 Run Events
-
-All events flow through a unified envelope:
-
-- `type` — semantic type (≤ 32 chars)
-- `category` — short category (≤ 16 chars)
-- `payload` — structured JSON
-
-### 6. Security Model
-
-#### 6.1 Attack Surface
-
-- **Input surface** — `InputPolish` middleware cleans user input
-- **Output surface** — `SafetyFinishReason` intercepts provider safety-filter signals
-- **Tool execution** — Sub-agents gate `host bash` via `is_host_bash_allowed`; other tools run in sandbox
-- **Authorization** — `authz.principal` + `authz.rbac` provide attribute-based resource authorization
-
-#### 6.2 Skill Security
-
-```
-Skill Source → Static Scanner → (yaml/json safe?) → Review Pipeline
-   → LLM Reader → Final Ruling → (pass → Inventory / reject)
-```
-
-Each skill passes through `skillscan.orchestrator` doing both static analysis and LLM review; signed skills join the inventory.
-
-### 7. Extension Points
-
-| Extension | Entry |
-|-----------|-------|
-| New provider | subclass `BaseChatModel` under `models/` |
-| New sandbox | implement `sandbox.SandboxProvider` |
-| New memory backend | subclass `MemoryManager` ABC under `agents/memory/backends/` |
-| New tool | drop into `tools/builtins/` or expose via MCP |
-| New collaboration pattern | `orchestration/patterns` (reusing `run_batch_async` / `AgentInbox`) |
-| New sub-agent | add to `subagents/builtins/` + `subagents/registry.register` |
-| New guardrail | implement `guardrails.GuardrailProvider` |
-| New authz policy | extend `authz/enforcement` |
-| New tracing provider | `tracing/factory.register` |
-
-### 8. End-to-End Data Flow Example
-
-**Scenario:** user uploads a PDF and asks "Summarize the key points."
-
-1. Upload → `uploads` module maps a virtual path
-2. User message → Lead Agent loads system prompt from `agents/lead_agent/prompt.py`
-3. LLM decides to call `read_doc` (in `tools/builtins/present_file_tool.py`)
-4. Tool invokes `markitdown` via `sandbox` (default: `aio_sandbox`)
-5. LLM receives extracted Markdown and produces the answer
-6. The whole flow is reported to Langfuse via `tracing`; run events fall into `persistence/run/`
-
----
-
-> 维护者 / Maintainer: QiLin Team · 反馈 / Feedback: 请提交 Issue
+The [extension cookbook](cookbook/extension-cookbook.md) maps features to capabilities and indexes the step-by-step guides for [packages](cookbook/adding-a-package.md), [tools](cookbook/adding-a-tool.md), [LLM adapters](cookbook/adding-an-llm-adapter.md), and [settings cards](cookbook/adding-a-settings-card.md). The [Conversation subsystem](subsystems/conversation.md) owns Chat-node assembly.
