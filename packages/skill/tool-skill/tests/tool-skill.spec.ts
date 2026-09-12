@@ -787,7 +787,7 @@ describe('dsh-tool-skill', () => {
     const home = await tempDir('tool-load')
     const project = await tempDir('tool-project')
     await mkdir(join(project, '.git'), { recursive: true })
-    await writeSkill(join(project, '.dsh/skills'), 'project-skill', 'Project skill', 'Project instructions.')
+    await writeSkill(join(project, '.qilin/skills'), 'project-skill', 'Project skill', 'Project instructions.')
     const ctx = await setup(home)
 
     const result = await ctx.tools.execute({
@@ -803,7 +803,7 @@ describe('dsh-tool-skill', () => {
     expect(result.value).toEqual({
       name: 'project-skill',
       provider: 'filesystem',
-      resourceBase: { kind: 'directory', path: join(project, '.dsh/skills/project-skill') },
+      resourceBase: { kind: 'directory', path: join(project, '.qilin/skills/project-skill') },
       content: 'Project instructions.',
     })
     const block = result.content[0]
@@ -812,7 +812,7 @@ describe('dsh-tool-skill', () => {
     expect(block.text).toBe([
       '<skill_content name="project-skill">',
       '<skill_resources>',
-      `Base directory for this skill: ${join(project, '.dsh/skills/project-skill')}`,
+      `Base directory for this skill: ${join(project, '.qilin/skills/project-skill')}`,
       'Resolve relative paths mentioned by this skill against the base directory before using them. Load referenced resources only as needed.',
       '</skill_resources>',
       '',

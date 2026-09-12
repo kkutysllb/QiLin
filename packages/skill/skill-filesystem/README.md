@@ -45,7 +45,7 @@ Default roots are scanned in this provider's rank order:
 
 | Rank | Source | Path |
 |---|---|---|
-| 100 | `project-dsh` | `<projectRoot>/.dsh/skills` |
+| 100 | `project-dsh` | `<projectRoot>/.qilin/skills` |
 | 200 | `project-agents` | `<projectRoot>/.agents/skills` |
 | 300 | `custom` | `Config.customSkillDirs` |
 | 400 | `user-dsh` | `<dshHome>/skills` |
@@ -66,7 +66,7 @@ Load the plugin alongside the skill registry; it requires `ctx.skills`.
 |---|---|---|
 | `providerName` | `filesystem` | Unique provider name registered on `ctx.skills` |
 | `includeDefaultRoots` | `true` | Include project and user roots around `customSkillDirs` |
-| `dshHome` | `$DSH_HOME` or `~/.dsh` | Harness config root; its `skills` subdirectory is scanned |
+| `dshHome` | `$DSH_HOME` or `~/.qilin` | Harness config root; its `skills` subdirectory is scanned |
 | `agentsHome` | `$DSH_AGENTS_HOME` or `~/.agents` | Shared agent config root scanned for compatible skills |
 | `customSkillDirs` | `[]` | Additional local skill roots, after project roots and before user roots |
 | `watch` | `true` | Watch local roots and invalidate the provider when the catalog may have changed |

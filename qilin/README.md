@@ -75,6 +75,20 @@ DSH_HOME="$PWD/.qilin-home" pnpm dsh qilin --port 3090
 
 `.qilin-home/` 已在 .gitignore 中。想让 QiLin 复用一份已有的 dsh 数据，把 `DSH_HOME` 指过去即可。
 
+### 项目级目录
+
+技能的项目级目录同样用 `.qilin`：`<projectRoot>/.qilin/skills`（上游 dsh 用的是 `.dsh/skills`）。
+三层技能根按优先级叠加，项目级覆盖用户级：
+
+| 优先级 | 来源 | 位置 |
+|---|---|---|
+| 100 | `project-dsh` | `<projectRoot>/.qilin/skills` |
+| 200 | `project-agents` | `<projectRoot>/.agents/skills` |
+| 400 | `user-dsh` | `<dshHome>/skills`，默认即 `~/.qilin/skills` |
+| 500 | `user-agents` | `<agentsHome>/skills`，默认即 `~/.agents/skills` |
+
+来源标识仍是上游的 `project-dsh` / `user-dsh` 字符串，尚未改名。
+
 ## 5. 开发态（改代码即时生效）
 
 开两个终端：
