@@ -7,7 +7,7 @@ import {
   Loader2Icon,
   RefreshCwIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStickToBottomContext } from "use-stick-to-bottom";
 
 import {
@@ -16,6 +16,14 @@ import {
 } from "@/components/ai-elements/conversation";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/core/i18n/hooks";
+import {
+  createConversationPublishState,
+  shouldPublishCall,
+  shouldPublishDeliverables,
+  shouldPublishResult,
+  shouldPublishTurn,
+  type ConversationPublishState,
+} from "@/core/messages/conversation-event-dedupe";
 import {
   deriveHumanInputThreadState,
   extractHumanInputRequest,
@@ -167,6 +175,32 @@ export function MessageFeed({
   onBranchThread?: () => Promise<void>;
 }) {
   const updateSubtask = useUpdateSubtask();
+  const conversationPublishRef = useRef<{
+    threadId: string;
+    state: ConversationPublishState;
+  }>({
+    threadId,
+    state: createConversationPublishState(),
+  });
+  const subtaskCallSignaturesRef = useRef<{
+    threadId: string;
+    signatures: Map<string, string>;
+  }>({
+    threadId,
+    signatures: new Map(),
+  });
+  if (conversationPublishRef.current.threadId !== threadId) {
+    conversationPublishRef.current = {
+      threadId,
+      state: createConversationPublishState(),
+    };
+  }
+  if (subtaskCallSignaturesRef.current.threadId !== threadId) {
+    subtaskCallSignaturesRef.current = {
+      threadId,
+      signatures: new Map(),
+    };
+  }
 
   // Memoize the filtered message list so it has a stable reference across
   // re-renders (as long as thread.messages hasn't changed).  Without this,
@@ -279,6 +313,18 @@ export function MessageFeed({
     messages.length > 0 &&
     messages[messages.length - 1]?.type !== "human";
 
+  // Keep the human-message edit callback stable while streaming. The handler
+  // itself follows the latest thread through this ref, so historical bubbles
+  // can stay memoized without retaining stale edit behavior.
+  const handleEditMessageRef = useRef(handleEditMessage);
+  handleEditMessageRef.current = handleEditMessage;
+  const stableHandleEditMessage = useCallback(
+    (messageId: string, replacementText: string) => {
+      handleEditMessageRef.current(messageId, replacementText);
+    },
+    [],
+  );
+
   // H5-d: publish per-turn deliverables to the uiConversation face so
   // plugin slots (dsh-file-review-tab) can derive per-turn file rows.
   // A closed assistant group's persisted ai messages drop tool_calls —
@@ -290,15 +336,19 @@ export function MessageFeed({
   useEffect(() => {
     if (threadId == null) return;
     type FeedMessage = (typeof groupedMessages)[number]["messages"][number];
-    const isErrorResult = (callId: string) =>
-      messages.some(
-        (m) =>
-          m.type === "tool" &&
-          m.tool_call_id === callId &&
-          (m as { status?: string }).status === "error",
+    const resultErrors = new Map<string, boolean>();
+    for (const message of messages) {
+      if (message.type !== "tool" || typeof message.tool_call_id !== "string") {
+        continue;
+      }
+      resultErrors.set(
+        message.tool_call_id,
+        (message as { status?: string }).status === "error",
       );
-    const hasResult = (callId: string) =>
-      messages.some((m) => m.type === "tool" && m.tool_call_id === callId);
+    }
+    const hasResult = (callId: string) => resultErrors.has(callId);
+    const isErrorResult = (callId: string) => resultErrors.get(callId) ?? false;
+    const publishState = conversationPublishRef.current.state;
     const collect = (messages: readonly FeedMessage[]) => {
       const produced: string[] = [];
       const seen = new Set<string>();
@@ -333,10 +383,12 @@ export function MessageFeed({
       if (group.type !== "assistant") continue;
       processingSegment.push(group.messages);
       const turnId = group.id ?? "";
-      dispatchConversationEvent(threadId, {
-        type: "turn/start",
-        data: { turn: turnId },
-      });
+      if (shouldPublishTurn(publishState, turnId)) {
+        dispatchConversationEvent(threadId, {
+          type: "turn/start",
+          data: { turn: turnId },
+        });
+      }
       for (const segMessages of processingSegment) {
         for (const msg of segMessages) {
           if (msg.type !== "ai") continue;
@@ -344,17 +396,27 @@ export function MessageFeed({
             const callId = String(call.id ?? "");
             if (callId === "") continue;
             const normalized = normalizeMutationToolCall(call.name, call.args);
-            dispatchConversationEvent(threadId, {
-              type: "tool/call",
-              data: {
-                turn: turnId,
+            if (shouldPublishCall(publishState, turnId, callId)) {
+              dispatchConversationEvent(threadId, {
+                type: "tool/call",
+                data: {
+                  turn: turnId,
+                  callId,
+                  name: normalized?.name ?? call.name,
+                  arguments:
+                    normalized?.arguments ?? JSON.stringify(call.args ?? {}),
+                },
+              });
+            }
+            if (
+              hasResult(callId) &&
+              shouldPublishResult(
+                publishState,
+                turnId,
                 callId,
-                name: normalized?.name ?? call.name,
-                arguments:
-                  normalized?.arguments ?? JSON.stringify(call.args ?? {}),
-              },
-            });
-            if (hasResult(callId)) {
+                isErrorResult(callId),
+              )
+            ) {
               dispatchConversationEvent(threadId, {
                 type: "tool/result",
                 surfaceOp: "append",
@@ -375,10 +437,13 @@ export function MessageFeed({
         ...new Set(processingSegment.flatMap((messages) => collect(messages))),
       ];
       processingSegment.length = 0;
-      if (produced.length > 0) {
+      if (
+        produced.length > 0 &&
+        shouldPublishDeliverables(publishState, turnId, produced)
+      ) {
         setTurnData(
           threadId,
-          group.id ?? "",
+          turnId,
           "deliverables",
           { produced: produced.map((path) => ({ path })) },
           "closed",
@@ -392,18 +457,25 @@ export function MessageFeed({
   // setTasks on the SubtasksProvider) during render causes an infinite
   // re-render loop:  render → setTasks → context change → re-render → …
   useEffect(() => {
+    const signatures = subtaskCallSignaturesRef.current.signatures;
     for (const msg of messages) {
       if (msg.type !== "ai") continue;
       for (const toolCall of msg.tool_calls ?? []) {
-        if (toolCall.name === "task") {
-          updateSubtask({
-            id: toolCall.id!,
-            subagent_type: toolCall.args.subagent_type,
-            description: toolCall.args.description,
-            prompt: toolCall.args.prompt,
-            status: "in_progress",
-          });
-        }
+        if (toolCall.name !== "task" || !toolCall.id) continue;
+        const signature = JSON.stringify([
+          toolCall.args.subagent_type,
+          toolCall.args.description,
+          toolCall.args.prompt,
+        ]);
+        if (signatures.get(toolCall.id) === signature) continue;
+        signatures.set(toolCall.id, signature);
+        updateSubtask({
+          id: toolCall.id,
+          subagent_type: toolCall.args.subagent_type,
+          description: toolCall.args.description,
+          prompt: toolCall.args.prompt,
+          status: "in_progress",
+        });
       }
     }
   }, [messages, updateSubtask]);
@@ -458,7 +530,7 @@ export function MessageFeed({
                 message={msg}
                 contextMessages={messages}
                 isLoading={msg.id != null && msg.id === streamingMessageId}
-                onEditMessage={handleEditMessage}
+                onEditMessage={stableHandleEditMessage}
               />
             ));
           }
@@ -480,7 +552,7 @@ export function MessageFeed({
                       isLoading={
                         msg.id != null && msg.id === streamingMessageId
                       }
-                      onEditMessage={handleEditMessage}
+                      onEditMessage={stableHandleEditMessage}
                       onBranchThread={
                         group.id === footerGroupId ? onBranchThread : undefined
                       }
@@ -680,16 +752,7 @@ export function MessageFeed({
  * group's AI messages (no prose between them) merge into one ToolGroup,
  * so each prose gap shows exactly one collapsible tool summary row.
  */
-function ProcessingFlow({
-  groupMessages,
-  contextMessages,
-  threadId,
-  isLoading,
-  showFooter,
-  turnDurations,
-  onBranchThread,
-  onRegenerate,
-}: {
+interface ProcessingFlowProps {
   groupMessages: Message[];
   contextMessages: Message[];
   threadId: string;
@@ -698,7 +761,36 @@ function ProcessingFlow({
   turnDurations: TurnDurations;
   onBranchThread?: () => Promise<void>;
   onRegenerate?: () => void;
-}) {
+}
+
+export function areProcessingFlowPropsEqual(
+  previous: ProcessingFlowProps,
+  next: ProcessingFlowProps,
+): boolean {
+  if (previous.threadId !== next.threadId) return false;
+  if (previous.isLoading !== next.isLoading) return false;
+  if (previous.showFooter !== next.showFooter) return false;
+  if (previous.turnDurations !== next.turnDurations) return false;
+  if (previous.onBranchThread !== next.onBranchThread) return false;
+  if (previous.onRegenerate !== next.onRegenerate) return false;
+  if (previous.groupMessages.length !== next.groupMessages.length) {
+    return false;
+  }
+  return previous.groupMessages.every(
+    (message, index) => message === next.groupMessages[index],
+  );
+}
+
+const ProcessingFlow = memo(function ProcessingFlow({
+  groupMessages,
+  contextMessages,
+  threadId,
+  isLoading,
+  showFooter,
+  turnDurations,
+  onBranchThread,
+  onRegenerate,
+}: ProcessingFlowProps) {
   const segments = useMemo(
     () => parseAssistantSegments(groupMessages, contextMessages),
     [groupMessages, contextMessages],
@@ -734,7 +826,7 @@ function ProcessingFlow({
       )}
     </div>
   );
-}
+}, areProcessingFlowPropsEqual);
 
 /** Floating "back to bottom" button driven by the stick-to-bottom lib. */
 function ScrollToBottomButton() {

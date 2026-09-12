@@ -73,6 +73,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/core/threads/hooks", () => ({
+  isThreadBusyConflict: (error: unknown) =>
+    typeof error === "object" &&
+    error !== null &&
+    (Reflect.get(error, "status") === 409 ||
+      Reflect.get(error, "status") === "409"),
   useThreadStream: (options: Record<string, unknown>) => {
     streamMock.options = options;
     return {
@@ -96,7 +101,8 @@ vi.mock("@/core/threads/hooks", () => ({
 
 vi.mock("@/core/settings", () => ({
   useThreadSettings: () => [settingsMock.settings, settingsMock.setSettings],
-  useThreadWorkspaceOverrideFlag: () => settingsMock.hasWorkspaceOverride ?? false,
+  useThreadWorkspaceOverrideFlag: () =>
+    settingsMock.hasWorkspaceOverride ?? false,
   useLocalSettings: () => [settingsMock.settings, vi.fn()],
   saveThreadAgentName: settingsMock.saveAgentName,
   saveThreadWorkspacePath: settingsMock.saveWorkspacePath,
@@ -261,9 +267,7 @@ describe("useChatPageController: 队列 handler 绑定", () => {
 
     // handleRetryQueued 内部对 autoSendNext 是 fire-and-forget，轮询终态
     act(() => {
-      result.current.handleRetryQueued(
-        result.current.coordinator.messages[0]!,
-      );
+      result.current.handleRetryQueued(result.current.coordinator.messages[0]!);
     });
     await waitFor(() =>
       expect(result.current.coordinator.messages).toHaveLength(0),
@@ -278,6 +282,27 @@ describe("useChatPageController: 队列 handler 绑定", () => {
       undefined,
     );
     expect(result.current.coordinator.messages).toHaveLength(0);
+  });
+
+  test("busy 409 不中断当前任务，而是把原消息放入队列", async () => {
+    setRoute("/workspace/chats/t-q-busy");
+    streamMock.sendMessage.mockRejectedValueOnce({
+      status: 409,
+      message: "HTTP 409: Thread already has an active run",
+    });
+    const { result } = renderHook(() =>
+      useChatPageController({ scope: "workspace" }),
+    );
+
+    act(() => result.current.handleSubmit({ text: "继续当前任务", files: [] }));
+
+    await waitFor(() => {
+      expect(result.current.coordinator.messages).toMatchObject([
+        { content: "继续当前任务", status: "pending" },
+      ]);
+    });
+    expect(streamMock.sendMessage).toHaveBeenCalledTimes(1);
+    expect(toastMock.info).toHaveBeenCalledWith("已加入队列");
   });
 
   test("autoSendTrigger 注册到 onFinish 链路", () => {
@@ -357,9 +382,7 @@ describe("useChatPageController: URL 构造", () => {
     const pushState = vi
       .spyOn(window.history, "pushState")
       .mockImplementation(() => undefined);
-    const ws = renderHook(() =>
-      useChatPageController({ scope: "workspace" }),
-    );
+    const ws = renderHook(() => useChatPageController({ scope: "workspace" }));
     await act(async () => {
       await ws.result.current.handleBranchThread();
     });
@@ -378,7 +401,9 @@ describe("useChatPageController: URL 构造", () => {
       await ag.result.current.handleBranchThread();
     });
     expect(apiMock.clientArgs.at(-1)).toBeUndefined(); // 不透传 isMock
-    expect(nav.push).toHaveBeenCalledWith("/workspace/agents/coder/chats/copy-2");
+    expect(nav.push).toHaveBeenCalledWith(
+      "/workspace/agents/coder/chats/copy-2",
+    );
   });
 });
 

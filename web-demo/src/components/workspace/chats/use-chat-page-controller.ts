@@ -19,7 +19,8 @@ import {
   useThreadWorkspaceOverrideFlag,
   type LocalSettings,
 } from "@/core/settings";
-import { useThreadStream } from "@/core/threads/hooks";
+import { isThreadBusyConflict, useThreadStream } from "@/core/threads/hooks";
+import { enqueue as enqueueQueuedMessage } from "@/core/threads/queue-store";
 import type { QueuedMessage } from "@/core/threads/queue-store";
 import type { AgentThreadState } from "@/core/threads/types";
 import { useQueueCoordinator } from "@/core/threads/use-queue-coordinator";
@@ -59,9 +60,7 @@ interface ChatPageScopeConfig {
   /** 发送消息附带的 extraContext：agent 页注入 { agent_name }，workspace 页不注入。 */
   extraContext: Record<string, unknown> | undefined;
   /** useThreadStream 的 context 装配：agent 页把 agent_name 合入 context。 */
-  streamContext(
-    context: LocalSettings["context"],
-  ): LocalSettings["context"];
+  streamContext(context: LocalSettings["context"]): LocalSettings["context"];
   /** 线程页 URL（onStart 的 replaceState 与「新任务」按钮共用）。 */
   threadPath(threadId: string): string;
   /** 分支副本 URL（注意：agent 页仅对 agent_name 做 encodeURIComponent）。 */
@@ -213,12 +212,7 @@ export function useChatPageController({
         );
       }
     },
-    [
-      scopeConfig,
-      setThreadId,
-      setIsNewThread,
-      settings.context,
-    ],
+    [scopeConfig, setThreadId, setIsNewThread, settings.context],
   );
 
   // 桌面通知：页面失焦/隐藏时提示会话结束，正文取最后一条消息并截断 200 字符。
@@ -243,6 +237,22 @@ export function useChatPageController({
     [showNotification],
   );
 
+  const busyMessagesRef = useRef(new WeakSet<object>());
+  const handleBusyConflict = useCallback(
+    (message: PromptInputMessage) => {
+      if (!threadId || !message.text?.trim()) return;
+      if (busyMessagesRef.current.has(message)) return;
+      busyMessagesRef.current.add(message);
+      try {
+        enqueueQueuedMessage(threadId, message.text, message.files ?? []);
+        toast.info(t.queue.toast.queued);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "队列入队失败");
+      }
+    },
+    [t.queue.toast.queued, threadId],
+  );
+
   const {
     thread,
     sendMessage,
@@ -259,14 +269,8 @@ export function useChatPageController({
     onSend: scopeConfig.exitNewThreadOnSend ? handleThreadSend : undefined,
     onStart: handleStreamStart,
     onFinish: handleStreamFinish,
+    onBusyConflict: handleBusyConflict,
   });
-
-  const handleSubmit = useCallback(
-    (message: PromptInputMessage) => {
-      void sendMessage(threadId, message, scopeConfig.extraContext);
-    },
-    [sendMessage, threadId, scopeConfig],
-  );
 
   const handleStop = useCallback(async () => {
     await thread.stop();
@@ -274,19 +278,18 @@ export function useChatPageController({
 
   const handleHumanInputSubmit = useCallback(
     (response: HumanInputResponse) => {
-      void sendMessage(
-        threadId,
-        {
-          text: response.value,
-          files: [],
-        },
-        scopeConfig.extraContext,
-        {
-          additionalKwargs: { human_input_response: response },
-        },
-      );
+      const message = { text: response.value, files: [] };
+      void sendMessage(threadId, message, scopeConfig.extraContext, {
+        additionalKwargs: { human_input_response: response },
+      }).catch((error: unknown) => {
+        if (isThreadBusyConflict(error)) {
+          handleBusyConflict(message);
+          return;
+        }
+        toast.error(error instanceof Error ? error.message : "发送失败");
+      });
     },
-    [sendMessage, threadId, scopeConfig],
+    [handleBusyConflict, sendMessage, threadId, scopeConfig],
   );
 
   const handleBranchThread = useCallback(async () => {
@@ -306,7 +309,15 @@ export function useChatPageController({
     } else {
       history.pushState(null, "", branchPath);
     }
-  }, [isNewThread, isMock, router, scopeConfig, setIsNewThread, setThreadId, threadId]);
+  }, [
+    isNewThread,
+    isMock,
+    router,
+    scopeConfig,
+    setIsNewThread,
+    setThreadId,
+    threadId,
+  ]);
 
   // ── 队列协调器（Task 16） ──────────────────────────────────────────
   // sendMessage 签名适配：ThreadStreamLike 期望 (content, attachments)，
@@ -326,6 +337,21 @@ export function useChatPageController({
         ),
     },
     currentRunId,
+  );
+
+  const handleSubmit = useCallback(
+    (message: PromptInputMessage) => {
+      void sendMessage(threadId, message, scopeConfig.extraContext).catch(
+        (error: unknown) => {
+          if (isThreadBusyConflict(error)) {
+            handleBusyConflict(message);
+            return;
+          }
+          toast.error(error instanceof Error ? error.message : "发送失败");
+        },
+      );
+    },
+    [handleBusyConflict, scopeConfig.extraContext, sendMessage, threadId],
   );
 
   // 把协调器的 autoSendNext 注册到 useThreadStream 的 onFinish 链路，

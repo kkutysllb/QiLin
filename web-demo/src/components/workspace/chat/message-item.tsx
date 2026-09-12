@@ -15,7 +15,7 @@ import { AssistantMessageFooter } from "./assistant-message-footer";
 import { SegmentList } from "./segments/segment-list";
 import { UserPrompt } from "./segments/user-prompt";
 
-interface MessageItemProps {
+export interface MessageItemProps {
   message: Message;
   contextMessages: Message[];
   threadId: string;
@@ -27,6 +27,27 @@ interface MessageItemProps {
   /** 本会话实测的 turn 总用时归档（runId → ms），供 footer 固定展示。 */
   turnDurations?: TurnDurations;
   className?: string;
+}
+
+export function areMessageItemPropsEqual(
+  previous: MessageItemProps,
+  next: MessageItemProps,
+): boolean {
+  if (previous.threadId !== next.threadId) return false;
+  if (previous.message !== next.message) return false;
+  if (previous.isLoading !== next.isLoading) return false;
+  if (previous.isLoading || next.isLoading) return false;
+  if (previous.className !== next.className) return false;
+  if (previous.turnDurations !== next.turnDurations) return false;
+  if (previous.onEditMessage !== next.onEditMessage) return false;
+  if (previous.onBranchThread !== next.onBranchThread) return false;
+  if (previous.onRegenerate !== next.onRegenerate) return false;
+
+  // contextMessages is intentionally ignored. It is a new array on every
+  // stream update, while the message itself is the render identity. The
+  // active message already fails on message/isLoading changes and will be
+  // re-rendered with the newest tool-result context.
+  return true;
 }
 
 /**
@@ -100,4 +121,4 @@ export const MessageItem = memo(function MessageItem({
       </div>
     </div>
   );
-});
+}, areMessageItemPropsEqual);

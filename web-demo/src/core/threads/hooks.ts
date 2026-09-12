@@ -23,12 +23,18 @@ import {
   publishThreadRuntimeSnapshot,
   useThreadRuntimeSnapshot,
 } from "./runtime-store";
+import {
+  isThreadBusyConflict,
+  STREAM_RENDER_THROTTLE_MS,
+} from "./stream-contracts";
 import { handleStreamEvent } from "./stream-event-handler";
 import {
   getCachedThreadState,
   setCachedThreadState,
 } from "./thread-state-store";
 import type { AgentThread, AgentThreadState, RunMessage } from "./types";
+
+export { isThreadBusyConflict, STREAM_RENDER_THROTTLE_MS };
 
 export type ToolEndEvent = {
   name: string;
@@ -45,6 +51,8 @@ export type ThreadStreamOptions = {
   onStart?: (threadId: string, runId: string) => void;
   onFinish?: (state: AgentThreadState) => void;
   onToolEnd?: (event: ToolEndEvent) => void;
+  /** Called when a submitted message collides with an active run. */
+  onBusyConflict?: (message: PromptInputMessage) => void;
 };
 
 type SendMessageOptions = {
@@ -60,6 +68,11 @@ type DisplayThreadState = {
 
 type StoppableThread<T> = T & {
   stop?: (...args: never[]) => unknown;
+};
+
+type PendingStreamSubmission = {
+  message: PromptInputMessage;
+  started: boolean;
 };
 
 function mergeMessages(
@@ -137,37 +150,6 @@ function toError(error: unknown): Error {
   return wrapped;
 }
 
-/**
- * Detect a 409 Conflict from the backend, raised when a thread already has
- * an active run and a new run was created with the default "reject"
- * multitask strategy. This commonly happens when the page unmounts
- * (dropping the SSE connection) but `onDisconnect:"continue"` keeps the
- * run alive, so resuming the conversation collides with the orphaned run.
- * Detected in `sendMessage` to retry with the "interrupt" strategy instead
- * of leaving the user stuck until the backend is restarted.
- */
-function isThreadBusyConflict(error: unknown): boolean {
-  if (error == null || typeof error !== "object") {
-    return false;
-  }
-  const status = Reflect.get(error, "status");
-  if (status === 409 || status === "409") {
-    return true;
-  }
-  const message = Reflect.get(error, "message");
-  if (
-    typeof message === "string" &&
-    /409|conflict|already running/i.test(message)
-  ) {
-    return true;
-  }
-  const detail = Reflect.get(error, "detail");
-  if (typeof detail === "string" && /already running|conflict/i.test(detail)) {
-    return true;
-  }
-  return false;
-}
-
 function isStaleStreamJoinError(error: unknown): boolean {
   if (error == null) {
     return false;
@@ -190,8 +172,7 @@ function isStaleStreamJoinError(error: unknown): boolean {
 
   const text = parts.join(" ");
   return (
-    /not active on this worker/i.test(text) &&
-    /cannot be streamed/i.test(text)
+    /not active on this worker/i.test(text) && /cannot be streamed/i.test(text)
   );
 }
 
@@ -219,6 +200,7 @@ export function useThreadStream({
   onStart,
   onFinish,
   onToolEnd,
+  onBusyConflict,
 }: ThreadStreamOptions) {
   const { t } = useI18n();
   const runtimeSnapshot = useThreadRuntimeSnapshot(threadId);
@@ -276,11 +258,25 @@ export function useThreadStream({
   const currentRunIdRef = useRef<string | null>(null);
   const autoSendTriggerRef = useRef<(() => Promise<void>) | null>(null);
   const pendingAutoSendRef = useRef(false);
+  const pendingMessagesRef = useRef<PendingStreamSubmission[]>([]);
+  const submittedStreamActiveRef = useRef(false);
+  const failedSubmittedStreamRef = useRef(false);
+  const busyConflictRef = useRef(false);
+  const ignoredBusyErrorRef = useRef(false);
+  const markSubmittedStreamStarted = useCallback(() => {
+    const pending = pendingMessagesRef.current.find((entry) => !entry.started);
+    if (pending) {
+      pending.started = true;
+      submittedStreamActiveRef.current = true;
+    }
+  }, []);
+
   const listeners = useRef({
     onSend,
     onStart,
     onFinish,
     onToolEnd,
+    onBusyConflict,
   });
 
   const {
@@ -295,8 +291,14 @@ export function useThreadStream({
 
   // Keep listeners ref updated with latest callbacks
   useEffect(() => {
-    listeners.current = { onSend, onStart, onFinish, onToolEnd };
-  }, [onSend, onStart, onFinish, onToolEnd]);
+    listeners.current = {
+      onSend,
+      onStart,
+      onFinish,
+      onToolEnd,
+      onBusyConflict,
+    };
+  }, [onSend, onStart, onFinish, onToolEnd, onBusyConflict]);
 
   useEffect(() => {
     const normalizedThreadId = threadId ?? null;
@@ -320,6 +322,8 @@ export function useThreadStream({
       setCurrentRunId(_runId);
     }
     stopFlagRef.current = false;
+    busyConflictRef.current = false;
+    ignoredBusyErrorRef.current = false;
     if (!startedRef.current) {
       listeners.current.onStart?.(_threadId, _runId);
       startedRef.current = true;
@@ -342,6 +346,7 @@ export function useThreadStream({
     // updates even if the onCreated callback (which depends on the
     // onRunCreated SSE event from the server) is delayed or lost.
     onThreadId: (newThreadId: string) => {
+      markSubmittedStreamStarted();
       handleStreamStart(newThreadId, "");
     },
     // Use localStorage (not sessionStorage) for the run-resume key so the
@@ -353,8 +358,11 @@ export function useThreadStream({
     // by the SDK's onSuccess/onError callbacks.
     reconnectOnMount:
       typeof window !== "undefined" ? () => window.localStorage : false,
+    // Batch high-frequency SSE notifications into one render per frame.
+    throttle: STREAM_RENDER_THROTTLE_MS,
     fetchStateHistory: { limit: 1 },
     onCreated(meta) {
+      markSubmittedStreamStarted();
       handleStreamStart(meta.thread_id, meta.run_id);
       if (context.agent_name && !isMock) {
         void getAPIClient()
@@ -434,9 +442,38 @@ export function useThreadStream({
         updateSubtask,
       });
     },
-    onError(error) {
+    onError(error, run) {
       const errMsg = error instanceof Error ? error.message : String(error);
+      const pendingMessage = pendingMessagesRef.current[0]?.message;
+      if (
+        !run &&
+        pendingMessage &&
+        threadIsLoadingRef.current &&
+        !submittedStreamActiveRef.current
+      ) {
+        failedSubmittedStreamRef.current = true;
+      }
       setOptimisticMessages([]);
+      if (isThreadBusyConflict(error) && pendingMessage) {
+        // The SDK reports stream errors through this callback instead of
+        // rejecting submit(). Queue the original message and keep the active
+        // backend run untouched.
+        stopFlagRef.current = true;
+        busyConflictRef.current = true;
+        ignoredBusyErrorRef.current = true;
+        listeners.current.onBusyConflict?.(pendingMessage);
+        // This rejected submission must not suppress auto-send for the
+        // already-running task when its own finish callback arrives.
+        stopFlagRef.current = false;
+        return;
+      }
+      busyConflictRef.current = false;
+      if (
+        submittedStreamActiveRef.current ||
+        failedSubmittedStreamRef.current
+      ) {
+        sendInFlightRef.current = false;
+      }
       if (isStaleStreamJoinError(error)) {
         clearStoredStreamReconnectKey(threadIdRef.current ?? onStreamThreadId);
         void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
@@ -461,10 +498,30 @@ export function useThreadStream({
       toast.error(getStreamErrorMessage(error));
     },
     onFinish(state) {
+      const wasBusyConflict = busyConflictRef.current;
+      const shouldConsumeSubmission =
+        wasBusyConflict ||
+        submittedStreamActiveRef.current ||
+        failedSubmittedStreamRef.current;
+      busyConflictRef.current = false;
+      submittedStreamActiveRef.current = false;
+      failedSubmittedStreamRef.current = false;
+      sendInFlightRef.current = false;
+      if (shouldConsumeSubmission) {
+        pendingMessagesRef.current.shift();
+      }
+      if (wasBusyConflict) {
+        // If the original run already disappeared while this rejected stream
+        // was admitted, let the normal loading transition flush the queued
+        // message instead of leaving it pending forever.
+        if (!currentRunIdRef.current) {
+          pendingAutoSendRef.current = true;
+        }
+        return;
+      }
+
       listeners.current.onFinish?.(state.values);
       void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
-
-      // Run finished — clear the active run_id regardless of stop reason.
       currentRunIdRef.current = null;
       setCurrentRunId(null);
 
@@ -499,6 +556,12 @@ export function useThreadStream({
   useEffect(() => {
     startedRef.current = false;
     sendInFlightRef.current = false;
+    submittedStreamActiveRef.current = false;
+    failedSubmittedStreamRef.current = false;
+    busyConflictRef.current = false;
+    ignoredBusyErrorRef.current = false;
+    pendingAutoSendRef.current = false;
+    pendingMessagesRef.current = [];
     messagesRef.current = [];
     summarizedRef.current = new Set<string>();
     setOptimisticMessages([]);
@@ -532,7 +595,8 @@ export function useThreadStream({
   const stopThread = useCallback(async () => {
     // 标记手动停止，让随后的 onFinish 跳过队列自动发送。
     stopFlagRef.current = true;
-    const currentThreadId = threadIdRef.current ?? onStreamThreadId ?? undefined;
+    const currentThreadId =
+      threadIdRef.current ?? onStreamThreadId ?? undefined;
     let localStopError: unknown;
     try {
       await threadStopRef.current?.();
@@ -585,7 +649,12 @@ export function useThreadStream({
         typeof error === "object" && error !== null
           ? Reflect.get(error, "status")
           : undefined;
-      if (status === 404 || status === 409 || status === "404" || status === "409") {
+      if (
+        status === 404 ||
+        status === 409 ||
+        status === "404" ||
+        status === "409"
+      ) {
         clearStoredStreamReconnectKey(currentThreadId);
         if (localStopError) {
           throw toError(localStopError);
@@ -643,6 +712,8 @@ export function useThreadStream({
             streamMode: ["values", "messages-tuple"],
           });
         } else if (!activeRun) {
+          busyConflictRef.current = false;
+          sendInFlightRef.current = false;
           // No active run on the backend — clean up any stale reconnect key
           // so it doesn't cause spurious joinStream errors on the next mount.
           // This is especially important now that we use localStorage (which
@@ -652,8 +723,12 @@ export function useThreadStream({
       } catch (error) {
         if (isStaleStreamJoinError(error)) {
           clearStoredStreamReconnectKey(threadId);
-          void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
-          void queryClient.invalidateQueries({ queryKey: ["thread", threadId] });
+          void queryClient.invalidateQueries({
+            queryKey: ["threads", "search"],
+          });
+          void queryClient.invalidateQueries({
+            queryKey: ["thread", threadId],
+          });
         }
         // Best-effort: if the backend is unreachable or the run list fails,
         // silently give up. The user can still send a new message.
@@ -663,10 +738,7 @@ export function useThreadStream({
     // Offset the timer so the SDK's reconnectOnMount (which fires in the same
     // render tick on mount) has a chance to win the race and call joinStream
     // before we start polling for active runs.
-    const timer = setTimeout(
-      () => void attemptFallbackReconnect(),
-      800,
-    );
+    const timer = setTimeout(() => void attemptFallbackReconnect(), 800);
 
     return () => {
       cancelled = true;
@@ -709,6 +781,10 @@ export function useThreadStream({
       options?: SendMessageOptions,
     ) => {
       if (sendInFlightRef.current) {
+        // The stream hook intentionally serializes submissions. A stale
+        // ready-state can still reach this branch while the backend is busy;
+        // preserve the message in the page queue instead of dropping it.
+        listeners.current.onBusyConflict?.(message);
         return;
       }
       sendInFlightRef.current = true;
@@ -807,7 +883,8 @@ export function useThreadStream({
                   path: info.virtual_path ?? info.path,
                   status: "uploaded" as const,
                   localUrl: localPreviewByFilename.get(info.filename)?.localUrl,
-                  mediaType: localPreviewByFilename.get(info.filename)?.mediaType,
+                  mediaType: localPreviewByFilename.get(info.filename)
+                    ?.mediaType,
                 }),
               );
               setOptimisticMessages((messages) => {
@@ -849,11 +926,10 @@ export function useThreadStream({
           }),
         );
 
-        // Wrap submit so we can retry with the "interrupt" multitask strategy
-        // when the default "reject" returns 409. An orphaned run may still be
-        // alive (onDisconnect:"continue"); without this retry the user is
-        // stuck and must restart the backend to clear the orphan.
-        const doSubmit = async (strategy?: "interrupt") => {
+        // Always reject a second run while another run owns this thread.
+        // Busy messages are handed to the page queue; they must never cancel
+        // the active backend run.
+        const doSubmit = async () => {
           // 推理深度档位：未显式选择时按最低档（闪速语义）保守处理，
           // 避免 thinking/plan/subagent 意外开启。
           const effort = context.reasoning_effort ?? "minimal";
@@ -894,7 +970,7 @@ export function useThreadStream({
               // drops its SSE connection, so the frontend can rejoin instead
               // of cancelling work.
               onDisconnect: "continue",
-              multitaskStrategy: strategy,
+              multitaskStrategy: "reject",
               config: {
                 recursion_limit: 10000,
               },
@@ -918,23 +994,26 @@ export function useThreadStream({
           );
         };
 
+        pendingMessagesRef.current.push({ message, started: false });
         try {
           await doSubmit();
         } catch (error) {
-          if (isThreadBusyConflict(error)) {
-            toast.info("已有任务在运行，正在接管并继续…");
-            await doSubmit("interrupt");
-          } else {
-            throw error;
-          }
+          const index = pendingMessagesRef.current.findIndex(
+            (entry) => entry.message === message,
+          );
+          if (index >= 0) pendingMessagesRef.current.splice(index, 1);
+          throw error;
         }
         void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
       } catch (error) {
         setOptimisticMessages([]);
         setIsUploading(false);
-        throw error;
-      } finally {
         sendInFlightRef.current = false;
+        const index = pendingMessagesRef.current.findIndex(
+          (entry) => entry.message === message,
+        );
+        if (index >= 0) pendingMessagesRef.current.splice(index, 1);
+        throw error;
       }
     },
     [thread, t.uploads.uploadingFiles, context, queryClient],
@@ -984,8 +1063,7 @@ export function useThreadStream({
   // over seamlessly.
   const restored = runtimeSnapshot ?? restoredStateRef.current;
   const streamHasData = filteredThreadMessages.length > 0;
-  const inReconnectTransition =
-    !!threadId && !streamHasData && !!restored;
+  const inReconnectTransition = !!threadId && !streamHasData && !!restored;
   const displayMessages = inReconnectTransition
     ? restored.messages
     : mergedMessages;
@@ -1022,6 +1100,9 @@ export function useThreadStream({
     ...thread,
     messages: displayMessages,
     isLoading: displayIsLoading,
+    // A rejected busy submission is expected while the existing backend run
+    // continues. Do not surface that admission conflict as a stream failure.
+    error: ignoredBusyErrorRef.current ? undefined : thread.error,
     stop: stopThread,
   } as typeof thread;
 
