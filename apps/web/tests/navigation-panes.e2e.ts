@@ -19,7 +19,7 @@ import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { expandOwningTurnProcess, newEnglishPage, saveFailureShot } from './support.ts'
+import { expandOwningTurnProcess, newEnglishPage, openTrajectoryTab, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/navigation-panes', import.meta.url))
 const SEED = join(SNAPSHOT_DIR, 'session.v3.jsonl')
@@ -57,20 +57,21 @@ async function ensureSeedOpen(page: Page): Promise<void> {
     await welcome.getByRole('button').click()
     await welcome.waitFor({ state: 'detached', timeout: 15_000 })
   }
-  const chat = page.getByRole('tab', { name: 'Chat', exact: true })
+  // The seeded session is open once its own transcript carries the first
+  // turn's reply; the header no longer has a view tab to read that from, and
+  // scoping to the transcript keeps the sidebar's search index out of it.
+  const seeded = page.locator('[data-conversation-scroll]').getByText('FIRST_DONE', { exact: true })
   // Search is a collapsed header action; expand it so the input is actionable.
   const searchButton = page.getByRole('button', { name: 'Search sessions' })
   if (await searchButton.getAttribute('aria-expanded') !== 'true') await searchButton.click()
   const search = page.getByPlaceholder('Search sessions', { exact: false })
-  if (await chat.count() === 0) {
+  if (await seeded.count() === 0) {
     await search.fill('WATERFALL')
     const result = page.getByRole('tree', { name: 'Search results' }).getByRole('treeitem')
     await expect.poll(() => result.count(), { timeout: 15_000 }).toBe(1)
     await result.click()
-    await chat.waitFor({ timeout: 15_000 })
   }
-  await chat.click()
-  await page.getByText('FIRST_DONE', { exact: true }).waitFor({ timeout: 15_000 })
+  await seeded.waitFor({ timeout: 15_000 })
   if (await search.inputValue() !== '') {
     await search.fill('')
     await expect.poll(() => search.inputValue(), { timeout: 5_000 }).toBe('')
@@ -219,25 +220,15 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
   it.skipIf(MODE === 'record')('renders the trajectory ledger and opens its local record inspector', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-navigation-trajectory'))
     await ensureSeedOpen(page)
-    await page.getByRole('tab', { name: 'Trajectory' }).click()
+    await openTrajectoryTab(page)
     await page.waitForTimeout(100)
-    const overlayLayout = await page.getByRole('table').evaluate((table) => {
-      const host = table.closest('[data-conversation-scroll]')
-      const seat = host?.querySelector('[data-composer-seat]') ?? null
-      const pane = table.parentElement
-      return {
-        hostPosition: host === null ? null : getComputedStyle(host).position,
-        paneOverflowX: pane === null ? null : getComputedStyle(pane).overflowX,
-        paneScrollableWidth: pane === null ? null : pane.scrollWidth - pane.clientWidth,
-        seatPosition: seat === null ? null : getComputedStyle(seat).position,
-      }
-    })
-    expect(overlayLayout).toEqual({
-      hostPosition: 'relative',
-      paneOverflowX: 'hidden',
-      paneScrollableWidth: 0,
-      seatPosition: 'absolute',
-    })
+    // The ledger lives in the right Sidebar column, outside the conversation
+    // scroll that hosted it while it was a Conversation view.
+    const placement = await page.locator('[data-trajectory-scroll]').evaluate(ledger => ({
+      inSidebar: ledger.closest('[data-rightbar-col]') !== null,
+      inConversation: ledger.closest('[data-conversation-scroll]') !== null,
+    }))
+    expect(placement).toEqual({ inSidebar: true, inConversation: false })
     expect({
       pageErrors: tripwire.pageErrors,
       slotErrors,
@@ -265,35 +256,26 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
     await page.getByRole('tab', { name: 'Result' }).click()
     await expect.poll(() => page.getByText('NAVIGATION_OK', { exact: false }).count(), { timeout: 10_000 }).toBeGreaterThanOrEqual(1)
     expect(await page.locator('[data-timeline-span="message"][data-assistant-timing="true"]').count()).toBe(0)
-    const snapshot = (await captureStableAria(page, '[class*="viewArea"]', scaffold.workspaceCwd))
+    const snapshot = (await captureStableAria(page, '[data-rightbar-col]', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
     await compareOrRefreshGolden(TRAJECTORY_EXPECTED, snapshot, MODE)
     await details.getByRole('button', { name: 'Close details' }).click()
   }, 60_000)
 
-  it.skipIf(MODE === 'record')('downloads through the Session Header and /export with one dialog', async () => {
+  it.skipIf(MODE === 'record')('downloads through /export with one dialog', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-navigation-export'))
     await ensureSeedOpen(page)
-    const exportButton = page.getByRole('button', { name: 'More actions' })
-    expect(await exportButton.isDisabled()).toBe(false)
-    const header = exportButton.locator('xpath=ancestor::header[1]')
-    // The right Sidebar's expand button holds the header's corner; the export
-    // control sits immediately to its left.
-    const sidebarButton = page.getByRole('button', { name: 'Open right sidebar' })
-    const [buttonBox, sidebarBox, headerBox] = await Promise.all([
-      exportButton.boundingBox(), sidebarButton.boundingBox(), header.boundingBox(),
-    ])
-    if (buttonBox === null || sidebarBox === null || headerBox === null) {
-      throw new Error('Session Header export geometry is unavailable')
-    }
-    expect(headerBox.x + headerBox.width - (sidebarBox.x + sidebarBox.width)).toBeLessThanOrEqual(32)
-    expect(sidebarBox.x - (buttonBox.x + buttonBox.width)).toBeLessThanOrEqual(32)
+    // The Session Header carries no download control; `/export` is the only
+    // entry point, and the shared dialog reports its outcome.
+    expect(await page.getByRole('button', { name: 'More actions' }).count()).toBe(0)
     const responsePromise = page.waitForResponse(response =>
       response.request().method() === 'HEAD'
       && new URL(response.url()).pathname === '/api/session.export', { timeout: 30_000 })
     const downloadPromise = page.waitForEvent('download', { timeout: 30_000 })
-    await exportButton.click()
-    await page.getByRole('menuitem', { name: 'Download session log' }).click()
+    const composer = page.locator('[data-composer-input]').first()
+    await composer.fill('/export')
+    await page.getByRole('option', { name: /export/u }).waitFor({ timeout: 10_000 })
+    await composer.press('Enter')
     const response = await responsePromise
     expect(response.status()).toBe(200)
     const download = await downloadPromise
@@ -354,7 +336,12 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
       await page.getByRole('dialog', { name: 'Session download started' }).waitFor({ timeout: 30_000 })
       await page.getByRole('dialog', { name: 'Session download started' })
         .getByText('Close', { exact: true }).click()
-      await observer.getByText('Session log download requested.', { exact: true }).waitFor({ timeout: 30_000 })
+      // The observer's transcript reports the command; the ledger renders the
+      // same summary beside it, so the assertion is scoped to the transcript.
+      await observer.locator('[data-conversation-scroll]')
+        .getByText('Session log download requested.', { exact: true })
+        .first()
+        .waitFor({ timeout: 30_000 })
       expect(observerDownloads).toBe(0)
       expect(await observer.getByRole('dialog', { name: 'Session download started' }).count()).toBe(0)
       expect({
@@ -370,7 +357,7 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
   it.skipIf(MODE === 'record')('focuses the ledger by dragging an overview interval', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-navigation-timeline'))
     await ensureSeedOpen(page)
-    await page.getByRole('tab', { name: 'Trajectory' }).click()
+    await openTrajectoryTab(page)
     const plot = page.getByLabel('Timeline overview; drag horizontally to focus events')
     await plot.waitFor({ timeout: 15_000 })
     const before = await page.locator('tr[data-kind]').count()

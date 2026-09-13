@@ -46,7 +46,6 @@ export function apply(ctx: ClientContext): void {
     locale: NS,
     inject: (): SessionLogDownloadDialogInjected => ({
       hooks: { sessionLogDownload: controller.store },
-      request: (sessionId: SessionId) => controller.download(sessionId),
       dismiss: (sessionId: SessionId) => { controller.dismiss(sessionId) },
     }),
   }, SessionLogDownloadHeaderAction))

@@ -19,8 +19,13 @@
     - button "技能":
       - img
       - text: 技能
+    - button "关于 QiLin":
+      - img
+      - text: 关于 QiLin
     - separator "调整设置导航宽度"
-  - button "打开配置文件"
+  - button "返回工作区":
+    - img
+    - text: 返回工作区
   - button "关闭":
     - img
     - text: 关闭

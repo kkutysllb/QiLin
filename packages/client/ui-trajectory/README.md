@@ -1,5 +1,5 @@
 ---
-description: "Trajectory view for the qilin web client: a turn-aware event ledger with an interactive timing overview, registered into the conversation view ring."
+description: "Trajectory tab for the qilin web client right Sidebar: a turn-aware event ledger with an interactive timing overview."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The Trajectory tab lets you inspect agent activity as a turn-aware ledger and interactive timing overview. It groups User, Assistant, Tool, nested Subtool, and compaction records, marks turn and step boundaries, and opens a record inspector for token usage, duration, input, output, timing, images, and attachment summaries. Long histories open at the current tail, load older pages on demand, and render only visible rows. During streaming, the view follows the tail until you scroll upward, and in-flight records show a start marker without inventing elapsed time.
+The Trajectory tab in the right Sidebar lets you inspect agent activity as a turn-aware ledger and interactive timing overview. It groups User, Assistant, Tool, nested Subtool, and compaction records, marks turn and step boundaries, and opens a record inspector for token usage, duration, input, output, timing, images, and attachment summaries. Long histories open at the current tail, load older pages on demand, and render only visible rows. During streaming, the view follows the tail until you scroll upward, and in-flight records show a start marker without inventing elapsed time.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ The Trajectory tab lets you inspect agent activity as a turn-aware ledger and in
 <a id="use-this-package"></a>
 ## Use this package
 
-Open the Trajectory tab in the conversation's view ring to inspect agent activity as an event ledger and timeline. The ledger covers records with an explicit loading row until the initial tail is positioned; while an older prefix remains unloaded, a first-row control loads one earlier page on click and shows a disabled loading status while that page is pending.
+Open the Trajectory tab from the right Sidebar's guide — or from a Chat tool card's inspect action, which focuses that call — to inspect agent activity as an event ledger and timeline. The ledger covers records with an explicit loading row until the initial tail is positioned; while an older prefix remains unloaded, a first-row control loads one earlier page on click and shows a disabled loading status while that page is pending.
 
 ### Inspecting records
 
@@ -53,7 +53,7 @@ Long ledgers initially derive React data from 50 target Nodes ending at the moun
 
 ### Layout
 
-Trajectory asks the conversation shell to float the composer over the full-height ledger, while its responsive vertical scrollers reserve the composer's live height so final rows remain reachable. Scrollable Summary regions keep their scrollbar thumbs transparent until hovered or focused, without changing the reserved scroll geometry. The package provides no service and declares no Context merge.
+The ledger fills its Sidebar pane and owns its own vertical scrollers, with no reserved space for the conversation's floating composer. Scrollable Summary regions keep their scrollbar thumbs transparent until hovered or focused, without changing the scroll geometry. The package provides no service and declares no Context merge.
 
 </details>
 
@@ -64,7 +64,7 @@ Trajectory asks the conversation shell to float the composer over the full-heigh
 
 These pages cover the conversation host and the session data this view projects.
 
-- [ui-conversation](../ui-conversation/README.md) — the chat surface hosting the `conversation.view` ring.
+- [ui-sidebar-right](../ui-sidebar-right/README.md) — the Sidebar whose tab registry and keyed body seat this package registers into.
 - [session-projection](../../session/session-projection/README.md) — the projection registry serving client-facing read models of session state.
 - [session](../../core/session/README.md) — the session seam whose window holds the raw events.
 - [compaction](../../compaction/compaction/README.md) — the compaction seam whose requests appear in the ledger.
@@ -99,4 +99,4 @@ None.
 
 </details>
 
-**Runtime invariant:** No companion is published. A pure-consumer plugin — it emits no cordis events and owns no mutable cross-plugin state; its view-slot registration is a plain effect whose disposal the slot ledger's own specs and this package's behavior specs observe directly.
+**Runtime invariant:** No companion is published. A pure-consumer plugin — it emits no cordis events and owns no mutable cross-plugin state; its tab-type and tab-body registrations are plain effects whose disposal this package's behavior specs observe directly.

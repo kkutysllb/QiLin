@@ -92,4 +92,4 @@ Use the four detailed references according to the extension being added:
 - [Client Modules](client-modules.md) for package discovery, loading, shared module identities, and boot order.
 - [API Gateway](../api-gateway.md) for Host methods, generated Remote contributions, streams, and forwarded events.
 - [Web Client Slots](slots.md) for components, hooks, stores, injection, and placement.
-- [Conversation](conversation.md) for durable event correlation, target snapshots, and Chat or Trajectory view contributions.
+- [Conversation](conversation.md) for durable event correlation, target snapshots, and Chat view or Trajectory tab contributions.

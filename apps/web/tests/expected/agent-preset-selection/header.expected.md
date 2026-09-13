@@ -6,7 +6,5 @@
     - img
 - img
 - text: Minimal mode
-- button "More actions":
-  - img
 - button "Open right sidebar":
   - img

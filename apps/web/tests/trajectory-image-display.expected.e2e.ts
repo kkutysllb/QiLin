@@ -44,6 +44,30 @@ async function openFixtureSession(): Promise<void> {
   }, { timeout: 10_000 })
 }
 
+/**
+ * Reveal the right Sidebar's Trajectory page.
+ *
+ * The ledger's only seat is that column now that the conversation header
+ * carries no view tabs, so this jsdom scenario walks the same path the browser
+ * helper does: expand the collapsed column, then pick the trajectory capsule
+ * off the seeded guide page. Nothing here depends on rendered visibility —
+ * jsdom has no layout, and the panel stays mounted while collapsed.
+ */
+async function openTrajectoryPage(): Promise<void> {
+  const expand = document.querySelector('[data-sidebar-right-expand]')
+  if (!(expand instanceof HTMLElement)) throw new Error('right Sidebar expand control missing')
+  fireEvent.click(expand)
+  const capsule = await waitFor(() => {
+    const entry = document.querySelector('[data-sidebar-right-guide-entry="trajectory"]')
+    if (!(entry instanceof HTMLElement)) throw new Error('trajectory guide entry missing')
+    return entry
+  }, { timeout: 10_000 })
+  fireEvent.click(capsule)
+  await waitFor(() => {
+    if (document.querySelector('[data-trajectory-scroll]') === null) throw new Error('trajectory ledger missing')
+  }, { timeout: 10_000 })
+}
+
 /** Scroll the virtual ledger until the row whose text contains `needle` mounts. */
 async function scrollRowIntoWindow(needle: string): Promise<HTMLElement> {
   await waitFor(() => {
@@ -86,7 +110,7 @@ it('renders durable record images in the Trajectory details panel from the share
   const chatSrc = document.querySelector('[data-align="end"] img')?.getAttribute('src')
   if (chatSrc === null || chatSrc === undefined) throw new Error('chat gallery image missing')
 
-  fireEvent.click(screen.getByRole('tab', { name: 'Trajectory' }))
+  await openTrajectoryPage()
   const userRow = await scrollRowIntoWindow('历史用户图片')
   fireEvent.click(userRow)
 

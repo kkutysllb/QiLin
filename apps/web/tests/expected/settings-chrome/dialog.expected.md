@@ -46,7 +46,3 @@
   - button "排队发送":
     - text: 排队发送
     - img
-  - complementary "关于 QiLin":
-    - img "QiLin 麒麟标识": 麒麟
-    - heading "关于 QiLin" [level=2]
-    - paragraph: 连接模型、工具与会话，保持任务清晰可控。

@@ -10,7 +10,7 @@ import {
   fixtureUserPrompts, launchWebScaffold, seedSession, watchConsole, webSnapshotMode,
   type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, newEnglishPage, saveFailureShot } from './support.ts'
+import { connectFreshWorkspace, newEnglishPage, openFilesTab, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/details-session-lifecycle', import.meta.url))
 const HANDLES_EXPECTED = join(SNAPSHOT_DIR, 'handles.expected.md')
@@ -231,6 +231,9 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
       // The panel's slide completes independently of the frame's grid tracks.
       await expect.poll(() => panel.evaluate(element => getComputedStyle(element).transform))
         .toBe('none')
+      // A pane arriving fresh seeds the guide page now that two types contribute
+      // capsules; every checkpoint below reads the Files page.
+      await openFilesTab(page, column)
     }
     const close = async (): Promise<void> => {
       await column.locator('[data-sidebar-right-toggle]').click()
@@ -261,7 +264,7 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
     await panes.first().locator('[data-dockkit-tab]').filter({ hasText: 'Files' }).click()
     await expect.poll(() => panes.first().locator('[data-files-state="tree"]').count()).toBe(1)
     const retainedA = await paneSnapshot(page)
-    expect(retainedA.map(pane => pane.tabs.map(tab => tab.title))).toEqual([['Files', 'Start'], ['Files']])
+    expect(retainedA.map(pane => pane.tabs.map(tab => tab.title))).toEqual([['Files', 'Start'], ['Start']])
     await checkpoint('A normal: two panes')
 
     await column.locator('[data-sidebar-right-mode="fullscreen"]').click()

@@ -22,7 +22,7 @@ import {
   webSnapshotMode,
   type WebScaffold,
 } from './scaffold.ts'
-import { newEnglishPage, saveFailureShot } from './support.ts'
+import { newEnglishPage, openTrajectoryTab, saveFailureShot } from './support.ts'
 
 const MODE = webSnapshotMode()
 const LOAD_MORE_EXPECTED = fileURLToPath(new URL(
@@ -76,16 +76,20 @@ async function openSeed(page: Page): Promise<void> {
   const result = page.getByRole('tree', { name: 'Search results' }).getByRole('treeitem')
   await expect.poll(() => result.count(), { timeout: 60_000 }).toBe(1)
   await result.click()
-  await page.getByRole('tab', { name: 'Trajectory', exact: true }).waitFor({ timeout: 30_000 })
+  // The session is open once its transcript mounts; the header no longer
+  // carries view tabs to wait on. The first flow item may be a collapsed
+  // Turn-process row, so the barrier is a VISIBLE one.
+  await page.locator('[data-chat-flow-key]:visible').first().waitFor({ timeout: 30_000 })
+  // A collapsed Turn-process row also carries the marker text, so the tail
+  // barrier is the VISIBLE occurrence.
   await page.getByText(FIXTURE.markers.assistant(FIXTURE.turns), { exact: false })
+    .filter({ visible: true })
     .last()
     .waitFor({ timeout: 30_000 })
 }
 
 async function openTrajectory(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: 'Trajectory', exact: true }).click()
-  const pane = page.locator('[data-trajectory-scroll]')
-  await pane.waitFor({ timeout: 30_000 })
+  await openTrajectoryTab(page)
   await page.locator('[data-trajectory-scroll] table[data-scroll-ready="true"]')
     .waitFor({ timeout: 30_000 })
 }
@@ -338,7 +342,12 @@ describe('web e2e: Trajectory virtualization over tail-paged history', () => {
       await input.fill('Stream one deterministic response while Trajectory remains visible.')
       await input.press('Enter')
       await settled
-      await page.getByText('stream fragment 01', { exact: false }).waitFor({ timeout: 30_000 })
+      // The ledger renders the same reply beside the transcript, so the
+      // barrier is scoped to the surface under measurement.
+      await page.locator('[data-trajectory-scroll]')
+        .getByText('stream fragment 01', { exact: false })
+        .first()
+        .waitFor({ timeout: 30_000 })
       await nextPaint(page)
       const streamingScrollCalls = await trajectoryScroll.evaluate(() => {
         return (window as Window & { __trajectoryScrollCalls?: number })

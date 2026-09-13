@@ -8,7 +8,7 @@ import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, vi } from 'vitest'
 import { pdfFixture } from '../../../packages/client/ui-sidebar-documentpreview/tests/pdf-fixture.ts'
 import { assertFixtureInventory, compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
-import { connectFreshWorkspace, newEnglishPage, saveFailureShot } from './support.ts'
+import { connectFreshWorkspace, newEnglishPage, openFilesTab, saveFailureShot } from './support.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../../snapshots/web/lifecycle-chrome/session.v3.jsonl', import.meta.url))
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/document-preview', import.meta.url))
@@ -134,7 +134,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
 
     const column = page.locator('[data-rightbar-col]')
     await page.locator('[data-sidebar-right-expand]').click()
-    await column.locator('[data-files-state="tree"]').waitFor({ state: 'visible' })
+    await openFilesTab(page, column)
     await column.locator('[data-files-reload]').click()
     const filesTab = column.locator('[data-dockkit-tab]').filter({ has: page.getByText('Files', { exact: true }) })
     const addTab = column.locator('[data-dockkit-add-tab]')

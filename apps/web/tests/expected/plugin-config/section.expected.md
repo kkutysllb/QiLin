@@ -19,8 +19,13 @@
     - button "技能":
       - img
       - text: 技能
+    - button "关于 QiLin":
+      - img
+      - text: 关于 QiLin
     - separator "调整设置导航宽度"
-  - button "打开配置文件"
+  - button "返回工作区":
+    - img
+    - text: 返回工作区
   - button "关闭":
     - img
     - text: 关闭
@@ -33,11 +38,11 @@
     - list:
       - listitem:
         - 'button "展开设置: 终端"':
-          - text: 终端 限制 agent 运行的每一条命令。
+          - text: 终端 限制 agent 运行的每一条命令。 60000
           - img
       - listitem:
         - 'button "展开设置: Agent 循环"':
-          - text: Agent 循环 Agent 如何派发工具调用。
+          - text: Agent 循环 Agent 如何派发工具调用。 10
           - img
       - listitem:
         - 'button "展开设置: Subagent"':

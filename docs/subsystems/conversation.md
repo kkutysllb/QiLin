@@ -16,7 +16,7 @@ The Session Controller owns the contiguous loaded logical-event window. Each `Se
 | Context | The engine-owned ordered Matches and current State for one `(kind, id)`. A transient event occupies one update Match; update-only evidence may remain pending until pagination supplies its unique durable start. |
 | Location | The engine-owned Session, Turn, or Step coordinates derived from durable boundary events. Definitions may publish typed data onto one Turn or Step. |
 | View Definition | A target package creates one incremental builder per Session and owns the final snapshot type for that target. |
-| View | A Slot entry such as Chat or Trajectory reads only its target snapshot and renders target-owned nodes. |
+| View | A Slot entry such as Chat reads only its target snapshot and renders target-owned nodes. The Trajectory target reaches the browser through the right Sidebar's tab type instead. |
 
 Chat and Trajectory may recognize the same durable event family, but each keeps its own Definition State and final node payload. Shared target-neutral machinery is limited to identity routing, ordered replay, Location data, predecessor dependencies, and publication cadence.
 

@@ -1,3 +1,14 @@
+- tablist:
+  - tab "Trajectory Close" [selected]:
+    - text: Trajectory
+    - button "Close":
+      - img
+  - button "New tab":
+    - img
+  - button "Split"
+  - button "Fullscreen"
+  - button "Collapse right sidebar":
+    - img
 - toolbar "Trajectory toolbar":
   - button "Use actual duration": Duration
   - button "Collapse turns": Turns

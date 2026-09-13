@@ -19,7 +19,7 @@
 | [`client/resources`](../../packages/client/resources/README.zh.md) | `ctx.resources`、`useResource`、协议 → 值类型的花名册 `ResourceProtocolMap` |
 | [`api/workspace-files`](../../packages/api/workspace-files/README.zh.md) | Host `ctx.workspaceFiles`、`workspaceFiles` Remote 命名空间与 Client `file` 资源提供者 |
 | [`util/workspace-path`](../../packages/util/workspace-path/README.zh.md) | 文件地址语法：`fileAddressFor`、`parseFileAddress` |
-| [`client/ui-sidebar-documentpreview`](../../packages/client/ui-sidebar-documentpreview/README.zh.md)、[`client/ui-sidebar-files`](../../packages/client/ui-sidebar-files/README.zh.md) | 内置的 `text` 与 `files` 类型 |
+| [`client/ui-sidebar-documentpreview`](../../packages/client/ui-sidebar-documentpreview/README.zh.md)、[`client/ui-sidebar-files`](../../packages/client/ui-sidebar-files/README.zh.md)、[`client/ui-trajectory`](../../packages/client/ui-trajectory/README.zh.md) | 内置的 `text`、`files` 与 `trajectory` 类型 |
 
 ## 地址
 
@@ -133,6 +133,7 @@ Host 的 `ctx.workspaceFiles` 服务与生成的 `workspaceFiles` Remote 命名�
 - **`guide`**——`builtin`，以 `openTab('guide')` 打开。一枚弱化的罗盘位于各类型按 `order` 贡献的入口胶囊上方；入口较少时显示已注册的描述，未提供图标的入口统一使用内置占位符。点选胶囊即在引导 tab 的位置把贡献它的类型作为页面打开。每个 pane 最多一个引导 tab，tab 条的新增控件只在本 pane 没有引导时出现。新 pane 使用已注册的默认页：只有一个引导入口时直接使用该入口，否则使用引导页（[引导](../../packages/client/ui-sidebar-right/README.zh.md#the-guide)）。
 - **`text`**——`fallback`，`qilin-resource://file/**`，只认领 Session 地址。Document Preview 通过 `useResource<'file'>` 观察元数据，经 Remote 回调加载内容，并拥有渲染器选择、工具栏、逐 tab 刷新、滚动与源码定位；未知扩展名按纯文本渲染（[README](../../packages/client/ui-sidebar-documentpreview/README.zh.md)）。
 - **`files`**——`builtin`，以 `openTab('files')` 打开。工作区目录树，经 `list` 懒加载，用 `tab.actions.openResource(fileAddressFor(sessionId, root, path))` 在自己所在 pane 打开文件（[README](../../packages/client/ui-sidebar-files/README.zh.md)）。
+- **`trajectory`**——`builtin`，以 `openTab('trajectory', { params: { focus } })` 打开。按轮次组织的事件记录表及其时间概览；Chat 工具卡片的查看操作会聚焦该调用打开它（[README](../../packages/client/ui-trajectory/README.zh.md)）。
 
 <a id="not-built"></a>
 ## 不做

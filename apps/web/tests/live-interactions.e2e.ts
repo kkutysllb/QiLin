@@ -27,7 +27,7 @@ import {
   compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, newEnglishPage, saveFailureShot } from './support.ts'
+import { connectFreshWorkspace, newEnglishPage, openTrajectoryTab, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/live-interactions', import.meta.url))
 const FIXTURE = join(SNAPSHOT_DIR, 'session.v3.jsonl')
@@ -229,11 +229,15 @@ describe('web e2e: live-turn interactions (cancel / error / retry)', () => {
     expect(await page.locator('body').textContent()).not.toContain('sk-preview-secret')
     const snapshot = await captureStableAria(page, '[class*="centerCol"]', scaffold!.workspaceCwd)
     await compareOrRefreshGolden(ERROR_EXPECTED, snapshot, MODE)
-    await page.getByRole('tab', { name: 'Trajectory' }).click()
+    await openTrajectoryTab(page)
     const requestMarker = page.locator('tr[data-request-only="true"]').last()
       .getByRole('button', { name: /Request #/ })
     await requestMarker.click()
-    await page.getByText('API key is invalid', { exact: true }).waitFor({ timeout: 10_000 })
+    // The Chat transcript stays visible beside the Sidebar ledger, so the
+    // error is asserted where the request opened it.
+    await page.getByRole('complementary', { name: 'Event details' })
+      .getByText('API key is invalid', { exact: true })
+      .waitFor({ timeout: 10_000 })
     expect(await page.locator('body').textContent()).not.toContain('sk-preview-secret')
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])
@@ -245,7 +249,7 @@ describe('web e2e: live-turn interactions (cancel / error / retry)', () => {
     }))
     const { settled } = await sendPrompt()
     await settled
-    await page.getByRole('tab', { name: 'Trajectory' }).click()
+    await openTrajectoryTab(page)
     // The boundary marker row itself is a 0-height hairline except at the
     // table tail; the marker button is absolutely positioned and stays
     // visible, so wait on it directly.

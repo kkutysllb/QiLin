@@ -216,7 +216,7 @@ const ChatNodeList = memo(function ChatNodeList({ order, ...seatProps }: ChatNod
  */
 export function ChatView({
   useSession, useChat, useChatNode, useChatNodeProcess, useSessions, useStore, actions, renderSlot,
-  sessionId, openFile, loadOlder, loadThrough, loadImage, openView, chatScroll, forkAt, fileMentions,
+  sessionId, openFile, openTrajectory, loadOlder, loadThrough, loadImage, chatScroll, forkAt, fileMentions,
   useTranscriptView, useProjection, t,
 }: ChatViewSlotProps) {
   const order = useChat(s => s.order)
@@ -243,8 +243,8 @@ export function ChatView({
   const loadingOlder = useSession(s => s.loadingOlder)
   const compactTranscript = useTranscriptView(mode => mode === 'compact')
   const inspectCall = useCallback((callId: string) => {
-    openView('trajectory', callId)
-  }, [openView])
+    openTrajectory(callId)
+  }, [openTrajectory])
   const [fileOpenError, setFileOpenError] = useState<{ path: string; message: string } | null>(null)
   const [fileOpenBusy, setFileOpenBusy] = useState(false)
   // Close/retry must ignore a settlement that started before the latest

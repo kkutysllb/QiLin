@@ -246,12 +246,8 @@ export interface InputZone {
 
 /** Conversation View entries obtain their data from registered standard hooks. */
 export interface ConvViewOwnerProps {
-  /** Focus request addressed to the selected View. */
-  viewRequest: import('./views.ts').ConversationViewRequest | null
-  /** Select a View and address one opaque focus identity to it. */
-  openView: (view: string, focus: string) => void
-  /** Acknowledge the current one-shot focus request. */
-  completeViewRequest: () => void
+  /** Marker field: the shell gives Views no owner-specific values. */
+  children?: never
 }
 
 /** Base props of one target-owned Conversation View entry. */
@@ -271,8 +267,6 @@ export interface ConversationSessionInjected {
   readonly hooks: { readonly conversationViews: ObservableSnapshot<readonly ViewTab[]> }
   /** Bind input draft persistence to the Session-owned store instance. */
   bindDraftMirror: (write: (text: string) => void) => () => void
-  /** Select and activate one View while addressing an opaque focus request to it. */
-  openView: (view: string, focus: string) => void
 }
 
 /** Business callbacks injected into the strict Session header. */

@@ -23,6 +23,6 @@
   min-width: 0;
   overflow: hidden;
 
-  /* ConversationRoot publishes the floating composer's live height. */
-  --qilin-trajectory-bottom-clearance: calc(var(--qilin-composer-height, 152px) + 16px);
+  /* The ledger sits in a Sidebar tab: no floating composer to clear. */
+  --qilin-trajectory-bottom-clearance: 0px;
 }

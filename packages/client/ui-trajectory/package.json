@@ -32,7 +32,8 @@
         "@qilin/client-locale",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-renderer",
-        "@qilin/client-ui-session"
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-sidebar-right"
       ],
       "platform": "web"
     }
@@ -65,6 +66,7 @@
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-sidebar-right": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/attachment": "workspace:^",
     "@tanstack/react-virtual": "^3.14.9",

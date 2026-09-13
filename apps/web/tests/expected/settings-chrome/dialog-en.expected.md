@@ -46,7 +46,3 @@
   - button "Queue":
     - text: Queue
     - img
-  - complementary "About QiLin":
-    - img "QiLin seal mark": 麒麟
-    - heading "About QiLin" [level=2]
-    - paragraph: Connect models, tools, and sessions for focused work.

@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
-  AssistantBlock, AssistantMessageNode, ConvViewProps, MessageImageLoader, RenderMessageImages,
+  AssistantBlock, AssistantMessageNode, MessageImageLoader, RenderMessageImages,
   ToolCallBlock,
 } from '@qilin/client-ui-conversation/client'
-import type { InjectFace, PropsLocale, PropsRenderSlots } from '@qilin/client-ui-slots'
+import type {
+  InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
+} from '@qilin/client-ui-slots'
 import type { SnapshotStore } from '@qilin/client-store'
+import type {} from '@qilin/client-ui-sidebar-right/client'
 import {
   TrajectoryTable,
   type TrajectoryRequestNumber,
@@ -72,7 +75,7 @@ function partialStructureSignature(partial: TrajectorySnapshot['partial']): stri
     : block.kind).join('\u0000')
 }
 
-/** Session-bound controls not already supplied by the conversation view slot. */
+/** Session-bound controls not already supplied by the Sidebar tab seat. */
 export interface TrajectoryViewInjected {
   hooks: {
     duration: SnapshotStore<boolean>
@@ -81,6 +84,13 @@ export interface TrajectoryViewInjected {
   loadImage: MessageImageLoader
   setActualDuration: (actualDuration: boolean) => void
 }
+
+/** The ledger body's composed props: the Sidebar tab seat, its images child, and its controls. */
+export type TrajectoryViewProps =
+  & PropsRuntime<'sidebar.right.pane.tab'>
+  & PropsRenderSlots<'conversation.trajectory.images'>
+  & InjectFace<TrajectoryViewInjected>
+  & PropsLocale<'trajectory'>
 
 interface UsageLike {
   inputTokens?: number
@@ -127,12 +137,23 @@ function addUsage(
 }
 
 export function TrajectoryView({
-  useSession, useTrajectory, useDuration, loadOlder, loadImage, setActualDuration,
-  viewRequest, completeViewRequest, renderSlot, t,
-}: ConvViewProps
-  & PropsRenderSlots<'conversation.trajectory.images'>
-  & InjectFace<TrajectoryViewInjected>
-  & PropsLocale<'trajectory'>) {
+  useSession, useTrajectory, useDuration, useTabInfo, loadOlder, loadImage, setActualDuration,
+  renderSlot, t,
+}: TrajectoryViewProps) {
+  // The ledger focuses on a tool call when Chat's inspect action opens this
+  // tab with that call in the navigation parameters. The applied revision is
+  // body-local: one navigation applies once, a later navigation of the same
+  // call applies again, and remounting the body (a tab switch away and back)
+  // re-applies the navigation the tab already carries.
+  const navigation = useTabInfo().tab.navigation
+  const [appliedRevision, setAppliedRevision] = useState(0)
+  const focusCallId = navigation.params !== undefined && 'focus' in navigation.params
+    ? navigation.params.focus
+    : undefined
+  const inspectCallId = focusCallId !== undefined && navigation.revision !== appliedRevision
+    ? focusCallId
+    : null
+  const completeViewRequest = (): void => { setAppliedRevision(navigation.revision) }
   const [collapsedTurns, setCollapsedTurns] = useState<ReadonlySet<number>>(EMPTY_TURN_IDS)
   const renderImages = useCallback<RenderMessageImages>(
     owner => renderSlot('conversation.trajectory.images', { ...owner, loadImage }),
@@ -196,7 +217,6 @@ export function TrajectoryView({
   const runningCalls = inspection.runningCalls
   const requests = inspection.requests
   const callSchemas = inspection.callSchemas
-  const inspectCallId = viewRequest?.view === 'trajectory' ? viewRequest.focus : null
   const inspectNodeIndex = useMemo(() => inspectCallId === null
     ? -1
     : completeInspection.eventNodes.findIndex(node => node.kind === 'assistant'
@@ -505,7 +525,7 @@ export function TrajectoryView({
   }, [hasResidentOlderHistory, loadOlder])
 
   return (
-    <div className={css.root} data-conversation-composer-overlay="">
+    <div className={css.root}>
       <TrajectoryToolbar
         actualDuration={actualDuration}
         onActualDurationChange={(nextActualDuration) => {

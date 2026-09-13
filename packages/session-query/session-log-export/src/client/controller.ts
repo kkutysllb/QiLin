@@ -1,4 +1,4 @@
-/** Browser download state shared by the Session Header button and `/export`. */
+/** Browser download state published to the shared modal by the `/export` command. */
 
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'

@@ -8,6 +8,8 @@ import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-ui-sidebar-right/client'
 // The `file` entry of `SidebarRightResourceParamsMap`, which types `{ params: { line } }` below.
 import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
+// The `trajectory` entry of `SidebarRightTabParamsMap`, which types the inspect open below.
+import type {} from '@qilin/client-ui-trajectory/client'
 import { fileAddressFor } from '@qilin/util-workspace-path'
 // Type-only service and declaration merges used by the apply world.
 import type {} from '@qilin/client-locale/client'
@@ -117,6 +119,11 @@ export function apply(ctx: Context): void {
             chatNodeProcess: key => chat.getSnapshot().nodes.processSource(key),
           },
           fileMentions: (owner: TurnTailOwnerProps) => ctx.get('chatFileMentions')?.forClosing(owner, sessionId),
+          // A tool card's inspect action opens the Sidebar's ledger tab,
+          // addressed to that call through the navigation parameters.
+          openTrajectory: (callId) => {
+            ctx.sidebarRight.openTab('trajectory', { params: { focus: callId } })
+          },
           // Files open in the right Sidebar, not in a desktop application: the
           // content stays in the product, beside the conversation that produced
           // it. A relative path, or an absolute one inside the session's

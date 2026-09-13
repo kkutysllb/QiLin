@@ -1,6 +1,6 @@
 /**
- * Browser trajectory plugin contributing one entry to the conversation view
- * slot without defining a service.
+ * Browser trajectory plugin: a right-Sidebar tab type whose body is the event
+ * ledger, without defining a service.
  */
 import type { Context } from '@deepseek-ai/cordis'
 import type { ImageAttachmentRef } from '@qilin/attachment'
@@ -9,8 +9,9 @@ import type { ObservableSnapshot } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin/client-locale/client'
-// Type-only: the 'conversation.view' SlotMap row (declared by the slot's
-// owning package) must be in the program for the register calls to type.
+// Type-only: the 'sidebar.right.pane.tab' SlotMap row and the tab-type
+// registry's Context merge, both declared by the Sidebar's owning package.
+import type {} from '@qilin/client-ui-sidebar-right/client'
 import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
@@ -25,6 +26,7 @@ import {
 } from './trajectory-snapshot-builder.ts'
 import type { TrajectorySnapshot } from './trajectory-contract.ts'
 import { registerTrajectoryToolDefinition } from './trajectory-tool-definition.ts'
+import { TRAJECTORY_ID, trajectoryTabDefinition } from './trajectory-tab-definition.ts'
 import { TrajectoryView, type TrajectoryViewInjected } from './TrajectoryView.tsx'
 
 export type { TrajectoryKey } from './locales.ts'
@@ -35,13 +37,16 @@ export type {
   TrajectorySnapshot,
   UseTrajectory,
 } from './trajectory-contract.ts'
+export type { TrajectoryTabParams } from './trajectory-tab-definition.ts'
+export { TRAJECTORY_ID, TRAJECTORY_KIND } from './trajectory-tab-definition.ts'
 
-/** Required services: the conversation slot, registries, ordinary Session paging, and the locale service. */
-export const inject = ['slots', 'sessions', 'uiSession', 'uiConversation', 'locale']
+/** Required services: the Sidebar tab registry, the slot registry, Session paging, and the locale service. */
+export const inject = ['slots', 'sessions', 'uiSession', 'uiConversation', 'sidebarRightTabs', 'locale']
 
 /**
- * Client plugin body: register the trajectory view tab. The registration
- * rides the slot service's effect wrapper, so plugin unload removes the tab.
+ * Client plugin body: register the Sidebar tab type, its body, and its data
+ * contributions. Each registration rides an effect wrapper, so plugin unload
+ * removes the type and its seats together.
  * @param ctx - client root context.
  */
 export function apply(ctx: Context): void {
@@ -59,8 +64,8 @@ export function apply(ctx: Context): void {
     return source
   }
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-trajectory: dictionaries')
-  // Registration-time text (the view tab label) reads through the bound
-  // translate as a thunk, so it follows the active locale without
+  // Registration-time text (the tab chip and guide labels) reads through the
+  // bound translate as a thunk, so it follows the active locale without
   // re-registration.
   const t = ctx.locale.bind(NS)
   const duration = createTrajectoryDurationStore()
@@ -70,16 +75,18 @@ export function apply(ctx: Context): void {
   registerTrajectoryToolDefinition(ctx)
   registerTrajectoryCompactionDefinitions(ctx)
   registerTrajectoryConversationView(ctx)
+  ctx.effect(
+    () => ctx.sidebarRightTabs.register(trajectoryTabDefinition(t)),
+    'ui-trajectory: tab type',
+  )
   ctx.uiSession.provide({
     hooks: ['trajectory'],
     resolve: binding => ({ hooks: { trajectory: trajectorySource(binding) } }),
   })
-  ctx.slots.inject('conversation.view', () => ctx.slots.register({
-    name: 'conversation.view',
-    id: 'trajectory',
-    order: 10,
+  ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({
+    name: 'sidebar.right.pane.tab',
+    key: TRAJECTORY_ID,
     locale: NS,
-    label: () => t('view.trajectory'),
     children: {
       'conversation.trajectory.images': { kind: 'single', scope: 'session' },
     },
@@ -103,5 +110,5 @@ export function apply(ctx: Context): void {
         setActualDuration: (value) => { duration.set(value) },
       }
     },
-  }, TrajectoryView))
+  }, TrajectoryView)), 'ui-trajectory: tab body')
 }

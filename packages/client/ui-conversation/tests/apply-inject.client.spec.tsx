@@ -117,7 +117,7 @@ describe('Conversation inject API', () => {
     const b = await bench()
     const { injected } = b.conversationApi(ROOT)
     expect(b.sessionFake.loadOlder).not.toHaveBeenCalled()
-    expect(Object.keys(injected)).toEqual(['hooks', 'bindDraftMirror', 'openView'])
+    expect(Object.keys(injected)).toEqual(['hooks', 'bindDraftMirror'])
     expect(b.viewSource(ROOT).getSnapshot()).toEqual([])
     await b.runtime.dispose()
   })
@@ -137,15 +137,11 @@ describe('Conversation inject API', () => {
     await Promise.resolve()
     activate.mockClear()
 
-    const body = b.conversationApi(ROOT)
-    body.injected.openView('trajectory', 'call-1')
-    expect(activate).toHaveBeenLastCalledWith('trajectory')
-    expect(body.instance.store.getSnapshot()).toMatchObject({
-      view: 'trajectory',
-      viewRequest: { view: 'trajectory', focus: 'call-1' },
-    })
-
     const header = b.headerApi(ROOT)
+    header.injected.selectView('trajectory')
+    expect(activate).toHaveBeenLastCalledWith('trajectory')
+    expect(header.instance.store.getSnapshot().view).toBe('trajectory')
+
     header.injected.selectView('chat')
     expect(activate).toHaveBeenLastCalledWith('chat')
     expect(header.instance.store.getSnapshot().view).toBe('chat')
@@ -167,7 +163,7 @@ describe('Conversation inject API', () => {
     try {
       await b.runtime.flush()
       localStorage.setItem(`qilin.conversation.${ROOT}`, JSON.stringify({
-        draft: '', view: 'custom', viewRequest: null,
+        draft: '', view: 'custom',
       }))
 
       b.runtime.ctx.uiSession.adapter.resolve(ROOT)

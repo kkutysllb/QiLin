@@ -139,8 +139,7 @@ root
 │     │     │  └─ tool.call.toolview
 │     │     │     ├─ tool.call.images
 │     │     │     └─ tool.view.cordis
-│     │     ├─ conversation.message.images
-│     │     └─ conversation.trajectory.images
+│     │     └─ conversation.message.images
 │     ├─ conversation.session.header
 │     │  ├─ conversation.session.header.lineage
 │     │  ├─ conversation.session.header.actions
@@ -164,7 +163,8 @@ root
 ├─ rightbar
 │  └─ rightbar.session
 │     ├─ sidebar.right.pane.tab
-│     │  └─ sidebar.right.tab.guide
+│     │  ├─ sidebar.right.tab.guide
+│     │  └─ conversation.trajectory.images
 │     ├─ sidebar.right.pane.tab.title
 │     └─ sidebar.right.tab.menu.item
 └─ shell.overlay

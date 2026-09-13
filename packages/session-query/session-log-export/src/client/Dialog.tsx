@@ -8,7 +8,6 @@ import { NS } from './locales.ts'
 /** Browser operations and state injected into the Session Header contribution. */
 export interface SessionLogDownloadDialogInjected {
   hooks: { sessionLogDownload: ObservableSnapshot<SessionLogDownloadState> }
-  request: (sessionId: SessionId) => Promise<void>
   dismiss: (sessionId: SessionId) => void
 }
 
@@ -18,7 +17,7 @@ export type SessionLogDownloadDialogProps =
   & InjectFace<SessionLogDownloadDialogInjected>
 
 /**
- * Modal shared by the Session Header download menu item and this browser's `/export` command.
+ * Modal reporting the outcome of a Session export, started by this browser's `/export` command.
  * @param props - Session runtime, bound controller state, actions, and localized copy.
  * @returns the modal portal contribution.
  */

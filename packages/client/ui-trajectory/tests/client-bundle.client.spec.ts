@@ -3,8 +3,8 @@
  * Real tsdown artifact shape: lib/client.js hands off through
  * window.__ModuleLoader__.load, resolves externals through the injected
  * require, returns the exports (apply + inject), and a mounted apply
- * registers the view tab into a real SlotRegistry ring. Skips when dist/ is
- * not built (`pnpm --filter @qilin/client-ui-trajectory bundle`).
+ * registers the Sidebar tab type and its keyed body seat. Skips when dist/
+ * is not built (`pnpm --filter @qilin/client-ui-trajectory bundle`).
  */
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -13,6 +13,9 @@ import { stubSettingsScope } from '@qilin/client-test-runtime'
 import { afterEach, describe, expect, it } from 'vitest'
 import { UiConversation } from '@qilin/client-ui-conversation/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import { tabInfoFactory } from '@qilin/client-ui-sidebar-right/src/client/tab-info.ts'
+import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { TRAJECTORY_ID, TRAJECTORY_KIND } from '../src/client/trajectory-tab-definition.ts'
 
 const PLUGIN_ID = '@qilin/client-ui-trajectory'
 
@@ -65,24 +68,33 @@ describe('tsdown client artifact', () => {
     expect(handoff.id).toBe(PLUGIN_ID)
     expect(exports.apply).toBeTypeOf('function')
     expect(exports.inject).toEqual([
-      'slots', 'sessions', 'uiSession', 'uiConversation', 'locale',
+      'slots', 'sessions', 'uiSession', 'uiConversation', 'sidebarRightTabs', 'locale',
     ])
   })
 
-  it.skipIf(code === undefined)('mounted as an object plugin, apply registers the view tab on the real ring', async () => {
+  it.skipIf(code === undefined)('mounted as an object plugin, apply registers the Sidebar tab type and its body seat', async () => {
     const { exports } = await loadArtifact()
     const ctx = new Context()
     const slots = new SlotRegistry(ctx)
     ctx.provide('uiSession', { provide: () => () => {} } as never)
-    // The conversation entry's role: the ring must be declared before riders land.
+    // The Sidebar's role: own the tab-type registry and declare the keyed body
+    // seat the type registers into before its riders land.
+    const tabs = new SidebarRightTabRegistry(ctx)
+    ctx.provide('sidebarRightTabs', tabs as never)
     slots.register({
       name: 'root',
-      children: { 'conversation.view': { kind: 'list', scope: 'session' } },
+      children: {
+        'sidebar.right.pane.tab': {
+          kind: 'keyed',
+          scope: 'session',
+          inject: { hooks: { tabInfo: tabInfoFactory } },
+        },
+      },
     }, (_p: { renderSlot?: unknown }) => null)
     // Paging is session-owned; this registration-only probe never renders the
     // entry, so the binding stays deliberately empty. The locale plugin backs
-    // the locale-aware view tab label (its settings scope needs a connection
-    // handle and the Host-facing settings/remote seams).
+    // registration-time copy (its settings scope needs a connection handle and
+    // the Host-facing settings/remote seams).
     const sessions = { binding: () => undefined }
     ctx.provide('sessions', sessions)
     const uiConversation = new UiConversation(ctx, sessions as never)
@@ -94,11 +106,13 @@ describe('tsdown client artifact', () => {
     ctx.plugin({ inject: [...locale.inject], apply: locale.apply })
     const fiber = ctx.plugin(exports as { apply: (ctx: Context) => void })
     await fiber.await()
-    expect(slots.entries('conversation.view').map(e => e.options.id)).toEqual(['trajectory'])
+    expect(tabs.get(TRAJECTORY_KIND)?.id).toBe(TRAJECTORY_ID)
+    expect(slots.entries('sidebar.right.pane.tab').map(e => e.options.key)).toEqual([TRAJECTORY_ID])
     expect(events.entries().length).toBeGreaterThan(0)
     expect(views.entries()).toHaveLength(1)
     await fiber.dispose()
-    expect(slots.entries('conversation.view')).toHaveLength(0)
+    expect(tabs.get(TRAJECTORY_KIND)).toBeUndefined()
+    expect(slots.entries('sidebar.right.pane.tab')).toHaveLength(0)
     expect(events.entries()).toEqual([])
     expect(views.entries()).toEqual([])
   })

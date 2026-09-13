@@ -92,4 +92,4 @@ Connection 拥有 request correlation、`/api` carrier、trust check、精确 Fe
 - [Client Modules](client-modules.zh.md)：package discovery、loading、共享 module identity 与 boot order。
 - [API Gateway](../api-gateway.zh.md)：Host method、生成的 Remote contribution、stream 与 forwarded event。
 - [Web Client Slots](slots.zh.md)：component、hook、store、injection 与 placement。
-- [Conversation](conversation.zh.md)：持久 event correlation、target snapshot，以及 Chat 或 Trajectory view contribution。
+- [Conversation](conversation.zh.md)：持久 event correlation、target snapshot，以及 Chat 视图或 Trajectory 标签页贡献。

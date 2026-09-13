@@ -167,7 +167,7 @@ export function ConversationSessionHeader({
  */
 export function ConversationSession({
   useSession, useConversation, useConversationViews, useInput, inputActions, useStore, actions,
-  renderSlot, bindDraftMirror, openView,
+  renderSlot, bindDraftMirror,
 }: ConversationSessionProps) {
   const tabs = useConversationViews(value => value)
   const selectedId = useStore(s => s.view)
@@ -176,7 +176,6 @@ export function ConversationSession({
   const conversation = useConversation(s => s)
   const inputState = useInput(s => s)
   const storedDraft = useStore(s => s.draft)
-  const viewRequest = useStore(s => s.viewRequest ?? null)
 
   useEffect(() => {
     if (inputState.draft === '' && storedDraft !== '') inputActions.setDraft(storedDraft)
@@ -189,11 +188,7 @@ export function ConversationSession({
   if (session.blank && conversationPhase(session, conversation) === 'blank') return null
   return (
     <div className={css.viewArea}>
-      {active !== undefined && renderSlot('conversation.view', {
-        viewRequest,
-        openView,
-        completeViewRequest: actions.completeViewRequest,
-      }, { only: active.id })}
+      {active !== undefined && renderSlot('conversation.view', {}, { only: active.id })}
     </div>
   )
 }

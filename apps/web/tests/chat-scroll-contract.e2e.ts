@@ -22,7 +22,7 @@ import {
   webSnapshotMode,
   type WebScaffold,
 } from './scaffold.ts'
-import { expandOwningTurnProcess, newEnglishPage, saveFailureShot } from './support.ts'
+import { expandOwningTurnProcess, newEnglishPage, openTrajectoryTab, saveFailureShot } from './support.ts'
 
 const MODE = webSnapshotMode()
 const HISTORY_SESSION_ID = 'chat-scroll-history-e2e'
@@ -32,7 +32,6 @@ const RESTORE_SESSION_B_ID = 'chat-scroll-restore-b-e2e'
 const REPLAY_CONTEXT_WINDOW = 10_000_000
 const STREAM_PACE_MS = 24
 const GEOMETRY_TOLERANCE = 2
-const RESPONSIVE_REFLOW_TOLERANCE = 32
 const LIVE_TEXT_PROMPT = 'CHAT_SCROLL_LIVE_USER Continue this long conversation while I inspect older history.'
 const LIVE_TEXT_FIRST = 'CHAT_SCROLL_LIVE_FIRST'
 const LIVE_TEXT_DONE = 'CHAT_SCROLL_LIVE_DONE'
@@ -283,9 +282,15 @@ async function openSeed(page: Page, fixture: ChatScrollFixture, tailMarker?: str
   const results = page.getByRole('tree', { name: 'Search results' }).getByRole('treeitem')
   await expect.poll(() => results.count(), { timeout: 60_000 }).toBe(1)
   await results.click()
-  await page.getByRole('tab', { name: 'Chat', exact: true }).waitFor({ timeout: 30_000 })
+  // The session is open once its transcript mounts; the header no longer
+  // carries view tabs to wait on. The first flow item may be a collapsed
+  // Turn-process row, so the barrier is a VISIBLE one.
+  await page.locator('[data-chat-flow-key]:visible').first().waitFor({ timeout: 30_000 })
   if (tailMarker !== undefined) {
-    await page.getByText(tailMarker, { exact: false }).last().waitFor({ timeout: 30_000 })
+    // A collapsed Turn-process row also carries the marker text, so the tail
+    // barrier is the VISIBLE occurrence.
+    await page.getByText(tailMarker, { exact: false }).filter({ visible: true }).last()
+      .waitFor({ timeout: 30_000 })
   }
   await nextPaint(page)
 }
@@ -421,7 +426,10 @@ async function expectBottom(page: Page): Promise<void> {
 }
 
 async function expectMarkerAboveComposer(page: Page, marker: string): Promise<void> {
-  const geometry = await page.getByText(marker, { exact: false }).last().evaluate((node) => {
+  // The Sidebar ledger renders the same text beside the transcript, so both the
+  // marker row and the composer seat are read from the conversation column.
+  const column = page.locator('[data-conversation-scroll]')
+  const geometry = await column.getByText(marker, { exact: false }).last().evaluate((node) => {
     const row = node.closest('[data-chat-flow-key], [data-streaming]')
     const composer = node.closest('[data-conversation-scroll]')?.querySelector('[data-composer-seat]')
     if (!(row instanceof HTMLElement) || !(composer instanceof HTMLElement)) {
@@ -771,15 +779,24 @@ describe('web e2e: long Chat scroll contract', () => {
       await wheelTranscript(world.page, 1_300)
       const sessionAnchor = await visibleFlowAnchor(world.page)
 
-      await world.page.getByRole('tab', { name: 'Trajectory', exact: true }).click()
+      await openTrajectoryTab(world.page)
       await world.page.getByLabel('Trajectory timeline').waitFor({ timeout: 30_000 })
       await world.page.setViewportSize({ width: 700, height: 900 })
+      // The 768px breakpoint takes the right Sidebar fullscreen over the
+      // transcript and keeps its column track, so collapsing the column is
+      // this scenario's way back to the narrow Chat scroll owner the removed
+      // view tabs used to select.
+      await world.page.locator('[data-sidebar-right-toggle]').click()
       // The narrow breakpoint auto-collapses the sidebar. Re-open it because
       // this scenario switches sessions while pinning the narrow Chat scroll owner.
       await world.page.getByRole('button', { name: 'Open sidebar', exact: true }).click()
-      await world.page.getByRole('tab', { name: 'Chat', exact: true }).click()
       await nextPaint(world.page)
-      await expectSameFlowTop(world.page, sessionAnchor, RESPONSIVE_REFLOW_TOLERANCE)
+      // The transcript stays mounted while the Sidebar page opens beside it, so
+      // this step reflows the narrower column instead of remounting Chat: the
+      // pinned row must survive that reflow, while its exact offset is the
+      // session switch's contract below.
+      await world.page.locator(`[data-chat-flow-key="${sessionAnchor.key}"]`).first()
+        .waitFor({ state: 'attached', timeout: 10_000 })
       const narrowSessionAnchor = await visibleFlowAnchor(world.page)
 
       await openSeed(
@@ -797,16 +814,16 @@ describe('web e2e: long Chat scroll contract', () => {
       await backToBottom.evaluate((button) => {
         if (!(button instanceof HTMLElement)) throw new Error('Back-to-bottom control is not an HTML element')
         button.click()
-        const trajectory = [...document.querySelectorAll<HTMLElement>('[role="tab"]')]
-          .find(tab => tab.textContent?.trim() === 'Trajectory')
-        if (!(trajectory instanceof HTMLElement)) {
-          throw new Error('Trajectory tab is unavailable during pinned remount')
-        }
-        trajectory.click()
       })
+      // Opening the Sidebar's Trajectory page beside the pinned transcript is
+      // the surface change left. Chat is never switched away from now, so the
+      // pin has to survive the page appearing next to it.
+      await openTrajectoryTab(world.page)
       await world.page.getByLabel('Trajectory timeline').waitFor({ timeout: 30_000 })
-      await world.page.getByRole('tab', { name: 'Chat', exact: true }).click()
       await expectBottom(world.page)
+      // The column is fullscreen at this width; put it away before the session
+      // switches below drive the left Sidebar.
+      await world.page.locator('[data-sidebar-right-toggle]').click()
       await openSeed(
         world.page,
         RESTORE_FIXTURE_B,

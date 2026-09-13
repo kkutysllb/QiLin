@@ -203,6 +203,7 @@ export function AppFrame({
     <div
       ref={frameRef}
       className={css.frame}
+      data-app-frame=""
       style={{
         gridTemplateColumns:
           `${cols.sidebar}px minmax(0, 1fr) ${cols.rightbar}px`,

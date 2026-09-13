@@ -16,7 +16,7 @@ Session Controller 拥有连续的已加载逻辑 event window。每个 `Session
 | Context | Engine 为一个 `(kind, id)` 拥有的有序 Match 与当前 State。一个瞬态 event 只占一个 update Match；只有 update 的证据可以保持 pending，直到分页补齐其唯一持久 start。 |
 | Location | Engine 根据持久 boundary event 推导的 Session、Turn 或 Step 坐标。Definition 可以向一个 Turn 或 Step 发布类型化数据。 |
 | View Definition | Target 包为每个 Session 创建一个增量 builder，并拥有该 target 的最终 snapshot 类型。 |
-| View | Chat 或 Trajectory 等 Slot entry 只读取自身 target snapshot，并渲染 target 自有 node。 |
+| View | Chat 等 Slot entry 只读取自身 target snapshot，并渲染 target 自有 node。Trajectory target 改由右侧边栏的标签页类型送达浏览器。 |
 
 Chat 与 Trajectory 可以识别同一个持久 event family，但各自保留自己的 Definition State 与最终 node payload。共享的 target-neutral 机制只包括 identity routing、有序 replay、Location data、predecessor dependency 与 publication cadence。
 

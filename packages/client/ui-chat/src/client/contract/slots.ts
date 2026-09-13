@@ -139,6 +139,8 @@ export interface ChatViewInjected {
     chatNodeProcess: (key: string) => ChatNodeProcessSource
   }
   openFile: (path: string, options?: OpenFileOptions) => Promise<void>
+  /** Open the right Sidebar's Trajectory tab focused on one tool call. */
+  openTrajectory: (callId: string) => void
   loadOlder: () => void
   /** Jump loader: page history back through seq; resolves when the window covers it. */
   loadThrough: (seq: SessionSeq) => Promise<void>

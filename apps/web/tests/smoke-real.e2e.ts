@@ -27,7 +27,9 @@ import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import WebSocket from 'ws'
-import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot } from './support.ts'
+import {
+  REPO_ROOT, connectFreshWorkspace, newEnglishPage, openTrajectoryTab, probeFreePort, requireDist, saveFailureShot,
+} from './support.ts'
 
 const WEB_SURFACE_PROMPT = fileURLToPath(new URL('./expected/web-runtime-context/web-surface-prompt.expected.md', import.meta.url))
 
@@ -321,13 +323,13 @@ async function screen(page: Page, name: string): Promise<void> {
 
 /** First column track (px string) of the frame grid. */
 async function firstTrack(page: Page): Promise<string> {
-  return (await page.locator('[class*="frame"]').evaluate(
+  return (await page.locator('[data-app-frame]').evaluate(
     el => getComputedStyle(el).gridTemplateColumns)).split(' ')[0]!
 }
 
 /** Last column track (details) as a number of pixels. */
 async function detailsTrack(page: Page): Promise<number> {
-  const cols = await page.locator('[class*="frame"]').evaluate(
+  const cols = await page.locator('[data-app-frame]').evaluate(
     el => getComputedStyle(el).gridTemplateColumns)
   return Number(cols.split(' ').pop()!.replace('px', ''))
 }
@@ -855,14 +857,16 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     await screen(page, '04-round-complete')
   }, 150_000)
 
-  it('view tabs: Chat and Trajectory switch', async () => {
+  it('opens the Trajectory page beside the Chat transcript', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-tabs'))
-    await page.locator('button', { hasText: /Trajectory/i }).first().click()
+    await openTrajectoryTab(page)
     await screen(page, '05-trajectory-tab')
     await page.getByLabel('Trajectory timeline').waitFor()
     await expect.poll(() => page.getByRole('tab', { name: 'Waterfall' }).count()).toBe(0)
-    await page.locator('button', { hasText: /^Chat$/i }).first().click()
-    await screen(page, '07-back-to-chat')
+    // Nothing switches back to Chat: the transcript stays in its own column
+    // beside the Sidebar's page.
+    await expect.poll(() => page.locator('[data-chat-flow-key]').count()).toBeGreaterThan(0)
+    await screen(page, '07-chat-beside-trajectory')
   })
 
   it('bash differential rendering: tool row click leaves the default details column closed', async () => {

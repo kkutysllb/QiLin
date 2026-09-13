@@ -1,47 +1,14 @@
-import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { IconDownloadOutline16, IconEllipsisOutline16, Menu } from '@qilin/client-ui-primitives'
 import { SessionLogDownloadDialog, type SessionLogDownloadDialogProps } from './Dialog.tsx'
-import css from './HeaderAction.module.css'
 
 /**
- * Render the Session Header more-actions icon button, its download menu, and the shared result dialog.
- * @param props - Session runtime, download controller, and localized copy.
- * @returns the persistent Header action and Session-scoped dialog.
+ * Render the Session Header's download feedback surface: the shared result
+ * dialog, and nothing else. The header carries no download button; the
+ * `/export` command is the trigger, and the dialog reports its progress and
+ * outcome.
+ * @param props - Session runtime, download controller state, and localized copy.
+ * @returns the Session-scoped dialog contribution.
  */
 export function SessionLogDownloadHeaderAction(props: SessionLogDownloadDialogProps): ReactNode {
-  const { sessionId, useSessionLogDownload, request, t } = props
-  const entry = useSessionLogDownload(state => state.bySession[String(sessionId)])
-  const busy = entry?.status === 'downloading'
-  const [open, setOpen] = useState(false)
-
-  return (
-    <>
-      <Menu
-        open={open}
-        align="end"
-        dense
-        onClose={() => { setOpen(false) }}
-        items={[{ id: 'download', label: t('menu.download'), icon: <IconDownloadOutline16 />, disabled: busy }]}
-        onSelect={() => {
-          setOpen(false)
-          void request(sessionId)
-        }}
-        anchor={(
-          <button
-            type="button"
-            className={css.moreButton}
-            aria-label={t('header.more')}
-            aria-haspopup="menu"
-            aria-expanded={open}
-            aria-busy={busy}
-            onClick={() => { setOpen(value => !value) }}
-          >
-            <IconEllipsisOutline16 />
-          </button>
-        )}
-      />
-      <SessionLogDownloadDialog {...props} />
-    </>
-  )
+  return <SessionLogDownloadDialog {...props} />
 }

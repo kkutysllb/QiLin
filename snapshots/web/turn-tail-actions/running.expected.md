@@ -3,13 +3,8 @@
     - button "Begin your reply with the" [disabled]
   - img
   - text: Standard mode
-  - button "More actions":
-    - img
   - button "Open right sidebar":
     - img
-  - tablist:
-    - tab "Chat" [selected]
-    - tab "Trajectory"
 - button "System prompt":
   - img
   - img
@@ -27,10 +22,9 @@
   - img
   - text: Think The user wants me to begin with "Reading the workspace now." and call bash with "echo alpha" in the same message. Then after the tool result, reply with the single word DONE and stop.
 - paragraph: Reading the workspace now.
-- button "Bash Print alpha to stdout":
+- 'button "Failed Bash Error: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted"':
   - img
-  - img
-  - text: Bash Print alpha to stdout
+  - text: "Failed Bash Error: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted"
 - paragraph: partial
 - status: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions"

@@ -3,13 +3,8 @@
     - 'button "Using ONE run_code program: run" [disabled]'
   - img
   - text: PTC mode
-  - button "More actions":
-    - img
   - button "Open right sidebar":
     - img
-  - tablist:
-    - tab "Chat" [selected]
-    - tab "Trajectory"
 - button "System prompt":
   - img
   - img
@@ -28,21 +23,15 @@
   - img
   - img
   - text: "Think The user wants me to write a single `run_code` program that:"
-- button "Code Run bash echo and catch missing file read":
-  - img
-  - img
-  - text: Code Run bash echo and catch missing file read
-- button "Bash Echo CODE_ROUND_OK" [expanded]:
-  - img
-  - text: Bash Echo CODE_ROUND_OK
-- text: Done workspace echo CODE_ROUND_OK
-- button "Copy"
-- text: CODE_ROUND_OK
-- button "Inspect"
 - text: Failed
-- 'button "Read Error: cannot read \"{{cwd}}/workspace/missing.txt\": not found"':
+- 'button "Code Error: code run failed (exception): ToolCallError: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted"':
   - img
-  - text: "Read Error: cannot read \"{{cwd}}/workspace/missing.txt\": not found"
+  - text: "Code Error: code run failed (exception): ToolCallError: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted"
+- 'button "Failed Bash Error: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted" [expanded]':
+  - img
+  - text: "Failed Bash Error: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted"
+- text: "IN { \"command\": \"echo CODE_ROUND_OK\", \"description\": \"Echo CODE_ROUND_OK\" } OUT Error: sandbox mode \"workspace-write\" is requested but no sandbox backend is usable on this host; refusing to run the command unconfined. Install bubblewrap or run a Landlock-enforcing kernel (Linux), ensure sandbox-exec is usable (macOS), or ensure the ACL restricted-token runner can start (Windows) — otherwise switch the consumer to danger-full-access. Runner failure: sandbox-exec: sandbox_apply: Operation not permitted"
+- button "Inspect"
 - button "Think The program ran successfully. Let me now reply DONE as instructed.":
   - img
   - img

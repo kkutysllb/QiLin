@@ -2567,6 +2567,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/client-ui-trajectory':
+        specifier: workspace:^
+        version: link:../ui-trajectory
       '@qilin/client-ui-workspace':
         specifier: workspace:^
         version: link:../ui-workspace
@@ -4524,6 +4527,9 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:^
         version: link:../ui-session
+      '@qilin/client-ui-sidebar-right':
+        specifier: workspace:^
+        version: link:../ui-sidebar-right
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
