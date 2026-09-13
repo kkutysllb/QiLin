@@ -85,11 +85,11 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
       {
         "apiKeyPresent": false,
         "bootManifest": true,
-        "qilinHomePresent": false,
         "exitCode": 0,
-        "openedUrl": "http://127.0.0.1:{{port}}/?token={{token}}",
+        "openedUrl": "http://127.0.0.1:{{port}}/workspace?token={{token}}",
         "opening": true,
-        "readyUrl": "http://127.0.0.1:{{port}}/?token={{token}}",
+        "qilinHomePresent": false,
+        "readyUrl": "http://127.0.0.1:{{port}}/workspace?token={{token}}",
         "status": 200,
         "stderr": "",
       }
@@ -139,7 +139,7 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
         "exitCode": 0,
         "opened": false,
         "opening": true,
-        "readyUrl": "http://127.0.0.1:{{port}}/?token={{token}}",
+        "readyUrl": "http://127.0.0.1:{{port}}/workspace?token={{token}}",
       }
     `)
   })
@@ -184,7 +184,7 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
         "exitCode": 0,
         "opened": false,
         "opening": false,
-        "readyUrl": "http://127.0.0.1:{{port}}/?token={{token}}",
+        "readyUrl": "http://127.0.0.1:{{port}}/workspace?token={{token}}",
         "stderr": "",
       }
     `)

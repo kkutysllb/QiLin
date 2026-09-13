@@ -30,10 +30,38 @@ import WebSocket from 'ws'
 import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot } from './support.ts'
 
 const WEB_SURFACE_PROMPT = fileURLToPath(new URL('./expected/web-runtime-context/web-surface-prompt.expected.md', import.meta.url))
-const authenticatedCookies = new Map<string, Promise<{ origin: string; cookie: string }>>()
 
-/** Exchange a printed process token once for Node-side HTTP/WebSocket probes. */
-function authenticatedWeb(launchUrl: string): Promise<{ origin: string; cookie: string }> {
+/** First-run credentials this scenario raises; the account file lives in the temp harness home. */
+const ACCOUNT_EMAIL = 'smoke@example.com'
+const ACCOUNT_PASSWORD = 'smoke-password-1'
+
+/** One authenticated browser: where it talks, and the cookies that reach it. */
+interface WebSession {
+  /** Origin both the probes and the browser address. */
+  readonly origin: string
+  /** `name=value` pair of the account session cookie, as a request header carries it. */
+  readonly cookie: string
+  /** The issued Set-Cookie header, for a browser context. */
+  readonly issued: string
+}
+
+const authenticatedCookies = new Map<string, Promise<WebSession>>()
+
+/** The `name=value` pair of one Set-Cookie header. */
+function cookiePair(header: string): string {
+  return header.split(';', 1)[0]!
+}
+
+/**
+ * Raise this deployment's account session once for both halves of the scenario:
+ * exchange the printed launch token, then initialize the first account through
+ * the shipped endpoint. The account gate is on by default, and it answers the
+ * `/api` routes and the entry document only a session, so the device cookie the
+ * token exchange mints is not enough for either.
+ * @param launchUrl - the URL `qilin web` printed.
+ * @returns the origin, the session cookie pair, and the header it came from.
+ */
+function authenticatedWeb(launchUrl: string): Promise<WebSession> {
   const existing = authenticatedCookies.get(launchUrl)
   if (existing !== undefined) return existing
   const exchange = (async () => {
@@ -42,13 +70,38 @@ function authenticatedWeb(launchUrl: string): Promise<{ origin: string; cookie: 
     if (response.status !== 303 || setCookie === null) {
       throw new Error(`qilin web authentication returned HTTP ${String(response.status)}`)
     }
-    return {
-      origin: new URL(launchUrl).origin,
-      cookie: setCookie.split(';', 1)[0]!,
+    const origin = new URL(launchUrl).origin
+    const setup = await fetch(`${origin}/api/auth/setup`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: cookiePair(setCookie) },
+      body: JSON.stringify({ email: ACCOUNT_EMAIL, password: ACCOUNT_PASSWORD }),
+    })
+    const issued = setup.headers.get('set-cookie')
+    if (!setup.ok || issued === null) {
+      throw new Error(`account setup returned HTTP ${String(setup.status)}: ${await setup.text()}`)
     }
+    return { origin, cookie: cookiePair(issued), issued }
   })()
   authenticatedCookies.set(launchUrl, exchange)
   return exchange
+}
+
+/**
+ * Give one page the account session the probes use, so the printed URL reaches
+ * the application document instead of the first-run screen.
+ * @param page - the page about to open that URL.
+ * @param session - the session {@link authenticatedWeb} raised.
+ */
+async function adoptAccountSession(page: Page, session: WebSession): Promise<void> {
+  const pair = session.cookie
+  const separator = pair.indexOf('=')
+  await page.context().addCookies([{
+    name: pair.slice(0, separator),
+    value: pair.slice(separator + 1),
+    url: session.origin,
+    httpOnly: true,
+    sameSite: 'Strict',
+  }])
 }
 
 const comboMapUrl = (url: string): string => url.replace(/\/client\.js(?=,|&rev=)/g, '/client.js.map')
@@ -317,10 +370,20 @@ describe('qilin web keyless CLI smoke', () => {
     let browser: Browser | undefined
     try {
       const readyUrl = await waitForReadyLine(child)
-      expect(readyUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/\?token=[A-Za-z0-9_-]+$/u)
-      expect((await fetch(readyUrl, { redirect: 'manual' })).status).toBe(303)
+      const ready = new URL(readyUrl)
+      expect(ready.origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u)
+      expect(ready.searchParams.get('token')).toMatch(/^[A-Za-z0-9_-]+$/u)
+      expect([...ready.searchParams.keys()]).toEqual(['token'])
+      // The site root serves the landing page, so the printed URL names the
+      // application document, and the token exchange redirects to that same
+      // path without its token.
+      expect(ready.pathname).not.toBe('/')
+      const exchange = await fetch(readyUrl, { redirect: 'manual' })
+      expect(exchange.status).toBe(303)
+      expect(new URL(exchange.headers.get('location') ?? '/', ready.origin).pathname).toBe(ready.pathname)
       browser = await chromium.launch({ headless: true })
       const page = await newEnglishPage(browser)
+      await adoptAccountSession(page, await authenticatedWeb(readyUrl))
       const pluginScripts: string[] = []
       const cacheHeaders = new Map<string, string | undefined>()
       // Chromium reports `preload as=script` as Script and reuses that same
@@ -713,6 +776,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
     page.on('pageerror', e => pageErrors.push(String(e)))
+    await adoptAccountSession(page, await authenticatedWeb(baseUrl))
     await page.goto(baseUrl, { waitUntil: 'load' })
   }, 120_000)
 

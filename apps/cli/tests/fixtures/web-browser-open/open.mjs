@@ -28,8 +28,21 @@ export default async function open(url) {
   if (exchange.status !== 303 || setCookie === null || location === null) {
     throw new Error(`browser authentication exchange returned HTTP ${exchange.status}`)
   }
+  // This deployment starts with no account, so the gate answers the exchanged
+  // device cookie with the first-run document instead of the application. The
+  // fixture stands in for a browser and initializes that account the way the
+  // document does, then asks for the entry path with the session it raised.
+  const setup = await fetch(new URL('/api/auth/setup', url), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', cookie: setCookie.split(';', 1)[0] },
+    body: JSON.stringify({ email: 'browser-open@example.com', password: 'browser-open-1' }),
+  })
+  const session = setup.headers.get('set-cookie')
+  if (!setup.ok || session === null) {
+    throw new Error(`browser account initialization returned HTTP ${setup.status}`)
+  }
   const response = await fetch(new URL(location, url), {
-    headers: { cookie: setCookie.split(';', 1)[0] },
+    headers: { cookie: session.split(';', 1)[0] },
   })
   const html = await response.text()
   console.log(`qilin browser-open: ${JSON.stringify({

@@ -309,13 +309,13 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     // report the older one.
     expect(bootLine).toContain(`image lowering=${WRAPPER_CONTRACT}`)
     expect(bootLine).toContain('data overlays=1')
-    // The versioned notice is the seeded preview's first stable interactive
-    // surface after the startup chain completes over the tunnel.
-    const continueButton = page.getByRole('button', { name: 'Continue' })
-    await continueButton.waitFor({ timeout: HERO_TIMEOUT_MS })
-    await continueButton.click()
-    const configureLater = page.getByRole('button', { name: 'Configure later' })
-    await configureLater.waitFor({ timeout: 30_000 })
+    // The provider onboarding dialog is the seeded preview's first stable
+    // interactive surface after the startup chain completes over the tunnel. A
+    // keyless fixture has no provider, so the scenario leaves it as a visitor
+    // would: the dialog's own dismissal, not the save the disabled button
+    // refuses.
+    const configureLater = page.getByRole('button', { name: 'Configure later', exact: true })
+    await configureLater.waitFor({ timeout: HERO_TIMEOUT_MS })
     await configureLater.click()
     await page.locator('[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]')
       .waitFor({ timeout: 30_000 })
@@ -491,11 +491,14 @@ async function bootEmptyPreview(origin: string, browser: Browser): Promise<void>
     })
     expect(sessionCount).toBe(0)
     expect(pageErrors.map(error => error.message)).toEqual([])
-    // Two accepted static-host 404s, sorted (the boot fetches race): the HMR
-    // event stream has no server here, and the open-in-app availability read
-    // has no host routes — the controller publishes an empty list and the
-    // header renders no button, which is that surface's designed degradation.
-    expect([...failedResponses].sort()).toEqual(['/open-in-app/apps', '/plugins/events'])
+    // Three accepted static-host 404s, sorted (the boot fetches race): the HMR
+    // event stream has no server here; the open-in-app availability read has no
+    // host routes — the controller publishes an empty list and the header
+    // renders no button; and the account status read names the page's own
+    // origin, where this deployment serves no /api/auth surface. The worker
+    // answers RPC over the tunnel, not over the page's origin, and it holds no
+    // browser session, so the account door renders signed out by design.
+    expect([...failedResponses].sort()).toEqual(['/api/auth/status', '/open-in-app/apps', '/plugins/events'])
     expect(consoleErrors.filter(line => !line.includes('Failed to load resource: the server responded with a status of 404')))
       .toEqual([])
   } catch (error) {

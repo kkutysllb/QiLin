@@ -9,6 +9,7 @@ import { Context } from '@deepseek-ai/cordis'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import WebServer from '@qilin/host-webserver'
+import { WEB_ENTRY_PATH } from '@qilin/client-connection'
 import { apply, internals } from '../src/index.ts'
 
 const contexts: Context[] = []
@@ -81,6 +82,7 @@ describe('web app browser startup', () => {
       __qilinWebServer: typeof WebServer
       __qilinConnection: {
         authenticatedUrl(baseUrl: string): string
+        entryPath: string
         authorizeIndex(): boolean
         requestRejection(): undefined
         rpc: object
@@ -89,8 +91,12 @@ describe('web app browser startup', () => {
     globals.__qilinWebAppApply = apply
     globals.__qilinWebServer = WebServer
     globals.__qilinConnection = {
+      // The entry URL a deployment prints names the application document, which
+      // is the path the fixture dist serves below.
+      entryPath: WEB_ENTRY_PATH,
       authenticatedUrl: (baseUrl) => {
         const url = new URL(baseUrl)
+        url.pathname = WEB_ENTRY_PATH
         url.searchParams.set('token', 'fixture-token')
         return url.href
       },
@@ -120,7 +126,7 @@ describe('web app browser startup', () => {
     await ctx.loader.await()
     await opened
 
-    expect(openedUrl).toBe(`http://127.0.0.1:${String(ctx.webServer.port)}/?token=fixture-token`)
+    expect(openedUrl).toBe(`http://127.0.0.1:${String(ctx.webServer.port)}${WEB_ENTRY_PATH}?token=fixture-token`)
     expect(openedStatus).toBe(200)
   })
 })
