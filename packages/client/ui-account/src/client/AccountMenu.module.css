@@ -1,31 +1,66 @@
-/* The sidebar footer action: one round icon button, right-aligned in the wide
- * column and centered by the collapsed rail's own footer rules. */
-
+/* The sidebar footer action: an account row in the wide column and the same
+ * account's avatar as a round rail control when the column is collapsed. */
 .slot {
   display: flex;
-  justify-content: flex-end;
   width: 100%;
 }
 
 .trigger {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 8px;
+  box-sizing: border-box;
   border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Rail: the footer's round control box, holding the avatar alone. */
+.trigger.rail {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
   border-radius: 50%;
   /* Full-round radius: state the arc back against the universal superellipse. */
   corner-shape: round;
-  background: transparent;
-  color: var(--dsw-alias-label-tertiary);
-  cursor: pointer;
 }
 
 .trigger:hover {
   background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  corner-shape: round;
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 16%, transparent);
+  color: var(--dsw-alias-brand-primary);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Option rows draw their own check: submenu rows get no selection marker from

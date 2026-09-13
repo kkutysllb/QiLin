@@ -20,6 +20,7 @@ import type {} from '@qilin/client-ui-renderer/client'
 import { AccountMenu } from './AccountMenu.tsx'
 import type { AccountMenuInjected } from './AccountMenu.tsx'
 import { createAccountMenuInjected } from './injected.ts'
+import { SettingsPanelPresence } from './settings-panel.ts'
 import { createAccountMenuStore } from './store.ts'
 import type { AccountMenuStoreHandle } from './store.ts'
 import { en, zh, type AccountLocaleKey } from './locales.ts'
@@ -39,9 +40,10 @@ declare module '@qilin/client-ui-slots' {
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'account'
 
-/** Services required by the account menu: the slot it fills, the two
- * preference services behind its rows, and the settings panel's open channel. */
-export const inject = ['slots', 'locale', 'theme', 'settingsShell']
+/** Services required by the account menu: the slot it fills and the two
+ * preference services behind its rows. The settings panel is an optional
+ * neighbour — see the scoped injection in {@link apply}. */
+export const inject = ['slots', 'locale', 'theme']
 
 /**
  * Register the account menu into the sidebar footer, once the sidebar declares
@@ -51,10 +53,11 @@ export const inject = ['slots', 'locale', 'theme', 'settingsShell']
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-account: dictionaries')
   const store = createAccountMenuStore()
+  const settingsPanel = new SettingsPanelPresence()
   const injected = (actions: BoundActions<AccountMenuStoreHandle>): AccountMenuInjected =>
     createAccountMenuInjected({
       actions,
-      openSettings: () => { ctx.settingsShell.open() },
+      openSettings: () => { ctx.get('settingsShell')?.open() },
       setTheme: (id) => { ctx.theme.setTheme(id) },
       setLocale: (id) => { ctx.locale.setLocale(id) },
       theme: {
@@ -65,6 +68,7 @@ export function apply(ctx: ClientContext): void {
         getSnapshot: () => ctx.locale.getSnapshot(),
         subscribe: listener => ctx.locale.subscribe(listener),
       },
+      settingsPanel: settingsPanel.mounted,
     })
   ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
     name: 'sidebar.footer.action',
@@ -74,4 +78,15 @@ export function apply(ctx: ClientContext): void {
     store,
     inject: injected,
   }, AccountMenu))
+  // The settings panel owns the Settings row's destination and a deployment may
+  // omit it — a fixture surface that serves no settings traffic mounts this menu
+  // without the shell. Waiting for the service would leave the entry unactivated
+  // in that composition, so the row follows the service instead: it appears
+  // while the panel is mounted and disappears with it.
+  ctx.inject(['settingsShell'], (scope: ClientContext) => {
+    scope.effect(() => {
+      settingsPanel.publish(true)
+      return () => { settingsPanel.publish(false) }
+    }, 'ui-account: settings row availability')
+  })
 }

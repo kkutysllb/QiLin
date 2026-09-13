@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The account menu is the round account button in the sidebar foot. One dropdown carries the signed-in address, Settings, an Appearance submenu (Light, Dark, Follow system), a Language submenu listing every registered locale, and Sign out; it is the only Web surface that switches the theme or the language. Its account facts come from the account gate's `GET /api/auth/status` answer, so a harness running without accounts renders the same menu without the identity and without a session to end. The plugin provides no service, owns no dialog, and contributes exactly one list entry.
+The account menu is the footer's own account row: an avatar carrying the signed-in address's first letter beside that address, collapsing to the avatar alone in the rail. One dropdown carries the signed-in address, Settings, an Appearance submenu (Light, Dark, Follow system), a Language submenu listing every registered locale, and Sign out; it is the only Web surface that switches the theme or the language, and the only Settings entry point. Its account facts come from the account gate's `GET /api/auth/status` answer, so a harness running without accounts renders the same row under the localized account label, the same menu without the identity, and no session to end. The plugin provides no service, owns no dialog, and contributes exactly one list entry.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ The `qilin` Web profile mounts this package through the `web-app` bundle patch; 
 | Row | Present when | Effect |
 |---|---|---|
 | the signed-in address | the gate answered with an account | a menu heading; the address is not a link |
-| Settings | always | reveals the settings panel |
+| Settings | the settings panel is mounted | reveals the settings panel |
 | Appearance | always | opens the Light / Dark / Follow system submenu |
 | Language | always | opens one row per registered locale, each labelled in that locale |
 | Sign out | the account gate is enabled | ends the session, then lands on the sign-in page |
@@ -45,7 +45,7 @@ The plugin fills one list entry in `sidebar.footer.action`, the sidebar's own fo
 
 The entry declares `createAccountMenuStore()`: the dropdown's open state plus the account facts one status read resolved. The component reads that snapshot through `props.useStore` and writes through `props.actions`; nothing else mutates it, and the specs build the same store handle directly.
 
-`createAccountMenuInjected` assembles the component's inject face inside `apply`: the two browser reads (`readAccountStatus`, `endSession`), the service calls (`ctx.settingsShell.open`, `ctx.theme.setTheme`, `ctx.locale.setLocale`), and the theme and locale sources the renderer binds as `useTheme` and `useLocale`. Components reach no service themselves, and the sidecar reads keep their own request paths and navigation target local.
+`createAccountMenuInjected` assembles the component's inject face inside `apply`: the two browser reads (`readAccountStatus`, `endSession`), the service calls (`ctx.settingsShell.open`, `ctx.theme.setTheme`, `ctx.locale.setLocale`), and the theme, locale, and settings-panel sources the renderer binds as `useTheme`, `useLocale`, and `useSettingsPanel`. Components reach no service themselves, and the sidecar reads keep their own request paths and navigation target local. The panel is an optional neighbour: `settingsShell` is read through `ctx.get` and its presence is published on the `useSettingsPanel` source from a scoped injection, so a composition that mounts no settings panel still mounts this menu and simply offers no Settings row.
 
 <a id="model-experience"></a>
 ## Model Experience

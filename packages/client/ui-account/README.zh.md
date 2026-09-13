@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-账户菜单是侧边栏底部的圆形账户按钮。一个下拉菜单中承载已登录地址、设置、外观子菜单（浅色、深色、跟随系统）、列出全部已注册语言的语言子菜单，以及退出登录；它是 Web 端唯一切换主题与语言的入口，也是唯一结束会话的入口。账户事实来自账户门禁自己的 `GET /api/auth/status` 应答，因此在未启用账户的部署上，渲染出的是同一个菜单，只是没有身份行、也没有可结束的会话。本插件不提供任何服务、不持有对话框，只贡献一个列表条目。
+账户菜单是页脚自己的账号行：一个携带已登录地址首字母的头像与该地址并排，收起轨道时只剩头像。一个下拉菜单中承载已登录地址、设置、外观子菜单（浅色、深色、跟随系统）、列出全部已注册语言的语言子菜单，以及退出登录；它是 Web 端唯一切换主题与语言的入口，也是唯一的 Settings 入口，同时是唯一结束会话的入口。账户事实来自账户门禁自己的 `GET /api/auth/status` 应答，因此在未启用账户的部署上，渲染出的是同一个在本地化账号标签下的行、同一个缺少身份行的菜单，也没有可结束的会话。本插件不提供任何服务、不持有对话框，只贡献一个列表条目。
 
 ## 目录
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 | 行 | 出现条件 | 效果 |
 |---|---|---|
 | 已登录地址 | 门禁应答中带有账户 | 菜单标题行；地址不是链接 |
-| 设置 | 始终 | 展开设置面板 |
+| 设置 | 已挂载设置面板 | 展开设置面板 |
 | 主题样式 | 始终 | 打开浅色／深色／跟随系统子菜单 |
 | 语言 | 始终 | 每个已注册语言一行，各自以自己的语言标注 |
 | 退出登录 | 账户门禁已启用 | 结束会话，然后落到登录页 |
@@ -45,7 +45,7 @@ kind: "package-reference"
 
 条目声明了 `createAccountMenuStore()`：下拉菜单的展开状态，以及一次状态读取解析出的账户事实。组件通过 `props.useStore` 读取该快照、通过 `props.actions` 写入；没有其他写入方，用例也直接构造同一个 store 句柄。
 
-`createAccountMenuInjected` 在 `apply` 中组装组件的注入面：两个浏览器读取（`readAccountStatus`、`endSession`）、服务调用（`ctx.settingsShell.open`、`ctx.theme.setTheme`、`ctx.locale.setLocale`），以及渲染器绑定为 `useTheme` 与 `useLocale` 的主题与语言来源。组件自身不接触任何服务，两个请求各自的路径与跳转目标都留在本包内。
+`createAccountMenuInjected` 在 `apply` 中组装组件的注入面：两个浏览器读取（`readAccountStatus`、`endSession`）、服务调用（`ctx.settingsShell.open`、`ctx.theme.setTheme`、`ctx.locale.setLocale`），以及渲染器绑定为 `useTheme`、`useLocale` 与 `useSettingsPanel` 的主题、语言与设置面板来源。组件自身不接触任何服务，两个请求各自的路径与跳转目标都留在本包内。设置面板是可选的邻居：`settingsShell` 经 `ctx.get` 读取，其存在与否由一处作用域注入发布到 `useSettingsPanel` 来源上，因此没有挂载设置面板的组合仍会挂载本菜单，只是不提供设置行。
 
 <a id="model-experience"></a>
 ## 模型体验

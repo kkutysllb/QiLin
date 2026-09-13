@@ -25,9 +25,10 @@ function declareFooter(slots: SlotRegistry): () => void {
 /**
  * Boot the browser half over a real slot tree and double theme service.
  * @param declare - whether the footer hole exists before the plugin mounts.
+ * @param settingsShell - whether the optional settings panel service is mounted.
  * @returns the context, its registry, the doubles, and the declaration control.
  */
-async function bench(declare = true) {
+async function bench(declare = true, settingsShell = true) {
   const ctx = new Context()
   await ctx.plugin(SlotRegistry).await()
   const slots = ctx.get('slots') as SlotRegistry
@@ -45,7 +46,7 @@ async function bench(declare = true) {
   }
   ctx.provide('theme', theme as never)
   const openPanel = vi.fn()
-  ctx.provide('settingsShell', { open: openPanel } as never)
+  if (settingsShell) ctx.provide('settingsShell', { open: openPanel } as never)
   const disposeFooter = declare ? declareFooter(slots) : undefined
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
@@ -64,7 +65,28 @@ describe('ui-account apply', () => {
   })
 
   it('declares the services the menu binds', () => {
-    expect(inject).toEqual(['slots', 'locale', 'theme', 'settingsShell'])
+    expect(inject).toEqual(['slots', 'locale', 'theme'])
+  })
+
+  it('mounts without a settings panel and reports no settings row', async () => {
+    const { slots, fiber } = await bench(true, false)
+    const entry = slots.entries('sidebar.footer.action')[0]
+    expect(entry).toBeDefined()
+    expect(faceOf(slots).hooks.settingsPanel.getSnapshot()).toBe(false)
+    await fiber.dispose()
+  })
+
+  it('publishes the settings row only while the panel service is mounted', async () => {
+    const { ctx, slots, fiber } = await bench(true, false)
+    const presence = faceOf(slots).hooks.settingsPanel
+    expect(presence.getSnapshot()).toBe(false)
+
+    const retract = ctx.provide('settingsShell', { open: () => {} } as never)
+    await vi.waitFor(() => { expect(presence.getSnapshot()).toBe(true) })
+
+    retract()
+    await vi.waitFor(() => { expect(presence.getSnapshot()).toBe(false) })
+    await fiber.dispose()
   })
 
   it('contributes exactly one footer action and removes it with its fiber', async () => {

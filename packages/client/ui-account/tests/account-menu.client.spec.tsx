@@ -9,6 +9,7 @@ import { useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { makeTranslate } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
 import type { LocaleSnapshot } from '@qilin/client-locale/client'
 import type { ThemeSnapshot } from '@qilin/client-ui-theme/client'
 import { AccountMenu } from '../src/client/AccountMenu.tsx'
@@ -78,6 +79,8 @@ interface BenchOptions {
   readonly active?: string
   /** Sidebar column state; false is the collapsed rail. */
   readonly wide?: boolean
+  /** Whether the deployment mounts the settings panel; defaults to true. */
+  readonly settingsPanel?: boolean
 }
 
 /**
@@ -105,6 +108,7 @@ function bench(options: BenchOptions = {}) {
   vi.stubGlobal('fetch', fetchMock)
 
   const instance = createAccountMenuStore().create()
+  const settingsPanel = createSnapshotStore(options.settingsPanel ?? true)
   const setTheme = vi.fn()
   const setLocale = vi.fn()
   const openSettings = vi.fn()
@@ -141,6 +145,7 @@ function bench(options: BenchOptions = {}) {
       }),
       subscribe: () => () => {},
     },
+    settingsPanel,
   })
 
   // Method references lose their receiver, so each source is subscribed
@@ -148,6 +153,7 @@ function bench(options: BenchOptions = {}) {
   const subscribeStore = (listener: () => void): (() => void) => instance.subscribe(listener)
   const subscribeTheme = (listener: () => void): (() => void) => hooks.theme.subscribe(listener)
   const subscribeLocale = (listener: () => void): (() => void) => hooks.locale.subscribe(listener)
+  const subscribeSettingsPanel = (listener: () => void): (() => void) => hooks.settingsPanel.subscribe(listener)
 
   const props = {
     wide: options.wide ?? true,
@@ -159,6 +165,8 @@ function bench(options: BenchOptions = {}) {
       useSyncExternalStore(subscribeTheme, () => select(hooks.theme.getSnapshot())),
     useLocale: <Selected,>(select: (snapshot: LocaleSnapshot) => Selected): Selected =>
       useSyncExternalStore(subscribeLocale, () => select(hooks.locale.getSnapshot())),
+    useSettingsPanel: <Selected,>(select: (mounted: boolean) => Selected): Selected =>
+      useSyncExternalStore(subscribeSettingsPanel, () => select(hooks.settingsPanel.getSnapshot())),
     t: makeTranslate(zh),
   } as unknown as AccountMenuProps
 
@@ -217,7 +225,8 @@ describe('AccountMenu', () => {
   it('names the signed-in account above the theme, language, and sign-out rows', async () => {
     const { requests } = bench()
     openMenu()
-    await waitFor(() => { expect(screen.getByText('ada@example.com')).toBeTruthy() })
+    // The address names both the trigger row and the menu's own heading.
+    await waitFor(() => { expect(screen.getAllByText('ada@example.com')).toHaveLength(2) })
     expect(rowLabels()).toEqual([zh.settings, zh.appearance, zh.language, zh.signOut])
     // The status read is the mount's own; opening and closing re-read nothing.
     expect(requests.map(request => request.url)).toEqual(['/api/auth/status'])
@@ -331,8 +340,39 @@ describe('AccountMenu', () => {
 
   it('opens the same menu from the collapsed rail', () => {
     bench({ wide: false })
-    expect(screen.getByRole('button', { name: zh.label }).querySelector('svg')?.getAttribute('width')).toBe('18')
     openMenu()
     expect(screen.getByRole('menuitem', { name: zh.settings })).toBeTruthy()
+  })
+
+  it('offers no Settings row where the deployment mounts no settings panel', async () => {
+    const { requests } = bench({ settingsPanel: false })
+    openMenu()
+    await waitFor(() => { expect(requests).toHaveLength(1) })
+    await settle()
+    expect(rowLabels()).toEqual([zh.appearance, zh.language, zh.signOut])
+  })
+
+  it('names the signed-in account beside its avatar in the wide column', async () => {
+    bench()
+    const trigger = await screen.findByRole('button', { name: 'ada@example.com' })
+    // The visible account name is the accessible name, so voice control can
+    // address the row by what it reads.
+    expect(trigger.getAttribute('aria-label')).toBeNull()
+    expect(trigger.textContent).toBe('Aada@example.com')
+    expect(trigger.querySelector('[aria-hidden="true"]')?.textContent).toBe('A')
+  })
+
+  it('falls back to the localized account label while no identity is known', () => {
+    bench({ account: SIGNED_OUT })
+    const trigger = screen.getByRole('button', { name: zh.label })
+    expect(trigger.textContent).toBe(zh.label)
+    expect(trigger.querySelector('[aria-hidden="true"] svg')).not.toBeNull()
+  })
+
+  it('hides the account name in the collapsed rail and names the button by its label', () => {
+    bench({ account: SIGNED_OUT, wide: false })
+    const trigger = screen.getByRole('button', { name: zh.label })
+    expect(trigger.getAttribute('aria-label')).toBe(zh.label)
+    expect(trigger.textContent).toBe('')
   })
 })

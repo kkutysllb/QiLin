@@ -68,6 +68,8 @@ export interface AccountMenuInjected {
     theme: HostObservable<ThemeSnapshot>
     /** Locale state source, bound by the renderer as useLocale. */
     locale: HostObservable<LocaleSnapshot>
+    /** Settings-panel presence, bound by the renderer as useSettingsPanel. */
+    settingsPanel: HostObservable<boolean>
   }
 }
 
@@ -102,11 +104,12 @@ function optionLabel(label: string, selected: boolean): ReactNode {
  */
 export function AccountMenu({
   wide, useStore, actions, loadAccount, signOut, openSettings, setTheme, setLocale,
-  useTheme, useLocale, t,
+  useTheme, useLocale, useSettingsPanel, t,
 }: AccountMenuProps): ReactNode {
   const open = useStore(state => state.open)
   const email = useStore(state => state.email)
   const signOutAvailable = useStore(state => state.signOutAvailable)
+  const settingsMounted = useSettingsPanel(mounted => mounted)
   const preference = useTheme(snapshot => snapshot.preference)
   const activeLocale = useLocale(snapshot => snapshot.active)
   const locales = useLocale(snapshot => snapshot.locales)
@@ -118,7 +121,9 @@ export function AccountMenu({
   const selected: string[] = []
   const items: MenuEntry[] = []
   if (email !== null) items.push({ type: 'label', id: 'account', text: email })
-  items.push({ id: SETTINGS_ID, label: t('settings'), icon: <IconSettingsOutline16 /> })
+  // A deployment that mounts no settings panel offers no Settings row: the row
+  // is the panel's entry point, and nothing else would answer it.
+  if (settingsMounted) items.push({ id: SETTINGS_ID, label: t('settings'), icon: <IconSettingsOutline16 /> })
   items.push({
     id: 'appearance',
     label: t('appearance'),
@@ -166,6 +171,11 @@ export function AccountMenu({
   }
 
   const label = t('label')
+  // The row reads as the account it belongs to: the signed-in address when the
+  // gate reports one, otherwise the localized account label. The avatar shows
+  // the address's first letter, or the generic user glyph while none is known.
+  const accountName = email ?? label
+  const initial = email === null ? undefined : Array.from(email)[0]?.toUpperCase()
 
   return (
     <Menu
@@ -182,13 +192,18 @@ export function AccountMenu({
         <Tooltip label={label} delayMs={500} disabled={wide}>
           <button
             type="button"
-            className={css.trigger}
-            aria-label={label}
+            className={`${css.trigger} ${wide ? css.wide : css.rail}`}
+            /* The rail has no visible text to name the button; the wide row is
+               named by the account name it shows. */
+            aria-label={wide ? undefined : label}
             aria-haspopup="menu"
             aria-expanded={open}
             onClick={() => { actions.setOpen(!open) }}
           >
-            <IconUserOutline16 size={wide ? 16 : 18} />
+            <span className={css.avatar} aria-hidden="true">
+              {initial ?? <IconUserOutline16 size={14} />}
+            </span>
+            {wide && <span className={css.name}>{accountName}</span>}
           </button>
         </Tooltip>
       )}

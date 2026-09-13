@@ -25,6 +25,8 @@ export interface AccountMenuSources {
   readonly theme: HostObservable<ThemeSnapshot>
   /** Live locale state; the renderer binds it as useLocale. */
   readonly locale: HostObservable<LocaleSnapshot>
+  /** Live settings-panel presence; the renderer binds it as useSettingsPanel. */
+  readonly settingsPanel: HostObservable<boolean>
 }
 
 /**
@@ -40,6 +42,6 @@ export function createAccountMenuInjected(sources: AccountMenuSources): AccountM
     openSettings: sources.openSettings,
     setTheme: sources.setTheme,
     setLocale: sources.setLocale,
-    hooks: { theme: sources.theme, locale: sources.locale },
+    hooks: { theme: sources.theme, locale: sources.locale, settingsPanel: sources.settingsPanel },
   }
 }
