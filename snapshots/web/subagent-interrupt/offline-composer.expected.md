@@ -24,7 +24,7 @@
   - img
   - text: Context injection @qilin/system-prompt
 - paragraph: partial
-- status: Deep diving...
+- status: QiLin...
 - list:
   - listitem:
     - text: Keep working until I stop you again.

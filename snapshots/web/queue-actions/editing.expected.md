@@ -22,7 +22,7 @@
   - img
   - text: Context injection @qilin/system-prompt
 - paragraph: partial
-- status: Deep diving...
+- status: QiLin...
 - button "2 queued messages" [disabled] [expanded]
 - list:
   - listitem:

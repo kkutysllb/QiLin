@@ -17,10 +17,9 @@
     - img
     - text: workspace
   - treeitem "New Session" [selected]
-- button "Settings":
-  - img
-  - text: Settings
-- text: Into the Unknown Preview
+- button "Account"
+- paragraph: {{greeting}}
+- heading "Give me a request, and I'll surprise you" [level=1]
 - button "Choose workspace":
   - img
   - text: workspace

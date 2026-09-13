@@ -69,13 +69,15 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
     const version = clientBuildValue('QILIN_CLIENT_VERSION')
     if (version === undefined) throw new Error('default client build record must carry QILIN_CLIENT_VERSION')
     const commit = clientBuildValue('QILIN_CLIENT_COMMIT_HASH')
-    const buildVersion = version
+    const buildDetail = version
       + (commit === undefined ? '' : `-${commit}`)
       + (clientBuildValue('QILIN_CLIENT_GIT_DIRTY') === 'true' ? '-dirty' : '')
-    // The local-build badge pairs the product name with the build version.
-    const badge = screen.getByText(buildVersion).parentElement
-    if (badge === null) throw new Error('the build version must sit inside the brand badge')
-    expect(badge.textContent).toBe('QiLin' + buildVersion)
+    // The local-build badge pairs the product name with the version chip and
+    // keeps the full version-commit-dirty string as the chip's tooltip.
+    const badge = screen.getByText(version)
+    expect(badge.getAttribute('title')).toBe(buildDetail)
+    if (badge.parentElement === null) throw new Error('the build version must sit inside the brand badge')
+    expect(badge.parentElement.textContent).toBe('QiLin' + version)
   }
   // The compact layout dropped group session counts; the fixture workspace
   // group row renders immediately with its sessions beneath it.

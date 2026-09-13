@@ -22,7 +22,7 @@
   - img
   - text: Context injection @qilin/system-prompt
 - paragraph: partial
-- status: Deep diving...
+- status: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Commands":
   - img

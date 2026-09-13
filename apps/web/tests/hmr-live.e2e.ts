@@ -1,7 +1,7 @@
 /** Published qilin web + pnpm dev:web → browser HMR, with no page reload. */
 
 import { existsSync, globSync, statSync } from 'node:fs'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { chromium } from 'playwright'
@@ -92,10 +92,12 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     .map(async path => [path, await readFile(path)] as const))
   const originalClientArtifactPaths = new Set(originalClientArtifacts.map(([path]) => path))
   const originalSource = await readFile(sourcePath)
-  const oldText = 'Into the Unknown'
-  const sourceNeedle = "'hero.headline': 'Into the Unknown'"
+  const oldText = 'QiLin'
+  const sourceNeedle = "'hero.headline': 'QiLin'"
   const newText = `HMR UPDATED ${'x'.repeat(80)}`
-  const updatedSource = originalSource.toString().replace(sourceNeedle, `'hero.headline': '${newText}'`)
+  // Both locale dictionaries carry the wordmark, so every occurrence moves: the
+  // edit must not depend on which dictionary the page's locale resolves.
+  const updatedSource = originalSource.toString().replaceAll(sourceNeedle, `'hero.headline': '${newText}'`)
   if (updatedSource === originalSource.toString()) throw new Error(`HMR source lacks ${JSON.stringify(sourceNeedle)}`)
 
   const subprocessCtx = new Context()
@@ -112,6 +114,17 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
       { ...clientBuildEnvironment },
     ))
     await waitForOutput(watcher, /dev-web: watching/, 'pnpm run dev:web')
+    // The shipped surface gates the application behind a local account, and this
+    // scenario is about client-plugin reloading: the harness home's own patch
+    // layer turns the gate off, exactly as the scaffold lane does for its
+    // scenarios, so the fresh home reaches the application itself.
+    await mkdir(join(world, '.qilin'), { recursive: true })
+    await writeFile(join(world, '.qilin', 'cordis.patch.yml'), [
+      '- id: accounts',
+      '  config:',
+      '    enabled: false',
+      '',
+    ].join('\n'))
     host = subprocessCtx.subprocess.spawn(spawnSpec(
       [process.execPath, binPath, 'web', '--no-open', '--port', '0'],
       world,
@@ -126,7 +139,10 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     const pageErrors: string[] = []
     page.on('pageerror', error => pageErrors.push(String(error)))
     await page.goto(baseUrl, { waitUntil: 'load' })
-    await page.getByText(oldText, { exact: true }).waitFor({ timeout: 15_000 })
+    // The sidebar brand prints the product name too, so both waits anchor on
+    // the hero's ambient wordmark rather than page-wide text.
+    const wordmark = page.locator('[class*="watermark"]')
+    await wordmark.filter({ hasText: oldText }).waitFor({ timeout: 15_000 })
     const pageIdentity = await page.evaluate(() => {
       // In-page code: an import would not survive serialization, and the page
       // entropy source available in every context is getRandomValues.
@@ -136,7 +152,7 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     })
 
     await writeFile(sourcePath, updatedSource)
-    await page.getByText(newText, { exact: true }).waitFor({ timeout: 30_000 })
+    await wordmark.filter({ hasText: newText }).waitFor({ timeout: 30_000 })
     expect(await page.evaluate(() => (window as Window & { __qilinHmrPageIdentity?: string }).__qilinHmrPageIdentity))
       .toBe(pageIdentity)
     expect(pageErrors).toEqual([])

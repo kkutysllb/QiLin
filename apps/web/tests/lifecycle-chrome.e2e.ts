@@ -43,6 +43,13 @@ const MODE = webSnapshotMode()
 
 const PROMPT = 'Reply with the single word LIGHTHOUSE and stop.'
 const REPLAY_PACE_MS = 100
+// The hero greeting is a clock reading, and both goldens below capture the
+// blank-draft frame: tokenize it so a golden never encodes the hour it ran in.
+const HERO_GREETING_TOKENS: readonly (readonly [string, string])[] = [
+  ['Good morning, a fresh start to a new day', '{{greeting}}'],
+  ['Good afternoon, hope your work goes well', '{{greeting}}'],
+  ['Good evening, great job today', '{{greeting}}'],
+]
 
 describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', () => {
   let scaffold: WebScaffold
@@ -153,7 +160,9 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
       // mean the submitted text is gone yet: under load the capture can catch
       // a textbox still holding `/plan`.
       await expect.poll(() => input.textContent(), { timeout: 10_000 }).toBe('')
-      const planSnapshot = await captureStableAria(activePage, '[class*="frame"]', activeScaffold.workspaceCwd)
+      const planSnapshot = await captureStableAria(activePage, '[class*="frame"]', activeScaffold.workspaceCwd, {
+        replacements: HERO_GREETING_TOKENS,
+      })
       await compareOrRefreshGolden(PLAN_ACTIVE_EXPECTED, planSnapshot, MODE)
       const planStyle = await planButton.evaluate((element) => {
         const probe = document.createElement('span')
@@ -196,16 +205,19 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
       expect(fixtureUserPrompts(await readFile(FIXTURE, 'utf8'))).toEqual([PROMPT])
     }
     // The blank frame renders the hero, not the resident composer: the
-    // headline plus the guidance placeholder are the empty state's anchors.
-    await expect.poll(() => page.getByText('Into the Unknown', { exact: false }).count(), { timeout: 15_000 }).toBe(1)
+    // tagline plus the guidance placeholder are the empty state's anchors.
+    const heroTagline = page.getByRole('heading', { level: 1 })
+    await expect.poll(() => heroTagline.count(), { timeout: 15_000 }).toBe(1)
     const input = page.locator('[data-composer-input]').first()
     await input.waitFor({ timeout: 10_000 })
     if (MODE !== 'record') {
-      await page.getByText('Into the Unknown', { exact: false }).hover()
+      await heroTagline.hover()
       await expect.poll(() => page.getByRole('tooltip').count()).toBe(0)
       // Golden of the hero's stable waiting state (captured before any send;
       // the conversation-region goldens belong to the other scenarios).
-      const snapshot = await captureStableAria(page, '[class*="frame"]', scaffold.workspaceCwd)
+      const snapshot = await captureStableAria(page, '[class*="frame"]', scaffold.workspaceCwd, {
+        replacements: HERO_GREETING_TOKENS,
+      })
       await compareOrRefreshGolden(HERO_EXPECTED, snapshot, MODE)
     }
     const settled = scaffold.whenTurnSettled()

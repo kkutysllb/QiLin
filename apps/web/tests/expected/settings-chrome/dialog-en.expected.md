@@ -19,6 +19,7 @@
     - button "Skills":
       - img
       - text: Skills
+    - separator "Resize settings navigation"
   - button "Open configuration file"
   - button "Close":
     - img

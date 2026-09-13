@@ -173,6 +173,28 @@ export async function writeComposerDraft(
   else await page.keyboard.type(text)
 }
 
+/**
+ * Open the settings panel the way a user does: the sidebar footer's account
+ * row is the only Settings entry point, and its menu carries the row that
+ * reveals the panel. A panel that is already open is returned as is — the
+ * page-wide overlay covers the account row, so a scenario that only wants the
+ * panel open must not depend on a sibling scenario's cleanup.
+ * @param page - booted application page.
+ * @param label - the settings copy of the page's active locale.
+ * @returns the revealed dialog locator.
+ */
+export async function openSettings(page: Page, label = { menu: '设置', dialog: '设置' }): Promise<Locator> {
+  const dialog = page.getByRole('dialog', { name: label.dialog })
+  if (await dialog.count() === 0) {
+    // The account row is the footer's one menu trigger; its accessible name is
+    // the signed-in address when there is one, so it is found by structure.
+    await page.locator('[class*="footArea"] [aria-haspopup="menu"]').click()
+    await page.getByRole('menuitem', { name: label.menu, exact: true }).click()
+  }
+  await dialog.waitFor({ timeout: 10_000 })
+  return dialog
+}
+
 /** Failure evidence goes to the gitignored .artifacts/ (repo convention). */
 export async function saveFailureShot(page: Page, name: string): Promise<void> {
   const dir = fileURLToPath(new URL('../../../.artifacts', import.meta.url))

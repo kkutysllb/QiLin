@@ -22,7 +22,7 @@
   - img
   - text: Context injection @qilin/system-prompt
 - paragraph: partial
-- status: Deep diving...
+- status: QiLin...
 - list:
   - listitem:
     - img "Queued message image"

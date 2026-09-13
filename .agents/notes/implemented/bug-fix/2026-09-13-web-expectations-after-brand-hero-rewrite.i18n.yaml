@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-13-web-expectations-after-brand-hero-rewrite.md
+2026-09-13-web-expectations-after-brand-hero-rewrite.md: 1ee3fac3cf3c2c9a2a0db2c3ae83c8c5603ac113
+2026-09-13-web-expectations-after-brand-hero-rewrite.zh.md: be1de084c564486f7145f95d7cc2ab6faa9495e3

@@ -20,7 +20,7 @@ import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, newEnglishPage, saveFailureShot } from './support.ts'
+import { connectFreshWorkspace, newEnglishPage, openSettings, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/turn-tail-actions', import.meta.url))
 const FIXTURE = join(SNAPSHOT_DIR, 'session.v3.jsonl')
@@ -137,7 +137,7 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     await expect.poll(() => existsSync(marker), { timeout: 20_000 }).toBe(true)
     expect(await page.locator('[data-turn-process]').count()).toBe(0)
     await expect.poll(
-      () => page.getByRole('status').filter({ hasText: 'Deep diving...' }).isVisible(),
+      () => page.getByRole('status').filter({ hasText: 'QiLin...' }).isVisible(),
       { timeout: 10_000 },
     ).toBe(true)
     await page.locator('[data-streaming="true"]')
@@ -245,8 +245,7 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     expect(await process.getAttribute('aria-expanded')).toBe('false')
     expect(await tool.isVisible()).toBe(false)
 
-    await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: 'Settings' })
+    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await dialog.getByRole('button', { name: 'Compact', exact: true }).click()
     await page.getByRole('menuitem', { name: 'Normal', exact: true }).click()
     await page.keyboard.press('Escape')
@@ -256,8 +255,7 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     await expect.poll(async () => readFile(join(scaffold!.harnessHome, 'settings.yaml'), 'utf8'), { timeout: 5_000 })
       .toMatch(/ui-chat:\n\s+transcriptView: normal/)
 
-    await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const restored = page.getByRole('dialog', { name: 'Settings' })
+    const restored = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await restored.getByRole('button', { name: 'Normal', exact: true }).click()
     await page.getByRole('menuitem', { name: 'Compact', exact: true }).click()
     await page.keyboard.press('Escape')

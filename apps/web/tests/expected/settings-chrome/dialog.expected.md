@@ -19,6 +19,7 @@
     - button "技能":
       - img
       - text: 技能
+    - separator "调整设置导航宽度"
   - button "打开配置文件"
   - button "关闭":
     - img

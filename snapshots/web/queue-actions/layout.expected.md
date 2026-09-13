@@ -28,7 +28,7 @@
   - img
   - text: Context injection @qilin/system-prompt
 - paragraph: partial
-- status: Deep diving...
+- status: QiLin...
 - region "To-dos":
   - button "To-dos 1 completed · 1 in progress"
 - img

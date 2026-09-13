@@ -46,6 +46,16 @@ describe('web e2e: workspace management (create / rename / flat view / hover aff
   let releaseAttachment: (() => void) | undefined
 
   /**
+   * The sidebar footer's account row: the pointer's parking spot for the
+   * pointer-leave scenarios, because it sits outside every row and card they
+   * hover and opens nothing on hover.
+   * @returns the account row locator.
+   */
+  function footer(): Locator {
+    return page.locator('[class*="footArea"] [aria-haspopup="menu"]')
+  }
+
+  /**
    * Raise the region header's directory dialog and drive it to a directory via
    * the path-edit affordance. Adding is the header button's only action, so
    * the click lands in the dialog with no menu in between.
@@ -556,7 +566,7 @@ describe('web e2e: workspace management (create / rename / flat view / hover aff
     expect(await copied.isVisible()).toBe(true)
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(rowTitle)
     // Leaving anchor and card together closes it after the grace.
-    await page.getByRole('button', { name: 'Settings' }).hover()
+    await footer().hover()
     await expect.poll(() => card.count(), { timeout: 5_000 }).toBe(0)
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
@@ -586,7 +596,7 @@ describe('web e2e: workspace management (create / rename / flat view / hover aff
     await page.waitForTimeout(POINTER_HOLD_MS)
     expect(await page.getByRole('menuitem', { name: 'Rename' }).count()).toBe(1)
     // Pointer-leave dismissal still applies once the pointer genuinely leaves.
-    await page.getByRole('button', { name: 'Settings' }).hover()
+    await footer().hover()
     await expect.poll(() => page.getByRole('menuitem', { name: 'Rename' }).count(), { timeout: 5_000 }).toBe(0)
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
