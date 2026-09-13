@@ -129,12 +129,6 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
                 width="24"
               />
             </div>
-            <span
-              class="buildBadge"
-              title="1.2.3-rc.4-abc1234-dirty"
-            >
-              1.2.3-rc.4
-            </span>
           </span>
           <span
             class="brandName"
@@ -149,6 +143,12 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
                 QiLin
               </span>
             </div>
+            <span
+              class="buildBadge"
+              title="1.2.3-rc.4-abc1234-dirty"
+            >
+              1.2.3-rc.4
+            </span>
           </span>
         </span>
       </button>
@@ -256,12 +256,6 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
                 width="24"
               />
             </div>
-            <span
-              class="buildBadge"
-              title="1.2.3-rc.4-abc1234-dirty"
-            >
-              1.2.3-rc.4
-            </span>
           </span>
           <span
             class="brandName"
@@ -276,6 +270,12 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
                 QiLin
               </span>
             </div>
+            <span
+              class="buildBadge"
+              title="1.2.3-rc.4-abc1234-dirty"
+            >
+              1.2.3-rc.4
+            </span>
           </span>
         </span>
       </button>

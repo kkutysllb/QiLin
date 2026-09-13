@@ -1,5 +1,5 @@
 ---
-description: "Settings shell, ownerless copy, and durable product-onboarding namespace for the qilin web client: the General section, trigger chrome, and onboarding ledger projection."
+description: "Settings shell, ownerless copy, and durable product-onboarding namespace for the qilin web client: the General section, panel chrome, and onboarding ledger projection."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use this package to give the qilin web client a settings page, connection-recovery control, feature-contributed navigation, and sequential first-run onboarding. Users can open it from the sidebar, retry a failed connection immediately, and access a local configuration file when the Host makes one available on a loopback browser. Feature packages supply their own settings rows, sections, and onboarding steps; this package supplies their shared presentation and does not add onboarding copy or built-in General rows.
+Use this package to give the qilin web client a settings page, connection-recovery control, feature-contributed navigation, and sequential first-run onboarding. Users open it from the account menu's Settings row in the sidebar footer, retry a failed connection immediately, and access a local configuration file when the Host makes one available on a loopback browser. Feature packages supply their own settings rows, sections, and onboarding steps; this package supplies their shared presentation and does not add onboarding copy or built-in General rows.
 
 ## Table of Contents
 
@@ -25,7 +25,11 @@ Use this package to give the qilin web client a settings page, connection-recove
 <a id="use-this-package"></a>
 ## Use this package
 
-Users reach the shell through the sidebar's bottom Settings control; feature plugins contribute their pages and onboarding steps through the slot ledgers this shell projects. In both the expanded sidebar and collapsed rail, the control exposes the localized Settings label as its accessible name. A pale-yellow **Disconnected** action beside Settings indicates browser offline suspension. Automatic recovery shows **Reconnecting** with one to three dots advancing every 500ms. Hover or keyboard focus changes either yellow label to **Reconnect now** without changing its background; press feedback stays within the warning palette, and selecting it starts retry 1 immediately. Recovery changes the region to pale-green **Connected** for two seconds before it disappears. The icon, left-aligned text origin, height, and width remain fixed across every visible state. Initial startup and uninterrupted healthy operation remain silent. The shell renders the settings page, the navigation built from `settings.section` entries, and exactly one mounted onboarding step at a time.
+Users reach the shell from the sidebar footer's account menu, whose Settings row calls `ctx.settingsShell.open()`; feature plugins contribute their pages and onboarding steps through the slot ledgers this shell projects. The shell renders no Settings control of its own. A pale-yellow **Disconnected** action in the sidebar footer indicates browser offline suspension while the panel is closed. Automatic recovery shows **Reconnecting** with one to three dots advancing every 500ms. Hover or keyboard focus changes either yellow label to **Reconnect now** without changing its background; press feedback stays within the warning palette, and selecting it starts retry 1 immediately. Recovery changes the region to pale-green **Connected** for two seconds before it disappears. The icon, left-aligned text origin, height, and width remain fixed across every visible state. Initial startup and uninterrupted healthy operation remain silent. The shell renders the settings page, the navigation built from `settings.section` entries, and exactly one mounted onboarding step at a time.
+
+### Resizing the navigation
+
+The settings page navigation seeds at 188px and its right edge is a vertical, pointer-captured separator: dragging reports a clamped 160–360px width, and the separator keeps the localized accessible name from the `settings` namespace. Width is viewing state local to the shell occupant, so it resets when the panel unmounts rather than persisting into the settings document.
 
 ### The General section
 

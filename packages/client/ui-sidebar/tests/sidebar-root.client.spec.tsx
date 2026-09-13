@@ -123,6 +123,7 @@ describe('SidebarRoot shell', () => {
     // The badge shows the version; the commit and dirty suffixes ride its tooltip.
     const badge = screen.getByText('1.2.3-rc.4')
     expect(badge.getAttribute('title')).toBe('1.2.3-rc.4-0123456-dirty')
+    expect(badge.parentElement?.textContent).toBe('QiLin1.2.3-rc.4')
     expect(container.querySelector('svg')).not.toBeNull()
   })
 

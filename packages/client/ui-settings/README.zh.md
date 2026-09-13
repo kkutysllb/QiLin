@@ -70,11 +70,11 @@ kind: "package-reference"
 
 以下页面覆盖设置界面家族及其背后的持久化 seam。
 
-- [ui-settings-general](../ui-settings-general/README.zh.md)——设置外壳：触发控件、导航、「通用」分区、引导投影。
+- [ui-settings-general](../ui-settings-general/README.zh.md)——设置外壳：面板界面框架、导航、「通用」分区、引导投影。
 - [ui-settings-plugins](../ui-settings-plugins/README.zh.md)——「插件」分区及其可配置宿主平面卡片。
 - [ui-settings-models](../ui-settings-models/README.zh.md)——建立在本底座之上的 Models 页面与 DeepSeek 引导。
 - [settings](../../settings/README.zh.md)——持久化用户设置 seam 及其文件提供方。
-- [ui-sidebar](../ui-sidebar/README.zh.md)——底部席位承载设置触发控件的侧边栏外壳。
+- [ui-sidebar](../ui-sidebar/README.zh.md)——底部席位承载设置面板占位者的侧边栏外壳。
 
 -----
 

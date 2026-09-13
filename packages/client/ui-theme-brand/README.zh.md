@@ -28,9 +28,10 @@ kind: "package-reference"
 | 令牌 | 浅色 | 深色 |
 |---|---|---|
 | `--dsw-alias-brand-primary` | `#0b7a5a` | `#3fd6a0` |
-| `--dsw-specific-sidebar-fill` | `#f1f7f4` | `#0e1a16` |
+| `--dsw-specific-sidebar-fill` | `#ffffff` | `#0f0f0f` |
+| `--dsw-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
 
-功能组件通过既有的 `--dsw-alias-*` 别名消费这些令牌，因此配色可到达侧边栏、输入框、会话与交付物，而任何组件都无需感知 QiLin。
+功能组件通过既有的 `--dsw-alias-*` 别名消费这些令牌，因此配色可到达侧边栏、输入框、会话与交付物，而任何组件都无需感知 QiLin。侧边栏填充是各套配色中的中性表面而非品牌色偏，`--dsw-specific-brand-seal-fill` 则为需要与印记一致的表面携带印章自身的朱砂；它的两个取值都是 `ui-brand` 中印章渐变的色标。
 
 <a id="dev-note"></a>
 ## 开发备注

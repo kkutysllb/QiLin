@@ -28,9 +28,10 @@ The `qilin` profile mounts this package through its bundle patch, so no configur
 | Token | Light | Dark |
 |---|---|---|
 | `--dsw-alias-brand-primary` | `#0b7a5a` | `#3fd6a0` |
-| `--dsw-specific-sidebar-fill` | `#f1f7f4` | `#0e1a16` |
+| `--dsw-specific-sidebar-fill` | `#ffffff` | `#0f0f0f` |
+| `--dsw-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
 
-Feature components consume these through the `--dsw-alias-*` aliases they already use, so the palette reaches the sidebar, composer, conversation, and deliverables without any component being aware of QiLin.
+Feature components consume these through the `--dsw-alias-*` aliases they already use, so the palette reaches the sidebar, composer, conversation, and deliverables without any component being aware of QiLin. The sidebar fill is the neutral surface of each palette rather than a brand tint, and `--dsw-specific-brand-seal-fill` carries the seal's own cinnabar for surfaces that must match the stamp; its two values are stops of the seal gradient in `ui-brand`.
 
 <a id="dev-note"></a>
 ## Dev Note

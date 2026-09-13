@@ -72,4 +72,14 @@ describe('SidebarRoot.module.css', () => {
     expect(declarations('.fallbackBrandName')?.get('font-size')).toBe('17px')
     expect(declarations('.fallbackBrandName')?.get('white-space')).toBe('nowrap')
   })
+
+  it('flows the build badge beside the wordmark instead of clipping it', () => {
+    // An absolutely positioned badge is clipped by the brand button's
+    // `overflow: hidden`; the chip is an in-flow superscript of the wordmark.
+    expect(declarations('.buildBadge')?.get('position')).toBeUndefined()
+    expect(declarations('.buildBadge')?.get('align-self')).toBe('flex-start')
+    expect(declarations('.buildBadge')?.get('font-size')).toBe('10px')
+    expect(declarations('.buildBadge')?.get('white-space')).toBe('nowrap')
+    expect(declarations('.brandName')?.get('gap')).toBe('6px')
+  })
 })

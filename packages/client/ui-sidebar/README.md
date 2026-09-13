@@ -1,5 +1,5 @@
 ---
-description: "Sidebar shell plugin for the qilin web client: brand row, New Session action, collapse control, scroll-aware region seat, and bottom-pinned Settings seat."
+description: "Sidebar shell plugin for the qilin web client: brand row, New Session action, collapse control, scroll-aware region seat, and bottom-pinned footer seats."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The qilin web client sidebar lets users recognize the active build, start a new session, collapse navigation to a 56px rail, browse Workspaces and Sessions, and open Settings. It preserves a bottom-pinned Settings entry and hides idle scrollbars without moving browser rows. New Session uses an explicitly selected Workspace, then the current Session's Workspace, then the most recently active Workspace; if none exists, it opens a blank New Session page. Deployments can replace the brand mark or name while retaining the navigation controls and rail geometry.
+The qilin web client sidebar lets users recognize the active build, start a new session, collapse navigation to a 56px rail, browse Workspaces and Sessions, and reach Settings. It preserves a bottom-pinned footer and hides idle scrollbars without moving browser rows. New Session uses an explicitly selected Workspace, then the current Session's Workspace, then the most recently active Workspace; if none exists, it opens a blank New Session page. Deployments can replace the brand mark or name while retaining the navigation controls and rail geometry.
 
 ## Table of Contents
 
@@ -25,11 +25,11 @@ The qilin web client sidebar lets users recognize the active build, start a new 
 <a id="use-this-package"></a>
 ## Use this package
 
-The sidebar is the navigation shell: users see the brand, start new sessions, collapse the rail, and reach Settings. Feature plugins fill its seats — ui-workspace fills `sidebar.workspaces`, ui-settings registers the trigger row and settings panel at `sidebar.settings`.
+The sidebar is the navigation shell: users see the brand, start new sessions, collapse the rail, and reach Settings. Feature plugins fill its seats — ui-workspace fills `sidebar.workspaces`, ui-account fills `sidebar.footer.action`, and ui-settings fills `sidebar.settings` with the settings panel.
 
 ### Brand and New Session
 
-The expanded brand row renders `sidebar.brand.mark` and `sidebar.brand.name` as independent single slots; the collapsed rail renders the same mark slot. Without occupants, the shell uses the fish mark and a localized local-build label. A complete build stacks a code badge below the label as `version[-commit][-dirty]`, using `QILIN_CLIENT_VERSION`, the optional 7-character `QILIN_CLIENT_COMMIT_HASH`, and `QILIN_CLIENT_GIT_DIRTY=true`; missing version metadata omits the badge. New Session targets the explicit Workspace used by a scoped action, otherwise the current Session's Workspace, otherwise the most recently active Workspace; when none exists it clears into the blank New Session page.
+The expanded brand row renders `sidebar.brand.mark` and `sidebar.brand.name` as independent single slots; the collapsed rail renders the same mark slot. Without occupants, the shell uses the fish mark and a localized local-build label. A complete build renders a version chip anchored to the wordmark's top-right corner as `version`, tooltipped with `version[-commit][-dirty]` and built from `QILIN_CLIENT_VERSION`, the optional 7-character `QILIN_CLIENT_COMMIT_HASH`, and `QILIN_CLIENT_GIT_DIRTY=true`; missing version metadata omits the chip. New Session targets the explicit Workspace used by a scoped action, otherwise the current Session's Workspace, otherwise the most recently active Workspace; when none exists it clears into the blank New Session page.
 
 ### Global panel entries
 
@@ -37,7 +37,7 @@ Plugins add an icon component to the root-scoped `sidebar.panellist` list with a
 
 ### Collapse behavior
 
-During a live collapse, the expanded content fades out at its current width, the upper controls share one fade and leftward translation into the 56px rail, and the layout's column slide ends the motion. A page that starts collapsed renders the rail statically, and reduced-motion mode disables both transitions. The bottom-pinned `sidebar.settings` control shares the fade timing but has no horizontal translation.
+During a live collapse, the expanded content fades out at its current width, the upper controls share one fade and leftward translation into the 56px rail, and the layout's column slide ends the motion. A page that starts collapsed renders the rail statically, and reduced-motion mode disables both transitions. The bottom-pinned footer seats share the fade timing but have no horizontal translation.
 
 ### Scrollbars
 
@@ -55,7 +55,7 @@ The shell is pure composition: `SidebarRootComponentProps` composes the layout o
 
 ### Slot discipline
 
-Declaration-aware `slots.inject()` lets a replacing package activate before or after the sidebar. The foot is the `sidebar.settings` seat: the sidebar renders only the bottom-pinned layout slot and shares its column state (`wide`). The `/client` exports are the plugin body (`apply`/`inject`) plus the contract types only; SidebarRoot, the row components, and the tree derivation remain package-internal behind the slot registration.
+Declaration-aware `slots.inject()` lets a replacing package activate before or after the sidebar. The foot stacks the `sidebar.footer.action` list above the `sidebar.settings` occupant, and the sidebar shares its column state (`wide`) with both. The `/client` exports are the plugin body (`apply`/`inject`) plus the contract types only; SidebarRoot, the row components, and the tree derivation remain package-internal behind the slot registration.
 
 </details>
 
@@ -67,7 +67,8 @@ Declaration-aware `slots.inject()` lets a replacing package activate before or a
 These pages cover the surfaces that fill the shell's seats and the composition model.
 
 - [ui-workspace](../ui-workspace/README.md) — the Workspace and Session browser rendered into `sidebar.workspaces`.
-- [ui-settings](../ui-settings/README.md) — the settings domain base registering the trigger row at `sidebar.settings`.
+- [ui-account](../ui-account/README.md) — the avatar menu rendered into `sidebar.footer.action`, including the Settings entry.
+- [ui-settings](../ui-settings/README.md) — the settings domain base behind the `sidebar.settings` panel occupant.
 - [ui-layout](../ui-layout/README.md) — the layout owner whose rail and column state the collapse uses.
 - [ui-theme](../ui-theme/README.md) — the scrollbar token indirection the shell rebinds.
 - [Slot system standard](../../../.agents/notes/implemented/architecture/2026-07-22-slot-type-chain-implementation.md) — the composition model behind the seats.

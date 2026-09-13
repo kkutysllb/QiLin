@@ -60,7 +60,7 @@
 
 /* At the 150ms rail settle, the upper controls enter from the former
    rail right edge over the remaining 150ms of the AppFrame track transition.
-   The bottom-pinned settings seat shares their opacity timeline but stays
+   The bottom-pinned footer seats share their opacity timeline but stay
    horizontally fixed. Only a live collapse gets .railIn; a cold collapsed
    render stays static. */
 .railIn .iconButton,
@@ -136,12 +136,10 @@
 }
 
 .brandMark {
-  position: relative;
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* The build chip sits outside the mark box. */
   overflow: visible;
 }
 
@@ -215,26 +213,28 @@
   color: var(--dsw-alias-label-primary);
 }
 
-/* The product version, pinned to the brand mark's top-right corner. */
+/* The product version: an in-flow superscript of the wordmark it names. It
+   must stay in flow — the brand button's `overflow: hidden` clips an
+   absolutely positioned chip, and a negative offset would also cover the
+   wordmark's own glyphs. */
 .buildBadge {
-  position: absolute;
-  top: -9px;
-  right: -14px;
+  flex: none;
+  align-self: flex-start;
+  margin-top: 1px;
   display: inline-flex;
   align-items: center;
   height: 16px;
   padding: 0 5px;
   border: 0.5px solid var(--dsw-alias-border-l2);
-  border-radius: 8px;
-  /* Full-round radius: state the arc back against the universal superellipse. */
-  corner-shape: round;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-1);
+  border-radius: 5px;
+  color: var(--dsw-alias-label-tertiary);
+  background: var(--dsw-alias-bg-layer-2);
   font-family: var(--ds-font-family-code);
   font-size: 10px;
   font-weight: 500;
   line-height: 16px;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 /* New Session: 38px bar, 12px radius (figma 133:7634 geometry, squared-off
@@ -377,8 +377,8 @@
   padding-left: 0;
 }
 
-/* Footer seats: additive actions stack above Settings. Each occupant owns its
-   button geometry and hover chrome. */
+/* Footer seats: additive actions stack above the settings occupant. Each
+   occupant owns its button geometry and hover chrome. */
 .footArea {
   flex: none;
   display: flex;

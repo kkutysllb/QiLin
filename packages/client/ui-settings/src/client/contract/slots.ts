@@ -2,26 +2,16 @@
  * Settings slot contract — the canonical home of every settings slot type,
  * owned by the settings domain base rather than by the shell that renders
  * them (ui-settings-general, which occupies `sidebar.settings`). The shell has
- * zero copy of its own: ALL text (trigger label, panel title, header actions,
- * close aria, section content) arrives from registrants. A feature owns its
- * own settings pages — adding a setting never means editing the shell; copy
- * that belongs to no single feature (chrome, the General section) is owned by
- * ui-settings-general too.
+ * zero copy of its own: ALL text (panel title, header actions, close aria,
+ * section content) arrives from registrants. A feature owns its own settings
+ * pages — adding a setting never means editing the shell; copy that belongs to
+ * no single feature (chrome, the General section) is owned by ui-settings-general too.
  */
 
 import type {} from '@qilin/client-ui-slots'
 
 declare module '@qilin/client-ui-slots' {
   interface SlotMap {
-    /**
-     * The sidebar-foot trigger row content: icon + label, supplied as slot
-     * content (the accessible name comes from the content — rail state
-     * renders the label visually hidden). The shell renders the button
-     * chrome and owns open state. Absent contribution degrades to an
-     * icon-only button without an accessible name (broken-composition state;
-     * the shipped composition always registers the seat).
-     */
-    'settings.trigger': { kind: 'single'; scope: 'root'; owner: SettingsTriggerOwnerProps }
     /**
      * The panel title text seat. Content renders inside the nav heading row;
      * the dialog's accessible name points at that node via aria-labelledby.
@@ -99,12 +89,6 @@ export interface SettingsGeneralItemOwnerProps {
 export interface SettingsPluginsTabOwnerProps {
   /** Marker field: tab owner props are intentionally empty. */
   children?: never
-}
-
-/** Owner share of the trigger content seat: the sidebar column state. */
-export interface SettingsTriggerOwnerProps {
-  /** Whether the sidebar renders wide content (false = 56px rail, icon only). */
-  wide: boolean
 }
 
 /** Owner share of the header title seat (the shell supplies nothing). */

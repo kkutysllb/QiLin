@@ -1,28 +1,39 @@
 // @vitest-environment jsdom
 import type { GlobalStandardProps } from '@qilin/client-ui-slots'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEffect, useState } from 'react'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { makeTranslate } from '@qilin/client-test-runtime'
 import type { SettingsRootComponentProps } from '../src/client/shell-contract.ts'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
-import { en, zh } from '../src/client/locales.ts'
+import { en } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
+beforeEach(() => {
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+    callback(0)
+    return 1
+  })
+  vi.stubGlobal('cancelAnimationFrame', () => {})
+})
+
 afterEach(() => {
   cleanup()
+  requestMountedOpen = undefined
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 
 type Row = { id: string; order: number; label: string }
 type Step = { id: string; order: number }
 
+let requestMountedOpen: (() => void) | undefined
+
 /** Slot-content stand-ins: the shell renders whatever the seats contribute. */
 const SEAT_CONTENT: Record<string, string> = {
-  'settings.trigger': 'Settings',
   'settings.header': 'Settings Title',
   'settings.action': 'Open configuration file',
   'settings.close': 'Close',
@@ -49,7 +60,7 @@ function mount({
   ],
 }: {
   wide?: boolean
-  dictionary?: typeof en | typeof zh
+  dictionary?: typeof en
   connectionState?: ConnectionSnapshot
   onboardingActive?: boolean
   rows?: Row[]
@@ -130,17 +141,32 @@ function mount({
       for (const handler of [...openHandlers]) handler(sectionId)
     })
   }
+  requestMountedOpen = () => { requestOpen() }
   return { view, renderSlot, bump, listeners, reconnect, setConnectionState, requestOpen, openHandlers }
 }
 
+function pointer(element: Element, type: string, clientX: number, pointerId = 1): void {
+  act(() => {
+    const event = new MouseEvent(type, { button: 0, bubbles: true, clientX })
+    Object.defineProperty(event, 'pointerId', { configurable: true, value: pointerId })
+    element.dispatchEvent(event)
+  })
+}
+
 function openPanel() {
-  const trigger = screen.getByRole('button', { name: 'Settings' })
-  trigger.focus()
-  fireEvent.click(trigger)
-  return trigger
+  if (requestMountedOpen === undefined) throw new Error('settings shell is not mounted')
+  requestMountedOpen()
 }
 
 describe('settings shell open channel', () => {
+  it('keeps the sidebar seat free of a duplicate trigger while the open channel still works', () => {
+    const mounted = mount()
+    expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull()
+
+    mounted.requestOpen()
+    expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
   it('reveals the panel, optionally on one section, through the shell reveal action', () => {
     const b = mount()
     // The channel is unclaimed until the occupant mounts, so an early request
@@ -167,26 +193,7 @@ describe('settings shell open channel', () => {
   })
 })
 
-describe('SettingsRoot trigger', () => {
-  it.each([
-    { column: 'expanded English', wide: true, dictionary: en, name: 'Settings' },
-    { column: 'collapsed English', wide: false, dictionary: en, name: 'Settings' },
-    { column: 'expanded Chinese', wide: true, dictionary: zh, name: '设置' },
-    { column: 'collapsed Chinese', wide: false, dictionary: zh, name: '设置' },
-  ])('uses the locale name and accepts keyboard-style activation for the $column trigger', ({
-    wide, dictionary, name,
-  }) => {
-    const { renderSlot } = mount({ wide, dictionary })
-    const trigger = screen.getByRole('button', { name })
-    expect(trigger.getAttribute('aria-label')).toBe(name)
-    expect(renderSlot).toHaveBeenCalledWith('settings.trigger', { wide })
-    expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    trigger.focus()
-    fireEvent.click(trigger, { detail: 0 })
-    expect(screen.getByRole('dialog')).toBeTruthy()
-    expect(screen.getByRole('button', { name, expanded: true })).toBeTruthy()
-  })
-
+describe('SettingsRoot connection status', () => {
   it('shows outage, retry progress, and a two-second recovery confirmation', () => {
     vi.useFakeTimers()
     const mounted = mount()
@@ -247,29 +254,26 @@ describe('SettingsPanel chrome seats', () => {
 })
 
 describe('SettingsPanel close paths', () => {
-  it('closes via the header button and restores trigger focus', async () => {
+  it('closes via the header button', () => {
     mount()
-    const trigger = openPanel()
+    openPanel()
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByRole('dialog')).toBeNull()
-    await vi.waitFor(() => { expect(document.activeElement).toBe(trigger) })
   })
 
-  it('closes via a mask click and restores trigger focus', async () => {
+  it('closes via a mask click', () => {
     mount()
-    const trigger = openPanel()
+    openPanel()
     const dialog = screen.getByRole('dialog')
     fireEvent.click(dialog.parentElement!.firstElementChild!)
     expect(screen.queryByRole('dialog')).toBeNull()
-    await vi.waitFor(() => { expect(document.activeElement).toBe(trigger) })
   })
 
-  it('closes via document-level Escape, restores trigger focus, and unhooks the listener', async () => {
+  it('closes via document-level Escape and unhooks the listener', () => {
     mount()
-    const trigger = openPanel()
+    openPanel()
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
-    await vi.waitFor(() => { expect(document.activeElement).toBe(trigger) })
     // Ignored while closed (listener removed with the panel) and non-Escape
     // keys are ignored while open.
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -286,6 +290,23 @@ describe('SettingsPanel close paths', () => {
 })
 
 describe('SettingsPanel navigation', () => {
+  it('resizes the navigation rail through its draggable separator', () => {
+    const mounted = mount()
+    mounted.requestOpen()
+    const separator = screen.getByRole('separator', { name: 'Resize settings navigation' })
+    expect(separator).toBeTruthy()
+
+    const nav = separator.parentElement
+    if (nav === null) throw new Error('settings navigation separator must be inside the navigation rail')
+    expect(nav.getAttribute('style')).toContain('width: 188px')
+
+    pointer(separator, 'pointerdown', 188)
+    pointer(separator, 'pointermove', 248)
+    pointer(separator, 'pointerup', 248)
+
+    expect(nav.getAttribute('style')).toContain('width: 248px')
+  })
+
   it('projects rows, marks the first active, and renders only that section', () => {
     mount()
     openPanel()

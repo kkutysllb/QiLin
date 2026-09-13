@@ -2,7 +2,7 @@
  * Settings shell and ownerless-copy plugin, browser half: renders the
  * `sidebar.settings` occupant — panel chrome, section navigation, and the
  * onboarding stage — and registers everything on the Settings pages that
- * belongs to no single feature: the trigger/header chrome content,
+ * belongs to no single feature: the header/close chrome content,
  * local-document action, General section, and `settings` dictionaries.
  * Feature-owned rows and sections stay with their features.
  * Export discipline: packages/client/AGENTS.md.
@@ -24,7 +24,7 @@ import type {
   SettingsOnboardingStep, SettingsRootInjected, SettingsSectionRow, SettingsShell,
 } from './shell-contract.ts'
 import { SettingsRoot } from './SettingsRoot.tsx'
-import { CloseLabel, HeaderContent, TriggerContent } from './chrome.tsx'
+import { CloseLabel, HeaderContent } from './chrome.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { SettingsDocumentAction } from './SettingsDocumentAction.tsx'
 import type { SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
@@ -33,7 +33,7 @@ import { en, zh, type SettingsKey } from './locales.ts'
 
 export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
 export type {
-  CloseLabelProps, HeaderContentProps, TriggerContentProps,
+  CloseLabelProps, HeaderContentProps,
 } from './chrome.tsx'
 export type {
   GeneralSectionComponentProps,
@@ -158,7 +158,6 @@ export function apply(ctx: ClientContext): void {
     name: 'sidebar.settings',
     locale: NS,
     children: {
-      'settings.trigger': { kind: 'single', scope: 'root' },
       'settings.header': { kind: 'single', scope: 'root' },
       'settings.action': { kind: 'list', scope: 'root' },
       'settings.close': { kind: 'single', scope: 'root' },
@@ -168,8 +167,6 @@ export function apply(ctx: ClientContext): void {
     inject: shellInjected,
   }, SettingsRoot))
 
-  ctx.slots.inject('settings.trigger', () =>
-    ctx.slots.register({ name: 'settings.trigger', locale: NS }, TriggerContent))
   ctx.slots.inject('settings.header', () =>
     ctx.slots.register({ name: 'settings.header', locale: NS }, HeaderContent))
   if (documentInjected !== undefined) {

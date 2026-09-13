@@ -77,8 +77,7 @@
 /* Selection still sets data-selected for details linkage; no outline —
    tool rows match Think chrome (no selected ring). */
 
-/* Turn activity keeps the former loader's one-line footprint. A pale
-   brand-blue band sweeps from left to right; reduced-motion keeps it static. */
+/* Turn activity keeps the former loader's one-line footprint in the QiLin seal color. */
 .turnStatus {
   align-self: flex-start;
   flex: none;
@@ -94,21 +93,8 @@
   font-size: var(--qilin-content-font-size, 14px);
   line-height: calc(22px + var(--qilin-content-font-delta, 0px));
   white-space: nowrap;
-  background: linear-gradient(
-    90deg,
-    var(--dsw-static-deepseek-500) 0%,
-    var(--dsw-static-deepseek-500) 40%,
-    var(--dsw-static-deepseek-200) 50%,
-    var(--dsw-static-deepseek-500) 60%,
-    var(--dsw-static-deepseek-500) 100%
-  );
-  background-position: 100% 0;
-  background-size: 250% 100%;
-  background-clip: text;
-  color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: qilin-turn-status-shimmer 1.8s linear infinite;
+  color: var(--dsw-specific-brand-seal-fill);
+  -webkit-text-fill-color: var(--dsw-specific-brand-seal-fill);
 }
 
 .turnStatusClock {
@@ -120,20 +106,6 @@
   font-variant-numeric: tabular-nums;
   color: var(--dsw-alias-label-caption);
   -webkit-text-fill-color: var(--dsw-alias-label-caption);
-}
-
-@keyframes qilin-turn-status-shimmer {
-  to {
-    background-position: 0 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .turnStatus {
-    background-position: 0 0;
-    background-size: 100% 100%;
-    animation: none;
-  }
 }
 
 .hint {

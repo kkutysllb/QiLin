@@ -6,9 +6,9 @@
  * mid-slide. At settle the wide-only content unmounts and the upper
  * controls enter the 56px rail from the same horizontal offset (one icon each,
  * same top-down order) on one fade that ends with the slide. The bottom-pinned
- * settings control only fades. The workspace/session browsing region between
+ * footer seats only fade. The workspace/session browsing region between
  * global panel rows and the foot is the `sidebar.workspaces` registrant's,
- * and the foot holds `sidebar.settings` plus `sidebar.footer.action`; the shell
+ * and the foot holds `sidebar.footer.action` plus `sidebar.settings`; the shell
  * hands them the wide flag (plus an expand request callback for the browser).
  *
  * The column also owns whether the scroll regions nested in it draw a
@@ -204,16 +204,16 @@ export function SidebarRoot({
             <span className={css.brandIdentity} aria-hidden="true">
               <span className={css.brandMark}>
                 {renderSlot('sidebar.brand.mark', { size: 24 }, { fallback: <FishLogo size={24} /> })}
-                {/* The build chip rides the mark's top-right corner: the version
-                    identifies the product without taking a line of its own. */}
-                {build !== undefined && (
-                  <span className={css.buildBadge} title={build.detail}>{build.version}</span>
-                )}
               </span>
               <span className={css.brandName}>
                 {renderSlot('sidebar.brand.name', {}, {
                   fallback: <span className={css.fallbackBrandName}>{t('brand.localBuild')}</span>,
                 })}
+                {build !== undefined && (
+                  /* The chip rides the wordmark's top-right corner: the version
+                     identifies the product without taking a line of its own. */
+                  <span className={css.buildBadge} title={build.detail}>{build.version}</span>
+                )}
               </span>
             </span>
           </button>
@@ -276,7 +276,7 @@ export function SidebarRoot({
         })}
       </div>
 
-      {/* Footer actions stack above Settings in both sidebar widths. */}
+      {/* Footer seats: additive actions stack above the settings occupant. */}
       <div className={css.footArea}>
         <div className={css.footerActions}>
           {renderSlot('sidebar.footer.action', { wide })}
