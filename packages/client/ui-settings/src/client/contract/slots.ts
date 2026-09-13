@@ -77,8 +77,18 @@ declare module '@qilin/client-ui-slots' {
      * layer and every registrant already depends on it for `ctx.settingsScope`.
      */
     'settings.general.item': { kind: 'list'; scope: 'root'; owner: SettingsGeneralItemOwnerProps }
+    /** Mark rendered by the shell-owned About page. */
+    'settings.about.mark': { kind: 'single'; scope: 'root'; owner: SettingsMarkOwnerProps }
   }
 }
+/** Owner share of a settings project mark. */
+export interface SettingsMarkOwnerProps {
+  /** Requested square edge in pixels. */
+  size: number
+  /** Optional class name supplied by the host surface. */
+  className?: string | undefined
+}
+
 /** Owner share of a General preference row (the section supplies nothing). */
 export interface SettingsGeneralItemOwnerProps {
   /** Marker field: item owner props are intentionally empty. */

@@ -16,8 +16,8 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 import clsx from 'clsx'
 import {
   ConnectionIndicator,
-  IconAgentPresetOutline16, IconCloseOutline16, IconDataOutline16,
-  IconPersonalizationOutline16, IconSettingsOutline16,
+  IconAgentPresetOutline16, IconChevronLeftOutline14, IconCloseOutline16, IconDataOutline16,
+  IconPersonalizationOutline16, IconQuestionOutline14, IconSettingsOutline16,
 } from '@qilin/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
@@ -121,6 +121,7 @@ function navIcon(id: string) {
   if (id === 'models') return <IconDataOutline16 className={css.navIcon} size={16} />
   if (id === 'agent-presets') return <IconAgentPresetOutline16 className={css.navIcon} size={16} />
   if (id === 'plugins') return <IconPersonalizationOutline16 className={css.navIcon} size={16} />
+  if (id === 'about') return <IconQuestionOutline14 className={css.navIcon} size={16} />
   return <IconSettingsOutline16 className={css.navIcon} size={16} />
 }
 
@@ -133,6 +134,7 @@ type PanelProps = {
   navWidth: number
   onNavResize: (width: number) => void
   resizeNavigationLabel: string
+  backToWorkspaceLabel: string
 }
 
 /**
@@ -143,10 +145,12 @@ type PanelProps = {
  */
 function SettingsPanel({
   rows, renderSlot, activeId, onSelect, onClose, navWidth, onNavResize, resizeNavigationLabel,
+  backToWorkspaceLabel,
 }: PanelProps) {
   // Entries can unmount underneath the requested id, so the render-time
   // projection falls back to the first row when the id is gone.
   const active = rows.find(r => r.id === activeId)?.id ?? rows[0]?.id
+  const aboutRow = rows.find(row => row.id === 'about')
   const titleId = useId()
 
   useEffect(() => {
@@ -168,7 +172,7 @@ function SettingsPanel({
         <nav className={css.nav} style={{ width: navWidth }}>
           <div className={css.navTitle} id={titleId}>{renderSlot('settings.header', {})}</div>
           <div className={css.navList}>
-            {rows.map(row => (
+            {rows.filter(row => row.id !== 'about').map(row => (
               <button
                 key={row.id}
                 type="button"
@@ -181,6 +185,18 @@ function SettingsPanel({
               </button>
             ))}
           </div>
+          <div className={css.navSpacer} />
+          {aboutRow !== undefined && (
+            <button
+              type="button"
+              className={clsx(css.navCell, css.aboutNavCell, active === 'about' && css.active)}
+              aria-current={active === 'about' ? 'true' : undefined}
+              onClick={() => { onSelect('about') }}
+            >
+              {navIcon('about')}
+              <span className={css.navLabel}>{aboutRow.label}</span>
+            </button>
+          )}
           <SettingsNavResizeHandle
             label={resizeNavigationLabel}
             width={navWidth}
@@ -190,13 +206,23 @@ function SettingsPanel({
         <div className={css.content}>
           <div className={css.header}>
             <div className={css.actions}>{renderSlot('settings.action', {})}</div>
-            <button ref={closeButton} type="button" className={css.close} onClick={onClose}>
-              <IconCloseOutline16 size={14} />
-              <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
-            </button>
+            <div className={css.headerRight}>
+              <button type="button" className={css.returnButton} onClick={onClose}>
+                <IconChevronLeftOutline14 size={14} />
+                <span>{backToWorkspaceLabel}</span>
+              </button>
+              <button ref={closeButton} type="button" className={css.close} onClick={onClose}>
+                <IconCloseOutline16 size={14} />
+                <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
+              </button>
+            </div>
           </div>
           <div className={css.options}>
-            {active !== undefined && renderSlot('settings.section', { close: onClose }, { only: active })}
+            {active !== undefined && (
+              <section className={css.sectionCard} data-section-id={active}>
+                {renderSlot('settings.section', { close: onClose }, { only: active })}
+              </section>
+            )}
           </div>
         </div>
       </div>
@@ -314,6 +340,7 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
           navWidth={navWidth}
           onNavResize={onNavResize}
           resizeNavigationLabel={t('resizeNavigation')}
+          backToWorkspaceLabel={t('backToWorkspace')}
         />
       )}
       {/* Dialog chrome and `#root` inert ownership live inside each step's

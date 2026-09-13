@@ -4,7 +4,8 @@ import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-sidebar/client'
-import { QilinSealHeroMark, QilinSealMark } from './Seal.tsx'
+import type {} from '@qilin/client-ui-settings/client'
+import { QilinSealArtist, QilinSealHeroMark, QilinSealMark } from './Seal.tsx'
 
 /** Required service: the UI slot registry. */
 export const inject = ['slots']
@@ -21,4 +22,6 @@ export function apply(ctx: ClientContext): void {
       yield ctx.slots.register({ name: 'sidebar.brand.mark' }, QilinSealMark)
       yield ctx.slots.register({ name: 'conversation.hero.brand.mark' }, QilinSealHeroMark)
     }))
+  ctx.slots.inject('settings.about.mark', () =>
+    ctx.slots.register({ name: 'settings.about.mark' }, QilinSealArtist))
 }

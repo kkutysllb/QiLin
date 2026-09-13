@@ -42,7 +42,7 @@ Status: implemented
 
 ## Alternatives considered
 
-**做一个 `SettingsCard` 原语。** 否决。`.card` 出现在十五个包里，但只有三处带设置页语义，而这三处的差异在行为而不在外观：`ui-settings-plugins` 的 `PluginCard` 暂存编辑，且只在 Host 确认保存后才折叠；`ui-agent-preset` 的卡片可选中；插件清单的卡片是只读的。`PluginCard` 自己的头注释已经记录了它为何不能使用共享折叠行。单个组件将不得不通过 props 接纳全部三种行为，而没有任何一个调用方会用到其中一种以上。
+**做一个 `SettingsCard` 原语。** 否决。`.card` 出现在十五个包里，但只有三处带设置页语义，而这三处的差异在行为而不在外观：`ui-settings-plugins` 的 `PluginCard` 暂存编辑，且只在 Host 确认保存后才折叠；`ui-agent-preset` 的卡片可选中；插件清单的卡片是只读的。`PluginCard` 自己的头注释已经记录了它为何不能使用共享折叠行。单个组件将不得不通过 props 接纳全部三种行为，而没有任何一个调用方会用到其中一种以上。设置外壳在[设置卡片布局 note](../feature/2026-09-13-settings-card-layout.zh.md)中采用了这一项本地布局例外。
 
 **加门禁，拒绝 `ui-primitives` 之外的 `role="switch"` 或 `.switch` 规则。** 否决。目标是让作者复用已有的东西，不是阻止他们构建。门禁会挂掉一个确实有特殊控件的包——`ui-trajectory` 的带标签工具栏开关正是这种情况——而误拒的代价落在最没法跟它讲道理的作者身上。目录加清单条目针对的是真正的失败原因：作者不知道那个控件存在。
 

@@ -19,8 +19,13 @@
     - button "Skills":
       - img
       - text: Skills
+    - button "About QiLin":
+      - img
+      - text: About QiLin
     - separator "Resize settings navigation"
-  - button "Open configuration file"
+  - button "Back to workspace":
+    - img
+    - text: Back to workspace
   - button "Close":
     - img
     - text: Close
@@ -41,3 +46,7 @@
   - button "Queue":
     - text: Queue
     - img
+  - complementary "About QiLin":
+    - img "QiLin seal mark": 麒麟
+    - heading "About QiLin" [level=2]
+    - paragraph: Connect models, tools, and sessions for focused work.

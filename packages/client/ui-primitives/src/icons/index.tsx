@@ -957,3 +957,18 @@ export const IconLogoutOutline16 = ({ size = 16, className }: IconProps) => (
     <path d="M3.9 8h5.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
   </svg>
 )
+
+/** Command prompt window with a caret and a trailing line (harness-only glyph). */
+export const IconTerminalOutline16 = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1.7" y="2.7" width="12.6" height="10.6" rx="1.3" stroke="currentColor" strokeWidth="1.2" />
+    <path
+      d="M4.4 6l2.3 1.9L4.4 9.8"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path d="M8 10.1h3.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+)

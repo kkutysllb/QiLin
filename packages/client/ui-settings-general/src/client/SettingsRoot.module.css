@@ -94,6 +94,15 @@
   gap: 4px;
 }
 
+.navSpacer {
+  flex: 1;
+  min-height: 12px;
+}
+
+.aboutNavCell {
+  flex: none;
+}
+
 /* Nav cell (figma .Setting-nav-cell 501:29962): 164x40, r12, pad
    (12,9,16,9), gap 8; label 14/400 lh22; selected fill #EBEEF2. */
 .navCell {
@@ -143,15 +152,15 @@
   flex-direction: column;
 }
 
-/* Header (figma .Header 501:29981): h54, pad (10,20,14,8), close right. */
+/* Header row: left-side document actions, right-side return and close controls. */
 .header {
   flex: none;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  height: 54px;
-  padding: 20px 14px 8px 10px;
+  gap: 16px;
+  min-height: 64px;
+  padding: 12px 20px 12px 24px;
   box-sizing: border-box;
 }
 
@@ -159,9 +168,37 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
-  margin-left: auto;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.returnButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px 0 9px;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: 999px;
+  corner-shape: round;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.returnButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 /* Close button (figma .Icon_container 501:29982): 28x28, r28, 14px glyph. */
@@ -183,19 +220,90 @@
   background: var(--dsw-alias-interactive-bg-hover);
 }
 
-/* Options area (figma Options 501:29983): pad (24,0,24,24), scrolls. */
+/* Scrolling content keeps every section inside a stable centered card layout. */
 .options {
   flex: 1;
   min-height: 0;
-  padding: 0 24px 24px;
+  padding: 8px 32px 40px;
   overflow-y: auto;
 }
 
-/* Single-page form column: cap the measure so wide windows do not stretch
-   setting rows into sparse bands. */
-.options > * {
-  max-width: 960px;
+.sectionCard {
+  min-width: 0;
+  width: 100%;
+  max-width: 760px;
   margin-inline: auto;
+  min-height: 360px;
+  padding: 24px 28px 28px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: var(--dsw-shadow-lv3);
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+@media (max-width: 680px) {
+  .panel {
+    flex-direction: column;
+  }
+
+  .nav {
+    width: 100% !important;
+    height: auto;
+    max-height: 176px;
+    padding: 16px 16px 12px;
+    gap: 12px;
+    border-right: 0;
+    border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  }
+
+  .navList {
+    flex-direction: row;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .navCell {
+    flex: 0 0 auto;
+  }
+
+  .navSpacer {
+    display: none;
+  }
+
+  .aboutNavCell {
+    align-self: flex-start;
+  }
+
+  .resizeHandle {
+    display: none;
+  }
+
+  .header {
+    min-height: 56px;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .actions {
+    order: 2;
+    flex: 1 1 100%;
+  }
+
+  .headerRight {
+    order: 1;
+    margin-left: auto;
+  }
+
+  .options {
+    padding: 8px 16px 24px;
+  }
+
+  .sectionCard {
+    border-radius: 16px;
+  }
 }
 
 /* Visually-hidden text seat (close button accessible name from slot content). */

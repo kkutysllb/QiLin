@@ -5,6 +5,7 @@
  */
 
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import { IconSearchOutline16 } from '@qilin/client-ui-primitives'
 import { SecretField, ValueField } from './fields.tsx'
 import { PluginCard } from './PluginCard.tsx'
 import type { WebSearchCardFace } from './web-search-card-controller.ts'
@@ -30,6 +31,8 @@ export function WebSearchCard(props: WebSearchCardProps) {
       t={t}
       titleKey="webSearchTitle"
       descriptionKey="webSearchDescription"
+      icon={<IconSearchOutline16 size={17} />}
+      summary={state.baseURL.text === '' ? undefined : state.baseURL.text}
       state={state}
       onSave={props.save}
       onDiscard={props.discard}

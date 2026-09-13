@@ -4,7 +4,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-width: 760px;
   color: var(--dsw-alias-label-primary);
 }
 

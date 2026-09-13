@@ -1,64 +1,66 @@
-# 设置页卡片化布局设计
+# Settings Page Card Layout Design
 
-## 背景
+English | [中文](2026-09-13-settings-card-layout-design.zh.md)
 
-设置页目前使用全窗口内容列，表单行直接铺在内容区中，用户缺少明确的页面边界和返回工作区入口。
+## Background
 
-本设计将设置详情改为居中的内容卡片，保留现有设置槽位、导航账本、连接恢复、引导流程和配置文件操作，并增加返回工作区与关于入口。
+The settings page uses a full-window content column, with form rows laid directly across the content area and no clear page boundary or nearby route back to the workspace.
 
-## 目标
+This design changes settings details to centered content cards, preserves the existing settings slots, navigation ledger, connection recovery, onboarding flow, and configuration-file operations, and adds a workspace return action plus an About entry.
 
-- 每个设置分区在内容区显示一个有明确边界的主卡片。
-- 在右上提供可识别的「返回工作区」胶囊按钮，复用现有设置关闭行为。
-- 在左侧导航底部提供「关于 QiLin」入口。
-- 使用已有 QiLin 印章组件呈现项目标识，不新增品牌图形。
-- 在桌面宽屏提供项目摘要信息，在窄屏保持单列和可滚动布局。
-- 保持现有设置槽位和持久化设置文档格式不变。
+## Goals
 
-## 视觉结构
+- Show one bounded primary card for every settings section.
+- Provide an identifiable Back to workspace capsule in the upper right and reuse the existing settings close behavior.
+- Provide an About QiLin entry at the bottom of the left navigation.
+- Use the existing QiLin two-character seal component for project identity; the seal must contain both 麒 and 麟, with no single-character text or fallback.
+- Keep every detail page in a single-column, scrollable layout at every width.
+- Preserve the existing settings slots and persisted settings document format.
 
-设置面板仍由遮罩、导航栏和内容区组成。导航栏保留现有可拖拽宽度，功能分区按账本顺序排列，关于入口固定在导航栏底部。
+## Visual Structure
 
-内容区顶部保留设置标题、现有配置文件操作和关闭按钮，并在右侧加入返回工作区胶囊按钮。返回按钮与关闭按钮都调用同一个 shell close handler，因此遮罩点击、Escape、关闭图标和返回按钮具有相同结果。
+The settings panel remains composed of a mask, navigation rail, and content area. The navigation rail keeps its resizable width, feature sections follow ledger order, and the About entry stays pinned at the bottom of the rail.
 
-内容区的详情卡使用有限宽度、低对比边框和主题阴影。卡片标题、说明和设置行保持现有功能插件提供的文案；外壳只负责卡片容器、间距和滚动边界。
+The content header keeps the settings title, existing configuration-file actions, and close button, and adds a Back to workspace capsule on the right. The return and close buttons call the same shell close handler, so mask clicks, Escape, the close icon, and the return button have the same result.
 
-桌面宽屏的常规详情页使用主卡片与右侧摘要卡的并列布局。摘要卡展示 QiLin 印章、项目名称和简短介绍，不承载新的操作。窄屏隐藏摘要卡，主卡片独占内容宽度。
+The content detail card uses a bounded width, low-contrast border, and theme elevation. Card titles, descriptions, and settings-row copy remain owned by the feature plugins; the shell owns the card container, spacing, and scroll boundary.
 
-「关于 QiLin」页面使用同一主卡片容器，显示印章、项目说明、构建版本或发行标识（有值时）以及项目相关链接或版权文本。没有可用版本信息时不渲染空占位。
+Every detail page uses one primary card that owns the content width. The About introduction lives only on its own page, reached through the bottom navigation entry.
 
-## 组件与数据流
+The About QiLin page uses the same primary card container and shows the seal, project description, and project signature. It does not render an empty version placeholder when version information is unavailable.
 
-`SettingsRoot` 继续拥有面板开关、当前分区、导航宽度和引导完成状态。它为 `SettingsPanel` 传入 `close`，并继续通过 `renderSlot('settings.section', ...)` 渲染功能分区。
+## Components and Data Flow
 
-新增的 About 分区由设置外壳自己注册为一个 `settings.section` 条目，使用固定 id `about` 和排在功能分区之后的 order。导航账本因此仍由现有 `useSections` 投影，活动分区仍通过 `only` 过滤渲染。
+`SettingsRoot` continues to own panel visibility, the active section, navigation width, and onboarding completion state. It passes `close` to `SettingsPanel` and continues to render feature sections through `renderSlot('settings.section', ...)`.
 
-About 组件只接收本地化文案、构建信息和品牌组件所需的展示参数。它不读取 ctx、不访问远程服务、不写入设置文档，也不进入 Session 或模型请求。
+The settings shell registers the About section as a `settings.section` entry with the fixed id `about` and an order after feature sections. The navigation ledger therefore remains the projection produced by `useSections`, and the active section is still rendered through the `only` filter.
 
-返回工作区按钮使用 `SettingsPanel` 的 `onClose` 回调。右侧摘要卡和 About 页面共用项目介绍文本与印章呈现逻辑，避免出现两份品牌事实。
+The About component receives only localized copy and the display parameters required by the brand slot. It does not read ctx, access remote services, write the settings document, or enter the Session or model request.
 
-## 本地化
+The Back to workspace button uses the `onClose` callback from `SettingsPanel`. The About page owns the brand mark seat and fallback value; its explanatory copy remains in the settings locale dictionary.
 
-在 `ui-settings-general` 的 `settings` namespace 中增加返回工作区、关于入口、关于标题、项目介绍、版本标识和相关无障碍名称的中英文键。
+## Localization
 
-功能插件已有设置行的可见文案继续由各自 locale namespace 所有，外壳不复制或改写这些文案。
+The `settings` namespace in `ui-settings-general` adds English and Chinese keys for the workspace return action, About entry, About title, project description, project signature, project identity, and related accessibility names.
 
-## 响应式与可访问性
+Visible copy for existing feature-plugin settings rows remains owned by each feature locale namespace; the shell does not duplicate or rewrite it.
 
-导航按钮继续使用按钮语义和 `aria-current` 表示活动分区。返回工作区按钮使用明确的本地化可访问名称；关闭按钮继续通过隐藏文本 seat 提供名称。
+## Responsive and Accessibility
 
-桌面布局使用主卡片和摘要卡的两列网格。内容区域低于可用宽度时切换为单列，卡片宽度不超过内容区，摘要卡隐藏，详情卡和设置行不得横向溢出。
+Navigation controls continue to use button semantics and `aria-current` for the active section. The Back to workspace button has a clear localized accessible name, and the close button continues to receive its name through the hidden-text seat.
 
-内容滚动只发生在设置内容区，导航栏和顶部操作保持可见。卡片、按钮和行保持稳定尺寸，避免文字变化造成布局跳动。
+The detail card stays centered within the content width at every breakpoint and prevents horizontal overflow from the detail card or settings rows.
 
-## 测试
+Only the settings content area scrolls; the navigation rail and header actions remain visible. Cards, buttons, and rows keep stable dimensions so copy changes do not shift the layout.
 
-现有设置 shell 测试继续覆盖导航选择、活动分区投影、关闭路径、拖拽导航宽度、连接恢复和引导所有权。
+## Testing
 
-新增组件测试覆盖 About 导航项位于底部、点击后渲染 About 内容、印章存在、返回工作区按钮触发 close，以及没有版本信息时不渲染空占位。
+Existing settings shell tests continue to cover navigation selection, active-section projection, close paths, resizable navigation width, connection recovery, and onboarding ownership.
 
-运行 `pnpm run test:gui` 验证客户端组件和 Host GUI 包。运行 `QILIN_SNAPSHOT=replay pnpm run test:web` 验证组装后的浏览器页面没有破坏现有设置流程。使用浏览器截图检查桌面宽屏和窄屏的卡片居中、按钮位置、文字换行和无重叠布局。
+Component tests cover the About navigation item at the bottom, About content after selection, the seal, the workspace return button invoking close, and the absence of an empty version placeholder.
 
-## 非目标
+Run `pnpm run test:gui` to verify client components and Host GUI packages. Run `QILIN_SNAPSHOT=replay pnpm run test:web` to verify the assembled browser page preserves existing settings flows. Use browser screenshots to inspect centered cards, button placement, wrapping, and the absence of overlap at desktop and narrow widths.
 
-本次改动不新增设置文档字段、不调整设置槽位协议、不改变功能插件的配置行为、不改动账户菜单的设置入口、不新增网络请求，也不修改会话日志或模型提示内容。
+## Non-goals
+
+This change does not add settings document fields, alter the settings slot protocol, change feature-plugin configuration behavior, modify the account menu settings entry, add network requests, or modify session logs or model prompt content.

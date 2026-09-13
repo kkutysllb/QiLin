@@ -3508,6 +3508,7 @@ export interface Config {
 - `@qilin/client-locale`（[`packages/client/locale/src/index.ts`](../packages/client/locale/src/index.ts)）
 - `@qilin/client-modules` — 需要 `loader`（[`packages/client/modules/src/index.ts`](../packages/client/modules/src/index.ts)）
 - `@qilin/client-resources`（[`packages/client/resources/src/index.ts`](../packages/client/resources/src/index.ts)）
+- `@qilin/client-ui-account`（[`packages/client/ui-account/src/index.ts`](../packages/client/ui-account/src/index.ts)）
 - `@qilin/client-ui-agent-preset`（[`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts)）
 - `@qilin/client-ui-approval`（[`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts)）
 - `@qilin/client-ui-attachment`（[`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts)）

@@ -1,6 +1,7 @@
 /** The shell plugin's card: the limits every command the agent runs is bound by. */
 
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import { IconTerminalOutline16 } from '@qilin/client-ui-primitives'
 import { ValueField } from './fields.tsx'
 import { PluginCard } from './PluginCard.tsx'
 import type { BashCardFace } from './bash-card-controller.ts'
@@ -26,6 +27,8 @@ export function BashCard(props: BashCardProps) {
       t={t}
       titleKey="bashTitle"
       descriptionKey="bashDescription"
+      icon={<IconTerminalOutline16 size={17} />}
+      summary={state.timeoutMs.text === '' ? undefined : state.timeoutMs.text}
       state={state}
       onSave={props.save}
       onDiscard={props.discard}

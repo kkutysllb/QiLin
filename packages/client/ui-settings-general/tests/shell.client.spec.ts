@@ -63,9 +63,7 @@ const CHILD_SPECS = {
 
 describe('ui-settings apply', () => {
   it('declares only the slot registry (a pure composition face, no locale)', () => {
-    expect(inject).toEqual([
-      'slots', 'locale', 'connection', 'remote', 'remote.settings', 'settingsScope',
-    ])
+    expect(inject).toEqual(['slots', 'locale', 'connection'])
   })
 
   it('registers the shell and declares every child slot, before or after the declaration', async () => {
@@ -92,10 +90,11 @@ describe('ui-settings apply', () => {
     declare(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
     const { sections } = injectedOf(b.slots).hooks
-    // This package registers the General section itself; every other section
-    // arrives from a feature registrant.
+    // This package registers the General and About sections itself; feature
+    // sections arrive from other registrants.
     const GENERAL = { id: 'general', order: 0, label: 'general.nav' }
-    expect(sections.getSnapshot()).toEqual([GENERAL])
+    const ABOUT = { id: 'about', order: 10_000, label: 'about.nav' }
+    expect(sections.getSnapshot()).toEqual([GENERAL, ABOUT])
     b.slots.register({ name: 'settings.section', id: 'z', order: 20, label: 'Z' } as never, () => null)
     // No order and no label: both projection defaults apply.
     b.slots.register({ name: 'settings.section', id: 'a' } as never, () => null)
@@ -104,6 +103,7 @@ describe('ui-settings apply', () => {
       GENERAL,
       { id: 'a', order: 0, label: '' },
       { id: 'z', order: 20, label: 'Z' },
+      ABOUT,
     ])
     // Snapshot identity is stable until the ledger moves (uSES contract).
     expect(sections.getSnapshot()).toBe(rows)

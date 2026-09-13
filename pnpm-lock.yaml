@@ -2458,6 +2458,9 @@ importers:
       '@qilin/client-ui-renderer':
         specifier: workspace:^
         version: link:../ui-renderer
+      '@qilin/client-ui-settings':
+        specifier: workspace:^
+        version: link:../ui-settings
       '@qilin/client-ui-sidebar':
         specifier: workspace:^
         version: link:../ui-sidebar

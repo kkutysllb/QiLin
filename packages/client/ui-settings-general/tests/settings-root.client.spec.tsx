@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEffect, useState } from 'react'
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { makeTranslate } from '@qilin/client-test-runtime'
 import type { SettingsRootComponentProps } from '../src/client/shell-contract.ts'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
@@ -35,7 +35,6 @@ let requestMountedOpen: (() => void) | undefined
 /** Slot-content stand-ins: the shell renders whatever the seats contribute. */
 const SEAT_CONTENT: Record<string, string> = {
   'settings.header': 'Settings Title',
-  'settings.action': 'Open configuration file',
   'settings.close': 'Close',
 }
 
@@ -53,6 +52,7 @@ function mount({
     { id: 'general', order: 0, label: 'General' },
     { id: 'models', order: 10, label: 'Models' },
     { id: 'agent-presets', order: 20, label: 'Agent presets' },
+    { id: 'about', order: 10_000, label: 'About QiLin' },
   ],
   steps = [
     { id: 'first-step', order: -100 },
@@ -185,6 +185,21 @@ describe('settings shell open channel', () => {
     expect(screen.getByRole('dialog')).toBeTruthy()
   })
 
+  it('pins About to the nav footer and returns through the workspace action', () => {
+    const b = mount()
+    b.requestOpen('models')
+
+    const navButtons = within(screen.getByRole('navigation')).getAllByRole('button')
+    expect(navButtons[navButtons.length - 1]?.textContent).toContain('About QiLin')
+    expect(screen.getByRole('button', { name: 'Back to workspace' })).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'About QiLin' }))
+    expect(screen.getByTestId('section-about')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to workspace' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
   it('releases the channel when the occupant unmounts', () => {
     const b = mount()
     expect(b.openHandlers.size).toBe(1)
@@ -243,13 +258,6 @@ describe('SettingsPanel chrome seats', () => {
     const close = screen.getByRole('button', { name: 'Close' })
     expect(close.hasAttribute('aria-label')).toBe(false)
     expect(close.textContent).toContain('Close')
-  })
-
-  it('renders header actions before the shell-owned close control', () => {
-    const { renderSlot } = mount()
-    openPanel()
-    expect(screen.getByText('Open configuration file')).toBeTruthy()
-    expect(renderSlot).toHaveBeenCalledWith('settings.action', {})
   })
 })
 

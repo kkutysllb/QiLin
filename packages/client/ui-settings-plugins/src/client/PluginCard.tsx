@@ -7,7 +7,9 @@
  * by side — the layout, not the behavior, is what differs. Disclosure is
  * card-local state: which card a user has open is a reading gesture, not
  * something the Host or the section has any stake in. Staged edits outlive
- * collapsing, so the header marks a card holding unsaved edits.
+ * collapsing, so the header marks a card holding unsaved edits. A collapsed
+ * card also surfaces the plugin's committed value, so scanning the page answers
+ * "what is configured" without opening anything.
  *
  * A card renders nothing while its namespace is unavailable: a deployment that
  * does not compose the owning plugin should show no trace of it, rather than a
@@ -29,6 +31,14 @@ export interface PluginCardProps {
   titleKey: PluginsSettingsLocaleKey
   /** Locale key of the line describing what this plugin's settings govern. */
   descriptionKey: PluginsSettingsLocaleKey
+  /** Decorative glyph naming the plugin; ignored by assistive tech. */
+  icon?: ReactNode
+  /**
+   * The plugin's committed value as short text, shown while the card is
+   * collapsed so the page answers "what is configured" at a scan. Committed
+   * data reads verbatim; an empty or undefined summary renders nothing.
+   */
+  summary?: string | undefined
   /** The card's form state: availability, writability, and what a save would do. */
   state: CardShell
   /** Write every staged edit. */
@@ -71,11 +81,15 @@ export function PluginCard(props: PluginCardProps) {
         aria-label={`${props.t(open ? 'collapse' : 'expand')}: ${title}`}
         onClick={() => { setOpen(!open) }}
       >
+        {props.icon === undefined ? null : <span className={css.iconTile} aria-hidden="true">{props.icon}</span>}
         <span className={css.headText}>
           <span className={css.name}>{title}</span>
           <span className={css.description}>{props.t(props.descriptionKey)}</span>
         </span>
         {state.dirty ? <Tag tone="neutral" className={css.pending}>{props.t('unsaved')}</Tag> : null}
+        {!open && props.summary
+          ? <span className={css.summary} title={props.summary}>{props.summary}</span>
+          : null}
         <IconChevronDownOutline14 className={clsx(css.chevron, open && css.chevronOpen)} />
       </button>
       {open

@@ -19,8 +19,13 @@
     - button "技能":
       - img
       - text: 技能
+    - button "关于 QiLin":
+      - img
+      - text: 关于 QiLin
     - separator "调整设置导航宽度"
-  - button "打开配置文件"
+  - button "返回工作区":
+    - img
+    - text: 返回工作区
   - button "关闭":
     - img
     - text: 关闭
@@ -41,3 +46,7 @@
   - button "排队发送":
     - text: 排队发送
     - img
+  - complementary "关于 QiLin":
+    - img "QiLin 麒麟标识": 麒麟
+    - heading "关于 QiLin" [level=2]
+    - paragraph: 连接模型、工具与会话，保持任务清晰可控。

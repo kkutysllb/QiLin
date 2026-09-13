@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
- * The QiLin brand plugin must occupy exactly the two brand-mark slots it
- * declares, wait for both declarations, and release every occupant when its
+ * The QiLin brand plugin must occupy exactly the brand-mark slots it
+ * declares, wait for every declaration, and release every occupant when its
  * fiber unloads.
  */
 
@@ -15,10 +15,14 @@ import { apply as hostApply } from '../src/index.ts'
 
 afterEach(() => { cleanup() })
 
-const HOLES = ['sidebar.brand.mark', 'conversation.hero.brand.mark'] as const
+const HOLES = [
+  'sidebar.brand.mark',
+  'conversation.hero.brand.mark',
+  'settings.about.mark',
+] as const
 
 /**
- * Build a slot runtime with the two brand holes a surface owner declares.
+ * Build a slot runtime with every brand hole a surface owner declares.
  * @param declare - whether the holes exist before the plugin mounts.
  * @returns the context, its registry, and the declaration control.
  */
@@ -79,7 +83,7 @@ describe('qilin brand plugin', () => {
     expect(svg?.getAttribute('class')).toBe('hero-mark')
   })
 
-  it('fills both holes and removes every occupant on teardown', async () => {
+  it('fills every hole and removes every occupant on teardown', async () => {
     const before = await bench()
     const fiber = before.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
@@ -89,7 +93,7 @@ describe('qilin brand plugin', () => {
     for (const hole of HOLES) expect(before.slots.entries(hole)).toHaveLength(0)
   })
 
-  it('waits for both declarations before occupying either hole', async () => {
+  it('waits for every declaration before occupying any hole', async () => {
     const after = await bench(false)
     const fiber = after.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()

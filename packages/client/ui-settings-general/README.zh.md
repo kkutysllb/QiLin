@@ -31,13 +31,13 @@ kind: "package-reference"
 
 设置页导航初始宽度为 188px，其右边缘是一个纵向的、带指针捕获的分隔条：拖动会提交被限制在 160–360px 的宽度，分隔条使用来自 `settings` 命名空间的本地化可访问名称。宽度是外壳占位者本地的查看状态，因此面板卸载后即重置，不会持久化进设置文档。
 
+### 分区卡片与「关于」
+
+每个设置分区都会居中放在稳定的详情卡片中。页眉的**返回工作区**胶囊按钮与遮罩和 Escape 键共用同一条关闭路径。导航会把外壳自有的**关于 QiLin**条目固定在底部；该页面使用包含「麒」和「麟」两个汉字的麒麟标识介绍当前项目。`settings.about.mark` 席位允许当前 QiLin 品牌提供方渲染矢量印章；本地化的「麒麟」文字是明确的回退内容。
+
 ### 「通用」分区
 
 「通用」分区承载由功能包注册进 `settings.general.item` 的行——它没有内置行。功能插件拥有行文案与行为；外壳只提供分区及其 slot。例如「外观」行位于 ui-theme。
-
-### 打开配置文件
-
-在回环浏览器上，只有当宿主确认可准备好一份由提供方持有的本地文档时，外壳才渲染**打开配置文件**。该操作会在原生文本编辑器中打开该文档（macOS 上绕过浏览器文件关联）。远程浏览器从不注册该操作，也从不发起这项特权设置读取。
 
 ### 引导步骤
 
@@ -60,10 +60,6 @@ kind: "package-reference"
 ### 连接恢复
 
 外壳是明确的恢复功能消费方，因此直接注入 Connection，而不把生命周期控制放进 `ctx.remote`。它的私有 hooks compartment 绑定 `ctx.connection.state`，组件只接收选出的状态与调用 `ctx.connection.reconnect()` 的注入回调。`ConnectionIndicator` 拥有内联展示并从 `settings` locale namespace 接收全部可见与无障碍文案；2 秒恢复状态计时器归外壳所有。
-
-### 文档可用性
-
-在 loopback 页面上，Client 通过 `settings/describe` 加载提供方的 `hasDocument` 能力，且只有在 Host 确认可准备好一份由提供方持有的本地文档时才渲染配置文件操作。该操作调用无路径参数且经浏览器认证的 `settings/openSettingsDocument` Remote；Host 会再次解析提供方路径、在文档缺失时将其创建出来，并交给原生文本编辑器（macOS 上使用 `open -t`，绕过浏览器文件关联；Linux 和 Windows 上使用桌面文件关联；WSL 上经 `wslpath -w` 转换后使用 Windows 文件关联）。打开失败时该操作仍可使用，并渲染本地化错误。临时读取失败或 Host 拓扑变化后，重新打开对话框或重新连接会刷新可用性。非 loopback 页面保留 Client 策略，不提供该原生操作及其 settings 读取。
 
 ### 宿主端
 

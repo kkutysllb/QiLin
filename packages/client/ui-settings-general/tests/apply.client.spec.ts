@@ -8,9 +8,8 @@ import { TestRemote } from '@qilin/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
 import { apply, inject } from '@qilin/client-ui-settings-general/client'
 import { CloseLabel, HeaderContent } from '../src/client/chrome.tsx'
+import { AboutSection } from '../src/client/AboutSection.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
-import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx'
-import type { SettingsDocumentActionInjected } from '../src/client/SettingsDocumentAction.tsx'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
 // so browser-language detection never runs and a fresh LocaleRuntime opens on
@@ -19,10 +18,10 @@ import type { SettingsDocumentActionInjected } from '../src/client/SettingsDocum
 /** The seats this plugin fills for a loopback browser (slot name → expected component). */
 const SEATS = [
   ['settings.header', HeaderContent],
-  ['settings.action', SettingsDocumentAction],
   ['settings.close', CloseLabel],
-  ['settings.section', GeneralSection],
 ] as const
+
+const SECTION_COMPONENTS = [GeneralSection, AboutSection] as const
 
 async function bench(isLoopback = true) {
   const ctx = new Context()
@@ -77,7 +76,7 @@ function generalEntry(slots: SlotRegistry) {
 
 describe('ui-settings-general apply', () => {
   it('declares the services it uses', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection', 'remote', 'remote.settings', 'settingsScope'])
+    expect(inject).toEqual(['slots', 'locale', 'connection'])
   })
 
   it('fills every seat for declarations before or after apply', async () => {
@@ -89,6 +88,7 @@ describe('ui-settings-general apply', () => {
     }
     const entry = generalEntry(before.slots)!
     expect(entry.options).toMatchObject({ id: 'general', order: 0 })
+    expect(before.slots.entries('settings.section').map(entry => entry.component)).toEqual(SECTION_COMPONENTS)
     // The nav label is a locale-following thunk; owners resolve at read time.
     expect(resolveSlotLabel(entry.options.label)).toBe('通用设置')
     expect(before.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
@@ -96,10 +96,6 @@ describe('ui-settings-general apply', () => {
     // The onboarding hole stays declared for feature-owned steps; this plugin
     // no longer seats one.
     expect(before.slots.entries('settings.onboarding')).toEqual([])
-    const action = before.slots.entries('settings.action')[0]!
-    const actionInjected = (action.inject as unknown as () => SettingsDocumentActionInjected)()
-    expect(actionInjected.controller.store.getSnapshot().status).toBe('idle')
-    expect(actionInjected.hooks.snapshot).toBe(actionInjected.controller.store)
     // Copy rides the standard locale seat: every seat declares the namespace.
     for (const [name] of SEATS) {
       expect(before.slots.entries(name)[0]!.locale).toBe('settings')
@@ -114,6 +110,7 @@ describe('ui-settings-general apply', () => {
       // The self-inflicted ledger notifications hit the duplicate guard.
       expect(after.slots.entries(name)).toHaveLength(1)
     }
+    expect(after.slots.entries('settings.section').map(entry => entry.component)).toEqual(SECTION_COMPONENTS)
     await vi.waitFor(() => {
       expect(after.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
     })
@@ -144,6 +141,7 @@ describe('ui-settings-general apply', () => {
     declare(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
     const zhVersions = SEATS.map(([name]) => b.slots.getVersion(name))
+    const sectionVersion = b.slots.getVersion('settings.section')
     b.locale.setLocale('en')
     // No ledger churn: freshness rides the thunk (and the renderer's locale
     // subscription), not re-registration.
@@ -151,35 +149,11 @@ describe('ui-settings-general apply', () => {
       expect(b.slots.getVersion(name)).toBe(zhVersions[i]!)
       expect(b.slots.entries(name)).toHaveLength(1)
     })
+    expect(b.slots.getVersion('settings.section')).toBe(sectionVersion)
+    expect(b.slots.entries('settings.section')).toHaveLength(2)
     expect(resolveSlotLabel(generalEntry(b.slots)!.options.label)).toBe('General')
     b.locale.setLocale('zh')
     expect(resolveSlotLabel(generalEntry(b.slots)!.options.label)).toBe('通用设置')
-  })
-
-  it('reads availability from the shared mirror and follows its reconnect refresh', async () => {
-    const b = await bench()
-    declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const entry = b.slots.entries('settings.action')[0]!
-    const { controller } = (entry.inject as unknown as () => SettingsDocumentActionInjected)()
-    // The mirror read once at its own boot; the action's load adds no read.
-    await vi.waitFor(() => { expect(b.settingsDescribe).toHaveBeenCalledOnce() })
-    await controller.load()
-    expect(b.settingsDescribe).toHaveBeenCalledOnce()
-    expect(controller.store.getSnapshot().status).toBe('ready')
-    b.ctx.emit('connection/reset')
-    await vi.waitFor(() => { expect(b.settingsDescribe).toHaveBeenCalledTimes(2) })
-  })
-
-  it('withholds the Host document action off-loopback', async () => {
-    const b = await bench(false)
-    declare(b.slots)
-    const fiber = b.ctx.plugin({ inject: [...inject], apply })
-    await fiber.await()
-    expect(b.slots.entries('settings.action')).toEqual([])
-    expect(b.settingsDescribe).not.toHaveBeenCalled()
-    await fiber.dispose()
-    for (const [name] of SEATS) expect(b.slots.entries(name)).toEqual([])
   })
 
   it('re-registers after an HMR collapse of the declaring chain (stale disposers must not block)', async () => {

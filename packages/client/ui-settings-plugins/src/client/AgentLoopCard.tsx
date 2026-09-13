@@ -1,6 +1,7 @@
 /** The agent loop's card: how many tool calls one step may run at once. */
 
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
 import { ValueField } from './fields.tsx'
 import { PluginCard } from './PluginCard.tsx'
 import type { AgentLoopCardFace } from './agent-loop-card-controller.ts'
@@ -25,6 +26,8 @@ export function AgentLoopCard(props: AgentLoopCardProps) {
       t={t}
       titleKey="agentLoopTitle"
       descriptionKey="agentLoopDescription"
+      icon={<IconRefreshOutline16 size={17} />}
+      summary={state.maxParallelToolCalls.text === '' ? undefined : state.maxParallelToolCalls.text}
       state={state}
       onSave={props.save}
       onDiscard={props.discard}

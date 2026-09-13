@@ -1,6 +1,6 @@
 /** User control for model-selectable subagent delegation in new sessions. */
 
-import { Switch } from '@qilin/client-ui-primitives'
+import { IconBranchOutline16, Switch } from '@qilin/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
 import type {
   SubagentModelCandidate,
@@ -44,6 +44,13 @@ export function SubagentModelSelectionCard(props: SubagentModelSelectionCardProp
       group.candidates.push(candidate)
     }
   }
+  // The collapsed header previews the committed selection: which models a new
+  // subagent may pick, verbatim. Nothing selected (or the preference off)
+  // leaves the summary empty, and the pending tag carries the draft story.
+  const selectedModels = state.enabled
+    ? state.candidates.filter(candidate => candidate.selected && candidate.available).map(candidate => candidate.modelName)
+    : []
+  const summary = selectedModels.length > 0 ? selectedModels.join(' / ') : undefined
   const renderCandidate = (candidate: SubagentModelCandidate) => (
     <label key={candidate.key} className={css.model}>
       <input
@@ -66,6 +73,8 @@ export function SubagentModelSelectionCard(props: SubagentModelSelectionCardProp
       t={t}
       titleKey="subagentModelSelectionTitle"
       descriptionKey="subagentModelSelectionDescription"
+      icon={<IconBranchOutline16 size={17} />}
+      summary={summary}
       state={state}
       onSave={props.save}
       onDiscard={props.discard}
