@@ -28,7 +28,7 @@ const toBytes = (data: string | Uint8Array | ArrayBuffer): Uint8Array => {
 export interface Hash {
   update(data: string | Uint8Array | ArrayBuffer, encoding?: string): Hash
   digest(): Buffer
-  digest(encoding: 'hex' | 'base64'): string
+  digest(encoding: 'hex' | 'base64' | 'base64url'): string
 }
 
 /**
@@ -47,7 +47,7 @@ export function createHash(algorithm: string): Hash {
       chunks.push(toBytes(data))
       return hash
     },
-    digest(encoding?: 'hex' | 'base64') {
+    digest(encoding?: 'hex' | 'base64' | 'base64url') {
       const total = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0)
       const joined = new Uint8Array(total)
       let at = 0

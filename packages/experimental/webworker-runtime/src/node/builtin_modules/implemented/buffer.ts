@@ -1,9 +1,13 @@
 /**
- * `node:buffer` for the worker, backed by the `buffer` npm package (feross), and
- * the matching `globalThis.Buffer` install. Node code treats Buffer as ambient,
- * so the global must exist before any host module evaluates.
+ * `node:buffer` for the worker, backed by the `buffer` npm package (feross) with
+ * Node's `base64url` spelling added (./polyfill/buffer/base64url.ts), and the
+ * matching `globalThis.Buffer` install. Node code treats Buffer as ambient, so
+ * the global must exist before any host module evaluates.
  */
 import { Buffer, kMaxLength } from 'buffer'
+import { installBase64UrlEncoding } from '../../../polyfill/buffer/base64url.ts'
+
+installBase64UrlEncoding(Buffer)
 
 Object.defineProperty(globalThis, 'Buffer', { value: Buffer, writable: true, configurable: true })
 
