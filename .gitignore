@@ -38,6 +38,7 @@ apps/web/dist/
 .artifacts/
 .qilin-build/
 .playwright-mcp/
+.dsh/
 .orig
 .worktrees/
 worktrees/
