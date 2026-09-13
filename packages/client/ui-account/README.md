@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The account menu is the footer's own account row: an avatar carrying the signed-in address's first letter beside that address, collapsing to the avatar alone in the rail. One dropdown carries the signed-in address, Settings, an Appearance submenu (Light, Dark, Follow system), a Language submenu listing every registered locale, and Sign out; it is the only Web surface that switches the theme or the language, and the only Settings entry point. Its account facts come from the account gate's `GET /api/auth/status` answer, so a harness running without accounts renders the same row under the localized account label, the same menu without the identity, and no session to end. The plugin provides no service, owns no dialog, and contributes exactly one list entry.
+The account menu is the footer's account row: the signed-in address's first letter in an avatar, alone in the rail. One dropdown carries the address, Settings, Appearance and Language submenus, and Sign out; it is the Web surface for theme and language, the only Settings entry point, and the only way to sign out. Its facts come from the gate's `GET /api/auth/status` answer, so a deployment without accounts renders the row under the localized label, the same menu minus the identity, and no session to end. The plugin provides no service, owns no dialog, and contributes one list entry.
 
 ## Table of Contents
 
