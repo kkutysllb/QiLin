@@ -20,6 +20,8 @@ Status: implemented
 
 **CLI 交接夹具会建立它所在部署缺的那个账号。** [open.mjs](../../../../apps/cli/tests/fixtures/web-browser-open/open.mjs) 先用设备 cookie 经随产品发布的端点初始化首个账号，再用它换来的会话请求入口路径——这正是浏览器面对首次运行部署时走的旅程。因此它记录的 `bootManifest: true` 依然意味着到达了应用文档，而 inline 快照记录的是入口路径。
 
+**设备 cookie 场景在门禁关闭下运行。** [web-auth.e2e.ts](../../../../apps/cli/tests/web-auth.e2e.ts) 覆盖的是传输自身的令牌加设备 cookie 认证，而那正是部署以 `accounts: enabled false` 运行时提供的模式；全新的 home 会开启门禁，因此该场景像 scaffold 车道那样把这一行写进 harness home 的补丁层，并在两处地址期望里写明入口路径。
+
 **worker 部署的账号入口渲染为未登录，这一点被记录而不是改道。** 页面半从自身 origin 读 `/api/auth/status`，静态宿主在那里回答 404；客户端把不可达的门禁与「没有账号界面」视为同一答案。把这次读改走隧道会从一棵不持有浏览器会话的树回答 `enabled: true, authenticated: false`，菜单随后会给出一个通往本部署并不提供的 `/login` 文档的登出行。该原因现在既是 preview 期望里第三条被接受的静态宿主 miss，也是 worker 包的一条限制。
 
 **bundle 夹具镜像应用真正读取的 connection。** [browser-open.spec.ts](../../../../packages/bundle/web-app/tests/browser-open.spec.ts) 给它的桩加上 `entryPath`，并用 `WEB_ENTRY_PATH` 构造打印地址，于是被服务的索引就是入口路径所指的文档。

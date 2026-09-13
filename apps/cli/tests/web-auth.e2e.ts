@@ -7,7 +7,7 @@ import { request as httpRequest } from 'node:http'
 import { createRequire } from 'node:module'
 import { createServer } from 'node:net'
 import type { AddressInfo } from 'node:net'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -155,6 +155,18 @@ describe('qilin web authentication through the real CLI', () => {
   it('rejects a forged loopback Host and preserves the browser cookie across restart', { timeout: 180_000 }, async () => {
     const root = await mkdtemp(join(tmpdir(), 'qilin-web-auth-real-cli-'))
     const qilinHome = join(root, '.qilin')
+    // This scenario covers the transport's own token-and-device-cookie
+    // authentication, which is what a deployment serves with the account gate
+    // off; a fresh home enables the gate and would answer the cookie with a
+    // session refusal. The harness home's patch layer turns it off, as the
+    // scaffold lane does for its scenarios.
+    await mkdir(qilinHome, { recursive: true })
+    await writeFile(join(qilinHome, 'cordis.patch.yml'), [
+      '- id: accounts',
+      '  config:',
+      '    enabled: false',
+      '',
+    ].join('\n'))
     const port = await freePort()
     let first: RunningWeb | undefined
     let second: RunningWeb | undefined
@@ -162,7 +174,7 @@ describe('qilin web authentication through the real CLI', () => {
       first = await startWeb(root, qilinHome, port)
       const firstUrl = new URL(first.launchUrl)
       expect(firstUrl.origin).toBe(`http://127.0.0.1:${String(port)}`)
-      expect(firstUrl.pathname).toBe('/')
+      expect(firstUrl.pathname).toBe('/workspace')
       expect(firstUrl.searchParams.get('token')).toMatch(/^[A-Za-z0-9_-]{43}$/u)
 
       expect(await describeSettings(port, `localhost:${String(port)}`)).toEqual({
@@ -172,7 +184,7 @@ describe('qilin web authentication through the real CLI', () => {
 
       const exchange = await fetch(first.launchUrl, { redirect: 'manual' })
       expect(exchange.status).toBe(303)
-      expect(exchange.headers.get('location')).toBe('/')
+      expect(exchange.headers.get('location')).toBe('/workspace')
       const setCookie = exchange.headers.get('set-cookie')
       if (setCookie === null) throw new Error('real CLI token exchange omitted Set-Cookie')
       expect(setCookie).toContain('HttpOnly')
