@@ -871,6 +871,11 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
 
   it('bash differential rendering: tool row click leaves the default details column closed', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-tool-details'))
+    // The Trajectory page from the previous case leaves the right column open;
+    // collapse it so this case asserts against the default three-column frame.
+    const frame = page.locator('[data-app-frame]')
+    await page.locator('[data-sidebar-right-toggle]').click()
+    await expect.poll(() => frame.getAttribute('data-rightbar-collapsed')).toBe('true')
     const input = page.locator('[data-composer-input]').first()
     await input.fill('请用 bash 工具运行命令 echo w5marker 然后告诉我结果')
     await input.press('Enter')

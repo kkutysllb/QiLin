@@ -410,8 +410,8 @@ describe('web e2e: seeded history renders through cold resume', () => {
       await saveFailureShot(page, `screenshots/0907-2205-sidebar/seeded-toolrow-${process.pid}`)
     })
     // Interaction over cold-resumed history: read summaries are file links
-    // that open a text-preview tab in the right Sidebar (not expand-in-place).
-    // Runs after the golden capture; still zero model calls.
+    // that open the file's editable tab in the right Sidebar (not
+    // expand-in-place). Runs after the golden capture; still zero model calls.
     const fileLink = page.locator('[data-variant="read"] button').first()
     await expandOwningTurnProcess(page, fileLink)
     await fileLink.waitFor({ timeout: 10_000 })
@@ -423,12 +423,12 @@ describe('web e2e: seeded history renders through cold resume', () => {
     await expect.poll(() => column.locator('[data-dockkit-tab-title]').allTextContents(), { timeout: 5_000 }).toEqual(['a.txt'])
     // Path label survives from the recorded args (a.txt).
     await expect.poll(() => page.getByText('a.txt', { exact: false }).count(), { timeout: 5_000 }).toBeGreaterThan(0)
-    const path = column.locator('[data-textpreview-path]')
-    const absolutePath = join(scaffold.workspaceCwd, 'a.txt')
-    await expect.poll(() => path.textContent()).toBe(absolutePath)
-    expect(await path.getAttribute('title')).toBe(absolutePath)
-    await expect.poll(() => column.locator('[data-textpreview-line="1"]').textContent()).toBe('alpha\n')
-    const preview = await captureStableAria(page, '[data-textpreview-state="text"]', scaffold.workspaceCwd)
+    const path = column.locator('[data-file-path]')
+    await expect.poll(() => path.textContent()).toBe('a.txt')
+    const file = column.locator('[data-file-state="ready"]')
+    await file.waitFor({ timeout: 10_000 })
+    await expect.poll(() => file.locator('[data-file-host]').textContent()).toContain('alpha')
+    const preview = await captureStableAria(page, '[data-file-state="ready"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(FILE_PREVIEW_EXPECTED, preview, MODE)
     // Put the column back so the later goldens see the default frame.
     await column.locator('[data-sidebar-right-toggle]').click()
