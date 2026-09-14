@@ -33,7 +33,7 @@
       "path": "../../context/session-reference"
     },
     {
-      "path": "../../extensions/cordis-host-runner"
+      "path": "../../extensions/kylin-host-runner"
     },
     {
       "path": "../../goal/goal"

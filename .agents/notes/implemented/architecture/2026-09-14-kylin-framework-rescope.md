@@ -16,6 +16,8 @@ Deliberately unchanged: the `cordis.yml` configuration family and the Loader's `
 
 [`scripts/verify-npm-install-layout.ts`](../../../../scripts/verify-npm-install-layout.ts) exempts the framework from the synthetic dual-release scheme by name: the framework is the one shared peer layer, and its per-release synthesized versions would contradict the single-shared-installation invariant it also asserts.
 
+The harness's own extension packages renamed in the same wave: `@qilin/tool-cordis` → `@qilin/tool-kylin`, `@qilin/cordis-host-runner` → `@qilin/kylin-host-runner`, `@qilin/cordis-client-runner` → `@qilin/kylin-client-runner`, and `@qilin/client-ui-cordis` → `@qilin/client-ui-kylin`, directories included. Model-visible vocabulary keeps its `cordis` spelling on purpose: tool names (`cordis_define` and siblings), the `cordis` agent-preset id, the `cordis` locale namespace, and the `cordis/*` event domain stay, so recorded sessions and roster lookups remain coherent. Human-visible copy (locale dictionary values, tool descriptions) says Kylin.
+
 ## Verification
 
 `pnpm run rescope-vendor:check` verifies no residue, every exact edit landed, and idempotency; `verify-vendored-links` resolves all 9 vendored names; `verify-cordis-config` passes 144 config files; full `pnpm run typecheck` passes; core and boot suites pass 1159/1160 with the one failure an HMR watcher timing flake that passes in isolation; the typert type-model snapshot regenerated against the new module names.

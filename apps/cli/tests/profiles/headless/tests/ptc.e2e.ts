@@ -24,8 +24,8 @@ import * as ToolFs from '@qilin/tool-fs'
 import * as WorkspaceContext from '@qilin/agent-instructions'
 import LocalJobRegistry from '@qilin/jobs-local'
 import * as ToolTasks from '@qilin/tool-jobs'
-import CordisHostRunner from '@qilin/cordis-host-runner'
-import * as ToolCordis from '@qilin/tool-cordis'
+import CordisHostRunner from '@qilin/kylin-host-runner'
+import * as ToolCordis from '@qilin/tool-kylin'
 
 /**
  * With-key PTC mode proof: a real model receives only `run_code`, composes two

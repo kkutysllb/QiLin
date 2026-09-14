@@ -20,7 +20,7 @@
 - `packages/client/ui-settings-general/src/client/{AboutSection,SettingsRoot,locales,shell-contract}.ts*`
 - `packages/client/ui-brand/src/client/{index,Seal}.ts*` 与包 manifest/测试
 - `packages/client/ui-settings-general/tests/*.spec.*`
-- `packages/extensions/cordis-client-runner/src/client/slot-catalog.ts`、`docs/config-catalog*`
+- `packages/extensions/kylin-client-runner/src/client/slot-catalog.ts`、`docs/config-catalog*`
 - 双语 package README、design spec、implemented Agent Notes 与 `plans/` 记录
 
 ## Findings

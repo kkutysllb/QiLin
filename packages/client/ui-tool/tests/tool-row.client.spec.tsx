@@ -63,7 +63,7 @@ describe('tool-call-model', () => {
   })
 
   it('leaves cordis_define to its own keyed toolview', () => {
-    // ui-cordis registers a keyed `tool.call.toolview` entry for cordis_define,
+    // ui-kylin registers a keyed `tool.call.toolview` entry for cordis_define,
     // and a keyed hit replaces the generic row (this model is only reached
     // through the dispatch fallback). A mapping here would be unreachable, and a
     // title here would be a second answer to what the card already renders.

@@ -36,7 +36,7 @@
       "path": "../../preset/agent-presets"
     },
     {
-      "path": "../../extensions/cordis-host-runner"
+      "path": "../../extensions/kylin-host-runner"
     },
     {
       "path": "../../settings/settings"

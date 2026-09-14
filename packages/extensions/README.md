@@ -24,10 +24,10 @@ The extensions group lets an agent inspect and modify the live QILIN runtime wit
 
 | Package | Role | ctx key |
 |---|---|---|
-| [`tool-cordis`](tool-cordis/README.md) | Seven model-facing tools: inspect the live runtime, define, run, stop, and remove dynamic packages | registers on `ctx.tools` |
-| [`cordis-host-runner`](cordis-host-runner/README.md) | Host half: definition registry, sandboxed host-half lifecycle, and the inspect registry browser queries answer | provides `ctx.dynamicCordisRunner` and `ctx.cordisInspect` |
-| [`cordis-client-runner`](cordis-client-runner/README.md) | Browser half: evaluates a browser-half source into a live plugin and answers run requests | client face; provides browser `ctx.dynamicCordisRunner` |
-| [`ui-cordis`](ui-cordis/README.md) | Browser surfaces: the frame-wide panel, lifecycle tool cards, and the `@pluginId` input source | client face; registers slots |
+| [`tool-kylin`](tool-kylin/README.md) | Seven model-facing tools: inspect the live runtime, define, run, stop, and remove dynamic packages | registers on `ctx.tools` |
+| [`kylin-host-runner`](kylin-host-runner/README.md) | Host half: definition registry, sandboxed host-half lifecycle, and the inspect registry browser queries answer | provides `ctx.dynamicCordisRunner` and `ctx.cordisInspect` |
+| [`kylin-client-runner`](kylin-client-runner/README.md) | Browser half: evaluates a browser-half source into a live plugin and answers run requests | client face; provides browser `ctx.dynamicCordisRunner` |
+| [`ui-kylin`](ui-kylin/README.md) | Browser surfaces: the frame-wide panel, lifecycle tool cards, and the `@pluginId` input source | client face; registers slots |
 
 -----
 
@@ -35,8 +35,8 @@ The extensions group lets an agent inspect and modify the live QILIN runtime wit
 ## Related documentation
 
 - [Extensions subsystem](../../docs/subsystems/extensions.md) — the generated `ctx.cordisInspect` and `ctx.dynamicCordisRunner` service API.
-- [Generated tool catalog](../../docs/tool-catalog.md#qilintool-cordis) — the seven model-facing tool schemas.
-- [Generated configuration catalog](../../docs/config-catalog.md#qilincordis-host-runner) — the runner's accepted config fields.
+- [Generated tool catalog](../../docs/tool-catalog.md#qilintool-kylin) — the seven model-facing tool schemas.
+- [Generated configuration catalog](../../docs/config-catalog.md#qilinkylin-host-runner) — the runner's accepted config fields.
 - [Self-referential Cordis toolset Agent Note](../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md) — design home for sandbox semantics, lifecycle, and composition.
 - [Client shells and dynamic packages Agent Note](../../.agents/notes/implemented/architecture/2026-08-15-client-shells-and-dynamic-packages.md) — package placement and build faces for the client halves.
 

@@ -161,7 +161,7 @@ export class CordisCatalogProjector {
   }
 
   /**
-   * Render the model-facing static API consumed by `tool-cordis`.
+   * Render the model-facing static API consumed by `tool-kylin`.
    * @param model - validated Cordis catalog projection from this projector.
    * @returns the model-facing TypeScript catalog source.
    */
@@ -682,7 +682,7 @@ function renderRuntimeApi(
     ' * the same AST walk as docs/cordis-catalog, so this data and the rendered',
     ' * docs cannot diverge.',
     ' *',
-    ' * @module @qilin/tool-cordis/api-catalog',
+    ' * @module @qilin/tool-kylin/api-catalog',
     ' */',
     '',
     '/* jscpd:ignore-start */',

@@ -265,8 +265,8 @@ def write_advanced_profile_patch(root: Path, name: str, sessions: Path) -> Path:
         },
         {"insert": [
             {"id": "code-runtime", "name": "@qilin/code-runtime-worker-thread"},
-            {"id": "cordis-host-runner", "name": "@qilin/cordis-host-runner"},
-            {"id": "cordis-tool", "name": "@qilin/tool-cordis"},
+            {"id": "kylin-host-runner", "name": "@qilin/kylin-host-runner"},
+            {"id": "cordis-tool", "name": "@qilin/tool-kylin"},
         ]},
     ])
 

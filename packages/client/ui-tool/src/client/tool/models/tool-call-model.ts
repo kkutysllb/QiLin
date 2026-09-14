@@ -32,7 +32,7 @@ export const VARIANT_TITLE_KEYS = {
 /**
  * Known tool name -> variant.
  *
- * `cordis_define` is deliberately absent: ui-cordis registers a keyed
+ * `cordis_define` is deliberately absent: ui-kylin registers a keyed
  * `tool.call.toolview` entry for it, and a keyed hit REPLACES the generic row
  * (this table is only reached through GenericToolCard, the dispatch fallback in
  * ToolCallTree). An entry here would be unreachable, and a second title for the

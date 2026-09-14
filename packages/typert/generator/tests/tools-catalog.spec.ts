@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import TypertRegistry from '@qilin/typert-registry'
 import type { TypertContribution } from '@qilin/typert-registry/types'
-import { EVENT_API, SERVICE_API, TYPE_API } from '@qilin/tool-cordis/src/api-catalog.ts'
+import { EVENT_API, SERVICE_API, TYPE_API } from '@qilin/tool-kylin/src/api-catalog.ts'
 import { WorkspaceAnalyzer } from '../src/analyzer.ts'
 import { FaceModelEmitter } from '../src/emitter.ts'
 

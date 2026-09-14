@@ -16,6 +16,8 @@ vendored 的 cordis 包家族从 `@deepseek-ai/cordis*` 迁移到 `@qilin/kylin*
 
 [`scripts/verify-npm-install-layout.ts`](../../../../scripts/verify-npm-install-layout.ts) 按名将框架豁免于合成双 release 方案：框架是唯一共享的 peer 层，按 release 合成版本会与它同时断言的单份共享安装不变量自相矛盾。
 
+harness 自有的扩展包在同一波改名：`@qilin/tool-cordis` → `@qilin/tool-kylin`、`@qilin/cordis-host-runner` → `@qilin/kylin-host-runner`、`@qilin/cordis-client-runner` → `@qilin/kylin-client-runner`、`@qilin/client-ui-cordis` → `@qilin/client-ui-kylin`，目录一并迁移。模型可见词汇有意保留 `cordis` 拼写：工具名（`cordis_define` 等）、`cordis` agent-preset id、`cordis` locale 命名空间、`cordis/*` 事件域维持不变，使录制会话与 roster 查询保持连贯。人类可见文案（locale 字典值、工具描述）改称 Kylin。
+
 ## 验证
 
 `pnpm run rescope-vendor:check` 验证无残留、精确编辑全落、幂等；`verify-vendored-links` 解析全部 9 个 vendored 名；`verify-cordis-config` 通过 144 个配置文件；完整 `pnpm run typecheck` 通过；core 与 boot 套件 1159/1160 通过，唯一失败是 HMR 观察器时序抖动，隔离复跑通过；typert type-model 快照按新模块名重新生成。

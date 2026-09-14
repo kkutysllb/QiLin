@@ -154,9 +154,9 @@ importers:
       '@qilin/client-ui-agent-preset':
         specifier: workspace:^
         version: link:../../packages/client/ui-agent-preset
-      '@qilin/client-ui-cordis':
+      '@qilin/client-ui-kylin':
         specifier: workspace:^
-        version: link:../../packages/extensions/ui-cordis
+        version: link:../../packages/extensions/ui-kylin
       '@qilin/cmdline':
         specifier: workspace:^
         version: link:../../packages/boot/cmdline
@@ -172,9 +172,9 @@ importers:
       '@qilin/compaction-tool-result-pruner':
         specifier: workspace:^
         version: link:../../packages/compaction/compaction-tool-result-pruner
-      '@qilin/cordis-client-runner':
+      '@qilin/kylin-client-runner':
         specifier: workspace:^
-        version: link:../../packages/extensions/cordis-client-runner
+        version: link:../../packages/extensions/kylin-client-runner
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../../packages/fs/fs-local
@@ -280,9 +280,9 @@ importers:
       '@qilin/tool-bash-persistent':
         specifier: workspace:^
         version: link:../../packages/shell/tool-bash-persistent
-      '@qilin/tool-cordis':
+      '@qilin/tool-kylin':
         specifier: workspace:^
-        version: link:../../packages/extensions/tool-cordis
+        version: link:../../packages/extensions/tool-kylin
       '@qilin/tool-fs':
         specifier: workspace:^
         version: link:../../packages/fs/tool-fs
@@ -926,9 +926,9 @@ importers:
       '@qilin/commands':
         specifier: workspace:^
         version: link:../../interaction/commands
-      '@qilin/cordis-host-runner':
+      '@qilin/kylin-host-runner':
         specifier: workspace:^
-        version: link:../../extensions/cordis-host-runner
+        version: link:../../extensions/kylin-host-runner
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../../credentials/credentials
@@ -1822,9 +1822,9 @@ importers:
       '@qilin/client-ui-conversation':
         specifier: workspace:^
         version: link:../../client/ui-conversation
-      '@qilin/client-ui-cordis':
+      '@qilin/client-ui-kylin':
         specifier: workspace:^
-        version: link:../../extensions/ui-cordis
+        version: link:../../extensions/ui-kylin
       '@qilin/client-ui-deliverables':
         specifier: workspace:^
         version: link:../../client/ui-deliverables
@@ -1942,12 +1942,12 @@ importers:
       '@qilin/code-runtime-worker-thread':
         specifier: workspace:^
         version: link:../../code-runtime/code-runtime-worker-thread
-      '@qilin/cordis-client-runner':
+      '@qilin/kylin-client-runner':
         specifier: workspace:^
-        version: link:../../extensions/cordis-client-runner
-      '@qilin/cordis-host-runner':
+        version: link:../../extensions/kylin-client-runner
+      '@qilin/kylin-host-runner':
         specifier: workspace:^
-        version: link:../../extensions/cordis-host-runner
+        version: link:../../extensions/kylin-host-runner
       '@qilin/file-reference':
         specifier: workspace:^
         version: link:../../context/file-reference
@@ -6166,7 +6166,7 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
 
-  packages/extensions/cordis-client-runner:
+  packages/extensions/kylin-client-runner:
     devDependencies:
       '@qilin/api-remotes':
         specifier: workspace:^
@@ -6196,7 +6196,7 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
-  packages/extensions/cordis-host-runner:
+  packages/extensions/kylin-host-runner:
     dependencies:
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
@@ -6236,14 +6236,14 @@ importers:
         specifier: workspace:^
         version: link:../../typert/protocol
 
-  packages/extensions/tool-cordis:
+  packages/extensions/tool-kylin:
     devDependencies:
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
-      '@qilin/cordis-host-runner':
+      '@qilin/kylin-host-runner':
         specifier: workspace:^
-        version: link:../cordis-host-runner
+        version: link:../kylin-host-runner
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
@@ -6266,7 +6266,7 @@ importers:
         specifier: workspace:^
         version: link:../../core/tools
 
-  packages/extensions/ui-cordis:
+  packages/extensions/ui-kylin:
     devDependencies:
       '@qilin/api-remotes':
         specifier: workspace:^
@@ -6298,9 +6298,9 @@ importers:
       '@qilin/client-ui-tool':
         specifier: workspace:^
         version: link:../../client/ui-tool
-      '@qilin/cordis-client-runner':
+      '@qilin/kylin-client-runner':
         specifier: workspace:^
-        version: link:../cordis-client-runner
+        version: link:../kylin-client-runner
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
@@ -10727,9 +10727,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@qilin/tool-cordis':
+      '@qilin/tool-kylin':
         specifier: workspace:^
-        version: link:../../extensions/tool-cordis
+        version: link:../../extensions/tool-kylin
       '@qilin/typert-registry':
         specifier: workspace:^
         version: link:../registry
@@ -11397,9 +11397,9 @@ importers:
       '@qilin/compaction-tool-result-pruner':
         specifier: workspace:^
         version: link:../../packages/compaction/compaction-tool-result-pruner
-      '@qilin/cordis-host-runner':
+      '@qilin/kylin-host-runner':
         specifier: workspace:^
-        version: link:../../packages/extensions/cordis-host-runner
+        version: link:../../packages/extensions/kylin-host-runner
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../../packages/credentials/credentials
@@ -11619,9 +11619,9 @@ importers:
       '@qilin/tool-call-timeout-policy':
         specifier: workspace:^
         version: link:../../packages/guard/timeout-policy
-      '@qilin/tool-cordis':
+      '@qilin/tool-kylin':
         specifier: workspace:^
-        version: link:../../packages/extensions/tool-cordis
+        version: link:../../packages/extensions/tool-kylin
       '@qilin/tool-fs':
         specifier: workspace:^
         version: link:../../packages/fs/tool-fs

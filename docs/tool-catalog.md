@@ -21,7 +21,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@qilin/tool-bash` | `bash` | `ctx.tools`, `ctx.shell`, `ctx.systemPrompt`, `ctx.shellEnv`, `ctx.jobs at call time for run_in_background` | `tool/call`, `tool/result` | - | The bash tool is the model-facing consumer of the bash executor seam. A `run_in_background` run registers with the generic `ctx.jobs` runtime and is collected/stopped through the `job_*` tools from `@qilin/tool-jobs`; the `enableRunInBackground` config (default true) removes the parameter entirely when disabled. |
 | `@qilin/tool-present` | `present` | `ctx.tools`, `ctx.fs`, `ctx.sessionProjections` | `tool/call`, `deliverables/presented after a successful final result`, `tool/result` | - | Deliveries belong to the calling Session; Web ui-deliverables supplies source-file opening and cards. |
 | `@qilin/tool-pwsh` | `pwsh` | `ctx.tools`, `ctx.shell`, `ctx.systemPrompt`, `ctx.shellEnv`, `ctx.jobs at call time for run_in_background` | `tool/call`, `tool/result` | - | The pwsh tool is the PowerShell-dialect consumer of the bash executor seam for Windows compositions (a PowerShell executor such as `@qilin/pwsh-local` backs `ctx.shell`); it mirrors the bash tool call-for-call minus sandbox controls — `run_in_background` runs register with the generic `ctx.jobs` runtime and are collected/stopped through the `job_*` tools, and the managed `QILIN_*` environment comes from `@qilin/shell-env`. Each call runs in a fresh process (no persistent PTY session), with native `C:\...` paths and `$env:NAME` variables. |
-| `@qilin/tool-cordis` | `cordis_define`, `cordis_inspect_list`, `cordis_inspect_query`, `cordis_inspect_self`, `cordis_run`, `cordis_stop`, `cordis_undefine` | `ctx.tools`, `ctx.dynamicCordisRunner` | `tool/call`, `tool/result`, `process-local dynamic package lifecycle` | - | Not in any shipped tree (a deliberate opt-in — dynamic package code reaches the real runtime, see .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md). The toolset injects `ctx.dynamicCordisRunner` from `@qilin/cordis-host-runner`, which owns the definition registry and the vm sandbox; a composition missing it never activates the tools. A running package may register ADDITIONAL model-visible tools until it is stopped, undefined, or QILIN restarts; a full changed request header logs those tool-set changes. |
+| `@qilin/tool-kylin` | `cordis_define`, `cordis_inspect_list`, `cordis_inspect_query`, `cordis_inspect_self`, `cordis_run`, `cordis_stop`, `cordis_undefine` | `ctx.tools`, `ctx.dynamicCordisRunner` | `tool/call`, `tool/result`, `process-local dynamic package lifecycle` | - | Not in any shipped tree (a deliberate opt-in — dynamic package code reaches the real runtime, see .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md). The toolset injects `ctx.dynamicCordisRunner` from `@qilin/kylin-host-runner`, which owns the definition registry and the vm sandbox; a composition missing it never activates the tools. A running package may register ADDITIONAL model-visible tools until it is stopped, undefined, or QILIN restarts; a full changed request header logs those tool-set changes. |
 | `@qilin/tool-bash-persistent` | `bash` | `ctx.tools`, `ctx.terminals`, `an owning Agent at execution time` | `tool/call`, `PTY shell state`, `tool/result` | - | One owner-isolated persistent bash tool; deployment composition supplies the PTY backend and may override the model-facing environment description. |
 | `@qilin/tool-pwsh-persistent` | `pwsh` | `ctx.tools`, `ctx.terminals`, `an owning Agent at execution time` | `tool/call`, `PTY shell state`, `tool/result` | - | One owner-isolated persistent pwsh tool, the Windows counterpart of the persistent bash tool; deployment composition supplies a pwsh-dialect PTY backend and may override the model-facing environment description. |
 | `@qilin/tool-str-replace-editor` | `str_replace_editor` | `ctx.tools`, `ctx.fs` | `tool/call`, `fs/observed after view presence/absence, edit absence, or successful mutation`, `tool/result` | - | Standalone view/create/unique literal replace/line insert tool over the filesystem seam; it composes with any shell or terminal API. |
@@ -306,13 +306,13 @@ Source: [`packages/shell/tool-pwsh/src/index.ts`](../packages/shell/tool-pwsh/sr
 
 The pwsh tool is the PowerShell-dialect consumer of the bash executor seam for Windows compositions (a PowerShell executor such as `@qilin/pwsh-local` backs `ctx.shell`); it mirrors the bash tool call-for-call minus sandbox controls — `run_in_background` runs register with the generic `ctx.jobs` runtime and are collected/stopped through the `job_*` tools, and the managed `QILIN_*` environment comes from `@qilin/shell-env`. Each call runs in a fresh process (no persistent PTY session), with native `C:\...` paths and `$env:NAME` variables.
 
-<a id="qilintool-cordis"></a>
+<a id="qilintool-kylin"></a>
 
-## `@qilin/tool-cordis`
+## `@qilin/tool-kylin`
 
 ### `cordis_define`
 
-Define an immutable Cordis Package. For a new Plugin, use kind:"new" and provide only a semantic prefix of 3–6 lowercase English letters; the Host returns the final pluginId and packageId. To modify an existing Plugin, use kind:"existing" with its exact pluginId to append a Package without overwriting older versions. Provide at least one of code.host and code.client. Each value is a plain JavaScript function body that returns a Cordis Plugin; no TypeScript, JSX, or import transformation occurs. Query Inspect before depending on a Service, Event, Builtin, Slot, or token. Define only validates parameters and syntax and records source: it does not request approval, execute apply, or change currentPackageId. On success, call cordis_run with the returned IDs.
+Define an immutable Kylin Package. For a new Plugin, use kind:"new" and provide only a semantic prefix of 3–6 lowercase English letters; the Host returns the final pluginId and packageId. To modify an existing Plugin, use kind:"existing" with its exact pluginId to append a Package without overwriting older versions. Provide at least one of code.host and code.client. Each value is a plain JavaScript function body that returns a Kylin Plugin; no TypeScript, JSX, or import transformation occurs. Query Inspect before depending on a Service, Event, Builtin, Slot, or token. Define only validates parameters and syntax and records source: it does not request approval, execute apply, or change currentPackageId. On success, call cordis_run with the returned IDs.
 
 ```json
 {
@@ -372,11 +372,11 @@ Define an immutable Cordis Package. For a new Plugin, use kind:"new" and provide
       "properties": {
         "host": {
           "type": "string",
-          "description": "Plain JavaScript function body that returns the Host-half Cordis Plugin."
+          "description": "Plain JavaScript function body that returns the Host-half Kylin Plugin."
         },
         "client": {
           "type": "string",
-          "description": "Plain JavaScript function body that returns the browser Client-half Cordis Plugin."
+          "description": "Plain JavaScript function body that returns the browser Client-half Kylin Plugin."
         }
       }
     }
@@ -390,11 +390,11 @@ Define an immutable Cordis Package. For a new Plugin, use kind:"new" and provide
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
 ### `cordis_inspect_list`
 
-List every Cordis Inspect Provider currently known to the Host, including local Host Providers and the latest manifests synchronized from the Client. Each entry includes its platform, purpose, read-only methods, and input/output schemas. Call this Tool before creating or modifying a Package, then select the provider and method for cordis_inspect_query from its result. Do not guess names or treat an Inspect method as a business Service that Plugin code can call.
+List every Kylin Inspect Provider currently known to the Host, including local Host Providers and the latest manifests synchronized from the Client. Each entry includes its platform, purpose, read-only methods, and input/output schemas. Call this Tool before creating or modifying a Package, then select the provider and method for cordis_inspect_query from its result. Do not guess names or treat an Inspect method as a business Service that Plugin code can call.
 
 ```json
 {
@@ -403,7 +403,7 @@ List every Cordis Inspect Provider currently known to the Host, including local 
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
 ### `cordis_inspect_query`
 
@@ -441,7 +441,7 @@ Run a read-only query explicitly declared by an Inspect Provider. platform, prov
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
 ### `cordis_inspect_self`
 
@@ -463,7 +463,7 @@ Inspect dynamic Cordis objects owned by the current Session at increasing levels
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
 ### `cordis_run`
 
@@ -498,7 +498,7 @@ Activate one exact Package of a dynamic Plugin. Use mode:"run" for the first act
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
 ### `cordis_stop`
 
@@ -519,7 +519,7 @@ Stop the current Run of a dynamic Plugin and cancel unfinished approval or activ
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
 ### `cordis_undefine`
 
@@ -540,9 +540,9 @@ Permanently remove a dynamic Plugin owned by the current Session. If it is runni
 }
 ```
 
-Source: [`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts)
+Source: [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts)
 
-Not in any shipped tree (a deliberate opt-in — dynamic package code reaches the real runtime, see .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md). The toolset injects `ctx.dynamicCordisRunner` from `@qilin/cordis-host-runner`, which owns the definition registry and the vm sandbox; a composition missing it never activates the tools. A running package may register ADDITIONAL model-visible tools until it is stopped, undefined, or QILIN restarts; a full changed request header logs those tool-set changes.
+Not in any shipped tree (a deliberate opt-in — dynamic package code reaches the real runtime, see .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md). The toolset injects `ctx.dynamicCordisRunner` from `@qilin/kylin-host-runner`, which owns the definition registry and the vm sandbox; a composition missing it never activates the tools. A running package may register ADDITIONAL model-visible tools until it is stopped, undefined, or QILIN restarts; a full changed request header logs those tool-set changes.
 
 <a id="qilintool-bash-persistent"></a>
 

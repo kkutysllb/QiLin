@@ -13,7 +13,7 @@
     port: 3081
 
 - insert:
-    - id: cordis-host-runner
-      name: '@qilin/cordis-host-runner'
-    - id: tool-cordis
-      name: '@qilin/tool-cordis'
+    - id: kylin-host-runner
+      name: '@qilin/kylin-host-runner'
+    - id: tool-kylin
+      name: '@qilin/tool-kylin'

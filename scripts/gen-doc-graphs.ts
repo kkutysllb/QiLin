@@ -374,7 +374,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'tools',
     title: 'Tool registry and guarded execution pipeline',
     mode: 'core',
-    consumers: ['agent-loop', 'tool-ask-user', 'tool-bash', 'tool-cordis', 'tool-fs', 'tool-terminal', 'tool-skill', 'tool-subagent', 'tool-todo', 'tool-web'],
+    consumers: ['agent-loop', 'tool-ask-user', 'tool-bash', 'tool-kylin', 'tool-fs', 'tool-terminal', 'tool-skill', 'tool-subagent', 'tool-todo', 'tool-web'],
     note: 'Registers capabilities, owns PTC mode transport, and routes calls through pre-policy, monotonic guards, around dispatch, post-policy, and final-result observation.',
   },
   {
@@ -672,18 +672,18 @@ const SERVICE_ROLES: ServiceRole[] = [
   },
   {
     key: 'dynamicCordisRunner',
-    pkg: 'cordis-host-runner',
+    pkg: 'kylin-host-runner',
     title: 'Dynamic Cordis package host runner',
     mode: 'core',
-    consumers: ['tool-cordis'],
+    consumers: ['tool-kylin'],
     note: 'Owns the in-memory definition registry, the vm sandbox for host halves, and the request-run round trip; browser pages reach the same service over the wire through its remote namespace.',
   },
   {
     key: 'cordisInspect',
-    pkg: 'cordis-host-runner',
+    pkg: 'kylin-host-runner',
     title: 'Dynamic Cordis inspect registry',
     mode: 'core',
-    consumers: ['tool-cordis'],
+    consumers: ['tool-kylin'],
     note: 'Registers host inspect providers, mirrors the client provider manifest, and routes client queries through the dynamic Cordis transport.',
   },
 ]

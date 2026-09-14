@@ -44,8 +44,8 @@ import * as ToolBash from '@qilin/tool-bash'
 import * as ToolPwsh from '@qilin/tool-pwsh'
 import * as ToolBashPersistent from '@qilin/tool-bash-persistent'
 import * as ToolPwshPersistent from '@qilin/tool-pwsh-persistent'
-import CordisHostRunner from '@qilin/cordis-host-runner'
-import * as ToolCordis from '@qilin/tool-cordis'
+import CordisHostRunner from '@qilin/kylin-host-runner'
+import * as ToolCordis from '@qilin/tool-kylin'
 import * as ToolPresent from '@qilin/tool-present'
 import * as ToolFs from '@qilin/tool-fs'
 import * as ToolFsSearch from '@qilin/tool-fs-search'
@@ -273,9 +273,9 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The pwsh tool is the PowerShell-dialect consumer of the bash executor seam for Windows compositions (a PowerShell executor such as `@qilin/pwsh-local` backs `ctx.shell`); it mirrors the bash tool call-for-call minus sandbox controls — `run_in_background` runs register with the generic `ctx.jobs` runtime and are collected/stopped through the `job_*` tools, and the managed `QILIN_*` environment comes from `@qilin/shell-env`. Each call runs in a fresh process (no persistent PTY session), with native `C:\\...` paths and `$env:NAME` variables.',
   },
   {
-    pkg: '@qilin/tool-cordis',
-    dir: 'tool-cordis',
-    source: 'packages/extensions/tool-cordis/src/index.ts',
+    pkg: '@qilin/tool-kylin',
+    dir: 'tool-kylin',
+    source: 'packages/extensions/tool-kylin/src/index.ts',
     requires: ['ctx.tools', 'ctx.dynamicCordisRunner'],
     writes: ['tool/call', 'tool/result', 'process-local dynamic package lifecycle'],
     async mount(ctx) {
@@ -283,7 +283,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(ToolCordis)
     },
     note:
-      'Not in any shipped tree (a deliberate opt-in — dynamic package code reaches the real runtime, see .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md). The toolset injects `ctx.dynamicCordisRunner` from `@qilin/cordis-host-runner`, which owns the definition registry and the vm sandbox; a composition missing it never activates the tools. A running package may register ADDITIONAL model-visible tools until it is stopped, undefined, or QILIN restarts; a full changed request header logs those tool-set changes.',
+      'Not in any shipped tree (a deliberate opt-in — dynamic package code reaches the real runtime, see .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md). The toolset injects `ctx.dynamicCordisRunner` from `@qilin/kylin-host-runner`, which owns the definition registry and the vm sandbox; a composition missing it never activates the tools. A running package may register ADDITIONAL model-visible tools until it is stopped, undefined, or QILIN restarts; a full changed request header logs those tool-set changes.',
   },
   {
     pkg: '@qilin/tool-bash-persistent',

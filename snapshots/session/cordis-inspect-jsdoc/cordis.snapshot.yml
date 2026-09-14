@@ -34,10 +34,10 @@
       Verify your work by running the code or tests. Keep answers brief and factual.
 
 - insert:
-    - id: cordis-host-runner
-      name: '@qilin/cordis-host-runner'
-    - id: tool-cordis
-      name: '@qilin/tool-cordis'
+    - id: kylin-host-runner
+      name: '@qilin/kylin-host-runner'
+    - id: tool-kylin
+      name: '@qilin/tool-kylin'
     - id: llm-replay
       name: '@qilin/llm-replay'
       config:

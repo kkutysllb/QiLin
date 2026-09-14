@@ -6,7 +6,7 @@
  * receives, who already occupies the seat, and when the seat exists at all —
  * is decided at compile time by the shipped web bundle. This generator reads
  * those facts lexically (no type-checker program) and emits them as a data
- * module inside `tool-cordis`, so the host-side toolset teaches the browser
+ * module inside `tool-kylin`, so the host-side toolset teaches the browser
  * surface without importing a single client runtime module.
  *
  * `--check` verifies the committed artifact is fresh.
@@ -26,7 +26,7 @@ import {
 import type { ScannedFile, SlotDeclaration, SlotRegistration, TypeDeclaration } from './slot-walk.ts'
 
 const root = resolve(import.meta.dirname, '..')
-const OUT = 'packages/extensions/cordis-client-runner/src/client/slot-catalog.ts'
+const OUT = 'packages/extensions/kylin-client-runner/src/client/slot-catalog.ts'
 
 /** Source globs: every workspace package's sources, `.tsx` included (a contract may live in one). */
 const SOURCE_GLOBS = ['packages/*/*/src/**/*.ts', 'packages/*/*/src/**/*.tsx']
@@ -416,7 +416,7 @@ export function renderClientCatalog(entries: readonly SlotEntry[]): string {
     ' * mounted for the seat to exist. Data only — this module is the one legitimate',
     ' * meeting point of the two planes, so it carries strings, never client imports.',
     ' *',
-    ' * @module @qilin/cordis-client-runner/client/slot-catalog',
+    ' * @module @qilin/kylin-client-runner/client/slot-catalog',
     ' */',
     '',
     '/* jscpd:ignore-start */',

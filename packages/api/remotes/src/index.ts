@@ -19,7 +19,7 @@ import { API_REMOTE_FORWARDED_EVENTS } from './remote-events.ts'
 // makes the shape assertion below judge real signatures rather than an empty
 // event vocabulary.
 import type {} from '@qilin/commands/types'
-import type {} from '@qilin/cordis-host-runner/types'
+import type {} from '@qilin/kylin-host-runner/types'
 import type {} from '@qilin/credentials/types'
 import type {} from '@qilin/goal/types'
 import type {} from '@qilin/llm/types'

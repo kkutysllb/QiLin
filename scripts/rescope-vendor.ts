@@ -10,7 +10,7 @@
  * scalar. A match needs a quote (or `name: `) immediately left and the matching
  * quote — optionally after a `/subpath` — immediately right, which excludes
  * `cordis.yml`, the Loader's `cordis:` builtin prefix, `cordis-config-entry`,
- * `@qilin/tool-cordis`, and `cordiverse/cordis`, and makes the
+ * `@qilin/tool-kylin`, and `cordiverse/cordis`, and makes the
  * rewrite idempotent because the scoped name's `cordis` is preceded by `/`.
  * Markdown follows the rename inside every fence, and in `docs/` prose too:
  * a tutorial that teaches an unresolvable name is wrong, while prose elsewhere
@@ -109,20 +109,20 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'docs/subsystems/extensions.md', upstream: ['cordis'] },
   { file: 'docs/subsystems/extensions.zh.md', upstream: ['cordis'] },
   { file: 'packages/api/remotes/src/remote-events.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-client-runner/src/client/index.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-client-runner/src/client/runtime.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-client-runner/tests/orchestrator.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-client-runner/tests/plugin.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-host-runner/src/index.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-host-runner/src/inspect-registry.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-host-runner/src/types.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-host-runner/tests/helpers.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-host-runner/tests/runner.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/cordis-host-runner/tests/versioning.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/tool-cordis/src/api-catalog.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/tool-cordis/src/providers.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/index.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/inventory.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-client-runner/src/client/index.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-client-runner/src/client/runtime.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-client-runner/tests/orchestrator.client.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-client-runner/tests/plugin.client.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-host-runner/src/index.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-host-runner/src/inspect-registry.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-host-runner/src/types.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-host-runner/tests/helpers.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-host-runner/tests/runner.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/kylin-host-runner/tests/versioning.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/tool-kylin/src/api-catalog.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/tool-kylin/src/providers.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/index.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/inventory.ts', upstream: ['cordis'] },
   // `cordis/tree` is an Inspector observation topic, not a package subpath.
   { file: 'packages/experimental/inspector/src/shared/bridge/messages/cordis.ts', upstream: ['cordis'] },
   { file: 'packages/experimental/inspector/tests/cordis-query.host.spec.ts', upstream: ['cordis'] },
@@ -131,11 +131,11 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'scripts/gen-cordis-catalog.ts', upstream: ['cordis'] },
   // The UI locale namespace and input-trigger source id are product keys.
   { file: 'packages/client/ui-settings-plugin-inventory/src/client/PluginInventorySettingsTab.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/CordisActionRow.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/CordisDefineRow.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/CordisPanel.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/CordisRunRow.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-cordis/src/client/locales.ts', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisActionRow.tsx', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisDefineRow.tsx', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisPanel.tsx', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisRunRow.tsx', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/locales.ts', upstream: ['cordis'] },
 ]
 
 /** A string that must appear exactly `count` times once the rescope has run. */

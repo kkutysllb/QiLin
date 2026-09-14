@@ -695,7 +695,7 @@ export function assertEntriesLoaded(ctx: Context, binName: string): void {
 
 /**
  * Value mirrors used because Cordis's const enum has no runtime object to import.
- * Keep aligned with `packages/extensions/tool-cordis/src/fiber-state.ts` and
+ * Keep aligned with `packages/extensions/tool-kylin/src/fiber-state.ts` and
  * `packages/client/web/src/loader-status.ts`.
  */
 const FIBER_PENDING = 0 as FiberState.PENDING
@@ -839,7 +839,7 @@ export const HARNESS_SOURCE_SECTION = 'harness:source'
 /**
  * Add a global prompt section naming the on-disk harness source checkout while
  * explicitly distinguishing it from the task workspace and current working
- * directory. The self-referential `qilin-tool-cordis` toolset reads and edits this
+ * directory. The self-referential `qilin-tool-kylin` toolset reads and edits this
  * checkout. Call once on the settled boot context ({@link boot}); the section
  * uses the shared first-party placement after reusable instructions
  * and before the Web surface and persona suffix. A booted tree with no

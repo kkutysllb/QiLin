@@ -243,8 +243,8 @@
 
 # Read the live runtime, mount a temporary plugin, unmount it. The toolset is a
 # trust boundary, not a sandbox — see this file's header.
-- id: tool-cordis
-  name: '@qilin/tool-cordis'
+- id: tool-kylin
+  name: '@qilin/tool-kylin'
 
 # The composition-authoring skill travels with this preset rather than living
 # in the user's skill root: it documents THIS deployment's two planes, and a

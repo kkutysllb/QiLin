@@ -623,7 +623,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     // scenario adds only the model-facing tools that exercise those services.
     ...options.cordisTools === true
       ? [{ insert: [
-        { id: 'tool-cordis', name: '@qilin/tool-cordis' },
+        { id: 'tool-kylin', name: '@qilin/tool-kylin' },
       ] }]
       : [],
     ...options.deepSeekSearch === undefined

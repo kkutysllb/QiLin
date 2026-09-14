@@ -165,7 +165,7 @@ describe('web e2e: Cordis tools use their owned cards', () => {
     await expandOwningTurnProcess(page, inspectRow)
     await inspectRow.waitFor({ timeout: 10_000 })
 
-    // cordis_define does NOT go through the generic row: ui-cordis registers a
+    // cordis_define does NOT go through the generic row: ui-kylin registers a
     // keyed toolview for it, and a keyed hit replaces the generic card. So the
     // title here is the CARD's ("Cordis Plugin"), and the expanded body is the
     // card's own two code sections rather than a generic args dump.

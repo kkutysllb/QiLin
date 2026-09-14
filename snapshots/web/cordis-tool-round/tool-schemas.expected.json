@@ -110,7 +110,7 @@
     },
     {
       "name": "cordis_define",
-      "description": "Define an immutable Cordis Package. For a new Plugin, use kind:\"new\" and provide only a semantic prefix of 3–6 lowercase English letters; the Host returns the final pluginId and packageId. To modify an existing Plugin, use kind:\"existing\" with its exact pluginId to append a Package without overwriting older versions. Provide at least one of code.host and code.client. Each value is a plain JavaScript function body that returns a Cordis Plugin; no TypeScript, JSX, or import transformation occurs. Query Inspect before depending on a Service, Event, Builtin, Slot, or token. Define only validates parameters and syntax and records source: it does not request approval, execute apply, or change currentPackageId. On success, call cordis_run with the returned IDs.",
+      "description": "Define an immutable Kylin Package. For a new Plugin, use kind:\"new\" and provide only a semantic prefix of 3–6 lowercase English letters; the Host returns the final pluginId and packageId. To modify an existing Plugin, use kind:\"existing\" with its exact pluginId to append a Package without overwriting older versions. Provide at least one of code.host and code.client. Each value is a plain JavaScript function body that returns a Kylin Plugin; no TypeScript, JSX, or import transformation occurs. Query Inspect before depending on a Service, Event, Builtin, Slot, or token. Define only validates parameters and syntax and records source: it does not request approval, execute apply, or change currentPackageId. On success, call cordis_run with the returned IDs.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -168,11 +168,11 @@
             "properties": {
               "host": {
                 "type": "string",
-                "description": "Plain JavaScript function body that returns the Host-half Cordis Plugin."
+                "description": "Plain JavaScript function body that returns the Host-half Kylin Plugin."
               },
               "client": {
                 "type": "string",
-                "description": "Plain JavaScript function body that returns the browser Client-half Cordis Plugin."
+                "description": "Plain JavaScript function body that returns the browser Client-half Kylin Plugin."
               }
             }
           }
@@ -187,7 +187,7 @@
     },
     {
       "name": "cordis_inspect_list",
-      "description": "List every Cordis Inspect Provider currently known to the Host, including local Host Providers and the latest manifests synchronized from the Client. Each entry includes its platform, purpose, read-only methods, and input/output schemas. Call this Tool before creating or modifying a Package, then select the provider and method for cordis_inspect_query from its result. Do not guess names or treat an Inspect method as a business Service that Plugin code can call.",
+      "description": "List every Kylin Inspect Provider currently known to the Host, including local Host Providers and the latest manifests synchronized from the Client. Each entry includes its platform, purpose, read-only methods, and input/output schemas. Call this Tool before creating or modifying a Package, then select the provider and method for cordis_inspect_query from its result. Do not guess names or treat an Inspect method as a business Service that Plugin code can call.",
       "parameters": {
         "type": "object",
         "properties": {}
