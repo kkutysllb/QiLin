@@ -25,13 +25,17 @@ kind: "package-reference"
 
 `qilin` profile 通过其 bundle 补丁挂载本包，无需配置。若部署方希望保留其他基础主题并使用 QiLin 配色，保留自己的 `ui-theme` 偏好即可；本层叠加在其上。
 
-| 令牌 | 浅色 | 深色 |
-|---|---|---|
-| `--dsw-alias-brand-primary` | `#0b7a5a` | `#3fd6a0` |
-| `--dsw-specific-sidebar-fill` | `#ffffff` | `#0f0f0f` |
-| `--dsw-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
+配色为「玄金」暗金 landing VI 的双 scheme 版本：深色值逐字移植 landing 令牌，浅色值推导暖纸对应版（[决策笔记](../../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)）。[tokens.ts](src/client/tokens.ts) 按族分组覆盖五十五个令牌：品牌金、表面与侧栏、墨阶文字、细线与悬停、次级按钮族、代码与滚动条阅读面。
 
-功能组件通过既有的 `--dsw-alias-*` 别名消费这些令牌，因此配色可到达侧边栏、输入框、会话与交付物，而任何组件都无需感知 QiLin。侧边栏填充是各套配色中的中性表面而非品牌色偏，`--dsw-specific-brand-seal-fill` 则为需要与印记一致的表面携带印章自身的朱砂；它的两个取值都是 `ui-brand` 中印章渐变的色标。
+| 角色 | 令牌 | 浅色 | 深色 |
+|---|---|---|---|
+| 强调色 | `--dsw-alias-brand-primary` | `#8f6f2e`（gold-700） | `#c9a24a`（gold-500） |
+| 画布 | `--dsw-alias-bg-base` | `#f8f5ee`（纸白） | `#0d0b09`（landing 底色） |
+| 侧栏 | `--dsw-specific-sidebar-fill` | `#f1ece0` | `#0d0b09` |
+| 链接 | `--dsw-alias-link` | `#7d6126`（纸面 5.3:1） | `#f3dc9e`（14.5:1） |
+| 印章 | `--dsw-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
+
+功能组件通过既有的 `--dsw-alias-*` 别名消费这些令牌，因此配色可到达侧边栏、输入框、会话与交付物，而任何组件都无需感知 QiLin。悬停遵循各平台惯例（深色向 gold-300 变亮，浅色向链接金加深），状态色与进行中蓝保留基础配色，`--dsw-specific-brand-seal-fill` 则为需要与印记一致的表面携带印章自身的朱砂；它的两个取值都是 `ui-brand` 中印章渐变的色标。
 
 <a id="dev-note"></a>
 ## 开发备注
@@ -51,7 +55,7 @@ kind: "package-reference"
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- 本层只覆盖品牌表面。完整的 QiLin 配色需要品牌设计给出的完整令牌集，侧边栏品牌美术字是另一个客户端插件。
+- 无当前组件消费者的令牌留在基础配色；未来需要暖色值的消费者应并入本层，而不是重新推导。
 - 随附规格跑在生产主题运行时及其覆盖栈上。针对本层的启动后 Web 表面断言尚未建立，组装面的检查目前为手工执行。
 
 **运行时不变式：** 不发布伴生入口。持有覆盖栈的主题运行时才是被观察的权威；本层只向它贡献条目。

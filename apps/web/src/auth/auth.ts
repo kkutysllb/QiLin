@@ -1,8 +1,11 @@
 /**
  * Behaviour for the pre-session authentication document served at `/login` and
  * `/setup`. Every visible string is declared in auth.html; this module reads
- * them from that document and owns only the request and redirect flow.
+ * them from that document and owns only the request and redirect flow. The
+ * theme toggle's behaviour comes from the shared pre-session module.
  */
+
+import { startPreSessionThemeToggle } from '../theme-preference.ts'
 
 /** Server path reporting the account state a pre-session visitor may act on. */
 const STATUS_ENDPOINT = '/api/auth/status'
@@ -307,5 +310,6 @@ async function start(): Promise<void> {
 }
 
 void start()
+startPreSessionThemeToggle()
 
 export {}

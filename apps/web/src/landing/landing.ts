@@ -1,11 +1,14 @@
 /**
  * Landing page behaviour: the hero headline cycles through the platform's
- * capability words, one word at a time.
+ * capability words, one word at a time, and the header toggle flips the page
+ * between the dark 玄金 default and its light-paper variant.
  *
  * Every visible string stays in landing.html. The word list arrives through the
  * host element's data-words attribute, so this module owns timing and motion
- * only.
+ * only; the theme toggle's behaviour comes from the shared pre-session module.
  */
+
+import { startPreSessionThemeToggle } from '../theme-preference.ts'
 
 /** Host element carrying the separated word list. */
 const WORDS_HOST = '[data-words]'
@@ -93,3 +96,4 @@ export function startLandingHeadline(): void {
 }
 
 startLandingHeadline()
+startPreSessionThemeToggle()

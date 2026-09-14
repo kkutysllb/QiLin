@@ -30,7 +30,7 @@ QiLin Web GUI 在呈现自身品牌时有六处缺陷。
 
 **账号菜单是唯一的 Settings 入口。** [ui-settings-general](../../../../packages/client/ui-settings-general/src/client/index.ts) 不再声明 `settings.trigger` 子 slot，也不再注册触发内容；[chrome.tsx](../../../../packages/client/ui-settings-general/src/client/chrome.tsx) 只保留面板标题与关闭标签。`sidebar.settings` 仍挂载面板与连接恢复行，因此该席位作为面板的挂载点保留下来，而可见入口随账号走。外壳只在面板关闭时、且只在展开栏中渲染该恢复行，因为收起轨道没有容纳它的空间。
 
-**侧边栏是各套配色中的中性表面。** `--dsw-specific-sidebar-fill` 在浅色下解析为 `#ffffff`、在深色下解析为 `#0f0f0f`——与平台自身浅色与深色侧边栏填充所用相同的中性值——因此这一栏读起来与中心区属于同一表面家族，而不是一块带色偏的面板。品牌色仍由印章、强调色 token 以及状态标签承载。
+**侧边栏并入当前配色的表面家族。** `--dsw-specific-sidebar-fill` 随活动 scheme 的画布族解析——最初是平台中性值（浅色 `#ffffff`、深色 `#0f0f0f`），自[玄金双配色方案](../architecture/2026-09-14-xuanjin-dual-scheme-palette.zh.md)起为暖色 VI 填充（浅色 `#f1ece0`、深色 `#0d0b09`）——因此这一栏读起来与中心区属于同一表面，而不是一块带色偏的面板。品牌色仍由印章、强调色 token 以及状态标签承载。
 
 **设置导航栏可由指针调整宽度。** `SettingsPanel` 把导航栏初始设为 188px，并在其右边缘渲染一个纵向的 `role="separator"`。该手柄捕获指针，提交以拖拽起点为基准、经 rAF 节流的绝对宽度，并限制在 160–360px；可访问名称来自 `settings` 语言命名空间。宽度是占位者自身的查看状态，因此面板卸载即重置，且从不进入设置文档。
 
@@ -70,4 +70,4 @@ QiLin Web GUI 在呈现自身品牌时有六处缺陷。
 
 `--dsw-specific-brand-seal-fill` 仅存在于覆盖层：平台配色并未定义它，因此未挂载 `ui-theme-brand` 的打包会让运行中轮次标签继承其周围标签颜色。`qilin` profile 会挂载品牌打包，因此出货的 GUI 能解析该 token。
 
-覆盖：侧边栏套件钉住胶囊作为文字标行的行内 flex 子项，并更新两张展开栏快照；账号套件钉住展开行的账号名与头像首字母、无身份时的回退、收起轨道的纯图标形态及其可访问名称，以及页脚行自身的几何；品牌 token 套件对照印章来源钉住两个印章取值，并断言两种中性侧边栏填充；settings-root 套件钉住不存在第二个 Settings 按钮、打开通道，以及一次把导航栏从 188px 拖到 248px 的指针调整手势；chat 套件钉住 `QiLin...` 文案与状态 token，Web 回放固件携带新标签。
+覆盖：侧边栏套件钉住胶囊作为文字标行的行内 flex 子项，并更新两张展开栏快照；账号套件钉住展开行的账号名与头像首字母、无身份时的回退、收起轨道的纯图标形态及其可访问名称，以及页脚行自身的几何；品牌 token 套件对照印章来源钉住两个印章取值，并断言当前配色层的侧边栏填充（最初为平台中性值，后为玄金 VI 填充）；settings-root 套件钉住不存在第二个 Settings 按钮、打开通道，以及一次把导航栏从 188px 拖到 248px 的指针调整手势；chat 套件钉住 `QiLin...` 文案与状态 token，Web 回放固件携带新标签。

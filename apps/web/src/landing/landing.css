@@ -2,9 +2,15 @@
  * Landing page styles for the QiLin product front page.
  * Visual reference: the 2.0.x product landing page ("玄金麒麟" VI), reproduced
  * here without a CSS framework. landing.html owns every visible string.
+ *
+ * The dark palette is the default and the VI's native statement. The header
+ * toggle (landing.ts) sets html[data-ql-theme='light'] for the warm-paper
+ * variant: same gold ramp and cinnabar, ink and surfaces mirrored to paper.
  */
 
 :root {
+  color-scheme: dark;
+
   /* Brand tokens, copied verbatim from the 2.0.x VI layer. */
   --ql-bg: #0d0b09;
   --ql-surface: #16130f;
@@ -21,6 +27,20 @@
   /* Presentation-only stacks: the page fetches no web font. */
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Light variant: the warm-paper counterpart of the dark VI, sharing the gold
+   ramp and cinnabar unchanged. Ink depths keep the dark mode's AA margins
+   over the paper canvas (#221d15 on #f8f5ee is 15.4:1, ink-mid 6.6:1). */
+html[data-ql-theme='light'] {
+  color-scheme: light;
+
+  --ql-bg: #f8f5ee;
+  --ql-surface: #fffdf7;
+  --ql-raised: #f3eee1;
+  --ql-ink-hi: #221d15;
+  --ql-ink-mid: #5f5749;
+  --ql-ink-low: #857c6c;
 }
 
 *,
@@ -144,6 +164,57 @@ body {
 
 .site-header__link:hover {
   color: var(--ql-gold-300);
+}
+
+/* Header right cluster: theme toggle beside the console link. */
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+/* Theme toggle: hairline square carrying one glyph. The dark page offers the
+   sun (switch to light), the light page the moon (switch back); landing.ts
+   owns the click, the html owns the labels and glyphs. */
+.site-header__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(239, 233, 223, 0.16);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ql-ink-mid);
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.site-header__toggle:hover {
+  border-color: var(--ql-gold-700);
+  color: var(--ql-gold-300);
+}
+
+html[data-ql-theme='light'] .site-header__toggle {
+  border-color: rgba(34, 29, 21, 0.14);
+}
+
+html[data-ql-theme='light'] .site-header__toggle:hover {
+  color: var(--ql-gold-700);
+}
+
+/* One glyph per scheme: sun while dark, moon while light. */
+.site-header__toggle .toggle-glyph--moon {
+  display: none;
+}
+
+html[data-ql-theme='light'] .site-header__toggle .toggle-glyph--sun {
+  display: none;
+}
+
+html[data-ql-theme='light'] .site-header__toggle .toggle-glyph--moon {
+  display: block;
 }
 
 /* Hairline at the header's lower edge, brightest at mid-page. */
@@ -392,6 +463,43 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
+/* Light-mode decorative overrides: the white-alpha washes become warm-ink
+   washes over paper, and the CTA shadow softens to a paper-appropriate one. */
+html[data-ql-theme='light'] .page__glow {
+  background: radial-gradient(60% 100% at 50% 0%, rgba(201, 162, 74, 0.14), transparent 70%);
+}
+
+html[data-ql-theme='light'] .page__grid {
+  background-image:
+    linear-gradient(rgba(34, 29, 21, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 29, 21, 0.035) 1px, transparent 1px);
+}
+
+html[data-ql-theme='light'] .site-header__rule {
+  background-image: linear-gradient(90deg, transparent, rgba(34, 29, 21, 0.38), transparent);
+}
+
+html[data-ql-theme='light'] .hero__tag {
+  border-color: rgba(34, 29, 21, 0.12);
+}
+
+html[data-ql-theme='light'] .feature {
+  border-color: rgba(34, 29, 21, 0.1);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+html[data-ql-theme='light'] .feature:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+html[data-ql-theme='light'] .feature__title {
+  color: #26211a;
+}
+
+html[data-ql-theme='light'] .hero__cta {
+  box-shadow: 0 10px 15px -3px rgba(60, 48, 26, 0.18), 0 4px 6px -4px rgba(60, 48, 26, 0.18);
+}
+
 .feature__head {
   display: flex;
   align-items: center;
@@ -503,12 +611,21 @@ body {
   margin: 0;
 }
 
-/* Keyboard focus for every interactive element on the page. */
+/* Keyboard focus for every interactive element on the page. The light paper
+   needs the deeper gold to keep the ring at 3:1. */
 .hero__cta:focus-visible,
 .site-header__home:focus-visible,
-.site-header__link:focus-visible {
+.site-header__link:focus-visible,
+.site-header__toggle:focus-visible {
   outline: 2px solid var(--ql-gold-300);
   outline-offset: 2px;
+}
+
+html[data-ql-theme='light'] .hero__cta:focus-visible,
+html[data-ql-theme='light'] .site-header__home:focus-visible,
+html[data-ql-theme='light'] .site-header__link:focus-visible,
+html[data-ql-theme='light'] .site-header__toggle:focus-visible {
+  outline-color: var(--ql-gold-700);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -519,6 +636,7 @@ body {
   .hero__cta,
   .hero__cta-icon,
   .site-header__link,
+  .site-header__toggle,
   .feature {
     transition: none;
   }

@@ -8,6 +8,8 @@
  */
 
 :root {
+  color-scheme: dark;
+
   /* Ground */
   --ql-bg: #0d0b09;
   --ql-surface: #16130f;
@@ -33,6 +35,20 @@
     "Microsoft YaHei", sans-serif;
   --ql-font-serif: "Noto Serif SC", "Songti SC", "STSong", ui-serif, Georgia, serif;
   --ql-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Light variant: the warm-paper counterpart of the dark VI, selected by the
+   shared pre-session toggle (html[data-ql-theme='light']); gold ramp and
+   cinnabar are scheme-invariant, ink and ground mirror to paper. */
+html[data-ql-theme='light'] {
+  color-scheme: light;
+
+  --ql-bg: #f8f5ee;
+  --ql-surface: #fffdf7;
+  --ql-raised: #f3eee1;
+  --ql-ink-hi: #221d15;
+  --ql-ink-mid: #5f5749;
+  --ql-ink-low: #857c6c;
 }
 
 *,
@@ -85,12 +101,71 @@ body {
   background: radial-gradient(50% 100% at 50% 0%, rgb(201 162 74 / 8%), transparent 70%);
 }
 
+html[data-ql-theme='light'] .ql-auth__glow {
+  background: radial-gradient(50% 100% at 50% 0%, rgb(201 162 74 / 14%), transparent 70%);
+}
+
 .ql-shell {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 24rem;
   padding: 0 1rem;
+}
+
+/* Theme toggle pinned to the page corner: the card owns the centre, the
+   control owns the theme flip. One glyph per scheme, as on the landing page. */
+.ql-theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgb(239 233 223 / 16%);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ql-ink-mid);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.ql-theme-toggle:hover {
+  border-color: var(--ql-gold-700);
+  color: var(--ql-gold-300);
+}
+
+.ql-theme-toggle:focus-visible {
+  outline: 2px solid var(--ql-gold-300);
+  outline-offset: 2px;
+}
+
+html[data-ql-theme='light'] .ql-theme-toggle {
+  border-color: rgb(34 29 21 / 14%);
+}
+
+html[data-ql-theme='light'] .ql-theme-toggle:hover {
+  color: var(--ql-gold-700);
+}
+
+html[data-ql-theme='light'] .ql-theme-toggle:focus-visible {
+  outline-color: var(--ql-gold-700);
+}
+
+.ql-theme-toggle .toggle-glyph--moon {
+  display: none;
+}
+
+html[data-ql-theme='light'] .ql-theme-toggle .toggle-glyph--sun {
+  display: none;
+}
+
+html[data-ql-theme='light'] .ql-theme-toggle .toggle-glyph--moon {
+  display: block;
 }
 
 /* ── Card ──────────────────────────────────────────────────────────── */
@@ -103,6 +178,13 @@ body {
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 50%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+}
+
+/* Light card: warm-white glass over paper, softer shadow, warm hairlines. */
+html[data-ql-theme='light'] .ql-card {
+  border-color: rgb(34 29 21 / 12%);
+  background: rgb(255 253 247 / 75%);
+  box-shadow: 0 25px 50px -12px rgb(60 48 26 / 18%);
 }
 
 .ql-card__rule {
@@ -152,6 +234,10 @@ body {
   width: 1px;
   height: 1rem;
   background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 25%), transparent);
+}
+
+html[data-ql-theme='light'] .ql-brand__divider {
+  background: linear-gradient(to bottom, transparent, rgb(34 29 21 / 25%), transparent);
 }
 
 .ql-title {
@@ -204,6 +290,10 @@ body {
   font-size: 0.875rem;
   line-height: 1.25rem;
   transition: border-color 0.15s ease;
+}
+
+html[data-ql-theme='light'] .ql-input {
+  border-color: rgb(34 29 21 / 18%);
 }
 
 .ql-input::placeholder {
