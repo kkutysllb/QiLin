@@ -7,6 +7,10 @@
  * kit's gestures reach — floating-panel moves and resizes, divider drags — and
  * the sequence's ends, plus the seed's timing: a surface starts empty, and the
  * default page arrives with the expansion that would otherwise show nothing.
+ *
+ * Also here: the single-instance rule — a `single` type focuses the one tab of
+ * its kind wherever that tab sits instead of opening a second one — and the
+ * bound on the recorded sequence.
  */
 import { describe, expect, it, vi } from 'vitest'
 import type { LayoutState, PaneId, TabId } from '@qilin/client-ui-dockkit'
@@ -448,5 +452,97 @@ describe('createSidebarRightStore — page uniqueness', () => {
     actions.placeTab(SESSION, guide(), pane, 2)
     expect(getPane(layout(), pane).tabs.at(-1)).toBe(guide())
     expect(Object.values(layout().tabs).filter(tab => tab.kind === 'guide')).toHaveLength(1)
+  })
+})
+
+describe('createSidebarRightStore — single-instance types', () => {
+  it('focuses the kind\'s one open tab in another pane instead of opening a second one', () => {
+    const { actions, layout, expand } = harness()
+    expand()
+    actions.openContent(SESSION, { kind: 'text', contentId: 'file:a', title: 'a', single: true }, () => {})
+    const held = Object.values(layout().tabs).find(tab => tab.kind === 'text')
+    if (held === undefined) throw new Error('expected the opened tab')
+    const home = findTabPane(layout(), held.id).id
+    actions.splitPane(SESSION)
+    const other = dockPaneIds(layout()).find(id => id !== home)
+    if (other === undefined) throw new Error('expected a second pane')
+    expect(layout().activePaneId).toBe(other)
+
+    const settled = vi.fn<(tabId: TabId) => void>()
+    actions.openContent(SESSION, { kind: 'text', contentId: 'file:b', title: 'b', single: true }, settled)
+
+    // The second open settled on the first tab, and drew the open to its pane.
+    expect(Object.values(layout().tabs).filter(tab => tab.kind === 'text')).toEqual([held])
+    expect(layout().activePaneId).toBe(home)
+    expect(getPane(layout(), home).activeTabId).toBe(held.id)
+    expect(settled).toHaveBeenCalledExactlyOnceWith(held.id)
+  })
+
+  it('raises a floating single-kind tab rather than opening a second one beside it', () => {
+    const { actions, layout, expand } = harness()
+    expand()
+    actions.openContent(SESSION, { kind: 'text', contentId: 'file:a', title: 'a', single: true }, () => {})
+    const held = Object.values(layout().tabs).find(tab => tab.kind === 'text')
+    if (held === undefined) throw new Error('expected the opened tab')
+    actions.floatTab(SESSION, held.id, { x: 10, y: 20, width: 300, height: 200 })
+    const [float] = layout().floats
+    if (float === undefined) throw new Error('expected a floating pane')
+    // The docked pane takes focus first, so raising the panel is this open's doing.
+    const home = getPane(layout(), layout().rootId).id
+    actions.focusPane(SESSION, home)
+    expect(layout().activePaneId).toBe(home)
+
+    actions.openContent(SESSION, { kind: 'text', contentId: 'file:b', title: 'b', single: true }, () => {})
+
+    expect(layout().floats).toEqual([float])
+    expect(getPane(layout(), float).tabs).toEqual([held.id])
+    expect(layout().activePaneId).toBe(float)
+    expect(Object.values(layout().tabs).filter(tab => tab.kind === 'text')).toEqual([held])
+  })
+
+  it('opens a single type with nothing of its kind open, and never reuses another kind\'s tab', () => {
+    const { actions, layout, expand } = harness()
+    expand()
+    actions.openContent(SESSION, { kind: 'hex', contentId: 'file:h', title: 'h', single: true }, () => {})
+    const hex = Object.values(layout().tabs).find(tab => tab.kind === 'hex')
+    if (hex === undefined) throw new Error('expected the opened hex tab')
+
+    const settled = vi.fn<(tabId: TabId) => void>()
+    actions.openContent(SESSION, { kind: 'text', contentId: 'file:a', title: 'a', single: true }, settled)
+    const text = settled.mock.calls[0]?.[0]
+    expect(text).toBeDefined()
+    expect(text).not.toBe(hex.id)
+    expect(Object.values(layout().tabs).map(tab => tab.kind).sort()).toEqual(['guide', 'hex', 'text'])
+
+    // The same kind again settles on its own tab, not on the other kind's.
+    actions.openContent(SESSION, { kind: 'text', contentId: 'file:b', title: 'b', single: true }, settled)
+    expect(settled).toHaveBeenLastCalledWith(text)
+    expect(Object.values(layout().tabs).filter(tab => tab.kind === 'text')).toHaveLength(1)
+  })
+})
+
+describe('createSidebarRightStore — the bounded sequence', () => {
+  it('keeps the hundred newest intents, and still steps through them afterwards', () => {
+    const { actions, layout, entries, expand } = harness()
+    expand()
+    for (let i = 0; i < 120; i += 1) actions.toggleExpanded(SESSION)
+    // The oldest intents dropped off; an even run of toggles leaves the column open.
+    expect(entries()).toBe(100)
+    expect(layout().expanded).toBe(true)
+
+    actions.undo(SESSION)
+    expect(layout().expanded).toBe(false)
+    expect(entries()).toBe(100)
+    actions.redo(SESSION)
+    expect(layout().expanded).toBe(true)
+
+    // A new intent after a step back drops the redo branch and stays bounded.
+    actions.undo(SESSION)
+    actions.toggleExpanded(SESSION)
+    expect(layout().expanded).toBe(true)
+    expect(entries()).toBe(100)
+    const held = layout()
+    actions.redo(SESSION)
+    expect(layout()).toBe(held)
   })
 })

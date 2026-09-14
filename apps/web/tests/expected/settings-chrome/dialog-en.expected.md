@@ -16,6 +16,9 @@
     - button "MCP servers":
       - img
       - text: MCP servers
+    - button "Sidebar":
+      - img
+      - text: Sidebar
     - button "Skills":
       - img
       - text: Skills

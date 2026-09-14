@@ -78,6 +78,7 @@ export function pathPartsOf(path: string): { readonly directory: string; readonl
 }
 
 export * from './file-address.ts'
+export * from './editable-path.ts'
 
 /**
  * The address for a path as a caller holds it: a relative path, or an absolute

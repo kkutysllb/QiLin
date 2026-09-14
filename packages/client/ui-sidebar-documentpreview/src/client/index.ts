@@ -86,8 +86,9 @@ export function apply(ctx: ClientContext): void {
   const previews = new DocumentPreviewRegistry()
   const disposePreviews = ctx.reflect.provide('documentPreviews', previews)
   ctx.effect(() => disposePreviews)
-  ctx.effect(() => ctx.sidebarRightTabs.register(textDefinition()), 'ui-sidebar-documentpreview: text type')
+  const t = ctx.locale.bind(NS)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-sidebar-documentpreview: dictionaries')
+  ctx.effect(() => ctx.sidebarRightTabs.register(textDefinition(t)), 'ui-sidebar-documentpreview: text type')
 
   const store = createTextStore()
   const face = textFace(

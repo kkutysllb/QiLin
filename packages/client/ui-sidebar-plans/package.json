@@ -1,0 +1,74 @@
+{
+  "name": "@qilin/client-ui-sidebar-plans",
+  "description": "Task-plan tab type for the right Sidebar: scans the session workspace's convention plan documents and opens one as a file resource",
+  "version": "3.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-sidebar-plans"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-workspace-files",
+        "@qilin/client-ui-sidebar-right",
+        "@qilin/client-ui-session",
+        "@qilin/api-remotes"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "workspace:^"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/api-workspace-files": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-dockkit": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-sidebar-right": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/util-workspace-path": "workspace:^",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "react": "^18.2.0",
+    "clsx": "^2.0.0",
+    "react-dom": "^18.2.0"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

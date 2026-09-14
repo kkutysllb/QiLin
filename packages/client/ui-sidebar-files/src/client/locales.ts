@@ -1,9 +1,10 @@
 /**
  * `sidebarFiles` namespace dictionaries, and the namespace's declaration.
  *
- * The failure lines name what the tree could not list, one code each, because a
- * directory that is gone, one outside the workspace, and a path that is not a
- * directory each suggest a different next step.
+ * The failure lines name what went wrong with one path, one code each, because
+ * a file or directory that is gone, one outside the workspace, and a path of
+ * the wrong kind each suggest a different next step. The editor's keys carry
+ * the `file.` prefix so the two types' vocabularies read apart.
  *
  * The namespace merge lives with its key set so that any module naming
  * `TranslateNS<'sidebarFiles'>` or `PropsLocale<'sidebarFiles'>` needs only this
@@ -13,7 +14,7 @@ import type {} from '@qilin/client-ui-slots'
 
 declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
-    /** File-tree type name, guide entry, row states, and failure lines. */
+    /** File-tree and file-editor type names, guide entry, row states, and failure lines. */
     sidebarFiles: SidebarFilesKey
   }
 }
@@ -33,6 +34,27 @@ export const zh = {
   'error.outsideWorkspace': '这个目录在工作区之外，侧栏不会读取它。',
   'error.notDirectory': '这不是一个目录。',
   'error.unavailable': '读取失败：{message}',
+  'file.type.label': '文件编辑',
+  'file.save': '保存',
+  'file.saving': '正在保存…',
+  'file.saved': '已保存',
+  'file.unsaved': '有未保存的修改',
+  'file.reload': '重新载入',
+  'file.treeToggle': '显示或收起文件树',
+  'file.wrap': '自动换行',
+  'file.preview': '预览',
+  'file.reloadDirty': '有未保存的修改，重新载入会丢弃它们。',
+  'file.reloadDirty.confirm': '丢弃并重新载入',
+  'file.reloadDirty.cancel': '取消',
+  'file.conflict': '文件在磁盘上已被其他修改更新，保存被拒绝。',
+  'file.conflict.reload': '载入磁盘内容（丢弃我的修改）',
+  'file.conflict.overwrite': '用我的内容覆盖',
+  'file.error.notFound': '这个文件不在了。可能已被移动或删除。',
+  'file.error.tooLarge': '文件太大，无法在编辑器中打开（{size}）。',
+  'file.error.notText': '这不是 UTF-8 文本，没法编辑。',
+  'file.error.notRegularFile': '这不是一个普通文件。',
+  'file.error.outsideWorkspace': '保存目标在工作区之外，侧栏不会写入。',
+  'file.error.unavailable': '操作失败：{message}',
 } satisfies Record<string, string>
 
 /** Files dictionary key union. */
@@ -53,4 +75,25 @@ export const en = {
   'error.outsideWorkspace': 'That directory is outside the workspace, so the sidebar will not read it.',
   'error.notDirectory': 'That is not a directory.',
   'error.unavailable': 'Read failed: {message}',
+  'file.type.label': 'Editor',
+  'file.save': 'Save',
+  'file.saving': 'Saving…',
+  'file.saved': 'Saved',
+  'file.unsaved': 'Unsaved changes',
+  'file.reload': 'Reload',
+  'file.treeToggle': 'Show or hide the file tree',
+  'file.wrap': 'Word wrap',
+  'file.preview': 'Preview',
+  'file.reloadDirty': 'Reloading discards unsaved changes.',
+  'file.reloadDirty.confirm': 'Discard and reload',
+  'file.reloadDirty.cancel': 'Cancel',
+  'file.conflict': 'The file changed on disk since it was read, so the save was refused.',
+  'file.conflict.reload': 'Load the disk copy (discard my changes)',
+  'file.conflict.overwrite': 'Overwrite with my version',
+  'file.error.notFound': 'That file is gone. It may have been moved or deleted.',
+  'file.error.tooLarge': 'The file is too large to edit ({size}).',
+  'file.error.notText': 'That is not UTF-8 text, so it cannot be edited.',
+  'file.error.notRegularFile': 'That is not a regular file.',
+  'file.error.outsideWorkspace': 'The save target is outside the workspace, so the sidebar will not write it.',
+  'file.error.unavailable': 'The operation failed: {message}',
 } satisfies Record<SidebarFilesKey, string>

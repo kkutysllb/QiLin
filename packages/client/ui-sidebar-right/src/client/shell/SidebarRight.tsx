@@ -54,7 +54,9 @@ import css from './SidebarRight.module.css'
 type Store = PropsStore<ReturnType<typeof createSidebarRightStore>>
 
 /** The child seats this component renders. */
-type Children = PropsRenderSlots<'sidebar.right.pane.tab' | 'sidebar.right.pane.tab.title' | 'sidebar.right.tab.menu.item'>
+type Children = PropsRenderSlots<
+  'sidebar.right.pane.tab' | 'sidebar.right.pane.tab.title' | 'sidebar.right.pane.tab.badge' | 'sidebar.right.tab.menu.item'
+>
 
 /** What the panel reports to the frame: drawn or not, and whether it wants a track. */
 export interface SidebarRightPresentation {
@@ -170,7 +172,7 @@ export function intentsFor(sessionId: SessionId, actions: Store['actions'], open
 /** One tab's slot dispatch: which seat, and what to render when no type registered. */
 interface TabSlotProps extends Pick<PanelProps, 'renderSlot' | 'occurrence' | 'useTabTypes' | 'useTabNavigation' | 'useStore' | 'fullscreen'> {
   readonly tab: TabRecord
-  readonly seat: 'sidebar.right.pane.tab' | 'sidebar.right.pane.tab.title'
+  readonly seat: 'sidebar.right.pane.tab' | 'sidebar.right.pane.tab.title' | 'sidebar.right.pane.tab.badge'
   readonly fallback: ReactNode
 }
 
@@ -220,6 +222,23 @@ function bodiesFor(panel: PanelProps): TabRenderer {
 /** Dispatch a tab's title to its registered type; without one the chip shows the title captured at open time. */
 function titlesFor(panel: PanelProps): TabRenderer {
   return tab => <TabSlot key={tab.id} {...panel} tab={tab} seat="sidebar.right.pane.tab.title" fallback={tab.title} />
+}
+
+/** Dispatch a chip's status pill to its registered type; without one no pill is drawn. */
+function badgesFor(panel: PanelProps): TabRenderer {
+  return tab => <TabSlot key={tab.id} {...panel} tab={tab} seat="sidebar.right.pane.tab.badge" fallback={null} />
+}
+
+/** One chip's glyph: the static icon its type declared, or nothing. */
+function TabGlyph({ tab, useTabTypes }: Pick<TabSlotProps, 'tab' | 'useTabTypes'>): ReactNode {
+  const definition = useTabTypes(types => types.find(entry => entry.kind === tab.kind))
+  const Glyph = definition?.icon
+  return Glyph === undefined ? null : <Glyph size={14} />
+}
+
+/** Dispatch a chip's glyph from the type in force for its kind. */
+function glyphsFor(panel: Pick<PanelProps, 'useTabTypes'>): TabRenderer {
+  return tab => <TabGlyph key={tab.id} tab={tab} useTabTypes={panel.useTabTypes} />
 }
 
 /** Expand-to-viewport glyph: four frame corners (figma extract). */
@@ -315,6 +334,8 @@ function SidebarPanel(panel: PanelProps & { width: number; panelRef: RefObject<H
           labels={dockLabels(t)}
           renderTab={bodiesFor(panel)}
           renderTabTitle={titlesFor(panel)}
+          renderTabIcon={glyphsFor(panel)}
+          renderTabBadge={badgesFor(panel)}
           renderTabMenuItems={(tab, dismiss) =>
             renderSlot('sidebar.right.tab.menu.item', { tab, dismiss })}
           chrome={<PanelChrome sessionId={sessionId} fullscreen={fullscreen} autoFullscreen={autoFullscreen} actions={actions} t={t} />}
@@ -338,6 +359,7 @@ function Floats(panel: PanelProps): ReactNode {
         labels={dockLabels(t)}
         renderTab={bodiesFor(panel)}
         renderTabTitle={titlesFor(panel)}
+        renderTabIcon={glyphsFor(panel)}
       />
     </div>,
     document.body,

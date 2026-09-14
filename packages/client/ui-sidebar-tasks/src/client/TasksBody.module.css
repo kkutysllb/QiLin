@@ -1,0 +1,278 @@
+/* The pane body is a vertical scroller: the section headers stay in flow with
+   their rows, and the page is the one scroller. */
+.root {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
+  line-height: 1.5;
+  scrollbar-gutter: stable;
+}
+
+/* One 38px row per section, with the pane strip's rule beneath it. */
+.sectionHeader {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  align-items: center;
+  box-sizing: border-box;
+  height: 38px;
+  padding: 0 6px 0 10px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+.sectionToggle {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  padding: 4px 6px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sectionToggle:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.chevron {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.sectionTitle {
+  flex: none;
+  font-weight: 500;
+}
+
+.sectionCount {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The same icon button as the Sidebar's strip controls: a 28px circle around
+   a 15px glyph. */
+.sectionAction {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  color: var(--dsw-alias-label-secondary);
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.sectionAction svg {
+  width: 15px;
+  height: 15px;
+}
+
+.sectionAction:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.sectionBody {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0 10px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  padding-right: 10px;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* A settled row keeps its place in the list but drops out of the live ink. */
+.settled {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* A child whose record could not be read: shown, so the catalog is reported
+   whole, and greyed, so nobody tries to open it. */
+.disabled {
+  padding-left: 10px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.open {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  padding: 5px 10px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.open:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.action {
+  flex: none;
+  padding: 3px 8px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.dot {
+  flex: none;
+}
+
+.kind {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: var(--dsw-alias-fill-l2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* A producer's detail is raw text with no bound, so it elides instead of
+   widening the row. */
+.secondary {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.duration {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+}
+
+.note {
+  margin: 0;
+  padding: 6px 10px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.failure {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+}
+
+.failureText {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--dsw-alias-state-error-primary);
+  font-size: 12px;
+}
+
+.retry {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+  align-items: center;
+  padding: 3px 8px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.retry:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.retryIcon {
+  flex: none;
+}
+
+.refreshIcon {
+  flex: none;
+}
+
+.more {
+  margin: 2px 10px;
+  padding: 4px 8px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.more:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}

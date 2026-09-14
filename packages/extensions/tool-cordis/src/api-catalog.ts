@@ -2918,8 +2918,8 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   },
   {
     key: 'workspaceFiles',
-    summary: 'Host Remote file reads and workspace directory observations over the composed filesystem.',
-    description: 'Host Remote file reads and workspace directory observations over the composed filesystem.',
+    summary: 'Host Remote file reads and writes plus workspace directory observations over the composed filesystem.',
+    description: 'Host Remote file reads and writes plus workspace directory observations over the composed filesystem.',
     methods: [
       {
         signature: '@Remote async read( workspaceFileScope: WorkspaceFileScope, path: string, range: WorkspaceFileRange, signal: AbortSignal, ): Promise<WorkspaceFileText>',
@@ -2950,6 +2950,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Report one regular file\'s identity, version, and size without its content.',
         parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'absolute path or path relative to the workspace root; files outside it are allowed.' }, { name: 'signal', description: 'caller cancellation.' }],
         returns: 'the file\'s absolute path, current version, and byte size.',
+      },
+      {
+        signature: '@Remote async write( workspaceFileScope: WorkspaceFileScope, path: string, text: string, request: WorkspaceFileWriteRequest, signal: AbortSignal, ): Promise<WorkspaceFileStat>',
+        description: 'Save one complete UTF-8 text file inside the Session\'s workspace: replace an existing regular file or create one. The path is refused before anything is written when its own entry is not a regular file (a final symbolic link included) or when the resolved target lies outside the workspace root.\n\nThe write is guarded by the caller\'s own freshness basis, not by the `fs/write-intent` slot. That slot decides from the per-Session observations an Agent accumulates by reading (`fs-observation-policy`, `writeIntent`), and its actor is a tool execution this Remote has none of; a browser save has read nothing through the Agent, so delegating to it would refuse every save of an existing file with `FS_NOT_OBSERVED`. Passing the Session as the actor instead would attribute the user\'s own save to the Agent\'s observation record and let a later Agent edit rewrite content it never read. `baseVersion` is therefore the basis the provider compares, and the successful write emits `fs/observed` with no actor, so the change feed reports the new version while the policy records no Agent observation.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.' }, { name: 'text', description: 'the complete new file content, written as UTF-8; more bytes than the configured `maxFileBytes` fails with too-large.' }, { name: 'request', description: 'the freshness basis; an omitted `baseVersion` writes unconditionally.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the saved file\'s absolute path, its version after the write, and the saved byte size.',
       },
       {
         signature: '@Remote async list(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<WorkspaceDirectoryListing>',
@@ -6477,6 +6483,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceFileWatchFrame',
     declaration: 'export type WorkspaceFileWatchFrame = {\n    readonly kind: \'ready\';\n} | {\n    readonly kind: \'change\';\n    readonly change: WorkspaceFileChange;\n};',
+  },
+  {
+    name: 'WorkspaceFileWriteRequest',
+    declaration: 'export interface WorkspaceFileWriteRequest {\n    readonly baseVersion?: string;\n}',
   },
   {
     name: 'WorkspaceFollowFrame',

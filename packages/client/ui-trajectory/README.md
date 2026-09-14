@@ -1,5 +1,5 @@
 ---
-description: "Trajectory tab for the qilin web client right Sidebar: a turn-aware event ledger with an interactive timing overview."
+description: "Trajectory pages for the qilin web client right Sidebar: a turn-aware event ledger with an interactive timing overview, and the graph view that draws the same ledger as a live node and edge flow."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The Trajectory tab in the right Sidebar lets you inspect agent activity as a turn-aware ledger and interactive timing overview. It groups User, Assistant, Tool, nested Subtool, and compaction records, marks turn and step boundaries, and opens a record inspector for token usage, duration, input, output, timing, images, and attachment summaries. Long histories open at the current tail, load older pages on demand, and render only visible rows. During streaming, the view follows the tail until you scroll upward, and in-flight records show a start marker without inventing elapsed time.
+The Trajectory tab in the right Sidebar inspects activity as a turn-aware ledger and timing overview; the Trajectory graph tab draws the records as a live node and edge flow. The ledger groups User, Assistant, Tool, nested Subtool, and compaction records, marks turn and step boundaries, and opens a record inspector for token usage, duration, input, output, timing, images, and attachments. Long histories open at the tail, load older pages on demand, and render visible rows only. While streaming, it follows the tail until you scroll upward, and in-flight records show a start marker without inventing elapsed time.
 
 ## Table of Contents
 
@@ -35,6 +35,10 @@ Selection, timeline navigation, folding, and search cover the React-visible wind
 
 A fixed Overview above the ledger projects real record start/duration timing from left to right; Assistant spans divide recorded TTFT from decoding, and a 500 ms hover reveals exact clock and duration details. Dragging an interval focuses the ledger on every record active at any point in that inclusive range; wheel gestures zoom the time domain; a right-button click clears the selected interval, and a right-button drag pans an already zoomed viewport. The initial view and streaming updates stay at the tail; scrolling upward suspends following so new records do not interrupt inspection of earlier rows.
 
+### The graph view
+
+The Trajectory graph page opens from the same guide box — its entry sits at order 21, directly below the ledger's — opens by the `trajectory-graph` kind, seats one graph per surface beside the ledger, and takes the same keyed tab-body seat under its own id. Both pages read the same `useTrajectory` projection of the Trajectory target, so the graph adds no session request of its own: the ledger presents the records as rows, and the graph draws them as chips in the input, model, and tool swimlanes inside numbered turn bands, chained by the edges the ledger itself records — the prompt that fed each request, the result it produced, the calls each assistant dispatched, the sub-calls a tool dispatched, and the loop back to the next request. The streaming prefix and in-flight calls render as live records whose edges animate; the toolbar pauses the flow and toggles fit and tail following; selecting a chip opens an inspector with the record's arguments, result, and timing.
+
 -----
 
 <a id="understand-the-implementation"></a>
@@ -46,6 +50,10 @@ A fixed Overview above the ledger projects real record start/duration timing fro
 The view is a pure projection: Trajectory-owned Definitions assemble business records from the shared Session window — including durable cancellation-finalized prefixes, chunk-only interruption fallbacks, and interrupted Tool records — so Trajectory neither reads nor changes the Chat conversation snapshot. Its steering classifier retains only next-step Inbox IDs through persistent splice state and shares each current claimed batch across later Contexts.
 
 A complete appended prompt without a loaded request header appears as a standalone system row; only its known text is available, with no inferred request options or tool catalog. Prepending its request history replaces that standalone presentation without duplicating the prompt. In-history system prompt changes compare against the most recent request state, including earlier prompt updates without a new request header. Each request retains the prompt and change that applied at its own position. Surface replacements, including compaction, restore the last nonempty surviving system prompt even without a new system event; an unloaded prompt remains unavailable until its page arrives.
+
+### The graph projection
+
+The graph page is a pure projection of the same snapshot: one node per ledger record plus the streaming prefix and every unsettled call, and only the edges the ledger itself records — nothing invented. A React-free layout module gives ledger order the vertical axis and the actor lane the horizontal one, and the render window keeps the most recent 400 records together with the edges between them.
 
 ### Virtual rows
 
@@ -88,6 +96,7 @@ None; this package neither assembles nor sends a provider request.
 These limits define what the view can show while work is in flight; they are current package constraints.
 
 - **In-flight Time stays blank** — `partial` and `runningCalls` rows show their running state without a fabricated duration, so the Overview renders a start marker rather than inventing a live span. Record and timeline selection are local to Trajectory, with no anchor deep links.
+- **The graph renders a tail window** — the graph page keeps the most recent 400 records and the edges between them and reports the dropped count, so a very long ledger shows its recent flow rather than the complete session.
 
 <a id="dev-note"></a>
 ### Dev Note

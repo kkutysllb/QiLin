@@ -166,6 +166,7 @@ root
 │     │  ├─ sidebar.right.tab.guide
 │     │  └─ conversation.trajectory.images
 │     ├─ sidebar.right.pane.tab.title
+│     ├─ sidebar.right.pane.tab.badge
 │     └─ sidebar.right.tab.menu.item
 └─ shell.overlay
 ```

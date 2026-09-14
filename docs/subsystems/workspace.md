@@ -246,7 +246,7 @@ Source: [`packages/api/workspace-controller/src/index.ts`](../../packages/api/wo
 
 ### `ctx.workspaceFiles` — `WorkspaceFiles`
 
-Host Remote file reads and workspace directory observations over the composed filesystem.
+Host Remote file reads and writes plus workspace directory observations over the composed filesystem.
 
 ```ts cordis-catalog
 /**
@@ -297,6 +297,33 @@ Host Remote file reads and workspace directory observations over the composed fi
  * @returns the file's absolute path, current version, and byte size.
  */
 @Remote async stat(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<WorkspaceFileStat>
+
+/**
+ * Save one complete UTF-8 text file inside the Session's workspace: replace an
+ * existing regular file or create one. The path is refused before anything is
+ * written when its own entry is not a regular file (a final symbolic link
+ * included) or when the resolved target lies outside the workspace root.
+ *
+ * The write is guarded by the caller's own freshness basis, not by the
+ * `fs/write-intent` slot. That slot decides from the per-Session
+ * observations an Agent accumulates by reading (`fs-observation-policy`,
+ * `writeIntent`), and its actor is a tool execution this Remote has none of;
+ * a browser save has read nothing through the Agent, so delegating to it would
+ * refuse every save of an existing file with `FS_NOT_OBSERVED`. Passing the
+ * Session as the actor instead would attribute the user's own save to the
+ * Agent's observation record and let a later Agent edit rewrite content it
+ * never read. `baseVersion` is therefore the basis the provider compares,
+ * and the successful write emits `fs/observed` with no actor, so the change
+ * feed reports the new version while the policy records no Agent observation.
+ *
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.
+ * @param text - the complete new file content, written as UTF-8; more bytes than the configured `maxFileBytes` fails with too-large.
+ * @param request - the freshness basis; an omitted `baseVersion` writes unconditionally.
+ * @param signal - caller cancellation.
+ * @returns the saved file's absolute path, its version after the write, and the saved byte size.
+ */
+@Remote async write( workspaceFileScope: WorkspaceFileScope, path: string, text: string, request: WorkspaceFileWriteRequest, signal: AbortSignal, ): Promise<WorkspaceFileStat>
 
 /**
  * List the direct children of one directory inside the Session's workspace.

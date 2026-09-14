@@ -68,6 +68,20 @@ declare module '@qilin/client-ui-slots' {
       inject: SidebarRightTabInjected
     }
     /**
+     * A tab chip's status pill, drawn between the chip's glyph and its title,
+     * dispatched with the same key and information hook as the body. A type with
+     * a live count — jobs still running, subagents still working — registers
+     * here and reads its own store; a type with none registers nothing and no
+     * pill is drawn. The strip calls it on every render, so a registrant reads
+     * an already-computed fact rather than deriving one.
+     */
+    'sidebar.right.pane.tab.badge': {
+      kind: 'keyed'
+      scope: 'session'
+      hookContext: TabHookContext
+      inject: SidebarRightTabInjected
+    }
+    /**
      * The guide tab's body. Selectors run in chain order and the first
      * non-declining entry replaces the shipped guide entirely; with no entry, or
      * with every entry declining, the shipped guide renders.

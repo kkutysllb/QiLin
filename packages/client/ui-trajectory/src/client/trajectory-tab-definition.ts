@@ -37,6 +37,11 @@ export function trajectoryTabDefinition(t: TranslateNS<'trajectory'>): SidebarRi
     id: TRAJECTORY_ID,
     kind: TRAJECTORY_KIND,
     priority: 'builtin',
+    label: () => t('view.trajectory'),
+    icon: IconGaugeOutline16,
+    // One ledger per surface: inspecting a second call re-focuses the open
+    // page through its navigation parameters instead of seating another.
+    single: true,
     title: () => t('view.trajectory'),
     guide: [{
       order: 20,

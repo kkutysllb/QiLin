@@ -16,6 +16,7 @@ import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { tabInfoFactory } from '@qilin/client-ui-sidebar-right/src/client/tab-info.ts'
 import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TRAJECTORY_ID, TRAJECTORY_KIND } from '../src/client/trajectory-tab-definition.ts'
+import { TRAJECTORY_GRAPH_ID } from '../src/client/trajectory-graph-tab-definition.ts'
 
 const PLUGIN_ID = '@qilin/client-ui-trajectory'
 
@@ -107,7 +108,9 @@ describe('tsdown client artifact', () => {
     const fiber = ctx.plugin(exports as { apply: (ctx: Context) => void })
     await fiber.await()
     expect(tabs.get(TRAJECTORY_KIND)?.id).toBe(TRAJECTORY_ID)
-    expect(slots.entries('sidebar.right.pane.tab').map(e => e.options.key)).toEqual([TRAJECTORY_ID])
+    // Both shipped types register a body under their own id: the ledger and the graph.
+    expect(slots.entries('sidebar.right.pane.tab').map(e => e.options.key).sort())
+      .toEqual([TRAJECTORY_GRAPH_ID, TRAJECTORY_ID].sort())
     expect(events.entries().length).toBeGreaterThan(0)
     expect(views.entries()).toHaveLength(1)
     await fiber.dispose()

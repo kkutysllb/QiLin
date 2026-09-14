@@ -1,5 +1,5 @@
 ---
-description: "浏览器安全的 Workspace 路径辅助函数：拼接相对路径、缩写 POSIX 主目录并生成显示标题。"
+description: "浏览器安全的 Workspace 路径辅助函数：拼接相对路径、缩写 POSIX 主目录、判定可编辑文本路径并生成显示标题。"
 kind: "package-library"
 ---
 
@@ -9,11 +9,12 @@ kind: "package-library"
 
 ## 概述
 
-供 Workspace 相关客户端和控制器包共享、可在浏览器使用的路径辅助函数。该包负责拼接 Workspace 相对路径、缩写用于展示的 POSIX 主目录、从 POSIX 或 Windows 路径提取 Workspace 标题、把路径拆成目录部分与末段供展示，并拥有在 Sidebar 与资源模型之间命名工作区文件的 `qilin-resource://file/…` 地址语法。`relativizeToCwd` 在显示时省略工作区前缀，并保留该目录以外的路径。它不提供 Cordis service，也不持有运行时状态。
+供 Workspace 相关客户端和控制器包共享、可在浏览器使用的路径辅助函数。该包负责拼接 Workspace 相对路径、缩写用于展示的 POSIX 主目录、从 POSIX 或 Windows 路径提取 Workspace 标题、把路径拆成目录部分与末段供展示，拥有在 Sidebar 与资源模型之间命名工作区文件的 `qilin-resource://file/…` 地址语法，并判定哪些扩展名会被客户端当作可编辑文本打开。`relativizeToCwd` 在显示时省略工作区前缀，并保留该目录以外的路径。它不提供 Cordis service，也不持有运行时状态。
 
 ## 目录
 
 - [文件地址](#file-addresses)
+- [可编辑文本路径](#editable-text-paths)
 - [已知限制与暂缓事项](#known-limitations-and-deferred-work)
 - [开发备注](#dev-note)
 
@@ -25,6 +26,13 @@ kind: "package-library"
 资源地址 = `qilin-resource://<type>/…`，type（URI 的 host）即资源协议键（`file`，或插件在 `ResourceProtocolMap` 中声明的键）；其他 scheme 属导航协议，另行定义。`qilin-resource://file/session/<sessionId>/<path>` 指定授权 Host 读取的 Session，以及工作区相对或绝对路径。前导斜杠保留在路径中：`/etc/hosts` 对应 `qilin-resource://file/session/s//etc/hosts`，Windows 盘符对应 `qilin-resource://file/session/s/C:/x/y.txt`，UNC 对应 `qilin-resource://file/session/s///server/share/y.txt`。Host 解析路径并执行访问检查。`absolute/<path>` 形式仍可解析，但不携带授权 Session，因此 file 提供方不能读取，Preview 也不认领；两者均不借用当前或 Tab Session。语法住在 [`src/file-address.ts`](src/file-address.ts)；路径辅助函数留在 [`src/index.ts`](src/index.ts) 并再导出它。
 
 `sessionFileAddress(sessionId, path)` 将 `\` 归一为 `/`，去掉前导 `./`，但保留前导 `/` 字符。id 和每个路径段都做组件编码，`:` 保持字面。`fileAddressFor(sessionId, cwd, path)` 始终构造 Session 地址：`cwd` 内的路径转为相对路径；其他绝对路径（包括 `cwd` 未知时）仍作为该 Session 地址内的绝对路径。`absoluteFileAddress(absolutePath)` 只构造不带 Session 的形式。`parseFileAddress(address)` 检查精确的文件地址前缀、忽略查询与片段后缀、逐段解码，并为 Session 地址返回 `{ scope, sessionId, path }`，为不带 Session 的形式返回 `{ scope, path }`。其他 type 或 scheme、未知作用域、缺 id 或路径，或错误转义都返回 `undefined`。
+
+-----
+
+<a id="editable-text-paths"></a>
+## 可编辑文本路径
+
+`TEXT_FILE_EXTENSIONS`、`extensionOf(path)` 与 `acceptsPath(path)` 是「哪些文件路径会被客户端作为可编辑文本打开」的唯一判定——既涵盖纯文本扩展名，也涵盖每一个已安装语法或遗留模式的语言。Sidebar 的编辑器门禁与预览查看器的编辑入口读取同一份判定，因此一个文件要么处处可编辑，要么处处不可。匹配按最后一段后缀进行，小写，兼容两种分隔符；集合之外的路径落入预览查看器。判定住在 [`src/editable-path.ts`](src/editable-path.ts)。
 
 -----
 

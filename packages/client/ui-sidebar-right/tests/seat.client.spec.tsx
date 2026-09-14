@@ -93,6 +93,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
   await act(async () => {
     runtime.ctx.sidebarRightTabs.register({
       id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['qilin-resource://file/**'],
+      label: () => 'Text',
       title: address => address.slice(address.lastIndexOf('/') + 1),
       guide: Array.from({ length: entryCount }, (_, order) => ({ order, title: () => 'Test', description: () => 'Test page' })),
     })
@@ -458,7 +459,7 @@ describe('slot-owned useTabInfo', () => {
     let captured: SidebarRightTabInfo | undefined
     await act(async () => {
       h.runtime.ctx.sidebarRightTabs.register({
-        id: 'test/files', kind: 'files', title: () => 'Files',
+        id: 'test/files', kind: 'files', label: () => 'Files', title: () => 'Files',
         guide: [{ order: 1, title: () => 'Files' }],
       })
     })
@@ -487,7 +488,9 @@ describe('slot-owned useTabInfo', () => {
     h.open()
     let release = () => {}
     await act(async () => {
-      release = h.runtime.ctx.sidebarRightTabs.register({ id: 'extension/text', kind: 'text', title: () => 'Extension' })
+      release = h.runtime.ctx.sidebarRightTabs.register({
+        id: 'extension/text', kind: 'text', label: () => 'Extension', title: () => 'Extension',
+      })
       h.runtime.slots.register({ name: 'sidebar.right.pane.tab', key: 'extension/text' },
         ({ useTabInfo }: PropsRuntime<'sidebar.right.pane.tab'>) => <b data-extension>{useTabInfo().tab.title}</b>)
     })

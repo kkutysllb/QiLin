@@ -1,14 +1,14 @@
 /**
- * The file tree's view state: which directories are expanded, and what each
- * loaded level contains.
+ * The two view states this package owns, one store per session, bucketed by
+ * tab id because two tabs in one session are independent:
  *
- * The tree is not one resource. A directory listing per level, expanded lazily,
- * is state the type owns — so it lives in a Slot-standard exclusive store
- * (one instance per session), bucketed by tab id because two tabs of this kind
- * in one session expand independently.
+ * - the file tree: which directories are expanded, and what each loaded level
+ *   contains. Shared by the `files` page and the `file` editor's tree pane.
+ * - the file editor: one open file's load state, draft, and save state.
  *
- * Writers run between `start` and `forget`: the owner's `signal` is what ends a
- * bucket's life, and the face stops dispatching once it aborts.
+ * Writers run between `start` and `forget` (tree) or the editor face's abort
+ * listener (editor): the owner's `signal` is what ends a bucket's life, and
+ * the faces stop dispatching once it aborts.
  */
 import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
@@ -49,13 +49,59 @@ export interface FilesTabState {
   expanded: string[]
 }
 
+/** What one file editor is doing with its file right now. */
+export type FileEditPhase =
+  | { readonly kind: 'reading' }
+  | { readonly kind: 'ready' }
+  | { readonly kind: 'failed'; readonly failure: RemoteFailure }
+
+/** How the last finished save ended, for the toolbar status. */
+export type FileSaveState = 'idle' | 'saved' | 'failed'
+
+/**
+ * One tab's editor: the file as the disk holds it, the unsaved draft on top
+ * of it, and the save state between them.
+ *
+ * `version` is the opaque equality token every save writes against; `draft`
+ * carries the editor document while it differs from the disk text, so a body
+ * remount restores it. The state survives across a body's unmounts — that is
+ * why it is a declared store and not component state.
+ */
+export interface FileEditState {
+  phase: FileEditPhase
+  /** The text as last read from or written to the disk. */
+  text: string
+  /** The freshness token of `text`; every save's `baseVersion`. */
+  version: string
+  /** Whether the editor holds unsaved changes. */
+  dirty: boolean
+  /** The editor document while dirty; absent when it matches `text`. */
+  draft: string | undefined
+  /** Whether a save is in flight. */
+  saving: boolean
+  /** How the last finished save ended. */
+  saveState: FileSaveState
+  /** The settled save failure, for its line. */
+  saveFailure: RemoteFailure | undefined
+  /** A save was refused because the disk moved on; the draft is intact. */
+  conflict: boolean
+  /** Whether the editor wraps lines. */
+  wrap: boolean
+  /** Bumped by every load that should remount the editor surface. */
+  loadSeq: number
+  /** The navigation revision whose line target has been answered. */
+  answered: number
+}
+
 /** Every tab's tree, keyed by tab id. */
 export interface FilesState {
   byTab: Record<TabId, FilesTabState>
+  /** The `file` editor's buckets; the `files` page never seeds one. */
+  edits: Record<TabId, FileEditState>
 }
 
 /**
- * One tab's bucket, which every writer after `start` relies on: the face only
+ * One tab's tree bucket, which every writer after `start` relies on: the face only
  * dispatches while the record's signal is live, and `forget` runs on its abort.
  * @param state - the draft.
  * @param tabId - the tab being written.
@@ -67,7 +113,39 @@ function bucket(state: FilesState, tabId: TabId): FilesTabState {
   return tree
 }
 
-/** The tree store's write set; every action names the tab it writes. */
+/**
+ * One tab's editor bucket, which every edit action relies on: the face only
+ * dispatches while the record's signal is live, and `editForget` runs on its
+ * abort.
+ * @param state - the draft.
+ * @param tabId - the tab being written.
+ * @returns the tab's editor state.
+ */
+function editBucket(state: FilesState, tabId: TabId): FileEditState {
+  const edit = state.edits[tabId]
+  if (edit === undefined) throw new Error(`ui-sidebar-files: no editor for tab "${tabId}"`)
+  return edit
+}
+
+/** A fresh editor bucket for a read that is starting. */
+function freshEdit(): FileEditState {
+  return {
+    phase: { kind: 'reading' },
+    text: '',
+    version: '',
+    dirty: false,
+    draft: undefined,
+    saving: false,
+    saveState: 'idle',
+    saveFailure: undefined,
+    conflict: false,
+    wrap: true,
+    loadSeq: 0,
+    answered: 0,
+  }
+}
+
+/** The store's write set; every action names the tab it writes. */
 type FilesActions = {
   start: (draft: FilesState, tabId: TabId, root: string) => void
   loading: (draft: FilesState, tabId: TabId, path: string) => void
@@ -76,18 +154,34 @@ type FilesActions = {
   toggled: (draft: FilesState, tabId: TabId, path: string) => void
   reset: (draft: FilesState, tabId: TabId) => void
   forget: (draft: FilesState, tabId: TabId) => void
+  editRead: (draft: FilesState, tabId: TabId) => void
+  editLoaded: (draft: FilesState, tabId: TabId, text: string, version: string) => void
+  editFailed: (draft: FilesState, tabId: TabId, failure: RemoteFailure) => void
+  editDraft: (draft: FilesState, tabId: TabId, text: string) => void
+  editSaving: (draft: FilesState, tabId: TabId) => void
+  editSaved: (draft: FilesState, tabId: TabId, text: string, version: string) => void
+  editSaveFailed: (draft: FilesState, tabId: TabId, failure: RemoteFailure) => void
+  editWrap: (draft: FilesState, tabId: TabId, wrap: boolean) => void
+  editAnswered: (draft: FilesState, tabId: TabId, revision: number) => void
+  editForget: (draft: FilesState, tabId: TabId) => void
+}
+
+/** Whether a settled save failure is the disk-hasmoved refusal. */
+function isStale(failure: RemoteFailure): boolean {
+  return failure.code === 'workspace-file/stale'
 }
 
 /**
- * Declare the file tree's store.
+ * Declare the tree and editor store.
  *
- * A factory rather than a shared handle: the registration declares it as an
- * exclusive store, so the framework mints one instance per session.
- * @returns the store handle to declare on the registration.
+ * A factory rather than a shared handle: the registrations declare it as an
+ * exclusive store, so the framework mints one instance per session, shared by
+ * the `files` and `file` seats that receive it.
+ * @returns the store handle to declare on the registrations.
  */
 export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> {
   return defineStore({
-    init: (): FilesState => ({ byTab: {} }),
+    init: (): FilesState => ({ byTab: {}, edits: {} }),
     actions: {
       /**
        * Seed one tab's tree at its workspace root, with the root expanded.
@@ -159,6 +253,131 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        */
       forget: (d, tabId: TabId) => {
         d.byTab = Object.fromEntries(Object.entries(d.byTab).filter(([id]) => id !== tabId))
+      },
+      /**
+       * Start one tab's editor at a fresh read, dropping any draft and conflict.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      editRead: (d, tabId: TabId) => {
+        // `loadSeq` survives the reset: it must only ever climb, so a reload
+        // after a first load still reads as a new surface to mount.
+        const previous = d.edits[tabId]
+        d.edits[tabId] = {
+          ...freshEdit(),
+          // `answered` survives like `loadSeq`: a navigation is answered once
+          // per revision, however many times the surface rebuilds.
+          loadSeq: previous?.loadSeq ?? 0,
+          answered: previous?.answered ?? 0,
+        }
+      },
+      /**
+       * Record a whole file as read, becoming the editor's clean content.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param text - the file's whole text.
+       * @param version - the freshness token the read reported.
+       */
+      editLoaded: (d, tabId: TabId, text: string, version: string) => {
+        const edit = editBucket(d, tabId)
+        edit.phase = { kind: 'ready' }
+        edit.text = text
+        edit.version = version
+        edit.loadSeq += 1
+      },
+      /**
+       * Record why the file could not be read.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param failure - the settled Remote failure.
+       */
+      editFailed: (d, tabId: TabId, failure: RemoteFailure) => {
+        editBucket(d, tabId).phase = { kind: 'failed', failure }
+      },
+      /**
+       * Record the editor document: the tab is dirty until a save or a load
+       * lands, and the draft is what a remount restores.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param text - the editor document.
+       */
+      editDraft: (d, tabId: TabId, text: string) => {
+        const edit = editBucket(d, tabId)
+        edit.dirty = true
+        edit.draft = text
+        edit.saveState = 'idle'
+        edit.saveFailure = undefined
+      },
+      /**
+       * Mark one save as in flight.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      editSaving: (d, tabId: TabId) => {
+        const edit = editBucket(d, tabId)
+        edit.saving = true
+        edit.saveState = 'idle'
+        edit.saveFailure = undefined
+      },
+      /**
+       * Record a saved file: the written text is the new clean content, and the
+       * save's version is what the next save writes against.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param text - the text the save wrote.
+       * @param version - the freshness token the save produced.
+       */
+      editSaved: (d, tabId: TabId, text: string, version: string) => {
+        const edit = editBucket(d, tabId)
+        edit.saving = false
+        edit.saveState = 'saved'
+        edit.text = text
+        edit.version = version
+        edit.dirty = false
+        edit.draft = undefined
+        edit.conflict = false
+      },
+      /**
+       * Record why a save failed. The stale refusal keeps the draft intact and
+       * raises the conflict: the disk holds a different version, and the reader
+       * chooses between them.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param failure - the settled Remote failure.
+       */
+      editSaveFailed: (d, tabId: TabId, failure: RemoteFailure) => {
+        const edit = editBucket(d, tabId)
+        edit.saving = false
+        edit.saveState = 'failed'
+        edit.saveFailure = failure
+        edit.conflict = isStale(failure)
+      },
+      /**
+       * Set whether the editor wraps lines.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param wrap - whether lines wrap.
+       */
+      editWrap: (d, tabId: TabId, wrap: boolean) => {
+        editBucket(d, tabId).wrap = wrap
+      },
+      /**
+       * Record the navigation revision whose line target the body landed on,
+      * so one revision is answered once however often the effect re-runs.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param revision - the answered navigation revision.
+       */
+      editAnswered: (d, tabId: TabId, revision: number) => {
+        editBucket(d, tabId).answered = revision
+      },
+      /**
+       * Forget one tab's editor, for a tab record that is gone.
+       * @param d - draft state.
+       * @param tabId - the tab that went away.
+       */
+      editForget: (d, tabId: TabId) => {
+        d.edits = Object.fromEntries(Object.entries(d.edits).filter(([id]) => id !== tabId))
       },
     },
   })

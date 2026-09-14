@@ -19,7 +19,7 @@ Agent 产出的文件是最尖锐的案例。产出文件 chip 或 `read` 行的
 | 包 | 形态 | 所有物 |
 |---|---|---|
 | `packages/client/ui-dockkit` | 静态链接库，零 DSH 依赖 | 布局引擎与渲染/驱动它的 React 组件；消费方编译其源码，且它只保留一张样式表，因为消费方按文件名去重注入的样式表 |
-| `packages/client/ui-sidebar-right` | 动态插件 | 共用一个 store 的 `rightbar` 面板坑位与 `conversation.session.header.corner` 展开按钮、每会话一份 surface、两种呈现模式、浮层宿主、`ctx.sidebarRight`、`ctx.sidebarRightTabs`、tab 域（每条 tab 记录一个 occurrence）、三个扩展坑位、引导 tab 类型与 `sidebarRight` 文案命名空间 |
+| `packages/client/ui-sidebar-right` | 动态插件 | 共用一个 store 的 `rightbar` 面板坑位与 `conversation.session.header.corner` 展开按钮、每会话一份 surface、两种呈现模式、浮层宿主、`ctx.sidebarRight`、`ctx.sidebarRightTabs`、tab 域（每条 tab 记录一个 occurrence）、五个扩展坑位、引导 tab 类型与 `sidebarRight` 文案命名空间 |
 
 该库的第一个嵌入方就是本产品，而库对此一无所知：所有字符串经 `DockLabels` 传入，所有 tab 正文经按不透明 `kind` 分派的 `TabRenderer` 传入，所有手势经 `DockIntents` 传出。集成包提供库拒绝知晓的一切。
 
@@ -39,11 +39,11 @@ Agent 产出的文件是最尖锐的案例。产出文件 chip 或 `read` 行的
 
 [默认页](2026-09-08-sidebar-default-pages.zh.md)取代此处的默认补入引导页；[最后一个 tab 的关闭规则](2026-09-08-sidebar-last-tab-close-rules.zh.md)负责显式关闭，移动 tab 仍会处理被清空的格。
 
-`ui-sidebar-right` 为每个会话 id 保存一份 `SurfaceState`——布局、历史与铸造计数——住在坑位注册时声明的 store 里。每个 action 先铸造意图所需的 id，向库的 planner 索取操作，对结果跑一遍 settle planner，把整个意图记为一条历史账，再把该会话的 surface 整体赋回；没有 action 就地改布局。settle 是产品规则：最后一个 tab 被关闭、拖走或悬浮出去的停靠 pane 会被合并掉；展开且为空的根 pane 会填入当前默认页。折叠的布局可以保持为空，直到下次展开；没有单独的关闭 pane 手势。状态仅在内存：刷新使所有会话回到折叠默认态，切换会话时各 surface 保持原样。布局是呈现状态，永不进入会话日志。
+`ui-sidebar-right` 为每个会话 id 保存一份 `SurfaceState`——布局、历史与铸造计数——住在坑位注册时声明的 store 里。每个 action 先铸造意图所需的 id，向库的 planner 索取操作，对结果跑一遍 settle planner，把整个意图记为一条历史账，再把该会话的 surface 整体赋回；没有 action 就地改布局。settle 是产品规则：最后一个 tab 被关闭、拖走或悬浮出去的停靠 pane 会被合并掉；展开且为空的根 pane 会填入当前默认页。折叠的布局可以保持为空，直到下次展开；没有单独的关闭 pane 手势。停靠面按会话持久化在 `qilin.sidebarRight.surface.v1` 下，以会话 id 为键，因此刷新会回到用户在那里留下的布局，被清理的会话连同它的布局一起消失；记录的序列一并保存，上限 100 条，切换会话时各 surface 保持原样。布局是呈现状态，永不进入会话日志。
 
 ### 面之外
 
-这个面渲染的 tab 正文它自己并不认识：每个 tab 带一个 `kind`，面板向类型注册表询问该 kind 生效的实现，再派发到其 keyed 正文坑位。正文能依赖的一切——它的记录、所在格、是否可见、如何被导航到、中止信号、可做的动作——均通过框架注入的 `useTabInfo()` 从标签域读取。注册表、导航面 `ctx.sidebarRight`、坑位与 标签信息 在[tab 类型与导航](../architecture/2026-09-05-sidebar-tab-types-and-navigation.zh.md)里定；展示数据的正文经[客户端资源模型](../architecture/2026-09-05-client-resource-model.zh.md)读取。
+这个面渲染的 tab 正文它自己并不认识：每个 tab 带一个 `kind`，面板向类型注册表询问该 kind 生效的实现，再派发到其 keyed 正文坑位。正文能依赖的一切——它的记录、所在格、是否可见、如何被导航到、中止信号、可做的动作——均通过框架注入的 `useTabInfo()` 从标签域读取。注册表、导航面 `ctx.sidebarRight`、坑位与 标签信息 在[tab 类型与导航](../architecture/2026-09-05-sidebar-tab-types-and-navigation.zh.md)里定；展示数据的正文经[客户端资源模型](../architecture/2026-09-05-client-resource-model.zh.md)读取。该导航面还携带调用方本来要自己拼的快捷方式：`openFile(scope, path)` 拼出文件地址，两个打开选项上的 `scope` 把一次打开落到另一个会话而不切换会话，`features` 是仓库之外的 tab 类型据以把关的能力表；这些新增与标签页开关见[工作台笔记](2026-09-14-right-sidebar-workbench.zh.md)。
 
 ### 入口与删除
 
@@ -67,7 +67,7 @@ Agent 产出的文件是最尖锐的案例。产出文件 chip 或 `read` 行的
 
 **每个 chip 一个带复制与悬浮项的"更多"控件。** 第一版给每个 chip 一个 `⋯` 菜单，装关闭、复制、悬浮。评审否决：chip 现在只带关闭，菜单挪到右键且只剩关闭（加嵌入方条目），复制与悬浮整体离开面板——复制仍是 API（`open` 带 `duplicate: true`），悬浮仍是拖拽。库的 `duplicateTab` / `floatTab` 意图与 planner 不变。
 
-**面板头部的 undo 与 redo 按钮。** 先上后撤：序列是架构事实，步进它现在还不是产品动作。API 以 `@internal` 方法保留给测试与将来的导航控制器。
+**面板头部的 undo 与 redo 按钮。** 先上后撤：序列是架构事实，步进它现在还不是产品动作。API 以 `@internal` 方法保留给测试与导航控制器。
 
 **空 pane 作为一种持久状态。** 第一版允许 pane 在最后一个 tab 离开后带占位留下。否决，因为没有任何方式关掉这样的 pane；每个意图都会整理 surface，被清空的侧 pane 合并掉。空根 pane 只在该列展开时填入当前默认页。
 
@@ -76,7 +76,7 @@ Agent 产出的文件是最尖锐的案例。产出文件 chip 或 `read` 行的
 ## Consequences
 
 - 停靠面自身不再溢出面板：`.surface` 与 `.pane` 收在列内（`min-width: 0`、`overflow: hidden`），长的不换行行在正文内滚动，tab 条控件在任何分栏下都可见。
-- 布局可撤销且按会话隔离，同时仅在内存；刷新使所有会话回到折叠态。undo 只能经 `@internal` 服务方法触达；产品不显示历史控件。
+- 布局可撤销且按会话隔离，并按会话持久化；刷新会回到用户留下的那些 tab。undo 只能经 `@internal` 服务方法触达；产品不显示历史控件。
 - 展开的布局不保留空 pane。空侧 pane 被合并，空根 pane 只在展开时填入当前默认页。新会话以及关闭最后一个 tab 后收起的布局保持为空，直到下次展开。
 - 一个 pane 最多持有一个引导 tab：第二个不能被添加、打开、复制或搬入；唯一性按 pane 算，所以分栏仍给新 pane 种引导。
 - pane 只有在等分后的两半都仍能容下不可收缩部分时才可分栏：tab 条的固定控件（条宽减去 chip 盒与填充，因此右上 pane 的面板控件只计在承载它的那一半）加一个最小宽度的 chip，由组件层在每次提交与尺寸变化后测量。否则分栏控件保留但禁用并带自己的文案，对应的边缘落区不再提供，用户拖窄的 pane 保持原尺寸；产品最多两个水平窗格，不因拉宽或拖分隔条而提高上限。
@@ -98,5 +98,5 @@ Agent 产出的文件是最尖锐的案例。产出文件 chip 或 `read` 行的
 - 组合层的切换会话用例，受阻于 fixture 组合默认打开设置面。
 - 新包 README 与本次改动的英文文档的中文对。
 - snap 或 priority 面板尺寸语义、触屏调优，以及分栏/移动/悬浮的键盘路径。
-- 布局持久化、popout 窗口，以及内容导航栈（条目以 pane 与内容为键、相邻重复替换、`navigating` 守卫、已关 tab 留在栈中）。
+- popout 窗口，以及内容导航栈（条目以 pane 与内容为键、相邻重复替换、`navigating` 守卫、已关 tab 留在栈中）。
 - 不可关闭的 tab（`TabRecord` 上的 `closable` 标志，画成固定的前置标记而非胶囊），等到有 tab 类型需要时再做。

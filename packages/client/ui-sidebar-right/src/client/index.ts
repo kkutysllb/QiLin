@@ -35,8 +35,10 @@ import { ExpandButton } from './shell/ExpandButton.tsx'
 import { RightbarSeat, type SidebarRightInjected } from './shell/SidebarRight.tsx'
 import { RightbarRoot } from './shell/RightbarRoot.tsx'
 import { createSidebarRightController, type SidebarRightController } from './service.ts'
+import { readDisabledTabs, writeDisabledTabs } from './prefs.ts'
 import { SidebarRightTabRegistry } from './tab-registry.ts'
 import { createSidebarRightStore } from './stores.ts'
+import { TabSettingsSection, type TabSettingsSectionInjected } from './tabs/settings/TabSettingsSection.tsx'
 import { en, zh } from './locales.ts'
 import { GUIDE_ID, guideDefinition } from './tabs/guide/definition.ts'
 import { guideTabInfoFactory, tabInfoFactory } from './tab-info.ts'
@@ -100,7 +102,7 @@ export function apply(ctx: ClientContext): void {
   // template this follows (ui-conversation's definition registry) is built at
   // its own apply top level for the same reason.
   const t = ctx.locale.bind(NS)
-  const tabs = new SidebarRightTabRegistry(ctx)
+  const tabs = new SidebarRightTabRegistry(ctx, readDisabledTabs())
   const { controller, adopt } = createSidebarRightController(
     tabs,
     (address, signal) => { ctx.resources.pin(address, signal) },
@@ -118,6 +120,13 @@ export function apply(ctx: ClientContext): void {
   }, 'ui-sidebar-right: service faces')
 
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-sidebar-right: dictionaries')
+  // Every registry commit — a registration, an unregistration, a switch — is
+  // the moment to store the switched-off set. Writing a set that did not move
+  // costs one storage call and keeps this the only place that persists it.
+  ctx.effect(
+    () => tabs.subscribe(() => { writeDisabledTabs(tabs.disabledIds()) }),
+    'ui-sidebar-right: tab switches persisted',
+  )
 
   ctx.effect(() => {
     const handle = createSidebarRightStore(() => defaultSeed(tabs))
@@ -157,6 +166,7 @@ export function apply(ctx: ClientContext): void {
         children: {
           'sidebar.right.pane.tab': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
           'sidebar.right.pane.tab.title': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
+          'sidebar.right.pane.tab.badge': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
           'sidebar.right.tab.menu.item': { kind: 'list', scope: 'session' },
         },
         store,
@@ -195,7 +205,25 @@ export function apply(ctx: ClientContext): void {
       { name: 'sidebar.right.pane.tab.title', key: GUIDE_ID },
       GuideTitle,
     ))
+    // The switches live in the settings shell, which this package does not
+    // own: the contribution waits for that section's declaration and leaves
+    // with this plugin. Its copy is this package's namespace, so the row names
+    // a type in the language the type registered in.
+    const settingsInjected: TabSettingsSectionInjected = {
+      hooks: { tabTypes: { subscribe: listener => tabs.subscribe(listener), getSnapshot: () => tabs.entries() } },
+      setEnabled: (id, enabled) => { tabs.setEnabled(id, enabled) },
+      isEnabled: id => tabs.isEnabled(id),
+    }
+    const disposeSettings = ctx.slots.inject('settings.section', () => ctx.slots.register({
+      name: 'settings.section',
+      id: 'sidebar-right',
+      order: 30,
+      label: () => t('settings.nav'),
+      locale: NS,
+      inject: () => settingsInjected,
+    }, TabSettingsSection))
     return () => {
+      disposeSettings()
       disposeGuideTitle()
       disposeGuide()
       disposeExpand()

@@ -9,9 +9,13 @@
  */
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
+import type { TranslateNS } from '@qilin/client-locale/client'
 import { sessionFileAddress } from '@qilin/util-workspace-path'
 import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND, basenameOf, textDefinition } from '../src/client/definition.ts'
+
+/** The dictionary lookup the type's own name goes through; the key stands in for the translation. */
+const t = ((key: string) => key) as TranslateNS<'sidebarDocumentPreview'>
 
 describe('basenameOf', () => {
   it('decodes the last segment, so an escaped name reads as itself', () => {
@@ -29,7 +33,7 @@ describe('basenameOf', () => {
 
 describe('textDefinition', () => {
   it('is the fallback claimant of every Session file address, titled by basename', () => {
-    const definition = textDefinition()
+    const definition = textDefinition(t)
     expect(definition.id).toBe(TEXTPREVIEW_ID)
     expect(definition.kind).toBe(TEXTPREVIEW_KIND)
     expect(definition.patterns).toEqual(['qilin-resource://file/**'])
@@ -47,7 +51,7 @@ describe('textDefinition', () => {
 describe('text type in the registry', () => {
   function registry() {
     const tabs = new SidebarRightTabRegistry(new Context())
-    tabs.register(textDefinition())
+    tabs.register(textDefinition(t))
     return tabs
   }
 
@@ -79,7 +83,7 @@ describe('text type in the registry', () => {
 
   it('yields an address to a narrower type at the extension band, and keeps the rest', () => {
     const tabs = registry()
-    tabs.register({ id: 'test/image', kind: 'image', patterns: ['*.png'], priority: 'extension', title: () => 'image' })
+    tabs.register({ id: 'test/image', kind: 'image', patterns: ['*.png'], priority: 'extension', label: () => 'image', title: () => 'image' })
     expect(tabs.claim('qilin-resource://file/session/s-1/w/logo.png').kind).toBe('image')
     expect(tabs.claim('qilin-resource://file/session/s-1/w/logo.md').kind).toBe(TEXTPREVIEW_KIND)
     // Still listed for the picture: a caller naming the kind may open it as text.

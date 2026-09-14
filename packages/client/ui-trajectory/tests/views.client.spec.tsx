@@ -39,6 +39,10 @@ import { apply as localeApply, inject as localeInject } from '@qilin/client-loca
 import { apply, inject } from '@qilin/client-ui-trajectory/client'
 import { apply as nodeApply } from '@qilin/client-ui-trajectory'
 import { TRAJECTORY_ID, TRAJECTORY_KIND } from '../src/client/trajectory-tab-definition.ts'
+import {
+  TRAJECTORY_GRAPH_ID, TRAJECTORY_GRAPH_KIND,
+} from '../src/client/trajectory-graph-tab-definition.ts'
+import { TrajectoryGraphView } from '../src/client/TrajectoryGraphView.tsx'
 import type { TrajectoryTurnModel } from '../src/client/layout.ts'
 import { TrajectoryTimeline as LocalizedTrajectoryTimeline } from '../src/client/TrajectoryTimeline.tsx'
 import {
@@ -428,6 +432,18 @@ describe('plugin registration', () => {
     expect(entry.locale).toBe('trajectory')
     expect(entry.component).toBe(TrajectoryView)
     expect(b.tabs.candidates(TRAJECTORY_ADDRESS)).toEqual([])
+
+    const graph = b.tabs.get(TRAJECTORY_GRAPH_KIND)
+    expect(graph?.id).toBe(TRAJECTORY_GRAPH_ID)
+    expect(graph?.kind).toBe(TRAJECTORY_GRAPH_KIND)
+    expect(graph?.priority).toBe('builtin')
+    expect(graph?.label()).toBe('Trajectory graph')
+    expect(graph?.guide?.map(item => [item.order, item.title(), item.description?.()]))
+      .toEqual([[21, 'Trajectory graph', 'The trajectory ledger drawn as a live node and edge flow']])
+    const graphEntry = b.slots.entries('sidebar.right.pane.tab')
+      .find(candidate => candidate.options.key === TRAJECTORY_GRAPH_ID)
+    expect(graphEntry?.locale).toBe('trajectory')
+    expect(graphEntry?.component).toBe(TrajectoryGraphView)
   })
 
   it('labels the trajectory page in the active locale', async () => {
@@ -445,7 +461,7 @@ describe('plugin registration', () => {
     const b = await bench()
     expect(b.events.entries().length).toBeGreaterThan(0)
     expect(b.views.entries()).toHaveLength(1)
-    expect(b.slots.entries('sidebar.right.pane.tab')).toHaveLength(1)
+    expect(b.slots.entries('sidebar.right.pane.tab')).toHaveLength(2)
 
     await b.feature.dispose()
 

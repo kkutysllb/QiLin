@@ -22,6 +22,9 @@ export function guideDefinition(t: TranslateNS<'sidebarRight'>): SidebarRightTab
     id: GUIDE_ID,
     kind: GUIDE_KIND,
     priority: 'builtin',
+    label: () => t('tab.guide.title'),
+    // No `single`: a pane holds at most one guide, and the add control fills
+    // the pane it was pressed in from that pane's own state.
     title: () => t('tab.guide.title'),
   }
 }

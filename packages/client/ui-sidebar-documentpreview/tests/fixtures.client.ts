@@ -94,6 +94,8 @@ export interface Harness {
   useResource: Mock<() => ResourceSnapshot<WorkspaceFileStat>>
   /** Composed props for one navigation state. */
   props: (navigation?: { params?: unknown; revision: number }) => TextPreviewProps
+  /** The tab record's actions, as recording mocks. */
+  readonly tabActions: { readonly openResource: Mock<(address: string, options?: unknown) => void> }
   /** Script what one offset resolves to from now on. */
   script(offset: number, result: RemoteResult<WorkspaceFileText>): void
   /** Publish another metadata version without acknowledging any tab's content. */
@@ -106,9 +108,16 @@ export interface Harness {
  * One tab record's harness.
  * @param script - the page each offset resolves to; an unscripted offset fails `not-found`.
  * @param tabId - owning tab record.
+ * @param address - the tab's resource address and navigation address.
+ * @param title - the chip title the registry captured.
  * @returns the store, the scripted faces, and a props builder.
  */
-export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> = {}, tabId = TAB_ID): Harness {
+export function harness(
+  script: Record<number, RemoteResult<WorkspaceFileText>> = {},
+  tabId = TAB_ID,
+  address = ADDRESS,
+  title = 'notes.md',
+): Harness {
   const instance = createTextStore().create()
   const pages: Record<number, RemoteResult<WorkspaceFileText>> = { ...script }
   const read = vi.fn<ReadWorkspaceFilePage>((_session, _path, offset) =>
@@ -130,8 +139,8 @@ export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> 
       sidebar: { expanded: true, fullscreen: false },
       panel: { id: 'pane-1' },
       tab: {
-        id: tabId, kind: 'text', contentId: ADDRESS, title: 'notes.md', visible: true,
-        navigation: { address: ADDRESS, params: navigation.params, revision: navigation.revision },
+        id: tabId, kind: 'text', contentId: address, title, visible: true,
+        navigation: { address, params: navigation.params, revision: navigation.revision },
         signal: controller.signal,
         actions: tabActions,
       },
@@ -154,6 +163,7 @@ export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> 
     read,
     bytes,
     controller,
+    tabActions,
     get file() { return current.snapshot.value },
     useResource,
     props,

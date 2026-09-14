@@ -264,6 +264,7 @@
   max-width: 170px;
   height: 28px;
   padding: 0 10px;
+  gap: 6px;
   color: var(--dsw-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1;
@@ -283,6 +284,24 @@
    the title rather than a painted gradient: the chip's fill is bare,
    translucent hover, or the active tag colour, and a mask matches every one
    without naming it. */
+/* A chip's leading glyph and its status pill: both hold their size while the
+   title takes the shrink, so a narrow chip loses title text before it loses
+   the identity beside it. */
+.chipIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+/* The slot only: what a pill looks like belongs to the type that counts
+   something, and a container with no content must leave no mark — it would
+   still take the chip's gap. */
+.chipBadge {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
 .tabTitle {
   display: flex;
   flex: 1 1 auto;

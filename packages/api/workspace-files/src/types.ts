@@ -4,7 +4,7 @@
  *
  * Two path vocabularies leave here, and each method uses exactly one:
  *
- * - `read`, `readBytes`, `stat`, and `changes` name a file by its absolute path in the
+ * - `read`, `readBytes`, `stat`, `write`, and `changes` name a file by its absolute path in the
  *   filesystem's execution world, because their consumer is the Client
  *   resource system, whose `qilin-resource://file/session/<id>/<path>` address carries that
  *   same path.
@@ -82,6 +82,21 @@ export interface WorkspaceFileBytes extends WorkspaceFileStat {
   readonly eof: boolean
 }
 
+/**
+ * The freshness basis one `write` saves against. The version token is opaque:
+ * this service and the provider compare it for equality and never parse,
+ * order, or derive it.
+ */
+export interface WorkspaceFileWriteRequest {
+  /**
+   * The `version` of the content being saved, as some earlier `stat`, `read`,
+   * or `write` reported it. A token that no longer matches the file on disk
+   * fails the save with `workspace-file/stale` and writes nothing; omitted, the
+   * save overwrites whatever is there.
+   */
+  readonly baseVersion?: string
+}
+
 /** One direct child of a listed workspace directory. */
 export interface WorkspaceDirectoryEntry {
   /** Basename inside the listed directory. */
@@ -146,13 +161,15 @@ declare module '@qilin/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** No entry exists at that path inside the workspace. */
     'workspace-file/not-found': { readonly path: string }
-    /** The directory listing path resolves outside the session's workspace root. */
+    /** The directory listing path or the write target resolves outside the session's workspace root. */
     'workspace-file/outside-workspace': { readonly path: string }
-    /** The requested page exceeds the configured byte cap; nothing is returned. */
+    /** The requested page or the text being written exceeds the configured byte cap; nothing is returned or written. */
     'workspace-file/too-large': { readonly path: string; readonly limit: number }
+    /** The file on disk is no longer at the caller's `baseVersion`; nothing is written. */
+    'workspace-file/stale': { readonly path: string }
     /** The content read so far is not decodable UTF-8 text, or the page carries NUL bytes. */
     'workspace-file/not-text': { readonly path: string }
-    /** The path is not a regular file, so it has no text to read. */
+    /** The path is not a regular file, so it has no text to read and no text to save. */
     'workspace-file/not-regular-file': {
       readonly path: string
       readonly kind: 'directory' | 'symlink' | 'other'

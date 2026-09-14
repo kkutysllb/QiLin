@@ -36,6 +36,8 @@ export interface FloatLayerProps {
   readonly canCloseTab?: (tabId: TabId) => boolean
   /** The panel header's title content; omit to show the record's `title` text (see `DockSurfaceProps`). */
   readonly renderTabTitle?: TabRenderer
+  /** The panel header's leading glyph (see `DockSurfaceProps.renderTabIcon`). */
+  readonly renderTabIcon?: TabRenderer
 }
 
 /** A floating-panel gesture: what it moves and where it started. */
@@ -66,7 +68,7 @@ function raised(state: LayoutState, paneId: PaneId): boolean {
 }
 
 /** Every floating panel, in z order. */
-export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, canCloseTab }: FloatLayerProps): ReactNode {
+export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, renderTabIcon, canCloseTab }: FloatLayerProps): ReactNode {
   const [preview, setPreview] = useState<{ paneId: PaneId; rect: FloatRect } | undefined>(undefined)
   const begin = useGesture(() => { setPreview(undefined) })
 
@@ -123,6 +125,9 @@ export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, 
               onPointerDown={(event) => { drag('move', paneId, event) }}
             >
               <div className={clsx(css.tab, css.floatTitle)} data-dockkit-float-title>
+                {renderTabIcon !== undefined && (
+                  <span className={css.chipIcon} data-dockkit-tab-icon={tab.id}>{renderTabIcon(tab)}</span>
+                )}
                 <TabTitle>{renderTabTitle?.(tab) ?? tab.title}</TabTitle>
               </div>
               <div className={css.stripFill} />

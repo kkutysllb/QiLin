@@ -29,6 +29,9 @@ export const zh = {
   'dock.drop.bottom': '下分栏',
   'tab.guide.title': '开始',
   'tab.unavailable': '这类内容还没有可用的查看方式。',
+  'settings.nav': '侧边栏',
+  'settings.title': '侧边栏标签页',
+  'settings.hint': '关掉的类型不再出现在启动页里，也不能新开；已经打开的标签页保持不动。',
 } satisfies Record<string, string>
 
 /** Right-Sidebar dictionary key union. */
@@ -57,4 +60,7 @@ export const en = {
   'dock.drop.bottom': 'Add bottom split',
   'tab.guide.title': 'Start',
   'tab.unavailable': 'Nothing here can view this kind of content yet.',
+  'settings.nav': 'Sidebar',
+  'settings.title': 'Sidebar tabs',
+  'settings.hint': 'A type turned off leaves the Start page and refuses new opens; tabs already open stay where they are.',
 } satisfies Record<SidebarRightKey, string>

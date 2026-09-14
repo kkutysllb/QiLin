@@ -31,6 +31,11 @@ export function filesDefinition(t: TranslateNS<'sidebarFiles'>): SidebarRightTab
     id: FILES_ID,
     kind: FILES_KIND,
     priority: 'builtin',
+    label: () => t('type.label'),
+    icon: FolderSheetGlyph,
+    // One workspace tree per surface: opening Files from another pane focuses
+    // the tree the user already has rather than seating a second one.
+    single: true,
     title: () => t('type.label'),
     guide: [{
       order: 10,

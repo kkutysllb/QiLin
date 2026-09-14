@@ -258,6 +258,14 @@
     - id: ui-sidebar-files
       name: '@qilin/client-ui-sidebar-files'
 
+    # The right Sidebar's tasks tab type: subagent topology and background jobs.
+    - id: ui-sidebar-tasks
+      name: '@qilin/client-ui-sidebar-tasks'
+
+    # The right Sidebar's task-plan tab type: the workspace's plan documents.
+    - id: ui-sidebar-plans
+      name: '@qilin/client-ui-sidebar-plans'
+
     - id: ui-settings
       name: '@qilin/client-ui-settings'
 

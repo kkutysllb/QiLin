@@ -11,10 +11,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { FILES_ID, FILES_KIND } from '../src/client/definition.tsx'
+import { FILE_ID, FILE_KIND } from '../src/client/file-definition.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { FilesBody } from '../src/client/FilesBody.tsx'
 import { FilesTitle } from '../src/client/FilesTitle.tsx'
+import { FileBody } from '../src/client/FileBody.tsx'
+import { FileTitle } from '../src/client/FileTitle.tsx'
 import { en, zh } from '../src/client/locales.ts'
 
 interface Recorded {
@@ -47,8 +50,10 @@ async function boot() {
       return () => { dictionaries.delete(ns) }
     }),
   }
-  const workspaceFiles = { list: vi.fn() }
+  const workspaceFiles = { list: vi.fn(), read: vi.fn(), write: vi.fn() }
+  const sidebarRight = { openResource: vi.fn() }
   ctx.provide('sidebarRightTabs', tabs as never)
+  ctx.provide('sidebarRight', sidebarRight as never)
   ctx.provide('slots', slots as never)
   ctx.provide('locale', locale as never)
   ctx.provide('remote', { workspaceFiles } as never)
@@ -77,15 +82,47 @@ describe('ui-sidebar-files apply', () => {
     expect(registered.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
       ['sidebar.right.pane.tab', FILES_ID, 'sidebarFiles', FilesBody],
       ['sidebar.right.pane.tab.title', FILES_ID, undefined, FilesTitle],
+      ['sidebar.right.pane.tab', FILE_ID, 'sidebarFiles', FileBody],
+      ['sidebar.right.pane.tab.title', FILE_ID, undefined, FileTitle],
     ])
     expect(registered[0]?.store).toBeDefined()
     expect(typeof registered[0]?.inject).toBe('function')
+    // The editor's seats share the files page's store instance: one bucket
+    // namespace per tab id, both kinds read the same slice shape.
+    expect(registered[2]?.store).toBe(registered[0]?.store)
+    expect(typeof registered[2]?.inject).toBe('function')
+    // The composed face is the tree face and the editor face in one object.
+    const storeInstance = (registered[2]?.store as { create(): { actions: object } }).create()
+    const face = (registered[2]?.inject as (sessionId: string, actions: object) => Record<string, unknown>)(
+      's-1', storeInstance.actions,
+    )
+    expect(Object.keys(face).sort()).toEqual([
+      'load', 'openPreview', 'readFile', 'saveFile', 'start', 'toggle',
+    ])
+    const file = tabs.get(FILE_KIND)
+    expect(file?.id).toBe(FILE_ID)
+    expect(file?.title('qilin-resource://file/session/s-1/x/a.ts')).toBe('a.ts')
+    expect(file?.label()).toBe('file.type.label')
+  })
+
+  it('binds the read and write adapters to the Remote face unchanged', async () => {
+    const { createReadPage, createWriteFile } = await import('../src/client/index.ts')
+    const signal = new AbortController().signal
+    const read = vi.fn()
+    const page = createReadPage({ workspaceFiles: { read: read as never } })
+    void page('s-1' as never, 'a.ts', 1, signal)
+    expect(read).toHaveBeenCalledWith('s-1', 'a.ts', { offset: 1 }, signal)
+    const write = vi.fn()
+    const save = createWriteFile({ workspaceFiles: { write: write as never } })
+    void save('s-1' as never, 'a.ts', 'text', { baseVersion: 'v1' }, signal)
+    expect(write).toHaveBeenCalledWith('s-1', 'a.ts', 'text', { baseVersion: 'v1' }, signal)
   })
 
   it('takes every registration back when the plugin is disposed', async () => {
     const { tabs, registered, dictionaries, fiber } = await boot()
     await fiber.dispose()
     expect(tabs.get(FILES_KIND)).toBeUndefined()
+    expect(tabs.get(FILE_KIND)).toBeUndefined()
     expect(registered).toEqual([])
     expect(dictionaries.size).toBe(0)
   })

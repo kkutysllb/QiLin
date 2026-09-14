@@ -7,7 +7,7 @@ import { TextPreview } from '../src/client/TextPreview.tsx'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import type { DocumentPreviewDefinition } from '../src/client/document/registry.ts'
 import { CodeBody } from '../src/client/code/CodeBody.tsx'
-import { ABSOLUTE_PATH, FILE, harness, page, settle, TAB_ID } from './fixtures.client.ts'
+import { ABSOLUTE_PATH, ADDRESS, FILE, harness, page, settle, TAB_ID } from './fixtures.client.ts'
 
 afterEach(cleanup)
 
@@ -154,6 +154,23 @@ describe('document toolbar', () => {
     expect(h.read).toHaveBeenCalledTimes(1)
     expect(view.container.textContent).toContain('held')
     h.controller.abort()
+  })
+
+  it('offers the editor open for a session file the editable set carries, and opens it through the owner', async () => {
+    const h = harness({ 1: page(1, ['held'], true) })
+    const view = render(<TextPreview {...h.props()} />)
+    await settle()
+    const button = view.container.querySelector('[data-textpreview-tool="edit"]')!
+    expect(button.getAttribute('aria-label')).toBe('edit')
+    fireEvent.click(button)
+    expect(h.tabActions.openResource).toHaveBeenCalledWith(ADDRESS)
+  })
+
+  it('hides the editor open for extensions the editor does not take', async () => {
+    const image = harness({}, TAB_ID, 'qilin-resource://file/session/s-1/work/logo.png', 'logo.png')
+    const view = render(<TextPreview {...image.props()} />)
+    await settle()
+    expect(view.container.querySelector('[data-textpreview-tool="edit"]')).toBeNull()
   })
 
   it('dismisses the implementation picker with Escape without changing the selected implementation', async () => {

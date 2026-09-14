@@ -119,6 +119,8 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/client/ui-theme': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
   'packages/client/ui-sidebar-documentpreview': { kind: 'none', reason: 'Browser-only text viewer; registers no tool, prompt section, or session event, and what the user reads never enters a model request.' },
   'packages/client/ui-sidebar-files': { kind: 'none', reason: 'Browser-only workspace file tree; registers no tool, prompt section, or session event.' },
+  'packages/client/ui-sidebar-tasks': { kind: 'none', reason: 'Browser-only viewer of Session-side work; registers no tool, prompt section, or session event, and both snapshots arrive on the Session list the client already holds.' },
+  'packages/client/ui-sidebar-plans': { kind: 'none', reason: 'Browser-only workspace plan list; registers no tool, prompt section, or session event, and a plan document is read only to title its row.' },
   'packages/client/resources': { kind: 'none', reason: 'Browser-side resource model (providers, pinning, useResource); registers nothing model-facing.' },
   'packages/client/ui-settings': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
   'packages/client/ui-settings-general': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },

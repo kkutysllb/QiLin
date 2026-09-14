@@ -16,6 +16,9 @@
     - button "MCP 服务器":
       - img
       - text: MCP 服务器
+    - button "侧边栏":
+      - img
+      - text: 侧边栏
     - button "技能":
       - img
       - text: 技能

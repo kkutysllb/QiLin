@@ -32,7 +32,8 @@
         "@qilin/client-resources",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-layout",
-        "@qilin/client-ui-session"
+        "@qilin/client-ui-session",
+        "@qilin/util-workspace-path"
       ],
       "platform": "web"
     }
@@ -60,6 +61,7 @@
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@qilin/session": "workspace:^",
+    "@qilin/util-workspace-path": "workspace:^",
     "@testing-library/react": "^16.1.0",
     "@types/picomatch": "^4.0.2",
     "@types/react": "~18.3.1",

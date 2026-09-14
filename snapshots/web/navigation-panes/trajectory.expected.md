@@ -1,5 +1,6 @@
 - tablist:
   - tab "Trajectory Close" [selected]:
+    - img
     - text: Trajectory
     - button "Close":
       - img

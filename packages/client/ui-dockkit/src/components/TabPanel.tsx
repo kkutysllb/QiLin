@@ -24,9 +24,10 @@ import { Fragment, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
 import { IconCloseFill14, IconPlusOutline16, Tooltip } from '@qilin/client-ui-primitives'
-import type { DockZone, LayoutState, PaneNode, TabId } from '../contract/types.ts'
+import type { DockZone, LayoutState, PaneNode, TabId, TabRecord } from '../contract/types.ts'
 import { getTab } from '../engine/tree.ts'
 import type { PaneCallbacks, SplitBlock } from './render.ts'
+import type { TabRenderer } from '../contract/adapter.ts'
 import { TabMenu } from './TabMenu.tsx'
 import { TabTitle } from './TabTitle.tsx'
 import css from './dockkit.module.css'
@@ -115,6 +116,23 @@ function chipToFocus(key: string, tabs: readonly TabId[], tabId: TabId): TabId |
     case 'End': return tabs.at(-1)
     default: return undefined
   }
+}
+
+/**
+ * A chip's status pill.
+ *
+ * The renderer is asked once and may answer with nothing, in which case the
+ * chip gains no pill at all: an empty container would still take the chip's
+ * gap and narrow the title beside it. The kit contributes the slot only —
+ * what a pill looks like belongs to the type that counts something.
+ * @param props.tab - the tab whose chip is being drawn.
+ * @param props.render - the embedder's pill renderer.
+ * @returns the pill, or nothing.
+ */
+function ChipBadge({ tab, render }: { readonly tab: TabRecord; readonly render: TabRenderer }): ReactNode {
+  const badge = render(tab)
+  if (badge === null || badge === undefined) return null
+  return <span className={css.chipBadge} data-dockkit-tab-badge={tab.id}>{badge}</span>
 }
 
 /** Whether a key selects the focused chip. */
@@ -321,6 +339,10 @@ export function TabPanel({ state, pane, callbacks }: TabPanelProps): ReactNode {
                     setMenu(current => current?.tabId === tabId ? undefined : { tabId, anchor })
                   }}
                 >
+                  {callbacks.renderTabIcon !== undefined && (
+                    <span className={css.chipIcon} data-dockkit-tab-icon={tabId}>{callbacks.renderTabIcon(tab)}</span>
+                  )}
+                  {callbacks.renderTabBadge !== undefined && <ChipBadge tab={tab} render={callbacks.renderTabBadge} />}
                   <TabTitle>{callbacks.renderTabTitle?.(tab) ?? tab.title}</TabTitle>
                   {closable && (
                     <button

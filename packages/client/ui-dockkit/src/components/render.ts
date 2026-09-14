@@ -39,6 +39,14 @@ export interface PaneCallbacks {
   readonly renderTab: TabRenderer
   /** A chip's or panel header's title content; absent means the record's `title` text. */
   readonly renderTabTitle: TabRenderer | undefined
+  /** A chip's leading glyph; absent means a chip whose title carries the whole identity. */
+  readonly renderTabIcon: TabRenderer | undefined
+  /**
+   * A chip's status pill, drawn between the glyph and the title; absent, or a
+   * nullish return, draws none. Called on every strip render, so it must read
+   * an already-computed fact rather than derive one.
+   */
+  readonly renderTabBadge: TabRenderer | undefined
   /** Embedder items appended to a tab's context menu; absent means the kit's item only. */
   readonly renderTabMenuItems: TabMenuExtras | undefined
   /** The pane whose strip hosts the embedder's surface-wide controls. */

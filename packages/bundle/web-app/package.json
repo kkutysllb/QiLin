@@ -89,6 +89,8 @@
     "@qilin/client-ui-sidebar-files": "workspace:^",
     "@qilin/client-ui-sidebar-right": "workspace:^",
     "@qilin/client-ui-sidebar-documentpreview": "workspace:^",
+    "@qilin/client-ui-sidebar-plans": "workspace:^",
+    "@qilin/client-ui-sidebar-tasks": "workspace:^",
     "@qilin/client-ui-skill": "workspace:^",
     "@qilin/client-ui-subagent": "workspace:^",
     "@qilin/client-ui-theme": "workspace:^",

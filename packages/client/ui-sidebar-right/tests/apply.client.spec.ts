@@ -23,6 +23,7 @@ import { RightbarRoot } from '../src/client/shell/RightbarRoot.tsx'
 import { ExpandButton } from '../src/client/shell/ExpandButton.tsx'
 import { GuideBody } from '../src/client/tabs/guide/GuideBody.tsx'
 import { GuideTitle } from '../src/client/tabs/guide/GuideTitle.tsx'
+import { TabSettingsSection } from '../src/client/tabs/settings/TabSettingsSection.tsx'
 import { GUIDE_ID } from '../src/client/tabs/guide/definition.ts'
 import { en, zh } from '../src/client/locales.ts'
 
@@ -30,6 +31,7 @@ const SESSION = 's-test' as SessionId
 
 interface Recorded {
   name: string
+  id?: string
   key?: string
   locale?: string
   store?: unknown
@@ -93,19 +95,23 @@ describe('ui-sidebar-right apply', () => {
     expect(guide?.id).toBe(GUIDE_ID)
     expect(guide?.priority).toBe('builtin')
     expect(guide?.title('sidebar://guide')).toBe('tab.guide.title')
-    // Five registrations: the root and panel seats, the header's corner seat,
-    // and the guide body and chip title under the guide implementation's id.
-    // The guide draws no product copy of its own, so neither guide seat binds the dictionary.
+    // Six registrations: the root and panel seats, the header's corner seat,
+    // the guide body and chip title under the guide implementation's id, and
+    // the tab switches the settings shell renders. The guide draws no product
+    // copy of its own, so neither guide seat binds the dictionary.
     expect(registered.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
       ['rightbar', undefined, undefined, RightbarRoot],
       ['rightbar.session', undefined, 'sidebarRight', RightbarSeat],
       ['conversation.session.header.corner', undefined, 'sidebarRight', ExpandButton],
       ['sidebar.right.pane.tab', GUIDE_ID, undefined, GuideBody],
       ['sidebar.right.pane.tab.title', GUIDE_ID, undefined, GuideTitle],
+      ['settings.section', undefined, 'sidebarRight', TabSettingsSection],
     ])
+    // A list seat names itself with `id`; the settings shell renders it as one page.
+    expect(registered.find(entry => entry.name === 'settings.section')?.id).toBe('sidebar-right')
     // The panel declares the extension seats; the guide declares its chain child.
     expect(Object.keys(seat('rightbar.session').children as object)).toEqual([
-      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
+      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.pane.tab.badge', 'sidebar.right.tab.menu.item',
     ])
     expect(seat('sidebar.right.pane.tab').children).toMatchObject({ 'sidebar.right.tab.guide': { kind: 'chain', scope: 'session' } })
     // Both seats read one store: the button only needs to know whether the panel is expanded.
@@ -129,7 +135,9 @@ describe('ui-sidebar-right apply', () => {
     expect(injected.hooks.tabTypes.getSnapshot().find(type => type.kind === 'guide')?.id).toBe(GUIDE_ID)
     const seen = vi.fn()
     const unsubscribe = injected.hooks.tabTypes.subscribe(seen)
-    ctx.sidebarRightTabs.register({ id: 'spec/text', kind: 'text', patterns: ['qilin-resource://file/**'], title: () => 'text' })
+    ctx.sidebarRightTabs.register({
+      id: 'spec/text', kind: 'text', patterns: ['qilin-resource://file/**'], label: () => 'text', title: () => 'text',
+    })
     expect(seen).toHaveBeenCalledOnce()
     unsubscribe()
     // The binding makes the service act on this seat's session; the seat's
@@ -178,6 +186,7 @@ describe('ui-sidebar-right apply', () => {
     ctx.sidebarRightTabs.register({
       id: 'spec/files',
       kind: 'files',
+      label: () => 'Files',
       title: () => 'Files',
       guide: [{ order: 10, title: () => 'Files' }],
     })
@@ -208,6 +217,6 @@ describe('ui-sidebar-right apply', () => {
     expect(dictionaries.size).toBe(0)
     await ctx.plugin({ inject: [...inject], apply }).await()
     expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
-    expect(registered).toHaveLength(5)
+    expect(registered).toHaveLength(6)
   })
 })

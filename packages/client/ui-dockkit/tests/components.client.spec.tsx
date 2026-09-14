@@ -694,6 +694,73 @@ describe('DockSurface', () => {
     expect(screen.getByTestId('rich-title').tagName).toBe('EM')
   })
 
+  it('draws a chip\'s glyph and badge before its title, and only when the embedder renders them', () => {
+    const controller = seededController()
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const props: DockSurfaceProps = {
+      state: controller.getSnapshot().state,
+      canSplit: true,
+      intents: spyIntents(),
+      labels: TEST_LABELS,
+      renderTab: () => null,
+    }
+    const { rerender } = render(<DockSurface {...props} />)
+    expect(document.querySelector('[data-dockkit-tab-icon]')).toBeNull()
+    expect(document.querySelector('[data-dockkit-tab-badge]')).toBeNull()
+
+    rerender(
+      <DockSurface
+        {...props}
+        renderTabIcon={tab => <i data-testid="chip-glyph">{tab.kind}</i>}
+        renderTabBadge={tab => <b data-testid="chip-badge">{tab.title}</b>}
+      />,
+    )
+
+    const chips = screen.getAllByRole('tab')
+    expect(chips).toHaveLength(2)
+    // The glyph, then the badge, then the title: one reading order per chip.
+    expect(chips.map(chip => [...chip.querySelectorAll('[data-dockkit-tab-icon],[data-dockkit-tab-badge],[data-dockkit-tab-title]')]
+      .map(element => element.hasAttribute('data-dockkit-tab-icon')
+        ? 'icon'
+        : element.hasAttribute('data-dockkit-tab-badge') ? 'badge' : 'title')))
+      .toEqual([['icon', 'badge', 'title'], ['icon', 'badge', 'title']])
+    // Each hook names the tab it belongs to and carries what the embedder returned.
+    const [seed, file] = chips
+    const named = (chip: Element | undefined, attribute: string): string | null =>
+      chip?.querySelector(`[${attribute}]`)?.getAttribute(attribute) ?? null
+    expect(named(seed, 'data-dockkit-tab-icon')).toBe(seed?.getAttribute('data-dockkit-tab'))
+    expect(named(file, 'data-dockkit-tab-icon')).toBe(file?.getAttribute('data-dockkit-tab'))
+    expect(named(seed, 'data-dockkit-tab-badge')).toBe(seed?.getAttribute('data-dockkit-tab'))
+    expect(named(file, 'data-dockkit-tab-badge')).toBe(file?.getAttribute('data-dockkit-tab'))
+    expect(seed?.querySelector('[data-dockkit-tab-icon]')?.textContent).toBe('seed')
+    expect(seed?.querySelector('[data-dockkit-tab-badge]')?.textContent).toBe('Start')
+    expect(file?.querySelector('[data-dockkit-tab-icon]')?.textContent).toBe('file')
+    expect(file?.querySelector('[data-dockkit-tab-badge]')?.textContent).toBe('a.txt')
+  })
+
+  it('draws no pill at all when the embedder\'s badge renderer has nothing to say', () => {
+    const controller = seededController()
+    controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    const props: DockSurfaceProps = {
+      state: controller.getSnapshot().state,
+      canSplit: true,
+      intents: spyIntents(),
+      labels: TEST_LABELS,
+      renderTab: () => null,
+      // A renderer that answers with nothing must cost the chip nothing: an
+      // empty container would still take the strip's gap and narrow the title.
+      renderTabBadge: () => null,
+    }
+    const { rerender } = render(<DockSurface {...props} />)
+    expect(document.querySelector('[data-dockkit-tab-badge]')).toBeNull()
+
+    rerender(<DockSurface {...props} renderTabBadge={() => undefined} />)
+    expect(document.querySelector('[data-dockkit-tab-badge]')).toBeNull()
+
+    rerender(<DockSurface {...props} renderTabBadge={() => <b>3</b>} />)
+    expect(document.querySelectorAll('[data-dockkit-tab-badge]')).toHaveLength(2)
+  })
+
   it('closes a tab from the chip\'s own control, without starting a drag', () => {
     const controller = seededController()
     const intents = spyIntents()
@@ -1270,6 +1337,29 @@ describe('FloatLayer', () => {
     expect(screen.queryByRole('tablist')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: TEST_LABELS.dockFloat }))
     expect(intents.unfloatPane).toHaveBeenCalledTimes(1)
+  })
+
+  it('draws the panel header\'s glyph before its title, and only when the embedder renders one', () => {
+    const controller = seededController()
+    const tabId = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
+    controller.floatTab(tabId, { x: 100, y: 80, width: 300, height: 200 })
+    const props: FloatLayerProps = {
+      state: controller.getSnapshot().state,
+      intents: spyIntents(),
+      labels: TEST_LABELS,
+      renderTab: () => null,
+    }
+    const { rerender } = render(<FloatLayer {...props} />)
+    expect(document.querySelector('[data-dockkit-tab-icon]')).toBeNull()
+    expect(screen.getByRole('banner').textContent).toBe('a.txt')
+
+    rerender(<FloatLayer {...props} renderTabIcon={tab => <i data-testid="float-glyph">{tab.kind}</i>} />)
+
+    const header = document.querySelector('[data-dockkit-float-title]')
+    if (header === null) throw new Error('expected the panel header')
+    expect(header.querySelector(`[data-dockkit-tab-icon="${tabId}"]`)?.textContent).toBe('file')
+    expect([...header.children].map(element => element.hasAttribute('data-dockkit-tab-icon') ? 'icon' : 'title'))
+      .toEqual(['icon', 'title'])
   })
 
   it('closes a floating panel through its own control', () => {

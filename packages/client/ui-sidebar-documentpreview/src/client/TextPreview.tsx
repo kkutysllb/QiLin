@@ -7,16 +7,17 @@
  * announced, not applied: reloading under a reader would lose their place, so
  * the bar waits for a click. A failed metadata frame — the file gone, its
  * workspace unknown — takes the same bar's place over the pages already loaded,
- * with the same reload. The type's controls, viewer choice, wrap and reload, sit at the end of
- * the path row; the Sidebar's strip carries none of them.
+ * with the same reload. The type's controls — the editor open for a file the
+ * editor type takes, viewer choice, wrap, and reload — sit at the end of the
+ * path row; the Sidebar's strip carries none of them.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
 import type { ObservableSnapshot } from '@qilin/client-store'
 import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
-import { FileTypeIcon, IconRefreshOutline16, Menu, Tooltip, classifyFileType } from '@qilin/client-ui-primitives'
-import { pathPartsOf } from '@qilin/util-workspace-path'
+import { FileTypeIcon, IconEditOutline16, IconRefreshOutline16, Menu, Tooltip, classifyFileType } from '@qilin/client-ui-primitives'
+import { acceptsPath, parseFileAddress, pathPartsOf } from '@qilin/util-workspace-path'
 import type { TextInjected } from './face.ts'
 import { failureLine } from './failure-line.ts'
 import { IconNowrapFill16, IconWrapFill16 } from './icons.tsx'
@@ -79,10 +80,14 @@ export function TextPreview({
   loadAll, reloadAll, useDocumentPreviews, renderSlot, t,
 }: TextPreviewProps): ReactNode {
   const { tab } = useTabInfo()
-  const { navigation, signal } = tab
+  const { navigation, signal, actions: tabActions } = tab
   const meta = useResource<'file'>(tab.contentId)
   const canRead = meta.status !== 'none'
   const file = useMemo(() => hostFileOf(tab.contentId), [tab.contentId])
+  // The editor open is offered exactly where the editor type could take the
+  // address: a Session-scoped path whose extension the shared editable set
+  // carries. Anything else has no editor to open, so the control is absent.
+  const editable = parseFileAddress(tab.contentId)?.scope === 'session' && acceptsPath(file.path)
   const state = useStore(s => s.byTab[tab.id])
   const definitions = useDocumentPreviews(value => value)
   const candidates = useMemo(() => {
@@ -236,6 +241,21 @@ export function TextPreview({
             <span className={css.pathName}>{name}</span>
           </span>
         </div>
+        {editable && (
+          // The ranked claim sends the address to the editor type; an existing
+          // editor tab for the file is revealed rather than duplicated.
+          <Tooltip label={t('edit')} side="bottom" delayMs={500}>
+            <button
+              type="button"
+              className={css.tool}
+              aria-label={t('edit')}
+              data-textpreview-tool="edit"
+              onClick={() => { tabActions.openResource(tab.contentId) }}
+            >
+              <IconEditOutline16 />
+            </button>
+          </Tooltip>
+        )}
         <Menu
           open={menuOpen}
           anchor={(

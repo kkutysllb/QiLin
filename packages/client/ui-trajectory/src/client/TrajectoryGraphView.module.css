@@ -1,0 +1,341 @@
+/* Full-bleed host for the trajectory graph canvas. */
+.root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-1);
+  /* The canvas and the inspector scroll over this sheet's elevated surfaces
+     (node chips, band stripes), so both scrollers inherit the l2 thumb pair. */
+  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+}
+
+.toolbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 8px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.tool:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.tool[aria-pressed='true'] {
+  background: var(--dsw-alias-interactive-bg-active);
+  color: var(--dsw-alias-brand-primary);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.stat {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  line-height: 1;
+  color: var(--dsw-alias-label-secondary);
+  white-space: nowrap;
+}
+
+.legend {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 10px;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--graph-lane);
+}
+
+.laneInput {
+  --graph-lane: var(--dsw-alias-label-tertiary);
+}
+
+.laneModel {
+  --graph-lane: var(--dsw-alias-brand-primary);
+}
+
+.laneTool {
+  --graph-lane: var(--dsw-alias-state-business-primary);
+}
+
+.canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.svg {
+  display: block;
+}
+
+.svgFit {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.band {
+  fill: var(--dsw-alias-bg-layer-2);
+}
+
+.bandLabel {
+  fill: var(--dsw-alias-label-tertiary);
+  font-size: 10px;
+}
+
+.edge {
+  fill: none;
+  stroke: var(--dsw-alias-border-l3);
+  stroke-width: 1.2;
+}
+
+.edgePrompt {
+  stroke: var(--dsw-alias-label-tertiary);
+}
+
+.edgeResult {
+  stroke: var(--dsw-alias-brand-primary);
+}
+
+.edgeDispatch {
+  stroke: var(--dsw-alias-state-business-primary);
+}
+
+.edgeSubcall {
+  stroke: var(--dsw-alias-label-secondary);
+  stroke-dasharray: 3 3;
+}
+
+.edgeLoop {
+  stroke: var(--dsw-alias-state-warn-primary);
+}
+
+.edgeLive {
+  stroke: var(--dsw-alias-state-success-primary);
+  stroke-dasharray: 5 4;
+  animation: qilin-trajectory-graph-flow 0.9s linear infinite;
+}
+
+.edgeSelected {
+  stroke-width: 2.2;
+}
+
+.node {
+  cursor: pointer;
+}
+
+/* Per-kind accent, spelled here so color tokens stay in CSS. */
+.node[data-kind='system'],
+.node[data-kind='compaction'] {
+  --node-accent: var(--dsw-alias-label-tertiary);
+}
+
+.node[data-kind='user'] {
+  --node-accent: var(--dsw-alias-brand-primary);
+}
+
+.node[data-kind='steering'],
+.node[data-kind='compact-request'],
+.node[data-kind='running-call'],
+.node[data-kind='retry'] {
+  --node-accent: var(--dsw-alias-state-warn-primary);
+}
+
+.node[data-kind='context'] {
+  --node-accent: var(--dsw-alias-label-secondary);
+}
+
+.node[data-kind='command'],
+.node[data-kind='assistant'] {
+  --node-accent: var(--dsw-alias-state-business-primary);
+}
+
+.node[data-kind='request'],
+.node[data-kind='partial'] {
+  --node-accent: var(--dsw-alias-state-success-primary);
+}
+
+.node[data-kind='tool'] {
+  --node-accent: var(--dsw-alias-link);
+}
+
+.node[data-kind='error'],
+.node[data-kind='max-tokens'] {
+  --node-accent: var(--dsw-alias-state-error-primary);
+}
+
+.node[data-kind='unknown'] {
+  --node-accent: var(--dsw-alias-label-dimmed);
+}
+
+.nodeRect {
+  fill: var(--dsw-alias-bg-layer-2);
+  stroke: var(--dsw-alias-border-l3);
+  stroke-width: 1;
+}
+
+.nodeAccent {
+  fill: var(--node-accent);
+}
+
+.nodeLabel {
+  fill: var(--dsw-alias-label-primary);
+  font-size: 11px;
+}
+
+.nodeBadge {
+  fill: var(--dsw-alias-label-tertiary);
+  font-size: 9px;
+}
+
+.nodeLive .nodeRect {
+  animation: qilin-trajectory-graph-pulse 1.4s ease-in-out infinite;
+}
+
+.nodeSelected .nodeRect {
+  stroke: var(--dsw-alias-brand-primary);
+  stroke-width: 1.6;
+}
+
+.liveDot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  /* States the circle against the universal superellipse smoothing. */
+  corner-shape: round;
+  background: var(--dsw-alias-state-success-primary);
+  animation: qilin-trajectory-graph-pulse 1.4s ease-in-out infinite;
+}
+
+.paused .edgeLive,
+.paused .nodeLive .nodeRect,
+.paused .liveDot {
+  animation-play-state: paused;
+}
+
+@keyframes qilin-trajectory-graph-flow {
+  from { stroke-dashoffset: 18; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes qilin-trajectory-graph-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.note {
+  flex: none;
+  padding: 4px 10px;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--dsw-font-xs-13-font-size);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.inspector {
+  flex: none;
+  max-height: 40%;
+  overflow: auto;
+  padding: 8px 10px;
+  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+.inspectorHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inspectorKind {
+  font-size: var(--dsw-font-xxs-strong-12-font-size);
+  color: var(--dsw-alias-label-primary);
+}
+
+.inspectorLane {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.inspectorStatus {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.inspectorStatus[data-status='error'] {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.inspectorStatus[data-status='running'] {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.inspectorMeta {
+  margin-top: 4px;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.inspectorSection {
+  margin-top: 6px;
+}
+
+.inspectorLabel {
+  display: block;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.inspectorBody {
+  margin: 2px 0 0;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

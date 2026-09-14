@@ -1,0 +1,230 @@
+/* The workbench is a row: the fixed tree pane, then the editor pane. Like the
+   files page, the pane body is a block scroller with a definite height, so
+   the row takes that height outright. */
+.root {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
+  line-height: 1.5;
+}
+
+/* The toolbar row: tree toggle, open file's path, dirty dot, status, then
+   wrap, reload, and save at its end. One 38px row flush under the pane's
+   strip, matching the tree page's header row above it. */
+.toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  align-items: center;
+  box-sizing: border-box;
+  height: 38px;
+  padding: 0 6px 0 8px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+/* The open file's path, greyed and ellipsized from its start: the chip
+   already names the basename, so the row adds where it lives. */
+.path {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 4px;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+
+.dirtyDot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 7px;
+  background: var(--dsw-static-red-500);
+}
+
+.spring {
+  flex: none;
+  width: 4px;
+}
+
+.statusText {
+  flex: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.statusError {
+  color: var(--dsw-static-red-500);
+}
+
+/* The banner between the toolbar and the workbench: one reload or save
+   decision, its copy, and its actions. */
+.banner {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+.bannerText {
+  flex: 1 1 auto;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bannerButton {
+  flex: none;
+  padding: 4px 10px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 12px;
+  background: transparent;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.bannerButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.bannerButton:disabled {
+  color: var(--dsw-alias-label-tertiary);
+  cursor: default;
+}
+
+.bannerButton:disabled:hover {
+  background: transparent;
+}
+
+/* The workbench row under the toolbar: the tree pane and the editor pane. */
+.body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.treePane {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 200px;
+  min-width: 0;
+  border-right: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+.treeScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-right: 2px;
+  padding: 8px 0 8px 8px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.treeScroll::-webkit-scrollbar-track {
+  margin: 2px;
+}
+
+.editorPane {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The read/failed line sits over the empty host while the editor has no
+   surface to show. */
+.placeholder {
+  position: absolute;
+  inset: 0 0 auto 0;
+  margin: 0;
+  padding: 12px 10px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+}
+
+.host {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* The adapter sizes the view to the host; the host must give it a definite
+   box to measure. */
+.host :global(.cm-editor) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The shared icon button: a 28px circle around a 15px glyph, as the strip
+   controls and the tree page's reload. */
+.tool {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  color: var(--dsw-alias-label-secondary);
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.tool svg {
+  width: 15px;
+  height: 15px;
+}
+
+.tool:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.tool:disabled {
+  color: var(--dsw-alias-label-tertiary);
+  cursor: default;
+}
+
+.tool:disabled:hover {
+  background: transparent;
+}
+
+/* The pressed state of the two toggles (tree pane, wrap). */
+.toolActive {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-button-ghost-active-fill);
+}
+
+.wrapLabel {
+  font-size: 11px;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px;
+}
+
+.statusLine {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
+  line-height: 1.6;
+}

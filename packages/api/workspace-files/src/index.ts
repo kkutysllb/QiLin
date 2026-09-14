@@ -1,14 +1,16 @@
 /**
- * Workspace file service: read-only file previews, workspace directory
- * listings, and the filesystem-observation change feed, exposed as
+ * Workspace file service: file previews, one guarded text write, workspace
+ * directory listings, and the filesystem-observation change feed, exposed as
  * `workspaceFiles`.
  *
  * File reads follow the composed filesystem's read access, including paths
  * outside the workspace. The selected Session header supplies the base for
  * relative paths, with the sandbox policy root as its no-cwd fallback, not a
- * read-containment restriction. Directory listings and change observations
- * remain workspace-scoped. File-kind checks and configured read caps apply to
- * every preview; this service exposes no mutations.
+ * read-containment restriction. The write is confined to that workspace: the
+ * resolved target must lie inside the workspace root and the path itself must
+ * not be a symbolic link. Directory listings and change observations remain
+ * workspace-scoped too. File-kind checks and configured read caps apply to
+ * every preview, and the configured complete-file cap applies to a write.
  *
  * A page is cut from `streamText`, which decodes and rejects non-UTF-8 as it
  * goes, so the file is read only up to the first character past the page and
@@ -22,8 +24,15 @@
 import { posix, win32 } from 'node:path'
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import type {} from '@qilin/fs'
-import type { FsDirEntry, FsInfo, FsPathInfo, FsTarget } from '@qilin/fs'
+import {
+  FsVersion,
+  type FsDirEntry,
+  type FsInfo,
+  type FsPathInfo,
+  type FsTarget,
+  type FsWriteIntent,
+  type FsWriteOutcome,
+} from '@qilin/fs'
 import type {} from '@qilin/sandbox-policy'
 import type {} from '@qilin/session'
 import type {} from '@qilin/session-persistence'
@@ -39,6 +48,7 @@ import type {
   WorkspaceFileStat,
   WorkspaceFileText,
   WorkspaceFileWatchFrame,
+  WorkspaceFileWriteRequest,
 } from './types.ts'
 
 export type * from './types.ts'
@@ -178,7 +188,7 @@ function directoryEntry(child: FsDirEntry): WorkspaceDirectoryEntry {
   }
 }
 
-/** Host Remote file reads and workspace directory observations over the composed filesystem. */
+/** Host Remote file reads and writes plus workspace directory observations over the composed filesystem. */
 export class WorkspaceFiles extends TypertRemoteService {
   static inject = ['fs', 'sandboxPolicy', 'sessions', 'typert']
 
@@ -327,6 +337,50 @@ export class WorkspaceFiles extends TypertRemoteService {
   }
 
   /**
+   * Save one complete UTF-8 text file inside the Session's workspace: replace an
+   * existing regular file or create one. The path is refused before anything is
+   * written when its own entry is not a regular file (a final symbolic link
+   * included) or when the resolved target lies outside the workspace root.
+   *
+   * The write is guarded by the caller's own freshness basis, not by the
+   * `fs/write-intent` slot. That slot decides from the per-Session
+   * observations an Agent accumulates by reading (`fs-observation-policy`,
+   * `writeIntent`), and its actor is a tool execution this Remote has none of;
+   * a browser save has read nothing through the Agent, so delegating to it would
+   * refuse every save of an existing file with `FS_NOT_OBSERVED`. Passing the
+   * Session as the actor instead would attribute the user's own save to the
+   * Agent's observation record and let a later Agent edit rewrite content it
+   * never read. `baseVersion` is therefore the basis the provider compares,
+   * and the successful write emits `fs/observed` with no actor, so the change
+   * feed reports the new version while the policy records no Agent observation.
+   *
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param path - absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.
+   * @param text - the complete new file content, written as UTF-8; more bytes than the configured `maxFileBytes` fails with too-large.
+   * @param request - the freshness basis; an omitted `baseVersion` writes unconditionally.
+   * @param signal - caller cancellation.
+   * @returns the saved file's absolute path, its version after the write, and the saved byte size.
+   */
+  @Remote
+  async write(
+    workspaceFileScope: WorkspaceFileScope,
+    path: string,
+    text: string,
+    request: WorkspaceFileWriteRequest,
+    signal: AbortSignal,
+  ): Promise<WorkspaceFileStat> {
+    const bytes = Buffer.byteLength(text, 'utf8')
+    const limit = this.config.maxFileBytes
+    if (bytes > limit) {
+      throw new RemoteError('workspace-file/too-large', `"${path}" exceeds the ${limit} byte write cap`, { path, limit })
+    }
+    const { target, workspaceRoot } = await this.locateWritable(workspaceFileScope, path, signal)
+    const outcome = await this.publish(target, text, this.writeIntent(request), workspaceRoot, path, signal)
+    this.ctx.emit('fs/observed', target, { kind: 'present', version: outcome.version }, undefined)
+    return { absolutePath: this.ctx.fs.processPath(target), version: outcome.version, bytes }
+  }
+
+  /**
    * List the direct children of one directory inside the Session's workspace.
    * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
    * @param path - workspace path, absolute or relative to the workspace root.
@@ -393,6 +447,24 @@ export class WorkspaceFiles extends TypertRemoteService {
     return { offset, length }
   }
   /**
+   * Resolve the workspace root and probe the requested path itself, before
+   * resolution follows its final component. A missing path is reported as
+   * absent rather than refused, so a caller that may create it decides.
+   */
+  private async inspectPath(
+    workspaceFileScope: WorkspaceFileScope,
+    path: string,
+    signal: AbortSignal,
+  ): Promise<{ root: FsTarget; workspaceRoot: string; entry: FsPathInfo | undefined }> {
+    if (path.length === 0) throw new RemoteError('gateway/bad-request', 'path is required', {})
+    const { workspaceRoot } = workspaceFileScope
+    const root = await this.ctx.fs.resolve(workspaceRoot, { signal })
+    // Gate on the path itself before anything follows it.
+    const entry = await this.ctx.fs.lstat(path, { cwd: workspaceRoot }, signal)
+    return { root, workspaceRoot, entry }
+  }
+
+  /**
    * Inspect the requested path itself before resolution follows its final
    * component. Directory containment is checked separately by `list`.
    */
@@ -401,11 +473,7 @@ export class WorkspaceFiles extends TypertRemoteService {
     path: string,
     signal: AbortSignal,
   ): Promise<{ root: FsTarget; workspaceRoot: string; entry: FsPathInfo }> {
-    if (path.length === 0) throw new RemoteError('gateway/bad-request', 'path is required', {})
-    const { workspaceRoot } = workspaceFileScope
-    const root = await this.ctx.fs.resolve(workspaceRoot, { signal })
-    // Gate on the path itself before anything follows it.
-    const entry = await this.ctx.fs.lstat(path, { cwd: workspaceRoot }, signal)
+    const { root, workspaceRoot, entry } = await this.inspectPath(workspaceFileScope, path, signal)
     if (entry === undefined) {
       throw new RemoteError('workspace-file/not-found', `no entry at "${path}"`, { path })
     }
@@ -446,6 +514,60 @@ export class WorkspaceFiles extends TypertRemoteService {
     return { target, info }
   }
 
+  /**
+   * The provider guard a save runs under: the caller's token as an equality
+   * check, or no guard at all. The token is opaque — the wire string is branded
+   * and never parsed, ordered, or interpreted.
+   */
+  private writeIntent(request: WorkspaceFileWriteRequest): FsWriteIntent | undefined {
+    return request.baseVersion === undefined
+      ? undefined
+      : { kind: 'replaceIfVersion', version: FsVersion(request.baseVersion) }
+  }
+
+  /**
+   * All gates for a text save: the path's own entry is probed before resolution
+   * follows it, a non-file entry is refused as such, and the resolved target
+   * must stay inside the workspace root. An absent entry is a create.
+   */
+  private async locateWritable(
+    workspaceFileScope: WorkspaceFileScope,
+    path: string,
+    signal: AbortSignal,
+  ): Promise<{ target: FsTarget; workspaceRoot: string }> {
+    const { root, workspaceRoot, entry } = await this.inspectPath(workspaceFileScope, path, signal)
+    if (entry !== undefined && entry.type !== 'file') {
+      throw new RemoteError('workspace-file/not-regular-file', `"${path}" is a ${entry.type}`, { path, kind: entry.type })
+    }
+    const target = await this.confine(root, workspaceRoot, path, signal)
+    return { target, workspaceRoot }
+  }
+
+  /**
+   * Run the guarded write under a per-call `workspace-write` policy at the same
+   * root this service confined to, so a sandboxing backend fences the save where
+   * it was already checked instead of falling back to the deployment root, which
+   * can differ from the Session's own. The provider's stale refusal becomes this
+   * namespace's `stale`; every other backend failure keeps its own code.
+   */
+  private async publish(
+    target: FsTarget,
+    text: string,
+    expected: FsWriteIntent | undefined,
+    workspaceRoot: string,
+    path: string,
+    signal: AbortSignal,
+  ): Promise<FsWriteOutcome> {
+    try {
+      return await this.ctx.fs.writeText(target, text, expected, signal, { mode: 'workspace-write', workspaceRoot })
+    } catch (error: unknown) {
+      if (isStaleRefusal(error)) {
+        throw new RemoteError('workspace-file/stale', `"${path}" changed since baseVersion`, { path }, { cause: error })
+      }
+      throw error
+    }
+  }
+
   private statOf(target: FsTarget, info: FsInfo): WorkspaceFileStat {
     return {
       absolutePath: this.ctx.fs.processPath(target),
@@ -474,6 +596,11 @@ export class WorkspaceFiles extends TypertRemoteService {
  */
 function isNotTextRefusal(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === 'FS_NOT_TEXT'
+}
+
+/** The same recognition for the provider's stale-version refusal. */
+function isStaleRefusal(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'FS_STALE_VERSION'
 }
 
 export default WorkspaceFiles

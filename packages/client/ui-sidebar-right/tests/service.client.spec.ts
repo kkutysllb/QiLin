@@ -13,10 +13,10 @@ import { Context } from '@deepseek-ai/cordis'
 import type { SessionId } from '@qilin/session/types'
 import type { LayoutState, PaneId, TabId } from '@qilin/client-ui-dockkit'
 import { dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
-import { createSidebarRightController } from '../src/client/service.ts'
+import { createSidebarRightController, type SidebarRightFeature } from '../src/client/service.ts'
 import { SidebarRightTabRegistry } from '../src/client/tab-registry.ts'
-import { createSidebarRightStore } from '../src/client/stores.ts'
-import { guideDefinition } from '../src/client/tabs/guide/definition.ts'
+import { createSidebarRightStore, type SurfaceState } from '../src/client/stores.ts'
+import { GUIDE_ID, guideDefinition } from '../src/client/tabs/guide/definition.ts'
 
 // The params map is empty in this package; a test-only scheme lets specs hand
 // parameters through the typed `open`/`navigate` faces.
@@ -44,6 +44,7 @@ function harness() {
     kind: 'text',
     patterns: ['qilin-resource://file/**'],
     priority: 'fallback',
+    label: () => 'Text',
     title: address => address.slice(address.lastIndexOf('/') + 1),
   })
   const pin = vi.fn<(address: string, signal: AbortSignal) => void>()
@@ -127,7 +128,7 @@ describe('SidebarRightController — opening', () => {
 
   it('opens another tab for the same address when told not to reveal, and when another kind is named', () => {
     const { controller, tabs, publish, titles } = harness()
-    tabs.register({ id: 'test/hex', kind: 'hex', patterns: [], title: () => 'hex view' })
+    tabs.register({ id: 'test/hex', kind: 'hex', patterns: [], label: () => 'Hex', title: () => 'hex view' })
     publish()
     controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
     publish()
@@ -505,8 +506,8 @@ describe('SidebarRightController — a tab\'s own actions', () => {
   it('adoption syncs the Tab domain on each commit of that store: the seeded guide is pinned, a closed tab aborted', () => {
     const { controller, adopt, instance, pin } = harness()
     const first = adopt(SESSION, instance)
-    // Nothing is synced at adoption, and a commit that materializes another
-    // session leaves this session's occurrences alone.
+    // An empty store syncs nothing at adoption, and a commit that materializes
+    // another session leaves this session's occurrences alone.
     instance.actions.open(OTHER)
     expect(pin).not.toHaveBeenCalled()
     instance.actions.setExpanded(SESSION, true)
@@ -541,6 +542,21 @@ describe('SidebarRightController — a tab\'s own actions', () => {
     expect(held.signal.aborted).toBe(true)
     second()
     third()
+  })
+
+  it('adopts a store whose surface is already committed — the rehydration shape — and reconciles it at adoption', () => {
+    const { controller, adopt, instance, pin } = harness()
+    // Persistence rehydrates the store before any subscriber exists: the commits
+    // that produced the surface are gone by the time adoption subscribes, so
+    // adoption itself must reconcile, or the seat renders unreconciled tabs.
+    instance.actions.setExpanded(SESSION, true)
+    instance.actions.openContent(SESSION, { kind: 'text', contentId: A_TXT, title: 'a' }, () => {})
+    const surface = instance.getSnapshot().bySession[SESSION]
+    const tab = Object.values(surface?.layout.tabs ?? {}).find(record => record.contentId === A_TXT)
+    if (tab === undefined) throw new Error('expected the restored tab')
+    adopt(SESSION, instance)
+    const occurrence = controller.tabDomain.occurrence(SESSION, tab)
+    expect(pin).toHaveBeenCalledWith(A_TXT, occurrence.signal)
   })
 })
 
@@ -588,5 +604,125 @@ describe('SidebarRightController — binding lifetime', () => {
     publish()
     stale()
     expect(() => { controller.toggleExpanded() }).not.toThrow()
+  })
+})
+
+describe('SidebarRightController — opening a file by the session it belongs to', () => {
+  it('opens it at that session\'s own address through that session\'s store, with no seat mounted', () => {
+    const { controller, adopt, instance, pin } = harness()
+    const release = adopt(SESSION, instance)
+    // No seat is bound at all: `openFile` names the session it opens in.
+    controller.openFile(SESSION, 'notes/readme.txt')
+
+    const surface = instance.getSnapshot().bySession[SESSION]
+    if (surface === undefined) throw new Error('expected a surface')
+    const [tab] = Object.values(surface.layout.tabs)
+    expect(tab?.contentId).toBe('qilin-resource://file/session/s-test/notes/readme.txt')
+    expect(tab?.title).toBe('readme.txt')
+    expect(surface.layout.expanded).toBe(true)
+    // The commit reached the Tab domain through the adoption, so the address is held.
+    expect(pin).toHaveBeenCalledWith('qilin-resource://file/session/s-test/notes/readme.txt', expect.any(AbortSignal))
+    release()
+
+    // A session whose store was never adopted has nothing to open into.
+    const before = instance.getSnapshot()
+    controller.openFile(SESSION, 'notes/other.txt')
+    expect(instance.getSnapshot()).toBe(before)
+  })
+})
+
+describe('SidebarRightController — opening into another session', () => {
+  const OTHER = 's-other' as SessionId
+  const A_TXT = 'qilin-resource://file/session/s-test/a.txt'
+
+  /** The mounted session plus a second session with its own adopted store already materialized. */
+  function twoSessions() {
+    const h = harness()
+    const other = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create(OTHER)
+    h.adopt(OTHER, other)
+    other.actions.open(OTHER)
+    h.publish()
+    const otherSurface = (): SurfaceState => {
+      const surface = other.getSnapshot().bySession[OTHER]
+      if (surface === undefined) throw new Error('expected the other session\'s surface')
+      return surface
+    }
+    return { ...h, otherSurface }
+  }
+
+  it('lands a scoped resource in that session\'s store and leaves the mounted session\'s surface alone', () => {
+    const { controller, instance, otherSurface } = twoSessions()
+    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
+
+    controller.openResource(A_TXT, { scope: OTHER })
+
+    const surface = otherSurface()
+    expect(Object.values(surface.layout.tabs).map(tab => tab.contentId)).toEqual([A_TXT])
+    expect(surface.layout.expanded).toBe(true)
+    // The session on screen was not touched by an open that belongs elsewhere.
+    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
+  })
+
+  it('lands a scoped page in that session\'s store, at the address pages are recorded under', () => {
+    const { controller, instance, otherSurface } = twoSessions()
+
+    controller.openTab('guide', { scope: OTHER })
+
+    const surface = otherSurface()
+    expect(Object.values(surface.layout.tabs).map(tab => tab.contentId)).toEqual(['sidebar://guide'])
+    expect(surface.layout.expanded).toBe(true)
+    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
+  })
+
+  it('opens nothing into a session whose store was never adopted', () => {
+    const { controller, instance, otherSurface } = twoSessions()
+    const before = instance.getSnapshot()
+
+    controller.openResource(A_TXT, { scope: 's-never' as SessionId })
+
+    expect(Object.values(otherSurface().layout.tabs)).toEqual([])
+    expect(instance.getSnapshot()).toBe(before)
+  })
+})
+
+describe('SidebarRightController — types the user turned off', () => {
+  const A_TXT = 'qilin-resource://file/session/s-test/a.txt'
+
+  it('opens nothing for a turned-off type, while a kind nothing registered still refuses the call', () => {
+    const { controller, tabs, instance, publish, entries } = harness()
+    publish()
+
+    tabs.setEnabled('test/text', false)
+    controller.openResource(A_TXT)
+
+    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
+    expect(entries()).toBe(0)
+
+    tabs.setEnabled(GUIDE_ID, false)
+    controller.openTab('guide')
+
+    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
+    expect(entries()).toBe(0)
+
+    // The switches say nothing about a kind that was never registered.
+    expect(() => { controller.openTab('nope') }).toThrow('no tab type is registered as "nope"')
+    expect(entries()).toBe(0)
+
+    // Switched back on, the same call opens as it did before.
+    tabs.setEnabled('test/text', true)
+    controller.openResource(A_TXT)
+    expect(entries()).toBe(1)
+  })
+})
+
+describe('SidebarRightController — the outward promise list', () => {
+  /** The capabilities the rest of this build implements; a consumer gates new API use on membership. */
+  const IMPLEMENTED: readonly SidebarRightFeature[] = [
+    'tabIcon', 'tabBadge', 'tabSettings', 'singleInstance', 'openFile', 'targetedOpen', 'layoutPersistence',
+  ]
+
+  it('promises every capability this build implements, so a type can gate on membership', () => {
+    const { controller } = harness()
+    expect(controller.features).toEqual(expect.arrayContaining([...IMPLEMENTED]))
   })
 })

@@ -62,6 +62,16 @@ export interface DockSurfaceProps {
    * slot, and nothing outside that embedder is expected to supply it.
    */
   readonly renderTabTitle?: TabRenderer
+  /**
+   * A chip's leading glyph; omit for a chip whose title carries the whole
+   * identity. An embedder-internal seam like `renderTabTitle`.
+   */
+  readonly renderTabIcon?: TabRenderer
+  /**
+   * A chip's status pill, drawn between the glyph and the title; omit, or
+   * return nothing, to draw none.
+   */
+  readonly renderTabBadge?: TabRenderer
   /** Extra items for a tab's context menu; omit for the kit's own item only. */
   readonly renderTabMenuItems?: TabMenuExtras
   /**
@@ -162,7 +172,8 @@ function sameSizes(a: readonly number[], b: readonly number[]): boolean {
 
 /** The split tree and the gestures over it. */
 export function DockSurface({
-  state, canSplit, canAddTab, canCloseTab, intents, labels, renderTab, renderTabTitle, renderTabMenuItems, chrome, onRoom,
+  state, canSplit, canAddTab, canCloseTab, intents, labels, renderTab, renderTabTitle, renderTabIcon, renderTabBadge,
+  renderTabMenuItems, chrome, onRoom,
   dropZones = 'edges', minPaneFraction = MIN_PANE_FRACTION, hideSplitWhenBlocked = false,
 }: DockSurfaceProps): ReactNode {
   const surface = useRef<HTMLDivElement | null>(null)
@@ -282,6 +293,8 @@ export function DockSurface({
     labels,
     renderTab,
     renderTabTitle,
+    renderTabIcon,
+    renderTabBadge,
     renderTabMenuItems,
     chromePaneId: topRightPaneId(state),
     chrome,

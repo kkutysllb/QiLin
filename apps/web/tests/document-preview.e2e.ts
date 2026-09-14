@@ -7,6 +7,7 @@ import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, vi } from 'vitest'
 import { pdfFixture } from '../../../packages/client/ui-sidebar-documentpreview/tests/pdf-fixture.ts'
+import { acceptsPath } from '../../../packages/util/workspace-path/src/editable-path.ts'
 import { assertFixtureInventory, compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
 import { connectFreshWorkspace, newEnglishPage, openFilesTab, saveFailureShot } from './support.ts'
 
@@ -172,6 +173,13 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     const openFile = async (name: string): Promise<void> => {
       await filesTab.click()
       await column.locator('[data-files-entry="file"]').getByRole('button', { name, exact: true }).click()
+      // The editor claims known text extensions; its toolbar hands the file to
+      // the viewer. Unknown extensions land on the viewer directly.
+      if (acceptsPath(name)) {
+        const previewButton = column.locator('[data-file-preview]').last()
+        await previewButton.waitFor({ timeout: 15_000 })
+        await previewButton.click()
+      }
       await expect.poll(async () => (await preview.getAttribute('data-textpreview-url'))?.endsWith(`/${name}`)).toBe(true)
     }
     const viewer = preview.locator('[data-document-viewer-menu]')
@@ -201,7 +209,9 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     const tailHeading = await markdownTail.innerText()
     await preview.getByRole('heading', { name: heading, exact: true }).scrollIntoViewIfNeeded()
     await successShot(page, 'markdown')
-    const markdownTab = column.locator('[data-dockkit-tab]').filter({ has: page.getByText('smoke.md', { exact: true }) })
+    // The viewer tab is the strip's selected chip: its editor twin shares the
+    // title, so selection, not the name, identifies it.
+    const markdownTab = column.locator('[data-dockkit-tab][aria-selected="true"]')
     const markdownTabId = await markdownTab.getAttribute('data-dockkit-tab')
     expect(markdownTabId).not.toBeNull()
     const tabCount = await column.locator('[data-dockkit-tab]').count()

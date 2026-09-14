@@ -9,6 +9,7 @@
  * unclaimed address is the documented wiring error.
  */
 import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin/client-locale/client'
 import { parseFileAddress } from '@qilin/util-workspace-path'
 
 /** The tab kind this package owns. */
@@ -40,15 +41,20 @@ export function basenameOf(address: string): string {
 
 /**
  * The text type's registry definition.
+ *
+ * `title` names the open file, so the type cannot take its own name from it:
+ * the enable switch reads `label`.
+ * @param t - namespace-bound translate, read fresh on every label call.
  * @returns the definition to register.
  */
-export function textDefinition(): SidebarRightTabDefinition {
+export function textDefinition(t: TranslateNS<'sidebarDocumentPreview'>): SidebarRightTabDefinition {
   return {
     id: TEXTPREVIEW_ID,
     kind: TEXTPREVIEW_KIND,
     patterns: ['qilin-resource://file/**'],
     priority: 'fallback',
     canOpen: address => parseFileAddress(address)?.scope === 'session',
+    label: () => t('type.label'),
     title: basenameOf,
   }
 }

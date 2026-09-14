@@ -1,6 +1,7 @@
 /**
- * Browser trajectory plugin: a right-Sidebar tab type whose body is the event
- * ledger, without defining a service.
+ * Browser trajectory plugin: two right-Sidebar page types over the same
+ * Trajectory target — the event ledger, and the graph view that draws it as a
+ * node and edge flow — without defining a service.
  */
 import type { Context } from '@deepseek-ai/cordis'
 import type { ImageAttachmentRef } from '@qilin/attachment'
@@ -28,6 +29,10 @@ import type { TrajectorySnapshot } from './trajectory-contract.ts'
 import { registerTrajectoryToolDefinition } from './trajectory-tool-definition.ts'
 import { TRAJECTORY_ID, trajectoryTabDefinition } from './trajectory-tab-definition.ts'
 import { TrajectoryView, type TrajectoryViewInjected } from './TrajectoryView.tsx'
+import { TrajectoryGraphView } from './TrajectoryGraphView.tsx'
+import {
+  TRAJECTORY_GRAPH_ID, trajectoryGraphTabDefinition,
+} from './trajectory-graph-tab-definition.ts'
 
 export type { TrajectoryKey } from './locales.ts'
 export type {
@@ -79,6 +84,10 @@ export function apply(ctx: Context): void {
     () => ctx.sidebarRightTabs.register(trajectoryTabDefinition(t)),
     'ui-trajectory: tab type',
   )
+  ctx.effect(
+    () => ctx.sidebarRightTabs.register(trajectoryGraphTabDefinition(t)),
+    'ui-trajectory: graph tab type',
+  )
   ctx.uiSession.provide({
     hooks: ['trajectory'],
     resolve: binding => ({ hooks: { trajectory: trajectorySource(binding) } }),
@@ -111,4 +120,9 @@ export function apply(ctx: Context): void {
       }
     },
   }, TrajectoryView)), 'ui-trajectory: tab body')
+  ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({
+    name: 'sidebar.right.pane.tab',
+    key: TRAJECTORY_GRAPH_ID,
+    locale: NS,
+  }, TrajectoryGraphView)), 'ui-trajectory: graph tab body')
 }

@@ -56,6 +56,18 @@ export interface SidebarRightState {
   bySession: Record<string, SurfaceState>
 }
 
+/**
+ * Recorded intents kept per surface.
+ *
+ * The sequence is the undo depth and the bulk of the persisted surface, so it
+ * is bounded: the oldest entries drop first, which shortens how far back a
+ * step reaches and nothing else.
+ */
+const HISTORY_LIMIT = 100
+
+/** The key one session's surface persists under; the runtime suffixes the session id. */
+const SURFACE_PERSIST_KEY = 'qilin.sidebarRight.surface.v1'
+
 /** A planner call, as the store needs it: state and a mint in, operations out. */
 type SurfacePlan = (state: LayoutState, mint: Mint, makeTab: (id: TabId) => TabRecord) => readonly LayoutOp[]
 
@@ -84,6 +96,11 @@ export interface OpenContentIntent {
   readonly kind: string
   readonly contentId: string
   readonly title: string
+  /**
+   * Focus an open tab of this kind wherever it sits instead of opening a
+   * second one, for a type the registry marks `single`.
+   */
+  readonly single?: boolean
   /** Land a new tab in this pane. */
   readonly paneId?: PaneId
   /** Take this tab's pane and slot, and close it in the same entry. */
@@ -195,7 +212,14 @@ function advance(surface: SurfaceState, plan: SurfacePlan, seed: () => SidebarRi
   const after = replay(surface.layout, planned)
   const settled = planSettle(after, counter.mint, after.expanded ? makeTab : undefined)
   const stepped = record(surface.history, surface.layout, [...planned, ...settled])
-  return { layout: stepped.state, history: stepped.history, minted: counter.used() }
+  return { layout: stepped.state, history: trimHistory(stepped.history), minted: counter.used() }
+}
+
+/** Drop the oldest entries once the sequence exceeds its limit, keeping the cursor aligned. */
+function trimHistory(history: History): History {
+  const excess = history.entries.length - HISTORY_LIMIT
+  if (excess <= 0) return history
+  return { entries: history.entries.slice(excess), cursor: Math.max(0, history.cursor - excess) }
 }
 
 /**
@@ -266,6 +290,10 @@ export function createSidebarRightStore(
 ): EngineStoreHandle<SidebarRightState, SidebarRightActions> {
   return defineStore({
     init: (): SidebarRightState => ({ bySession: {} }),
+    // Per session, so a reload returns to the tabs the user left open there and
+    // a pruned session takes its layout with it. The recorded sequence rides
+    // along, bounded by `HISTORY_LIMIT`, which is what makes undo survive it.
+    persist: SURFACE_PERSIST_KEY,
     actions: {
       // Materialize a session's surface without changing it, so the first read
       // after a session switch sees the collapsed empty column rather than nothing.
@@ -317,7 +345,11 @@ export function createSidebarRightStore(
           // The same page in another pane never draws the open away — the kit's
           // cross-pane reveal is for resources only.
           const page = contentId === pageAddress(kind)
-          const held = page ? panePage(state, paneId ?? activeDockPaneId(state), kind) : undefined
+          // A `single` type is unique across the whole surface, floats
+          // included; a page is unique per pane, which is where it lands.
+          const held = intent.single === true
+            ? Object.values(state.tabs).find(candidate => candidate.kind === kind)?.id
+            : page ? panePage(state, paneId ?? activeDockPaneId(state), kind) : undefined
           const planned = held !== undefined
             ? { ops: [{ type: 'focusTab' as const, tabId: held }], tabId: held }
             : planOpenContent(state, mint, {

@@ -4,22 +4,22 @@ English | [中文](sidebar-right.zh.md)
 
 The right Sidebar is the Web Client's per-Session docking surface: a column of panes and tabs beside the conversation in which addressed content — a workspace file, a directory tree, the product's own pages — opens, splits, floats, and closes. [`qilin-client-ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.md) owns the surface, the tab-type registry, and the navigation service; [`qilin-client-ui-dockkit`](../../packages/client/ui-dockkit/README.md) is its internal layout engine; [`qilin-client-resources`](../../packages/client/resources/README.md) turns addresses into live values for any component; [`qilin-api-workspace-files`](../../packages/api/workspace-files/README.md) provides both the Host workspace service and the Client `file` resource provider.
 
-This page is the reference for the subsystem's contracts: addresses, tab-type registration, the navigation service, the extension slots and their owner props, the resource model, the Workspace Files service, the shipped types, and what is deliberately not built. How the layout engine, the frame, and the surface fit together is in the [Agent Note](../../.agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.md); slot mechanics are in the [Slots reference](slots.md).
+This page is the reference for the subsystem's contracts: addresses, tab-type registration, the navigation service, the extension slots and their owner props, the tab switches and layout persistence, the resource model, the Workspace Files service, the shipped types, and what is deliberately not built. How the layout engine, the frame, and the surface fit together is in the [Agent Note](../../.agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.md); slot mechanics are in the [Slots reference](slots.md).
 
 ## Position and ownership
 
-One docking surface exists per Session, held in a session-scoped slot store and drawn by `rightbar.session`. The root-scoped `rightbar` controller mounts that seat only while Conversation is selected; a reload returns every session to the collapsed default, and switching sessions keeps each surface where it was ([state](../../packages/client/ui-sidebar-right/README.md#state)). The surface's every change is one recorded history entry computed by the kit's pure planners; a docked pane never stays empty, and an empty root pane receives the default page selected from registered guide entries.
+One docking surface exists per Session, held in a session-scoped slot store and drawn by `rightbar.session`. The root-scoped `rightbar` controller mounts that seat only while Conversation is selected; each Session's layout is persisted on its own and restored on reload, and switching sessions keeps each surface where it was ([state](../../packages/client/ui-sidebar-right/README.md#state)). The surface's every change is one recorded history entry computed by the kit's pure planners; a docked pane never stays empty, and an empty root pane receives the default page selected from registered guide entries.
 
 A tab type is two registrations that share the definition's `id`: a static definition in `ctx.sidebarRightTabs` saying which addresses its `kind` opens, and a keyed slot registration supplying its body. The framework injects `useTabInfo()` for live Sidebar, pane and tab information; each type keeps its own state in its slot store. Packages import each other's declarations only as types.
 
 | Package | Role |
 |---|---|
-| [`client/ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.md) | The panel and rail seats, the layout store, `ctx.sidebarRightTabs`, `ctx.sidebarRight`, the Tab domain, the guide type |
+| [`client/ui-sidebar-right`](../../packages/client/ui-sidebar-right/README.md) | The `rightbar` and `rightbar.session` seats, the conversation header's corner expand control, the layout store, `ctx.sidebarRightTabs`, `ctx.sidebarRight`, the Tab domain, the guide type, and the tab switches |
 | [`client/ui-dockkit`](../../packages/client/ui-dockkit/README.md) | Pure layout engine and React surface; an internal dependency of `ui-sidebar-right`, not a stable interface |
 | [`client/resources`](../../packages/client/resources/README.md) | `ctx.resources`, `useResource`, the protocol → value roster `ResourceProtocolMap` |
 | [`api/workspace-files`](../../packages/api/workspace-files/README.md) | Host `ctx.workspaceFiles`, the `workspaceFiles` Remote namespace, and the Client `file` resource provider |
 | [`util/workspace-path`](../../packages/util/workspace-path/README.md) | The file address grammar: `fileAddressFor`, `parseFileAddress` |
-| [`client/ui-sidebar-documentpreview`](../../packages/client/ui-sidebar-documentpreview/README.md), [`client/ui-sidebar-files`](../../packages/client/ui-sidebar-files/README.md), [`client/ui-trajectory`](../../packages/client/ui-trajectory/README.md) | The shipped `text`, `files`, and `trajectory` types |
+| [`client/ui-sidebar-documentpreview`](../../packages/client/ui-sidebar-documentpreview/README.md), [`client/ui-sidebar-files`](../../packages/client/ui-sidebar-files/README.md), [`client/ui-trajectory`](../../packages/client/ui-trajectory/README.md) | The shipped `text`, `files`, `file`, and `trajectory` types |
 
 ## Addresses
 
@@ -39,6 +39,9 @@ Tab identity is the pair `(kind, address)`: the registry's claim uses the addres
 |---|---|
 | `id` | The implementation's identity, unique across every registration; a package name is the natural value (`@qilin/client-ui-sidebar-files`). It is the key the body and title register under. |
 | `kind` | The type's discriminator: what its tabs are, and what `openTab` names. Not unique — an extension may take over a builtin's kind. The shipped kinds are `guide`, `text`, `files`. |
+| `label()` | The type's own name, for surfaces that name the type rather than one open tab — the switch row above all. A page type's `title(address)` names the content it opened and a resource type has no single address to name, so neither stands for the type. |
+| `icon?` | The glyph a chip draws before its title; omit it for a chip whose title carries the whole identity. |
+| `single?` | `true` focuses an open tab of this kind wherever it sits instead of opening a second one, so the surface holds at most one. Omit it for the default, where one tab opens per address and a page opens once per pane. |
 | `patterns` | Optional resource-address globs the type recognizes; a page type opened by kind omits them. A pattern containing `:` matches the whole address (`qilin-resource://file/**`); one without matches the URL's path at any depth (`*.md`), and an address that is not a URL matches no such pattern. Matching is case-insensitive and does not hide dotfiles; the syntax is picomatch's POSIX dialect. |
 | `priority` | One of three literal bands: `extension` (the default and the highest: a type from outside the product outranks every shipped viewer), `builtin` (types shipped with the product), `fallback` (plain-content viewers anything more specific should beat). |
 | `canOpen(address)` | Optional synchronous veto of a glob match; it runs on every routing decision. |
@@ -61,6 +64,7 @@ export function apply(ctx: Context): void {
     kind: 'image',
     patterns: ['*.png', '*.jpg', '*.gif', '*.svg'],
     canOpen: address => address.startsWith('qilin-resource://file/'),
+    label: () => 'Image',
     title: address => address.slice(address.lastIndexOf('/') + 1),
   }), 'image type')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
@@ -80,7 +84,10 @@ Two opens are the navigation controller, and every way into the column calls one
 | `replaceTab` | Take this tab's pane and strip slot, closing it in the same step; a floating tab lends no place, so the new tab lands as if unplaced. |
 | `revealIfOpened` | Default `true`: a tab already showing the same `(kind, address)` is focused and handed `params`. `false` opens another tab regardless. |
 | `kind` (`openResource` only) | Name the opening type instead of ranking claims; its implementation in force opens the address, and its `canOpen` still applies. |
+| `scope` | Land the open in this Session instead of the mounted one, without switching the conversation; a result belonging to a Session the user is not looking at — a background agent's file — opens there. |
 | `params` | Navigation parameters for the body, delivered as `navigation.params`. `openResource` types them by resource type through the merge-extensible `SidebarRightResourceParamsMap` (the text preview declares `{ line?: number }`); `openTab<K>` types them by kind through `SidebarRightTabParamsMap`, `undefined` for a kind that declares none; a body reads `SidebarRightNavigationParams`, the union of both. Values are JSON-shaped by convention and not validated at run time. |
+
+`openFile(scope, path, options?)` is the shortcut for a Session's file: it builds the file address for `path` and opens it in `scope`, which is what a file tree's rows and Chat's file links call. `features` is the build's capability list and part of the public contract for a tab type shipped from outside this repository: a type gates new API use on membership rather than on a version comparison, so it degrades against an older Sidebar rather than failing, and no member is ever removed.
 
 Placement is the caller's option, never a type's property. The conversation calls `openResource(fileAddressFor(sessionId, cwd, path))` and, from a `read` tool row, adds `{ params: { line } }` from the call's 1-based `offset`; a guide entry box calls `tab.actions.openTab(entry.kind, { replaceTab: true })`; a file-tree row calls `tab.actions.openResource(address)`; the strip's add control calls `openTab('guide', { paneId, revealIfOpened: false })`.
 
@@ -90,19 +97,29 @@ Placement is the caller's option, never a type's property. The conversation call
 
 ## Slots and owner props
 
-The Sidebar declares four extension slots; its document tab declares the additional keyed document body below ([hierarchy](slots.md)).
+The Sidebar declares five extension slots; its document tab declares the additional keyed document body below ([hierarchy](slots.md)).
 
 | Slot | Cardinality | Purpose |
 |---|---|---|
 | `sidebar.right.pane.tab` | keyed by the definition's `id`, Session scope | One tab's body. The seat dispatches a tab to the `id` of its kind's implementation in force, so the registrant receives every tab of its kind, docked or floating. A kind whose implementation registered no body renders the owner's "nothing can view this" notice. |
 | `sidebar.right.pane.tab.title` | keyed by the definition's `id`, Session scope | The chip's title, with the same owner share as the body. Optional: without an entry the chip shows the `title(address)` text captured at open time; a type with a live title reads its own store here. |
+| `sidebar.right.pane.tab.badge` | keyed by the definition's `id`, Session scope | The status pill a docked chip draws between its glyph and its title, with the same owner share as the body. Optional: without an entry no pill is drawn. The strip calls it on every render, so a registrant reads an already-computed fact rather than deriving one. |
 | `sidebar.right.tab.guide` | chain, Session scope | Replaces the guide tab's contents without replacing the tab; the first non-declining entry takes the body, otherwise the shipped guide renders. |
 | `sidebar.right.tab.menu.item` | list, Session scope | Content-level actions appended after the kit's own layout actions. An item that acts must call the owner's `dismiss()`. |
 | `sidebar.right.tab.document` | keyed by the document implementation's `id`, Session scope | The selected file renderer inside the document tab; the parent owns shared loading and toolbar controls. |
 
-A body, title and guide replacement receive the framework-injected `useTabInfo()`. It returns `{ sidebar, panel, tab }`: `sidebar` holds `expanded` and `fullscreen`, `panel.id` names the containing pane, and `tab` contains its record fields plus `visible`, `navigation`, `signal`, and `actions`. Docked bodies are visible only while expanded and active; docked titles need only expansion; floats stay visible. `signal` aborts when the record disappears or the plugin unloads, not on hiding or Session switching. `tab.actions` provides `openResource`, `openTab`, and `close`, bound to the tab's own Session. Open placement defaults to its current pane; `revealIfOpened` defaults to `true`, and `replaceTab: true` replaces this record in the same history entry. Menu entries retain plain `tab` and `dismiss` owner parameters.
+A body, title, badge and guide replacement receive the framework-injected `useTabInfo()`. It returns `{ sidebar, panel, tab }`: `sidebar` holds `expanded` and `fullscreen`, `panel.id` names the containing pane, and `tab` contains its record fields plus `visible`, `navigation`, `signal`, and `actions`. Docked bodies are visible only while expanded and active; docked titles need only expansion; floats stay visible. `signal` aborts when the record disappears or the plugin unloads, not on hiding or Session switching. `tab.actions` provides `openResource`, `openTab`, and `close`, bound to the tab's own Session. Open placement defaults to its current pane; `revealIfOpened` defaults to `true`, and `replaceTab: true` replaces this record in the same history entry. Menu entries retain plain `tab` and `dismiss` owner parameters.
 
 `navigation.revision` increments on every navigation to the tab whether or not `params` changed, so a body can act on "navigated again" alone; it is `1` for a tab opened by address and `0` for a record nobody opened by address — a seeded guide, or a tab restored by undo. The Tab domain holds one occurrence per open record: a record that appears is pinned in the resource model, so switching tabs unmounts a body without dropping its content; a record that vanishes is aborted and dropped; a record restored by undo is a new occurrence ([Tab domain](../../packages/client/ui-sidebar-right/README.md#the-tab-domain)).
+
+<a id="tab-switches"></a>
+## Tab switches and persistence
+
+Every registered type appears in the settings shell's `sidebar-right` section, one switch per row, named by the type's `label()` and carrying the type's `icon` when it declares one ([settings](settings.md), [Slots reference](slots.md)). The rows are the registry's, so a type shipped from another package appears without an edit here and a late registration appears on the next commit.
+
+A switch decides what the surface offers. Turning a type off calls the registry's `setEnabled(id, false)`: the type stays registered and keeps drawing the tabs already open, while the registry drops its guide entries and `ctx.sidebarRight` refuses to open it. No tab is closed behind the user's back. Only the switched-off ids are stored, in this browser under `qilin.sidebarRight.disabledTabs`, which leaves a newly shipped type on by default and keeps the set out of the Host and the Session log.
+
+Layout state persists per Session under `qilin.sidebarRight.surface.v1`, suffixed with the Session id: a reload returns to the layout the user left there, a pruned Session takes its layout with it, and no Session's tabs are visible from another. The recorded sequence rides along, bounded at 100 entries — the oldest drop first — which is what makes stepping back survive the reload.
 
 ## Document renderers
 
@@ -130,20 +147,19 @@ The Host `ctx.workspaceFiles` service and generated `workspaceFiles` Remote name
 
 ## Shipped types
 
-- **`guide`** — `builtin`, opened as `openTab('guide')`. A muted compass sits above one capsule per contributed `guide` entry, in `order`; short lists show registered descriptions, and every missing icon uses the shipped placeholder. Picking a capsule opens the contributing type as a page in the guide tab's place. A pane holds at most one guide tab, and the strip's add control appears only while its pane has none. A new pane receives the registered default page: the sole guide entry directly, or the guide when the entry count is not one ([guide](../../packages/client/ui-sidebar-right/README.md#the-guide)).
-- **`text`** — `fallback`, `qilin-resource://file/**`, claiming Session addresses only. Document Preview observes metadata through `useResource<'file'>`, loads content through Remote callbacks, and owns renderer selection, the toolbar, per-tab refresh, scroll, and source navigation; unknown extensions render as plain text ([README](../../packages/client/ui-sidebar-documentpreview/README.md)).
-- **`files`** — `builtin`, opened as `openTab('files')`. The workspace directory tree, listed lazily through `list`, opening a file with `tab.actions.openResource(fileAddressFor(sessionId, root, path))` into its own pane ([README](../../packages/client/ui-sidebar-files/README.md)).
-- **`trajectory`** — `builtin`, opened as `openTab('trajectory', { params: { focus } })`. The turn-aware event ledger and its timing overview; a Chat tool card's inspect action opens it focused on that call ([README](../../packages/client/ui-trajectory/README.md)).
+- **`guide`** — `builtin`, opened as `openTab('guide')`. Its `label()` names the type itself; it declares no `icon`, so a guide chip stands on its title, and no `single`, because the guide's own per-pane uniqueness already keeps it single. A muted compass sits above one capsule per contributed `guide` entry, in `order`; short lists show registered descriptions, and every missing icon uses the shipped placeholder. Picking a capsule opens the contributing type as a page in the guide tab's place. A pane holds at most one guide tab, and the strip's add control appears only while its pane has none. A new pane receives the registered default page: the sole guide entry directly, or the guide when the entry count is not one ([guide](../../packages/client/ui-sidebar-right/README.md#the-guide)).
+- **`text`** — `fallback`, `qilin-resource://file/**`, claiming Session addresses only. Its `label()` names the type while `title(address)` names the open file, and it declares no `icon` and no `single`, so one tab opens per address. Document Preview observes metadata through `useResource<'file'>`, loads content through Remote callbacks, and owns renderer selection, the toolbar, per-tab refresh, scroll, and source navigation; unknown extensions render as plain text. For a Session-scoped address whose extension the shared editable set carries, the header offers the editor open through the ranked claim ([README](../../packages/client/ui-sidebar-documentpreview/README.md)).
+- **`files`** — `builtin`, opened as `openTab('files')`. It declares `label()`, the folder-sheet `icon`, and `single: true`, so opening Files from another pane focuses the tree already open. The workspace directory tree, listed lazily through `list`, opening a file with `tab.actions.openResource(fileAddressFor(sessionId, root, path))` into its own pane ([README](../../packages/client/ui-sidebar-files/README.md)).
+- **`trajectory`** — `builtin`, opened as `openTab('trajectory', { params: { focus } })`. It declares `label()`, a gauge `icon`, and `single: true`, so inspecting a second call re-focuses the open ledger. The turn-aware event ledger and its timing overview; a Chat tool card's inspect action opens it focused on that call ([README](../../packages/client/ui-trajectory/README.md)).
+- **`file`** — `builtin`, `qilin-resource://file/**`, claiming the Session-scoped addresses whose path carries a known text or code extension; images, PDFs, unknown extensions, and `absolute` addresses fall to the `text` viewer. It declares no `single` — one tab per address is the default — no guide entry, and no static `icon`: the chip's glyph comes from the title seat, which draws the file-type sheet for the open file's own name. The body is the workspace tree in a collapsible side pane beside a CodeMirror editor; its toolbar carries save, dirty state, preview, wrap, and reload, the write goes through `workspaceFiles.write` with the version of the last read or save as `baseVersion`, a `workspace-file/stale` refusal keeps the draft and offers loading the disk copy or overwriting, and a file above 2 MiB is refused. The preview control names the `text` kind through the Sidebar controller with the tab's session as scope — the ranked open would land back on this type — so the two types form an edit/preview pair over one address, each tab showing one side of it.
 
 <a id="not-built"></a>
 ## Not built
 
-- Persistence: layout state is memory-only; a reload starts every session collapsed, and no session's tabs are visible from another.
 - A read-only layout snapshot or subscription on `ctx.sidebarRight`: the service exposes operations only, and dockkit's `LayoutState`/`LayoutOp` are internal.
-- A capability-discovery array (`features`) on the service.
 - An `option` priority band for tab types: nothing lists a tab type without letting it claim.
 - Retitling a record: `title(address)` is captured once; a live chip comes from the title slot, not from the record.
-- Naming a tab implementation when opening: `openResource` names a kind at most; document-renderer selection belongs to the file tab's toolbar.
+- Naming a tab implementation when opening: `openResource` names a kind at most; document-renderer selection belongs to the `text` tab's toolbar.
 - An address lookup on the service (`find`): a caller opens with `revealIfOpened` and lets the surface de-duplicate.
 - Navigation addresses beyond the Sidebar's own `sidebar://<kind>` bookkeeping; their grammar waits for the navigation controller as a whole.
-- A user-facing undo, a content navigation stack, and tab icons ([deferred](../../.agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.md#deferred)).
+- A user-facing undo and a content navigation stack ([deferred](../../.agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.md#deferred)).
