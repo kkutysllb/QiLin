@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import DeepSeekLlmApiExtensionRegistry from '../src/index.ts'
 
 declare module '@qilin/deepseek-llm-api-extensions/types' {

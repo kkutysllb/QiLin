@@ -1,5 +1,5 @@
 /** Builtin HTML metadata and keyed body registration; assembly belongs to the package entry. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '../index.ts'
 import type { DocumentPreviewDefinition } from '../document/registry.ts'
 import { hostFileOf } from '../rpc.ts'

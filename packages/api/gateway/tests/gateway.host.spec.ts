@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { describe, expect, it } from 'vitest'
-import { Context, Service, symbols } from '@deepseek-ai/cordis'
+import { Context, Service, symbols } from '@qilin/kylin'
 import { z } from 'zod'
 import { apply as applyConnection, inject as connectionInject } from '@qilin/client-connection'
 import type { HostConnectionHandle } from '@qilin/client-connection'

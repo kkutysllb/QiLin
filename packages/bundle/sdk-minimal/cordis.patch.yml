@@ -66,7 +66,7 @@
     # Keep the minimal agent kernel explicit: unlike qilin-base, this profile
     # owns each service row and omits every optional producer it does not use.
     - id: timer
-      name: '@deepseek-ai/cordis-plugin-timer'
+      name: '@qilin/kylin-plugin-timer'
 
     - id: llm
       name: '@qilin/llm'

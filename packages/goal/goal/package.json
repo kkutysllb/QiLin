@@ -61,7 +61,7 @@
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^",
@@ -83,6 +83,6 @@
     "@qilin/session-persistence-jsonl": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

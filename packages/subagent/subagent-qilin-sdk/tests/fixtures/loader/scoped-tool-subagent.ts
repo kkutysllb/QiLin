@@ -1,6 +1,6 @@
 /** Mount the SDK delegation tool in each fixture Agent's scope. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import * as ToolSubagent from '@qilin/tool-subagent'
 import type { Config } from '@qilin/tool-subagent'

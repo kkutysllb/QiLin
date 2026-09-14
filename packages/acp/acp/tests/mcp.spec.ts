@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { McpServer } from '@agentclientprotocol/sdk'
 import type { Config as McpClientConfig } from '@qilin/mcp-client'
 import { mountAcpMcpServers } from '../src/mcp.ts'

@@ -40,7 +40,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
@@ -58,7 +58,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/scope": "workspace:^",
     "@qilin/code-runtime": "workspace:^"

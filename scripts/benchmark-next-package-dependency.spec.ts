@@ -43,12 +43,12 @@ describe('next package benchmark graph', () => {
       name: '@f/probe',
       version: '1.0.0',
       peerDependencies: {
-        '@deepseek-ai/cordis': 'workspace:^',
+        '@qilin/kylin': 'workspace:^',
         '@f/runtime': 'workspace:^',
         '@f/types': 'workspace:^',
       },
       devDependencies: {
-        '@deepseek-ai/cordis': 'workspace:^',
+        '@qilin/kylin': 'workspace:^',
         '@f/runtime': 'workspace:^',
         '@f/types': 'workspace:^',
       },
@@ -57,7 +57,7 @@ describe('next package benchmark graph', () => {
       manifestPath: 'packages/g/probe/package.json',
       role: 'configured-host',
       manifest,
-      workspaceNames: new Set(['@deepseek-ai/cordis', '@f/probe', '@f/runtime', '@f/types']),
+      workspaceNames: new Set(['@qilin/kylin', '@f/probe', '@f/runtime', '@f/types']),
       allSourceUses: new Map([
         ['@f/runtime', ['packages/g/probe/src/index.ts']],
         ['@f/types', ['packages/g/probe/src/types.ts']],
@@ -80,7 +80,7 @@ describe('next package benchmark graph', () => {
       ['@f/probe', new Map([['1.0.0', structuredClone(manifest) as MutableRegistryManifest]])],
     ])
     applyFactsToRegistry(index, facts, new Map([
-      ['@deepseek-ai/cordis', '4.0.1'],
+      ['@qilin/kylin', '4.0.1'],
       ['@f/probe', '1.0.0'],
       ['@f/runtime', '2.0.0'],
       ['@f/types', '3.0.0'],
@@ -88,7 +88,7 @@ describe('next package benchmark graph', () => {
 
     expect(index.get('@f/probe')?.get('1.0.0')).toMatchObject({
       dependencies: { '@f/runtime': '^2.0.0' },
-      peerDependencies: { '@deepseek-ai/cordis': '^4.0.1' },
+      peerDependencies: { '@qilin/kylin': '^4.0.1' },
     })
     expect(index.get('@f/probe')?.get('1.0.0')?.dependencies).not.toHaveProperty('@f/types')
   })
@@ -102,7 +102,7 @@ describe('next package benchmark graph', () => {
         name: '@f/a', version: '1.0.0', peerDependencies: { '@f/runtime': '^1.0.0' },
       }]])],
       ['@f/b', new Map([['1.0.0', {
-        name: '@f/b', version: '1.0.0', peerDependencies: { '@deepseek-ai/cordis': '^4.0.0' },
+        name: '@f/b', version: '1.0.0', peerDependencies: { '@qilin/kylin': '^4.0.0' },
       }]])],
       ['@f/runtime', new Map([['1.0.0', { name: '@f/runtime', version: '1.0.0' }]])],
     ]) as RegistryIndex

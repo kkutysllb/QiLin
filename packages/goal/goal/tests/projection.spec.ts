@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry, { agentEvents } from '@qilin/agent'
 import type { Agent, AgentStatus } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'

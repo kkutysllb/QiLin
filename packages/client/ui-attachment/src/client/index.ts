@@ -1,5 +1,5 @@
 /** Browser attachment plugin: fills conversation's composer and image slots. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/client-ui-chat/client'
 import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-ui-renderer/client'

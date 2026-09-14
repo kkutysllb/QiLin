@@ -37,7 +37,7 @@
     "@qilin/session": "workspace:^",
     "@qilin/spill": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -50,6 +50,6 @@
     "@qilin/session": "workspace:^",
     "@qilin/spill": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

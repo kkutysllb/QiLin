@@ -6,8 +6,8 @@
  * @module @qilin/invariants
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
-import type { Inject } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
+import type { Inject } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type Schema from '@deepseek-ai/schemastery'
 
@@ -65,7 +65,7 @@ export class InvariantError extends Error {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     invariants: InvariantRegistry
   }

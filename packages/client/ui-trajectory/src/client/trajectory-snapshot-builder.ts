@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {
   AssistantMessageNode, ConversationNode, ConversationPromptSnapshot, ConversationViewBuilder,
   ConversationViewDefinition, RequestPromptChange, RequestView, ToolCallBlock,

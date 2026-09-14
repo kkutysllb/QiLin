@@ -30,7 +30,7 @@
   "peerDependencies": {
     "@qilin/session": "workspace:^",
     "@qilin/session-persistence": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@qilin/llm": "workspace:^",
@@ -45,6 +45,6 @@
     "@qilin/session": "workspace:^",
     "@qilin/session-format-v0-to-v1": "workspace:^",
     "@qilin/session-persistence": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

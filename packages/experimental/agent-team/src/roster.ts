@@ -1,7 +1,7 @@
 /** Team membership, continuable-child provisioning, and roster-owned teardown. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import type { Agent } from '@qilin/agent'
 import type { MessageId } from '@qilin/llm'

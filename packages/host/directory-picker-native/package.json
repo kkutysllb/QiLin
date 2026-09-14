@@ -37,10 +37,10 @@
     "koffi": "^3.1.0"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "tsx": "^4.19.2"
   }
 }

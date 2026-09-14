@@ -10,7 +10,7 @@
  * @module @qilin/subagent-in-process-driver/structured
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ToolSchema } from '@qilin/llm'
 import type { ToolExecution, ToolRunContext } from '@qilin/tools'
 import { ToolArgsError, validateJsonSchemaValue, type ObjectJsonSchema } from '@qilin/tools'

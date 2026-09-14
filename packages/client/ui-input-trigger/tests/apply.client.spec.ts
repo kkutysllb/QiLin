@@ -4,7 +4,7 @@
  * registration follows the slot declaration, resolves the per-session controller from the slot's
  * sessionId, and unregisters on fiber teardown.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import { createScope, scopeOf } from '@qilin/api-session-controller/client'

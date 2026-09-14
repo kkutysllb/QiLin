@@ -3,7 +3,7 @@
  * @module @qilin/tool-cordis
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import {
   CordisDynamicPackageId, CordisDynamicPluginId,

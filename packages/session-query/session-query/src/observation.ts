@@ -1,6 +1,6 @@
 /** Shared live/prepared observations for Session page and lifecycle consumers. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent, SessionHeader, SessionId , SessionLogOffset as SessionLogOffsetType , SessionSeqCursor } from '@qilin/session'
 import type SessionPersistence from '@qilin/session-persistence'

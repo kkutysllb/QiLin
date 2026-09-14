@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/anonymous-user-id": "workspace:^",
     "@qilin/atomic-write": "workspace:^",
     "@qilin/attachment": "workspace:^",
@@ -47,7 +47,7 @@
     "eventsource-parser": "^3.1.0"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/anonymous-user-id": "workspace:^",
     "@qilin/atomic-write": "workspace:^",

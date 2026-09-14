@@ -2,7 +2,7 @@
  * The plugin body: one `file` provider registered into `ctx.resources` for the
  * fiber's lifetime, reading through `ctx.remote` in the Session each address names.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { ResourceProvider } from '@qilin/client-resources/client'
 import { sessionFileAddress } from '@qilin/util-workspace-path'
 import { describe, expect, it, onTestFinished } from 'vitest'

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import type { Agent, AgentCancelCause, InboxTarget } from '@qilin/agent'
 import { ToolCallId } from '@qilin/llm'

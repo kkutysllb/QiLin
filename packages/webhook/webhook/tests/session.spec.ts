@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { ReasoningEffortId, type LlmCallConfig } from '@qilin/llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {

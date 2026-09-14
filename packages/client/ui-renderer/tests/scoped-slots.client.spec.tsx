@@ -11,7 +11,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render } from '@testing-library/react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import {
   SlotOwnershipError, StaleAuthorizationError,
   type ActionsDecl, type SessionProviderComponent, type SlotEntryDef,

@@ -1,6 +1,6 @@
 /** Client owner for forwarded Remote Event subscriptions and deliveries. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {
   ConnectionGenerationSource,
   ConnectionHostInfo,

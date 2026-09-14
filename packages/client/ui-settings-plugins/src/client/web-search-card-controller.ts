@@ -9,7 +9,7 @@
  * covers everything the card shows.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
 import type {} from '@qilin/api-remotes/client'
 import type { SnapshotStore } from '@qilin/client-store'

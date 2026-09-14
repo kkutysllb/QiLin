@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { Agent, Inbox } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
 import { SessionId } from '@qilin/session'

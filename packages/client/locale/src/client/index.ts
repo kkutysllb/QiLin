@@ -4,7 +4,7 @@
  * switches languages; this plugin owns the preference, the registry, and the
  * document language attribute.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import {
   type LocaleDictOf, type LocaleNamespaceMap, type Translate, type TranslateNS,
 } from '@qilin/client-ui-slots'
@@ -68,7 +68,7 @@ export interface LocaleSnapshot {
   revision: number
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     locale: LocaleRuntime
   }

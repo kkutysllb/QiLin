@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {
   ConversationLocation, ConversationMatch, ConversationNodeDefinition, ModelRetryNode,
 } from '@qilin/client-ui-conversation/client'

@@ -1,5 +1,5 @@
 /** Session Controller adapter for React selector hooks and Slot scope data. */
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import type {
   ISessions,
   SessionBinding,
@@ -128,7 +128,7 @@ declare module '@qilin/client-ui-slots' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Session Controller adapter and session-scoped source registry. */
     uiSession: UiSession

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin/attachment'
 import type {
   ImageAttachmentLimits,

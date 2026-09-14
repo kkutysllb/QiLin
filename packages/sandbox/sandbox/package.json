@@ -27,12 +27,12 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^"
   },

@@ -45,7 +45,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/util-values": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/invariants": "workspace:^",
@@ -57,6 +57,6 @@
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/typert-registry": "workspace:^",
     "@qilin/util-values": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

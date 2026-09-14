@@ -3,7 +3,7 @@
  * @module @qilin/agent-loop/invariant
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { isAgentLoopRequest, type GenerateOptions } from '@qilin/llm'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import { foldRequestHeader } from '@qilin/session'

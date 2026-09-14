@@ -20,7 +20,7 @@ import {
 } from './verify-package-dependencies.ts'
 
 const TARGET_PACKAGE = '@qilin/cli'
-const CORDIS = '@deepseek-ai/cordis'
+const CORDIS = '@qilin/kylin'
 
 interface Options {
   readonly candidates?: readonly string[]

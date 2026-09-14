@@ -1,6 +1,6 @@
 /** Package-owned subagent registry and lifecycle invariants. @module @qilin/subagent/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { SubagentProvider, SubagentRunEndInfo, SubagentRunInfo } from './types.ts'
 

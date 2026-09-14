@@ -8,7 +8,7 @@
  * across React's render-then-subscribe window and a StrictMode remount, where a
  * recreated record would make every render resubscribe and restart the stream.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { RemoteResult } from '@qilin/typert-protocol'
 import { createSnapshotStore, type ObservableSnapshot, type SnapshotStore } from '@qilin/client-store'
 import type {

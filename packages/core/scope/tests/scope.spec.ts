@@ -1,9 +1,9 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { bindScopeParent, carrierKeyOf, createScope, isScopeCarrier, scopeChainOf, scopeOf, scopeParentOf, scopeTarget } from '@qilin/scope'
 import type { Scope, Scoped } from '@qilin/scope'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Test-only event for scope-filtered dispatch.

@@ -1,8 +1,8 @@
 /** The `bash` settings section layered over the executor's composition entry. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import { SettingsProvider } from '@qilin/settings'
 import type { SettingsNamespace } from '@qilin/settings'
 import LocalSubprocessRuntime from '@qilin/subprocess-local'

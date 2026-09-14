@@ -5,7 +5,7 @@
  * @module @qilin/agent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Scoped } from '@qilin/scope'
 import type {
   LlmAttemptId, LlmCallConfig, LlmFailure, MessageId, ReasoningEffortId, ResolvedRetryPolicy, StreamChunk,
@@ -242,7 +242,7 @@ declare module './types.ts' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     // ---- lifecycle (emit) ----
     /**

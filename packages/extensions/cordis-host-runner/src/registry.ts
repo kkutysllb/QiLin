@@ -3,7 +3,7 @@
  * @module @qilin/cordis-host-runner/registry
  */
 
-import type { Fiber } from '@deepseek-ai/cordis'
+import type { Fiber } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type {
   ApprovalRequestId, CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,

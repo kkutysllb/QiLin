@@ -5,7 +5,7 @@
  * @module @qilin/web-search-perplexity
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { launchEnvironmentOf } from '@qilin/launch-environment'
 import z from '@deepseek-ai/schemastery'
 import type {} from '@qilin/web'

@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "@deepseek-ai/cordis-plugin-hmr": "workspace:^",
-    "@deepseek-ai/cordis-plugin-timer": "workspace:^",
+    "@qilin/kylin-plugin-hmr": "workspace:^",
+    "@qilin/kylin-plugin-timer": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-default-model": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
@@ -120,9 +120,9 @@
     "@qilin/agent-instructions": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

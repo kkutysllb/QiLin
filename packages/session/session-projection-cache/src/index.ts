@@ -16,7 +16,7 @@
  * @module @qilin/session-projection-cache
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { snapshotJsonValue } from '@qilin/util-values'
 import { SessionLogOffset } from '@qilin/session'
@@ -47,7 +47,7 @@ const PREDECESSOR_TITLE_KEY = 'title' as Extract<keyof SessionProjectionMap, str
 export { checkpointIdentity, checkpointRecord, checkpointRow, projectionCacheDomainSpec } from './spec.ts'
 export type { CheckpointIdentity, CheckpointRecord } from './spec.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionProjectionCache: SessionProjectionCache
   }

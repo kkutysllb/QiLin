@@ -11,7 +11,7 @@
 命名空间就是配对用的键，所以只挑一次，并在两个半侧都写出它。已经有 `cordis.yml` entry 的消费方应通过 `ctx.settings.installSection()` 注册——它把 entry 层叠在用户文档之下，并在没有挂载 settings provider 时照常工作：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/settings'
 import z from '@deepseek-ai/schemastery'
 
@@ -50,7 +50,7 @@ export function apply(ctx: Context, config: Config) {
 卡片以自己的命名空间为键注册进 `settings.plugin.item`，并拥有其中的一切——外观、控件与文案。它通过 `ctx.settingsScope` 读写，后者用读取时的 revision 为每次写入设栅：
 
 ```ts ignore-check
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: the keyed slot's declaration. Cross-plugin collaboration goes
 // through cordis services; a value import fails the client bundle-purity gate.
 import type {} from '@qilin/client-ui-settings-plugins/client'

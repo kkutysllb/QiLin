@@ -106,7 +106,7 @@ describe('release families', () => {
     const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
     const cli = member('apps/cli', '@qilin/cli')
-    const cordis = { ...member('vendor/cordis', '@deepseek-ai/cordis'), version: '4.0.1' }
+    const cordis = { ...member('vendor/cordis', '@qilin/kylin'), version: '4.0.1' }
 
     expect(qilin.tagFor(cli)).toBe('qilin-v0.0.1')
     expect(vendor.tagFor(cordis)).toBe('vendor-cordis-v4.0.1')
@@ -139,7 +139,7 @@ describe('release families', () => {
   it('accepts independent vendored versions and rejects an unpublishable one', () => {
     const vendor = releaseFamily('vendor')
     const members = [
-      { ...member('vendor/cordis', '@deepseek-ai/cordis'), version: '4.0.1' },
+      { ...member('vendor/cordis', '@qilin/kylin'), version: '4.0.1' },
       { ...member('vendor/cosmokit', '@deepseek-ai/cosmokit'), version: '1.8.2' },
     ]
 
@@ -281,7 +281,7 @@ describe('release families', () => {
     const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
     const harness = member('packages/a/library', '@qilin/library')
-    const vendored = member('vendor/cordis', '@deepseek-ai/cordis')
+    const vendored = member('vendor/cordis', '@qilin/kylin')
 
     expect(() => { qilin.validatePayload(harness, ['package/lib/index.js', 'package/src/index.ts']) })
       .toThrow(/publishes source file/)
@@ -354,7 +354,7 @@ describe('payload change judgement', () => {
   const sourceShipping = member('vendor/cosmokit', '@deepseek-ai/cosmokit', {
     files: ['lib/index.js', 'lib/types/**/*.d.ts', 'src'],
   })
-  const buildOutputOnly = member('vendor/cordis', '@deepseek-ai/cordis', {
+  const buildOutputOnly = member('vendor/cordis', '@qilin/kylin', {
     files: ['lib/index.js', 'lib/types/**/*.d.ts', 'bin.js'],
   })
 

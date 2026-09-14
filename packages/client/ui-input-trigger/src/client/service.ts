@@ -5,9 +5,9 @@
  * {@link InputTriggerController}; the service only registers sources, resolves
  * controllers by session scope, and relays roster changes.
  */
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type {} from '@qilin/client-locale/client'
 import type { SessionId } from '@qilin/session/types'

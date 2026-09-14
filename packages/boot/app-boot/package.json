@@ -33,31 +33,31 @@
     "resolve.exports": "^2.0.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis-plugin-group": "workspace:^",
-    "@deepseek-ai/cordis-plugin-hmr": "workspace:^",
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-group": "workspace:^",
+    "@qilin/kylin-plugin-hmr": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/launch-environment": "workspace:^",
     "@qilin/home-paths": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/cordis-plugin-hmr": {
+    "@qilin/kylin-plugin-hmr": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-group": "workspace:^",
-    "@deepseek-ai/cordis-plugin-hmr": "workspace:^",
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
-    "@deepseek-ai/cordis-plugin-timer": "workspace:^",
+    "@qilin/kylin-plugin-group": "workspace:^",
+    "@qilin/kylin-plugin-hmr": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-timer": "workspace:^",
     "@qilin/launch-environment": "workspace:^",
     "@qilin/home-paths": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@types/js-yaml": "^4.0.9",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "chokidar": "4.0.3"
   }
 }

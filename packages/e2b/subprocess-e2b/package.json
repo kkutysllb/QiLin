@@ -30,7 +30,7 @@
     "@qilin/e2b": "workspace:^",
     "@qilin/subprocess": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -39,6 +39,6 @@
     "@qilin/e2b": "workspace:^",
     "@qilin/subprocess": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

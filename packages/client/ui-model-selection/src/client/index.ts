@@ -13,7 +13,7 @@
 // Type-only: the carrier types, the forwarded Host-event face and the ctx.remote merge.
 import type { ModelSelection } from '@qilin/api-session-controller/types'
 import type {} from '@qilin/api-session-controller/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { CommandUiContract, SelectOption } from '@qilin/client-ui-commands/client'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.model seat).
 import type {} from '@qilin/client-ui-conversation/client'

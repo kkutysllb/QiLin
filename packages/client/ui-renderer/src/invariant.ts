@@ -7,7 +7,7 @@
 /* oxlint-disable typescript/no-redundant-type-constituents --
  * `keyof SlotMap & string` is the declaration-merge key pattern: SlotMap is
  * empty in this compilation unit but consumers merge concrete keys into it. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SlotMap } from '@qilin/client-ui-slots'
 import type { InvariantInstaller } from '@qilin/invariants'
 

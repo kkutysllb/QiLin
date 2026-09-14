@@ -302,7 +302,7 @@ export interface LogRenderer {
  * @param require - Image resolver, for cordis's own message renderer.
  */
 export function installLogSink(ctx: HostContext, require: (specifier: string) => unknown): void {
-  const { Logger } = require('@deepseek-ai/cordis') as { Logger: LogRenderer }
+  const { Logger } = require('@qilin/kylin') as { Logger: LogRenderer }
   const exporter: LogExporter = {
     colors: false,
     // cordis compares `exporter.levels ?? logger.level ?? INFO` against the
@@ -375,7 +375,7 @@ function bootPatches(
     rows = JSON.parse(text)
   } else {
     // The roster's `!!js` scalars need Include's own YAML dialect.
-    const include = loader.load(loader.resolve('@deepseek-ai/cordis-plugin-include', root)) as { entryListSchema: unknown }
+    const include = loader.load(loader.resolve('@qilin/kylin-plugin-include', root)) as { entryListSchema: unknown }
     const yaml = loader.load(loader.resolve('js-yaml', root)) as { load(source: string, options: { schema: unknown }): unknown }
     rows = yaml.load(text, { schema: include.entryListSchema })
   }

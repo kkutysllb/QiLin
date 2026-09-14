@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { GenerateOptions, StreamChunk } from '@qilin/llm'
 import { ToolCallId, LlmAdapter } from '@qilin/llm'
 

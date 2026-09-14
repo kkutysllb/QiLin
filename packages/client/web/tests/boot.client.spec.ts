@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import * as modulesClient from '@qilin/client-modules/client'
 import type {
   ClientBundleRegistration, ClientModuleCreateOptions, ClientModuleLoaderTarget, QilinWindow,

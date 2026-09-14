@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { Session, SessionId } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import type { SandboxMode } from '@qilin/sandbox'

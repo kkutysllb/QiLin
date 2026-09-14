@@ -4,7 +4,7 @@
  * @module @qilin/compaction-basic/summarizer
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { contentHasImage, createUserMessage, BlockAssembler, LlmError } from '@qilin/llm'
 import type {
   ContentBlock, FinishReason, GenerateOptions, Message, TokenUsage, ToolSchema,

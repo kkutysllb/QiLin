@@ -1,6 +1,6 @@
 /** Compiled synthetic model for the shipped sdk-minimal profile; tools remain production plugins. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { LlmAdapter, ToolCallId } from '@qilin/llm'
 import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
 import { response, WORKLOAD } from './workload.ts'

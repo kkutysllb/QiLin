@@ -23,7 +23,7 @@
 协议拥有者在 `ResourceProtocolMap` 上声明其值类型，并在自己的 `ctx.effect` 里注册一个提供方，使协议与插件同寿（[提供协议](../../packages/client/resources/README.zh.md#provide-a-protocol)）。`open(address, { signal })` 返回一条 `RemoteResult` 帧流——首帧是当前状态，之后每次变化一帧——并且必须在 `signal` 中止时停下。失败是携带 `RemoteFailure` 的 `ok: false` 帧；流里抛出是编程错误，不会被捕获。
 
 ```ts ignore-check
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { RemoteResult } from '@qilin/typert-protocol'
 import type {} from '@qilin/client-resources/client'
 

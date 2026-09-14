@@ -4,8 +4,8 @@
  * point after every client entry activates.
  * @module @qilin/client-web/src/boot
  */
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import type {
   BootManifest, ClientModuleCreateOptions, ClientModuleSystem, QilinWindow,
 } from '@qilin/client-modules/client'

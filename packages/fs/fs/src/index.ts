@@ -8,7 +8,7 @@
  * @module @qilin/fs
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import type {
   FsDirEntry,
@@ -41,7 +41,7 @@ export type {
   FsWriteOutcome,
 } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     fs: FileSystem
   }

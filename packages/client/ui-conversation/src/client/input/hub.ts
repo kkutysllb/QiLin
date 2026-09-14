@@ -7,7 +7,7 @@
  * listeners on each Session context and owns the default-sink choreography: every session is a
  * real host entity, so the sink is one unconditional prompt path.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {
   ISessions, SessionBinding, SessionFace,
 } from '@qilin/api-session-controller/client'

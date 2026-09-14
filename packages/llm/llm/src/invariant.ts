@@ -1,6 +1,6 @@
 /** Package-owned LLM stream-protocol invariants. @module @qilin/llm/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { ContentBlockType, StreamChunk } from './types.ts'
 

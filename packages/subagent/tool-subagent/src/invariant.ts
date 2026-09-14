@@ -4,7 +4,7 @@
  */
 
 /* jscpd:ignore-start */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import { subagentModelSelectionPolicy } from './model-selection-state.ts'
 

@@ -58,10 +58,10 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/api-gateway": "workspace:^",
     "@qilin/client-resources": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",

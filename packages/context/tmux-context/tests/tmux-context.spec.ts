@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { Session, SessionId } from '@qilin/session'
 import AgentRegistry, { agentEvents, type Agent } from '@qilin/agent'
 import SessionProjectionRegistry from '@qilin/session-projection'

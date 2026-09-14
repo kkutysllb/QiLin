@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { credentialKey } from '@qilin/credentials'
 import InvariantRegistry from '@qilin/invariants'
 import AuthorizationService from '@qilin/authorization'

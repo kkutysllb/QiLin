@@ -49,7 +49,7 @@
     "@qilin/session": "workspace:^",
     "@qilin/session-persistence": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/command-feedback": "workspace:^"
   },
   "dependencies": {
@@ -57,15 +57,15 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/session-persistence": "workspace:^",
     "@qilin/session-persistence-jsonl": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/command-feedback": "workspace:^"
   }
 }

@@ -3,7 +3,7 @@
  * @module @qilin/client-hmr/invariant
  */
 
-import type { Context, Fiber } from '@deepseek-ai/cordis'
+import type { Context, Fiber } from '@qilin/kylin'
 import type { InvariantInstaller } from '@qilin/invariants'
 
 const PACKAGE_NAME = '@qilin/client-hmr'

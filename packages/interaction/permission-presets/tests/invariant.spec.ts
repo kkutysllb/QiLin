@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import SessionStore, { SessionSeq, type Session, type SessionEvent } from '@qilin/session'
 import * as PermissionInvariant from '@qilin/permission-presets/invariant'
 import InvariantRegistry from '@qilin/invariants'

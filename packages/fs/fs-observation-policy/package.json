@@ -28,11 +28,11 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin/fs": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/fs": "workspace:^",
     "@qilin/llm": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

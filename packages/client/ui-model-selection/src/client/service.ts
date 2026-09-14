@@ -12,14 +12,14 @@
  * strings, and it models global+shadow named registries — this is a
  * per-session singleton with no global layer to merge.
  */
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import { ModelCatalogDirectory } from './catalog.ts'
 import { ModelDirectory } from './directory.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     modelDirectories: ModelDirectoryResolver
   }

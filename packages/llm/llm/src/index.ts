@@ -6,7 +6,7 @@
  * @module @qilin/llm
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
 import { deepFreeze } from '@qilin/util-values'
 import type {
@@ -51,7 +51,7 @@ export { BlockAssembler } from './assembler.ts'
 export { callConfigEquals, isAgentLoopRequest, markAgentLoopRequest } from './call-config.ts'
 export type { LlmCallConfig, LlmCallConfigAdapterDefaults } from './call-config.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     llm: LlmRuntime
   }

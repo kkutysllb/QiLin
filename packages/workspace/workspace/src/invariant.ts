@@ -3,7 +3,7 @@
  * @module @qilin/workspace/invariant
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantInstaller } from '@qilin/invariants'
 import type { DomainChanged } from '@qilin/storage-domain'
 import { WorkspaceId } from '@qilin/workspace'

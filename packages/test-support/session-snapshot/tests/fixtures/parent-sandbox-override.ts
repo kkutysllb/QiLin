@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { setSandboxMode } from '@qilin/sandbox-policy'
 import type {} from '@qilin/agent'
 

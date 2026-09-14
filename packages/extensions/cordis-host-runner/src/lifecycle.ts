@@ -8,7 +8,7 @@
  * @module @qilin/cordis-host-runner/lifecycle
  */
 
-import type { Context, Fiber, Plugin } from '@deepseek-ai/cordis'
+import type { Context, Fiber, Plugin } from '@qilin/kylin'
 import { guardedPlugin } from './guard.ts'
 
 /**

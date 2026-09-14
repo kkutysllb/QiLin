@@ -2,9 +2,9 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import Include from '@qilin/kylin-plugin-include'
+import Loader from '@qilin/kylin-plugin-loader'
 import { afterEach, describe, expect, it } from 'vitest'
 import WebhookRuntime, {
   WebhookDeliveryId,

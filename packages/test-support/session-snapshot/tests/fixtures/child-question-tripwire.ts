@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import '@qilin/user-questions'
 
 /** Snapshot-only answerer whose invocation means the child guard failed. */

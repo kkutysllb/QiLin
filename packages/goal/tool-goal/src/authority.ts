@@ -1,6 +1,6 @@
 /** Execution-time authority checks for the model-facing goal tools. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type { GoalView } from '@qilin/goal'
 import { HarnessError } from '@qilin/llm'

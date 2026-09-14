@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 
 describe('qilin-acp-app bundle', () => {
   it('declares startup-gated ACP serving without overriding base HMR policy', () => {

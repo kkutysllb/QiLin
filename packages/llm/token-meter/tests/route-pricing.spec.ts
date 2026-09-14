@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import {
   LlmRuntime, LlmAdapter, createMessage, createUserMessage, projectFilesToText,
 } from '@qilin/llm'

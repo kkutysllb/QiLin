@@ -4,7 +4,7 @@
  * every read answers with the complete catalog this page renders.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { createSnapshotStore } from '@qilin/client-store'
 import type { SnapshotStore } from '@qilin/client-store'
 import type { SkillEntry } from '@qilin/api-remotes/client'

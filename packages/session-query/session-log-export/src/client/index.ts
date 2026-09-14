@@ -1,6 +1,6 @@
 /** Browser plugin owning Session export download state and its shared modal. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-commands/client'
@@ -12,7 +12,7 @@ import type { SessionLogDownloadDialogInjected } from './Dialog.tsx'
 import { SessionLogDownloadHeaderAction } from './HeaderAction.tsx'
 import { en, NS, zh, type SessionLogDownloadKey } from './locales.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionLogDownload: SessionLogDownloadController
   }

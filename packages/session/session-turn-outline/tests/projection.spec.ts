@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createAssistantMessage, createUserMessage } from '@qilin/llm'
 import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent } from '@qilin/session'

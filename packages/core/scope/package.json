@@ -33,10 +33,10 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin/invariants": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/invariants": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

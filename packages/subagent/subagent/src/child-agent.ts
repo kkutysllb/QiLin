@@ -8,7 +8,7 @@
  * @module @qilin/subagent/child-agent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent, AgentOptions, CreateAgentOptions } from '@qilin/agent'
 import type { SandboxMode } from '@qilin/sandbox'
 import type { Session, SessionId } from '@qilin/session'

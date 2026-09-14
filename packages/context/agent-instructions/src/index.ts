@@ -9,7 +9,7 @@
  * @module @qilin/agent-instructions
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { isDeepStrictEqual } from 'node:util'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'

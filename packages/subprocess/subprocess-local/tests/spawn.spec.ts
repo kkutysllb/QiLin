@@ -811,7 +811,7 @@ describe.skipIf(process.platform === 'win32')('tree-survivor escalation (termina
   })
 
   it('service teardown awaits tree survivors, not just handle settlement', async () => {
-    const { Context } = await import('@deepseek-ai/cordis')
+    const { Context } = await import('@qilin/kylin')
     const { default: LocalSubprocessRuntime } = await import('@qilin/subprocess-local')
     const ctx = new Context()
     const fiber = await ctx.plugin(LocalSubprocessRuntime)

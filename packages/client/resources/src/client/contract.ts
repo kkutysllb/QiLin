@@ -25,7 +25,7 @@ declare module '@qilin/client-ui-slots' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Resource model: protocol providers, pins, and per-address live sources. */
     resources: Resources

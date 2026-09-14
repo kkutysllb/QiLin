@@ -7,7 +7,7 @@ import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 import { createMessage, createUserMessage } from '@qilin/llm'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,

@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
 import SessionStore, { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'

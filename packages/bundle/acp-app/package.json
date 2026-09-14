@@ -39,10 +39,10 @@
     "commander": "^15.0.0"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin": "workspace:^"
   }
 }

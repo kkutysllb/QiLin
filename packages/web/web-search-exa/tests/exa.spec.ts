@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import WebRuntime from '@qilin/web'
 import { ExaSearchProvider, EXA_PROVIDER_ID } from '@qilin/web-search-exa'
 import * as exaPlugin from '@qilin/web-search-exa'

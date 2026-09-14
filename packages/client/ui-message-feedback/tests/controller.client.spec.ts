@@ -6,7 +6,7 @@
  * serialize per Session, and a disposed controller stops publishing.
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { MessageId, SessionId } from '@qilin/api-remotes/client'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type {

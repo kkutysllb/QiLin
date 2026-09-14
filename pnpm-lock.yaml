@@ -133,21 +133,6 @@ importers:
 
   apps/cli:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-hmr':
-        specifier: workspace:^
-        version: link:../../vendor/hmr
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../vendor/loader
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../../vendor/timer
       '@deepseek-ai/schemastery':
         specifier: link:../../vendor/schemastery
         version: link:../../vendor/schemastery
@@ -217,6 +202,21 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../packages/jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../vendor/cordis
+      '@qilin/kylin-plugin-hmr':
+        specifier: workspace:^
+        version: link:../../vendor/hmr
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../vendor/loader
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../../vendor/timer
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../packages/util/launch-environment
@@ -546,12 +546,6 @@ importers:
 
   apps/desktop-host:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../vendor/include
       '@qilin/api-gateway':
         specifier: workspace:^
         version: link:../../packages/api/gateway
@@ -579,6 +573,12 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../packages/host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../vendor/include
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../packages/util/launch-environment
@@ -588,9 +588,6 @@ importers:
 
   apps/web:
     devDependencies:
-      '@deepseek-ai/cordis-plugin-group':
-        specifier: workspace:^
-        version: link:../../vendor/group
       '@qilin/client-modules':
         specifier: workspace:^
         version: link:../../packages/client/modules
@@ -618,6 +615,9 @@ importers:
       '@qilin/experimental-webworker-runtime':
         specifier: workspace:^
         version: link:../../packages/experimental/webworker-runtime
+      '@qilin/kylin-plugin-group':
+        specifier: workspace:^
+        version: link:../../vendor/group
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../packages/util/launch-environment
@@ -669,9 +669,6 @@ importers:
 
   benchmarks:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../packages/core/agent
@@ -696,6 +693,9 @@ importers:
       '@qilin/deque':
         specifier: workspace:^
         version: link:../packages/util/deque
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../packages/llm/llm
@@ -795,9 +795,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -810,6 +807,9 @@ importers:
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../../attachment/attachment
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -856,9 +856,6 @@ importers:
         specifier: ^8.21.0
         version: 8.21.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -868,6 +865,9 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/typert-registry':
         specifier: workspace:^
         version: link:../../typert/registry
@@ -893,9 +893,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -944,6 +941,9 @@ importers:
       '@qilin/host-plugin-inventory':
         specifier: workspace:^
         version: link:../../host/plugin-inventory
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -996,9 +996,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -1044,6 +1041,9 @@ importers:
       '@qilin/jobs':
         specifier: workspace:^
         version: link:../../jobs/jobs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -1123,15 +1123,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent-presets':
         specifier: workspace:^
         version: link:../../preset/agent-presets
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../../credentials/credentials
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/native-command':
         specifier: workspace:^
         version: link:../../util/native-command
@@ -1154,9 +1154,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-gateway':
         specifier: workspace:^
         version: link:../gateway
@@ -1169,6 +1166,9 @@ importers:
       '@qilin/host-directory-picker':
         specifier: workspace:^
         version: link:../../host/directory-picker
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -1197,9 +1197,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-gateway':
         specifier: workspace:^
         version: link:../gateway
@@ -1212,6 +1209,9 @@ importers:
       '@qilin/fs':
         specifier: workspace:^
         version: link:../../fs/fs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/sandbox-policy':
         specifier: workspace:^
         version: link:../../sandbox/sandbox-policy
@@ -1227,12 +1227,12 @@ importers:
 
   packages/attachment/attachment:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/attachment/attachment-local:
     dependencies:
@@ -1243,15 +1243,15 @@ importers:
         specifier: ^0.35.3
         version: 0.35.3(@types/node@22.20.0)
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../attachment
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/boot/app-boot:
     dependencies:
@@ -1268,27 +1268,27 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-group':
-        specifier: workspace:^
-        version: link:../../../vendor/group
-      '@deepseek-ai/cordis-plugin-hmr':
-        specifier: workspace:^
-        version: link:../../../vendor/hmr
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../../../vendor/timer
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-group':
+        specifier: workspace:^
+        version: link:../../../vendor/group
+      '@qilin/kylin-plugin-hmr':
+        specifier: workspace:^
+        version: link:../../../vendor/hmr
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../../../vendor/timer
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -1304,13 +1304,13 @@ importers:
 
   packages/boot/cmdline:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       commander:
@@ -1329,21 +1329,15 @@ importers:
         specifier: ^15.0.0
         version: 15.0.0
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
 
   packages/bundle/base:
     dependencies:
-      '@deepseek-ai/cordis-plugin-hmr':
-        specifier: workspace:^
-        version: link:../../../vendor/hmr
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../../../vendor/timer
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -1407,6 +1401,12 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../jobs/jobs-local
+      '@qilin/kylin-plugin-hmr':
+        specifier: workspace:^
+        version: link:../../../vendor/hmr
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../../../vendor/timer
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -1591,7 +1591,7 @@ importers:
         specifier: workspace:^
         version: link:../../workflow/workflow-worker-thread
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -1616,12 +1616,6 @@ importers:
         specifier: ^15.0.0
         version: 15.0.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -1634,6 +1628,12 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -1656,18 +1656,15 @@ importers:
         specifier: ^15.0.0
         version: 15.0.0
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
 
   packages/bundle/sdk-minimal:
     dependencies:
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../../../vendor/timer
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -1683,6 +1680,9 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../jobs/jobs-local
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../../../vendor/timer
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -1747,7 +1747,7 @@ importers:
         specifier: workspace:^
         version: link:../../core/tools
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -2015,10 +2015,10 @@ importers:
         specifier: ^11.0.0
         version: 11.0.2
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       '@qilin/shell-env':
@@ -2037,13 +2037,13 @@ importers:
         specifier: workspace:^
         version: link:../../client/ui-theme-brand
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       js-yaml:
@@ -2062,9 +2062,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -2083,6 +2080,9 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -2111,9 +2111,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -2129,6 +2126,9 @@ importers:
       '@qilin/commands':
         specifier: workspace:^
         version: link:../../interaction/commands
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/scope':
         specifier: workspace:^
         version: link:../../core/scope
@@ -2145,12 +2145,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/client-modules':
         specifier: workspace:^
         version: link:../modules
@@ -2160,6 +2154,12 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
 
   packages/client/locale:
     dependencies:
@@ -2167,9 +2167,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -2194,6 +2191,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/settings':
         specifier: workspace:^
         version: link:../../settings/settings
@@ -2206,27 +2206,24 @@ importers:
 
   packages/client/modules:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/package-manifest':
         specifier: workspace:^
         version: link:../../util/package-manifest
 
   packages/client/resources:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-store':
         specifier: workspace:^
         version: link:../store
@@ -2239,13 +2236,16 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/typert-protocol':
         specifier: workspace:^
         version: link:../../typert/protocol
 
   packages/client/store:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       immer:
@@ -2257,9 +2257,6 @@ importers:
 
   packages/client/ui-account:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-locale':
         specifier: workspace:^
         version: link:../locale
@@ -2287,6 +2284,9 @@ importers:
       '@qilin/client-ui-theme':
         specifier: workspace:^
         version: link:../ui-theme
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2302,9 +2302,6 @@ importers:
 
   packages/client/ui-agent-preset:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent-presets':
         specifier: workspace:^
         version: link:../../preset/agent-presets
@@ -2347,6 +2344,9 @@ importers:
       '@qilin/client-ui-workspace':
         specifier: workspace:^
         version: link:../ui-workspace
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -2359,9 +2359,6 @@ importers:
 
   packages/client/ui-approval:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -2386,6 +2383,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -2404,9 +2404,6 @@ importers:
 
   packages/client/ui-attachment:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../../attachment/attachment
@@ -2431,6 +2428,9 @@ importers:
       '@qilin/client-ui-trajectory':
         specifier: workspace:^
         version: link:../ui-trajectory
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -2449,9 +2449,6 @@ importers:
 
   packages/client/ui-brand:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-test-runtime':
         specifier: workspace:^
         version: link:../../test-support/client-runtime
@@ -2470,6 +2467,9 @@ importers:
       '@qilin/client-ui-sidebar':
         specifier: workspace:^
         version: link:../ui-sidebar
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2485,9 +2485,6 @@ importers:
 
   packages/client/ui-brand-official:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-ui-primitives':
         specifier: workspace:^
         version: link:../ui-primitives
@@ -2497,6 +2494,9 @@ importers:
       '@qilin/client-ui-sidebar':
         specifier: workspace:^
         version: link:../ui-sidebar
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2516,9 +2516,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -2585,6 +2582,9 @@ importers:
       '@qilin/compaction':
         specifier: workspace:^
         version: link:../../compaction/compaction
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -2627,9 +2627,6 @@ importers:
 
   packages/client/ui-commands:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -2669,6 +2666,9 @@ importers:
       '@qilin/commands':
         specifier: workspace:^
         version: link:../../interaction/commands
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -2688,9 +2688,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@lexical/headless':
         specifier: ^0.49.0
         version: 0.49.0(typescript@6.0.3)
@@ -2760,6 +2757,9 @@ importers:
       '@qilin/goal':
         specifier: workspace:^
         version: link:../../goal/goal
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -2821,9 +2821,6 @@ importers:
         specifier: workspace:^
         version: link:../../typert/protocol
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -2872,6 +2869,9 @@ importers:
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../../fs/fs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -2902,9 +2902,6 @@ importers:
 
   packages/client/ui-directory-picker-browse:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -2926,6 +2923,9 @@ importers:
       '@qilin/client-ui-workspace':
         specifier: workspace:^
         version: link:../ui-workspace
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2944,15 +2944,15 @@ importers:
 
   packages/client/ui-directory-picker-native:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-ui-renderer':
         specifier: workspace:^
         version: link:../ui-renderer
       '@qilin/client-ui-workspace':
         specifier: workspace:^
         version: link:../ui-workspace
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2968,15 +2968,15 @@ importers:
 
   packages/client/ui-dockkit:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/client-ui-primitives':
         specifier: workspace:^
         version: link:../ui-primitives
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2998,9 +2998,6 @@ importers:
 
   packages/client/ui-goal:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3037,6 +3034,9 @@ importers:
       '@qilin/goal':
         specifier: workspace:^
         version: link:../../goal/goal
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -3058,9 +3058,6 @@ importers:
 
   packages/client/ui-input-trigger:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -3091,6 +3088,9 @@ importers:
       '@qilin/file-reference':
         specifier: workspace:^
         version: link:../../context/file-reference
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -3106,9 +3106,6 @@ importers:
 
   packages/client/ui-jobs:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -3133,6 +3130,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -3142,9 +3142,6 @@ importers:
 
   packages/client/ui-layout:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -3166,6 +3163,9 @@ importers:
       '@qilin/client-ui-theme':
         specifier: workspace:^
         version: link:../ui-theme
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -3175,9 +3175,6 @@ importers:
 
   packages/client/ui-message-feedback:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3217,6 +3214,9 @@ importers:
       '@qilin/command-feedback':
         specifier: workspace:^
         version: link:../../feedback/command-feedback
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/message-feedback':
         specifier: workspace:^
         version: link:../../feedback/message-feedback
@@ -3244,9 +3244,6 @@ importers:
 
   packages/client/ui-model-selection:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3283,6 +3280,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -3307,9 +3307,6 @@ importers:
 
   packages/client/ui-open-in-app:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -3340,6 +3337,9 @@ importers:
       '@qilin/host-open-in-app':
         specifier: workspace:^
         version: link:../../host/open-in-app
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -3352,9 +3352,6 @@ importers:
 
   packages/client/ui-permission-presets:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3391,6 +3388,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/permission-presets':
         specifier: workspace:^
         version: link:../../interaction/permission-presets
@@ -3403,9 +3403,6 @@ importers:
 
   packages/client/ui-plan:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3430,6 +3427,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/plan-mode':
         specifier: workspace:^
         version: link:../../plan/plan-mode
@@ -3445,7 +3445,7 @@ importers:
 
   packages/client/ui-primitives:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@shikijs/langs':
@@ -3517,9 +3517,6 @@ importers:
 
   packages/client/ui-reference:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3547,6 +3544,9 @@ importers:
       '@qilin/file-reference':
         specifier: workspace:^
         version: link:../../context/file-reference
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session-reference':
         specifier: workspace:^
         version: link:../../context/session-reference
@@ -3559,9 +3559,6 @@ importers:
 
   packages/client/ui-renderer:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-test-runtime':
         specifier: workspace:^
         version: link:../../test-support/client-runtime
@@ -3571,6 +3568,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -3592,9 +3592,6 @@ importers:
 
   packages/client/ui-schedule:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -3619,6 +3616,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/schedule':
         specifier: workspace:^
         version: link:../../schedule/schedule
@@ -3643,9 +3643,6 @@ importers:
 
   packages/client/ui-session:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -3658,6 +3655,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -3670,9 +3670,6 @@ importers:
 
   packages/client/ui-settings:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
@@ -3688,6 +3685,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/settings':
         specifier: workspace:^
         version: link:../../settings/settings
@@ -3707,9 +3707,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3743,6 +3740,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/settings':
         specifier: workspace:^
         version: link:../../settings/settings
@@ -3758,9 +3758,6 @@ importers:
 
   packages/client/ui-settings-mcp:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3785,6 +3782,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/mcp-servers':
         specifier: workspace:^
         version: link:../../mcp/mcp-servers
@@ -3806,9 +3806,6 @@ importers:
 
   packages/client/ui-settings-models:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3833,6 +3830,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
@@ -3845,9 +3845,6 @@ importers:
 
   packages/client/ui-settings-plugin-inventory:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent-presets':
         specifier: workspace:^
         version: link:../../preset/agent-presets
@@ -3875,6 +3872,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3890,9 +3890,6 @@ importers:
 
   packages/client/ui-settings-plugins:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3917,6 +3914,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -3929,9 +3929,6 @@ importers:
 
   packages/client/ui-settings-skills:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -3959,6 +3956,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -3980,9 +3980,6 @@ importers:
 
   packages/client/ui-sidebar:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-workspace-controller':
         specifier: workspace:^
         version: link:../../api/workspace-controller
@@ -4013,6 +4010,9 @@ importers:
       '@qilin/client-ui-workspace':
         specifier: workspace:^
         version: link:../ui-workspace
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -4025,9 +4025,6 @@ importers:
 
   packages/client/ui-sidebar-documentpreview:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-gateway':
         specifier: workspace:^
         version: link:../../api/gateway
@@ -4067,6 +4064,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4151,9 +4151,6 @@ importers:
       '@codemirror/view':
         specifier: ^6.43.11
         version: 6.43.11
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@lezer/highlight':
         specifier: ^1.2.3
         version: 1.2.3
@@ -4193,6 +4190,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4220,9 +4220,6 @@ importers:
 
   packages/client/ui-sidebar-plans:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -4256,6 +4253,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4283,9 +4283,6 @@ importers:
 
   packages/client/ui-sidebar-right:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -4322,6 +4319,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4355,9 +4355,6 @@ importers:
 
   packages/client/ui-sidebar-tasks:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -4385,6 +4382,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4415,9 +4415,6 @@ importers:
 
   packages/client/ui-skill:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -4448,6 +4445,9 @@ importers:
       '@qilin/client-ui-tool':
         specifier: workspace:^
         version: link:../ui-tool
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4466,21 +4466,18 @@ importers:
 
   packages/client/ui-slots:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-store':
         specifier: workspace:^
         version: link:../store
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
 
   packages/client/ui-subagent:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -4511,6 +4508,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4539,9 +4539,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -4572,6 +4569,9 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/settings':
         specifier: workspace:^
         version: link:../../settings/settings
@@ -4587,21 +4587,18 @@ importers:
 
   packages/client/ui-theme-brand:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/client-test-runtime':
         specifier: workspace:^
         version: link:../../test-support/client-runtime
       '@qilin/client-ui-theme':
         specifier: workspace:^
         version: link:../ui-theme
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/client/ui-tool:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -4644,6 +4641,9 @@ importers:
       '@qilin/code-runtime-worker-thread':
         specifier: workspace:^
         version: link:../../code-runtime/code-runtime-worker-thread
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -4683,9 +4683,6 @@ importers:
 
   packages/client/ui-trajectory:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -4728,6 +4725,9 @@ importers:
       '@qilin/compaction':
         specifier: workspace:^
         version: link:../../compaction/compaction
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -4758,9 +4758,6 @@ importers:
 
   packages/client/ui-user-questions:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -4794,6 +4791,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4821,9 +4821,6 @@ importers:
 
   packages/client/ui-workflow-run:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -4854,6 +4851,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -4872,9 +4872,6 @@ importers:
 
   packages/client/ui-workspace:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -4917,6 +4914,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/schedule':
         specifier: workspace:^
         version: link:../../schedule/schedule
@@ -4941,12 +4941,6 @@ importers:
 
   packages/client/web:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/client-modules':
         specifier: workspace:^
         version: link:../modules
@@ -4965,6 +4959,12 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -4983,7 +4983,7 @@ importers:
 
   packages/code-runtime/code-runtime:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -4996,12 +4996,12 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/code-runtime':
         specifier: workspace:^
         version: link:../code-runtime
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -5011,15 +5011,6 @@ importers:
 
   packages/compaction/command-compact:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5029,6 +5020,15 @@ importers:
       '@qilin/compaction':
         specifier: workspace:^
         version: link:../compaction
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5038,9 +5038,6 @@ importers:
 
   packages/compaction/compaction:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -5050,6 +5047,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5066,15 +5066,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5096,6 +5087,15 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5124,21 +5124,21 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/compaction':
         specifier: workspace:^
         version: link:../compaction
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5161,12 +5161,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5185,6 +5179,12 @@ importers:
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5209,12 +5209,12 @@ importers:
 
   packages/context/file-reference:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/context/file-reference-local:
     dependencies:
@@ -5222,15 +5222,15 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/file-reference':
         specifier: workspace:^
         version: link:../file-reference
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/system-prompt':
         specifier: workspace:^
         version: link:../../core/system-prompt
@@ -5253,15 +5253,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5271,6 +5262,15 @@ importers:
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../../fs/fs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5326,9 +5326,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5347,6 +5344,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5384,15 +5384,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5411,12 +5411,12 @@ importers:
 
   packages/core/agent:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5448,12 +5448,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5476,15 +5476,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../agent
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5522,15 +5522,15 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../agent
       '@qilin/code-runtime':
         specifier: workspace:^
         version: link:../../code-runtime/code-runtime
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/scope':
         specifier: workspace:^
         version: link:../scope
@@ -5546,12 +5546,12 @@ importers:
 
   packages/core/scope:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/core/session:
     dependencies:
@@ -5565,12 +5565,12 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/scope':
         specifier: workspace:^
         version: link:../scope
@@ -5587,12 +5587,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5612,9 +5612,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../agent
@@ -5624,6 +5621,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5645,15 +5645,15 @@ importers:
 
   packages/credentials/authorization:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../credentials
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5664,12 +5664,12 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/credentials/credentials-local:
     dependencies:
@@ -5683,9 +5683,6 @@ importers:
         specifier: ^2.9.0
         version: 2.9.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/atomic-write':
         specifier: workspace:^
         version: link:../../util/atomic-write
@@ -5695,6 +5692,9 @@ importers:
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -5708,9 +5708,6 @@ importers:
         specifier: 2.29.1
         version: 2.29.1
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5729,6 +5726,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -5762,15 +5762,15 @@ importers:
 
   packages/e2b/fs-e2b:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/e2b':
         specifier: workspace:^
         version: link:../e2b
       '@qilin/fs':
         specifier: workspace:^
         version: link:../../fs/fs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/e2b/subprocess-e2b:
     dependencies:
@@ -5778,12 +5778,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/e2b':
         specifier: workspace:^
         version: link:../e2b
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/subprocess':
         specifier: workspace:^
         version: link:../../subprocess/subprocess
@@ -5803,9 +5803,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -5818,6 +5815,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -5858,10 +5858,10 @@ importers:
         specifier: workspace:^
         version: link:../tool-agent-team
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
       js-yaml:
@@ -5874,10 +5874,10 @@ importers:
         specifier: workspace:^
         version: link:../client-ui-agent-team
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
       js-yaml:
@@ -5890,9 +5890,6 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -5923,6 +5920,9 @@ importers:
       '@qilin/experimental-agent-team':
         specifier: workspace:^
         version: link:../agent-team
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -5945,12 +5945,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/code-runtime':
         specifier: workspace:^
         version: link:../../code-runtime/code-runtime
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/timeout':
         specifier: workspace:^
         version: link:../../util/timeout
@@ -5976,18 +5976,18 @@ importers:
         specifier: ^8.21.0
         version: 8.21.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
@@ -6004,9 +6004,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6019,6 +6016,9 @@ importers:
       '@qilin/experimental-agent-team':
         specifier: workspace:^
         version: link:../agent-team
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/scope':
         specifier: workspace:^
         version: link:../../core/scope
@@ -6055,15 +6055,15 @@ importers:
 
   packages/experimental/webworker-packer:
     dependencies:
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
       '@qilin/experimental-webworker-runtime':
         specifier: workspace:^
         version: link:../webworker-runtime
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
       js-yaml:
         specifier: ^4.2.0
         version: 4.3.1
@@ -6071,7 +6071,7 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/package-manifest':
@@ -6108,12 +6108,6 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@deepseek-ai/node-addon-system':
         specifier: workspace:^
         version: link:../../../native/system/packages/entry
@@ -6135,6 +6129,12 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/sandbox-local':
         specifier: workspace:^
         version: link:../../sandbox/sandbox-local
@@ -6168,12 +6168,6 @@ importers:
 
   packages/extensions/cordis-client-runner:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -6186,6 +6180,12 @@ importers:
       '@qilin/client-ui-theme':
         specifier: workspace:^
         version: link:../../client/ui-theme
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../util/values
@@ -6208,18 +6208,18 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../../../vendor/timer
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../../../vendor/timer
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6238,18 +6238,18 @@ importers:
 
   packages/extensions/tool-cordis:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/cordis-host-runner':
         specifier: workspace:^
         version: link:../cordis-host-runner
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6268,9 +6268,6 @@ importers:
 
   packages/extensions/ui-cordis:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-remotes':
         specifier: workspace:^
         version: link:../../api/remotes
@@ -6304,6 +6301,9 @@ importers:
       '@qilin/cordis-client-runner':
         specifier: workspace:^
         version: link:../cordis-client-runner
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -6320,15 +6320,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6341,6 +6332,15 @@ importers:
       '@qilin/commands':
         specifier: workspace:^
         version: link:../../interaction/commands
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6360,21 +6360,21 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/command-feedback':
         specifier: workspace:^
         version: link:../command-feedback
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6393,15 +6393,15 @@ importers:
 
   packages/fs/fs:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6418,39 +6418,39 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/fs':
         specifier: workspace:^
         version: link:../fs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
 
   packages/fs/fs-observation-policy:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/fs':
         specifier: workspace:^
         version: link:../fs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
 
   packages/fs/fs-sandbox:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/fs':
         specifier: workspace:^
         version: link:../fs
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../fs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/sandbox':
         specifier: workspace:^
         version: link:../../sandbox/sandbox
@@ -6470,9 +6470,6 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6497,6 +6494,9 @@ importers:
       '@qilin/fs-observation-policy':
         specifier: workspace:^
         version: link:../fs-observation-policy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6537,12 +6537,12 @@ importers:
         specifier: ^1.18.0
         version: 1.18.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6580,9 +6580,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6598,6 +6595,9 @@ importers:
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../fs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6623,9 +6623,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6644,6 +6641,9 @@ importers:
       '@qilin/fs-sandbox':
         specifier: workspace:^
         version: link:../fs-sandbox
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6668,12 +6668,6 @@ importers:
 
   packages/goal/command-goal:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6689,6 +6683,12 @@ importers:
       '@qilin/goal':
         specifier: workspace:^
         version: link:../goal
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6708,9 +6708,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6729,6 +6726,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6759,9 +6759,6 @@ importers:
 
   packages/goal/goal-round-driver:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6777,6 +6774,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6799,12 +6799,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6817,6 +6811,12 @@ importers:
       '@qilin/goal':
         specifier: workspace:^
         version: link:../goal
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6839,9 +6839,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6851,6 +6848,9 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6866,7 +6866,7 @@ importers:
 
   packages/guard/timeout-policy:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -6881,12 +6881,12 @@ importers:
 
   packages/hooks/hook-protocol:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -6900,9 +6900,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6918,6 +6915,9 @@ importers:
       '@qilin/hook-protocol':
         specifier: workspace:^
         version: link:../hook-protocol
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6949,9 +6949,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -6967,6 +6964,9 @@ importers:
       '@qilin/hook-protocol':
         specifier: workspace:^
         version: link:../hook-protocol
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -6991,7 +6991,7 @@ importers:
 
   packages/host/directory-picker:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -7001,15 +7001,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/launch-environment
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/client-ui-directory-picker-browse':
         specifier: workspace:^
         version: link:../../client/ui-directory-picker-browse
@@ -7028,6 +7019,15 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
 
   packages/host/directory-picker-browse:
     dependencies:
@@ -7038,7 +7038,7 @@ importers:
         specifier: workspace:^
         version: link:../directory-picker
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -7054,7 +7054,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       tsx:
@@ -7067,12 +7067,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/client-connection':
         specifier: workspace:^
         version: link:../../client/connection
@@ -7082,6 +7076,12 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
 
   packages/host/open-in-app:
     dependencies:
@@ -7098,15 +7098,15 @@ importers:
         specifier: workspace:^
         version: link:../../subprocess/subprocess
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
 
   packages/host/plugin-inventory:
     dependencies:
@@ -7114,18 +7114,18 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent-presets':
         specifier: workspace:^
         version: link:../../preset/agent-presets
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/typert-protocol':
         specifier: workspace:^
         version: link:../../typert/protocol
@@ -7142,7 +7142,7 @@ importers:
         specifier: ^1.0.0
         version: 1.1.0
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@types/compression':
@@ -7167,15 +7167,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/home-paths
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/client-connection':
         specifier: workspace:^
         version: link:../../client/connection
@@ -7188,18 +7179,27 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
 
   packages/identity/anonymous-user-id:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/interaction/commands:
     dependencies:
@@ -7210,9 +7210,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7225,6 +7222,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7247,15 +7247,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/commands':
         specifier: workspace:^
         version: link:../commands
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/sandbox':
         specifier: workspace:^
         version: link:../../sandbox/sandbox
@@ -7280,12 +7280,12 @@ importers:
 
   packages/interaction/tool-ask-user:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7305,9 +7305,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7317,6 +7314,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7332,12 +7332,12 @@ importers:
 
   packages/interaction/user-questions:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7347,9 +7347,6 @@ importers:
 
   packages/jobs/jobs:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7359,6 +7356,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -7369,15 +7369,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7390,6 +7381,15 @@ importers:
       '@qilin/jobs':
         specifier: workspace:^
         version: link:../jobs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/scope':
         specifier: workspace:^
         version: link:../../core/scope
@@ -7406,9 +7406,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7418,6 +7415,9 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7436,7 +7436,7 @@ importers:
 
   packages/llm/deepseek-llm-api-extensions:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -7464,15 +7464,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../../attachment/attachment
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/llm/llm-deepseek:
     dependencies:
@@ -7489,9 +7489,6 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7522,6 +7519,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -7559,9 +7559,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../../attachment/attachment
@@ -7577,6 +7574,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -7602,15 +7602,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7626,6 +7617,15 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../llm
@@ -7663,15 +7663,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7681,6 +7672,15 @@ importers:
       '@qilin/deepseek-llm-api-extensions':
         specifier: workspace:^
         version: link:../deepseek-llm-api-extensions
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/scope':
         specifier: workspace:^
         version: link:../../core/scope
@@ -7703,12 +7703,12 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/compaction':
         specifier: workspace:^
         version: link:../../compaction/compaction
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../llm
@@ -7724,12 +7724,12 @@ importers:
 
   packages/lsp/lsp:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7743,9 +7743,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
@@ -7755,6 +7752,9 @@ importers:
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../../fs/fs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7786,15 +7786,15 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../../fs/fs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7835,9 +7835,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@modelcontextprotocol/server-everything':
         specifier: ^2026.7.4
         version: 2026.7.4
@@ -7853,6 +7850,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7884,7 +7884,7 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/subprocess':
@@ -7903,9 +7903,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7921,6 +7918,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -7952,18 +7952,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-group':
-        specifier: workspace:^
-        version: link:../../../vendor/group
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -7979,6 +7967,18 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-group':
+        specifier: workspace:^
+        version: link:../../../vendor/group
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8013,7 +8013,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/scope':
@@ -8029,7 +8029,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -8039,7 +8039,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -8064,7 +8064,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -8086,15 +8086,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/sandbox':
         specifier: workspace:^
         version: link:../sandbox
@@ -8117,7 +8117,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/pwsh-local':
@@ -8133,12 +8133,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -8154,6 +8148,12 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8182,7 +8182,7 @@ importers:
         specifier: workspace:*
         version: link:../../../apps/cli
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -8197,7 +8197,7 @@ importers:
 
   packages/sdk/protocol:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -8219,12 +8219,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -8237,6 +8231,12 @@ importers:
       '@qilin/attachment':
         specifier: workspace:^
         version: link:../../attachment/attachment
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8277,12 +8277,6 @@ importers:
         specifier: ^0.8.2
         version: 0.8.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -8319,6 +8313,12 @@ importers:
       '@qilin/commands':
         specifier: workspace:^
         version: link:../../interaction/commands
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -8337,12 +8337,12 @@ importers:
 
   packages/session-query/session-query:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8371,10 +8371,10 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       '@qilin/session':
@@ -8402,15 +8402,15 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop':
         specifier: workspace:^
         version: link:../../core/agent-loop
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8450,12 +8450,6 @@ importers:
 
   packages/session/session-checkpoint-policy:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -8465,6 +8459,12 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8493,7 +8493,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -8512,7 +8512,7 @@ importers:
         specifier: workspace:^
         version: link:../session-format-v2-to-v3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/session':
@@ -8528,7 +8528,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/session':
@@ -8550,7 +8550,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/session':
@@ -8569,7 +8569,7 @@ importers:
         specifier: workspace:^
         version: link:../session-format-v1-to-v2
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -8585,15 +8585,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/command-feedback':
         specifier: workspace:^
         version: link:../../feedback/command-feedback
@@ -8603,6 +8594,15 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8628,12 +8628,12 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/scope':
         specifier: workspace:^
         version: link:../../core/scope
@@ -8668,7 +8668,7 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/session':
@@ -8687,7 +8687,7 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/session':
@@ -8706,7 +8706,7 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/session':
@@ -8731,13 +8731,13 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       '@qilin/llm':
@@ -8752,12 +8752,12 @@ importers:
 
   packages/session/session-telemetry:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -8786,15 +8786,6 @@ importers:
         specifier: ^0.220.0
         version: 0.220.0(@opentelemetry/api@1.9.1)
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
-      '@deepseek-ai/cordis-plugin-logger-console':
-        specifier: workspace:^
-        version: link:../../../vendor/logger-console
       '@qilin/anonymous-user-id':
         specifier: workspace:^
         version: link:../../identity/anonymous-user-id
@@ -8810,6 +8801,15 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
+      '@qilin/kylin-plugin-logger-console':
+        specifier: workspace:^
+        version: link:../../../vendor/logger-console
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8847,9 +8847,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -8862,6 +8859,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8881,12 +8881,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent-loop':
         specifier: workspace:^
         version: link:../../core/agent-loop
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8909,18 +8909,18 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent-loop':
         specifier: workspace:^
         version: link:../../core/agent-loop
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -8949,7 +8949,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -8971,13 +8971,13 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:^
         version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       '@qilin/llm':
@@ -8999,15 +8999,15 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -9027,15 +9027,15 @@ importers:
         specifier: ^2.9.0
         version: 2.9.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/atomic-write':
         specifier: workspace:^
         version: link:../../util/atomic-write
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/settings':
         specifier: workspace:^
         version: link:../settings
@@ -9046,7 +9046,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/settings':
@@ -9067,15 +9067,15 @@ importers:
 
   packages/shell/bash-sandbox:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@deepseek-ai/node-addon-system':
         specifier: workspace:^
         version: link:../../../native/system/packages/entry
       '@qilin/bash-local':
         specifier: workspace:^
         version: link:../bash-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/sandbox':
         specifier: workspace:^
         version: link:../../sandbox/sandbox
@@ -9101,7 +9101,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/settings':
@@ -9122,7 +9122,7 @@ importers:
 
   packages/shell/pwsh-sandbox:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/pwsh-local':
@@ -9149,7 +9149,7 @@ importers:
 
   packages/shell/shell:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/sandbox':
@@ -9168,15 +9168,15 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9193,9 +9193,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -9214,6 +9211,9 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9260,21 +9260,21 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9315,9 +9315,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -9333,6 +9330,9 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9379,21 +9379,21 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9440,7 +9440,7 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -9452,7 +9452,7 @@ importers:
 
   packages/skill/skill-badge:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/skill':
@@ -9471,15 +9471,15 @@ importers:
         specifier: ^2.4.2
         version: 2.9.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/fs':
         specifier: workspace:^
         version: link:../../fs/fs
       '@qilin/home-paths':
         specifier: workspace:^
         version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/skill':
         specifier: workspace:^
         version: link:../skill
@@ -9490,15 +9490,15 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9520,12 +9520,12 @@ importers:
 
   packages/spill/spill:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9539,18 +9539,18 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9567,15 +9567,15 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/code-runtime-worker-thread':
         specifier: workspace:^
         version: link:../../code-runtime/code-runtime-worker-thread
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9594,7 +9594,7 @@ importers:
 
   packages/storage/storage:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -9607,12 +9607,12 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/storage':
         specifier: workspace:^
         version: link:../storage
@@ -9623,7 +9623,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/storage':
@@ -9636,7 +9636,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/storage':
@@ -9658,9 +9658,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -9676,6 +9673,9 @@ importers:
       '@qilin/jobs':
         specifier: workspace:^
         version: link:../../jobs/jobs
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9743,18 +9743,18 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/app-boot':
         specifier: workspace:^
         version: link:../../boot/app-boot
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9810,15 +9810,15 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/app-boot':
         specifier: workspace:^
         version: link:../../boot/app-boot
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9877,18 +9877,18 @@ importers:
         specifier: workspace:^
         version: link:../../sdk/protocol
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/app-boot':
         specifier: workspace:^
         version: link:../../boot/app-boot
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9935,12 +9935,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -9953,6 +9947,12 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -9978,15 +9978,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10005,6 +9996,15 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10042,12 +10042,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/brand
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10057,6 +10051,12 @@ importers:
       '@qilin/app-boot':
         specifier: workspace:^
         version: link:../../boot/app-boot
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10106,12 +10106,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10127,6 +10121,12 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10164,12 +10164,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10182,6 +10176,12 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10228,9 +10228,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10240,6 +10237,9 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10273,12 +10273,12 @@ importers:
 
   packages/subprocess/subprocess:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -10295,7 +10295,7 @@ importers:
         specifier: 1.2.0-beta.15
         version: 1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd)
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/loader-smoke':
@@ -10314,15 +10314,12 @@ importers:
         specifier: ^3.1.0
         version: 3.1.1
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/terminal/terminal:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10332,6 +10329,9 @@ importers:
       '@qilin/brand':
         specifier: workspace:^
         version: link:../../util/brand
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -10351,15 +10351,15 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/sandbox':
         specifier: workspace:^
         version: link:../../sandbox/sandbox
@@ -10385,15 +10385,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10406,6 +10397,15 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10445,15 +10445,15 @@ importers:
 
   packages/test-support/agent-loop-testkit:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/agent-loop':
         specifier: workspace:^
         version: link:../../core/agent-loop
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10482,9 +10482,6 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(happy-dom@20.11.6)(jsdom@29.1.1(@noble/hashes@2.3.0))(vite@8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/api-session-controller':
         specifier: workspace:^
         version: link:../../api/session-controller
@@ -10521,6 +10518,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:^
         version: link:../../client/ui-slots
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -10545,7 +10545,7 @@ importers:
 
   packages/test-support/llm-mock-server:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -10558,15 +10558,15 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/compaction':
         specifier: workspace:^
         version: link:../../compaction/compaction
       '@qilin/deepseek-llm-api-extensions':
         specifier: workspace:^
         version: link:../../llm/deepseek-llm-api-extensions
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10583,9 +10583,6 @@ importers:
         specifier: ^4.22.4
         version: 4.22.4
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10595,6 +10592,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10607,7 +10607,7 @@ importers:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
         version: 1.4.0(zod@4.4.3)
-      '@deepseek-ai/cordis-plugin-include':
+      '@qilin/kylin-plugin-include':
         specifier: workspace:*
         version: link:../../../vendor/include
       '@qilin/llm-replay':
@@ -10626,9 +10626,6 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(happy-dom@20.11.6)(jsdom@29.1.1(@noble/hashes@2.3.0))(vite@8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10641,6 +10638,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10675,15 +10675,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10696,6 +10687,15 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10724,7 +10724,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/tool-cordis':
@@ -10743,10 +10743,10 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
       '@qilin/typert-registry':
@@ -10758,7 +10758,7 @@ importers:
 
   packages/typert/protocol:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -10768,7 +10768,7 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/typert-protocol':
@@ -10777,13 +10777,13 @@ importers:
 
   packages/util/atomic-write:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/brand:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -10793,25 +10793,25 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/crypto:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/deque:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/home-paths:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -10821,58 +10821,58 @@ importers:
         specifier: ^8.10.0
         version: 8.10.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
 
   packages/util/launch-environment:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/native-command:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/output-retention:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/package-manifest:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/time:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/timeout:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/values:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
   packages/util/workspace-path:
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
 
@@ -10891,12 +10891,12 @@ importers:
         specifier: ^7.2.4
         version: 7.2.4
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -10940,7 +10940,7 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
       '@qilin/llm':
@@ -10959,12 +10959,12 @@ importers:
         specifier: ^8.10.0
         version: 8.10.0
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/timeout':
         specifier: workspace:^
         version: link:../../util/timeout
@@ -10978,9 +10978,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -10993,6 +10990,9 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -11012,12 +11012,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -11031,12 +11031,12 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../util/http-proxy
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -11053,15 +11053,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -11074,6 +11065,15 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -11102,21 +11102,21 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../../credentials/credentials
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -11130,12 +11130,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -11145,6 +11139,12 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:^
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../../vendor/loader
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -11182,15 +11182,15 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -11218,9 +11218,6 @@ importers:
 
   packages/workflow/workflow:
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -11230,6 +11227,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -11249,9 +11249,6 @@ importers:
         specifier: workspace:^
         version: link:../../util/values
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
@@ -11267,6 +11264,9 @@ importers:
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -11304,12 +11304,12 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
       '@qilin/invariants':
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -11328,21 +11328,6 @@ importers:
 
   python/sdk-runtime:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-group':
-        specifier: workspace:^
-        version: link:../../vendor/group
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../vendor/loader
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../../vendor/timer
       '@deepseek-ai/cosmokit':
         specifier: link:../../vendor/cosmokit
         version: link:../../vendor/cosmokit
@@ -11463,6 +11448,21 @@ importers:
       '@qilin/jobs-local':
         specifier: workspace:^
         version: link:../../packages/jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../../vendor/cordis
+      '@qilin/kylin-plugin-group':
+        specifier: workspace:^
+        version: link:../../vendor/group
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../../vendor/loader
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../../vendor/timer
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../packages/util/launch-environment
@@ -11709,15 +11709,15 @@ importers:
 
   vendor/cordis:
     dependencies:
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../loader
       '@deepseek-ai/cosmokit':
         specifier: link:../cosmokit
         version: link:../cosmokit
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:^
+        version: link:../include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../loader
       '@standard-schema/spec':
         specifier: ^1.1.0
         version: 1.1.0
@@ -11726,10 +11726,10 @@ importers:
 
   vendor/group:
     dependencies:
-      '@deepseek-ai/cordis':
+      '@qilin/kylin':
         specifier: workspace:^
         version: link:../cordis
-      '@deepseek-ai/cordis-plugin-loader':
+      '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../loader
 
@@ -11738,18 +11738,18 @@ importers:
       '@babel/code-frame':
         specifier: ^7.29.0
         version: 7.29.7
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../cordis
-      '@deepseek-ai/cordis-plugin-timer':
-        specifier: workspace:^
-        version: link:../timer
       '@deepseek-ai/cosmokit':
         specifier: link:../cosmokit
         version: link:../cosmokit
       '@deepseek-ai/schemastery':
         specifier: link:../schemastery
         version: link:../schemastery
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
+      '@qilin/kylin-plugin-timer':
+        specifier: workspace:^
+        version: link:../timer
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -11769,42 +11769,42 @@ importers:
 
   vendor/include:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../cordis
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../loader
       '@deepseek-ai/cosmokit':
         specifier: link:../cosmokit
         version: link:../cosmokit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:^
+        version: link:../loader
       js-yaml:
         specifier: ^4.1.0
         version: 4.2.0
 
   vendor/loader:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../cordis
       '@deepseek-ai/cosmokit':
         specifier: link:../cosmokit
         version: link:../cosmokit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
       node-addon-require-builtin:
         specifier: ^0.1.4
         version: 0.1.4
 
   vendor/logger-console:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../cordis
       '@deepseek-ai/cosmokit':
         specifier: link:../cosmokit
         version: link:../cosmokit
       '@deepseek-ai/schemastery':
         specifier: link:../schemastery
         version: link:../schemastery
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
       supports-color:
         specifier: ^9.4.0
         version: 9.4.0
@@ -11820,12 +11820,12 @@ importers:
 
   vendor/timer:
     dependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../cordis
       '@deepseek-ai/cosmokit':
         specifier: link:../cosmokit
         version: link:../cosmokit
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
 
   website:
     devDependencies:

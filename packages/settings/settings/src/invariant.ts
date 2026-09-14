@@ -3,7 +3,7 @@
  * @module @qilin/settings/invariant
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import { deepEqualJson } from '@qilin/util-values'
 

@@ -32,7 +32,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^",
@@ -46,7 +46,7 @@
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
     "@qilin/agent-loop-testkit": "workspace:^",

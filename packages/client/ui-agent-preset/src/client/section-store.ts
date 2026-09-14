@@ -14,7 +14,7 @@
  * more than the row it targeted.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
 import type {} from '@qilin/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'

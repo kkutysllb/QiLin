@@ -16,7 +16,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin/session'
 import type { SessionHeader } from '@qilin/session'
 import {

@@ -15,7 +15,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type { ContentBlock } from '@qilin/llm'
 import { foldConsumedWork } from '@qilin/agent'

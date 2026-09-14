@@ -1,6 +1,6 @@
 /** Scoped model-facing tools for the opt-in Agent Teams runtime. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent } from '@qilin/agent'
 import { TeamTaskId } from '@qilin/experimental-agent-team'

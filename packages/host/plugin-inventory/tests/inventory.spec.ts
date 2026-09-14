@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context, FiberState, type Plugin } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context, FiberState, type Plugin } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import { remoteMethods } from '@qilin/typert-protocol'
 import type { AgentPresets } from '@qilin/agent-presets'
 import PluginInventoryGateway from '../src/index.ts'

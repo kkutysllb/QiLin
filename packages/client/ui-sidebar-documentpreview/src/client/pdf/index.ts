@@ -1,5 +1,5 @@
 /** Builtin PDF registration through document metadata and the keyed body slot. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '../index.ts'
 import type { DocumentPreviewDefinition } from '../document/registry.ts'
 import { PdfBody, type PdfBodyInjected } from './PdfBody.tsx'

@@ -10,7 +10,7 @@
  * @module qilin-permission-presets
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { z as zod } from 'zod'
 import type { Session, SessionEvent } from '@qilin/session'
@@ -29,7 +29,7 @@ import type { PermissionSelect, PresetOption } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     permissionPresets: PermissionPresetService
   }

@@ -9,7 +9,7 @@ import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
 import type { ToolCallId, ProviderRequestId, ReasoningEffortId } from './brand.ts'
 import type { Message } from './message.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * The provider topology changed: an adapter registered or unregistered

@@ -10,7 +10,7 @@
  * business, read through its face. Every import from another
  * client plugin is a type.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-resources/client'
@@ -48,7 +48,7 @@ export type { TextPage, TextState, TextStore, TextTabState } from './store.ts'
 export type { DocumentContent, DocumentPreviewProps, DocumentTextPage } from './document/contract.ts'
 export type { DocumentLoadMode, DocumentPreviewDefinition } from './document/registry.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** File-extension renderer registrations, independent from their keyed document bodies. */
     documentPreviews: DocumentPreviewRegistry

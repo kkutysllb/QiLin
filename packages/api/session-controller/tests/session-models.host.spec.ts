@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry, { agentEvents } from '@qilin/agent'
 import type { Agent } from '@qilin/agent'
 import AttachmentStore from '@qilin/attachment'

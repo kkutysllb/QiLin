@@ -1,6 +1,6 @@
 /** V2 content admission refuses entire generations without publishing a valid prefix. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SessionId } from '@qilin/session'
 import type { SessionFormatJsonObject } from '@qilin/session-format'
 import { SessionFormatUnsupportedError } from '@qilin/session-persistence'

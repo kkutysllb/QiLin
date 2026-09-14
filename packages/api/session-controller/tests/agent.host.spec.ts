@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import type { Agent } from '@qilin/agent'
 import { agentPresetProjectionDefinition } from '@qilin/agent-presets'

@@ -1,7 +1,7 @@
 /** Durable Team mailbox admission, target-local dispatch, acknowledgement, and recovery. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'

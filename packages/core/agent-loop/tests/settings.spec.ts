@@ -1,8 +1,8 @@
 /** The `agent-loop` settings section layered over the composition entry. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import SessionStore from '@qilin/session'
 import SystemPrompt from '@qilin/system-prompt'

@@ -9,7 +9,7 @@
  * document language rather than merely looking untidy.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
 import { TestRemote } from '@qilin/client-test-runtime'

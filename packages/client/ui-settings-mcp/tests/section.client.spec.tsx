@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

@@ -7,7 +7,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { ToolCallId } from '@qilin/llm'
 import type { ToolExecution } from '@qilin/tools'
 import { resolveRgPath, runRipgrep } from '@qilin/tool-fs-search'

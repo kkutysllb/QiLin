@@ -1,6 +1,6 @@
 /** Signed GitHub HTTP adapter for the provider-neutral webhook runtime. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { credentialRef } from '@qilin/credentials'
 import type {} from '@qilin/host-webserver'
 import z from '@deepseek-ai/schemastery'

@@ -7,7 +7,7 @@
  * composing this plugin out of cordis.yml removes both surfaces entirely;
  * the owning view renders an empty chain and inert prose at zero cost.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/client-connection/client'
 import type { ChatFileMentions } from '@qilin/client-ui-chat/client'

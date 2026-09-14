@@ -9,7 +9,7 @@
 import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'
 import { randomBytes } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { unzipSync, strFromU8 } from 'fflate'
 import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
 import type { SessionEvent, SessionHeader, SessionId } from '@qilin/session'

@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SessionId } from '@qilin/session'
 import type { Session } from '@qilin/session'
 import type { Agent } from '@qilin/agent'

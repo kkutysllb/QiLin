@@ -1,6 +1,6 @@
 // Sessions remain resident after creation so their open Remote sources keep running off-screen.
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { randomUUID } from '@qilin/util-crypto'
 import type { AttachmentIdType, FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
 import type { SubagentAddress } from '@qilin/subagent/client'

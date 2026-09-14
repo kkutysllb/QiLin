@@ -1,6 +1,6 @@
 /** Real JSONL publication and provider-neutral message preservation across the V2 PTC rename. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { Session, SessionId } from '@qilin/session'
 import type { SessionFormatEvent } from '@qilin/session-format'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'

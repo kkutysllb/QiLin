@@ -30,7 +30,7 @@
     "@qilin/sandbox": "workspace:^",
     "@qilin/sandbox-policy": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -48,7 +48,7 @@
     "@qilin/session": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }
 }

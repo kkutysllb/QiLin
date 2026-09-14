@@ -3,7 +3,7 @@
  * @module subagent-settlement-fence
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent-loop'
 import type {} from '@qilin/subagent'
 

@@ -9,7 +9,7 @@
  * @module @qilin/bash-sandbox
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin/shell'
 import { SandboxUnavailableError } from '@qilin/sandbox'
 import type {

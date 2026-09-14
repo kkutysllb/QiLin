@@ -3,7 +3,7 @@
  * @module @qilin/schedule
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
 import type { EveryScheduleRecord, OneShotScheduleRecord } from './types.ts'

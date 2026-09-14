@@ -29,9 +29,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
-import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
+import type { Entry } from '@qilin/kylin-plugin-loader'
 import type { IndexInjection } from '@qilin/host-webserver'
 import type { QilinClientManifest } from '@qilin/package-manifest'
 import { optionalStringArray, stripClientSuffix } from './client/manifest.ts'
@@ -42,7 +42,7 @@ export type {
   BootManifest, BootModuleRow, BootPluginRow, WebBootBatch, WebBootBatchPhase, WebBootEntry, WebBootGraph,
 } from './client/manifest.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** The web plugin table (provided by the client-modules node half). */
     clientModules: ClientModuleRegistry

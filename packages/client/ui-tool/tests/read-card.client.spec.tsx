@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { createSnapshotStore } from '@qilin/client-store'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'

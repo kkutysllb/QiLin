@@ -19,7 +19,7 @@ import {
 import { createSnapshotStore } from '@qilin/client-store'
 import type { SessionListState, SessionSnapshot } from '@qilin/api-session-controller/client'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type { SubmitOutcome } from '../src/client/contract/input.ts'
 import { SessionInputShell } from '../src/client/input/facade.ts'

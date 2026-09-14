@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/client-connection": "workspace:^"
   },
   "dependencies": {
@@ -37,9 +37,9 @@
     "@qilin/home-paths": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/credentials-local": "workspace:^",
     "@qilin/host-frontend-static": "workspace:^",

@@ -10,11 +10,11 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { FSWatcher, type ChokidarOptions } from 'chokidar'
-import { Context } from '@deepseek-ai/cordis'
-import Hmr from '@deepseek-ai/cordis-plugin-hmr'
-import Include, { type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
+import { Context } from '@qilin/kylin'
+import Hmr from '@qilin/kylin-plugin-hmr'
+import Include, { type PatchOptions } from '@qilin/kylin-plugin-include'
+import Loader from '@qilin/kylin-plugin-loader'
+import Timer from '@qilin/kylin-plugin-timer'
 import {
   boot,
   loadOptionalPatches,

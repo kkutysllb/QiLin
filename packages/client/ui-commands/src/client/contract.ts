@@ -3,7 +3,7 @@
  * CommandUiRuntime (`ctx.commandUi`) implements this face; business packages
  * consume `register` alone.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ClientSessionContext } from '@qilin/client-ui-input-trigger/client'
 
 /** Copy for an option that must be acknowledged before onSelect can run. */

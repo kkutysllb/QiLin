@@ -48,7 +48,7 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent-presets": "workspace:^",
     "@qilin/credentials": "workspace:^",
     "@qilin/native-command": "workspace:^",
@@ -57,7 +57,7 @@
     "@qilin/typert-protocol": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent-presets": "workspace:^",
     "@qilin/credentials": "workspace:^",
     "@qilin/native-command": "workspace:^",

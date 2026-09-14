@@ -1,6 +1,6 @@
 /** Cold-safe Session list and search projection. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent-presets'
 import type { ImageAttachmentLimits } from '@qilin/attachment'
 import { SessionLogOffset } from '@qilin/session'

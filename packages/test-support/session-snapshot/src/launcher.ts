@@ -37,7 +37,7 @@ import {
   type SetSessionConfigOptionResponse,
   type SessionNotification,
 } from '@agentclientprotocol/sdk'
-import { entryListSchema, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
 import { resolveExampleLaunch } from '@qilin/loader-smoke'
 
 const EXIT_MARKER_GRACE_MS = 250

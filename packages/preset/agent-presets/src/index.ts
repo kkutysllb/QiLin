@@ -22,8 +22,8 @@
  */
 
 import { stat } from 'node:fs/promises'
-import { Context } from '@deepseek-ai/cordis'
-import { evaluate } from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import { evaluate } from '@qilin/kylin-plugin-loader'
 import z from '@deepseek-ai/schemastery'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
 import { bindScopeParent, createScope, scopeOf, type Scope, type ScopeKey, type ScopeParentBinding } from '@qilin/scope'
@@ -84,7 +84,7 @@ export { copyComposition, deleteComposition, readComposition, writableRoot } fro
 export { agentPresetProjectionDefinition } from './session.ts'
 export type { AgentPreset, Config, PresetRoot, PresetTrust } from './preset.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     agentPresets: AgentPresets
   }

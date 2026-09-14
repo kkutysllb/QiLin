@@ -44,7 +44,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/workflow": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -59,7 +59,7 @@
     "@qilin/tools": "workspace:^",
     "@qilin/workflow": "workspace:^",
     "@qilin/workflow-worker-thread": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }
 }

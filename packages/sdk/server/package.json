@@ -31,7 +31,7 @@
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/attachment": "workspace:^",
     "@qilin/llm": "workspace:^",
@@ -42,8 +42,8 @@
     "@qilin/subagent": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
     "@qilin/agent-loop-testkit": "workspace:^",

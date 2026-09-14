@@ -5,7 +5,7 @@
  * Runs the built package under plain Node.
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SESSION_FORMAT_VERSION } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 

@@ -1,6 +1,6 @@
 import { createUserMessage } from '@qilin/llm'
 import { describe, expect, it } from 'vitest'
-import { Context, symbols, type EffectMeta, type Fiber } from '@deepseek-ai/cordis'
+import { Context, symbols, type EffectMeta, type Fiber } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import SessionStore, { SessionId, type SessionEvent } from '@qilin/session'
 import SystemPrompt from '@qilin/system-prompt'

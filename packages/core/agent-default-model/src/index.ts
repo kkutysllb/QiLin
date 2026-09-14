@@ -4,13 +4,13 @@
  * @module @qilin/agent-default-model
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { ModelSelection } from '@qilin/agent'
 import { ReasoningEffortId } from '@qilin/llm'
 import type {} from '@qilin/settings'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Default model selection for Agents created without an explicit model. */
     agentDefaultModel: AgentDefaultModelConfig

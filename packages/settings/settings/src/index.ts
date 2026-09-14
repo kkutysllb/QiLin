@@ -6,7 +6,7 @@
  * @module @qilin/settings
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type z from '@deepseek-ai/schemastery'
 import { deepEqualJson, deepFreeze } from '@qilin/util-values'
 import { redactSecrets } from './redact.ts'
@@ -140,7 +140,7 @@ export interface SettingsScope<T> {
   replace(section: object): Promise<void>
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     settings: SettingsProvider
   }

@@ -11,8 +11,8 @@
     "config/desktop.cordis.patch.yml"
   ],
   "dependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/cli": "workspace:^",
     "@qilin/api-gateway": "workspace:^",
     "@qilin/app-boot": "workspace:^",

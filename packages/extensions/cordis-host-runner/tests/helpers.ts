@@ -1,5 +1,5 @@
-import { Context } from '@deepseek-ai/cordis'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
+import { Context } from '@qilin/kylin'
+import Timer from '@qilin/kylin-plugin-timer'
 import { ToolCallId } from '@qilin/llm'
 import SystemPrompt from '@qilin/system-prompt'
 import ToolRegistry from '@qilin/tools'

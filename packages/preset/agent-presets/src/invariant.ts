@@ -3,7 +3,7 @@
  * @module @qilin/agent-presets/invariant
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantInstaller } from '@qilin/invariants'
 // Type-only: resolves the `system-prompt/assemble` waterfall this companion
 // joins, and the `agent` field `qilin-agent` merges into its context.

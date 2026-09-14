@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "@agentclientprotocol/sdk": "1.4.0",
-    "@deepseek-ai/cordis-plugin-include": "workspace:*",
+    "@qilin/kylin-plugin-include": "workspace:*",
     "@qilin/llm-replay": "workspace:^",
     "@qilin/loader-smoke": "workspace:*",
     "@qilin/session-format": "workspace:^",
@@ -36,12 +36,12 @@
     "vitest": "^4.1.8"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/http-proxy": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
     "@qilin/compaction": "workspace:^",

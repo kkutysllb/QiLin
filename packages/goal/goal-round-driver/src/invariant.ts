@@ -1,7 +1,7 @@
 /** Package-owned goal-round prompt invariants. @module @qilin/goal-round-driver/invariant */
 
 import { isDeepStrictEqual } from 'node:util'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { foldGoal, type FoldedGoal, type GoalMessageSource, type GoalView } from '@qilin/goal'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { Session, SessionEvent } from '@qilin/session'

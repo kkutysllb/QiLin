@@ -40,10 +40,10 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",

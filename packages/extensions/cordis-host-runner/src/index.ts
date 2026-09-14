@@ -4,8 +4,8 @@
  * @module @qilin/cordis-host-runner
  */
 
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
@@ -77,7 +77,7 @@ export function ApprovalRequestId(id: string): ApprovalRequestId {
   return id as ApprovalRequestId
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Process-local dynamic Plugin registry and lifecycle service. */
     dynamicCordisRunner: DynamicCordisRunnerService

@@ -3,7 +3,7 @@
  * deterministic ordering and labels, quoted-path suppression, pick projections, codec
  * round-trip, and registration lifecycle.
  */
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import type { SessionId } from '@qilin/session/types'

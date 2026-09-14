@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { ToolCallId , createMessage, createToolResultMessage } from '@qilin/llm'
 import type { ContentBlock } from '@qilin/llm'
 import SessionStore, {

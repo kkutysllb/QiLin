@@ -1,8 +1,8 @@
 /** The `web-search-deepseek` settings section layered over the composition entry. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import { SettingsProvider } from '@qilin/settings'
 import type { SettingsNamespace } from '@qilin/settings'
 import WebRuntime from '@qilin/web'

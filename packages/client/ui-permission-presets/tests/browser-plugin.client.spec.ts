@@ -8,7 +8,7 @@
  * disposal removes the contribution (HMR safety). The same plugin registers
  * its Settings row and invalidates that row on host settings changes.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { SessionId } from '@qilin/session/types'

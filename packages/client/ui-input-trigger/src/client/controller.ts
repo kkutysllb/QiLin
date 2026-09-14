@@ -7,7 +7,7 @@
  * only the source roster. One controller per session scope; the service
  * disposes it with the scope fiber.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 import type {
   ArbitrateKey, ArbitrateOutcome, PickOutcome,

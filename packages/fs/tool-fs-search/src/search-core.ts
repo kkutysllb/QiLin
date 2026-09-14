@@ -21,7 +21,7 @@
 
 import { existsSync } from 'node:fs'
 import { isAbsolute, join, parse, relative, sep } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { HarnessError } from '@qilin/llm'
 import { ItemRetainer, TextRetainer } from '@qilin/output-retention'
 import type { RetainedItems } from '@qilin/output-retention'

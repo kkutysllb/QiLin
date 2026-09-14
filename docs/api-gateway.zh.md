@@ -17,7 +17,7 @@
 ```ts
 import type { Agent } from '@qilin/agent'
 import { TypertRemoteService, Remote, RemoteScope } from '@qilin/typert-protocol'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 
 export interface CreateGoalRequest {
   objective: string
@@ -60,7 +60,7 @@ Client 使用普通对象上的具体函数，不使用 JavaScript Proxy。直�
 ```ts ignore-check
 import type { SessionId } from '@qilin/session/types'
 import type { AgentContext } from '@qilin/api-session-controller/client'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 
 export const inject = ['remote', 'remote.goals']

@@ -17,7 +17,7 @@
  * @module @qilin/session-projection
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { ZodType } from 'zod'
 import { SessionLogOffset, SessionSeq } from '@qilin/session'
 import type {
@@ -27,7 +27,7 @@ import type {
   SessionSeqCursor,
 } from '@qilin/session'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionProjections: SessionProjectionRegistry
   }

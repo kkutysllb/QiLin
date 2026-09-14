@@ -6,7 +6,7 @@
  * hook plus the four mutation verbs through the generated Goal Remote API.
  * This plugin does not create goals; deployments may expose /goal separately.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type { HostObservable } from '@qilin/client-ui-slots'
 // Type-only: pulls the generated Remote API and ctx.remote merge through the Client assembly boundary.

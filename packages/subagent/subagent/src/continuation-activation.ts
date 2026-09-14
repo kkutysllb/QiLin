@@ -9,7 +9,7 @@
  * @module @qilin/subagent/continuation-activation
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {
   Agent,
   AgentHandle,

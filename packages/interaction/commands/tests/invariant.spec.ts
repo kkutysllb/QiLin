@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import * as CommandInvariant from '@qilin/commands/invariant'
 import InvariantRegistry, { InvariantError } from '@qilin/invariants'
 import SessionStore, { SessionId, SessionSeq, type Session } from '@qilin/session'

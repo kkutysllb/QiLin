@@ -3,7 +3,7 @@
  * @module @qilin/api-gateway/types
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { RemoteEventHostInfo } from './stream-protocol.ts'
 
 /** One Remote method request after a carrier has decoded its envelope. */
@@ -151,7 +151,7 @@ export interface TypertGateway {
   stream(request: InvokeRemoteRequest): Promise<AsyncIterable<unknown>>
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host dispatcher for Typert Remote calls. */
     typertGateway: TypertGateway

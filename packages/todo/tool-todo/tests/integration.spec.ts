@@ -1,6 +1,6 @@
 import { createUserMessage } from '@qilin/llm'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SessionId, type SessionEvent } from '@qilin/session'
 import type { Agent } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'

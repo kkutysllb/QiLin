@@ -1,5 +1,5 @@
 /** Code preview metadata and body registered through the public document extension points. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '../index.ts'
 import { CodeBody } from './CodeBody.tsx'
 import { CODE_EXTENSIONS } from './languages.ts'

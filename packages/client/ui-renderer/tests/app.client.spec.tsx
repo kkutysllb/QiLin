@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SlotTestRuntime } from '@qilin/client-test-runtime'
 import { buildRenderApp } from '../src/client/app.tsx'
 

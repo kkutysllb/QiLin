@@ -33,7 +33,7 @@ Mount `qilin-tools` wherever agents call tools: it provides `ctx.tools`, the reg
 
 ```ts
 import { readFile } from 'node:fs/promises'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 
 declare const ctx: Context

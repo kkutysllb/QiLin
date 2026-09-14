@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import AgentRegistry from '@qilin/agent'

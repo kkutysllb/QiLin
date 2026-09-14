@@ -5,7 +5,7 @@
  * @module @qilin/tool-ralph
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { ContentBlock } from '@qilin/llm'
 import type { JsonValue } from '@qilin/util-values'

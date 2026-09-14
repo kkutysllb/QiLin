@@ -12,7 +12,7 @@
  */
 
 import { basename, extname } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { AttachmentError, AttachmentId } from '@qilin/attachment'
 import type { AttachmentStore, ImageAttachmentRef, ImageMediaType } from '@qilin/attachment'
 import type { ContentBlock } from '@qilin/llm'

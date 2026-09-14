@@ -1,5 +1,5 @@
 /** Browser wire client: Remote transport and connection generations. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   ConnectionController,
   type ConnectionRecoveryConfig,
@@ -14,7 +14,7 @@ import { isLoopbackHostname } from '../loopback-hostname.ts'
 import type { ClientConnectionRpc } from '../rpc.ts'
 import { resolveConnectionConfig } from '../recovery-config.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * A connection generation was established. Wire-derived caches must

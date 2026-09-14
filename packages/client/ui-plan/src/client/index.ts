@@ -8,7 +8,7 @@
  * plan state.
  */
 import type {} from '@qilin/api-remotes/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.plan seat).
 import type {} from '@qilin/client-ui-conversation/client'

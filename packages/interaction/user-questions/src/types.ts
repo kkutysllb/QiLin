@@ -73,7 +73,7 @@ export interface AskUserQuestionRequestEvent {
   signal?: AbortSignal
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Ask composed answerers for structured user input. Return an answer to

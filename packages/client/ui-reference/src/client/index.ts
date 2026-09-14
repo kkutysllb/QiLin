@@ -15,7 +15,7 @@
 import type {} from '@qilin/api-remotes/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin/client-locale/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import { relativeTime } from '@qilin/client-ui-primitives'
 import type {

@@ -68,7 +68,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * One session committed a different agent preset to its durable log.

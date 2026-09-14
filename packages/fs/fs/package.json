@@ -36,13 +36,13 @@
     "@qilin/invariants": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/sandbox": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/brand": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/sandbox": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

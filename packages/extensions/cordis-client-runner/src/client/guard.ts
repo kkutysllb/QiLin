@@ -13,7 +13,7 @@
  * as trusted as the host process that accepted its definition.
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { DynamicCordisPackage } from '@qilin/api-remotes/client'
 import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { ThemeRuntime } from '@qilin/client-ui-theme/client'

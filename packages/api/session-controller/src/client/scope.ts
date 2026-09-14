@@ -15,8 +15,8 @@
  * — a cold session's host Agent is already disposed while its client actx
  * stays alive for history viewing.
  */
-import { Context as CordisContext } from '@deepseek-ai/cordis'
-import type { Context, Fiber } from '@deepseek-ai/cordis'
+import { Context as CordisContext } from '@qilin/kylin'
+import type { Context, Fiber } from '@qilin/kylin'
 import type { ClientRemote } from '@qilin/api-gateway/client'
 import type { SessionId } from '@qilin/session/types'
 import type { TypertRemoteScopeApi } from '@qilin/typert-protocol'

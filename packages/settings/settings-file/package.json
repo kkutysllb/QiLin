@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/atomic-write": "workspace:^",
     "@qilin/home-paths": "workspace:^",
     "@qilin/settings": "workspace:^"
@@ -39,7 +39,7 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/atomic-write": "workspace:^",
     "@qilin/home-paths": "workspace:^",
     "@qilin/settings": "workspace:^"

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { SettingsDescriptor } from '@qilin/settings'
 import { RemoteError, remoteErrorOf, remoteMethods } from '@qilin/typert-protocol'

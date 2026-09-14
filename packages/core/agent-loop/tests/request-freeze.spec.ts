@@ -1,7 +1,7 @@
 /** Request immutability through the real loop, including adopted restore graphs. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentLoop from '@qilin/agent-loop'
 import type { Agent } from '@qilin/agent'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'

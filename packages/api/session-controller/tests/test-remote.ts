@@ -1,7 +1,7 @@
 /** Test-only direct Remote face over the Session Controller's internal controllers. */
 
 import { SessionLogOffset } from '@qilin/session'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ModelSelection as AgentModelSelection } from '@qilin/agent'
 import type {
   AdmittedPromptContentPart,

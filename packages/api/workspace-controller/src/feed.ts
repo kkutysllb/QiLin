@@ -1,6 +1,6 @@
 /** Reconnect-safe Workspace baseline and increment producer. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { Deque } from '@qilin/deque'
 import type { DomainChanged } from '@qilin/storage-domain'
 import type { Workspace, WorkspaceRecord } from '@qilin/workspace'

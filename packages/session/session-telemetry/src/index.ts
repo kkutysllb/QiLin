@@ -14,9 +14,9 @@
  * @module @qilin/session-telemetry
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionTelemetry: SessionTelemetryBackend
   }

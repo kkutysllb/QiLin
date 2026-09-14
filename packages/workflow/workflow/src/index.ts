@@ -4,7 +4,7 @@
  * @module @qilin/workflow
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { HarnessError } from '@qilin/llm'
 import type {
   WorkflowAgentEndInfo,
@@ -28,7 +28,7 @@ export type {
 } from './types.ts'
 export type { WorkflowRun, WorkflowStartRequest } from './runtime-types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     workflowEngine: WorkflowEngine
   }

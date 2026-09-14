@@ -5,7 +5,7 @@
  * @module @qilin/web-search-deepseek
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type {} from '@qilin/agent'
 import { credentialRef } from '@qilin/credentials'

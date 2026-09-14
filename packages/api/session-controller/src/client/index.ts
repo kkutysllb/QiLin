@@ -1,6 +1,6 @@
 /** Client Session object layer, Agent scopes, and Remote lifecycle wiring. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent/types'
 import type {} from '@qilin/client-connection/client'
 import type {} from '@qilin/client-file-upload/client'
@@ -74,7 +74,7 @@ export type {
   SessionSnapshot,
 } from './contract/snapshot.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Client Session object layer and Agent scope owner. */
     sessions: import('./contract/sessions.ts').ISessions

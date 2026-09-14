@@ -9,7 +9,7 @@ import { createSystemMessage, createUserMessage } from '@qilin/llm'
 import type { ContextSnapshotSection, Message } from '@qilin/llm'
 import type { Session, SessionEvent, SessionSeq, SurfaceIntent, SystemMessage, UserMessage } from '@qilin/session'
 import { isReplacementSurfaceEvent } from '@qilin/session'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 
 const SOURCE = '@qilin/system-prompt'
 const CLEARED = 'Current runtime context: none. Earlier runtime-context snapshots no longer apply.'

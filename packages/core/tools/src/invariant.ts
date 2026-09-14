@@ -1,6 +1,6 @@
 /** Package-owned tool-pipeline invariants. @module @qilin/tools/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Session, SessionEvent } from '@qilin/session'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { ToolExecution, ToolExecutionResult } from './index.ts'

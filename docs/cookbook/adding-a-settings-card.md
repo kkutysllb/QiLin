@@ -11,7 +11,7 @@ The two halves live in one package — the Host half under `src/`, the browser h
 The namespace is the join key, so pick it once and spell it in both halves. A consumer that already has a `cordis.yml` entry should register through `ctx.settings.installSection()`, which layers the entry under the user document and keeps working when no settings provider is mounted:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/settings'
 import z from '@deepseek-ai/schemastery'
 
@@ -50,7 +50,7 @@ export function apply(ctx: Context, config: Config) {
 The card registers into `settings.plugin.item` under its namespace and owns everything inside it — chrome, controls, and copy. It reads and writes through `ctx.settingsScope`, which fences each write with the revision it read:
 
 ```ts ignore-check
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: the keyed slot's declaration. Cross-plugin collaboration goes
 // through cordis services; a value import fails the client bundle-purity gate.
 import type {} from '@qilin/client-ui-settings-plugins/client'

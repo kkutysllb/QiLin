@@ -1,6 +1,6 @@
 /** Standard ACP session configuration over one Agent's model selection. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionConfigOption, SessionConfigValueId } from '@agentclientprotocol/sdk'
 import { installModelSelection, type ModelSelection, type ModelSelectionRef } from '@qilin/agent'
 import { ReasoningEffortId, type LlmCallConfig, type LlmRuntime } from '@qilin/llm'

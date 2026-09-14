@@ -4,7 +4,7 @@
  * @module @qilin/session-checkpoint-policy
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Session } from '@qilin/session'
 import type { StreamChunk } from '@qilin/llm'
 import { TOOL_ABORTED_BEFORE_DISPATCH, type ToolExecutionResult } from '@qilin/tools'

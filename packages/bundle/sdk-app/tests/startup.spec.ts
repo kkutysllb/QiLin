@@ -1,7 +1,7 @@
 /** The SDK app command provider and stdin shutdown binding. */
 
 import { EventEmitter } from 'node:events'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import { internals, provideCmdline } from '@qilin/cmdline'
 import { apply, type Config, SDK_APP_STARTUP_SERVICE } from '../src/index.ts'

@@ -17,7 +17,7 @@ import {
   type ClientPackageFacts,
 } from './verify-client-packages.ts'
 
-const CORDIS = '@deepseek-ai/cordis'
+const CORDIS = '@qilin/kylin'
 const roots: string[] = []
 
 afterEach(() => {
@@ -305,7 +305,7 @@ describe('manifest declarations', () => {
       },
       peerDependencies: {
         '@qilin/client-ui-slots': 'workspace:^',
-        '@deepseek-ai/cordis-plugin-loader': 'workspace:^',
+        '@qilin/kylin-plugin-loader': 'workspace:^',
       },
       devDependencies: {},
     })

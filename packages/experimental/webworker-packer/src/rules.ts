@@ -65,7 +65,7 @@ export const PAGE_ASSETS: readonly string[] = [
 export const IMAGE_ENTRY_SEEDS: readonly string[] = [
   '@qilin/app-boot',
   '@qilin/cmdline',
-  '@deepseek-ai/cordis',
-  '@deepseek-ai/cordis-plugin-include',
+  '@qilin/kylin',
+  '@qilin/kylin-plugin-include',
   'js-yaml',
 ]

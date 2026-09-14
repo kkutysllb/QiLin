@@ -6,7 +6,7 @@
  * @module @qilin/agent/dispatch
  */
 
-import type { Context, Events } from '@deepseek-ai/cordis'
+import type { Context, Events } from '@qilin/kylin'
 import { scopeTarget } from '@qilin/scope'
 import type { Scoped } from '@qilin/scope'
 import type { AssembleContext } from '@qilin/system-prompt'

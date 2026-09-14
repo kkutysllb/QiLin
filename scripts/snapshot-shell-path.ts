@@ -1,5 +1,5 @@
 /** Exact recorded shell-command path translation; execution and reported outcomes remain real. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/shell'
 
 export const name = 'snapshot-shell-path'

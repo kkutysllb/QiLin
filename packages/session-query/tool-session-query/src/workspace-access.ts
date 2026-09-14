@@ -4,7 +4,7 @@
  * @module @qilin/tool-session-query/workspace-access
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import { HarnessError } from '@qilin/llm'
 import {

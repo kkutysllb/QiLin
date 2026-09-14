@@ -5,7 +5,7 @@
  * @module @qilin/typert-protocol
  */
 
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import type { TypertContextMap } from './types.ts'
 
 export { RemoteError, remoteErrorOf } from './remote-error.ts'

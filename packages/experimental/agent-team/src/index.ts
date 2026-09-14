@@ -1,6 +1,6 @@
 /** Agent Teams service façade over roster, mailbox, task, and runtime lifecycle owners. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent } from '@qilin/agent'
 import type {} from '@qilin/session-persistence'
@@ -35,7 +35,7 @@ export type { TeamMembership } from './roster.ts'
 export { TeamId, TeamMessageId, TeamTaskId } from './types.ts'
 export { TeamError } from './error.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     agentTeams: TeamService
   }

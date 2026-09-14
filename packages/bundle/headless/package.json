@@ -47,16 +47,16 @@
     "commander": "^15.0.0"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-default-model": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-default-model": "workspace:^",
     "@qilin/agent-loop": "workspace:^",

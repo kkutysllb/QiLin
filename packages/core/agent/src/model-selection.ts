@@ -3,7 +3,7 @@
  * @module @qilin/agent/model-selection
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   boundContextSummary,
   createUserMessage,

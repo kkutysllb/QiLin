@@ -8,7 +8,7 @@ import { createUserMessage } from '@qilin/llm'
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import SessionStore, { SessionId, foldRequestHeader } from '@qilin/session'
 import SystemPrompt, { TOOL_ORDER_REST } from '@qilin/system-prompt'

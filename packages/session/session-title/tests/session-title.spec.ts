@@ -1,5 +1,5 @@
 import { createUserMessage } from '@qilin/llm'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import SessionStore, { Session, SessionId, SessionSeq } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import AgentRegistry from '@qilin/agent'
 import type { Agent, AgentStatus } from '@qilin/agent'
 import CommandRuntime from '@qilin/commands'

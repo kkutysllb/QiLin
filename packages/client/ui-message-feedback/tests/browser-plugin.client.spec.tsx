@@ -9,7 +9,7 @@
  * and registration plus surface disposal ride the plugin fiber (HMR safety).
  * The node half stays inert.
  */
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

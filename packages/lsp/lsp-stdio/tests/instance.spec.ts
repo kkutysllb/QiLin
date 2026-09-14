@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile, realpath } from 'node:fs/promi
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LocalFileSystem from '@qilin/fs-local'
 import { LspInstance, readHostSource } from '@qilin/lsp-stdio'
 import { encodeMessage } from '@qilin/lsp-stdio'

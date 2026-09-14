@@ -1,7 +1,7 @@
 import { PassThrough } from 'node:stream'
 import { describe, expect, it, vi } from 'vitest'
 import { basename, dirname, relative, resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LocalSubprocessRuntime from '@qilin/subprocess-local'
 import type { SubprocessSpawnSpec, SubprocessTerminalHandle, SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
 import { childEnv } from '../src/spawn.ts'

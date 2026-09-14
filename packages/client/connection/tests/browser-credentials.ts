@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { CredentialProvider, CredentialRecord } from '@qilin/credentials'
 
 /** Mutable credential-record double for Connection authentication tests. */

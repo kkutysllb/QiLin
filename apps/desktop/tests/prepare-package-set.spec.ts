@@ -31,14 +31,14 @@ describe('desktop package-set selection', () => {
         dependencies: { '@qilin/cli': '^1.0.0' },
       })],
       ['@qilin/base', packed('@qilin/base', {
-        peerDependencies: { '@deepseek-ai/cordis': '^1.0.0' },
+        peerDependencies: { '@qilin/kylin': '^1.0.0' },
       })],
-      ['@deepseek-ai/cordis', packed('@deepseek-ai/cordis')],
+      ['@qilin/kylin', packed('@qilin/kylin')],
       ['@deepseek-ai/platform-package', packed('@deepseek-ai/platform-package')],
       ['@deepseek-ai/unused', packed('@deepseek-ai/unused')],
     ])
     expect(selectDesktopPackageClosure(available).map(entry => entry.manifest.name)).toEqual([
-      '@deepseek-ai/cordis',
+      '@qilin/kylin',
       '@deepseek-ai/platform-package',
       '@qilin/base',
       '@qilin/cli',

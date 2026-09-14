@@ -4,7 +4,7 @@
  * dictionaries it registers, and the injected face that routes to the theme,
  * locale, and settings services.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

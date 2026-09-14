@@ -33,7 +33,7 @@
     "@qilin/sandbox-policy": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/subprocess": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   },
   "dependencies": {
@@ -50,6 +50,6 @@
     "@qilin/session": "workspace:^",
     "@qilin/subprocess": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

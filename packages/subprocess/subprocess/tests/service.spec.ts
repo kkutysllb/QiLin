@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PassThrough } from 'node:stream'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { scrubbedParentEnv, SubprocessRuntime } from '@qilin/subprocess'
 import type {
   SubprocessHandle,

@@ -1,6 +1,6 @@
 /** Repository-facing Host package entry over the mirrored implementation tree. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import {
   apply as applyHost,
@@ -49,7 +49,7 @@ export interface InspectorService {
   readonly cordis: CordisRuntimeTreeReader
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Publish Host-realm observations and query the shared Inspector state. */
     inspector: InspectorService

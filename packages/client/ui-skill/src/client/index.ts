@@ -30,7 +30,7 @@
  * accent row derived only from each logged call/result slice.
  */
 // Type-only: the carrier types, the forwarded Host-event face and the ctx.remote merge.
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SkillEntry } from '@qilin/api-remotes/client'
 import type {} from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'

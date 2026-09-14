@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context, Service, symbols } from '@deepseek-ai/cordis'
+import { Context, Service, symbols } from '@qilin/kylin'
 import { Session, SessionId } from '@qilin/session'
 import AgentRegistry, { agentEvents } from '@qilin/agent'
 import TypertRegistry from '@qilin/typert-registry'

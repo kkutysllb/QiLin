@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime, { createUserMessage, LlmError, ReasoningEffortId  } from '@qilin/llm'
 import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
 import SessionStore, { Session, SessionId, foldRequestHeader } from '@qilin/session'

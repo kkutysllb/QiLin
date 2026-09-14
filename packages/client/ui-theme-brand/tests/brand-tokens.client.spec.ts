@@ -5,7 +5,7 @@
  * leave no layer behind when its plugin fiber unloads.
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stubSettingsScope } from '@qilin/client-test-runtime'

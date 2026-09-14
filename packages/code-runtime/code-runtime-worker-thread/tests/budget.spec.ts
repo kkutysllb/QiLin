@@ -1,6 +1,6 @@
 /** Host budget decisions use controlled clocks and ELU samples; worker execution and binding transport stay real. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { WorkerThreadCodeRuntime } from '@qilin/code-runtime-worker-thread'
 import type { CodeRunResult } from '@qilin/code-runtime'
 

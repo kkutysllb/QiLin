@@ -1,7 +1,7 @@
 /** Host BFF entry and Loader shell for the Remote contribution assembly. */
 
 import { homedir } from 'node:os'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type {
   TypertRemoteEventDispatch,

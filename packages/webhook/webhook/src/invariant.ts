@@ -1,6 +1,6 @@
 /** Package-owned relationship invariant for webhook-origin prompt admission. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { Session, SessionEvent } from '@qilin/session'

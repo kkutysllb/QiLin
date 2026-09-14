@@ -1,6 +1,6 @@
 /** Session-addressed, cold-readable skill catalog Remote. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent-presets/types'
 import type { SessionId } from '@qilin/session'
 import { SessionQueryError } from '@qilin/session-query'
@@ -9,7 +9,7 @@ import type { ScopeKey } from '@qilin/scope'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
 import type { SkillListRequest, SkillListValue } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host owner of the Session-addressed `skills` Remote namespace. */
     sessionSkillCatalog: SessionSkillCatalog

@@ -1,4 +1,4 @@
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type { SessionId } from '@qilin/session/types'
 import { LocaleRuntime } from '@qilin/client-locale/client'

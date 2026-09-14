@@ -4,7 +4,7 @@
  * @module subagent-send-message-fence
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent-loop'
 
 /** Fixture plugin name. */

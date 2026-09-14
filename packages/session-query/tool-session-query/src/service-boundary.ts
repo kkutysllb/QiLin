@@ -4,7 +4,7 @@
  * @module @qilin/tool-session-query/service-boundary
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { HarnessError } from '@qilin/llm'
 import {
   SessionQueryError,

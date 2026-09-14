@@ -1,6 +1,6 @@
 /** Workspace-specific adapter for the Gateway-owned snapshot stream lifecycle. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   RemoteSnapshotStream,
   RemoteStreamCarrierError,
@@ -27,7 +27,7 @@ export type WorkspaceStateStream = RemoteSnapshotStream<
   WorkspaceFollowIncrement
 >
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** React-free Client Workspace state and commands. */
     workspaces: import('./service.ts').IWorkspaces

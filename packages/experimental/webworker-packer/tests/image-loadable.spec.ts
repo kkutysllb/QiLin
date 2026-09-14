@@ -20,7 +20,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { FiberState } from '@deepseek-ai/cordis'
+import { FiberState } from '@qilin/kylin'
 import { createNodeBuiltins, REPLACED_PREFIXES } from '@qilin/experimental-webworker-runtime/src/node/builtins.ts'
 import {
   setActiveModuleLoader, WorkerModuleLoader,

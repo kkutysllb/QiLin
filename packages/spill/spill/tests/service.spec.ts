@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { ToolCallId } from '@qilin/llm'
 import { SessionId } from '@qilin/session'
 import { SpillLocator, SpillStore } from '@qilin/spill'

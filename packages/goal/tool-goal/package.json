@@ -33,14 +33,14 @@
     "@qilin/session": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-loop-testkit": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
@@ -49,7 +49,7 @@
     "@qilin/session": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }
 }

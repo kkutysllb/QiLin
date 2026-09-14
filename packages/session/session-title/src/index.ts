@@ -3,7 +3,7 @@
  * @module @qilin/session-title
  */
 
-import { Context, FiberState, Service, type Fiber } from '@deepseek-ai/cordis'
+import { Context, FiberState, Service, type Fiber } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
@@ -62,7 +62,7 @@ export interface Config {
   readonly maxTitleBytes: number
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionTitle: SessionTitleService
   }

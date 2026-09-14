@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
-import { evaluate } from '@deepseek-ai/cordis-plugin-loader'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { evaluate } from '@qilin/kylin-plugin-loader'
 
 describe('qilin-base bundle', () => {
   it('declares a parseable patch list through the qilin.bundle.patch manifest field', () => {

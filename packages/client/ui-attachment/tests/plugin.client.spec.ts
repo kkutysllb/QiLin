@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { apply as applyHost } from '../src/index.ts'

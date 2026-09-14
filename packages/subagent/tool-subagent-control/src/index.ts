@@ -9,7 +9,7 @@
  * @module @qilin/tool-subagent-control
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import { defineTool } from '@qilin/tools'
 import type { ContentBlock } from '@qilin/llm'

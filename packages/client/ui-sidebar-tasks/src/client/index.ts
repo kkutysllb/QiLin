@@ -11,7 +11,7 @@
  * (`rows.ts`, `lineage.ts`), the actions it performs (`face.ts`), what it draws
  * (`TasksBody.tsx`, `TasksBadge.tsx`), and this module, which wires them.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-renderer/client'

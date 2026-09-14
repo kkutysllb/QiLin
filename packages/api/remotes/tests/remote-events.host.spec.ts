@@ -1,5 +1,5 @@
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import type {
   RemoteEventHostInfo,
   TypertRemoteEventInvocation,

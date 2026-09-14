@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Loader from '@qilin/kylin-plugin-loader'
 import * as mcpClient from '@qilin/mcp-client'
 
 describe('qilin-mcp-client real-load-path guard', () => {

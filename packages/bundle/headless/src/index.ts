@@ -9,7 +9,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { brandString } from '@qilin/brand'
 import { installModelSelection } from '@qilin/agent'
@@ -21,7 +21,7 @@ import { SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@qilin/session'
 // Empty type imports carry the loader Context merge for the settlement await
 // and the cmdline Context merge for the appExit host value.
-import type {} from '@deepseek-ai/cordis-plugin-loader'
+import type {} from '@qilin/kylin-plugin-loader'
 import type {} from '@qilin/cmdline'
 
 /** Stable Cordis plugin name. */

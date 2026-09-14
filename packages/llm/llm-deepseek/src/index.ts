@@ -11,7 +11,7 @@
  * @module @qilin/llm-deepseek
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { assertUsableApiKey, LlmError, resolveImageAttachmentAccess, resolveRetryPolicy, RetryPolicySchema } from '@qilin/llm'
 import type { ModelModality, RetryPolicyConfig } from '@qilin/llm'

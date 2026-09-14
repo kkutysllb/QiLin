@@ -6,7 +6,7 @@
  * @module @qilin/subagent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { AttachmentError } from '@qilin/attachment'
 import type { SessionId } from '@qilin/session'
 import { RemoteError } from '@qilin/typert-protocol'

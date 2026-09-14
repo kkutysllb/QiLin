@@ -13,7 +13,7 @@
  * projections. Direct driving is deliberate: this spec owns only the
  * source's own contract.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type { SessionId } from '@qilin/session/types'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

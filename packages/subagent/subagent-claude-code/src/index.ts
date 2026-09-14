@@ -6,7 +6,7 @@
  * @module @qilin/subagent-claude-code
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
 import {

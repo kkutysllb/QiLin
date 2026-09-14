@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createMessage, ToolCallId } from '@qilin/llm'
 import type { StreamChunk, TokenUsage } from '@qilin/llm'
 import SessionStore, { SessionId } from '@qilin/session'

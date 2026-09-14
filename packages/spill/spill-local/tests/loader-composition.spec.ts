@@ -9,9 +9,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
+import Include from '@qilin/kylin-plugin-include'
 import LocalSpillStore, { sessionDir } from '@qilin/spill-local'
 
 const DAY_MS = 24 * 60 * 60 * 1000

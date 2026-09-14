@@ -1,6 +1,6 @@
 /** Package-owned session-event invariants for sandbox policy. @module @qilin/sandbox-policy/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Session, SessionEvent } from '@qilin/session'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import { SANDBOX_MODES } from './session-mode.ts'

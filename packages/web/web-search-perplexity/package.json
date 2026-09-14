@@ -29,7 +29,7 @@
   "peerDependencies": {
     "@qilin/launch-environment": "workspace:^",
     "@qilin/web": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -37,7 +37,7 @@
   "devDependencies": {
     "@qilin/launch-environment": "workspace:^",
     "@qilin/web": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/http-proxy": "workspace:^"
   }
 }

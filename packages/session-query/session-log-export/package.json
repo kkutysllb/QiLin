@@ -42,13 +42,13 @@
     "@qilin/brand": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/session-persistence": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/attachment": "workspace:^",
     "@qilin/client-connection": "workspace:^",

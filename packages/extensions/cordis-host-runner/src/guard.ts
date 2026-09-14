@@ -13,8 +13,8 @@
  * @module @qilin/cordis-host-runner/guard
  */
 
-import { Context } from '@deepseek-ai/cordis'
-import type { Plugin } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Plugin } from '@qilin/kylin'
 import { scopeOf } from '@qilin/scope'
 import { assertSupportedJsonSchema, defineTool } from '@qilin/tools'
 import type { ToolDefinition } from '@qilin/tools'

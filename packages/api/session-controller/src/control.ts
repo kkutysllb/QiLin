@@ -1,6 +1,6 @@
 /** Live Session queue, jobs, and projection state with reconnect baselines. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent, InboxState } from '@qilin/agent'
 import { Deque } from '@qilin/deque'
 import type { JobSnapshot } from '@qilin/jobs'

@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { type Agent } from '@qilin/agent'
 
 import { HarnessError, ReasoningEffortId } from '@qilin/llm'

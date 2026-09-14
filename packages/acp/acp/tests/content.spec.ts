@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { AttachmentError, AttachmentId } from '@qilin/attachment'
 import type { ImageAttachmentRef, SaveImageAttachment } from '@qilin/attachment'
 import type { ModelSelection } from '@qilin/agent'

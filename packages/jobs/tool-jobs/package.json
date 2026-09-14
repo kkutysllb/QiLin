@@ -36,7 +36,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/jobs": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
@@ -47,6 +47,6 @@
     "@qilin/jobs": "workspace:^",
     "@qilin/jobs-local": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

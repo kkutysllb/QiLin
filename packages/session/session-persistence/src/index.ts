@@ -6,7 +6,7 @@
  * @module @qilin/session-persistence
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
 import type { SessionHandle, SessionAccess } from './handle.ts'
 import type { SessionPersistenceRevision } from './revision.ts'
@@ -106,7 +106,7 @@ export interface SessionPersistenceListOptions {
   readonly signal?: AbortSignal
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionPersistence: SessionPersistence
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import SessionProjectionRegistry from '@qilin/session-projection'

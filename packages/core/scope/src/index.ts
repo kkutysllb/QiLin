@@ -5,8 +5,8 @@
  * @module @qilin/scope
  */
 
-import type { Context, Fiber } from '@deepseek-ai/cordis'
-import { Context as CordisContext } from '@deepseek-ai/cordis'
+import type { Context, Fiber } from '@qilin/kylin'
+import { Context as CordisContext } from '@qilin/kylin'
 
 export { AnonymousEntries, NamedEntries, ScopedLayers } from './store.ts'
 export type { ScopeLayer } from './store.ts'

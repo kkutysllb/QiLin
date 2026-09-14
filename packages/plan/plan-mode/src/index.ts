@@ -22,7 +22,7 @@
  * @module @qilin/plan-mode
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
 import type { Agent, PreStepDecision } from '@qilin/agent'
@@ -47,7 +47,7 @@ declare module '@qilin/session/types' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     planMode: PlanModeController
   }

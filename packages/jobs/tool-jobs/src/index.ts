@@ -7,7 +7,7 @@
  * @module @qilin/tool-jobs
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { boundContextSummary, createUserMessage, type ContentBlock } from '@qilin/llm'
 import { TextRetainer } from '@qilin/output-retention'

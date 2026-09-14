@@ -17,7 +17,7 @@
  */
 
 import type { Command } from 'commander'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 
 /**
  * The invocation's inner arguments: everything after the launcher's own flags,
@@ -52,7 +52,7 @@ export interface AppReady {
   onReady(listener: () => void): () => void
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** The invocation's inner arguments; provided by a launcher before the tree mounts. */
     cmdlineArgs?: CmdlineArgs

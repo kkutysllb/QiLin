@@ -12,7 +12,7 @@
  * separate chain entry per shape would race the same carrier, so the shape
  * choice lives inside this entry — see QuestionComposer.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'

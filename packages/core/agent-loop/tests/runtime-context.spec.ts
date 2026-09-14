@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createUserMessage } from '@qilin/llm'
 import SessionStore, { SessionId } from '@qilin/session'
 import { RuntimeContextProjection } from '../src/runtime-context.ts'

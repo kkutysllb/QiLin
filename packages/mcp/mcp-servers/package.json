@@ -52,12 +52,12 @@
   "peerDependencies": {
     "@qilin/subprocess": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/subprocess": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

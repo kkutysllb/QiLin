@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry, { installModelSelection, type Agent, type ModelSelectionRef } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import LlmRuntime, { createUserMessage, LlmError, type GenerateOptions } from '@qilin/llm'

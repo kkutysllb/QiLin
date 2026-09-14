@@ -1,7 +1,7 @@
 /** ACP wire-content admission and projection owned by the ACP adapter. @module */
 
 import type { ContentBlock as AcpContentBlock } from '@agentclientprotocol/sdk'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { isImageAdmissionError } from '@qilin/attachment'
 import type { ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@qilin/attachment'
 import type { ModelSelection } from '@qilin/agent'

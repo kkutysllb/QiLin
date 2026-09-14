@@ -8,7 +8,7 @@
  */
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { stubSettingsScope } from '@qilin/client-test-runtime'
 import { afterEach, describe, expect, it } from 'vitest'
 import { UiConversation } from '@qilin/client-ui-conversation/client'

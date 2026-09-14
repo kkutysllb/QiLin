@@ -5,7 +5,7 @@
  * outcomes into null (admitted) or a user-visible failure line; teardown
  * empties the seat (HMR safety).
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { SessionId } from '@qilin/session/types'

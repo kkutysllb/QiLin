@@ -1,7 +1,7 @@
 /** Local durable attachment backend rooted below `QILIN_HOME`. @module @qilin/attachment-local */
 
 import { join, resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { AttachmentStore } from '@qilin/attachment'
 import type {

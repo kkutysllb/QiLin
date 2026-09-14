@@ -4,7 +4,7 @@
  * @module @qilin/terminal-bash
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type { Session, SessionEvent } from '@qilin/session'
 import { TerminalBackendCleanupError } from '@qilin/terminal'

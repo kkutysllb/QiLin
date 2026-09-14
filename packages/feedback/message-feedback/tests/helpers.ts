@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createAssistantMessage, createUserMessage } from '@qilin/llm'
 import type { MessageId } from '@qilin/llm/brand'
 import SessionStore, { SessionLogOffset,

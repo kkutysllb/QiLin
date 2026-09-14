@@ -9,7 +9,7 @@ Adding or changing a `ctx.remote` endpoint takes the five steps on this page: de
 The owner is a Host-side Cordis service: extend `TypertRemoteService` so the service key and the wire namespace are bound together, then mark the exposed methods with `@Remote`. Mark the business method itself when its signature already satisfies the wire conventions; write a `remoteExport*` adapter only when the shape has to change (adding `signal`, reordering parameters, exporting another name), and let that adapter call the unrenamed business method. Lookup objects (`Agent`, `Session`) may only occupy top-level parameter positions, and a method that supports cooperative cancellation takes `signal: AbortSignal` as its final parameter.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 
@@ -19,7 +19,7 @@ export interface NoteRow {
   readonly title: string
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     notesController: NotesController
   }
@@ -111,7 +111,7 @@ The calling plugin declares both `remote` and `remote.<namespace>` in its `injec
 Fixed Host facts come from `ctx.remote.$host`: `home` and `isLoopback` are plain reads with no subscription and no generation counter, and `home` is `undefined` until the first ready frame. Refresh after a reconnect through `ctx.on('connection/reset')` or a domain's own remote event. When the caller aborts a unary call, the outcome is `gateway/cancelled` on the error branch rather than a throw.
 
 ```ts ignore-check
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { isRemoteFailure } from '@qilin/api-gateway/client'
 import type {} from '@qilin/api-remotes/client'
 
@@ -169,7 +169,7 @@ it('refuses an unknown note before writing', async () => {
 A Client-side double returns real instances: take the `RemoteError` and `TestRemote` value imports from `@qilin/client-test-runtime`, because a value import from the `api-remotes` facade would load the unbuilt assembly chain. `TestRemote.$host` is a plain field a spec assigns directly.
 
 ```ts ignore-check
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
 import { expect, it } from 'vitest'
 

@@ -14,12 +14,12 @@
 
 - insert:
     - id: timer
-      name: '@deepseek-ai/cordis-plugin-timer'
+      name: '@qilin/kylin-plugin-timer'
 
     # Module reload is opt-in per profile. `patchReload: live` config watching
     # uses the launcher's watch-only fallback and does not require this row.
     - id: hmr
-      name: '@deepseek-ai/cordis-plugin-hmr'
+      name: '@qilin/kylin-plugin-hmr'
       disabled: true
       config:
         root: ['.']

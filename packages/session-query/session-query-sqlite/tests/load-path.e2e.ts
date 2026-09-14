@@ -6,8 +6,8 @@ import { createUserMessage } from '@qilin/llm'
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import SessionStore, { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'

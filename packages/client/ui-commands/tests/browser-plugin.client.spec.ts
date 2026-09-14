@@ -6,7 +6,7 @@
  * scope → popupFor; unknown id fails loud), both fold up on fiber disposal
  * (HMR safety), and the service satisfies the frozen CommandUiContract.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import { createScope, scopeOf } from '@qilin/api-session-controller/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

@@ -7,7 +7,7 @@
  * @module @qilin/storage-domain
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { storageBackendServiceKey } from '@qilin/storage'
 import { DomainError } from './error.ts'
@@ -32,7 +32,7 @@ declare module '@qilin/storage' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     storageDomain: DomainFacility
   }

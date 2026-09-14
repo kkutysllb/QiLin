@@ -23,7 +23,7 @@ A resource address is a `qilin-resource://<type>/…` URL. The host names the pr
 The owner of a protocol declares its value type on `ResourceProtocolMap` and registers one provider inside its own `ctx.effect`, so the protocol lives exactly as long as the plugin ([provide a protocol](../../packages/client/resources/README.md#provide-a-protocol)). `open(address, { signal })` returns a stream of `RemoteResult` frames — the current state first, then one frame per change — and must stop when `signal` aborts. A failure is an `ok: false` frame carrying a `RemoteFailure`; a throw inside the stream is a programming error and is not caught.
 
 ```ts ignore-check
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { RemoteResult } from '@qilin/typert-protocol'
 import type {} from '@qilin/client-resources/client'
 

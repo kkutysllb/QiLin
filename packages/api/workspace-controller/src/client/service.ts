@@ -1,6 +1,6 @@
 /** React-free Client Workspace service and command facade. */
 
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type { RemoteFailure } from '@qilin/typert-protocol'
 import type { WorkspaceId } from '@qilin/workspace/types'

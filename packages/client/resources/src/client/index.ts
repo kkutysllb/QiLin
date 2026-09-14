@@ -2,7 +2,7 @@
  * Browser half: `ctx.resources` (protocol-registered providers, pinning, live
  * sources) and the `useResource` global standard hook.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only service merge for ctx.slots.
 import type {} from '@qilin/client-ui-renderer/client'
 import type { RootStandardSourceContribution } from '@qilin/client-ui-slots'

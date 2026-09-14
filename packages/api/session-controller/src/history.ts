@@ -1,6 +1,6 @@
 /** Cold Session history pagination and live-event source. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { Deque } from '@qilin/deque'
 import type { AssistantStreamFrame } from '@qilin/agent'
 import {

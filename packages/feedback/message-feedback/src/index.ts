@@ -6,7 +6,7 @@
 import { Buffer } from 'node:buffer'
 import { randomUUID } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import s from '@deepseek-ai/schemastery'
 import { z } from 'zod'
 import { FEEDBACK_CATEGORIES } from '@qilin/command-feedback'
@@ -42,7 +42,7 @@ export interface Config {
   readonly maxNoteBytes: number
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     messageFeedback: MessageFeedbackService
   }

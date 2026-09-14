@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import {
   fixtureContext,
   normalizeSessionSnapshot,

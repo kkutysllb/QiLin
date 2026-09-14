@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { HostConnectionService } from '@qilin/client-connection'
 import type { BrowserAuth } from '@qilin/client-connection/src/browser-auth.ts'
 import { SESSION_FORMAT_VERSION } from '@qilin/session'

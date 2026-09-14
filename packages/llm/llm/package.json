@@ -61,7 +61,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@qilin/util-crypto": "workspace:^",
@@ -75,6 +75,6 @@
   "devDependencies": {
     "@qilin/attachment": "workspace:^",
     "@qilin/invariants": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

@@ -6,7 +6,7 @@
  * back into the mirror.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
 import {
   createSnapshotStore, type SnapshotStore,

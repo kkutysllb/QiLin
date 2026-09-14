@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import ToolRuntime from '@qilin/tools'
 import SystemPrompt from '@qilin/system-prompt'

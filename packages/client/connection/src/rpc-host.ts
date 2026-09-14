@@ -1,6 +1,6 @@
 /** Host registry and HTTP adapter for generic Connection RPC channels. */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { WebRoute } from '@qilin/host-webserver'
 import {
   RpcId,
@@ -52,7 +52,7 @@ interface ConnectionServerResponse {
   readonly result: ConnectionRpcResult<unknown>
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host Connection transport and RPC registrations. */
     connection: HostConnectionHandle

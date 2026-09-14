@@ -57,7 +57,7 @@
     "@qilin/experimental-agent-team": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/api-remotes": "workspace:^",
@@ -74,7 +74,7 @@
     "@qilin/typert-protocol": "workspace:^",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "react-dom": "^18.2.0"
   },
   "files": [

@@ -12,9 +12,9 @@
 
 import { readFile } from 'node:fs/promises'
 import { load } from 'js-yaml'
-import type { FiberState } from '@deepseek-ai/cordis'
-import { isJsExpr, type EntryTree } from '@deepseek-ai/cordis-plugin-loader'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import type { FiberState } from '@qilin/kylin'
+import { isJsExpr, type EntryTree } from '@qilin/kylin-plugin-loader'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 import { entryListProblem } from './discovery.ts'
 import type { PresetTrust } from './preset.ts'
 

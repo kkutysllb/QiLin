@@ -1,6 +1,6 @@
 /** Durable EOF refusals preserve historical generations and never fall back from native V3. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SessionId } from '@qilin/session'
 import type { SessionFormatJsonObject } from '@qilin/session-format'
 import { SessionFormatUnsupportedError } from '@qilin/session-persistence'

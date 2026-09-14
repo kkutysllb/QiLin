@@ -15,7 +15,7 @@ describe.skipIf(!built)('built migration verifier (plain node)', () => {
       import { tmpdir } from 'node:os'
       import { join } from 'node:path'
       import { Worker } from 'node:worker_threads'
-      import { Context } from '@deepseek-ai/cordis'
+      import { Context } from '@qilin/kylin'
       import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 
       const root = await mkdtemp(join(tmpdir(), 'qilin-built-migration-'))

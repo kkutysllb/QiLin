@@ -1,5 +1,5 @@
 /** Per-Session target-neutral Conversation assembly. */
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import type { ImageAttachmentRef } from '@qilin/attachment'
 import type {
   ISessions, SessionBinding, SessionEventSource, SessionEventWindow,

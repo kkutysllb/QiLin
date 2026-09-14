@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { runInNewContext } from 'node:vm'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { Context, type Fiber } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderIndexInjections, type WebServer, type WebRoute } from '@qilin/host-webserver'
 import * as modulesClient from '../src/client/index.ts'
@@ -810,7 +810,7 @@ describe('module graph order', () => {
 
   it('leaves a request no row answers to the static assembly channel', () => {
     expect(ids(orderByModuleGraph([
-      entry('consumer', { external: ['@deepseek-ai/cordis'] }),
+      entry('consumer', { external: ['@qilin/kylin'] }),
       entry('other'),
     ]))).toEqual(['consumer', 'other'])
   })

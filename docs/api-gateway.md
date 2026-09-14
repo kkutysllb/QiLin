@@ -17,7 +17,7 @@ Services normally extend `TypertRemoteService` so the constructor explicitly bin
 ```ts
 import type { Agent } from '@qilin/agent'
 import { TypertRemoteService, Remote, RemoteScope } from '@qilin/typert-protocol'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 
 export interface CreateGoalRequest {
   objective: string
@@ -60,7 +60,7 @@ The Client uses concrete functions on ordinary objects, not a JavaScript Proxy. 
 ```ts ignore-check
 import type { SessionId } from '@qilin/session/types'
 import type { AgentContext } from '@qilin/api-session-controller/client'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 
 export const inject = ['remote', 'remote.goals']

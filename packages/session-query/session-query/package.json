@@ -35,7 +35,7 @@
     "@qilin/session-persistence": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/session-projection-cache": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@qilin/session-persistence": {
@@ -57,6 +57,6 @@
     "@qilin/session-persistence": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/session-projection-cache": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

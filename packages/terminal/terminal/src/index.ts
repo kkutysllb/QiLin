@@ -4,7 +4,7 @@
  * @module @qilin/terminal
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { TerminalBackendCleanupError } from './types.ts'
 import type {
@@ -45,7 +45,7 @@ export { TerminalBackendCleanupError } from './types.ts'
 /** Opaque identity minted by {@link TerminalSessionService} for one live PTY session. */
 export type TerminalSessionId = TerminalSessionIdValue
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     terminals: TerminalSessionService
   }

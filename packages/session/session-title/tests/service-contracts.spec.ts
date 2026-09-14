@@ -1,5 +1,5 @@
 import { createUserMessage } from '@qilin/llm'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { Context, type Fiber } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import SessionStore, { Session, SessionId, SessionSeq } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'

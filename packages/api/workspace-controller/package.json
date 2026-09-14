@@ -69,7 +69,7 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/api-gateway": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/host-directory-picker": "workspace:^",
@@ -79,7 +79,7 @@
     "@qilin/workspace": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/api-gateway": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/client-store": "workspace:^",

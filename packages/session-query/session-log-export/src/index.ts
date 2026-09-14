@@ -1,6 +1,6 @@
 /** Session-log download command and Host-owned streaming route. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import Schema from '@deepseek-ai/schemastery'
 import { brandString } from '@qilin/brand'
 import type {} from '@qilin/attachment'

@@ -1,4 +1,4 @@
-import { composeError, Context } from '@deepseek-ai/cordis'
+import { composeError, Context } from '@qilin/kylin'
 import { isNonNullable, type Dict } from '@deepseek-ai/cosmokit'
 import { Entry, type EntryOptions } from './entry.ts'
 import { EntryGroup } from './group.ts'

@@ -4,7 +4,7 @@
  * @module @qilin/session-query
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import {
   Session,
   SessionSeq,
@@ -81,7 +81,7 @@ export {
 export { assertSessionHeadersCompatible } from './sources.ts'
 export type { SessionObservation, SessionObservationOptions } from './observation.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionQuery: SessionQueryEngine
   }

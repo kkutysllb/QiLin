@@ -11,7 +11,7 @@
  * @module @qilin/tool-call-timeout-policy
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { deadline, timeoutOf } from '@qilin/timeout'
 import type { ToolExecutionResult } from '@qilin/tools'
 

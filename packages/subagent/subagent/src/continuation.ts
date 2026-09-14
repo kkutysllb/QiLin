@@ -14,7 +14,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { brandString } from '@qilin/brand'
 import { ReasoningEffortId, contentHasImage, createUserMessage } from '@qilin/llm'

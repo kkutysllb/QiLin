@@ -1,5 +1,5 @@
 import { IconChecklistOutline14 } from '@qilin/client-ui-primitives'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { PropsLocale } from '@qilin/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { toolRowModel } from '../models/tool-call-model.ts'

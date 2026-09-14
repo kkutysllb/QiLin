@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { SessionId } from '@qilin/session'
 import type { SubagentPromptRequestId } from '@qilin/subagent'
 

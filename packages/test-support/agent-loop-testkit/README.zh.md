@@ -32,7 +32,7 @@ kind: "package-library"
 当测试覆盖持久 Inbox 事件、投影恢复或校验、实时 Inbox 通知，或 loop 驱动的认领策略时，使用 `mountAgentLoopTestHarness()`。应在挂载先决依赖后、创建 Agent 前挂载所有对加载顺序敏感的消费方。上下文拥有 loop 以及该 harness 返回的每个 Agent。
 
 ```ts
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SessionId, type UserMessage } from '@qilin/session'
 import {
   mountAgentLoopTestDependencies,

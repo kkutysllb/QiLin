@@ -4,8 +4,8 @@
  */
 
 import { isDeepStrictEqual } from 'node:util'
-import { FiberState } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
+import { FiberState } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import type { GoalMessageSource, GoalRef, GoalView } from '@qilin/goal'
 import { createUserMessage } from '@qilin/llm'

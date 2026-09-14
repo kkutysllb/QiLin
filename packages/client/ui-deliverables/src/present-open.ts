@@ -1,5 +1,5 @@
 /** Open declared source files verified by the viewed Session's filesystem. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/api-session-controller'
 import type {} from '@qilin/api-workspace-files'
 import type {} from '@qilin/fs'

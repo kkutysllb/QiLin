@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { agentEvents, installModelSelection, type Agent, type ModelSelectionRef } from '@qilin/agent'
 import { CompactionId, compactCheckpointSource } from '@qilin/compaction'
 import LlmRuntime, { createMessage, createSystemMessage, createToolResultMessage, createUserMessage, LlmError, ToolCallId } from '@qilin/llm'

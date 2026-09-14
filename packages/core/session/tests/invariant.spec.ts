@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createScope, scopeTarget } from '@qilin/scope'
 import { createSystemMessage, createUserMessage, ToolCallId, createMessage, createToolResultMessage, freezeMessage } from '@qilin/llm'
 import SessionStore, { SessionId, SessionSeq, TOOL_NOT_STARTED } from '@qilin/session'

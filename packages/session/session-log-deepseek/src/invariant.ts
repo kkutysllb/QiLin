@@ -1,6 +1,6 @@
 /** Package-owned invariants for DeepSeek session-log acceptance watermarks. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent } from '@qilin/session'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'

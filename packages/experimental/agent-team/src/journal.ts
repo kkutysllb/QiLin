@@ -1,7 +1,7 @@
 /** Serialized Team transactions over the exact live Lead Session log. */
 
 import type { Agent } from '@qilin/agent'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionEventMap, SessionId } from '@qilin/session'
 import type { TeamEventType, TeamState } from './projection.ts'
 

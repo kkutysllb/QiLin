@@ -49,7 +49,7 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/llm": "workspace:^",
@@ -59,8 +59,8 @@
     "@qilin/typert-protocol": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
-    "@deepseek-ai/cordis-plugin-timer": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-timer": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/llm": "workspace:^",

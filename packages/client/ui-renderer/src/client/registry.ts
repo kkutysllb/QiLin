@@ -14,8 +14,8 @@
  * holds this package's 'root' row in this compilation unit, but consumers
  * merge keys in; the rule fires on the narrow-map view, not on real
  * redundancy. */
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
 import { SlotCore, standardHookPropName } from '@qilin/client-ui-slots'
 import type {
   HostObservable, LiveSlotNode, LocaleFace, OwnerOf, SlotEntryDef, SlotMap, SlotRenderer, SlotRendererHost,

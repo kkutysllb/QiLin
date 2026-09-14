@@ -36,7 +36,7 @@ kind: "package-reference"
 其他插件通过注册一个 contributor 来贡献事实，需要提供稳定名称、它可能返回的完整 `QILIN_*` 键集合、每个键的描述，以及为一次执行计算取值的 resolver：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/shell-env'
 
 export const inject = ['shellEnv']

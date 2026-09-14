@@ -32,7 +32,7 @@ This package gives an AgentLoop test a working service topology and keeps the ch
 Use `mountAgentLoopTestHarness()` when the test covers durable Inbox events, projection recovery or validation, live Inbox notifications, or loop-driver claims. Mount any load-order-sensitive consumers after the prerequisites and before creating the Agent. The context owns the loop and every Agent returned by the harness.
 
 ```ts
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SessionId, type UserMessage } from '@qilin/session'
 import {
   mountAgentLoopTestDependencies,

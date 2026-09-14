@@ -11,7 +11,7 @@
  * @module qilin-agent-loop/tool-calls
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { createToolResultMessage, type ToolCallBlock } from '@qilin/llm'
 import type { Session, SessionSeq, UserMessage } from '@qilin/session'
 import { TOOL_ABORTED_BEFORE_DISPATCH, TOOL_RUNTIME_SCHEDULER, type ToolExecutionInput, type ToolExecutionMode, type ToolExecutionResult, type ToolRunContext } from '@qilin/tools'

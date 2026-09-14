@@ -23,15 +23,15 @@ const workspaceGlobs = [
   { dir: 'apps', depth: 1 },
 ] as const
 const vendoredPackages = new Set([
-  '@deepseek-ai/cordis',
+  '@qilin/kylin',
   '@deepseek-ai/cosmokit',
   '@deepseek-ai/schemastery',
-  '@deepseek-ai/cordis-plugin-loader',
-  '@deepseek-ai/cordis-plugin-include',
-  '@deepseek-ai/cordis-plugin-group',
-  '@deepseek-ai/cordis-plugin-timer',
-  '@deepseek-ai/cordis-plugin-hmr',
-  '@deepseek-ai/cordis-plugin-logger-console',
+  '@qilin/kylin-plugin-loader',
+  '@qilin/kylin-plugin-include',
+  '@qilin/kylin-plugin-group',
+  '@qilin/kylin-plugin-timer',
+  '@qilin/kylin-plugin-hmr',
+  '@qilin/kylin-plugin-logger-console',
 ])
 const publicNativePackages = new Set([
   '@deepseek-ai/node-addon-system',
@@ -399,13 +399,13 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
   }
 
   if (dir.startsWith('packages/') && manifest.name?.startsWith('@qilin/')) {
-    const peer = manifest.peerDependencies?.['@deepseek-ai/cordis']
-    const dev = manifest.devDependencies?.['@deepseek-ai/cordis']
+    const peer = manifest.peerDependencies?.['@qilin/kylin']
+    const dev = manifest.devDependencies?.['@qilin/kylin']
 
-    if (!peer) errors.push(`${label}: @deepseek-ai/cordis must be a peerDependency`)
-    if (!dev) errors.push(`${label}: @deepseek-ai/cordis must also be a devDependency`)
+    if (!peer) errors.push(`${label}: @qilin/kylin must be a peerDependency`)
+    if (!dev) errors.push(`${label}: @qilin/kylin must also be a devDependency`)
     if (peer && dev && peer !== dev) {
-      errors.push(`${label}: @deepseek-ai/cordis peer (${peer}) and dev (${dev}) ranges must match`)
+      errors.push(`${label}: @qilin/kylin peer (${peer}) and dev (${dev}) ranges must match`)
     }
     if (manifest.type !== 'module') {
       errors.push(`${label}: package.json must set "type": "module"`)

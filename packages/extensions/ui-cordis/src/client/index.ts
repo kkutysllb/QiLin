@@ -1,6 +1,6 @@
 /** Cordis dynamic-plugin cards, inventory panel, business-view host, and `@pluginId` source. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-ui-tool/client'
 import type {} from '@qilin/client-locale/client'

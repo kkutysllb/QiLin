@@ -15,9 +15,9 @@
  */
 
 import { pathToFileURL } from 'node:url'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
-import { Include } from '@deepseek-ai/cordis-plugin-include'
-import type { EntryTree } from '@deepseek-ai/cordis-plugin-loader'
+import { Context, type Fiber } from '@qilin/kylin'
+import { Include } from '@qilin/kylin-plugin-include'
+import type { EntryTree } from '@qilin/kylin-plugin-loader'
 import { scopeOf, scopeParentOf, type ScopeKey } from '@qilin/scope'
 import { RemoteError } from '@qilin/typert-protocol'
 import type { AgentPreset } from './preset.ts'

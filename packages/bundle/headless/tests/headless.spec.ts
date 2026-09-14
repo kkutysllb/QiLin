@@ -1,7 +1,7 @@
 /** Direct one-shot Agent driving, durable aggregation, flushing, and exit mapping. */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import type { Agent, AgentHandle, AssistantStreamFrame, CreateAgentOptions } from '@qilin/agent'
 import AgentDefaultModelConfig from '@qilin/agent-default-model'

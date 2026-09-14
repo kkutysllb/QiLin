@@ -3,7 +3,7 @@
  * @module @qilin/tool-fs/src/read-target
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { FsError } from '@qilin/fs'
 import type { FsInfo, FsTarget } from '@qilin/fs'
 import type { ToolExecution } from '@qilin/tools'

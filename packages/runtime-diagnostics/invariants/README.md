@@ -75,7 +75,7 @@ Every other workspace package omits the companion and states the package-specifi
 A companion is a normal plugin you mount beside the registry. It declares any services it needs and registers under its package's exact npm name; the registry joins its setup before the registration completes.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import InvariantRegistry from '@qilin/invariants'
 import * as SessionInvariant from '@qilin/session/invariant'
 

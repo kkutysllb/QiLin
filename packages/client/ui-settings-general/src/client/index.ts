@@ -7,7 +7,7 @@
  * Feature-owned rows and sections stay with their features.
  * Export discipline: packages/client/AGENTS.md.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ConnectionHandle } from '@qilin/client-connection/client'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 // Type-only: the settings slot declarations. Cross-plugin collaboration goes

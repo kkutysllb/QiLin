@@ -1,5 +1,5 @@
 /** Producer-to-UI regression for shell results bounded by the real spill policy. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type { ToolResultNode } from '@qilin/client-ui-chat/client'
 import { WorkerThreadCodeRuntime } from '@qilin/code-runtime-worker-thread'

@@ -2,7 +2,7 @@
 
 import { performance } from 'node:perf_hooks'
 import { scheduler } from 'node:timers/promises'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentLoop, { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
 import { agentPresetProjectionDefinition } from '@qilin/agent-presets'

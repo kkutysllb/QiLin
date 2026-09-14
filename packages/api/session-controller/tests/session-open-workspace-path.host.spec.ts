@@ -1,5 +1,5 @@
 import * as nativeCommand from '@qilin/native-command'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import SessionStore from '@qilin/session'
 import { describe, expect, it, vi } from 'vitest'

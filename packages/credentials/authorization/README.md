@@ -36,7 +36,7 @@ Use it whenever a credential can only be obtained by talking to a human — an O
 Your plugin declares one flow per credential it holds, keyed by the `<scope>/<id>` credential record the flow writes — the scope names your plugin, the id names one credential it owns:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { AuthorizationSession } from '@qilin/authorization'
 import { credentialKey } from '@qilin/credentials'
 

@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import type {
   SessionEventLikeEntry, SessionLiveEventEntry,

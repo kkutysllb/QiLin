@@ -5,7 +5,7 @@
  * never by timing.
  */
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
 import { RemoteError } from '@qilin/client-test-runtime'
 import { protocolOf, RESOURCE_SCHEME, ResourceRegistry } from '../src/client/resources.ts'

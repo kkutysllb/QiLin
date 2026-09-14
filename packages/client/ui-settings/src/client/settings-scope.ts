@@ -6,8 +6,8 @@
  * over its snapshot.
  */
 
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
 import type {
   SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin/api-remotes/client'
@@ -216,7 +216,7 @@ export class SettingsScopeController<T> implements SettingsScope<T> {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     settingsScope: SettingsScopeBinder
   }

@@ -11,7 +11,7 @@
  * @module @qilin/tool-fs-search/grep
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 import type { GenericCallView, SearchResultView, ToolResult } from '@qilin/tools'
 import type { RetainedItems } from '@qilin/output-retention'

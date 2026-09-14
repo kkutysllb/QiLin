@@ -4,7 +4,7 @@
  * @module @qilin/deepseek-llm-api-extensions
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type {
   DeepSeekLlmApiExtensionMap,
   DeepSeekLlmApiExtensionProvider,
@@ -15,7 +15,7 @@ import type {
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     deepseekLlmApiExtensions: DeepSeekLlmApiExtensionRegistry
   }

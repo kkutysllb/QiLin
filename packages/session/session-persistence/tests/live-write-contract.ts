@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { SessionId } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'
 import type { SessionPersistence } from '../src/index.ts'

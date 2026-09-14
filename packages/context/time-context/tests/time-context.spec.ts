@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import { createUserMessage, ToolCallId, LlmAdapter } from '@qilin/llm'
 import type { GenerateOptions, StreamChunk } from '@qilin/llm'
 import { Session, SessionId, type SessionEvent } from '@qilin/session'

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import AgentRegistry, { agentEvents } from '@qilin/agent'
 import type { Agent, AgentStatus, Inbox } from '@qilin/agent'
 import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'

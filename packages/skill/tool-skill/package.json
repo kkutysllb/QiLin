@@ -31,7 +31,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/skill": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -45,6 +45,6 @@
     "@qilin/skill": "workspace:^",
     "@qilin/skill-filesystem": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

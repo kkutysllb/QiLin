@@ -1,6 +1,6 @@
 import { createUserMessage } from '@qilin/llm'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import SessionStore, { SessionId } from '@qilin/session'
 import SystemPrompt from '@qilin/system-prompt'

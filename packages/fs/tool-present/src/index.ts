@@ -1,5 +1,5 @@
 /** Scoped tool that declares filesystem deliveries in their owning Session. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { FsError } from '@qilin/fs'
 import { defineTool, type ToolExecution } from '@qilin/tools'

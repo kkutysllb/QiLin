@@ -7,7 +7,7 @@
  * @module @qilin/fs-observation-policy
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { FsError } from '@qilin/fs'
 import type { FsObservation, FsTarget, FsVersion, FsWriteIntent } from '@qilin/fs'
 import type { FsObservationActor } from './types.ts'

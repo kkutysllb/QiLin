@@ -43,7 +43,7 @@ A save replaces only the config keys this service owns: `transport`, `serverName
 
 ### Where the entries live
 
-Each managed server is one entry inside a top-level `- insert:` item, which is how a patch layer adds rows the bundles below it never declared. `@deepseek-ai/cordis-plugin-include` indexes inserted rows, so this layer can address its own rows and later layers can address them too. Enablement is the entry's own `disabled` key, read by the same patch application, so a disabled server keeps its definition and returns on the next enablement without a second edit.
+Each managed server is one entry inside a top-level `- insert:` item, which is how a patch layer adds rows the bundles below it never declared. `@qilin/kylin-plugin-include` indexes inserted rows, so this layer can address its own rows and later layers can address them too. Enablement is the entry's own `disabled` key, read by the same patch application, so a disabled server keeps its definition and returns on the next enablement without a second edit.
 
 ### Why the home layer
 

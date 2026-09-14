@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import type { Agent, Inbox, ModelSelectionRef } from '@qilin/agent'
 import { AttachmentError, AttachmentId } from '@qilin/attachment'

@@ -6,7 +6,7 @@
  * deferral — the stage follows list.current), binding identity, breadcrumb
  * projection, create.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SessionId } from '@qilin/api-remotes/client'
 import { RemoteError } from '@qilin/typert-protocol'

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SessionId, type Session } from '@qilin/session'
 import { createUserMessage, ProviderRequestId } from '@qilin/llm'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'

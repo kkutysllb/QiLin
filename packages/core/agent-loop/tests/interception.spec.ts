@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime, { createUserMessage, ToolCallId  } from '@qilin/llm'
 import SessionStore, {
   SessionId,

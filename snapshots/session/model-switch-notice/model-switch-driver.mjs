@@ -10,7 +10,7 @@ export const inject = ['agents']
 
 /**
  * Install the real selection helper and change its input after `todo_write`.
- * @param {import('@deepseek-ai/cordis').Context} ctx - composition context.
+ * @param {import('@qilin/kylin').Context} ctx - composition context.
  */
 export function apply(ctx) {
   ctx.on('agent/created', ({ agent }) => {

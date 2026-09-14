@@ -1,6 +1,6 @@
 /** Package-owned filesystem event-data invariants. @module @qilin/fs/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantInstaller } from '@qilin/invariants'
 import type { FsObservation, FsTarget } from './types.ts'
 

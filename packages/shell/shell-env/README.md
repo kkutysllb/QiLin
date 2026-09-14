@@ -36,7 +36,7 @@ Every call receives `QILIN_HOME` (the absolute Harness home), `QILIN_SHELL=1`, a
 Other plugins contribute facts by registering a contributor with a stable name, the complete set of `QILIN_*` keys it may return, a description per key, and a resolver that computes values for one execution:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/shell-env'
 
 export const inject = ['shellEnv']

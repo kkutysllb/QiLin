@@ -5,7 +5,7 @@
  * @module @qilin/session-reference
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
@@ -63,7 +63,7 @@ ${REFERENCE_WARNING}
 `
 const PROMPT_SUFFIX = '\n</referenced-sessions>'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionReferenceResolver: SessionReferenceResolver
   }

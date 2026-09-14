@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { CommandDefinition, CommandInvocation } from '@qilin/commands'
 import * as SessionLogDownload from '../src/index.ts'
 

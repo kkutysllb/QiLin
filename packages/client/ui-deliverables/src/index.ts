@@ -6,7 +6,7 @@
  * qilin.client declaration.
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/system-prompt'
 import { registerPresentOpen } from './present-open.ts'
 

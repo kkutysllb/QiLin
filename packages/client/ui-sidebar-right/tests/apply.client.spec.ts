@@ -9,7 +9,7 @@
  * is what makes a reload safe. The seats' components have their own specs.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { SessionId } from '@qilin/session/types'
 import { apply, inject } from '../src/client/index.ts'

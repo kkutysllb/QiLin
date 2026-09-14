@@ -23,7 +23,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { isAbsolute } from 'node:path'
 import { stat } from 'node:fs/promises'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/host-webserver'
 import type {} from '@qilin/subprocess'
 import { launchedThroughSsh, launchEnvironmentOf } from '@qilin/launch-environment'

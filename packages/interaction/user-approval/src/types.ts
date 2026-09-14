@@ -73,7 +73,7 @@ export interface ApprovalRequestEvent {
   readonly signal?: AbortSignal
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Ask composed answerers for one decision. Return an outcome to claim the

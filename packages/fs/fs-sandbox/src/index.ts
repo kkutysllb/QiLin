@@ -26,7 +26,7 @@
  * @module @qilin/fs-sandbox
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { LocalFileSystem } from '@qilin/fs-local'
 import type { Config as LocalConfig } from '@qilin/fs-local'
 import { FsError } from '@qilin/fs'

@@ -1,5 +1,5 @@
 /** Host HTTP bridge for browser-client RPC. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type {} from '@qilin/attachment'
 import type {} from '@qilin/credentials'

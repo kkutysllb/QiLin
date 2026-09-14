@@ -1,7 +1,7 @@
 /** Read-only projection of the current Cordis Loader plugin entries. */
 
-import type { Context, FiberState } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/cordis-plugin-loader'
+import type { Context, FiberState } from '@qilin/kylin'
+import type {} from '@qilin/kylin-plugin-loader'
 // Type-only: the optional agent-preset roster resolved through `ctx.get`.
 import type {} from '@qilin/agent-presets'
 import { TypertRemoteService, Remote } from '@qilin/typert-protocol'

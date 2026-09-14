@@ -3,7 +3,7 @@
  * @module @qilin/schedule
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type {} from '@qilin/session-persistence'
 // Type-only: resolves ctx.sessionProjections for the optional projection child.

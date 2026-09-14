@@ -5,7 +5,7 @@
  */
 
 import { expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import SubagentRuntime from '@qilin/subagent'
 import type { SubagentProvider } from '@qilin/subagent'

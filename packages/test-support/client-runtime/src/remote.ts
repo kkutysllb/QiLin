@@ -1,5 +1,5 @@
 /** Test-owned Remote face: `$on` subscriptions with an explicit test event driver. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 
 // Value re-export for spec-side failure construction: the api-remotes facade
 // cannot carry it — its src top-level imports owner /remote lib artifacts, so a

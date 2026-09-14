@@ -3,7 +3,7 @@
  * @module @qilin/loader-smoke/agent-turn
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage, expandAssistantStream, type TokenUsage } from '@qilin/llm'
 import type { SessionEvent } from '@qilin/session'

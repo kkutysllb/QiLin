@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SettingsSchemaService } from '@qilin/client-ui-settings/src/client/schema.ts'
 import { createSettingsSchemaOperations } from '../src/client/schema-operations.ts'
 

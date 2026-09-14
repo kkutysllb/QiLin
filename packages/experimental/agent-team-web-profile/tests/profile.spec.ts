@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 
 describe('Agent Teams Web profile bundle', () => {
   it('declares a public parseable layer containing the Team UI', () => {

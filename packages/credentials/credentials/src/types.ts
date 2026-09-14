@@ -73,7 +73,7 @@ export interface CredentialInfo {
   writable: boolean
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Committed change to a provider-managed credential source: a `set`, an

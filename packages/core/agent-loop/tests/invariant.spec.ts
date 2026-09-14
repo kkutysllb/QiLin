@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SessionId } from '@qilin/session'
 import InvariantRegistry from '@qilin/invariants'
 import * as AgentLoopInvariant from '@qilin/agent-loop/invariant'

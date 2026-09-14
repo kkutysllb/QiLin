@@ -7,7 +7,7 @@
  * @module @qilin/client-ui-message-feedback/client
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 // Type-only: pulls the generated Remote API and ctx.remote merge through the Client assembly boundary.
 import type {} from '@qilin/api-remotes/client'

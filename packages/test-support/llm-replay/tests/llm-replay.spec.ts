@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'
 import { CompactionId } from '@qilin/compaction'

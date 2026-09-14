@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createUserMessage, ToolCallId, StreamChunk  } from '@qilin/llm'
 import SessionStore, { SessionEvent, SessionId } from '@qilin/session'
 import SystemPrompt from '@qilin/system-prompt'

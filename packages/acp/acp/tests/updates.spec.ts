@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { ToolCallId, MessageId } from '@qilin/llm'
 import { SessionSeq, type Session, type SessionEvent } from '@qilin/session'
 import { assistantUpdates, toolCallUpdate, toolResultUpdate } from '../src/updates.ts'

@@ -23,7 +23,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/client-modules": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/client-ui-dockkit": "workspace:^",
@@ -32,13 +32,13 @@
     "@qilin/client-ui-slots": "workspace:^",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "files": [
     "lib/index.js",

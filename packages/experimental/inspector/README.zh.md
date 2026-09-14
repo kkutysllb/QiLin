@@ -82,7 +82,7 @@ Worker 监听后，Host 会记录一个 `devtools://` URL。同一个 Worker 提
 两个插件面都提供同一个服务：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InspectorJsonValue } from '@qilin/experimental-inspector'
 
 declare const ctx: Context

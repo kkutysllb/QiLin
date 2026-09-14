@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto'
 import { createServer, request as httpRequest, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { credentialRef } from '@qilin/credentials'
 import { createGitHubWebhookHandler } from '../src/handler.ts'

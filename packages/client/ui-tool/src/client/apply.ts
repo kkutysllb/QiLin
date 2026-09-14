@@ -1,5 +1,5 @@
 /** Register the Tool call tree, details renderer, and built-in atomic views. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type { HostObservable } from '@qilin/client-ui-slots'
 import type {} from '@qilin/api-remotes/client'

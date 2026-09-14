@@ -23,7 +23,7 @@
   "peerDependencies": {
     "@qilin/attachment": "workspace:^",
     "@qilin/home-paths": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^",
@@ -32,6 +32,6 @@
   "devDependencies": {
     "@qilin/attachment": "workspace:^",
     "@qilin/home-paths": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

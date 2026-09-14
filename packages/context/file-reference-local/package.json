@@ -39,13 +39,13 @@
     "@qilin/file-reference": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
     "@qilin/file-reference": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

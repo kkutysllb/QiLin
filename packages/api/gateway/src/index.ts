@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { Context, Service, symbols } from '@deepseek-ai/cordis'
+import { Context, Service, symbols } from '@qilin/kylin'
 import type { ConnectionRpcHandler } from '@qilin/client-connection'
 import { Deque } from '@qilin/deque'
 import type { WebUpgradeRoute } from '@qilin/host-webserver'

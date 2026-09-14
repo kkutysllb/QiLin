@@ -1,6 +1,6 @@
 /** Durable composition of historical chunk collapse and V3 system/reference migration. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { SessionEvent, SessionHeader } from '@qilin/session'
 import { createSessionFormatCatalog } from '@qilin/session-format'

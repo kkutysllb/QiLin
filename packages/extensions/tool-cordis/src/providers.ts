@@ -1,6 +1,6 @@
 /** First-party Host inspect providers registered by the Cordis tool package. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { HOST_BUILTIN_INSPECTION } from '@qilin/cordis-host-runner'
 import type { HostCordisInspectProviderRegistration } from '@qilin/cordis-host-runner'
 import type { JsonValue } from '@qilin/util-values'

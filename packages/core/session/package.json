@@ -42,14 +42,14 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin/scope": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/invariants": "workspace:^",
     "@qilin/scope": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/typert-registry": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@qilin/llm": "workspace:^",

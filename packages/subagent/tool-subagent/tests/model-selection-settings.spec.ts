@@ -1,7 +1,7 @@
 /** Default-off settings and per-session model-selection decisions. */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { ToolCallId } from '@qilin/llm'
 import { Session, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'

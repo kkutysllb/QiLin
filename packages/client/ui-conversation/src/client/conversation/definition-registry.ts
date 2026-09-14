@@ -1,4 +1,4 @@
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import { notifySubscribers } from '@qilin/client-store'
 
 /** Shared lifecycle and stable-entry storage for one Conversation Definition registry. */

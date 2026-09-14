@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/attachment": "workspace:^",
     "@qilin/authorization": "workspace:^",
     "@qilin/credentials": "workspace:^",
@@ -44,7 +44,7 @@
     "@earendil-works/pi-ai": "^0.85.1"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/attachment": "workspace:^",
     "@qilin/authorization": "workspace:^",
     "@qilin/credentials": "workspace:^",

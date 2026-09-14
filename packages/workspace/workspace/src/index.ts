@@ -7,7 +7,7 @@
 
 import { randomUUID } from 'node:crypto'
 import { stat } from 'node:fs/promises'
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { SessionHeader, SessionId } from '@qilin/session'
 import type {} from '@qilin/session-persistence'
 import type { DomainGlobal, KvTable } from '@qilin/storage-domain'
@@ -63,7 +63,7 @@ export class WorkspaceOrderInvalidError extends Error {
 }
 
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     workspaceRegistry: WorkspaceRegistry
   }

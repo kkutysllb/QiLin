@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createUserMessage } from '@qilin/llm'
 import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
 import type { SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin/session'

@@ -26,7 +26,7 @@
  * @module @qilin/authorization
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { CredentialKey } from '@qilin/credentials'
 import { HarnessError } from '@qilin/llm'
 
@@ -40,7 +40,7 @@ export type {
   AuthorizationPromptOption, AuthorizationSettlement, AuthorizationStatus,
 } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     authorization: AuthorizationService
   }

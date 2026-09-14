@@ -50,7 +50,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/user-questions": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@qilin/commands": {
@@ -72,6 +72,6 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/user-questions": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

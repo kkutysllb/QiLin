@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createScope } from '@qilin/scope'
 import type { Scope } from '@qilin/scope'
 import type { Agent } from '@qilin/agent'

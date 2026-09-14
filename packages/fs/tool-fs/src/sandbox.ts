@@ -10,7 +10,7 @@
  * @module @qilin/tool-fs/sandbox
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ToolExecution } from '@qilin/tools'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import { ESCALATION_TARGETS, approveEscalation, escalationHintMarker, sandboxDenialMarker, validateEscalationArgs } from '@qilin/sandbox'

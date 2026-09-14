@@ -7,7 +7,7 @@
  * payload, the scoped consume-token dispatch, per-session popupFor
  * lifecycle, and the directory invalidation event subscriptions.
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type { CommandResult } from '@qilin/commands/types'
 import { createScope, scopeOf } from '@qilin/api-session-controller/client'

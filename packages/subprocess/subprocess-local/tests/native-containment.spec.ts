@@ -3,7 +3,7 @@ import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { SubprocessSpawnSpec, SubprocessTerminalHandle } from '@qilin/subprocess'
 import LocalSubprocessRuntime from '../src/index.ts'
 import { launchLinuxScope, probeLinuxScope } from '../src/linux-scope.ts'

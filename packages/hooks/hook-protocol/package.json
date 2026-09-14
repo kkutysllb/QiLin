@@ -35,12 +35,12 @@
     "@qilin/shell": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/shell": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

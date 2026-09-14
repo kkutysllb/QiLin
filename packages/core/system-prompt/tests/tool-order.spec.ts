@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SystemPrompt, { PromptAssembly, TOOL_ORDER_REST } from '@qilin/system-prompt'
 import type { ToolSchema } from '@qilin/llm'
 

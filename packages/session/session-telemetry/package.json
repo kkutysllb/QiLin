@@ -29,11 +29,11 @@
   "peerDependencies": {
     "@qilin/agent": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

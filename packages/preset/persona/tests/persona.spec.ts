@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
 import { createScope, type ScopeKey } from '@qilin/scope'
 import { describe, expect, it } from 'vitest'

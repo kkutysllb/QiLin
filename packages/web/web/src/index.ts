@@ -6,7 +6,7 @@
  * @module @qilin/web
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type {
   WebFetchProvider,
@@ -32,7 +32,7 @@ export type {
   WebSearchSource,
 } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     web: WebRuntime
   }

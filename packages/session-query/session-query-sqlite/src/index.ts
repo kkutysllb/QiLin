@@ -7,7 +7,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'
 import type { DatabaseSync } from 'node:sqlite'
-import { Context, Service, type Fiber } from '@deepseek-ai/cordis'
+import { Context, Service, type Fiber } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Session, SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
 import type SessionPersistence from '@qilin/session-persistence'
@@ -68,7 +68,7 @@ export {
 /** Boot-context slot for a launcher-owned absolute path to this process's derived query index. */
 export const SESSION_QUERY_SQLITE_PATH_KEY = 'launcherSessionQueryPath'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Launcher-owned absolute path to this process's disposable derived query index. */
     launcherSessionQueryPath?: string

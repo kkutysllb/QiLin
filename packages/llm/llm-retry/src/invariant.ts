@@ -1,6 +1,6 @@
 /** Package-owned durable retry-event invariants. @module @qilin/llm-retry/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Session, SessionEvent } from '@qilin/session'
 import type { LlmFailure } from '@qilin/llm'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'

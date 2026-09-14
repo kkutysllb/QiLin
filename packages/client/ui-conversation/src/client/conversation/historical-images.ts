@@ -1,5 +1,5 @@
 /** Session-scoped durable image URL cache shared by Conversation targets. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ImageAttachmentRef } from '@qilin/attachment'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'

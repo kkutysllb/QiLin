@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { AttachmentId } from '@qilin/attachment'
 import BasicCompactionEngine from '@qilin/compaction-basic'
 import type { BasicCompactionConfig } from '@qilin/compaction-basic'

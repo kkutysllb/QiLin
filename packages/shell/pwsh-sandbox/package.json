@@ -31,7 +31,7 @@
     "@qilin/pwsh-local": "workspace:^",
     "@qilin/sandbox": "workspace:^",
     "@qilin/sandbox-policy": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/shell": "workspace:^",
@@ -41,6 +41,6 @@
     "@qilin/sandbox-policy": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

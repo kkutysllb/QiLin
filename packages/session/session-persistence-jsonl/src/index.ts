@@ -6,7 +6,7 @@
  * @module @qilin/session-persistence-jsonl
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import {
   SessionFormatUnsupportedMigrationError,

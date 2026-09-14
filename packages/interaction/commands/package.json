@@ -61,7 +61,7 @@
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@qilin/util-crypto": "workspace:^",
@@ -76,6 +76,6 @@
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

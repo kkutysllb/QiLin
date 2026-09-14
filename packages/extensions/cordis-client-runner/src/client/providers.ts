@@ -1,6 +1,6 @@
 /** Built-in Client inspect providers over live Client-owned services. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { JsonValue } from '@qilin/util-values'
 import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-theme/client'

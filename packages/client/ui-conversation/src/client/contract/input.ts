@@ -6,7 +6,7 @@
  * and its reference chips live in the shell's Lexical editor; the machine
  * here is the submit plane (phase, claim, attempt) alone.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ObservableSnapshot, SnapshotStore } from '@qilin/client-store'
 import type { Branded } from '@qilin/brand'
 import type { LexicalEditor } from 'lexical'
@@ -141,7 +141,7 @@ export interface InputTriggerController {
   toggleSource(source: string, hit: InputTriggerHit): void
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Claim a command token for the scoped input machine.

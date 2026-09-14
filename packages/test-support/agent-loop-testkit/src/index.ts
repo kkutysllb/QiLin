@@ -5,7 +5,7 @@
  * @module @qilin/agent-loop-testkit
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import type { Agent, AgentOptions, Inbox, InboxTarget } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'

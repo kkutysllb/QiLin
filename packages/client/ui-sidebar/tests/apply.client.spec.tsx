@@ -1,5 +1,5 @@
 /** Sidebar shell slot registration and its Session/layout callbacks. */
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { Context, type Fiber } from '@qilin/kylin'
 import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'

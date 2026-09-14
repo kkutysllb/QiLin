@@ -29,16 +29,16 @@
   "peerDependencies": {
     "@qilin/host-webserver": "workspace:^",
     "@qilin/client-connection": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/credentials-local": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

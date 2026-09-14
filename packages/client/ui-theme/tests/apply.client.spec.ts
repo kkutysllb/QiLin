@@ -1,7 +1,7 @@
 /** ui-theme apply wiring: service provision, settings dictionaries riding the
  * locale service, declaration-aware Appearance row registration, snapshot
  * projection into the row store, and HMR collapse recovery. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { LocaleRuntime } from '@qilin/client-locale/client'

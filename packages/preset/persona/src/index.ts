@@ -13,7 +13,7 @@
  * @module @qilin/persona
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type {} from '@qilin/system-prompt'
 import { PERSONA_PREFIX_SECTION, PERSONA_SUFFIX_SECTION } from '@qilin/system-prompt'

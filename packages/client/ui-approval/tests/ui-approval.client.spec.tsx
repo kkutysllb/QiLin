@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createScope, scopeOf } from '@qilin/api-session-controller/client'
 import type { ToolCallId } from '@qilin/llm'
 import type { SessionId } from '@qilin/session/types'

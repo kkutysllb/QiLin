@@ -11,7 +11,7 @@
  * @module @qilin/lsp
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { HarnessError } from '@qilin/llm'
 import type { LspProviderId } from './brand.ts'
 import type {
@@ -35,7 +35,7 @@ export type {
   LspService,
 } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     lsp: LspService
   }

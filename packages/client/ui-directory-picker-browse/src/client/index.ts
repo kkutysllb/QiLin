@@ -8,7 +8,7 @@
  * capability kind. The dialog's copy is locale-registered here — the flow
  * package owns its own strings.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the SlotMap merge declaring the directory-flow holes.
 import type {} from '@qilin/client-ui-workspace/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).

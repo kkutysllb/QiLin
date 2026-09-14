@@ -1,7 +1,7 @@
 /** Read-only Host plugin inventory registered into Web Settings. */
 
 import type {} from '@qilin/client-locale/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: pulls the 'settings.agentPreset' LocaleNamespaceMap merge, whose

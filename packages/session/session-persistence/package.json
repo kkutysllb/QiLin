@@ -27,13 +27,13 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/timeout": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",

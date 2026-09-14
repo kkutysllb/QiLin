@@ -1,6 +1,6 @@
 /** Package-owned durable plan-mode invariants. @module @qilin/plan-mode/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Session, SessionEvent } from '@qilin/session'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 

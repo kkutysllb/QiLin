@@ -1,6 +1,6 @@
 /** Standard ACP updates derived from committed QILIN session events. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionUpdate, ToolCallContent } from '@agentclientprotocol/sdk'
 import type { Session, SessionEvent } from '@qilin/session'
 import type {} from '@qilin/token-meter'

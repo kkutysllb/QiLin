@@ -13,7 +13,7 @@ A tool registers on `ctx.tools`. The annotated `defineTool` example (typed `exec
 This permission gate is one example of a hook plugin. It returns a typed decision from the `tools/pre-execute` gate to allow or deny a call; sandbox, permission, and plan-mode plugins can use this extension point. Hook plugins can intercept other extension points and are not inherently permission gates. A "native hook" is an ordinary Cordis plugin on an interception point; it needs no external protocol.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { PreToolDecision, ToolExecution } from '@qilin/tools'
 
 declare function isAllowed(exec: ToolExecution): Promise<boolean>
@@ -37,7 +37,7 @@ This waterfall is the reorderable policy layer. Use `ctx.tools.guard()` when an 
 A UI plugin combines durable `session/event` records (Assistant settlements, turn/step boundaries, and tool activity) with transient `agent/assistant-stream` frames for live token presentation, and drives input back in via `agent.followup()` / `agent.steer()`. A browser plugin contributing a business row to the built-in Web Client instead registers a `ConversationNodeDefinition` and keyed Chat renderer; follow the [Conversation subsystem reference](../subsystems/conversation.md).
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import { createUserMessage } from '@qilin/llm'
 import type { SessionId } from '@qilin/session'
@@ -68,7 +68,7 @@ A *protocol driver* adapts a wire peer to `ctx.agents`; it may serve a UI or an 
 [`packages/acp/acp`](../../packages/acp/acp) is the automation-only worked example: it exposes fresh text sessions over Agent Client Protocol JSON-RPC stdio, emits committed assistant text, and registers a one-shot machine permission answerer for agents it owns. Its [README](../../packages/acp/acp/README.md) defines the exact methods, event order, and lifecycle contract.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { expandAssistantStream } from '@qilin/llm'
 
 export const name = 'my-protocol-bridge'

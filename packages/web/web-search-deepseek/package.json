@@ -32,7 +32,7 @@
     "@qilin/launch-environment": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/web": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/settings": "workspace:^"
   },
   "dependencies": {
@@ -45,7 +45,7 @@
     "@qilin/launch-environment": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/web": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/settings": "workspace:^",
     "@qilin/http-proxy": "workspace:^"
   }

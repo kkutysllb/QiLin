@@ -2,10 +2,10 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import Group from '@deepseek-ai/cordis-plugin-group'
+import { Context } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
+import Include from '@qilin/kylin-plugin-include'
+import Group from '@qilin/kylin-plugin-group'
 import LlmRuntime from '@qilin/llm'
 import SessionStore, { SessionId } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
@@ -21,7 +21,7 @@ import type { Config } from '@qilin/agent-presets'
 import type {} from '@qilin/agent-presets/types'
 import { bindScopeParent, createScope, scopeOf } from '@qilin/scope'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Published by the `isolated` fixture preset behind an entry-local realm. */
     fixtureIsolatedSvc: { label: string }

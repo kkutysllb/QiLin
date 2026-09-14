@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { FileSystem, FsError, FsTargetKey, FsVersion } from '@qilin/fs'
 import type {
   FsDirEntry,

@@ -8,7 +8,7 @@
 import type { GlobalStandardProps } from '@qilin/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionSnapshot } from '@qilin/api-session-controller/client'
 import { createSnapshotStore } from '@qilin/client-store'
 import {

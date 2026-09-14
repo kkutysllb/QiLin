@@ -4,7 +4,7 @@
  * @module @qilin/tool-fs/src/read
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 import type { GenericCallView, ReadResultView, ToolResult } from '@qilin/tools'
 import type {} from '@qilin/fs'

@@ -55,7 +55,7 @@
  * @module @qilin/llm-pi-ai
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { launchEnvironmentOf } from '@qilin/launch-environment'
 import { assertUsableApiKey, LlmError, resolveImageAttachmentAccess } from '@qilin/llm'
 import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@qilin/llm'

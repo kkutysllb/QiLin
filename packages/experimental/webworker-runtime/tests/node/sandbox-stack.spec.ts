@@ -1,6 +1,6 @@
 /** The unchanged sandbox-local → bash-sandbox → subprocess stack over the Worker Node layer. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SandboxBashExecutor } from '@qilin/bash-sandbox'
 import LocalSandboxProvider from '@qilin/sandbox-local'
 import { SandboxPolicyService } from '@qilin/sandbox-policy'

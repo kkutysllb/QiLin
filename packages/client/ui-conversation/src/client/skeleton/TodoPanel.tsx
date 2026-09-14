@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
 // The domain's client-namespace pure-type outlet: one import edge delivers
 // the `todos` projection-key merge (single source, no consumer-side restated

@@ -11,7 +11,7 @@ import {
 } from './benchmark-npm-resolution.ts'
 
 const QILIN_PACKAGE = '@qilin/cli'
-const CORDIS_PACKAGE = '@deepseek-ai/cordis'
+const CORDIS_PACKAGE = '@qilin/kylin'
 const NESTED_QILIN_ALIAS = 'qilin-previous'
 const NESTED_QILIN_PATH = `node_modules/${NESTED_QILIN_ALIAS}`
 const DEPENDENCY_FIELDS = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
@@ -36,7 +36,8 @@ export interface QilinInstallLayoutSummary {
 }
 
 function isQilinPackage(name: string): boolean {
-  return name === QILIN_PACKAGE || name.startsWith('@qilin/')
+  // The framework is the one shared peer layer, deliberately outside the dual-release scheme.
+  return name !== CORDIS_PACKAGE && (name === QILIN_PACKAGE || name.startsWith('@qilin/'))
 }
 
 function cloneForVersion(manifest: object, version: string): MutableRegistryManifest {

@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { RemoteError, TestRemote } from '@qilin/client-test-runtime'

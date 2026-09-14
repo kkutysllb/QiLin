@@ -1,6 +1,6 @@
 /** Host Cordis plugin for the cross-realm Inspector Worker and full fetch capture. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { IndexInjection } from '@qilin/host-webserver'
 import { resolveInspectorOptions, startInspector, type InspectorOptions } from './bridge/controller.ts'
 import { createInspectorService } from '../shared/service.ts'

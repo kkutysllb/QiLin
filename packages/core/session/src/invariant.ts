@@ -5,7 +5,7 @@
  * @module @qilin/session/invariant
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ToolCallId } from '@qilin/llm'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { Session, SessionEvent, SessionSeqCursor } from '@qilin/session'

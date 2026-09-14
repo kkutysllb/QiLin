@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { scopeTarget } from '@qilin/scope'
 import { SessionId } from '@qilin/session'
 import SubagentRuntime, { SubagentRunId } from '@qilin/subagent'

@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { ToolCallId } from '@qilin/llm'
 import { defineTool } from '@qilin/tools'
 import type {

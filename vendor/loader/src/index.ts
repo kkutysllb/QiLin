@@ -1,4 +1,4 @@
-import { Context, FiberState, Inject, Service, type Fiber } from '@deepseek-ai/cordis'
+import { Context, FiberState, Inject, Service, type Fiber } from '@qilin/kylin'
 import { defineProperty, isNullable, type Dict } from '@deepseek-ai/cosmokit'
 import { ModuleLoader } from './internal.ts'
 import { Entry, type EntryOptions } from './config/entry.ts'
@@ -20,7 +20,7 @@ export * from './config/utils.ts'
 /** Re-export Node internal module loader compatibility types. */
 export * from './internal.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     'exit'(signal: NodeJS.Signals): Promise<void>
     'loader/config-update'(): void

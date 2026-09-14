@@ -1,6 +1,6 @@
 /** Host registration for the browser theme preference and pre-plugin palette. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/host-webserver'
 import type {} from '@qilin/settings'
 import { bootThemeInjection } from './boot-theme.ts'

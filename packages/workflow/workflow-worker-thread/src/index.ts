@@ -9,7 +9,7 @@
 import { randomUUID } from 'node:crypto'
 import { availableParallelism } from 'node:os'
 import * as vm from 'node:vm'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import WorkflowEngine, { WorkflowError, WorkflowRunId } from '@qilin/workflow'
 import type { WorkflowRun, WorkflowRunInfo, WorkflowStartRequest } from '@qilin/workflow'

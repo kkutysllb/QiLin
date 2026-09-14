@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime, { createUserMessage, ToolCallId, LlmError, ReasoningEffortId, StreamChunk, expandAssistantStream } from '@qilin/llm'
 import type { GenerateOptions } from '@qilin/llm'
 import SessionStore, { SessionId, TurnEndReason } from '@qilin/session'

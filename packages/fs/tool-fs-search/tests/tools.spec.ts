@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createScope, type Scope } from '@qilin/scope'
 import { join, sep } from 'node:path'
 import { createUserMessage, ToolCallId } from '@qilin/llm'

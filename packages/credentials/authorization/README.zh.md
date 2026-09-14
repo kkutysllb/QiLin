@@ -36,7 +36,7 @@ kind: "package-reference"
 你的插件为它持有的每个凭据声明一个 flow，以该 flow 写入的 `<scope>/<id>` 凭据记录为键——scope 点名你的插件，id 点名它拥有的一条凭据：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { AuthorizationSession } from '@qilin/authorization'
 import { credentialKey } from '@qilin/credentials'
 

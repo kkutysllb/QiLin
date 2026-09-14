@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { installProxyFromEnvironment } from '@qilin/http-proxy'
 import { recordFeedback } from '@qilin/command-feedback'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SessionId } from '@qilin/session'
 import OpenTelemetrySessionBackend, { SessionTelemetryMode } from '../src/index.ts'
 

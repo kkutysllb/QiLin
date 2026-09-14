@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { SessionEvent, SessionHeader } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'

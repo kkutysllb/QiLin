@@ -8,14 +8,14 @@
  * @module @qilin/shell-env
  */
 
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { QILIN_ENV_PREFIX } from '@qilin/shell'
 import type { QilinEnvironment, QilinEnvironmentKey } from '@qilin/shell'
 import { QILIN_HOME_ENV, resolveQilinHome } from '@qilin/home-paths'
 import type { ToolExecution } from '@qilin/tools'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     shellEnv: ShellEnvRegistry
   }

@@ -28,7 +28,7 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin/system-prompt": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^"
@@ -36,6 +36,6 @@
   "devDependencies": {
     "@qilin/scope": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

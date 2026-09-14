@@ -1,5 +1,5 @@
 /** Registers the target-neutral Conversation assembly, shell, input, and docks. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import { createSnapshotStore, type BoundActions } from '@qilin/client-store'

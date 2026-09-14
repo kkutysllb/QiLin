@@ -1,5 +1,5 @@
 /** Web subagent catalog, navigation, and addressed-session composer owner. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SubagentAddress } from '@qilin/subagent/client'
 import type { SessionId } from '@qilin/session/types'
 import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'

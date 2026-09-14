@@ -4,7 +4,7 @@
  * @module @qilin/token-meter
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { assembleAssistantStream } from '@qilin/llm'
 import type { LlmImageRequestPricing, LlmRuntime, Message, TokenUsage } from '@qilin/llm'
@@ -90,7 +90,7 @@ function validateConfigKeys(config: TokenMeterConfig): void {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     tokenMeter: TokenMeter
   }

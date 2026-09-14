@@ -6,7 +6,7 @@
 
 import { SESSION_FORMAT_VERSION, SessionLogOffset, SessionSeq } from '@qilin/session'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore from '@qilin/session'
 import AgentRegistry from '@qilin/agent'
 import { SessionHistoryController } from '@qilin/api-session-controller/src/history.ts'

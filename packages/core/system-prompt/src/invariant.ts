@@ -1,6 +1,6 @@
 /** Package-owned prompt-assembly invariants. @module @qilin/system-prompt/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { PromptAssembly } from './index.ts'
 

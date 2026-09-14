@@ -267,7 +267,7 @@ const root = {
 root.root = root;
 const cordis = { Context: { is(value) { return value?.__inspectorContext === true; } } };
 const plugin = registration.factory(specifier => {
-  if (specifier === '@deepseek-ai/cordis') return cordis;
+  if (specifier === '@qilin/kylin') return cordis;
   throw new Error('Unexpected Client bundle dependency ' + specifier);
 });
 await plugin.apply(root);

@@ -1,7 +1,7 @@
 /** Session commands whose activation policy is explicit at each Remote method. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import type { Agent, ModelSelection as AgentModelSelection } from '@qilin/agent'
 import { AttachmentError } from '@qilin/attachment'

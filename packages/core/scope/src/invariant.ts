@@ -1,6 +1,6 @@
 /** Package-owned scoped-dispatch invariants. @module @qilin/scope/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantInstaller } from '@qilin/invariants'
 import { carrierKeyOf, isScopeCarrier } from '@qilin/scope'
 import { scopedSubjectResolverFor } from './scoped-events.generated.ts'

@@ -7,7 +7,7 @@
   "devDependencies": {
     "playwright": "^1.49.0",
     "@qilin/llm-replay": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
     "@qilin/agent-loop-testkit": "workspace:^",
@@ -32,6 +32,6 @@
     "@qilin/typert-protocol": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

@@ -7,7 +7,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createScope } from '@qilin/scope'
 import SystemPrompt from '@qilin/system-prompt'
 import { CodeRuntime } from '@qilin/code-runtime'

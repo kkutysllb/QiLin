@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent'
 import { CompactionId, compactCheckpointSource } from '@qilin/compaction'
 import { createUserMessage } from '@qilin/llm'

@@ -10,7 +10,7 @@
  * @module @qilin/tool-workflow
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { defineTool } from '@qilin/tools'
 import type { ToolCallView, ToolResultView } from '@qilin/tools'

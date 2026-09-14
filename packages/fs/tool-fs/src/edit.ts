@@ -5,7 +5,7 @@
  * @module @qilin/tool-fs/src/edit
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 import type { DiffCallView, DiffResultView, ToolResult } from '@qilin/tools'
 import type {} from '@qilin/fs'

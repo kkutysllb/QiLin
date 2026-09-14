@@ -1,6 +1,6 @@
 /** Keyless two-model adapter for the generic ACP control-surface conformance test. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   ToolCallId,
   LlmAdapter,

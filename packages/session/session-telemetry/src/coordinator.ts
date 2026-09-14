@@ -14,7 +14,7 @@
  * @module @qilin/session-telemetry/coordinator
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   SessionSeq,
   SessionLogOffset,

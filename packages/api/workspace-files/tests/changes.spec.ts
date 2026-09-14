@@ -1,7 +1,7 @@
 /** The `changes` stream: driven by `fs/observed`, filtered by the workspace root, ended by its signal. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { join } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { FsObservation } from '@qilin/fs'
 import { FsVersion } from '@qilin/fs'
 import { WorkspaceFiles } from '../src/index.ts'

@@ -29,13 +29,13 @@
   "peerDependencies": {
     "@qilin/subprocess": "workspace:^",
     "@qilin/sandbox": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/settings": "workspace:^"
   },
   "devDependencies": {
     "@qilin/subprocess": "workspace:^",
     "@qilin/sandbox": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/settings": "workspace:^"
   }
 }

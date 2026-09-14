@@ -49,10 +49,10 @@
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/api-workspace-controller": "workspace:^",

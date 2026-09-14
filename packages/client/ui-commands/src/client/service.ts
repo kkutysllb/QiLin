@@ -8,13 +8,13 @@
  * addresses the session's agent by sessionId — sessions are always
  * agent-backed.
  */
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
 // Type-only: pulls the ctx.remote merge and the forwarded-event key face
 // (`commands/change` rides the allowlist) into this program.
 import type {} from '@qilin/api-remotes/client'
 import type { CommandResult } from '@qilin/commands/types'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { TranslateNS } from '@qilin/client-locale/client'
@@ -30,7 +30,7 @@ import { en, type CommandKey } from './locales.ts'
 import { PopupSelectController } from './popup.ts'
 import type { TokenSegment } from './popup.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * This browser client completed one admitted Host command execution.

@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SessionSeq } from '@qilin/session/types'
 import type { SessionId } from '@qilin/session/types'

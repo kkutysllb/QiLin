@@ -39,7 +39,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/timeout": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
@@ -52,7 +52,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/timeout": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/scope": "workspace:^"
   }
 }

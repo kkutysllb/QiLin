@@ -1,5 +1,5 @@
 /** Settings shell registration: slot declaration injection, the ledger projections, and HMR recovery. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { RemoteError } from '@qilin/client-test-runtime'

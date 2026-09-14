@@ -41,14 +41,14 @@
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/client-modules": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
     "@qilin/invariants": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "files": [
     "lib/index.js",

@@ -3,7 +3,7 @@
  * @module @qilin/commands
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { randomUUID } from '@qilin/util-crypto'
 import type { Agent } from '@qilin/agent'
 import { AttachmentError, admitEncodedImages } from '@qilin/attachment'
@@ -107,7 +107,7 @@ class CommandLayer implements ScopeLayer {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     commands: CommandRuntime
   }

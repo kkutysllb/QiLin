@@ -1,6 +1,6 @@
 /** Workspace-backed Session creation for one settled webhook rule result. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { randomUUID } from 'node:crypto'
 import { isAbsolute } from 'node:path'
 import { brandString } from '@qilin/brand'

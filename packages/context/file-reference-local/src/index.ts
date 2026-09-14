@@ -4,7 +4,7 @@
  * @module @qilin/file-reference-local
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent } from '@qilin/agent'
 import FileReferenceService, {

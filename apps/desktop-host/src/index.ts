@@ -10,8 +10,8 @@ import { once } from 'node:events'
 import { readFile } from 'node:fs/promises'
 import { dirname, extname, join, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@deepseek-ai/cordis'
-import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
+import type { Context } from '@qilin/kylin'
+import type { PatchOptions } from '@qilin/kylin-plugin-include'
 import {
   boot,
   composeEntries,

@@ -1,5 +1,5 @@
 /** Fixture-only logical locators over real local spill files; preview budgets retain recorded path lengths. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { join, relative, resolve, sep } from 'node:path'
 import type { SpillLocator } from '@qilin/spill'
 import type {} from '@qilin/fs'

@@ -1,5 +1,5 @@
 /** Registers the sidebar shell and global panel navigation. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { createSnapshotStore } from '@qilin/client-store'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'

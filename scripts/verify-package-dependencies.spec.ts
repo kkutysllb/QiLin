@@ -24,7 +24,7 @@ import {
   type WorkspacePackageManifest,
 } from './verify-package-dependencies.ts'
 
-const CORDIS = '@deepseek-ai/cordis'
+const CORDIS = '@qilin/kylin'
 const roots: string[] = []
 
 afterEach(() => {

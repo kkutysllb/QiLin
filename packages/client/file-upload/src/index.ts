@@ -1,7 +1,7 @@
 /** Host file-upload service: streamed intake and Agent-scoped staged receipts. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type { FileAttachmentRef } from '@qilin/attachment'
 import type {} from '@qilin/client-connection'
@@ -15,7 +15,7 @@ import type { EncodedFileUploadRequest, FileUploadReceiptId, FileUploadValue } f
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host storage and staged-receipt service for browser file uploads. */
     fileUploads: FileUploads

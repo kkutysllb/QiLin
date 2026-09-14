@@ -58,7 +58,7 @@
     "@qilin/typert-protocol": "workspace:^"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/brand": "workspace:^",
@@ -67,7 +67,7 @@
     "@qilin/typert-registry": "workspace:^",
     "@qilin/util-crypto": "workspace:^",
     "@types/ws": "^8.18.1",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "zod": "^4.4.3"
   }
 }

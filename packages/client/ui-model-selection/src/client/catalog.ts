@@ -1,6 +1,6 @@
 /** One Host-generation model catalog shared by every Session selector. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ModelCatalog } from '@qilin/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 

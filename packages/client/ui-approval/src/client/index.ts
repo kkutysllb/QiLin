@@ -1,5 +1,5 @@
 /** Browser approval consumer over the existing scoped Remote Event waterfall. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/api-session-controller/client'
 import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'

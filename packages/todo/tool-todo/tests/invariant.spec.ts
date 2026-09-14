@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SessionId, SessionSeq } from '@qilin/session'
 import ToolRuntime from '@qilin/tools'
 import * as ToolTodo from '@qilin/tool-todo'

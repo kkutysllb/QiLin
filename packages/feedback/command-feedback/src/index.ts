@@ -8,7 +8,7 @@
  * @module @qilin/command-feedback
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { CommandInvocation, CommandResult } from '@qilin/commands'
 import type { Session } from '@qilin/session'
 import { getOrCreateAnonymousUserId } from '@qilin/anonymous-user-id'
@@ -41,7 +41,7 @@ export const inject = ['commands']
 
 const USAGE = 'Usage: /feedback <text>'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessionFeedback: SessionFeedbackService
   }

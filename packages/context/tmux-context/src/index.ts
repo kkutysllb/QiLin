@@ -18,7 +18,7 @@
  * @module @qilin/tmux-context
  */
 
-import type { Context, LoggerService } from '@deepseek-ai/cordis'
+import type { Context, LoggerService } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { z as zod } from 'zod'
 import type { PreStepDecision } from '@qilin/agent'

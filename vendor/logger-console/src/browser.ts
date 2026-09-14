@@ -1,4 +1,4 @@
-import { Message } from '@deepseek-ai/cordis'
+import { Message } from '@qilin/kylin'
 import { ConsoleExporter as Base } from './shared.ts'
 
 /** Re-export shared console exporter config and base implementation. */

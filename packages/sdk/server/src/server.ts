@@ -5,7 +5,7 @@
  * @module @qilin/sdk-jsonrpc-server/server
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { resolve } from 'node:path'
 import { brandString } from '@qilin/brand'
 import type { Agent, AgentHandle } from '@qilin/agent'

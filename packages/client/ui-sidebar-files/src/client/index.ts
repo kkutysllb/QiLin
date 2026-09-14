@@ -17,7 +17,7 @@
  * what it says (`locales.ts`), and this module, which only wires them
  * together.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { BoundActions } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 import type { ClientRemote } from '@qilin/api-remotes/client'

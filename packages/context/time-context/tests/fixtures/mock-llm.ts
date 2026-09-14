@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { LlmAdapter, type StreamChunk } from '@qilin/llm'
 
 /** Deterministic one-step adapter for the time-context Loader fixture. */

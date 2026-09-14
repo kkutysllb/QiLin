@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createScope } from '@qilin/scope'
 import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent, SessionHeader, SurfaceIntent } from '@qilin/session'

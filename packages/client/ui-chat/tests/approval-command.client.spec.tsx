@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { ChatSnapshot, UseChat } from '@qilin/client-ui-chat/client'
 import type { PropsRuntime } from '@qilin/client-ui-slots'
 import { render, screen } from '@testing-library/react'

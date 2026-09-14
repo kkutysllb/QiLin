@@ -9,7 +9,7 @@
  * @module
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { errorChain } from '@qilin/llm'
 import type { Session, SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
 import {

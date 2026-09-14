@@ -7,7 +7,7 @@
  * @module @qilin/tool-subagent-control/list-agents
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 import type { Agent } from '@qilin/agent'
 import type { SessionId } from '@qilin/session'

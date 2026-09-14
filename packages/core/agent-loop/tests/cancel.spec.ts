@@ -8,7 +8,7 @@ import { ToolCallId, createUserMessage, expandAssistantStream } from '@qilin/llm
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import SessionStore, { Session, SessionId, SessionLogOffset, TurnEndReason } from '@qilin/session'
 import SystemPrompt from '@qilin/system-prompt'

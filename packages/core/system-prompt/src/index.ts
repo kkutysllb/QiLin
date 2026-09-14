@@ -4,13 +4,13 @@
  * @module @qilin/system-prompt
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { AnonymousEntries, NamedEntries, ScopedLayers, scopeTarget } from '@qilin/scope'
 import type { ScopeKey, ScopeLayer, Scoped } from '@qilin/scope'
 import type { ContextSnapshotSection, ToolSchema } from '@qilin/llm'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     systemPrompt: SystemPrompt
   }

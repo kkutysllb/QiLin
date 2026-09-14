@@ -1,7 +1,7 @@
 /** Host registry for model-visible, read-only Cordis capability queries. */
 
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { snapshotJsonValue, type JsonValue } from '@qilin/util-values'
 import { assertSupportedJsonSchema, validateJsonSchemaValue } from '@qilin/tools'
@@ -34,7 +34,7 @@ interface PendingClientQuery {
   settle(resolution: CordisInspectQueryResolution): void
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host registry for Cordis inspect providers and Client manifest/query routing. */
     cordisInspect: CordisInspectRegistryService

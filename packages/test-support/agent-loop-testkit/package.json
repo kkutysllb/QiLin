@@ -34,7 +34,7 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {},
   "devDependencies": {
@@ -45,6 +45,6 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

@@ -1,6 +1,6 @@
 /** Package-owned background-job snapshot invariants. @module @qilin/jobs/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { JobSnapshot } from './types.ts'

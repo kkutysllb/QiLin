@@ -7,7 +7,7 @@
  * @module @qilin/subagent-fork-in-process
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { SessionEvent } from '@qilin/session'
 import type { Agent } from '@qilin/agent'

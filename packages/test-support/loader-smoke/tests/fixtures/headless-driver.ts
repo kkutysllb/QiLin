@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Snapshot-only Loader driver: stream one fixture turn as canonical JSONL. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { installFailLoud, loadEnv, resolveConfigPath } from '@qilin/app-boot'
 import { runFixtureTurn } from '@qilin/loader-smoke'
 import type { SessionEvent } from '@qilin/session'

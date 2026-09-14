@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { AddressInfo } from 'node:net'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import WebRuntime from '@qilin/web'
 import { HttpFetchProvider, LOCAL_FETCH_PROVIDER_ID } from '@qilin/web-fetch-http'
 import type { HttpFetchLimits, HttpFetchResolver } from '@qilin/web-fetch-http'

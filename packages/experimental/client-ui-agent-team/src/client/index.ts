@@ -1,7 +1,7 @@
 /** Browser entry binding the generated Team Remote artifact to its Client UI. */
 
 import agentTeamsRemote from '@qilin/experimental-agent-team/remote'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { mountAgentTeamUi } from './mount.ts'
 
 export { inject } from './mount.ts'

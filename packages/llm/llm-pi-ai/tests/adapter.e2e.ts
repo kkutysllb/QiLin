@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime, { createUserMessage, ToolCallId, ReasoningEffortId  } from '@qilin/llm'
 import type { Message, ToolSchema } from '@qilin/llm'
 import * as LlmPiAi from '@qilin/llm-pi-ai'

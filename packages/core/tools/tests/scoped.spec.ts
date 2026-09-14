@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Events } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Events } from '@qilin/kylin'
 import { bindScopeParent, createScope } from '@qilin/scope'
 import type { Scope } from '@qilin/scope'
 import SystemPrompt from '@qilin/system-prompt'

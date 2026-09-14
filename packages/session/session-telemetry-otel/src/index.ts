@@ -14,7 +14,7 @@
 
 import { createRequire } from 'node:module'
 import z from '@deepseek-ai/schemastery'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/command-feedback'
 import type {} from '@qilin/message-feedback'
 import { Session, type SessionEvent } from '@qilin/session'

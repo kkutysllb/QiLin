@@ -1,7 +1,7 @@
 import { access } from 'node:fs/promises'
 import { join, posix } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import type { Agent } from '@qilin/agent'
 import { runLoaderSmoke } from '@qilin/loader-smoke'

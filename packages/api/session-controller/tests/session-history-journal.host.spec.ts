@@ -1,7 +1,7 @@
 /** Raw Session journal transport and message-aligned pagination coverage. */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry, { type Agent, type AssistantStreamFrame } from '@qilin/agent'
 import SessionStore from '@qilin/session'
 import { LlmAttemptId, ToolCallId, createMessage, createToolResultMessage, createUserMessage } from '@qilin/llm'

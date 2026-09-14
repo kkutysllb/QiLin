@@ -8,7 +8,7 @@
 
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import type { ToolSchema } from '@qilin/llm'
 import AgentRegistry from '@qilin/agent'

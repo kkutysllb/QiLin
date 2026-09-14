@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { stubSettingsScope, type StubSettingsScope } from '@qilin/client-test-runtime'
 import type {
   ThemeSettings,

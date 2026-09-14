@@ -6,7 +6,7 @@
  * @module @qilin/session
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { isAbsolute } from 'node:path'
 import { brandString } from '@qilin/brand'
 import { assertNever, deepFreeze, snapshotJsonValue } from '@qilin/util-values'
@@ -30,7 +30,7 @@ export { deriveEventMessage, foldSurface, isAppendSurfaceEvent, isReplacementSur
 export { canonicalHeader, foldRequestHeader, headerEquals } from './request-header.ts'
 export { KNOWN_SESSION_EVENT_TYPES } from './known-event-types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sessions: SessionStore
   }

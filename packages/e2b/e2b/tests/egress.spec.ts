@@ -31,7 +31,7 @@ async function observe(run: () => Promise<unknown>): Promise<string[]> {
   try { await run().catch(() => undefined) } finally { await dispose() }
   return seen
 }
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import E2bRuntime from '../src/index.ts'
 
 describe('e2b egress', () => {

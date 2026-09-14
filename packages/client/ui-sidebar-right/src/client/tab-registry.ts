@@ -25,7 +25,7 @@
  * on every use, so a language change needs no re-registration.
  */
 import type { ComponentType } from 'react'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { IconProps } from '@qilin/client-ui-primitives'
 import { notifySubscribers } from '@qilin/client-store'
 // The POSIX build: the browser bundle must not reach for node's `path`, and

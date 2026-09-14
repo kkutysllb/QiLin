@@ -26,13 +26,13 @@
   "peerDependencies": {
     "@qilin/code-runtime": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/util-values": "workspace:^"
   },
   "devDependencies": {
     "@qilin/code-runtime": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/util-values": "workspace:^"
   },
   "dependencies": {

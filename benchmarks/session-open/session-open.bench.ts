@@ -4,7 +4,7 @@ import { copyFile, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promise
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 import {

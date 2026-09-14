@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { AssistantStreamAccumulator, createUserMessage, createSystemMessage, ToolCallId, createMessage } from '@qilin/llm'
 import type { ContentBlock, Message, TokenUsage } from '@qilin/llm'
 import SessionStore, { Session, SessionId, SessionSeq, canonicalHeader } from '@qilin/session'

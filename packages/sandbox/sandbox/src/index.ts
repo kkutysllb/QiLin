@@ -5,7 +5,7 @@
  * @module @qilin/sandbox
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { HarnessError } from '@qilin/llm'
 import type { SessionId } from '@qilin/session'
 
@@ -143,7 +143,7 @@ export class SandboxUnavailableError extends HarnessError {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     sandbox: SandboxProvider
   }

@@ -4,7 +4,7 @@
  * entry's current state.
  * @module @qilin/client-web/src/loader-status
  */
-import type { FiberState } from '@deepseek-ai/cordis'
+import type { FiberState } from '@qilin/kylin'
 
 /**
  * Value mirror of cordis's `FiberState` const enum: a const enum has no

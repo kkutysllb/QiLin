@@ -82,7 +82,7 @@ The Host logs a `devtools://` URL after the Worker listens. The same Worker serv
 Both plugin faces provide the same service:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InspectorJsonValue } from '@qilin/experimental-inspector'
 
 declare const ctx: Context

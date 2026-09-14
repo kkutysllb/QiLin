@@ -4,7 +4,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { PythonCodeRuntime, hostFrameParseCeiling, readProcessStart, resolvePythonBin } from '../src/index.ts'
 import { logTruncationMarker } from '../src/protocol.ts'
 import type { Config } from '../src/index.ts'
@@ -186,7 +186,7 @@ describe('PythonCodeRuntime — seam descriptors and misuse', () => {
     // budget is rejected at load even though the address-space gate alone
     // would admit it (50 MiB * 12 = 600 MiB < 1 GiB - 64 MiB).
     const script = [
-      "import { Context } from '@deepseek-ai/cordis'",
+      "import { Context } from '@qilin/kylin'",
       "import { PythonCodeRuntime } from './packages/experimental/code-runtime-python/src/index.ts'",
       'const ctx = new Context()',
       'try {',

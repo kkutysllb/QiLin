@@ -31,7 +31,7 @@ kind: "package-library"
 ```ts
 import { launchEnvironmentOf } from '@qilin/launch-environment'
 
-declare const ctx: import('@deepseek-ai/cordis').Context
+declare const ctx: import('@qilin/kylin').Context
 const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
 ```
 

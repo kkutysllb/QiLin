@@ -1,6 +1,6 @@
 /** Model-facing discovery of LLM routes available to child Agents. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type LlmRuntime from '@qilin/llm'
 import type { LlmProviderInfo } from '@qilin/llm'
 import { defineTool } from '@qilin/tools'

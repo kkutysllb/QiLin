@@ -1,6 +1,6 @@
 /** locale apply wiring: service and base-dictionary provision, document
  * language synchronization, host-preference adoption, and clean teardown. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'

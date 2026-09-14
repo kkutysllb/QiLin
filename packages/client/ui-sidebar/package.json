@@ -44,7 +44,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/api-workspace-controller": "workspace:^",
@@ -58,7 +58,7 @@
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-workspace": "workspace:^",
     "@types/react": "~18.3.1",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "react": "^18.2.0",
     "clsx": "^2.0.0"
   },

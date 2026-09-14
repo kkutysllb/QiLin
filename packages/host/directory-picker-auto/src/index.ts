@@ -11,9 +11,9 @@
  * @module @qilin/host-directory-picker-auto
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 // Empty type imports carry the `loader` and `webServer` Context merges for the reads below.
-import type {} from '@deepseek-ai/cordis-plugin-loader'
+import type {} from '@qilin/kylin-plugin-loader'
 import type {} from '@qilin/host-webserver'
 import { launchedThroughSsh, launchEnvironmentOf } from '@qilin/launch-environment'
 import { canExecute, hasLinuxChooserBinary } from './probe.ts'

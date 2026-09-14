@@ -1,6 +1,6 @@
 /** What the browser half registers, and that it all leaves with the fiber. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

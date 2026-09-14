@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context, FiberState, Service, ValidationError } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context, FiberState, Service, ValidationError } from '@qilin/kylin'
+import Loader from '@qilin/kylin-plugin-loader'
 import z from '@deepseek-ai/schemastery'
 import InvariantRegistry from '@qilin/invariants'
 import type { InvariantInstaller } from '@qilin/invariants'
@@ -13,7 +13,7 @@ import {
   usesManualInvariantTree,
 } from './test-invariants.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     testInvariantProbe: TestInvariantProbe
   }

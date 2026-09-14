@@ -5,7 +5,7 @@
  * page never re-derives what it just wrote.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { createSnapshotStore } from '@qilin/client-store'
 import type { SnapshotStore } from '@qilin/client-store'
 import type { McpBuiltinView, McpServerDraft, McpServersSnapshot, McpServerView } from '@qilin/mcp-servers/types'

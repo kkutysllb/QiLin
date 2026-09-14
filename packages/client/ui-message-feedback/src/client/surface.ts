@@ -6,7 +6,7 @@
  * @module @qilin/client-ui-message-feedback/client/surface
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type { FeedbackRecord } from '@qilin/command-feedback/types'
 import { MessageFeedbackController, describe, type MessageFeedbackActionResult } from './controller.ts'

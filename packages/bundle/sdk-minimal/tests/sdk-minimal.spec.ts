@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 
 function packageName(specifier: string): string {
   return specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0]!
@@ -39,7 +39,7 @@ describe('qilin-sdk-minimal bundle', () => {
       ['pty', '@qilin/terminal'],
       ['terminal-bash', '@qilin/terminal-bash'],
       ['terminal-pwsh', '@qilin/terminal-bash'],
-      ['timer', '@deepseek-ai/cordis-plugin-timer'],
+      ['timer', '@qilin/kylin-plugin-timer'],
       ['llm', '@qilin/llm'],
       ['session', '@qilin/session'],
       ['session-title', '@qilin/session-title'],

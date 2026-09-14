@@ -1,6 +1,6 @@
 /** Deterministic projected source shared by reference snapshot and Loader tests. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { createMessage, createUserMessage } from '@qilin/llm'
 import { Session, SessionId } from '@qilin/session'
 

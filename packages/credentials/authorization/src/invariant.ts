@@ -3,7 +3,7 @@
  * @module @qilin/authorization/invariant
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 
 const PACKAGE_NAME = '@qilin/authorization'

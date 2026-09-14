@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AgentRegistry from '@qilin/agent'
 import { createInboxStub } from '@qilin/agent-loop-testkit'
 import type { Agent, ModelSelectionRef } from '@qilin/agent'

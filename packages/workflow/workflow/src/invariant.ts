@@ -1,6 +1,6 @@
 /** Package-owned workflow lifecycle invariants. @module @qilin/workflow/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type {
   WorkflowAgentEndInfo,

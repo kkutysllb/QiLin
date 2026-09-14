@@ -5,7 +5,7 @@
  * @module @qilin/api-settings-controller/src/credentials.ts
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { credentialRef } from '@qilin/credentials'
 import type { CredentialProvider } from '@qilin/credentials'
 import type { CredentialInfo } from '@qilin/credentials/types'
@@ -50,7 +50,7 @@ function projectCredentialInfo(info: CredentialInfo): CredentialInfo {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host owner of the `credentials` Remote namespace. */
     credentialsController: CredentialsController

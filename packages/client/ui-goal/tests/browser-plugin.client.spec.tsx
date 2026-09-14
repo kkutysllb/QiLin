@@ -9,7 +9,7 @@
  * reaches the strip verbatim. Registration disposal rides the
  * plugin fiber (HMR safety), and the node half stays inert.
  */
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach } from 'vitest'

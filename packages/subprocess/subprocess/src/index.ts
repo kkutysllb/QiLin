@@ -8,7 +8,7 @@
  * @module @qilin/subprocess
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { proxyEnvironmentForChild } from '@qilin/http-proxy'
 import { QILIN_ENV_PREFIX } from './types.ts'
 import type { SubprocessHandle, SubprocessSpawnSpec } from './types.ts'
@@ -77,7 +77,7 @@ export function scrubbedParentEnv(): Record<string, string> {
   return env
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     subprocess: SubprocessRuntime
   }

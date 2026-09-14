@@ -3,7 +3,7 @@
  * @module @qilin/command-goal
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { CommandInvocation, CommandResult } from '@qilin/commands'
 import { GoalError } from '@qilin/goal'
 import type { GoalPhase, GoalRef, GoalView } from '@qilin/goal'

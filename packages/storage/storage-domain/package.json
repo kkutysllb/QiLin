@@ -34,7 +34,7 @@
   "peerDependencies": {
     "@qilin/invariants": "workspace:^",
     "@qilin/storage": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^",
@@ -43,6 +43,6 @@
   "devDependencies": {
     "@qilin/invariants": "workspace:^",
     "@qilin/storage": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

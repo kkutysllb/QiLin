@@ -1,6 +1,6 @@
 /** QiLin occupants for the generic sidebar and conversation brand slots. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-sidebar/client'

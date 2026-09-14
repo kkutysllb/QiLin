@@ -8,7 +8,7 @@
  * registry's ranking means by it.
  */
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { TranslateNS } from '@qilin/client-locale/client'
 import { sessionFileAddress } from '@qilin/util-workspace-path'
 import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'

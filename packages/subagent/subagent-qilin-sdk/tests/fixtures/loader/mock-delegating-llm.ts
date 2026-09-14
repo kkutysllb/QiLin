@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { appendFileSync } from 'node:fs'
 import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
 import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@qilin/llm'

@@ -10,11 +10,11 @@ function validLayout(): NpmPackageLock {
     lockfileVersion: 3,
     packages: {
       '': { dependencies: { '@qilin/cli': '0.2.0', 'qilin-previous': 'npm:@qilin/cli@0.1.0' } },
-      'node_modules/@deepseek-ai/cordis': { version: '4.0.1' },
+      'node_modules/@qilin/kylin': { version: '4.0.1' },
       'node_modules/@qilin/cli': {
         version: '0.2.0',
         dependencies: { '@qilin/child': '^0.2.0' },
-        peerDependencies: { '@deepseek-ai/cordis': '^4.0.1' },
+        peerDependencies: { '@qilin/kylin': '^4.0.1' },
       },
       'node_modules/@qilin/child': {
         version: '0.2.0',
@@ -25,7 +25,7 @@ function validLayout(): NpmPackageLock {
         name: '@qilin/cli',
         version: '0.1.0',
         dependencies: { '@qilin/child': '^0.1.0' },
-        peerDependencies: { '@deepseek-ai/cordis': '^4.0.1' },
+        peerDependencies: { '@qilin/kylin': '^4.0.1' },
       },
       'node_modules/qilin-previous/node_modules/@qilin/child': {
         version: '0.1.0',
@@ -43,14 +43,14 @@ describe('npm install layout verifier', () => {
         name: '@qilin/cli',
         version: '0.1.1-rc.2',
         dependencies: { '@qilin/child': '^0.1.1-rc.2' },
-        peerDependencies: { '@deepseek-ai/cordis': '^4.0.1' },
+        peerDependencies: { '@qilin/kylin': '^4.0.1' },
       }]])],
       ['@qilin/child', new Map([['0.1.1-rc.2', {
         name: '@qilin/child',
         version: '0.1.1-rc.2',
       }]])],
-      ['@deepseek-ai/cordis', new Map([['4.0.1', {
-        name: '@deepseek-ai/cordis',
+      ['@qilin/kylin', new Map([['4.0.1', {
+        name: '@qilin/kylin',
         version: '4.0.1',
       }]])],
     ])
@@ -61,13 +61,13 @@ describe('npm install layout verifier', () => {
     expect(dual.get('@qilin/cli')?.get('0.1.0')).toMatchObject({
       version: '0.1.0',
       dependencies: { '@qilin/child': '^0.1.0' },
-      peerDependencies: { '@deepseek-ai/cordis': '^4.0.1' },
+      peerDependencies: { '@qilin/kylin': '^4.0.1' },
     })
     expect(dual.get('@qilin/cli')?.get('0.2.0')).toMatchObject({
       version: '0.2.0',
       dependencies: { '@qilin/child': '^0.2.0' },
     })
-    expect(dual.get('@deepseek-ai/cordis')).toBe(index.get('@deepseek-ai/cordis'))
+    expect(dual.get('@qilin/kylin')).toBe(index.get('@qilin/kylin'))
   })
 
   it('accepts isolated QILIN releases with one shared Cordis installation', () => {
@@ -105,11 +105,11 @@ describe('npm install layout verifier', () => {
     const layout = validLayout()
     const packages = {
       ...layout.packages,
-      'node_modules/qilin-previous/node_modules/@deepseek-ai/cordis': { version: '4.0.1' },
+      'node_modules/qilin-previous/node_modules/@qilin/kylin': { version: '4.0.1' },
     }
 
     expect(() => assertDualQilinInstallLayout({ ...layout, packages })).toThrow(
-      'expected one shared @deepseek-ai/cordis',
+      'expected one shared @qilin/kylin',
     )
   })
 })

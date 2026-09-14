@@ -15,7 +15,7 @@ harness 扩展的参考模式。代码片段省略了 import 和辅助实现，�
 这个权限门禁是钩子插件的一个示例。它从 `tools/pre-execute` 门禁返回一个类型化的决策，用于允许或拒绝一次调用；沙箱、权限和 plan-mode 插件都可以使用该扩展点。钩子插件也可以拦截其他扩展点，本身并不等同于权限门禁。「原生钩子」是在拦截点上运行的普通 Cordis 插件，不需要外部协议。
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { PreToolDecision, ToolExecution } from '@qilin/tools'
 
 declare function isAllowed(exec: ToolExecution): Promise<boolean>
@@ -39,7 +39,7 @@ export function apply(ctx: Context) {
 UI 插件把持久 `session/event` record（Assistant settlement、轮次/步骤边界与工具活动）和用于实时 token 呈现的瞬态 `agent/assistant-stream` frame 组合起来，并通过 `agent.followup()` / `agent.steer()` 将输入驱动回去。如果浏览器插件要向内建 Web Client 贡献业务行，则应注册 `ConversationNodeDefinition` 与 keyed Chat renderer；具体约定见 [Conversation 子系统参考](../subsystems/conversation.zh.md)。
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import { createUserMessage } from '@qilin/llm'
 import type { SessionId } from '@qilin/session'
@@ -70,7 +70,7 @@ export function apply(ctx: Context) {
 [`packages/acp/acp`](../../packages/acp/acp) 是仅面向自动化的完整示例：它通过 ACP（Agent Client Protocol）JSON-RPC stdio 提供全新文本会话，发出已提交的助手文本，并为其拥有的 agent 注册一次性机器权限应答器。其 [README](../../packages/acp/acp/README.zh.md) 定义确切的方法、事件顺序和生命周期约定。
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { expandAssistantStream } from '@qilin/llm'
 
 export const name = 'my-protocol-bridge'

@@ -8,7 +8,7 @@
  * (and the reverse), the one-shared-state contract of the dual entry.
  * Scope disposal drops the directory (HMR safety).
  */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { createScope } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'

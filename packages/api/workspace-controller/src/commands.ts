@@ -1,6 +1,6 @@
 /** Workspace command implementation and stable Remote failure mapping. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Workspace } from '@qilin/workspace'
 import {
   WorkspaceId,

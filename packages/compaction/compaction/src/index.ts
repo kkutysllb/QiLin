@@ -7,7 +7,7 @@
  * @module @qilin/compaction
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { Session, SessionSeq } from '@qilin/session'
 import type { CommandId } from '@qilin/commands/brand'
 import type { CompactionResult } from './types.ts'
@@ -78,7 +78,7 @@ export interface ManualCompactAgentContext extends CompactionAgentContext {
   runMaintenance<T>(task: (signal: AbortSignal) => Promise<T>): Promise<T>
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     compaction: CompactionEngine
   }

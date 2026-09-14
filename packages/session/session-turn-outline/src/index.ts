@@ -9,7 +9,7 @@
  * @module @qilin/session-turn-outline
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { turnOutlineProjectionDefinition } from './projection.ts'
 
 export type * from './types.ts'

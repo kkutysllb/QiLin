@@ -6,7 +6,7 @@
  */
 
 import { BlockAssembler } from '@qilin/llm'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { FinishReason, GenerateOptions, Message, TokenUsage } from '@qilin/llm'
 
 export interface AssembledResult {

@@ -140,7 +140,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Process-local goal activation changed for one session.

@@ -30,7 +30,7 @@
     "@qilin/fs": "workspace:^",
     "@qilin/home-paths": "workspace:^",
     "@qilin/skill": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "chokidar": "^5.0.0",
@@ -41,6 +41,6 @@
     "@qilin/fs": "workspace:^",
     "@qilin/home-paths": "workspace:^",
     "@qilin/skill": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

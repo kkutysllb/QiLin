@@ -1,8 +1,8 @@
 /** The shared `bash` settings section as the pwsh executor family resolves it. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import { SettingsProvider } from '@qilin/settings'
 import type { SettingsNamespace } from '@qilin/settings'
 import { SHELL_SETTINGS_NAMESPACE } from '@qilin/shell'

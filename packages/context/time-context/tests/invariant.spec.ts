@@ -1,6 +1,6 @@
 import { createUserMessage } from '@qilin/llm'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { ContentBlock } from '@qilin/llm'
 import SessionStore, { Session, SessionId, SessionSeq, type SessionEvent } from '@qilin/session'
 import * as TimeInvariant from '@qilin/time-context/invariant'

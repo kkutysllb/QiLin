@@ -9,7 +9,7 @@
 owner 是一个 Host 侧 Cordis 服务：继承 `TypertRemoteService` 把 service 键与 wire namespace 一起绑定，再用 `@Remote` 标注对外暴露的方法。业务方法的签名若已符合 wire 约定就直接标注它本身；只有形态需要调整（补 `signal`、换参数顺序、换导出名）才写一个 `remoteExport*` adapter，由它调用不改名的业务方法。lookup 对象（`Agent`、`Session`）只能占顶层参数位，支持协作式取消的方法把 `signal: AbortSignal` 放在最后一位。
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 
@@ -19,7 +19,7 @@ export interface NoteRow {
   readonly title: string
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     notesController: NotesController
   }
@@ -111,7 +111,7 @@ export async function rename(noteId: string, title: string): Promise<void> {
 Host 的固定事实读 `ctx.remote.$host`：`home` 与 `isLoopback` 是普通值读取，没有订阅也没有 generation 计数器，`home` 在第一帧 ready 之前是 `undefined`；重连后的刷新走 `ctx.on('connection/reset')` 或各域自己的 remote 事件。调用方 abort 掉一次一元调用时，结果落在错误分支上的 `gateway/cancelled`，而不是抛出。
 
 ```ts ignore-check
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { isRemoteFailure } from '@qilin/api-gateway/client'
 import type {} from '@qilin/api-remotes/client'
 
@@ -169,7 +169,7 @@ it('refuses an unknown note before writing', async () => {
 Client 侧的替身返回真实例：`RemoteError` 与 `TestRemote` 的值 import 一律取自 `@qilin/client-test-runtime`，因为从 `api-remotes` facade 值 import 会拉起尚未构建的装配链。`TestRemote.$host` 是普通字段，spec 直接赋值即可。
 
 ```ts ignore-check
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
 import { expect, it } from 'vitest'
 

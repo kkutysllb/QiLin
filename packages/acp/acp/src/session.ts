@@ -1,6 +1,6 @@
 /** One standard ACP session's Agent, configuration, prompt, update, and teardown lifecycle. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   RequestError,
   type McpServer,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime, { createUserMessage, ToolCallId, LlmError, StreamChunk, errorChain  } from '@qilin/llm'
 import SessionStore, { SessionId, TurnEndReason } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'

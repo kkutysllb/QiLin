@@ -31,14 +31,14 @@
     "@qilin/fs-local": "workspace:^",
     "@qilin/sandbox": "workspace:^",
     "@qilin/sandbox-policy": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/fs": "workspace:^",
     "@qilin/fs-local": "workspace:^",
     "@qilin/sandbox": "workspace:^",
     "@qilin/sandbox-policy": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }
 }

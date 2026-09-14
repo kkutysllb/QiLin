@@ -53,7 +53,7 @@ Routing is a ranked claim. `candidates(address)` ranks the types whose patterns 
 One `kind` may carry one `builtin` and one `extension` registration at the same time. The extension is the one in force for claims, `get(kind)`, `openTab(kind)`, and the guide page, and the seat finds a tab's body and title under the definition in force's `id`, so no slot priority is involved; when the extension unregisters, the builtin resumes. Every other collision on a kind, and every duplicate `id`, throws.
 
 ```ts ignore-check
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/client-ui-sidebar-right/client'
 
 export const inject = ['sidebarRightTabs', 'slots']

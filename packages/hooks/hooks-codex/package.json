@@ -35,7 +35,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   },
   "devDependencies": {
@@ -50,7 +50,7 @@
     "@qilin/session": "workspace:^",
     "@qilin/session-persistence-jsonl": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }
 }

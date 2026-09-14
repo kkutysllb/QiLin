@@ -50,7 +50,7 @@ shell 拥有 View 选择，并在 binding 创建、被选为 current 或 View ro
 
 ```ts ignore-check
 import { createElement } from 'react'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { Branded } from '@qilin/brand'
 import type {
   ConversationLocation, ConversationNodeContext,

@@ -3,7 +3,7 @@
  * @module @qilin/command-compact
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { ManualCompactionError } from '@qilin/compaction'
 import type { CommandInvocation, CommandResult } from '@qilin/commands'
 

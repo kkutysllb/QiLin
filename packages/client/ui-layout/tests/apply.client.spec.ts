@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { Context, type Fiber } from '@qilin/kylin'
 import { stubSettingsScope } from '@qilin/client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

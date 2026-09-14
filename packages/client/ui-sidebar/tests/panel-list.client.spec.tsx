@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /** Global panel rows and DOM focus through the production slot renderer. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, waitFor, within } from '@testing-library/react'
 import { SlotTestRuntime } from '@qilin/client-test-runtime'

@@ -7,7 +7,7 @@
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { ToolCallId } from '@qilin/llm'
 import type { Agent } from '@qilin/agent'
 import { SESSION_FORMAT_VERSION } from '@qilin/session'

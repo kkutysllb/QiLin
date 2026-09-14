@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/compaction": "workspace:^",
     "@qilin/deepseek-llm-api-extensions": "workspace:^",
     "@qilin/llm": "workspace:^",
@@ -39,7 +39,7 @@
     }
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/compaction": "workspace:^",
     "@qilin/deepseek-llm-api-extensions": "workspace:^",
     "@qilin/llm": "workspace:^",

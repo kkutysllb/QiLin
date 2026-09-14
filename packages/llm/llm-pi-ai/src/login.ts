@@ -9,7 +9,7 @@
 
 import { createModels } from '@earendil-works/pi-ai'
 import type { AuthEvent, AuthPrompt, AuthType, Provider } from '@earendil-works/pi-ai'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { AuthorizationMethod, AuthorizationPrompt, AuthorizationSession } from '@qilin/authorization'
 import { isCredentialKeySegment } from '@qilin/credentials'
 import { catalogProvider, catalogProviderIds } from './catalog.ts'

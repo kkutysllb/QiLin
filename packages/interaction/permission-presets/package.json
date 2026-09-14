@@ -50,7 +50,7 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/settings": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "workspace:^",
@@ -66,6 +66,6 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/settings": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

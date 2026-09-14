@@ -7,12 +7,12 @@
  * @module @qilin/user-questions
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type {} from '@qilin/agent'
 import { HarnessError } from '@qilin/llm'
 import { scopeTarget } from '@qilin/scope'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     userQuestions: UserQuestionService
   }

@@ -7,7 +7,7 @@
  * @module @qilin/tool-cordis/inspect
  */
 
-import type { Context, Fiber } from '@deepseek-ai/cordis'
+import type { Context, Fiber } from '@qilin/kylin'
 import type { ScopeKey } from '@qilin/scope'
 import type { Agent } from '@qilin/agent'
 // Type-only: resolves `ctx.dynamicCordisRunner` (the registry this report reads).

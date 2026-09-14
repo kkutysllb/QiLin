@@ -5,7 +5,7 @@
  * never provider selection or network access.
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 import type { GenericCallView, ToolResult, WebSearchResultView, WebSource } from '@qilin/tools'
 import type { JsonValue } from '@qilin/util-values'

@@ -4,7 +4,7 @@
  * @module @qilin/compaction-basic
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { CompactionEngine, ManualCompactionError } from '@qilin/compaction'
 import type { CompactionResult, CompactionTrigger } from '@qilin/compaction'

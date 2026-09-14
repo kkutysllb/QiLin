@@ -11,7 +11,7 @@
  * @module @qilin/host-directory-picker
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type { DirectoryListing } from './types.ts'
 
 export type { DirectoryEntry, DirectoryListing } from './types.ts'
@@ -87,7 +87,7 @@ export class DirectoryPickerError extends Error {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     directoryPicker: DirectoryPicker
   }

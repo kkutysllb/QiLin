@@ -1,5 +1,5 @@
 // Target-neutral View-ring type chain and runtime ledger projection.
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import type { ReactNode } from 'react'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'

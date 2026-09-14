@@ -8,9 +8,9 @@ The qilin-base bundle patch shared by the web, headless, sdk, and acp profiles; 
 ```mermaid
 flowchart LR
   cfg["packages/bundle/base/cordis.patch.yml<br/>cordis.yml"]
-  plugin_qilin_base_timer["timer<br/>@deepseek-ai/cordis-plugin-timer"]
+  plugin_qilin_base_timer["timer<br/>@qilin/kylin-plugin-timer"]
   cfg --> plugin_qilin_base_timer
-  plugin_qilin_base_hmr["hmr<br/>@deepseek-ai/cordis-plugin-hmr"]
+  plugin_qilin_base_hmr["hmr<br/>@qilin/kylin-plugin-hmr"]
   cfg --> plugin_qilin_base_hmr
   plugin_qilin_base_llm["llm<br/>@qilin/llm"]
   cfg --> plugin_qilin_base_llm
@@ -180,8 +180,8 @@ flowchart LR
 
 | Plugin id | Package / module |
 | --- | --- |
-| `timer` | `@deepseek-ai/cordis-plugin-timer` |
-| `hmr` | `@deepseek-ai/cordis-plugin-hmr` |
+| `timer` | `@qilin/kylin-plugin-timer` |
+| `hmr` | `@qilin/kylin-plugin-hmr` |
 | `llm` | `@qilin/llm` |
 | `deepseek-llm-api-extensions` | `@qilin/deepseek-llm-api-extensions` |
 | `session` | `@qilin/session` |

@@ -23,7 +23,7 @@ import {
 } from '@qilin/experimental-webworker-runtime'
 import picomatch from 'picomatch'
 import yaml from 'js-yaml'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 import { REPLACED_EXTERNAL_PACKAGES } from '@qilin/experimental-webworker-runtime/src/node/external_packages/replaced-externals.ts'
 import { MODULE_PROXIES, MODULE_PROXY_PREFIXES } from '@qilin/experimental-webworker-runtime/src/module-proxies.ts'
 import { WRAPPER_CONTRACT, type ImageFiles, type TransformOutcome } from './transform-image.ts'
@@ -541,7 +541,7 @@ function materialize(
       // package the consumer is the page (react behind the prebuilt client
       // bundles), so its peer edges never bind the worker. Workspace and
       // vendored packages declare real runtime seams as peers
-      // (@deepseek-ai/cordis is a peerDependency of every harness package),
+      // (@qilin/kylin is a peerDependency of every harness package),
       // so their peer edges stay on the chain.
       if (field === 'peerDependencies' && !options.workspaces.has(name)) continue
       const dependencies = manifest[field]

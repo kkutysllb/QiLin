@@ -4,7 +4,7 @@
  * through the `jobsBySession` list mirror, so the plugin issues no RPC and
  * holds no state of its own beyond popover visibility.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { JobListAction } from './JobListAction.tsx'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-renderer/client'

@@ -32,12 +32,12 @@
     "@qilin/llm": "workspace:^",
     "@qilin/sdk-protocol": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/llm": "workspace:^",
     "@qilin/sdk-protocol": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

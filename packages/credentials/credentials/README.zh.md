@@ -46,7 +46,7 @@ kind: "package-reference"
 ### 存储、检查与移除密钥
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { credentialRef } from '@qilin/credentials'
 
 declare const ctx: Context
@@ -65,7 +65,7 @@ await ctx.credentials.unset(ref)                       // no-op when absent; sam
 插件按 `<scope>/<id>` 寻址每条记录——自身注册名加一个自选 id，例如提供方路由键——并读取、修改或移除它所持有的内容：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { credentialKey } from '@qilin/credentials'
 
 declare const ctx: Context

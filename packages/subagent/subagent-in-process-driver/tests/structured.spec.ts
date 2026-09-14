@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createUserMessage, ToolCallId, type ContentBlock, type GenerateOptions } from '@qilin/llm'
 import { SessionId } from '@qilin/session'
 import AgentLoop from '@qilin/agent-loop'

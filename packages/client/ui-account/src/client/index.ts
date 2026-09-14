@@ -4,7 +4,7 @@
  * and signs out. It joins the sidebar's footer action list, reads the account
  * gate's status itself, and owns no other state.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { BoundActions } from '@qilin/client-ui-slots'
 // Type-only: pulls the ctx.locale merge (the language rows and their writes).
 import type {} from '@qilin/client-locale/client'

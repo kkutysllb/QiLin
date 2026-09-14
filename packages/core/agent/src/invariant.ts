@@ -1,6 +1,6 @@
 /** Package-owned agent lifecycle invariants. @module @qilin/agent/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantInstaller } from '@qilin/invariants'
 import type { Agent, AgentStatus } from '@qilin/agent'
 

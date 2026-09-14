@@ -12,7 +12,7 @@ import {
   type SessionNotification,
 } from '@agentclientprotocol/sdk'
 import { startMockLlmServer } from '@qilin/llm-mock-server'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { entryListSchema } from '@qilin/kylin-plugin-include'
 import { execa } from 'execa'
 import * as yaml from 'js-yaml'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -1081,7 +1081,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         ['pty', '@qilin/terminal'],
         ['terminal-bash', '@qilin/terminal-bash'],
         ['terminal-pwsh', '@qilin/terminal-bash'],
-        ['timer', '@deepseek-ai/cordis-plugin-timer'],
+        ['timer', '@qilin/kylin-plugin-timer'],
         ['llm', '@qilin/llm'],
         ['session', '@qilin/session'],
         ['session-title', '@qilin/session-title'],

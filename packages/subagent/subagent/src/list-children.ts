@@ -17,7 +17,7 @@
  * @module @qilin/subagent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { SessionLogOffset } from '@qilin/session'
 import type { Session, SessionHeader, SessionId } from '@qilin/session'
 import type { SessionProjectionRegistry } from '@qilin/session-projection'

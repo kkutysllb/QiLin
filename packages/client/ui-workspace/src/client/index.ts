@@ -8,7 +8,7 @@
  * client half (see the contract module doc). Export discipline:
  * packages/client/AGENTS.md.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type { IWorkspaces, WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'

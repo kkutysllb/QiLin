@@ -1,5 +1,5 @@
 import { freezeMessage, MessageId } from '@qilin/llm'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'
 import { SessionFormatUnsupportedError } from '@qilin/session-persistence'

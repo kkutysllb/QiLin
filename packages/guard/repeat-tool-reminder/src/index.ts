@@ -6,7 +6,7 @@
  * @module @qilin/repeat-tool-reminder
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'

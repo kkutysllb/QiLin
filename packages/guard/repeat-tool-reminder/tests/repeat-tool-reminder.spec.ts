@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createUserMessage, ToolCallId  } from '@qilin/llm'
 import { SessionId, type SessionEvent } from '@qilin/session'
 import { defineContentToolFixture } from '@qilin/tools'

@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { SessionId, SessionSeq } from '@qilin/session'
 import { SessionFormatUnsupportedError } from '@qilin/session-persistence'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'

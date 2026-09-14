@@ -7,8 +7,8 @@
  */
 
 import { expect } from 'vitest'
-import { FiberState, Inject, RegistryService, ValidationError } from '@deepseek-ai/cordis'
-import type { Context, Plugin } from '@deepseek-ai/cordis'
+import { FiberState, Inject, RegistryService, ValidationError } from '@qilin/kylin'
+import type { Context, Plugin } from '@qilin/kylin'
 import InvariantRegistry from '@qilin/invariants'
 
 declare global {

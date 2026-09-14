@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { Context, type Fiber } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage, ToolCallId, HarnessError , createMessage } from '@qilin/llm'
 import { MAX_TIMER_DELAY_MS, TimeoutReason } from '@qilin/timeout'

@@ -7,7 +7,7 @@
  * @module @qilin/client-ui-message-feedback/client/controller
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { HostObservable } from '@qilin/client-ui-slots'
 import type { MessageId } from '@qilin/api-remotes/client'
 import type { SessionId } from '@qilin/session/types'

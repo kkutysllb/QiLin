@@ -7,7 +7,7 @@
  * both sides of the native interaction with one cordis.yml row; no client
  * code branches on a capability kind.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the SlotMap merge declaring the directory-flow holes.
 import type {} from '@qilin/client-ui-workspace/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { ToolCallId } from '@qilin/llm'
 import AgentRegistry, { type Agent } from '@qilin/agent'
 import SystemPrompt from '@qilin/system-prompt'

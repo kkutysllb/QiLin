@@ -26,7 +26,7 @@
  * @module @qilin/tool-fs-search
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
 import { GLOB_MAX_RESULTS, applyGlobTool } from './glob.ts'

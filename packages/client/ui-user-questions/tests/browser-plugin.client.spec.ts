@@ -1,5 +1,5 @@
 /** Scoped Remote Event wiring for the browser question consumer. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { LocaleRuntime } from '@qilin/client-locale/client'

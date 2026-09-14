@@ -4,7 +4,7 @@
  * and the injected controller face.
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { LocaleRuntime } from '@qilin/client-locale/client'

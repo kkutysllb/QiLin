@@ -8,7 +8,7 @@
  * @module @qilin/tool-subagent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { scopeChainOf, scopeOf } from '@qilin/scope'
 import { defineTool } from '@qilin/tools'

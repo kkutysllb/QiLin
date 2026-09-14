@@ -6,7 +6,7 @@
  * @module @qilin/tool-ask-user
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { defineTool } from '@qilin/tools'
 import '@qilin/user-questions'
 

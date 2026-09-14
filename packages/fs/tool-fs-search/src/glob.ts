@@ -9,7 +9,7 @@
  * @module @qilin/tool-fs-search/glob
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { sep } from 'node:path'
 import { defineTool } from '@qilin/tools'
 import type { GenericCallView, SearchResultView, ToolResult } from '@qilin/tools'

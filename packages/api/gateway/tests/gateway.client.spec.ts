@@ -1,6 +1,6 @@
 import { RemoteError } from '@qilin/typert-protocol'
-import { Context, Service } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
+import type { Fiber } from '@qilin/kylin'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { z } from 'zod'
 import {
@@ -36,7 +36,7 @@ interface FixtureAgent {
   readonly agentId: string
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * Test-only forwarded Host event.

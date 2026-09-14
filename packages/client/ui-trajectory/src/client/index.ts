@@ -3,7 +3,7 @@
  * Trajectory target — the event ledger, and the graph view that draws it as a
  * node and edge flow — without defining a service.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ImageAttachmentRef } from '@qilin/attachment'
 import type { SessionBinding } from '@qilin/api-session-controller/client'
 import type { ObservableSnapshot } from '@qilin/client-store'

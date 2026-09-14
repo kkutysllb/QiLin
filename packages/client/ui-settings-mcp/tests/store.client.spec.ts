@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { McpServersSnapshot } from '@qilin/mcp-servers/types'
 import { McpServersStore } from '../src/client/store.ts'
 

@@ -1,6 +1,6 @@
 /** Platform-neutral assembly of generated Host Remote contributions. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import agentPresetsRemote from '@qilin/agent-presets/remote'
 import commandsRemote from '@qilin/commands/remote'
 import settingsControllerRemote from '@qilin/api-settings-controller/remote'
@@ -134,7 +134,7 @@ export type {
 } from '@qilin/typert-protocol'
 export type { RemoteHostFacts } from '@qilin/api-gateway/client'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Generated Remote namespaces selected by this Client assembly. */
     remote: ClientRemote

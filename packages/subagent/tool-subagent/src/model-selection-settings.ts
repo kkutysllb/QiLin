@@ -1,6 +1,6 @@
 /** Host-owned opt-in setting for model-selectable subagent delegation. */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type {} from '@qilin/settings'
 import {
@@ -9,7 +9,7 @@ import {
   type AllowedModelRoute,
 } from './model-selection.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** User preference sampled when a new Session receives delegation tools. */
     subagentModelSelection: SubagentModelSelectionConfig

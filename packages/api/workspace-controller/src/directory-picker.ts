@@ -3,7 +3,7 @@
  * stable wire failure vocabulary over the `ctx.directoryPicker` seam.
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { z } from 'zod'
 import { DirectoryPickerError } from '@qilin/host-directory-picker'
 import type {
@@ -24,7 +24,7 @@ const createDirectoryRequestSchema = z.object({
   { message: 'host.createDirectory requires a single non-blank path segment name' },
 )
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host directory-picking Remote namespace owner. */
     directoryPickerController: DirectoryPickerController

@@ -11,7 +11,7 @@
  * ui-sidebar would close a reference cycle through ui-layout and ui-theme.
  * Export discipline: packages/client/AGENTS.md.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 // Type-only: the ctx.remote merge, the fixed Host facts, and the carrier's
 // `connection/reset` lifecycle event, all through the assembly package.
 import type {} from '@qilin/api-remotes/client'

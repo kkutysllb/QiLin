@@ -2,7 +2,7 @@
 // plus the shared estimator's pricing branches.
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createMessage, createSystemMessage, createUserMessage } from '@qilin/llm'
 import type { ContentBlock, ToolSchema } from '@qilin/llm'
 import SessionStore, { SessionLogOffset, SessionSeq } from '@qilin/session'

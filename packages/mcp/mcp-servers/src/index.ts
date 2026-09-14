@@ -10,7 +10,7 @@
  * @module @qilin/mcp-servers
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/subprocess'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
 import { MCP_BUILTINS, builtinByName, type McpBuiltinDefinition } from './builtins.ts'

@@ -50,7 +50,7 @@ The example keeps the producer declarations and client contribution in one block
 
 ```ts ignore-check
 import { createElement } from 'react'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { Branded } from '@qilin/brand'
 import type {
   ConversationLocation, ConversationNodeContext,

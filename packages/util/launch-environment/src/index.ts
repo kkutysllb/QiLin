@@ -6,7 +6,7 @@
  * @module @qilin/launch-environment
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 
 /**
  * Which layer supplied a value, from most to least trusted: the environment
@@ -129,7 +129,7 @@ export function launchedThroughSsh(environment: LaunchEnvironmentSnapshot): bool
   })
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Launcher-owned snapshot of this run's environment; absent in compositions the product CLI did not boot. */
     launchEnvironment?: LaunchEnvironmentSnapshot

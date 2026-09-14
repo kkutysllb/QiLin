@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { SessionEvent } from '@qilin/session'
 import type { Agent } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'

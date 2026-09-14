@@ -8,7 +8,7 @@
  * Package-private; the hub alone constructs it and wires the scoped event
  * listeners onto it.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import {
   createSnapshotStore, type ObservableSnapshot, type SnapshotStore,
 } from '@qilin/client-store'

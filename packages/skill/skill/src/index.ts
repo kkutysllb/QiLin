@@ -10,7 +10,7 @@
  * @module @qilin/skill
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import type {} from '@qilin/llm'
 import { assertNever } from '@qilin/util-values'
 import { NamedEntries, ScopedLayers, scopeChainOf, scopeOf } from '@qilin/scope'
@@ -282,7 +282,7 @@ export interface Config {
   readonly collectCacheMaxEntries?: number
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     skills: SkillRegistry
   }

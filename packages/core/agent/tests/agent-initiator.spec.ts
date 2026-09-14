@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { runInNewContext } from 'node:vm'
 import AgentRegistry from '@qilin/agent'
 import type { Agent } from '@qilin/agent'

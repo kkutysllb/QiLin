@@ -33,7 +33,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@qilin/win32-process": "workspace:^",
@@ -42,6 +42,6 @@
   "devDependencies": {
     "@qilin/pwsh-local": "workspace:^",
     "@qilin/sandbox-local": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

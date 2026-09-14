@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { SettingsNamespace } from '@qilin/settings'
 import z from '@deepseek-ai/schemastery'
 import InvariantRegistry from '@qilin/invariants'

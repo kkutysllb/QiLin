@@ -4,7 +4,7 @@
 // their own specs, so each case scripts them.
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import AttachmentStore, { AttachmentError } from '@qilin/attachment'
 import type { MessageId } from '@qilin/llm'
 import { SessionId } from '@qilin/session'

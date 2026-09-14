@@ -1,6 +1,6 @@
 /** Package-local scripted child boundary for deterministic tool-subagent tests. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ContentBlock } from '@qilin/llm'
 import { SessionId } from '@qilin/session'
 import type {

@@ -53,7 +53,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilincrede
 Save a key with `set`, remove it with `unset`, and check whether a key is configured with `describe` — the same operations the credential API provides:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { credentialRef } from '@qilin/credentials'
 
 declare const ctx: Context

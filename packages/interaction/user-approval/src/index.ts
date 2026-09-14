@@ -5,7 +5,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage, type ToolCallId } from '@qilin/llm'
@@ -14,7 +14,7 @@ import type { Session } from '@qilin/session'
 import { SessionSeq } from '@qilin/session'
 import type {} from '@qilin/system-prompt'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     approval: ApprovalService
   }

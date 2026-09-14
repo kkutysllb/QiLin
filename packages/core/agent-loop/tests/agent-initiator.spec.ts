@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { Context, type Fiber } from '@qilin/kylin'
 import AgentRegistry, { type Agent } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import SessionProjectionRegistry from '@qilin/session-projection'

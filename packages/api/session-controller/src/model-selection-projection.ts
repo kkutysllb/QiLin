@@ -1,6 +1,6 @@
 /** Durable model-selection intent and request-use projection. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionEvent } from '@qilin/session'
 import type { ProjectionDefinition } from '@qilin/session-projection'
 import { z } from 'zod'

@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import type { IndexInjection } from '@qilin/host-webserver'
 import { SettingsProvider, type SettingsNamespace } from '@qilin/settings'

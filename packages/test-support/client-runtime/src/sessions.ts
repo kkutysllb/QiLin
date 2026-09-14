@@ -1,5 +1,5 @@
 /** Test-owned Session Controller faces over declarative fixtures. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { AttachmentIdType } from '@qilin/attachment'
 import {
   createScope, MutableSessionEventSource, scopeOf, SESSION_SEARCH_RESULT_LIMIT,

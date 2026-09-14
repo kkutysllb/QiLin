@@ -5,7 +5,7 @@
  * @module @qilin/session-log-deepseek
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { brandString } from '@qilin/brand'
 import type {} from '@qilin/deepseek-llm-api-extensions'

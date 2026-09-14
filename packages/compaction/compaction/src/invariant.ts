@@ -1,6 +1,6 @@
 /** Package-owned compaction log-stream invariants. @module @qilin/compaction/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { isReplacementSurfaceEvent, SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent } from '@qilin/session'
 import { SurfaceManager } from '@qilin/session/surface'

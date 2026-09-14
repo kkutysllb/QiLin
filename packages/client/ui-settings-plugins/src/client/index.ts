@@ -16,7 +16,7 @@ import type {} from '@qilin/client-locale/client'
 // through the service, never a value import (client bundle purity gate).
 import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-renderer/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin/api-remotes/client'

@@ -6,7 +6,7 @@
  */
 
 import { Command } from 'commander'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { exitOnStdinEnd, parseCmdline } from '@qilin/cmdline'
 
 /** Stable Cordis plugin name. */

@@ -1,5 +1,5 @@
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { WorkerThreadCodeRuntime } from '@qilin/code-runtime-worker-thread'
 import type { Config } from '@qilin/code-runtime-worker-thread'
 import type { CodeBindingFunction, CodeBindingNamespace, CodeRunResult } from '@qilin/code-runtime'

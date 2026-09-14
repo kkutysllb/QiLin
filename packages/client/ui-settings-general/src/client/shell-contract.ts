@@ -43,7 +43,7 @@ export interface SettingsShell {
   open(sectionId?: string): void
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     settingsShell: SettingsShell
   }

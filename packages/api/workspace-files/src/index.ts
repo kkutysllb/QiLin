@@ -22,7 +22,7 @@
  */
 
 import { posix, win32 } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import {
   FsVersion,
@@ -53,7 +53,7 @@ import type {
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host owner of the `workspaceFiles` Remote namespace. */
     workspaceFiles: WorkspaceFiles

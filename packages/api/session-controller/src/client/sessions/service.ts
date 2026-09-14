@@ -14,7 +14,7 @@
  * tears its scope down immediately unless it is the staged one, whose scope
  * survives frozen (read-only view) until the stage moves on.
  */
-import type { Context, Fiber } from '@deepseek-ai/cordis'
+import type { Context, Fiber } from '@qilin/kylin'
 import type { SubagentAddress } from '@qilin/subagent/client'
 import { SessionSeq, type SessionId } from '@qilin/session/types'
 import { workspaceTitleOf } from '@qilin/util-workspace-path'

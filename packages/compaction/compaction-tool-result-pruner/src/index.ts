@@ -4,7 +4,7 @@
  * @module @qilin/compaction-tool-result-pruner
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { freezeMessage } from '@qilin/llm'
 import type { ContentBlock } from '@qilin/llm'
@@ -29,7 +29,7 @@ export type {
   ToolResultPruneConfig,
 } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     toolResultPruner: ToolResultPruner
   }

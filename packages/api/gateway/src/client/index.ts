@@ -4,10 +4,10 @@
  * participates in method lookup, invocation, or type exposure.
  */
 
-import { Service } from '@deepseek-ai/cordis'
+import { Service } from '@qilin/kylin'
 import { RemoteError, remoteErrorOf } from '@qilin/typert-protocol'
 export type { TypertGatewayFaultDetails } from '../remote-error-codes.ts'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {
   ConnectionHandle,
 } from '@qilin/client-connection/client'
@@ -122,7 +122,7 @@ export interface RemoteHostFacts {
   readonly isLoopback: boolean
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Generated Remote namespaces selected by the Client assembly. */
     remote: ClientRemote

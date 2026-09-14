@@ -1,7 +1,7 @@
 // Title-source invariant: `messageSeqs` is empty iff `source.kind` is `user`.
 // — the durable relationship every appended session/title event must keep.
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import * as SessionTitleInvariantCompanion from '@qilin/session-title/invariant'
 import InvariantRegistry, { InvariantError } from '@qilin/invariants'
 import SessionStore, { SessionId, SessionSeq } from '@qilin/session'

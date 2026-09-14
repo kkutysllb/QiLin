@@ -1,5 +1,5 @@
 /** Register the Chat Conversation target, renderers, stats, and details surface. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ImageAttachmentRef } from '@qilin/attachment'
 import type {} from '@qilin/api-remotes/client'
 import type { SessionBinding } from '@qilin/api-session-controller/client'

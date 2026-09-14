@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin/attachment'
 import type {
   ImageAttachmentLimits,

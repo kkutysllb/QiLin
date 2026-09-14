@@ -8,7 +8,7 @@
  */
 
 import { dirname } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import Schema from '@deepseek-ai/schemastery'
 // Type-only: resolves the `agentPresets` Context augmentation this controller reads.
 import type {} from '@qilin/agent-presets'
@@ -71,7 +71,7 @@ function namespaceView(descriptor: SettingsDescriptor): SettingsNamespaceView {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     /** Host owner of the `settings` Remote namespace. */
     settingsController: SettingsController

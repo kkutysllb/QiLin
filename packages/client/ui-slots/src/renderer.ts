@@ -1,5 +1,5 @@
 /** React-free contracts between the slot host and an installed renderer. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { ReactNode } from 'react'
 import type { ObservableSnapshot } from '@qilin/client-store'
 import type {

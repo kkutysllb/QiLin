@@ -1,7 +1,7 @@
 /** Event-level policy tests; no filesystem provider is needed because the plugin performs no I/O. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { FsTargetKey, FsVersion } from '@qilin/fs'
 import type { FsObservation, FsTarget, FsWriteIntent } from '@qilin/fs'
 import * as FsPolicy from '@qilin/fs-observation-policy'

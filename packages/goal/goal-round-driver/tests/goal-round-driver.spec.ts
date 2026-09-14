@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { agentEvents } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'

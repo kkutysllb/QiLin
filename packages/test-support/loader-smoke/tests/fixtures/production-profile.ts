@@ -4,9 +4,9 @@ import { writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@deepseek-ai/cordis'
-import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
+import type { Context } from '@qilin/kylin'
+import type { EntryOptions } from '@qilin/kylin-plugin-loader'
+import type { PatchOptions } from '@qilin/kylin-plugin-include'
 import {
   boot,
   healProfilesModuleFallback,

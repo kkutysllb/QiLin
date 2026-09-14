@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/cordis",
+  "name": "@qilin/kylin",
   "description": "Meta-Framework for Modern JavaScript Applications",
   "version": "4.0.2",
   "publishConfig": {
@@ -33,14 +33,14 @@
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis-plugin-include": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^"
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/cordis-plugin-include": {
+    "@qilin/kylin-plugin-include": {
       "optional": true
     },
-    "@deepseek-ai/cordis-plugin-loader": {
+    "@qilin/kylin-plugin-loader": {
       "optional": true
     }
   },

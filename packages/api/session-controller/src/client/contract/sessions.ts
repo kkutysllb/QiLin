@@ -4,7 +4,7 @@
  * the concrete class. Widening this interface is the
  * explicit act of widening what features may do to the sessions domain.
  */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SubagentAddress } from '@qilin/subagent/client'
 import type { SessionId } from '@qilin/session/types'
 import type { WorkspaceId } from '@qilin/workspace/types'

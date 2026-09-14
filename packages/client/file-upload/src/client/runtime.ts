@@ -1,6 +1,6 @@
 /** Background browser upload implementation for Blob and byte-stream bodies. */
 
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@qilin/kylin'
 import { bytesToBase64 } from '@qilin/util-crypto'
 import { RemoteError } from '@qilin/typert-protocol'
 import type { RemoteResult } from '@qilin/typert-protocol'

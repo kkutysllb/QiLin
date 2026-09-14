@@ -75,7 +75,7 @@ kind: "package-reference"
 配套入口就是挂载在注册表旁的普通插件。它声明所需的服务，并以其包的精确 npm 名称注册；注册表会先完成其设置再完成注册。
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import InvariantRegistry from '@qilin/invariants'
 import * as SessionInvariant from '@qilin/session/invariant'
 

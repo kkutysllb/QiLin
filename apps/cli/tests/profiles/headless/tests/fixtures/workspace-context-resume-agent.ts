@@ -3,7 +3,7 @@
  * @module workspace-context-resume-agent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session'
 
 /** Fixture plugin name. */

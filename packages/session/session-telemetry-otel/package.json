@@ -42,11 +42,11 @@
     "@qilin/session": "workspace:^",
     "@qilin/session-telemetry": "workspace:^",
     "@qilin/anonymous-user-id": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-logger-console": "workspace:^",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-logger-console": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/app-boot": "workspace:^",
     "@qilin/bash-local": "workspace:^",
     "@qilin/command-feedback": "workspace:^",
@@ -59,7 +59,7 @@
     "@qilin/session-telemetry": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
     "@qilin/anonymous-user-id": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/http-proxy": "workspace:^"
   }
 }

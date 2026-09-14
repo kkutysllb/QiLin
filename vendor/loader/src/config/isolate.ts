@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { Dict } from '@deepseek-ai/cosmokit'
 import { Entry } from './entry.ts'
 

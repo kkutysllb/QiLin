@@ -11,7 +11,7 @@
  * @module @qilin/lsp-stdio
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { LspError, LspProviderId } from '@qilin/lsp'
 import type {

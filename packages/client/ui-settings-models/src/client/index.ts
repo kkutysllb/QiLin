@@ -5,7 +5,7 @@
  * stay behind their existing wire APIs. Export discipline:
  * packages/client/AGENTS.md.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the shell's SlotMap merge (the 'settings.section' entry).
 import type {} from '@qilin/client-ui-settings/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).

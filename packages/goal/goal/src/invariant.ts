@@ -1,6 +1,6 @@
 /** Package-owned durable goal-stream invariants. @module @qilin/goal/invariant */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { InvariantFailure, InvariantInstaller } from '@qilin/invariants'
 import type { Session, SessionEvent } from '@qilin/session'
 import { applyGoalEvent, emptyGoalFoldState } from './fold.ts'

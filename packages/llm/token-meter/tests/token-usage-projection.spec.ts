@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { createMessage, createUserMessage } from '@qilin/llm'
 import type { TokenUsage } from '@qilin/llm'
 import SessionStore from '@qilin/session'

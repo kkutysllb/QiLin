@@ -17,7 +17,7 @@ import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/pr
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { z } from 'zod'
 import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset } from '@qilin/session'
 import type { SessionHeader } from '@qilin/session'

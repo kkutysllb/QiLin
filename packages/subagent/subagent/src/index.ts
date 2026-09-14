@@ -29,7 +29,7 @@
  * @module @qilin/subagent
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type {} from '@qilin/attachment'
 import { scopeTarget } from '@qilin/scope'
 import type { Scoped } from '@qilin/scope'
@@ -130,7 +130,7 @@ export type { SubagentDescendantListEntry } from './list-children.ts'
 export type { SubagentRunEndInfo, SubagentRunInfo } from './types.ts'
 export type { SubagentIdentityProjection, SubagentTimingProjection } from './projection-types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Context {
     subagents: SubagentRuntime
   }

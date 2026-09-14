@@ -4,7 +4,7 @@
  * @module @qilin/tool-goal
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { GoalId } from '@qilin/goal'
 import type { GoalRef, GoalView } from '@qilin/goal'

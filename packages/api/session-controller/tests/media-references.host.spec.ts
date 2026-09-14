@@ -2,7 +2,7 @@ import { appendFile, mkdir, mkdtemp, open, realpath, rm, symlink, writeFile } fr
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { FsError, FsTargetKey, FsVersion } from '@qilin/fs'
 import { LocalFileSystem } from '@qilin/fs-local'
 import { SessionMediaReferences } from '../src/media-references.ts'

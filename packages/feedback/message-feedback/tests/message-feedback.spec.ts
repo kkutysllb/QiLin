@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import type { MessageId } from '@qilin/llm/brand'
 import { Session, SessionId, SessionLogOffset, SessionSeq, type SessionEvent } from '@qilin/session'
 import { remoteMethods } from '@qilin/typert-protocol'

@@ -12,7 +12,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { brandString } from '@qilin/brand'
 import { foldConsumedWork } from '@qilin/agent'
 import type { Agent, AgentHandle } from '@qilin/agent'

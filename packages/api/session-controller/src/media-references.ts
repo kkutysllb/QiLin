@@ -6,7 +6,7 @@
  */
 
 import { isAbsolute } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/client-connection'
 import type {} from '@qilin/attachment'
 import { FsError, type FileSystem } from '@qilin/fs'

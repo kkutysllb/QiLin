@@ -7,7 +7,7 @@
  * root with `ready` before emitting any queued or live changes.
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { Deque } from '@qilin/deque'
 import type { FsObservation, FsTarget } from '@qilin/fs'
 import type { WorkspaceFileWatchFrame } from './types.ts'

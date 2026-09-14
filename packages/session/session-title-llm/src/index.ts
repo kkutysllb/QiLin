@@ -4,7 +4,7 @@
  * @module @qilin/session-title-llm
  */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { createUserMessage, BlockAssembler } from '@qilin/llm'
 import type { FinishReason, GenerateOptions, Message } from '@qilin/llm'

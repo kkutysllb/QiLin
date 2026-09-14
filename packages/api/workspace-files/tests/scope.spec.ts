@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SESSION_FORMAT_VERSION, SessionId, type SessionHeader } from '@qilin/session'
 import TypertRegistry from '@qilin/typert-registry'
 import { describe, expect, it, vi } from 'vitest'

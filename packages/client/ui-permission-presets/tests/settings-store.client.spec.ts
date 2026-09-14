@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
 import { SettingsSchemaService } from '@qilin/client-ui-settings/src/client/schema.ts'

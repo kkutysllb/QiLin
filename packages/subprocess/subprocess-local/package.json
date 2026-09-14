@@ -39,7 +39,7 @@
   "peerDependencies": {
     "@qilin/subprocess": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
     "@qilin/win32-process": "workspace:^",
@@ -50,6 +50,6 @@
     "@qilin/loader-smoke": "workspace:^",
     "@qilin/subprocess": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

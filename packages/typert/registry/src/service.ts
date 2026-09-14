@@ -5,7 +5,7 @@
  * @module @qilin/typert-registry
  */
 
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@qilin/kylin'
 import { z } from 'zod'
 import type {
   InvocationDescriptor,

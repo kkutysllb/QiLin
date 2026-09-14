@@ -1,4 +1,4 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import type { PropsLocale } from '@qilin/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { readCallLine, readCardModel } from '../models/read-card-model.ts'

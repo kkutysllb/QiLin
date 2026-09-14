@@ -1,7 +1,7 @@
 /** Cold catalog observations of persisted fork children with tool-heavy inherited histories. */
 
 import { performance } from 'node:perf_hooks'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'

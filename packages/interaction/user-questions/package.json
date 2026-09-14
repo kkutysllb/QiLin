@@ -35,12 +35,12 @@
     "@qilin/agent": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/scope": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/scope": "workspace:^",
-    "@deepseek-ai/cordis": "workspace:^"
+    "@qilin/kylin": "workspace:^"
   }
 }

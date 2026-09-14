@@ -5,7 +5,7 @@
  * `changes` stream per session, `provider.ts` turns it and `stat` into a value
  * stream, and this module only wires them into `ctx.resources`.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-gateway/client'
 import type {} from '@qilin/client-resources/client'
 import { ChangeFeed } from './change-feed.ts'

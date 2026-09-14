@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import InvariantRegistry from '@qilin/invariants'
 import type { DomainChanged } from '@qilin/storage-domain'
 import * as WorkspaceInvariant from '../src/invariant.ts'

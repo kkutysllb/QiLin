@@ -32,7 +32,7 @@ async function observe(run: () => Promise<unknown>): Promise<string[]> {
   return seen
 }
 import { vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import * as LlmPiAi from '../src/index.ts'
 import { discoverModels } from '../src/discovery.ts'

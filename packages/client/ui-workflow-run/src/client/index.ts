@@ -1,6 +1,6 @@
 /** Browser plugin for durable workflow-run Conversation Nodes. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-chat/client'

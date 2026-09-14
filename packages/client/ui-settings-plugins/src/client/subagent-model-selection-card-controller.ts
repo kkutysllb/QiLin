@@ -1,6 +1,6 @@
 /** Staged editor for the Host-owned subagent model allowlist. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type { ModelProviderGroup } from '@qilin/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 import type { SettingsScope } from '@qilin/client-ui-settings/client'

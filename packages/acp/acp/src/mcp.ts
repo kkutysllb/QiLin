@@ -1,6 +1,6 @@
 /** Standard ACP MCP-server declarations translated into Agent-scoped QILIN MCP clients. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@qilin/kylin'
 import { createHash } from 'node:crypto'
 import { validateHeaderName, validateHeaderValue } from 'node:http'
 import { isAbsolute } from 'node:path'

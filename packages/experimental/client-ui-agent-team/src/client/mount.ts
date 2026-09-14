@@ -5,7 +5,7 @@ import type {
   TeamView,
 } from '@qilin/experimental-agent-team/client'
 import type {} from '@qilin/experimental-agent-team/remote'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
