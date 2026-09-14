@@ -323,7 +323,7 @@ describe('PluginInventorySettingsTab', () => {
     expect(globalToggle().getAttribute('aria-expanded')).toBe('true')
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
 
-    fireEvent.click(screen.getByRole('button', { name: 'hmr, hmr, Enabled' }))
+    fireEvent.click(screen.getByRole('button', { name: 'kylin-plugin-hmr, hmr, Enabled' }))
     expect(screen.getByText(en.runtime)).toBeTruthy()
     expect(view.container.querySelector('[data-loader-entry]')?.textContent).toBe('hmr')
     fireEvent.click(screen.getByRole('button', { name: 'off, off, Disabled' }))
