@@ -29,7 +29,7 @@ You don't install or configure this package directly — mounting `qilin-hooks-c
 
 ### When to choose it
 
-Choose `qilin-hooks-claude-code` or `qilin-hooks-codex` when you have existing Claude Code or Codex hooks and want them to keep working during agent runs. You never choose this package directly. Avoid the whole group for bespoke behavior with no reference-tool equivalent: a native Cordis plugin has the full harness API with no hook protocol in between.
+Choose `qilin-hooks-claude-code` or `qilin-hooks-codex` when you have existing Claude Code or Codex hooks and want them to keep working during agent runs. You never choose this package directly. Avoid the whole group for bespoke behavior with no reference-tool equivalent: a native Kylin plugin has the full harness API with no hook protocol in between.
 
 ### What a hook can do
 

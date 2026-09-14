@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-session-format` lets persistence code restore a current Session directly or compose a unique sequence of adjacent migrations while consuming physical rows once. A restore transfers caller-owned parsed values through stateful stages without intermediate artifact copies or freezing. Physical framing, compression, immutable generation naming, exclusive publication, and Cordis lifecycle behavior remain outside this library.
+`qilin-session-format` lets persistence code restore a current Session directly or compose a unique sequence of adjacent migrations while consuming physical rows once. A restore transfers caller-owned parsed values through stateful stages without intermediate artifact copies or freezing. Physical framing, compression, immutable generation naming, exclusive publication, and Kylin lifecycle behavior remain outside this library.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ English | [中文](README.zh.md)
 
 ### When to use it
 
-Use this library from persistence or format-catalog code that must classify a physical Session header, restore current logical values, or compose released adjacent migrations. It is not a Cordis plugin and has no profile mount row. No runtime invariant companion is published because each completed operation validates its result; decoder and transformer state belongs to one unfinished streaming restore and is never shared across restores.
+Use this library from persistence or format-catalog code that must classify a physical Session header, restore current logical values, or compose released adjacent migrations. It is not a Kylin plugin and has no profile mount row. No runtime invariant companion is published because each completed operation validates its result; decoder and transformer state belongs to one unfinished streaming restore and is never shared across restores.
 
 ### Entry point
 

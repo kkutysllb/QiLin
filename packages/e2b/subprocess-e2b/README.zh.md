@@ -117,7 +117,7 @@ agent 可以在沙箱中打开交互式终端、发送输入、读取输出，�
 当包级约定不够用时阅读以下页面。它们从家族组合逐步进入子进程 seam 表面，以及渲染它的消费方。
 
 - [E2B 提供方家族地图](../README.zh.md)——沙箱所有者与三包组合。
-- [子进程子系统](../../../docs/subsystems/subprocess.zh.md)——子进程 seam 约定与生成的 Cordis 表面。
+- [子进程子系统](../../../docs/subsystems/subprocess.zh.md)——子进程 seam 约定与生成的 Kylin 表面。
 - [子进程 seam 包](../../subprocess/subprocess/README.zh.md)——本提供方实现的抽象约定。
 - [Bash 执行器](../../shell/bash-local/README.zh.md)——向模型渲染所启动命令的消费方。
 - [PTY 终端后端](../../terminal/terminal-bash/README.zh.md)——渲染终端会话的消费方。

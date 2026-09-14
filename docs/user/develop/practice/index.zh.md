@@ -12,7 +12,7 @@
 
 以 Bash 执行能力为例：
 
-- **Service Definition** (`qilin-shell`)：定义 Cordis 服务以及 Bash 请求和结果类型
+- **Service Definition** (`qilin-shell`)：定义 Kylin 服务以及 Bash 请求和结果类型
 - **Service Provider** (`qilin-bash-local`)：在本地计算机上执行命令
 - **Consumer** (`qilin-tool-bash`)：将该能力公开为模型可调用的工具
 

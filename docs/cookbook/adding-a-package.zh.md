@@ -43,9 +43,9 @@ package.json 不变式（由 `pnpm run constraints` / `scripts/check-workspace-c
 
 ### 使用符合实际的角色名称
 
-名称必须描述当前稳定职责。不要用首个实现、可能的未来扩展或 Cordis 基类命名。接口包使用能力名称。实现包加上能够区分实现的机制、协议、环境或厂商限定词。只有同主机执行属于约定时，才使用 `local`。
+名称必须描述当前稳定职责。不要用首个实现、可能的未来扩展或 Kylin 基类命名。接口包使用能力名称。实现包加上能够区分实现的机制、协议、环境或厂商限定词。只有同主机执行属于约定时，才使用 `local`。
 
-一个 engine、runtime、policy、controller、resolver、store 或当前配置使用单数 `ctx` key。registry 或拥有多个具名成员的服务使用复数 key。类的角色与 key 的单复数必须一致。不得让不兼容的 host 与 client 声明复用同一个 Cordis `Context` key。即使二者使用独立的运行时 context，TypeScript 声明合并仍会同时看到两种类型。如果自然复数已经属于另一个端面，就增加职责后缀。
+一个 engine、runtime、policy、controller、resolver、store 或当前配置使用单数 `ctx` key。registry 或拥有多个具名成员的服务使用复数 key。类的角色与 key 的单复数必须一致。不得让不兼容的 host 与 client 声明复用同一个 Kylin `Context` key。即使二者使用独立的运行时 context，TypeScript 声明合并仍会同时看到两种类型。如果自然复数已经属于另一个端面，就增加职责后缀。
 
 | 词 | 适用条件 | 不适用条件 |
 |---|---|---|
@@ -65,7 +65,7 @@ package.json 不变式（由 `pnpm run constraints` / `scripts/check-workspace-c
 | `Backend` | 在已定义接口之后实现可替换的底层持久化、传输或执行。 | 表示面向用户的服务或一个已返回的实时资源引用。 |
 | `Handle` | 引用一个实时资源，并控制或观察该资源。 | 创建并管理完整资源池。 |
 | `Config` | 拥有一个已解析配置值，或一项边界严格的配置记录及其更新约定。 | 存储通用集合、执行工作或暴露无关设置。 |
-| `Service` | 拥有一项无法用以上更精确角色诚实描述的内聚领域服务。 | 只因为类继承 Cordis `Service` 而使用该名称。 |
+| `Service` | 拥有一项无法用以上更精确角色诚实描述的内聚领域服务。 | 只因为类继承 Kylin `Service` 而使用该名称。 |
 
 只对受支持的 Python 与 TypeScript SDK 所使用的 JSON-RPC 客户端／服务器协议使用 `SDK`。QiLin 本身是 agent harness，不是 SDK 项目。产品拼写统一使用 `Typert`，不得使用 `TypeRT` 或 `typeRT`。
 

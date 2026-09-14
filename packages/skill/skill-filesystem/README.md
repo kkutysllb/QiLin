@@ -155,6 +155,6 @@ These limits define when the provider is a poor fit or needs special operational
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-This Dev Note is working context for maintainers and is explicitly non-authoritative — shipped behavior and limits live in the sections above and in the code. A TODO in `src/index.ts` proposes extracting the Chokidar and missing-root observation into a Cordis file-watch service, keeping skill filtering and invalidation here; the missing-root polling tradeoff documented above is part of that open design.
+This Dev Note is working context for maintainers and is explicitly non-authoritative — shipped behavior and limits live in the sections above and in the code. A TODO in `src/index.ts` proposes extracting the Chokidar and missing-root observation into a Kylin file-watch service, keeping skill filtering and invalidation here; the missing-root polling tradeoff documented above is part of that open design.
 
 </details>

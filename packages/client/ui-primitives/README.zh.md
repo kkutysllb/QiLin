@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-使用 `qilin-client-ui-primitives`，通过共享 React UI 构建 Web 客户端控件并渲染 agent 输出。它提供标准控件、图标、锚定浮层，以及用于带 TeX 公式的 Markdown、终端输出、文件读取、差异、搜索、网页检索和 JSON 的渲染器。这些渲染器会丢弃原始 HTML、限制链接并解析 ANSI 转义序列，以处理不受信任的模型输出。组件不 import Cordis 运行时；调用方提供本地化 label，主题相关颜色使用 `--dsw-*` 设计 token。
+使用 `qilin-client-ui-primitives`，通过共享 React UI 构建 Web 客户端控件并渲染 agent 输出。它提供标准控件、图标、锚定浮层，以及用于带 TeX 公式的 Markdown、终端输出、文件读取、差异、搜索、网页检索和 JSON 的渲染器。这些渲染器会丢弃原始 HTML、限制链接并解析 ANSI 转义序列，以处理不受信任的模型输出。组件不 import Kylin 运行时；调用方提供本地化 label，主题相关颜色使用 `--dsw-*` 设计 token。
 
 ## 目录
 
@@ -148,7 +148,7 @@ kind: "package-library"
 - **字形级图标是重新绘制的近似版本**：鱼形标志与闪光标记来自字体字形，而本地设计数据无法导出其矢量几何；在获得精确导出路径前，使用手工重建版本代替。
 - **`Pill` 与 `Input` 没有设计来源**：两个原子组件均自行定义；与其相似的侧边栏搜索字段和视图标签条由消费方组合，不是这些原子组件。
 - **`StateDot` 没有 `Active` 变体**：支持的状态为 done、warning、ongoing、error 和 idle。
-- **面向用户的文案必须由渲染点提供**：这些原子组件是 zero-Cordis 的，拿不到 `ctx.locale`；各功能必须通过 primitive 的带类型 prop 提供完整本地化 label（见[决策](../../../.agents/notes/implemented/architecture/2026-08-23-locale-owned-client-ui-copy.zh.md)）。
+- **面向用户的文案必须由渲染点提供**：这些原子组件是 zero-Kylin 的，拿不到 `ctx.locale`；各功能必须通过 primitive 的带类型 prop 提供完整本地化 label（见[决策](../../../.agents/notes/implemented/architecture/2026-08-23-locale-owned-client-ui-copy.zh.md)）。
 - **`TerminalBlock` 不是终端模拟器**：它渲染已结束或仍在运行的命令输出，而不是交互式会话：SGR 颜色、回车、退格、行内擦除、制表位与字符宽度会被遵循；绝对光标定位、清屏与备用屏幕序列会被剥离。
 
 <a id="dev-note"></a>
@@ -161,4 +161,4 @@ kind: "package-library"
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。这些是纯 props-in React atom，没有 Cordis API、事件、service 或跨插件可变状态；渲染约定由组件测试覆盖。
+**运行时不变式：** 不发布伴生入口。这些是纯 props-in React atom，没有 Kylin API、事件、service 或跨插件可变状态；渲染约定由组件测试覆盖。

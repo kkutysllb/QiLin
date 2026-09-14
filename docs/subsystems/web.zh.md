@@ -126,7 +126,7 @@ type WebFetchBody =
 
 ## 抓取网络策略
 
-已交付的 Cordis、Code 与 Standard preset 会在所有 sandbox 和审批模式下暴露 `web_fetch`，无需逐次确认。文件 sandbox preset 不管辖 Web 网络访问。需要确认步骤的部署必须添加 `tools/pre-execute` 策略或禁用抓取。
+已交付的 Kylin、Code 与 Standard preset 会在所有 sandbox 和审批模式下暴露 `web_fetch`，无需逐次确认。文件 sandbox preset 不管辖 Web 网络访问。需要确认步骤的部署必须添加 `tools/pre-execute` 策略或禁用抓取。
 
 HTTP 提供方会解析每个实际请求，拒绝包括通过当前 DNS64 前缀抵达私有 IPv4 在内的非公开结果，固定已验证的地址集合，并在每次同源重定向时重复强制执行。跨源重定向需要新的工具调用和新的公开地址校验。这些检查会阻止通过 SSRF 访问非公开目的地址，但不会阻止模型把数据发送到公开 URL。
 
@@ -138,13 +138,13 @@ HTTP 提供方会解析每个实际请求，拒绝包括通过当前 DNS64 前�
 
 `WebRuntime` 注册搜索与抓取提供方，以 `WEB_DUPLICATE_PROVIDER` 拒绝重复 id，并在执行时以结构化的选择错误解析提供方。本地抓取后端仅接受 HTTP(S)、拒绝凭证、对每个 hostname 只解析一次、拒绝包含任一非公开 IPv4／IPv6 目的地址或经当前前缀转换到非公开 IPv4 的 NAT64 地址的解析结果、把请求连接固定到已验证地址、对每一次同源重定向跳转重复这些校验、限制重定向次数、字节数、字符数和时间，并解码正文；展示由工具负责。
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxweb--webruntime"></a>
 
@@ -203,4 +203,4 @@ async fetch(request: WebFetchRequest, signal?: AbortSignal): Promise<WebFetchRes
 ```
 
 Source: [`packages/web/web/src/index.ts`](../../packages/web/web/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-14-kylin-framework-rescope.md
-2026-09-14-kylin-framework-rescope.md: 6dae8835fad70e4946a723cb8abe10072bb0f799
-2026-09-14-kylin-framework-rescope.zh.md: 9d980fef5b49783f0f5506da6ab9068a5195b486
+2026-09-14-kylin-framework-rescope.md: c6aa1c9c2ebb68f324f01d01f1ab17010bec99dc
+2026-09-14-kylin-framework-rescope.zh.md: 095decdea6b5c20750073612d13258bea6a7e26f

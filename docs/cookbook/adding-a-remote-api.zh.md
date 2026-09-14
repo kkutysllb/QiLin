@@ -6,7 +6,7 @@
 
 ## 1. 声明 API
 
-owner 是一个 Host 侧 Cordis 服务：继承 `TypertRemoteService` 把 service 键与 wire namespace 一起绑定，再用 `@Remote` 标注对外暴露的方法。业务方法的签名若已符合 wire 约定就直接标注它本身；只有形态需要调整（补 `signal`、换参数顺序、换导出名）才写一个 `remoteExport*` adapter，由它调用不改名的业务方法。lookup 对象（`Agent`、`Session`）只能占顶层参数位，支持协作式取消的方法把 `signal: AbortSignal` 放在最后一位。
+owner 是一个 Host 侧 Kylin 服务：继承 `TypertRemoteService` 把 service 键与 wire namespace 一起绑定，再用 `@Remote` 标注对外暴露的方法。业务方法的签名若已符合 wire 约定就直接标注它本身；只有形态需要调整（补 `signal`、换参数顺序、换导出名）才写一个 `remoteExport*` adapter，由它调用不改名的业务方法。lookup 对象（`Agent`、`Session`）只能占顶层参数位，支持协作式取消的方法把 `signal: AbortSignal` 放在最后一位。
 
 ```ts
 import type { Context } from '@qilin/kylin'

@@ -88,4 +88,4 @@ composer 携带图片或通用文件提交时，只有声明了 `input.attachmen
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。这是基于 wire command directory 的浏览器侧 source，不发出 Cordis 事件，也不持有跨插件可变状态；dispatch 与 cache 行为由包测试覆盖。
+**运行时不变式：** 不发布伴生入口。这是基于 wire command directory 的浏览器侧 source，不发出 Kylin 事件，也不持有跨插件可变状态；dispatch 与 cache 行为由包测试覆盖。

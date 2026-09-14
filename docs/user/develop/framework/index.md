@@ -2,7 +2,7 @@
 
 English | [中文](index.zh.md)
 
-This page describes the Cordis plugin model and lifecycle state machine.
+This page describes the Kylin plugin model and lifecycle state machine.
 
 ## Fiber state machine
 
@@ -134,4 +134,4 @@ effect cleaned up
 
 - [Services and dependencies](./service.md) — expose a capability to other plugins
 - [Event system](./events.md) — communicate between plugins
-- [Cordis tutorial](../../../cordis-tutorial/index.md) — the same lifecycle, services, and events built step by step against the Cordis runtime
+- [Kylin tutorial](../../../kylin-tutorial/index.md) — the same lifecycle, services, and events built step by step against the Kylin runtime

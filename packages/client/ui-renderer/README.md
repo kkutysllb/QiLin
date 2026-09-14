@@ -55,7 +55,7 @@ The plugin activates after `slots`, `sessions`, and `layout`; it installs `creat
 
 ### Identity
 
-React, React DOM, Cordis, ui-slots, and ui-primitives retain one browser identity through the web shell's static module table; this package arrives as a dynamic client bundle.
+React, React DOM, Kylin, ui-slots, and ui-primitives retain one browser identity through the web shell's static module table; this package arrives as a dynamic client bundle.
 
 </details>
 

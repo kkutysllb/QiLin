@@ -8,11 +8,11 @@
 
 业务服务通过 `@Remote` 或 `@RemoteScope` 选择对 Client 开放的方法。未标记的方法不会进入生成的 Client 类型或运行时贡献，也不能通过 `ctx.remote` 调用。
 
-`@Remote` 表示调用根 Host Context 中注册的 Cordis 服务。复杂的 Host 对象不能直接跨 wire 传输；业务包必须通过 `TypertLookupMap` 声明它与 wire identity 的关联，并在运行时向 `ctx.typert.lookups` 注册默认解析提供方。例如 `Agent` 参数在 Host 签名中名为 `agent`，生成的 wire 字段为 `agentId`，Gateway 在调用业务方法前将 id 解析为 Host 对象。Host 组合可以用 `ctx.typert.lookups.configure()` 覆盖某个 lookup key 的解析策略，而不改变业务包拥有的参数名、wire 字段或规范类型 symbol。
+`@Remote` 表示调用根 Host Context 中注册的 Kylin 服务。复杂的 Host 对象不能直接跨 wire 传输；业务包必须通过 `TypertLookupMap` 声明它与 wire identity 的关联，并在运行时向 `ctx.typert.lookups` 注册默认解析提供方。例如 `Agent` 参数在 Host 签名中名为 `agent`，生成的 wire 字段为 `agentId`，Gateway 在调用业务方法前将 id 解析为 Host 对象。Host 组合可以用 `ctx.typert.lookups.configure()` 覆盖某个 lookup key 的解析策略，而不改变业务包拥有的参数名、wire 字段或规范类型 symbol。
 
 `@RemoteScope(key)` 表示先通过 `ctx.typert.contexts` 把 identity 解析为一个作用域 Context，再从该 Context 取得服务并调用方法。它适用于方法本身依赖作用域组合、而不需要显式接收 `Agent` 等对象的情形。
 
-服务通常继承 `TypertRemoteService`，让 Cordis 服务 key 与默认 Remote namespace 在构造器中显式绑定。已有其他基类的服务可以改为声明 `readonly typertRemote = bindTypertRemote(this, serviceKey)`；两种方式都会留下可检查的公开 binding，不依赖编译器向构造函数注入 symbol。
+服务通常继承 `TypertRemoteService`，让 Kylin 服务 key 与默认 Remote namespace 在构造器中显式绑定。已有其他基类的服务可以改为声明 `readonly typertRemote = bindTypertRemote(this, serviceKey)`；两种方式都会留下可检查的公开 binding，不依赖编译器向构造函数注入 symbol。
 
 ```ts
 import type { Agent } from '@qilin/agent'
@@ -55,7 +55,7 @@ export class GoalService extends TypertRemoteService {
 
 Remote 方法可以同步返回或返回 Promise。若需要协作式取消，Host 签名的最后一个参数必须是全局类型的 `signal: AbortSignal`；它记录在描述符中而不是进入 `args`，Client 生成的方法则接受最后一个可选的 `AbortSignal`。
 
-Client 使用普通对象上的具体函数，不使用 JavaScript Proxy。直接调用与作用域调用分别出现在 `ctx.remote.<namespace>` 和 `agentCtx.remote.<namespace>`。每个 namespace 都是注册为 `remote.<namespace>` 的可追踪 Cordis 子服务；Client assembly 通过 `ctx.remote.$mount()` 挂载贡献，最后一个方法撤回后该 namespace 随即卸载。依赖声明归实际调用方所有：只有读取 `ctx.remote.<namespace>` 或 `agentCtx.remote.<namespace>` 的业务包才在自己的 `inject` 中同时声明 `remote` 与 `remote.<namespace>`；只负责挂载 contribution 的 assembly，以及不调用该 namespace 的上层运行时，不代业务包声明 namespace 依赖。当一个 `@Remote` 方法恰好有一个 lookup 参数、且同名 `TypertContextMap` 使用相同 wire identity 时，生成的作用域签名会省略该 identity 参数。`@RemoteScope` 只生成作用域调用接口。
+Client 使用普通对象上的具体函数，不使用 JavaScript Proxy。直接调用与作用域调用分别出现在 `ctx.remote.<namespace>` 和 `agentCtx.remote.<namespace>`。每个 namespace 都是注册为 `remote.<namespace>` 的可追踪 Kylin 子服务；Client assembly 通过 `ctx.remote.$mount()` 挂载贡献，最后一个方法撤回后该 namespace 随即卸载。依赖声明归实际调用方所有：只有读取 `ctx.remote.<namespace>` 或 `agentCtx.remote.<namespace>` 的业务包才在自己的 `inject` 中同时声明 `remote` 与 `remote.<namespace>`；只负责挂载 contribution 的 assembly，以及不调用该 namespace 的上层运行时，不代业务包声明 namespace 依赖。当一个 `@Remote` 方法恰好有一个 lookup 参数、且同名 `TypertContextMap` 使用相同 wire identity 时，生成的作用域签名会省略该 identity 参数。`@RemoteScope` 只生成作用域调用接口。
 
 ```ts ignore-check
 import type { SessionId } from '@qilin/session/types'
@@ -81,16 +81,16 @@ Client 应用只装配 `@qilin/api-remotes`。该包以运行时值导入被选�
 
 | 位置 | 包或入口 | 职责 |
 |---|---|---|
-| 共享 | `@qilin/typert-protocol` | 声明 decorator、Gateway binding、可合并协议映射、调用描述符及提供方类型；不启动 TypeScript 分析，也不注册 Cordis 服务 |
+| 共享 | `@qilin/typert-protocol` | 声明 decorator、Gateway binding、可合并协议映射、调用描述符及提供方类型；不启动 TypeScript 分析，也不注册 Kylin 服务 |
 | 构建 | `@qilin/typert-generator` | 从 Host `ts.Program` 严格分析 Remote 签名、类型图、lookup、Context 与源码位置，并生成 Host 和 Host-for-Client 产物 |
 | Host | `@qilin/typert-registry` 与 Loader | 把生成的 Host 描述符、schema 及业务包注册项放入 `ctx.typert`，并持有 lookup 与 Context 提供方 |
 | Host | `@qilin/api-session-controller` | 负责应用的 Agent/Session 身份策略，并配置对应的 Typert lookup |
-| Host | `@qilin/api-gateway` | 提供 `ctx.typertGateway`，认领 Remote endpoint，解析对象或 Context，调用实时 Cordis 服务，并校验请求值和返回值 |
+| Host | `@qilin/api-gateway` | 提供 `ctx.typertGateway`，认领 Remote endpoint，解析对象或 Context，调用实时 Kylin 服务，并校验请求值和返回值 |
 | Client | `@qilin/api-gateway/client` | 提供 `ctx.remote` 与 `remote.<namespace>` 子服务，把生成的描述符挂成具体方法，并通过 Connection 发起、校验和取消调用 |
 | Client | `@qilin/api-remotes/client` | 显式选择并挂载本应用允许使用的 `/remote` 贡献，向业务代码带入对应的声明合并 |
 | 双侧 | `@qilin/client-connection` | 提供 RPC carrier、请求关联、信任边界、取消、响应 envelope 与 `/api` HTTP bridge |
 
-API Gateway 包同时拥有 Host dispatcher 与 Client Remote endpoint 两个对等入口，但两侧构建不会进入同一个 `ts.Program`。Host 入口不导入 Client 的 Cordis `Context` 合并，Client 入口也不导入 Host Gateway 服务。
+API Gateway 包同时拥有 Host dispatcher 与 Client Remote endpoint 两个对等入口，但两侧构建不会进入同一个 `ts.Program`。Host 入口不导入 Client 的 Kylin `Context` 合并，Client 入口也不导入 Host Gateway 服务。
 
 ## 严格生成流水线
 

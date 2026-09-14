@@ -75,7 +75,7 @@ The generator is built on one separation: extraction and emission are decoupled 
 | [`src/emitter.ts`](src/emitter.ts) | `FaceModelEmitter`: Zod schema and declaration emission, Remote declarations |
 | [`src/workspace.ts`](src/workspace.ts) | `WorkspaceTypertGenerator`: discovery, generation, export and files validation |
 | [`src/tsdown-plugin.ts`](src/tsdown-plugin.ts) | tsdown plugin face: decorator lowering and artifact emission |
-| [`src/cordis-catalog.ts`](src/cordis-catalog.ts) | Catalog projection used by the generated Cordis catalogs |
+| [`src/cordis-catalog.ts`](src/cordis-catalog.ts) | Catalog projection used by the generated Kylin catalogs |
 
 ### Analysis and faces
 
@@ -87,7 +87,7 @@ Host and client are independent TypeScript programs. Direct project references e
 
 ### Catalog projection
 
-The root export includes the model-driven extraction, completeness checks, and deterministic text renderers used by this repository's Cordis catalogs. They accept a `CordisCatalogPolicy`; repository-owned type links, foundation and exemption classifications, and inherited Cordis entries stay in `scripts/gen-cordis-catalog.ts` and are passed in explicitly, so this package contains projection mechanics, not a hidden copy of the repository's documentation taxonomy.
+The root export includes the model-driven extraction, completeness checks, and deterministic text renderers used by this repository's Kylin catalogs. They accept a `CordisCatalogPolicy`; repository-owned type links, foundation and exemption classifications, and inherited Kylin entries stay in `scripts/gen-kylin-catalog.ts` and are passed in explicitly, so this package contains projection mechanics, not a hidden copy of the repository's documentation taxonomy.
 
 </details>
 

@@ -28,7 +28,7 @@ kind: "package-library"
 
 ### 创建作用域
 
-`createScope(ctx, key)` 在 `ctx` 的 fiber 下创建作用域：其 `ctx` 携带作用域标签，通过它进行的每项注册既具备作用域可见性，也服从作用域生命周期。`dispose()` 撤销通过该作用域进行的每项注册；`rawDispose` 是确切 Cordis disposer，用于把 teardown 嵌套进有序组合 effect。
+`createScope(ctx, key)` 在 `ctx` 的 fiber 下创建作用域：其 `ctx` 携带作用域标签，通过它进行的每项注册既具备作用域可见性，也服从作用域生命周期。`dispose()` 撤销通过该作用域进行的每项注册；`rawDispose` 是确切 Kylin disposer，用于把 teardown 嵌套进有序组合 effect。
 
 ```text
 const scope = createScope(ctx, agent)
@@ -98,7 +98,7 @@ await scope.dispose()   // unwinds every registration made through scope.ctx
 
 这些限制说明该原语何时需要特别留意。它们是当前包约束，不是任务积压。
 
-- **只有感知作用域的表层才会隔离状态**：注册表必须按 `scopeOf()` 归档，事件必须通过 `scopeTarget()` 分发；仅仅通过带作用域的上下文调用任意 Cordis 服务，并不会改变该服务仍为上下文全局这一事实。
+- **只有感知作用域的表层才会隔离状态**：注册表必须按 `scopeOf()` 归档，事件必须通过 `scopeTarget()` 分发；仅仅通过带作用域的上下文调用任意 Kylin 服务，并不会改变该服务仍为上下文全局这一事实。
 - **一个上下文只携带一个最近的作用域键**：层级关系存在于键级父关系中而非上下文标签里；嵌套作用域上下文仍遮蔽为单一标签，多成员策略集仍不受支持。
 - **服务可达性来自作用域创建者**：交出 `Scope.ctx` 也会交出创建插件注入的服务范围，因此，若作用域创建者提供的服务范围较宽，持有者之后也无法将其收窄。
 

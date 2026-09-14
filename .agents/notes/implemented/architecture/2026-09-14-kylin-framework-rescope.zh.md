@@ -30,4 +30,4 @@ harness 自有的扩展包在同一波改名：`@qilin/tool-cordis` → `@qilin/
 
 ## 后果
 
-引用 `@deepseek-ai/cordis*` 行的组合不再解析；产品处于预发布阶段，不提供迁移。后续阶段改名 harness 自有的 `@qilin/*cordis*` 包与文档散文；录制会话快照按新插件行名刷新。
+引用 `@deepseek-ai/cordis*` 行的组合不再解析；产品处于预发布阶段，不提供迁移。文档层承载同一改名：`cordis-primer`/`cordis-tutorial`/`cordis-api`/`dynamic-cordis` 更名为 `kylin-` 系列，`gen-cordis-*` 生成器随产物更名，散文以 Kylin 称呼框架而上游引用保留 Cordis 拼写。录制会话快照按新插件行名刷新。

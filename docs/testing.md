@@ -46,8 +46,8 @@ An e2e assertion re-runs the command or re-reads the file externally; a keyword 
 
 ## Test subprocess launch modes
 
-- CI and build-having test lanes run every profile or Cordis-config subprocess from built `lib/` through the shared dual-mode launcher. Do not hand-write `--import tsx` for these subprocesses.
-- Protocol and operating-system fixtures that do not load Cordis run erasable `.ts` directly with Node, without tsx or the root paths map.
+- CI and build-having test lanes run every profile or Kylin-config subprocess from built `lib/` through the shared dual-mode launcher. Do not hand-write `--import tsx` for these subprocesses.
+- Protocol and operating-system fixtures that do not load Kylin run erasable `.ts` directly with Node, without tsx or the root paths map.
 - Only a test whose subject is source-path resolution may select `src`; state that contract in the test.
 
 ## When a snapshot test is required

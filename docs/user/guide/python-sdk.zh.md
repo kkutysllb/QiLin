@@ -132,7 +132,7 @@ qilin plugin --profile sdk-minimal add file:C:/work/my-plugin-bundle
 <a id="opt-in-to-str_replace_editor"></a>
 ### 显式启用 `str_replace_editor`
 
-随附运行时包含 `str_replace_editor`，但 `sdk-minimal` 的默认 Cordis tree 不挂载它。要使用该工具，请将以下配置保存为 `editor.patch.yml`；`insert` 会添加 editor，以及极简 profile 缺少的文件系统后端：
+随附运行时包含 `str_replace_editor`，但 `sdk-minimal` 的默认 Kylin tree 不挂载它。要使用该工具，请将以下配置保存为 `editor.patch.yml`；`insert` 会添加 editor，以及极简 profile 缺少的文件系统后端：
 
 ```yaml
 - insert:

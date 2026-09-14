@@ -34,8 +34,8 @@ E2B 家族让 agent（智能体）在一个远程 Linux 沙箱中读取和编辑
 ## 相关文档
 
 - [可移植执行世界决策](../../.agents/notes/implemented/architecture/2026-07-28-portable-execution-world-consumers.zh.md)——执行世界为何可以在不移动 harness 的情况下迁移，以及哪些内容留在本地。
-- [子进程子系统](../../docs/subsystems/subprocess.zh.md)——子进程 seam 约定与生成的 Cordis 表面，包括 `ctx.e2b`。
-- [文件系统子系统](../../docs/subsystems/filesystem.zh.md)——文件系统 seam 约定与生成的 Cordis 表面。
+- [子进程子系统](../../docs/subsystems/subprocess.zh.md)——子进程 seam 约定与生成的 Kylin 表面，包括 `ctx.e2b`。
+- [文件系统子系统](../../docs/subsystems/filesystem.zh.md)——文件系统 seam 约定与生成的 Kylin 表面。
 
 -----
 

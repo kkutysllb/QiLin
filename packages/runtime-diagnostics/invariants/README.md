@@ -149,7 +149,7 @@ Checks observe assembled requests and durable state without mutating request con
 
 These limits define when the registry is a poor fit or needs operational care. They are current package constraints, not a task backlog.
 
-- **Filters are fixed for the service lifetime** — `enabled`, `package_allowlist`, and `package_blocklist` are compiled once at startup; changing them requires a Cordis plugin reload.
+- **Filters are fixed for the service lifetime** — `enabled`, `package_allowlist`, and `package_blocklist` are compiled once at startup; changing them requires a Kylin plugin reload.
 - **Live-only companions miss pre-reload operations** — a companion that only observes live operations cannot reconstruct operations that began before its own reload; session-backed companions rebuild their baseline from durable events.
 - **Request reconstruction covers loop-built requests only** — the `qilin-agent-loop` companion reconstructs requests explicitly built by the loop; direct one-shot LLM calls remain outside that contract even when callers freeze them or attach a session id.
 - **No checks without a companion** — the registry ships no product checks; a composition that mounts the service alone observes nothing.

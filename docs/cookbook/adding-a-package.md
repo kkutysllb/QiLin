@@ -43,9 +43,9 @@ For a swappable capability, separate Service Definition / Service Provider / Con
 
 ### Name the role that exists
 
-Name the stable current responsibility. Do not name the first implementation, a possible future expansion, or the Cordis base class. An interface package names the capability. An implementation package adds the mechanism, protocol, environment, or vendor that distinguishes it. Use `local` only when same-host execution is part of the contract.
+Name the stable current responsibility. Do not name the first implementation, a possible future expansion, or the Kylin base class. An interface package names the capability. An implementation package adds the mechanism, protocol, environment, or vendor that distinguishes it. Use `local` only when same-host execution is part of the contract.
 
-Use a singular `ctx` key for one engine, runtime, policy, controller, resolver, store, or current configuration. Use a plural key for a registry or a service that owns multiple named members. The class role and key number must agree. Do not reuse one Cordis `Context` key for incompatible host and client declarations. TypeScript declaration merging sees both faces even when they use separate runtime contexts. Add the role suffix when the natural plural already belongs to another face.
+Use a singular `ctx` key for one engine, runtime, policy, controller, resolver, store, or current configuration. Use a plural key for a registry or a service that owns multiple named members. The class role and key number must agree. Do not reuse one Kylin `Context` key for incompatible host and client declarations. TypeScript declaration merging sees both faces even when they use separate runtime contexts. Add the role suffix when the natural plural already belongs to another face.
 
 | Word | Use it when | Do not use it when |
 |---|---|---|
@@ -65,7 +65,7 @@ Use a singular `ctx` key for one engine, runtime, policy, controller, resolver, 
 | `Backend` | It implements replaceable lower-level persistence, transport, or execution behind a defined interface. | It is a user-facing service or one returned live-resource reference. |
 | `Handle` | It refers to one live resource and controls or observes that resource. | It creates and manages the complete resource pool. |
 | `Config` | It owns one resolved configuration value or one tightly bounded record and its update contract. | It stores a general collection, executes work, or exposes unrelated settings. |
-| `Service` | It owns a cohesive domain service that no sharper role above states honestly. | The name exists only because the class extends Cordis `Service`. |
+| `Service` | It owns a cohesive domain service that no sharper role above states honestly. | The name exists only because the class extends Kylin `Service`. |
 
 Use `SDK` only for the JSON-RPC client/server protocol used by the supported Python and TypeScript SDKs. QiLin itself is an agent harness, not an SDK project. Use the canonical product spelling `Typert`, never `TypeRT` or `typeRT`.
 

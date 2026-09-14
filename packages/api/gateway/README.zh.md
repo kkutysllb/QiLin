@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-为 Host 与 Client 两侧的 Cordis 环境提供 Typert RPC endpoint。Host 入口提供 `ctx.typertGateway`，`@qilin/api-gateway/client` 则提供 `ctx.remote`；两者使用同一份生成的 `InvocationDescriptor` 约定，并将业务选择交给 API Remotes。Connection 承载一元调用的请求关联、信任和响应 envelope，Gateway 则拥有多路复用的 Remote 流。
+为 Host 与 Client 两侧的 Kylin 环境提供 Typert RPC endpoint。Host 入口提供 `ctx.typertGateway`，`@qilin/api-gateway/client` 则提供 `ctx.remote`；两者使用同一份生成的 `InvocationDescriptor` 约定，并将业务选择交给 API Remotes。Connection 承载一元调用的请求关联、信任和响应 envelope，Gateway 则拥有多路复用的 Remote 流。
 
 ## 目录
 
@@ -24,7 +24,7 @@ kind: "package-reference"
 <a id="host-service-typertgatewayservice-ctx-key-typertgateway"></a>
 ## Host 服务：`TypertGatewayService`（ctx key：`typertGateway`）
 
-每次调用时，`ctx.typertGateway.invoke()` 都会解析当前的描述符和 Cordis 服务，校验具名参数是否完全匹配，解析已注册的对象或 Context 身份标识，调用公开的业务方法，并校验其结果。业务服务继承 [`qilin-typert-protocol`](../../typert/protocol/README.zh.md) 的 `TypertRemoteService`，并用 `@Remote` 或 `@RemoteScope` 标记方法；已有其他基类时仍可改用 `bindTypertRemote()`。
+每次调用时，`ctx.typertGateway.invoke()` 都会解析当前的描述符和 Kylin 服务，校验具名参数是否完全匹配，解析已注册的对象或 Context 身份标识，调用公开的业务方法，并校验其结果。业务服务继承 [`qilin-typert-protocol`](../../typert/protocol/README.zh.md) 的 `TypertRemoteService`，并用 `@Remote` 或 `@RemoteScope` 标记方法；已有其他基类时仍可改用 `bindTypertRemote()`。
 
 严格模式从 `ctx.typert.local` 读取生成的调用描述符。查找参数使用 `ctx.typert.lookups` 中当前有效的 resolver：业务包注册稳定声明与默认策略，Host 组合可用 effect-scoped `configure()` 覆盖解析行为；`@RemoteScope` 则通过已注册的 Host Context adapter 解析其接收者。SRC 模式是开发阶段的回退路径，适用于从未具备严格定义的端点；它解析简单参数名，并且只允许非查找参数使用可安全表示为 JSON 的值。已观测到的严格定义一旦撤回，系统会直接报错，而不会降低校验强度。
 
@@ -39,7 +39,7 @@ Host 组合可通过 `registerRemoteEvents()` 注册唯一的应用事件 source
 <a id="client-service-clientremote-ctx-key-remote"></a>
 ## Client 服务：`ClientRemote`（ctx key：`remote`）
 
-`ctx.remote.$mount()` 会校验并注册生成的 Host-for-Client 贡献项，然后为发起调用的 Cordis fiber 安装具体的直接方法和作用域方法。每个 namespace 都是可追踪的 `remote.<namespace>` 子 Service，并在最后一个方法撤回后卸载。重复端点、命名空间冲突，以及缺少生成的严格编解码器的描述符，都会在方法可调用前报错。
+`ctx.remote.$mount()` 会校验并注册生成的 Host-for-Client 贡献项，然后为发起调用的 Kylin fiber 安装具体的直接方法和作用域方法。每个 namespace 都是可追踪的 `remote.<namespace>` 子 Service，并在最后一个方法撤回后卸载。重复端点、命名空间冲突，以及缺少生成的严格编解码器的描述符，都会在方法可调用前报错。
 
 每次一元调用都会校验位置参数，构造与描述符完全匹配的具名 `args`，再通过 `ctx.connection.rpc.call('/api', endpoint, ...)` 发送。生成的流方法返回 `AsyncIterable`，并在进程内 Connection 载体可用时通过它打开逻辑流，否则通过共享的 Gateway WebSocket 打开。生成的支持取消的方法接受最后一个可选 `AbortSignal`；Client 会在调用载体前将它与贡献项的挂载生命周期合并。一元结果和每个流项都经过校验后才会交给应用代码。撤回贡献项会同时移除其描述符和方法、中止正在进行的调用与流，并使外部仍持有的方法句柄在调用时返回拒绝。
 
@@ -49,11 +49,11 @@ Host 组合可通过 `registerRemoteEvents()` 注册唯一的应用事件 source
 
 `ctx.remote.$stream()` 返回跨越多个物理载体代次的单消费方 `RemoteStream`。Host 仍在线时，它允许一次立即重试；Host 离线时，它等待下一代连接，并为每个流项标注物理代次。领域消费方校验并接受各代次的 opening value；业务与协议错误仍然终止流。一切终态失败离开本面时都是 `RemoteError`，包括重试耗尽和在 opening value 之前就结束的代次，因此流消费方与一元调用方用同一种方式判别。`RemoteStreamCarrierError` 命名的是可重试的物理丢失，它只作为 `carrierFailed` 回调参数到达领域，绝不作为终态结果。`RemoteSnapshotStream` 在此之上规定每代由一个 opening snapshot 和后续 delta 组成。`RemoteJournalStream` 基于领域提供的 entry 闭区间提供 follow-before-page、分页、重连追赶与缺口修复；它丢弃完整重复项，并拒绝缺口、倒置区间和部分重叠。领域还可以携带无 cursor 的通知：通知绝不推进或修复持久 cursor，在缺口修复期间收到的通知只会在 replacement page 提交后发布。若更新代次取代该修复，旧代次 held notification 会与其 page 一同丢弃。dispose 任一种 stream 都会取消其请求，并在活动 iterator 完全停止后完成。
 
-`ctx.remote.$on()` 订阅一条被转发的 Host 事件。它的合法键恰好等于 Host 装配声明的转发选择，listener 类型就是事件所属包自己的 Cordis `Events` 声明，因此不存在会与之漂移的第二份签名。每个订阅归属调用方 fiber，并随该 fiber 一起消失。Client Remote 服务激活时就把 `$events` pump 注册为 Connection generation source，因此即使当前无 `$on` 订阅，它也会在 Connection 循环启动时打开。浏览器使用 Remote mux，进程内组合使用 `connection.rpc.open`；opening `ready` 项建立 Connection generation 并提供 Host 信息。物理 carrier 失败、Remote stream error、意外正常结束、非 ready 首项或畸形事件项都会终止该 generation，由 Connection 按持续且间隔封顶的带抖动指数退避重开。普通通知按注册顺序运行并隔离 listener 失败；Agent-scoped waterfall 允许 listener 返回结果、调用 `next()` 或拒绝，Gateway 再通过现有 HTTP 一元载体回送该结果。
+`ctx.remote.$on()` 订阅一条被转发的 Host 事件。它的合法键恰好等于 Host 装配声明的转发选择，listener 类型就是事件所属包自己的 Kylin `Events` 声明，因此不存在会与之漂移的第二份签名。每个订阅归属调用方 fiber，并随该 fiber 一起消失。Client Remote 服务激活时就把 `$events` pump 注册为 Connection generation source，因此即使当前无 `$on` 订阅，它也会在 Connection 循环启动时打开。浏览器使用 Remote mux，进程内组合使用 `connection.rpc.open`；opening `ready` 项建立 Connection generation 并提供 Host 信息。物理 carrier 失败、Remote stream error、意外正常结束、非 ready 首项或畸形事件项都会终止该 generation，由 Connection 按持续且间隔封顶的带抖动指数退避重开。普通通知按注册顺序运行并隔离 listener 失败；Agent-scoped waterfall 允许 listener 返回结果、调用 `next()` 或拒绝，Gateway 再通过现有 HTTP 一元载体回送该结果。
 
 `ctx.remote` 不暴露 Connection 生命周期控制。只有职责包含恢复的消费方才直接读取 `ctx.connection.state` 并调用 `ctx.connection.reconnect()`；普通 Remote 消费方仍只使用生成的 namespace 与 `$stream()`。
 
-生成的声明合并通过共享的 `TypertClientRemote` 约定提供 TypeScript API。Client 入口不包含 Host 服务或 Host Cordis 接口合并；方法查找和调用使用普通对象与函数，而不使用 JavaScript Proxy。
+生成的声明合并通过共享的 `TypertClientRemote` 约定提供 TypeScript API。Client 入口不包含 Host 服务或 Host Kylin 接口合并；方法查找和调用使用普通对象与函数，而不使用 JavaScript Proxy。
 
 <a id="model-experience"></a>
 ## 模型体验
@@ -87,4 +87,4 @@ Host 组合可通过 `registerRemoteEvents()` 注册唯一的应用事件 source
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。Host 调用会重新读取权威的 Cordis 与 Typert 状态，Client 方法、描述与 `$on` 订阅则在同一个 effect 中完成变更。
+**运行时不变式：** 不发布伴生入口。Host 调用会重新读取权威的 Kylin 与 Typert 状态，Client 方法、描述与 `$on` 订阅则在同一个 effect 中完成变更。

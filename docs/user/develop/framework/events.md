@@ -2,7 +2,7 @@
 
 English | [中文](events.zh.md)
 
-Events are the core communication mechanism between Cordis plugins. Harness uses them extensively for loosely coupled extension points.
+Events are the core communication mechanism between Kylin plugins. Harness uses them extensively for loosely coupled extension points.
 
 ## Basic use
 
@@ -22,7 +22,7 @@ ctx.emit('event-name', payload)
 
 ## Event modes
 
-Cordis provides several event modes for different interaction contracts.
+Kylin provides several event modes for different interaction contracts.
 
 ### emit — broadcast
 
@@ -99,11 +99,11 @@ declare module '@qilin/kylin' {
 // are now inferred correctly.
 ```
 
-## Cordis events and session records
+## Kylin events and session records
 
-Harness Cordis events use `namespace/action` names, including `agent/pre-step`, `agent/request`, `agent/request-error`, `tools/result`, and `session/event`. The generated `cordis-surface` regions on the [subsystem pages](../../../subsystems/core.md) record complete signatures and modes.
+Harness Kylin events use `namespace/action` names, including `agent/pre-step`, `agent/request`, `agent/request-error`, `tools/result`, and `session/event`. The generated `kylin-surface` regions on the [subsystem pages](../../../subsystems/core.md) record complete signatures and modes.
 
-`turn/*`, `step/*`, `tool/call`, `tool/result`, and `compaction/*` are durable session-event types, not same-named Cordis events. To observe them, listen to `session/event` and inspect `event.type`.
+`turn/*`, `step/*`, `tool/call`, `tool/result`, and `compaction/*` are durable session-event types, not same-named Kylin events. To observe them, listen to `session/event` and inspect `event.type`.
 
 ## Event listeners are effects
 

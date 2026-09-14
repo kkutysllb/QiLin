@@ -62,7 +62,7 @@ kind: "package-reference"
 - **强制执行归属，而非库。** `qilin-timeout` 负责时序与分类（`deadline`、`timeoutOf`）；本插件负责 `tools/execute` 上的单次调用接线；各能力负责终止。该拆分记录在[超时截止时间库 Agent Note](../../../.agents/notes/implemented/architecture/2026-07-06-timeout-deadline-library.zh.md) 中。
 - **工具声明自己的预算。** `timeoutMs` 位于工具的 `ToolDefinition` 上，从注册表读取（`ctx.tools.get(exec.name, exec.agent)?.timeoutMs`），因此不可能拼错工具名，未声明工具原样委派。
 - **作用域分类。** `TOOL_TIMEOUT` 同时用作内部 `deadline` 分类码与结构化错误 `code`；把 `timeoutOf` 限定到它，可避免嵌套的外层截止时间（先触发的另一包装层计时器）被误读为本插件的超时——它读作普通的上游取消。
-- **先交换信号，再恢复。** Cordis `next()` 忽略传入参数，因此包装层原地修改共享 `exec`：分发时把派生的截止时间信号换到 `exec` 上，并在 `finally` 中恢复调用方信号，使 `tools/post-execute` 监听器永远看不到本插件可能已中止的信号。
+- **先交换信号，再恢复。** Kylin `next()` 忽略传入参数，因此包装层原地修改共享 `exec`：分发时把派生的截止时间信号换到 `exec` 上，并在 `finally` 中恢复调用方信号，使 `tools/post-execute` 监听器永远看不到本插件可能已中止的信号。
 
 ### 截止时间如何设置与映射
 
@@ -70,7 +70,7 @@ kind: "package-reference"
 
 ### 与其他包装层组合
 
-多个 `tools/execute` 监听器按 Cordis 注册顺序组合，注册顺序决定语义：超时注册在外层时覆盖整个重试操作，注册在内层时覆盖每次尝试。
+多个 `tools/execute` 监听器按 Kylin 注册顺序组合，注册顺序决定语义：超时注册在外层时覆盖整个重试操作，注册在内层时覆盖每次尝试。
 
 ### 源码地图
 

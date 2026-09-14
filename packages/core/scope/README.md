@@ -28,7 +28,7 @@ Plugin authors use `qilin-scope` to give one agent (or one group) its own regist
 
 ### Mint a scope
 
-`createScope(ctx, key)` creates a scope under `ctx`'s fiber: its `ctx` carries the scope tag, and everything registered through it is both scope-visible and scope-lifetime. `dispose()` unwinds every registration through the scope; `rawDispose` is the exact Cordis disposer for nesting the teardown in an ordered composite effect.
+`createScope(ctx, key)` creates a scope under `ctx`'s fiber: its `ctx` carries the scope tag, and everything registered through it is both scope-visible and scope-lifetime. `dispose()` unwinds every registration through the scope; `rawDispose` is the exact Kylin disposer for nesting the teardown in an ordered composite effect.
 
 ```text
 const scope = createScope(ctx, agent)
@@ -98,7 +98,7 @@ The package-level contract is enough for most consumers; read these when you nee
 
 These limits define when the primitive needs special care. They are current package constraints, not a task backlog.
 
-- **Only scope-aware APIs isolate state** — registries must file by `scopeOf()` and events must dispatch through `scopeTarget()`; an arbitrary Cordis service remains context-global merely because it is called through a scoped context.
+- **Only scope-aware APIs isolate state** — registries must file by `scopeOf()` and events must dispatch through `scopeTarget()`; an arbitrary Kylin service remains context-global merely because it is called through a scoped context.
 - **A context carries one nearest scope key** — the hierarchy lives in the key-level parent relation, not in context tags; nested scope contexts still shadow to a single tag, and multi-membership policy sets remain unsupported.
 - **Service reachability comes from the scope minter** — handing out `Scope.ctx` also hands out the minting plugin's injected services, so a broader minter cannot later be narrowed by the holder.
 

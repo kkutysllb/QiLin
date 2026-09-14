@@ -42,7 +42,7 @@ export function apply(ctx: Context, config: Config) {
         maxRetries: 5
 ```
 
-插件加载时，Cordis 会通过导出的 schema 校验配置，并填充未提供字段的默认值。不要导出普通对象作为 `Config`，因为它不满足 Cordis 要求的 Standard Schema 接口。
+插件加载时，Kylin 会通过导出的 schema 校验配置，并填充未提供字段的默认值。不要导出普通对象作为 `Config`，因为它不满足 Kylin 要求的 Standard Schema 接口。
 
 ## Schema 校验
 

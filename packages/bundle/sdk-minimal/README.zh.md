@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-当 SDK 客户端需要小型、显式的 coding agent 运行时时，请使用 `qilin --profile sdk-minimal`。该 profile 只公布按平台选择的持久 shell，把会话持久化为未压缩 JSONL，并从 SDK 初始化请求选择模型。它提供完整 Cordis 配置树，并刻意排除 `qilin-base`、Web、settings、托管凭据、遥测、compaction、文件系统工具、workspace 指令、skills、jobs 与 subagent。其 danger-full-access 策略允许 shell 修改进程可访问的任何路径，因此只能配合隔离 workspace 使用。
+当 SDK 客户端需要小型、显式的 coding agent 运行时时，请使用 `qilin --profile sdk-minimal`。该 profile 只公布按平台选择的持久 shell，把会话持久化为未压缩 JSONL，并从 SDK 初始化请求选择模型。它提供完整 Kylin 配置树，并刻意排除 `qilin-base`、Web、settings、托管凭据、遥测、compaction、文件系统工具、workspace 指令、skills、jobs 与 subagent。其 danger-full-access 策略允许 shell 修改进程可访问的任何路径，因此只能配合隔离 workspace 使用。
 
 ## 目录
 

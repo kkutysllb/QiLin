@@ -75,7 +75,7 @@ files:
 | [`src/emitter.ts`](src/emitter.ts) | `FaceModelEmitter`：Zod schema 与声明生成、Remote 声明 |
 | [`src/workspace.ts`](src/workspace.ts) | `WorkspaceTypertGenerator`：发现、生成、导出与文件清单校验 |
 | [`src/tsdown-plugin.ts`](src/tsdown-plugin.ts) | tsdown 插件面：装饰器降低与产物生成 |
-| [`src/cordis-catalog.ts`](src/cordis-catalog.ts) | 生成 Cordis 目录所用的目录投影 |
+| [`src/cordis-catalog.ts`](src/cordis-catalog.ts) | 生成 Kylin 目录所用的目录投影 |
 
 ### 分析与 face
 
@@ -87,7 +87,7 @@ Host 与 Client 是两个独立的 TypeScript 程序。直接项目引用确定�
 
 ### 目录投影
 
-根导出包含本仓库 Cordis 目录使用的模型驱动提取逻辑、完整性检查与确定性文本渲染器。它们接受 `CordisCatalogPolicy`；由仓库持有的类型链接、基础类型／豁免分类与继承的 Cordis 条目仍位于 `scripts/gen-cordis-catalog.ts`，由调用方显式传入，因此本包只包含投影机制，不会隐式复制仓库的文档分类体系。
+根导出包含本仓库 Kylin 目录使用的模型驱动提取逻辑、完整性检查与确定性文本渲染器。它们接受 `CordisCatalogPolicy`；由仓库持有的类型链接、基础类型／豁免分类与继承的 Kylin 条目仍位于 `scripts/gen-kylin-catalog.ts`，由调用方显式传入，因此本包只包含投影机制，不会隐式复制仓库的文档分类体系。
 
 </details>
 
@@ -138,4 +138,4 @@ Host 与 Client 是两个独立的 TypeScript 程序。直接项目引用确定�
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。这是运行于 Cordis 之外的源码分析器与构建时 emitter；model snapshot、可执行 artifact 与消费包 typecheck 强制其输出约定。
+**运行时不变式：** 不发布伴生入口。这是运行于 Kylin 之外的源码分析器与构建时 emitter；model snapshot、可执行 artifact 与消费包 typecheck 强制其输出约定。

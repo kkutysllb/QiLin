@@ -103,7 +103,7 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面。它们从家族组合逐步进入子进程 seam 表面，以及远程执行世界背后的决策证据。
 
 - [E2B 提供方家族地图](../README.zh.md)——三个包与可选组合。
-- [子进程子系统](../../../docs/subsystems/subprocess.zh.md)——子进程 seam 约定与生成的 Cordis 表面，包括 `ctx.e2b`。
+- [子进程子系统](../../../docs/subsystems/subprocess.zh.md)——子进程 seam 约定与生成的 Kylin 表面，包括 `ctx.e2b`。
 - [可移植执行世界决策](../../../.agents/notes/implemented/architecture/2026-07-28-portable-execution-world-consumers.zh.md)——消费方为何委托给 `ctx.fs` 与 `ctx.subprocess`，以及留在宿主中的内容。
 - [生成配置目录](../../../docs/config-catalog.zh.md#qiline2b)——每个受支持配置字段及其源声明。
 
@@ -125,7 +125,7 @@ kind: "package-reference"
 
 这些限制说明 E2B 家族何时不合适，或何时需要特别的运维注意。它们是当前包约束，不是任务积压。
 
-- **不是完整的 harness 运行时**：Cordis 服务、agent（智能体）／会话状态、会话日志、LLM（大语言模型）请求、skill（技能）和 SDK 侧缓冲仍留在宿主进程中。
+- **不是完整的 harness 运行时**：Kylin 服务、agent（智能体）／会话状态、会话日志、LLM（大语言模型）请求、skill（技能）和 SDK 侧缓冲仍留在宿主进程中。
 - **沙箱状态是短暂的**：资源释放与超时都会删除沙箱；重新连接、pause/leave 保留、模板、卷和快照均不在本 POC 范围内。
 - **没有配置部署平台**：网络策略、宿主工作区同步与沙箱发现均不在本 POC 范围内。
 - **`cwd` 是解析约定，而不是包含边界**：适配器与命令可以访问沙箱中的其他路径；E2B 网络访问也继续采用基础镜像的策略。

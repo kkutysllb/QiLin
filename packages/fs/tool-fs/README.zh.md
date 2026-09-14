@@ -96,7 +96,7 @@ kind: "package-reference"
 | [`src/read-image.ts`](src/read-image.ts) | `read_image` 执行器：路由与媒体类型门禁、有界字节、附件保存 |
 | [`src/write.ts`](src/write.ts) | `write` 执行器：意图 waterfall、原子写入、观察 |
 | [`src/edit.ts`](src/edit.ts) | `edit` 执行器：意图 waterfall、字面量编辑、观察 |
-| [`src/read-render.ts`](src/read-render.ts) | 不依赖 Cordis 的窗口构建与信封格式化 |
+| [`src/read-render.ts`](src/read-render.ts) | 不依赖 Kylin 的窗口构建与信封格式化 |
 | [`src/sandbox.ts`](src/sandbox.ts) | `write`/`edit` 共享的升权 API：策略解析与拒绝标记映射 |
 | [`src/error.ts`](src/error.ts) | 防护变更失败的稳定模型侧诊断 |
 

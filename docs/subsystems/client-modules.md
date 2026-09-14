@@ -102,13 +102,13 @@ interface ClientArtifactBaseline {
 
 In development, [qilin-client-hmr](../../packages/client/hmr/README.md) is the registry's watch driver: its node half stat-polls every graph row's bundle from the module host's pre-read baseline, calls `rebuilt(id)` only for a changed or dirty row, resyncs its watch set through `onGraphChanged`, and broadcasts rev changes to the browser half over SSE. Source-map changes alone do not trigger a reload; the current map joins the snapshot when a bundle change does. Production graphs omit the HMR row entirely; the module host itself never watches files.
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxclientmodules--clientmoduleregistry"></a>
 
@@ -174,4 +174,4 @@ onGraphChanged(listener: () => void): () => void
 ```
 
 Source: [`packages/client/modules/src/index.ts`](../../packages/client/modules/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

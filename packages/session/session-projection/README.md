@@ -62,7 +62,7 @@ const dispose = ctx.sessionProjections.register(definition)
 const { asOfSeq, values } = ctx.sessionProjections.snapshot(session)
 ```
 
-A domain that requires projected state declares `sessionProjections` as a Cordis service dependency; optional contributors may register under `ctx.inject(['sessionProjections'], …)`. Carriers use `ctx.get('sessionProjections')` and omit their block or frames when the registry is absent.
+A domain that requires projected state declares `sessionProjections` as a Kylin service dependency; optional contributors may register under `ctx.inject(['sessionProjections'], …)`. Carriers use `ctx.get('sessionProjections')` and omit their block or frames when the registry is absent.
 
 ### Persisted checkpoints
 

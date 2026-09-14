@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-`qilin-session-format` 让持久化代码可以直接还原当前 Session，或在只消费一次物理行的同时组合唯一的相邻迁移序列。一次还原会让调用方拥有的已解析值流经有状态 Stage，不复制或冻结中间 artifact。物理分帧、压缩、不可变 generation 命名、排他发布和 Cordis 生命周期行为不属于本库。
+`qilin-session-format` 让持久化代码可以直接还原当前 Session，或在只消费一次物理行的同时组合唯一的相邻迁移序列。一次还原会让调用方拥有的已解析值流经有状态 Stage，不复制或冻结中间 artifact。物理分帧、压缩、不可变 generation 命名、排他发布和 Kylin 生命周期行为不属于本库。
 
 ## 目录
 
@@ -27,7 +27,7 @@ kind: "package-library"
 
 ### 何时使用
 
-当持久化或格式目录代码需要分类物理 Session header、还原当前逻辑值或组合已发布相邻迁移时，使用本库。它不是 Cordis 插件，也没有 profile 挂载行。它不发布运行时不变式伴生入口，因为每个已完成操作都会校验结果；decoder 与 transformer 状态只属于一次尚未完成的流式还原，绝不在多次还原间共享。
+当持久化或格式目录代码需要分类物理 Session header、还原当前逻辑值或组合已发布相邻迁移时，使用本库。它不是 Kylin 插件，也没有 profile 挂载行。它不发布运行时不变式伴生入口，因为每个已完成操作都会校验结果；decoder 与 transformer 状态只属于一次尚未完成的流式还原，绝不在多次还原间共享。
 
 ### 入口
 

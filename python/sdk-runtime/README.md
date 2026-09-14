@@ -25,7 +25,7 @@ Unsupported platforms and missing executables or sidecars raise `FileNotFoundErr
 
 ## Packaged profile resolution
 
-`qilin` initializes shipped profiles under the explicit home, composes their bundle patches, and loads bundled plugins from the executable's virtual filesystem. Because operating-system symlinks cannot enter that filesystem, packaged launches maintain small real ESM proxy packages under `$QILIN_HOME/profiles/node_modules`. Each proxy mirrors explicit runtime exports, records the original package identity, and re-exports the virtual module URL. Built-in rows and external plugin peers therefore share one Cordis/module instance. Native shared libraries and Windows ConPTY addons are packaged with native addons, while ripgrep and the macOS PTY helper remain executable sidecars.
+`qilin` initializes shipped profiles under the explicit home, composes their bundle patches, and loads bundled plugins from the executable's virtual filesystem. Because operating-system symlinks cannot enter that filesystem, packaged launches maintain small real ESM proxy packages under `$QILIN_HOME/profiles/node_modules`. Each proxy mirrors explicit runtime exports, records the original package identity, and re-exports the virtual module URL. Built-in rows and external plugin peers therefore share one Kylin/module instance. Native shared libraries and Windows ConPTY addons are packaged with native addons, while ripgrep and the macOS PTY helper remain executable sidecars.
 
 External profile management uses `qilin plugin --profile <name> ...`. That command requires `pnpm` on `PATH`; ordinary SDK/profile execution does not.
 

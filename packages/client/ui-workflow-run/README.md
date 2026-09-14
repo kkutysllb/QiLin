@@ -51,7 +51,7 @@ Ordinary running updates preserve the current choice, the first abnormal edge op
 
 ### Composition
 
-The package registers its Definition, locale dictionary, and `workflow-run` renderer as Cordis effects; removing the client entry retracts all three contributions. The shipped Web bundle includes the plugin after `ui-conversation` and `ui-tool`.
+The package registers its Definition, locale dictionary, and `workflow-run` renderer as Kylin effects; removing the client entry retracts all three contributions. The shipped Web bundle includes the plugin after `ui-conversation` and `ui-tool`.
 
 </details>
 

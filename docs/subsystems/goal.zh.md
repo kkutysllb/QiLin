@@ -163,13 +163,13 @@ interface GoalChanged {
 
 [`GoalService`](../../packages/goal/goal/src/index.ts) 解析创建默认值、从可选注册的 `goal` 投影读取严格回放结果、校验传入的 agent（智能体）是注册表中的确切活跃实例、以比较并设置方式执行变更，并发出 `goal/changed` 通知；监听器故障会被隔离。注册表或 key 缺失时，第一次依赖它们的访问会失败。包 [README](../../packages/goal/goal/README.zh.md) 定义可调用 API 和面向模型的约定。
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxgoals--goalservice"></a>
 
@@ -310,4 +310,4 @@ Goal mutation accepted by one live agent. The matching `goal/change` session eve
 Types: [Agent](core.zh.md) · [Scoped](scope.zh.md)
 
 Source: [`packages/goal/goal/src/domain.ts`](../../packages/goal/goal/src/domain.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

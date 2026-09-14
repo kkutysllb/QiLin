@@ -111,7 +111,7 @@ The exports each own one stage of the boot: config resolution and snapshot repla
 
 Read these pages when the package-level contract is not enough. They move from the shared boot mechanics to the composition model and the decision evidence behind it.
 
-- [Cordis primer](../../../docs/cordis-primer.md) — Loader, `!!js` config expressions, and include/group semantics.
+- [Kylin primer](../../../docs/kylin-primer.md) — Loader, `!!js` config expressions, and include/group semantics.
 - [qilin app](../../../apps/cli/README.md) — the `qilin` bin that consumes these helpers.
 - [qilin-cmdline](../cmdline/README.md) — the launcher-to-app command-line handoff the bins use.
 - [Profile bundles](../../bundle/README.md) — installable patch layers composed into `qilin --profile`.

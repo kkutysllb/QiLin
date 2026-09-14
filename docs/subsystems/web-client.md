@@ -2,26 +2,26 @@
 
 English | [中文](web-client.zh.md)
 
-The Web Client is a browser-side Cordis application assembled from independently loaded plugins. Its architecture has four reusable foundations: [Client Modules](client-modules.md) loads the plugin graph, the [API Gateway](../api-gateway.md) provides typed Host communication, [Slots](slots.md) composes React UI, and [Conversation](conversation.md) turns a Session history window into target-owned views. This page connects those systems and defines where Client models and feature packages belong.
+The Web Client is a browser-side Kylin application assembled from independently loaded plugins. Its architecture has four reusable foundations: [Client Modules](client-modules.md) loads the plugin graph, the [API Gateway](../api-gateway.md) provides typed Host communication, [Slots](slots.md) composes React UI, and [Conversation](conversation.md) turns a Session history window into target-owned views. This page connects those systems and defines where Client models and feature packages belong.
 
 ## Layers and ownership
 
 | Layer | Main owners | Responsibility |
 |---|---|---|
 | Host application | business services and `packages/api/*-controller` Host entries | Own authoritative state, persistence, mutation ordering, access policy, and stream production. |
-| Transport and API assembly | `client/connection`, `api/gateway`, `api/remotes` | Establish a Client generation, expose generated `ctx.remote` methods and streams, forward selected Cordis events, and carry cancellation and results. |
+| Transport and API assembly | `client/connection`, `api/gateway`, `api/remotes` | Establish a Client generation, expose generated `ctx.remote` methods and streams, forward selected Kylin events, and carry cancellation and results. |
 | Client models | `api/session-controller/client`, `api/workspace-controller/client` | Maintain React-free mirrors of Host state, resolve stream/unary races, own object identities and subscriptions, and expose narrow command services. |
 | UI adapters | `client/ui-session`, `client/ui-workspace` | Convert model observables into root or Session-scoped standard Slot sources without taking ownership of business state. |
 | Conversation data | `client/ui-conversation`, target packages such as `ui-chat` and `ui-trajectory` | Assemble standard events and compact historical Assistant runs into independent target snapshots and own the shared conversation shell and input flow. |
 | Composition and rendering | `client/ui-slots`, `client/ui-renderer`, `client/ui-layout`, feature UI packages | Declare extension locations, derive component props, bind observables to React hooks, and mount the final tree. |
 
-The dependency direction is Host state → Remote transport → Client model → UI adapter → Conversation or presentation → Slots → React. User actions travel back through callbacks that close over an injected Client service or generated Remote namespace. A presentation component never receives Cordis `ctx`, a transport object, or another feature plugin's implementation.
+The dependency direction is Host state → Remote transport → Client model → UI adapter → Conversation or presentation → Slots → React. User actions travel back through callbacks that close over an injected Client service or generated Remote namespace. A presentation component never receives Kylin `ctx`, a transport object, or another feature plugin's implementation.
 
 ## Browser boot
 
 The Host writes the composed `WebBootGraph` to `window.__QILIN_BOOT__` and installs the browser module-loader facade before parser-preloaded scripts execute. The module system is a lazy CommonJS table: loading a bundle registers its factory, while materializing an entry runs the factory with synchronous `require` over platform modules and declared dynamic dependencies.
 
-The Web boot kernel creates the module system, prefetches `immediately` entries, mounts the vendored Cordis Loader, and creates every graph entry. Cordis service injection determines activation; module graph order determines only whether synchronous imports can be materialized. After the complete roster reaches a settled state, `ui-renderer` hydrates the framework-free boot DOM and calls the sole context-level `renderSlot('root')` operation. [Client Modules](client-modules.md) owns the graph, bundle route, cache revision, and loader details.
+The Web boot kernel creates the module system, prefetches `immediately` entries, mounts the vendored upstream Cordis Loader, and creates every graph entry. Kylin service injection determines activation; module graph order determines only whether synchronous imports can be materialized. After the complete roster reaches a settled state, `ui-renderer` hydrates the framework-free boot DOM and calls the sole context-level `renderSlot('root')` operation. [Client Modules](client-modules.md) owns the graph, bundle route, cache revision, and loader details.
 
 ## Remote communication
 
@@ -66,7 +66,7 @@ This pairing is not a second source of business truth. Host controllers decide d
 | durable Session display | Host Session log → packed Remote `follow`/`page` history → Client `SessionEventLikeEntry` window → Conversation Contexts → target snapshot (`chat`, `trajectory`, or another registered target) → Slot view → React |
 | transient Session control | Host control baseline → Remote snapshot stream → `SessionManager` queue/job/projection stores → Session and list snapshots → standard hooks → components |
 | Workspace state | Host Workspace baseline and increments → `ClientWorkspaceModel` → `ctx.workspaces.list` → `useWorkspaces` → sidebar, hero, and navigation entries |
-| scoped interaction | Host Cordis waterfall → API Remotes `$events` → `ctx.remote.$on()` on the Session Context → owning UI package → result or `next()` |
+| scoped interaction | Host Kylin waterfall → API Remotes `$events` → `ctx.remote.$on()` on the Session Context → owning UI package → result or `next()` |
 | user command | component callback → registration inject face or Slot owner → `ctx.sessions`, `ctx.workspaces`, or generated scoped Remote → Host Controller → authoritative update → stream or event projection back to the Client |
 
 ## Reconnection
@@ -83,7 +83,7 @@ There is no monolithic Client `Runtime`, `HostFrame`, `events.mux`, `events.host
 
 ## Package boundaries
 
-Feature plugin packages may share declarations through `import type`; they do not runtime-import or re-export another feature plugin's values. Cross-package behavior uses injected Cordis services, and cross-package UI uses Slots. Target-specific Conversation Definitions, projection helpers, and final view data stay with their target package even when Chat and Trajectory intentionally implement parallel logic.
+Feature plugin packages may share declarations through `import type`; they do not runtime-import or re-export another feature plugin's values. Cross-package behavior uses injected Kylin services, and cross-package UI uses Slots. Target-specific Conversation Definitions, projection helpers, and final view data stay with their target package even when Chat and Trajectory intentionally implement parallel logic.
 
 Shared runtime values need a narrow static owner with no feature lifecycle, such as `client/store`, `ui-primitives`, or a browser-safe utility package. Transport and generated API assembly may import runtime contributions because assembling one protocol is their explicit responsibility. A feature package does not add `qilin.client.external` merely to bypass this rule.
 

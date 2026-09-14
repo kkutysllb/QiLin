@@ -140,7 +140,7 @@ The `./types` subpath export holds the event declarations together with the `Cre
 
 ### Lifecycle
 
-The service is a Cordis `Service` registered by the provider: disposing the mounting fiber removes `ctx.credentials`. The invariant companion checks that `credentials/reference-updated` never fires without a live service — an emission after disposal means a provider leaked work past its teardown quiescence.
+The service is a Kylin `Service` registered by the provider: disposing the mounting fiber removes `ctx.credentials`. The invariant companion checks that `credentials/reference-updated` never fires without a live service — an emission after disposal means a provider leaked work past its teardown quiescence.
 
 </details>
 

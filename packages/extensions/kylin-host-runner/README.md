@@ -1,5 +1,5 @@
 ---
-description: "Host half of dynamic Cordis packages for agents and maintainers choosing, composing, or debugging the registry, sandbox, and run round trip."
+description: "Host half of dynamic Kylin packages for agents and maintainers choosing, composing, or debugging the registry, sandbox, and run round trip."
 kind: "package-reference"
 ---
 
@@ -51,7 +51,7 @@ Definitions are session-scoped and process-local: a package is visible only to t
 
 ### Trust stance
 
-The sandbox isolates globals but is not a security boundary: Node globals are absent or redirect to Cordis services (`ctx.fs`, `ctx.web`, `ctx.bash`, the timer helpers), and a host half receives a façade without framework internals, yet the services it declares reach the live runtime. Treat a dynamic package like bash access — see the [self-referential toolset Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md).
+The sandbox isolates globals but is not a security boundary: Node globals are absent or redirect to Kylin services (`ctx.fs`, `ctx.web`, `ctx.bash`, the timer helpers), and a host half receives a façade without framework internals, yet the services it declares reach the live runtime. Treat a dynamic package like bash access — see the [self-referential toolset Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md).
 
 -----
 
@@ -97,7 +97,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [UI package](../ui-kylin/README.md) — the panel users approve and operate runs with.
 - [Generated configuration catalog](../../../docs/config-catalog.md#qilinkylin-host-runner) — every accepted config field.
 - [Extensions subsystem](../../../docs/subsystems/extensions.md) — the generated `ctx.cordisInspect` and `ctx.dynamicCordisRunner` API and `cordis/*` events.
-- [Self-referential Cordis toolset Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md) — sandbox semantics, lifecycle, and composition rationale.
+- [Self-referential Kylin toolset Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md) — sandbox semantics, lifecycle, and composition rationale.
 
 -----
 

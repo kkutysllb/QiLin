@@ -42,7 +42,7 @@ Add the configuration to the inserted local plugin row in `scratch-plugin/cordis
         maxRetries: 5
 ```
 
-When loading the plugin, Cordis uses the exported schema to validate configuration and fill defaults. Do not export a plain object as `Config`; it does not implement the Standard Schema interface required by Cordis.
+When loading the plugin, Kylin uses the exported schema to validate configuration and fill defaults. Do not export a plain object as `Config`; it does not implement the Standard Schema interface required by Kylin.
 
 ## Schema validation
 

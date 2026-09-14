@@ -182,7 +182,7 @@ interface FsEditOutcome {
 
 `qilin-fs` 拥有三个事件，由工具分发、策略插件监听，使事件发出方（`qilin-tool-fs`）与监听方（`qilin-fs-observation-policy`）共享词汇，而事件发出方无需依赖策略插件。它们只携带 `qilin-fs` 词汇加一个不透明的 `object` actor，不含面向模型的概念，也不含 agent/会话所有者结构。
 
-`fs/write-intent` 与 `fs/edit-intent` 是**单槽决策 waterfall**：工具分发时附带一个默认 thunk（返回 `undefined`，即裸提供方），监听方完全决策而不调用 `next()`。该 slot 按注册顺序先到先得——由策略插件占据是部署约定，而非强制不变式。`fs/observed` 是一个即发即弃的记录事件，携带 `FsObservation`：存在于某个版本，或确认缺失。该事件通过普通 `ctx.emit` 分发；其监听方必须是同步的、仅产生副作用，因为工具不会捕获该 emit 抛出的异常——抛出异常的监听方可能取代读取操作原本待返回的错误，或使工具在变更已经成功后返回 `isError` 结果。下方生成的 [cordis surface](#cordis-surface) 展示确切签名。
+`fs/write-intent` 与 `fs/edit-intent` 是**单槽决策 waterfall**：工具分发时附带一个默认 thunk（返回 `undefined`，即裸提供方），监听方完全决策而不调用 `next()`。该 slot 按注册顺序先到先得——由策略插件占据是部署约定，而非强制不变式。`fs/observed` 是一个即发即弃的记录事件，携带 `FsObservation`：存在于某个版本，或确认缺失。该事件通过普通 `ctx.emit` 分发；其监听方必须是同步的、仅产生副作用，因为工具不会捕获该 emit 抛出的异常——抛出异常的监听方可能取代读取操作原本待返回的错误，或使工具在变更已经成功后返回 `isError` 结果。下方生成的 [cordis surface](#kylin-surface) 展示确切签名。
 
 ```ts type-equiv
 /**
@@ -277,13 +277,13 @@ type FsErrorCode =
 
 `FileSystem`（`ctx.fs`，abstract）拥有提供方原语：`resolve`、`processPath`、`processPathFromHostPath`、`fileUrl`、`contains`、`stat`、`lstat`、`readText`、`streamText`、`readBytes`、`listDir`、`writeText` 与 `editText`。`qilin-fs-observation-policy` **不注册服务**。它通过 `fs/*` 事件门禁添加策略，根据未见、缺失或存在状态对写入与编辑意图 waterfall 作出决策，并记录 `FsObservation` 值。执行器是 `qilin-tool-fs`：它通过 `ctx.fs` 读取、写入或编辑，分发 waterfall，并 emit 记录事件。下方生成的 [`ctx.fs` 小节](#ctxfs--filesystem-abstract-seam) 展示确切的 `ctx.fs` 签名。
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxfs--filesystem-abstract-seam"></a>
 
@@ -517,4 +517,4 @@ Single-slot decision for the next FileSystem.writeText. Calling `next()` yields 
 ```
 
 Source: [`packages/fs/fs/src/index.ts`](../../packages/fs/fs/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

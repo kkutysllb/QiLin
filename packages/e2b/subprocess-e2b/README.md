@@ -117,7 +117,7 @@ Termination and rollback share one tolerant signal path (`signalRemoteGroups`), 
 Read these pages when the package-level contract is not enough. They move from the family composition to the subprocess seam surface and the consumers that render it.
 
 - [E2B provider family map](../README.md) — the sandbox owner and the three-package composition.
-- [Subprocess subsystem](../../../docs/subsystems/subprocess.md) — the subprocess seam contract and the generated Cordis surface.
+- [Subprocess subsystem](../../../docs/subsystems/subprocess.md) — the subprocess seam contract and the generated Kylin surface.
 - [Subprocess seam package](../../subprocess/subprocess/README.md) — the abstract contract this provider implements.
 - [Bash executor](../../shell/bash-local/README.md) — the consumer that renders spawned commands to the model.
 - [PTY terminal backend](../../terminal/terminal-bash/README.md) — the consumer that renders terminal sessions.

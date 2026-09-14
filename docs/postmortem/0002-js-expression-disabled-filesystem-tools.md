@@ -6,13 +6,13 @@ Status: resolved
 
 ## Executive summary
 
-The ACP example attempted to enable filesystem plugins conditionally with `disabled: !!js ...`, but Cordis evaluates JavaScript expressions only inside plugin `config`. The raw expression object was truthy, so the filesystem stack was always disabled. Snapshot refresh then accepted `UNKNOWN_TOOL` results as new expected outputs. The fix uses an explicit filesystem overlay and adds static-config and snapshot-result guards.
+The ACP example attempted to enable filesystem plugins conditionally with `disabled: !!js ...`, but Kylin evaluates JavaScript expressions only inside plugin `config`. The raw expression object was truthy, so the filesystem stack was always disabled. Snapshot refresh then accepted `UNKNOWN_TOOL` results as new expected outputs. The fix uses an explicit filesystem overlay and adds static-config and snapshot-result guards.
 
 ## Summary
 
 The default ACP composition is intentionally bash-only because its sandbox cannot confine in-process filesystem providers. Filesystem snapshot scenarios still need `read`, `write`, and `edit`, so their plugins were placed in the default `cordis.yml` with a `disabled` expression intended to enable them only for full-access launches and snapshots.
 
-Cordis Include parsed each `!!js` scalar into an expression object. The Loader recursively interpolated the plugin's `config`, but consumed entry metadata such as `disabled` directly. Every filesystem entry therefore saw a truthy object and remained disabled in every mode.
+Kylin Include parsed each `!!js` scalar into an expression object. The Loader recursively interpolated the plugin's `config`, but consumed entry metadata such as `disabled` directly. Every filesystem entry therefore saw a truthy object and remained disabled in every mode.
 
 ## Impact
 
@@ -36,8 +36,8 @@ The snapshot framework treated any deterministic transcript as valid behavior. H
 ## Guardrails added
 
 - Filesystem scenarios boot `fs.cordis.yml`, an explicit fixed full-access overlay with a paired replay config and its own request-header class.
-- [`AGENTS.md`](../../AGENTS.md) and the [Cordis primer](../cordis-primer.md#loader-configuration) state that `!!js` is valid under plugin `config` and entry `disabled`; other entry metadata stays literal, so conditional composition uses overlays.
-- `verify-cordis-config` parses repository Cordis YAML and rejects expression nodes in Loader entry metadata, including include patches and inserted entries.
+- [`AGENTS.md`](../../AGENTS.md) and the [Kylin primer](../kylin-primer.md#loader-configuration) state that `!!js` is valid under plugin `config` and entry `disabled`; other entry metadata stays literal, so conditional composition uses overlays.
+- `verify-cordis-config` parses repository Kylin YAML and rejects expression nodes in Loader entry metadata, including include patches and inserted entries.
 - `qilin-session-snapshot` rejects structured `UNKNOWN_TOOL` results in fresh runs and committed session fixtures before they can be committed as expected outputs.
 
 ## Lessons

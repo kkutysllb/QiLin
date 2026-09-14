@@ -64,7 +64,7 @@ This section explains the design decisions behind the contract and points at the
 
 ### Design philosophy
 
-- **Contract and implementation are separate packages.** `JobRegistry` is an abstract Cordis service; loading the class directly throws, so a misconfigured composition fails at load instead of registering an empty `ctx.jobs`.
+- **Contract and implementation are separate packages.** `JobRegistry` is an abstract Kylin service; loading the class directly throws, so a misconfigured composition fails at load instead of registering an empty `ctx.jobs`.
 - **One registry per process, owner-relative answers.** One instance serves every composition in the process, so registrations and deliveries are relative to the registering scope: a controller or listener registered from an unscoped context serves every owner; one registered under an agent composition's scope serves exactly the agents composed under it.
 - **Access is fenced by the owner's session id.** Ids are predictable, so authorization — not secrecy — is the boundary.
 - **Settlement is first-wins, and completion is announced last.** One terminal record, released waiters, and one round of contained listener notification; completion is announced after the record is committed and every other observer has seen it, because a reporter may open a model turn synchronously.

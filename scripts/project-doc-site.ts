@@ -68,7 +68,7 @@ function repoPath(absPath: string, repoRoot: string): string {
   return relative(repoRoot, absPath).split(sep).join('/')
 }
 
-// `#fragment` suffixes pass through verbatim. Generated cordis-surface
+// `#fragment` suffixes pass through verbatim. Generated kylin-surface
 // headings carry explicit `<a id>` anchors with the GitHub slug, so those
 // fragments resolve on the published site too; hand-written headings rely on
 // VitePress's own slugger, which differs from GitHub's for punctuation-heavy

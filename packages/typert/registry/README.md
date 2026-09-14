@@ -59,7 +59,7 @@ This section explains how the registry stores and owns contributions; the consum
 
 ### Design concept
 
-The registry is built on one principle: a contribution is one atomic, fiber-owned commit. `register()` validates the package-face identity, schemas, and invocation descriptors first, then commits everything under a single Cordis effect whose disposer withdraws exactly that contribution. Duplicate identities fail at the owning operation boundary before any state changes.
+The registry is built on one principle: a contribution is one atomic, fiber-owned commit. `register()` validates the package-face identity, schemas, and invocation descriptors first, then commits everything under a single Kylin effect whose disposer withdraws exactly that contribution. Duplicate identities fail at the owning operation boundary before any state changes.
 
 ### Sub-registries
 

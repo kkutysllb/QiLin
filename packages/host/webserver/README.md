@@ -64,7 +64,7 @@ A listen failure (for example EADDRINUSE) rejects plugin initialization with the
 
 ### Design concept
 
-The package is a plain route registry with no harness vocabulary: `WebServer` extends Cordis `Service` and holds three route tables plus the fallback slot, the raw index-tap list, and the `webserver/index-inject` event the index renderer gathers rows through. Index rendering composes two layers per response: `renderIndex` renders the fresh injection table, including advisory `script-preload` rows, into the body, then applies the raw taps in registration order; `applyIndexTaps` runs the taps alone. The upgrade handler owns the protocol handshake and connection contents; the webserver only delivers the raw socket and request. `host` and `port` getters expose composition-time facts other plugins adapt to (for example the directory-picker chooser).
+The package is a plain route registry with no harness vocabulary: `WebServer` extends Kylin `Service` and holds three route tables plus the fallback slot, the raw index-tap list, and the `webserver/index-inject` event the index renderer gathers rows through. Index rendering composes two layers per response: `renderIndex` renders the fresh injection table, including advisory `script-preload` rows, into the body, then applies the raw taps in registration order; `applyIndexTaps` runs the taps alone. The upgrade handler owns the protocol handshake and connection contents; the webserver only delivers the raw socket and request. `host` and `port` getters expose composition-time facts other plugins adapt to (for example the directory-picker chooser).
 
 ### Matching and lifecycle
 

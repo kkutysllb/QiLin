@@ -36,7 +36,7 @@ kind: "package-library"
 
 ### 使用场景
 
-使用[目录](../session-format-catalog/README.zh.md)恢复 Session。直接导入用于目录组装和测试；本库没有 Cordis 挂载配置。[公共导出](src/index.ts)提供迁移声明、已发布 V2 源编解码器、V3 目标编解码器、目标头校验器和目标恢复器。
+使用[目录](../session-format-catalog/README.zh.md)恢复 Session。直接导入用于目录组装和测试；本库没有 Kylin 挂载配置。[公共导出](src/index.ts)提供迁移声明、已发布 V2 源编解码器、V3 目标编解码器、目标头校验器和目标恢复器。
 
 ### 入口
 

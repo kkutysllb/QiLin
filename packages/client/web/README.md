@@ -39,7 +39,7 @@ The boot page uses plain DOM and local CSS, so bundle and plugin-activation fail
 
 ### The shared module table
 
-`PLATFORM_MODULES` (in `src/platform.ts`) names the shell-seeded shared modules — React, Cordis, and static UI libraries — and together with `PRELOADED_CLIENT_EXTERNALS` (the parser-preloaded runtime row) defines the implicit external baseline every dynamic bundle resolves against. `qilin.client.external` adds only exact non-baseline requests; see [shared modules and the module graph](../AGENTS.md#shared-modules-and-the-module-graph).
+`PLATFORM_MODULES` (in `src/platform.ts`) names the shell-seeded shared modules — React, Kylin, and static UI libraries — and together with `PRELOADED_CLIENT_EXTERNALS` (the parser-preloaded runtime row) defines the implicit external baseline every dynamic bundle resolves against. `qilin.client.external` adds only exact non-baseline requests; see [shared modules and the module graph](../AGENTS.md#shared-modules-and-the-module-graph).
 
 ### Configuration
 
@@ -57,7 +57,7 @@ This section explains how the boot kernel is built; observable behavior is cover
 
 ### Design concept
 
-The kernel owns exactly three things: the module system, the Cordis Loader, and the boot page. The Host owns the graph, batch preload, and loader facade, so `AppWebEntry` never knows the bootstrap package id or parses the wire format. The dynamic UI renderer receives the mount point only after every client entry activates.
+The kernel owns exactly three things: the module system, the Kylin Loader, and the boot page. The Host owns the graph, batch preload, and loader facade, so `AppWebEntry` never knows the bootstrap package id or parses the wire format. The dynamic UI renderer receives the mount point only after every client entry activates.
 
 ### Two-stage boot
 

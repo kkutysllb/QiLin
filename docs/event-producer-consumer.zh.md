@@ -87,4 +87,4 @@
 | `internal/service` | - | [`agent-presets`](../packages/preset/agent-presets), `gateway` |
 | `internal/status` | - | [`agent`](../packages/core/agent), `inspector` |
 
-Maintenance mode: generated: Cordis event declarations and producer/listener edges are resolved from the repository TypeScript Program.
+Maintenance mode: generated: Kylin event declarations and producer/listener edges are resolved from the repository TypeScript Program.

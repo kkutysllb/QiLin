@@ -39,7 +39,7 @@ kind: "package-library"
 
 ### 共享模块表
 
-`PLATFORM_MODULES`（位于 `src/platform.ts`）列出外壳播种的共享模块——React、Cordis 与静态 UI 库——并与 `PRELOADED_CLIENT_EXTERNALS`（parser 预载的 runtime 行）一起定义每个动态 bundle 解析所依据的隐式 external 基座。`qilin.client.external` 只添加基座之外的精确请求；参见[共享模块与模块图](../AGENTS.md#shared-modules-and-the-module-graph)。
+`PLATFORM_MODULES`（位于 `src/platform.ts`）列出外壳播种的共享模块——React、Kylin 与静态 UI 库——并与 `PRELOADED_CLIENT_EXTERNALS`（parser 预载的 runtime 行）一起定义每个动态 bundle 解析所依据的隐式 external 基座。`qilin.client.external` 只添加基座之外的精确请求；参见[共享模块与模块图](../AGENTS.md#shared-modules-and-the-module-graph)。
 
 ### 配置
 
@@ -57,7 +57,7 @@ kind: "package-library"
 
 ### 设计理念
 
-内核恰好拥有三样东西：模块系统、Cordis Loader 与启动页。Graph、批次 preload 与 loader facade 归 Host 所有，因此 `AppWebEntry` 永不感知 bootstrap package id，也不解析协议格式。动态 UI 渲染器只在每个客户端 entry 激活后收到挂载点。
+内核恰好拥有三样东西：模块系统、Kylin Loader 与启动页。Graph、批次 preload 与 loader facade 归 Host 所有，因此 `AppWebEntry` 永不感知 bootstrap package id，也不解析协议格式。动态 UI 渲染器只在每个客户端 entry 激活后收到挂载点。
 
 ### 两阶段启动
 
@@ -122,4 +122,4 @@ kind: "package-library"
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。这是 Vite entry shell，只负责 boot glue 与 module-table seeding，不发出 Cordis 事件或持有跨插件可变状态；boot chain 由真实 carrier 的 web smoke e2e 覆盖。
+**运行时不变式：** 不发布伴生入口。这是 Vite entry shell，只负责 boot glue 与 module-table seeding，不发出 Kylin 事件或持有跨插件可变状态；boot chain 由真实 carrier 的 web smoke e2e 覆盖。

@@ -55,7 +55,7 @@ Consequently `apply` ran in a fiber with **no injected services**. The very firs
 
 ## Root cause #2 — optional service read trips the inject guard through a traceable shadow (broke `session/load`)
 
-With #1 fixed, `session/new` worked but `session/load` still threw `cannot get property "sessionPersistence" without inject`. This one *is* the Cordis traceable/shadow mechanism, and it is worth understanding precisely.
+With #1 fixed, `session/new` worked but `session/load` still threw `cannot get property "sessionPersistence" without inject`. This one *is* the Kylin traceable/shadow mechanism, and it is worth understanding precisely.
 
 `session/load` calls `agents.resume(...)`, which delegates to `AgentLoop.resume()`, which read `this.ctx.sessionPersistence`. `AgentLoop`'s `static inject` deliberately does NOT include `sessionPersistence` — injecting it would make non-persistent demos pend forever waiting for a backend that never loads. The service is provided by a separate sibling plugin/fiber and read opportunistically.
 

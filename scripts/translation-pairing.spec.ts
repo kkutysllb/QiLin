@@ -201,8 +201,8 @@ describe('translation pairing manifest', () => {
 describe('translation pairing switchers', () => {
   it('exempts only paired generated English sources from reciprocal switchers', () => {
     expect(requiresSourceLanguageSwitcher('docs/config-catalog.md')).toBe(false)
-    expect(requiresSourceLanguageSwitcher('docs/cordis-api/context.md')).toBe(false)
-    expect(requiresSourceLanguageSwitcher('docs/cordis-api/inherited.md')).toBe(false)
+    expect(requiresSourceLanguageSwitcher('docs/kylin-api/context.md')).toBe(false)
+    expect(requiresSourceLanguageSwitcher('docs/kylin-api/inherited.md')).toBe(false)
     expect(requiresSourceLanguageSwitcher('docs/architecture.md')).toBe(true)
     expect(requiresSourceLanguageSwitcher('packages/core/session/README.md')).toBe(true)
   })
@@ -514,8 +514,8 @@ describe('pair CLI arguments', () => {
 })
 
 describe('generated regions', () => {
-  const BEGIN = '<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->'
-  const END = '<!-- END GENERATED cordis-surface -->'
+  const BEGIN = '<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->'
+  const END = '<!-- END GENERATED kylin-surface -->'
 
   it('partitions marker-delimited regions from the hand-owned remainder', () => {
     const doc = `# T\n\nprose\n\n${BEGIN}\ninjected\n${END}\ntail\n`

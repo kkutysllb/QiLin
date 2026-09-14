@@ -48,7 +48,7 @@ interface InvariantInstaller {
 }
 ```
 
-An enabled installer runs in a dedicated child Cordis fiber; `installer.inject` declares the services that fiber may access, and synchronous or asynchronous installer completion is joined before the registration succeeds. `fail(message)` throws `InvariantError` — `extends Error` with stable `code: 'INVARIANT'`, the owning `packageName`, and a message prefixed `invariant violated by "<package>": …` — so a violation is attributable without the registry importing any product package.
+An enabled installer runs in a dedicated child Kylin fiber; `installer.inject` declares the services that fiber may access, and synchronous or asynchronous installer completion is joined before the registration succeeds. `fail(message)` throws `InvariantError` — `extends Error` with stable `code: 'INVARIANT'`, the owning `packageName`, and a message prefixed `invariant violated by "<package>": …` — so a violation is attributable without the registry importing any product package.
 
 ## The service
 
@@ -58,13 +58,13 @@ An enabled installer runs in a dedicated child Cordis fiber; `installer.inject` 
 
 Every workspace package owns a `./invariant` companion ([package contract](../../packages/AGENTS.md)); publication and registration are exhaustive, but assertions are deliberately not synthetic. A companion installs a check only when its package owns an observable event or mutable-data relationship; otherwise it exports an empty installer whose leading comment starts `No runtime invariant:` and explains, package-specifically, why nothing is checkable. `pnpm run verify-package-invariants` mechanically rejects generated markers, unexplained empty installers, non-empty installers that omit or ignore the reporter, incorrect registration names, and incomplete export, publication, dependency, or bundle wiring ([mechanical-rule Agent Note](../../.agents/notes/implemented/architecture/2026-07-19-package-invariant-runtime-contracts.md)). The catalog of executable companions and the standard composition live in the [package README](../../packages/runtime-diagnostics/invariants/README.md).
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxinvariants--invariantregistry"></a>
 
@@ -85,4 +85,4 @@ register(packageName: string, installer: InvariantInstaller): () => void
 ```
 
 Source: [`packages/runtime-diagnostics/invariants/src/index.ts`](../../packages/runtime-diagnostics/invariants/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

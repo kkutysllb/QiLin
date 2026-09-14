@@ -49,7 +49,7 @@ The [native backend](../directory-picker-native/README.md) is the right choice w
 
 ### Design concept
 
-The seam is built on one separation: the interaction shape a backend provides is a contract, not an implementation detail. `DirectoryPicker` is an abstract Cordis service with a single `capability()` method; a backend subclass registers as `ctx.directoryPicker`, and loading a second implementation throws the standard duplicate-service error. The capability object must be stable for the service lifetime because consumers may capture it across calls.
+The seam is built on one separation: the interaction shape a backend provides is a contract, not an implementation detail. `DirectoryPicker` is an abstract Kylin service with a single `capability()` method; a backend subclass registers as `ctx.directoryPicker`, and loading a second implementation throws the standard duplicate-service error. The capability object must be stable for the service lifetime because consumers may capture it across calls.
 
 ### The merge-extensible vocabulary
 

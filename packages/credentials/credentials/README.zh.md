@@ -140,7 +140,7 @@ apiKeyEnv: DEEPSEEK_API_KEY
 
 ### 生命周期
 
-服务是提供方注册的 Cordis `Service`：释放挂载 fiber 会移除 `ctx.credentials`。不变式伴生插件检查 `credentials/reference-updated` 绝不在服务存活之前触发——释放后仍有发射意味着提供方把工作泄漏到了 teardown 完全停稳之后。
+服务是提供方注册的 Kylin `Service`：释放挂载 fiber 会移除 `ctx.credentials`。不变式伴生插件检查 `credentials/reference-updated` 绝不在服务存活之前触发——释放后仍有发射意味着提供方把工作泄漏到了 teardown 完全停稳之后。
 
 </details>
 

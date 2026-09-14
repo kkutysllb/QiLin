@@ -1,6 +1,6 @@
 /**
  * Model-extraction and negative-path contracts for the Cordis catalog generator
- * (`scripts/gen-cordis-catalog.ts`).
+ * (`scripts/gen-kylin-catalog.ts`).
  */
 
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -124,7 +124,7 @@ afterEach(() => {
   while (roots.length) rmSync(roots.pop()!, { recursive: true, force: true })
 })
 
-describe.skip('gen-cordis-catalog collectEvents', { timeout: 60_000 }, () => {
+describe.skip('gen-kylin-catalog collectEvents', { timeout: 60_000 }, () => {
   it('extracts a well-formed event with its @mode and JSDoc', () => {
     const events = collectEvents(make(
       '    /**\n     * A thing happened.\n     * @param id - which thing.\n     * @mode emit\n     */\n    \'fix/happened\'(id: string): void',
@@ -239,7 +239,7 @@ describe.skip('gen-cordis-catalog collectEvents', { timeout: 60_000 }, () => {
   })
 })
 
-describe.skip('gen-cordis-catalog collectServices', () => {
+describe.skip('gen-kylin-catalog collectServices', () => {
   const WELL_FORMED = `/** Fixture service. */
 export class FixService {
   /**

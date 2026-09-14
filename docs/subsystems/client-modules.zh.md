@@ -102,13 +102,13 @@ interface ClientArtifactBaseline {
 
 开发环境下，[qilin-client-hmr](../../packages/client/hmr/README.zh.md) 是注册表的监视驱动：它的 Node 半从 module host 读文件前记录的基线出发，对图中每一行的 bundle 做 stat 轮询，只为变化或标脏的 row 调用 `rebuilt(id)`，经 `onGraphChanged` 重新同步监视集合，并通过 SSE（Server-Sent Events）把 rev 变化广播给浏览器半。仅 source map 变化不会触发重载；bundle 变化时，当前 map 会一起进入快照。生产环境的图完全不含 HMR（热模块替换）行；module host 自身从不监视文件。
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxclientmodules--clientmoduleregistry"></a>
 
@@ -174,4 +174,4 @@ onGraphChanged(listener: () => void): () => void
 ```
 
 Source: [`packages/client/modules/src/index.ts`](../../packages/client/modules/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

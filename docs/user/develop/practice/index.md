@@ -12,7 +12,7 @@ When a capability is general enough to need replaceable providers, such as Bash 
 
 The Bash execution capability consists of:
 
-- **Service Definition** (`qilin-shell`) — defines the Cordis service and Bash request and result types
+- **Service Definition** (`qilin-shell`) — defines the Kylin service and Bash request and result types
 - **Service Provider** (`qilin-bash-local`) — executes commands on the local machine
 - **Consumer** (`qilin-tool-bash`) — exposes the capability as a model-callable tool
 

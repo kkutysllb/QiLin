@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md
-2026-07-08-self-referential-cordis-toolset.md: 6043a84f5d10dc92e5534648e28c1ec42ce5597a
-2026-07-08-self-referential-cordis-toolset.zh.md: b4f438c01f21919920cdd9bb6997561e11f0ccee
+2026-07-08-self-referential-cordis-toolset.md: a8beaa6ee4bedcb99de8e9b31f2b82663bf51d95
+2026-07-08-self-referential-cordis-toolset.zh.md: f23a37a7c4093449ebd408fd2db492df586238e2

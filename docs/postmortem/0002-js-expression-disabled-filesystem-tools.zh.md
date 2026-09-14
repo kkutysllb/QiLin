@@ -6,13 +6,13 @@
 
 ## 摘要
 
-ACP（Agent Client Protocol）示例试图通过 `disabled: !!js ...` 有条件地启用文件系统插件，但 Cordis 仅在插件 `config` 内部对 JavaScript 表达式求值。原始的表达式对象为 truthy，因此文件系统栈始终处于禁用状态。快照刷新随后将 `UNKNOWN_TOOL` 结果接受为新的预期输出。修复方案改用显式的文件系统 overlay，并增加了静态配置守卫和快照结果守卫。
+ACP（Agent Client Protocol）示例试图通过 `disabled: !!js ...` 有条件地启用文件系统插件，但 Kylin 仅在插件 `config` 内部对 JavaScript 表达式求值。原始的表达式对象为 truthy，因此文件系统栈始终处于禁用状态。快照刷新随后将 `UNKNOWN_TOOL` 结果接受为新的预期输出。修复方案改用显式的文件系统 overlay，并增加了静态配置守卫和快照结果守卫。
 
 ## 概述
 
 默认的 ACP 组合有意只启用 bash，因为其沙箱无法约束进程内的文件系统提供方。文件系统快照场景仍然需要 `read`、`write` 和 `edit`，因此这些插件被放在默认的 `cordis.yml` 中，并附带一个 `disabled` 表达式，意图仅在全权限启动和快照模式下启用它们。
 
-Cordis Include 将每个 `!!js` 标量解析为一个表达式对象。Loader 递归地对插件的 `config` 进行插值，但直接读取 `disabled` 等配置项元数据。因此每个文件系统配置项看到的都是一个 truthy 对象，在所有模式下均保持禁用。
+Kylin Include 将每个 `!!js` 标量解析为一个表达式对象。Loader 递归地对插件的 `config` 进行插值，但直接读取 `disabled` 等配置项元数据。因此每个文件系统配置项看到的都是一个 truthy 对象，在所有模式下均保持禁用。
 
 ## 影响
 
@@ -36,8 +36,8 @@ Cordis Include 将每个 `!!js` 标量解析为一个表达式对象。Loader �
 ## 已添加的防护措施
 
 - 文件系统场景启动 `fs.cordis.yml`：一个显式的固定全权限 overlay，配有对应的回放配置和独立的 request-header 类。
-- [`AGENTS.md`](../../AGENTS.md) 与 [Cordis 入门](../cordis-primer.zh.md#loader-configuration)明确说明 `!!js` 在插件 `config` 与配置项 `disabled` 内有效；其他配置项元数据保持字面量，因此条件式组合使用 overlay。
-- `verify-cordis-config` 解析仓库中的 Cordis YAML，拒绝 Loader 配置项元数据中的表达式节点（包括 include patch 和插入的配置项）。
+- [`AGENTS.md`](../../AGENTS.md) 与 [Kylin 入门](../kylin-primer.zh.md#loader-configuration)明确说明 `!!js` 在插件 `config` 与配置项 `disabled` 内有效；其他配置项元数据保持字面量，因此条件式组合使用 overlay。
+- `verify-cordis-config` 解析仓库中的 Kylin YAML，拒绝 Loader 配置项元数据中的表达式节点（包括 include patch 和插入的配置项）。
 - `qilin-session-snapshot` 在全新运行和已提交的会话 fixture 中拒绝结构化的 `UNKNOWN_TOOL` 结果，防止其被提交为预期输出。
 
 ## 教训

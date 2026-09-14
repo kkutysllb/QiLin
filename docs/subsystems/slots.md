@@ -12,9 +12,9 @@ This page documents slot ownership, component inputs, extension APIs, and the sh
 
 Declaring a child has three effects: it makes the child key live, authorizes that parent entry's `renderSlot` or `renderSlotChain` call, and records the runtime dispatch specification. One live entry owns each declaration. Registering into an undeclared slot or declaring a child already owned elsewhere fails during plugin activation.
 
-`root` is the only built-in declaration and the only key rendered through the Cordis service itself. `ui-renderer` calls `ctx.slots.renderSlot('root', {})`; every descendant is rendered through the `renderSlot` or `renderSlotChain` prop of the entry that declared it.
+`root` is the only built-in declaration and the only key rendered through the Kylin service itself. `ui-renderer` calls `ctx.slots.renderSlot('root', {})`; every descendant is rendered through the `renderSlot` or `renderSlotChain` prop of the entry that declared it.
 
-Registrations and declarations follow Cordis effect lifetimes. Disposing an entry removes its contribution and recursively collapses the child slots it declared. A feature that contributes into another package's slot therefore uses `ctx.slots.inject(key, callback)`: the callback runs for each declaration lifetime, its effects are removed when the owner collapses, and it runs again if the owner is mounted again.
+Registrations and declarations follow Kylin effect lifetimes. Disposing an entry removes its contribution and recursively collapses the child slots it declared. A feature that contributes into another package's slot therefore uses `ctx.slots.inject(key, callback)`: the callback runs for each declaration lifetime, its effects are removed when the owner collapses, and it runs again if the owner is mounted again.
 
 ```tsx ignore-check
 import type { Context } from '@qilin/kylin'
@@ -96,7 +96,7 @@ Framework and domain-adapter owners may extend the standard set through `ctx.slo
 
 ## Developer-provided injection
 
-The `inject` option on a registration is the ordinary feature-owned injection point. Its factory runs in the plugin's `apply` world, may close over injected Cordis services, and returns only the data and callbacks that the component needs. For a `session` slot it receives `sessionId`; for `session-maybe` it receives `sessionId | undefined`; when a store is declared it also receives the store's bound actions.
+The `inject` option on a registration is the ordinary feature-owned injection point. Its factory runs in the plugin's `apply` world, may close over injected Kylin services, and returns only the data and callbacks that the component needs. For a `session` slot it receives `sessionId`; for `session-maybe` it receives `sessionId | undefined`; when a store is declared it also receives the store's bound actions.
 
 A reserved `hooks` object in that return value accepts bare `getSnapshot`/`subscribe` sources. The renderer converts `hooks: { status }` into a `useStatus(selector)` component prop and caches the binding by source identity. Components do not receive the source itself and do not call `useSyncExternalStore` directly.
 
@@ -177,7 +177,7 @@ The generated Client inspect catalog is the exhaustive contract for each key: ca
 
 - Import another feature package only for declarations with `import type`; never import or re-export its runtime values.
 - Declare a new child slot only in the component that owns and renders that location. Other packages wait with `ctx.slots.inject()` and contribute through `ctx.slots.register()`.
-- Keep business and transport state in their owning Cordis services or Client models. Slot stores hold shared viewing and interaction state only.
+- Keep business and transport state in their owning Kylin services or Client models. Slot stores hold shared viewing and interaction state only.
 - Keep observable source and snapshot identities stable between changes. Republish through the same source whenever its value changes.
 - Pass JSON-compatible data and callbacks between UI domains. The `hooks` compartment is the sole exception for bare observables; React content travels through slots.
 - Treat `single` and an occupied keyed cell as replacement points. Use list ids or an unoccupied key for additive extensions.

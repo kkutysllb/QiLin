@@ -27,7 +27,7 @@ Use `present` to declare final files accessible through the Session filesystem, 
 
 The `standard`, `ptc`, and `cordis` agent presets mount this plugin. Call `present` with `files: [{ path, description? }]` after creating the files. Files must be regular files accessible through the Session filesystem. Relative paths resolve against the Session working directory; absolute paths may name files outside it, including `/tmp` or Downloads. Missing files, directories, final symbolic links, and provider-denied paths fail the call. Files in a shell sandbox’s private `/tmp` must first be written somewhere the Session filesystem can access.
 
-Mount it in an agent's Cordis composition with `tools`, `fs`, and the `turnBoundary` Session projection available:
+Mount it in an agent's Kylin composition with `tools`, `fs`, and the `turnBoundary` Session projection available:
 
 ```yaml
 - name: '@qilin/tool-present'

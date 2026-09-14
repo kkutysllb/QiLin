@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/kylin-tutorial/02-lifecycle-and-effects.md
+02-lifecycle-and-effects.md: c410ea525f9324d73bdb8f581920a5961e97774f
+02-lifecycle-and-effects.zh.md: d77f4c4c972f9c1377fc5c6eefcab2988ae9963e

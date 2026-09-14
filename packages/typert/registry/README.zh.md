@@ -59,7 +59,7 @@ Remote 调用通过 `ctx.typert.lookups` 与 `ctx.typert.contexts` 解析 Host �
 
 ### 设计理念
 
-注册表建立在一个原则之上：贡献是一次原子、由 fiber 拥有的提交。`register()` 先校验包与 face 组合键、schema 与调用描述符，再在单个 Cordis effect 下提交全部内容，该 effect 的资源释放函数精确撤销这一贡献。重复标识在拥有该操作的所有权边界失败，此时任何状态都未改变。
+注册表建立在一个原则之上：贡献是一次原子、由 fiber 拥有的提交。`register()` 先校验包与 face 组合键、schema 与调用描述符，再在单个 Kylin effect 下提交全部内容，该 effect 的资源释放函数精确撤销这一贡献。重复标识在拥有该操作的所有权边界失败，此时任何状态都未改变。
 
 ### 子注册表
 

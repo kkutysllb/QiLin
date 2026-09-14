@@ -14,7 +14,7 @@ import {
   REGION_BEGIN,
   REGION_END,
   SERVICE_PAGE,
-} from '../../../../scripts/gen-cordis-catalog.ts'
+} from '../../../../scripts/gen-kylin-catalog.ts'
 
 const workspaceRoot = resolve(import.meta.dirname, '../../../..')
 
@@ -61,7 +61,7 @@ describe('Typert-backed Cordis catalog', () => {
     const { projector, model } = projection()
     const expected = (path: string): string => readFileSync(join(workspaceRoot, path), 'utf8')
 
-    expect(renderInheritedPage(CORDIS_CATALOG_POLICY)).toBe(expected('docs/cordis-api/inherited.md'))
+    expect(renderInheritedPage(CORDIS_CATALOG_POLICY)).toBe(expected('docs/kylin-api/inherited.md'))
     for (const page of [...new Set([...Object.values(SERVICE_PAGE), ...Object.values(EVENT_SCOPE_PAGE)])].sort()) {
       const region = renderPageRegion(
         page,

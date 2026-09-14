@@ -62,7 +62,7 @@ This section explains how the loader scans, validates, and registers; the observ
 
 ### Design concept
 
-The plugin is an incremental scanner mirroring the client-modules node half: every Cordis `internal/plugin` emission marks the fiber's entry name dirty, and a microtask flush reconciles each dirty name against the live Loader entries; the activation pass seeds the same dirty set with all current entries.
+The plugin is an incremental scanner mirroring the client-modules node half: every Kylin `internal/plugin` emission marks the fiber's entry name dirty, and a microtask flush reconciles each dirty name against the live Loader entries; the activation pass seeds the same dirty set with all current entries.
 
 ### Manifest validation
 

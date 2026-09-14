@@ -47,7 +47,7 @@ Each managed server is one entry inside a top-level `- insert:` item, which is h
 
 ### Why the home layer
 
-The service writes `<QILIN_HOME>/cordis.patch.yml`, the layer that sits above every profile, so a server configured in the web GUI is also there for a headless run. The launcher already watches that file, so a save joins the running tree through Cordis HMR without a restart.
+The service writes `<QILIN_HOME>/cordis.patch.yml`, the layer that sits above every profile, so a server configured in the web GUI is also there for a headless run. The launcher already watches that file, so a save joins the running tree through Kylin HMR without a restart.
 
 ### Writes
 
@@ -55,7 +55,7 @@ Mutations are serialized inside the service: two settings actions cannot interle
 
 ### The service is Remote-only
 
-`McpServers` declares no same-process Cordis `Context` merge; the `mcpServers` namespace exists for the Remote client the settings page uses. It injects the subprocess provider because the availability probe must resolve a command exactly the way `@qilin/mcp-client` will.
+`McpServers` declares no same-process Kylin `Context` merge; the `mcpServers` namespace exists for the Remote client the settings page uses. It injects the subprocess provider because the availability probe must resolve a command exactly the way `@qilin/mcp-client` will.
 
 ## Further Exploration
 

@@ -1,5 +1,5 @@
 ---
-description: "The extensions group map: model-facing tools and dual-half runners for defining, running, and removing dynamic Cordis packages, for users and maintainers navigating the group."
+description: "The extensions group map: model-facing tools and dual-half runners for defining, running, and removing dynamic Kylin packages, for users and maintainers navigating the group."
 kind: "package-group"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The extensions group lets an agent inspect and modify the live QILIN runtime without editing repository files or configuration. It can define, run, update, stop, and remove dynamic Cordis packages from model tools or a browser panel. A package may affect the host, browser, or both, and immutable versions support controlled updates. Definitions exist only in process memory and disappear when QILIN restarts. Choose the child package for model tooling, host execution, browser execution, or browser controls.
+The extensions group lets an agent inspect and modify the live QILIN runtime without editing repository files or configuration. It can define, run, update, stop, and remove dynamic Kylin packages from model tools or a browser panel. A package may affect the host, browser, or both, and immutable versions support controlled updates. Definitions exist only in process memory and disappear when QILIN restarts. Choose the child package for model tooling, host execution, browser execution, or browser controls.
 
 ## Table of Contents
 
@@ -37,7 +37,7 @@ The extensions group lets an agent inspect and modify the live QILIN runtime wit
 - [Extensions subsystem](../../docs/subsystems/extensions.md) — the generated `ctx.cordisInspect` and `ctx.dynamicCordisRunner` service API.
 - [Generated tool catalog](../../docs/tool-catalog.md#qilintool-kylin) — the seven model-facing tool schemas.
 - [Generated configuration catalog](../../docs/config-catalog.md#qilinkylin-host-runner) — the runner's accepted config fields.
-- [Self-referential Cordis toolset Agent Note](../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md) — design home for sandbox semantics, lifecycle, and composition.
+- [Self-referential Kylin toolset Agent Note](../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md) — design home for sandbox semantics, lifecycle, and composition.
 - [Client shells and dynamic packages Agent Note](../../.agents/notes/implemented/architecture/2026-08-15-client-shells-and-dynamic-packages.md) — package placement and build faces for the client halves.
 
 -----

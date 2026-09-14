@@ -2,26 +2,26 @@
 
 [English](web-client.md) | 中文
 
-Web Client 是由独立加载插件组装而成的浏览器侧 Cordis 应用。它有四个可复用底座：[Client Modules](client-modules.zh.md) 加载插件图，[API Gateway](../api-gateway.zh.md) 提供类型化 Host 通信，[Slots](slots.zh.md) 组合 React UI，[Conversation](conversation.zh.md) 把 Session 历史窗口变成各 target 自有的视图。本文串联这些系统，并规定 Client model 与功能包各自所在的位置。
+Web Client 是由独立加载插件组装而成的浏览器侧 Kylin 应用。它有四个可复用底座：[Client Modules](client-modules.zh.md) 加载插件图，[API Gateway](../api-gateway.zh.md) 提供类型化 Host 通信，[Slots](slots.zh.md) 组合 React UI，[Conversation](conversation.zh.md) 把 Session 历史窗口变成各 target 自有的视图。本文串联这些系统，并规定 Client model 与功能包各自所在的位置。
 
 ## 分层与所有权
 
 | 层 | 主要 owner | 职责 |
 |---|---|---|
 | Host 应用 | 业务 service 与 `packages/api/*-controller` Host entry | 拥有权威状态、持久化、mutation 顺序、访问策略与 stream 生产。 |
-| 传输与 API assembly | `client/connection`、`api/gateway`、`api/remotes` | 建立 Client generation，公开生成的 `ctx.remote` method 与 stream，转发选定的 Cordis event，并承载取消和结果。 |
+| 传输与 API assembly | `client/connection`、`api/gateway`、`api/remotes` | 建立 Client generation，公开生成的 `ctx.remote` method 与 stream，转发选定的 Kylin event，并承载取消和结果。 |
 | Client model | `api/session-controller/client`、`api/workspace-controller/client` | 维护不依赖 React 的 Host 状态镜像，处理 stream/unary 竞态，拥有对象 identity 与订阅，并公开收窄的 command service。 |
 | UI adapter | `client/ui-session`、`client/ui-workspace` | 把 model observable 转换为 root 或 Session scope 的标准 Slot source，不接管业务状态所有权。 |
 | Conversation 数据 | `client/ui-conversation`、`ui-chat` 与 `ui-trajectory` 等 target package | 把标准 event 与紧凑的 Assistant 历史批次组装成相互独立的 target snapshot，并拥有共享的 Conversation shell 与输入流程。 |
 | 组合与渲染 | `client/ui-slots`、`client/ui-renderer`、`client/ui-layout`、各 UI 功能包 | 声明扩展位置、推导组件 props、把 observable 绑定成 React hook，并挂载最终组件树。 |
 
-依赖方向是 Host 状态 → Remote 传输 → Client model → UI adapter → Conversation 或 presentation → Slots → React。用户操作通过 callback 反向进入注入的 Client service 或生成的 Remote namespace。Presentation component 绝不接收 Cordis `ctx`、transport object 或其他功能插件的实现。
+依赖方向是 Host 状态 → Remote 传输 → Client model → UI adapter → Conversation 或 presentation → Slots → React。用户操作通过 callback 反向进入注入的 Client service 或生成的 Remote namespace。Presentation component 绝不接收 Kylin `ctx`、transport object 或其他功能插件的实现。
 
 ## 浏览器启动
 
 Host 把组合后的 `WebBootGraph` 写入 `window.__QILIN_BOOT__`，并在 parser-preloaded script 执行前安装浏览器 module-loader facade。模块系统是一张 lazy CommonJS 表：加载 bundle 只注册 factory；materialize entry 时才以同步 `require` 运行 factory，并解析 platform module 和已声明的动态依赖。
 
-Web boot kernel 创建模块系统、预取 `immediately` entry、挂载 vendored Cordis Loader，再创建图中的每个 entry。Cordis service injection 决定激活顺序；module graph 顺序只决定同步 import 能否被 materialize。完整 roster 到达 settled 状态后，`ui-renderer` hydrate 不依赖框架的 boot DOM，并调用唯一一次 context 级 `renderSlot('root')`。[Client Modules](client-modules.zh.md)负责 graph、bundle route、cache revision 与 loader 细节。
+Web boot kernel 创建模块系统、预取 `immediately` entry、挂载 vendored upstream Cordis Loader，再创建图中的每个 entry。Kylin service injection 决定激活顺序；module graph 顺序只决定同步 import 能否被 materialize。完整 roster 到达 settled 状态后，`ui-renderer` hydrate 不依赖框架的 boot DOM，并调用唯一一次 context 级 `renderSlot('root')`。[Client Modules](client-modules.zh.md)负责 graph、bundle route、cache revision 与 loader 细节。
 
 ## Remote 通信
 
@@ -66,7 +66,7 @@ Connection 拥有 request correlation、`/api` carrier、trust check、精确 Fe
 | 持久 Session 展示 | Host Session log → packed Remote `follow`/`page` 历史 → Client `SessionEventLikeEntry` window → Conversation Context → target snapshot（`chat`、`trajectory` 或其他已注册 target）→ Slot view → React |
 | 瞬态 Session control | Host control baseline → Remote snapshot stream → `SessionManager` queue/job/projection store → Session 与 list snapshot → 标准 hook → component |
 | Workspace 状态 | Host Workspace baseline 与 increment → `ClientWorkspaceModel` → `ctx.workspaces.list` → `useWorkspaces` → sidebar、hero 与 navigation entry |
-| scoped interaction | Host Cordis waterfall → API Remotes `$events` → Session Context 上的 `ctx.remote.$on()` → 所属 UI 包 → result 或 `next()` |
+| scoped interaction | Host Kylin waterfall → API Remotes `$events` → Session Context 上的 `ctx.remote.$on()` → 所属 UI 包 → result 或 `next()` |
 | 用户 command | component callback → 注册项 inject face 或 Slot owner → `ctx.sessions`、`ctx.workspaces` 或生成的 scoped Remote → Host Controller → 权威 update → stream 或 event projection 回到 Client |
 
 ## 重连
@@ -83,7 +83,7 @@ Connection 拥有 request correlation、`/api` carrier、trust check、精确 Fe
 
 ## 包边界
 
-功能插件包可以通过 `import type` 共享声明；不得运行时导入或转发另一个功能插件的值。跨包行为使用注入的 Cordis service，跨包 UI 使用 Slots。特定 target 的 Conversation Definition、projection helper 与最终 view data 留在所属 target 包中，即使 Chat 和 Trajectory 有意实现平行逻辑。
+功能插件包可以通过 `import type` 共享声明；不得运行时导入或转发另一个功能插件的值。跨包行为使用注入的 Kylin service，跨包 UI 使用 Slots。特定 target 的 Conversation Definition、projection helper 与最终 view data 留在所属 target 包中，即使 Chat 和 Trajectory 有意实现平行逻辑。
 
 共享运行时值需要一个职责收窄、没有功能生命周期的静态 owner，例如 `client/store`、`ui-primitives` 或浏览器安全的 util 包。Transport 与生成 API assembly 可以导入运行时 contribution，因为组装同一个 protocol 正是它们的显式职责。功能包不能只为绕过此规则而添加 `qilin.client.external`。
 

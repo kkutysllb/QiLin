@@ -1,5 +1,5 @@
 ---
-description: "Experimental Chrome DevTools inspection for Host and browser Client Cordis runtimes, including Console evaluation, Sources, Network capture, Elements trees, and a CDP-independent query API."
+description: "Experimental Chrome DevTools inspection for Host and browser Client Kylin runtimes, including Console evaluation, Sources, Network capture, Elements trees, and a CDP-independent query API."
 kind: "package-reference"
 ---
 
@@ -9,16 +9,16 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use this experimental inspector to inspect one running qilin Host and its browser Clients in Chrome DevTools. It exposes Host and Client Console contexts, Host Sources and debugging, captured Host fetches, and a shared Cordis tree while keeping all CDP state in a Worker.
+Use this experimental inspector to inspect one running qilin Host and its browser Clients in Chrome DevTools. It exposes Host and Client Console contexts, Host Sources and debugging, captured Host fetches, and a shared Kylin tree while keeping all CDP state in a Worker.
 
-The package is private and excluded from releases. The Worker never accesses live Cordis objects: the shared Host/Client collector projects them into validated snapshots before transport. Cordis also owns plugin composition, `ctx.inspector` registration, bootstrap injection, and disposal.
+The package is private and excluded from releases. The Worker never accesses live Kylin objects: the shared Host/Client collector projects them into validated snapshots before transport. Kylin also owns plugin composition, `ctx.inspector` registration, bootstrap injection, and disposal.
 
 ## Table of Contents
 
 - [Runtime layout](#runtime-layout)
 - [Configuration](#configuration)
 - [Observation API](#observation-api)
-- [Cordis tree inspection](#cordis-tree-inspection)
+- [Kylin tree inspection](#kylin-tree-inspection)
 - [Host fetch capture](#host-fetch-capture)
 - [Security](#security)
 - [Model Experience](#model-experience)
@@ -32,13 +32,13 @@ The package is private and excluded from releases. The Worker never accesses liv
 
 The Host plugin starts the Worker and connects a dedicated `MessagePort`. The Client plugin reads the injected `globalThis.__QILIN_INSPECTOR__` bootstrap and opens a separate authenticated WebSocket directly to the Worker. Chrome DevTools connects to the Worker's CDP WebSocket. A private `node:inspector.Session` per DevTools connection attaches from the Worker to the Host main thread, so Host Console evaluation, Sources, breakpoints, and resume remain available while Host JavaScript is paused.
 
-The source tree follows those execution environments: `client/` and `host/` provide mirrored adapter entry paths, `worker/` contains only Worker-thread orchestration and Chrome protocol state, and `shared/` contains environment-independent Cordis and network models, normalized realm backend interfaces, and the internal bridge protocol. Worker-side Client and Host adapters are mirrored under `worker/realms/`; a Client adapter in that directory still executes in the Worker.
+The source tree follows those execution environments: `client/` and `host/` provide mirrored adapter entry paths, `worker/` contains only Worker-thread orchestration and Chrome protocol state, and `shared/` contains environment-independent Kylin and network models, normalized realm backend interfaces, and the internal bridge protocol. Worker-side Client and Host adapters are mirrored under `worker/realms/`; a Client adapter in that directory still executes in the Worker.
 
 Host and Client producers send internal observation records rather than CDP messages. Records contain a source generation, sequence, source-clock timestamp, topic, and JSON payload. The Worker validates every process or network frame, owns source state and retention, and translates recognized topics to standard CDP domains.
 
 Client sources declare typed Runtime, Console, and read-only Sources capabilities. `Runtime.enable` publishes the real Host execution context and one synthetic context for every connected Client source. Selecting a Client context routes evaluation, property access, function calls, promise awaiting, and object release to that browser realm. Client Console arguments use the same session-local object table, while `Debugger.enable` publishes the built `lib/client.js` catalog and `Debugger.getScriptSource` reads bounded content chunks. Client-script breakpoints, step, and call frames remain unsupported; target-wide pause and resume control the Host debugger only.
 
-Both plugin faces run the same browser-safe Cordis collector. It converts reachable Context and Fiber objects into a versioned `CordisTreeSnapshot`; the Worker stores that CDP-independent representation and projects each Host or Client source into the Elements panel.
+Both plugin faces run the same browser-safe Kylin collector. It converts reachable Context and Fiber objects into a versioned `CordisTreeSnapshot`; the Worker stores that CDP-independent representation and projects each Host or Client source into the Elements panel.
 
 <a id="configuration"></a>
 ## Configuration
@@ -95,12 +95,12 @@ await ctx.inspector.cordis.getTree()
 
 Publishing validates lossless JSON and schedules delivery without waiting for the Worker. Each source has a bounded queue. Overflow is reported as a sequence gap and never delays the observed application operation. `cordis.getTree()` reads the Worker's latest detached semantic snapshot without creating a CDP session or enabling Runtime, Debugger, or Sources.
 
-<a id="cordis-tree-inspection"></a>
-## Cordis tree inspection
+<a id="kylin-tree-inspection"></a>
+## Kylin tree inspection
 
-The Elements document has fixed `<host>` and `<clients>` containers. `<host>` contains the Host root Context; `<clients>` contains one `<client>` per Client source, and each `<client>` contains that realm's root Context. The Cordis root Fiber is omitted. Every other Fiber is a child of `fiber.parent`, owns exactly one Context child for `fiber.ctx`, and carries only `uid="<Cordis Fiber.uid>"`; Context elements have no attributes. Context-only `extend()`, `isolate()`, and `intercept()` layers remain direct Context descendants.
+The Elements document has fixed `<host>` and `<clients>` containers. `<host>` contains the Host root Context; `<clients>` contains one `<client>` per Client source, and each `<client>` contains that realm's root Context. The Kylin root Fiber is omitted. Every other Fiber is a child of `fiber.parent`, owns exactly one Context child for `fiber.ctx`, and carries only `uid="<Kylin Fiber.uid>"`; Context elements have no attributes. Context-only `extend()`, `isolate()`, and `intercept()` layers remain direct Context descendants.
 
-Host and Client publish the same nested `CordisTreeSnapshot` type. Context and Fiber nodes carry opaque object handles for realm-local object lookup; Fiber nodes additionally carry Cordis `uid`. The Worker composes those realm snapshots into one `{ host, clients }` inspection tree. It assigns `BackendNodeId` values per source generation; each DevTools connection assigns its own `NodeId` values; `DOM.resolveNode` asks the owning Host or Client Runtime for a connection-local `RemoteObjectId`. `DOM.requestNode` maps that object id back to the same Elements node. `ctx.inspector.cordis.getTree()` and `QILINInspector.getCordisTree` read the detached consumer-neutral tree without routing handles or CDP ids.
+Host and Client publish the same nested `CordisTreeSnapshot` type. Context and Fiber nodes carry opaque object handles for realm-local object lookup; Fiber nodes additionally carry Kylin `uid`. The Worker composes those realm snapshots into one `{ host, clients }` inspection tree. It assigns `BackendNodeId` values per source generation; each DevTools connection assigns its own `NodeId` values; `DOM.resolveNode` asks the owning Host or Client Runtime for a connection-local `RemoteObjectId`. `DOM.requestNode` maps that object id back to the same Elements node. `ctx.inspector.cordis.getTree()` and `QILINInspector.getCordisTree` read the detached consumer-neutral tree without routing handles or CDP ids.
 
 Node delivery is depth-limited per DevTools connection: `DOM.getDocument` serves three document levels when the caller omits `depth`, withheld levels advertise `childNodeCount`, and expansion fetches them through `DOM.requestChildNodes` (`depth: -1` for a whole subtree). NodeIds leaving through `DOM.performSearch`, `DOM.requestNode`, or `DOM.pushNodesByBackendIdsToFrontend` first push the not-yet-sent ancestor levels as `DOM.setChildNodes` events.
 

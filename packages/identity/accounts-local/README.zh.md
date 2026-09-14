@@ -79,7 +79,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-本包是一个函数插件。`apply` 打开解析后 harness home 的账户文件，通过 `ctx.credentials` 以 `accounts-local/session-secret` 为键加载或创建该部署的会话签名密钥，构建 cookie 所有者，在 `ctx.connection.fetch` 上注册六个路由，并在门禁启用时把会话 authority 安置到 `ctx.connection.session`——该席位只接受一个所有者，第二次安置会让安装方插件加载失败。它不提供任何 Cordis 服务：没有别的东西读取账户，组合通过端点与门禁到达这个表层。
+本包是一个函数插件。`apply` 打开解析后 harness home 的账户文件，通过 `ctx.credentials` 以 `accounts-local/session-secret` 为键加载或创建该部署的会话签名密钥，构建 cookie 所有者，在 `ctx.connection.fetch` 上注册六个路由，并在门禁启用时把会话 authority 安置到 `ctx.connection.session`——该席位只接受一个所有者，第二次安置会让安装方插件加载失败。它不提供任何 Kylin 服务：没有别的东西读取账户，组合通过端点与门禁到达这个表层。
 
 ### 账户文件
 

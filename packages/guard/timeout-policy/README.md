@@ -62,7 +62,7 @@ The wrapper is built on four commitments:
 - **Enforcement home, not a library.** `qilin-timeout` owns timing and classification (`deadline`, `timeoutOf`); this plugin owns the per-call wiring over `tools/execute`; each capability owns termination. The split is recorded in the [timeout-deadline-library Agent Note](../../../.agents/notes/implemented/architecture/2026-07-06-timeout-deadline-library.md).
 - **The tool declares its own budget.** `timeoutMs` lives on the tool's `ToolDefinition`, read from the registry (`ctx.tools.get(exec.name, exec.agent)?.timeoutMs`), so a mistyped tool name is impossible and undeclared tools delegate untouched.
 - **Scoped classification.** `TOOL_TIMEOUT` serves as both the internal `deadline` classification code and the structured error `code`; scoping `timeoutOf` to it keeps a nested outer deadline (another wrapper's timer that fired first) from being misread as this plugin's timeout — it reads as an ordinary upstream cancel.
-- **Signal swap, then restore.** Cordis `next()` ignores passed arguments, so the wrapper mutates the shared `exec` in place: it swaps the derived deadline signal onto `exec` for dispatch and restores the caller's signal in a `finally`, so `tools/post-execute` listeners never see this plugin's possibly-aborted signal.
+- **Signal swap, then restore.** Kylin `next()` ignores passed arguments, so the wrapper mutates the shared `exec` in place: it swaps the derived deadline signal onto `exec` for dispatch and restores the caller's signal in a `finally`, so `tools/post-execute` listeners never see this plugin's possibly-aborted signal.
 
 ### How a deadline is armed and mapped
 
@@ -70,7 +70,7 @@ One `tools/execute` listener reads the dispatched tool's declared limit from the
 
 ### Composing with other wrappers
 
-Multiple `tools/execute` listeners compose by Cordis registration order, which chooses the semantics: the timeout registered outer covers a whole retry operation, the timeout registered inner covers each attempt.
+Multiple `tools/execute` listeners compose by Kylin registration order, which chooses the semantics: the timeout registered outer covers a whole retry operation, the timeout registered inner covers each attempt.
 
 ### Source map
 

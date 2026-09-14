@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin Web surface its own brand colors. The plugin registers one `ctx.theme` override layer: the user's `light`, `dark`, or `system` preference and every base token stay untouched, and only the tokens QiLin owns are replaced. Unloading the plugin restores the covered tokens because the layer is a Cordis effect.
+Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin Web surface its own brand colors. The plugin registers one `ctx.theme` override layer: the user's `light`, `dark`, or `system` preference and every base token stay untouched, and only the tokens QiLin owns are replaced. Unloading the plugin restores the covered tokens because the layer is a Kylin effect.
 
 ## Table of Contents
 

@@ -115,4 +115,4 @@ one-shot child 始终选用只读编辑器。可继续 child 仅在其确切 par
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。插件只注册一个 slash source，HMR 测试覆盖释放；它不发出 Cordis 事件，也不持有跨插件可变状态。
+**运行时不变式：** 不发布伴生入口。插件只注册一个 slash source，HMR 测试覆盖释放；它不发出 Kylin 事件，也不持有跨插件可变状态。

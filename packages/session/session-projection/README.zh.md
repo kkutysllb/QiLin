@@ -62,7 +62,7 @@ const dispose = ctx.sessionProjections.register(definition)
 const { asOfSeq, values } = ctx.sessionProjections.snapshot(session)
 ```
 
-必须使用投影状态的领域把 `sessionProjections` 声明为 Cordis 服务依赖；可选贡献方可以在 `ctx.inject(['sessionProjections'], …)` 下注册。载体使用 `ctx.get('sessionProjections')`，注册表缺席时省略自己的块或帧。
+必须使用投影状态的领域把 `sessionProjections` 声明为 Kylin 服务依赖；可选贡献方可以在 `ctx.inject(['sessionProjections'], …)` 下注册。载体使用 `ctx.get('sessionProjections')`，注册表缺席时省略自己的块或帧。
 
 ### 持久检查点
 

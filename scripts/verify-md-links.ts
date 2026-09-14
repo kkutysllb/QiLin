@@ -88,7 +88,7 @@ function fragmentPart(url: string): string | null {
  * GitHub's heading-slug algorithm (lowercase; drop everything but letters,
  * numbers, underscores, spaces, hyphens; spaces become hyphens). Underscores
  * survive (`## Showcase: web_fetch` → `#showcase-web_fetch`), unlike
- * `gen-cordis-catalog`'s region-anchor slugs — the generator's headings are
+ * `gen-kylin-catalog`'s region-anchor slugs — the generator's headings are
  * always reachable through its explicit `<a id>` anchors, so the two need not
  * share one rule.
  * @param heading - the RENDERED heading text (Markdown syntax already gone).

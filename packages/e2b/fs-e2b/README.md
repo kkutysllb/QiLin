@@ -99,7 +99,7 @@ E2B not-found, permission, abort, and other controller failures map to the exist
 Read these pages when the package-level contract is not enough. They move from the family composition to the filesystem seam surface and the tools that render it.
 
 - [E2B provider family map](../README.md) — the sandbox owner and the three-package composition.
-- [Filesystem subsystem](../../../docs/subsystems/filesystem.md) — the filesystem seam contract and the generated Cordis surface.
+- [Filesystem subsystem](../../../docs/subsystems/filesystem.md) — the filesystem seam contract and the generated Kylin surface.
 - [Filesystem provider contract](../../fs/fs/README.md) — the `FileSystem` interface this provider implements.
 - [File tools](../../fs/tool-fs/README.md) — the tools that render filesystem results to the model.
 

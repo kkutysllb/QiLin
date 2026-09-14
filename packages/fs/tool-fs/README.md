@@ -96,7 +96,7 @@ The tools are the executor; policy is an event gate. The tools inject no policy 
 | [`src/read-image.ts`](src/read-image.ts) | `read_image` executor: route and media-type gates, bounded bytes, attachment save |
 | [`src/write.ts`](src/write.ts) | `write` executor: intent waterfall, atomic write, observation |
 | [`src/edit.ts`](src/edit.ts) | `edit` executor: intent waterfall, literal edit, observation |
-| [`src/read-render.ts`](src/read-render.ts) | Cordis-free windowing and envelope formatting |
+| [`src/read-render.ts`](src/read-render.ts) | Kylin-free windowing and envelope formatting |
 | [`src/sandbox.ts`](src/sandbox.ts) | Escalation API shared by `write`/`edit`: policy resolution and denial-marker mapping |
 | [`src/error.ts`](src/error.ts) | Stable model-facing diagnostics for guarded-mutation failures |
 

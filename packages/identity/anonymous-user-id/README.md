@@ -66,7 +66,7 @@ This section explains the design decisions behind the package and points at the 
 - **Random, never derived.** The id comes from `crypto.randomUUID()`; it is never derived from the hostname, network address, git remote, or any other identifying source, so anonymity is a property of the mint.
 - **Synchronous and memoized.** One process touches the disk once: reads and writes are synchronous, and the result is memoized per resolved file path.
 - **Best-effort persistence.** A write failure still returns a usable id for the run, so telemetry and feedback never block on an unwritable home.
-- **Library, not plugin.** There is no Cordis plugin entry or config. No invariant companion is published because the package owns no event stream or public mutable relation to compare without creating the id as a side effect.
+- **Library, not plugin.** There is no Kylin plugin entry or config. No invariant companion is published because the package owns no event stream or public mutable relation to compare without creating the id as a side effect.
 
 ### Source map
 

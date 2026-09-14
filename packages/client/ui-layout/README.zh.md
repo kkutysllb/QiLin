@@ -93,4 +93,4 @@ kind: "package-reference"
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。`ctx.layout` 后的 viewing-state store 不发出 Cordis 事件；clamp 与轨道的时序由本包的 columns 与 service 规格直接断言。
+**运行时不变式：** 不发布伴生入口。`ctx.layout` 后的 viewing-state store 不发出 Kylin 事件；clamp 与轨道的时序由本包的 columns 与 service 规格直接断言。

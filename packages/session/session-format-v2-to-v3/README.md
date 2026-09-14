@@ -36,7 +36,7 @@ Restore supported released V2 Sessions as V3 without changing historical request
 
 ### When to use it
 
-Use the [catalog](../session-format-catalog/README.md) to restore a Session. Direct imports serve catalog assembly and tests; this library has no Cordis mount configuration. The [public exports](src/index.ts) provide the migration declaration, released V2 source codec, V3 target codec, target header validator, and target restorer.
+Use the [catalog](../session-format-catalog/README.md) to restore a Session. Direct imports serve catalog assembly and tests; this library has no Kylin mount configuration. The [public exports](src/index.ts) provide the migration declaration, released V2 source codec, V3 target codec, target header validator, and target restorer.
 
 ### Entry point
 

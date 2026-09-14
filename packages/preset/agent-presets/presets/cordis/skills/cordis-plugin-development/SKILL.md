@@ -1,9 +1,9 @@
 ---
 name: cordis-plugin-development
-description: Create, modify, debug, or extend dynamic Cordis Plugins, including Host Services and Events, Client Slot and theme UI, Package-private Client-to-Host calls, dynamic Tools, version updates, approval failures, and runtime diagnostics. Use this Skill to route a user request to the correct platform and Inspect Provider, then define, run, repair, or roll back the Plugin.
+description: Create, modify, debug, or extend dynamic Kylin Plugins, including Host Services and Events, Client Slot and theme UI, Package-private Client-to-Host calls, dynamic Tools, version updates, approval failures, and runtime diagnostics. Use this Skill to route a user request to the correct platform and Inspect Provider, then define, run, repair, or roll back the Plugin.
 ---
 
-# Develop Dynamic Cordis Plugins
+# Develop Dynamic Kylin Plugins
 
 First determine whether a capability belongs on Host or Client, then query the real interface before writing code. Never infer a complete API from a Service name, Event payload, Slot props, theme token, or example.
 
@@ -60,7 +60,7 @@ Provider names, methods, and inputs must come from the current list result. The 
 
 ## Execution environment
 
-Both `code.host` and `code.client` are plain JavaScript function bodies that return a Cordis Plugin. They are not compiled by TypeScript, JSX, or a bundler.
+Both `code.host` and `code.client` are plain JavaScript function bodies that return a Kylin Plugin. They are not compiled by TypeScript, JSX, or a bundler.
 
 Do not use:
 
@@ -111,7 +111,7 @@ return {
 }
 ```
 
-Declare `inject` only when a Service is a hard dependency and the Plugin must enter waiting until Cordis reactivates it after the Service appears:
+Declare `inject` only when a Service is a hard dependency and the Plugin must enter waiting until Kylin reactivates it after the Service appears:
 
 ```js
 return {
@@ -126,11 +126,11 @@ Do not overuse `inject` merely to avoid an `undefined` check. Do not access `ctx
 
 ## Manage side effects
 
-Every contribution must be removed after the Plugin is stopped, updated, or removed. Prefer Cordis lifecycle APIs:
+Every contribution must be removed after the Plugin is stopped, updated, or removed. Prefer Kylin lifecycle APIs:
 
 - Use `ctx.on()` to register Event listeners.
 - Use `ctx.effect()` to own an external subscription that returns a disposer.
-- Retain disposers returned by Cordis Service, Tool, Slot, timer, and theme APIs.
+- Retain disposers returned by Kylin Service, Tool, Slot, timer, and theme APIs.
 - Do not create process-wide or page-wide side effects at module scope or outside `apply()`.
 
 Recommended:
@@ -276,7 +276,7 @@ A session-scoped Slot may provide `useSession`, `useSessions`, `useWorkspaces`, 
 
 Select only the fields that the UI actually needs. Do not copy or render an entire Conversation Snapshot, Session, Tool call, or Slot props object.
 
-### Cordis Run-specific panel
+### Kylin Run-specific panel
 
 To place interactive UI in the latest `cordis_run` card, register `tool.view.cordis` with `key: 'self'`:
 
@@ -355,7 +355,7 @@ Tool arguments and return values must be JSON-compatible. `execute` owns the bus
 
 ## Handle internal live data
 
-Service instances, Event payloads, Slot props, Session and Conversation Snapshots, Tool state, and other QILIN/Cordis objects are internal live data.
+Service instances, Event payloads, Slot props, Session and Conversation Snapshots, Tool state, and other QILIN/Kylin objects are internal live data.
 
 Do not:
 

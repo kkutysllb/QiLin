@@ -117,7 +117,7 @@ The server is built on one rule: each accepted chat-completions request consumes
 | [`src/index.ts`](src/index.ts) | `startMockLlmServer`: listener, behavior table, seeded randomness, telemetry, captured request records |
 | [`src/cli.ts`](src/cli.ts) | `--sequence` and timing/content option parsing, JSONL stdout telemetry |
 | [`src/bin.ts`](src/bin.ts) | The `pnpm run mock:llm` source entry |
-| — | No runtime invariant companion is published; this standalone test server owns no Cordis event stream or shared data; its wire behavior and lifecycle are exercised through direct HTTP and assembled-loop tests. |
+| — | No runtime invariant companion is published; this standalone test server owns no Kylin event stream or shared data; its wire behavior and lifecycle are exercised through direct HTTP and assembled-loop tests. |
 
 ### Wire flow
 

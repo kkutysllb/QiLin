@@ -2,13 +2,13 @@
 
 English | [中文](architecture.zh.md)
 
-Read this before changing anything under `packages/`. It assumes you know Cordis; if you do not, start with the [primer](cordis-primer.md) or the [tutorial](cordis-tutorial/index.md).
+Read this before changing anything under `packages/`. It assumes you know Kylin; if you do not, start with the [primer](kylin-primer.md) or the [tutorial](kylin-tutorial/index.md).
 
 We recommend using an agent to explore the codebase and understand its architecture.
 
-## Cordis
+## Kylin
 
-[Cordis](cordis-primer.md) is the framework under qilin: plugins contribute services, typed events, and reversible effects to a shared context. Every part of the product is a plugin, including the model adapter, the tool registry, the session log, and the agent loop itself, so each is replaceable from configuration.
+[Kylin](kylin-primer.md) — the plugin framework under qilin, source-vendored from upstream Cordis — lets plugins contribute services, typed events, and reversible effects to a shared context. Every part of the product is a plugin, including the model adapter, the tool registry, the session log, and the agent loop itself, so each is replaceable from configuration.
 
 There is no privileged core to patch: you extend qilin by mounting a plugin beside the others, and registrations are effects that unwind when their plugin unloads.
 
@@ -18,7 +18,7 @@ A running `qilin` is a plugin tree composed at boot from ordered layers.
 
 A **profile** is a named composition stored in the Harness home. It lists the bundles it stacks, holds any out-of-tree plugins it installs, and keeps the user's own `cordis.patch.yml`. `web`, `headless`, `sdk`, `sdk-minimal`, and `acp` ship as templates.
 
-A **bundle** is a distribution format for Cordis config rows and the code they mount, so whatever it inserts stays patchable by the layers above it.
+A **bundle** is a distribution format for Kylin config rows and the code they mount, so whatever it inserts stays patchable by the layers above it.
 
 Each declares itself in its own `package.json` under a `qilin` field: `qilin.profile` lists a profile's bundles, and `qilin.bundle` points at a bundle's patch file.
 
@@ -40,11 +40,11 @@ Composition mechanics are in [app-boot](../packages/boot/app-boot/README.md#prof
 
 ## Application launch
 
-Every supported Node application starts at the `qilin` CLI with a named profile. The shipped applications are `qilin web` (the deliberate alias for `--profile web`), `qilin --profile headless`, `qilin --profile sdk`, `qilin --profile sdk-minimal`, and `qilin --profile acp`. The TypeScript SDK resolves its same-version `qilin` dependency and selects `sdk`; custom plugin composition remains a profile plus ordered patch files, not another executable or inline application tree. `sdk-minimal` is a repository-owned standalone bundle behind the same launcher, not a caller-supplied Cordis tree.
+Every supported Node application starts at the `qilin` CLI with a named profile. The shipped applications are `qilin web` (the deliberate alias for `--profile web`), `qilin --profile headless`, `qilin --profile sdk`, `qilin --profile sdk-minimal`, and `qilin --profile acp`. The TypeScript SDK resolves its same-version `qilin` dependency and selects `sdk`; custom plugin composition remains a profile plus ordered patch files, not another executable or inline application tree. `sdk-minimal` is a repository-owned standalone bundle behind the same launcher, not a caller-supplied Kylin tree.
 
 Vendored CLIs, build-only and test-only executables, direct in-process plugin mounting, and the private browser WebWorker preview are not Harness application launchers. [`verify-application-entrypoints`](../scripts/verify-application-entrypoints.ts) keeps every package bin, executable source, and root demo in an explicit class and rejects a Node application path that bypasses `qilin`.
 
-The Python SDK follows the same application architecture. Its runtime wheel packages the normal `qilin` CLI as `deepseek-harness-sdk-runtime-<platform>-<arch>`, and the client launches `qilin --profile sdk` with an explicit Harness home by default. The minimal example selects the shipped `sdk-minimal` profile. Python exposes profile selection and ordered patch files rather than a complete Cordis tree; persistent external plugins are installed through `qilin plugin`. The removed private direct-config carrier has no compatibility bin or fallback parser.
+The Python SDK follows the same application architecture. Its runtime wheel packages the normal `qilin` CLI as `deepseek-harness-sdk-runtime-<platform>-<arch>`, and the client launches `qilin --profile sdk` with an explicit Harness home by default. The minimal example selects the shipped `sdk-minimal` profile. Python exposes profile selection and ordered patch files rather than a complete Kylin tree; persistent external plugins are installed through `qilin plugin`. The removed private direct-config carrier has no compatibility bin or fallback parser.
 
 ## Desktop application
 
@@ -54,7 +54,7 @@ Electron starts the private Desktop Host package under its bundled upstream Node
 
 ## Core packages
 
-Here are some core packages that contribute to the Cordis tree.
+Here are some core packages that contribute to the Kylin tree.
 
 | Package | Owns | `ctx` key |
 |---|---|---|

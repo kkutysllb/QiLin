@@ -64,7 +64,7 @@ index 启动输入分两层。`collectIndexInjections()` 收集一张全新的�
 
 ### 设计理念
 
-本包是一个不带任何 harness 词汇的普通路由注册表：`WebServer` 继承 Cordis `Service`，持有三张路由表、回退槽位、原始 index 转换列表，以及 index 渲染器经其收集行的 `webserver/index-inject` 事件。index 渲染每次响应组合两层：`renderIndex` 先把包含提示性 `script-preload` 行的全新注入表渲染进正文，再按注册顺序应用原始转换；`applyIndexTaps` 只运行转换。upgrade handler 拥有协议握手与连接内容；webserver 只交付原始 socket 与 request。`host` 与 `port` getter 暴露其他插件据以自适应的组合期事实（例如 directory-picker 选择器）。
+本包是一个不带任何 harness 词汇的普通路由注册表：`WebServer` 继承 Kylin `Service`，持有三张路由表、回退槽位、原始 index 转换列表，以及 index 渲染器经其收集行的 `webserver/index-inject` 事件。index 渲染每次响应组合两层：`renderIndex` 先把包含提示性 `script-preload` 行的全新注入表渲染进正文，再按注册顺序应用原始转换；`applyIndexTaps` 只运行转换。upgrade handler 拥有协议握手与连接内容；webserver 只交付原始 socket 与 request。`host` 与 `port` getter 暴露其他插件据以自适应的组合期事实（例如 directory-picker 选择器）。
 
 ### 匹配与生命周期
 

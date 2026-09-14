@@ -33,7 +33,7 @@ Use `qilin-skill` when agents should load skills from more than one source throu
 
 ### Mount and configure
 
-Load the plugin like any Cordis plugin. The only configuration limits how many completed provider catalogs are kept in memory; everything else is provider behavior.
+Load the plugin like any Kylin plugin. The only configuration limits how many completed provider catalogs are kept in memory; everything else is provider behavior.
 
 ```yaml
 - name: '@qilin/skill'

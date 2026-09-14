@@ -77,7 +77,7 @@ kind: "package-reference"
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 服务接线：`LocalFileSystem`、`Config`、每目标变更锁 |
-| [`src/fsio.ts`](src/fsio.ts) | 不依赖 Cordis 的原始 I/O：探测、读取、原子写入、字面量编辑、行尾处理 |
+| [`src/fsio.ts`](src/fsio.ts) | 不依赖 Kylin 的原始 I/O：探测、读取、原子写入、字面量编辑、行尾处理 |
 | [`src/win32.ts`](src/win32.ts) | 原子替换的 Windows 专属 DACL 保留 |
 
 ### 写入路径
@@ -90,7 +90,7 @@ kind: "package-reference"
 
 ### 归属与不变式
 
-原始 I/O 不依赖 Cordis，在 `src/fsio.ts` 中独立单元测试；`src/index.ts` 保持为轻量接线。`config.cwd` 只是解析默认值——约束是 `fs-sandbox` 或 `tools/execute` 权限插件的工作。取消是尽力而为的 `AbortSignal`，在每次异步探测前后检查。
+原始 I/O 不依赖 Kylin，在 `src/fsio.ts` 中独立单元测试；`src/index.ts` 保持为轻量接线。`config.cwd` 只是解析默认值——约束是 `fs-sandbox` 或 `tools/execute` 权限插件的工作。取消是尽力而为的 `AbortSignal`，在每次异步探测前后检查。
 
 </details>
 

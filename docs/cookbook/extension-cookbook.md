@@ -10,7 +10,7 @@ A tool registers on `ctx.tools`. The annotated `defineTool` example (typed `exec
 
 ## A hook plugin (permission-gate example)
 
-This permission gate is one example of a hook plugin. It returns a typed decision from the `tools/pre-execute` gate to allow or deny a call; sandbox, permission, and plan-mode plugins can use this extension point. Hook plugins can intercept other extension points and are not inherently permission gates. A "native hook" is an ordinary Cordis plugin on an interception point; it needs no external protocol.
+This permission gate is one example of a hook plugin. It returns a typed decision from the `tools/pre-execute` gate to allow or deny a call; sandbox, permission, and plan-mode plugins can use this extension point. Hook plugins can intercept other extension points and are not inherently permission gates. A "native hook" is an ordinary Kylin plugin on an interception point; it needs no external protocol.
 
 ```ts
 import type { Context } from '@qilin/kylin'

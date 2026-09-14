@@ -43,7 +43,7 @@ The task board shows task identity, owner, blockers, readiness, advisory write s
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The Client export mounts the generated `ctx.remote.agentTeams` contribution from [`@qilin/experimental-agent-team/remote`](../agent-team/README.md), then registers its locale dictionaries and one conversation-header slot through Cordis effects. Disposing the plugin fiber removes both registrations.
+The Client export mounts the generated `ctx.remote.agentTeams` contribution from [`@qilin/experimental-agent-team/remote`](../agent-team/README.md), then registers its locale dictionaries and one conversation-header slot through Kylin effects. Disposing the plugin fiber removes both registrations.
 
 Starting a create or update invalidates older refreshes. Success reloads the complete Team view so every task's derived fields stay current. A `team-task-conflict` result displays a stale-state notice only after that reload succeeds; a reload failure remains visible instead. Editing task text or scopes and changing dependencies use two sequential compare-and-set mutations because the Team service exposes them as separate actions.
 

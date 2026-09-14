@@ -91,4 +91,4 @@ Web GUI 允许用户通过 `/model` 弹窗或 composer 模型控件切换既有�
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。插件只注册一个 command contribution，HMR 测试覆盖释放；它不发出 Cordis 事件，也不持有跨插件可变状态。
+**运行时不变式：** 不发布伴生入口。插件只注册一个 command contribution，HMR 测试覆盖释放；它不发出 Kylin 事件，也不持有跨插件可变状态。

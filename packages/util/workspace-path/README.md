@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Browser-safe path helpers shared by Workspace-facing client and controller packages. The package joins Workspace-relative paths, abbreviates POSIX home directories for display, derives Workspace titles from POSIX or Windows paths, splits a path into its directories and final segment for display, owns the `qilin-resource://file/…` address grammar that names a workspace file across the Sidebar and the resource model, and classifies which extensions the client opens as editable text. `relativizeToCwd` removes the workspace prefix for display while preserving paths outside that directory. It has no Cordis service or runtime state.
+Browser-safe path helpers shared by Workspace-facing client and controller packages. The package joins Workspace-relative paths, abbreviates POSIX home directories for display, derives Workspace titles from POSIX or Windows paths, splits a path into its directories and final segment for display, owns the `qilin-resource://file/…` address grammar that names a workspace file across the Sidebar and the resource model, and classifies which extensions the client opens as editable text. `relativizeToCwd` removes the workspace prefix for display while preserving paths outside that directory. It has no Kylin service or runtime state.
 
 ## Table of Contents
 

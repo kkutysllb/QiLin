@@ -79,7 +79,7 @@ This section explains what the plugin owns and points at the files that realize 
 
 ### Design concept
 
-The package is one function plugin. `apply` opens the account file of the resolved harness home, loads or creates the deployment's session-signing secret through `ctx.credentials` under the key `accounts-local/session-secret`, builds the cookie owner, registers the six routes on `ctx.connection.fetch`, and — while the gate is enabled — installs the session authority on `ctx.connection.session`, whose seat accepts one owner and fails the installer's load on a second. It provides no Cordis service: nothing else reads an account, and the composition reaches this surface through the endpoints and the gate.
+The package is one function plugin. `apply` opens the account file of the resolved harness home, loads or creates the deployment's session-signing secret through `ctx.credentials` under the key `accounts-local/session-secret`, builds the cookie owner, registers the six routes on `ctx.connection.fetch`, and — while the gate is enabled — installs the session authority on `ctx.connection.session`, whose seat accepts one owner and fails the installer's load on a second. It provides no Kylin service: nothing else reads an account, and the composition reaches this surface through the endpoints and the gate.
 
 ### The account file
 

@@ -86,7 +86,7 @@ expect(view.getByRole('alert')).toHaveTextContent('goal/not-found')
 
 ### 设计
 
-测试台不复制生产逻辑：它挂载生产 `SlotRegistry`、生产渲染器与 `UiSession` 适配器。`TestSessions` 与 `TestWorkspaces` 实现功能通过 Cordis 消费的 owner 接口，每个 fixture Session 实现 `SessionFace`，`stubSettingsScope` 实现 `SettingsScope`。`UiSession` 从这些 Controller binding 派生标准渲染器 source。未 stub 的 `ISession` 行为会携缺失方法名失败。
+测试台不复制生产逻辑：它挂载生产 `SlotRegistry`、生产渲染器与 `UiSession` 适配器。`TestSessions` 与 `TestWorkspaces` 实现功能通过 Kylin 消费的 owner 接口，每个 fixture Session 实现 `SessionFace`，`stubSettingsScope` 实现 `SettingsScope`。`UiSession` 从这些 Controller binding 派生标准渲染器 source。未 stub 的 `ISession` 行为会携缺失方法名失败。
 
 ### 源码地图
 

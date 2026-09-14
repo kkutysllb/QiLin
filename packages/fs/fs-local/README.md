@@ -77,7 +77,7 @@ The backend builds on three ideas:
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Service wiring: `LocalFileSystem`, `Config`, per-target mutation lock |
-| [`src/fsio.ts`](src/fsio.ts) | Cordis-free raw I/O: probe, reads, atomic write, literal edit, line-ending handling |
+| [`src/fsio.ts`](src/fsio.ts) | Kylin-free raw I/O: probe, reads, atomic write, literal edit, line-ending handling |
 | [`src/win32.ts`](src/win32.ts) | Windows-specific DACL preservation for atomic replacement |
 
 ### Write path
@@ -90,7 +90,7 @@ Each edit probes, verifies the version guard before literal matching (so stale e
 
 ### Ownership and invariants
 
-Raw I/O is Cordis-free and independently unit-tested in `src/fsio.ts`; `src/index.ts` stays thin wiring. `config.cwd` is a resolution default only — containment is the job of `fs-sandbox` or a `tools/execute` permission plugin. Cancellation is a best-effort `AbortSignal` checked before and after each asynchronous probe.
+Raw I/O is Kylin-free and independently unit-tested in `src/fsio.ts`; `src/index.ts` stays thin wiring. `config.cwd` is a resolution default only — containment is the job of `fs-sandbox` or a `tools/execute` permission plugin. Cancellation is a best-effort `AbortSignal` checked before and after each asynchronous probe.
 
 </details>
 

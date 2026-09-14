@@ -48,7 +48,7 @@ kind: "package-reference"
 
 ### 为什么是 home 层
 
-本服务写入 `<QILIN_HOME>/cordis.patch.yml`，即位于所有 profile 之上的那一层，因此在 web GUI 中配置的服务器在无头运行中同样存在。启动器本来就监听该文件，所以一次保存会经 Cordis HMR 加入正在运行的插件树，无需重启。
+本服务写入 `<QILIN_HOME>/cordis.patch.yml`，即位于所有 profile 之上的那一层，因此在 web GUI 中配置的服务器在无头运行中同样存在。启动器本来就监听该文件，所以一次保存会经 Kylin HMR 加入正在运行的插件树，无需重启。
 
 ### 写入
 
@@ -56,7 +56,7 @@ kind: "package-reference"
 
 ### 该服务仅面向 Remote
 
-`McpServers` 不声明同进程 Cordis `Context` merge；`mcpServers` 命名空间是给设置页使用的 Remote 客户端的。它注入 subprocess 提供方，是因为可用性探测必须按 `@qilin/mcp-client` 将要采用的方式解析命令。
+`McpServers` 不声明同进程 Kylin `Context` merge；`mcpServers` 命名空间是给设置页使用的 Remote 客户端的。它注入 subprocess 提供方，是因为可用性探测必须按 `@qilin/mcp-client` 将要采用的方式解析命令。
 
 <a id="further-exploration"></a>
 ## 进一步探索

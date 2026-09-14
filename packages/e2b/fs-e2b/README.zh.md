@@ -99,7 +99,7 @@ E2B 的未找到、权限、中止及其他控制器故障会映射到现有 `Fs
 当包级约定不够用时阅读以下页面。它们从家族组合逐步进入文件系统 seam 表面，以及渲染它的工具。
 
 - [E2B 提供方家族地图](../README.zh.md)——沙箱所有者与三包组合。
-- [文件系统子系统](../../../docs/subsystems/filesystem.zh.md)——文件系统 seam 约定与生成的 Cordis 表面。
+- [文件系统子系统](../../../docs/subsystems/filesystem.zh.md)——文件系统 seam 约定与生成的 Kylin 表面。
 - [文件系统提供方约定](../../fs/fs/README.zh.md)——本提供方实现的 `FileSystem` 接口。
 - [文件工具](../../fs/tool-fs/README.zh.md)——向模型渲染文件系统结果的工具。
 

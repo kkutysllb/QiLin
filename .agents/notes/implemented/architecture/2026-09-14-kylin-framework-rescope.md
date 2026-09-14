@@ -30,4 +30,4 @@ The harness's own extension packages renamed in the same wave: `@qilin/tool-cord
 
 ## Consequences
 
-Compositions that reference `@deepseek-ai/cordis*` rows stop resolving; the product is pre-release and ships no migration. Follow-up phases rename the harness's own `@qilin/*cordis*` packages and the documentation prose; recorded-session snapshots refresh against the new plugin row names.
+Compositions that reference `@deepseek-ai/cordis*` rows stop resolving; the product is pre-release and ships no migration. The documentation layer carries the same rename: `cordis-primer`/`cordis-tutorial`/`cordis-api`/`dynamic-cordis` became their `kylin-` names, the `gen-cordis-*` generators followed their outputs, and prose names the framework Kylin while upstream references keep the Cordis spelling. Recorded-session snapshots refresh against the new plugin row names.

@@ -34,8 +34,8 @@ The E2B family lets agents read and edit files, run shell commands, and use term
 ## Related documentation
 
 - [Portable execution-world decision](../../.agents/notes/implemented/architecture/2026-07-28-portable-execution-world-consumers.md) — why the execution world can move without moving the harness, and what stays local.
-- [Subprocess subsystem](../../docs/subsystems/subprocess.md) — the subprocess seam contract and the generated Cordis surface, including `ctx.e2b`.
-- [Filesystem subsystem](../../docs/subsystems/filesystem.md) — the filesystem seam contract and the generated Cordis surface.
+- [Subprocess subsystem](../../docs/subsystems/subprocess.md) — the subprocess seam contract and the generated Kylin surface, including `ctx.e2b`.
+- [Filesystem subsystem](../../docs/subsystems/filesystem.md) — the filesystem seam contract and the generated Kylin surface.
 
 -----
 

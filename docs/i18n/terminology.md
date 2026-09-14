@@ -38,7 +38,7 @@
 | agent loop | agent loop | agent loop（智能体循环） | | |
 | blob hash | blob hash | | | `git hash-object` 的结果 |
 | coding agent | coding agent | coding agent（编程智能体） | | agent 组合词，正文保留英文 |
-| Cordis | Cordis | | | |
+| Kylin | Kylin | | | |
 | dispose | dispose | dispose（资源释放） | | |
 | doc-sync | doc-sync | doc-sync（文档同步门禁） | | |
 | fiber | fiber | | | |
@@ -56,7 +56,7 @@
 | Round | Round | | 回合、目标回合、Ralph 回合 | 外层策略使用 Round 时，领域层级为 Session > Round > Turn（轮次） > Step（步骤）；Round 是可选的外层策略迭代，并非每个会话轮次都具有的通用层级。Goal Round 与 Ralph Round 均保留英文。一个 Round 承载一个轮次，步骤隶属于该轮次；明确的零步骤轮次仍保持原义。 |
 | schema | schema | | | |
 | schema DSL | schema DSL | | | |
-| seam | seam | | 接缝 | 一个可替换能力的整体，包含 Service Definition / Service Provider / Consumer 三种角色；角色需要独立演化时才拆包，也可由同一包承担多个角色。以 `packages/shell` 为范例；Service Definition 是 Cordis `Service`（抽象类或具体 registry 服务），不是 TypeScript interface。任何单一角色、普通边界或扩展点都不能称为 seam。本仓库正文保留英文；与 `extension point` 是不同概念 |
+| seam | seam | | 接缝 | 一个可替换能力的整体，包含 Service Definition / Service Provider / Consumer 三种角色；角色需要独立演化时才拆包，也可由同一包承担多个角色。以 `packages/shell` 为范例；Service Definition 是 Kylin `Service`（抽象类或具体 registry 服务），不是 TypeScript interface。任何单一角色、普通边界或扩展点都不能称为 seam。本仓库正文保留英文；与 `extension point` 是不同概念 |
 | Service Provider | Service Provider | | Service provider | 能力 seam 的命名角色；单数固定写作 Service Provider，复数写作 Service Providers。泛指提供服务的 provider 不适用本词条 |
 | skill | skill | skill（技能） | | |
 | slot | slot | | 坑位、孔位 | 客户端架构中的具名可注册位置，保留英文 |
@@ -106,8 +106,8 @@
 | compaction | 压缩 | 压缩（compaction） | | |
 | companion tool | 配套工具 | | | |
 | composition bundle | 组合包 | | | 只约束应用或插件的组合语境，不约束所有 `bundle` |
-| Cordis plugin config | Cordis 插件配置 | | | Cordis 插件公开的 `Config` 对象或配置结构 |
-| config key | 配置键 | | | Cordis 插件配置中的单个字段 |
+| Kylin plugin config | Kylin 插件配置 | | | Kylin 插件公开的 `Config` 对象或配置结构 |
+| config key | 配置键 | | | Kylin 插件配置中的单个字段 |
 | consumer | 消费方 | | 消费者 | |
 | content block | 内容块 | | | |
 | Cookbook | 实操手册 | | | 文档标题用语 |
@@ -116,8 +116,8 @@
 | configurable-provider directory | 可配置提供方目录 | | | llm seam 中 `registerConfigurableProviders()` 维护的目录；沿用 Service Catalog →「服务目录」先例 |
 | context compaction | 上下文压缩 | 上下文压缩（context compaction） | | |
 | contract | 约定 | | | 如：`pairing contract` →`配对约定` |
-| Cordis config entry | Cordis 配置项 | | | 指 `cordis.yml` 插件列表中的一项；插件实现本身写`Cordis 插件` |
-| Cordis plugin | Cordis 插件 | | | Cordis 加载的插件实现，不指 `cordis.yml` 中的一项配置 |
+| Kylin config entry | Kylin 配置项 | | | 指 `cordis.yml` 插件列表中的一项；插件实现本身写`Kylin 插件` |
+| Kylin plugin | Kylin 插件 | | | Kylin 加载的插件实现，不指 `cordis.yml` 中的一项配置 |
 | crash recovery | 崩溃恢复 | | | |
 | deploy root | 部署根目录 | | | |
 | dormant | 休眠 | | 睡眠、蛰伏 | 指已声明可配置但当前未注册路由的提供方 |

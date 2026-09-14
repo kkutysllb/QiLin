@@ -249,8 +249,8 @@ const develop = pairedPages([
     order: 2,
   },
   {
-    source: 'docs/user/develop/practice/dynamic-cordis.md',
-    route: 'develop/practice/dynamic-cordis.md',
+    source: 'docs/user/develop/practice/dynamic-kylin.md',
+    route: 'develop/practice/dynamic-kylin.md',
     label: { root: '运行时 Cordis 工具', en: 'Runtime Cordis tools' },
     sidebar: { root: 'zh-develop', en: 'en-develop' },
     section: { root: '实战', en: 'Practice' },
@@ -268,19 +268,19 @@ const cordisTutorial = pairedPages(([
   ['06-composition-and-hmr.md', '6. 组合与热重载', '6. Composition and HMR'],
   ['07-into-the-harness.md', '7. 进入 Harness', '7. Into the harness'],
 ] as const).map(([file, rootLabel, enLabel], order): PairedPage => ({
-  source: `docs/cordis-tutorial/${file}`,
-  route: `develop/cordis-tutorial/${file}`,
+  source: `docs/kylin-tutorial/${file}`,
+  route: `develop/kylin-tutorial/${file}`,
   label: { root: rootLabel, en: enLabel },
   sidebar: { root: 'zh-develop', en: 'en-develop' },
   section: { root: 'Cordis 框架教程', en: 'Cordis framework tutorial' },
   order,
-  ...(file === 'index.md' ? { sourceAliases: ['docs/cordis-tutorial'] } : {}),
+  ...(file === 'index.md' ? { sourceAliases: ['docs/kylin-tutorial'] } : {}),
 })))
 
 const cordisPrimerReference = pairedPages([
   {
-    source: 'docs/cordis-primer.md',
-    route: 'reference/cordis-primer.md',
+    source: 'docs/kylin-primer.md',
+    route: 'reference/kylin-primer.md',
     label: { root: 'Cordis 入门', en: 'Cordis primer' },
     sidebar: { root: 'zh-reference', en: 'en-reference' },
     section: { root: '概念', en: 'Concepts' },
@@ -418,8 +418,8 @@ const reference = [
     ['registry.md', 'Plugin Registry', 'Plugin Registry'],
     ['service.md', 'Service', 'Service'],
   ] as const).map(([file, rootLabel, enLabel], order): PairedPage => ({
-    source: `docs/cordis-api/${file}`,
-    route: `reference/cordis-api/${file}`,
+    source: `docs/kylin-api/${file}`,
+    route: `reference/kylin-api/${file}`,
     label: { root: rootLabel, en: enLabel },
     sidebar: { root: 'zh-reference', en: 'en-reference' },
     section: { root: 'Cordis API', en: 'Cordis Core API' },
@@ -428,8 +428,8 @@ const reference = [
   ...mirroredPages(([
     ['inherited.md', '继承接口面', 'Inherited surface'],
   ] as const).map(([file, rootLabel, enLabel], order): MirroredPage => ({
-    source: `docs/cordis-api/${file}`,
-    route: `reference/cordis-api/${file}`,
+    source: `docs/kylin-api/${file}`,
+    route: `reference/kylin-api/${file}`,
     contentLocale: 'en-US',
     label: { root: rootLabel, en: enLabel },
     sidebar: { root: 'zh-reference', en: 'en-reference' },

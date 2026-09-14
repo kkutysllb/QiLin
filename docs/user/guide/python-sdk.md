@@ -132,7 +132,7 @@ Another `profile` is valid when it includes `@qilin/sdk-app` or another JSON-RPC
 <a id="opt-in-to-str_replace_editor"></a>
 ### Opt in to `str_replace_editor`
 
-The bundled runtime includes `str_replace_editor`, but `sdk-minimal` omits it from the default Cordis tree. To use it, save this configuration as `editor.patch.yml`; `insert` adds both the editor and the filesystem provider that the minimal profile lacks:
+The bundled runtime includes `str_replace_editor`, but `sdk-minimal` omits it from the default Kylin tree. To use it, save this configuration as `editor.patch.yml`; `insert` adds both the editor and the filesystem provider that the minimal profile lacks:
 
 ```yaml
 - insert:

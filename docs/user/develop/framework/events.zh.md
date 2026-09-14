@@ -2,7 +2,7 @@
 
 [English](events.md) | 中文
 
-事件是 Cordis 插件间通信的核心机制。Harness 大量使用事件来实现松耦合的扩展点。
+事件是 Kylin 插件间通信的核心机制。Harness 大量使用事件来实现松耦合的扩展点。
 
 ## 基本用法
 
@@ -22,7 +22,7 @@ ctx.emit('event-name', payload)
 
 ## 事件模式
 
-Cordis 提供多种事件模式，适用于不同的交互契约：
+Kylin 提供多种事件模式，适用于不同的交互契约：
 
 ### emit — 广播
 
@@ -99,11 +99,11 @@ declare module '@qilin/kylin' {
 // are now inferred correctly.
 ```
 
-## Cordis 事件与会话记录
+## Kylin 事件与会话记录
 
-Harness 的 Cordis 事件遵循 `namespace/action` 命名，例如 `agent/pre-step`、`agent/request`、`agent/request-error`、`tools/result` 和 `session/event`。完整签名与触发模式见[子系统页面](../../../subsystems/core.zh.md)上生成的 `cordis-surface` 区块。
+Harness 的 Kylin 事件遵循 `namespace/action` 命名，例如 `agent/pre-step`、`agent/request`、`agent/request-error`、`tools/result` 和 `session/event`。完整签名与触发模式见[子系统页面](../../../subsystems/core.zh.md)上生成的 `kylin-surface` 区块。
 
-`turn/*`、`step/*`、`tool/call`、`tool/result` 和 `compaction/*` 是持久化的会话事件类型，不是同名 Cordis 事件。需要观察它们时，监听 `session/event` 并检查 `event.type`。
+`turn/*`、`step/*`、`tool/call`、`tool/result` 和 `compaction/*` 是持久化的会话事件类型，不是同名 Kylin 事件。需要观察它们时，监听 `session/event` 并检查 `event.type`。
 
 ## 事件监听器也是效果
 

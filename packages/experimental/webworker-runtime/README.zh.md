@@ -70,4 +70,4 @@ kind: "package-library"
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。这是 Cordis 启动前的平台 glue；其启动的产品树运行各包自己的不变式，image 与 tunnel 约定在 boot 时失败。
+**运行时不变式：** 不发布伴生入口。这是 Kylin 启动前的平台 glue；其启动的产品树运行各包自己的不变式，image 与 tunnel 约定在 boot 时失败。

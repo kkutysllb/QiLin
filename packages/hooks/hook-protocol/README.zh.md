@@ -29,7 +29,7 @@ kind: "package-library"
 
 ### 何时选择
 
-当你持有现有的 Claude Code 或 Codex 钩子、希望它们在 agent（智能体）运行期间继续工作时，选择 `qilin-hooks-claude-code` 或 `qilin-hooks-codex`。你永远不会直接选择本包。没有参考工具对应物的定制行为请避开整个组：原生 Cordis 插件拥有完整的 harness API，无需中间的钩子协议。
+当你持有现有的 Claude Code 或 Codex 钩子、希望它们在 agent（智能体）运行期间继续工作时，选择 `qilin-hooks-claude-code` 或 `qilin-hooks-codex`。你永远不会直接选择本包。没有参考工具对应物的定制行为请避开整个组：原生 Kylin 插件拥有完整的 harness API，无需中间的钩子协议。
 
 ### 钩子能做什么
 

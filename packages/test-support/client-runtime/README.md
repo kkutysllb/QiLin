@@ -86,7 +86,7 @@ This section explains the design of the bench; the observable behavior is fully 
 
 ### Design
 
-The bench copies no production logic: it mounts the production `SlotRegistry`, production renderer, and `UiSession` adapter. `TestSessions` and `TestWorkspaces` implement the owner interfaces that features consume through Cordis, each fixture Session implements `SessionFace`, and `stubSettingsScope` implements `SettingsScope`. `UiSession` derives standard renderer sources from those Controller bindings. Unstubbed `ISession` behavior fails with the missing method name.
+The bench copies no production logic: it mounts the production `SlotRegistry`, production renderer, and `UiSession` adapter. `TestSessions` and `TestWorkspaces` implement the owner interfaces that features consume through Kylin, each fixture Session implements `SessionFace`, and `stubSettingsScope` implements `SettingsScope`. `UiSession` derives standard renderer sources from those Controller bindings. Unstubbed `ISession` behavior fails with the missing method name.
 
 ### Source map
 

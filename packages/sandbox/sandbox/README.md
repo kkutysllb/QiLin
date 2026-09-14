@@ -168,7 +168,7 @@ These limits define when the seam is a poor fit or needs special operational car
 - **Same-world confinement only** — containers, microVMs, and remote execution require replacing capability implementations rather than adding a provider here.
 - **Denial reporting is a stderr dialect** — the seam returns backend signatures instead of a typed runtime denial channel, so consumers that need classification infer it from the child process's output.
 - **Runner diagnostics are in-band** — exit status plus stderr evidence cannot prove which process wrote a matching line, so a confined child that deliberately mimics its runner can cause a false availability or diagnostic attribution; this cannot bypass confinement, and an out-of-band runner-status channel is deferred.
-- **One provider per context** — composing different sandbox mechanisms simultaneously requires a provider-level ladder or separate Cordis contexts; callers choose policy per call, not backend identity.
+- **One provider per context** — composing different sandbox mechanisms simultaneously requires a provider-level ladder or separate Kylin contexts; callers choose policy per call, not backend identity.
 
 <a id="dev-note"></a>
 ### Dev Note

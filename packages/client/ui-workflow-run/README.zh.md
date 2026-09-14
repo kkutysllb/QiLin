@@ -51,7 +51,7 @@ kind: "package-reference"
 
 ### 装配
 
-本包把 Definition、locale 字典与 `workflow-run` renderer 都注册为 Cordis effect；移除客户端 entry 会撤销三者。shipped Web bundle 在 `ui-conversation` 与 `ui-tool` 之后装配该插件。
+本包把 Definition、locale 字典与 `workflow-run` renderer 都注册为 Kylin effect；移除客户端 entry 会撤销三者。shipped Web bundle 在 `ui-conversation` 与 `ui-tool` 之后装配该插件。
 
 </details>
 

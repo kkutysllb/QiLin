@@ -103,7 +103,7 @@ Any directory-setup failure makes one deletion attempt and preserves the origina
 Read these pages when the package-level contract is not enough. They move from the family composition to the subprocess seam surface and the decision evidence behind the remote execution world.
 
 - [E2B provider family map](../README.md) — the three packages and the opt-in composition.
-- [Subprocess subsystem](../../../docs/subsystems/subprocess.md) — the subprocess seam contract and the generated Cordis surface, including `ctx.e2b`.
+- [Subprocess subsystem](../../../docs/subsystems/subprocess.md) — the subprocess seam contract and the generated Kylin surface, including `ctx.e2b`.
 - [Portable execution-world decision](../../../.agents/notes/implemented/architecture/2026-07-28-portable-execution-world-consumers.md) — why consumers delegate to `ctx.fs` and `ctx.subprocess`, and what stays in the host.
 - [Generated configuration catalog](../../../docs/config-catalog.md#qiline2b) — every accepted config field and its source declaration.
 
@@ -125,7 +125,7 @@ No direct invalidation: the owner contributes no request tokens and never mutate
 
 These limits define when the E2B family is a poor fit or needs special operational care. They are current package constraints, not a task backlog.
 
-- **Not a whole-harness runtime** — Cordis services, agent/session state, session logs, LLM requests, skills, and SDK-side buffers stay in the host process.
+- **Not a whole-harness runtime** — Kylin services, agent/session state, session logs, LLM requests, skills, and SDK-side buffers stay in the host process.
 - **Sandbox state is ephemeral** — disposal and timeout delete the sandbox; reconnect, pause/leave retention, templates, volumes, and snapshots are outside this POC.
 - **No deployment platform is configured** — network policy, host-workspace synchronization, and sandbox discovery are outside this POC.
 - **`cwd` is a resolution convention, not containment** — adapters and commands can address other sandbox paths; E2B network access retains the base image's policy.

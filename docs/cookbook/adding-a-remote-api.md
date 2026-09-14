@@ -6,7 +6,7 @@ Adding or changing a `ctx.remote` endpoint takes the five steps on this page: de
 
 ## 1. Declare the API
 
-The owner is a Host-side Cordis service: extend `TypertRemoteService` so the service key and the wire namespace are bound together, then mark the exposed methods with `@Remote`. Mark the business method itself when its signature already satisfies the wire conventions; write a `remoteExport*` adapter only when the shape has to change (adding `signal`, reordering parameters, exporting another name), and let that adapter call the unrenamed business method. Lookup objects (`Agent`, `Session`) may only occupy top-level parameter positions, and a method that supports cooperative cancellation takes `signal: AbortSignal` as its final parameter.
+The owner is a Host-side Kylin service: extend `TypertRemoteService` so the service key and the wire namespace are bound together, then mark the exposed methods with `@Remote`. Mark the business method itself when its signature already satisfies the wire conventions; write a `remoteExport*` adapter only when the shape has to change (adding `signal`, reordering parameters, exporting another name), and let that adapter call the unrenamed business method. Lookup objects (`Agent`, `Session`) may only occupy top-level parameter positions, and a method that supports cooperative cancellation takes `signal: AbortSignal` as its final parameter.
 
 ```ts
 import type { Context } from '@qilin/kylin'

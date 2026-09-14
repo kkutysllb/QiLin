@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This low-level Win32 process library is consumed by the Windows ACL sandbox and the ordinary subprocess Job runner. It owns the repository's one Koffi binding table for reusable process, stdio, and Job Object operations; it is not a Cordis service and does not choose sandbox policy or public child behavior. Read this page when maintaining either native process path or checking its handle-lifetime limits.
+This low-level Win32 process library is consumed by the Windows ACL sandbox and the ordinary subprocess Job runner. It owns the repository's one Koffi binding table for reusable process, stdio, and Job Object operations; it is not a Kylin service and does not choose sandbox policy or public child behavior. Read this page when maintaining either native process path or checking its handle-lifetime limits.
 
 ## Table of Contents
 
@@ -67,7 +67,7 @@ The package contributes no stable request prefix, so it does not invalidate mode
 <a id="known-limitations-and-deferred-work"></a>
 
 - **Windows-only native loading** — importing the generic types is portable, but resolving the binding table loads Windows DLLs and fails on other hosts. Cross-platform tests inject a binding table instead of loading native APIs.
-- **No public process service** — the package intentionally does not wrap its primitives in Cordis or Node streams. A consumer must own its policy, async scheduling, output limits, cancellation, and final handle closure.
+- **No public process service** — the package intentionally does not wrap its primitives in Kylin or Node streams. A consumer must own its policy, async scheduling, output limits, cancellation, and final handle closure.
 - **Restricted-token null environment** — the `CreateProcessAsUserW` sandbox primitives pass a null environment block and establish changes through `SetEnvironmentVariableW` first because an explicit block through Koffi fails with `ERROR_INVALID_PARAMETER`. The ordinary `CreateProcessW` runner instead requires a complete target environment and passes a sorted, double-NUL-terminated UTF-16LE block, including `=X:` drive entries, without mutating its own environment.
 - **No standalone process API** — the package exposes the operations current sandbox and ordinary-runner consumers need, but it does not own Node streams, public handles, output policy, cancellation, or durable state.
 - **Create-to-assignment interruption** — the target starts suspended and cannot execute before Job assignment, but an external termination of the runner in the narrow interval between process creation and assignment can leave the suspended target behind. The package does not claim atomic Job attachment.

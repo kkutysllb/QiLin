@@ -111,7 +111,7 @@ profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`he
 
 当包级约定不够用时阅读以下页面。它们从共享启动机制逐步进入组合模型及其背后的决策证据。
 
-- [Cordis 入门](../../../docs/cordis-primer.zh.md)——Loader、`!!js` 配置表达式，以及 include/group 语义。
+- [Kylin 入门](../../../docs/kylin-primer.zh.md)——Loader、`!!js` 配置表达式，以及 include/group 语义。
 - [qilin 应用](../../../apps/cli/README.zh.md)——消费这些 helper 的 `qilin` bin。
 - [qilin-cmdline](../cmdline/README.zh.md)——各 bin 使用的启动器到应用命令行交接。
 - [Profile 组合包](../../bundle/README.zh.md)——组合进 `qilin --profile` 的可安装 patch 层。

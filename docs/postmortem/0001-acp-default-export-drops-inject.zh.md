@@ -20,7 +20,7 @@ ACP 服务器无法创建或加载任何一个会话——而这正是编辑器�
 
 - bridge（RFC 010）落地时有一套完整的单元测试，覆盖 codec、内存传输、生成的协议消息、失败路径和 HMR（热模块替换）；另有一个需要 key 的真实 API e2e 测试和一个无需 key 的 stdout 纯净性 e2e 测试。全部绿色，100% 覆盖率。
 - 真实 Zed 会话在 `session/new` 上立即失败，报错 `cannot get property "agents" without inject`。
-- 调查最初沿着一个 Cordis「traceable/shadow」理论展开（看似合理，且该机制确实存在——见 Bug #2），随后在 vendor 目录中的 `reflect.ts` 里对实际 fiber 遍历做了插桩，并运行了真实子进程。跟踪结果显示，异常在 `apply()` 第 179 行、*插件加载时*抛出，位于 ROOT fiber 且没有 shadow——推翻了 shadow 理论对 `session/new` 的解释。
+- 调查最初沿着一个 Kylin「traceable/shadow」理论展开（看似合理，且该机制确实存在——见 Bug #2），随后在 vendor 目录中的 `reflect.ts` 里对实际 fiber 遍历做了插桩，并运行了真实子进程。跟踪结果显示，异常在 `apply()` 第 179 行、*插件加载时*抛出，位于 ROOT fiber 且没有 shadow——推翻了 shadow 理论对 `session/new` 的解释。
 - 找到根因 #1：一行多余的 `export default apply`。删除后 `session/new` 修复。
 - 删除后暴露了 Bug #2：`session/load` 仍然在 `sessionPersistence` 上抛错——这是一个真正不同的机制（shadow 遍历），通过隔离修复并重新运行真实子进程得到确认。
 
@@ -55,7 +55,7 @@ unwrapExports(exports: any) {
 
 ## 根因 #2——可选服务读取通过可追踪 shadow 触发 inject 守卫（导致 `session/load` 崩溃）
 
-修复 #1 后，`session/new` 正常工作，但 `session/load` 仍然抛出 `cannot get property "sessionPersistence" without inject`。这个问题*确实*源于 Cordis 的可追踪代理/shadow 机制，值得精确理解。
+修复 #1 后，`session/new` 正常工作，但 `session/load` 仍然抛出 `cannot get property "sessionPersistence" without inject`。这个问题*确实*源于 Kylin 的可追踪代理/shadow 机制，值得精确理解。
 
 `session/load` 调用 `agents.resume(...)`，后者委托给 `AgentLoop.resume()`，其中读取了 `this.ctx.sessionPersistence`。`AgentLoop` 的 `static inject` 故意不包含 `sessionPersistence`——注入它会导致非持久化的演示永远挂起，等待一个永远不会加载的后端。该服务由一个独立的兄弟插件/fiber 提供，以机会性方式读取。
 
@@ -107,7 +107,7 @@ if (!ctx.fiber.runtime) return ctx.reflect.get(prop, false)   // ← direct glob
 
 ## 经验教训
 
-- 命名空间插件与 default export 在 Cordis Loader 下互斥。选择命名空间形式（`name`/`inject`/`Config`/`apply`），不要添加 `export default`——`unwrapExports` 会丢弃命名空间。
+- 命名空间插件与 default export 在 Kylin Loader 下互斥。选择命名空间形式（`name`/`inject`/`Config`/`apply`），不要添加 `export default`——`unwrapExports` 会丢弃命名空间。
 - 对于插件机会性读取但未在 `static inject` 中声明的服务，使用 `ctx.get(name)`，绝不使用 `ctx.<name>`。属性代理通过仅向祖先方向的 fiber 遍历解析，经由外部 shadow 时会失败；`ctx.get(name)` 是拓扑无关的查找（且默认采用严格模式——非活跃后端读取为 `undefined`，不会在 teardown 期间仍将该后端返回给调用方）。
 - 手动构建插件的测试无法验证插件的加载方式。至少一个测试必须端到端地驱动真实的 Loader/export 路径。当核心操作不调用模型时，该测试无需 API key——因此它属于 CI，而非 key 门控之后。
 - 相信跟踪结果，不要迷信理论。优雅的 shadow 解释是真实的，但它是*第二个* bug；*第一个*是一行导出错误，在数小时看似合理但实际错误的推理之后，一个 fiber 遍历的 `console.error` 在几分钟内就找到了它。

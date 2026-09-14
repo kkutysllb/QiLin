@@ -1,5 +1,5 @@
 ---
-description: "动态 Cordis 包的 host 半说明，供选择、组合或排查注册表、沙箱与运行往返的 agent 与维护者阅读。"
+description: "动态 Kylin 包的 host 半说明，供选择、组合或排查注册表、沙箱与运行往返的 agent 与维护者阅读。"
 kind: "package-reference"
 ---
 
@@ -51,7 +51,7 @@ kind: "package-reference"
 
 ### 信任立场
 
-沙箱隔离全局变量，但不是安全边界：Node 全局变量不存在，或重定向到 Cordis 服务（`ctx.fs`、`ctx.web`、`ctx.bash` 与定时器 helper），host 半收到的是不含框架内部机制的 façade，但它声明的服务仍会触达存活运行时。对待动态包要像对待 bash 访问一样，参见[自引用工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.zh.md)。
+沙箱隔离全局变量，但不是安全边界：Node 全局变量不存在，或重定向到 Kylin 服务（`ctx.fs`、`ctx.web`、`ctx.bash` 与定时器 helper），host 半收到的是不含框架内部机制的 façade，但它声明的服务仍会触达存活运行时。对待动态包要像对待 bash 访问一样，参见[自引用工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.zh.md)。
 
 -----
 
@@ -97,7 +97,7 @@ runner 建立在两个分离之上。**注册表与沙箱是同一个服务。**
 - [UI 包](../ui-kylin/README.zh.md)——用户批准并操作运行的面板。
 - [生成的配置目录](../../../docs/config-catalog.zh.md#qilinkylin-host-runner)——每个受支持配置字段。
 - [extensions 子系统](../../../docs/subsystems/extensions.zh.md)——生成的 `ctx.cordisInspect` 与 `ctx.dynamicCordisRunner` API 及 `cordis/*` 事件。
-- [自引用 Cordis 工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.zh.md)——沙箱语义、生命周期与组合的理由。
+- [自引用 Kylin 工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.zh.md)——沙箱语义、生命周期与组合的理由。
 
 -----
 

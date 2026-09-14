@@ -159,13 +159,13 @@ interface RequestImageAttachment {
 
 `saveImage()` prepares and atomically commits a provider-independent normalized attachment before returning its `ImageAttachmentRef`. `saveImages()` prepares every validated attachment once before publishing the batch, so validation rejection leaves no partial objects and publication does not repeat decoding or quality selection. `admitPromptContent()` accepts the complete ordered Host prompt after file receipt resolution, replaces base64 image uploads with durable references, and passes durable file references unchanged. `admitEncodedImages()` supports other wire entries and delegates count, aggregate-byte, and ordered batch admission to `saveImages()`. `admitEncodedFile()` gives encoded protocol adapters the same service-owned canonical-base64 admission, and `isAttachmentError()` lets those adapters recognize stable attachment failures without importing implementation helpers. `readImage()` verifies a normalized attachment from an authorized session path. `imageHostPath()` exposes only the provider-owned host object location; it does not decide whether the current tool execution world can read it. `readImageRequest()` derives and caches one deterministic request version under an exact route pixel and byte budget. That version contains encoded bytes and metadata but no execution-world path. New entries are fully decoded before publication, while cache hits use a bounded metadata probe. Callers use `Promise.all` over the singular method when they need an ordered batch. The local implementation lazily encodes preferred candidates, singleflights equal request identities, lets each waiter cancel independently, stops shared work when no waiter remains, and bounds all transforms with its instance-level limiter, which defaults to two simultaneous transformations. The service is retention-neutral: resumed and forked sessions may share objects, so reference-aware garbage collection is deferred rather than tied to one session's deletion.
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxattachments--attachmentstore-abstract-seam"></a>
 
@@ -348,4 +348,4 @@ retirePrompt(agent: Agent, requestId: string): void
 Types: [Agent](core.md) · [SessionId](core.md)
 
 Source: [`packages/client/file-upload/src/index.ts`](../../packages/client/file-upload/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

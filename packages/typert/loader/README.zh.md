@@ -62,7 +62,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-本插件是一个增量扫描器，与 client-modules 的 Node 半实现对称：每次 Cordis `internal/plugin` 事件都会把该 fiber 的配置项名称标记为脏，微任务 flush 会针对实时 Loader 配置项逐一调和每个脏名称；激活阶段用所有当前配置项填充同一脏集合。
+本插件是一个增量扫描器，与 client-modules 的 Node 半实现对称：每次 Kylin `internal/plugin` 事件都会把该 fiber 的配置项名称标记为脏，微任务 flush 会针对实时 Loader 配置项逐一调和每个脏名称；激活阶段用所有当前配置项填充同一脏集合。
 
 ### Manifest 校验
 

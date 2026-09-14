@@ -286,7 +286,7 @@ Fork seeds can contain parent feedback events, but their payload retains the par
 
 ## Persistence and Remote contract
 
-Successful message-feedback mutations await canonical persistence: live operations append through the owning Session and require a participating `ctx.sessions.flush` listener; cold operations append and flush through their write handle. Persistence failures propagate rather than reporting success. `maxNoteBytes` is required and bounds note text by UTF-8 bytes; the Web Host composition sets `8192`. The package publishes the Host `messageFeedback.list`, `messageFeedback.put`, and `messageFeedback.delete` unary Remote contract through `TypertRemoteService` and `@Remote`; `command-feedback` publishes `sessionFeedback.record` the same way for Session-level remarks on live Sessions. The generated Cordis API below is the method-level authority.
+Successful message-feedback mutations await canonical persistence: live operations append through the owning Session and require a participating `ctx.sessions.flush` listener; cold operations append and flush through their write handle. Persistence failures propagate rather than reporting success. `maxNoteBytes` is required and bounds note text by UTF-8 bytes; the Web Host composition sets `8192`. The package publishes the Host `messageFeedback.list`, `messageFeedback.put`, and `messageFeedback.delete` unary Remote contract through `TypertRemoteService` and `@Remote`; `command-feedback` publishes `sessionFeedback.record` the same way for Session-level remarks on live Sessions. The generated Kylin API below is the method-level authority.
 
 Plugin disposal closes operation admission and drains accepted per-Session queue work.
 
@@ -314,13 +314,13 @@ Either unrecorded rating opens the Session's feedback dialog, the `feedback-dial
 - The dialog does not pre-check `maxNoteBytes`; an oversized description for a message fails on submit with `note-too-large` rather than while typing. A Session remark has no size bound, as the `/feedback` command never had one.
 - `sessionFeedback.record` serves live Sessions only and answers `session-not-found` otherwise; the dialog reports that failure when its Session retires while it is open.
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxmessagefeedback--messagefeedbackservice"></a>
 
@@ -397,4 +397,4 @@ Observe a durable cold feedback mutation without publishing a live Session. Obse
 Types: [SessionInspection](persistence.md)
 
 Source: [`packages/feedback/message-feedback/src/index.ts`](../../packages/feedback/message-feedback/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

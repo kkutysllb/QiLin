@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-供 Windows ACL 沙箱与普通子进程 Job runner 消费的底层 Win32 进程库。它唯一拥有仓库中可复用 process、stdio 与 Job Object 操作的 Koffi 绑定表；它不是 Cordis 服务，也不决定沙箱策略或公共 child 行为。维护任一原生进程路径或检查 handle 生命周期限制时，请阅读本页。
+供 Windows ACL 沙箱与普通子进程 Job runner 消费的底层 Win32 进程库。它唯一拥有仓库中可复用 process、stdio 与 Job Object 操作的 Koffi 绑定表；它不是 Kylin 服务，也不决定沙箱策略或公共 child 行为。维护任一原生进程路径或检查 handle 生命周期限制时，请阅读本页。
 
 ## 目录
 
@@ -67,7 +67,7 @@ Koffi 的 `STARTUPINFOW` 与 `PROCESS_INFORMATION` 定义还会在模块加载�
 <a id="known-limitations-and-deferred-work"></a>
 
 - **仅在 Windows 原生加载** — 导入通用类型可跨平台进行，但解析绑定表会加载 Windows DLL，并在其他宿主失败。跨平台测试注入绑定表，不加载原生 API。
-- **没有公共进程服务** — 本包刻意不把原语包装成 Cordis 或 Node streams。消费方必须拥有自己的策略、异步调度、输出上限、取消与最终句柄关闭。
+- **没有公共进程服务** — 本包刻意不把原语包装成 Kylin 或 Node streams。消费方必须拥有自己的策略、异步调度、输出上限、取消与最终句柄关闭。
 - **restricted-token 空环境** — `CreateProcessAsUserW` sandbox 原语传入空环境块，并先通过 `SetEnvironmentVariableW` 建立改动，因为经 Koffi 传入显式环境块会以 `ERROR_INVALID_PARAMETER` 失败。ordinary `CreateProcessW` runner 则要求完整 target 环境，并传入排序、双 NUL 结尾的 UTF-16LE 块，其中包括 `=X:` 驱动器条目，而不修改自身环境。
 - **没有 standalone process API** — 本包只暴露当前 sandbox 与 ordinary-runner consumer 所需的操作，不拥有 Node streams、公共 handle、output policy、cancellation 或 durable state。
 - **创建到分配之间的中断** — 目标以 suspended 状态启动，不能在 Job 分配前执行，但 runner 若在进程创建到分配之间的极窄区间被外力终止，可能留下 suspended target。本包不声明原子 Job 附加保证。

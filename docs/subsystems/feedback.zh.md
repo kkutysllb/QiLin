@@ -286,7 +286,7 @@ fork 种子可以包含父 Session 的反馈事件，但 payload 保留父级 `s
 
 ## 持久化与 Remote 约定
 
-成功的消息反馈变更会等待权威持久化完成：live 操作通过所属 Session 追加，并要求有 `ctx.sessions.flush` 监听器参与；cold 操作通过写句柄追加并 flush。持久化故障会原样传播，不会报告成功。`maxNoteBytes` 为必填项，按 UTF-8 字节限制备注文本；Web Host 组合将其设为 `8192`。该包通过 `TypertRemoteService` 与 `@Remote` 发布 Host `messageFeedback.list`、`messageFeedback.put` 和 `messageFeedback.delete` 一元 Remote 约定；`command-feedback` 以同样方式发布面向 live Session 的 Session 级备注 `sessionFeedback.record`。下方生成的 Cordis API 是方法级权威。
+成功的消息反馈变更会等待权威持久化完成：live 操作通过所属 Session 追加，并要求有 `ctx.sessions.flush` 监听器参与；cold 操作通过写句柄追加并 flush。持久化故障会原样传播，不会报告成功。`maxNoteBytes` 为必填项，按 UTF-8 字节限制备注文本；Web Host 组合将其设为 `8192`。该包通过 `TypertRemoteService` 与 `@Remote` 发布 Host `messageFeedback.list`、`messageFeedback.put` 和 `messageFeedback.delete` 一元 Remote 约定；`command-feedback` 以同样方式发布面向 live Session 的 Session 级备注 `sessionFeedback.record`。下方生成的 Kylin API 是方法级权威。
 
 插件释放会关闭操作接纳，并排空已进入各 Session 队列的工作。
 
@@ -314,13 +314,13 @@ fork 种子可以包含父 Session 的反馈事件，但 payload 保留父级 `s
 - 弹窗不预先校验 `maxNoteBytes`；针对消息的超长描述在提交时以 `note-too-large` 失败，而不是在输入过程中。Session 级备注没有大小上限，`/feedback` 命令从来也没有。
 - `sessionFeedback.record` 只服务 live Session，否则回答 `session-not-found`；弹窗打开期间 Session 退役时，弹窗会报告该失败。
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxmessagefeedback--messagefeedbackservice"></a>
 
@@ -397,4 +397,4 @@ Observe a durable cold feedback mutation without publishing a live Session. Obse
 Types: [SessionInspection](persistence.zh.md)
 
 Source: [`packages/feedback/message-feedback/src/index.ts`](../../packages/feedback/message-feedback/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

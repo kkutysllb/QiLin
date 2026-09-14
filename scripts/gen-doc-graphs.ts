@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import ts from 'typescript'
 import { projectCordisCatalog } from '@qilin/typert-generator'
-import { CORDIS_CATALOG_POLICY } from './gen-cordis-catalog.ts'
+import { CORDIS_CATALOG_POLICY } from './gen-kylin-catalog.ts'
 import type { EventEntry, ServiceEntry } from '@qilin/typert-generator'
 import {
   collectPackageGraph,

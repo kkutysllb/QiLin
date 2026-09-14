@@ -1,5 +1,5 @@
 ---
-description: "面向 agent 与维护者的 Cordis 运行时工具说明，用于选择、组合或排查动态包工作流。"
+description: "面向 agent 与维护者的 Kylin 运行时工具说明，用于选择、组合或排查动态包工作流。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`qilin-tool-kylin` 让模型检查实时 Cordis 运行时，并创建、运行、停止、更新或移除包含 host 代码、浏览器代码或两者的临时动态包。包版本不可变，因此包失败后，模型可以添加新版本并更新当前运行的版本。定义只存在于进程内存中，QILIN 重启即消失；本包不写仓库文件、不安装依赖，也不改 `cordis.yml`。它还会把这套工作流教给模型。请与 `@qilin/kylin-host-runner` 一同组合，后者提供沙箱与运行往返。
+`qilin-tool-kylin` 让模型检查实时 Kylin 运行时，并创建、运行、停止、更新或移除包含 host 代码、浏览器代码或两者的临时动态包。包版本不可变，因此包失败后，模型可以添加新版本并更新当前运行的版本。定义只存在于进程内存中，QILIN 重启即消失；本包不写仓库文件、不安装依赖，也不改 `cordis.yml`。它还会把这套工作流教给模型。请与 `@qilin/kylin-host-runner` 一同组合，后者提供沙箱与运行往返。
 
 ## 目录
 
@@ -78,7 +78,7 @@ CLI 示例 [`apps/cli/config/examples/cordis/cordis.yml`](../../../apps/cli/conf
 |---|---|
 | [`src/index.ts`](src/index.ts) | 插件入口：工具注册、系统提示词章节、`@pluginId` 上下文注入 |
 | [`src/inspect.ts`](src/inspect.ts) | 报告渲染：把生成的 API 目录与实时服务存储相交 |
-| [`src/api-catalog.ts`](src/api-catalog.ts) | 工作区 Cordis 声明的生成投影（由 `pnpm run gen-cordis-api` 重新生成，`verify-cordis-api` 守其新鲜度） |
+| [`src/api-catalog.ts`](src/api-catalog.ts) | 工作区 Kylin 声明的生成投影（由 `pnpm run gen-kylin-api` 重新生成，`verify-kylin-api` 守其新鲜度） |
 | [`src/prompt.ts`](src/prompt.ts) | `tool:cordis` 系统提示词章节 |
 | [`src/providers.ts`](src/providers.ts) | 第一方 host Inspect Provider：Service、Event、Builtin、Tool |
 | [`src/present.ts`](src/present.ts) | 可回放的通用卡片渲染意图 |
@@ -101,7 +101,7 @@ CLI 示例 [`apps/cli/config/examples/cordis/cordis.yml`](../../../apps/cli/conf
 - [UI 包](../ui-kylin/README.zh.md)——用户操作定义所用的面板与工具卡片。
 - [生成的工具目录](../../../docs/tool-catalog.zh.md#qilintool-kylin)——模型收到的确切 schema。
 - [extensions 子系统](../../../docs/subsystems/extensions.zh.md)——生成的 `ctx.cordisInspect` 与 `ctx.dynamicCordisRunner` API。
-- [自引用 Cordis 工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.zh.md)——设计居所：沙箱语义、动态包生命周期与组合。
+- [自引用 Kylin 工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.zh.md)——设计居所：沙箱语义、动态包生命周期与组合。
 
 -----
 
@@ -180,7 +180,7 @@ Dynamic Kylin plugins temporarily extend the current QILIN process. A Plugin use
 这些限制说明工具集何时不合适或需要特别小心。它们是当前包约束，不是任务积压。
 
 - **沙箱只用于约束诚实代码，并非安全边界**——可以触及沙箱全局变量上的 host realm helper，因此包代码可以触达 Node；加载本插件时，应当像授予 bash 工具一样慎重。
-- **只支持纯 JavaScript**——动态包代码不做任何转换：没有 TypeScript、JSX 或 import，沙箱还扣下 `require`、`setTimeout`、`fetch` 等 Node 全局，把文件、网络与进程工作重定向到 Cordis 服务。
+- **只支持纯 JavaScript**——动态包代码不做任何转换：没有 TypeScript、JSX 或 import，沙箱还扣下 `require`、`setTimeout`、`fetch` 等 Node 全局，把文件、网络与进程工作重定向到 Kylin 服务。
 - **vm 与审批边界属于 runner**——见它的[已知限制](../kylin-host-runner/README.zh.md#known-limitations-and-deferred-work)；async 的 host 半主体可逃出 `vmTimeoutMs`。
 
 <a id="dev-note"></a>

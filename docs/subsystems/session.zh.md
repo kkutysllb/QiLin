@@ -686,13 +686,13 @@ interface TurnEndReasonMap {
 
 `SessionOpenWorkspacePathRequest` 携带绝对路径或已按 workspace 解析的 `path`。`SessionOpenWorkspacePathValue` 确认 Host 已接受原生交接。Session-aware Client 会在已知当前 Session cwd 时据此解析相对路径；controller 将路径原样交给打开器，并通过 Session Remote 错误词汇表报告无效请求、取消与打开器失败。 可选的 `action: "reveal"` 选择文件管理器导航；省略时使用默认应用打开。
 
-<!-- BEGIN GENERATED cordis-surface (gen-cordis-catalog.ts) — do not edit between markers -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxsessioncontroller--sessioncontroller"></a>
 
@@ -1178,4 +1178,4 @@ Awaited parallel durability checkpoint: every listener runs and the caller await
 Types: [Scoped](scope.zh.md)
 
 Source: [`packages/core/session/src/index.ts`](../../packages/core/session/src/index.ts)
-<!-- END GENERATED cordis-surface -->
+<!-- END GENERATED kylin-surface -->

@@ -39,7 +39,7 @@ The application combo scripts register plugin factories once during boot; module
 
 ### Sharing modules
 
-The shell seeds a frozen module table (`PLATFORM_MODULES`: React, Cordis, and static UI libraries); every dynamic bundle resolves its externals against exactly that baseline. `qilin.client.external` adds only exact non-baseline requests, each answered by the dynamic package row it names or an exact static-table key. Type-only imports are erased and create no request. Composition rejects malformed requests, missing suppliers, self-requests, and synchronous request cycles.
+The shell seeds a frozen module table (`PLATFORM_MODULES`: React, Kylin, and static UI libraries); every dynamic bundle resolves its externals against exactly that baseline. `qilin.client.external` adds only exact non-baseline requests, each answered by the dynamic package row it names or an exact static-table key. Type-only imports are erased and create no request. Composition rejects malformed requests, missing suppliers, self-requests, and synchronous request cycles.
 
 ### Build requirements
 

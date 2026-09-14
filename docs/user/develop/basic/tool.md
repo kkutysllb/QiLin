@@ -33,7 +33,7 @@ export function apply(ctx: Context) {
 }
 ```
 
-`inject` makes Cordis wait for the tool registry. `defineTool` infers and validates `args` from `parameters`; `execute` returns the canonical value declared by `output.schema`, and `output.render` converts that value to model-facing content.
+`inject` makes Kylin wait for the tool registry. `defineTool` infers and validates `args` from `parameters`; `execute` returns the canonical value declared by `output.schema`, and `output.render` converts that value to model-facing content.
 
 ## Run and call the tool
 

@@ -12,9 +12,9 @@ Slots 是 Web Client 的类型化 React 组合系统。[`qilin-client-ui-slots`]
 
 声明一个 child 会同时产生三种效果：令该 child key 生效、授权 parent entry 调用 `renderSlot` 或 `renderSlotChain`，以及记录运行时 dispatch 规格。每个声明只能有一个存活 owner。向未声明 slot 注册，或重复声明其他 entry 已拥有的 child，都会在插件激活时失败。
 
-`root` 是唯一内建声明，也是唯一由 Cordis service 自身渲染的 key。`ui-renderer` 调用 `ctx.slots.renderSlot('root', {})`；其余每个后代都通过声明它的 entry 所收到的 `renderSlot` 或 `renderSlotChain` prop 渲染。
+`root` 是唯一内建声明，也是唯一由 Kylin service 自身渲染的 key。`ui-renderer` 调用 `ctx.slots.renderSlot('root', {})`；其余每个后代都通过声明它的 entry 所收到的 `renderSlot` 或 `renderSlotChain` prop 渲染。
 
-注册和声明遵循 Cordis effect 生命周期。销毁一个 entry 会移除其贡献，并递归折叠它声明的 child slots。因此，向其他包的 slot 贡献功能时使用 `ctx.slots.inject(key, callback)`：callback 会在每段声明生命周期内运行，owner 折叠时其 effect 随之移除，owner 再次挂载时则重新运行。
+注册和声明遵循 Kylin effect 生命周期。销毁一个 entry 会移除其贡献，并递归折叠它声明的 child slots。因此，向其他包的 slot 贡献功能时使用 `ctx.slots.inject(key, callback)`：callback 会在每段声明生命周期内运行，owner 折叠时其 effect 随之移除，owner 再次挂载时则重新运行。
 
 ```tsx ignore-check
 import type { Context } from '@qilin/kylin'
@@ -96,7 +96,7 @@ Renderer 还会根据声明的 store 创建 `useStore`，并根据声明的 loca
 
 ## 开发者提供的 injection
 
-注册项的 `inject` 选项是通常使用的功能私有注入点。它的 factory 在插件的 `apply` 世界中运行，可以闭包捕获已经注入的 Cordis service，并且只返回组件所需的数据与 callback。对于 `session` slot，它会收到 `sessionId`；对于 `session-maybe`，它收到 `sessionId | undefined`；声明 store 后，它还会收到该 store 绑定后的 actions。
+注册项的 `inject` 选项是通常使用的功能私有注入点。它的 factory 在插件的 `apply` 世界中运行，可以闭包捕获已经注入的 Kylin service，并且只返回组件所需的数据与 callback。对于 `session` slot，它会收到 `sessionId`；对于 `session-maybe`，它收到 `sessionId | undefined`；声明 store 后，它还会收到该 store 绑定后的 actions。
 
 返回值中保留的 `hooks` 对象接收裸 `getSnapshot`／`subscribe` source。Renderer 把 `hooks: { status }` 转换为组件 prop `useStatus(selector)`，并按 source identity 缓存绑定。组件不会收到 source 本身，也不直接调用 `useSyncExternalStore`。
 
@@ -177,7 +177,7 @@ root
 
 - 另一个功能包只能通过 `import type` 引入声明；绝不导入或转发它的运行时值。
 - 只在拥有并渲染某个位置的组件中声明新的 child slot。其他包通过 `ctx.slots.inject()` 等待，再通过 `ctx.slots.register()` 贡献内容。
-- 业务与传输状态留在所属 Cordis service 或 Client model 中。Slot store 只承载共享的视图与交互状态。
+- 业务与传输状态留在所属 Kylin service 或 Client model 中。Slot store 只承载共享的视图与交互状态。
 - 可观测 source 及其 snapshot identity 在值变化前保持稳定；值变化时通过同一个 source 发布。
 - UI domain 之间只传 JSON 兼容数据和 callback。`hooks` compartment 是裸 observable 的唯一例外；React 内容通过 slot 传递。
 - 将 `single` 和已有 occupant 的 keyed cell 视为替换点。增量扩展使用 list id 或尚未占用的 key。
