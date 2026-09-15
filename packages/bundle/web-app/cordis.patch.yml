@@ -219,6 +219,11 @@
     - id: ui-sidebar
       name: '@qilin/client-ui-sidebar'
 
+    # The sidebar foot's account button: the theme and language switches, the
+    # Settings entry, and sign-out, over the account gate's status read.
+    - id: ui-account
+      name: '@qilin/client-ui-account'
+
     # The right Sidebar: one docking surface per session over ui-dockkit.
     - id: ui-sidebar-right
       name: '@qilin/client-ui-sidebar-right'
@@ -235,6 +240,14 @@
     - id: ui-sidebar-files
       name: '@qilin/client-ui-sidebar-files'
 
+    # The right Sidebar's tasks tab type: subagent topology and background jobs.
+    - id: ui-sidebar-tasks
+      name: '@qilin/client-ui-sidebar-tasks'
+
+    # The right Sidebar's task-plan tab type: the workspace's plan documents.
+    - id: ui-sidebar-plans
+      name: '@qilin/client-ui-sidebar-plans'
+
     - id: ui-settings
       name: '@qilin/client-ui-settings'
 
@@ -244,11 +257,22 @@
     - id: ui-settings-models
       name: '@qilin/client-ui-settings-models'
 
+    # The MCP servers page: patch-layer CRUD over the mcpServers Remote.
+    - id: ui-settings-mcp
+      name: '@qilin/client-ui-settings-mcp'
+
+    # The skills page: the current Session's catalog over the skills Remote.
+    - id: ui-settings-skills
+      name: '@qilin/client-ui-settings-skills'
+
     - id: ui-settings-plugin-inventory
       name: '@qilin/client-ui-settings-plugin-inventory'
 
     - id: ui-settings-unarchive-sessions
       name: '@qilin/client-ui-settings-unarchive-sessions'
+
+    - id: ui-settings-user-plugins
+      name: '@qilin/client-ui-settings-user-plugins'
 
     - id: ui-conversation
       name: '@qilin/client-ui-conversation'
