@@ -1,0 +1,45 @@
+{
+  "name": "@qilin/session-persistence",
+  "description": "Abstract durable session persistence seam (ctx.sessionPersistence) for the QiLin",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/session/session-persistence"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/brand": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/timeout": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/brand": "workspace:^",
+    "@qilin/scope": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/timeout": "workspace:^"
+  },
+  "dependencies": {
+    "@qilin/util-values": "workspace:^"
+  }
+}

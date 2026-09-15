@@ -1,0 +1,55 @@
+{
+  "name": "@qilin/webhook-github",
+  "description": "Signed GitHub HTTP webhook adapter for the QiLin webhook runtime",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/webhook/webhook-github"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/credentials": "workspace:^",
+    "@qilin/host-webserver": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/webhook": "workspace:^"
+  },
+  "dependencies": {
+    "@qilin/util-values": "workspace:^",
+    "@deepseek-ai/schemastery": "workspace:^",
+    "@octokit/webhooks": "^14.2.0"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/credentials": "workspace:^",
+    "@qilin/host-webserver": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/webhook": "workspace:^"
+  }
+}

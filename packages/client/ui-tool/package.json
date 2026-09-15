@@ -1,0 +1,81 @@
+{
+  "name": "@qilin/client-ui-tool",
+  "description": "Client Tool call-tree renderer and keyed per-tool presentation slot",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-tool"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-workspace-controller",
+        "@qilin/client-connection",
+        "@qilin/client-locale",
+        "@qilin/client-ui-conversation"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/spill-policy": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/spill": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@qilin/api-workspace-controller": "workspace:^",
+    "@qilin/client-ui-chat": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/util-workspace-path": "workspace:^",
+    "@qilin/attachment": "workspace:^",
+    "clsx": "^2.0.0",
+    "@qilin/ptc-runtime": "workspace:^"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

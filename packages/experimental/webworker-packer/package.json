@@ -1,0 +1,50 @@
+{
+  "name": "@qilin/experimental-webworker-packer",
+  "description": "Build-time packer for the browser runtime's base VFS image and ordered data-overlay archives",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/experimental/webworker-packer"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "bin": {
+    "qilin-pack-vfs-image": "./bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/bin.js",
+    "bin.js",
+    "lib/repository-*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/experimental-webworker-runtime": "workspace:^",
+    "@qilin/home-paths": "workspace:^",
+    "js-yaml": "^4.2.0",
+    "picomatch": "^4.0.4"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@types/js-yaml": "^4.0.9",
+    "@types/picomatch": "^3.0.2"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  }
+}

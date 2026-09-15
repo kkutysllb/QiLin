@@ -1,0 +1,82 @@
+{
+  "name": "@qilin/client-ui-workspace",
+  "description": "Workspace picker plugin: one WorkspacePicker registered into the sidebar and empty-state workspace slots",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-workspace"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-remotes",
+        "@qilin/api-session-controller",
+        "@qilin/api-workspace-controller",
+        "@qilin/client-connection",
+        "@qilin/client-locale",
+        "@qilin/client-ui-conversation",
+        "@qilin/client-ui-layout",
+        "@qilin/client-ui-renderer",
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-sidebar"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/api-workspace-controller": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-layout": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-sidebar": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/schedule": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/util-workspace-path": "workspace:^",
+    "@types/react": "~18.3.1",
+    "@qilin/kylin": "workspace:^",
+    "react": "^18.2.0",
+    "clsx": "^2.0.0"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

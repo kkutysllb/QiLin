@@ -1,0 +1,44 @@
+{
+  "name": "@qilin/session-title-all-prompts-llm",
+  "description": "All-user-messages LLM provider plugin for QiLin session titles",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/session/session-title-all-prompts-llm"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["lib/index.js", "lib/types/**/*.d.ts"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-title": "workspace:^",
+    "@qilin/session-title-llm": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-title": "workspace:^",
+    "@qilin/session-title-llm": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/agent-loop": "workspace:^"
+  }
+}

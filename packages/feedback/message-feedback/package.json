@@ -1,0 +1,71 @@
+{
+  "name": "@qilin/message-feedback",
+  "description": "Canonical Session-log ratings and notes for finalized assistant messages",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/feedback/message-feedback"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/brand": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-persistence": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/command-feedback": "workspace:^"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/brand": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-persistence": "workspace:^",
+    "@qilin/session-persistence-jsonl": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/command-feedback": "workspace:^"
+  }
+}

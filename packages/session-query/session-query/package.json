@@ -1,0 +1,65 @@
+{
+  "name": "@qilin/session-query",
+  "description": "Combined session query service contract with concrete reads, traces, and filters",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/session-query/session-query"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/brand": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-title": "workspace:^",
+    "@qilin/tool-todo": "workspace:^",
+    "@qilin/session-persistence": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/session-projection-cache": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "@qilin/session-persistence": {
+      "optional": true
+    },
+    "@qilin/session-projection": {
+      "optional": true
+    },
+    "@qilin/session-projection-cache": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@qilin/brand": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-title": "workspace:^",
+    "@qilin/tool-todo": "workspace:^",
+    "@qilin/session-persistence": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/session-projection-cache": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "dependencies": {
+    "@qilin/session-format-catalog": "workspace:^"
+  }
+}

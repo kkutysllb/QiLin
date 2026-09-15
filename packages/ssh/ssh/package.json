@@ -1,0 +1,83 @@
+{
+  "name": "@qilin/ssh",
+  "description": "Shared OpenSSH connection and versioned POSIX remote helper",
+  "version": "3.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/ssh/ssh"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./helper": {
+      "types": "./lib/types/helper-entry.d.ts",
+      "default": "./lib/helper.js"
+    },
+    "./protocol": {
+      "types": "./lib/types/protocol.d.ts",
+      "default": "./lib/protocol.js"
+    },
+    "./schemas": {
+      "types": "./lib/types/schemas.d.ts",
+      "default": "./lib/schemas.js"
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/helper.js",
+    "lib/protocol.js",
+    "lib/schemas.js",
+    "lib/protocol-*.js",
+    "lib/schemas-*.js",
+    "lib/stream-security-*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/fs": "workspace:^",
+    "@qilin/fs-local": "workspace:^",
+    "@qilin/fs-sandbox": "workspace:^",
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/subprocess-local": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/sandbox-local": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/brand": "workspace:^"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/fs": "workspace:^",
+    "@qilin/fs-local": "workspace:^",
+    "@qilin/fs-sandbox": "workspace:^",
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/subprocess-local": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/sandbox-local": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/ptc-runtime-node": "workspace:^",
+    "@qilin/fs-ssh": "workspace:^",
+    "@qilin/subprocess-ssh": "workspace:^",
+    "@qilin/sandbox-ssh": "workspace:^",
+    "@qilin/lsp": "workspace:^",
+    "@qilin/lsp-stdio": "workspace:^",
+    "@qilin/brand": "workspace:^"
+  }
+}

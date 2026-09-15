@@ -1,0 +1,60 @@
+{
+  "name": "@qilin/tool-present",
+  "description": "Explicit workspace file delivery declarations for the QiLin",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/fs/tool-present"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/fs": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/tools": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/fs": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/fs-local": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/scope": "workspace:^"
+  }
+}

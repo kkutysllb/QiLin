@@ -1,0 +1,56 @@
+{
+  "name": "@qilin/tool-bash-persistent",
+  "description": "Model-facing owner-scoped persistent Bash tool backed by the Harness PTY service",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/shell/tool-bash-persistent"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/agent": "workspace:^",
+    "@qilin/terminal": "workspace:^",
+    "@qilin/timeout": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/terminal": "workspace:^",
+    "@qilin/terminal-bash": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/subprocess-local": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/timeout": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/session-projection": "workspace:^"
+  }
+}

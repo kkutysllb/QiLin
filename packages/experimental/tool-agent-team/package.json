@@ -1,0 +1,60 @@
+{
+  "name": "@qilin/experimental-tool-agent-team",
+  "description": "Scoped model-facing Agent Teams tools over ctx.agentTeams",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/experimental/tool-agent-team"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^"
+  },
+  "peerDependencies": {
+    "@qilin/agent": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/experimental-agent-team": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/session-persistence-jsonl": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@qilin/scope": "workspace:^",
+    "@qilin/subagent": "workspace:^",
+    "@qilin/subagent-fork-in-process": "workspace:^",
+    "@qilin/subagent-spawn-in-process": "workspace:^",
+    "@qilin/tool-subagent-control": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/experimental-agent-team": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/llm-deepseek": "workspace:^"
+  }
+}

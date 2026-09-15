@@ -1,0 +1,25 @@
+- name: '@qilin/llm'
+- name: '@qilin/session'
+- name: '@qilin/session-projection'
+- name: '@qilin/system-prompt'
+- name: '@qilin/tools'
+- name: '@qilin/agent'
+- name: '@qilin/agent-loop'
+  config:
+    agents: []
+- name: '@qilin/settings-file'
+  config:
+    path: {{settings}}
+    watch: false
+- name: '@qilin/credentials-local'
+  config:
+    path: {{credentials}}
+    watch: false
+- name: '@qilin/llm-deepseek'
+  config:
+    apiKeyEnv: DEEPSEEK_API_KEY
+    baseURL: {{endpoint}}
+    thinking: enabled
+    reasoningEffort: high
+    maxTokens: 256000
+    streamIdleTimeoutMs: 300000

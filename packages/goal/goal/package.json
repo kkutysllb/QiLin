@@ -1,0 +1,88 @@
+{
+  "name": "@qilin/goal",
+  "description": "Event-sourced same-session goal state and lifecycle service for the QiLin",
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/goal/goal"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./invariant": {
+      "types": "./lib/types/invariant.d.ts",
+      "default": "./lib/invariant.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./client": {
+      "types": "./lib/types/client.d.ts",
+      "default": "./lib/types/client.js"
+    },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/invariant.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/agent": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/brand": "workspace:^",
+    "@qilin/invariants": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/scope": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/bash-local": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/brand": "workspace:^",
+    "@qilin/invariants": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/loader-smoke": "workspace:^",
+    "@qilin/scope": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-checkpoint-policy": "workspace:^",
+    "@qilin/session-persistence-jsonl": "workspace:^",
+    "@qilin/subprocess-local": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  }
+}
