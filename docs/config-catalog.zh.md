@@ -415,7 +415,7 @@ export interface ConnectionRecoveryConfig {
   /** Maximum retry delay cap in ms; retries continue at this cap. Default: 10000. */
   backoffMaxMs?: number
   /**
-   * Delay before reporting a slow hanqilinake, without cancelling it. Default: 3000.
+   * Delay before reporting a slow handshake, without cancelling it. Default: 3000.
    * Omitted when readiness, failure, cancellation, or the hard deadline occurs first.
    */
   generationReadyWarnMs?: number

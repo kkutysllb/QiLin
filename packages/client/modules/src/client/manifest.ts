@@ -30,7 +30,7 @@
  */
 
 import type {} from '@qilin/kylin'
-import type { QilinClientManifest } from '@deepseek-ai/qilin-package-manifest'
+import type { QilinClientManifest } from '@qilin/package-manifest'
 import type { ClientModuleSystem } from './system.ts'
 
 declare module '@qilin/kylin' {

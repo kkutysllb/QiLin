@@ -43,7 +43,7 @@ describe.skipIf(process.platform === 'win32')('SSH helper wire and lifecycle bou
     } finally { input.destroy(); output.destroy() }
   })
 
-  it('returns the negotiated bootstrap digest and rejects invalid hanqilinake fields', async () => {
+  it('returns the negotiated bootstrap digest and rejects invalid handshake fields', async () => {
     const test = await createHelperHarness(false)
     try {
       for (const params of [

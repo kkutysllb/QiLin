@@ -15,7 +15,7 @@ export interface ProgramProcess {
 }
 
 /**
- * Run one host-supplied program after the control hanqilinake.
+ * Run one host-supplied program after the control handshake.
  * @param stream - Inherited, already-adopted control endpoint.
  * @param maxMessageBytes - Host-validated maximum frame and queued-write bytes.
  * @param processState - Environment, output streams and exit status of this Node child.

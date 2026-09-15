@@ -2,7 +2,7 @@
 
 import { getSystemErrorMessage, getSystemErrorName } from 'node:util'
 import koffi from 'koffi'
-import { SUBPROCESS_CONTROL_FD } from '@deepseek-ai/dsh-subprocess/control'
+import { SUBPROCESS_CONTROL_FD } from '@qilin/subprocess/control'
 
 /** Replace the current process image while preserving the supplied argv and environment. */
 export type LinuxExecve = (

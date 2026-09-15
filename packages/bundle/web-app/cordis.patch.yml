@@ -271,7 +271,7 @@
       name: '@qilin/client-ui-tool'
 
     - id: ui-cordis
-      name: '@qilin/client-ui-cordis'
+      name: '@qilin/client-ui-kylin'
 
     # Durable workflow lifecycle as an independent Chat node after the
     # existing generic workflow tool row.

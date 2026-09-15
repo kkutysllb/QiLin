@@ -10,7 +10,7 @@ import { SshRpcPeer } from '../../src/protocol.ts'
 import { helloSchema, type SshStreamEndpoint } from '../../src/schemas.ts'
 import { authenticateStream } from '../../src/stream-security.ts'
 
-export async function createHelperHarness(hanqilinake = true, leaseMs = 30_000) {
+export async function createHelperHarness(handshake = true, leaseMs = 30_000) {
   const root = await realpath(await mkdtemp('/tmp/qilin-ssh-rpc-'))
   const input = new PassThrough()
   const output = new PassThrough()
@@ -42,7 +42,7 @@ export async function createHelperHarness(hanqilinake = true, leaseMs = 30_000) 
     return secured
   }
   let facts: z.infer<typeof helloSchema> | undefined
-  try { if (hanqilinake) facts = await hello() } catch (error) { await close(); throw error }
+  try { if (handshake) facts = await hello() } catch (error) { await close(); throw error }
   const connection = {
     ready: Promise.resolve(facts), nodeExecutable: process.execPath,
     request: <T>(method: string, params: unknown, schema: z.ZodType<T>, signal?: AbortSignal) =>

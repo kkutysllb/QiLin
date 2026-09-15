@@ -34,7 +34,7 @@ export interface PermissionSelection {
   currentValue: string
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@qilin/kylin' {
   interface Events {
     /**
      * The selectable process catalog changed. Payload-free by design:

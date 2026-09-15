@@ -407,7 +407,7 @@ export class RemoteProcesses {
     const connected = Promise.withResolvers<Socket>()
     const capability = randomBytes(32)
     const server = createServer({
-      ...SSH_STREAM_TLS_OPTIONS, allowHalfOpen: true, hanqilinakeTimeout: this.preparationMs,
+      ...SSH_STREAM_TLS_OPTIONS, allowHalfOpen: true, handshakeTimeout: this.preparationMs,
       pskCallback: (_socket, identity) => identity === 'qilin-stream' ? capability : null,
     })
     const endpoint: Endpoint = { path, capability: capability.toString('hex'), server, connected: connected.promise, pending: new Set() }

@@ -406,7 +406,7 @@ describe('healProfilesModuleFallback', () => {
     mkdirSync(canonical, { recursive: true })
     writeFileSync(join(canonical, 'package.json'), JSON.stringify({ name: '@qilin/settings', version: '0.0.0' }))
     const anchor = join(app, 'package.json')
-    writeFileSync(anchor, JSON.stringify({ name: 'qilin-app', version: '0.0.0', dependencies: { '@deepseek-ai/dsh-settings': '0.0.0' } }))
+    writeFileSync(anchor, JSON.stringify({ name: 'qilin-app', version: '0.0.0', dependencies: { '@qilin/settings': '0.0.0' } }))
     const home = tmp()
     await healProfilesModuleFallback({ installAnchor: anchor, home })
     const legacyLink = join(home, 'profiles', 'node_modules', '@deepseek-ai', 'dsh-settings')

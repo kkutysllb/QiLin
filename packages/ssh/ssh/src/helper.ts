@@ -92,7 +92,7 @@ export async function runSshHelper(transport: HelperTransport): Promise<void> {
   const peer = new SshRpcPeer(transport.input, transport.output, MAX_FRAME_BYTES, 128, async (method, raw, requestSignal) => {
     const signal = AbortSignal.any([requestSignal, lifetime.signal])
     if (method === 'hello') {
-      if (initialized) throw new Error('SSH helper hanqilinake already completed')
+      if (initialized) throw new Error('SSH helper handshake already completed')
       const input = z.object({
         protocol: z.literal(SSH_PROTOCOL_VERSION), workspace: remotePath, leaseMs: z.number().int().min(3000).max(600_000),
         bootstrapPath: remotePath.optional(),

@@ -175,14 +175,14 @@ describe('lazy CJS arrival', () => {
   it('resolves DSH-era platform and dynamic module names through QiLin aliases', async () => {
     const b = bench([
       row('consumer', { external: [
-        '@deepseek-ai/dsh-client-locale/client',
-        '@deepseek-ai/dsh-client-ui-slots',
+        '@qilin/client-locale/client',
+        '@qilin/client-ui-slots',
       ] }),
       row('@qilin/client-locale'),
     ], {
       consumer: req => ({
-        runtime: req('@deepseek-ai/dsh-client-locale/client'),
-        slots: req('@deepseek-ai/dsh-client-ui-slots'),
+        runtime: req('@qilin/client-locale/client'),
+        slots: req('@qilin/client-ui-slots'),
       }),
       '@qilin/client-locale': () => ({ marker: 'runtime' }),
     }, { seed: { '@qilin/client-ui-slots': { marker: 'slots' } } })

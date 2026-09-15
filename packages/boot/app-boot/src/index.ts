@@ -25,26 +25,33 @@ declare module '@qilin/kylin' {
   interface Context {
     /** Harness-home path resolver available to Loader `!!js` config expressions. */
     qilinHomePath?: typeof qilinHomePath
+    /** Immutable launch profile facts for profile-management host plugins. */
+    qilinProfile?: import('./profile.ts').LaunchProfileSnapshot
   }
 }
 
 export {
   composeEntries,
   createProfileResolutionGeneration,
+  dependencyExportsBundle,
   DEFAULT_PROFILE_BUNDLES,
   DEFAULT_PROFILE_PATCH_RELOAD,
   healProfilesModuleFallback,
   initProfile,
   loadProfile,
   loadProfileDirectory,
+  PROFILE_OWNED_BUNDLES,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
   PROFILES_DIR,
+  QILIN_LAUNCH_PROFILE_KEY,
   readProfileManifest,
+  reconcileProfilePlugins,
   resolveBundleDir,
   resolveProfileDir,
   writeProfileManifest,
   type Profile,
+  type LaunchProfileSnapshot,
   type ProfileLayer,
   type ProfileManifest,
   type ProfileModuleFallbackOptions,
@@ -694,7 +701,7 @@ export function installFailLoud(
 
 /**
  * Value mirrors used because Cordis's const enum has no runtime object to import.
- * Keep aligned with `packages/extensions/tool-cordis/src/fiber-state.ts` and
+ * Keep aligned with `packages/extensions/tool-kylin/src/fiber-state.ts` and
  * `packages/client/web/src/loader-status.ts`.
  */
 const FIBER_PENDING = 0 as FiberState.PENDING

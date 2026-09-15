@@ -99,7 +99,7 @@ Source execution loads an erasable-only bootstrap closure without relying on sib
 |---|---|
 | [`src/index.ts`](src/index.ts) | Configuration, resolution, policy, bindings and managed execution |
 | [`src/launch.ts`](src/launch.ts) | Executable/bootstrap arguments and execution-world asset mapping |
-| [`src/process.ts`](src/process.ts) | Child hanqilinake, environment clearing and program lifecycle |
+| [`src/process.ts`](src/process.ts) | Child handshake, environment clearing and program lifecycle |
 | [`src/bootstrap.ts`](src/bootstrap.ts) | Program evaluation, binding proxies and output capture |
 | [`src/channel.ts`](src/channel.ts) | Framing, bounded writes and protocol failures |
 | [`src/output-ledger.ts`](src/output-ledger.ts) | Host accounting for the outer result |
