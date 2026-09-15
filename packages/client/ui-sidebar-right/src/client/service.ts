@@ -27,15 +27,15 @@
  * The registration adopts Session stores and injects the mounted seat binding;
  * callers use the service's navigation methods.
  */
+import { randomUUID } from '@qilin/util-crypto'
 import type { FloatRect, PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
-import { activeDockPaneId, canSplit, dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
-import { fileAddressFor } from '@qilin/util-workspace-path'
+import { activeDockPaneId, canSplit, findContentTab, dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
 import type { BoundActions } from '@qilin/client-ui-slots'
 import type { SessionId } from '@qilin/session/types'
 import type { SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightTabParamsFor } from './contract/params.ts'
 import { pageAddress } from './contract/seed.ts'
 import type { SidebarRightTabClaim, SidebarRightTabRegistry } from './tab-registry.ts'
-import type { SidebarRightState, SurfaceState } from './stores.ts'
+import { canCloseTab, type SidebarRightState, type SurfaceState } from './stores.ts'
 import type { createSidebarRightStore } from './stores.ts'
 import { TabDomain, type PinResource } from './tab-domain.ts'
 
@@ -77,10 +77,6 @@ export function createSidebarRightController(tabs: SidebarRightTabRegistry, pin:
         if (surface !== undefined) controller.tabDomain.sync(sessionId, surface.layout)
       }
       const adoption: Adoption = { store, unsubscribe: store.subscribe(sync) }
-      // Persistence rehydrates the store before any subscriber exists, so the
-      // rehydrated commit never triggers the subscription: sync once now, or a
-      // restored layout renders tabs the Tab domain has never reconciled.
-      sync()
       adopted.set(sessionId, adoption)
       return () => {
         adoption.unsubscribe()
@@ -128,41 +124,19 @@ export interface SidebarRightOpenResourceOptions extends SidebarRightPlacement {
   readonly kind?: string
   /** The resource's navigation parameters, typed by resource type; delivered as `navigation.params`. */
   readonly params?: SidebarRightResourceParams
-  /**
-   * Land the open in this session instead of the mounted one. A result that
-   * belongs to a session the user is not looking at — a background agent's
-   * file — is opened there without switching the conversation.
-   */
-  readonly scope?: SessionId
 }
 
 /** How a caller wants a page type opened. */
 export interface SidebarRightOpenTabOptions<K extends string = string> extends SidebarRightPlacement {
   /** That kind's navigation parameters, typed by kind; delivered as `navigation.params`. */
   readonly params?: SidebarRightTabParamsFor<K>
-  /** Land the open in this session instead of the mounted one; see `SidebarRightOpenResourceOptions.scope`. */
-  readonly scope?: SessionId
 }
 
 /** The scheme every resource address carries; anything else is not a resource this face opens. */
 const RESOURCE_SCHEME = 'qilin-resource://'
 
-/**
- * What this face can do, as a monotonic list. Members are never removed, so a
- * consumer may treat the list as a set of promises.
- */
-export const SIDEBAR_RIGHT_FEATURES = [
-  'tabIcon',
-  'tabBadge',
-  'tabSettings',
-  'singleInstance',
-  'openFile',
-  'targetedOpen',
-  'layoutPersistence',
-] as const
-
-/** One member of `SIDEBAR_RIGHT_FEATURES`. */
-export type SidebarRightFeature = typeof SIDEBAR_RIGHT_FEATURES[number]
+/** Synchronous close/replacement hook; resource owners retain any background cleanup. */
+export type SidebarRightCloseHandler = (sessionId: SessionId, tab: TabRecord) => void
 
 /** The outward right-Sidebar face (`ctx.sidebarRight`). */
 export interface ISidebarRight {
@@ -186,26 +160,6 @@ export interface ISidebarRight {
    * @param options - placement and that kind's navigation parameters.
    */
   openTab<K extends string>(kind: K, options?: SidebarRightOpenTabOptions<K>): void
-  /**
-   * Open one workspace file in a session's Sidebar, by the address
-   * `qilin-resource://file/session/<sessionId>/<path>`.
-   *
-   * The shortcut the file tree's own rows and Chat's file links take; a caller
-   * with the address already built calls `openResource` directly.
-   * @param scope - the session the file belongs to and opens in.
-   * @param path - a workspace-relative path, or an absolute one the session's
-   *   filesystem backend accepts.
-   * @param options - placement and the file's navigation parameters.
-   */
-  openFile(scope: SessionId, path: string, options?: Omit<SidebarRightOpenResourceOptions, 'scope' | 'kind'>): void
-  /**
-   * The capability list of this face's build, highest first.
-   *
-   * A tab type shipped as its own package gates new API usage on membership
-   * rather than on a version comparison, so a type reaching an older Sidebar
-   * degrades instead of failing.
-   */
-  readonly features: readonly SidebarRightFeature[]
   /**
    * Close one tab of the mounted session; the sole docked guide remains open.
    * @param tabId - the tab to close.
@@ -253,9 +207,19 @@ export interface ISidebarRight {
 /** Cross-plugin right-Sidebar face (ctx.sidebarRight). */
 export class SidebarRightController implements ISidebarRight {
   private binding: SidebarRightBinding | undefined
+  private readonly closeHandlers = new Map<string, SidebarRightCloseHandler>()
 
-  /** See `ISidebarRight.features`. */
-  readonly features: readonly SidebarRightFeature[] = SIDEBAR_RIGHT_FEATURES
+  /**
+   * Register resource cleanup before explicit removal. Failure preserves the tab.
+   * @param kind - tab kind owned by the registering plugin.
+   * @param handler - saves any background cleanup before returning and allowing removal.
+   * @returns an effect-scoped unregister callback.
+   */
+  registerCloseHandler(kind: string, handler: SidebarRightCloseHandler): () => void {
+    if (this.closeHandlers.has(kind)) throw new Error(`sidebarRight: close handler already registered for ${kind}`)
+    this.closeHandlers.set(kind, handler)
+    return () => { if (this.closeHandlers.get(kind) === handler) this.closeHandlers.delete(kind) }
+  }
 
   /**
    * The Tab domain this controller navigates into; synced from each adopted
@@ -298,10 +262,6 @@ export class SidebarRightController implements ISidebarRight {
    * @param options - placement, the opening type, and navigation parameters.
    */
   openResource(address: string, options: SidebarRightOpenResourceOptions = {}): void {
-    if (options.scope !== undefined) {
-      this.openResourceIn(options.scope, address, options)
-      return
-    }
     const { sessionId, actions } = this.require()
     this.placeResource(sessionId, actions, address, options)
   }
@@ -312,22 +272,8 @@ export class SidebarRightController implements ISidebarRight {
    * @param options - placement and that kind's navigation parameters.
    */
   openTab<K extends string>(kind: K, options: SidebarRightOpenTabOptions<K> = {}): void {
-    if (options.scope !== undefined) {
-      this.openTabIn(options.scope, kind, options)
-      return
-    }
     const { sessionId, actions } = this.require()
     this.placeTab(sessionId, actions, kind, options)
-  }
-
-  /**
-   * Open one workspace file in a session's Sidebar.
-   * @param scope - the session the file belongs to and opens in.
-   * @param path - a workspace-relative path, or an absolute one.
-   * @param options - placement and the file's navigation parameters.
-   */
-  openFile(scope: SessionId, path: string, options: Omit<SidebarRightOpenResourceOptions, 'scope' | 'kind'> = {}): void {
-    this.openResourceIn(scope, fileAddressFor(scope, undefined, path), options)
   }
 
   /**
@@ -365,7 +311,16 @@ export class SidebarRightController implements ISidebarRight {
    */
   closeIn(sessionId: SessionId, tabId: TabId): void {
     const actions = this.actionsFor(sessionId)
-    if (actions !== undefined) actions.closeTab(sessionId, tabId)
+    const surface = this.adopted.get(sessionId)?.store.getSnapshot().bySession[sessionId]
+    if (actions === undefined || surface === undefined) return
+    const tab = surface.layout.tabs[tabId]
+    if (tab === undefined || !canCloseTab(surface, tabId)) return
+    this.removeAfterCleanup(sessionId, tab, () => { actions.closeTab(sessionId, tabId) })
+  }
+
+  private removeAfterCleanup(sessionId: SessionId, tab: TabRecord, commit: () => void): void {
+    this.closeHandlers.get(tab.kind)?.(sessionId, tab)
+    commit()
   }
 
   /** Claim a resource and place it in one session; an address outside the scheme or one no type claims throws. */
@@ -378,12 +333,7 @@ export class SidebarRightController implements ISidebarRight {
     if (!address.startsWith(RESOURCE_SCHEME)) {
       throw new Error(`sidebarRight: no registered tab type claims "${address}"`)
     }
-    const claim = this.tabs.claim(address, options.kind)
-    const definition = this.tabs.get(claim.kind)
-    // A type the user turned off is not opened, and saying nothing is the
-    // honest answer: the entry that would have opened it is gone too.
-    if (definition === undefined || !this.tabs.isEnabled(definition.id)) return
-    this.place(sessionId, actions, claim, address, options, options.params, definition.single === true)
+    this.place(sessionId, actions, this.tabs.claim(address, options.kind), address, options, options.params)
   }
 
   /** Place a page type in one session at the address pages are recorded under; an unregistered kind throws. */
@@ -395,12 +345,8 @@ export class SidebarRightController implements ISidebarRight {
   ): void {
     const definition = this.tabs.get(kind)
     if (definition === undefined) throw new Error(`sidebarRight: no tab type is registered as "${kind}"`)
-    if (!this.tabs.isEnabled(definition.id)) return
-    const address = pageAddress(kind)
-    this.place(
-      sessionId, actions, { kind, contentId: address, title: definition.title(address) },
-      address, options, options.params, definition.single === true,
-    )
+    const address = definition.multiple === true ? `${pageAddress(kind)}/${randomUUID()}` : pageAddress(kind)
+    this.place(sessionId, actions, { kind, contentId: address, title: definition.title(address) }, address, options, options.params)
   }
 
   /** The steps both opens share: one store intent, and the navigation record for the tab it settles on. */
@@ -411,17 +357,21 @@ export class SidebarRightController implements ISidebarRight {
     address: string,
     placement: SidebarRightPlacement,
     params: SidebarRightNavigationParams,
-    single: boolean,
   ): void {
-    actions.openContent(sessionId, {
-      ...single ? { single: true } : {},
+    const commit = (): void => { actions.openContent(sessionId, {
       kind: claim.kind,
       contentId: claim.contentId,
       title: claim.title,
       ...placement.paneId === undefined ? {} : { paneId: placement.paneId },
       ...placement.replaceTab === undefined ? {} : { replaceTab: placement.replaceTab },
       ...placement.revealIfOpened === undefined ? {} : { revealIfOpened: placement.revealIfOpened },
-    }, (tabId) => { this.tabDomain.navigate(sessionId, tabId, { address, params }) })
+    }, (tabId) => { this.tabDomain.navigate(sessionId, tabId, { address, params }) }) }
+    const layout = this.adopted.get(sessionId)?.store.getSnapshot().bySession[sessionId]?.layout
+    const replaced = placement.replaceTab === undefined ? undefined : layout?.tabs[placement.replaceTab]
+    const revealed = layout === undefined || placement.revealIfOpened === false
+      ? undefined : findContentTab(layout, claim.contentId, claim.kind)
+    if (replaced === undefined || replaced.id === revealed) { commit(); return }
+    this.removeAfterCleanup(sessionId, replaced, commit)
   }
 
   /**
@@ -430,6 +380,7 @@ export class SidebarRightController implements ISidebarRight {
    */
   close(tabId: TabId): void {
     const { sessionId, actions } = this.require()
+    if (this.adopted.has(sessionId)) { this.closeIn(sessionId, tabId); return }
     actions.closeTab(sessionId, tabId)
   }
 
