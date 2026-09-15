@@ -141,7 +141,7 @@ function addUsage(
 
 export function TrajectoryView({
   useSession, useTrajectory, useDuration, useTabInfo, loadOlder, loadImage, setActualDuration,
-  renderSlot, t,
+  renderSlot, t, jsonStringWrapping,
 }: TrajectoryViewProps) {
   // The ledger focuses on a tool call when Chat's inspect action opens this
   // tab with that call in the navigation parameters. The applied revision is
