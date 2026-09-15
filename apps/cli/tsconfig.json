@@ -9,6 +9,12 @@
   ],
   "references": [
     {
+      "path": "../../packages/extensions/tool-kylin"
+    },
+    {
+      "path": "../../packages/extensions/kylin-host-runner"
+    },
+    {
       "path": "../../vendor/cordis"
     },
     {

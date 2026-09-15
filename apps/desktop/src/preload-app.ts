@@ -1,15 +1,15 @@
 /** Startup controls for shell documents; application documents receive only the carrier marker. */
 
 import { contextBridge, ipcRenderer } from 'electron'
-import { DESKTOP_IPC, type DshDesktopStartupApi } from './ipc.ts'
+import { DESKTOP_IPC, type QilinDesktopStartupApi } from './ipc.ts'
 import type { DesktopBackendState } from './backend-controller.ts'
 
-const startup: DshDesktopStartupApi = {
+const startup: QilinDesktopStartupApi = {
   protocolVersion: 1,
-  locale: () => ipcRenderer.invoke(DESKTOP_IPC.localeGet) as ReturnType<DshDesktopStartupApi['locale']>,
+  locale: () => ipcRenderer.invoke(DESKTOP_IPC.localeGet) as ReturnType<QilinDesktopStartupApi['locale']>,
   backend: {
-    status: () => ipcRenderer.invoke(DESKTOP_IPC.backendStatus) as ReturnType<DshDesktopStartupApi['backend']['status']>,
-    subscribe(listener) {
+    status: () => ipcRenderer.invoke(DESKTOP_IPC.backendStatus) as ReturnType<QilinDesktopStartupApi['backend']['status']>,
+    subscribe(listener: (state: DesktopBackendState) => void) {
       const handle = (_event: Electron.IpcRendererEvent, state: DesktopBackendState): void => { listener(state) }
       ipcRenderer.on(DESKTOP_IPC.backendState, handle)
       return () => { ipcRenderer.off(DESKTOP_IPC.backendState, handle) }

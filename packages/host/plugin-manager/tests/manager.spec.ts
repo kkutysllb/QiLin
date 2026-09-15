@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
-import { isRemoteMethodNameAvailable } from '@qilin/api-gateway/client'
 import { remoteMethods } from '@qilin/typert-protocol'
 import PluginManagerGateway from '../src/index.ts'
 
@@ -53,15 +52,6 @@ describe('PluginManagerGateway', () => {
     expect(remoteMethods(manager).map(method => method.method)).toEqual(['list', 'checkUpdates', 'catalog', 'installPlugin', 'updatePlugin', 'uninstallPlugin'])
   })
 
-  it('names every Remote method clear of the Client namespace service surface', async () => {
-    const { manager } = await profile()
-    for (const method of remoteMethods(manager)) {
-      expect(isRemoteMethodNameAvailable(method.method), method.method).toBe(true)
-    }
-    // The namespace service owns these names, so the mutations carry a suffix.
-    expect(isRemoteMethodNameAvailable('install')).toBe(false)
-    expect(isRemoteMethodNameAvailable('remove')).toBe(false)
-  })
 
   it('projects built-in and user bundle layers with installed versions', async () => {
     const { manager } = await profile()

@@ -369,6 +369,14 @@ export interface LaunchOptions {
    * keyless first-run configuration lane; the default disables the adapter.
    */
   deepSeekMissingCredential?: boolean
+  /**
+   * Credential reference names this scenario asserts as absent. Each name is
+   * deleted from the process environment before boot, above its `.env`
+   * fallbacks, and the scaffold has already anchored the invocation cwd inside
+   * its own temp workspace, so masking the process entry hides the reference
+   * for the whole run.
+   */
+  absentCredentialReferences?: readonly string[]
   /** Record or replay a Messages scenario; older scenarios explicitly retain their recorded Chat Completions route. */
   deepSeekMessages?: boolean
   /** Leave the current welcome notice pending; ordinary scenarios pre-acknowledge it before browser boot. */
@@ -453,15 +461,20 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
   }
   const maskDeepSeekCredential = mode !== 'record' && options.deepSeekMissingCredential === true
   const messages = options.deepSeekMessages === true
-  const originalDeepSeekCredential = process.env.DEEPSEEK_API_KEY
+  // Credentials held out of the process environment for this scaffold: the
+  // shipped adapter's key on the keyless first-run lane, plus every reference a
+  // scenario asserts as absent.
+  const maskedCredentialEnvironment: Record<string, string | undefined> = Object.fromEntries([
+    ...maskDeepSeekCredential ? ['DEEPSEEK_API_KEY'] : [],
+    ...options.absentCredentialReferences ?? [],
+  ].map(key => [key, process.env[key]] as const))
   let credentialEnvironmentRestored = false
   const restoreCredentialEnvironment = (): void => {
-    if (credentialEnvironmentRestored || !maskDeepSeekCredential) return
+    if (credentialEnvironmentRestored) return
     credentialEnvironmentRestored = true
-    if (originalDeepSeekCredential === undefined) {
-      Reflect.deleteProperty(process.env, 'DEEPSEEK_API_KEY')
-    } else {
-      process.env.DEEPSEEK_API_KEY = originalDeepSeekCredential
+    for (const [key, value] of Object.entries(maskedCredentialEnvironment)) {
+      if (value === undefined) Reflect.deleteProperty(process.env, key)
+      else process.env[key] = value
     }
   }
   const workspaceCwd = await realpath(await mkdtemp(join(tmpdir(), 'qilin-web-e2e-ws-')))
@@ -507,7 +520,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     if (failures.length > 1) throw new AggregateError(failures, 'web scaffold temp-root setup failed')
     throw error
   }
-  if (maskDeepSeekCredential) Reflect.deleteProperty(process.env, 'DEEPSEEK_API_KEY')
+  for (const key of Object.keys(maskedCredentialEnvironment)) Reflect.deleteProperty(process.env, key)
 
   // The include patch set — the same layer stack the profile boot composes
   // (bundle patches in qilin.profile.bundles order), applied over the SAME empty root (a
