@@ -28,6 +28,8 @@ Layers apply to an empty entry list in this order: each bundle in the profile's 
 
 Custom profiles default to live patch reload. The shipped `web` profile is live; `headless`, `sdk`, `sdk-minimal`, and `acp` apply all layers once at startup because replacing a one-shot or stdio application's dependencies after it owns work would invalidate that lifecycle.
 
+The `web` and `qilin` profiles also stack [`@qilin/coding-sidebar`](../vendor/coding-sidebar), the vendored right-sidebar workbench that replaces the stock right-Sidebar tab surface; its own bundle patch carries the replacement, and because it is a profile-owned bundle, `qilin plugin --profile web add @qilin/coding-sidebar@<spec>` installs a newer copy into the profile that supersedes the installation's seed.
+
 To see the tree your machine boots:
 
 ```sh

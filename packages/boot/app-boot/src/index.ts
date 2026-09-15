@@ -40,6 +40,7 @@ export {
   PROFILES_DIR,
   readProfileManifest,
   resolveBundleDir,
+  PROFILE_OWNED_BUNDLES,
   resolveProfileDir,
   writeProfileManifest,
   type Profile,

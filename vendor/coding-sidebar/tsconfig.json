@@ -1,0 +1,64 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types",
+    "jsx": "react-jsx",
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "typeRoots": [
+      "../../scripts/types",
+      "../../node_modules/@types"
+    ],
+    "types": [
+      "client-build-environment"
+    ],
+    "noImplicitAny": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../cordis"
+    },
+    {
+      "path": "../../packages/core/agent"
+    },
+    {
+      "path": "../../packages/core/tools"
+    },
+    {
+      "path": "../../packages/client/ui-primitives"
+    },
+    {
+      "path": "../../packages/client/ui-settings"
+    },
+    {
+      "path": "../../packages/client/ui-slots"
+    },
+    {
+      "path": "../../packages/host/webserver"
+    },
+    {
+      "path": "../../packages/llm/llm"
+    },
+    {
+      "path": "../../packages/session/session-format"
+    },
+    {
+      "path": "../../packages/settings/settings"
+    },
+    {
+      "path": "../../packages/subagent/subagent"
+    }
+  ]
+}

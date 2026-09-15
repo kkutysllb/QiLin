@@ -113,7 +113,7 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     patchReload: 'startup',
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar'],
     patchReload: 'live',
   },
   headless: {
@@ -121,7 +121,7 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     patchReload: 'startup',
   },
   qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', '@qilin/coding-sidebar'],
     patchReload: 'live',
   },
   sdk: {
@@ -137,6 +137,12 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
+  // Pre-sidebar web/qilin compositions normalize to the current template, so
+  // an untouched existing profile gains the built-in coding-sidebar bundle
+  // on its next open; profiles a user already extended keep their own list
+  // and add the sidebar through `qilin plugin` instead.
+  web: ['@qilin/base', '@qilin/web-app'],
+  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
 }
 
 /** The bundle list a `qilin plugin` init uses for a name with no shipped template. */
@@ -741,10 +747,21 @@ function packageDirFromAnchor(
 }
 
 /**
+ * Bundles the installation seeds but the PROFILE owns: resolution tries the
+ * profile anchor first, so a copy installed through `qilin plugin` (the
+ * online-upgrade channel) replaces the installation's seed for that name,
+ * while a fresh profile still resolves the seed with no profile install.
+ * Every bundle not named here keeps the installation-first contract.
+ */
+export const PROFILE_OWNED_BUNDLES: readonly string[] = ['@qilin/coding-sidebar']
+
+/**
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
  * `@qilin/base` (and every other in-box bundle) always comes from
- * the same installation as the running qilin, never from a profile-local copy.
+ * the same installation as the running qilin, never from a profile-local copy;
+ * {@link PROFILE_OWNED_BUNDLES} members reverse the order (profile copy first,
+ * installation seed as the fallback).
  * Resolution does not require the package to export `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.
  * @param packageName - the bundle's package name from `qilin.profile.bundles`.
@@ -755,7 +772,10 @@ function packageDirFromAnchor(
 export function resolveBundleDir(
   binName: string, packageName: string, installAnchor: string, profileDir: string,
 ): string {
-  for (const anchor of [installAnchor, join(profileDir, 'package.json')]) {
+  const anchors = PROFILE_OWNED_BUNDLES.includes(packageName)
+    ? [join(profileDir, 'package.json'), installAnchor]
+    : [installAnchor, join(profileDir, 'package.json')]
+  for (const anchor of anchors) {
     const dir = packageDirFromAnchor(anchor, packageName)
     if (dir !== undefined) return dir
   }

@@ -67,9 +67,9 @@ export type SettingsRootInjected = {
   hooks: {
     /** Connection-owned state for the current Host connection. */
     connectionState: HostObservable<ConnectionState | undefined>
-    /** settings.section ledger projected into ordered nav rows. */
+    /** settings.section winner cells (one per id, lowest live priority) projected into ordered nav rows. */
     sections: HostObservable<readonly SettingsSectionRow[]>
-    /** settings.onboarding ledger projected into coordinator order. */
+    /** settings.onboarding winner cells projected into coordinator order. */
     onboardingSteps: HostObservable<readonly SettingsOnboardingStep[]>
   }
 }

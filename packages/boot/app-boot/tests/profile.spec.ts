@@ -20,6 +20,7 @@ import {
   loadProfileDirectory,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
+  PROFILE_OWNED_BUNDLES,
   readProfileManifest,
   resolveBundleDir,
   resolveProfileDir,
@@ -139,6 +140,22 @@ describe('resolveBundleDir', () => {
     expect(resolveBundleDir('t', 'in-box', anchor, profileDir)).toContain('in-box')
     expect(resolveBundleDir('t', 'local-only', anchor, profileDir)).toContain('local-only')
     expect(() => resolveBundleDir('t', 'absent', anchor, profileDir)).toThrow('cannot resolve profile bundle')
+  })
+
+  it('resolves a profile-owned bundle from the profile copy and seeds from the installation otherwise', () => {
+    const [owned] = PROFILE_OWNED_BUNDLES
+    if (owned === undefined) throw new Error('PROFILE_OWNED_BUNDLES must name at least one bundle')
+    const anchor = stageInstallation({ [owned]: { patch: '[]\n' } })
+    // Fresh profile: no profile copy, the installation seed resolves.
+    const fresh = tmp()
+    writeFileSync(join(fresh, 'package.json'), '{}')
+    expect(resolveBundleDir('t', owned, anchor, fresh)).toContain('node_modules')
+    // After `qilin plugin add` installed a copy into the profile, that copy wins.
+    const upgraded = tmp()
+    mkdirSync(join(upgraded, 'node_modules', owned), { recursive: true })
+    writeFileSync(join(upgraded, 'package.json'), '{}')
+    writeFileSync(join(upgraded, 'node_modules', owned, 'package.json'), JSON.stringify({ name: owned, version: '9.9.9' }))
+    expect(resolveBundleDir('t', owned, anchor, upgraded)).toBe(join(upgraded, 'node_modules', owned))
   })
 
   it('resolves a package whose exports map omits ./package.json', () => {
@@ -267,10 +284,38 @@ describe('loadProfile', () => {
     ])
   })
 
+  it('normalizes the pre-sidebar web tuple to the built-in sidebar template', () => {
+    const anchor = stageInstallation({
+      '@qilin/base': { patch: '[]\n' },
+      '@qilin/web-app': { patch: '[]\n' },
+      '@qilin/coding-sidebar': { patch: '[]\n' },
+      'custom-bundle': { patch: '[]\n' },
+    })
+    const stockHome = tmp()
+    const stock = resolveProfileDir('web', stockHome)
+    initProfile(stock, ['@qilin/base', '@qilin/web-app'])
+    loadProfile('t', 'web', anchor, stockHome)
+    expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
+      bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar'],
+      patchReload: 'live',
+    })
+
+    // A profile its owner already extended keeps its own list and gains the
+    // sidebar through `qilin plugin` instead of the tuple normalization.
+    const customHome = tmp()
+    const custom = resolveProfileDir('web', customHome)
+    initProfile(custom, ['@qilin/base', '@qilin/web-app', 'custom-bundle'])
+    loadProfile('t', 'web', anchor, customHome)
+    expect(readProfileManifest('t', custom).qilin?.profile?.bundles).toEqual([
+      '@qilin/base', '@qilin/web-app', 'custom-bundle',
+    ])
+  })
+
   it('adds a shipped reload default only to an exact stock tuple and preserves explicit choices', () => {
     const anchor = stageInstallation({
       '@qilin/base': { patch: '[]\n' },
       '@qilin/web-app': { patch: '[]\n' },
+      '@qilin/coding-sidebar': { patch: '[]\n' },
     })
     const stockHome = tmp()
     const stock = resolveProfileDir('web', stockHome)

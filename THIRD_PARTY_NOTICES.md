@@ -24,6 +24,7 @@ The Cordis framework and its foundation libraries are source-vendored into this 
 | `@qilin/kylin-plugin-timer` | `@cordisjs/plugin-timer` | [github.com/deepseek-harness/cordis](https://github.com/deepseek-harness/cordis) | MIT |
 | `@qilin/kylin-plugin-hmr` | `@cordisjs/plugin-hmr` | [github.com/deepseek-harness/cordis](https://github.com/deepseek-harness/cordis) | MIT |
 | `@qilin/kylin-plugin-logger-console` | `@cordisjs/plugin-logger-console` | [github.com/deepseek-harness/cordis](https://github.com/deepseek-harness/cordis) | MIT |
+| `@qilin/coding-sidebar` | `dsh-coding-sidebar` | [github.com/kkutysllb/dsh-coding-sidebar](https://github.com/kkutysllb/dsh-coding-sidebar) | MIT |
 
 ## Runtime npm dependencies
 
@@ -38,18 +39,22 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`@codemirror/commands`](https://code.haverbeke.berlin/codemirror/commands) | MIT |
 | [`@codemirror/lang-cpp`](https://github.com/codemirror/lang-cpp) | MIT |
 | [`@codemirror/lang-css`](https://github.com/codemirror/lang-css) | MIT |
+| [`@codemirror/lang-go`](https://github.com/codemirror/lang-go) | MIT |
 | [`@codemirror/lang-html`](https://code.haverbeke.berlin/codemirror/lang-html) | MIT |
 | [`@codemirror/lang-java`](https://github.com/codemirror/lang-java) | MIT |
 | [`@codemirror/lang-javascript`](https://github.com/codemirror/lang-javascript) | MIT |
 | [`@codemirror/lang-json`](https://github.com/codemirror/lang-json) | MIT |
 | [`@codemirror/lang-markdown`](https://code.haverbeke.berlin/codemirror/lang-markdown) | MIT |
+| [`@codemirror/lang-php`](https://github.com/codemirror/lang-php) | MIT |
 | [`@codemirror/lang-python`](https://github.com/codemirror/lang-python) | MIT |
 | [`@codemirror/lang-rust`](https://github.com/codemirror/lang-rust) | MIT |
 | [`@codemirror/lang-sql`](https://github.com/codemirror/lang-sql) | MIT |
+| [`@codemirror/lang-vue`](https://github.com/codemirror/lang-vue) | MIT |
 | [`@codemirror/lang-xml`](https://github.com/codemirror/lang-xml) | MIT |
 | [`@codemirror/lang-yaml`](https://github.com/codemirror/lang-yaml) | MIT |
 | [`@codemirror/language`](https://code.haverbeke.berlin/codemirror/language) | MIT |
 | [`@codemirror/legacy-modes`](https://code.haverbeke.berlin/codemirror/legacy-modes) | MIT |
+| [`@codemirror/search`](https://code.haverbeke.berlin/codemirror/search) | MIT |
 | [`@codemirror/state`](https://code.haverbeke.berlin/codemirror/state) | MIT |
 | [`@codemirror/view`](https://code.haverbeke.berlin/codemirror/view) | MIT |
 | [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi) | MIT |
@@ -84,6 +89,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`commander`](https://github.com/tj/commander.js) | MIT |
 | [`compression`](https://github.com/expressjs/compression) | MIT |
 | [`diff`](https://github.com/kpdecker/jsdiff) | BSD-3-Clause |
+| [`dompurify`](https://github.com/cure53/DOMPurify) | (MPL-2.0 OR Apache-2.0) |
 | [`e2b`](https://github.com/e2b-dev/e2b) | MIT |
 | [`electron-updater`](https://github.com/electron-userland/electron-builder) | MIT |
 | [`eventsource-parser`](https://github.com/rexxars/eventsource-parser) | MIT |
@@ -97,6 +103,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`mdast-util-from-markdown`](https://github.com/syntax-tree/mdast-util-from-markdown) | MIT |
 | [`mdast-util-gfm`](https://github.com/syntax-tree/mdast-util-gfm) | MIT |
 | [`mdast-util-math`](https://github.com/syntax-tree/mdast-util-math) | MIT |
+| [`mermaid`](https://github.com/mermaid-js/mermaid) | MIT |
 | [`micromark-core-commonmark`](https://github.com/micromark/micromark/tree/main/packages/micromark-core-commonmark) | MIT |
 | [`micromark-extension-gfm`](https://github.com/micromark/micromark-extension-gfm) | MIT |
 | [`micromark-extension-math`](https://github.com/micromark/micromark-extension-math) | MIT |
@@ -114,8 +121,10 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`picomatch`](https://github.com/micromatch/picomatch) | MIT |
 | [`react`](https://github.com/facebook/react) | MIT |
 | [`react-dom`](https://github.com/facebook/react) | MIT |
+| [`react-icons`](https://github.com:react-icons/react-icons) | MIT |
 | [`readable-stream`](https://github.com/nodejs/readable-stream) | MIT |
 | [`resolve.exports`](https://github.com/lukeed/resolve.exports) | MIT |
+| [`rxjs`](https://github.com/reactivex/rxjs) | Apache-2.0 |
 | [`semver`](https://github.com/npm/node-semver) | ISC |
 | [`sharp`](https://github.com/lovell/sharp) | Apache-2.0 |
 | [`shiki`](https://github.com/shikijs/shiki) | MIT |
@@ -161,7 +170,6 @@ External packages **directly declared** for development, tests, types, or toolin
 | --- | --- |
 | [`@aws-sdk/client-s3`](https://github.com/aws/aws-sdk-js-v3) | Apache-2.0 |
 | [`@braintree/sanitize-url`](https://github.com/braintree/sanitize-url) | MIT |
-| [`@codemirror/search`](https://code.haverbeke.berlin/codemirror/search) | MIT |
 | [`@electron/notarize`](https://github.com/electron/notarize) | MIT |
 | [`@lexical/headless`](https://github.com/facebook/lexical) | MIT |
 | [`@modelcontextprotocol/server-everything`](https://github.com/modelcontextprotocol/servers) | MIT / Apache-2.0 |
@@ -188,6 +196,8 @@ External packages **directly declared** for development, tests, types, or toolin
 | [`@types/ws`](https://github.com/DefinitelyTyped/DefinitelyTyped) | MIT |
 | [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react) | MIT |
 | [`@vitest/coverage-v8`](https://github.com/vitest-dev/vitest) | MIT |
+| [`@xterm/addon-fit`](https://github.com/xtermjs/xterm.js/tree/master/addons/addon-fit) | MIT |
+| [`@xterm/xterm`](https://github.com/xtermjs/xterm.js) | MIT |
 | [`@yao-pkg/pkg`](https://github.com/yao-pkg/pkg) | MIT |
 | [`@yarnpkg/cli-dist`](https://github.com/yarnpkg/berry) | BSD-2-Clause |
 | [`app-builder-lib`](https://github.com/electron-userland/electron-builder) | MIT |
@@ -208,7 +218,6 @@ External packages **directly declared** for development, tests, types, or toolin
 | [`jsdom`](https://github.com/jsdom/jsdom) | MIT |
 | [`lefthook`](https://github.com/evilmartians/lefthook) | MIT |
 | [`lightningcss`](https://github.com/parcel-bundler/lightningcss) | MPL-2.0 |
-| [`mermaid`](https://github.com/mermaid-js/mermaid) | MIT |
 | [`micromark-util-types`](https://github.com/micromark/micromark/tree/main/packages/micromark-util-types) | MIT |
 | [`msgpackr`](http://github.com/kriszyp/msgpackr) | MIT |
 | [`oxlint`](https://github.com/oxc-project/oxc) | MIT |

@@ -60,6 +60,7 @@
     "@qilin/client-ui-brand-official": "workspace:^",
     "@qilin/client-ui-chat": "workspace:^",
     "@qilin/client-ui-commands": "workspace:^",
+    "@qilin/coding-sidebar": "workspace:^",
     "@qilin/client-ui-conversation": "workspace:^",
     "@qilin/client-ui-kylin": "workspace:^",
     "@qilin/client-ui-deliverables": "workspace:^",

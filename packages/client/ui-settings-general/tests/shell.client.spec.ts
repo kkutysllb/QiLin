@@ -116,6 +116,24 @@ describe('ui-settings apply', () => {
     off()
   })
 
+  it('lists only the winner of a shadowed section cell, matching what the content column renders', async () => {
+    const b = await bench()
+    declare(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const { sections } = injectedOf(b.slots).hooks
+    b.slots.register({ name: 'settings.section', id: 'stock', order: 30, label: 'Stock' } as never, () => null)
+    // A replacement registers the same id at a lower priority: its entry wins
+    // the cell, so exactly one row remains and it carries the winner's label.
+    b.slots.register({ name: 'settings.section', id: 'stock', order: 40, priority: -1, label: 'Replacement' } as never, () => null)
+    const rows = sections.getSnapshot().filter(row => row.id === 'stock')
+    expect(rows).toEqual([{ id: 'stock', order: 40, label: 'Replacement' }])
+    // Disposing the shadow restores the stock row — replacement is reversible.
+    const dispose = b.slots.register({ name: 'settings.section', id: 'stock', order: 45, priority: -2, label: 'Second' } as never, () => null)
+    dispose()
+    expect(sections.getSnapshot().filter(row => row.id === 'stock'))
+      .toEqual([{ id: 'stock', order: 40, label: 'Replacement' }])
+  })
+
   it('projects the Gateway connection control without copying its state', async () => {
     const b = await bench()
     declare(b.slots)
@@ -147,6 +165,16 @@ describe('ui-settings apply', () => {
     await Promise.resolve()
     expect(listener).toHaveBeenCalledOnce()
     off()
+  })
+
+  it('projects onboarding steps from winner cells as well', async () => {
+    const b = await bench()
+    declare(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const { onboardingSteps } = injectedOf(b.slots).hooks
+    b.slots.register({ name: 'settings.onboarding', id: 'credential', order: 0 } as never, () => null)
+    b.slots.register({ name: 'settings.onboarding', id: 'credential', order: 5, priority: -1 } as never, () => null)
+    expect(onboardingSteps.getSnapshot()).toEqual([{ id: 'credential', order: 5 }])
   })
 
   it('re-registers after an HMR collapse re-declares the slot (stale disposer must not block)', async () => {

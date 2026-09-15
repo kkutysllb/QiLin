@@ -160,6 +160,9 @@ importers:
       '@qilin/cmdline':
         specifier: workspace:^
         version: link:../../packages/boot/cmdline
+      '@qilin/coding-sidebar':
+        specifier: workspace:^
+        version: link:../../vendor/coding-sidebar
       '@qilin/command-compact':
         specifier: workspace:^
         version: link:../../packages/compaction/command-compact
@@ -172,9 +175,6 @@ importers:
       '@qilin/compaction-tool-result-pruner':
         specifier: workspace:^
         version: link:../../packages/compaction/compaction-tool-result-pruner
-      '@qilin/kylin-client-runner':
-        specifier: workspace:^
-        version: link:../../packages/extensions/kylin-client-runner
       '@qilin/fs-local':
         specifier: workspace:^
         version: link:../../packages/fs/fs-local
@@ -205,6 +205,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../vendor/cordis
+      '@qilin/kylin-client-runner':
+        specifier: workspace:^
+        version: link:../../packages/extensions/kylin-client-runner
       '@qilin/kylin-plugin-hmr':
         specifier: workspace:^
         version: link:../../vendor/hmr
@@ -280,9 +283,6 @@ importers:
       '@qilin/tool-bash-persistent':
         specifier: workspace:^
         version: link:../../packages/shell/tool-bash-persistent
-      '@qilin/tool-kylin':
-        specifier: workspace:^
-        version: link:../../packages/extensions/tool-kylin
       '@qilin/tool-fs':
         specifier: workspace:^
         version: link:../../packages/fs/tool-fs
@@ -295,6 +295,9 @@ importers:
       '@qilin/tool-jobs':
         specifier: workspace:^
         version: link:../../packages/jobs/tool-jobs
+      '@qilin/tool-kylin':
+        specifier: workspace:^
+        version: link:../../packages/extensions/tool-kylin
       '@qilin/tool-present':
         specifier: workspace:^
         version: link:../../packages/fs/tool-present
@@ -926,9 +929,6 @@ importers:
       '@qilin/commands':
         specifier: workspace:^
         version: link:../../interaction/commands
-      '@qilin/kylin-host-runner':
-        specifier: workspace:^
-        version: link:../../extensions/kylin-host-runner
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../../credentials/credentials
@@ -944,6 +944,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@qilin/kylin-host-runner':
+        specifier: workspace:^
+        version: link:../../extensions/kylin-host-runner
       '@qilin/llm':
         specifier: workspace:^
         version: link:../../llm/llm
@@ -1822,9 +1825,6 @@ importers:
       '@qilin/client-ui-conversation':
         specifier: workspace:^
         version: link:../../client/ui-conversation
-      '@qilin/client-ui-kylin':
-        specifier: workspace:^
-        version: link:../../extensions/ui-kylin
       '@qilin/client-ui-deliverables':
         specifier: workspace:^
         version: link:../../client/ui-deliverables
@@ -1843,6 +1843,9 @@ importers:
       '@qilin/client-ui-jobs':
         specifier: workspace:^
         version: link:../../client/ui-jobs
+      '@qilin/client-ui-kylin':
+        specifier: workspace:^
+        version: link:../../extensions/ui-kylin
       '@qilin/client-ui-layout':
         specifier: workspace:^
         version: link:../../client/ui-layout
@@ -1942,12 +1945,9 @@ importers:
       '@qilin/code-runtime-worker-thread':
         specifier: workspace:^
         version: link:../../code-runtime/code-runtime-worker-thread
-      '@qilin/kylin-client-runner':
+      '@qilin/coding-sidebar':
         specifier: workspace:^
-        version: link:../../extensions/kylin-client-runner
-      '@qilin/kylin-host-runner':
-        specifier: workspace:^
-        version: link:../../extensions/kylin-host-runner
+        version: link:../../../vendor/coding-sidebar
       '@qilin/file-reference':
         specifier: workspace:^
         version: link:../../context/file-reference
@@ -1975,6 +1975,12 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
+      '@qilin/kylin-client-runner':
+        specifier: workspace:^
+        version: link:../../extensions/kylin-client-runner
+      '@qilin/kylin-host-runner':
+        specifier: workspace:^
+        version: link:../../extensions/kylin-host-runner
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
@@ -6241,12 +6247,12 @@ importers:
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../core/agent
-      '@qilin/kylin-host-runner':
-        specifier: workspace:^
-        version: link:../kylin-host-runner
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@qilin/kylin-host-runner':
+        specifier: workspace:^
+        version: link:../kylin-host-runner
       '@qilin/kylin-plugin-loader':
         specifier: workspace:^
         version: link:../../../vendor/loader
@@ -6298,12 +6304,12 @@ importers:
       '@qilin/client-ui-tool':
         specifier: workspace:^
         version: link:../../client/ui-tool
-      '@qilin/kylin-client-runner':
-        specifier: workspace:^
-        version: link:../kylin-client-runner
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../../vendor/cordis
+      '@qilin/kylin-client-runner':
+        specifier: workspace:^
+        version: link:../kylin-client-runner
       '@qilin/session':
         specifier: workspace:^
         version: link:../../core/session
@@ -11397,9 +11403,6 @@ importers:
       '@qilin/compaction-tool-result-pruner':
         specifier: workspace:^
         version: link:../../packages/compaction/compaction-tool-result-pruner
-      '@qilin/kylin-host-runner':
-        specifier: workspace:^
-        version: link:../../packages/extensions/kylin-host-runner
       '@qilin/credentials':
         specifier: workspace:^
         version: link:../../packages/credentials/credentials
@@ -11451,6 +11454,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:^
         version: link:../../vendor/cordis
+      '@qilin/kylin-host-runner':
+        specifier: workspace:^
+        version: link:../../packages/extensions/kylin-host-runner
       '@qilin/kylin-plugin-group':
         specifier: workspace:^
         version: link:../../vendor/group
@@ -11619,9 +11625,6 @@ importers:
       '@qilin/tool-call-timeout-policy':
         specifier: workspace:^
         version: link:../../packages/guard/timeout-policy
-      '@qilin/tool-kylin':
-        specifier: workspace:^
-        version: link:../../packages/extensions/tool-kylin
       '@qilin/tool-fs':
         specifier: workspace:^
         version: link:../../packages/fs/tool-fs
@@ -11634,6 +11637,9 @@ importers:
       '@qilin/tool-jobs':
         specifier: workspace:^
         version: link:../../packages/jobs/tool-jobs
+      '@qilin/tool-kylin':
+        specifier: workspace:^
+        version: link:../../packages/extensions/tool-kylin
       '@qilin/tool-present':
         specifier: workspace:^
         version: link:../../packages/fs/tool-present
@@ -11706,6 +11712,166 @@ importers:
       '@qilin/workflow-worker-thread':
         specifier: workspace:^
         version: link:../../packages/workflow/workflow-worker-thread
+
+  vendor/coding-sidebar:
+    dependencies:
+      '@codemirror/commands':
+        specifier: ^6.10.4
+        version: 6.11.0
+      '@codemirror/lang-cpp':
+        specifier: ^6.0.3
+        version: 6.0.3
+      '@codemirror/lang-css':
+        specifier: ^6.3.1
+        version: 6.3.1
+      '@codemirror/lang-go':
+        specifier: ^6.0.1
+        version: 6.0.1
+      '@codemirror/lang-html':
+        specifier: ^6.4.12
+        version: 6.4.12
+      '@codemirror/lang-java':
+        specifier: ^6.0.2
+        version: 6.0.2
+      '@codemirror/lang-javascript':
+        specifier: ^6.2.5
+        version: 6.2.5
+      '@codemirror/lang-json':
+        specifier: ^6.0.2
+        version: 6.0.2
+      '@codemirror/lang-markdown':
+        specifier: ^6.5.2
+        version: 6.5.2
+      '@codemirror/lang-php':
+        specifier: ^6.0.2
+        version: 6.0.2
+      '@codemirror/lang-python':
+        specifier: ^6.2.1
+        version: 6.2.1
+      '@codemirror/lang-rust':
+        specifier: ^6.0.2
+        version: 6.0.2
+      '@codemirror/lang-sql':
+        specifier: ^6.10.0
+        version: 6.10.0
+      '@codemirror/lang-vue':
+        specifier: ^0.1.3
+        version: 0.1.3
+      '@codemirror/lang-xml':
+        specifier: ^6.1.0
+        version: 6.1.0
+      '@codemirror/lang-yaml':
+        specifier: ^6.1.3
+        version: 6.1.3
+      '@codemirror/language':
+        specifier: ^6.12.4
+        version: 6.12.4
+      '@codemirror/legacy-modes':
+        specifier: ^6.5.3
+        version: 6.5.4
+      '@codemirror/search':
+        specifier: ^6.7.1
+        version: 6.7.2
+      '@codemirror/state':
+        specifier: ^6.7.1
+        version: 6.7.4
+      '@codemirror/view':
+        specifier: ^6.43.8
+        version: 6.43.11
+      '@lezer/highlight':
+        specifier: ^1.2.3
+        version: 1.2.3
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      dompurify:
+        specifier: ^3.4.14
+        version: 3.4.15
+      mermaid:
+        specifier: ^11.16.1
+        version: 11.17.2
+      node-pty:
+        specifier: 1.2.0-beta.15
+        version: 1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd)
+      react-icons:
+        specifier: 5.7.0
+        version: 5.7.0(react@18.3.1)
+      rxjs:
+        specifier: ^7.8.2
+        version: 7.8.2
+      ws:
+        specifier: ^8.18.0
+        version: 8.21.0
+    devDependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../schemastery
+        version: link:../schemastery
+      '@qilin/agent':
+        specifier: workspace:^
+        version: link:../../packages/core/agent
+      '@qilin/client-ui-primitives':
+        specifier: workspace:^
+        version: link:../../packages/client/ui-primitives
+      '@qilin/client-ui-settings':
+        specifier: workspace:^
+        version: link:../../packages/client/ui-settings
+      '@qilin/client-ui-slots':
+        specifier: workspace:^
+        version: link:../../packages/client/ui-slots
+      '@qilin/host-webserver':
+        specifier: workspace:^
+        version: link:../../packages/host/webserver
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
+      '@qilin/llm':
+        specifier: workspace:^
+        version: link:../../packages/llm/llm
+      '@qilin/session':
+        specifier: workspace:^
+        version: link:../../packages/core/session
+      '@qilin/settings':
+        specifier: workspace:^
+        version: link:../../packages/settings/settings
+      '@qilin/subagent':
+        specifier: workspace:^
+        version: link:../../packages/subagent/subagent
+      '@qilin/tools':
+        specifier: workspace:^
+        version: link:../../packages/core/tools
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.13.3
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.1
+        version: 18.3.7(@types/react@18.3.31)
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.18.1
+      '@xterm/addon-fit':
+        specifier: ^0.11.0
+        version: 0.11.0
+      '@xterm/xterm':
+        specifier: ^5.5.0
+        version: 5.5.0
+      lightningcss:
+        specifier: ^1.32.0
+        version: 1.32.0
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.3.1)
+      tsdown:
+        specifier: ^0.22.2
+        version: 0.22.2(oxc-resolver@11.20.0)(publint@0.3.21)(tsx@4.22.4)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
 
   vendor/cordis:
     dependencies:
@@ -12308,6 +12474,9 @@ packages:
   '@codemirror/lang-css@6.3.1':
     resolution: {integrity: sha512-kr5fwBGiGtmz6l0LSJIbno9QrifNMUusivHbnA1H6Dmqy4HZFte3UAICix1VuKo0lMPKQr2rqB+0BkKi/S3Ejg==}
 
+  '@codemirror/lang-go@6.0.1':
+    resolution: {integrity: sha512-7fNvbyNylvqCphW9HD6WFnRpcDjr+KXX/FgqXy5H5ZS0eC5edDljukm/yNgYkwTsgp2busdod50AOTIy6Jikfg==}
+
   '@codemirror/lang-html@6.4.12':
     resolution: {integrity: sha512-pw2ReWKUqSkbvh76RAT4NYxiogRu+PWkR2ukAwO9uOgrm8uipkzjtKKtNpyeAQwHOqxEeSvAXZ6vr3AfyB9y/w==}
 
@@ -12323,6 +12492,9 @@ packages:
   '@codemirror/lang-markdown@6.5.2':
     resolution: {integrity: sha512-AwBOdkWYuA//WcM0xO5PfHPUcmz/O2i5o0Nsg1U69SII/loCJlFI1Romd9xp2HYb1kYJRGZotyqRghuHH5n8Kw==}
 
+  '@codemirror/lang-php@6.0.2':
+    resolution: {integrity: sha512-ZKy2v1n8Fc8oEXj0Th0PUMXzQJ0AIR6TaZU+PbDHExFwdu+guzOA4jmCHS1Nz4vbFezwD7LyBdDnddSJeScMCA==}
+
   '@codemirror/lang-python@6.2.1':
     resolution: {integrity: sha512-IRjC8RUBhn9mGR9ywecNhB51yePWCGgvHfY1lWN/Mrp3cKuHr0isDKia+9HnvhiWNnMpbGhWrkhuWOc09exRyw==}
 
@@ -12331,6 +12503,9 @@ packages:
 
   '@codemirror/lang-sql@6.10.0':
     resolution: {integrity: sha512-6ayPkEd/yRw0XKBx5uAiToSgGECo/GY2NoJIHXIIQh1EVwLuKoU8BP/qK0qH5NLXAbtJRLuT73hx7P9X34iO4w==}
+
+  '@codemirror/lang-vue@0.1.3':
+    resolution: {integrity: sha512-QSKdtYTDRhEHCfo5zOShzxCmqKJvgGrZwDQSdbvCRJ5pRLWBS7pD/8e/tH44aVQT6FKm0t6RVNoSUWHOI5vNug==}
 
   '@codemirror/lang-xml@6.1.0':
     resolution: {integrity: sha512-3z0blhicHLfwi2UgkZYRPioSgVTo9PV5GP5ducFH6FaHy0IAJRg+ixj5gTR1gnT/glAIC8xv4w2VL1LoZfs+Jg==}
@@ -13406,6 +13581,9 @@ packages:
   '@lezer/css@1.3.6':
     resolution: {integrity: sha512-YJE78Wcg+zX8f10hiHWQ4Az48Qr/c13eId0VtRQYLBpxHDmDeSrXIlkbl+fJGW42rWC/uoUco9mhBZeVWP/A1g==}
 
+  '@lezer/go@1.0.1':
+    resolution: {integrity: sha512-xToRsYxwsgJNHTgNdStpcvmbVuKxTapV0dM0wey1geMMRc9aggoVyKgzYp41D2/vVOx+Ii4hmE206kvxIXBVXQ==}
+
   '@lezer/highlight@1.2.3':
     resolution: {integrity: sha512-qXdH7UqTvGfdVBINrgKhDsVTJTxactNNxLk7+UMwZhU13lMHaOBlJe9Vqp907ya56Y3+ed2tlqzys7jDkTmW0g==}
 
@@ -13426,6 +13604,9 @@ packages:
 
   '@lezer/markdown@1.7.2':
     resolution: {integrity: sha512-iTkYvoVcKt3WkeL7qUDyXHONZEwLio4wj8KTNi2dnjQEXBZKMV63BpQrPqfsM+OkvuRbiSTAcycYAsQzLhRNoQ==}
+
+  '@lezer/php@1.0.6':
+    resolution: {integrity: sha512-QJ2xNXPmsm/Z3IpThq8fnJrEIVpxhsIoj6GZBW0JYEd/l9zxpJZW216X4fzqQY4vgpdGIumypvI4uQjd4tnYtw==}
 
   '@lezer/python@1.1.19':
     resolution: {integrity: sha512-MhQIURHRytsNzP/YXnqpYKW6la6voAH3kyplTOOiCdjyFY6cWWGFVmYVdHIPrElqSDf4iCDktQCockB9FxuhzQ==}
@@ -13455,6 +13636,9 @@ packages:
 
   '@mermaid-js/parser@1.2.0':
     resolution: {integrity: sha512-oYPyv8A4As1yH5Bx+04iQEQxXuIQDe0GKCNSRgao6z8AM9jixXIfP0vsppRLvGf+nKIOb9/LdpWA4YuJiVvESA==}
+
+  '@mermaid-js/parser@1.2.1':
+    resolution: {integrity: sha512-n12NohV3mrUyUL2o93IgG/ifeW9FTyeJn3zDxkhwa8MJ9Fxg3HQMlA3RiGmD/3UnJvheztkjjQAjA2T4LmUcpw==}
 
   '@mixmark-io/domino@2.2.0':
     resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
@@ -15047,8 +15231,14 @@ packages:
     resolution: {integrity: sha512-/5NV/vDALVFDXgLmfsy9TRCBlKwO2LNBFzpzvb9iIj+jR+eSc6DLYYvVOdivT/jm7MtU6TebYuRmzEOI7w40UA==}
     engines: {node: '>=10.0.0'}
 
+  '@xterm/addon-fit@0.11.0':
+    resolution: {integrity: sha512-jYcgT6xtVYhnhgxh3QgYDnnNMYTcf8ElbxxFzX0IZo+vabQqSPAjC3c1wJrKB5E19VwQei89QCiZZP86DCPF7g==}
+
   '@xterm/headless@6.0.0':
     resolution: {integrity: sha512-5Yj1QINYCyzrZtf8OFIHi47iQtI+0qYFPHmouEfG8dHNxbZ9Tb9YGSuLcsEwj9Z+OL75GJqPyJbyoFer80a2Hw==}
+
+  '@xterm/xterm@5.5.0':
+    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
 
   '@yao-pkg/pkg-fetch@3.6.4':
     resolution: {integrity: sha512-2JXvS9HbMudLlzEjSaJ7bLNnF/WlTv7iaTAJp2Tk8pBsgwCyL9p4rIN8cztHlyZF7qVzr1EaBjd7DQooFk0azQ==}
@@ -15818,6 +16008,9 @@ packages:
   dompurify@3.4.11:
     resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
 
+  dompurify@3.4.15:
+    resolution: {integrity: sha512-EUBjM+B+lkDE41iE82DDSCfkoPGfXx8IxFxPMjNzm/Uk4xDet77rTN9wqlxlVg71kK7XGuUMv6wUxJUwwv+Xyw==}
+
   dotenv-expand@11.0.7:
     resolution: {integrity: sha512-zIHwmZPRshsCdpMDyVsqGmgyP0yT8GAgXUnkdAoJisxvf33k7yO6OuoKmcTGuXPWSsm8Oh88nZicRLA9Y0rUeA==}
     engines: {node: '>=12'}
@@ -16128,6 +16321,9 @@ packages:
   fast-xml-parser@5.7.3:
     resolution: {integrity: sha512-C0AaNuC+mscy6vrAQKAc/rMq+zAPHodfHGZu4sGVehvAQt/JLG1O5zEcYcXSY5zSqr4YVgxsB+pHXTq0i7eDlg==}
     hasBin: true
+
+  fastdom@1.0.12:
+    resolution: {integrity: sha512-LB+xjSTEbjHE1cWsxu+tN2Xqr1kpi+V9aADI7sVM5ZMaXyYGPHULQMzpJMYqOTULK/73pUkWVzzObFRBkPr+hg==}
 
   fd-slicer@1.1.0:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
@@ -17032,6 +17228,9 @@ packages:
   mermaid@11.16.0:
     resolution: {integrity: sha512-Zvm3kbstgdpvIJPPItlL7fppIZ3kibvc1oZIGxdvk9t6UFz6flv+Jw7FtRGKwfcI8OckmH04LqG6LlS6X4B1pA==}
 
+  mermaid@11.17.2:
+    resolution: {integrity: sha512-V6K3C8EBdEsPFZXSKMJe6ppQOENxuHARr9GvHX4hh47lAbhMRD9qf4oEK7LoaRQxULMa80/qt5gHO73aCleBBg==}
+
   micromark-core-commonmark@2.0.3:
     resolution: {integrity: sha512-RDBrHEMSxVFLg6xvnXmb1Ayr2WzLAWjeSATAoxwKYJV94TeNavgoIdA0a9ytzDSVzBy2YKFK+emCPOEibLeCrg==}
 
@@ -17687,10 +17886,20 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
+  react-dom@18.2.0:
+    resolution: {integrity: sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==}
+    peerDependencies:
+      react: ^18.2.0
+
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
       react: ^18.3.1
+
+  react-icons@5.7.0:
+    resolution: {integrity: sha512-LBLy340Rzqy6+/yVhZKT3B/QpP1BZaesGqasf09HPOBzRarcDIFH0WwXlXQfE7q7ipxK4MSiC5DIBWURCny6fw==}
+    peerDependencies:
+      react: '*'
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
@@ -17846,6 +18055,9 @@ packages:
 
   rw@1.3.3:
     resolution: {integrity: sha512-PdhdWy89SiZogBLaw42zdeqtRJ//zFd2PgQavcICDUgJT5oW10QCRKbJ6bg4r0/UY2M6BWd5tkxuGFRvCkgfHQ==}
+
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
 
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
@@ -18044,6 +18256,9 @@ packages:
 
   streamx@2.28.1:
     resolution: {integrity: sha512-zEzXb0s5Cds7tqMH6rhZ05lcJydCWiQPEwiNngVqzsxCc962vLY4Uw+mW7od8kDH258k2Uz/JrOkdIAAhSh9VA==}
+
+  strictdom@1.0.1:
+    resolution: {integrity: sha512-cEmp9QeXXRmjj/rVp9oyiqcvyocWab/HaoN4+bwFeZ7QzykJD6L3yD4v12K1x0tHpqRqVpJevN3gW7kyM39Bqg==}
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -18291,6 +18506,11 @@ packages:
   typescript-language-server@5.3.0:
     resolution: {integrity: sha512-5puofxZHgFdAYtfNpmwCAvgtaYgg8wrUnH30m7Ze3QuguId5RNRadKASpOpyDxTyUdAF51FjhTdjntLw/EuWcQ==}
     engines: {node: '>=20'}
+    hasBin: true
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
     hasBin: true
 
   typescript@6.0.3:
@@ -19458,6 +19678,14 @@ snapshots:
       '@lezer/common': 1.5.2
       '@lezer/css': 1.3.6
 
+  '@codemirror/lang-go@6.0.1':
+    dependencies:
+      '@codemirror/autocomplete': 6.20.3
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.4
+      '@lezer/common': 1.5.2
+      '@lezer/go': 1.0.1
+
   '@codemirror/lang-html@6.4.12':
     dependencies:
       '@codemirror/autocomplete': 6.20.3
@@ -19500,6 +19728,14 @@ snapshots:
       '@lezer/common': 1.5.2
       '@lezer/markdown': 1.7.2
 
+  '@codemirror/lang-php@6.0.2':
+    dependencies:
+      '@codemirror/lang-html': 6.4.12
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.4
+      '@lezer/common': 1.5.2
+      '@lezer/php': 1.0.6
+
   '@codemirror/lang-python@6.2.1':
     dependencies:
       '@codemirror/autocomplete': 6.20.3
@@ -19518,6 +19754,15 @@ snapshots:
       '@codemirror/autocomplete': 6.20.3
       '@codemirror/language': 6.12.4
       '@codemirror/state': 6.7.4
+      '@lezer/common': 1.5.2
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.10
+
+  '@codemirror/lang-vue@0.1.3':
+    dependencies:
+      '@codemirror/lang-html': 6.4.12
+      '@codemirror/lang-javascript': 6.2.5
+      '@codemirror/language': 6.12.4
       '@lezer/common': 1.5.2
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
@@ -20401,6 +20646,12 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
 
+  '@lezer/go@1.0.1':
+    dependencies:
+      '@lezer/common': 1.5.2
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.10
+
   '@lezer/highlight@1.2.3':
     dependencies:
       '@lezer/common': 1.5.2
@@ -20437,6 +20688,12 @@ snapshots:
     dependencies:
       '@lezer/common': 1.5.2
       '@lezer/highlight': 1.2.3
+
+  '@lezer/php@1.0.6':
+    dependencies:
+      '@lezer/common': 1.5.2
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.10
 
   '@lezer/python@1.1.19':
     dependencies:
@@ -20489,6 +20746,10 @@ snapshots:
     optional: true
 
   '@mermaid-js/parser@1.2.0':
+    dependencies:
+      '@chevrotain/types': 11.1.2
+
+  '@mermaid-js/parser@1.2.1':
     dependencies:
       '@chevrotain/types': 11.1.2
 
@@ -21897,7 +22158,11 @@ snapshots:
 
   '@xmldom/xmldom@0.8.15': {}
 
+  '@xterm/addon-fit@0.11.0': {}
+
   '@xterm/headless@6.0.0': {}
+
+  '@xterm/xterm@5.5.0': {}
 
   '@yao-pkg/pkg-fetch@3.6.4':
     dependencies:
@@ -22733,6 +22998,10 @@ snapshots:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
+  dompurify@3.4.15:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
+
   dotenv-expand@11.0.7:
     dependencies:
       dotenv: 16.6.1
@@ -23207,6 +23476,10 @@ snapshots:
       fast-xml-builder: 1.2.0
       path-expression-matcher: 1.5.0
       strnum: 2.4.0
+
+  fastdom@1.0.12:
+    dependencies:
+      strictdom: 1.0.1
 
   fd-slicer@1.1.0:
     dependencies:
@@ -24221,6 +24494,31 @@ snapshots:
       ts-dedent: 2.3.0
       uuid: 14.0.1
 
+  mermaid@11.17.2:
+    dependencies:
+      '@braintree/sanitize-url': 7.1.2
+      '@iconify/utils': 3.1.3
+      '@mermaid-js/parser': 1.2.1
+      '@types/d3': 7.4.3
+      '@upsetjs/venn.js': 2.0.0
+      cytoscape: 3.34.0
+      cytoscape-cose-bilkent: 4.1.0(cytoscape@3.34.0)
+      cytoscape-fcose: 2.2.0(cytoscape@3.34.0)
+      d3: 7.9.0
+      d3-sankey: 0.12.3
+      dagre-d3-es: 7.0.14
+      dayjs: 1.11.21
+      dompurify: 3.4.11
+      es-toolkit: 1.49.0
+      fastdom: 1.0.12
+      katex: 0.16.47
+      khroma: 2.1.0
+      marked: 16.4.2
+      roughjs: 4.6.6
+      stylis: 4.4.0
+      ts-dedent: 2.3.0
+      uuid: 14.0.1
+
   micromark-core-commonmark@2.0.3:
     dependencies:
       decode-named-character-reference: 1.3.0
@@ -24991,11 +25289,21 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
+  react-dom@18.2.0(react@18.3.1):
+    dependencies:
+      loose-envify: 1.4.0
+      react: 18.3.1
+      scheduler: 0.23.2
+
   react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
+
+  react-icons@5.7.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-is@17.0.2: {}
 
@@ -25107,6 +25415,22 @@ snapshots:
 
   robust-predicates@3.0.3: {}
 
+  rolldown-plugin-dts@0.25.2(oxc-resolver@11.20.0)(rolldown@1.1.1)(typescript@5.9.3):
+    dependencies:
+      '@babel/generator': 8.0.0-rc.6
+      '@babel/helper-validator-identifier': 8.0.0-rc.6
+      '@babel/parser': 8.0.0-rc.6
+      ast-kit: 3.0.0-beta.1
+      birpc: 4.0.0
+      dts-resolver: 3.0.0(oxc-resolver@11.20.0)
+      get-tsconfig: 5.0.0-beta.5
+      obug: 2.1.3
+      rolldown: 1.1.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - oxc-resolver
+
   rolldown-plugin-dts@0.25.2(oxc-resolver@11.20.0)(rolldown@1.1.1)(typescript@6.0.3):
     dependencies:
       '@babel/generator': 8.0.0-rc.6
@@ -25216,6 +25540,10 @@ snapshots:
   run-applescript@7.1.0: {}
 
   rw@1.3.3: {}
+
+  rxjs@7.8.2:
+    dependencies:
+      tslib: 2.8.1
 
   sade@1.8.1:
     dependencies:
@@ -25458,6 +25786,8 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
+  strictdom@1.0.1: {}
+
   string-width@4.2.3:
     dependencies:
       emoji-regex: 8.0.0
@@ -25653,6 +25983,33 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
+  tsdown@0.22.2(oxc-resolver@11.20.0)(publint@0.3.21)(tsx@4.22.4)(typescript@5.9.3):
+    dependencies:
+      ansis: 4.3.1
+      cac: 7.0.0
+      defu: 6.1.7
+      empathic: 2.0.1
+      hookable: 6.1.1
+      import-without-cache: 0.4.0
+      obug: 2.1.3
+      picomatch: 4.0.4
+      rolldown: 1.1.1
+      rolldown-plugin-dts: 0.25.2(oxc-resolver@11.20.0)(rolldown@1.1.1)(typescript@5.9.3)
+      semver: 7.8.4
+      tinyexec: 1.2.4
+      tinyglobby: 0.2.17
+      tree-kill: 1.2.2
+      unconfig-core: 7.5.0
+    optionalDependencies:
+      publint: 0.3.21
+      tsx: 4.22.4
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - '@ts-macro/tsc'
+      - '@typescript/native-preview'
+      - oxc-resolver
+      - vue-tsc
+
   tsdown@0.22.2(oxc-resolver@11.20.0)(publint@0.3.21)(tsx@4.22.4)(typescript@6.0.3):
     dependencies:
       ansis: 4.3.1
@@ -25715,6 +26072,8 @@ snapshots:
     dependencies:
       vscode-jsonrpc: 5.0.1
       vscode-languageserver-protocol: 3.18.2
+
+  typescript@5.9.3: {}
 
   typescript@6.0.3: {}
 

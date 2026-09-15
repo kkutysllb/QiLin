@@ -96,7 +96,9 @@ export function apply(ctx: ClientContext): void {
           if (version !== rowsVersion || revision !== rowsRevision) {
             rowsVersion = version
             rowsRevision = revision
-            rows = ctx.slots.entries('settings.section')
+            // Winner cells, not the raw ledger: a section whose cell a lower-priority
+            // entry shadowed renders nothing, so the nav must not list it either.
+            rows = ctx.slots.entriesOfSlot('settings.section')
               .map(e => ({
                 /* v8 ignore next -- list-slot registration requires id (SlotCore rejects an entry without one) */
                 id: e.options.id ?? '',
@@ -121,7 +123,8 @@ export function apply(ctx: ClientContext): void {
           const version = ctx.slots.getVersion('settings.onboarding')
           if (version !== onboardingVersion) {
             onboardingVersion = version
-            onboardingSteps = ctx.slots.entries('settings.onboarding')
+            // Same winner-cell projection as the section nav rows above.
+            onboardingSteps = ctx.slots.entriesOfSlot('settings.onboarding')
               .map(e => ({
                 /* v8 ignore next -- list-slot registration requires id */
                 id: e.options.id ?? '',
