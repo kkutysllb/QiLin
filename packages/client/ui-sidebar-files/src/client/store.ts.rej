@@ -1,0 +1,9 @@
+@@ -1,6 +1,6 @@
+ /**
+- * The file tree's view state: which directories are expanded, and what each
+- * loaded level contains.
++ * The file tree's view state: which directories are expanded, what each
++ * loaded level contains, and where the body is scrolled to.
+  *
+  * The tree is not one resource. A directory listing per level, expanded lazily,
+  * is state the type owns — so it lives in a Slot-standard exclusive store
