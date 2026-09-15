@@ -1441,11 +1441,11 @@
       ]
     },
     {
-      "name": "@qilin/cordis-client-runner",
+      "name": "@qilin/kylin-client-runner",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/cordis-client-runner",
+          "location": "node_modules/@qilin/kylin-client-runner",
           "direct": true,
           "optional": false,
           "peer": false
@@ -1453,11 +1453,11 @@
       ]
     },
     {
-      "name": "@qilin/cordis-host-runner",
+      "name": "@qilin/kylin-host-runner",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/cordis-host-runner",
+          "location": "node_modules/@qilin/kylin-host-runner",
           "direct": false,
           "optional": false,
           "peer": false

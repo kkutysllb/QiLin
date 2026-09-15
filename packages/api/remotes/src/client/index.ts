@@ -6,7 +6,7 @@ import commandsRemote from '@qilin/commands/remote'
 import settingsControllerRemote from '@qilin/api-settings-controller/remote'
 import goalsRemote from '@qilin/goal/remote'
 import llmRemote from '@qilin/llm/remote'
-import dynamicRemote from '@qilin/cordis-host-runner/remote'
+import dynamicRemote from '@qilin/kylin-host-runner/remote'
 import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
 import messageFeedbackRemote from '@qilin/message-feedback/remote'
 import permissionPresetsRemote from '@qilin/permission-presets/remote'
@@ -51,7 +51,7 @@ export type { ApiRemoteForwardedEvent } from '../types.ts'
 // signatures `$on` hands to a listener, so a consumer reads the very
 // declaration the Host emits rather than a flattened restatement of it.
 export type {} from '@qilin/commands/types'
-export type {} from '@qilin/cordis-host-runner/types'
+export type {} from '@qilin/kylin-host-runner/types'
 export type {} from '@qilin/credentials/types'
 export type {} from '@qilin/llm/types'
 export type {} from '@qilin/agent-presets/types'
@@ -73,7 +73,7 @@ export type {
   StreamChunk,
 } from '@qilin/client-connection/client'
 export type {} from '@qilin/api-gateway/client'
-export type {} from '@qilin/cordis-host-runner/remote'
+export type {} from '@qilin/kylin-host-runner/remote'
 
 // The payload vocabulary of the selected namespaces, re-exported so a Client
 // contribution can name what it sends and receives without importing a Host
@@ -111,7 +111,7 @@ export type {
   DynamicCordisStopResponse,
   DynamicCordisUndefineReceipt,
   RequestRunOutcome,
-} from '@qilin/cordis-host-runner/types'
+} from '@qilin/kylin-host-runner/types'
 // Credential state vocabulary for the credentials namespace (values never ride it).
 export type { CredentialInfo } from '@qilin/credentials/types'
 // Redacted namespace vocabulary for the settings namespace (secrets never ride

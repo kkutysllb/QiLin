@@ -119,7 +119,7 @@
       name: '@qilin/api-workspace-controller'
 
     - id: cordis-host-runner
-      name: '@qilin/cordis-host-runner'
+      name: '@qilin/kylin-host-runner'
 
     # Ordinary provider for the parsed Web flags. Its plugin-level injection
     # waits for cmdlineArgs; no launcher metadata or special row kind is needed.
@@ -195,7 +195,7 @@
       name: '@qilin/api-remotes'
 
     - id: cordis-client-runner
-      name: '@qilin/cordis-client-runner'
+      name: '@qilin/kylin-client-runner'
 
     - id: ui-theme
       name: '@qilin/client-ui-theme'

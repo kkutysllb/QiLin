@@ -10,7 +10,7 @@
  * mounted for the seat to exist. Data only — this module is the one legitimate
  * meeting point of the two planes, so it carries strings, never client imports.
  *
- * @module @qilin/cordis-client-runner/client/slot-catalog
+ * @module @qilin/kylin-client-runner/client/slot-catalog
  */
 
 /* jscpd:ignore-start */
