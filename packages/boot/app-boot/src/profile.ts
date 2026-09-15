@@ -136,7 +136,7 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     patchReload: 'startup',
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar', 'dsh-file-review-kcoder'],
     patchReload: 'live',
   },
   headless: {
@@ -144,7 +144,7 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     patchReload: 'startup',
   },
   qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', '@qilin/coding-sidebar'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', '@qilin/coding-sidebar', 'dsh-file-review-kcoder'],
     patchReload: 'live',
   },
   sdk: {
@@ -791,7 +791,7 @@ function packageDirFromAnchor(
  * while a fresh profile still resolves the seed with no profile install.
  * Every bundle not named here keeps the installation-first contract.
  */
-export const PROFILE_OWNED_BUNDLES: readonly string[] = ['@qilin/coding-sidebar']
+export const PROFILE_OWNED_BUNDLES: readonly string[] = ['@qilin/coding-sidebar', 'dsh-file-review-kcoder']
 
 /**
  * Resolve one bundle package's directory: installation anchor first, then the

@@ -25,6 +25,7 @@ The Cordis framework and its foundation libraries are source-vendored into this 
 | `@qilin/kylin-plugin-hmr` | `@cordisjs/plugin-hmr` | [github.com/deepseek-harness/cordis](https://github.com/deepseek-harness/cordis) | MIT |
 | `@qilin/kylin-plugin-logger-console` | `@cordisjs/plugin-logger-console` | [github.com/deepseek-harness/cordis](https://github.com/deepseek-harness/cordis) | MIT |
 | `@qilin/coding-sidebar` | `dsh-coding-sidebar` | [github.com/kkutysllb/dsh-coding-sidebar](https://github.com/kkutysllb/dsh-coding-sidebar) | MIT |
+| `dsh-file-review-kcoder` | `dsh-file-review-kcoder` | [github.com/kkutysllb/dsh-file-review-kcoder](https://github.com/kkutysllb/dsh-file-review-kcoder) | MIT |
 
 ## Runtime npm dependencies
 

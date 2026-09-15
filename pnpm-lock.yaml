@@ -349,6 +349,9 @@ importers:
       commander:
         specifier: ^15.0.0
         version: 15.0.0
+      dsh-file-review-kcoder:
+        specifier: workspace:^
+        version: link:../../vendor/file-review-kcoder
       js-yaml:
         specifier: ^4.2.0
         version: 4.2.0
@@ -2029,6 +2032,9 @@ importers:
       commander:
         specifier: ^15.0.0
         version: 15.0.0
+      dsh-file-review-kcoder:
+        specifier: workspace:^
+        version: link:../../../vendor/file-review-kcoder
       open:
         specifier: ^11.0.0
         version: 11.0.2
@@ -11978,6 +11984,24 @@ importers:
         version: 1.1.0
 
   vendor/cosmokit: {}
+
+  vendor/file-review-kcoder:
+    dependencies:
+      '@qilin/atomic-write':
+        specifier: workspace:^
+        version: link:../../packages/util/atomic-write
+      '@qilin/kylin':
+        specifier: workspace:^
+        version: link:../cordis
+      '@qilin/typert-protocol':
+        specifier: workspace:^
+        version: link:../../packages/typert/protocol
+      diff:
+        specifier: ^9.0.0
+        version: 9.0.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
   vendor/group:
     dependencies:

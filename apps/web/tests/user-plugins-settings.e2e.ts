@@ -20,7 +20,10 @@ describe('web e2e: user plugins settings tab', () => {
     // The profile installs one shipped bundle the profile owns (the sidebar is
     // the shipped in-place-upgrade channel), on top of the two engine layers.
     scaffold = await launchWebScaffold({
-      extraInstallAnchors: [join(REPO_ROOT, 'vendor/coding-sidebar/package.json')],
+      extraInstallAnchors: [
+        join(REPO_ROOT, 'vendor/coding-sidebar/package.json'),
+        join(REPO_ROOT, 'vendor/file-review-kcoder/package.json'),
+      ],
     })
     browser = await chromium.launch()
     page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: ZH_BROWSER_LOCALE })
@@ -76,6 +79,15 @@ describe('web e2e: user plugins settings tab', () => {
     // …and is still never removable through Settings.
     expect(await row.getByRole('button', { name: '卸载', exact: true }).isDisabled()).toBe(true)
     expect(tripwire.pageErrors).toEqual([])
+  })
+
+  it('ships the file-review plugin upgradable in place and unremovable', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-user-plugins'))
+    const dialog = await openUserPlugins()
+    const row = await settledRow(dialog, 'dsh-file-review-kcoder')
+    expect(await row.locator('[class*="meta"]').first().innerText()).toContain('内置')
+    await expect.poll(() => row.getByRole('button', { name: '更新', exact: true }).isDisabled()).toBe(false)
+    expect(await row.getByRole('button', { name: '卸载', exact: true }).isDisabled()).toBe(true)
   })
 
   it('refuses both actions on a layer that moves with the installation', async () => {

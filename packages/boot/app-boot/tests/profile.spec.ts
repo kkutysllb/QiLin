@@ -318,6 +318,7 @@ describe('loadProfile', () => {
       '@qilin/base': { patch: '[]\n' },
       '@qilin/web-app': { patch: '[]\n' },
       '@qilin/coding-sidebar': { patch: '[]\n' },
+      'dsh-file-review-kcoder': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const stockHome = tmp()
@@ -325,7 +326,7 @@ describe('loadProfile', () => {
     initProfile(stock, ['@qilin/base', '@qilin/web-app'])
     loadProfile('t', 'web', anchor, stockHome)
     expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
-      bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar'],
+      bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar', 'dsh-file-review-kcoder'],
       patchReload: 'live',
     })
 
@@ -345,6 +346,7 @@ describe('loadProfile', () => {
       '@qilin/base': { patch: '[]\n' },
       '@qilin/web-app': { patch: '[]\n' },
       '@qilin/coding-sidebar': { patch: '[]\n' },
+      'dsh-file-review-kcoder': { patch: '[]\n' },
     })
     const stockHome = tmp()
     const stock = resolveProfileDir('web', stockHome)

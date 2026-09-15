@@ -94,6 +94,7 @@
     "@qilin/tool-workflow": "workspace:^",
     "@qilin/web-app": "workspace:^",
     "@qilin/coding-sidebar": "workspace:^",
+    "dsh-file-review-kcoder": "workspace:^",
     "@qilin/webhook": "workspace:^",
     "@qilin/webhook-github": "workspace:^",
     "@qilin/workflow-worker-thread": "workspace:^",
