@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "@qilin/accounts-local": "workspace:^",
     "@qilin/agent-presets": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
@@ -111,8 +112,10 @@
     "@qilin/host-frontend-static": "workspace:^",
     "@qilin/host-open-in-app": "workspace:^",
     "@qilin/host-plugin-inventory": "workspace:^",
+    "@qilin/host-plugin-manager": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
     "@qilin/launch-environment": "workspace:^",
+    "@qilin/mcp-servers": "workspace:^",
     "@qilin/message-feedback": "workspace:^",
     "@qilin/session-log-export": "workspace:^",
     "@qilin/session-reference": "workspace:^",

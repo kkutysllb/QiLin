@@ -1917,6 +1917,9 @@ importers:
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin/accounts-local':
+        specifier: workspace:^
+        version: link:../../identity/accounts-local
       '@qilin/agent-presets':
         specifier: workspace:^
         version: link:../../preset/agent-presets
@@ -2133,6 +2136,9 @@ importers:
       '@qilin/host-plugin-inventory':
         specifier: workspace:^
         version: link:../../host/plugin-inventory
+      '@qilin/host-plugin-manager':
+        specifier: workspace:^
+        version: link:../../host/plugin-manager
       '@qilin/host-webserver':
         specifier: workspace:^
         version: link:../../host/webserver
@@ -2145,6 +2151,9 @@ importers:
       '@qilin/launch-environment':
         specifier: workspace:^
         version: link:../../util/launch-environment
+      '@qilin/mcp-servers':
+        specifier: workspace:^
+        version: link:../../mcp/mcp-servers
       '@qilin/message-feedback':
         specifier: workspace:^
         version: link:../../feedback/message-feedback
