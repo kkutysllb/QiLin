@@ -28,7 +28,7 @@
 
 自定义 profile 默认实时重载 patch。随附的 `web` profile 使用实时重载；`headless`、`sdk`、`sdk-minimal` 和 `acp` 则只在启动时应用一次所有配置层，因为一次性应用或 stdio 应用拥有工作之后，替换其依赖会破坏该生命周期。
 
-`web` 与 `qilin` profile 还叠加了 [`@qilin/coding-sidebar`](../vendor/coding-sidebar/README.md)：vendor 进仓的右侧栏工作台，替换原生右侧栏的标签面；替换逻辑由它自己的 bundle patch 携带。作为 profile-owned 组合包，`qilin plugin --profile web add @qilin/coding-sidebar@<spec>` 装进 profile 的新版本会取代安装闭包携带的种子。
+web 与 qilin profile 叠加 @qilin/web-app；右侧栏使用原生 ui-sidebar-right 面及其标签类型行（ui-sidebar-files、ui-sidebar-documentpreview、ui-sidebar-terminal）。
 
 要查看你的机器启动的配置树：
 
