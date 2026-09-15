@@ -44,6 +44,7 @@ export function trajectoryTabDefinition(t: TranslateNS<'trajectory'>): SidebarRi
     single: true,
     title: () => t('view.trajectory'),
     guide: [{
+      id: 'trajectory',
       order: 20,
       title: () => t('view.trajectory'),
       description: () => t('guide.description'),

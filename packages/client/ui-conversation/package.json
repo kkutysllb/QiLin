@@ -73,7 +73,6 @@
     "@qilin/goal": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/llm-retry": "workspace:^",
-    "@qilin/permission-presets": "workspace:^",
     "@qilin/plan-mode": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/token-meter": "workspace:^",

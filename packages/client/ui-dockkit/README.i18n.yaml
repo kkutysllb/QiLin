@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-dockkit/README.md
 README.md: 13cc43d261e9b4b430cc40b073b341fea7605396
-README.zh.md: dfa89b2f49a552197995b5c08d1172c529ee0f86
+README.zh.md: 1371aaa3036117b2b1bc0a4846c2161df57de735

@@ -46,6 +46,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/session-projection": "workspace:^",
-    "@qilin/token-meter": "workspace:^"
+    "@qilin/token-meter": "workspace:^",
+    "@qilin/compaction-image-offload": "workspace:^"
   }
 }

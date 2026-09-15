@@ -13,22 +13,10 @@
     - button "Agent 预设":
       - img
       - text: Agent 预设
-    - button "MCP 服务器":
+    - button "已归档会话":
       - img
-      - text: MCP 服务器
-    - button "侧边栏":
-      - img
-      - text: 侧边栏
-    - button "技能":
-      - img
-      - text: 技能
-    - button "关于 QiLin":
-      - img
-      - text: 关于 QiLin
-    - separator "调整设置导航宽度"
-  - button "返回工作区":
-    - img
-    - text: 返回工作区
+      - text: 已归档会话
+  - button "打开配置文件"
   - button "关闭":
     - img
     - text: 关闭
@@ -36,6 +24,20 @@
   - button "工作区内修改":
     - text: 工作区内修改
     - img
+  - text: 语言
+  - button "中文":
+    - text: 中文
+    - img
+  - text: 外观
+  - button "浅色":
+    - img
+    - text: 浅色
+  - button "深色":
+    - img
+    - text: 深色
+  - button "跟随系统" [pressed]:
+    - img
+    - text: 跟随系统
   - text: 字号大小 仅影响会话内容的字号 14
   - button "增大字号":
     - img

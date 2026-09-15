@@ -28,11 +28,6 @@
     enableRunInBackground: false
     maxDepth: 1
 
-- id: session-log-deepseek
-  name: '@qilin/session-log-deepseek'
-  config:
-    enabled: true
-
 - insert:
     - id: snapshot-message-feedback
       name: '@qilin/message-feedback'

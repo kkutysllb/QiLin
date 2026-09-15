@@ -47,9 +47,6 @@
     - id: subagent-model-selection-settings
       name: '@qilin/tool-subagent/model-selection-settings'
 
-    - id: code-runtime
-      name: '@qilin/code-runtime-worker-thread'
-
     - id: message-feedback
       name: '@qilin/message-feedback'
       config:
@@ -101,35 +98,14 @@
     - id: plugin-inventory
       name: '@qilin/host-plugin-inventory'
 
-    # Profile-scoped install, update, and removal for user bundle plugins.
-    - id: plugin-manager
-      name: '@qilin/host-plugin-manager'
-
-    # MCP server settings over the user patch layer: lists and rewrites the
-    # mcp-client entries the settings page manages.
-    - id: mcp-servers
-      name: '@qilin/mcp-servers'
-
-    # Local browser accounts: the account file under the harness home, the
-    # /api/auth endpoints, and the account-session gate over the application
-    # entry and every /api request. Sign-in is required by default; a deployment
-    # wanting the launch-token handoff alone sets enabled: false. Registration
-    # stays open for the single-user loopback default — before binding beyond
-    # loopback, set registration: closed, because anyone who can reach the
-    # server could otherwise create an account with full harness access.
-    - id: accounts
-      name: '@qilin/accounts-local'
-      config:
-        enabled: true
-        registration: open
-        sessionMaxAgeDays: 30
-
     # Session commands, cold reads, and live control over Typert Remote.
     - id: session-controller
       name: '@qilin/api-session-controller'
 
     # Workspace file service: bounded read, directory listing, and the
     # agent-write change feed inside the session workspace root.
+    - id: terminal-controller
+      name: '@qilin/api-terminal-controller'
     - id: workspace-files
       name: '@qilin/api-workspace-files'
 
@@ -142,7 +118,7 @@
     - id: workspace-controller
       name: '@qilin/api-workspace-controller'
 
-    - id: kylin-host-runner
+    - id: cordis-host-runner
       name: '@qilin/kylin-host-runner'
 
     # Ordinary provider for the parsed Web flags. Its plugin-level injection
@@ -218,7 +194,7 @@
     - id: api-remotes
       name: '@qilin/api-remotes'
 
-    - id: kylin-client-runner
+    - id: cordis-client-runner
       name: '@qilin/kylin-client-runner'
 
     - id: ui-theme
@@ -243,11 +219,6 @@
     - id: ui-sidebar
       name: '@qilin/client-ui-sidebar'
 
-    # The sidebar foot's account button: the theme and language switches, the
-    # Settings entry, and sign-out, over the account gate's status read.
-    - id: ui-account
-      name: '@qilin/client-ui-account'
-
     # The right Sidebar: one docking surface per session over ui-dockkit.
     - id: ui-sidebar-right
       name: '@qilin/client-ui-sidebar-right'
@@ -259,16 +230,10 @@
       name: '@qilin/client-ui-sidebar-documentpreview'
 
     # The right Sidebar's workspace file tree tab type.
+    - id: ui-sidebar-terminal
+      name: '@qilin/client-ui-sidebar-terminal'
     - id: ui-sidebar-files
       name: '@qilin/client-ui-sidebar-files'
-
-    # The right Sidebar's tasks tab type: subagent topology and background jobs.
-    - id: ui-sidebar-tasks
-      name: '@qilin/client-ui-sidebar-tasks'
-
-    # The right Sidebar's task-plan tab type: the workspace's plan documents.
-    - id: ui-sidebar-plans
-      name: '@qilin/client-ui-sidebar-plans'
 
     - id: ui-settings
       name: '@qilin/client-ui-settings'
@@ -279,19 +244,11 @@
     - id: ui-settings-models
       name: '@qilin/client-ui-settings-models'
 
-    # The MCP servers page: patch-layer CRUD over the mcpServers Remote.
-    - id: ui-settings-mcp
-      name: '@qilin/client-ui-settings-mcp'
-
-    # The skills page: the current Session's catalog over the skills Remote.
-    - id: ui-settings-skills
-      name: '@qilin/client-ui-settings-skills'
-
     - id: ui-settings-plugin-inventory
       name: '@qilin/client-ui-settings-plugin-inventory'
 
-    - id: ui-settings-user-plugins
-      name: '@qilin/client-ui-settings-user-plugins'
+    - id: ui-settings-unarchive-sessions
+      name: '@qilin/client-ui-settings-unarchive-sessions'
 
     - id: ui-conversation
       name: '@qilin/client-ui-conversation'
@@ -313,7 +270,7 @@
     - id: ui-tool
       name: '@qilin/client-ui-tool'
 
-    - id: ui-kylin
+    - id: ui-cordis
       name: '@qilin/client-ui-kylin'
 
     # Durable workflow lifecycle as an independent Chat node after the
@@ -499,12 +456,15 @@
 - id: tool-subagent-fork
   disabled: true
 
-- id: workflow-worker-thread
+- id: workflow-ptc
   disabled: true
 
 - id: tool-workflow
   disabled: true
 
+# `base` ships this row disabled; the preset-plane gate reads declared row ids
+# without regard to `disabled`, so this row must stay to keep `tool-ralph` off
+# the host plane and out of collision with every preset's row.
 - id: tool-ralph
   disabled: true
 

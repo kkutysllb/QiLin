@@ -38,6 +38,7 @@ export function plansDefinition(t: TranslateNS<'sidebarPlans'>): SidebarRightTab
     single: true,
     title: () => t('type.label'),
     guide: [{
+      id: 'plans',
       order: 50,
       title: () => t('guide.title'),
       description: () => t('guide.description'),

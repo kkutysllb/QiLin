@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/hooks/hook-protocol/README.md
 README.md: e30c77df4cbd62d0613aa3d1915a4e7cac72ff79
-README.zh.md: 986487e9048105f66911d8d82b2b1b59bfb5b1d0
+README.zh.md: cc761ea7d87c7a9358db74d635b6a0ceb4ba22ba

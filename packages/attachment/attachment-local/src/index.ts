@@ -1,6 +1,6 @@
 /** Local durable attachment backend rooted below `QILIN_HOME`. @module @qilin/attachment-local */
 
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { Context } from '@qilin/kylin'
 import z from '@deepseek-ai/schemastery'
 import { AttachmentStore } from '@qilin/attachment'
@@ -8,14 +8,14 @@ import type {
   FileAttachmentRef,
   ImageAttachmentLimits,
   ImageAttachmentRef,
-  ImageRequestPolicy,
+  ImageRequestTarget,
   RequestImageAttachment,
   SaveFileAttachment,
   SaveFileStreamAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
 } from '@qilin/attachment'
-import { resolveQilinHome } from '@qilin/home-paths'
+import { qilinCachePath, resolveQilinHome } from '@qilin/home-paths'
 import type { NormalizationPolicy } from './normalization.ts'
 import { CompressionLimiter, compressionFailure } from './compression-limiter.ts'
 import { commitPreparedImageFile, normalizedImagePath, prepareImageFile, readImageFile, validateImageFile } from './store.ts'
@@ -166,12 +166,15 @@ export class LocalAttachmentStore extends AttachmentStore {
   readonly normalizationPolicy: Readonly<NormalizationPolicy>
   /** Resolved instance-level compression limit. */
   readonly imageCompressionConcurrency: number
+  private readonly cacheRoot: string
   private readonly compression: CompressionLimiter
   private readonly requestInflight = new Map<string, SharedRequest<RequestImageAttachment>>()
 
   constructor(ctx: Context, config: Config) {
     super(ctx)
-    this.root = resolve(join(resolveQilinHome(config.qilinHome), 'attachments', 'v1'))
+    const qilinHome = resolveQilinHome(config.qilinHome)
+    this.root = join(qilinHome, 'attachments', 'v1')
+    this.cacheRoot = qilinCachePath({ qilinHome }, 'attachments')
     this.imageLimits = Object.freeze({
       maxImageBytes: config.maxImageBytes ?? DEFAULT_MAX_IMAGE_BYTES,
       maxImagesPerMessage: config.maxImagesPerMessage ?? DEFAULT_MAX_IMAGES_PER_MESSAGE,
@@ -244,20 +247,20 @@ export class LocalAttachmentStore extends AttachmentStore {
 
   override async readImageRequest(
     ref: ImageAttachmentRef,
-    policy: ImageRequestPolicy,
+    target: ImageRequestTarget,
     signal?: AbortSignal,
   ): Promise<RequestImageAttachment> {
-    return this.requestVersion(ref, policy, undefined, signal)
+    return this.requestVersion(ref, target, undefined, signal)
   }
 
   private requestVersion(
     ref: ImageAttachmentRef,
-    policy: ImageRequestPolicy,
+    target: ImageRequestTarget,
     stored: StoredImageAttachment | undefined,
     signal: AbortSignal | undefined,
   ): Promise<RequestImageAttachment> {
     signal?.throwIfAborted()
-    const variantId = requestImageVariantId(ref, policy)
+    const variantId = requestImageVariantId(ref, target)
     const key = String(variantId)
     let operation = this.requestInflight.get(key)
     if (operation?.controller.signal.aborted) {
@@ -267,9 +270,9 @@ export class LocalAttachmentStore extends AttachmentStore {
     if (operation === undefined) {
       const shared = new SharedRequest<RequestImageAttachment>(sharedSignal => this.compression.run(async () => {
         const request = await readRequestImageFile(
-          this.root,
+          this.cacheRoot,
           stored ?? await this.readImage(ref, sharedSignal),
-          policy,
+          target,
           sharedSignal,
         )
         return request

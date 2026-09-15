@@ -64,6 +64,7 @@
     "@qilin/brand": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/typert-registry": "workspace:^",
     "@qilin/util-crypto": "workspace:^",
     "@types/ws": "^8.18.1",

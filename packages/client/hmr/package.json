@@ -31,7 +31,9 @@
   },
   "qilin": {
     "client": {
-      "inject": [],
+      "inject": [
+        "@qilin/client-modules"
+      ],
       "platform": "web",
       "immediately": true
     }

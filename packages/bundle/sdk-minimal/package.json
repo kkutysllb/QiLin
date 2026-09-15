@@ -43,6 +43,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/llm-deepseek": "workspace:^",
     "@qilin/llm-retry": "workspace:^",
+    "@qilin/mcp-resources": "workspace:^",
     "@qilin/plugin-package-inventory-deepseek": "workspace:^",
     "@qilin/sandbox-local": "workspace:^",
     "@qilin/sandbox-policy": "workspace:^",

@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/util/atomic-write/README.md
 README.md: 818e5e1a526ff05213a52893522f62cd192ba9d3
-README.zh.md: 46219fe15da75992d8809287345a34d4294f736c
+README.zh.md: 40c65d240cb3d0b5a3c3dfd08a82a00178cce674

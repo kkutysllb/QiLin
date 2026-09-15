@@ -42,7 +42,7 @@ afterEach(() => {
 })
 
 describe('release families', () => {
-  it('publishes Agent Teams while excluding private experimental packages', () => {
+  it('publishes all current experimental packages', () => {
     const members = releaseFamily('qilin').members(resolve(import.meta.dirname, '../..'))
 
     expect(members
@@ -51,10 +51,20 @@ describe('release families', () => {
       '@qilin/experimental-agent-team-profile',
       '@qilin/experimental-agent-team-web-profile',
       '@qilin/experimental-agent-team',
+      '@qilin/experimental-auto-review',
+      '@qilin/experimental-browser-use-chrome-devtools-mcp',
+      '@qilin/experimental-browser-use-playwright-mcp',
+      '@qilin/experimental-browser-use-runtime',
+      '@qilin/experimental-browser-use-stagehand-native',
       '@qilin/experimental-client-ui-agent-team',
+      '@qilin/experimental-computer-use-cua-driver-mcp',
+      '@qilin/experimental-computer-use-cua-driver-native',
+      '@qilin/experimental-inspector',
+      '@qilin/experimental-ptc-runtime-python',
       '@qilin/experimental-tool-agent-team',
+      '@qilin/experimental-webworker-packer',
+      '@qilin/experimental-webworker-runtime',
     ])
-    expect(members.map(member => member.name)).not.toContain('@qilin/experimental-inspector')
   })
 
   it('excludes private applications from the publish set', () => {
@@ -64,6 +74,25 @@ describe('release families', () => {
     write(join(root, 'apps/private/package.json'), '{"name":"@qilin/private","version":"0.0.1","private":true}\n')
 
     expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual(['@qilin/public'])
+  })
+
+  it('publishes unlisted experimental packages while retaining private exclusions', () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-release-experimental-'))
+    roots.push(root)
+    write(join(root, 'packages/experimental/prototype/package.json'), JSON.stringify({
+      name: '@qilin/experimental-prototype',
+      version: '0.0.1',
+      publishConfig: { access: 'public' },
+    }))
+    write(join(root, 'packages/experimental/inspector/package.json'), JSON.stringify({
+      name: '@qilin/experimental-inspector',
+      version: '0.0.1',
+      private: true,
+    }))
+
+    expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual([
+      '@qilin/experimental-prototype',
+    ])
   })
 
   it('bumps private qilin workspaces without adding release tags', () => {

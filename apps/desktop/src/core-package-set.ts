@@ -124,7 +124,7 @@ export function desktopQilinPackageSpec(packageSet: DesktopCorePackageSet): stri
 
 /**
  * Verify every local tarball and reject extra package files before pnpm executes them.
- * @param projectDir - Seed or profile directory containing the package set.
+ * @param projectDir - Build directory containing the package set.
  * @param expectedReleaseVersion - Exact qilin and Desktop Host version bound to Electron.
  * @returns The verified package set.
  */

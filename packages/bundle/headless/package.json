@@ -30,6 +30,7 @@
     "lib/index.js",
     "lib/startup.js",
     "cordis.patch.yml",
+    "lib/json-stream-*.js",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
@@ -41,7 +42,6 @@
   "dependencies": {
     "@qilin/brand": "workspace:^",
     "@qilin/cmdline": "workspace:^",
-    "@qilin/code-runtime-worker-thread": "workspace:^",
     "@qilin/util-values": "workspace:^",
     "@deepseek-ai/schemastery": "workspace:^",
     "commander": "^15.0.0"
@@ -52,7 +52,9 @@
     "@qilin/agent": "workspace:^",
     "@qilin/agent-default-model": "workspace:^",
     "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/session": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@qilin/fs": "workspace:^"
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
@@ -62,6 +64,8 @@
     "@qilin/agent-loop": "workspace:^",
     "@qilin/agent-loop-testkit": "workspace:^",
     "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/session": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@qilin/fs": "workspace:^"
   }
 }

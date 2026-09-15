@@ -53,6 +53,8 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/experimental-agent-team": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/llm-deepseek": "workspace:^"
   }
 }

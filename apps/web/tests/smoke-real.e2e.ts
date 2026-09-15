@@ -27,43 +27,27 @@ import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import WebSocket from 'ws'
-import {
-  REPO_ROOT, connectFreshWorkspace, newEnglishPage, openTrajectoryTab, probeFreePort, requireDist, saveFailureShot,
-} from './support.ts'
+import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot } from './support.ts'
 
 const WEB_SURFACE_PROMPT = fileURLToPath(new URL('./expected/web-runtime-context/web-surface-prompt.expected.md', import.meta.url))
+const authenticatedCookies = new Map<string, Promise<{ origin: string; cookie: string }>>()
 
-/** First-run credentials this scenario raises; the account file lives in the temp harness home. */
-const ACCOUNT_EMAIL = 'smoke@example.com'
-const ACCOUNT_PASSWORD = 'smoke-password-1'
-
-/** One authenticated browser: where it talks, and the cookies that reach it. */
-interface WebSession {
-  /** Origin both the probes and the browser address. */
-  readonly origin: string
-  /** `name=value` pair of the account session cookie, as a request header carries it. */
-  readonly cookie: string
-  /** The issued Set-Cookie header, for a browser context. */
-  readonly issued: string
+/** Frame a complete text turn or an open block before a transport failure. */
+function messagesResponse(text: string, complete = true): string {
+  const events: object[] = [
+    { type: 'message_start', message: { id: 'web-smoke-response', model: 'mock-model', usage: { input_tokens: 3, output_tokens: 0 } } },
+    { type: 'content_block_start', index: 0, content_block: { type: 'text', text } },
+  ]
+  if (complete) events.push(
+    { type: 'content_block_stop', index: 0 },
+    { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 1 } },
+    { type: 'message_stop' },
+  )
+  return events.map(event => `data: ${JSON.stringify(event)}\n\n`).join('')
 }
 
-const authenticatedCookies = new Map<string, Promise<WebSession>>()
-
-/** The `name=value` pair of one Set-Cookie header. */
-function cookiePair(header: string): string {
-  return header.split(';', 1)[0]!
-}
-
-/**
- * Raise this deployment's account session once for both halves of the scenario:
- * exchange the printed launch token, then initialize the first account through
- * the shipped endpoint. The account gate is on by default, and it answers the
- * `/api` routes and the entry document only a session, so the device cookie the
- * token exchange mints is not enough for either.
- * @param launchUrl - the URL `qilin web` printed.
- * @returns the origin, the session cookie pair, and the header it came from.
- */
-function authenticatedWeb(launchUrl: string): Promise<WebSession> {
+/** Exchange a printed process token once for Node-side HTTP/WebSocket probes. */
+function authenticatedWeb(launchUrl: string): Promise<{ origin: string; cookie: string }> {
   const existing = authenticatedCookies.get(launchUrl)
   if (existing !== undefined) return existing
   const exchange = (async () => {
@@ -72,38 +56,13 @@ function authenticatedWeb(launchUrl: string): Promise<WebSession> {
     if (response.status !== 303 || setCookie === null) {
       throw new Error(`qilin web authentication returned HTTP ${String(response.status)}`)
     }
-    const origin = new URL(launchUrl).origin
-    const setup = await fetch(`${origin}/api/auth/setup`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: cookiePair(setCookie) },
-      body: JSON.stringify({ email: ACCOUNT_EMAIL, password: ACCOUNT_PASSWORD }),
-    })
-    const issued = setup.headers.get('set-cookie')
-    if (!setup.ok || issued === null) {
-      throw new Error(`account setup returned HTTP ${String(setup.status)}: ${await setup.text()}`)
+    return {
+      origin: new URL(launchUrl).origin,
+      cookie: setCookie.split(';', 1)[0]!,
     }
-    return { origin, cookie: cookiePair(issued), issued }
   })()
   authenticatedCookies.set(launchUrl, exchange)
   return exchange
-}
-
-/**
- * Give one page the account session the probes use, so the printed URL reaches
- * the application document instead of the first-run screen.
- * @param page - the page about to open that URL.
- * @param session - the session {@link authenticatedWeb} raised.
- */
-async function adoptAccountSession(page: Page, session: WebSession): Promise<void> {
-  const pair = session.cookie
-  const separator = pair.indexOf('=')
-  await page.context().addCookies([{
-    name: pair.slice(0, separator),
-    value: pair.slice(separator + 1),
-    url: session.origin,
-    httpOnly: true,
-    sameSite: 'Strict',
-  }])
 }
 
 const comboMapUrl = (url: string): string => url.replace(/\/client\.js(?=,|&rev=)/g, '/client.js.map')
@@ -323,13 +282,13 @@ async function screen(page: Page, name: string): Promise<void> {
 
 /** First column track (px string) of the frame grid. */
 async function firstTrack(page: Page): Promise<string> {
-  return (await page.locator('[data-app-frame]').evaluate(
+  return (await page.locator('[class*="frame"]').evaluate(
     el => getComputedStyle(el).gridTemplateColumns)).split(' ')[0]!
 }
 
 /** Last column track (details) as a number of pixels. */
 async function detailsTrack(page: Page): Promise<number> {
-  const cols = await page.locator('[data-app-frame]').evaluate(
+  const cols = await page.locator('[class*="frame"]').evaluate(
     el => getComputedStyle(el).gridTemplateColumns)
   return Number(cols.split(' ').pop()!.replace('px', ''))
 }
@@ -372,20 +331,10 @@ describe('qilin web keyless CLI smoke', () => {
     let browser: Browser | undefined
     try {
       const readyUrl = await waitForReadyLine(child)
-      const ready = new URL(readyUrl)
-      expect(ready.origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u)
-      expect(ready.searchParams.get('token')).toMatch(/^[A-Za-z0-9_-]+$/u)
-      expect([...ready.searchParams.keys()]).toEqual(['token'])
-      // The site root serves the landing page, so the printed URL names the
-      // application document, and the token exchange redirects to that same
-      // path without its token.
-      expect(ready.pathname).not.toBe('/')
-      const exchange = await fetch(readyUrl, { redirect: 'manual' })
-      expect(exchange.status).toBe(303)
-      expect(new URL(exchange.headers.get('location') ?? '/', ready.origin).pathname).toBe(ready.pathname)
+      expect(readyUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/\?token=[A-Za-z0-9_-]+$/u)
+      expect((await fetch(readyUrl, { redirect: 'manual' })).status).toBe(303)
       browser = await chromium.launch({ headless: true })
       const page = await newEnglishPage(browser)
-      await adoptAccountSession(page, await authenticatedWeb(readyUrl))
       const pluginScripts: string[] = []
       const cacheHeaders = new Map<string, string | undefined>()
       // Chromium reports `preload as=script` as Script and reuses that same
@@ -457,8 +406,9 @@ describe('qilin web keyless CLI smoke', () => {
     writeFileSync(join(workspace, 'AGENTS.md'), 'web-workspace-context-probe\n')
 
     interface NativeProviderRequest {
-      messages?: { role?: string; content?: string }[]
-      tools?: { function?: { name?: string } }[]
+      system?: string
+      messages?: { role?: string; content?: { type?: string; text?: string }[] }[]
+      tools?: { name?: string }[]
     }
     let resolveProviderRequests!: (requests: NativeProviderRequest[]) => void
     const requests: NativeProviderRequest[] = []
@@ -474,13 +424,7 @@ describe('qilin web keyless CLI smoke', () => {
         if ((parsed.tools?.length ?? 0) > 0) requests.push(parsed)
         if (requests.length === 1) resolveProviderRequests(requests)
         response.writeHead(200, { 'content-type': 'text/event-stream' })
-        response.end([
-          'data: {"choices":[{"delta":{"role":"assistant","content":null,"reasoning_content":""}}]}',
-          'data: {"choices":[{"delta":{"content":"done"}}]}',
-          'data: {"choices":[{"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":3,"completion_tokens":1}}',
-          'data: [DONE]',
-          '',
-        ].join('\n\n'))
+        response.end(messagesResponse('done'))
       })
     })
     await new Promise<void>(resolve => provider.listen(0, '127.0.0.1', resolve))
@@ -522,15 +466,15 @@ describe('qilin web keyless CLI smoke', () => {
       if (captured === undefined) {
         throw new Error('provider did not receive the workspace projection request')
       }
-      const workspaceMessage = captured.messages?.find(message =>
-        message.role === 'user' && message.content?.includes('web-workspace-context-probe'))
-      const systemMessage = captured.messages?.find(message => message.role === 'system')
+      const workspaceMessage = captured.messages?.filter(message => message.role === 'user')
+        .flatMap(message => message.content ?? [])
+        .find(block => block.type === 'text' && block.text?.includes('web-workspace-context-probe'))
       const expectedWebSection = readFileSync(WEB_SURFACE_PROMPT, 'utf8').trimEnd()
         .replace('{{webUrl}}', new URL(baseUrl).origin)
-      expect(systemMessage?.content).toContain(expectedWebSection)
+      expect(captured.system).toContain(expectedWebSection)
       expect(workspaceMessage).toMatchInlineSnapshot(`
         {
-          "content": "<system-reminder>
+          "text": "<system-reminder>
         The following workspace instructions may be relevant to your work. Use them as guidance when applicable. More specific instructions take precedence over broader ones. They do not override system, developer, or direct user instructions.
 
         Instructions from: AGENTS.md
@@ -538,10 +482,10 @@ describe('qilin web keyless CLI smoke', () => {
         web-workspace-context-probe
 
         </system-reminder>",
-          "role": "user",
+          "type": "text",
         }
       `)
-      expect(captured.tools?.map(tool => tool.function?.name)
+      expect(captured.tools?.map(tool => tool.name)
         .filter(name => name === 'web_search' || name === 'web_fetch'))
         .toMatchInlineSnapshot(`
           [
@@ -576,26 +520,16 @@ describe('qilin web keyless CLI smoke', () => {
         const mainRequest = !titleRequest && body.includes(promptMarker)
         response.writeHead(200, { 'content-type': 'text/event-stream' })
         if (!mainRequest) {
-          response.end([
-            'data: {"choices":[{"delta":{"content":"Web retry title"}}]}',
-            'data: {"choices":[{"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":1,"completion_tokens":1}}',
-            'data: [DONE]',
-            '',
-          ].join('\n\n'))
+          response.end(messagesResponse('Web retry title'))
           return
         }
         mainAttempts++
         if (mainAttempts === 1) {
-          response.write('data: {"choices":[{"delta":{"content":"WEB_RETRY_DISCARDED"}}]}\n\n')
+          response.write(messagesResponse('WEB_RETRY_DISCARDED', false))
           setTimeout(() => { response.destroy() }, 20)
           return
         }
-        response.end([
-          `data: {"choices":[{"delta":{"content":"${recoveredMarker}"}}]}`,
-          'data: {"choices":[{"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":3,"completion_tokens":1}}',
-          'data: [DONE]',
-          '',
-        ].join('\n\n'))
+        response.end(messagesResponse(recoveredMarker))
       })
     })
     await new Promise<void>(resolve => provider.listen(0, '127.0.0.1', resolve))
@@ -660,8 +594,9 @@ describe('qilin web keyless CLI smoke', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-ptc-'))
 
     interface PtcModeProviderRequest {
-      messages?: { role?: string; content?: string }[]
-      tools?: { function?: { name?: string } }[]
+      system?: string
+      messages?: { role?: string; content?: { type?: string; text?: string }[] }[]
+      tools?: { name?: string }[]
     }
     let resolveProviderRequest!: (request: PtcModeProviderRequest) => void
     const providerRequest = new Promise<PtcModeProviderRequest>((resolve) => {
@@ -674,13 +609,7 @@ describe('qilin web keyless CLI smoke', () => {
       request.on('end', () => {
         resolveProviderRequest(JSON.parse(body) as PtcModeProviderRequest)
         response.writeHead(200, { 'content-type': 'text/event-stream' })
-        response.end([
-          'data: {"choices":[{"delta":{"role":"assistant","content":null,"reasoning_content":""}}]}',
-          'data: {"choices":[{"delta":{"content":"done"}}]}',
-          'data: {"choices":[{"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":3,"completion_tokens":1}}',
-          'data: [DONE]',
-          '',
-        ].join('\n\n'))
+        response.end(messagesResponse('done'))
       })
     })
     await new Promise<void>(resolve => provider.listen(0, '127.0.0.1', resolve))
@@ -719,10 +648,9 @@ describe('qilin web keyless CLI smoke', () => {
           setTimeout(() => { reject(new Error('provider request not received in 10s')) }, 10_000).unref()
         }),
       ])
-      expect(captured.tools?.map(tool => tool.function?.name)).toEqual(['run_code'])
-      const system = captured.messages?.find(message => message.role === 'system')
-      expect(system?.content).toContain('## Writing code for run_code')
-      expect(system?.content).toContain('declare const tools')
+      expect(captured.tools?.map(tool => tool.name)).toEqual(['run_code'])
+      expect(captured.system).toContain('## Writing code for run_code')
+      expect(captured.system).toContain('declare const tools')
     } finally {
       const closed = child.exitCode === null
         ? new Promise<void>((resolveClose) => { child.once('close', () => { resolveClose() }) })
@@ -778,7 +706,6 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
     page.on('pageerror', e => pageErrors.push(String(e)))
-    await adoptAccountSession(page, await authenticatedWeb(baseUrl))
     await page.goto(baseUrl, { waitUntil: 'load' })
   }, 120_000)
 
@@ -857,25 +784,18 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     await screen(page, '04-round-complete')
   }, 150_000)
 
-  it('opens the Trajectory page beside the Chat transcript', async () => {
+  it('view tabs: Chat and Trajectory switch', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-tabs'))
-    await openTrajectoryTab(page)
+    await page.locator('button', { hasText: /Trajectory/i }).first().click()
     await screen(page, '05-trajectory-tab')
     await page.getByLabel('Trajectory timeline').waitFor()
     await expect.poll(() => page.getByRole('tab', { name: 'Waterfall' }).count()).toBe(0)
-    // Nothing switches back to Chat: the transcript stays in its own column
-    // beside the Sidebar's page.
-    await expect.poll(() => page.locator('[data-chat-flow-key]').count()).toBeGreaterThan(0)
-    await screen(page, '07-chat-beside-trajectory')
+    await page.locator('button', { hasText: /^Chat$/i }).first().click()
+    await screen(page, '07-back-to-chat')
   })
 
   it('bash differential rendering: tool row click leaves the default details column closed', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-tool-details'))
-    // The Trajectory page from the previous case leaves the right column open;
-    // collapse it so this case asserts against the default three-column frame.
-    const frame = page.locator('[data-app-frame]')
-    await page.locator('[data-sidebar-right-toggle]').click()
-    await expect.poll(() => frame.getAttribute('data-rightbar-collapsed')).toBe('true')
     const input = page.locator('[data-composer-input]').first()
     await input.fill('请用 bash 工具运行命令 echo w5marker 然后告诉我结果')
     await input.press('Enter')

@@ -93,14 +93,24 @@ export interface SidebarRightTabDefinition {
    * This implementation's identity in the tab system, unique across every
    * registration (a package name is the natural value). A kind is not unique —
    * an extension may take a builtin's over — so the implementation carries its
-   * own name, and it is the key its body and title register under in the
-   * `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats.
+   * own name, and it is the key its body, title, and badge register under in
+   * the `sidebar.right.pane.tab`, `sidebar.right.pane.tab.title`, and
+   * `sidebar.right.pane.tab.badge` seats.
    */
   readonly id: string
   /** Type discriminator: what the tabs of this type are, and what `openTab` names. */
   readonly kind: string
   /** Each open by kind creates independent content; omission keeps one page per kind in each pane. */
   readonly multiple?: boolean
+  /**
+   * The type's own name, for surfaces that name the type rather than one tab:
+   * the enable switch's row. A page type's `title(address)` cannot serve —
+   * it names the open content, and a resource type has no single address.
+   * @returns the name in the current language.
+   */
+  readonly label: () => string
+  /** The glyph a tab chip draws before its title; omit for a chip whose title carries the whole identity. */
+  readonly icon?: ComponentType<IconProps>
   /**
    * Resource-address globs this type recognizes; omit for a page type, which is
    * opened by kind and recognizes no address.
@@ -129,6 +139,12 @@ export interface SidebarRightTabDefinition {
    * @returns the title in the current language.
    */
   readonly title: (address: string) => string
+  /**
+   * Focus an open tab of this kind wherever it sits instead of opening a
+   * second one, so the surface holds at most one. Omit for the default, where
+   * one tab opens per address and a page opens once per pane.
+   */
+  readonly single?: boolean
   /** Entry boxes for the guide page. Omit to stay off it. */
   readonly guide?: readonly SidebarRightGuideEntry[]
 }
@@ -228,9 +244,17 @@ export class SidebarRightTabRegistry {
   private registrations = 0
   private cached: readonly SidebarRightTabDefinition[] = []
   private guideEntries: readonly SidebarRightGuideBox[] = []
+  private readonly disabled = new Set<string>()
 
-  /** @param ctx - Context whose effects own the contributed types. */
-  constructor(private readonly ctx: Context) {}
+  /**
+   * @param ctx - Context whose effects own the contributed types.
+   * @param disabled - registration ids the user has turned off, as the plugin
+   *   persisted them. An id no type registered is kept, so a type that arrives
+   *   later arrives switched off.
+   */
+  constructor(private readonly ctx: Context, disabled: readonly string[] = []) {
+    for (const id of disabled) this.disabled.add(id)
+  }
 
   /**
    * Register one tab type for the caller's lifetime.
@@ -390,6 +414,39 @@ export class SidebarRightTabRegistry {
   }
 
   /**
+   * Whether a type is offered to the user.
+   *
+   * A turned-off type stays registered and keeps drawing the tabs already
+   * open; what stops is being offered (its guide entries) and being opened.
+   * @param id - the type's registration id.
+   * @returns whether the switches leave it on.
+   */
+  isEnabled(id: string): boolean {
+    return !this.disabled.has(id)
+  }
+
+  /**
+   * Turn a type on or off and republish the offered set. Persistence belongs
+   * to the caller: it reads `disabledIds` and stores them itself.
+   * @param id - the type's registration id.
+   * @param enabled - whether the type is offered.
+   */
+  setEnabled(id: string, enabled: boolean): void {
+    const wasOff = this.disabled.has(id)
+    if (enabled) this.disabled.delete(id)
+    else this.disabled.add(id)
+    if (wasOff !== !enabled) this.refresh()
+  }
+
+  /**
+   * The ids the user has turned off, to persist across reloads.
+   * @returns the switched-off ids, in no particular order.
+   */
+  disabledIds(): readonly string[] {
+    return [...this.disabled]
+  }
+
+  /**
    * Observe low-frequency registry changes.
    * @param listener - synchronous invalidation callback.
    * @returns unsubscribe callback.
@@ -401,7 +458,11 @@ export class SidebarRightTabRegistry {
 
   private refresh(): void {
     this.cached = this.active().map(entry => entry.definition)
+    // A turned-off type offers nothing: its guide entries are how a user
+    // reaches it, so removing them is what "off" means. Its open tabs keep
+    // rendering — the seat looks a kind up in `entries`, not here.
     this.guideEntries = this.cached
+      .filter(definition => this.isEnabled(definition.id))
       .flatMap(definition => (definition.guide ?? []).map(entry => ({ ...entry, kind: definition.kind, providerId: definition.id })))
       .sort((left, right) => left.order - right.order)
     notifySubscribers(this.listeners, '[ui-sidebar-right] tab registry')

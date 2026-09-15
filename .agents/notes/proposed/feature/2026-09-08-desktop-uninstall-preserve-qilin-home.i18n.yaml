@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-09-08-desktop-uninstall-preserve-qilin-home.md
+2026-09-08-desktop-uninstall-preserve-qilin-home.md: 6e4ae60ce90910613e7edf23b2c2183d801bfe80
+2026-09-08-desktop-uninstall-preserve-qilin-home.zh.md: 10cddad6b2ad15e6acad7fa4614b0be50d2b2181

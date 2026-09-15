@@ -32,7 +32,8 @@
         "@qilin/api-session-controller",
         "@qilin/client-connection",
         "@qilin/client-locale",
-        "@qilin/client-ui-input-trigger"
+        "@qilin/client-ui-input-trigger",
+        "@qilin/client-ui-sidebar-right"
       ],
       "platform": "web"
     }
@@ -58,7 +59,8 @@
     "@qilin/session-reference": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/util-workspace-path": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:^",
+    "@qilin/client-ui-sidebar-right": "workspace:^"
   },
   "files": [
     "lib/index.js",

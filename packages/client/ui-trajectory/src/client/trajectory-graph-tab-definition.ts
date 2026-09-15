@@ -32,6 +32,7 @@ export function trajectoryGraphTabDefinition(
     single: true,
     title: () => t('view.trajectoryGraph'),
     guide: [{
+      id: 'trajectoryGraph',
       order: 21,
       title: () => t('view.trajectoryGraph'),
       description: () => t('guide.graphDescription'),

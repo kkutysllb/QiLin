@@ -75,6 +75,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/mcp-servers": "workspace:^",
     "@qilin/message-feedback": "workspace:^",
+    "@qilin/permission-presets": "workspace:^",
     "@qilin/session-reference": "workspace:^",
     "@qilin/settings": "workspace:^",
     "@qilin/subagent": "workspace:^",
@@ -87,6 +88,7 @@
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/api-workspace-files": "workspace:^",
     "zod": "^4.4.3",
-    "@qilin/command-feedback": "workspace:^"
+    "@qilin/command-feedback": "workspace:^",
+    "@qilin/api-terminal-controller": "workspace:^"
   }
 }

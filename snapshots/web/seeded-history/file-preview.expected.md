@@ -1,24 +1,6 @@
-- button "Show or hide the file tree" [pressed]:
+- text: {{cwd}}/a.txt
+- button "Line wrap" [pressed]:
   - img
-- text: a.txt
-- button "Preview":
+- button "Read the file again":
   - img
-- button "Word wrap" [pressed]
-- button "Reload":
-  - img
-- button "Save":
-  - img
-- list:
-  - listitem:
-    - button ".qilin-home":
-      - img
-      - text: .qilin-home
-  - listitem:
-    - button ".qilin-storages":
-      - img
-      - text: .qilin-storages
-  - listitem:
-    - button "a.txt"
-  - listitem:
-    - button "b.txt"
-- textbox
+- text: alpha

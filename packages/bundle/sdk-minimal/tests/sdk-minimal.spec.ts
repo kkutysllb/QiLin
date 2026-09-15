@@ -45,6 +45,7 @@ describe('qilin-sdk-minimal bundle', () => {
       ['session-title', '@qilin/session-title'],
       ['system-prompt', '@qilin/system-prompt'],
       ['tools', '@qilin/tools'],
+      ['mcp-resources', '@qilin/mcp-resources'],
       ['agent', '@qilin/agent'],
       ['llm-retry', '@qilin/llm-retry'],
       ['jobs', '@qilin/jobs-local'],

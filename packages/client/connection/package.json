@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-connection",
-  "description": "Authenticated RPC transport, generation lifecycle, and browser fixture",
+  "description": "Authenticated RPC transport and generation lifecycle",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -48,16 +48,10 @@
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
-    "@qilin/api-session-controller": "workspace:^",
     "@qilin/attachment": "workspace:^",
     "@qilin/brand": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/host-directory-picker": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
     "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/settings": "workspace:^",
-    "@qilin/tool-todo": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/session": "workspace:^"
   }
 }

@@ -8,6 +8,7 @@
     "src"
   ],
   "references": [
+    { "path": "../ui-input-trigger" },
     {
       "path": "../../../vendor/cordis"
     },

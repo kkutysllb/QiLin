@@ -6,10 +6,9 @@
 export type {
   QilinBundleManifest,
   QilinClientManifest,
-  QilinConfigTreeDeclaration,
+  QilinEnginesManifest,
   QilinManifest,
-  QilinModuleFallbackManifest,
+  QilinPackageManifest,
   QilinProfileManifest,
-  QilinSessionFormatMigrationManifest,
   ProfilePatchReload,
 } from './types.ts'

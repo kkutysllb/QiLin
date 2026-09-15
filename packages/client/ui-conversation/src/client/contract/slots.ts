@@ -15,9 +15,8 @@ import type {} from '@qilin/client-ui-layout/client'
 import type { SessionId } from '@qilin/session/types'
 import type { WorkspaceId } from '@qilin/workspace/types'
 import type { ComposerBlock } from './composer-blocks.ts'
-import type {
-  ComposerKeyboard, DraftAttachmentId, EditSelection, InputActions, InputNotice, InputState,
-} from './input.ts'
+import type { DraftAttachmentId, InputActions, InputNotice, InputState } from './input.ts'
+import type { ComposerKeyboard, EditSelection } from './draft-editor.ts'
 import type { createConversationStore } from '../stores.ts'
 import type { BusyEnterBehavior } from './composer-submission.ts'
 import type { ConversationSnapshot } from './snapshot.ts'
@@ -182,6 +181,8 @@ declare module '@qilin/client-ui-slots' {
     }
     /** Plan control inside the composer tool row. */
     'conversation.input.plan': { kind: 'single'; scope: 'session'; owner: InputControlOwnerProps }
+    /** Current-session permission control inside the composer tool row. */
+    'conversation.input.permission': { kind: 'single'; scope: 'session'; owner: InputControlOwnerProps }
     /** Model selector inside the composer tool row. */
     'conversation.input.model': { kind: 'single'; scope: 'session'; owner: InputControlOwnerProps }
   }
@@ -246,6 +247,12 @@ export interface InputZone {
 
 /** Conversation View entries obtain their data from registered standard hooks. */
 export interface ConvViewOwnerProps {
+  /** Focus request addressed to the selected View. */
+  viewRequest: import('./views.ts').ConversationViewRequest | null
+  /** Select a View and address one opaque focus identity to it. */
+  openView: (view: string, focus: string) => void
+  /** Acknowledge the current one-shot focus request. */
+  completeViewRequest: () => void
   /** Marker field: the shell gives Views no owner-specific values. */
   children?: never
 }
@@ -273,6 +280,8 @@ export interface ConversationSessionInjected {
   readonly hooks: { readonly conversationViews: ObservableSnapshot<readonly ViewTab[]> }
   /** Bind input draft persistence to the Session-owned store instance. */
   bindDraftMirror: (write: (text: string) => void) => () => void
+  /** Select and activate one View while addressing an opaque focus request to it. */
+  openView: (view: string, focus: string) => void
 }
 
 /** Business callbacks injected into the strict Session header. */
@@ -312,7 +321,6 @@ export interface ComposerBarInjected {
   retryFileUpload: ((id: DraftAttachmentId) => void) | undefined
   toggleCommandMenu: ((selection: EditSelection) => void) | undefined
   stop: (() => void) | undefined
-  command: ((line: string) => Promise<boolean>) | undefined
   hooks: {
     /**
      * Live busy-state submission preference: the delivery mode plain Enter
@@ -327,7 +335,7 @@ export interface ComposerBarInjected {
   }
 }
 
-/** Owner share of the named plan and model controls. */
+/** Owner share of the named plan, permission, and model controls. */
 export interface InputControlOwnerProps {
   /** Whether the composer currently refuses interaction. */
   locked: boolean
@@ -338,6 +346,7 @@ export type ComposerBarProps =
   PropsRuntime<'conversation.composer.bar'>
   & PropsRenderSlots<
     | 'conversation.input.attachments' | 'conversation.input.overlay'
+    | 'conversation.input.permission'
     | 'conversation.input.left' | 'conversation.input.plan'
     | 'conversation.input.right' | 'conversation.input.model'
     | 'conversation.composer.dock'

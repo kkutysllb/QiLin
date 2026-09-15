@@ -35,6 +35,7 @@
     "@deepseek-ai/schemastery": "workspace:^"
   },
   "devDependencies": {
+    "@qilin/app-boot": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/typert-registry": "workspace:^",
     "@qilin/kylin": "workspace:^",

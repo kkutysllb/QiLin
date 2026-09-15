@@ -58,12 +58,13 @@
     }
   },
   "dependencies": {
+    "@qilin/brand": "workspace:^",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
     "@qilin/agent-loop": "workspace:^",
-    "@qilin/code-runtime": "workspace:^",
+    "@qilin/ptc-runtime": "workspace:^",
     "@qilin/commands": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/llm": "workspace:^",

@@ -44,12 +44,17 @@
   },
   "devDependencies": {
     "@qilin/agent": "workspace:^",
-    "@qilin/code-runtime-worker-thread": "workspace:^",
+    "@qilin/ptc-runtime-node": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/output-retention": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/spill": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:^",
+    "@qilin/fs-local": "workspace:^",
+    "@qilin/subprocess-local": "workspace:^",
+    "@qilin/sandbox-local": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^",
+    "@qilin/session-projection": "workspace:^"
   }
 }

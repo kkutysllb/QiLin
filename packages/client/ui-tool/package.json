@@ -52,7 +52,6 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/spill": "workspace:^",
-    "@qilin/code-runtime-worker-thread": "workspace:^",
     "@qilin/kylin": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/client-connection": "workspace:^",
@@ -71,7 +70,8 @@
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/util-workspace-path": "workspace:^",
     "@qilin/attachment": "workspace:^",
-    "clsx": "^2.0.0"
+    "clsx": "^2.0.0",
+    "@qilin/ptc-runtime": "workspace:^"
   },
   "files": [
     "lib/index.js",

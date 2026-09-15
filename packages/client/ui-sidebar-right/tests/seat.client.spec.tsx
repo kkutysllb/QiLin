@@ -93,8 +93,9 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
   await act(async () => {
     runtime.ctx.sidebarRightTabs.register({
       id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['qilin-resource://file/**'],
+      label: () => 'Text',
       title: address => address.slice(address.lastIndexOf('/') + 1),
-      guide: Array.from({ length: entryCount }, (_, order) => ({ id: String(order), order, title: () => 'Test', description: () => 'Test page' })),
+      guide: Array.from({ length: entryCount }, (_, order) => ({ id: `e${order}`, order, title: () => 'Test', description: () => 'Test page' })),
     })
     runtime.slots.register({ name: 'sidebar.right.pane.tab', key: 'test/text' }, Body)
     runtime.slots.register({ name: 'sidebar.right.pane.tab.title', key: 'test/text' }, Title)
@@ -458,8 +459,8 @@ describe('slot-owned useTabInfo', () => {
     let captured: SidebarRightTabInfo | undefined
     await act(async () => {
       h.runtime.ctx.sidebarRightTabs.register({
-        id: 'test/files', kind: 'files', title: () => 'Files',
-        guide: [{ id: 'default', order: 1, title: () => 'Files' }],
+        id: 'test/files', kind: 'files', label: () => 'Files', title: () => 'Files',
+        guide: [{ id: 'files', order: 1, title: () => 'Files' }],
       })
     })
     expect(h.view.container.querySelector('[data-sidebar-right-guide-entry="files"]')).not.toBeNull()
@@ -487,7 +488,9 @@ describe('slot-owned useTabInfo', () => {
     h.open()
     let release = () => {}
     await act(async () => {
-      release = h.runtime.ctx.sidebarRightTabs.register({ id: 'extension/text', kind: 'text', title: () => 'Extension' })
+      release = h.runtime.ctx.sidebarRightTabs.register({
+        id: 'extension/text', kind: 'text', label: () => 'Extension', title: () => 'Extension',
+      })
       h.runtime.slots.register({ name: 'sidebar.right.pane.tab', key: 'extension/text' },
         ({ useTabInfo }: PropsRuntime<'sidebar.right.pane.tab'>) => <b data-extension>{useTabInfo().tab.title}</b>)
     })
@@ -584,23 +587,4 @@ describe('intentsFor — the kit\'s gestures as one session\'s store actions', (
     intents.addTab(PANE_1)
     expect(openTab).toHaveBeenCalledWith('guide', { paneId: PANE_1, revealIfOpened: false })
   })
-})
-
-it('keeps a resource tab and reports a synchronous cleanup failure from its close button', async () => {
-  const h = await mountSeat()
-  const tab = h.open('terminal')
-  const failure = new Error('process still running')
-  const release = h.controller.registerCloseHandler('text', () => { throw failure })
-  const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
-  try {
-    fireEvent.click(element(h.view.container, `[data-dockkit-tab-close="${tab.id}"]`))
-    await expect.poll(() => logged.mock.calls).toEqual([['Sidebar tab close failed:', failure]])
-    expect(h.layout().tabs[tab.id]).toBeDefined()
-    release()
-    fireEvent.click(element(h.view.container, `[data-dockkit-tab-close="${tab.id}"]`))
-    expect(h.layout().tabs[tab.id]).toBeUndefined()
-  } finally {
-    logged.mockRestore()
-    release()
-  }
 })

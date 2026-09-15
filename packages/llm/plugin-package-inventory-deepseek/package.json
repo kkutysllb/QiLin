@@ -49,6 +49,7 @@
     }
   },
   "devDependencies": {
+    "@qilin/app-boot": "workspace:^",
     "@qilin/kylin": "workspace:^",
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",

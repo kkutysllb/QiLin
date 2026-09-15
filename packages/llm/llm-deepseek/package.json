@@ -1,6 +1,6 @@
 {
   "name": "@qilin/llm-deepseek",
-  "description": "DeepSeek chat-completions adapter for the QiLin LLM seam",
+  "description": "DeepSeek adapter with Chat Completions and Messages protocols",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -64,6 +64,14 @@
     "@qilin/session-log-deepseek": "workspace:^",
     "@qilin/settings": "workspace:^",
     "@qilin/timeout": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/http-proxy": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/credentials-local": "workspace:^",
+    "@qilin/settings-file": "workspace:^"
   }
 }

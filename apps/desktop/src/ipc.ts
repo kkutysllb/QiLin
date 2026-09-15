@@ -2,6 +2,7 @@
 
 import type { DesktopPluginRecord } from './project-manager.ts'
 import type { DesktopLocale } from './locale.ts'
+import type { DesktopBackendState } from './backend-controller.ts'
 
 /** IPC channel names kept private to the desktop application bundle. */
 export const DESKTOP_IPC = {
@@ -10,6 +11,13 @@ export const DESKTOP_IPC = {
   pluginsAdd: 'qilin-desktop:plugins-add',
   pluginsRemove: 'qilin-desktop:plugins-remove',
   pluginsUpdate: 'qilin-desktop:plugins-update',
+  pluginsToggle: 'qilin-desktop:plugins-toggle',
+  pluginsDisableAll: 'qilin-desktop:plugins-disable-all',
+  backendStatus: 'qilin-desktop:backend-status',
+  backendRetry: 'qilin-desktop:backend-retry',
+  applicationRestart: 'qilin-desktop:application-restart',
+  configurationReset: 'qilin-desktop:configuration-reset',
+  backendState: 'qilin-desktop:backend-state',
   updatesCheck: 'qilin-desktop:updates-check',
   updatesInstall: 'qilin-desktop:updates-install',
   updatesState: 'qilin-desktop:updates-state',
@@ -31,10 +39,25 @@ export interface QilinDesktopApi {
     add(spec: string): Promise<void>
     remove(name: string): Promise<void>
     update(name: string, version: string): Promise<void>
+    toggle(name: string, enabled: boolean): Promise<void>
+    disableAll(): Promise<void>
+  }
+  readonly backend: {
+    status(): Promise<DesktopBackendState>
+    retry(): Promise<void>
+    subscribe(listener: (state: DesktopBackendState) => void): () => void
   }
   readonly updates: {
     check(): Promise<DesktopUpdateState>
     install(): Promise<void>
     subscribe(listener: (state: DesktopUpdateState) => void): () => void
   }
+}
+
+/** Startup-page controls, unavailable to backend-provided application documents. */
+export interface QilinDesktopStartupApi extends Pick<QilinDesktopApi, 'protocolVersion' | 'locale'> {
+  readonly backend: Omit<QilinDesktopApi['backend'], 'retry'>
+  disablePlugins(): Promise<void>
+  restart(): Promise<void>
+  resetConfiguration(): Promise<void>
 }

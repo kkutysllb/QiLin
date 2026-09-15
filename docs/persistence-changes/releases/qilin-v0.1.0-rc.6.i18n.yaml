@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/persistence-changes/releases/qilin-v0.1.0-rc.6.md
+qilin-v0.1.0-rc.6.md: bb724f5247212d509047eb21d17ff614585a80af
+qilin-v0.1.0-rc.6.zh.md: 4b54fe9a5c33b6f0fbe9aacd8ff90f088a92f5d1

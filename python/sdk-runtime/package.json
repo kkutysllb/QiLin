@@ -24,13 +24,14 @@
     "@qilin/authorization": "workspace:^",
     "@qilin/bash-local": "workspace:^",
     "@qilin/brand": "workspace:^",
-    "@qilin/code-runtime": "workspace:^",
-    "@qilin/code-runtime-worker-thread": "workspace:^",
+    "@qilin/ptc-runtime": "workspace:^",
+    "@qilin/ptc-runtime-node": "workspace:^",
     "@qilin/command-compact": "workspace:^",
     "@qilin/command-goal": "workspace:^",
     "@qilin/commands": "workspace:^",
     "@qilin/compaction": "workspace:^",
     "@qilin/compaction-basic": "workspace:^",
+    "@qilin/compaction-image-offload": "workspace:^",
     "@qilin/compaction-tool-result-pruner": "workspace:^",
     "@qilin/kylin-host-runner": "workspace:^",
     "@qilin/credentials": "workspace:^",
@@ -79,6 +80,7 @@
     "@qilin/session-reference": "workspace:^",
     "@qilin/session-telemetry": "workspace:^",
     "@qilin/session-title": "workspace:^",
+    "@qilin/session-title-llm": "workspace:^",
     "@qilin/settings": "workspace:^",
     "@qilin/shell": "workspace:^",
     "@qilin/shell-env": "workspace:^",
@@ -129,7 +131,7 @@
     "@qilin/web-search-exa": "workspace:^",
     "@qilin/web-search-perplexity": "workspace:^",
     "@qilin/workflow": "workspace:^",
-    "@qilin/workflow-worker-thread": "workspace:^",
+    "@qilin/workflow-ptc": "workspace:^",
     "@deepseek-ai/schemastery": "workspace:^"
   }
 }

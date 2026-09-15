@@ -47,6 +47,8 @@ export interface FilesTabState {
   levels: Record<string, LevelState>
   /** Expanded absolute directory paths, root included. */
   expanded: string[]
+  /** The body's scroll offset in px, so a remounted tree comes back where the reader was. */
+  scrollTop: number
 }
 
 /** What one file editor is doing with its file right now. */
@@ -152,6 +154,7 @@ type FilesActions = {
   loaded: (draft: FilesState, tabId: TabId, path: string, level: DirLevel) => void
   failed: (draft: FilesState, tabId: TabId, path: string, failure: RemoteFailure) => void
   toggled: (draft: FilesState, tabId: TabId, path: string) => void
+  scrolled: (draft: FilesState, tabId: TabId, scrollTop: number) => void
   reset: (draft: FilesState, tabId: TabId) => void
   forget: (draft: FilesState, tabId: TabId) => void
   editRead: (draft: FilesState, tabId: TabId) => void
@@ -190,7 +193,7 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        * @param root - absolute path of the workspace root.
        */
       start: (d, tabId: TabId, root: string) => {
-        d.byTab[tabId] = { root, levels: {}, expanded: [root] }
+        d.byTab[tabId] = { root, levels: {}, expanded: [root], scrollTop: 0 }
       },
       /**
        * Mark one directory as being listed.
@@ -234,6 +237,15 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
         const at = state.expanded.indexOf(path)
         if (at >= 0) state.expanded.splice(at, 1)
         else state.expanded.push(path)
+      },
+      /**
+       * Record where one tab's body is scrolled to.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param scrollTop - the body's scroll offset, in px.
+       */
+      scrolled: (d, tabId: TabId, scrollTop: number) => {
+        bucket(d, tabId).scrollTop = scrollTop
       },
       /**
        * Drop every loaded level, keeping what is expanded.

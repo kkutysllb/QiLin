@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   desktopElectronBuilderArguments,
+  desktopElectronBuilderEnvironment,
   parseDesktopPackageInvocation,
   resolveDesktopPackageTarget,
   withoutDesktopUploadCredentials,
@@ -56,7 +57,46 @@ describe('desktop package target', () => {
     expect(desktopElectronBuilderArguments(target, true)).toContain('--dir')
   })
 
-  it('keeps Windows signing fields out of build and seed preparation subprocesses', () => {
+  it('accepts unsigned Windows artifacts and rejects other targets or preparation-only use', () => {
+    expect(parseDesktopPackageInvocation(['win-x64', '--unsigned'], 'win32', 'x64').unsigned).toBe(true)
+    expect(parseDesktopPackageInvocation(['win-x64'], 'win32', 'x64').unsigned).toBe(false)
+    expect(parseDesktopPackageInvocation(['--unsigned', '--dir'], 'win32', 'x64')).toMatchObject({
+      unsigned: true, directory: true,
+    })
+    expect(() => parseDesktopPackageInvocation(['mac-arm64', '--unsigned'], 'darwin', 'arm64'))
+      .toThrow(/requires win-x64/u)
+    expect(() => parseDesktopPackageInvocation(['--unsigned', '--prepare-only'], 'win32', 'x64'))
+      .toThrow(/cannot use --prepare-only/u)
+  })
+
+  it('removes ambient certificate inputs for unsigned builds and overrides an inherited signing mode', () => {
+    const environment = {
+      QILIN_DESKTOP_APP_ID: 'com.example.desktop',
+      QILIN_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
+      CSC_LINK: 'private.pfx',
+      CSC_KEY_PASSWORD: 'secret',
+      WIN_CSC_LINK: 'windows.pfx',
+      CSC_IDENTITY_AUTO_DISCOVERY: 'true',
+      QILIN_DESKTOP_UNSIGNED: '1',
+    }
+    expect(desktopElectronBuilderEnvironment(environment, true)).toEqual({
+      QILIN_DESKTOP_APP_ID: 'com.example.desktop',
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false',
+      QILIN_DESKTOP_UNSIGNED: '1',
+    })
+    expect(desktopElectronBuilderEnvironment(environment, false)).toEqual({ ...environment, QILIN_DESKTOP_UNSIGNED: '0' })
+  })
+
+  it.each([false, true])('pins the Windows archive filter for the NSIS decoder (unsigned: %s)', (unsigned) => {
+    expect(desktopElectronBuilderEnvironment({
+      QILIN_DESKTOP_TARGET_PLATFORM: 'win32', ELECTRON_BUILDER_7Z_FILTER: 'ARM64',
+    }, unsigned).ELECTRON_BUILDER_7Z_FILTER).toBe('BCJ')
+    expect(desktopElectronBuilderEnvironment({
+      QILIN_DESKTOP_TARGET_PLATFORM: 'darwin', ELECTRON_BUILDER_7Z_FILTER: 'ARM',
+    }, unsigned).ELECTRON_BUILDER_7Z_FILTER).toBe('ARM')
+  })
+
+  it('keeps Windows signing fields out of build and runtime preparation subprocesses', () => {
     expect(withoutWindowsSigningEnvironment({
       QILIN_DESKTOP_WINDOWS_CER_FILE: 'C:\\release\\server.cer',
       QILIN_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',

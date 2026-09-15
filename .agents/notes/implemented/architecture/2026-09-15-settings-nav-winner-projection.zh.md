@@ -26,7 +26,7 @@ Status: implemented
 
 ## What was given up
 
-- 导航不再显示"注册存在但被遮蔽"的设置节——这是设计意图；调试组合的人经 `slots.entries` 或 `slots.snapshot()` 读原始台账。
+导航不再显示"注册存在但被遮蔽"的设置节——这是设计意图；调试组合的人经 `slots.entries` 或 `slots.snapshot()` 读原始台账。
 
 ## Required verification
 

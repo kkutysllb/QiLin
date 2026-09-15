@@ -17,6 +17,7 @@ import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
 import { createTrajectoryDurationStore } from './duration-store.ts'
+import { createTrajectoryStringWrappingStore } from './string-wrapping-store.ts'
 import { en, NS, zh } from './locales.ts'
 import { registerTrajectoryAssistantDefinition } from './trajectory-assistant-definition.ts'
 import { registerTrajectoryCompactionDefinitions } from './trajectory-compaction-definition.ts'
@@ -74,6 +75,7 @@ export function apply(ctx: Context): void {
   // re-registration.
   const t = ctx.locale.bind(NS)
   const duration = createTrajectoryDurationStore()
+  const stringWrapping = createTrajectoryStringWrappingStore()
   registerTrajectoryMessageDefinitions(ctx)
   registerTrajectoryRequestHeaderDefinition(ctx)
   registerTrajectoryAssistantDefinition(ctx)
@@ -107,6 +109,10 @@ export function apply(ctx: Context): void {
       const trajectory = ctx.uiConversation.binding(sessionId).target('trajectory')
       return {
         hooks: { duration },
+        jsonStringWrapping: {
+          getDefault: () => stringWrapping.getSnapshot(),
+          setDefault: (value: boolean) => { stringWrapping.set(value) },
+        },
         loadOlder: async () => {
           const before = trajectory.getSnapshot()
           await session.loadOlder()

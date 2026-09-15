@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/storage/storage-json/README.md
 README.md: f4f1f082a7b882c32b380631f74ac35df90646a8
-README.zh.md: bd3e223ff6eb6d6cdc07db06f9617539609461f8
+README.zh.md: 4b0717bb02b235721722442ed749bcbef7d6db17

@@ -6,6 +6,9 @@
   "type": "module",
   "devDependencies": {
     "playwright": "^1.49.0",
+    "@xterm/headless": "^6.0.0",
+    "@qilin/terminal": "workspace:^",
+    "@qilin/subprocess": "workspace:^",
     "@qilin/llm-replay": "workspace:^",
     "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",

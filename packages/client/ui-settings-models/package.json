@@ -44,6 +44,7 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-store": "workspace:^",

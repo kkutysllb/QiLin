@@ -88,8 +88,8 @@ When a preset genuinely owns a service, wrap the provider **and every consumer t
   isolate:
     workflows: true
   config:
-    - id: workflow-worker-thread
-      name: '@qilin/workflow-worker-thread'
+    - id: workflow-ptc
+      name: '@qilin/workflow-ptc'
       config:
         provider: spawn
     - id: tool-workflow

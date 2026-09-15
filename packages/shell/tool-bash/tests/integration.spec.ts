@@ -10,7 +10,7 @@ import type { Agent } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
 import LocalJobRegistry from '@qilin/jobs-local'
-import * as ToolTasks from '@qilin/tool-jobs'
+import * as ToolJobs from '@qilin/tool-jobs'
 import { LocalBashExecutor } from '@qilin/bash-local'
 import LocalSubprocessRuntime from '@qilin/subprocess-local'
 import * as ToolBash from '@qilin/tool-bash'
@@ -31,7 +31,7 @@ async function harness(adapter: MockAdapter, sessionRoot?: string, qilinHome?: s
   }
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(LocalJobRegistry)
-  await ctx.plugin(ToolTasks)
+  await ctx.plugin(ToolJobs)
   await ctx.plugin(LocalSubprocessRuntime)
   await ctx.plugin(BashEnvPlugin, qilinHome === undefined ? {} : { qilinHome })
   await ctx.plugin(LocalBashExecutor, { timeoutMs: 10_000 })

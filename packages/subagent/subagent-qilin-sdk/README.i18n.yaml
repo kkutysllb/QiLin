@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/subagent/subagent-qilin-sdk/README.md
-README.md: 38706bdfc193226ee9ade8222c0b176329053f1c
-README.zh.md: dc9dab8cf1bdfa32167e2fa3095053756aeee149
+README.md: 619f37039060a0a912d2b92e78038868e5cfe4d3
+README.zh.md: 6103030c35dde0f579b777c72b6f29621a4025a1

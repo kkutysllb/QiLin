@@ -53,7 +53,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
       : name === '@qilin/message-feedback'
         ? { config: { maxNoteBytes: 1024 } }
         : name === '@qilin/llm-deepseek'
-          ? { config: { baseURL: server!.baseURL } }
+          ? { config: { protocol: 'chat-completions', baseURL: server!.baseURL } }
           : name === '@qilin/session-log-deepseek'
             ? { config: { enabled: true } }
             : {},

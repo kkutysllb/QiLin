@@ -63,7 +63,7 @@ async function profile(manifest?: Record<string, unknown>): Promise<{ manager: P
   writePackage(join(dir, 'node_modules'), '@example/numeric', JSON.stringify({ name: '@example/numeric', version: 7 }))
   const ctx = new Context()
   contexts.push(ctx)
-  ctx.provide('qilinProfile', { name: 'web', dir, home: root, installAnchor: join(installation, 'package.json'), patchReload: 'live', builtInBundles: ['@qilin/base', '@qilin/coding-sidebar'] })
+  ctx.provide('qilinProfile', { name: 'web', dir, home: root, installAnchor: join(installation, 'package.json'), patchReload: 'live', builtInBundles: ['@qilin/base', '@qilin/web-app'] })
   await ctx.plugin(PluginManagerGateway)
   return { manager: ctx.get('pluginManager') as PluginManagerGateway, dir }
 }

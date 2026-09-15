@@ -47,6 +47,7 @@
     "@qilin/command-goal": "workspace:^",
     "@qilin/commands": "workspace:^",
     "@qilin/compaction-basic": "workspace:^",
+    "@qilin/compaction-image-offload": "workspace:^",
     "@qilin/compaction-tool-result-pruner": "workspace:^",
     "@qilin/credentials-local": "workspace:^",
     "@qilin/deepseek-llm-api-extensions": "workspace:^",
@@ -61,6 +62,7 @@
     "@qilin/llm-deepseek": "workspace:^",
     "@qilin/llm-pi-ai": "workspace:^",
     "@qilin/llm-retry": "workspace:^",
+    "@qilin/mcp-resources": "workspace:^",
     "@qilin/permission-presets": "workspace:^",
     "@qilin/plan-mode": "workspace:^",
     "@qilin/pwsh-sandbox": "workspace:^",
@@ -116,8 +118,9 @@
     "@qilin/web": "workspace:^",
     "@qilin/web-fetch-http": "workspace:^",
     "@qilin/web-search-deepseek": "workspace:^",
-    "@qilin/workflow-worker-thread": "workspace:^",
-    "@qilin/agent-instructions": "workspace:^"
+    "@qilin/workflow-ptc": "workspace:^",
+    "@qilin/agent-instructions": "workspace:^",
+    "@qilin/ptc-runtime-node": "workspace:^"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:^"

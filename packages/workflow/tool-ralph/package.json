@@ -51,7 +51,7 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/workflow": "workspace:^",
-    "@qilin/workflow-worker-thread": "workspace:^",
+    "@qilin/workflow-ptc": "workspace:^",
     "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }

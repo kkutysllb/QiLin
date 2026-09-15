@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/extensions/kylin-host-runner/README.md
 README.md: 3cc3b82dec23ff048500bd167c71cc5e713f1afa
-README.zh.md: b72a6c38e437c94f961923f2969cea918860a6b0
+README.zh.md: 6c8c4a730cba9d4a9d61a5eb4ad8bc86a2ee7a46

@@ -7,9 +7,6 @@ import { resolveQilinHome } from '@qilin/home-paths'
 export interface DesktopPaths {
   readonly root: string
   readonly profile: string
-  readonly staging: string
-  readonly rollback: string
-  readonly pending: string
   readonly lock: string
   readonly pnpm: {
     readonly root: string
@@ -32,10 +29,7 @@ export function resolveDesktopPaths(qilinHome: string = resolveQilinHome()): Des
   return {
     root,
     profile: join(qilinHome, 'profiles', 'desktop'),
-    staging: join(root, 'staging'),
-    rollback: join(root, 'rollback', 'profile'),
-    pending: join(root, 'pending.json'),
-    lock: join(root, 'lock'),
+    lock: join(qilinHome, 'profiles', 'desktop', 'lock'),
     pnpm: {
       root: pnpm,
       store: join(pnpm, 'store'),

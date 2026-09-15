@@ -6,6 +6,7 @@ import type { SessionBinding } from '@qilin/api-session-controller/client'
 import type { ObservableSnapshot } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-ui-sidebar-right/client'
+import type {} from '@qilin/client-ui-input-trigger/client'
 // The `file` entry of `SidebarRightResourceParamsMap`, which types `{ params: { line } }` below.
 import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
 // The `trajectory` entry of `SidebarRightTabParamsMap`, which types the inspect open below.
@@ -142,6 +143,11 @@ export function apply(ctx: Context): void {
             if (options?.line === undefined) ctx.sidebarRight.openResource(url)
             else ctx.sidebarRight.openResource(url, { params: { line: options.line } })
             await Promise.resolve()
+          },
+          openSkill: (name) => {
+            const scope = ctx.sessions.scope(sessionId)
+            if (scope === undefined) return
+            ctx.get('inputTriggers')?.sessionOf(scope).openReference('skill', { ref: `/${name}` })
           },
           loadOlder: () => { void session.loadOlder() },
           loadThrough: seq => session.loadThrough(seq),

@@ -575,8 +575,9 @@ export class ClientModuleRegistry extends Service {
         'client-modules: bundle route',
       )
     }
-    if (ctx.get('webServer') === undefined) ctx.inject(['webServer'], registerWebCarrier)
-    else registerWebCarrier(ctx)
+    // The carrier arrives through the declared injection so the callback context owns
+    // the property proxy; ctx.get() would report the service without providing it.
+    ctx.inject(['webServer'], registerWebCarrier)
     ctx.on('webserver/index-inject', (table) => {
       table.push(...bootInjections(this.composed))
     })

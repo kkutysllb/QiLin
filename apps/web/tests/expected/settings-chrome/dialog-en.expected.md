@@ -13,22 +13,10 @@
     - button "Agent presets":
       - img
       - text: Agent presets
-    - button "MCP servers":
+    - button "Archived sessions":
       - img
-      - text: MCP servers
-    - button "Sidebar":
-      - img
-      - text: Sidebar
-    - button "Skills":
-      - img
-      - text: Skills
-    - button "About QiLin":
-      - img
-      - text: About QiLin
-    - separator "Resize settings navigation"
-  - button "Back to workspace":
-    - img
-    - text: Back to workspace
+      - text: Archived sessions
+  - button "Open configuration file"
   - button "Close":
     - img
     - text: Close
@@ -36,6 +24,20 @@
   - button "Workspace Write":
     - text: Workspace Write
     - img
+  - text: Language
+  - button "English":
+    - text: English
+    - img
+  - text: Appearance
+  - button "Light":
+    - img
+    - text: Light
+  - button "Dark":
+    - img
+    - text: Dark
+  - button "System" [pressed]:
+    - img
+    - text: System
   - text: Font size Only affects conversation content 14
   - button "Increase font size":
     - img

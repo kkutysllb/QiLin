@@ -25,7 +25,7 @@ import {
 } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 import { logPath } from '../../../../../../packages/session/session-persistence-jsonl/src/format.ts'
-import { renderWorkspaceContext } from '@qilin/agent-instructions'
+import { renderAgentInstructions } from '@qilin/agent-instructions'
 import { resolveConfig, workspaceBaselineIdentity } from '@qilin/agent-instructions/src/config.ts'
 import { describe, expect, it } from 'vitest'
 
@@ -73,7 +73,7 @@ async function seedVisibleBaseline(
     delegationDepth: 0,
   }
   const files = options.files ?? [{ name: 'AGENTS.md', content: oldInstruction }]
-  const baseline = renderWorkspaceContext(files.map(file => ({
+  const baseline = renderAgentInstructions(files.map(file => ({
     absolutePath: join(cwd, file.name),
     displayPath: file.name,
     content: file.content,

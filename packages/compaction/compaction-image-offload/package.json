@@ -1,0 +1,57 @@
+{
+  "name": "@qilin/compaction-image-offload",
+  "description": "Durable image offload for image-capable routes: replace over-budget request images with placeholders and retry",
+  "version": "3.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/compaction/compaction-image-offload"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json",
+    "./projection": {
+      "types": "./lib/types/projection.d.ts",
+      "default": "./lib/types/projection.js"
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/compaction": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/attachment": "workspace:^",
+    "@qilin/compaction": "workspace:^",
+    "@qilin/compaction-basic": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/llm-deepseek": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/token-meter": "workspace:^"
+  },
+  "dependencies": {
+    "@qilin/util-values": "workspace:^"
+  }
+}

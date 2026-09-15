@@ -78,10 +78,14 @@
     "@qilin/tools": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@qilin/util-time": "workspace:^"
+    "@qilin/util-time": "workspace:^",
+    "@qilin/permission-presets": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@qilin/agent-presets": {
+      "optional": true
+    },
+    "@qilin/permission-presets": {
       "optional": true
     },
     "@qilin/sandbox": {
@@ -133,6 +137,7 @@
     "@qilin/tools": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@qilin/util-time": "workspace:^"
+    "@qilin/util-time": "workspace:^",
+    "@qilin/permission-presets": "workspace:^"
   }
 }

@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-09-consumer-owned-startup-strictness.md
+2026-09-09-consumer-owned-startup-strictness.md: 99c17edf195c64196c11444c0780c95d6bfe6b10
+2026-09-09-consumer-owned-startup-strictness.zh.md: 5a64383ab862357117c9d999ffcd191c9d2c34b9

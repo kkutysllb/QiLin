@@ -3,8 +3,10 @@ import { Context, Service } from '@qilin/kylin'
 import type { Fiber } from '@qilin/kylin'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { z } from 'zod'
+import { RemoteMock } from '@qilin/remote-mock'
 import {
   apply as applyConnection,
+  type ClientTransportHooks,
   type ConnectionGeneration,
   type ConnectionGenerationSource,
   type ConnectionHandle,
@@ -1975,11 +1977,17 @@ describe('Client Typert API', () => {
     })
   })
 
-  it('publishes the Fixture Host facts after Remote events report ready', async () => {
+  it('publishes injected Host facts after Remote events report ready', async () => {
     const locationDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'location')
+    const transportDescriptor = Object.getOwnPropertyDescriptor(globalThis, '__QILIN_TRANSPORT__')
+    const mock = RemoteMock.create({ host: { home: '/home/mock' } })
     Object.defineProperty(globalThis, 'location', {
       configurable: true,
-      value: { hostname: '127.0.0.1', search: '?fixture' },
+      value: { hostname: '127.0.0.1', search: '' },
+    })
+    Object.defineProperty(globalThis, '__QILIN_TRANSPORT__', {
+      configurable: true,
+      value: { rpc: mock.rpc } satisfies ClientTransportHooks,
     })
     const ctx = new Context()
     try {
@@ -1987,15 +1995,17 @@ describe('Client Typert API', () => {
       await ctx.plugin({ inject: [], apply: applyConnection })
       await ctx.plugin({ inject, apply })
       const connection = ctx.get('connection') as ConnectionHandle | undefined
-      if (connection === undefined) throw new Error('fixture Connection service is unavailable')
+      if (connection === undefined) throw new Error('injected Connection service is unavailable')
 
       await vi.waitFor(() => {
-        expect(connection.generation.getSnapshot()?.host.home).toBe('/home/fixture')
+        expect(connection.generation.getSnapshot()?.host.home).toBe('/home/mock')
       })
     } finally {
       await ctx.fiber.dispose()
       if (locationDescriptor === undefined) Reflect.deleteProperty(globalThis, 'location')
       else Object.defineProperty(globalThis, 'location', locationDescriptor)
+      if (transportDescriptor === undefined) Reflect.deleteProperty(globalThis, '__QILIN_TRANSPORT__')
+      else Object.defineProperty(globalThis, '__QILIN_TRANSPORT__', transportDescriptor)
     }
   })
 

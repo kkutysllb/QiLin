@@ -20,12 +20,11 @@ import {
   lowerModuleSource, MemoryVfs, packTar, WorkerModuleLoader,
   DEFAULT_ROOT, IMAGE_CONFIG_PATH, IMAGE_EMPTY_DIRECTORIES, IMAGE_MANIFEST_PATH,
   IMAGE_OVERLAY_DIRECTORIES,
+  MODULE_PROXIES, MODULE_PROXY_PREFIXES, REPLACED_EXTERNAL_PACKAGES,
 } from '@qilin/experimental-webworker-runtime'
 import picomatch from 'picomatch'
 import yaml from 'js-yaml'
 import { entryListSchema } from '@qilin/kylin-plugin-include'
-import { REPLACED_EXTERNAL_PACKAGES } from '@qilin/experimental-webworker-runtime/src/node/external_packages/replaced-externals.ts'
-import { MODULE_PROXIES, MODULE_PROXY_PREFIXES } from '@qilin/experimental-webworker-runtime/src/module-proxies.ts'
 import { WRAPPER_CONTRACT, type ImageFiles, type TransformOutcome } from './transform-image.ts'
 import { EXCLUDE, EXCLUDE_WORKSPACE, IMAGE_ENTRY_SEEDS, PAGE_ASSETS } from './rules.ts'
 

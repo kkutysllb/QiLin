@@ -58,5 +58,8 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/session-projection-cache": "workspace:^",
     "@qilin/kylin": "workspace:^"
+  },
+  "dependencies": {
+    "@qilin/session-format-catalog": "workspace:^"
   }
 }

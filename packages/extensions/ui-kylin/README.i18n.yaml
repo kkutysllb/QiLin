@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/extensions/ui-kylin/README.md
 README.md: 5edec2054d138b94a35f882dd8fdfe430d080302
-README.zh.md: 77abcf0dcc3ea56304557dab1f2cd5befec50102
+README.zh.md: 2a424de8d61f077f1c1319f123254d9d43d38ec8

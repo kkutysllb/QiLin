@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/extensions/kylin-client-runner/README.md
-README.md: 5e436152ca66f5454324005ec0c23fd1d68dbf1c
-README.zh.md: 7389e079166ced923ce5a4a74be73ac139979987
+README.md: 15de687c840e1b168d6fd647008739a58c9e67d4
+README.zh.md: 87d62c36458342bdeeb0bf4dc72d3b9dabf3e93d

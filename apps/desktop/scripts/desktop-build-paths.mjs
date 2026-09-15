@@ -31,7 +31,7 @@ export function resolveDesktopBuildTarget(
 /**
  * Return the mutable preparation and artifact directories owned by one release target.
  * @param {'mac-arm64' | 'mac-x64' | 'win-x64'} target - Supported Desktop target name.
- * @returns {{ root: string, artifacts: string, runtime: string, packageSet: string, seed: string, seedPnpm: string, nodeExtract: string, packedQilin: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
+ * @returns {{ root: string, artifacts: string, runtime: string, packageSet: string, qilin: string, qilinPnpm: string, nodeExtract: string, packedQilin: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
  */
 export function desktopTargetBuildPaths(target) {
   if (!SUPPORTED_TARGETS.has(target)) {
@@ -44,8 +44,8 @@ export function desktopTargetBuildPaths(target) {
     artifacts: join(root, 'artifacts'),
     runtime: join(root, 'runtime'),
     packageSet: join(root, 'package-set'),
-    seed: join(root, 'seed'),
-    seedPnpm: join(root, 'seed-pnpm'),
+    qilin: join(root, 'qilin'),
+    qilinPnpm: join(root, 'qilin-pnpm'),
     nodeExtract: join(root, 'node-extract'),
     packedQilin: join(packed, 'qilin'),
     packedVendor: join(packed, 'vendor'),

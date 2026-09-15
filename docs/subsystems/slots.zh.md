@@ -2,7 +2,7 @@
 
 [English](slots.md) | 中文
 
-Slots 是 Web Client 的类型化 React 组合系统。[`qilin-client-ui-slots`](../../packages/client/ui-slots/README.zh.md)定义不依赖 React 的注册表与类型代数；[`qilin-client-ui-renderer`](../../packages/client/ui-renderer/README.zh.md)把可观测源绑定成钩子、渲染整棵树，并在内部拥有 React context。功能插件通过 `ctx.slots.register()` 贡献 UI，绝不导入其他功能插件的组件。
+Slots 是 Web Client 的类型化 React 组合系统。[`dsh-client-ui-slots`](../../packages/client/ui-slots/README.zh.md)定义不依赖 React 的注册表与类型代数；[`dsh-client-ui-renderer`](../../packages/client/ui-renderer/README.zh.md)把可观测源绑定成钩子、渲染整棵树，并在内部拥有 React context。功能插件通过 `ctx.slots.register()` 贡献 UI，绝不导入其他功能插件的组件。
 
 本文记录 slot 的所有权、组件输入、扩展 API 与当前层级。外围的启动、Remote、Client model 与 Conversation 数据通路见 [Web Client 架构](web-client.zh.md)。
 
@@ -118,6 +118,7 @@ root
 │  ├─ sidebar.workspaces
 │  │  └─ sidebar.workspaces.directoryFlow
 │  └─ sidebar.settings
+│     ├─ settings.trigger
 │     ├─ settings.header
 │     ├─ settings.action
 │     ├─ settings.close
@@ -139,7 +140,8 @@ root
 │     │     │  └─ tool.call.toolview
 │     │     │     ├─ tool.call.images
 │     │     │     └─ tool.view.cordis
-│     │     └─ conversation.message.images
+│     │     ├─ conversation.message.images
+│     │     └─ conversation.trajectory.images
 │     ├─ conversation.session.header
 │     │  ├─ conversation.session.header.lineage
 │     │  ├─ conversation.session.header.actions
@@ -149,6 +151,7 @@ root
 │     │  └─ conversation.approval.detail
 │     ├─ conversation.composer.bar
 │     │  ├─ conversation.input.attachments
+│     │  ├─ conversation.input.permission
 │     │  ├─ conversation.input.plan
 │     │  └─ conversation.input.model
 │     ├─ conversation.input.overlay
@@ -164,9 +167,8 @@ root
 │  └─ rightbar.session
 │     ├─ sidebar.right.pane.tab
 │     │  ├─ sidebar.right.tab.guide
-│     │  └─ conversation.trajectory.images
+│     │  └─ sidebar.right.tab.guide.entry
 │     ├─ sidebar.right.pane.tab.title
-│     ├─ sidebar.right.pane.tab.badge
 │     └─ sidebar.right.tab.menu.item
 └─ shell.overlay
 ```

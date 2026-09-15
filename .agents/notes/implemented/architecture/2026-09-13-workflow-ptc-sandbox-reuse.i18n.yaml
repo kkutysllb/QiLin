@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md
+2026-09-13-workflow-ptc-sandbox-reuse.md: eb17f52cdb8cfeef74734cd6a15ad1a5f59c7f2d
+2026-09-13-workflow-ptc-sandbox-reuse.zh.md: 508779d692b95dab1f7f4623816f2812d9744786

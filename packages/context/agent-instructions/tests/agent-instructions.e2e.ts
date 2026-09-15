@@ -9,7 +9,7 @@ import type { Agent } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
 import * as LlmDeepSeek from '@qilin/llm-deepseek'
-import * as WorkspaceContext from '@qilin/agent-instructions'
+import * as AgentInstructions from '@qilin/agent-instructions'
 import { candidateScopeKey } from '../src/render.ts'
 import LocalFileSystem from '@qilin/fs-local'
 import * as ToolFs from '@qilin/tool-fs'
@@ -39,7 +39,7 @@ async function harness(): Promise<{ ctx: Context; agent: Agent }> {
   })
   await ctx.plugin(LocalFileSystem, { cwd: '/' })
   await ctx.plugin(ToolFs)
-  await ctx.plugin(WorkspaceContext, { maxBytes: 65536 })
+  await ctx.plugin(AgentInstructions, { maxBytes: 65536 })
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(LlmDeepSeek, { models: [{ id: 'deepseek-v4-flash' }] })
   const handle = await ctx.agents.create({

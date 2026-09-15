@@ -6,8 +6,8 @@ export interface DesktopTargetBuildPaths {
   readonly artifacts: string
   readonly runtime: string
   readonly packageSet: string
-  readonly seed: string
-  readonly seedPnpm: string
+  readonly qilin: string
+  readonly qilinPnpm: string
   readonly nodeExtract: string
   readonly packedQilin: string
   readonly packedVendor: string
