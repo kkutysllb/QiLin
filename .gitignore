@@ -40,6 +40,8 @@ apps/web/dist/
 .playwright-mcp/
 .dsh/
 .orig
+# 上游对齐升级的本地工作区（方案、分析、快照树），不进版本库。
+.upgrade-0.1.6/
 .worktrees/
 worktrees/
 .agents/worktrees/
