@@ -219,7 +219,7 @@ describe('SidebarRightTabRegistry — ids and page types', () => {
       priority: 'builtin',
       label: () => 'Files',
       title: () => 'Files',
-      guide: [{ order: 10, title: () => 'Files' }],
+      guide: [{ id: 'files', order: 10, title: () => 'Files' }],
     })
     expect(ranked(registry, 'qilin-resource://file/session/s/a.txt')).toEqual([])
     expect(registry.get('files')?.title('x')).toBe('Files')
@@ -267,7 +267,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
 
   it('collects every type\'s guide entries in order, reference-stable between changes', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    const entry = (order: number) => ({ order, title: () => `#${order}` })
+    const entry = (order: number) => ({ id: `e${order}`, order, title: () => `#${order}` })
     registry.register(typeFor('files', [], { guide: [entry(10)] }))
     const first = registry.guide()
     expect(registry.guide()).toBe(first)
@@ -303,7 +303,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
 describe('SidebarRightTabRegistry — the switches', () => {
   /** A page type offering one guide box, so a spec can watch it leave the guide. */
   function pageType(id: string, kind: string): SidebarRightTabDefinition {
-    return { id, kind, label: () => kind, title: () => kind, guide: [{ order: 10, title: () => kind }] }
+    return { id, kind, label: () => kind, title: () => kind, guide: [{ id: kind, order: 10, title: () => kind }] }
   }
 
   it('takes a turned-off type off the guide while it stays registered and reachable by kind', () => {

@@ -460,7 +460,7 @@ describe('slot-owned useTabInfo', () => {
     await act(async () => {
       h.runtime.ctx.sidebarRightTabs.register({
         id: 'test/files', kind: 'files', label: () => 'Files', title: () => 'Files',
-        guide: [{ order: 1, title: () => 'Files' }],
+        guide: [{ id: 'files', order: 1, title: () => 'Files' }],
       })
     })
     expect(h.view.container.querySelector('[data-sidebar-right-guide-entry="files"]')).not.toBeNull()
