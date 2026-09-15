@@ -142,20 +142,19 @@ describe('resolveBundleDir', () => {
     expect(() => resolveBundleDir('t', 'absent', anchor, profileDir)).toThrow('cannot resolve profile bundle')
   })
 
-  it('resolves a profile-owned bundle from the profile copy and seeds from the installation otherwise', () => {
-    const [owned] = PROFILE_OWNED_BUNDLES
-    if (owned === undefined) throw new Error('PROFILE_OWNED_BUNDLES must name at least one bundle')
-    const anchor = stageInstallation({ [owned]: { patch: '[]\n' } })
-    // Fresh profile: no profile copy, the installation seed resolves.
+  it('seeds a shipped bundle from the installation while no bundle is profile-owned', () => {
+    // The built-in plugin channel is retired, so PROFILE_OWNED_BUNDLES names nothing
+    // and the installation seed resolves for every shipped bundle.
+    const anchor = stageInstallation({ 'shipped-bundle': { patch: '[]\n' } })
     const fresh = tmp()
     writeFileSync(join(fresh, 'package.json'), '{}')
-    expect(resolveBundleDir('t', owned, anchor, fresh)).toContain('node_modules')
-    // After `qilin plugin add` installed a copy into the profile, that copy wins.
-    const upgraded = tmp()
-    mkdirSync(join(upgraded, 'node_modules', owned), { recursive: true })
-    writeFileSync(join(upgraded, 'package.json'), '{}')
-    writeFileSync(join(upgraded, 'node_modules', owned, 'package.json'), JSON.stringify({ name: owned, version: '9.9.9' }))
-    expect(resolveBundleDir('t', owned, anchor, upgraded)).toBe(join(upgraded, 'node_modules', owned))
+    expect(resolveBundleDir('t', 'shipped-bundle', anchor, fresh)).toContain('node_modules')
+    const shadowed = tmp()
+    mkdirSync(join(shadowed, 'node_modules', 'shipped-bundle'), { recursive: true })
+    writeFileSync(join(shadowed, 'package.json'), '{}')
+    writeFileSync(join(shadowed, 'node_modules', 'shipped-bundle', 'package.json'), JSON.stringify({ name: 'shipped-bundle', version: '9.9.9' }))
+    expect(resolveBundleDir('t', 'shipped-bundle', anchor, shadowed)).toContain('node_modules')
+    expect(PROFILE_OWNED_BUNDLES).toEqual([])
   })
 
   it('resolves a package whose exports map omits ./package.json', () => {
@@ -313,12 +312,10 @@ describe('loadProfile', () => {
     ])
   })
 
-  it('normalizes the pre-sidebar web tuple to the built-in sidebar template', () => {
+  it('leaves the shipped web tuple to the template it already matches', () => {
     const anchor = stageInstallation({
       '@qilin/base': { patch: '[]\n' },
       '@qilin/web-app': { patch: '[]\n' },
-      '@qilin/coding-sidebar': { patch: '[]\n' },
-      'dsh-file-review-kcoder': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const stockHome = tmp()
@@ -326,12 +323,11 @@ describe('loadProfile', () => {
     initProfile(stock, ['@qilin/base', '@qilin/web-app'])
     loadProfile('t', 'web', anchor, stockHome)
     expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
-      bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar', 'dsh-file-review-kcoder'],
+      bundles: ['@qilin/base', '@qilin/web-app'],
       patchReload: 'live',
     })
 
-    // A profile its owner already extended keeps its own list and gains the
-    // sidebar through `qilin plugin` instead of the tuple normalization.
+    // A profile its owner already extended keeps its own list.
     const customHome = tmp()
     const custom = resolveProfileDir('web', customHome)
     initProfile(custom, ['@qilin/base', '@qilin/web-app', 'custom-bundle'])

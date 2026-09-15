@@ -35,12 +35,12 @@ async function profile(): Promise<{ manager: PluginManagerGateway; dir: string }
   mkdirSync(join(dir, 'node_modules', '@example', 'plugin'), { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify({
     name: 'profile', dependencies: { '@example/plugin': '1.2.3' },
-    qilin: { profile: { bundles: ['@qilin/base', '@qilin/coding-sidebar', '@example/plugin'] } },
+    qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app', '@example/plugin'] } },
   }))
   writeFileSync(join(dir, 'node_modules', '@example', 'plugin', 'package.json'), JSON.stringify({ name: '@example/plugin', version: '1.2.3' }))
   const ctx = new Context()
   contexts.push(ctx)
-  ctx.provide('qilinProfile', { name: 'web', dir, home: root, installAnchor: join(root, 'app.json'), patchReload: 'live', builtInBundles: ['@qilin/base', '@qilin/coding-sidebar'] })
+  ctx.provide('qilinProfile', { name: 'web', dir, home: root, installAnchor: join(root, 'app.json'), patchReload: 'live', builtInBundles: ['@qilin/base', '@qilin/web-app'] })
   await ctx.plugin(PluginManagerGateway)
   return { manager: ctx.get('pluginManager') as PluginManagerGateway, dir }
 }
@@ -54,10 +54,10 @@ async function runMutation(manager: PluginManagerGateway, name: string): Promise
 }
 
 describe('plugin update routing', () => {
-  it('upgrades a profile-owned shipped layer with add @latest', async () => {
-    const { manager, dir } = await profile()
-    await runMutation(manager, '@qilin/coding-sidebar')
-    expect(vi.mocked(spawn)).toHaveBeenCalledWith('pnpm', ['add', '@qilin/coding-sidebar@latest'], expect.objectContaining({ cwd: dir }))
+  it('refuses a shipped layer without spawning pnpm', async () => {
+    const { manager } = await profile()
+    await expect(manager.updatePlugin('@qilin/web-app')).rejects.toThrow('cannot be updated')
+    expect(spawn).not.toHaveBeenCalled()
   })
 
   it('upgrades a user layer through pnpm update', async () => {
@@ -74,7 +74,7 @@ describe('plugin update routing', () => {
 
   it('refuses to remove a shipped layer', async () => {
     const { manager } = await profile()
-    await expect(manager.uninstallPlugin('@qilin/coding-sidebar')).rejects.toThrow('cannot be removed')
+    await expect(manager.uninstallPlugin('@qilin/web-app')).rejects.toThrow('cannot be removed')
     expect(spawn).not.toHaveBeenCalled()
   })
 })

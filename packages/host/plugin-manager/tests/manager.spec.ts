@@ -31,16 +31,16 @@ async function profile(): Promise<{ ctx: Context; manager: PluginManagerGateway 
   // profile-owned bundle upgrade installs over it.
   writeFileSync(join(installation, 'package.json'), JSON.stringify({ name: 'qilin-app', version: '0.0.0' }))
   stagePackage(join(installation, 'node_modules'), '@qilin/base', '3.0.0-seed')
-  stagePackage(join(installation, 'node_modules'), '@qilin/coding-sidebar', '1.0.0-seed')
-  stagePackage(join(dir, 'node_modules'), '@qilin/coding-sidebar', '1.0.14-profile')
+  stagePackage(join(installation, 'node_modules'), '@qilin/web-app', '1.0.0-seed')
+  stagePackage(join(dir, 'node_modules'), '@qilin/web-app', '1.0.14-profile')
   stagePackage(join(dir, 'node_modules'), '@example/plugin', '1.2.3')
   writeFileSync(join(dir, 'package.json'), JSON.stringify({
     name: 'profile', dependencies: { '@example/plugin': '1.2.3' },
-    qilin: { profile: { bundles: ['@qilin/base', '@qilin/coding-sidebar', '@example/plugin'] } },
+    qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app', '@example/plugin'] } },
   }))
   const ctx = new Context()
   contexts.push(ctx)
-  ctx.provide('qilinProfile', { name: 'web', dir, home: root, installAnchor: join(installation, 'package.json'), patchReload: 'live', builtInBundles: ['@qilin/base', '@qilin/coding-sidebar'] })
+  ctx.provide('qilinProfile', { name: 'web', dir, home: root, installAnchor: join(installation, 'package.json'), patchReload: 'live', builtInBundles: ['@qilin/base', '@qilin/web-app'] })
   await ctx.plugin(PluginManagerGateway)
   return { ctx, manager: ctx.get('pluginManager') as PluginManagerGateway }
 }
@@ -64,7 +64,7 @@ describe('PluginManagerGateway', () => {
         // Shipped layer the profile owns: the installed profile copy wins resolution
         // over the seed, so the row reports the upgraded version and can be updated
         // again — but never removed.
-        { name: '@qilin/coding-sidebar', version: '1.0.14-profile', layer: 1, source: 'builtin', updatable: true, removable: false },
+        { name: '@qilin/web-app', version: '1.0.0-seed', layer: 1, source: 'builtin', updatable: false, removable: false },
         { name: '@example/plugin', version: '1.2.3', layer: 2, source: 'user', updatable: true, removable: true },
       ],
     })

@@ -1,8 +1,8 @@
 /**
  * DSH-era module-name aliases.
  *
- * QiLin renamed every harness package (`@qilin/kylin` → `@qilin/kylin`,
- * `@qilin/client-ui-slots` → `@qilin/client-ui-slots`, …), but the
+ * QiLin renamed every harness package (`@deepseek-ai/cordis` → `@qilin/kylin`,
+ * `@deepseek-ai/dsh-client-ui-slots` → `@qilin/client-ui-slots`, …), but the
  * DSH plugin ecosystem ships prebuilt bundles whose factories `require()` the
  * old names. The static platform aliases keep those `require` calls resolvable
  * against QiLin's module table, and {@link dshCompatModuleId} canonicalizes the
@@ -20,15 +20,15 @@
  */
 export const DSH_PLATFORM_MODULE_ALIASES: Readonly<Record<string, string>> = {
   'cordis': '@qilin/kylin',
-  '@qilin/kylin': '@qilin/kylin',
-  '@qilin/client-store': '@qilin/client-store',
-  '@qilin/client-ui-slots': '@qilin/client-ui-slots',
-  '@qilin/client-ui-primitives': '@qilin/client-ui-primitives',
-  '@qilin/client-ui-dockkit': '@qilin/client-ui-dockkit',
+  '@deepseek-ai/cordis': '@qilin/kylin',
+  '@deepseek-ai/dsh-client-store': '@qilin/client-store',
+  '@deepseek-ai/dsh-client-ui-slots': '@qilin/client-ui-slots',
+  '@deepseek-ai/dsh-client-ui-primitives': '@qilin/client-ui-primitives',
+  '@deepseek-ai/dsh-client-ui-dockkit': '@qilin/client-ui-dockkit',
 }
 
 /** The scoped prefix every renamed DSH engine package shares. */
-const DSH_PACKAGE_PREFIX = '@qilin/'
+const DSH_PACKAGE_PREFIX = '@deepseek-ai/dsh-'
 
 /** The QiLin scope the prefix rule maps package heads onto. */
 const QILIN_SCOPE = '@qilin/'
@@ -44,7 +44,7 @@ const DSH_PACKAGE_RENAMES: Readonly<Record<string, string>> = {
 
 /**
  * Canonicalize one module specifier for QiLin's module graph: an exact
- * platform alias wins; a scoped `@qilin/<pkg>[/subpath]` name maps
+ * platform alias wins; a scoped `@deepseek-ai/dsh-<pkg>[/subpath]` name maps
  * onto `@qilin/<pkg>[/subpath]` with the rename table applied to the package
  * head; every other specifier (including unrenamed `@deepseek-ai/*` names such
  * as `@deepseek-ai/schemastery`, which QiLin keeps verbatim) passes through
