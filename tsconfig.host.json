@@ -121,6 +121,11 @@
     "apps/desktop/tests/**/*.ts",
     "benchmarks/**/*.ts",
     "packages/*/*/tests/**/*.ts",
+    // Client-face entries pulled into this program by host-side specs and e2e fixtures
+    // (packages/host/plugin-manager, apps/web). Listing them satisfies the
+    // project file-list rule; the face split is enforced by tsconfig.client.json.
+    "packages/api/gateway/src/client/**/*.ts",
+    "packages/client/connection/src/client/**/*.ts",
     "scripts/**/*.ts",
     "website/**/*.ts",
     "website/.vitepress/**/*.ts"
@@ -160,6 +165,11 @@
     { "path": "./vendor/loader" },
     { "path": "./vendor/include" },
     { "path": "./vendor/group" },
+    { "path": "./packages/util/dsh-compat" },
+    { "path": "./packages/bundle/web-brand" },
+    { "path": "./packages/mcp/mcp-servers" },
+    { "path": "./packages/host/plugin-manager" },
+    { "path": "./packages/identity/accounts-local" },
     { "path": "./vendor/timer" },
     { "path": "./vendor/hmr" },
     { "path": "./vendor/logger-console" },

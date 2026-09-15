@@ -28,7 +28,7 @@ import {
   REGION_END,
 } from '@qilin/typert-generator'
 import type { CordisCatalogPolicy } from '@qilin/typert-generator'
-import { renderCordisCoreApiPages } from './cordis-core-api.ts'
+import { renderCordisCoreApiPages } from './kylin-core-api.ts'
 import { contextKeyMap, contextMergeFiles, eventNameList } from './cordis-walk.ts'
 import {
   blobHash,
