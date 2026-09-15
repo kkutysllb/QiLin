@@ -117,11 +117,11 @@ describe('trajectory graph projection', () => {
       } satisfies SteeringMessageNode,
       {
         kind: 'context', seq: 6, time: 6000, content: [text('ctx')], source: null,
-        provenance: { role: 'inject', label: 'System' }, form: null,
+        producer: { role: 'inject', label: 'System' }, form: null,
       } satisfies ContextMessageNode,
       {
         kind: 'context', seq: 7, time: 7000, content: [], source: null,
-        provenance: { role: 'recall', label: null }, form: 'recall',
+        producer: { role: 'recall', label: null }, form: 'recall',
       } satisfies ContextMessageNode,
       {
         kind: 'command', seq: 8, time: 8000, commandId: 'cmd1' as never, name: 'clear',

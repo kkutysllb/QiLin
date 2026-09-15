@@ -111,7 +111,7 @@ export function apply(ctx: Context): void {
         hooks: { duration },
         jsonStringWrapping: {
           getDefault: () => stringWrapping.getSnapshot(),
-          setDefault: (value) => { stringWrapping.set(value) },
+          setDefault: (value: boolean) => { stringWrapping.set(value) },
         },
         loadOlder: async () => {
           const before = trajectory.getSnapshot()

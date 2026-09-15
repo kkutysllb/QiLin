@@ -9,6 +9,7 @@ import type {
   InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
 } from '@qilin/client-ui-slots'
 import type { SnapshotStore } from '@qilin/client-store'
+import type { JsonTreeProps } from '@qilin/client-ui-primitives'
 import type {} from '@qilin/client-ui-sidebar-right/client'
 import {
   TrajectoryTable,

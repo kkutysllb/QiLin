@@ -45,7 +45,7 @@ export function apply(ctx: Context): void {
   const t = ctx.locale.bind(namespace)
   ctx.effect(() => ctx.locale.register(namespace, { zh, en }), 'ui-sidebar-terminal.copy')
   ctx.effect(() => ctx.sidebarRightTabs.register({
-    id, kind: 'terminal', multiple: true, priority: 'builtin', title: () => t('title'),
+    id, kind: 'terminal', multiple: true, priority: 'builtin', label: () => t('title'), title: () => t('title'),
     guide: [{ id: 'new', order: 20, title: () => t('new'), description: () => t('description'), icon: TerminalGuideIcon }],
   }), 'ui-sidebar-terminal.type')
   ctx.effect(() => ctx.sidebarRight.registerCloseHandler('terminal', (sessionId, tab) => {

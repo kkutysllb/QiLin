@@ -340,8 +340,8 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
         kind: 'context',
         lane: 'input',
         status: 'idle',
-        label: chipLabel(node.provenance.label ?? '', t('graph.node.context')),
-        badge: t(node.provenance.role === 'recall' ? 'graph.context.recall' : 'graph.context.inject'),
+        label: chipLabel(node.producer.label ?? '', t('graph.node.context')),
+        badge: t(node.producer.role === 'recall' ? 'graph.context.recall' : 'graph.context.inject'),
         ...(text === '' ? {} : { detail: text }),
       }
     }

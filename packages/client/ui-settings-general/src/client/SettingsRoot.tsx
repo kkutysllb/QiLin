@@ -321,7 +321,6 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
           <ConnectionIndicator
             state={connectionIndicator}
             disconnectedLabel={t('connection.error')}
-            reconnectLabel={t('connection.retry')}
             connectingLabel={t('connection.connecting')}
             recoveredLabel={t('connection.connected')}
             reconnectActionLabel={t('connection.reconnect')}

@@ -439,7 +439,7 @@ export class SidebarRightController implements ISidebarRight {
     params: SidebarRightNavigationParams,
     single: boolean,
   ): void {
-    actions.openContent(sessionId, {
+    const commit = (): void => { actions.openContent(sessionId, {
       ...single ? { single: true } : {},
       kind: claim.kind,
       contentId: claim.contentId,
@@ -447,7 +447,13 @@ export class SidebarRightController implements ISidebarRight {
       ...placement.paneId === undefined ? {} : { paneId: placement.paneId },
       ...placement.replaceTab === undefined ? {} : { replaceTab: placement.replaceTab },
       ...placement.revealIfOpened === undefined ? {} : { revealIfOpened: placement.revealIfOpened },
-    }, (tabId) => { this.tabDomain.navigate(sessionId, tabId, { address, params }) })
+    }, (tabId) => { this.tabDomain.navigate(sessionId, tabId, { address, params }) }) }
+    const layout = this.adopted.get(sessionId)?.store.getSnapshot().bySession[sessionId]?.layout
+    const replaced = placement.replaceTab === undefined ? undefined : layout?.tabs[placement.replaceTab]
+    const revealed = layout === undefined || placement.revealIfOpened === false
+      ? undefined : findContentTab(layout, claim.contentId, claim.kind)
+    if (replaced === undefined || replaced.id === revealed) { commit(); return }
+    this.removeAfterCleanup(sessionId, replaced, commit)
   }
 
   /**

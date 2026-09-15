@@ -95,7 +95,7 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
       id: 'test/text', kind: 'text', priority: 'builtin', patterns: ['qilin-resource://file/**'],
       label: () => 'Text',
       title: address => address.slice(address.lastIndexOf('/') + 1),
-      guide: Array.from({ length: entryCount }, (_, order) => ({ order, title: () => 'Test', description: () => 'Test page' })),
+      guide: Array.from({ length: entryCount }, (_, order) => ({ id: `e${order}`, order, title: () => 'Test', description: () => 'Test page' })),
     })
     runtime.slots.register({ name: 'sidebar.right.pane.tab', key: 'test/text' }, Body)
     runtime.slots.register({ name: 'sidebar.right.pane.tab.title', key: 'test/text' }, Title)
