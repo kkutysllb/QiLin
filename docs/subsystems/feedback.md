@@ -2,7 +2,7 @@
 
 English | [中文](feedback.zh.md)
 
-[`@qilin/message-feedback`](../../packages/feedback/message-feedback) owns editable feedback for individual assistant messages. The canonical Session log stores `feedback/message-put` and `feedback/message-delete`; the immutable Session-level remark remains `feedback/record`, owned by [`@qilin/command-feedback`](../../packages/feedback/command-feedback) together with the `FeedbackCategory` taxonomy both kinds of feedback file under. All three are log-only events that never enter model context.
+[`@deepseek-ai/dsh-message-feedback`](../../packages/feedback/message-feedback) owns editable feedback for individual assistant messages. The canonical Session log stores `feedback/message-put` and `feedback/message-delete`; the immutable Session-level remark remains `feedback/record`, owned by [`@deepseek-ai/dsh-command-feedback`](../../packages/feedback/command-feedback) together with the `FeedbackCategory` taxonomy both kinds of feedback file under. All three are log-only events that never enter model context.
 
 Source: [`packages/feedback/message-feedback/src/types.ts`](../../packages/feedback/message-feedback/src/types.ts)
 
@@ -290,11 +290,11 @@ Successful message-feedback mutations await canonical persistence: live operatio
 
 Plugin disposal closes operation admission and drains accepted per-Session queue work.
 
-When explicitly enabled, [`session-log-deepseek`](../../packages/session/session-log-deepseek/README.md) carries feedback as part of the ordinary `qilin_session_log` suffix on subsequent eligible DeepSeek requests. Recording feedback does not trigger an LLM request or a separate `qilin_feedback` upload. For non-DeepSeek routes, the [OTel backend](../../packages/session/session-telemetry-otel/README.md) can release the canonical prefix through recorded feedback. The command acknowledgement confirms recording and identifies the Session and anonymous user; it reports neither telemetry policy nor delivery.
+By default, [`session-log-deepseek`](../../packages/session/session-log-deepseek/README.md) carries feedback as part of the ordinary `dsh_session_log` suffix on subsequent eligible DeepSeek requests; a composition disables it with `enabled: false`. Recording feedback does not trigger an LLM request or a separate `dsh_feedback` upload. For non-DeepSeek routes, the [OTel backend](../../packages/session/session-telemetry-otel/README.md) can release the canonical prefix through recorded feedback. The command acknowledgement confirms recording and identifies the Session and anonymous user; it reports neither telemetry policy nor delivery.
 
 ## Web surface
 
-[`@qilin/client-ui-message-feedback`](../../packages/client/ui-message-feedback) is the browser consumer. `@qilin/api-remotes` mounts the generated `messageFeedback` and `sessionFeedback` contributions, so the plugin calls `ctx.remote.messageFeedback` and `ctx.remote.sessionFeedback` and never touches the transport.
+[`@deepseek-ai/dsh-client-ui-message-feedback`](../../packages/client/ui-message-feedback) is the browser consumer. `@deepseek-ai/dsh-api-remotes` mounts the generated `messageFeedback` and `sessionFeedback` contributions, so the plugin calls `ctx.remote.messageFeedback` and `ctx.remote.sessionFeedback` and never touches the transport.
 
 The controls are the `feedback` entry (order 10) of the `conversation.chat.assistant-actions` list slot, which `ui-conversation` declares and renders inside the finalized assistant message's IconActions row. `AssistantMessageNode` carries the optional `messageId` from the `assistant/message` event. The field is absent on interruption-frozen partials, and the render site skips the slot when it is absent. The strip renders once per turn, on the closing assistant message: the Host accepts every append-origin step message as a target, but earlier steps of a multi-step turn render tool rows rather than a rateable body, so the UI exposes a narrower set than the Host contract allows.
 
@@ -318,9 +318,9 @@ Either unrecorded rating opens the Session's feedback dialog, the `feedback-dial
 
 <a id="kylin-surface"></a>
 
-## Cordis API
+## Kylin API
 
-Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts kylin-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxmessagefeedback--messagefeedbackservice"></a>
 
@@ -328,7 +328,7 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 Session-log service; cold operations never construct a Session or Agent.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Read current feedback from the canonical log.
  * @param request - Session to inspect.
@@ -360,7 +360,7 @@ Source: [`packages/feedback/message-feedback/src/index.ts`](../../packages/feedb
 
 Host Remote through which a product surface records a Session-level remark.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Record one remark on a live Session.
  * @param request - target Session plus the optional text and category.
@@ -382,7 +382,7 @@ Source: [`packages/feedback/command-feedback/src/index.ts`](../../packages/feedb
 
 Observe a durable cold feedback mutation without publishing a live Session. Observers run before write ownership is released and must not await another message-feedback operation for this Session. The payload is borrowed read-only; deep-clone it before transferring ownership (for example, to Session.fromRestore).
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Observe a durable cold feedback mutation without publishing a live Session.
  * Observers run before write ownership is released and must not await

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session-snapshot",
   "description": "Session-log snapshot core with an ACP protocol adapter, expected-output normalization, and fixture invariants",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },

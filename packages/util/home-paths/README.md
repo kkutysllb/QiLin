@@ -29,13 +29,16 @@ Use these helpers wherever a package must agree with the rest of the harness abo
 ### Resolving the home
 
 ```ts
-import { resolveQilinHome, qilinHomePath } from '@qilin/home-paths'
+import { resolveDshHome, qilinHomePath, qilinCachePath } from '@qilin/home-paths'
 
 const home = resolveQilinHome()                // configured path, else $QILIN_HOME, else ~/.qilin
 const settings = qilinHomePath('settings')     // join one child onto the resolved home
+const cache = qilinCachePath('models')         // $QILIN_HOME/cache/models, default ~/.qilin/cache/models
 ```
 
 An explicit configured path has the highest precedence, then `$QILIN_HOME`, then the default `~/.qilin`. An empty or whitespace-only `$QILIN_HOME` is treated as unset, so a blank override never resolves the home to the current working directory.
+
+`qilinCachePath(...segments)` derives paths from the resolved home's `cache` directory. With no segments it returns the cache directory itself. Pass an initial options object, `qilinCachePath({ qilinHome: home }, ...segments)`, to use an explicit configured home with the same precedence and tilde expansion. It returns an absolute path without creating directories.
 
 ### Displaying a home
 
@@ -64,7 +67,7 @@ The package is built on one principle: all harness user data lives under one roo
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Home resolution, path joining, display, tilde expansion, and watch-path canonicalization |
-| — | No runtime invariant companion is published; this pure utility owns no event stream or mutable runtime data; its value algebra is enforced by unit tests. |
+| — | No runtime invariant companion is published; this pure utility owns no event stream or mutable runtime data; its resolution rules and value algebra are enforced by unit tests. |
 
 ### Resolution rules
 

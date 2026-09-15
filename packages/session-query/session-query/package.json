@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session-query",
   "description": "Combined session query service contract with concrete reads, traces, and filters",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -58,5 +58,8 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/session-projection-cache": "workspace:^",
     "@qilin/kylin": "workspace:^"
+  },
+  "dependencies": {
+    "@qilin/session-format-catalog": "workspace:^"
   }
 }

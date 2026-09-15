@@ -1,7 +1,7 @@
 {
   "name": "@qilin/util-values",
   "description": "Duplicate-install-safe value primitives for the QiLin",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },

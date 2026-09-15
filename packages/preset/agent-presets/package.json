@@ -1,7 +1,7 @@
 {
   "name": "@qilin/agent-presets",
   "description": "Per-session agent composition from preset cordis.yml files for the QiLin",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -75,6 +75,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@qilin/app-boot": "workspace:^",
     "@qilin/kylin-plugin-group": "workspace:^",
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",

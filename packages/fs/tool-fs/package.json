@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tool-fs",
   "description": "Model-facing filesystem tools (read, write, edit) over the QiLin filesystem seam (ctx.fs)",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -61,6 +61,6 @@
     "@qilin/kylin": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/scope": "workspace:^",
-    "@qilin/code-runtime": "workspace:^"
+    "@qilin/ptc-runtime": "workspace:^"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session-telemetry-otel",
   "description": "OpenTelemetry backend for the QiLin telemetry seam: hands captured session records to the OTel JS SDK's log pipeline",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },

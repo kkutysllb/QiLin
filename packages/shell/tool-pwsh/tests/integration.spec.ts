@@ -19,7 +19,7 @@ import { ToolCallId } from '@qilin/llm'
 import SystemPrompt from '@qilin/system-prompt'
 import ToolRuntime, { TOOL_ABORTED } from '@qilin/tools'
 import LocalJobRegistry from '@qilin/jobs-local'
-import * as ToolTasks from '@qilin/tool-jobs'
+import * as ToolJobs from '@qilin/tool-jobs'
 import LocalSubprocessRuntime from '@qilin/subprocess-local'
 import { PwshLocalExecutor, resolvePwshPath } from '@qilin/pwsh-local'
 import * as ToolPwsh from '@qilin/tool-pwsh'
@@ -61,7 +61,7 @@ describe.skipIf(!hasPwsh)('pwsh tool over the real pwsh executor', () => {
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
     await ctx.plugin(LocalJobRegistry)
-    await ctx.plugin(ToolTasks)
+    await ctx.plugin(ToolJobs)
     await ctx.plugin(LocalSubprocessRuntime)
     await ctx.plugin(BashEnvPlugin)
     await ctx.plugin(PwshLocalExecutor, { timeoutMs: 20_000, graceMs: 200 })

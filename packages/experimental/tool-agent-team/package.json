@@ -1,7 +1,7 @@
 {
   "name": "@qilin/experimental-tool-agent-team",
   "description": "Scoped model-facing Agent Teams tools over ctx.agentTeams",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -53,6 +53,8 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/experimental-agent-team": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/llm-deepseek": "workspace:^"
   }
 }

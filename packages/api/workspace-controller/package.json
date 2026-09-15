@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-workspace-controller",
   "description": "Workspace Remote commands and reconnect-safe state transport",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -83,7 +83,9 @@
     "@qilin/api-gateway": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/client-store": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
     "@qilin/host-directory-picker": "workspace:^",
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/storage-domain": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",

@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/test-support/llm-mock-server/README.md
 README.md: 1f900981d47dde651ba387e31a22cedd1774ae0d
-README.zh.md: e8c6cf7b23ddb7b3c03e3693587f38cd1d85cea7
+README.zh.md: 541be03fc9363050b8f893ba0eb27fdbf959b8e9

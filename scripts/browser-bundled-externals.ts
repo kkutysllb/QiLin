@@ -1,11 +1,12 @@
 /** Resolve direct third-party browser inputs through the shipping build configurations, without emitting files. */
 
-import { globSync, readFileSync } from 'node:fs'
+import { globSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { Rolldown, type UserConfigExport } from 'tsdown'
 import ts from 'typescript'
+import { browserDependencyAnalysis } from '../apps/web/product-isolation.ts'
 
 interface Manifest {
   name: string
@@ -117,7 +118,9 @@ interface ShellConfig {
 }
 
 interface ViteApi {
-  resolveConfig(config: Record<string, unknown>, command: 'build'): Promise<ShellConfig>
+  resolveConfig(
+    config: Record<string, unknown>, command: 'build', defaultMode: string, defaultNodeEnv: string,
+  ): Promise<ShellConfig>
   build(config: Record<string, unknown>): Promise<unknown>
 }
 
@@ -132,46 +135,39 @@ async function collectShell(
     if (manifest.private === true || manifest.exports?.['./dist/*'] === undefined) continue
     const vitePath = createRequire(resolve(dir, 'package.json')).resolve('vite')
     const vite = await import(pathToFileURL(vitePath).href) as ViteApi
-    const config = await vite.resolveConfig({ root: dir, logLevel: 'error' }, 'build')
+    const config = await vite.resolveConfig({ root: dir, logLevel: 'error' }, 'build', 'production', 'production')
     const input = config.build.rollupOptions?.input
     const entries = typeof input === 'string' ? [input] : Object.values(input ?? {})
     const pages = entries.filter(entry => entry.endsWith('.html'))
     if (pages.length === 0) throw new Error(`browser notices: ${manifest.name} has no HTML build entry`)
-    // One build per page, with the page path as the whole input. An array, or
-    // an input object merged over the config's own one, would either fail the
-    // CommonJS resolver or pull entries this walk is not disclosing.
-    for (const page of pages) {
-      await vite.build({
-        root: dir,
-        logLevel: 'error',
-        plugins: [recorder(seen, workspaceNames, true)],
-        resolve: { alias: browserSourceAliases(root) },
-        build: {
-          write: false,
-          minify: false,
-          sourcemap: false,
-          reportCompressedSize: false,
-          rollupOptions: {
-            // One page per build, by its own path: an array input fails the
-            // CommonJS resolver once a shell declares several HTML pages, and
-            // an input object merges with the config's own entries instead of
-            // replacing them.
-            input: page,
-            // Chunk coloring expects full third-party bodies; the disclosure walk stops at their imports.
-            output: { manualChunks: () => undefined },
-          },
+    await vite.build({
+      root: dir,
+      logLevel: 'error',
+      plugins: [browserDependencyAnalysis(), recorder(seen, workspaceNames, true)],
+      resolve: { alias: browserSourceAliases(root) },
+      build: {
+        write: false,
+        minify: false,
+        sourcemap: false,
+        reportCompressedSize: false,
+        rollupOptions: {
+          input: pages.length === 1 ? pages[0] : pages,
+          // Chunk coloring expects full third-party bodies; the disclosure walk stops at their imports.
+          output: { manualChunks: () => undefined },
         },
-      })
-    }
+      },
+    })
   }
 }
 
 /**
  * Direct third-party packages resolved by published browser builds.
- * @param root - Repository root with installed build dependencies; lib/ is not required.
+ * @param root - Repository root, possibly symlinked, with installed build dependencies; lib/ is not required.
  * @returns Names of distributed browser inputs, excluding workspace packages and erased types.
  */
 export async function browserBundledExternals(root: string): Promise<Set<string>> {
+  // Vite resolves HTML through native realpath, including Windows 8.3 alias expansion.
+  root = realpathSync.native(root)
   const manifests = new Map<string, Manifest>()
   for (const glob of ['packages/*/*/package.json', 'vendor/*/package.json']) {
     for (const path of globSync(glob, { cwd: root }).sort()) {

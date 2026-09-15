@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-conversation",
   "description": "Target-neutral Conversation assembly, shell, composer, queue, and view navigation",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -73,7 +73,6 @@
     "@qilin/goal": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/llm-retry": "workspace:^",
-    "@qilin/permission-presets": "workspace:^",
     "@qilin/plan-mode": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/token-meter": "workspace:^",

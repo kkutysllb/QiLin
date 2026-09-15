@@ -25,7 +25,7 @@
 
 import { createRequire } from 'node:module'
 import {
-  existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, realpathSync, rmSync, statSync,
+  existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, rmSync, statSync,
   symlinkSync, unlinkSync, writeFileSync,
 } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
@@ -34,19 +34,23 @@ import { withFileLock } from '@qilin/atomic-write'
 import type { EntryOptions } from '@qilin/kylin-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@qilin/kylin-plugin-include'
 import { resolveQilinHome } from '@qilin/home-paths'
-import { bundlePatchOf, dshCompatModuleId } from '@qilin/dsh-compat'
-import type { QilinManifest, QilinModuleFallbackManifest, ProfilePatchReload } from '@qilin/package-manifest'
+import type { QilinPackageManifest, ProfilePatchReload } from '@qilin/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { loadOverlayPatches } from './index.ts'
+import {
+  canonicalLinkPath,
+  isPackagedExecutable,
+  isProfileModuleFallbackLink,
+  PROFILE_MODULE_FALLBACK_DIR,
+  realModuleDirectory,
+  symlinkPointsTo,
+} from './profile-resolution/legacy-links.ts'
 
 /** Directory under the Harness home holding every profile. */
 export const PROFILES_DIR = 'profiles'
 
 /** The user patch layer inside a profile directory (hot-reloaded on long-lived surfaces). */
 export const PROFILE_PATCH_FILENAME = 'cordis.patch.yml'
-
-/** Profile-private package links projected into its pnpm-managed node_modules. */
-const PROFILE_MODULE_FALLBACK_DIR = '.qilin-module-fallback'
 
 /** Installation-owned defaults used when a shipped profile is first opened. */
 export interface ProfileTemplate {
@@ -56,15 +60,8 @@ export interface ProfileTemplate {
   patchReload: ProfilePatchReload
 }
 
-/** The slice of package.json both profiles and bundles use. */
-export interface ProfileManifest {
-  name?: string
-  dependencies?: Record<string, string>
-  peerDependencies?: Record<string, string>
-  qilin?: QilinManifest
-  /** DSH-era profile or bundle metadata accepted by the compatibility loader. */
-  dsh?: QilinManifest
-}
+/** Package metadata accepted by the profile reader; local profiles need no published identity. */
+export type ProfileManifest = Partial<QilinPackageManifest>
 
 /** One resolved bundle layer of a profile. */
 export interface ProfileLayer {
@@ -77,26 +74,6 @@ export interface ProfileLayer {
   /** The parsed patch list. */
   patches: PatchOptions[]
 }
-
-/** A loaded profile: resolved bundle layers plus the user's own patch layer. */
-/** Launch-time profile facts exposed to host plugins that manage profile-owned files. */
-export interface LaunchProfileSnapshot {
-  /** Profile directory basename. */
-  name: string
-  /** Absolute profile directory. */
-  dir: string
-  /** Absolute QiLin home containing the profile. */
-  home: string
-  /** Absolute package.json used as the installation resolution anchor. */
-  installAnchor: string
-  /** Whether only user patch files are hot-reloaded after boot. */
-  patchReload: ProfilePatchReload
-  /** Bundle names supplied by the selected shipped profile template. */
-  builtInBundles: readonly string[]
-}
-
-/** Context service key for the immutable launch profile snapshot. */
-export const QILIN_LAUNCH_PROFILE_KEY = 'qilinProfile' as const
 
 /** A loaded profile: resolved bundle layers plus the user's own patch layer. */
 export interface Profile {
@@ -113,6 +90,35 @@ export interface Profile {
   /** Whether the launcher watches user patch files after boot. */
   patchReload: ProfilePatchReload
 }
+
+/** One package selected by the profile module-fallback rules. */
+export interface ProfileResolutionEntry {
+  /** Bare package name. */
+  readonly name: string
+  /** Package directory selected by the existing dependency traversal. */
+  readonly packageDir: string
+  /** Selected package version when its manifest declares one. */
+  readonly version: string | undefined
+  /** Manifest whose dependency edge selected this package. */
+  readonly declarer: string
+  /** Whether every profile or only the active profile receives this fallback. */
+  readonly scope: 'installation' | 'profile'
+}
+
+/** Complete immutable fallback table for one profile launch. */
+export interface ProfileResolutionGeneration {
+  /** Directory containing every profile and the shared fallback position. */
+  readonly profilesDir: string
+  /** Active profile directory, when bundle-only fallbacks were included. */
+  readonly profileDir: string | undefined
+  /** Profile-declared packages already installed before the fallback position. */
+  readonly localPackageNames: readonly string[]
+  /** Installation entries followed by bundle-only entries in precedence order. */
+  readonly entries: readonly ProfileResolutionEntry[]
+}
+
+/** Startup backend selection for one computed profile resolution generation. */
+export type ProfileResolutionMode = 'link' | 'dual' | 'runtime'
 
 /**
  * Resolve a profile's directory under the Harness home.
@@ -136,16 +142,12 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     patchReload: 'startup',
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/coding-sidebar', 'dsh-file-review-kcoder'],
+    bundles: ['@qilin/base', '@qilin/web-app'],
     patchReload: 'live',
   },
   headless: {
     bundles: ['@qilin/base', '@qilin/headless'],
     patchReload: 'startup',
-  },
-  qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', '@qilin/coding-sidebar', 'dsh-file-review-kcoder'],
-    patchReload: 'live',
   },
   sdk: {
     bundles: ['@qilin/base', '@qilin/sdk-app'],
@@ -160,12 +162,6 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
-  // Pre-sidebar web/qilin compositions normalize to the current template, so
-  // an untouched existing profile gains the built-in coding-sidebar bundle
-  // on its next open; profiles a user already extended keep their own list
-  // and add the sidebar through `qilin plugin` instead.
-  web: ['@qilin/base', '@qilin/web-app'],
-  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
 }
 
 /** The bundle list a `qilin plugin` init uses for a name with no shipped template. */
@@ -272,27 +268,6 @@ function ensureSymlink(link: string, target: string): void {
   }
 }
 
-/** Resolve a link target without following the final path component. */
-function canonicalLinkPath(path: string): string | undefined {
-  try {
-    return join(realpathSync.native(dirname(path)), basename(path))
-  } catch (error) {
-    // A missing parent means the candidate cannot identify an existing owned link.
-    /* v8 ignore next 2 -- a non-ENOENT realpath failure requires a host filesystem fault */
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
-    /* v8 ignore next -- see the host-filesystem exception above */
-    throw error
-  }
-}
-
-/** Return whether a symlink or junction points at the same path as `target`. */
-function symlinkPointsTo(link: string, target: string): boolean {
-  const actual = resolve(dirname(link), readlinkSync(link))
-  const canonicalActual = canonicalLinkPath(actual)
-  const canonicalTarget = canonicalLinkPath(resolve(target))
-  return canonicalActual !== undefined && canonicalActual === canonicalTarget
-}
-
 /** Add one profile-owned fallback link without replacing a pnpm-managed entry. */
 function ensureProfileSymlink(link: string, target: string): void {
   try {
@@ -341,17 +316,12 @@ interface ModuleProxyManifest {
   private: true
   type: 'module'
   exports: Record<string, string>
-  qilin: { moduleFallback: QilinModuleFallbackManifest }
+  qilin: { moduleFallback: { targets: Record<string, string> } }
 }
 
 interface ModuleProxyRecord {
   version?: unknown
   qilin?: { moduleFallback?: { targets?: unknown } }
-}
-
-/** Return whether the process reads application modules from pkg's virtual filesystem. */
-function isPackagedExecutable(): boolean {
-  return (process as NodeJS.Process & { pkg?: unknown }).pkg !== undefined
 }
 
 /** Resolve one available explicit package export under Node ESM import conditions. */
@@ -496,18 +466,29 @@ function readModuleFallbackManifest(anchor: string): ProfileManifest {
 
 /** Return dependency names that may be imported by a loader-visible plugin. */
 function profileDependencyNames(manifest: ProfileManifest): string[] {
-  const names = [...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.peerDependencies ?? {})]
-  return [...new Set(names.flatMap(name => [name, dshCompatModuleId(name)]))]
+  return [...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.peerDependencies ?? {})]
 }
 
 /** Resolve the installation generation that every profile must find through the fallback directory. */
 function resolveModuleFallbackEntries(
-  installAnchor: string,
-): { entries: ModuleFallbackEntry[]; packageNames: ReadonlySet<string> } {
+  installAnchor: string, materialize = true,
+): {
+  entries: ModuleFallbackEntry[]
+  packageNames: ReadonlySet<string>
+  packageDirs: ReadonlyMap<string, string>
+  declarers: ReadonlyMap<string, string>
+  versions: ReadonlyMap<string, string | undefined>
+} {
   const appManifest = readModuleFallbackManifest(installAnchor)
   const links = new Map<string, string>()
+  const declarers = new Map<string, string>()
+  const versions = new Map<string, string | undefined>()
   /* v8 ignore next -- a real app manifest always declares its name */
-  if (appManifest.name !== undefined) links.set(appManifest.name, dirname(installAnchor))
+  if (appManifest.name !== undefined) {
+    links.set(appManifest.name, dirname(installAnchor))
+    declarers.set(appManifest.name, installAnchor)
+    versions.set(appManifest.name, appManifest.version)
+  }
   // BFS over the resolvable dependency graph; the visited set is the link
   // map itself (first resolution wins, matching Node's own nearest-wins).
   const queue: { anchor: string; manifest: ProfileManifest }[] = [{ anchor: installAnchor, manifest: appManifest }]
@@ -518,26 +499,29 @@ function resolveModuleFallbackEntries(
     /* v8 ignore next -- a real app manifest always declares dependencies */
     for (const dep of profileDependencyNames(next.manifest)) {
       if (links.has(dep)) continue
-      const canonical = dshCompatModuleId(dep)
-      const dir = packageDirFromAnchor(next.anchor, dep) ?? packageDirFromAnchor(next.anchor, canonical)
+      const dir = packageDirFromAnchor(next.anchor, dep)
       // A declared-but-uninstalled dependency cannot be a loader-visible
       // plugin; skip it rather than fail the whole boot.
       if (dir === undefined) continue
       links.set(dep, dir)
-      if (canonical !== dep && !links.has(canonical)) links.set(canonical, dir)
+      declarers.set(dep, next.anchor)
       const manifestPath = join(dir, 'package.json')
-      queue.push({ anchor: manifestPath, manifest: readModuleFallbackManifest(manifestPath) })
+      const manifest = readModuleFallbackManifest(manifestPath)
+      versions.set(dep, manifest.version)
+      queue.push({ anchor: manifestPath, manifest })
     }
   }
-  const entries = !isPackagedExecutable()
-    ? [...links].map(([packageName, packageDir]) => ({ kind: 'symlink' as const, packageName, packageDir }))
-    : [...links].flatMap(([packageName, packageDir]) => {
-      const source = packageProxySource(packageName, packageDir)
-      return Object.keys(source.targets).length === 0
-        ? []
-        : [{ kind: 'proxy' as const, packageName, version: source.version, targets: source.targets }]
-    })
-  return { entries, packageNames: new Set(links.keys()) }
+  const entries = !materialize
+    ? []
+    : !isPackagedExecutable()
+      ? [...links].map(([packageName, packageDir]) => ({ kind: 'symlink' as const, packageName, packageDir }))
+      : [...links].flatMap(([packageName, packageDir]) => {
+        const source = packageProxySource(packageName, packageDir)
+        return Object.keys(source.targets).length === 0
+          ? []
+          : [{ kind: 'proxy' as const, packageName, version: source.version, targets: source.targets }]
+      })
+  return { entries, packageNames: new Set(links.keys()), packageDirs: links, declarers, versions }
 }
 
 /** Return whether one existing fallback entry already matches its resolved installation generation. */
@@ -571,6 +555,8 @@ export interface ProfileModuleFallbackOptions {
   profile?: Profile
   /** Harness home; defaults to {@link resolveQilinHome}. */
   home?: string
+  /** Whether to materialize the computed generation; defaults to true. */
+  materialize?: boolean
 }
 
 /**
@@ -583,21 +569,71 @@ export interface ProfileModuleFallbackOptions {
  * `node_modules`; pnpm-managed entries remain authoritative, and another
  * profile's links cannot change its resolution.
  * @param options - installation anchor, optional loaded profile, and Harness home.
- * @returns settlement after the shared fallback and profile-local links are current.
+ * @returns the computed fallback generation after optional materialization.
  */
-export async function healProfilesModuleFallback(options: ProfileModuleFallbackOptions): Promise<void> {
-  const { installAnchor, profile, home = resolveQilinHome() } = options
+export async function healProfilesModuleFallback(
+  options: ProfileModuleFallbackOptions,
+): Promise<ProfileResolutionGeneration> {
+  const { installAnchor, profile, home = resolveQilinHome(), materialize = true } = options
   const profilesDir = join(home, PROFILES_DIR)
   const modulesDir = join(profilesDir, 'node_modules')
-  mkdirSync(modulesDir, { recursive: true })
-  const { entries, packageNames } = resolveModuleFallbackEntries(installAnchor)
-  if (!moduleFallbackCurrent(modulesDir, entries)) {
+  if (materialize) mkdirSync(modulesDir, { recursive: true })
+  const { entries, packageNames, packageDirs, declarers, versions } = resolveModuleFallbackEntries(installAnchor, materialize)
+  if (materialize && !moduleFallbackCurrent(modulesDir, entries)) {
     await withFileLock(modulesDir, () => {
       if (!moduleFallbackCurrent(modulesDir, entries)) healProfilesModuleFallbackLocked(entries, modulesDir)
       return Promise.resolve()
     })
   }
-  if (profile !== undefined) healProfileModuleFallback(profile, packageNames)
+  const profileDeclarers = new Map<string, string>()
+  const profileVersions = new Map<string, string | undefined>()
+  const localPackageNames = profile === undefined ? [] : installedProfilePackageNames(profile)
+  const profilePackages: ReadonlyMap<string, string> = profile === undefined
+    ? new Map<string, string>()
+    : healProfileModuleFallback(profile, packageNames, materialize, profileDeclarers, profileVersions)
+  return Object.freeze({
+    profilesDir,
+    profileDir: profile?.dir,
+    localPackageNames: Object.freeze(localPackageNames),
+    entries: Object.freeze([
+      ...[...packageDirs].map(([name, packageDir]) => Object.freeze({
+        name, packageDir, version: versions.get(name),
+        declarer: declarers.get(name) as string, scope: 'installation' as const,
+      })),
+      ...[...profilePackages].map(([name, packageDir]) => Object.freeze({
+        name, packageDir, version: profileVersions.get(name),
+        declarer: profileDeclarers.get(name) as string, scope: 'profile' as const,
+      })),
+    ]),
+  })
+}
+
+/** Return installed direct dependencies that Node resolves before profile fallback. */
+function installedProfilePackageNames(profile: Profile): string[] {
+  let manifest: ProfileManifest
+  try {
+    manifest = readModuleFallbackManifest(join(profile.dir, 'package.json'))
+  } catch (error) {
+    // Direct helper callers can supply a synthetic Profile without its on-disk manifest.
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
+    throw error
+  }
+  return profileDependencyNames(manifest).filter((name) => {
+    const candidate = join(profile.dir, 'node_modules', name)
+    if (!existsSync(join(candidate, 'package.json'))) return false
+    return !isProfileModuleFallbackLink(profile.dir, name)
+  })
+}
+
+/**
+ * Compute a profile resolution generation without materializing links or proxies.
+ * @param options - installation anchor, profile, and optional Harness home.
+ * @returns the complete immutable generation.
+ */
+export function createProfileResolutionGeneration(
+  options: Omit<ProfileModuleFallbackOptions, 'materialize'>,
+): Promise<ProfileResolutionGeneration> {
+  return healProfilesModuleFallback({ ...options, materialize: false })
 }
 
 /** Heal one module-fallback generation while the cross-process writer lock is held. */
@@ -617,17 +653,21 @@ function healProfilesModuleFallbackLocked(entries: readonly ModuleFallbackEntry[
 function dependencyClosure(
   anchors: readonly string[], reserved: ReadonlySet<string>,
   exclude: (candidate: string, packageName: string) => boolean,
+  declarers?: Map<string, string>,
+  versions?: Map<string, string | undefined>,
 ): Map<string, string> {
   const links = new Map<string, string>()
   const visited = new Set(reserved)
   for (const anchor of anchors) {
-    const canonicalAnchor = realpathSync.native(anchor)
+    const canonicalAnchor = join(realModuleDirectory(dirname(anchor)), basename(anchor))
     const manifest = readModuleFallbackManifest(canonicalAnchor)
     /* v8 ignore next -- an installable package manifest always declares its name */
     if (manifest.name === undefined) continue
     if (!visited.has(manifest.name)) {
       visited.add(manifest.name)
       links.set(manifest.name, dirname(canonicalAnchor))
+      declarers?.set(manifest.name, canonicalAnchor)
+      versions?.set(manifest.name, manifest.version)
     }
     const queue: { anchor: string; manifest: ProfileManifest }[] = [{ anchor: canonicalAnchor, manifest }]
     for (let next = queue.shift(); next !== undefined; next = queue.shift()) {
@@ -635,19 +675,16 @@ function dependencyClosure(
       /* v8 ignore next -- an installable package manifest always declares dependencies or peers */
       for (const dep of profileDependencyNames(next.manifest)) {
         if (visited.has(dep)) continue
-        const canonical = dshCompatModuleId(dep)
         const dir = packageDirFromAnchor(next.anchor, dep, exclude)
-          ?? packageDirFromAnchor(next.anchor, canonical, exclude)
         // A declared-but-uninstalled dependency cannot be loader-visible.
         if (dir === undefined) continue
         visited.add(dep)
         links.set(dep, dir)
-        if (canonical !== dep && !visited.has(canonical)) {
-          visited.add(canonical)
-          links.set(canonical, dir)
-        }
+        declarers?.set(dep, next.anchor)
         const manifestPath = join(dir, 'package.json')
-        queue.push({ anchor: manifestPath, manifest: readModuleFallbackManifest(manifestPath) })
+        const dependencyManifest = readModuleFallbackManifest(manifestPath)
+        versions?.set(dep, dependencyManifest.version)
+        queue.push({ anchor: manifestPath, manifest: dependencyManifest })
       }
     }
   }
@@ -655,11 +692,17 @@ function dependencyClosure(
 }
 
 /** Reconcile packages carried only by selected bundles into one profile. */
-function healProfileModuleFallback(profile: Profile, installationPackageNames: ReadonlySet<string>): void {
+function healProfileModuleFallback(
+  profile: Profile, installationPackageNames: ReadonlySet<string>, materialize = true,
+  declarers?: Map<string, string>,
+  versions?: Map<string, string | undefined>,
+): Map<string, string> {
   const profileModulesDir = join(profile.dir, 'node_modules')
   const ownedModulesDir = join(profile.dir, PROFILE_MODULE_FALLBACK_DIR, 'node_modules')
-  mkdirSync(profileModulesDir, { recursive: true })
-  mkdirSync(ownedModulesDir, { recursive: true })
+  if (materialize) {
+    mkdirSync(profileModulesDir, { recursive: true })
+    mkdirSync(ownedModulesDir, { recursive: true })
+  }
   const bundleAnchors = profile.layers
     .filter(layer => !installationPackageNames.has(layer.packageName))
     .map(layer => join(layer.packageDir, 'package.json'))
@@ -676,8 +719,9 @@ function healProfileModuleFallback(profile: Profile, installationPackageNames: R
       /* v8 ignore next -- see the host-filesystem exception above */
       throw error
     }
-  })
+  }, declarers, versions)
   for (const layer of profile.layers) bundleLinks.delete(layer.packageName)
+  if (!materialize) return bundleLinks
   for (const packageName of ownedPackageNames(ownedModulesDir)) {
     if (!bundleLinks.has(packageName)) removeProfileSymlink(profileModulesDir, ownedModulesDir, packageName)
   }
@@ -689,6 +733,7 @@ function healProfileModuleFallback(profile: Profile, installationPackageNames: R
     mkdirSync(dirname(profileLink), { recursive: true })
     ensureProfileSymlink(profileLink, ownedLink)
   }
+  return bundleLinks
 }
 
 /**
@@ -727,11 +772,6 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
   return left.length === right.length && left.every((value, index) => value === right[index])
 }
 
-/** Read profile metadata with QiLin precedence and DSH fallback. */
-function profileDeclarationOf(manifest: ProfileManifest): QilinManifest | undefined {
-  return manifest.qilin?.profile !== undefined ? manifest.qilin : manifest.dsh
-}
-
 /**
  * Normalize an exact installation-owned bundle tuple to its shipped template,
  * or add the shipped reload default to an exact current tuple. A changed value
@@ -741,12 +781,11 @@ function profileDeclarationOf(manifest: ProfileManifest): QilinManifest | undefi
 function normalizeShippedProfile(name: string, dir: string, manifest: ProfileManifest): ProfileManifest {
   const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[name]
   const template = PROFILE_TEMPLATES[name]
-  const declaration = profileDeclarationOf(manifest)
-  const bundles = declaration?.profile?.bundles
+  const bundles = manifest.qilin?.profile?.bundles
   if (template === undefined || bundles === undefined) return manifest
   const isRetiredTuple = installationOwned !== undefined && sameBundles(bundles, installationOwned)
   const isCurrentTuple = sameBundles(bundles, template.bundles)
-  const needsReloadDefault = declaration?.profile?.patchReload === undefined && isCurrentTuple
+  const needsReloadDefault = manifest.qilin?.profile?.patchReload === undefined && isCurrentTuple
   if (!isRetiredTuple && !needsReloadDefault) return manifest
   const normalized: ProfileManifest = {
     ...manifest,
@@ -755,7 +794,7 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
       profile: {
         ...manifest.qilin?.profile,
         bundles: [...template.bundles],
-        patchReload: declaration?.profile?.patchReload ?? template.patchReload,
+        patchReload: manifest.qilin?.profile?.patchReload ?? template.patchReload,
       },
     },
   }
@@ -785,21 +824,10 @@ function packageDirFromAnchor(
 }
 
 /**
- * Bundles the installation seeds but the PROFILE owns: resolution tries the
- * profile anchor first, so a copy installed through `qilin plugin` (the
- * online-upgrade channel) replaces the installation's seed for that name,
- * while a fresh profile still resolves the seed with no profile install.
- * Every bundle not named here keeps the installation-first contract.
- */
-export const PROFILE_OWNED_BUNDLES: readonly string[] = ['@qilin/coding-sidebar', 'dsh-file-review-kcoder']
-
-/**
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
  * `@qilin/base` (and every other in-box bundle) always comes from
- * the same installation as the running qilin, never from a profile-local copy;
- * {@link PROFILE_OWNED_BUNDLES} members reverse the order (profile copy first,
- * installation seed as the fallback).
+ * the same installation as the running qilin, never from a profile-local copy.
  * Resolution does not require the package to export `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.
  * @param packageName - the bundle's package name from `qilin.profile.bundles`.
@@ -810,10 +838,7 @@ export const PROFILE_OWNED_BUNDLES: readonly string[] = ['@qilin/coding-sidebar'
 export function resolveBundleDir(
   binName: string, packageName: string, installAnchor: string, profileDir: string,
 ): string {
-  const anchors = PROFILE_OWNED_BUNDLES.includes(packageName)
-    ? [join(profileDir, 'package.json'), installAnchor]
-    : [installAnchor, join(profileDir, 'package.json')]
-  for (const anchor of anchors) {
+  for (const anchor of [installAnchor, join(profileDir, 'package.json')]) {
     const dir = packageDirFromAnchor(anchor, packageName)
     if (dir !== undefined) return dir
   }
@@ -821,78 +846,6 @@ export function resolveBundleDir(
     `${binName}: cannot resolve profile bundle ${JSON.stringify(packageName)} from the qilin installation or ${profileDir}; `
     + `run 'qilin plugin --profile ${basename(profileDir)} install' if its dependency is not installed`,
   )
-}
-
-/**
- * Whether an installed dependency resolves to a QiLin or DSH bundle layer.
- * @param binName - diagnostic prefix for package resolution.
- * @param packageName - dependency name to resolve.
- * @param profileDir - profile directory used as a resolution anchor.
- * @param installAnchor - running installation package.json used as the primary anchor.
- * @returns whether the resolved package declares a bundle patch.
- */
-export function dependencyExportsBundle(
-  binName: string,
-  packageName: string,
-  profileDir: string,
-  installAnchor: string,
-): boolean {
-  let dir: string
-  try {
-    dir = resolveBundleDir(binName, packageName, installAnchor, profileDir)
-  } catch {
-    return false
-  }
-  return bundlePatchOf(readProfileManifest(binName, dir)) !== undefined
-}
-
-/**
- * Reconcile a profile's bundle list with its installed dependencies.
- * Template-owned layers are preserved; dependency-managed layers are added when
- * their installed package declares either channel's bundle patch and removed
- * when the package disappears or loses that declaration.
- * @param binName - diagnostic prefix for manifest and resolution errors.
- * @param before - manifest captured before the package-manager operation.
- * @param profileDir - profile directory whose manifest is reconciled.
- * @param installAnchor - installation package.json used for two-anchor resolution.
- */
-export function reconcileProfilePlugins(
-  binName: string,
-  before: ProfileManifest,
-  profileDir: string,
-  installAnchor: string,
-): void {
-  const after = readProfileManifest(binName, profileDir)
-  const beforeDeps = new Set(Object.keys(before.dependencies ?? {}))
-  const dependencies = Object.keys(after.dependencies ?? {})
-  const declaration = profileDeclarationOf(after)
-  const plugins = [...declaration?.profile?.bundles ?? []]
-  let changed = false
-  for (const packageName of dependencies) {
-    const isBundle = dependencyExportsBundle(binName, packageName, profileDir, installAnchor)
-    if (isBundle && !plugins.includes(packageName)) {
-      plugins.push(packageName)
-      changed = true
-    } else if (!isBundle && !beforeDeps.has(packageName)) {
-      process.stderr.write(
-        `${binName}: warning: ${packageName} declares no qilin.bundle.patch or dsh.bundle.patch — installed as a plain dependency, not a profile layer `
-        + '(a later update that gains one activates it automatically)\n',
-      )
-    }
-  }
-  const dependencySet = new Set(dependencies)
-  for (const packageName of [...plugins]) {
-    const wasDependency = beforeDeps.has(packageName) || dependencySet.has(packageName)
-    const stillBundle = dependencySet.has(packageName)
-      && dependencyExportsBundle(binName, packageName, profileDir, installAnchor)
-    if (wasDependency && !stillBundle) {
-      plugins.splice(plugins.indexOf(packageName), 1)
-      changed = true
-    }
-  }
-  if (!changed) return
-  after.qilin = { ...after.qilin, profile: { ...after.qilin?.profile, bundles: plugins } }
-  writeProfileManifest(profileDir, after)
 }
 
 /**
@@ -912,21 +865,20 @@ export function loadProfileDirectory(
   options: { userLayer?: boolean } = {},
 ): Profile {
   const manifest = readProfileManifest(binName, dir)
-  const declaration = profileDeclarationOf(manifest)
-  const bundles = declaration?.profile?.bundles ?? []
-  const rawPatchReload: unknown = declaration?.profile?.patchReload
+  const bundles = manifest.qilin?.profile?.bundles ?? []
+  const rawPatchReload: unknown = manifest.qilin?.profile?.patchReload
   if (rawPatchReload !== undefined && rawPatchReload !== 'live' && rawPatchReload !== 'startup') {
     throw new Error(
-      `${binName}: profile manifest ${join(dir, 'package.json')} qilin.profile.patchReload or dsh.profile.patchReload must be "live" or "startup"`,
+      `${binName}: profile manifest ${join(dir, 'package.json')} qilin.profile.patchReload must be "live" or "startup"`,
     )
   }
   const patchReload = rawPatchReload ?? DEFAULT_PROFILE_PATCH_RELOAD
   const layers = bundles.map((packageName): ProfileLayer => {
     const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
     const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
-    const declared = bundlePatchOf(bundleManifest)
+    const declared = bundleManifest.qilin?.bundle?.patch
     if (declared === undefined) {
-      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
+      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle in its package.json`)
     }
     const patchPath = join(packageDir, declared)
     return { packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) }

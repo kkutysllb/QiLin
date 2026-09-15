@@ -1,7 +1,7 @@
 {
   "name": "@qilin/compaction-basic",
   "description": "Token-meter-driven compaction policy and LLM summarization backend for the QiLin",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -61,6 +61,7 @@
     "@qilin/session": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/token-meter": "workspace:^",
-    "@qilin/tools": "workspace:^"
+    "@qilin/tools": "workspace:^",
+    "@qilin/compaction-image-offload": "workspace:^"
   }
 }

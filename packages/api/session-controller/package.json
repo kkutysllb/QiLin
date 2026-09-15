@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-session-controller",
   "description": "Session Remote commands, cold reads, and live control transport",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -47,7 +47,8 @@
         "@qilin/api-gateway/client"
       ],
       "inject": [
-        "@qilin/api-gateway"
+        "@qilin/api-gateway",
+        "@qilin/client-file-upload"
       ],
       "platform": "web"
     }
@@ -128,6 +129,7 @@
     "@qilin/client-connection": "workspace:^",
     "@qilin/client-file-upload": "workspace:^",
     "@qilin/client-store": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
     "@qilin/commands": "workspace:^",
     "@qilin/file-reference": "workspace:^",
     "@qilin/fs": "workspace:^",
@@ -136,6 +138,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/native-command": "workspace:^",
     "@qilin/permission-presets": "workspace:^",
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/session-persistence": "workspace:^",

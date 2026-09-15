@@ -5,11 +5,11 @@
 
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
-import { CodeRuntime } from '@qilin/code-runtime'
+import { PtcRuntime } from '@qilin/ptc-runtime'
 import { createScope, type Scope } from '@qilin/scope'
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve, sep } from 'node:path'
+import { join, sep } from 'node:path'
 import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
 import { ToolCallId } from '@qilin/llm'
 import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
@@ -137,12 +137,12 @@ describe('session cwd resolution', () => {
     ? {}
     : { agent: { session: { header: { cwd } } } }
 
-  it('retains ordinary spelling but resolves the cwd before parent traversal', () => {
+  it('preserves cwd spelling so the filesystem provider resolves parent traversal', () => {
     const cwd = process.cwd()
     const throughParent = `${cwd}${sep}..`
-    expect(sessionCwd(execution() as never, 'file.txt')).toBeUndefined()
-    expect(sessionCwd(execution(cwd) as never, 'file.txt')).toBe(cwd)
-    expect(sessionCwd(execution(throughParent) as never, 'file.txt')).toBe(realpathSync.native(throughParent))
+    expect(sessionCwd(execution() as never)).toBeUndefined()
+    expect(sessionCwd(execution(cwd) as never)).toBe(cwd)
+    expect(sessionCwd(execution(throughParent) as never)).toBe(throughParent)
 
     const root = mkdtempSync(join(tmpdir(), 'qilin-tool-fs-session-cwd-'))
     const physical = join(root, 'physical')
@@ -150,8 +150,7 @@ describe('session cwd resolution', () => {
     try {
       mkdirSync(physical)
       symlinkSync(physical, link, process.platform === 'win32' ? 'junction' : 'dir')
-      expect(sessionCwd(execution(link) as never, 'child.txt')).toBe(link)
-      expect(sessionCwd(execution(link) as never, `..${sep}parent.txt`)).toBe(realpathSync.native(link))
+      expect(sessionCwd(execution(link) as never)).toBe(link)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -892,7 +891,7 @@ describe('sandbox escalation API (write/edit)', () => {
     await call(ctx, 'write', { file_path: 'a.txt', content: 'x' }, escalationAgent())
     expect(fs.stamped).toEqual([{
       mode: 'workspace-write',
-      workspaceRoot: resolve('/session-project'),
+      workspaceRoot: '/session-project',
       sessionId: SessionId('sess-fs-esc'),
     }])
   })
@@ -902,7 +901,7 @@ describe('sandbox escalation API (write/edit)', () => {
     await call(ctx, 'write', { file_path: 'a.txt', content: 'x' }, escalationAgent([{ type: 'sandbox/mode', data: { mode: 'read-only' } }]))
     expect(fs.stamped).toEqual([{
       mode: 'read-only',
-      workspaceRoot: resolve('/session-project'),
+      workspaceRoot: '/session-project',
       sessionId: SessionId('sess-fs-esc'),
     }])
   })
@@ -939,7 +938,7 @@ describe('sandbox escalation API (write/edit)', () => {
     })
     expect(fs.stamped).toEqual([{
       mode: 'danger-full-access',
-      workspaceRoot: resolve('/session-project'),
+      workspaceRoot: '/session-project',
       sessionId: SessionId('sess-fs-esc'),
     }])
   })
@@ -1048,7 +1047,9 @@ function withPersona(...sections: string[]): string {
 }
 
 /** Schema assembly only: these cases never execute user code. */
-class GuidanceCodeRuntime extends CodeRuntime {
+class GuidancePtcRuntime extends PtcRuntime {
+  resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+
   readonly language = 'typescript'
   readonly isolation = 'fake'
   run() { return Promise.resolve({ logs: [] }) }
@@ -1058,7 +1059,7 @@ describe('scope-aware PTC guidance', () => {
   it.each(['ptc', 'both'] as const)('uses capability visibility in %s mode', async (mode) => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(GuidanceCodeRuntime)
+    await ctx.plugin(GuidancePtcRuntime)
     await ctx.plugin(ToolRuntime, { mode })
     await ctx.plugin(FakeFs)
     await ctx.plugin(ToolFs)

@@ -7,6 +7,7 @@ import {
   QILIN_HOME_DIR_NAME,
   canonicalizeWatchPath,
   defaultQilinHome,
+  qilinCachePath,
   qilinHomeDisplay,
   qilinHomePath,
   expandHomePath,
@@ -56,6 +57,34 @@ describe('qilin path helpers', () => {
     expect(qilinHomeDisplay('/some/other/root')).toBe('$QILIN_HOME')
   })
 
+  it.each([
+    [undefined, join(homedir(), '.qilin')],
+    ['', join(homedir(), '.qilin')],
+    ['   ', join(homedir(), '.qilin')],
+    ['~/env-qilin', join(homedir(), 'env-qilin')],
+    ['./relative-qilin', resolve('./relative-qilin')],
+  ] as const)('resolves cache paths with QILIN_HOME=%j', (home, expectedHome) => {
+    vi.stubEnv('QILIN_HOME', home)
+    try {
+      expect(qilinCachePath()).toBe(join(expectedHome, 'cache'))
+      expect(qilinCachePath('models', 'index.json')).toBe(join(expectedHome, 'cache', 'models', 'index.json'))
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('resolves configured cache homes before the environment', () => {
+    vi.stubEnv('QILIN_HOME', '~/env-qilin')
+    try {
+      expect(qilinCachePath({ qilinHome: '~/explicit-qilin' })).toBe(join(homedir(), 'explicit-qilin', 'cache'))
+      expect(qilinCachePath({ qilinHome: './explicit-qilin' }, 'attachments', 'request-images'))
+        .toBe(resolve('./explicit-qilin/cache/attachments/request-images'))
+      expect(qilinCachePath({}, 'attachments')).toBe(join(homedir(), 'env-qilin', 'cache', 'attachments'))
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
   it('canonicalizes a watcher ancestor while preserving a missing suffix', async () => {
     const root = await mkdtemp(join(tmpdir(), 'qilin-watch-path-'))
     const target = join(root, 'target')
@@ -63,6 +92,7 @@ describe('qilin path helpers', () => {
     try {
       await mkdir(target)
       await symlink(target, alias, process.platform === 'win32' ? 'junction' : 'dir')
+      await expect(canonicalizeWatchPath(alias)).resolves.toBe(await realpath(target))
       await expect(canonicalizeWatchPath(join(alias, 'later', 'config.yml'))).resolves.toBe(
         join(await realpath(target), 'later', 'config.yml'),
       )

@@ -91,6 +91,9 @@
     - id: tools
       name: '@qilin/tools'
 
+    - id: mcp-resources
+      name: '@qilin/mcp-resources'
+
     - id: agent
       name: '@qilin/agent'
 

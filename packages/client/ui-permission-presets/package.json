@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-permission-presets",
   "description": "Permission surfaces: a new-session default in General settings and a current-session /permission popup over the permissions projection",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -29,8 +29,10 @@
     "client": {
       "inject": [
         "@qilin/api-session-controller",
+        "@qilin/client-connection",
         "@qilin/client-locale",
         "@qilin/client-ui-commands",
+        "@qilin/client-ui-conversation",
         "@qilin/api-remotes",
         "@qilin/client-ui-settings"
       ],
@@ -46,19 +48,23 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/kylin": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/client-test-runtime": "workspace:^",
     "@qilin/client-ui-commands": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
     "@qilin/client-ui-primitives": "workspace:^",
     "@qilin/client-ui-settings": "workspace:^",
     "@qilin/client-ui-input-trigger": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@qilin/permission-presets": "workspace:^",
     "@types/react": "~18.3.1",
+    "clsx": "^2.0.0",
     "react": "^18.2.0",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^"

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/mcp-client",
   "description": "MCP client bridge: connects to MCP servers and registers their tools on ctx.tools",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -33,12 +33,14 @@
     "@qilin/subprocess": "workspace:^",
     "@qilin/timeout": "workspace:^",
     "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:^",
+    "@qilin/mcp-resources": "workspace:^",
+    "@qilin/system-prompt": "workspace:^"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
     "@deepseek-ai/schemastery": "workspace:^",
-    "zod": "^4.4.3"
+    "@modelcontextprotocol/client": "2.0.0",
+    "@qilin/util-values": "workspace:^"
   },
   "devDependencies": {
     "@qilin/attachment": "workspace:^",
@@ -51,6 +53,19 @@
     "@modelcontextprotocol/server-everything": "^2026.7.4",
     "@modelcontextprotocol/server-filesystem": "^2026.7.4",
     "@qilin/kylin": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/http-proxy": "workspace:^",
+    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/node": "2.0.0",
+    "zod": "^4.4.3",
+    "@qilin/mcp-resources": "workspace:^",
+    "@qilin/system-prompt": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "@qilin/mcp-resources": {
+      "optional": true
+    },
+    "@qilin/system-prompt": {
+      "optional": true
+    }
   }
 }

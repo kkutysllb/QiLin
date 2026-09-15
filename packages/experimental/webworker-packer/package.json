@@ -1,8 +1,10 @@
 {
   "name": "@qilin/experimental-webworker-packer",
   "description": "Build-time packer for the browser runtime's base VFS image and ordered data-overlay archives",
-  "version": "3.0.0",
-  "private": true,
+  "version": "0.1.6-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
@@ -40,8 +42,7 @@
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
     "@types/js-yaml": "^4.0.9",
-    "@types/picomatch": "^3.0.2",
-    "@qilin/package-manifest": "workspace:^"
+    "@types/picomatch": "^3.0.2"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:^"

@@ -8,7 +8,10 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { isPublicExperimentalPackageDirectory } from './experimental-package-policy.ts'
+import {
+  isPublicExperimentalPackageDirectory,
+  PRIVATE_EXPERIMENTAL_PACKAGE_DIRECTORIES,
+} from './experimental-package-policy.ts'
 import { hasTypertRemoteNavigation, isForbiddenPublicationFile } from './publication-payload.ts'
 import { collectProjectReferenceFaceViolations } from './project-reference-faces.ts'
 
@@ -24,8 +27,8 @@ const workspaceGlobs = [
 ] as const
 const vendoredPackages = new Set([
   '@qilin/kylin',
-  '@deepseek-ai/cosmokit',
-  '@deepseek-ai/schemastery',
+  '@qilin/cosmokit',
+  '@qilin/schemastery',
   '@qilin/kylin-plugin-loader',
   '@qilin/kylin-plugin-include',
   '@qilin/kylin-plugin-group',
@@ -34,23 +37,18 @@ const vendoredPackages = new Set([
   '@qilin/kylin-plugin-logger-console',
 ])
 const publicNativePackages = new Set([
-  '@deepseek-ai/node-addon-system',
-  '@deepseek-ai/node-addon-system-darwin-arm64',
-  '@deepseek-ai/node-addon-system-darwin-x64',
-  '@deepseek-ai/node-addon-system-linux-arm64',
-  '@deepseek-ai/node-addon-system-linux-x64',
+  '@qilin/node-addon-system',
+  '@qilin/node-addon-system-darwin-arm64',
+  '@qilin/node-addon-system-darwin-x64',
+  '@qilin/node-addon-system-linux-arm64',
+  '@qilin/node-addon-system-linux-x64',
 ])
 /** Deliberate source payloads whose exact bytes are part of the package's audit surface. */
 const publicationSourceAllowlist: Readonly<Record<string, readonly string[]>> = {
-  '@deepseek-ai/node-addon-system': ['src/main.c', 'src/flock.c'],
+  '@qilin/node-addon-system': ['src/main.c', 'src/flock.c'],
 }
-const repositoryUrl = 'git+https://github.com/deepseek-harness/deepseek-harness.git'
-/**
- * Source home the published packages point consumers at. It differs from
- * {@link repositoryUrl}, which the Landlock packages keep because npm resolves
- * their trusted publishing against the repository that runs the workflow.
- */
-const publishedRepositoryUrl = 'git+https://github.com/deepseek-ai/deepseek-harness.git'
+/** Public source home recorded in maintained package manifests. */
+const publishedRepositoryUrl = 'git+https://github.com/qilin/deepseek-harness.git'
 /** Packages that participate in the experimental policy. */
 const experimentalPackageDirectory = /^packages\/experimental\/[^/]+$/
 /** npm namespace reserved for experimental packages. */
@@ -67,7 +65,7 @@ const appPackageFiles: Readonly<Record<string, readonly string[]>> = {
     'config/desktop.cordis.patch.yml',
   ],
   // Sourcemaps stay out by payload policy; the worker-preview surface
-  // (dist/preview.html and dist/preview/) backs private experimental
+  // (dist/preview.html and dist/preview/) backs opt-in experimental
   // packages and is not published.
   '@qilin/web-frontend': ['dist', '!dist/**/*.map', '!dist/preview.html', '!dist/preview'],
 }
@@ -150,6 +148,8 @@ function workspaceManifests(): WorkspaceManifest[] {
 }
 
 const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
+  // Owned Worker bundles import this public bootstrap before their business entry.
+  '@qilin/app-boot': ['lib/worker/profile-resolution-bootstrap.js'],
   // Statically linked client libraries keep their stylesheets next to the emitted
   // JavaScript, which imports them by relative path: the compile shell runs
   // them through its own CSS pipeline, so the sheets are published artifacts.
@@ -160,7 +160,11 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin/client-web': ['lib/**/*.css'],
   '@qilin/client-ui-theme': ['lib/styles'],
   // The CPython side ships as source .py files, published as-is rather than built.
-  '@qilin/experimental-code-runtime-python': ['py/**/*.py'],
+  '@qilin/experimental-ptc-runtime-python': ['py/**/*.py'],
+  // The isolated Node bootstrap is a separately launched bundle.
+  '@qilin/ptc-runtime-node': ['lib/process.js'],
+  // The Host entry starts its sibling Worker by URL rather than a package export.
+  '@qilin/experimental-inspector': ['lib/worker.js'],
   // The shipped preset compositions travel inside the roster package.
   '@qilin/agent-presets': ['presets'],
   // The Web Host mounts the default-off settings owner independently of each
@@ -174,17 +178,28 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // also shares its generated FFI code through a hashed runtime chunk.
   '@qilin/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js'],
   '@qilin/skill-badge': ['assets'],
+  '@qilin/subprocess': ['lib/control.js'],
+  // SSH launches a private helper and shares wire definitions and TLS setup
+  // between that helper and the connection owner.
+  '@qilin/ssh': [
+    'lib/helper.js', 'lib/protocol.js', 'lib/schemas.js',
+    'lib/protocol-*.js', 'lib/schemas-*.js', 'lib/stream-security-*.js',
+  ],
   // Ordinary native containment ships a path-loaded runner and its shared
   // runner chunk beside the existing node-pty permission repair.
   '@qilin/subprocess-local': [
     'lib/runner.js',
     'lib/runner-*.js',
+    'lib/output.js',
     'scripts/ensure-spawn-helper.mjs',
   ],
   // tsdown shares the repository/pack code between the lib entry and the bin
   // through a hashed chunk. The committed bin.js is the link target pnpm can
   // resolve at install time, before the build produces lib/bin.js.
   '@qilin/experimental-webworker-packer': ['bin.js', 'lib/repository-*.js'],
+  // The headless entry and its startup row share the JSON projection code
+  // through a hashed tsdown chunk; both import it by relative path.
+  '@qilin/headless': ['lib/json-stream-*.js'],
 }
 
 function sameStringList(actual: readonly string[] | undefined, expected: readonly string[]): boolean {
@@ -268,15 +283,18 @@ function usesEmittedTreeDefaults(manifest: PackageManifest): boolean {
     exportDefault(manifest, subpath)?.startsWith('./lib/types/') === true)
 }
 
-/** Experimental manifest requirements, including explicit public exceptions. */
-export function checkExperimentalManifest({ dir, manifest }: WorkspaceManifest): string[] {
+/** Experimental manifest requirements, including explicit private exceptions. */
+export function checkExperimentalManifest(
+  { dir, manifest }: WorkspaceManifest,
+  privateDirectories: readonly string[] = PRIVATE_EXPERIMENTAL_PACKAGE_DIRECTORIES,
+): string[] {
   if (!experimentalPackageDirectory.test(dir)) return []
   const label = manifest.name ?? dir
   const errors: string[] = []
   if (manifest.name?.startsWith(experimentalPackageNamePrefix) !== true) {
     errors.push(`${label}: experimental package name must start with ${JSON.stringify(experimentalPackageNamePrefix)}`)
   }
-  if (isPublicExperimentalPackageDirectory(dir)) {
+  if (isPublicExperimentalPackageDirectory(dir, privateDirectories)) {
     if (manifest.private === true) errors.push(`${label}: public experimental package must not set "private": true`)
     if (manifest.publishConfig?.access !== 'public') {
       errors.push(`${label}: public experimental package must set publishConfig.access to "public"`)
@@ -338,9 +356,9 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
     }
     const expectedDirectory = dir
     if (manifest.repository?.type !== 'git'
-      || manifest.repository.url !== repositoryUrl
+      || manifest.repository.url !== publishedRepositoryUrl
       || manifest.repository.directory !== expectedDirectory) {
-      errors.push(`${label}: published Landlock package repository must use ${repositoryUrl} with directory ${expectedDirectory} for trusted publishing`)
+      errors.push(`${label}: published Landlock package repository must use ${publishedRepositoryUrl} with directory ${expectedDirectory}`)
     }
   } else if (isReleaseMemberDirectory(dir)) {
     // Release members state that they are publishable: npm refuses a private

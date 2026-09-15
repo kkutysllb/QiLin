@@ -1,6 +1,6 @@
 /**
- * Rescope the vendored Cordis packages into our owned scopes (framework family `@qilin`, foundation libraries `@deepseek-ai`), and undo
- * that rescope with `--reverse`. Every harness package declares `cordis` as a
+ * Rescope the vendored Cordis packages into our owned scopes (framework family `@qilin`, foundation libraries `@qilinpe, and undo
+ * that rescope with `--reverse`. Every harness package declares `kylin` as a
  * peer dependency, so publication carries this framework layer too; publishing
  * it under the upstream names would squat them on the registry
  * ([rationale and name mapping](../docs/rescope.md)).
@@ -9,9 +9,9 @@
  * `'old'` / `"old"` / `` `old` `` / `'old/subpath'`, plus a YAML `name: old`
  * scalar. A match needs a quote (or `name: `) immediately left and the matching
  * quote — optionally after a `/subpath` — immediately right, which excludes
- * `cordis.yml`, the Loader's `cordis:` builtin prefix, `cordis-config-entry`,
- * `@qilin/tool-kylin`, and `cordiverse/cordis`, and makes the
- * rewrite idempotent because the scoped name's `cordis` is preceded by `/`.
+ * `kylin.yml`, the Loader's `kylin:` builtin prefix, `kylin-config-entry`,
+ * `@qilin/tool-kylin`, and `cordiverse/kylin`, and makes the
+ * rewrite idempotent because the scoped name's `kylin` is preceded by `/`.
  * Markdown follows the rename inside every fence, and in `docs/` prose too:
  * a tutorial that teaches an unresolvable name is wrong, while prose elsewhere
  * records what was true when it was written.
@@ -43,15 +43,15 @@ interface Rename {
 
 /** The mapping this codemod applies; `vendor/README.md` carries the same table. */
 const RENAMES: readonly Rename[] = [
-  { directory: 'cordis', upstream: 'cordis', scoped: '@qilin/kylin' },
-  { directory: 'cosmokit', upstream: 'cosmokit', scoped: '@deepseek-ai/cosmokit' },
-  { directory: 'schemastery', upstream: 'schemastery', scoped: '@deepseek-ai/schemastery' },
-  { directory: 'loader', upstream: '@cordisjs/plugin-loader', scoped: '@qilin/kylin-plugin-loader' },
-  { directory: 'include', upstream: '@cordisjs/plugin-include', scoped: '@qilin/kylin-plugin-include' },
-  { directory: 'group', upstream: '@cordisjs/plugin-group', scoped: '@qilin/kylin-plugin-group' },
-  { directory: 'timer', upstream: '@cordisjs/plugin-timer', scoped: '@qilin/kylin-plugin-timer' },
-  { directory: 'hmr', upstream: '@cordisjs/plugin-hmr', scoped: '@qilin/kylin-plugin-hmr' },
-  { directory: 'logger-console', upstream: '@cordisjs/plugin-logger-console', scoped: '@qilin/kylin-plugin-logger-console' },
+  { directory: 'kylin', upstream: 'kylin', scoped: '@qilin/kylin' },
+  { directory: 'cosmokit', upstream: 'cosmokit', scoped: '@qilin/cosmokit' },
+  { directory: 'schemastery', upstream: 'schemastery', scoped: '@qilin/schemastery' },
+  { directory: 'loader', upstream: '@kylinjs/plugin-loader', scoped: '@qilin/kylin-plugin-loader' },
+  { directory: 'include', upstream: '@kylinjs/plugin-include', scoped: '@qilin/kylin-plugin-include' },
+  { directory: 'group', upstream: '@kylinjs/plugin-group', scoped: '@qilin/kylin-plugin-group' },
+  { directory: 'timer', upstream: '@kylinjs/plugin-timer', scoped: '@qilin/kylin-plugin-timer' },
+  { directory: 'hmr', upstream: '@kylinjs/plugin-hmr', scoped: '@qilin/kylin-plugin-hmr' },
+  { directory: 'logger-console', upstream: '@kylinjs/plugin-logger-console', scoped: '@qilin/kylin-plugin-logger-console' },
 ]
 
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.tpl', '.json', '.yml', '.yaml', '.md'] as const
@@ -80,62 +80,62 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'vendor/schemastery/src/index.ts', upstream: ['schemastery'] },
   // Asserts the vendored-manifest table, which gains an upstream-name column.
   { file: 'scripts/gen-third-party-notices.spec.ts', upstream: RENAMES.map(rename => rename.upstream) },
-  // `cordis` is also an agent-preset id — the directory name under
+  // `kylin` is also an agent-preset id — the directory name under
   // packages/preset/agent-presets/presets/ — so in these files the bare name is
   // product data, not a package reference. Renaming it changed which preset
   // the creator flow stages and which id the roster reports.
-  { file: 'packages/client/ui-agent-preset/src/client/AgentPresetSection.tsx', upstream: ['cordis'] },
-  { file: 'packages/preset/agent-presets/tests/shipped-root.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/client/ui-agent-preset/src/client/index.ts', upstream: ['cordis'] },
-  { file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/client/ui-agent-preset/tests/section.client.spec.tsx', upstream: ['cordis'] },
-  { file: 'apps/cli/tests/web-agent-presets.e2e.ts', upstream: ['cordis'] },
-  { file: 'apps/web/tests/agent-preset-authoring.e2e.ts', upstream: ['cordis'] },
-  { file: 'packages/preset/agent-presets/tests/session.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/src/client/AgentPresetSection.tsx', upstream: ['kylin'] },
+  { file: 'packages/preset/agent-presets/tests/shipped-root.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/client/ui-agent-preset/src/client/index.ts', upstream: ['kylin'] },
+  { file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/client/ui-agent-preset/tests/section.client.spec.tsx', upstream: ['kylin'] },
+  { file: 'apps/cli/tests/web-agent-presets.e2e.ts', upstream: ['kylin'] },
+  { file: 'apps/web/tests/agent-preset-authoring.e2e.ts', upstream: ['kylin'] },
+  { file: 'packages/preset/agent-presets/tests/session.spec.ts', upstream: ['kylin'] },
   // The preset's own composition: its header comment and its system prompt name
   // the preset a model mounts, so the scoped name would send the model after an
   // id no roster reports.
-  { file: 'packages/preset/agent-presets/presets/cordis/agent.cordis.yml', upstream: ['cordis'] },
-  // The preset-roster loop names the `cordis` preset id, not a package.
-  { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/preset/agent-presets/presets/kylin/agent.kylin.yml', upstream: ['kylin'] },
+  // The preset-roster loop names the `kylin` preset id, not a package.
+  { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['kylin'] },
   // GROUP_ORDER holds `packages/<group>/` directory names, not package names.
-  { file: 'scripts/gen-module-graph.ts', upstream: ['cordis'] },
-  { file: 'scripts/gen-doc-graphs.ts', upstream: ['cordis'] },
-  // `cordis/*` is the extensions event domain, not a package subpath. The
+  { file: 'scripts/gen-module-graph.ts', upstream: ['kylin'] },
+  { file: 'scripts/gen-doc-graphs.ts', upstream: ['kylin'] },
+  // `kylin/*` is the extensions event domain, not a package subpath. The
   // generated catalogs and every producer/consumer must preserve that wire id.
-  { file: 'docs/event-producer-consumer.md', upstream: ['cordis'] },
-  { file: 'docs/event-producer-consumer.zh.md', upstream: ['cordis'] },
-  { file: 'docs/subsystems/extensions.md', upstream: ['cordis'] },
-  { file: 'docs/subsystems/extensions.zh.md', upstream: ['cordis'] },
-  { file: 'packages/api/remotes/src/remote-events.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-client-runner/src/client/index.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-client-runner/src/client/runtime.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-client-runner/tests/orchestrator.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-client-runner/tests/plugin.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-host-runner/src/index.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-host-runner/src/inspect-registry.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-host-runner/src/types.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-host-runner/tests/helpers.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-host-runner/tests/runner.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/kylin-host-runner/tests/versioning.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/tool-kylin/src/api-catalog.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/tool-kylin/src/providers.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/index.ts', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/inventory.ts', upstream: ['cordis'] },
-  // `cordis/tree` is an Inspector observation topic, not a package subpath.
-  { file: 'packages/experimental/inspector/src/shared/bridge/messages/cordis.ts', upstream: ['cordis'] },
-  { file: 'packages/experimental/inspector/tests/cordis-query.host.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/experimental/inspector/tests/cordis-tree.host.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/experimental/inspector/tests/plugin.client.spec.ts', upstream: ['cordis'] },
-  { file: 'scripts/gen-kylin-catalog.ts', upstream: ['cordis'] },
+  { file: 'docs/event-producer-consumer.md', upstream: ['kylin'] },
+  { file: 'docs/event-producer-consumer.zh.md', upstream: ['kylin'] },
+  { file: 'docs/subsystems/extensions.md', upstream: ['kylin'] },
+  { file: 'docs/subsystems/extensions.zh.md', upstream: ['kylin'] },
+  { file: 'packages/api/remotes/src/remote-events.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-client-runner/src/client/index.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-client-runner/src/client/runtime.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-client-runner/tests/orchestrator.client.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-client-runner/tests/plugin.client.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-host-runner/src/index.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-host-runner/src/inspect-registry.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-host-runner/src/types.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-host-runner/tests/helpers.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-host-runner/tests/runner.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/kylin-host-runner/tests/versioning.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/tool-kylin/src/api-catalog.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/tool-kylin/src/providers.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/index.ts', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/inventory.ts', upstream: ['kylin'] },
+  // `kylin/tree` is an Inspector observation topic, not a package subpath.
+  { file: 'packages/experimental/inspector/src/shared/bridge/messages/kylin.ts', upstream: ['kylin'] },
+  { file: 'packages/experimental/inspector/tests/kylin-query.host.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/experimental/inspector/tests/kylin-tree.host.spec.ts', upstream: ['kylin'] },
+  { file: 'packages/experimental/inspector/tests/plugin.client.spec.ts', upstream: ['kylin'] },
+  { file: 'scripts/gen-kylin-catalog.ts', upstream: ['kylin'] },
   // The UI locale namespace and input-trigger source id are product keys.
-  { file: 'packages/client/ui-settings-plugin-inventory/src/client/PluginInventorySettingsTab.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/CordisActionRow.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/CordisDefineRow.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/CordisPanel.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/CordisRunRow.tsx', upstream: ['cordis'] },
-  { file: 'packages/extensions/ui-kylin/src/client/locales.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-settings-plugin-inventory/src/client/PluginInventorySettingsTab.tsx', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisActionRow.tsx', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisDefineRow.tsx', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisPanel.tsx', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisRunRow.tsx', upstream: ['kylin'] },
+  { file: 'packages/extensions/ui-kylin/src/client/locales.ts', upstream: ['kylin'] },
 ]
 
 /** A string that must appear exactly `count` times once the rescope has run. */
@@ -146,10 +146,10 @@ interface PostCondition {
 }
 
 const POSTCONDITIONS: readonly PostCondition[] = [
-  { file: 'vendor/cordis/package.json', text: '"name": "@qilin/kylin"', count: 1 },
+  { file: 'vendor/kylin/package.json', text: '"name": "@qilin/kylin"', count: 1 },
   { file: 'vendor/hmr/package.json', text: '"name": "@qilin/kylin-plugin-hmr"', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '@qilin\\/kylin', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '!== \'@qilin/kylin\'', count: 1 },
+  { file: 'scripts/kylin-walk.ts', text: '@qilin\\/kylin', count: 1 },
+  { file: 'scripts/kylin-walk.ts', text: '!== \'@qilin/kylin\'', count: 1 },
   { file: 'scripts/gen-scoped-events.ts', text: '=== \'@qilin/kylin\'', count: 1 },
   { file: 'packages/typert/generator/src/analyzer.ts', text: '!== \'@qilin/kylin\'', count: 2 },
   { file: 'scripts/check-workspace-constraints.ts', text: '?.[\'@qilin/kylin\']', count: 2 },
@@ -157,12 +157,12 @@ const POSTCONDITIONS: readonly PostCondition[] = [
   { file: 'tsconfig.base.json', text: '"@qilin/kylin-plugin-loader": ["./vendor/loader/src"]', count: 1 },
   // The vendored README owns this required entry; reject its deletion or duplication.
   { file: 'vendor/README.md', text: '17. **`@qilin` rescope**', count: 1 },
-  { file: 'pnpm-workspace.yaml', text: 'cordis@4.0.0-rc.7', count: 0 },
+  { file: 'pnpm-workspace.yaml', text: 'kylin@4.0.0-rc.7', count: 0 },
   // The preset ids in this table are product data, not package names.
-  { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'cordis\', \'presetCordisName\'', count: 1 },
+  { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'kylin\', \'presetCordisName\'', count: 1 },
   // The preset id the shipped composition documents to its own model.
-  { file: 'packages/preset/agent-presets/presets/cordis/agent.cordis.yml', text: 'The `cordis` agent preset', count: 1 },
-  { file: 'packages/preset/agent-presets/presets/cordis/agent.cordis.yml', text: 'corrupting the `cordis` preset', count: 1 },
+  { file: 'packages/preset/agent-presets/presets/kylin/agent.kylin.yml', text: 'The `kylin` agent preset', count: 1 },
+  { file: 'packages/preset/agent-presets/presets/kylin/agent.kylin.yml', text: 'corrupting the `kylin` preset', count: 1 },
 ]
 
 /**
@@ -172,22 +172,22 @@ const POSTCONDITIONS: readonly PostCondition[] = [
  */
 const EXACT_EDITS: readonly ExactEdit[] = [
   {
-    id: 'cordis-walk-merge-head',
-    file: 'scripts/cordis-walk.ts',
-    find: 'const MERGE_HEAD = /declare module [\'"](?:cordis|\\.\\/context\\.ts)[\'"]/',
+    id: 'kylin-walk-merge-head',
+    file: 'scripts/kylin-walk.ts',
+    find: 'const MERGE_HEAD = /declare module [\'"](?:kylin|\\.\\/context\\.ts)[\'"]/',
     replace: 'const MERGE_HEAD = /declare module [\'"](?:@qilin\\/kylin|\\.\\/context\\.ts)[\'"]/',
     expect: 1,
   },
   {
     id: 'constraints-manifest-lookup',
     file: 'scripts/check-workspace-constraints.ts',
-    find: `    const peer = manifest.peerDependencies?.cordis
-    const dev = manifest.devDependencies?.cordis
+    find: `    const peer = manifest.peerDependencies?.kylin
+    const dev = manifest.devDependencies?.kylin
 
-    if (!peer) errors.push(\`\${label}: cordis must be a peerDependency\`)
-    if (!dev) errors.push(\`\${label}: cordis must also be a devDependency\`)
+    if (!peer) errors.push(\`\${label}: kylin must be a peerDependency\`)
+    if (!dev) errors.push(\`\${label}: kylin must also be a devDependency\`)
     if (peer && dev && peer !== dev) {
-      errors.push(\`\${label}: cordis peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
+      errors.push(\`\${label}: kylin peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
     replace: `    const peer = manifest.peerDependencies?.['@qilin/kylin']
     const dev = manifest.devDependencies?.['@qilin/kylin']
 
@@ -204,8 +204,8 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     find: `minimumReleaseAgeExclude:
   # Cordis release candidates are source-vendored and pinned in vendor/README.md
   # during the same-day sync that updates package manifests and the lockfile.
-  - '@cordisjs/plugin-loader@1.0.0-rc.5'
-  - cordis@4.0.0-rc.7
+  - '@kylinjs/plugin-loader@1.0.0-rc.5'
+  - kylin@4.0.0-rc.7
 `,
     replace: 'minimumReleaseAgeExclude:\n',
     expect: 1,
@@ -213,24 +213,17 @@ const EXACT_EDITS: readonly ExactEdit[] = [
   {
     id: 'publication-set-scope-assertion',
     file: 'scripts/publish-npm-baseline.ts',
-    find: '      if (!isVendored && !name.startsWith(\'@deepseek-ai/\')) {',
+    find: '      if (!isVendored && !name.startsWith(\'@qilin/\')) {',
     replace: `      // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@qilin/') && !name.startsWith('@deepseek-ai/')) {`,
+      if (!name.startsWith('@qilin/')) {`,
     expect: 1,
   },
   {
     id: 'vendor-readme-preamble',
     file: 'vendor/README.md',
-    find: 'All vendored packages keep their **original npm names** and are marked `private: true` — they are never published from this repo. `pnpm-workspace.yaml#linkWorkspacePackages` makes matching upstream semver ranges resolve these pinned workspaces, including imports from built `lib/`; disabling it substitutes npm copies behind the same names.',
-    replace: 'All vendored packages are **renamed into the `@deepseek-ai` scope** (`cordis` → `@qilin/kylin`, `@cordisjs/plugin-<x>` → `@qilin/kylin-plugin-<x>`): every harness package declares `@qilin/kylin` as a peer dependency, so publishing the harness publishes this framework layer too, and a publication under the upstream names would squat them on the registry. Directory names and upstream version numbers are deliberately unchanged, so the manifest below still reads as an upstream snapshot. `pnpm-workspace.yaml#linkWorkspacePackages` makes those preserved semver ranges resolve these pinned workspaces, including imports from built `lib/`.',
-    expect: 1,
-  },
-  {
-    id: 'vendor-readme-schemastery-note',
-    file: 'vendor/README.md',
-    find: 'whose lazy `require(\'cosmokit\')` can race',
-    replace: 'whose lazy `require(\'@deepseek-ai/cosmokit\')` can race',
+    find: 'All vendored packages keep their **original npm names** (they are resolved through pnpm workspaces) and are marked `private: true` — they are never published from this repo.',
+    replace: 'All vendored packages use the **`@qilin` scope** (`kylin` → `@qilin/kylin`, `@kylinjs/plugin-<x>` → `@qilin/kylin-plugin-<x>`). The manifest table records upstream versions and source commits; each package manifest carries its Harness release version and publication metadata. Repository-owned runtime dependencies use `workspace:^`, so local builds resolve the pinned workspace packages and publication substitutes release ranges.',
     expect: 1,
   },
   {
@@ -244,12 +237,12 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     // The root contract claimed vendored packages keep their upstream names.
     id: 'root-agents-vendored-name-contract',
     file: 'AGENTS.md',
-    find: 'vendored packages keep upstream names and are `private: true`. `cordis` is a peerDependency (+ dev) of every harness package.',
+    find: 'vendored packages keep upstream names and are `private: true`. `kylin` is a peerDependency (+ dev) of every harness package.',
     replace: 'vendored packages are rescoped ([mapping](docs/rescope.md)) and `private: true`. `@qilin/kylin` is a peerDependency (+ dev) of every harness package.',
     expect: 1,
   },
   {
-    // The client purity gate reads `@deepseek-ai/` as "another plugin package".
+    // The client purity gate reads `@qilin/` as "another plugin package".
     // The rescope moves the vendored framework and its libraries into that
     // namespace, where the gate would reject the library imports client
     // bundles have always inlined, so it needs their names.
@@ -257,12 +250,12 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     file: 'packages/client/tsdown.client.ts',
     find: '/** Generated descriptor/codec contribution with no shared runtime identity. */',
     replace: `/**
- * Vendored framework libraries: rescoped into @deepseek-ai, so the gate below
+ * Vendored framework libraries: rescoped into @qilin, so the gate below
  * would read them as plugin packages. They carry no cross-plugin runtime
  * identity to share — the framework itself is a requested module-table row
  * (external), while these are ordinary libraries a browser bundle inlines.
  */
-const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
+const VENDORED_LIBRARY = /^@qilin\\/(cosmokit|schemastery)(\\/|$)/
 
 /** Generated descriptor/codec contribution with no shared runtime identity. */`,
     expect: 1,
@@ -307,17 +300,17 @@ const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
     expect: 1,
   },
   {
-    // The real package references in files whose other `cordis` strings are preset ids.
+    // The real package references in files whose other `kylin` strings are preset ids.
     id: 'agent-preset-spec-framework-import',
     file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts',
-    find: "import { Context } from 'cordis'",
+    find: "import { Context } from 'kylin'",
     replace: "import { Context } from '@qilin/kylin'",
     expect: 1,
   },
   {
     id: 'web-agent-presets-e2e-framework-import',
     file: 'apps/cli/tests/web-agent-presets.e2e.ts',
-    find: "import { Context } from 'cordis'",
+    find: "import { Context } from 'kylin'",
     replace: "import { Context } from '@qilin/kylin'",
     expect: 1,
   },
@@ -356,7 +349,7 @@ const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
     id: 'notices-vendored-section',
     file: 'scripts/gen-third-party-notices.ts',
     find: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm. All are MIT-licensed',
-    replace: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \\`@deepseek-ai\\` scope. All are MIT-licensed',
+    replace: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \\`@qilin\\` scope. All are MIT-licensed',
     expect: 1,
   },
   {
@@ -365,27 +358,27 @@ const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
     find: `| Package | Upstream | License |
 | --- | --- | --- |
 \${vendored.map(row => \`| \\\`\${row.npmName}\\\` | [\${row.upstream.replace('https://', '')}](\${row.upstream}) | MIT |\`).join('\\n')}`,
-    replace: `| Package | Upstream name | Upstream | License |
+    replace: `| Package | Upstream name | Source | License |
 | --- | --- | --- | --- |
-\${vendored.map(row => \`| \\\`\${row.npmName}\\\` | \\\`\${row.upstreamName}\\\` | [\${row.upstream.replace('https://', '')}](\${row.upstream}) | MIT |\`).join('\\n')}`,
+\${vendored.map(row => \`| \\\`\${row.npmName}\\\` | \\\`\${row.upstreamName}\\\` | [\${row.sourceDirectory}](\${row.sourceDirectory}/) | MIT |\`).join('\\n')}`,
     expect: 1,
   },
   {
     id: 'notices-spec-row-fixture',
     file: 'scripts/gen-third-party-notices.spec.ts',
-    find: '    expect(rows).toContainEqual({ npmName: \'cordis\', upstream: \'https://github.com/cordiverse/cordis\' })',
+    find: '    expect(rows).toContainEqual({ npmName: \'kylin\', upstream: \'https://github.com/cordiverse/kylin\' })',
     replace: `    expect(rows).toContainEqual({
       npmName: '@qilin/kylin',
-      upstreamName: 'cordis',
-      upstream: 'https://github.com/cordiverse/cordis',
+      upstreamName: 'kylin',
+      upstream: 'https://github.com/cordiverse/kylin',
     })`,
     expect: 1,
   },
   {
     id: 'notices-spec-shape-fixture',
     file: 'scripts/gen-third-party-notices.spec.ts',
-    find: 'parseVendoredRows(\'| `cordis/` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
-    replace: 'parseVendoredRows(\'| `cordis/` | `@qilin/kylin` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
+    find: 'parseVendoredRows(\'| `kylin/` | kylin | 4.0.0 | https://example.com | `abc123` |\\n\')',
+    replace: 'parseVendoredRows(\'| `kylin/` | `@qilin/kylin` | kylin | 4.0.0 | https://example.com | `abc123` |\\n\')',
     expect: 1,
   },
   {
@@ -394,7 +387,7 @@ const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
     find: `    // Peer ranges resolve to the tarballs; Cordis is pinned to their peer range. Do not omit optional
     // dependencies because the launcher selects its OS/CPU package through one.
     writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({ name: 'qilin-packed-consumer', private: true, type: 'module' }))
-    const install = spawnSync('npm', ['install', '--no-audit', '--no-fund', ...tarballs, 'cordis@4.0.0-rc.7'], {`,
+    const install = spawnSync('npm', ['install', '--no-audit', '--no-fund', ...tarballs, 'kylin@4.0.0-rc.7'], {`,
     replace: `    // Peer ranges resolve to the tarballs, the framework peer included. Do not omit optional
     // dependencies because the launcher selects its OS/CPU package through one.
     writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({ name: 'qilin-packed-consumer', private: true, type: 'module' }))
@@ -426,8 +419,12 @@ const VENDORED_LIBRARY = /^@deepseek-ai\\/(cosmokit|schemastery)(\\/|$)/
   })),
 ]
 
-/** Files the rescope must never rewrite. */
-function excluded(file: string): boolean {
+/**
+ * Identify files whose recorded content must remain outside the rescope pass.
+ * @param file - Repository-relative path with forward slash separators.
+ * @returns Whether the codemod must preserve the file without scanning its tokens.
+ */
+export function isRescopeExcluded(file: string): boolean {
   if (file === 'scripts/rescope-vendor.ts') return true // the mapping itself
   if (file.startsWith('.agents/notes/')) return true // notes record what was true when written
   // Recorded model payloads quote documentation verbatim, so they must mirror the
@@ -437,6 +434,8 @@ function excluded(file: string): boolean {
   if (file === 'docs/rescope.md' || file === 'docs/rescope.zh.md') return true
   if (file.endsWith('.i18n.yaml')) return true // blob-hash records, re-recorded by the pairing gate
   if (file === 'pnpm-lock.yaml') return true // regenerated by pnpm install
+  // Raw npm registry resolution; only gen-dependency-catalog --refresh replaces this evidence.
+  if (file === 'scripts/dependency-catalog/package-lock.json') return true
   if (/^vendor\/[^/]+\/(README\.md|LICENSE)$/.test(file)) return true // upstream files kept verbatim
   return !EXTENSIONS.some(extension => file.endsWith(extension))
 }
@@ -489,10 +488,10 @@ function rewriteLine(line: string, file: string, all: readonly Pattern[]): strin
  * Markdown splits in two. Every fence is code a reader copies or a
  * configuration they mount, so every fence follows the rename regardless of its
  * info string. Prose follows it only under `docs/`, where a sentence quoting
- * `` `cordis` `` teaches an unresolved package name; elsewhere
+ * `` `kylin` `` teaches an unresolved package name; elsewhere
  * prose is a record of what was true when it was written, and the same spelling
- * can mean something else entirely — the Python SDK's `cordis` option, or the
- * unvendored `@cordisjs/plugin-http`.
+ * can mean something else entirely — the Python SDK's `kylin` option, or the
+ * unvendored `@kylinjs/plugin-http`.
  */
 function rewrite(text: string, file: string, all: readonly Pattern[]): { text: string; lines: number } {
   const markdown = file.endsWith('.md')
@@ -565,7 +564,7 @@ function main(): void {
   const all = patterns(reverse)
   const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
     .split('\0')
-    .filter(file => file !== '' && !excluded(file))
+    .filter(file => file !== '' && !isRescopeExcluded(file))
 
   const counts = new Map<string, { files: number; lines: number }>()
   const failures: string[] = []

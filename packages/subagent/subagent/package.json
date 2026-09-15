@@ -1,7 +1,7 @@
 {
   "name": "@qilin/subagent",
   "description": "Abstract subagent seam (ctx.subagents): named-provider registry for delegating to child agents",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -78,10 +78,14 @@
     "@qilin/tools": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@qilin/util-time": "workspace:^"
+    "@qilin/util-time": "workspace:^",
+    "@qilin/permission-presets": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@qilin/agent-presets": {
+      "optional": true
+    },
+    "@qilin/permission-presets": {
       "optional": true
     },
     "@qilin/sandbox": {
@@ -133,6 +137,7 @@
     "@qilin/tools": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/user-approval": "workspace:^",
-    "@qilin/util-time": "workspace:^"
+    "@qilin/util-time": "workspace:^",
+    "@qilin/permission-presets": "workspace:^"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-skill",
   "description": "Web skill references and the dedicated skill tool row",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -33,7 +33,8 @@
         "@qilin/client-ui-renderer",
         "@qilin/client-ui-tool",
         "@qilin/client-ui-input-trigger",
-        "@qilin/api-remotes"
+        "@qilin/api-remotes",
+        "@qilin/client-ui-sidebar-right"
       ],
       "platform": "web"
     }
@@ -62,7 +63,9 @@
     "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:^",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@qilin/client-ui-sidebar-right": "workspace:^",
+    "@qilin/util-workspace-path": "workspace:^"
   },
   "files": [
     "lib/index.js",

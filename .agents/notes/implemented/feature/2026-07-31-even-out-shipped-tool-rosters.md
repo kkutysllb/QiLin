@@ -6,13 +6,13 @@ English | [中文](2026-07-31-even-out-shipped-tool-rosters.zh.md)
 
 ## Problem
 
-The two shipped `dsh` surfaces offered different tools for no recorded reason. Session checkpoints, tool-result pruning, the goal tools, and Ralph were in `tui.cordis.yml`; `tool-todo` and, later, web search were in `web.cordis.yml`. Neither surface offered session search, a string-replacement editor, or a repeat-tool guard, though all three exist as packages and none is surface-specific.
+The two shipped `dsh` surfaces offered different tools for no recorded reason. Session checkpoints, tool-result pruning, the goal tools, and Ralph were in `tui.kylin.yml`; `tool-todo` and, later, web search were in `web.kylin.yml`. Neither surface offered session search, a string-replacement editor, or a repeat-tool guard, though all three exist as packages and none is surface-specific.
 
 The result was a user-visible difference nobody had decided: the same model, asked the same thing, could set a goal on the terminal but not in the browser, and could search the web in the browser but not on the terminal.
 
 ## Decision
 
-The rows that are not surface-specific move into [`base.cordis.yml`](../../../../packages/bundle/base/cordis.patch.yml), and three more join them: `tool-session-query`, `tool-str-replace-editor`, and `repeat-tool-reminder`. Web search moves there too; its [deployment decision](2026-07-31-web-default-search.md) owns the security boundary while the shared base owns its surface-neutral mount. Both surfaces assemble the same roster, including fixed `glob` and `grep` members because `dsh-tool-fs-search` spawns the [packaged ripgrep binary](../../archived/architecture/2026-08-01-packaged-ripgrep-search.md). Later decisions narrow that roster: the [session-search decision](../../archived/feature/2026-08-02-session-search-not-shipped-default.md) keeps `tool-session-query` opt-in, the [single-editor decision](../../archived/simplification/2026-08-10-default-presets-single-editor.md) removes `tool-str-replace-editor` from general-purpose presets, and the [persistent-shell-only decision](../simplification/2026-09-03-minimal-profiles-persistent-shell-only.md) removes it from the minimal compositions.
+The rows that are not surface-specific move into [`base.kylin.yml`](../../../../packages/bundle/base/kylin.patch.yml), and three more join them: `tool-session-query`, `tool-str-replace-editor`, and `repeat-tool-reminder`. Web search moves there too; its [deployment decision](2026-07-31-web-default-search.md) owns the security boundary while the shared base owns its surface-neutral mount. Both surfaces assemble the same roster, including fixed `glob` and `grep` members because `dsh-tool-fs-search` spawns the [packaged ripgrep binary](../../archived/architecture/2026-08-01-packaged-ripgrep-search.md). Later decisions narrow that roster: the [session-search decision](../../archived/feature/2026-08-02-session-search-not-shipped-default.md) keeps `tool-session-query` opt-in, the [single-editor decision](../../archived/simplification/2026-08-10-default-presets-single-editor.md) removes `tool-str-replace-editor` from general-purpose presets, the [persistent-shell-only decision](../simplification/2026-09-03-minimal-profiles-persistent-shell-only.md) removes it from the minimal compositions, and the [ralph demotion](../simplification/2026-09-12-ralph-off-in-shipped-defaults.md) ships `ralph` disabled in this base roster and in the presets that mirror it.
 
 Two rows stay surface-specific. `tmux-context` is TUI-only because a browser surface has no terminal multiplexer to describe. `session-reference` is TUI-only because it drives the shared session-query index from the launcher's process-local path, and the browser sidebar reconciles that index on its own first search.
 
@@ -22,7 +22,7 @@ Two rows stay surface-specific. `tmux-context` is TUI-only because a browser sur
 
 Two capabilities stay out on the evidence their own packages record, and are listed here so "we forgot" and "we decided against" stay distinguishable.
 
-**`dsh-tool-cordis`** lets the model write JavaScript and mount it as a temporary plugin. Its README states the limit: "The sandbox is containment for honest code, not a security boundary — host-realm helpers on the sandbox global are reachable, so mount code can reach Node" ([Known limitations](../../../../packages/extensions/tool-kylin/README.md)). The `node:vm` realm lives inside the harness process while `dsh-sandbox-local` confines only the argv it spawns, so on the Web surface both the sandbox and the approval seam are bypassed rather than enforced.
+**`dsh-tool-kylin`** lets the model write JavaScript and mount it as a temporary plugin. Its README states the limit: "The sandbox is containment for honest code, not a security boundary — host-realm helpers on the sandbox global are reachable, so mount code can reach Node" ([Known limitations](../../../../packages/extensions/tool-kylin/README.md)). The `node:vm` realm lives inside the harness process while `dsh-sandbox-local` confines only the argv it spawns, so on the Web surface both the sandbox and the approval seam are bypassed rather than enforced.
 
 **The LSP trio** stays out for an operational reason rather than a security one: `command` resolves from `PATH` at plugin load, so a missing language server fails the whole boot rather than one tool. It becomes mountable once absence degrades to a skipped registration.
 
@@ -34,7 +34,7 @@ The layer that would make MCP a default is the one this repository does not have
 
 ## Testing
 
-`apps/cli/tests/shipped-composition.e2e.ts` booted the shipped tree through the real Loader in a pseudo-terminal and read the tool names out of the `request/header` the session log persisted, so the assertion was the catalog the model was actually sent. Its `--config` overlay, `composition-keyless-tail.cordis.yml`, provided test isolation only: a network-free adapter and workspace-local session artifacts.
+`apps/cli/tests/shipped-composition.e2e.ts` booted the shipped tree through the real Loader in a pseudo-terminal and read the tool names out of the `request/header` the session log persisted, so the assertion was the catalog the model was actually sent. Its `--config` overlay, `composition-keyless-tail.kylin.yml`, provided test isolation only: a network-free adapter and workspace-local session artifacts.
 
 That tail also inserted `composition-settled.ts`, which announced settled Loader activation on the terminal stream. The TUI rendered as soon as its own fiber started, so a prompt typed at the banner could reach the loop while tool rows and persistence were still activating and assemble a partial catalog; gating the smoke's first prompt on that marker made the assertion deterministic.
 
@@ -44,7 +44,7 @@ The same smoke also pins the TUI execution posture from the same artifact. Those
 
 `glob` and `grep` are asserted as fixed members rather than a host-dependent pair: `dsh-tool-fs-search` spawns the packaged ripgrep binary and registers both tools unconditionally, so the pair is always present.
 
-Beyond the committed tests, both surfaces were driven against a real key from the built `apps/cli/lib/bin.js` under plain Node. Every mounted tool executed successfully, including `ralph` and `web_search`; the model never reached `cordis_*` or `mcp_*`, fell back to `grep` when asked for LSP navigation, and used a background `bash` task when asked for a persistent terminal.
+Beyond the committed tests, both surfaces were driven against a real key from the built `apps/cli/lib/bin.js` under plain Node. Every mounted tool executed successfully, including `ralph` and `web_search`; the model never reached `kylin_*` or `mcp_*`, fell back to `grep` when asked for LSP navigation, and used a background `bash` task when asked for a persistent terminal.
 
 ## Alternatives considered
 

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-settings-models",
   "description": "Models settings and shared product-onboarding dialogs over existing settings and credential joins",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -44,6 +44,7 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-store": "workspace:^",

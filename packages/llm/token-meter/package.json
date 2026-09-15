@@ -1,7 +1,7 @@
 {
   "name": "@qilin/token-meter",
   "description": "Replay-aware token measurement service (ctx.tokenMeter) for the QiLin",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -37,7 +37,8 @@
     "@qilin/llm": "workspace:^",
     "@qilin/llm-retry": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/compaction-image-offload": "workspace:^"
   },
   "dependencies": {
     "@qilin/util-values": "workspace:^",
@@ -50,6 +51,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/llm-retry": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/compaction-image-offload": "workspace:^"
   }
 }

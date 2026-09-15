@@ -15,6 +15,7 @@
 import type {} from '@qilin/api-remotes/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin/client-ui-sidebar-right/client'
 import type { Context as ClientContext } from '@qilin/kylin'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import { relativeTime } from '@qilin/client-ui-primitives'
@@ -24,13 +25,13 @@ import type {
 import { formatFileMention } from '@qilin/file-reference/grammar'
 import type { FileReferenceCandidate } from '@qilin/file-reference/types'
 import type { SessionReferenceMentionCandidate } from '@qilin/session-reference/types'
-import { abbreviateHomePath } from '@qilin/util-workspace-path'
+import { abbreviateHomePath, fileAddressFor } from '@qilin/util-workspace-path'
 import { en, NS, zh, type ReferenceKey } from './locales.ts'
 
 /** Required services: the trigger registry, the Remote namespaces, and the copy. */
 export const inject = [
   'inputTriggers', 'locale', 'sessions', 'remote', 'remote.fileReferences',
-  'remote.sessionReferenceResolver',
+  'remote.sessionReferenceResolver', 'sidebarRight',
 ]
 
 /**
@@ -106,6 +107,13 @@ export function apply(ctx: ClientContext): void {
         }
       }
       return undefined
+    },
+    openReference(session, { ref, appearance }) {
+      if (appearance !== 'file') return false
+      const path = ref.startsWith('@"') ? ref.slice(2, -1) : ref.slice(1)
+      const cwd = sessions.list.getSnapshot().byId[session.sessionId]?.cwd
+      ctx.sidebarRight.openResource(fileAddressFor(session.sessionId, cwd, path))
+      return true
     },
     codec: {
       clipboardText: ref => ref,

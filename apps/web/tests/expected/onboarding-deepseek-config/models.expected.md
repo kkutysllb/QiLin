@@ -13,22 +13,10 @@
     - button "Agent 预设":
       - img
       - text: Agent 预设
-    - button "MCP 服务器":
+    - button "已归档会话":
       - img
-      - text: MCP 服务器
-    - button "侧边栏":
-      - img
-      - text: 侧边栏
-    - button "技能":
-      - img
-      - text: 技能
-    - button "关于 QiLin":
-      - img
-      - text: 关于 QiLin
-    - separator "调整设置导航宽度"
-  - button "返回工作区":
-    - img
-    - text: 返回工作区
+      - text: 已归档会话
+  - button "打开配置文件"
   - button "关闭":
     - img
     - text: 关闭
@@ -45,7 +33,8 @@
       - group:
         - text: 自定义设置 API 地址
         - textbox "API 地址":
-          - /placeholder: https://api.deepseek.com
+          - /placeholder: https://api.deepseek.com/anthropic
+        - text: 请填写与当前连接配置兼容的 API 地址。
         - region "模型目录":
           - text: 模型目录 已自定义模型目录
           - button "恢复默认模型"

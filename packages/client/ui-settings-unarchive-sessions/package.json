@@ -1,0 +1,71 @@
+{
+  "name": "@qilin/client-ui-settings-unarchive-sessions",
+  "description": "Archived-session settings page: the registry-global archive set with one Unarchive action per row",
+  "version": "3.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-settings-unarchive-sessions"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/client-locale",
+        "@qilin/client-ui-renderer",
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-settings",
+        "@qilin/client-ui-workspace"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/api-workspace-controller": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-settings": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

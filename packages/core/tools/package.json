@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tools",
   "description": "Tool registry and execution pipeline for the QiLin",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -43,13 +43,15 @@
   "peerDependencies": {
     "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
-    "@qilin/code-runtime": "workspace:^",
+    "@qilin/ptc-runtime": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
-    "@qilin/user-approval": "workspace:^"
+    "@qilin/user-approval": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^"
   },
   "dependencies": {
     "@qilin/brand": "workspace:^",
@@ -59,13 +61,15 @@
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
     "@qilin/agent": "workspace:^",
-    "@qilin/code-runtime": "workspace:^",
+    "@qilin/ptc-runtime": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/scope": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/session-projection": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
-    "@qilin/user-approval": "workspace:^"
+    "@qilin/user-approval": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^"
   }
 }

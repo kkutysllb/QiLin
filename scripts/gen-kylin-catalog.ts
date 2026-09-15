@@ -8,7 +8,7 @@
  * `.i18n.yaml` only when nothing outside the region changed. The
  * projection enforces event modes, JSDoc parameter/return completeness, and
  * signature type-link coverage; the inherited (vendor) tier renders to
- * `docs/kylin-api/inherited.md`. `--check` verifies every generated artifact.
+ * `docs/cordis-api/inherited.md`. `--check` verifies every generated artifact.
  *
  * Generated regions embed `file:line` source pointers, so inserting lines ABOVE a
  * recorded symbol makes the committed output stale even though nothing about the
@@ -28,7 +28,7 @@ import {
   REGION_END,
 } from '@qilin/typert-generator'
 import type { CordisCatalogPolicy } from '@qilin/typert-generator'
-import { renderCordisCoreApiPages } from './kylin-core-api.ts'
+import { renderCordisCoreApiPages } from './cordis-core-api.ts'
 import { contextKeyMap, contextMergeFiles, eventNameList } from './cordis-walk.ts'
 import {
   blobHash,
@@ -42,8 +42,8 @@ import { rewriteTranslationLinkLocales } from './translation-links.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const SUBSYSTEMS_DIR = 'docs/subsystems'
-const OUT_INHERITED = 'docs/kylin-api/inherited.md'
-const OUT_RUNTIME_API = 'packages/extensions/tool-kylin/src/api-catalog.ts'
+const OUT_INHERITED = 'docs/cordis-api/inherited.md'
+const OUT_RUNTIME_API = 'packages/extensions/tool-cordis/src/api-catalog.ts'
 
 export { REGION_BEGIN, REGION_END }
 
@@ -54,6 +54,7 @@ export { REGION_BEGIN, REGION_END }
  * errors, so the partition can never silently drift from the service API.
  */
 export const SERVICE_PAGE: Record<string, string> = {
+  mcpResources: 'mcp.md',
   agentLoop: 'core.md',
   agentDefaultModel: 'core.md',
   agentPresets: 'core.md',
@@ -63,7 +64,9 @@ export const SERVICE_PAGE: Record<string, string> = {
   shell: 'shell.md',
   shellEnv: 'shell.md',
   clientModules: 'client-modules.md',
-  codeRuntime: 'code-runtime.md',
+  ptcRuntime: 'ptc-runtime.md',
+  browserUse: 'browser-use.md',
+  computerUse: 'computer-use.md',
   commands: 'commands.md',
   compaction: 'compaction.md',
   cordisInspect: 'extensions.md',
@@ -74,7 +77,6 @@ export const SERVICE_PAGE: Record<string, string> = {
   directoryPicker: 'workspace.md',
   deepseekLlmApiExtensions: 'llm-streaming.md',
   dynamicCordisRunner: 'extensions.md',
-  e2b: 'subprocess.md',
   fileUploads: 'attachment.md',
   fileReferences: 'session-reference.md',
   fs: 'filesystem.md',
@@ -91,6 +93,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   terminals: 'terminal.md',
   sandbox: 'sandbox.md',
   sandboxPolicy: 'sandbox.md',
+  ssh: 'ssh.md',
   sessionPersistence: 'persistence.md',
   sessionQuery: 'session-query.md',
   sessionFileReferences: 'session-reference.md',
@@ -125,6 +128,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   workspaceRegistry: 'workspace.md',
   workspaceController: 'workspace.md',
   workspaceFiles: 'workspace.md',
+  terminalController: 'workspace.md',
   directoryPickerController: 'workspace.md',
 }
 
@@ -147,6 +151,7 @@ export const SERVICE_PAGE: Record<string, string> = {
  * to a model as `cordis_runtime_inspect what:"client"`).
  */
 export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
+  webTerminals: 'client-side terminal view models — packages/api/terminal-controller/README.md owns the API',
   appReady: 'not a service: launcher-provided successful-startup signal — packages/boot/cmdline/README.md owns the launcher contract',
   appExit: 'not a service: launcher-provided bounded process-exit callback — packages/boot/cmdline/README.md owns the launcher contract',
   cmdlineArgs: 'not a service: launcher-provided immutable app argument accessor — packages/boot/cmdline/README.md owns the launcher contract',
@@ -154,6 +159,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   launcherSessionQueryPath: 'not a service: launcher-provided boot-context value (string | undefined) — packages/session-query/session-query-sqlite/README.md owns this launcher contract',
   qilinHomePath: 'not a service: boot-provided root accessor function (typeof qilinHomePath | undefined) for Loader !!js config expressions — packages/boot/app-boot/README.md owns the boot contract',
   launchEnvironment: 'not a service: launcher-provided root accessor value (LaunchEnvironmentSnapshot | undefined) — packages/util/launch-environment/README.md owns this launcher contract',
+  pluginPackages: 'profile-boot-owned package resolver service used by optional consumers — packages/boot/app-boot/README.md owns this internal API',
   connection: 'interface-typed (HostConnectionHandle); implementing class HostConnectionService is declared in rpc-host.ts — packages/client/connection/README.md owns the API',
   fileUpload: 'client-side browser upload service — packages/client/file-upload/README.md owns the API',
   uiRenderer: 'client-side interface-typed browser service — packages/client/ui-renderer/README.md owns the API',
@@ -162,7 +168,6 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   uiWorkspace: 'client-side Workspace navigation adapter — packages/client/ui-workspace/README.md owns the API',
   settingsSchema: 'client-side schema introspection service — packages/client/ui-settings/README.md owns the API',
   settingsScope: 'client-side settings-namespace transport service — packages/client/ui-settings/README.md owns the API',
-  settingsShell: 'client-side interface-typed browser service (the settings panel open channel, SettingsShell) — packages/client/ui-settings-general/README.md owns the API',
   chatFileMentions: 'client-side slot-contract accessor (ChatFileMentions) — packages/client/ui-chat/README.md owns the API',
   commandUi: 'client-side interface-typed browser service — packages/client/ui-commands/README.md owns the API',
   conversation: 'client-side interface-typed browser service — packages/client/ui-conversation/README.md owns the API',
@@ -173,7 +178,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   remote: 'client-side interface-typed gateway accessor (ClientRemote) — packages/api/gateway/README.md owns the API',
   sessionLogDownload: 'client-side browser download controller — packages/session-query/session-log-export/README.md owns the API',
   inputTriggers: 'client-side interface-typed browser service — packages/client/ui-input-trigger/README.md owns the API',
-  timer: 'client-side dynamic-package timer service — packages/extensions/kylin-client-runner/README.md owns the API',
+  timer: 'client-side dynamic-package timer service — packages/extensions/cordis-client-runner/README.md owns the API',
   slots: 'client-side interface-typed browser service — packages/client/ui-renderer/README.md owns the API',
   theme: 'client-side interface-typed browser service — packages/client/ui-theme/README.md owns the API',
   workspaces: 'client-side interface-typed browser service — packages/api/workspace-controller/README.md owns the API',
@@ -197,6 +202,7 @@ export const EVENT_SCOPE_PAGE: Record<string, string> = {
   'api-session': 'session.md',
   'approval': 'approval.md',
   'commands': 'commands.md',
+  'compaction': 'compaction.md',
   'cordis': 'extensions.md',
   'authorization': 'credentials.md',
   'credentials': 'credentials.md',
@@ -204,6 +210,7 @@ export const EVENT_SCOPE_PAGE: Record<string, string> = {
   'fs': 'filesystem.md',
   'goal': 'goal.md',
   'llm': 'llm-streaming.md',
+  'permission-presets': 'permission-presets.md',
   'session': 'session.md',
   'settings': 'settings.md',
   'skills': 'skills.md',
@@ -246,6 +253,8 @@ export const EVENT_WALK_EXEMPTIONS: Record<string, string> = {
  * appear on more than one page.
  */
 export const LINK_MAP: Readonly<Record<string, string>> = {
+  BrowserUseProviderName: 'browser-use.md',
+  ComputerUseProviderName: 'computer-use.md',
   Agent: 'core.md',
   AgentCancelCause: 'core.md',
   AgentFactory: 'core.md',
@@ -353,6 +362,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   SessionSelectModelRequest: 'session.md',
   SessionSelectModelValue: 'session.md',
   SessionSummary: 'session.md',
+  SessionMessageProjection: 'session.md',
   SessionUpdateQueueRequest: 'session.md',
   SessionUpdateQueueValue: 'session.md',
   EncodedFileUploadRequest: 'attachment.md',
@@ -379,7 +389,8 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   SaveFileStreamAttachment: 'attachment.md',
   ImageAttachmentAccess: 'llm-streaming.md',
   ImageAttachmentRef: 'attachment.md',
-  ImageRequestPolicy: 'attachment.md',
+  ImageRequestTarget: 'attachment.md',
+  ProjectedDimensions: 'attachment.md',
   PromptContentPart: 'attachment.md',
   RequestImageAttachment: 'attachment.md',
   SaveImageAttachment: 'attachment.md',
@@ -395,9 +406,12 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   SubprocessOutputReader: 'subprocess.md',
   SubprocessSpawnSpec: 'subprocess.md',
   SubprocessTerminalHandle: 'subprocess.md',
+  SubprocessTerminalEnvironment: 'subprocess.md',
   SubprocessTerminalSpawnSpec: 'subprocess.md',
-  CodeRunRequest: 'code-runtime.md',
-  CodeRunResult: 'code-runtime.md',
+  PtcRunRequest: 'ptc-runtime.md',
+  PtcRunSpec: 'ptc-runtime.md',
+  PtcRunSandbox: 'ptc-runtime.md',
+  PtcRunResult: 'ptc-runtime.md',
   CompactionResult: 'compaction.md',
   CompactionTrigger: 'compaction.md',
   PruneResult: 'compaction.md',
@@ -467,6 +481,8 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   TerminalSpawnRequest: 'terminal.md',
   TerminalSpawnResult: 'terminal.md',
   SandboxPolicyRequest: 'sandbox.md',
+  SshConnection: 'ssh.md',
+  SshStreamEndpoint: 'ssh.md',
   ScopeKey: 'scope.md',
   Scoped: 'scope.md',
   EpochHeader: 'session.md',
@@ -615,6 +631,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   WorkflowRun: 'workflow.md',
   VerifiedWebhookDelivery: 'webhook.md',
   WebhookRule: 'webhook.md',
+  PermissionCatalog: 'permission-presets.md',
   PresetOption: 'permission-presets.md',
   PresetSpec: 'permission-presets.md',
   InvariantInstaller: 'invariants.md',
@@ -639,6 +656,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   WorkspaceInsertSessionBeforeRequest: 'workspace.md',
   WorkspaceOrderValue: 'workspace.md',
   WorkspaceRenameRequest: 'workspace.md',
+  WorkspaceUnarchiveSessionRequest: 'workspace.md',
   WorkspaceValue: 'workspace.md',
   ClientArtifactBaseline: 'client-modules.md',
   WebBootGraph: 'client-modules.md',
@@ -683,11 +701,15 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
   'ReadonlyMap',
   'Request',
   'Response',
+  'ReturnType',
   'Uint8Array',
 ])
 
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
+  McpResourceProvider: 'scoped resource provider is owned by packages/mcp/mcp-resources/README.md',
+  'z.ZodType': 'Zod response validation API is owned by https://zod.dev/packages/zod',
+  Socket: 'Node.js byte stream API is owned by https://nodejs.org/api/net.html#class-netsocket',
   z: 'schemastery schema constructor is owned by vendor/schemastery (vendored upstream)',
   BeginCommandRequest: 'event-local request contract is owned by packages/client/ui-input-trigger/src/types.ts',
   InsertReferenceRequest: 'event-local request contract is owned by packages/client/ui-input-trigger/src/types.ts',
@@ -704,41 +726,41 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   CompactionAgentContext: 'compaction service input is owned by packages/compaction/compaction/src/index.ts',
   ManualCompactAgentContext: 'manual compaction service input is owned by packages/compaction/compaction/src/index.ts',
   ClientResponse: 'wire response message is owned by packages/client/connection/src/rpc.ts',
-  ApprovalRequestId: 'dynamic Plugin approval identity is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisErrorDetails: 'Cordis runtime error payload is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectPlatform: 'Cordis inspect platform identity is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectProviderManifest: 'Cordis inspect provider manifest is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectProviderView: 'Cordis inspect provider view is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectQueryRequest: 'Cordis inspect transport payload is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectQueryResolution: 'Cordis inspect query result is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectQueryResolved: 'Cordis inspect transport payload is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectRequestId: 'Cordis inspect request identity is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisInspectResolveAck: 'Cordis inspect resolution acknowledgement is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisDynamicPackageId: 'dynamic Package identity is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisDynamicPluginId: 'dynamic Plugin identity is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisDynamicPluginRunId: 'dynamic Plugin run identity is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  CordisDynamicRunMode: 'dynamic Plugin activation mode is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisClientSource: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisDefineReceipt: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisDefineRequest: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisHostHalfResult: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisInventoryRow: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisInvokeResult: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisPackageInspection: 'dynamic Package source inspection is owned by packages/extensions/kylin-host-runner/src/registry.ts',
-  DynamicCordisPluginInspection: 'dynamic Plugin inspection is owned by packages/extensions/kylin-host-runner/src/registry.ts',
-  DynamicCordisRequestResolved: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisRetracted: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisRunRequest: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisPackage: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisReference: 'dynamic Plugin reference is owned by packages/extensions/kylin-host-runner/src/registry.ts',
-  DynamicCordisRenderFailure: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisResolveAck: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisRunResolution: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisRunResponse: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisSnapshotRow: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisStopResponse: 'dynamic Plugin stop result is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  DynamicCordisUndefineReceipt: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
-  HostCordisInspectProviderRegistration: 'Host inspect provider registration is owned by packages/extensions/kylin-host-runner/src/inspect-registry.ts',
+  ApprovalRequestId: 'dynamic Plugin approval identity is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisErrorDetails: 'Cordis runtime error payload is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectPlatform: 'Cordis inspect platform identity is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectProviderManifest: 'Cordis inspect provider manifest is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectProviderView: 'Cordis inspect provider view is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectQueryRequest: 'Cordis inspect transport payload is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectQueryResolution: 'Cordis inspect query result is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectQueryResolved: 'Cordis inspect transport payload is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectRequestId: 'Cordis inspect request identity is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisInspectResolveAck: 'Cordis inspect resolution acknowledgement is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisDynamicPackageId: 'dynamic Package identity is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisDynamicPluginId: 'dynamic Plugin identity is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisDynamicPluginRunId: 'dynamic Plugin run identity is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  CordisDynamicRunMode: 'dynamic Plugin activation mode is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisClientSource: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisDefineReceipt: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisDefineRequest: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisHostHalfResult: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisInventoryRow: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisInvokeResult: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisPackageInspection: 'dynamic Package source inspection is owned by packages/extensions/cordis-host-runner/src/registry.ts',
+  DynamicCordisPluginInspection: 'dynamic Plugin inspection is owned by packages/extensions/cordis-host-runner/src/registry.ts',
+  DynamicCordisRequestResolved: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisRetracted: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisRunRequest: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisPackage: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisReference: 'dynamic Plugin reference is owned by packages/extensions/cordis-host-runner/src/registry.ts',
+  DynamicCordisRenderFailure: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisResolveAck: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisRunResolution: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisRunResponse: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisSnapshotRow: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisStopResponse: 'dynamic Plugin stop result is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  DynamicCordisUndefineReceipt: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
+  HostCordisInspectProviderRegistration: 'Host inspect provider registration is owned by packages/extensions/cordis-host-runner/src/inspect-registry.ts',
   DomainImpl: 'domain implementation contract is owned by packages/storage/storage-domain/README.md',
   CommandExecution: 'executor return contract is owned by packages/interaction/commands/src/index.ts',
   'z.core.JSONSchema.BaseSchema': 'zod projection output is owned by the zod v4 API',
@@ -753,11 +775,9 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   InvariantRegistration: 'service-local lifecycle handle is owned by packages/runtime-diagnostics/invariants/README.md',
   JsonValue: 'JSON value union is owned by packages/core/session/src/json.ts',
   KnobState: 'projection unit state fields are owned by packages/interaction/permission-presets/README.md',
-  PermissionSelect: 'permissions projection payload is owned by packages/interaction/permission-presets/src/types.ts',
   PromptAssembly: 'assembly result is owned by packages/core/system-prompt/README.md',
-  RequestRunId: 'dynamic-package payload contract is owned by packages/extensions/kylin-host-runner/src/types.ts',
+  RequestRunId: 'dynamic-package payload contract is owned by packages/extensions/cordis-host-runner/src/types.ts',
   RpcReceipt: 'carrier-layer receipt is owned by packages/client/connection/src/rpc.ts',
-  Sandbox: 'external E2B SDK handle is owned by packages/e2b/e2b/README.md',
   SessionForkSource: 'service-local fork input is owned by packages/core/session/src/index.ts',
   SubagentRunEndInfo: 'event payload contract is owned by packages/subagent/subagent/src/types.ts',
   SubagentRunInfo: 'event payload contract is owned by packages/subagent/subagent/src/types.ts',
@@ -773,7 +793,13 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   WorkspaceFileRange: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceFileStat: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceFileText: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
-  WorkspaceFileWriteRequest: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
+  TerminalShell: 'Browser terminal shell profiles are owned by packages/api/terminal-controller/README.md',
+  TerminalEnvironment: 'Browser terminal environment fields are owned by packages/api/terminal-controller/README.md',
+  WebTerminalInfo: 'Browser terminal metadata is owned by packages/api/terminal-controller/README.md',
+  TerminalCreateRequest: 'Browser terminal allocation fields are owned by packages/api/terminal-controller/README.md',
+  TerminalAttachmentId: 'Browser terminal input ownership is owned by packages/api/terminal-controller/README.md',
+  TerminalFrame: 'Browser terminal stream frames are owned by packages/api/terminal-controller/README.md',
+  WebTerminalId: 'Browser terminal identity is owned by packages/api/terminal-controller/README.md',
 }
 
 /** Repository data policy consumed by the Cordis catalog projector. */
@@ -849,7 +875,7 @@ export const CORDIS_CATALOG_POLICY: CordisCatalogPolicy = {
 
 /**
  * Splice a page's generated Cordis API region into its Markdown content.
- * The page must contain exactly one `kylin-surface` marker region (the markers are
+ * The page must contain exactly one `cordis-surface` marker region (the markers are
  * part of the hand-owned page skeleton once, then owned by the generator);
  * zero or several is a partition error the caller reports with the page path.
  * The match is on THIS generator's exact markers, not the generic region
@@ -864,11 +890,11 @@ export function spliceRegion(content: string, region: string): string {
   const begins = lines.flatMap((line, index) => (line === REGION_BEGIN ? [index] : []))
   const ends = lines.flatMap((line, index) => (line === REGION_END ? [index] : []))
   if (begins.length !== 1 || ends.length !== 1) {
-    throw new Error(`expected exactly 1 kylin-surface region, found ${begins.length} BEGIN/${ends.length} END; add the BEGIN/END kylin-surface markers once`)
+    throw new Error(`expected exactly 1 cordis-surface region, found ${begins.length} BEGIN/${ends.length} END; add the BEGIN/END cordis-surface markers once`)
   }
   const begin = begins[0] ?? -1
   const end = ends[0] ?? -1
-  if (end < begin) throw new Error('kylin-surface END marker precedes its BEGIN')
+  if (end < begin) throw new Error('cordis-surface END marker precedes its BEGIN')
   return [...lines.slice(0, begin), ...region.split('\n'), ...lines.slice(end + 1)].join('\n')
 }
 
@@ -1014,7 +1040,7 @@ export function computeOutputs(): [string, string][] {
     eventScopePage: EVENT_SCOPE_PAGE,
     eventWalkExemptions: EVENT_WALK_EXEMPTIONS,
   })
-  if (problems.length > 0) throw new Error(`gen-kylin-catalog: ${problems.length} partition violation(s):\n${problems.map(p => `  ${p}`).join('\n')}`)
+  if (problems.length > 0) throw new Error(`gen-cordis-catalog: ${problems.length} partition violation(s):\n${problems.map(p => `  ${p}`).join('\n')}`)
 
   const pages = [...new Set([...Object.values(SERVICE_PAGE), ...Object.values(EVENT_SCOPE_PAGE)])].sort()
   const outputs: [string, string][] = [
@@ -1047,7 +1073,7 @@ export function computeOutputs(): [string, string][] {
       }
     }
   }
-  if (problems.length > 0) throw new Error(`gen-kylin-catalog: ${problems.length} page violation(s):\n${problems.map(p => `  ${p}`).join('\n')}`)
+  if (problems.length > 0) throw new Error(`gen-cordis-catalog: ${problems.length} page violation(s):\n${problems.map(p => `  ${p}`).join('\n')}`)
   return outputs
 }
 
@@ -1121,10 +1147,10 @@ export function main(): void {
       if (committed !== content) stale.push(out)
     }
     if (stale.length === 0) {
-      console.log(`gen-kylin-catalog: ${outputs.length} generated file(s)/region(s) are up to date.`)
+      console.log(`gen-cordis-catalog: ${outputs.length} generated file(s)/region(s) are up to date.`)
       process.exit(0)
     }
-    console.error(`gen-kylin-catalog: stale — ${stale.join(', ')}. Run \`pnpm run gen-kylin-catalog\` and commit the result.`)
+    console.error(`gen-cordis-catalog: stale — ${stale.join(', ')}. Run \`pnpm run gen-cordis-catalog\` and commit the result.`)
     process.exit(1)
   }
 
@@ -1154,7 +1180,7 @@ export function main(): void {
     })
     if (wroteEither && maybeRecordPair(rel, before)) recorded++
   }
-  console.log(`gen-kylin-catalog: ${outputs.length} artifact(s) computed, ${changedPages} written, ${recorded} pair record(s) refreshed.`)
+  console.log(`gen-cordis-catalog: ${outputs.length} artifact(s) computed, ${changedPages} written, ${recorded} pair record(s) refreshed.`)
 }
 
 if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {

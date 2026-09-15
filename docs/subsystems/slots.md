@@ -2,7 +2,7 @@
 
 English | [中文](slots.zh.md)
 
-Slots are the Web Client's typed React composition system. [`qilin-client-ui-slots`](../../packages/client/ui-slots/README.md) defines the React-free registry and type algebra; [`qilin-client-ui-renderer`](../../packages/client/ui-renderer/README.md) binds observable sources to hooks, renders the tree, and owns React contexts internally. A feature plugin contributes UI through `ctx.slots.register()` and never imports another feature plugin's component.
+Slots are the Web Client's typed React composition system. [`dsh-client-ui-slots`](../../packages/client/ui-slots/README.md) defines the React-free registry and type algebra; [`dsh-client-ui-renderer`](../../packages/client/ui-renderer/README.md) binds observable sources to hooks, renders the tree, and owns React contexts internally. A feature plugin contributes UI through `ctx.slots.register()` and never imports another feature plugin's component.
 
 This page documents slot ownership, component inputs, extension APIs, and the shipped hierarchy. The surrounding boot, Remote, Client model, and Conversation paths are in [Web Client architecture](web-client.md).
 
@@ -118,6 +118,7 @@ root
 │  ├─ sidebar.workspaces
 │  │  └─ sidebar.workspaces.directoryFlow
 │  └─ sidebar.settings
+│     ├─ settings.trigger
 │     ├─ settings.header
 │     ├─ settings.action
 │     ├─ settings.close
@@ -139,7 +140,8 @@ root
 │     │     │  └─ tool.call.toolview
 │     │     │     ├─ tool.call.images
 │     │     │     └─ tool.view.cordis
-│     │     └─ conversation.message.images
+│     │     ├─ conversation.message.images
+│     │     └─ conversation.trajectory.images
 │     ├─ conversation.session.header
 │     │  ├─ conversation.session.header.lineage
 │     │  ├─ conversation.session.header.actions
@@ -149,6 +151,7 @@ root
 │     │  └─ conversation.approval.detail
 │     ├─ conversation.composer.bar
 │     │  ├─ conversation.input.attachments
+│     │  ├─ conversation.input.permission
 │     │  ├─ conversation.input.plan
 │     │  └─ conversation.input.model
 │     ├─ conversation.input.overlay
@@ -164,9 +167,8 @@ root
 │  └─ rightbar.session
 │     ├─ sidebar.right.pane.tab
 │     │  ├─ sidebar.right.tab.guide
-│     │  └─ conversation.trajectory.images
+│     │  └─ sidebar.right.tab.guide.entry
 │     ├─ sidebar.right.pane.tab.title
-│     ├─ sidebar.right.pane.tab.badge
 │     └─ sidebar.right.tab.menu.item
 └─ shell.overlay
 ```

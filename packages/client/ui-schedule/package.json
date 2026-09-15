@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-schedule",
   "description": "Read-only active Schedule catalog in the Web Session header",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

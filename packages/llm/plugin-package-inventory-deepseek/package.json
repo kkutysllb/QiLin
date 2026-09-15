@@ -1,7 +1,7 @@
 {
   "name": "@qilin/plugin-package-inventory-deepseek",
   "description": "Active Loader-backed plugin package inventory for official DeepSeek LLM API requests",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -49,6 +49,7 @@
     }
   },
   "devDependencies": {
+    "@qilin/app-boot": "workspace:^",
     "@qilin/kylin": "workspace:^",
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",

@@ -23,6 +23,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
+import { brandString } from '@qilin/brand'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
 import type { Agent, PreStepDecision } from '@qilin/agent'
@@ -30,7 +31,7 @@ import { createUserMessage } from '@qilin/llm'
 import type { Session, UserMessage } from '@qilin/session'
 import { defineTool } from '@qilin/tools'
 import { UserQuestionError } from '@qilin/user-questions'
-import type { CommandId } from '@qilin/commands'
+import type { CommandDefinitionId, CommandId } from '@qilin/commands'
 import type {} from '@qilin/session-projection'
 import type { ProjectionDefinition } from '@qilin/session-projection'
 import type { PlanProjection, PlanUnitState } from './types.ts'
@@ -223,6 +224,7 @@ export class PlanModeController extends Service {
     // The command child activates only when a command registry is composed.
     ctx.inject(['commands'], (commandCtx) => {
       commandCtx.commands.register({
+        definitionId: brandString<CommandDefinitionId>('@qilin/plan-mode'),
         name: 'plan',
         description: 'Enter or leave plan mode',
         input: { hint: '[off|message]', attachments: true },

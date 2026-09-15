@@ -15,7 +15,7 @@ export const PDF_BODY_ID = '@qilin/client-ui-sidebar-documentpreview/pdf'
  * @returns the complete-file PDF registration.
  */
 export function pdfBodyDefinition(title: () => string): DocumentPreviewDefinition {
-  return { id: PDF_BODY_ID, extensions: ['pdf'], priority: 'builtin', title, loading: 'bytes-complete', wrap: false }
+  return { id: PDF_BODY_ID, extensions: ['pdf'], binaryExtensions: ['pdf'], priority: 'builtin', title, loading: 'bytes-complete', wrap: false }
 }
 
 /** @param ctx - context carrying the locale, document registry, and slot registry. */

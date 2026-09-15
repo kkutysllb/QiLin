@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-message-feedback",
   "description": "The Web feedback surface: per-message Like/Dislike in the assistant-message action strip and the feedback dialog behind both ratings and /feedback, backed by the messageFeedback and sessionFeedback Host Remotes",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -55,6 +55,7 @@
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@qilin/message-feedback": "workspace:^",
+    "@qilin/remote-mock": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/kylin": "workspace:^",

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/acp",
   "description": "Automation-only Agent Client Protocol server for driving QiLin agents over JSON-RPC stdio",
-  "version": "3.0.0",
+  "version": "0.1.6-alpha.1",
   "publishConfig": {
     "access": "public"
   },

@@ -33,7 +33,7 @@ kind: "package-reference"
 
 ### 工具卡片显示什么
 
-`cordis_define` 卡片是一份记录：模型写下的 name 与 purpose、它写的源码，以及该定义是否在跑——没有开关、没有审批，只有一句指向面板的指引。`cordis_run` 卡片显示模式、插件、包与运行标识、结果，并在包注册了业务视图时经 `tool.view.cordis` 槽位提供它。`cordis_stop` 与 `cordis_undefine` 渲染紧凑的动作行。所有卡片都渲染会话记录下的 call 与 result，因此 replay 显示同一张卡。
+`kylin_define` 卡片是一份记录：模型写下的 name 与 purpose、它写的源码，以及该定义是否在跑——没有开关、没有审批，只有一句指向面板的指引。`kylin_run` 卡片显示模式、插件标识、包标识与运行标识、结果，并在包注册了业务视图时经 `tool.view.kylin` slot 提供它。`kylin_stop` 与 `kylin_undefine` 渲染紧凑的动作行。所有卡片都渲染会话记录下的 call 与 result，因此回放显示同一张卡。
 
 ### @pluginId 输入源
 
@@ -41,7 +41,7 @@ kind: "package-reference"
 
 ### 需要规划的边界
 
-定义以进程为本：刷新后的页面手上什么都没有，直到有人再次运行某个包；面板在每次公告时重读清单。审批按设计是框架级的，所以某个标签页里的人可以批准模型为另一个标签页正在看的会话所发起的 run；首个应答生效，其余收敛。
+定义仅存在于进程内：刷新后的页面手上什么都没有，直到有人再次运行某个包；面板在每次公告时重读清单。审批按设计是框架级的，所以某个标签页里的人可以批准模型为另一个标签页正在看的会话所发起的 run；首个应答生效，其余收敛。
 
 -----
 
@@ -61,20 +61,20 @@ kind: "package-reference"
 
 | 文件 | 职责 |
 |---|---|
-| [`src/client/index.ts`](src/client/index.ts) | 插件入口：槽位注册、清单接线、`@pluginId` 输入源 |
-| [`src/client/CordisPanel.tsx`](src/client/CordisPanel.tsx) | 全局面板及其运行控件 |
-| [`src/client/CordisDefineRow.tsx`](src/client/CordisDefineRow.tsx) | 只读的 `cordis_define` 卡片 |
-| [`src/client/CordisRunRow.tsx`](src/client/CordisRunRow.tsx) | `cordis_run` 卡片及其业务视图席位 |
-| [`src/client/CordisActionRow.tsx`](src/client/CordisActionRow.tsx) | `cordis_stop`／`cordis_undefine` 行 |
+| [`src/client/index.ts`](src/client/index.ts) | 插件入口：slot 注册、清单接线、`@pluginId` 输入源 |
+| [`src/client/KylinPanel.tsx`](src/client/KylinPanel.tsx) | 全局面板及其运行控件 |
+| [`src/client/KylinDefineRow.tsx`](src/client/KylinDefineRow.tsx) | 只读的 `kylin_define` 卡片 |
+| [`src/client/KylinRunRow.tsx`](src/client/KylinRunRow.tsx) | `kylin_run` 卡片及其业务视图席位 |
+| [`src/client/KylinActionRow.tsx`](src/client/KylinActionRow.tsx) | `kylin_stop`／`kylin_undefine` 行 |
 | [`src/client/card-model.ts`](src/client/card-model.ts) | 从冻结 call/result 切片派生的可回放视图模型 |
 | [`src/client/inventory.ts`](src/client/inventory.ts) | 单飞清单读取及其重连处理 |
 | [`src/client/status.ts`](src/client/status.ts) | 基于清单与本页 live set 的可见状态读数 |
-| [`src/client/slots.ts`](src/client/slots.ts) | 注入面与包自有的 `tool.view.cordis` 槽位声明 |
-| [`src/client/run-card-index.ts`](src/client/run-card-index.ts) | 每会话「最新合格 `cordis_run` 卡片」索引 |
+| [`src/client/slots.ts`](src/client/slots.ts) | 注入面与包自有的 `tool.view.kylin` slot 声明 |
+| [`src/client/run-card-index.ts`](src/client/run-card-index.ts) | 每会话「最新合格 `kylin_run` 卡片」索引 |
 
 ### 面板如何保持最新
 
-公告（`cordis/dynamic-package`、`cordis/dynamic-retract`、`cordis/request-run`、`cordis/request-run-resolved`）触发清单重读，而不是就地打补丁——因为公告不携带标签，而定义可能在两次公告之间出现或消失。读取是单飞的，因此多条公告同时结算不会放大调用次数；连接重置既丢弃在途读取、又为新读取腾出位置，所以重连绝不会发布旧 host 的行。
+公告（`kylin/dynamic-package`、`kylin/dynamic-retract`、`kylin/request-run`、`kylin/request-run-resolved`）触发清单重读，而不是就地打补丁——因为公告不携带标签，而定义可能在两次公告之间出现或消失。读取是单飞的，因此多条公告同时结算不会放大调用次数；连接重置既丢弃在途读取、又为新读取腾出位置，所以重连绝不会发布旧 host 的行。
 
 </details>
 
@@ -88,19 +88,19 @@ kind: "package-reference"
 - [Client runner](../kylin-client-runner/README.zh.md)——面板读取并调用的浏览器面。
 - [Host runner](../kylin-host-runner/README.zh.md)——面板背后的清单与生命周期动词。
 - [工具包](../tool-kylin/README.zh.md)——调用被这些卡片渲染的模型侧工具。
-- [extensions 子系统](../../../docs/subsystems/extensions.zh.md)——生成的 `ctx.dynamicCordisRunner` API 与转发的 `cordis/*` 事件。
-- [slots 子系统](../../../docs/subsystems/slots.zh.md)——槽位注册的浏览器 UI 如何归其包所有。
+- [extensions 子系统](../../../docs/subsystems/extensions.zh.md)——生成的 `ctx.dynamicKylinRunner` API 与转发的 `kylin/*` 事件。
+- [slots 子系统](../../../docs/subsystems/slots.zh.md)——slot 注册的浏览器 UI 如何归其包所有。
 
 -----
 
 <a id="model-experience"></a>
 ## 模型体验
 
-间接影响，经由这些界面驱动的 run 与 stop 动词——run 走浏览器侧 runner 的编排，stop 与 remove 走 host 的动词，与模型的 `cordis_run` / `cordis_stop` 工具是同一批 host 动词。因此正在运行的定义随后贡献了什么是 runner 的效果，而本包不产生任何模型可见输入：它只渲染已落日志的 call 与 result 切片和一次 host 清单读取，不加 prompt 内容、不写会话事件，并刻意不为「有人批准 / 拒绝 / 运行 / 停止」留下会话日志痕迹。
+间接影响，经由这些界面驱动的 run 与 stop 动词——run 走浏览器侧 runner 的编排，stop 与 remove 走 host 的动词，与模型的 `kylin_run` / `kylin_stop` 工具是同一批 host 动词。因此正在运行的定义随后贡献的任何内容，都是 runner 的效果，而本包不产生任何模型可见输入：它只渲染已落日志的 call 与 result 切片和一次 host 清单读取，不加提示词内容、不写会话事件，并刻意不为「有人批准、拒绝、运行或停止」留下会话日志痕迹。
 
 #### KV Cache 影响
 
-无：没有任何 prompt 输入源自这里，应答一次 run 请求既不延长也不改写历史尾部。
+无：没有任何提示词输入源自这里，应答一次 run 请求既不延长也不改写历史尾部。
 
 ## 已知限制与延期工作
 
@@ -109,10 +109,10 @@ kind: "package-reference"
 
 这些限制说明这些界面何时需要特别小心。它们是当前包约束，不是任务积压。
 
-- **已展开的面板看不到「不广播任何东西」的注册表变化**——`cordis_define`，以及对一个并未在运行的定义执行 undefine，都会改变注册表却不发出下发公告；因此跨过这类变化时，已展开的面板会保留旧行，直到收起再展开。run 请求是例外：它阻塞模型，所以它既自己渲染出行，也触发一次读取。
+- **已展开的面板看不到「不广播任何东西」的注册表变化**——`kylin_define`，以及对一个并未在运行的定义执行 undefine，都会改变注册表却不发出下发公告；因此跨过这类变化时，已展开的面板会保留旧行，直到收起再展开。run 请求是例外：它阻塞模型，所以它既自己渲染出行，也触发一次读取。
 - **只有请求、没有清单的行可应答但不可操作**——它只提供批准与拒绝，因为 run／stop 控件需要那次读取尚未送达的注册表行。
 - **行可能消失一次读取的时长**——活动的 orchestrating 臂带会话但刻意不带标签，因此一个已批准、但注册表读取尚未落地的请求，在读取落地前没有行；实践中读取在请求到达时即已触发。
-- **渲染失败是本页自己的读数，而且它来得太晚、赶不上 run 的回执**——面板显示的是 runner 在本页看到的最后一次崩溃，所以一个在本标签页渲染正常的包，即使正在另一个标签页里崩溃，这里也什么都不显示；模型只能靠主动去问（`cordis_inspect_self`）才知道，而不是从它已经发出的那次调用里得知。
+- **渲染失败是本页自己的读数，而且它来得太晚、赶不上 run 的回执**——面板显示的是 runner 在本页看到的最后一次崩溃，所以一个在本标签页渲染正常的包，即使正在另一个标签页里崩溃，这里也什么都不显示；模型只能靠主动去问（`kylin_inspect_self`）才知道，而不是从它已经发出的那次调用里得知。
 - **某一页的装载失败对其他页不可见**——host 以首个装载回报结算一次 dispatch，因此在另一页确认之后浏览器半才失败的页面，在其他页上仍会读作运行中。
 - **任何页面都可以应答任何请求**——审批按设计是框架级的，所以某个标签页里的人可以批准模型为另一个标签页正在看的会话所发起的 run；收窄「谁有权应答」延后。
 - **call head 掉出事件窗的卡片会丢掉标签**——define 卡片的 name 与 purpose 取自调用参数，因此会话长到把它们截断时，卡片只能以自己的 call id 自称；面板不受影响，因为 host 清单携带标签。
@@ -127,4 +127,4 @@ kind: "package-reference"
 
 </details>
 
-**运行时不变式：** 不发布伴生入口。插件只注册一个 keyed toolview，HMR 测试覆盖释放；per-definition run-state 只存在于浏览器进程，Host 不变式无法观察。
+**运行时不变式：** 不发布伴生入口。插件只注册一个 keyed toolview，其资源释放已由 HMR 安全性测试证明。本包拥有的唯一可变关系，即 per-definition run-state 观察量，只存在于浏览器进程中，Host 不变式服务无法触及；Node 端不发出任何 Kylin 事件，也不持有任何跨插件状态。

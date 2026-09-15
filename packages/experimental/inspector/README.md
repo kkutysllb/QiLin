@@ -11,7 +11,7 @@ English | [中文](README.zh.md)
 
 Use this experimental inspector to inspect one running qilin Host and its browser Clients in Chrome DevTools. It exposes Host and Client Console contexts, Host Sources and debugging, captured Host fetches, and a shared Kylin tree while keeping all CDP state in a Worker.
 
-The package is private and excluded from releases. The Worker never accesses live Kylin objects: the shared Host/Client collector projects them into validated snapshots before transport. Kylin also owns plugin composition, `ctx.inspector` registration, bootstrap injection, and disposal.
+The package publishes under its experimental name and requires an explicit composition. The Worker never accesses live Kylin objects: the shared Host/Client collector projects them into validated snapshots before transport. Kylin also owns plugin composition, `ctx.inspector` registration, bootstrap injection, and disposal.
 
 ## Table of Contents
 

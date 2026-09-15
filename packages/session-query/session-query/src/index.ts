@@ -4,6 +4,7 @@
  * @module @qilin/session-query
  */
 
+import { currentSessionMessageProjections } from '@qilin/session-format-catalog/message-projections'
 import { Context, Service } from '@qilin/kylin'
 import {
   Session,
@@ -187,6 +188,7 @@ export abstract class SessionQueryEngine extends Service {
       loaded.events,
       loaded.header,
       loaded.inheritedEventCount,
+      currentSessionMessageProjections,
     )
     return {
       session: structuredClone(loaded.header),

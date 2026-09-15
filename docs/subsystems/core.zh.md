@@ -344,7 +344,7 @@ type RequestErrorAction = { kind: 'retry' } | undefined
 
 `agent/pre-step` 是请求推导前唯一的 waterfall（瀑布式）监听器链。`agent/turn-stopping` 在轮次没有工具或 steering（中途引导）后续时运行，先于最后一次 steering 排空。
 
-`agent/session-start` 携带 `SessionStartSource`（会话生命周期为何开始；桥接层据此匹配其 SessionStart）：
+`agent/created` 携带 `SessionStartSource`（会话生命周期为何开始；桥接层据此匹配其 SessionStart）：
 
 ```ts type-equiv
 /** Why a session lifecycle began; seeded creates are `startup`, while persisted loads are `resume`. */
@@ -425,7 +425,7 @@ type Branded<B extends string> = string & { readonly [BRAND]: B }
 
 ## Cordis API
 
-Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts kylin-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxagentdefaultmodel--agentdefaultmodelconfig"></a>
 
@@ -433,7 +433,7 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 Owns the default model selection independently of any Host or transport. The composition entry remains usable without a settings provider; when one is mounted, its user layer is read live.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Read the current default model selection.
  * @returns a detached provider, model, and optional reasoning selection.
@@ -457,7 +457,7 @@ Source: [`packages/core/agent-default-model/src/index.ts`](../../packages/core/a
 
 Concrete agent factory and driver service.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Create an agent and session under one caller-supplied identity, owned by
  * the accessing fiber. Constructor-driven config calls mint a fresh combined
@@ -499,7 +499,7 @@ Registry over the deployment's agent presets.
 
 Discovery is unmemoized: `list()` and `resolve()` re-read the roots on every call so a preset authored while the process runs is visible immediately, and a preset deleted underneath a picker disappears from the next read.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Every preset the configured roots currently supply.
  * @returns the presets, first-root-wins per id.
@@ -508,11 +508,12 @@ async list(): Promise<AgentPreset[]>
 
 /**
  * The roster off the Host: {@link list} projected to path-free rows, with
- * the default marked and this deployment's authoring capability beside it.
+ * the policy-effective default marked, this deployment's authoring
+ * capability, and its mode-selection policy beside it.
  *
  * Whether a client can open a preset's directory is the Host's own opener
  * capability, not a roster property — a caller needing both joins them.
- * @returns the rows and the authoring capability.
+ * @returns the rows, authoring capability, and effective selection policy.
  */
 @Remote('list') async remoteExportList(): Promise<AgentPresetRoster>
 
@@ -741,7 +742,7 @@ Agent service (`ctx.agents`): tracks live agents and carries the initiating Agen
 
 Initiator methods provide same-process causal attribution only. Ambient presence is neither liveness proof nor authorization; subjects and owners remain explicit, as does identity at worker, process, persistence, and wire boundaries. Returned Promise boundaries drain during teardown, except a nested lineage that starts an owning-fiber unload is excluded from its own drain.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Read the Agent that initiated the inherited asynchronous driver chain.
  * Use this optional form for logging, tracing, metrics, or host attribution
@@ -827,16 +828,16 @@ async create(options: CreateAgentOptions): Promise<AgentHandle>
 async resume(options: ResumeAgentOptions): Promise<AgentHandle>
 
 /**
- * Register a live agent. Throws if an agent with the same id is already
- * registered. Emits `agent/created` on registration and `agent/disposed`
+ * Register a live agent with source `startup`. Rejects if the id is already registered or a
+ * serial `agent/created` listener fails. Emits `agent/disposed`
  * when the calling fiber is disposed — both with the agent's scope carrier
  * (`scopeTarget(agent, agent)`): the subject is the agent in hand, so the
  * emits are scope-filtered regardless of which context invoked `register`
  * (calling through `agent.ctx` scopes EFFECTS; dispatch scoping always
  * requires passing the carrier). The entry is a runtime root; factory-backed
- * creation uses `options.parentAgent` for child ownership. Returns the disposer.
+ * creation uses `options.parentAgent` for child ownership. Await the registration before using the agent.
  * @param agent - the already-constructed agent to record in the store.
- * @returns the EXACT Cordis effect disposer (single-shot; a repeat call
+ * @returns the awaitable Cordis effect disposer (single-shot; a repeat call
  *   returns undefined without awaiting an in-flight teardown). Exact
  *   identity is load-bearing: a composite (generator) effect that owns a
  *   teardown ORDER — the agent factory's lifecycle chain — must yield THIS
@@ -845,7 +846,7 @@ async resume(options: ResumeAgentOptions): Promise<AgentHandle>
  *   owner unload, unregistering the agent (and emitting `agent/disposed`)
  *   while its final turn is still draining.
  */
-register(agent: Agent): () => void
+register(agent: Agent): ReturnType<Context['effect']>
 
 /**
  * Insert an already-constructed agent without announcing it. This is the
@@ -859,19 +860,22 @@ register(agent: Agent): () => void
  *   the resumed session's durable parent lineage.
  * @returns an idempotent closure that removes this exact entry and emits
  *   `agent/disposed` with listener failures contained. When called from a
- *   synchronous `agent/created` listener, removal and disposal wait until
- *   that creation dispatch unwinds.
+ *   `agent/created` listener, removal and disposal wait until the serial
+ *   creation dispatch settles.
  */
 enter(agent: Agent, owner: Agent | undefined): () => void
 
 /**
  * Announce an agent previously inserted with {@link enter}.
  * @param agent - the live inserted agent to announce.
+ * @param source - fresh creation, resume, clear, or compaction source.
+ * @param signal - optional factory initialization cancellation signal passed to listeners.
+ * @returns completion of the serial creation listeners; a listener failure rejects.
  * @throws if `agent` is not the exact live registry entry for its id, or its
  *   creation announcement already began (including a reentrant call from a
  *   creation listener).
  */
-announce(agent: Agent): void
+async announce(agent: Agent, source: SessionStartSource, signal?: AbortSignal): Promise<void>
 
 /**
  * Look up a live agent.
@@ -917,7 +921,7 @@ Source: [`packages/core/agent/src/index.ts`](../../packages/core/agent/src/index
 
 Process-local assistant-stream publication. Chunk frames are transient; the loop appends one final v2 `assistant/message` or `assistant/attempt` with the same stream before a committed end frame.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Process-local assistant-stream publication. Chunk frames are transient;
  * the loop appends one final v2 `assistant/message` or `assistant/attempt`
@@ -934,24 +938,27 @@ Types: [Scoped](scope.zh.md)
 
 Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/src/runtime-types.ts)
 
-<a id="agentcreated--emit"></a>
+<a id="agentcreated--serial"></a>
 
-#### `agent/created` — emit
+#### `agent/created` — serial
 
-A fully configured agent and live session were published. Setup is composition-only; `agent/session-start` is the first startup-driving extension point. Synchronous listener failure vetoes publication, while returned-promise rejection is reported. Detach requested during dispatch waits until every creation listener has observed the stable entry.
+An entered agent is ready for per-agent initialization after factory setup. Listeners run in order and are awaited before creation resolves. AgentLoop holds queued input until all listeners finish. A throw or rejection fails creation and skips later listeners. Disposal retains the scope and session until dispatch settles; listeners must not await agent.whenIdle() or their own owner's disposal.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
- * A fully configured agent and live session were published. Setup is
- * composition-only; `agent/session-start` is the first startup-driving extension point.
- * Synchronous listener failure vetoes publication, while returned-promise
- * rejection is reported. Detach requested during dispatch waits until every
- * creation listener has observed the stable entry.
+ * An entered agent is ready for per-agent initialization after factory setup.
+ * Listeners run in order and are awaited before creation resolves. AgentLoop
+ * holds queued input until all listeners finish. A throw or rejection fails
+ * creation and skips later listeners. Disposal retains the scope and session
+ * until dispatch settles; listeners must not await agent.whenIdle() or their
+ * own owner's disposal.
  * @param payload.agent - the newly registered agent with its live session and completed setup.
+ * @param payload.source - fresh creation, resume, clear, or compaction source.
+ * @param payload.signal - factory initialization cancellation signal, when provided.
  * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
- * @mode emit
+ * @mode serial
  */
-'agent/created'(this: Scoped<Agent>, payload: { agent: Agent }): void
+'agent/created'(this: Scoped<Agent>, payload: { agent: Agent; source: SessionStartSource; signal?: AbortSignal }): undefined | Promise<undefined>
 ```
 
 Types: [Scoped](scope.zh.md)
@@ -964,7 +971,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 An agent left the registry; AgentLoop emits this after driver quiescence and scoped-registration unwind, but before session detachment. Custom registry users own their driver-ordering contract.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * An agent left the registry; AgentLoop emits this after driver quiescence
  * and scoped-registration unwind, but before session detachment. Custom
@@ -986,7 +993,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 A step or turn errored. The machine reports a failure here even when the error has no in-turn position for a durable record.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * A step or turn errored. The machine reports a failure here even when
  * the error has no in-turn position for a durable record.
@@ -1010,7 +1017,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 One message left the inbox inside its open turn. If the proposed step is rejected, the claimed message ends here: it is neither discarded nor re-emitted as a user/message, and the turn closes without a step.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * One message left the inbox inside its open turn. If the proposed step
  * is rejected, the claimed message ends here: it is neither discarded nor
@@ -1034,7 +1041,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 One message was discarded from the live inbox.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * One message was discarded from the live inbox.
  * @param payload.agent - the agent whose inbox changed.
@@ -1055,7 +1062,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 One message entered the live inbox.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * One message entered the live inbox.
  * @param payload.agent - the agent whose inbox changed.
@@ -1076,7 +1083,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 Reject a proposed step or replace the messages that enter it. Calling `next()` preserves the current messages.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Reject a proposed step or replace the messages that enter it. Calling
  * `next()` preserves the current messages.
@@ -1101,7 +1108,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 Replace the frozen call configuration. `await next()` yields the config the machine would use (agent options on the first request, the logged header afterwards); return a replacement to switch. On step admission, this runs after assembly and `step/start`, before the system prompt and accepted user batch are committed. Cancellation here or during subsequent `prepareCall()` resolution commits neither. The prepared call capability governs prompt admission. Model-visible content must use logged channels; this waterfall cannot mutate messages.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Replace the frozen call configuration. `await next()` yields the config
  * the machine would use (agent options on the first request, the logged
@@ -1131,7 +1138,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 Handle one failed model-request attempt before the loop retries or closes its step. A listener returns `{ kind: 'retry' }` without calling `next()` when it owns recovery, or calls `next()` to delegate. The default `undefined` leaves the failure terminal.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Handle one failed model-request attempt before the loop retries or closes
  * its step. A listener returns `{ kind: 'retry' }` without calling `next()`
@@ -1154,37 +1161,13 @@ Types: [LlmFailure](llm-streaming.zh.md) · [ResolvedRetryPolicy](llm-streaming.
 
 Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/src/runtime-types.ts)
 
-<a id="agentsession-start--emit"></a>
-
-#### `agent/session-start` — emit
-
-The session lifecycle began, once before the first turn. Use `agent.inject()` to seed model-facing context. This is a notification, not a veto; disposal requested by a lifecycle owner is rechecked before the driver starts.
-
-```ts cordis-catalog
-/**
- * The session lifecycle began, once before the first turn. Use
- * `agent.inject()` to seed model-facing context. This is a notification, not
- * a veto; disposal requested by a lifecycle owner is rechecked before the
- * driver starts.
- * @param payload.agent - the agent whose session lifecycle began.
- * @param payload.source - why the session started (fresh startup, resume, …).
- * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
- * @mode emit
- */
-'agent/session-start'(this: Scoped<Agent>, payload: { agent: Agent; source: SessionStartSource }): void
-```
-
-Types: [Scoped](scope.zh.md)
-
-Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/src/runtime-types.ts)
-
 <a id="agentstatus--emit"></a>
 
 #### `agent/status` — emit
 
 Agent status changed (`idle` ⇄ `running`). A waking delivery enters `running` synchronously after reserving cancellation; `idle` means no driver remains scheduled or active.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * Agent status changed (`idle` ⇄ `running`). A waking delivery enters
  * `running` synchronously after reserving cancellation; `idle` means no
@@ -1207,7 +1190,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 The turn is about to close: the model owes no response (no live tool calls, no fresh steering). Awaited before the boundary commits — a listener that objects steers (`agent.steer(...)`) and the machine re-reads its inbox: fresh steering runs another step, none closes the turn. Data decides, so listener order cannot change the outcome. The inverse control (stop a tool loop early) is data too: a tool result carrying `concludesTurn` ends the turn at its step. The conclusion never short-circuits already-submitted next-step work: same-step `additionalContexts` or racing steering still runs, and the turn closes only when that inbox drains.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * The turn is about to close: the model owes no response (no live tool
  * calls, no fresh steering). Awaited before the boundary commits — a
@@ -1242,7 +1225,7 @@ Source: [`packages/core/agent/src/runtime-types.ts`](../../packages/core/agent/s
 
 A declarative agent entry failed before it could publish a live agent. Consumers that buffer work for the configured identity use this transient signal to reject that work instead of waiting forever. Normal factory teardown suppresses failures from the cancelled startup attempt.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * A declarative agent entry failed before it could publish a live agent.
  * Consumers that buffer work for the configured identity use this
@@ -1267,7 +1250,7 @@ Source: [`packages/core/agent-loop/src/index.ts`](../../packages/core/agent-loop
 
 One session committed a different agent preset to its durable log. Consumers invalidate only state derived from that session's composition.
 
-```ts cordis-catalog
+```ts kylin-catalog
 /**
  * One session committed a different agent preset to its durable log.
  * Consumers invalidate only state derived from that session's composition.

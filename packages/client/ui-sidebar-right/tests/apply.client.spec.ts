@@ -188,7 +188,7 @@ describe('ui-sidebar-right apply', () => {
       kind: 'files',
       label: () => 'Files',
       title: () => 'Files',
-      guide: [{ order: 10, title: () => 'Files' }],
+      guide: [{ id: 'default', order: 10, title: () => 'Files' }],
     })
     expect(seen).toHaveBeenCalledOnce()
     expect(guideEntries.getSnapshot().map(entry => entry.kind)).toEqual(['files'])

@@ -1,4 +1,4 @@
-/** One Electron release stream for the version-bound shell and qilin seed. */
+/** One Electron release stream for the version-bound shell and bundled qilin runtime. */
 
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'

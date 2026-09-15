@@ -136,8 +136,10 @@ flowchart LR
   cfg --> plugin_qilin_base_tool_subagent
   plugin_qilin_base_tool_subagent_fork["tool-subagent-fork<br/>@qilin/tool-subagent"]
   cfg --> plugin_qilin_base_tool_subagent_fork
-  plugin_qilin_base_workflow_worker_thread["workflow-worker-thread<br/>@qilin/workflow-worker-thread"]
-  cfg --> plugin_qilin_base_workflow_worker_thread
+  plugin_qilin_base_ptc_runtime["ptc-runtime<br/>@qilin/ptc-runtime-node"]
+  cfg --> plugin_qilin_base_ptc_runtime
+  plugin_qilin_base_workflow_ptc["workflow-ptc<br/>@qilin/workflow-ptc"]
+  cfg --> plugin_qilin_base_workflow_ptc
   plugin_qilin_base_tool_workflow["tool-workflow<br/>@qilin/tool-workflow"]
   cfg --> plugin_qilin_base_tool_workflow
   plugin_qilin_base_timeout_policy["timeout-policy<br/>@qilin/tool-call-timeout-policy"]
@@ -150,6 +152,8 @@ flowchart LR
   cfg --> plugin_qilin_base_session_checkpoint_policy
   plugin_qilin_base_tool_result_pruner["tool-result-pruner<br/>@qilin/compaction-tool-result-pruner"]
   cfg --> plugin_qilin_base_tool_result_pruner
+  plugin_qilin_base_image_offload["image-offload<br/>@qilin/compaction-image-offload"]
+  cfg --> plugin_qilin_base_image_offload
   plugin_qilin_base_tool_todo["tool-todo<br/>@qilin/tool-todo"]
   cfg --> plugin_qilin_base_tool_todo
   plugin_qilin_base_tool_goal["tool-goal<br/>@qilin/tool-goal"]
@@ -166,6 +170,8 @@ flowchart LR
   cfg --> plugin_qilin_base_web_fetch_http
   plugin_qilin_base_tool_web["tool-web<br/>@qilin/tool-web"]
   cfg --> plugin_qilin_base_tool_web
+  plugin_qilin_base_mcp_resources["mcp-resources<br/>@qilin/mcp-resources"]
+  cfg --> plugin_qilin_base_mcp_resources
   plugin_qilin_base_tools["tools<br/>@qilin/tools"]
   cfg --> plugin_qilin_base_tools
   plugin_qilin_base_system_prompt["system-prompt<br/>@qilin/system-prompt"]
@@ -244,13 +250,15 @@ flowchart LR
 | `tool-subagent-list-agents` | `@qilin/tool-subagent-control/list-agents` |
 | `tool-subagent` | `@qilin/tool-subagent` |
 | `tool-subagent-fork` | `@qilin/tool-subagent` |
-| `workflow-worker-thread` | `@qilin/workflow-worker-thread` |
+| `ptc-runtime` | `@qilin/ptc-runtime-node` |
+| `workflow-ptc` | `@qilin/workflow-ptc` |
 | `tool-workflow` | `@qilin/tool-workflow` |
 | `timeout-policy` | `@qilin/tool-call-timeout-policy` |
 | `spill-local` | `@qilin/spill-local` |
 | `spill-policy` | `@qilin/spill-policy` |
 | `session-checkpoint-policy` | `@qilin/session-checkpoint-policy` |
 | `tool-result-pruner` | `@qilin/compaction-tool-result-pruner` |
+| `image-offload` | `@qilin/compaction-image-offload` |
 | `tool-todo` | `@qilin/tool-todo` |
 | `tool-goal` | `@qilin/tool-goal` |
 | `tool-ralph` | `@qilin/tool-ralph` |
@@ -259,6 +267,7 @@ flowchart LR
 | `web-search-deepseek` | `@qilin/web-search-deepseek` |
 | `web-fetch-http` | `@qilin/web-fetch-http` |
 | `tool-web` | `@qilin/tool-web` |
+| `mcp-resources` | `@qilin/mcp-resources` |
 | `tools` | `@qilin/tools` |
 | `system-prompt` | `@qilin/system-prompt` |
 | `agent-loop` | `@qilin/agent-loop` |
