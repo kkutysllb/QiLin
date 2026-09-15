@@ -29,6 +29,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { dshCompatModuleId, clientDeclarationOf } from '@qilin/dsh-compat'
 import { Service } from '@qilin/kylin'
 import type { Context } from '@qilin/kylin'
 import type { Entry } from '@qilin/kylin-plugin-loader'
@@ -182,20 +183,20 @@ function exactPackageSpecifier(specifier: string): string | undefined {
   return specifier.length > 0 && !specifier.includes('/') ? specifier : undefined
 }
 
-/** Narrow an unknown parsed JSON value to the `qilin.client` declaration, throwing on malformed fields. */
-function parseQilinClient(pkgName: string, value: unknown): QilinClientManifest | undefined {
+/** Narrow an unknown parsed JSON value to a DSH or QiLin client declaration. */
+function parseQilinClient(pkgName: string, key: string, value: unknown): QilinClientManifest | undefined {
   if (value === undefined) return undefined
   if (typeof value !== 'object' || value === null) {
-    throw new Error(`client-modules: ${pkgName} has a non-object qilin.client declaration`)
+    throw new Error(`client-modules: ${pkgName} has a non-object ${key} declaration`)
   }
   const decl = value as Record<string, unknown>
   if (typeof decl.platform !== 'string') {
-    throw new Error(`client-modules: ${pkgName} qilin.client.platform must be a string`)
+    throw new Error(`client-modules: ${pkgName} ${key}.platform must be a string`)
   }
-  const inject = optionalStringArray(pkgName, 'qilin.client.inject', decl.inject)
-  const external = optionalStringArray(pkgName, 'qilin.client.external', decl.external)
+  const inject = optionalStringArray(pkgName, `${key}.inject`, decl.inject)
+  const external = optionalStringArray(pkgName, `${key}.external`, decl.external)
   if (decl.immediately !== undefined && typeof decl.immediately !== 'boolean') {
-    throw new Error(`client-modules: ${pkgName} qilin.client.immediately must be a boolean`)
+    throw new Error(`client-modules: ${pkgName} ${key}.immediately must be a boolean`)
   }
   return {
     platform: decl.platform,
@@ -437,7 +438,8 @@ export function orderByModuleGraph(entries: readonly WebBootEntry[]): WebBootEnt
     }
     open.push(entry.id)
     for (const name of entry.external ?? []) {
-      const dependency = rowsById.get(name) ?? rowsById.get(stripClientSuffix(name))
+      const canonical = dshCompatModuleId(name)
+      const dependency = rowsById.get(canonical) ?? rowsById.get(stripClientSuffix(canonical))
       if (dependency === entry) {
         throw new Error(
           `client-modules: "${entry.id}" requests module "${name}" that it answers itself `
@@ -753,10 +755,11 @@ export class ClientModuleRegistry extends Service {
     }
     const { packageName, path: pkgPath } = located
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as Record<string, unknown>
-    const qilin = pkg.qilin
+    const declaration = clientDeclarationOf(pkg)
     const decl = parseQilinClient(
       packageName,
-      qilin !== null && typeof qilin === 'object' ? (qilin as Record<string, unknown>).client : undefined,
+      declaration?.key ?? 'qilin.client',
+      declaration?.value,
     )
     if (decl === undefined || decl.platform !== 'web') {
       this.pkgMeta.set(sourceKey, null)
@@ -764,12 +767,12 @@ export class ClientModuleRegistry extends Service {
     }
     const clientRel = clientExportOf(packageName, pkg.exports)
     if (clientRel === undefined) {
-      throw new Error(`client-modules: ${packageName} declares qilin.client but exports no "./client" bundle`)
+      throw new Error(`client-modules: ${packageName} declares ${declaration?.key ?? 'qilin.client'} but exports no "./client" bundle`)
     }
     const meta: PkgMeta = {
       clientPath: join(dirname(pkgPath), clientRel),
-      ...(decl.inject !== undefined ? { inject: decl.inject } : {}),
-      external: decl.external ?? [],
+      ...(decl.inject !== undefined ? { inject: decl.inject.map(dshCompatModuleId) } : {}),
+      external: (decl.external ?? []).map(dshCompatModuleId),
       immediately: decl.immediately === true,
     }
     const resolved = { packageName, meta }

@@ -12,6 +12,9 @@
       "path": "../store"
     },
     {
+      "path": "../../util/dsh-compat"
+    },
+    {
       "path": "../../../vendor/cordis"
     },
     {

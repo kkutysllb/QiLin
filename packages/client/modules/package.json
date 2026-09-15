@@ -41,6 +41,9 @@
     "watch": "tsdown --watch"
   },
   "license": "MIT",
+  "dependencies": {
+    "@qilin/dsh-compat": "workspace:^"
+  },
   "devDependencies": {
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/host-webserver": "workspace:^",

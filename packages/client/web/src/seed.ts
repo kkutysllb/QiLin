@@ -15,6 +15,7 @@ import * as ClientStore from '@qilin/client-store'
 import * as UiSlots from '@qilin/client-ui-slots'
 import * as UiPrimitives from '@qilin/client-ui-primitives'
 import * as UiDockkit from '@qilin/client-ui-dockkit'
+import { DSH_PLATFORM_MODULE_ALIASES } from '@qilin/dsh-compat'
 import type { PlatformModule } from './platform.ts'
 
 /**
@@ -25,7 +26,7 @@ export function getStaticModules(): Record<string, unknown> {
   // The satisfies pin is the projection contract: a word added to
   // PLATFORM_MODULES without a static import here (or vice versa) fails to
   // compile instead of drifting into a runtime require miss.
-  return {
+  const modules: Record<string, unknown> = {
     'react': React,
     'react/jsx-runtime': ReactJsxRuntime,
     'react-dom': ReactDom,
@@ -36,4 +37,8 @@ export function getStaticModules(): Record<string, unknown> {
     '@qilin/client-ui-primitives': UiPrimitives,
     '@qilin/client-ui-dockkit': UiDockkit,
   } satisfies Record<PlatformModule, unknown>
+  for (const [alias, canonical] of Object.entries(DSH_PLATFORM_MODULE_ALIASES)) {
+    modules[alias] = modules[canonical as PlatformModule]
+  }
+  return modules
 }

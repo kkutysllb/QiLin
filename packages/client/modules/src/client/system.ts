@@ -4,6 +4,7 @@
  * documented on the public interfaces in `./manifest.ts`; this file owns the
  * state tables and the load/materialize machinery.
  */
+import { dshCompatModuleId } from '@qilin/dsh-compat'
 import { stripClientSuffix } from './manifest.ts'
 import type {
   BootManifest, BootModuleRow, ClientBundleRegistration, ClientModuleLoader, ClientModuleRecord,
@@ -157,13 +158,14 @@ export class ClientModuleSystem implements ClientModuleLoader {
     visited.add(row.id)
     const next = [...open, row.id]
     for (const request of row.external) {
-      const id = stripClientSuffix(request)
-      if (this.seed.has(request) || this.loadCache.has(id)) continue
+      const canonical = dshCompatModuleId(request)
+      const id = stripClientSuffix(canonical)
+      if (this.seed.has(request) || this.seed.has(canonical) || this.loadCache.has(id)) continue
       const dependency = this.graphRows.get(id)
       if (dependency !== undefined) await this.arriveGraphRow(dependency, next, visited)
     }
     for (const packageName of row.inject) {
-      const dependency = this.graphRows.get(packageName)
+      const dependency = this.graphRows.get(dshCompatModuleId(packageName))
       if (dependency !== undefined) await this.arriveGraphRow(dependency, [], visited)
     }
     await this.arrive(row)
@@ -200,8 +202,10 @@ export class ClientModuleSystem implements ClientModuleLoader {
   private makeRequire(edges: Set<string>): (spec: string) => unknown {
     return (spec: string): unknown => {
       edges.add(spec)
+      const canonical = dshCompatModuleId(spec)
       if (this.seed.has(spec)) return this.seed.get(spec)
-      const id = stripClientSuffix(spec)
+      if (this.seed.has(canonical)) return this.seed.get(canonical)
+      const id = stripClientSuffix(canonical)
       const record = this.loadCache.get(id)
       if (record !== undefined) return record.exports
       if (this.factories.has(id)) return this.materialize(id).exports
@@ -213,8 +217,10 @@ export class ClientModuleSystem implements ClientModuleLoader {
   }
 
   async import(specifier: string): Promise<unknown> {
+    const canonical = dshCompatModuleId(specifier)
     if (this.seed.has(specifier)) return this.seed.get(specifier)
-    const id = stripClientSuffix(specifier)
+    if (this.seed.has(canonical)) return this.seed.get(canonical)
+    const id = stripClientSuffix(canonical)
     const existing = this.loadCache.get(id)
     if (existing !== undefined) return existing.exports
     const row = this.graphRows.get(id)
@@ -230,7 +236,7 @@ export class ClientModuleSystem implements ClientModuleLoader {
   }
 
   async prefetch(id: string): Promise<void> {
-    const normalized = stripClientSuffix(id)
+    const normalized = stripClientSuffix(dshCompatModuleId(id))
     if (this.loadCache.has(normalized)) return
     const row = this.graphRows.get(normalized)
     if (row === undefined) throw new Error(`client-modules: prefetch("${id}") — not a graph entry`)
@@ -238,7 +244,7 @@ export class ClientModuleSystem implements ClientModuleLoader {
   }
 
   invalidate(id: string, rev?: string): void {
-    const normalized = stripClientSuffix(id)
+    const normalized = stripClientSuffix(dshCompatModuleId(id))
     if (this.bootstrapIds.has(normalized)) return
     const row = this.graphRows.get(normalized)
     if (row !== undefined) this.reloadUrls.set(normalized, atRevision(row.url, rev ?? row.rev))

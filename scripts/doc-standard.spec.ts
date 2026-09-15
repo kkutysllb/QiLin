@@ -83,6 +83,7 @@ const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
   'packages/util/atomic-write': 'Zero-dependency filesystem write utility.',
   'packages/util/brand': 'Stateless nominal-string and canonical-key constructors.',
   'packages/util/crypto': 'Zero-dependency identifier minting utility.',
+  'packages/util/dsh-compat': 'Zero-dependency DSH-era module-name aliases and manifest-key fallback readers.',
   'packages/util/deque': 'Zero-dependency circular deque utility.',
   'packages/util/chunked-list': 'Persistent collection operations and checkpoint validation without a plugin surface.',
   'packages/util/home-paths': 'Zero-dependency harness-home path resolver.',

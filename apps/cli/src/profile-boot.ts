@@ -28,6 +28,7 @@ import {
   loadProfile,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
+  QILIN_LAUNCH_PROFILE_KEY,
   resolveProfileDir,
   watchUserPatches,
   type Profile,
@@ -335,6 +336,16 @@ export async function runProfile(options: RunProfileOptions): Promise<{ ctx: Con
   // application must not mutate the objects later reloads recompose from.
   const ctx = await boot(NAME, rootConfig, structuredClone(allPatches(composed)), (hostCtx) => {
     app.current = hostCtx
+    // Before any config-tree entry mounts, so management plugins receive the
+    // same immutable profile facts that composed this Loader tree.
+    hostCtx.provide(QILIN_LAUNCH_PROFILE_KEY, {
+      name: composed.profile.name,
+      dir: composed.profile.dir,
+      home: resolveQilinHome(),
+      installAnchor: INSTALL_ANCHOR,
+      patchReload: composed.profile.patchReload,
+      builtInBundles: [...PROFILE_TEMPLATES[options.profile]?.bundles ?? []],
+    })
     // Before any config-tree entry mounts, so plugins resolve all launch-time
     // environment values from the same immutable provenance snapshot.
     hostCtx.provide(QILIN_LAUNCH_ENVIRONMENT_KEY, options.environment)

@@ -753,6 +753,22 @@ function emitLoaderEntryChange(context: Context, name: string): void {
 }
 
 describe('shared module declarations', () => {
+  it('accepts DSH client metadata and canonicalizes its graph edges', () => {
+    const packageName = '@fixture/dsh-client'
+    const clientPath = writePackage(packageName, { dsh: { client: {
+      platform: 'web',
+      inject: ['@deepseek-ai/dsh-client-runtime'],
+      external: ['@deepseek-ai/dsh-client-runtime/client', '@deepseek-ai/dsh-client-ui-slots'],
+    } } })
+    mkdirSync(dirname(clientPath), { recursive: true })
+    writeFileSync(clientPath, 'module.exports = {}\n')
+    const [row] = construct([packageName]).graph().entries
+    expect(row).toMatchObject({
+      inject: ['@qilin/client-modules'],
+      external: ['@qilin/client-modules/client', '@qilin/client-ui-slots'],
+    })
+  })
+
   it('accepts external requests and carries them onto the graph row', () => {
     const packageName = '@fixture/shared-declared'
     writeBuiltPackage(packageName, { external: ['react'] })
@@ -806,6 +822,13 @@ describe('module graph order', () => {
       entry('ui', { external: ['runtime/client'] }),
       entry('runtime'),
     ]))).toEqual(['runtime', 'ui'])
+  })
+
+  it('canonicalizes DSH package requests while ordering graph rows', () => {
+    expect(ids(orderByModuleGraph([
+      entry('consumer', { external: ['@deepseek-ai/dsh-client-runtime/client'] }),
+      entry('@qilin/client-modules'),
+    ]))).toEqual(['@qilin/client-modules', 'consumer'])
   })
 
   it('leaves a request no row answers to the static assembly channel', () => {

@@ -129,7 +129,11 @@ export function subagentTotal(
   return Math.max(children, descendants.get(rootSessionId)?.count ?? 0)
 }
 
-/** A job the registry still holds open, and whose duration therefore ticks. */
+/**
+ * Whether a job remains active in the registry.
+ * @param job - the Session job row.
+ * @returns whether the job is running or stopping.
+ */
 export function isLive(job: SessionJob): boolean {
   return job.status === 'running' || job.status === 'stopping'
 }

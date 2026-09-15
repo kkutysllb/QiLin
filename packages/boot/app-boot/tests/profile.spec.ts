@@ -41,7 +41,7 @@ const tmp = (): string => {
 
 /** Stage a fake installed app: package.json with deps and a node_modules holding bundles. */
 function stageInstallation(
-  bundles: Record<string, { patch?: string; deps?: Record<string, string> }>,
+  bundles: Record<string, { patch?: string; deps?: Record<string, string>; manifestKey?: 'qilin' | 'dsh' }>,
   appName = 'qilin-app',
 ): string {
   const root = tmp()
@@ -58,7 +58,7 @@ function stageInstallation(
       type: 'module',
       main: './index.js',
       dependencies: spec.deps ?? {},
-      ...spec.patch === undefined ? {} : { qilin: { bundle: { patch: './cordis.patch.yml' } } },
+      ...spec.patch === undefined ? {} : { [spec.manifestKey ?? 'qilin']: { bundle: { patch: './cordis.patch.yml' } } },
     }))
     writeFileSync(join(dir, 'index.js'), `export const packageName = ${JSON.stringify(name)}\n`)
     if (spec.patch !== undefined) writeFileSync(join(dir, 'cordis.patch.yml'), spec.patch)
@@ -189,6 +189,35 @@ describe('loadProfile', () => {
     expect(profile.dir).toBe(dir)
     expect(profile.name).toBe('desktop')
     expect(profile.layers.map(layer => layer.packageName)).toEqual(['bundle-a'])
+  })
+
+  it('loads a DSH bundle patch declaration through the QiLin profile loader', () => {
+    const anchor = stageInstallation({ 'dsh-bundle': { patch: '[]\n', manifestKey: 'dsh' } })
+    const home = tmp()
+    const dir = resolveProfileDir('dsh', home)
+    initProfile(dir, ['dsh-bundle'])
+    expect(loadProfile('t', 'dsh', anchor, home).layers.map(layer => layer.packageName))
+      .toEqual(['dsh-bundle'])
+  })
+
+  it('loads a legacy dsh.profile declaration when qilin.profile is absent', () => {
+    const anchor = stageInstallation({ 'dsh-bundle': { patch: '[]\n' } })
+    const home = tmp()
+    const dir = resolveProfileDir('legacy-dsh', home)
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'legacy-dsh', dsh: { profile: { bundles: ['dsh-bundle'], patchReload: 'startup' } } }))
+    const profile = loadProfile('t', 'legacy-dsh', anchor, home)
+    expect(profile.layers.map(layer => layer.packageName)).toEqual(['dsh-bundle'])
+    expect(profile.patchReload).toBe('startup')
+  })
+
+  it('gives qilin.profile precedence over dsh.profile', () => {
+    const anchor = stageInstallation({ 'qilin-bundle': { patch: '[]\n' }, 'dsh-bundle': { patch: '[]\n' } })
+    const home = tmp()
+    const dir = resolveProfileDir('precedence', home)
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'precedence', qilin: { profile: { bundles: ['qilin-bundle'] } }, dsh: { profile: { bundles: ['dsh-bundle'] } } }))
+    expect(loadProfile('t', 'precedence', anchor, home).layers.map(layer => layer.packageName)).toEqual(['qilin-bundle'])
   })
 
   it('resolves each qilin.profile.bundles entry to its patch layer in order, plus the user layer', () => {
@@ -368,6 +397,20 @@ describe('composeEntries', () => {
 })
 
 describe('healProfilesModuleFallback', () => {
+  it('links legacy DSH dependency names to the installed QiLin package', async () => {
+    const root = tmp()
+    const app = join(root, 'app')
+    const canonical = join(app, 'node_modules', '@qilin', 'settings')
+    mkdirSync(canonical, { recursive: true })
+    writeFileSync(join(canonical, 'package.json'), JSON.stringify({ name: '@qilin/settings', version: '0.0.0' }))
+    const anchor = join(app, 'package.json')
+    writeFileSync(anchor, JSON.stringify({ name: 'qilin-app', version: '0.0.0', dependencies: { '@deepseek-ai/dsh-settings': '0.0.0' } }))
+    const home = tmp()
+    await healProfilesModuleFallback({ installAnchor: anchor, home })
+    const legacyLink = join(home, 'profiles', 'node_modules', '@deepseek-ai', 'dsh-settings')
+    expect(realpathSync(legacyLink)).toBe(realpathSync(canonical))
+  })
+
   it('links the app and bundle dependency surface flat under profiles/node_modules', async () => {
     const anchor = stageInstallation({
       'bundle-a': { patch: '[]\n', deps: { 'dep-of-a': '0.0.0', 'ghost-dep': '0.0.0' } },

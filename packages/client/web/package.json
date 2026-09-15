@@ -24,6 +24,7 @@
   "license": "MIT",
   "devDependencies": {
     "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/dsh-compat": "workspace:^",
     "@qilin/client-modules": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/client-ui-dockkit": "workspace:^",

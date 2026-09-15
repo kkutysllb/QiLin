@@ -45,6 +45,7 @@ const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
  */
 const SAFE_HOST_DEPENDENCY_EXPORTS = {
   '@qilin/credentials': ['credentialKey'],
+  '@qilin/dsh-compat': ['clientDeclarationOf', 'dshCompatModuleId'],
   '@qilin/deque': ['Deque'],
   '@qilin/llm': ['callConfigEquals'],
   '@qilin/session-format': ['sessionFormatLogFilename'],

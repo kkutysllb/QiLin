@@ -8,6 +8,7 @@ import goalsRemote from '@qilin/goal/remote'
 import llmRemote from '@qilin/llm/remote'
 import dynamicRemote from '@qilin/kylin-host-runner/remote'
 import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
+import pluginManagerRemote from '@qilin/host-plugin-manager/remote'
 import mcpServersRemote from '@qilin/mcp-servers/remote'
 import messageFeedbackRemote from '@qilin/message-feedback/remote'
 import sessionFeedbackRemote from '@qilin/command-feedback/remote'
@@ -21,12 +22,14 @@ import type { ClientRemote } from '@qilin/api-gateway/client'
 
 export type { ClientRemote } from '@qilin/api-gateway/client'
 export type { PluginInventorySnapshot } from '@qilin/host-plugin-inventory/types'
+export type { PluginManagerSnapshot, PluginMutationReceipt, PluginUpdateSnapshot, CommunityPluginSnapshot } from '@qilin/host-plugin-manager/types'
 export type {} from '@qilin/agent-presets/remote'
 export type {} from '@qilin/commands/remote'
 export type {} from '@qilin/api-settings-controller/remote'
 export type {} from '@qilin/goal/remote'
 export type {} from '@qilin/llm/remote'
 export type {} from '@qilin/host-plugin-inventory/remote'
+export type {} from '@qilin/host-plugin-manager/remote'
 export type {} from '@qilin/mcp-servers/remote'
 export type {} from '@qilin/message-feedback/remote'
 export type {} from '@qilin/command-feedback/remote'
@@ -154,7 +157,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
   try {
     for (const contribution of [
       agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote,
-      pluginInventoryRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote, fileUploadsRemote,
+      pluginInventoryRemote, pluginManagerRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote, fileUploadsRemote,
       sessionReferencesRemote, subagentsRemote, sessionRemote, workspaceRemote, workspaceFilesRemote,
     ]) {
       disposers.push(await ctx.remote.$mount(contribution))

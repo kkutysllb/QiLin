@@ -34,6 +34,7 @@ import { withFileLock } from '@qilin/atomic-write'
 import type { EntryOptions } from '@qilin/kylin-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@qilin/kylin-plugin-include'
 import { resolveQilinHome } from '@qilin/home-paths'
+import { bundlePatchOf, dshCompatModuleId } from '@qilin/dsh-compat'
 import type { QilinManifest, QilinModuleFallbackManifest, ProfilePatchReload } from '@qilin/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { loadOverlayPatches } from './index.ts'
@@ -61,6 +62,8 @@ export interface ProfileManifest {
   dependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
   qilin?: QilinManifest
+  /** DSH-era profile or bundle metadata accepted by the compatibility loader. */
+  dsh?: QilinManifest
 }
 
 /** One resolved bundle layer of a profile. */
@@ -74,6 +77,26 @@ export interface ProfileLayer {
   /** The parsed patch list. */
   patches: PatchOptions[]
 }
+
+/** A loaded profile: resolved bundle layers plus the user's own patch layer. */
+/** Launch-time profile facts exposed to host plugins that manage profile-owned files. */
+export interface LaunchProfileSnapshot {
+  /** Profile directory basename. */
+  name: string
+  /** Absolute profile directory. */
+  dir: string
+  /** Absolute QiLin home containing the profile. */
+  home: string
+  /** Absolute package.json used as the installation resolution anchor. */
+  installAnchor: string
+  /** Whether only user patch files are hot-reloaded after boot. */
+  patchReload: ProfilePatchReload
+  /** Bundle names supplied by the selected shipped profile template. */
+  builtInBundles: readonly string[]
+}
+
+/** Context service key for the immutable launch profile snapshot. */
+export const QILIN_LAUNCH_PROFILE_KEY = 'qilinProfile' as const
 
 /** A loaded profile: resolved bundle layers plus the user's own patch layer. */
 export interface Profile {
@@ -473,7 +496,8 @@ function readModuleFallbackManifest(anchor: string): ProfileManifest {
 
 /** Return dependency names that may be imported by a loader-visible plugin. */
 function profileDependencyNames(manifest: ProfileManifest): string[] {
-  return [...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.peerDependencies ?? {})]
+  const names = [...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.peerDependencies ?? {})]
+  return [...new Set(names.flatMap(name => [name, dshCompatModuleId(name)]))]
 }
 
 /** Resolve the installation generation that every profile must find through the fallback directory. */
@@ -494,11 +518,13 @@ function resolveModuleFallbackEntries(
     /* v8 ignore next -- a real app manifest always declares dependencies */
     for (const dep of profileDependencyNames(next.manifest)) {
       if (links.has(dep)) continue
-      const dir = packageDirFromAnchor(next.anchor, dep)
+      const canonical = dshCompatModuleId(dep)
+      const dir = packageDirFromAnchor(next.anchor, dep) ?? packageDirFromAnchor(next.anchor, canonical)
       // A declared-but-uninstalled dependency cannot be a loader-visible
       // plugin; skip it rather than fail the whole boot.
       if (dir === undefined) continue
       links.set(dep, dir)
+      if (canonical !== dep && !links.has(canonical)) links.set(canonical, dir)
       const manifestPath = join(dir, 'package.json')
       queue.push({ anchor: manifestPath, manifest: readModuleFallbackManifest(manifestPath) })
     }
@@ -609,11 +635,17 @@ function dependencyClosure(
       /* v8 ignore next -- an installable package manifest always declares dependencies or peers */
       for (const dep of profileDependencyNames(next.manifest)) {
         if (visited.has(dep)) continue
+        const canonical = dshCompatModuleId(dep)
         const dir = packageDirFromAnchor(next.anchor, dep, exclude)
+          ?? packageDirFromAnchor(next.anchor, canonical, exclude)
         // A declared-but-uninstalled dependency cannot be loader-visible.
         if (dir === undefined) continue
         visited.add(dep)
         links.set(dep, dir)
+        if (canonical !== dep && !visited.has(canonical)) {
+          visited.add(canonical)
+          links.set(canonical, dir)
+        }
         const manifestPath = join(dir, 'package.json')
         queue.push({ anchor: manifestPath, manifest: readModuleFallbackManifest(manifestPath) })
       }
@@ -695,6 +727,11 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
   return left.length === right.length && left.every((value, index) => value === right[index])
 }
 
+/** Read profile metadata with QiLin precedence and DSH fallback. */
+function profileDeclarationOf(manifest: ProfileManifest): QilinManifest | undefined {
+  return manifest.qilin?.profile !== undefined ? manifest.qilin : manifest.dsh
+}
+
 /**
  * Normalize an exact installation-owned bundle tuple to its shipped template,
  * or add the shipped reload default to an exact current tuple. A changed value
@@ -704,11 +741,12 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
 function normalizeShippedProfile(name: string, dir: string, manifest: ProfileManifest): ProfileManifest {
   const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[name]
   const template = PROFILE_TEMPLATES[name]
-  const bundles = manifest.qilin?.profile?.bundles
+  const declaration = profileDeclarationOf(manifest)
+  const bundles = declaration?.profile?.bundles
   if (template === undefined || bundles === undefined) return manifest
   const isRetiredTuple = installationOwned !== undefined && sameBundles(bundles, installationOwned)
   const isCurrentTuple = sameBundles(bundles, template.bundles)
-  const needsReloadDefault = manifest.qilin?.profile?.patchReload === undefined && isCurrentTuple
+  const needsReloadDefault = declaration?.profile?.patchReload === undefined && isCurrentTuple
   if (!isRetiredTuple && !needsReloadDefault) return manifest
   const normalized: ProfileManifest = {
     ...manifest,
@@ -717,7 +755,7 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
       profile: {
         ...manifest.qilin?.profile,
         bundles: [...template.bundles],
-        patchReload: manifest.qilin?.profile?.patchReload ?? template.patchReload,
+        patchReload: declaration?.profile?.patchReload ?? template.patchReload,
       },
     },
   }
@@ -786,6 +824,78 @@ export function resolveBundleDir(
 }
 
 /**
+ * Whether an installed dependency resolves to a QiLin or DSH bundle layer.
+ * @param binName - diagnostic prefix for package resolution.
+ * @param packageName - dependency name to resolve.
+ * @param profileDir - profile directory used as a resolution anchor.
+ * @param installAnchor - running installation package.json used as the primary anchor.
+ * @returns whether the resolved package declares a bundle patch.
+ */
+export function dependencyExportsBundle(
+  binName: string,
+  packageName: string,
+  profileDir: string,
+  installAnchor: string,
+): boolean {
+  let dir: string
+  try {
+    dir = resolveBundleDir(binName, packageName, installAnchor, profileDir)
+  } catch {
+    return false
+  }
+  return bundlePatchOf(readProfileManifest(binName, dir)) !== undefined
+}
+
+/**
+ * Reconcile a profile's bundle list with its installed dependencies.
+ * Template-owned layers are preserved; dependency-managed layers are added when
+ * their installed package declares either channel's bundle patch and removed
+ * when the package disappears or loses that declaration.
+ * @param binName - diagnostic prefix for manifest and resolution errors.
+ * @param before - manifest captured before the package-manager operation.
+ * @param profileDir - profile directory whose manifest is reconciled.
+ * @param installAnchor - installation package.json used for two-anchor resolution.
+ */
+export function reconcileProfilePlugins(
+  binName: string,
+  before: ProfileManifest,
+  profileDir: string,
+  installAnchor: string,
+): void {
+  const after = readProfileManifest(binName, profileDir)
+  const beforeDeps = new Set(Object.keys(before.dependencies ?? {}))
+  const dependencies = Object.keys(after.dependencies ?? {})
+  const declaration = profileDeclarationOf(after)
+  const plugins = [...declaration?.profile?.bundles ?? []]
+  let changed = false
+  for (const packageName of dependencies) {
+    const isBundle = dependencyExportsBundle(binName, packageName, profileDir, installAnchor)
+    if (isBundle && !plugins.includes(packageName)) {
+      plugins.push(packageName)
+      changed = true
+    } else if (!isBundle && !beforeDeps.has(packageName)) {
+      process.stderr.write(
+        `${binName}: warning: ${packageName} declares no qilin.bundle.patch or dsh.bundle.patch — installed as a plain dependency, not a profile layer `
+        + '(a later update that gains one activates it automatically)\n',
+      )
+    }
+  }
+  const dependencySet = new Set(dependencies)
+  for (const packageName of [...plugins]) {
+    const wasDependency = beforeDeps.has(packageName) || dependencySet.has(packageName)
+    const stillBundle = dependencySet.has(packageName)
+      && dependencyExportsBundle(binName, packageName, profileDir, installAnchor)
+    if (wasDependency && !stillBundle) {
+      plugins.splice(plugins.indexOf(packageName), 1)
+      changed = true
+    }
+  }
+  if (!changed) return
+  after.qilin = { ...after.qilin, profile: { ...after.qilin?.profile, bundles: plugins } }
+  writeProfileManifest(profileDir, after)
+}
+
+/**
  * Load an already initialized profile directory without resolving it through
  * the shared Harness home. This is used by application-owned profiles whose
  * package project and lifecycle belong to that application.
@@ -802,20 +912,21 @@ export function loadProfileDirectory(
   options: { userLayer?: boolean } = {},
 ): Profile {
   const manifest = readProfileManifest(binName, dir)
-  const bundles = manifest.qilin?.profile?.bundles ?? []
-  const rawPatchReload: unknown = manifest.qilin?.profile?.patchReload
+  const declaration = profileDeclarationOf(manifest)
+  const bundles = declaration?.profile?.bundles ?? []
+  const rawPatchReload: unknown = declaration?.profile?.patchReload
   if (rawPatchReload !== undefined && rawPatchReload !== 'live' && rawPatchReload !== 'startup') {
     throw new Error(
-      `${binName}: profile manifest ${join(dir, 'package.json')} qilin.profile.patchReload must be "live" or "startup"`,
+      `${binName}: profile manifest ${join(dir, 'package.json')} qilin.profile.patchReload or dsh.profile.patchReload must be "live" or "startup"`,
     )
   }
   const patchReload = rawPatchReload ?? DEFAULT_PROFILE_PATCH_RELOAD
   const layers = bundles.map((packageName): ProfileLayer => {
     const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
     const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
-    const declared = bundleManifest.qilin?.bundle?.patch
+    const declared = bundlePatchOf(bundleManifest)
     if (declared === undefined) {
-      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle in its package.json`)
+      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
     }
     const patchPath = join(packageDir, declared)
     return { packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) }

@@ -28,6 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "@qilin/atomic-write": "workspace:^",
+    "@qilin/dsh-compat": "workspace:^",
     "@qilin/package-manifest": "workspace:^",
     "js-yaml": "^4.2.0",
     "resolve.exports": "^2.0.3"

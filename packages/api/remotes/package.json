@@ -71,6 +71,7 @@
     "@qilin/file-reference": "workspace:^",
     "@qilin/goal": "workspace:^",
     "@qilin/host-plugin-inventory": "workspace:^",
+    "@qilin/host-plugin-manager": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/mcp-servers": "workspace:^",
     "@qilin/message-feedback": "workspace:^",

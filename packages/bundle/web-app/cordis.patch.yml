@@ -101,6 +101,10 @@
     - id: plugin-inventory
       name: '@qilin/host-plugin-inventory'
 
+    # Profile-scoped install, update, and removal for user bundle plugins.
+    - id: plugin-manager
+      name: '@qilin/host-plugin-manager'
+
     # MCP server settings over the user patch layer: lists and rewrites the
     # mcp-client entries the settings page manages.
     - id: mcp-servers
@@ -285,6 +289,9 @@
 
     - id: ui-settings-plugin-inventory
       name: '@qilin/client-ui-settings-plugin-inventory'
+
+    - id: ui-settings-user-plugins
+      name: '@qilin/client-ui-settings-user-plugins'
 
     - id: ui-conversation
       name: '@qilin/client-ui-conversation'

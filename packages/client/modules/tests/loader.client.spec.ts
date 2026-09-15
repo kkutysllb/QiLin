@@ -168,6 +168,28 @@ describe('lazy CJS arrival', () => {
     expect(b.fetched).toHaveLength(1)
   })
 
+  it('resolves DSH-era platform and dynamic module names through QiLin aliases', async () => {
+    const b = bench([
+      row('consumer', { external: [
+        '@deepseek-ai/dsh-client-locale/client',
+        '@deepseek-ai/dsh-client-ui-slots',
+      ] }),
+      row('@qilin/client-locale'),
+    ], {
+      consumer: req => ({
+        runtime: req('@deepseek-ai/dsh-client-locale/client'),
+        slots: req('@deepseek-ai/dsh-client-ui-slots'),
+      }),
+      '@qilin/client-locale': () => ({ marker: 'runtime' }),
+    }, { seed: { '@qilin/client-ui-slots': { marker: 'slots' } } })
+    const exports = await b.loader.import('consumer', '', {}) as {
+      runtime: { marker: string }
+      slots: { marker: string }
+    }
+    expect(exports.runtime.marker).toBe('runtime')
+    expect(exports.slots.marker).toBe('slots')
+  })
+
   it('registers declared dynamic requests before materializing their consumer', async () => {
     const b = bench([
       row('consumer', { external: ['provider/client', 'react'] }),

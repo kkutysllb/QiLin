@@ -534,7 +534,7 @@ class RemoteNamespaceService extends Service {
   private readonly namespace: string
 
   static assertMethodAvailable(namespace: string, method: string): void {
-    if (REMOTE_NAMESPACE_FIELDS.has(method) || method in RemoteNamespaceService.prototype) {
+    if (!isRemoteMethodNameAvailable(method)) {
       throw new Error(`client api: method ${JSON.stringify(`${namespace}/${method}`)} conflicts with its namespace service`)
     }
   }
@@ -655,6 +655,19 @@ function installMethods(
 }
 
 const REMOTE_NAMESPACE_FIELDS = new Set(['ctx', 'empty', 'invokeRemote', 'methods', 'name', 'namespace'])
+
+/**
+ * Whether a Remote method name is free of the namespace service's own surface.
+ * A mounted method becomes a property of that service, so a descriptor whose
+ * name the service already owns — its fields, its getters, and its methods such
+ * as `install` or `remove` — is refused at mount time. Packages name their
+ * operations around the reservation instead of shadowing it.
+ * @param method - descriptor method name, without its namespace.
+ * @returns true when a descriptor with that method name can mount.
+ */
+export function isRemoteMethodNameAvailable(method: string): boolean {
+  return !REMOTE_NAMESPACE_FIELDS.has(method) && !(method in RemoteNamespaceService.prototype)
+}
 
 function remoteServiceKey(namespace: string): string {
   return `remote.${namespace}`

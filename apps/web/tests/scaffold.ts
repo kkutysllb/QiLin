@@ -61,6 +61,9 @@ import {
   composeEntries,
   healProfilesModuleFallback,
   loadOverlayPatches,
+  PROFILE_TEMPLATES,
+  QILIN_LAUNCH_PROFILE_KEY,
+  type LaunchProfileSnapshot,
   type Profile,
 } from '@qilin/app-boot'
 import { qilinHomePath } from '@qilin/home-paths'
@@ -688,9 +691,32 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     await mkdir(profileDir, { recursive: true })
     const rootConfig = join(profileDir, 'cordis.yml')
     await writeFile(rootConfig, '[]\n')
+    // The composed layers are also what the profile project declares, exactly as
+    // the launcher's template initialization leaves it: a management plugin reads
+    // this manifest to list the installed layers.
+    await writeFile(join(profileDir, 'package.json'), JSON.stringify({
+      name: `qilin-profile-${basename(profileDir)}`,
+      qilin: {
+        profile: {
+          bundles: ['@qilin/base', '@qilin/web-app', ...extraLayers.map(layer => layer.packageName)],
+          patchReload: 'startup',
+        },
+      },
+    }, undefined, 2) + '\n')
     ctx.baseUrl = pathToFileURL(profileDir).href + '/'
     // This direct Loader harness supplies the same root-path capability as app-boot.
     ctx.provide('qilinHomePath', qilinHomePath)
+    // …and the launch profile facts the launcher publishes before the config
+    // tree mounts, so a management plugin injecting them activates here exactly
+    // as it does under `qilin web`.
+    ctx.provide(QILIN_LAUNCH_PROFILE_KEY, {
+      name: 'web',
+      dir: profileDir,
+      home: harnessHome,
+      installAnchor: INSTALL_ANCHOR,
+      patchReload: 'startup',
+      builtInBundles: [...PROFILE_TEMPLATES['web']?.bundles ?? []],
+    } satisfies LaunchProfileSnapshot)
     // A host with no command line still provides one: the web bundle's startup
     // row releases the rows waiting on it, and with no arguments each starts on
     // the values this scaffold composed above. An exit request can only come

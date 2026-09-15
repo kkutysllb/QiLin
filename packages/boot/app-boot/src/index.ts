@@ -24,11 +24,15 @@ declare module '@qilin/kylin' {
   interface Context {
     /** Harness-home path resolver available to Loader `!!js` config expressions. */
     qilinHomePath?: typeof qilinHomePath
+    /** Immutable launch profile facts for profile-management host plugins. */
+    qilinProfile?: import('./profile.ts').LaunchProfileSnapshot
   }
 }
 
 export {
   composeEntries,
+  dependencyExportsBundle,
+  reconcileProfilePlugins,
   DEFAULT_PROFILE_BUNDLES,
   DEFAULT_PROFILE_PATCH_RELOAD,
   healProfilesModuleFallback,
@@ -41,8 +45,10 @@ export {
   readProfileManifest,
   resolveBundleDir,
   PROFILE_OWNED_BUNDLES,
+  QILIN_LAUNCH_PROFILE_KEY,
   resolveProfileDir,
   writeProfileManifest,
+  type LaunchProfileSnapshot,
   type Profile,
   type ProfileLayer,
   type ProfileManifest,
