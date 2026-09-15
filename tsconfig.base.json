@@ -68,7 +68,6 @@
       "@qilin/accounts-local": ["./packages/identity/accounts-local/src"],
       "@qilin/dsh-compat": ["./packages/util/dsh-compat/src"],
       "@qilin/kylin-client-runner": ["./packages/extensions/kylin-client-runner/src"],
-      "@qilin/kylin-host-runner": ["./packages/extensions/kylin-host-runner/src"],
       "@qilin/mcp-servers": ["./packages/mcp/mcp-servers/src"],
       "@qilin/tool-kylin": ["./packages/extensions/tool-kylin/src"],
       "@qilin/web-brand": ["./packages/bundle/web-brand/src"],

@@ -1,0 +1,640 @@
+packages/api/session-controller/src/client/transport.ts(3,21): error TS2307: Cannot find module '@qilin/api-session-controller/remote' or its corresponding type declarations.
+packages/api/session-controller/src/client/transport.ts(41,42): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/api/workspace-files/src/client/index.ts(24,34): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'WorkspaceFilesRemote'.
+packages/api/workspace-files/src/client/index.ts(25,47): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'WorkspaceFilesRemote'.
+packages/api/workspace-files/src/client/remote.ts(8,21): error TS2307: Cannot find module '@qilin/api-workspace-files/remote' or its corresponding type declarations.
+packages/api/workspace-files/src/client/remote.ts(38,57): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/api/workspace-controller/src/client/index.ts(45,53): error TS2339: Property 'workspace' does not exist on type 'ClientRemote'.
+packages/api/workspace-controller/src/client/index.ts(81,28): error TS2339: Property 'workspace' does not exist on type 'ClientRemote'.
+packages/api/workspace-controller/src/client/model.ts(4,21): error TS2307: Cannot find module '@qilin/api-workspace-controller/remote' or its corresponding type declarations.
+packages/api/workspace-controller/src/client/model.ts(23,50): error TS2339: Property 'workspace' does not exist on type 'TypertClientRemote'.
+packages/api/terminal-controller/src/client/index.ts(91,69): error TS7006: Parameter 'shell' implicitly has an 'any' type.
+packages/api/terminal-controller/src/client/index.ts(129,32): error TS7006: Parameter 'info' implicitly has an 'any' type.
+packages/api/terminal-controller/src/client/index.ts(176,39): error TS2339: Property 'terminal' does not exist on type 'ClientRemote'.
+packages/api/terminal-controller/src/client/model.ts(7,21): error TS2307: Cannot find module '@qilin/api-terminal-controller/remote' or its corresponding type declarations.
+packages/api/terminal-controller/src/client/model.ts(15,43): error TS2339: Property 'terminal' does not exist on type 'ClientRemote'.
+packages/api/terminal-controller/src/client/model.ts(113,20): error TS2571: Object is of type 'unknown'.
+packages/api/terminal-controller/src/client/model.ts(113,44): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/api/terminal-controller/src/client/model.ts(120,18): error TS18046: 'shells' is of type 'unknown'.
+packages/api/terminal-controller/src/client/model.ts(120,30): error TS7006: Parameter 'shell' implicitly has an 'any' type.
+packages/api/terminal-controller/src/client/model.ts(120,73): error TS18046: 'shells' is of type 'unknown'.
+packages/api/terminal-controller/src/client/model.ts(141,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'WebTerminalInfo'.
+packages/api/remotes/src/client/index.ts(4,32): error TS2307: Cannot find module '@qilin/agent-presets/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(5,28): error TS2307: Cannot find module '@qilin/commands/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(6,38): error TS2307: Cannot find module '@qilin/api-settings-controller/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(7,25): error TS2307: Cannot find module '@qilin/goal/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(8,23): error TS2307: Cannot find module '@qilin/llm/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(9,27): error TS2307: Cannot find module '@qilin/cordis-host-runner/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(10,35): error TS2307: Cannot find module '@qilin/host-plugin-inventory/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(11,35): error TS2307: Cannot find module '@qilin/message-feedback/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(12,37): error TS2307: Cannot find module '@qilin/permission-presets/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(13,35): error TS2307: Cannot find module '@qilin/command-feedback/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(14,31): error TS2307: Cannot find module '@qilin/client-file-upload/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(15,37): error TS2307: Cannot find module '@qilin/session-reference/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(16,29): error TS2307: Cannot find module '@qilin/subagent/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(17,27): error TS2307: Cannot find module '@qilin/api-session-controller/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(18,29): error TS2307: Cannot find module '@qilin/api-workspace-controller/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(19,28): error TS2307: Cannot find module '@qilin/api-terminal-controller/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(20,34): error TS2307: Cannot find module '@qilin/api-workspace-files/remote' or its corresponding type declarations.
+packages/api/remotes/src/client/index.ts(114,8): error TS2307: Cannot find module '@qilin/cordis-host-runner/types' or its corresponding type declarations.
+packages/api/remotes/src/remote-events.ts(27,5): error TS2322: Type '"goal/activation-changed"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/api/remotes/src/remote-events.ts(28,5): error TS2322: Type '"cordis/request-run"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/api/remotes/src/remote-events.ts(29,5): error TS2322: Type '"cordis/request-run-resolved"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/api/remotes/src/remote-events.ts(30,5): error TS2322: Type '"cordis/dynamic-package"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/api/remotes/src/remote-events.ts(31,5): error TS2322: Type '"cordis/dynamic-retract"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/api/remotes/src/remote-events.ts(32,5): error TS2322: Type '"cordis/inspect-query"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/api/remotes/src/remote-events.ts(33,5): error TS2322: Type '"cordis/inspect-query-resolved"' is not assignable to type '"internal/plugin" | "internal/status" | "internal/config" | "internal/get" | "internal/dispatch" | "llm/adapters-updated" | "connection/reset" | "api-session/added" | "api-session/removed" | ... 11 more ... | "user-questions/request"'.
+packages/client/ui-primitives/src/JsonTree.tsx(9,49): error TS2724: '"./icons/index.tsx"' has no exported member named 'IconWrapLinesOutline16'. Did you mean 'IconLikeOutline16'?
+packages/client/ui-settings/src/client/settings-mirror.ts(183,50): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-settings/src/client/settings-scope.ts(131,46): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-conversation/src/client/apply.ts(216,22): error TS2345: Argument of type '"input.file"' is not assignable to parameter of type 'LocaleKeysOf<"conversation">'.
+packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx(15,32): error TS2339: Property 'openView' does not exist on type 'SessionStandardProps & GlobalStandardProps & { renderSlot: RenderSlotFn<"conversation.view">; readonly __renders?: ((key: "conversation.view") => void) | undefined; } & { ...; } & { ...; } & Omit<...> & PropsHooks<...>'.
+packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx(24,39): error TS2339: Property 'viewRequest' does not exist on type 'ConversationStoreState'.
+packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx(38,9): error TS2353: Object literal may only specify known properties, and 'viewRequest' does not exist in type 'ConvViewOwnerProps & object'.
+packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx(40,38): error TS2339: Property 'completeViewRequest' does not exist on type 'BakedActions<ConversationStoreState, ConversationActions>'.
+packages/client/ui-sidebar-right/src/client/index.ts(54,26): error TS2305: Module '"./service.ts"' has no exported member 'SidebarRightCloseHandler'.
+packages/client/ui-sidebar-right/src/client/tabs/guide/GuideBody.tsx(89,48): error TS2339: Property 'providerId' does not exist on type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-right/src/client/tabs/guide/GuideBody.tsx(89,66): error TS2339: Property 'id' does not exist on type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-right/src/client/tabs/guide/GuideBody.tsx(91,28): error TS2339: Property 'id' does not exist on type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-right/src/client/tabs/guide/GuideBody.tsx(94,29): error TS2339: Property 'providerId' does not exist on type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-terminal/src/client/index.ts(49,15): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'SidebarRightGuideEntry'.
+packages/client/ui-sidebar-terminal/src/client/index.ts(51,37): error TS2339: Property 'registerCloseHandler' does not exist on type 'SidebarRightController'.
+packages/client/ui-sidebar-terminal/src/client/index.ts(51,71): error TS7006: Parameter 'sessionId' implicitly has an 'any' type.
+packages/client/ui-sidebar-terminal/src/client/index.ts(51,82): error TS7006: Parameter 'tab' implicitly has an 'any' type.
+packages/client/ui-workspace/src/client/index.ts(77,21): error TS2339: Property 'directoryPicker' does not exist on type 'ClientRemote'.
+packages/client/ui-workspace/src/client/navigation.ts(107,52): error TS2339: Property 'directoryPicker' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-documentpreview/src/client/html/index.ts(36,29): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-documentpreview/src/client/index.ts(21,21): error TS2307: Cannot find module '@qilin/api-workspace-files/remote' or its corresponding type declarations.
+packages/client/ui-sidebar-documentpreview/src/client/index.ts(95,20): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'WorkspaceFilesReadRemote'.
+packages/client/ui-sidebar-documentpreview/src/client/index.ts(96,34): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-trajectory/src/client/index.ts(112,9): error TS2353: Object literal may only specify known properties, and 'jsonStringWrapping' does not exist in type 'TrajectoryViewInjected'.
+packages/client/ui-trajectory/src/client/index.ts(114,24): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/client/ui-trajectory/src/client/trajectory-graph.ts(343,31): error TS2339: Property 'provenance' does not exist on type 'ContextMessageNode'.
+packages/client/ui-trajectory/src/client/trajectory-graph.ts(344,23): error TS2339: Property 'provenance' does not exist on type 'ContextMessageNode'.
+packages/client/ui-trajectory/src/client/TrajectoryTable.tsx(11,3): error TS2724: '"@qilin/client-ui-primitives"' has no exported member named 'IconWrapLinesOutline16'. Did you mean 'IconLikeOutline16'?
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(273,35): error TS2339: Property 'provenance' does not exist on type 'AssistantRequestView'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(273,65): error TS2339: Property 'provenance' does not exist on type 'AssistantMessageNode'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(274,32): error TS2339: Property 'provenance' does not exist on type 'AssistantRequestView'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(274,59): error TS2339: Property 'provenance' does not exist on type 'AssistantMessageNode'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(315,21): error TS2339: Property 'provenance' does not exist on type 'CompactionRequestView'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(317,33): error TS2339: Property 'provenance' does not exist on type 'CompactionRequestView'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(318,21): error TS2339: Property 'provenance' does not exist on type 'CompactionRequestView'.
+packages/client/ui-trajectory/src/client/TrajectoryView.tsx(320,30): error TS2339: Property 'provenance' does not exist on type 'CompactionRequestView'.
+packages/client/ui-chat/src/client/apply.ts(9,21): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/index.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-chat/src/client/apply.ts(9,21): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/index.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-chat/src/client/chat/ChatView.tsx(784,12): error TS2741: Property 'openSkill' is missing in type '{ order: readonly string[]; useChatNode: KeyedSnapshotSelectorHook<ChatConversationViewNode | undefined>; useChatNodeProcess: KeyedSnapshotSelectorHook<ChatTurnProcessPresentation | undefined>; ... 12 more ...; t: TranslateNS<...>; }' but required in type 'Omit<ChatNodeSeatProps, "nodeKey">'.
+packages/client/ui-input-trigger/src/client/controller.ts(16,31): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/core/detect.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/controller.ts(16,31): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/core/detect.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/controller.ts(17,53): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/core/menu.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/controller.ts(17,53): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/core/menu.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/index.ts(13,37): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/service.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/index.ts(13,37): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/service.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/index.ts(14,39): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/slots.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/index.ts(14,39): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/slots.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/index.ts(15,26): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/MenuView.tsx' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/index.ts(15,26): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/MenuView.tsx' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/MenuView.tsx(21,30): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/locales.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/MenuView.tsx(21,30): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/locales.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/service.ts(14,41): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/types.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/service.ts(14,41): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/types.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/service.ts(15,40): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/controller.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/service.ts(15,40): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/controller.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/client/service.ts(16,50): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/contract.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/client/service.ts(16,50): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/client/contract.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-input-trigger/src/core/detect.ts(8,36): error TS6059: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/core/contract.ts' is not under 'rootDir' '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/src'. 'rootDir' is expected to contain all source files.
+packages/client/ui-input-trigger/src/core/detect.ts(8,36): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-input-trigger/src/core/contract.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-chat/tsconfig.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-tool/src/client/tool/models/auto-review-denial.ts(31,64): error TS2345: Argument of type '"tool.autoReviewReasonFallback"' is not assignable to parameter of type 'LocaleKeysOf<"conversation">'.
+packages/client/ui-tool/src/client/tool/models/auto-review-denial.ts(33,16): error TS2345: Argument of type '"tool.autoReviewRejected"' is not assignable to parameter of type 'LocaleKeysOf<"conversation">'.
+packages/client/ui-tool/src/client/tool/models/auto-review-denial.ts(34,15): error TS2345: Argument of type '"tool.autoReviewNotExecuted"' is not assignable to parameter of type 'LocaleKeysOf<"conversation">'.
+packages/extensions/kylin-client-runner/src/client/index.ts(192,41): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(196,41): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(216,41): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(230,23): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(230,110): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/index.ts(239,23): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(239,115): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/index.ts(255,43): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(261,43): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(266,43): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(273,43): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/kylin-client-runner/src/client/index.ts(296,18): error TS2345: Argument of type '"cordis/request-run"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/kylin-client-runner/src/client/index.ts(296,41): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/index.ts(299,18): error TS2345: Argument of type '"cordis/request-run-resolved"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/kylin-client-runner/src/client/index.ts(299,50): error TS7006: Parameter 'resolved' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/index.ts(300,18): error TS2345: Argument of type '"cordis/dynamic-retract"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/kylin-client-runner/src/client/index.ts(300,45): error TS7006: Parameter 'retracted' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/index.ts(303,18): error TS2345: Argument of type '"cordis/inspect-query"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/kylin-client-runner/src/client/index.ts(303,43): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/index.ts(308,18): error TS2345: Argument of type '"cordis/inspect-query-resolved"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/kylin-client-runner/src/client/index.ts(308,52): error TS7006: Parameter 'resolved' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/inspect-registry.ts(104,50): error TS7006: Parameter 'method' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(190,37): error TS7006: Parameter 'candidate' implicitly has an 'any' type.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(451,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(452,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(453,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(454,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(455,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(456,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/kylin-client-runner/src/client/orchestrator.ts(457,8): error TS18048: 'left' is possibly 'undefined'.
+packages/extensions/ui-kylin/src/client/CordisPanel.tsx(54,30): error TS7006: Parameter 'pkg' implicitly has an 'any' type.
+packages/extensions/ui-kylin/src/client/CordisPanel.tsx(264,36): error TS7006: Parameter 'pkg' implicitly has an 'any' type.
+packages/extensions/ui-kylin/src/client/index.ts(48,41): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/ui-kylin/src/client/index.ts(54,41): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/ui-kylin/src/client/index.ts(59,41): error TS2339: Property 'dynamicCordisRunner' does not exist on type 'ClientRemote'.
+packages/extensions/ui-kylin/src/client/index.ts(76,18): error TS2345: Argument of type '"cordis/dynamic-package"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/ui-kylin/src/client/index.ts(77,18): error TS2345: Argument of type '"cordis/dynamic-retract"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/ui-kylin/src/client/index.ts(78,18): error TS2345: Argument of type '"cordis/request-run"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/ui-kylin/src/client/index.ts(78,41): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/extensions/ui-kylin/src/client/index.ts(81,18): error TS2345: Argument of type '"cordis/request-run-resolved"' is not assignable to parameter of type 'TypertRemoteEvent'.
+packages/extensions/ui-kylin/src/client/index.ts(158,77): error TS7006: Parameter 'candidate' implicitly has an 'any' type.
+packages/extensions/ui-kylin/src/client/status.ts(21,28): error TS7006: Parameter 'pkg' implicitly has an 'any' type.
+packages/client/ui-settings-general/src/client/SettingsRoot.tsx(324,13): error TS2322: Type '{ state: ConnectionIndicatorState; disconnectedLabel: string; reconnectLabel: string; connectingLabel: string; recoveredLabel: string; reconnectActionLabel: string; restartActionLabel: string; onReconnect: () => void; }' is not assignable to type 'IntrinsicAttributes & { state: ConnectionIndicatorState | undefined; disconnectedLabel: string; connectingLabel: string; recoveredLabel: string; reconnectActionLabel: string; restartActionLabel: string; onReconnect: () => void; }'.
+packages/client/ui-settings-general/src/client/SettingsRoot.tsx(324,31): error TS2345: Argument of type '"connection.retry"' is not assignable to parameter of type 'LocaleKeysOf<"settings">'.
+packages/client/ui-settings-mcp/src/client/store.ts(58,60): error TS2339: Property 'mcpServers' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-mcp/src/client/store.ts(67,72): error TS2339: Property 'mcpServers' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-mcp/src/client/store.ts(76,66): error TS2339: Property 'mcpServers' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-mcp/src/client/store.ts(86,66): error TS2339: Property 'mcpServers' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-mcp/src/client/store.ts(95,58): error TS2339: Property 'mcpServers' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/index.ts(27,39): error TS2339: Property 'pluginManager' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/index.ts(32,39): error TS2339: Property 'pluginManager' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/index.ts(37,39): error TS2339: Property 'pluginManager' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/index.ts(42,39): error TS2339: Property 'pluginManager' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/index.ts(47,39): error TS2339: Property 'pluginManager' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/index.ts(52,39): error TS2339: Property 'pluginManager' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(2,15): error TS2305: Module '"@qilin/api-remotes/client"' has no exported member 'CommunityPluginSnapshot'.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(2,40): error TS2305: Module '"@qilin/api-remotes/client"' has no exported member 'PluginManagerSnapshot'.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(2,63): error TS2305: Module '"@qilin/api-remotes/client"' has no exported member 'PluginMutationReceipt'.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(2,86): error TS2305: Module '"@qilin/api-remotes/client"' has no exported member 'PluginUpdateSnapshot'.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(80,194): error TS7006: Parameter 'entry' implicitly has an 'any' type.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(81,50): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/client/ui-settings-user-plugins/src/client/UserPluginsSettingsTab.tsx(86,768): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/client/ui-settings-skills/src/client/store.ts(68,31): error TS2339: Property 'skills' does not exist on type 'ClientRemote'.
+packages/client/ui-commands/src/client/presentation.ts(5,3): error TS2724: '"@qilin/client-ui-primitives"' has no exported member named 'IconCompactOutline16'. Did you mean 'IconCopyOutline16'?
+packages/client/ui-commands/src/client/presentation.ts(5,67): error TS2724: '"@qilin/client-ui-primitives"' has no exported member named 'IconPaperPlaneOutline14'. Did you mean 'IconPaperclipOutline16'?
+packages/client/ui-commands/src/client/presentation.ts(5,92): error TS2724: '"@qilin/client-ui-primitives"' has no exported member named 'IconPlanOutline14'. Did you mean 'IconLinkOutline14'?
+packages/client/ui-commands/src/client/presentation.ts(6,3): error TS2724: '"@qilin/client-ui-primitives"' has no exported member named 'IconShieldOutline16'. Did you mean 'IconSendOutline16'?
+packages/client/ui-commands/src/client/service.ts(85,39): error TS2339: Property 'commands' does not exist on type 'ClientRemote'.
+packages/client/ui-commands/src/client/service.ts(391,42): error TS2339: Property 'commands' does not exist on type 'ClientRemote'.
+packages/client/ui-skill/src/client/index.ts(77,29): error TS2339: Property 'skills' does not exist on type 'ClientRemote'.
+packages/client/ui-reference/src/client/index.ts(50,37): error TS2339: Property 'fileReferences' does not exist on type 'ClientRemote'.
+packages/client/ui-reference/src/client/index.ts(51,15): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/client/ui-reference/src/client/index.ts(54,22): error TS2339: Property 'sessionReferenceResolver' does not exist on type 'ClientRemote'.
+packages/client/ui-reference/src/client/index.ts(55,17): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/client/ui-reference/src/client/index.ts(65,30): error TS7006: Parameter 'candidate' implicitly has an 'any' type.
+packages/client/ui-reference/src/client/index.ts(66,29): error TS7006: Parameter 'candidate' implicitly has an 'any' type.
+packages/experimental/client-ui-agent-team/src/client/index.ts(3,30): error TS2307: Cannot find module '@qilin/experimental-agent-team/remote' or its corresponding type declarations.
+packages/experimental/client-ui-agent-team/src/client/mount.ts(7,21): error TS2307: Cannot find module '@qilin/experimental-agent-team/remote' or its corresponding type declarations.
+packages/experimental/client-ui-agent-team/src/client/mount.ts(41,31): error TS2339: Property 'agentTeams' does not exist on type 'ClientRemote'.
+packages/experimental/client-ui-agent-team/src/client/mount.ts(44,31): error TS2339: Property 'agentTeams' does not exist on type 'ClientRemote'.
+packages/experimental/client-ui-agent-team/src/client/mount.ts(48,31): error TS2339: Property 'agentTeams' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-files/src/client/definition.tsx(41,7): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'SidebarRightGuideEntry'.
+packages/client/ui-sidebar-files/src/client/face.ts(45,46): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-files/src/client/index.ts(82,46): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-files/src/client/index.ts(107,41): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'WorkspaceFilesListRemote'.
+packages/client/ui-sidebar-files/src/client/index.ts(109,36): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type '{ readonly workspaceFiles: Pick<any, "read">; }'.
+packages/client/ui-sidebar-files/src/client/index.ts(110,21): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'WorkspaceFilesWriteRemote'.
+packages/client/ui-goal/src/client/index.ts(94,35): error TS2339: Property 'goals' does not exist on type 'ClientRemote'.
+packages/client/ui-goal/src/client/index.ts(105,35): error TS2339: Property 'goals' does not exist on type 'ClientRemote'.
+packages/client/ui-goal/src/client/index.ts(110,35): error TS2339: Property 'goals' does not exist on type 'ClientRemote'.
+packages/client/ui-goal/src/client/index.ts(115,35): error TS2339: Property 'goals' does not exist on type 'ClientRemote'.
+packages/client/ui-goal/src/client/index.ts(120,35): error TS2339: Property 'goals' does not exist on type 'ClientRemote'.
+packages/client/ui-message-feedback/src/client/controller.ts(101,43): error TS2339: Property 'messageFeedback' does not exist on type 'ClientRemote'.
+packages/client/ui-message-feedback/src/client/surface.ts(27,62): error TS2339: Property 'messageFeedback' does not exist on type 'ClientRemote'.
+packages/client/ui-message-feedback/src/client/surface.ts(35,43): error TS2339: Property 'sessionFeedback' does not exist on type 'ClientRemote'.
+packages/client/ui-model-selection/src/client/catalog.ts(45,39): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/client/ui-model-selection/src/client/catalog.ts(45,68): error TS7006: Parameter 'response' implicitly has an 'any' type.
+packages/client/ui-model-selection/src/client/directory.ts(60,56): error TS2339: Property 'session' does not exist on type 'TypertClientRemote'.
+packages/client/ui-model-selection/src/client/service.ts(78,23): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/seat-store.ts(197,42): error TS2339: Property 'agentPresets' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/section-store.ts(244,36): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/section-store.ts(281,42): error TS2339: Property 'agentPresets' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/section-store.ts(344,42): error TS2339: Property 'agentPresets' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/section-store.ts(365,42): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/section-store.ts(395,42): error TS2339: Property 'agentPresets' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/settings-store.ts(23,37): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-agent-preset/src/client/settings-store.ts(83,35): error TS2339: Property 'agentPresets' does not exist on type 'ClientRemote'.
+packages/client/ui-permission-presets/src/client/catalog.ts(134,39): error TS2339: Property 'permissionPresets' does not exist on type 'ClientRemote'.
+packages/client/ui-permission-presets/src/client/catalog.ts(135,14): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/client/ui-permission-presets/src/client/PermissionSelect.tsx(5,53): error TS2305: Module '"@qilin/client-ui-primitives"' has no exported member 'SHIELD_OUTLINE_PATH'.
+packages/client/ui-permission-presets/src/client/PermissionSelect.tsx(5,74): error TS2305: Module '"@qilin/client-ui-primitives"' has no exported member 'SHIELD_OUTLINE_STROKE'.
+packages/client/ui-permission-presets/src/client/settings-store.ts(143,40): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-plan/src/client/index.ts(61,41): error TS2339: Property 'commands' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-plugins/src/client/subagent-model-selection-card-controller.ts(322,44): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-plugins/src/client/web-search-card-controller.ts(128,44): error TS2339: Property 'credentials' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-plugins/src/client/web-search-card-controller.ts(172,27): error TS2339: Property 'credentials' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/operations.ts(85,41): error TS2339: Property 'credentials' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/operations.ts(89,41): error TS2339: Property 'credentials' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/operations.ts(93,41): error TS2339: Property 'credentials' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/operations.ts(97,41): error TS2339: Property 'settings' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/operations.ts(103,41): error TS2339: Property 'llm' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/store.ts(184,23): error TS2339: Property 'llm' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/store.ts(185,23): error TS2339: Property 'llm' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-models/src/client/store.ts(219,46): error TS2339: Property 'credentials' does not exist on type 'ClientRemote'.
+packages/client/ui-settings-plugin-inventory/src/client/index.ts(37,37): error TS2339: Property 'pluginInventory' does not exist on type 'ClientRemote'.
+packages/api/session-controller/tests/client-apply.client.spec.ts(106,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(56,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(68,73): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(69,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(76,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(83,74): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(84,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(92,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(100,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(109,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(124,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(128,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(135,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(150,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(171,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(186,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(220,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(234,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(239,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(246,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(275,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(279,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(288,40): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'SessionRemotes'.
+packages/api/session-controller/tests/manager.client.spec.ts(312,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(312,51): error TS7031: Binding element 'request' implicitly has an 'any' type.
+packages/api/session-controller/tests/manager.client.spec.ts(321,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(322,19): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(322,53): error TS7031: Binding element 'request' implicitly has an 'any' type.
+packages/api/session-controller/tests/manager.client.spec.ts(332,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(333,30): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(338,19): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(359,31): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(363,21): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(368,21): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(376,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(405,77): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(406,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(426,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(441,77): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(442,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(470,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(489,74): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(490,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(495,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(499,19): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(506,76): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(507,77): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(508,14): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(519,14): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(546,21): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(562,74): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(563,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(572,72): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(573,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(576,77): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(577,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(591,30): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(591,65): error TS7031: Binding element 'call' implicitly has an 'any' type.
+packages/api/session-controller/tests/manager.client.spec.ts(599,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(620,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(628,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(634,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(637,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(641,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(644,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(649,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(660,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(674,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(709,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(745,40): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'SessionRemotes'.
+packages/api/session-controller/tests/manager.client.spec.ts(749,39): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(752,21): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(754,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(755,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(762,75): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(763,74): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(764,12): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(764,46): error TS7006: Parameter 'payload' implicitly has an 'any' type.
+packages/api/session-controller/tests/manager.client.spec.ts(773,21): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(776,21): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(776,53): error TS7031: Binding element 'parentSessionId' implicitly has an 'any' type.
+packages/api/session-controller/tests/manager.client.spec.ts(855,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(860,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(866,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(871,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(877,73): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(878,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(890,73): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/manager.client.spec.ts(891,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/projection-store.client.spec.ts(172,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/projection-store.client.spec.ts(196,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/projection-store.client.spec.ts(222,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/queue-store.client.spec.ts(266,40): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'SessionRemotes'.
+packages/api/session-controller/tests/queue-store.client.spec.ts(275,40): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'SessionRemotes'.
+packages/api/session-controller/tests/remote/bench.client.ts(25,42): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'SessionRemotes'.
+packages/api/session-controller/tests/session-pending-submissions.client.spec.ts(123,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session-pending-submissions.client.spec.ts(147,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(151,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(171,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(205,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(228,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(229,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(263,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(264,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(284,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(292,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(312,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(329,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(343,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(362,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(439,17): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(469,17): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(530,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(541,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(568,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(581,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(585,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(595,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(605,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(617,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(622,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(635,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(715,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(754,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/session.client.spec.ts(807,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(48,45): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'SessionRemotes'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(69,17): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(132,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(567,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(567,54): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(567,63): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(635,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(635,54): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(635,63): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(837,19): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(837,54): error TS7006: Parameter 'payload' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(876,19): error TS2339: Property 'subagents' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(876,54): error TS7006: Parameter 'payload' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(923,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(925,26): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(926,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(937,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(949,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(980,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(981,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(981,54): error TS7006: Parameter 'payload' implicitly has an 'any' type.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(990,26): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(991,26): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1003,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1008,26): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1014,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1016,26): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1018,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1020,26): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1029,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1030,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1073,80): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1074,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/session-controller/tests/sessions-service.client.spec.ts(1090,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/terminal-controller/tests/model.client.spec.ts(7,21): error TS2307: Cannot find module '@qilin/api-terminal-controller/remote' or its corresponding type declarations.
+packages/api/terminal-controller/tests/model.client.spec.ts(36,52): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(36,64): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(39,62): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(39,74): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(39,78): error TS7006: Parameter 'attachmentId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(39,92): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(93,67): error TS7006: Parameter 'call' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(99,64): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(99,76): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(99,80): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(99,94): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(131,49): error TS7006: Parameter 'call' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(152,49): error TS7006: Parameter 'call' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(217,64): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(217,76): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(217,80): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(228,68): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(228,80): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(228,84): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(239,64): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(239,76): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(239,80): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(239,94): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(334,68): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(334,80): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(334,84): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(334,98): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(367,67): error TS7006: Parameter 'call' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(512,64): error TS7006: Parameter '_session' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(512,74): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(512,78): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(512,92): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(530,50): error TS7006: Parameter 'call' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(538,64): error TS7006: Parameter '_session' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(538,74): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(538,78): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/model.client.spec.ts(538,92): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(8,21): error TS2307: Cannot find module '@qilin/api-terminal-controller/remote' or its corresponding type declarations.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(33,52): error TS7006: Parameter '_session' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(33,62): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(36,62): error TS7006: Parameter '_session' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(36,72): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(36,76): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(36,90): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(113,52): error TS7006: Parameter 'call' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(406,66): error TS7006: Parameter '_session' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(406,76): error TS7006: Parameter 'id' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(406,80): error TS7006: Parameter 'controllerId' implicitly has an 'any' type.
+packages/api/terminal-controller/tests/recovery.client.spec.ts(406,94): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+packages/api/workspace-controller/tests/transport.client.spec.ts(311,51): error TS2339: Property 'workspace' does not exist on type 'ClientRemote'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(338,92): error TS2339: Property 'workspace' does not exist on type 'ClientRemote'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(342,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(347,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(349,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(351,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(353,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(356,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(359,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(368,92): error TS2339: Property 'workspace' does not exist on type 'ClientRemote'.
+packages/api/workspace-controller/tests/transport.client.spec.ts(370,17): error TS2339: Property 'workspace' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-chat/tests/apply-inject.client.spec.tsx(56,48): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/client/ui-chat/tests/chat-view.client.spec.tsx(152,3): error TS2353: Object literal may only specify known properties, and 'provenance' does not exist in type 'ContextMessageNode & { turn?: number; }'.
+packages/client/ui-chat/tests/chat-view.client.spec.tsx(366,9): error TS2322: Type '{ usePanelInfo: <S>(selector: (s: PanelInfo) => S) => S; sessionId: SessionId; useSession: SnapshotSelectorHook<SessionSnapshot>; ... 25 more ...; t: (key: string, params?: Record<...> | undefined) => string; }' is not assignable to type 'ChatViewSlotProps'.
+packages/client/ui-chat/tests/chat-view.client.spec.tsx(1238,7): error TS2353: Object literal may only specify known properties, and 'provenance' does not exist in type 'ContextMessageNode'.
+packages/client/ui-chat/tests/chat-view.client.spec.tsx(1259,11): error TS2322: Type '{ readonly kind: "context"; readonly seq: 4; readonly time: 4000; readonly content: readonly []; readonly source: null; readonly provenance: { readonly role: "inject"; readonly label: null; }; readonly form: null; }' is not assignable to type 'ConversationNode'.
+packages/client/ui-commands/tests/service.client.spec.ts(910,27): error TS2339: Property 'commands' does not exist on type 'ClientRemote'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(38,15): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(39,15): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(40,15): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(46,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(47,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(55,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(59,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(63,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(69,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(69,56): error TS7006: Parameter 'request' implicitly has an 'any' type.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(73,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(78,30): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(78,67): error TS7031: Binding element 'request' implicitly has an 'any' type.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(85,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(90,30): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(90,67): error TS7031: Binding element 'request' implicitly has an 'any' type.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(97,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(100,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(105,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(106,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(114,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(115,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(116,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(124,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(125,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(131,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(135,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(143,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(147,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(148,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(152,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(160,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(163,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(168,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(179,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(188,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(193,30): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(193,67): error TS7031: Binding element 'request' implicitly has an 'any' type.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(199,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(202,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(212,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(226,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(240,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(246,30): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(249,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(261,19): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(264,68): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(271,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(274,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(283,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(287,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(301,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(304,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(310,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(315,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(322,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(340,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(343,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(350,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(367,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(368,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(372,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(388,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(389,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(392,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(404,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(405,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(408,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(424,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(428,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(434,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(454,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(459,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(467,24): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(473,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(477,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(487,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(491,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(501,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(502,17): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-message-feedback/tests/controller.client.spec.ts(506,66): error TS2339: Property 'messageFeedback' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-permission-presets/tests/browser-plugin.client.spec.ts(70,62): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/client/ui-permission-presets/tests/permission-presets-row.client.spec.tsx(164,34): error TS2345: Argument of type '"settings/conflict"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-permission-presets/tests/settings-store.client.spec.ts(146,32): error TS2345: Argument of type '"settings/conflict"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-permission-presets/tests/settings-store.client.spec.ts(283,30): error TS2345: Argument of type '"settings/conflict"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-general/tests/settings-root.client.spec.tsx(246,41): error TS2304: Cannot find name 'zh'.
+packages/client/ui-settings-models/tests/apply.client.spec.ts(7,22): error TS2305: Module '"@qilin/client-test-runtime"' has no exported member 'scriptedSettingsRemote'.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(149,75): error TS2344: Type 'Code' does not satisfy the constraint 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(150,37): error TS2375: Type 'RemoteError<keyof RemoteErrorDetailsMap>' is not assignable to type 'RemoteError<"credential/rejected">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(150,53): error TS2345: Argument of type '"credential/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(153,5): error TS2375: Type 'RemoteError<keyof RemoteErrorDetailsMap>' is not assignable to type 'RemoteError<"settings/conflict">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(153,21): error TS2345: Argument of type '"settings/conflict"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(154,35): error TS2375: Type 'RemoteError<keyof RemoteErrorDetailsMap>' is not assignable to type 'RemoteError<"settings/rejected">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(154,51): error TS2345: Argument of type '"settings/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(1252,5): error TS2322: Type 'Mock<() => Promise<{ ok: false; error: RemoteError<"gateway/internal"> | RemoteError<"credential/rejected"> | RemoteError<"settings/conflict"> | RemoteError<...>; }>>' is not assignable to type 'Mock<(refs: string[]) => Promise<RemoteResult<Record<string, CredentialInfo>>>>'.
+packages/client/ui-settings-models/tests/components.client.spec.tsx(1318,56): error TS2322: Type 'Promise<{ ok: false; error: RemoteError<"gateway/internal"> | RemoteError<"credential/rejected"> | RemoteError<"settings/conflict"> | RemoteError<"settings/rejected">; }>' is not assignable to type 'Promise<RemoteResult<Record<string, CredentialInfo>>>'.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(66,75): error TS2344: Type 'Code' does not satisfy the constraint 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(67,37): error TS2375: Type 'RemoteError<keyof RemoteErrorDetailsMap>' is not assignable to type 'RemoteError<"credential/rejected">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(67,53): error TS2345: Argument of type '"credential/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(69,5): error TS2375: Type 'RemoteError<keyof RemoteErrorDetailsMap>' is not assignable to type 'RemoteError<"settings/conflict">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(69,21): error TS2345: Argument of type '"settings/conflict"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(70,35): error TS2375: Type 'RemoteError<keyof RemoteErrorDetailsMap>' is not assignable to type 'RemoteError<"settings/rejected">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+packages/client/ui-settings-models/tests/provider-form.client.spec.tsx(70,51): error TS2345: Argument of type '"settings/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings-plugins/tests/stores.client.spec.ts(970,30): error TS2345: Argument of type '"credential/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings/tests/settings-mirror.client.spec.ts(16,46): error TS2345: Argument of type '"settings/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-settings/tests/settings-scope.client.spec.ts(34,46): error TS2345: Argument of type '"settings/rejected"' is not assignable to parameter of type 'keyof RemoteErrorDetailsMap'.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(49,35): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(49,90): error TS7006: Parameter '_sessionId' implicitly has an 'any' type.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(49,102): error TS7006: Parameter '_path' implicitly has an 'any' type.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(49,109): error TS7006: Parameter 'range' implicitly has an 'any' type.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(53,36): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(132,36): error TS7031: Binding element '_sessionId' implicitly has an 'any' type.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(132,48): error TS7031: Binding element '_path' implicitly has an 'any' type.
+packages/client/ui-sidebar-documentpreview/tests/document-seat.client.spec.tsx(132,55): error TS7031: Binding element 'range' implicitly has an 'any' type.
+packages/client/ui-sidebar-files/tests/files-body.client.spec.tsx(193,47): error TS2339: Property 'scrollTop' does not exist on type 'FilesTabState'.
+packages/client/ui-sidebar-files/tests/files-body.client.spec.tsx(195,47): error TS2339: Property 'scrollTop' does not exist on type 'FilesTabState'.
+packages/client/ui-sidebar-files/tests/store.client.spec.ts(85,13): error TS2339: Property 'scrolled' does not exist on type 'BakedActions<FilesState, FilesActions>'.
+packages/client/ui-sidebar-files/tests/store.client.spec.ts(86,44): error TS2339: Property 'scrollTop' does not exist on type 'FilesTabState'.
+packages/client/ui-sidebar-plans/src/client/definition.tsx(11,21): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/locales.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/src/client/face.ts(20,27): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/plans.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/src/client/face.ts(22,39): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/store.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/src/client/face.ts(30,46): error TS2339: Property 'workspaceFiles' does not exist on type 'ClientRemote'.
+packages/client/ui-sidebar-plans/src/client/index.ts(21,41): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/face.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/src/client/index.ts(22,27): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/PlansBody.tsx' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/src/client/index.ts(45,41): error TS2345: Argument of type 'ClientRemote' is not assignable to parameter of type 'WorkspaceFilesPlanRemote'.
+packages/client/ui-sidebar-plans/tests/apply.client.spec.ts(13,38): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/definition.tsx' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/tests/apply.client.spec.ts(14,31): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/client/index.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-plans/tests/apply.client.spec.ts(15,36): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-plans/src/index.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-right/tests/apply.client.spec.ts(191,17): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'SidebarRightGuideEntry'.
+packages/client/ui-sidebar-right/tests/guide-body.client.spec.tsx(33,11): error TS2353: Object literal may only specify known properties, and 'providerId' does not exist in type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-right/tests/guide-body.client.spec.tsx(126,32): error TS2353: Object literal may only specify known properties, and 'providerId' does not exist in type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-right/tests/guide-body.client.spec.tsx(127,32): error TS2353: Object literal may only specify known properties, and 'providerId' does not exist in type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-right/tests/guide-body.client.spec.tsx(147,23): error TS2339: Property 'id' does not exist on type '{ providerId: string; kind: string; order: number; title: () => string; description?: () => string; icon?: ComponentType<IconProps>; }'.
+packages/client/ui-sidebar-right/tests/guide-body.client.spec.tsx(149,50): error TS2353: Object literal may only specify known properties, and 'providerId' does not exist in type 'SidebarRightGuideBox'.
+packages/client/ui-sidebar-tasks/tests/lineage.client.spec.ts(8,42): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-tasks/src/client/lineage.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-tasks/tests/mount.client.tsx(15,36): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-tasks/src/client/face.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-tasks/tests/mount.client.tsx(17,28): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-tasks/src/client/TasksBadge.tsx' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-tasks/tests/mount.client.tsx(19,27): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-tasks/src/client/TasksBody.tsx' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-tasks/tests/rows.client.spec.ts(11,20): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-tasks/src/client/locales.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-tasks/tests/rows.client.spec.ts(15,8): error TS6307: File '/Users/libing/kk_Projects/QiLin/.worktrees/301/packages/client/ui-sidebar-tasks/src/client/rows.ts' is not listed within the file list of project '/Users/libing/kk_Projects/QiLin/.worktrees/301/tsconfig.client.json'. Projects must list all files or use an 'include' pattern.
+packages/client/ui-sidebar-terminal/tests/apply.client.spec.ts(84,23): error TS2339: Property 'multiple' does not exist on type 'SidebarRightTabDefinition'.
+packages/client/ui-trajectory/tests/trajectory-graph.client.spec.ts(120,9): error TS2353: Object literal may only specify known properties, and 'provenance' does not exist in type 'ContextMessageNode'.
+packages/client/ui-trajectory/tests/trajectory-graph.client.spec.ts(124,9): error TS2353: Object literal may only specify known properties, and 'provenance' does not exist in type 'ContextMessageNode'.
+packages/client/ui-workspace/tests/workspaces-service.client.spec.ts(184,33): error TS2339: Property 'directoryPicker' does not exist on type 'ClientRemote'.
+packages/experimental/client-ui-agent-team/tests/browser-plugin.client.spec.ts(7,21): error TS2307: Cannot find module '@qilin/experimental-agent-team/remote' or its corresponding type declarations.
+packages/test-support/client-runtime/tests/assembly-test-client.client.spec.ts(148,30): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/test-support/client-runtime/tests/assembly-vitest.client.spec.ts(27,12): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/client-runtime/tests/assembly-vitest.client.spec.ts(35,36): error TS2339: Property 'session' does not exist on type 'ClientRemote'.
+packages/test-support/client-runtime/tests/assembly-vitest.client.spec.ts(37,19): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(8,21): error TS2307: Cannot find module '@qilin/api-settings-controller/remote' or its corresponding type declarations.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(144,42): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(147,58): error TS2349: This expression is not callable.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(148,56): error TS2349: This expression is not callable.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(149,87): error TS2339: Property 'update' does not exist on type 'TypertRemoteNamespace<"settings">'.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(150,59): error TS2349: This expression is not callable.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(151,87): error TS2339: Property 'mutate' does not exist on type 'TypertRemoteNamespace<"settings">'.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(152,51): error TS2554: Expected 1 arguments, but got 0.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(153,53): error TS2554: Expected 1 arguments, but got 0.
+packages/test-support/remote-mock/tests/proxy-types.client.spec.ts(154,34): error TS2554: Expected 2 arguments, but got 1.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(17,34): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(19,24): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(22,39): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(43,34): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(60,32): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(80,14): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(81,14): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(85,21): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(87,27): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(95,34): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(107,24): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(114,34): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(131,34): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(141,34): error TS2339: Property 'settings' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(152,33): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(159,24): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(187,33): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(212,33): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(226,33): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(249,24): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(257,30): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.
+packages/test-support/remote-mock/tests/proxy.client.spec.ts(262,32): error TS2339: Property 'session' does not exist on type 'MockedObjectDeep<TypertRemoteNamespaceMap>'.

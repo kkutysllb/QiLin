@@ -26,7 +26,7 @@ import * as ToolFs from '@qilin/tool-fs'
 import * as AgentInstructions from '@qilin/agent-instructions'
 import LocalJobRegistry from '@qilin/jobs-local'
 import * as ToolJobs from '@qilin/tool-jobs'
-import CordisHostRunner from '@qilin/kylin-host-runner'
+import * as CordisHostRunnerModule from '@qilin/kylin-host-runner'
 import * as ToolCordis from '@qilin/tool-kylin'
 
 /**
@@ -279,7 +279,7 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
 
   it('uses versioned Cordis DTO ids directly for running and pending Plugins, then confirms removal', async () => {
     ctx = await typedPtcModeHarness()
-    await ctx.plugin(CordisHostRunner)
+    await ctx.plugin(CordisHostRunnerModule.default)
     await ctx.plugin(ToolCordis)
     const agent = {
       id: SessionId('ptc-cordis'),
