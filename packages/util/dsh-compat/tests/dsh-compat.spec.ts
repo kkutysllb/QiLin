@@ -8,12 +8,12 @@ import {
 
 describe('DSH platform module aliases', () => {
   it('maps every DSH-era platform name onto its QiLin seed-table key', () => {
-    expect(DSH_PLATFORM_MODULE_ALIASES['@qilin/kylin']).toBe('@qilin/kylin')
+    expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/cordis']).toBe('@qilin/kylin')
     expect(DSH_PLATFORM_MODULE_ALIASES['cordis']).toBe('@qilin/kylin')
-    expect(DSH_PLATFORM_MODULE_ALIASES['@qilin/client-store']).toBe('@qilin/client-store')
-    expect(DSH_PLATFORM_MODULE_ALIASES['@qilin/client-ui-slots']).toBe('@qilin/client-ui-slots')
-    expect(DSH_PLATFORM_MODULE_ALIASES['@qilin/client-ui-primitives']).toBe('@qilin/client-ui-primitives')
-    expect(DSH_PLATFORM_MODULE_ALIASES['@qilin/client-ui-dockkit']).toBe('@qilin/client-ui-dockkit')
+    expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-store']).toBe('@qilin/client-store')
+    expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-ui-slots']).toBe('@qilin/client-ui-slots')
+    expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-ui-primitives']).toBe('@qilin/client-ui-primitives')
+    expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-ui-dockkit']).toBe('@qilin/client-ui-dockkit')
   })
 
   it('aliases every DSH platform seed word DSH itself shipped', () => {
@@ -21,9 +21,9 @@ describe('DSH platform module aliases', () => {
     // its entries must have an alias here, or a bundle requiring the DSH name
     // misses the seed table at runtime.
     const dshPlatform = [
-      'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@qilin/kylin',
-      '@qilin/client-store', '@qilin/client-ui-slots',
-      '@qilin/client-ui-primitives', '@qilin/client-ui-dockkit',
+      'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@deepseek-ai/cordis',
+      '@deepseek-ai/dsh-client-store', '@deepseek-ai/dsh-client-ui-slots',
+      '@deepseek-ai/dsh-client-ui-primitives', '@deepseek-ai/dsh-client-ui-dockkit',
     ]
     for (const name of dshPlatform) {
       if (name.startsWith('react')) continue
@@ -34,11 +34,11 @@ describe('DSH platform module aliases', () => {
 
 describe('dshCompatModuleId', () => {
   it('canonicalizes scoped DSH package names with the rename table', () => {
-    expect(dshCompatModuleId('@qilin/client-locale')).toBe('@qilin/client-locale')
-    expect(dshCompatModuleId('@qilin/host-webserver')).toBe('@qilin/host-webserver')
-    expect(dshCompatModuleId('@qilin/client-runtime')).toBe('@qilin/client-modules')
-    expect(dshCompatModuleId('@qilin/client-runtime/client')).toBe('@qilin/client-modules/client')
-    expect(dshCompatModuleId('@qilin/client-ui-settings/client')).toBe('@qilin/client-ui-settings/client')
+    expect(dshCompatModuleId('@deepseek-ai/dsh-client-locale')).toBe('@qilin/client-locale')
+    expect(dshCompatModuleId('@deepseek-ai/dsh-host-webserver')).toBe('@qilin/host-webserver')
+    expect(dshCompatModuleId('@deepseek-ai/dsh-client-runtime')).toBe('@qilin/client-modules')
+    expect(dshCompatModuleId('@deepseek-ai/dsh-client-runtime/client')).toBe('@qilin/client-modules/client')
+    expect(dshCompatModuleId('@deepseek-ai/dsh-client-ui-settings/client')).toBe('@qilin/client-ui-settings/client')
   })
 
   it('passes unrenamed and unknown specifiers through unchanged', () => {

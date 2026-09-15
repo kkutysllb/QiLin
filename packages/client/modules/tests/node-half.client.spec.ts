@@ -797,8 +797,8 @@ describe('shared module declarations', () => {
     const packageName = '@fixture/dsh-client'
     const clientPath = writePackage(packageName, { dsh: { client: {
       platform: 'web',
-      inject: ['@qilin/client-runtime'],
-      external: ['@qilin/client-runtime/client', '@qilin/client-ui-slots'],
+      inject: ['@deepseek-ai/dsh-client-runtime'],
+      external: ['@deepseek-ai/dsh-client-runtime/client', '@deepseek-ai/dsh-client-ui-slots'],
     } } })
     mkdirSync(dirname(clientPath), { recursive: true })
     writeFileSync(clientPath, 'module.exports = {}\n')
@@ -866,7 +866,7 @@ describe('module graph order', () => {
 
   it('canonicalizes DSH package requests while ordering graph rows', () => {
     expect(ids(orderByModuleGraph([
-      entry('consumer', { external: ['@qilin/client-runtime/client'] }),
+      entry('consumer', { external: ['@deepseek-ai/dsh-client-runtime/client'] }),
       entry('@qilin/client-modules'),
     ]))).toEqual(['@qilin/client-modules', 'consumer'])
   })
