@@ -274,6 +274,8 @@ export interface ConversationSessionInjected {
   readonly hooks: { readonly conversationViews: ObservableSnapshot<readonly ViewTab[]> }
   /** Bind input draft persistence to the Session-owned store instance. */
   bindDraftMirror: (write: (text: string) => void) => () => void
+  /** Select and activate one View while addressing an opaque focus request to it. */
+  openView: (view: string, focus: string) => void
 }
 
 /** Business callbacks injected into the strict Session header. */
