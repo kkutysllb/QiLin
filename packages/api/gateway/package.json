@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-gateway",
   "description": "Typert Remote Host dispatcher and Client API endpoint",
-  "version": "0.1.6-alpha.1",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

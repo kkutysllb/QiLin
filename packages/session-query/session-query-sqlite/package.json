@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session-query-sqlite",
   "description": "Concrete ctx.sessionQuery backend with SQLite FTS5 search",
-  "version": "0.1.6-alpha.1",
+  "version": "3.0.0",
   "publishConfig": {
     "access": "public"
   },

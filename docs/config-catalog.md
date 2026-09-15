@@ -9,7 +9,39 @@ This file is GENERATED from source (`scripts/gen-config-catalog.ts`) and verifie
 
 A `Requires:` line lists the service keys the plugin `inject`s: its `cordis.yml` tree must also load providers for those services. Scope is the harness tier (`packages/`); the vendored cordis plugins a config tree may also load (`hmr`, the console logger, …) are pinned upstream source ([vendoring policy](../vendor/README.md)) and not catalogued here.
 
-<a id="deepseek-aiqilin-acp"></a>
+<a id="qilinaccounts-local"></a>
+
+## `@qilin/accounts-local`
+
+Requires: `connection` · `credentials`
+
+```ts config-catalog
+/** Plugin config: the account surface's deployment choices. */
+export interface Config {
+  /**
+   * Require an account session for every gated index document and every
+   * `/api` request. A disabled gate leaves the endpoints mounted and returns
+   * the launch-token authentication of the transport in its place.
+   * @default true
+   */
+  enabled?: boolean
+  /**
+   * Whether an anonymous visitor may create an additional account. An open
+   * registration lets anyone who can reach this server use the harness, so a
+   * deployment binding beyond loopback closes it.
+   * @default 'open'
+   */
+  registration?: 'open' | 'closed'
+  /** Absolute browser-session lifetime in days. @default 30 */
+  sessionMaxAgeDays?: number
+  /** Explicit harness home; omitted follows `QILIN_HOME`, then `~/.qilin`. */
+  qilinHome?: string
+}
+```
+
+Source: [`packages/identity/accounts-local/src/index.ts:43`](../packages/identity/accounts-local/src/index.ts)
+
+<a id="qilinacp"></a>
 
 ## `@qilin/acp`
 
@@ -33,7 +65,7 @@ Depends on: `Stream` (`@agentclientprotocol/sdk`)
 
 Source: [`packages/acp/acp/src/index.ts:75`](../packages/acp/acp/src/index.ts)
 
-<a id="deepseek-aiqilin-agent-default-model"></a>
+<a id="qilinagent-default-model"></a>
 
 ## `@qilin/agent-default-model`
 
@@ -49,7 +81,7 @@ export interface Config {
 
 Source: [`packages/core/agent-default-model/src/index.ts:41`](../packages/core/agent-default-model/src/index.ts)
 
-<a id="deepseek-aiqilin-agent-instructions"></a>
+<a id="qilinagent-instructions"></a>
 
 ## `@qilin/agent-instructions`
 
@@ -81,7 +113,7 @@ export interface Config {
 
 Source: [`packages/context/agent-instructions/src/config.ts:18`](../packages/context/agent-instructions/src/config.ts)
 
-<a id="deepseek-aiqilin-agent-loop"></a>
+<a id="qilinagent-loop"></a>
 
 ## `@qilin/agent-loop`
 
@@ -113,7 +145,7 @@ Depends on: [`AgentOptions`](subsystems/core.md) · [`SessionId`](subsystems/cor
 
 Source: [`packages/core/agent-loop/src/index.ts:317`](../packages/core/agent-loop/src/index.ts)
 
-<a id="deepseek-aiqilin-agent-presets"></a>
+<a id="qilinagent-presets"></a>
 
 ## `@qilin/agent-presets`
 
@@ -159,7 +191,7 @@ export type PresetTrust = 'system' | 'user'
 
 Source: [`packages/preset/agent-presets/src/preset.ts:52`](../packages/preset/agent-presets/src/preset.ts)
 
-<a id="deepseek-aiqilin-agent-tool-presentation"></a>
+<a id="qilinagent-tool-presentation"></a>
 
 ## `@qilin/agent-tool-presentation`
 
@@ -183,7 +215,7 @@ Depends on: [`ToolPresentationMode`](subsystems/tools.md)
 
 Source: [`packages/core/agent-tool-presentation/src/index.ts:38`](../packages/core/agent-tool-presentation/src/index.ts)
 
-<a id="deepseek-aiqilin-api-gateway"></a>
+<a id="qilinapi-gateway"></a>
 
 ## `@qilin/api-gateway`
 
@@ -199,7 +231,7 @@ export interface Config {
 
 Source: [`packages/api/gateway/src/index.ts:119`](../packages/api/gateway/src/index.ts)
 
-<a id="deepseek-aiqilin-api-session-controller"></a>
+<a id="qilinapi-session-controller"></a>
 
 ## `@qilin/api-session-controller`
 
@@ -215,7 +247,7 @@ export interface Config {
 
 Source: [`packages/api/session-controller/src/index.ts:71`](../packages/api/session-controller/src/index.ts)
 
-<a id="deepseek-aiqilin-api-settings-controller"></a>
+<a id="qilinapi-settings-controller"></a>
 
 ## `@qilin/api-settings-controller`
 
@@ -229,7 +261,7 @@ export interface Config {
 
 Source: [`packages/api/settings-controller/src/index.ts:36`](../packages/api/settings-controller/src/index.ts)
 
-<a id="deepseek-aiqilin-api-terminal-controller"></a>
+<a id="qilinapi-terminal-controller"></a>
 
 ## `@qilin/api-terminal-controller`
 
@@ -268,7 +300,7 @@ export interface Config {
 
 Source: [`packages/api/terminal-controller/src/index.ts:28`](../packages/api/terminal-controller/src/index.ts)
 
-<a id="deepseek-aiqilin-api-workspace-files"></a>
+<a id="qilinapi-workspace-files"></a>
 
 ## `@qilin/api-workspace-files`
 
@@ -294,9 +326,9 @@ export interface Config {
 }
 ```
 
-Source: [`packages/api/workspace-files/src/index.ts:69`](../packages/api/workspace-files/src/index.ts)
+Source: [`packages/api/workspace-files/src/index.ts:79`](../packages/api/workspace-files/src/index.ts)
 
-<a id="deepseek-aiqilin-attachment-local"></a>
+<a id="qilinattachment-local"></a>
 
 ## `@qilin/attachment-local`
 
@@ -331,7 +363,7 @@ export interface Config {
 
 Source: [`packages/attachment/attachment-local/src/index.ts:61`](../packages/attachment/attachment-local/src/index.ts)
 
-<a id="deepseek-aiqilin-bash-local"></a>
+<a id="qilinbash-local"></a>
 
 ## `@qilin/bash-local`
 
@@ -357,7 +389,7 @@ export interface Config {
 
 Source: [`packages/shell/bash-local/src/index.ts:41`](../packages/shell/bash-local/src/index.ts)
 
-<a id="deepseek-aiqilin-bash-sandbox"></a>
+<a id="qilinbash-sandbox"></a>
 
 ## `@qilin/bash-sandbox`
 
@@ -374,11 +406,11 @@ Requires: `subprocess` · `sandbox` · `sandboxPolicy`
 export type Config = LocalConfig
 ```
 
-Depends on: [`LocalConfig`](#deepseek-aiqilin-bash-local)
+Depends on: [`LocalConfig`](#qilinbash-local)
 
 Source: [`packages/shell/bash-sandbox/src/index.ts:36`](../packages/shell/bash-sandbox/src/index.ts)
 
-<a id="deepseek-aiqilin-client-connection"></a>
+<a id="qilinclient-connection"></a>
 
 ## `@qilin/client-connection`
 
@@ -422,9 +454,9 @@ export interface ConnectionRecoveryConfig {
 }
 ```
 
-Source: [`packages/client/connection/src/index.ts:72`](../packages/client/connection/src/index.ts)
+Source: [`packages/client/connection/src/index.ts:75`](../packages/client/connection/src/index.ts)
 
-<a id="deepseek-aiqilin-client-hmr"></a>
+<a id="qilinclient-hmr"></a>
 
 ## `@qilin/client-hmr`
 
@@ -440,7 +472,7 @@ export interface Config {
 
 Source: [`packages/client/hmr/src/index.ts:31`](../packages/client/hmr/src/index.ts)
 
-<a id="deepseek-aiqilin-compaction-basic"></a>
+<a id="qilincompaction-basic"></a>
 
 ## `@qilin/compaction-basic`
 
@@ -486,7 +518,7 @@ export interface ModelCompactPolicyConfig extends CompactionPolicyConfig {
 
 Source: [`packages/compaction/compaction-basic/src/types.ts:38`](../packages/compaction/compaction-basic/src/types.ts)
 
-<a id="deepseek-aiqilin-compaction-tool-result-pruner"></a>
+<a id="qilincompaction-tool-result-pruner"></a>
 
 ## `@qilin/compaction-tool-result-pruner`
 
@@ -506,23 +538,7 @@ export interface ToolResultPruneConfig {
 
 Source: [`packages/compaction/compaction-tool-result-pruner/src/types.ts:5`](../packages/compaction/compaction-tool-result-pruner/src/types.ts)
 
-<a id="deepseek-aiqilin-cordis-host-runner"></a>
-
-## `@qilin/cordis-host-runner`
-
-Requires: `tools`
-
-```ts config-catalog
-/** Runner configuration. */
-export interface Config {
-  /** Maximum synchronous VM evaluation time in milliseconds. */
-  vmTimeoutMs?: number
-}
-```
-
-Source: [`packages/extensions/cordis-host-runner/src/index.ts:88`](../packages/extensions/cordis-host-runner/src/index.ts)
-
-<a id="deepseek-aiqilin-credentials-local"></a>
+<a id="qilincredentials-local"></a>
 
 ## `@qilin/credentials-local`
 
@@ -542,7 +558,7 @@ export interface Config {
 
 Source: [`packages/credentials/credentials-local/src/index.ts:64`](../packages/credentials/credentials-local/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-agent-team"></a>
+<a id="qilinexperimental-agent-team"></a>
 
 ## `@qilin/experimental-agent-team`
 
@@ -566,7 +582,7 @@ export interface Config {
 
 Source: [`packages/experimental/agent-team/src/types.ts:130`](../packages/experimental/agent-team/src/types.ts)
 
-<a id="deepseek-aiqilin-experimental-browser-use-chrome-devtools-mcp"></a>
+<a id="qilinexperimental-browser-use-chrome-devtools-mcp"></a>
 
 ## `@qilin/experimental-browser-use-chrome-devtools-mcp`
 
@@ -581,7 +597,7 @@ Depends on: `BrowserMcpConfig` (`@qilin/experimental-browser-use-runtime/mcp`)
 
 Source: [`packages/experimental/browser-use-chrome-devtools-mcp/src/index.ts:14`](../packages/experimental/browser-use-chrome-devtools-mcp/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-browser-use-playwright-mcp"></a>
+<a id="qilinexperimental-browser-use-playwright-mcp"></a>
 
 ## `@qilin/experimental-browser-use-playwright-mcp`
 
@@ -596,7 +612,7 @@ Depends on: `BrowserMcpConfig` (`@qilin/experimental-browser-use-runtime/mcp`)
 
 Source: [`packages/experimental/browser-use-playwright-mcp/src/index.ts:15`](../packages/experimental/browser-use-playwright-mcp/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-browser-use-stagehand-native"></a>
+<a id="qilinexperimental-browser-use-stagehand-native"></a>
 
 ## `@qilin/experimental-browser-use-stagehand-native`
 
@@ -638,7 +654,7 @@ Depends on: `ModelConfig` (`@browserbasehq/stagehand`)
 
 Source: [`packages/experimental/browser-use-stagehand-native/src/index.ts:28`](../packages/experimental/browser-use-stagehand-native/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-computer-use-cua-driver-mcp"></a>
+<a id="qilinexperimental-computer-use-cua-driver-mcp"></a>
 
 ## `@qilin/experimental-computer-use-cua-driver-mcp`
 
@@ -662,7 +678,7 @@ Depends on: [`McpClient`](../packages/mcp/mcp-client/src/index.ts)
 
 Source: [`packages/experimental/computer-use-cua-driver-mcp/src/index.ts:20`](../packages/experimental/computer-use-cua-driver-mcp/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-inspector"></a>
+<a id="qilinexperimental-inspector"></a>
 
 ## `@qilin/experimental-inspector`
 
@@ -730,7 +746,7 @@ export interface InspectorOptions {
 
 Source: [`packages/experimental/inspector/src/index.ts:66`](../packages/experimental/inspector/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-ptc-runtime-python"></a>
+<a id="qilinexperimental-ptc-runtime-python"></a>
 
 ## `@qilin/experimental-ptc-runtime-python`
 
@@ -796,7 +812,7 @@ export interface Config {
 
 Source: [`packages/experimental/ptc-runtime-python/src/index.ts:42`](../packages/experimental/ptc-runtime-python/src/index.ts)
 
-<a id="deepseek-aiqilin-experimental-tool-agent-team"></a>
+<a id="qilinexperimental-tool-agent-team"></a>
 
 ## `@qilin/experimental-tool-agent-team`
 
@@ -814,7 +830,7 @@ export interface Config {
 
 Source: [`packages/experimental/tool-agent-team/src/index.ts:17`](../packages/experimental/tool-agent-team/src/index.ts)
 
-<a id="deepseek-aiqilin-file-reference-local"></a>
+<a id="qilinfile-reference-local"></a>
 
 ## `@qilin/file-reference-local`
 
@@ -834,7 +850,7 @@ export interface Config {
 
 Source: [`packages/context/file-reference-local/src/index.ts:34`](../packages/context/file-reference-local/src/index.ts)
 
-<a id="deepseek-aiqilin-fs-local"></a>
+<a id="qilinfs-local"></a>
 
 ## `@qilin/fs-local`
 
@@ -853,7 +869,7 @@ export interface Config {
 
 Source: [`packages/fs/fs-local/src/index.ts:43`](../packages/fs/fs-local/src/index.ts)
 
-<a id="deepseek-aiqilin-fs-sandbox"></a>
+<a id="qilinfs-sandbox"></a>
 
 ## `@qilin/fs-sandbox`
 
@@ -869,11 +885,11 @@ Requires: `sandboxPolicy`
 export type Config = LocalConfig
 ```
 
-Depends on: [`LocalConfig`](#deepseek-aiqilin-fs-local)
+Depends on: [`LocalConfig`](#qilinfs-local)
 
 Source: [`packages/fs/fs-sandbox/src/index.ts:45`](../packages/fs/fs-sandbox/src/index.ts)
 
-<a id="deepseek-aiqilin-goal"></a>
+<a id="qilingoal"></a>
 
 ## `@qilin/goal`
 
@@ -889,7 +905,7 @@ export interface Config {
 
 Source: [`packages/goal/goal/src/index.ts:172`](../packages/goal/goal/src/index.ts)
 
-<a id="deepseek-aiqilin-headless"></a>
+<a id="qilinheadless"></a>
 
 ## `@qilin/headless`
 
@@ -909,7 +925,7 @@ export interface Config {
 
 Source: [`packages/bundle/headless/src/index.ts:42`](../packages/bundle/headless/src/index.ts)
 
-<a id="deepseek-aiqilin-hooks-claude-code"></a>
+<a id="qilinhooks-claude-code"></a>
 
 ## `@qilin/hooks-claude-code`
 
@@ -947,7 +963,7 @@ export interface Config {
 
 Source: [`packages/hooks/hooks-claude-code/src/index.ts:44`](../packages/hooks/hooks-claude-code/src/index.ts)
 
-<a id="deepseek-aiqilin-hooks-codex"></a>
+<a id="qilinhooks-codex"></a>
 
 ## `@qilin/hooks-codex`
 
@@ -974,7 +990,7 @@ export interface Config {
 
 Source: [`packages/hooks/hooks-codex/src/index.ts:43`](../packages/hooks/hooks-codex/src/index.ts)
 
-<a id="deepseek-aiqilin-host-directory-picker-browse"></a>
+<a id="qilinhost-directory-picker-browse"></a>
 
 ## `@qilin/host-directory-picker-browse`
 
@@ -988,23 +1004,44 @@ export interface Config {
 
 Source: [`packages/host/directory-picker-browse/src/index.ts:181`](../packages/host/directory-picker-browse/src/index.ts)
 
-<a id="deepseek-aiqilin-host-frontend-static"></a>
+<a id="qilinhost-frontend-static"></a>
 
 ## `@qilin/host-frontend-static`
 
 Requires: `webServer` · `connection`
 
 ```ts config-catalog
-/** Plugin config: the dist anchor. */
+/** Plugin config: the dist anchor, its index entry paths, and its public documents. */
 export interface Config {
   /** Absolute path of index.html inside the dist root. */
   distIndex: string
+  /**
+   * Request paths that serve the index document. Each one passes Connection's
+   * index authorization before its bytes are read. An omitted or empty list
+   * follows the transport's entry path plus `/index.html`, so the path a
+   * deployment hands a browser is always one this server answers.
+   */
+  indexPaths?: string[]
+  /**
+   * Public documents served without index authorization: the landing page and
+   * the sign-in page of an assembly whose entry path is the application.
+   * @default []
+   */
+  documents?: StaticDocument[]
+}
+
+/** One public document served at a fixed request path, before index authorization. */
+export interface StaticDocument {
+  /** Absolute request pathname, no trailing slash. */
+  path: string
+  /** File name inside the dist root. */
+  file: string
 }
 ```
 
-Source: [`packages/host/frontend-static/src/index.ts:30`](../packages/host/frontend-static/src/index.ts)
+Source: [`packages/host/frontend-static/src/index.ts:41`](../packages/host/frontend-static/src/index.ts)
 
-<a id="deepseek-aiqilin-host-open-in-app"></a>
+<a id="qilinhost-open-in-app"></a>
 
 ## `@qilin/host-open-in-app`
 
@@ -1035,7 +1072,7 @@ export interface Config {
 
 Source: [`packages/host/open-in-app/src/index.ts:50`](../packages/host/open-in-app/src/index.ts)
 
-<a id="deepseek-aiqilin-host-webserver"></a>
+<a id="qilinhost-webserver"></a>
 
 ## `@qilin/host-webserver`
 
@@ -1057,7 +1094,7 @@ export interface Config {
 
 Source: [`packages/host/webserver/src/index.ts:59`](../packages/host/webserver/src/index.ts)
 
-<a id="deepseek-aiqilin-invariants"></a>
+<a id="qilininvariants"></a>
 
 ## `@qilin/invariants`
 
@@ -1075,7 +1112,7 @@ export interface Config {
 
 Source: [`packages/runtime-diagnostics/invariants/src/index.ts:15`](../packages/runtime-diagnostics/invariants/src/index.ts)
 
-<a id="deepseek-aiqilin-jobs-local"></a>
+<a id="qilinjobs-local"></a>
 
 ## `@qilin/jobs-local`
 
@@ -1092,7 +1129,23 @@ export interface Config {
 
 Source: [`packages/jobs/jobs-local/src/index.ts:31`](../packages/jobs/jobs-local/src/index.ts)
 
-<a id="deepseek-aiqilin-llm-deepseek"></a>
+<a id="qilinkylin-host-runner"></a>
+
+## `@qilin/kylin-host-runner`
+
+Requires: `tools`
+
+```ts config-catalog
+/** Runner configuration. */
+export interface Config {
+  /** Maximum synchronous VM evaluation time in milliseconds. */
+  vmTimeoutMs?: number
+}
+```
+
+Source: [`packages/extensions/kylin-host-runner/src/index.ts:88`](../packages/extensions/kylin-host-runner/src/index.ts)
+
+<a id="qilinllm-deepseek"></a>
 
 ## `@qilin/llm-deepseek`
 
@@ -1188,7 +1241,7 @@ Depends on: [`ModelModality`](../packages/llm/llm/src/index.ts) · [`RetryPolicy
 
 Source: [`packages/llm/llm-deepseek/src/config.ts:25`](../packages/llm/llm-deepseek/src/config.ts)
 
-<a id="deepseek-aiqilin-llm-pi-ai"></a>
+<a id="qilinllm-pi-ai"></a>
 
 ## `@qilin/llm-pi-ai`
 
@@ -1463,7 +1516,7 @@ Depends on: `Api` (`@earendil-works/pi-ai`) · `CacheRetention` (`@earendil-work
 
 Source: [`packages/llm/llm-pi-ai/src/config.ts:221`](../packages/llm/llm-pi-ai/src/config.ts)
 
-<a id="deepseek-aiqilin-llm-replay"></a>
+<a id="qilinllm-replay"></a>
 
 ## `@qilin/llm-replay`
 
@@ -1542,7 +1595,7 @@ Depends on: [`ModelModality`](../packages/llm/llm/src/index.ts) · [`RetryPolicy
 
 Source: [`packages/test-support/llm-replay/src/index.ts:1122`](../packages/test-support/llm-replay/src/index.ts)
 
-<a id="deepseek-aiqilin-llm-retry"></a>
+<a id="qilinllm-retry"></a>
 
 ## `@qilin/llm-retry`
 
@@ -1555,7 +1608,7 @@ export type Config = Readonly<Record<string, never>>
 
 Source: [`packages/llm/llm-retry/src/index.ts:25`](../packages/llm/llm-retry/src/index.ts)
 
-<a id="deepseek-aiqilin-lsp-stdio"></a>
+<a id="qilinlsp-stdio"></a>
 
 ## `@qilin/lsp-stdio`
 
@@ -1597,7 +1650,7 @@ export interface LspLocalServerConfig {
 
 Source: [`packages/lsp/lsp-stdio/src/index.ts:82`](../packages/lsp/lsp-stdio/src/index.ts)
 
-<a id="deepseek-aiqilin-mcp-client"></a>
+<a id="qilinmcp-client"></a>
 
 ## `@qilin/mcp-client`
 
@@ -1674,7 +1727,7 @@ export interface ReconnectConfig {
 
 Source: [`packages/mcp/mcp-client/src/index.ts:104`](../packages/mcp/mcp-client/src/index.ts)
 
-<a id="deepseek-aiqilin-message-feedback"></a>
+<a id="qilinmessage-feedback"></a>
 
 ## `@qilin/message-feedback`
 
@@ -1690,7 +1743,7 @@ export interface Config {
 
 Source: [`packages/feedback/message-feedback/src/index.ts:40`](../packages/feedback/message-feedback/src/index.ts)
 
-<a id="deepseek-aiqilin-permission-presets"></a>
+<a id="qilinpermission-presets"></a>
 
 ## `@qilin/permission-presets`
 
@@ -1730,7 +1783,7 @@ Depends on: [`ApprovalPolicy`](subsystems/approval.md) · [`SandboxMode`](subsys
 
 Source: [`packages/interaction/permission-presets/src/index.ts:156`](../packages/interaction/permission-presets/src/index.ts)
 
-<a id="deepseek-aiqilin-persona"></a>
+<a id="qilinpersona"></a>
 
 ## `@qilin/persona`
 
@@ -1759,7 +1812,7 @@ export interface Config {
 
 Source: [`packages/preset/persona/src/index.ts:30`](../packages/preset/persona/src/index.ts)
 
-<a id="deepseek-aiqilin-plan-mode"></a>
+<a id="qilinplan-mode"></a>
 
 ## `@qilin/plan-mode`
 
@@ -1775,7 +1828,7 @@ export interface PlanModeConfig {
 
 Source: [`packages/plan/plan-mode/src/index.ts:64`](../packages/plan/plan-mode/src/index.ts)
 
-<a id="deepseek-aiqilin-plugin-package-inventory-deepseek"></a>
+<a id="qilinplugin-package-inventory-deepseek"></a>
 
 ## `@qilin/plugin-package-inventory-deepseek`
 
@@ -1791,7 +1844,7 @@ export interface Config {
 
 Source: [`packages/llm/plugin-package-inventory-deepseek/src/index.ts:32`](../packages/llm/plugin-package-inventory-deepseek/src/index.ts)
 
-<a id="deepseek-aiqilin-ptc-runtime-node"></a>
+<a id="qilinptc-runtime-node"></a>
 
 ## `@qilin/ptc-runtime-node`
 
@@ -1827,7 +1880,7 @@ export interface LaunchConfig {
 
 Source: [`packages/ptc-runtime/ptc-runtime-node/src/index.ts:26`](../packages/ptc-runtime/ptc-runtime-node/src/index.ts)
 
-<a id="deepseek-aiqilin-pwsh-local"></a>
+<a id="qilinpwsh-local"></a>
 
 ## `@qilin/pwsh-local`
 
@@ -1860,7 +1913,7 @@ export interface Config {
 
 Source: [`packages/shell/pwsh-local/src/index.ts:58`](../packages/shell/pwsh-local/src/index.ts)
 
-<a id="deepseek-aiqilin-pwsh-sandbox"></a>
+<a id="qilinpwsh-sandbox"></a>
 
 ## `@qilin/pwsh-sandbox`
 
@@ -1878,11 +1931,11 @@ Requires: `subprocess` · `sandbox` · `sandboxPolicy`
 export type Config = LocalConfig
 ```
 
-Depends on: [`LocalConfig`](#deepseek-aiqilin-pwsh-local)
+Depends on: [`LocalConfig`](#qilinpwsh-local)
 
 Source: [`packages/shell/pwsh-sandbox/src/index.ts:40`](../packages/shell/pwsh-sandbox/src/index.ts)
 
-<a id="deepseek-aiqilin-repeat-tool-reminder"></a>
+<a id="qilinrepeat-tool-reminder"></a>
 
 ## `@qilin/repeat-tool-reminder`
 
@@ -1916,7 +1969,7 @@ export interface Config {
 
 Source: [`packages/guard/repeat-tool-reminder/src/index.ts:28`](../packages/guard/repeat-tool-reminder/src/index.ts)
 
-<a id="deepseek-aiqilin-sandbox-local"></a>
+<a id="qilinsandbox-local"></a>
 
 ## `@qilin/sandbox-local`
 
@@ -1948,7 +2001,7 @@ export interface Config {
 
 Source: [`packages/sandbox/sandbox-local/src/index.ts:44`](../packages/sandbox/sandbox-local/src/index.ts)
 
-<a id="deepseek-aiqilin-sandbox-policy"></a>
+<a id="qilinsandbox-policy"></a>
 
 ## `@qilin/sandbox-policy`
 
@@ -1977,7 +2030,7 @@ Depends on: [`SandboxMode`](subsystems/sandbox.md)
 
 Source: [`packages/sandbox/sandbox-policy/src/index.ts:71`](../packages/sandbox/sandbox-policy/src/index.ts)
 
-<a id="deepseek-aiqilin-sdk-app"></a>
+<a id="qilinsdk-app"></a>
 
 ## `@qilin/sdk-app`
 
@@ -1993,7 +2046,7 @@ export interface Config {
 
 Source: [`packages/bundle/sdk-app/src/index.ts:23`](../packages/bundle/sdk-app/src/index.ts)
 
-<a id="deepseek-aiqilin-sdk-jsonrpc-server"></a>
+<a id="qilinsdk-jsonrpc-server"></a>
 
 ## `@qilin/sdk-jsonrpc-server`
 
@@ -2017,7 +2070,7 @@ Depends on: `Readable` (`node:stream`) · `Writable` (`node:stream`)
 
 Source: [`packages/sdk/server/src/index.ts:25`](../packages/sdk/server/src/index.ts)
 
-<a id="deepseek-aiqilin-session-log-deepseek"></a>
+<a id="qilinsession-log-deepseek"></a>
 
 ## `@qilin/session-log-deepseek`
 
@@ -2033,7 +2086,7 @@ export interface Config {
 
 Source: [`packages/session/session-log-deepseek/src/index.ts:38`](../packages/session/session-log-deepseek/src/index.ts)
 
-<a id="deepseek-aiqilin-session-log-export"></a>
+<a id="qilinsession-log-export"></a>
 
 ## `@qilin/session-log-export`
 
@@ -2052,7 +2105,7 @@ export type SessionLogCompressionLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 Source: [`packages/session-query/session-log-export/src/index.ts:46`](../packages/session-query/session-log-export/src/index.ts)
 
-<a id="deepseek-aiqilin-session-persistence-jsonl"></a>
+<a id="qilinsession-persistence-jsonl"></a>
 
 ## `@qilin/session-persistence-jsonl`
 
@@ -2077,7 +2130,7 @@ export type JsonlCompression = 'zstd' | 'none'
 
 Source: [`packages/session/session-persistence-jsonl/src/index.ts:88`](../packages/session/session-persistence-jsonl/src/index.ts)
 
-<a id="deepseek-aiqilin-session-projection-cache"></a>
+<a id="qilinsession-projection-cache"></a>
 
 ## `@qilin/session-projection-cache`
 
@@ -2101,7 +2154,7 @@ export interface Config {
 
 Source: [`packages/session/session-projection-cache/src/index.ts:63`](../packages/session/session-projection-cache/src/index.ts)
 
-<a id="deepseek-aiqilin-session-query-sqlite"></a>
+<a id="qilinsession-query-sqlite"></a>
 
 ## `@qilin/session-query-sqlite`
 
@@ -2149,7 +2202,7 @@ Depends on: [`SessionQueryConfig`](../packages/session-query/session-query/src/i
 
 Source: [`packages/session-query/session-query-sqlite/src/index.ts:92`](../packages/session-query/session-query-sqlite/src/index.ts)
 
-<a id="deepseek-aiqilin-session-reference"></a>
+<a id="qilinsession-reference"></a>
 
 ## `@qilin/session-reference`
 
@@ -2171,7 +2224,7 @@ export interface Config {
 
 Source: [`packages/context/session-reference/src/config.ts:11`](../packages/context/session-reference/src/config.ts)
 
-<a id="deepseek-aiqilin-session-telemetry-otel"></a>
+<a id="qilinsession-telemetry-otel"></a>
 
 ## `@qilin/session-telemetry-otel`
 
@@ -2216,7 +2269,7 @@ Depends on: `BatchLogRecordProcessorOptions` (`@opentelemetry/sdk-logs`) · `OTL
 
 Source: [`packages/session/session-telemetry-otel/src/index.ts:100`](../packages/session/session-telemetry-otel/src/index.ts)
 
-<a id="deepseek-aiqilin-session-title"></a>
+<a id="qilinsession-title"></a>
 
 ## `@qilin/session-title`
 
@@ -2236,7 +2289,7 @@ export interface Config {
 
 Source: [`packages/session/session-title/src/index.ts:56`](../packages/session/session-title/src/index.ts)
 
-<a id="deepseek-aiqilin-session-title-all-prompts-llm"></a>
+<a id="qilinsession-title-all-prompts-llm"></a>
 
 ## `@qilin/session-title-all-prompts-llm`
 
@@ -2251,7 +2304,7 @@ Depends on: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/
 
 Source: [`packages/session/session-title-all-prompts-llm/src/index.ts:15`](../packages/session/session-title-all-prompts-llm/src/index.ts)
 
-<a id="deepseek-aiqilin-session-title-first-prompt-llm"></a>
+<a id="qilinsession-title-first-prompt-llm"></a>
 
 ## `@qilin/session-title-first-prompt-llm`
 
@@ -2266,7 +2319,7 @@ Depends on: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/
 
 Source: [`packages/session/session-title-first-prompt-llm/src/index.ts:15`](../packages/session/session-title-first-prompt-llm/src/index.ts)
 
-<a id="deepseek-aiqilin-settings-file"></a>
+<a id="qilinsettings-file"></a>
 
 ## `@qilin/settings-file`
 
@@ -2286,7 +2339,7 @@ export interface Config {
 
 Source: [`packages/settings/settings-file/src/index.ts:22`](../packages/settings/settings-file/src/index.ts)
 
-<a id="deepseek-aiqilin-shell-env"></a>
+<a id="qilinshell-env"></a>
 
 ## `@qilin/shell-env`
 
@@ -2300,7 +2353,7 @@ export interface Config {
 
 Source: [`packages/shell/shell-env/src/index.ts:28`](../packages/shell/shell-env/src/index.ts)
 
-<a id="deepseek-aiqilin-skill"></a>
+<a id="qilinskill"></a>
 
 ## `@qilin/skill`
 
@@ -2314,7 +2367,7 @@ export interface Config {
 
 Source: [`packages/skill/skill/src/index.ts:278`](../packages/skill/skill/src/index.ts)
 
-<a id="deepseek-aiqilin-skill-filesystem"></a>
+<a id="qilinskill-filesystem"></a>
 
 ## `@qilin/skill-filesystem`
 
@@ -2352,7 +2405,7 @@ export interface Config {
 
 Source: [`packages/skill/skill-filesystem/src/index.ts:49`](../packages/skill/skill-filesystem/src/index.ts)
 
-<a id="deepseek-aiqilin-spill-local"></a>
+<a id="qilinspill-local"></a>
 
 ## `@qilin/spill-local`
 
@@ -2381,7 +2434,7 @@ export interface Config {
 
 Source: [`packages/spill/spill-local/src/index.ts:31`](../packages/spill/spill-local/src/index.ts)
 
-<a id="deepseek-aiqilin-spill-policy"></a>
+<a id="qilinspill-policy"></a>
 
 ## `@qilin/spill-policy`
 
@@ -2401,7 +2454,7 @@ export interface Config {
 
 Source: [`packages/spill/spill-policy/src/index.ts:61`](../packages/spill/spill-policy/src/index.ts)
 
-<a id="deepseek-aiqilin-ssh"></a>
+<a id="qilinssh"></a>
 
 ## `@qilin/ssh`
 
@@ -2435,7 +2488,7 @@ export interface Config {
 
 Source: [`packages/ssh/ssh/src/index.ts:17`](../packages/ssh/ssh/src/index.ts)
 
-<a id="deepseek-aiqilin-storage-domain"></a>
+<a id="qilinstorage-domain"></a>
 
 ## `@qilin/storage-domain`
 
@@ -2458,7 +2511,7 @@ export interface Config {
 
 Source: [`packages/storage/storage-domain/src/index.ts:52`](../packages/storage/storage-domain/src/index.ts)
 
-<a id="deepseek-aiqilin-storage-json"></a>
+<a id="qilinstorage-json"></a>
 
 ## `@qilin/storage-json`
 
@@ -2479,7 +2532,7 @@ export interface Config {
 
 Source: [`packages/storage/storage-json/src/index.ts:28`](../packages/storage/storage-json/src/index.ts)
 
-<a id="deepseek-aiqilin-storage-sqlite"></a>
+<a id="qilinstorage-sqlite"></a>
 
 ## `@qilin/storage-sqlite`
 
@@ -2519,7 +2572,7 @@ export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 
 Source: [`packages/storage/storage-sqlite/src/index.ts:24`](../packages/storage/storage-sqlite/src/index.ts)
 
-<a id="deepseek-aiqilin-subagent-acp"></a>
+<a id="qilinsubagent-acp"></a>
 
 ## `@qilin/subagent-acp`
 
@@ -2572,7 +2625,7 @@ export type PermissionPolicy = 'allow' | 'reject'
 
 Source: [`packages/subagent/subagent-acp/src/index.ts:27`](../packages/subagent/subagent-acp/src/index.ts)
 
-<a id="deepseek-aiqilin-subagent-claude-code"></a>
+<a id="qilinsubagent-claude-code"></a>
 
 ## `@qilin/subagent-claude-code`
 
@@ -2607,7 +2660,7 @@ export type ClaudeCodePermissionMode = typeof CLAUDE_CODE_PERMISSION_MODES[numbe
 
 Source: [`packages/subagent/subagent-claude-code/src/index.ts:38`](../packages/subagent/subagent-claude-code/src/index.ts)
 
-<a id="deepseek-aiqilin-subagent-codex"></a>
+<a id="qilinsubagent-codex"></a>
 
 ## `@qilin/subagent-codex`
 
@@ -2640,7 +2693,23 @@ export type CodexPermissionMode =
 
 Source: [`packages/subagent/subagent-codex/src/index.ts:36`](../packages/subagent/subagent-codex/src/index.ts)
 
-<a id="deepseek-aiqilin-subagent-qilin-sdk"></a>
+<a id="qilinsubagent-fork-in-process"></a>
+
+## `@qilin/subagent-fork-in-process`
+
+Requires: `subagents`
+
+```ts config-catalog
+/** Config: the registry name to register the provider under. */
+export interface Config {
+  /** Provider name on `ctx.subagents` (default `fork`). */
+  providerName: string
+}
+```
+
+Source: [`packages/subagent/subagent-fork-in-process/src/index.ts:31`](../packages/subagent/subagent-fork-in-process/src/index.ts)
+
+<a id="qilinsubagent-qilin-sdk"></a>
 
 ## `@qilin/subagent-qilin-sdk`
 
@@ -2696,23 +2765,7 @@ export interface Config {
 
 Source: [`packages/subagent/subagent-qilin-sdk/src/index.ts:34`](../packages/subagent/subagent-qilin-sdk/src/index.ts)
 
-<a id="deepseek-aiqilin-subagent-fork-in-process"></a>
-
-## `@qilin/subagent-fork-in-process`
-
-Requires: `subagents`
-
-```ts config-catalog
-/** Config: the registry name to register the provider under. */
-export interface Config {
-  /** Provider name on `ctx.subagents` (default `fork`). */
-  providerName: string
-}
-```
-
-Source: [`packages/subagent/subagent-fork-in-process/src/index.ts:31`](../packages/subagent/subagent-fork-in-process/src/index.ts)
-
-<a id="deepseek-aiqilin-subagent-spawn-in-process"></a>
+<a id="qilinsubagent-spawn-in-process"></a>
 
 ## `@qilin/subagent-spawn-in-process`
 
@@ -2728,7 +2781,7 @@ export interface Config {
 
 Source: [`packages/subagent/subagent-spawn-in-process/src/index.ts:25`](../packages/subagent/subagent-spawn-in-process/src/index.ts)
 
-<a id="deepseek-aiqilin-system-prompt"></a>
+<a id="qilinsystem-prompt"></a>
 
 ## `@qilin/system-prompt`
 
@@ -2760,7 +2813,7 @@ export interface Config {
 
 Source: [`packages/core/system-prompt/src/index.ts:248`](../packages/core/system-prompt/src/index.ts)
 
-<a id="deepseek-aiqilin-terminal-bash"></a>
+<a id="qilinterminal-bash"></a>
 
 ## `@qilin/terminal-bash`
 
@@ -2810,7 +2863,7 @@ export type ShellDialect = 'bash' | 'pwsh'
 
 Source: [`packages/terminal/terminal-bash/src/config.ts:10`](../packages/terminal/terminal-bash/src/config.ts)
 
-<a id="deepseek-aiqilin-time-context"></a>
+<a id="qilintime-context"></a>
 
 ## `@qilin/time-context`
 
@@ -2828,7 +2881,7 @@ export interface Config {
 
 Source: [`packages/context/time-context/src/index.ts:49`](../packages/context/time-context/src/index.ts)
 
-<a id="deepseek-aiqilin-tmux-context"></a>
+<a id="qilintmux-context"></a>
 
 ## `@qilin/tmux-context`
 
@@ -2844,7 +2897,7 @@ export interface Config {
 
 Source: [`packages/context/tmux-context/src/index.ts:36`](../packages/context/tmux-context/src/index.ts)
 
-<a id="deepseek-aiqilin-token-meter"></a>
+<a id="qilintoken-meter"></a>
 
 ## `@qilin/token-meter`
 
@@ -2857,7 +2910,7 @@ export type TokenMeterConfig = Record<string, never>
 
 Source: [`packages/llm/token-meter/src/types.ts:13`](../packages/llm/token-meter/src/types.ts)
 
-<a id="deepseek-aiqilin-tool-bash"></a>
+<a id="qilintool-bash"></a>
 
 ## `@qilin/tool-bash`
 
@@ -2873,7 +2926,7 @@ export interface Config {
 
 Source: [`packages/shell/tool-bash/src/index.ts:33`](../packages/shell/tool-bash/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-bash-persistent"></a>
+<a id="qilintool-bash-persistent"></a>
 
 ## `@qilin/tool-bash-persistent`
 
@@ -2895,7 +2948,7 @@ export interface Config {
 
 Source: [`packages/shell/tool-bash-persistent/src/index.ts:435`](../packages/shell/tool-bash-persistent/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-fs"></a>
+<a id="qilintool-fs"></a>
 
 ## `@qilin/tool-fs`
 
@@ -2917,7 +2970,7 @@ export interface Config {
 
 Source: [`packages/fs/tool-fs/src/index.ts:25`](../packages/fs/tool-fs/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-fs-search"></a>
+<a id="qilintool-fs-search"></a>
 
 ## `@qilin/tool-fs-search`
 
@@ -2952,7 +3005,7 @@ export interface Config {
 
 Source: [`packages/fs/tool-fs-search/src/index.ts:73`](../packages/fs/tool-fs-search/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-goal"></a>
+<a id="qilintool-goal"></a>
 
 ## `@qilin/tool-goal`
 
@@ -2968,7 +3021,7 @@ export interface Config {
 
 Source: [`packages/goal/tool-goal/src/index.ts:25`](../packages/goal/tool-goal/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-jobs"></a>
+<a id="qilintool-jobs"></a>
 
 ## `@qilin/tool-jobs`
 
@@ -3002,7 +3055,7 @@ export type CompletionDelivery = 'quiet' | 'wakeup'
 
 Source: [`packages/jobs/tool-jobs/src/index.ts:31`](../packages/jobs/tool-jobs/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-lsp"></a>
+<a id="qilintool-lsp"></a>
 
 ## `@qilin/tool-lsp`
 
@@ -3022,7 +3075,7 @@ export interface Config {
 
 Source: [`packages/lsp/tool-lsp/src/index.ts:57`](../packages/lsp/tool-lsp/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-present"></a>
+<a id="qilintool-present"></a>
 
 ## `@qilin/tool-present`
 
@@ -3038,7 +3091,7 @@ export interface Config {
 
 Source: [`packages/fs/tool-present/src/index.ts:15`](../packages/fs/tool-present/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-pwsh"></a>
+<a id="qilintool-pwsh"></a>
 
 ## `@qilin/tool-pwsh`
 
@@ -3054,7 +3107,7 @@ export interface Config {
 
 Source: [`packages/shell/tool-pwsh/src/index.ts:51`](../packages/shell/tool-pwsh/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-pwsh-persistent"></a>
+<a id="qilintool-pwsh-persistent"></a>
 
 ## `@qilin/tool-pwsh-persistent`
 
@@ -3076,7 +3129,7 @@ export interface Config {
 
 Source: [`packages/shell/tool-pwsh-persistent/src/index.ts:472`](../packages/shell/tool-pwsh-persistent/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-ralph"></a>
+<a id="qilintool-ralph"></a>
 
 ## `@qilin/tool-ralph`
 
@@ -3098,7 +3151,7 @@ export interface Config {
 
 Source: [`packages/workflow/tool-ralph/src/index.ts:21`](../packages/workflow/tool-ralph/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-session-query"></a>
+<a id="qilintool-session-query"></a>
 
 ## `@qilin/tool-session-query`
 
@@ -3116,7 +3169,7 @@ export interface Config {
 
 Source: [`packages/session-query/tool-session-query/src/index.ts:28`](../packages/session-query/tool-session-query/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-skill"></a>
+<a id="qilintool-skill"></a>
 
 ## `@qilin/tool-skill`
 
@@ -3132,7 +3185,7 @@ export interface Config {
 
 Source: [`packages/skill/tool-skill/src/index.ts:61`](../packages/skill/tool-skill/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-str-replace-editor"></a>
+<a id="qilintool-str-replace-editor"></a>
 
 ## `@qilin/tool-str-replace-editor`
 
@@ -3150,7 +3203,7 @@ export interface Config {
 
 Source: [`packages/fs/tool-str-replace-editor/src/index.ts:505`](../packages/fs/tool-str-replace-editor/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-subagent"></a>
+<a id="qilintool-subagent"></a>
 
 ## `@qilin/tool-subagent`
 
@@ -3220,7 +3273,7 @@ Depends on: [`AgentOptions`](subsystems/core.md)
 
 Source: [`packages/subagent/tool-subagent/src/index.ts:48`](../packages/subagent/tool-subagent/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-terminal"></a>
+<a id="qilintool-terminal"></a>
 
 ## `@qilin/tool-terminal`
 
@@ -3238,7 +3291,7 @@ export interface Config {
 
 Source: [`packages/terminal/tool-terminal/src/index.ts:35`](../packages/terminal/tool-terminal/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-todo"></a>
+<a id="qilintool-todo"></a>
 
 ## `@qilin/tool-todo`
 
@@ -3260,7 +3313,7 @@ export interface Config {
 
 Source: [`packages/todo/tool-todo/src/index.ts:29`](../packages/todo/tool-todo/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-web"></a>
+<a id="qilintool-web"></a>
 
 ## `@qilin/tool-web`
 
@@ -3288,7 +3341,7 @@ export interface Config {
 
 Source: [`packages/web/tool-web/src/index.ts:37`](../packages/web/tool-web/src/index.ts)
 
-<a id="deepseek-aiqilin-tool-workflow"></a>
+<a id="qilintool-workflow"></a>
 
 ## `@qilin/tool-workflow`
 
@@ -3306,7 +3359,7 @@ export interface Config {
 
 Source: [`packages/workflow/tool-workflow/src/index.ts:32`](../packages/workflow/tool-workflow/src/index.ts)
 
-<a id="deepseek-aiqilin-tools"></a>
+<a id="qilintools"></a>
 
 ## `@qilin/tools`
 
@@ -3342,7 +3395,7 @@ export type ToolPresentationMode = 'native' | 'ptc' | 'both'
 
 Source: [`packages/core/tools/src/index.ts:656`](../packages/core/tools/src/index.ts)
 
-<a id="deepseek-aiqilin-typert-loader"></a>
+<a id="qilintypert-loader"></a>
 
 ## `@qilin/typert-loader`
 
@@ -3358,7 +3411,7 @@ export interface Config {
 
 Source: [`packages/typert/loader/src/index.ts:48`](../packages/typert/loader/src/index.ts)
 
-<a id="deepseek-aiqilin-user-approval"></a>
+<a id="qilinuser-approval"></a>
 
 ## `@qilin/user-approval`
 
@@ -3389,7 +3442,7 @@ export type ApprovalPolicy = 'ask' | 'never'
 
 Source: [`packages/interaction/user-approval/src/index.ts:128`](../packages/interaction/user-approval/src/index.ts)
 
-<a id="deepseek-aiqilin-web"></a>
+<a id="qilinweb"></a>
 
 ## `@qilin/web`
 
@@ -3410,7 +3463,7 @@ export interface WebRuntimeConfig {
 
 Source: [`packages/web/web/src/index.ts:55`](../packages/web/web/src/index.ts)
 
-<a id="deepseek-aiqilin-web-app"></a>
+<a id="qilinweb-app"></a>
 
 ## `@qilin/web-app`
 
@@ -3421,6 +3474,8 @@ Requires: `webServer`
 export interface Config {
   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
   openBrowser: boolean
+  /** Product label prefixed to the startup URL line, the browser handoff line, and the launch-failure hint. */
+  label: string
   /** Print the URL line on activation; a non-interactive layer can turn it off. */
   printUrl: boolean
   /**
@@ -3435,9 +3490,9 @@ export interface Config {
 }
 ```
 
-Source: [`packages/bundle/web-app/src/index.ts:44`](../packages/bundle/web-app/src/index.ts)
+Source: [`packages/bundle/web-app/src/index.ts:45`](../packages/bundle/web-app/src/index.ts)
 
-<a id="deepseek-aiqilin-web-fetch-http"></a>
+<a id="qilinweb-fetch-http"></a>
 
 ## `@qilin/web-fetch-http`
 
@@ -3461,7 +3516,7 @@ export interface Config {
 
 Source: [`packages/web/web-fetch-http/src/index.ts:32`](../packages/web/web-fetch-http/src/index.ts)
 
-<a id="deepseek-aiqilin-web-search-deepseek"></a>
+<a id="qilinweb-search-deepseek"></a>
 
 ## `@qilin/web-search-deepseek`
 
@@ -3489,7 +3544,7 @@ export interface Config {
 
 Source: [`packages/web/web-search-deepseek/src/index.ts:46`](../packages/web/web-search-deepseek/src/index.ts)
 
-<a id="deepseek-aiqilin-web-search-exa"></a>
+<a id="qilinweb-search-exa"></a>
 
 ## `@qilin/web-search-exa`
 
@@ -3513,7 +3568,7 @@ export interface Config {
 
 Source: [`packages/web/web-search-exa/src/index.ts:35`](../packages/web/web-search-exa/src/index.ts)
 
-<a id="deepseek-aiqilin-web-search-perplexity"></a>
+<a id="qilinweb-search-perplexity"></a>
 
 ## `@qilin/web-search-perplexity`
 
@@ -3537,7 +3592,7 @@ export interface Config {
 
 Source: [`packages/web/web-search-perplexity/src/index.ts:30`](../packages/web/web-search-perplexity/src/index.ts)
 
-<a id="deepseek-aiqilin-webhook-github"></a>
+<a id="qilinwebhook-github"></a>
 
 ## `@qilin/webhook-github`
 
@@ -3559,7 +3614,7 @@ export interface Config {
 
 Source: [`packages/webhook/webhook-github/src/index.ts:17`](../packages/webhook/webhook-github/src/index.ts)
 
-<a id="deepseek-aiqilin-workflow-ptc"></a>
+<a id="qilinworkflow-ptc"></a>
 
 ## `@qilin/workflow-ptc`
 
@@ -3597,20 +3652,22 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@qilin/client-locale` ([`packages/client/locale/src/index.ts`](../packages/client/locale/src/index.ts))
 - `@qilin/client-modules` — requires `loader` ([`packages/client/modules/src/index.ts`](../packages/client/modules/src/index.ts))
 - `@qilin/client-resources` ([`packages/client/resources/src/index.ts`](../packages/client/resources/src/index.ts))
+- `@qilin/client-ui-account` ([`packages/client/ui-account/src/index.ts`](../packages/client/ui-account/src/index.ts))
 - `@qilin/client-ui-agent-preset` ([`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts))
 - `@qilin/client-ui-approval` ([`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts))
 - `@qilin/client-ui-attachment` ([`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts))
+- `@qilin/client-ui-brand` ([`packages/client/ui-brand/src/index.ts`](../packages/client/ui-brand/src/index.ts))
 - `@qilin/client-ui-brand-official` ([`packages/client/ui-brand-official/src/index.ts`](../packages/client/ui-brand-official/src/index.ts))
 - `@qilin/client-ui-chat` ([`packages/client/ui-chat/src/index.ts`](../packages/client/ui-chat/src/index.ts))
 - `@qilin/client-ui-commands` ([`packages/client/ui-commands/src/index.ts`](../packages/client/ui-commands/src/index.ts))
 - `@qilin/client-ui-conversation` ([`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts))
-- `@qilin/client-ui-cordis` ([`packages/extensions/ui-cordis/src/index.ts`](../packages/extensions/ui-cordis/src/index.ts))
 - `@qilin/client-ui-deliverables` — requires `systemPrompt` · `connection` · `sessionQuery` · `sessionController` · `workspaceFiles` · `fs` · `sandboxPolicy` ([`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts))
 - `@qilin/client-ui-directory-picker-browse` ([`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts))
 - `@qilin/client-ui-directory-picker-native` ([`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts))
 - `@qilin/client-ui-goal` ([`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts))
 - `@qilin/client-ui-input-trigger` ([`packages/client/ui-input-trigger/src/index.ts`](../packages/client/ui-input-trigger/src/index.ts))
 - `@qilin/client-ui-jobs` ([`packages/client/ui-jobs/src/index.ts`](../packages/client/ui-jobs/src/index.ts))
+- `@qilin/client-ui-kylin` ([`packages/extensions/ui-kylin/src/index.ts`](../packages/extensions/ui-kylin/src/index.ts))
 - `@qilin/client-ui-layout` ([`packages/client/ui-layout/src/index.ts`](../packages/client/ui-layout/src/index.ts))
 - `@qilin/client-ui-message-feedback` ([`packages/client/ui-message-feedback/src/index.ts`](../packages/client/ui-message-feedback/src/index.ts))
 - `@qilin/client-ui-model-selection` ([`packages/client/ui-model-selection/src/index.ts`](../packages/client/ui-model-selection/src/index.ts))
@@ -3623,18 +3680,24 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@qilin/client-ui-session` ([`packages/client/ui-session/src/index.ts`](../packages/client/ui-session/src/index.ts))
 - `@qilin/client-ui-settings` ([`packages/client/ui-settings/src/index.ts`](../packages/client/ui-settings/src/index.ts))
 - `@qilin/client-ui-settings-general` ([`packages/client/ui-settings-general/src/index.ts`](../packages/client/ui-settings-general/src/index.ts))
+- `@qilin/client-ui-settings-mcp` ([`packages/client/ui-settings-mcp/src/index.ts`](../packages/client/ui-settings-mcp/src/index.ts))
 - `@qilin/client-ui-settings-models` ([`packages/client/ui-settings-models/src/index.ts`](../packages/client/ui-settings-models/src/index.ts))
 - `@qilin/client-ui-settings-plugin-inventory` ([`packages/client/ui-settings-plugin-inventory/src/index.ts`](../packages/client/ui-settings-plugin-inventory/src/index.ts))
 - `@qilin/client-ui-settings-plugins` ([`packages/client/ui-settings-plugins/src/index.ts`](../packages/client/ui-settings-plugins/src/index.ts))
+- `@qilin/client-ui-settings-skills` ([`packages/client/ui-settings-skills/src/index.ts`](../packages/client/ui-settings-skills/src/index.ts))
 - `@qilin/client-ui-settings-unarchive-sessions` ([`packages/client/ui-settings-unarchive-sessions/src/index.ts`](../packages/client/ui-settings-unarchive-sessions/src/index.ts))
+- `@qilin/client-ui-settings-user-plugins` ([`packages/client/ui-settings-user-plugins/src/index.ts`](../packages/client/ui-settings-user-plugins/src/index.ts))
 - `@qilin/client-ui-sidebar` ([`packages/client/ui-sidebar/src/index.ts`](../packages/client/ui-sidebar/src/index.ts))
 - `@qilin/client-ui-sidebar-documentpreview` ([`packages/client/ui-sidebar-documentpreview/src/index.ts`](../packages/client/ui-sidebar-documentpreview/src/index.ts))
 - `@qilin/client-ui-sidebar-files` ([`packages/client/ui-sidebar-files/src/index.ts`](../packages/client/ui-sidebar-files/src/index.ts))
+- `@qilin/client-ui-sidebar-plans` ([`packages/client/ui-sidebar-plans/src/index.ts`](../packages/client/ui-sidebar-plans/src/index.ts))
 - `@qilin/client-ui-sidebar-right` ([`packages/client/ui-sidebar-right/src/index.ts`](../packages/client/ui-sidebar-right/src/index.ts))
+- `@qilin/client-ui-sidebar-tasks` ([`packages/client/ui-sidebar-tasks/src/index.ts`](../packages/client/ui-sidebar-tasks/src/index.ts))
 - `@qilin/client-ui-sidebar-terminal` ([`packages/client/ui-sidebar-terminal/src/index.ts`](../packages/client/ui-sidebar-terminal/src/index.ts))
 - `@qilin/client-ui-skill` ([`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts))
 - `@qilin/client-ui-subagent` ([`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts))
 - `@qilin/client-ui-theme` ([`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts))
+- `@qilin/client-ui-theme-brand` ([`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts))
 - `@qilin/client-ui-tool` ([`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts))
 - `@qilin/client-ui-trajectory` ([`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts))
 - `@qilin/client-ui-user-questions` ([`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts))
@@ -3646,7 +3709,6 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@qilin/commands` ([`packages/interaction/commands/src/index.ts`](../packages/interaction/commands/src/index.ts))
 - `@qilin/compaction-image-offload` — requires `agents` · `sessions` ([`packages/compaction/compaction-image-offload/src/index.ts`](../packages/compaction/compaction-image-offload/src/index.ts))
 - `@qilin/computer-use` ([`packages/computer-use/computer-use/src/index.ts`](../packages/computer-use/computer-use/src/index.ts))
-- `@qilin/cordis-client-runner` ([`packages/extensions/cordis-client-runner/src/index.ts`](../packages/extensions/cordis-client-runner/src/index.ts))
 - `@qilin/deepseek-llm-api-extensions` ([`packages/llm/deepseek-llm-api-extensions/src/index.ts`](../packages/llm/deepseek-llm-api-extensions/src/index.ts))
 - `@qilin/experimental-auto-review` — requires `llm` · `permissionPresets` · `sessions` · `tools` ([`packages/experimental/auto-review/src/index.ts`](../packages/experimental/auto-review/src/index.ts))
 - `@qilin/experimental-client-ui-agent-team` ([`packages/experimental/client-ui-agent-team/src/index.ts`](../packages/experimental/client-ui-agent-team/src/index.ts))
@@ -3657,9 +3719,12 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@qilin/host-directory-picker-auto` — requires `webServer` · `loader` ([`packages/host/directory-picker-auto/src/index.ts`](../packages/host/directory-picker-auto/src/index.ts))
 - `@qilin/host-directory-picker-native` ([`packages/host/directory-picker-native/src/index.ts`](../packages/host/directory-picker-native/src/index.ts))
 - `@qilin/host-plugin-inventory` — requires `loader` ([`packages/host/plugin-inventory/src/index.ts`](../packages/host/plugin-inventory/src/index.ts))
+- `@qilin/host-plugin-manager` — requires `qilinProfile` ([`packages/host/plugin-manager/src/index.ts`](../packages/host/plugin-manager/src/index.ts))
+- `@qilin/kylin-client-runner` ([`packages/extensions/kylin-client-runner/src/index.ts`](../packages/extensions/kylin-client-runner/src/index.ts))
 - `@qilin/llm` ([`packages/llm/llm/src/index.ts`](../packages/llm/llm/src/index.ts))
 - `@qilin/lsp` ([`packages/lsp/lsp/src/index.ts`](../packages/lsp/lsp/src/index.ts))
 - `@qilin/mcp-resources` — requires `tools` ([`packages/mcp/mcp-resources/src/index.ts`](../packages/mcp/mcp-resources/src/index.ts))
+- `@qilin/mcp-servers` — requires `subprocess` ([`packages/mcp/mcp-servers/src/index.ts`](../packages/mcp/mcp-servers/src/index.ts))
 - `@qilin/sandbox-ssh` — requires `ssh` ([`packages/ssh/sandbox-ssh/src/index.ts`](../packages/ssh/sandbox-ssh/src/index.ts))
 - `@qilin/schedule` — requires `agents` · `sessions` · `tools` · `sessionPersistence` ([`packages/schedule/schedule/src/index.ts`](../packages/schedule/schedule/src/index.ts))
 - `@qilin/session` ([`packages/core/session/src/index.ts`](../packages/core/session/src/index.ts))
@@ -3675,7 +3740,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@qilin/terminal` ([`packages/terminal/terminal/src/index.ts`](../packages/terminal/terminal/src/index.ts))
 - `@qilin/tool-ask-user` — requires `tools` · `userQuestions` ([`packages/interaction/tool-ask-user/src/index.ts`](../packages/interaction/tool-ask-user/src/index.ts))
 - `@qilin/tool-call-timeout-policy` — requires `tools` ([`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts))
-- `@qilin/tool-cordis` — requires `tools` · `systemPrompt` · `dynamicCordisRunner` · `cordisInspect` ([`packages/extensions/tool-cordis/src/index.ts`](../packages/extensions/tool-cordis/src/index.ts))
+- `@qilin/tool-kylin` — requires `tools` · `systemPrompt` · `dynamicCordisRunner` · `cordisInspect` ([`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts))
 - `@qilin/tool-subagent-control` — requires `tools` · `subagents` ([`packages/subagent/tool-subagent-control/src/index.ts`](../packages/subagent/tool-subagent-control/src/index.ts))
 - `@qilin/user-questions` ([`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts))
 - `@qilin/webhook` — requires `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` ([`packages/webhook/webhook/src/index.ts`](../packages/webhook/webhook/src/index.ts))
@@ -3721,6 +3786,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 - `@qilin/client-web` ([`packages/client/web/src/index.ts`](../packages/client/web/src/index.ts))
 - `@qilin/cmdline` ([`packages/boot/cmdline/src/index.ts`](../packages/boot/cmdline/src/index.ts))
 - `@qilin/deque` ([`packages/util/deque/src/index.ts`](../packages/util/deque/src/index.ts))
+- `@qilin/dsh-compat` ([`packages/util/dsh-compat/src/index.ts`](../packages/util/dsh-compat/src/index.ts))
 - `@qilin/experimental-agent-team-profile` ([`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts))
 - `@qilin/experimental-agent-team-web-profile` ([`packages/experimental/agent-team-web-profile/src/index.ts`](../packages/experimental/agent-team-web-profile/src/index.ts))
 - `@qilin/experimental-browser-use-runtime` ([`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts))
@@ -3758,4 +3824,5 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 - `@qilin/util-time` ([`packages/util/time/src/index.ts`](../packages/util/time/src/index.ts))
 - `@qilin/util-values` ([`packages/util/values/src/index.ts`](../packages/util/values/src/index.ts))
 - `@qilin/util-workspace-path` ([`packages/util/workspace-path/src/index.ts`](../packages/util/workspace-path/src/index.ts))
+- `@qilin/web-brand` ([`packages/bundle/web-brand/src/index.ts`](../packages/bundle/web-brand/src/index.ts))
 - `@qilin/win32-process` ([`packages/subprocess/win32-process/src/index.ts`](../packages/subprocess/win32-process/src/index.ts))
