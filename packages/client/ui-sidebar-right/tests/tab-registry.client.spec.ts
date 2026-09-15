@@ -6,6 +6,10 @@
  * optional predicate vetoes, and survivors rank by band, matched-pattern length,
  * then registration order — and every step is contract: a type shipped from
  * another package relies on each one. So each is asserted, not assumed.
+ *
+ * The user's switches over the types are the same kind of contract: a turned-off
+ * type keeps its registration and its open tabs, and loses only what makes it
+ * reachable.
  */
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
@@ -19,7 +23,9 @@ function typeFor(
   patterns: readonly string[],
   extra: Partial<Omit<SidebarRightTabDefinition, 'kind' | 'patterns'>> = {},
 ): SidebarRightTabDefinition {
-  return { id: `test/${kind}`, kind, patterns, title: address => `${kind}:${address}`, ...extra }
+  return {
+    id: `test/${kind}`, kind, patterns, label: () => kind, title: address => `${kind}:${address}`, ...extra,
+  }
 }
 
 /** Kinds of the ranked candidates, best first. */
@@ -183,7 +189,9 @@ describe('SidebarRightTabRegistry — claiming', () => {
   it('reads the title fresh, so a language change needs no re-registration', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     let language = 'zh'
-    registry.register({ id: 'shipped/guide', kind: 'guide', title: () => language === 'zh' ? '开始' : 'Start' })
+    registry.register({
+      id: 'shipped/guide', kind: 'guide', label: () => 'Guide', title: () => language === 'zh' ? '开始' : 'Start',
+    })
     expect(registry.get('guide')?.title('sidebar://guide')).toBe('开始')
     language = 'en'
     expect(registry.get('guide')?.title('sidebar://guide')).toBe('Start')
@@ -209,8 +217,9 @@ describe('SidebarRightTabRegistry — ids and page types', () => {
       id: 'shipped/files',
       kind: 'files',
       priority: 'builtin',
+      label: () => 'Files',
       title: () => 'Files',
-      guide: [{ id: 'default', order: 10, title: () => 'Files' }],
+      guide: [{ order: 10, title: () => 'Files' }],
     })
     expect(ranked(registry, 'qilin-resource://file/session/s/a.txt')).toEqual([])
     expect(registry.get('files')?.title('x')).toBe('Files')
@@ -258,7 +267,7 @@ describe('SidebarRightTabRegistry — lifetime', () => {
 
   it('collects every type\'s guide entries in order, reference-stable between changes', () => {
     const registry = new SidebarRightTabRegistry(new Context())
-    const entry = (order: number) => ({ id: String(order), order, title: () => `#${order}` })
+    const entry = (order: number) => ({ order, title: () => `#${order}` })
     registry.register(typeFor('files', [], { guide: [entry(10)] }))
     const first = registry.guide()
     expect(registry.guide()).toBe(first)
@@ -291,13 +300,75 @@ describe('SidebarRightTabRegistry — lifetime', () => {
   })
 })
 
-it('uses the active provider id for guide dispatch and refuses duplicate entry identities', () => {
-  const registry = new SidebarRightTabRegistry(new Context())
-  const guide = [{ id: 'new', order: 10, title: () => 'Terminal' }]
-  registry.register(typeFor('terminal', [], { id: 'builtin/terminal', priority: 'builtin', guide }))
-  const remove = registry.register(typeFor('terminal', [], { id: 'extension/terminal', priority: 'extension', guide }))
-  expect(registry.guide()[0]?.providerId).toBe('extension/terminal')
-  remove()
-  expect(registry.guide()[0]?.providerId).toBe('builtin/terminal')
-  expect(() => registry.register(typeFor('duplicate', [], { guide: [guide[0]!, guide[0]!] }))).toThrow('duplicate guide entry id')
+describe('SidebarRightTabRegistry — the switches', () => {
+  /** A page type offering one guide box, so a spec can watch it leave the guide. */
+  function pageType(id: string, kind: string): SidebarRightTabDefinition {
+    return { id, kind, label: () => kind, title: () => kind, guide: [{ order: 10, title: () => kind }] }
+  }
+
+  it('takes a turned-off type off the guide while it stays registered and reachable by kind', () => {
+    const registry = new SidebarRightTabRegistry(new Context())
+    registry.register(pageType('pkg/files', 'files'))
+    registry.register(pageType('pkg/text', 'text'))
+    expect(registry.guide().map(box => box.kind)).toEqual(['files', 'text'])
+
+    registry.setEnabled('pkg/text', false)
+
+    expect(registry.isEnabled('pkg/text')).toBe(false)
+    expect(registry.disabledIds()).toEqual(['pkg/text'])
+    expect(registry.guide().map(box => box.kind)).toEqual(['files'])
+    // Registered, not offered: the seat still finds the type and its body.
+    expect(registry.entries().map(definition => definition.kind)).toEqual(['files', 'text'])
+    expect(registry.get('text')?.id).toBe('pkg/text')
+
+    registry.setEnabled('pkg/text', true)
+
+    expect(registry.isEnabled('pkg/text')).toBe(true)
+    expect(registry.disabledIds()).toEqual([])
+    expect(registry.guide().map(box => box.kind)).toEqual(['files', 'text'])
+  })
+
+  it('keeps a switched-off id no type holds, so a type arriving under it arrives off', () => {
+    const registry = new SidebarRightTabRegistry(new Context())
+    registry.setEnabled('pkg/terminal', false)
+    expect(registry.disabledIds()).toEqual(['pkg/terminal'])
+
+    registry.register(pageType('pkg/terminal', 'terminal'))
+
+    expect(registry.isEnabled('pkg/terminal')).toBe(false)
+    expect(registry.guide()).toEqual([])
+    expect(registry.entries().map(definition => definition.kind)).toEqual(['terminal'])
+    // Turning it back on offers it like any other type.
+    registry.setEnabled('pkg/terminal', true)
+    expect(registry.guide().map(box => box.kind)).toEqual(['terminal'])
+  })
+
+  it('starts from the ids the user left switched off in an earlier page load', () => {
+    const registry = new SidebarRightTabRegistry(new Context(), ['pkg/files'])
+    registry.register(pageType('pkg/files', 'files'))
+    registry.register(pageType('pkg/text', 'text'))
+    expect(registry.disabledIds()).toEqual(['pkg/files'])
+    expect(registry.isEnabled('pkg/files')).toBe(false)
+    expect(registry.guide().map(box => box.kind)).toEqual(['text'])
+  })
+
+  it('notifies subscribers once per switch that changes something, and never for a state already in force', () => {
+    const registry = new SidebarRightTabRegistry(new Context())
+    registry.register(pageType('pkg/text', 'text'))
+    const seen = vi.fn()
+    registry.subscribe(seen)
+    expect(seen).not.toHaveBeenCalled()
+
+    registry.setEnabled('pkg/text', false)
+    expect(seen).toHaveBeenCalledTimes(1)
+    registry.setEnabled('pkg/text', false)
+    expect(seen).toHaveBeenCalledTimes(1)
+    registry.setEnabled('pkg/text', true)
+    expect(seen).toHaveBeenCalledTimes(2)
+    registry.setEnabled('pkg/text', true)
+    expect(seen).toHaveBeenCalledTimes(2)
+    // An id nothing registered still moves the switched-off set the user keeps.
+    registry.setEnabled('pkg/terminal', false)
+    expect(seen).toHaveBeenCalledTimes(3)
+  })
 })

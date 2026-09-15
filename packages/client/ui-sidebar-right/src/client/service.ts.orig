@@ -27,16 +27,15 @@
  * The registration adopts Session stores and injects the mounted seat binding;
  * callers use the service's navigation methods.
  */
-import { randomUUID } from '@qilin/util-crypto'
 import type { FloatRect, PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
-import { activeDockPaneId, canSplit, findContentTab, dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
+import { activeDockPaneId, canSplit, dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
 import { fileAddressFor } from '@qilin/util-workspace-path'
 import type { BoundActions } from '@qilin/client-ui-slots'
 import type { SessionId } from '@qilin/session/types'
 import type { SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightTabParamsFor } from './contract/params.ts'
 import { pageAddress } from './contract/seed.ts'
 import type { SidebarRightTabClaim, SidebarRightTabRegistry } from './tab-registry.ts'
-import { canCloseTab, type SidebarRightState, type SurfaceState } from './stores.ts'
+import type { SidebarRightState, SurfaceState } from './stores.ts'
 import type { createSidebarRightStore } from './stores.ts'
 import { TabDomain, type PinResource } from './tab-domain.ts'
 
@@ -165,9 +164,6 @@ export const SIDEBAR_RIGHT_FEATURES = [
 /** One member of `SIDEBAR_RIGHT_FEATURES`. */
 export type SidebarRightFeature = typeof SIDEBAR_RIGHT_FEATURES[number]
 
-/** Synchronous close/replacement hook; resource owners retain any background cleanup. */
-export type SidebarRightCloseHandler = (sessionId: SessionId, tab: TabRecord) => void
-
 /** The outward right-Sidebar face (`ctx.sidebarRight`). */
 export interface ISidebarRight {
   /**
@@ -257,19 +253,6 @@ export interface ISidebarRight {
 /** Cross-plugin right-Sidebar face (ctx.sidebarRight). */
 export class SidebarRightController implements ISidebarRight {
   private binding: SidebarRightBinding | undefined
-  private readonly closeHandlers = new Map<string, SidebarRightCloseHandler>()
-
-  /**
-   * Register resource cleanup before explicit removal. Failure preserves the tab.
-   * @param kind - tab kind owned by the registering plugin.
-   * @param handler - saves any background cleanup before returning and allowing removal.
-   * @returns an effect-scoped unregister callback.
-   */
-  registerCloseHandler(kind: string, handler: SidebarRightCloseHandler): () => void {
-    if (this.closeHandlers.has(kind)) throw new Error(`sidebarRight: close handler already registered for ${kind}`)
-    this.closeHandlers.set(kind, handler)
-    return () => { if (this.closeHandlers.get(kind) === handler) this.closeHandlers.delete(kind) }
-  }
 
   /** See `ISidebarRight.features`. */
   readonly features: readonly SidebarRightFeature[] = SIDEBAR_RIGHT_FEATURES
@@ -382,16 +365,7 @@ export class SidebarRightController implements ISidebarRight {
    */
   closeIn(sessionId: SessionId, tabId: TabId): void {
     const actions = this.actionsFor(sessionId)
-    const surface = this.adopted.get(sessionId)?.store.getSnapshot().bySession[sessionId]
-    if (actions === undefined || surface === undefined) return
-    const tab = surface.layout.tabs[tabId]
-    if (tab === undefined || !canCloseTab(surface, tabId)) return
-    this.removeAfterCleanup(sessionId, tab, () => { actions.closeTab(sessionId, tabId) })
-  }
-
-  private removeAfterCleanup(sessionId: SessionId, tab: TabRecord, commit: () => void): void {
-    this.closeHandlers.get(tab.kind)?.(sessionId, tab)
-    commit()
+    if (actions !== undefined) actions.closeTab(sessionId, tabId)
   }
 
   /** Claim a resource and place it in one session; an address outside the scheme or one no type claims throws. */
@@ -422,7 +396,7 @@ export class SidebarRightController implements ISidebarRight {
     const definition = this.tabs.get(kind)
     if (definition === undefined) throw new Error(`sidebarRight: no tab type is registered as "${kind}"`)
     if (!this.tabs.isEnabled(definition.id)) return
-    const address = definition.multiple === true ? `${pageAddress(kind)}/${randomUUID()}` : pageAddress(kind)
+    const address = pageAddress(kind)
     this.place(
       sessionId, actions, { kind, contentId: address, title: definition.title(address) },
       address, options, options.params, definition.single === true,
@@ -456,7 +430,6 @@ export class SidebarRightController implements ISidebarRight {
    */
   close(tabId: TabId): void {
     const { sessionId, actions } = this.require()
-    if (this.adopted.has(sessionId)) { this.closeIn(sessionId, tabId); return }
     actions.closeTab(sessionId, tabId)
   }
 

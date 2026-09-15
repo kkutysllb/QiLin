@@ -18,6 +18,7 @@ kind: "package-reference"
 - [展开按钮](#the-expand-button)
 - [状态](#state)
 - [扩展席位](#extension-seats)
+- [标签页开关](#tab-switches)
 - [`ctx.sidebarRight`](#ctxsidebarright)
 - [Tab 域](#the-tab-domain)
 - [引导页](#the-guide)
@@ -67,24 +68,33 @@ kind: "package-reference"
 
 停靠面的最后一个 tab 还多带一条规则，由 store 的 `closeTab` 决定并经 `canCloseTab` 镜像给套件：作为唯一停靠 tab 的引导页不画关闭控件也不画菜单里的关闭项——它的 chip 呈安静样式，在没有扩展条目时次键按下也不弹出菜单——对它的编程式关闭什么都不记录；任何其它 tab 独自留下时，点击关闭会连同整列一起收起，记为一条历史，布局保持为空，直到下次展开时创建当时的默认页。浮动面板不参与这条规则：它们无论列是否展开都会渲染，其 tab 照常关闭。
 
-布局、打开的标签页、导航参数和选中项只在内存中。刷新会构造折叠的默认态；内容插件随后可重新打开自己仍存活的内容，例如[终端恢复](../ui-sidebar-terminal/README.zh.md#use-this-package)。切换会话则让每个停靠面留在原处。
+每个会话的停靠面按会话 id 持久化在 `qilin.sidebarRight.surface.v1` 下，因此刷新会回到用户在该会话里留下的布局，被清理的会话连同它的布局一起消失。记录的序列一并保存，上限 100 条：最旧的先丢，这只缩短回退能走多远，不影响其它任何东西。切换会话则让每个停靠面留在原处。
 
 <a id="extension-seats"></a>
 ## 扩展席位
 
 tab 类型分两阶段注册，随包发布的引导类型走的正是别的包的类型走的同一条公开路径（`ui-sidebar-documentpreview` 是活的证明）。两个阶段都在类型自己的 `ctx.effect` 里，因此注册与创建它的插件同生共死。
 
-1. **类型**——`ctx.sidebarRightTabs.register({ id, kind, patterns?, priority?, canOpen?, title, guide? })`，一份没有运行时钩子的静态声明，返回 disposer。`id` 是这个实现在 tab 系统里的身份，在全部注册中唯一（包名是天然取值；随包引导页是 `@qilin/client-ui-sidebar-right/guide`）：一旦 extension 可以接管 builtin 的 kind，kind 就不再唯一，所以实现要自己命名，同一 `id` 的第二次注册会 throw。资源类型给出 `patterns`，即作用于 `qilin-resource://` 地址的 glob：含 `:` 的匹配整个地址（`qilin-resource://file/**`）；不含的匹配 URI 路径的任意深度且忽略大小写（`*.md`），不是 URI 的地址不匹配任何这类模式。页类型——引导页、文件树——不给出模式，按 kind 打开。`canOpen(address)` 否决一次命中。`title(address)` 是 tab chip 的文字，在 tab 打开时捕获。`guide` 列出引导页的入口框；选中一个即把贡献它的类型作为页打开。一个 `kind` 最多承载一份 `builtin` 与一份 `extension` 注册（extension 生效；它离开后 builtin 恢复）；kind 上的其它任何撞名都 throw。`id` 同时也是该类型正文与标题注册时用的 key，因此 extension 与它接管的 builtin 各占一个格位，席位渲染生效的那个。
+1. **类型**——`ctx.sidebarRightTabs.register({ id, kind, label, icon?, patterns?, priority?, canOpen?, title, single?, guide? })`，一份没有运行时钩子的静态声明，返回 disposer。`id` 是这个实现在 tab 系统里的身份，在全部注册中唯一（包名是天然取值；随包引导页是 `@qilin/client-ui-sidebar-right/guide`）：一旦 extension 可以接管 builtin 的 kind，kind 就不再唯一，所以实现要自己命名，同一 `id` 的第二次注册会 throw。`label()` 是类型自己的名字，供开关行读取：页类型的 `title(address)` 命名的是它打开的内容，资源类型根本没有单一地址可命名，两者都不能代表类型本身。资源类型给出 `patterns`，即作用于 `qilin-resource://` 地址的 glob：含 `:` 的匹配整个地址（`qilin-resource://file/**`）；不含的匹配 URI 路径的任意深度且忽略大小写（`*.md`），不是 URI 的地址不匹配任何这类模式。页类型——引导页、文件树——不给出模式，按 kind 打开。`canOpen(address)` 否决一次命中。`title(address)` 是 tab chip 的文字，在 tab 打开时捕获。`icon` 是 chip 在标题之前绘制的图形；标题本身已承载全部身份时省略。`single: true` 会聚焦任意位置已有的同 kind tab 而不是再开一个，因此整个停靠面最多持有一个；省略即为默认：每个地址一个 tab，一个页在每个格只开一次。`guide` 列出引导页的入口框；选中一个即把贡献它的类型作为页打开。一个 `kind` 最多承载一份 `builtin` 与一份 `extension` 注册（extension 生效；它离开后 builtin 恢复）；kind 上的其它任何撞名都 throw。`id` 同时也是该类型正文、标题与徽标注册时用的 key，因此 extension 与它接管的 builtin 各占一个格位，席位渲染生效的那个。
 2. **正文**——`ctx.slots.register({ name: 'sidebar.right.pane.tab', key: definition.id }, Body)` 通过框架注入的 `useTabInfo()` 读取 `{ sidebar, panel, tab }`。`sidebar` 提供开合与全屏信息，`panel.id` 命名所在格，`tab` 包含原记录字段、`visible`、`navigation`、`signal` 和 `actions`。这些字段不再作为平铺owner props传入；类型自己的store仍使用 `useStore`/`actions`。可选标题注册及引导替换共享该hook；未注册标题时使用打开时保存的文本。
 
 由哪个类型打开资源遵循编辑器解析器的惯例：`patterns` 命中的类型先按 `priority` 档排序——`extension`（产品外的类型，最高档，也是未命名时的默认）、`builtin`、`fallback`（任何更具体的类型都应胜过的通用查看器）——再按命中模式的长度，再按注册顺序；`canOpen` 会剔除候选。各档是字符串字面量，因此别的包里的类型不需要从这里做运行时导入。`candidates(address)` 返回排序，`claim(address, kind?)` 返回决定；指定 `kind` 时跳过它的 glob 但保留它的 `canOpen`。
 
-另有两个席位扩展已有之物：`sidebar.right.tab.guide`（chain）替换引导 tab 的正文而不替换 tab，`sidebar.right.tab.menu.item`（list）在套件自己的布局动作之后向 tab 菜单追加内容级动作。目前没有面向格级动作或折叠态控件的席位，因为还没有东西需要它。
+另有三个席位扩展已有之物：`sidebar.right.pane.tab.badge`（按定义的 `id` keyed，会话作用域）在 chip 的图形与标题之间绘制状态徽标，owner share 与正文同一个 `useTabInfo()`，没有注册者就不画；`sidebar.right.tab.guide`（chain）替换引导 tab 的正文而不替换 tab；`sidebar.right.tab.menu.item`（list）在套件自己的布局动作之后向 tab 菜单追加内容级动作。目前没有面向格级动作或折叠态控件的席位，因为还没有东西需要它。
+
+<a id="tab-switches"></a>
+## 标签页开关
+
+本包向设置外壳贡献 `sidebar-right` 分区：按注册顺序每个已注册类型一行，类型声明了 `icon` 就带上它，行名取自该类型的 `label()`，右侧一个开关。列表来自注册表，因此别的包发布的类型无需改动这里就会出现，晚到的注册也会在下一次提交时出现。
+
+开关决定停靠面提供什么。关掉一个类型会移除它的引导入口——用户触达它的路径——并让 `openResource` 与 `openTab` 直接返回而不打开它，而已经打开的 tab 照常渲染：不会背着用户关掉任何东西。存储的只有被关掉的 id，位于 `localStorage` 的 `qilin.sidebarRight.disabledTabs` 下，这既让新发布的类型默认开启，也让这个选择不进入 Host 与 Session 日志。拒绝存储的浏览器会为本次页面保留开关，并在下次加载时丢失它们。
 
 <a id="ctxsidebarright"></a>
 ## `ctx.sidebarRight`
 
-`openResource(address, options?)` 与 `openTab(kind, options?)` 是导航控制器，进入该列的每条路都调用其中之一：会话区的文件链接与工具行的行号引用（`openResource(fileAddress, { params: { line } })`），tab 条的添加控件与引导入口框（`openTab`），文件树的行（`tab.actions.openResource`）。资源地址是 `qilin-resource://<type>/…` URI；不带 `options.kind` 时由注册表认领（glob 与 `canOpen`，最高档胜出），带它时由该 kind 生效的类型打开。页按 kind 命名；tab 记录在本包拼出、别处无人书写的地址下（`contract/seed.ts`）。两者以同一组步骤作为一条历史运行：已展示同一 (kind, contentId) 的资源 tab 被聚焦，不限所在分栏，除非 `revealIfOpened: false`；页 tab 始终只在目标分栏内去重，不受该选项影响；否则新 tab 落到 `options.replaceTab` 所在的格与位置（并关掉那个 tab），再退而落到 `options.paneId`，再退而落到活跃停靠格；面板展开，因为用户看不到的内容不算打开。随后 Tab 域记录这次导航——`params` 以 `navigation.params` 抵达正文，`revision` 递增——不进布局历史。`params` 按所开之物定型：某资源类型的查看器把自己那项并入 `SidebarRightResourceParamsMap`（文本预览声明 `{ line?: number }`）；接受参数的页类型按其 kind 并入 `SidebarRightTabParamsMap`；值约定为 JSON 形状，运行时不校验。`qilin-resource://` 之外的地址、无人认领的地址、或未注册的 kind 都会 throw：那是接线错误，不是用户错误。
+`openResource(address, options?)` 与 `openTab(kind, options?)` 是导航控制器，进入该列的每条路都调用其中之一：会话区的文件链接与工具行的行号引用（`openResource(fileAddress, { params: { line } })`），tab 条的添加控件与引导入口框（`openTab`），文件树的行（`tab.actions.openResource`）。资源地址是 `qilin-resource://<type>/…` URI；不带 `options.kind` 时由注册表认领（glob 与 `canOpen`，最高档胜出），带它时由该 kind 生效的类型打开。页按 kind 命名；tab 记录在本包拼出、别处无人书写的地址下（`contract/seed.ts`）。两者以同一组步骤作为一条历史运行：已展示同一 (kind, contentId) 的资源 tab 被聚焦，不限所在分栏，除非 `revealIfOpened: false`；页 tab 始终只在目标分栏内去重，不受该选项影响；否则新 tab 落到 `options.replaceTab` 所在的格与位置（并关掉那个 tab），再退而落到 `options.paneId`，再退而落到活跃停靠格；面板展开，因为用户看不到的内容不算打开。随后 Tab 域记录这次导航——`params` 以 `navigation.params` 抵达正文，`revision` 递增——不进布局历史。`params` 按所开之物定型：某资源类型的查看器把自己那项并入 `SidebarRightResourceParamsMap`（文本预览声明 `{ line?: number }`）；接受参数的页类型按其 kind 并入 `SidebarRightTabParamsMap`；值约定为 JSON 形状，运行时不校验。`qilin-resource://` 之外的地址、无人认领的地址、或未注册的 kind 都会 throw：那是接线错误，不是用户错误。用户关掉的类型则完全不打开——调用直接返回、不写任何东西，因为本该打开它的入口也已一并消失——只有未注册的 kind 仍然 throw。
+
+`options.scope` 把一次打开落到另一个会话，而不是已挂载的那个，也不切换用户正在看的会话；`openFile(scope, path, options?)` 是这条路径的快捷方式：它为 `path` 拼出文件地址并在 `scope` 里打开，文件树的行与 Chat 的文件链接调用的正是它。`features` 是本构建的能力表，也是本包对仓库之外发布的 tab 类型的公开契约的一部分：类型按成员资格而不是版本比较来把关新 API 的使用，因此面对更旧的 Sidebar 会降级而不是崩掉。该表涵盖 chip 图形与徽标席位、开关页、单实例打开、`openFile`、定向到其它会话的打开，以及布局持久化，且任何成员都不会被移除。
 
 `close(tabId)` 关闭一个 tab；`active()` 读取活动 tab。`isExpanded()` 与 `toggleExpanded()` 读取并驱动该列的展开；形态切换是面板自己的控件，不属于这个接口。布局操作供以编程方式安排该列的调用方使用，每个都像它替代的手势一样被记录：`focus(tabId)` 聚焦一个 tab 及其格；`split(paneId?)` 在与 tab 条控件相同的格预算与空间规则下分栏一个停靠格（默认活跃格），返回新格的 id，做不到时返回 `undefined`——且不记录任何东西；`float(tabId, rect?)` 把停靠 tab 浮出为浮窗；`dock(paneId)` 把浮窗放回活跃停靠格。不存在的 tab 或格、或已处于调用目标状态的，都原样不动。该接口只暴露操作：没有布局快照、没有操作日志、没有按地址查找。`_undo()` / `_redo()` 步进已挂载停靠面的历史；它们是 `@internal`——序列没有面向用户的控件，这两个只为测试存在。命令需要一个已挂载的会话停靠面；没有时它们 throw，而不是写进一个没人绘制的面里。
 
@@ -93,43 +103,37 @@ tab 类型分两阶段注册，随包发布的引导类型走的正是别的包�
 
 Tab域按（Session，Tab id）保留导航、中止信号与绑定动作；私有装配回调收养各会话的store，并在每次提交时对齐记录。记录消失或插件卸载才中止signal，收起和切会话不销毁记录；undo恢复的是新occurrence。`useTabInfo()` 组合框架绑定的store与导航hook，不在组件中手写订阅或在渲染时创建记录。`tab.actions` 始终作用于自己的会话；`tab.visible` 区分正文与标题，浮窗不受整栏收起影响。`adopt` 不在公开控制器上。
 
-标签页所有者通过 effect 注册 `registerCloseHandler(kind, handler)`。handler 在允许显式关闭或替换前同步保存后台清理任务。资源所有者跟踪完成和重试，侧栏不等待清理。handler 抛错时保留标签页。折叠、展示方式改变和插件卸载不调用关闭 handler；tab abort signal 标识 occurrence 卸载，不代表显式关闭。
-
 <a id="the-guide"></a>
 ## 引导页
 
-每个 `guide` 入口具有 provider 内唯一的 `id`。开始页按当前生效的定义 id 渲染 `sidebar.right.tab.guide.entry`，传入入口 id、解析后的标题、可选描述，以及框架提供的 `useTabInfo` hook。provider 可按自己的定义 id 注册自定义卡片；未注册时使用默认图标与标题按钮。侧栏负责宽度和排列，自定义组件负责内部结构和交互。排序或其他注册变化不会改变入口身份。
+默认页取决于已注册的引导入口数，不取决于 tab 类型数或已打开的 tab 数。恰好一个入口时直接打开对应页面（随包组合中为 Files）；没有入口或有多个入口时打开引导页。即使只有一个入口，显式添加引导页仍会打开引导页。只有作为唯一停靠 tab 的引导页不可关闭；关闭其它任何唯一 tab 时会同时收起整列。chip、上下文菜单与 `close` API 使用同一规则。
 
-终端等需要独立实例的 tab 类型可声明 `multiple: true`。每次打开都会获得独立内容地址，因此移动和停靠会保留这些实例；普通页面仍在每个格内去重。
-
-默认页取决于已注册的引导入口数，不取决于 tab 类型数或已打开的 tab 数。恰好一个入口时直接打开对应页面；没有入口或有多个入口时打开引导页。即使只有一个入口，显式添加引导页仍会打开引导页。只有作为唯一停靠 tab 的引导页不可关闭；关闭其它任何唯一 tab 时会同时收起整列。chip、上下文菜单与 `close` API 使用同一规则。
-
-引导 tab 是一枚弱化的罗盘，下方是各已注册类型贡献的每个 `guide` 条目一个入口胶囊，按 `order` 排列并在正文中居中；引导页自己没有文字。胶囊显示条目的图标——条目没注册图标时用引导页自己更浅的立方体占位符——和标题；列出的条目不超过四个时，注册了 `description` 的条目在标题下显示它，更长的列表则去掉所有描述。点击默认胶囊会调用 `tab.actions.openTab(entry.kind, { replaceTab: true })`，于是引导页让位给它打开的页。一个格最多持有一个引导 tab。tab 条的添加控件只在该格没有引导 tab 时绘制，并以 `openTab('guide', { paneId, revealIfOpened: false })` 在该格打开一个，这样别的格里的引导页不会截走这次点击；把引导页开进已有引导页的格则改为聚焦它；把引导页拖入、放入或收回到这样的格会合并进去——来者关闭，该格自己的被聚焦；对引导页 `duplicateTab` 不记录任何东西。分栏、展开且为空的根格、以及唯一 tab 拖到本格边缘分屏后腾出的格使用相同的默认页规则，每个新格一个 tab；这种本格边缘拖放让被拖的 tab 保持聚焦。普通的 `openTab('guide')` 只在活跃或指定分栏内打开或聚焦引导页。对空分栏执行 split 不产生变化，也不返回新分栏。产品最多保留左右两格，默认均分，分隔条限定在 20%～80%。宽度不足以容纳两格时不允许新分栏；已有两格时，正文拖放用于跨格移动，不再创建第三格。达到两格上限时隐藏分栏控件；关闭回单格后恢复。
+引导 tab 是一枚弱化的罗盘，下方是各已注册类型贡献的每个 `guide` 条目一个入口胶囊，按 `order` 排列并在正文中居中；引导页自己没有文字。胶囊显示条目的图标——条目没注册图标时用引导页自己更浅的立方体占位符——和标题；列出的条目不超过四个时，注册了 `description` 的条目在标题下显示它，更长的列表则去掉所有描述。选中一个胶囊会调用 `tab.actions.openTab(entry.kind, { replaceTab: true })`，于是引导页让位给它打开的页。一个格最多持有一个引导 tab。tab 条的添加控件只在该格没有引导 tab 时绘制，并以 `openTab('guide', { paneId, revealIfOpened: false })` 在该格打开一个，这样别的格里的引导页不会截走这次点击；把引导页开进已有引导页的格则改为聚焦它；把引导页拖入、放入或收回到这样的格会合并进去——来者关闭，该格自己的被聚焦；对引导页 `duplicateTab` 不记录任何东西。分栏、展开且为空的根格、以及唯一 tab 拖到本格边缘分屏后腾出的格使用相同的默认页规则，每个新格一个 tab；这种本格边缘拖放让被拖的 tab 保持聚焦。普通的 `openTab('guide')` 只在活跃或指定分栏内打开或聚焦引导页。对空分栏执行 split 不产生变化，也不返回新分栏。产品最多保留左右两格，默认均分，分隔条限定20%～80%。宽度不足以容纳两格时不允许新分栏；已有两格时，正文拖放用于跨格移动，不再创建第三格。达到两格上限时隐藏分栏控件；关闭回单格后恢复。
 
 <a id="copy"></a>
 ## 文案
 
-该列里的每个字符串都来自 `sidebarRight` 语言命名空间，包括套件的无障碍名称。tab 的标题在 tab 铸造时固定；类型的显示名跟随当前语言。
+该列里的每个字符串都来自 `sidebarRight` 语言命名空间，包括套件的无障碍名称。tab 的标题在 tab 铸造时固定；类型的 `label()` 与它的引导入口文案在每次使用时重新读取，因此换语言不需要重新注册。
 
 <a id="model-experience"></a>
 ## 模型体验
 
-无，因为本包是浏览器侧 UI 插件层，不注册任何面向模型的内容。
+None, as the package is a browser-side UI plugin layer that registers nothing model-facing.
 
-#### KV Cache 影响
+#### KV Cache effect
 
-无；本包既不组装也不发送提供方请求。
+None; this package neither assembles nor sends a provider request.
 
 ## 已知限制与延期工作
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- **布局只在内存中。** 侧栏状态不持久化；内容自身的恢复无法还原此前的布局或选中项。
 - **没有会话就没有停靠面。** 状态按会话 id 键控，因此 hero 画面右侧什么都不显示。
 - **硬编码的层叠。** 面板与浮窗宿主使用固定的 z-index 值，因为客户端还没有 z-index token 层。
 - **未暴露撤销。** 记录的序列只能通过 `@internal` 服务方法步进；产品控件是有意缺席的。
-- **标题在打开时固定。** 类型的 `title(address)` 被捕获进记录；会变的标题只来自可选的标题席位。
+- **标题在打开时固定。** 类型的 `title(address)` 被捕获进记录；会变的标题只来自可选的标题席位。改写记录自身的标题是有意不做的：标题席位已经画出活的 chip，再加一条写入路径只会引入席位能算出来的状态。
 - **没有内容导航栈。** 后退回放的是布局操作；编辑器式的「已访问内容」前进/后退尚未构建。
+- **开关是本浏览器本地的。** 被关掉的集合存在本浏览器的 `localStorage` 里，因此换一个浏览器、或浏览器拒绝存储时，每个已注册类型都会出现。
 
 <a id="dev-note"></a>
 ### 开发备注
