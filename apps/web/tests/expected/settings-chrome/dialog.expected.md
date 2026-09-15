@@ -45,6 +45,16 @@
   - button "紧凑":
     - text: 紧凑
     - img
+  - text: 行间距 在默认行高上增减会话正文的行间距，0 为默认 0
+  - button "增大行间距":
+    - img
+  - button "减小行间距":
+    - img
+  - text: px 消息区域宽度 会话消息区域的宽度；也可以直接拖动消息区两侧的手柄 自适应
+  - button "自定义消息区域宽度":
+    - img
+  - button "收窄消息区域" [disabled]:
+    - img
   - text: 繁忙时的发送行为 智能体运行时 Enter 键和发送按钮的行为；Cmd/Ctrl+Enter 使用另一行为
   - button "排队发送":
     - text: 排队发送

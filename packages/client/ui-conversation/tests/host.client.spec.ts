@@ -2,7 +2,7 @@ import { Context } from '@qilin/kylin'
 import { describe, expect, it } from 'vitest'
 import { SettingsProvider, type SettingsNamespace } from '@qilin/settings'
 import {
-  CONVERSATION_SETTINGS_NAMESPACE, DEFAULT_BUSY_ENTER_BEHAVIOR, apply,
+  CONTENT_WIDTH_MAX, CONVERSATION_SETTINGS_NAMESPACE, DEFAULT_BUSY_ENTER_BEHAVIOR, apply,
 } from '@qilin/client-ui-conversation'
 
 class MemorySettings extends SettingsProvider {
@@ -14,16 +14,21 @@ class MemorySettings extends SettingsProvider {
 }
 
 describe('ui-conversation host', () => {
-  it('registers, validates, and disposes the durable busy-Enter preference', async () => {
+  it('registers, validates, and disposes the durable Enter and content-width preferences', async () => {
     const ctx = new Context()
     await ctx.plugin(MemorySettings).await()
     const fiber = ctx.plugin({ apply })
     await fiber.await()
     const ns = CONVERSATION_SETTINGS_NAMESPACE
-    expect(ctx.settings.get(ns)).toEqual({ busyEnter: DEFAULT_BUSY_ENTER_BEHAVIOR })
+    expect(ctx.settings.get(ns)).toEqual({ busyEnter: DEFAULT_BUSY_ENTER_BEHAVIOR, contentWidth: 0 })
     await ctx.settings.update(ns, { busyEnter: 'steer' })
-    expect(ctx.settings.get(ns)).toEqual({ busyEnter: 'steer' })
+    expect(ctx.settings.get(ns)).toEqual({ busyEnter: 'steer', contentWidth: 0 })
+    await ctx.settings.update(ns, { contentWidth: 970 })
+    expect(ctx.settings.get(ns)).toEqual({ busyEnter: 'steer', contentWidth: 970 })
     await expect(ctx.settings.update(ns, { busyEnter: 'invalid' })).rejects.toThrow()
+    await expect(ctx.settings.update(ns, { contentWidth: -1 })).rejects.toThrow()
+    await expect(ctx.settings.update(ns, { contentWidth: 970.5 })).rejects.toThrow()
+    await expect(ctx.settings.update(ns, { contentWidth: CONTENT_WIDTH_MAX + 1 })).rejects.toThrow()
     await fiber.dispose()
     expect(ctx.settings.describe().map(row => row.ns)).not.toContain(ns)
   })

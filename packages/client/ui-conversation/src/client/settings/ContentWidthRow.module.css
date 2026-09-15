@@ -1,0 +1,123 @@
+/* Transcript width row: title/description plus the stepper pill the font-size
+ * row uses, and the adaptive/reset affordance beside it. */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 48px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.desc {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stepper {
+  position: relative; /* the arrow column anchors to the pill's right edge */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 18px;
+  background: var(--dsw-alias-bg-module-platform);
+}
+
+.value {
+  min-width: 18px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+  color: var(--dsw-alias-label-primary);
+}
+
+.unit {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+/* Arrow column: anchored right so the value stays pill-centered whether or
+   not the arrows are showing; revealed on hover/focus-within, hidden with
+   opacity so the buttons stay reachable by keyboard. */
+.arrows {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+}
+
+.stepper:hover .arrows,
+.stepper:focus-within .arrows {
+  opacity: 1;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 12px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 75%, transparent);
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.arrow:hover:not(:disabled) {
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+.arrow:disabled {
+  color: var(--dsw-alias-label-caption);
+  cursor: default;
+}
+
+/* Text action reverting an explicit width to the adaptive clamp; it only
+   exists while one stands, so it never competes with the value. */
+.reset {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-brand-primary);
+  cursor: pointer;
+}
+
+.reset:hover {
+  text-decoration: underline;
+}

@@ -8,10 +8,11 @@ import { LocaleRuntime } from '@qilin/client-locale/client'
 import { TestRemote } from '@qilin/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
 import { apply, inject, SETTINGS_NS } from '@qilin/client-ui-theme/client'
-import type { FontSizeRowInjected, ThemeRuntime } from '@qilin/client-ui-theme/client'
+import type { FontSizeRowInjected, LineSpacingRowInjected, ThemeRuntime } from '@qilin/client-ui-theme/client'
 import { THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema } from '../src/theme-settings.ts'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'
-import type { createFontSizeRowStore } from '../src/client/settings-store.ts'
+import { LineSpacingRow } from '../src/client/LineSpacingRow.tsx'
+import type { createTypographyRowStore } from '../src/client/settings-store.ts'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
 // so browser-language detection never runs and a fresh LocaleRuntime opens on
@@ -31,7 +32,7 @@ async function bench(isLoopback = true) {
   const locale = new LocaleRuntime(ctx)
   locale.setLocale('zh')
   ctx.provide('locale', locale)
-  const section: Record<string, unknown> = { preference: 'system', fontSize: 14 }
+  const section: Record<string, unknown> = { preference: 'system', fontSize: 14, leading: 0 }
   const namespace = () => ({
     ns: THEME_SETTINGS_NAMESPACE,
     schema: ThemeSettingsSchema.toJSON(),
@@ -68,12 +69,12 @@ function declareItems(slots: SlotRegistry): () => void {
 
 /** Mirror the framework's inject choreography: bake a real instance from the
  * declared handle and hand its actions to the entry's inject factory. */
-function fontSizeFaceOf(slots: SlotRegistry) {
-  const entry = slots.entries(SLOT).find(e => e.component === FontSizeRow)!
-  const handle = entry.store as ReturnType<typeof createFontSizeRowStore>
+function rowFaceOf(slots: SlotRegistry, component: unknown) {
+  const entry = slots.entries(SLOT).find(e => e.component === component)!
+  const handle = entry.store as ReturnType<typeof createTypographyRowStore>
   const instance = handle.create()
-  const face = (entry.inject as unknown as (a: typeof instance.actions) => FontSizeRowInjected)(instance.actions)
-  return { entry, instance, face }
+  const face = (entry.inject as unknown as (a: typeof instance.actions) => unknown)(instance.actions)
+  return { entry, instance, face: face as FontSizeRowInjected & LineSpacingRowInjected }
 }
 
 describe('ui-theme apply', () => {
@@ -81,16 +82,21 @@ describe('ui-theme apply', () => {
     expect(inject).toEqual(['slots', 'locale', 'remote', 'settingsScope'])
   })
 
-  it('provides the service, registers localized copy, and registers the font-size row (declaration before or after apply)', async () => {
+  it('provides the service, registers localized copy, and registers both typography rows (declaration before or after apply)', async () => {
     const before = await bench()
     declareItems(before.slots)
     await before.ctx.plugin({ inject: [...inject], apply }).await()
     expect(before.locale.bind(SETTINGS_NS)('fontSize.title')).toBe('字号大小')
+    expect(before.locale.bind(SETTINGS_NS)('leading.title')).toBe('行间距')
     before.locale.setLocale('en')
     expect(before.locale.bind(SETTINGS_NS)('fontSize.title')).toBe('Font size')
+    expect(before.locale.bind(SETTINGS_NS)('leading.title')).toBe('Line spacing')
     const fontEntry = before.slots.entries(SLOT).find(e => e.component === FontSizeRow)!
     expect(fontEntry.options).toMatchObject({ id: 'font-size', order: 11 })
     expect(fontEntry.locale).toBe(SETTINGS_NS)
+    const leadingEntry = before.slots.entries(SLOT).find(e => e.component === LineSpacingRow)!
+    expect(leadingEntry.options).toMatchObject({ id: 'line-spacing', order: 13 })
+    expect(leadingEntry.locale).toBe(SETTINGS_NS)
 
     const after = await bench()
     const fiber = after.ctx.plugin({ inject: [...inject], apply })
@@ -101,7 +107,7 @@ describe('ui-theme apply', () => {
     expect(after.slots.entries(SLOT).some(e => e.component === FontSizeRow)).toBe(true)
   })
 
-  it('projects font-size snapshots into its row store and routes face writes back', async () => {
+  it('projects theme snapshots into both row stores and routes face writes back', async () => {
     const b = await bench()
     declareItems(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
@@ -109,7 +115,7 @@ describe('ui-theme apply', () => {
     // An event ahead of any inject hits the unbound-actions arm.
     theme.setFontSize(16)
 
-    const { entry, instance, face } = fontSizeFaceOf(b.slots)
+    const { entry, instance, face } = rowFaceOf(b.slots, FontSizeRow)
     // The inject-time re-sync sealed the init window: the mirror is current.
     expect(instance.getSnapshot().fontSize).toBe(16)
     // Copy rides the standard locale seat: the entry declares the namespace.
@@ -119,6 +125,28 @@ describe('ui-theme apply', () => {
     expect(theme.getTheme().fontSize).toBe(12)
     expect(instance.getSnapshot().fontSize).toBe(12)
     await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(2) })
+  })
+
+  it('mirrors the leading axis into the line-spacing row and persists its writes', async () => {
+    const b = await bench()
+    declareItems(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const theme = b.ctx.get('theme') as ThemeRuntime
+    theme.setLeading(2)
+
+    const { instance, face } = rowFaceOf(b.slots, LineSpacingRow)
+    expect(instance.getSnapshot().leading).toBe(2)
+
+    face.setLeading(4)
+    expect(theme.getTheme().leading).toBe(4)
+    expect(instance.getSnapshot().leading).toBe(4)
+    // The font-size row shares the snapshot, so its mirror moved too.
+    const fontRow = rowFaceOf(b.slots, FontSizeRow)
+    expect(fontRow.instance.getSnapshot().leading).toBe(4)
+    await vi.waitFor(() => {
+      const fields = b.mutate.mock.calls.map(call => (call[1] as { path: string[] }[])[0]!.path[0])
+      expect(fields).toEqual(['leading', 'leading'])
+    })
   })
 
   it('loads Host settings at boot, refreshes its namespace, and keeps remote browsers process-local', async () => {
@@ -186,7 +214,7 @@ describe('ui-theme apply', () => {
     const b = await bench()
     const host = declareItems(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(b.slots.entries(SLOT)).toHaveLength(1)
+    expect(b.slots.entries(SLOT)).toHaveLength(2)
 
     // Collapse: the declarer dies, the cascade removes our entries while the
     // apply closure still holds its (now stale) disposers.
@@ -196,14 +224,15 @@ describe('ui-theme apply', () => {
     declareItems(b.slots)
     await Promise.resolve()
     expect(b.slots.entries(SLOT).some(e => e.component === FontSizeRow)).toBe(true)
+    expect(b.slots.entries(SLOT).some(e => e.component === LineSpacingRow)).toBe(true)
   })
 
-  it('teardown removes the row and the dictionary; teardown without a declaration is quiet', async () => {
+  it('teardown removes the rows and the dictionary; teardown without a declaration is quiet', async () => {
     const b = await bench()
     declareItems(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
-    expect(b.slots.entries(SLOT)).toHaveLength(1)
+    expect(b.slots.entries(SLOT)).toHaveLength(2)
     await fiber.dispose()
     expect(b.slots.entries(SLOT)).toHaveLength(0)
     // Dictionary disposal: translation falls back to the bare key.

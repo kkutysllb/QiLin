@@ -24,7 +24,10 @@ import { ComposerBlockRegistry } from './input/blocks.ts'
 import type { ComposerBlock } from './contract/composer-blocks.ts'
 import { InputHub } from './input/hub.ts'
 import { ComposerSubmissionPolicy } from './input/submission-policy.ts'
+import { ConversationLayoutPolicy } from './layout-policy.ts'
 import { queueDockEntry } from './queue/QueueDock.tsx'
+import { ContentWidthRow } from './settings/ContentWidthRow.tsx'
+import type { ContentWidthRowInjected } from './settings/ContentWidthRow.tsx'
 import { EnterBehaviorRow } from './settings/EnterBehaviorRow.tsx'
 import type { EnterBehaviorRowInjected } from './settings/EnterBehaviorRow.tsx'
 import { ConversationRoot } from './skeleton/ConversationRoot.tsx'
@@ -34,7 +37,7 @@ import { InputBar } from './skeleton/InputBar.tsx'
 import { todoDockEntry } from './skeleton/TodoPanel.tsx'
 import { resolveActiveView } from './view-selection.ts'
 import { en, NS, zh, type ConversationKey } from './locales.ts'
-import { CONVERSATION_SETTINGS_NAMESPACE, type ConversationSettings } from '../submission-settings.ts'
+import { CONVERSATION_SETTINGS_NAMESPACE, type ConversationSettings } from '../conversation-settings.ts'
 
 declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
@@ -125,9 +128,9 @@ export function apply(ctx: Context, config: Config = Config({})): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-conversation: dictionaries')
   const t = ctx.locale.bind(NS)
   const conversationStore = createConversationStore()
-  const submissionPolicy = new ComposerSubmissionPolicy(
-    ctx.settingsScope.bind<ConversationSettings>({ namespace: CONVERSATION_SETTINGS_NAMESPACE }),
-  )
+  const conversationHost = ctx.settingsScope.bind<ConversationSettings>({ namespace: CONVERSATION_SETTINGS_NAMESPACE })
+  const submissionPolicy = new ComposerSubmissionPolicy(conversationHost)
+  const layoutPolicy = new ConversationLayoutPolicy(conversationHost)
 
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
     name: 'settings.general.item',
@@ -139,6 +142,17 @@ export function apply(ctx: Context, config: Config = Config({})): void {
       setBusyEnter: (behavior) => { submissionPolicy.setBusyEnter(behavior) },
     }),
   }, EnterBehaviorRow))
+
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item',
+    id: 'content-width',
+    order: 14,
+    locale: NS,
+    inject: (): ContentWidthRowInjected => ({
+      hooks: { contentWidth: layoutPolicy.contentWidth },
+      setContentWidth: (px) => { layoutPolicy.setContentWidth(px) },
+    }),
+  }, ContentWidthRow))
 
   const viewTabs = (): ViewTab[] => {
     const tabs: ViewTab[] = []
@@ -232,7 +246,9 @@ export function apply(ctx: Context, config: Config = Config({})): void {
     inject: (sessionId: SessionId | undefined): ConversationInjected => ({
       hooks: {
         composerBlock: sessionId === undefined ? ABSENT_BLOCK : composerBlocks.storeFor(sessionId),
+        contentWidth: layoutPolicy.contentWidth,
       },
+      setContentWidth: (px) => { layoutPolicy.setContentWidth(px) },
       selectWorkspace: workspaceId => workspaceNavigation.openWorkspace(workspaceId, (nextId) => {
         if (sessionId !== undefined && nextId !== sessionId) {
           const from = inputHub.shell(sessionId)

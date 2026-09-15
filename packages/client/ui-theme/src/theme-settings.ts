@@ -14,6 +14,9 @@ export const THEME_PREFERENCE_FIELD = 'preference'
 /** Field carrying the conversation content font size. */
 export const FONT_SIZE_FIELD = 'fontSize'
 
+/** Field carrying the conversation content leading adjustment. */
+export const LEADING_FIELD = 'leading'
+
 /** Theme preference persisted by the product Appearance row. */
 export type ThemePreference = typeof THEME_PREFERENCES[number]
 
@@ -29,18 +32,30 @@ export const FONT_SIZE_MAX = 17
 /** Content font size when the user-settings document has no override (px). */
 export const DEFAULT_FONT_SIZE = 14
 
+/** Tightest accepted leading adjustment (px). */
+export const LEADING_MIN = -2
+
+/** Loosest accepted leading adjustment (px). */
+export const LEADING_MAX = 8
+
+/** Leading adjustment when the user-settings document has no override (px). */
+export const DEFAULT_LEADING = 0
+
 /** Durable theme section shared by the Host schema and the browser scope. */
 export interface ThemeSettings {
   /** Selected built-in preference. */
   preference: ThemePreference
   /** Conversation content font size in px (integer within {@link FONT_SIZE_MIN}..{@link FONT_SIZE_MAX}). */
   fontSize: number
+  /** Leading added to every content line box, in px (integer within {@link LEADING_MIN}..{@link LEADING_MAX}). */
+  leading: number
 }
 
 /** Durable theme schema; also the wire envelope the browser scope validates against. */
 export const ThemeSettingsSchema: z<ThemeSettings> = z.object({
   [THEME_PREFERENCE_FIELD]: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE),
   [FONT_SIZE_FIELD]: z.number().step(1).min(FONT_SIZE_MIN).max(FONT_SIZE_MAX).default(DEFAULT_FONT_SIZE),
+  [LEADING_FIELD]: z.number().step(1).min(LEADING_MIN).max(LEADING_MAX).default(DEFAULT_LEADING),
 })
 
 /**

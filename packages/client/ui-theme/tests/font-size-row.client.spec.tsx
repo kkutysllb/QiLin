@@ -10,7 +10,7 @@ import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector } from '@qilin/client-test-runtime'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'
 import type { FontSizeRowComponentProps } from '../src/client/FontSizeRow.tsx'
-import { createFontSizeRowStore } from '../src/client/settings-store.ts'
+import { createTypographyRowStore } from '../src/client/settings-store.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
@@ -19,10 +19,10 @@ const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({
 afterEach(cleanup)
 
 const COPY: Record<string, string> = {
-  'fontSize.title': 'Font size',
-  'fontSize.description': 'Only affects conversation content',
-  'fontSize.increase': 'Increase font size',
-  'fontSize.decrease': 'Decrease font size',
+  'fontSize.title': '字号大小',
+  'fontSize.description': '仅影响会话内容的字号',
+  'fontSize.increase': '增大字号',
+  'fontSize.decrease': '减小字号',
 }
 
 /** Empty global standard-kit hooks (the row reads neither). */
@@ -44,8 +44,8 @@ const useSessionPendingInteraction: FontSizeRowComponentProps['useSessionPending
 
 function mount(fontSize = 14) {
   // Real store instance — the sanctioned zero-machinery path for tests.
-  const store = createFontSizeRowStore().create()
-  store.actions.sync(fontSize, 0)
+  const store = createTypographyRowStore().create()
+  store.actions.sync(fontSize, 0, 0)
   const setFontSize = vi.fn()
   const props: FontSizeRowComponentProps = {
     useSessions: emptySessions(),
@@ -67,32 +67,32 @@ const arrow = (name: string): HTMLButtonElement =>
 describe('FontSizeRow', () => {
   it('renders the title and the current size with both arrows enabled mid-range', () => {
     mount(14)
-    expect(screen.getByText('Font size')).toBeDefined()
-    expect(screen.getByText('Only affects conversation content')).toBeDefined()
+    expect(screen.getByText('字号大小')).toBeDefined()
+    expect(screen.getByText('仅影响会话内容的字号')).toBeDefined()
     expect(screen.getByText('14')).toBeDefined()
-    expect(arrow('Increase font size').disabled).toBe(false)
-    expect(arrow('Decrease font size').disabled).toBe(false)
+    expect(arrow('增大字号').disabled).toBe(false)
+    expect(arrow('减小字号').disabled).toBe(false)
   })
 
   it('arrow clicks step by 1; display follows the store mirror, not the click echo', () => {
     const b = mount(14)
-    fireEvent.click(arrow('Increase font size'))
+    fireEvent.click(arrow('增大字号'))
     expect(b.setFontSize).toHaveBeenCalledWith(15)
     // No store write yet: the display is unchanged.
     expect(screen.getByText('14')).toBeDefined()
-    act(() => { b.store.actions.sync(15, 1) })
+    act(() => { b.store.actions.sync(15, 0, 1) })
     expect(screen.getByText('15')).toBeDefined()
-    fireEvent.click(arrow('Decrease font size'))
+    fireEvent.click(arrow('减小字号'))
     expect(b.setFontSize).toHaveBeenCalledWith(14)
   })
 
   it('disables the outward arrow at each bound', () => {
     mount(17)
-    expect(arrow('Increase font size').disabled).toBe(true)
-    expect(arrow('Decrease font size').disabled).toBe(false)
+    expect(arrow('增大字号').disabled).toBe(true)
+    expect(arrow('减小字号').disabled).toBe(false)
     cleanup()
     mount(12)
-    expect(arrow('Increase font size').disabled).toBe(false)
-    expect(arrow('Decrease font size').disabled).toBe(true)
+    expect(arrow('增大字号').disabled).toBe(false)
+    expect(arrow('减小字号').disabled).toBe(true)
   })
 })

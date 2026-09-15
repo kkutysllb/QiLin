@@ -1,5 +1,5 @@
 ---
-description: "Theme and content-font-size settings for the qilin web client: --dsw-* token stylesheets, ThemeRuntime state, the font-size settings row, and the pre-plugin bootstrap."
+description: "Theme and content typography settings for the qilin web client: --dsw-* token stylesheets, ThemeRuntime state, the font-size and line-spacing settings rows, and the pre-plugin bootstrap."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-client-ui-theme` lets Web GUI users choose `light`, `dark`, or `system` and set conversation content text from 12 to 17 px in Settings. A loopback client stores both values in the `ui-theme` settings namespace, which the local provider persists in `$QILIN_HOME/settings.yaml` by default. The plugin resolves `system` through `prefers-color-scheme` and publishes immutable `ThemeSnapshot`s; ui-layout applies each snapshot to the document. The package also ships the `--dsw-*` token stylesheets and injects a synchronous bootstrap so the selected palette and font size apply before the shell loads. Third-party themes can register alias-token overrides through `ctx.theme`.
+`qilin-client-ui-theme` lets Web GUI users choose `light`, `dark`, or `system` and set conversation content text from 12 to 17 px with an optional line-spacing offset, in Settings. A loopback client stores these three values in the `ui-theme` settings namespace, which the provider persists in `$QILIN_HOME/settings.yaml` by default. The plugin resolves `system` through `prefers-color-scheme` and publishes immutable `ThemeSnapshot`s; ui-layout applies each snapshot to the document. The package also ships the `--dsw-*` token stylesheets and injects a synchronous bootstrap so the selected palette, font size, and line spacing apply before the shell loads. Third-party themes can register alias-token overrides through `ctx.theme`.
 
 ## Table of Contents
 
@@ -25,11 +25,13 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Users switch the color scheme and content font size from two rows in Settings (General section); both choices persist across restarts on a loopback browser. Feature plugins consume the current snapshot through `ctx.theme` and read the `--dsw-*` tokens in CSS; they do not manage theme state themselves.
+Users switch the color scheme and content typography from three rows in Settings (General section); all three choices persist across restarts on a loopback browser. Feature plugins consume the current snapshot through `ctx.theme` and read the `--dsw-*` tokens in CSS; they do not manage theme state themselves.
 
-### Font size
+### Typography
 
-The plugin registers a font-size stepper in the General section. The account menu owns the light/dark/system choice, over the same service. The stepper accepts integer values from 12 through 17 px and defaults to 14 px. It changes conversation headings and base text by the same increment, including the user bubble and composer draft; flow-row titles, summaries, and tables follow one step under the body size, while small text and code keep fixed sizes. Each accepted change writes through the Host settings API. Rapid changes serialize in gesture order with namespace revisions, and a rejected latest write reloads the durable values. Non-loopback pages keep both choices process-local.
+The plugin registers a font-size stepper in the General section. The account menu owns the light/dark/system choice, over the same service. The stepper accepts integer values from 12 through 17 px and defaults to 14 px. It changes conversation headings and base text by the same increment, including the user bubble and composer draft; flow-row titles, summaries, and tables follow one step under the body size, while small text and code keep fixed sizes. Each accepted change writes through the Host settings API. Rapid changes serialize in gesture order with namespace revisions, and a rejected latest write reloads the durable values. Non-loopback pages keep these choices process-local.
+
+The line-spacing stepper adds an integer −2 through 8 px to the line height of every tier the font size moves, and defaults to 0, which leaves the shipped line heights untouched. Headings, base text, and tables keep their relative spacing as either control moves; the fixed small-text and code tiers follow neither control.
 
 ### Registering a theme
 
@@ -37,7 +39,7 @@ A composition can register a third-party theme id with alias-token overrides thr
 
 ### Pre-plugin palette
 
-When the host composition includes an HTTP server, the host half embeds the registered `ui-theme` settings, or schema defaults, into each index response. Before the loading page renders, the browser sets `color-scheme`, `body[data-ds-dark-theme]`, and `--qilin-content-font-size`, so the first paint uses the selected palette and text size.
+When the host composition includes an HTTP server, the host half embeds the registered `ui-theme` settings, or schema defaults, into each index response. Before the loading page renders, the browser sets `color-scheme`, `body[data-ds-dark-theme]`, `--qilin-content-font-size`, and `--qilin-content-leading`, so the first paint uses the selected palette, text size, and line height.
 
 -----
 
@@ -47,7 +49,7 @@ When the host composition includes an HTTP server, the host half embeds the regi
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The service owns theme and font-size state and publishes snapshots. The ui-layout presenter applies those snapshots, and the token sheets own the color and conversation text scales.
+The service owns theme, font-size, and leading state and publishes snapshots. The ui-layout presenter applies those snapshots, and the token sheets own the color and conversation text scales.
 
 ### Stylesheets
 
@@ -55,7 +57,7 @@ The service owns theme and font-size state and publishes snapshots. The ui-layou
 
 `corner-shape.css` smooths every rounded corner: inside `@supports (corner-shape: superellipse(1.5))` it defines `--dsw-corner-shape` and applies it to all elements and their `::before`/`::after` through the universal selector, so engines without `corner-shape` keep circular corners. Full-round shapes — `border-radius: 50%` circles and pill radii — pair `corner-shape: round` with their radius in the owning component sheet because a superellipse deforms them; the corner-shape stylesheet spec enforces that pairing across every package stylesheet.
 
-`gradient-shadow-text.css` derives `--qilin-content-font-delta` from `--qilin-content-font-size` and shifts the Markdown heading and base-text ladder by that increment. It also derives the secondary tier `--qilin-content-font-size-secondary` (setting −1 at ≤14, setting −2 above; 13px at the default) with its own `--qilin-content-font-delta-secondary` for the table variants and the flow rows one step under the body. Dense small and code variants stay fixed. Outside the ladder, the user bubble and composer draft read the body pair directly, and flow-row titles and summaries read the secondary pair. The sheet also owns the shadow scale (`--dsw-shadow-lv*`) and the elevation tokens: `--dsw-elevation-stroke` draws a 0.5px hairline through the rebindable `--dsw-elevation-stroke-color`, and `--dsw-elevation-panel`/`--dsw-elevation-prominent`/`--dsw-elevation-soft` (the composer's larger-blur, lower-alpha tier) layer two faint soft shadows over that stroke, so elevated surfaces set `border: 0` and carry no layout-consuming outline; the derived tokens are re-declared per element so a surface's stroke-color rebind takes effect.
+`gradient-shadow-text.css` derives `--qilin-content-font-delta` from `--qilin-content-font-size` and shifts the Markdown heading and base-text ladder by that increment. It also declares `--qilin-content-leading` on `body` at `0px`; every ladder line height adds that term, so the presenter's leading adjustment moves the rows a tier occupies without changing the size relationships. It also derives the secondary tier `--qilin-content-font-size-secondary` (setting −1 at ≤14, setting −2 above; 13px at the default) with its own `--qilin-content-font-delta-secondary` for the table variants and the flow rows one step under the body. Dense small and code variants stay fixed. Outside the ladder, the user bubble and composer draft read the body pair directly, and flow-row titles and summaries read the secondary pair. The sheet also owns the shadow scale (`--dsw-shadow-lv*`) and the elevation tokens: `--dsw-elevation-stroke` draws a 0.5px hairline through the rebindable `--dsw-elevation-stroke-color`, and `--dsw-elevation-panel`/`--dsw-elevation-prominent`/`--dsw-elevation-soft` (the composer's larger-blur, lower-alpha tier) layer two faint soft shadows over that stroke, so elevated surfaces set `border: 0` and carry no layout-consuming outline; the derived tokens are re-declared per element so a surface's stroke-color rebind takes effect.
 
 ### Scrollbar rebinding
 
@@ -63,7 +65,7 @@ The service owns theme and font-size state and publishes snapshots. The ui-layou
 
 ### Preference persistence
 
-The service provides itself immediately with the schema defaults on a loopback browser, then loads the `ui-theme` namespace and writes each accepted theme or font-size change through the Host settings API. Pushed settings changes and reconnects refetch the namespace. Non-loopback pages do not create that Host-backed scope. The persistence boundary is owned by the [Host-backed preferences note](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.md).
+The service provides itself immediately with the schema defaults on a loopback browser, then loads the `ui-theme` namespace and writes each accepted theme, font-size, or leading change through the Host settings API. Pushed settings changes and reconnects refetch the namespace. Non-loopback pages do not create that Host-backed scope. The persistence boundary is owned by the [Host-backed preferences note](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.md).
 
 </details>
 

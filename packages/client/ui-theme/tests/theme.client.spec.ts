@@ -27,6 +27,7 @@ describe('ThemeRuntime', () => {
     const snapshot = theme.getTheme()
     expect(snapshot.preference).toBe('system')
     expect(snapshot.fontSize).toBe(14)
+    expect(snapshot.leading).toBe(0)
     // jsdom matchMedia is absent; system resolves to light.
     expect(snapshot.active.id).toBe('light')
     expect(snapshot.active.colorScheme).toBe('light')
@@ -46,6 +47,18 @@ describe('ThemeRuntime', () => {
     }
   })
 
+  it('seeds the initial leading from the boot-script body variable, ignoring junk', () => {
+    // A negative shipped value is legitimate here, unlike a font size.
+    document.body.style.setProperty('--qilin-content-leading', '-2px')
+    try {
+      expect(make().theme.getTheme().leading).toBe(-2)
+      document.body.style.setProperty('--qilin-content-leading', '99px')
+      expect(make().theme.getTheme().leading).toBe(0)
+    } finally {
+      document.body.style.removeProperty('--qilin-content-leading')
+    }
+  })
+
   it('setFontSize switches, writes through the scope, and republishes; same value is a no-op', () => {
     const { theme, events, host } = make()
     theme.setFontSize(17)
@@ -53,6 +66,17 @@ describe('ThemeRuntime', () => {
     expect(host.set).toHaveBeenCalledWith('fontSize', 17)
     expect(events).toHaveLength(1)
     theme.setFontSize(17)
+    expect(events).toHaveLength(1)
+    expect(host.set).toHaveBeenCalledOnce()
+  })
+
+  it('setLeading switches, writes through the scope, and republishes; same value is a no-op', () => {
+    const { theme, events, host } = make()
+    theme.setLeading(3)
+    expect(theme.getTheme().leading).toBe(3)
+    expect(host.set).toHaveBeenCalledWith('leading', 3)
+    expect(events).toHaveLength(1)
+    theme.setLeading(3)
     expect(events).toHaveLength(1)
     expect(host.set).toHaveBeenCalledOnce()
   })
@@ -66,10 +90,27 @@ describe('ThemeRuntime', () => {
     expect(host.set).not.toHaveBeenCalled()
   })
 
+  it('rejects out-of-range and fractional leading adjustments', () => {
+    const { theme, events, host } = make()
+    for (const px of [-3, 9, 1.5, Number.NaN]) {
+      expect(() => { theme.setLeading(px) }).toThrow('outside -2..8')
+    }
+    expect(events).toHaveLength(0)
+    expect(host.set).not.toHaveBeenCalled()
+  })
+
   it('adopts a published Host font size without writing it back', () => {
     const { theme, events, host } = make()
-    host.publish({ status: 'ready', value: { preference: 'system', fontSize: 12 }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: { preference: 'system', fontSize: 12, leading: 0 }, revision: 1, writable: true })
     expect(theme.getTheme().fontSize).toBe(12)
+    expect(events).toHaveLength(1)
+    expect(host.set).not.toHaveBeenCalled()
+  })
+
+  it('adopts a published Host leading adjustment without writing it back', () => {
+    const { theme, events, host } = make()
+    host.publish({ status: 'ready', value: { preference: 'system', fontSize: 14, leading: -2 }, revision: 1, writable: true })
+    expect(theme.getTheme().leading).toBe(-2)
     expect(events).toHaveLength(1)
     expect(host.set).not.toHaveBeenCalled()
   })
@@ -92,17 +133,17 @@ describe('ThemeRuntime', () => {
 
   it('adopts a published Host section without writing it back', () => {
     const { theme, events, host } = make()
-    host.publish({ status: 'ready', value: { preference: 'dark', fontSize: 14 }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: { preference: 'dark', fontSize: 14, leading: 0 }, revision: 1, writable: true })
     expect(theme.getTheme().preference).toBe('dark')
     expect(events).toHaveLength(1)
     expect(host.set).not.toHaveBeenCalled()
-    host.publish({ value: { preference: 'dark', fontSize: 14 }, revision: 2 })
+    host.publish({ value: { preference: 'dark', fontSize: 14, leading: 0 }, revision: 2 })
     expect(events).toHaveLength(1)
   })
 
   it('adopts a section already standing at construction', () => {
     const host = stubSettingsScope<ThemeSettings>()
-    host.publish({ status: 'ready', value: { preference: 'dark', fontSize: 14 }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: { preference: 'dark', fontSize: 14, leading: 0 }, revision: 1, writable: true })
     const { theme } = make(host)
     expect(theme.getTheme().preference).toBe('dark')
   })

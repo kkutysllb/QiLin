@@ -4,7 +4,7 @@ import { stubSettingsScope } from '@qilin/client-test-runtime'
 import {
   ComposerSubmissionPolicy, DEFAULT_BUSY_ENTER_BEHAVIOR, resolveSubmitMode,
 } from '../src/client/input/submission-policy.ts'
-import type { ConversationSettings } from '../src/submission-settings.ts'
+import type { ConversationSettings } from '../src/conversation-settings.ts'
 
 describe('resolveSubmitMode', () => {
   it('queues outside steer-capable busy state and applies the preference to the enter gesture', () => {
@@ -57,17 +57,17 @@ describe('ComposerSubmissionPolicy', () => {
   it('adopts a Host preference without writing it back and leaves an identical write untouched', () => {
     const host = stubSettingsScope<ConversationSettings>()
     const policy = new ComposerSubmissionPolicy(host.scope)
-    host.publish({ status: 'ready', value: { busyEnter: 'steer' }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: { busyEnter: 'steer', contentWidth: 0 }, revision: 1, writable: true })
     expect(policy.busyEnter.getSnapshot()).toBe('steer')
     policy.setBusyEnter('steer')
     expect(host.set).not.toHaveBeenCalled()
-    host.publish({ value: { busyEnter: 'steer' }, revision: 2 })
+    host.publish({ value: { busyEnter: 'steer', contentWidth: 0 }, revision: 2 })
     expect(policy.busyEnter.getSnapshot()).toBe('steer')
   })
 
   it('adopts a section already standing at construction', () => {
     const host = stubSettingsScope<ConversationSettings>()
-    host.publish({ status: 'ready', value: { busyEnter: 'steer' }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: { busyEnter: 'steer', contentWidth: 0 }, revision: 1, writable: true })
     const policy = new ComposerSubmissionPolicy(host.scope)
     expect(policy.busyEnter.getSnapshot()).toBe('steer')
   })

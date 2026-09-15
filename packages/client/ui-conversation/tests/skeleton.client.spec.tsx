@@ -124,6 +124,8 @@ function mount(
     nestedSubagent?: boolean
     /** A composer block another plugin raised for this session. */
     composerBlock?: { reason: string }
+    /** Persisted transcript width; 0 leaves the adaptive clamp in place. */
+    contentWidth?: number
     /** Mutable view ledger used by registration-order regressions. */
     viewTabs?: ViewTab[]
   } = {},
@@ -156,6 +158,8 @@ function mount(
   const workspaces = createSnapshotStore<WorkspaceSnapshot>(workspaceState(workspaceRows))
   const session = createSnapshotStore<SessionSnapshot>(snapshot)
   const useSession = bindSnapshotSelector(session)
+  const width = createSnapshotStore<number>(options.contentWidth ?? 0)
+  const setContentWidth = vi.fn((px: number) => { width.set(px) })
   const conversation = createSnapshotStore<ConversationSnapshot>(EMPTY_CONVERSATION_SNAPSHOT)
   const useConversation = bindSnapshotSelector(conversation)
   const useSessionPendingInteraction = bindSnapshotSelector(
@@ -308,6 +312,8 @@ function mount(
     useWorkspaces: bindSnapshotSelector(workspaces),
     useProjection: (() => undefined),
     useComposerBlock: select => select(options.composerBlock),
+    useContentWidth: bindSnapshotSelector(width),
+    setContentWidth,
     useInput,
     inputActions,
     renderSlot,
@@ -318,6 +324,7 @@ function mount(
   const view = render(<ConversationRoot {...props} />)
   return {
     view, store, wiring, sink, retargetWorkspace, session, conversation, slotCalls, lineageOwners, seatOwners, open,
+    width, setContentWidth,
     pickerOwner: () => pickerOwner,
     rerender: () => { view.rerender(<ConversationRoot {...props} />) },
   }
@@ -676,31 +683,44 @@ describe('ConversationRoot resident composer', () => {
       // Dragging the right handle outward by 25px widens by 2×25 = 50 → 970,
       // inside both bounds (max = 1600 − 176 = 1424 keeps the handles on-column).
       fireEvent.pointerDown(handle, { pointerId: 1, clientX: 800, clientY: 300 })
-      fireEvent.pointerUp(handle, { pointerId: 1, clientX: 825, clientY: 300 })
+      act(() => { fireEvent.pointerUp(handle, { pointerId: 1, clientX: 825, clientY: 300 }) })
+      expect(b.setContentWidth).toHaveBeenCalledWith(970)
+      expect(b.width.getSnapshot()).toBe(970)
       expect(root.style.getPropertyValue('--qilin-chat-user-width')).toBe('970px')
-      expect(localStorage.getItem('qilin.conversation.contentWidth')).toBe('970')
       // Window shrinks: the displayed width re-clamps (900 − 176 = 724) but the
       // preference stays.
       Object.defineProperty(root, 'offsetWidth', { value: 900, configurable: true })
       act(() => { fireResize(root) })
       expect(root.style.getPropertyValue('--qilin-chat-user-width')).toBe('724px')
-      expect(localStorage.getItem('qilin.conversation.contentWidth')).toBe('970')
+      expect(b.width.getSnapshot()).toBe(970)
       // A press without travel (a real double-click delivers two such
       // press/release rounds) must not commit the clamped display value over
       // the stored preference.
+      b.setContentWidth.mockClear()
       fireEvent.pointerDown(handle, { pointerId: 1, clientX: 800, clientY: 300 })
       fireEvent.pointerUp(handle, { pointerId: 1, clientX: 800, clientY: 300 })
-      expect(localStorage.getItem('qilin.conversation.contentWidth')).toBe('970')
+      expect(b.setContentWidth).not.toHaveBeenCalled()
       expect(root.style.getPropertyValue('--qilin-chat-user-width')).toBe('724px')
       // No reset affordance on the handle: double-click leaves the preference alone.
       fireEvent.doubleClick(handle)
-      expect(localStorage.getItem('qilin.conversation.contentWidth')).toBe('970')
+      expect(b.setContentWidth).not.toHaveBeenCalled()
+      expect(b.width.getSnapshot()).toBe(970)
     } finally {
       for (const [name, descriptor] of originals) {
         if (descriptor === undefined) Reflect.deleteProperty(Element.prototype, name)
         else Object.defineProperty(Element.prototype, name, descriptor)
       }
     }
+  })
+
+  it('publishes a stored width clamped to the column on the first measure', () => {
+    const b = mount(sessionSnapshotOf(), undefined, undefined, { contentWidth: 1500 })
+    const root = b.view.container.querySelector('[data-phase]') as HTMLElement
+    Object.defineProperty(root, 'offsetWidth', { value: 1600, configurable: true })
+    act(() => { fireResize(root) })
+    // 1500 exceeds the 1600 − 176 column budget, so the axis shows the clamp.
+    expect(root.style.getPropertyValue('--qilin-chat-user-width')).toBe('1424px')
+    expect(b.setContentWidth).not.toHaveBeenCalled()
   })
 
   it('hero phase renders no width handles (no transcript to size)', () => {

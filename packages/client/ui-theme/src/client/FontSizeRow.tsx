@@ -13,8 +13,8 @@ import {
 import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
 import { FONT_SIZE_MAX, FONT_SIZE_MIN } from '../theme-settings.ts'
 import type {} from '@qilin/client-ui-settings/client'
-import type { createFontSizeRowStore } from './settings-store.ts'
-import css from './FontSizeRow.module.css'
+import type { createTypographyRowStore } from './settings-store.ts'
+import css from './settings-row.module.css'
 
 /** Injected business face: the preference write (t rides the standard locale seat). */
 export interface FontSizeRowInjected {
@@ -24,7 +24,7 @@ export interface FontSizeRowInjected {
 
 /** Full component props: runtime share + store share + locale seat + injected face. */
 export type FontSizeRowComponentProps =
-  PropsRuntime<'settings.general.item'> & PropsStore<ReturnType<typeof createFontSizeRowStore>>
+  PropsRuntime<'settings.general.item'> & PropsStore<ReturnType<typeof createTypographyRowStore>>
   & PropsLocale<'settings.theme'> & FontSizeRowInjected
 
 /**

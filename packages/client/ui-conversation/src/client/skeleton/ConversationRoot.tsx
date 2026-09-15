@@ -8,38 +8,32 @@ import type { WorkspaceId } from '@qilin/workspace/types'
 import type { ConversationSlotProps, InputZone } from '../contract/slots.ts'
 import { conversationPhase } from '../contract/snapshot.ts'
 import { HeroShell, WorkspaceChip, workspaceLabel } from './EmptyHero.tsx'
+import { CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_MIN } from '../../conversation-settings.ts'
 import css from './ConversationRoot.module.css'
 
 /** Full props composed from the slot contract. */
 export type ConversationRootProps = ConversationSlotProps
 
-/** localStorage key for the dragged transcript width preference (px). */
-const WIDTH_PREF_KEY = 'qilin.conversation.contentWidth'
-/** Floor for a dragged content width; matches the layout center-column minimum. */
-const CONTENT_MIN = 640
 /** Column budget the content must leave free: 88px per side keeps the width
  * handles fully placeable (24px inset + 40px strip + 24px safe zone) — a
  * larger dragged width would push its own handles off the column and leave no
  * way to drag back. */
 const CONTENT_EDGE_BUDGET = 176
 
-/** Reads the persisted width preference; durable-storage boundary, so a
- * missing or corrupt value resolves to "no preference".
- * @returns the stored width in px, or null when unset or invalid. */
-function readWidthPreference(): number | null {
-  const raw = localStorage.getItem(WIDTH_PREF_KEY)
-  if (raw === null) return null
-  const value = Number(raw)
-  return Number.isFinite(value) && value > 0 ? value : null
+/** The persisted width preference as a resize target.
+ * @param stored - the durable content width, in px.
+ * @returns the explicit width, or null when the adaptive clamp stands. */
+function explicitWidth(stored: number): number | null {
+  return stored === CONTENT_WIDTH_ADAPTIVE ? null : stored
 }
 
 /** Resolves the content width the CSS axis would show for a column width.
  * @param columnWidth - the conversation column's rendered width in px.
- * @param preference - the dragged preference, or null for the adaptive clamp.
+ * @param preference - the dragged width, or null for the adaptive clamp.
  * @returns the resolved content width in px (mirrors the CSS clamp). */
 function resolveContentWidth(columnWidth: number, preference: number | null): number {
-  const max = Math.max(CONTENT_MIN, columnWidth - CONTENT_EDGE_BUDGET)
-  if (preference !== null) return Math.min(Math.max(preference, CONTENT_MIN), max)
+  const max = Math.max(CONTENT_WIDTH_MIN, columnWidth - CONTENT_EDGE_BUDGET)
+  if (preference !== null) return Math.min(Math.max(preference, CONTENT_WIDTH_MIN), max)
   return Math.max(680, Math.min(columnWidth * 0.64, 920))
 }
 
@@ -130,8 +124,8 @@ function WidthHandle(props: {
 
 export function ConversationRoot({
   sessionId, useSession, useSessions, useSessionPendingInteraction,
-  useWorkspaces, useConversation, useInput, useComposerBlock,
-  renderSlot, renderSlotChain, selectWorkspace, t,
+  useWorkspaces, useConversation, useInput, useComposerBlock, useContentWidth,
+  renderSlot, renderSlotChain, selectWorkspace, setContentWidth, t,
 }: ConversationRootProps) {
   const session = useSession(s => s)
   const pendingInteraction = useSessionPendingInteraction(snapshot =>
@@ -178,16 +172,21 @@ export function ConversationRoot({
   }, [])
 
   // Publishes the column's live width as --qilin-conversation-column-width so
-  // the shared width axis can adapt (see the .root CSS), and re-clamps a
-  // dragged preference against the shrunken column WITHOUT rewriting the
-  // stored preference — widening the window restores it (the AppFrame
-  // sidebar-drag rule). Same callback-ref pattern as the seat observer.
+  // the shared width axis can adapt (see the .root CSS), and re-clamps the
+  // stored preference against the shrunken column WITHOUT rewriting the
+  // preference — widening the window restores it (the AppFrame sidebar-drag
+  // rule). The preference is read through a ref, so a width change never
+  // rebuilds the observer; the effect below republishes when it moves. Same
+  // callback-ref pattern as the seat observer.
+  const widthPreference = useContentWidth(value => value)
+  const storedWidth = useRef(widthPreference)
+  storedWidth.current = widthPreference
   const rootEl = useRef<HTMLDivElement | null>(null)
   const rootObserver = useRef<ResizeObserver | null>(null)
   const publishWidths = useCallback((root: HTMLDivElement): void => {
     const column = root.offsetWidth
     root.style.setProperty('--qilin-conversation-column-width', `${column}px`)
-    const preference = readWidthPreference()
+    const preference = explicitWidth(storedWidth.current)
     if (preference === null) {
       root.style.removeProperty('--qilin-chat-user-width')
     } else {
@@ -203,18 +202,22 @@ export function ConversationRoot({
     rootObserver.current.observe(root)
     publishWidths(root)
   }, [publishWidths])
+  useEffect(() => {
+    const root = rootEl.current
+    if (root !== null) publishWidths(root)
+  }, [widthPreference, publishWidths])
 
   // Drag plumbing for the two width handles: onStart snapshots the resolved
   // width (grabbing a clamped column must not jump back to the raw stored
   // preference), onDrag publishes only the live clamped style, onCommit
   // persists the width of a gesture that actually travelled, and onEnd
-  // republishes from storage — an uncommitted press leaves the stored
+  // republishes from the preference — an uncommitted press leaves the stored
   // preference untouched.
   const onHandleStart = useCallback((): number => {
     const root = rootEl.current
     /* v8 ignore next -- handles render inside the root, so the ref is always attached. */
     if (root === null) return 680
-    return resolveContentWidth(root.offsetWidth, readWidthPreference())
+    return resolveContentWidth(root.offsetWidth, explicitWidth(storedWidth.current))
   }, [])
   const onHandleDrag = useCallback((width: number): void => {
     const root = rootEl.current
@@ -227,8 +230,8 @@ export function ConversationRoot({
     const root = rootEl.current
     /* v8 ignore next -- handles render inside the root, so the ref is always attached. */
     if (root === null) return
-    localStorage.setItem(WIDTH_PREF_KEY, `${resolveContentWidth(root.offsetWidth, width)}`)
-  }, [])
+    setContentWidth(resolveContentWidth(root.offsetWidth, width))
+  }, [setContentWidth])
   const onHandleEnd = useCallback((): void => {
     const root = rootEl.current
     if (root !== null) publishWidths(root)

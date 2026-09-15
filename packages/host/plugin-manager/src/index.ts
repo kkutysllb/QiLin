@@ -125,7 +125,7 @@ export class PluginManagerGateway extends TypertRemoteService {
     // `pnpm update` to follow, so it upgrades through `add <name>@latest`; the
     // profile copy then wins resolution over the installation seed.
     return this.mutate(row.source === 'builtin'
-      ? ['add', name + '@latest']
+      ? updateArgs(name, this.profile)
       : ['update', '--latest', name])
   }
 
@@ -156,6 +156,13 @@ export class PluginManagerGateway extends TypertRemoteService {
       release()
     }
   }
+}
+
+/** Choose a resolvable source for a profile-owned shipped bundle. */
+function updateArgs(name: string, profile: LaunchProfileSnapshot): readonly string[] {
+  return resolveBundleDir('pluginManager', name, profile.installAnchor, profile.dir).startsWith(profile.dir)
+    ? ['update', '--latest', name]
+    : ['add', name + '@latest']
 }
 
 /** Validate a pnpm package spec before passing it to a subprocess. */

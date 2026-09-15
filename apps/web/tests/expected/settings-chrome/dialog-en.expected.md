@@ -45,6 +45,16 @@
   - button "Compact":
     - text: Compact
     - img
+  - text: Line spacing Adds or removes pixels from the default line height of message text; 0 is the default 0
+  - button "Increase line spacing":
+    - img
+  - button "Decrease line spacing":
+    - img
+  - text: px Message width How wide the message area is; you can also drag the handles on either side of it Adaptive
+  - button "Set a custom message area width":
+    - img
+  - button "Narrow message area" [disabled]:
+    - img
   - text: Send behavior while busy What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior
   - button "Queue":
     - text: Queue

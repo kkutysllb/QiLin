@@ -271,6 +271,11 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'px', description: 'integer px within FONT_SIZE_MIN..FONT_SIZE_MAX; out-of-range or fractional values throw.' }],
       },
       {
+        signature: 'setLeading(px: number): void',
+        description: 'Change the conversation content leading adjustment — the only leading write entry. Accepted values are written through the settings scope and emit `theme/change`.',
+        parameters: [{ name: 'px', description: 'integer px within LEADING_MIN..LEADING_MAX; out-of-range or fractional values throw.' }],
+      },
+      {
         signature: 'register(definition: ThemeDefinition): () => void',
         description: 'Register a theme. Duplicate id throws (single occupant per id; the built-in pair counts; `system` is a preference, not a registrable id).',
         parameters: [{ name: 'definition', description: 'theme id, colorScheme, and alias-token overrides.' }],
@@ -892,7 +897,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ThemeSnapshot',
-    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    fontSize: number;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
+    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    fontSize: number;\n    leading: number;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
   },
   {
     name: 'ThemeTokenModes',

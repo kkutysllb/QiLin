@@ -1,5 +1,5 @@
 ---
-description: "qilin Web 客户端的主题与正文字号设置：--dsw-* token 样式表、ThemeRuntime 状态、「通用」设置行与插件前引导。"
+description: "qilin Web 客户端的主题与正文排版设置：--dsw-* token 样式表、ThemeRuntime 状态、「通用」设置行与插件前引导。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`qilin-client-ui-theme` 让 Web GUI 用户在设置中选择 `light`、`dark` 或 `system`，并把会话正文字号设为 12 至 17 px。回环客户端把两个值存入 `ui-theme` 设置命名空间，本地提供方默认将其持久化到 `$QILIN_HOME/settings.yaml`。插件通过 `prefers-color-scheme` 解析 `system` 并发布不可变的 `ThemeSnapshot`；ui-layout 把每份快照应用到 document。本包还提供 `--dsw-*` token 样式表，并注入同步引导，使所选调色板与字号在外壳加载前生效。第三方主题可通过 `ctx.theme` 注册别名 token 覆盖。
+`qilin-client-ui-theme` 让 Web GUI 用户在设置中选择 `light`、`dark` 或 `system`，把会话正文字号设为 12 至 17 px，并按至多 8 px 调整行间距。回环客户端把这三个值存入 `ui-theme` 设置命名空间，本地提供方默认将其持久化到 `$QILIN_HOME/settings.yaml`。插件通过 `prefers-color-scheme` 解析 `system` 并发布不可变的 `ThemeSnapshot`；ui-layout 把每份快照应用到 document。本包还提供 `--dsw-*` token 样式表，并注入同步引导，使所选调色板、字号与行距在外壳加载前生效。第三方主题可通过 `ctx.theme` 注册别名 token 覆盖。
 
 ## 目录
 
@@ -25,11 +25,13 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-用户从设置（「通用」分区）的两行中切换配色方案与正文字号；在回环浏览器上，两个选择都会跨重启持久化。功能插件通过 `ctx.theme` 消费当前快照，并在 CSS 中读取 `--dsw-*` token；它们不自行管理主题状态。
+用户从设置（「通用」分区）的三行中切换配色方案与正文排版；在回环浏览器上，三个选择都会跨重启持久化。功能插件通过 `ctx.theme` 消费当前快照，并在 CSS 中读取 `--dsw-*` token；它们不自行管理主题状态。
 
-### 字号
+### 排版
 
-插件在「通用」分区注册字号步进器；明/暗/跟随系统的选择由账户菜单负责，两者共用同一服务。步进器接受 12 至 17 px 的整数，默认值为 14 px。它以相同增量调整会话标题与基础文本，包括用户气泡与 composer 草稿；流内行的标题、摘要与表格跟随比正文低一档的字号，小号文本和代码保持固定字号。每次通过的变更都经 Host settings API 写入。连续快速变更按操作顺序携带命名空间 revision 串行写入，最新写入被拒时重新加载持久值。非 loopback 页面把两个选择都保留在进程内。
+插件在「通用」分区注册字号步进器；明/暗/跟随系统的选择由账户菜单负责，两者共用同一服务。步进器接受 12 至 17 px 的整数，默认值为 14 px。它以相同增量调整会话标题与基础文本，包括用户气泡与 composer 草稿；流内行的标题、摘要与表格跟随比正文低一档的字号，小号文本和代码保持固定字号。每次通过的变更都经 Host settings API 写入。连续快速变更按操作顺序携带命名空间 revision 串行写入，最新写入被拒时重新加载持久值。非 loopback 页面把这些选择都保留在进程内。
+
+行间距步进器在每一个随字号缩放的档位行高上叠加一个 −2 至 8 px 的整数增量，默认值 0 保持出厂行高不变。字号与行距任一变动时，标题、正文与表格之间的相对间距关系都不改变；固定的小号文本与代码两档都不跟随。
 
 ### 注册主题
 
@@ -37,7 +39,7 @@ kind: "package-reference"
 
 ### 插件前调色板
 
-当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 `ui-theme` 设置或 schema 默认值嵌入每份 index 响应。浏览器在加载页面渲染前设置 `color-scheme`、`body[data-ds-dark-theme]` 与 `--qilin-content-font-size`，因此首帧绘制就采用所选调色板与字号。
+当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 `ui-theme` 设置或 schema 默认值嵌入每份 index 响应。浏览器在加载页面渲染前设置 `color-scheme`、`body[data-ds-dark-theme]`、`--qilin-content-font-size` 与 `--qilin-content-leading`，因此首帧绘制就采用所选调色板、字号与行高。
 
 -----
 
@@ -47,7 +49,7 @@ kind: "package-reference"
 <details>
 <summary>实现细节——点击展开</summary>
 
-服务拥有主题与字号状态并发布快照。ui-layout 呈现器应用这些快照，token 样式表则拥有颜色与会话文本尺度。
+服务拥有主题、字号与行距状态并发布快照。ui-layout 呈现器应用这些快照，token 样式表则拥有颜色与会话文本尺度。
 
 ### 样式表
 
@@ -55,7 +57,7 @@ kind: "package-reference"
 
 `corner-shape.css` 平滑所有圆角：在 `@supports (corner-shape: superellipse(1.5))` 内定义 `--dsw-corner-shape`，并通过通配选择器应用到所有元素及其 `::before`/`::after`，因此不支持 `corner-shape` 的引擎保持普通圆弧。正圆形状——`border-radius: 50%` 的圆与胶囊半径——因超级椭圆会使其变形，须在所属组件样式表中把 `corner-shape: round` 与半径声明配对；corner-shape 样式表 spec 跨全部包样式表强制这一配对。
 
-`gradient-shadow-text.css` 从 `--qilin-content-font-size` 派生 `--qilin-content-font-delta`，并以该增量移动 Markdown 标题与基础文本阶梯。它同时派生低一档变量 `--qilin-content-font-size-secondary`（设置 ≤14 时为设置值 −1，>14 时为设置值 −2；默认设置下为 13px）及配套的 `--qilin-content-font-delta-secondary`，供表格变体与比正文低一档的流内行使用。紧凑的小号文本与代码变体保持固定字号。阶梯之外，用户气泡与 composer 草稿直接读取正文档变量对，流内行的标题及摘要读取低一档变量对。该表还持有阴影阶（`--dsw-shadow-lv*`）与 elevation token：`--dsw-elevation-stroke` 经可重绑的 `--dsw-elevation-stroke-color` 画 0.5px 发丝描边，`--dsw-elevation-panel`/`--dsw-elevation-prominent`/`--dsw-elevation-soft`（输入框专用的更大模糊、更低透明度档）在描边之上叠两层极淡柔光，因此高层级表面设 `border: 0`，不再有占布局的轮廓；派生 token 逐元素重声明，使表面对描边色的重绑真实生效。
+`gradient-shadow-text.css` 从 `--qilin-content-font-size` 派生 `--qilin-content-font-delta`，并以该增量移动 Markdown 标题与基础文本阶梯。它同时在 `body` 上以 `0px` 声明 `--qilin-content-leading`，阶梯里每一档行高都再加这一项，因此呈现器发布的行距调整只移动每档所占的行，不改变尺寸关系。它同时派生低一档变量 `--qilin-content-font-size-secondary`（设置 ≤14 时为设置值 −1，>14 时为设置值 −2；默认设置下为 13px）及配套的 `--qilin-content-font-delta-secondary`，供表格变体与比正文低一档的流内行使用。紧凑的小号文本与代码变体保持固定字号。阶梯之外，用户气泡与 composer 草稿直接读取正文档变量对，流内行的标题及摘要读取低一档变量对。该表还持有阴影阶（`--dsw-shadow-lv*`）与 elevation token：`--dsw-elevation-stroke` 经可重绑的 `--dsw-elevation-stroke-color` 画 0.5px 发丝描边，`--dsw-elevation-panel`/`--dsw-elevation-prominent`/`--dsw-elevation-soft`（输入框专用的更大模糊、更低透明度档）在描边之上叠两层极淡柔光，因此高层级表面设 `border: 0`，不再有占布局的轮廓；派生 token 逐元素重声明，使表面对描边色的重绑真实生效。
 
 ### 滚动条重新绑定
 
@@ -63,7 +65,7 @@ kind: "package-reference"
 
 ### 偏好持久化
 
-在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 `ui-theme` 命名空间，并把每次通过的主题或字号变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。非 loopback 页面不会创建该 Host-backed scope。该持久化边界由 [Host 支撑的偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md) 拥有。
+在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 `ui-theme` 命名空间，并把每次通过的主题、字号或行距变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。非 loopback 页面不会创建该 Host-backed scope。该持久化边界由 [Host 支撑的偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md) 拥有。
 
 </details>
 

@@ -37,6 +37,7 @@
   - tablist "插件视图":
     - tab "插件配置" [selected]
     - tab "插件列表"
+    - tab "用户插件"
   - tabpanel "插件配置":
     - list:
       - listitem:
