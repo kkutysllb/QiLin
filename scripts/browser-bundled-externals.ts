@@ -140,23 +140,32 @@ async function collectShell(
     const entries = typeof input === 'string' ? [input] : Object.values(input ?? {})
     const pages = entries.filter(entry => entry.endsWith('.html'))
     if (pages.length === 0) throw new Error(`browser notices: ${manifest.name} has no HTML build entry`)
-    await vite.build({
-      root: dir,
-      logLevel: 'error',
-      plugins: [browserDependencyAnalysis(), recorder(seen, workspaceNames, true)],
-      resolve: { alias: browserSourceAliases(root) },
-      build: {
-        write: false,
-        minify: false,
-        sourcemap: false,
-        reportCompressedSize: false,
-        rollupOptions: {
-          input: pages.length === 1 ? pages[0] : pages,
-          // Chunk coloring expects full third-party bodies; the disclosure walk stops at their imports.
-          output: { manualChunks: () => undefined },
+    // One build per page, with the page path as the whole input. An array, or
+    // an input object merged over the config's own one, would either fail the
+    // CommonJS resolver or pull entries this walk is not disclosing.
+    for (const page of pages) {
+      await vite.build({
+        root: dir,
+        logLevel: 'error',
+        plugins: [browserDependencyAnalysis(), recorder(seen, workspaceNames, true)],
+        resolve: { alias: browserSourceAliases(root) },
+        build: {
+          write: false,
+          minify: false,
+          sourcemap: false,
+          reportCompressedSize: false,
+          rollupOptions: {
+            // One page per build, by its own path: an array input fails the
+            // CommonJS resolver once a shell declares several HTML pages, and
+            // an input object merges with the config's own entries instead of
+            // replacing them.
+            input: page,
+            // Chunk coloring expects full third-party bodies; the disclosure walk stops at their imports.
+            output: { manualChunks: () => undefined },
+          },
         },
-      },
-    })
+      })
+    }
   }
 }
 

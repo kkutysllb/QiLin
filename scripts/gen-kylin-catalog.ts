@@ -186,6 +186,8 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   sidebarRight: 'client-side right-Sidebar navigation face — packages/client/ui-sidebar-right/README.md owns the API',
   sidebarRightTabs: 'client-side right-Sidebar tab-type registry — packages/client/ui-sidebar-right/README.md owns the API',
   documentPreviews: 'client-side document renderer registry — docs/subsystems/sidebar-right.md owns the API',
+  qilinProfile: 'immutable launch profile facts handed to profile-management host plugins — packages/boot/app-boot/README.md owns the API',
+  settingsShell: 'client-side interface-typed browser service (the settings panel open channel, SettingsShell) — packages/client/ui-settings-general/README.md owns the API',
 }
 
 /**
@@ -800,6 +802,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   TerminalAttachmentId: 'Browser terminal input ownership is owned by packages/api/terminal-controller/README.md',
   TerminalFrame: 'Browser terminal stream frames are owned by packages/api/terminal-controller/README.md',
   WebTerminalId: 'Browser terminal identity is owned by packages/api/terminal-controller/README.md',
+  WorkspaceFileWriteRequest: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
 }
 
 /** Repository data policy consumed by the Cordis catalog projector. */

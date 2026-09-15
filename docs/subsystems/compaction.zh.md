@@ -261,7 +261,7 @@ Source: [`packages/compaction/compaction-tool-result-pruner/src/index.ts`](../..
 
 Recover a failed summary request by synchronously recording a durable change to its selected input. Return true only after making progress; the provider re-derives and re-prices the selection before retrying. Call next() when the failure cannot be recovered. Decisions survive a later summary failure or cancellation.
 
-```ts kylin-catalog
+```ts cordis-catalog
 /**
  * Recover a failed summary request by synchronously recording a durable
  * change to its selected input. Return true only after making progress;

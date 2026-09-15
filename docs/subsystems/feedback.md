@@ -318,9 +318,9 @@ Either unrecorded rating opens the Session's feedback dialog, the `feedback-dial
 
 <a id="kylin-surface"></a>
 
-## Kylin API
+## Cordis API
 
-Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts kylin-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
 <a id="ctxmessagefeedback--messagefeedbackservice"></a>
 
@@ -328,7 +328,7 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 Session-log service; cold operations never construct a Session or Agent.
 
-```ts kylin-catalog
+```ts cordis-catalog
 /**
  * Read current feedback from the canonical log.
  * @param request - Session to inspect.
@@ -360,7 +360,7 @@ Source: [`packages/feedback/message-feedback/src/index.ts`](../../packages/feedb
 
 Host Remote through which a product surface records a Session-level remark.
 
-```ts kylin-catalog
+```ts cordis-catalog
 /**
  * Record one remark on a live Session.
  * @param request - target Session plus the optional text and category.
@@ -382,7 +382,7 @@ Source: [`packages/feedback/command-feedback/src/index.ts`](../../packages/feedb
 
 Observe a durable cold feedback mutation without publishing a live Session. Observers run before write ownership is released and must not await another message-feedback operation for this Session. The payload is borrowed read-only; deep-clone it before transferring ownership (for example, to Session.fromRestore).
 
-```ts kylin-catalog
+```ts cordis-catalog
 /**
  * Observe a durable cold feedback mutation without publishing a live Session.
  * Observers run before write ownership is released and must not await

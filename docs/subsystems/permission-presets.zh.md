@@ -153,7 +153,7 @@ Source: [`packages/interaction/permission-presets/src/index.ts`](../../packages/
 
 The selectable process catalog changed. Payload-free by design: consumers subscribe first, then re-read the complete catalog.
 
-```ts kylin-catalog
+```ts cordis-catalog
 /**
  * The selectable process catalog changed. Payload-free by design:
  * consumers subscribe first, then re-read the complete catalog.
