@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-使用 `@qilin/launch-environment` 解析启动时的环境值，无需信任压平的 `process.env`。它会冻结继承的进程值、调用目录的 `.env` 和 Harness 主目录的 `.env`，再按固定可信顺序返回胜出的值及其来源。调用方可以在敏感查找中排除某些层；无论之后顺序如何变化，被省略的层都不可达。快照不可变，但每一层仍会被复制到 `process.env`，因此它不隔离子进程。请把它作为库导入；不能从 `cordis.yml` 挂载它。
+使用 `@qilin/launch-environment` 解析启动时的环境值，无需信任压平的 `process.env`。它会冻结启动器的 DSH 主目录钉定、继承的进程值、调用目录的 `.env` 和 Harness 主目录的 `.env`，再按固定可信顺序返回胜出的值及其来源。调用方可以在敏感查找中排除某些层；无论之后顺序如何变化，被省略的层都不可达。快照不可变，但每一层仍会被复制到 `process.env`，因此它不隔离子进程。请把它作为库导入；不能从 `cordis.yml` 挂载它。
 
 ## 目录
 
@@ -43,6 +43,7 @@ const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
 
 | 层 | 它是什么 |
 |---|---|
+| 启动器的 DSH 主目录钉定 | 启动器赋给 `DSH_HOME` 的 Harness 主目录——为 DSH 编写的插件用它解析自己的数据目录。它高于其他各层，因为它替换的值正是共同安装的 DSH 进程导出的那个。 |
 | 继承的进程环境 | 启动 shell、CI 任务或容器传入的内容——本次运行的明确意图 |
 | `<invocation cwd>/.env` | harness 被启动于其中的项目；产品信任它配置自己的 agent（智能体） |
 | `$QILIN_HOME/.env` | 用户自己的机器级默认值 |
@@ -101,6 +102,7 @@ const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
 这些限制说明快照何时不是安全边界。它们是当前包约束，不是任务积压。
 
 - **快照不是子进程边界**——每一层同样会被物化进 `process.env`，因此项目里的普通变量会按 [`qilin-subprocess`](../../subprocess/subprocess/README.zh.md) 的清洗规则抵达子进程；产品启动器的 [`.env` 约定](../../boot/app-boot/README.zh.md) 会在物化之前拒绝 bootstrap 变量。
+- **`.env` 无法改变 DSH 时代的主目录**——启动器的钉定高于所有文件层，因此文件里声明的 `DSH_HOME` 会被记录但不会胜出；想要换根的用户应改用 `QILIN_HOME` 整体迁移 Harness 主目录。
 - **没有按工作区划分的层**——项目层是调用目录，在启动时固定；之后在 Web UI 中选择的工作区不贡献任何内容，这是刻意的，因为跟随它等于让模型自己的工作区在会话中途改变 harness 环境。
 
 <a id="dev-note"></a>

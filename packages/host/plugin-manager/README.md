@@ -15,6 +15,8 @@ The plugin manager exposes the Web Settings user-plugin workflow through the plu
 
 Mount the Host service in a profile composition and consume it through the generated Remote assembly. The service never edits the live Loader tree: a successful install, update, or uninstall changes profile files and requires a QiLin restart before the new bundle layer is composed.
 
+A mutation whose reconcile finds an upstream DSH-era engine package installed in the profile fails with the same diagnostic the CLI prints — each colliding package, the QiLin package it maps onto, and the removal command — and the profile's bundle list stays unchanged. An upstream engine copy resolves ahead of the compatibility fallback, so activating it would load a second engine instance.
+
 A profile that has never been initialized has no manifest and lists no layers rather than failing the listing. Each listed layer reports `updatable` and `removable` from its resolution channel. A shipped layer is never removable; one the profile owns (`PROFILE_OWNED_BUNDLES`) still upgrades in place, and `updatePlugin` reaches it with `pnpm add <name>@latest` so the installed copy wins resolution over the installation seed. Layers that move with the installation, and every other shipped layer, report `updatable: false`.
 
 ## Model Experience

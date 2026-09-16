@@ -9,14 +9,25 @@
 import type { Context } from '@qilin/kylin'
 
 /**
- * Which layer supplied a value, from most to least trusted: the environment
- * this process inherited, the invoking directory's `.env`, the Harness home's
- * `.env`.
+ * Which layer supplied a value, from most to least trusted. `dsh-compat` is the
+ * launcher's DSH-era home pin: it carries the value the product launcher
+ * assigns to {@link DSH_HOME_COMPAT_NAME}, which outranks the layer it replaces
+ * because that layer is the environment a co-installed DSH process exported.
+ * The remaining layers are the environment this process inherited, the
+ * invoking directory's `.env`, and the Harness home's `.env`.
  */
-export type LaunchEnvironmentSource = 'process' | 'project-env' | 'user-env'
+export type LaunchEnvironmentSource = 'dsh-compat' | 'process' | 'project-env' | 'user-env'
 
 /** Layer order, most trusted first. */
-const SOURCE_ORDER: readonly LaunchEnvironmentSource[] = ['process', 'project-env', 'user-env']
+const SOURCE_ORDER: readonly LaunchEnvironmentSource[] = ['dsh-compat', 'process', 'project-env', 'user-env']
+
+/**
+ * The DSH-era harness-home variable the product launcher pins to the QiLin
+ * home. Third-party plugins written for DSH resolve their data directories
+ * through it, so leaving it at a DSH installation's value would write their
+ * state into that installation's home.
+ */
+export const DSH_HOME_COMPAT_NAME = 'DSH_HOME'
 
 /** One resolved variable and the layer it came from. */
 export interface LaunchEnvironmentEntry {
@@ -24,7 +35,7 @@ export interface LaunchEnvironmentEntry {
   value: string
   /** The layer that supplied it. */
   source: LaunchEnvironmentSource
-  /** Absolute path of the file that supplied it; absent for `process`. */
+  /** Absolute path of the file that supplied it; absent for `process` and `dsh-compat`. */
   path?: string
 }
 

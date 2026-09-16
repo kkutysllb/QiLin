@@ -201,6 +201,26 @@ describe('PluginManagerGateway mutations', () => {
     await expect(pending).rejects.toThrow('ERR_PNPM_FETCH_404')
   })
 
+  it('refuses an installed upstream engine package after a successful pnpm run', async () => {
+    // The Web manager reaches the same refusal the CLI does: the collision check
+    // lives in the shared reconcile, so an installed @deepseek-ai engine package
+    // cannot slip into the bundle list through this path either.
+    const { manager, dir } = await profile({
+      name: 'profile',
+      dependencies: { '@deepseek-ai/dsh-session': '0.1.6' },
+      qilin: { profile: { bundles: [] } },
+    })
+    writePackage(join(dir, 'node_modules'), '@deepseek-ai/dsh-session', JSON.stringify({ name: '@deepseek-ai/dsh-session', version: '0.1.6' }))
+    const child = fakeChild()
+    vi.mocked(spawn).mockReturnValueOnce(child as never)
+    const pending = manager.installPlugin('@example/plugin')
+    await vi.waitFor(() => { expect(spawn).toHaveBeenCalledTimes(1) })
+    child.emit('close', 0)
+    await expect(pending).rejects.toThrow('@deepseek-ai/dsh-session')
+    await expect(pending).rejects.toThrow('QiLin provides it as \'@qilin/session\'')
+    await expect(pending).rejects.toThrow('qilin plugin --profile profile remove @deepseek-ai/dsh-session')
+  })
+
   it('keeps only the last eighty output lines', async () => {
     const { manager } = await profile()
     const child = fakeChild()

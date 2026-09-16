@@ -1,12 +1,18 @@
 /**
- * `qilin plugin --profile <name> <args...>` — profile plugin management as a
- * thin pnpm forwarder: initialize the profile on first use, run
- * `pnpm <args...>` in the profile directory, then reconcile the
- * `qilin.profile.bundles` layer list against the installed state (a dependency
- * resolving to a package that declares `qilin.bundle` joins the layer stack; a
- * removed or bundle-less dependency leaves it). Reconciling by installed
- * state, not by dependency diff, means `update` activates a package that
- * gained its `qilin.bundle` declaration in a newer version.
+ * `qilin plugin [--profile <name>] <args...>` — profile plugin management.
+ *
+ * `list` and `doctor` are the launcher's own verbs and never mutate anything:
+ * `list` prints the profile's bundle layers, and `doctor` reports one plugin
+ * package's DSH-era compatibility. Every other argument list forwards to pnpm
+ * in the profile directory: initialize the profile on first use, run
+ * `pnpm <args...>`, then reconcile the `qilin.profile.bundles` layer list
+ * against the installed state (a dependency resolving to a package that
+ * declares `qilin.bundle` joins the layer stack; a removed or bundle-less
+ * dependency leaves it). Reconciling by installed state, not by dependency
+ * diff, means `update` activates a package that gained its `qilin.bundle`
+ * declaration in a newer version. A profile that installed an upstream DSH-era
+ * engine package is refused before any layer changes, with the removal command
+ * in the diagnostic.
  * @module @qilin/cli/plugin
  */
 
@@ -15,15 +21,79 @@ import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import {
   DEFAULT_PROFILE_BUNDLES,
+  doctorPluginPackage,
+  EngineNameCollisionError,
   initProfile,
   PROFILE_TEMPLATES,
-  reconcileProfilePlugins,
   readProfileManifest,
+  readProfilePluginRows,
+  reconcileProfilePlugins,
+  resolveBundleDir,
   resolveProfileDir,
 } from '@qilin/app-boot'
 import { INSTALL_ANCHOR } from './profile-boot.ts'
 
 const NAME = 'qilin'
+
+/**
+ * Print one profile's plugin layers in activation order.
+ * @param profile - the profile name, used to recognize its shipped template layers.
+ * @param dir - the profile directory.
+ * @returns the process exit code.
+ */
+function listPlugins(profile: string, dir: string): number {
+  const builtIn = [...PROFILE_TEMPLATES[profile]?.bundles ?? []]
+  const rows = readProfilePluginRows(NAME, dir, INSTALL_ANCHOR, builtIn)
+  if (rows.length === 0) {
+    process.stdout.write(`${NAME}: profile ${profile} lists no plugin layers\n`)
+    return 0
+  }
+  for (const row of rows) {
+    const locked = row.removable ? '' : '  (shipped)'
+    process.stdout.write(`${String(row.layer)}\t${row.name}@${row.version ?? 'not installed'}\t${row.source}${locked}\n`)
+  }
+  return 0
+}
+
+/**
+ * Resolve one doctor target: an existing package directory, or a package name
+ * installed in the profile.
+ * @param profile - the profile name, named in the failure diagnostic.
+ * @param profileDir - the profile directory.
+ * @param target - the argument as written.
+ * @returns the absolute package directory.
+ * @throws when neither a directory nor an installed package matches.
+ */
+function resolveDoctorTarget(profile: string, profileDir: string, target: string): string {
+  const directory = resolve(target)
+  if (existsSync(join(directory, 'package.json'))) return directory
+  try {
+    return resolveBundleDir(NAME, target, INSTALL_ANCHOR, profileDir)
+  } catch (_notInstalled) {
+    throw new Error(
+      `${NAME}: ${JSON.stringify(target)} is neither a package directory nor an installed package in profile ${profile}`,
+    )
+  }
+}
+
+/**
+ * Report one plugin package's DSH-era compatibility.
+ * @param profile - the profile name a package-name target resolves within.
+ * @param profileDir - the profile directory.
+ * @param target - the package name or directory from the command line.
+ * @returns 1 when the report found a blocking problem, otherwise 0.
+ */
+function doctorPlugin(profile: string, profileDir: string, target: string): number {
+  const report = doctorPluginPackage(NAME, resolveDoctorTarget(profile, profileDir, target), INSTALL_ANCHOR)
+  process.stdout.write(`${report.name}\t${report.verdict}\t${report.dir}\n`)
+  for (const finding of report.findings) {
+    process.stdout.write(`  ${finding.severity}\t${finding.check}\t${finding.message}\n`)
+  }
+  if (report.findings.length === 0) {
+    process.stdout.write('  no compatibility findings\n')
+  }
+  return report.verdict === 'unusable' ? 1 : 0
+}
 
 
 /**
@@ -48,13 +118,23 @@ function anchorPathSpec(argument: string, cwd: string): string {
 }
 
 /**
- * Run one `qilin plugin` invocation: init if needed, forward to pnpm, reconcile.
+ * Run one `qilin plugin` invocation: report or list, or forward to pnpm and reconcile.
  * @param profile - the profile name.
- * @param args - pnpm arguments with relative path specs anchored to the invoking directory.
- * @returns the pnpm exit code.
+ * @param args - the subcommand and its argument, or pnpm arguments with relative path specs anchored to the invoking directory.
+ * @returns the process exit code, or 1 when a report or the reconcile refused the profile.
  */
 export function runPlugin(profile: string, args: readonly string[]): number {
   const dir = resolveProfileDir(profile)
+  // The launcher's own verbs read the profile and never initialize it or run pnpm.
+  if (args[0] === 'list') return listPlugins(profile, dir)
+  if (args[0] === 'doctor') {
+    try {
+      return doctorPlugin(profile, dir, args[1] as string)
+    } catch (error) {
+      process.stderr.write(`${(error as Error).message}\n`)
+      return 1
+    }
+  }
   if (!existsSync(join(dir, 'package.json'))) {
     const template = PROFILE_TEMPLATES[profile]
     initProfile(
@@ -82,7 +162,15 @@ export function runPlugin(profile: string, args: readonly string[]): number {
   }
   const exitCode = result.status ?? 1
   if (exitCode === 0) {
-    reconcileProfilePlugins(NAME, before, dir, INSTALL_ANCHOR)
+    try {
+      reconcileProfilePlugins(NAME, before, dir, INSTALL_ANCHOR)
+    } catch (error) {
+      // An engine-name collision carries its own operator-facing remedy, so the
+      // command reports it rather than unwinding to the top-level handler.
+      if (!(error instanceof EngineNameCollisionError)) throw error
+      process.stderr.write(`${error.message}\n`)
+      return 1
+    }
   } else {
     // pnpm's own diagnostics name pnpm-workspace.yaml without saying WHICH
     // one; the profile owns it, and the commonest failure here is pnpm ≥10

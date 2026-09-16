@@ -15,6 +15,8 @@ kind: package-reference
 
 在 profile 组合中挂载宿主服务，并通过生成的 Remote assembly 使用它。服务不会直接修改运行中的 Loader；安装、升级或卸载成功后会修改 profile 文件，必须重启 QiLin 才会重新组合 bundle 层。
 
+如果协调时发现 profile 中安装了上游 DSH 时代的引擎包，变更会以与 CLI 相同的诊断失败——包括每个冲突包、它映射到的 QiLin 包与清除命令——profile 的 bundle 列表保持不变。上游引擎副本的解析优先于兼容层 fallback，激活它会加载第二份引擎实例。
+
 尚未初始化的 profile 没有清单，此时列出空列表而不是让读取失败。每一层按解析通道上报 `updatable` 与 `removable`。内置层永不可卸载；由 profile 拥有的内置层（`PROFILE_OWNED_BUNDLES`）仍可原地升级，`updatePlugin` 用 `pnpm add <name>@latest` 命中它，使已安装副本优先于安装实例中的种子；随安装实例整体升级的层以及其余内置层都上报 `updatable: false`。
 
 ## 模型体验

@@ -16,8 +16,14 @@ The `qilin` command is the sole supported Node application launcher: profiles ar
 | `qilin --profile sdk-minimal` | Serve SDK clients with the standalone minimal agent tree. |
 | `qilin web` | Alias of `--profile web`. |
 | `qilin plugin --profile <name> <pnpm args>` | Manage a profile's plugins by forwarding to pnpm in the profile directory. |
+| `qilin plugin list` | List a profile's bundle layers in activation order; omit `--profile` for the product profile. |
+| `qilin plugin doctor <package\|directory>` | Report one plugin package's DSH-era compatibility without installing or running anything. |
 
-The invoking directory is the default workspace root. The `web`, `headless`, `sdk`, `sdk-minimal`, and `acp` profiles auto-initialize on first use from shipped templates. Create another profile at an unused, non-shipped name with `--from-default-profile`, or initialize a base-backed profile through `qilin plugin`. The `desktop` name is reserved for the Electron-owned profile, so the CLI rejects boot, config-dump, and plugin-management requests for it.
+The invoking directory is the default workspace root. The `web`, `headless`, `sdk`, `sdk-minimal`, and `acp` profiles auto-initialize on first use from shipped templates. Create another profile at an unused, non-shipped name with `--from-default-profile`, or initialize a base-backed profile through `qilin plugin`. The `desktop` name is reserved for the Electron-owned profile, so the CLI rejects boot, config-dump, and plugin-management requests for it. After a successful package operation the command reconciles the profile's bundle list, and it refuses a profile whose installed dependencies include an upstream DSH-era engine package: the diagnostic names each colliding package, the QiLin package it maps onto, and the `remove` command that clears it, and the command exits 1 without changing the bundle list.
+
+`list` and `doctor` read the profile and never initialize it or run pnpm. `doctor` accepts an installed package name or a package directory and checks the four rules a plugin must satisfy to load here: whether the package builds the DSH-era home itself instead of reading `DSH_HOME`/`QILIN_HOME`, installs an engine package the harness supplies, imports an engine name it never declared as a peer, and injects client module names the compatibility layer cannot map. It prints one finding per line and exits 1 only when a finding blocks activation.
+
+Install the command itself from the published package (`npm install -g @qilin/cli`) to get `qilin` on `PATH`; the manifest declares `lib/bin.js` as the `qilin` bin and ships only that bundle.
 
 ## App arguments
 

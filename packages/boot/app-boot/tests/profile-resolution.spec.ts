@@ -838,6 +838,29 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(internal.Module._resolveFilename('node:path', undefined, false)).toBe('node:path')
   })
 
+  it('names the QiLin package behind an unresolvable DSH-era engine import', async () => {
+    const f = fixture()
+    const registration = installProfileResolution(await generationOf(f))
+    registrations.push(registration)
+    const parent = pathToFileURL(join(f.profile.dir, 'engine-import.mjs')).href
+
+    const esm = thrownMessage(() => resolveFrom('@deepseek-ai/dsh-session', parent))
+    expect(esm).toContain('cannot resolve the DSH-era engine package "@deepseek-ai/dsh-session"')
+    expect(esm).toContain('"@qilin/session"')
+    expect(esm).toContain('peerDependencies')
+
+    // CommonJS reaches the same diagnostic through its own pass-through.
+    const require = createRequire(join(f.profile.dir, 'engine-import.cjs'))
+    expect(thrownMessage(() => require('@deepseek-ai/dsh-session')))
+      .toContain('cannot resolve the DSH-era engine package "@deepseek-ai/dsh-session"')
+
+    // A name the compatibility layer does not translate keeps Node's own failure
+    // and its code, so callers that route on ERR_MODULE_NOT_FOUND still see it.
+    const untranslated = thrownError(() => resolveFrom('@example/absent', parent))
+    expect(untranslated.message).toContain('Cannot find package')
+    expect(untranslated.code).toBe('ERR_MODULE_NOT_FOUND')
+  })
+
   it('keeps a legacy CommonJS package without a manifest ahead of the generation', async () => {
     const f = fixture()
     file(join(f.profile.dir, 'node_modules', 'resolution-lib', 'index.js'), 'module.exports = { marker: 2 }\n')

@@ -9,11 +9,14 @@ import {
   unlinkSync, writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { withFileLock } from '@qilin/atomic-write'
 import { afterAll, describe, expect, it } from 'vitest'
 import {
+  assertNoEngineNameCollisions,
   composeEntries,
+  EngineNameCollisionError,
+  engineNameCollisions,
   healProfilesModuleFallback,
   initProfile,
   loadProfile,
@@ -22,6 +25,7 @@ import {
   PROFILE_TEMPLATES,
   PROFILE_OWNED_BUNDLES,
   readProfileManifest,
+  reconcileProfilePlugins,
   resolveBundleDir,
   resolveProfileDir,
   writeProfileManifest,
@@ -109,7 +113,13 @@ describe('initProfile', () => {
     expect(manifest.qilin?.profile?.bundles).toEqual(['@qilin/base'])
     expect(manifest.qilin?.profile?.patchReload).toBe('live')
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
-    expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
+    // Both settings are part of the DSH-plugin compatibility contract: hoisted
+    // entries keep one installed copy per name, and refusing peer auto-install
+    // keeps pnpm from materializing the upstream @deepseek-ai packages a plugin
+    // declares as peers.
+    const workspace = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+    expect(workspace).toContain('nodeLinker: hoisted')
+    expect(workspace).toContain('autoInstallPeers: false')
     // Re-init keeps user edits.
     writeFileSync(join(dir, PROFILE_PATCH_FILENAME), '- id: x\n  config: {}\n')
     initProfile(dir, ['other'], 'startup')
@@ -127,6 +137,102 @@ describe('manifest round-trip', () => {
     writeFileSync(join(dir, 'package.json'), '[]')
     expect(() => readProfileManifest('t', dir)).toThrow('must hold a JSON object')
     expect(() => readProfileManifest('t', join(dir, 'nope'))).toThrow('failed to read profile manifest')
+  })
+})
+
+describe('engine name collisions', () => {
+  /** Materialize one installed package under the profile, as pnpm would. */
+  function install(profileDir: string, name: string): string {
+    const dir = join(profileDir, 'node_modules', ...name.split('/'))
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, version: '0.0.0' }))
+    return dir
+  }
+
+  /** Write a profile manifest declaring exactly these dependencies. */
+  function declare(profileDir: string, names: readonly string[]): void {
+    mkdirSync(profileDir, { recursive: true })
+    writeProfileManifest(profileDir, {
+      name: 'qilin-profile-test',
+      private: true,
+      dependencies: Object.fromEntries(names.map(name => [name, '0.0.0'])),
+      qilin: { profile: { bundles: [] } },
+    })
+  }
+
+  it('reports an installed upstream engine package with the QiLin package it collides with', () => {
+    const dir = tmp()
+    declare(dir, ['@deepseek-ai/dsh-session', 'left-pad'])
+    install(dir, '@deepseek-ai/dsh-session')
+    install(dir, 'left-pad')
+    expect(engineNameCollisions('qilin', dir)).toEqual([{ name: '@deepseek-ai/dsh-session', canonical: '@qilin/session' }])
+    let thrown: unknown
+    try {
+      assertNoEngineNameCollisions('qilin', dir)
+    } catch (error) {
+      thrown = error
+    }
+    expect(thrown).toBeInstanceOf(EngineNameCollisionError)
+    const collision = thrown as EngineNameCollisionError
+    expect(collision.collisions).toEqual([{ name: '@deepseek-ai/dsh-session', canonical: '@qilin/session' }])
+    expect(collision.message).toContain('\'@deepseek-ai/dsh-session\' (QiLin provides it as \'@qilin/session\')')
+    expect(collision.message).toContain(`qilin plugin --profile ${basename(dir)} remove @deepseek-ai/dsh-session`)
+    expect(collision.message).toContain('second copy of the engine')
+  })
+
+  it('ignores names the compatibility layer keeps verbatim and QiLin names', () => {
+    const dir = tmp()
+    declare(dir, ['@deepseek-ai/schemastery', '@deepseek-ai/cosmokit', '@qilin/session'])
+    install(dir, '@deepseek-ai/schemastery')
+    install(dir, '@deepseek-ai/cosmokit')
+    install(dir, '@qilin/session')
+    expect(engineNameCollisions('qilin', dir)).toEqual([])
+  })
+
+  it('ignores a declared name that is not installed and the installation’s own fallback link', () => {
+    const dir = tmp()
+    declare(dir, ['@deepseek-ai/dsh-session'])
+    // Not installed at all: nothing can pre-empt the fallback mapping.
+    expect(engineNameCollisions('qilin', dir)).toEqual([])
+    // The projection the launcher creates for a plugin that declares the name
+    // as a peer is this installation's own link, not an installed package.
+    const owned = join(dir, '.qilin-module-fallback', 'node_modules', '@deepseek-ai', 'dsh-session')
+    mkdirSync(owned, { recursive: true })
+    writeFileSync(join(owned, 'package.json'), JSON.stringify({ name: '@deepseek-ai/dsh-session', version: '0.0.0' }))
+    mkdirSync(join(dir, 'node_modules', '@deepseek-ai'), { recursive: true })
+    symlinkSync(owned, join(dir, 'node_modules', '@deepseek-ai', 'dsh-session'), 'junction')
+    expect(engineNameCollisions('qilin', dir)).toEqual([])
+  })
+
+  it('refuses the reconcile before the colliding package joins the bundle list', () => {
+    const anchor = stageInstallation({})
+    const dir = tmp()
+    declare(dir, ['@deepseek-ai/dsh-session'])
+    const installed = install(dir, '@deepseek-ai/dsh-session')
+    writeFileSync(join(installed, 'package.json'), JSON.stringify({
+      name: '@deepseek-ai/dsh-session',
+      version: '0.0.0',
+      dsh: { bundle: { patch: './cordis.patch.yml' } },
+    }))
+    writeFileSync(join(installed, 'cordis.patch.yml'), '[]\n')
+    const before = readProfileManifest('qilin', dir)
+    expect(() => { reconcileProfilePlugins('qilin', before, dir, anchor) }).toThrow(EngineNameCollisionError)
+    expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual([])
+  })
+
+  it('still reconciles a bundle dependency that collides with nothing', () => {
+    const anchor = stageInstallation({})
+    const dir = tmp()
+    declare(dir, ['dsh-super-ppts'])
+    const installed = install(dir, 'dsh-super-ppts')
+    writeFileSync(join(installed, 'package.json'), JSON.stringify({
+      name: 'dsh-super-ppts',
+      version: '0.0.0',
+      dsh: { bundle: { patch: './cordis.patch.yml' } },
+    }))
+    writeFileSync(join(installed, 'cordis.patch.yml'), '[]\n')
+    reconcileProfilePlugins('qilin', readProfileManifest('qilin', dir), dir, anchor)
+    expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual(['dsh-super-ppts'])
   })
 })
 

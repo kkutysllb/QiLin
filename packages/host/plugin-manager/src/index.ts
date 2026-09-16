@@ -1,15 +1,13 @@
 /** Profile-scoped Remote service for installing and managing QiLin or DSH bundles. */
 
 import { spawn } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { PROFILE_OWNED_BUNDLES, readProfileManifest, reconcileProfilePlugins, resolveBundleDir } from '@qilin/app-boot'
+import { readProfileManifest, readProfilePluginRows, reconcileProfilePlugins, resolveBundleDir } from '@qilin/app-boot'
 import type { LaunchProfileSnapshot } from '@qilin/app-boot'
 import type { Context } from '@qilin/kylin'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 import type {
   CommunityPluginEntry, CommunityPluginSnapshot, PluginManagerSnapshot, PluginMutationReceipt,
-  PluginUpdateEntry, PluginUpdateSnapshot, UserPluginEntry,
+  PluginUpdateEntry, PluginUpdateSnapshot,
 } from './types.ts'
 
 export type * from './types.ts'
@@ -37,31 +35,15 @@ export class PluginManagerGateway extends TypertRemoteService {
    */
   @Remote('list')
   async list(): Promise<PluginManagerSnapshot> {
-    // A profile that has never been initialized has no manifest: that is an empty
-    // layer list, not a listing failure (application-owned and synthetic profiles
-    // reach this with only a Loader config on disk).
-    if (!existsSync(join(this.profile.dir, 'package.json'))) {
-      return { profile: this.profile.name, entries: [] }
+    return {
+      profile: this.profile.name,
+      // A profile that has never been initialized has no manifest: that is an empty
+      // layer list, not a listing failure (application-owned and synthetic profiles
+      // reach this with only a Loader config on disk).
+      entries: readProfilePluginRows(
+        'pluginManager', this.profile.dir, this.profile.installAnchor, this.profile.builtInBundles,
+      ),
     }
-    const manifest = readProfileManifest('pluginManager', this.profile.dir)
-    const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
-    const bundles = manifest.qilin?.profile?.bundles ?? manifest.dsh?.profile?.bundles ?? []
-    const entries: UserPluginEntry[] = []
-    for (const [layer, name] of bundles.entries()) {
-      const shipped = this.profile.builtInBundles.includes(name)
-      entries.push({
-        name,
-        version: installedVersion(this.profile, name),
-        layer,
-        source: shipped && !dependencies.has(name) ? 'builtin' : 'user',
-        // A shipped layer resolves from the installation unless the profile owns it
-        // ({@link PROFILE_OWNED_BUNDLES}), so only those layers can be upgraded in
-        // place; the rest move with the running installation and are never removable.
-        updatable: !shipped || PROFILE_OWNED_BUNDLES.includes(name),
-        removable: !shipped,
-      })
-    }
-    return { profile: this.profile.name, entries }
   }
 
   /**
@@ -168,24 +150,6 @@ function updateArgs(name: string, profile: LaunchProfileSnapshot): readonly stri
 /** Validate a pnpm package spec before passing it to a subprocess. */
 function validSpec(spec: string): boolean {
   return spec.trim() !== '' && !spec.startsWith('-') && !/[\r\n]/u.test(spec)
-}
-
-/**
- * Read one layer's installed version through the bundle resolution order:
- * the profile copy for profile-owned layers, the installation seed otherwise.
- * @param profile - launch facts naming both resolution anchors.
- * @param name - bundle package name from the profile's layer list.
- * @returns the installed version, or null when the layer resolves nowhere.
- */
-function installedVersion(profile: LaunchProfileSnapshot, name: string): string | null {
-  try {
-    const dir = resolveBundleDir('pluginManager', name, profile.installAnchor, profile.dir)
-    const value = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { version?: unknown }
-    return typeof value.version === 'string' ? value.version : null
-  } catch (_unresolvedOrUnreadable) {
-    // Declared but installed nowhere, or an unreadable manifest: the row reports no version.
-    return null
-  }
 }
 
 /** Read the registry latest tag without surfacing network failure as a mutation error. */

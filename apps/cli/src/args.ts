@@ -97,6 +97,9 @@ Examples:
   qilin --profile tui --patch ./extra.yml      boot a custom profile with one extra overlay
   qilin --profile tui --resume <session>       arguments after the launcher flags reach the app
   qilin --profile web --help                   the web app's own flags and help
+  qilin plugin list                            list the product profile's plugin layers
+  qilin plugin doctor <package|directory>      report one plugin's DSH-era compatibility
+  qilin plugin add <package>                   install a plugin into the product profile
   qilin plugin --profile tui add <package>     install a plugin into the tui profile
 `
 
@@ -205,17 +208,24 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       resolved = resolveBoot(web, 'web', options, args)
     })
 
-  const plugin = program.command('plugin').description('manage a profile\'s plugins by forwarding the remaining arguments to pnpm in the profile directory')
+  const plugin = program.command('plugin').description('manage a profile\'s plugins: list them, forward pnpm arguments, or report one plugin\'s DSH-era compatibility')
   plugin
-    .requiredOption('--profile <name>', 'the profile whose plugins to manage (initialized on first use)')
+    .option('--profile <name>', 'the profile whose plugins to manage (defaults to the product profile; initialized on first use)')
     .allowUnknownOption()
-    .argument('[args...]', 'pnpm arguments, forwarded verbatim (add <pkg>, remove <pkg>, why <pkg>, ...)')
-    .action((args: string[], options: { profile: string }) => {
+    .argument('[args...]', 'one of: list, doctor <name|path>; otherwise pnpm arguments forwarded verbatim (add <pkg>, remove <pkg>, why <pkg>, ...)')
+    .action((args: string[], options: { profile?: string }) => {
       rejectParentOptions('plugin')
-      if (options.profile === '') program.error('error: --profile needs a name')
-      rejectElectronProfile(plugin, options.profile)
-      if (args.length === 0) program.error('error: plugin needs pnpm arguments to forward (e.g. add <package>)')
-      resolved = { mode: 'plugin', profile: options.profile, args }
+      const profile = options.profile ?? PRODUCT_PROFILE
+      if (profile === '') program.error('error: --profile needs a name')
+      rejectElectronProfile(plugin, profile)
+      if (args.length === 0) {
+        program.error('error: plugin needs a subcommand (list, doctor <name|path>) or pnpm arguments to forward (e.g. add <package>)')
+      }
+      if (args[0] === 'list' && args.length > 1) program.error('error: plugin list takes no further arguments')
+      if (args[0] === 'doctor' && args.length !== 2) {
+        program.error('error: plugin doctor takes exactly one installed package name or package directory')
+      }
+      resolved = { mode: 'plugin', profile, args }
     })
 
   try {

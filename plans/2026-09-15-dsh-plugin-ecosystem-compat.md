@@ -1,7 +1,9 @@
 # DSH 插件生态兼容 + 用户插件管理 — 设计与实施计划
 
 - 状态：核心实现完成；浏览器成片验收与真实在线安装仍待部署环境执行（2026-09-15）
+- 对齐：2026-09-16 按实际代码校正落点与签名——兼容层落在独立包 `@qilin/dsh-compat`（不是 `@qilin/package-manifest/aliases`），客户端半的名称与 manager 签名以代码为准；仍未实现的条目已在文中标注
 - 参考：KCoder 桌面版工具-插件管理（/Users/libing/kk_Projects/KCoder desktop/main/plugins.ts + renderer/src/views/plugins.ts）；上游 DSH（/Users/libing/kk_Projects/deepseek-harness）；插件镜像仓 /Users/libing/kk_Projects/dsh-plugins
+- 后续：第三方用户插件（非内置包）的兼容范围、环境身份与验证矩阵见 [plans/2026-09-16-third-party-plugin-compat.md](2026-09-16-third-party-plugin-compat.md)
 
 ## 目标
 
@@ -18,29 +20,29 @@
 
 ### A. 兼容层（Slice 1）
 
-1. **`@qilin/package-manifest` 新增 `./aliases` 运行时子导出**（`.` 保持 types-only）：
-   - `DSH_PLATFORM_MODULE_ALIASES`：DSH 时代平台模块名 → QiLin 种子名（`@deepseek-ai/cordis`→`@qilin/kylin`、`@deepseek-ai/dsh-client-store`→`@qilin/client-store`、`dsh-client-ui-slots`→`client-ui-slots`、`dsh-client-ui-primitives`→`client-ui-primitives`、`dsh-client-ui-dockkit`→`client-ui-dockkit`；裸 `cordis`→`@qilin/kylin`）。
+1. **兼容读取器落在 `packages/util/dsh-compat`（`@qilin/dsh-compat`）**（已实现；原计划的「`@qilin/package-manifest` 新增 `./aliases` 运行时子导出」未采用：`package-manifest` 保持 types-only，且两个包都只导出 `.`、`./src/*`、`./package.json`，没有子路径运行时导出）：
+   - `DSH_PLATFORM_MODULE_ALIASES`（`src/aliases.ts`）：DSH 时代平台模块名 → QiLin 种子名（`@deepseek-ai/cordis`→`@qilin/kylin`、`@deepseek-ai/dsh-client-store`→`@qilin/client-store`、`dsh-client-ui-slots`→`client-ui-slots`、`dsh-client-ui-primitives`→`client-ui-primitives`、`dsh-client-ui-dockkit`→`client-ui-dockkit`；裸 `cordis`→`@qilin/kylin`）。
    - `dshCompatModuleId(spec)`：上述精确表 + 前缀规则 `@deepseek-ai/dsh-X`→`@qilin/X`（例外 `dsh-client-runtime`→`client-modules`）；未知名原样返回。
    - `bundlePatchOf(manifest)`：`qilin.bundle.patch ?? dsh.bundle.patch`（单一读取真源）。
-   - `clientManifestOf(manifest)`：`qilin.client ?? dsh.client`（形参兼容同一结构）。
+   - `clientDeclarationOf(manifest)`：优先 `qilin.client`，回退 `dsh.client`，返回 `{key, value}` 供消费方在诊断里指名键（原计划记作 `clientManifestOf`，实际未采用该名）。
 2. **app-boot `loadProfileDirectory`**：层叠 patch 声明改用 `bundlePatchOf`（错误消息同时提示两种键）。
-3. **client-modules node 半**：manifest 扫描改用 `clientManifestOf`（`dsh.client` 回退，错误消息带键名）；external/inject 名经 `dshCompatModuleId` 规整后入 boot 图（DSH 动态包名 → QiLin 行 id，排序/依赖边成立；静态平台名 → 种子别名，无行）。
-4. **client/web 种子表**：`getStaticModules()` 追加 DSH 别名键（同值引用，别名表来自 `@qilin/package-manifest/aliases`，Vite 静态打进 shell）；`PLATFORM_MODULES` 本体不动（构建外置面不变）。
-5. **REAL 组合测试**：测试 profile 以本地路径装 `dsh-file-attach`（/Users/libing/kk_Projects/dsh-plugins/dsh-file-attach，零依赖四件套型）→ boot 断言：宿主行挂载、客户端 boot 图含 `@kkutysllb/dsh-file-attach` 行、combo bundle 可取。
+3. **client-modules node 半**：manifest 扫描改用 `clientDeclarationOf`（`dsh.client` 回退，错误消息带键名）；external/inject 名经 `dshCompatModuleId` 规整后入 boot 图（DSH 动态包名 → QiLin 行 id，排序/依赖边成立；静态平台名 → 种子别名，无行）。
+4. **client/web 种子表**：`getStaticModules()` 追加 DSH 别名键（同值引用，别名表来自 `@qilin/dsh-compat`，Vite 静态打进 shell）；`PLATFORM_MODULES` 本体不动（构建外置面不变）。
+5. **REAL 组合测试（未实现，待承接）**：计划以本地路径装 `dsh-file-attach`（/Users/libing/kk_Projects/dsh-plugins/dsh-file-attach，零依赖四件套型）→ boot 断言：宿主行挂载、客户端 boot 图含 `@kkutysllb/dsh-file-attach` 行、combo bundle 可取。仓库当前没有以真实第三方插件为夹具的组合测试；由 [plans/2026-09-16-third-party-plugin-compat.md](2026-09-16-third-party-plugin-compat.md) 的工作流 D 承接。
 
 ### B. 插件管理服务（Slice 2）
 
-1. **reconcile 抽取**：`apps/cli/src/plugin.ts` 的 `reconcilePlugins`/`exportsPatch` 移入 `@qilin/app-boot` 导出（CLI 薄转发），单一真源；`exportsPatch` 改用 `bundlePatchOf`。
-2. **launch profile fact**：app-boot 导出 `QILIN_LAUNCH_PROFILE_KEY` + `LaunchProfileSnapshot{name, dir, home, patchReload}`；`profile-boot` boot 回调 provide（仿 `QILIN_LAUNCH_ENVIRONMENT_KEY`）。
-3. **新包 `packages/host/plugin-manager`（@qilin/host-plugin-manager）**：TypertRemoteService `pluginManager`（inject `qilin.launchProfile` + loader）：
-   - `list()`：profile deps × bundles 层序 × 实装版本（profile 副本优先，其次安装种子）× 来源标记（template=builtin / user）× 权限（内置不可卸载；profile 拥有的内置层可原地升级；随安装实例升级的内置层不可更新）；
-   - `checkUpdates(names)`：npm dist-tags（10s 超时失败→null；非 npm spec→null）；
+1. **reconcile 抽取（已实现）**：`reconcileProfilePlugins` 与 `dependencyExportsBundle` 落在 `@qilin/app-boot`（`src/profile.ts`），CLI（`apps/cli/src/plugin.ts`）与 Web manager 都调用它，单一真源；bundle 判定改用 `bundlePatchOf`（原计划记作 `reconcilePlugins`/`exportsPatch`，实际未采用该名）。
+2. **launch profile fact（已实现）**：app-boot 导出 `QILIN_LAUNCH_PROFILE_KEY` + `LaunchProfileSnapshot{name, dir, home, installAnchor, patchReload, builtInBundles}`（原计划只列了前四项；`installAnchor` 与 `builtInBundles` 是 manager 判定来源与可更新性所必需）；`profile-boot` boot 回调 provide（仿 `QILIN_LAUNCH_ENVIRONMENT_KEY`）。
+3. **新包 `packages/host/plugin-manager`（@qilin/host-plugin-manager）**：TypertRemoteService `pluginManager`（inject `qilinProfile`）：
+   - `list()`：profile deps × bundles 层序 × 实装版本（profile 副本优先，其次安装种子）× 来源标记（builtin / user）× 权限（内置不可卸载；profile 拥有的内置层可原地升级；随安装实例升级的内置层不可更新）；
+   - `checkUpdates()`：逐个已装层查 npm dist-tags（10s 超时失败→null；非 npm name→null）；原计划记作 `checkUpdates(names)`，实际不带参。
    - `installPlugin(spec)`：`pnpm add <spec>`（cwd=profileDir）+ reconcile，返回输出尾行；
    - `updatePlugin(name)`：profile 拥有的内置层→`pnpm add <name>@latest`；用户层→`pnpm update --latest <name>`；随安装实例升级的内置层拒绝；
    - `uninstallPlugin(name)`：`pnpm remove` + reconcile；内置/模板 bundle 服务端拒绝；
    - 方法名避开客户端 namespace service 自身表面（`install`/`remove` 被保留，见 `isRemoteMethodNameAvailable`）。
-   - `catalog(query, page)`：GitHub Search API `topic:dsh-plugin`（5min 缓存）。
-   - pnpm 走异步 spawn 捕获输出；网络用 fetch + AbortController。
+   - `catalog(query, page)`：GitHub Search API `topic:dsh-plugin`（直接 fetch，10s 超时；原计划写的 5min 缓存未实现）。
+   - pnpm 走异步 spawn 捕获输出（尾 80 行、120s 超时）；网络用 fetch + AbortSignal。
 
 ### C. 客户端 UI（Slice 3）
 

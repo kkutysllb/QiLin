@@ -5,6 +5,7 @@ import { createRequire, isBuiltin } from 'node:module'
 import { basename, dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { getEnvironmentData, setEnvironmentData } from 'node:worker_threads'
+import { dshCompatModuleId } from '@qilin/dsh-compat'
 import type { ModuleLoaderV1, ModuleLoaderV2, ResolveResult } from '@qilin/kylin-plugin-loader'
 import { imports as resolvePackageImports, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { isProfileModuleFallbackLink } from './legacy-links.ts'
@@ -276,6 +277,31 @@ function localCandidateOwnsResolution(candidate: string, resolved: string, reque
 function isUnselectedPackageMiss(error: unknown): boolean {
   const failure = error as NodeJS.ErrnoException & { path?: unknown }
   return failure.code === 'MODULE_NOT_FOUND' && failure.path === undefined
+}
+
+/**
+ * Explain a resolution failure for a renamed DSH-era engine name, leaving every
+ * other failure to Node. A plugin that imports `@deepseek-ai/dsh-<x>` without
+ * declaring it, or one whose QiLin counterpart is not installed, otherwise
+ * reports a bare module-not-found that names neither the mapping nor the fix.
+ * @param error - the failure the native resolver raised.
+ * @param request - the specifier the importing module requested.
+ * @param importer - the importing module's path or URL.
+ * @returns the diagnostic to throw, or `undefined` when the name is not a translated DSH-era name.
+ */
+function engineNameMiss(error: unknown, request: string, importer: string): Error | undefined {
+  const failure = error as NodeJS.ErrnoException
+  if (failure.code !== 'MODULE_NOT_FOUND' && failure.code !== 'ERR_MODULE_NOT_FOUND') return undefined
+  const name = barePackageName(request)
+  if (name === undefined) return undefined
+  const canonical = dshCompatModuleId(name)
+  if (canonical === name) return undefined
+  return new Error(
+    `profile resolution: cannot resolve the DSH-era engine package ${JSON.stringify(name)} requested from ${importer}. `
+    + `The compatibility layer maps that name onto ${JSON.stringify(canonical)} and publishes the old name only for names a selected plugin declares. `
+    + `Declare ${JSON.stringify(name)} in the plugin's peerDependencies, or install the QiLin package that provides ${JSON.stringify(canonical)}.`,
+    { cause: error },
+  )
 }
 
 function sameResolution(left: string, right: string): boolean {
@@ -559,7 +585,20 @@ function internalModules(): InternalModules {
   }
 }
 
-function throwWithImporter(error: unknown, routedParent: string, parent: string): never {
+/**
+ * Throw one routed ESM failure, as the original importer would have seen it, or
+ * as the DSH-era name diagnostic when the request names a translated legacy
+ * package. Every routed failure passes through here, so a plugin that imports a
+ * renamed engine package that this profile cannot supply gets one explanation
+ * instead of Node's bare module-not-found.
+ * @param error - the failure the route produced.
+ * @param request - the specifier the importing module requested.
+ * @param routedParent - the routing anchor the failed call was made from.
+ * @param parent - the original importing module URL.
+ */
+function throwWithImporter(error: unknown, request: string, routedParent: string, parent: string): never {
+  const diagnostic = engineNameMiss(error, request, parent)
+  if (diagnostic !== undefined) throw diagnostic
   const code = (error as NodeJS.ErrnoException).code
   if (error instanceof Error && (code === 'ERR_MODULE_NOT_FOUND' || code === 'ERR_PACKAGE_PATH_NOT_EXPORTED')) {
     const routedPath = fileURLToPath(routedParent)
@@ -574,7 +613,17 @@ function throwWithImporter(error: unknown, routedParent: string, parent: string)
   throw error
 }
 
-function throwWithoutCjsAnchor(error: unknown, anchor: string): never {
+/**
+ * Throw one routed CommonJS failure with the synthetic anchor removed, or as the
+ * DSH-era name diagnostic when the request names a translated legacy package.
+ * @param error - the failure the route produced.
+ * @param request - the specifier the requiring module requested.
+ * @param importer - the original requiring module's filename.
+ * @param anchor - the routing anchor the failed call was made from.
+ */
+function throwWithoutCjsAnchor(error: unknown, request: string, importer: string, anchor: string): never {
+  const diagnostic = engineNameMiss(error, request, importer)
+  if (diagnostic !== undefined) throw diagnostic
   const resolved = error as NodeJS.ErrnoException & { requireStack?: string[] }
   const requireStack = resolved.requireStack
   if (error instanceof Error
@@ -660,7 +709,7 @@ export function installProfileResolution(
           ? packageImportsTarget(fileURLToPath(parent), request, esmConditions)
           : undefined
         if (target === undefined) return native(request, parent, attributes)
-        const restoreImporter = (error: unknown): never => throwWithImporter(error, target.parentURL, parent)
+        const restoreImporter = (error: unknown): never => throwWithImporter(error, target.specifier, target.parentURL, parent)
         let expected: ResolveResult | Promise<ResolveResult>
         try {
           expected = adapted(target.specifier, target.parentURL, attributes)
@@ -694,7 +743,7 @@ export function installProfileResolution(
       if (behavior === 'enforce') {
         const previous = delegatedEsm
         delegatedEsm = { parent: routedParent, request }
-        const restoreImporter = (error: unknown): never => throwWithImporter(error, routedParent, parent)
+        const restoreImporter = (error: unknown): never => throwWithImporter(error, request, routedParent, parent)
         try {
           let result: ResolveResult | Promise<ResolveResult>
           try {
@@ -713,7 +762,7 @@ export function installProfileResolution(
       const actual = native(request, parent, attributes)
       const previous = delegatedEsm
       delegatedEsm = { parent: routedParent, request }
-      const restoreImporter = (error: unknown): never => throwWithImporter(error, routedParent, parent)
+      const restoreImporter = (error: unknown): never => throwWithImporter(error, request, routedParent, parent)
       try {
         let expected: ResolveResult | Promise<ResolveResult>
         try {
@@ -800,7 +849,7 @@ export function installProfileResolution(
     try {
       return originalFilename.call(cjs, request, synthetic, main, options)
     } catch (error) {
-      return throwWithoutCjsAnchor(error, anchor)
+      return throwWithoutCjsAnchor(error, request, parent.filename ?? anchor, anchor)
     }
   }
   const resolveNativeCjs = (

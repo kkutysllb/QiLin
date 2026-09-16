@@ -16,8 +16,14 @@
 | `qilin --profile sdk-minimal` | 以独立极简 agent（智能体）配置树为 SDK 客户端提供服务。 |
 | `qilin web` | `--profile web` 的别名。 |
 | `qilin plugin --profile <name> <pnpm args>` | 通过在 profile 目录中转发给 pnpm 来管理该 profile 的插件。 |
+| `qilin plugin list` | 按激活顺序列出某个 profile 的 bundle 层；省略 `--profile` 时使用产品 profile。 |
+| `qilin plugin doctor <包名\|目录>` | 报告某个插件包的 DSH 时代兼容性，不安装也不运行任何东西。 |
 
-运行命令时所在的目录将作为默认 workspace 根目录。`web`、`headless`、`sdk`、`sdk-minimal` 和 `acp` profile 在首次使用时会从随附模板自动初始化。使用 `--from-default-profile` 可以基于这些模板之一，在尚未使用的非内置名称处创建其他 profile；通过 `qilin plugin` 则可以初始化一个以 base 为基础的 profile。`desktop` 名称保留给 Electron 持有的 profile，因此 CLI（命令行界面）会拒绝针对它的启动、配置 dump 和插件管理请求。
+运行命令时所在的目录将作为默认 workspace 根目录。`web`、`headless`、`sdk`、`sdk-minimal` 和 `acp` profile 在首次使用时会从随附模板自动初始化。使用 `--from-default-profile` 可以基于这些模板之一，在尚未使用的非内置名称处创建其他 profile；通过 `qilin plugin` 则可以初始化一个以 base 为基础的 profile。`desktop` 名称保留给 Electron 持有的 profile，因此 CLI（命令行界面）会拒绝针对它的启动、配置 dump 和插件管理请求。包操作成功后命令会协调 profile 的 bundle 列表；若 profile 的已安装依赖中出现上游 DSH 时代的引擎包，命令会拒绝：诊断会指明每个冲突包、它映射到的 QiLin 包，以及清除它的 `remove` 命令，命令以退出码 1 结束且不改变 bundle 列表。
+
+`list` 与 `doctor` 只读取 profile，既不初始化它也不运行 pnpm。`doctor` 接受已安装的包名或包目录，检查插件要在此加载必须满足的四条规则：包是否自己拼出 DSH 时代的主目录而不是读取 `DSH_HOME`/`QILIN_HOME`、是否安装了 harness 已提供的引擎包、是否导入了未声明为 peer 的引擎名、以及是否注入了兼容层无法映射的客户端模块名。它每行输出一条发现，仅当某条发现会阻断激活时才以退出码 1 结束。
+
+命令本身从已发布的包安装（`npm install -g @qilin/cli`）即可把 `qilin` 放到 `PATH`；manifest 把 `lib/bin.js` 声明为 `qilin` bin，并且只随包发布该 bundle。
 
 ## 应用参数
 

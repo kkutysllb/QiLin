@@ -28,7 +28,7 @@ import {
   existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, rmSync, statSync,
   symlinkSync, unlinkSync, writeFileSync,
 } from 'node:fs'
-import { basename, dirname, join, relative, resolve } from 'node:path'
+import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { withFileLock } from '@qilin/atomic-write'
 import type { EntryOptions } from '@qilin/kylin-plugin-loader'
@@ -97,6 +97,80 @@ export interface LaunchProfileSnapshot {
 
 /** Context service key for the immutable launch profile snapshot. */
 export const QILIN_LAUNCH_PROFILE_KEY = 'qilinProfile' as const
+
+/**
+ * One bundle layer a user can manage, as the profile resolves it: the CLI's
+ * `plugin list` and the Web plugin manager render the same rows.
+ */
+export interface ProfilePluginRow {
+  /** Installed package name. */
+  readonly name: string
+  /** Bundle layer position in profile order. */
+  readonly layer: number
+  /** Installed package version, or null when package metadata is unavailable. */
+  readonly version: string | null
+  /** Whether the layer comes from the shipped profile template or a profile dependency. */
+  readonly source: 'builtin' | 'user'
+  /**
+   * Whether the layer can be upgraded in place. A shipped layer carries this
+   * only when the profile owns its resolution, because every other shipped
+   * layer moves with the running installation.
+   */
+  readonly updatable: boolean
+  /** Whether the layer can be removed. Shipped layers never can. */
+  readonly removable: boolean
+}
+
+/**
+ * Read a profile's bundle layers as manageable rows. A profile that has never
+ * been initialized has no manifest and lists nothing rather than failing.
+ * @param binName - diagnostic prefix for manifest errors.
+ * @param profileDir - profile directory whose layers are listed.
+ * @param installAnchor - running installation package.json used as the primary resolution anchor.
+ * @param builtInBundles - bundle names supplied by the selected shipped template.
+ * @returns one row per declared layer, in activation order.
+ */
+export function readProfilePluginRows(
+  binName: string,
+  profileDir: string,
+  installAnchor: string,
+  builtInBundles: readonly string[],
+): ProfilePluginRow[] {
+  if (!existsSync(join(profileDir, 'package.json'))) return []
+  const manifest = readProfileManifest(binName, profileDir)
+  const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
+  const bundles = profileDeclarationOf(manifest)?.profile?.bundles ?? []
+  return bundles.map((name, layer): ProfilePluginRow => {
+    const shipped = builtInBundles.includes(name)
+    return {
+      name,
+      layer,
+      version: installedVersionOf(binName, name, installAnchor, profileDir),
+      source: shipped && !dependencies.has(name) ? 'builtin' : 'user',
+      updatable: !shipped || PROFILE_OWNED_BUNDLES.includes(name),
+      removable: !shipped,
+    }
+  })
+}
+
+/**
+ * Read one layer's installed version through the bundle resolution order.
+ * @param binName - diagnostic prefix for resolution errors.
+ * @param name - bundle package name from the profile's layer list.
+ * @param installAnchor - running installation package.json used as the primary resolution anchor.
+ * @param profileDir - profile directory used as the secondary resolution anchor.
+ * @returns the installed version, or null when the layer resolves nowhere or carries no version.
+ */
+function installedVersionOf(binName: string, name: string, installAnchor: string, profileDir: string): string | null {
+  try {
+    const dir = resolveBundleDir(binName, name, installAnchor, profileDir)
+    const value = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { version?: unknown }
+    return typeof value.version === 'string' ? value.version : null
+  } catch (_unresolvedOrUnreadable) {
+    // Declared but installed nowhere, or an unreadable manifest: the row reports no version.
+    return null
+  }
+}
 
 /** A loaded profile: resolved bundle layers plus the user's own patch layer. */
 export interface Profile {
@@ -529,7 +603,13 @@ function resolveModuleFallbackEntries(
     for (const dep of profileDependencyNames(next.manifest)) {
       if (links.has(dep)) continue
       const canonical = dshCompatModuleId(dep)
-      const dir = packageDirFromAnchor(next.anchor, dep) ?? packageDirFromAnchor(next.anchor, canonical)
+      // A name the compatibility layer translates takes the directory already
+      // selected for its QiLin counterpart when there is one: resolving it
+      // again from this anchor could reach a second copy of the same package,
+      // and the whole point of publishing both names is one shared instance.
+      const dir = packageDirFromAnchor(next.anchor, dep)
+        ?? links.get(canonical)
+        ?? packageDirFromAnchor(next.anchor, canonical)
       // A declared-but-uninstalled dependency cannot be a loader-visible
       // plugin; skip it rather than fail the whole boot.
       if (dir === undefined) continue
@@ -625,7 +705,7 @@ export async function healProfilesModuleFallback(
   const localPackageNames = profile === undefined ? [] : installedProfilePackageNames(profile)
   const profilePackages: ReadonlyMap<string, string> = profile === undefined
     ? new Map<string, string>()
-    : healProfileModuleFallback(profile, packageNames, materialize, profileDeclarers, profileVersions)
+    : healProfileModuleFallback(profile, packageNames, materialize, profileDeclarers, profileVersions, packageDirs)
   return Object.freeze({
     profilesDir,
     profileDir: profile?.dir,
@@ -684,12 +764,22 @@ function healProfilesModuleFallbackLocked(entries: readonly ModuleFallbackEntry[
   }
 }
 
-/** Collect the first resolvable package directory for each dependency name. */
+/**
+ * Collect the first resolvable package directory for each dependency name.
+ * @param anchors - package.json paths whose dependency graphs are traversed, in precedence order.
+ * @param reserved - names the installation already owns.
+ * @param exclude - rejects a candidate directory for one package name.
+ * @param declarers - optional sink recording the manifest that selected each name.
+ * @param versions - optional sink recording each selected package's version.
+ * @param installedDirs - installation selections a translated name reuses, so the old and new spellings cannot reach different copies.
+ * @returns the selected package directory for each name.
+ */
 function dependencyClosure(
   anchors: readonly string[], reserved: ReadonlySet<string>,
   exclude: (candidate: string, packageName: string) => boolean,
   declarers?: Map<string, string>,
   versions?: Map<string, string | undefined>,
+  installedDirs?: ReadonlyMap<string, string>,
 ): Map<string, string> {
   const links = new Map<string, string>()
   const visited = new Set(reserved)
@@ -711,7 +801,11 @@ function dependencyClosure(
       for (const dep of profileDependencyNames(next.manifest)) {
         if (visited.has(dep)) continue
         const canonical = dshCompatModuleId(dep)
+        // Same rule as the installation traversal: a translated name reuses the
+        // directory already selected for its QiLin counterpart.
         const dir = packageDirFromAnchor(next.anchor, dep, exclude)
+          ?? links.get(canonical)
+          ?? installedDirs?.get(canonical)
           ?? packageDirFromAnchor(next.anchor, canonical, exclude)
         // A declared-but-uninstalled dependency cannot be loader-visible.
         if (dir === undefined) continue
@@ -734,11 +828,21 @@ function dependencyClosure(
   return links
 }
 
-/** Reconcile packages carried only by selected bundles into one profile. */
+/**
+ * Reconcile packages carried only by selected bundles into one profile.
+ * @param profile - the loaded profile whose bundle layers are traversed.
+ * @param installationPackageNames - names the installation already provides.
+ * @param materialize - whether to write the profile-owned links.
+ * @param declarers - optional sink recording the manifest that selected each name.
+ * @param versions - optional sink recording each selected package's version.
+ * @param installedDirs - installation selections a translated name reuses.
+ * @returns the package directory selected for each name carried only by the bundles.
+ */
 function healProfileModuleFallback(
   profile: Profile, installationPackageNames: ReadonlySet<string>, materialize = true,
   declarers?: Map<string, string>,
   versions?: Map<string, string | undefined>,
+  installedDirs?: ReadonlyMap<string, string>,
 ): Map<string, string> {
   const profileModulesDir = join(profile.dir, 'node_modules')
   const ownedModulesDir = join(profile.dir, PROFILE_MODULE_FALLBACK_DIR, 'node_modules')
@@ -762,7 +866,7 @@ function healProfileModuleFallback(
       /* v8 ignore next -- see the host-filesystem exception above */
       throw error
     }
-  }, declarers, versions)
+  }, declarers, versions, installedDirs)
   for (const layer of profile.layers) bundleLinks.delete(layer.packageName)
   if (!materialize) return bundleLinks
   for (const packageName of ownedPackageNames(ownedModulesDir)) {
@@ -882,6 +986,28 @@ function packageDirFromAnchor(
 export const PROFILE_OWNED_BUNDLES: readonly string[] = []
 
 /**
+ * Whether the running installation itself provides one package name. The
+ * profile's module fallback publishes the installation's closure, so a
+ * profile-local copy of such a name shadows the shared one.
+ * @param packageName - bare package name to look up.
+ * @param installAnchor - absolute package.json of the running installation.
+ * @returns whether a package directory carrying that name resolves from the installation's own tree.
+ */
+export function installationProvides(packageName: string, installAnchor: string): boolean {
+  const root = dirname(installAnchor)
+  // resolve.paths returns null only for builtins, which no package name is.
+  /* v8 ignore next */
+  for (const searchPath of createRequire(installAnchor).resolve.paths(packageName) ?? []) {
+    // Only the installation's own tree counts: `resolve.paths` also returns
+    // NODE_PATH entries and ancestor directories, where a same-named package
+    // belongs to another project rather than to this installation.
+    if (!searchPath.startsWith(root + sep)) continue
+    if (existsSync(join(searchPath, packageName, 'package.json'))) return true
+  }
+  return false
+}
+
+/**
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
  * `@qilin/base` (and every other in-box bundle) always comes from
@@ -934,15 +1060,101 @@ export function dependencyExportsBundle(
   return bundlePatchOf(readProfileManifest(binName, dir)) !== undefined
 }
 
+/** One installed profile dependency that occupies a DSH-era engine package name. */
+export interface EngineNameCollision {
+  /** The installed package name, as the DSH package spells it. */
+  readonly name: string
+  /** The QiLin package the compatibility layer maps that name onto. */
+  readonly canonical: string
+}
+
+/** A profile installed an upstream DSH-era engine package instead of letting the compatibility layer supply QiLin's. */
+export class EngineNameCollisionError extends Error {
+  /** The colliding dependencies, in profile manifest order. */
+  readonly collisions: readonly EngineNameCollision[]
+
+  /**
+   * @param message - operator-facing explanation including the removal commands.
+   * @param collisions - installed names that collide with the compatibility mapping.
+   */
+  constructor(message: string, collisions: readonly EngineNameCollision[]) {
+    super(message)
+    this.name = 'EngineNameCollisionError'
+    this.collisions = collisions
+  }
+}
+
+/**
+ * Find profile dependencies that installed an upstream DSH-era engine package
+ * under its old name. A renamed package resolves from the profile ahead of the
+ * fallback that maps the old name onto QiLin's, so the process would load two
+ * copies of the engine and plugin registrations would fail in ways the plugin
+ * cannot explain. A name the compatibility layer keeps verbatim
+ * (`@deepseek-ai/cosmokit`, `@deepseek-ai/schemastery`) never collides, and
+ * neither does this installation's own fallback link, which is the projection
+ * that makes the old name resolve to the QiLin package.
+ * @param binName - diagnostic prefix for manifest errors.
+ * @param profileDir - profile directory whose installed dependencies are checked.
+ * @returns the colliding dependencies, in manifest order.
+ */
+export function engineNameCollisions(binName: string, profileDir: string): EngineNameCollision[] {
+  const manifest = readProfileManifest(binName, profileDir)
+  const collisions: EngineNameCollision[] = []
+  for (const name of Object.keys(manifest.dependencies ?? {})) {
+    const canonical = dshCompatModuleId(name)
+    if (canonical === name) continue
+    // True for a missing entry and for the installation's own link, so only an
+    // ordinary installed package reaches the collision list.
+    if (isProfileModuleFallbackLink(profileDir, name)) continue
+    collisions.push({ name, canonical })
+  }
+  return collisions
+}
+
+/**
+ * Refuse a profile whose installed dependencies include upstream DSH-era engine
+ * packages, naming each one, the QiLin package it collides with, and the
+ * removal command that clears it.
+ * @param binName - diagnostic prefix for the thrown error and manifest errors.
+ * @param profileDir - profile directory whose installed dependencies are checked.
+ * @throws {EngineNameCollisionError} when at least one dependency collides.
+ */
+export function assertNoEngineNameCollisions(binName: string, profileDir: string): void {
+  const collisions = engineNameCollisions(binName, profileDir)
+  if (collisions.length === 0) return
+  const profile = basename(profileDir)
+  const installed = collisions
+    .map(collision => `'${collision.name}' (QiLin provides it as '${collision.canonical}')`)
+    .join(', ')
+  // The removal command names the product binary, not the diagnostic prefix:
+  // the same refusal reaches an operator through the CLI and the Web manager.
+  const removal = collisions
+    .map(collision => `  qilin plugin --profile ${profile} remove ${collision.name}`)
+    .join('\n')
+  throw new EngineNameCollisionError(
+    `${binName}: the profile installed ${installed}. An upstream engine package resolves from the profile ahead of the compatibility fallback, `
+    + 'so this process would load a second copy of the engine and plugin registration would fail with errors such as '
+    + '\'cannot get property "skills" without inject\'. Remove it and let the plugin declare the name in peerDependencies instead:\n'
+    + removal,
+    collisions,
+  )
+}
+
 /**
  * Reconcile a profile's bundle list with its installed dependencies.
  * Template-owned layers are preserved; dependency-managed layers are added when
  * their installed package declares either channel's bundle patch and removed
  * when the package disappears or loses that declaration.
+ *
+ * Every reconcile first refuses a profile that installed an upstream DSH-era
+ * engine package ({@link assertNoEngineNameCollisions}), so the CLI and the Web
+ * plugin manager enforce one rule and a rejected install never joins the bundle
+ * list.
  * @param binName - diagnostic prefix for manifest and resolution errors.
  * @param before - manifest captured before the package-manager operation.
  * @param profileDir - profile directory whose manifest is reconciled.
  * @param installAnchor - installation package.json used for two-anchor resolution.
+ * @throws {EngineNameCollisionError} when an installed dependency collides with the compatibility mapping.
  */
 export function reconcileProfilePlugins(
   binName: string,
@@ -950,6 +1162,7 @@ export function reconcileProfilePlugins(
   profileDir: string,
   installAnchor: string,
 ): void {
+  assertNoEngineNameCollisions(binName, profileDir)
   const after = readProfileManifest(binName, profileDir)
   const beforeDeps = new Set(Object.keys(before.dependencies ?? {}))
   const dependencies = Object.keys(after.dependencies ?? {})

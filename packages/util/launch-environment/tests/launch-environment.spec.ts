@@ -12,7 +12,7 @@ const layered = createLaunchEnvironmentSnapshot([
 
 describe('launchedThroughSsh', () => {
   it.each(['SSH_CONNECTION', 'SSH_TTY'].flatMap(name =>
-    (['process', 'project-env', 'user-env'] as const).map(source => ({ name, source })),
+    (['process', 'dsh-compat', 'project-env', 'user-env'] as const).map(source => ({ name, source })),
   ))('classifies $name from $source', ({ name, source }) => {
     const snapshot = createLaunchEnvironmentSnapshot([{ source, values: { [name]: 'ssh-marker' } }])
     expect(launchedThroughSsh(snapshot)).toBe(source === 'process')
@@ -65,6 +65,20 @@ describe('createLaunchEnvironmentSnapshot', () => {
       { source: 'process', values: { K: 'p' } },
     ])
     expect(reversed.get('K')).toEqual({ value: 'p', source: 'process' })
+  })
+
+  it('ranks the launcher DSH-home pin above the layers it replaces', () => {
+    const snapshot = createLaunchEnvironmentSnapshot([
+      { source: 'process', values: { DSH_HOME: '/dsh-install' } },
+      { source: 'user-env', path: '/home/.qilin/.env', values: { DSH_HOME: '/from-file' } },
+      { source: 'dsh-compat', values: { DSH_HOME: '/home/.qilin' } },
+    ])
+    expect(snapshot.get('DSH_HOME')).toEqual({ value: '/home/.qilin', source: 'dsh-compat' })
+    // The replaced layers stay addressable: a caller that needs to know what the
+    // launch inherited still reaches it, which is what makes the pin auditable.
+    expect(snapshot.getFrom('DSH_HOME', ['process'])).toEqual({ value: '/dsh-install', source: 'process' })
+    expect(snapshot.getFrom('DSH_HOME', ['user-env']))
+      .toEqual({ value: '/from-file', source: 'user-env', path: '/home/.qilin/.env' })
   })
 })
 

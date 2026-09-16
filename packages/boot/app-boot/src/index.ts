@@ -16,7 +16,7 @@ import Loader, { type Entry, type EntryOptions } from '@qilin/kylin-plugin-loade
 import Include, { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
 import Group from '@qilin/kylin-plugin-group'
 import { qilinHomePath, resolveQilinHome } from '@qilin/home-paths'
-import { createLaunchEnvironmentSnapshot, type LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
+import { createLaunchEnvironmentSnapshot, DSH_HOME_COMPAT_NAME, type LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
 import type {} from '@qilin/kylin-plugin-hmr'
 import { watchConfig } from './watch-config.ts'
 import type {} from '@qilin/system-prompt'
@@ -31,13 +31,17 @@ declare module '@qilin/kylin' {
 }
 
 export {
+  assertNoEngineNameCollisions,
   composeEntries,
   createProfileResolutionGeneration,
   dependencyExportsBundle,
   DEFAULT_PROFILE_BUNDLES,
   DEFAULT_PROFILE_PATCH_RELOAD,
+  EngineNameCollisionError,
+  engineNameCollisions,
   healProfilesModuleFallback,
   initProfile,
+  installationProvides,
   loadProfile,
   loadProfileDirectory,
   PROFILE_OWNED_BUNDLES,
@@ -46,20 +50,30 @@ export {
   PROFILES_DIR,
   QILIN_LAUNCH_PROFILE_KEY,
   readProfileManifest,
+  readProfilePluginRows,
   reconcileProfilePlugins,
   resolveBundleDir,
   resolveProfileDir,
   writeProfileManifest,
+  type EngineNameCollision,
   type Profile,
   type LaunchProfileSnapshot,
   type ProfileLayer,
   type ProfileManifest,
   type ProfileModuleFallbackOptions,
+  type ProfilePluginRow,
   type ProfileResolutionEntry,
   type ProfileResolutionGeneration,
   type ProfileResolutionMode,
   type ProfileTemplate,
 } from './profile.ts'
+export {
+  doctorPluginPackage,
+  type PluginDoctorCheck,
+  type PluginDoctorFinding,
+  type PluginDoctorReport,
+  type PluginDoctorSeverity,
+} from './doctor.ts'
 export {
   PluginPackages,
   type PluginPackage,
@@ -203,6 +217,12 @@ function readEnvLayer(
  * `.env` snapshot. The Harness home resolves before either file; both files
  * are checked before either is applied, and accepted values are materialized
  * without replacing inherited ones. The snapshot preserves which layer supplied each value.
+ *
+ * The launcher also pins {@link DSH_HOME_COMPAT_NAME} to the Harness home, so a
+ * third-party plugin written for DSH resolves its data directories into this
+ * home instead of a co-installed DSH installation's. That pin outranks every
+ * `.env` layer and the inherited environment; a file that sets the name is
+ * recorded in its layer but never wins.
  * @param binName - the diagnostic prefix on the diagnostics.
  * @param cwd - the invoking directory whose `.env` is the project layer.
  * @param warn - sink for the one-line misconfiguration diagnostics.
@@ -218,6 +238,9 @@ export function loadLayeredEnv(
   // Parse both layers first: a rejection must not leave one file applied.
   const project = readEnvLayer(binName, cwd, warn, home)
   const user = home === resolve(cwd) ? undefined : readEnvLayer(binName, home, warn, home)
+  // The pin lands before the layers so a file value is recorded without ever
+  // winning, and so no consumer observes the pre-pin value.
+  process.env[DSH_HOME_COMPAT_NAME] = home
   // Apply the checked values without replacing a higher-ranked name.
   for (const layer of [project, user]) {
     if (layer === undefined) continue
@@ -229,6 +252,7 @@ export function loadLayeredEnv(
     { source: 'process', values: inherited },
     ...project === undefined ? [] : [{ source: 'project-env' as const, path: project.path, values: project.values }],
     ...user === undefined ? [] : [{ source: 'user-env' as const, path: user.path, values: user.values }],
+    { source: 'dsh-compat', values: { [DSH_HOME_COMPAT_NAME]: home } },
   ])
 }
 
