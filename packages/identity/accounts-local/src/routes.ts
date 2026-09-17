@@ -14,7 +14,7 @@ import { isRecord } from './json.ts'
 import { hashPassword, verifyPassword } from './password.ts'
 import { AUTH_API_PREFIX } from './paths.ts'
 import { requestAuthority, type SessionCookies } from './session.ts'
-import { isValidEmail, MIN_PASSWORD_LENGTH, normalizeEmail } from './validation.ts'
+import { isValidEmail, isValidUsername, MIN_PASSWORD_LENGTH, normalizeEmail, normalizeUsername } from './validation.ts'
 
 /** What the authentication endpoints read and write. */
 export interface AuthRouteDeps {
@@ -45,16 +45,26 @@ interface Refused {
 /** Either an accepted input or the refusal answering it. */
 type Outcome<T> = Accepted<T> | Refused
 
-/** One submitted credential pair, before any rule is applied. */
-interface Submitted {
-  readonly email: string
+/** One submitted sign-up form, before any rule is applied. */
+interface SubmittedSignUp {
+  readonly username: string
+  /** Normalized address, or null when the form left it blank. */
+  readonly email: string | null
+  readonly password: string
+}
+
+/** One submitted sign-in form, before any rule is applied. */
+interface SubmittedLogin {
+  /** Username or email address, normalized for lookup. */
+  readonly identifier: string
   readonly password: string
 }
 
 /** The browser's view of one account; hashes and generations never cross the wire. */
 interface AccountView {
   readonly id: string
-  readonly email: string
+  readonly username: string
+  readonly email: string | null
   readonly createdAt: number
 }
 
@@ -89,7 +99,7 @@ function refuse(status: number, code: string, message: string): Refused {
 
 /** Project one stored account for the browser. */
 function accountView(account: AccountRecord): AccountView {
-  return { id: account.id, email: account.email, createdAt: account.createdAt }
+  return { id: account.id, username: account.username, email: account.email, createdAt: account.createdAt }
 }
 
 /** Read one JSON object body. */
@@ -106,20 +116,41 @@ async function readBody(request: Request): Promise<Outcome<Record<string, unknow
   return { ok: true, value: decoded }
 }
 
-/** Read the two submitted credential fields. */
-function readSubmitted(body: Record<string, unknown>): Outcome<Submitted> {
+/** Read one submitted sign-up form. */
+function readSignUp(body: Record<string, unknown>): Outcome<SubmittedSignUp> {
+  const rawUsername = body.username
   const rawEmail = body.email
   const rawPassword = body.password
-  if (typeof rawEmail !== 'string' || typeof rawPassword !== 'string'
-    || rawEmail === '' || rawPassword === '') {
-    return refuse(400, 'invalid-body', 'Both email and password are required.')
+  if (typeof rawUsername !== 'string' || typeof rawPassword !== 'string'
+    || rawUsername === '' || rawPassword === '') {
+    return refuse(400, 'invalid-body', 'A username and a password are required.')
   }
-  return { ok: true, value: { email: normalizeEmail(rawEmail), password: rawPassword } }
+  if (rawEmail !== undefined && typeof rawEmail !== 'string') {
+    return refuse(400, 'invalid-body', 'The email address must be a string.')
+  }
+  const email = typeof rawEmail === 'string' && rawEmail.trim() !== '' ? normalizeEmail(rawEmail) : null
+  return { ok: true, value: { username: normalizeUsername(rawUsername), email, password: rawPassword } }
 }
 
-/** Apply the sign-up rules to one submitted pair. */
-function acceptSignUp(submitted: Submitted): Outcome<Submitted> {
-  if (!isValidEmail(submitted.email)) {
+/** Read one submitted sign-in form. */
+function readLogin(body: Record<string, unknown>): Outcome<SubmittedLogin> {
+  const rawIdentifier = body.identifier
+  const rawPassword = body.password
+  if (typeof rawIdentifier !== 'string' || typeof rawPassword !== 'string'
+    || rawIdentifier === '' || rawPassword === '') {
+    return refuse(400, 'invalid-body', 'A username or email address and a password are required.')
+  }
+  // One field carries either spelling; normalizing as a username lowercases it,
+  // which is also how addresses are stored.
+  return { ok: true, value: { identifier: normalizeUsername(rawIdentifier), password: rawPassword } }
+}
+
+/** Apply the sign-up rules to one submitted form. */
+function acceptSignUp(submitted: SubmittedSignUp): Outcome<SubmittedSignUp> {
+  if (!isValidUsername(submitted.username)) {
+    return refuse(400, 'invalid-username', 'Usernames are 3 to 32 characters of letters, digits, dot, dash, or underscore, and start with a letter or digit.')
+  }
+  if (submitted.email !== null && !isValidEmail(submitted.email)) {
     return refuse(400, 'invalid-email', 'Enter an email address of the form name@example.com.')
   }
   if (submitted.password.length < MIN_PASSWORD_LENGTH) {
@@ -137,18 +168,17 @@ function readAuthority(request: Request): Outcome<string> {
   return { ok: true, value: authority }
 }
 
-/** One credential request whose authority, body, and submitted pair all parsed. */
+/** One credential request whose authority and body both parsed. */
 interface Admission {
   /** Request authority the session cookie will be bound to. */
   readonly authority: string
-  /** The submitted email and password. */
-  readonly credentials: Submitted
+  /** The parsed JSON body. */
+  readonly body: Record<string, unknown>
 }
 
 /**
- * Read one credential request, stopping at the first refusal: every endpoint
- * that mints a session needs the authority, the JSON body, and the two fields
- * in that order.
+ * Read one credential request's authority and JSON body, stopping at the first
+ * refusal: every endpoint that mints a session needs both, in that order.
  * @param request - the incoming endpoint request.
  * @returns the admission, or the response refusing it.
  */
@@ -157,9 +187,7 @@ async function readAdmission(request: Request): Promise<Outcome<Admission>> {
   if (!authority.ok) return authority
   const body = await readBody(request)
   if (!body.ok) return body
-  const submitted = readSubmitted(body.value)
-  if (!submitted.ok) return submitted
-  return { ok: true, value: { authority: authority.value, credentials: submitted.value } }
+  return { ok: true, value: { authority: authority.value, body: body.value } }
 }
 
 /**
@@ -194,9 +222,11 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       }
       const admission = await readAdmission(request)
       if (!admission.ok) return admission.response
-      const accepted = acceptSignUp(admission.value.credentials)
+      const submitted = readSignUp(admission.value.body)
+      if (!submitted.ok) return submitted.response
+      const accepted = acceptSignUp(submitted.value)
       if (!accepted.ok) return accepted.response
-      const account = await deps.store.add(accepted.value.email, accepted.value.password)
+      const account = await deps.store.add(accepted.value, accepted.value.password)
       return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))
     },
   }
@@ -211,12 +241,17 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       }
       const admission = await readAdmission(request)
       if (!admission.ok) return admission.response
-      const accepted = acceptSignUp(admission.value.credentials)
+      const submitted = readSignUp(admission.value.body)
+      if (!submitted.ok) return submitted.response
+      const accepted = acceptSignUp(submitted.value)
       if (!accepted.ok) return accepted.response
-      if (deps.store.byEmail(accepted.value.email) !== undefined) {
+      if (deps.store.byUsername(accepted.value.username) !== undefined) {
+        return failure(409, 'username-taken', 'That username already has an account.')
+      }
+      if (accepted.value.email !== null && deps.store.byEmail(accepted.value.email) !== undefined) {
         return failure(409, 'email-taken', 'That email address already has an account.')
       }
-      const account = await deps.store.add(accepted.value.email, accepted.value.password)
+      const account = await deps.store.add(accepted.value, accepted.value.password)
       return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))
     },
   }
@@ -228,9 +263,11 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
     fetch: async (request) => {
       const admission = await readAdmission(request)
       if (!admission.ok) return admission.response
-      const account = deps.store.byEmail(admission.value.credentials.email)
-      if (account === undefined || !await verifyPassword(admission.value.credentials.password, account.password)) {
-        return failure(401, 'invalid-credentials', 'That email address and password do not match an account.')
+      const submitted = readLogin(admission.value.body)
+      if (!submitted.ok) return submitted.response
+      const account = deps.store.byIdentifier(submitted.value.identifier)
+      if (account === undefined || !await verifyPassword(submitted.value.password, account.password)) {
+        return failure(401, 'invalid-credentials', 'That username, email address, and password do not match an account.')
       }
       return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))
     },
@@ -272,12 +309,26 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       if (next.length < MIN_PASSWORD_LENGTH) {
         return failure(400, 'password-too-short', `Passwords must be at least ${String(MIN_PASSWORD_LENGTH)} characters long.`)
       }
+      // Both identity fields are optional: an omitted one keeps its stored value,
+      // an empty address clears it, and a new name must be free.
+      const submittedUsername = body.value.username
+      const username = submittedUsername === undefined
+        ? account.username
+        : normalizeUsername(typeof submittedUsername === 'string' ? submittedUsername : '')
+      if (!isValidUsername(username)) {
+        return failure(400, 'invalid-username', 'Usernames are 3 to 32 characters of letters, digits, dot, dash, or underscore, and start with a letter or digit.')
+      }
+      if (username !== account.username && deps.store.byUsername(username) !== undefined) {
+        return failure(409, 'username-taken', 'That username already has an account.')
+      }
       const submittedEmail = body.value.email
-      const email = normalizeEmail(typeof submittedEmail === 'string' ? submittedEmail : account.email)
-      if (!isValidEmail(email)) {
+      const email = submittedEmail === undefined
+        ? account.email
+        : typeof submittedEmail === 'string' && submittedEmail.trim() !== '' ? normalizeEmail(submittedEmail) : null
+      if (email !== null && !isValidEmail(email)) {
         return failure(400, 'invalid-email', 'Enter an email address of the form name@example.com.')
       }
-      if (email !== account.email && deps.store.byEmail(email) !== undefined) {
+      if (email !== null && email !== account.email && deps.store.byEmail(email) !== undefined) {
         return failure(409, 'email-taken', 'That email address already has an account.')
       }
       const password = await hashPassword(next)
@@ -285,6 +336,7 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       // issued under the previous one stops verifying.
       const changed = await deps.store.update(account.id, record => ({
         ...record,
+        username,
         email,
         password,
         tokenVersion: record.tokenVersion + 1,

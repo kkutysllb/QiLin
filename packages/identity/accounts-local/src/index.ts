@@ -55,7 +55,7 @@ export interface Config {
    * @default 'open'
    */
   registration?: 'open' | 'closed'
-  /** Absolute browser-session lifetime in days. @default 30 */
+  /** Absolute browser-session lifetime in days. @default 7 */
   sessionMaxAgeDays?: number
   /** Explicit harness home; omitted follows `QILIN_HOME`, then `~/.qilin`. */
   qilinHome?: string
@@ -64,7 +64,7 @@ export interface Config {
 export const Config: z<Config> = z.object({
   enabled: z.boolean().default(true),
   registration: z.union([z.const('open'), z.const('closed')]).default('open'),
-  sessionMaxAgeDays: z.natural().min(1).default(30),
+  sessionMaxAgeDays: z.natural().min(1).default(7),
   qilinHome: z.string(),
 })
 
@@ -118,7 +118,7 @@ async function loadSessionSecret(credentials: CredentialProvider): Promise<Buffe
 export async function apply(ctx: Context, config: Config): Promise<void> {
   const enabled = config.enabled ?? true
   const registration = config.registration ?? 'open'
-  const sessionMaxAgeDays = config.sessionMaxAgeDays ?? 30
+  const sessionMaxAgeDays = config.sessionMaxAgeDays ?? 7
   const store = await AccountStore.open(accountsFilePath(resolveQilinHome(config.qilinHome)))
   const sessions = new SessionCookies(
     await loadSessionSecret(ctx.credentials),
@@ -136,6 +136,6 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     ctx.connection.fetch.register(route)
   }
   if (enabled) {
-    ctx.connection.session.install(createSessionAuthority({ store, currentAccount }))
+    ctx.connection.session.install(createSessionAuthority({ currentAccount }))
   }
 }

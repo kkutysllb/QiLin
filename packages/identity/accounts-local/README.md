@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Mount this package in a Web deployment to require a sign-in before a browser reaches the harness. The first visitor initializes the administrator account; after that every browser signs in with an email address and password, and the account-session gate serves the application document and answers `/api` only to a session this deployment minted. Accounts gate access to one harness home, so a second account reaches the same Sessions, credentials, and files. Registration is open by default, and a deployment binding beyond loopback closes it. Disabling the gate restores the transport's launch-token handoff.
+Mount this package in a Web deployment to require a sign-in before a browser reaches the harness. The first visitor initializes the administrator account; after that every browser signs in with a username or the email address the account carries, and the account-session gate serves the application document and answers `/api` only to a session this deployment minted. A browser without a session is sent to the site's public landing page, which opens the sign-in or first-run document. Accounts gate access to one harness home, so a second account reaches the same Sessions, credentials, and files. Registration is open by default, and a deployment binding beyond loopback closes it. Disabling the gate restores the transport's launch-token handoff.
 
 ## Table of Contents
 
@@ -39,14 +39,14 @@ Compose this plugin beside [`qilin-client-connection`](../../client/connection/R
 |---|---|---|
 | `enabled` | `true` | Require an account session for the gated index paths and every non-public `/api` request |
 | `registration` | `'open'` | Whether an anonymous visitor may create an additional account |
-| `sessionMaxAgeDays` | `30` | Absolute browser-session lifetime in days |
+| `sessionMaxAgeDays` | `7` | Absolute browser-session lifetime in days |
 | `qilinHome` | `$QILIN_HOME`, then `~/.qilin` | Harness home holding `auth/accounts.json` |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilinaccounts-local) is the exhaustive source for every accepted field and its JSDoc.
 
 ### The sign-in flow
 
-An anonymous browser that asks for a gated index path is redirected to the document that can establish a session: `/setup` while the account file holds no account, otherwise `/login?next=<request path>`. The sign-in document reads `GET /api/auth/status`, renders the login or first-run form, and posts the credentials; the successful answer already carries the session cookie, so the browser then navigates to the validated `next` destination or to the application entry path. Because the gate lives in the operation that serves the document, no client-side check can be bypassed by navigating directly.
+An anonymous browser that asks for a gated index path is redirected to the public landing page with `?next=<request path>`, never to a credential form. The landing page reads `GET /api/auth/status` and points its entry calls to action at the document this deployment can serve: the first-run document while the account file holds no account, otherwise the sign-in document, either way carrying the requested path. That document renders the form and posts the credentials; the successful answer already carries the session cookie, so the browser then navigates to the validated `next` destination or to the application entry path. Because the gate lives in the operation that serves the document, no client-side check can be bypassed by navigating directly, and signing out returns the browser to the landing page.
 
 ### The endpoints
 
@@ -54,14 +54,14 @@ Every endpoint answers JSON with `cache-control: no-store`, and every refusal is
 
 | Endpoint | Answers |
 |---|---|
-| `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`; `user` is `{ id, email, createdAt }` or `null` |
+| `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`; `user` is `{ id, username, email, createdAt }` or `null`, with `email` null for an account that registered without one |
 | `POST /api/auth/setup` | 200 `{ user }` plus the session cookie; 409 `already-initialized` once an account exists |
-| `POST /api/auth/register` | 200 `{ user }` plus the session cookie; 403 `registration-closed`; 409 `email-taken` |
-| `POST /api/auth/login` | 200 `{ user }` plus the session cookie; 401 `invalid-credentials` for an unknown address or a wrong password |
+| `POST /api/auth/register` | 200 `{ user }` plus the session cookie; 403 `registration-closed`; 409 `username-taken` or `email-taken` |
+| `POST /api/auth/login` | 200 `{ user }` plus the session cookie; 401 `invalid-credentials` for an unknown identifier or a wrong password |
 | `POST /api/auth/logout` | 204 with this authority's cookie cleared |
-| `POST /api/auth/change-password` | 200 `{ user }` plus a fresh session cookie; 401 `unauthorized` without a session or `invalid-credentials` for a wrong current password; 409 `email-taken` |
+| `POST /api/auth/change-password` | 200 `{ user }` plus a fresh session cookie; 401 `unauthorized` without a session or `invalid-credentials` for a wrong current password; 409 `username-taken` or `email-taken` |
 
-`setup`, `register`, and `login` read `{ email, password }`; `change-password` reads `{ currentPassword, newPassword, email? }` and changes the address when it names another one. Addresses are trimmed and lowercased before storage and lookup, and passwords are at least 8 characters. A body that is not a JSON object, a missing credential field, an address of the wrong form, and a request that names no authority are refused with 400 `invalid-body`, `invalid-email`, `password-too-short`, or `invalid-authority`.
+`setup` and `register` read `{ username, email?, password }`; `login` reads `{ identifier, password }` and accepts either the username or the account's address; `change-password` reads `{ currentPassword, newPassword, username?, email? }` and changes each identity field it names, with an empty address clearing the stored one. Usernames are 3 to 32 characters of letters, digits, dot, dash, or underscore starting with a letter or digit, trimmed and lowercased before storage and lookup so one account cannot be spelled two ways; addresses are trimmed and lowercased the same way, and passwords are at least 8 characters. A body that is not a JSON object, a missing credential field, a name or address of the wrong form, and a request that names no authority are refused with 400 `invalid-body`, `invalid-username`, `invalid-email`, `password-too-short`, or `invalid-authority`.
 
 ### The account-session gate
 
@@ -148,7 +148,7 @@ These limits describe what an account does and does not protect. They are curren
 - **No account removal or password reset** — no endpoint deletes an account or recovers a forgotten password; an operator edits or deletes `$QILIN_HOME/auth/accounts.json`, and deleting it returns the deployment to the first-run state.
 - **The session cookie is a bearer credential over plaintext HTTP** — like the transport's own cookie it carries no `Secure` attribute, because the shipped server serves loopback HTTP.
 - **Losing or replacing the session secret ends every session** — the credential record `accounts-local/session-secret` is the only signing key; replacing it invalidates every issued cookie while the accounts survive.
-- **The account file has no downgrade or migration path** — a document this build did not write fails the plugin load, so a format change reaches existing files only through a deliberate migration.
+- **The account file migrates forward only** — a version 1 document is read as accounts whose username is their stored address, but a document from a newer build fails the plugin load, and nothing rewrites a version 1 file until the next mutation. A migrated name that looks like an address cannot be replaced by a valid username without an operator edit.
 
 <a id="dev-note"></a>
 ### Dev Note

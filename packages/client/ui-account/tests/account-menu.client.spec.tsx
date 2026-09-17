@@ -47,7 +47,7 @@ const SIGNED_IN: Answer = {
     needsSetup: false,
     registrationOpen: true,
     authenticated: true,
-    user: { id: 'acct-1', email: 'ada@example.com', createdAt: 1_700_000_000_000 },
+    user: { id: 'acct-1', username: 'ada', email: 'ada@example.com', createdAt: 1_700_000_000_000 },
   },
 }
 
@@ -227,7 +227,7 @@ describe('AccountMenu', () => {
     const { requests } = bench()
     openMenu()
     // The address names both the trigger row and the menu's own heading.
-    await waitFor(() => { expect(screen.getAllByText('ada@example.com')).toHaveLength(2) })
+    await waitFor(() => { expect(screen.getAllByText('ada')).toHaveLength(2) })
     expect(rowLabels()).toEqual([zh.settings, zh.appearance, zh.language, zh.signOut])
     // The status read is the mount's own; opening and closing re-read nothing.
     expect(requests.map(request => request.url)).toEqual(['/api/auth/status'])
@@ -270,13 +270,13 @@ describe('AccountMenu', () => {
     expect(screen.queryByRole('menu')).toBeNull()
   })
 
-  it('ends the session through the Host and lands on the sign-in page', async () => {
+  it('ends the session through the Host and lands on the public page', async () => {
     const { assign, requests } = bench()
     openMenu()
     await waitFor(() => { expect(screen.getByRole('menuitem', { name: zh.signOut })).toBeTruthy() })
     fireEvent.click(screen.getByRole('menuitem', { name: zh.signOut }))
 
-    await waitFor(() => { expect(assign).toHaveBeenCalledWith('/login') })
+    await waitFor(() => { expect(assign).toHaveBeenCalledWith('/') })
     expect(requests.at(-1)).toEqual({ url: '/api/auth/logout', init: { method: 'POST' } })
   })
 
@@ -335,7 +335,7 @@ describe('AccountMenu', () => {
     const { instance } = bench({ account: SIGNED_OUT })
     openMenu()
     await waitFor(() => { expect(instance.getSnapshot().signOutAvailable).toBe(true) })
-    expect(instance.getSnapshot().email).toBeNull()
+    expect(instance.getSnapshot().accountName).toBeNull()
     expect(rowLabels()).toEqual([zh.settings, zh.appearance, zh.language, zh.signOut])
   })
 
@@ -355,11 +355,11 @@ describe('AccountMenu', () => {
 
   it('names the signed-in account beside its avatar in the wide column', async () => {
     bench()
-    const trigger = await screen.findByRole('button', { name: 'ada@example.com' })
+    const trigger = await screen.findByRole('button', { name: 'ada' })
     // The visible account name is the accessible name, so voice control can
     // address the row by what it reads.
     expect(trigger.getAttribute('aria-label')).toBeNull()
-    expect(trigger.textContent).toBe('Aada@example.com')
+    expect(trigger.textContent).toBe('Aada')
     expect(trigger.querySelector('[aria-hidden="true"]')?.textContent).toBe('A')
   })
 

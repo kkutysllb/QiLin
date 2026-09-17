@@ -47,7 +47,7 @@ kind: "package-reference"
 
 请求从 dist 根目录（包含 `distIndex` 的目录）提供。配置的文档路径以该文件的字节与 HTML 媒体类型应答；每个配置的 index 路径以 HTTP 200 渲染 `index.html`；任何其他已有文件按自身 MIME 类型直接提供，未知扩展名按 `application/octet-stream` 提供。解析到根目录之外的路径以 403 拒绝，因此精心构造的路径无法读取 dist 之上的文件。dist 根目录内不存在或不是文件的目标——文件缺失、目录或配置的 index 缺失——返回空 404。没有匹配具名路由的非 GET／HEAD 请求返回 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，因此启动 manifest（元数据清单）会通过每个配置的 index 路径送达页面。
 
-配置的 index 响应会在读取 HTML 前调用 `ctx.connection.authorizeIndex`。有效进程 token 会得到 303 重定向与持久浏览器 cookie；已有有效 cookie 时直接提供 index；其他 index 请求由拥有该部署的鉴权方应答——Connection 所有的 401 响应，或已安装的账户会话关卡重定向到登录文档。文档跳过该鉴权：站点根部的落地页与登录页无需会话即可访问，两者都以 `<base href="/">` 锚点送出，因此其相对 URL 从站点根解析，且两者都不运行 index 转换器，因为它们是静态产品标记而非带启动信息的应用。其他文件仍是公开静态资源。Token、cookie、过期时间与签名记录语义都归 Connection 所有。
+配置的 index 响应会在读取 HTML 前调用 `ctx.connection.authorizeIndex`。有效进程 token 会得到 303 重定向与持久浏览器 cookie；已有有效 cookie 时直接提供 index；其他 index 请求由拥有该部署的鉴权方应答——Connection 所有的 401 响应，或已安装的账户会话关卡重定向到公开落地页。文档跳过该鉴权：站点根部的落地页与登录页无需会话即可访问，两者都以 `<base href="/">` 锚点送出，因此其相对 URL 从站点根解析，且两者都不运行 index 转换器，因为它们是静态产品标记而非带启动信息的应用。其他文件仍是公开静态资源。Token、cookie、过期时间与签名记录语义都归 Connection 所有。
 
 ### 文档校验
 

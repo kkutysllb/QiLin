@@ -17,8 +17,10 @@ import { hashPassword } from './password.ts'
 export interface AccountRecord {
   /** Opaque account identity carried by issued sessions. */
   readonly id: string
-  /** Normalized email address. */
-  readonly email: string
+  /** Normalized username; the account's login name. */
+  readonly username: string
+  /** Normalized email address, or null when the account has none. */
+  readonly email: string | null
   /** Encoded scrypt hash of the account password. */
   readonly password: string
   /** Epoch milliseconds when the account was created. */
@@ -33,25 +35,53 @@ interface AccountsDocument {
   readonly accounts: readonly AccountRecord[]
 }
 
-/** Format version of the on-disk document. */
-const FILE_VERSION = 1
+/** Format version this build writes. */
+const FILE_VERSION = 2
+/**
+ * Format version that stored an address and nothing else. Its records are read
+ * as accounts whose username is that same address, so they keep signing in.
+ */
+const LEGACY_FILE_VERSION = 1
 const FILE_MODE = 0o600
 const DIRECTORY_MODE = 0o700
 
-/** Parse one account record, refusing anything this build did not write. */
-function parseAccount(value: unknown, path: string): AccountRecord {
-  if (!isRecord(value)) {
-    throw new Error(`accounts-local: ${path} holds a malformed account record`)
-  }
-  const { id, email, password, createdAt, tokenVersion } = value
+/** One malformed-record refusal, naming the file. */
+function malformed(path: string): Error {
+  return new Error(`accounts-local: ${path} holds a malformed account record`)
+}
+
+/** Read the fields every format version stores. */
+function readCommonFields(value: Record<string, unknown>, path: string): {
+  id: string
+  password: string
+  createdAt: number
+  tokenVersion: number
+} {
+  const { id, password, createdAt, tokenVersion } = value
   if (typeof id !== 'string' || id === ''
-    || typeof email !== 'string' || email === ''
     || typeof password !== 'string' || password === ''
     || typeof createdAt !== 'number' || !Number.isSafeInteger(createdAt)
     || typeof tokenVersion !== 'number' || !Number.isSafeInteger(tokenVersion)) {
-    throw new Error(`accounts-local: ${path} holds a malformed account record`)
+    throw malformed(path)
   }
-  return { id, email, password, createdAt, tokenVersion }
+  return { id, password, createdAt, tokenVersion }
+}
+
+/** Parse one account record, refusing anything this build did not write. */
+function parseAccount(value: unknown, path: string, version: number): AccountRecord {
+  if (!isRecord(value)) throw malformed(path)
+  const common = readCommonFields(value, path)
+  if (version >= FILE_VERSION) {
+    const { username, email } = value
+    if (typeof username !== 'string' || username === '') throw malformed(path)
+    if (email !== null && email !== undefined && (typeof email !== 'string' || email === '')) {
+      throw malformed(path)
+    }
+    return { ...common, username, email: typeof email === 'string' ? email : null }
+  }
+  const { email } = value
+  if (typeof email !== 'string' || email === '') throw malformed(path)
+  return { ...common, username: email, email }
 }
 
 /** Parse one whole account document. */
@@ -64,10 +94,14 @@ function parseDocument(text: string, path: string): AccountRecord[] {
     // restores the file or removes it to start the account set over.
     throw new Error(`accounts-local: ${path} is not valid JSON`)
   }
-  if (!isRecord(decoded) || decoded.version !== FILE_VERSION || !Array.isArray(decoded.accounts)) {
+  if (!isRecord(decoded) || !Array.isArray(decoded.accounts)) {
     throw new Error(`accounts-local: ${path} is not an account file this build wrote`)
   }
-  return decoded.accounts.map(entry => parseAccount(entry, path))
+  const version = decoded.version
+  if (version !== FILE_VERSION && version !== LEGACY_FILE_VERSION) {
+    throw new Error(`accounts-local: ${path} is not an account file this build wrote`)
+  }
+  return decoded.accounts.map(entry => parseAccount(entry, path, version))
 }
 
 /** The account set of one harness home, with durable mutations. */
@@ -119,6 +153,15 @@ export class AccountStore {
   }
 
   /**
+   * Account with one normalized username.
+   * @param username - a normalized username.
+   * @returns the account, or undefined when the name is unused.
+   */
+  byUsername(username: string): AccountRecord | undefined {
+    return this.accounts.find(account => account.username === username)
+  }
+
+  /**
    * Account with one normalized email.
    * @param email - a normalized address.
    * @returns the account, or undefined when the address is unused.
@@ -128,15 +171,27 @@ export class AccountStore {
   }
 
   /**
+   * Account named by a login identifier, which may be either spelling.
+   * A username wins over an address, so an account whose name happens to look
+   * like another account's address still signs in under its own name.
+   * @param identifier - a normalized username or email address.
+   * @returns the account, or undefined when nothing matches.
+   */
+  byIdentifier(identifier: string): AccountRecord | undefined {
+    return this.byUsername(identifier) ?? this.byEmail(identifier)
+  }
+
+  /**
    * Create one account.
-   * @param email - normalized email address.
+   * @param identity - normalized username and optional normalized email.
    * @param password - plaintext password, already validated by the caller.
    * @returns the created account.
    */
-  async add(email: string, password: string): Promise<AccountRecord> {
+  async add(identity: { username: string; email?: string | null }, password: string): Promise<AccountRecord> {
     const created: AccountRecord = {
       id: randomUUID(),
-      email,
+      username: identity.username,
+      email: identity.email ?? null,
       password: await hashPassword(password),
       createdAt: Date.now(),
       tokenVersion: 1,

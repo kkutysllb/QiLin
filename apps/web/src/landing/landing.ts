@@ -1,13 +1,17 @@
 /**
  * Landing page behaviour: the hero headline cycles through the platform's
- * capability words, one word at a time, and the header toggle flips the page
- * between the dark 玄金 default and its light-paper variant.
+ * capability words, one word at a time, the header toggle flips the page
+ * between the dark 玄金 default and its light-paper variant, and the entry
+ * calls to action open the document this visitor can actually pass — the
+ * application for a signed-in browser, otherwise the sign-in or first-run page.
  *
  * Every visible string stays in landing.html. The word list arrives through the
  * host element's data-words attribute, so this module owns timing and motion
  * only; the theme toggle's behaviour comes from the shared pre-session module.
  */
 
+import { readAccountStatus } from '../account-status.ts'
+import { nextDestination } from '../next-destination.ts'
 import { startPreSessionThemeToggle } from '../theme-preference.ts'
 
 /** Host element carrying the separated word list. */
@@ -24,6 +28,15 @@ const ROTATION_INTERVAL_MS = 2200
 
 /** Preference that pins the headline to its first word instead of rotating. */
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+/** Every link that leads into the application. */
+const ENTRY_CTA = '[data-entry-cta]'
+
+/** Document that establishes a session for an existing account. */
+const LOGIN_PATH = '/login'
+
+/** Document that creates the deployment's first account. */
+const SETUP_PATH = '/setup'
 
 /**
  * Read the pipe-separated word list; blank entries are dropped.
@@ -95,5 +108,23 @@ export function startLandingHeadline(): void {
   rotateWords(host, target)
 }
 
+/**
+ * Point the entry calls to action at the document that can admit this visitor.
+ * A signed-in browser goes straight to the destination it asked for; everyone
+ * else reaches the sign-in document, or the first-run document when the
+ * deployment still has no account, and returns here afterwards.
+ */
+export async function startEntryCta(): Promise<void> {
+  const status = await readAccountStatus()
+  const destination = nextDestination()
+  const target = status?.authenticated === true
+    ? destination
+    : `${status?.needsSetup === true ? SETUP_PATH : LOGIN_PATH}?next=${encodeURIComponent(destination)}`
+  for (const node of document.querySelectorAll<HTMLAnchorElement>(ENTRY_CTA)) {
+    node.href = target
+  }
+}
+
 startLandingHeadline()
+void startEntryCta()
 startPreSessionThemeToggle()

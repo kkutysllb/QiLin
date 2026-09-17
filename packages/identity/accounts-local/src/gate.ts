@@ -3,7 +3,7 @@
  * requests belong to the authentication surface itself, and what happens to an
  * index document request that carries no session. Serving a gated document
  * without a session is impossible here — the gate owns the redirect that sends
- * the browser to the document that can establish one.
+ * the browser to the product's public page, which owns the way in.
  * @module @qilin/accounts-local/src/gate
  */
 
@@ -12,13 +12,11 @@ import type {
   ConnectionSessionAuthority,
   ConnectionTrustRequest,
 } from '@qilin/client-connection'
-import type { AccountRecord, AccountStore } from './accounts.ts'
-import { AUTH_API_PREFIX, LOGIN_PATH, SETUP_PATH } from './paths.ts'
+import type { AccountRecord } from './accounts.ts'
+import { AUTH_API_PREFIX, LANDING_PATH } from './paths.ts'
 
 /** What the gate reads. */
 export interface SessionGateDeps {
-  /** The account set, read for the first-run state. */
-  readonly store: AccountStore
   /** Account behind the request's session, or undefined. */
   readonly currentAccount: (request: ConnectionTrustRequest) => AccountRecord | undefined
 }
@@ -48,11 +46,11 @@ export function createSessionAuthority(deps: SessionGateDeps): ConnectionSession
   return {
     authorizeIndex(request, response) {
       if (deps.currentAccount(request) !== undefined) return true
-      // No account at all means this deployment has never been set up: send the
-      // browser to the first-run document instead of a sign-in it cannot pass.
-      redirect(response, deps.store.isEmpty
-        ? SETUP_PATH
-        : `${LOGIN_PATH}?next=${encodeURIComponent(pathnameOf(request))}`)
+      // An unauthenticated visitor lands on the product's public page, never on
+      // a credential form: the landing page asks the status endpoint which
+      // document applies (sign in or first run) and hands back this path, so a
+      // visitor who came for a page still reaches it after signing in.
+      redirect(response, `${LANDING_PATH}?next=${encodeURIComponent(pathnameOf(request))}`)
       return false
     },
     isPublicApiRequest: request => pathnameOf(request).startsWith(AUTH_API_PREFIX),

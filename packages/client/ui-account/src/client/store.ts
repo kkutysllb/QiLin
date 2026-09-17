@@ -10,8 +10,8 @@ import type { AccountFacts } from './account-api.ts'
 export interface AccountMenuState {
   /** Whether the dropdown is showing. */
   open: boolean
-  /** Signed-in email shown as the menu heading; null when none is known. */
-  email: string | null
+  /** Signed-in name shown as the menu heading; null when none is known. */
+  accountName: string | null
   /** Whether the menu offers the sign-out row. */
   signOutAvailable: boolean
 }
@@ -34,11 +34,11 @@ export type AccountMenuStoreHandle = EngineStoreHandle<AccountMenuState, Account
  */
 export function createAccountMenuStore(): AccountMenuStoreHandle {
   return defineStore({
-    init: (): AccountMenuState => ({ open: false, email: null, signOutAvailable: false }),
+    init: (): AccountMenuState => ({ open: false, accountName: null, signOutAvailable: false }),
     actions: {
       setOpen: (draft, open: boolean) => { draft.open = open },
       resolveAccount: (draft, facts: AccountFacts) => {
-        draft.email = facts.email
+        draft.accountName = facts.accountName
         draft.signOutAvailable = facts.signOutAvailable
       },
     },

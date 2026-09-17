@@ -10,6 +10,7 @@ const MAX_AGE = 24 * 60 * 60 * 1000
 const AUTHORITY = '127.0.0.1:3090'
 const ACCOUNT: AccountRecord = {
   id: 'account-1',
+  username: 'first',
   email: 'first@example.com',
   password: 'scrypt$32768$8$1$AAAA$AAAA',
   createdAt: 1_700_000_000_000,

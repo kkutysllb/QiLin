@@ -10,6 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { launchWebScaffold, type WebScaffold } from './scaffold.ts'
 
 const OVERLAY = fileURLToPath(new URL('./accounts-auth.overlay.yml', import.meta.url))
+const USERNAME = 'first'
 const EMAIL = 'first@example.com'
 const PASSWORD = 'password-1'
 /** The application's own phase marker: the conversation shell renders it once the app mounts. */
@@ -40,14 +41,20 @@ describe('web e2e: local accounts gate the application', () => {
     expect(landing).toContain('探索平台')
     expect(await page.locator(APP_MOUNTED).count()).toBe(0)
 
-    // The console entry redirects an unauthenticated visitor to the first-run
-    // document, because this deployment has no account yet.
+    // The console entry hands an unauthenticated visitor the public page, not a
+    // credential form, and remembers the document they asked for.
     await page.goto(`${scaffold.baseUrl}/workspace`, { waitUntil: 'load' })
-    expect(page.url()).toContain('/setup')
-    expect(await page.textContent('body')).toContain('初始化管理员')
+    expect(new URL(page.url()).pathname).toBe('/')
+    expect(new URL(page.url()).searchParams.get('next')).toBe('/workspace')
 
-    // Raising a session from the first-run form lands on the application.
-    await page.getByLabel('邮箱').fill(EMAIL)
+    // The landing entry call to action opens the document this deployment can
+    // serve: with no account yet, the first-run form, which takes a username and
+    // an optional address.
+    await page.click('[data-entry-cta]')
+    await page.waitForURL('**/setup**', { timeout: 30_000 })
+    expect(await page.textContent('body')).toContain('初始化管理员')
+    await page.getByLabel('用户名', { exact: true }).fill(USERNAME)
+    await page.getByLabel('邮箱（可选）').fill(EMAIL)
     await page.getByLabel('密码', { exact: true }).fill(PASSWORD)
     await page.getByLabel('确认密码').fill(PASSWORD)
     await page.getByRole('button', { name: '创建管理员账户' }).click()
@@ -58,12 +65,14 @@ describe('web e2e: local accounts gate the application', () => {
     await page.reload({ waitUntil: 'load' })
     await page.waitForSelector(APP_MOUNTED, { timeout: 60_000 })
 
-    // A browser without the session cookie is sent to sign-in, and the shipped
-    // form raises a new session; a first-run deployment would not be asked again.
+    // A browser without the session cookie lands on the public page again, and
+    // the entry call to action now opens sign-in because an account exists.
     const context = page.context()
     await context.clearCookies()
     await page.goto(`${scaffold.baseUrl}/workspace`, { waitUntil: 'load' })
-    expect(page.url()).toContain('/login')
+    expect(new URL(page.url()).pathname).toBe('/')
+    await page.click('[data-entry-cta]')
+    await page.waitForURL('**/login**', { timeout: 30_000 })
     expect(await page.textContent('body')).toContain('登录控制台')
 
     // The gate rejects the unauthenticated API before any handler runs.
@@ -76,7 +85,8 @@ describe('web e2e: local accounts gate the application', () => {
     // The swap waits for the status read, so it lands after the document load.
     await page.waitForURL('**/login?next=%2Fworkspace', { timeout: 30_000 })
 
-    await page.getByLabel('邮箱').fill(EMAIL)
+    // The address the account carries signs in through the same single field.
+    await page.getByLabel('用户名或邮箱').fill(EMAIL)
     await page.getByLabel('密码', { exact: true }).fill(PASSWORD)
     await page.getByRole('button', { name: '登录', exact: true }).click()
     await page.waitForURL('**/workspace', { timeout: 60_000 })
@@ -85,18 +95,19 @@ describe('web e2e: local accounts gate the application', () => {
     // A wrong password is refused with the page's own copy, not the server text.
     await context.clearCookies()
     await page.goto(`${scaffold.baseUrl}/login`, { waitUntil: 'load' })
-    await page.getByLabel('邮箱').fill(EMAIL)
+    await page.getByLabel('用户名或邮箱').fill(USERNAME)
     await page.getByLabel('密码', { exact: true }).fill('password-9')
     await page.getByRole('button', { name: '登录', exact: true }).click()
-    await page.getByText('邮箱或密码不正确').waitFor({ timeout: 30_000 })
+    await page.getByText('用户名或密码不正确').waitFor({ timeout: 30_000 })
 
-    // Signing out clears the cookie and re-arms the gate.
-    await page.getByLabel('邮箱').fill(EMAIL)
+    // Signing out clears the cookie and re-arms the gate, which sends the next
+    // unauthenticated visit back to the public page.
+    await page.getByLabel('用户名或邮箱').fill(USERNAME)
     await page.getByLabel('密码', { exact: true }).fill(PASSWORD)
     await page.getByRole('button', { name: '登录', exact: true }).click()
     await page.waitForURL('**/workspace', { timeout: 60_000 })
     await page.evaluate(async () => { await fetch('/api/auth/logout', { method: 'POST' }) })
     await page.goto(`${scaffold.baseUrl}/workspace`, { waitUntil: 'load' })
-    expect(page.url()).toContain('/login')
+    expect(new URL(page.url()).pathname).toBe('/')
   })
 })

@@ -8,8 +8,10 @@
 export interface AccountUser {
   /** Account id. */
   readonly id: string
-  /** Address the account signed up with; the menu's heading text. */
-  readonly email: string
+  /** Name the account signs in with; the menu's heading text. */
+  readonly username: string
+  /** Address the account carries, or null when it registered without one. */
+  readonly email: string | null
   /** Account creation time in epoch milliseconds. */
   readonly createdAt: number
 }
@@ -26,8 +28,8 @@ export interface AccountStatus {
 
 /** What the menu knows about the signed-in account. */
 export interface AccountFacts {
-  /** Email shown as the menu heading; null when no account is known. */
-  readonly email: string | null
+  /** Name shown as the menu heading; null when no account is known. */
+  readonly accountName: string | null
   /** Whether the menu offers the sign-out row. */
   readonly signOutAvailable: boolean
 }
@@ -38,11 +40,11 @@ const AUTH_STATUS_PATH = '/api/auth/status'
 /** Path that ends the browser's session. */
 const AUTH_LOGOUT_PATH = '/api/auth/logout'
 
-/** Page the browser lands on once its session is gone. */
-const LOGIN_PATH = '/login'
+/** Page the browser lands on once its session is gone: the public entry surface. */
+const LANDING_PATH = '/'
 
 /** The answer for a deployment with no reachable account surface. */
-const NO_ACCOUNT: AccountFacts = Object.freeze({ email: null, signOutAvailable: false })
+const NO_ACCOUNT: AccountFacts = Object.freeze({ accountName: null, signOutAvailable: false })
 
 /**
  * Read the account gate's status.
@@ -61,7 +63,7 @@ export async function readAccountStatus(): Promise<AccountFacts> {
     // The gate is on, so a session exists to end even when this browser has
     // not signed in yet (the sign-in document itself reads the same answer).
     const user = status.authenticated ? status.user : null
-    return { email: user?.email ?? null, signOutAvailable: true }
+    return { accountName: user?.username ?? null, signOutAvailable: true }
   } catch {
     // A failed read is the answer itself here: no session fact arrived, and
     // both rows it feeds are optional chrome.
@@ -70,7 +72,7 @@ export async function readAccountStatus(): Promise<AccountFacts> {
 }
 
 /**
- * End this browser's session and land on the sign-in page.
+ * End this browser's session and land on the product's public page.
  *
  * The navigation happens only after the Host accepted the sign-out: a refused
  * or unreachable call leaves the page where it is, so the menu that offered
@@ -81,7 +83,7 @@ export async function endSession(): Promise<boolean> {
   try {
     const response = await fetch(AUTH_LOGOUT_PATH, { method: 'POST' })
     if (!response.ok) return false
-    location.assign(LOGIN_PATH)
+    location.assign(LANDING_PATH)
     return true
   } catch {
     // The POST is the only statement; an unreachable Host ends no session.

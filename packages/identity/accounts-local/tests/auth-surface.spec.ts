@@ -91,7 +91,6 @@ async function boot(options: {
     '  config:',
     `    enabled: ${options.enabled === false ? 'false' : 'true'}`,
     `    registration: ${options.registration ?? 'open'}`,
-    '    sessionMaxAgeDays: 1',
     `    qilinHome: '${home}'`,
     '',
   ].join('\n'))
@@ -118,6 +117,11 @@ async function boot(options: {
   } as unknown as NonNullable<typeof ctx.loader.internal>
   await ctx.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(configPath).href } })
   await ctx.loader.await()
+  // A row that failed to activate still lets the Loader settle, so the helper
+  // reports it with the reason the row recorded: a composition that cannot
+  // serve its rows is not a booted server.
+  const failed = await inactiveReasons(ctx)
+  if (failed.length > 0) throw new Error(`accounts surface fixture: rows not active: ${failed.join('; ')}`)
   const port = ctx.get('webServer')?.port
   if (port === undefined) throw new Error('accounts surface fixture: webServer missing after boot')
   const base = `http://127.0.0.1:${String(port)}`
@@ -132,6 +136,26 @@ function inactive(ctx: Context): string[] {
   return [...ctx.loader.entries()]
     .filter(entry => !entry.disabled && entry.fiber?.state !== FiberState.ACTIVE)
     .map(entry => entry.options.name)
+}
+
+/**
+ * Every row that did not reach ACTIVE, with the reason it recorded.
+ * @param ctx - the booted context.
+ * @returns one `name: reason` line per inactive row.
+ */
+async function inactiveReasons(ctx: Context): Promise<string[]> {
+  const lines: string[] = []
+  for (const entry of ctx.loader.entries()) {
+    const fiber = entry.fiber
+    if (entry.disabled || fiber === undefined || fiber.state === FiberState.ACTIVE) continue
+    try {
+      await fiber.await()
+      lines.push(`${entry.options.name}: fiber state ${String(fiber.state)}`)
+    } catch (error) {
+      lines.push(`${entry.options.name}: ${(error as Error).message}`)
+    }
+  }
+  return lines
 }
 
 /** The session cookie one response set, as a Cookie request header pair. */
@@ -172,11 +196,13 @@ describe('real account surface', () => {
     expect(signIn.status).toBe(200)
     expect(await signIn.text()).toContain('sign in')
 
-    // The application entry redirects to the first-run document while no account exists.
+    // The application entry hands an unauthenticated visitor the public page,
+    // which owns the way in and keeps the requested path to return to.
     const entry = await server('/workspace', { redirect: 'manual' })
     expect(entry.status).toBe(302)
-    expect(entry.headers.get('location')).toBe('/setup')
-    expect((await server('/index.html', { redirect: 'manual' })).headers.get('location')).toBe('/setup')
+    expect(entry.headers.get('location')).toBe('/?next=%2Fworkspace')
+    expect((await server('/index.html', { redirect: 'manual' })).headers.get('location'))
+      .toBe('/?next=%2Findex.html')
 
     // The launch-token handoff still cleans the printed URL into the entry path.
     const handoff = await fetch(server.ctx.connection.authenticatedUrl(server.base), { redirect: 'manual' })
@@ -192,11 +218,12 @@ describe('real account surface', () => {
   it('initializes the first account, signs in, and retires the session a credential change replaces', { timeout: 60_000 }, async () => {
     const server = await boot()
 
-    const setup = await server('/api/auth/setup', post(undefined, { email: EMAIL, password: PASSWORD }))
+    const setup = await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     expect(setup.status).toBe(200)
     const session = cookieOf(setup)
-    expect(setup.headers.get('set-cookie')).toContain('Max-Age=86400')
-    expect(await setup.json()).toMatchObject({ user: { email: EMAIL } })
+    // A configured default of seven days, absolute.
+    expect(setup.headers.get('set-cookie')).toContain('Max-Age=604800')
+    expect(await setup.json()).toMatchObject({ user: { username: 'first', email: EMAIL } })
 
     // The session reaches the gated entry and the status read.
     const entry = await server('/workspace', { headers: { cookie: session } })
@@ -206,13 +233,14 @@ describe('real account surface', () => {
     expect(entryBody).toContain('shell')
     const status = await server('/api/auth/status', { headers: { cookie: session } })
     expect(await status.json()).toMatchObject({
-      enabled: true, needsSetup: false, registrationOpen: true, authenticated: true, user: { email: EMAIL },
+      enabled: true, needsSetup: false, registrationOpen: true, authenticated: true,
+      user: { username: 'first', email: EMAIL },
     })
     // A gated /api request answers 404 for an unknown endpoint rather than 401.
     expect(await (await server('/api/anything', { headers: { cookie: session } })).text()).toBe('not found')
 
-    // The same credentials sign in again.
-    const login = await server('/api/auth/login', post(undefined, { email: EMAIL, password: PASSWORD }))
+    // Both spellings of the identifier sign in again: the name and the address.
+    const login = await server('/api/auth/login', post(undefined, { identifier: 'first', password: PASSWORD }))
     expect(login.status).toBe(200)
     expect(cookieOf(login)).toContain('qilin-session-')
 
@@ -221,14 +249,16 @@ describe('real account surface', () => {
     const changed = await server('/api/auth/change-password', post(session, {
       currentPassword: PASSWORD,
       newPassword: 'password-2',
+      username: 'renamed',
       email: 'renamed@example.com',
     }))
     expect(changed.status).toBe(200)
-    expect(await changed.json()).toMatchObject({ user: { email: 'renamed@example.com' } })
+    expect(await changed.json()).toMatchObject({ user: { username: 'renamed', email: 'renamed@example.com' } })
     expect((await server('/workspace', { redirect: 'manual', headers: { cookie: session } })).headers.get('location'))
-      .toBe('/login?next=%2Fworkspace')
-    expect((await server('/api/auth/login', post(undefined, { email: EMAIL, password: PASSWORD }))).status).toBe(401)
-    expect((await server('/api/auth/login', post(undefined, { email: 'renamed@example.com', password: 'password-2' }))).status)
+      .toBe('/?next=%2Fworkspace')
+    expect((await server('/api/auth/login', post(undefined, { identifier: 'first', password: PASSWORD }))).status).toBe(401)
+    expect((await server('/api/auth/login', post(undefined, { identifier: EMAIL, password: PASSWORD }))).status).toBe(401)
+    expect((await server('/api/auth/login', post(undefined, { identifier: 'renamed', password: 'password-2' }))).status)
       .toBe(200)
 
     // A change without an address keeps the stored one.
@@ -237,7 +267,7 @@ describe('real account surface', () => {
       newPassword: 'password-3',
     }))
     expect(secondChange.status).toBe(200)
-    expect(await secondChange.json()).toMatchObject({ user: { email: 'renamed@example.com' } })
+    expect(await secondChange.json()).toMatchObject({ user: { username: 'renamed', email: 'renamed@example.com' } })
 
     // Signing out clears the cookie.
     const logout = await server('/api/auth/logout', { method: 'POST', headers: { cookie: session } })
@@ -247,20 +277,26 @@ describe('real account surface', () => {
 
   it('answers registration according to the deployment choice', { timeout: 60_000 }, async () => {
     const open = await boot()
-    const created = await open('/api/auth/register', post(undefined, { email: 'second@example.com', password: PASSWORD }))
+    const created = await open('/api/auth/register', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD }))
     expect(created.status).toBe(200)
     const second = cookieOf(created)
     // A second account reaches the same harness home.
     expect((await open('/workspace', { headers: { cookie: second } })).status).toBe(200)
-    expect((await open('/api/auth/register', post(undefined, { email: 'second@example.com', password: PASSWORD }))).status)
-      .toBe(409)
+    // Both uniqueness rules answer with the field that collided.
+    expect(await (await open('/api/auth/register', post(undefined, { username: 'second', password: PASSWORD }))).json())
+      .toMatchObject({ error: { code: 'username-taken' } })
+    expect(await (await open('/api/auth/register', post(undefined, {
+      username: 'third', email: 'second@example.com', password: PASSWORD,
+    }))).json()).toMatchObject({ error: { code: 'email-taken' } })
+    // An account with no address is a complete account.
+    expect((await open('/api/auth/register', post(undefined, { username: 'nameless', password: PASSWORD }))).status).toBe(200)
     // First-run initialization is refused once any account exists.
-    const lateSetup = await open('/api/auth/setup', post(undefined, { email: 'third@example.com', password: PASSWORD }))
+    const lateSetup = await open('/api/auth/setup', post(undefined, { username: 'third', email: 'third@example.com', password: PASSWORD }))
     expect(lateSetup.status).toBe(409)
     expect(await lateSetup.json()).toMatchObject({ error: { code: 'already-initialized' } })
 
     const closed = await boot({ registration: 'closed' })
-    const refused = await closed('/api/auth/register', post(undefined, { email: 'second@example.com', password: PASSWORD }))
+    const refused = await closed('/api/auth/register', post(undefined, { username: 'second', password: PASSWORD }))
     expect(refused.status).toBe(403)
     expect(await refused.json()).toMatchObject({ error: { code: 'registration-closed' } })
     expect(await (await closed('/api/auth/status')).json()).toMatchObject({ registrationOpen: false, needsSetup: true })
@@ -277,32 +313,36 @@ describe('real account surface', () => {
     // Malformed bodies, before anything is written.
     expect(await (await server('/api/auth/setup', raw('{'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
     expect(await (await server('/api/auth/setup', raw('[]'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
-    expect(await (await server('/api/auth/setup', raw('{"email":""}'))).json())
+    expect(await (await server('/api/auth/setup', raw('{"username":""}'))).json())
       .toMatchObject({ error: { code: 'invalid-body' } })
-    expect(await (await server('/api/auth/setup', raw('{"email":"a@b","password":"password-1"}'))).json())
+    expect(await (await server('/api/auth/setup', raw(JSON.stringify({ username: 'first', password: PASSWORD, email: 7 })))).json())
+      .toMatchObject({ error: { code: 'invalid-body' } })
+    expect(await (await server('/api/auth/setup', raw('{"username":"a","password":"password-1"}'))).json())
+      .toMatchObject({ error: { code: 'invalid-username' } })
+    expect(await (await server('/api/auth/setup', raw(JSON.stringify({ username: 'first', email: 'a@b', password: PASSWORD })))).json())
       .toMatchObject({ error: { code: 'invalid-email' } })
-    expect(await (await server('/api/auth/setup', raw(JSON.stringify({ email: EMAIL, password: 'short' })))).json())
+    expect(await (await server('/api/auth/setup', raw(JSON.stringify({ username: 'first', password: 'short' })))).json())
       .toMatchObject({ error: { code: 'password-too-short' } })
     // Every endpoint that takes a body applies the same input rules.
     expect(await (await server('/api/auth/register', raw('{'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
-    expect(await (await server('/api/auth/register', raw('{"email":""}'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
-    expect(await (await server('/api/auth/register', raw(JSON.stringify({ email: 'nope', password: PASSWORD })))).json())
+    expect(await (await server('/api/auth/register', raw('{"username":""}'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
+    expect(await (await server('/api/auth/register', raw(JSON.stringify({ username: 'first', email: 'nope', password: PASSWORD })))).json())
       .toMatchObject({ error: { code: 'invalid-email' } })
     expect(await (await server('/api/auth/login', raw('{'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
-    expect(await (await server('/api/auth/login', raw('{"email":"a@b.co"}'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
+    expect(await (await server('/api/auth/login', raw('{"identifier":"first"}'))).json()).toMatchObject({ error: { code: 'invalid-body' } })
     // A disabled method on a registered path is not an endpoint.
     expect((await server('/api/auth/status', { method: 'POST' })).status).toBe(404)
 
-    const setup = await server('/api/auth/setup', post(undefined, { email: EMAIL, password: PASSWORD }))
+    const setup = await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     const session = cookieOf(setup)
 
-    // Sign-in refusals are indistinguishable between an unknown address and a wrong password.
-    expect(await (await server('/api/auth/login', post(undefined, { email: 'nobody@example.com', password: PASSWORD }))).json())
+    // Sign-in refusals are indistinguishable between an unknown identifier and a wrong password.
+    expect(await (await server('/api/auth/login', post(undefined, { identifier: 'nobody', password: PASSWORD }))).json())
       .toMatchObject({ error: { code: 'invalid-credentials' } })
-    expect(await (await server('/api/auth/login', post(undefined, { email: EMAIL, password: 'password-9' }))).json())
+    expect(await (await server('/api/auth/login', post(undefined, { identifier: EMAIL, password: 'password-9' }))).json())
       .toMatchObject({ error: { code: 'invalid-credentials' } })
 
-    // Credential changes check the session, the current password, and the new address.
+    // Credential changes check the session, the current password, and both identity fields.
     expect((await server('/api/auth/change-password', post(undefined, { currentPassword: PASSWORD, newPassword: 'password-2' }))).status)
       .toBe(401)
     expect(await (await server('/api/auth/change-password', post(session, { currentPassword: PASSWORD }))).json())
@@ -318,10 +358,22 @@ describe('real account surface', () => {
       .toMatchObject({ error: { code: 'password-too-short' } })
     expect(await (await server('/api/auth/change-password', post(session, { currentPassword: PASSWORD, newPassword: 'password-2', email: 'nope' }))).json())
       .toMatchObject({ error: { code: 'invalid-email' } })
-    await server('/api/auth/register', post(undefined, { email: 'second@example.com', password: PASSWORD }))
+    expect(await (await server('/api/auth/change-password', post(session, {
+      currentPassword: PASSWORD, newPassword: 'password-2', username: 'X',
+    }))).json()).toMatchObject({ error: { code: 'invalid-username' } })
+    await server('/api/auth/register', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD }))
     expect(await (await server('/api/auth/change-password', post(session, {
       currentPassword: PASSWORD, newPassword: 'password-2', email: 'second@example.com',
     }))).json()).toMatchObject({ error: { code: 'email-taken' } })
+    expect(await (await server('/api/auth/change-password', post(session, {
+      currentPassword: PASSWORD, newPassword: 'password-2', username: 'second',
+    }))).json()).toMatchObject({ error: { code: 'username-taken' } })
+    // An empty address clears the stored one; the account keeps its name.
+    const cleared = await server('/api/auth/change-password', post(session, {
+      currentPassword: PASSWORD, newPassword: 'password-2', email: '',
+    }))
+    expect(cleared.status).toBe(200)
+    expect(await cleared.json()).toMatchObject({ user: { username: 'first', email: null } })
 
   })
 
@@ -333,7 +385,7 @@ describe('real account surface', () => {
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) },
     ))
     for (const path of ['/api/auth/setup', '/api/auth/register', '/api/auth/login', '/api/auth/change-password']) {
-      const response = await anonymousPost(path, { email: EMAIL, password: PASSWORD })
+      const response = await anonymousPost(path, { username: 'first', email: EMAIL, identifier: 'first', password: PASSWORD })
       expect(response.status, path).toBe(400)
       expect(await response.json(), path).toMatchObject({ error: { code: 'invalid-authority' } })
     }
@@ -359,7 +411,7 @@ describe('real account surface', () => {
     expect((await server('/api/anything', { headers: { cookie: device } })).status).toBe(404)
 
     const gated = await boot()
-    const setup = await gated('/api/auth/setup', post(undefined, { email: EMAIL, password: PASSWORD }))
+    const setup = await gated('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     const session = cookieOf(setup)
     expect((await gated('/workspace', { headers: { cookie: session } })).status).toBe(200)
 
@@ -390,7 +442,7 @@ describe('real account surface', () => {
     const reusable = await boot({ secret: valid })
     expect(inactive(reusable.ctx)).toEqual([])
     expect(await storedSecret(reusable.credentialsPath)).toBe(valid)
-    const created = await reusable('/api/auth/setup', post(undefined, { email: EMAIL, password: PASSWORD }))
+    const created = await reusable('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     expect(created.status).toBe(200)
 
     // A padded spelling decodes to the same 32 bytes without being that byte
@@ -421,17 +473,17 @@ describe('real account surface', () => {
 
   it('refuses a session whose account no longer exists', { timeout: 60_000 }, async () => {
     const server = await boot()
-    const setup = await server('/api/auth/setup', post(undefined, { email: EMAIL, password: PASSWORD }))
+    const setup = await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     expect(setup.status).toBe(200)
     const secret = Buffer.from(await storedSecret(server.credentialsPath), 'base64url')
     const forged = new SessionCookies(secret, 24 * 60 * 60 * 1000).issue(
       new URL(server.base).host,
-      { id: 'ghost', email: 'ghost@example.com', password: 'x', createdAt: 0, tokenVersion: 1 },
+      { id: 'ghost', username: 'ghost', email: 'ghost@example.com', password: 'x', createdAt: 0, tokenVersion: 1 },
       Date.now(),
     )
     const cookie = forged.split(';', 1)[0] as string
     const entry = await server('/workspace', { redirect: 'manual', headers: { cookie } })
     expect(entry.status).toBe(302)
-    expect(entry.headers.get('location')).toBe('/login?next=%2Fworkspace')
+    expect(entry.headers.get('location')).toBe('/?next=%2Fworkspace')
   })
 })

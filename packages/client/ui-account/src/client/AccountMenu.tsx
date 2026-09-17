@@ -107,7 +107,7 @@ export function AccountMenu({
   useTheme, useLocale, useSettingsPanel, t,
 }: AccountMenuProps): ReactNode {
   const open = useStore(state => state.open)
-  const email = useStore(state => state.email)
+  const accountName = useStore(state => state.accountName)
   const signOutAvailable = useStore(state => state.signOutAvailable)
   const settingsMounted = useSettingsPanel(mounted => mounted)
   const preference = useTheme(snapshot => snapshot.preference)
@@ -120,7 +120,7 @@ export function AccountMenu({
 
   const selected: string[] = []
   const items: MenuEntry[] = []
-  if (email !== null) items.push({ type: 'label', id: 'account', text: email })
+  if (accountName !== null) items.push({ type: 'label', id: 'account', text: accountName })
   // A deployment that mounts no settings panel offers no Settings row: the row
   // is the panel's entry point, and nothing else would answer it.
   if (settingsMounted) items.push({ id: SETTINGS_ID, label: t('settings'), icon: <IconSettingsOutline16 /> })
@@ -171,11 +171,11 @@ export function AccountMenu({
   }
 
   const label = t('label')
-  // The row reads as the account it belongs to: the signed-in address when the
+  // The row reads as the account it belongs to: the signed-in name when the
   // gate reports one, otherwise the localized account label. The avatar shows
-  // the address's first letter, or the generic user glyph while none is known.
-  const accountName = email ?? label
-  const initial = email === null ? undefined : Array.from(email)[0]?.toUpperCase()
+  // the name's first letter, or the generic user glyph while none is known.
+  const name = accountName ?? label
+  const initial = accountName === null ? undefined : Array.from(accountName)[0]?.toUpperCase()
 
   return (
     <Menu
@@ -203,7 +203,7 @@ export function AccountMenu({
             <span className={css.avatar} aria-hidden="true">
               {initial ?? <IconUserOutline16 size={14} />}
             </span>
-            {wide && <span className={css.name}>{accountName}</span>}
+            {wide && <span className={css.name}>{name}</span>}
           </button>
         </Tooltip>
       )}

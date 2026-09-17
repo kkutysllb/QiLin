@@ -5,20 +5,16 @@
  * theme toggle's behaviour comes from the shared pre-session module.
  */
 
+import { readAccountStatus } from '../account-status.ts'
+import { nextDestination } from '../next-destination.ts'
 import { startPreSessionThemeToggle } from '../theme-preference.ts'
 
-/** Server path reporting the account state a pre-session visitor may act on. */
-const STATUS_ENDPOINT = '/api/auth/status'
 /** Server path creating the first administrator account. */
 const SETUP_ENDPOINT = '/api/auth/setup'
 /** Server path creating an account while self-registration is open. */
 const REGISTER_ENDPOINT = '/api/auth/register'
 /** Server path starting a session for an existing account. */
 const LOGIN_ENDPOINT = '/api/auth/login'
-/** Console entry path used when the request carries no usable `next` value. */
-const ENTRY_PATH = '/workspace'
-/** Query parameter carrying the post-authentication destination. */
-const NEXT_PARAMETER = 'next'
 /** Path of the setup document. */
 const SETUP_PATH = '/setup'
 /** Path of the sign-in document; every other path renders it. */
@@ -30,18 +26,6 @@ const MARKUP_ROOT_ID = 'auth-copy'
 
 /** The three credential forms this one document can render. */
 type AuthMode = 'login' | 'register' | 'setup'
-
-/** The three account facts `GET /api/auth/status` decides for this page. */
-interface AccountStatus {
-  readonly authenticated: boolean
-  readonly registrationOpen: boolean
-  readonly needsSetup: boolean
-}
-
-/** Whitespace and control codes a browser strips or folds while resolving a URL. */
-const URL_NOISE = /[\u0000-\u0020\u007f]/u
-/** Leading `scheme:` of an absolute URL. */
-const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/iu
 
 /**
  * Look up one element this page's own markup declares.
@@ -57,6 +41,9 @@ function requiredElement(id: string): HTMLElement {
 const titleNode = requiredElement('auth-title') as HTMLHeadingElement
 const subtitleNode = requiredElement('auth-subtitle') as HTMLParagraphElement
 const formNode = requiredElement('auth-form') as HTMLFormElement
+const identifierNode = requiredElement('auth-identifier') as HTMLInputElement
+const identifierLabelNode = requiredElement('auth-identifier-label') as HTMLLabelElement
+const emailFieldNode = requiredElement('auth-email-field') as HTMLDivElement
 const emailNode = requiredElement('auth-email') as HTMLInputElement
 const passwordNode = requiredElement('auth-password') as HTMLInputElement
 const confirmFieldNode = requiredElement('auth-confirm-field') as HTMLDivElement
@@ -109,47 +96,6 @@ function initialMode(): AuthMode {
 }
 
 /**
- * Validate the `?next=` destination.
- * A same-site absolute path is honoured; a scheme, a protocol-relative path, a
- * backslash, or a character the browser folds away falls back to the console.
- * @returns the requested path, or the console entry path.
- */
-function redirectTarget(): string {
-  const requested = new URLSearchParams(location.search).get(NEXT_PARAMETER)
-  if (requested === null || requested === '') return ENTRY_PATH
-  if (!requested.startsWith('/')) return ENTRY_PATH
-  if (requested.startsWith('//')) return ENTRY_PATH
-  if (URL_NOISE.test(requested) || requested.includes('\\')) return ENTRY_PATH
-  if (URL_SCHEME.test(requested)) return ENTRY_PATH
-  return requested
-}
-
-/**
- * Ask the server which account decisions apply to this visitor.
- * @returns the three facts, or undefined when the request cannot answer them.
- */
-async function readStatus(): Promise<AccountStatus | undefined> {
-  let payload: unknown
-  try {
-    const response = await fetch(STATUS_ENDPOINT, { headers: { accept: 'application/json' } })
-    if (!response.ok) return undefined
-    payload = await response.json()
-  } catch {
-    // A visitor the status endpoint cannot reach still gets the login form;
-    // registration stays hidden because the server never confirmed it.
-    return undefined
-  }
-  if (typeof payload !== 'object' || payload === null) return undefined
-  const facts: Record<string, unknown> = payload as Record<string, unknown>
-  const authenticated = facts['authenticated']
-  const registrationOpen = facts['registrationOpen']
-  const needsSetup = facts['needsSetup']
-  if (typeof authenticated !== 'boolean' || typeof registrationOpen !== 'boolean'
-    || typeof needsSetup !== 'boolean') return undefined
-  return { authenticated, registrationOpen, needsSetup }
-}
-
-/**
  * Read one rejected response's failure line. The page's own copy wins for every
  * code it declares, so this Chinese surface never shows the server's English
  * diagnostic; an undeclared code falls back to the server's message.
@@ -186,13 +132,24 @@ function applyMode(next: AuthMode): void {
   subtitleNode.textContent = copyText(`subtitle.${next}`)
   submitNode.textContent = copyText(`submit.${next}`)
   toggleNode.textContent = copyText(next === 'login' ? 'toggle.toRegister' : 'toggle.toLogin')
-  const needsConfirm = next !== 'login'
-  confirmFieldNode.hidden = !needsConfirm
-  // A disabled control is exempt from constraint validation, so the hidden
-  // confirm field never blocks a login submit.
-  confirmNode.disabled = !needsConfirm
-  passwordNode.autocomplete = next === 'login' ? 'current-password' : 'new-password'
-  if (!needsConfirm) confirmNode.value = ''
+  const creating = next !== 'login'
+  // One identity field: the login name on the credential form, the account name
+  // on the two creation forms.
+  identifierLabelNode.textContent = copyText(creating ? 'label.username' : 'label.identifier')
+  identifierNode.placeholder = copyText(creating ? 'placeholder.username' : 'placeholder.identifier')
+  // The address belongs to the creation forms and is optional there. A disabled
+  // control is exempt from constraint validation, so a hidden field never
+  // blocks the form that does not use it.
+  emailFieldNode.hidden = !creating
+  emailNode.disabled = !creating
+  emailNode.placeholder = copyText('placeholder.email')
+  confirmFieldNode.hidden = !creating
+  confirmNode.disabled = !creating
+  passwordNode.autocomplete = creating ? 'new-password' : 'current-password'
+  if (!creating) {
+    emailNode.value = ''
+    confirmNode.value = ''
+  }
 }
 
 /** Show the registration toggle only where the server offers it. */
@@ -241,8 +198,7 @@ function endpointFor(current: AuthMode): string {
 async function requestSession(event: SubmitEvent): Promise<void> {
   event.preventDefault()
   clearError()
-  const target = redirectTarget()
-  const email = emailNode.value.trim()
+  const identifier = identifierNode.value.trim()
   const password = passwordNode.value
   if (mode !== 'login') {
     if (password !== confirmNode.value) {
@@ -259,14 +215,16 @@ async function requestSession(event: SubmitEvent): Promise<void> {
     const response = await fetch(endpointFor(mode), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(mode === 'login'
+        ? { identifier, password }
+        : { username: identifier, email: emailNode.value.trim(), password }),
     })
     if (!response.ok) {
       showError((await failureText(response)) ?? copyText('error.network'))
       return
     }
     // A successful answer already carried the session cookie.
-    location.assign(target)
+    location.assign(nextDestination())
   } catch {
     // The request never reached the server (offline, DNS, aborted).
     showError(copyText('error.network'))
@@ -293,9 +251,9 @@ async function start(): Promise<void> {
     void requestSession(event)
   })
   toggleNode.addEventListener('click', switchMode)
-  const status = await readStatus()
+  const status = await readAccountStatus()
   if (status?.authenticated === true) {
-    location.replace(redirectTarget())
+    location.replace(nextDestination())
     return
   }
   // Both documents are public files, so the entry gate never sees them: this

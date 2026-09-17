@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-在 Web 部署中挂载本包，浏览器必须先登录才能到达 harness。首位访问者初始化管理员账户；此后每个浏览器都用邮箱地址与密码登录，账户会话门禁只把应用文档与 `/api` 交给本部署签发的会话。账户针对的是一个 harness home 的访问，因此第二个账户同样能到达相同的 Session、凭据与文件。注册默认开放，绑定了 loopback 之外的部署会关闭它。禁用门禁即恢复 transport 的启动令牌交接。
+在 Web 部署中挂载本包，浏览器必须先登录才能到达 harness。首位访问者初始化管理员账户；此后每个浏览器都用用户名或该账户携带的邮箱地址登录，账户会话门禁只把应用文档与 `/api` 交给本部署签发的会话。没有会话的浏览器会被送到站点的公开 landing 页，由它打开登录页或首次运行页。账户针对的是一个 harness home 的访问，因此第二个账户同样能到达相同的 Session、凭据与文件。注册默认开放，绑定了 loopback 之外的部署会关闭它。禁用门禁即恢复 transport 的启动令牌交接。
 
 ## 目录
 
@@ -39,14 +39,14 @@ kind: "package-reference"
 |---|---|---|
 | `enabled` | `true` | 要求受门禁的 index 路径与每个非公开 `/api` 请求都携带账户会话 |
 | `registration` | `'open'` | 匿名访问者是否可以创建额外账户 |
-| `sessionMaxAgeDays` | `30` | 浏览器会话的绝对有效期，单位为天 |
+| `sessionMaxAgeDays` | `7` | 浏览器会话的绝对有效期，单位为天 |
 | `qilinHome` | `$QILIN_HOME`，其次 `~/.qilin` | 存放 `auth/accounts.json` 的 harness home |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilinaccounts-local)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 登录流程
 
-请求受门禁 index 路径的匿名浏览器会被重定向到能够建立会话的文档：账户文件里还没有账户时是 `/setup`，否则是 `/login?next=<请求路径>`。登录文档读取 `GET /api/auth/status`，渲染登录或首次运行表单并提交凭据；成功响应本身已经携带会话 cookie，因此浏览器随后导航到经过校验的 `next` 目标或应用入口路径。因为门禁位于提供该文档的操作里，直接导航无法绕过任何客户端检查。
+请求受门禁 index 路径的匿名浏览器会被重定向到公开 landing 页并带上 `?next=<请求路径>`，绝不会直接落到凭据表单。landing 页读取 `GET /api/auth/status`，把入口按钮指向本部署能提供的文档：账户文件里还没有账户时是首次运行页，否则是登录页，两者都会带上请求的路径。该文档渲染表单并提交凭据；成功响应本身已经携带会话 cookie，因此浏览器随后导航到经过校验的 `next` 目标或应用入口路径。因为门禁位于提供该文档的操作里，直接导航无法绕过任何客户端检查；退出登录会把浏览器送回 landing 页。
 
 ### 端点
 
@@ -54,14 +54,14 @@ kind: "package-reference"
 
 | 端点 | 应答 |
 |---|---|
-| `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`；`user` 是 `{ id, email, createdAt }` 或 `null` |
+| `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`；`user` 是 `{ id, username, email, createdAt }` 或 `null`，未填邮箱的账户其 `email` 为 null |
 | `POST /api/auth/setup` | 200 `{ user }` 加会话 cookie；已存在账户时 409 `already-initialized` |
-| `POST /api/auth/register` | 200 `{ user }` 加会话 cookie；403 `registration-closed`；409 `email-taken` |
-| `POST /api/auth/login` | 200 `{ user }` 加会话 cookie；地址未知或密码错误时 401 `invalid-credentials` |
+| `POST /api/auth/register` | 200 `{ user }` 加会话 cookie；403 `registration-closed`；409 `username-taken` 或 `email-taken` |
+| `POST /api/auth/login` | 200 `{ user }` 加会话 cookie；标识符未知或密码错误时 401 `invalid-credentials` |
 | `POST /api/auth/logout` | 204，并清除该 authority 的 cookie |
-| `POST /api/auth/change-password` | 200 `{ user }` 加新的会话 cookie；没有会话时 401 `unauthorized`，当前密码错误时 401 `invalid-credentials`；409 `email-taken` |
+| `POST /api/auth/change-password` | 200 `{ user }` 加新的会话 cookie；没有会话时 401 `unauthorized`，当前密码错误时 401 `invalid-credentials`；409 `username-taken` 或 `email-taken` |
 
-`setup`、`register` 与 `login` 读取 `{ email, password }`；`change-password` 读取 `{ currentPassword, newPassword, email? }`，并在其中给出另一个地址时一并更换邮箱。地址在存储与查找前会被去除空白并转为小写，密码至少 8 个字符。不是 JSON 对象的请求体、缺失的凭据字段、形式不合法的地址，以及没有指明 authority 的请求，会分别以 400 `invalid-body`、`invalid-email`、`password-too-short` 或 `invalid-authority` 拒绝。
+`setup` 与 `register` 读取 `{ username, email?, password }`；`login` 读取 `{ identifier, password }`，用户名与该账户的邮箱地址都可作为标识符；`change-password` 读取 `{ currentPassword, newPassword, username?, email? }`，并更换其中给出的每个身份字段，地址为空字符串即清除已存地址。用户名为 3–32 位字母、数字、点、下划线或短横线且以字母或数字开头，存储与查找前会去除空白并转为小写，因此同一账户不会被拼成两种写法；地址同样处理，密码至少 8 个字符。不是 JSON 对象的请求体、缺失的凭据字段、形式不合法的用户名或地址，以及没有指明 authority 的请求，会分别以 400 `invalid-body`、`invalid-username`、`invalid-email`、`password-too-short` 或 `invalid-authority` 拒绝。
 
 ### 账户会话门禁
 
@@ -148,7 +148,7 @@ kind: "package-reference"
 - **没有账户删除或密码找回**——没有任何端点会删除账户或找回遗忘的密码；操作者需要编辑或删除 `$QILIN_HOME/auth/accounts.json`，删除该文件会让部署回到首次运行状态。
 - **会话 cookie 是明文 HTTP 上的 bearer 凭据**——与 transport 自身的 cookie 一样，它不带 `Secure` 属性，因为随附服务器提供的是 loopback HTTP。
 - **会话密钥丢失或被替换会终结所有会话**——凭据记录 `accounts-local/session-secret` 是唯一的签名密钥；替换它会作废所有已签发的 cookie，而账户本身保留。
-- **账户文件没有降级或迁移路径**——本构建未曾写入的文档会让插件加载失败，因此格式变更只能通过一次刻意的迁移触达既有文件。
+- **账户文件只能向前迁移**——版本 1 的文档会被读成「用户名即其所存地址」的账户，但来自更新构建的文档会让插件加载失败，且在下次变更之前不会有任何东西改写版本 1 的文件。看起来像地址的迁移后用户名，必须由运营者手工修改才能换成合法用户名。
 
 <a id="dev-note"></a>
 ### 开发备注

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The account menu is the footer's account row: the signed-in address's first letter in an avatar, alone in the rail. One dropdown carries the address, Settings, Appearance and Language submenus, and Sign out; it is the Web surface for theme and language, the only Settings entry point, and the only way to sign out. Its facts come from the gate's `GET /api/auth/status` answer, so a deployment without accounts renders the row under the localized label, the same menu minus the identity, and no session to end. The plugin provides no service, owns no dialog, and contributes one list entry.
+The account menu is the footer's account row: the signed-in username's first letter in an avatar, alone in the rail. One dropdown carries the username, Settings, Appearance and Language submenus, and Sign out; it is the Web surface for theme and language, the only Settings entry point, and the only way to sign out. Its facts come from the gate's `GET /api/auth/status` answer, so a deployment without accounts renders the row under the localized label, the same menu minus the identity, and no session to end. The plugin provides no service, owns no dialog, and contributes one list entry.
 
 ## Table of Contents
 
@@ -28,11 +28,11 @@ The `qilin` Web profile mounts this package through the `web-app` bundle patch; 
 
 | Row | Present when | Effect |
 |---|---|---|
-| the signed-in address | the gate answered with an account | a menu heading; the address is not a link |
+| the signed-in username | the gate answered with an account | a menu heading; the name is not a link |
 | Settings | the settings panel is mounted | reveals the settings panel |
 | Appearance | always | opens the Light / Dark / Follow system submenu |
 | Language | always | opens one row per registered locale, each labelled in that locale |
-| Sign out | the account gate is enabled | ends the session, then lands on the sign-in page |
+| Sign out | the account gate is enabled | ends the session, then lands on the public landing page |
 
 The identity and the sign-out row arrive with the status answer, so a menu opened before that answer shows neither; the rows below them are there from the first paint. The theme row matching the current preference and the language row matching the active locale are the marked ones.
 

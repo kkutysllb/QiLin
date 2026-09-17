@@ -69,14 +69,22 @@
         <span data-copy="busy.setup">正在创建账户…</span>
         <span data-copy="toggle.toRegister">没有账户？立即注册</span>
         <span data-copy="toggle.toLogin">已有账户？立即登录</span>
+        <span data-copy="label.identifier">用户名或邮箱</span>
+        <span data-copy="label.username">用户名</span>
+        <span data-copy="label.email">邮箱（可选）</span>
+        <span data-copy="placeholder.identifier">请输入用户名或邮箱</span>
+        <span data-copy="placeholder.username">3–32 位字母、数字、点、下划线或短横线</span>
+        <span data-copy="placeholder.email">用于账户识别，可留空</span>
         <span data-copy="error.mismatch">两次密码不一致</span>
         <span data-copy="error.passwordLength">密码长度不能少于 8 位</span>
         <span data-copy="error.network">网络错误，请重试。</span>
-        <span data-copy="error.invalid-credentials">邮箱或密码不正确</span>
+        <span data-copy="error.invalid-credentials">用户名或密码不正确</span>
         <span data-copy="error.unauthorized">登录状态已失效，请重新登录</span>
         <span data-copy="error.password-too-short">密码长度不能少于 8 位</span>
+        <span data-copy="error.invalid-username">用户名为 3–32 位字母、数字、点、下划线或短横线，并以字母或数字开头</span>
+        <span data-copy="error.username-taken">该用户名已被占用，请换一个</span>
         <span data-copy="error.invalid-email">请输入有效的邮箱地址</span>
-        <span data-copy="error.invalid-body">请填写完整的邮箱与密码</span>
+        <span data-copy="error.invalid-body">请填写完整的用户名与密码</span>
         <span data-copy="error.invalid-authority">请通过启动时打印的链接访问本页面</span>
         <span data-copy="error.email-taken">该邮箱已注册，请直接登录</span>
         <span data-copy="error.already-initialized">管理员账户已存在，请直接登录</span>
@@ -125,16 +133,33 @@
             </header>
 
             <form class="ql-form" id="auth-form">
+              <!--
+                One identity field serves both documents: the login name on the
+                credential form, the account name on the two creation forms. The
+                address below belongs to the creation forms only and is optional.
+              -->
               <div class="ql-field">
-                <label class="ql-label" for="auth-email">邮箱</label>
+                <label class="ql-label" for="auth-identifier" id="auth-identifier-label">用户名或邮箱</label>
+                <input
+                  class="ql-input"
+                  id="auth-identifier"
+                  name="identifier"
+                  type="text"
+                  autocomplete="username"
+                  placeholder="请输入用户名或邮箱"
+                  required
+                />
+              </div>
+              <div class="ql-field" id="auth-email-field" hidden>
+                <label class="ql-label" for="auth-email">邮箱（可选）</label>
                 <input
                   class="ql-input"
                   id="auth-email"
                   name="email"
                   type="email"
-                  autocomplete="username"
-                  placeholder="请输入邮箱地址"
-                  required
+                  autocomplete="email"
+                  placeholder="用于账户识别，可留空"
+                  disabled
                 />
               </div>
               <div class="ql-field">
