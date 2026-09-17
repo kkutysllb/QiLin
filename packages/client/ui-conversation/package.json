@@ -75,6 +75,7 @@
     "@qilin/llm-retry": "workspace:^",
     "@qilin/plan-mode": "workspace:^",
     "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^",
     "@qilin/token-meter": "workspace:^",
     "@qilin/tool-todo": "workspace:^",
     "@qilin/util-crypto": "workspace:^",
@@ -92,7 +93,8 @@
     "@lexical/utils": "^0.49.0",
     "@lexical/text": "^0.49.0",
     "@lexical/plain-text": "^0.49.0",
-    "@lexical/history": "^0.49.0"
+    "@lexical/history": "^0.49.0",
+    "@qilin/agent": "workspace:^"
   },
   "files": [
     "lib/index.js",

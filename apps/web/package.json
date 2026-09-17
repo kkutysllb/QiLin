@@ -58,6 +58,7 @@
     "vitest": "^4.1.8",
     "ws": "8.21.0",
     "@qilin/launch-environment": "workspace:^",
+    "@qilin/workspace-changes": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
     "@qilin/experimental-auto-review": "workspace:^"
   }

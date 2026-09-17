@@ -34,7 +34,7 @@
     }
   },
   "dependencies": {
-    "@qilin/kylin-plugin-hmr": "workspace:^",
+    "@qilin/hmr": "workspace:^",
     "@qilin/kylin-plugin-timer": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/agent-default-model": "workspace:^",
@@ -120,7 +120,8 @@
     "@qilin/web-search-deepseek": "workspace:^",
     "@qilin/workflow-ptc": "workspace:^",
     "@qilin/agent-instructions": "workspace:^",
-    "@qilin/ptc-runtime-node": "workspace:^"
+    "@qilin/ptc-runtime-node": "workspace:^",
+    "@qilin/plugin-manager": "workspace:^"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:^"

@@ -1,32 +1,7 @@
-import { useCallback, useEffect, useRef } from 'react'
 import type { ConversationSlotProps } from '../contract/slots.ts'
 import { conversationPhase } from '../contract/snapshot.ts'
-import { ConversationContent } from './ConversationContent.tsx'
-import { CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_MIN } from '../../conversation-settings.ts'
+import { ConversationWidthControls } from './ConversationWidthControls.tsx'
 import css from './ConversationRoot.module.css'
-
-/** Column budget the content must leave free: 88px per side keeps the width
- * handles fully placeable (24px inset + 40px strip + 24px safe zone) — a
- * larger dragged width would push its own handles off the column and leave no
- * way to drag back. */
-const CONTENT_EDGE_BUDGET = 176
-
-/** The persisted width preference as a resize target.
- * @param stored - the durable content width, in px.
- * @returns the explicit width, or null when the adaptive clamp stands. */
-function explicitWidth(stored: number): number | null {
-  return stored === CONTENT_WIDTH_ADAPTIVE ? null : stored
-}
-
-/** Resolves the content width the CSS axis would show for a column width.
- * @param columnWidth - the conversation column's rendered width in px.
- * @param preference - the dragged width, or null for the adaptive clamp.
- * @returns the resolved content width in px (mirrors the CSS clamp). */
-function resolveContentWidth(columnWidth: number, preference: number | null): number {
-  const max = Math.max(CONTENT_WIDTH_MIN, columnWidth - CONTENT_EDGE_BUDGET)
-  if (preference !== null) return Math.min(Math.max(preference, CONTENT_WIDTH_MIN), max)
-  return Math.max(680, Math.min(columnWidth * 0.64, 920))
-}
 
 /**
  * Render the existing main Conversation frame around the extracted content.
@@ -34,7 +9,7 @@ function resolveContentWidth(columnWidth: number, preference: number | null): nu
  * @returns the unchanged root, Header, content, and width-control subtree.
  */
 export function ConversationMainPanel(props: ConversationSlotProps) {
-  const { sessionId, useSession, useSessions, useConversation, useContentWidth, renderSlot, setContentWidth } = props
+  const { sessionId, useSession, useSessions, useConversation, renderSlot, renderFactorySlot } = props
   const session = useSession(s => s)
   const conversation = useConversation(s => s)
   const shellPhase = session === undefined || conversation === undefined
@@ -42,72 +17,6 @@ export function ConversationMainPanel(props: ConversationSlotProps) {
     : conversationPhase(session, conversation)
   const openState = session?.openState
   const summaryBlank = useSessions(s => sessionId === undefined ? undefined : s.byId[sessionId]?.blank)
-
-  // Publishes the column's live width as --qilin-conversation-column-width so
-  // the shared width axis can adapt (see the .root CSS), and re-clamps the
-  // stored preference against the shrunken column WITHOUT rewriting the
-  // preference — widening the window restores it (the AppFrame sidebar-drag
-  // rule). The preference is read through a ref, so a width change never
-  // rebuilds the observer; the effect below republishes when it moves. Same
-  // callback-ref pattern as the seat observer.
-  const widthPreference = useContentWidth(value => value)
-  const storedWidth = useRef(widthPreference)
-  storedWidth.current = widthPreference
-  const rootEl = useRef<HTMLDivElement | null>(null)
-  const rootObserver = useRef<ResizeObserver | null>(null)
-  const publishWidths = useCallback((root: HTMLDivElement): void => {
-    const column = root.offsetWidth
-    root.style.setProperty('--qilin-conversation-column-width', `${column}px`)
-    const preference = explicitWidth(storedWidth.current)
-    if (preference === null) {
-      root.style.removeProperty('--qilin-chat-user-width')
-    } else {
-      root.style.setProperty('--qilin-chat-user-width', `${resolveContentWidth(column, preference)}px`)
-    }
-  }, [])
-  const rootResizeRef = useCallback((root: HTMLDivElement | null): void => {
-    rootObserver.current?.disconnect()
-    rootObserver.current = null
-    rootEl.current = root
-    if (root === null) return
-    rootObserver.current = new ResizeObserver(() => { publishWidths(root) })
-    rootObserver.current.observe(root)
-    publishWidths(root)
-  }, [publishWidths])
-  useEffect(() => {
-    const root = rootEl.current
-    if (root !== null) publishWidths(root)
-  }, [widthPreference, publishWidths])
-
-  // Drag plumbing for the two width handles: onStart snapshots the resolved
-  // width (grabbing a clamped column must not jump back to the raw stored
-  // preference), onDrag publishes only the live clamped style, onCommit
-  // persists the width of a gesture that actually travelled, and onEnd
-  // republishes from the preference — an uncommitted press leaves the stored
-  // preference untouched.
-  const onHandleStart = useCallback((): number => {
-    const root = rootEl.current
-    /* v8 ignore next -- handles render inside the root, so the ref is always attached. */
-    if (root === null) return 680
-    return resolveContentWidth(root.offsetWidth, explicitWidth(storedWidth.current))
-  }, [])
-  const onHandleDrag = useCallback((width: number): void => {
-    const root = rootEl.current
-    /* v8 ignore next -- handles render inside the root, so the ref is always attached. */
-    if (root === null) return
-    const clamped = resolveContentWidth(root.offsetWidth, width)
-    root.style.setProperty('--qilin-chat-user-width', `${clamped}px`)
-  }, [])
-  const onHandleCommit = useCallback((width: number): void => {
-    const root = rootEl.current
-    /* v8 ignore next -- handles render inside the root, so the ref is always attached. */
-    if (root === null) return
-    setContentWidth(resolveContentWidth(root.offsetWidth, width))
-  }, [setContentWidth])
-  const onHandleEnd = useCallback((): void => {
-    const root = rootEl.current
-    if (root !== null) publishWidths(root)
-  }, [publishWidths])
 
   // While a session is still replaying (loading + blank) the hero/docked
   // choice is unknowable — render the composer hidden instead of flashing
@@ -132,18 +41,15 @@ export function ConversationMainPanel(props: ConversationSlotProps) {
   const phase = settling ? 'settling' : hero ? 'hero' : 'active'
 
   return (
-    <div ref={rootResizeRef} className={css.root} data-phase={phase}>
+    <div className={css.root} data-phase={phase}>
       {sessionId === undefined ? null : renderSlot('conversation.session.header', {})}
-      <ConversationContent
-        {...props}
-        session={session}
-        phase={phase}
-        hero={hero}
-        onHandleStart={onHandleStart}
-        onHandleDrag={onHandleDrag}
-        onHandleCommit={onHandleCommit}
-        onHandleEnd={onHandleEnd}
-      />
+      {renderFactorySlot('conversation.content', {
+        variant: 'main',
+        phase,
+        hero,
+      }, {
+        slots: { widthControls: ConversationWidthControls },
+      })}
     </div>
   )
 }

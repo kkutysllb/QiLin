@@ -13742,6 +13742,72 @@
           }
         ]
       }
+    },
+    {
+      "key": "event:workspace/changes",
+      "kind": "event",
+      "event": "workspace/changes",
+      "surface": false,
+      "digest": "df7b1ffd02c3e01583164008ea205341fa35c4a769c45c18f630dd9a50753610",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "data",
+                "type": 1,
+                "optional": false
+              },
+              {
+                "name": "ignorable",
+                "type": 3,
+                "optional": true
+              },
+              {
+                "name": "seq",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "time",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "type",
+                "type": 4,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "turn",
+                "type": 2,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "primitive",
+            "type": "number"
+          },
+          {
+            "kind": "literal",
+            "value": true
+          },
+          {
+            "kind": "literal",
+            "value": "workspace/changes"
+          }
+        ]
+      }
     }
   ],
   "types": [
@@ -17041,7 +17107,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[1]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:426"
+        "packages/llm/llm/src/types.ts:428"
       ]
     },
     {
@@ -18749,7 +18815,7 @@
         "event:deliverables/presented.data"
       ],
       "sources": [
-        "packages/fs/tool-present/src/types.ts:15"
+        "packages/deliverables/tool-present/src/types.ts:15"
       ]
     },
     {
@@ -18823,7 +18889,7 @@
         "packages/workflow/workflow/src/types.ts#WorkflowRunId"
       ],
       "sources": [
-        "packages/api/session-controller/src/types.ts:379",
+        "packages/api/session-controller/src/types.ts:380",
         "packages/attachment/attachment/src/brand.ts:6",
         "packages/compaction/compaction/src/brand.ts:4",
         "packages/core/session/src/types.ts:19",
@@ -19309,7 +19375,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[3]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:428"
+        "packages/llm/llm/src/types.ts:430"
       ]
     },
     {
@@ -22398,7 +22464,7 @@
         "packages/llm/llm/src/types.ts#SystemPromptUpdate"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:381"
+        "packages/llm/llm/src/types.ts:383"
       ]
     },
     {
@@ -22479,7 +22545,7 @@
         "packages/llm/llm/src/types.ts#ToolSchema"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:445"
+        "packages/llm/llm/src/types.ts:447"
       ]
     },
     {
@@ -23649,7 +23715,7 @@
         "packages/llm/llm/src/types.ts#ReplayEnvelope"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:402"
+        "packages/llm/llm/src/types.ts:404"
       ]
     },
     {
@@ -24424,7 +24490,7 @@
         "packages/llm/llm/src/types.ts#StreamChunk"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:424"
+        "packages/llm/llm/src/types.ts:426"
       ]
     },
     {
@@ -28422,10 +28488,12 @@
         ]
       },
       "names": [
-        "event:turn/start.data"
+        "event:turn/start.data",
+        "event:workspace/changes.data"
       ],
       "sources": [
-        "packages/core/session/src/types.ts:276"
+        "packages/core/session/src/types.ts:276",
+        "packages/deliverables/workspace-changes/src/types.ts:106"
       ]
     },
     {
@@ -32477,10 +32545,10 @@
         ]
       },
       "names": [
-        "packages/fs/tool-present/src/types.ts#PresentedFile"
+        "packages/deliverables/tool-present/src/types.ts#PresentedFile"
       ],
       "sources": [
-        "packages/fs/tool-present/src/types.ts:5"
+        "packages/deliverables/tool-present/src/types.ts:5"
       ]
     },
     {
@@ -36466,10 +36534,10 @@
         ]
       },
       "names": [
-        "event:agent/inbox/spliced.data.inserted[0].source[10]"
+        "event:agent/inbox/spliced.data.inserted[0].source[11]"
       ],
       "sources": [
-        "packages/api/session-controller/src/types.ts:384"
+        "packages/api/session-controller/src/types.ts:385"
       ]
     },
     {
@@ -37472,7 +37540,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[4]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:429"
+        "packages/llm/llm/src/types.ts:431"
       ]
     },
     {
@@ -37834,7 +37902,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[6]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:431"
+        "packages/llm/llm/src/types.ts:433"
       ]
     },
     {
@@ -42483,7 +42551,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[2]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:427"
+        "packages/llm/llm/src/types.ts:429"
       ]
     },
     {
@@ -50676,6 +50744,7 @@
         "SessionEventEnvelope[53]",
         "SessionEventEnvelope[54]",
         "SessionEventEnvelope[56]",
+        "SessionEventEnvelope[57]",
         "SessionEventEnvelope[5]",
         "SessionEventEnvelope[7]",
         "SessionEventEnvelope[8]",
@@ -52107,7 +52176,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[0]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:425"
+        "packages/llm/llm/src/types.ts:427"
       ]
     },
     {
@@ -55641,6 +55710,72 @@
       "sources": []
     },
     {
+      "digest": "df7b1ffd02c3e01583164008ea205341fa35c4a769c45c18f630dd9a50753610",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "data",
+                "type": 1,
+                "optional": false
+              },
+              {
+                "name": "ignorable",
+                "type": 3,
+                "optional": true
+              },
+              {
+                "name": "seq",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "time",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "type",
+                "type": 4,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "turn",
+                "type": 2,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "primitive",
+            "type": "number"
+          },
+          {
+            "kind": "literal",
+            "value": true
+          },
+          {
+            "kind": "literal",
+            "value": "workspace/changes"
+          }
+        ]
+      },
+      "names": [
+        "event:workspace/changes"
+      ],
+      "sources": []
+    },
+    {
       "digest": "e0ad124d932c12236a160c3e9b0dbcc77ad3a12e92985c53b7ad0843de4a3350",
       "schema": {
         "root": 0,
@@ -55825,7 +55960,7 @@
         "event:assistant/attempt.data.stream[0][3].chunk[5]"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:430"
+        "packages/llm/llm/src/types.ts:432"
       ]
     },
     {
@@ -59802,6 +59937,20 @@
           {
             "kind": "literal",
             "value": "stop"
+          }
+        ]
+      },
+      "names": [],
+      "sources": []
+    },
+    {
+      "digest": "f9cc2b6e6bdbf0b7fcb6a4779011735c12914ce336ae7e945bc3bef9eade96fe",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "literal",
+            "value": "workspace/changes"
           }
         ]
       },

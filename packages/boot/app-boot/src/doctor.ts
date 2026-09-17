@@ -7,7 +7,7 @@
  * it import a legacy engine name it never declared, and can the client loader
  * map the module names it injects. The report is advisory — only a profile that
  * actually installed an upstream engine package is refused, by
- * `reconcileProfilePlugins`.
+ * `reconcileProfileBundles`.
  * @module @qilin/app-boot/doctor
  */
 

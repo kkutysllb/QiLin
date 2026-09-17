@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/practice/dynamic-kylin.md
-dynamic-kylin.md: 9ee77025f9c19f6593fa1a131593669da594989c
-dynamic-kylin.zh.md: 7bc405cb073601b9c4dd892d2b10f5571ff99641
+dynamic-kylin.md: f7cb76ab83e1142ef359272e2d5a2edf04c46f5b
+dynamic-kylin.zh.md: cd1cf14251b476b0d9e1ddfd0fe14830fd9f70f2

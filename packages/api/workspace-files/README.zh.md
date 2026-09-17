@@ -99,6 +99,8 @@ kind: "package-reference"
 
 经 `ctx.fs` 的读取使用后端的读取权限；沙箱后端限制写与编辑，而不限制读取。Typert lookup 从 live Session header 或持久层的 header-only `stat` 导出 `WorkspaceFileScope`，所以 cold subagent Session 不需要激活 Agent 或读取事件正文。本服务增加普通文件检查与有界传输，工作区包含要求属于目录列举、变更观察与写入。写入从调用方自己的 `baseVersion` 构造守卫，而不是取自 `fs/write-intent` slot：该 slot 依据 Agent 通过读取记录的每 Session 观察进行决策，其 actor 是 Remote 并不具备的工具执行，因此采用它会让每次覆盖已有文件的保存都以 `FS_NOT_OBSERVED` 被拒；把保存归到 Agent 名下则会记录没有任何 Agent 读过的内容。页从 `streamText` 切出，后者逐块解码并拒绝非 UTF-8：切页器对窗口之前的行只计数不保留，对窗口内的每个片段先按字节上限验收再缓冲，并在窗口之后的第一个字符处返回。流之前的一次 `stat` 给出页所报告的版本与大小。
 
+完整文件读取将大小上限检查交给 `fs.readBytes`，并将返回的字节编码为 base64，供 Remote 响应使用。
+
 ### 源码地图
 
 | 文件 | 职责 |

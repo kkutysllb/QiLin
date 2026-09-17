@@ -12,13 +12,14 @@ beforeEach(() => {
 describe('createConversationStore', () => {
   it('owns the draft and the selected View', () => {
     const store = createConversationStore().create()
-    expect(store.store.getSnapshot()).toEqual({ draft: '', view: null })
+    expect(store.store.getSnapshot()).toEqual({ draft: '', view: null, viewRequest: null })
 
     store.actions.setDraft('hello')
     store.actions.setView('chat')
     expect(store.store.getSnapshot()).toEqual({
       draft: 'hello',
       view: 'chat',
+      viewRequest: null,
     })
   })
 

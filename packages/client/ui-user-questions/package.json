@@ -66,7 +66,8 @@
     "@qilin/client-ui-conversation": "workspace:^",
     "@qilin/client-connection": "workspace:^",
     "@qilin/session": "workspace:^",
-    "clsx": "^2.0.0"
+    "clsx": "^2.0.0",
+    "@qilin/llm": "workspace:^"
   },
   "files": [
     "lib/index.js",

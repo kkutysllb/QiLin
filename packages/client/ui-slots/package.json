@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-slots",
-  "description": "Slot registry pure core: SlotMap declaration merging, single register composition API, four-share props types, store-seat types, renderer install seam",
+  "description": "Slot registry pure core: typed ordinary Slots and reusable Component Factories, derived props, Store seats, and renderer installation",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"

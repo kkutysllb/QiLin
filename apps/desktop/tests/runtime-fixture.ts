@@ -26,12 +26,20 @@ export function writePackage(modules: string, name: string, fields: Record<strin
  * Seal a minimal release containing Host entry files and a shared Cordis package.
  * @param root - New runtime directory.
  * @param version - Shell and qilin version.
- * @param nodeVersion - Bundled Node version used for native rebuild selection.
+ * @param nodeVersion - Bundled Node version recorded in resource metadata.
  * @returns Sealed runtime metadata.
  */
 export function runtimeFixture(root: string, version = '1.0.0', nodeVersion = '24.17.0'): DesktopRuntimeDescriptor {
   const names = ['@qilin/cli', '@qilin/desktop-host', '@qilin/base', '@qilin/web-app', '@qilin/kylin']
-  for (const name of names) writePackage(join(root, 'node_modules'), name, { version })
+  for (const name of names) {
+    const bundle = name === '@qilin/base' || name === '@qilin/web-app'
+    const path = writePackage(join(root, 'node_modules'), name, {
+      version,
+      ...(name === '@deepseek-ai/qilin' ? { dependencies: Object.fromEntries(names.slice(1).map(dependency => [dependency, version])) } : {}),
+      ...(bundle ? { qilin: { bundle: { patch: './bundle.yml' } } } : {}),
+    })
+    if (bundle) writeFileSync(join(path, 'bundle.yml'), '[]\n')
+  }
   for (const file of DESKTOP_HOST_RUNTIME_FILES) {
     const path = join(root, 'node_modules', '@qilin/desktop-host', file)
     mkdirSync(join(path, '..'), { recursive: true })

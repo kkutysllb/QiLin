@@ -1,0 +1,5 @@
+QiLin is unavailable
+The application could not start or stopped unexpectedly.
+Another QILIN instance (such as qilin web or the desktop app) is running. They cannot start at the same time. Quit the other running QILIN instance, then restart.
+Exit
+Restart

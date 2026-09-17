@@ -32,6 +32,7 @@ const CONFIGURATION_ONLY_DEV_DEPENDENCIES = {
 /** Workspace packages whose complete runtime surface is safe across duplicate installations. */
 const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
   '@qilin/brand',
+  '@qilin/lazy-require',
   '@qilin/typert-protocol',
   '@qilin/util-crypto',
   '@qilin/util-values',

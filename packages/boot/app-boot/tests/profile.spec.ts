@@ -9,6 +9,7 @@ import {
   unlinkSync, writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
+import { createRequire } from 'node:module'
 import { basename, join } from 'node:path'
 import { withFileLock } from '@qilin/atomic-write'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -18,14 +19,17 @@ import {
   EngineNameCollisionError,
   engineNameCollisions,
   healProfilesModuleFallback,
+  healIsolatedProfileModuleFallback,
   initProfile,
+  unlinkProfileModuleFallback,
   loadProfile,
   loadProfileDirectory,
+  PROFILE_OWNED_BUNDLES,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
-  PROFILE_OWNED_BUNDLES,
   readProfileManifest,
-  reconcileProfilePlugins,
+  reconcileProfileBundles,
+  readProfilePatches,
   resolveBundleDir,
   resolveProfileDir,
   writeProfileManifest,
@@ -90,9 +94,84 @@ function stageProfile(home: string, name: string, bundleAnchor: string): Profile
     }],
     patchPath: join(dir, PROFILE_PATCH_FILENAME),
     patches: [],
-    patchReload: 'live',
   }
 }
+
+describe('healIsolatedProfileModuleFallback', () => {
+  it.each([false, true])('resolves peers from each installation without sharing profile state (Web fallback: %s)', async (webFallback) => {
+    const home = tmp()
+    const webAnchor = stageInstallation({ commander: {} })
+    if (webFallback) await healProfilesModuleFallback({ installAnchor: webAnchor, home })
+    const sharedCommander = join(home, 'profiles', 'node_modules', 'commander')
+    const sharedTarget = webFallback ? readlinkSync(sharedCommander) : undefined
+    const bundleAnchor = stageInstallation({ 'bundle-only': {} }, 'external-bundle')
+    const anchorA = stageInstallation({ commander: {}, 'pnpm-owned': {} })
+    const anchorB = stageInstallation({ commander: {}, 'pnpm-owned': {} })
+    const profileA = stageProfile(home, 'desktop-a', bundleAnchor)
+    const profileB = stageProfile(home, 'desktop-b', bundleAnchor)
+    const consumerA = join(profileA.dir, 'node_modules', 'custom-plugin', 'index.js')
+    const consumerB = join(profileB.dir, 'node_modules', 'custom-plugin', 'index.js')
+    for (const consumer of [consumerA, consumerB]) {
+      mkdirSync(join(consumer, '..'), { recursive: true })
+      writeFileSync(consumer, 'module.exports = require("commander")\n')
+      writeFileSync(join(consumer, '..', 'package.json'), JSON.stringify({
+        name: 'custom-plugin', peerDependencies: { commander: '*' },
+      }))
+    }
+    const installed = join(profileA.dir, 'node_modules', 'pnpm-owned')
+    mkdirSync(installed)
+    writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'pnpm-owned', main: 'index.js' }))
+    writeFileSync(join(installed, 'index.js'), 'module.exports = "profile-installed"\n')
+
+    healIsolatedProfileModuleFallback({ installAnchor: anchorA, profile: profileA })
+    healIsolatedProfileModuleFallback({ installAnchor: anchorB, profile: profileB })
+    healIsolatedProfileModuleFallback({ installAnchor: anchorA, profile: profileA })
+
+    expect(realpathSync.native(createRequire(consumerA).resolve('commander')))
+      .toBe(realpathSync.native(join(anchorA, '..', 'node_modules', 'commander', 'index.js')))
+    expect(realpathSync.native(createRequire(consumerB).resolve('commander')))
+      .toBe(realpathSync.native(join(anchorB, '..', 'node_modules', 'commander', 'index.js')))
+    expect(realpathSync.native(createRequire(consumerA).resolve('pnpm-owned'))).toBe(realpathSync.native(join(installed, 'index.js')))
+    expect(readFileSync(join(installed, 'index.js'), 'utf8')).toContain('profile-installed')
+    expect(realpathSync.native(createRequire(consumerA).resolve('bundle-only')))
+      .toBe(realpathSync.native(join(bundleAnchor, '..', 'node_modules', 'bundle-only', 'index.js')))
+    expect(existsSync(join(home, 'profiles', 'node_modules'))).toBe(webFallback)
+    if (webFallback) expect(readlinkSync(sharedCommander)).toBe(sharedTarget)
+
+    healIsolatedProfileModuleFallback({ installAnchor: anchorA, profile: { ...profileA, layers: [] } })
+    expect(existsSync(join(profileA.dir, 'node_modules', 'bundle-only'))).toBe(false)
+    expect(existsSync(join(profileB.dir, 'node_modules', 'bundle-only'))).toBe(true)
+    expect(realpathSync.native(createRequire(consumerA).resolve('commander')))
+      .toBe(realpathSync.native(join(anchorA, '..', 'node_modules', 'commander', 'index.js')))
+  })
+})
+
+describe('unlinkProfileModuleFallback', () => {
+  it('detaches only this profile projections and restores missing packages from a relocated installation', () => {
+    const home = tmp()
+    const anchor = stageInstallation({ fallback: {}, '@scope/peer': {}, replaced: {} })
+    const nextAnchor = stageInstallation({ fallback: {}, '@scope/peer': {}, replaced: {} })
+    const bundleAnchor = stageInstallation({}, 'selected-bundle')
+    const profile = stageProfile(home, 'desktop', bundleAnchor)
+    const other = stageProfile(home, 'other', bundleAnchor)
+    unlinkProfileModuleFallback(profile.dir)
+    healIsolatedProfileModuleFallback({ installAnchor: anchor, profile })
+    healIsolatedProfileModuleFallback({ installAnchor: anchor, profile: other })
+    const modules = join(profile.dir, 'node_modules')
+    unlinkSync(join(modules, 'replaced'))
+    mkdirSync(join(modules, 'replaced'))
+    writeFileSync(join(modules, 'replaced', 'sentinel'), 'pnpm')
+    unlinkProfileModuleFallback(profile.dir)
+    unlinkProfileModuleFallback(profile.dir)
+    expect(existsSync(join(modules, 'fallback'))).toBe(false)
+    expect(existsSync(join(modules, '@scope/peer'))).toBe(false)
+    expect(readFileSync(join(modules, 'replaced', 'sentinel'), 'utf8')).toBe('pnpm')
+    expect(existsSync(join(other.dir, 'node_modules', 'fallback'))).toBe(true)
+    healIsolatedProfileModuleFallback({ installAnchor: nextAnchor, profile })
+    expect(realpathSync(join(modules, 'fallback'))).toBe(realpathSync(join(nextAnchor, '..', 'node_modules', 'fallback')))
+    expect(readFileSync(join(modules, 'replaced', 'sentinel'), 'utf8')).toBe('pnpm')
+  })
+})
 
 describe('resolveProfileDir', () => {
   it('joins the home and rejects traversal-shaped names', () => {
@@ -104,6 +183,33 @@ describe('resolveProfileDir', () => {
   })
 })
 
+it('composes current files from profile data and retains launch overlay and telemetry precedence', () => {
+  const home = tmp()
+  const installAnchor = stageInstallation({ base: { patch: '- insert:\n  - id: session-telemetry-otel\n    name: telemetry\n' } })
+  const dir = resolveProfileDir('test', home)
+  initProfile(dir, ['base'])
+  const patchPath = join(dir, 'application.patch.yml')
+  writeFileSync(patchPath, '- id: session-telemetry-otel\n  disabled: true\n')
+  writeFileSync(join(home, PROFILE_PATCH_FILENAME), '- id: session-telemetry-otel\n  disabled: false\n')
+  const context = {
+    name: 'test', dir, patchPath, installAnchor, home, cwd: home,
+    startedBundles: ['base'],
+    overlays: [{ id: 'session-telemetry-otel', disabled: false }], telemetryDisabledEnv: 'false',
+  }
+  expect(composeEntries([readProfilePatches('test', context)])[0]?.disabled).toBe(true)
+  const enabled = { ...context, telemetryDisabledEnv: undefined }
+  expect(composeEntries([readProfilePatches('test', enabled)])[0]?.disabled).toBe(false)
+  const patches = readProfilePatches('test', enabled)
+  patches.at(-1)!.disabled = true
+  expect(context.overlays[0]?.disabled).toBe(false)
+  writeFileSync(join(home, PROFILE_PATCH_FILENAME), '- id: session-telemetry-otel\n  disabled: true\n')
+  expect(composeEntries([readProfilePatches('test', { ...enabled, overlays: [] })])[0]?.disabled).toBe(true)
+  writeFileSync(join(home, PROFILE_PATCH_FILENAME), '[]\n')
+  expect(composeEntries([readProfilePatches('test', { ...enabled, overlays: [] })])[0]?.disabled).toBe(true)
+  writeFileSync(patchPath, '- id: session-telemetry-otel\n  disabled: false\n')
+  expect(composeEntries([readProfilePatches('test', { ...enabled, overlays: [] })])[0]?.disabled).toBe(false)
+})
+
 describe('initProfile', () => {
   it('creates manifest, user patch layer, and pnpm workspace once, never overwriting', () => {
     const home = tmp()
@@ -111,20 +217,17 @@ describe('initProfile', () => {
     initProfile(dir, ['@qilin/base'])
     const manifest = readProfileManifest('t', dir)
     expect(manifest.qilin?.profile?.bundles).toEqual(['@qilin/base'])
-    expect(manifest.qilin?.profile?.patchReload).toBe('live')
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
     // Both settings are part of the DSH-plugin compatibility contract: hoisted
     // entries keep one installed copy per name, and refusing peer auto-install
-    // keeps pnpm from materializing the upstream @deepseek-ai packages a plugin
-    // declares as peers.
+    // keeps pnpm from materializing the upstream packages a plugin declares as peers.
     const workspace = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
     expect(workspace).toContain('nodeLinker: hoisted')
     expect(workspace).toContain('autoInstallPeers: false')
     // Re-init keeps user edits.
     writeFileSync(join(dir, PROFILE_PATCH_FILENAME), '- id: x\n  config: {}\n')
-    initProfile(dir, ['other'], 'startup')
+    initProfile(dir, ['other'])
     expect(readProfileManifest('t', dir).qilin?.profile?.bundles).toEqual(['@qilin/base'])
-    expect(readProfileManifest('t', dir).qilin?.profile?.patchReload).toBe('live')
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('- id: x')
   })
 })
@@ -216,7 +319,7 @@ describe('engine name collisions', () => {
     }))
     writeFileSync(join(installed, 'cordis.patch.yml'), '[]\n')
     const before = readProfileManifest('qilin', dir)
-    expect(() => { reconcileProfilePlugins('qilin', before, dir, anchor) }).toThrow(EngineNameCollisionError)
+    expect(() => { reconcileProfileBundles('qilin', before, dir, anchor) }).toThrow(EngineNameCollisionError)
     expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual([])
   })
 
@@ -231,7 +334,7 @@ describe('engine name collisions', () => {
       dsh: { bundle: { patch: './cordis.patch.yml' } },
     }))
     writeFileSync(join(installed, 'cordis.patch.yml'), '[]\n')
-    reconcileProfilePlugins('qilin', readProfileManifest('qilin', dir), dir, anchor)
+    reconcileProfileBundles('qilin', readProfileManifest('qilin', dir), dir, anchor)
     expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual(['dsh-super-ppts'])
   })
 })
@@ -310,10 +413,9 @@ describe('loadProfile', () => {
     const home = tmp()
     const dir = resolveProfileDir('legacy-dsh', home)
     mkdirSync(dir, { recursive: true })
-    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'legacy-dsh', dsh: { profile: { bundles: ['dsh-bundle'], patchReload: 'startup' } } }))
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'legacy-dsh', dsh: { profile: { bundles: ['dsh-bundle'] } } }))
     const profile = loadProfile('t', 'legacy-dsh', anchor, home)
     expect(profile.layers.map(layer => layer.packageName)).toEqual(['dsh-bundle'])
-    expect(profile.patchReload).toBe('startup')
   })
 
   it('gives qilin.profile precedence over dsh.profile', () => {
@@ -337,7 +439,6 @@ describe('loadProfile', () => {
     const profile = loadProfile('t', 'demo', anchor, home)
     expect(profile.layers.map(layer => layer.packageName)).toEqual(['bundle-a', 'bundle-b'])
     expect(profile.patches).toHaveLength(1)
-    expect(profile.patchReload).toBe('live')
     const entries = composeEntries([
       ...profile.layers.map(layer => layer.patches),
       profile.patches,
@@ -349,7 +450,6 @@ describe('loadProfile', () => {
     writeProfileManifest(dir, { name: 'bare' })
     const bare = loadProfile('t', 'demo', anchor, home)
     expect(bare.layers).toEqual([])
-    expect(bare.patchReload).toBe('live')
   })
 
   it('auto-initializes only shipped templates and fails loud otherwise', () => {
@@ -361,19 +461,14 @@ describe('loadProfile', () => {
     // cannot be asserted to fail here: the source-plane test runner resolves
     // @deepseek-ai/* through tsconfig paths regardless of the staged anchor.
     expect(PROFILE_TEMPLATES.web?.bundles).toContain('@qilin/base')
-    expect(PROFILE_TEMPLATES.web?.patchReload).toBe('live')
-    expect(PROFILE_TEMPLATES.headless?.patchReload).toBe('startup')
     expect(PROFILE_TEMPLATES.acp).toEqual({
       bundles: ['@qilin/base', '@qilin/acp-app'],
-      patchReload: 'startup',
     })
     expect(PROFILE_TEMPLATES.sdk).toEqual({
       bundles: ['@qilin/base', '@qilin/sdk-app'],
-      patchReload: 'startup',
     })
     expect(PROFILE_TEMPLATES['sdk-minimal']).toEqual({
       bundles: ['@qilin/sdk-minimal'],
-      patchReload: 'startup',
     })
     try {
       loadProfile('t', 'web', anchor, home)
@@ -382,8 +477,6 @@ describe('loadProfile', () => {
     }
     expect(readProfileManifest('t', resolveProfileDir('web', home)).qilin?.profile?.bundles)
       .toEqual([...PROFILE_TEMPLATES.web?.bundles ?? []])
-    expect(readProfileManifest('t', resolveProfileDir('web', home)).qilin?.profile?.patchReload)
-      .toBe('live')
   })
 
   it('normalizes only the exact installation-owned headless bundle tuple', () => {
@@ -399,12 +492,10 @@ describe('loadProfile', () => {
       '@qilin/base', '@qilin/web-app', '@qilin/headless',
     ])
     const retiredManifest = readProfileManifest('t', stock)
-    delete retiredManifest.qilin!.profile!.patchReload
     writeProfileManifest(stock, retiredManifest)
     loadProfile('t', 'headless', anchor, home)
     expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
       bundles: ['@qilin/base', '@qilin/headless'],
-      patchReload: 'startup',
     })
 
     const customHome = tmp()
@@ -416,65 +507,6 @@ describe('loadProfile', () => {
     expect(readProfileManifest('t', custom).qilin?.profile?.bundles).toEqual([
       '@qilin/base', '@qilin/web-app', '@qilin/headless', 'custom-bundle',
     ])
-  })
-
-  it('leaves the shipped web tuple to the template it already matches', () => {
-    const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/web-app': { patch: '[]\n' },
-      'custom-bundle': { patch: '[]\n' },
-    })
-    const stockHome = tmp()
-    const stock = resolveProfileDir('web', stockHome)
-    initProfile(stock, ['@qilin/base', '@qilin/web-app'])
-    loadProfile('t', 'web', anchor, stockHome)
-    expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
-      bundles: ['@qilin/base', '@qilin/web-app'],
-      patchReload: 'live',
-    })
-
-    // A profile its owner already extended keeps its own list.
-    const customHome = tmp()
-    const custom = resolveProfileDir('web', customHome)
-    initProfile(custom, ['@qilin/base', '@qilin/web-app', 'custom-bundle'])
-    loadProfile('t', 'web', anchor, customHome)
-    expect(readProfileManifest('t', custom).qilin?.profile?.bundles).toEqual([
-      '@qilin/base', '@qilin/web-app', 'custom-bundle',
-    ])
-  })
-
-  it('adds a shipped reload default only to an exact stock tuple and preserves explicit choices', () => {
-    const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/web-app': { patch: '[]\n' },
-      '@qilin/coding-sidebar': { patch: '[]\n' },
-      'dsh-file-review-kcoder': { patch: '[]\n' },
-    })
-    const stockHome = tmp()
-    const stock = resolveProfileDir('web', stockHome)
-    initProfile(stock, PROFILE_TEMPLATES.web?.bundles ?? [])
-    const stockManifest = readProfileManifest('t', stock)
-    delete stockManifest.qilin!.profile!.patchReload
-    writeProfileManifest(stock, stockManifest)
-    expect(loadProfile('t', 'web', anchor, stockHome).patchReload).toBe('live')
-    expect(readProfileManifest('t', stock).qilin?.profile?.patchReload).toBe('live')
-
-    const explicitHome = tmp()
-    const explicit = resolveProfileDir('web', explicitHome)
-    initProfile(explicit, PROFILE_TEMPLATES.web?.bundles ?? [], 'startup')
-    expect(loadProfile('t', 'web', anchor, explicitHome).patchReload).toBe('startup')
-  })
-
-  it('fails loud on an unknown patch reload value from disk', () => {
-    const anchor = stageInstallation({})
-    const home = tmp()
-    const dir = resolveProfileDir('demo', home)
-    initProfile(dir, [])
-    const manifest = readProfileManifest('t', dir)
-    const rawProfile = manifest.qilin!.profile as { patchReload?: string }
-    rawProfile.patchReload = 'sometimes'
-    writeProfileManifest(dir, manifest)
-    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('patchReload must be "live" or "startup"')
   })
 
   it('fails loud when a listed bundle declares no qilin.bundle', () => {
@@ -634,7 +666,6 @@ describe('healProfilesModuleFallback', () => {
       }],
       patchPath: join(dir, PROFILE_PATCH_FILENAME),
       patches: [],
-      patchReload: 'live',
     }
 
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
@@ -679,7 +710,6 @@ describe('healProfilesModuleFallback', () => {
       })),
       patchPath: join(dir, PROFILE_PATCH_FILENAME),
       patches: [],
-      patchReload: 'live',
     }
 
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })
@@ -719,7 +749,6 @@ describe('healProfilesModuleFallback', () => {
       })),
       patchPath: join(dir, PROFILE_PATCH_FILENAME),
       patches: [],
-      patchReload: 'live',
     }
 
     await healProfilesModuleFallback({ installAnchor: installationAnchor, profile, home })

@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-plan",
-  "description": "Plan-mode composer control: the conversation.input.plan seat over the plan projection and the /plan command channel",
+  "description": "Plan mode controls, persistent transcript plan cards, and sidebar Markdown previews",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -30,7 +30,12 @@
       "inject": [
         "@qilin/api-remotes",
         "@qilin/client-locale",
-        "@qilin/client-ui-conversation"
+        "@qilin/client-ui-conversation",
+        "@qilin/client-ui-sidebar-right",
+        "@qilin/client-ui-chat",
+        "@qilin/client-ui-user-questions",
+        "@qilin/client-resources",
+        "@qilin/api-session-controller"
       ],
       "platform": "web"
     }
@@ -44,6 +49,7 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
+    "@qilin/client-store": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-test-runtime": "workspace:^",
@@ -56,7 +62,16 @@
     "react": "^18.2.0",
     "@qilin/session": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-session": "workspace:^"
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/client-ui-chat": "workspace:^",
+    "@qilin/client-ui-sidebar-right": "workspace:^",
+    "@qilin/client-ui-user-questions": "workspace:^",
+    "@qilin/client-resources": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/util-crypto": "workspace:^"
   },
   "files": [
     "lib/index.js",

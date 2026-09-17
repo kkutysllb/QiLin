@@ -106,9 +106,10 @@ export interface SidebarRightTabDefinition {
    * The type's own name, for surfaces that name the type rather than one tab:
    * the enable switch's row. A page type's `title(address)` cannot serve —
    * it names the open content, and a resource type has no single address.
+   * Omission shows {@link kind}.
    * @returns the name in the current language.
    */
-  readonly label: () => string
+  readonly label?: () => string
   /** The glyph a tab chip draws before its title; omit for a chip whose title carries the whole identity. */
   readonly icon?: ComponentType<IconProps>
   /**

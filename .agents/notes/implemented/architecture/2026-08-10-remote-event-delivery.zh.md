@@ -148,7 +148,7 @@ Client 要求首项是带非空 `clientId` 与 `host.home` 的 `ready`；后续 
 
 | 位置 | 改动 |
 |---|---|
-| `dsh-typert-protocol` | `src/types.ts` 提供 forwardable mode 推导、selection 与 Client listener 投影；`TypertClientRemote` 只公开 `$on`。纯类型，零运行时 |
+| `@qilin/typert-protocol` | `src/types.ts` 提供 forwardable mode 推导、selection 与 Client listener 投影；`TypertClientRemote` 只公开 `$on`。纯类型，零运行时 |
 | `api/gateway` | Host 半提供唯一 Remote event source、`$events` stream、pending waterfall 协调和 `$events/result`；Client 半把私有 pump 注册为 Connection generation source，负责 frame 校验和 Cordis 分发 |
 | `api/remotes` | `src/remote-events.ts`（带 mode 的名单值）与 `src/types.ts`（键投影 + selection）双列进两个 face；Host 半注册每 Client source，并在入队前校验 JSON；Client 半继续组合生成的 Remote contribution |
 | 根 `tsconfig.base.json` | 加 `dsh-settings/types`、`dsh-credentials/types`、`dsh-api-remotes/types` 三条 `paths`，全部指向**源**平面 |

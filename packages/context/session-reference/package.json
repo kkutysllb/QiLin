@@ -61,6 +61,7 @@
     "@qilin/session-query": "workspace:^",
     "@qilin/session-title": "workspace:^",
     "@qilin/spill": "workspace:^",
+    "@qilin/subagent": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/typert-protocol": "workspace:^"
   },
@@ -88,6 +89,7 @@
     "@qilin/session-query-sqlite": "workspace:^",
     "@qilin/session-title": "workspace:^",
     "@qilin/spill": "workspace:^",
+    "@qilin/subagent": "workspace:^",
     "@qilin/spill-local": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tool-fs": "workspace:^",

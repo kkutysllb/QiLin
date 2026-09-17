@@ -1,6 +1,6 @@
 {
   "name": "@qilin/cli",
-  "description": "qilin CLI: profile boot, plugin management, and the browser UI alias",
+  "description": "qilin CLI: profile launch, plugin management, and configuration inspection",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,8 @@
     "qilin": "lib/bin.js"
   },
   "files": [
-    "lib/*.js"
+    "lib/*.js",
+    "lib/types/*.d.ts"
   ],
   "qilin": {
     "configTrees": [
@@ -29,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-hmr": "workspace:^",
+    "@qilin/hmr": "workspace:^",
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/kylin-plugin-timer": "workspace:^",
@@ -46,6 +47,8 @@
     "@qilin/compaction-basic": "workspace:^",
     "@qilin/compaction-tool-result-pruner": "workspace:^",
     "@qilin/kylin-client-runner": "workspace:^",
+    "@qilin/experimental-agent-team-profile": "workspace:^",
+    "@qilin/experimental-agent-team-web-profile": "workspace:^",
     "@qilin/fs-local": "workspace:^",
     "@qilin/goal": "workspace:^",
     "@qilin/goal-round-driver": "workspace:^",
@@ -101,7 +104,9 @@
     "js-yaml": "^4.2.0",
     "node-addon-require-builtin": "^0.1.6",
     "@qilin/http-proxy": "workspace:^",
-    "@qilin/mcp-resources": "workspace:^"
+    "@qilin/mcp-resources": "workspace:^",
+    "@qilin/plugin-manager": "workspace:^",
+    "@qilin/atomic-write": "workspace:^"
   },
   "devDependencies": {
     "@agentclientprotocol/sdk": "1.4.0",
@@ -114,7 +119,6 @@
     "@qilin/credentials-local": "workspace:^",
     "@qilin/deepseek-llm-api-extensions": "workspace:^",
     "@qilin/experimental-agent-team": "workspace:^",
-    "@qilin/experimental-agent-team-profile": "workspace:^",
     "@qilin/experimental-ptc-runtime-python": "workspace:^",
     "@qilin/experimental-tool-agent-team": "workspace:^",
     "@qilin/fs-observation-policy": "workspace:^",
@@ -149,5 +153,13 @@
     "@types/ws": "8.18.1",
     "execa": "^10.0.0",
     "ws": "8.21.0"
+  },
+  "exports": {
+    "./profile-boot": {
+      "types": "./lib/types/profile-boot.d.ts",
+      "default": "./lib/profile-boot.js"
+    },
+    "./lib/*": "./lib/*",
+    "./package.json": "./package.json"
   }
 }

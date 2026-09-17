@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/06-composition-and-hmr.md
-06-composition-and-hmr.md: d4bbbc04e8da8689f63befe451167e9fc49a9497
-06-composition-and-hmr.zh.md: c678605a134f96309bc497fe891e2d2032612bff
+06-composition-and-hmr.md: e2e36fe48d5ce6b23275c4860621fb7735f0b8bb
+06-composition-and-hmr.zh.md: 859f4b4b425551b5a5219fc66625974fb6489f20

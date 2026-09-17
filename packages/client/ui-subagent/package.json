@@ -30,9 +30,13 @@
       "inject": [
         "@qilin/api-session-controller",
         "@qilin/client-locale",
+        "@qilin/client-resources",
+        "@qilin/client-ui-chat",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-primitives",
-        "@qilin/client-ui-input-trigger"
+        "@qilin/client-ui-sidebar-right",
+        "@qilin/client-ui-input-trigger",
+        "@qilin/client-ui-workspace"
       ],
       "platform": "web"
     }
@@ -47,7 +51,9 @@
   },
   "devDependencies": {
     "@qilin/client-locale": "workspace:^",
+    "@qilin/client-resources": "workspace:^",
     "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-chat": "workspace:^",
     "@qilin/client-ui-conversation": "workspace:^",
     "@qilin/client-ui-input-trigger": "workspace:^",
     "@qilin/client-ui-primitives": "workspace:^",
@@ -63,7 +69,9 @@
     "@qilin/client-connection": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-session": "workspace:^"
+    "@qilin/client-ui-sidebar-right": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^"
   },
   "files": [
     "lib/index.js",

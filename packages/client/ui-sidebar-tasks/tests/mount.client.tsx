@@ -53,11 +53,9 @@ function listState(state: Partial<SessionListState>): SessionListState {
   return {
     ids: [SESSION],
     byId: {},
-    current: SESSION,
     phase: 'ready',
     subagentsByParent: {},
     jobsBySession: {},
-    currentAddress: undefined,
     ...state,
   }
 }

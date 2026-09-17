@@ -47,6 +47,6 @@ describe('filesDefinition', () => {
     expect(definition.priority).toBe('builtin')
     expect(definition.patterns).toBeUndefined()
     expect(definition.title('')).toBe(zh['type.label'])
-    expect(definition.label()).toBe(zh['type.label'])
+    expect(definition.label!()).toBe(zh['type.label'])
   })
 })

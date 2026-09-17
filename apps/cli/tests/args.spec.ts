@@ -21,7 +21,7 @@ function exitCode(argv: string[]): number {
 afterEach(() => { vi.restoreAllMocks() })
 
 describe('parseQilinArgs', () => {
-  it('routes profile boots and the web alias, handing the rest to the app', () => {
+  it('routes profile boots and shorthand, handing the rest to the app', () => {
     expect(parse(['--profile', 'tui'])).toEqual({ mode: 'profile', profile: 'tui', patches: [], args: [] })
     expect(parse(['--profile', 'tui', '--patch', 'a.yml', '--patch', 'b.yml']))
       .toEqual({ mode: 'profile', profile: 'tui', patches: ['a.yml', 'b.yml'], args: [] })
@@ -67,7 +67,62 @@ describe('parseQilinArgs', () => {
         args: ['--resume', 'abc', '--from-default-profile', 'web'],
       })
     expect(parse(['web', '--from-default-profile', 'web']))
-      .toEqual({ mode: 'profile', profile: 'web', patches: [], args: ['--from-default-profile', 'web'] })
+      .toEqual({ mode: 'profile', profile: 'web', fromDefaultProfile: 'web', patches: [], args: [] })
+  })
+
+  it.each(['web', 'headless', 'sdk', 'sdk-minimal', 'acp', 'tui', 'custom', 'run', 'help'])('expands %s without looking up profiles', (profile) => {
+    for (const args of [
+      [], ['task', 'words'], ['--help'], ['-h'], ['web'],
+      ['--patch', 'a.yml', '--patch', 'b.yml'],
+      ['--from-default-profile', 'web', '--help'],
+      ['--dump-config'], ['--dump-default-config'],
+      ['--patch', 'a.yml', '--resume', 'id', '--patch', 'late.yml'],
+      ['--', '--help'], ['--', '--', 'task'],
+      ['plugin'], ['--', 'plugin'],
+    ]) {
+      expect(parse([profile, ...args])).toEqual(parse(['--profile', profile, ...args]))
+    }
+  })
+
+  it('reserves leading plugin for management and forwards later command names', () => {
+    expect(parse(['--profile', 'plugin'])).toMatchObject({ mode: 'profile', profile: 'plugin' })
+    expect(parse(['--profile', 'x', 'plugin', 'add', 'y']))
+      .toMatchObject({ mode: 'profile', profile: 'x', args: ['plugin', 'add', 'y'] })
+    expect(parse(['headless', 'web'])).toMatchObject({ profile: 'headless', args: ['web'] })
+    expect(parse(['--patch', 'a.yml', 'tui']))
+      .toMatchObject({ profile: 'qilin', patches: ['a.yml'], args: ['tui'] })
+    expect(parse(['--', 'tui'])).toMatchObject({ profile: 'qilin', args: ['tui'] })
+  })
+
+  it.each([
+    [''], ['desktop'], ['Desktop'], ['DESKTOP'],
+    ['custom', '--patch='], ['custom', '--from-default-profile='],
+    ['custom', '--dump-config', '--dump-default-config'],
+    ['custom', '--dump-default-config', '--patch', 'a.yml'],
+    ['custom', '--dump-config', 'task'],
+  ])('rejects invalid shorthand %j', (...argv: string[]) => {
+    expect(exitCode(argv)).toBe(1)
+  })
+
+  it.each(['-V', '--version'])('prints the launcher version for shorthand %s', (flag) => {
+    expect(exitCode(['custom', flag])).toBe(0)
+    expect(parse(['custom', 'task', flag])).toMatchObject({ args: ['task', flag] })
+  })
+
+  it.each([
+    ['web', '--profile', 'tui'],
+    ['--profile', 'web', '--profile', 'tui'],
+    ['--profile=web', '--profile=web'],
+    ['plugin', '--profile', 'web', '--profile', 'tui', 'add', 'x'],
+  ])('rejects repeated profile selection %j', (...argv: string[]) => {
+    const stderr = vi.spyOn(process.stderr, 'write').mockReturnValue(true)
+    expect(exitCode(argv)).toBe(1)
+    expect(stderr.mock.calls.map(([chunk]) => String(chunk)).join('')).toContain('select a profile only once')
+  })
+
+  it('forwards late profile options to the application', () => {
+    expect(parse(['web', 'task', '--profile', 'tui']))
+      .toMatchObject({ profile: 'web', args: ['task', '--profile', 'tui'] })
   })
 
   it('routes the plugin pnpm forwarder', () => {
@@ -111,10 +166,15 @@ describe('parseQilinArgs', () => {
       .toEqual({ mode: 'dump-config', profile: 'web', defaultOnly: true, patches: [] })
   })
 
-  it('rejects a retired spelling and the contradictory or incomplete inputs it owns', () => {
-    // A bare command boots the product profile, so a stray flag or positional
-    // is forwarded to that app, which owns its own argv and rejects it there.
-    expect(exitCode(['qilin'])).toBe(1)
+  it('forwards flags the launcher no longer owns to the booted app', () => {
+    expect(parse([])).toMatchObject({ mode: 'profile', profile: 'qilin', args: [] })
+    expect(parse(['qilin'])).toMatchObject({ mode: 'profile', profile: 'qilin', args: [] })
+    expect(parse(['task'])).toMatchObject({ mode: 'profile', profile: 'task', args: [] })
+    expect(parse(['--bogus'])).toMatchObject({ profile: 'qilin', args: ['--bogus'] })
+    expect(parse(['--config', 'c.yml'])).toMatchObject({ profile: 'qilin', args: ['--config', 'c.yml'] })
+  })
+
+  it('rejects incomplete and contradictory inputs', () => {
     expect(exitCode(['--profile', ''])).toBe(1)
     expect(exitCode(['--profile', 'x', '--from-default-profile='])).toBe(1)
     expect(exitCode(['--profile', 'x', '--from-default-profile'])).toBe(1)
@@ -122,12 +182,6 @@ describe('parseQilinArgs', () => {
     expect(exitCode(['--profile', 'x', '--dump-config', '--dump-default-config'])).toBe(1)
     expect(exitCode(['--profile', 'x', '--dump-default-config', '--patch', 'p.yml'])).toBe(1)
     expect(exitCode(['--profile', 'x', '--dump-config', 'task'])).toBe(1)
-    expect(exitCode(['--profile', 'x', 'web'])).toBe(1)
-    expect(exitCode(['--profile', 'x', 'qilin'])).toBe(1)
-    expect(exitCode(['qilin', '--dump-config', '--dump-default-config'])).toBe(1)
-    expect(exitCode(['qilin', '--dump-config', '--port', '3081'])).toBe(1)
-    expect(exitCode(['--dump-config', '--dump-default-config'])).toBe(1)
-    expect(exitCode(['--dump-config', 'task'])).toBe(1)
     expect(exitCode(['web', '--dump-config', '--dump-default-config'])).toBe(1)
     expect(exitCode(['web', '--dump-default-config', '--patch', 'w.yml'])).toBe(1)
     expect(exitCode(['web', '--patch='])).toBe(1)
@@ -147,12 +201,12 @@ describe('parseQilinArgs', () => {
     expect(exitCode(['--profile', 'desktop', '--dump-config'])).toBe(1)
     expect(exitCode(['plugin', '--profile', 'desktop', 'add', 'x'])).toBe(1)
     expect(exitCode(['plugin', '--profile', 'Desktop', 'add', 'x'])).toBe(1)
-    expect(exitCode(['--profile', 'x', 'plugin', 'add', 'y'])).toBe(1)
-    expect(exitCode(['--from-default-profile', 'web', 'plugin', '--profile', 'x', 'add', 'y'])).toBe(1)
   })
 
   it('keeps its own help for an invocation with no app to hand it to', () => {
+    const stdout = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
     expect(exitCode(['--help'])).toBe(0)
+    expect(stdout.mock.calls.map(([chunk]) => String(chunk)).join('')).not.toContain('help [command]')
     expect(exitCode(['-h'])).toBe(0)
     expect(exitCode(['--version'])).toBe(0)
   })

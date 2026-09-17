@@ -33,7 +33,8 @@
         "@qilin/client-ui-chat",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-renderer",
-        "@qilin/client-ui-session"
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-workspace"
       ],
       "platform": "web"
     }
@@ -62,6 +63,7 @@
     "@qilin/client-ui-slots": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/tool-workflow": "workspace:^",
     "@qilin/workflow": "workspace:^",

@@ -30,8 +30,7 @@
       "inject": [
         "@qilin/api-remotes",
         "@qilin/client-ui-settings",
-        "@qilin/client-locale",
-        "@qilin/mcp-servers"
+        "@qilin/client-locale"
       ],
       "platform": "web"
     }

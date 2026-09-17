@@ -10,5 +10,4 @@ export type {
   QilinManifest,
   QilinPackageManifest,
   QilinProfileManifest,
-  ProfilePatchReload,
 } from './types.ts'

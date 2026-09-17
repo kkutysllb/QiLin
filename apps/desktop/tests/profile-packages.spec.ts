@@ -1,94 +1,126 @@
-import { execFileSync } from 'node:child_process'
-import { lstatSync, mkdtempSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { dirname, join } from 'node:path'
 import { afterEach, expect, it } from 'vitest'
-import { createPluginProfile } from '../src/project-manager.ts'
-import {
-  linkDesktopHostPackages,
-  readDesktopProfileState,
-  recordDesktopRuntimeProfile,
-  unlinkDesktopHostPackages,
-  validateDesktopPluginGraph,
-} from '../src/profile-packages.ts'
-import { runtimeFixture, writePackage } from './runtime-fixture.ts'
+import { DESKTOP_PROFILE_STATE, migrateDesktopProfileLinks } from '../src/profile-packages.ts'
 
 const roots: string[] = []
+const symlinks: string[] = []
+
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), 'desktop-profile-'))
+  const root = mkdtempSync(join(tmpdir(), 'desktop-profile-migration-'))
   roots.push(root)
-  const qilin = join(root, 'qilin')
-  const runtime = runtimeFixture(qilin)
   const profile = join(root, 'profile')
-  createPluginProfile(profile)
-  linkDesktopHostPackages(profile, qilin, runtime)
-  return { root, qilin, runtime, profile }
+  const target = join(root, 'runtime-package')
+  mkdirSync(join(profile, 'node_modules'), { recursive: true })
+  mkdirSync(target)
+  return { root, profile, target }
 }
-afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }) })
 
-it('loads one shared ESM instance from both host and external plugin while keeping ordinary dependencies private', () => {
-  const { qilin, runtime, profile } = fixture()
-  writePackage(join(qilin, 'node_modules'), 'ordinary', {}, 'export default "host"')
-  writePackage(join(profile, 'node_modules'), 'ordinary', {}, 'export default "plugin"')
-  const plugin = writePackage(join(profile, 'node_modules'), 'plugin', {
-    peerDependencies: { '@qilin/kylin': '^1.0.0' }, dependencies: { ordinary: '1.0.0' },
-  }, 'export { identity } from "@qilin/kylin"; export { default as ordinary } from "ordinary"')
-  validateDesktopPluginGraph(profile, qilin, runtime, ['plugin'])
-  const entry = join(qilin, 'check.mjs')
-  writeFileSync(entry, `import {identity} from '@qilin/kylin'; import ordinary from 'ordinary'; import * as plugin from ${JSON.stringify(pathToFileURL(join(plugin, 'index.js')).href)}; console.log(JSON.stringify({same:identity===plugin.identity, host:ordinary, plugin:plugin.ordinary}))`)
-  const output = execFileSync(process.execPath, [entry], { encoding: 'utf8', env: { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' } })
-  expect(JSON.parse(output)).toEqual({ same: true, host: 'host', plugin: 'plugin' })
-})
-it('runtime resolution retains and ignores an existing Link generation', () => {
-  const { qilin, runtime, profile } = fixture()
-  const links = readDesktopProfileState(profile)?.links
-  expect(links?.length).toBeGreaterThan(0)
+function link(target: string, path: string): void {
+  mkdirSync(dirname(path), { recursive: true })
+  symlinkSync(target, path, process.platform === 'win32' ? 'junction' : 'dir')
+  symlinks.push(path)
+}
 
-  recordDesktopRuntimeProfile(profile, runtime)
-  expect(readDesktopProfileState(profile)?.links).toEqual(links)
-  expect(lstatSync(join(profile, 'node_modules/@qilin/kylin')).isSymbolicLink()).toBe(true)
-  expect(() => { validateDesktopPluginGraph(profile, qilin, runtime, [], 'runtime') }).not.toThrow()
+function writeState(profile: string, links: unknown): void {
+  writeFileSync(join(profile, DESKTOP_PROFILE_STATE), JSON.stringify({
+    schemaVersion: 'obsolete', runtimeId: null, version: 8, lockHash: false, links,
+  }))
+}
+
+afterEach(() => {
+  for (const path of symlinks.splice(0).reverse()) {
+    try {
+      if (lstatSync(path).isSymbolicLink()) unlinkSync(path)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+  }
+  for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
 })
-it.each(['nested', 'alias'])('rejects a %s second copy of a host package', (placement) => {
-  const { qilin, runtime, profile } = fixture()
-  const plugin = writePackage(join(profile, 'node_modules'), 'plugin')
-  if (placement === 'nested') writePackage(join(plugin, 'node_modules'), '@qilin/kylin')
-  else writePackage(join(profile, 'node_modules'), 'alias', { name: '@qilin/kylin' })
-  expect(() =>{  validateDesktopPluginGraph(profile, qilin, runtime, ['plugin']) }).toThrow(/duplicate or aliased/u)
+
+it('removes recorded links and state without interpreting obsolete runtime fields', () => {
+  const { profile, target } = fixture()
+  const packagePath = join(profile, 'node_modules', '@qilin/kylin')
+  link(target, packagePath)
+  writeFileSync(join(target, 'package.json'), '{"name":"@qilin/kylin"}')
+  writeState(profile, [{ name: '@qilin/kylin', target }])
+  migrateDesktopProfileLinks(profile)
+  expect(existsSync(packagePath)).toBe(false)
+  expect(existsSync(join(profile, DESKTOP_PROFILE_STATE))).toBe(false)
+  expect(readFileSync(join(target, 'package.json'), 'utf8')).toContain('@qilin/kylin')
+  expect(() => { migrateDesktopProfileLinks(profile) }).not.toThrow()
 })
-it('rejects a host package declared as an ordinary dependency', () => {
-  const { qilin, runtime, profile } = fixture()
-  writePackage(join(profile, 'node_modules'), 'plugin', { dependencies: { '@qilin/kylin': '^1.0.0' } })
-  expect(() =>{  validateDesktopPluginGraph(profile, qilin, runtime, ['plugin']) }).toThrow(/peer dependency/u)
+
+it('removes an owned broken link without following its target', () => {
+  const { profile, target } = fixture()
+  const packagePath = join(profile, 'node_modules', 'plugin')
+  link(target, packagePath)
+  writeState(profile, [{ name: 'plugin', target }])
+  rmdirSync(target)
+  migrateDesktopProfileLinks(profile)
+  expect(() => lstatSync(packagePath)).toThrow()
+  expect(existsSync(join(profile, DESKTOP_PROFILE_STATE))).toBe(false)
 })
-it('rejects incompatible peers only when the plugin is enabled', () => {
-  const { qilin, runtime, profile } = fixture()
-  writePackage(join(profile, 'node_modules'), 'plugin', { peerDependencies: { '@qilin/kylin': '^2.0.0' } })
-  expect(() =>{  validateDesktopPluginGraph(profile, qilin, runtime, ['plugin']) }).toThrow(/found 1.0.0/u)
-  expect(() =>{  validateDesktopPluginGraph(profile, qilin, runtime, []) }).not.toThrow()
+
+it('preserves a pnpm-installed directory replacing a recorded link', () => {
+  const { profile, target } = fixture()
+  const packagePath = join(profile, 'node_modules', 'plugin')
+  mkdirSync(packagePath)
+  writeFileSync(join(packagePath, 'package.json'), '{"name":"plugin","version":"2.0.0"}')
+  writeState(profile, [{ name: 'plugin', target }])
+  migrateDesktopProfileLinks(profile)
+  expect(readFileSync(join(packagePath, 'package.json'), 'utf8')).toContain('2.0.0')
+  expect(existsSync(join(profile, DESKTOP_PROFILE_STATE))).toBe(false)
 })
-it('refuses to satisfy a plugin dependency from an ancestor CLI project', () => {
-  const { root, qilin, runtime, profile } = fixture()
-  writePackage(join(root, 'node_modules'), 'ambient')
-  writePackage(join(profile, 'node_modules'), 'plugin', { dependencies: { ambient: '1.0.0' } })
-  expect(() =>{  validateDesktopPluginGraph(profile, qilin, runtime, ['plugin']) }).toThrow(/outside its owned packages/u)
+
+it('preserves changed and unrecorded package links', () => {
+  const { root, profile, target } = fixture()
+  const replacement = join(root, 'user-package')
+  mkdirSync(replacement)
+  const changed = join(profile, 'node_modules', 'changed')
+  const unrecorded = join(profile, 'node_modules', 'unrecorded')
+  link(replacement, changed)
+  link(target, unrecorded)
+  const changedTarget = readlinkSync(changed)
+  const unrecordedTarget = readlinkSync(unrecorded)
+  writeState(profile, [{ name: 'changed', target }])
+  migrateDesktopProfileLinks(profile)
+  expect(readlinkSync(changed)).toBe(changedTarget)
+  expect(readlinkSync(unrecorded)).toBe(unrecordedTarget)
 })
-it('removes broken owned links without following them', () => {
-  const { root, profile } = fixture()
-  writePackage(join(profile, 'node_modules'), 'plugin')
-  rmSync(join(root, 'qilin'), { recursive: true })
-  expect(() =>{  unlinkDesktopHostPackages(profile) }).not.toThrow()
+
+it('leaves an uninitialized profile untouched', () => {
+  const { root } = fixture()
+  const missingProfile = join(root, 'absent-profile')
+  migrateDesktopProfileLinks(missingProfile)
+  expect(existsSync(missingProfile)).toBe(false)
 })
-it('refuses to replace an unowned package at a managed name', () => {
-  const { profile } = fixture()
-  unlinkSync(join(profile, 'node_modules/@qilin/kylin'))
-  writePackage(join(profile, 'node_modules'), '@qilin/kylin')
-  expect(() =>{  unlinkDesktopHostPackages(profile) }).toThrow(/unowned package/u)
+
+it.each(['../../outside', '../outside', '@scope/../../outside', '..\\outside'])('rejects escaping package name %s before removing any links', (name) => {
+  const { root, profile, target } = fixture()
+  const packagePath = join(profile, 'node_modules', 'owned')
+  const outside = join(root, 'outside')
+  link(target, packagePath)
+  link(target, outside)
+  writeState(profile, [{ name: 'owned', target }, { name, target }])
+  expect(() => { migrateDesktopProfileLinks(profile) }).toThrow('invalid legacy package link')
+  expect(lstatSync(packagePath).isSymbolicLink()).toBe(true)
+  expect(lstatSync(outside).isSymbolicLink()).toBe(true)
+  expect(existsSync(join(profile, DESKTOP_PROFILE_STATE))).toBe(true)
 })
-it('rejects private package links instead of following cycles or old transaction paths', () => {
-  const { qilin, runtime, profile } = fixture()
-  const plugin = writePackage(join(profile, 'node_modules'), 'plugin')
-  symlinkSync(plugin, join(profile, 'node_modules/alias'), process.platform === 'win32' ? 'junction' : 'dir')
-  expect(() =>{  validateDesktopPluginGraph(profile, qilin, runtime, ['plugin']) }).toThrow(/linked private package/u)
+
+it.each(['node_modules', 'node_modules/@scope'])('preserves package links beneath redirected %s', (parent) => {
+  const { root, profile, target } = fixture()
+  const external = join(root, 'external')
+  mkdirSync(external)
+  const packagePath = join(external, 'plugin')
+  link(target, packagePath)
+  if (parent === 'node_modules') rmdirSync(join(profile, 'node_modules'))
+  link(external, join(profile, parent))
+  writeState(profile, [{ name: parent === 'node_modules' ? 'plugin' : '@scope/plugin', target }])
+  migrateDesktopProfileLinks(profile)
+  expect(lstatSync(packagePath).isSymbolicLink()).toBe(true)
+  expect(existsSync(join(profile, DESKTOP_PROFILE_STATE))).toBe(false)
 })

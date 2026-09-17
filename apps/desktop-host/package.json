@@ -7,22 +7,18 @@
   "type": "module",
   "main": "lib/index.js",
   "files": [
-    "lib/index.js",
-    "config/desktop.cordis.patch.yml"
+    "lib/index.js"
   ],
   "dependencies": {
     "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/cli": "workspace:^",
-    "@qilin/api-gateway": "workspace:^",
+    "@qilin/agent": "workspace:^",
     "@qilin/app-boot": "workspace:^",
     "@qilin/client-connection": "workspace:^",
-    "@qilin/client-modules": "workspace:^",
-    "@qilin/client-ui-directory-picker-native": "workspace:^",
-    "@qilin/cmdline": "workspace:^",
-    "@qilin/host-directory-picker-native": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
-    "@qilin/launch-environment": "workspace:^",
-    "@qilin/web-frontend": "workspace:^"
+    "@qilin/home-paths": "workspace:^",
+    "@qilin/jobs": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/skill-office": "workspace:^"
   }
 }

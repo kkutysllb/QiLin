@@ -31,7 +31,8 @@
         "@qilin/api-remotes",
         "@qilin/client-ui-session",
         "@qilin/client-ui-settings",
-        "@qilin/client-locale"
+        "@qilin/client-locale",
+        "@qilin/client-ui-workspace"
       ],
       "platform": "web"
     }
@@ -45,7 +46,6 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-store": "workspace:^",
@@ -55,6 +55,8 @@
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-settings": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@testing-library/react": "^16.1.0",

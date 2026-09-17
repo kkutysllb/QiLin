@@ -1,0 +1,38 @@
+[
+  {
+    "phase": "idle",
+    "version": "3.0.0",
+    "percent": 58
+  },
+  {
+    "phase": "available",
+    "version": "3.0.0",
+    "percent": 58
+  },
+  {
+    "phase": "downloading",
+    "version": "3.0.0",
+    "percent": 58
+  },
+  {
+    "phase": "verifying",
+    "version": "3.0.0",
+    "percent": 58
+  },
+  {
+    "phase": "ready",
+    "version": "3.0.0",
+    "percent": 58
+  },
+  {
+    "phase": "installing",
+    "version": "3.0.0",
+    "percent": 58
+  },
+  {
+    "phase": "error",
+    "version": "3.0.0",
+    "percent": 58,
+    "failure": "install"
+  }
+]

@@ -17,7 +17,7 @@ describe('desktop build paths', () => {
       'packageSet',
       'qilin',
       'qilinPnpm',
-      'nodeExtract',
+      'electron',
       'packedQilin',
       'packedVendor',
       'packedLandlock',

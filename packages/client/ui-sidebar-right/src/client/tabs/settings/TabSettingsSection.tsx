@@ -54,9 +54,9 @@ export function TabSettingsSection({ useTabTypes, setEnabled, isEnabled, t }: Ta
             <span className={css.rowIcon}>
               {definition.icon === undefined ? null : <definition.icon size={16} />}
             </span>
-            <span className={css.rowLabel}>{definition.label()}</span>
+            <span className={css.rowLabel}>{definition.label?.() ?? definition.kind}</span>
             <Switch
-              label={definition.label()}
+              label={definition.label?.() ?? definition.kind}
               checked={isEnabled(definition.id)}
               onChange={(enabled) => { setEnabled(definition.id, enabled) }}
             />

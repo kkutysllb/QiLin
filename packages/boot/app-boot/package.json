@@ -35,14 +35,12 @@
     "@qilin/atomic-write": "workspace:^",
     "@qilin/dsh-compat": "workspace:^",
     "@qilin/package-manifest": "workspace:^",
-    "chokidar": "4.0.3",
     "js-yaml": "^4.2.0",
     "node-addon-require-builtin": "^0.1.6",
     "resolve.exports": "^2.0.3"
   },
   "peerDependencies": {
     "@qilin/kylin-plugin-group": "workspace:^",
-    "@qilin/kylin-plugin-hmr": "workspace:^",
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/launch-environment": "workspace:^",
@@ -50,14 +48,8 @@
     "@qilin/system-prompt": "workspace:^",
     "@qilin/kylin": "workspace:^"
   },
-  "peerDependenciesMeta": {
-    "@qilin/kylin-plugin-hmr": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@qilin/kylin-plugin-group": "workspace:^",
-    "@qilin/kylin-plugin-hmr": "workspace:^",
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/kylin-plugin-timer": "workspace:^",

@@ -12,6 +12,8 @@
  * (`TasksBody.tsx`, `TasksBadge.tsx`), and this module, which wires them.
  */
 import type { Context as ClientContext } from '@qilin/kylin'
+// Type-only: pulls the ctx.uiWorkspace service merge.
+import type {} from '@qilin/client-ui-workspace/client'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-renderer/client'
@@ -46,7 +48,12 @@ export function apply(ctx: ClientContext): void {
   const t = ctx.locale.bind(NS)
   ctx.effect(() => ctx.sidebarRightTabs.register(tasksDefinition(t)), 'ui-sidebar-tasks: tasks type')
 
-  const face = tasksFace(ctx.sessions, ctx.remote.subagents)
+  // The Session Controller owns the catalog; revealing a child as the current
+  // Session is navigation, so it goes through the workspace service.
+  const face = tasksFace({
+    openSubagent: address => ctx.uiWorkspace.openSession(address),
+    refreshSubagents: parentSessionId => ctx.sessions.refreshSubagents(parentSessionId),
+  }, ctx.remote.subagents)
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab', key: TASKS_ID, locale: NS, inject: () => face },
     TasksBody,

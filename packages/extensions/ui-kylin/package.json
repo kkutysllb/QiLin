@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-kylin",
-  "description": "Kylin dynamic-plugin definition card: the keyed kylin_define tool row with its run/stop switch",
+  "description": "Kylin dynamic-plugin definition card: the keyed cordis_define tool row with its run/stop switch",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -32,7 +32,6 @@
         "@qilin/kylin-client-runner",
         "@qilin/api-remotes",
         "@qilin/client-locale",
-        "@qilin/client-ui-input-trigger",
         "@qilin/client-ui-renderer",
         "@qilin/client-ui-session",
         "@qilin/client-ui-tool",
@@ -57,7 +56,6 @@
     "@qilin/session": "workspace:^",
     "@qilin/client-ui-primitives": "workspace:^",
     "@qilin/client-ui-sidebar": "workspace:^",
-    "@qilin/client-ui-input-trigger": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",

@@ -11,6 +11,8 @@ import type { HeaderContentProps } from '../src/client/chrome.tsx'
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 import { en } from '../src/client/locales.ts'
+import { DesktopUpdateBadge } from '../src/client/DesktopUpdateIndicator.tsx'
+import type { DesktopUpdateView } from '../src/client/desktop-update-bridge.ts'
 
 afterEach(cleanup)
 
@@ -20,10 +22,44 @@ const t: HeaderContentProps['t'] = key => (en as Record<string, string>)[key] ??
 
 // Global standard kit stubs: none of these components consume the hooks.
 const unusedHook = (() => { throw new Error('unused by settings-general components') }) as never
-type AttentionSnapshot = Parameters<Parameters<HeaderContentProps['useSessionPendingInteraction']>[0]>[0]
+type AttentionSnapshot = Parameters<Parameters<HeaderContentProps['useSessionStatus']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
-const useSessionPendingInteraction: HeaderContentProps['useSessionPendingInteraction'] = selector => selector(noAttention)
-const kit = { useSessions: unusedHook, useSessionPendingInteraction, usePanelInfo, useResource, useWorkspaces: unusedHook }
+const useSessionStatus: HeaderContentProps['useSessionStatus'] = selector => selector(noAttention)
+const kit = {
+  useSessions: unusedHook, useSessionStatus,
+  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useWorkspaces: unusedHook,
+}
+
+describe('Desktop collapsed update badge', () => {
+  it('shows update status, marks failures, and yields to connection feedback', () => {
+    let state: DesktopUpdateView = { failed: false, opening: false }
+    let connection: 'connected' | 'connecting' | 'disconnected' = 'connected'
+    const props = { ...kit, t,
+      useDesktopUpdate: (select => select(state)) as Parameters<typeof DesktopUpdateBadge>[0]['useDesktopUpdate'],
+      useConnectionState: (select => select(connection)) as Parameters<typeof DesktopUpdateBadge>[0]['useConnectionState'],
+    }
+    const view = render(<DesktopUpdateBadge {...props} />)
+    expect(screen.queryByRole('img')).toBeNull()
+    state = { ...state, presentation: { phase: 'available', version: '1.0.1' } }
+    view.rerender(<DesktopUpdateBadge {...props} />)
+    expect(screen.getByRole('img', { name: 'Update' }).getAttribute('data-error')).toBeNull()
+    expect(screen.queryByRole('button')).toBeNull()
+    state = { ...state, failed: true }
+    view.rerender(<DesktopUpdateBadge {...props} />)
+    expect(screen.getByRole('img', { name: en['desktop.update.retry'] }).getAttribute('data-error')).toBe('true')
+    state = { failed: true, opening: false }
+    view.rerender(<DesktopUpdateBadge {...props} />)
+    expect(screen.getByRole('img', { name: en['desktop.update.retry'] }).getAttribute('data-error')).toBe('true')
+    state = { failed: false, opening: false, presentation: { phase: 'error', failure: 'install' } }
+    view.rerender(<DesktopUpdateBadge {...props} />)
+    expect(screen.getByRole('img', { name: en['desktop.update.retry'] }).getAttribute('data-error')).toBe('true')
+    for (const value of ['connecting', 'disconnected'] as const) {
+      connection = value
+      view.rerender(<DesktopUpdateBadge {...props} />)
+      expect(screen.queryByRole('img')).toBeNull()
+    }
+  })
+})
 
 describe('chrome content', () => {
   it('HeaderContent and CloseLabel render their translated text', () => {

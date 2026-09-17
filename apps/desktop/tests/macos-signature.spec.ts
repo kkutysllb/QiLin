@@ -13,6 +13,7 @@ import {
 
 const RELEASE_ENVIRONMENT = {
   QILIN_DESKTOP_APP_ID: 'com.example.desktop',
+  QILIN_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
   QILIN_DESKTOP_TARGET_PLATFORM: 'darwin',
   QILIN_DESKTOP_TARGET_ARCH: 'arm64',
   QILIN_DESKTOP_MACOS_SIGNING_IDENTITY: 'Example Company (TEAMID1234)',
@@ -40,7 +41,7 @@ describe('desktop macOS release signature', () => {
     const { createElectronBuilderConfig } = await import('../electron-builder.config.mjs')
     const config = createElectronBuilderConfig(RELEASE_ENVIRONMENT, 'darwin', 'arm64')
     expect(portablePath(config.directories.output)).toContain('/.desktop-build/targets/mac-arm64/artifacts')
-    expect(config.extraResources).toHaveLength(1)
+    expect(config.extraResources).toHaveLength(2)
     expect(config.extraResources[0]?.to).toBe('runtime')
     expect(portablePath(config.extraResources[0]?.from ?? '')).toContain('/.desktop-build/targets/mac-arm64/runtime')
     const [qilinFiles, qilinNodeModules] = config.files.slice(-2)
@@ -61,7 +62,7 @@ describe('desktop macOS release signature', () => {
         identity: RELEASE_ENVIRONMENT.QILIN_DESKTOP_MACOS_SIGNING_IDENTITY,
         forceCodeSigning: true,
         notarize: true,
-        signIgnore: ['/Contents/Resources/app\\.asar\\.unpacked/qilin(?:/|$)', '\\.pak$'],
+        signIgnore: ['/Contents/Resources/app\\.asar\\.unpacked/qilin(?:/|$)', '/Contents/Resources/runtime/primary-runtime(?:/|$)', '\\.pak$'],
       },
       dmg: {
         sign: true,
@@ -69,7 +70,8 @@ describe('desktop macOS release signature', () => {
       },
       publish: [{
         provider: 'generic',
-        url: 'https://desktop-updates.example.com/_/harness/desktop/stable/mac-arm64/',
+        url: 'https://desktop-updates.example.com/qilin-desk/feeds/mac-arm64/',
+        channel: 'nightly',
       }],
     })
     expect(typeof config.artifactBuildCompleted).toBe('function')
@@ -94,6 +96,7 @@ describe('desktop macOS release signature', () => {
     const { createElectronBuilderConfig } = await import('../electron-builder.config.mjs')
     expect(() => createElectronBuilderConfig({
       QILIN_DESKTOP_APP_ID: RELEASE_ENVIRONMENT.QILIN_DESKTOP_APP_ID,
+      QILIN_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
       QILIN_DESKTOP_TARGET_PLATFORM: 'win32',
     }, 'win32')).toThrow(/QILIN_DESKTOP_WINDOWS_CER_FILE/u)
   })
@@ -102,6 +105,7 @@ describe('desktop macOS release signature', () => {
     const { createElectronBuilderConfig } = await import('../electron-builder.config.mjs')
     const config = createElectronBuilderConfig({
       QILIN_DESKTOP_APP_ID: RELEASE_ENVIRONMENT.QILIN_DESKTOP_APP_ID,
+      QILIN_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
       QILIN_DESKTOP_TARGET_PLATFORM: 'win32',
       QILIN_DESKTOP_UNSIGNED: '1',
     }, 'win32', 'x64')

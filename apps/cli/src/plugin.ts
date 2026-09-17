@@ -27,7 +27,7 @@ import {
   PROFILE_TEMPLATES,
   readProfileManifest,
   readProfilePluginRows,
-  reconcileProfilePlugins,
+  reconcileProfileBundles,
   resolveBundleDir,
   resolveProfileDir,
 } from '@qilin/app-boot'
@@ -137,11 +137,7 @@ export function runPlugin(profile: string, args: readonly string[]): number {
   }
   if (!existsSync(join(dir, 'package.json'))) {
     const template = PROFILE_TEMPLATES[profile]
-    initProfile(
-      dir,
-      template?.bundles ?? DEFAULT_PROFILE_BUNDLES,
-      template?.patchReload,
-    )
+    initProfile(dir, template?.bundles ?? DEFAULT_PROFILE_BUNDLES)
     process.stderr.write(`${NAME}: initialized profile ${profile} at ${dir}\n`)
   }
   const before = readProfileManifest(NAME, dir)
@@ -163,7 +159,7 @@ export function runPlugin(profile: string, args: readonly string[]): number {
   const exitCode = result.status ?? 1
   if (exitCode === 0) {
     try {
-      reconcileProfilePlugins(NAME, before, dir, INSTALL_ANCHOR)
+      reconcileProfileBundles(NAME, before, dir, INSTALL_ANCHOR)
     } catch (error) {
       // An engine-name collision carries its own operator-facing remedy, so the
       // command reports it rather than unwinding to the top-level handler.

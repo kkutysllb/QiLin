@@ -12,6 +12,7 @@ import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin/client-ui-workspace/client'
 import type { TypertRemoteContribution } from '@qilin/typert-protocol'
 import {
   TeamAction, type TeamActionInjected, type TeamActionResult, type TeamTaskActionResult,
@@ -26,7 +27,7 @@ declare module '@qilin/client-ui-slots' {
 }
 
 /** Required browser services for RPC, navigation, slots, and localized copy. */
-export const inject = ['sessions', 'remote', 'slots', 'locale']
+export const inject = ['sessions', 'uiWorkspace', 'remote', 'slots', 'locale']
 
 function registerUi(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'client-ui-agent-team: dictionaries')
@@ -54,8 +55,8 @@ function registerUi(ctx: ClientContext): void {
       if (member.role !== 'teammate') return
       const parentSessionId = leadSessionId(sessionId)
       await sessions.refreshSubagents(parentSessionId)
-      if (sessions.list.getSnapshot().current !== sessionId) return
-      sessions.openSubagent({
+      if ((sessions.retainInfo(sessionId).getSnapshot().retainedBy.mainView ?? 0) === 0) return
+      ctx.uiWorkspace.openSession({
         parentSessionId,
         childSessionId: member.id,
         mode: 'continuable',
@@ -86,7 +87,7 @@ export async function mountAgentTeamUi(
   contribution: TypertRemoteContribution,
 ): Promise<() => Promise<void>> {
   const disposeRemote = await ctx.remote.$mount(contribution)
-  const ui = ctx.inject(['sessions', 'remote.agentTeams', 'slots', 'locale'], registerUi)
+  const ui = ctx.inject(['sessions', 'uiWorkspace', 'remote.agentTeams', 'slots', 'locale'], registerUi)
   try {
     await ui
   } catch (error) {

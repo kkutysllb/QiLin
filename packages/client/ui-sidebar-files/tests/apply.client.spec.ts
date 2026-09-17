@@ -102,7 +102,7 @@ describe('ui-sidebar-files apply', () => {
     const file = tabs.get(FILE_KIND)
     expect(file?.id).toBe(FILE_ID)
     expect(file?.title('qilin-resource://file/session/s-1/x/a.ts')).toBe('a.ts')
-    expect(file?.label()).toBe('file.type.label')
+    expect(file?.label!()).toBe('file.type.label')
   })
 
   it('binds the read and write adapters to the Remote face unchanged', async () => {

@@ -47,6 +47,7 @@
     "@qilin/kylin": "workspace:^"
   },
   "dependencies": {
+    "@qilin/lazy-require": "workspace:^",
     "@qilin/win32-process": "workspace:^",
     "koffi": "^3.1.0",
     "node-pty": "1.2.0-beta.15"

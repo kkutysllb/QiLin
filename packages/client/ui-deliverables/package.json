@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-deliverables",
-  "description": "Produced-files turn tail and clickable final-response file references for Web",
+  "description": "Changed-files card with per-file comparison tabs, delivery cards, and clickable final-response file references for Web",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -34,6 +34,7 @@
         "@qilin/client-ui-chat",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-renderer",
+        "@qilin/client-ui-sidebar-right",
         "@qilin/client-ui-tool"
       ],
       "platform": "web"
@@ -55,7 +56,9 @@
     "@qilin/client-test-runtime": "workspace:^",
     "@qilin/client-ui-chat": "workspace:^",
     "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-dockkit": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-sidebar-right": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:^",
@@ -67,6 +70,7 @@
     "@qilin/llm": "workspace:^",
     "@qilin/client-ui-tool": "workspace:^",
     "@qilin/tool-present": "workspace:^",
+    "@qilin/workspace-changes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/util-workspace-path": "workspace:^",
     "@qilin/api-workspace-files": "workspace:^",

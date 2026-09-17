@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-kylin-client-runner` lets a page run the browser half of a dynamic Kylin package: it answers the host's run requests, loads the browser-half source into the page as a live plugin, and removes it when the host retracts the run. A person approves or declines a run — or starts one directly — and the result this package reports back becomes the `cordis_run` tool result the model reads. Nothing loads at activation and nothing is restored after a refresh; a page runs a dynamic package only when someone answers a run request or asks for it here.
+`qilin-kylin-client-runner` runs the browser half of process-local dynamic packages for programmatic callers and existing browser controls. It loads a definition after an approved request or explicit user gesture, and removes it when the Host retracts the run. Page refresh does not restore definitions. Creator UI plugins use installed Client modules through Plugin Manager.
 
 ## Table of Contents
 
@@ -80,7 +80,7 @@ A `cordis/request-run` event asks this page whether to run a definition. Whoever
 Read these pages when the package-level contract is not enough. They move from the browser half to the host that asks it, the tools whose runs it answers, and the surface that renders it.
 
 - [Host runner](../kylin-host-runner/README.md) — the registry and run round trip this package answers.
-- [Tool package](../tool-kylin/README.md) — the model-facing tools whose run requests reach this page.
+- [Tool package](../tool-kylin/README.md) — read-only runtime API discovery.
 - [UI package](../ui-kylin/README.md) — the panel and cards that operate this face.
 - [Extensions subsystem](../../../docs/subsystems/extensions.md) — the generated `ctx.dynamicCordisRunner` API and `cordis/*` events.
 - [Client shells and dynamic packages Agent Note](../../../.agents/notes/implemented/architecture/2026-08-15-client-shells-and-dynamic-packages.md) — package placement and build faces for the client halves.
@@ -90,7 +90,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-### Run resolution, when a model asked for the run
+### Run resolution relayed by the Host
 
 #### What the model sees
 
@@ -99,16 +99,22 @@ This package contributes no tool, prompt, or context of its own; the first thing
 #### Token effect
 
 Conditional and bounded: at most one resolution per run request, spent inside the `cordis_run` tool result the host already emits. The text is data-dependent (a definition's own error message) and this package retains nothing across requests — a page's later load failures are page-local diagnostics with no model-visible carrier.
+This package contributes no tool or prompt. It resolves `kylin/request-run` with activation success, missing services, rejection, or Host/Client failures. The Host runner owns any message relayed to the session.
+
+#### Token effect
+
+Conditional and bounded: at most one resolution per run request, spent inside the runner result the host already emits. The text is data-dependent (a definition's own error message) and this package retains nothing across requests — a page's later load failures are page-local diagnostics with no model-visible carrier.
 
 #### KV Cache effect
 
-Append-only. A resolution reaches the model only as the tool result for the request that was already in flight, extending the history tail; nothing this package authors rewrites or reorders earlier request tokens, so an otherwise reusable prefix stays reusable. Repeated runs of the same definition each produce their own result rather than replacing an earlier one.
+Host steering appends to the session history; this package does not rewrite earlier messages.
 
 ### Render failure, after the run settled
 
 #### What the model sees
 
 A browser half that loads cleanly can still crash when React renders it, and that crash lands after the run was answered — so the model would otherwise be told "ok" and never learn. Every entry-boundary crash of a package this page seated is sent to the host (`reportRenderFailure`) naming the slot, whether the crash retired the entry from its cell (`abdicated`: the package's UI is gone, not merely broken), and a message written for the author. The host keeps the last one per package, steers the owning session with it, and exposes it through `cordis_inspect_self`; nothing here reaches a run resolution.
+React can fail after a successful load. The Client reports each owned entry failure with its slot, message, and whether the entry was removed. The Host retains the latest failure and steers the owning session; the page also displays its local failure.
 
 #### Token effect
 

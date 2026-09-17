@@ -1,54 +1,26 @@
-/** Settings shell registration: slot declaration injection, the ledger projections, and HMR recovery. */
-import { Context } from '@qilin/kylin'
-import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { RemoteError } from '@qilin/client-test-runtime'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import { apply, inject } from '../src/client/index.ts'
+// @vitest-environment jsdom
+/**
+ * Settings shell registration inside the assembled web client: the shell
+ * occupies the `sidebar.settings` hole ui-sidebar declares, its ledger
+ * projections read the product's real sections, its connection control is the
+ * roster's Connection, and it survives a Loader rebuild of the declarer.
+ */
+import { describe, expect, onTestFinished, vi } from 'vitest'
+import type {} from '@qilin/client-ui-renderer/client'
+import { createClientTest, type TestClient, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import { inject } from '../src/client/index.ts'
 import type { SettingsRootInjected } from '../src/client/shell-contract.ts'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
+import type { DesktopUpdatePresentation } from '../src/client/desktop-update-bridge.ts'
 
-async function bench() {
-  const ctx = new Context()
-  await ctx.plugin(SlotRegistry).await()
-  // Copy machinery the shell only reads a revision from; the real locale
-  // plugin would drag its own settings-row dependencies into this bench.
-  ctx.provide('locale', {
-    register: () => () => {},
-    bind: () => (key: string) => key,
-    getSnapshot: () => ({ active: 'zh', locales: [], revision: 0 }),
-    subscribe: () => () => {},
-  } as never)
-  // The shell mounts ui-settings, which injects `remote.settings`; without the
-  // namespace provided its fiber parks and no slot is ever declared.
-  const settings = {
-    describe: async () => ({ ok: false, error: new RemoteError('gateway/internal', 'no settings', {}) }),
-  }
-  const reconnect = vi.fn()
-  const connectionState = {
-    getSnapshot: () => 'connected' as const,
-    subscribe: () => () => {},
-  }
-  ctx.provide('connection', { state: connectionState, reconnect } as never)
-  ctx.provide('remote', {
-    $on: () => () => {},
-    $host: { home: undefined, isLoopback: false },
-    settings,
-  } as never)
-  ctx.provide('remote.settings', settings as never)
-  await ctx.plugin({ inject: [...settingsInject], apply: settingsApply }).await()
-  return { ctx, slots: ctx.get('slots') as SlotRegistry, connectionState, reconnect }
-}
+const SELF = '@qilin/client-ui-settings-general'
+const SIDEBAR = '@qilin/client-ui-sidebar'
+const it = createClientTest({ roster: webApp })
+/** The whole roster's first boot pays the cold module transform of every plugin package. */
+const COLD_BOOT_TIMEOUT_MS = 60_000
 
-function declare(slots: SlotRegistry): () => void {
-  return slots.register(
-    { name: 'root', children: { 'sidebar.settings': { kind: 'single', scope: 'root' } } } as never,
-    () => null,
-  )
-}
-
-function injectedOf(slots: SlotRegistry): SettingsRootInjected {
-  const entry = slots.entries('sidebar.settings')[0]!
+function injectedOf(c: TestClient): SettingsRootInjected {
+  const entry = c.ctx.slots.entries('sidebar.settings')[0]!
   return (entry.inject as () => SettingsRootInjected)()
 }
 
@@ -60,150 +32,159 @@ const CHILD_SPECS = {
   'settings.section': { kind: 'list', scope: 'root' },
   'settings.onboarding': { kind: 'list', scope: 'root' },
 } as const
+const CHILD_NAMES = Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>
 
-describe('ui-settings apply', () => {
-  it('declares only the slot registry (a pure composition face, no locale)', () => {
+/**
+ * Section ids the web-app roster registers: this package (general and about),
+ * ui-settings-models, ui-settings-plugins, ui-settings-mcp, ui-settings-skills,
+ * ui-agent-preset, ui-settings-unarchive-sessions, and ui-sidebar-right. A
+ * plugin adding a section changes this list; mcp/agent-presets share order 20
+ * and skills/sidebar-right share order 30, so the projection order within each
+ * pair follows registration.
+ */
+const PRODUCT_SECTIONS: readonly string[] = [
+  'general', 'models', 'plugins', 'mcp', 'agent-presets', 'archived-sessions', 'skills',
+  'sidebar-right', 'about',
+]
+/** Onboarding steps the web-app roster registers; ui-settings-models owns the only one. */
+const PRODUCT_ONBOARDING: readonly { id: string; order: number }[] = [
+  { id: 'deepseek-official', order: 0 },
+]
+
+describe('ui-settings-general shell', () => {
+  it('shares one carrier subscription between both update locations and releases it on unload', async ({ start }) => {
+    const initial = Promise.withResolvers<DesktopUpdatePresentation>()
+    let publish: ((state: DesktopUpdatePresentation) => void) | undefined
+    const off = vi.fn()
+    const subscribe = vi.fn((listener: typeof publish) => { publish = listener; return off })
+    const open = vi.fn(async () => {})
+    vi.stubGlobal('qilinDesktop', { protocolVersion: 1, updates: { status: () => initial.promise, subscribe, open } })
+    onTestFinished(() => { vi.unstubAllGlobals(); initial.resolve({ phase: 'idle' }) })
+    const c = await start()
+    const row = injectedOf(c)
+    const badge = (c.ctx.slots.entries('sidebar.toggle.badge')[0]!.inject as () => Pick<SettingsRootInjected, 'hooks'>)()
+    expect(badge.hooks.desktopUpdate).toBe(row.hooks.desktopUpdate)
+    expect(subscribe).toHaveBeenCalledOnce()
+    const status = { phase: 'available' as const, version: '1.0.1' }
+    publish!(status)
+    expect(row.hooks.desktopUpdate.getSnapshot().presentation).toEqual(status)
+    row.openDesktopUpdate()
+    await c.flush()
+    expect(open).toHaveBeenCalledOnce()
+    await c.unload(SELF)
+    await c.flush()
+    expect(off).toHaveBeenCalledOnce()
+    expect(c.ctx.slots.entries('sidebar.toggle.badge')).toHaveLength(0)
+    publish!({ phase: 'error', version: status.version, failure: 'install' })
+    expect(row.hooks.desktopUpdate.getSnapshot().presentation).toEqual(status)
+  }, COLD_BOOT_TIMEOUT_MS)
+
+  it('declares its services', () => {
     expect(inject).toEqual(['slots', 'locale', 'connection'])
   })
 
-  it('registers the shell and declares every child slot, before or after the declaration', async () => {
-    const before = await bench()
-    declare(before.slots)
-    await before.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(before.slots.entries('sidebar.settings')[0]!.component).toBe(SettingsRoot)
-    for (const name of Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>) {
-      expect(before.slots.spec(name)).toEqual(CHILD_SPECS[name])
-    }
+  it('occupies sidebar.settings, declared by ui-sidebar, and declares every child slot', async ({ start }) => {
+    const c = await start()
+    expect(c.ctx.slots.entries('sidebar.settings').map(entry => entry.component)).toEqual([SettingsRoot])
+    for (const name of CHILD_NAMES) expect(c.ctx.slots.spec(name)).toEqual(CHILD_SPECS[name])
+  }, COLD_BOOT_TIMEOUT_MS)
 
-    const after = await bench()
-    await after.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(after.slots.entries('sidebar.settings')).toHaveLength(0)
-    declare(after.slots)
-    await Promise.resolve()
-    expect(after.slots.entries('sidebar.settings')[0]!.component).toBe(SettingsRoot)
-    // The self-inflicted ledger notifications hit the duplicate guard.
-    expect(after.slots.entries('sidebar.settings')).toHaveLength(1)
-  })
-
-  it('projects the section ledger into ordered nav rows with option defaults', async () => {
-    const b = await bench()
-    declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const { sections } = injectedOf(b.slots).hooks
-    // This package registers the General and About sections itself; feature
-    // sections arrive from other registrants.
-    const GENERAL = { id: 'general', order: 0, label: 'general.nav' }
-    const ABOUT = { id: 'about', order: 10_000, label: 'about.nav' }
-    expect(sections.getSnapshot()).toEqual([GENERAL, ABOUT])
-    b.slots.register({ name: 'settings.section', id: 'z', order: 20, label: 'Z' } as never, () => null)
-    // No order and no label: both projection defaults apply.
-    b.slots.register({ name: 'settings.section', id: 'a' } as never, () => null)
+  it('projects the section ledger: product sections in order, defaults for bare rows, stable snapshots', async ({ start }) => {
+    const c = await start()
+    const { sections } = injectedOf(c).hooks
+    const product = sections.getSnapshot()
+    expect(product.map(row => row.id).sort()).toEqual([...PRODUCT_SECTIONS].sort())
+    expect(product[0]).toEqual({ id: 'general', order: 0, label: expect.any(String) as string })
+    c.ctx.slots.register({ name: 'settings.section', id: 'z', order: 1_000, label: 'Z' } as never, () => null)
+    // No order and no label: both projection defaults apply, and order 0 sorts among the product rows.
+    c.ctx.slots.register({ name: 'settings.section', id: 'a' } as never, () => null)
     const rows = sections.getSnapshot()
-    expect(rows).toEqual([
-      GENERAL,
-      { id: 'a', order: 0, label: '' },
-      { id: 'z', order: 20, label: 'Z' },
-      ABOUT,
-    ])
+    expect(rows.find(row => row.id === 'z')).toEqual({ id: 'z', order: 1_000, label: 'Z' })
+    expect(rows.find(row => row.id === 'a')).toEqual({ id: 'a', order: 0, label: '' })
+    expect(rows.map(row => row.order)).toEqual([...rows.map(row => row.order)].sort((x, y) => x - y))
     // Snapshot identity is stable until the ledger moves (uSES contract).
     expect(sections.getSnapshot()).toBe(rows)
     const listener = vi.fn()
     const off = sections.subscribe(listener)
-    b.slots.register({ name: 'settings.section', id: 'b', order: 1, label: 'B' } as never, () => null)
+    c.ctx.slots.register({ name: 'settings.section', id: 'b', order: 1, label: 'B' } as never, () => null)
     await Promise.resolve()
     expect(listener).toHaveBeenCalled()
     expect(sections.getSnapshot()).not.toBe(rows)
     off()
   })
 
-  it('lists only the winner of a shadowed section cell, matching what the content column renders', async () => {
-    const b = await bench()
-    declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const { sections } = injectedOf(b.slots).hooks
-    b.slots.register({ name: 'settings.section', id: 'stock', order: 30, label: 'Stock' } as never, () => null)
+  it('lists only the winner of a shadowed section cell, matching what the content column renders', async ({ start }) => {
+    const c = await start()
+    const { sections } = injectedOf(c).hooks
+    c.ctx.slots.register({ name: 'settings.section', id: 'stock', order: 30, label: 'Stock' } as never, () => null)
     // A replacement registers the same id at a lower priority: its entry wins
     // the cell, so exactly one row remains and it carries the winner's label.
-    b.slots.register({ name: 'settings.section', id: 'stock', order: 40, priority: -1, label: 'Replacement' } as never, () => null)
+    c.ctx.slots.register({ name: 'settings.section', id: 'stock', order: 40, priority: -1, label: 'Replacement' } as never, () => null)
     const rows = sections.getSnapshot().filter(row => row.id === 'stock')
     expect(rows).toEqual([{ id: 'stock', order: 40, label: 'Replacement' }])
     // Disposing the shadow restores the stock row — replacement is reversible.
-    const dispose = b.slots.register({ name: 'settings.section', id: 'stock', order: 45, priority: -2, label: 'Second' } as never, () => null)
+    const dispose = c.ctx.slots.register({ name: 'settings.section', id: 'stock', order: 45, priority: -2, label: 'Second' } as never, () => null)
     dispose()
     expect(sections.getSnapshot().filter(row => row.id === 'stock'))
       .toEqual([{ id: 'stock', order: 40, label: 'Replacement' }])
   })
 
-  it('projects the Gateway connection control without copying its state', async () => {
-    const b = await bench()
-    declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const injected = injectedOf(b.slots)
-    expect(injected.hooks.connectionState).toBe(b.connectionState)
+  it('projects the roster Connection control without copying its state; reconnect opens a new $events generation', async ({ start }) => {
+    const c = await start()
+    const injected = injectedOf(c)
+    expect(injected.hooks.connectionState).toBe(c.connection.state)
+    expect(injected.hooks.connectionState.getSnapshot()).toBe('connected')
     injected.reconnect()
-    expect(b.reconnect).toHaveBeenCalledOnce()
+    await c.mock.streams.opened('$events', 2)
+    await vi.waitFor(() => { expect(c.connection.state.getSnapshot()).toBe('connected') })
   })
 
-  it('projects onboarding entries into stable coordinator order', async () => {
-    const b = await bench()
-    declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const { onboardingSteps } = injectedOf(b.slots).hooks
-    b.slots.register({ name: 'settings.onboarding', id: 'credential', order: 0 } as never, () => null)
-    b.slots.register({ name: 'settings.onboarding', id: 'first-step', order: -100 } as never, () => null)
-    b.slots.register({ name: 'settings.onboarding', id: 'default-order' } as never, () => null)
+  it('projects onboarding entries into stable coordinator order', async ({ start }) => {
+    const c = await start()
+    const { onboardingSteps } = injectedOf(c).hooks
+    expect(onboardingSteps.getSnapshot()).toEqual(PRODUCT_ONBOARDING)
+    c.ctx.slots.register({ name: 'settings.onboarding', id: 'credential', order: 0 } as never, () => null)
+    c.ctx.slots.register({ name: 'settings.onboarding', id: 'welcome', order: -100 } as never, () => null)
+    c.ctx.slots.register({ name: 'settings.onboarding', id: 'default-order' } as never, () => null)
     const steps = onboardingSteps.getSnapshot()
-    expect(steps).toEqual([
-      { id: 'first-step', order: -100 },
+    expect(steps.filter(step => !PRODUCT_ONBOARDING.some(known => known.id === step.id))).toEqual([
+      { id: 'welcome', order: -100 },
       { id: 'credential', order: 0 },
       { id: 'default-order', order: 0 },
     ])
     expect(onboardingSteps.getSnapshot()).toBe(steps)
     const listener = vi.fn()
     const off = onboardingSteps.subscribe(listener)
-    b.slots.register({ name: 'settings.onboarding', id: 'later', order: 10 } as never, () => null)
+    c.ctx.slots.register({ name: 'settings.onboarding', id: 'later', order: 10 } as never, () => null)
     await Promise.resolve()
     expect(listener).toHaveBeenCalledOnce()
     off()
   })
 
-  it('projects onboarding steps from winner cells as well', async () => {
-    const b = await bench()
-    declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const { onboardingSteps } = injectedOf(b.slots).hooks
-    b.slots.register({ name: 'settings.onboarding', id: 'credential', order: 0 } as never, () => null)
-    b.slots.register({ name: 'settings.onboarding', id: 'credential', order: 5, priority: -1 } as never, () => null)
-    expect(onboardingSteps.getSnapshot()).toEqual([{ id: 'credential', order: 5 }])
+  it('projects onboarding steps from winner cells as well', async ({ start }) => {
+    const c = await start()
+    const { onboardingSteps } = injectedOf(c).hooks
+    c.ctx.slots.register({ name: 'settings.onboarding', id: 'credential', order: 0 } as never, () => null)
+    c.ctx.slots.register({ name: 'settings.onboarding', id: 'credential', order: 5, priority: -1 } as never, () => null)
+    expect(onboardingSteps.getSnapshot()).toEqual([...PRODUCT_ONBOARDING, { id: 'credential', order: 5 }])
   })
 
-  it('re-registers after an HMR collapse re-declares the slot (stale disposer must not block)', async () => {
-    const b = await bench()
-    const redeclare = declare(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(b.slots.entries('sidebar.settings')).toHaveLength(1)
-    // Declarer unload: the cascade removes our entry and every child
-    // declaration while our local disposer variable goes stale.
-    redeclare()
-    expect(b.slots.entries('sidebar.settings')).toHaveLength(0)
-    expect(b.slots.spec('settings.header')).toBeUndefined()
-    declare(b.slots)
-    await Promise.resolve()
-    expect(b.slots.entries('sidebar.settings')[0]!.component).toBe(SettingsRoot)
-    for (const name of Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>) {
-      expect(b.slots.spec(name)).toEqual(CHILD_SPECS[name])
-    }
+  it('re-registers after the declarer reloads: the cascade removes the shell, the rebuilt declaration takes it back', async ({ start }) => {
+    const c = await start()
+    const before = c.ctx.slots.entries('sidebar.settings')[0]
+    expect(before).toBeDefined()
+    await c.reload(SIDEBAR)
+    await c.flush()
+    expect(c.ctx.slots.entries('sidebar.settings').map(entry => entry.component)).toEqual([SettingsRoot])
+    expect(c.ctx.slots.entries('sidebar.settings')[0]).not.toBe(before)
+    for (const name of CHILD_NAMES) expect(c.ctx.slots.spec(name)).toEqual(CHILD_SPECS[name])
   })
 
-  it('unregisters the shell and collapses every child slot on teardown', async () => {
-    const b = await bench()
-    declare(b.slots)
-    const fiber = b.ctx.plugin({ inject: [...inject], apply })
-    await fiber.await()
-    await fiber.dispose()
-    expect(b.slots.entries('sidebar.settings')).toHaveLength(0)
-    for (const name of Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>) {
-      expect(b.slots.spec(name)).toBeUndefined()
-    }
+  it('unregisters the shell and collapses every child slot when its row unloads', async ({ start }) => {
+    const c = await start()
+    await c.unload(SELF)
+    await c.flush()
+    expect(c.ctx.slots.entries('sidebar.settings')).toHaveLength(0)
+    for (const name of CHILD_NAMES) expect(c.ctx.slots.spec(name)).toBeUndefined()
   })
 })

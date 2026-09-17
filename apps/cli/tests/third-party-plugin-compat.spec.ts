@@ -20,7 +20,7 @@ import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   boot, createProfileResolutionGeneration, doctorPluginPackage, initProfile,
-  loadProfile, readProfileManifest, reconcileProfilePlugins, resolveProfileDir, writeProfileManifest,
+  loadProfile, readProfileManifest, reconcileProfileBundles, resolveProfileDir, writeProfileManifest,
 } from '@qilin/app-boot'
 import { clientDeclarationOf, dshCompatModuleId } from '@qilin/dsh-compat'
 import { INSTALL_ANCHOR, PROFILE_ROOT_FILENAME } from '../src/profile-boot.ts'
@@ -89,7 +89,7 @@ function installIntoProfile(): { home: string; dir: string; pluginDir: string } 
   const home = tmp()
   vi.stubEnv('QILIN_HOME', home)
   const dir = resolveProfileDir('test', home)
-  initProfile(dir, [], 'startup')
+  initProfile(dir, [])
   file(join(dir, PROFILE_ROOT_FILENAME), '[]\n')
   const pluginDir = stagePlugin()
   writeProfileManifest(dir, {
@@ -101,7 +101,7 @@ function installIntoProfile(): { home: string; dir: string; pluginDir: string } 
   mkdirSync(join(dir, 'node_modules'), { recursive: true })
   symlinkSync(pluginDir, join(dir, 'node_modules', PLUGIN_NAME), 'junction')
   const before = readProfileManifest(NAME, dir)
-  reconcileProfilePlugins(NAME, before, dir, INSTALL_ANCHOR)
+  reconcileProfileBundles(NAME, before, dir, INSTALL_ANCHOR)
   return { home, dir, pluginDir }
 }
 

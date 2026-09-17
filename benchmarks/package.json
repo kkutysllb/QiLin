@@ -19,6 +19,7 @@
     "@qilin/client-store": "workspace:^",
     "@qilin/client-ui-chat": "workspace:^",
     "@qilin/deque": "workspace:^",
+    "@qilin/lazy-require": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/sdk-client": "workspace:^",
     "@qilin/session": "workspace:^",

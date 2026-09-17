@@ -34,7 +34,7 @@ import type {
 } from '@qilin/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
 import type { SessionId } from '@qilin/session/types'
-import type { SessionPendingInteractionSnapshot } from '@qilin/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
 import { apply as localeApply, inject as localeInject } from '@qilin/client-locale/client'
 import { apply, inject } from '@qilin/client-ui-trajectory/client'
 import { apply as nodeApply } from '@qilin/client-ui-trajectory'
@@ -144,7 +144,6 @@ function historySnapshot(
 function sessionSnapshot(nodes: LegacyConversationSlice['nodes']): SessionSnapshot {
   return {
     sessionId: SID,
-    queue: [],
     pendingSubmissions: [],
     running: false,
     subagent: null,
@@ -200,7 +199,7 @@ function standaloneDuration(): Pick<
 /** Empty sessions-list hook; breadcrumbs therefore fall back to the raw id. */
 function emptySessions() {
   const store = createSnapshotStore<SessionListState>(
-    { ids: [], byId: {}, current: undefined, phase: 'ready', subagentsByParent: {}, jobsBySession: {}, currentAddress: undefined })
+    { ids: [], byId: {}, phase: 'ready', subagentsByParent: {}, jobsBySession: {} })
   return bindSnapshotSelector(store)
 }
 
@@ -253,9 +252,10 @@ function standaloneProps(
     useChat: bindSnapshotSelector(createSnapshotStore(EMPTY_CHAT_SNAPSHOT)),
     useSessions: emptySessions(),
     usePanelInfo, useResource,
-    useSessionPendingInteraction: bindSnapshotSelector(
-      createSnapshotStore<SessionPendingInteractionSnapshot>(new Map()),
+    useSessionStatus: bindSnapshotSelector(
+      createSnapshotStore<SessionStatusSnapshot>(new Map()),
     ),
+    useSessionRetainInfo: () => undefined,
     useWorkspaces: emptyWorkspaces(),
     useConversation: bindSnapshotSelector(createSnapshotStore(conversationSnapshot(trajectory))),
     useInput: bindSnapshotSelector(input),
@@ -289,6 +289,8 @@ async function bench(snapshot = historySnapshot(NODES)) {
     snapshot: { blank: false },
     session: { loadOlder },
   })
+  const reference = runtime.sessions.retain(SID)
+  await reference.ready
   const trajectoryStore = createSnapshotStore(snapshot)
   const conversationStore = createSnapshotStore<ConversationSnapshot>(conversationSnapshot(snapshot))
   const uiConversation = new UiConversation(ctx, runtime.sessions)
@@ -320,7 +322,6 @@ async function bench(snapshot = historySnapshot(NODES)) {
   // The locale plugin backs registration-time copy ('locale' in inject); its
   // settings scope needs a connection handle and the forwarded-event port.
   ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
-  ctx.provide('remote', { $on: () => () => {} } as never)
   ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
   await runtime.mount({ inject: [...localeInject], apply: localeApply })
   const provide = vi.spyOn(ctx.uiSession, 'provide')
@@ -374,8 +375,8 @@ function mount(
   const useConversation = bindSnapshotSelector<ConversationSnapshot>(conversationStore)
   const useChat = bindSnapshotSelector(createSnapshotStore(EMPTY_CHAT_SNAPSHOT))
   const useSessions = emptySessions()
-  const useSessionPendingInteraction = bindSnapshotSelector(
-    createSnapshotStore<SessionPendingInteractionSnapshot>(new Map()),
+  const useSessionStatus = bindSnapshotSelector(
+    createSnapshotStore<SessionStatusSnapshot>(new Map()),
   )
   const useWorkspaces = emptyWorkspaces()
   const useInput = bindSnapshotSelector(createSnapshotStore<InputState>({
@@ -396,7 +397,8 @@ function mount(
     useConversation,
     useSessions,
     usePanelInfo, useResource,
-    useSessionPendingInteraction,
+    useSessionStatus,
+    useSessionRetainInfo: () => undefined,
     useWorkspaces,
     useProjection,
     useInput,
@@ -437,7 +439,7 @@ describe('plugin registration', () => {
     expect(graph?.id).toBe(TRAJECTORY_GRAPH_ID)
     expect(graph?.kind).toBe(TRAJECTORY_GRAPH_KIND)
     expect(graph?.priority).toBe('builtin')
-    expect(graph?.label()).toBe('Trajectory graph')
+    expect(graph?.label?.()).toBe('Trajectory graph')
     expect(graph?.guide?.map(item => [item.order, item.title(), item.description?.()]))
       .toEqual([[21, 'Trajectory graph', 'The trajectory ledger drawn as a live node and edge flow']])
     const graphEntry = b.slots.entries('sidebar.right.pane.tab')
@@ -474,15 +476,16 @@ describe('plugin registration', () => {
 
   it('keeps one total standard source for a Session binding', async () => {
     const b = await bench()
-    const binding = b.runtime.sessions.binding(SID)
-    if (binding === undefined) throw new Error('Trajectory source test Session binding is unavailable')
+    using reference = b.runtime.sessions.retain(SID)
+    await reference.ready
+    const binding = reference.binding
     const resolveSource = (owner: SessionBinding): ObservableSnapshot<TrajectorySnapshot> => {
       const contribution = b.sourceDescriptor.resolve(owner) as {
         hooks: { trajectory: ObservableSnapshot<TrajectorySnapshot> }
       }
       return contribution.hooks.trajectory
     }
-    const source = b.runtime.ctx.uiSession.adapter.resolve(SID)!.hooks.trajectory as
+    const source = b.runtime.ctx.uiSession.adapter.bindingSource(reference).getSnapshot().hooks.trajectory as
       ObservableSnapshot<TrajectorySnapshot>
 
     expect(resolveSource(binding)).toBe(source)
@@ -497,8 +500,10 @@ describe('plugin registration', () => {
   it('shares one browser-wide duration preference across session injections', async () => {
     const b = await bench()
     const first = injectBody(b, SID)
-    await b.runtime.sessions.add({ id: 's2' }, { current: false })
-    const second = injectBody(b, 's2' as SessionId)
+    await b.runtime.sessions.add({ id: 's2' })
+    using reference = b.runtime.sessions.retain('s2' as SessionId)
+    await reference.ready
+    const second = injectBody(b, reference.sessionId)
 
     expect(second.hooks.duration).toBe(first.hooks.duration)
     first.setActualDuration(true)
@@ -1454,7 +1459,7 @@ describe('TrajectoryView state', () => {
 
     // The focus request grows the window to the hidden record, opens it, and selects it.
     const inspector = screen.getByRole('complementary', { name: '事件详情' })
-    expect(inspector.textContent).toContain('第 1 轮 · 步骤 1')
+    expect(inspector.textContent).toContain('第 1 轮 · 第 1 步')
     expect(view.container.querySelectorAll('[aria-selected="true"]')).toHaveLength(1)
   })
 

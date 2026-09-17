@@ -8,7 +8,7 @@ export interface DesktopTargetBuildPaths {
   readonly packageSet: string
   readonly qilin: string
   readonly qilinPnpm: string
-  readonly nodeExtract: string
+  readonly electron: string
   readonly packedQilin: string
   readonly packedVendor: string
   readonly packedLandlock: string

@@ -8,9 +8,13 @@ The qilin-base bundle patch shared by the web, headless, sdk, and acp profiles; 
 ```mermaid
 flowchart LR
   cfg["packages/bundle/base/cordis.patch.yml<br/>cordis.yml"]
+  plugin_qilin_base_tool_plugin_manager["tool-plugin-manager<br/>@qilin/plugin-manager/tools"]
+  cfg --> plugin_qilin_base_tool_plugin_manager
+  plugin_qilin_base_plugin_manager["plugin-manager<br/>@qilin/plugin-manager"]
+  cfg --> plugin_qilin_base_plugin_manager
   plugin_qilin_base_timer["timer<br/>@qilin/kylin-plugin-timer"]
   cfg --> plugin_qilin_base_timer
-  plugin_qilin_base_hmr["hmr<br/>@qilin/kylin-plugin-hmr"]
+  plugin_qilin_base_hmr["hmr<br/>@qilin/hmr"]
   cfg --> plugin_qilin_base_hmr
   plugin_qilin_base_llm["llm<br/>@qilin/llm"]
   cfg --> plugin_qilin_base_llm
@@ -186,8 +190,10 @@ flowchart LR
 
 | Plugin id | Package / module |
 | --- | --- |
+| `tool-plugin-manager` | `@qilin/plugin-manager/tools` |
+| `plugin-manager` | `@qilin/plugin-manager` |
 | `timer` | `@qilin/kylin-plugin-timer` |
-| `hmr` | `@qilin/kylin-plugin-hmr` |
+| `hmr` | `@qilin/hmr` |
 | `llm` | `@qilin/llm` |
 | `deepseek-llm-api-extensions` | `@qilin/deepseek-llm-api-extensions` |
 | `session` | `@qilin/session` |

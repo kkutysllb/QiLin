@@ -5,9 +5,9 @@ import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: pulls the ctx.remote merge, the skills Remote row, and the
-// useSessions global hook this page reads its Session from.
+// workspace global-prop merge this page reads its Session selection from.
 import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin/client-ui-workspace/client'
 import { SkillsSection } from './SkillsSection.tsx'
 import type { SkillsSectionInjected } from './SkillsSection.tsx'
 import { SkillsStore } from './store.ts'
@@ -28,7 +28,7 @@ declare module '@qilin/client-ui-slots' {
 export const NS = 'settings.skills'
 
 /** Services required by the settings registration and the generated Remote face. */
-export const inject = ['slots', 'locale', 'remote', 'remote.skills']
+export const inject = ['slots', 'locale', 'remote', 'remote.skills', 'uiWorkspace']
 
 /**
  * Register the skills page once the settings shell declares its section slot,
@@ -42,7 +42,7 @@ export function apply(ctx: ClientContext): void {
   const t = ctx.locale.bind(NS) as SkillsSectionInjected['t']
   const injected = (): SkillsSectionInjected => ({
     controller,
-    hooks: { snapshot: controller.store },
+    hooks: { snapshot: controller.store, selection: ctx.uiWorkspace.selection },
     t,
   })
 

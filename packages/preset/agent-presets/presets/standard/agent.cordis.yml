@@ -260,3 +260,7 @@
 
 - id: present
   name: '@qilin/tool-present'
+
+- id: tool-plugin-manager
+  name: '@qilin/plugin-manager/tools'
+  disabled: true

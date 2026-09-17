@@ -3,7 +3,7 @@
 import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/host-webserver'
 import type {} from '@qilin/settings'
-import { bootThemeInjection } from './boot-theme.ts'
+import { bootThemeInjections } from './boot-theme.ts'
 import {
   DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE,
   THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema, type ThemeSettings,
@@ -43,6 +43,6 @@ export function apply(ctx: Context): void {
   })
   ctx.on('webserver/index-inject', (table) => {
     const section = readSection(ctx)
-    table.push(bootThemeInjection(section.preference, section.fontSize, section.leading))
-  })
+    table.push(...bootThemeInjections(section.preference, section.fontSize, section.leading))
+  }, { prepend: true })
 }

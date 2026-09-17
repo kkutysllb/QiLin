@@ -1,5 +1,6 @@
-/* Connection recovery while the panel is closed: the sidebar foot reports the
-   outage, and the account menu remains the only Settings entry. */
+/* Closed-panel status in the sidebar foot while the settings page is closed:
+   the row reports connection recovery and desktop-update status, and the
+   account menu remains the only Settings entry. */
 .connectionRow {
   flex: none;
   display: flex;

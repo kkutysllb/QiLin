@@ -71,7 +71,7 @@
     "@qilin/file-reference": "workspace:^",
     "@qilin/goal": "workspace:^",
     "@qilin/host-plugin-inventory": "workspace:^",
-    "@qilin/host-plugin-manager": "workspace:^",
+    "@qilin/plugin-manager": "workspace:^",
     "@qilin/llm": "workspace:^",
     "@qilin/mcp-servers": "workspace:^",
     "@qilin/message-feedback": "workspace:^",
@@ -89,6 +89,7 @@
     "@qilin/api-workspace-files": "workspace:^",
     "zod": "^4.4.3",
     "@qilin/command-feedback": "workspace:^",
-    "@qilin/api-terminal-controller": "workspace:^"
+    "@qilin/api-terminal-controller": "workspace:^",
+    "@qilin/office-to-pdf": "workspace:^"
   }
 }

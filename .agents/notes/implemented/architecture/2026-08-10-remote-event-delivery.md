@@ -28,7 +28,7 @@ All allowlisted events use this path, and dedicated frames and Client aliases ar
 
 `skills/change`, `tools/change`, and `system-prompt/change` have the same pure invalidation form but no shipped consumer. The rule that every abstraction needs a current owner and need keeps them outside the allowlist; they remain only an extension point recorded here.
 
-### Consumer contract (`dsh-typert-protocol`)
+### Consumer contract (`@qilin/typert-protocol`)
 
 Type metadata adds event-form predicates, mode entries, a selection seat, and one member of `TypertClientRemote`, with no runtime code:
 
@@ -148,7 +148,7 @@ The few required Client symbols are mirrored on the test side: `scaffold.ts` exp
 
 | Location | Change |
 |---|---|
-| `dsh-typert-protocol` | `src/types.ts` provides forwardable-mode derivation, selection, and Client-listener projection; `TypertClientRemote` exposes only `$on`. Types only, no runtime |
+| `@qilin/typert-protocol` | `src/types.ts` provides forwardable-mode derivation, selection, and Client-listener projection; `TypertClientRemote` exposes only `$on`. Types only, no runtime |
 | `api/gateway` | Host provides one Remote event source, `$events`, pending-waterfall coordination, and `$events/result`; Client registers the private pump as the Connection generation source and owns frame validation and Cordis dispatch |
 | `api/remotes` | `src/remote-events.ts` (mode-bearing allowlist value) and `src/types.ts` (key projection and selection) belong to both faces; Host registers each Client source and validates JSON before queueing; Client continues to compose generated Remote contributions |
 | Root `tsconfig.base.json` | Adds source-plane `paths` entries for `dsh-settings/types`, `dsh-credentials/types`, and `dsh-api-remotes/types` |

@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`qilin-kylin-client-runner` 让页面运行动态 Kylin 包的浏览器半：它应答 host 的运行请求、把浏览器半源码装载进页面成为活插件，并在 host 撤回该次运行时把它移除。人可以批准或拒绝一次运行——也可以直接启动一次——而本包回报的结果变成模型读到的 `cordis_run` 工具结果。激活时什么都不装载，刷新后也不恢复；一页只在有人应答运行请求或在此主动要求时，才运行动态包。
+`qilin-kylin-client-runner` 为程序调用方和现有浏览器控件运行进程内动态包的浏览器部分。它在请求获批或用户显式操作后加载定义，并在 Host 撤销运行时移除定义。页面刷新不会恢复定义。Creator UI 插件通过 Plugin Manager 使用已安装的 Client 模块。
 
 ## 目录
 
@@ -80,7 +80,7 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面。它们从浏览器半逐步进入发问的 host、其运行被应答的工具，以及渲染它的界面。
 
 - [Host runner](../kylin-host-runner/README.zh.md)——本包应答的注册表与运行往返。
-- [工具包](../tool-kylin/README.zh.md)——运行请求到达本页的模型侧工具。
+- [工具包](../tool-kylin/README.zh.md)——只读运行时 API 发现。
 - [UI 包](../ui-kylin/README.zh.md)——操作这个面的面板与卡片。
 - [extensions 子系统](../../../docs/subsystems/extensions.zh.md)——生成的 `ctx.dynamicCordisRunner` API 与 `cordis/*` 事件。
 - [客户端外壳与动态包 Agent Note](../../../.agents/notes/implemented/architecture/2026-08-15-client-shells-and-dynamic-packages.zh.md)——浏览器半的包归属与构建面。
@@ -90,7 +90,7 @@ kind: "package-reference"
 <a id="model-experience"></a>
 ## 模型体验
 
-### 由模型发起那次 run 的最终回答
+### Host 转发的运行结果
 
 #### 模型看到的内容
 
@@ -99,16 +99,22 @@ kind: "package-reference"
 #### Token 影响
 
 有条件且有界：每次 run 请求最多一个回答，花在 host 本来就会发出的那个 `cordis_run` 结果里。文本随数据而定（某个定义自己的错误消息），本包跨请求不留存任何东西——一页后续的装载失败是页面本地诊断，在模型侧没有任何承载物。
+本包不提供工具或提示。它以激活成功、缺失服务、拒绝或 Host/Client 失败响应 `kylin/request-run`。发送给会话的任何消息由 Host runner 负责。
+
+#### Token 影响
+
+有条件且有界：每次 run 请求最多一个回答，花在 host 本来就会发出的那个 `run` 结果里。文本随数据而定（某个定义自己的错误消息），本包跨请求不留存任何东西——一页后续的装载失败是页面本地诊断，在模型侧没有任何承载物。
 
 #### KV Cache 影响
 
-只追加。回答只作为「本来就在途的那次请求」的工具结果到达模型、延长历史尾部；本包撰写的内容不会重写或重排更早的请求 token，因此原本可复用的前缀仍然可复用。同一定义的多次运行各自产出各自的结果，而不是替换更早那一个。
+Host steering 追加到会话历史；本包不改写更早的消息。
 
 ### run 落定之后的渲染期失败
 
 #### 模型看到的内容
 
 一个装载得干干净净的浏览器半，仍可能在 React 渲染时崩溃，而那次崩溃发生在 run 已经被回答之后——否则模型只会被告知「ok」，永远学不到。凡是本页落座过的包，其 entry 边界的每一次崩溃都会发回 host（`reportRenderFailure`）：点名槽位、说明这次崩溃是否已把 entry 从格位上摘掉（`abdicated`：包的 UI 是没了、而不只是坏了），以及一条写给作者的 message。host 每包只留最后一条，用它 steer 所属会话，并经由 `cordis_inspect_self` 暴露；这条通道上的任何东西都不会进入 run 的最终回答。
+React 可能在加载成功后失败。Client 报告其拥有的每个 entry 失败，包括 slot、消息及 entry 是否已移除。Host 保留最新失败并向所属会话发送 steering；页面也显示本地失败。
 
 #### Token 影响
 

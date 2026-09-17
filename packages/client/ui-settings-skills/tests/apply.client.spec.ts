@@ -13,6 +13,18 @@ function skillsRemote() {
   return { list }
 }
 
+/** Fake `uiWorkspace`: the page reads the main-pane selection from its snapshot. */
+function workspaceService(ctx: Context) {
+  const store = { getSnapshot: () => ({}), subscribe: () => () => {} }
+  class WorkspaceService extends Service {
+    readonly selection = store
+    constructor(serviceCtx: Context) {
+      super(serviceCtx, 'uiWorkspace')
+    }
+  }
+  return new WorkspaceService(ctx)
+}
+
 async function bench() {
   const ctx = new Context()
   await ctx.plugin(SlotRegistry).await()
@@ -25,6 +37,8 @@ async function bench() {
   await ctx.plugin(RemoteService).await()
   const skills = skillsRemote()
   ctx.provide('remote.skills', skills)
+  // Constructing the service registers it; providing it again would double-register.
+  workspaceService(ctx)
   const slots = ctx.get('slots') as SlotRegistry
   slots.register(
     { name: 'root', children: { 'settings.section': { kind: 'list', scope: 'root' } } } as never,
@@ -41,7 +55,7 @@ describe('ui-settings-skills apply', () => {
   })
 
   it('declares only the services the page and its Remote need', () => {
-    expect(inject).toEqual(['slots', 'locale', 'remote', 'remote.skills'])
+    expect(inject).toEqual(['slots', 'locale', 'remote', 'remote.skills', 'uiWorkspace'])
   })
 
   it('registers the page under the settings section and removes it with its fiber', async () => {
@@ -52,12 +66,13 @@ describe('ui-settings-skills apply', () => {
     expect(resolveSlotLabel(entry!.options.label)).toBe(en.nav)
     expect(NS).toBe('settings.skills')
     const face = (entry as unknown as {
-      inject?: () => { controller: unknown; t: (key: keyof typeof en) => string; hooks: { snapshot: unknown } }
+      inject?: () => { controller: unknown; t: (key: keyof typeof en) => string; hooks: { snapshot: unknown; selection: unknown } }
     }).inject?.()
     expect(face?.t('nav')).toBe(en.nav)
     expect(face?.hooks.snapshot).toBe(
       (face?.controller as { store: unknown }).store,
     )
+    expect(face?.hooks.selection).toBeDefined()
     // Registering the page reads nothing; the mounted section loads.
     expect(skills.list).not.toHaveBeenCalled()
     await fiber.dispose()

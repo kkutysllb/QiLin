@@ -28,6 +28,7 @@
   "qilin": {
     "client": {
       "inject": [
+        "@qilin/api-remotes",
         "@qilin/api-session-controller",
         "@qilin/client-ui-renderer"
       ],
@@ -44,11 +45,13 @@
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
+    "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^",
     "@types/react": "~18.3.1",
     "react": "^18.2.0"
   },

@@ -30,7 +30,7 @@ import { WorkspaceBrowser } from './rows/WorkspaceBrowser.tsx'
 import { WorkspacePicker } from './WorkspacePicker.tsx'
 import { en, zh, type WorkspaceKey } from './locales.ts'
 
-export type { UiWorkspace } from './navigation.ts'
+export type { MainSelection, UiWorkspace } from './navigation.ts'
 export type {
   DirectoryFlowOwnerProps, DirectoryFlowSlotName, DirectoryPickingHooks, DirectoryPickingInjected,
   WorkspaceBrowserInjected, WorkspaceBrowserProps, WorkspacePickerInjected, WorkspacePickerProps,
@@ -46,6 +46,12 @@ declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The workspace browsing region and pick/create flow copy. */
     workspace: WorkspaceKey
+  }
+}
+
+declare module '@qilin/api-session-controller/client' {
+  interface SessionReferenceSourceMap {
+    workspaceOperation: unknown
   }
 }
 
@@ -107,11 +113,11 @@ export function apply(ctx: Context): void {
     searchSessions,
     searchResultLimit: sessions.searchResultLimit,
     renameSession: async (sessionId, title) => {
-      // Row → session-face hop: rename is a per-session verb (ISession), not
-      // a list-service verb; the binding resolves any listed session.
-      const session = sessions.binding(sessionId)?.session
-      if (session === undefined) throw new Error(`unknown session "${sessionId}"`)
-      const result = await session.rename(title)
+      const result = await sessions.using(
+        sessionId,
+        { source: 'workspaceOperation' },
+        reference => reference.binding.session.rename(title),
+      )
       if (!result.ok) throw new Error(result.error.message)
     },
     forkSession: (sessionId) => {

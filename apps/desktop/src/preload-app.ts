@@ -1,24 +1,36 @@
-/** Startup controls for shell documents; application documents receive only the carrier marker. */
+/** Origin-scoped boot, native directory selection, and update presentation with native confirmation actions. */
 
 import { contextBridge, ipcRenderer } from 'electron'
-import { DESKTOP_IPC, type QilinDesktopStartupApi } from './ipc.ts'
-import type { DesktopBackendState } from './backend-controller.ts'
+import { DESKTOP_IPC, SCHEME, type QilinDesktopProductApi, type DesktopUpdatePresentation } from './ipc.ts'
+import { markDocumentPlatform } from './preload-platform.ts'
+import { syncNativeTheme } from './preload-theme.ts'
+import { syncWindowsAppearance } from './preload-windows.ts'
 
-const startup: QilinDesktopStartupApi = {
+const product: QilinDesktopProductApi = {
   protocolVersion: 1,
-  locale: () => ipcRenderer.invoke(DESKTOP_IPC.localeGet) as ReturnType<QilinDesktopStartupApi['locale']>,
-  backend: {
-    status: () => ipcRenderer.invoke(DESKTOP_IPC.backendStatus) as ReturnType<QilinDesktopStartupApi['backend']['status']>,
-    subscribe(listener: (state: DesktopBackendState) => void) {
-      const handle = (_event: Electron.IpcRendererEvent, state: DesktopBackendState): void => { listener(state) }
-      ipcRenderer.on(DESKTOP_IPC.backendState, handle)
-      return () => { ipcRenderer.off(DESKTOP_IPC.backendState, handle) }
+  updates: {
+    status: () => ipcRenderer.invoke(DESKTOP_IPC.updatesStatus) as Promise<DesktopUpdatePresentation>,
+    open: () => ipcRenderer.invoke(DESKTOP_IPC.updatesOpen) as Promise<void>,
+    subscribe(listener: (state: DesktopUpdatePresentation) => void) {
+      const handle = (_event: Electron.IpcRendererEvent, state: DesktopUpdatePresentation): void => { listener(state) }
+      ipcRenderer.on(DESKTOP_IPC.updatesPresentation, handle)
+      return () => { ipcRenderer.off(DESKTOP_IPC.updatesPresentation, handle) }
     },
   },
-  disablePlugins: () => ipcRenderer.invoke(DESKTOP_IPC.pluginsDisableAll) as Promise<void>,
-  restart: () => ipcRenderer.invoke(DESKTOP_IPC.applicationRestart) as Promise<void>,
-  resetConfiguration: () => ipcRenderer.invoke(DESKTOP_IPC.configurationReset) as Promise<void>,
 }
 
-contextBridge.exposeInMainWorld('qilinDesktop', location.protocol === 'qilin-app:' && location.hostname === 'shell'
-  ? startup : { protocolVersion: 1 })
+if (location.protocol === `${SCHEME}:` && location.hostname === 'app') {
+  syncWindowsAppearance()
+  contextBridge.exposeInMainWorld('__QILIN_DIRECTORY_PICKER__', {
+    pick: () => ipcRenderer.invoke(DESKTOP_IPC.directoryPick) as Promise<string | null>,
+  })
+  contextBridge.exposeInMainWorld('qilinDesktopBoot', {
+    ready: () => ipcRenderer.invoke(DESKTOP_IPC.boot) as Promise<unknown>,
+    failed: (message: string) => ipcRenderer.invoke(DESKTOP_IPC.bootFailed, message) as Promise<void>,
+  })
+}
+
+markDocumentPlatform()
+syncNativeTheme()
+// Main-process IPC also verifies the owning window and top frame.
+contextBridge.exposeInMainWorld('qilinDesktop', location.protocol === `${SCHEME}:` && location.hostname === 'app' ? product : { protocolVersion: 1 })

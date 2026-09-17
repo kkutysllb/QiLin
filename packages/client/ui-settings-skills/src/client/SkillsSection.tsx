@@ -7,7 +7,8 @@
 import { useEffect, useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { Button, Tag } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsRuntime } from '@qilin/client-ui-slots'
+import type { HostObservable, InjectFace, PropsRuntime } from '@qilin/client-ui-slots'
+import type { MainSelection } from '@qilin/client-ui-workspace/client'
 import type { SkillEntry } from '@qilin/api-remotes/client'
 import type { SkillsStore } from './store.ts'
 import type { en } from './locales.ts'
@@ -20,6 +21,12 @@ export interface SkillsSectionInjected {
   hooks: {
     /** Page snapshot bound by the UI renderer as useSnapshot. */
     snapshot: SkillsStore['store']
+    /**
+     * Main-pane selection bound as useSelection. The Session Controller owns the
+     * catalog and leaves view selection to navigation, so the page reads the
+     * selected Session from the workspace service.
+     */
+    selection: HostObservable<MainSelection>
   }
   /** Page copy. */
   t: (key: keyof typeof en) => string
@@ -63,11 +70,11 @@ function detailOf(skill: SkillEntry): string {
  * @returns the settings section body.
  */
 export function SkillsSection(props: SkillsSectionProps): ReactNode {
-  const { controller, useSnapshot, useSessions, t } = props
+  const { controller, useSnapshot, useSelection, t } = props
   const state = useSnapshot(snapshot => snapshot)
-  // The catalog is the Session's own composition, so an unready Session list
-  // reads as "no Session" rather than an error.
-  const sessionId = useSessions(snapshot => snapshot.phase === 'ready' ? snapshot.current : undefined)
+  // The catalog is the Session's own composition, so an empty main-pane
+  // selection reads as "no Session" rather than an error.
+  const sessionId = useSelection(selection => selection.sessionId)
 
   useEffect(() => {
     void controller.load(sessionId)

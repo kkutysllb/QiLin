@@ -32,8 +32,7 @@
         "@qilin/client-resources",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-layout",
-        "@qilin/client-ui-session",
-        "@qilin/util-workspace-path"
+        "@qilin/client-ui-session"
       ],
       "platform": "web"
     }
@@ -70,7 +69,8 @@
     "react-dom": "^18.2.0",
     "picomatch": "^4.0.4",
     "clsx": "^2.0.0",
-    "@qilin/util-crypto": "workspace:^"
+    "@qilin/util-crypto": "workspace:^",
+    "zod": "^4.4.3"
   },
   "files": [
     "lib/index.js",

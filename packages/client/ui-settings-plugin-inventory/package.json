@@ -31,7 +31,8 @@
         "@qilin/api-remotes",
         "@qilin/client-ui-settings",
         "@qilin/client-locale",
-        "@qilin/client-ui-agent-preset"
+        "@qilin/client-ui-agent-preset",
+        "@qilin/client-modules"
       ],
       "platform": "web"
     }
@@ -58,7 +59,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/agent-presets": "workspace:^"
+    "@qilin/agent-presets": "workspace:^",
+    "@qilin/client-modules": "workspace:^",
+    "@qilin/client-store": "workspace:^"
   },
   "files": [
     "lib/index.js",

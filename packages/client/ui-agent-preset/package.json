@@ -61,6 +61,7 @@
     "@qilin/client-ui-settings": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^",
     "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:^",
     "react": "^18.2.0",

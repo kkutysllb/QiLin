@@ -45,7 +45,6 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
     "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/client-locale": "workspace:^",
@@ -55,6 +54,8 @@
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-sidebar-right": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^",
+    "@qilin/kylin": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/subagent": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",

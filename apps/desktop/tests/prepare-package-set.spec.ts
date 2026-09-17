@@ -46,32 +46,45 @@ describe('desktop package-set selection', () => {
     ])
   })
 
-  it('rejects a required internal package absent from the packed release inputs', () => {
+  it.each([
+    '@qilin/base', '@qilin/kylin', '@deepseek-ai/node-addon-system',
+  ])('rejects required prepared package %s absent from the packed release inputs', (dependency) => {
     const available = new Map<string, PackedDesktopPackage>([
       ['@qilin/cli', packed('@qilin/cli', {
-        dependencies: { '@qilin/base': '^1.0.0' },
+        dependencies: { [dependency]: '^1.0.0' },
       })],
       ['@qilin/desktop-host', packed('@qilin/desktop-host', {
         dependencies: { '@qilin/cli': '^1.0.0' },
       })],
     ])
-    expect(() => selectDesktopPackageClosure(available)).toThrow(/unpacked internal package/u)
+    expect(() => selectDesktopPackageClosure(available)).toThrow(/unpacked package/u)
     expect(() => selectDesktopPackageClosure(new Map([
       ['@qilin/cli', packed('@qilin/cli')],
     ]))).toThrow(/omit @qilin\/desktop-host/u)
   })
 
-  it('requires the Desktop Host entry and its packaged overlay', () => {
+  it('leaves independently published Office packages to npm resolution', () => {
+    const available = new Map<string, PackedDesktopPackage>([
+      ['@qilin/cli', packed('@qilin/cli', {
+        dependencies: {
+          '@deepseek-ai/libreoffice-kit': '0.0.1',
+          '@deepseek-ai/libreoffice-kit-wasm': '0.0.1',
+        },
+      })],
+      ['@qilin/desktop-host', packed('@qilin/desktop-host')],
+    ])
+    expect(selectDesktopPackageClosure(available).map(entry => entry.manifest.name)).toEqual([
+      '@qilin/cli', '@qilin/cli',
+    ])
+  })
+
+  it('requires the Desktop Host entry', () => {
     const files = [
       'package/lib/index.js',
-      'package/config/desktop.cordis.patch.yml',
     ]
     expect(() => {
       assertDesktopHostPackageFiles(files)
     }).not.toThrow()
-    expect(() => {
-      assertDesktopHostPackageFiles(files.slice(0, 1))
-    }).toThrow(/desktop\.cordis\.patch\.yml/u)
     expect(() => {
       assertDesktopHostPackageFiles(files.slice(1))
     }).toThrow(/lib\/index\.js/u)

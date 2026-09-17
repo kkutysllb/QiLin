@@ -1,63 +1,78 @@
 /** Typed preload operations exposed only by the Electron shell. */
 
-import type { DesktopPluginRecord } from './project-manager.ts'
-import type { DesktopLocale } from './locale.ts'
-import type { DesktopBackendState } from './backend-controller.ts'
+import type { IpcMainInvokeEvent } from 'electron'
 
 /** IPC channel names kept private to the desktop application bundle. */
 export const DESKTOP_IPC = {
-  localeGet: 'qilin-desktop:locale-get',
-  pluginsList: 'qilin-desktop:plugins-list',
-  pluginsAdd: 'qilin-desktop:plugins-add',
-  pluginsRemove: 'qilin-desktop:plugins-remove',
-  pluginsUpdate: 'qilin-desktop:plugins-update',
-  pluginsToggle: 'qilin-desktop:plugins-toggle',
-  pluginsDisableAll: 'qilin-desktop:plugins-disable-all',
-  backendStatus: 'qilin-desktop:backend-status',
-  backendRetry: 'qilin-desktop:backend-retry',
-  applicationRestart: 'qilin-desktop:application-restart',
-  configurationReset: 'qilin-desktop:configuration-reset',
-  backendState: 'qilin-desktop:backend-state',
-  updatesCheck: 'qilin-desktop:updates-check',
-  updatesInstall: 'qilin-desktop:updates-install',
-  updatesState: 'qilin-desktop:updates-state',
+  boot: 'qilin-desktop:boot',
+  bootFailed: 'qilin-desktop:boot-failed',
+  directoryPick: 'qilin-desktop:directory-pick',
+  updatesStatus: 'qilin-desktop:updates-status',
+  updatesOpen: 'qilin-desktop:updates-open',
+  updatesPresentation: 'qilin-desktop:updates-presentation',
+  nativeThemeSet: 'qilin-desktop:native-theme-set',
+  windowsAppearance: 'qilin-desktop:windows-appearance',
+  windowsMenu: 'qilin-desktop:windows-menu',
 } as const
 
 /** Desktop release update state rendered by desktop-owned UI. */
+export type DesktopUpdatePreparationFailureKind = 'stop-failed' | 'tasks-changed' | 'tasks-unavailable'
+
 export interface DesktopUpdateState {
-  readonly phase: 'idle' | 'checking' | 'available' | 'installing' | 'ready' | 'error'
+  readonly phase: 'idle' | 'checking' | 'available' | 'downloading' | 'verifying' | 'installing' | 'ready' | 'error'
   readonly version?: string
   readonly message?: string
+  /** Main-owned diagnostics without subprocess output or credentials; hidden until expanded. */
+  readonly technicalDetails?: string
+  readonly percent?: number
+  readonly failedOperation?: 'check' | 'download' | 'install'
+  /** Main-owned preparation cause; UI wording is selected by the active locale. */
+  readonly preparationFailure?: DesktopUpdatePreparationFailureKind
 }
 
-/** Narrow bridge exposed through context isolation. */
-export interface QilinDesktopApi {
+/** Classified failure copy selected by the Web locale without exposing raw updater diagnostics. */
+export type DesktopUpdateFailureKind =
+  | 'check'
+  | 'check-network'
+  | 'download'
+  | 'download-network'
+  | 'install'
+  | 'install-network'
+  | 'stop-failed'
+  | 'tasks-changed'
+  | 'tasks-unavailable'
+
+/** Semantic status content; actions open main-process confirmation dialogs only. */
+export interface DesktopUpdatePresentation {
+  readonly phase: DesktopUpdateState['phase']
+  readonly version?: string
+  readonly percent?: number
+  readonly failure?: DesktopUpdateFailureKind
+}
+
+/** Product documents cannot supply update versions, package URLs, or installation authorization. */
+export interface QilinDesktopProductApi {
   readonly protocolVersion: 1
-  locale(): Promise<DesktopLocale>
-  readonly plugins: {
-    list(): Promise<readonly DesktopPluginRecord[]>
-    add(spec: string): Promise<void>
-    remove(name: string): Promise<void>
-    update(name: string, version: string): Promise<void>
-    toggle(name: string, enabled: boolean): Promise<void>
-    disableAll(): Promise<void>
-  }
-  readonly backend: {
-    status(): Promise<DesktopBackendState>
-    retry(): Promise<void>
-    subscribe(listener: (state: DesktopBackendState) => void): () => void
-  }
   readonly updates: {
-    check(): Promise<DesktopUpdateState>
-    install(): Promise<void>
-    subscribe(listener: (state: DesktopUpdateState) => void): () => void
+    status(): Promise<DesktopUpdatePresentation>
+    open(): Promise<void>
+    subscribe(listener: (state: DesktopUpdatePresentation) => void): () => void
   }
 }
 
-/** Startup-page controls, unavailable to backend-provided application documents. */
-export interface QilinDesktopStartupApi extends Pick<QilinDesktopApi, 'protocolVersion' | 'locale'> {
-  readonly backend: Omit<QilinDesktopApi['backend'], 'retry'>
-  disablePlugins(): Promise<void>
-  restart(): Promise<void>
-  resetConfiguration(): Promise<void>
+/** Scheme of Desktop-owned application documents. */
+export const SCHEME = 'qilin-app'
+
+/**
+ * Reject IPC outside the allowed Desktop document origins.
+ * @param event - IPC caller whose frame URL supplies the origin.
+ * @param hostnames - Desktop document hosts allowed for this operation.
+ */
+export function assertDesktopSender(event: IpcMainInvokeEvent, hostnames: readonly string[]): void {
+  const senderFrame = event.senderFrame
+  if (senderFrame === null) throw new Error('qilin desktop: rejected IPC without a sender frame')
+  const url = new URL(senderFrame.url)
+  if (url.protocol !== `${SCHEME}:` || !hostnames.includes(url.hostname)) {
+    throw new Error('qilin desktop: rejected IPC from an unowned renderer')
+  }
 }

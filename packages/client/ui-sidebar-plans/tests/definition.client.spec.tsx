@@ -44,7 +44,7 @@ describe('plansDefinition', () => {
     expect(definition.priority).toBe('builtin')
     expect(definition.patterns).toBeUndefined()
     expect(definition.single).toBe(true)
-    expect(definition.label()).toBe(zh['type.label'])
+    expect(definition.label!()).toBe(zh['type.label'])
     expect(definition.title('')).toBe(zh['type.label'])
     if (definition.icon === undefined) throw new Error('expected the chip icon')
     const chip = render(createElement(definition.icon, { size: 14 }))

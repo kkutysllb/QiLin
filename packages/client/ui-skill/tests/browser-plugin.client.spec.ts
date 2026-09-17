@@ -409,7 +409,7 @@ describe('reference preview', () => {
     expect(list).toHaveBeenCalledTimes(1)
     gate.resolve({ ok: true, value: { skills: rows } })
     await candidates
-    expect(openResource).toHaveBeenCalledExactlyOnceWith('dsh-resource://file/session/preview//skills/review/SKILL.md')
+    expect(openResource).toHaveBeenCalledExactlyOnceWith('qilin-resource://file/session/preview//skills/review/SKILL.md')
     expect(source.openReference!(session, { ref: '/virtual' })).toBe(false)
     expect(source.openReference!(session, { ref: '/missing' })).toBe(false)
     expect(source.openReference!(session, { ref: '/review' })).toBe(true)
@@ -431,10 +431,10 @@ describe('reference preview', () => {
     const secondDone = source.candidates(proj('second'), req(''))
     second.resolve({ ok: true, value: { skills: [{ ...rows[0]!, path: '/second/SKILL.md' }] } })
     await secondDone
-    expect(openResource).toHaveBeenLastCalledWith('dsh-resource://file/session/second//second/SKILL.md')
+    expect(openResource).toHaveBeenLastCalledWith('qilin-resource://file/session/second//second/SKILL.md')
     first.resolve({ ok: true, value: { skills: rows } })
     await firstDone
-    expect(openResource).toHaveBeenLastCalledWith('dsh-resource://file/session/first//skills/review/SKILL.md')
+    expect(openResource).toHaveBeenLastCalledWith('qilin-resource://file/session/first//skills/review/SKILL.md')
     expect(list.mock.calls.map(([payload]) => payload)).toEqual([{ sessionId: 'first' }, { sessionId: 'second' }])
   })
 

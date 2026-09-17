@@ -22,7 +22,7 @@ Groups nest a sub-list of entries that load and unload as one unit, and `isolate
 
 ## Hot module replacement
 
-Because unloading releases effects ([chapter 2](02-lifecycle-and-effects.md)) and loading follows dependencies ([chapter 3](03-services.md)), HMR can replace a running plugin by unloading and loading it. The `@qilin/kylin-plugin-hmr` plugin watches your files and does exactly that on save.
+Because unloading releases effects ([chapter 2](02-lifecycle-and-effects.md)) and loading follows dependencies ([chapter 3](03-services.md)), HMR can replace a running plugin by unloading and loading it. The `@deepseek-ai/qilin-hmr` plugin watches your files and does exactly that on save.
 
 In `tmp/kylin-tutorial`, write `cordis.yml`:
 
@@ -32,7 +32,7 @@ In `tmp/kylin-tutorial`, write `cordis.yml`:
 - id: timer
   name: '@qilin/kylin-plugin-timer'
 - id: hmr
-  name: '@qilin/kylin-plugin-hmr'
+  name: '@deepseek-ai/qilin-hmr'
   config:
     root: ['.']
 - id: hello

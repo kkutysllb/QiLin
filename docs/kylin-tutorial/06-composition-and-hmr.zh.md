@@ -22,7 +22,7 @@ Kylin 配置项除了 `name` 和 `config`，还接受其他元数据：
 
 ## 热模块替换
 
-卸载会释放 effect（[第 2 章](02-lifecycle-and-effects.zh.md)），加载则遵循依赖关系（[第 3 章](03-services.zh.md)），因此 HMR 可以先卸载、再加载，以替换正在运行的插件。`@qilin/kylin-plugin-hmr` 插件会监视文件，并在保存时执行这一过程。
+卸载会释放 effect（[第 2 章](02-lifecycle-and-effects.zh.md)），加载则遵循依赖关系（[第 3 章](03-services.zh.md)），因此 HMR 可以先卸载、再加载，以替换正在运行的插件。`@deepseek-ai/qilin-hmr` 插件会监视文件，并在保存时执行这一过程。
 
 在 `tmp/kylin-tutorial` 中编写 `cordis.yml`：
 
@@ -32,7 +32,7 @@ Kylin 配置项除了 `name` 和 `config`，还接受其他元数据：
 - id: timer
   name: '@qilin/kylin-plugin-timer'
 - id: hmr
-  name: '@qilin/kylin-plugin-hmr'
+  name: '@deepseek-ai/qilin-hmr'
   config:
     root: ['.']
 - id: hello

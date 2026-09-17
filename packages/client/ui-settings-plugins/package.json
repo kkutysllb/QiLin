@@ -49,13 +49,14 @@
     "@qilin/client-locale": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-plugin-manager": "workspace:^",
     "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-settings": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
     "@types/react": "~18.3.1",
-    "react": "^18.2.0",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "clsx": "^2.0.0"
+    "clsx": "^2.0.0",
+    "react": "^18.2.0"
   },
   "files": [
     "lib/index.js",

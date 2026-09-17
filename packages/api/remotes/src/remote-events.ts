@@ -8,6 +8,7 @@
 
 import type {} from '@qilin/api-session-controller/remote-events'
 import type {} from '@qilin/permission-presets/types'
+import type {} from '@qilin/plugin-manager/types'
 import type { TypertForwardableEventEntry } from '@qilin/typert-protocol'
 
 /**
@@ -33,6 +34,9 @@ export const API_REMOTE_FORWARDED_EVENTS = [
   { event: 'cordis/inspect-query-resolved', mode: 'emit' },
   { event: 'llm/adapters-updated', mode: 'emit' },
   { event: 'permission-presets/catalog-changed', mode: 'emit' },
+  { event: 'plugin-manager/changed', mode: 'emit' },
+  { event: 'plugin-manager/install-log', mode: 'emit' },
+  { event: 'plugin-manager/install-state', mode: 'emit' },
   { event: 'settings/document-updated', mode: 'emit' },
   { event: 'user-questions/request', mode: 'waterfall' },
 ] as const satisfies readonly TypertForwardableEventEntry[]

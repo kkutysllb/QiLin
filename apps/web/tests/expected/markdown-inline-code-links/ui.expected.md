@@ -1,8 +1,11 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Inline code links" [disabled]
-  - button "Open right sidebar":
+  - button "More actions":
     - img
+  - tablist:
+    - tab "Chat" [selected]
+    - tab "Trajectory"
 - text: Show the local preview URL. {{clock}}
 - button "Copy":
   - img

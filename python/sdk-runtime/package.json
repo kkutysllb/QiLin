@@ -132,6 +132,8 @@
     "@qilin/web-search-perplexity": "workspace:^",
     "@qilin/workflow": "workspace:^",
     "@qilin/workflow-ptc": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/plugin-manager": "workspace:^",
+    "@qilin/host-plugin-inventory": "workspace:^"
   }
 }

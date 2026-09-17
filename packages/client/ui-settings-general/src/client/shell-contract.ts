@@ -15,6 +15,7 @@ import type {
 import type {} from '@qilin/client-ui-sidebar/client'
 // Type-only: pulls the settings slot declarations the shell renders into.
 import type {} from '@qilin/client-ui-settings/client'
+import type { DesktopUpdateView } from './desktop-update-bridge.ts'
 
 /** One nav row projected from a settings.section registration's options. */
 export interface SettingsSectionRow {
@@ -56,6 +57,8 @@ declare module '@qilin/kylin' {
  * remain plain callbacks.
  */
 export type SettingsRootInjected = {
+  /** Request the current shell-owned update action. */
+  openDesktopUpdate: () => void
   /** Request a fresh logical generation and physical WebSocket immediately. */
   reconnect: () => void
   /**
@@ -65,6 +68,8 @@ export type SettingsRootInjected = {
    */
   registerOpen: (handler: (sectionId?: string) => void) => () => void
   hooks: {
+    /** Shared Electron status for both sidebar locations. */
+    desktopUpdate: HostObservable<DesktopUpdateView>
     /** Connection-owned state for the current Host connection. */
     connectionState: HostObservable<ConnectionState | undefined>
     /** settings.section winner cells (one per id, lowest live priority) projected into ordered nav rows. */

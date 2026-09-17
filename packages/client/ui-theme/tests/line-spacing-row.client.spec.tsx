@@ -29,7 +29,7 @@ const COPY: Record<string, string> = {
 /** Empty global standard-kit hooks (the row reads neither). */
 function emptySessions() {
   const store = createSnapshotStore<SessionListState>(
-    { ids: [], byId: {}, current: undefined, phase: 'ready', subagentsByParent: {}, jobsBySession: {}, currentAddress: undefined })
+    { ids: [], byId: {}, phase: 'ready', subagentsByParent: {}, jobsBySession: {} })
   return bindSnapshotSelector(store)
 }
 function emptyWorkspaces() {
@@ -39,9 +39,10 @@ function emptyWorkspaces() {
   return bindSnapshotSelector(store)
 }
 
-type AttentionSnapshot = Parameters<Parameters<LineSpacingRowComponentProps['useSessionPendingInteraction']>[0]>[0]
+type AttentionSnapshot = Parameters<Parameters<LineSpacingRowComponentProps['useSessionStatus']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
-const useSessionPendingInteraction: LineSpacingRowComponentProps['useSessionPendingInteraction'] = selector => selector(noAttention)
+const useSessionStatus: LineSpacingRowComponentProps['useSessionStatus'] = selector => selector(noAttention)
+const useSessionRetainInfo: LineSpacingRowComponentProps['useSessionRetainInfo'] = () => undefined
 
 function mount(leading = 0) {
   // Real store instance — the sanctioned zero-machinery path for tests.
@@ -50,7 +51,8 @@ function mount(leading = 0) {
   const setLeading = vi.fn()
   const props: LineSpacingRowComponentProps = {
     useSessions: emptySessions(),
-    useSessionPendingInteraction,
+    useSessionStatus,
+    useSessionRetainInfo,
     usePanelInfo, useResource,
     useWorkspaces: emptyWorkspaces(),
     useStore: bindSnapshotSelector(store),

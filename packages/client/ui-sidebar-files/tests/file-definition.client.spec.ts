@@ -48,6 +48,6 @@ describe('fileDefinition', () => {
   })
 
   it('labels the type from the dictionary', () => {
-    expect(fileDefinition(t).label()).toBe(zh['file.type.label'])
+    expect(fileDefinition(t).label!()).toBe(zh['file.type.label'])
   })
 })

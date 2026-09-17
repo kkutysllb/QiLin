@@ -4,11 +4,12 @@ import type { Context } from '@qilin/kylin'
 import agentPresetsRemote from '@qilin/agent-presets/remote'
 import commandsRemote from '@qilin/commands/remote'
 import settingsControllerRemote from '@qilin/api-settings-controller/remote'
+import officeToPdfRemote from '@qilin/office-to-pdf/remote'
 import goalsRemote from '@qilin/goal/remote'
 import llmRemote from '@qilin/llm/remote'
 import dynamicRemote from '@qilin/kylin-host-runner/remote'
 import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
-import pluginManagerRemote from '@qilin/host-plugin-manager/remote'
+import pluginManagerRemote from '@qilin/plugin-manager/remote'
 import mcpServersRemote from '@qilin/mcp-servers/remote'
 import messageFeedbackRemote from '@qilin/message-feedback/remote'
 import permissionPresetsRemote from '@qilin/permission-presets/remote'
@@ -23,15 +24,20 @@ import workspaceFilesRemote from '@qilin/api-workspace-files/remote'
 import type { ClientRemote } from '@qilin/api-gateway/client'
 
 export type { ClientRemote } from '@qilin/api-gateway/client'
+export type {
+  BundleInfo, BundleRowInfo, ChangeResult, InstallBundleOptions, InstallSpecKind, ManagementError, PackageResult, PluginChange,
+  PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation, PluginInstallFailureKind, PluginInstallLogChunk,
+  PluginInstallProgress, PluginInstallRequestId, PluginSpecInspection, ReadOnlyReason,
+} from '@qilin/plugin-manager/types'
+export type {} from '@qilin/plugin-manager/remote'
 export type { PluginInventorySnapshot } from '@qilin/host-plugin-inventory/types'
-export type { PluginManagerSnapshot, PluginMutationReceipt, PluginUpdateSnapshot, CommunityPluginSnapshot } from '@qilin/host-plugin-manager/types'
 export type {} from '@qilin/agent-presets/remote'
 export type {} from '@qilin/commands/remote'
 export type {} from '@qilin/api-settings-controller/remote'
 export type {} from '@qilin/goal/remote'
+export type {} from '@qilin/office-to-pdf/remote'
 export type {} from '@qilin/llm/remote'
 export type {} from '@qilin/host-plugin-inventory/remote'
-export type {} from '@qilin/host-plugin-manager/remote'
 export type {} from '@qilin/mcp-servers/remote'
 export type {} from '@qilin/message-feedback/remote'
 export type {} from '@qilin/permission-presets/remote'
@@ -166,6 +172,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
       pluginInventoryRemote, pluginManagerRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
       permissionPresetsRemote, subagentsRemote, sessionRemote, workspaceRemote, workspaceFilesRemote, terminalRemote,
+      officeToPdfRemote,
     ]) {
       disposers.push(await ctx.remote.$mount(contribution))
     }

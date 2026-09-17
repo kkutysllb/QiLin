@@ -99,6 +99,8 @@ One supervised `changes` stream serves every followed file in a Session. Followe
 
 Reads through `ctx.fs` use the backend's read authority; the sandboxing backend fences writes and edits, not reads. A Typert lookup derives `WorkspaceFileScope` from a live Session header or the persistence service's header-only `stat`, so cold subagent Sessions need neither Agent activation nor event-body reads. The service adds regular-file checks and bounded transfer, while workspace containment belongs to directory listing, change observation, and the write. A save builds its guard from the caller's `baseVersion` rather than from the `fs/write-intent` slot: that slot decides from the per-Session observations an Agent records by reading, and its actor is a tool execution the Remote does not have, so consulting it would refuse every save of an existing file and attributing the save to the Agent would record content no Agent read. A page is cut from `streamText`, which decodes and rejects non-UTF-8 chunk by chunk: the cutter counts lines before the window without keeping them, admits each in-window segment against the byte cap before buffering it, and returns at the first character past the window. One `stat` before the stream names the version and size the page reports.
 
+Complete-file reads delegate size enforcement to `fs.readBytes` and encode the returned bytes as base64 for Remote responses.
+
 ### Source map
 
 | File | Role |

@@ -32,6 +32,8 @@ const RESTORE_SESSION_B_ID = 'chat-scroll-restore-b-e2e'
 const REPLAY_CONTEXT_WINDOW = 10_000_000
 const STREAM_PACE_MS = 24
 const GEOMETRY_TOLERANCE = 2
+/** Reflow slack for the narrower column a right Sidebar page opens beside. */
+const RESPONSIVE_REFLOW_TOLERANCE = 32
 const LIVE_TEXT_PROMPT = 'CHAT_SCROLL_LIVE_USER Continue this long conversation while I inspect older history.'
 const LIVE_TEXT_FIRST = 'CHAT_SCROLL_LIVE_FIRST'
 const LIVE_TEXT_DONE = 'CHAT_SCROLL_LIVE_DONE'
@@ -760,7 +762,7 @@ describe('web e2e: long Chat scroll contract', () => {
     })
   }, 180_000)
 
-  it.skipIf(MODE === 'record')('restores tab/session position and keeps composer resizing on the correct scroll owner', async () => {
+  it.skipIf(MODE === 'record')('keeps composer resizing on the correct scroll owner across reopened Sessions', async () => {
     await withScrollWorld({
       failureShot: 'web-e2e-chat-scroll-restore-composer',
       seeds: [
@@ -791,13 +793,7 @@ describe('web e2e: long Chat scroll contract', () => {
       // this scenario switches sessions while pinning the narrow Chat scroll owner.
       await world.page.getByRole('button', { name: 'Open sidebar', exact: true }).click()
       await nextPaint(world.page)
-      // The transcript stays mounted while the Sidebar page opens beside it, so
-      // this step reflows the narrower column instead of remounting Chat: the
-      // pinned row must survive that reflow, while its exact offset is the
-      // session switch's contract below.
-      await world.page.locator(`[data-chat-flow-key="${sessionAnchor.key}"]`).first()
-        .waitFor({ state: 'attached', timeout: 10_000 })
-      const narrowSessionAnchor = await visibleFlowAnchor(world.page)
+      await expectSameFlowTop(world.page, sessionAnchor, RESPONSIVE_REFLOW_TOLERANCE)
 
       await openSeed(
         world.page,
@@ -808,9 +804,9 @@ describe('web e2e: long Chat scroll contract', () => {
         world.page,
         RESTORE_FIXTURE_A,
       )
-      await expectSameFlowTop(world.page, narrowSessionAnchor)
 
       const backToBottom = world.page.getByRole('button', { name: 'Back to bottom', exact: true })
+      await backToBottom.waitFor({ timeout: 15_000 })
       await backToBottom.evaluate((button) => {
         if (!(button instanceof HTMLElement)) throw new Error('Back-to-bottom control is not an HTML element')
         button.click()

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { ThemeSnapshot } from '@qilin/client-ui-theme/client'
-import { DARK_ATTRIBUTE, ThemePresenter } from '@qilin/client-ui-layout/src/client/theme-presenter.ts'
+import type { ThemePreference, ThemeSnapshot } from '@qilin/client-ui-theme/client'
+import { DARK_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter } from '@qilin/client-ui-layout/src/client/theme-presenter.ts'
 
 const LIGHT_THEME_COLOR = 'rgb(255, 255, 255)'
 const DARK_THEME_COLOR = 'rgb(21, 21, 23)'
@@ -12,10 +12,11 @@ function snapshot(
   tokens: Record<string, string> = {},
   fontSize = 14,
   leading = 0,
+  preference: ThemePreference = colorScheme,
 ): ThemeSnapshot {
   // The presenter must key off colorScheme, not the id — keep them distinct.
   const active = { id: `${colorScheme}-test`, colorScheme, tokens }
-  return { preference: colorScheme, fontSize, leading, active, themes: [active], revision: 1 }
+  return { preference, fontSize, leading, active, themes: [active], revision: 1 }
 }
 
 function clearThemePresentation(): void {
@@ -29,6 +30,7 @@ function themeColorMeta(): HTMLMetaElement | null {
 beforeEach(() => {
   clearThemePresentation()
   document.documentElement.style.removeProperty('color-scheme')
+  document.documentElement.removeAttribute(THEME_SOURCE_ATTRIBUTE)
   document.body.removeAttribute(DARK_ATTRIBUTE)
   document.body.removeAttribute('style')
   const style = document.createElement('style')
@@ -93,6 +95,16 @@ describe('ThemePresenter', () => {
     expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('-2px')
     presenter.apply(snapshot('light', {}, 14, 5))
     expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('5px')
+  })
+
+  it('publishes the theme source: system stays system, fixed preferences publish the resolved scheme', () => {
+    const presenter = new ThemePresenter()
+    presenter.apply(snapshot('dark', {}, 14, 0, 'system'))
+    expect(document.documentElement.getAttribute(THEME_SOURCE_ATTRIBUTE)).toBe('system')
+    presenter.apply(snapshot('dark'))
+    expect(document.documentElement.getAttribute(THEME_SOURCE_ATTRIBUTE)).toBe('dark')
+    presenter.dispose()
+    expect(document.documentElement.hasAttribute(THEME_SOURCE_ATTRIBUTE)).toBe(false)
   })
 
   it('dispose removes color-scheme, the attribute, the content axes, and every applied variable, sparing foreign inline styles', () => {

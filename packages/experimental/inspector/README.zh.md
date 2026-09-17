@@ -38,7 +38,7 @@ Host 与 Client producer 发送内部观测记录，不发送 CDP 消息。记�
 
 Client source 声明类型化 Runtime、Console 和只读 Sources 能力。`Runtime.enable` 发布真实 Host execution context，并为每个已连接的 Client source 发布一个 synthetic context。选择 Client context 后，求值、属性读取、函数调用、Promise await 和对象释放都会路由到该浏览器 realm。Client Console argument 使用同一份会话本地 object table；`Debugger.enable` 发布构建后的 `lib/client.js` catalog，`Debugger.getScriptSource` 读取有界 content chunk。Client script 断点、step 和 call frame 仍不支持；target-wide pause 与 resume 只控制 Host debugger。
 
-两个插件端运行同一份可在浏览器中安全运行的 Kylin collector。它把可达 Context 与 Fiber 对象转换成有版本的 `KylinTreeSnapshot`；Worker 存储这份与 CDP 无关的表示，并把每个 Host 或 Client source 投影到 Elements 面板。
+两个插件端运行同一份可在浏览器中安全运行的 Kylin collector。它把可达 Context 与 Fiber 对象转换成有版本的 `CordisTreeSnapshot`；Worker 存储这份与 CDP 无关的表示，并把每个 Host 或 Client source 投影到 Elements 面板。
 
 <a id="configuration"></a>
 ## 配置
@@ -69,8 +69,8 @@ Host 插件注入 `webServer`，接受以下字段：
 | `maxClientRuntimeObjects` | `10000` | 每条 DevTools 连接保留的 Client 实时对象 handle 数 |
 | `maxClientRuntimeProperties` | `2000` | 单次 Client 对象检查返回的属性描述符数 |
 | `maxClientSourceBytes` | 8 MiB | 单个 Client script 或 source map 允许读取的最大编码字节数 |
-| `maxKylinNodes` | `2048` | 一个 realm 快照截断前允许的 Context 与 Fiber 节点数 |
-| `maxDisconnectedKylinTrees` | `8` | 作为非实时快照保留的最近断联 realm 树数量 |
+| `maxCordisNodes` | `2048` | 一个 realm 快照截断前允许的 Context 与 Fiber 节点数 |
+| `maxDisconnectedCordisTrees` | `8` | 作为非实时快照保留的最近断联 realm 树数量 |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilinexperimental-inspector)是全部已接受字段及其声明的详尽来源。
 
@@ -100,13 +100,13 @@ await ctx.inspector.cordis.getTree()
 
 Elements document 包含固定的 `<host>` 与 `<clients>` 容器。`<host>` 包含 Host root Context；`<clients>` 为每个 Client source 包含一个 `<client>`，每个 `<client>` 再包含该 realm 的根 Context。Kylin root Fiber 不显示。其他 Fiber 都是 `fiber.parent` 的子节点，并包含唯一一个表示 `fiber.ctx` 的 Context 子节点；Fiber 只携带 `uid="<Kylin Fiber.uid>"`，Context element 不携带 attribute。只有 Context 的 `extend()`、`isolate()` 与 `intercept()` 层仍然是直接 Context 后代。
 
-Host 与 Client 发布同一种嵌套 `KylinTreeSnapshot` 类型。Context 与 Fiber 节点携带用于 realm-local 对象查询的不透明 object 句柄；Fiber 还携带 Kylin `uid`。Worker 把这些 realm 快照组合成一棵 `{ host, clients }` inspection tree。Worker 按 source generation 分配 `BackendNodeId`；每条 DevTools 连接分配自己的 `NodeId`；`DOM.resolveNode` 请求所属 Host 或 Client Runtime 生成连接本地 `RemoteObjectId`。`DOM.requestNode` 把该 object id 映射回同一个 Elements 节点。`ctx.inspector.kylin.getTree()` 与 `QILINInspector.getKylinTree` 读取不含 routing 句柄或 CDP id 的 detached 消费方无关 tree。
+Host 与 Client 发布同一种嵌套 `CordisTreeSnapshot` 类型。Context 与 Fiber 节点携带用于 realm-local 对象查询的不透明 object 句柄；Fiber 还携带 Kylin `uid`。Worker 把这些 realm 快照组合成一棵 `{ host, clients }` inspection tree。Worker 按 source generation 分配 `BackendNodeId`；每条 DevTools 连接分配自己的 `NodeId`；`DOM.resolveNode` 请求所属 Host 或 Client Runtime 生成连接本地 `RemoteObjectId`。`DOM.requestNode` 把该 object id 映射回同一个 Elements 节点。`ctx.inspector.kylin.getTree()` 与 `QILINInspector.getCordisTree` 读取不含 routing 句柄或 CDP id 的 detached 消费方无关 tree。
 
 节点按 DevTools 连接做深度受限下发：调用方省略 `depth` 时 `DOM.getDocument` 提供三层 document，被扣留的层级通过 `childNodeCount` 声明数量，展开时经 `DOM.requestChildNodes` 获取（`depth: -1` 取整棵子树）。经 `DOM.performSearch`、`DOM.requestNode` 或 `DOM.pushNodesByBackendIdsToFrontend` 流出的 NodeId 会先把尚未下发的祖先层级以 `DOM.setChildNodes` 事件推送出去。
 
 source 仍发布完整 snapshot，Worker 在通知 DevTools 前按稳定的 backend node identity 比较差异。无变化的 snapshot 不发送 DOM 事件；新增、移除和 attribute 变化使用节点级 CDP 事件，插入节点的载荷扣留其子树，兄弟节点重排只替换对应 parent 的 children。现有 `NodeId` 与未受影响的 Elements 展开状态保持稳定。
 
-Client 断联时，其 Console execution context 与 live object id 会立即销毁。启用断联树保留后，Elements 会原样保留最后一棵树；连接状态留在 inspection model 中，不会未经审查就成为 DOM attribute。重连会沿用逻辑 source id，为新的 transport generation 创建新的 synthetic CDP context id，并在完整 snapshot 到达后替换旧树。Client 把逻辑 id 保存在 `sessionStorage` 中，并通过 Web Locks 在页面存活期间独占该 id，因此刷新会复用 id，而复制出的另一个 live tab 会取得新 id。Worker 最多保留 `maxDisconnectedKylinTrees` 棵此类 snapshot；设为零会立即移除。
+Client 断联时，其 Console execution context 与 live object id 会立即销毁。启用断联树保留后，Elements 会原样保留最后一棵树；连接状态留在 inspection model 中，不会未经审查就成为 DOM attribute。重连会沿用逻辑 source id，为新的 transport generation 创建新的 synthetic CDP context id，并在完整 snapshot 到达后替换旧树。Client 把逻辑 id 保存在 `sessionStorage` 中，并通过 Web Locks 在页面存活期间独占该 id，因此刷新会复用 id，而复制出的另一个 live tab 会取得新 id。Worker 最多保留 `maxDisconnectedCordisTrees` 棵此类 snapshot；设为零会立即移除。
 
 <a id="host-fetch-capture"></a>
 ## Host fetch 采集

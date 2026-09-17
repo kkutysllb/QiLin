@@ -14,9 +14,14 @@
 
 ## 安装 SDK
 
-### Linux 与 macOS
+<div>
+<a id="linux-与-macos"></a>
+<a id="windows-powershell"></a>
+</div>
 
-```sh
+::: code-group
+
+```sh [Linux/macOS]
 git clone https://github.com/deepseek-ai/deepseek-harness.git
 cd deepseek-harness
 python -m venv .venv
@@ -24,9 +29,7 @@ python -m venv .venv
 python -m pip install deepseek-harness-sdk
 ```
 
-### Windows PowerShell
-
-```powershell
+```powershell [Windows PowerShell]
 git clone https://github.com/deepseek-ai/deepseek-harness.git
 Set-Location deepseek-harness
 py -3.10 -m venv .venv
@@ -34,31 +37,43 @@ py -3.10 -m venv .venv
 python -m pip install deepseek-harness-sdk
 ```
 
+:::
+
 安装内容包含匹配的原生运行时 wheel 与 `qilin` 命令。普通 SDK 运行不需要系统 Node.js。需要构建产物的仓库贡献者应使用 [Python 贡献者工作流](../../../python/development.zh.md)。
 
 ## 运行检入示例
 
 导出凭据；使用兼容代理时再设置 endpoint：
 
-### Linux 与 macOS
+<div>
+<a id="linux-与-macos-1"></a>
+<a id="windows-powershell-1"></a>
+</div>
 
-```sh
+::: code-group
+
+```sh [Linux/macOS]
 export DEEPSEEK_API_KEY=sk-your-key-here
 # export DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1
 ```
 
-### Windows PowerShell
-
-```powershell
+```powershell [Windows PowerShell]
 $env:DEEPSEEK_API_KEY = "sk-your-key-here"
 # $env:DEEPSEEK_BASE_URL = "http://127.0.0.1:8000/v1"
 ```
 
+:::
+
 使用显式 workspace 与 home 路径运行一个任务：
 
-### Linux 与 macOS
+<div>
+<a id="linux-与-macos-2"></a>
+<a id="windows-powershell-2"></a>
+</div>
 
-```sh
+::: code-group
+
+```sh [Linux/macOS]
 python python/sdk/examples/minimal.py \
   --workspace /absolute/path/to/disposable-workspace \
   --qilin-home /absolute/path/to/example-qilin-home \
@@ -66,15 +81,15 @@ python python/sdk/examples/minimal.py \
   "Inspect the repository and fix the failing tests."
 ```
 
-### Windows PowerShell
-
-```powershell
+```powershell [Windows PowerShell]
 python python/sdk/examples/minimal.py `
   --workspace C:\work\disposable-workspace `
   --qilin-home C:\work\example-qilin-home `
   --session-id example-001 `
   "Inspect the repository and fix the failing tests."
 ```
+
+:::
 
 脚本会打印最终 assistant 响应。所选 home 会保存生成的 `sdk-minimal` profile、已安装插件，以及 `sessions/` 下的未压缩 JSONL 会话日志。示例与 SDK 绝不会静默读取 `~/.qilin`。
 
@@ -109,21 +124,26 @@ SDK 会延迟启动内置的 `qilin --profile sdk-minimal` 进程，并复用到
 
 需要在该 home 中持久保存依赖与 bundle 层时，使用 `qilin plugin`：
 
-### Linux 与 macOS
+<div>
+<a id="linux-与-macos-3"></a>
+<a id="windows-powershell-3"></a>
+</div>
 
-```sh
+::: code-group
+
+```sh [Linux/macOS]
 export QILIN_HOME=/absolute/path/to/example-qilin-home
 qilin --profile sdk-minimal --dump-default-config >/dev/null
 qilin plugin --profile sdk-minimal add file:/absolute/path/to/my-plugin-bundle
 ```
 
-### Windows PowerShell
-
-```powershell
+```powershell [Windows PowerShell]
 $env:QILIN_HOME = "C:\work\example-qilin-home"
 qilin --profile sdk-minimal --dump-default-config | Out-Null
 qilin plugin --profile sdk-minimal add file:C:/work/my-plugin-bundle
 ```
+
+:::
 
 第一个命令初始化随附的独立 profile。第二个命令把包管理转发给 `pnpm`，然后记录所有导出 `qilin.bundle` 层的已安装包。只有执行此管理命令时才需要安装 `pnpm`；启动已安装 SDK 不需要它。持久配置项变更应编辑 `$QILIN_HOME/profiles/sdk-minimal/cordis.patch.yml`；单次启动变更则从 Python 传入 patch 文件。
 

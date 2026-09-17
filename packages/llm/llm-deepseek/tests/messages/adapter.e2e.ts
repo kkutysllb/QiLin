@@ -12,13 +12,14 @@ import Loader from '@qilin/kylin-plugin-loader'
 import AgentRegistry from '@qilin/agent'
 import LocalAttachments from '@qilin/attachment-local'
 import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import LlmRuntime, { BlockAssembler, createSystemMessage, createToolResultMessage, ReasoningEffortId } from '@qilin/llm'
+import LlmRuntime, { BlockAssembler, createAssistantMessage, createSystemMessage, createToolResultMessage, ReasoningEffortId, ToolCallId } from '@qilin/llm'
 import type { Message } from '@qilin/llm'
 import * as PluginPackageInventoryDeepSeek from '@qilin/plugin-package-inventory-deepseek'
 import SessionStore, { SessionId } from '@qilin/session'
 import * as SessionLogDeepSeek from '@qilin/session-log-deepseek'
 import * as Messages from '../../src/index.ts'
-import { DeepSeekFilesClient, MESSAGES_FILES_BETA } from '../../src/common/files-api.ts'
+import { DeepSeekFilesClient } from '../../src/common/files-api.ts'
+import { MESSAGES_FILES_BETA } from '../../src/common/messages-api.ts'
 import { assemble, options, user } from './helpers.ts'
 
 const IN_HISTORY_MODEL = process.env.DEEPSEEK_IN_HISTORY_MODEL
@@ -222,6 +223,25 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     history.push(second.message, user('Reply with exactly DONE.'))
     const third = await assemble(ctx.llm.stream({ ...request, messages: history }))
     expect(third.assembler.finish.kind).toBe('stop')
+  })
+
+  it('continues persisted foreign history containing malformed tool arguments', async () => {
+    const ctx = await boot()
+    const callId = ToolCallId('historical_lookup')
+    const history = [
+      user('Look up the secret value.'),
+      createAssistantMessage({ source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, content: [
+        { type: 'tool-call', id: callId, name: 'lookup_value', arguments: '{"key":"the "secret""}' },
+      ] }),
+      createToolResultMessage({ callId, content: [{ type: 'text', text: 'Invalid arguments: expected an object' }], isError: true }),
+      user('Do not retry the lookup. Reply with exactly HISTORY_RECOVERED_731.'),
+    ]
+    const saved = JSON.stringify(history)
+    const restored = JSON.parse(saved) as Message[]
+    const response = await assemble(ctx.llm.stream(options({ messages: restored, tools: [tool], reasoningEffort: ReasoningEffortId('off') })))
+    expect(response.assembler.finish.kind).toBe('stop')
+    expect(response.message.content.filter(block => block.type === 'text').map(block => block.text).join('')).toContain('HISTORY_RECOVERED_731')
+    expect(JSON.stringify(restored)).toBe(saved)
   })
 
   it('cancels an active stream without committing a successful response', async () => {

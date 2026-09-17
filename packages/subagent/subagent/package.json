@@ -56,6 +56,7 @@
     "@qilin/brand": "workspace:^",
     "@qilin/chunked-list": "workspace:^",
     "@qilin/util-values": "workspace:^",
+    "@deepseek-ai/schemastery": "workspace:^",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
@@ -79,7 +80,8 @@
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/user-approval": "workspace:^",
     "@qilin/util-time": "workspace:^",
-    "@qilin/permission-presets": "workspace:^"
+    "@qilin/permission-presets": "workspace:^",
+    "@qilin/settings": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@qilin/agent-presets": {
@@ -111,6 +113,9 @@
     },
     "@qilin/user-approval": {
       "optional": true
+    },
+    "@qilin/settings": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -138,6 +143,7 @@
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/user-approval": "workspace:^",
     "@qilin/util-time": "workspace:^",
-    "@qilin/permission-presets": "workspace:^"
+    "@qilin/permission-presets": "workspace:^",
+    "@qilin/settings": "workspace:^"
   }
 }

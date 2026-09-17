@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-03-web-sticky-collapsible-headers.md
-2026-08-03-web-sticky-collapsible-headers.md: dc716bf0e2b5ff4063fc8ae4fb6eb6f724366a6e
-2026-08-03-web-sticky-collapsible-headers.zh.md: d5d4bab5e2fb23af3cd2cf4b08ce4b25a4e86f57
+2026-08-03-web-sticky-collapsible-headers.md: 33c7d8e746af1bd34aa8cdbb2022e53dd4099769
+2026-08-03-web-sticky-collapsible-headers.zh.md: b45f7d2259f161b63920d8a16780306321d0034f

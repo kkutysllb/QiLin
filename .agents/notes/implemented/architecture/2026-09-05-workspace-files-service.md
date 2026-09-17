@@ -20,8 +20,8 @@ Two constraints frame the service. File reads through `ctx.fs` use the Session's
 
 | Face | Package | Files | Depends on |
 |---|---|---|---|
-| Host | `api/workspace-files/tsconfig.host.json` | `src/index.ts` (`WorkspaceFiles`, `Config`, gates, pager), `src/changes.ts` (`WorkspaceChangeFeed`), `src/types.ts` (wire types, error codes) | `dsh-fs`, `dsh-sandbox-policy`, `dsh-typert-protocol`, `dsh-session`, `dsh-session-persistence` |
-| Client | `api/workspace-files/tsconfig.client.json` | `src/client/index.ts` (plugin body), `provider.ts`, `change-feed.ts`, `remote.ts`, `types.ts`, and shared `src/types.ts` | `dsh-api-gateway/client`, `dsh-session/types`, `dsh-client-resources`, `dsh-client-ui-slots`, `dsh-util-workspace-path`, `dsh-typert-protocol`, and the package's generated `./remote` |
+| Host | `api/workspace-files/tsconfig.host.json` | `src/index.ts` (`WorkspaceFiles`, `Config`, gates, pager), `src/changes.ts` (`WorkspaceChangeFeed`), `src/types.ts` (wire types, error codes) | `dsh-fs`, `dsh-sandbox-policy`, `@qilin/typert-protocol`, `dsh-session`, `dsh-session-persistence` |
+| Client | `api/workspace-files/tsconfig.client.json` | `src/client/index.ts` (plugin body), `provider.ts`, `change-feed.ts`, `remote.ts`, `types.ts`, and shared `src/types.ts` | `dsh-api-gateway/client`, `dsh-session/types`, `dsh-client-resources`, `dsh-client-ui-slots`, `dsh-util-workspace-path`, `@qilin/typert-protocol`, and the package's generated `./remote` |
 
 `api/remotes` and both root aggregates reference the matching Host/Client leaf. The package exports `.`, `./client`, `./types`, `./typert`, and `./remote`, with one `workspace-files` web-app row supplying both faces. The Client plugin injects `['resources', 'remote', 'remote.workspaceFiles']`; the resource model takes result types directly from the protocol package, and the text preview owns the Sidebar parameter declaration, so the Client compilation graph has no reverse dependency on Remote assembly or Sidebar UI.
 

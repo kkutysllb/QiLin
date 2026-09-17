@@ -1,6 +1,6 @@
 {
   "name": "@qilin/tool-kylin",
-  "description": "Self-referential kylin toolset: inspect the live runtime, mount and dispose model-written plugins",
+  "description": "Read-only runtime API inspection for Harness plugin development",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -29,9 +29,6 @@
   "peerDependencies": {
     "@qilin/agent": "workspace:^",
     "@qilin/kylin-host-runner": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/kylin": "workspace:^"
@@ -40,9 +37,6 @@
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/agent": "workspace:^",
     "@qilin/kylin-host-runner": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
     "@qilin/system-prompt": "workspace:^",
     "@qilin/tools": "workspace:^",
     "@qilin/kylin": "workspace:^"

@@ -68,6 +68,7 @@
     "@qilin/schedule": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@qilin/session": "workspace:^",
+    "@qilin/subagent": "workspace:^",
     "@qilin/util-workspace-path": "workspace:^",
     "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:^",

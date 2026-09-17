@@ -32,7 +32,8 @@
         "@qilin/api-session-controller",
         "@qilin/client-locale",
         "@qilin/client-ui-conversation",
-        "@qilin/client-ui-primitives"
+        "@qilin/client-ui-primitives",
+        "@qilin/client-ui-workspace"
       ],
       "platform": "web"
     }
@@ -42,9 +43,6 @@
     "watch": "tsdown --watch"
   },
   "license": "MIT",
-  "dependencies": {
-    "react": "^18.2.0"
-  },
   "peerDependencies": {
     "@qilin/api-remotes": "workspace:^",
     "@qilin/api-session-controller": "workspace:^",
@@ -54,6 +52,7 @@
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^",
     "@qilin/experimental-agent-team": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
@@ -69,12 +68,14 @@
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^",
     "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-ui-workspace": "workspace:^",
     "@qilin/experimental-agent-team": "workspace:^",
     "@qilin/session": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:^",
+    "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "files": [

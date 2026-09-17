@@ -63,6 +63,7 @@
     "@qilin/client-ui-conversation": "workspace:^",
     "@qilin/client-ui-kylin": "workspace:^",
     "@qilin/client-ui-deliverables": "workspace:^",
+    "@qilin/workspace-changes": "workspace:^",
     "@qilin/client-ui-directory-picker-browse": "workspace:^",
     "@qilin/client-ui-directory-picker-native": "workspace:^",
     "@qilin/client-ui-goal": "workspace:^",
@@ -82,12 +83,13 @@
     "@qilin/client-ui-settings-general": "workspace:^",
     "@qilin/client-ui-settings-mcp": "workspace:^",
     "@qilin/client-ui-settings-models": "workspace:^",
+    "@qilin/client-ui-plugin-manager": "workspace:^",
     "@qilin/client-ui-settings-plugin-inventory": "workspace:^",
     "@qilin/client-ui-settings-plugins": "workspace:^",
     "@qilin/client-ui-settings-skills": "workspace:^",
     "@qilin/client-ui-settings-unarchive-sessions": "workspace:^",
-    "@qilin/client-ui-settings-user-plugins": "workspace:^",
     "@qilin/client-ui-sidebar": "workspace:^",
+    "@qilin/client-ui-sidebar-browser": "workspace:^",
     "@qilin/client-ui-sidebar-files": "workspace:^",
     "@qilin/client-ui-sidebar-plans": "workspace:^",
     "@qilin/client-ui-sidebar-right": "workspace:^",
@@ -112,7 +114,6 @@
     "@qilin/host-frontend-static": "workspace:^",
     "@qilin/host-open-in-app": "workspace:^",
     "@qilin/host-plugin-inventory": "workspace:^",
-    "@qilin/host-plugin-manager": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
     "@qilin/launch-environment": "workspace:^",
     "@qilin/mcp-servers": "workspace:^",
@@ -129,7 +130,8 @@
     "commander": "^15.0.0",
     "open": "^11.0.0",
     "@qilin/api-terminal-controller": "workspace:^",
-    "@qilin/client-ui-sidebar-terminal": "workspace:^"
+    "@qilin/client-ui-sidebar-terminal": "workspace:^",
+    "@qilin/office-to-pdf": "workspace:^"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:^",
@@ -139,8 +141,16 @@
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/fs": "workspace:^",
+    "@qilin/fs-local": "workspace:^",
+    "@qilin/sandbox-policy": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
     "@qilin/shell-env": "workspace:^",
-    "@qilin/system-prompt": "workspace:^"
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/typert-registry": "workspace:^",
+    "@deepseek-ai/libreoffice-kit": "0.0.1"
   }
 }

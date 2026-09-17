@@ -98,10 +98,6 @@
     - id: plugin-inventory
       name: '@qilin/host-plugin-inventory'
 
-    # Profile-scoped install, update, and removal for user bundle plugins.
-    - id: plugin-manager
-      name: '@qilin/host-plugin-manager'
-
     # MCP server settings over the user patch layer: lists and rewrites the
     # mcp-client entries the settings page manages.
     - id: mcp-servers
@@ -168,8 +164,9 @@
     # assembly fact of qilin-web-app, never user config), mounts the
     # frontend-static fallback owner, registers the web-surface prompt
     # section and the bash runtime variable, prints the URL line, and opens the
-    # canonical local URL after the full tree settles. The webStartup provider
-    # supplies invocation-only values; after the server binds, this row samples
+    # canonical local URL after the full Loader tree settles and the required-
+    # entry audit passes. The
+    # webStartup provider supplies invocation-only values; after the server binds, this row samples
     # LAN trust once and provides `webRuntime`. A complete agent-preset persona
     # suppresses the prompt section for that agent while retaining the host-owned
     # shell variable.
@@ -252,14 +249,21 @@
       name: '@qilin/client-ui-sidebar-right'
 
 
+    - id: office-to-pdf
+      name: '@qilin/office-to-pdf'
+
     # The right Sidebar's document tab: bounded file reads with selectable
-    # Markdown, code, HTML, PDF, and plain-text renderers.
+    # Markdown, code, HTML, PDF, Office, and plain-text renderers.
     - id: ui-sidebar-documentpreview
       name: '@qilin/client-ui-sidebar-documentpreview'
 
-    # The right Sidebar's workspace file tree tab type.
+    # Sandboxed HTTP(S) Browser tabs, including loopback targets.
+    - id: ui-sidebar-browser
+      name: '@qilin/client-ui-sidebar-browser'
+
     - id: ui-sidebar-terminal
       name: '@qilin/client-ui-sidebar-terminal'
+    # The right Sidebar's workspace file tree tab type.
     - id: ui-sidebar-files
       name: '@qilin/client-ui-sidebar-files'
 
@@ -288,14 +292,19 @@
     - id: ui-settings-skills
       name: '@qilin/client-ui-settings-skills'
 
+    # Read-only Plugin list tab in the Settings Plugins section; the built-in
+    # bundles the sidebar page leaves out are inspected here.
     - id: ui-settings-plugin-inventory
       name: '@qilin/client-ui-settings-plugin-inventory'
 
+    # Plugin management: the sidebar Plugins page installs, enables, disables,
+    # and removes the profile's bundles through the `pluginManager` Remote.
+    # Without a profile-backed Host it reports itself unavailable.
+    - id: ui-plugin-manager
+      name: '@qilin/client-ui-plugin-manager'
+
     - id: ui-settings-unarchive-sessions
       name: '@qilin/client-ui-settings-unarchive-sessions'
-
-    - id: ui-settings-user-plugins
-      name: '@qilin/client-ui-settings-user-plugins'
 
     - id: ui-conversation
       name: '@qilin/client-ui-conversation'
@@ -320,19 +329,25 @@
     - id: ui-cordis
       name: '@qilin/client-ui-kylin'
 
-    # Durable workflow lifecycle as an independent Chat node after the
-    # existing generic workflow tool row.
-    - id: ui-workflow-run
-      name: '@qilin/client-ui-workflow-run'
-
-    # Turn tail: the produced-files row under each closing assistant message.
-    # Remove this entry to turn the surface off; the tail hole renders empty.
+    # Turn tail: the changed-files card and delivery cards under each closing
+    # assistant message. Remove this entry to turn the surface off; the tail
+    # hole renders empty.
     - id: ui-deliverables
       name: '@qilin/client-ui-deliverables'
+
+    # Records each top-level turn's changed files from git working-tree
+    # snapshots; the changed-files card above renders its events.
+    - id: workspace-changes
+      name: '@qilin/workspace-changes'
 
 
     - id: ui-workspace
       name: '@qilin/client-ui-workspace'
+
+    # Durable workflow lifecycle as an independent Chat node after the
+    # existing generic workflow tool row.
+    - id: ui-workflow-run
+      name: '@qilin/client-ui-workflow-run'
 
     # Input triggers: the '/' | '@' pipeline (ui-input-trigger), the command surface over
     # it (ui-commands), and the reference sources (ui-skill / ui-reference).
@@ -415,6 +430,9 @@
 # the criterion for host-plane ownership — injection resolves before any session
 # exists, so there is no agent to key by. Behind a preset realm those variables
 # would never reach the model's shell at all.
+
+- id: tool-plugin-manager
+  disabled: true
 
 - id: tool-bash
   disabled: true

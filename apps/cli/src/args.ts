@@ -10,12 +10,12 @@
  * `qilin --profile tui --resume abc` boots the tui profile with `--resume abc`,
  * and `qilin --profile web -h` prints the web app's help, not this one's.
  *
- * `web` is a hardcoded alias for `--profile web`; `plugin` manages a profile's
+ * `qilin <name>` abbreviates `qilin --profile <name>`; `plugin` manages a profile's
  * plugin dependencies by forwarding to pnpm.
  * @module @qilin/cli/args
  */
 
-import { Command, CommanderError } from 'commander'
+import { Command, CommanderError, InvalidArgumentError } from 'commander'
 
 /** Boot a named profile and hand it the invocation's inner arguments. */
 interface ProfileInvocation {
@@ -51,7 +51,7 @@ interface PluginInvocation {
 /** The resolved `qilin` invocation. Help, version, and errors exit inside {@link parseQilinArgs}. */
 export type QilinInvocation = ProfileInvocation | DumpConfigInvocation | PluginInvocation
 
-/** Launcher flags shared by the default command and the `web` alias. */
+/** Launcher flags for profile boot and configuration dumps. */
 interface BootOptions {
   patch?: string[]
   dumpConfig?: boolean
@@ -64,6 +64,11 @@ interface BootOptions {
  * variadic — a variadic `--patch` would swallow the inner arguments.
  */
 const collect = (value: string, previous: string[] = []): string[] => [...previous, value]
+
+function selectProfile(value: string, previous?: string): string {
+  if (previous !== undefined) throw new InvalidArgumentError('select a profile only once')
+  return value
+}
 
 function rejectElectronProfile(program: Command, profile: string): void {
   if (profile.toLowerCase() === 'desktop') {
@@ -78,35 +83,28 @@ function rejectElectronProfile(program: Command, profile: string): void {
  */
 const PRODUCT_PROFILE = 'qilin'
 
-/**
- * The subcommand this launcher used to expose for the product profile. Its
- * first positional is now inner argv, so a stale spelling would reach the app
- * as an argument; naming it here keeps that failure a usage error instead.
- */
-const RETIRED_PRODUCT_COMMAND = 'qilin'
-
 /** The launcher's own help text; each app prints its own. */
 const HELP_EXAMPLES = `
 Examples:
-  qilin                                        boot the QiLin product surface, then serve it
-  qilin --no-open                              the same, without opening a browser
-  qilin --profile web                          boot the unbranded web surface (same as: qilin web)
-  qilin --profile rescue --from-default-profile web
-                                             create rescue from the shipped web template, then boot it
-  qilin --profile headless "run the tests"     answer one task, print the result, and exit
-  qilin --profile tui --patch ./extra.yml      boot a custom profile with one extra overlay
-  qilin --profile tui --resume <session>       arguments after the launcher flags reach the app
-  qilin --profile web --help                   the web app's own flags and help
-  qilin plugin list                            list the product profile's plugin layers
-  qilin plugin doctor <package|directory>      report one plugin's DSH-era compatibility
-  qilin plugin add <package>                   install a plugin into the product profile
-  qilin plugin --profile tui add <package>     install a plugin into the tui profile
+  qilin                                       boot the QiLin product surface, then serve it
+  qilin --no-open                             the same, without opening a browser
+  qilin web                                   boot the unbranded web surface (same as: qilin --profile web)
+  qilin rescue --from-default-profile web
+                                            create rescue from the shipped web template, then boot it
+  qilin headless "run the tests"              answer one task, print the result, and exit
+  qilin tui --patch ./extra.yml               boot a custom profile with one extra overlay
+  qilin tui --resume <session>                arguments after the launcher flags reach the app
+  qilin web --help                            the web app's own flags and help
+  qilin plugin list                           list the product profile's plugin layers
+  qilin plugin doctor <package|directory>     report one plugin's DSH-era compatibility
+  qilin plugin add <package>                  install a plugin into the product profile
+  qilin plugin --profile tui add <package>    install a plugin into the tui profile
 `
 
 /**
  * Resolve a boot or dump invocation from the launcher flags and the leftover
  * inner arguments.
- * @param program - the command whose options were parsed (the root, or the `web` alias).
+ * @param program - the command whose options were parsed.
  * @param profile - the profile these flags boot.
  * @param options - the launcher flags commander collected.
  * @param args - the leftover arguments, in argv order.
@@ -143,6 +141,7 @@ function resolveBoot(program: Command, profile: string, options: BootOptions, ar
  * @returns the resolved invocation.
  */
 export function parseQilinArgs(argv: readonly string[], version: string): QilinInvocation {
+  const first = argv[0]
   let resolved: QilinInvocation | undefined
   // Annotated, not inferred: the actions below call back into `program`, and an
   // inferred type would be circular through its own chain.
@@ -150,6 +149,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   program
     .name('qilin')
     .version(version, '-V, --version', 'output the version number')
+    .usage('[--profile] <name> [options] [app-args...]\n       qilin plugin --profile <name> <pnpm-args...>')
     .description('qilin: boot the QiLin product surface, or any profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
@@ -157,11 +157,12 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
     // know; everything from there on belongs to the booted app, including
     // its -h. `qilin -h` with no profile still prints this help, below.
     .helpOption(false)
+    .helpCommand(false)
     .allowUnknownOption()
     .passThroughOptions()
     .enablePositionalOptions()
     .argument('[args...]', 'arguments for the booted profile\'s app (see: qilin --profile <name> --help)')
-    .option('--profile <name>', 'the profile under $QILIN_HOME/profiles to boot')
+    .option('--profile <name>', 'the profile under $QILIN_HOME/profiles to boot', selectProfile)
     .option('--from-default-profile <name>', 'initialize a new custom profile from a shipped profile template')
     .option('--patch <path>', 'extra patch-list overlay applied after the profile layer (repeatable)', collect)
     .option('--dump-config', 'print the composed profile tree and exit')
@@ -172,64 +173,38 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       if (options.profile === undefined && args.some(argument => argument === '-h' || argument === '--help')) {
         program.help()
       }
-      if (args[0] === RETIRED_PRODUCT_COMMAND) {
-        program.error(`error: ${RETIRED_PRODUCT_COMMAND} is no longer a subcommand; bare qilin boots that profile`)
-      }
       const profile = options.profile ?? PRODUCT_PROFILE
       if (profile === '') program.error('error: --profile needs a name')
       rejectElectronProfile(program, profile)
       resolved = resolveBoot(program, profile, options, args)
     })
 
-  /** Reject parent options supplied before a subcommand. */
-  const rejectParentOptions = (command: string): void => {
-    const parent = program.opts<BootOptions & { profile?: string }>()
-    if (parent.profile !== undefined || parent.patch !== undefined
-      || parent.dumpConfig !== undefined || parent.dumpDefaultConfig !== undefined
-      || parent.fromDefaultProfile !== undefined) {
-      program.error(
-        `error: ${command} takes none of parent --profile, --from-default-profile, --patch, --dump-config, or --dump-default-config`,
-      )
-    }
+  if (first === 'plugin') {
+    const plugin = program.command('plugin').description('manage a profile\'s plugins: list them, forward pnpm arguments, or report one plugin\'s DSH-era compatibility')
+    plugin
+      .option('--profile <name>', 'the profile whose plugins to manage (defaults to the product profile; initialized on first use)', selectProfile)
+      .allowUnknownOption()
+      .argument('[args...]', 'one of: list, doctor <name|path>; otherwise pnpm arguments forwarded verbatim (add <pkg>, remove <pkg>, why <pkg>, ...)')
+      .action((args: string[], options: { profile?: string }) => {
+        const profile = options.profile ?? PRODUCT_PROFILE
+        if (profile === '') program.error('error: --profile needs a name')
+        rejectElectronProfile(plugin, profile)
+        if (args.length === 0) {
+          program.error('error: plugin needs a subcommand (list, doctor <name|path>) or pnpm arguments to forward (e.g. add <package>)')
+        }
+        if (args[0] === 'list' && args.length > 1) program.error('error: plugin list takes no further arguments')
+        if (args[0] === 'doctor' && args.length !== 2) {
+          program.error('error: plugin doctor takes exactly one installed package name or package directory')
+        }
+        resolved = { mode: 'plugin', profile, args }
+      })
   }
 
-  const web = program.command('web').description('boot the web profile (alias of --profile web); the web app\'s own flags follow')
-  web
-    .helpOption(false)
-    .allowUnknownOption()
-    .passThroughOptions()
-    .enablePositionalOptions()
-    .argument('[args...]', 'arguments for the web app (see: qilin web --help)')
-    .option('--patch <path>', 'extra patch-list overlay applied after the profile layer (repeatable)', collect)
-    .option('--dump-config', 'print the composed web-profile tree (with the user layer and any --patch) and exit')
-    .option('--dump-default-config', 'print the web profile\'s bundle layers (no user layer) and exit')
-    .action((args: string[], options: BootOptions) => {
-      rejectParentOptions('web')
-      resolved = resolveBoot(web, 'web', options, args)
-    })
-
-  const plugin = program.command('plugin').description('manage a profile\'s plugins: list them, forward pnpm arguments, or report one plugin\'s DSH-era compatibility')
-  plugin
-    .option('--profile <name>', 'the profile whose plugins to manage (defaults to the product profile; initialized on first use)')
-    .allowUnknownOption()
-    .argument('[args...]', 'one of: list, doctor <name|path>; otherwise pnpm arguments forwarded verbatim (add <pkg>, remove <pkg>, why <pkg>, ...)')
-    .action((args: string[], options: { profile?: string }) => {
-      rejectParentOptions('plugin')
-      const profile = options.profile ?? PRODUCT_PROFILE
-      if (profile === '') program.error('error: --profile needs a name')
-      rejectElectronProfile(plugin, profile)
-      if (args.length === 0) {
-        program.error('error: plugin needs a subcommand (list, doctor <name|path>) or pnpm arguments to forward (e.g. add <package>)')
-      }
-      if (args[0] === 'list' && args.length > 1) program.error('error: plugin list takes no further arguments')
-      if (args[0] === 'doctor' && args.length !== 2) {
-        program.error('error: plugin doctor takes exactly one installed package name or package directory')
-      }
-      resolved = { mode: 'plugin', profile, args }
-    })
-
   try {
-    program.parse(argv, { from: 'user' })
+    const expanded = first !== undefined && !first.startsWith('-') && first !== 'plugin'
+      ? ['--profile', ...argv]
+      : argv
+    program.parse(expanded, { from: 'user' })
   } catch (error) {
     return process.exit(error instanceof CommanderError ? error.exitCode : 1)
   }

@@ -1,0 +1,28 @@
+{
+  "en-US": {
+    "menu": [
+      { "label": "About QiLin", "role": "about" },
+      { "type": "separator" }
+    ],
+    "options": {
+      "applicationName": "QiLin",
+      "applicationVersion": "1.0.0",
+      "version": "",
+      "copyright": "",
+      "iconPath": "<app icon>"
+    }
+  },
+  "zh-CN": {
+    "menu": [
+      { "label": "关于 QiLin", "role": "about" },
+      { "type": "separator" }
+    ],
+    "options": {
+      "applicationName": "QiLin",
+      "applicationVersion": "1.0.0",
+      "version": "",
+      "copyright": "",
+      "iconPath": "<app icon>"
+    }
+  }
+}

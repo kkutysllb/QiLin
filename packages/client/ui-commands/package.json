@@ -60,6 +60,7 @@
     "@qilin/api-session-controller": "workspace:^",
     "@qilin/client-store": "workspace:^",
     "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-session": "workspace:^",
     "clsx": "^2.0.0"

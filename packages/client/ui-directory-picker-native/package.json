@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-directory-picker-native",
-  "description": "Native directory-picker surface: the renderless workspace directory-flow occupant driving the host's OS chooser",
+  "description": "Native directory-picker surface: the renderless workspace directory-flow occupant driving the local Desktop or Host OS chooser",
   "version": "3.0.0",
   "publishConfig": {
     "access": "public"
@@ -43,6 +43,7 @@
     "@qilin/kylin": "workspace:^"
   },
   "devDependencies": {
+    "@qilin/client-test-runtime": "workspace:^",
     "@qilin/client-ui-renderer": "workspace:^",
     "@qilin/client-ui-workspace": "workspace:^",
     "@testing-library/react": "^16.1.0",

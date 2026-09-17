@@ -20,8 +20,8 @@ Web 客户端需要从一个未必在 Host 机器上的浏览器查看会话工�
 
 | 面 | 包 | 文件 | 依赖 |
 |---|---|---|---|
-| Host | `api/workspace-files/tsconfig.host.json` | `src/index.ts`（`WorkspaceFiles`、`Config`、围栏、切页器）、`src/changes.ts`（`WorkspaceChangeFeed`）、`src/types.ts`（线路类型、错误码） | `dsh-fs`、`dsh-sandbox-policy`、`dsh-typert-protocol`、`dsh-session`、`dsh-session-persistence` |
-| Client | `api/workspace-files/tsconfig.client.json` | `src/client/index.ts`（插件体）、`provider.ts`、`change-feed.ts`、`remote.ts`、`types.ts`，以及共享的 `src/types.ts` | `dsh-api-gateway/client`、`dsh-session/types`、`dsh-client-resources`、`dsh-client-ui-slots`、`dsh-util-workspace-path`、`dsh-typert-protocol`，以及本包生成的 `./remote` |
+| Host | `api/workspace-files/tsconfig.host.json` | `src/index.ts`（`WorkspaceFiles`、`Config`、围栏、切页器）、`src/changes.ts`（`WorkspaceChangeFeed`）、`src/types.ts`（线路类型、错误码） | `dsh-fs`、`dsh-sandbox-policy`、`@qilin/typert-protocol`、`dsh-session`、`dsh-session-persistence` |
+| Client | `api/workspace-files/tsconfig.client.json` | `src/client/index.ts`（插件体）、`provider.ts`、`change-feed.ts`、`remote.ts`、`types.ts`，以及共享的 `src/types.ts` | `dsh-api-gateway/client`、`dsh-session/types`、`dsh-client-resources`、`dsh-client-ui-slots`、`dsh-util-workspace-path`、`@qilin/typert-protocol`，以及本包生成的 `./remote` |
 
 `api/remotes` 和两个根聚合分别引用匹配的 Host/Client 叶子。包导出 `.`、`./client`、`./types`、`./typert` 和 `./remote`，web-app 中单个 `workspace-files` 条目供应两面。Client 插件注入 `['resources', 'remote', 'remote.workspaceFiles']`；资源模型直接从协议包取结果类型，Sidebar 参数声明归文本预览，因此 Client 编译图不再反向依赖 Remote 装配或右栏 UI。
 

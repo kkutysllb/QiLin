@@ -7,7 +7,6 @@
  * @module qilin-llm-pi-ai/login
  */
 
-import { createModels } from '@earendil-works/pi-ai'
 import type { AuthEvent, AuthPrompt, AuthType, Provider } from '@earendil-works/pi-ai'
 import type { Context } from '@qilin/kylin'
 import type { AuthorizationMethod, AuthorizationPrompt, AuthorizationSession } from '@qilin/authorization'
@@ -15,6 +14,7 @@ import { isCredentialKeySegment } from '@qilin/credentials'
 import { catalogProvider, catalogProviderIds } from './catalog.ts'
 import { recordKeyFor } from './auth.ts'
 import type { PiAiAuthInjection } from './adapter.ts'
+import { createModels } from './models.ts'
 
 /**
  * The login methods one catalog provider offers.

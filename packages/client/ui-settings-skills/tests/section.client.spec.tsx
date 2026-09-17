@@ -33,15 +33,14 @@ function bench(
   // null (not undefined) selects the no-Session case: an explicit undefined
   // would take the default parameter instead.
   session: SessionId | null = 'session-1' as SessionId,
-  phase = 'ready',
 ) {
   const controller = { load: vi.fn(async () => true) }
   const props = {
     close: () => {},
     controller,
     useSnapshot: <Selected,>(select: (snapshot: SkillsPageState) => Selected): Selected => select(current),
-    useSessions: <Selected,>(select: (snapshot: { phase: string; current: SessionId | undefined }) => Selected): Selected =>
-      select({ phase, current: session ?? undefined }),
+    useSelection: <Selected,>(select: (selection: { sessionId?: SessionId }) => Selected): Selected =>
+      select(session === null ? {} : { sessionId: session }),
     t,
   } as unknown as SkillsSectionProps
   render(<SkillsSection {...props} />)
@@ -94,11 +93,6 @@ describe('SkillsSection', () => {
     bench(pageState({ sessionId: null }), null)
     await waitFor(() => { expect(screen.getByText(zh.noSession)).toBeTruthy() })
     expect(screen.getByRole('button', { name: zh.refresh }).hasAttribute('disabled')).toBe(true)
-  })
-
-  it('treats an unready Session list as no Session yet', async () => {
-    bench(pageState({ sessionId: null }), null, 'loading')
-    await waitFor(() => { expect(screen.getByText(zh.noSession)).toBeTruthy() })
   })
 
   it('shows the optional routing guidance of a skill', () => {
