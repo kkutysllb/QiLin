@@ -1,0 +1,3 @@
+- insert:
+    - id: auto-review
+      name: '@qilin/experimental-auto-review'

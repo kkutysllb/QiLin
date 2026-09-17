@@ -1,0 +1,82 @@
+{
+  "name": "@qilin/session-log-export",
+  "description": "Web Session-log export command and shared download dialog",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/session-query/session-log-export"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@qilin/session-format": "workspace:^",
+    "@deepseek-ai/schemastery": "workspace:^",
+    "fflate": "^0.8.2",
+    "@qilin/brand": "workspace:^"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-persistence": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/attachment": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-ui-commands": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/commands": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-persistence": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/client-locale",
+        "@qilin/client-ui-commands",
+        "@qilin/client-ui-conversation",
+        "@qilin/client-ui-renderer",
+        "@qilin/client-ui-session"
+      ],
+      "platform": "web"
+    }
+  }
+}

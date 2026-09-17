@@ -1,0 +1,75 @@
+{
+  "name": "@qilin/client-ui-model-selection",
+  "description": "Model selection over the shared model catalog, Session projection, and session.selectModel",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-model-selection"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-session-controller",
+        "@qilin/client-locale",
+        "@qilin/client-ui-commands",
+        "@qilin/api-remotes"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-commands": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-input-trigger": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@types/react": "~18.3.1",
+    "@qilin/kylin": "workspace:^",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react-dom": "~18.3.0",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "clsx": "^2.1.1"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

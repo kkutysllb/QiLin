@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/kylin-api/fiber.md
+fiber.md: a2bb6157786b535382c204b1e42723c54ecb2858
+fiber.zh.md: 7fdc7741513c0cf8f45d377ae75c64948cf65db2

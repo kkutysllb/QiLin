@@ -1,0 +1,68 @@
+# TypeScript SDK snapshot patch for foreground and background QILIN SDK failures.
+
+- id: skill-filesystem
+  name: '@qilin/skill-filesystem'
+  config:
+    includeDefaultRoots: false
+
+- id: llm-deepseek
+  name: '@qilin/llm-deepseek'
+  config:
+    thinking: enabled
+    reasoningEffort: max
+
+- id: session-persistence-jsonl
+  name: '@qilin/session-persistence-jsonl'
+  config:
+    root: !!js qilinHomePath('sessions')
+    compression: !!js "process.env.QILIN_SNAPSHOT === undefined ? 'zstd' : 'none'"
+
+- id: session-log-deepseek
+  name: '@qilin/session-log-deepseek'
+  config:
+    enabled: true
+
+- insert:
+    - id: subagent-qilin-sdk-diagnostic
+      name: '@qilin/subagent-qilin-sdk'
+      config:
+        providerName: qilin-sdk-diagnostic
+        profile: sdk
+        patches:
+          - !!js process.env.QILIN_TEST_CHILD_PATCH
+        qilinHome: !!js qilinHomePath('children/foreground')
+        provider: mock
+        model: mock-echo
+        env:
+          QILIN_TELEMETRY_DISABLED: '1'
+          QILIN_TEST_CHILD_FAILURE: '1'
+    - id: tool-subagent-qilin-sdk-diagnostic
+      name: '@qilin/tool-subagent'
+      config:
+        provider: qilin-sdk-diagnostic
+        toolName: subagent_qilin_sdk
+        backgroundMode: one-shot
+        maxDepth: provider-managed
+    - id: subagent-qilin-sdk-diagnostic-background
+      name: '@qilin/subagent-qilin-sdk'
+      config:
+        providerName: qilin-sdk-diagnostic-background
+        profile: sdk
+        patches:
+          - !!js process.env.QILIN_TEST_CHILD_PATCH
+        qilinHome: !!js qilinHomePath('children/background')
+        provider: mock
+        model: mock-echo
+        env:
+          QILIN_TELEMETRY_DISABLED: '1'
+          QILIN_TEST_CHILD_FAILURE: '1'
+          FAKE_INIT_GO: .qilin-sdk-background-release
+    - id: tool-subagent-qilin-sdk-diagnostic-background
+      name: '@qilin/tool-subagent'
+      config:
+        provider: qilin-sdk-diagnostic-background
+        toolName: subagent_qilin_sdk_background
+        backgroundMode: one-shot
+        maxDepth: provider-managed
+    - id: release-qilin-sdk-background-on-job-output
+      name: '../../../apps/cli/tests/profiles/sdk/fixtures/subagent-qilin-sdk-release-on-job-output.ts'

@@ -1,0 +1,96 @@
+{
+  "name": "@qilin/client-test-runtime",
+  "description": "Browser test runtimes: a jsdom slot bench with test-owned Session and Workspace doubles, and a whole-client tier that boots the web roster through the production bootClient over an endpoint-named Remote mock",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/test-support/client-runtime"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "js-yaml": "^4.2.0",
+    "vitest": "^4.1.8"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/api-gateway": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/api-workspace-controller": "workspace:^",
+    "@qilin/attachment": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/client-hmr": "workspace:^",
+    "@qilin/client-modules": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-ui-chat": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-settings": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-web": "workspace:^",
+    "@qilin/remote-mock": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/subagent": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/api-gateway": "workspace:^",
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/api-workspace-controller": "workspace:^",
+    "@qilin/attachment": "workspace:^",
+    "@qilin/base": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/client-hmr": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-modules": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-ui-chat": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-layout": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-settings": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/client-web": "workspace:^",
+    "@qilin/remote-mock": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/settings": "workspace:^",
+    "@qilin/subagent": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/web-app": "workspace:^",
+    "@types/js-yaml": "^4.0.9",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

@@ -1,0 +1,30 @@
+Usage: qilin [--profile] <name> [options] [app-args...]
+       qilin plugin --profile <name> <pnpm-args...>
+
+qilin: boot a QiLin profile — an ordered stack of plugin-bundle patch
+layers under your own overrides.
+
+Arguments:
+  args                           arguments for the booted profile's app (see:
+                                 qilin --profile <name> --help)
+
+Options:
+  -V, --version                  output the version number
+  --profile <name>               the profile under $QILIN_HOME/profiles to boot
+  --from-default-profile <name>  initialize a new custom profile from a shipped
+                                 profile template
+  --patch <path>                 extra patch-list overlay applied after the
+                                 profile layer (repeatable)
+  --dump-config                  print the composed profile tree and exit
+  --dump-default-config          print the profile tree without its user layer
+                                 or --patch overlays and exit
+
+Examples:
+  qilin web                                   boot the web profile (same as: qilin --profile web)
+  qilin rescue --from-default-profile web
+                                            create rescue from the shipped web template, then boot it
+  qilin headless "run the tests"              answer one task, print the result, and exit
+  qilin tui --patch ./extra.yml               boot a custom profile with one extra overlay
+  qilin tui --resume <session>                arguments after the launcher flags reach the app
+  qilin web --help                            the web app's own flags and help
+  qilin plugin --profile tui add <package>    install a plugin into the tui profile

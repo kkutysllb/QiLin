@@ -1,0 +1,41 @@
+{
+  "name": "@qilin/shell",
+  "description": "Abstract bash executor seam (ctx.shell) for the QiLin",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/shell/shell"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/settings": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/sandbox": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/settings": "workspace:^"
+  }
+}

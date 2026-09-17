@@ -1,0 +1,24 @@
+{
+  "name": "@qilin/desktop-host",
+  "description": "Private Node-mode host process for the Electron desktop application",
+  "version": "0.1.6-alpha.2",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib/index.js"
+  ],
+  "dependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/cli": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/app-boot": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/host-webserver": "workspace:^",
+    "@qilin/home-paths": "workspace:^",
+    "@qilin/jobs": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/skill-office": "workspace:^"
+  }
+}

@@ -1,0 +1,10 @@
+version: 1
+scenario: subagent-qilin-sdk-dynamic-route
+profile: sdk
+composition: sdk-qilin-sdk-dynamic-route
+recording: authored
+header:
+  class: sdk-qilin-sdk-dynamic-route
+  pin: true
+  childSystemPrompts: [1]
+  childToolSchemas: [1]

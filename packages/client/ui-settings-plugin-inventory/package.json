@@ -1,0 +1,71 @@
+{
+  "name": "@qilin/client-ui-settings-plugin-inventory",
+  "description": "Read-only Cordis Loader inventory tab in Web Plugins settings",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-settings-plugin-inventory"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-remotes",
+        "@qilin/client-ui-settings",
+        "@qilin/client-locale",
+        "@qilin/client-ui-agent-preset",
+        "@qilin/client-modules"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-agent-preset": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-settings": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "@qilin/kylin": "workspace:^",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/agent-presets": "workspace:^",
+    "@qilin/client-modules": "workspace:^",
+    "@qilin/client-store": "workspace:^"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
+}

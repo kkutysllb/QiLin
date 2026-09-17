@@ -1,0 +1,17 @@
+- name: '@qilin/session'
+- name: '@qilin/system-prompt'
+- name: '@qilin/tools'
+- name: '@qilin/fs-local'
+- name: '@qilin/tool-fs'
+- name: '@qilin/session-query-sqlite'
+  config:
+    path: ':memory:'
+    openAt: never
+- name: '@qilin/session-reference'
+  config:
+    maxReferenceBytes: 360
+- name: './source-session.ts'
+- name: '@qilin/spill-local'
+  config:
+    root: '{{spillRoot}}'
+    cleanupPeriodDays: 0

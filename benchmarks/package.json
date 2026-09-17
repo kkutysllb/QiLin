@@ -1,0 +1,41 @@
+{
+  "name": "@qilin/benchmarks",
+  "version": "0.1.3-alpha.1",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "@xterm/headless": "^6.0.0",
+    "@qilin/terminal": "workspace:^",
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/llm-replay": "workspace:^",
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/agent-presets": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-ui-chat": "workspace:^",
+    "@qilin/deque": "workspace:^",
+    "@qilin/lazy-require": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/sdk-client": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-persistence": "workspace:^",
+    "@qilin/session-persistence-jsonl": "workspace:^",
+    "@qilin/session-projection": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@qilin/session-stats": "workspace:^",
+    "@qilin/session-title": "workspace:^",
+    "@qilin/session-turn-outline": "workspace:^",
+    "@qilin/subagent": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/token-meter": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  }
+}

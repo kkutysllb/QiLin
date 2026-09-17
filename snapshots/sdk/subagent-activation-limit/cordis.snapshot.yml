@@ -1,0 +1,58 @@
+# Keyless activation-capacity overlay holds the first child until the parent finishes.
+- id: llm-deepseek
+  name: '@qilin/llm-deepseek'
+  disabled: true
+
+- id: agent-default-model
+  name: '@qilin/agent-default-model'
+  config:
+    provider: deepseek-official
+    model: deepseek-v4-flash
+
+- id: session-persistence-jsonl
+  name: '@qilin/session-persistence-jsonl'
+  config:
+    root: !!js qilinHomePath('sessions')
+    compression: none
+
+- id: agent-instructions
+  name: '@qilin/agent-instructions'
+  config:
+    maxBytes: 65536
+
+- id: system-prompt
+  name: '@qilin/system-prompt'
+  config:
+    personaPrefix: |
+      You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
+
+      Verify your work by running the code or tests. Keep answers brief and factual.
+
+- id: sandbox
+  name: '@qilin/sandbox-local'
+  config:
+    runnerCommand:
+      - bash
+      - -c
+      - while [ "$1" != "--" ]; do shift; done; shift; exec "$@"
+      - passthrough-runner
+    runnerFailureSignatures:
+      - 'passthrough-runner: profile rejected'
+
+- insert:
+    - id: llm-replay
+      name: '@qilin/llm-replay'
+      config:
+        providers:
+          - id: deepseek-official
+            name: DeepSeek
+            models:
+              - id: deepseek-v4-flash
+              - id: deepseek-v4-pro
+    - id: subagent-activation-limit
+      name: '../../../packages/test-support/session-snapshot/tests/fixtures/subagent-activation-limit.ts'
+
+- id: subagent
+  name: '@qilin/subagent'
+  config:
+    maxActiveSubagents: 8

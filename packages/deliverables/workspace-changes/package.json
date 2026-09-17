@@ -1,0 +1,56 @@
+{
+  "name": "@qilin/workspace-changes",
+  "description": "Per-turn workspace file changes recorded from git working-tree snapshots and whole-file captures, with per-file comparisons, for the QiLin",
+  "version": "3.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/deliverables/workspace-changes"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "dependencies": {
+    "@deepseek-ai/schemastery": "workspace:^",
+    "diff": "^9.0.0"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/tools": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/subprocess": "workspace:^",
+    "@qilin/subprocess-local": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/llm": "workspace:^"
+  }
+}

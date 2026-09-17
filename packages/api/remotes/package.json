@@ -1,0 +1,94 @@
+{
+  "name": "@qilin/api-remotes",
+  "description": "Remote BFF assembly for application-selected Host capabilities",
+  "version": "3.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/api/remotes"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-gateway"
+      ],
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "dependencies": {
+    "@qilin/deque": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/scope": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-presets": "workspace:^",
+    "@qilin/api-gateway": "workspace:^",
+    "@qilin/api-settings-controller": "workspace:^",
+    "@qilin/api-workspace-controller": "workspace:^",
+    "@qilin/commands": "workspace:^",
+    "@qilin/cordis-host-runner": "workspace:^",
+    "@qilin/credentials": "workspace:^",
+    "@qilin/file-reference": "workspace:^",
+    "@qilin/goal": "workspace:^",
+    "@qilin/host-plugin-inventory": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/message-feedback": "workspace:^",
+    "@qilin/permission-presets": "workspace:^",
+    "@qilin/session-reference": "workspace:^",
+    "@qilin/settings": "workspace:^",
+    "@qilin/subagent": "workspace:^",
+    "@qilin/user-approval": "workspace:^",
+    "@qilin/user-questions": "workspace:^",
+    "@qilin/client-connection": "workspace:^",
+    "@qilin/client-file-upload": "workspace:^",
+    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/scope": "workspace:^",
+    "@qilin/api-session-controller": "workspace:^",
+    "@qilin/api-workspace-files": "workspace:^",
+    "zod": "^4.4.3",
+    "@qilin/command-feedback": "workspace:^",
+    "@qilin/api-terminal-controller": "workspace:^",
+    "@qilin/plugin-manager": "workspace:^",
+    "@qilin/office-to-pdf": "workspace:^"
+  }
+}

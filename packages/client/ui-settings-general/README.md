@@ -1,0 +1,116 @@
+---
+description: "Settings shell, ownerless copy, and durable product-onboarding namespace for the qilin web client: the General section, panel chrome, and onboarding ledger projection."
+kind: "package-reference"
+---
+<details>
+# @qilin/client-ui-settings-general
+<details>
+English | [中文](README.zh.md)
+<details>
+## Summary
+<details>
+Use this package to give the qilin web client a settings page, connection-recovery control, feature-contributed navigation, and sequential first-run onboarding. Users open it from the account menu's Settings row in the sidebar footer, retry a failed connection immediately, and access a local configuration file when the Host makes one available on a loopback browser. Feature packages supply their own settings rows, sections, and onboarding steps; this package supplies their shared presentation and does not add onboarding copy or built-in General rows.
+<details>
+## Table of Contents
+<details>
+- [Use this package](#use-this-package)
+- [Understand the implementation](#understand-the-implementation)
+- [Further Exploration](#further-exploration)
+- [Model Experience](#model-experience)
+- [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
+- [Dev Note](#dev-note)
+<details>
+### Onboarding steps
+<details>
+<a id="use-this-package"></a>
+## Use this package
+<details>
+Users reach the shell from the sidebar footer's account menu, whose Settings row calls `ctx.settingsShell.open()`; feature plugins contribute their pages and onboarding steps through the slot ledgers this shell projects. The shell renders no Settings control of its own. A pale-yellow **Disconnected** action in the sidebar footer indicates browser offline suspension while the panel is closed. Automatic recovery shows **Reconnecting** with one to three dots advancing every 500ms. Hover or keyboard focus changes either yellow label to **Reconnect now** without changing its background; press feedback stays within the warning palette, and selecting it starts retry 1 immediately. Recovery changes the region to pale-green **Connected** for two seconds before it disappears. The icon, left-aligned text origin, height, and width remain fixed across every visible state. Initial startup and uninterrupted healthy operation remain silent. The shell renders the settings page, the navigation built from `settings.section` entries, and exactly one mounted onboarding step at a time.
+<details>
+In Desktop, the account-row update control shows availability, progress, verification, readiness, and persistent retry feedback. The preload carries semantic phase, version, progress, and classified failures; the component resolves every visible and accessible string from the active `settings` locale, including after an in-application language change. Selecting an available update starts downloading; installation requires a separate shell-owned confirmation. A collapsed sidebar shows the same status as a dot on its top expand button. Connection feedback takes priority except during shell-reported installation, when the expected backend disconnect must not hide update status. Failure restores connection feedback. Both controls share one carrier subscription; browser code cannot choose packages or authorize installation. [Desktop updates](../../../apps/desktop/README.md) owns the release workflow.
+<details>
+### Resizing the navigation
+<details>
+The settings page navigation seeds at 188px and its right edge is a vertical, pointer-captured separator: dragging reports a clamped 160–360px width, and the separator keeps the localized accessible name from the `settings` namespace. Width is viewing state local to the shell occupant, so it resets when the panel unmounts rather than persisting into the settings document.
+<details>
+### Section cards and About
+<details>
+Each settings page is centered inside a stable detail card. The header's **Back to workspace** capsule uses the same close path as the mask and Escape key. The navigation keeps the shell-owned **About QiLin** entry pinned to its bottom edge, and that page introduces the project with the two-character 麒麟 mark. The `settings.about.mark` seat lets the active QiLin brand provider render the vector seal; localized 麒麟 text remains the explicit fallback.
+<details>
+### The General section
+<details>
+The General section holds rows registered into `settings.general.item` by feature packages — it has no built-in rows. Feature plugins own the row copy and behavior; the shell only provides the section and its slot. The Appearance row, for example, lives in ui-theme.
+<details>
+### Onboarding steps
+<details>
+The onboarding ledger projects in ascending order and mounts exactly one step at a time. Registrants own durable completion, capability readiness, copy, mutations, and their visible wrapper, so independently registered flows cannot stack and the shell does not become a second configuration fact source. Visible steps own their dialog chrome and app-root `inert` lifecycle.
+
+<details>
+
+<a id="understand-the-implementation"></a>
+<details>
+
+<details>
+<summary>Implementation internals — click to expand</summary>
+<details>
+The shell owns the chrome and the projections; every piece of content and copy belongs to a registrant.
+<details>
+### Ledger projections
+<details>
+The navigation is a projection of the `settings.section` ledger; nav labels may be locale-following thunks, resolved through `resolveSlotLabel` and re-rendered on the section ledger bump or the locale revision (an optional `ctx.get('locale')` read; no hard locale dependency). The onboarding ledger projects in ascending order; the active registrant receives its id, `complete()`, and an `openSection(id)` callback, and completing or skipping transfers ownership to the next entry.
+<details>
+### Connection recovery
+<details>
+The shell is an explicit recovery consumer, so it injects Connection directly rather than adding lifecycle controls to `ctx.remote`. Its private hooks compartment binds `ctx.connection.state`, while the component receives only the selected state and an injected callback for `ctx.connection.reconnect()`. `ConnectionIndicator` owns the inline presentation and receives all visible and accessible copy from the `settings` locale namespace; the shell owns the two-second recovered-state timer.
+<details>
+### Host half
+<details>
+The Host half is an inert loader entry: the shell's product facts and policy live entirely in the browser half.
+<details>
+</details>
+<details>
+### Onboarding steps
+<details>
+<a id="further-exploration"></a>
+## Further Exploration
+<details>
+These pages cover the settings surface family and the composition model.
+<details>
+- [ui-settings](../ui-settings/README.md) — the domain base whose slot types and scope service this shell builds on.
+- [ui-sidebar](../ui-sidebar/README.md) — the sidebar shell hosting the `sidebar.settings` seat.
+- [ui-settings-models](../ui-settings-models/README.md) — the feature package contributing the DeepSeek onboarding step.
+- [settings](../../settings/README.md) — the durable user-settings seam and its file provider.
+- [Slot system standard](../../../.agents/notes/implemented/architecture/2026-07-22-slot-type-chain-implementation.md) — the composition model behind the ledgers.
+<details>
+### Onboarding steps
+<details>
+<a id="model-experience"></a>
+## Model Experience
+<details>
+None, as the package is a browser-side UI plugin layer that registers nothing model-facing.
+<details>
+#### KV Cache effect
+<details>
+None; this package neither assembles nor sends a provider request.
+<details>
+## Known Limitations and Deferred Work
+<details>
+<a id="known-limitations-and-deferred-work"></a>
+<details>
+<details>
+These limits define what the shell itself provides versus what features must supply; they are current package constraints.
+<details>
+- **The General section has no built-in rows** — each row appears only when its owning feature plugin is mounted; the shell cannot fill the section alone.
+<details>
+<a id="dev-note"></a>
+### Dev Note
+<details>
+
+<summary>Working context for maintainers — click to expand</summary>
+<details>
+None.
+<details>
+</details>
+<details>
+**Runtime invariant:** No companion is published. The settings seam validates and publishes the durable onboarding section, while slot conflicts fail loud in the slot core. The local document action is browser state over typed RPC responses and is covered by store/component tests rather than a Kylin runtime relationship.
+<details>

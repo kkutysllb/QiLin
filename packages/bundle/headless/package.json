@@ -1,0 +1,71 @@
+{
+  "name": "@qilin/headless",
+  "description": "The qilin one-shot bundle: a direct core Agent/Session runner over qilin-base with no Host, HTTP, or browser layer",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/bundle/headless"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./startup": {
+      "types": "./lib/types/startup.d.ts",
+      "default": "./lib/startup.js"
+    },
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/startup.js",
+    "cordis.patch.yml",
+    "lib/json-stream-*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@qilin/brand": "workspace:^",
+    "@qilin/cmdline": "workspace:^",
+    "@qilin/util-values": "workspace:^",
+    "@deepseek-ai/schemastery": "workspace:^",
+    "commander": "^15.0.0"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-default-model": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@qilin/fs": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/agent-default-model": "workspace:^",
+    "@qilin/agent-loop": "workspace:^",
+    "@qilin/agent-loop-testkit": "workspace:^",
+    "@qilin/llm": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@qilin/session-query": "workspace:^",
+    "@qilin/fs": "workspace:^"
+  }
+}

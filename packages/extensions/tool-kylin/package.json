@@ -1,0 +1,44 @@
+{
+  "name": "@qilin/tool-kylin",
+  "description": "Read-only runtime API inspection for Harness plugin development",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/extensions/tool-kylin"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/agent": "workspace:^",
+    "@qilin/kylin-host-runner": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/agent": "workspace:^",
+    "@qilin/kylin-host-runner": "workspace:^",
+    "@qilin/system-prompt": "workspace:^",
+    "@qilin/tools": "workspace:^",
+    "@qilin/kylin": "workspace:^"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "name": "@qilin/client-ui-sidebar-terminal",
+  "description": "Interactive shell tabs for the right Sidebar",
+  "version": "0.1.6-alpha.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/ui-sidebar-terminal"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/api-terminal-controller",
+        "@qilin/client-ui-sidebar-right",
+        "@qilin/api-remotes",
+        "@qilin/client-ui-theme"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:^"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:^",
+    "@qilin/api-remotes": "workspace:^",
+    "@qilin/client-locale": "workspace:^",
+    "@qilin/client-store": "workspace:^",
+    "@qilin/client-test-runtime": "workspace:^",
+    "@qilin/client-ui-dockkit": "workspace:^",
+    "@qilin/client-ui-primitives": "workspace:^",
+    "@qilin/client-ui-renderer": "workspace:^",
+    "@qilin/client-ui-session": "workspace:^",
+    "@qilin/client-ui-sidebar-right": "workspace:^",
+    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/session": "workspace:^",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "react": "^18.2.0",
+    "clsx": "^2.0.0",
+    "react-dom": "^18.2.0",
+    "@qilin/api-terminal-controller": "workspace:^",
+    "@xterm/xterm": "^6.0.0",
+    "@xterm/addon-fit": "^0.11.0",
+    "@qilin/client-ui-layout": "workspace:^",
+    "@qilin/client-ui-conversation": "workspace:^",
+    "@qilin/client-ui-theme": "workspace:^"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/client.*.js",
+    "lib/types/**/*.d.ts"
+  ]
+}
