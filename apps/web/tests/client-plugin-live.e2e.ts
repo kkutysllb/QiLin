@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { chromium, type Page } from 'playwright'
 import { expect, it, onTestFailed, onTestFinished } from 'vitest'
-import { launchWebScaffold, watchConsole, captureStableAria, compareOrRefreshGolden, webSnapshotMode } from './scaffold.ts'
+import { launchWebScaffold, watchConsole, captureStableAria, compareOrRefreshGolden, openSettingsDialog, webSnapshotMode } from './scaffold.ts'
 import { saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
 
 const FIXTURE = fileURLToPath(new URL('./fixtures/plugins/fixture-live-client', import.meta.url))
@@ -13,9 +13,10 @@ const EXPECTED = fileURLToPath(new URL('./expected/client-plugin-live', import.m
 
 async function openInventory(page: Page, url: string) {
   await page.goto(url, { waitUntil: 'load' })
-  await page.getByRole('button', { name: '设置', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: '设置' })
+  const dialog = await openSettingsDialog(page, '账户', '设置')
   await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
+  // Two tabs share the section; the read-only inventory is the second one.
+  await dialog.getByRole('tab', { name: '插件列表', exact: true }).click()
   await dialog.getByRole('searchbox', { name: '搜索插件' }).waitFor()
   return dialog
 }

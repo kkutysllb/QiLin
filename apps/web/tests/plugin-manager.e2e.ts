@@ -1,4 +1,4 @@
-// Web e2e scenario: the plugin manager page behind the sidebar's Plugins entry over a
+// Web e2e scenario: the plugin manager tab of the Settings Plugins section over a
 // managed scaffold profile: installed bundles, their rows, and bundle enablement. Zero
 // model calls: everything is client state plus the profile files and the settings
 // document, so there is no fixture and a stray stream would fail loud on the open llm seam.
@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import { join } from 'node:path'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
-  launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
+  launchWebScaffold, openSettingsDialog, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
 import { ZH_BROWSER_LOCALE, saveFailureShot } from './support.ts'
 
@@ -50,10 +50,15 @@ describe('web e2e: plugin manager', () => {
     }
   }
 
-  /** Select the sidebar's Plugins entry and wait for the management page in the main column. */
+  /** Reopen the Settings Plugins section's management tab and wait for its cards page. */
   async function openPluginsPanel() {
-    await closeSettings()
-    await page.getByRole('navigation', { name: '全局面板' }).getByRole('button', { name: '插件', exact: true }).click()
+    if (await page.getByRole('dialog', { name: '设置' }).count() > 0) {
+      await page.keyboard.press('Escape')
+      await expect.poll(() => page.getByRole('dialog', { name: '设置' }).count(), { timeout: 5_000 }).toBe(0)
+    }
+    const dialog = await openSettingsDialog(page, '账户', '设置')
+    await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
+    await dialog.getByRole('tab', { name: '插件管理', exact: true }).click()
     const panel = page.locator('[data-plugin-panel]')
     await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
     return panel
@@ -99,36 +104,43 @@ describe('web e2e: plugin manager', () => {
     expect(await packageName.textContent()).toBe('@qilin/experimental-agent-team-profile')
     expect(await panel.getByText('启用智能体团队协作与团队工具。').count()).toBe(1)
     try {
-      await page.getByRole('button', { name: '设置', exact: true }).click()
-      await page.getByRole('dialog', { name: '设置' }).getByRole('button', { name: '中文' }).click()
-      await page.getByRole('menuitem', { name: 'English' }).click()
-      await page.getByRole('dialog', { name: 'Settings' }).waitFor()
+      // The dialog is modal, so the scenario leaves it, switches the language
+      // from the account menu, and comes back; the tab remounts, so the bundle
+      // page is re-opened instead of being expected to survive the detour.
       await page.keyboard.press('Escape')
-      await panel.getByRole('heading', { name: 'Agent Teams', exact: true }).waitFor()
+      await expect.poll(() => page.getByRole('dialog', { name: '设置' }).count(), { timeout: 5_000 }).toBe(0)
+      await page.getByRole('button', { name: '账户', exact: true }).click()
+      await page.getByRole('menuitem', { name: '语言', exact: true }).click()
+      await page.getByRole('menuitem', { name: 'English', exact: true }).click()
+      const english = await openSettingsDialog(page, 'Account', 'Settings')
+      await english.getByRole('button', { name: 'Built-in plugins', exact: true }).click()
+      // The tab row belongs to the Plugins section; the page mounts inside the selected tab.
+      await english.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
+      const englishPanel = page.locator('[data-plugin-panel]')
+      await englishPanel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 10_000 })
+      await englishPanel.getByRole('button', { name: 'View Agent Teams', exact: true }).click()
       expect(await packageName.textContent()).toBe('@qilin/experimental-agent-team-profile')
-      expect(await panel.getByText('Enable agent team collaboration and team tools.').count()).toBe(1)
-      await panel.getByRole('button', { name: 'Back to plugins' }).click()
+      expect(await englishPanel.getByText('Enable agent team collaboration and team tools.').count()).toBe(1)
+      await englishPanel.getByRole('button', { name: 'Back to plugins', exact: true }).click()
       for (const title of ['Agent Teams', 'Agent Teams Web UI']) {
-        await panel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
-        expect(await panel.getByRole('switch', { name: `Enable ${title}`, exact: true }).count()).toBe(1)
+        await englishPanel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
+        expect(await englishPanel.getByRole('switch', { name: `Enable ${title}`, exact: true }).count()).toBe(1)
       }
-      expect(await panel.getByText('View team members, the task board, and teammate sessions in the browser.').count()).toBe(1)
+      expect(await englishPanel.getByText('View team members, the task board, and teammate sessions in the browser.').count()).toBe(1)
       // The official configuration pages follow the language too, from their own dictionary.
       for (const title of ['Shell', 'Agent loop', 'Subagent', 'Web search']) {
-        await panel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
+        await englishPanel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
       }
+      // The same account menu switches the interface back to Chinese.
+      await page.keyboard.press('Escape')
+      await page.getByRole('button', { name: 'Account', exact: true }).click()
+      await page.getByRole('menuitem', { name: 'Language', exact: true }).click()
+      await page.getByRole('menuitem', { name: '中文', exact: true }).click()
+      const zhPanel = await openPluginsPanel()
+      await zhPanel.getByRole('button', { name: '查看 智能体团队', exact: true }).waitFor()
     } finally {
-      if (await page.locator('html').getAttribute('lang') === 'en') {
-        if (await page.getByRole('dialog', { name: 'Settings' }).count() === 0) {
-          await page.getByRole('button', { name: 'Settings', exact: true }).click()
-        }
-        await page.getByRole('dialog', { name: 'Settings' }).getByRole('button', { name: 'English' }).click()
-        await page.getByRole('menuitem', { name: '中文' }).click()
-        await page.getByRole('dialog', { name: '设置' }).waitFor()
-      }
       await closeSettings()
     }
-    await panel.getByRole('button', { name: '查看 智能体团队', exact: true }).waitFor()
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
@@ -219,8 +231,11 @@ describe('web e2e: startup-applied plugin management', () => {
       const tripwire = watchConsole(page)
       onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-live'))
       await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
-      await page.getByRole('navigation', { name: '全局面板' }).getByRole('button', { name: '插件', exact: true }).click()
+      const dialog = await openSettingsDialog(page, '账户', '设置')
+      await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
+      await dialog.getByRole('tab', { name: '插件管理', exact: true }).click()
       const panel = page.locator('[data-plugin-panel]')
+      await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
       const toggle = panel.getByRole('switch', { name: '启用 bundle' })
       await toggle.waitFor({ timeout: 20_000 })
       const mounted = () => [...scaffold.ctx.loader.entries()].find(entry => entry.options.id === 'fixture-row')

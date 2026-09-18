@@ -1,5 +1,6 @@
 - heading "插件" [level=1]
 - paragraph: 添加和管理插件
+- button "检查更新"
 - button "刷新"
 - button "添加插件":
   - img
@@ -34,3 +35,8 @@
     - button "查看 bundle": bundle
     - text: "Web e2e fixture: a bundle whose one row is an inert plugin."
     - switch "启用 bundle"
+- heading "插件目录" [level=3]
+- img
+- searchbox "搜索插件目录"
+- button "搜索"
+- paragraph: 搜索 GitHub 上标记为 dsh-plugin 的插件仓库。

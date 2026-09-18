@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { expect, it } from 'vitest'
-import { launchWebScaffold, captureStableAria, compareOrRefreshGolden, webSnapshotMode, watchConsole, type WebScaffold } from './scaffold.ts'
+import { launchWebScaffold, captureStableAria, compareOrRefreshGolden, openSettingsDialog, webSnapshotMode, watchConsole, type WebScaffold } from './scaffold.ts'
 import { ZH_BROWSER_LOCALE } from './support.ts'
 
 it('cancels installation through the UI, restores files, and offers the spec again', async () => {
@@ -39,11 +39,14 @@ it('cancels installation through the UI, restores files, and offers the spec aga
       await page.goto(scaffold.authenticatedUrl)
       await page.waitForSelector('[class*="frame"]')
       if (await page.getByRole('dialog', { name: '设置' }).count() > 0) await page.keyboard.press('Escape')
-      await page.getByRole('navigation', { name: '全局面板' }).getByRole('button', { name: '插件', exact: true }).click()
+      const settings = await openSettingsDialog(page, '账户', '设置')
+      await settings.getByRole('button', { name: '内置插件', exact: true }).click()
+      await settings.getByRole('tab', { name: '插件管理', exact: true }).click()
       const panel = page.locator('[data-plugin-panel]')
       await panel.getByRole('button', { name: '添加插件', exact: true }).click()
-      // The dialog is named after its current screen, so it is found by role alone.
-      const dialog = page.getByRole('dialog')
+      // The install dialog is named after its current screen and now sits over
+      // the settings dialog, so address it by its own dialog class, not its name.
+      const dialog = page.locator('[role="dialog"][class*="installDialog"]')
       await dialog.getByRole('textbox').fill('slow-package')
       await dialog.getByRole('button', { name: '安装', exact: true }).click()
       // The check passed: the running screen names the package and folds pnpm's output behind the details.
@@ -56,7 +59,7 @@ it('cancels installation through the UI, restores files, and offers the spec aga
       expect(await readFile(manifestPath, 'utf8')).toBe(manifest)
       expect(await readFile(lockPath, 'utf8')).toBe('original lockfile\n')
       expect(await dialog.getByRole('textbox').inputValue()).toBe('slow-package')
-      const snapshot = (await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd))
+      const snapshot = (await captureStableAria(page, '[role="dialog"][class*="installDialog"]', scaffold.workspaceCwd))
         .split(process.execPath).join('{{node}}')
         .split(scaffold.harnessHome).join('{{harnessHome}}')
       await compareOrRefreshGolden(fileURLToPath(new URL('./expected/plugin-install-cancel/cancelled.expected.md', import.meta.url)), snapshot, webSnapshotMode())
