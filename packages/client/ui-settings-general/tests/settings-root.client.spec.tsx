@@ -183,12 +183,9 @@ function openPanel() {
 }
 
 describe('settings shell open channel', () => {
-  it('opens the panel from the sidebar trigger and from the reveal channel', () => {
+  it('keeps the sidebar seat free of a duplicate trigger while the open channel still works', () => {
     const mounted = mount()
-    fireEvent.click(screen.getByRole('button', { name: 'Settings' }))
-    expect(screen.getByRole('dialog')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
-    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Settings' })).toBeNull()
 
     mounted.requestOpen()
     expect(screen.getByRole('dialog')).toBeTruthy()

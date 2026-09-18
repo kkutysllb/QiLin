@@ -55,7 +55,9 @@ QiLin 与上游的历史不相连，无法按祖先关系合并。上一轮对�
 
 整体上，本次对齐拿到上游的 profile 净化与插件管理器、Office 转换、沙箱浏览器标签、`workspace/changes` 事件与变更文件卡片、`boot/hmr`、`util/lazy-require`，以及 548 项上游修复。`SESSION_FORMAT_VERSION` 仍为 3，没有 `!` 提交，engines 未变，`vendor/` 只动了三个文件，因此 QiLin 构建仍能读取对齐前写出的日志；而对齐前的构建会拒绝带 `workspace/changes` 的日志。
 
-代价是一次性的庞大评审面。重新落地 QiLin 行为恢复了两处上游不带的表面：`ui-settings` slot 契约里的 `settings.trigger`，以及 `ui-settings-general` 渲染进它的触发行；还有 `@qilin/plugin-manager` 的更新检查与 GitHub 插件目录，客户页面把它们挂在既有安装链路上，而不是第二个写入方。`@pluginId` 输入触发源、creator 工具集与 `cordis_mount` 信任段落随上游的 creator 重写一并消失；`plugin_manager` 取代了它们。
+代价是一次性的庞大评审面。重新落地 QiLin 行为恢复了上游不带的插件管理器表面：`@qilin/plugin-manager` 的更新检查与 GitHub 插件目录，客户页面把它们挂在既有安装链路上，而不是第二个写入方。
+
+上游的 `settings.trigger` 槽位不补回。[QiLin 的设置入口决策](../bug-fix/2026-09-13-qilin-brand-surfaces-and-settings-entry-point.zh.md)删除了该槽位、其内容与目录条目，让账号菜单成为唯一的「设置」入口；本次对齐保留这一删除，而不是恢复侧栏底部那一行。`@pluginId` 输入触发源、creator 工具集与 `cordis_mount` 信任段落随上游的 creator 重写一并消失；`plugin_manager` 取代了它们。
 
 双语配对在合并后重录了全部 1037 条记录；结构分歧的配对是**对齐**而非洗白，合并造成的重复段落则两侧一并保留当前版本。持久化档案也在同一轮重新取指纹：schema inventory 的域标签为 `qilin-persistence-schema-v1`，而已发布与历史快照仍带着按上游标签算出的摘要，因此每个根与类型的摘要、以及那些记录钉住的摘要都重新计算过。没有世代被移动，也没有格式版本变化。
 

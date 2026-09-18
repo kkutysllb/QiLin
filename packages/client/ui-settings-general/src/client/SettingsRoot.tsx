@@ -351,41 +351,28 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
     connectionIndicator = 'recovered'
   }
 
-  // The foot row is the closed panel's only entrance and status seat: the trigger
-  // row always renders, and it carries the connection state and desktop update
-  // indicators whenever either has something to show.
+  // The foot row is the closed panel's only status seat, so it renders whenever
+  // either the connection state or the desktop update has something to show.
   const updateActive = desktopUpdate.failed
     || (desktopUpdate.presentation !== undefined && desktopUpdate.presentation.phase !== 'idle')
 
   return (
     <>
-      <div className={clsx(css.triggerRow, !wide && css.railRow)}>
-        <button
-          type="button"
-          className={clsx(css.trigger, !wide && css.rail)}
-          aria-label={t('trigger')}
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          onClick={() => { setOpen(true) }}
-        >
-          {renderSlot('settings.trigger', { wide })}
-        </button>
-        {wide && (connectionIndicator !== undefined || updateActive) && (
-          <div className={css.connectionRow}>
-            <ConnectionIndicator
-              state={desktopUpdate.presentation?.phase === 'installing' ? undefined : connectionIndicator}
-              disconnectedLabel={t('connection.error')}
-              connectingLabel={t('connection.connecting')}
-              recoveredLabel={t('connection.connected')}
-              reconnectActionLabel={t('connection.reconnect')}
-              restartActionLabel={t('connection.restart')}
-              onReconnect={reconnect}
-            />
-            <DesktopUpdateIndicator wide={wide} hidden={connectionIndicator !== undefined && desktopUpdate.presentation?.phase !== 'installing'}
-              t={t} view={desktopUpdate} onOpen={openDesktopUpdate} />
-          </div>
-        )}
-      </div>
+      {wide && (connectionIndicator !== undefined || updateActive) && (
+        <div className={css.connectionRow}>
+          <ConnectionIndicator
+            state={desktopUpdate.presentation?.phase === 'installing' ? undefined : connectionIndicator}
+            disconnectedLabel={t('connection.error')}
+            connectingLabel={t('connection.connecting')}
+            recoveredLabel={t('connection.connected')}
+            reconnectActionLabel={t('connection.reconnect')}
+            restartActionLabel={t('connection.restart')}
+            onReconnect={reconnect}
+          />
+          <DesktopUpdateIndicator wide={wide} hidden={connectionIndicator !== undefined && desktopUpdate.presentation?.phase !== 'installing'}
+            t={t} view={desktopUpdate} onOpen={openDesktopUpdate} />
+        </div>
+      )}
       {open && (
         <SettingsPanel
           rows={rows}

@@ -7,7 +7,7 @@ import { LocaleRuntime } from '@qilin/client-locale/client'
 import { TestRemote } from '@qilin/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
 import { apply, inject } from '@qilin/client-ui-settings-general/client'
-import { CloseLabel, HeaderContent, TriggerContent } from '../src/client/chrome.tsx'
+import { CloseLabel, HeaderContent } from '../src/client/chrome.tsx'
 import { AboutSection } from '../src/client/AboutSection.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
 
@@ -17,7 +17,6 @@ import { GeneralSection } from '../src/client/GeneralSection.tsx'
 
 /** The seats this plugin fills for a loopback browser (slot name → expected component). */
 const SEATS = [
-  ['settings.trigger', TriggerContent],
   ['settings.header', HeaderContent],
   ['settings.close', CloseLabel],
 ] as const
@@ -60,7 +59,6 @@ function declare(slots: SlotRegistry): () => void {
     {
       name: 'root',
       children: {
-        'settings.trigger': { kind: 'single', scope: 'root' },
         'settings.header': { kind: 'single', scope: 'root' },
         'settings.action': { kind: 'list', scope: 'root' },
         'settings.close': { kind: 'single', scope: 'root' },

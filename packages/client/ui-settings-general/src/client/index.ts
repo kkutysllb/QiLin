@@ -24,14 +24,14 @@ import { SettingsRoot } from './SettingsRoot.tsx'
 import { DesktopUpdateBadge } from './DesktopUpdateIndicator.tsx'
 import type { DesktopUpdateBridge } from './desktop-update-bridge.ts'
 import { DesktopUpdateSource } from './desktop-update-source.ts'
-import { CloseLabel, HeaderContent, TriggerContent } from './chrome.tsx'
+import { CloseLabel, HeaderContent } from './chrome.tsx'
 import { AboutSection } from './AboutSection.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { en, zh, type SettingsKey } from './locales.ts'
 
 export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
 export type {
-  CloseLabelProps, HeaderContentProps, TriggerContentProps,
+  CloseLabelProps, HeaderContentProps,
 } from './chrome.tsx'
 export type {
   GeneralSectionComponentProps,
@@ -156,7 +156,6 @@ export function apply(ctx: ClientContext): void {
     name: 'sidebar.settings',
     locale: NS,
     children: {
-      'settings.trigger': { kind: 'single', scope: 'root' },
       'settings.header': { kind: 'single', scope: 'root' },
       'settings.action': { kind: 'list', scope: 'root' },
       'settings.close': { kind: 'single', scope: 'root' },
@@ -166,8 +165,6 @@ export function apply(ctx: ClientContext): void {
     inject: shellInjected,
   }, SettingsRoot))
 
-  ctx.slots.inject('settings.trigger', () =>
-    ctx.slots.register({ name: 'settings.trigger', locale: NS }, TriggerContent))
   ctx.slots.inject('settings.header', () =>
     ctx.slots.register({ name: 'settings.header', locale: NS }, HeaderContent))
   ctx.slots.inject('settings.close', () =>
