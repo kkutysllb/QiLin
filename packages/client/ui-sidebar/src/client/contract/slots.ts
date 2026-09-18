@@ -83,6 +83,16 @@ export interface SidebarPanelMetadata {
   order: number
   /** Row title and accessible name: resolved label, or the id when omitted. */
   label: string
+  /**
+   * Optional grouping label. Consecutive rows sharing a section render under
+   * one header; `undefined` rows render header-less. The sidebar owns the
+   * header because it owns the list.
+   *
+   * Spelled `| undefined` on purpose: this value is copied out of the
+   * type-erased registration options (which admit undefined under
+   * exactOptionalPropertyTypes), so the projection must accept it.
+   */
+  section?: string | undefined
 }
 
 /**

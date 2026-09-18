@@ -16,7 +16,7 @@
  * scrollbar indirection away while it is elsewhere, so a list the user is not
  * pointing at carries no bar.
  */
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
   FishLogo, IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, Tooltip,
@@ -264,16 +264,25 @@ export function SidebarRoot({
 
       {panels.length > 0 && (
         <nav className={css.panelList} aria-label={t('panels.label')}>
-          {panels.map(({ id, label }) => (
-            <PanelRow
-              key={id}
-              id={id}
-              label={label}
-              wide={wide}
-              usePanelInfo={usePanelInfo}
-              selectPanel={selectPanel}
-              renderSlot={renderSlot}
-            />
+          {panels.map(({ id, label, section }, index) => (
+            <Fragment key={id}>
+              {/* A header opens a section and never repeats inside it. Rows
+                  without a section render header-less, so a host that never
+                  sets one keeps the original flat list exactly. */}
+              {section !== undefined && section !== panels[index - 1]?.section ? (
+                <div className={clsx(css.panelSection, css.wide)} aria-hidden={!wide}>
+                  {wide ? section : <span className={css.panelSectionRail} />}
+                </div>
+              ) : null}
+              <PanelRow
+                id={id}
+                label={label}
+                wide={wide}
+                usePanelInfo={usePanelInfo}
+                selectPanel={selectPanel}
+                renderSlot={renderSlot}
+              />
+            </Fragment>
           ))}
         </nav>
       )}
