@@ -50,8 +50,8 @@ previous: qilin-v0.1.0-rc.8
 sessionFormatVersion: 0
 changes:
   - root: event:permission/preset
-    before: 5c45bf4c544a7211dcd8ba6ba7e5f1bc39b49e7a9df9d5cbdc8e87c22771b37b
-    after: 7271e4b771406aaf06014c2269edd6cb68055bb8b8686571730813ce0ababc22
+    before: 3f71fdbd8291b0be2279d2862dd340ee4650a21ebb1b9418911d6df5a04a7dc9
+    after: 6f413b3e7c8f1d9ba249cc32799ffde6fe70ffbe78aa331555fced12c778e519
 ```
 
 <a id="changes"></a>

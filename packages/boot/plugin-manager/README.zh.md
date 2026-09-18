@@ -43,6 +43,8 @@ kind: "package-reference"
 
 `installBundle` 接受调用方生成的 `requestId`，`plugin-manager/install-log` 在其下流式转发每次 pnpm 运行的输出，`plugin-manager/install-state` 通告 `installing`、`cancelling` 与 `applying`。`cancelInstall(requestId)` 停止运行，只在 pnpm 退出且文件恢复后答复 `cancelled`，组合包已在应用时答复 `too-late`，其他 id 答复 `not-running`；安装调用随后报告 `application: 'cancelled'`。失败、被取消或装入了没有组合包 patch 的包的运行，会把 `package.json` 与 `pnpm-lock.yaml` 恢复原样；`packageResult.kind` 按退出方式与输出对失败运行分类，`bundle` 给出完成的运行新增的包。`listBundles` 携带每个组合包的一句话简介（包的 `description`）、其 patch 声明的行及其存活条目，以及它覆盖的内置行；它列出 profile 自己的组合包、安装提供的组合包，以及被选中却没有组合包 patch 的名字（作为 `not-bundle` 问题），未选中的普通依赖不列出。启动器的 `OPTIONAL_BUNDLES` 点名的组合包是 `optional`：随安装提供、默认关闭、由用户开启，永不可卸载，也不被任何随附模板选中（[理由](../../../.agents/notes/implemented/process/2026-09-15-shipped-optional-bundles.zh.md)）。每个完成的操作都会发出 `plugin-manager/changed`；在管理器之外应用的一代 patch（HMR 监视到 CLI 或手工编辑后）不发通知，页面要到下一次读取才知道。
 
+`checkUpdates()` 把 `listBundles` 列出且能读作组合包的每一层与该包注册表的 `latest` dist-tag 比较，每个包一次有超时的查询；被选中却没有组合包 patch 的依赖不在其中，因为任何更新都动不了它。查询失败或没有该标签时报告 `latestVersion: null`，而不是让整次列举失败，调用方因此读到的是未知版本。`catalog(query, page)` 搜索 GitHub 上打了 `dsh-plugin` 主题标签的仓库，按 star 从多到少排列，返回该页仓库以及是否还有下一页；不是正整数的页码按第一页处理，2xx 之外的状态码抛出。两次查询都以十秒为上限。
+
 pnpm 11 拦下依赖脚本时，失败的安装在 `pendingBuilds` 里报告 profile 中所有待决定的包名，包括先前尝试留下的；失败的运行会恢复 `package.json` 与 `pnpm-lock.yaml`，但有意不恢复 pnpm 记录这些名字的 `pnpm-workspace.yaml`。Web 插件页提供**允许这些脚本并重试**；工具可以在用户于对话中批准这些脚本后，通过 `install_bundle` 的 `approvedBuilds` 代为授权。服务只校验待决定的名字，不核实对话中的批准。授权按包名保存在当前 profile，允许以宿主用户的权限执行命令，并在再次安装失败后保留。只能批准当前未决定的名字；已有的拒绝与通配规则不能通过此操作覆盖。`allowBuilds` 里出现 YAML 锚点或别名时拒绝授权。重试保留原来的启用选择。
 
 ### 配置
@@ -85,7 +87,7 @@ pnpm 11 拦下依赖脚本时，失败的安装在 `pendingBuilds` 里报告 pro
 
 #### 模型看到什么
 
-[`plugin_manager` 工具](../../../docs/tool-catalog.zh.md#deepseek-aiqilin-plugin-manager) 列出插件条目和组合包，并执行影响整个 profile 的改动。结果包含保存状态变化、应用状态和包管理诊断。管理操作不会向 Agent 注入消息。
+[`plugin_manager` 工具](../../../docs/tool-catalog.zh.md#qilinplugin-manager) 列出插件条目和组合包，并执行影响整个 profile 的改动。结果包含保存状态变化、应用状态和包管理诊断。管理操作不会向 Agent 注入消息。
 
 #### Token 影响
 

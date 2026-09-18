@@ -1101,3 +1101,104 @@
   color: var(--dsw-alias-state-error-primary);
   overflow-wrap: anywhere;
 }
+
+/* The update results and the plugin catalog: a titled block between the page header and the cards. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.panelFailure {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.panelList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panelRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 10px 2px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.panelRow:last-child {
+  border-bottom: 0;
+}
+
+.panelMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.panelName {
+  font-size: 13.5px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+  overflow-wrap: anywhere;
+}
+
+.panelMeta {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.catalogSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.catalogField {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A catalog result's repository address: the name opens GitHub in a new tab. */
+.catalogName {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  font-size: 13.5px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+  text-decoration: none;
+}
+
+.catalogName:hover,
+.catalogName:focus-visible {
+  color: var(--dsw-alias-brand-primary);
+}

@@ -25,9 +25,10 @@ import type { ClientRemote } from '@qilin/api-gateway/client'
 
 export type { ClientRemote } from '@qilin/api-gateway/client'
 export type {
-  BundleInfo, BundleRowInfo, ChangeResult, InstallBundleOptions, InstallSpecKind, ManagementError, PackageResult, PluginChange,
-  PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation, PluginInstallFailureKind, PluginInstallLogChunk,
-  PluginInstallProgress, PluginInstallRequestId, PluginSpecInspection, ReadOnlyReason,
+  BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InstallBundleOptions, InstallSpecKind,
+  ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
+  PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginSpecInspection,
+  PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason,
 } from '@qilin/plugin-manager/types'
 export type {} from '@qilin/plugin-manager/remote'
 export type { PluginInventorySnapshot } from '@qilin/host-plugin-inventory/types'

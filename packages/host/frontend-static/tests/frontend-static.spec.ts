@@ -105,7 +105,7 @@ describe('real Loader composition', () => {
     const launchUrl = loaded.connection.authenticatedUrl(`http://127.0.0.1:${String(port)}`)
     const exchange = await fetch(launchUrl, { redirect: 'manual' })
     expect(exchange.status).toBe(303)
-    expect(exchange.headers.get('location')).toBe('/')
+    expect(exchange.headers.get('location')).toBe(Connection.WEB_ENTRY_PATH)
     const setCookie = exchange.headers.get('set-cookie')
     if (setCookie === null) throw new Error('authenticated frontend did not set a cookie')
     const cookie = setCookie.split(';', 1)[0]!
@@ -115,11 +115,15 @@ describe('real Loader composition', () => {
       return { ...init, headers }
     }
 
-    expect(await request(port, '/')).toMatchObject({
+    expect(await request(port, Connection.WEB_ENTRY_PATH)).toMatchObject({
       status: 401,
       type: 'text/plain; charset=utf-8',
       body: 'qilin web authentication required; reopen the URL printed by qilin web.\n',
     })
+    // The site root is not an index path of this composition: the entry path
+    // carries the application document, and a composition without a public
+    // root document has nothing to answer there.
+    expect(await request(port, '/')).toEqual({ status: 404, type: null, body: '' })
 
     // Real assets with their MIME types; a live rebuild is served on the next read.
     expect(await request(port, '/app.js')).toMatchObject({ status: 200, type: 'text/javascript; charset=utf-8', body: 'export {}' })
@@ -139,27 +143,27 @@ describe('real Loader composition', () => {
     // Unknown extension ships as octet-stream.
     expect(await request(port, '/blob.bin')).toMatchObject({ status: 200, type: 'application/octet-stream', body: 'BLOB' })
 
-    // Only the root and index path render index.html through registered taps.
+    // Only the entry path and the index path render index.html through the registered taps.
     const untap = server.tapIndex(html => html.replace('<head>', '<head><script>window.__T__=1</script>'))
-    for (const path of ['/', '/index.html', '/?view=test']) {
+    for (const path of [Connection.WEB_ENTRY_PATH, '/index.html', `${Connection.WEB_ENTRY_PATH}?view=test`]) {
       const got = await request(port, path, authenticated())
       expect(got.status).toBe(200)
       expect(got.type).toBe('text/html; charset=utf-8')
       expect(got.body).toContain('__T__')
       expect(got.body).toContain('shell')
     }
-    expect(await request(port, '/', authenticated({ method: 'HEAD' }))).toEqual({
+    expect(await request(port, Connection.WEB_ENTRY_PATH, authenticated({ method: 'HEAD' }))).toEqual({
       status: 200,
       type: 'text/html; charset=utf-8',
       body: '',
     })
     untap()
-    expect((await request(port, '/', authenticated())).body).not.toContain('__T__')
+    expect((await request(port, Connection.WEB_ENTRY_PATH, authenticated())).body).not.toContain('__T__')
 
     // A missing configured index follows the same empty-404 contract for both
-    // of its public entry paths and for both supported methods.
+    // of its authenticated entry paths and for both supported methods.
     await rm(join(root!, 'dist', 'index.html'))
-    for (const path of ['/', '/index.html']) {
+    for (const path of [Connection.WEB_ENTRY_PATH, '/index.html']) {
       const get = await request(port, path, authenticated())
       const head = await request(port, path, authenticated({ method: 'HEAD' }))
       expect(get).toEqual({ status: 404, type: null, body: '' })

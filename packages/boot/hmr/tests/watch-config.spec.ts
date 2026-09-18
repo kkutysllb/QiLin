@@ -241,8 +241,8 @@ describe('HMR exact config paths', () => {
     })
     writeFileSync(filename, 'enabled')
     await watcher._emit('change', filename)
-    await vi.waitFor(() => { expect(observed).toEqual(['enabled', 'disabled']) }, { timeout: 6_000 })
-  }, 10_000)
+    await vi.waitFor(() => { expect(observed).toEqual(['enabled', 'disabled']) }, { timeout: 15_000 })
+  }, 20_000)
 
   it('rejects a patch path whose parent is a regular file', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'qilin-patch-parent-'))

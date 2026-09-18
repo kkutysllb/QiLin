@@ -50,35 +50,35 @@ previous: qilin-v0.1.1-rc.1
 sessionFormatVersion: 0
 changes:
   - root: event:agent/inbox/spliced
-    before: 7a0b347ba6a465a7813490036bde98bdc658609c6de9545ba58be26c372c5030
-    after: 402ee62cd1447d03340e206138fb107d865a3452ea73c15c22fb6bc48fdf181a
+    before: 5b505aed059ac2e938678358778fa5e98bdecb6f783155dba9bfd8a77d2a75d8
+    after: c8b3c784fc3b35c56bb826a6b8097ae0a035ff02b3826fb48a950b252f285de6
   - root: event:assistant/chunk
-    before: de04e4ae000cc4422a15fb86dce7c398c8a9970ac963b6f7f785e2276a939e62
-    after: 51045f351a56e61da8be1dd5bba8080ac5e8ac2ff3d62a308a7f3e710b7cb18b
+    before: 830ad53e5752464f5611450214facbe285da768d4de9f923ad35d275beaa3331
+    after: d92a9da84c7c85ddf6b9935cb6e7de3698ce8e3dfd4f3df73b768bcc9f3f2e8e
   - root: event:assistant/message
-    before: fb7d974e1945b4c8e72ee540daf64eb9e81984030ff52e1a97a4e1f71b9dd2f9
-    after: 395d04e6fd6f40eae4099cfaf3793fb710cee646fac53378433bc2d74bebd386
+    before: 7c9bc8eda30de7e12d13dbb5558c63d9479ae4a67dd66ac72c1c39368f081989
+    after: d5958c8c5fb94559486149a11359ec3a17ea5a3c72c96a47d8f89bf5fbcaeb8f
   - root: event:compaction/summary
-    before: 67c53a0cdc70f8330a84b9a16481bc6cc45e23d1ae8041485a0b0453c11fc9aa
-    after: 80316c3b92f42f246ab57d649dc546a8adeb11b96db3b11361ea32709b6bdc35
+    before: 2e4b9d8c21f8cb8407ac9ef831714a3e820cdbc481a517f55541aa7361a6f08f
+    after: bebad67f287de54d5e61f8af5f2bb96973d27129c5a781ac9674a2a18e603b9c
   - root: event:permission/preset
-    before: 7271e4b771406aaf06014c2269edd6cb68055bb8b8686571730813ce0ababc22
-    after: 5c45bf4c544a7211dcd8ba6ba7e5f1bc39b49e7a9df9d5cbdc8e87c22771b37b
+    before: 6f413b3e7c8f1d9ba249cc32799ffde6fe70ffbe78aa331555fced12c778e519
+    after: 3f71fdbd8291b0be2279d2862dd340ee4650a21ebb1b9418911d6df5a04a7dc9
   - root: event:session/title-llm-request
-    before: ee6c879669bb83325e4cd3011227f238bf51765744990fc4bb12089d6dd6563a
-    after: 9d5c0dabeec05f0ba9edd8ca24754de13dc2d3af5c302ff44eda04fb1a602257
+    before: 23e5e30e4a1689ef78588840c79feb5d923ddb0bbdc13afd0c022a9ac95d2051
+    after: 623da285f9fad092fe3ebeec2979bcb81416c88585695a9dfcc45e21133af5f7
   - root: event:team/message/queued
-    before: 577054184d5f038bd96d6db70b76983a2bb62a8eea8eeed8ca3b0d47af0f462a
-    after: a6a26c92459c96e4f342e58d7e41c71956e7e62c9280e30e260df58409a3012c
+    before: b6558edfed1a45fed7bfd8bc8b65da322d5a2a6f62244d9adc85435fe870dd1b
+    after: 39a43e22e6beb772461df9f4e44847be7b927bb40302ad3cbeaac387714c0e41
   - root: event:tool/code-dispatch
-    before: c39526f02abfb7a3b47a7e4f12da2125d4025bf588286e16a0d22baedbb1a83b
-    after: c14c2fdd439461cfc85105c6f620b0f62f799e3a69fb48196e938ec045aa0390
+    before: d1c6e3f7c2d88757ba229610b48e298f6c6760b23566c80a48427d81827d4b0a
+    after: a33b54e2e423eff71fb5614f366152db3d4b3e2752294c47e0ede3dcf43f770a
   - root: event:tool/result
-    before: 3b8a618295a9388a612e8de2e0997c6e59d0e82d034419317bf616a496ae593c
-    after: a79feb023a08a8b73d254e29e78f13045b6773ce377b0c4156fcdf1368c146ab
+    before: ede3b35fff2fc1040dc8b08ee1bc98eedd868cec41e1078ce8f7684bb1bacf44
+    after: 66bee4199609086bd783e3efac66e1cfb93600262eb22115d714685730cf3a66
   - root: event:user/message
-    before: e7eec68e39f9f44b2e53d799e5d5dd08f559558a27e93eb2a272782f040be50a
-    after: 70a39b3639ca6c2eeabf1e2c8ef4cbc23e24c947e72bf0c28754e7c2f713be26
+    before: a4d6fedc6db7d7d23b5731e427996113ea31cf5ba3947d664fc5b6f017cc5bd7
+    after: a898723ab22e6af82568867d3d6aa0dd1419023757d5bfb429dc4325be1ede51
 ```
 
 <a id="changes"></a>

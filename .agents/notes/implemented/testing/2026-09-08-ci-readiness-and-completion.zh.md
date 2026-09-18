@@ -30,7 +30,7 @@ Windows 覆盖率运行 (run 34324325375, job 102377982193)报告了 SDK 子进�
 
 [沙箱 Node 决策](../architecture/2026-09-11-sandboxed-node-ptc-runtime.zh.md)取代 worker 活跃时间计量。[Node 运行时套件](../../../../packages/ptc-runtime/ptc-runtime-node/tests/runtime.spec.ts)通过真实受管进程验证替代的经过时间截止。本说明中其他完成观测与测试生命周期规则保持有效。
 
-[SDK 子 Agent 协议错误测试](../../../../packages/subagent/subagent-dsh-sdk/tests/subagent-dsh-sdk.spec.ts)使用提供方正常的关闭和退出等待时间，并在断言前登记清理。[Inspector 树测试](../../../../packages/experimental/inspector/tests/cordis-tree.host.spec.ts)将当前测试预算传给 Worker 启动，并在启动尚未完成时登记清理。取消后的测试不会收到随后才就绪的实例；清理等待初始化完成，并关闭成功启动的 Worker。初始化失败时，启动操作会在拒绝前终止 Worker。受控的延迟启动测试通过真实 Worker 的 HTTP 端点验证取消和关闭。生产默认值不变。
+[SDK 子 Agent 协议错误测试](../../../../packages/subagent/subagent-qilin-sdk/tests/subagent-qilin-sdk.spec.ts)使用提供方正常的关闭和退出等待时间，并在断言前登记清理。[Inspector 树测试](../../../../packages/experimental/inspector/tests/cordis-tree.host.spec.ts)将当前测试预算传给 Worker 启动，并在启动尚未完成时登记清理。取消后的测试不会收到随后才就绪的实例；清理等待初始化完成，并关闭成功启动的 Worker。初始化失败时，启动操作会在拒绝前终止 Worker。受控的延迟启动测试通过真实 Worker 的 HTTP 端点验证取消和关闭。生产默认值不变。
 
 ## 考虑过的替代方案
 

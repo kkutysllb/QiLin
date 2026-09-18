@@ -8,7 +8,7 @@
  * `.i18n.yaml` only when nothing outside the region changed. The
  * projection enforces event modes, JSDoc parameter/return completeness, and
  * signature type-link coverage; the inherited (vendor) tier renders to
- * `docs/cordis-api/inherited.md`. `--check` verifies every generated artifact.
+ * `docs/kylin-api/inherited.md`. `--check` verifies every generated artifact.
  *
  * Generated regions embed `file:line` source pointers, so inserting lines ABOVE a
  * recorded symbol makes the committed output stale even though nothing about the
@@ -42,7 +42,7 @@ import { rewriteTranslationLinkLocales } from './translation-links.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const SUBSYSTEMS_DIR = 'docs/subsystems'
-const OUT_INHERITED = 'docs/cordis-api/inherited.md'
+const OUT_INHERITED = 'docs/kylin-api/inherited.md'
 const OUT_RUNTIME_API = 'packages/extensions/tool-kylin/src/api-catalog.ts'
 
 export { REGION_BEGIN, REGION_END }
@@ -275,6 +275,8 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   PluginInstallCancellation: 'boot.md',
   PluginInstallRequestId: 'boot.md',
   PluginSpecInspection: 'boot.md',
+  PluginUpdateSnapshot: 'boot.md',
+  CommunityPluginSnapshot: 'boot.md',
   PluginChange: 'boot.md',
   PluginInstallLogChunk: 'boot.md',
   PluginInstallProgress: 'boot.md',

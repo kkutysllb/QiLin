@@ -47,8 +47,7 @@ const ctx = await boot('qilin', resolveConfigPath(argv[2], process.env.QILIN_SNA
 
 Profile 与组合包的声明类型从 [`@qilin/package-manifest`](../../util/package-manifest/README.zh.md) 导入。App-boot 将 `DshPackageManifest` 适配为包身份可选的 `ProfileManifest`，因为本地 profile 无需发布版本。App-boot 负责 profile 加载、JSON 校验和解析后的运行时数据。
 
-profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包、自身 `cordis.patch.yml` 与 `patchReload: live | startup` 组成；自定义 profile 省略 reload 策略时保留历史 `live` 默认值。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。缺失组合包或未声明 patch 的组合包会让启动明确失败。协调 profile 已安装依赖（`reconcileProfilePlugins`）时还会拒绝安装了上游 DSH 时代引擎包的 profile：诊断指明每个冲突包、它映射到的 QiLin 包与清除命令；bundle 列表保持不变，CLI 与 Web 插件管理器共用这一规则。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
-profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包和自身 `cordis.patch.yml` 组成。YAML 组合决定是否启用 HMR。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。缺失组合包或未声明 patch 的组合包会让启动明确失败。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
+profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包和自身 `cordis.patch.yml` 组成。YAML 组合决定是否启用 HMR。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。缺失组合包或未声明 patch 的组合包会让启动明确失败。协调 profile 已安装依赖（`reconcileProfilePlugins`）时还会拒绝安装了上游 DSH 时代引擎包的 profile：诊断指明每个冲突包、它映射到的 QiLin 包与清除命令；bundle 列表保持不变，CLI 与 Web 插件管理器共用这一规则。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
 
 你的机器本地偏好同样位于 harness home 中：
 
@@ -126,9 +125,8 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 ### Helper 行为
 
 每个导出各负责启动的一个阶段：配置解析与快照回放、分层环境加载、明确报错的保护机制、激活审计、patch 解析、根 include 挂载、配置 dump 渲染、活动 patch 监视、profile 组合、可管理的插件行（`readProfilePluginRows`）、静态插件报告（`doctorPluginPackage`），以及 harness 源码段落。各导出的约定在代码中，不在本 README——见 [`src/index.ts`](src/index.ts)、[`src/profile.ts`](src/profile.ts) 与 [`src/doctor.ts`](src/doctor.ts)。
-每个导出各负责启动的一个阶段：配置解析与快照回放、分层环境加载、明确报错的保护机制、激活审计、patch 解析、根 include 挂载、配置 dump 渲染、profile 组合，以及 harness 源码段落。各导出的约定在代码中，不在本 README——见 [`src/index.ts`](src/index.ts) 与 [`src/profile.ts`](src/profile.ts)。
 
-### 源码地图
+每个导出各负责启动的一个阶段：配置解析与快照回放、分层环境加载、明确报错的保护机制、激活审计、patch 解析、根 include 挂载、配置 dump 渲染、profile 组合，以及 harness 源码段落。各导出的约定在代码中，不在本 README——见 [`src/index.ts`](src/index.ts) 与 [`src/profile.ts`](src/profile.ts)。
 
 | 文件 | 职责 |
 |---|---|

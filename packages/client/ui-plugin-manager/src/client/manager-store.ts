@@ -11,6 +11,7 @@ import type { Context as ClientContext } from '@qilin/kylin'
 import type {
   BundleInfo,
   ChangeResult,
+  CommunityPluginEntry,
   ManagementError,
   PluginEntryId,
   PluginInfo,
@@ -20,6 +21,7 @@ import type {
   PluginInstallProgress,
   PluginInstallRequestId,
   PluginSpecInspection,
+  PluginUpdateEntry,
   ReadOnlyReason,
 } from '@qilin/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
@@ -28,7 +30,7 @@ import type { ConfigLedger } from './config-ledger.ts'
 import { shortName } from './presentation.ts'
 
 /** The action a failed notice names. */
-export type FailedAction = 'enable' | 'disable' | 'uninstall' | 'rowEnable' | 'rowDisable'
+export type FailedAction = 'enable' | 'disable' | 'uninstall' | 'rowEnable' | 'rowDisable' | 'update'
 
 /** What the last action left to say, shown as a toast; `seq` tells one showing from the next. */
 export type ManagerNotice =
@@ -166,6 +168,40 @@ export interface ConfirmState {
   readonly packageName: string
 }
 
+/** One layer the registry has a newer version for. */
+export interface UpdateRow {
+  /** Package name as the Host lists it. */
+  readonly name: string
+  /** Version the installed copy answers, or null when the Host could not read its manifest. */
+  readonly currentVersion: string | null
+  /** The registry's `latest` dist-tag, which differs from `currentVersion`. */
+  readonly latestVersion: string
+}
+
+/** The update check: whether it runs, what it found, and why it failed. */
+export interface UpdateState {
+  readonly status: 'idle' | 'checking' | 'ready' | 'failed'
+  /** The layers with a newer registry version; empty while `idle` or `checking`. */
+  readonly entries: readonly UpdateRow[]
+  /** The failure's words, empty unless `status` is `failed`. */
+  readonly reason: string
+}
+
+/** The plugin catalog: the query, the page it ends at, and why the last search failed. */
+export interface CatalogState {
+  readonly status: 'idle' | 'searching' | 'ready' | 'failed'
+  /** The text the last search ran with. */
+  readonly query: string
+  /** The one-based page the entries end at. */
+  readonly page: number
+  /** Repositories the searches answered, in the order GitHub ranked them. */
+  readonly entries: readonly CommunityPluginEntry[]
+  /** Whether GitHub reports another page after `page`. */
+  readonly hasMore: boolean
+  /** The failure's words, empty unless `status` is `failed`. */
+  readonly reason: string
+}
+
 /** What the tab renders. */
 export interface PluginManagerState {
   /** `unavailable` when the Host runs without a managed profile; `error` keeps the last packages. */
@@ -178,6 +214,8 @@ export interface PluginManagerState {
   readonly confirm: ConfirmState | null
   /** The package the list scrolls to and marks, once an install enabled it. */
   readonly highlight: string | null
+  readonly updates: UpdateState
+  readonly catalog: CatalogState
 }
 
 /** The registration-side face the tab's slot entry injects. */
@@ -221,6 +259,16 @@ export interface PluginManagerFace {
   /** Switch one of a bundle's rows on or off in the profile's user layer. */
   setRowEnabled: (entryId: PluginEntryId, enabled: boolean) => void
   dismissNotice: () => void
+  /** Compare the installed layers with the registry and show the ones with a newer version. */
+  checkUpdates: () => void
+  /** Put the update results away. */
+  dismissUpdates: () => void
+  /** Upgrade one layer to its registry latest version, keeping its place in the profile. */
+  updatePackage: (packageName: string) => void
+  /** Search GitHub's plugin topic; page 1 replaces the results and a later page appends to them. */
+  catalog: (query: string, page: number) => void
+  /** Open the install dialog with a catalog repository as its spec, leaving the check to the Host. */
+  installCatalogSpec: (spec: string) => void
 }
 
 /** A Remote answer as the generated client returns it. */
@@ -314,6 +362,23 @@ const IDLE_INSTALL: InstallState = {
   installed: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
+const IDLE_UPDATES: UpdateState = { status: 'idle', entries: [], reason: '' }
+
+const IDLE_CATALOG: CatalogState = { status: 'idle', query: '', page: 1, entries: [], hasMore: false, reason: '' }
+
+/**
+ * The layers worth offering an update for: the registry answered a version
+ * other than the installed one. A name the registry could not answer for
+ * reports null and stays out, so a network failure offers nothing.
+ * @param entries - the Host's rows for every manageable layer.
+ * @returns the rows with a different registry version, in the Host's order.
+ */
+export function updatable(entries: readonly PluginUpdateEntry[]): UpdateRow[] {
+  return entries.flatMap(entry => entry.latestVersion === null || entry.latestVersion === entry.currentVersion
+    ? []
+    : [{ name: entry.name, currentVersion: entry.currentVersion, latestVersion: entry.latestVersion }])
+}
+
 /** Reads and mutates the profile's plugins through the `pluginManager` Remote. */
 export class PluginManagerController {
   private readonly store: SnapshotStore<PluginManagerState>
@@ -334,7 +399,7 @@ export class PluginManagerController {
   ) {
     this.store = createSnapshotStore<PluginManagerState>({
       status: 'idle', packages: [], busy: [], notice: null,
-      install: IDLE_INSTALL, confirm: null, highlight: null,
+      install: IDLE_INSTALL, confirm: null, highlight: null, updates: IDLE_UPDATES, catalog: IDLE_CATALOG,
     })
   }
 
@@ -402,6 +467,11 @@ export class PluginManagerController {
         })
       },
       dismissNotice: () => { this.patch({ notice: null }) },
+      checkUpdates: () => { void this.checkUpdates() },
+      dismissUpdates: () => { this.patch({ updates: IDLE_UPDATES }) },
+      updatePackage: (packageName) => { void this.updatePackage(packageName) },
+      catalog: (query, page) => { void this.catalog(query, page) },
+      installCatalogSpec: (spec) => { this.installCatalogSpec(spec) },
     }
   }
 
@@ -663,6 +733,75 @@ export class PluginManagerController {
     }
     this.patch({ install: IDLE_INSTALL, highlight: name })
     await this.load()
+  }
+
+  /**
+   * Compare the installed layers with the registry. A check already in flight
+   * is not started twice; a failure keeps its words in the block that asked.
+   * A settlement that arrives after disposal publishes nothing.
+   */
+  private async checkUpdates(): Promise<void> {
+    if (this.disposed || this.getSnapshot().updates.status === 'checking') return
+    this.patch({ updates: { status: 'checking', entries: [], reason: '' } })
+    try {
+      const answer = await this.ctx.remote.pluginManager.checkUpdates()
+      if (!answer.ok) throw new RemoteAnswerError(answer.error.message)
+      this.patch({ updates: { status: 'ready', entries: updatable(answer.value.entries), reason: '' } })
+    } catch (error) {
+      this.patch({ updates: { status: 'failed', entries: [], reason: reasonOf(error) } })
+    }
+  }
+
+  /**
+   * Upgrade one layer through the Host's install path. The install never
+   * changes the layer's place in the profile: the composition is left as it is.
+   * @param packageName - the installed package to move to its registry latest version.
+   */
+  private async updatePackage(packageName: string): Promise<void> {
+    await this.run(packageName, { packageName, action: 'update' }, async () => {
+      this.applied(await this.ctx.remote.pluginManager.installBundle(`${packageName}@latest`, { enabled: false }), packageName)
+      const { updates } = this.getSnapshot()
+      this.patch({ updates: { ...updates, entries: updates.entries.filter(entry => entry.name !== packageName) } })
+    })
+  }
+
+  /**
+   * Search GitHub's plugin topic. Page 1 replaces the results; a later page
+   * appends to them, and a failure keeps what the earlier pages answered.
+   * @param query - the search text the person typed.
+   * @param page - the one-based page to read.
+   */
+  private async catalog(query: string, page: number): Promise<void> {
+    const catalog = this.getSnapshot().catalog
+    if (this.disposed || catalog.status === 'searching') return
+    const first = page === 1
+    this.patch({ catalog: { ...catalog, status: 'searching', query, page, reason: '', ...first ? { entries: [], hasMore: false } : {} } })
+    try {
+      const answer = await this.ctx.remote.pluginManager.catalog(query, page)
+      if (!answer.ok) throw new RemoteAnswerError(answer.error.message)
+      const found = this.getSnapshot().catalog.entries
+      this.patch({
+        catalog: {
+          status: 'ready', query, page: answer.value.page, hasMore: answer.value.hasMore, reason: '',
+          entries: first ? answer.value.entries : [...found, ...answer.value.entries],
+        },
+      })
+    } catch (error) {
+      this.patch({ catalog: { ...this.getSnapshot().catalog, status: 'failed', reason: reasonOf(error) } })
+    }
+  }
+
+  /**
+   * Open the install dialog with a catalog repository as its spec. The Host
+   * reads the spec and the person approves it there, exactly as for a typed
+   * one; a run already in flight keeps the dialog it has.
+   * @param spec - the repository address the catalog offered.
+   */
+  private installCatalogSpec(spec: string): void {
+    const { install } = this.getSnapshot()
+    if (install.phase === 'checking' || isInstallPending(install.phase)) return
+    this.abortInspect()
+    this.patch({ install: { ...IDLE_INSTALL, open: true, spec } })
   }
 
   /**

@@ -51,130 +51,130 @@ sessionFormatVersion: 0
 changes:
   - root: JsonlHeaderLine
     before: null
-    after: 63496702a393356d64638beb7939468c1ba039ba3b5492327b2fe074d6cdac93
+    after: e80e639fc3801d351f28f95b8fa9247d00e15af0e65bd980cd376f12443ffe70
   - root: SessionEventEnvelope
     before: null
-    after: 75af2f6612424c13f0e4e215925c3520923c85f2774c1c505490cff6c4747bc2
+    after: 81063655072483a8fabf4f8efd962402d0feb1d40304e9e131c71d7c6afbfdbd
   - root: SessionHeader
     before: null
-    after: a50373168c4935222b1681223d919a56d095ce37ad45c5ba2c20d75235adf937
+    after: ad0970b1b63709bb65b27c32b70ce7e4aec4930f24eff568345f06de08176c85
   - root: event:agent-preset/selected
     before: null
-    after: dcfce00f7b4db0ec0d652c4f4a4cdfe00b728da9ce132efefb1393c3943782f7
+    after: 6aa3b3d1c46e5c4adae62629a0591f190f8c45ddf7e7a5ced63d3702b76e5b40
   - root: event:agent/inbox/spliced
     before: null
-    after: 264e11c61f93de1be14d4c515b517ca4d201eb539d5148c7e2973f26a50c7e23
+    after: 9b82f548a606fd073a3e91297071317d0c0690df204cdd2a15825f778e2f3a74
   - root: event:approval/asked
     before: null
-    after: 976f2c5f972f5af8f96c4e8ab19383bd64ef4bb8b14bcf8c8d94f4df1e762e9c
+    after: 094cf8c8e61b1b2021498bef277e89270ddc403fbe080c9b5a6bcf18e6ced3ee
   - root: event:approval/decided
     before: null
-    after: 1bf7832b6c2b95f3555dac19d34065fae19999c81d25f7d6cf04fe9c77552b48
+    after: 027ed2c93dfee4842819b572fe5457e162234dbe28e389542a50f2f7b4ccbce7
   - root: event:approval/policy
     before: null
-    after: cce8f654f2885f425de9f235c1a03794b5ff4937d1ad304f7721a97e364cc601
+    after: b21d32a01214bc57635d0e4f7ce6adfcc9ffcbf538799f21b071eaf773d2bc14
   - root: event:assistant/chunk
     before: null
-    after: 6941f6ed08c5a5e296852ce6d3661bf063fb8923ab3b7f1614bcafd7aa11b15d
+    after: 490fa112686738d83b1803923087812938f7c36313481178955d2a14226cf45a
   - root: event:assistant/message
     before: null
-    after: ed8be09ea84f4ae65e1f90b54b16f571f221d8591780ea02c86fb47a326a2ea9
+    after: d0100704bceb777fe4b63f00ba9347d57d381ca8d71ad49d1c54bf1e1745ecd1
   - root: event:command/done
     before: null
-    after: ef2a4328b90be1b415bcce88b7abd27e6d2e18f4a6f2fe0f4e7ee5542a7674be
+    after: 4b70f0194b05fe0025c358d4194a25f5e0876b08390039adb3d617abd05f0df4
   - root: event:command/run
     before: null
-    after: 83bc42948e1c7da398e1b596a0fab808e2b410457498b90a47466a73ad5299d5
+    after: f337368b47ccdcaf00ae8855808f57fd218d2a21d66c88ae2cc98ef719834b52
   - root: event:compact/end
     before: null
-    after: 2d716a572add9ecf56c7ddcaaf38e919f562ff9dd3f01889c44594635152d84e
+    after: 7e93110a0aedbc6e2a2851e876e0ce2fd02d191cb66729b52769950c72d6b6ef
   - root: event:compact/prune
     before: null
-    after: b489c09d9067a6312a1b61f955f0d86aabbd4a103bf6a10fe145e3c75ad65a9c
+    after: 918817b7962cc177fac2c011cadc74f92d5927711ed0d17a2dbf4c400faf6cf5
   - root: event:compact/start
     before: null
-    after: 3bec49e3d40a344b64b6a0d445d2e19f179b7d0ad23b5f00d90612fa260d6b27
+    after: df0a7b06c4efd1a94ac267fa0e1c32248eddd6e92df2c52cf44ab392c0d0ed9e
   - root: event:compact/summary
     before: null
-    after: 0a3551284c84ff0f8b1040698ece64513c136a4c1b504d13192057a083e523b3
+    after: 08a63b0e45c7d7a12dd2642025c832340b12d799161bc406379745115c48d633
   - root: event:feedback/record
     before: null
-    after: d342dd39f6eab7565340782afccb4c66dea52744f17e9d3b267f7666319ece63
+    after: f73fa292a3dee44a49683d30ab4a6483e71024f4009581d35fb1fabdacf41778
   - root: event:goal/change
     before: null
-    after: 7e0b8a5bf14c5709d8645c9022fb1835fb9de915ff94b3c7276ac86a03912ab0
+    after: 5e3d8d89b2c05ad14e4989ab69d4ef5c88449059d3e77ad8cf7555e23e4c994f
   - root: event:hook/invoked
     before: null
-    after: 47aba122c2eba565fca03e4433586b00b75edc7c9c15cc970419d261b75ec748
+    after: 0245d3882db18e492d4a6c346a1e398c29b8004d397ed868a3522b1b077e68ad
   - root: event:hook/result
     before: null
-    after: c50ce5176c069912b904fcc832153e3db0c95545d1eb015bd45222eb84f8c664
+    after: 0cb59e15943bff2cffdb7c6cedfe105a53fab19a9fb58c037d6bc5aa6aeefa50
   - root: event:llm/retry
     before: null
-    after: 562f0f8138cfdf4b6f7c7d23c95d4c0b30f1a4ccb4db118c2978d8828fb42eb7
+    after: c0a7a2323f8449ac4e9073c4c97caf179a813da505bade1fba63b25e614a3c7b
   - root: event:llm/retry-started
     before: null
-    after: c2d00a5b35a0a648f97f14d855ca23af9feec1a4d1e5e05548adc0352ba234b5
+    after: 90935820524182d6c2af21f56750e562e33137ca79d2e31a82742cfd564a7dee
   - root: event:permission/preset
     before: null
-    after: d2a5c0f253863c7fa956d483f71d6c013862f91c1458bbc741417c597230478b
+    after: 25b77d741d65f07c387cdb90f42a79b2f9aad4dffed53400bd9c4d9a45d04e89
   - root: event:plan/mode
     before: null
-    after: 67cc5900f3194024998a4f65f7fb50e6c8b30c3393d52e545dbca89c731dc096
+    after: 062321652e0dd2d24850d7d2f9c2bad348cfeb3d49c75330606315c5959a3018
   - root: event:request/context
     before: null
-    after: af86fda2262cdb5e047091edb5f402c2e66eb06c8c68783654e6da987feae05c
+    after: 5d5b5774187ac60bc9031c670f87dc64db1a17d1b53e25c3b3484d16902b134e
   - root: event:request/header
     before: null
-    after: d075d9d331ec389bd1a2796f87348556f15ee799b60d4307712b06ec0bd50daa
+    after: b0f1f8ccd6ba3de14df09ab8c3fab636e4ec7920d808a9035d489ffae1ac4e32
   - root: event:sandbox/mode
     before: null
-    after: e0d0bdff25ad9be31aee94770baf1d83c8950110f80d8cb0dfd8a143465fe290
+    after: adad71a3e46cf34ba5658e5170d2bc4ad08cee8dd29d6a015469018187981870
   - root: event:session/end-seed
     before: null
-    after: ed81f8c485d16e2717a65c7b6feab7b6552bd79a6634ea9e7deb2bd958940320
+    after: d373a740b167f65e04b2111d971873fe3a07784882b1c750fc57c43667dd381a
   - root: event:session/title
     before: null
-    after: a0c63e3dcf542a4a8bef65f90e015178933a13eb63cfb838d59399081f635ce1
+    after: 787eb0e0056d1fadbae05414578f12ef869ed6656267bc8f2ea73c714c3a06ac
   - root: event:session/title-llm-request
     before: null
-    after: a968ab9ddc4489b5c84f9302c58b5070b1379dd98b9aff8d22e076d55c707647
+    after: 8d57be25fa32383ad81472100e4311f1273b3610d43c6c4856be4d907a6cf3d9
   - root: event:step/end
     before: null
-    after: 0168132589f5214805264d9d2eb016047562c262925d8f3cec3587e9327c27b8
+    after: 0728d108aaadf0bf341696e4009649cb775b2fa3af466939daaa1e1d0ddb85ee
   - root: event:step/start
     before: null
-    after: 5d4bdc47d480625d4b36ce563dcbdf5e1cf69a5f2126cc21104f78e057a954d0
+    after: 4b9f0843a13fabe9d7893b10c23e5cf8b661682004ac673fce98a3345aa4a350
   - root: event:subagent/descriptor
     before: null
-    after: 10a830802d3a4128b275c72e4752f371398a8f235b4f6d9695b473895566df06
+    after: 653fc44d0e78a87ad8d5e4eb1591e00ffe56e435610cf205f3bf435eb32554c0
   - root: event:todo/write
     before: null
-    after: bb8e5c7b55601a8ce4b2e83768cb1ea2a6bd406d5a4b803802ff1d99a232d984
+    after: 3a51af196a9c3b5d5994c0091a6a9aa592864b293c3d1f15b1fa771c36519a09
   - root: event:tool/call
     before: null
-    after: 0442fcc4f0ed6a21c9b68206e7e2728ca8f0ff4da0e5d8cf18a7dd73dca9258e
+    after: 3ba963f8310e02e8d98bf94b4bd789c2f669ea1fef3dc8e1bf5296a6945e1540
   - root: event:tool/code-dispatch
     before: null
-    after: 3a992ae57f950015c1269216c186c1c57ce0ebecf4d3296a09864ae9395d0cec
+    after: 17b4d6ee5418c6e8f3134a76af1da0e5b7d1d5e091748b2456d9754ab476062b
   - root: event:tool/code-dispatch-start
     before: null
-    after: 151dda92d52dfe13512e9c84717b8f65e031287f0a64893f08bc915cf7ecf101
+    after: 8de3540d56ff87ffcbf67d630eeb73248fadd04dbac5bab69dde05d62340b528
   - root: event:tool/result
     before: null
-    after: 356b0c7f439cdc3d5cba9873c8dbe472bead730b8cde27481be094004a4f1327
+    after: eb5449b2b4561d0472eb77a4d791f57dfbbf7bcf7a09354683c09054c966a474
   - root: event:turn/end
     before: null
-    after: 2a844951f204be73862c15fe3cf82c074ad718f12b9aa8a0e7d3efdd23c20530
+    after: 568e0b89acfa1eb8dd094270ea06331567094544108dda193598cc629a189a2c
   - root: event:turn/start
     before: null
-    after: 5aee351286dccded87a8af1af1678ef38f407617cf12d2dc754ed8a61b9a7d09
+    after: daebbd08ef058621add19db71c746b2683e6ef057730229e307daefb3d990e67
   - root: event:user/message
     before: null
-    after: c4b5e355b7c7ce538ccb1210b5c042d4bbfe33dd57a910ccd34c7afa11cde648
+    after: fca10490469389854641fcd63b277eff3d311bb00496345c9edb41ad75e486c5
   - root: event:web/deepseek-search-llm-request
     before: null
-    after: 0c5c79711e02bd8faed288bb89a39c77af15ad28010a0ee3d5c98adb1e5c3fe5
+    after: 008d23506b190a830f9c366c2108e532bfd13404bac85f302e7a025a50a3cfa8
 ```
 
 <a id="changes"></a>

@@ -25,7 +25,7 @@ kind: "package-reference"
 
 `qilin` profile 通过其 bundle 补丁挂载本包，无需配置。若部署方希望保留其他基础主题并使用 QiLin 配色，保留自己的 `ui-theme` 偏好即可；本层叠加在其上。
 
-配色为「玄金」暗金 landing VI 的双 scheme 版本：深色值逐字移植 landing 令牌，浅色值推导暖纸对应版（[决策笔记](../../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)）。[tokens.ts](src/client/tokens.ts) 按族分组覆盖五十五个令牌：品牌金、表面与侧栏、墨阶文字、细线与悬停、次级按钮族、代码与滚动条阅读面。
+配色为「玄金」暗金 landing VI 的双 scheme 版本：深色值逐字移植 landing 令牌，浅色值推导暖纸对应版（[决策笔记](../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.zh.md)）。[tokens.ts](src/client/tokens.ts) 按族分组覆盖五十五个令牌：品牌金、表面与侧栏、墨阶文字、细线与悬停、次级按钮族、代码与滚动条阅读面。
 
 | 角色 | 令牌 | 浅色 | 深色 |
 |---|---|---|---|

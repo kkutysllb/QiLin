@@ -6,7 +6,7 @@
       "kind": "event",
       "event": "permission/preset",
       "surface": false,
-      "digest": "7271e4b771406aaf06014c2269edd6cb68055bb8b8686571730813ce0ababc22",
+      "digest": "6f413b3e7c8f1d9ba249cc32799ffde6fe70ffbe78aa331555fced12c778e519",
       "schema": {
         "root": 0,
         "nodes": [
@@ -99,7 +99,7 @@
   ],
   "types": [
     {
-      "digest": "0657d3ca5ac4e7bf79b00bcf860b1c7159d01a9da137497221ec2f1776e365f7",
+      "digest": "1979a37e3c0e520c34f5db51b07ea8143ef50528eef0e76c866840979f83e65d",
       "schema": {
         "root": 0,
         "nodes": [
@@ -113,7 +113,7 @@
       "sources": []
     },
     {
-      "digest": "19a9088b778dbc75c9c3158d0145b3e1d3b9bba253821e249f869db82e98b713",
+      "digest": "991381293e7334e9f043eb40078c3a47d3069fc8b3018dc6ae9f189e7eee5414",
       "schema": {
         "root": 0,
         "nodes": [
@@ -127,7 +127,7 @@
       "sources": []
     },
     {
-      "digest": "4cd48f3e5108bd6ebedf7301c3638839b8b2b9db8dbd493974177fbdeb91a01b",
+      "digest": "1d389609982f42153fdab16a3a6a64d22ee7f68a401884ddc0b99293d0280baa",
       "schema": {
         "root": 0,
         "nodes": [
@@ -174,7 +174,7 @@
       ]
     },
     {
-      "digest": "6c5d5215ad72616561350f3be63f968e321e75360d9de2a9408994d45d3be76f",
+      "digest": "21d2392ff8eb718d46adc0fc08e0df73d27bdade6a5ffaa25b71bae71efac0b1",
       "schema": {
         "root": 0,
         "nodes": [
@@ -206,7 +206,7 @@
       "sources": []
     },
     {
-      "digest": "7271e4b771406aaf06014c2269edd6cb68055bb8b8686571730813ce0ababc22",
+      "digest": "6f413b3e7c8f1d9ba249cc32799ffde6fe70ffbe78aa331555fced12c778e519",
       "schema": {
         "root": 0,
         "nodes": [
@@ -304,7 +304,7 @@
       ]
     },
     {
-      "digest": "78d7455eb6b3c8da4d70c104eadd69d4a60df1c449e855517a60673b889e03fa",
+      "digest": "867785d9ba44b0b53d11723520b4ae6efbb64dbe4b8eb01d6767f2100201e1fc",
       "schema": {
         "root": 0,
         "nodes": [
@@ -318,7 +318,7 @@
       "sources": []
     },
     {
-      "digest": "ae63d9d1080ed8945031594d93f8d96651d7101b848719cc3e1475875cd3d649",
+      "digest": "386ea6fca16dfaad43f7dd34e5ca567be0eac490b4d5a41e833978896934d32a",
       "schema": {
         "root": 0,
         "nodes": [
@@ -332,7 +332,7 @@
       "sources": []
     },
     {
-      "digest": "d66ba5eb62ddba9fc264067c47d1152ca3bd8c2bdf2ededb66695e04ab588550",
+      "digest": "b5ef7bce28facc7a2821ee59279bd10164b23ec22c0277bacd1d4f4e3d84ed32",
       "schema": {
         "root": 0,
         "nodes": [
@@ -346,7 +346,7 @@
       "sources": []
     },
     {
-      "digest": "dacf3d5f3e4ff619c1320e64a48dec5e7ecd7870bece65fbd449a0e63adfa521",
+      "digest": "f22ae8b904d351507f1c417505d0744e28346203a22de1b893a66bfb8545f7e1",
       "schema": {
         "root": 0,
         "nodes": [
@@ -360,7 +360,7 @@
       "sources": []
     },
     {
-      "digest": "ebaac53bc4e8eb2ef8870c1ac58976a8a54987e3e412126b9f617f42bcd49829",
+      "digest": "15b1ae8c834a4e662c0db4c58730319678feea6aa292257fde1e03523e2f6fb8",
       "schema": {
         "root": 0,
         "nodes": [

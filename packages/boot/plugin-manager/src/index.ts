@@ -22,8 +22,9 @@ import { writePluginEnabled } from './patch.ts'
 import { ManagementFailure } from './failure.ts'
 import { approveBuilds, readPendingBuilds } from './build-approval.ts'
 import type {
-  BundleInfo, BundleRowInfo, ChangeResult, InstallBundleOptions, ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo,
-  PluginInspectProblem, PluginInstallCancellation, PluginInstallProgress, PluginInstallRequestId, PluginSpecInspection,
+  BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InstallBundleOptions, ManagementError,
+  PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation, PluginInstallProgress,
+  PluginInstallRequestId, PluginSpecInspection, PluginUpdateEntry, PluginUpdateSnapshot,
 } from './types.ts'
 export type * from './types.ts'
 export { classifyInstallFailure, type InstallFailureFacts } from './install-failure.ts'
@@ -58,6 +59,18 @@ const RESTORED_FILES = ['package.json', 'pnpm-lock.yaml'] as const
 
 /** pnpm's colour escapes, which a JSON answer may be wrapped in. */
 const ANSI_SEQUENCE = /\x1b\[[0-9;]*m/g
+
+/** npm registry endpoint that answers one package's dist-tags. */
+const REGISTRY_DIST_TAGS = 'https://registry.npmjs.org/-/package'
+
+/** GitHub repository search endpoint for the plugin topic. */
+const GITHUB_SEARCH = 'https://api.github.com/search/repositories'
+
+/** Results one catalog page asks for; GitHub answering a full page means there may be more. */
+const GITHUB_PAGE_SIZE = 50
+
+/** Bound on one registry or GitHub lookup, in milliseconds. */
+const LOOKUP_TIMEOUT_MS = 10_000
 
 /** Flatten only the groups addressable by the profile's patch composer. */
 function flatten(rows: EntryOptions[]): EntryOptions[] {
@@ -222,6 +235,44 @@ export class PluginManager extends TypertRemoteService {
       }
     }
     return Promise.resolve(bundles)
+  }
+
+  /** Compare each manageable layer with its registry's `latest` dist-tag.
+   * A name the registry cannot answer for keeps its row with a null `latestVersion`, so a network
+   * failure reads as an unknown version rather than as a failed listing. A name the Host cannot read
+   * as a bundle is left out: it is a plain dependency the profile selected, not a layer to upgrade.
+   * @returns One row per readable layer {@link listBundles} lists, in the same order.
+   */
+  @Remote
+  async checkUpdates(): Promise<PluginUpdateSnapshot> {
+    const bundles = (await this.listBundles()).filter(bundle => bundle.error === undefined)
+    return {
+      entries: await Promise.all(bundles.map(async (bundle): Promise<PluginUpdateEntry> => ({
+        name: bundle.name,
+        currentVersion: bundle.version ?? null,
+        latestVersion: await npmLatest(bundle.name),
+      }))),
+    }
+  }
+
+  /** Search GitHub for repositories the plugin topic tags.
+   * @param query - additional search text; empty searches the topic alone.
+   * @param page - one-based result page; anything but a positive safe integer reads as page 1.
+   * @returns The page's repositories and whether GitHub reports another page.
+   * @throws {Error} when GitHub answers a status outside 2xx.
+   */
+  @Remote
+  async catalog(query: string, page: number): Promise<CommunityPluginSnapshot> {
+    const safePage = Number.isSafeInteger(page) && page > 0 ? page : 1
+    const q = ['topic:dsh-plugin', query.trim()].filter(Boolean).join(' ')
+    const response = await fetch(
+      `${GITHUB_SEARCH}?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=${String(GITHUB_PAGE_SIZE)}&page=${String(safePage)}`,
+      { headers: { accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS) },
+    )
+    if (!response.ok) throw new Error(`qilin: GitHub search failed with HTTP ${String(response.status)}`)
+    const body = await response.json() as { items?: unknown }
+    const items = Array.isArray(body.items) ? body.items : []
+    return { entries: items.flatMap(communityEntry), page: safePage, hasMore: items.length === GITHUB_PAGE_SIZE }
   }
 
   /** Read what a spec names before installing it.
@@ -590,6 +641,41 @@ export class PluginManager extends TypertRemoteService {
       }
     }).join('\0')
   }
+}
+
+/** Read one package's registry `latest` dist-tag.
+ * @param name - package name to ask the registry about.
+ * @returns the latest version, or null when the registry cannot be read or answers none.
+ */
+async function npmLatest(name: string): Promise<string | null> {
+  try {
+    const response = await fetch(`${REGISTRY_DIST_TAGS}/${encodeURIComponent(name)}/dist-tags`, {
+      signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
+    })
+    if (!response.ok) return null
+    const body = await response.json() as { latest?: unknown }
+    return typeof body.latest === 'string' ? body.latest : null
+  } catch {
+    // An unreachable registry leaves the latest version unknown; the row reports null.
+    return null
+  }
+}
+
+/** Read the repository fields the catalog shows, dropping a row GitHub answered without an identity.
+ * @param value - one entry of GitHub's `items` array, of unknown shape.
+ * @returns the entry, or an empty list when the value names no repository.
+ */
+function communityEntry(value: unknown): CommunityPluginEntry[] {
+  if (typeof value !== 'object' || value === null) return []
+  const row = value as Record<string, unknown>
+  if (typeof row.full_name !== 'string' || typeof row.html_url !== 'string') return []
+  return [{
+    fullName: row.full_name,
+    description: typeof row.description === 'string' ? row.description : null,
+    stars: typeof row.stargazers_count === 'number' ? row.stargazers_count : 0,
+    updatedAt: typeof row.updated_at === 'string' ? row.updated_at : '',
+    url: row.html_url,
+  }]
 }
 
 export default PluginManager

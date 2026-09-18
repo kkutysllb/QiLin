@@ -170,6 +170,46 @@ export interface PluginInstallLogChunk {
   readonly exitCode?: number | null
 }
 
+/** One manageable layer compared against its registry's `latest` dist-tag. */
+export interface PluginUpdateEntry {
+  /** Package name as the profile lists it. */
+  readonly name: string
+  /** Version the installed copy answers, or null when its manifest cannot be read. */
+  readonly currentVersion: string | null
+  /** Registry `latest` dist-tag, or null when the registry could not be read or answers none. */
+  readonly latestVersion: string | null
+}
+
+/** What one update check read for the profile's manageable layers. */
+export interface PluginUpdateSnapshot {
+  /** One row per layer, in listing order. */
+  readonly entries: readonly PluginUpdateEntry[]
+}
+
+/** One GitHub repository the plugin catalog found. */
+export interface CommunityPluginEntry {
+  /** `owner/name` of the repository. */
+  readonly fullName: string
+  /** Repository description, or null when it declares none. */
+  readonly description: string | null
+  /** Stargazer count; 0 when GitHub reports none. */
+  readonly stars: number
+  /** Last push time as GitHub reports it; an empty string when GitHub reports none. */
+  readonly updatedAt: string
+  /** Repository page address, which is also an install spec the manager accepts. */
+  readonly url: string
+}
+
+/** One catalog page as GitHub answered it. */
+export interface CommunityPluginSnapshot {
+  /** The page's repositories, most starred first. */
+  readonly entries: readonly CommunityPluginEntry[]
+  /** The one-based page these entries came from. */
+  readonly page: number
+  /** Whether GitHub reports at least one further page. */
+  readonly hasMore: boolean
+}
+
 /** What changed in the profile, for consumers that show it. */
 export interface PluginChange {
   /** The operation that changed it. */

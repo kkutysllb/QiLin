@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/persistence-changes/releases/qilin-v0.0.1-rc.1.md
-qilin-v0.0.1-rc.1.md: 01e3924a580747d567750d58d9ca9d58bdc13156
-qilin-v0.0.1-rc.1.zh.md: b65b9daec4dea3c21f4193c3e02992aa99506235
+qilin-v0.0.1-rc.1.md: 488462283f35e9068003de1738dfe3361c05b190
+qilin-v0.0.1-rc.1.zh.md: 326b0cba944778112a0acdfe54dd23420c802733

@@ -88,4 +88,4 @@ The returned `agent/pre-step` decision is authoritative; listeners wrapping `nex
 
 SDK users that need replayable transcript data should consume `session/event`; `agent/*` is the live coordination API for queue/status, prompt interception, request construction, steering, continuation, and errors.
 
-Maintenance mode: curated Mermaid sequence; exact event signatures live in the generated Kylin catalog.
+Maintenance mode: curated Mermaid sequence; exact event signatures live in the generated Cordis catalog.

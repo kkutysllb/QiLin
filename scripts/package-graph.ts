@@ -34,6 +34,7 @@ export interface PackageGraphNode {
  */
 export function collectPackageGraph(root: string, groupOrder: readonly string[], gate: string): PackageGraphNode[] {
   const packages: PackageGraphNode[] = []
+  const vendored = vendoredNames(root)
   for (const rel of globSync('packages/*/*/package.json', { cwd: root }).map(path => path.split(sep).join('/')).sort()) {
     const json = JSON.parse(readFileSync(resolve(root, rel), 'utf8')) as {
       name: string
@@ -43,7 +44,7 @@ export function collectPackageGraph(root: string, groupOrder: readonly string[],
     const [, group, leaf] = rel.split('/')
     if (group === undefined || leaf === undefined) throw new Error(`${gate}: unexpected package path ${rel}`)
     const deps = Object.keys(json.peerDependencies ?? {})
-      .filter(dep => dep.startsWith(SCOPE))
+      .filter(dep => dep.startsWith(SCOPE) && !vendored.has(dep))
       .map(dep => dep.slice(SCOPE.length))
       .sort()
     packages.push({
@@ -55,6 +56,24 @@ export function collectPackageGraph(root: string, groupOrder: readonly string[],
     })
   }
   return topoSort(packages, groupOrder, gate)
+}
+
+/**
+ * Names of the vendored framework packages under `vendor/`.
+ *
+ * They are workspace packages and satisfy a `@qilin/` peer for resolution, but
+ * they are not graph nodes: the generated documents track `packages/` only, and
+ * an edge into a package that never gets placed would stall the ordering.
+ * @param root - absolute repository root.
+ * @returns every vendored package name.
+ */
+function vendoredNames(root: string): Set<string> {
+  const names = new Set<string>()
+  for (const rel of globSync('vendor/*/package.json', { cwd: root })) {
+    const json = JSON.parse(readFileSync(resolve(root, rel), 'utf8')) as { name?: string }
+    if (typeof json.name === 'string' && json.name.startsWith(SCOPE)) names.add(json.name)
+  }
+  return names
 }
 
 function topoSort(packages: PackageGraphNode[], groupOrder: readonly string[], gate: string): PackageGraphNode[] {

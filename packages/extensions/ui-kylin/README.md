@@ -100,7 +100,6 @@ Read these pages when the package-level contract is not enough. They move from t
 ## Model Experience
 
 Indirectly, through the run and stop verbs these surfaces drive — the browser-side runner's orchestration for a run, and the host's stop and remove verbs, the same host verbs the model's `cordis_run` and `cordis_stop` tools reach — so whatever a running definition then contributes is the runner's effect, while nothing model-visible originates in this package, which renders logged call and result slices and a host inventory read, adds no prompt content, writes no session event, and deliberately leaves no session-log trace of a person approving, declining, running, or stopping anything.
-Indirectly, through the runner lifecycle actions that own session steering and permission outcomes; this package renders historical calls and results and adds no tools or prompt sections.
 
 #### KV Cache effect
 

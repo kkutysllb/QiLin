@@ -28,7 +28,7 @@ baseline: false
 changes:
   - root: "event:workspace/changes"
     previous: null
-    after: "e308ccf867a5398e316e0af8cb6ce238a8d33a63b9b384c8250a686786285f72"
+    after: "df7b1ffd02c3e01583164008ea205341fa35c4a769c45c18f630dd9a50753610"
     decision: same-version
 ```
 

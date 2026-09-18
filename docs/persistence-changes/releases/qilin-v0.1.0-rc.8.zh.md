@@ -50,29 +50,29 @@ previous: qilin-v0.1.0-rc.7
 sessionFormatVersion: 0
 changes:
   - root: event:agent/inbox/spliced
-    before: dea3a1d5640e0306a486f92b725a01b57e69439277978ca09dc246fb40016b90
-    after: 7a0b347ba6a465a7813490036bde98bdc658609c6de9545ba58be26c372c5030
+    before: 8e2b5ac90d3f0e0388c0613ce467dee59c95899993233d4f74cb4f9690940f1f
+    after: 5b505aed059ac2e938678358778fa5e98bdecb6f783155dba9bfd8a77d2a75d8
   - root: event:assistant/message
-    before: 390aeb83383643633a1935f09f84fe19d2aee8d4f500a8de70f88d388562cc50
-    after: fb7d974e1945b4c8e72ee540daf64eb9e81984030ff52e1a97a4e1f71b9dd2f9
+    before: 6648340d10db0e99a66341f9a8c9f24aff182118919cc63c87053c1cfac1835c
+    after: 7c9bc8eda30de7e12d13dbb5558c63d9479ae4a67dd66ac72c1c39368f081989
   - root: event:session/title-llm-request
-    before: 796a77af2c1452392f0cc62b99fba2d404d1c9eb10a8a2510a808fba6053cf24
-    after: ee6c879669bb83325e4cd3011227f238bf51765744990fc4bb12089d6dd6563a
+    before: 39fde2b3c870f5eafd688ac248a3a5cd871b016f884f3015a9b1dbb7ecf2a330
+    after: 23e5e30e4a1689ef78588840c79feb5d923ddb0bbdc13afd0c022a9ac95d2051
   - root: event:team/member
     before: null
-    after: 31d13edbb5fe2f8b7a38056320a8a06275ee4426e0abf12d4741818beda5a9c9
+    after: 63bed23b0a3a1687977d86baee8ac743fede402cd819a8fc0efa0dfb61717da8
   - root: event:team/message/delivered
     before: null
-    after: c53bff743470c8bf11be698ced047072744ef088cce663a774b456d7a8982516
+    after: 7fe9be37b832dd7c94365fb67765f582ecd65512bf01f0b68f995252a3fda596
   - root: event:team/message/queued
     before: null
-    after: 577054184d5f038bd96d6db70b76983a2bb62a8eea8eeed8ca3b0d47af0f462a
+    after: b6558edfed1a45fed7bfd8bc8b65da322d5a2a6f62244d9adc85435fe870dd1b
   - root: event:team/task
     before: null
-    after: 1688a2451eef9da19eaf45f12c8a27df07b1a6e56fa57ba603118f5201bb435b
+    after: dc5948fd11768c22da34cfc48fa24dac1ff5f15640343e7d1991ac8f39c4169d
   - root: event:user/message
-    before: 18c8d77777545808f232cd8d7730ce270cb1b737edd3eaa45e0da9436fd37a13
-    after: e7eec68e39f9f44b2e53d799e5d5dd08f559558a27e93eb2a272782f040be50a
+    before: 61d6c6edfbbff05655f4b6f87aadb7c4a143827b7db40d16d32265d481e3fb8a
+    after: a4d6fedc6db7d7d23b5731e427996113ea31cf5ba3947d664fc5b6f017cc5bd7
 ```
 
 <a id="changes"></a>

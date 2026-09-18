@@ -99,11 +99,6 @@ This package contributes no tool, prompt, or context of its own; the first thing
 #### Token effect
 
 Conditional and bounded: at most one resolution per run request, spent inside the `cordis_run` tool result the host already emits. The text is data-dependent (a definition's own error message) and this package retains nothing across requests — a page's later load failures are page-local diagnostics with no model-visible carrier.
-This package contributes no tool or prompt. It resolves `kylin/request-run` with activation success, missing services, rejection, or Host/Client failures. The Host runner owns any message relayed to the session.
-
-#### Token effect
-
-Conditional and bounded: at most one resolution per run request, spent inside the runner result the host already emits. The text is data-dependent (a definition's own error message) and this package retains nothing across requests — a page's later load failures are page-local diagnostics with no model-visible carrier.
 
 #### KV Cache effect
 
@@ -114,7 +109,6 @@ Host steering appends to the session history; this package does not rewrite earl
 #### What the model sees
 
 A browser half that loads cleanly can still crash when React renders it, and that crash lands after the run was answered — so the model would otherwise be told "ok" and never learn. Every entry-boundary crash of a package this page seated is sent to the host (`reportRenderFailure`) naming the slot, whether the crash retired the entry from its cell (`abdicated`: the package's UI is gone, not merely broken), and a message written for the author. The host keeps the last one per package, steers the owning session with it, and exposes it through `cordis_inspect_self`; nothing here reaches a run resolution.
-React can fail after a successful load. The Client reports each owned entry failure with its slot, message, and whether the entry was removed. The Host retains the latest failure and steers the owning session; the page also displays its local failure.
 
 #### Token effect
 

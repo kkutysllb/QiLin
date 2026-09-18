@@ -1533,6 +1533,19 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'Package versions, one-liners, rows, activation selections, whether the installation offers the bundle, and removal availability.',
       },
       {
+        signature: '@Remote async checkUpdates(): Promise<PluginUpdateSnapshot>',
+        description: 'Compare each manageable layer with its registry\'s `latest` dist-tag. A name the registry cannot answer for keeps its row with a null `latestVersion`, so a network failure reads as an unknown version rather than as a failed listing. A name the Host cannot read as a bundle is left out: it is a plain dependency the profile selected, not a layer to upgrade.',
+        parameters: [],
+        returns: 'One row per readable layer {@link listBundles} lists, in the same order.',
+      },
+      {
+        signature: '@Remote async catalog(query: string, page: number): Promise<CommunityPluginSnapshot>',
+        description: 'Search GitHub for repositories the plugin topic tags.',
+        parameters: [{ name: 'query', description: 'additional search text; empty searches the topic alone.' }, { name: 'page', description: 'one-based result page; anything but a positive safe integer reads as page 1.' }],
+        returns: 'The page\'s repositories and whether GitHub reports another page.',
+        throws: ['{Error} when GitHub answers a status outside 2xx.'],
+      },
+      {
         signature: '@Remote async inspect(spec: string, signal?: AbortSignal): Promise<PluginSpecInspection>',
         description: 'Read what a spec names before installing it.',
         parameters: [{ name: 'spec', description: 'One package spec: a registry name, an absolute path, a git address, or a tarball.' }, { name: 'signal', description: 'Ends a registry lookup early.' }],
@@ -4313,6 +4326,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type CommandSubmitAttachment = ({\n    readonly type: \'image\';\n} & EncodedImageAttachment) | {\n    readonly type: \'file\';\n    readonly receiptId: string;\n};',
   },
   {
+    name: 'CommunityPluginEntry',
+    declaration: 'export interface CommunityPluginEntry {\n    readonly fullName: string;\n    readonly description: string | null;\n    readonly stars: number;\n    readonly updatedAt: string;\n    readonly url: string;\n}',
+  },
+  {
+    name: 'CommunityPluginSnapshot',
+    declaration: 'export interface CommunityPluginSnapshot {\n    readonly entries: readonly CommunityPluginEntry[];\n    readonly page: number;\n    readonly hasMore: boolean;\n}',
+  },
+  {
     name: 'CompactionAgentContext',
     declaration: 'export interface CompactionAgentContext {\n    session: Session;\n    options: {\n        provider?: string;\n        model?: string;\n    };\n}',
   },
@@ -5335,6 +5356,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'PluginSpecInspection',
     declaration: 'export type PluginSpecInspection = {\n    readonly status: \'accepted\';\n    readonly kind: InstallSpecKind;\n    readonly name?: string;\n    readonly version?: string;\n    readonly description?: string;\n    readonly bundle: boolean | null;\n} | {\n    readonly status: \'refused\';\n    readonly problem: PluginInspectProblem;\n    readonly reason: string;\n};',
+  },
+  {
+    name: 'PluginUpdateEntry',
+    declaration: 'export interface PluginUpdateEntry {\n    readonly name: string;\n    readonly currentVersion: string | null;\n    readonly latestVersion: string | null;\n}',
+  },
+  {
+    name: 'PluginUpdateSnapshot',
+    declaration: 'export interface PluginUpdateSnapshot {\n    readonly entries: readonly PluginUpdateEntry[];\n}',
   },
   {
     name: 'PostToolDecision',

@@ -1,0 +1,5 @@
+/* Shell chrome seats: the trigger row's label collapses before the icon. */
+.triggerLabel {
+  overflow: hidden;
+  white-space: nowrap;
+}

@@ -767,3 +767,105 @@ it('installs and removes with the bundled pnpm when PATH contains no pnpm', asyn
   expect(removed.packageResult?.exitCode).toBe(0)
   expect(readProfileManifest('test', dir).dependencies ?? {}).not.toHaveProperty('@test/desktop-manager')
 })
+
+it('compares every manageable layer with its registry latest tag and tolerates a registry it cannot read', async () => {
+  const { manager, dir, bundle } = await fixture()
+  bundle('retired', [])
+  bundle('offline', [])
+  bundle('plain', [])
+  // A layer whose manifest declares no version reports none.
+  writeFileSync(join(dir, 'node_modules', 'retired', 'package.json'),
+    JSON.stringify({ name: 'retired', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
+  // A selected dependency without a bundle patch is not a layer an update could move.
+  writeFileSync(join(dir, 'node_modules', 'plain', 'package.json'), JSON.stringify({ name: 'plain', version: '1.0.0' }))
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = { ...manifest.dependencies, retired: '1.0.0', offline: '1.0.0', plain: '1.0.0' }
+  manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles: ['core', 'extra', 'plain'] } }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  const answer = (url: string): Promise<Response> => {
+    if (url.includes('/core/dist-tags')) return Promise.resolve(new Response(JSON.stringify({ latest: '2.0.0' })))
+    if (url.includes('/extra/dist-tags')) return Promise.resolve(new Response(JSON.stringify({ next: '3.0.0' })))
+    if (url.includes('/retired/dist-tags')) return Promise.resolve(new Response('gone', { status: 404 }))
+    return Promise.reject(new Error('registry unreachable'))
+  }
+  const fetch = vi.fn((input: string | URL, init?: RequestInit) => {
+    // Every registry lookup carries its own timeout.
+    expect(init?.signal).toBeInstanceOf(AbortSignal)
+    return answer(String(input))
+  })
+  vi.stubGlobal('fetch', fetch)
+  onTestFinished(() => { vi.unstubAllGlobals() })
+  expect(await manager.checkUpdates()).toEqual({
+    entries: [
+      { name: 'core', currentVersion: '1.0.0', latestVersion: '2.0.0' },
+      { name: 'extra', currentVersion: '1.0.0', latestVersion: null },
+      { name: 'retired', currentVersion: null, latestVersion: null },
+      { name: 'offline', currentVersion: '1.0.0', latestVersion: null },
+    ],
+  })
+  expect(fetch.mock.calls.map(call => String(call[0]))).toEqual([
+    'https://registry.npmjs.org/-/package/core/dist-tags',
+    'https://registry.npmjs.org/-/package/extra/dist-tags',
+    'https://registry.npmjs.org/-/package/retired/dist-tags',
+    'https://registry.npmjs.org/-/package/offline/dist-tags',
+  ])
+})
+
+it('searches the plugin topic on GitHub and reads only the fields the catalog shows', async () => {
+  const { manager } = await fixture()
+  const page = (items: unknown[]): Response => new Response(JSON.stringify({ total_count: items.length, items }))
+  const answers = [
+    page([
+      {
+        full_name: 'acme/qilin-remote', description: 'A remote.', stargazers_count: 12,
+        updated_at: '2025-01-02T03:04:05Z', html_url: 'https://github.com/acme/qilin-remote', forks_count: 3,
+      },
+      { full_name: 'acme/qilin-bare', stargazers_count: 'many', html_url: 'https://github.com/acme/qilin-bare' },
+      { full_name: 'acme/qilin-headless' },
+      'not a repository',
+      null,
+    ]),
+    new Response(JSON.stringify({ message: 'Bad credentials' })),
+    page([]),
+    new Response('rate limited', { status: 403 }),
+    page(Array.from({ length: 50 }, (_, index) => ({ full_name: `acme/qilin-${String(index)}`, html_url: `https://github.com/acme/qilin-${String(index)}` }))),
+  ]
+  const inits: (RequestInit | undefined)[] = []
+  const fetch = vi.fn((_input: string | URL, init?: RequestInit): Promise<Response> => {
+    inits.push(init)
+    return Promise.resolve(answers.shift() as Response)
+  })
+  vi.stubGlobal('fetch', fetch)
+  onTestFinished(() => { vi.unstubAllGlobals() })
+
+  expect(await manager.catalog('  qilin sidebar  ', 2)).toEqual({
+    page: 2,
+    hasMore: false,
+    entries: [
+      {
+        fullName: 'acme/qilin-remote', description: 'A remote.', stars: 12,
+        updatedAt: '2025-01-02T03:04:05Z', url: 'https://github.com/acme/qilin-remote',
+      },
+      { fullName: 'acme/qilin-bare', description: null, stars: 0, updatedAt: '', url: 'https://github.com/acme/qilin-bare' },
+    ],
+  })
+  const request = new URL(String(fetch.mock.calls[0]?.[0]))
+  expect(request.origin + request.pathname).toBe('https://api.github.com/search/repositories')
+  expect(Object.fromEntries(request.searchParams)).toEqual({
+    q: 'topic:dsh-plugin qilin sidebar', sort: 'stars', order: 'desc', per_page: '50', page: '2',
+  })
+  expect(inits[0]?.headers).toEqual({ accept: 'application/vnd.github+json' })
+  expect(inits[0]?.signal).toBeInstanceOf(AbortSignal)
+
+  // An answer without an items array has nothing to show.
+  expect(await manager.catalog('', Number.NaN)).toEqual({ entries: [], page: 1, hasMore: false })
+  expect(new URL(String(fetch.mock.calls[1]?.[0])).searchParams.get('q')).toBe('topic:dsh-plugin')
+  // An empty query searches the topic alone; a page that is not a positive safe integer reads as the first.
+  expect(await manager.catalog('', 0)).toEqual({ entries: [], page: 1, hasMore: false })
+  expect(new URL(String(fetch.mock.calls[2]?.[0])).searchParams.get('page')).toBe('1')
+
+  await expect(manager.catalog('x', 3)).rejects.toThrow('qilin: GitHub search failed with HTTP 403')
+
+  // A full page may have another one behind it.
+  expect(await manager.catalog('', 1)).toMatchObject({ page: 1, hasMore: true })
+})

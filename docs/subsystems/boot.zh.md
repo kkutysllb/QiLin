@@ -72,6 +72,22 @@ Manage profile files and apply their declared reload lifecycle.
  */
 @Remote listBundles(): Promise<BundleInfo[]>
 
+/** Compare each manageable layer with its registry's `latest` dist-tag.
+ * A name the registry cannot answer for keeps its row with a null `latestVersion`, so a network
+ * failure reads as an unknown version rather than as a failed listing. A name the Host cannot read
+ * as a bundle is left out: it is a plain dependency the profile selected, not a layer to upgrade.
+ * @returns One row per readable layer {@link listBundles} lists, in the same order.
+ */
+@Remote async checkUpdates(): Promise<PluginUpdateSnapshot>
+
+/** Search GitHub for repositories the plugin topic tags.
+ * @param query - additional search text; empty searches the topic alone.
+ * @param page - one-based result page; anything but a positive safe integer reads as page 1.
+ * @returns The page's repositories and whether GitHub reports another page.
+ * @throws {Error} when GitHub answers a status outside 2xx.
+ */
+@Remote async catalog(query: string, page: number): Promise<CommunityPluginSnapshot>
+
 /** Read what a spec names before installing it.
  * @param spec One package spec: a registry name, an absolute path, a git address, or a tarball.
  * @param signal Ends a registry lookup early.

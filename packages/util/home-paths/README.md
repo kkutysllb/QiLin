@@ -29,7 +29,7 @@ Use these helpers wherever a package must agree with the rest of the harness abo
 ### Resolving the home
 
 ```ts
-import { resolveDshHome, qilinHomePath, qilinCachePath } from '@qilin/home-paths'
+import { resolveQilinHome, qilinHomePath, qilinCachePath } from '@qilin/home-paths'
 
 const home = resolveQilinHome()                // configured path, else $QILIN_HOME, else ~/.qilin
 const settings = qilinHomePath('settings')     // join one child onto the resolved home

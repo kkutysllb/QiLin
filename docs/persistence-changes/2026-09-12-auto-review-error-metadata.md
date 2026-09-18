@@ -28,11 +28,11 @@ baseline: false
 changes:
   - root: "event:tool/ptc-dispatch"
     previous: "2026-09-11-initial"
-    after: "b5d66eaebed4da391b13498623b11142222149fbf5e025975dbc6d94f0d06796"
+    after: "9491c9d5e55517d5a4b8318eac55af3c02e90c782b52f9dd6b029bdbcd0c84df"
     decision: same-version
   - root: "event:tool/result"
     previous: "2026-09-11-initial"
-    after: "3a803805bdeb805f32b229e399fb7258be8e32a89f89063a7c99957cfea942f7"
+    after: "3ed0aec8bfb44e11daa3f6140f6115be93fa59e2a403983b71a4c03aee8e45f9"
     decision: same-version
 ```
 

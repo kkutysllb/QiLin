@@ -28,55 +28,55 @@ baseline: false
 changes:
   - root: "event:agent/inbox/spliced"
     previous: "2026-09-11-initial"
-    after: "646c2f1d243d3a78c5bc9305786fb340f5209c48a97e65f2a186cc5195491f3f"
+    after: "c3cfdd2d78b0c2cc680b644a69a6e12f05002913f7b855d3c94751fdae5640f8"
     decision: same-version
   - root: "event:assistant/attempt"
     previous: "2026-09-11-initial"
-    after: "c80c89da83c46db7a454f034c10f969e03cfb574859c7316e5bff683f5a14b0e"
+    after: "18a61929b36e5bc871c4debaefbe6be286f7bee402b78929da2315e4745c58db"
     decision: same-version
   - root: "event:assistant/message"
     previous: "2026-09-11-initial"
-    after: "1169b301aaabcd992657b93ec93750c43175dda81ada5cac086f14f2eaaeed6d"
+    after: "e9453df05fc72268ed70a87beb6578ea7baf56124efe6a619c7085a9f30c8ca4"
     decision: same-version
   - root: "event:compaction/summary"
     previous: "2026-09-11-initial"
-    after: "f6f3f30109e9008fccf7da2a3268a63da8646b59dd7cf7b75bcd9cf08ac08a59"
+    after: "dd90a30b4b7efdada540930175a8b049a4e1ae090d8b74e32c76567b98219dcd"
     decision: same-version
   - root: "event:image/offload"
     previous: null
-    after: "b222069eea2d768065161c1147b1f2c78c1b54328c84b3586ae5c8f91b8ed35e"
+    after: "b3900b03cb3655d5d79aa218dc317524376b4a5b90c384992d4cf28d739daa8d"
     decision: same-version
   - root: "event:llm/retry"
     previous: "2026-09-11-initial"
-    after: "525254db03b1d1e6b74cf55aced52817568331ac1f96c0818728910b6692e336"
+    after: "5091606edcdd57939448749165081c29015ebedc207baa1db7e95a3e8702d6ad"
     decision: same-version
   - root: "event:session/title-llm-request"
     previous: "2026-09-11-initial"
-    after: "e0b5bf44c27bbfc6ab144239e3e4169c4d21146645e0e3121bbb359c3bc8591d"
+    after: "460044ac814deacd9418d290fb3f5a203bded2944cfffe2fe16b48e1224b0eb3"
     decision: same-version
   - root: "event:system/message"
     previous: "2026-09-11-initial"
-    after: "69becfb6b2d3fd5da91518089454cae8ef33f1835637ec44dde35dd077fd4bae"
+    after: "e26ab2f16b1132a7ca9a6ccb725597ef036b4ac68eeee0f47cb6bd6b0460bc71"
     decision: same-version
   - root: "event:team/message/queued"
     previous: "2026-09-11-initial"
-    after: "443371ec07a03a82a0e93d93abca3e70b03bca55ba5b01d507030fcb66e8fbb4"
+    after: "47c83c534e7bb2a4eaf87a2bbbbcc0c6af029ff6373c5dd1619a77d8e5ea98a2"
     decision: same-version
   - root: "event:tool/ptc-dispatch"
     previous: "2026-09-12-auto-review-error-metadata"
-    after: "b33142af8176323ffbb20762541be81c1d51b60a60887803836e0b146e5bef0c"
+    after: "bc4aefe3925b0128a3a718920bca82b1cc39f51dba7c47c18282e3706fe33302"
     decision: same-version
   - root: "event:tool/result"
     previous: "2026-09-12-auto-review-error-metadata"
-    after: "29af48b840d0cd9e48b6f50bf3b354f8f6340607c5b99220a48e74f60beac9e2"
+    after: "8e60772aefe9f46db2c49f03ca84d1a34f03788691e68c9fd67de7f5b64f828b"
     decision: same-version
   - root: "event:turn/end"
     previous: "2026-09-11-initial"
-    after: "bab768260853e13a7cf2e22e65af572a1e76a5b2c01f3cdc2ce09d39b87fb70b"
+    after: "8ac389ce0c52c6c8da26722334939532e95e8bae96ceaa3bc5bc81bdedb5098b"
     decision: same-version
   - root: "event:user/message"
     previous: "2026-09-11-initial"
-    after: "314765bdff29c7862fb6ce820f1773563ba3094a680d163ea21180a2591b8578"
+    after: "616a7e4d67bf1c7ea56e921ff49db74cd80822c944f609bc8007b93a5ef654a9"
     decision: same-version
 ```
 

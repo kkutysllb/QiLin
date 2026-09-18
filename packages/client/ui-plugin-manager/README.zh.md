@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用 Web 侧栏的**插件**入口管理 profile 已安装的组合包，以及安装随附、默认关闭的官方组合包。可以启停组合包及其行、在 Host 读出 spec 指向什么之后安装组合包、查看 pnpm 输出、停止一次运行，并启用它新增的包。卸载会要求确认。注册了配置页的插件在这里、在它自己的页面上编辑；设置里只保留只读的插件列表。
+使用 Web 侧栏的**插件**入口管理 profile 已安装的组合包，以及安装随附、默认关闭的官方组合包。可以启停组合包及其行、在 Host 读出 spec 指向什么之后安装组合包、查看 pnpm 输出、停止一次运行，并启用它新增的包。**检查更新**把可管理的层与注册表最新版本比较；**插件目录**搜索 GitHub 上的插件主题。卸载会要求确认。注册了配置页的插件在这里、在它自己的页面上编辑；设置里只保留只读的插件列表。
 
 ## 目录
 
@@ -34,6 +34,14 @@ Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用�
 **添加插件**接受包名（可带版本）、Git 地址、压缩包或本地绝对路径；对话框说明包名就是 README 里 `qilin plugin add` 后面的那一段。输入框下方的**不知道该填什么？**展开一段引导，给出三种常见形式各一个示例；**填入示例**把示例填进输入框。**安装**先让 Host 读出 spec 指向什么（`pluginManager.inspect`）：列表中已有的名字、注册表没有的名字、没有包的路径、没有组合包 patch 的包，或 pnpm 会拒绝的 spec，都以一句话回到输入框下方，spec 保留可继续编辑。通过检查的 spec 打开安装中界面，展示 Host 读到的包名、一句话简介和版本，pnpm 的命令与输出折叠在**查看安装详情**之后。安装完成后提供**立即启用**：启用新组合包、关闭对话框并把列表滚动到它；直接关闭则让它保持已安装但关闭。安装失败时用一行话说明原因——注册表或网络不可达、包不存在、磁盘已满、profile 不可写、pnpm 拦下了构建脚本——pnpm 输出在详情里，**重试**就在手边；Host 已经把 profile 文件放回原样。pnpm 拦下依赖的安装脚本时，失败界面列出等待允许的包，并以**允许这些脚本并重试**取代**重试**；Host 把授权写进 profile 的 `pnpm-workspace.yaml`（失败的运行保留 pnpm 写入的这个文件）再运行 pnpm，安装完成界面会说明允许了哪些脚本。安装成功不代表模块一定能够激活。
 
 安装期间可点击**取消安装**，对话框显示**正在停止安装…**，直到 Host 确认。加载组合包的阶段不可取消。确认后对话框回到 spec 输入界面，可再次安装，并用 toast 说明安装已取消；manifest 与 lockfile 已恢复原样，已下载文件可能保留。安装进行中关闭对话框，同样会请求 Host 停止安装，Host 确认后对话框才关闭；Host 正在准备、停止或加载时不能关闭对话框。连接错误不代表取消成功：安装中界面会如此说明，可以再次尝试取消。
+
+### 检查更新
+
+工具栏上的检查控件让 Host 把每一个可管理的层——包括安装随附的组合包——与注册表最新版本比较（`pluginManager.checkUpdates`），并把有新版本的层显示为 `当前 → 最新`。**更新**通过 Host 的安装通道升级这一层，层在 profile 中的位置保持不变；要等下次启动才生效的变更会用 toast 说明。注册表答不出的层不给更新入口；没有任何层落后时，该区块显示已是最新。该区块用自带控件关闭；检查失败的原因显示在区块里，可以再检查一次。
+
+### 浏览插件目录
+
+卡片下方的插件目录搜索 GitHub 上打了 `dsh-plugin` 主题标签的仓库（`pluginManager.catalog`），按 star 从多到少排列，并用**加载更多**翻页。每条结果展示仓库、描述与 star 数，并可在 GitHub 上打开。**安装**把仓库地址作为 spec 填进安装对话框，由 Host 读取、由人在那里批准安装，与手动输入 spec 完全一致。
 
 ### 切换一个组合包
 
@@ -73,7 +81,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### store
 
-`PluginManagerController` 拥有组合包视图、忙碌键、提示、安装进度和卸载确认。每次读取先问清单 Host 是否管理着 profile，再把 `listBundles` 与 `listPlugins` 合成每个组合包一份视图，其行携带存活条目的启停状态与 fiber 阶段。它合并重叠读取，在操作后、收到 `plugin-manager/changed` 时以及重连后刷新，并在销毁后忽略晚到结果。安装输出按 job id 分组。安装对话框沿 `idle → checking → starting → running → done | failed` 推进，`cancelling` 与 `applying` 按 Host 的报告呈现。检查在一个 `AbortController` 下运行，返回编辑或关闭会中止它并丢弃其结果；运行只能通过 `pluginManager.cancelInstall` 停止，对话框等待其答复。Host 无法应用的变更、要等重启的变更、被更高层覆盖的变更，都是会自行消失的 toast。
+`PluginManagerController` 拥有组合包视图、忙碌键、提示、安装进度和卸载确认。每次读取先问清单 Host 是否管理着 profile，再把 `listBundles` 与 `listPlugins` 合成每个组合包一份视图，其行携带存活条目的启停状态与 fiber 阶段。它合并重叠读取，在操作后、收到 `plugin-manager/changed` 时以及重连后刷新，并在销毁后忽略晚到结果。安装输出按 job id 分组。安装对话框沿 `idle → checking → starting → running → done | failed` 推进，`cancelling` 与 `applying` 按 Host 的报告呈现。检查在一个 `AbortController` 下运行，返回编辑或关闭会中止它并丢弃其结果；运行只能通过 `pluginManager.cancelInstall` 停止，对话框等待其答复。Host 无法应用的变更、要等重启的变更、被更高层覆盖的变更，都是会自行消失的 toast。检查更新与目录搜索是各自的读取：状态与失败文本都留在发起它们的区块里，因此一次失败的查询不会改动卡片。
 
 ### 配置 slot
 
@@ -114,7 +122,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 - **只管理组合包**——没有组合包 patch 的依赖在安装前就被拒绝；profile 里已有的这类依赖不上页面，除非 profile 选中了它；加载普通插件模块仍是文件操作。
 - **行只显示阶段，不显示原因**——失败的行只显示为失败，没有 Host 的错误文本；Host 日志里有。
 - **一次只能安装一个**——对话框一次运行一个 pnpm 命令；第二个 spec 要等前一个完成。
-- **没有版本选择器**——spec 按 pnpm 接受的写法输入；页面不列出注册表版本，也不提供升级。
+- **更新只跟随注册表的 `latest` 标签**——检查只针对 profile 管理的层，并把它们升到最新版本；要锁定某个具体版本仍须手动输入 spec。
 
 <a id="dev-note"></a>
 ### 开发备注

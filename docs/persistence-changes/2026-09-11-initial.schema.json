@@ -4,7 +4,7 @@
     {
       "key": "SessionHeader",
       "kind": "header",
-      "digest": "2a8b114637e66faab5fae1c6e2fba65320db6224c80f5f36c5bf32f937154d03",
+      "digest": "712af19bc288a9573370a3ac84d80fb0b512dc9ccfe27fdf057c79e133787441",
       "schema": {
         "root": 0,
         "nodes": [
@@ -85,7 +85,7 @@
     {
       "key": "JsonlHeaderLine",
       "kind": "header",
-      "digest": "18ee62b8900a4c3d046700f05d7a4d49d6cab2a660a020c87481d1603dd8bd4f",
+      "digest": "44330f7e3cda60fa8c4343730044a31e83605d29b256835b60aadf4c1bda66e3",
       "schema": {
         "root": 0,
         "nodes": [
@@ -171,7 +171,7 @@
     {
       "key": "SessionEventEnvelope",
       "kind": "envelope",
-      "digest": "5776e5553ff2dfe3f5bc202dbb1e7c9f93e35a531aebb7764c23b2b6153b2ccc",
+      "digest": "6bd1fd7d981e2438db01a76dd08fd21f6fe1062cc435b54f9c12a5044def9dba",
       "schema": {
         "root": 0,
         "nodes": [
@@ -336,7 +336,7 @@
       "kind": "event",
       "event": "agent-preset/selected",
       "surface": false,
-      "digest": "a10c17474eaf2ddab7095a099e0fe3d046fc18e56c3e344fc8894c05ff9ef97b",
+      "digest": "c9abeb1be878617b6c35dc0403ad78c6f946d5681e65258b2309c739a9a929c2",
       "schema": {
         "root": 0,
         "nodes": [
@@ -406,7 +406,7 @@
       "kind": "event",
       "event": "agent/inbox/spliced",
       "surface": false,
-      "digest": "f757322e25914d63799c6235af4ed4b4f36d7d083fef40d6873a45e94fe6ad65",
+      "digest": "783b187ebf5f1d24e923cb0e3fd60b5a6544a3c851c1bfbbc3463388617b0475",
       "schema": {
         "root": 0,
         "nodes": [
@@ -1557,7 +1557,7 @@
       "kind": "event",
       "event": "approval/asked",
       "surface": false,
-      "digest": "3bfeb47b58606f4661904bc723da612782214c463d01e6d61cd6d6193d7374e1",
+      "digest": "127da95e367415d130f3bb3dadb4c39f466692c42cde7e756b90e50cf8ef78cb",
       "schema": {
         "root": 0,
         "nodes": [
@@ -1642,7 +1642,7 @@
       "kind": "event",
       "event": "approval/decided",
       "surface": false,
-      "digest": "bb1ab3d08f49a9f3b265f844cd78d5c49813062a7b34b54904b426f85d0ff6e3",
+      "digest": "3f6f01c3e1b9863677825517dbed5719adf9b6c955e01fa90938f054c4641e00",
       "schema": {
         "root": 0,
         "nodes": [
@@ -1742,7 +1742,7 @@
       "kind": "event",
       "event": "approval/policy",
       "surface": false,
-      "digest": "26718e15e7e395bce9642dba5bbe09b3b1a4ce2213d20d566cd9207d7fc5fb78",
+      "digest": "00bf8297527398ea3c0a497354f4d029be4075cc7dc0149fcec75bd548b4b064",
       "schema": {
         "root": 0,
         "nodes": [
@@ -1832,7 +1832,7 @@
       "kind": "event",
       "event": "assistant/attempt",
       "surface": false,
-      "digest": "3516f54b427775f483febe8e938e4e10f9afd3583610861547bbe2999ed4d8d9",
+      "digest": "4f71344240c07c4737a7cc35c5c7bffcac3972dd07892cba6357ed54ecb74a5c",
       "schema": {
         "root": 0,
         "nodes": [
@@ -2724,7 +2724,7 @@
       "kind": "event",
       "event": "assistant/message",
       "surface": true,
-      "digest": "a58ca1bed502d425a8b65cac02f59717498cd296de9513c6f81b83b791c20e9b",
+      "digest": "314eaf2529e873d0d3e0b063e772fea9c8a5ed8da4123c95616431c88be6643d",
       "schema": {
         "root": 0,
         "nodes": [
@@ -3732,7 +3732,7 @@
       "kind": "event",
       "event": "command/done",
       "surface": false,
-      "digest": "15196447222782e773eb943c92b18316ce96b9af0f0cfddb6e57ba8274ecc5ff",
+      "digest": "e1b13c658b7137e6b7dc49245eb945333668db649842f02c8fd71feb0bbbcbe1",
       "schema": {
         "root": 0,
         "nodes": [
@@ -3832,7 +3832,7 @@
       "kind": "event",
       "event": "command/run",
       "surface": false,
-      "digest": "37184378c6439257d105c4e2022d80fc9c3a3f7c7f6ac661b00bc9f18d871006",
+      "digest": "39e2925d1e624df4e386d062874927e4a4073466a89324945b8f71859f96ab5a",
       "schema": {
         "root": 0,
         "nodes": [
@@ -3932,7 +3932,7 @@
       "kind": "event",
       "event": "compaction/end",
       "surface": false,
-      "digest": "b0127044ab31a702bddfd785d345f5abd7a70876746e895ce443afa3e60ddf2d",
+      "digest": "3d013d512b88ab163cd7724f3d7bc0c827a4fbb9496e5feecb510333d8b5d7b5",
       "schema": {
         "root": 0,
         "nodes": [
@@ -4028,7 +4028,7 @@
       "kind": "event",
       "event": "compaction/prune",
       "surface": false,
-      "digest": "7f7fd5a6b0064f597534b29ff62ef26e786dffccf5e14f654a7d4fcea2c35f04",
+      "digest": "0e945bd0de4230a4a89a53d521df897420cdce723246f8d0122d880e556f27a8",
       "schema": {
         "root": 0,
         "nodes": [
@@ -4124,7 +4124,7 @@
       "kind": "event",
       "event": "compaction/start",
       "surface": false,
-      "digest": "db874d463b0fdec77e9da1c4568f37cb70bd6596781eb93800db44fb8a116965",
+      "digest": "8ba607ceecaaa5ec0dd6bf7d02c27fe96ea108a78b676a7878bdb3d9fe5fc636",
       "schema": {
         "root": 0,
         "nodes": [
@@ -4215,7 +4215,7 @@
       "kind": "event",
       "event": "compaction/summary",
       "surface": false,
-      "digest": "eb1d32dcd3d76833392f351e039dcbd40686a1ab24b252a7a5003426f9cf4c89",
+      "digest": "c5771633ccbfadb76179399c6eb759411d1f214f234feee71148501133c43083",
       "schema": {
         "root": 0,
         "nodes": [
@@ -4726,7 +4726,7 @@
       "kind": "event",
       "event": "deliverables/presented",
       "surface": false,
-      "digest": "13d3d180f977bf78081d487ffa0ecb75857349bcab29a5a3fb48189fca2a6176",
+      "digest": "84a6a6dc424edd2a676fb032be113dba3864b458b776e4bb626492f3a60effb6",
       "schema": {
         "root": 0,
         "nodes": [
@@ -4826,7 +4826,7 @@
       "kind": "event",
       "event": "feedback/message-delete",
       "surface": false,
-      "digest": "3ee93b06f3a125850337602bcdf155d2538c43a5c944ec55b1b3c365152d6796",
+      "digest": "a5720e04949032e747f8720a40d9c24835cd482db77e5de8b172e3c665e4d79a",
       "schema": {
         "root": 0,
         "nodes": [
@@ -4901,7 +4901,7 @@
       "kind": "event",
       "event": "feedback/message-put",
       "surface": false,
-      "digest": "b5086d249e8502e9ead1d39156bb8d559bde7951cac0f14ce150345b4e42a2bf",
+      "digest": "d15919d5a460a430af34e61697f3d3a37a7e37087f62c83140364fb23e2383db",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5072,7 +5072,7 @@
       "kind": "event",
       "event": "feedback/record",
       "surface": false,
-      "digest": "b54940ff095c17e874c5be03815f4c2145a256cf3a1d34dae4ab2f7769dfffe8",
+      "digest": "ff61c86dabd35785849deda1f6eec9a9b264ef1130bf8a3f54aa89fbd2aac71c",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5187,7 +5187,7 @@
       "kind": "event",
       "event": "goal/change",
       "surface": false,
-      "digest": "763c8a20af487263a0080548274f7437ef4a86e0ba8769127d1ced10a72c664d",
+      "digest": "bc20c8f52caf0089fa7bbf4cb663cee6bc5ef5385b98f2d8251893559c96ac0f",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5457,7 +5457,7 @@
       "kind": "event",
       "event": "hook/invoked",
       "surface": false,
-      "digest": "8a6e1ec9e8db346b0e02f027db73c07a94f067a26d40c1aef1abd09c47ce7ba0",
+      "digest": "b80b7e0307e20392445b88da64b5d4df063f367d7833d53a8e3f98d7505b0bde",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5562,7 +5562,7 @@
       "kind": "event",
       "event": "hook/result",
       "surface": false,
-      "digest": "e75916628f3f10c2d50658bd143052a46285fbf1a9a700ba54947614603d26b4",
+      "digest": "a36fcb09e29a69783260c94084c6d9d38053c5c704fdd09ad481e71aff402b24",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5662,7 +5662,7 @@
       "kind": "event",
       "event": "llm/retry",
       "surface": false,
-      "digest": "91c397f8f870e812e1dc5ac69c2745f9f105be9dc97dadc980d19ef415a65145",
+      "digest": "6db3c5383551b3bdd07234418cffc4eb7a88eba20558e1cbf497b856057901ec",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5874,7 +5874,7 @@
       "kind": "event",
       "event": "llm/retry-started",
       "surface": false,
-      "digest": "48e5c9861f16ac07e78cb7b5ae9dabdf7bb85c58baed5a51b4ad275050ea58e3",
+      "digest": "98e3f7c0a4a706b4aa6a6578f8cdca9be12c1c58e36a79d1a73a6a0602baf32a",
       "schema": {
         "root": 0,
         "nodes": [
@@ -5959,7 +5959,7 @@
       "kind": "event",
       "event": "model/selection",
       "surface": false,
-      "digest": "35203ba7ad5ef6f97d556b85df20ae98f04f09c65748cecdf8eefdb8b6405ffc",
+      "digest": "d5ff6fa465c1efbdc9e1134da5501aa9a922c38d4f5c41a89aad44372fa469d8",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6039,7 +6039,7 @@
       "kind": "event",
       "event": "permission/preset",
       "surface": false,
-      "digest": "5c45bf4c544a7211dcd8ba6ba7e5f1bc39b49e7a9df9d5cbdc8e87c22771b37b",
+      "digest": "3f71fdbd8291b0be2279d2862dd340ee4650a21ebb1b9418911d6df5a04a7dc9",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6109,7 +6109,7 @@
       "kind": "event",
       "event": "plan/mode",
       "surface": false,
-      "digest": "a7cf43ce7c2a4c038feed1885cd7a00d5c6ee2d90a7e0d56b46f78a3e1ca327f",
+      "digest": "4b7103b8b80225722b2f718709a04a850495a3bcdd9ba7ba6ae07f3fb10de17a",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6179,7 +6179,7 @@
       "kind": "event",
       "event": "request/context",
       "surface": false,
-      "digest": "37cbc9cf06d494cfe5c67f078af1605eacb8e4c2c853e9e26455b73de0ee7ccf",
+      "digest": "53dfbec638d2f3a375e83baf7f32bb8011814d41e4591235efd1ac9499e510d7",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6268,7 +6268,7 @@
       "kind": "event",
       "event": "request/header",
       "surface": false,
-      "digest": "8ea13bcd983eab596dbfd41c5c2b62a0b318b71cd2a987a6fd752c6ced7e4489",
+      "digest": "6c4cfa567b5233f1578b9d75081b32c2fd8818a93a1e1f58655eeb654354c764",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6489,7 +6489,7 @@
       "kind": "event",
       "event": "sandbox/mode",
       "surface": false,
-      "digest": "516da4cdd6d2f1e5ce488e648578ca51f40e458f707b803e5b24de870e799415",
+      "digest": "7c9e7e4c21bf05c13ce9b80f23f8c531dcb7a87fbdb5a7272236e3b7002512e1",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6584,7 +6584,7 @@
       "kind": "event",
       "event": "schedule/change",
       "surface": false,
-      "digest": "2a7f86849ae54b3398ee49661a757c4fcb59a6192b7036ee2ff514617e13fb42",
+      "digest": "9e3efc7bd63f2c8ac6f7ff4014155fec818d9959f2f0bbab733c5c2bfee58785",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6865,7 +6865,7 @@
       "kind": "event",
       "event": "session-log-deepseek/delivery-accepted",
       "surface": false,
-      "digest": "d63b8b8ffad9c02fd80c43a17df4f240c1fe8118ecca9de34f9d5871838ab5b9",
+      "digest": "f210abcc1afd6ad87dd9a82c645adb2be6eaed9ba5842d1f60095fa7f8b7ff23",
       "schema": {
         "root": 0,
         "nodes": [
@@ -6945,7 +6945,7 @@
       "kind": "event",
       "event": "session/end-seed",
       "surface": false,
-      "digest": "5e6db6e24948d4a853c71cb9fabd252ad051ce93d4672c1266cf837c1c17b84e",
+      "digest": "1909d58cdcd473618ef432da807e53d1c914f776f4c32f15cde2ffe513c73881",
       "schema": {
         "root": 0,
         "nodes": [
@@ -7011,7 +7011,7 @@
       "kind": "event",
       "event": "session/title",
       "surface": false,
-      "digest": "1b912703e2d64f91c99c675b8f805b01076c8325b905c1218ad81ef0b24909d5",
+      "digest": "01fca362a0bfa138953d584ed4d534dae52ddb160c3b42833285fbcd7efbf078",
       "schema": {
         "root": 0,
         "nodes": [
@@ -7174,7 +7174,7 @@
       "kind": "event",
       "event": "session/title-llm-request",
       "surface": false,
-      "digest": "6091f64d426ada2adc646094a6fe662a1b81d9ee5770929fe76800524e2c89a8",
+      "digest": "6a595a4811e990db4c28001a28c8a6362138f35283de62c4352e1d9ae684483c",
       "schema": {
         "root": 0,
         "nodes": [
@@ -8347,7 +8347,7 @@
       "kind": "event",
       "event": "step/end",
       "surface": false,
-      "digest": "e0a787e6ec76c7c94fecbc501b489164ab0293db05bc947914077ad01e674f05",
+      "digest": "a62407fa5502cb1dd5771adc6ffd5f1695b464af15cbbc3fda98a4f18a173238",
       "schema": {
         "root": 0,
         "nodes": [
@@ -8418,7 +8418,7 @@
       "kind": "event",
       "event": "step/start",
       "surface": false,
-      "digest": "4513e088d43e6c68425be30451b9f961cc264fe7318ca62681c41d4d78615986",
+      "digest": "75703eb560decf0ac1ac21e23c7e81a47f7563e12e55943e8207c5967d84925e",
       "schema": {
         "root": 0,
         "nodes": [
@@ -8489,7 +8489,7 @@
       "kind": "event",
       "event": "subagent/catalog",
       "surface": false,
-      "digest": "ae1f7110feeec697b8cab42b68f7709aa7b3279764099dfb53c25890d2e5c871",
+      "digest": "2d901288e91cc0e1229bd1922be57d08fddc0282991c600aaed6ab97031abc3a",
       "schema": {
         "root": 0,
         "nodes": [
@@ -8629,7 +8629,7 @@
       "kind": "event",
       "event": "subagent/descriptor",
       "surface": false,
-      "digest": "b79ada42962cad0190a9d465805260567621fa3a4abd757eb31e6016b52d5ab5",
+      "digest": "9fd8dd45e9ec36d43bb36703b46fc83e26646bc44d8b8cec9fc5946419a1b2c0",
       "schema": {
         "root": 0,
         "nodes": [
@@ -8800,7 +8800,7 @@
       "kind": "event",
       "event": "subagent/model-selection-policy",
       "surface": false,
-      "digest": "a6567ccb2e530606b775371eb4fa31468d72084339968e8b0440a516a23b39dc",
+      "digest": "b0d9df74c8f5b743e7aefff6905d8ed6184a09b291db13350c30114f7c39ddcf",
       "schema": {
         "root": 0,
         "nodes": [
@@ -8890,7 +8890,7 @@
       "kind": "event",
       "event": "system/message",
       "surface": true,
-      "digest": "0ae7ccdc1cc5d9d43772ebd5c7357ff509011c3a6ba188d9c274d33df2542c42",
+      "digest": "e1d3751a8589457543f8d784b30405dfc65d091888ab6aae000dacf8df581297",
       "schema": {
         "root": 0,
         "nodes": [
@@ -9524,7 +9524,7 @@
       "kind": "event",
       "event": "team/member",
       "surface": false,
-      "digest": "4fb59762612c3e3ac3a3bd4f84c9c148d3c3893bd422ba2b201cc039fabd49bc",
+      "digest": "75609058adbd64d89f1fa99d98328166ddea00314688d2aad3d9fd3e86494d00",
       "schema": {
         "root": 0,
         "nodes": [
@@ -9684,7 +9684,7 @@
       "kind": "event",
       "event": "team/message/delivered",
       "surface": false,
-      "digest": "48f9c19417a1abbedfa59f4667bba36b93ac2db407adf5e84cb3ba0de30942cb",
+      "digest": "a090f11909db8462bf294a9b5a98acaa92f016e6b945d32cb995e6f430810dd0",
       "schema": {
         "root": 0,
         "nodes": [
@@ -9773,7 +9773,7 @@
       "kind": "event",
       "event": "team/message/queued",
       "surface": false,
-      "digest": "2ffcad547cb840f462eb1849fa5f6cb0e17eb93f5d07cc88b61d749b1b78d632",
+      "digest": "184c207efebc92299686fbab1d97794e93ac5d073bb3fc6283a145774344680e",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10150,7 +10150,7 @@
       "kind": "event",
       "event": "team/task",
       "surface": false,
-      "digest": "d595ec73b32b016a6055333c67a5d646032b22e672da1d4a09c5b1ae398a093a",
+      "digest": "4d75f4921acce3c74edc4a9a3b2d022e2c95ed2b18a5bf74a8b48ec840411d75",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10309,7 +10309,7 @@
       "kind": "event",
       "event": "todo/write",
       "surface": false,
-      "digest": "b978cff734e62143eb56c9125423ec275405eda969802d42aaf73ecb987d3b26",
+      "digest": "4d416f8029171ec94969b49e1e005a1efdc32a0ff7917e3102be364a7fd758f8",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10419,7 +10419,7 @@
       "kind": "event",
       "event": "tool-workflow/agent-end",
       "surface": false,
-      "digest": "babf9ee4d1af62bf6c3a8103737f7a5e4e78ce179be835ce05a38803e15884b7",
+      "digest": "d79b7e955a255d2099bbbbd01f4a4a3c611aa616272571cbae493abb970c70ac",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10519,7 +10519,7 @@
       "kind": "event",
       "event": "tool-workflow/agent-start",
       "surface": false,
-      "digest": "5f26a6c20b37632f8f57729d171c671def4683d994ac6257a8dffcd855101627",
+      "digest": "095b5754d63c8160a18b07a982a2478fe552efe56d68483b9f5a9481b753cc40",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10609,7 +10609,7 @@
       "kind": "event",
       "event": "tool-workflow/run-end",
       "surface": false,
-      "digest": "42e0916e0dda5f6d1e7bb05d8514717147c036a79c9f36085683469516c1fd3f",
+      "digest": "ad31b24f5513db55a39e09d10784a0173d6a664e4c9bf90f22c32903c6a01b91",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10704,7 +10704,7 @@
       "kind": "event",
       "event": "tool-workflow/run-start",
       "surface": false,
-      "digest": "c1f9e0405de6d18cabb9ee70782a027f9bbdc57e5abec9dcccdd56119e2e9058",
+      "digest": "4db21577c1e7f76179989cfab7206069987c9fdff66e714c9062df8bb33ccc2e",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10779,7 +10779,7 @@
       "kind": "event",
       "event": "tool/call",
       "surface": false,
-      "digest": "3b1be838223869fe0a08210db85bf773796ed3f2373ac16555dff227cade0c48",
+      "digest": "aa06dd6287342abc13e4bf118fac6cbf3d9b1eaf7579c0809f641c3e89633351",
       "schema": {
         "root": 0,
         "nodes": [
@@ -10869,7 +10869,7 @@
       "kind": "event",
       "event": "tool/ptc-dispatch",
       "surface": false,
-      "digest": "da807583a19f4ebe2bc9115c9686016e1521e405bdfaced296ae652b91e8e5f6",
+      "digest": "79b2cc7627cda6169d963e55956639b66f45104f3833f180abaecaef20d5466b",
       "schema": {
         "root": 0,
         "nodes": [
@@ -11235,7 +11235,7 @@
       "kind": "event",
       "event": "tool/ptc-dispatch-start",
       "surface": false,
-      "digest": "ec38b5949af8eacaf00df002f4acbe344f934f8a061e9cdc65a52a48e5f6dd93",
+      "digest": "3a7c59a2828b3a88e55af4ddc15ac63a58fb89855be52610bfba32bd8919f192",
       "schema": {
         "root": 0,
         "nodes": [
@@ -11329,7 +11329,7 @@
       "kind": "event",
       "event": "tool/result",
       "surface": true,
-      "digest": "cc3e270ab982cbafff602b753647b6f056decb7fe4fd523afd2f157a65c3d622",
+      "digest": "a3a30e7aa21b7d5b5ff2682658a6da8925128a1746c908a156449d4988cfa8ab",
       "schema": {
         "root": 0,
         "nodes": [
@@ -11836,7 +11836,7 @@
       "kind": "event",
       "event": "turn/end",
       "surface": false,
-      "digest": "84c24f1209fc3e0153de6ac85d58fd6968b851f955e0e761b92321053956609e",
+      "digest": "f075f6683f9d7e9d199484c462b1a7e7769bc2efbfb45c0d62e5db67c631f0cc",
       "schema": {
         "root": 0,
         "nodes": [
@@ -12143,7 +12143,7 @@
       "kind": "event",
       "event": "turn/start",
       "surface": false,
-      "digest": "aa0957eca50aeb28bcd2e6930b95809926edacb550c8c340ba526ba6b861b3d8",
+      "digest": "64455f912ad2e99a049d015e3c585968fc58e5bd6a891527fc9f1f31dd6d594f",
       "schema": {
         "root": 0,
         "nodes": [
@@ -12209,7 +12209,7 @@
       "kind": "event",
       "event": "user/message",
       "surface": true,
-      "digest": "2e49ede7fb3a592cce8919ebe982f6ca1c1f67abe4def359ffc028c85e6d1ad8",
+      "digest": "82fea288b3d82719e47cfc14ac9caa7d8cdadda8bbe10fb2decd4add27670148",
       "schema": {
         "root": 0,
         "nodes": [
@@ -13352,7 +13352,7 @@
       "kind": "event",
       "event": "web/deepseek-search-llm-request",
       "surface": false,
-      "digest": "cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331",
+      "digest": "02d9dcc4442ed193a19e21ce35abdfea7c688a4557a5695f94a4a6fb0a078f77",
       "schema": {
         "root": 0,
         "nodes": [

@@ -33,12 +33,12 @@
 | `commands/change` | `emit` | [`packages/interaction/commands/src/types.ts:89`](../packages/interaction/commands/src/types.ts) | [`commands`](../packages/interaction/commands) (`events.dispatch`) | `remotes` |
 | `compaction/summary-error` | `waterfall` | [`packages/compaction/compaction/src/index.ts:99`](../packages/compaction/compaction/src/index.ts) | [`compaction-basic`](../packages/compaction/compaction-basic) (`waterfall`) | [`compaction-image-offload`](../packages/compaction/compaction-image-offload) |
 | `connection/request` | `waterfall` | [`packages/client/connection/src/index.ts:62`](../packages/client/connection/src/index.ts) | `connection` (`waterfall`) | - |
-| `cordis/dynamic-package` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:380`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
-| `cordis/dynamic-retract` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:386`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
-| `cordis/inspect-query` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:392`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
-| `cordis/inspect-query-resolved` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:398`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
-| `cordis/request-run` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:368`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
-| `cordis/request-run-resolved` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:374`](../packages/extensions/cordis-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/cordis-host-runner) (`emit`) | `remotes` |
+| `cordis/dynamic-package` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:380`](../packages/extensions/kylin-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/kylin-host-runner) (`emit`) | `remotes` |
+| `cordis/dynamic-retract` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:386`](../packages/extensions/kylin-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/kylin-host-runner) (`emit`) | `remotes` |
+| `cordis/inspect-query` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:392`](../packages/extensions/kylin-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/kylin-host-runner) (`emit`) | `remotes` |
+| `cordis/inspect-query-resolved` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:398`](../packages/extensions/kylin-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/kylin-host-runner) (`emit`) | `remotes` |
+| `cordis/request-run` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:368`](../packages/extensions/kylin-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/kylin-host-runner) (`emit`) | `remotes` |
+| `cordis/request-run-resolved` | `emit` | [`packages/extensions/cordis-host-runner/src/types.ts:374`](../packages/extensions/kylin-host-runner/src/types.ts) | [`cordis-host-runner`](../packages/extensions/kylin-host-runner) (`emit`) | `remotes` |
 | `credentials/record-updated` | `emit` | [`packages/credentials/credentials/src/types.ts:102`](../packages/credentials/credentials/src/types.ts) | [`credentials`](../packages/credentials/credentials) (`events.dispatch`) | [`authorization`](../packages/credentials/authorization) |
 | `credentials/reference-updated` | `emit` | [`packages/credentials/credentials/src/types.ts:90`](../packages/credentials/credentials/src/types.ts) | [`credentials`](../packages/credentials/credentials) (`events.dispatch`) | [`credentials`](../packages/credentials/credentials), `remotes` |
 | `domain/changed` | `emit` | [`packages/storage/storage-domain/src/events.ts:46`](../packages/storage/storage-domain/src/events.ts) | [`storage-domain`](../packages/storage/storage-domain) (`emit`) | [`storage-domain`](../packages/storage/storage-domain), [`workspace`](../packages/workspace/workspace), `workspace-controller` |
@@ -89,6 +89,7 @@
 
 | Event string | Dispatchers | Listeners |
 | --- | --- | --- |
+| `connection/reset` | `gateway` (`emit`) | - |
 | `internal/dispatch` | - | `agent-team`, [`commands`](../packages/interaction/commands), [`compaction`](../packages/compaction/compaction), [`fs`](../packages/fs/fs), [`goal`](../packages/goal/goal), [`goal-round-driver`](../packages/goal/goal-round-driver), [`hook-protocol`](../packages/hooks/hook-protocol), [`llm-retry`](../packages/llm/llm-retry), [`permission-presets`](../packages/interaction/permission-presets), [`plan-mode`](../packages/plan/plan-mode), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`schedule`](../packages/schedule/schedule), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`session-log-deepseek`](../packages/session/session-log-deepseek), [`session-title`](../packages/session/session-title), [`subagent`](../packages/subagent/subagent), [`terminal-bash`](../packages/terminal/terminal-bash), [`time-context`](../packages/context/time-context), [`tool-todo`](../packages/todo/tool-todo), [`tool-workflow`](../packages/workflow/tool-workflow), [`tools`](../packages/core/tools), `ui-renderer`, [`user-approval`](../packages/interaction/user-approval), [`webhook`](../packages/webhook/webhook), [`workflow`](../packages/workflow/workflow) |
 | `internal/plugin` | - | `computer-use-cua-driver-native`, `inspector`, `loader`, [`lsp-stdio`](../packages/lsp/lsp-stdio), [`mcp-client`](../packages/mcp/mcp-client), `modules` |
 | `internal/service` | - | [`agent-presets`](../packages/preset/agent-presets), `gateway` |
@@ -96,4 +97,4 @@
 | `internal/update` | - | [`app-boot`](../packages/boot/app-boot) |
 | `slots/changed` | `ui-renderer` (`emit`) | - |
 
-Maintenance mode: generated: Kylin event declarations and producer/listener edges are resolved from the repository TypeScript Program.
+Maintenance mode: generated: Cordis event declarations and producer/listener edges are resolved from the repository TypeScript Program.

@@ -251,7 +251,6 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
-  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
 }
 
 /** The bundle list a `qilin plugin` init uses for a name with no shipped template. */

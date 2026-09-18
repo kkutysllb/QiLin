@@ -13,7 +13,8 @@ import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { PluginInstallFailureKind } from '@qilin/api-remotes/client'
 import {
   Button, IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14, IconChevronRightOutline14, IconCloseOutline16,
-  IconCordisPluginOutline14, IconPluginPinwheelOutline16, IconPlusOutline16, IconRefreshOutline16, IconTrashOutline16,
+  IconCordisPluginOutline14, IconDownloadOutline16, IconPluginPinwheelOutline16, IconPlusOutline16, IconRefreshOutline16,
+  IconRightUpOutline16, IconSearchOutline16, IconTrashOutline16,
   IconWarningOutline16, Input, Modal, StateDot, Switch, Tag, TerminalBlock, Toast,
   type StateDotState, type TerminalBlockLabels,
 } from '@qilin/client-ui-primitives'
@@ -22,8 +23,8 @@ import { rowConfigKey, type OfficialItem } from './config-ledger.ts'
 import type { PluginManagerLocaleKey } from './locales.ts'
 import {
   isInstallPending, rowKey,
-  type ConfirmState, type InstallInputError, type InstallState, type InstallSubject, type PackageRow, type PackageView,
-  type PluginManagerFace,
+  type CatalogState, type ConfirmState, type InstallInputError, type InstallState, type InstallSubject, type PackageRow,
+  type PackageView, type PluginManagerFace, type UpdateState,
 } from './manager-store.ts'
 import { managementText, noticeText, packageText, type Translate } from './presentation.ts'
 import type {} from './slot-contract.ts'
@@ -836,6 +837,130 @@ function ConfirmDialog({ confirm, t, onConfirm, onCancel }: {
   )
 }
 
+/**
+ * The update check's result: every layer the registry has a newer version
+ * for, each with the control that moves it, or the reason the check failed.
+ */
+function UpdatesPanel({ updates, t, busy, onUpdate, onDismiss }: {
+  readonly updates: UpdateState
+  readonly t: Translate
+  readonly busy: (name: string) => boolean
+  readonly onUpdate: (name: string) => void
+  readonly onDismiss: () => void
+}): ReactNode {
+  return (
+    <section className={css.panel} data-plugin-updates data-status={updates.status} aria-busy={updates.status === 'checking'}>
+      <div className={css.panelHead}>
+        <h3 className={css.panelTitle}>{t('updatesTitle')}</h3>
+        <button type="button" className={css.iconButton} aria-label={t('updatesClose')} title={t('updatesClose')} onClick={onDismiss}>
+          <span className={css.iconWrap} aria-hidden="true"><IconCloseOutline16 size={14} /></span>
+        </button>
+      </div>
+      {updates.status === 'checking' ? <p className={css.status}>{t('updatesChecking')}</p> : null}
+      {updates.status === 'failed' ? <p className={css.panelFailure} role="alert">{t('updatesFailed', { reason: updates.reason })}</p> : null}
+      {updates.status === 'ready' && updates.entries.length === 0 ? <p className={css.status}>{t('updatesCurrent')}</p> : null}
+      {updates.entries.length === 0
+        ? null
+        : (
+          <ul className={css.panelList}>
+            {updates.entries.map(entry => (
+              <li key={entry.name} className={css.panelRow} data-plugin-update={entry.name}>
+                <div className={css.panelMain}>
+                  <span className={css.panelName}>{entry.name}</span>
+                  <span className={css.panelMeta}>
+                    {t('updatesVersions', { current: entry.currentVersion ?? t('versionUnknown'), latest: entry.latestVersion })}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={busy(entry.name)}
+                  aria-label={t('updateLabel', { name: entry.name })}
+                  onClick={() => { onUpdate(entry.name) }}
+                >
+                  {t('update')}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+    </section>
+  )
+}
+
+/**
+ * The plugin catalog: a search over GitHub's plugin topic and the repositories
+ * it answered. Each result installs through the same dialog a typed spec uses,
+ * so the Host reads it and the person approves it before anything runs.
+ */
+function CatalogPanel({ catalog, t, busy, onSearch, onMore, onInstall }: {
+  readonly catalog: CatalogState
+  readonly t: Translate
+  readonly busy: boolean
+  readonly onSearch: (query: string) => void
+  readonly onMore: () => void
+  readonly onInstall: (spec: string) => void
+}): ReactNode {
+  const [query, setQuery] = useState('')
+  return (
+    <section className={css.panel} data-plugin-catalog data-status={catalog.status} aria-busy={catalog.status === 'searching'}>
+      <div className={css.panelHead}>
+        <h3 className={css.panelTitle}>{t('catalogTitle')}</h3>
+      </div>
+      <form className={css.catalogSearch} onSubmit={(event) => { event.preventDefault(); onSearch(query) }}>
+        <Input
+          type="search"
+          className={css.catalogField as string}
+          icon={<IconSearchOutline16 size={14} />}
+          placeholder={t('catalogSearchPlaceholder')}
+          aria-label={t('catalogSearchLabel')}
+          value={query}
+          onChange={(event) => { setQuery(event.target.value) }}
+        />
+        <Button variant="outline" type="submit" disabled={busy}>{t('catalogSearch')}</Button>
+      </form>
+      {catalog.status === 'idle' ? <p className={css.status}>{t('catalogIdle')}</p> : null}
+      {catalog.status === 'searching' ? <p className={css.status}>{t('catalogSearching')}</p> : null}
+      {catalog.status === 'failed' ? <p className={css.panelFailure} role="alert">{t('catalogFailed', { reason: catalog.reason })}</p> : null}
+      {catalog.status === 'ready' && catalog.entries.length === 0 ? <p className={css.status}>{t('catalogEmpty')}</p> : null}
+      {catalog.entries.length === 0
+        ? null
+        : (
+          <ul className={css.panelList}>
+            {catalog.entries.map(entry => (
+              <li key={entry.fullName} className={css.panelRow} data-plugin-catalog-entry={entry.fullName}>
+                <div className={css.panelMain}>
+                  <a
+                    className={css.catalogName}
+                    href={entry.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={t('catalogOpen', { name: entry.fullName })}
+                  >
+                    <span>{entry.fullName}</span>
+                    <IconRightUpOutline16 size={12} aria-hidden="true" />
+                  </a>
+                  {entry.description === null ? null : <span className={css.panelMeta}>{entry.description}</span>}
+                  <span className={css.panelMeta}>{t('catalogStars', { count: String(entry.stars) })}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={busy}
+                  aria-label={t('catalogInstallLabel', { name: entry.fullName })}
+                  onClick={() => { onInstall(entry.url) }}
+                >
+                  {t('catalogInstall')}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      {catalog.hasMore ? <Button variant="outline" size="sm" disabled={busy} onClick={onMore}>{t('catalogMore')}</Button> : null}
+    </section>
+  )
+}
+
 /** Render the plugin manager: the official plugins and installed bundles, their pages, the install dialog, and the confirmation. */
 export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const { t, ensure, renderSlot } = props
@@ -916,6 +1041,16 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
               <p className={css.pageIntro}>{t('intro')}</p>
             </div>
             <div className={css.toolbar}>
+              <button
+                type="button"
+                className={css.iconButton}
+                aria-label={t('checkUpdates')}
+                title={t('checkUpdates')}
+                disabled={!loaded || state.updates.status === 'checking'}
+                onClick={props.checkUpdates}
+              >
+                <span className={css.iconWrap} aria-hidden="true"><IconDownloadOutline16 /></span>
+              </button>
               <button type="button" className={css.iconButton} aria-label={t('refresh')} title={t('refresh')} disabled={!loaded} onClick={props.refresh}>
                 <span className={css.iconWrap} aria-hidden="true"><IconRefreshOutline16 /></span>
               </button>
@@ -932,6 +1067,17 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             <p role="alert">{t('error')}</p>
             <Button variant="outline" size="sm" onClick={props.refresh}>{t('retry')}</Button>
           </div>
+        )
+        : null}
+      {loaded && showsCards && state.updates.status !== 'idle'
+        ? (
+          <UpdatesPanel
+            updates={state.updates}
+            t={t}
+            busy={name => state.busy.includes(name)}
+            onUpdate={props.updatePackage}
+            onDismiss={props.dismissUpdates}
+          />
         )
         : null}
       {state.notice === null || noticeLine === null
@@ -985,6 +1131,18 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
               {renderGroup('bundles', t('bundlesTitle'), mine.map(packageCard))}
             </>
           )
+        : null}
+      {loaded && showsCards
+        ? (
+          <CatalogPanel
+            catalog={state.catalog}
+            t={t}
+            busy={state.catalog.status === 'searching'}
+            onSearch={(query) => { props.catalog(query, 1) }}
+            onMore={() => { props.catalog(state.catalog.query, state.catalog.page + 1) }}
+            onInstall={props.installCatalogSpec}
+          />
+        )
         : null}
       <InstallDialog
         install={state.install}

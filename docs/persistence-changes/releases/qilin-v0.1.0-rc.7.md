@@ -50,8 +50,8 @@ previous: qilin-v0.1.0-rc.6
 sessionFormatVersion: 0
 changes:
   - root: event:assistant/chunk
-    before: 7fd942b2189b8dbf6e1a2c7b026e9ddd1e7dba3fbe5645708a76f4cddabb281d
-    after: de04e4ae000cc4422a15fb86dce7c398c8a9970ac963b6f7f785e2276a939e62
+    before: f2f093e0e7bf440002fccb7e95b28dc26b9206e11b267fd88b32040b212c052c
+    after: 830ad53e5752464f5611450214facbe285da768d4de9f923ad35d275beaa3331
 ```
 
 <a id="changes"></a>

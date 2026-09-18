@@ -60,11 +60,11 @@
 - 依赖 dsh 内部 macOS Seatbelt 沙箱的用例无法在本机完成：外层沙箱使 sandbox-exec 返回 Operation not permitted。
 - 已证归因（基线复跑失败数一致）：Web 回放的 replay-round-trip 用例；交付物的 present 用例。
 - 未证归因：引擎回放的 3 项失败用例名指向沙箱或原生插件，但未重跑基线对比。
-- 复现基线对比的方法：git worktree add .worktrees/baseline 3083f37c3f，随后在该 worktree 执行 pnpm install --frozen-lockfile 与 pnpm run build，再跑目标用例。
+- 复现基线对比的方法：git worktree add .worktrees/baseline dsh-v0.1.5-rc.2，随后在该 worktree 执行 pnpm install --frozen-lockfile 与 pnpm run build，再跑目标用例。
 
 ## 去 dsh 化（A+B 层）
 
-### B 层已完成并推送（4b2cc182be）
+### B 层已完成并推送（3.0.0 分支）
 - 274 个工作区包名 @deepseek-ai/dsh-* 改为 @qilin/*；CLI 包改为 @qilin/cli。
 - package.json 清单字段 dsh 改为 qilin，并同步代码侧字段访问与类型声明。
 - 转义形式（正则内的 @deepseek-ai\/dsh-）一并改名，含 tsdown.client.ts 的 INLINE_SAFE。
@@ -91,7 +91,7 @@
 3. 改名前已存在：scripts/doc-standard.spec.ts 报 packages/bundle/web-brand/README.zh.md 缺少标准中文章节标题（概述、开发备注），
    与本轮改名无关，是更早提交的 README 章节命名问题。
 
-### 门禁判定同步（ab52e3d4f7）
+### 门禁判定同步（3.0.0 分支）
 - 根因：多处门禁按 '@deepseek-ai/' 前缀判定本仓库包，改名后整体失效或误判。
 - 已修：客户端打包纯度门禁、工作区约束、发布家族、发布基线、桌面包集选择、应用入口清单。
 - 已修：桌面夹具的路径分段与闭包排序期望、三个自建 README 的中文章节名。

@@ -1,11 +1,11 @@
 ---
-description: "回溯 qilin-v3.0.0 的已声明 Session 持久化类型及相邻版本变化。"
+description: "回溯 qilin-v0.1.5-rc.2 的已声明 Session 持久化类型及相邻版本变化。"
 kind: persistence-release
 ---
 
-# 持久化版本回溯: qilin-v3.0.0
+# 持久化版本回溯: qilin-v0.1.5-rc.2
 
-[English](qilin-v3.0.0.md) | 中文
+[English](qilin-v0.1.5-rc.2.md) | 中文
 
 ## 概述
 
@@ -28,13 +28,13 @@ kind: persistence-release
 
 | 项目 | 记录值 |
 |---|---|
-| 源码 tag | `qilin-v3.0.0` |
+| 源码 tag | `qilin-v0.1.5-rc.2` |
 | 源码日期 | 2026-09-10T13:50:19.000Z |
 | 发行记录 | 有 release 对象。 |
 | 前一版本 | [qilin-v0.1.5-rc.1](qilin-v0.1.5-rc.1.zh.md) |
 | Session 写入版本 | 3 |
 | 完整重建清单 | <!-- persistence-release-inventory:start -->59 个根类型 / 462 种类型<!-- persistence-release-inventory:end --> |
-| 本条快照 | [qilin-v3.0.0.schema.json](qilin-v3.0.0.schema.json) |
+| 本条快照 | [qilin-v0.1.5-rc.2.schema.json](qilin-v0.1.5-rc.2.schema.json) |
 
 写入版本常量在该 tag 中的源码证据：
 
@@ -45,7 +45,7 @@ kind: persistence-release
 
 ```yaml persistence-release
 schemaVersion: 1
-tag: qilin-v3.0.0
+tag: qilin-v0.1.5-rc.2
 previous: qilin-v0.1.5-rc.1
 sessionFormatVersion: 3
 changes: []

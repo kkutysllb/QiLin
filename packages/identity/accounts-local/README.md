@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Mount this package in a Web deployment to require a sign-in before a browser reaches the harness. The first visitor initializes the administrator account; after that every browser signs in with a username or the email address the account carries, and the account-session gate serves the application document and answers `/api` only to a session this deployment minted. A browser without a session is sent to the site's public landing page, which opens the sign-in or first-run document. Accounts gate access to one harness home, so a second account reaches the same Sessions, credentials, and files. Registration is open by default, and a deployment binding beyond loopback closes it. Disabling the gate restores the transport's launch-token handoff.
+Mount this package in a Web deployment to require a sign-in before a browser reaches the harness. The first visitor initializes the administrator account; afterwards every browser signs in with a username or the account's email address. The account-session gate serves the application document and answers `/api` only to a session this deployment minted, and sends a browser without one to the public landing page. Accounts gate one harness home, so a second account reaches the same Sessions, credentials, and files. Registration is open by default, and a deployment bound beyond loopback closes it.
 
 ## Table of Contents
 

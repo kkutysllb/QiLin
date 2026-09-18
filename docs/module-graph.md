@@ -12,6 +12,7 @@ flowchart TD
     pkg_brand["brand"]
     pkg_chunked_list["chunked-list"]
     pkg_deque["deque"]
+    pkg_dsh_compat["dsh-compat"]
     pkg_home_paths["home-paths"]
     pkg_http_proxy["http-proxy"]
     pkg_launch_environment["launch-environment"]
@@ -71,9 +72,9 @@ flowchart TD
     pkg_subagent_acp["subagent-acp"]
     pkg_subagent_claude_code["subagent-claude-code"]
     pkg_subagent_codex["subagent-codex"]
-    pkg_subagent_qilin_sdk["subagent-qilin-sdk"]
     pkg_subagent_fork_in_process["subagent-fork-in-process"]
     pkg_subagent_in_process_driver["subagent-in-process-driver"]
+    pkg_subagent_qilin_sdk["subagent-qilin-sdk"]
     pkg_subagent_spawn_in_process["subagent-spawn-in-process"]
     pkg_tool_subagent["tool-subagent"]
     pkg_tool_subagent_control["tool-subagent-control"]
@@ -140,6 +141,7 @@ flowchart TD
     pkg_sdk_app["sdk-app"]
     pkg_sdk_minimal["sdk-minimal"]
     pkg_web_app["web-app"]
+    pkg_web_brand["web-brand"]
   end
   subgraph group_client["packages/client"]
     pkg_client_connection["client-connection"]
@@ -149,9 +151,11 @@ flowchart TD
     pkg_client_modules["client-modules"]
     pkg_client_resources["client-resources"]
     pkg_client_store["client-store"]
+    pkg_client_ui_account["client-ui-account"]
     pkg_client_ui_agent_preset["client-ui-agent-preset"]
     pkg_client_ui_approval["client-ui-approval"]
     pkg_client_ui_attachment["client-ui-attachment"]
+    pkg_client_ui_brand["client-ui-brand"]
     pkg_client_ui_brand_official["client-ui-brand-official"]
     pkg_client_ui_chat["client-ui-chat"]
     pkg_client_ui_commands["client-ui-commands"]
@@ -177,20 +181,25 @@ flowchart TD
     pkg_client_ui_session["client-ui-session"]
     pkg_client_ui_settings["client-ui-settings"]
     pkg_client_ui_settings_general["client-ui-settings-general"]
+    pkg_client_ui_settings_mcp["client-ui-settings-mcp"]
     pkg_client_ui_settings_models["client-ui-settings-models"]
     pkg_client_ui_settings_plugin_inventory["client-ui-settings-plugin-inventory"]
     pkg_client_ui_settings_plugins["client-ui-settings-plugins"]
+    pkg_client_ui_settings_skills["client-ui-settings-skills"]
     pkg_client_ui_settings_unarchive_sessions["client-ui-settings-unarchive-sessions"]
     pkg_client_ui_sidebar["client-ui-sidebar"]
     pkg_client_ui_sidebar_browser["client-ui-sidebar-browser"]
     pkg_client_ui_sidebar_documentpreview["client-ui-sidebar-documentpreview"]
     pkg_client_ui_sidebar_files["client-ui-sidebar-files"]
+    pkg_client_ui_sidebar_plans["client-ui-sidebar-plans"]
     pkg_client_ui_sidebar_right["client-ui-sidebar-right"]
+    pkg_client_ui_sidebar_tasks["client-ui-sidebar-tasks"]
     pkg_client_ui_sidebar_terminal["client-ui-sidebar-terminal"]
     pkg_client_ui_skill["client-ui-skill"]
     pkg_client_ui_slots["client-ui-slots"]
     pkg_client_ui_subagent["client-ui-subagent"]
     pkg_client_ui_theme["client-ui-theme"]
+    pkg_client_ui_theme_brand["client-ui-theme-brand"]
     pkg_client_ui_tool["client-ui-tool"]
     pkg_client_ui_trajectory["client-ui-trajectory"]
     pkg_client_ui_user_questions["client-ui-user-questions"]
@@ -247,10 +256,10 @@ flowchart TD
     pkg_experimental_webworker_runtime["experimental-webworker-runtime"]
   end
   subgraph group_extensions["packages/extensions"]
-    pkg_client_ui_cordis["client-ui-cordis"]
-    pkg_cordis_client_runner["cordis-client-runner"]
-    pkg_cordis_host_runner["cordis-host-runner"]
-    pkg_tool_cordis["tool-cordis"]
+    pkg_client_ui_kylin["client-ui-kylin"]
+    pkg_kylin_client_runner["kylin-client-runner"]
+    pkg_kylin_host_runner["kylin-host-runner"]
+    pkg_tool_kylin["tool-kylin"]
   end
   subgraph group_feedback["packages/feedback"]
     pkg_command_feedback["command-feedback"]
@@ -271,6 +280,7 @@ flowchart TD
     pkg_host_webserver["host-webserver"]
   end
   subgraph group_identity["packages/identity"]
+    pkg_accounts_local["accounts-local"]
     pkg_anonymous_user_id["anonymous-user-id"]
   end
   subgraph group_interaction["packages/interaction"]
@@ -293,6 +303,7 @@ flowchart TD
   subgraph group_mcp["packages/mcp"]
     pkg_mcp_client["mcp-client"]
     pkg_mcp_resources["mcp-resources"]
+    pkg_mcp_servers["mcp-servers"]
   end
   subgraph group_preset["packages/preset"]
     pkg_agent_presets["agent-presets"]
@@ -424,6 +435,7 @@ flowchart TD
   pkg_host_directory_picker_auto --> pkg_host_webserver
   pkg_host_frontend_static --> pkg_client_connection
   pkg_host_frontend_static --> pkg_host_webserver
+  pkg_accounts_local --> pkg_client_connection
   pkg_anonymous_user_id --> pkg_brand
   pkg_anonymous_user_id --> pkg_home_paths
   pkg_lsp --> pkg_brand
@@ -460,6 +472,8 @@ flowchart TD
   pkg_credentials_local --> pkg_home_paths
   pkg_credentials_local --> pkg_launch_environment
   pkg_experimental_computer_use_cua_driver_mcp --> pkg_computer_use
+  pkg_mcp_servers --> pkg_subprocess
+  pkg_mcp_servers --> pkg_typert_protocol
   pkg_sandbox_windows_acl --> pkg_subprocess
   pkg_subprocess_local --> pkg_subprocess
   pkg_subprocess_local --> pkg_timeout
@@ -852,13 +866,13 @@ flowchart TD
   pkg_experimental_computer_use_cua_driver_native --> pkg_computer_use
   pkg_experimental_computer_use_cua_driver_native --> pkg_system_prompt
   pkg_experimental_computer_use_cua_driver_native --> pkg_tools
-  pkg_cordis_host_runner --> pkg_agent
-  pkg_cordis_host_runner --> pkg_brand
-  pkg_cordis_host_runner --> pkg_llm
-  pkg_cordis_host_runner --> pkg_scope
-  pkg_cordis_host_runner --> pkg_session
-  pkg_cordis_host_runner --> pkg_tools
-  pkg_cordis_host_runner --> pkg_typert_protocol
+  pkg_kylin_host_runner --> pkg_agent
+  pkg_kylin_host_runner --> pkg_brand
+  pkg_kylin_host_runner --> pkg_llm
+  pkg_kylin_host_runner --> pkg_scope
+  pkg_kylin_host_runner --> pkg_session
+  pkg_kylin_host_runner --> pkg_tools
+  pkg_kylin_host_runner --> pkg_typert_protocol
   pkg_message_feedback --> pkg_brand
   pkg_message_feedback --> pkg_command_feedback
   pkg_message_feedback --> pkg_llm
@@ -991,10 +1005,10 @@ flowchart TD
   pkg_experimental_auto_review --> pkg_permission_presets
   pkg_experimental_auto_review --> pkg_session
   pkg_experimental_auto_review --> pkg_tools
-  pkg_tool_cordis --> pkg_agent
-  pkg_tool_cordis --> pkg_cordis_host_runner
-  pkg_tool_cordis --> pkg_system_prompt
-  pkg_tool_cordis --> pkg_tools
+  pkg_tool_kylin --> pkg_agent
+  pkg_tool_kylin --> pkg_kylin_host_runner
+  pkg_tool_kylin --> pkg_system_prompt
+  pkg_tool_kylin --> pkg_tools
   pkg_host_plugin_inventory --> pkg_agent_presets
   pkg_host_plugin_inventory --> pkg_brand
   pkg_host_plugin_inventory --> pkg_typert_protocol
@@ -1305,6 +1319,7 @@ flowchart TD
 | [`brand`](../packages/util/brand) | `util` | — |
 | [`chunked-list`](../packages/util/chunked-list) | `util` | — |
 | [`deque`](../packages/util/deque) | `util` | — |
+| [`dsh-compat`](../packages/util/dsh-compat) | `util` | — |
 | [`home-paths`](../packages/util/home-paths) | `util` | — |
 | [`http-proxy`](../packages/util/http-proxy) | `util` | — |
 | [`launch-environment`](../packages/util/launch-environment) | `util` | — |
@@ -1326,15 +1341,18 @@ flowchart TD
 | [`base`](../packages/bundle/base) | `bundle` | — |
 | [`sdk-app`](../packages/bundle/sdk-app) | `bundle` | — |
 | [`sdk-minimal`](../packages/bundle/sdk-minimal) | `bundle` | — |
+| [`web-brand`](../packages/bundle/web-brand) | `bundle` | — |
 | [`client-connection`](../packages/client/connection) | `client` | — |
 | [`client-hmr`](../packages/client/hmr) | `client` | — |
 | [`client-locale`](../packages/client/locale) | `client` | — |
 | [`client-modules`](../packages/client/modules) | `client` | — |
 | [`client-resources`](../packages/client/resources) | `client` | — |
 | [`client-store`](../packages/client/store) | `client` | — |
+| [`client-ui-account`](../packages/client/ui-account) | `client` | — |
 | [`client-ui-agent-preset`](../packages/client/ui-agent-preset) | `client` | — |
 | [`client-ui-approval`](../packages/client/ui-approval) | `client` | — |
 | [`client-ui-attachment`](../packages/client/ui-attachment) | `client` | — |
+| [`client-ui-brand`](../packages/client/ui-brand) | `client` | — |
 | [`client-ui-brand-official`](../packages/client/ui-brand-official) | `client` | — |
 | [`client-ui-chat`](../packages/client/ui-chat) | `client` | — |
 | [`client-ui-commands`](../packages/client/ui-commands) | `client` | — |
@@ -1360,20 +1378,25 @@ flowchart TD
 | [`client-ui-session`](../packages/client/ui-session) | `client` | — |
 | [`client-ui-settings`](../packages/client/ui-settings) | `client` | — |
 | [`client-ui-settings-general`](../packages/client/ui-settings-general) | `client` | — |
+| [`client-ui-settings-mcp`](../packages/client/ui-settings-mcp) | `client` | — |
 | [`client-ui-settings-models`](../packages/client/ui-settings-models) | `client` | — |
 | [`client-ui-settings-plugin-inventory`](../packages/client/ui-settings-plugin-inventory) | `client` | — |
 | [`client-ui-settings-plugins`](../packages/client/ui-settings-plugins) | `client` | — |
+| [`client-ui-settings-skills`](../packages/client/ui-settings-skills) | `client` | — |
 | [`client-ui-settings-unarchive-sessions`](../packages/client/ui-settings-unarchive-sessions) | `client` | — |
 | [`client-ui-sidebar`](../packages/client/ui-sidebar) | `client` | — |
 | [`client-ui-sidebar-browser`](../packages/client/ui-sidebar-browser) | `client` | — |
 | [`client-ui-sidebar-documentpreview`](../packages/client/ui-sidebar-documentpreview) | `client` | — |
 | [`client-ui-sidebar-files`](../packages/client/ui-sidebar-files) | `client` | — |
+| [`client-ui-sidebar-plans`](../packages/client/ui-sidebar-plans) | `client` | — |
 | [`client-ui-sidebar-right`](../packages/client/ui-sidebar-right) | `client` | — |
+| [`client-ui-sidebar-tasks`](../packages/client/ui-sidebar-tasks) | `client` | — |
 | [`client-ui-sidebar-terminal`](../packages/client/ui-sidebar-terminal) | `client` | — |
 | [`client-ui-skill`](../packages/client/ui-skill) | `client` | — |
 | [`client-ui-slots`](../packages/client/ui-slots) | `client` | — |
 | [`client-ui-subagent`](../packages/client/ui-subagent) | `client` | — |
 | [`client-ui-theme`](../packages/client/ui-theme) | `client` | — |
+| [`client-ui-theme-brand`](../packages/client/ui-theme-brand) | `client` | — |
 | [`client-ui-tool`](../packages/client/ui-tool) | `client` | — |
 | [`client-ui-trajectory`](../packages/client/ui-trajectory) | `client` | — |
 | [`client-ui-user-questions`](../packages/client/ui-user-questions) | `client` | — |
@@ -1384,8 +1407,8 @@ flowchart TD
 | [`experimental-agent-team-profile`](../packages/experimental/agent-team-profile) | `experimental` | — |
 | [`experimental-agent-team-web-profile`](../packages/experimental/agent-team-web-profile) | `experimental` | — |
 | [`experimental-webworker-packer`](../packages/experimental/webworker-packer) | `experimental` | — |
-| [`client-ui-cordis`](../packages/extensions/ui-cordis) | `extensions` | — |
-| [`cordis-client-runner`](../packages/extensions/cordis-client-runner) | `extensions` | — |
+| [`client-ui-kylin`](../packages/extensions/ui-kylin) | `extensions` | — |
+| [`kylin-client-runner`](../packages/extensions/kylin-client-runner) | `extensions` | — |
 | [`host-directory-picker`](../packages/host/directory-picker) | `host` | — |
 | [`host-directory-picker-browse`](../packages/host/directory-picker-browse) | `host` | — |
 | [`host-directory-picker-native`](../packages/host/directory-picker-native) | `host` | — |
@@ -1413,6 +1436,7 @@ flowchart TD
 | [`experimental-webworker-runtime`](../packages/experimental/webworker-runtime) | `experimental` | [`client-connection`](../packages/client/connection), [`client-modules`](../packages/client/modules), [`host-webserver`](../packages/host/webserver) |
 | [`host-directory-picker-auto`](../packages/host/directory-picker-auto) | `host` | [`client-ui-directory-picker-browse`](../packages/client/ui-directory-picker-browse), [`client-ui-directory-picker-native`](../packages/client/ui-directory-picker-native), [`host-directory-picker-browse`](../packages/host/directory-picker-browse), [`host-directory-picker-native`](../packages/host/directory-picker-native), [`host-webserver`](../packages/host/webserver) |
 | [`host-frontend-static`](../packages/host/frontend-static) | `host` | [`client-connection`](../packages/client/connection), [`host-webserver`](../packages/host/webserver) |
+| [`accounts-local`](../packages/identity/accounts-local) | `identity` | [`client-connection`](../packages/client/connection) |
 | [`anonymous-user-id`](../packages/identity/anonymous-user-id) | `identity` | [`brand`](../packages/util/brand), [`home-paths`](../packages/util/home-paths) |
 | [`lsp`](../packages/lsp/lsp) | `lsp` | [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm) |
 | [`storage-domain`](../packages/storage/storage-domain) | `storage` | [`invariants`](../packages/runtime-diagnostics/invariants), [`storage`](../packages/storage/storage) |
@@ -1433,6 +1457,7 @@ flowchart TD
 | [`authorization`](../packages/credentials/authorization) | `credentials` | [`credentials`](../packages/credentials/credentials), [`invariants`](../packages/runtime-diagnostics/invariants), [`llm`](../packages/llm/llm) |
 | [`credentials-local`](../packages/credentials/credentials-local) | `credentials` | [`atomic-write`](../packages/util/atomic-write), [`credentials`](../packages/credentials/credentials), [`home-paths`](../packages/util/home-paths), [`launch-environment`](../packages/util/launch-environment) |
 | [`experimental-computer-use-cua-driver-mcp`](../packages/experimental/computer-use-cua-driver-mcp) | `experimental` | [`computer-use`](../packages/computer-use/computer-use) |
+| [`mcp-servers`](../packages/mcp/mcp-servers) | `mcp` | [`subprocess`](../packages/subprocess/subprocess), [`typert-protocol`](../packages/typert/protocol) |
 | [`sandbox-windows-acl`](../packages/sandbox/sandbox-windows-acl) | `sandbox` | [`subprocess`](../packages/subprocess/subprocess) |
 | [`subprocess-local`](../packages/subprocess/subprocess-local) | `subprocess` | [`subprocess`](../packages/subprocess/subprocess), [`timeout`](../packages/util/timeout) |
 | [`skill-badge`](../packages/skill/skill-badge) | `skill` | [`skill`](../packages/skill/skill) |
@@ -1525,7 +1550,7 @@ flowchart TD
 | [`experimental-browser-use-runtime`](../packages/experimental/browser-use-runtime) | `experimental` | [`agent`](../packages/core/agent), [`browser-use`](../packages/browser-use/browser-use), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools) |
 | [`experimental-browser-use-stagehand-native`](../packages/experimental/browser-use-stagehand-native) | `experimental` | [`agent`](../packages/core/agent), [`browser-use`](../packages/browser-use/browser-use), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools) |
 | [`experimental-computer-use-cua-driver-native`](../packages/experimental/computer-use-cua-driver-native) | `experimental` | [`computer-use`](../packages/computer-use/computer-use), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools) |
-| [`cordis-host-runner`](../packages/extensions/cordis-host-runner) | `extensions` | [`agent`](../packages/core/agent), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol) |
+| [`kylin-host-runner`](../packages/extensions/kylin-host-runner) | `extensions` | [`agent`](../packages/core/agent), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`tools`](../packages/core/tools), [`typert-protocol`](../packages/typert/protocol) |
 | [`message-feedback`](../packages/feedback/message-feedback) | `feedback` | [`brand`](../packages/util/brand), [`command-feedback`](../packages/feedback/command-feedback), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`typert-protocol`](../packages/typert/protocol) |
 | [`repeat-tool-reminder`](../packages/guard/repeat-tool-reminder) | `guard` | [`agent`](../packages/core/agent), [`tools`](../packages/core/tools) |
 | [`tool-call-timeout-policy`](../packages/guard/timeout-policy) | `guard` | [`llm`](../packages/llm/llm), [`timeout`](../packages/util/timeout), [`tools`](../packages/core/tools) |
@@ -1551,7 +1576,7 @@ flowchart TD
 | [`api-settings-controller`](../packages/api/settings-controller) | `api` | [`agent-presets`](../packages/preset/agent-presets), [`credentials`](../packages/credentials/credentials), [`native-command`](../packages/util/native-command), [`session`](../packages/core/session), [`settings`](../packages/settings/settings), [`typert-protocol`](../packages/typert/protocol) |
 | [`web-app`](../packages/bundle/web-app) | `bundle` | [`shell-env`](../packages/shell/shell-env), [`system-prompt`](../packages/core/system-prompt) |
 | [`experimental-auto-review`](../packages/experimental/auto-review) | `experimental` | [`agent`](../packages/core/agent), [`agent-instructions`](../packages/context/agent-instructions), [`llm`](../packages/llm/llm), [`permission-presets`](../packages/interaction/permission-presets), [`session`](../packages/core/session), [`tools`](../packages/core/tools) |
-| [`tool-cordis`](../packages/extensions/tool-cordis) | `extensions` | [`agent`](../packages/core/agent), [`cordis-host-runner`](../packages/extensions/cordis-host-runner), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools) |
+| [`tool-kylin`](../packages/extensions/tool-kylin) | `extensions` | [`agent`](../packages/core/agent), [`kylin-host-runner`](../packages/extensions/kylin-host-runner), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools) |
 | [`host-plugin-inventory`](../packages/host/plugin-inventory) | `host` | [`agent-presets`](../packages/preset/agent-presets), [`brand`](../packages/util/brand), [`typert-protocol`](../packages/typert/protocol) |
 | [`mcp-client`](../packages/mcp/mcp-client) | `mcp` | [`attachment`](../packages/attachment/attachment), [`llm`](../packages/llm/llm), [`mcp-resources`](../packages/mcp/mcp-resources), [`scope`](../packages/core/scope), [`subprocess`](../packages/subprocess/subprocess), [`system-prompt`](../packages/core/system-prompt), [`timeout`](../packages/util/timeout), [`tools`](../packages/core/tools) |
 | [`session-telemetry-otel`](../packages/session/session-telemetry-otel) | `session` | [`anonymous-user-id`](../packages/identity/anonymous-user-id), [`command-feedback`](../packages/feedback/command-feedback), [`llm`](../packages/llm/llm), [`message-feedback`](../packages/feedback/message-feedback), [`session`](../packages/core/session), [`session-telemetry`](../packages/session/session-telemetry) |

@@ -17,7 +17,7 @@ QiLin 与上游的历史不相连，无法按祖先关系合并。上一轮对�
 上游结构优先，QiLin 行为在其上重新表达：
 
 - **Profile 解析。** 上游把补丁重载移入新包 `packages/boot/hmr`，并从模板、清单与加载器中删除 `patchReload`。`patchReload`、`ProfilePatchReload` 与各模板的 `patchReload` 值随之上移除；profile 补丁重载改为 `@qilin/hmr` 的显式配置监听，由 base bundle 挂载。QiLin 保留 `qilin` profile 模板、安装自有元组归一化，以及 `dsh` 时代元数据回退（`profileDeclarationOf`、`bundlePatchOf`、`dshCompatModuleId`）。
-- **插件管理。** `packages/host/plugin-manager` 与 `packages/client/ui-settings-user-plugins` 退役。上游的 `@qilin/plugin-manager`（base bundle 行）提供 `pluginManager` Remote，由 `@qilin/client-ui-plugin-manager` 消费；QiLin 的两个包在同一服务名下暴露了不同的方法集，二者无法共存。
+- **插件管理。** QiLin 自有的 `host/plugin-manager` 与 `client/ui-settings-user-plugins` 两个包退役。上游的 `@qilin/plugin-manager`（base bundle 行）提供 `pluginManager` Remote，由 `@qilin/client-ui-plugin-manager` 消费；QiLin 的两个包在同一服务名下暴露了不同的方法集，二者无法共存。
 - **当前会话选择。** 会话控制器拥有目录，视图选择归导航。`@qilin/api-session-controller` 的列表状态不再带 `current`，`ISessions` 不再打开子代理。QiLin 的本地页面改从 workspace 服务读选择：`UiWorkspace.selection` 发布持久化的主面板选择，`ui-settings-skills` 经自身注入面读取，`ui-sidebar-tasks` 经 `UiWorkspace.openSession` 展示子项。
 - **右侧栏 tab 类型。** `SidebarRightTabDefinition.label` 变为可选；tab 设置行回退显示 `kind`。QiLin 自有的类型仍会提供它。
 - **客户端内容宽度。** 上游把转写稿宽度轴抽成 `conversation.content` 工厂的 `widthControls` 局部组件。QiLin 的设置驱动宽度（`useContentWidth`/`setContentWidth`、`CONTENT_WIDTH_ADAPTIVE`、`CONTENT_WIDTH_MIN`）重新落到 `ConversationWidthControls.tsx` 内，取代上游的 `localStorage` 偏好。
@@ -55,17 +55,18 @@ QiLin 与上游的历史不相连，无法按祖先关系合并。上一轮对�
 
 整体上，本次对齐拿到上游的 profile 净化与插件管理器、Office 转换、沙箱浏览器标签、`workspace/changes` 事件与变更文件卡片、`boot/hmr`、`util/lazy-require`，以及 548 项上游修复。`SESSION_FORMAT_VERSION` 仍为 3，没有 `!` 提交，engines 未变，`vendor/` 只动了三个文件，因此 QiLin 构建仍能读取对齐前写出的日志；而对齐前的构建会拒绝带 `workspace/changes` 的日志。
 
-代价是一次性的庞大评审面，以及两处已知缺口：
+代价是一次性的庞大评审面。重新落地 QiLin 行为恢复了两处上游不带的表面：`ui-settings` slot 契约里的 `settings.trigger`，以及 `ui-settings-general` 渲染进它的触发行；还有 `@qilin/plugin-manager` 的更新检查与 GitHub 插件目录，客户页面把它们挂在既有安装链路上，而不是第二个写入方。`@pluginId` 输入触发源、creator 工具集与 `cordis_mount` 信任段落随上游的 creator 重写一并消失；`plugin_manager` 取代了它们。
 
-- `settings.trigger` 在两个上游标签中都有声明，但 QiLin 的 `ui-settings` slot 契约里没有，合并保留了 QiLin 的契约。上游设置外壳会往它注册触发内容，因此触发行未被重新落地。
-- `@pluginId` 输入触发源、creator 工具集与 `cordis_mount` 信任段落随上游的 creator 重写一并消失；`plugin_manager` 取代了它们。
+双语配对在合并后重录了全部 1037 条记录；结构分歧的配对是**对齐**而非洗白，合并造成的重复段落则两侧一并保留当前版本。持久化档案也在同一轮重新取指纹：schema inventory 的域标签为 `qilin-persistence-schema-v1`，而已发布与历史快照仍带着按上游标签算出的摘要，因此每个根与类型的摘要、以及那些记录钉住的摘要都重新计算过。没有世代被移动，也没有格式版本变化。
 
-双语配对在合并后重录了 169 条记录，7 组结构分歧是**对齐**而非洗白。重新生成的目录文档仍留有中文侧翻译债。
+基线树留下的红灯门禁现已通过：`gen-module-graph`/`gen-doc-graphs` 排除 vendored peer，`@qilin/kylin`（`vendor/cordis`）不再被判为「缺失的仓内 peer」；`gen-kylin-inspect-catalog` 在构建过工作区后通过；已发布持久化、格式引用、类型历史与目录门禁重新一致。Web 车道的 scaffold 不再预确认已删除的内测声明，其 token 交换断言连接的 entry path 而不是站点根。
 
-有两道门禁在 `main` 与本分支上同为红：`gen-module-graph`/`gen-doc-graphs` 把 `@qilin/kylin` 判为「缺失的仓内 peer」，尽管它就是 vendored 的 `vendor/cordis` 包；`gen-kylin-inspect-catalog` 在 TypeScript 分析器内部崩溃。两者都不在提交钩子内。
+命名沿用基线树：框架生成的 API 区块与运行时标识保留 `Cordis` 拼写，而 QiLin 自有的散文、包名与文档目录用 `Kylin`。
 
 ## Deferred
 
-- `packages/host/plugin-manager` 与 `packages/client/ui-settings-user-plugins` 已删除；把它们描述为现状的 Agent Note（`2026-09-15-dsh-plugin-ecosystem-compat`）成为历史，因仍需其决策依据而保留。
-- `@qilin/plugin-manager` 的更新检查与插件目录搜索在上游实现中没有等价物。
-- 目录文档的中文侧需要为上游新增条目补齐翻译。
+- QiLin 自有的 `host/plugin-manager` 与 `client/ui-settings-user-plugins` 两个包已删除。[插件生态兼容笔记](2026-09-15-dsh-plugin-ecosystem-compat.zh.md)保留了仍然成立的那一半（DSH 时代兼容层、`qilin plugin list`/`doctor`），其归属与设置面两段已改为指向 `@qilin/plugin-manager`。
+- `scripts/rescope-vendor.ts` 仍按框架的旧名与旧路径（`vendor/kylin`、`scripts/kylin-walk.ts`、`@kylinjs/*`）映射，而树里 vendored 的是 `cordis`；`rescope-vendor:check` 在报出结论前就先因缺失路径失败，该映射需要独立重写。
+- tracked Markdown 的正文里仍有大量 `@deepseek-ai/dsh-*` 旧包名。只有文档类型检查会编译的代码块被更新，其余是历史引用与 DSH 时代兼容层自身的主题内容。
+- 生成器把英文 API 区块同时写进两种语言，因此中文子系统页的 `Cordis API` 区块里是英文类型文本。
+- 框架名的全量散文改名会牵动每个子系统页的生成区块标题及其中文配对；本次对齐选择保留基线树的既有分工。

@@ -50,6 +50,8 @@ const READY: PluginManagerState = {
   install: IDLE_INSTALL,
   confirm: null,
   highlight: null,
+  updates: { status: 'idle', entries: [], reason: '' },
+  catalog: { status: 'idle', query: '', page: 1, entries: [], hasMore: false, reason: '' },
 }
 
 /** Configuration entries a test supplies: what each slot cell renders, by `<slot>:<cell>` and the view asked for. */
@@ -79,6 +81,11 @@ function renderTab(state: Partial<PluginManagerState> = {}, config: Partial<Conf
     cancelConfirm: vi.fn(),
     setRowEnabled: vi.fn(),
     dismissNotice: vi.fn(),
+    checkUpdates: vi.fn(),
+    dismissUpdates: vi.fn(),
+    updatePackage: vi.fn(),
+    catalog: vi.fn(),
+    installCatalogSpec: vi.fn(),
   }
   const props = {
     t,
@@ -731,5 +738,72 @@ describe('PluginManagerPage', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('checks for updates from the toolbar and lists the layers with a newer version', () => {
+    const { actions, set } = renderTab()
+    // The check block is absent until the toolbar asks for one.
+    expect(document.querySelector('[data-plugin-updates]')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: en.checkUpdates }))
+    expect(actions.checkUpdates).toHaveBeenCalledTimes(1)
+    set({ updates: { status: 'checking', entries: [], reason: '' } })
+    expect(screen.getByText(en.updatesChecking)).toBeTruthy()
+    expect(screen.getByRole('button', { name: en.checkUpdates })).toHaveProperty('disabled', true)
+    set({ updates: { status: 'ready', entries: [], reason: '' } })
+    expect(screen.getByText(en.updatesCurrent)).toBeTruthy()
+    set({ updates: { status: 'failed', entries: [], reason: 'offline' } })
+    expect(screen.getByRole('alert').textContent).toBe(en.updatesFailed.replace('{reason}', 'offline'))
+    set({
+      busy: ['qilin-better-sidebar'],
+      updates: {
+        status: 'ready',
+        reason: '',
+        entries: [
+          { name: 'qilin-better-sidebar', currentVersion: '0.16.0', latestVersion: '0.17.0' },
+          { name: 'qilin-unknown', currentVersion: null, latestVersion: '2.0.0' },
+        ],
+      },
+    })
+    expect(screen.getByText(en.updatesVersions.replace('{current}', '0.16.0').replace('{latest}', '0.17.0'))).toBeTruthy()
+    expect(screen.getByText(en.updatesVersions.replace('{current}', en.versionUnknown).replace('{latest}', '2.0.0'))).toBeTruthy()
+    expect(screen.getByRole('button', { name: en.updateLabel.replace('{name}', 'qilin-better-sidebar') })).toHaveProperty('disabled', true)
+    fireEvent.click(screen.getByRole('button', { name: en.updateLabel.replace('{name}', 'qilin-unknown') }))
+    expect(actions.updatePackage).toHaveBeenCalledExactlyOnceWith('qilin-unknown')
+    fireEvent.click(screen.getByRole('button', { name: en.updatesClose }))
+    expect(actions.dismissUpdates).toHaveBeenCalledTimes(1)
+  })
+
+  it('searches the plugin catalog and hands a repository to the install dialog', () => {
+    const { actions, set } = renderTab()
+    const panel = document.querySelector('[data-plugin-catalog]') as HTMLElement
+    expect(screen.getByText(en.catalogIdle)).toBeTruthy()
+    const search = within(panel).getByRole('searchbox', { name: en.catalogSearchLabel })
+    fireEvent.change(search, { target: { value: 'sidebar' } })
+    fireEvent.submit(search.closest('form') as HTMLFormElement)
+    expect(actions.catalog).toHaveBeenCalledExactlyOnceWith('sidebar', 1)
+    set({ catalog: { status: 'searching', query: 'sidebar', page: 1, entries: [], hasMore: false, reason: '' } })
+    expect(screen.getByText(en.catalogSearching)).toBeTruthy()
+    set({ catalog: { status: 'ready', query: 'sidebar', page: 1, entries: [], hasMore: false, reason: '' } })
+    expect(screen.getByText(en.catalogEmpty)).toBeTruthy()
+    set({ catalog: { status: 'failed', query: 'sidebar', page: 1, entries: [], hasMore: false, reason: 'offline' } })
+    expect(screen.getByRole('alert').textContent).toBe(en.catalogFailed.replace('{reason}', 'offline'))
+    set({
+      catalog: {
+        status: 'ready', query: 'sidebar', page: 1, hasMore: true, reason: '',
+        entries: [
+          { fullName: 'acme/qilin-remote', description: 'A remote.', stars: 12, updatedAt: '2025-01-02T03:04:05Z', url: 'https://github.com/acme/qilin-remote' },
+          { fullName: 'acme/qilin-bare', description: null, stars: 0, updatedAt: '', url: 'https://github.com/acme/qilin-bare' },
+        ],
+      },
+    })
+    const link = within(panel).getByRole('link', { name: en.catalogOpen.replace('{name}', 'acme/qilin-remote') })
+    expect(link.getAttribute('href')).toBe('https://github.com/acme/qilin-remote')
+    expect(within(panel).getByText('A remote.')).toBeTruthy()
+    expect(within(panel).getByText(en.catalogStars.replace('{count}', '12'))).toBeTruthy()
+    expect(within(panel).getByText(en.catalogStars.replace('{count}', '0'))).toBeTruthy()
+    fireEvent.click(within(panel).getByRole('button', { name: en.catalogInstallLabel.replace('{name}', 'acme/qilin-remote') }))
+    expect(actions.installCatalogSpec).toHaveBeenCalledExactlyOnceWith('https://github.com/acme/qilin-remote')
+    fireEvent.click(within(panel).getByRole('button', { name: en.catalogMore }))
+    expect(actions.catalog).toHaveBeenLastCalledWith('sidebar', 2)
   })
 })

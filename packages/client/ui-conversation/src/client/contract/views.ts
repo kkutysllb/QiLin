@@ -23,6 +23,7 @@ export interface ConversationViewRequest {
   readonly focus: string
 }
 
+/** The conversation store's own state: the composer draft, the selected View, and one pending focus request. */
 export interface ConversationStoreState {
   /** Composer draft (persisted; survives session switches and reloads). */
   draft: string

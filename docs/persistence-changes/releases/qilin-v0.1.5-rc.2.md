@@ -1,11 +1,11 @@
 ---
-description: "Retrospective Session persistence types and adjacent-release changes for qilin-v3.0.0."
+description: "Retrospective Session persistence types and adjacent-release changes for qilin-v0.1.5-rc.2."
 kind: persistence-release
 ---
 
-# Persistence release: qilin-v3.0.0
+# Persistence release: qilin-v0.1.5-rc.2
 
-English | [中文](qilin-v3.0.0.zh.md)
+English | [中文](qilin-v0.1.5-rc.2.zh.md)
 
 ## Summary
 
@@ -28,13 +28,13 @@ This approximate backfill supports reading and format validation; it is not a co
 
 | Item | Recorded value |
 |---|---|
-| Source tag | `qilin-v3.0.0` |
+| Source tag | `qilin-v0.1.5-rc.2` |
 | Source date | 2026-09-10T13:50:19.000Z |
 | Release record | Release object present. |
 | Previous release | [qilin-v0.1.5-rc.1](qilin-v0.1.5-rc.1.md) |
 | Session writer version | 3 |
 | Reconstructed inventory | <!-- persistence-release-inventory:start -->59 roots / 462 types<!-- persistence-release-inventory:end --> |
-| This snapshot | [qilin-v3.0.0.schema.json](qilin-v3.0.0.schema.json) |
+| This snapshot | [qilin-v0.1.5-rc.2.schema.json](qilin-v0.1.5-rc.2.schema.json) |
 
 Source evidence for the writer version constant at this tag:
 
@@ -45,7 +45,7 @@ Source evidence for the writer version constant at this tag:
 
 ```yaml persistence-release
 schemaVersion: 1
-tag: qilin-v3.0.0
+tag: qilin-v0.1.5-rc.2
 previous: qilin-v0.1.5-rc.1
 sessionFormatVersion: 3
 changes: []

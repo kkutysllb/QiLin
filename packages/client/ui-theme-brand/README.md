@@ -25,7 +25,7 @@ Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin W
 
 The `qilin` profile mounts this package through its bundle patch, so no configuration is required. A deployment that wants the QiLin palette with a different base theme keeps its own `ui-theme` preference; this layer composes on top of it.
 
-The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark values transplant the landing tokens verbatim, the light values derive the warm-paper counterpart ([decision note](../../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)). Fifty-five tokens are grouped by family in [tokens.ts](src/client/tokens.ts): brand gold, surfaces and sidebar, ink labels, hairlines and hovers, the secondary button family, and the code/scrollbar reading surfaces.
+The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark values transplant the landing tokens verbatim, the light values derive the warm-paper counterpart ([decision note](../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)). Fifty-five tokens are grouped by family in [tokens.ts](src/client/tokens.ts): brand gold, surfaces and sidebar, ink labels, hairlines and hovers, the secondary button family, and the code/scrollbar reading surfaces.
 
 | Role | Token | Light | Dark |
 |---|---|---|---|

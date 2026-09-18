@@ -4,11 +4,14 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import type { BundleInfo, ChangeResult, ManagementError, PluginEntryId, PluginInfo, PluginInstallRequestId } from '@qilin/api-remotes/client'
+import type {
+  BundleInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, ManagementError, PluginEntryId, PluginInfo,
+  PluginInstallRequestId, PluginUpdateSnapshot,
+} from '@qilin/api-remotes/client'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { HostObservable } from '@qilin/client-ui-slots'
 import type { ConfigLedger } from '../src/client/config-ledger.ts'
-import { packageView, PluginManagerController, rowKey, sortPackages } from '../src/client/manager-store.ts'
+import { packageView, PluginManagerController, rowKey, sortPackages, updatable } from '../src/client/manager-store.ts'
 
 const ROW_ENTRY = 'include:sidebar' as PluginEntryId
 
@@ -31,6 +34,14 @@ const PLUGINS: PluginInfo[] = [
 
 /** What the check answers for a registry name. */
 const INSPECTED = { status: 'accepted' as const, kind: 'registry' as const, name: 'qilin-better-sidebar', version: '1.0.0', bundle: true }
+
+const FIRST: CommunityPluginEntry = {
+  fullName: 'acme/qilin-remote', description: 'A remote.', stars: 12, updatedAt: '2025-01-02T03:04:05Z', url: 'https://github.com/acme/qilin-remote',
+}
+
+const SECOND: CommunityPluginEntry = {
+  fullName: 'acme/qilin-tool', description: null, stars: 1, updatedAt: '', url: 'https://github.com/acme/qilin-tool',
+}
 
 const APPLIED: ChangeResult = { changed: true, application: 'applied', stage: 'enable', target: 'qilin-better-sidebar' }
 
@@ -74,6 +85,8 @@ function bench(overrides: Partial<Record<string, ReturnType<typeof vi.fn>>> = {}
     removeBundle: vi.fn(() => Promise.resolve(ok(APPLIED))),
     setBundleEnabled: vi.fn(() => Promise.resolve(ok(APPLIED))),
     setPluginEnabled: vi.fn(() => Promise.resolve(ok(APPLIED))),
+    checkUpdates: vi.fn(() => Promise.resolve(ok({ entries: [] }))),
+    catalog: vi.fn(() => Promise.resolve(ok({ entries: [], page: 1, hasMore: false }))),
     ...overrides,
   }
   const ctx = { remote: { pluginManager: plugins, pluginInventory: inventory } } as never
@@ -752,5 +765,150 @@ describe('PluginManagerController', () => {
     gate.resolve(ok([BUNDLE]))
     await loading
     expect(state()).toBe(before)
+  })
+
+  it('reads the registry update check once, filters what it found, and words a failure', async () => {
+    const gate = deferred<ReturnType<typeof ok<PluginUpdateSnapshot>>>()
+    const { plugins, face, state, controller } = bench({
+      checkUpdates: vi.fn()
+        .mockReturnValueOnce(gate.promise)
+        .mockResolvedValueOnce(refused('gateway/internal', 'offline'))
+        .mockRejectedValueOnce(new Error('transport down')),
+    })
+    await controller.load()
+    expect(state().updates).toEqual({ status: 'idle', entries: [], reason: '' })
+    face.checkUpdates()
+    face.checkUpdates()
+    expect(state().updates.status).toBe('checking')
+    // A second press while the check runs does not reach the Host.
+    expect(plugins.checkUpdates).toHaveBeenCalledTimes(1)
+    gate.resolve(ok({ entries: [
+      { name: 'qilin-better-sidebar', currentVersion: '0.16.0', latestVersion: '0.17.0' },
+      { name: 'qilin-current', currentVersion: '2.0.0', latestVersion: '2.0.0' },
+      { name: 'qilin-unknown', currentVersion: '1.0.0', latestVersion: null },
+    ] }))
+    await vi.waitFor(() => { expect(state().updates.status).toBe('ready') })
+    expect(state().updates).toEqual({
+      status: 'ready',
+      reason: '',
+      entries: [{ name: 'qilin-better-sidebar', currentVersion: '0.16.0', latestVersion: '0.17.0' }],
+    })
+    // The results go away without asking the Host again.
+    face.dismissUpdates()
+    expect(state().updates).toEqual({ status: 'idle', entries: [], reason: '' })
+    // A refused answer and a transport failure keep their words in the block.
+    face.checkUpdates()
+    await vi.waitFor(() => { expect(state().updates).toEqual({ status: 'failed', entries: [], reason: 'offline' }) })
+    face.checkUpdates()
+    await vi.waitFor(() => { expect(state().updates).toEqual({ status: 'failed', entries: [], reason: 'transport down' }) })
+  })
+
+  it('upgrades a layer through the install path, keeps its place, and drops the row it moved', async () => {
+    const { plugins, face, state, controller } = bench({
+      installBundle: vi.fn().mockResolvedValue(ok({ ...APPLIED, application: 'restart-required' })),
+      checkUpdates: vi.fn().mockResolvedValue(ok({ entries: [{ name: BUNDLE.name, currentVersion: '0.16.0', latestVersion: '0.17.0' }] })),
+    })
+    await controller.load()
+    face.checkUpdates()
+    await vi.waitFor(() => { expect(state().updates.entries).toHaveLength(1) })
+    face.updatePackage(BUNDLE.name)
+    await vi.waitFor(() => { expect(state().busy).toEqual([]) })
+    // The layer keeps the profile composition it had; only its version moves.
+    expect(plugins.installBundle).toHaveBeenCalledExactlyOnceWith(`${BUNDLE.name}@latest`, { enabled: false })
+    expect(state().updates.entries).toEqual([])
+    expect(state().notice).toEqual({ kind: 'restart', packageName: BUNDLE.name, seq: 1 })
+    expect(plugins.listBundles).toHaveBeenCalledTimes(2)
+  })
+
+  it('names a failed upgrade and leaves the row it could not move', async () => {
+    const { face, state, controller } = bench({
+      installBundle: vi.fn().mockResolvedValue(ok(failed({ code: 'operation-error', diagnostic: 'ERR_PNPM' }))),
+      checkUpdates: vi.fn().mockResolvedValue(ok({ entries: [{ name: BUNDLE.name, currentVersion: '0.16.0', latestVersion: '0.17.0' }] })),
+    })
+    await controller.load()
+    face.checkUpdates()
+    await vi.waitFor(() => { expect(state().updates.entries).toHaveLength(1) })
+    face.updatePackage(BUNDLE.name)
+    await vi.waitFor(() => {
+      expect(state().notice).toEqual({ kind: 'failed', action: 'update', code: 'operation-error', reason: 'ERR_PNPM', packageName: BUNDLE.name, seq: 1 })
+    })
+    expect(state().updates.entries).toEqual([{ name: BUNDLE.name, currentVersion: '0.16.0', latestVersion: '0.17.0' }])
+  })
+
+  it('searches the catalog, appends a later page, and keeps the words of a failed search', async () => {
+    const gate = deferred<ReturnType<typeof ok<CommunityPluginSnapshot>>>()
+    const { plugins, face, state, controller } = bench({
+      catalog: vi.fn()
+        .mockReturnValueOnce(gate.promise)
+        .mockResolvedValueOnce(ok({ entries: [SECOND], page: 2, hasMore: false }))
+        .mockResolvedValueOnce(refused('gateway/internal', 'offline')),
+    })
+    await controller.load()
+    expect(state().catalog).toEqual({ status: 'idle', query: '', page: 1, entries: [], hasMore: false, reason: '' })
+    face.catalog('sidebar', 1)
+    face.catalog('sidebar', 1)
+    expect(state().catalog).toEqual({ status: 'searching', query: 'sidebar', page: 1, entries: [], hasMore: false, reason: '' })
+    expect(plugins.catalog).toHaveBeenCalledTimes(1)
+    gate.resolve(ok({ entries: [FIRST], page: 1, hasMore: true }))
+    await vi.waitFor(() => { expect(state().catalog.status).toBe('ready') })
+    expect(state().catalog).toEqual({ status: 'ready', query: 'sidebar', page: 1, entries: [FIRST], hasMore: true, reason: '' })
+    // A later page appends to what the first one answered.
+    face.catalog('sidebar', 2)
+    await vi.waitFor(() => { expect(state().catalog.entries).toEqual([FIRST, SECOND]) })
+    expect(state().catalog).toMatchObject({ status: 'ready', page: 2, hasMore: false })
+    // A search that starts over replaces the results, and a failure reports its own words.
+    face.catalog('other', 1)
+    await vi.waitFor(() => { expect(state().catalog).toMatchObject({ status: 'failed', query: 'other', reason: 'offline', entries: [] }) })
+  })
+
+  it('opens the install dialog with a catalog repository and leaves a run in flight alone', async () => {
+    const check = deferred<ReturnType<typeof ok<typeof INSPECTED>>>()
+    const { face, state } = bench({ inspect: vi.fn().mockReturnValueOnce(check.promise) })
+    face.installCatalogSpec('https://github.com/acme/qilin-remote')
+    expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'https://github.com/acme/qilin-remote', subject: null })
+    face.closeInstall()
+    face.openInstall()
+    face.editInstallSpec('slow')
+    face.runInstall()
+    expect(state().install.phase).toBe('checking')
+    // The Host is checking a spec already; the catalog does not steal the dialog.
+    face.installCatalogSpec('https://github.com/acme/qilin-tool')
+    expect(state().install.spec).toBe('slow')
+    check.resolve(ok(INSPECTED))
+    await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
+  })
+
+  it('drops an update check and a catalog search that settle after disposal', async () => {
+    const check = deferred<ReturnType<typeof ok<PluginUpdateSnapshot>>>()
+    const search = deferred<ReturnType<typeof ok<CommunityPluginSnapshot>>>()
+    const { face, state, controller } = bench({
+      checkUpdates: vi.fn().mockReturnValueOnce(check.promise),
+      catalog: vi.fn().mockReturnValueOnce(search.promise),
+    })
+    await controller.load()
+    face.checkUpdates()
+    face.catalog('sidebar', 1)
+    const before = state()
+    controller.dispose()
+    check.resolve(ok({ entries: [] }))
+    search.resolve(ok({ entries: [], page: 1, hasMore: false }))
+    await Promise.resolve()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(state()).toBe(before)
+  })
+})
+
+describe('updatable', () => {
+  it('keeps only the layers whose registry version differs from the installed one', () => {
+    expect(updatable([
+      { name: 'newer', currentVersion: '1.0.0', latestVersion: '1.1.0' },
+      { name: 'current', currentVersion: '1.0.0', latestVersion: '1.0.0' },
+      { name: 'unreadable', currentVersion: '1.0.0', latestVersion: null },
+      { name: 'uninstalled', currentVersion: null, latestVersion: '0.1.0' },
+    ])).toEqual([
+      { name: 'newer', currentVersion: '1.0.0', latestVersion: '1.1.0' },
+      { name: 'uninstalled', currentVersion: null, latestVersion: '0.1.0' },
+    ])
   })
 })

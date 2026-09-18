@@ -1951,7 +1951,7 @@ export interface Config {
 }
 ```
 
-来源：[`packages/boot/plugin-manager/src/index.ts:33`](../packages/boot/plugin-manager/src/index.ts)
+来源：[`packages/boot/plugin-manager/src/index.ts:34`](../packages/boot/plugin-manager/src/index.ts)
 
 <a id="qilinplugin-package-inventory-deepseek"></a>
 

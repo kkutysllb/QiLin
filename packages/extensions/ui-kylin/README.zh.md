@@ -100,7 +100,6 @@ kind: "package-reference"
 ## 模型体验
 
 间接影响，经由这些界面驱动的 run 与 stop 动词——run 走浏览器侧 runner 的编排，stop 与 remove 走 host 的动词，与模型的 `cordis_run` / `cordis_stop` 工具是同一批 host 动词。因此正在运行的定义随后贡献的任何内容，都是 runner 的效果，而本包不产生任何模型可见输入：它只渲染已落日志的 call 与 result 切片和一次 host 清单读取，不加提示词内容、不写会话事件，并刻意不为「有人批准、拒绝、运行或停止」留下会话日志痕迹。
-间接地，通过负责会话 steering 和权限结果的 runner 生命周期操作；本包渲染历史调用与结果，不添加工具或提示段落。
 
 #### KV Cache 影响
 

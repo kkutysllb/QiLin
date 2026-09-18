@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use the **Plugins** entry in the Web sidebar to manage the profile's installed bundles and the official bundles the installation ships switched off. Switch bundles and their rows on and off, install a bundle after the Host has read what the spec names, watch pnpm's output, stop a run, and enable what it added. Uninstalling asks for confirmation. A plugin that registers a configuration page is edited here, on its own page; Settings keeps the read-only inventory.
+Use the **Plugins** entry in the Web sidebar to manage the profile's installed bundles and the official bundles the installation ships switched off. Switch bundles and their rows on and off, install a bundle after the Host has read what the spec names, watch pnpm's output, stop a run, and enable what it added. **Check for updates** compares the manageable layers with their registry's latest versions; the **Plugin catalog** searches GitHub's plugin topic. Uninstalling asks for confirmation. A plugin that registers a configuration page is edited here, on its own page; Settings keeps the read-only inventory.
 
 ## Table of Contents
 
@@ -34,6 +34,14 @@ The Agent Teams, Agent Teams Web UI, and Auto Authorization Review packages have
 **Add plugin** takes a package name with an optional version, a Git address, a tarball, or an absolute local path; the dialog says a package name is what follows `qilin plugin add` in a README. **Not sure what to enter?** under the field opens a guide that shows the three common forms with an example each; **Use example** drops one into the field. **Install** first asks the Host to read what the spec names (`pluginManager.inspect`): a name the list already shows, a name the registry does not have, a path without a package, a package without a bundle patch, or a spec pnpm would refuse comes back under the field as one sentence, with the spec kept for editing. An accepted spec opens the installing screen, which shows the package's name, one-liner, and version as the Host read them and folds pnpm's command and output behind **Show install details**. A finished install offers **Enable now**, which switches the new bundle on, closes the dialog, and scrolls the list to it; closing instead leaves it installed and off. A failed install says what went wrong in one line — the registry or network could not be reached, the package was not found, the disk is full, the profile is not writable, pnpm blocked a build script — with pnpm's output behind the details and **Retry** at hand; the Host has already put the profile files back. When pnpm blocked a dependency's install scripts, the failed screen lists the packages whose scripts wait for permission and offers **Allow these scripts and retry** in place of **Retry**; the Host saves the permission in the profile's `pnpm-workspace.yaml`, which a failed run leaves as pnpm wrote it, then runs pnpm again, and the installed screen names what was allowed. A successful installation does not certify that a module can activate.
 
 During installation, **Cancel install** asks the Host to stop the run and shows **Stopping installation…** until the Host confirms. Loading the bundle cannot be cancelled. Once confirmed, the dialog returns to the spec, ready to install again, and a toast says the installation was cancelled; the manifest and lockfile are back as they were, while downloaded files can remain. Closing the dialog while the run is in progress asks the Host to stop it the same way, and the dialog closes once the Host confirms; while the Host prepares, stops, or loads, the dialog cannot be closed. A connection error does not confirm cancellation: the running screen says so and cancelling can be tried again.
+
+### Checking for updates
+
+The toolbar's check control asks the Host to compare every manageable layer — the installation's shipped bundles included — with its registry's latest version (`pluginManager.checkUpdates`) and reports each layer with a newer version as `current → latest`. **Update** upgrades that one through the Host's install path, which leaves the layer's place in the profile as it is; a change that waits for the next start says so in a toast. A layer the registry could not answer for offers nothing, and when no layer is behind the block says everything is up to date. The block closes with its own control; a check that fails reports the reason in the block and can be run again.
+
+### Browsing the plugin catalog
+
+The plugin catalog below the cards searches GitHub for the repositories the `dsh-plugin` topic tags (`pluginManager.catalog`), most starred first, and pages through the answer with **Load more**. Each result shows the repository, its description, and its star count, and opens it on GitHub. **Install** puts the repository address into the install dialog as the spec, so the Host reads it and the person approves the installation there, exactly as for a typed spec.
 
 ### Switching a bundle
 
@@ -73,7 +81,7 @@ The browser plugin registers the `plugins` sidebar entry and its `main` panel th
 
 ### The store
 
-`PluginManagerController` owns the bundle views, busy keys, notices, install progress and the uninstall confirmation. Each read asks the inventory whether the Host manages a profile, then joins `listBundles` with `listPlugins` into one view per bundle, whose rows carry the live entry's enablement and fiber phase. It coalesces overlapping reads, refreshes after operations, on `plugin-manager/changed`, and on reconnect, and ignores late results after disposal. Install output is grouped by job id. The install dialog moves `idle → checking → starting → running → done | failed`, with `cancelling` and `applying` as the Host reports them. The check runs under an `AbortController` that going back or closing aborts, and its settlement is dropped; a run is stopped only through `pluginManager.cancelInstall`, whose answer the dialog waits for. A change the Host could not apply, a restart it waits for, and an override by a higher layer become toasts that retire on their own.
+`PluginManagerController` owns the bundle views, busy keys, notices, install progress and the uninstall confirmation. Each read asks the inventory whether the Host manages a profile, then joins `listBundles` with `listPlugins` into one view per bundle, whose rows carry the live entry's enablement and fiber phase. It coalesces overlapping reads, refreshes after operations, on `plugin-manager/changed`, and on reconnect, and ignores late results after disposal. Install output is grouped by job id. The install dialog moves `idle → checking → starting → running → done | failed`, with `cancelling` and `applying` as the Host reports them. The check runs under an `AbortController` that going back or closing aborts, and its settlement is dropped; a run is stopped only through `pluginManager.cancelInstall`, whose answer the dialog waits for. A change the Host could not apply, a restart it waits for, and an override by a higher layer become toasts that retire on their own. The update check and the catalog search are reads of their own: each keeps its status and its failure text in the block that asked, so a failed lookup leaves the cards as they were.
 
 ### Configuration slots
 
@@ -114,7 +122,7 @@ These limits define the reach of the management view; they are current package c
 - **Only bundles are managed** — a dependency without a bundle patch is refused before it installs; one the profile already holds is left off the page unless the profile selects it, and loading plain plugin modules stays a file operation.
 - **Rows show a phase, not a reason** — a failed row reads as failed without the Host's error text; the Host log has it.
 - **One install at a time** — the dialog runs one pnpm command; a second spec waits for the first to finish.
-- **No version picker** — the spec is typed as pnpm accepts it; the page neither lists registry versions nor offers upgrades.
+- **Updates follow the registry's `latest` tags** — the check offers the layers the profile manages and upgrades them to their latest version; pinning a specific version still means typing the spec.
 
 <a id="dev-note"></a>
 ### Dev Note

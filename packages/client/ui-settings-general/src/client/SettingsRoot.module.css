@@ -1,3 +1,56 @@
+.triggerRow {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% + 4px);
+  margin: 4px -2px;
+}
+
+.triggerRow.railRow {
+  width: 36px;
+  margin: 8px 0 10px;
+}
+
+/* The panel entrance: icon plus label in the wide column, icon only on the rail. */
+.trigger {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  height: 42px;
+  margin: 0;
+  padding: 0 10px 0 8px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  color: var(--dsw-alias-label-primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.trigger:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* Rail trigger: the same 36x36 box and 12px rounding as the other rail controls. */
+.trigger.rail {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+}
+
 /* Closed-panel status in the sidebar foot while the settings page is closed:
    the row reports connection recovery and desktop-update status, and the
    account menu remains the only Settings entry. */
@@ -6,7 +59,7 @@
   display: flex;
   justify-content: flex-end;
   min-height: 28px;
-  margin: 4px 12px;
+  margin: 0;
 }
 
 /* Full-viewport layer (figma Mask 501:29946 #000@24%): mask tokens match the

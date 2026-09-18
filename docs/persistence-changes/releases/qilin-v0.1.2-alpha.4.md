@@ -50,17 +50,17 @@ previous: qilin-v0.1.2-alpha.3
 sessionFormatVersion: 0
 changes:
   - root: SessionHeader
-    before: a50373168c4935222b1681223d919a56d095ce37ad45c5ba2c20d75235adf937
-    after: 001ed6f66d67fac9cb9594b55f13557db94174fe5d5954789bb5a2d6d5927226
+    before: ad0970b1b63709bb65b27c32b70ce7e4aec4930f24eff568345f06de08176c85
+    after: 77035afc88bfaf97333b168d366e3c2fa858a9e4ccd1c71b9ea7ad3b83a0a223
   - root: event:agent/inbox/spliced
-    before: ee796690277eafbcda4437478de7a8f01d983424d6238fe472df9b3b0d97a89f
-    after: 15cdff6391d58ea00d7e2fe113b663d5479cbb3fd1af26717ad933c770bca081
+    before: af34b2a458b99db8fa54831b3be38c363f3794829e51de8bfd041dce948f6b57
+    after: 3571a8297497b4a886dc0cc6468127989d7144d8a9d3be44848c297116c7f028
   - root: event:session/title-llm-request
-    before: 61651f4ca07ab9ebef773d82fafbcb74d39190a255c69ecc36084046123a9cb4
-    after: 2cfb71f7819bc88a6bccbffa8b7ae5664233af6f6e1dfb068db25e2e17ddd8c7
+    before: a014c48547e5585f7310bfe020c1620e88cb881cb650b099cbc1f4f8afdc58f5
+    after: 81680595ce19cd7b4fc038ac5a9ace5b26c513a31e41c2acda5de2f71bcbb445
   - root: event:user/message
-    before: e23368db1646a9ac10d2bd4629084fdff583a1db2c83ffaa3f2f201d0c45f3e4
-    after: e950c87ba49bd8175b8a670b319a599d5ed14cde996540d5ba91a141fad68781
+    before: 71d0413dde4836f5d66c496853093ef9e671ef7ce5bb3f17bdf9b01fcbf7c011
+    after: 3210ec83169e0e2448c190bd4feb4edad73f7c19703519cf90e2edc39572dbcc
 ```
 
 <a id="changes"></a>

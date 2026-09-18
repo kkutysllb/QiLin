@@ -49,7 +49,7 @@
 | `@qilin/tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
 | `@qilin/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
 
-<a id="deepseek-aiqilin-plugin-manager"></a>
+<a id="qilinplugin-manager"></a>
 
 ## `@qilin/plugin-manager`
 

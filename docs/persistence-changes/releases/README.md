@@ -54,7 +54,7 @@ The [manifest](manifest.json) records every QILIN alpha/RC tag captured on 2026-
 | [qilin-v0.1.5-alpha.1](qilin-v0.1.5-alpha.1.md) | 2026-09-08 | 3 | 57 / 443 | 12 |
 | [qilin-v0.1.5-alpha.2](qilin-v0.1.5-alpha.2.md) | 2026-09-09 | 3 | 59 / 462 | 4 |
 | [qilin-v0.1.5-rc.1](qilin-v0.1.5-rc.1.md) | 2026-09-10 | 3 | 59 / 462 | 0 |
-| [qilin-v3.0.0](qilin-v3.0.0.md) | 2026-09-10 | 3 | 59 / 462 | 0 |
+| [qilin-v0.1.5-rc.2](qilin-v0.1.5-rc.2.md) | 2026-09-10 | 3 | 59 / 462 | 0 |
 
 <!-- persistence-release-index:end -->
 
