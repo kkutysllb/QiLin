@@ -168,6 +168,14 @@ describe('kind semantics', () => {
     expect(core.entries('test.list').map(e => e.options.id)).toEqual(['a', 'b', 'c'])
   })
 
+  it('list: section lands on the stored entry for grouped rendering', () => {
+    const core = new SlotCore()
+    mountFrame(core)
+    core.register({ name: 'test.list', id: 'a', section: 'Group' }, Comp)
+    core.register({ name: 'test.list', id: 'b' }, Comp)
+    expect(core.entries('test.list').map(e => e.options.section)).toEqual(['Group', undefined])
+  })
+
   it('chain: missing select throws; select and priority land on the stored entry', () => {
     const core = new SlotCore()
     mountFrame(core)

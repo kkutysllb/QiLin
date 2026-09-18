@@ -270,7 +270,7 @@ export function SidebarRoot({
                   without a section render header-less, so a host that never
                   sets one keeps the original flat list exactly. */}
               {section !== undefined && section !== panels[index - 1]?.section ? (
-                <div className={clsx(css.panelSection, css.wide)} aria-hidden={!wide}>
+                <div className={clsx(css.panelSection, wide && css.wide)} aria-hidden={!wide}>
                   {wide ? section : <span className={css.panelSectionRail} />}
                 </div>
               ) : null}

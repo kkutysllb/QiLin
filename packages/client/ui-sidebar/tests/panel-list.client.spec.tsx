@@ -20,6 +20,7 @@ declare module '@qilin/client-ui-slots' {
 
 const ALPHA = 'sidebar-test-alpha' as MainPanelId
 const BETA = 'sidebar-test-beta' as MainPanelId
+const GAMMA = 'sidebar-test-gamma' as MainPanelId
 const runtimes = new Set<SlotTestRuntime>()
 
 afterEach(async () => {
@@ -51,7 +52,7 @@ async function bench(collapsed = false) {
       ctx.provide('locale', locale)
       ctx.effect(() => locale.register('common', { zh: commonZh, en: commonEn }), 'panel test: common locale')
       ctx.effect(() => locale.register('sidebar-panel-test', {
-        zh: { alpha: '甲面板' }, en: { alpha: 'Alpha panel' },
+        zh: { alpha: '甲面板', group: '甲组' }, en: { alpha: 'Alpha panel', group: 'Alpha group' },
       }), 'panel test: panel locale')
       ctx.slots.installLocale(locale)
       ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'conversation' }, () => (
@@ -82,6 +83,7 @@ interface TestPanel {
   heading: string
   order?: number
   label?: SlotLabel
+  section?: SlotLabel
 }
 
 async function mountPanel(runtime: SlotTestRuntime, { heading, ...metadata }: TestPanel) {
@@ -178,6 +180,63 @@ describe('sidebar global panels', () => {
     await mountPanels(runtime, locale, 20)
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
     expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual(['Alpha panel', 'Beta panel'])
+  })
+
+  it('renders one header per section break and keeps unsectioned rows header-less', async () => {
+    const { runtime, view } = await bench()
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
+    await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20 })
+    await mountPanel(runtime, { id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: 'Alpha group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    expect(headers).toHaveLength(2)
+    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Alpha group'])
+    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false'])
+    expect(within(navigation).getAllByRole('button').map(row => row.textContent))
+      .toEqual(['Alpha panel', 'Beta panel', 'Gamma panel'])
+    const entries = runtime.slots.entries('sidebar.panellist')
+    expect(entries[0]!.options.section).toBe('Alpha group')
+    expect(entries[1]!.options.section).toBeUndefined()
+  })
+
+  it('renders a single header for consecutive rows sharing one section', async () => {
+    const { runtime, view } = await bench()
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'One group' })
+    await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'One group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    expect(headers).toHaveLength(1)
+    expect(headers[0]!.textContent).toBe('One group')
+  })
+
+  it('renders collapsed section breaks as an aria-hidden rail without header text', async () => {
+    const { runtime, view } = await bench(true)
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
+    await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'Beta group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    expect(headers).toHaveLength(2)
+    for (const header of headers) {
+      expect(header.textContent).toBe('')
+      expect(header.getAttribute('aria-hidden')).toBe('true')
+      expect(header.querySelector('span')).toBeTruthy()
+    }
+    expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual(['', ''])
+  })
+
+  it('resolves section labels through the active locale and re-projects when only the section moves', async () => {
+    const { runtime, locale, view } = await bench()
+    const t = locale.bind('sidebar-panel-test')
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: () => t('group') })
+    await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: () => t('group') })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const headers = () => [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    expect(headers()).toHaveLength(1)
+    expect(headers()[0]!.textContent).toBe('Alpha group')
+
+    act(() => { locale.setLocale('zh') })
+    await waitFor(() => { expect(headers()[0]!.textContent).toBe('甲组') })
+    expect(within(navigation).getByRole('button', { name: 'Beta panel' })).toBeTruthy()
   })
 
   it('selects registered main content and keeps a repeated selection active', async () => {
