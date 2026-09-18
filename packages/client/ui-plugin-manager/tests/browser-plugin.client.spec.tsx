@@ -1,14 +1,13 @@
 // @vitest-environment jsdom
 import { Context, Service } from '@qilin/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render } from '@testing-library/react'
+import { cleanup } from '@testing-library/react'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 import { TestRemote, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
-import { apply, inject, NS, PANEL_ID } from '../src/client/index.ts'
+import { apply, inject, NS, TAB_ID } from '../src/client/index.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
-import { PluginsPanelIcon } from '../src/client/PluginsPanelIcon.tsx'
 import type { PluginManagerFace } from '../src/client/manager-store.ts'
 import { apply as hostApply } from '../src/index.ts'
 
@@ -41,8 +40,7 @@ function declare(slots: SlotRegistry): () => void {
   return slots.register({
     name: 'root',
     children: {
-      'main': { kind: 'keyed', scope: 'root' },
-      'sidebar.panellist': { kind: 'list', scope: 'root' },
+      'settings.plugins.tab': { kind: 'list', scope: 'root' },
     },
   } as never, () => null)
 }
@@ -56,27 +54,18 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(inject).toEqual(['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory'])
   })
 
-  it('registers the sidebar entry and its page, which reads the Host only once rendered and follows Host changes', async () => {
+  it('registers the management tab, which reads the Host only once rendered and follows Host changes', async () => {
     const b = await bench()
     declare(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
 
-    const entry = b.slots.entries('main')[0]!
+    const entry = b.slots.entries('settings.plugins.tab')[0]!
     expect(entry.component).toBe(PluginManagerPage)
-    expect(entry.options).toMatchObject({ key: PANEL_ID })
+    expect(entry.options).toMatchObject({ id: TAB_ID, order: 5 })
     expect(entry.locale).toBe(NS)
-    // The sidebar entry addresses the page by the same id and speaks the dictionary.
-    const icon = b.slots.entries('sidebar.panellist')[0]!
-    expect(icon.component).toBe(PluginsPanelIcon)
-    const unread = () => { throw new Error('The sidebar icon must not read application state') }
-    const glyph = render(<PluginsPanelIcon size={18} active={false}
-      usePanelInfo={unread} useSessions={unread} useSessionStatus={unread} useSessionRetainInfo={unread}
-      useWorkspaces={unread} useResource={unread} />)
-    expect(glyph.container.querySelector('svg')?.getAttribute('width')).toBe('18')
-    expect(icon.options).toMatchObject({ id: PANEL_ID, order: 0 })
-    expect(icon.locale).toBe(NS)
-    expect(resolveSlotLabel(icon.options.label)).toBe('插件')
+    // The Settings Plugins section renders the tab label; the page itself owns no sidebar entry.
+    expect(resolveSlotLabel(entry.options.label)).toBe('插件管理')
     // The page declares the slots a plugin's configuration arrives through, and binds their projection beside its state.
     expect(b.slots.spec('plugins.item')).toMatchObject({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('plugins.bundle.config')).toMatchObject({ kind: 'keyed', scope: 'root' })
@@ -104,8 +93,7 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(face.hooks.pluginManager.getSnapshot().install.runs).toEqual([])
 
     await fiber.dispose()
-    expect(b.slots.entries('main')).toHaveLength(0)
-    expect(b.slots.entries('sidebar.panellist')).toHaveLength(0)
+    expect(b.slots.entries('settings.plugins.tab')).toHaveLength(0)
     b.remote.emit('plugin-manager/changed', [{ reason: 'install' }])
     await Promise.resolve()
     expect(b.list).toHaveBeenCalledTimes(3)

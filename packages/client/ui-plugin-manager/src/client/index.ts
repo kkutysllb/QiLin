@@ -1,19 +1,18 @@
 /**
- * Plugin manager, browser half: the **Plugins** entry of the sidebar and the
- * management page it opens in the main column. The page installs, enables,
- * disables, and removes the bundles of the Host's profile through the
- * `pluginManager` Remote and switches their rows in the profile's user layer.
+ * Plugin manager, browser half: the **Manage plugins** view inside the Settings
+ * Plugins section. The page installs, enables, disables, and removes the
+ * bundles of the Host's profile through the `pluginManager` Remote and switches
+ * their rows in the profile's user layer.
  * A plugin that carries its own configuration renders it on this page through
  * the slots the page declares (`slot-contract.ts`).
  */
 
 import type {} from '@qilin/client-locale/client'
 import type { Context as ClientContext } from '@qilin/kylin'
-// Type-only: the root `main` keyed slot the page registers into, declared by
-// ui-layout with the panel id brand, and the `sidebar.panellist` list the
-// entry registers into, declared by ui-sidebar.
-import type { MainPanelId } from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/client-ui-sidebar/client'
+// Type-only: the Settings shell declares the tab list this page registers into
+// (`settings.plugins.tab`), and the Plugins section owner renders the tab and
+// mounts the page inside it.
+import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin/api-remotes/client'
@@ -21,7 +20,6 @@ import type {} from '@qilin/api-remotes/client'
 // through the owning package's client-safe types subpath).
 import type {} from '@qilin/plugin-manager/types'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
-import { PluginsPanelIcon } from './PluginsPanelIcon.tsx'
 import { configLedgerSource } from './config-ledger.ts'
 import { PluginManagerController } from './manager-store.ts'
 import { en, zh, type PluginManagerLocaleKey } from './locales.ts'
@@ -43,10 +41,10 @@ declare module '@qilin/client-ui-slots' {
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'pluginManager'
 
-/** The id shared by the sidebar entry and the main panel it opens. */
-export const PANEL_ID = 'plugins' as MainPanelId
+/** Tab key of the management view in the Plugins settings section. */
+export const TAB_ID = 'manage'
 
-/** Services required by the sidebar registration and the Remote methods; the inventory says whether the Host manages a profile. */
+/** Services required by the tab registration and the Remote methods; the inventory says whether the Host manages a profile. */
 export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory']
 
 /**
@@ -75,14 +73,17 @@ export function apply(ctx: ClientContext): void {
     return () => { for (const dispose of disposers) dispose() }
   }, 'ui-plugin-manager: host invalidations')
 
-  // The page is a global panel: it belongs to the profile, not to a Session,
-  // and the sidebar's entry selects it. What is installed and switched on is
-  // the page's own; a plugin's configuration arrives through the slots the
-  // page declares here, so the page never names a configurable plugin.
+  // The management view is a tab of the Settings Plugins section: the section
+  // owns the nav row, the tab bar, and the tab panel, so the Web sidebar carries
+  // no Plugins entry of its own. What is installed and switched on is the page's
+  // own; a plugin's configuration arrives through the slots the page declares
+  // here, so the page never names a configurable plugin.
   const configLedger = configLedgerSource(ctx)
-  ctx.slots.inject('main', () => ctx.slots.register({
-    name: 'main',
-    key: PANEL_ID,
+  ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
+    name: 'settings.plugins.tab',
+    id: TAB_ID,
+    order: 5,
+    label: () => t('tab'),
     locale: NS,
     inject: () => controller.inject(configLedger),
     children: {
@@ -91,12 +92,5 @@ export function apply(ctx: ClientContext): void {
       'plugins.row.config': { kind: 'keyed', scope: 'root' },
     },
   }, PluginManagerPage))
-  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
-    name: 'sidebar.panellist',
-    id: PANEL_ID,
-    order: 0,
-    label: () => t('panel'),
-    locale: NS,
-  }, PluginsPanelIcon))
 
 }

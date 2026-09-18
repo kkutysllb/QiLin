@@ -1,5 +1,5 @@
 ---
-description: "从 Web 侧栏管理 profile 的插件组合包、它们的行，以及插件的配置。"
+description: "从设置「插件」分区管理 profile 的插件组合包、它们的行，以及插件的配置。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用 Web 侧栏的**插件**入口管理 profile 已安装的组合包，以及安装随附、默认关闭的官方组合包。可以启停组合包及其行、在 Host 读出 spec 指向什么之后安装组合包、查看 pnpm 输出、停止一次运行，并启用它新增的包。**检查更新**把可管理的层与注册表最新版本比较；**插件目录**搜索 GitHub 上的插件主题。卸载会要求确认。注册了配置页的插件在这里、在它自己的页面上编辑；设置里只保留只读的插件列表。
+使用设置**插件**分区里的**插件管理**视图管理 profile 已安装的组合包，以及随安装提供、默认关闭的官方组合包。可以启停组合包及其行、在 Host 读出 spec 指向什么之后安装组合包、查看 pnpm 输出、停止一次运行，并启用它新增的包。**检查更新**把可管理的层与注册表最新版本比较；**插件目录**搜索 GitHub 上的插件主题。卸载会要求确认。注册了配置页的插件在这里、在它自己的页面上编辑；该分区的「插件列表」视图保留只读清单。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在侧栏选择**插件**。页面首次打开时通过 `api-remotes` 读取清单与组合包；没有受管 profile 的 Host 上页面显示为不可用。**官方**排在前面，列出安装随附、供开启的组合包——开启前保持关闭、没有卸载、属于 beta 功能的带 **Beta** 标签——其后是注册了配置页的官方插件；**已安装**列出 profile 持有的组合包。卡片按名称排序，启停组合包不会挪动它的卡片。没有组合包 patch 的依赖不是插件，除非 profile 选中了它才会带异常标签列出。全局配置仍在设置的**插件**分区中编辑。
+打开设置、选择**插件**，进入**插件管理**标签页。页面首次打开时通过 `api-remotes` 读取清单与组合包；没有受管 profile 的 Host 上页面显示为不可用。**官方**排在前面，列出安装随附、供开启的组合包——开启前保持关闭、没有卸载、属于 beta 功能的带 **Beta** 标签——其后是注册了配置页的官方插件；**已安装**列出 profile 持有的组合包。卡片按名称排序，启停组合包不会挪动它的卡片。没有组合包 patch 的依赖不是插件，除非 profile 选中了它才会带异常标签列出。全局配置仍由本视图承载的配置页编辑。
 
 Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用随界面语言切换的本地化名称和描述。详情页保留完整 npm 包名；其他包显示简写包名和原始描述。
 
@@ -53,7 +53,7 @@ Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用�
 
 ### 配置页
 
-自带配置的插件把配置渲染在本页而不是设置里，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、subagent 模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册：
+自带配置的插件把配置渲染在本页，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、subagent 模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册：
 
 ```tsx ignore-check
 ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
@@ -77,7 +77,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### 注册
 
-浏览器插件通过 `ctx.slots.inject()` 注册 `plugins` 侧栏入口与它的 `main` 面板，使两者跟随 slot 延迟声明、本地化变化与销毁。页面为全局页面，不属于任何 Session。显示文本来自包元信息与页面字典。
+浏览器插件通过 `ctx.slots.inject()` 注册设置「插件」分区的 `manage` 标签页，使该标签页跟随 slot 延迟声明、本地化变化与销毁。页面为全局页面，不属于任何 Session。显示文本来自包元信息与页面字典。
 
 ### store
 
@@ -85,7 +85,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### 配置 slot
 
-页面的 `main` 注册把 `plugins.item`、`plugins.bundle.config` 与 `plugins.row.config` 声明为子 slot，因此它们与页面同生，注册方的 `ctx.slots.inject` 会等到它们出现。`configLedgerSource` 把三份账本投影成一个可观察对象——按账本顺序排列、标签按当前语言解析的官方条目，以及组合包与行的键——在账本或语言变化前保持缓存；页面把它作为 `useConfigLedger` 绑在 store 旁边，自身从不点名任何可配置插件。打开的是哪一页是页面本地状态：卡片、某个组合包、某个官方插件，或组合包的某一行。注册与做出它的浏览器半侧同生共死。`qilin-client-modules` 只把一个包的浏览器半侧挂在说明符恰为包名的那一行 Loader 行上，所以组合包为自己或任一行注册的页面，都会在那一行被关闭时一起消失；需要在其他行关闭时仍保留页面的子插件，应作为独立的包发布。
+页面的 `settings.plugins.tab` 注册把 `plugins.item`、`plugins.bundle.config` 与 `plugins.row.config` 声明为子 slot，因此它们与页面同生，注册方的 `ctx.slots.inject` 会等到它们出现。`configLedgerSource` 把三份账本投影成一个可观察对象——按账本顺序排列、标签按当前语言解析的官方条目，以及组合包与行的键——在账本或语言变化前保持缓存；页面把它作为 `useConfigLedger` 绑在 store 旁边，自身从不点名任何可配置插件。打开的是哪一页是页面本地状态：卡片、某个组合包、某个官方插件，或组合包的某一行。注册与做出它的浏览器半侧同生共死。`qilin-client-modules` 只把一个包的浏览器半侧挂在说明符恰为包名的那一行 Loader 行上，所以组合包为自己或任一行注册的页面，都会在那一行被关闭时一起消失；需要在其他行关闭时仍保留页面的子插件，应作为独立的包发布。
 
 </details>
 
@@ -94,9 +94,9 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 <a id="further-exploration"></a>
 ## 进一步探索
 
-这些页面覆盖侧栏、Remote 调用与 Host 侧管理器。
+这些页面覆盖设置标签页、Remote 调用与 Host 侧管理器。
 
-- [ui-sidebar](../ui-sidebar/README.zh.md)——插件入口注册进的面板列表；[ui-layout](../ui-layout/README.zh.md)——页面占用的主 slot。
+- [ui-settings](../ui-settings/README.zh.md)——页面注册进的标签页列表；[ui-settings-plugins](../ui-settings-plugins/README.zh.md)——渲染该标签页的「插件」分区。
 - [api-remotes](../../api/remotes/README.zh.md)——`pluginManager.*` 与 `pluginInventory.*` 背后的 Remote BFF 面。
 - [plugin-manager](../../boot/plugin-manager/README.zh.md)——本页驱动的 Host 侧管理器。
 - [ui-settings-plugins](../ui-settings-plugins/README.zh.md)——注册进本页 slot 的官方配置页。
@@ -134,4 +134,4 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 </details>
 
-**运行时不变式：** 不发布伴生检查。本包只拥有一个基于 Host 事实的侧栏面板。
+**运行时不变式：** 不发布伴生检查。本包只拥有一个基于 Host 事实的设置「插件」标签页。

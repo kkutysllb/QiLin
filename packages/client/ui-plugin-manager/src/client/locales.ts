@@ -2,7 +2,7 @@
 
 /** Simplified Chinese dictionary and key source of truth. */
 export const zh = {
-  panel: '插件',
+  tab: '插件管理',
   title: '插件',
   intro: '添加和管理插件',
   loading: '正在读取插件…',
@@ -188,7 +188,7 @@ export type PluginManagerLocaleKey = keyof typeof zh
 
 /** English dictionary checked against the Chinese key set. */
 export const en = {
-  panel: 'Plugins',
+  tab: 'Manage plugins',
   title: 'Plugins',
   intro: 'Add and manage plugins',
   loading: 'Reading plugins…',

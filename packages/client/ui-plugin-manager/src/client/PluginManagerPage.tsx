@@ -30,9 +30,9 @@ import { managementText, noticeText, packageText, type Translate } from './prese
 import type {} from './slot-contract.ts'
 import css from './PluginManagerPage.module.css'
 
-/** Full component props assembled by the main slot renderer. */
+/** Full component props assembled by the Settings tab renderer. */
 export type PluginManagerPageProps =
-  PropsRuntime<'main'>
+  PropsRuntime<'settings.plugins.tab'>
   & PropsLocale<'pluginManager'>
   & PropsRenderSlots<'plugins.item' | 'plugins.bundle.config' | 'plugins.row.config'>
   & InjectFace<PluginManagerFace>
