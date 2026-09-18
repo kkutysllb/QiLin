@@ -28,7 +28,7 @@ import { mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } f
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { Page } from 'playwright'
+import type { Locator, Page } from 'playwright'
 import { expect } from 'vitest'
 import { Context } from '@qilin/kylin'
 import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
@@ -252,9 +252,25 @@ function replayProviders(contextWindow: number | undefined, messages: boolean): 
   }))
 }
 
+/**
+ * Open the settings dialog the way the shipped UI does: the sidebar account
+ * menu's Settings row. The dialog is modal, so callers reach the sidebar again
+ * only after closing it.
+ * @param page - the browser page whose sidebar opens the dialog.
+ * @param accountLabel - the account button's accessible name in the page's locale.
+ * @param settingsLabel - the settings row's and dialog's accessible name in the page's locale.
+ * @returns the opened settings dialog.
+ */
+export async function openSettingsDialog(page: Page, accountLabel: string, settingsLabel: string): Promise<Locator> {
+  await page.getByRole('button', { name: accountLabel, exact: true }).click()
+  await page.getByRole('menuitem', { name: settingsLabel, exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: settingsLabel })
+  await dialog.waitFor({ timeout: 10_000 })
+  return dialog
+}
+
 /** A booted web scaffold: real composition, mode-selected model backend, temp world. */
-export interface WebScaffold {
-  /** The active snapshot mode this scaffold booted under. */
+export interface WebScaffold {  /** The active snapshot mode this scaffold booted under. */
   mode: WebSnapshotMode
   /** Browser-facing origin for the bound test server. */
   baseUrl: string
@@ -542,6 +558,10 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
   const overlayPatches: PatchOptions[] = [
     // Without HMR the profile applies configuration changes at its next start.
     ...options.profile?.hmr === false ? [{ id: 'hmr', disabled: true }] : [],
+    // The shipped composition gates the application behind a local account;
+    // these scenarios drive plugin, settings, and conversation surfaces, not
+    // sign-in, so the gate is off unless an explicit overlay turns it back on.
+    { id: 'accounts', config: { enabled: false } },
     { id: 'session-log-deepseek', config: { enabled: false } },
     // The historical Messages fixture retains its recorded route during replay;
     // live configuration uses the shared DeepSeek route. Explicit overlays win.
