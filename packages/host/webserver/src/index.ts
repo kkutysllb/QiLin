@@ -73,6 +73,15 @@ const DEFAULT_COMPRESSION = 'none' as const
 const DEFAULT_COMPRESSION_LEVEL = 1
 const DEFAULT_COMPRESSION_THRESHOLD_BYTES = 1024
 
+/**
+ * Request-header budget, above Node's 16 KiB default. A boot request carries the
+ * combo URL naming every client plugin (bounded at 3 KiB by `client-modules`)
+ * plus the cookies the browser holds for this host, and a browser on a
+ * development machine accumulates cookies from every other local application;
+ * the default cap answers such a request with 431 and the client never boots.
+ */
+const MAX_HEADER_BYTES = 64 * 1024
+
 interface ResolvedConfig extends Config {
   compression: 'none' | 'gzip'
   compressionLevel: number
@@ -239,7 +248,7 @@ export class WebServer extends Service {
     // rejection killing the process on one malformed request (bad %-escape,
     // client dropping mid-body). Per-request failures log and answer 400 —
     // never a process exit.
-    this.server = createServer((req, res) => {
+    this.server = createServer({ maxHeaderSize: MAX_HEADER_BYTES }, (req, res) => {
       const next = (): void => {
         void handle(req, res).catch((err: unknown) => {
           this.ctx.logger.warn(err instanceof Error ? err : new Error(String(err)))

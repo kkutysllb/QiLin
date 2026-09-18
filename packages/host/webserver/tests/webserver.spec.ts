@@ -355,6 +355,21 @@ describe('real Loader composition', () => {
       + '<script>(globalThis.__QILIN_BOOT_READY__ ??= Promise.withResolvers()).resolve()</script>')
   })
 
+  it('answers a request whose headers exceed the runtime default budget', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const port = loaded.webServer.port
+    // The combo URL naming every client plugin is bounded at 3 KiB by
+    // `client-modules`, and a browser accumulates cookies for this host from
+    // every other local application; Node's 16 KiB default answers that pair
+    // with 431 and the client never boots.
+    const bloat = 'q'.repeat(20 * 1024)
+    const answered = await request(port, `/${'p'.repeat(2_500)}`, { headers: { cookie: `bloat=${bloat}` } })
+    expect(answered.status).not.toBe(431)
+    loaded.webServer.register({ kind: 'exact', path: '/probe', handler: (_req, res) => { res.writeHead(200); res.end('EXACT') } })
+    const served = await request(port, '/probe', { headers: { cookie: `bloat=${bloat}` } })
+    expect(served).toMatchObject({ status: 200, body: 'EXACT' })
+  })
+
   it('fails the fiber when the port is already taken (fail-loud at activation)', { timeout: 60_000 }, async () => {
     const first = await loadComposition()
     const takenPort = first.webServer.port
