@@ -14,7 +14,7 @@ import { apply, inject } from '../src/client/index.ts'
 
 declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
-    'sidebar-panel-test': 'alpha'
+    'sidebar-panel-test': 'alpha' | 'group'
   }
 }
 
