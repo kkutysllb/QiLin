@@ -1,7 +1,7 @@
 {
   "name": "@qilin/typert-registry",
   "description": "Runtime registry for generated package reflection and Zod schemas",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

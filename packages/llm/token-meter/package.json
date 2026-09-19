@@ -1,7 +1,7 @@
 {
   "name": "@qilin/token-meter",
   "description": "Replay-aware token measurement service (ctx.tokenMeter) for the QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

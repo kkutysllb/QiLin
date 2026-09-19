@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-sidebar-plans",
   "description": "Task-plan tab type for the right Sidebar: scans the session workspace's convention plan documents and opens one as a file resource",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session-turn-outline",
   "description": "Whole-log turn outline projection (turnOutline) for the QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

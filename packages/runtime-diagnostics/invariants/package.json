@@ -1,7 +1,7 @@
 {
   "name": "@qilin/invariants",
   "description": "Registry service for package-owned QiLin runtime invariants",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-brand-official",
   "description": "Official QiLin brand occupants for the Web client's sidebar slots",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-connection",
   "description": "Authenticated RPC transport and generation lifecycle",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/spill-local",
   "description": "Local-filesystem implementation of the QiLin spill storage seam (private session-scoped files)",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

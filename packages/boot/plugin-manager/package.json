@@ -1,7 +1,7 @@
 {
   "name": "@qilin/plugin-manager",
   "description": "Current-profile plugin and bundle management shared by qilin CLI, Web and agent tools",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

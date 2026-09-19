@@ -1,7 +1,7 @@
 {
   "name": "@qilin/web-frontend",
   "description": "Web application entry: vite build over the @qilin/client-web shell library; dist/ served by apps/cli's qilin web",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

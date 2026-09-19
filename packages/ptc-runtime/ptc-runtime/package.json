@@ -1,7 +1,7 @@
 {
   "name": "@qilin/ptc-runtime",
   "description": "Abstract PTC execution seam (ctx.ptcRuntime) for the QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

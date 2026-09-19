@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-primitives",
   "description": "Pure React atoms for the qilin web UI: controls, icons, markdown, and JSON inspectors (zero cordis)",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

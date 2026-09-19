@@ -1,7 +1,7 @@
 {
   "name": "@qilin/llm",
   "description": "Provider-neutral LLM service interface for the QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

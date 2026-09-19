@@ -1,7 +1,7 @@
 {
   "name": "@qilin/spill",
   "description": "Abstract spill storage seam (ctx.spillStore) for the QiLin — save oversized tool text and return a retrieval locator",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

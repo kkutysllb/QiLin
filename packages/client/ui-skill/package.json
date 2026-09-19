@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-skill",
   "description": "Web skill references and the dedicated skill tool row",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

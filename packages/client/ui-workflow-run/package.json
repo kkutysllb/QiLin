@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-workflow-run",
   "description": "Durable workflow-run Conversation Node and nested member disclosure for qilin web",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

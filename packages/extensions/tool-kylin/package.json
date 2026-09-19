@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tool-kylin",
   "description": "Read-only runtime API inspection for Harness plugin development",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

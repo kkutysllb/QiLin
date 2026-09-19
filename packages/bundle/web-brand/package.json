@@ -1,7 +1,7 @@
 {
   "name": "@qilin/web-brand",
   "description": "The QiLin browser-surface bundle: QiLin product identity layered over the qilin web surface",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

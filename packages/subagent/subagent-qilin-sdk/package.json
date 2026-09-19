@@ -1,7 +1,7 @@
 {
   "name": "@qilin/subagent-qilin-sdk",
   "description": "Out-of-process SDK subagent backend: drives a child QiLin runtime subprocess over stdio JSON-RPC through the TypeScript SDK client",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

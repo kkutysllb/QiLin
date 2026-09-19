@@ -1,7 +1,7 @@
 {
   "name": "@qilin/agent-presets",
   "description": "Per-session agent composition from preset cordis.yml files for the QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

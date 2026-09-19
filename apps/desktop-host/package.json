@@ -1,7 +1,7 @@
 {
   "name": "@qilin/desktop-host",
   "description": "Private Node-mode host process for the Electron desktop application",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "private": true,
   "license": "MIT",
   "type": "module",

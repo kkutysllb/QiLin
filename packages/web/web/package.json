@@ -1,7 +1,7 @@
 {
   "name": "@qilin/web",
   "description": "Abstract web access capability seam (ctx.web) for the QiLin — search/fetch provider registry, registration-order-independent selection, request/result vocabulary, and the WebError taxonomy",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

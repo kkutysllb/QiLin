@@ -1,7 +1,7 @@
 {
   "name": "@qilin/terminal",
   "description": "Persistent PTY session seam for the QiLin — owner-scoped ids, backend registry, interactive sends, reads, signals, and awaited cleanup",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

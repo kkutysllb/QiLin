@@ -1,7 +1,7 @@
 {
   "name": "@qilin/cli",
   "description": "qilin CLI: profile launch, plugin management, and configuration inspection",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

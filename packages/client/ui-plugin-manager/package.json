@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-plugin-manager",
   "description": "Plugin management for the qilin web client: the sidebar Plugins panel installs, enables, disables, retries, and composes installed plugin packages",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

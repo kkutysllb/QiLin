@@ -1,7 +1,7 @@
 {
   "name": "@qilin/experimental-ptc-runtime-python",
   "description": "CPython subprocess implementation of the QiLin PTC execution seam",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kkutysllb/QiLin.git",

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/scope",
   "description": "Scoped-context registration primitive (scope tags, scope-filtered event dispatch) for the QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

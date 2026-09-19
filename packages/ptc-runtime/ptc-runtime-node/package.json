@@ -1,7 +1,7 @@
 {
   "name": "@qilin/ptc-runtime-node",
   "description": "Sandboxed Node process implementation of the QiLin PTC execution capability",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

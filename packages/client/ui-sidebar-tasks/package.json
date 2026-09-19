@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-sidebar-tasks",
   "description": "Subagent topology and background-job tab type for the right Sidebar: this Session's direct-child catalog, the descendant totals its summary lineage records, and its live job list",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

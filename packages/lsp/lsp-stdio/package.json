@@ -1,7 +1,7 @@
 {
   "name": "@qilin/lsp-stdio",
   "description": "Generic stdio language-server provider for the QiLin LSP capability seam (ctx.lsp) — spawns configured servers, translates JSON-RPC, and serves transient-open goToDefinition/findReferences/goToImplementation/hover queries in the host filesystem namespace",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

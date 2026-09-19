@@ -1,7 +1,7 @@
 {
   "name": "@qilin/typert-generator",
   "description": "TypeScript project analyzer and model-driven Typert artifact generator",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

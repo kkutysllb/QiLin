@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-account",
   "description": "Account menu in the Web client sidebar footer: theme, language, Settings, and sign-out",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

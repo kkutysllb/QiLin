@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-settings-unarchive-sessions",
   "description": "Archived-session settings page: the registry-global archive set with one Unarchive action per row",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/skill-badge",
   "description": "Bundled qilin badge skill provider for QiLin",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },

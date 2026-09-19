@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-theme-brand",
   "description": "QiLin brand color layer for the Web client theme: alias-token overrides stacked over the user's active palette",
-  "version": "3.0.0",
+  "version": "3.0.4",
   "publishConfig": {
     "access": "public"
   },
