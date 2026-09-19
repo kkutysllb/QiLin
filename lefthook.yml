@@ -53,3 +53,8 @@ pre-push:
   jobs:
     - name: typecheck
       run: pnpm run typecheck
+
+    # The repository's release rule: a push that updates `main` ships a version —
+    # the pushed commit carries a v* tag whose GitHub Release has written notes.
+    - name: release tag and notes (main)
+      run: node_modules/.bin/tsx scripts/verify-release-tag.ts
