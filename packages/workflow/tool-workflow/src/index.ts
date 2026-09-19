@@ -11,7 +11,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { defineTool } from '@qilin/tools'
 import type { ToolCallView, ToolResultView } from '@qilin/tools'
 import type { ContentBlock } from '@qilin/llm'

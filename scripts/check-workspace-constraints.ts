@@ -37,6 +37,8 @@ const vendoredPackages = new Set([
   '@qilin/kylin-plugin-hmr',
   '@qilin/kylin-plugin-logger-console',
 ])
+/** Name prefix every member of the native addon sequence shares, including its workspace root. */
+const nativePackagePrefix = '@qilin/node-addon-system'
 const publicNativePackages = new Set([
   '@qilin/node-addon-system',
   '@qilin/node-addon-system-darwin-arm64',
@@ -49,7 +51,7 @@ const publicationSourceAllowlist: Readonly<Record<string, readonly string[]>> = 
   '@qilin/node-addon-system': ['src/main.c', 'src/flock.c'],
 }
 /** Public source home recorded in maintained package manifests. */
-const publishedRepositoryUrl = 'git+https://github.com/qilin/deepseek-harness.git'
+const publishedRepositoryUrl = 'git+https://github.com/kkutysllb/QiLin.git'
 /** Packages that participate in the experimental policy. */
 const experimentalPackageDirectory = /^packages\/experimental\/[^/]+$/
 /** npm namespace reserved for experimental packages. */
@@ -92,6 +94,7 @@ export interface PackageManifest {
   files?: string[]
   publishConfig?: { access?: string }
   repository?: { type?: string; url?: string; directory?: string }
+  engines?: { node?: string }
   peerDependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   dependencies?: Record<string, string>
@@ -115,6 +118,8 @@ function readJson(path: string): PackageManifest {
 
 const rootManifest = readJson(join(root, 'package.json'))
 const repositoryVersion = rootManifest.version
+/** Node range every published release member restates from the workspace root. */
+const publishedNodeFloor = rootManifest.engines?.node
 const nativeWorkspaceManifest = readJson(join(root, 'native/system/package.json'))
 const nativeVersion = nativeWorkspaceManifest.version
 
@@ -320,7 +325,9 @@ function isReleaseMemberDirectory(dir: string): boolean {
  * private qilin package on one shared version, written by `release:qilin` and
  * shared with the workspace root. This name test is that boundary: it covers
  * the family wherever the manifest lives, so apps/ members cannot drift with
- * only the release lane noticing.
+ * only the release lane noticing. The vendored framework and the native addon
+ * family share the `@qilin` scope but not the version line: each publishes from
+ * its own sequence, so both stay outside this boundary.
  * @param manifest - the workspace package manifest.
  * @param expected - the version every qilin-family manifest must carry (the root's).
  * @returns one violation naming the manifest and the expected version, or
@@ -329,6 +336,10 @@ function isReleaseMemberDirectory(dir: string): boolean {
 export function checkQilinFamilyVersion(manifest: PackageManifest, expected: string | undefined): string | undefined {
   const name = manifest.name
   if (name !== '@qilin/cli' && name?.startsWith('@qilin/') !== true) return undefined
+  // The vendored framework and the native addon family keep their own version
+  // lines and publish from their own sequences, so the shared qilin version does
+  // not apply to them.
+  if (vendoredPackages.has(name) || name.startsWith(nativePackagePrefix)) return undefined
   if (manifest.version !== expected) {
     return `${name}: package.json version must match root version ${expected ?? '(missing)'}`
   }
@@ -383,6 +394,13 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
       || manifest.repository.url !== publishedRepositoryUrl
       || manifest.repository.directory !== dir) {
       errors.push(`${label}: release member repository must use ${publishedRepositoryUrl} with directory ${dir}`)
+    }
+    // npm reads this floor from the manifest a consumer installs, not from the
+    // workspace root, which is never published: `npx @qilin/cli` on an
+    // unsupported Node must refuse with the supported range rather than fail
+    // later inside the boot.
+    if (publishedNodeFloor !== undefined && manifest.engines?.node !== publishedNodeFloor) {
+      errors.push(`${label}: release member engines.node must be ${publishedNodeFloor}, the workspace floor`)
     }
   } else if (!experimentalPackageDirectory.test(dir) && manifest.private !== true) {
     errors.push(`${label}: package.json must set "private": true`)

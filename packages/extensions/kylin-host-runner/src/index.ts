@@ -6,7 +6,7 @@
 
 import { Context } from '@qilin/kylin'
 import type { Fiber } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
 import { TypertRemoteService, Remote } from '@qilin/typert-protocol'

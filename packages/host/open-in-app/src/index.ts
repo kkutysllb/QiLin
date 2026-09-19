@@ -27,7 +27,7 @@ import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/host-webserver'
 import type {} from '@qilin/subprocess'
 import { launchedThroughSsh, launchEnvironmentOf } from '@qilin/launch-environment'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { OPEN_IN_APP_CATALOG, type OpenInAppApp } from './catalog.ts'
 import {
   launchResolved, resolveLaunch, resolveOpenInAppApps,

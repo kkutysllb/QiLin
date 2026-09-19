@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { BUNDLED_SKILL_RANK, type SkillCandidate, type SkillProvider } from '@qilin/skill'
 import { parse as parseYaml } from 'yaml'
 

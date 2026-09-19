@@ -11,8 +11,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/document/office-to-pdf"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "exports": {
     ".": {
@@ -56,7 +59,7 @@
   },
   "dependencies": {
     "@deepseek-ai/libreoffice-kit": "0.0.1",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
     "zod": "^4.4.3"

@@ -1,6 +1,6 @@
 /** Session-owned user terminals with the execution environment's system-user permissions. */
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import type { SessionId } from '@qilin/session'
 import type {} from '@qilin/sandbox-policy'

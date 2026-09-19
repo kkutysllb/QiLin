@@ -5,7 +5,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { AnonymousEntries, NamedEntries, ScopedLayers, scopeTarget } from '@qilin/scope'
 import type { ScopeKey, ScopeLayer, Scoped } from '@qilin/scope'
 import type { ContextSnapshotSection, ToolSchema } from '@qilin/llm'

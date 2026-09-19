@@ -24,7 +24,7 @@
 import { stat } from 'node:fs/promises'
 import { Context } from '@qilin/kylin'
 import { evaluate } from '@qilin/kylin-plugin-loader'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
 import { bindScopeParent, createScope, scopeOf, type Scope, type ScopeKey, type ScopeParentBinding } from '@qilin/scope'
 // Type-only: resolves the `agent/created` lifecycle event this service watches.

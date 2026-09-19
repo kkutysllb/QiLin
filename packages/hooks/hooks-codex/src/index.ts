@@ -13,7 +13,7 @@
 /* jscpd:ignore-start */
 import { readFileSync } from 'node:fs'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import type {} from '@qilin/session-projection'
 import { createUserMessage } from '@qilin/llm'

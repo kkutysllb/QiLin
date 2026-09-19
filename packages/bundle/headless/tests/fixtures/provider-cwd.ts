@@ -2,7 +2,7 @@
 import { posix } from 'node:path'
 import { Context } from '@qilin/kylin'
 import { FileSystem, FsError, FsTargetKey, FsVersion, type FsTarget, type FsInfo } from '@qilin/fs'
-import schema from '@deepseek-ai/schemastery'
+import schema from '@qilin/schemastery'
 
 /** Deployment coordinates for the deterministic provider. */
 interface Config { root: string }

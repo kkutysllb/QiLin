@@ -7,7 +7,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
 import type { MessageSource } from '@qilin/llm'

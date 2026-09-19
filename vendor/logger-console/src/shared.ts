@@ -1,6 +1,6 @@
 import { Context, Exporter, Formatter, Logger, Message } from '@qilin/kylin'
-import { Time } from '@deepseek-ai/cosmokit'
-import z from '@deepseek-ai/schemastery'
+import { Time } from '@qilin/cosmokit'
+import z from '@qilin/schemastery'
 
 /** Terminal color support level compatible with supports-color. */
 export type ColorSupportLevel = 0 | 1 | 2 | 3

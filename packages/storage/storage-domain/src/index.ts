@@ -8,7 +8,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { storageBackendServiceKey } from '@qilin/storage'
 import { DomainError } from './error.ts'
 import { descriptorOf } from './spec.ts'

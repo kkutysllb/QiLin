@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/terminal/terminal-bash"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -39,7 +42,7 @@
   "dependencies": {
     "@qilin/lazy-require": "workspace:^",
     "@qilin/pwsh-local": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "@xterm/headless": "^6.0.0"
   },
   "devDependencies": {

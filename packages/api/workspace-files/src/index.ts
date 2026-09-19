@@ -23,7 +23,7 @@
 
 import { posix, win32 } from 'node:path'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import {
   FsVersion,
   type FsDirEntry,

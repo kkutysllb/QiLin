@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/bundle/headless"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -43,7 +46,7 @@
     "@qilin/brand": "workspace:^",
     "@qilin/cmdline": "workspace:^",
     "@qilin/util-values": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "commander": "^15.0.0"
   },
   "peerDependencies": {

@@ -7,7 +7,7 @@
 
 import { randomUUID } from 'node:crypto'
 import type { Context, Events } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import type { Agent, RequestErrorAction } from '@qilin/agent'
 import type { LlmFailure, ResolvedRetryPolicy } from '@qilin/llm'

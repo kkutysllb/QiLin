@@ -1,6 +1,6 @@
 /** Conversation preferences stored in the Host user-settings document. */
 
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 
 /** Settings namespace owned by the conversation plugin. */
 export const CONVERSATION_SETTINGS_NAMESPACE = 'ui-conversation'

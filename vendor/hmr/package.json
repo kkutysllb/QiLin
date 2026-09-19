@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "vendor/hmr"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -47,9 +50,9 @@
   "dependencies": {
     "@babel/code-frame": "^7.29.0",
     "chokidar": "^4.0.3",
-    "@deepseek-ai/cosmokit": "workspace:^",
+    "@qilin/cosmokit": "workspace:^",
     "picomatch": "^4.0.3",
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:^"
   },
   "devDependencies": {
     "@types/babel__code-frame": "^7.27.0",

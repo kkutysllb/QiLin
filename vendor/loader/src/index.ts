@@ -1,5 +1,5 @@
 import { Context, FiberState, Inject, Service, type Fiber } from '@qilin/kylin'
-import { defineProperty, isNullable, type Dict } from '@deepseek-ai/cosmokit'
+import { defineProperty, isNullable, type Dict } from '@qilin/cosmokit'
 import { ModuleLoader } from './internal.ts'
 import { Entry, type EntryOptions } from './config/entry.ts'
 import { EntryGroup } from './config/group.ts'

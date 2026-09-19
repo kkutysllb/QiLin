@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/cosmokit",
+  "name": "@qilin/cosmokit",
   "description": "A collection of common utilities",
   "version": "1.8.3",
   "publishConfig": {
@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "vendor/cosmokit"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",

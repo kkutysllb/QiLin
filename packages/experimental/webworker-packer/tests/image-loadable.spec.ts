@@ -37,7 +37,7 @@ const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 
 /** A leaf workspace package: real build output, no dependencies to drag in. */
 const SUBJECT = '@qilin/timeout'
-const LANDLOCK = '@deepseek-ai/node-addon-system'
+const LANDLOCK = '@qilin/node-addon-system'
 const LANDLOCK_ENTRY = `${LANDLOCK}/landlock-run`
 const PLUGIN_INVENTORY = '@qilin/plugin-package-inventory-deepseek'
 const WEB_SERVER = '@qilin/host-webserver'

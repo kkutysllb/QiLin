@@ -15,8 +15,8 @@ import type {} from '@qilin/llm'
 import { assertNever } from '@qilin/util-values'
 import { NamedEntries, ScopedLayers, scopeChainOf, scopeOf } from '@qilin/scope'
 import type { ScopeKey, ScopeLayer } from '@qilin/scope'
-import z from '@deepseek-ai/schemastery'
-import type Schema from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
+import type Schema from '@qilin/schemastery'
 
 const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const DEFAULT_COLLECT_CACHE_ENTRIES = 128

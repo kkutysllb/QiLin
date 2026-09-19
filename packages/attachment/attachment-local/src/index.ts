@@ -2,7 +2,7 @@
 
 import { join } from 'node:path'
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { AttachmentStore } from '@qilin/attachment'
 import type {
   FileAttachmentRef,

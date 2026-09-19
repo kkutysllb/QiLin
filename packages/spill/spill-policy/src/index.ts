@@ -44,7 +44,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { ContentBlock } from '@qilin/llm'
 import { TextRetainer } from '@qilin/output-retention'
 import type { Omitted } from '@qilin/output-retention'

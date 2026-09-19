@@ -14,7 +14,7 @@ import type {} from '@qilin/kylin-plugin-timer'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
 import picomatch from 'picomatch'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 
 declare module '@qilin/kylin' {
   interface Context {

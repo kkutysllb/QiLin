@@ -156,7 +156,7 @@ describe('qilin family version coherence', () => {
   it('leaves other sequences to their own version lines', () => {
     expect(checkQilinFamilyVersion({ name: '@qilin/kylin', version: '4.0.1' }, '0.1.2-rc.1')).toBeUndefined()
     expect(checkQilinFamilyVersion(
-      { name: '@deepseek-ai/node-addon-system', version: '0.1.1' },
+      { name: '@qilin/node-addon-system', version: '0.1.1' },
       '0.1.2-rc.1',
     )).toBeUndefined()
     expect(checkQilinFamilyVersion({ version: '0.1.2-alpha.5' }, '0.1.2-rc.1')).toBeUndefined()

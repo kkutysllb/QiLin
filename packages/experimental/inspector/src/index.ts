@@ -1,7 +1,7 @@
 /** Repository-facing Host package entry over the mirrored implementation tree. */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import {
   apply as applyHost,
 } from './host/plugin.ts'

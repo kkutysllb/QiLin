@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import type { SettingsNamespace } from '@qilin/settings'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import InvariantRegistry from '@qilin/invariants'
 import * as SettingsInvariant from '../src/invariant.ts'
 import { MemorySettings } from './memory.ts'

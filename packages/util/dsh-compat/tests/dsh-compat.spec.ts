@@ -42,7 +42,7 @@ describe('dshCompatModuleId', () => {
   })
 
   it('passes unrenamed and unknown specifiers through unchanged', () => {
-    expect(dshCompatModuleId('@deepseek-ai/schemastery')).toBe('@deepseek-ai/schemastery')
+    expect(dshCompatModuleId('@qilin/schemastery')).toBe('@qilin/schemastery')
     expect(dshCompatModuleId('@qilin/kylin')).toBe('@qilin/kylin')
     expect(dshCompatModuleId('react')).toBe('react')
     expect(dshCompatModuleId('some-third-party')).toBe('some-third-party')

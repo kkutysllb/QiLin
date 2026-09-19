@@ -16,8 +16,8 @@ packages:
 
 overrides:
   'extract-zip>yauzl': '3.4.0'
-  '@deepseek-ai/cosmokit': 'link:vendor/cosmokit'
-  '@deepseek-ai/schemastery': 'link:vendor/schemastery'
+  '@qilin/cosmokit': 'link:vendor/cosmokit'
+  '@qilin/schemastery': 'link:vendor/schemastery'
 
 peerDependencyRules:
   allowedVersions:

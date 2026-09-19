@@ -15,7 +15,7 @@ import { randomUUID } from 'node:crypto'
 import { realpath } from 'node:fs/promises'
 import { isAbsolute, resolve } from 'node:path'
 import { Readable, Writable } from 'node:stream'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { brandString } from '@qilin/brand'
 import { errorChain } from '@qilin/llm'
 import {

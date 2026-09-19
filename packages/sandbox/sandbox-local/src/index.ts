@@ -30,9 +30,9 @@ import {
   LAUNCHER_FAILURE_EXIT,
   launcherPath as landlockLauncherPath,
   probe as defaultProbeLandlock,
-} from '@deepseek-ai/node-addon-system/landlock-run'
+} from '@qilin/node-addon-system/landlock-run'
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { SandboxProvider, SandboxUnavailableError, canonicalPath } from '@qilin/sandbox'
 import type { ConfinedArgv, ConfinedSandboxMode, RunnerFailureRule, SandboxEnforcement, SandboxPolicy } from '@qilin/sandbox'
 import type { SessionId } from '@qilin/session'

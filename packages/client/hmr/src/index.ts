@@ -10,7 +10,7 @@
 import { statSync } from 'node:fs'
 import type { ServerResponse } from 'node:http'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 // Type imports carry the clientModules/webServer Context merges.
 import type { ClientArtifactBaseline } from '@qilin/client-modules'
 import type {} from '@qilin/host-webserver'

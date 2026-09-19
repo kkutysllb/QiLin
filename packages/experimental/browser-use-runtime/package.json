@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/experimental/browser-use-runtime"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -41,7 +44,7 @@
   "dependencies": {
     "@qilin/mcp-client": "workspace:^",
     "@qilin/scope": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:^"
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:^",

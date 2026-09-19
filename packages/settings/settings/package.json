@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/settings/settings"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -41,14 +44,14 @@
     "@qilin/brand": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:^"
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:^",
     "@qilin/brand": "workspace:^",
     "@qilin/invariants": "workspace:^",
     "@qilin/session": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:^"
   },
   "dependencies": {
     "@qilin/util-values": "workspace:^"

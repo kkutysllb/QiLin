@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
-import { LAUNCHER_FAILURE_EXIT } from '@deepseek-ai/node-addon-system/landlock-run'
+import { LAUNCHER_FAILURE_EXIT } from '@qilin/node-addon-system/landlock-run'
 import { SANDBOX_UNAVAILABLE, SandboxUnavailableError } from '@qilin/sandbox'
 import type { SandboxPolicy } from '@qilin/sandbox'
 import {

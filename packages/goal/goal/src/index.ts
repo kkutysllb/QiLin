@@ -6,7 +6,7 @@
 
 import { randomUUID } from 'node:crypto'
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
 import { agentEvents } from '@qilin/agent'

@@ -17,7 +17,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { snapshotJsonValue } from '@qilin/util-values'
 import { SessionLogOffset } from '@qilin/session'
 import type {

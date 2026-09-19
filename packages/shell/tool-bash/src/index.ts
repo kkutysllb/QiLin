@@ -9,7 +9,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { isAbsolute, sep } from 'node:path'
 import { defineTool, TOOL_ABORTED } from '@qilin/tools'
 import type { GenericCallView, TerminalCallView, ToolExecution, ToolResult, ToolResultView } from '@qilin/tools'

@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/session-query/session-log-export"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -37,7 +40,7 @@
   "license": "MIT",
   "dependencies": {
     "@qilin/session-format": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "fflate": "^0.8.2",
     "@qilin/brand": "workspace:^"
   },

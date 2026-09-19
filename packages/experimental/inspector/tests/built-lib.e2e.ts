@@ -10,7 +10,7 @@ import { pnpmInvocation } from '../../../../scripts/pnpm-invocation.ts'
 const packageDirectory = fileURLToPath(new URL('..', import.meta.url))
 const built = [
   'lib/index.js',
-  'node_modules/@deepseek-ai/schemastery/lib/index.mjs',
+  'node_modules/@qilin/schemastery/lib/index.mjs',
 ].every(file => existsSync(join(packageDirectory, file)))
 
 describe.skipIf(!built)('experimental Inspector built artifact', () => {

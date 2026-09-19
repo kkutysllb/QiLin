@@ -2,7 +2,7 @@
 
 import type { Context } from '@qilin/kylin'
 import type { Agent } from '@qilin/agent'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { BrowserUseProviderName } from '@qilin/browser-use/brand'
 import * as McpClient from '@qilin/mcp-client'
 import { createScope } from '@qilin/scope'

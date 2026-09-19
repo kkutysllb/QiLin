@@ -24,9 +24,9 @@ const packageDir = fileURLToPath(new URL('..', import.meta.url))
 const repoRoot = fileURLToPath(new URL('../../../..', import.meta.url))
 const nativeDir = join(repoRoot, 'native/system')
 const sourceLauncher = join(nativeDir, 'packages', `linux-${process.arch}`, 'bin', 'landlock-run')
-const platformPackageName = `@deepseek-ai/node-addon-system-linux-${process.arch}`
+const platformPackageName = `@qilin/node-addon-system-linux-${process.arch}`
 
-const NATIVE_PACKAGE_PREFIX = '@deepseek-ai/node-addon-system'
+const NATIVE_PACKAGE_PREFIX = '@qilin/node-addon-system'
 
 /** ELF `e_machine` (offset 18, LE) for this host: x86-64 = 62, AArch64 = 183. */
 const E_MACHINE = { x64: 62, arm64: 183 }[process.arch as 'x64' | 'arm64']
@@ -109,7 +109,7 @@ describe.skipIf(!packable)('sandbox-local: packed-tarball distribution (publish-
       import { spawnSync } from 'node:child_process'
       import { existsSync } from 'node:fs'
       import { Context } from '@qilin/kylin'
-      import { launcherPath } from '@deepseek-ai/node-addon-system/landlock-run'
+      import { launcherPath } from '@qilin/node-addon-system/landlock-run'
       import { LocalSandboxProvider } from '@qilin/sandbox-local'
       const ctx = new Context()
       await ctx.plugin(LocalSandboxProvider, {})

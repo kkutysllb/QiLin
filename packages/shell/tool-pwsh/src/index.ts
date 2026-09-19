@@ -21,7 +21,7 @@
 
 import { isAbsolute, resolve as resolvePath } from 'node:path'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { defineTool, TOOL_ABORTED } from '@qilin/tools'
 import type { GenericCallView, TerminalCallView, ToolExecution, ToolResult, ToolResultView } from '@qilin/tools'
 import { HarnessError } from '@qilin/llm'

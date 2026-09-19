@@ -1,7 +1,7 @@
 /** Synchronous schema introspection and immutable settings-draft edits. */
 import { Service } from '@qilin/kylin'
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 
 /** Live schemastery node used for settings introspection and validation. */
 export type SchemaNode = Schema

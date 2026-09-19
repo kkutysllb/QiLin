@@ -2,7 +2,7 @@
 import { stripTypeScriptTypes } from 'node:module'
 import { isAbsolute } from 'node:path'
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { PtcRuntime } from '@qilin/ptc-runtime'
 import type { PtcBindingNamespace, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSandbox, PtcRunSpec } from '@qilin/ptc-runtime'
 import { MAX_TIMER_DELAY_MS, clampTimeout } from '@qilin/timeout'

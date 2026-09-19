@@ -10,7 +10,7 @@
  */
 
 import { globSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 import {
   officialClientBuildEnvironment,
   readClientBuildRecord,
@@ -115,6 +115,22 @@ export abstract class ReleaseFamily {
   verifyBuildArtifacts(_root: string): void {}
 
   /**
+   * Whether this family publishes a discovered manifest.
+   *
+   * This repository publishes only the `@qilin` scope, so a foreign name is a
+   * mistake everywhere except `vendor/`, which overrides this to keep two
+   * packages on their upstream names.
+   * @param name - the manifest's package name.
+   * @param manifestPath - repository-relative manifest path, for diagnostics.
+   * @returns true when the manifest publishes from this family.
+   * @throws when the name is one this family may never publish.
+   */
+  protected publishes(name: string, manifestPath: string): boolean {
+    if (!name.startsWith('@qilin/')) throw new Error(`${manifestPath} must name a @qilin package`)
+    return true
+  }
+
+  /**
    * Discover this family's members.
    * @param root - repository root.
    * @returns Publishable members sorted by directory, with names validated and deduplicated.
@@ -132,7 +148,7 @@ export abstract class ReleaseFamily {
       const name = requireString(manifest, 'name', normalized)
       const version = requireString(manifest, 'version', normalized)
       if (name === WORKSPACE_ROOT_PACKAGE) throw new Error(`${normalized} selected the workspace root`)
-      if (!name.startsWith('@qilin/')) throw new Error(`${normalized} must name a @qilin package`)
+      if (!this.publishes(name, normalized)) continue
       if (seen.has(name)) throw new Error(`${name} appears twice in release family ${this.id}`)
       seen.add(name)
       members.push({
@@ -392,11 +408,15 @@ class VendorFamily extends ReleaseFamily {
 
   /**
    * A prefix per member, because one vendor release can carry several versions.
+   *
+   * The directory names the tag, not the package: a rescoped vendored package
+   * keeps its upstream directory (`vendor/cordis` publishes `@qilin/kylin`), and
+   * the upstream name is what the tag ledger has always recorded.
    * @param member - the member being published.
-   * @returns `vendor-<unscoped name>-v`.
+   * @returns `vendor-<directory name>-v`.
    */
   tagPrefixFor(member: ReleaseMember): string {
-    return `${this.tagPrefix}${member.name.replace('@deepseek-ai/', '')}-v`
+    return `${this.tagPrefix}${basename(member.directory)}-v`
   }
 
   /**

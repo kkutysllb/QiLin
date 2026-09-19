@@ -76,6 +76,33 @@ describe('release families', () => {
     expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual(['@qilin/public'])
   })
 
+  it('publishes every rescoped vendored package', () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-release-vendor-'))
+    roots.push(root)
+    write(join(root, 'vendor/cordis/package.json'), '{"name":"@qilin/kylin","version":"4.0.2"}\n')
+    write(join(root, 'vendor/cosmokit/package.json'), '{"name":"@qilin/cosmokit","version":"1.8.3"}\n')
+    write(join(root, 'vendor/schemastery/package.json'), '{"name":"@qilin/schemastery","version":"3.18.2"}\n')
+
+    expect(releaseFamily('vendor').members(root).map(entry => entry.name))
+      .toEqual(['@qilin/kylin', '@qilin/cosmokit', '@qilin/schemastery'])
+  })
+
+  it('rejects a vendored package that is not rescoped', () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-release-vendor-foreign-'))
+    roots.push(root)
+    write(join(root, 'vendor/foreign/package.json'), '{"name":"@other/foreign","version":"1.0.0"}\n')
+
+    expect(() => releaseFamily('vendor').members(root)).toThrow(/must name a @qilin package/)
+  })
+
+  it('rejects a foreign-scope member of the qilin family', () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-release-foreign-'))
+    roots.push(root)
+    write(join(root, 'packages/core/foreign/package.json'), '{"name":"@other/foreign","version":"0.0.1"}\n')
+
+    expect(() => releaseFamily('qilin').members(root)).toThrow(/must name a @qilin package/)
+  })
+
   it('publishes unlisted experimental packages while retaining private exclusions', () => {
     const root = mkdtempSync(join(tmpdir(), 'qilin-release-experimental-'))
     roots.push(root)
@@ -169,7 +196,7 @@ describe('release families', () => {
     const vendor = releaseFamily('vendor')
     const members = [
       { ...member('vendor/cordis', '@qilin/kylin'), version: '4.0.1' },
-      { ...member('vendor/cosmokit', '@deepseek-ai/cosmokit'), version: '1.8.2' },
+      { ...member('vendor/cosmokit', '@qilin/cosmokit'), version: '1.8.2' },
     ]
 
     expect(() => { vendor.verifyVersions(members) }).not.toThrow()
@@ -380,7 +407,7 @@ describe('version precedence', () => {
 })
 
 describe('payload change judgement', () => {
-  const sourceShipping = member('vendor/cosmokit', '@deepseek-ai/cosmokit', {
+  const sourceShipping = member('vendor/cosmokit', '@qilin/cosmokit', {
     files: ['lib/index.js', 'lib/types/**/*.d.ts', 'src'],
   })
   const buildOutputOnly = member('vendor/cordis', '@qilin/kylin', {

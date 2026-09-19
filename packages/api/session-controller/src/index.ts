@@ -2,7 +2,7 @@
 
 import { hostname } from 'node:os'
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { errorChain } from '@qilin/llm'
 import type {} from '@qilin/client-file-upload'
 import { canOpenNativePath, nativeFileManager, openNativePath, revealNativePath } from '@qilin/native-command'

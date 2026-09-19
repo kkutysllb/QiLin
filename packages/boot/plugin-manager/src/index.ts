@@ -7,7 +7,7 @@ import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
 import { Context } from '@qilin/kylin'
 import type { EntryOptions } from '@qilin/kylin-plugin-loader'
 import type { PatchOptions } from '@qilin/kylin-plugin-include'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
 import { pluginEntryId, readPluginInventory } from '@qilin/host-plugin-inventory'
 import {

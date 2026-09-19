@@ -6,7 +6,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { ContentBlock } from '@qilin/llm'
 import type { JsonValue } from '@qilin/util-values'
 import type { SubagentProvider } from '@qilin/subagent'

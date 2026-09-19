@@ -1,5 +1,5 @@
 import { composeError, Context } from '@qilin/kylin'
-import { isNonNullable, type Dict } from '@deepseek-ai/cosmokit'
+import { isNonNullable, type Dict } from '@qilin/cosmokit'
 import { Entry, type EntryOptions } from './entry.ts'
 import { EntryGroup } from './group.ts'
 

@@ -10,7 +10,7 @@ Export a `Config` type and a same-named Schemastery schema. Put defaults directl
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 
 export const name = 'my-plugin'
 
@@ -50,7 +50,7 @@ Use Schemastery to express stricter validation:
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 
 export const name = 'validated-plugin'
 

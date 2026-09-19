@@ -285,9 +285,9 @@ describe('engine name collisions', () => {
 
   it('ignores names the compatibility layer keeps verbatim and QiLin names', () => {
     const dir = tmp()
-    declare(dir, ['@deepseek-ai/schemastery', '@deepseek-ai/cosmokit', '@qilin/session'])
-    install(dir, '@deepseek-ai/schemastery')
-    install(dir, '@deepseek-ai/cosmokit')
+    declare(dir, ['@qilin/schemastery', '@qilin/cosmokit', '@qilin/session'])
+    install(dir, '@qilin/schemastery')
+    install(dir, '@qilin/cosmokit')
     install(dir, '@qilin/session')
     expect(engineNameCollisions('qilin', dir)).toEqual([])
   })

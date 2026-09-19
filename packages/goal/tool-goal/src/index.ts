@@ -5,7 +5,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { GoalId } from '@qilin/goal'
 import type { GoalRef, GoalView } from '@qilin/goal'
 import { boundContextSummary, createUserMessage, HarnessError } from '@qilin/llm'

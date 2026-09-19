@@ -13,7 +13,7 @@ The namespace is the join key, so pick it once and spell it in both halves. A co
 ```ts
 import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/settings'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 
 declare function assertReachable(endpoint: string | undefined): void
 declare function rebuildFromSettings(config: Config): void

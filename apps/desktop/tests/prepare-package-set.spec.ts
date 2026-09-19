@@ -47,7 +47,7 @@ describe('desktop package-set selection', () => {
   })
 
   it.each([
-    '@qilin/base', '@qilin/kylin', '@deepseek-ai/node-addon-system',
+    '@qilin/base', '@qilin/kylin', '@qilin/node-addon-system',
   ])('rejects required prepared package %s absent from the packed release inputs', (dependency) => {
     const available = new Map<string, PackedDesktopPackage>([
       ['@qilin/cli', packed('@qilin/cli', {

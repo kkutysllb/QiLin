@@ -3,7 +3,7 @@
 import type { Context } from '@qilin/kylin'
 import { credentialRef } from '@qilin/credentials'
 import type {} from '@qilin/host-webserver'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { createGitHubWebhookHandler } from './handler.ts'
 
 export type * from './types.ts'

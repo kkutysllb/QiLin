@@ -12,7 +12,7 @@
 import { randomBytes } from 'node:crypto'
 import { join } from 'node:path'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { ConnectionTrustRequest } from '@qilin/client-connection'
 import { credentialKey } from '@qilin/credentials'
 import type { CredentialProvider, CredentialRecord } from '@qilin/credentials'

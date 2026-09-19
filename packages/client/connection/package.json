@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/client/connection"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -35,7 +38,7 @@
   "license": "MIT",
   "dependencies": {
     "@qilin/credentials": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "zod": "^4.4.3"
   },
   "files": [
@@ -52,6 +55,11 @@
     "@qilin/brand": "workspace:^",
     "@qilin/host-webserver": "workspace:^",
     "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/session": "workspace:^",
+    "@qilin/util-values": "workspace:^",
+    "@qilin/tool-todo": "workspace:^",
+    "@qilin/commands": "workspace:^",
+    "@qilin/host-directory-picker": "workspace:^",
+    "@qilin/settings": "workspace:^"
   }
 }

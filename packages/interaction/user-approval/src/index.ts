@@ -6,7 +6,7 @@
 
 import { randomUUID } from 'node:crypto'
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage, type ToolCallId } from '@qilin/llm'
 import { scopeTarget } from '@qilin/scope'

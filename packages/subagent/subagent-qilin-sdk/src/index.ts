@@ -14,7 +14,7 @@
 import type { Context } from '@qilin/kylin'
 import { statSync } from 'node:fs'
 import { isAbsolute, resolve } from 'node:path'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { AgentOptions } from '@qilin/agent'
 import type { SubagentCapabilities, SubagentProvider, SubagentStartRequest } from '@qilin/subagent'
 import { assertPositiveFinite, NO_START_CAPABILITIES, resolveChildCwd, validateConfiguredCwd } from '@qilin/subagent'

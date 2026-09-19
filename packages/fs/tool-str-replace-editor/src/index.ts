@@ -5,7 +5,7 @@
 
 import { isAbsolute } from 'node:path'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { FsError } from '@qilin/fs'
 import type { FsInfo, FsTarget, FsWriteIntent } from '@qilin/fs'
 import { sandboxDenialMarker } from '@qilin/sandbox'

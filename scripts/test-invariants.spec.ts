@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Context, FiberState, Service, ValidationError } from '@qilin/kylin'
 import Loader from '@qilin/kylin-plugin-loader'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import InvariantRegistry from '@qilin/invariants'
 import type { InvariantInstaller } from '@qilin/invariants'
 import { packageInvariantOwners } from './package-invariants.ts'

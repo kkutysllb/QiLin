@@ -4,8 +4,11 @@
   "version": "3.0.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/experimental/ptc-runtime-python"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -36,7 +39,7 @@
     "@qilin/util-values": "workspace:^"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:^"
   },
   "publishConfig": {
     "access": "public"

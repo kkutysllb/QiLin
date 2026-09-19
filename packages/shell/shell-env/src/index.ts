@@ -9,7 +9,7 @@
  */
 
 import { Service, type Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { QILIN_ENV_PREFIX } from '@qilin/shell'
 import type { QilinEnvironment, QilinEnvironmentKey } from '@qilin/shell'
 import { QILIN_HOME_ENV, resolveQilinHome } from '@qilin/home-paths'

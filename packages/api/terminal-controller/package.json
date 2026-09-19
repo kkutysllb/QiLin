@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/api/terminal-controller"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -57,9 +60,7 @@
     "@qilin/deque": "workspace:^",
     "@qilin/lazy-require": "workspace:^",
     "@qilin/typert-protocol": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
-    "@xterm/headless": "^6.0.0",
-    "@xterm/addon-serialize": "^0.14.0",
+    "@qilin/schemastery": "workspace:^",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
@@ -79,7 +80,9 @@
     "@qilin/session-projection": "workspace:^",
     "@qilin/subprocess": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
-    "@qilin/util-crypto": "workspace:^"
+    "@qilin/util-crypto": "workspace:^",
+    "@xterm/headless": "^6.0.0",
+    "@xterm/addon-serialize": "^0.14.0"
   },
   "files": [
     "lib/index.js",

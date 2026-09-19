@@ -14,7 +14,7 @@
 
 import { Context } from '@qilin/kylin'
 import { CommandDefinitionId } from '@qilin/commands/brand'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 import type { Session, SessionEvent } from '@qilin/session'

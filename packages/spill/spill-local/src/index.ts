@@ -12,7 +12,7 @@
 import { Context } from '@qilin/kylin'
 import { resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { SpillLocator, SpillStore } from '@qilin/spill'
 import type { SaveTextSpill, SpillRef } from '@qilin/spill'
 import { gatherSweepRoots, sweepSpillRoots } from './cleanup.ts'

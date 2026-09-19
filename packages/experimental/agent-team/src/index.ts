@@ -1,7 +1,7 @@
 /** Agent Teams service façade over roster, mailbox, task, and runtime lifecycle owners. */
 
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import type {} from '@qilin/session-persistence'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'

@@ -1,5 +1,5 @@
 import { Context } from '@qilin/kylin'
-import type { Dict } from '@deepseek-ai/cosmokit'
+import type { Dict } from '@qilin/cosmokit'
 import { Entry } from './entry.ts'
 
 declare module './entry.ts' {

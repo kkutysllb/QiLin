@@ -9,7 +9,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { scopeChainOf, scopeOf } from '@qilin/scope'
 import { defineTool } from '@qilin/tools'
 import type { Agent, AgentOptions } from '@qilin/agent'

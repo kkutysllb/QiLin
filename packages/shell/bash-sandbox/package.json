@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/shell/bash-sandbox"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -41,7 +44,7 @@
     "@qilin/sandbox-local": "workspace:^",
     "@qilin/sandbox-policy": "workspace:^",
     "@qilin/kylin": "workspace:^",
-    "@deepseek-ai/node-addon-system": "workspace:^",
+    "@qilin/node-addon-system": "workspace:^",
     "@qilin/session-projection": "workspace:^"
   }
 }

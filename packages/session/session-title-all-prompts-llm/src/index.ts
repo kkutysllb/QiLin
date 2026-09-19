@@ -1,7 +1,7 @@
 /** All-human-messages model provider for `ctx.sessionTitle`. */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import {
   registerSessionTitleLlmProvider,
   SessionTitleLlmConfigFields,

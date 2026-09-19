@@ -10,7 +10,7 @@
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 
 export const name = 'config-demo'
 

@@ -1,5 +1,5 @@
 /** Plugin configuration and complete request-local resolution for DeepSeek. */
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { resolveRetryPolicy, RetryPolicySchema } from '@qilin/llm'
 import type { ModelModality, RetryPolicyConfig } from '@qilin/llm'
 import { credentialRef } from '@qilin/credentials'

@@ -6,7 +6,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { DatabaseSync } from 'node:sqlite'
 import { StorageError, UNIT_NAME_RE, storageBackendServiceKey } from '@qilin/storage'
 import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin/storage'

@@ -7,7 +7,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {
   WebFetchProvider,
   WebFetchRequest,

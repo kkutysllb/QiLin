@@ -13,7 +13,7 @@ import { mkdir, opendir, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, join, posix, resolve, win32 } from 'node:path'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import {
   DirectoryPicker, DirectoryPickerError,
 } from '@qilin/host-directory-picker'

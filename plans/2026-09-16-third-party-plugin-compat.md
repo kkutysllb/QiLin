@@ -77,7 +77,7 @@ DSH 侧行为完全不变（两个变量都缺省时仍回退 `~/.dsh`）；QiLi
 ### B1–B4 实施记录（2026-09-16）
 
 - **落点**：`@qilin/app-boot` 新增 `engineNameCollisions()` / `assertNoEngineNameCollisions()` / `EngineNameCollisionError`（`src/profile.ts`）；`reconcileProfilePlugins` 首行调用断言，因此 CLI（`apps/cli/src/plugin.ts`）与 Web（`packages/host/plugin-manager/src/index.ts`）共用同一规则（B2）。
-- **冲突判据用别名表，不用手写前缀**：仅当 `dshCompatModuleId(name) !== name`（即兼容层确实改名的名字）且该名字在 profile 内真实落盘时才计入；`@deepseek-ai/cosmokit`、`@deepseek-ai/schemastery`（QiLin 保持原名）与 QiLin 自有包天然排除。QiLin 自己发布的 fallback 链接（`.qilin-module-fallback` 投影）用 `isProfileModuleFallbackLink` 排除——这是「插件按 peer 声明旧名」的常态，不能误报。
+- **冲突判据用别名表，不用手写前缀**：仅当 `dshCompatModuleId(name) !== name`（即兼容层确实改名的名字）且该名字在 profile 内真实落盘时才计入；`@qilin/cosmokit`、`@qilin/schemastery`（QiLin 保持原名）与 QiLin 自有包天然排除。QiLin 自己发布的 fallback 链接（`.qilin-module-fallback` 投影）用 `isProfileModuleFallbackLink` 排除——这是「插件按 peer 声明旧名」的常态，不能误报。
 - **诊断内容**：每个冲突包 + 它映射到的 QiLin 包 + `qilin plugin --profile <p> remove <name>` 命令 + 危险原因（profile-local 优先于 fallback → 双引擎 → `cannot get property "skills" without inject`）。命令名固定为产品 bin `qilin`，不用诊断前缀（Web 侧调用时 binName 是 `pluginManager`）。
 - **CLI 行为**：`runPlugin` 捕获 `EngineNameCollisionError`，把消息写到 stderr 并返回 1，不再展开到顶层 handler；bundle 列表不被写入。
 - **B3 运行时诊断**：`packages/boot/app-boot/src/profile-resolution/resolver.ts` 新增 `engineNameMiss()`，接在 `throwWithImporter`（ESM）与 `throwWithoutCjsAnchor`（CJS）——这两处是所有路由失败的汇合点。注意：**没有**改 `state === undefined` 的 pass-through 分支，因为 DSH 时代名字在那里根本不会经过（`routeUrl` 对未登记名字返回 `after-fallback` 路由），改那里会是死代码。

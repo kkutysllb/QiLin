@@ -23,7 +23,7 @@
 import { isAbsolute } from 'node:path'
 import { Context, Service } from '@qilin/kylin'
 import { z as zod } from 'zod'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/agent'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import type { Session } from '@qilin/session'

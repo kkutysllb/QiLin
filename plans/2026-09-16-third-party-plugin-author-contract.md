@@ -38,7 +38,7 @@ const home = process.env.QILIN_HOME ?? process.env.DSH_HOME ?? join(homedir(), '
 | `@deepseek-ai/dsh-client-runtime[/...]` | `@qilin/client-modules[/...]`（例外重命名） |
 | `@deepseek-ai/cordis`、裸 `cordis` | `@qilin/kylin` |
 | `@deepseek-ai/dsh-client-store` / `-ui-slots` / `-ui-primitives` / `-ui-dockkit` | `@qilin/client-store` / `-ui-slots` / `-ui-primitives` / `-ui-dockkit`（精确表） |
-| `@deepseek-ai/schemastery`、`@deepseek-ai/cosmokit` | 保持原名（QiLin 不重命名） |
+| `@qilin/schemastery`、`@qilin/cosmokit` | 保持原名（QiLin 不重命名） |
 
 - **为什么**：别名表是单一真源，改名后只需维护一处；表外的名字会在 QiLin 里解析失败。
 - **注意**：新增引擎依赖前先确认 QiLin 侧有对应包（现有已全部覆盖：`tools`、`session`、`subagent`、`settings`、`llm`、`typert-protocol`、`typert-registry`、`atomic-write`、`client-ui-*`、`client-modules` 等）。

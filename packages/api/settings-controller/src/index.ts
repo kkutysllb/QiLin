@@ -9,7 +9,7 @@
 
 import { dirname } from 'node:path'
 import { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 // Type-only: resolves the `agentPresets` Context augmentation this controller reads.
 import type {} from '@qilin/agent-presets'
 import {

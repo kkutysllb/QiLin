@@ -62,6 +62,9 @@ export function inspectQilinPackageLicenses(root: string): QilinPackageLicenseRe
     const manifest = readManifest(root, file)
     const name = manifest.name
     if (typeof name !== 'string' || !QILIN_PACKAGE_NAME.test(name)) continue
+    // The native sequence ships upstream code under its own license
+    // (`native/system/LICENSE`, BSD 3-Clause) and keeps that declaration.
+    if (file.split(sep).join('/').startsWith('native/')) continue
 
     packageCount++
     if (manifest.license !== 'MIT') {

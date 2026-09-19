@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/schemastery",
+  "name": "@qilin/schemastery",
   "description": "Type driven schema validator",
   "version": "3.18.2",
   "publishConfig": {
@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "vendor/schemastery"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.cjs",
@@ -34,6 +37,6 @@
   "license": "MIT",
   "dependencies": {
     "@standard-schema/spec": "^1.1.0",
-    "@deepseek-ai/cosmokit": "workspace:^"
+    "@qilin/cosmokit": "workspace:^"
   }
 }

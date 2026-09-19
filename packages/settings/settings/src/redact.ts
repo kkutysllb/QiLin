@@ -7,7 +7,7 @@
  * @module @qilin/settings/redact
  */
 
-import type z from '@deepseek-ai/schemastery'
+import type z from '@qilin/schemastery'
 
 /**
  * Minimal structural view of a live schemastery node. Only the relations the

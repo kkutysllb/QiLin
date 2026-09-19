@@ -11,7 +11,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { defineTool } from '@qilin/tools'
 import { LspError } from '@qilin/lsp'
 import type {} from '@qilin/lsp'

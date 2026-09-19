@@ -4,7 +4,7 @@
 // the `<file>.lock` sibling keeps both namespaces alive on disk.
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { chmod, mkdtemp, readFile, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

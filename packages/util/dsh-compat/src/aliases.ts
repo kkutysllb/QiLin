@@ -47,7 +47,7 @@ const DSH_PACKAGE_RENAMES: Readonly<Record<string, string>> = {
  * platform alias wins; a scoped `@deepseek-ai/dsh-<pkg>[/subpath]` name maps
  * onto `@qilin/<pkg>[/subpath]` with the rename table applied to the package
  * head; every other specifier (including unrenamed `@deepseek-ai/*` names such
- * as `@deepseek-ai/schemastery`, which QiLin keeps verbatim) passes through
+ * as `@qilin/schemastery`, which QiLin keeps verbatim) passes through
  * unchanged.
  * @param specifier - the specifier a manifest edge or a bundle `require` named.
  * @returns the QiLin-canonical specifier for graph and seed-table lookups.

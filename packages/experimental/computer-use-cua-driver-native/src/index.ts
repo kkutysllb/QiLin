@@ -4,7 +4,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { ComputerUseProviderName } from '@qilin/computer-use/brand'
 import { createMcpToolDefinition } from '@qilin/mcp-client'
 import { z } from 'zod'

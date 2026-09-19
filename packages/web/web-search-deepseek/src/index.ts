@@ -6,7 +6,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/agent'
 import { credentialRef } from '@qilin/credentials'
 import type {} from '@qilin/settings'

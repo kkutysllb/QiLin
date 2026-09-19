@@ -58,18 +58,18 @@ function styleInjectionModule(
 /**
  * Contract layers and pure folds a client bundle may inline: browser-safe
  * values with no runtime identity to share (no Symbol/instanceof/singleton state).
- * Everything else under @deepseek-ai/* is either a module-table entry
+ * Everything else under @qilin/* is either a module-table entry
  * (external) or a leak the purity gate rejects.
  */
 export const INLINE_SAFE = /^(?:@qilin\/(?:dsh-compat|file-reference|session|llm|tools|brand|deque|output-retention|typert-protocol|util-crypto|util-values|util-workspace-path)(?:\/|$)|@qilin\/token-meter\/client$|@qilin\/host-open-in-app\/shared$|@qilin\/agent-presets\/display$|@qilin\/spill-policy\/notice$)/
 
 /**
- * Vendored framework libraries: rescoped into @deepseek-ai, so the gate below
+ * Vendored framework libraries: rescoped into @qilin, so the gate below
  * would read them as plugin packages. They carry no cross-plugin runtime
  * identity to share — the framework itself is a requested module-table row
  * (external), while these are ordinary libraries a browser bundle inlines.
  */
-const VENDORED_LIBRARY = /^@deepseek-ai\/(cosmokit|schemastery)(\/|$)/
+const VENDORED_LIBRARY = /^@qilin\/(cosmokit|schemastery)(\/|$)/
 
 /** Generated descriptor/codec contribution with no shared runtime identity. */
 const GENERATED_REMOTE = /^@qilin\/[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/

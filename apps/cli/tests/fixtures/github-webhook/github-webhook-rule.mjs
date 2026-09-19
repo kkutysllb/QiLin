@@ -1,4 +1,4 @@
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { WebhookRuleId } from '@qilin/webhook'
 
 export const name = 'github-webhook-real-e2e-rule'

@@ -19,7 +19,7 @@
  */
 
 import type { Context, LoggerService } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import type { PreStepDecision } from '@qilin/agent'
 import type {} from '@qilin/session-projection'

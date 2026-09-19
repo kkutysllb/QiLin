@@ -30,7 +30,7 @@
  */
 
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/settings'
 import type {} from '@qilin/attachment'
 import { scopeTarget } from '@qilin/scope'

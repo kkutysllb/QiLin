@@ -18,7 +18,7 @@ import { setActiveVfs } from '@qilin/experimental-webworker-runtime/src/storage/
 import { spawn, spawnSync } from '@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/child_process.ts'
 import {
   LAUNCHER_FAILURE_EXIT, grantArgs, launcherPath, probe,
-} from '@deepseek-ai/node-addon-system/landlock-run'
+} from '@qilin/node-addon-system/landlock-run'
 import { processAlive, signalProcess } from '@qilin/experimental-webworker-runtime/src/node/process-table.ts'
 import { hostFileSystem } from '@qilin/experimental-webworker-runtime/src/shell/fs-access.ts'
 import {

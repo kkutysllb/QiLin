@@ -74,7 +74,7 @@
 
 ### 保留不动
 - vendored 框架：@deepseek-ai/cordis、cosmokit、schemastery、cordis-plugin-*。
-- native 的 @deepseek-ai/node-addon-system 与第三方 @deepseek-ai/pi-ai。
+- native 的 @qilin/node-addon-system 与第三方 @deepseek-ai/pi-ai。
 - .agents/notes 下的历史记录（仓库规则：已归档笔记冻结，不改写）。
 - .gitattributes 的 merge=qilin-translation-pairing（该名字仅此一处出现、仓库内无驱动定义，属用户级 git 配置；改名会静默失效）。
 

@@ -1,7 +1,7 @@
 /** Host-owned opt-in setting for model-selectable subagent delegation. */
 
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/settings'
 import {
   AllowedModelRouteSchema,

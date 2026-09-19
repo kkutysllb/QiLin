@@ -7,7 +7,7 @@
 
 import { Context, FiberState, Service } from '@qilin/kylin'
 import { randomUUID } from 'node:crypto'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import { brandString } from '@qilin/brand'
 import type {

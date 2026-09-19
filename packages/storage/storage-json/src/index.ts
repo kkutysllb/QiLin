@@ -8,7 +8,7 @@
 
 import { mkdir } from 'node:fs/promises'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { StorageError, UNIT_NAME_RE, storageBackendServiceKey } from '@qilin/storage'
 import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin/storage'
 import { openSingleUnit } from './single-unit.ts'

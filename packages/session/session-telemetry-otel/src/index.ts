@@ -13,7 +13,7 @@
  */
 
 import { createRequire } from 'node:module'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/command-feedback'
 import type {} from '@qilin/message-feedback'

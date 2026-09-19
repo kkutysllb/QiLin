@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
 import Loader from '@qilin/kylin-plugin-loader'
 import Include from '@qilin/kylin-plugin-include'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { type SettingsScope } from '@qilin/settings'
 import FileSettingsProvider from '../src/index.ts'
 

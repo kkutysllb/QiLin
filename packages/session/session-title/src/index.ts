@@ -4,7 +4,7 @@
  */
 
 import { Context, FiberState, Service, type Fiber } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
 import type { Branded } from '@qilin/brand'

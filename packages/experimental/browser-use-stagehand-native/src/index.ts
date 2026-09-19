@@ -4,7 +4,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { BrowserUseProviderName } from '@qilin/browser-use/brand'
 import { SessionResources } from '@qilin/experimental-browser-use-runtime'
 import { createMcpToolDefinition } from '@qilin/mcp-client'

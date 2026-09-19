@@ -8,8 +8,8 @@
 
 import { Context, Service } from '@qilin/kylin'
 import type { Inject } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
-import type Schema from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
+import type Schema from '@qilin/schemastery'
 
 /** Runtime invariant selection configured on the service plugin. */
 export interface Config {

@@ -12,7 +12,7 @@
 
 import { randomUUID } from 'node:crypto'
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { brandString } from '@qilin/brand'
 import { installModelSelection } from '@qilin/agent'
 import type { Agent, ModelSelectionRef } from '@qilin/agent'

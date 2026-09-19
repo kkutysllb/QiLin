@@ -5,7 +5,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { createUserMessage, BlockAssembler } from '@qilin/llm'
 import type { FinishReason, GenerateOptions, Message } from '@qilin/llm'
 import { deadline, MAX_TIMER_DELAY_MS } from '@qilin/timeout'

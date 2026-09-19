@@ -9,8 +9,8 @@ The Cordis framework and its foundation libraries are vendored under [`vendor/`]
 | Directory | Upstream name | Published name | Upstream version | Role |
 |---|---|---|---|---|
 | `vendor/cordis/` | `cordis` | `@qilin/kylin` | 4.0.0-rc.7 | Framework core: `Context`, `Service`, `Fiber`, events |
-| `vendor/cosmokit/` | `cosmokit` | `@deepseek-ai/cosmokit` | 1.8.1 | Shared utilities the framework and Schemastery build on |
-| `vendor/schemastery/` | `schemastery` | `@deepseek-ai/schemastery` | 3.18.0 | Config schemas (`Schema`) behind every plugin's `Config` |
+| `vendor/cosmokit/` | `cosmokit` | `@qilin/cosmokit` | 1.8.1 | Shared utilities the framework and Schemastery build on |
+| `vendor/schemastery/` | `schemastery` | `@qilin/schemastery` | 3.18.0 | Config schemas (`Schema`) behind every plugin's `Config` |
 | `vendor/loader/` | `@cordisjs/plugin-loader` | `@qilin/kylin-plugin-loader` | 1.0.0-rc.5 | `cordis.yml` loading, plugin resolution, repository cache |
 | `vendor/include/` | `@cordisjs/plugin-include` | `@qilin/kylin-plugin-include` | 1.0.4 | Config includes and patch overlays |
 | `vendor/group/` | `@cordisjs/plugin-group` | `@qilin/kylin-plugin-group` | 1.0.0 | Nested plugin groups |

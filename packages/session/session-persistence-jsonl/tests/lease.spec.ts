@@ -84,8 +84,8 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   }
 })
 
-vi.mock('@deepseek-ai/node-addon-system/flock', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@deepseek-ai/node-addon-system/flock')>()
+vi.mock('@qilin/node-addon-system/flock', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin/node-addon-system/flock')>()
   return {
     tryLockExclusive: async (fd: number): Promise<void> => {
       if (refuse.flock) {

@@ -10,7 +10,7 @@
  */
 
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import { AnonymousEntries, ScopedLayers, scopeOf } from '@qilin/scope'
 import type { ScopeLayer } from '@qilin/scope'

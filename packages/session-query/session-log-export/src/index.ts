@@ -2,7 +2,7 @@
 
 import type { Context } from '@qilin/kylin'
 import type { CommandDefinitionId } from '@qilin/commands/brand'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { brandString } from '@qilin/brand'
 import type {} from '@qilin/attachment'
 import type { CommandResult } from '@qilin/commands'

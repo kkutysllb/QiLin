@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import type { SandboxPolicy } from '@qilin/sandbox'
-import { launcherPath } from '@deepseek-ai/node-addon-system/landlock-run'
+import { launcherPath } from '@qilin/node-addon-system/landlock-run'
 import { LocalSandboxProvider } from '@qilin/sandbox-local'
 
 /**

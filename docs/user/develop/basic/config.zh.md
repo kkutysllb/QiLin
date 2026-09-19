@@ -10,7 +10,7 @@
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 
 export const name = 'my-plugin'
 
@@ -50,7 +50,7 @@ export function apply(ctx: Context, config: Config) {
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 
 export const name = 'validated-plugin'
 

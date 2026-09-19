@@ -1108,7 +1108,7 @@ export class EngineNameCollisionError extends Error {
  * fallback that maps the old name onto QiLin's, so the process would load two
  * copies of the engine and plugin registrations would fail in ways the plugin
  * cannot explain. A name the compatibility layer keeps verbatim
- * (`@deepseek-ai/cosmokit`, `@deepseek-ai/schemastery`) never collides, and
+ * (`@qilin/cosmokit`, `@qilin/schemastery`) never collides, and
  * neither does this installation's own fallback link, which is the projection
  * that makes the old name resolve to the QiLin package.
  * @param binName - diagnostic prefix for manifest errors.

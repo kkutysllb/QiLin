@@ -11,7 +11,7 @@
 
 import type { Context } from '@qilin/kylin'
 import type { Readable, Writable } from 'node:stream'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { JsonRpcLineTransport } from '@qilin/sdk-protocol'
 import { HarnessSdkJsonRpcServer } from './server.ts'
 

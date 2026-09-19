@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/experimental/browser-use-stagehand-native"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -43,7 +46,7 @@
     "@qilin/experimental-browser-use-runtime": "workspace:^",
     "@qilin/mcp-client": "workspace:^",
     "@qilin/util-values": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "zod": "^4.4.3",
     "@qilin/subprocess": "workspace:^",
     "@puppeteer/browsers": "3.2.2"

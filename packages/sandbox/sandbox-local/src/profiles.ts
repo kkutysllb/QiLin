@@ -4,7 +4,7 @@
  * @module @qilin/sandbox-local/profiles
  */
 
-import { grantArgs as landlockGrantArgs } from '@deepseek-ai/node-addon-system/landlock-run'
+import { grantArgs as landlockGrantArgs } from '@qilin/node-addon-system/landlock-run'
 import { writableRoots } from '@qilin/sandbox'
 import type { SandboxPolicy } from '@qilin/sandbox'
 

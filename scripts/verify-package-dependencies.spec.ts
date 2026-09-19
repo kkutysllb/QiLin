@@ -66,7 +66,7 @@ function facts(manifest: PackageDependencyManifest): PackageDependencyFacts {
       '@qilin/runtime',
       '@qilin/types',
       '@qilin/stale',
-      '@deepseek-ai/schemastery',
+      '@qilin/schemastery',
     ]),
     allSourceUses: new Map([
       ['@qilin/runtime', ['packages/core/probe/src/index.ts']],
@@ -210,7 +210,7 @@ describe('package dependency scope', () => {
       '@qilin/util-values',
     ])
     expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/deque']).toEqual(['Deque'])
-    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@deepseek-ai/schemastery']).toEqual(['default'])
+    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/schemastery']).toEqual(['default'])
     expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/session/types']).toBeUndefined()
     expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/typert-protocol']).toBeUndefined()
     expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin/scope']).toEqual([
@@ -831,7 +831,7 @@ describe('dependency sections', () => {
       name: '@qilin/probe',
       dependencies: {
         '@qilin/runtime': 'workspace:^',
-        '@deepseek-ai/schemastery': 'workspace:^',
+        '@qilin/schemastery': 'workspace:^',
         external: '^1.0.0',
       },
       devDependencies: {
@@ -947,7 +947,7 @@ describe('dependency sections', () => {
     const manifestPath = 'package.json'
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      dependencies: { '@deepseek-ai/schemastery': 'workspace:*', external: '^1.0.0' },
+      dependencies: { '@qilin/schemastery': 'workspace:*', external: '^1.0.0' },
       devDependencies: { [CORDIS]: 'workspace:^', '@qilin/runtime': 'workspace:^' },
       peerDependencies: {
         [CORDIS]: 'workspace:^',
@@ -963,7 +963,7 @@ describe('dependency sections', () => {
     expect(fixPackageDependencies(root, state)).toEqual([manifestPath])
     const fixed = JSON.parse(readFileSync(join(root, manifestPath), 'utf8')) as PackageDependencyManifest
     expect(fixed.dependencies).toEqual({
-      '@deepseek-ai/schemastery': 'workspace:^',
+      '@qilin/schemastery': 'workspace:^',
       external: '^1.0.0',
       '@qilin/runtime': 'workspace:^',
     })

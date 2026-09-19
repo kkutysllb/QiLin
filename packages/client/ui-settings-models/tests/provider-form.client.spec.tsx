@@ -2,7 +2,7 @@
 /** Model-list editing, endpoint interrogation, and hand-declared provider creation. */
 import { within, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { bindSnapshotSelector, RemoteError } from '@qilin/client-test-runtime'
 import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
 import type { JsonValue } from '@qilin/util-values'

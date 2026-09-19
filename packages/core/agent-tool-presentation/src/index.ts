@@ -19,7 +19,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { ToolPresentationMode } from '@qilin/tools'
 // Type-only: brings the `ctx.tools` Context merge into this program.
 import type {} from '@qilin/tools'

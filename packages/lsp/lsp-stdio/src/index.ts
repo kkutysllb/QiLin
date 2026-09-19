@@ -12,7 +12,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { LspError, LspProviderId } from '@qilin/lsp'
 import type {
   LspProvider,

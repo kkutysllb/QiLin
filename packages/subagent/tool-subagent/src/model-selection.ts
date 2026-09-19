@@ -3,7 +3,7 @@
 import { ReasoningEffortId } from '@qilin/llm'
 import type { LlmRuntime } from '@qilin/llm'
 import type { AgentOptions } from '@qilin/agent'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 
 /** One exact child LLM route authorized by a user setting. */
 export interface AllowedModelRoute {

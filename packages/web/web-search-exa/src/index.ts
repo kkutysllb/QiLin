@@ -7,7 +7,7 @@
 
 import type { Context } from '@qilin/kylin'
 import { launchEnvironmentOf } from '@qilin/launch-environment'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/web'
 import {
   ExaSearchProvider,

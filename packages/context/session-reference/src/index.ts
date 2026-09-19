@@ -6,7 +6,7 @@
  */
 
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 import { createUserMessage, freezeMessage, LlmError } from '@qilin/llm'

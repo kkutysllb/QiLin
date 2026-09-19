@@ -8,7 +8,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { boundContextSummary, createUserMessage, type ContentBlock } from '@qilin/llm'
 import { TextRetainer } from '@qilin/output-retention'
 import { defineTool } from '@qilin/tools'

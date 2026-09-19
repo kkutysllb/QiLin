@@ -6,7 +6,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { brandString } from '@qilin/brand'
 import type {} from '@qilin/deepseek-llm-api-extensions'
 import { KNOWN_SESSION_EVENT_TYPES, SessionLogOffset, SessionSeq } from '@qilin/session'

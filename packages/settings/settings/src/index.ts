@@ -7,7 +7,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
-import type z from '@deepseek-ai/schemastery'
+import type z from '@qilin/schemastery'
 import { deepEqualJson, deepFreeze } from '@qilin/util-values'
 import { redactSecrets } from './redact.ts'
 import type { RedactedSecret } from './redact.ts'

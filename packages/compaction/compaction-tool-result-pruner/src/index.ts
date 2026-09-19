@@ -5,7 +5,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { freezeMessage } from '@qilin/llm'
 import type { ContentBlock } from '@qilin/llm'
 import type { Session, SessionEvent, SessionSeq, ToolResultMessage } from '@qilin/session'

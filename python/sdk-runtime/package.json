@@ -10,7 +10,7 @@
     "@qilin/kylin-plugin-include": "workspace:^",
     "@qilin/kylin-plugin-loader": "workspace:^",
     "@qilin/kylin-plugin-timer": "workspace:^",
-    "@deepseek-ai/cosmokit": "workspace:^",
+    "@qilin/cosmokit": "workspace:^",
     "@qilin/cli": "workspace:^",
     "@qilin/acp": "workspace:^",
     "@qilin/agent": "workspace:^",
@@ -132,7 +132,7 @@
     "@qilin/web-search-perplexity": "workspace:^",
     "@qilin/workflow": "workspace:^",
     "@qilin/workflow-ptc": "workspace:^",
-    "@deepseek-ai/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:^",
     "@qilin/plugin-manager": "workspace:^",
     "@qilin/host-plugin-inventory": "workspace:^"
   }

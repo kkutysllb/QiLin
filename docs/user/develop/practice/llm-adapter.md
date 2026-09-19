@@ -12,7 +12,7 @@ An LLM adapter extends `LlmAdapter` and implements `stream()`, translating Harne
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@qilin/llm'
 
 class MyAdapter extends LlmAdapter {

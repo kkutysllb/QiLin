@@ -5,7 +5,7 @@
  */
 
 import { Context, Service } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { ModelSelection } from '@qilin/agent'
 import { ReasoningEffortId } from '@qilin/llm'
 import type {} from '@qilin/settings'

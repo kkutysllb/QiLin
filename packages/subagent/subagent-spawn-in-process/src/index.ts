@@ -7,7 +7,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {
   ContinuableCreateSpec,
   ResolvedSubagentStartRequest,

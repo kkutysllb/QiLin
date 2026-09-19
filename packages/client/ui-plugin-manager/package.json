@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/client/ui-plugin-manager"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -61,7 +64,8 @@
     "clsx": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@qilin/util-crypto": "workspace:^"
+    "@qilin/util-crypto": "workspace:^",
+    "@qilin/client-ui-settings": "workspace:^"
   },
   "files": [
     "lib/index.js",

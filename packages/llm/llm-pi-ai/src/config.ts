@@ -14,7 +14,7 @@
  */
 
 import type { CacheRetention, ChatTemplateKwargValue, ModelThinkingLevel, Provider, ThinkingBudgets, Transport } from '@earendil-works/pi-ai'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { credentialRef } from '@qilin/credentials'
 import type { CredentialRef } from '@qilin/credentials'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'

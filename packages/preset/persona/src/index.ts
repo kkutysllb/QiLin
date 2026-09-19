@@ -14,7 +14,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/system-prompt'
 import { PERSONA_PREFIX_SECTION, PERSONA_SUFFIX_SECTION } from '@qilin/system-prompt'
 

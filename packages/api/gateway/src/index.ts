@@ -11,7 +11,7 @@ import type { ConnectionRpcHandler } from '@qilin/client-connection'
 import { Deque } from '@qilin/deque'
 import type { WebUpgradeRoute } from '@qilin/host-webserver'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 export type { TypertGatewayFaultDetails } from './remote-error-codes.ts'
 import {
   RemoteError,

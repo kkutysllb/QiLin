@@ -5,7 +5,7 @@
  */
 
 import { relative } from 'node:path'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { resolveQilinHome } from '@qilin/home-paths'
 
 const DEFAULT_PROJECT_ROOT_MARKERS = ['.git'] as const

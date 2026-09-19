@@ -7,8 +7,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/experimental/webworker-runtime"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -60,7 +63,7 @@
     "@qilin/session-persistence-jsonl": "workspace:^",
     "@qilin/subagent": "workspace:^",
     "@qilin/subprocess-local": "workspace:^",
-    "@deepseek-ai/node-addon-system": "workspace:^",
+    "@qilin/node-addon-system": "workspace:^",
     "@types/picomatch": "^3.0.2",
     "@types/readable-stream": "^4.0.24",
     "chokidar": "^5.0.0"

@@ -12,7 +12,7 @@ LLM 适配器是一个继承 `LlmAdapter` 并实现 `stream()` 方法的类，�
 
 ```ts
 import type { Context } from '@qilin/kylin'
-import Schema from '@deepseek-ai/schemastery'
+import Schema from '@qilin/schemastery'
 import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@qilin/llm'
 
 class MyAdapter extends LlmAdapter {

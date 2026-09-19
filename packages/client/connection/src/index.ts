@@ -1,7 +1,7 @@
 /** Host HTTP bridge for browser-client RPC. */
 import type { Context } from '@qilin/kylin'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type {} from '@qilin/attachment'
 import type {} from '@qilin/credentials'
 // Activates the webServer Context merge used below.

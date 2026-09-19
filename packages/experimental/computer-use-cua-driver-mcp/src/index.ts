@@ -5,7 +5,7 @@
  */
 
 import type { Context, Fiber } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { ComputerUseProviderName } from '@qilin/computer-use/brand'
 import * as McpClient from '@qilin/mcp-client'
 import type {} from '@qilin/computer-use'

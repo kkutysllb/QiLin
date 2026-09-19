@@ -6,7 +6,7 @@
 
 import { Context, Service } from '@qilin/kylin'
 import type {} from '@qilin/compaction-image-offload/projection'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { assembleAssistantStream } from '@qilin/llm'
 import type { LlmImageRequestPricing, LlmRuntime, Message, TokenUsage } from '@qilin/llm'
 import { deepFreeze } from '@qilin/util-values'

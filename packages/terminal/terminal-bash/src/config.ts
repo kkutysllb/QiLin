@@ -1,6 +1,6 @@
 /** Validated configuration for the local PTY backend. */
 
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { resolvePwshPath } from '@qilin/pwsh-local'
 
 /** One supported interactive shell dialect. */

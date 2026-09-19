@@ -5,7 +5,7 @@
  */
 
 import { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import type { ContentBlock } from '@qilin/llm'
 import { TerminalSessionId } from '@qilin/terminal'

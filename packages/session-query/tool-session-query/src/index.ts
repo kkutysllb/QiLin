@@ -5,7 +5,7 @@
  */
 
 import type { Context } from '@qilin/kylin'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
 import { defineTool } from '@qilin/tools'
 import { toolInput } from './input.ts'

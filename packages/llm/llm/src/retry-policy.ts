@@ -7,7 +7,7 @@
  * @module @qilin/llm/retry-policy
  */
 
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
 import { EMPTY_RESPONSE_CODE } from './error.ts'
 

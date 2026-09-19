@@ -255,7 +255,9 @@ class WorkspacePackageSet {
       const isVendored = manifestPath.startsWith('vendor/')
       // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@qilin/') && !name.startsWith('@deepseek-ai/')) {
+      // Vendored packages are rescoped too (vendor/README.md), so publication
+      // never carries an upstream name that would squat it on the registry.
+      if (!name.startsWith('@qilin/')) {
         throw new Error(`${manifestPath} must name a @qilin or rescoped @deepseek-ai package`)
       }
       if (name === '@qilin/root') {

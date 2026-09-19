@@ -8,7 +8,7 @@ import { Context } from '@qilin/kylin'
 import { constants as bufferConstants } from 'node:buffer'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import z from '@deepseek-ai/schemastery'
+import z from '@qilin/schemastery'
 import { FileSystem, FsError, FsVersion } from '@qilin/fs'
 import type {
   FsDirEntry,

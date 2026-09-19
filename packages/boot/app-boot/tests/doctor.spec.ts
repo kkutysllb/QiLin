@@ -110,9 +110,9 @@ describe('doctorPluginPackage', () => {
 
   it('reports engine modules the plugin imports without declaring them', () => {
     const anchor = installation()
-    const dir = plugin({ name: 'fixture-plugin', peerDependencies: { '@deepseek-ai/schemastery': '*' } }, {
+    const dir = plugin({ name: 'fixture-plugin', peerDependencies: { '@qilin/schemastery': '*' } }, {
       'lib/index.js': 'import { Context } from \'@deepseek-ai/dsh-session\'\n'
-        + 'import { Schema } from \'@deepseek-ai/schemastery\'\n'
+        + 'import { Schema } from \'@qilin/schemastery\'\n'
         + 'const loader = require(\'cordis-plugin-loader\')\n'
         + 'const side = import(\'@qilin/client-modules/client\')\n'
         + 'const malformed = require(\'@qilin/\')\n'
