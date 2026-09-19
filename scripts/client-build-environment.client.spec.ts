@@ -270,7 +270,8 @@ describe('client build environment', () => {
     const defaultBuild = buildFixture({})
 
     expect(readClientBuildRecord(official, officialEnvironment).environment).toEqual(officialEnvironment)
-    expect(() => { readClientBuildRecord(defaultBuild, officialEnvironment) }).toThrow(/QILIN_CLIENT_/)
+    expect(() => { readClientBuildRecord(defaultBuild, officialEnvironment) })
+      .toThrow(/QILIN_CLIENT_.*run `pnpm run build:official` from a clean checkout/)
     expect(() => { readClientBuildRecord(join(defaultBuild, 'missing')) }).toThrow(/record.*missing/)
 
     write(join(official, 'apps/web/dist/index.html'), '<main>changed</main>')

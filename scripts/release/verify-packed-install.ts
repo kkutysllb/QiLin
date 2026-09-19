@@ -11,8 +11,9 @@
  * vendored family's pack output too, while publishing only its own
  * ([rationale](../../.agents/notes/implemented/process/2026-08-10-npm-release-sequences.md)).
  *
- * What this proves is that `files` selected a complete payload and that the
- * published dependency ranges resolve. A workspace link or a stale `lib/` in the
+ * What this proves is that `files` selected a complete payload, that the
+ * published dependency ranges resolve, and that the installed executable boots
+ * its Web surface and answers HTTP. A workspace link or a stale `lib/` in the
  * checkout cannot stand in for a missing file here.
  */
 
@@ -22,6 +23,7 @@ import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 import { releaseFamily } from './families.ts'
+import { verifyInstalledWebSurface } from './installed-web-surface.ts'
 import { capture, isEntry } from './process.ts'
 import { packedIdentity } from './tarball.ts'
 import { verifyInstalledProductIsolation } from './installed-product-isolation.ts'
@@ -68,7 +70,7 @@ function packedDependencies(directories: readonly string[]): Map<string, { url: 
 }
 
 /** Install every tarball under `--from` and drive the `--family` entry. */
-function main(): void {
+async function main(): Promise<void> {
   const { values } = parseArgs({
     options: { family: { type: 'string' }, from: { type: 'string', multiple: true } },
     allowPositionals: false,
@@ -117,9 +119,23 @@ function main(): void {
       throw new Error(`installed ${entry.packageName} --version reported ${JSON.stringify(version)}, expected ${expected.version}`)
     }
     console.log(`release verify-packed-install: installed ${entry.packageName} reports ${version}`)
+
+    // The published claim is one-click deployment, so the installed tree has to
+    // serve the browser surface — not merely print a version. The product
+    // profile is the one a bare `npx @qilin/cli` boots.
+    const surface = await verifyInstalledWebSurface({
+      command: process.execPath,
+      args: port => [bin, '--no-open', '--port', String(port)],
+      cwd: consumerRoot,
+      env: environment,
+    })
+    console.log(
+      `release verify-packed-install: installed ${entry.packageName} serves ${surface.landingUrl} `
+      + `and ${surface.appUrl}`,
+    )
   } finally {
     rmSync(consumerRoot, { recursive: true, force: true })
   }
 }
 
-if (isEntry(import.meta.url)) main()
+if (isEntry(import.meta.url)) await main()

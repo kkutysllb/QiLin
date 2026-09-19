@@ -132,3 +132,65 @@ pnpm run test:snapshot  # 免密钥录制回放，132 项中 127 项通过
 - 构建输出里的 `Some chunks are larger than 500 kB after minification` 是 Vite 的体积警告，不是错误；构建本身以 `✓ built in` 结束即为成功。
 - `pnpm run test:snapshot` 有 3 项失败（bash-tool、persistent-tools、session-sandbox-root），`test:web` 有 12 个文件失败；这些用例依赖 qilin 内部的 macOS Seatbelt 沙箱，在外层沙箱下会因 sandbox-exec 被拒而失败。已在原始基线提交的独立 worktree 上复跑确认，失败数与本次重构无关。
 - 未配置 API Key 时，界面会一直停留在 API Key 引导；点稍后配置即可跳过并浏览四区。
+
+## 8. 发布与 `npx` 一键安装
+
+目标终态是一条命令：在空目录里 `npx @qilin/cli` 装好并起 Web。不传 profile 时启动产品 profile（`qilin`，含 QiLin 品牌层），默认自动开浏览器，`--no-open` 关闭，`--port <n>` 指定端口。
+
+### 8.1 前置：必须用 official 构建画像
+
+发布门禁要求客户端产物来自 official 画像，`pnpm run build` 或 `pnpm run build:qilin` 的产物会被 `release:pack` 拒绝，报错形如：
+
+```
+client build environment differs from the required artifact profile:
+QILIN_CLIENT_BUILD_PROFILE, QILIN_CLIENT_COMMIT_HASH, QILIN_CLIENT_GIT_DIRTY, QILIN_CLIENT_TITLE
+```
+
+这不是标记位而是运行时行为：`packages/client/ui-brand-official` 只在 `QILIN_CLIENT_BUILD_PROFILE === 'official'` 时注册官方品牌插件。所以发布前：
+
+```sh
+pnpm install
+pnpm run build:official
+```
+
+### 8.2 三条发布序列
+
+| 序列 | 成员 | 版本线 | 与一键安装的关系 |
+|---|---|---|---|
+| qilin | `packages/*/*` 与 `apps/*` 中的 public 成员 | 与仓库根同版本（当前 3.0.0） | 提供 `@qilin/cli` 及其全部运行时依赖 |
+| vendor | `vendor/*` | 各自独立（`@qilin/kylin` 4.0.2 等） | 是 peer 层，必须在 qilin 之前发布 |
+| native | `native/system/packages/*` | 0.1.2 | 目前消费上游已发布的 `@qilin/node-addon-system@0.1.2`，本仓不重发 |
+
+### 8.3 打包与安装验证
+
+```sh
+pnpm run release:verify --family qilin
+pnpm run release:pack --family qilin --out dist/npm --concurrency 8
+pnpm run release:pack --family vendor --out dist/npm-vendor --concurrency 8
+pnpm --dir native/system run build:ts
+pnpm --dir native/system/packages/entry pack --pack-destination "$PWD/dist/npm-landlock"
+pnpm run release:verify-packed-install --family qilin --from dist/npm --from dist/npm-vendor --from dist/npm-landlock
+```
+
+最后一条才是「一键安装可用」的机器证据：它把 tarball 装进仓库外的临时消费者目录，驱动装出来的可执行文件先报版本，再以 `--no-open --port <预留端口>` 起 Web，断言 `/`（公开落地页）与启动器打印的带令牌地址都返回非空 HTML，随后关停进程。
+
+### 8.4 发布与冒烟
+
+先 vendor 再 qilin：npm 在安装期解析依赖，qilin 的包 peer 依赖 vendored 框架。
+
+```sh
+pnpm run release:publish --family vendor --from dist/npm-vendor
+pnpm run release:publish --family qilin --from dist/npm
+```
+
+发布需要 npm 凭据与 `@qilin` 作用域。本机 `npm config get registry` 若指向镜像，发布时必须显式回指 `https://registry.npmjs.org`。
+
+空目录冒烟：
+
+```sh
+cd "$(mktemp -d)" && npx --yes @qilin/cli --no-open --port 3090
+```
+
+### 8.5 已知未完成
+
+`pnpm run constraints` 目前只在 native 序列上失败：约束门禁期望 native 包已改名为 `@qilin/node-addon-system*`，而仓库里仍是 `@deepseek-ai/*`。两条路各有代价——把 native 纳入 `@qilin` 需要自己维护 musl 工具链与逐架构构建，改门禁接受上游 0.1.2 则发布物里长期保留一个上游作用域名称。

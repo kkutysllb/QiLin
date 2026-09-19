@@ -260,7 +260,14 @@ export function assertClientBuildEnvironment(
 
   const names = [...new Set([...Object.keys(actual), ...Object.keys(normalizedExpected)])].sort()
   const differences = names.filter(name => actual[name] !== normalizedExpected[name])
-  throw new Error(`client build environment differs from the required artifact profile: ${differences.join(', ')}`)
+  // The remedy names the required profile, not a generic rebuild: a default
+  // `pnpm run build` embeds no profile marker, so it can never satisfy a caller
+  // that demands one.
+  const profile = normalizedExpected.QILIN_CLIENT_BUILD_PROFILE
+  const remedy = profile === undefined
+    ? 'run a complete `pnpm run build` before consuming them'
+    : `run \`pnpm run build:${profile}\` from a clean checkout`
+  throw new Error(`client build environment differs from the required artifact profile: ${differences.join(', ')}; ${remedy}`)
 }
 
 /**
