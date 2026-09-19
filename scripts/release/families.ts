@@ -341,7 +341,7 @@ class QilinFamily extends ReleaseFamily {
     'packages/*/*/package.json',
     'apps/*/package.json',
   ] as const
-  readonly tagPrefix = 'qilin-v'
+  readonly tagPrefix = 'v'
 
   /** Require current artifacts from a complete official client build. */
   override verifyBuildArtifacts(root: string): void {
@@ -362,7 +362,7 @@ class QilinFamily extends ReleaseFamily {
 
   /**
    * The single family prefix: every member shares one version, so one tag names it.
-   * @returns `qilin-v`.
+   * @returns `v`.
    */
   tagPrefixFor(): string {
     return this.tagPrefix

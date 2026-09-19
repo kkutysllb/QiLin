@@ -136,7 +136,7 @@ describe('release families', () => {
 
     expect(planned.map(entry => ({ path: entry.manifestPath, tag: entry.tag }))).toEqual([
       { path: 'package.json', tag: undefined },
-      { path: 'packages/core/published/package.json', tag: 'qilin-v0.0.2' },
+      { path: 'packages/core/published/package.json', tag: 'v0.0.2' },
       { path: 'apps/desktop/package.json', tag: undefined },
       { path: 'packages/experimental/prototype/package.json', tag: undefined },
     ])
@@ -154,7 +154,7 @@ describe('release families', () => {
       const plan = planShared(qilin, root, [published], version)
 
       expect(plan.version).toBe(version)
-      expect(plan.planned[1]?.tag).toBe(`qilin-v${version}`)
+      expect(plan.planned[1]?.tag).toBe(`v${version}`)
     },
   )
 
@@ -164,7 +164,7 @@ describe('release families', () => {
     const cli = member('apps/cli', '@qilin/cli')
     const cordis = { ...member('vendor/cordis', '@qilin/kylin'), version: '4.0.1' }
 
-    expect(qilin.tagFor(cli)).toBe('qilin-v0.0.1')
+    expect(qilin.tagFor(cli)).toBe('v0.0.1')
     expect(vendor.tagFor(cordis)).toBe('vendor-cordis-v4.0.1')
     // The prefix is constructed, not recovered from a tag: a version with a
     // hyphen would defeat any suffix-stripping.

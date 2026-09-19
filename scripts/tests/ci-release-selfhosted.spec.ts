@@ -72,11 +72,11 @@ const fallbackCases: Array<[string, Record<string, string | boolean>]> = [
   ['Dependabot PR actor', { ...trustedPr, 'github.actor': 'dependabot[bot]' }],
   ['Dependabot push actor', { ...trustedPush, 'github.actor': 'dependabot[bot]' }],
   ['non-master push', { ...trustedPush, 'github.ref': 'refs/heads/topic' }],
-  ['tag push', { ...trustedPush, 'github.ref': 'refs/tags/qilin-v1.0.0' }],
+  ['tag push', { ...trustedPush, 'github.ref': 'refs/tags/v1.0.0' }],
   ['push in another repository', { ...trustedPush, 'github.repository': 'outsider/fork' }],
   ['dispatch on master', { ...trustedPush, 'github.event_name': 'workflow_dispatch' }],
   ['dispatch on topic', { ...trustedPush, 'github.event_name': 'workflow_dispatch', 'github.ref': 'refs/heads/topic' }],
-  ['dispatch on tag', { ...trustedPush, 'github.event_name': 'workflow_dispatch', 'github.ref': 'refs/tags/qilin-v1.0.0' }],
+  ['dispatch on tag', { ...trustedPush, 'github.event_name': 'workflow_dispatch', 'github.ref': 'refs/tags/v1.0.0' }],
   ['pull_request_target', { ...trustedPr, 'github.event_name': 'pull_request_target' }],
   ['missing PR payload', { ...trustedPush, 'github.event_name': 'pull_request' }],
 ]
