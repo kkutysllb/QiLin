@@ -35,6 +35,8 @@ The exact platform aliases are exported as `DSH_PLATFORM_MODULE_ALIASES`. Unknow
 
 The manifest reader gives a QiLin declaration precedence when both keys exist. The module resolver applies explicit aliases first, then maps `@deepseek-ai/dsh-<name>` to `@qilin/<name>`; `client-runtime` maps to QiLin’s `client-modules` package. The browser shell seeds static platform aliases, while dynamic graph edges and factory requests are canonicalized at their owning loaders.
 
+**Runtime invariant:** No runtime invariant companion is published. This package owns no relationship that two independent observations could disagree about — it reads manifest keys and rewrites module names — and its behavior tests cover that mapping.
+
 -----
 
 <a id="model-experience"></a>

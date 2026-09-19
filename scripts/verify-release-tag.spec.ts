@@ -6,20 +6,20 @@ const NOTES = '# QiLin vX.Y.Z · 标题\n\n> 发布时间: 2026-09-19\n\n概述�
 describe('parsePushRefs', () => {
   it('parses one ref update per line and drops blank or malformed lines', () => {
     const raw = [
-      'refs/heads/main 8522bb4bf8a7b413a12f803dcba6f330ef98cf2f refs/heads/main 6f604af86e59416896b904bdcdc7df61de136725',
+      'refs/heads/main 1111111111111111111111111111111111111111 refs/heads/main 2222222222222222222222222222222222222222',
       '',
-      'refs/tags/v3.0.2 eb49bebb31213c3ace25cb9e84d820a12d7aaa61 refs/tags/v3.0.2 0000000000000000000000000000000000000000',
+      'refs/tags/v3.0.2 3333333333333333333333333333333333333333 refs/tags/v3.0.2 0000000000000000000000000000000000000000',
       'not-a-ref-line',
     ].join('\n')
     expect(parsePushRefs(raw)).toEqual([
       {
         localRef: 'refs/heads/main',
-        sha: '8522bb4bf8a7b413a12f803dcba6f330ef98cf2f',
+        sha: '1111111111111111111111111111111111111111',
         remoteRef: 'refs/heads/main',
       },
       {
         localRef: 'refs/tags/v3.0.2',
-        sha: 'eb49bebb31213c3ace25cb9e84d820a12d7aaa61',
+        sha: '3333333333333333333333333333333333333333',
         remoteRef: 'refs/tags/v3.0.2',
       },
     ])

@@ -35,6 +35,8 @@ Profile 加载通过 `bundlePatchOf` 同时读取 `qilin.bundle.patch` 与 `dsh.
 
 当两个键同时存在时，manifest 读取器优先使用 QiLin 声明。模块解析先应用精确别名，再把 `@deepseek-ai/dsh-<name>` 映射到 `@qilin/<name>`；其中 `client-runtime` 映射到 QiLin 的 `client-modules`。浏览器 shell 提供静态平台别名，动态图边与工厂请求在各自的加载器中归一化。
 
+**运行时不变式：** 不发布运行时不变式伴随包。本包不拥有任何两个独立观测会分歧的关系——它只读取 manifest 键并改写模块名——其行为测试覆盖该映射。
+
 -----
 
 <a id="model-experience"></a>
