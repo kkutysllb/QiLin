@@ -454,6 +454,16 @@
   padding-top: 4px;
 }
 
+/* Narrow rail: the hairline alone marks the break, and the wide header's
+   lead-in padding would read as a random hole between icons. Cancel the row's
+   own padding and offset the list's flex gap so a section break costs about
+   the same 4px rhythm as the icons themselves. Placed after the first-child
+   rule so the collapsed reset wins the specificity tie. */
+.collapsed .panelList .panelSection {
+  padding: 0;
+  margin: -3px 0;
+}
+
 /* Panel entries share the New Session bar's 12px radius and 2px inset, the
    session rows' hover/selected surface, and the primary ink. */
 .panelRow {
