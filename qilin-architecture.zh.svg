@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1300" viewBox="0 0 1520 1300" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace" role="img" aria-label="QiLin 架构总览 — 一切皆插件的开源 Agent Harness · DeepSeek AI · pnpm monorepo（架构图）">
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+  <style>
+  :root,
+      [data-theme="dark"] {
+        --bg: #020617;
+        --grid: #1e293b;
+        --text: #ffffff;
+        --text-muted: #94a3b8;
+        --text-dim: #475569;
+        /* UI chrome (menu hints, footer) needs more contrast than SVG .t-dim accents */
+        --text-faint: #7d8da1;
+
+        --panel: rgba(15, 23, 42, 0.5);
+        --panel-border: #1e293b;
+        --lane-fill: rgba(15, 23, 42, 0.22);
+        --lane-stroke: #334155;
+
+        --arrow: #64748b;
+        --arrow-emphasis: #34d399;
+
+        /* Opaque mask color used behind semi-transparent component fills
+           so the arrows drawn underneath are properly hidden. */
+        --mask: #0f172a;
+
+        --frontend-fill:    rgba(8, 51, 68, 0.4);
+        --frontend-stroke:  #22d3ee;
+        --backend-fill:     rgba(6, 78, 59, 0.4);
+        --backend-stroke:   #34d399;
+        --database-fill:    rgba(76, 29, 149, 0.4);
+        --database-stroke:  #a78bfa;
+        --cloud-fill:       rgba(120, 53, 15, 0.3);
+        --cloud-stroke:     #fbbf24;
+        --security-fill:    rgba(136, 19, 55, 0.4);
+        --security-stroke:  #fb7185;
+        --messagebus-fill:  rgba(251, 146, 60, 0.3);
+        --messagebus-stroke:#fb923c;
+        --external-fill:    rgba(30, 41, 59, 0.5);
+        --external-stroke:  #94a3b8;
+
+        --toolbar-bg:       rgba(15, 23, 42, 0.8);
+        --toolbar-border:   #334155;
+        --toolbar-text:     #e2e8f0;
+        --toolbar-hover:    rgba(15, 23, 42, 0.95);
+        --toolbar-menu-bg:  #0f172a;
+      }
+  @media (prefers-color-scheme: light) {
+  :root {
+        --bg: #f8fafc;
+        --grid: #e2e8f0;
+        --text: #0f172a;
+        --text-muted: #64748b;
+        --text-dim: #94a3b8;
+        --text-faint: #64748b;
+
+        --panel: #ffffff;
+        --panel-border: #e2e8f0;
+        --lane-fill: rgba(248, 250, 252, 0.65);
+        --lane-stroke: #cbd5e1;
+
+        --arrow: #94a3b8;
+        --arrow-emphasis: #059669;
+
+        --mask: #ffffff;
+
+        --frontend-fill:    rgba(34, 211, 238, 0.15);
+        --frontend-stroke:  #0891b2;
+        --backend-fill:     rgba(52, 211, 153, 0.18);
+        --backend-stroke:   #059669;
+        --database-fill:    rgba(167, 139, 250, 0.2);
+        --database-stroke:  #7c3aed;
+        --cloud-fill:       rgba(251, 191, 36, 0.18);
+        --cloud-stroke:     #d97706;
+        --security-fill:    rgba(251, 113, 133, 0.15);
+        --security-stroke:  #e11d48;
+        --messagebus-fill:  rgba(251, 146, 60, 0.15);
+        --messagebus-stroke:#ea580c;
+        --external-fill:    rgba(148, 163, 184, 0.18);
+        --external-stroke:  #64748b;
+
+        --toolbar-bg:       rgba(255, 255, 255, 0.92);
+        --toolbar-border:   #cbd5e1;
+        --toolbar-text:     #334155;
+        --toolbar-hover:    #ffffff;
+        --toolbar-menu-bg:  #ffffff;
+      }
+  }
+  /* ==========================================================
+         SVG SEMANTIC CLASSES �?use these instead of inline fill/stroke
+         ========================================================== */
+      .c-grid       { stroke: var(--grid); fill: none; }
+      .c-mask       { fill: var(--mask); stroke: none; }
+
+      .c-frontend   { fill: var(--frontend-fill);   stroke: var(--frontend-stroke); }
+      .c-backend    { fill: var(--backend-fill);    stroke: var(--backend-stroke); }
+      .c-database   { fill: var(--database-fill);   stroke: var(--database-stroke); }
+      .c-cloud      { fill: var(--cloud-fill);      stroke: var(--cloud-stroke); }
+      .c-security   { fill: var(--security-fill);   stroke: var(--security-stroke); }
+      .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+      .c-external   { fill: var(--external-fill);   stroke: var(--external-stroke); }
+
+      /* Text helpers */
+      .t-primary { fill: var(--text); }
+      .t-muted   { fill: var(--text-muted); }
+      .t-dim     { fill: var(--text-dim); }
+      .t-frontend   { fill: var(--frontend-stroke); }
+      .t-backend    { fill: var(--backend-stroke); }
+      .t-database   { fill: var(--database-stroke); }
+      .t-cloud      { fill: var(--cloud-stroke); }
+      .t-security   { fill: var(--security-stroke); }
+      .t-messagebus { fill: var(--messagebus-stroke); }
+      .t-external   { fill: var(--external-stroke); }
+
+      /* Arrows */
+      .a-default   { stroke: var(--arrow); fill: none; }
+      .a-emphasis  { stroke: var(--arrow-emphasis); fill: none; }
+      .a-security  { stroke: var(--security-stroke); fill: none; stroke-dasharray: 5,5; }
+      .a-dashed    { stroke: var(--database-stroke); fill: none; stroke-dasharray: 4,4; }
+
+      /* ==========================================================
+         FLOWING ANIMATION EFFECTS
+         ========================================================== */
+      @keyframes flowDash {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+
+      @keyframes flowPulse {
+        0%, 100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Flowing animation for emphasis paths (main data flow) */
+      .a-emphasis {
+        stroke-dasharray: 8 4;
+        animation: flowDash 0.8s linear infinite, flowPulse 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 3px var(--arrow-emphasis));
+      }
+
+      /* Slower flowing for default paths */
+      .a-default {
+        stroke-dasharray: 6 6;
+        animation: flowDash 1.2s linear infinite;
+        filter: drop-shadow(0 0 2px var(--arrow));
+      }
+
+      /* Dashed async paths */
+      .a-dashed {
+        stroke-dasharray: 4 4;
+        animation: flowDash 1s linear infinite;
+      }
+
+      /* Security paths */
+      .a-security {
+        stroke-dasharray: 5 5;
+        animation: flowDash 1s linear infinite;
+      }
+
+      /* Arrowhead markers reference these */
+      .m-default   { fill: var(--arrow); }
+      .m-emphasis  { fill: var(--arrow-emphasis); }
+      .m-security  { fill: var(--security-stroke); }
+      .m-dashed    { fill: var(--database-stroke); }
+
+      /* Dashed boundary variants */
+      .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
+      .c-region         { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+      .c-lane           { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
+  </style>
+
+        <rect width="1520" height="1300" fill="var(--bg)"/>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+        <rect x="40" y="220" width="1280" height="114" rx="12" class="c-region" stroke-width="1"/>
+        <text x="48" y="238" class="t-cloud" font-size="9" font-weight="600">远程接入面</text>
+
+        <rect x="90" y="550" width="1190" height="512" rx="12" class="c-region" stroke-width="1"/>
+        <text x="98" y="568" class="t-cloud" font-size="9" font-weight="600">Kylin 插件树</text>
+
+        <rect x="90" y="830" width="450" height="232" rx="8" class="c-security-group" stroke-width="1"/>
+        <text x="98" y="848" class="t-security" font-size="9" font-weight="600">执行世界</text>
+
+        <rect x="1030" y="550" width="250" height="512" rx="12" class="c-region" stroke-width="1"/>
+        <text x="1038" y="568" class="t-cloud" font-size="9" font-weight="600">持久化面</text>
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path d="M 160 134 L 160 250" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 420 134 L 420 250" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 680 134 L 680 250" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 940 134 L 940 250" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1200 134 L 1200 250" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 250 282 L 330 282" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 380 450 L 520 450" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 630 480 L 430.5 480 Q 422.5 480 422.5 488 L 422.5 572 Q 422.5 580 414.5 580 L 215 580" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 310 613 L 400 613" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 495 700 L 495 646" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 310 613 L 394.5 613 Q 402.5 613 402.5 621 L 402.5 692 Q 402.5 700 410.5 700 L 495 700" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 215 646 L 215 700" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 215 580 L 342.4105336155959 537.5298221281347 Q 350 535 358 535 L 632 535 Q 640 535 644.8776860867976 541.3409919128368 L 700 613" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 785 646 L 787.5 646 Q 790 646 790 648.5 L 790 697.5 Q 790 700 792.5 700 L 795 700" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 890 733 L 1310 732" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 215 766 L 215 807 Q 215 815 223 815 L 952 815 Q 960 815 966.3692975529848 819.8406661402685 L 1060 891" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 495 766 L 358 766 Q 350 766 350 774 L 350 852 Q 350 860 342 860 L 205 860" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 495 766 L 468 766 Q 460 766 460 774 L 460 852 Q 460 860 452 860 L 425 860" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 495 766 L 564.5 766 Q 572.5 766 572.5 774 L 572.5 852 Q 572.5 860 580.5 860 L 650 860" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 590 733 L 782.3063584663035 787.8073121628966 Q 790 790 790 798 L 790 937 Q 790 945 782.3765937598939 947.4256292582156 L 680 980" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 590 733 L 734.5 733 Q 742.5 733 742.5 741 L 742.5 972 Q 742.5 980 750.5 980 L 895 980" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 205 922 L 307 922 Q 315 922 315 930 L 315 972 Q 315 980 323 980 L 425 980" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 290 1011 L 340 1011" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path d="M 425 1042 L 385.5 1042 Q 377.5 1042 377.5 1050 L 377.5 1122 Q 377.5 1130 369.5 1130 L 330 1130" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path d="M 740 891 L 1310 892" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+
+        <!-- Animated flowing dots -->
+        <circle r="3" fill="var(--arrow-emphasis)" opacity="0.9">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M 160 134 L 160 250"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.6s" repeatCount="indefinite" path="M 420 134 L 420 250"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 680 134 L 680 250"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.2s" repeatCount="indefinite" path="M 940 134 L 940 250"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.6s" repeatCount="indefinite" path="M 1200 134 L 1200 250"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="2.8s" repeatCount="indefinite" path="M 250 282 L 330 282"/>
+        </circle>
+        <circle r="3" fill="var(--arrow-emphasis)" opacity="0.9">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M 380 450 L 520 450"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.6s" repeatCount="indefinite" path="M 630 480 L 430.5 480 Q 422.5 480 422.5 488 L 422.5 572 Q 422.5 580 414.5 580 L 215 580"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M 310 613 L 400 613"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="2.8s" repeatCount="indefinite" path="M 495 700 L 495 646"/>
+        </circle>
+        <circle r="3" fill="var(--arrow-emphasis)" opacity="0.9">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M 310 613 L 394.5 613 Q 402.5 613 402.5 621 L 402.5 692 Q 402.5 700 410.5 700 L 495 700"/>
+        </circle>
+        <circle r="3" fill="var(--arrow-emphasis)" opacity="0.9">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 215 646 L 215 700"/>
+        </circle>
+        <circle r="3" fill="var(--arrow-emphasis)" opacity="0.9">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M 215 580 L 342.4105336155959 537.5298221281347 Q 350 535 358 535 L 632 535 Q 640 535 644.8776860867976 541.3409919128368 L 700 613"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="2.8s" repeatCount="indefinite" path="M 785 646 L 787.5 646 Q 790 646 790 648.5 L 790 697.5 Q 790 700 792.5 700 L 795 700"/>
+        </circle>
+        <circle r="3" fill="var(--arrow-emphasis)" opacity="0.9">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 890 733 L 1310 732"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.2s" repeatCount="indefinite" path="M 215 766 L 215 807 Q 215 815 223 815 L 952 815 Q 960 815 966.3692975529848 819.8406661402685 L 1060 891"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M 495 766 L 358 766 Q 350 766 350 774 L 350 852 Q 350 860 342 860 L 205 860"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="2.8s" repeatCount="indefinite" path="M 495 766 L 468 766 Q 460 766 460 774 L 460 852 Q 460 860 452 860 L 425 860"/>
+        </circle>
+        <circle r="2.5" fill="var(--arrow)" opacity="0.8">
+          <animateMotion dur="3.1s" repeatCount="indefinite" path="M 495 766 L 564.5 766 Q 572.5 766 572.5 774 L 572.5 852 Q 572.5 860 580.5 860 L 650 860"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.6s" repeatCount="indefinite" path="M 590 733 L 782.3063584663035 787.8073121628966 Q 790 790 790 798 L 790 937 Q 790 945 782.3765937598939 947.4256292582156 L 680 980"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 590 733 L 734.5 733 Q 742.5 733 742.5 741 L 742.5 972 Q 742.5 980 750.5 980 L 895 980"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.2s" repeatCount="indefinite" path="M 205 922 L 307 922 Q 315 922 315 930 L 315 972 Q 315 980 323 980 L 425 980"/>
+        </circle>
+        <circle r="2" fill="var(--security-stroke)" opacity="0.7">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M 290 1011 L 340 1011"/>
+        </circle>
+        <circle r="2" fill="var(--security-stroke)" opacity="0.7">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M 425 1042 L 385.5 1042 Q 377.5 1042 377.5 1050 L 377.5 1122 Q 377.5 1130 369.5 1130 L 330 1130"/>
+        </circle>
+        <circle r="2" fill="var(--database-stroke)" opacity="0.7">
+          <animateMotion dur="2.2s" repeatCount="indefinite" path="M 740 891 L 1310 892"/>
+        </circle>
+
+        <!-- Components -->
+        <rect x="70" y="70" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="70" y="70" width="180" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="160" y="100" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">浏览器 Web GUI</text>
+        <text x="160" y="116" class="t-muted" font-size="9" text-anchor="middle">apps/web + ui-* 客户端插件</text>
+
+        <rect x="330" y="70" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="330" y="70" width="180" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+        <text x="420" y="100" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Electron 桌面端</text>
+        <text x="420" y="116" class="t-muted" font-size="9" text-anchor="middle">desktop-host · qilin-app://</text>
+
+        <rect x="590" y="70" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="590" y="70" width="180" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="680" y="100" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Python SDK</text>
+        <text x="680" y="116" class="t-muted" font-size="9" text-anchor="middle">wheel 打包 qilin CLI</text>
+
+        <rect x="850" y="70" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="850" y="70" width="180" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="940" y="100" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">自动化客户端</text>
+        <text x="940" y="116" class="t-muted" font-size="9" text-anchor="middle">ACP · Claude Code / Codex</text>
+
+        <rect x="1110" y="70" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="1110" y="70" width="180" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="1200" y="100" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">外部事件源</text>
+        <text x="1200" y="116" class="t-muted" font-size="9" text-anchor="middle">webhook 信任规则</text>
+
+        <rect x="70" y="250" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="70" y="250" width="180" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="160" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">host-webserver</text>
+        <text x="160" y="296" class="t-muted" font-size="9" text-anchor="middle">node:http · 命名路由</text>
+
+        <rect x="330" y="250" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="330" y="250" width="180" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="420" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">api · Typert 网关</text>
+        <text x="420" y="296" class="t-muted" font-size="9" text-anchor="middle">@Remote RPC + 远程流</text>
+
+        <rect x="590" y="250" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="590" y="250" width="180" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="680" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">sdk server</text>
+        <text x="680" y="296" class="t-muted" font-size="9" text-anchor="middle">JSON-RPC · stdio</text>
+
+        <rect x="850" y="250" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="850" y="250" width="180" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="940" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">acp server</text>
+        <text x="940" y="296" class="t-muted" font-size="9" text-anchor="middle">automation-only</text>
+
+        <rect x="1110" y="250" width="180" height="64" rx="6" class="c-mask"/>
+        <rect x="1110" y="250" width="180" height="64" rx="6" class="c-messagebus" stroke-width="1.5"/>
+        <text x="1200" y="280" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">webhook 运行时</text>
+        <text x="1200" y="296" class="t-muted" font-size="9" text-anchor="middle">已验证投递入口</text>
+
+        <rect x="200" y="420" width="180" height="60" rx="6" class="c-mask"/>
+        <rect x="200" y="420" width="180" height="60" rx="6" class="c-frontend" stroke-width="1.5"/>
+        <text x="290" y="448" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">qilin CLI</text>
+        <text x="290" y="464" class="t-muted" font-size="9" text-anchor="middle">唯一应用入口 · --profile</text>
+
+        <rect x="520" y="420" width="220" height="60" rx="6" class="c-mask"/>
+        <rect x="520" y="420" width="220" height="60" rx="6" class="c-cloud" stroke-width="1.5"/>
+        <text x="630" y="448" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">profiles + bundles</text>
+        <text x="630" y="464" class="t-muted" font-size="9" text-anchor="middle">qilin-base · web-app · patch 覆盖</text>
+
+        <rect x="120" y="580" width="190" height="66" rx="6" class="c-mask"/>
+        <rect x="120" y="580" width="190" height="66" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="215" y="611" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/agent-loop</text>
+        <text x="215" y="627" class="t-muted" font-size="9" text-anchor="middle">turn / step 驱动</text>
+        <text x="215" y="638" class="t-backend" font-size="7" text-anchor="middle">ctx.agentLoop</text>
+
+        <rect x="400" y="580" width="190" height="66" rx="6" class="c-mask"/>
+        <rect x="400" y="580" width="190" height="66" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="495" y="611" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/system-prompt</text>
+        <text x="495" y="627" class="t-muted" font-size="9" text-anchor="middle">提示词节 + 工具 schema</text>
+
+        <rect x="120" y="700" width="190" height="66" rx="6" class="c-mask"/>
+        <rect x="120" y="700" width="190" height="66" rx="6" class="c-database" stroke-width="1.5"/>
+        <text x="215" y="731" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/session</text>
+        <text x="215" y="747" class="t-muted" font-size="9" text-anchor="middle">append-only 事件日志</text>
+        <text x="215" y="758" class="t-database" font-size="7" text-anchor="middle">ctx.sessions</text>
+
+        <rect x="400" y="700" width="190" height="66" rx="6" class="c-mask"/>
+        <rect x="400" y="700" width="190" height="66" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="495" y="731" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/tools</text>
+        <text x="495" y="747" class="t-muted" font-size="9" text-anchor="middle">注册表 + 执行管线</text>
+        <text x="495" y="758" class="t-backend" font-size="7" text-anchor="middle">ctx.tools</text>
+
+        <rect x="700" y="580" width="170" height="66" rx="6" class="c-mask"/>
+        <rect x="700" y="580" width="170" height="66" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="785" y="611" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">llm/llm</text>
+        <text x="785" y="627" class="t-muted" font-size="9" text-anchor="middle">适配器缝</text>
+        <text x="785" y="638" class="t-backend" font-size="7" text-anchor="middle">ctx.llm</text>
+
+        <rect x="700" y="700" width="190" height="66" rx="6" class="c-mask"/>
+        <rect x="700" y="700" width="190" height="66" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="795" y="731" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">llm-deepseek · pi-ai</text>
+        <text x="795" y="747" class="t-muted" font-size="9" text-anchor="middle">流式适配 · 重试 · 计量</text>
+
+        <rect x="120" y="860" width="170" height="62" rx="6" class="c-mask"/>
+        <rect x="120" y="860" width="170" height="62" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="205" y="889" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">shell · terminal</text>
+        <text x="205" y="905" class="t-muted" font-size="9" text-anchor="middle">bash + PTY 会话</text>
+
+        <rect x="340" y="860" width="170" height="62" rx="6" class="c-mask"/>
+        <rect x="340" y="860" width="170" height="62" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="425" y="889" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">fs · lsp</text>
+        <text x="425" y="905" class="t-muted" font-size="9" text-anchor="middle">文件工具 · 语言服务器</text>
+
+        <rect x="560" y="860" width="180" height="62" rx="6" class="c-mask"/>
+        <rect x="560" y="860" width="180" height="62" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="650" y="889" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">web · mcp · skill</text>
+        <text x="650" y="905" class="t-muted" font-size="9" text-anchor="middle">搜索抓取 · 技能 · 工具桥</text>
+
+        <rect x="1060" y="860" width="190" height="62" rx="6" class="c-mask"/>
+        <rect x="1060" y="860" width="190" height="62" rx="6" class="c-database" stroke-width="1.5"/>
+        <text x="1155" y="889" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">session-persistence</text>
+        <text x="1155" y="905" class="t-muted" font-size="9" text-anchor="middle">JSONL · zstd · 代际迁移</text>
+
+        <rect x="1060" y="580" width="190" height="66" rx="6" class="c-mask"/>
+        <rect x="1060" y="580" width="190" height="66" rx="6" class="c-database" stroke-width="1.5"/>
+        <text x="1155" y="611" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">settings · credentials</text>
+        <text x="1155" y="627" class="t-muted" font-size="9" text-anchor="middle">设置 · 凭据 · 存储</text>
+
+        <rect x="120" y="980" width="170" height="62" rx="6" class="c-mask"/>
+        <rect x="120" y="980" width="170" height="62" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="205" y="1009" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">sandbox</text>
+        <text x="205" y="1025" class="t-muted" font-size="9" text-anchor="middle">bwrap·Landlock·Seatbelt</text>
+
+        <rect x="340" y="980" width="170" height="62" rx="6" class="c-mask"/>
+        <rect x="340" y="980" width="170" height="62" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="425" y="1009" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">subprocess</text>
+        <text x="425" y="1025" class="t-muted" font-size="9" text-anchor="middle">进程树 · ctx.subprocess</text>
+
+        <rect x="585" y="980" width="190" height="62" rx="6" class="c-mask"/>
+        <rect x="585" y="980" width="190" height="62" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="680" y="1009" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">subagent 家族</text>
+        <text x="680" y="1025" class="t-muted" font-size="9" text-anchor="middle">jobs · workflow · 委派代理</text>
+
+        <rect x="800" y="980" width="190" height="62" rx="6" class="c-mask"/>
+        <rect x="800" y="980" width="190" height="62" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="895" y="1009" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">循环护航</text>
+        <text x="895" y="1025" class="t-muted" font-size="9" text-anchor="middle">guard · compaction · context</text>
+
+        <rect x="1060" y="980" width="190" height="62" rx="6" class="c-mask"/>
+        <rect x="1060" y="980" width="190" height="62" rx="6" class="c-database" stroke-width="1.5"/>
+        <text x="1155" y="1009" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">session-query</text>
+        <text x="1155" y="1025" class="t-muted" font-size="9" text-anchor="middle">SQLite 全文检索</text>
+
+        <rect x="1310" y="700" width="170" height="64" rx="6" class="c-mask"/>
+        <rect x="1310" y="700" width="170" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="1395" y="730" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">DeepSeek API</text>
+        <text x="1395" y="746" class="t-muted" font-size="9" text-anchor="middle">LLM 流式 wire</text>
+
+        <rect x="1310" y="860" width="170" height="64" rx="6" class="c-mask"/>
+        <rect x="1310" y="860" width="170" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="1395" y="890" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">MCP servers</text>
+        <text x="1395" y="906" class="t-muted" font-size="9" text-anchor="middle">外部工具进程</text>
+
+        <rect x="245" y="1130" width="170" height="64" rx="6" class="c-mask"/>
+        <rect x="245" y="1130" width="170" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="330" y="1160" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">宿主 OS</text>
+        <text x="330" y="1176" class="t-muted" font-size="9" text-anchor="middle">沙箱受限进程</text>
+
+        <!-- Connection labels -->
+        <rect x="131" y="176" width="58" height="14" rx="3" class="c-mask"/>
+        <text x="160" y="186" class="t-backend" font-size="8" text-anchor="middle">HTTP :3080</text>
+        <rect x="386.2" y="176" width="67.6" height="14" rx="3" class="c-mask"/>
+        <text x="420" y="186" class="t-messagebus" font-size="8" text-anchor="middle">IPC 字节管道</text>
+        <rect x="646.2" y="176" width="67.6" height="14" rx="3" class="c-mask"/>
+        <text x="680" y="186" class="t-messagebus" font-size="8" text-anchor="middle">spawn 子进程</text>
+        <rect x="923" y="176" width="34" height="14" rx="3" class="c-mask"/>
+        <text x="940" y="186" class="t-messagebus" font-size="8" text-anchor="middle">stdio</text>
+        <rect x="1168.6" y="176" width="62.8" height="14" rx="3" class="c-mask"/>
+        <text x="1200" y="186" class="t-messagebus" font-size="8" text-anchor="middle">已验证 POST</text>
+        <rect x="268.2" y="262" width="43.6" height="14" rx="3" class="c-mask"/>
+        <text x="290" y="272" class="t-muted" font-size="8" text-anchor="middle">/api 桥</text>
+        <rect x="409" y="430" width="82" height="14" rx="3" class="c-mask"/>
+        <text x="450" y="440" class="t-backend" font-size="8" text-anchor="middle">按 profile 堆叠</text>
+        <rect x="393.5" y="510" width="58" height="14" rx="3" class="c-mask"/>
+        <text x="422.5" y="520" class="t-messagebus" font-size="8" text-anchor="middle">挂载插件树</text>
+        <rect x="318.8" y="593" width="72.4" height="14" rx="3" class="c-mask"/>
+        <text x="355" y="603" class="t-muted" font-size="8" text-anchor="middle">assemble 瀑布</text>
+        <rect x="463.6" y="680" width="62.8" height="14" rx="3" class="c-mask"/>
+        <text x="495" y="690" class="t-muted" font-size="8" text-anchor="middle">工具 schema</text>
+        <rect x="386.8" y="672" width="96.39999999999999" height="14" rx="3" class="c-mask"/>
+        <text x="435" y="682" class="t-backend" font-size="8" text-anchor="middle">tool/call 执行管线</text>
+        <rect x="199.8" y="664" width="96.39999999999999" height="14" rx="3" class="c-mask"/>
+        <text x="248" y="674" class="t-backend" font-size="8" text-anchor="middle">session/* 事件落账</text>
+        <rect x="509.4" y="512" width="101.2" height="14" rx="3" class="c-mask"/>
+        <text x="560" y="522" class="t-backend" font-size="8" text-anchor="middle">llm/stream 流式请求</text>
+        <rect x="761" y="653" width="58" height="14" rx="3" class="c-mask"/>
+        <text x="790" y="663" class="t-muted" font-size="8" text-anchor="middle">适配器实现</text>
+        <rect x="1075.8" y="713" width="48.4" height="14" rx="3" class="c-mask"/>
+        <text x="1100" y="723" class="t-backend" font-size="8" text-anchor="middle">流式补全</text>
+        <rect x="548.9" y="795" width="77.2" height="14" rx="3" class="c-mask"/>
+        <text x="587.5" y="805" class="t-messagebus" font-size="8" text-anchor="middle">JSONL 代际写入</text>
+        <rect x="323.4" y="793" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+        <text x="350" y="803" class="t-muted" font-size="8" text-anchor="middle">bash 命令</text>
+        <rect x="435.8" y="793" width="48.4" height="14" rx="3" class="c-mask"/>
+        <text x="460" y="803" class="t-muted" font-size="8" text-anchor="middle">文件读写</text>
+        <rect x="524.3" y="793" width="96.39999999999999" height="14" rx="3" class="c-mask"/>
+        <text x="572.5" y="803" class="t-muted" font-size="8" text-anchor="middle">搜索 / 抓取 / 技能</text>
+        <rect x="749" y="847.5" width="82" height="14" rx="3" class="c-mask"/>
+        <text x="790" y="857.5" class="t-messagebus" font-size="8" text-anchor="middle">委派 / 后台任务</text>
+        <rect x="701.5" y="836.5" width="82" height="14" rx="3" class="c-mask"/>
+        <text x="742.5" y="846.5" class="t-messagebus" font-size="8" text-anchor="middle">deadline 执行闸</text>
+        <rect x="276.4" y="931" width="77.2" height="14" rx="3" class="c-mask"/>
+        <text x="315" y="941" class="t-messagebus" font-size="8" text-anchor="middle">本地实现 spawn</text>
+        <rect x="288.4" y="991" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+        <text x="315" y="1001" class="t-security" font-size="8" text-anchor="middle">argv 包裹</text>
+        <rect x="348.5" y="1066" width="58" height="14" rx="3" class="c-mask"/>
+        <text x="377.5" y="1076" class="t-security" font-size="8" text-anchor="middle">受限子进程</text>
+        <rect x="991.2" y="871" width="67.6" height="14" rx="3" class="c-mask"/>
+        <text x="1025" y="881" class="t-messagebus" font-size="8" text-anchor="middle">stdio / HTTP</text>
+
+        <!-- Legend -->
+        <text x="40" y="1271" class="t-primary" font-size="9" font-weight="600">Legend</text>
+        <rect x="40" y="1276" width="14" height="9" rx="2" class="c-external" stroke-width="1"/>
+        <text x="60" y="1284" class="t-muted" font-size="8">External</text>
+        <rect x="138" y="1276" width="14" height="9" rx="2" class="c-frontend" stroke-width="1"/>
+        <text x="158" y="1284" class="t-muted" font-size="8">Frontend</text>
+        <rect x="236" y="1276" width="14" height="9" rx="2" class="c-backend" stroke-width="1"/>
+        <text x="256" y="1284" class="t-muted" font-size="8">Backend</text>
+        <rect x="329" y="1276" width="14" height="9" rx="2" class="c-messagebus" stroke-width="1"/>
+        <text x="349" y="1284" class="t-muted" font-size="8">Message bus</text>
+        <rect x="442" y="1276" width="14" height="9" rx="2" class="c-cloud" stroke-width="1"/>
+        <text x="462" y="1284" class="t-muted" font-size="8">Cloud</text>
+        <rect x="525" y="1276" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>
+        <text x="545" y="1284" class="t-muted" font-size="8">Database</text>
+        <rect x="623" y="1276" width="14" height="9" rx="2" class="c-security" stroke-width="1"/>
+        <text x="643" y="1284" class="t-muted" font-size="8">Security</text>
+      </svg>

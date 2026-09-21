@@ -16,6 +16,12 @@ QiLin 处于 _开发者预览_ 阶段，正在快速迭代。**未来将出现�
 
 运行本项目前，请阅读[安全说明](SAFETY.zh.md)。
 
+## 架构
+
+![QiLin 运行时的动态总览图：入口模式接入 Kylin 插件树，插件树持有 agent loop、工具注册表、模型适配器与执行世界；会话、设置与检索在旁持久化](qilin-architecture.zh.svg)
+
+图中每条连接都有流动的数据包，配色跟随读者的浅色或深色偏好。可配合[架构文档](docs/architecture.zh.md)阅读。
+
 ## 能力
 
 **入口模式。** [`qilin` CLI（命令行界面）](apps/cli/README.zh.md)通过具名 profile 从同一棵插件树启动所有模式：

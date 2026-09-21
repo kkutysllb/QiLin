@@ -16,6 +16,12 @@ QiLin is in _developer preview_ and iterating rapidly. **THERE WILL BE COMPATIBI
 
 Review the [safety notice](SAFETY.md) before running the project.
 
+## Architecture
+
+![Animated map of the QiLin runtime: entry modes feed the Kylin plugin tree, which owns the agent loop, the tool registry, the model adapters and the execution world; sessions, settings and search persist beside it](qilin-architecture.svg)
+
+Every connection in this map carries a flowing packet, and the palette follows your light or dark preference. Read it alongside the [architecture documentation](docs/architecture.md).
+
 ## Capabilities
 
 **Entry modes.** The [`qilin` CLI](apps/cli/README.md) boots every mode from the same plugin tree through named profiles:
