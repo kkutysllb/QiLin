@@ -411,7 +411,7 @@ describe('Hero chrome', () => {
     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
     // The ambient wordmark is decoration and carries no heading role.
     expect(view.getByText('QiLin').getAttribute('aria-hidden')).toBe('true')
-    expect(view.getByRole('heading', { level: 1 }).textContent).toBe("Give me a request, and I'll surprise you")
+    expect(view.getByRole('heading', { level: 1 }).textContent).toBe('Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit')
     expect(renderSlot).toHaveBeenCalledOnce()
     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
     const brandMarkOwner = renderSlot.mock.calls[0]?.[1]
@@ -585,7 +585,7 @@ describe('ConversationRoot resident composer', () => {
     expect(b.slotCalls).not.toContain('conversation.session.header.actions')
     expect(b.view.getByText('QiLin')).toBeTruthy()
     // Hero copy reaches the component through the owner's locale seat.
-    expect(b.view.getByText('给我一个需求，还你一份惊喜')).toBeTruthy()
+    expect(b.view.getByText('以仁为界，以灵为智，以中为枢，以瑞为果')).toBeTruthy()
     expect(b.view.queryByTestId('view-chat')).toBeNull()
     // The same machine-backed textarea is live in the hero, and the
     // persistence mirror stays bound (ConversationSession mounts chrome-hidden
