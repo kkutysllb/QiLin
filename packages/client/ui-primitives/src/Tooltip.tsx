@@ -5,6 +5,9 @@
 import { cloneElement, createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { FocusEventHandler, MouseEventHandler, MutableRefObject, ReactElement, Ref } from 'react'
+// Tooltips take the wide answer — any key returns to the keyboard. Focus rings read the
+// narrower `data-input-modality` attribute the same module publishes.
+import { pointerModality } from './input-modality.ts'
 import css from './Tooltip.module.css'
 
 /** Bubble placement relative to the anchor. */
@@ -183,7 +186,9 @@ export function Tooltip({ label, side = 'right', delayMs = 0, disabled = false, 
         ref: mergedRef,
         onMouseEnter: (e) => { children.props.onMouseEnter?.(e); triggers.current.hover = true; showAfterHoverDelay() },
         onMouseLeave: (e) => { children.props.onMouseLeave?.(e); triggers.current.hover = false; cancelShow(); withdraw() },
-        onFocus: (e) => { children.props.onFocus?.(e); triggers.current.focus = true; cancelShow(); show() },
+        // Pointer focus is silent: after a mouse selection a closing menu refocuses
+        // its trigger, and that programmatic return must not raise the bubble.
+        onFocus: (e) => { children.props.onFocus?.(e); if (pointerModality()) return; triggers.current.focus = true; cancelShow(); show() },
         onBlur: (e) => { children.props.onBlur?.(e); triggers.current.focus = false; hide() },
       })}
       {portal ? createPortal(bubbleNode, document.body) : bubbleNode}

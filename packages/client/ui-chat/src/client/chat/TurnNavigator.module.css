@@ -142,12 +142,22 @@
    against a busy transcript. */
 .mark:focus-visible::before {
   width: 20px;
-  background: var(--dsw-alias-state-business-primary);
+  background: var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
 }
 
 .mark:focus-visible {
-  outline: 1px solid var(--dsw-alias-state-business-primary);
-  outline-offset: 2px;
+  outline: none;
+}
+
+.mark:focus-visible::after {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 20px;
+  border-radius: inherit;
+  outline: 1px solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  /* The scroller clips the right edge; keep the marker's ring inside it. */
+  outline-offset: -1px;
+  content: '';
 }
 
 .preview {

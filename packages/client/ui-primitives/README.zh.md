@@ -110,6 +110,12 @@ kind: "package-library"
 | [`src/SearchBlock.tsx`](src/SearchBlock.tsx) / [`src/WebBlock.tsx`](src/WebBlock.tsx) | 搜索与网页检索卡片 |
 | [`src/icons/`](src/icons/) | `ic_ds_*` 字形组件与品牌标记 |
 | [`src/useAnchoredPosition.ts`](src/useAnchoredPosition.ts) / [`src/useAnchoredMaxHeight.ts`](src/useAnchoredMaxHeight.ts) | 浮动面板与浮层几何钩子 |
+| [`src/input-modality.ts`](src/input-modality.ts) | 发布在 `<html>` 上的全文档输入模态 |
+
+<a id="input-modality"></a>
+### 输入模态
+
+[`input-modality.ts`](src/input-modality.ts) 为 tooltip 追踪输入，并把 `data-input-modality` 发布到 `<html>` 上，供 [ui-theme 的焦点样式](../ui-theme/README.zh.md#understand-the-implementation)读取。`pointerModality()` 在指针输入后为 true，在任意按键（包括 IME 组合键）后为 false；`Tooltip` 用它决定焦点是否可以弹出气泡。已发布属性保持 `pointer`，直到出现非组合的导航键（Tab、方向键、Home/End、PageUp/PageDown），或者非组合按键后焦点移动到另一个控件。重新聚焦同一控件不会恢复键盘模态。指针输入、IME 组合键与窗口失焦都会清掉待决按键；没有待决按键的焦点变化不改变模态。这些 listener 与文档同生命周期；Node 导入不安装任何 listener。焦点变化规则观察的是暴露给 window 的事件；组件在 shadow root 内自有的导航不会暴露这些事件。
 
 ### 流式 Markdown
 

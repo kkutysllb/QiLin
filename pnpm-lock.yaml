@@ -2577,6 +2577,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin/package-manifest':
+        specifier: workspace:*
+        version: link:../../util/package-manifest
       '@qilin/settings':
         specifier: workspace:*
         version: link:../../settings/settings

@@ -4,6 +4,9 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { IconCheckOutline16 } from './icons/index.tsx'
 import { usePointerGrace } from './pointer-grace.ts'
+import { isBehindModal } from './useModalLayer.ts'
+import { observeComposition } from './keyboard-composition.ts'
+import { focusWithoutRing } from './focus.ts'
 import css from './Menu.module.css'
 
 /** Selectable row (optionally with a nested submenu). */
@@ -119,6 +122,7 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
    * able to name by position.
    */
   const triggerRef = useRef<HTMLElement | null>(null)
+  const selectingWithTab = useRef(false)
 
   /**
    * Hand the keyboard back to the trigger that opened the menu — or, when the
@@ -126,13 +130,13 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
    * row otherwise falls to the page body, where the next Tab restarts from the
    * top of the page.
    */
-  const refocusAnchor = (): void => {
+  const refocusAnchor = (navigation = false): void => {
     const trigger = triggerRef.current
-    if (trigger !== null && document.contains(trigger) && !(trigger as HTMLButtonElement).disabled) {
-      trigger.focus()
-      return
-    }
-    rootRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus()
+    const target = trigger !== null && document.contains(trigger) && !(trigger as HTMLButtonElement).disabled
+      ? trigger : rootRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')
+    if (target == null) return
+    if (navigation) target.focus()
+    else focusWithoutRing(target)
   }
 
   /**
@@ -146,7 +150,8 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
     queueMicrotask(() => {
       if (openRef.current) return
       const active = document.activeElement
-      if (active === null || active === document.body || listRef.current?.contains(active) === true) refocusAnchor()
+      const navigation = selectingWithTab.current
+      if (active === null || active === document.body || listRef.current?.contains(active) === true) refocusAnchor(navigation)
     })
   }
   const openRef = useRef(open)
@@ -225,7 +230,7 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
     if (!open || !autoFocus) return
     const first = listRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')
     walkIndex.current = first === undefined || first === null ? null : 0
-    first?.focus()
+    if (first != null) focusWithoutRing(first)
   }, [open, autoFocus])
 
   useEffect(() => {
@@ -247,12 +252,15 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
       const focused = document.activeElement
       const insideList = listRef.current?.contains(focused) === true
       const anchored = rootRef.current?.contains(focused) === true || insideList
-      if (e.key === 'Escape') {
+      if (composition.guards(e) || isBehindModal(rootRef.current) || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return
+      if (e.key === 'Escape' && !e.shiftKey) {
+        e.preventDefault()
         // Closing hands the keyboard back when the menu had it — and, as this
         // primitive always did for autoFocus menus, when it held the keyboard
         // and lost it again (a row that unmounted under it).
+        if (e.repeat) return
         onClose()
-        if (anchored || autoFocus) refocusAnchor()
+        if (anchored || autoFocus) refocusAnchor(true)
       }
       // Tab settles like Enter and Shift+Tab leaves like Escape, so a menu's
       // keys mean what they mean in the composer. Only a keyboard already on
@@ -274,7 +282,9 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
         if (insideList) {
           if (focused instanceof Element && focused.getAttribute('role') === 'menuitem') {
             e.preventDefault()
-            ;(focused as HTMLElement).click()
+            selectingWithTab.current = true
+            try { (focused as HTMLElement).click() }
+            finally { selectingWithTab.current = false }
           }
           return
         }
@@ -315,12 +325,20 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
     const onWindowBlur = () => {
       if (document.activeElement instanceof HTMLIFrameElement) onClose()
     }
+    // Local menus close on Escape during capture, before the modal layer's
+    // bubble listener can dismiss the dialog behind the menu.
+    const onEscape = (event: KeyboardEvent): void => { if (event.key === 'Escape') onKeyDown(event) }
+    const onOtherKey = (event: KeyboardEvent): void => { if (event.key !== 'Escape') onKeyDown(event) }
+    const composition = observeComposition(document)
     document.addEventListener('pointerdown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('keydown', onOtherKey)
+    document.addEventListener('keydown', onEscape, true)
     window.addEventListener('blur', onWindowBlur)
     return () => {
+      composition.dispose()
       document.removeEventListener('pointerdown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('keydown', onOtherKey)
+      document.removeEventListener('keydown', onEscape, true)
       window.removeEventListener('blur', onWindowBlur)
     }
   }, [open, onClose, autoFocus])

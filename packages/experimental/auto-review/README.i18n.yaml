@@ -9,8 +9,8 @@
   en: 096b5782cd80f499
   zh: db975f2f888f73e6
 /qilin-experimental-auto-review/summary:
-  en: b70d68d1b2d3769e
-  zh: c0579039822fa95e
+  en: 462dc82ed2bf73fa
+  zh: 752fc512b284ce3a
 /qilin-experimental-auto-review/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,11 +21,11 @@
   en: 2b00909b8a598b95
   zh: 53f3d4ea2c24facf
 /qilin-experimental-auto-review/use-this-package/what-you-get:
-  en: 2c6656e5437bc6b5
-  zh: 81e459223b312cfc
+  en: d16ffda0261598d2
+  zh: 036753fb1e0f7f1b
 /qilin-experimental-auto-review/understand-the-implementation:
-  en: d6e04f5119918213
-  zh: 6e594dbd12ab0a8f
+  en: 539c27cf471e2d38
+  zh: 0e2fcca0250276af
 /qilin-experimental-auto-review/further-exploration:
   en: 632da083e0544a63
   zh: 5b26f33a2ec1dbef
@@ -39,8 +39,8 @@
   en: b3e50d879db13221
   zh: 81f9c8f2793bea0d
 /qilin-experimental-auto-review/model-experience/per-call-reviewer/token-effect:
-  en: fd7cca28fbe460fa
-  zh: a4111444c3c06c7c
+  en: 9c3e575c061d53fe
+  zh: 2952dd9a75943159
 /qilin-experimental-auto-review/model-experience/per-call-reviewer/kv-cache-effect:
   en: 67b73d97f22f3c75
   zh: 4dd263e571043cf4
@@ -48,17 +48,17 @@
   en: f9b4d7b686f14fc5
   zh: a2fac9a8eaf5e2a3
 /qilin-experimental-auto-review/model-experience/tool-denial/what-the-model-sees:
-  en: 0a64e1e71b2884ee
-  zh: 0553d9eb4e189cf0
+  en: a0b93e8eebc1b497
+  zh: e4a74a70a065b0e7
 /qilin-experimental-auto-review/model-experience/tool-denial/token-effect:
-  en: 7cd4a7e8c4fd7c67
-  zh: 00fed0c8fdb8ba13
+  en: 679cb3d82e97022f
+  zh: 2bd88e7a3d2f2418
 /qilin-experimental-auto-review/model-experience/tool-denial/kv-cache-effect:
   en: 8da1089dee147f94
   zh: 87361347bfd10c6c
 /qilin-experimental-auto-review/known-limitations-and-deferred-work:
-  en: 7c3903d87e93d959
-  zh: 780b9541572d6f04
+  en: 3cb6e76d79ab3a38
+  zh: f2b7d40d9b5631dd
 /qilin-experimental-auto-review/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

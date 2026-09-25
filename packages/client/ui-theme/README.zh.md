@@ -53,7 +53,13 @@ kind: "package-reference"
 
 ### 样式表
 
-`src/styles/` 下有六张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--dsw-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
+`src/styles/` 下有七张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`focus.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--dsw-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
+
+[`focus.css`](src/styles/focus.css) 为 `:focus-visible` 提供兜底声明，通过 `var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary))` 指名环色、通过 `--dsw-focus-ring-width` 指名标准宽度，但从不指名 outline 样式——自行禁用 outline 的控件保持不绘制，未声明环的控件保持标准几何而不是 Chromium 的 `auto 1px`。两套调色板都把该蓝色解析为一致取值；组件 outline 与 focus-ring 阴影使用同一颜色表达式，包括绘制在后代与伪元素上的环。`--dsw-focus-ring-width`（2px）是标准宽度；稠密表格与工具栏可以保留 1px，偏移量仍由组件自己决定。
+
+指针模态下，`html[data-input-modality='pointer'] body :focus-visible:not(:read-write)` 把环色设为透明。后代与伪元素继承该值；该规则不清除 `box-shadow`，因此 elevation 与选中态边框不受环可见性影响。匹配 `:read-write` 的可编辑文本控件在点击时保留自己的焦点反馈。[输入模态](../ui-primitives/README.zh.md#input-modality)决定键盘焦点样式何时恢复；它不会移动 DOM 焦点。
+
+`base.css` 只抑制被[primitive 焦点助手](../ui-primitives/README.zh.md)标记 `data-dsh-automatic-focus` 的聚焦元素 outline；普通键盘焦点样式、边框、阴影与错误状态保持不变。
 
 `corner-shape.css` 平滑所有圆角：在 `@supports (corner-shape: superellipse(1.5))` 内定义 `--dsw-corner-shape`，并通过通配选择器应用到所有元素及其 `::before`/`::after`，因此不支持 `corner-shape` 的引擎保持普通圆弧。正圆形状——`border-radius: 50%` 的圆与胶囊半径——因超级椭圆会使其变形，须在所属组件样式表中把 `corner-shape: round` 与半径声明配对；corner-shape 样式表 spec 跨全部包样式表强制这一配对。
 

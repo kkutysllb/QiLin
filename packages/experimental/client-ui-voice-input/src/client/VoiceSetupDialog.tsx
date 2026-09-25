@@ -18,7 +18,7 @@ export function VoiceSetupDialog({ open, needsInstallation, onDismiss, onOpenDet
     closeLabel={t('cancel')} onClose={onDismiss}
     footer={<>
       <Button variant="ghost" onClick={onDismiss}>{t('setupPrompt.later')}</Button>
-      <Button variant="primary" onClick={onOpenDetails}>{t(needsInstallation ? 'setupPrompt.open' : 'setupPrompt.details')}</Button>
+      <Button variant="primary" data-modal-autofocus onClick={onOpenDetails}>{t(needsInstallation ? 'setupPrompt.open' : 'setupPrompt.details')}</Button>
     </>}>
     <p>{t(needsInstallation ? 'setupPrompt.body' : 'setupPrompt.unavailableBody')}</p>
   </Modal>

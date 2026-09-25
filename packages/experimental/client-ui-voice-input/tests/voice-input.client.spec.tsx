@@ -331,20 +331,26 @@ it.each<SpeechPreparationState>([
   expect(b.props.openSettings).toHaveBeenCalledOnce()
 })
 
-// Adapted from upstream: the traversal and focus-ownership assertions return
-// with the shared modal focus work; dismissal and draft preservation are
-// asserted without depending on focus management.
-it('closes setup guidance with Escape and preserves the draft', () => {
+it('moves focus into setup guidance, contains Tab traversal, and restores the draft focus on dismissal', () => {
   const b = fixture()
   render(<textarea aria-label="draft" defaultValue="Keep this draft" />)
   const draft = screen.getByRole<HTMLTextAreaElement>('textbox', { name: 'draft' })
   act(() => { b.readiness.set({ catalog: null, connected: false, error: 'offline' }) })
   draft.focus()
-  fireEvent.mouseDown(screen.getByRole('button', { name: zh['setupPrompt.trigger'] }))
-  fireEvent.click(screen.getByRole('button', { name: zh['setupPrompt.trigger'] }))
-  expect(screen.getByRole('dialog').textContent).toContain(zh['setupPrompt.unavailableTitle'])
-  fireEvent.keyDown(document, { key: 'Escape' })
+  const mic = screen.getByRole('button', { name: zh['setupPrompt.trigger'] })
+  fireEvent.mouseDown(mic)
+  fireEvent.click(mic)
+  const dialog = screen.getByRole('dialog')
+  const details = within(dialog).getByRole('button', { name: zh['setupPrompt.details'] })
+  const close = within(dialog).getByRole('button', { name: zh.cancel })
+  expect(document.activeElement).toBe(details)
+  fireEvent.keyDown(details, { key: 'Tab' })
+  expect(document.activeElement).toBe(close)
+  fireEvent.keyDown(close, { key: 'Tab', shiftKey: true })
+  expect(document.activeElement).toBe(details)
+  fireEvent.keyDown(details, { key: 'Escape' })
   expect(screen.queryByRole('dialog')).toBeNull()
+  expect(document.activeElement).toBe(draft)
   expect(draft.value).toBe('Keep this draft')
   expect(b.inputActions.submit).not.toHaveBeenCalled()
   expect(b.props.openSettings).not.toHaveBeenCalled()
