@@ -354,4 +354,13 @@ _（历史条目：门禁盲区四处与 `useDisclosure?` 那条红均已在批�
 
 **ChatView 回归证据**：`trajectory-virtualization` 1/1、`schedule-after` 8/8、`stats-paged-history` 3/3（刷新陈旧 golden 后）。`complex-history.perf`（opt-in、非 CI）3 条失败发生在 **fixture 解析阶段**（`session-format-v3-to-v4/relationships.ts` 报 `system/message requires a protected first surface head`），与滚动无关，属 v4 迁移遗留红。
 
+**D5 证伪（重要）**：原判「reload 后右侧栏 tab 体不挂载」经探针证伪——**不是缺陷**：点文件/skill 链接触发的是**编辑器 tab**（批次三「引用文件改为可编辑打开」），dock 只挂载**活动 tab** 的体（非活动 tab 的 body `childElementCount === 0`，属设计）；预览 tab 为活动 tab 时 reload 恢复完全正常。修法全在 spec 侧（补「Preview」手势、reload 用例围绕预览 tab 断言）。
+
+**(a)/(b) 两条断言的收敛**：(a) 轨迹账本几何改写为右侧栏 dock 契约（保留 `paneOverflowX`/`paneScrollableWidth`、新增 `ledgerScrollSeat`；删掉的两条——会话滚动宿主 relative 与 composer seat absolute——逐条写明「输入框不会进入右栏，无等价物」）；(b) header 下载入口是批次三既定移除，用例收敛为只覆盖仍存在的 `/export` 斜杠路径（保留 ZIP 内容与命令生命周期断言）。
+
+**收尾复验（提交前）**：12 项门禁全 PASS（含 `verify-repository-references`）；`test:docs` 20/20；双面 `tsc -b` 零错误；**17 条受影响的 e2e 全绿**（86 passed / 2 skipped，另修掉 `ptc-round` 最后一处过期轨迹入口定位后 7/7）；staged lint 0 error、whitespace 干净。
+**提交**：`672c46152f fix(client): 修 reload 挂死/过程组重复渲染/分支锚点/todo 详情，并适配分组后的 web e2e 泳道`（46 文件，+1635/−247）。
+
+**仍未覆盖/未做的**：web 泳道其余约 107 条 spec 本次未跑（只跑了受分组影响的 17 条）；`cordis-tool-round`/`schedule-catalog` 的 pin「陈旧但无人断言」；`complex-history.perf` 的 v4 合成日志失败（opt-in 非 CI）；`navigation-panes` 头部下载面已按产品移除收敛。
+
 **其它处置**：`snapshots/web/**/session.v4.jsonl` 是 jsonl 持久化打开历史代时发布的兄弟文件（每次运行都重生成，`snapshots/web/**` 无消费者）→ 已加入 `.gitignore` 并删除现有 3 个；`snapshots/session/*` 里 4 个受跟踪的 v4 保留。另：新回归测试里 family C 引入的一处 `as unknown` 被 `verify-no-unknown-casts` 拦下，已改成 `makeTranslate(zh, commonZh)` 显式类型。
