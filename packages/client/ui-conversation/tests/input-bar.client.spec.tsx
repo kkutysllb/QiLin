@@ -8,6 +8,7 @@
 // root listener routes them through the keymap commands); draft writes drive
 // the shell (jsdom's beforeinput lacks the ranges Lexical needs).
 
+import './control-row-dom.ts'
 import type { InboxState } from '@qilin/agent/types'
 import type { GlobalStandardProps } from '@qilin/client-ui-slots'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'

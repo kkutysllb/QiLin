@@ -6,7 +6,7 @@ import { PresentedOpenController } from '../src/client/present-open.ts'
 afterEach(() => { vi.unstubAllGlobals() })
 
 const id = SessionId('fork')
-const url = '/api/present.open?sessionId=fork&seq=2&index=1'
+const url = 'api/present.open?sessionId=fork&seq=2&index=1'
 
 it('coalesces concurrent card and mention gestures, then allows another open', async () => {
   const reply = Promise.withResolvers<Response>()

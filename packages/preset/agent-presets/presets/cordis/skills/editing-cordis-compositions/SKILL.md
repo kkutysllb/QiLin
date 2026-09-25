@@ -5,7 +5,7 @@ description: Use when creating, changing, or validating a Kylin composition for 
 
 # Editing Kylin compositions
 
-Every capability in this harness is a plugin row in a `cordis.yml`. There is no separate configuration language: changing what an agent can do means changing which rows are composed for it.
+Every capability in this harness is a plugin row in a `cordis.yml`. There is no separate configuration language: changing what an agent can do means changing which rows are composed for it. Load `cordis-composition-reference` for the Loader patch dialect and the list of plugin packages a preset can mount.
 
 ## Off-limits
 
@@ -19,7 +19,7 @@ Two planes, and the choice is not about how "agent-related" something feels — 
 
 **Host composition.** The registries themselves (`tools`, `systemPrompt`, `agents`, `agent-loop`, `sessions`), anything crossing sessions (persistence, session query, storage, settings, credentials, telemetry), the sandbox and approval stack, the model route, and the subagent registry with its spawn/fork backends. One instance for the process.
 
-**Agent preset.** What one session contributes to those registries: its tool plugins, its persona and prompt sections, its compaction policy. One instance per session, mounted under that session's scope and unwound with it.
+**Agent preset.** What one session contributes to those registries: its tool plugins, its persona and prompt sections, its compaction policy. A preset is mounted once per process as a standing composition, and the sessions that select it join that mount, so its registrations and listeners cover every joined session and no other preset's.
 
 **A service with a consumer outside the agent plane cannot move into a preset.** `subagents` is the worked example: the registry answers cross-session queries for the host api-proxy, so a per-session copy both starves that host row — it waits forever for a service nothing provides — and collides on the second session, since a provider name registers once. The preset contributes the delegation *tools*; the registry and its backends stay host-side.
 
@@ -29,7 +29,7 @@ Locally authored presets live one directory per preset under `${QILIN_HOME:-$HOM
 
 ## Authoring a preset
 
-Use shell and file tools to locate the installed `@qilin/agent-presets` package under the active profile's `node_modules` or the deployment installation. Its `presets/<id>/` directory contains each shipped preset. If those files are unavailable, ask the user to copy the preset through the Web preset picker and provide the copied directory; runtime API inspection does not execute Remote methods.
+Use shell and file tools to locate the installed `@qilin/agent-presets` package under the active profile's `node_modules` or the deployment installation. Its `presets/<id>/` directory contains each shipped preset. If those files are unavailable, ask the user to copy the preset through the Web preset picker and provide the copied directory; runtime API inspection does not execute Remote methods. When this section leaves a question open, read the `@qilin/agent-presets` README and `lib/types` declarations under that package directory; the roster's Loader row id is `agent-presets`.
 
 Copy the complete source directory, including skills and assets, into a new `${QILIN_HOME:-$HOME/.qilin}/.agent-presets/<new-id>/` directory (or the explicitly configured writable root). Refuse an existing destination. Set `name` and `description` in `preset.yml` and remove the copied roster `order`. Never overwrite the installed source.
 
@@ -54,48 +54,17 @@ A preset row that publishes a service needs an `isolate` realm containing both t
       name: '@qilin/tool-workflow'
 ```
 
+Scope controls contributions and event visibility; `isolate` controls service instances. Use ordinary Cordis groups for nested plugin lists, keep `!!js` expressions only in plugin configuration or `disabled`, and resolve assets from installed packages rather than from a preset directory.
+
 ## Verify a preset
 
 Check the edited YAML and referenced local files with file tools. Ask the user to select the new preset in the Web picker and start a session; this authoring agent cannot invoke the preset Remote API or start a Web session through inspection. Once the user provides a running session or browser control, inspect the visible tools and any activation diagnostic. File validation alone does not verify imports, service dependencies, or isolation. Report which checks ran and leave activation unverified until that session check succeeds.
 
+A preset whose composition is missing, unparsable, or names a module that cannot be resolved is listed on the roster with its reason and cannot compose a session; fix the file or delete the preset, then retry. Sessions already running on the previous composition keep the generation they started with, so validate changed behavior in a new session. Installing a bundle executes plugin code in the Host process, so it needs Full access or approval.
+
 ## Native product subagents
 
-Codex and Claude Code providers are independent optional Profile Bundles. Install only the products a Profile needs, then restart the Profile so its Host registers those providers:
-
-```sh
-qilin plugin --profile <name> add @qilin/subagent-codex
-qilin plugin --profile <name> add @qilin/subagent-claude-code
-qilin plugin --profile <name> remove @qilin/subagent-codex
-qilin plugin --profile <name> remove @qilin/subagent-claude-code
-```
-
-Each Bundle owns its Host availability; the preset separately grants one Agent its ordinary delegation tool. Never move a product provider into the preset and never add a product-specific settings field. Removing one package withdraws only that provider on the next Profile start.
-
-Copy these disabled templates from a shipped full preset and remove `disabled` only for the products the user requested:
-
-```yaml
-- id: tool-subagent-codex
-  name: '@qilin/tool-subagent'
-  disabled: true
-  config:
-    provider: codex
-    toolName: subagent_codex
-    backgroundMode: one-shot
-    maxDepth: provider-managed
-
-- id: tool-subagent-claude-code
-  name: '@qilin/tool-subagent'
-  disabled: true
-  config:
-    provider: claude-code
-    toolName: subagent_claude_code
-    backgroundMode: one-shot
-    maxDepth: provider-managed
-```
-
-For additional named Codex or Claude Code instances, mount a separate host-plane provider row for each instance with a unique `providerName`, then add a separate preset tool row whose `provider` exactly matches that name and whose `toolName` is also unique. Keep the shipped rows for the default `codex` and `claude-code` names; do not reuse one tool row for several providers or derive either name from permission or environment settings.
-
-The two rows are independent. Leaving both disabled preserves the copied preset, enabling one exposes only that product tool, and enabling both exposes both. Production `qilin` does not install either optional provider: before enabling a row, install the matching `@qilin/subagent-codex` or `@qilin/subagent-claude-code` Bundle in the Profile and restart it. Each Bundle registers its dormant default provider and exclusively uses its pinned package-local platform CLI; additional named instances use extra host-plane rows from the same installed package. A preset cannot provide that host dependency. `backgroundMode: one-shot` keeps omitted or `false` calls in the foreground and lets explicit `run_in_background: true` return a generic Job id. Full presets already carry `tool-jobs`, while the base host carries the job registry; retain both so `job_output`, `job_list`, `job_kill`, cancellation, and completion notices stay available. Installing a Bundle or composing a preset row does not start a product, authenticate an account, select a model, probe credentials, or manage native product settings.
+Codex and Claude Code providers are independent optional Profile Bundles, and a preset separately grants one Agent its ordinary delegation tool. Install only the products a Profile needs and restart it so its Host registers those providers. Read `references/native-product-subagents.md` for the install commands, the disabled row templates, and the rules for named instances.
 
 ## What not to move into a preset
 

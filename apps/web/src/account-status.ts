@@ -8,6 +8,12 @@
 /** Server path reporting the account state a pre-session visitor may act on. */
 const STATUS_ENDPOINT = '/api/auth/status'
 
+/**
+ * Document-relative form of {@link STATUS_ENDPOINT} the served document addresses; see
+ * .agents/notes/implemented/architecture/2026-09-14-web-document-relative-app-routes.md.
+ */
+const STATUS_ROUTE = STATUS_ENDPOINT.slice(1)
+
 /** The account facts `GET /api/auth/status` decides for a pre-session page. */
 export interface AccountStatus {
   /** Whether this browser already carries a verified session. */
@@ -25,7 +31,7 @@ export interface AccountStatus {
 export async function readAccountStatus(): Promise<AccountStatus | undefined> {
   let payload: unknown
   try {
-    const response = await fetch(STATUS_ENDPOINT, { headers: { accept: 'application/json' } })
+    const response = await fetch(STATUS_ROUTE, { headers: { accept: 'application/json' } })
     if (!response.ok) return undefined
     payload = await response.json()
   } catch {

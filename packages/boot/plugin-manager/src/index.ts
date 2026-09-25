@@ -19,7 +19,8 @@ import type {} from '@qilin/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin/app-boot'
 import { bundleManifest, runProfilePnpm, saveManifest, viewProfilePackage } from './operations.ts'
 import { classifyInstallFailure } from './install-failure.ts'
-import { InvalidInstallSpecError, parseInstallSpec } from './install-spec.ts'
+import { InvalidInstallSpecError, parseInstallSpec, type ParsedInstallSpec } from './install-spec.ts'
+import { checkGithubConnection } from './github-connection.ts'
 import { writePluginEnabled } from './patch.ts'
 import { incompatiblePlugin, ManagementFailure } from './failure.ts'
 import { approveBuilds, readPendingBuilds } from './build-approval.ts'
@@ -42,6 +43,8 @@ export interface Config {
   lockWaitMs?: number
   /** Bound on one registry lookup an inspection runs, in milliseconds. */
   inspectTimeoutMs?: number
+  /** Maximum duration of the GitHub repository connection check before installation, in milliseconds. */
+  githubConnectionTimeoutMs?: number
 }
 
 const protectedModules = new Set([
@@ -136,6 +139,20 @@ function refused(problem: PluginInspectProblem, reason: string): PluginSpecInspe
   return { status: 'refused', problem, reason }
 }
 
+/**
+ * The spec's parsed form, which the GitHub connection check reads: a form the parser refuses reads as a registry name,
+ * and no host answers for it.
+ */
+function parsedForRegistry(spec: string): ParsedInstallSpec {
+  try {
+    return parseInstallSpec(spec)
+  } catch (error) {
+    /* v8 ignore next 2 -- parseInstallSpec throws nothing but its own refusal */
+    if (!(error instanceof InvalidInstallSpecError)) throw error
+    return { kind: 'registry', spec, name: spec }
+  }
+}
+
 declare module '@qilin/kylin' {
   interface Context {
     /** Persistent management of the current profile's composition and packages. */
@@ -151,6 +168,7 @@ export class PluginManager extends TypertRemoteService {
     outputBytes: z.number().step(1).min(1).default(16384),
     lockWaitMs: z.number().step(1).min(0).default(120000),
     inspectTimeoutMs: z.number().step(1).min(1000).default(20000),
+    githubConnectionTimeoutMs: z.number().step(1).min(1000).default(5000),
   })
   private readonly ownerEntryId: string | undefined
   private readonly packageOperations = new Set<Promise<unknown>>()
@@ -158,6 +176,7 @@ export class PluginManager extends TypertRemoteService {
   private readonly outputBytes: number
   private readonly lockWaitMs: number
   private readonly inspectTimeoutMs: number
+  private readonly githubConnectionTimeoutMs: number
   private readonly pnpmCommand: string
   private readonly ownerContext: Context
   private readonly abort = new AbortController()
@@ -172,6 +191,7 @@ export class PluginManager extends TypertRemoteService {
     this.outputBytes = (config as Required<Config>).outputBytes
     this.lockWaitMs = (config as Required<Config>).lockWaitMs
     this.inspectTimeoutMs = (config as Required<Config>).inspectTimeoutMs
+    this.githubConnectionTimeoutMs = (config as Required<Config>).githubConnectionTimeoutMs
     this.pnpmCommand = (config as Required<Config>).pnpmCommand
     ctx.effect(() => async () => {
       this.abort.abort()
@@ -411,8 +431,10 @@ export class PluginManager extends TypertRemoteService {
   }
 
   /**
-   * Install a package using the same pnpm implementation as qilin plugin. A run
-   * that fails, is cancelled, or adds a package without a bundle patch restores
+   * Install a package using the same pnpm implementation as qilin plugin. GitHub
+   * repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts;
+   * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback.
+   * A run that fails, is cancelled, or adds a package without a bundle patch restores
    * `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.
    * @param spec One package spec, including local paths relative to the invocation directory.
    * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names, and
@@ -440,6 +462,21 @@ export class PluginManager extends TypertRemoteService {
       announce('installing')
       let name: string
       try {
+        const connection = checkGithubConnection(parsedForRegistry(spec), this.profile.dir, {
+          timeoutMs: this.githubConnectionTimeoutMs, outputBytes: this.outputBytes,
+          signal: AbortSignal.any([this.abort.signal, control.abort.signal]),
+          ...this.profile.packageManager?.env === undefined ? {} : { env: this.profile.packageManager.env },
+        })
+        this.packageOperations.add(connection)
+        let connectionFailure: PackageResult | undefined
+        try { connectionFailure = await connection }
+        finally { this.packageOperations.delete(connection) }
+        if (stopped()) throw new InstallCancelledError()
+        if (connectionFailure?.kind === 'network' || connectionFailure?.kind === 'timeout') {
+          result.packageResult = connectionFailure
+          result.failedAt = 'spec-host'
+          throw new Error(connectionFailure.output)
+        }
         result.packageResult = await this.runPnpm(['add', spec], control.abort.signal, requestId)
         if (stopped()) throw new InstallCancelledError()
         // A compatibility refusal is the package's own answer, so no other registry is asked.

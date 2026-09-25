@@ -9,6 +9,10 @@ export type { DisclosureRowProps } from './DisclosureRow.tsx'
 export { Button } from './Button.tsx'
 export type { ButtonVariant } from './Button.tsx'
 export { Pill } from './Pill.tsx'
+export { SegmentedControl } from './SegmentedControl.tsx'
+export type { SegmentedControlOption } from './SegmentedControl.tsx'
+export { SegmentedTabs } from './SegmentedTabs.tsx'
+export type { SegmentedTab } from './SegmentedTabs.tsx'
 export { Tag } from './Tag.tsx'
 export type { TagTone } from './Tag.tsx'
 export { Switch } from './Switch.tsx'
@@ -39,6 +43,7 @@ export { FileTypeIcon, classifyFileType, fileExtension } from './FileTypeIcon.ts
 export type {
   CodeFileType, FileType, FileTypeIconProps, FileTypeKind, FileTypeProjectContext,
 } from './FileTypeIcon.tsx'
+export { PathLabel } from './PathLabel.tsx'
 export { projectUserText, type UserTextReferences } from './user-text.tsx'
 export { Tooltip } from './Tooltip.tsx'
 export type { TooltipSide } from './Tooltip.tsx'

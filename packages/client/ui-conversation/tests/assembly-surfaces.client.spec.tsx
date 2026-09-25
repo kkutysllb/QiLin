@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 /** Conversation assembly acceptance independent of Tool presentation. */
+import './control-row-dom.ts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, waitFor, within } from '@testing-library/react'
 import { useState } from 'react'

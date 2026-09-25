@@ -107,6 +107,8 @@ export interface ChangeResult {
   pendingBuilds?: string[]
   /** Package script permissions saved before this installation attempt. */
   approvedBuilds?: string[]
+  /** Set when the pre-install GitHub connection check, not pnpm, stopped the installation: the host the spec is fetched from. */
+  failedAt?: 'spec-host'
 }
 
 /** Identifies one installation from its start to its settlement, including its log chunks and cancellation. */

@@ -269,6 +269,11 @@
   container-type: inline-size;
 }
 
+.row[data-model-compact] {
+  --dsh-composer-model-text-display: none;
+  --dsh-composer-model-icon-display: block;
+}
+
 .tools,
 .modes,
 .trailing {

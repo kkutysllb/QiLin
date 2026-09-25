@@ -1432,6 +1432,18 @@ describe('hand-declared providers', () => {
     expect(screen.getByRole('button', { name: en.customAdd })).toBeTruthy()
   })
 
+  it('names each protocol by its product name and falls back to the identifier of an unknown one', () => {
+    mountCard({ protocols: [...PROTOCOLS, 'google-generative-ai'] })
+    const protocol = screen.getByLabelText<HTMLSelectElement>(en.customApi)
+    const labels = [...protocol.options].map(option => [option.value, option.textContent])
+    expect(labels).toEqual([
+      ['openai-completions', en.protocolOpenAiCompletions],
+      ['openai-responses', en.protocolOpenAiResponses],
+      ['anthropic-messages', en.protocolAnthropicMessages],
+      ['google-generative-ai', 'google-generative-ai'],
+    ])
+  })
+
   it('refuses an unusable key on the field and blocks creation', () => {
     const { mutate, set } = mountCard()
 

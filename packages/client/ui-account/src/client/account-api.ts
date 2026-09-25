@@ -37,8 +37,17 @@ export interface AccountFacts {
 /** Path of the account gate's status read. */
 const AUTH_STATUS_PATH = '/api/auth/status'
 
+/**
+ * Document-relative form of {@link AUTH_STATUS_PATH} the account menu addresses; see
+ * .agents/notes/implemented/architecture/2026-09-14-web-document-relative-app-routes.md.
+ */
+const AUTH_STATUS_ROUTE = AUTH_STATUS_PATH.slice(1)
+
 /** Path that ends the browser's session. */
 const AUTH_LOGOUT_PATH = '/api/auth/logout'
+
+/** Document-relative form of {@link AUTH_LOGOUT_PATH} the account menu addresses. */
+const AUTH_LOGOUT_ROUTE = AUTH_LOGOUT_PATH.slice(1)
 
 /** Page the browser lands on once its session is gone: the public entry surface. */
 const LANDING_PATH = '/'
@@ -56,7 +65,7 @@ const NO_ACCOUNT: AccountFacts = Object.freeze({ accountName: null, signOutAvail
  */
 export async function readAccountStatus(): Promise<AccountFacts> {
   try {
-    const response = await fetch(AUTH_STATUS_PATH)
+    const response = await fetch(AUTH_STATUS_ROUTE)
     if (!response.ok) return NO_ACCOUNT
     const status = await response.json() as AccountStatus
     if (!status.enabled) return NO_ACCOUNT
@@ -81,7 +90,7 @@ export async function readAccountStatus(): Promise<AccountFacts> {
  */
 export async function endSession(): Promise<boolean> {
   try {
-    const response = await fetch(AUTH_LOGOUT_PATH, { method: 'POST' })
+    const response = await fetch(AUTH_LOGOUT_ROUTE, { method: 'POST' })
     if (!response.ok) return false
     location.assign(LANDING_PATH)
     return true

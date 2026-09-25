@@ -41,6 +41,8 @@ kind: "package-reference"
 
 `inspect(spec)` 在任何东西安装之前读出 spec 指向什么：注册表包名通过 `pnpm view` 询问注册表，在 profile 目录中运行，因而与安装使用同样的注册表与代理设置；绝对路径读取其 `package.json`；git 地址或 tarball 只答复自己的形式。答复携带名称、版本、描述以及该包是否声明组合包，否则给出 `problem`：`invalid-spec`、`already-installed`、`not-found`、`not-a-package`、`not-a-bundle`、`network` 或 `unknown`。调用方的 `signal` 或 `inspectTimeoutMs` 会结束查询。
 
+`installBundle` 在启动 pnpm 前用 `git ls-remote` 检查 GitHub 仓库，在 profile 目录中运行，并沿用安装器自己的 Git 与代理配置。`githubConnectionTimeoutMs` 默认 5000 毫秒，只限制这次检查，不限制包下载或构建。检查会禁用凭据助手与交互提示；只有网络故障和超时会阻止安装，此时报告 `failedAt: 'spec-host'`，并附本次运行的失败类别与诊断日志。认证、仓库查找与其他失败都留给 pnpm，包括它的 HTTPS 回退到 SSH。取消与管理器销毁会终止该检查及其子进程。注册表包、路径、tarball 与其他 Git 主机跳过该检查；可达的仓库仍可能在下载或组合包校验时失败。
+
 `installBundle` 接受调用方生成的 `requestId`，`plugin-manager/install-log` 在其下流式转发每次 pnpm 运行的输出，`plugin-manager/install-state` 通告 `installing`、`cancelling` 与 `applying`。`cancelInstall(requestId)` 停止运行，只在 pnpm 退出且文件恢复后答复 `cancelled`，组合包已在应用时答复 `too-late`，其他 id 答复 `not-running`；安装调用随后报告 `application: 'cancelled'`。失败、被取消或装入了没有组合包 patch 的包的运行，会把 `package.json` 与 `pnpm-lock.yaml` 恢复原样；`packageResult.kind` 按退出方式与输出对失败运行分类，`bundle` 给出完成的运行新增的包。`listBundles` 携带每个组合包的一句话简介（包的 `description`）、其 patch 声明的行及其存活条目，以及它覆盖的内置行；它列出 profile 自己的组合包、安装提供的组合包，以及被选中却没有组合包 patch 的名字（作为 `not-bundle` 问题），未选中的普通依赖不列出。启动器的 `OPTIONAL_BUNDLES` 点名的组合包是 `optional`：随安装提供、默认关闭、由用户开启，永不可卸载，也不被任何随附模板选中（[理由](../../../.agents/notes/implemented/process/2026-09-15-shipped-optional-bundles.zh.md)）。每个完成的操作都会发出 `plugin-manager/changed`；在管理器之外应用的一代 patch（HMR 监视到 CLI 或手工编辑后）不发通知，页面要到下一次读取才知道。
 
 `checkUpdates()` 把 `listBundles` 列出且能读作组合包的每一层与该包注册表的 `latest` dist-tag 比较，每个包一次有超时的查询；被选中却没有组合包 patch 的依赖不在其中，因为任何更新都动不了它。查询失败或没有该标签时报告 `latestVersion: null`，而不是让整次列举失败，调用方因此读到的是未知版本。`catalog(query, page)` 搜索 GitHub 上打了 `dsh-plugin` 主题标签的仓库，按 star 从多到少排列，返回该页仓库以及是否还有下一页；不是正整数的页码按第一页处理，2xx 之外的状态码抛出。两次查询都以十秒为上限。
@@ -64,6 +66,7 @@ CLI 提供 `qilin plugin --profile <profile> version-exemptions`、`allow-versio
 |---|---|---|
 | `pnpmCommand` | `pnpm` | pnpm 可执行文件名或路径，与 `qilin plugin` 命令一样通过 `PATH` 解析。 |
 | `inspectTimeoutMs` | `20000` | 单次检查所做注册表查询的上限，单位毫秒。 |
+| `githubConnectionTimeoutMs` | `5000` | 安装前 GitHub 仓库检查的时限，单位毫秒。 |
 | `outputBytes` | `16384` | 每次操作返回的 pnpm 诊断字节上限；完整输出保留在返回的日志路径中。 |
 | `lockWaitMs` | `120000` | 获取 profile 写锁的最长等待毫秒数。 |
 

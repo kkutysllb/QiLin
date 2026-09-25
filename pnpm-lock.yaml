@@ -10,6 +10,7 @@ overrides:
   '@qilin/schemastery': link:vendor/schemastery
 
 patchedDependencies:
+  '@earendil-works/pi-ai@0.85.1': b9bcce474fb2ac44633dff0fa722816a5bff5451b4575d5874035ea14ba70a4f
   '@yao-pkg/pkg@6.21.0': 75891fc22b277c145cafeab83e41baf4a70f5b8fe6dc0801c6a0b922d7ee88c7
   node-pty@1.2.0-beta.15: 94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd
 
@@ -3942,6 +3943,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin/util-workspace-path':
+        specifier: workspace:*
+        version: link:../../util/workspace-path
       '@shikijs/langs':
         specifier: ^4.3.1
         version: 4.3.1
@@ -4208,6 +4212,10 @@ importers:
         version: 18.3.1
 
   packages/client/ui-settings:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
     devDependencies:
       '@qilin/api-remotes':
         specifier: workspace:*
@@ -4224,9 +4232,6 @@ importers:
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@qilin/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       '@qilin/settings':
         specifier: workspace:*
         version: link:../../settings/settings
@@ -9098,7 +9103,7 @@ importers:
     dependencies:
       '@earendil-works/pi-ai':
         specifier: ^0.85.1
-        version: 0.85.1(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)
+        version: 0.85.1(patch_hash=b9bcce474fb2ac44633dff0fa722816a5bff5451b4575d5874035ea14ba70a4f)(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -21400,7 +21405,7 @@ snapshots:
     transitivePeerDependencies:
       - '@algolia/client-search'
 
-  '@earendil-works/pi-ai@0.85.1(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)':
+  '@earendil-works/pi-ai@0.85.1(patch_hash=b9bcce474fb2ac44633dff0fa722816a5bff5451b4575d5874035ea14ba70a4f)(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)':
     dependencies:
       '@anthropic-ai/sdk': 0.123.0(zod@4.4.3)
       '@aws-sdk/client-bedrock-runtime': 3.1048.0

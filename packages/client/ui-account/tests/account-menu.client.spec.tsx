@@ -230,7 +230,7 @@ describe('AccountMenu', () => {
     await waitFor(() => { expect(screen.getAllByText('ada')).toHaveLength(2) })
     expect(rowLabels()).toEqual([zh.settings, zh.appearance, zh.language, zh.signOut])
     // The status read is the mount's own; opening and closing re-read nothing.
-    expect(requests.map(request => request.url)).toEqual(['/api/auth/status'])
+    expect(requests.map(request => request.url)).toEqual(['api/auth/status'])
   })
 
   it('marks the current theme and switches it from the appearance submenu', () => {
@@ -277,7 +277,7 @@ describe('AccountMenu', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: zh.signOut }))
 
     await waitFor(() => { expect(assign).toHaveBeenCalledWith('/') })
-    expect(requests.at(-1)).toEqual({ url: '/api/auth/logout', init: { method: 'POST' } })
+    expect(requests.at(-1)).toEqual({ url: 'api/auth/logout', init: { method: 'POST' } })
   })
 
   it('keeps the menu open when the sign-out call is refused', async () => {
@@ -287,7 +287,7 @@ describe('AccountMenu', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: zh.signOut }))
 
     await waitFor(() => {
-      expect(requests.at(-1)).toEqual({ url: '/api/auth/logout', init: { method: 'POST' } })
+      expect(requests.at(-1)).toEqual({ url: 'api/auth/logout', init: { method: 'POST' } })
     })
     expect(assign).not.toHaveBeenCalled()
     expect(instance.getSnapshot().open).toBe(true)
@@ -300,7 +300,7 @@ describe('AccountMenu', () => {
     await waitFor(() => { expect(screen.getByRole('menuitem', { name: zh.signOut })).toBeTruthy() })
     fireEvent.click(screen.getByRole('menuitem', { name: zh.signOut }))
 
-    await waitFor(() => { expect(requests.at(-1)?.url).toBe('/api/auth/logout') })
+    await waitFor(() => { expect(requests.at(-1)?.url).toBe('api/auth/logout') })
     await settle()
     expect(assign).not.toHaveBeenCalled()
     expect(instance.getSnapshot().open).toBe(true)

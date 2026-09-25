@@ -16,6 +16,7 @@ import Timer from '@qilin/kylin-plugin-timer'
 import type { PatchOptions } from '@qilin/kylin-plugin-include'
 import { Group } from '@qilin/kylin-plugin-loader'
 import * as operations from '../src/operations.ts'
+import * as githubConnection from '../src/github-connection.ts'
 import { parse, parseDocument } from 'yaml'
 
 async function fixture(
@@ -181,6 +182,62 @@ it('installs only valid bundle declarations and honors installation without acti
   expect((await manager.listPlugins()).find(row => row.patchId === 'new-bundle')?.fiberPhase).toBe('active')
   expect(await manager.installBundle('another-bundle')).toMatchObject({ application: 'applied' })
   expect((await manager.listBundles()).find(row => row.name === 'another-bundle')?.enabled).toBe(true)
+})
+
+it.each(['network', 'timeout'] as const)('stops a GitHub %s before pnpm and attributes it to the repository', async (kind) => {
+  const { manager, dir } = await fixture()
+  const connection = vi.spyOn(githubConnection, 'checkGithubConnection')
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { connection.mockRestore(); pnpm.mockRestore() })
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const failure = { exitCode: 1, output: 'GitHub check failed', truncated: false, logPath: join(dir, 'git.log'), kind }
+  connection.mockResolvedValue(failure)
+  expect(await manager.installBundle('https://github.com/acme/qilin-plugin.git')).toMatchObject({
+    application: 'failed', changed: false, stage: 'install', failedAt: 'spec-host', packageResult: failure,
+  })
+  expect(pnpm).not.toHaveBeenCalled()
+  expect(connection).toHaveBeenCalledWith(
+    { kind: 'git', spec: 'https://github.com/acme/qilin-plugin.git' }, dir, expect.objectContaining({ timeoutMs: 5000 }),
+  )
+  expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
+})
+
+it('leaves non-network GitHub errors to pnpm and forwards the profile Git environment and deadline', async () => {
+  const env = { GIT_CONFIG_GLOBAL: '/application/git.config' }
+  const { manager, dir } = await fixture('live', false, undefined, { githubConnectionTimeoutMs: 8000 }, { command: 'pnpm', args: [], env })
+  const connection = vi.spyOn(githubConnection, 'checkGithubConnection')
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { connection.mockRestore(); pnpm.mockRestore() })
+  connection.mockResolvedValue({ exitCode: 128, output: 'fatal: Authentication failed', truncated: false, logPath: 'git.log', kind: 'unknown' })
+  const failure = { exitCode: 1, output: 'pnpm owns authentication', truncated: false, logPath: 'pnpm.log', kind: 'unknown' as const }
+  pnpm.mockResolvedValue(failure)
+  const result = await manager.installBundle('github:acme/qilin-private-plugin')
+  expect(result.application).toBe('failed')
+  expect(result.packageResult).toEqual(failure)
+  expect(result.failedAt).toBeUndefined()
+  expect(pnpm).toHaveBeenCalledOnce()
+  expect(connection).toHaveBeenCalledWith(
+    { kind: 'git', spec: 'github:acme/qilin-private-plugin' }, dir, expect.objectContaining({ timeoutMs: 8000, env }),
+  )
+})
+
+it('cancels an active GitHub check before starting pnpm', async () => {
+  const { manager } = await fixture()
+  const connection = vi.spyOn(githubConnection, 'checkGithubConnection')
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { connection.mockRestore(); pnpm.mockRestore() })
+  const entered = Promise.withResolvers<undefined>()
+  connection.mockImplementation(async (_spec, _dir, options) => {
+    entered.resolve(undefined)
+    await new Promise<void>((resolve) => { options.signal.addEventListener('abort', () => { resolve() }, { once: true }) })
+    return { exitCode: 1, output: 'cancelled', truncated: false, logPath: 'git.log', kind: 'unknown' }
+  })
+  const requestId = '824103ec-bc45-489d-bb85-5b4fe0aefc78' as PluginInstallRequestId
+  const installing = manager.installBundle('github:acme/qilin-plugin', { requestId })
+  await entered.promise
+  expect(await manager.cancelInstall(requestId)).toEqual({ status: 'cancelled' })
+  expect(await installing).toMatchObject({ application: 'cancelled', changed: false })
+  expect(pnpm).not.toHaveBeenCalled()
 })
 
 it('reports blocked scripts after a failed installation and retries only after explicit profile build approval', async () => {

@@ -53,12 +53,14 @@
     "@qilin/settings": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
-    "@qilin/schemastery": "workspace:~",
     "@qilin/util-values": "workspace:*"
   },
   "files": [
     "lib/index.js",
     "lib/client.js",
     "lib/types/**/*.d.ts"
-  ]
+  ],
+  "dependencies": {
+    "@qilin/schemastery": "workspace:~"
+  }
 }

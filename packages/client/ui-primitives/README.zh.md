@@ -38,11 +38,14 @@ kind: "package-library"
 |---|---|
 | `Button` | 可点击操作；`variant` 选择 `primary`、`ghost`、`outline` 或 `toolbar`。 |
 | `Switch` | 36×20 的双态开关。`label` 必填，控件不可能在没有名称的情况下发布。 |
+| `SegmentedControl` | 由两个及以上等宽分段构成的 tablist，用一个滑动指示块在若干模式间切换卡片或面板；选中值由拥有者持有，`label` 为列表命名。`id` 派生出每个页签的 id（`<id>-<value>`）与它所控制的面板（`<id>-<value>-panel`），面板由拥有者渲染并用 `aria-labelledby` 指回页签；单个分段可 `disabled` 并带 `title`，控件级 `disabled` 会在所示面板有在途写入或请求时锁住全部分段。 |
 | `Checkbox` | 带标签的原生复选框，支持受控状态、键盘交互和禁用样式；调用方提供本地化的 `label` 文本。 |
 | `Input` | 单行文本输入，用于搜索框与行内表单。 |
 | `Menu` | 由条目、分隔线与分组标题构成的下拉菜单，支持嵌套子菜单。打开期间 `↑`／`↓`（以及 Home、End）在列表中走位，Tab 选定聚焦行，Escape 或 Shift+Tab 关闭并把焦点还给锚点；选定一行同样把键盘还给锚点——除非拥有者自己移动了焦点。只拦截位于锚点或列表内的键盘，`autoFocus` 仅决定打开时是否聚焦首行。 |
 | `Pill` | 可选中的胶囊按钮，用于视图切换与筛选器；接受 `active` 与 `onClick`。 |
+| `SegmentedTabs` | 受控的等宽页签，带滑动指示块与 Left/Right、Home、End 导航。标签、页签／面板 id 与面板内容均由调用方提供。 |
 | `Tag` | 只读胶囊徽章；`tone` 选择八种配色之一。 |
+| `PathLabel` | 单行文件路径：目录弱化、文件名为主要信息、悬停时显示完整路径。放得下时左对齐；被裁剪时保留尾部并在左缘渐隐，路径或尺寸变化都会重新判定。 |
 | `StateDot` | 状态标记：`done`、`warning`、`ongoing`、`error` 或 `idle`。它是 `aria-hidden` 的，名称由渲染点提供。 |
 | `ConnectionIndicator` | 行内连接恢复控件，覆盖断线、重试与已恢复三种状态。 |
 | `DisclosureRow` | 24px 紧凑折叠行，标题与内容左右排列。 |
@@ -59,9 +62,10 @@ kind: "package-library"
 | `icons/*`、`FishLogo`、`BrandWordmark`、`ReferenceIcon`、`LinkIcon` | 字形与品牌标识。`LinkIcon` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIcon`，图片内容使用图片预览。 |
 
-有三组容易混淆：
+有四组容易混淆：
 
 - **`Tag` 与 `Pill`。** 11px 胶囊尺寸的只读徽章用 `Tag`；胶囊可选中（`active` 与 `onClick`，视图切换与筛选器就是这样用的），或者必须落在 24px 文本行上时用 `Pill`——`TerminalBlock` 把退出状态渲染成静态 `Pill` 正是后一种情况。这里尺寸和是否可交互同样是判据，两者不可互换。
+- **`Pill` 与 `SegmentedControl`。** 一排 `Pill` 是一组彼此独立的筹码——每个自己切换，可以同时有多个处于激活态。`SegmentedControl` 是若干互斥模式中的一个选择，画成带单个指示块的 tablist，并自带页签键盘模式（方向键在分段间走位，只有选中的那个位于 Tab 序列中）。
 - **`DisclosureRow` 与卡片。** 该行以固定 24px 把标题与内容左右排列。把名称叠在描述之上的卡片是另一种布局，属于功能包——`ui-settings-plugins` 的 `PluginCard` 是先例，并记录了原因。
 - **`FoldToggle` 与对外导出面。** 它是包内组件，未导出；输出卡片用它做头尾折叠。
 
