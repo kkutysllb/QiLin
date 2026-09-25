@@ -303,6 +303,11 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
         await input.press('Enter')
         if (MODE !== 'record') {
           const thinking = page.locator('[data-variant="think"][data-state="running"]')
+          // The running step is a member of the Turn's process group, whose
+          // seat the default presentation keeps collapsed: open the seats that
+          // own the row before observing the live tail inside it.
+          await thinking.waitFor({ state: 'attached', timeout: 15_000 })
+          await expandOwningTurnProcess(page, thinking)
           await expect.poll(() => thinking.getByRole('button').getAttribute('aria-expanded')).toBe('false')
           const liveTail = thinking.locator('[data-follow-end]')
           await expect.poll(async () => {

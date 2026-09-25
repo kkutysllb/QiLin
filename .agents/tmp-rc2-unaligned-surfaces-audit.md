@@ -247,7 +247,7 @@ rc.2 主体（批次 A–F2）确实在树里。真正的未对齐是 **8 个功
 - **已落地**：ui-conversation 的 `contract/groups.ts` + `conversation/{group-registry,group-store}` + assembler/location-index/assembly 的 `changedTurns`/`grouped` 支持；ui-chat 的 `ChatGroupSeat`、`render-entry`、`step-process`、`use-disclosure`、`use-process-scroll`、`use-scroll-follow`、`turn-trigger`、`TurnTriggerNodeView`、`contract/{process-groups,chat-visibility}`、`conversation-nodes/process-{activity,groups}`；ui-tool 的 `ToolCallCommonProps.useDisclosure` 面。
 - **验证**：7 包 **1493 测试绿**（含 process-groups 28、conversation-groups 12+19、turn-trigger 17）；`verify-client-catalog` up to date（catalog 不再截断）；`verify-client-ui-i18n` 846 文件通过；**`kylin-client-runner` 的 `useDisclosure?` 那条既有红已消除**。
 - **未触及**：`SessionEventMap`/会话格式/持久化（本簇确实不改格式）；`TurnProcessNodeView` 仍是 QiLin 自有计数式控件，分组只接管过程行。
-- **遗留**：① 上游「基础设施行过滤」（system-prompt/普通 context/permission command 隐藏）未移植 → 无 control 的回合前段注入行按锚点排序，可能出现 context 先于开场 user，已在 README 与注释标注；② ~~`ChatGroupSeat`/`use-process-scroll`/`use-scroll-follow`/`render-entry`/`step-process` 缺渲染级 spec 会红覆盖率门禁~~ —— **该判断已被实测推翻**：这些路径在 `vitest.config.ts` 的 `coverage.exclude` 里（上游同样豁免）。真正卡门禁的是 `contract/chat-visibility.ts` 的 branches 85.71%（`permission` command 分支从未被求值，因为移植时裁掉了上游同名用例），已单独修复；③ 上游 turn-tail 完成页脚、ChatView viewport 重构、`toolCallFocus`、`ChatNodeStore.turnDataSource`、`apps/web/tests/step-process.e2e.ts` 属其他簇，未动。
+- **遗留**：① ~~上游「基础设施行过滤」未移植~~ —— **此处先前记载有误，已核实更正**：`contract/chat-visibility.ts` 的 `isVisibleChatNode`（排除 system-prompt / 普通 context / permission command）**已随本簇落地**，并被 `process-groups.ts`（判定为独立根条目、不并入组）与 `turn-process-presentation.ts` 消费。未接入的是**可见序**：`chat-snapshot-builder.ts` 的 `orderedVisibleChatNodes` 仍按 `visibility === 'visible'` 过滤，注释明说「上游 infrastructure-row 过滤未移植」。因此这些行**仍渲染为正文行**，不是被吞；它们位于 Turn-process 容器内，捕获/浏览时随该容器折叠而隐藏。② ~~`ChatGroupSeat`/`use-process-scroll`/`use-scroll-follow`/`render-entry`/`step-process` 缺渲染级 spec 会红覆盖率门禁~~ —— **该判断已被实测推翻**：这些路径在 `vitest.config.ts` 的 `coverage.exclude` 里（上游同样豁免）。真正卡门禁的是 `contract/chat-visibility.ts` 的 branches 85.71%（`permission` command 分支从未被求值，因为移植时裁掉了上游同名用例），已单独修复；③ 上游 turn-tail 完成页脚、ChatView viewport 重构、`toolCallFocus`、`ChatNodeStore.turnDataSource`、`apps/web/tests/step-process.e2e.ts` 属其他簇，未动。
 
 ### 簇 J 落地记录（2026-09-26）
 
@@ -324,7 +324,34 @@ _（历史条目：门禁盲区四处与 `useDisclosure?` 那条红均已在批�
 1. **web e2e 适配批次**：分组 DOM 断言 + `tool-details` 断言 + `step-process.e2e.ts` + `live-job-stream.e2e.ts` + `background-job-list` golden 真机回放。
 2. **C3 未做**：`focus.ts`/`close-focus.ts`（前置：对齐 `service.commandTarget` 与 seat 的 focus 注入）→ 与 `shortcuts-panels` e2e 同波；**文件树目录监听**（需新增 `fs watch` 能力 seam）。
 3. **J 未做**：`promoteOnTimeout`（前台超时转后台；模型可见新行为 + 新 Config 字段，需动 shell seam）。
-4. **C2 未做**：上游「基础设施行过滤」（system-prompt / 普通 context / permission command 隐藏）→ 移植后 C2 的前段注入行排序恢复上游语义，并可撤掉当前 README/注释里的本地适配说明。
+4. **C2 半落地（已更正）**：`isVisibleChatNode` 的过滤语义已落地并被分组消费，但**可见序**未采用（`orderedVisibleChatNodes` 仍按 `visibility` 驱动，README/注释已标注）。若要与上游完全一致，需把该过滤接进可见序、并同步前段注入行的锚点排序；这会影响正文行是否出现，属**用户可见的产品决策**。
 5. **第二层声明式 preset**：四项前置（CLI `--dump-config-schema`；`Profile.skippedBundles`；**决定 preset 行是否进 Loader 树**；patch 定向 id 语义）。
 6. **路由盲区**：`packages/client/connection/src/client/rpc.ts` 仍用 `location.origin`。
 7. **既有红**：见上文既有红清单（6 条）+ `verify-client-domain-graph` 的 38 处域层级违规。
+
+### 批次四：web e2e 泳道适配（2026-09-26）
+
+**起因**：C2 把过程行放进默认折叠的组容器，`expandOwningTurnProcess` 的 13 个消费 spec 的可见性前提失效（replay 起步为 12 文件失败 / 33 failed）。
+
+**方法学教训（我自己的）**：我一度对 13 个 spec 直接跑 `QILIN_SNAPSHOT=refresh`，把**折叠态**拍成了 golden（明细行退化为组头 `Read files`、`Context injection AGENTS.md` 行消失）。已**全部回滚**。规则：判读/刷新 golden 前，页面必须处于 spec 名称所声明的状态（`ui-expanded` 就得是展开态），且每条 diff 要能解释。
+
+**修掉的四个用户可见真缺陷**
+
+| # | 缺陷 | 根因 | 修复与证据 |
+|---|---|---|---|
+| D1 | 已选会话下刷新页面 → **整屏 "Failed to load plugins"** | 持久化的主选中项活得比 catalog 久：恢复窗口时它指向的 Session 其列表行尚未到达，`SidebarSessionViews.select()` 对未列出的会话 retain 时抛错 → `ui-sidebar-right` fiber 失败 → `sidebarRight`/`sidebarRightTabs` 永不提供 → 其余 13 项 pending | `ui-sidebar-right` 仅在会话已列出时 retain，并同时跟随 catalog 订阅；`boot-client` 增加失败 fiber 的 `_error` 诊断 |
+| D2 | 展开过程组后**同一步回复渲染两遍**（Think… + DONE 重复） | 上游 `AssistantMarkdown` 的 `groupPart` 块过滤与 `AssistantNodeView` 透传整段漏移植（`git log -S` 证明该字符串在本仓历史从未存在） | 补回 prop + 两行 `continue` + 透传；新增座位级回归测试 `assistant-process-portions.client.spec.tsx` |
+| D3 | `todo_write` 的 2 行挂不出结构化详情 | C4 移植不完整：`todo-row.tsx` 未接 `todoDiffModel`/`registerTodoHistory`，两个模型成死代码（README 早已描述该行为） | 按上游接线 + 恢复上游单测断言（checklist 3×listitem、注入面、`spec.inject`） |
+| D4 | 从回合页脚分支出的子会话**丢掉 `step/end` 与 `turn/end`** | `TurnTailNodeView` 用 `closing.finalNode.seq` 而非上游的 `data.seq`(= `turn/end`)；缺失位置由 `openTurnClosers({kind:'forked'})` 合成顶替 | 改为 `forkAt(data.seq)`；实测前缀多回 `seq 640 step/end` + `seq 641 turn/end`，`inheritedEventCount` 640→642；单测断言同步为与上游逐字相同的数字 |
+
+**B2 ChatView viewport**：不移植上游整套 viewport 模块，在现有 `ChatView` 内做定点补偿（+29/−2）：新增 `readerAnchorRef`（读者自身采样点；原 `anchorRef` 只在分页在飞时有值，不可复用）与 `preserveRef`，挂到既有 ResizeObserver，实现上游 `use-chat-viewport.preserve()` 的「提交或后续尺寸变化后保留一个分页锚点」契约 → `chat-scroll-contract` 7/7（该用例 12.7s 失败 → 5.7s 通过）。余量：组内 body 内层滚动补偿、`use-chat-reading`/`use-chat-navigation` 的采样与跳转重构仍未移植。
+
+**既有红新增**：① `cordis-tool-round.e2e.ts` 的常量仍是改名前的 `kylin-tool-round`/`kylin-history`（目录已改 `cordis-*`）→ ENOENT；② `chat-scroll-contract` 的 `expect(header.version).toBe(3)` 是会话格式 3→4 升级遗留（上游同处用 `SESSION_FORMAT_VERSION`）；③ `skill-tool-row` 的 Instructions 段落取自**共享录制 fixture**（内含 DSH 时代文本 `{{cwd}}/.dsh/skills` 等），而 golden 已被 rebrand —— 需**有 key** 重录该 fixture；④ `ptc-round` 的 prompt pin 有 **12 处**陈旧（`@` 路径文案、`job_*` 文档改写、`list_agents` 的 `idle/ready`→`inactive`、内嵌 TS 声明等），**keyless 可刷**。
+
+**共享 helper 走样（本批第二个"根因级"发现）**：上游 `support.ts` 的 `expandTurnProcesses` 与 `scaffold.ts` 的 `captureExpandedTurnProcessAria` 用的是**双选择器** `'[data-turn-process], [data-process-activity]'`（同时展开 Turn-process 与分组头），QiLin 只展开了前者。后果：`ui-expanded` 类快照会把**折叠组**当基线、靠展开才可见的行（如 `Think`）找不到。按上游逐字对齐后：`replay-round-trip` 的 Think 折叠用例 **30s 超时 → 41ms 通过**，该 spec 8/8；`fresh-round-trip/ui-expanded` 重刷后与上游同名 golden 形态一致（`button "Ran commands" [expanded]` + 三条明细行）。
+
+**golden/pin 刷新（均逐条解释）**：`ptc-round`（prompt 12 行 + ui golden，与上游同名 golden 一致）、`fresh-round-trip`（prompt 1 行 + schema 26 行 + ui-expanded）、`stats-paged-history`（28 个同形 hunk，全部是批次二的分组头 `Thought for a while`）。pin 差异归四类：(a) `@` 路径文案；(b) 状态语义 `idle/ready`→`inactive`；(c) `job_*` 工具文档改写；(d) `sandbox_permissions` justification 双句点；另发现 (e) **workflow 工具 inputSchema 新增 `run_in_background`**（簇 J 的真实产品变化）。`cordis-tool-round`/`schedule-catalog` 的 pin 处于「陈旧但无人断言」状态，**未去激活该断言**（避免扩范围）。
+
+**ChatView 回归证据**：`trajectory-virtualization` 1/1、`schedule-after` 8/8、`stats-paged-history` 3/3（刷新陈旧 golden 后）。`complex-history.perf`（opt-in、非 CI）3 条失败发生在 **fixture 解析阶段**（`session-format-v3-to-v4/relationships.ts` 报 `system/message requires a protected first surface head`），与滚动无关，属 v4 迁移遗留红。
+
+**其它处置**：`snapshots/web/**/session.v4.jsonl` 是 jsonl 持久化打开历史代时发布的兄弟文件（每次运行都重生成，`snapshots/web/**` 无消费者）→ 已加入 `.gitignore` 并删除现有 3 个；`snapshots/session/*` 里 4 个受跟踪的 v4 保留。另：新回归测试里 family C 引入的一处 `as unknown` 被 `verify-no-unknown-casts` 拦下，已改成 `makeTranslate(zh, commonZh)` 显式类型。

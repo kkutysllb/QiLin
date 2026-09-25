@@ -4,8 +4,6 @@
 - button "New session":
   - img
   - text: New Session
-- navigation "Global panels":
-  - button "Plugins"
 - text: Workspaces
 - button "Search sessions":
   - img
@@ -19,13 +17,12 @@
     - img
     - text: workspace
   - treeitem "New Session" [selected]
-- button "Settings":
-  - img
-  - text: Settings
+- button "Account"
 - banner:
   - button "Open right sidebar":
     - img
-- text: Into the Unknown Preview
+- paragraph: {{greeting}}
+- heading "Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit" [level=1]
 - button "Choose workspace":
   - img
   - text: workspace

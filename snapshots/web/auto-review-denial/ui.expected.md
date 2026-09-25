@@ -3,16 +3,15 @@
 - banner:
   - navigation "Session hierarchy":
     - button "{{workspace}}" [disabled]
-  - button "More actions":
-    - img
   - button "Open right sidebar":
     - img
-  - tablist:
-    - tab "Chat" [selected]
-    - tab "Trajectory"
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
 - button "Copy":
   - img
+- button "2 tool calls" [expanded]:
+  - text: 2 tool calls
+  - img
+- button "Called tools, ran code, ran commands" [expanded]
 - text: Failed
 - button "Tool call Rejected by Auto review":
   - img
@@ -44,16 +43,15 @@
 - banner:
   - navigation "Session hierarchy":
     - button "{{workspace}}" [disabled]
-  - button "More actions":
-    - img
   - button "Open right sidebar":
     - img
-  - tablist:
-    - tab "Chat" [selected]
-    - tab "Trajectory"
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
 - button "Copy":
   - img
+- button "2 tool calls" [expanded]:
+  - text: 2 tool calls
+  - img
+- button "Called tools, ran code, ran commands" [expanded]
 - text: Failed
 - button "Tool call Rejected by Auto review" [expanded]:
   - img
@@ -86,16 +84,18 @@
 
 ## Trajectory
 
-- banner:
-  - navigation "Session hierarchy":
-    - button "{{workspace}}" [disabled]
-  - button "More actions":
+- tablist:
+  - tab "Trajectory Close" [selected]:
     - img
-  - button "Open right sidebar":
+    - text: Trajectory
+    - button "Close":
+      - img
+  - button "New tab":
     - img
-  - tablist:
-    - tab "Chat"
-    - tab "Trajectory" [selected]
+  - button "Split"
+  - button "Fullscreen"
+  - button "Collapse right sidebar":
+    - img
 - toolbar "Trajectory toolbar":
   - button "Use actual duration": Duration
   - button "Collapse turns": Turns
@@ -140,16 +140,3 @@
     - tab "Schema"
     - tab "Timing"
   - tabpanel "Result": "AutoReviewDeniedError: AUTO_REVIEW_DENIED Error: Auto review rejected tool \"bash\"; its body was not executed"
-- textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
-- 'button "Access mode, current: Auto review EXP"':
-  - text: Auto review
-  - superscript: EXP
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
-- button "Send message" [disabled]
-- button "1 turns 2 steps":
-  - img
-  - text: 1 turns 2 steps

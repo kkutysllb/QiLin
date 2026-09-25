@@ -1,13 +1,8 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use only Cordis tools. First" [disabled]
-  - button "More actions":
-    - img
   - button "Open right sidebar":
     - img
-  - tablist:
-    - tab "Chat" [selected]
-    - tab "Trajectory"
 - navigation "Turn navigation":
   - button "Jump to turn 1"
   - button "Jump to turn 2"
@@ -26,21 +21,22 @@
   - img
   - img
   - text: Context injection runtime-context
-- button "Think I will inspect the current Session's dynamic Cordis Plugins before defining the snapshot Package.":
+- button "Called tools" [expanded]
+- button "Think I will inspect the current Session's dynamic Kylin Plugins before defining the snapshot Package.":
   - img
   - img
-  - text: Think I will inspect the current Session's dynamic Cordis Plugins before defining the snapshot Package.
-- 'button "Tool call cordis_inspect_self · {}"':
+  - text: Think I will inspect the current Session's dynamic Kylin Plugins before defining the snapshot Package.
+- button "Inspect plugins 0 dynamic plugins":
   - img
   - img
-  - text: "Tool call cordis_inspect_self · {}"
+  - text: Inspect plugins 0 dynamic plugins
 - button "Think No dynamic Plugins are present, so I will define the requested Host and Client Package.":
   - img
   - img
   - text: Think No dynamic Plugins are present, so I will define the requested Host and Client Package.
-- button "Register Cordis Plugin snapshot noop does nothing, for the snapshot Ready" [expanded]:
+- button "Register Kylin Plugin snapshot noop does nothing, for the snapshot Ready" [expanded]:
   - img
-  - text: Register Cordis Plugin snapshot noop does nothing, for the snapshot Ready
+  - text: Register Kylin Plugin snapshot noop does nothing, for the snapshot Ready
 - tablist "Plugin source":
   - tab "Client"
   - tab "Host" [selected]
@@ -48,14 +44,14 @@
   - text: javascript
   - button "Copy"
   - code: "return { name: \"snapshot-noop\", apply(ctx) {} }"
-- text: Result Defined snap-1/pkg-1 (snapshot noop); it is not running yet. Use cordis_run to activate this Package. Run controls live in the Cordis panel above Settings
+- text: Result Defined snap-1/pkg-1 (snapshot noop); it is not running yet. Use cordis_run to activate this Package. Run controls live in the Kylin panel above Settings
 - button "Inspect"
 - button "Think The Host returned snap-1/pkg-1, so I will request its first activation.":
   - img
   - img
   - text: Think The Host returned snap-1/pkg-1, so I will request its first activation.
 - img
-- text: Run Cordis Plugin snap-1 · pkg-1 Ready
+- text: Run Kylin Plugin snap-1 · pkg-1 Ready
 - button "Inspect"
 - text: snap-1/pkg-1 is awaiting user approval (run-1).
 - button "Think The activation request has been submitted, so I will return the requested readiness marker.":
@@ -75,10 +71,14 @@
   - img
   - text: Ran for {{duration}}
 - text: 9/1 {{clock}}
+- button "Execution requested 9/1 {{clock}}":
+  - text: Execution requested
+  - time: 9/1 {{clock}}
+  - img
 - button "Thought for a while":
   - text: Thought for a while
   - img
-- paragraph: The Cordis Plugin is running.
+- paragraph: The Kylin Plugin is running.
 - button "Copy":
   - img
 - button "Good response":
@@ -96,8 +96,9 @@
 - button "1 tool call" [expanded]:
   - text: 1 tool call
   - img
+- button "Called tools" [expanded]
 - img
-- text: Stop Cordis Plugin snap-1
+- text: Stop Kylin Plugin snap-1
 - button "Inspect"
 - text: Dynamic Plugin snap-1 is stopped; its definition and versions remain.
 - paragraph: CORDIS_UI_DONE

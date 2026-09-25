@@ -11,8 +11,8 @@ import {
 } from './scaffold.ts'
 import { expandOwningTurnProcess, newEnglishPage } from './support.ts'
 
-const FIXTURE = fileURLToPath(new URL('../../../snapshots/web/kylin-tool-round/session.v3.jsonl', import.meta.url))
-const UI_EXPECTED = fileURLToPath(new URL('./expected/kylin-history/ui.expected.md', import.meta.url))
+const FIXTURE = fileURLToPath(new URL('../../../snapshots/web/cordis-tool-round/session.v3.jsonl', import.meta.url))
+const UI_EXPECTED = fileURLToPath(new URL('./expected/cordis-history/ui.expected.md', import.meta.url))
 const MODE = webSnapshotMode()
 const SEED_ID = 'kylin-history'
 

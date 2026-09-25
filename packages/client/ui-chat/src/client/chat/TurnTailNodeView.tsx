@@ -49,7 +49,7 @@ export const TurnTailNodeView = memo(function TurnTailNodeView({
         text={assistantText(closing.blocks)}
         time={closing.time}
         clock="end"
-        onBranch={() => { forkAt(closing.finalNode.seq) }}
+        onBranch={() => { forkAt(data.seq) }}
         branchUnavailable={data.branchUnavailable || hasLaterChatNode}
         className={css.actions}
         extraActions={assistantActions}

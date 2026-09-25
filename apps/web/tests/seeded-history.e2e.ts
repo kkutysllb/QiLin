@@ -302,8 +302,14 @@ describe('web e2e: seeded history renders through cold resume', () => {
     const sessionRow = page.locator('[role="treeitem"]').nth(1)
     await sessionRow.waitFor({ timeout: 10_000 })
     await sessionRow.click()
-    // Settled barrier for history: the recorded final assistant text renders.
-    await expect.poll(() => page.getByText('DONE', { exact: true }).count(), { timeout: 15_000 }).toBe(1)
+    // Settled barrier for history: the recorded final assistant text renders
+    // once on screen. The answer step also owns a reasoning member seat inside
+    // the collapsed process group; that seat is hidden here and renders the
+    // same Node, so the count is scoped to the visible transcript.
+    await expect.poll(
+      () => page.getByText('DONE', { exact: true }).filter({ visible: true }).count(),
+      { timeout: 15_000 },
+    ).toBe(1)
     await expect.poll(() => page.getByText('compact', { exact: true }).count(), { timeout: 10_000 }).toBe(1)
     await expect.poll(() => page.getByText(/^Compacted \d+ history items \(~\d+ tokens\)$/).count(), {
       timeout: 10_000,
@@ -381,8 +387,12 @@ describe('web e2e: seeded history renders through cold resume', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-seeded-thinking'))
     const turnProcess = page.locator('[data-turn-process]').first()
     const wasExpanded = await turnProcess.getAttribute('aria-expanded') === 'true'
-    if (!wasExpanded) await turnProcess.click()
     const thinking = page.locator('[data-variant="think"]').first()
+    // The reasoning row sits inside the Turn process and, under the default
+    // grouped presentation, inside its own collapsed group seat: open both.
+    await expandOwningTurnProcess(page, thinking)
+    const groupControl = thinking.locator('xpath=ancestor::*[@data-chat-group-key][1]')
+      .locator('[data-process-activity]').first()
     const toggle = thinking.getByRole('button').first()
     const secondarySize = await thinking.locator('[class*="summaryText"]').evaluate(element => getComputedStyle(element).fontSize)
     await toggle.click()
@@ -407,6 +417,11 @@ describe('web e2e: seeded history renders through cold resume', () => {
       ].join('\n'), MODE)
     } finally {
       await toggle.click()
+      // Restore the seats this case opened: the group first, then the Turn
+      // process, so the later goldens keep the default collapsed presentation.
+      if (await groupControl.count() > 0 && await groupControl.getAttribute('aria-expanded') === 'true') {
+        await groupControl.click()
+      }
       if (!wasExpanded) await turnProcess.click()
     }
   })
@@ -476,7 +491,11 @@ describe('web e2e: seeded history renders through cold resume', () => {
     // that open the file's editable tab in the right Sidebar (not
     // expand-in-place). Runs after the golden capture; still zero model calls.
     const fileLink = page.locator('[data-variant="read"] button').first()
+    const turnProcess = page.locator('[data-turn-process]').first()
+    const processWasOpen = await turnProcess.getAttribute('aria-expanded') === 'true'
     await expandOwningTurnProcess(page, fileLink)
+    const groupControl = fileLink.locator('xpath=ancestor::*[@data-chat-group-key][1]')
+      .locator('[data-process-activity]').first()
     await fileLink.waitFor({ timeout: 10_000 })
     const frame = page.locator('[style*="grid-template-columns"]').first()
     expect(await frame.getAttribute('data-rightbar-collapsed')).toBe('true')
@@ -485,6 +504,11 @@ describe('web e2e: seeded history renders through cold resume', () => {
       await fileLink.click()
       await expect.poll(() => frame.getAttribute('data-rightbar-collapsed'), { timeout: 5_000 }).toBe(null)
       await expect.poll(() => column.locator('[data-dockkit-tab-title]').allTextContents(), { timeout: 5_000 }).toEqual(['a.txt'])
+      // A file tab opens in its editable body; the read-only preview surface
+      // this case pins is one gesture away in the tab's own toolbar.
+      if (await page.locator('[data-textpreview-state]').count() === 0) {
+        await column.getByRole('button', { name: 'Preview', exact: true }).click()
+      }
       // Path label survives from the recorded args (a.txt).
       await expect.poll(() => page.getByText('a.txt', { exact: false }).count(), { timeout: 5_000 }).toBeGreaterThan(0)
       const path = column.locator('[data-textpreview-path]')
@@ -495,11 +519,19 @@ describe('web e2e: seeded history renders through cold resume', () => {
       const preview = await captureStableAria(page, '[data-textpreview-state="text"]', scaffold.workspaceCwd)
       await compareOrRefreshGolden(FILE_PREVIEW_EXPECTED, preview, MODE)
     } finally {
+      // The preview tab stays selected: the reload case below restores it, and
+      // the dock mounts the body of the active tab only.
       // Later cases share this page and require the sidebar closed even after a failed assertion.
       if (await frame.getAttribute('data-rightbar-collapsed') !== 'true') {
         await column.locator('[data-sidebar-right-toggle]').click()
         await expect.poll(() => frame.getAttribute('data-rightbar-collapsed'), { timeout: 5_000 }).toBe('true')
       }
+      // Restore the seats this case opened so the later goldens capture the
+      // default presentation: the group first, then the Turn process.
+      if (await groupControl.count() > 0 && await groupControl.getAttribute('aria-expanded') === 'true') {
+        await groupControl.click()
+      }
+      if (!processWasOpen && await turnProcess.getAttribute('aria-expanded') === 'true') await turnProcess.click()
       await page.getByRole('button', { name: 'Open right sidebar', exact: true }).waitFor({ state: 'visible' })
       await page.getByRole('navigation', { name: 'Turn navigation', exact: true }).waitFor({ state: 'visible' })
     }
@@ -784,15 +816,17 @@ describe('web e2e: seeded history renders through cold resume', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-seeded-sidebar-reload'))
     await page.getByRole('button', { name: 'Open right sidebar', exact: true }).click()
     const column = page.locator('[data-rightbar-col]')
-    const file = column.locator('[data-file-state="ready"]')
-    await expect.poll(() => file.locator('[data-file-host]').textContent()).toContain('alpha')
-    const tabId = await column.locator('[data-dockkit-tab]').getAttribute('data-dockkit-tab')
-    const preview = await captureStableAria(page, '[data-file-state="ready"]', scaffold.workspaceCwd)
+    // The referenced file tab is the read-only preview the previous case left
+    // selected; only the active tab's body is mounted, so the scope is that tab.
+    const previewBody = column.locator('[data-textpreview-state="text"]')
+    await expect.poll(() => previewBody.textContent(), { timeout: 10_000 }).toContain('alpha')
+    const tabId = await column.locator('[data-dockkit-tab][aria-selected="true"]').getAttribute('data-dockkit-tab')
+    const preview = await captureStableAria(page, '[data-textpreview-state="text"]', scaffold.workspaceCwd)
     const warningStart = tripwire.warnings.length
     await page.reload({ waitUntil: 'load' })
     acknowledgeReloadConnectionLoss(tripwire, warningStart)
-    await expect.poll(() => file.locator('[data-file-host]').textContent()).toContain('alpha')
-    expect(await column.locator('[data-dockkit-tab]').getAttribute('data-dockkit-tab')).toBe(tabId)
+    await expect.poll(() => previewBody.textContent(), { timeout: 15_000 }).toContain('alpha')
+    expect(await column.locator('[data-dockkit-tab][aria-selected="true"]').getAttribute('data-dockkit-tab')).toBe(tabId)
     const restoredPreview = await captureStableAria(page, '[data-textpreview-state="text"]', scaffold.workspaceCwd)
     expect(restoredPreview).toBe(preview)
   })

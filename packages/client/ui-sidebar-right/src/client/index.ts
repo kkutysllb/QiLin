@@ -114,10 +114,21 @@ export function apply(ctx: ClientContext): void {
   const views = new SidebarSessionViews(ctx.sessions)
   ctx.effect(() => {
     const selection = ctx.uiWorkspace.selection
-    const sync = (): void => { views.select(selection.getSnapshot().sessionId) }
-    const unsubscribe = selection.subscribe(sync)
+    const catalog = ctx.sessions.list
+    // The persisted main selection outlives the catalog that proves it: on a
+    // restored window it names a Session whose list row has not arrived, and
+    // retaining that identity throws. Retain only a listed Session, and follow
+    // the catalog as well so the view appears with the row that justifies it.
+    const sync = (): void => {
+      const sessionId = selection.getSnapshot().sessionId
+      views.select(sessionId !== undefined && catalog.getSnapshot().byId[sessionId] !== undefined
+        ? sessionId
+        : undefined)
+    }
+    const unsubscribeSelection = selection.subscribe(sync)
+    const unsubscribeCatalog = catalog.subscribe(sync)
     sync()
-    return () => { unsubscribe(); views.dispose() }
+    return () => { unsubscribeSelection(); unsubscribeCatalog(); views.dispose() }
   }, 'ui-sidebar-right: retained Session views')
   const { controller, adopt, forget } = createSidebarRightController(
     tabs,

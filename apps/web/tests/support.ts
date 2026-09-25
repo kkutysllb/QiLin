@@ -53,18 +53,18 @@ export async function newEnglishPage(browser: Browser, height = 1000): Promise<P
 }
 
 /**
- * Expand every currently eligible Turn-process group so a Tool-focused
+ * Expand every eligible Turn process and secondary group so a Tool-focused
  * scenario can exercise the original row contract beneath product-default
  * compact Chat presentation.
  * @param page - page containing the Chat view.
  */
 export async function expandTurnProcesses(page: Page): Promise<void> {
-  const controls = page.locator('[data-turn-process]')
+  const controls = page.locator('[data-turn-process], [data-process-activity]')
   await controls.first().waitFor({ state: 'visible', timeout: 10_000 })
   const count = await controls.count()
   for (let index = 0; index < count; index++) {
     const control = controls.nth(index)
-    if (await control.getAttribute('aria-expanded') !== 'true') await control.click()
+    if (await control.isVisible() && await control.getAttribute('aria-expanded') === 'false') await control.click()
   }
 }
 

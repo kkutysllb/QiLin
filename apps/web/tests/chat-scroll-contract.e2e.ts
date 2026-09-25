@@ -13,6 +13,7 @@ import { ToolCallId } from '@qilin/llm'
 import type { AssistantStreamFrame } from '@qilin/agent'
 import type { ReplayEntry, ReplayOverrideDoc } from '@qilin/llm-replay'
 import type { SessionEvent } from '@qilin/session'
+import { SESSION_FORMAT_VERSION } from '@qilin/session'
 import { createChatScrollFixture, type ChatScrollFixture } from './chat-scroll-fixture.ts'
 import {
   launchWebScaffold,
@@ -482,9 +483,9 @@ function assertClean(world: ScrollWorld): void {
   expect(world.tripwire.warnings).toEqual([])
 }
 
-it('generates a native V3 scroll seed with a protected system head and intact references', () => {
+it('generates a current-format scroll seed with a protected system head and intact references', () => {
   const { header, events } = parseSeedFixture(HISTORY_FIXTURE.log)
-  expect(header.version).toBe(3)
+  expect(header.version).toBe(SESSION_FORMAT_VERSION)
   expect(events.slice(0, 5).map(event => event.type)).toEqual([
     'turn/start', 'step/start', 'system/message', 'user/message', 'session/title',
   ])
@@ -691,6 +692,9 @@ describe('web e2e: long Chat scroll contract', () => {
         await world.page.getByRole('button', { name: 'Send message', exact: true }).click()
         await expect.poll(() => fileExists(readyPath), { timeout: 15_000 }).toBe(true)
         const liveRow = world.page.locator(`[data-chat-call-id="${LIVE_TOOL_CALL_ID}"] [data-sample="bash"]`)
+        // The running call sits in the live Turn's default-collapsed process
+        // group seat, so reveal the owning Turn process and that group first.
+        await expandOwningTurnProcess(world.page, liveRow)
         await liveRow.waitFor({ timeout: 15_000 })
         expect(await liveRow.getAttribute('data-state')).toBe('running')
         await expectBottom(world.page)

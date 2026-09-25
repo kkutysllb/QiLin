@@ -40,7 +40,12 @@ interface Recorded {
   component: unknown
 }
 
-async function boot() {
+async function boot(options: {
+  /** Persisted main selection the restored window starts from. */
+  selection?: { readonly sessionId?: SessionId }
+  /** Identities the catalog already lists at boot. */
+  listed?: readonly SessionId[]
+} = {}) {
   const ctx = new Context()
   const registered: Recorded[] = []
   const slots = {
@@ -65,15 +70,28 @@ async function boot() {
   // The retained Session Views subscribe to the Workspace UI's main selection
   // and allocate one reference per view, so both faces are recorders here.
   const selectionListeners = new Set<() => void>()
+  const selected = { ...options.selection }
   const selection = {
-    getSnapshot: () => ({}),
+    getSnapshot: () => selected,
     subscribe: (listener: () => void) => {
       selectionListeners.add(listener)
       return () => { selectionListeners.delete(listener) }
     },
   }
+  // The catalog the retained views are gated on: a restored window publishes a
+  // selection before the list that proves it has arrived.
+  const catalogListeners = new Set<() => void>()
+  let listed = [...options.listed ?? []]
+  const catalog = {
+    getSnapshot: () => ({ byId: Object.fromEntries(listed.map(id => [id, {}])) }),
+    subscribe: (listener: () => void) => {
+      catalogListeners.add(listener)
+      return () => { catalogListeners.delete(listener) }
+    },
+  }
   const retained: { sessionId: SessionId; released: boolean }[] = []
   const sessions = {
+    list: catalog,
     retain: vi.fn((sessionId: SessionId) => {
       const entry = { sessionId, released: false }
       retained.push(entry)
@@ -108,12 +126,38 @@ async function boot() {
     if (entry.inject === undefined) throw new Error(`expected ${entry.name} to inject`)
     return entry.inject(SESSION)
   }
-  return { ctx, registered, dictionaries, layout, resources, sessions, retained, selectionListeners, fiber, seat, injectedOf }
+  const listSession = (id: SessionId): void => {
+    listed = [...listed, id]
+    for (const listener of catalogListeners) listener()
+  }
+  return {
+    ctx, registered, dictionaries, layout, resources, sessions, retained, selectionListeners,
+    catalogListeners, listSession, fiber, seat, injectedOf,
+  }
 }
 
 describe('ui-sidebar-right apply', () => {
   it('keeps the host Loader entry inert', () => {
     expect(hostApply).not.toThrow()
+  })
+
+  it('holds no Session view while the restored selection names a Session the catalog has not listed', async () => {
+    const { sessions, selectionListeners, catalogListeners } = await boot({ selection: { sessionId: SESSION } })
+    // Retaining an unlisted identity throws in the Session Controller, and a
+    // throw here fails this plugin's fiber and takes every waiting package down
+    // with it, so the selection alone must not allocate a reference.
+    expect(sessions.retain).not.toHaveBeenCalled()
+    expect(selectionListeners.size).toBe(1)
+    expect(catalogListeners.size).toBe(1)
+  })
+
+  it('retains the selected view once the catalog lists the Session', async () => {
+    const { sessions, catalogListeners, listSession } = await boot({ selection: { sessionId: SESSION } })
+    expect(sessions.retain).not.toHaveBeenCalled()
+    listSession(SESSION)
+    expect(sessions.retain).toHaveBeenCalledTimes(1)
+    expect(sessions.retain).toHaveBeenCalledWith(SESSION, { source: 'sidebarView' })
+    expect(catalogListeners.size).toBe(1)
   })
 
   it('provides both faces, and registers the guide through the same two-stage path as any other type', async () => {

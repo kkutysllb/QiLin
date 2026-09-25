@@ -345,6 +345,9 @@ export function ChatView({
   /** Paging anchor: semantic row/position at click, updated by reader scrolls
    * while the request is pending and restored after the prepend lands. */
   const anchorRef = useRef<PagingAnchor | null>(null)
+  /** The reader's own last sample while they own the transcript; a layout
+   * change keeps that row on its offset the way a prepend keeps the paging one. */
+  const readerAnchorRef = useRef<{ key: string; top: number } | null>(null)
   /** Unloaded-turn jump in flight: target turn plus its load-through seq. */
   const pendingJumpRef = useRef<{ turn: number; seq: SessionSeq } | null>(null)
   /** Whether the in-flight jump already landed mid-paging (settle then only corrects an untouched landing). */
@@ -429,6 +432,7 @@ export function ChatView({
 
   const toBottom = (el: HTMLElement): void => {
     anchorRef.current = null
+    readerAnchorRef.current = null
     // Returning to the live tail supersedes a jump still landing.
     pendingJumpRef.current = null
     setBusyJumpTurn(current => current === null ? current : null)
@@ -595,8 +599,12 @@ export function ChatView({
     const position = isAtBottom ? null : scrollPosition(local, el)
     if (isAtBottom) {
       anchorRef.current = null
-    } else if (anchorRef.current !== null && position !== null) {
-      anchorRef.current = { key: position.anchorKey, top: position.anchorTop }
+      readerAnchorRef.current = null
+    } else if (position !== null) {
+      readerAnchorRef.current = { key: position.anchorKey, top: position.anchorTop }
+      if (anchorRef.current !== null) {
+        anchorRef.current = { key: position.anchorKey, top: position.anchorTop }
+      }
     }
     // Continuous save (unmount happens after ref detach, so saving there is
     // too late); pinned-to-bottom clears so a remount keeps following.
@@ -657,6 +665,22 @@ export function ChatView({
       chatScroll.save(null)
     }
   }
+  // A layout change (window resize, sidebar reflow, image growth) moves the
+  // sampled row without a scroll event, so put it back on its offset.
+  const preserveRef = useRef<(() => void) | null>(null)
+  preserveRef.current = () => {
+    if (scrollSamplePendingRef.current || atBottomRef.current) return
+    const local = listRef.current
+    const anchor = readerAnchorRef.current
+    if (local === null || anchor === null) return
+    const el = scrollerOf(local)
+    const row = anchorElement(local, anchor.key)
+    if (row === null) return
+    const delta = flowTop(row, el) - anchor.top
+    if (Math.abs(delta) < 0.5) return
+    el.scrollTop += delta
+    observedTopRef.current = el.scrollTop
+  }
   // Streaming, tool disclosures, and other flow changes resize the column;
   // the sticky composer resizes outside it. This observer owns ChatView's
   // dynamic-height follow decisions and writes only while the reader is pinned.
@@ -670,6 +694,7 @@ export function ChatView({
     // reading line without a scroll event, so the active mark resyncs here too.
     const observer = new ResizeObserver(() => {
       followRef.current?.()
+      preserveRef.current?.()
       activeTurnRef.current?.()
     })
     observer.observe(column)

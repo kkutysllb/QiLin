@@ -11,7 +11,7 @@ import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { expandOwningTurnProcess, newEnglishPage, saveFailureShot } from './support.ts'
+import { expandOwningTurnProcess, newEnglishPage, openTrajectoryTab, saveFailureShot } from './support.ts'
 
 import { AUTO_REVIEW_FIXTURE, captureAutoReviewState } from './auto-review-fixture.ts'
 
@@ -113,7 +113,9 @@ describe.skipIf(MODE === 'record')('web e2e: cold Auto-review denial', () => {
     const expanded = (await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
 
-    await page.getByRole('tab', { name: 'Trajectory', exact: true }).click()
+    // The ledger's only seat is the right Sidebar's Trajectory page: the
+    // conversation header carries no view tabs any more.
+    await openTrajectoryTab(page)
     const ledger = page.locator('[data-trajectory-scroll]')
     await ledger.locator('table[data-scroll-ready="true"]').waitFor({ timeout: 15_000 })
     const nativeRecord = ledger.locator('tr[data-kind="tool"]').filter({ hasText: 'mystery' })
@@ -121,12 +123,15 @@ describe.skipIf(MODE === 'record')('web e2e: cold Auto-review denial', () => {
     await expect.poll(() => nativeRecord.textContent()).toContain('AUTO_REVIEW_DENIED')
     await expect.poll(() => innerRecord.textContent()).toContain('AUTO_REVIEW_DENIED')
     await innerRecord.click()
-    await page.getByRole('tab', { name: 'Result', exact: true }).click()
-    await page.getByRole('tabpanel', { name: 'Result' })
+    const details = page.getByRole('complementary', { name: 'Event details' })
+    await details.getByRole('tab', { name: 'Result' }).click()
+    await details.getByRole('tabpanel')
       .getByText('AutoReviewDeniedError: AUTO_REVIEW_DENIED', { exact: true })
       .waitFor({ state: 'visible' })
     await captureAutoReviewState(page, 'deny-trajectory')
-    const trajectory = (await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd))
+    // The pane lives in the frame's right column, outside the centre column the
+    // two Chat sections capture.
+    const trajectory = (await captureStableAria(page, '[data-rightbar-col]', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
     await compareOrRefreshGolden(UI_EXPECTED,
       `## Collapsed\n\n${collapsed.trim()}\n\n## Expanded\n\n${expanded.trim()}\n\n## Trajectory\n\n${trajectory.trim()}`, MODE)

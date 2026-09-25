@@ -15,10 +15,11 @@
 - button "1 tool call" [expanded]:
   - text: 1 tool call
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
+- button "Ran code, ran commands, read files" [expanded]
 - 'button "Think The user wants me to write a single `run_code` program that:"':
   - img
   - img

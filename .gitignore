@@ -46,6 +46,9 @@ worktrees/
 .agents/worktrees/
 .typert-*/
 native/system/test/bin/
+# 会话格式迁移的副产物：jsonl 持久化在打开历史代（v3）时把当前代（v4）发布成同目录兄弟文件。
+# 权威种子仍是被跟踪的 v3 夹具，v4 每次运行都会重新生成。
+snapshots/web/**/session.v4.jsonl
 
 # === QiLin product ===
 # 工作区内的 Harness home，用于本地验证 qiLin profile。

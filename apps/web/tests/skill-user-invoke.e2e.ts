@@ -168,15 +168,25 @@ describe.skipIf(MODE === 'record')('web e2e: user-explicit skill invocation thro
     const preview = page.locator('[data-document-markdown]')
     await skill.hover()
     await expect.poll(() => skill.evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('dotted')
+    // A referenced file opens in its editable tab; the read-only markdown
+    // preview this case pins is one gesture away in the tab's own toolbar.
+    const showPreview = async (): Promise<void> => {
+      if (await page.locator('[data-document-markdown]').count() === 0) {
+        await page.locator('[data-rightbar-col]').getByRole('button', { name: 'Preview', exact: true }).click()
+      }
+    }
     await skill.click()
-    await expect.poll(() => preview.textContent(), { timeout: 10_000 }).toContain('Reply with the fixture acknowledgement line.')
+    await showPreview()
+    await expect.poll(() => preview.textContent(), { timeout: 15_000 }).toContain('Reply with the fixture acknowledgement line.')
     const file = page.locator('[data-chat-flow-kind="user"] [data-ref-chip="file"]').first()
     await file.hover()
     expect(await file.evaluate(el => getComputedStyle(el).textDecorationStyle)).toBe('dotted')
     await file.click()
-    await expect.poll(() => preview.textContent()).toContain('Sent reference preview.')
+    await showPreview()
+    await expect.poll(() => preview.textContent(), { timeout: 15_000 }).toContain('Sent reference preview.')
     await skill.click()
-    await expect.poll(() => preview.textContent()).toContain('Reply with the fixture acknowledgement line.')
+    await showPreview()
+    await expect.poll(() => preview.textContent(), { timeout: 15_000 }).toContain('Reply with the fixture acknowledgement line.')
     expect(await page.locator('[data-chat-flow-kind="user"]').first().textContent()).toContain('and confirm the fixture wiring')
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])

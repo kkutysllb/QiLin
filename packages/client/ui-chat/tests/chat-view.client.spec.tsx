@@ -1052,7 +1052,9 @@ describe('ChatView', () => {
     expect(branchButtons).toHaveLength(1)
     expect(branchButtons[0]!.getAttribute('aria-disabled')).toBeNull()
     fireEvent.click(branchButtons[0]!)
-    expect(h.forkAt).toHaveBeenCalledWith(1)
+    // The Turn-tail branch forks at the Turn's own end event, not at the
+    // assistant node the footer renders.
+    expect(h.forkAt).toHaveBeenCalledWith(3)
   })
 
   it('keeps a later pending occurrence visible when it reuses a durable MessageId', () => {
@@ -2025,7 +2027,7 @@ describe('ChatView', () => {
     expect(buttons).toHaveLength(1)
     expect(buttons[0]!.getAttribute('aria-disabled')).toBeNull()
     fireEvent.click(buttons[0]!)
-    expect(h.forkAt.mock.calls).toEqual([[2]])
+    expect(h.forkAt.mock.calls).toEqual([[3]])
   })
 
   it('disables fork when the indexed Turn has a later steering Node', () => {

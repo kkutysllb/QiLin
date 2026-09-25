@@ -32,6 +32,12 @@ export function localPathMediaUrl(protocol: string, origin: string, value: strin
 }
 
 export interface AssistantMarkdownProps {
+  /**
+   * Business portion this seat renders: the enclosing process group renders a
+   * step's `reasoning` blocks, the Turn's answer seat renders the rest. Absent
+   * renders every block, for a step that owns its own seat.
+   */
+  groupPart?: string | undefined
   blocks: readonly AssistantBlock[]
   streaming: boolean
   /** Frozen partial of an aborted turn: rendered with a stopped marker. */
@@ -55,7 +61,7 @@ export interface AssistantMarkdownProps {
 
 /** Reasoning block as the Think variant summary row (figma 39:28304). */
 export const AssistantMarkdown = memo(function AssistantMarkdown({
-  blocks, streaming, interrupted, renderMessageImages,
+  groupPart, blocks, streaming, interrupted, renderMessageImages,
   reasoningHidden = false, revealProcess, mentions, usePresentation, t,
 }: AssistantMarkdownProps) {
   // Stable per locale revision (t identity changes on switch): a fresh object
@@ -80,6 +86,8 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i]
     if (block === undefined) continue
+    if (groupPart === 'reasoning' && block.kind !== 'reasoning') continue
+    if (groupPart === 'response' && block.kind === 'reasoning') continue
     switch (block.kind) {
       case 'text':
         rendered.push(

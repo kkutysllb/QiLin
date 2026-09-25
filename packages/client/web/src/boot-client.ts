@@ -56,6 +56,19 @@ export async function bootClient(options: ClientBootOptions): Promise<void> {
 }
 
 /**
+ * The reason a failed Loader fiber keeps for itself. The Loader holds it in a
+ * private field and logs it through a logger the browser composition does not
+ * mount, so the boot audit is the only place a report can read it.
+ * @param fiber - the entry's fiber.
+ * @returns a `: <message>` suffix, or an empty string when no reason is retained.
+ */
+function failureReason(fiber: unknown): string {
+  const reason = (fiber as { _error?: unknown })._error
+  if (reason === undefined) return ''
+  return `: ${reason instanceof Error ? reason.message : String(reason)}`
+}
+
+/**
  * Reject entries that failed import/apply or still wait on missing services.
  * @param ctx - root Context carrying the Loader.
  * @throws {Error} listing every non-active entry with its reason.
@@ -74,7 +87,7 @@ export function assertEntriesActive(ctx: Context): void {
       const missing = Object.keys(entry.fiber.inject).filter(service => ctx.get(service) === undefined)
       failures.push(`${name}: pending (waiting for service${missing.length === 1 ? '' : 's'}: ${missing.join(', ') || 'unknown'})`)
     } else {
-      failures.push(`${name}: ${state}`)
+      failures.push(`${name}: ${state}${failureReason(entry.fiber)}`)
     }
   }
   if (failures.length > 0) {
