@@ -309,5 +309,22 @@ rc.2 主体（批次 A–F2）确实在树里。真正的未对齐是 **8 个功
 **既有红新增**：`verify-client-domain-graph` **38 处违规**（`skeleton→input`、`view→browser`、`text→document` 等），已逐条与工作树改动求交：**0 处涉及本轮改动的文件**，且门禁脚本本身未改 → 纯既有红；`test-support/client-runtime` 的 `assembly-test-client` ResizeObserver 泄漏（用 HEAD 版本复现）。
 
 **最终验证（批次一收尾）**：门禁 spec 合并跑 `314 passed | 1 skipped`；`run-gates.spec` 107/107；`test:docs` **20 passed / 0 failed**；`verify-plugin-packages` up to date；`tsc -b tsconfig.client.json` 与 `tsconfig.host.json` 双面 exit 0；plugin-manager + ui-primitives 1165 测试绿；ui-settings-models + ui-conversation 746 测试绿；agent-presets 195 测试绿。
-- 门禁盲区：`apps/web/src/auth/auth.ts`、`open-in-app`（客户端仍用 `hostBase()`）、`file-upload`、`ui-deliverables/changes.ts` 仍绑源站根，门禁按名字判定看不见。
-- 既存红（与 C2 簇绑定，未 hack）：`packages/extensions/kylin-client-runner/tests/providers.client.spec.ts` 断言 `conversation.chat.*` 注入面含 `useDisclosure?`，该字段随上游「过程分组」而来（簇 C2 未落地）；`ui-chat` 源码在 HEAD 即无此字段，故这是 C2 的又一证据。
+_（历史条目：门禁盲区四处与 `useDisclosure?` 那条红均已在批次二/三中修复，见下文。）_
+
+### 批次三提交与复验（2026-09-26）
+
+**提交**：批次三（`feat: 对齐上游 dsh 0.1.7-rc.2——会话置顶/常驻头部/停靠标签/工具详情卡/覆盖率补测`）。
+
+**复验**：门禁 11 项全 PASS；`test:docs` 20/20；`pnpm run build` 成功（282 个客户端产物）；`test:gui` 527 文件中 525 通过、7809/7812 测试通过（2 条既有红）；双面 typecheck 干净；提交前清掉 6 处超长行与 3 处 EOF 空行。
+
+**web e2e lane 需要专门一波适配（重要）**：C2 把过程行放进**默认折叠的组容器**，`expandOwningTurnProcess` 的全部调用方（10+ spec）在旧形态下失效。已让 helper 变成「先展开 Turn-process，再展开所属组 seat」（`data-chat-group-key` → `[data-process-activity]`），把 `tool-details` 从「2 skipped」推进到「1 passed / 1 failed」；**断言层仍需按分组 DOM 逐条校准**。`apps/web/tests/tool-details.e2e.ts` 与 `snapshots/web/tool-details/` 已暂移到 `/tmp/qilin-pending-tool-details/`（其断言假定 `create_goal` 行展开后出现 `listitem`，实测 0），待适配后再入库。
+
+**剩余工作清单（按依赖排序）**
+
+1. **web e2e 适配批次**：分组 DOM 断言 + `tool-details` 断言 + `step-process.e2e.ts` + `live-job-stream.e2e.ts` + `background-job-list` golden 真机回放。
+2. **C3 未做**：`focus.ts`/`close-focus.ts`（前置：对齐 `service.commandTarget` 与 seat 的 focus 注入）→ 与 `shortcuts-panels` e2e 同波；**文件树目录监听**（需新增 `fs watch` 能力 seam）。
+3. **J 未做**：`promoteOnTimeout`（前台超时转后台；模型可见新行为 + 新 Config 字段，需动 shell seam）。
+4. **C2 未做**：上游「基础设施行过滤」（system-prompt / 普通 context / permission command 隐藏）→ 移植后 C2 的前段注入行排序恢复上游语义，并可撤掉当前 README/注释里的本地适配说明。
+5. **第二层声明式 preset**：四项前置（CLI `--dump-config-schema`；`Profile.skippedBundles`；**决定 preset 行是否进 Loader 树**；patch 定向 id 语义）。
+6. **路由盲区**：`packages/client/connection/src/client/rpc.ts` 仍用 `location.origin`。
+7. **既有红**：见上文既有红清单（6 条）+ `verify-client-domain-graph` 的 38 处域层级违规。
