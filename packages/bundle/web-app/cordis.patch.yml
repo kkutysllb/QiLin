@@ -242,6 +242,12 @@
     - id: locale
       name: '@qilin/client-locale'
 
+    - id: shortcuts
+      name: '@qilin/client-shortcuts'
+
+    - id: ui-shortcuts
+      name: '@qilin/client-ui-shortcuts'
+
     - id: ui-layout
       name: '@qilin/client-ui-layout'
 

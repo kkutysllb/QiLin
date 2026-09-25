@@ -168,6 +168,8 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin/client-ui-sidebar-terminal': ['lib/client.*.js'],
   '@qilin/client-web': ['lib/**/*.css', 'lib/apply-injections.js'],
   '@qilin/client-ui-theme': ['lib/styles'],
+  // The physical-key protocol is a public entry usable without the browser service.
+  '@qilin/client-shortcuts': ['lib/protocol.js'],
   // The CPython side ships as source .py files, published as-is rather than built.
   '@qilin/experimental-ptc-runtime-python': ['py/**/*.py'],
   // The local recognizer reads its revision-pinned model catalog from this

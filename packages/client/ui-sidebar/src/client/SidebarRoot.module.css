@@ -365,6 +365,7 @@
   gap: 6px;
   height: 38px;
   padding: 8px 16px;
+  position: relative;
   margin: 0 2px 12px;
   box-sizing: border-box;
   border: 0.5px solid var(--dsw-alias-border-l3);
@@ -416,6 +417,23 @@
 
 .collapsed .newSessionLabel {
   max-width: 0;
+}
+
+/* The inline keys fade in on hover/focus and mask the label's tail so the
+ * button keeps its width; the tooltip carries the same combination on the rail. */
+.newSessionShortcut {
+  position: absolute;
+  right: 12px;
+  display: inline-flex;
+  flex: none;
+  pointer-events: none;
+  opacity: 0;
+  font-weight: 400;
+}
+
+.newSession:is(:hover, :focus-visible) .newSessionShortcut { opacity: 1; }
+.newSession:hover .newSessionLabel:has(+ .newSessionShortcut) {
+  mask-image: linear-gradient(to right, black calc(100% - 16px), transparent);
 }
 
 .panelList {

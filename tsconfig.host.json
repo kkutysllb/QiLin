@@ -159,6 +159,7 @@
     "packages/client/locale/src/**",
     "packages/client/modules/src/**",
     "packages/client/resources/src/**",
+    "packages/client/shortcuts/src/**",
     "packages/client/store/src/**",
     "packages/client/ui-account/src/**",
     "packages/client/ui-agent-preset/src/**",
@@ -211,6 +212,7 @@
     "packages/client/ui-trajectory/src/**",
     "packages/client/ui-user-questions/src/**",
     "packages/client/ui-workflow-run/src/**",
+    "packages/client/ui-shortcuts/src/**",
     "packages/client/ui-workspace/src/**",
     "packages/client/web/src/**",
     "benchmarks/**/*.client.ts",
@@ -227,6 +229,7 @@
   ],
   "references": [
     { "path": "./packages/client/connection/tsconfig.host.json" },
+    { "path": "./packages/client/shortcuts/tsconfig.host.json" },
     { "path": "./packages/skill/skill-office" },
     { "path": "./packages/browser-use/browser-use" },
     { "path": "./packages/experimental/browser-use-runtime" },

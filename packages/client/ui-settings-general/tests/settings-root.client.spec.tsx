@@ -7,6 +7,8 @@ import { makeTranslate } from '@qilin/client-test-runtime'
 import type { SessionListState } from '@qilin/api-session-controller/client'
 import { SessionId } from '@qilin/session/types'
 import type { SettingsRootComponentProps } from '../src/client/shell-contract.ts'
+import { createSettingsShellStore } from '../src/client/shell-store.ts'
+import { bindSnapshotSelector } from '@qilin/client-test-runtime'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
 import { en, zh } from '../src/client/locales.ts'
 import type { DesktopUpdateView } from '../src/client/desktop-update-bridge.ts'
@@ -104,7 +106,10 @@ function mount({
     phase: 'ready', projectionsBySession: {}, jobsBySession: {},
   }
   const unusedHook = (() => { throw new Error('unused by SettingsRoot') }) as never
+  const shell = createSettingsShellStore().create()
   const props: SettingsRootComponentProps = {
+    useStore: bindSnapshotSelector(shell),
+    actions: shell.actions,
     useSessions: select => select(sessions),
     useSessionStatus,
     usePanelInfo, useSessionRetainInfo: () => undefined, useResource,
@@ -386,10 +391,12 @@ describe('SettingsPanel close paths', () => {
     expect(screen.getByRole('dialog')).toBeTruthy()
   })
 
-  it('lands focus on the close button when the dialog opens', () => {
+  it('lands focus on the active nav row when the dialog opens', () => {
     mount()
     openPanel()
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }))
+    // The modal layer's automatic entry focus targets data-modal-autofocus —
+    // the active nav row (or the title with no active section).
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'General' }))
   })
 })
 

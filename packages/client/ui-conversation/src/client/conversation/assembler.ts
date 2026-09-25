@@ -183,6 +183,17 @@ export class ConversationNodeAssembler implements ConversationViewSnapshotStore 
    * @param hasMore - whether older history remains outside the window.
    * @returns immediate publication request.
    */
+  /**
+   * Read the current open turn without activating a View.
+   * @returns the latest turn number when its start is loaded and it remains open, otherwise undefined.
+   */
+  openTurn(): number | undefined {
+    const snapshot = this.locationIndex.snapshot()
+    const latest = snapshot.turnOrder.at(-1)
+    const turn = latest === undefined ? undefined : snapshot.turns.get(latest)
+    return turn?.status === 'open' && turn.start !== undefined ? turn.turn : undefined
+  }
+
   replaceWindow(entries: readonly SessionEventLikeEntry[], hasMore: boolean): ConversationPublication {
     this.contexts.clear()
     this.contextsByKind.clear()

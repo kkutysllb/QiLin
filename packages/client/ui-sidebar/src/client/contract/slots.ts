@@ -11,6 +11,7 @@ import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@q
 import type { ObservableSnapshot } from '@qilin/client-store'
 import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
+import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
 
 declare module '@qilin/client-ui-slots' {
   interface SlotMap {
@@ -137,7 +138,7 @@ export type SidebarRootInjected = {
   /** Select the global panel addressed by a sidebar row. */
   selectPanel: (id: MainPanelId) => void
   /** Private reactive sources bound to framework selector hooks. */
-  hooks: { panels: ObservableSnapshot<readonly SidebarPanelMetadata[]> }
+  hooks: { panels: ObservableSnapshot<readonly SidebarPanelMetadata[]>; shortcuts: ObservableSnapshot<readonly ShortcutCatalogEntry[]> }
 }
 
 /**

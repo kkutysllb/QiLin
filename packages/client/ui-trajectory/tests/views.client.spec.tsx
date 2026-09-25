@@ -303,6 +303,7 @@ async function bench(snapshot = historySnapshot(NODES)) {
   }
   const binding: ConversationBinding = {
     snapshot: conversationStore,
+    openTurn: { getSnapshot: () => undefined, subscribe: () => () => {} },
     activate: () => {},
     target: target => targetSources[target],
   }

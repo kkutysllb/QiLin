@@ -8,7 +8,7 @@
  */
 import type { ConnectionState } from '@qilin/client-connection/client'
 import type {
-  HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
+  HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
 } from '@qilin/client-ui-slots'
 // Type-only: pulls ui-sidebar's SlotMap merge (the 'sidebar.settings' entry)
 // into every program that sees this contract.
@@ -87,6 +87,7 @@ export type SettingsRootInjected = {
  */
 export type SettingsRootComponentProps =
   PropsRuntime<'sidebar.settings'>
+  & PropsStore<ReturnType<typeof import('./shell-store.ts').createSettingsShellStore>>
   & PropsRenderSlots<
     | 'settings.header'
     | 'settings.action'

@@ -682,8 +682,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
         },
       }],
     ...maskDeepSeekCredential && !messages ? [] : [
-      { id: 'llm-deepseek', disabled: mode !== 'record' && !maskDeepSeekCredential,
-        config: messages ? {} : { protocol: 'chat-completions' } },
+      { id: 'llm-deepseek', disabled: mode !== 'record' && !maskDeepSeekCredential },
     ],
   ]
   const patches: PatchOptions[] = [...basePatches, ...surfacePatches, ...overlayPatches]

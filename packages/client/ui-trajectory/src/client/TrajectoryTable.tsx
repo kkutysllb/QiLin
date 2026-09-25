@@ -1530,6 +1530,10 @@ function MarkdownRecordContent({
   renderImages: RenderMessageImages
   t: TrajectoryTranslate
 }) {
+  if (record.cell.sourceBlocks?.length && record.cell.sourceBlocks.every(block =>
+    block.type === 'tool-addition' || block.type === 'tool-removal')) {
+    return <pre className={`${css.payload} ${css.toolUpdatePayload}`}>{record.cell.inputDetail}</pre>
+  }
   if (!rendered && record.cell.sourceBlocks && record.cell.sourceBlocks.length > 0) {
     return (
       <SourceBlocks
@@ -2669,6 +2673,9 @@ export function TrajectoryTable({
                 {({ displayText, listDisplayText, resultText, toolCallOnly, toolCallText }) => {
                   const isCollapsedSummary = record.collapsedSummary !== undefined
                   const isRequestOnly = record.cell.requestOnly === true
+                  const singleToolNotice = record.cell.kind === 'context'
+                    && record.cell.sourceBlocks?.length === 1
+                    && record.cell.sourceBlocks.every(block => block.type === 'tool-addition' || block.type === 'tool-removal')
                   const isInitialSystem = record.cell.kind === 'system'
                 && record.cell.index === allRecords[0]?.cell.index
                   const key = requestKey(record.turn, record.group)
@@ -2698,7 +2705,7 @@ export function TrajectoryTable({
                     : activeTurn === record.turn
                   return (
                     <tr
-                      tabIndex={isRequestOnly ? -1 : 0}
+                      tabIndex={isRequestOnly || singleToolNotice ? -1 : 0}
                       aria-rowindex={position + 1 + historyRowOffset}
                       aria-label={isCollapsedSummary
                         ? t('request.collapsedSummary', {
@@ -2714,11 +2721,11 @@ export function TrajectoryTable({
                             kind: t(KIND_LABEL_KEY[record.cell.kind]),
                             content: listDisplayText || t('request.noContent'),
                           })}
-                      aria-selected={!isCollapsedSummary && !isRequestOnly && selectedIndex === record.cell.index}
+                      aria-selected={!isCollapsedSummary && !isRequestOnly && !singleToolNotice && selectedIndex === record.cell.index}
                       data-kind={record.cell.kind}
                       data-trajectory-row-key={trajectoryVirtualRecordKey(record)}
                       data-virtual-position={virtualizationEnabled ? position : undefined}
-                      data-record-index={!isCollapsedSummary && !isRequestOnly
+                      data-record-index={!isCollapsedSummary && !isRequestOnly && !singleToolNotice
                         ? record.cell.index
                         : undefined}
                       data-request-only={isRequestOnly || undefined}
@@ -2733,7 +2740,7 @@ export function TrajectoryTable({
                       data-timeline-focus={isCollapsedSummary || timelineFocusIndexes === null
                         ? undefined
                         : timelineFocusIndexes.has(record.cell.index) ? 'inside' : 'outside'}
-                      onClick={isRequestOnly
+                      onClick={isRequestOnly || singleToolNotice
                         ? undefined
                         : isCollapsedSummary
                           ? () => {
@@ -2743,7 +2750,7 @@ export function TrajectoryTable({
                           }
                           : () => { selectRecord(record.cell.index) }}
                       onDoubleClick={(event) => {
-                        if (isCollapsedSummary || isRequestOnly) return
+                        if (isCollapsedSummary || isRequestOnly || singleToolNotice) return
                         if (record.turn !== null && collapsedTurns.has(record.turn)) {
                           event.preventDefault()
                           onToggleTurn(record.turn)
@@ -2767,7 +2774,7 @@ export function TrajectoryTable({
                         onToggleTurn(record.turn)
                       }}
                       onKeyDown={(event) => {
-                        if (isRequestOnly) return
+                        if (isRequestOnly || singleToolNotice) return
                         if (event.key !== 'Enter' && event.key !== ' ') return
                         event.preventDefault()
                         if (isCollapsedSummary) {

@@ -37,6 +37,9 @@
     },
     {
       "path": "../locale"
+    },
+    {
+      "path": "../shortcuts/tsconfig.client.json"
     }
   ]
 }

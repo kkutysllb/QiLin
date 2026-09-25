@@ -8,6 +8,8 @@
 
 /** Simplified Chinese dictionary and key-set source of truth. */
 export const zh = {
+  'command.toggle': '展开／收起右侧栏',
+  'command.noSession': '请先选择会话',
   'chrome.expand': '打开侧边栏',
   'chrome.expandAria': '打开右侧边栏',
   'chrome.collapse': '收起侧边栏',
@@ -39,6 +41,8 @@ export type SidebarRightKey = keyof typeof zh
 
 /** English dictionary, checked against the Chinese key set. */
 export const en = {
+  'command.toggle': 'Toggle right sidebar',
+  'command.noSession': 'Select a session first',
   'chrome.expand': 'Open sidebar',
   'chrome.expandAria': 'Open right sidebar',
   'chrome.collapse': 'Collapse sidebar',

@@ -49,6 +49,11 @@ async function bench(isLoopback = true) {
     state: { getSnapshot: () => 'connected', subscribe: () => () => {} },
     reconnect: () => {},
   } as never)
+  ctx.provide('shortcuts', {
+    register: vi.fn(() => () => {}), registerFixed: vi.fn(() => () => {}),
+    observeFixedInput: vi.fn(() => () => {}),
+    catalog: { getSnapshot: () => [], subscribe: () => () => {} },
+  } as never)
   await ctx.plugin({ inject: [...settingsInject], apply: settingsApply }).await()
   return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, settingsDescribe, settingsOpenDocument }
 }
@@ -76,7 +81,7 @@ function generalEntry(slots: SlotRegistry) {
 
 describe('ui-settings-general apply', () => {
   it('declares the services it uses', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection'])
+    expect(inject).toEqual(['slots', 'locale', 'connection', 'shortcuts'])
   })
 
   it('fills every seat for declarations before or after apply', async () => {

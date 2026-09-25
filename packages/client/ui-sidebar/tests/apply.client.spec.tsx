@@ -36,6 +36,11 @@ async function bench(declare = true) {
   ctx.provide('layout', layout)
   ctx.provide('uiWorkspace', uiWorkspace as never)
   ctx.provide('locale', new LocaleRuntime(ctx))
+  ctx.provide('shortcuts', {
+    register: vi.fn(() => () => {}), registerFixed: vi.fn(() => () => {}),
+    observeFixedInput: vi.fn(() => () => {}),
+    catalog: { getSnapshot: () => [], subscribe: () => () => {} },
+  } as never)
   const slots = ctx.get('slots') as SlotRegistry
   if (declare) {
     slots.register(
@@ -56,7 +61,7 @@ describe('ui-sidebar apply', () => {
   })
 
   it('declares only the services it uses', () => {
-    expect(inject).toEqual(['slots', 'layout', 'uiWorkspace', 'locale'])
+    expect(inject).toEqual(['slots', 'layout', 'uiWorkspace', 'locale', 'shortcuts'])
   })
 
   it('registers the shell and declares its child seats', async () => {

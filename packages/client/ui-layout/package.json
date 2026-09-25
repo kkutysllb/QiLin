@@ -32,6 +32,7 @@
     "client": {
       "inject": [
         "@qilin/client-locale",
+        "@qilin/client-shortcuts",
         "@qilin/client-ui-renderer",
         "@qilin/client-ui-session",
         "@qilin/client-ui-theme"
@@ -55,8 +56,9 @@
     "@qilin/client-ui-session": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
     "@qilin/client-ui-theme": "workspace:*",
-    "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:~",
+    "@qilin/client-shortcuts": "workspace:*",
+    "@types/react": "~18.3.1",
     "react": "^18.2.0"
   },
   "files": [

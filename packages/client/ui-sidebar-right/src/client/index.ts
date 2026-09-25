@@ -65,6 +65,7 @@ export type {
   SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightResourceParamsMap,
   SidebarRightTabParams, SidebarRightTabParamsFor, SidebarRightTabParamsMap,
 } from './contract/params.ts'
+import { registerSidebarShortcuts } from './shortcuts.ts'
 // The layout ids and rectangle the navigation face takes, so a caller needs no import from the kit.
 export type { FloatRect, PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
 export type { PinResource, SidebarRightNavigator, TabOccurrence } from './tab-domain.ts'
@@ -75,8 +76,8 @@ export type { SidebarRightOpenTab } from './tab-inventory.ts'
 /** This package's copy namespace. */
 const NS = 'sidebarRight'
 
-/** Required browser services: the slot registry, the frame's panel actions, copy, and the resource model. */
-export const inject = ['slots', 'layout', 'locale', 'resources']
+/** Required browser services: the slot registry, the frame's panel actions, copy, the resource model, and shortcuts. */
+export const inject = ['slots', 'layout', 'locale', 'resources', 'shortcuts']
 
 declare module '@qilin/kylin' {
   interface Context {
@@ -121,6 +122,9 @@ export function apply(ctx: ClientContext): void {
   }, 'ui-sidebar-right: service faces')
 
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-sidebar-right: dictionaries')
+  ctx.inject(['shortcuts'], (scope: ClientContext) => {
+    scope.effect(() => registerSidebarShortcuts(scope.shortcuts, controller, t), 'ui-sidebar-right: toggle command')
+  })
   // Every registry commit — a registration, an unregistration, a switch — is
   // the moment to store the switched-off set. Writing a set that did not move
   // costs one storage call and keeps this the only place that persists it.

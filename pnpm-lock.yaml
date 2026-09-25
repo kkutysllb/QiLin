@@ -2127,6 +2127,9 @@ importers:
       '@qilin/client-resources':
         specifier: workspace:*
         version: link:../../client/resources
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../../client/shortcuts
       '@qilin/client-ui-account':
         specifier: workspace:*
         version: link:../../client/ui-account
@@ -2229,6 +2232,9 @@ importers:
       '@qilin/client-ui-settings-unarchive-sessions':
         specifier: workspace:*
         version: link:../../client/ui-settings-unarchive-sessions
+      '@qilin/client-ui-shortcuts':
+        specifier: workspace:*
+        version: link:../../client/ui-shortcuts
       '@qilin/client-ui-sidebar':
         specifier: workspace:*
         version: link:../../client/ui-sidebar
@@ -2636,6 +2642,40 @@ importers:
         specifier: workspace:*
         version: link:../../typert/protocol
 
+  packages/client/shortcuts:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin/util-crypto':
+        specifier: workspace:*
+        version: link:../../util/crypto
+      '@qilin/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+    devDependencies:
+      '@qilin/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin/host-webserver':
+        specifier: workspace:*
+        version: link:../../host/webserver
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
   packages/client/store:
     devDependencies:
       '@qilin/kylin':
@@ -2764,6 +2804,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -3135,6 +3178,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store
@@ -3574,6 +3620,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store
@@ -3745,6 +3794,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store
@@ -3754,6 +3806,9 @@ importers:
       '@qilin/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
+      '@qilin/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
       '@qilin/client-ui-primitives':
         specifier: workspace:*
         version: link:../ui-primitives
@@ -4295,6 +4350,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store
@@ -4623,6 +4681,51 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
+  packages/client/ui-shortcuts:
+    devDependencies:
+      '@qilin/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
+      '@qilin/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin/client-ui-settings':
+        specifier: workspace:*
+        version: link:../ui-settings
+      '@qilin/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+
   packages/client/ui-sidebar:
     devDependencies:
       '@qilin/api-workspace-controller':
@@ -4631,6 +4734,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store
@@ -4998,6 +5104,9 @@ importers:
       '@qilin/client-resources':
         specifier: workspace:*
         version: link:../resources
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store
@@ -5701,6 +5810,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin/client-store':
         specifier: workspace:*
         version: link:../store

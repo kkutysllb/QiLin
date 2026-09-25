@@ -46,6 +46,9 @@
     },
     {
       "path": "../ui-sidebar"
+    },
+    {
+      "path": "../shortcuts/tsconfig.client.json"
     }
   ]
 }

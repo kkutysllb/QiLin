@@ -28,6 +28,11 @@ import { ConversationViewRegistry } from './view-registry.ts'
 export interface ConversationBinding {
   readonly snapshot: ObservableSnapshot<ConversationSnapshot>
   /**
+   * Identity-stable source of the latest turn number, undefined unless its start is loaded and it remains open.
+   * Turn changes publish synchronously, including without an active View.
+   */
+  readonly openTurn: ObservableSnapshot<number | undefined>
+  /**
    * Add one selected target to the Session's monotonic active set.
    * @param target - registered or subsequently registered Conversation target.
    */
@@ -46,6 +51,7 @@ export interface ConversationBinding {
 
 class BoundConversation implements ConversationBinding {
   readonly snapshot: SnapshotStore<ConversationSnapshot>
+  readonly openTurn: SnapshotStore<number | undefined>
   private readonly viewStore: ConversationViewSnapshotStore
   private readonly targetSources = new Map<string, ObservableSnapshot<unknown>>()
   private revision = -1
@@ -58,6 +64,7 @@ class BoundConversation implements ConversationBinding {
   ) {
     this.viewStore = assembler
     this.snapshot = createSnapshotStore(this.currentSnapshot())
+    this.openTurn = createSnapshotStore(assembler.openTurn())
     this.replace(feed.getSnapshot())
     this.disposeFeed = feed.subscribe(() => {
       this.accept(feed.getSnapshot())
@@ -129,6 +136,7 @@ class BoundConversation implements ConversationBinding {
   }
 
   private publish(publication: ConversationPublication): void {
+    this.openTurn.set(this.assembler.openTurn())
     if (publication === 'none') return
     if (publication === 'animation-frame' && typeof requestAnimationFrame === 'function') {
       if (this.frame !== undefined) return

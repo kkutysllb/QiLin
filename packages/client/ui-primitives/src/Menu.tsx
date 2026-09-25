@@ -7,6 +7,7 @@ import { usePointerGrace } from './pointer-grace.ts'
 import { isBehindModal } from './useModalLayer.ts'
 import { observeComposition } from './keyboard-composition.ts'
 import { focusWithoutRing } from './focus.ts'
+import { ShortcutKeys } from './ShortcutKeys.tsx'
 import css from './Menu.module.css'
 
 /** Selectable row (optionally with a nested submenu). */
@@ -14,6 +15,8 @@ export interface MenuItem {
   id: string
   label: ReactNode
   disabled?: boolean
+  /** Effective binding supplied by the command owner; omitted for unbound actions. */
+  shortcut?: { keys: readonly string[]; aria?: string | undefined }
   /** Leading icon (figma .Menu_cell gap 8). */
   icon?: ReactNode
   /** Destructive row: error-colored text/icon and danger hover fill. */
@@ -37,6 +40,66 @@ export interface MenuLabel {
 
 /** One primary-menu entry: a row, a separator, or a heading label. */
 export type MenuEntry = MenuItem | MenuSeparator | MenuLabel
+
+/** Props for one component-rendered menu row. */
+export interface MenuItemButtonProps {
+  /** Visible row label. */
+  children: ReactNode
+  /** Effective binding supplied by the command owner; omitted for unbound actions. */
+  shortcut?: MenuItem['shortcut']
+  /** Leading icon (figma .Menu_cell gap 8). */
+  icon?: ReactNode
+  /** Whether the row cannot be activated. */
+  disabled?: boolean
+  /** Destructive row: error-colored text/icon and danger hover fill. */
+  danger?: boolean
+  /**
+   * Start a new group: a hairline above this row, the same one a
+   * `{ type: 'separator' }` data entry draws. It comes and goes with the row,
+   * so a row that renders nothing leaves no stray line; a data separator
+   * directly before it draws no second line, and the list's first row draws none.
+   */
+  separatorBefore?: boolean
+  /** Row activation (click, Enter, or Tab on the focused row). */
+  onSelect: () => void
+}
+
+/**
+ * Render one `role="menuitem"` row for a {@link Menu} whose rows are
+ * components rather than `items` data: the same markup and styling as a data
+ * row, so it joins the list's keyboard walk and post-selection focus return
+ * without any shared state. Closing the menu stays the owner's decision, as
+ * it is for data rows.
+ * @param props.children - visible row label.
+ * @param props.shortcut - effective key labels and accessible combination.
+ * @param props.icon - optional leading icon.
+ * @param props.disabled - whether the row cannot be activated.
+ * @param props.danger - whether to use the destructive row colors.
+ * @param props.separatorBefore - whether this row starts a new group (hairline above it).
+ * @param props.onSelect - row activation callback.
+ * @returns one menu-item row.
+ */
+export function MenuItemButton({
+  children, shortcut, icon, disabled = false, danger = false, separatorBefore = false, onSelect,
+}: MenuItemButtonProps) {
+  return (
+    <div className={css.itemWrap}>
+      {separatorBefore && <div className={css.separator} role="separator" />}
+      <button
+        type="button"
+        role="menuitem"
+        className={clsx(css.item, danger && css.danger)}
+        disabled={disabled}
+        aria-keyshortcuts={shortcut?.aria}
+        onClick={onSelect}
+      >
+        {icon !== undefined && <span className={css.itemIcon}>{icon}</span>}
+        <span className={css.itemLabel}>{children}</span>
+        {shortcut !== undefined && <span aria-hidden="true" className={css.shortcut}><ShortcutKeys keys={shortcut.keys} className={css.shortcutKeys} /></span>}
+      </button>
+    </div>
+  )
+}
 
 function isSeparator(entry: MenuEntry): entry is MenuSeparator {
   return 'type' in entry && entry.type === 'separator'
@@ -377,6 +440,7 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
           role="menuitem"
           className={clsx(css.item, selected && (selection === 'fill' ? css.selectedFill : css.selected), entry.danger === true && css.danger)}
           disabled={entry.disabled}
+          aria-keyshortcuts={entry.shortcut?.aria}
           aria-haspopup={hasSub ? 'menu' : undefined}
           aria-expanded={hasSub ? subOpen : undefined}
           onFocus={() => { setOpenSubmenuId(hasSub ? entry.id : null) }}
@@ -391,6 +455,7 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
         >
           {entry.icon !== undefined && <span className={css.itemIcon}>{entry.icon}</span>}
           <span className={css.itemLabel}>{entry.label}</span>
+          {entry.shortcut !== undefined && <span aria-hidden="true" className={css.shortcut}><ShortcutKeys keys={entry.shortcut.keys} className={css.shortcutKeys} /></span>}
           {/* Selection marker is a trailing check (figma .Menu_cell) unless the fill mode carries it. */}
           {selected && selection === 'check' && <IconCheckOutline16 className={css.check} />}
         </button>
@@ -403,10 +468,12 @@ export function Menu({ open, anchor, items, selectedId, selectedIds, onSelect, o
                 role="menuitem"
                 className={css.item}
                 disabled={sub.disabled}
+                aria-keyshortcuts={sub.shortcut?.aria}
                 onClick={() => { onSelect(sub.id); refocusAfterSelection() }}
               >
                 {sub.icon !== undefined && <span className={css.itemIcon}>{sub.icon}</span>}
                 <span className={css.itemLabel}>{sub.label}</span>
+                {sub.shortcut !== undefined && <span aria-hidden="true" className={css.shortcut}><ShortcutKeys keys={sub.shortcut.keys} className={css.shortcutKeys} /></span>}
               </button>
             ))}
           </div>

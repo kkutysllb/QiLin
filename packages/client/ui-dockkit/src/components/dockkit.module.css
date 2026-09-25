@@ -751,3 +751,8 @@
 .floatResize:hover::after {
   border-color: var(--dsw-alias-label-tertiary);
 }
+
+.pane:focus,
+.float:focus {
+  outline: none;
+}

@@ -32,6 +32,8 @@ import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type { WorkspaceId, WorkspaceView } from '@qilin/api-workspace-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { createWorkspaceViewStore } from '../stores.ts'
+import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
+import type { WorkspaceShortcutState } from '../shortcuts.ts'
 
 /**
  * Owner share of the directory-flow holes: the complete conversation between
@@ -121,7 +123,21 @@ export type WorkspaceBrowserInjected = {
      * saw. Select the field the surface needs (`info => info.home`).
      */
     hostInfo: HostObservable<RemoteHostFacts>
+    /** Keyboard-command opening requests the browser consumes. */
+    workspaceShortcuts: HostObservable<WorkspaceShortcutState>
+    /** Effective command catalog for row shortcut hints. */
+    shortcuts: HostObservable<readonly ShortcutCatalogEntry[]>
   }
+  /** Open the browser search and focus its input. */
+  requestSearch: () => void
+  /** Request the existing directory picker. */
+  requestAddWorkspace: () => void
+  /** Consume the directory-picker opening request. */
+  closeAddWorkspace: () => void
+  /** Consume the rename-dialog opening request. */
+  closeRenameRequest: () => void
+  /** Publish directory interaction occupancy for command availability. */
+  setDirectoryBusy: (busy: boolean) => void
   /**
    * Start a New Session in a Workspace: reuse-or-create its blank session and
    * open it; without an explicit workspace, inherit the current Session

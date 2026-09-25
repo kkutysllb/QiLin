@@ -34,6 +34,7 @@
         "@qilin/api-remotes",
         "@qilin/api-session-controller",
         "@qilin/client-locale",
+        "@qilin/client-shortcuts",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-renderer",
         "@qilin/client-ui-session"
@@ -54,6 +55,7 @@
     "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/client-locale": "workspace:*",
+    "@qilin/client-shortcuts": "workspace:*",
     "@qilin/client-ui-conversation": "workspace:*",
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",

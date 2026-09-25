@@ -783,8 +783,15 @@ export function WorkspaceBrowser({
   createWorkspace,
   searchSessions,
   searchResultLimit,
+  requestSearch,
+  requestAddWorkspace,
+  closeAddWorkspace,
+  closeRenameRequest,
+  setDirectoryBusy,
   useDirectoryFlow,
   useHostInfo,
+  useWorkspaceShortcuts,
+  useShortcuts,
   renderSlot,
   t,
 }: WorkspaceBrowserProps) {
@@ -1066,6 +1073,35 @@ export function WorkspaceBrowser({
     setSessionRenameError(null)
   }
 
+  // Keyboard-command requests arrive through the shared shortcut state; each
+  // consumed request drives the same surface its pointer gesture drives.
+  const shortcutState = useWorkspaceShortcuts(state => state)
+  const addShortcut = useShortcuts(rows => rows.find(row => row.id === 'workspace.add'))
+  const searchShortcut = useShortcuts(rows => rows.find(row => row.id === 'session.search'))
+  useEffect(() => {
+    if (shortcutState.searchRequest === 0) return
+    closeAddWorkspace()
+    setSearchExpanded(true)
+    if (!wide) {
+      setSearchOnExpand(true)
+      expandSidebar()
+    } else searchInput.current?.focus({ preventScroll: true })
+  }, [closeAddWorkspace, expandSidebar, shortcutState.searchRequest, wide])
+  useEffect(() => {
+    if (!shortcutState.addRequested) return
+    closeAddWorkspace()
+    setWsPickerOpen(true)
+  }, [closeAddWorkspace, shortcutState.addRequested])
+  useEffect(() => {
+    const target = shortcutState.renameTarget
+    if (target === null) return
+    closeRenameRequest()
+    setSessionRenameTarget({ sessionId: target.sessionId, currentTitle: target.currentTitle })
+    setSessionRenameDraft(target.currentTitle)
+    setSessionRenameError(null)
+  }, [closeRenameRequest, shortcutState.renameTarget])
+  useEffect(() => { setDirectoryBusy(wsPickerOpen) }, [setDirectoryBusy, wsPickerOpen])
+
   // Archive is dialog-free: not destructive (the log and the accounting slot
   // remain), so the menu action commits directly; the row disappears when the
   // archive-set echo lands. Failures are non-fatal console diagnostics, the
@@ -1128,17 +1164,20 @@ export function WorkspaceBrowser({
                 setWsPickerOpen(false)
                 setSearchExpanded(true)
                 searchInput.current?.focus()
+                requestSearch()
               }}
             >
-              <Tooltip label={t('search')} side="bottom" delayMs={500} disabled={searchExpanded}>
+              <Tooltip label={t('search')} shortcutKeys={searchShortcut?.keys} side="bottom" delayMs={500} disabled={searchExpanded}>
                 <button
                   type="button"
                   className={css.searchButton}
                   aria-label={t('search.sessions.aria')}
+                  aria-keyshortcuts={searchShortcut?.aria}
                   aria-expanded={searchExpanded}
                   onClick={() => {
                     setWsPickerOpen(false)
                     setSearchExpanded(true)
+                    requestSearch()
                   }}
                 >
                   <IconSearchOutline16 size={searchExpanded ? 11 : 14} />
@@ -1190,14 +1229,15 @@ export function WorkspaceBrowser({
               picking affordance has nothing to offer here: the region hides the
               button rather than leaving a dead one in the header. */}
           {directoryFlowAvailable && (
-            <Tooltip label={t('workspace.add')} side="bottom" delayMs={500}>
+            <Tooltip label={t('workspace.add')} shortcutKeys={addShortcut?.keys} side="bottom" delayMs={500}>
               <button
                 ref={wsPlusRef}
                 type="button"
                 className={css.iconButton}
                 aria-label={t('workspace.add')}
+                aria-keyshortcuts={addShortcut?.aria}
                 onClick={() => {
-                  setWsPickerOpen(v => !v)
+                  requestAddWorkspace()
                 }}
               >
                 <IconProjectAddOutline16 size={wide ? 16 : 18} />
@@ -1226,16 +1266,13 @@ export function WorkspaceBrowser({
 
       {/* The collapsed rail keeps search as its own 36px control. */}
       {!wide && <div className={css.search}>
-        <Tooltip label={t('search')}>
+        <Tooltip label={t('search')} shortcutKeys={searchShortcut?.keys}>
           <button
             type="button"
             className={css.searchButton}
             aria-label={t('search.sessions.aria')}
-            onClick={() => {
-              setSearchExpanded(true)
-              setSearchOnExpand(true)
-              expandSidebar()
-            }}
+            aria-keyshortcuts={searchShortcut?.aria}
+            onClick={() => { requestSearch() }}
           >
             <IconSearchOutline16 size={18} />
           </button>

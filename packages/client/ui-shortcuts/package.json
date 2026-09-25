@@ -1,0 +1,71 @@
+{
+  "name": "@qilin/client-ui-shortcuts",
+  "description": "Keyboard shortcut reference, recording, and local preference editing",
+  "version": "3.0.4",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/client/ui-shortcuts"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/client-shortcuts",
+        "@qilin/client-locale",
+        "@qilin/client-ui-layout",
+        "@qilin/client-ui-settings"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-shortcuts": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-layout": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-settings": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@types/react": "~18.3.1",
+    "clsx": "^2.1.1",
+    "react": "^18.2.0"
+  }
+}

@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { createPortal } from 'react-dom'
 import { writeClipboard } from './clipboard.ts'
 import { usePointerGrace } from './pointer-grace.ts'
+import { TooltipSuppression } from './Tooltip.tsx'
 import css from './HoverCard.module.css'
 
 const INLINE_PREVIEW_WIDTH = 300
@@ -11,7 +12,7 @@ const ANCHOR_GAP = 8
 const VIEWPORT_MARGIN = 8
 
 /**
- * Render an anchor with a hover-triggered preview card.
+ * Render an anchor with a hover-triggered preview card, hidden while a tooltip within the anchor is visible.
  * @param props.anchor - the hover target (rendered in place inside a wrapper span).
  * @param props.content - card content; the pointer may rest on it, so it is
  * readable and selectable, but it carries no dismissal affordance of its own.
@@ -50,6 +51,7 @@ export function HoverCard({
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<{ left: number; top: number; width?: number; maxHeight?: number } | null>(null)
   const [copied, setCopied] = useState(false)
+  const [suppressed, setSuppressed] = useState(false)
 
   const clearCopied = useCallback(() => {
     if (copyTimerRef.current !== null) {
@@ -155,13 +157,13 @@ export function HoverCard({
   // card's real height is measurable, correct the bottom-edge clamp. The
   // correction converges — a clamped top satisfies the guard, so it runs once.
   useLayoutEffect(() => {
-    if (!open || pos === null || inline) return
+    if (!open || pos === null || inline || suppressed) return
     /* v8 ignore next -- the card is mounted whenever pos is set, so the ref is attached here. */
     const h = cardRef.current?.offsetHeight ?? 0
     if (pos.top + h > window.innerHeight - VIEWPORT_MARGIN) {
       setPos({ left: pos.left, top: window.innerHeight - h - VIEWPORT_MARGIN })
     }
-  }, [open, pos, inline])
+  }, [open, pos, inline, suppressed])
 
   const copy = async (text: string): Promise<void> => {
     if (copied || copyingRef.current) return
@@ -178,7 +180,7 @@ export function HoverCard({
   }
 
   const copyable = copyText !== undefined
-  const card = open && pos !== null && (
+  const card = open && pos !== null && !suppressed && (
     <div
       ref={cardRef}
       className={clsx(css.card, inline && css.media, copyable && css.copyable, copied && css.feedback)}
@@ -246,8 +248,8 @@ export function HoverCard({
         close()
       }}
     >
-      {anchor}
-      {open && copyable && <span className={css.status} role="status">{copied ? copiedLabel : ''}</span>}
+      <TooltipSuppression.Provider value={setSuppressed}>{anchor}</TooltipSuppression.Provider>
+      {open && !suppressed && copyable && <span className={css.status} role="status">{copied ? copiedLabel : ''}</span>}
       {card !== false && createPortal(card, document.body)}
     </span>
   )

@@ -18,7 +18,7 @@ import {
   ConnectionIndicator,
   IconAgentPresetOutline16, IconArchiveOutline20, IconChevronLeftOutline14,
   IconCloseOutline16, IconDataOutline16, IconPersonalizationOutline16,
-  IconQuestionOutline14, IconSettingsOutline16,
+  IconQuestionOutline14, IconSettingsOutline16, useModalLayer,
 } from '@qilin/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
@@ -161,24 +161,19 @@ function SettingsPanel({
   const aboutRow = rows.find(row => row.id === 'about')
   const titleId = useId()
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => { document.removeEventListener('keydown', onKeyDown) }
-  }, [onClose])
-
-  // Entering the dialog focuses the close button; the root restores its trigger on close.
-  const closeButton = useRef<HTMLButtonElement | null>(null)
-  useEffect(() => { closeButton.current?.focus() }, [])
+  // The page owns Escape, Tab, and focus return through the shared modal
+  // layer; automatic entry focus lands on the rail (the nav title with no
+  // active section, else the active row) via data-modal-autofocus.
+  const panel = useRef<HTMLDivElement>(null)
+  useModalLayer(panel, true, onClose)
 
   return (
     <div className={css.overlay} role="presentation">
       <div className={css.mask} aria-hidden="true" onClick={onClose} />
-      <div className={css.panel} role="dialog" aria-labelledby={titleId}>
+      <div ref={panel} tabIndex={-1} data-shortcut-modal="settings" className={css.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <nav className={css.nav} style={{ width: navWidth }}>
-          <div className={css.navTitle} id={titleId}>{renderSlot('settings.header', {})}</div>
+          <div className={css.navTitle} id={titleId}
+            data-modal-autofocus={active === undefined ? '' : undefined}>{renderSlot('settings.header', {})}</div>
           <div className={css.navList}>
             {rows.filter(row => row.id !== 'about').map(row => (
               <button
@@ -186,6 +181,7 @@ function SettingsPanel({
                 type="button"
                 className={clsx(css.navCell, row.id === active && css.active)}
                 aria-current={row.id === active ? 'true' : undefined}
+                data-modal-autofocus={row.id === active ? '' : undefined}
                 onClick={() => { onSelect(row.id) }}
               >
                 {navIcon(row.id)}
@@ -219,7 +215,7 @@ function SettingsPanel({
                 <IconChevronLeftOutline14 size={14} />
                 <span>{backToWorkspaceLabel}</span>
               </button>
-              <button ref={closeButton} type="button" className={css.close} onClick={onClose}>
+              <button type="button" className={css.close} onClick={onClose}>
                 <IconCloseOutline16 size={14} />
                 <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
               </button>
@@ -246,32 +242,25 @@ function SettingsPanel({
 export function SettingsRoot(props: SettingsRootComponentProps) {
   const {
     wide, reconnect, registerOpen, useConnectionState, useSections, useOnboardingSteps, useSessions,
-    renderSlot, t, useDesktopUpdate, openDesktopUpdate,
+    renderSlot, t, useDesktopUpdate, openDesktopUpdate, useStore, actions,
   } = props
-  const [open, setOpen] = useState(false)
-  const [activeId, setActiveId] = useState<string | undefined>(undefined)
+  const { open, activeId } = useStore(state => state)
   const [navWidth, setNavWidth] = useState(SETTINGS_NAV_DEFAULT_WIDTH)
   const [completedOnboarding, setCompletedOnboarding] = useState<ReadonlySet<string>>(() => new Set())
   const [showRecovery, setShowRecovery] = useState(false)
   const [holdConnecting, setHoldConnecting] = useState(false)
   const connectingShownAt = useRef<number | undefined>(undefined)
-  const close = useCallback(() => {
-    setOpen(false)
-    setActiveId(undefined)
-  }, [])
-  const openSection = useCallback((id: string) => {
-    setActiveId(id)
-    setOpen(true)
-  }, [])
+  const close = useCallback(() => { actions.close() }, [actions.close])
+  const openSection = useCallback((id: string) => { actions.openSection(id) }, [actions.openSection])
   // Publish this occupant's reveal action: ctx.settingsShell.open() reaches the
   // panel through it, and the panel keeps its state component-local.
   useEffect(() => registerOpen((sectionId) => {
     if (sectionId === undefined) {
-      setOpen(true)
+      actions.open()
       return
     }
     openSection(sectionId)
-  }), [registerOpen, openSection])
+  }), [registerOpen, openSection, actions.open])
 
   // The ledger tick keeps the nav rows fresh: registrants re-register with
   // freshly localized text on locale change, and the header/close seats
@@ -378,7 +367,7 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
           rows={rows}
           renderSlot={renderSlot}
           activeId={activeId}
-          onSelect={setActiveId}
+          onSelect={actions.select}
           onClose={close}
           navWidth={navWidth}
           onNavResize={onNavResize}

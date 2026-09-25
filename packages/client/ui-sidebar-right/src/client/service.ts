@@ -522,6 +522,14 @@ export class SidebarRightController implements ISidebarRight {
     return this.mounted()?.layout.expanded ?? false
   }
 
+  /**
+   * Whether a session surface is mounted, so toggling has a target.
+   * @returns `true` while the controller holds a session binding.
+   */
+  hasSession(): boolean {
+    return this.binding !== undefined
+  }
+
   /** Collapse an expanded column, or expand a collapsed one. */
   toggleExpanded(): void {
     const { sessionId, actions } = this.require()

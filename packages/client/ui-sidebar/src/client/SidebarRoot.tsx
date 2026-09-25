@@ -19,7 +19,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  FishLogo, IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, Tooltip,
+  FishLogo, IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, ShortcutKeys, Tooltip,
 } from '@qilin/client-ui-primitives'
 import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
 import type {
@@ -106,11 +106,14 @@ export function SidebarRoot({
   toggleSidebar,
   selectPanel,
   usePanels,
+  useShortcuts,
   usePanelInfo,
   t,
   renderSlot,
 }: SidebarRootComponentProps) {
   const panels = usePanels(snapshot => snapshot)
+  const shortcut = useShortcuts(rows => rows.find(row => row.id === 'sidebar.left.toggle'))
+  const newShortcut = useShortcuts(rows => rows.find(row => row.id === 'session.new'))
   // Wide content stays mounted while the collapse animates (fading via
   // .collapsed .wide), unmounts at settle, and remounts right away on expand.
   const [settled, setSettled] = useState(collapsed)
@@ -183,11 +186,12 @@ export function SidebarRoot({
   // (the expand affordance, figma sidebar-hover flow). Expanded it is a plain
   // panel icon.
   const toggle = (
-    <Tooltip label={collapsed ? t('toggle.open') : t('toggle.collapse')} delayMs={500}>
+    <Tooltip label={collapsed ? t('toggle.open') : t('toggle.collapse')} shortcutKeys={shortcut?.keys} delayMs={500}>
       <button
         type="button"
         className={clsx(css.iconButton, css.toggle)}
         aria-label={collapsed ? t('toggle.open') : t('toggle.collapse')}
+        aria-keyshortcuts={shortcut?.aria}
         onClick={() => { toggleSidebar() }}
       >
         {!wide && !windowsTitlebar && (
@@ -227,6 +231,7 @@ export function SidebarRoot({
             type="button"
             className={clsx(css.brand, css.wide)}
             aria-label={t('session.new.label')}
+            aria-keyshortcuts={newShortcut?.aria}
             onClick={() => { startSession() }}
           >
             <span className={css.brandIdentity} aria-hidden="true">
@@ -249,16 +254,21 @@ export function SidebarRoot({
         {!darwinDesktop && toggle}
       </div>
 
-      {/* Expanded, the button carries its own label — tooltip only on the rail. */}
-      <Tooltip label={t('session.new.label')} delayMs={500} disabled={wide}>
+      {/* Expanded, the button carries its own label — tooltip only on the rail.
+          The inline keys fade in on hover/focus so the label keeps its width. */}
+      <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500} disabled={wide}>
         <button
           type="button"
           className={css.newSession}
           aria-label={t('session.new.label')}
+          aria-keyshortcuts={newShortcut?.aria}
           onClick={() => { startSession() }}
         >
           <IconNewChatOutline16 size={wide ? 14 : windowsTitlebar ? 16 : 18} />
           {wide && <span className={clsx(css.newSessionLabel, css.wide)}>{t('session.new')}</span>}
+          {wide && newShortcut !== undefined && newShortcut.keys.length > 0 && <span className={css.newSessionShortcut} aria-hidden="true">
+            <ShortcutKeys keys={newShortcut.keys} />
+          </span>}
         </button>
       </Tooltip>
 

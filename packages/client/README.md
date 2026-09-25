@@ -52,6 +52,8 @@ The kernel packages boot and serve the page; the UI feature packages present it.
 | [`ui-workspace/`](ui-workspace/README.md) | Provides workspace selection and creation surfaces | — |
 | [`ui-conversation/`](ui-conversation/README.md) | Presents the active conversation and its input surface | — |
 | [`ui-chat/`](ui-chat/README.md) | Projects and renders the Chat conversation target | — |
+| [`shortcuts/`](shortcuts/README.md) | Application keyboard command registry and physical-key routing | — |
+| [`ui-shortcuts/`](ui-shortcuts/README.md) | Keyboard shortcut reference, recording, and local preference editing | — |
 | [`ui-approval/`](ui-approval/README.md) | Presents approval requests and returns user decisions | — |
 | [`ui-account/`](ui-account/README.md) | Provides the sidebar-foot account menu: settings, theme, language, and sign-out | — |
 | [`ui-tool/`](ui-tool/README.md) | Composes Tool call trees and keyed per-Tool views | — |

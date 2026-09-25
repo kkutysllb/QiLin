@@ -8,6 +8,10 @@
 export const zh = {
   'group.ungrouped': '未分组',
   'session.new': '新会话',
+  'shortcut.noSession': '请先选择一个会话',
+  'shortcut.noPicker': '目录选择器不可用',
+  'shortcut.directoryBusy': '正在选择或添加工作区',
+  'shortcut.noCompletedTurn': '当前会话没有已结束的轮次',
   'section.workspaces': '工作区',
   'section.sessions': '会话',
   'viewOptions.label': '视图选项',
@@ -78,6 +82,10 @@ export type WorkspaceKey = keyof typeof zh
 export const en = {
   'group.ungrouped': 'Ungrouped',
   'session.new': 'New Session',
+  'shortcut.noSession': 'Select a session first',
+  'shortcut.noPicker': 'Directory picker unavailable',
+  'shortcut.directoryBusy': 'Selecting or adding a workspace',
+  'shortcut.noCompletedTurn': 'This session has no completed turn',
   'section.workspaces': 'Workspaces',
   'section.sessions': 'Sessions',
   'viewOptions.label': 'View options',

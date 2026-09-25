@@ -94,7 +94,7 @@ export function TabMenu({ labels, anchor, onClose, onDismiss, extras }: TabMenuP
       onClick={(event) => { event.stopPropagation() }}
     >
       {onClose !== undefined && (
-        <button type="button" role="menuitem" className={css.menuItem} data-dockkit-menu-close onClick={onClose}>
+        <button type="button" role="menuitem" className={css.menuItem} aria-keyshortcuts={labels.closeTabShortcut} data-dockkit-menu-close onClick={onClose}>
           {labels.closeTab}
         </button>
       )}

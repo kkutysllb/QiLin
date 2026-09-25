@@ -12,6 +12,8 @@ import type { SessionId } from '@qilin/session/types'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import type { DirectoryFlowOwnerProps, WorkspaceBrowserProps } from '../src/client/contract/slots.ts'
+import { createSnapshotStore } from '@qilin/client-store'
+import type { WorkspaceShortcutState } from '../src/client/shortcuts.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
 import { UNGROUPED_KEY } from '../src/client/tree.ts'
 import { WorkspaceBrowser } from '../src/client/rows/WorkspaceBrowser.tsx'
@@ -87,6 +89,18 @@ function dragData(): Pick<DataTransfer, 'effectAllowed' | 'dropEffect' | 'setDat
 
 function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
   const store = createWorkspaceViewStore().create()
+  const shortcutStore = createSnapshotStore<WorkspaceShortcutState>({
+    searchRequest: 0, addRequested: false, directoryBusy: false, renameTarget: null,
+  })
+  const shortcutChannel = {
+    requestSearch: (): void => {
+      shortcutStore.set({ ...shortcutStore.getSnapshot(), searchRequest: shortcutStore.getSnapshot().searchRequest + 1 })
+    },
+    requestAddWorkspace: (): void => { shortcutStore.set({ ...shortcutStore.getSnapshot(), addRequested: true }) },
+    closeAddWorkspace: (): void => { shortcutStore.set({ ...shortcutStore.getSnapshot(), addRequested: false }) },
+    closeRenameRequest: (): void => { shortcutStore.set({ ...shortcutStore.getSnapshot(), renameTarget: null }) },
+  }
+  const noShortcuts: readonly never[] = []
   const props: WorkspaceBrowserProps = {
     wide: true,
     expandSidebar: vi.fn(),
@@ -110,6 +124,13 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     createWorkspace: vi.fn(async () => workspace('created', [])),
     useDirectoryFlow: bindSnapshotSelector({ getSnapshot: () => true, subscribe: () => () => {} }),
     useHostInfo: selector => selector({ home: undefined, isLoopback: true }),
+    useWorkspaceShortcuts: bindSnapshotSelector(shortcutStore),
+    useShortcuts: bindSnapshotSelector({ getSnapshot: () => noShortcuts, subscribe: () => () => {} }),
+    requestSearch: shortcutChannel.requestSearch,
+    requestAddWorkspace: shortcutChannel.requestAddWorkspace,
+    closeAddWorkspace: shortcutChannel.closeAddWorkspace,
+    closeRenameRequest: shortcutChannel.closeRenameRequest,
+    setDirectoryBusy: vi.fn(),
     renderSlot: ((_name: string, owner: { open: boolean }) => (owner.open ? <div data-testid="directory-flow" /> : null)) as never,
     t,
     ...overrides,

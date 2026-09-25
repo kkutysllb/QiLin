@@ -66,6 +66,11 @@ async function boot() {
   ctx.provide('locale', locale as never)
   ctx.provide('layout', layout as never)
   ctx.provide('resources', resources as never)
+  ctx.provide('shortcuts', {
+    register: vi.fn(() => () => {}), registerFixed: vi.fn(() => () => {}),
+    observeFixedInput: vi.fn(() => () => {}),
+    catalog: { getSnapshot: () => [], subscribe: () => () => {} },
+  } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
   const seat = (name: string): Recorded => {

@@ -52,6 +52,8 @@ kind: "package-group"
 | [`ui-workspace/`](ui-workspace/README.zh.md) | 提供工作区选择与创建界面 | — |
 | [`ui-conversation/`](ui-conversation/README.zh.md) | 展示当前对话及其输入界面 | — |
 | [`ui-chat/`](ui-chat/README.zh.md) | 投影并渲染 Chat 对话 target | — |
+| [`shortcuts/`](shortcuts/README.zh.md) | 应用键盘命令注册表与物理按键路由 | — |
+| [`ui-shortcuts/`](ui-shortcuts/README.zh.md) | 快捷键速查、录制与本地偏好编辑 | — |
 | [`ui-approval/`](ui-approval/README.zh.md) | 展示批准请求并返回用户决策 | — |
 | [`ui-account/`](ui-account/README.zh.md) | 提供侧栏底部的账户菜单：设置、主题、语言与退出登录 | — |
 | [`ui-tool/`](ui-tool/README.zh.md) | 编排工具调用树与按工具键控的视图 | — |
