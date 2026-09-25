@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-web-e2e-realignment.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-14-web-e2e-realignment.md
-2026-09-14-web-e2e-realignment.md: ef825f74022550ebdc301612b41c93eb00b3b9b5
-2026-09-14-web-e2e-realignment.zh.md: 9ecf15bdd7f5a218a95d06dc18e4d7cd3eaf9439
+/agent-note-web-e2e-realignment-after-the-kylin-rename:
+  en: 5672bf761e4c61a8
+  zh: d567961b74991221
+/agent-note-web-e2e-realignment-after-the-kylin-rename/problem:
+  en: bd1c812d691604af
+  zh: 4a1efc059664dd26
+/agent-note-web-e2e-realignment-after-the-kylin-rename/decision:
+  en: bd549a3a05aa8c1a
+  zh: 311637415e35002f
+/agent-note-web-e2e-realignment-after-the-kylin-rename/verification:
+  en: 3d1b90e61a2bc007
+  zh: 1d9018ab2821914e
+/agent-note-web-e2e-realignment-after-the-kylin-rename/alternatives-considered:
+  en: b86638494352190f
+  zh: bce20472c71c4789
+/agent-note-web-e2e-realignment-after-the-kylin-rename/consequences:
+  en: 6a4c572f51fdf040
+  zh: ac40f0ef193981a2

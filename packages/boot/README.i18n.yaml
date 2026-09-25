@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/boot/README.md
-README.md: e909bdc04f9dda287c67f4c5e410bd19151dcba8
-README.zh.md: de50b85a789ffa85a8087a3fffd160e91d5e9269
+/:
+  en: b629a10b86f5ac04
+  zh: f0b29210958661c2
+/boot-shared-app-bin-boot-glue:
+  en: 1703d86f1ef1a377
+  zh: 11940560d5fdaec0
+/boot-shared-app-bin-boot-glue/summary:
+  en: 444512f85b296a2c
+  zh: a30cddc443061060
+/boot-shared-app-bin-boot-glue/table-of-contents:
+  en: 09848f4d056e4fc1
+  zh: 8df6139cff0288f6
+/boot-shared-app-bin-boot-glue/packages:
+  en: ac7426af4ae476ed
+  zh: 25357638e7014352
+/boot-shared-app-bin-boot-glue/related-documentation:
+  en: 3b7882ea90411892
+  zh: 082396237f45c599
+/boot-shared-app-bin-boot-glue/dev-note:
+  en: b75c8458928b72b9
+  zh: 003ba4e17b4b5269

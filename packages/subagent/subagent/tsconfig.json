@@ -79,6 +79,9 @@
     },
     {
       "path": "../../util/chunked-list"
+    },
+    {
+      "path": "../../llm/llm-deepseek-api-key"
     }
   ]
 }

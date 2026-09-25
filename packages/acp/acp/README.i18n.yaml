@@ -1,6 +1,82 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/acp/acp/README.md
-README.md: a3795a192e565421c514b4b51c0195e874552933
-README.zh.md: 24642e18c6e5a9efcaabe04aac5af5f06388ca3c
+/:
+  en: b360d0052dfc5542
+  zh: 7aec4db9e8e9c442
+/qilin-acp:
+  en: 0be98274c6724fb6
+  zh: 9d79352e225e1359
+/qilin-acp/summary:
+  en: bf65128192214b7f
+  zh: 27b09c10d947f6a1
+/qilin-acp/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-acp/use-this-package:
+  en: 014a5573a8c05663
+  zh: e45302786655eea5
+/qilin-acp/use-this-package/when-to-choose-it:
+  en: 58290e9360ae5091
+  zh: 672d438827ce5f1a
+/qilin-acp/use-this-package/minimal-configuration:
+  en: 7bdf9d9fa5794dc6
+  zh: 2390e7af629db5dc
+/qilin-acp/use-this-package/start-a-server:
+  en: 9f70acea98c1c235
+  zh: 43f7cdd133fda80e
+/qilin-acp/use-this-package/protocol-contract:
+  en: 804b87d8ebed9f8d
+  zh: 1b0c1c7269cdf040
+/qilin-acp/understand-the-implementation:
+  en: ea8afe89dbdd1934
+  zh: 6567979f92f34afd
+/qilin-acp/understand-the-implementation/design-philosophy:
+  en: 009136a2e340bf99
+  zh: 35b33047ed9802ab
+/qilin-acp/understand-the-implementation/source-map:
+  en: 837330574e01d196
+  zh: 46f29717d175f7bb
+/qilin-acp/understand-the-implementation/admission-and-prompt-settlement:
+  en: 6485d449b5945b4a
+  zh: 90e56a9b410c9c42
+/qilin-acp/understand-the-implementation/teardown-and-connection-ownership:
+  en: 83e7a3b268ffbb86
+  zh: 9ec7e32ce259f6c2
+/qilin-acp/further-exploration:
+  en: 70100881dc8023eb
+  zh: eeedfdabf0d70cba
+/qilin-acp/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-acp/model-experience/prompt-content:
+  en: 7fca865c9895801f
+  zh: 78a0ab12c0bb0499
+/qilin-acp/model-experience/prompt-content/what-the-model-sees:
+  en: e3adbb072da5ff1d
+  zh: 0af2105dd9e171d3
+/qilin-acp/model-experience/prompt-content/token-effect:
+  en: 93b8f76c67bef353
+  zh: 354fa2dca0804f72
+/qilin-acp/model-experience/prompt-content/kv-cache-effect:
+  en: 54946b64b26a3171
+  zh: 09550292ccfb36b0
+/qilin-acp/model-experience/permission-decisions:
+  en: 2e6d83c846a3a5e1
+  zh: 8d4339c26f3d8f68
+/qilin-acp/model-experience/permission-decisions/what-the-model-sees:
+  en: 87b55e04137085c3
+  zh: cdba4acf2e38b872
+/qilin-acp/model-experience/permission-decisions/token-effect:
+  en: bd0ded535cbedb19
+  zh: 47bcaa76827f88f2
+/qilin-acp/model-experience/permission-decisions/kv-cache-effect:
+  en: 83120763a07c4b72
+  zh: 6a1a181dc4da869d
+/qilin-acp/known-limitations-and-deferred-work:
+  en: c7ec5c39a44e6e41
+  zh: cd45b7744413faee
+/qilin-acp/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

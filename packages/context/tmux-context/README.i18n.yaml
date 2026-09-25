@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/context/tmux-context/README.md
-README.md: 486fb03fd862531c9b6d95bf298a5ea484ab3b7c
-README.zh.md: 47156875f2b866d1b1bd261b78a9b72bd9d4fd4e
+/:
+  en: d1bef1216dfe10fa
+  zh: aee241b6eed43293
+/qilin-tmux-context:
+  en: aa47f4b66116acd5
+  zh: c68689b4d2c48509
+/qilin-tmux-context/summary:
+  en: 7be98ca598565a04
+  zh: e8f093fe082401e0
+/qilin-tmux-context/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-tmux-context/use-this-package:
+  en: 872d46d8bbbcda8d
+  zh: 9d14bbdb45851c07
+/qilin-tmux-context/use-this-package/what-the-model-gets:
+  en: 8d594d379878de46
+  zh: cfa52a5e0b297a6d
+/qilin-tmux-context/use-this-package/configuration:
+  en: 18281116a85cc722
+  zh: 56afbaae0a13af58
+/qilin-tmux-context/use-this-package/when-the-location-is-known:
+  en: 360821e2ef8f3d50
+  zh: 691d23a188558e9f
+/qilin-tmux-context/understand-the-implementation:
+  en: 2d21fa2aad5a729d
+  zh: cfbfada0eb647435
+/qilin-tmux-context/understand-the-implementation/design-concept:
+  en: 1902de51becf7c7d
+  zh: 130e673b471c38c4
+/qilin-tmux-context/understand-the-implementation/source-map:
+  en: 57d240751bb587a0
+  zh: 0a4195a9e3024208
+/qilin-tmux-context/understand-the-implementation/main-flow:
+  en: 2d5768fe44120780
+  zh: cd601c59d9604e6e
+/qilin-tmux-context/further-exploration:
+  en: 795ba6d01fe1b30b
+  zh: e69770863f9dba23
+/qilin-tmux-context/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tmux-context/model-experience/preparation-time-tmux-location:
+  en: 9c9825ee622e4b92
+  zh: b9edc0c529612fe6
+/qilin-tmux-context/model-experience/preparation-time-tmux-location/what-the-model-sees:
+  en: 8697059219e2ab02
+  zh: d321f11003c93de9
+/qilin-tmux-context/model-experience/preparation-time-tmux-location/what-the-model-sees/changed-turn-reading:
+  en: efdd843a7c1aa9d7
+  zh: 533b6f25b583363e
+/qilin-tmux-context/model-experience/preparation-time-tmux-location/token-effect:
+  en: 6a0348385ba38e7e
+  zh: 02af00a2c5aea469
+/qilin-tmux-context/model-experience/preparation-time-tmux-location/kv-cache-effect:
+  en: 2fbf2175168e8244
+  zh: b70653f9cbe2a47b
+/qilin-tmux-context/known-limitations-and-deferred-work:
+  en: af80ce3c69f582ab
+  zh: da5ad546c19d7d56
+/qilin-tmux-context/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

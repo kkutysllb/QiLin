@@ -24,7 +24,7 @@
       name: '@qilin/plugin-package-inventory-deepseek'
 
     - id: llm-deepseek
-      name: '@qilin/llm-deepseek'
+      name: '@qilin/llm-deepseek-api-key'
       config:
         apiKeyEnv: DEEPSEEK_API_KEY
         defaultContextWindow: !!js Number(process.env.QILIN_CONTEXT_WINDOW ?? 1000000)

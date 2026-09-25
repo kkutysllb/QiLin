@@ -1,6 +1,70 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/llm/llm-retry/README.md
-README.md: a416b35a9512cfbf53502fc2b659b8afbe8a2c7d
-README.zh.md: 9abb77d691259a8fa2f9d49c02f34694b9e69b21
+/:
+  en: 48b7b8ee60e92601
+  zh: 28dfac5ed11f58ce
+/qilin-llm-retry:
+  en: 09899da4d92edcc8
+  zh: 20ef80d6022d8db7
+/qilin-llm-retry/summary:
+  en: dc169d82cf1ccc90
+  zh: a50509fe0eeda266
+/qilin-llm-retry/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-llm-retry/use-this-package:
+  en: ecee4f255eaa53bd
+  zh: 2e7983fd7668fa00
+/qilin-llm-retry/use-this-package/when-to-choose-it:
+  en: 7d3a9e96a556e1ff
+  zh: 7c9cce7e36ebc980
+/qilin-llm-retry/use-this-package/minimal-configuration:
+  en: 95b1cf09ee2c77a9
+  zh: 4d45e437db4988c7
+/qilin-llm-retry/use-this-package/what-you-can-observe:
+  en: 21267b22ad48e012
+  zh: 521bfad2c2d8e418
+/qilin-llm-retry/use-this-package/failures-and-recovery:
+  en: 730567739a21a4d2
+  zh: 3ea222c68d960948
+/qilin-llm-retry/understand-the-implementation:
+  en: cef3289094f94c25
+  zh: c7f40ff6e4e56de6
+/qilin-llm-retry/understand-the-implementation/design-philosophy:
+  en: fc4f15a14435698c
+  zh: 3c6d83f5ba04ec0e
+/qilin-llm-retry/understand-the-implementation/source-map:
+  en: f34b551859b68c88
+  zh: 813ffa32497b1d9a
+/qilin-llm-retry/understand-the-implementation/recovery-flow:
+  en: 85bace285b029101
+  zh: 6e0237450ca6ccc0
+/qilin-llm-retry/understand-the-implementation/waterfall-composition:
+  en: 388e8db333e03cb1
+  zh: 54b6446ac3584724
+/qilin-llm-retry/further-exploration:
+  en: 1ff198a0626eba5b
+  zh: 089b833f44f42c2f
+/qilin-llm-retry/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-llm-retry/model-experience/model-request-recovery:
+  en: 8496b7aefbe6fa20
+  zh: ed7b60ef09380ec4
+/qilin-llm-retry/model-experience/model-request-recovery/what-the-model-sees:
+  en: 9772b77e48e70dba
+  zh: df3d4105f7b8c256
+/qilin-llm-retry/model-experience/model-request-recovery/token-effect:
+  en: f86254d7c2ed2444
+  zh: 7e0f7b9e026e0bf2
+/qilin-llm-retry/model-experience/model-request-recovery/kv-cache-effect:
+  en: 82d6bdfc0ec747ea
+  zh: 14269c9dcd086611
+/qilin-llm-retry/known-limitations-and-deferred-work:
+  en: bef1baa545592b9c
+  zh: 61984a1e10de8294
+/qilin-llm-retry/known-limitations-and-deferred-work/dev-note:
+  en: ff38027230617ebb
+  zh: 4a7913e851407b0c

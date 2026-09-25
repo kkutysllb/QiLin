@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-16-pre-session-entry-and-usernames.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-16-pre-session-entry-and-usernames.md
-2026-09-16-pre-session-entry-and-usernames.md: 7dd84dc7afd95a247fdf8085f1eb077b9f703538
-2026-09-16-pre-session-entry-and-usernames.zh.md: dba026ebcaf64badded6e76abe20fcade802c89c
+/agent-note-pre-session-entry-session-lifetime-and-usernames:
+  en: 4cb3ba5ab5f24d67
+  zh: 10f38cc267370e3b
+/agent-note-pre-session-entry-session-lifetime-and-usernames/problem:
+  en: 6b65d118ef9fc603
+  zh: 8cee1d1ebb82711e
+/agent-note-pre-session-entry-session-lifetime-and-usernames/decision:
+  en: c3042d9b4005f2c8
+  zh: e6968baf50597c80
+/agent-note-pre-session-entry-session-lifetime-and-usernames/alternatives-considered:
+  en: 7eb1f337f1abcc1d
+  zh: c68f58cc9bba7fd7
+/agent-note-pre-session-entry-session-lifetime-and-usernames/consequences:
+  en: f5e833d4680a88c9
+  zh: b0d836a671fab834
+/agent-note-pre-session-entry-session-lifetime-and-usernames/verification:
+  en: ce515005b1bc16b8
+  zh: f7f2b155b2ce070b

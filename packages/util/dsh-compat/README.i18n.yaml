@@ -1,6 +1,34 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/util/dsh-compat/README.md
-README.md: 069c88c8913fd10f0809adb3fafd42773fe25265
-README.zh.md: 2a2d64863ae598fa4c643557b46e075106a04095
+/:
+  en: 31f4d375f2c45aef
+  zh: 9beef4241a4e4953
+/qilin-dsh-compat:
+  en: da01746b6aa01ff3
+  zh: d4f949eaed1392ea
+/qilin-dsh-compat/summary:
+  en: 38552b541bcab51a
+  zh: b18b352279f6adda
+/qilin-dsh-compat/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: b4a2a0e132e8ddf8
+/qilin-dsh-compat/use-this-package:
+  en: d62249cd1a056681
+  zh: f5e6cec690d5bf7a
+/qilin-dsh-compat/understand-the-implementation:
+  en: 93ddde14f3f60077
+  zh: 321d947b02e2f6db
+/qilin-dsh-compat/model-experience:
+  en: 0c1978665c0886b0
+  zh: d0159681b5568bdb
+/qilin-dsh-compat/model-experience/kv-cache-effect:
+  en: 5df5e153f56aec41
+  zh: 7f70d29d8d80cb58
+/qilin-dsh-compat/known-limitations-and-deferred-work:
+  en: ff21fa030cc8c41b
+  zh: b4246c9cff73db62
+/qilin-dsh-compat/known-limitations-and-deferred-work/dev-note:
+  en: 6500ff89363ef9e9
+  zh: 2699e3038d5414cf

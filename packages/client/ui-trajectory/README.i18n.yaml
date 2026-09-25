@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-trajectory/README.md
-README.md: 600c72c8492951dfa04142676cad74b54795649c
-README.zh.md: 45902e48e4e253b96651e54db359eaea8bbf4376
+/:
+  en: 9e8cf8f505740df9
+  zh: ce5eda3f87570baf
+/qilin-client-ui-trajectory:
+  en: fb20e7b922f0f731
+  zh: 987ca19ee4d52646
+/qilin-client-ui-trajectory/summary:
+  en: 44c94ae942ec0e48
+  zh: 78f3d8888d177ee1
+/qilin-client-ui-trajectory/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-trajectory/use-this-package:
+  en: 0fe3fc85a6cee91e
+  zh: 27c883954a31f68f
+/qilin-client-ui-trajectory/use-this-package/inspecting-records:
+  en: f739d398277793f6
+  zh: 1b8b4c7d9df17f1f
+/qilin-client-ui-trajectory/use-this-package/the-timing-overview:
+  en: ed6608646aa6f081
+  zh: 00755f8b4da6018e
+/qilin-client-ui-trajectory/use-this-package/the-graph-view:
+  en: 6a973fc9a2ad8175
+  zh: 23fa61ed082e3d1c
+/qilin-client-ui-trajectory/understand-the-implementation:
+  en: 25d6535322df684f
+  zh: d60d3bd4201e65ce
+/qilin-client-ui-trajectory/understand-the-implementation/the-graph-projection:
+  en: 963411607acfef06
+  zh: fe2071803efacf4e
+/qilin-client-ui-trajectory/understand-the-implementation/virtual-rows:
+  en: c85e342bc7eee4e6
+  zh: 3120813991ee7b4c
+/qilin-client-ui-trajectory/understand-the-implementation/layout:
+  en: d7128b491c4f7d83
+  zh: 2b5153f5f8ffc0a5
+/qilin-client-ui-trajectory/further-exploration:
+  en: 988b0137733592a2
+  zh: 676c63da1da83fe9
+/qilin-client-ui-trajectory/model-experience:
+  en: 3120df665299c634
+  zh: 1d9f365d091d0d2a
+/qilin-client-ui-trajectory/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-trajectory/known-limitations-and-deferred-work:
+  en: 8db16dd7764e28b3
+  zh: 1a8ad2cbd3bd9ae1
+/qilin-client-ui-trajectory/known-limitations-and-deferred-work/dev-note:
+  en: f1cb904193827391
+  zh: ca2f68f45df592a7

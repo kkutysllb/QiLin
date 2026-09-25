@@ -1,6 +1,142 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/fs/tool-fs/README.md
-README.md: 1f7b0c6ffd4aab76bba0a45f3cd9c9e33c9066c3
-README.zh.md: 0483b1c2ec7355895cce55577b27d5ea44408069
+/:
+  en: 52b93805befe8077
+  zh: 9786e662303f0e2f
+/qilin-tool-fs:
+  en: d6dba115771fb128
+  zh: a398926b39b5d25b
+/qilin-tool-fs/summary:
+  en: dc545d37d2e8fcc9
+  zh: bbe3e2a2c0217129
+/qilin-tool-fs/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-tool-fs/use-this-package:
+  en: 8fd62afcdabe55d4
+  zh: 9bdcae272575be8c
+/qilin-tool-fs/use-this-package/minimal-composition:
+  en: eb21d89a3ecbd2d4
+  zh: f05ccbb1e7515f32
+/qilin-tool-fs/use-this-package/the-tools:
+  en: e70e0164411016b5
+  zh: 3fa6caa8f3d70552
+/qilin-tool-fs/use-this-package/configuration:
+  en: bbc9001c918f6080
+  zh: 0fea816c064d5e72
+/qilin-tool-fs/use-this-package/policy-and-sandbox-behavior:
+  en: 245b4be79ea4cc6b
+  zh: ff15b41e778fadab
+/qilin-tool-fs/use-this-package/failures-and-recovery:
+  en: 962b09e21305a04b
+  zh: 382d2b8cce217569
+/qilin-tool-fs/understand-the-implementation:
+  en: e30f7038c28e93f8
+  zh: a3868dbd90367b13
+/qilin-tool-fs/understand-the-implementation/design-concept:
+  en: 454b5291db9ba847
+  zh: 9fe7081dfb416c93
+/qilin-tool-fs/understand-the-implementation/source-map:
+  en: 5d22088138226671
+  zh: 94e6a1f855877745
+/qilin-tool-fs/understand-the-implementation/per-tool-flow:
+  en: d741e01be9fddb76
+  zh: 7aa1d7ca719a4aac
+/qilin-tool-fs/understand-the-implementation/observation-and-concurrency:
+  en: 665d437dc35bf05f
+  zh: 8004334d6a3246b4
+/qilin-tool-fs/further-exploration:
+  en: 0422060cf331ccf2
+  zh: ae258c88a2575c89
+/qilin-tool-fs/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tool-fs/model-experience/system-prompt:
+  en: cf78b9dd5596495f
+  zh: bd44560f8c2435e8
+/qilin-tool-fs/model-experience/system-prompt/what-the-model-sees:
+  en: b09ee4be5e522c29
+  zh: ffd30b57d7fc96e8
+/qilin-tool-fs/model-experience/system-prompt/what-the-model-sees/read-guidance:
+  en: f8961df3f3a6a671
+  zh: 85c7bd418b40b089
+/qilin-tool-fs/model-experience/system-prompt/what-the-model-sees/write-guidance:
+  en: 7e34af48c583f210
+  zh: e39ad6823689c665
+/qilin-tool-fs/model-experience/system-prompt/what-the-model-sees/edit-guidance:
+  en: 28f07502a411303b
+  zh: 437897dc99fc4360
+/qilin-tool-fs/model-experience/system-prompt/token-effect:
+  en: 7a44cabe439a879a
+  zh: 1adf9bf3de7658b6
+/qilin-tool-fs/model-experience/system-prompt/kv-cache-effect:
+  en: 4f1b5639f91405a8
+  zh: f90ffe077a2e52a3
+/qilin-tool-fs/model-experience/tool-schemas:
+  en: 3039bc5e7a796b21
+  zh: 6b7a9eaf69c9ea53
+/qilin-tool-fs/model-experience/tool-schemas/what-the-model-sees:
+  en: 24f528e53cc1a4f9
+  zh: 4f2d43b8ea153e4e
+/qilin-tool-fs/model-experience/tool-schemas/token-effect:
+  en: 68517f7d65ef7e9d
+  zh: 544a4b81e8ea16c0
+/qilin-tool-fs/model-experience/tool-schemas/kv-cache-effect:
+  en: 1e6d3da20012762d
+  zh: 482f8bc569b8b490
+/qilin-tool-fs/model-experience/read-result:
+  en: ebd38733c0490428
+  zh: b45101c325efe784
+/qilin-tool-fs/model-experience/read-result/what-the-model-sees:
+  en: 06e250bd8788248a
+  zh: e00d36b48068909a
+/qilin-tool-fs/model-experience/read-result/token-effect:
+  en: 4269b4368622ec2f
+  zh: f4df80c1fb6972f1
+/qilin-tool-fs/model-experience/read-result/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: 3d6bc05b9eadfbc2
+/qilin-tool-fs/model-experience/image-read-result:
+  en: 9dac44e6d0b9d8de
+  zh: 7bc4dc1c5df39eaf
+/qilin-tool-fs/model-experience/image-read-result/what-the-model-sees:
+  en: 9252b6d73776c5ff
+  zh: d6e433450989399e
+/qilin-tool-fs/model-experience/image-read-result/token-effect:
+  en: 68bd5255f1c9ca48
+  zh: 0474213531c1aae3
+/qilin-tool-fs/model-experience/image-read-result/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: 48e202e396bc5fcc
+/qilin-tool-fs/model-experience/write-and-edit-results:
+  en: 1b3b6cfa3605d0b4
+  zh: 78e37c2aa4f76d54
+/qilin-tool-fs/model-experience/write-and-edit-results/what-the-model-sees:
+  en: bb2a92e0e43e3273
+  zh: a744395576b48a93
+/qilin-tool-fs/model-experience/write-and-edit-results/token-effect:
+  en: fb4d0b17a99f49cf
+  zh: 17460a2a5d72f6cc
+/qilin-tool-fs/model-experience/write-and-edit-results/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: 3d6bc05b9eadfbc2
+/qilin-tool-fs/model-experience/tool-errors:
+  en: 2d4f2c8605eccab3
+  zh: 67f1f0218f73c6bf
+/qilin-tool-fs/model-experience/tool-errors/what-the-model-sees:
+  en: 4e8fac7bac8ced61
+  zh: 7ba921dbcddc9f97
+/qilin-tool-fs/model-experience/tool-errors/token-effect:
+  en: 681cadd5be7b8ac1
+  zh: 65e483f62fb819d9
+/qilin-tool-fs/model-experience/tool-errors/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: 3d6bc05b9eadfbc2
+/qilin-tool-fs/known-limitations-and-deferred-work:
+  en: 65978e020f61e252
+  zh: 7d598bbfdd85f259
+/qilin-tool-fs/known-limitations-and-deferred-work/dev-note:
+  en: 0c4d0c465413d319
+  zh: a20efeb10121b927

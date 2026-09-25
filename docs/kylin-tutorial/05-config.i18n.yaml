@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 05-config.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/05-config.md
-05-config.md: 64ad40cdab8db25c6baa6cd0b18cab801a012bbd
-05-config.zh.md: d92a5b31e951e9fe788031cc2e3bd1266801dc5a
+/5-configuration:
+  en: 4036454a3d5cd623
+  zh: 2e14a519d081bfee
+/5-configuration/a-configurable-plugin:
+  en: be0bde2cfd89f7c7
+  zh: 1fcac82cc572a2e4
+/5-configuration/fail-loud:
+  en: 261253c9d96b0fc1
+  zh: 3f4ea5f34aa2637d
+/5-configuration/volatile-fields:
+  en: ed952eb04c4a6576
+  zh: c1f17caebad9cc0a
+/5-configuration/computed-config-values:
+  en: 4e447cd6834c5a37
+  zh: 2fb98d4afdfcdd63

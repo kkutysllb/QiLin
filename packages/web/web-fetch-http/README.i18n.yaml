@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/web/web-fetch-http/README.md
-README.md: 2115e8cfb7ab95e7b163d61247afa4de1ac47eaa
-README.zh.md: 2cc03ffe36eb6c503a27e414548945a7aa0f62c8
+/:
+  en: a55f23f2363fdbd6
+  zh: b1fd7328e041ec52
+/qilin-web-fetch-http:
+  en: 38829ee8fd1e419d
+  zh: 4db2b1a68b753c01
+/qilin-web-fetch-http/summary:
+  en: 4ad5cf8fe6b3121f
+  zh: d405bb551d343807
+/qilin-web-fetch-http/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-web-fetch-http/use-this-package:
+  en: 630b12516d53e905
+  zh: eed124cfe9c8dc1f
+/qilin-web-fetch-http/use-this-package/when-to-choose-it:
+  en: eb52e77279c21d6f
+  zh: 0560e89caa377bfc
+/qilin-web-fetch-http/use-this-package/minimal-configuration:
+  en: b4eecdca0c9f5e68
+  zh: 34f208d7ff205c20
+/qilin-web-fetch-http/use-this-package/what-a-fetch-returns:
+  en: 2d18cdcc9b53dd0f
+  zh: 3bc6ca7c5933ee5d
+/qilin-web-fetch-http/use-this-package/transport-behavior:
+  en: c432147daf2877cf
+  zh: c14d507dd66e124a
+/qilin-web-fetch-http/use-this-package/failures-and-recovery:
+  en: 35407f106dc65deb
+  zh: 02118072fba68b8f
+/qilin-web-fetch-http/understand-the-implementation:
+  en: 9842c69ad3636bb3
+  zh: 3cdc3f816cbdd0cb
+/qilin-web-fetch-http/understand-the-implementation/design-philosophy:
+  en: b09832c1e63fee37
+  zh: 88427bd3fc022d34
+/qilin-web-fetch-http/understand-the-implementation/source-map:
+  en: e22ec70d55e0d8f7
+  zh: 1a333660eae37b1f
+/qilin-web-fetch-http/understand-the-implementation/read-path:
+  en: 749c0ffeac145807
+  zh: 1468821a33a9518a
+/qilin-web-fetch-http/further-exploration:
+  en: a74a50853efdc0c5
+  zh: 0d9c9b6340e07932
+/qilin-web-fetch-http/model-experience:
+  en: 771846af95daa886
+  zh: 20b3cb9193b74660
+/qilin-web-fetch-http/model-experience/kv-cache-effect:
+  en: 40294c1c31b74824
+  zh: d75d48f485447a74
+/qilin-web-fetch-http/known-limitations-and-deferred-work:
+  en: 4d935fd8f466a234
+  zh: c398eb7aa737f5ea
+/qilin-web-fetch-http/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

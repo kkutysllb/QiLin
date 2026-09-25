@@ -1,6 +1,64 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/mcp/mcp-resources/README.md
-README.md: 0995dd30ec37db436191924da6e12f4613b5280a
-README.zh.md: 4910114ffc4ffd4553867894529646cc39219ab7
+/:
+  en: 34b851d97ea0313e
+  zh: 2fa00063647b6eee
+/qilin-mcp-resources:
+  en: a7cef9846f0da62b
+  zh: 582d4daa9bbc5cbd
+/qilin-mcp-resources/summary:
+  en: bce3ffe5fdd801a6
+  zh: 7378d3a526c0043a
+/qilin-mcp-resources/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 725b47765ee8f30b
+/qilin-mcp-resources/use-this-package:
+  en: 1f8d430124c6b30b
+  zh: f8beadb2461b3d91
+/qilin-mcp-resources/use-this-package/server-configuration:
+  en: 40166de24ff78e77
+  zh: 29f269bfea41164a
+/qilin-mcp-resources/use-this-package/discover-and-read:
+  en: f7fb6597acd3c5dc
+  zh: 9c59219fb4ab00d9
+/qilin-mcp-resources/understand-the-implementation:
+  en: 8eb6ffd9fab4723a
+  zh: 917b8705cd586def
+/qilin-mcp-resources/further-exploration:
+  en: d1ab183ea9b282a5
+  zh: ed27a99bd03e0c8c
+/qilin-mcp-resources/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-mcp-resources/model-experience/shared-resource-tools:
+  en: 520e0b6cb35e4285
+  zh: 20a323f87e6d12fc
+/qilin-mcp-resources/model-experience/shared-resource-tools/what-the-model-sees:
+  en: f954481e4194c4bb
+  zh: 652e179f583e924b
+/qilin-mcp-resources/model-experience/shared-resource-tools/token-effect:
+  en: 92682e15ca9e90a5
+  zh: 3487ef2adb89c9e4
+/qilin-mcp-resources/model-experience/shared-resource-tools/kv-cache-effect:
+  en: fdb450babcdf877b
+  zh: f013ae46ce9e1125
+/qilin-mcp-resources/model-experience/resource-results:
+  en: f46ae3151a215b4d
+  zh: 8d15019792d3fe61
+/qilin-mcp-resources/model-experience/resource-results/what-the-model-sees:
+  en: 62d0a18c52283474
+  zh: 70b2fbea70c98818
+/qilin-mcp-resources/model-experience/resource-results/token-effect:
+  en: e6fb5043a1ccc6ff
+  zh: d15d2e7b5986d614
+/qilin-mcp-resources/model-experience/resource-results/kv-cache-effect:
+  en: ea0dfc069bf175c0
+  zh: 3e1465e56ff79764
+/qilin-mcp-resources/known-limitations-and-deferred-work:
+  en: 58d13dc99946c11d
+  zh: 4099c46a1ca60512
+/qilin-mcp-resources/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

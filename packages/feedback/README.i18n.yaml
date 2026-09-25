@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/feedback/README.md
-README.md: e4b538f2a498cdfa4e265226283c923a19b8b69e
-README.zh.md: a1a087a025a9cafafe6c692607ee8048911611b2
+/:
+  en: b5ab77523ec2a8a7
+  zh: 91b75813642d9934
+/feedback-recorded-human-feedback:
+  en: 4eb6654cfd974da7
+  zh: 306c1c89ca17b463
+/feedback-recorded-human-feedback/summary:
+  en: b83da5ba48f33c1c
+  zh: a6fd3b052843152a
+/feedback-recorded-human-feedback/table-of-contents:
+  en: 09848f4d056e4fc1
+  zh: 8df6139cff0288f6
+/feedback-recorded-human-feedback/packages:
+  en: 6b7c5670639e3a2d
+  zh: 98407da5cd30254b
+/feedback-recorded-human-feedback/related-documentation:
+  en: 9975b9a8c18c6989
+  zh: 977eb8b4d0710120
+/feedback-recorded-human-feedback/dev-note:
+  en: b75c8458928b72b9
+  zh: 003ba4e17b4b5269

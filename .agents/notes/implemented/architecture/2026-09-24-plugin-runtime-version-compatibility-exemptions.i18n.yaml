@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-24-plugin-runtime-version-compatibility-exemptions.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-24-plugin-runtime-version-compatibility-exemptions.md
-2026-09-24-plugin-runtime-version-compatibility-exemptions.md: bcc9a7dcc8a377820ebfeb5384cdb6b4433ac4d1
-2026-09-24-plugin-runtime-version-compatibility-exemptions.zh.md: dc5ef35038f08b9bedcc44dc8ddc8607c80b9ef2
+/agent-note-plugin-runtime-version-compatibility-with-per-profile-exemptions:
+  en: 6386a9edca5bff04
+  zh: 6e861d68f579d485
+/agent-note-plugin-runtime-version-compatibility-with-per-profile-exemptions/problem:
+  en: 7b9efb081a32687d
+  zh: e9cd93f781f78df7
+/agent-note-plugin-runtime-version-compatibility-with-per-profile-exemptions/decision:
+  en: efa2241ff784ecae
+  zh: c0f695ad02cbb8d6
+/agent-note-plugin-runtime-version-compatibility-with-per-profile-exemptions/alternatives-considered:
+  en: cdfcc183051bfdb3
+  zh: 88dbadcb65e92d89
+/agent-note-plugin-runtime-version-compatibility-with-per-profile-exemptions/consequences:
+  en: 46c35c179d9704d2
+  zh: 137becda43cce89f
+/agent-note-plugin-runtime-version-compatibility-with-per-profile-exemptions/verification:
+  en: 6171d7b3ccdedf49
+  zh: cbe722601a91234d

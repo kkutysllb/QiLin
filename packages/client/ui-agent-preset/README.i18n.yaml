@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-agent-preset/README.md
-README.md: d93df7c2fb98b156fd45311502c1cf8eef55bbaf
-README.zh.md: 1fea5cb758837427cfa9503ebbedc7ed5f61e056
+/:
+  en: 3278de201ad33089
+  zh: 51e7069b3ee387da
+/qilin-client-ui-agent-preset:
+  en: 30f6e645c7bcb50c
+  zh: cabc1e5a7187f5e3
+/qilin-client-ui-agent-preset/summary:
+  en: 4faf6bb86bf978bf
+  zh: cd05ce103e1e034d
+/qilin-client-ui-agent-preset/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-agent-preset/use-this-package:
+  en: 142320bda03115a3
+  zh: a71a9314e24e3832
+/qilin-client-ui-agent-preset/use-this-package/managing-the-roster:
+  en: c9b3d6dad8581c01
+  zh: 34be43c18449053e
+/qilin-client-ui-agent-preset/use-this-package/the-conversational-entry:
+  en: 4ba02329df8a6508
+  zh: 695f54df1f6e2261
+/qilin-client-ui-agent-preset/understand-the-implementation:
+  en: 3be1cd45ef0f3c73
+  zh: 0489f50bccb89ae3
+/qilin-client-ui-agent-preset/further-exploration:
+  en: cc90b6aadafd4a8c
+  zh: f902b665bfa9ad53
+/qilin-client-ui-agent-preset/model-experience:
+  en: 5174dc16b8930a37
+  zh: 46a31904e17bd5ad
+/qilin-client-ui-agent-preset/model-experience/kv-cache-effect:
+  en: daefa797529c67ca
+  zh: e69013e09bb16015
+/qilin-client-ui-agent-preset/known-limitations-and-deferred-work:
+  en: fb81f60a98dd4e32
+  zh: fd3bef165bd43553
+/qilin-client-ui-agent-preset/known-limitations-and-deferred-work/dev-note:
+  en: 9a841d8f018f77d1
+  zh: fb8b7bb71375e76e

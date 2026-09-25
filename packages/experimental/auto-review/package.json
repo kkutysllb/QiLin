@@ -1,6 +1,7 @@
 {
   "name": "@qilin/experimental-auto-review",
   "description": "Per-tool LLM authorization review for the QiLin Auto permission preset",
+  "icon": "./icon.svg",
   "version": "3.0.4",
   "repository": {
     "type": "git",
@@ -20,9 +21,12 @@
     },
     "./src/*": "./src/*",
     "./package.json": "./package.json",
-    "./cordis.patch.yml": "./cordis.patch.yml"
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "icon.svg",
+    "locale/*.json",
     "lib/index.js",
     "cordis.patch.yml",
     "lib/types/**/*.d.ts"
@@ -52,6 +56,7 @@
     "@qilin/fs-sandbox": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/permission-presets": "workspace:*",
     "@qilin/ptc-runtime-node": "workspace:*",
     "@qilin/sandbox": "workspace:*",

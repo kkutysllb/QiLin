@@ -62,6 +62,7 @@
     "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/llm-mock-server": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-projection": "workspace:*",

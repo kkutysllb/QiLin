@@ -4,6 +4,8 @@
  */
 
 export type {
+  LocalizedText,
+  PluginLocalizedMeta,
   QilinBundleManifest,
   QilinClientManifest,
   QilinEnginesManifest,

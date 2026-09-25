@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-documentpreview/README.md
-README.md: 3766546ac3b1c91f5b7fc6ac3bd3dc1838f98822
-README.zh.md: fb54f79837af5cc6dface4c13946bea8e38de597
+/:
+  en: ef50065f5ff17aa1
+  zh: ee5d2b7986739fca
+/qilin-client-ui-sidebar-documentpreview:
+  en: 7f134a73ec57776f
+  zh: d03deead0ebff702
+/qilin-client-ui-sidebar-documentpreview/summary:
+  en: 378c38093b3c5b8e
+  zh: f90adf2a9f37fb98
+/qilin-client-ui-sidebar-documentpreview/table-of-contents:
+  en: 60c4f8c4b08f3545
+  zh: bf6193641c1364dc
+/qilin-client-ui-sidebar-documentpreview/what-it-registers:
+  en: 14eccf3d14818219
+  zh: 2f1e4339fbc07801
+/qilin-client-ui-sidebar-documentpreview/addresses:
+  en: 1d472502200d8870
+  zh: fb481ad67e65fa35
+/qilin-client-ui-sidebar-documentpreview/how-it-reads:
+  en: f1869257299825c3
+  zh: e4a8c7c466d146e0
+/qilin-client-ui-sidebar-documentpreview/office-preview:
+  en: 7ee17344174d05b7
+  zh: 93bdd79b8e3ba8d7
+/qilin-client-ui-sidebar-documentpreview/navigation:
+  en: 5cd81a7b3cdc83bd
+  zh: 4cdd1b7ede497925
+/qilin-client-ui-sidebar-documentpreview/model-experience:
+  en: ca1deb99d0e44755
+  zh: f285fc56cee669ec
+/qilin-client-ui-sidebar-documentpreview/model-experience/kv-cache-effect:
+  en: 7edb4c0bb5f13847
+  zh: ae5d0bbebe4aa563
+/qilin-client-ui-sidebar-documentpreview/known-limitations-and-deferred-work:
+  en: 3f0a408913556898
+  zh: e51c46864eae364e
+/qilin-client-ui-sidebar-documentpreview/known-limitations-and-deferred-work/dev-note:
+  en: 3d8904cb970145a3
+  zh: a0c0cddcfedf9e42

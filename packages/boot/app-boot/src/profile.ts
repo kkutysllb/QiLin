@@ -261,13 +261,16 @@ export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
 /**
  * The bundles the qilin installation ships for a person to switch on: each a
  * runtime dependency of the installation that declares `qilin.bundle.patch`,
- * selected by no shipped template, and offered switched off by the plugin
- * manager ([rationale](../../../../.agents/notes/implemented/process/2026-09-15-shipped-optional-bundles.md)).
+ * an `icon`, and `./locale/*.json` display metadata, selected by no shipped
+ * template, and offered switched off by the plugin manager
+ * ([rationale](../../../../.agents/notes/implemented/process/2026-09-15-shipped-optional-bundles.md),
+ * [admission](../../../../.agents/notes/implemented/architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md)).
  */
 export const OPTIONAL_BUNDLES: readonly string[] = [
-  '@qilin/experimental-voice-input-bundle',
   '@qilin/experimental-agent-team-profile',
   '@qilin/experimental-agent-team-web-profile',
+  '@qilin/experimental-voice-input-bundle',
+  '@qilin/experimental-auto-review',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:

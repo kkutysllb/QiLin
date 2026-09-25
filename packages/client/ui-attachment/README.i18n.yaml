@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-attachment/README.md
-README.md: 9240cef7a6df32e2856ad2a199a1e2c98f8d9c7d
-README.zh.md: 1b62022f2b1ad39b19e8850a6f4d00a8cb34edf5
+/:
+  en: 414cbe20f39f7a82
+  zh: f56ebf03129a29b8
+/qilin-client-ui-attachment:
+  en: 04c911a0b242adb8
+  zh: 136a2c1c545d6b13
+/qilin-client-ui-attachment/summary:
+  en: f36aa7a85597dd66
+  zh: f7e87849791fe89a
+/qilin-client-ui-attachment/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-attachment/use-this-package:
+  en: bab9cd061b0f9d65
+  zh: 69ba5823cb391e85
+/qilin-client-ui-attachment/use-this-package/draft-attachments:
+  en: a77c8ec48e219aec
+  zh: 756d4fe881403006
+/qilin-client-ui-attachment/use-this-package/message-images-and-the-lightbox:
+  en: 8b3d7729152d8060
+  zh: 815f932ccc9653f5
+/qilin-client-ui-attachment/use-this-package/drop-overlay:
+  en: b9e22124f6688c37
+  zh: aa3918291aef3f17
+/qilin-client-ui-attachment/understand-the-implementation:
+  en: 415bd2b09bb84b6b
+  zh: 2e49a39fb3957b4f
+/qilin-client-ui-attachment/further-exploration:
+  en: 2b0ff44fc5abbce1
+  zh: faeec6dbc0c56fe8
+/qilin-client-ui-attachment/model-experience:
+  en: 25566605d7b38667
+  zh: 927d3ea272893296
+/qilin-client-ui-attachment/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-attachment/known-limitations-and-deferred-work:
+  en: 9a16cb4f174464cf
+  zh: 3de4b8288a74c594
+/qilin-client-ui-attachment/known-limitations-and-deferred-work/dev-note:
+  en: a06a37a39a68c325
+  zh: d465458aa4406397

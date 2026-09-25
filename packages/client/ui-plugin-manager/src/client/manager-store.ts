@@ -235,6 +235,11 @@ export interface PluginManagerFace {
   ensure: () => void
   /** Read the Host again. */
   refresh: () => void
+  /**
+   * Receive the bundle-reveal action while the page is mounted; the returned
+   * disposer unregisters it. Backs the `pluginNavigation` channel.
+   */
+  registerOpen?: (handler: (packageName: string) => void) => () => void
   openInstall: () => void
   /** Close the dialog; a check in flight is dropped, a Host-owned run has to be cancelled first. */
   closeInstall: () => void

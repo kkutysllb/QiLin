@@ -1,6 +1,85 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/compaction/compaction/README.md
-README.md: e20800cfdfb5e2d30354b3352446922a0b2f3018
-README.zh.md: ea92f8eb7af6a34748a4461bf886f2093f2dba82
+/:
+  en: 5c47c9629036f119
+  zh: 7730d7468a38b38d
+/qilin-compaction:
+  en: c840d0ca2fbd48b5
+  zh: 7f56057c5118fe46
+/qilin-compaction/summary:
+  en: 45df7ffaa893ddba
+  zh: bc09330e487a0822
+/qilin-compaction/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-compaction/use-this-package:
+  en: 7d1dad97626dbd2e
+  zh: 075fef4e1844ad12
+/qilin-compaction/use-this-package/when-to-choose-it:
+  en: 5a17090293b8cfb0
+  zh: 6707423be7039a60
+/qilin-compaction/use-this-package/what-condensation-looks-like:
+  en: 0abbee3a3b929a90
+  zh: 334736dffe93488d
+/qilin-compaction/use-this-package/turning-condensation-on:
+  en: e551048815373de2
+  zh: bc08e4a0946a8d80
+/qilin-compaction/use-this-package/implementing-a-backend:
+  en: 8f4465774226630c
+  zh: cb5351816428e083
+/qilin-compaction/use-this-package/recognizing-condensed-history:
+  en: 6b698c775b41d3e5
+  zh: 333d2b86cc1d6eb0
+/qilin-compaction/understand-the-implementation:
+  en: 321c3dc665ea03ff
+  zh: f0fa408cde7b0454
+/qilin-compaction/understand-the-implementation/design-philosophy:
+  en: fc76a3dfe6dfb68a
+  zh: cee531777137932b
+/qilin-compaction/understand-the-implementation/service-api:
+  en: 0b9edbbf144e6973
+  zh: 6de6e6d920e70e96
+/qilin-compaction/understand-the-implementation/manual-failure-taxonomy:
+  en: f139df949cf288ea
+  zh: 51ab9f127578cf75
+/qilin-compaction/understand-the-implementation/tool-pairing-boundaries:
+  en: 15dad68a04d6c86b
+  zh: 3b95acf1b7e503bf
+/qilin-compaction/understand-the-implementation/the-surface-contract:
+  en: 8606610465cf1d5e
+  zh: 5dad56458947e548
+/qilin-compaction/understand-the-implementation/source-map:
+  en: 45f379354abbfea0
+  zh: f8f9d8d3eb9866b5
+/qilin-compaction/understand-the-implementation/locking-and-serialization:
+  en: 68caa51bed28bada
+  zh: 3f8261f9dcba95ed
+/qilin-compaction/understand-the-implementation/events:
+  en: c972fe7e246ac3e0
+  zh: 69c7b92eaf8d0e44
+/qilin-compaction/further-exploration:
+  en: 30ce8988a71dceec
+  zh: 03b615969099762d
+/qilin-compaction/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-compaction/model-experience/conversation-history-when-a-backend-is-invoked:
+  en: 94de97ed1e85db85
+  zh: c8e37d8050609e63
+/qilin-compaction/model-experience/conversation-history-when-a-backend-is-invoked/what-the-model-sees:
+  en: 3c4875a13da17814
+  zh: 9b257950a9e2c7c1
+/qilin-compaction/model-experience/conversation-history-when-a-backend-is-invoked/token-effect:
+  en: be91f4a4bbb9338b
+  zh: 2b5de31d4d7caff1
+/qilin-compaction/model-experience/conversation-history-when-a-backend-is-invoked/kv-cache-effect:
+  en: 40ba838a2309c44a
+  zh: c609fc1587a0d666
+/qilin-compaction/known-limitations-and-deferred-work:
+  en: fee9ba06d3e5f35c
+  zh: 2bb5241e2447d15d
+/qilin-compaction/known-limitations-and-deferred-work/dev-note:
+  en: 270e23ae6414aff0
+  zh: c6d219b8a547dbca

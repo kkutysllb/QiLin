@@ -18,6 +18,9 @@
       "path": "../../../vendor/schemastery"
     },
     {
+      "path": "../../../vendor/loader"
+    },
+    {
       "path": "../../llm/llm"
     },
     {
@@ -36,16 +39,10 @@
       "path": "../../util/home-paths"
     },
     {
-      "path": "../../credentials/credentials"
-    },
-    {
       "path": "../deepseek-llm-api-extensions"
     },
     {
       "path": "../../util/launch-environment"
-    },
-    {
-      "path": "../../settings/settings"
     },
     {
       "path": "../../util/timeout"

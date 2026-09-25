@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/session/session-format-catalog/README.md
-README.md: b0538736b76280231c9ad6df61fdf55a47cdc7a1
-README.zh.md: 49b6c3dbce34a9cf7cf588aa59e1b7ad688b8370
+/:
+  en: 89c9b992aff39650
+  zh: 94d371a24dedeec1
+/qilin-session-format-catalog:
+  en: 45d4a96ed6641bba
+  zh: 7a38750168504f73
+/qilin-session-format-catalog/summary:
+  en: 060d1a7afbec266f
+  zh: 9ffe3ebca516e8c6
+/qilin-session-format-catalog/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-session-format-catalog/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/qilin-session-format-catalog/use-this-package/when-to-use-it:
+  en: 705e341a9189d58f
+  zh: 849007446a7b8a46
+/qilin-session-format-catalog/use-this-package/entry-point:
+  en: 8a74331e698e3d01
+  zh: dc145b9a5573114d
+/qilin-session-format-catalog/understand-the-implementation:
+  en: cac81936d7b06de4
+  zh: 6ec5b5af0c115464
+/qilin-session-format-catalog/further-exploration:
+  en: 5474f1ae177e6543
+  zh: 3182e54d01e8bb23
+/qilin-session-format-catalog/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-session-format-catalog/model-experience/catalog-dispatch:
+  en: 370b9bf19d575dbd
+  zh: e08724fcf4189634
+/qilin-session-format-catalog/model-experience/catalog-dispatch/what-the-model-sees:
+  en: 53fa22f9082ca037
+  zh: 81c5ebd439d9afdf
+/qilin-session-format-catalog/model-experience/catalog-dispatch/token-effect:
+  en: f7d1eb359afe1932
+  zh: 5fc82f0403c52d19
+/qilin-session-format-catalog/model-experience/catalog-dispatch/kv-cache-effect:
+  en: 3796ca9965965a66
+  zh: a6f655fa0d6e7aa4
+/qilin-session-format-catalog/known-limitations-and-deferred-work:
+  en: 9f86bd4bcaa5f43d
+  zh: aef8d58f4d1e0370
+/qilin-session-format-catalog/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

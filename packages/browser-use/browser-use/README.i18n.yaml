@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/browser-use/browser-use/README.md
-README.md: b2fd95fdae430915fc96633867ccc2d921e8f19c
-README.zh.md: b051c7f340f9813b3bc7871752cec784d901cdb8
+/:
+  en: f40b34f771caa863
+  zh: f61d7ce73e0720e2
+/qilin-browser-use:
+  en: 3faed0ad44a63838
+  zh: 1647a85ef39b0ab2
+/qilin-browser-use/summary:
+  en: 3e2c0d4aad911b93
+  zh: 3e3903754a46de8e
+/qilin-browser-use/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: f14f34fce35a8d90
+/qilin-browser-use/use-this-package:
+  en: b981e34a09985257
+  zh: c482fb97bc096e1a
+/qilin-browser-use/understand-the-implementation:
+  en: e8421af75ba37792
+  zh: 3dbc5e6ff5291972
+/qilin-browser-use/further-exploration:
+  en: c32c24ca938f2a97
+  zh: fb577661f82fcac7
+/qilin-browser-use/model-experience:
+  en: 8780c250dfaefaaa
+  zh: f1fd94f7531b60a1
+/qilin-browser-use/model-experience/kv-cache-effect:
+  en: 0cc866a67a19d08b
+  zh: c6a46b147b042cff
+/qilin-browser-use/known-limitations-and-deferred-work:
+  en: 43952e97817e9e32
+  zh: a5e494860a71fc71
+/qilin-browser-use/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 8ec3e73528ddb1a6

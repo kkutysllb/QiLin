@@ -207,6 +207,9 @@ importers:
       '@qilin/experimental-agent-team-web-profile':
         specifier: workspace:*
         version: link:../../packages/experimental/agent-team-web-profile
+      '@qilin/experimental-auto-review':
+        specifier: workspace:*
+        version: link:../../packages/experimental/auto-review
       '@qilin/experimental-voice-input-bundle':
         specifier: workspace:*
         version: link:../../packages/experimental/voice-input-bundle
@@ -454,6 +457,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../packages/llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../packages/llm/llm-deepseek-api-key
       '@qilin/llm-mock-server':
         specifier: workspace:*
         version: link:../../packages/test-support/llm-mock-server
@@ -1042,6 +1048,9 @@ importers:
       '@qilin/plugin-manager':
         specifier: workspace:*
         version: link:../../boot/plugin-manager
+      '@qilin/schedule':
+        specifier: workspace:*
+        version: link:../../schedule/schedule
       '@qilin/scope':
         specifier: workspace:*
         version: link:../../core/scope
@@ -1715,9 +1724,9 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin/llm-deepseek':
+      '@qilin/llm-deepseek-api-key':
         specifier: workspace:*
-        version: link:../../llm/llm-deepseek
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/llm-pi-ai':
         specifier: workspace:*
         version: link:../../llm/llm-pi-ai
@@ -2003,9 +2012,9 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin/llm-deepseek':
+      '@qilin/llm-deepseek-api-key':
         specifier: workspace:*
-        version: link:../../llm/llm-deepseek
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/llm-retry':
         specifier: workspace:*
         version: link:../../llm/llm-retry
@@ -2316,6 +2325,9 @@ importers:
       '@qilin/office-to-pdf':
         specifier: workspace:*
         version: link:../../document/office-to-pdf
+      '@qilin/schedule':
+        specifier: workspace:*
+        version: link:../../schedule/schedule
       '@qilin/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
@@ -2334,6 +2346,9 @@ importers:
       '@qilin/subprocess':
         specifier: workspace:*
         version: link:../../subprocess/subprocess
+      '@qilin/time-context':
+        specifier: workspace:*
+        version: link:../../context/time-context
       '@qilin/tool-kylin':
         specifier: workspace:*
         version: link:../../extensions/tool-kylin
@@ -3925,6 +3940,9 @@ importers:
       '@qilin/client-ui-settings':
         specifier: workspace:*
         version: link:../ui-settings
+      '@qilin/client-ui-settings-general':
+        specifier: workspace:*
+        version: link:../ui-settings-general
       '@qilin/client-ui-sidebar':
         specifier: workspace:*
         version: link:../ui-sidebar
@@ -4114,9 +4132,18 @@ importers:
 
   packages/client/ui-schedule:
     devDependencies:
+      '@qilin/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
       '@qilin/api-session-controller':
         specifier: workspace:*
         version: link:../../api/session-controller
+      '@qilin/api-workspace-controller':
+        specifier: workspace:*
+        version: link:../../api/workspace-controller
+      '@qilin/client-connection':
+        specifier: workspace:*
+        version: link:../connection
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
@@ -4126,6 +4153,9 @@ importers:
       '@qilin/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
+      '@qilin/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
       '@qilin/client-ui-primitives':
         specifier: workspace:*
         version: link:../ui-primitives
@@ -4135,9 +4165,21 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin/client-ui-sidebar':
+        specifier: workspace:*
+        version: link:../ui-sidebar
+      '@qilin/client-ui-sidebar-right':
+        specifier: workspace:*
+        version: link:../ui-sidebar-right
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin/client-ui-tool':
+        specifier: workspace:*
+        version: link:../ui-tool
+      '@qilin/client-ui-workspace':
+        specifier: workspace:*
+        version: link:../ui-workspace
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -4147,6 +4189,9 @@ importers:
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4156,6 +4201,9 @@ importers:
       '@types/react-dom':
         specifier: ~18.3.0
         version: 18.3.7(@types/react@18.3.31)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -5993,6 +6041,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -6293,6 +6344,9 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../../llm/llm
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/llm-pi-ai':
         specifier: workspace:*
         version: link:../../llm/llm-pi-ai
@@ -6778,6 +6832,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/permission-presets':
         specifier: workspace:*
         version: link:../../interaction/permission-presets
@@ -7563,6 +7620,9 @@ importers:
       '@qilin/sandbox-policy':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-policy
+      '@qilin/schedule':
+        specifier: workspace:*
+        version: link:../../schedule/schedule
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -7910,6 +7970,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/ptc-runtime':
         specifier: workspace:*
         version: link:../../ptc-runtime/ptc-runtime
@@ -8910,6 +8973,9 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../llm
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../llm-deepseek-api-key
       '@qilin/plugin-package-inventory-deepseek':
         specifier: workspace:*
         version: link:../plugin-package-inventory-deepseek
@@ -8937,6 +9003,70 @@ importers:
       '@qilin/tools':
         specifier: workspace:*
         version: link:../../core/tools
+
+  packages/llm/llm-deepseek-api-key:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin/anonymous-user-id':
+        specifier: workspace:*
+        version: link:../../identity/anonymous-user-id
+      '@qilin/atomic-write':
+        specifier: workspace:*
+        version: link:../../util/atomic-write
+      '@qilin/attachment':
+        specifier: workspace:*
+        version: link:../../attachment/attachment
+      '@qilin/attachment-local':
+        specifier: workspace:*
+        version: link:../../attachment/attachment-local
+      '@qilin/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin/credentials':
+        specifier: workspace:*
+        version: link:../../credentials/credentials
+      '@qilin/credentials-local':
+        specifier: workspace:*
+        version: link:../../credentials/credentials-local
+      '@qilin/deepseek-llm-api-extensions':
+        specifier: workspace:*
+        version: link:../deepseek-llm-api-extensions
+      '@qilin/fs':
+        specifier: workspace:*
+        version: link:../../fs/fs
+      '@qilin/home-paths':
+        specifier: workspace:*
+        version: link:../../util/home-paths
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin/launch-environment':
+        specifier: workspace:*
+        version: link:../../util/launch-environment
+      '@qilin/llm':
+        specifier: workspace:*
+        version: link:../llm
+      '@qilin/llm-deepseek':
+        specifier: workspace:*
+        version: link:../llm-deepseek
+      '@qilin/settings':
+        specifier: workspace:*
+        version: link:../../settings/settings
+      '@qilin/settings-file':
+        specifier: workspace:*
+        version: link:../../settings/settings-file
+      '@qilin/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
 
   packages/llm/llm-pi-ai:
     dependencies:
@@ -8980,6 +9110,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../llm-deepseek-api-key
       '@qilin/settings':
         specifier: workspace:*
         version: link:../../settings/settings
@@ -9026,6 +9159,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../llm-deepseek-api-key
       '@qilin/llm-mock-server':
         specifier: workspace:*
         version: link:../../test-support/llm-mock-server
@@ -9642,6 +9778,12 @@ importers:
 
   packages/schedule/schedule:
     dependencies:
+      '@js-temporal/polyfill':
+        specifier: 0.5.1
+        version: 0.5.1
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -9655,6 +9797,9 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
+      '@qilin/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -9682,12 +9827,24 @@ importers:
       '@qilin/session-projection':
         specifier: workspace:*
         version: link:../../session/session-projection
+      '@qilin/storage':
+        specifier: workspace:*
+        version: link:../../storage/storage
+      '@qilin/storage-domain':
+        specifier: workspace:*
+        version: link:../../storage/storage-domain
+      '@qilin/storage-json':
+        specifier: workspace:*
+        version: link:../../storage/storage-json
       '@qilin/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
       '@qilin/tools':
         specifier: workspace:*
         version: link:../../core/tools
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
 
   packages/sdk/client:
     dependencies:
@@ -9728,6 +9885,9 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
@@ -10142,6 +10302,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/llm-mock-server':
         specifier: workspace:*
         version: link:../../test-support/llm-mock-server
@@ -10460,6 +10623,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -11412,6 +11578,9 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../../llm/llm
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/permission-presets':
         specifier: workspace:*
         version: link:../../interaction/permission-presets
@@ -11872,6 +12041,9 @@ importers:
       '@qilin/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -13256,6 +13428,9 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../../llm/llm
+      '@qilin/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
       '@qilin/ptc-runtime':
         specifier: workspace:*
         version: link:../../ptc-runtime/ptc-runtime
@@ -15234,6 +15409,10 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@js-temporal/polyfill@0.5.1':
+    resolution: {integrity: sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ==}
+    engines: {node: '>=12'}
 
   '@koromix/koffi-darwin-arm64@3.1.1':
     resolution: {integrity: sha512-+Dl0zQDh1Wb55AWOn9hp7K30qgkODvrvN+ZNkFOh81Q0oFX/rpJQtocgjAuYk2zFAcajSeVDumkcHMPwnKSXzA==}
@@ -18827,6 +19006,9 @@ packages:
   js-yaml@4.3.1:
     resolution: {integrity: sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ==}
     hasBin: true
+
+  jsbi@4.3.2:
+    resolution: {integrity: sha512-9fqMSQbhJykSeii05nxKl4m6Eqn2P6rOlYiS+C5Dr/HPIU/7yZxu5qzbs40tgaFORiw2Amd0mirjxatXYMkIew==}
 
   jsbn@0.1.1:
     resolution: {integrity: sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==}
@@ -22523,6 +22705,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@js-temporal/polyfill@0.5.1':
+    dependencies:
+      jsbi: 4.3.2
+
   '@koromix/koffi-darwin-arm64@3.1.1':
     optional: true
 
@@ -26209,6 +26395,8 @@ snapshots:
   js-yaml@4.3.1:
     dependencies:
       argparse: 2.0.1
+
+  jsbi@4.3.2: {}
 
   jsbn@0.1.1: {}
 

@@ -5,7 +5,7 @@ import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
 import LocalFileSystem from '@qilin/fs-local'
 import * as FsPolicy from '@qilin/fs-observation-policy'
 import * as ToolFs from '@qilin/tool-fs'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 
 /**
  * Build the real fs-tool stack for with-key e2e tests. Agents have no session

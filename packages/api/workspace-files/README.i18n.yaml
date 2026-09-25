@@ -1,6 +1,70 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/api/workspace-files/README.md
-README.md: eaeae6d4f62f0aedfa15af0b7e6e1181b4d06f24
-README.zh.md: a6da8fe300ef85218db2b0c4ac62e75b8137a335
+/:
+  en: 6182120493641873
+  zh: a859f2a25cf512e5
+/qilin-api-workspace-files:
+  en: e379b4ac3f1aedb4
+  zh: d0a84d8bafee31e0
+/qilin-api-workspace-files/summary:
+  en: 8407586d54ad72fb
+  zh: cd0150adf3a6f66e
+/qilin-api-workspace-files/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-api-workspace-files/use-this-package:
+  en: 4f96e0b6606ac665
+  zh: 6c35ffe89f4c497b
+/qilin-api-workspace-files/use-this-package/addressing-and-paths:
+  en: 9495e2e896d582be
+  zh: a88f8c4ec8faee18
+/qilin-api-workspace-files/use-this-package/pages:
+  en: 9cd68b8be3390c80
+  zh: 26049ce447f00452
+/qilin-api-workspace-files/use-this-package/byte-windows:
+  en: e7ec8873dc078977
+  zh: 35ae2cd6aaa8f94e
+/qilin-api-workspace-files/use-this-package/file-read-and-directory-checks:
+  en: bce8d53f39422ed5
+  zh: 8d59789e2ce3f2cc
+/qilin-api-workspace-files/use-this-package/text-saves:
+  en: 004829dfcaa7f1b7
+  zh: 73cd73ec783385b3
+/qilin-api-workspace-files/use-this-package/the-change-feed:
+  en: ec601195206adcd3
+  zh: 8745093e8bddb1dc
+/qilin-api-workspace-files/use-this-package/configuration:
+  en: 65c78002bc0f7949
+  zh: c0cb68bb4e6fc30c
+/qilin-api-workspace-files/use-this-package/failures:
+  en: 35f8d68cb6ab6980
+  zh: 7f338856c65bc157
+/qilin-api-workspace-files/use-this-package/client-file-resources:
+  en: 682dc4f2c5713d56
+  zh: 0f7845c7d519e95b
+/qilin-api-workspace-files/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: ce1d25bffb6948cd
+/qilin-api-workspace-files/understand-the-implementation/design-concept:
+  en: 8366f191747620a7
+  zh: f0a509dae669ccdf
+/qilin-api-workspace-files/understand-the-implementation/source-map:
+  en: eeaf67c1b42ba4d5
+  zh: 7568d92e5cffa440
+/qilin-api-workspace-files/further-exploration:
+  en: 421908edb3f05f30
+  zh: 06bf22f3ce2b75ff
+/qilin-api-workspace-files/model-experience:
+  en: 37b4264c8301323f
+  zh: 74ea89b3383ff7da
+/qilin-api-workspace-files/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: 03126f3b1aac5859
+/qilin-api-workspace-files/known-limitations-and-deferred-work:
+  en: 8b35acbace899a31
+  zh: 9c23b8f4c4095b7f
+/qilin-api-workspace-files/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: e88aeb617ffb74ea

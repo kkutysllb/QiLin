@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-plugin-inventory/README.md
-README.md: 3f2cc73e0cfe0331d0c706f8d97a8e503a561b03
-README.zh.md: f4fd17a472846b357cf5ed868ad12043c800951a
+/:
+  en: 0ce1d956e5fbda5d
+  zh: 476ac10c0fae4da9
+/qilin-client-ui-settings-plugin-inventory:
+  en: be66400b55c33ebb
+  zh: 8b9be403af6e24f1
+/qilin-client-ui-settings-plugin-inventory/summary:
+  en: 5681291e2920c17b
+  zh: 1b90b9eeec3ca6ee
+/qilin-client-ui-settings-plugin-inventory/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-settings-plugin-inventory/use-this-package:
+  en: 67637808e7940157
+  zh: d4d0716ea4d33e4a
+/qilin-client-ui-settings-plugin-inventory/use-this-package/reading-a-card:
+  en: d8dfb4724d984c27
+  zh: 54b59598619374b0
+/qilin-client-ui-settings-plugin-inventory/use-this-package/the-preset-switcher:
+  en: 84e5938329199a22
+  zh: 6f5cfaac56433e8b
+/qilin-client-ui-settings-plugin-inventory/use-this-package/retrying-a-failed-read:
+  en: 07c12608e022bd61
+  zh: e33d68379beb1a7b
+/qilin-client-ui-settings-plugin-inventory/understand-the-implementation:
+  en: cab883d26642c932
+  zh: 54e7321bd781b400
+/qilin-client-ui-settings-plugin-inventory/understand-the-implementation/registration:
+  en: e4792880c5916ce0
+  zh: 4c8171a446dd153f
+/qilin-client-ui-settings-plugin-inventory/understand-the-implementation/rendering:
+  en: b9aa850e5f101b68
+  zh: 8a29025f19f6ce37
+/qilin-client-ui-settings-plugin-inventory/further-exploration:
+  en: 5fd387129d5d2919
+  zh: 7950594ad049ae26
+/qilin-client-ui-settings-plugin-inventory/model-experience:
+  en: 69fb187ac2361233
+  zh: d4d3ec4ed3e3d98d
+/qilin-client-ui-settings-plugin-inventory/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-settings-plugin-inventory/known-limitations-and-deferred-work:
+  en: 3d3343d97eb73762
+  zh: 5fc9d1c1f0c4055d
+/qilin-client-ui-settings-plugin-inventory/known-limitations-and-deferred-work/dev-note:
+  en: 7516b7e39304e5b3
+  zh: 8961c0cefb89ee12

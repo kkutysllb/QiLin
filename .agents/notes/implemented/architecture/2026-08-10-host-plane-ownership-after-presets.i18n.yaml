@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-10-host-plane-ownership-after-presets.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-10-host-plane-ownership-after-presets.md
-2026-08-10-host-plane-ownership-after-presets.md: e930b5dbce508e12d46495b9653b3147b6b5001c
-2026-08-10-host-plane-ownership-after-presets.zh.md: a556a9f79dce439eec78d86ccfae2716603251fc
+/agent-note-what-stays-host-plane-once-presets-own-the-agent-plane:
+  en: b70b99437806b8f3
+  zh: cee32700079c2179
+/agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/problem:
+  en: d82ddfedd2ccbb7c
+  zh: 95d0a366f71e7d41
+/agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/decision:
+  en: 1f067b31802a9f29
+  zh: aebb474e495f15f6
+/agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/testing:
+  en: 7cc5eda885c51623
+  zh: e34ba752fd250f96
+/agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/alternatives-considered:
+  en: eac46307265e647d
+  zh: acfad02f8ca1dc3f
+/agent-note-what-stays-host-plane-once-presets-own-the-agent-plane/consequences:
+  en: 5a0a9e16acc26669
+  zh: aacf4cb8c6d71f9c

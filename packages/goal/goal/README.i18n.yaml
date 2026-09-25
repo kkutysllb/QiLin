@@ -1,6 +1,73 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/goal/goal/README.md
-README.md: 7dda1edd19a74e90b7dfdb87801c4aebe949c8b6
-README.zh.md: 3026328167bb85f232bea3a79ae50c0e9d47b15c
+/:
+  en: 6509c63744950c59
+  zh: b7d4e056e0591155
+/qilin-goal:
+  en: 5515a65ce1b92665
+  zh: c8283a6009a6f8f4
+/qilin-goal/summary:
+  en: bd618e97cbc8b49e
+  zh: 0824f26e88e39416
+/qilin-goal/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-goal/use-this-package:
+  en: 34291ffb2440758b
+  zh: dfe173704089c552
+/qilin-goal/use-this-package/when-to-use-it:
+  en: 44fbecf68641514a
+  zh: afa1720f5128cf1b
+/qilin-goal/use-this-package/set-up-the-service:
+  en: 343d994651885e6c
+  zh: e8768c804cb7476b
+/qilin-goal/use-this-package/session-projection:
+  en: 8f512796fe15a76a
+  zh: 714636f87b794cf9
+/qilin-goal/use-this-package/drive-the-lifecycle:
+  en: 622890ced87a44e9
+  zh: 6ba1f3f872400452
+/qilin-goal/use-this-package/what-survives-and-what-does-not:
+  en: e5cd2097500a9027
+  zh: 3ecae388f839c944
+/qilin-goal/use-this-package/observing-a-goal:
+  en: 3074e4c76de81d22
+  zh: 10134afe344dafb3
+/qilin-goal/understand-the-implementation:
+  en: 592af7e68423bd1c
+  zh: 9b1f08393db1b14e
+/qilin-goal/understand-the-implementation/design:
+  en: 6f19e891ffc79754
+  zh: 9599e3b142f1e6b5
+/qilin-goal/understand-the-implementation/source-map:
+  en: f0451101cf73da7d
+  zh: 73176ab69bb63a7f
+/qilin-goal/understand-the-implementation/events-and-attribution:
+  en: 502cf61dba8b22ca
+  zh: 2b6f672bb2ac84ba
+/qilin-goal/further-exploration:
+  en: 4e0fb438bddb12cc
+  zh: a42f04b925010a23
+/qilin-goal/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-goal/model-experience/goal-state-mutations:
+  en: 6e6274de7991ef9e
+  zh: be2048ca18b3cbab
+/qilin-goal/model-experience/goal-state-mutations/what-the-model-sees:
+  en: 7f3f6cf3e85ca188
+  zh: 758596ce93635eab
+/qilin-goal/model-experience/goal-state-mutations/token-effect:
+  en: 5c3d2b320679252b
+  zh: 67156a0cec8c8e60
+/qilin-goal/model-experience/goal-state-mutations/kv-cache-effect:
+  en: 5fcc49f70cf6604d
+  zh: 39a3ba8fcdfba009
+/qilin-goal/known-limitations-and-deferred-work:
+  en: 603f02f358ff5e10
+  zh: 887ac7f987396460
+/qilin-goal/known-limitations-and-deferred-work/dev-note:
+  en: 0b672d0c3b09cd5d
+  zh: 8f5d79353a6e5d63

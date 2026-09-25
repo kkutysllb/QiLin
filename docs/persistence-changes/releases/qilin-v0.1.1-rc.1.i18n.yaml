@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for qilin-v0.1.1-rc.1.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/persistence-changes/releases/qilin-v0.1.1-rc.1.md
-qilin-v0.1.1-rc.1.md: 0e5fd0e4cb41d06f48b043684b3ae247f55f470a
-qilin-v0.1.1-rc.1.zh.md: a111b4cc88decb620d974b61af2af0f2d727dbbd
+/:
+  en: 5b4b0e82a1cf4e3f
+  zh: b3f37c25f761d483
+/persistence-release-qilin-v0-1-1-rc-1:
+  en: 2cae681798775be6
+  zh: 5f09cf88facae8fa
+/persistence-release-qilin-v0-1-1-rc-1/summary:
+  en: 47946c3b3ff04b97
+  zh: 060d1167f702a699
+/persistence-release-qilin-v0-1-1-rc-1/table-of-contents:
+  en: 0ff4a6f3c6af323f
+  zh: f5c7bd70cc1585c7
+/persistence-release-qilin-v0-1-1-rc-1/release-evidence:
+  en: 56c55e42a6b7ca3c
+  zh: 4036cb3dcd027d65
+/persistence-release-qilin-v0-1-1-rc-1/declaration:
+  en: af9cea43334ee692
+  zh: c6c8bd0d6a17718a
+/persistence-release-qilin-v0-1-1-rc-1/structural-changes:
+  en: 0be3fa84192c242d
+  zh: 59dc45dd8e7f7594
+/persistence-release-qilin-v0-1-1-rc-1/verification:
+  en: 8ccca317964523b1
+  zh: 2c8b3e70a3320778
+/persistence-release-qilin-v0-1-1-rc-1/dev-note:
+  en: b75c8458928b72b9
+  zh: 003ba4e17b4b5269

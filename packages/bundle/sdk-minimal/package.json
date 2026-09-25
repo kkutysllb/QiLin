@@ -44,7 +44,7 @@
     "@qilin/invariants": "workspace:*",
     "@qilin/jobs-local": "workspace:*",
     "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/llm-retry": "workspace:*",
     "@qilin/mcp-resources": "workspace:*",
     "@qilin/plugin-package-inventory-deepseek": "workspace:*",

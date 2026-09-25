@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for system-prompt.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/system-prompt.md
-system-prompt.md: d43475b9752b933cbc6a0ff95aefa8e9a57dbcf3
-system-prompt.zh.md: 49dab7bfbc39541766ad47561bc03e013ca17ec3
+/system-prompt-assembly:
+  en: 37adf226497b9e17
+  zh: 9aee34de0da12eb8
+/system-prompt-assembly/assembly-context:
+  en: 3ddb2b4eadc1989c
+  zh: a00a8bfbe3333578
+/system-prompt-assembly/tool-provider-result:
+  en: 89cb015bf2e3e7a5
+  zh: b4340e853b34c777
+/system-prompt-assembly/prompt-sections:
+  en: 8abf4628bc05ed76
+  zh: f4681ac3817a2ec6
+/system-prompt-assembly/dynamic-prompt-context:
+  en: 043740c2cf02b0aa
+  zh: 5f0bca1306975c72

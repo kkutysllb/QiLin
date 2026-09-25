@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-09-committed-artifact-citations.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-08-09-committed-artifact-citations.md
-2026-08-09-committed-artifact-citations.md: 5c507254d0ce2dda2ac425914eb0cbd7922daee8
-2026-08-09-committed-artifact-citations.zh.md: bc4d2132dc21bce7de37244798d4be7f2bba0309
+/agent-note-cite-committed-artifacts-never-design-session-ordinals:
+  en: 52dc593f8b606633
+  zh: 9c30e3a1dd04ecb7
+/agent-note-cite-committed-artifacts-never-design-session-ordinals/problem:
+  en: 79dc8b3d2c600d91
+  zh: e7b16c9e276e565f
+/agent-note-cite-committed-artifacts-never-design-session-ordinals/decision:
+  en: 15689896ffdf261e
+  zh: 3d396a2bdc07172b
+/agent-note-cite-committed-artifacts-never-design-session-ordinals/alternatives-considered:
+  en: cdf3ce2ccd530449
+  zh: f24bb73190b4b22b
+/agent-note-cite-committed-artifacts-never-design-session-ordinals/verification:
+  en: fb9ce345704f7da4
+  zh: 3148c6bbf67ad87f
+/agent-note-cite-committed-artifacts-never-design-session-ordinals/consequences:
+  en: 53fe33cd40aa7133
+  zh: 4eaf89d5dea43c62

@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-transcript-width-handle-layering.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-14-transcript-width-handle-layering.md
-2026-09-14-transcript-width-handle-layering.md: 01d70e646e874d8266633597f1b510ad73fc2287
-2026-09-14-transcript-width-handle-layering.zh.md: c6e03ec5775256f5aac87d2f7c1ed66a12cf0c2a
+/agent-note-transcript-width-handles-stay-behind-chat-content:
+  en: 80ce97dc257f0e8a
+  zh: 46ee7bb4990273b8
+/agent-note-transcript-width-handles-stay-behind-chat-content/problem:
+  en: e51cd9d946a236f6
+  zh: e8e02a83534aeeb4
+/agent-note-transcript-width-handles-stay-behind-chat-content/decision:
+  en: a4fcb5871bc3b831
+  zh: db1292aa61c46a1f
+/agent-note-transcript-width-handles-stay-behind-chat-content/alternatives-considered:
+  en: 75d100d1147b091c
+  zh: 68088a9c51fb5d33
+/agent-note-transcript-width-handles-stay-behind-chat-content/consequences:
+  en: 10ae22ca430a7fed
+  zh: 2eb855d179582b21

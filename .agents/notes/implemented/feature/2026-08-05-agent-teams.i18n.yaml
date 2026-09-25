@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-05-agent-teams.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-05-agent-teams.md
-2026-08-05-agent-teams.md: bdf646db9b1617ded7f50f4145887f34a52ae83c
-2026-08-05-agent-teams.zh.md: 5386044edb57dad9fabf114d565808c735846464
+/agent-note-durable-agent-teams-over-continuable-children:
+  en: b043abe2a1bd5c44
+  zh: 9765428be026357f
+/agent-note-durable-agent-teams-over-continuable-children/problem:
+  en: bab62798c2dc07b4
+  zh: fe42c5abf9127d37
+/agent-note-durable-agent-teams-over-continuable-children/decision:
+  en: 86c47c94d34706cc
+  zh: e0de152a0bc7444e
+/agent-note-durable-agent-teams-over-continuable-children/profile-delegation:
+  en: 68461d3654211e87
+  zh: 7f934bbe4edf3a42
+/agent-note-durable-agent-teams-over-continuable-children/team-identity:
+  en: 83e446c928a20c47
+  zh: b0a2bd24419dd815
+/agent-note-durable-agent-teams-over-continuable-children/provisioning-and-recovery:
+  en: 085846d0078c0898
+  zh: 40b2ca3ae6864451
+/agent-note-durable-agent-teams-over-continuable-children/mailbox-and-task-transactions:
+  en: b1c3c149801ae383
+  zh: 692cde4e004f0d79
+/agent-note-durable-agent-teams-over-continuable-children/shared-checkout-boundary:
+  en: 3969de3b44e412c8
+  zh: 12be5854816cb808
+/agent-note-durable-agent-teams-over-continuable-children/alternatives-considered:
+  en: bb266fe7a97f0828
+  zh: 7c86c2d6d11ba02a
+/agent-note-durable-agent-teams-over-continuable-children/testing:
+  en: fd44cd0dca8fd0be
+  zh: 7f37f50368e58569
+/agent-note-durable-agent-teams-over-continuable-children/consequences:
+  en: c3740ae56809e537
+  zh: 76a1e77d14cb6f26

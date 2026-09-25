@@ -1,5 +1,5 @@
 /**
- * Shared declarations for the package.json fields used by DSH plugin authors.
+ * Shared declarations for the package.json fields used by QiLin plugin authors.
  * Each reader owns JSON validation and resolved defaults.
  * @module @qilin/package-manifest/types
  */
@@ -18,9 +18,9 @@ export interface QilinPackageManifest {
   dependencies?: Record<string, string>
   /** Compatible versions of packages supplied by the consuming project. */
   peerDependencies?: Record<string, string>
-  /** Runtime requirements; DSH compatibility is declarative until a reader enforces it. */
+  /** Runtime requirements; declared compatibility is advisory until a reader enforces it. */
   engines?: QilinEnginesManifest
-  /** DSH-specific author declarations. */
+  /** QiLin-specific author declarations. */
   qilin?: QilinManifest
 }
 
@@ -38,7 +38,7 @@ export interface QilinManifest {
 
 /** Runtime version requirements under `package.json.engines`. */
 export interface QilinEnginesManifest {
-  /** Compatible DSH versions as a SemVer range, including an exact version. */
+  /** Compatible QiLin versions as a SemVer range, including an exact version. */
   qilin?: string
   /** Compatible Node.js versions. */
   node?: string
@@ -58,6 +58,21 @@ export interface QilinBundleManifest {
 export interface QilinProfileManifest {
   /** Ordered bundle layer list, using installed package names. */
   bundles?: string[]
+}
+
+/** Literal text or translations indexed by lowercase language id, with a required English fallback. */
+export type LocalizedText = string | { readonly en: string; readonly [locale: string]: string }
+
+/** Validated plugin display fields and diagnostics from exported locales, manifests, or icon files. */
+export interface PluginLocalizedMeta {
+  /** Display title; omission preserves the consumer's technical-name fallback. */
+  readonly title?: LocalizedText
+  /** Display introduction after locale and package-field fallback. */
+  readonly description?: LocalizedText
+  /** Base64 image data URL read from the manifest's icon file; render as an image, not inline markup. */
+  readonly icon?: string
+  /** Unmodified local metadata diagnostic; the plugin remains manageable. */
+  readonly error?: string
 }
 
 /** Client module declaration read by client-modules and the client build. */

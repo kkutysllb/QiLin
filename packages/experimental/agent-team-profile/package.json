@@ -1,6 +1,7 @@
 {
   "name": "@qilin/experimental-agent-team-profile",
   "description": "Experimental profile bundle enabling Agent Teams over qilin-base",
+  "icon": "./icon.svg",
   "version": "3.0.4",
   "publishConfig": {
     "access": "public"
@@ -23,12 +24,16 @@
     },
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "icon.svg",
+    "locale/*.json",
     "lib/index.js",
     "cordis.patch.yml",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "./cordis.patch.yml"
   ],
   "license": "MIT",
   "qilin": {

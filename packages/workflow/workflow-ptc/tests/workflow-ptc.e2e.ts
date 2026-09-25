@@ -4,7 +4,7 @@ import { SessionId } from '@qilin/session'
 
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import SubagentRuntime from '@qilin/subagent'
 import * as Spawn from '@qilin/subagent-spawn-in-process'
 import PtcWorkflowEngine from '../src/index.ts'

@@ -55,6 +55,7 @@
     "@qilin/launch-environment": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/settings": "workspace:*",
     "@qilin/timeout": "workspace:*",
     "@qilin/http-proxy": "workspace:*"

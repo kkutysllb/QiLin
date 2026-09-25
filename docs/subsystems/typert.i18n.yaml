@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for typert.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/typert.md
-typert.md: abbb8ceaf2c583c4ce28105b4f376686678b52cd
-typert.zh.md: c491cdfc43496af4ab88da0abc85ecf1651ec1a5
+/typert-remote-calls:
+  en: 2da75685e434ede9
+  zh: 14d669a82ce61b2f
+/typert-remote-calls/lookup-and-context-declarations:
+  en: 8725fa62f36364d7
+  zh: 0f2ff4bdf13ff55b
+/typert-remote-calls/invocation-descriptors:
+  en: 721927013554d5ff
+  zh: eb73bfbdf9a94378
+/typert-remote-calls/typert-registry:
+  en: 69920932621e8eb8
+  zh: 853790c24de88bf4
+/typert-remote-calls/host-gateway:
+  en: 90fab88fe51d17bb
+  zh: 2d4c3849cf2dc7d3
+/typert-remote-calls/consumer-remote:
+  en: 164a6f72275e11cf
+  zh: d591ca5971f2e86b

@@ -1,6 +1,16 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 04-events.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/04-events.md
-04-events.md: ccd0ec4ddcb4ff43a9a15d87dc8cf19457ddb0b0
-04-events.zh.md: 714467492881657aa345cc3f7a20bd3e0da72262
+/4-events:
+  en: 5b6ef672291114cf
+  zh: 481ac7d44825b020
+/4-events/declare-emit-listen:
+  en: 3a28ff7bc7a8cd31
+  zh: 020e0aa1c2a35030
+/4-events/dispatch-modes:
+  en: 10403ea8bc418bf3
+  zh: 8bc90cc7ba8185af
+/4-events/waterfall-transform-or-short-circuit:
+  en: 3422cc78d5dcc3fc
+  zh: dccf9c4130a705f3

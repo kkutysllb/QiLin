@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-workspace-file-save.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-14-workspace-file-save.md
-2026-09-14-workspace-file-save.md: 0f73838b7ab51de785d173404f6978d8f1c130bc
-2026-09-14-workspace-file-save.zh.md: 7e417fa19588f577ec7da7a7ba7321751b88097d
+/agent-note-saving-a-workspace-file-from-the-browser:
+  en: 0f06e8d36318b5c6
+  zh: aaf413da5e0d531b
+/agent-note-saving-a-workspace-file-from-the-browser/problem:
+  en: 293541d7a2d217ad
+  zh: cd7b80fdf499af3d
+/agent-note-saving-a-workspace-file-from-the-browser/decision:
+  en: 499d445be0ca4f1f
+  zh: 8119037cca35c2f6
+/agent-note-saving-a-workspace-file-from-the-browser/alternatives-considered:
+  en: c88323a4f296f62e
+  zh: 664327595f360484
+/agent-note-saving-a-workspace-file-from-the-browser/consequences:
+  en: 4c214164013f9088
+  zh: c081e2509f44cb10
+/agent-note-saving-a-workspace-file-from-the-browser/verification:
+  en: 534bc92de9990601
+  zh: 419a31e77d6b6b9c
+/agent-note-saving-a-workspace-file-from-the-browser/deferred:
+  en: 4e73a70db7f40365
+  zh: be69550b11a5bd2c

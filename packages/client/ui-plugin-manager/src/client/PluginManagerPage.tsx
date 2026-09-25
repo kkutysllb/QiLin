@@ -974,6 +974,12 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const [view, setView] = useState<View>({ kind: 'list' })
   const [activation, setActivation] = useState<string | null>(null)
   useEffect(() => { ensure() }, [ensure])
+  // The navigation channel's reveal: a bundle name opens its detail; a name
+  // outside the managed list falls back to the cards through the lookup below.
+  useEffect(() => props.registerOpen?.((name) => {
+    setActivation(null)
+    setView({ kind: 'package', name })
+  }), [props.registerOpen])
   // A package an install just enabled: scroll it into view and mark it for a moment.
   const { highlight, clearHighlight } = { highlight: state.highlight, clearHighlight: props.clearHighlight }
   useEffect(() => {

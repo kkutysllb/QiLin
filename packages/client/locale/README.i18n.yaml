@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/locale/README.md
-README.md: 16c2dc9c7e150f5e9d8253ed41239ea0f23259f3
-README.zh.md: b2577804ab7457f20cc9587503884998b2a05496
+/:
+  en: d2aaa955e01c2679
+  zh: a931126ab9ab926b
+/qilin-client-locale:
+  en: a81b16d42ad491a1
+  zh: da968edbdf38e980
+/qilin-client-locale/summary:
+  en: 1c05578df3329b4f
+  zh: 623a745a5c8c67ba
+/qilin-client-locale/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-locale/use-this-package:
+  en: 7fedfbcbc3ad8cea
+  zh: 210d6b20de8ed41e
+/qilin-client-locale/use-this-package/choosing-a-language:
+  en: 72b9fd7f3a7e728d
+  zh: d2e38e1c85c76556
+/qilin-client-locale/use-this-package/registering-a-dictionary:
+  en: 9b2fcfa8cae8dc4b
+  zh: 5926a024465347f5
+/qilin-client-locale/use-this-package/registering-a-language-pack:
+  en: aa4e9c70523339cc
+  zh: 3359eddc4e9ef15e
+/qilin-client-locale/use-this-package/what-the-host-half-does:
+  en: 8fa91333f7fc3387
+  zh: 789a9cbb3eace3b0
+/qilin-client-locale/understand-the-implementation:
+  en: 288d8db39f9acfc5
+  zh: d65cf2ffae8ad35c
+/qilin-client-locale/understand-the-implementation/design-concept:
+  en: 79dbe4d0f1477a53
+  zh: d3bf1ebae92ed381
+/qilin-client-locale/understand-the-implementation/preference-resolution:
+  en: 4bc9dffa4629f537
+  zh: 0b5049f08416b55c
+/qilin-client-locale/understand-the-implementation/dictionary-lookup:
+  en: e84e0b8712988d24
+  zh: 0adf3e8777a3efa8
+/qilin-client-locale/understand-the-implementation/source-map:
+  en: ceec358b08427206
+  zh: 7fb2acb0de9fb1d1
+/qilin-client-locale/further-exploration:
+  en: 9774cddcd866f390
+  zh: 009b7737a580b20a
+/qilin-client-locale/model-experience:
+  en: 209321ba2d2e6710
+  zh: 21deb6c973f69b66
+/qilin-client-locale/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-locale/known-limitations-and-deferred-work:
+  en: 500ede048ef44c6a
+  zh: b134cb622f75b077
+/qilin-client-locale/known-limitations-and-deferred-work/dev-note:
+  en: 82fb34d8a128a0ac
+  zh: fa3f40c900032aae

@@ -34,7 +34,7 @@ Choose it when a composition runs the agent loop and wants durable request recov
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/llm-deepseek'
+- name: '@qilin/llm-deepseek-api-key'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY
     retryPolicy:

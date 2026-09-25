@@ -1,6 +1,97 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/shell/bash-sandbox/README.md
-README.md: 122e0397920ddd7257d5fbc540b9177ce3072ba0
-README.zh.md: 29fa9cf7722220b042a618c11d77c0fa870ab033
+/:
+  en: 2d1caa2e6179218a
+  zh: 0b51a5dbda727ffa
+/qilin-bash-sandbox:
+  en: 320cee9c3bbbff30
+  zh: d496d87cb1b0774c
+/qilin-bash-sandbox/summary:
+  en: 837dac0fe5605845
+  zh: 0923a15c0b0a2a98
+/qilin-bash-sandbox/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-bash-sandbox/use-this-package:
+  en: b9d708474d79674e
+  zh: 047b498a83eeb8d3
+/qilin-bash-sandbox/use-this-package/when-to-choose-it:
+  en: f0c4d3da308edded
+  zh: 13ee3282d6319567
+/qilin-bash-sandbox/use-this-package/modes-and-file-effects:
+  en: bc096fe6f8eb54cd
+  zh: 1a3e3122ca40b0e5
+/qilin-bash-sandbox/use-this-package/minimal-configuration:
+  en: 03126f1bbad4e015
+  zh: 3b8865fc27a949a1
+/qilin-bash-sandbox/use-this-package/denials-are-result-facts:
+  en: a10127c3fb2869ef
+  zh: 17908b572ddb5507
+/qilin-bash-sandbox/use-this-package/failures-and-recovery:
+  en: 0d5b6818c3dad919
+  zh: cd0357477c0726c3
+/qilin-bash-sandbox/understand-the-implementation:
+  en: 05e2abe4a25886fd
+  zh: 9240b331c45ac81e
+/qilin-bash-sandbox/understand-the-implementation/design-concept:
+  en: ed8535012fef7f09
+  zh: 9c72d6d91670d3fb
+/qilin-bash-sandbox/understand-the-implementation/source-map:
+  en: 2d3bb8e19840dee1
+  zh: 8b3eb6112ecbb9e7
+/qilin-bash-sandbox/understand-the-implementation/main-flow:
+  en: fc94135613e39a2b
+  zh: 34a65e6540249722
+/qilin-bash-sandbox/understand-the-implementation/invariants:
+  en: 0b6c6d7e216e1d23
+  zh: 15f94cfccf4fa242
+/qilin-bash-sandbox/further-exploration:
+  en: 57cca482cc77c73a
+  zh: 93c2a82a2cfd576b
+/qilin-bash-sandbox/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-bash-sandbox/model-experience/bash-tool-schema-indirectly:
+  en: 8e3df84fdcaeee60
+  zh: 25ad519340c6c232
+/qilin-bash-sandbox/model-experience/bash-tool-schema-indirectly/what-the-model-sees:
+  en: e100e6f1a9ef587d
+  zh: 2ea3a3a0566b16f6
+/qilin-bash-sandbox/model-experience/bash-tool-schema-indirectly/token-effect:
+  en: f2ce015933384e96
+  zh: 0b6934bafb3db163
+/qilin-bash-sandbox/model-experience/bash-tool-schema-indirectly/kv-cache-effect:
+  en: d25d46a61dc2b0c1
+  zh: e1deea6d70be4691
+/qilin-bash-sandbox/model-experience/bash-tool-result-indirectly:
+  en: ba37fed04252f1eb
+  zh: 0e91d66334ec17c3
+/qilin-bash-sandbox/model-experience/bash-tool-result-indirectly/what-the-model-sees:
+  en: 6b86ae2b3b41e8b2
+  zh: 825a446625a1d594
+/qilin-bash-sandbox/model-experience/bash-tool-result-indirectly/token-effect:
+  en: b06db71c69ceaf8c
+  zh: e0b8230b993c93cc
+/qilin-bash-sandbox/model-experience/bash-tool-result-indirectly/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: f681f89596f500f5
+/qilin-bash-sandbox/model-experience/bash-tool-error-indirectly:
+  en: 8e6caeadd596ea8f
+  zh: fe525ddc52b2d711
+/qilin-bash-sandbox/model-experience/bash-tool-error-indirectly/what-the-model-sees:
+  en: 74fcc73436adbb3b
+  zh: ae1387cf44c6ecb8
+/qilin-bash-sandbox/model-experience/bash-tool-error-indirectly/token-effect:
+  en: 8f514efe94edfa8a
+  zh: 8a7ae8a2bdb4c01a
+/qilin-bash-sandbox/model-experience/bash-tool-error-indirectly/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: f681f89596f500f5
+/qilin-bash-sandbox/known-limitations-and-deferred-work:
+  en: 2a9f7ff195a66ace
+  zh: dd6dbad97816407b
+/qilin-bash-sandbox/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

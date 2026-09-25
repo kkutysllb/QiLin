@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/sandbox/sandbox-windows-acl/README.md
-README.md: 83093d5bb3d3ffda5135042e25843596ecdca78c
-README.zh.md: 485f4071e254eb9f5138d3470d2165f3b47faffd
+/:
+  en: 14d3fdd57b94c86f
+  zh: abcd3b4f9dd908fa
+/qilin-sandbox-windows-acl:
+  en: a42b4ee850611fa4
+  zh: 3e0f65bafda9ea59
+/qilin-sandbox-windows-acl/summary:
+  en: 777921135c23ee55
+  zh: 7c726cc63995d443
+/qilin-sandbox-windows-acl/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-sandbox-windows-acl/use-this-package:
+  en: 58b220faa66b2f05
+  zh: dda42e4197d80bfe
+/qilin-sandbox-windows-acl/use-this-package/when-to-choose-it:
+  en: 510d0b1ef7db159d
+  zh: dc2cf25b3db14c63
+/qilin-sandbox-windows-acl/use-this-package/direct-api:
+  en: 16596607bbccc2a3
+  zh: 30bc370a5281bf0d
+/qilin-sandbox-windows-acl/use-this-package/what-confinement-gives-you:
+  en: 289e65bddf20dd79
+  zh: 44b9fcedf944546a
+/qilin-sandbox-windows-acl/use-this-package/failures-and-recovery:
+  en: f93372e784cda63e
+  zh: f8371114f3481550
+/qilin-sandbox-windows-acl/understand-the-implementation:
+  en: c2cde86c85c2c619
+  zh: a29a114e591f9d3f
+/qilin-sandbox-windows-acl/understand-the-implementation/mechanism:
+  en: 8bccc0a93044baa1
+  zh: 57030b90a85cf735
+/qilin-sandbox-windows-acl/understand-the-implementation/modes-and-token-lists:
+  en: 9c8d9af84f9abd99
+  zh: 1c82b355aa5f210f
+/qilin-sandbox-windows-acl/understand-the-implementation/the-confinement-runner:
+  en: 0847de0e53e50061
+  zh: 90fa3dcaf080c3be
+/qilin-sandbox-windows-acl/understand-the-implementation/verified-boundaries:
+  en: ad02570eae90037f
+  zh: fd78c2318de18dda
+/qilin-sandbox-windows-acl/understand-the-implementation/header-verification-and-source-map:
+  en: 3569a4d1074bf9c3
+  zh: 6b3e19d8a920ef69
+/qilin-sandbox-windows-acl/further-exploration:
+  en: 16fa0a234961b35f
+  zh: 33a483696aef6619
+/qilin-sandbox-windows-acl/model-experience:
+  en: 0960b3bad947bbfb
+  zh: f18419e01590d3a5
+/qilin-sandbox-windows-acl/model-experience/kv-cache-effect:
+  en: 796af37d6f6add68
+  zh: 1e0dc5a58e5456be
+/qilin-sandbox-windows-acl/known-limitations-and-deferred-work:
+  en: 2b6b967c62766d47
+  zh: 0faf9ec390504967
+/qilin-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note:
+  en: cc273320f6a1beaf
+  zh: 5c57a312ddc50651
+/qilin-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note/future-warnings-and-cleanup-surfaces:
+  en: 4c65be775f25c367
+  zh: 467b2ce99030dcf5

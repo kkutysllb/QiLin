@@ -1,6 +1,91 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/llm/llm-deepseek/README.md
-README.md: 8dc25cfaf636ffd2ef13fcddc2e3d032e10551ed
-README.zh.md: e81119889458207bbc9b0da36ee3b33479b00f72
+/:
+  en: c6924d7c0d7c82ff
+  zh: 95fbf06db428f532
+/qilin-llm-deepseek:
+  en: ca08f5fb8f3d0561
+  zh: 5eafd6e13435ddd1
+/qilin-llm-deepseek/summary:
+  en: 7b5e189357673682
+  zh: 2d51a3bf6ab0e25b
+/qilin-llm-deepseek/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-llm-deepseek/use-this-package:
+  en: 3294ee40f9beddb5
+  zh: 54f8df51db00d76c
+/qilin-llm-deepseek/use-this-package/when-to-choose-it:
+  en: 78aa6183924b0b0a
+  zh: cb6d54b26a738834
+/qilin-llm-deepseek/use-this-package/minimal-configuration:
+  en: 47ee68c0183e62a1
+  zh: 1692150a09e0e448
+/qilin-llm-deepseek/use-this-package/endpoint-and-wire-format:
+  en: fce88d2ebad6296c
+  zh: 0c351f26b472d521
+/qilin-llm-deepseek/use-this-package/account-credentials:
+  en: 8f59f269a166a3f1
+  zh: 21ad398f8e8b1148
+/qilin-llm-deepseek/use-this-package/streaming-with-thinking-and-images:
+  en: 9b82549c6ce25261
+  zh: 22a3978c5022576b
+/qilin-llm-deepseek/use-this-package/dynamic-configuration:
+  en: 49290fc5647136b4
+  zh: 96fa9ce0f9e83c13
+/qilin-llm-deepseek/use-this-package/provider-specific-request-fields:
+  en: 82e9335793303b7f
+  zh: 5e377fdf8b270ca6
+/qilin-llm-deepseek/use-this-package/failures-and-recovery:
+  en: 1e55403ac4b534b1
+  zh: 189d6c948f4a7146
+/qilin-llm-deepseek/understand-the-implementation:
+  en: 1598ac8a8bb9b6bf
+  zh: fdd089c5ae7722cd
+/qilin-llm-deepseek/understand-the-implementation/design-philosophy:
+  en: 829203c4c282dc46
+  zh: e05dada4a1420a95
+/qilin-llm-deepseek/understand-the-implementation/source-map:
+  en: dc2d2409ad8c41cc
+  zh: 51fc4ad65dab6378
+/qilin-llm-deepseek/understand-the-implementation/wire-flow:
+  en: 9477d8af3d762450
+  zh: 52a2967518509f94
+/qilin-llm-deepseek/further-exploration:
+  en: 8f3e56afc806c5ca
+  zh: e1aa02a7214a1dc6
+/qilin-llm-deepseek/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-llm-deepseek/model-experience/deepseek-request:
+  en: 1dc50052999253c6
+  zh: 7abf968fc18bffcd
+/qilin-llm-deepseek/model-experience/deepseek-request/what-the-model-sees:
+  en: 14110610860656e8
+  zh: 995e28d6931ebe4e
+/qilin-llm-deepseek/model-experience/deepseek-request/token-effect:
+  en: 6e99b89952a3ee00
+  zh: 7c7ddabeecf94340
+/qilin-llm-deepseek/model-experience/deepseek-request/kv-cache-effect:
+  en: 87ac92776176ee15
+  zh: bb49edf3a68dda07
+/qilin-llm-deepseek/model-experience/deepseek-response:
+  en: 957d6665495e5ca5
+  zh: 0aa72b2c2dc07167
+/qilin-llm-deepseek/model-experience/deepseek-response/what-the-model-sees:
+  en: 36a3d0297d6ca209
+  zh: bfc68b8300f61593
+/qilin-llm-deepseek/model-experience/deepseek-response/token-effect:
+  en: 533309d1f93b89de
+  zh: 4cc0b86f05c9be53
+/qilin-llm-deepseek/model-experience/deepseek-response/kv-cache-effect:
+  en: ddfbea043596878d
+  zh: 4fbf5864a684c053
+/qilin-llm-deepseek/known-limitations-and-deferred-work:
+  en: 03bf12cee9cb3697
+  zh: 04e683b1ac433bfa
+/qilin-llm-deepseek/known-limitations-and-deferred-work/dev-note:
+  en: 1eba34b7c86fccdc
+  zh: 7d23896e9ebe3bf5

@@ -1,6 +1,79 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/shell/tool-pwsh-persistent/README.md
-README.md: d45636af51d86cee1c791621f671dcad46054c33
-README.zh.md: a1596865c8102fa0b0496f7620f800b417a15b10
+/:
+  en: 07c1a52a0f913391
+  zh: a0c8579b535a1782
+/qilin-tool-pwsh-persistent:
+  en: 9c3c9e86e637eae4
+  zh: 2c3f7f9fb74e115a
+/qilin-tool-pwsh-persistent/summary:
+  en: cb04c90dc48a831e
+  zh: 93ccba60faa972cd
+/qilin-tool-pwsh-persistent/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-tool-pwsh-persistent/use-this-package:
+  en: 3d9fc28e6523ed33
+  zh: 20c6dfad04055770
+/qilin-tool-pwsh-persistent/use-this-package/when-to-choose-it:
+  en: 3bd31798c167d0d7
+  zh: 3919e9091f708be5
+/qilin-tool-pwsh-persistent/use-this-package/minimal-configuration:
+  en: 27b05ca10d0b9568
+  zh: 884599d09749061d
+/qilin-tool-pwsh-persistent/use-this-package/what-the-agent-can-rely-on:
+  en: d4b8f9865f1e4763
+  zh: b0cf654a00cf9766
+/qilin-tool-pwsh-persistent/use-this-package/what-can-go-wrong:
+  en: cebc3254a0c38bef
+  zh: 21cd2a8b04b37735
+/qilin-tool-pwsh-persistent/understand-the-implementation:
+  en: 8d94a7381bca3fa9
+  zh: f4bd2866fff6fa8d
+/qilin-tool-pwsh-persistent/understand-the-implementation/design-philosophy:
+  en: d8da79743ec3266e
+  zh: d609c5507bbf81d1
+/qilin-tool-pwsh-persistent/understand-the-implementation/source-map:
+  en: 0f796c2aedf01e72
+  zh: 1ac75a785c3f0d9d
+/qilin-tool-pwsh-persistent/understand-the-implementation/command-flow:
+  en: 000a860cc67b6bbf
+  zh: 2027f422b64a3a79
+/qilin-tool-pwsh-persistent/further-exploration:
+  en: 8705d6b573324f0b
+  zh: 74d6d7f6d3132810
+/qilin-tool-pwsh-persistent/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tool-pwsh-persistent/model-experience/tool-schema:
+  en: e4c7376d4f29dbd5
+  zh: 6b7a9eaf69c9ea53
+/qilin-tool-pwsh-persistent/model-experience/tool-schema/what-the-model-sees:
+  en: df125bf2b53d5ccb
+  zh: 49649078e6dc4b93
+/qilin-tool-pwsh-persistent/model-experience/tool-schema/token-effect:
+  en: 120147c962cbb894
+  zh: 8952abc085cf3812
+/qilin-tool-pwsh-persistent/model-experience/tool-schema/kv-cache-effect:
+  en: 7d9323583a83cb95
+  zh: cc5daa6bce8450f8
+/qilin-tool-pwsh-persistent/model-experience/tool-results:
+  en: beaabb79f229692a
+  zh: 8573891441963be4
+/qilin-tool-pwsh-persistent/model-experience/tool-results/what-the-model-sees:
+  en: dcd03670ad857fbe
+  zh: 8d0fd6ea7bda7ce3
+/qilin-tool-pwsh-persistent/model-experience/tool-results/token-effect:
+  en: 5dea04ce6a30ad48
+  zh: c2434253dc517d3d
+/qilin-tool-pwsh-persistent/model-experience/tool-results/kv-cache-effect:
+  en: ba6a48888c3361e5
+  zh: 3a8f648053555dc9
+/qilin-tool-pwsh-persistent/known-limitations-and-deferred-work:
+  en: 8d8da5497c08d365
+  zh: 6a462edeb4fc8cea
+/qilin-tool-pwsh-persistent/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

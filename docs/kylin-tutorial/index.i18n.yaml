@@ -1,6 +1,16 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for index.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/index.md
-index.md: faa0a96450a05410d0a6eb7b8661143d0980f80d
-index.zh.md: 06d41d7cf278323d9f623b17bd690a3ef101412e
+/kylin-tutorial:
+  en: 46a2dc35764fc945
+  zh: c7e24ed82b6e6bab
+/kylin-tutorial/setup:
+  en: 54dbe06df5d8625a
+  zh: 68a5b67afbaaa524
+/kylin-tutorial/chapters:
+  en: 2d1b3ca98b7939c2
+  zh: a4c8cb5fd2900a8e
+/kylin-tutorial/typescript-notes:
+  en: fb2ee979cfd4a20e
+  zh: dbaf4f027419fe8a

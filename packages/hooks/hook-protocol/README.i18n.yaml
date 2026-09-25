@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/hooks/hook-protocol/README.md
-README.md: e30c77df4cbd62d0613aa3d1915a4e7cac72ff79
-README.zh.md: cc761ea7d87c7a9358db74d635b6a0ceb4ba22ba
+/:
+  en: 7cfe3761eedff848
+  zh: 80b0bed5743d0924
+/qilin-hook-protocol:
+  en: 8c87b698455a0dbb
+  zh: 8b59e2d45dea3261
+/qilin-hook-protocol/summary:
+  en: 4d32ea95148fa090
+  zh: a78b3c42bbad4634
+/qilin-hook-protocol/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-hook-protocol/use-this-package:
+  en: 736fad0fb466d438
+  zh: 230a6cc21b4a7145
+/qilin-hook-protocol/use-this-package/when-to-choose-it:
+  en: e0d89d6cda67b2b5
+  zh: 66a11264249281a2
+/qilin-hook-protocol/use-this-package/what-a-hook-can-do:
+  en: 043f54b3a5b518a7
+  zh: a4115083a9b1cef1
+/qilin-hook-protocol/use-this-package/what-you-see-when-hooks-run:
+  en: ba2d6ed1db063f53
+  zh: ab1b8d72dccd2ff1
+/qilin-hook-protocol/understand-the-implementation:
+  en: 08b3960150e9c5e2
+  zh: 6bb2f236d697de01
+/qilin-hook-protocol/understand-the-implementation/processing-pipeline:
+  en: 3b1b62a2513bf93e
+  zh: 51880f6362e718a1
+/qilin-hook-protocol/understand-the-implementation/hook-session-events:
+  en: 36d4044c1880136f
+  zh: 13da91d2deb621b1
+/qilin-hook-protocol/understand-the-implementation/design-philosophy:
+  en: 12e8b42e36bb9102
+  zh: 64e7308ca2fcadb8
+/qilin-hook-protocol/understand-the-implementation/source-map:
+  en: d613d9bd98d499fb
+  zh: afe2939d7df250ea
+/qilin-hook-protocol/further-exploration:
+  en: 7ae6d2edad63c898
+  zh: ebb3b1e8feddca1e
+/qilin-hook-protocol/model-experience:
+  en: 2d1d1ef7c7e5e4df
+  zh: 387bdcf808c5560b
+/qilin-hook-protocol/model-experience/kv-cache-effect:
+  en: e290ccc9b3c92c08
+  zh: cb3c8823f41e7afe
+/qilin-hook-protocol/known-limitations-and-deferred-work:
+  en: 025e12c6f0e4ca14
+  zh: b9ad53498af82e8c
+/qilin-hook-protocol/known-limitations-and-deferred-work/dev-note:
+  en: ac1d08360a93382b
+  zh: 6c58749bae9a6e65
+/qilin-hook-protocol/known-limitations-and-deferred-work/dev-note/future-run-level-halt:
+  en: bfb3db50de22c1d0
+  zh: 2a979359b0edbbe7

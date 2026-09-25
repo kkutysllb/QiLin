@@ -1,6 +1,16 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 02-lifecycle-and-effects.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/02-lifecycle-and-effects.md
-02-lifecycle-and-effects.md: c410ea525f9324d73bdb8f581920a5961e97774f
-02-lifecycle-and-effects.zh.md: d77f4c4c972f9c1377fc5c6eefcab2988ae9963e
+/2-lifecycle-and-effects:
+  en: c9a8b903f6a330a0
+  zh: 4116c2ba6b889019
+/2-lifecycle-and-effects/effects:
+  en: ae20a1dc2e076354
+  zh: 9ccb3b9cf547775a
+/2-lifecycle-and-effects/the-fiber-state-machine:
+  en: 3e04707113c20bca
+  zh: e1653cb71860c7a6
+/2-lifecycle-and-effects/what-is-already-an-effect:
+  en: 0a3fb5c72b5d3f71
+  zh: 8e83db941215598e

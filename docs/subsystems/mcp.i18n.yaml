@@ -1,6 +1,34 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for mcp.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/mcp.md
-mcp.md: 0ecf0e8733dc8e9913e262342cb813d7f76424c4
-mcp.zh.md: d975efadc1cd75cb95cddebaff02d0570da198ba
+/mcp:
+  en: 17907c9ebb37d773
+  zh: 5d27edaf39c212a8
+/mcp/summary:
+  en: f0ecd19125aac257
+  zh: 45c1e435ecc494c9
+/mcp/table-of-contents:
+  en: 5c0aa5a2e528af97
+  zh: ae2ba2297294e3de
+/mcp/configuration:
+  en: 7384e6ee1f581360
+  zh: 1fe74edc7693bdfd
+/mcp/responsibilities-and-scope:
+  en: c149dec132a0be93
+  zh: 69af642c978e7344
+/mcp/protocol-and-results:
+  en: 08f7588079701e88
+  zh: 1a14a9261cd71515
+/mcp/resources-and-instructions:
+  en: 9577449b1c30615b
+  zh: acadbdb4b666d190
+/mcp/resource-provider-types:
+  en: 16ae356364b54262
+  zh: 28fa0c87dbbd5e88
+/mcp/limits:
+  en: 27a59706525c88ed
+  zh: 1fb1684bc03bb6ae
+/mcp/further-reading:
+  en: 799139398c517e32
+  zh: cb68cde300f9a15c

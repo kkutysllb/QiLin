@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-16-nested-tooltip-suppression.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-16-nested-tooltip-suppression.md
-2026-09-16-nested-tooltip-suppression.md: 1b06a3a1a4f754aa78e821ee8a1479dab19873ff
-2026-09-16-nested-tooltip-suppression.zh.md: 96063f78b281deb3561045bb73fcffa64a2c1ef8
+/agent-note-suppress-an-enclosing-tooltip-while-a-nested-one-is-shown:
+  en: 052e5e1ad273a4f2
+  zh: e172d26ed6699c87
+/agent-note-suppress-an-enclosing-tooltip-while-a-nested-one-is-shown/problem:
+  en: 5c136d46781f1a6b
+  zh: 718856c53fe15244
+/agent-note-suppress-an-enclosing-tooltip-while-a-nested-one-is-shown/decision:
+  en: 0a6077ea849f7dc2
+  zh: 10c48360e6adfd61
+/agent-note-suppress-an-enclosing-tooltip-while-a-nested-one-is-shown/alternatives-considered:
+  en: c44c43fb015d78ba
+  zh: fc93b2689666b6ea
+/agent-note-suppress-an-enclosing-tooltip-while-a-nested-one-is-shown/consequences:
+  en: 96c0d11bc2388ba2
+  zh: c421461eb8640781

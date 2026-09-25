@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-right-sidebar-workbench.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-14-right-sidebar-workbench.md
-2026-09-14-right-sidebar-workbench.md: edfc93fa4d8bd9f93c710ef2bafbbc4e6923111d
-2026-09-14-right-sidebar-workbench.zh.md: ee8659f4564e0485ac41f144c384d93f0c493dfe
+/agent-note-the-right-sidebar-as-a-workbench:
+  en: 526fd31e1b113405
+  zh: 24e1adc5e925b3f8
+/agent-note-the-right-sidebar-as-a-workbench/problem:
+  en: 8fe4ae08a2ce42ac
+  zh: 6d688b938043ccb0
+/agent-note-the-right-sidebar-as-a-workbench/decision:
+  en: 9ee66b0c403b02ba
+  zh: b1b1ae4a44c793f6
+/agent-note-the-right-sidebar-as-a-workbench/alternatives-considered:
+  en: 4ebccff9aa7e6025
+  zh: e6051dc3dff44e08
+/agent-note-the-right-sidebar-as-a-workbench/consequences:
+  en: f151b72bd7fcd2f1
+  zh: fdcdc61cbaeda5a2
+/agent-note-the-right-sidebar-as-a-workbench/verification:
+  en: 7c3925691ddb4929
+  zh: 40d1647f09f08f81
+/agent-note-the-right-sidebar-as-a-workbench/deferred:
+  en: f61bf842c28f08d2
+  zh: d8ca10136e54ca77

@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-06-client-assembly-test-line.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/testing/2026-09-06-client-assembly-test-line.md
-2026-09-06-client-assembly-test-line.md: a5f5d8e39714bb0ff377505396b49597a221a040
-2026-09-06-client-assembly-test-line.zh.md: d79296d15e6180194792ba43002e2597e07809f4
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock:
+  en: 94c7f3a658d2a25d
+  zh: 2d7b223b9caf0ad5
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/problem:
+  en: 33c0c3670dae25c3
+  zh: 4d91a11eea9bbb8f
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/decision:
+  en: 1053ddcdc4c35155
+  zh: f73ac4cf7e3ac617
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/product-exports-added-for-the-tier:
+  en: 61a24e34f016e78b
+  zh: c86bc82c3390fdf1
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/alternatives-considered:
+  en: 2898d540f4bb1ee2
+  zh: a3e2f1ea4cc8154f
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/consequences:
+  en: 005452c7d65625b2
+  zh: 1cc37c956bf931a6
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/deferred:
+  en: 1f18c8a38967698a
+  zh: f6809d290748d9cf
+/agent-note-whole-client-test-tier-over-an-endpoint-named-remote-mock/testing:
+  en: 84fd4b8cc4a4abc8
+  zh: f5d8fcb31a6d103b

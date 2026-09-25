@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-09-plugin-management-in-the-web-sidebar.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-09-plugin-management-in-the-web-sidebar.md
-2026-09-09-plugin-management-in-the-web-sidebar.md: b4912f17bc13bda315d78b239d7dbc73450ec3a3
-2026-09-09-plugin-management-in-the-web-sidebar.zh.md: 0d5ce689e5c837c911fa4b3e0f9917e12a24a90c
+/agent-note-plugin-management-moves-to-the-web-sidebar:
+  en: 86d2e226d1637b05
+  zh: 01a2926f738f1ed1
+/agent-note-plugin-management-moves-to-the-web-sidebar/problem:
+  en: d43e983e63be09a8
+  zh: 2b124f122a173c45
+/agent-note-plugin-management-moves-to-the-web-sidebar/decision:
+  en: 077b8fe73ea4b0fd
+  zh: bcda1824af32957d
+/agent-note-plugin-management-moves-to-the-web-sidebar/alternatives-considered:
+  en: da1d0e3adf010598
+  zh: 7ca53cd429423e0a
+/agent-note-plugin-management-moves-to-the-web-sidebar/consequences:
+  en: 411b7acb433178ef
+  zh: a0385fd8f70bb958
+/agent-note-plugin-management-moves-to-the-web-sidebar/testing:
+  en: 9d08eb02abc00595
+  zh: 56c7d26016f9deec

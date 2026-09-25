@@ -1,6 +1,64 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/hmr/README.md
-README.md: 3c565fd978dc5f6831ce805ac84e147d8dbf1d1b
-README.zh.md: 37bf45c17018a5086a0e9260d9dc8f4691f7e653
+/:
+  en: dbe480205dbca85a
+  zh: 850b3210c588960c
+/qilin-client-hmr:
+  en: 18b41f1e3d9d7e52
+  zh: 4e2a1c6dc730a43c
+/qilin-client-hmr/summary:
+  en: 6136dec676b7a5c7
+  zh: 324a4abd8c538288
+/qilin-client-hmr/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-hmr/use-this-package:
+  en: be71f36f66f316cb
+  zh: 63cd12c0ad40bd88
+/qilin-client-hmr/use-this-package/starting-the-reload-chain:
+  en: fb4d26d48dab2bd8
+  zh: 8ab56cafb92b17fd
+/qilin-client-hmr/use-this-package/what-a-reload-does:
+  en: d3ac81d404b2d6c6
+  zh: a9f9ad9dfa685ac7
+/qilin-client-hmr/use-this-package/configuration:
+  en: 0ff398d1e4a1a2bc
+  zh: 30c20cc18176379d
+/qilin-client-hmr/use-this-package/observing-success:
+  en: 751c7ff7f8a4e70d
+  zh: 34da8830a069f7f5
+/qilin-client-hmr/understand-the-implementation:
+  en: e5cdd3f10a344b10
+  zh: 70c8efd12531039d
+/qilin-client-hmr/understand-the-implementation/design-concept:
+  en: 2158f990804bf716
+  zh: 6d1555b5fb1f8176
+/qilin-client-hmr/understand-the-implementation/the-browser-swap:
+  en: 269ff43822114dc8
+  zh: 8604c39c8050858a
+/qilin-client-hmr/understand-the-implementation/cascade-and-self-reload:
+  en: 191b6aa1dfd7de08
+  zh: f8da0edfcfb675a6
+/qilin-client-hmr/understand-the-implementation/failure-policy:
+  en: 5c9939cd350c136d
+  zh: 020159ec196f378f
+/qilin-client-hmr/understand-the-implementation/source-map:
+  en: 444a1c0d4b927be5
+  zh: b16ef293021b88c3
+/qilin-client-hmr/further-exploration:
+  en: 39e68eab8392f8fe
+  zh: 85f5e2ef80b83d99
+/qilin-client-hmr/model-experience:
+  en: b8a047df4bc523aa
+  zh: 2cec909a451a8929
+/qilin-client-hmr/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-hmr/known-limitations-and-deferred-work:
+  en: 0003a3d701a7f7b1
+  zh: efac38fbd1acd65c
+/qilin-client-hmr/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

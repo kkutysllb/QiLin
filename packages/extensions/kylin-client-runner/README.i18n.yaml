@@ -1,6 +1,79 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/extensions/kylin-client-runner/README.md
-README.md: c5a89218eff35531aa51706ff561cbb585f4e05f
-README.zh.md: f0cdc536de9e70432ecfe6b7f5dc3f8f604380c6
+/:
+  en: 13b3ebbc4f259b2b
+  zh: 8868790fc2693788
+/qilin-kylin-client-runner:
+  en: d45e448164199e70
+  zh: a693c67fd4be7414
+/qilin-kylin-client-runner/summary:
+  en: 4aa2757ad50e846c
+  zh: 5f8c2af4d52081af
+/qilin-kylin-client-runner/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-kylin-client-runner/use-this-package:
+  en: 2eb34be8f10efb56
+  zh: 7ddaab5153007932
+/qilin-kylin-client-runner/use-this-package/what-the-page-does:
+  en: b303762b91f6d830
+  zh: c6e60cf498da3c4e
+/qilin-kylin-client-runner/use-this-package/what-the-run-surface-offers:
+  en: 155c8371306a5cda
+  zh: 8b4cd48a0fc3f545
+/qilin-kylin-client-runner/use-this-package/lifecycle-boundaries:
+  en: 8444eaa96ee05a5e
+  zh: 621bb78731bd0138
+/qilin-kylin-client-runner/understand-the-implementation:
+  en: 64f24636f966aa86
+  zh: a4d3bb2e541b222a
+/qilin-kylin-client-runner/understand-the-implementation/design-philosophy:
+  en: df635b29eaef982c
+  zh: ddaa4bd98359bd30
+/qilin-kylin-client-runner/understand-the-implementation/source-map:
+  en: cbd46fb5821cfcc7
+  zh: 392e5cace2db6194
+/qilin-kylin-client-runner/understand-the-implementation/inspecting-slot-inputs:
+  en: 33f14a7fff7835e6
+  zh: 53838ac8d4a79600
+/qilin-kylin-client-runner/understand-the-implementation/how-a-run-is-carried-out:
+  en: e64ffad27ecf4bbd
+  zh: 7949755b8a782b08
+/qilin-kylin-client-runner/further-exploration:
+  en: 94812d722cd45628
+  zh: 5390cabe2f0b2f7a
+/qilin-kylin-client-runner/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-kylin-client-runner/model-experience/run-resolution-relayed-by-the-host:
+  en: 4573c6b269e4fecb
+  zh: 7f76baf2f74bf9cc
+/qilin-kylin-client-runner/model-experience/run-resolution-relayed-by-the-host/what-the-model-sees:
+  en: 9d0e650ec4fb43c1
+  zh: 9a6af6b0857a4a2f
+/qilin-kylin-client-runner/model-experience/run-resolution-relayed-by-the-host/token-effect:
+  en: bda5e7ab82e8c46a
+  zh: 8716e90bd59388fb
+/qilin-kylin-client-runner/model-experience/run-resolution-relayed-by-the-host/kv-cache-effect:
+  en: da210ff9eb982144
+  zh: 633a73ac9bc9e5e6
+/qilin-kylin-client-runner/model-experience/render-failure-after-the-run-settled:
+  en: 524d638584142d72
+  zh: 3ffc463419fba2e1
+/qilin-kylin-client-runner/model-experience/render-failure-after-the-run-settled/what-the-model-sees:
+  en: fdcf73cfdc1dd1c1
+  zh: 517065fef56d8369
+/qilin-kylin-client-runner/model-experience/render-failure-after-the-run-settled/token-effect:
+  en: c8c1657fa4e37ca4
+  zh: d03af1593a9b4d3a
+/qilin-kylin-client-runner/model-experience/render-failure-after-the-run-settled/kv-cache-effect:
+  en: d2d35b83beb936b2
+  zh: 604aa6929c7a9c76
+/qilin-kylin-client-runner/known-limitations-and-deferred-work:
+  en: a728aeb4aa18db7d
+  zh: b596309cd6707da7
+/qilin-kylin-client-runner/known-limitations-and-deferred-work/dev-note:
+  en: c4cff307d238c93a
+  zh: d1a9ff4164056741

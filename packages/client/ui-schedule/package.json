@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-schedule",
-  "description": "Read-only active Schedule catalog in the Web Session header",
+  "description": "Host task management page and Session reminder catalog",
   "version": "3.0.4",
   "type": "module",
   "main": "lib/index.js",
@@ -20,8 +20,17 @@
   "qilin": {
     "client": {
       "inject": [
+        "@qilin/api-remotes",
+        "@qilin/api-session-controller",
+        "@qilin/api-workspace-controller",
+        "@qilin/client-connection",
         "@qilin/client-locale",
         "@qilin/client-ui-conversation",
+        "@qilin/client-ui-layout",
+        "@qilin/client-ui-sidebar",
+        "@qilin/client-ui-sidebar-right",
+        "@qilin/client-ui-tool",
+        "@qilin/client-ui-workspace",
         "@qilin/client-ui-primitives"
       ],
       "platform": "web"
@@ -47,20 +56,30 @@
     "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
+    "@qilin/api-workspace-controller": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
     "@qilin/client-locale": "workspace:*",
     "@qilin/client-test-runtime": "workspace:*",
     "@qilin/client-ui-conversation": "workspace:*",
+    "@qilin/client-ui-layout": "workspace:*",
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-sidebar": "workspace:*",
+    "@qilin/client-ui-sidebar-right": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/client-ui-tool": "workspace:*",
+    "@qilin/client-ui-workspace": "workspace:*",
+    "@qilin/kylin": "workspace:~",
     "@qilin/schedule": "workspace:*",
     "@qilin/session": "workspace:*",
+    "@qilin/util-values": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@qilin/kylin": "workspace:~",
+    "clsx": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/test-support/client-runtime/README.md
-README.md: 59eff447480880e8e377b589d9a7f0fcd4e5bc19
-README.zh.md: ed19c7472654f52eba5bdfd139c091e08840ad3e
+/:
+  en: 6fd77b7a27000bf1
+  zh: 4a9606aa75285111
+/qilin-client-test-runtime:
+  en: a4e8fc75cb5ebab8
+  zh: 85b391e9115fad68
+/qilin-client-test-runtime/summary:
+  en: 7f54f8cd8f6bce97
+  zh: 90527ba60f855dc2
+/qilin-client-test-runtime/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-test-runtime/use-this-package:
+  en: 12afbb217bc06678
+  zh: c07f001ed8bb3300
+/qilin-client-test-runtime/use-this-package/setting-up-a-feature-spec:
+  en: 5e8a2e337ed9e83b
+  zh: 5f4ccfd1566e6ddf
+/qilin-client-test-runtime/use-this-package/local-dom-snapshots:
+  en: 1abbbed6cc4cf57b
+  zh: ab3975178b589653
+/qilin-client-test-runtime/use-this-package/scripting-remote-answers-and-failures:
+  en: 577272f1d63f9003
+  zh: a246b21b78f3ec70
+/qilin-client-test-runtime/use-this-package/whole-client-tier:
+  en: f089ab96a088895d
+  zh: 31852d191de6604d
+/qilin-client-test-runtime/use-this-package/roster-and-startup-behavior:
+  en: 592480354ca92e8e
+  zh: ca8dc4f067dc6fe5
+/qilin-client-test-runtime/use-this-package/when-to-use-it:
+  en: eb2f9bc90acb7a62
+  zh: cb59a2134bc83106
+/qilin-client-test-runtime/use-this-package/what-can-go-wrong:
+  en: c6bfe837a9221cf5
+  zh: 8d8fadea54f9e295
+/qilin-client-test-runtime/understand-the-implementation:
+  en: 70d19a7761d06ac9
+  zh: 2a3e648ee3dc51c1
+/qilin-client-test-runtime/understand-the-implementation/design:
+  en: 3e4f791ea0fdec56
+  zh: 64c1b2f4075fbe22
+/qilin-client-test-runtime/understand-the-implementation/source-map:
+  en: 560f403483bc43ec
+  zh: 41e2eac87bf3aac3
+/qilin-client-test-runtime/understand-the-implementation/lifecycle:
+  en: b42779f364504719
+  zh: a10bad7ea1161388
+/qilin-client-test-runtime/further-exploration:
+  en: 0863107ec91fd40d
+  zh: 8d2851a6aa3a5245
+/qilin-client-test-runtime/model-experience:
+  en: 53b590e95981d312
+  zh: 326a89a5a4e15155
+/qilin-client-test-runtime/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: f57cc48a1b5cbfa9
+/qilin-client-test-runtime/known-limitations-and-deferred-work:
+  en: da5c7983453b2515
+  zh: 7f558354e84abff5
+/qilin-client-test-runtime/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

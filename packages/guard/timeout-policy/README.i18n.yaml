@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/guard/timeout-policy/README.md
-README.md: faed498bf249f5dac6b02d725a9e3ab06d5bbd19
-README.zh.md: 4f3a513d8b255c9fe967433c7de26d6c071a6d52
+/:
+  en: 7020f47046dc8148
+  zh: 191dea4c788f374b
+/qilin-tool-call-timeout-policy:
+  en: 4b0ab86f6084d8ab
+  zh: a78237c4940db75b
+/qilin-tool-call-timeout-policy/summary:
+  en: 79a1f578c382bdcd
+  zh: 97593989f918ccb4
+/qilin-tool-call-timeout-policy/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-tool-call-timeout-policy/use-this-package:
+  en: c490ee4533879109
+  zh: 526b2341cff39a29
+/qilin-tool-call-timeout-policy/use-this-package/when-to-choose-it:
+  en: 2c6495054dfaf09c
+  zh: 7f2d65c3202d75f3
+/qilin-tool-call-timeout-policy/use-this-package/setting-it-up:
+  en: 6632f8a97212f722
+  zh: e20a660c6405c830
+/qilin-tool-call-timeout-policy/use-this-package/what-you-get:
+  en: 339ff1d6001f3def
+  zh: c3e378abc7c58fa4
+/qilin-tool-call-timeout-policy/understand-the-implementation:
+  en: 9bdd0f9388915825
+  zh: c101ec504869d187
+/qilin-tool-call-timeout-policy/understand-the-implementation/design-philosophy:
+  en: 7c9c8065d5c7a251
+  zh: 2dec4ed1efc97847
+/qilin-tool-call-timeout-policy/understand-the-implementation/how-a-deadline-is-armed-and-mapped:
+  en: 4c2f31d760d5ad4b
+  zh: 42e5c42675c32dcc
+/qilin-tool-call-timeout-policy/understand-the-implementation/composing-with-other-wrappers:
+  en: 1eb697a5fd719b8b
+  zh: 16353e22b3632aa9
+/qilin-tool-call-timeout-policy/understand-the-implementation/source-map:
+  en: 35abf9419848ba92
+  zh: 3c08b161064abdcd
+/qilin-tool-call-timeout-policy/further-exploration:
+  en: dabc526913554e7a
+  zh: bbfab927aa3cb724
+/qilin-tool-call-timeout-policy/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tool-call-timeout-policy/model-experience/conditional-tool-result:
+  en: 7877631ca859b191
+  zh: fb6f2aa33f70b82c
+/qilin-tool-call-timeout-policy/model-experience/conditional-tool-result/what-the-model-sees:
+  en: 1fd9832261036f56
+  zh: 245b04969f3bc26d
+/qilin-tool-call-timeout-policy/model-experience/conditional-tool-result/token-effect:
+  en: 063d0485b8631d04
+  zh: 13c1a680cfa9f02b
+/qilin-tool-call-timeout-policy/model-experience/conditional-tool-result/kv-cache-effect:
+  en: 2fbf2175168e8244
+  zh: f681f89596f500f5
+/qilin-tool-call-timeout-policy/known-limitations-and-deferred-work:
+  en: 8b51b07b2fc6d1bc
+  zh: f65e3760a6ea5f2f
+/qilin-tool-call-timeout-policy/known-limitations-and-deferred-work/dev-note:
+  en: 237a9204a9c927e1
+  zh: e5030cd343561180

@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-slots/README.md
-README.md: 348e3522cf7f9f01d03853baf39e3f1fd60dc971
-README.zh.md: eafd664a3d8e49b0ed2104f3a08beb71a4de0226
+/:
+  en: 5beac554c13460fd
+  zh: 54b7b2e34a797628
+/qilin-client-ui-slots:
+  en: e0f16ecfac017064
+  zh: 28bdea1e84476351
+/qilin-client-ui-slots/summary:
+  en: 974552cacd652bd5
+  zh: 2c51e79b2dc3ffcb
+/qilin-client-ui-slots/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-slots/use-this-package:
+  en: 05691d44a0c6c48f
+  zh: 434033d5761297f3
+/qilin-client-ui-slots/use-this-package/reusable-component-factories:
+  en: 301de67bf2779ae6
+  zh: 6e9d405ee1063d53
+/qilin-client-ui-slots/use-this-package/the-five-framework-props-shares:
+  en: 45e2933a5e084956
+  zh: 938deedaf489f892
+/qilin-client-ui-slots/use-this-package/store-seats:
+  en: 0d1c2948112841ec
+  zh: fc5a998cea485024
+/qilin-client-ui-slots/use-this-package/declaration-discipline:
+  en: 8a41014931ffccd5
+  zh: 615f93335a682b01
+/qilin-client-ui-slots/understand-the-implementation:
+  en: 983e6c0e71105f65
+  zh: 75af8d36dd8223fd
+/qilin-client-ui-slots/understand-the-implementation/registration-and-routing:
+  en: 0638aaadacadb6f1
+  zh: cb6324ef5c9e1ade
+/qilin-client-ui-slots/understand-the-implementation/the-renderer-contract:
+  en: 2b6058e98fb1efe7
+  zh: f32e37c8381809b9
+/qilin-client-ui-slots/further-exploration:
+  en: 5f9dfd481b3adb72
+  zh: c39a3b01252192a4
+/qilin-client-ui-slots/model-experience:
+  en: 3120df665299c634
+  zh: 67bb5e1fe59dae19
+/qilin-client-ui-slots/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-slots/known-limitations-and-deferred-work:
+  en: 093b1c5076ddfd6d
+  zh: 3069c423115492fe
+/qilin-client-ui-slots/known-limitations-and-deferred-work/dev-note:
+  en: 89e67d6054319245
+  zh: 429cde321d317f81

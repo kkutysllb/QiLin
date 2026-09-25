@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-xuanjin-dual-scheme-palette.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md
-2026-09-14-xuanjin-dual-scheme-palette.md: 146f5d89c920200ef89a20eeb8e6fb8d5787af92
-2026-09-14-xuanjin-dual-scheme-palette.zh.md: 88bd87bc92d664bafa275acaf072b44c0211ca4b
+/agent-note-xuanjin-dual-scheme-palette-for-the-web-client:
+  en: 097b0745e7535bcc
+  zh: f56b5124ccd37591
+/agent-note-xuanjin-dual-scheme-palette-for-the-web-client/problem:
+  en: fc992f69a7f90bea
+  zh: 97f245957583820a
+/agent-note-xuanjin-dual-scheme-palette-for-the-web-client/decision:
+  en: e416082bc2df2b48
+  zh: 14666305dc6c3b5c
+/agent-note-xuanjin-dual-scheme-palette-for-the-web-client/verification:
+  en: 8490851441db046d
+  zh: b5e7cd0ea163e0ea
+/agent-note-xuanjin-dual-scheme-palette-for-the-web-client/alternatives-considered:
+  en: 898ce7e0904e818b
+  zh: cf97c048d4f13f33
+/agent-note-xuanjin-dual-scheme-palette-for-the-web-client/consequences:
+  en: ef949d52f26419e0
+  zh: 32b479d8e0969b62

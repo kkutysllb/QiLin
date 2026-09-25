@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-11-persistence-type-history.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-11-persistence-type-history.md
-2026-09-11-persistence-type-history.md: e51e9d565718a752ad4209010665f244725db102
-2026-09-11-persistence-type-history.zh.md: 10dfd0565c710c2714c8f87dd290eb351c572a90
+/agent-note-in-tree-persistence-type-history:
+  en: d4dc67b6c1a1ab7c
+  zh: bd5e9bf25f5efb22
+/agent-note-in-tree-persistence-type-history/problem:
+  en: c8e926bfc65d7195
+  zh: e0e007960b68fe80
+/agent-note-in-tree-persistence-type-history/decision:
+  en: 2fff669a38ea11a2
+  zh: 1767a2c597da42e5
+/agent-note-in-tree-persistence-type-history/alternatives-considered:
+  en: 5cdac1b3f15f89f6
+  zh: 36cda3b92d31c916
+/agent-note-in-tree-persistence-type-history/consequences:
+  en: c05acbbd3eef2dbc
+  zh: 40d00776440272aa

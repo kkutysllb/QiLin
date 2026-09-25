@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for session-telemetry.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/session-telemetry.md
-session-telemetry.md: 6fee6bf053d93718ca9ff6779f061105420eaece
-session-telemetry.zh.md: d799845ad53e9f53abc7be3b9a481c8b8e6b5c39
+/sessiontelemetrybackend:
+  en: 2048387ff643a2cf
+  zh: a58e7d32dc280ade
+/sessiontelemetrybackend/the-logical-record:
+  en: 45a4c1134eb38b27
+  zh: 5f26ebb02d12cfdf
+/sessiontelemetrybackend/the-sharing-disclosure:
+  en: 2a834c5541efbd00
+  zh: c22d0d202a2f0f2f
+/sessiontelemetrybackend/capture-policy:
+  en: 47d1b6b330d8c4c0
+  zh: 40e92685fab68bad
+/sessiontelemetrybackend/the-backend-contract:
+  en: 6d4467aeab2822be
+  zh: 6a874e8014c34683
+/sessiontelemetrybackend/the-redact-waterfall-session-telemetry-record:
+  en: 2c914dc3b9626e17
+  zh: 0ae1421ac707cf53

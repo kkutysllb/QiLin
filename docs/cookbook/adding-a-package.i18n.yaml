@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for adding-a-package.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/adding-a-package.md
-adding-a-package.md: 4be5dce7d672abe8b3d3da4cdd358272e6833586
-adding-a-package.zh.md: 48d836dd01069aa00c73079e2cb075c40b7980cf
+/cookbook-adding-a-workspace-package:
+  en: ab823572fc754384
+  zh: af06141b41d02585
+/cookbook-adding-a-workspace-package/1-create-the-package:
+  en: 52959bbaa4cc88ae
+  zh: 47e1e60549ba35b1
+/cookbook-adding-a-workspace-package/2-register-it-in-the-root-configs:
+  en: b5bf87bb253405af
+  zh: 27c3a589d77cfbb7
+/cookbook-adding-a-workspace-package/3-decide-the-package-topology:
+  en: 455fd18c17d2e813
+  zh: 610f17d2ca673492
+/cookbook-adding-a-workspace-package/3-decide-the-package-topology/name-the-role-that-exists:
+  en: e134c2d33eec3ffb
+  zh: 3fd013bda5950b01
+/cookbook-adding-a-workspace-package/4-write-the-package-readme:
+  en: a389b692952f811c
+  zh: 8c1fd6e651248b5d
+/cookbook-adding-a-workspace-package/5-verify:
+  en: 7a26dbc413f57628
+  zh: ac9cc3a8df01b956

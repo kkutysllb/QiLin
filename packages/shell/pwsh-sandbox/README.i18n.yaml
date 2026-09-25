@@ -1,6 +1,73 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/shell/pwsh-sandbox/README.md
-README.md: 621e9fe4df394c72422603df1ef8f3a9aaec854d
-README.zh.md: 4e3248f4276b2dc88d4961742861e5b22b02a289
+/:
+  en: d42333572a114759
+  zh: 7de2bc8a30baf573
+/qilin-pwsh-sandbox:
+  en: c98c5d69af74a33f
+  zh: c39e3c8642b8594d
+/qilin-pwsh-sandbox/summary:
+  en: 7f83a16444b0e426
+  zh: a6759e4d067f2e22
+/qilin-pwsh-sandbox/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-pwsh-sandbox/use-this-package:
+  en: 2a33161cef1d044d
+  zh: 841bb936f3df6ad2
+/qilin-pwsh-sandbox/use-this-package/when-to-choose-it:
+  en: 8a43fa466bcf6fc7
+  zh: 28d2381299d1e592
+/qilin-pwsh-sandbox/use-this-package/modes-and-file-effects:
+  en: ac593e3c03afe7b5
+  zh: 1e08b8b66a549624
+/qilin-pwsh-sandbox/use-this-package/minimal-configuration:
+  en: 1f44f4ebfddee4a8
+  zh: 809ca6a84a55b3e6
+/qilin-pwsh-sandbox/use-this-package/denials-and-escalation:
+  en: b3deb62991a7388a
+  zh: 2b500e1912f95f28
+/qilin-pwsh-sandbox/use-this-package/failures-and-recovery:
+  en: 0d5b6818c3dad919
+  zh: e1d21581d66efb78
+/qilin-pwsh-sandbox/understand-the-implementation:
+  en: 05e2abe4a25886fd
+  zh: 3f7f1326dc3c1d3f
+/qilin-pwsh-sandbox/understand-the-implementation/design-concept:
+  en: 1592fbd523ce032c
+  zh: 72a377167fba74c3
+/qilin-pwsh-sandbox/understand-the-implementation/source-map:
+  en: 19fd20c325e4715b
+  zh: 8584bdba61cac43d
+/qilin-pwsh-sandbox/understand-the-implementation/main-flow:
+  en: 138e58489b3adf90
+  zh: e02551123a9cc712
+/qilin-pwsh-sandbox/understand-the-implementation/invariants:
+  en: 56b6b8d45b5fc463
+  zh: fe1a53e4ad514bc6
+/qilin-pwsh-sandbox/further-exploration:
+  en: 9db0b957115ec242
+  zh: 204bbb9720986edc
+/qilin-pwsh-sandbox/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-pwsh-sandbox/model-experience/confinement-works-denial-surfaces-as-command-failure:
+  en: 2348d676f74cc6fc
+  zh: 845691fedce1e35c
+/qilin-pwsh-sandbox/model-experience/confinement-works-denial-surfaces-as-command-failure/what-the-model-sees:
+  en: 0faadadd5c52f3d2
+  zh: 28eec841864921d2
+/qilin-pwsh-sandbox/model-experience/confinement-works-denial-surfaces-as-command-failure/token-effect:
+  en: 7a9e4f861d7ede15
+  zh: da79315a26df214b
+/qilin-pwsh-sandbox/model-experience/confinement-works-denial-surfaces-as-command-failure/kv-cache-effect:
+  en: 796af37d6f6add68
+  zh: 7975ff2a21c1b4f3
+/qilin-pwsh-sandbox/known-limitations-and-deferred-work:
+  en: c6376b8cd95f13f2
+  zh: 3dca7d2d7aa411ee
+/qilin-pwsh-sandbox/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

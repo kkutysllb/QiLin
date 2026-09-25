@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/mcp/mcp-servers/README.md
-README.md: e595949059d76a5d929ccc34a9cd67c307c6bf11
-README.zh.md: df2ec8fdf692b767d6a71aa9b8771f7e780ff0c1
+/:
+  en: 500c10f9dd15705e
+  zh: 7ea6af22f2e7aef2
+/qilin-mcp-servers:
+  en: 5344a4bcd2cb2daf
+  zh: 96c6f0645a04e455
+/qilin-mcp-servers/summary:
+  en: 94fd739f7cdb0c3f
+  zh: 30e56e3d0b995936
+/qilin-mcp-servers/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-mcp-servers/use-this-package:
+  en: 54aec62a0238d587
+  zh: 957aa94199799f5b
+/qilin-mcp-servers/use-this-package/what-a-snapshot-contains:
+  en: 5149b04240caa402
+  zh: 850987076950f02d
+/qilin-mcp-servers/use-this-package/when-the-file-cannot-be-addressed:
+  en: 6865b612881fcb53
+  zh: 22effebd55c8eeaa
+/qilin-mcp-servers/use-this-package/what-a-save-preserves:
+  en: c16c98d557e17a45
+  zh: 78bbf58657a431f1
+/qilin-mcp-servers/understand-the-implementation:
+  en: ee4615a04fa6503d
+  zh: ee2c5fb2204a43cf
+/qilin-mcp-servers/understand-the-implementation/where-the-entries-live:
+  en: 19192e3b9da2c76f
+  zh: 7a0f87318aa8ab7f
+/qilin-mcp-servers/understand-the-implementation/why-the-home-layer:
+  en: d5672231303b3e6c
+  zh: 8bda84a37d081efb
+/qilin-mcp-servers/understand-the-implementation/writes:
+  en: cfea5e8dc4679268
+  zh: a7d178b94c7a93e0
+/qilin-mcp-servers/understand-the-implementation/the-service-is-remote-only:
+  en: 88ba8e66f9f930a4
+  zh: 3d7dbeaa2c2d401a
+/qilin-mcp-servers/further-exploration:
+  en: 3e48fd1ca47e5cc4
+  zh: 4c2f72bb84609b07
+/qilin-mcp-servers/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register:
+  en: 158faf841a19cdad
+  zh: 9d9f5ae62b6b826f
+/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/what-the-model-sees:
+  en: 0b69f69518c9cfe8
+  zh: 91d128f67d6dc01d
+/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/token-effect:
+  en: 8047b595ebd237fb
+  zh: 66926d11a64c68b0
+/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/kv-cache-effect:
+  en: a94187bcd3768063
+  zh: 2753d79ebee88a68
+/qilin-mcp-servers/known-limitations-and-deferred-work:
+  en: 53caec8ab125ba3b
+  zh: c23259726a0fb55e
+/qilin-mcp-servers/known-limitations-and-deferred-work/dev-note:
+  en: 33b7d07751527c5c
+  zh: d37c080ec03fbae0

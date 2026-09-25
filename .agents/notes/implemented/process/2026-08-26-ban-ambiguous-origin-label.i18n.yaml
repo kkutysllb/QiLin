@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-26-ban-ambiguous-origin-label.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-08-26-ban-ambiguous-origin-label.md
-2026-08-26-ban-ambiguous-origin-label.md: b4c161a8a963e0aebdb3dcf24b8aac028429f349
-2026-08-26-ban-ambiguous-origin-label.zh.md: 2d592f44429d8622b5a42c55c7f92eae6da96800
+/agent-note-ban-an-ambiguous-origin-label:
+  en: d070b7276c17d94d
+  zh: 546724ed4ea189df
+/agent-note-ban-an-ambiguous-origin-label/problem:
+  en: 6b8bc890f063ba72
+  zh: 7f8ab2f695a74146
+/agent-note-ban-an-ambiguous-origin-label/decision:
+  en: 478606438e81ba6b
+  zh: 7701a7f6c0727454
+/agent-note-ban-an-ambiguous-origin-label/alternatives-considered:
+  en: 50421d71ea80fef9
+  zh: 512625bd4dac0734
+/agent-note-ban-an-ambiguous-origin-label/consequences:
+  en: 51a4f9c099f993f1
+  zh: 655bcf2eda1835ff

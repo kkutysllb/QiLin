@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-09-consumer-owned-startup-strictness.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-09-consumer-owned-startup-strictness.md
-2026-09-09-consumer-owned-startup-strictness.md: 11cdc4869456bdd802efb4b5b4401718826553d4
-2026-09-09-consumer-owned-startup-strictness.zh.md: 9de13622872bf6c35b02c6fd2c1c03a2986b62fe
+/agent-note-consumer-owned-startup-strictness:
+  en: 8f137568e63adbca
+  zh: 21c546e550992465
+/agent-note-consumer-owned-startup-strictness/problem:
+  en: 4548e7fbdbee5b5a
+  zh: 0078762ea92fa180
+/agent-note-consumer-owned-startup-strictness/decision:
+  en: e8d929cf16c56f5c
+  zh: 17a478fa10940165
+/agent-note-consumer-owned-startup-strictness/alternatives-considered:
+  en: 1b67e062213184cd
+  zh: 91cc8a015de2bfe4
+/agent-note-consumer-owned-startup-strictness/consequences:
+  en: e9f87fb146c63a1f
+  zh: 6b023a41614c9a0a
+/agent-note-consumer-owned-startup-strictness/testing:
+  en: 38ee72231ea053df
+  zh: 2a56e1fa417668d7

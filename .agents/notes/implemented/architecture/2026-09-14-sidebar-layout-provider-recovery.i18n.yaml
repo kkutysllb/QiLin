@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-sidebar-layout-provider-recovery.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-14-sidebar-layout-provider-recovery.md
-2026-09-14-sidebar-layout-provider-recovery.md: 8af4f4de63e0d25226239a89c10a09c1c7695a19
-2026-09-14-sidebar-layout-provider-recovery.zh.md: a6b7b3fa171496646b8da48442d22f1f5030d138
+/agent-note-sidebar-layout-persistence-and-provider-recovery:
+  en: dfe92e558b5e0919
+  zh: f83143bdec62a408
+/agent-note-sidebar-layout-persistence-and-provider-recovery/problem:
+  en: 8adb7105e89be803
+  zh: 96c4e92e85b6980e
+/agent-note-sidebar-layout-persistence-and-provider-recovery/decision:
+  en: 31a81e822d2a025e
+  zh: 1a21668b1fd86c6f
+/agent-note-sidebar-layout-persistence-and-provider-recovery/alternatives-considered:
+  en: 4a9b1234b0289ae7
+  zh: 81854e0e9d32b6da
+/agent-note-sidebar-layout-persistence-and-provider-recovery/consequences:
+  en: 0d6b0b4e37783dd5
+  zh: 5581247085735ca9

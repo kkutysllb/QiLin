@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/fs/fs-sandbox/README.md
-README.md: 71b13fb52e294984fce75199aef78bb368a6216f
-README.zh.md: 1a091a157e37027c19b44ce0af849b77fde1bcac
+/:
+  en: 4061a46ba3cf0fbd
+  zh: c374141974bfe4bb
+/qilin-fs-sandbox:
+  en: d6588e1136177238
+  zh: d8e63aaaadc417b7
+/qilin-fs-sandbox/summary:
+  en: 947025e9c8702f73
+  zh: 5d75dc11a34f1856
+/qilin-fs-sandbox/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-fs-sandbox/use-this-package:
+  en: c6fe0aa054b2a402
+  zh: 78a779a1b91ac808
+/qilin-fs-sandbox/use-this-package/minimal-composition:
+  en: 09c23fabc169c007
+  zh: 0a5b9be40ee8e543
+/qilin-fs-sandbox/use-this-package/how-the-fence-behaves:
+  en: 1a6f19bb21aff7b1
+  zh: ace300527edd0c1f
+/qilin-fs-sandbox/use-this-package/observable-success-and-failures:
+  en: 947550342021d6fa
+  zh: 2792dc54e315ae02
+/qilin-fs-sandbox/understand-the-implementation:
+  en: 1c359075f33df1ed
+  zh: 1306d6c28b5dd1f5
+/qilin-fs-sandbox/understand-the-implementation/design-concept:
+  en: ef26d25e866ae9c0
+  zh: 8206760b2e2c5feb
+/qilin-fs-sandbox/understand-the-implementation/source-map:
+  en: 5422d25675578549
+  zh: 9bb87cede194cd99
+/qilin-fs-sandbox/understand-the-implementation/how-a-mutation-is-fenced:
+  en: d30a62f5f7e9aee7
+  zh: 837e33fb5eea2f64
+/qilin-fs-sandbox/understand-the-implementation/threat-model:
+  en: 051808b6e28313a5
+  zh: a06a46f26c552678
+/qilin-fs-sandbox/further-exploration:
+  en: 48a56392ec9735f7
+  zh: df4b20f38ade7a21
+/qilin-fs-sandbox/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals:
+  en: 36178638b7ce9cf8
+  zh: 929c8292023f3541
+/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals/what-the-model-sees:
+  en: 1bf90d295e9a286f
+  zh: 7e7f1c4462a62fed
+/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals/token-effect:
+  en: fd86bc3fc7106117
+  zh: 1b9eb71e5aba714b
+/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals/kv-cache-effect:
+  en: a4ca227f2f83edec
+  zh: 5bb3c452b412566d
+/qilin-fs-sandbox/known-limitations-and-deferred-work:
+  en: c0ba1642a5e62459
+  zh: 10a27abcd6f27888
+/qilin-fs-sandbox/known-limitations-and-deferred-work/dev-note:
+  en: e83aa1d2ff6b4366
+  zh: f0feffa169cb8bd3

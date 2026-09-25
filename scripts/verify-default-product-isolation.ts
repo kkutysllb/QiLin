@@ -28,6 +28,8 @@ const RUNTIME_SECTIONS = ['dependencies', 'optionalDependencies', 'peerDependenc
 
 interface Manifest {
   name: string
+  icon?: unknown
+  exports?: Record<string, unknown>
   dependencies?: Record<string, string>
   optionalDependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
@@ -78,7 +80,8 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
   if (cli?.manifest.name !== '@qilin/cli') {
     failures.push('apps/cli/package.json must identify @qilin/cli')
   }
-  // The bundles the launcher ships switched off: each a runtime dependency of the installation that is a bundle, none a default.
+  // The bundles the launcher ships switched off: each a runtime dependency of the installation that is a bundle
+  // with an icon and locale display metadata for the plugin manager's Official group, none a default.
   const profilePath = resolve(root, PROFILE_SOURCE)
   const selection = existsSync(profilePath) ? profilePackages(readFileSync(profilePath, 'utf8')) : undefined
   const optionalBundles = new Set(selection?.optionalBundles ?? [])
@@ -86,8 +89,15 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
     if (cli?.manifest.dependencies?.[name] === undefined) {
       failures.push(`${PROFILE_SOURCE}: optional bundle ${name} must be a runtime dependency of apps/cli`)
     }
-    if (packages.get(name)?.manifest.qilin?.bundle?.patch === undefined) {
+    const manifest = packages.get(name)?.manifest
+    if (manifest?.qilin?.bundle?.patch === undefined) {
       failures.push(`${PROFILE_SOURCE}: optional bundle ${name} must declare qilin.bundle.patch`)
+    }
+    if (typeof manifest?.icon !== 'string') {
+      failures.push(`${PROFILE_SOURCE}: optional bundle ${name} must declare an icon`)
+    }
+    if (manifest?.exports?.['./locale/*.json'] === undefined) {
+      failures.push(`${PROFILE_SOURCE}: optional bundle ${name} must export ./locale/*.json display metadata`)
     }
   }
 

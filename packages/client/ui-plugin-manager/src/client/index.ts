@@ -13,6 +13,8 @@ import type { Context as ClientContext } from '@qilin/kylin'
 // (`settings.plugins.tab`), and the Plugins section owner renders the tab and
 // mounts the page inside it.
 import type {} from '@qilin/client-ui-settings/client'
+// Type-only: pulls the ctx.settingsShell merge (the section open channel).
+import type {} from '@qilin/client-ui-settings-general/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin/api-remotes/client'
@@ -47,6 +49,20 @@ export const TAB_ID = 'manage'
 /** Services required by the tab registration and the Remote methods; the inventory says whether the Host manages a profile. */
 export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory']
 
+declare module '@qilin/kylin' {
+  interface Context {
+    /** Cross-plugin navigation to the Plugins management page. */
+    pluginNavigation: {
+      /**
+       * Open a bundle's details without changing the current Session.
+       * An absent bundle displays the plugin list after loading.
+       * @param packageName - npm package name of the bundle.
+       */
+      openBundle(packageName: string): void
+    }
+  }
+}
+
 /**
  * Contribute the Plugins entry to the sidebar with the management page it
  * opens, and keep it current on the Host's change events.
@@ -73,6 +89,17 @@ export function apply(ctx: ClientContext): void {
     return () => { for (const dispose of disposers) dispose() }
   }, 'ui-plugin-manager: host invalidations')
 
+  // The open channel other surfaces call: the mounted page registers its
+  // reveal action here, and an unclaimed channel still opens the section.
+  let revealPackage: ((packageName: string) => void) | undefined
+  const disposeNavigation = ctx.reflect.provide('pluginNavigation', {
+    openBundle: (packageName: string) => {
+      ctx.get('settingsShell')?.open('plugins')
+      revealPackage?.(packageName)
+    },
+  } satisfies ClientContext['pluginNavigation'])
+  ctx.effect(() => () => { void disposeNavigation() }, 'ui-plugin-manager: navigation channel')
+
   // The management view is a tab of the Settings Plugins section: the section
   // owns the nav row, the tab bar, and the tab panel, so the Web sidebar carries
   // no Plugins entry of its own. What is installed and switched on is the page's
@@ -85,7 +112,13 @@ export function apply(ctx: ClientContext): void {
     order: 5,
     label: () => t('tab'),
     locale: NS,
-    inject: () => controller.inject(configLedger),
+    inject: () => ({
+      ...controller.inject(configLedger),
+      registerOpen: (handler: (packageName: string) => void) => {
+        revealPackage = handler
+        return () => { if (revealPackage === handler) revealPackage = undefined }
+      },
+    }),
     children: {
       'plugins.item': { kind: 'list', scope: 'root' },
       'plugins.bundle.activation': { kind: 'keyed', scope: 'root' },

@@ -15,7 +15,7 @@ import { carrierKeyOf, type Scoped } from '@qilin/scope'
 import type { SessionId } from '@qilin/session'
 import type SubagentRuntime from '@qilin/subagent'
 import type { SubagentRunEndInfo } from '@qilin/subagent'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import type {
   InitializeParams,
   InitializeResult,

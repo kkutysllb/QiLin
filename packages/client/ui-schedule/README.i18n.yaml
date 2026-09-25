@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-schedule/README.md
-README.md: 7ad6ca1cc26e4864da5a7dbedbed1d7e6e490068
-README.zh.md: 37b00b4cbe93c615673260fe8f1f2ce6c20ed9a0
+/:
+  en: 265778d19fe0dd76
+  zh: 78b0a191a4bd4e4e
+/qilin-client-ui-schedule:
+  en: 1ef18ce081d8d09c
+  zh: 7a47e53d9dc16d58
+/qilin-client-ui-schedule/summary:
+  en: 8dfc371c14bb4415
+  zh: 9b3545c1a7468a7a
+/qilin-client-ui-schedule/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 405b30feaf48c087
+/qilin-client-ui-schedule/use-this-package:
+  en: 09c51c057855c389
+  zh: fe5e02030f3b00fc
+/qilin-client-ui-schedule/use-this-package/time-zone-data-source:
+  en: 6bd6882dbbbefcb0
+  zh: 03aa15f1a65d13dc
+/qilin-client-ui-schedule/understand-the-implementation:
+  en: e2c248fa65dfc1c9
+  zh: 6f3f736601b0fb41
+/qilin-client-ui-schedule/further-exploration:
+  en: 96dfd2724a7b30e2
+  zh: a106d9ab0a3fbb9d
+/qilin-client-ui-schedule/model-experience:
+  en: a8838aba5fd29fd8
+  zh: b9f67d82c81dd030
+/qilin-client-ui-schedule/model-experience/kv-cache-effect:
+  en: 4b81350950285d47
+  zh: 6dc3d5cf7ca8a622
+/qilin-client-ui-schedule/known-limitations-and-deferred-work:
+  en: 814ba1d4c6872848
+  zh: a291ac2d2a55ab91
+/qilin-client-ui-schedule/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: a4b126f9a4eaca6f

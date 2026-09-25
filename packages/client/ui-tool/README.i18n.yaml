@@ -1,6 +1,49 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-tool/README.md
-README.md: 4ef49925ad84b944732e05b3a128f81add2db267
-README.zh.md: bcd79981fdea349cb72f0261ca75aa675a14b6f7
+/:
+  en: 942ce8ce04af70e7
+  zh: 2f1bcbd2e47e02cb
+/qilin-client-ui-tool:
+  en: 5010aa8f710a6bc7
+  zh: a7a1d554da0c0845
+/qilin-client-ui-tool/summary:
+  en: 2133c5939cb2780d
+  zh: dd39763d17786976
+/qilin-client-ui-tool/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-tool/use-this-package:
+  en: 8a0820e617799379
+  zh: 1fef0eff1d713728
+/qilin-client-ui-tool/use-this-package/registering-a-business-tool-view:
+  en: 5332d87e76037f07
+  zh: db5d06e7e46b8429
+/qilin-client-ui-tool/use-this-package/built-in-views:
+  en: 4b69e36952574494
+  zh: 1f9842b40931adb6
+/qilin-client-ui-tool/understand-the-implementation:
+  en: 00bc7b0c84edc603
+  zh: 1cfcf5b435248a91
+/qilin-client-ui-tool/understand-the-implementation/rendering-contract:
+  en: e402945cba89fc4f
+  zh: da001d61b27b2987
+/qilin-client-ui-tool/understand-the-implementation/cards:
+  en: da0e0eb8bc615c45
+  zh: 6b77726dd1c3561e
+/qilin-client-ui-tool/further-exploration:
+  en: d3b03b173507c7de
+  zh: f718c98412f2dbcb
+/qilin-client-ui-tool/model-experience:
+  en: 1e5e72dd269855d5
+  zh: 81a4756d460e3af9
+/qilin-client-ui-tool/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-tool/known-limitations-and-deferred-work:
+  en: d7b188c059eac1e3
+  zh: 9af13f3fb6f9a5ea
+/qilin-client-ui-tool/known-limitations-and-deferred-work/dev-note:
+  en: 0fdeab2e4db0261f
+  zh: 156d2b2952cf112e

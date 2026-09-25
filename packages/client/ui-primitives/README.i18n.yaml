@@ -1,6 +1,58 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-primitives/README.md
-README.md: e13b74f8d6c637713a32f335e68a926cb299d80e
-README.zh.md: 03e57cfb37a2d4c9aa947a7220cd2276f1447671
+/:
+  en: b6701ad9280c43fb
+  zh: bc1ed7854daac92e
+/qilin-client-ui-primitives:
+  en: caf20e08acd7dd2d
+  zh: a7a39f64482c32c0
+/qilin-client-ui-primitives/summary:
+  en: b79b8a4977b7f49c
+  zh: 4a70c4edbfd3053b
+/qilin-client-ui-primitives/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-primitives/use-this-package:
+  en: 9f8ec1ebc498b846
+  zh: 530b7a8eea6225a0
+/qilin-client-ui-primitives/use-this-package/component-catalog:
+  en: c55e9445905da763
+  zh: 3d5268a53a509fcf
+/qilin-client-ui-primitives/use-this-package/controls-and-icons:
+  en: e333a0c5bcdff7f6
+  zh: a86fa63c991c3dee
+/qilin-client-ui-primitives/use-this-package/rendering-agent-output:
+  en: b35a65420a12c75e
+  zh: 69c57ce16c9346b5
+/qilin-client-ui-primitives/use-this-package/localizing-copy:
+  en: 4aef65dea11de083
+  zh: abc22cd7c65cdf38
+/qilin-client-ui-primitives/understand-the-implementation:
+  en: af4de4fc13d9f533
+  zh: 2927f1bd7d057ff9
+/qilin-client-ui-primitives/understand-the-implementation/source-map:
+  en: 279033bff47a8091
+  zh: e9072440f2b76782
+/qilin-client-ui-primitives/understand-the-implementation/streaming-markdown:
+  en: 8bbfa14c27f3bfd7
+  zh: 88f7548ac3a114e1
+/qilin-client-ui-primitives/understand-the-implementation/geometry-and-overflow:
+  en: 9b34b50a635532bc
+  zh: 8ea629e1ce951979
+/qilin-client-ui-primitives/further-exploration:
+  en: 684db5291d944d66
+  zh: 22a4538704d13d37
+/qilin-client-ui-primitives/model-experience:
+  en: 3120df665299c634
+  zh: 1d9f365d091d0d2a
+/qilin-client-ui-primitives/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-primitives/known-limitations-and-deferred-work:
+  en: 9fc810886181885e
+  zh: 3d001c4bf816a62d
+/qilin-client-ui-primitives/known-limitations-and-deferred-work/dev-note:
+  en: caf0d64e79f1ee46
+  zh: 34aa42dd4a321fee

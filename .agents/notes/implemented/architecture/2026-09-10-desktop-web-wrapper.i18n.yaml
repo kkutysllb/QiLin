@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-10-desktop-web-wrapper.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-10-desktop-web-wrapper.md
-2026-09-10-desktop-web-wrapper.md: a302de8ad50c764ed7870ee0c2ae45b3bf332826
-2026-09-10-desktop-web-wrapper.zh.md: ed2bc93075f1968744d2c693b25936a55c9d88c1
+/agent-note-run-desktop-through-the-shared-web-application:
+  en: acfabd87d1a4a8b8
+  zh: eeeb4ea2d1a24f6d
+/agent-note-run-desktop-through-the-shared-web-application/problem:
+  en: 085b445846af76c1
+  zh: fdddf72401292bbd
+/agent-note-run-desktop-through-the-shared-web-application/decision:
+  en: 46ae89789a3463b3
+  zh: 8409a3b2b2a56849
+/agent-note-run-desktop-through-the-shared-web-application/alternatives-considered:
+  en: 007f4fd215c1ac75
+  zh: 4274c1ce0df36008
+/agent-note-run-desktop-through-the-shared-web-application/consequences:
+  en: 43a80c01a8a95170
+  zh: 0d7a2d1d1c676a61

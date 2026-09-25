@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/skill/skill-office/README.md
-README.md: 36ed453c38c4e21c5d073e6c164747dfd6aa4218
-README.zh.md: d6d05174f7ad4615030de15a607044b64b7cf22c
+/:
+  en: cc4e875ac37d9354
+  zh: e121819cde2ce76c
+/qilin-skill-office:
+  en: 7d924de994c6b6a0
+  zh: dc4160eb5da74bf9
+/qilin-skill-office/summary:
+  en: 4fe3cb4544ce7d9d
+  zh: 2749b1d0ffa468a1
+/qilin-skill-office/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 43ad67236ccda19a
+/qilin-skill-office/use-this-package:
+  en: 2dfbf75b9124fa5a
+  zh: ee0fde3d8f3a9749
+/qilin-skill-office/use-this-package/minimal-configuration:
+  en: 088f223318dff9d7
+  zh: ce944bf61fb1f821
+/qilin-skill-office/use-this-package/structural-checks:
+  en: 1bb872d63bdd78b7
+  zh: 355dee19bdfb3798
+/qilin-skill-office/understand-the-implementation:
+  en: 3febb0cf7bad13a6
+  zh: c3ab05db2b2f8828
+/qilin-skill-office/further-exploration:
+  en: 2513ad645cb466c2
+  zh: 1d8858fa681f0571
+/qilin-skill-office/model-experience:
+  en: d7eec9c83f757d11
+  zh: ac536651b4e4cac7
+/qilin-skill-office/model-experience/kv-cache-effect:
+  en: c77beb1c0d28f221
+  zh: 99643101d2b915b9
+/qilin-skill-office/known-limitations-and-deferred-work:
+  en: 22d0a8196c2c48c3
+  zh: ef2e38a0a91476a8
+/qilin-skill-office/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

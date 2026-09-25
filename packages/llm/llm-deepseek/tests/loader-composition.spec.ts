@@ -1,6 +1,6 @@
 /**
  * Real-composition guard for the dynamic-configuration chain: LlmRuntime,
- * settings-file, credentials-local, and llm-deepseek boot from a test-only
+ * settings-file, credentials-local, and the llm-deepseek-api-key provider boot from a test-only
  * cordis.yml through the actual Loader + Include path, external edits of
  * settings.yaml and the credentials document hot-publish through their providers, and the very
  * next request carries the fresh base URL and credential. The same adapter
@@ -27,7 +27,7 @@ import { getOrCreateAnonymousUserId } from '@qilin/anonymous-user-id'
 import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
 import * as SessionLogDeepSeek from '@qilin/session-log-deepseek'
 import * as DeepSeekPluginPackageInventory from '@qilin/plugin-package-inventory-deepseek'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
@@ -93,7 +93,7 @@ async function loadComposition(
       ]
       : [],
     '- id: llm-deepseek',
-    "  name: '@qilin/llm-deepseek'",
+    "  name: '@qilin/llm-deepseek-api-key'",
     '  config:',
     `    baseURL: ${JSON.stringify(options.baseURL)}`,
     '',
@@ -113,7 +113,7 @@ async function loadComposition(
     ['@qilin/plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
     ['@qilin/settings-file', FileSettingsProvider],
     ['@qilin/credentials-local', LocalCredentialProvider],
-    ['@qilin/llm-deepseek', LlmDeepSeek],
+    ['@qilin/llm-deepseek-api-key', LlmDeepSeek],
   ])
   // The custom importer bypasses Node resolution; mirror the package manifests
   // a deployed cordis.yml has beside its declared dependencies.
@@ -154,7 +154,7 @@ describe('llm-deepseek real dynamic composition', () => {
     expect(request).not.toHaveProperty('qilin_session_log')
     expect(request.qilin_plugin_packages.packages).toEqual(expect.arrayContaining([
       { name: '@qilin/deepseek-llm-api-extensions', version: '0.1.0-rc.8' },
-      { name: '@qilin/llm-deepseek', version: '0.1.0-rc.8' },
+      { name: '@qilin/llm-deepseek-api-key', version: '0.1.0-rc.8' },
       { name: '@qilin/session-log-deepseek', version: '0.1.0-rc.8' },
     ]))
     expect(request.qilin_plugin_packages.version).toBe(1)

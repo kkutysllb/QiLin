@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-settings-card-layout.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-13-settings-card-layout.md
-2026-09-13-settings-card-layout.md: d0f87248014d5417960c3481ced9c0ff98cbb9a2
-2026-09-13-settings-card-layout.zh.md: 2e4d46069d43e432aaf7041057d087191f0734d7
+/agent-note-settings-card-layout-and-qilin-project-identity:
+  en: 91e90438fdd05755
+  zh: 7bf18efbafe73308
+/agent-note-settings-card-layout-and-qilin-project-identity/problem:
+  en: 30b1ecfbc4cbf81d
+  zh: eea5ab8b6f9f1670
+/agent-note-settings-card-layout-and-qilin-project-identity/decision:
+  en: 896e86463d6ceef1
+  zh: 99e85ef0fa2600d1
+/agent-note-settings-card-layout-and-qilin-project-identity/alternatives-considered:
+  en: 028a0b6b5335387e
+  zh: fe78c67e315f19d7
+/agent-note-settings-card-layout-and-qilin-project-identity/consequences:
+  en: df1c9967be7113e9
+  zh: a9a3367daa695f4e
+/agent-note-settings-card-layout-and-qilin-project-identity/testing:
+  en: b1b37cadfd69468b
+  zh: 6430a8f36af5f14b

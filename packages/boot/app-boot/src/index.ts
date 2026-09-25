@@ -81,6 +81,7 @@ export {
   type ProfileResolutionMode,
   type ProfileTemplate,
 } from './profile.ts'
+export { readPluginMeta } from './package-meta.ts'
 export {
   doctorPluginPackage,
   type PluginDoctorCheck,

@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/core/agent-tool-presentation/README.md
-README.md: 3a7d478549fd559b0227bf7ecdb3543889eebf90
-README.zh.md: c65a5dd5fb4ec45255bbc7b78f1256e3c2c57215
+/:
+  en: 1c67fea11cb4a325
+  zh: 7dc1256148273b02
+/qilin-agent-tool-presentation:
+  en: 649a53b33a56bc60
+  zh: 3aea8592845329aa
+/qilin-agent-tool-presentation/summary:
+  en: 3518d1e5dcb11ddd
+  zh: 535ad0e02b4a3c52
+/qilin-agent-tool-presentation/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-tool-presentation/use-this-package:
+  en: c3cd68366e8fa8bb
+  zh: 4ce55e53694092c4
+/qilin-agent-tool-presentation/use-this-package/add-the-row-to-a-preset:
+  en: 349a24758fc375e0
+  zh: 24930ebbe06cd01c
+/qilin-agent-tool-presentation/use-this-package/what-ptc-mode-requires:
+  en: 679f377271b18034
+  zh: af2fa83ae6fb55ff
+/qilin-agent-tool-presentation/use-this-package/one-presentation-per-agent:
+  en: 46bf80f051175567
+  zh: 8f5e1623da5d1520
+/qilin-agent-tool-presentation/understand-the-implementation:
+  en: ce7e776e9d516bdb
+  zh: 59d2751743db7795
+/qilin-agent-tool-presentation/understand-the-implementation/design-concept:
+  en: 6f8bb6bd853cbc13
+  zh: 422fca4b20b79fbd
+/qilin-agent-tool-presentation/understand-the-implementation/source-map:
+  en: 6b329a33f84ae50d
+  zh: 978f92c29c0f4338
+/qilin-agent-tool-presentation/understand-the-implementation/behavior-notes:
+  en: 89ac786d93496353
+  zh: 7a4ed45e14b48def
+/qilin-agent-tool-presentation/further-exploration:
+  en: 5e0edfff83c2319c
+  zh: 53f758bf4f082a2b
+/qilin-agent-tool-presentation/model-experience:
+  en: b717a2f5a1165d81
+  zh: 52e1a4512808f9e7
+/qilin-agent-tool-presentation/model-experience/kv-cache-effect:
+  en: c75b16e38577f026
+  zh: f802d115af4bf9a1
+/qilin-agent-tool-presentation/known-limitations-and-deferred-work:
+  en: 17a0a213ec65c95f
+  zh: ff96d985f6360338
+/qilin-agent-tool-presentation/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

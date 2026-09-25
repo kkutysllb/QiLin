@@ -1,6 +1,58 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-deliverables/README.md
-README.md: 2448283a0e98de8906f887f97298d4d82132f5a2
-README.zh.md: e39dd4edf8b16000e9b7ca0339a27a083c257b7f
+/:
+  en: 91a4da87e2e078ed
+  zh: 8d489c6cdf208c4d
+/qilin-client-ui-deliverables:
+  en: d9e6d3ea4b5cbbac
+  zh: 25b1fd8af2a4968c
+/qilin-client-ui-deliverables/summary:
+  en: a17b97d16803f911
+  zh: ad80cf4bcb5a8018
+/qilin-client-ui-deliverables/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-deliverables/use-this-package:
+  en: bec3addae05b0c63
+  zh: 82ca127bb0db9db6
+/qilin-client-ui-deliverables/use-this-package/explicit-deliveries:
+  en: 6f99703dbe5bd915
+  zh: 474a5887e41a61e6
+/qilin-client-ui-deliverables/use-this-package/the-changed-files-card:
+  en: 264e3d8c2c3308a0
+  zh: 268655df9cc8ceb9
+/qilin-client-ui-deliverables/use-this-package/the-review-tab:
+  en: 3841abce6e33c564
+  zh: 31175cf69c33b0c9
+/qilin-client-ui-deliverables/use-this-package/inline-code-links:
+  en: e36ccef8bf908ea4
+  zh: 30e11327a55e5dfa
+/qilin-client-ui-deliverables/understand-the-implementation:
+  en: 5e81e43b907c01ee
+  zh: d61a3c369ffad8d1
+/qilin-client-ui-deliverables/further-exploration:
+  en: 7fbb38158f458cd4
+  zh: e6bec53bc5f4fb58
+/qilin-client-ui-deliverables/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance:
+  en: eb244aa21a4e5210
+  zh: e3450addfa19cea5
+/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance/what-the-model-sees:
+  en: b191a86a061cbb07
+  zh: 1e080b8fedb3a4f8
+/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance/token-effect:
+  en: b6c79433affb56a6
+  zh: a084318c814aa03c
+/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance/kv-cache-effect:
+  en: 52626a05acc8b320
+  zh: 6a8e62b0d47d5297
+/qilin-client-ui-deliverables/known-limitations-and-deferred-work:
+  en: 7cf1624dbf46ec53
+  zh: 4cf51dd265f1965f
+/qilin-client-ui-deliverables/known-limitations-and-deferred-work/dev-note:
+  en: a55f817f597aa646
+  zh: aba9a91ecde566ab

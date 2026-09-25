@@ -1,6 +1,34 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-plans/README.md
-README.md: 9b47170f310e97db5240f26f19b7e10c4b00578b
-README.zh.md: 95b88ba80375d1e096b4f4454bb0c1ff64867201
+/:
+  en: 29e399ec8c59fbd2
+  zh: 0077a5cea2646f31
+/qilin-client-ui-sidebar-plans:
+  en: 3edd3f8846d76cff
+  zh: 748370e9ad14c033
+/qilin-client-ui-sidebar-plans/summary:
+  en: 2d7a2167c37b3368
+  zh: 8b8bd6ff986cbbb7
+/qilin-client-ui-sidebar-plans/table-of-contents:
+  en: e55f13c476e426c1
+  zh: 5a4d2a44c2197d8b
+/qilin-client-ui-sidebar-plans/what-it-registers:
+  en: a166e455a4f08509
+  zh: 4354108d4658222b
+/qilin-client-ui-sidebar-plans/the-plan-list:
+  en: 9e49ec4c2386f42d
+  zh: fa57d28d22a9699d
+/qilin-client-ui-sidebar-plans/model-experience:
+  en: f3d22b6014339f99
+  zh: caaff278db33a124
+/qilin-client-ui-sidebar-plans/model-experience/kv-cache-effect:
+  en: a3ac5b34bc1d3088
+  zh: 82d0bf4c62f76bcf
+/qilin-client-ui-sidebar-plans/known-limitations-and-deferred-work:
+  en: bb82180fc7e4d50f
+  zh: 87c1d56974f8e60f
+/qilin-client-ui-sidebar-plans/known-limitations-and-deferred-work/dev-note:
+  en: d0cf1c1dfab76731
+  zh: 0e884e6a94da721c

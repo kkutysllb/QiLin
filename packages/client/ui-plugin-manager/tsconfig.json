@@ -39,6 +39,9 @@
       "path": "../ui-sidebar"
     },
     {
+      "path": "../ui-settings-general"
+    },
+    {
       "path": "../ui-slots"
     },
     {

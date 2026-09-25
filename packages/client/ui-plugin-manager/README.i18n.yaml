@@ -1,6 +1,64 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-plugin-manager/README.md
-README.md: 9b50fa63a3ba156ffd2dbf0567ea913421a97020
-README.zh.md: a90eef08c65a9aab6e7758271836c60af537a7ce
+/:
+  en: 54aae1d7dea09ab4
+  zh: 699d0db95231a419
+/qilin-client-ui-plugin-manager:
+  en: bb80f2c7472d0a8b
+  zh: 87416a2ea32b10ea
+/qilin-client-ui-plugin-manager/summary:
+  en: 8966a6b56fd040fc
+  zh: e3e185d60e067ddd
+/qilin-client-ui-plugin-manager/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-plugin-manager/use-this-package:
+  en: e4db5084e80cf697
+  zh: 4b32fd1da0cc3db1
+/qilin-client-ui-plugin-manager/use-this-package/installing-a-bundle:
+  en: 5d72473aaf369959
+  zh: 601bd772c78f8e20
+/qilin-client-ui-plugin-manager/use-this-package/checking-for-updates:
+  en: ceba8fdd250ecebd
+  zh: 7d0f4e9ab33b67ff
+/qilin-client-ui-plugin-manager/use-this-package/browsing-the-plugin-catalog:
+  en: 62f539bfb416bfb6
+  zh: f0c8237c08a75efa
+/qilin-client-ui-plugin-manager/use-this-package/switching-a-bundle:
+  en: abc90531efa889d5
+  zh: 0562570f85e69c35
+/qilin-client-ui-plugin-manager/use-this-package/switching-one-row-of-a-bundle:
+  en: 7345e211e194ff2f
+  zh: 18530372079ad57c
+/qilin-client-ui-plugin-manager/use-this-package/configuration-pages:
+  en: e1a9d084b5e07f9b
+  zh: da65baba1e595c1b
+/qilin-client-ui-plugin-manager/understand-the-implementation:
+  en: 8ca48e1365f18adf
+  zh: 91eadd683d2d8b5b
+/qilin-client-ui-plugin-manager/understand-the-implementation/registration:
+  en: b52cb5e3f14849d9
+  zh: 2d38f8a0e36fa871
+/qilin-client-ui-plugin-manager/understand-the-implementation/the-store:
+  en: 9cff1fc6a5d1d593
+  zh: 43e59e0bc0475b18
+/qilin-client-ui-plugin-manager/understand-the-implementation/configuration-slots:
+  en: e63fbf2c954feee1
+  zh: 7b82cf5c32c69f86
+/qilin-client-ui-plugin-manager/further-exploration:
+  en: 5c4ff276d7403fe6
+  zh: 0bea301704097664
+/qilin-client-ui-plugin-manager/model-experience:
+  en: 8dcc6c6fbfb567d2
+  zh: 43690ae350f1d6a7
+/qilin-client-ui-plugin-manager/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: 2064958b0754647e
+/qilin-client-ui-plugin-manager/known-limitations-and-deferred-work:
+  en: 32cc10370c82aa9e
+  zh: 152152267eb04a53
+/qilin-client-ui-plugin-manager/known-limitations-and-deferred-work/dev-note:
+  en: 4c7bfc75267a0862
+  zh: d2bde53850c642d0

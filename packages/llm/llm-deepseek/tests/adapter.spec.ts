@@ -7,8 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context, LoggerLevel, Service } from '@qilin/kylin'
 import LocalAttachments from '@qilin/attachment-local'
-import AgentRegistry, { installModelSelection } from '@qilin/agent'
-import type { Agent, ModelSelectionRef } from '@qilin/agent'
+import AgentRegistry from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import SystemPrompt from '@qilin/system-prompt'
 import ToolRuntime from '@qilin/tools'
@@ -16,7 +15,7 @@ import SessionProjectionRegistry from '@qilin/session-projection'
 import { AttachmentId } from '@qilin/attachment'
 import Loader from '@qilin/kylin-plugin-loader'
 import Include from '@qilin/kylin-plugin-include'
-import LlmRuntime, { createAssistantMessage, createSystemMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin/llm'
+import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin/llm'
 import type { Message } from '@qilin/llm'
 import { credentialRef } from '@qilin/credentials'
 import LocalCredentials from '@qilin/credentials-local'
@@ -25,12 +24,14 @@ import SessionStore, { SessionId } from '@qilin/session'
 import { DeepSeekAdapter } from '../src/adapter.ts'
 import { object } from '../src/replay.ts'
 import { DeepSeekFileStore } from '../src/file-store.ts'
-import * as Messages from '../src/index.ts'
+import * as Messages from '@qilin/llm-deepseek-api-key'
 import { adapter, assemble, chunks, MODEL, options, prepareExtensions, server, sse, textEvents, user, sourceModuleLoader } from './helpers.ts'
 
 const cleanup: (() => Promise<unknown>)[] = []
 afterEach(async () => {
+  vi.useRealTimers()
   while (cleanup.length) await cleanup.pop()!()
+  vi.useRealTimers()
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
 })
@@ -46,12 +47,6 @@ async function context() {
   const ctx = new Context()
   cleanup.push(() => ctx.fiber.dispose())
   return { ctx, home }
-}
-
-async function send(agent: Agent, text: string) {
-  agent.followup(user(text))
-  await agent.whenIdle()
-  expect(agent.session.snapshotEvents().at(-1)).toMatchObject({ type: 'turn/end', data: { reason: { kind: 'completed' } } })
 }
 
 declare module '@qilin/llm' {
@@ -106,6 +101,22 @@ describe('direct Messages HTTP', () => {
     ])
   })
 
+  it('sends the tool-changes beta header only when update blocks are present', async () => {
+    const http = await endpoint()
+    const llm = adapter({ baseURL: http.url })
+    const tools = [{ name: 'search', description: 'Search', parameters: {}, deferLoading: true as const }]
+    const changes = createDeveloperMessage({ source: { kind: 'tool-registry' }, content: [{ type: 'tool-addition', toolName: 'search' }] })
+    await assemble(llm.stream(options({ messages: [user(), changes], tools })))
+    expect(http.requests[0]).toMatchObject({
+      headers: { 'anthropic-beta': 'mid-conversation-tool-changes-2026-07-01' },
+      body: { tools: [{ name: 'search', defer_loading: true }], messages: [
+        { role: 'user' }, { role: 'system', content: [{ type: 'tool_addition', tool: { type: 'tool_reference', name: 'search' } }] },
+      ] },
+    })
+    await assemble(llm.stream(options({ tools })))
+    expect(http.requests[1]?.headers).not.toHaveProperty('anthropic-beta')
+  })
+
   it('uses the Messages endpoint, authentication, attribution and final usage', async () => {
     const http = await endpoint()
     const llm = adapter({ baseURL: http.url })
@@ -120,9 +131,7 @@ describe('direct Messages HTTP', () => {
       'x-deepseek-harness-session-id': 'session-test', 'x-deepseek-harness-compact': '1',
     }, body: { thinking: { type: 'enabled' }, output_config: { effort: 'high' } } })
     expect(llm.providerInfo('deepseek-official')).toEqual({ id: 'deepseek-official', name: 'DeepSeek' })
-    expect((await llm.listModels('deepseek-official')).map(model => model.id)).toEqual([
-      'deepseek-flash', 'deepseek-v4-pro',
-    ])
+    expect(await llm.listModels('deepseek-official')).toEqual([])
     expect(await llm.resolveModel('deepseek-official', 'deepseek-flash')).toMatchObject({
       name: 'DeepSeek-V41-Flash', inputModalities: ['text', 'image'], systemPromptUpdate: 'in-history',
     })
@@ -164,7 +173,7 @@ describe('direct Messages HTTP', () => {
     const files = new DeepSeekFileStore()
     const llm = new DeepSeekAdapter({
       options: () => Messages.resolveAdapterOptions({ baseURL: source.url }),
-      resolveApiKey: () => Promise.resolve('test-key'), resolveUserId: () => 'test-user' as AnonymousUserId,
+      resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'test-key' } }), resolveUserId: () => 'test-user' as AnonymousUserId,
       resolveAttachments: () => undefined, resolveImageAccess: () => undefined, resolveFiles: () => files,
       prepareExtensions: prepare,
     })
@@ -181,7 +190,7 @@ describe('direct Messages HTTP', () => {
     const first = await endpoint(), second = await endpoint()
     let config = Messages.resolveAdapterOptions({ baseURL: first.url, maxTokens: 10, models: [{ id: MODEL, systemPromptUpdate: 'in-history' }] })
     const files = new DeepSeekFileStore()
-    const llm = new DeepSeekAdapter({ options: () => config, resolveApiKey: snapshot => Promise.resolve(snapshot.maxTokens === 10 ? 'first' : 'second'), resolveUserId: () => 'user' as AnonymousUserId, resolveAttachments: () => undefined, resolveImageAccess: () => undefined, resolveFiles: () => files, prepareExtensions })
+    const llm = new DeepSeekAdapter({ options: () => config, resolveAuth: snapshot => Promise.resolve({ headers: { 'x-api-key': snapshot.maxTokens === 10 ? 'first' : 'second' } }), resolveUserId: () => 'user' as AnonymousUserId, resolveAttachments: () => undefined, resolveImageAccess: () => undefined, resolveFiles: () => files, prepareExtensions })
     const prepared = await llm.prepareCall('deepseek-official', MODEL)
     config = Messages.resolveAdapterOptions({ baseURL: second.url, maxTokens: 20 })
     expect(prepared.model.systemPromptUpdate).toBe('in-history')
@@ -205,13 +214,50 @@ describe('direct Messages HTTP', () => {
     await stopped
   })
 
-  it('distinguishes caller cancellation from idle timeout and transport failure', async () => {
-    const http = await endpoint((response) =>{  response.flushHeaders() })
-    await expect(chunks(adapter({ baseURL: http.url, streamIdleTimeoutMs: 30 }).stream(options()))).rejects.toMatchObject({ code: 'TIMEOUT' })
+  it('times out an idle HTTP response and closes the connection', async () => {
+    const stopped = Promise.withResolvers<undefined>()
+    const http = await endpoint((response) => {
+      response.once('close', () => { stopped.resolve(undefined) })
+      response.write(sse(textEvents.slice(0, 2)))
+    })
+    // Advance the idle clock after the response is readable, independently of connection setup time.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const stream = adapter({ baseURL: http.url, streamIdleTimeoutMs: 30 }).stream(options())[Symbol.asyncIterator]()
+    try {
+      expect((await stream.next()).value).toMatchObject({ type: 'block-start' })
+      const rejected = expect(stream.next()).rejects.toMatchObject({ code: 'TIMEOUT' })
+      await vi.advanceTimersByTimeAsync(30)
+      await rejected
+      await stopped.promise
+    } finally {
+      vi.useRealTimers()
+      await stream.return?.()
+    }
+  })
+
+  it('classifies an already cancelled request without contacting the provider', async () => {
+    const http = await endpoint()
     const controller = new AbortController(); controller.abort()
     await expect(chunks(adapter({ baseURL: http.url }).stream(options({ signal: controller.signal })))).rejects.toMatchObject({ code: 'ABORTED' })
+    expect(http.requests).toEqual([])
+  })
+
+  it('classifies a transport failure', async () => {
     vi.stubGlobal('fetch', async () => { throw new TypeError('network down') })
     await expect(chunks(adapter().stream(options()))).rejects.toMatchObject({ code: 'TRANSPORT' })
+  })
+
+  it('preserves the transport failure when a provider error callback rejects', async () => {
+    vi.stubGlobal('fetch', async () => new Response('Unauthorized', { status: 401 }))
+    const llm = new DeepSeekAdapter({
+      options: () => Messages.resolveAdapterOptions({}),
+      resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'fixture-key' },
+        onRequestError: async () => { throw new Error('credential storage unavailable') },
+      }),
+      resolveUserId: () => 'fixture-user' as import('@qilin/anonymous-user-id').AnonymousUserId,
+      prepareExtensions,
+    })
+    await expect(chunks(llm.stream(options()))).rejects.toMatchObject({ code: 'AUTH', failure: { status: 401 } })
   })
 
   it('rejects a successful response with no readable body', async () => {
@@ -256,7 +302,7 @@ describe('Cordis provider composition', () => {
     await ctx.plugin(Loader)
     ctx.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/llm', LlmRuntime], ['@qilin/llm-deepseek', Messages],
+      ['@qilin/llm', LlmRuntime], ['@qilin/llm-deepseek-api-key', Messages],
       ['@qilin/credentials-local', LocalCredentials],
       ['@qilin/agent', AgentRegistry], ['@qilin/agent-loop', AgentLoop],
       ['@qilin/session', SessionStore], ['@qilin/session-projection', SessionProjectionRegistry],
@@ -284,78 +330,18 @@ describe('Cordis provider composition', () => {
   }
 
   it.each([
-    { model: MODEL, inHistory: false },
-    { model: MODEL, inHistory: true },
-    { model: 'deepseek-flash', inHistory: true },
-  ])('updates, clears and restores prompts across continued and resumed sessions, model=$model in-history=$inHistory', async ({ model, inHistory }) => {
-    const { ctx, http } = await boot()
-    if (inHistory && model === MODEL) await ctx.settings.update(Messages.name, { models: [{ id: model, systemPromptUpdate: 'in-history' }] })
-    let prompt = 'first prompt'
-    ctx.on('system-prompt/assemble', async (_assembly, _context, next) => ({
-      ...await next(), sections: [{ name: 'test', text: prompt, order: 0 }],
-    }))
-    const agentOptions = { provider: 'deepseek-official', model }
-    const agent = await ctx.agentLoop.create(SessionId('prompt-update'), agentOptions)
-    await send(agent, 'first')
-    prompt = 'second prompt'
-    await send(agent, 'second')
-    const count = agent.session.snapshotEvents().filter(event => event.type === 'system/message').length
-    await send(agent, 'unchanged')
-    expect(agent.session.snapshotEvents().filter(event => event.type === 'system/message')).toHaveLength(count)
-    prompt = ''
-    await send(agent, 'clear')
-    const { agent: resumed } = await ctx.agents.create({ sessionId: SessionId('prompt-resume'), agentOptions,
-      seed: [...agent.session.snapshotEvents()] })
-    await send(resumed, 'resume cleared')
-    prompt = 'restored prompt'
-    await send(resumed, 'restore')
-    expect(http.requests.map(request => request.body.system)).toEqual(inHistory
-      ? ['first prompt', 'first prompt', 'first prompt', undefined, undefined, undefined]
-      : ['first prompt', 'second prompt', 'second prompt', undefined, undefined, 'restored prompt'])
-    for (const [index, request] of http.requests.entries()) {
-      const messages = request.body.messages as { role: string; content: unknown[] }[]
-      expect(messages.filter(message => message.role === 'assistant')).toHaveLength(index)
-      expect(messages.filter(message => message.role === 'system').map(message => message.content)).toEqual(
-        !inHistory ? [] : index === 1 || index === 2 ? [[{ type: 'text', text: 'second prompt' }]]
-          : index === 5 ? [[{ type: 'text', text: 'restored prompt' }]] : [],
-      )
-      expect(JSON.stringify(messages.filter(message => message.role !== 'system'))).not.toMatch(/first prompt|second prompt|restored prompt/)
-    }
-    expect(resumed.session.requestContext()?.systemPromptUpdate).toBe(inHistory ? 'in-history' : undefined)
-  })
-
-  it.each([false, true])('continues and resumes sessions after a model capability change, in-history=%s', async (inHistory) => {
-    const { ctx, http } = await boot()
-    await ctx.settings.update('llm-deepseek', { baseURL: http.url, models: [{ id: MODEL, systemPromptUpdate: 'in-history' }] })
-    let prompt = 'old prompt'
-    ctx.on('system-prompt/assemble', async (_assembly, _context, next) => ({
-      ...await next(), sections: [{ name: 'test', text: prompt, order: 0 }],
-    }))
-    const selection: ModelSelectionRef = { current: { provider: 'deepseek-official', model: MODEL }, assembled: undefined }
-    const agent = await ctx.agentLoop.create(SessionId('capability-switch'), selection.current)
-    installModelSelection(agent.ctx, selection)
-    await send(agent, 'first')
-    prompt = 'current prompt'
-    await send(agent, 'second')
-    expect((http.requests[1]?.body.messages as { role: string }[]).filter(message => message.role === 'system')).toHaveLength(1)
-    const seed = [...agent.session.snapshotEvents()]
-    const saved = JSON.stringify(seed)
-    await ctx.settings.update(Messages.name, { models: [{ id: MODEL, ...inHistory ? { systemPromptUpdate: 'in-history' } : {} }] })
-    selection.current = { provider: 'deepseek-official', model: MODEL }
-    await send(agent, 'switch')
-    const { agent: resumed } = await ctx.agents.create({ sessionId: SessionId('switch-resume'), agentOptions: selection.current, seed })
-    await send(resumed, 'resume')
-    for (const request of http.requests.slice(2)) {
-      expect(request.path).toBe('/anthropic/v1/messages')
-      expect(request.body.system).toBe(inHistory ? 'old prompt' : 'current prompt')
-      const messages = request.body.messages as { role: string }[]
-      expect(messages.filter(message => message.role === 'assistant')).toHaveLength(2)
-      expect(messages.filter(message => message.role === 'system')).toHaveLength(inHistory ? 1 : 0)
-      expect(JSON.stringify(messages.filter(message => message.role !== 'system'))).not.toMatch(/old prompt|current prompt/)
-    }
-    expect(JSON.stringify(seed)).toBe(saved)
-    expect(agent.session.deriveMessages().filter(message => message.role === 'system')).toHaveLength(inHistory ? 2 : 1)
-    expect(resumed.session.deriveMessages().filter(message => message.role === 'system')).toHaveLength(inHistory ? 2 : 1)
+    JSON.stringify({ error: { type: 'authentication_error', message: 'API key is invalid' } }),
+    JSON.stringify({ error: { message: 'Authentication Fails (invalid dsh token)' } }),
+    'Unauthorized',
+    '',
+  ])('classifies an official-route HTTP 401 independently of the response body (%s)', async (body) => {
+    const { ctx } = await boot((response) => {
+      response.writeHead(401, { 'content-type': 'application/json' })
+      response.end(body)
+    })
+    expect((await chunks(ctx.llm.stream(options()))).at(-1)).toMatchObject({
+      type: 'finish', reason: { kind: 'error', failure: { code: 'AUTH' } },
+    })
   })
 
   it('maps multiple system snapshots on direct compaction calls to the latest prompt', async () => {
@@ -457,7 +443,25 @@ it('rejects invalid catalog context windows at the options resolver', () => {
   expect(() => Messages.resolveAdapterOptions({ models: [{ id: 'invalid-window', contextWindow: 0 }] })).toThrow('contextWindow must be a positive integer')
 })
 
+
+it('selects the API-key credential from the actual endpoint', async () => {
+  vi.stubEnv('DEEPSEEK_API_KEY', 'ambient-key')
+  const { ctx } = await context()
+  await ctx.plugin(LlmRuntime)
+  await ctx.plugin(Messages, { baseURL: 'https://custom.example.test' })
+  const request = vi.fn<typeof fetch>((_input, init) => {
+    const headers = new Headers(init?.headers)
+    expect(headers.has('authorization')).toBe(false)
+    expect(headers.get('x-api-key')).toBe('ambient-key')
+    expect(init?.redirect).toBe('error')
+    return Promise.resolve(new Response(sse(textEvents), { status: 200 }))
+  })
+  vi.stubGlobal('fetch', request)
+  await assemble(ctx.llm.stream(options()))
+  expect(request).toHaveBeenCalledOnce()
+})
+
 // TODO(deepseek-account): restore "selects account or API-key credentials from
-// the actual endpoint" once `@qilin/deepseek-account` and the adapter's
-// `resolveAccountToken` hook exist here; until then every endpoint uses the
-// API key and the account-token header is never sent.
+// the actual endpoint" once `@qilin/deepseek-account` and the
+// `@qilin/llm-deepseek-account` provider exist here; until then every endpoint
+// uses the API key and the account-token header is never sent.

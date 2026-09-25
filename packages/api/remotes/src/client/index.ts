@@ -6,6 +6,7 @@ import commandsRemote from '@qilin/commands/remote'
 import settingsControllerRemote from '@qilin/api-settings-controller/remote'
 import officeToPdfRemote from '@qilin/office-to-pdf/remote'
 import goalsRemote from '@qilin/goal/remote'
+import scheduleRemote from '@qilin/schedule/remote'
 import llmRemote from '@qilin/llm/remote'
 import dynamicRemote from '@qilin/kylin-host-runner/remote'
 import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
@@ -37,6 +38,7 @@ export type {} from '@qilin/agent-presets/remote'
 export type {} from '@qilin/commands/remote'
 export type {} from '@qilin/api-settings-controller/remote'
 export type {} from '@qilin/goal/remote'
+export type {} from '@qilin/schedule/remote'
 export type {} from '@qilin/office-to-pdf/remote'
 export type {} from '@qilin/llm/remote'
 export type {} from '@qilin/host-plugin-inventory/remote'
@@ -170,7 +172,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
   const disposers: Array<() => Promise<void>> = []
   try {
     for (const contribution of [
-      agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote,
+      agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote, scheduleRemote,
       pluginInventoryRemote, pluginManagerRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
       permissionPresetsRemote, subagentsRemote, sessionRemote, workspaceRemote, workspaceFilesRemote, terminalRemote,

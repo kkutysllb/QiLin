@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-skills/README.md
-README.md: a7382c32bcb630e6e8c6c5e62506e6b27827e1a8
-README.zh.md: 1d2da2a3fdbf280138eca7f7ecf1d3b8a8f8de66
+/:
+  en: bf548e2409e2e5c3
+  zh: e91b33791236a638
+/qilin-client-ui-settings-skills:
+  en: ad730ac405179b0f
+  zh: d5af44f3d1b326ae
+/qilin-client-ui-settings-skills/summary:
+  en: a6894f64b7fc8e3f
+  zh: a0be414cb4d3ed06
+/qilin-client-ui-settings-skills/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-settings-skills/use-this-package:
+  en: eb5829f68e11b216
+  zh: 613261a14bfafe9f
+/qilin-client-ui-settings-skills/use-this-package/groups:
+  en: 06d9e83f4b352953
+  zh: ac14f8682e841ff9
+/qilin-client-ui-settings-skills/use-this-package/rows:
+  en: 768fe0de8cba8f8e
+  zh: d3bf52ab5d4613ce
+/qilin-client-ui-settings-skills/use-this-package/before-a-session-exists:
+  en: b74f43209f398099
+  zh: dcb914520ee002a4
+/qilin-client-ui-settings-skills/understand-the-implementation:
+  en: 95bca96505612c07
+  zh: 503497ed0a501891
+/qilin-client-ui-settings-skills/further-exploration:
+  en: 1e0c3088c2293949
+  zh: 5b2f4aa8215660dd
+/qilin-client-ui-settings-skills/model-experience:
+  en: fa35f037e2a7a7d6
+  zh: af42ac89ca91c28c
+/qilin-client-ui-settings-skills/model-experience/kv-cache-effect:
+  en: 51d75309ddd54647
+  zh: e9c9ff3dba046d71
+/qilin-client-ui-settings-skills/known-limitations-and-deferred-work:
+  en: 3aa958b9c2e5c11b
+  zh: d374284099b210c5
+/qilin-client-ui-settings-skills/known-limitations-and-deferred-work/dev-note:
+  en: 8fa1ce877eecd782
+  zh: 83b697daa9716ea7

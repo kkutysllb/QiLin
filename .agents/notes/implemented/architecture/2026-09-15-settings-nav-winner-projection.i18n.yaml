@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-15-settings-nav-winner-projection.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-15-settings-nav-winner-projection.md
-2026-09-15-settings-nav-winner-projection.md: 1fc67dd5a22672d80c59c3a88220811d2756d68e
-2026-09-15-settings-nav-winner-projection.zh.md: 828ccc2ef53997cf06b4f01fba695f0896cd61c6
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row:
+  en: 6c84f75fe5bb64d0
+  zh: 01275c6a1e59f691
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row/problem:
+  en: 3e84f39be8ec2378
+  zh: da3f5823f61c1b58
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row/decision:
+  en: 9ab01b62730adc58
+  zh: cde3eadd06d39bdd
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row/consequences:
+  en: 0927893cd8a21dfd
+  zh: 4ec29be9876cd254
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row/alternatives-considered:
+  en: d94d9c10454f1c4e
+  zh: 3902e7a2f45c968a
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row/what-was-given-up:
+  en: 1ee990098e26a3a8
+  zh: 8bed4800c5ce4ea5
+/agent-note-the-settings-nav-projects-slot-winner-cells-so-a-shadowed-section-cannot-leave-a-dead-row/required-verification:
+  en: 934c11092ec68659
+  zh: a52289ddd3748266

@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-plan/README.md
-README.md: 9d74ae69a1476c8509d7973adc9c1fa60cb87bfb
-README.zh.md: 2ccb05134e6ff8c14a078afc8514629be67337be
+/:
+  en: 1d5e0e4466f12e0f
+  zh: 14072627e89bc20b
+/qilin-client-ui-plan:
+  en: f790e922ec11dc28
+  zh: 23c8438c433b1e7a
+/qilin-client-ui-plan/summary:
+  en: 958c2c8bf80759a0
+  zh: 57ffbbfa1bcbdff4
+/qilin-client-ui-plan/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-plan/use-this-package:
+  en: c67141de844d03a3
+  zh: 3bf066bfd402af49
+/qilin-client-ui-plan/use-this-package/what-the-chip-shows:
+  en: 0ffdea04f33f8520
+  zh: 79fe215cdebec220
+/qilin-client-ui-plan/use-this-package/reading-submitted-plans:
+  en: ba19b73f47797435
+  zh: da61bcbbde8a2a86
+/qilin-client-ui-plan/use-this-package/failures:
+  en: a13078ade4ef3b9d
+  zh: 2c8b3e8b62ad5652
+/qilin-client-ui-plan/understand-the-implementation:
+  en: da55abb94651facd
+  zh: cb75c8058ceec764
+/qilin-client-ui-plan/further-exploration:
+  en: 26a32f5e40f19292
+  zh: 0d6eeaede67a5025
+/qilin-client-ui-plan/model-experience:
+  en: 96ed1b5ce91494bc
+  zh: ed81f84a47d08886
+/qilin-client-ui-plan/model-experience/kv-cache-effect:
+  en: 0eeecf007103b9ba
+  zh: 4a105d4b5ec85547
+/qilin-client-ui-plan/known-limitations-and-deferred-work:
+  en: f74784ddad90a7e1
+  zh: 638ce5a243e6b5cc
+/qilin-client-ui-plan/known-limitations-and-deferred-work/dev-note:
+  en: 7991aef935043973
+  zh: 390d0758d1c6003d

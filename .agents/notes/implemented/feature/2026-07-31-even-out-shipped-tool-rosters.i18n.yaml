@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-07-31-even-out-shipped-tool-rosters.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-07-31-even-out-shipped-tool-rosters.md
-2026-07-31-even-out-shipped-tool-rosters.md: 218e6369dd34263f4a4a47c5e5013ad7ee481057
-2026-07-31-even-out-shipped-tool-rosters.zh.md: 8d2f0df321d2c5b5ed6a8cf02043d43b9fbe1183
+/agent-note-even-out-the-shipped-tool-rosters:
+  en: de063de197cc2a97
+  zh: b2abf80ebc7c95db
+/agent-note-even-out-the-shipped-tool-rosters/problem:
+  en: a2950f0dbe33bc9c
+  zh: 51d437ece5f02203
+/agent-note-even-out-the-shipped-tool-rosters/decision:
+  en: b3126e965e48dc0a
+  zh: 85dca54ae5b00321
+/agent-note-even-out-the-shipped-tool-rosters/decision/what-stays-unmounted-and-why:
+  en: e0c293063eca3961
+  zh: d014950bdcd5428a
+/agent-note-even-out-the-shipped-tool-rosters/decision/mcp-is-a-dependency-not-a-row:
+  en: 8c7b37161f0c53e2
+  zh: c5b2cc96cd624539
+/agent-note-even-out-the-shipped-tool-rosters/testing:
+  en: ecb4e6d653680b7c
+  zh: 5d9570dddaa7211d
+/agent-note-even-out-the-shipped-tool-rosters/alternatives-considered:
+  en: cf41f0bf700af59c
+  zh: 1dcaafe6bb944d92
+/agent-note-even-out-the-shipped-tool-rosters/consequences:
+  en: cf1821c985507b13
+  zh: 0f7396a06d1b19fb

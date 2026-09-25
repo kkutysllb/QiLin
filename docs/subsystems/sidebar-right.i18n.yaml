@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for sidebar-right.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/sidebar-right.md
-sidebar-right.md: 0340cee075b8ee54ba46371a602fc1027405d29f
-sidebar-right.zh.md: bfd74adef9bbf3b6e8b419d8c9c8147495f0075b
+/right-sidebar:
+  en: c4ea10068c9f021f
+  zh: 872d2715c4fb0dbd
+/right-sidebar/position-and-ownership:
+  en: 3a11ed820a5c52dc
+  zh: 2c53669ea763872e
+/right-sidebar/addresses:
+  en: 66eb638de6e5becf
+  zh: 117521a3dea94c3c
+/right-sidebar/tab-type-registration:
+  en: c94875c44bee87c0
+  zh: 1870645ed857eb91
+/right-sidebar/navigation-ctx-sidebarright:
+  en: 245dacd8dca60e76
+  zh: 566ad3cda9a92b3a
+/right-sidebar/slots-and-owner-props:
+  en: c46cc1c54da4f8ee
+  zh: 2bb3755578b23e55
+/right-sidebar/tab-switches-and-persistence:
+  en: f7e6e3b504e604b3
+  zh: 615e6cad2578594b
+/right-sidebar/document-renderers:
+  en: 0f13f9e40f7f8b61
+  zh: be2980b0a5b73066
+/right-sidebar/resource-model:
+  en: 1a9f44f089c51b73
+  zh: 5d9b084297472084
+/right-sidebar/workspace-files:
+  en: a2f5ca115d58ffa3
+  zh: 49bddaefd6485995
+/right-sidebar/shipped-types:
+  en: a677ae464afc1dfd
+  zh: 351666953e507aaa
+/right-sidebar/not-built:
+  en: 63d840626274d798
+  zh: b926fb3f5a85dd4d

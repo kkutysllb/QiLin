@@ -14,7 +14,7 @@ import {
   createUserMessage, isAgentLoopRequest, ToolCallId,
   type StreamChunk,
 } from '@qilin/llm'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import PermissionPresetService, { AUTO_PRESET } from '@qilin/permission-presets'
 import SandboxProvider, { type ConfinedArgv, type SandboxPolicy } from '@qilin/sandbox'
 import SandboxPolicyService from '@qilin/sandbox-policy'

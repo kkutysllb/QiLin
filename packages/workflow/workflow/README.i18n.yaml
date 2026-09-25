@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/workflow/workflow/README.md
-README.md: 876ddd2237137e70b234ab0d4374045ed418aac2
-README.zh.md: e555663d24aa7b81e70f62f8a4887369a57833d4
+/:
+  en: 2db6c7ad9f69f2b8
+  zh: ccfc28844ee5cebd
+/qilin-workflow:
+  en: 61ae7bd959f51551
+  zh: 922eab863b9e9164
+/qilin-workflow/summary:
+  en: c7603bd9094b5102
+  zh: 661b875a7683e5fc
+/qilin-workflow/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-workflow/use-this-package:
+  en: bda974ed11bff0cb
+  zh: 91724b1f624a4ca6
+/qilin-workflow/use-this-package/the-model-facing-path:
+  en: 8901087ddb7ad00a
+  zh: 1c2a95a75ac54556
+/qilin-workflow/use-this-package/running-a-workflow-script:
+  en: 938a268642212305
+  zh: 08d094d12060e349
+/qilin-workflow/use-this-package/programmatic-runs:
+  en: 7a7173fc43e9e5f4
+  zh: 2488e8bb8c69bb4b
+/qilin-workflow/use-this-package/failures-and-recovery:
+  en: 69e3e5358c089908
+  zh: 1d17b4e8aad5f028
+/qilin-workflow/understand-the-implementation:
+  en: 32d9c2e2fd581462
+  zh: 04ed23a3d3bb4e19
+/qilin-workflow/understand-the-implementation/design-concept:
+  en: 274b3de2f7b713ec
+  zh: e3953c1ae1f59442
+/qilin-workflow/understand-the-implementation/source-map:
+  en: 67240e519a3e725f
+  zh: 495f806856054230
+/qilin-workflow/understand-the-implementation/lifecycle-and-ownership:
+  en: 95b074d816b52323
+  zh: dfa070a1531651f9
+/qilin-workflow/understand-the-implementation/failure-discipline:
+  en: e2c2a6e2876457e8
+  zh: 764cba9eede4bb79
+/qilin-workflow/further-exploration:
+  en: dfdd1cae83e787a1
+  zh: ae85f9bb1c05c09b
+/qilin-workflow/model-experience:
+  en: b686b7e681d7930b
+  zh: c9940d507d96cab5
+/qilin-workflow/model-experience/kv-cache-effect:
+  en: 243e59cc08420e3b
+  zh: 14d648f12ae48786
+/qilin-workflow/known-limitations-and-deferred-work:
+  en: 5f6f60fbb44f67e9
+  zh: 0b1b9018f09aad25
+/qilin-workflow/known-limitations-and-deferred-work/dev-note:
+  en: e225f492e530edc1
+  zh: 62234cac2367cc97

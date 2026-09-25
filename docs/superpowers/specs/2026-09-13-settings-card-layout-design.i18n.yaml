@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-settings-card-layout-design.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/superpowers/specs/2026-09-13-settings-card-layout-design.md
-2026-09-13-settings-card-layout-design.md: 2840d57ca03d4a9a3cca10eee76c19792f11be25
-2026-09-13-settings-card-layout-design.zh.md: 9cb9af5c0fd73c6698c4612da27fc97a3150603c
+/settings-page-card-layout-design:
+  en: 4a88d090edb16fca
+  zh: f8f543588a37b7e2
+/settings-page-card-layout-design/background:
+  en: 8941705a8327c72d
+  zh: ff39f7853f0ca1e8
+/settings-page-card-layout-design/goals:
+  en: 3ee672794deaee22
+  zh: 2587bb18d0f35568
+/settings-page-card-layout-design/visual-structure:
+  en: 5fe7ba531bc2b5ce
+  zh: c62806601123eeb1
+/settings-page-card-layout-design/components-and-data-flow:
+  en: ebfb79a158037ca2
+  zh: cf46a485c4afa5b5
+/settings-page-card-layout-design/localization:
+  en: 8823ce2f4e393e81
+  zh: 70c90504726eccad
+/settings-page-card-layout-design/responsive-and-accessibility:
+  en: 115757cd88b772f9
+  zh: f0614c8b765ed468
+/settings-page-card-layout-design/testing:
+  en: d34b82d2ce34c798
+  zh: 799c5293609e836d
+/settings-page-card-layout-design/non-goals:
+  en: a9d879e00ef2dc3e
+  zh: fee53d4a853f60d2

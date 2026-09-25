@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-05-shared-client-control-primitives.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-05-shared-client-control-primitives.md
-2026-09-05-shared-client-control-primitives.md: 525c33dd1680e38b2708fef95d7340f592039e18
-2026-09-05-shared-client-control-primitives.zh.md: fe8e40e99bf0ed8cacfdb830ded5f56885a36093
+/agent-note-shared-client-control-primitives:
+  en: 17dce75f0e70ca41
+  zh: 45aaa065392e1b9e
+/agent-note-shared-client-control-primitives/problem:
+  en: 7a711c1cafe0be88
+  zh: 7275b36fdd5094f6
+/agent-note-shared-client-control-primitives/decision:
+  en: 830d7eceee57cb50
+  zh: d3b5600bd741f685
+/agent-note-shared-client-control-primitives/finding-the-duplicates:
+  en: 78201f6d7a70b548
+  zh: ac8e86b683143aa9
+/agent-note-shared-client-control-primitives/what-stays-local:
+  en: 473750cdde7aefae
+  zh: 4213f1871af0c9ee
+/agent-note-shared-client-control-primitives/alternatives-considered:
+  en: 4cc501f3f8a275c2
+  zh: ab3103644fa6c838
+/agent-note-shared-client-control-primitives/testing:
+  en: 08b283df6ec4fc80
+  zh: d417f235607d81a8
+/agent-note-shared-client-control-primitives/consequences:
+  en: a54e2fd1a9d631a0
+  zh: eccc299a546b748b

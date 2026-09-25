@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/headless/README.md
-README.md: 78be476bb4f474b1000e8d8518cf19806565974f
-README.zh.md: 75df1a2ead4271adca433d5e3e0a3d093c95eb1b
+/:
+  en: 10d70174ea448570
+  zh: 7bb99a77c60fb5ab
+/qilin-headless:
+  en: 53e81143411deda6
+  zh: e80ed64b23b3e5c7
+/qilin-headless/summary:
+  en: 1401e4155d5a73e0
+  zh: decb7e0412eb3f8e
+/qilin-headless/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-headless/use-this-package:
+  en: 4447012f4c84100d
+  zh: faf579ae9f04c096
+/qilin-headless/use-this-package/running-a-one-shot-task:
+  en: b84ab694081da3b5
+  zh: 404d1e1c8f543bee
+/qilin-headless/use-this-package/choosing-the-session-identity:
+  en: dbaa2fac63910a4c
+  zh: 4fd5c17815ca444b
+/qilin-headless/use-this-package/machine-readable-output:
+  en: bbdbc0fc835d2833
+  zh: 89b81d2921bddec4
+/qilin-headless/use-this-package/when-to-use-it:
+  en: e921a2f3a60ca915
+  zh: d1b4a80c2f54159c
+/qilin-headless/use-this-package/help-and-task-errors:
+  en: 6ec24ce43bc14d1c
+  zh: b4147e42ee608d46
+/qilin-headless/understand-the-implementation:
+  en: be1b73a6d0ee3902
+  zh: bdba099685d68b27
+/qilin-headless/understand-the-implementation/run-flow:
+  en: 9aa4036bef328294
+  zh: ece8c86ce7bcd902
+/qilin-headless/understand-the-implementation/patch-surface-over-base:
+  en: 04014f675c51a40e
+  zh: a5efb8e4b50fe69e
+/qilin-headless/understand-the-implementation/exit-mapping:
+  en: 51c97e923c3fd276
+  zh: 3a7dab0052723a0a
+/qilin-headless/understand-the-implementation/source-map:
+  en: 183c12c82993c86f
+  zh: d98518a5fe7737fd
+/qilin-headless/understand-the-implementation/invariant-ownership:
+  en: 329f170dec4b2279
+  zh: bb40f8beda5b3a1c
+/qilin-headless/further-exploration:
+  en: c5f836dfd56833e6
+  zh: 7b1e7577e50dae42
+/qilin-headless/model-experience:
+  en: c5a0991833f64dd7
+  zh: 46f9feb255778f11
+/qilin-headless/model-experience/kv-cache-effect:
+  en: 0b0f74b412c7c6d8
+  zh: 6e8f918d0c4bf342
+/qilin-headless/known-limitations-and-deferred-work:
+  en: 412e9a6180bc6025
+  zh: f1bd05a536c504ee
+/qilin-headless/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

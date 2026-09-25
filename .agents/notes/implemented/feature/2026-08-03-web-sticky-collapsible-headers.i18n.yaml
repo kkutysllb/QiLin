@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-03-web-sticky-collapsible-headers.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-03-web-sticky-collapsible-headers.md
-2026-08-03-web-sticky-collapsible-headers.md: 33c7d8e746af1bd34aa8cdbb2022e53dd4099769
-2026-08-03-web-sticky-collapsible-headers.zh.md: b45f7d2259f161b63920d8a16780306321d0034f
+/agent-note-web-sticky-collapsible-headers-think-and-compaction-toggles-pin-while-scrolling:
+  en: 8a251149ea0a5733
+  zh: eb3b837cb1335632
+/agent-note-web-sticky-collapsible-headers-think-and-compaction-toggles-pin-while-scrolling/problem:
+  en: edc8f9bc1a1a02dd
+  zh: 87dc9328e583cbf4
+/agent-note-web-sticky-collapsible-headers-think-and-compaction-toggles-pin-while-scrolling/decision:
+  en: 9d49eb8c8aaa4ed1
+  zh: b8f593b30b2cdc30
+/agent-note-web-sticky-collapsible-headers-think-and-compaction-toggles-pin-while-scrolling/alternatives-considered:
+  en: 41b99001cd54cd6a
+  zh: 557d58643b9d53c5
+/agent-note-web-sticky-collapsible-headers-think-and-compaction-toggles-pin-while-scrolling/consequences:
+  en: 7cae313f63827f22
+  zh: 8ca284853c146de0
+/agent-note-web-sticky-collapsible-headers-think-and-compaction-toggles-pin-while-scrolling/testing:
+  en: 79c5a154a274518b
+  zh: f5a05a36657cbc69

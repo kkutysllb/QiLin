@@ -1,6 +1,34 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-22-tool-call-three-phases.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-22-tool-call-three-phases.md
-2026-09-22-tool-call-three-phases.md: 0dedffdb7f7ef4d44bc385244290deae9a0ad15a
-2026-09-22-tool-call-three-phases.zh.md: 67308d9594840396a0bc9e6463237cec397c71e5
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid:
+  en: facb4e4829e20ca2
+  zh: 8ff7ea916265c936
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/problem:
+  en: c5116869e8ed83e6
+  zh: 16218a6b9de025c3
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/decision:
+  en: a15c7c13f167e5ac
+  zh: 63bcc2ef60c2f344
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/decision/one-tool-owns-three-stages:
+  en: ea65da88c3df35bb
+  zh: a71afb4683a75290
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/decision/start-marks-an-initialization-candidate:
+  en: 696a180246e23391
+  zh: aeb2b1fdcfdf9631
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/decision/converge-on-final-state-without-replaying-preparation:
+  en: 724d9eb4e0adfc7e
+  zh: a1cee91543c0865a
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/decision/shared-rows-reuse-their-existing-presentation:
+  en: a677ae94970c5072
+  zh: 207ae688dde2ee6a
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/decision/relationship-to-existing-records:
+  en: d4da0deee154a130
+  zh: bb8d204640cda243
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/alternatives-considered:
+  en: 144fd7f7a741c42b
+  zh: 58a54be8c6cd613a
+/agent-note-tool-calls-own-preparation-dispatch-and-results-by-callid/consequences:
+  en: fe700503e76579bf
+  zh: bf7ca88b17b131e5

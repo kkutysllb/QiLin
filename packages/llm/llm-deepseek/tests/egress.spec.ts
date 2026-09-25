@@ -38,7 +38,7 @@ import { vi } from 'vitest'
 import { Context } from '@qilin/kylin'
 import LlmRuntime from '@qilin/llm'
 import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import * as LlmDeepSeek from '../src/index.ts'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 
 let home: string
 beforeAll(() => {

@@ -47,6 +47,7 @@
     "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/subagent": "workspace:*",
     "@qilin/subagent-in-process-driver": "workspace:*",

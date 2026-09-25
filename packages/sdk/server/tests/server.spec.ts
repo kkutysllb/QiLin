@@ -14,7 +14,7 @@ import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
 
 import SessionStore, { SessionId } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import SubagentRuntime, { type SubagentResult, type SubagentRunEndInfo } from '@qilin/subagent'
 import type { JsonRpcTransportPeer } from '@qilin/sdk-protocol'
 import { HarnessSdkJsonRpcServer } from '../src/index.ts'

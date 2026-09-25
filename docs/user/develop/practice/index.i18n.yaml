@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for index.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/practice/index.md
-index.md: e5bc3d39e746628407a28917e61dafda85a0fcad
-index.zh.md: 54d92567626bd4be825e5d116bcd4e8a06d5bb37
+/three-role-capability-design:
+  en: 4fe3972e20eb04d2
+  zh: 498c72c242c65556
+/three-role-capability-design/concept-reference:
+  en: 4e60abf663a9748f
+  zh: 3c80c65e519a51dd
+/three-role-capability-design/bash-example:
+  en: 3e34f0995690feaa
+  zh: 62ebeb50f0e42dde
+/three-role-capability-design/benefits-of-the-split:
+  en: 026507583f272d46
+  zh: db37713da87a0e0e
+/three-role-capability-design/benefits-of-the-split/replace-providers:
+  en: 8f74a0bba164ce14
+  zh: e1869cf9b4dd284c
+/three-role-capability-design/benefits-of-the-split/evolve-independently:
+  en: bdf8329fe9d51537
+  zh: 416b7d81d8d30881
+/three-role-capability-design/benefits-of-the-split/decouple-dependencies:
+  en: bcf141540f5bc977
+  zh: 8fe749c834c689b3
+/three-role-capability-design/tutorial-develop-a-three-role-capability:
+  en: 7bd3c99c2cdb06ad
+  zh: 264d321e9fa35dd8
+/three-role-capability-design/tutorial-develop-a-three-role-capability/step-1-write-the-service-definition:
+  en: 3940ce7faa9e33d6
+  zh: 71e5450d4f57e43a
+/three-role-capability-design/tutorial-develop-a-three-role-capability/step-2-write-a-service-provider:
+  en: 187b9fd73900f8ea
+  zh: 19d29d3fd9cea71a
+/three-role-capability-design/tutorial-develop-a-three-role-capability/step-3-write-a-consumer:
+  en: 604c3c3483a0db87
+  zh: 3069257db64d921c
+/three-role-capability-design/tutorial-develop-a-three-role-capability/compose-them-in-cordis-yml:
+  en: 7b5eae32911c61d3
+  zh: 8a7a03df8294a8c9
+/three-role-capability-design/design-points:
+  en: 5822e06c2cfce8e1
+  zh: aed13f901bb8891e
+/three-role-capability-design/next-steps:
+  en: 278e727861b99bda
+  zh: 21f6f6419d2cada6

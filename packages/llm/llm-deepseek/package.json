@@ -34,14 +34,18 @@
     "@qilin/anonymous-user-id": "workspace:*",
     "@qilin/atomic-write": "workspace:*",
     "@qilin/attachment": "workspace:*",
-    "@qilin/credentials": "workspace:*",
     "@qilin/deepseek-llm-api-extensions": "workspace:*",
     "@qilin/fs": "workspace:*",
     "@qilin/home-paths": "workspace:*",
     "@qilin/launch-environment": "workspace:*",
     "@qilin/llm": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/timeout": "workspace:*"
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~"
+  },
+  "peerDependenciesMeta": {
+    "@qilin/kylin-plugin-loader": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@qilin/brand": "workspace:*",
@@ -62,6 +66,7 @@
     "@qilin/home-paths": "workspace:*",
     "@qilin/launch-environment": "workspace:*",
     "@qilin/llm": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/plugin-package-inventory-deepseek": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-log-deepseek": "workspace:*",

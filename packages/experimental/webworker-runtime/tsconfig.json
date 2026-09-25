@@ -40,6 +40,18 @@
     },
     {
       "path": "../../client/web"
+    },
+    {
+      "path": "../../schedule/schedule"
+    },
+    {
+      "path": "../../storage/storage-domain"
+    },
+    {
+      "path": "../../storage/storage"
+    },
+    {
+      "path": "../../storage/storage-json"
     }
   ]
 }

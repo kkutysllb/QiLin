@@ -1,0 +1,73 @@
+{
+  "name": "@qilin/llm-deepseek-api-key",
+  "description": "DeepSeek api-key provider authentication and discovery",
+  "version": "3.0.4",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/llm/llm-deepseek-api-key"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:~",
+    "@qilin/anonymous-user-id": "workspace:*",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/launch-environment": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/settings": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~"
+  },
+  "peerDependenciesMeta": {
+    "@qilin/kylin-plugin-loader": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@qilin/schemastery": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:~",
+    "@qilin/anonymous-user-id": "workspace:*",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/attachment-local": "workspace:*",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/credentials-local": "workspace:*",
+    "@qilin/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
+    "@qilin/launch-environment": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/settings": "workspace:*",
+    "@qilin/settings-file": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/atomic-write": "workspace:*",
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*"
+  }
+}

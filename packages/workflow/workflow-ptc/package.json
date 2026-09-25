@@ -69,6 +69,7 @@
     "@qilin/fs-local": "workspace:*",
     "@qilin/subprocess": "workspace:*",
     "@qilin/subprocess-local": "workspace:*",
-    "@qilin/sandbox-local": "workspace:*"
+    "@qilin/sandbox-local": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*"
   }
 }

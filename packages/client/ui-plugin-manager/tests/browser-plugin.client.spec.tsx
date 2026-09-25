@@ -50,6 +50,32 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(hostApply).not.toThrow()
   })
 
+  it('routes pluginNavigation through the settings shell and the mounted page reveal', async () => {
+    const b = await bench()
+    const openSection = vi.fn()
+    b.ctx.provide('settingsShell', { open: openSection })
+    declare(b.slots)
+    const fiber = b.ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+    const entry = b.slots.entries('settings.plugins.tab')[0]!
+    // The tab's inject face hands the page's reveal registration to the channel.
+    const face = (entry.inject as unknown as () => PluginManagerFace)()
+    expect(face.registerOpen).toBeTypeOf('function')
+    const reveal = vi.fn()
+    const unregister = face.registerOpen!(reveal)
+    // The channel opens the Plugins section, then the mounted page's reveal.
+    b.ctx.pluginNavigation.openBundle('qilin-navigation-test')
+    expect(openSection).toHaveBeenCalledWith('plugins')
+    expect(reveal).toHaveBeenCalledWith('qilin-navigation-test')
+    // Disposal of the registration detaches exactly that handler.
+    unregister()
+    b.ctx.pluginNavigation.openBundle('qilin-navigation-test')
+    expect(reveal).toHaveBeenCalledOnce()
+    // Unmounting the tab withdraws the whole channel.
+    await fiber.dispose()
+    expect(b.ctx.get('pluginNavigation')).toBeUndefined()
+  })
+
   it('declares only the services the page and its Remote methods use', () => {
     expect(inject).toEqual(['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory'])
   })

@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-07-13-human-review-skill-maintenance.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/process/2026-07-13-human-review-skill-maintenance.md
-2026-07-13-human-review-skill-maintenance.md: 2c6254e120a35e72ee44424ef428777cccda1238
-2026-07-13-human-review-skill-maintenance.zh.md: bcf9d4fa502d296bee2aa4b9a92407f34e3a0667
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review:
+  en: b2a3b1a0a7bb0eac
+  zh: f8c9614eded66a1a
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/problem:
+  en: 7525ad5821b12c44
+  zh: 7daef3ed8aa176e9
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal:
+  en: efef4329bc4918d2
+  zh: 4e96f06bd8debc08
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal/acquisition-contract:
+  en: a95dea3f6b37af6f
+  zh: 29cfc8f03a8b487b
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal/adoption-evidence:
+  en: f61dfd9e11b1e5a5
+  zh: c87f245097c39fc7
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal/dual-reviewer-classification-and-drafting:
+  en: fe1f6987e5a7d4f7
+  zh: 74d990935316e69b
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal/reviewer-adapter-protocol:
+  en: baa824361e643e80
+  zh: 15d5efb0a1ca2c11
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal/promotion-contract:
+  en: dd6810cf423430bc
+  zh: 0c81e470f64af150
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/proposal/where-the-mechanism-lives:
+  en: 757e902f7854de8b
+  zh: dc79b31818cbba46
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/alternatives-considered:
+  en: 1673a2138ddd34c2
+  zh: 81c91a50ea0703d6
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/acceptance-criteria:
+  en: da8244ce2a019e44
+  zh: 691efd947a211dc5
+/agent-note-periodic-human-review-maintenance-for-dsh-code-review/risks:
+  en: b26ffb43c1c35b3a
+  zh: c2c8b81a8317cd55

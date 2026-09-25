@@ -1,6 +1,49 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for llm-streaming.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/llm-streaming.md
-llm-streaming.md: 45c0f7bf2e8f6575eb2aba5c8e74578e5589115b
-llm-streaming.zh.md: b95d93b040974fb816c7d491686b25e764fb7e6c
+/llm-streaming:
+  en: fee72e0ebb715b82
+  zh: 01da5d9ae0ba2af3
+/llm-streaming/content-blocks-and-messages:
+  en: 76d68f137f344428
+  zh: 44c09718bdd4f2cd
+/llm-streaming/streamchunk-the-raw-protocol:
+  en: a18fe401763efde4
+  zh: ef59a76d9c694654
+/llm-streaming/compact-assistant-streams:
+  en: 568b52c6098ca9f6
+  zh: f8ce0961deed091d
+/llm-streaming/llmfailure:
+  en: 13415501869b4ca9
+  zh: 723c7533cce3d1d6
+/llm-streaming/request-image-pricing:
+  en: 10598e1a98262415
+  zh: 7fb85b22174a1497
+/llm-streaming/the-adapter-contract:
+  en: 442036e6f89545f8
+  zh: b5d481e110264e3c
+/llm-streaming/resolvedretrypolicy:
+  en: 4dd43a8fc92c7921
+  zh: 50c9f1e2be866a7f
+/llm-streaming/appidentity-app-attribution:
+  en: 1ba4235e00de9c61
+  zh: da4ba76f8ccd454b
+/llm-streaming/tokenusage:
+  en: 33830f78fdb845fa
+  zh: f43a4502c4c3bfff
+/llm-streaming/blockassembler:
+  en: 58dec2259b0b1c6f
+  zh: fc99fe965acaabf3
+/llm-streaming/the-model-request:
+  en: 90f8bf21e217c162
+  zh: 65440c67ad9b393c
+/llm-streaming/the-model-request/the-request-envelope-llmcallconfig-and-the-logged-header:
+  en: 34d29caf28a589f0
+  zh: 14c9231bedc94505
+/llm-streaming/official-deepseek-request-extensions:
+  en: 7341a58f264b964f
+  zh: 51615462775e5179
+/llm-streaming/service-and-provider-contracts:
+  en: 3b629f7d23c779bd
+  zh: a03132ca138f6577

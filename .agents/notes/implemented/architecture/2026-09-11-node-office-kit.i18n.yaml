@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-11-node-office-kit.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-11-node-office-kit.md
-2026-09-11-node-office-kit.md: bf02cb2bf7409180629b7b64e40f1ec804a51ab0
-2026-09-11-node-office-kit.zh.md: e0964353d3904dccd99c8f83e7fdb21373966000
+/agent-note-node-office-conversion-with-independently-packaged-engines:
+  en: a124f750d70500e0
+  zh: 647ae5e7036a3f07
+/agent-note-node-office-conversion-with-independently-packaged-engines/problem:
+  en: ac8ace90fa115f0d
+  zh: 18b9977031cbadeb
+/agent-note-node-office-conversion-with-independently-packaged-engines/decision:
+  en: 36318de97afa4ca0
+  zh: 9afe66e7281650af
+/agent-note-node-office-conversion-with-independently-packaged-engines/alternatives-considered:
+  en: 70315a46124cbde7
+  zh: ee258ed0ef7effb0
+/agent-note-node-office-conversion-with-independently-packaged-engines/consequences:
+  en: 4062d514a4c67cbd
+  zh: f1403fff8b32853f

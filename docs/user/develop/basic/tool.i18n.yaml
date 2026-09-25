@@ -1,6 +1,16 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for tool.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/basic/tool.md
-tool.md: a1a03a683e48fed18dc945a8883e227e1dbc8e4d
-tool.zh.md: a5b1a6aa9dcee33b4794b5f4d321a9019ec70122
+/build-a-tool:
+  en: 795f7e293f7bbcec
+  zh: 80965c7ac9da588e
+/build-a-tool/create-the-tool-plugin:
+  en: 3440dc189eda91fa
+  zh: 810c28fc816dd53d
+/build-a-tool/run-and-call-the-tool:
+  en: 3bdae6640d729bfc
+  zh: d1e945ac53cbb467
+/build-a-tool/next-steps:
+  en: 7efa137eddf7a914
+  zh: d909e9cdf94cf7b0

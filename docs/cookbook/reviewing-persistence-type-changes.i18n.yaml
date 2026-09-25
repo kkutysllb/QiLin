@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for reviewing-persistence-type-changes.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/reviewing-persistence-type-changes.md
-reviewing-persistence-type-changes.md: 881bc689af656f0c4976e909a49848e38d53c453
-reviewing-persistence-type-changes.zh.md: f1961013886cfab1abdbd7e2cd7e09bcfce2101d
+/:
+  en: 81db5d0ea2dbd0e2
+  zh: 2eb04cd5b470fd53
+/cookbook-reviewing-persistence-type-changes:
+  en: 056b5cdd93bf0b69
+  zh: 2a020929b16994e0
+/cookbook-reviewing-persistence-type-changes/summary:
+  en: 160e241283351fc4
+  zh: ac6a334a0496aec0
+/cookbook-reviewing-persistence-type-changes/table-of-contents:
+  en: 5fca19ac2bb1ddac
+  zh: 00d78fe7e80ba4f7
+/cookbook-reviewing-persistence-type-changes/optional-inspect-the-change:
+  en: 59cb5a9c56685e6f
+  zh: d3144248c028744a
+/cookbook-reviewing-persistence-type-changes/1-record-the-change:
+  en: 479f32699e9e7ae6
+  zh: cdf7794352691321
+/cookbook-reviewing-persistence-type-changes/2-check-commit-and-push:
+  en: 20b146dbb873880a
+  zh: 09974a5d60fae2be
+/cookbook-reviewing-persistence-type-changes/update-an-unaccepted-record:
+  en: 3940924e55bfd181
+  zh: d15355e407d68d23
+/cookbook-reviewing-persistence-type-changes/dev-note:
+  en: 5de1d6304e00c58f
+  zh: 8d8225361cfa29e5

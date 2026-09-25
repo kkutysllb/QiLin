@@ -1,6 +1,64 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/sandbox/sandbox-local/README.md
-README.md: bb0ee73c828bd426757f3703f5bae8e1cf27143f
-README.zh.md: a81932a5d058fe702c7a4d1890a419fd19003ac5
+/:
+  en: f172767891b86bf4
+  zh: e66e1cc8c96cc259
+/qilin-sandbox-local:
+  en: a894345370e580c0
+  zh: 8e4e1cc5af45600a
+/qilin-sandbox-local/summary:
+  en: 611d72c6949dd25a
+  zh: 5026ed05fca27913
+/qilin-sandbox-local/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-sandbox-local/use-this-package:
+  en: 3759ad594d0a27fb
+  zh: 722010d952b9f87f
+/qilin-sandbox-local/use-this-package/when-to-choose-it:
+  en: 722ad601000b13c7
+  zh: d2723f3743fe160b
+/qilin-sandbox-local/use-this-package/minimal-configuration:
+  en: 12ce24663fc037a9
+  zh: a0aa42e46043d7c5
+/qilin-sandbox-local/use-this-package/confined-execution-and-enforcement:
+  en: 2c7a37ffa800f053
+  zh: da0ff0f4bef2c7a0
+/qilin-sandbox-local/use-this-package/failures-and-recovery:
+  en: 3808edb37dde5761
+  zh: a8fef8a4fd33e364
+/qilin-sandbox-local/understand-the-implementation:
+  en: 15db6ec303151ccc
+  zh: 91f62c1f64192f92
+/qilin-sandbox-local/understand-the-implementation/runner-selection:
+  en: f0c44248c2ca6acc
+  zh: 554e9f706671d222
+/qilin-sandbox-local/understand-the-implementation/platform-profiles:
+  en: dc14e05fd02c2a84
+  zh: 6a5c4cafbd60f149
+/qilin-sandbox-local/understand-the-implementation/denial-and-runner-failure-dialects:
+  en: 62adfc9229c656cc
+  zh: 11b1534b6d61e5de
+/qilin-sandbox-local/understand-the-implementation/source-map:
+  en: 8ab5bcc8dd97df3c
+  zh: ee7a6a237a142cbd
+/qilin-sandbox-local/further-exploration:
+  en: 187110897f465b7a
+  zh: cc201c9f208579d4
+/qilin-sandbox-local/model-experience:
+  en: 70533940fe280b59
+  zh: e72685ea28f0af02
+/qilin-sandbox-local/model-experience/kv-cache-effect:
+  en: e290ccc9b3c92c08
+  zh: 469589ac12cdadab
+/qilin-sandbox-local/known-limitations-and-deferred-work:
+  en: 3962a67bd40d0bb8
+  zh: a947497a62d6925d
+/qilin-sandbox-local/known-limitations-and-deferred-work/dev-note:
+  en: cc273320f6a1beaf
+  zh: 5c57a312ddc50651
+/qilin-sandbox-local/known-limitations-and-deferred-work/dev-note/future-environment-coherent-groups:
+  en: 75f4c2b779da70f9
+  zh: d00996cfb3ce41d9

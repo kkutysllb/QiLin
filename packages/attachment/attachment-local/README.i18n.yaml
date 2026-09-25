@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/attachment/attachment-local/README.md
-README.md: fb60071f30380e1f34bc553d8cc25d692ab63d9e
-README.zh.md: 1b691689abc0855a0200577999aece1a15031ef7
+/:
+  en: 99113504539e1242
+  zh: d43330d3bae1b6d7
+/qilin-attachment-local:
+  en: a24677d289363067
+  zh: c02e7f7e12c2bef8
+/qilin-attachment-local/summary:
+  en: 5f37585d4a998904
+  zh: 392083905f5321eb
+/qilin-attachment-local/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-attachment-local/use-this-package:
+  en: 912a19be4b59ff8a
+  zh: 9c14694cf2ebbaf2
+/qilin-attachment-local/use-this-package/minimal-configuration:
+  en: 548ec2fd8f6e5a02
+  zh: 73ed2502a224eb34
+/qilin-attachment-local/use-this-package/where-your-images-are-stored-and-how-long-they-last:
+  en: 582bab5747a3c879
+  zh: fdb9e262fdc8b792
+/qilin-attachment-local/use-this-package/what-happens-when-you-attach-an-image:
+  en: 75ba799b1e4edba4
+  zh: 06c5f76200e8da8a
+/qilin-attachment-local/use-this-package/what-can-go-wrong:
+  en: 377696b2dc08b170
+  zh: 6b831ef31c93f712
+/qilin-attachment-local/understand-the-implementation:
+  en: e44b0aa3e234a0ef
+  zh: b7dd6829478eb7f1
+/qilin-attachment-local/understand-the-implementation/design-decisions:
+  en: dcd9857653645420
+  zh: a27259a09f17465d
+/qilin-attachment-local/understand-the-implementation/write-and-read-paths:
+  en: 3c28bf6cfa08146d
+  zh: dc259e7d0dbf702d
+/qilin-attachment-local/understand-the-implementation/source-map:
+  en: b092fd38c68a06bd
+  zh: 4f3f4f1ec98401f4
+/qilin-attachment-local/further-exploration:
+  en: 7b770c6fb761b4a0
+  zh: 2af7d5fa23a967ae
+/qilin-attachment-local/model-experience:
+  en: 2e18b3dfbc5af126
+  zh: aaee1745632c561a
+/qilin-attachment-local/model-experience/kv-cache-effect:
+  en: 64670486210bdab7
+  zh: 44c988dd6268c1ff
+/qilin-attachment-local/known-limitations-and-deferred-work:
+  en: 46a33da5b3740127
+  zh: c3ac244228b81d8f
+/qilin-attachment-local/known-limitations-and-deferred-work/dev-note:
+  en: d56846da29ad869c
+  zh: 41e655e01351fd1d
+/qilin-attachment-local/known-limitations-and-deferred-work/dev-note/future-retention-and-remote-storage:
+  en: 4ada52572976940a
+  zh: 3b9db36d25e6ad57

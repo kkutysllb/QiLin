@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-10-connection-indicator-refinements.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-10-connection-indicator-refinements.md
-2026-09-10-connection-indicator-refinements.md: 3b6b4c7fd0962edbb87be17c2fa45eded46ee86b
-2026-09-10-connection-indicator-refinements.zh.md: 0bd5dc3e0b5b69cf2d9491e2d3ce5711c96898f5
+/agent-note-connection-indicator-state-and-interaction-refinements:
+  en: 94876e31106601d0
+  zh: c307caa7b5d35369
+/agent-note-connection-indicator-state-and-interaction-refinements/problem:
+  en: dcb48e5e9dd17fe2
+  zh: d1a1f33b90e3de2b
+/agent-note-connection-indicator-state-and-interaction-refinements/decision:
+  en: 8d19f19b2fa105e5
+  zh: b208f7b58ce5af23
+/agent-note-connection-indicator-state-and-interaction-refinements/alternatives-considered:
+  en: bdd03227965fdb78
+  zh: f8f8b1d408606a09
+/agent-note-connection-indicator-state-and-interaction-refinements/consequences:
+  en: e1d5eef6e97dfdcf
+  zh: 2ea650b39dd23b69

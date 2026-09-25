@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-10-remote-event-delivery.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-10-remote-event-delivery.md
-2026-08-10-remote-event-delivery.md: 6ed1a9dda7dcdbace6f9732bb2e1df98a2cafe7e
-2026-08-10-remote-event-delivery.zh.md: 4b490f957ba85afcb6ef6cd8208a9975472f724a
+/agent-note-remote-event-delivery-ctx-remote-on:
+  en: 4321ca22fc9888e9
+  zh: ab15ab93d572cdc1
+/agent-note-remote-event-delivery-ctx-remote-on/problem:
+  en: 28e893a17040656a
+  zh: 9e5135e96154933c
+/agent-note-remote-event-delivery-ctx-remote-on/decision:
+  en: 83f6f48ce1fc517b
+  zh: abcfcd1c0eb777ea
+/agent-note-remote-event-delivery-ctx-remote-on/decision/consumer-contract-qilin-typert-protocol:
+  en: eada41970bb29d83
+  zh: 92a5e0e63936c393
+/agent-note-remote-event-delivery-ctx-remote-on/decision/the-allowlist-one-declaration-read-by-both-faces:
+  en: ce8c2e030baf7049
+  zh: bb6beb40228e40ae
+/agent-note-remote-event-delivery-ctx-remote-on/decision/wire-protocol-api-gateway-remote-mux:
+  en: 5c89d238a469e79f
+  zh: d0cf485f0d245e7d
+/agent-note-remote-event-delivery-ctx-remote-on/decision/the-apps-web-browser-e2e-belongs-to-the-host-face:
+  en: a29e07b8013f7f9f
+  zh: 4f066efa96f2d22f
+/agent-note-remote-event-delivery-ctx-remote-on/decision/change-inventory:
+  en: 6a80f2bb22bf5082
+  zh: f983295a4cb56e55
+/agent-note-remote-event-delivery-ctx-remote-on/alternatives-considered:
+  en: b75743ab277c1557
+  zh: e8e05f41ce1bc2f3
+/agent-note-remote-event-delivery-ctx-remote-on/verification:
+  en: 4ec0e1c76da8d3b6
+  zh: 23de66f8fc659c15
+/agent-note-remote-event-delivery-ctx-remote-on/consequences:
+  en: c50a0968e3f65df7
+  zh: 786f33cf1e95dae4
+/agent-note-remote-event-delivery-ctx-remote-on/related:
+  en: f0b07aea94b00e0c
+  zh: dd42d9e9abbec7f3

@@ -1,6 +1,70 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/spill/spill/README.md
-README.md: b0754e8d5b7f27825266b21fdac78bc902380d22
-README.zh.md: 60d3ac3c269bde833b669067408fa9a72192e004
+/:
+  en: 0ddb7676fe45581a
+  zh: 245f536e58988853
+/qilin-spill:
+  en: 14b24b9033e8b946
+  zh: 8c0469047b8085e4
+/qilin-spill/summary:
+  en: 4baa6fdf6a304403
+  zh: 58f7694972173541
+/qilin-spill/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-spill/use-this-package:
+  en: 77ff85bdd6bf34c3
+  zh: 954ea3e29fed456b
+/qilin-spill/use-this-package/when-to-choose-it:
+  en: b16ef40f98105af7
+  zh: 44a4ec686474f3a7
+/qilin-spill/use-this-package/smallest-working-composition:
+  en: 6f5ac80b98eaae27
+  zh: 2278dfb2c7c6c9b7
+/qilin-spill/use-this-package/saving-text:
+  en: 296c6836b312402f
+  zh: f319f161420ea7a8
+/qilin-spill/use-this-package/ownership-and-boundaries:
+  en: 59d9880807abdbc1
+  zh: a484e95b459e99ed
+/qilin-spill/use-this-package/failures-and-recovery:
+  en: bb94a24489901614
+  zh: 92068eedfde39e35
+/qilin-spill/understand-the-implementation:
+  en: a3364d8193deb7f0
+  zh: 38ca428f37fc7190
+/qilin-spill/understand-the-implementation/design-philosophy:
+  en: b7564e56f1b5fae5
+  zh: 039d7cbd6d5da263
+/qilin-spill/understand-the-implementation/source-map:
+  en: 6d40fb287fcc3a06
+  zh: a04c301c57df9a39
+/qilin-spill/understand-the-implementation/data-model:
+  en: 7b1480904f62a1a8
+  zh: c51e680012536f2b
+/qilin-spill/understand-the-implementation/lifecycle:
+  en: e66fa489470c595c
+  zh: a1870ddc42a846af
+/qilin-spill/further-exploration:
+  en: 77af2f5ab65c3b0d
+  zh: c7dc013c220e190b
+/qilin-spill/model-experience:
+  en: 76d7dd75ff4784d9
+  zh: ef5c2e7a943923b8
+/qilin-spill/model-experience/kv-cache-effect:
+  en: 40294c1c31b74824
+  zh: d75d48f485447a74
+/qilin-spill/known-limitations-and-deferred-work:
+  en: eeb7f53fb1d76905
+  zh: 5519325032645483
+/qilin-spill/known-limitations-and-deferred-work/dev-note:
+  en: a06f45acc8cb962a
+  zh: e314617f8a2309d4
+/qilin-spill/known-limitations-and-deferred-work/dev-note/future-executor-spill-file-integration:
+  en: 9c65e1c0df932b3c
+  zh: 669689305053a2aa
+/qilin-spill/known-limitations-and-deferred-work/dev-note/future-non-local-backends-and-cleanup:
+  en: 2fbec667e3a71f99
+  zh: f83b96dafd08b77f

@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/webhook/webhook-github/README.md
-README.md: e8f990903279406457ab4b420cad951236cf0859
-README.zh.md: 998c35bb6857da8e3bc127072123d5135e94eb9a
+/:
+  en: 60db7ae899ed9fd9
+  zh: 4fe10fa8823aa6d1
+/qilin-webhook-github:
+  en: 041b9fe70a877374
+  zh: cc0b67e26518fdee
+/qilin-webhook-github/summary:
+  en: 6a7c651d812974d5
+  zh: de2f94e12b7ecede
+/qilin-webhook-github/table-of-contents:
+  en: b946752a1c17cd00
+  zh: cdaaea55e4da6831
+/qilin-webhook-github/configuration:
+  en: a32a5195a6ae6a61
+  zh: a135089e86948290
+/qilin-webhook-github/http-contract:
+  en: 2d8b5cb8d44bef8e
+  zh: a98ec470d9d6bc2d
+/qilin-webhook-github/dedicated-listener-composition:
+  en: e47e8b19c6c3d56b
+  zh: c004429726ba2fc2
+/qilin-webhook-github/model-experience:
+  en: 9a0b9bad7d72f3d6
+  zh: 7115c705512c2f9a
+/qilin-webhook-github/model-experience/kv-cache-effect:
+  en: a7c54f451f61179e
+  zh: aaf25d0781ad4d6b
+/qilin-webhook-github/known-limitations-and-deferred-work:
+  en: 0c3192c3e300bb46
+  zh: 7c84d20e6a8a768e
+/qilin-webhook-github/known-limitations-and-deferred-work/dev-note:
+  en: 2fca4fea72e19ede
+  zh: 2f8cdb86a7a8b791

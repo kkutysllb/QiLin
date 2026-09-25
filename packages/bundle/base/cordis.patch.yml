@@ -509,4 +509,4 @@
     # key coming from the credential store below. Thinking defaults are a deployment
     # choice.
     - id: llm-deepseek
-      name: '@qilin/llm-deepseek'
+      name: '@qilin/llm-deepseek-api-key'

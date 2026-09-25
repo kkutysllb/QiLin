@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-12-experimental-publication-denylist.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-12-experimental-publication-denylist.md
-2026-09-12-experimental-publication-denylist.md: bf18e98d35e949aa4ce576c1154f9f08df5c36e1
-2026-09-12-experimental-publication-denylist.zh.md: 6363ef09696622f6db7804b9f12da639ad9cfab0
+/agent-note-publish-experimental-packages-with-explicit-private-exceptions:
+  en: 6b209fcd9cb36c55
+  zh: 959062ae1f83adc0
+/agent-note-publish-experimental-packages-with-explicit-private-exceptions/problem:
+  en: c267b50c3004619f
+  zh: 91830d04d2972d46
+/agent-note-publish-experimental-packages-with-explicit-private-exceptions/decision:
+  en: b277d58547aa7846
+  zh: a655a8e637d7b024
+/agent-note-publish-experimental-packages-with-explicit-private-exceptions/alternatives-considered:
+  en: b5dfe3f381bf79bc
+  zh: efca82d78cb76d53
+/agent-note-publish-experimental-packages-with-explicit-private-exceptions/consequences:
+  en: 23f4d725196f1c2d
+  zh: ebd9455778d8a89f

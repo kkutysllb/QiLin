@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-17-upstream-dsh-0.1.6-alpha.2-alignment.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-17-upstream-dsh-0.1.6-alpha.2-alignment.md
-2026-09-17-upstream-dsh-0.1.6-alpha.2-alignment.md: c5b358c746112fd7eef46405aa5e1257f7e9d1cd
-2026-09-17-upstream-dsh-0.1.6-alpha.2-alignment.zh.md: 368ec669cf439995e4da6b71905cea33d8ac4b45
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment:
+  en: 6dee5de6d25fc126
+  zh: 657143ab12933134
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment/problem:
+  en: ee79810dff17d4c5
+  zh: 5a4e72559af84670
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment/decision:
+  en: 5ff898a40ba7e246
+  zh: 0735a1b61ad1ada6
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment/transform-mechanics:
+  en: bfa7c0c407817bf7
+  zh: 9ea34c51038be5e3
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment/alternatives-considered:
+  en: 9b5118dd347318fb
+  zh: 180983cc648c7e27
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment/consequences:
+  en: fa241082e4722231
+  zh: fc44bed09fdc25a4
+/agent-note-upstream-dsh-v0-1-6-alpha-2-alignment/deferred:
+  en: a1a8ac5f0721179b
+  zh: f007cf2fd9e15e11

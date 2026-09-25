@@ -1,6 +1,58 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/lsp/lsp-stdio/README.md
-README.md: 8192e74fedbefd5cecc22cec29760a38f4831059
-README.zh.md: 76947f70c2b2eb8cf56060d3b3e400bd2091608d
+/:
+  en: c9eac4288ae5293a
+  zh: fb718ad3c2da3e49
+/qilin-lsp-stdio:
+  en: c8c275b2f3019f90
+  zh: b587361359c295f1
+/qilin-lsp-stdio/summary:
+  en: 0de62ba59bf8a126
+  zh: 3d32de0740619d39
+/qilin-lsp-stdio/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-lsp-stdio/use-this-package:
+  en: aac02a953c397761
+  zh: 36aee042ef1226ec
+/qilin-lsp-stdio/use-this-package/minimal-configuration:
+  en: 4a9d7c86bde65849
+  zh: 337ba01122fbfc37
+/qilin-lsp-stdio/use-this-package/what-a-query-does:
+  en: 41363baf8fdba020
+  zh: d1a6193b1aa813ba
+/qilin-lsp-stdio/use-this-package/observable-success-and-failures:
+  en: 57f3a82c014af107
+  zh: 770fc617c1ab0eab
+/qilin-lsp-stdio/use-this-package/security-boundary:
+  en: f1f7fef771bcaa6d
+  zh: f11dcf771a6fecfc
+/qilin-lsp-stdio/understand-the-implementation:
+  en: 8a5efa64f5b12f88
+  zh: 451548c05c045c22
+/qilin-lsp-stdio/understand-the-implementation/design-philosophy:
+  en: 7e5e63f993a287f2
+  zh: a5a01b22551e5d46
+/qilin-lsp-stdio/understand-the-implementation/source-map:
+  en: c1eb566e6aa64d09
+  zh: 6fa10484e329e570
+/qilin-lsp-stdio/understand-the-implementation/protocol-behavior:
+  en: 0f9bac88ad9448b8
+  zh: f5d3a2e61a596003
+/qilin-lsp-stdio/further-exploration:
+  en: de1cf20396144dde
+  zh: 82718213a94976ed
+/qilin-lsp-stdio/model-experience:
+  en: e0859c46cbd6b823
+  zh: a5a019aeebb39488
+/qilin-lsp-stdio/model-experience/kv-cache-effect:
+  en: eed6c4712d96f524
+  zh: df8e7803b8c92b30
+/qilin-lsp-stdio/known-limitations-and-deferred-work:
+  en: dc4fc5797b3b2d38
+  zh: f04e4159ce280218
+/qilin-lsp-stdio/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

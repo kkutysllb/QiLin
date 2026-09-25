@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-mcp-resources-in-profiles.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-13-mcp-resources-in-profiles.md
-2026-09-13-mcp-resources-in-profiles.md: 4f58b62786b441c1a6e4c4277a6711fe085a1bd3
-2026-09-13-mcp-resources-in-profiles.zh.md: 6836cd22614d1850ae35d690eaa73eea4de59991
+/agent-note-mcp-resource-availability-follows-configured-servers:
+  en: aaa09804452974a4
+  zh: 663a786a6d1479de
+/agent-note-mcp-resource-availability-follows-configured-servers/problem:
+  en: 729c308d0bb4e142
+  zh: 42df44189f83a701
+/agent-note-mcp-resource-availability-follows-configured-servers/decision:
+  en: 5af91bbf0e5e285f
+  zh: ddbfd21445131060
+/agent-note-mcp-resource-availability-follows-configured-servers/alternatives-considered:
+  en: e60cb2c45a8a8cf7
+  zh: e74f3b9ca5157278
+/agent-note-mcp-resource-availability-follows-configured-servers/verification:
+  en: d07e735ad317655c
+  zh: c9419acac96f0740
+/agent-note-mcp-resource-availability-follows-configured-servers/consequences:
+  en: 270341820e2713d4
+  zh: d56cdd72625fd570

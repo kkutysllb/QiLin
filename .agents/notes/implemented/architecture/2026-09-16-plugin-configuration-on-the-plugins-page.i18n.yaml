@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-16-plugin-configuration-on-the-plugins-page.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-16-plugin-configuration-on-the-plugins-page.md
-2026-09-16-plugin-configuration-on-the-plugins-page.md: ea352d34ef933f8f4beb4554a18a504ca7c14761
-2026-09-16-plugin-configuration-on-the-plugins-page.zh.md: afcd9c9e9f848c44b6820bcc40f9f45add3a205a
+/agent-note-plugin-configuration-on-the-plugins-page:
+  en: 39352563cd89ef11
+  zh: 3bbc3301316aab06
+/agent-note-plugin-configuration-on-the-plugins-page/problem:
+  en: 9ca845902f1df3a2
+  zh: 41e3157a843a511e
+/agent-note-plugin-configuration-on-the-plugins-page/decision:
+  en: 5c125e155c7bc9b5
+  zh: a9c6dee725264a95
+/agent-note-plugin-configuration-on-the-plugins-page/consequences:
+  en: ef5b0b0446a24fb3
+  zh: d82526cec83c6c10
+/agent-note-plugin-configuration-on-the-plugins-page/alternatives-considered:
+  en: 96a85361109f7587
+  zh: 99179a86aa0a30f8
+/agent-note-plugin-configuration-on-the-plugins-page/testing:
+  en: d3032beb6d01daef
+  zh: 2a2e380867ebc3e5

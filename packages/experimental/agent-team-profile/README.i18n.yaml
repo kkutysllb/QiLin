@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/agent-team-profile/README.md
-README.md: 59c27131cbe2bda6801781b277d24e496aeb0cfd
-README.zh.md: 4972354908bc3bf008db1032d156290be9f0a8e2
+/:
+  en: f71e99757a629b0c
+  zh: c57717647389180b
+/qilin-experimental-agent-team-profile:
+  en: 92f12fd07afce73e
+  zh: b179684ed18ddb8e
+/qilin-experimental-agent-team-profile/summary:
+  en: 95f2c37d9203d3e9
+  zh: f883f2535f936671
+/qilin-experimental-agent-team-profile/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-experimental-agent-team-profile/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/qilin-experimental-agent-team-profile/use-this-package/install-into-a-profile:
+  en: 5a1b1f69ff50aae6
+  zh: acc2973d84828d35
+/qilin-experimental-agent-team-profile/use-this-package/what-you-get:
+  en: 5496fb349ccd205c
+  zh: 1f5e398c2f1304f1
+/qilin-experimental-agent-team-profile/understand-the-implementation:
+  en: dc63a700259fb8bb
+  zh: 6e5ee4df8c05a17f
+/qilin-experimental-agent-team-profile/further-exploration:
+  en: bb5e29775eb1f2ac
+  zh: 5678d1f87690fce8
+/qilin-experimental-agent-team-profile/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-experimental-agent-team-profile/model-experience/team-policy-and-tools:
+  en: 8e1e365ff3b0dfb2
+  zh: c6c91fbf1e1df934
+/qilin-experimental-agent-team-profile/model-experience/team-policy-and-tools/what-the-model-sees:
+  en: 08026912a883b5b5
+  zh: 45d8aefa20c5b3d9
+/qilin-experimental-agent-team-profile/model-experience/team-policy-and-tools/token-effect:
+  en: c18715361083dd07
+  zh: 7daadacd960bd2fe
+/qilin-experimental-agent-team-profile/model-experience/team-policy-and-tools/kv-cache-effect:
+  en: e331337b094aacde
+  zh: bb2e5df5ebeb9305
+/qilin-experimental-agent-team-profile/known-limitations-and-deferred-work:
+  en: 46956f72ea78b8e3
+  zh: a4ad7f5bed762ff8
+/qilin-experimental-agent-team-profile/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

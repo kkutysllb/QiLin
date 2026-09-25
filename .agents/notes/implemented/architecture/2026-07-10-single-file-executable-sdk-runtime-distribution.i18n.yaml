@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-07-10-single-file-executable-sdk-runtime-distribution.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-07-10-single-file-executable-sdk-runtime-distribution.md
-2026-07-10-single-file-executable-sdk-runtime-distribution.md: 99c1870ac1193bfcd722c0ef4b672b187ebbaedf
-2026-07-10-single-file-executable-sdk-runtime-distribution.zh.md: e016ac8fe542cf1f6bd2416b0a4eedfc1b87866e
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe:
+  en: 272dbef1e90a40c3
+  zh: 0e05510ab1d6a2d4
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/problem:
+  en: 4a5d3df767b64498
+  zh: f4e97a599e307634
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision:
+  en: a15c7c13f167e5ac
+  zh: 63bcc2ef60c2f344
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/packaging-route-yao-pkg-pkg-s-sea-mode:
+  en: 36eb0bb0538d7b2e
+  zh: f2a8304146756c8e
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/the-serving-interface-is-a-plugin-inside-the-dsh-application:
+  en: 2ee8cb9f9878b5af
+  zh: 55c11f27efdb2a96
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/plugin-resolution-the-vfs-holds-a-real-package-tree-the-closure-manifest-is-the-deploy-root:
+  en: 4d14ce4999886d76
+  zh: fba24c8c2ef559ac
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/build-pipeline-and-artifacts:
+  en: 90f2e75f1ba77b43
+  zh: 150930d151661a41
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/python-sdk-distribution-two-carriers-exe-for-production-node-for-development:
+  en: c12ae7330e0bfa0b
+  zh: 46640930f0df4630
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/naming-lineage:
+  en: 31a5aecb8bf828bb
+  zh: 2dffb6fd2e0f8194
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/packaged-workflow-and-code-execution:
+  en: 7b833c3c05f7f866
+  zh: c7c054c7bbe8c072
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/testing:
+  en: b3c9820f4dc7c6c8
+  zh: 3b5768ef1770bfcb
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/alternatives-considered:
+  en: 50d965ca81a401ba
+  zh: 0c6296245b97b9ac
+/agent-note-single-file-executable-sdk-runtime-distribution-single-exe/consequences:
+  en: 601a72b3a7a91fe4
+  zh: 5baaa866e789923e

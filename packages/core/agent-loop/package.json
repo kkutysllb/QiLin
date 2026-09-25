@@ -65,6 +65,7 @@
     "@qilin/session-projection": "workspace:*",
     "@qilin/settings": "workspace:*",
     "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*"
+    "@qilin/tools": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*"
   }
 }

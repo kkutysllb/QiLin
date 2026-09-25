@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-07-issue-policy-module-ownership.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-07-issue-policy-module-ownership.md
-2026-09-07-issue-policy-module-ownership.md: 696343ddffa3f6a6e411330d038bb4a470ce78d8
-2026-09-07-issue-policy-module-ownership.zh.md: abe539a5baed35cf2f356194eab8e53d61b67314
+/agent-note-issue-policy-module-ownership:
+  en: d5ee5d875fd37b79
+  zh: 8774747ffa17d470
+/agent-note-issue-policy-module-ownership/problem:
+  en: 970ddb4c44c1a418
+  zh: 28efdc7e775f364b
+/agent-note-issue-policy-module-ownership/decision:
+  en: 7e42a144c4dc877e
+  zh: 5d011874d6f9c5e7
+/agent-note-issue-policy-module-ownership/alternatives-considered:
+  en: f8561a31115a513d
+  zh: 5ad1bd48da81594c
+/agent-note-issue-policy-module-ownership/consequences:
+  en: 5712317d902acf7e
+  zh: 751b6a819d292dbe
+/agent-note-issue-policy-module-ownership/verification:
+  en: 7e3f550072fe512d
+  zh: 502fb9bb3cae8b61

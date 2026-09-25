@@ -1,6 +1,67 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/skill/skill-filesystem/README.md
-README.md: 43b9779ca24dd65e9d1c595a81f77c7b2f8b9432
-README.zh.md: 00eb344c98b563fc4322616dd4b2ed9c0bf0f7a7
+/:
+  en: ef9fab89ad1a57aa
+  zh: 6d434e8a3dae16ca
+/qilin-skill-filesystem:
+  en: 5f1b9d74a7a53592
+  zh: 62b86022416cf9f6
+/qilin-skill-filesystem/summary:
+  en: efa46ade0e89ab45
+  zh: eb2b02ad007c6438
+/qilin-skill-filesystem/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-skill-filesystem/use-this-package:
+  en: 2fcfbaea3c62a766
+  zh: 27c917ba822329e5
+/qilin-skill-filesystem/use-this-package/when-to-choose-it:
+  en: 012a123601c7d8f2
+  zh: 0e13f5e0d2e4ea7a
+/qilin-skill-filesystem/use-this-package/skill-format:
+  en: 78ac4e731c6a24c1
+  zh: e8c33db4aa0cc527
+/qilin-skill-filesystem/use-this-package/roots-and-priority:
+  en: 326f99c34367defe
+  zh: 72f7228441f62be8
+/qilin-skill-filesystem/use-this-package/mount-and-configure:
+  en: 85c4d90ce7d66968
+  zh: 6d34aafc9c3aa9b7
+/qilin-skill-filesystem/use-this-package/change-detection:
+  en: 77acbd43e89b6043
+  zh: 8169bbbc55f3f114
+/qilin-skill-filesystem/use-this-package/observable-success-and-failures:
+  en: 272693c35012ffb5
+  zh: bbbe788b11ef567f
+/qilin-skill-filesystem/understand-the-implementation:
+  en: a95eb63f5a570c79
+  zh: cd964a36cf8a3715
+/qilin-skill-filesystem/understand-the-implementation/design-concept:
+  en: 8529fb4c1989d5fc
+  zh: 115372aaa959dc6c
+/qilin-skill-filesystem/understand-the-implementation/source-map:
+  en: 1b1bc2d6b523f308
+  zh: f7d0c0e0ab1adcf0
+/qilin-skill-filesystem/understand-the-implementation/discovery-flow:
+  en: 7e26750408a63587
+  zh: 9eed631a7bdf00ae
+/qilin-skill-filesystem/understand-the-implementation/watching-and-invalidation:
+  en: e1f03485692f61a0
+  zh: 7c3ce24eacc3a047
+/qilin-skill-filesystem/further-exploration:
+  en: 289698bafb916741
+  zh: 37910ba30e31d8ab
+/qilin-skill-filesystem/model-experience:
+  en: d8925ca3cb92922a
+  zh: 57cf0ee2d480318b
+/qilin-skill-filesystem/model-experience/kv-cache-effect:
+  en: 14ddbda337682082
+  zh: 2e4dc3c26b45f62c
+/qilin-skill-filesystem/known-limitations-and-deferred-work:
+  en: a7f37a7b9e54945d
+  zh: b9d3b15027757301
+/qilin-skill-filesystem/known-limitations-and-deferred-work/dev-note:
+  en: 80d51054c430906c
+  zh: 402f84f97759fb78

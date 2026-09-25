@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-17-plugin-inventory-phase-dot.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/simplification/2026-09-17-plugin-inventory-phase-dot.md
-2026-09-17-plugin-inventory-phase-dot.md: e90d49b6a3d2d8e03f662b3de531ef180d350cad
-2026-09-17-plugin-inventory-phase-dot.zh.md: d344ede75c7e0dd77a0d57720e0c1366f22e75b8
+/agent-note-the-plugin-inventory-reserves-its-status-dot-for-phases-the-tag-cannot-state:
+  en: 556117b06b62576d
+  zh: 6c7fdd4ae5345a0e
+/agent-note-the-plugin-inventory-reserves-its-status-dot-for-phases-the-tag-cannot-state/problem:
+  en: 717d1f07ef81266e
+  zh: 3dc4c9f97111bcfe
+/agent-note-the-plugin-inventory-reserves-its-status-dot-for-phases-the-tag-cannot-state/decision:
+  en: e9d4b6e60bad2b09
+  zh: dece74f4f601b259
+/agent-note-the-plugin-inventory-reserves-its-status-dot-for-phases-the-tag-cannot-state/alternatives-considered:
+  en: 68f119a955174a1a
+  zh: a0ff46e509a97f97
+/agent-note-the-plugin-inventory-reserves-its-status-dot-for-phases-the-tag-cannot-state/consequences:
+  en: 11137f04c25713e6
+  zh: e9bccde3444b5be8
+/agent-note-the-plugin-inventory-reserves-its-status-dot-for-phases-the-tag-cannot-state/testing:
+  en: 384527beeffa3e61
+  zh: 086cc24e42276f44

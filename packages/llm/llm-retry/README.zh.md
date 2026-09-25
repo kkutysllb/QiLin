@@ -34,7 +34,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@qilin/llm-deepseek'
+- name: '@qilin/llm-deepseek-api-key'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY
     retryPolicy:

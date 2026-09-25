@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-09-ptc-trajectory-code-inspection.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-09-ptc-trajectory-code-inspection.md
-2026-09-09-ptc-trajectory-code-inspection.md: 19779d20e8d08ce0ca9678ab6626765faa13cf65
-2026-09-09-ptc-trajectory-code-inspection.zh.md: 7cdb2321d61893e43426798d311847662450d289
+/agent-note-inspect-recorded-ptc-source-in-trajectory:
+  en: ab9d81c5621fa322
+  zh: 04a74fc0c0228974
+/agent-note-inspect-recorded-ptc-source-in-trajectory/problem:
+  en: 6b49bc4faca04ae0
+  zh: 60165937e0a7c71d
+/agent-note-inspect-recorded-ptc-source-in-trajectory/decision:
+  en: 50c5106b4c0d66ba
+  zh: 79eafffea1db8345
+/agent-note-inspect-recorded-ptc-source-in-trajectory/alternatives-considered:
+  en: bbf705774c5c608a
+  zh: 1af9b4aa3d4fa025
+/agent-note-inspect-recorded-ptc-source-in-trajectory/consequences:
+  en: c680634fe8b95880
+  zh: 7660cd3354522ef8

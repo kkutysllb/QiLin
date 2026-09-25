@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write apps/cli/reference/README.md
-README.md: fae35581a35e074ec3bcced5a2ddeb9e354b083a
-README.zh.md: 835c70916c6cb54bbf50687fbd3f96821a052519
+/qilin-cli-behavior-reference:
+  en: 02e248c8692bf1ef
+  zh: b615b5347a7d4052
+/qilin-cli-behavior-reference/profile-boot:
+  en: 9c103d23c9e4e085
+  zh: 8b27a94e31125209
+/qilin-cli-behavior-reference/profile-boot/app-arguments:
+  en: 34c3e80e767e7db8
+  zh: 24e33bc519a8895b
+/qilin-cli-behavior-reference/startup-diagnostics:
+  en: 247ed554cd0d1795
+  zh: 3d99721da0ac28b4
+/qilin-cli-behavior-reference/plugin-management:
+  en: b7b83110840a4b1c
+  zh: 263b9482fbb578f6
+/qilin-cli-behavior-reference/web-profile:
+  en: f77c37a2c60c24a4
+  zh: a08963eeaf7fccae
+/qilin-cli-behavior-reference/shared-deployment-behavior:
+  en: 6ee1c122a06ad73c
+  zh: 37ff94862143eae3
+/qilin-cli-behavior-reference/source-execution:
+  en: 1ed76f9a041324b2
+  zh: 261032bdce2f7bb4

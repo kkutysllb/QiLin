@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for ptc-runtime.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/ptc-runtime.md
-ptc-runtime.md: fe27c09d58d1d0f5310480c357c12a78520bf609
-ptc-runtime.zh.md: 9b64347345f121bec8845e3407f5f1b74df42b87
+/ptc-runtime:
+  en: 47f276f907cfc875
+  zh: 613c9d04664b3a08
+/ptc-runtime/the-run-request-in-result-out:
+  en: b11e176bee0ca6bd
+  zh: 843d5d70c58dec42
+/ptc-runtime/bindings-host-functions-as-program-globals:
+  en: 182147ddf388c600
+  zh: c0a7d77602c78bcd
+/ptc-runtime/captured-output-and-the-failure-taxonomy:
+  en: 9eae3abc8eae8f63
+  zh: 046e160f6ea46e97
+/ptc-runtime/the-service:
+  en: a82f828fa006c7e9
+  zh: 2279d36867335b57

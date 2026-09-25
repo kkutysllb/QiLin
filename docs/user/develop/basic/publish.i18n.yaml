@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for publish.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/basic/publish.md
-publish.md: 8407c7e7f5a635a035ad4411bc11869f73a648c8
-publish.zh.md: 672d5887d64b09447bc15842885fb92fd420287f
+/package-and-install-a-plugin:
+  en: ba8f88cc1d925b73
+  zh: 984d1302e0587429
+/package-and-install-a-plugin/two-concepts-two-manifests:
+  en: 4226c71947a20dc5
+  zh: f15b731d36ac0aa7
+/package-and-install-a-plugin/two-concepts-two-manifests/the-bundle-manifest:
+  en: 07707c489e9559cc
+  zh: 15b88bd710548807
+/package-and-install-a-plugin/two-concepts-two-manifests/the-profile-manifest:
+  en: 495beea9c1f2129d
+  zh: cca0e2c638744c58
+/package-and-install-a-plugin/install-into-a-profile:
+  en: e513114590b76780
+  zh: f121e7409dfa7f05
+/package-and-install-a-plugin/the-loading-order:
+  en: 0747404b32d02899
+  zh: d70ddc5e0fef2399
+/package-and-install-a-plugin/give-a-surface-bundle-its-own-command-line:
+  en: 0b6376a131dd279a
+  zh: c91e4161d3ca515b
+/package-and-install-a-plugin/installing-from-github-the-build-script-catch:
+  en: 1a7502f53e2c4216
+  zh: 6893261fd08f9e4c
+/package-and-install-a-plugin/next-steps:
+  en: c3b54f9d9420c5de
+  zh: a924e74c835ceca7

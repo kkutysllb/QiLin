@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-18-arbitrary-seq-session-fork.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-18-arbitrary-seq-session-fork.md
-2026-08-18-arbitrary-seq-session-fork.md: dc89810b73bc9721c82f9869cc1005fcb0314e4c
-2026-08-18-arbitrary-seq-session-fork.zh.md: 3c087183d1fa10c4d1427de65549a7dde96d5ed7
+/agent-note-exact-event-session-forks-with-shared-crash-repair:
+  en: 99073f0b5d70d323
+  zh: 2f7f0010be2c9046
+/agent-note-exact-event-session-forks-with-shared-crash-repair/problem:
+  en: e01b73d9d4b50c50
+  zh: 14f7816869b76241
+/agent-note-exact-event-session-forks-with-shared-crash-repair/decision:
+  en: 5a0412099e831e9b
+  zh: 8017ab1be222bb4a
+/agent-note-exact-event-session-forks-with-shared-crash-repair/alternatives-considered:
+  en: 49544ba70825c8e9
+  zh: 41c7dceb9241fc5a
+/agent-note-exact-event-session-forks-with-shared-crash-repair/consequences:
+  en: a829fc736a132d89
+  zh: 03b116766bd44d64
+/agent-note-exact-event-session-forks-with-shared-crash-repair/testing:
+  en: f15e826fa12a4f55
+  zh: fe053fa01304e072

@@ -1,6 +1,64 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/storage/storage-json/README.md
-README.md: f4f1f082a7b882c32b380631f74ac35df90646a8
-README.zh.md: 4b0717bb02b235721722442ed749bcbef7d6db17
+/:
+  en: 322dcc67eb62e0eb
+  zh: 456d6b3d2514c508
+/qilin-storage-json:
+  en: a64ed1a6a69b50a1
+  zh: 2a0c6b90534f32bc
+/qilin-storage-json/summary:
+  en: 35927878737d49ed
+  zh: 997129d9d269d183
+/qilin-storage-json/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-storage-json/use-this-package:
+  en: 87ddc847b7024cac
+  zh: 6e97d0f216587d5b
+/qilin-storage-json/use-this-package/when-to-choose-it:
+  en: 28ebb528cbe13f31
+  zh: 7e3744e9d080d2bb
+/qilin-storage-json/use-this-package/configuration:
+  en: b506c38743d8af16
+  zh: f6940b6137a0e78b
+/qilin-storage-json/use-this-package/observable-behavior:
+  en: 44e1279b83c7d086
+  zh: b7b920b737e9bfe0
+/qilin-storage-json/understand-the-implementation:
+  en: b7d222309b3e5438
+  zh: 807c7314ee341d94
+/qilin-storage-json/understand-the-implementation/design-concept:
+  en: a5a4e3cf05597661
+  zh: 539ad4b4045ff572
+/qilin-storage-json/understand-the-implementation/file-formats:
+  en: b3de0a697db4f916
+  zh: 56b26f7823392bd5
+/qilin-storage-json/understand-the-implementation/source-map:
+  en: 43ece66ff547f01a
+  zh: 9670f78047f4e653
+/qilin-storage-json/further-exploration:
+  en: 947bd50bd575eeb3
+  zh: 1039156b1d2ec0d2
+/qilin-storage-json/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-storage-json/model-experience/stored-domain-records:
+  en: c5d5ffaf6b114f3e
+  zh: 97db23b0b14ff1c0
+/qilin-storage-json/model-experience/stored-domain-records/what-the-model-sees:
+  en: d0798e9e30583b55
+  zh: 968f7f595b4bf1ff
+/qilin-storage-json/model-experience/stored-domain-records/token-effect:
+  en: 592ed887c69e5c46
+  zh: cb9be9de6e38db55
+/qilin-storage-json/model-experience/stored-domain-records/kv-cache-effect:
+  en: c13c59d13a5f1651
+  zh: 5aab838ae3ff5324
+/qilin-storage-json/known-limitations-and-deferred-work:
+  en: 76b327dc0d93f6ac
+  zh: f40530debdcd1fb7
+/qilin-storage-json/known-limitations-and-deferred-work/dev-note:
+  en: dd40dd4cb9109aea
+  zh: 3fd79d2242eccadb

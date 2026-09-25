@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/client-ui-voice-input/README.md
-README.md: 62ddf7a6d52305381f81e573fa06693c50487706
-README.zh.md: 888045265149bb6eb9a07e3760fdae7c1a63564b
+/:
+  en: 03616f946faebe55
+  zh: 293309d5ea63305e
+/qilin-experimental-client-ui-voice-input:
+  en: 696eb259b15d2f0b
+  zh: 2b97c649578b9d90
+/qilin-experimental-client-ui-voice-input/summary:
+  en: a75bfd33f96a2e7a
+  zh: 6866534c6a3e0662
+/qilin-experimental-client-ui-voice-input/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 364c80ee00a374ff
+/qilin-experimental-client-ui-voice-input/use-this-package:
+  en: a876f872360c255c
+  zh: 96ef0f8205c4c21c
+/qilin-experimental-client-ui-voice-input/understand-the-implementation:
+  en: 18807008bccfdb6e
+  zh: bb5a82c92d4aa056
+/qilin-experimental-client-ui-voice-input/further-exploration:
+  en: f28e8965407ec7b0
+  zh: 5e5e0fd8e8737a09
+/qilin-experimental-client-ui-voice-input/model-experience:
+  en: 3c5a85f8b7129ce8
+  zh: d5f491ca88d9a810
+/qilin-experimental-client-ui-voice-input/model-experience/kv-cache-effect:
+  en: b5ec79db2e1d0dbc
+  zh: e5aff567ae5ee6fc
+/qilin-experimental-client-ui-voice-input/known-limitations-and-deferred-work:
+  en: e6d37618956f3ff8
+  zh: ebb74dd513ece5e3
+/qilin-experimental-client-ui-voice-input/known-limitations-and-deferred-work/dev-note:
+  en: 0225ba087c5266f3
+  zh: 4e706f1b2b984e63

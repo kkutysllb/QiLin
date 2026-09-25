@@ -170,7 +170,7 @@ function workspaceGroupHalf(e: { clientY: number; currentTarget: HTMLElement }):
 type SessionTreeProps = Pick<
   WorkspaceBrowserProps,
   'useSessionStatus' | 'startSession' | 'open' | 'forkSession'
-  | 'insertWorkspaceBefore' | 't' | 'usePanelInfo'
+  | 'insertWorkspaceBefore' | 't' | 'usePanelInfo' | 'renderSlot'
 > & {
   /** Always-mounted Session list snapshot. */
   list: SessionListState
@@ -214,7 +214,7 @@ function SessionTree({
   onRenameRequest, onDeleteRequest, onSessionRename, onSessionArchive,
   insertWorkspaceBefore,
   nestWorkspaces, groupExpansion, setGroupExpanded,
-  setSessionOrder, home, t,
+  setSessionOrder, home, t, renderSlot,
   revealSessionId, onSessionRevealed,
 }: SessionTreeProps) {
   const panelActive = usePanelInfo(info => info.activePanelId !== null)
@@ -526,6 +526,7 @@ function SessionTree({
                 ? () => { onSessionRevealed(node.id) }
                 : undefined}
               drag={dragProps}
+              renderSlot={renderSlot}
               t={t}
             />
           )
@@ -568,7 +569,7 @@ function SessionTree({
 function FlatList({
   list, sessionIds, useSessionStatus, open, forkSession, onSessionRename, onSessionArchive,
   usePanelInfo, setSessionOrder,
-  revealSessionId, onSessionRevealed, t,
+  revealSessionId, onSessionRevealed, t, renderSlot,
 }: Pick<
   SessionTreeProps,
   | 'useSessionStatus'
@@ -581,6 +582,7 @@ function FlatList({
   | 'revealSessionId'
   | 'onSessionRevealed'
   | 't'
+  | 'renderSlot'
 > & {
   list: SessionListState
   sessionIds: readonly SessionId[]
@@ -638,7 +640,7 @@ function FlatList({
               onReveal={node.id === revealSessionId
                 ? () => { onSessionRevealed(node.id) }
                 : undefined}
-              flat
+              renderSlot={renderSlot}
               drag={{
                 start: () => {
                   dropCommitted.current = false
@@ -1270,6 +1272,7 @@ export function WorkspaceBrowser({
                 setSessionOrder={saveSessionOrder}
                 revealSessionId={revealSessionId}
                 onSessionRevealed={acknowledgeSessionReveal}
+                renderSlot={renderSlot}
                 t={t}
               />
             )
@@ -1278,6 +1281,7 @@ export function WorkspaceBrowser({
                 usePanelInfo={usePanelInfo}
                 list={list}
                 useSessionStatus={useSessionStatus}
+                renderSlot={renderSlot}
                 onSessionRename={onSessionRename}
                 onSessionArchive={onSessionArchive}
                 forkSession={forkSession}

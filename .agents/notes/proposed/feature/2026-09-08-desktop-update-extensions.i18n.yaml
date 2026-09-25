@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-08-desktop-update-extensions.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-09-08-desktop-update-extensions.md
-2026-09-08-desktop-update-extensions.md: 97483b94f6bd9effd2655391c45c9c3fa928bf5d
-2026-09-08-desktop-update-extensions.zh.md: c74af2828194e4985697dc9a2f7e0f154f97a928
+/agent-note-deferred-desktop-update-extensions:
+  en: 981b6db82197b942
+  zh: 14e835d1cbc3a91b
+/agent-note-deferred-desktop-update-extensions/problem:
+  en: da98b267b01e4829
+  zh: 0ae373bd57094e74
+/agent-note-deferred-desktop-update-extensions/proposal:
+  en: 58d823d3a5b282af
+  zh: c09f2b64ca553e4f
+/agent-note-deferred-desktop-update-extensions/proposal/independent-revisions:
+  en: f71115066b769ab4
+  zh: 82d4a7a448d55bd3
+/agent-note-deferred-desktop-update-extensions/proposal/stable-subscription-and-channel-switching:
+  en: 42145d9892b2e4dc
+  zh: 0fa8a8716d8001fa
+/agent-note-deferred-desktop-update-extensions/proposal/automatic-installation-setting:
+  en: 758d49f0a7dc6707
+  zh: ddb0bfe616eb93bc
+/agent-note-deferred-desktop-update-extensions/proposal/next-launch-installation:
+  en: 0f6b8518e3f06646
+  zh: b1f8b676a9128890
+/agent-note-deferred-desktop-update-extensions/proposal/updater-dependency-qualification:
+  en: c1a508d15bbc37e8
+  zh: 63e7648130377fbb
+/agent-note-deferred-desktop-update-extensions/proposal/multiple-pending-versions:
+  en: e6cf3f78703ebd25
+  zh: 63e473e8949df81a
+/agent-note-deferred-desktop-update-extensions/proposal/cache-invalidation-and-revocation:
+  en: 22c2d3aa60611f71
+  zh: 27c6c0128effac56
+/agent-note-deferred-desktop-update-extensions/alternatives-considered:
+  en: 699aca5ea4c3e894
+  zh: 2306f90a6819d711
+/agent-note-deferred-desktop-update-extensions/acceptance-criteria:
+  en: cc1a2d1972f483ce
+  zh: 8f9d654387e76df0
+/agent-note-deferred-desktop-update-extensions/risks:
+  en: 1422bf65f3ea6e3b
+  zh: bc6d7c1a39ffbbf5

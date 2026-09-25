@@ -43,6 +43,7 @@
     "@qilin/kylin-plugin-loader": "workspace:~",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-title": "workspace:*",
     "@qilin/session-title-llm": "workspace:*",

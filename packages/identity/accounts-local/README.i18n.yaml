@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/identity/accounts-local/README.md
-README.md: 4c282ff676368a9d4294ac02a7ca1880e1390c4f
-README.zh.md: 17bece33f9469099a63b6720c57701cebcdbc56b
+/:
+  en: ba3a5137154c868a
+  zh: 5b373b75caedd911
+/qilin-accounts-local:
+  en: ea1eaa7270f74d86
+  zh: a380735fdf6892b9
+/qilin-accounts-local/summary:
+  en: 4c994060fbad30e0
+  zh: 5a63e7c1fc022106
+/qilin-accounts-local/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-accounts-local/use-this-package:
+  en: fff7c098a074201d
+  zh: 0563517298653584
+/qilin-accounts-local/use-this-package/minimal-configuration:
+  en: a9dcf2cb8ec3133c
+  zh: 509547271bcf2d16
+/qilin-accounts-local/use-this-package/the-sign-in-flow:
+  en: 3cea7596e1982dab
+  zh: a801903bd5fe1876
+/qilin-accounts-local/use-this-package/the-endpoints:
+  en: 3bf043b29d54b5aa
+  zh: 5fd77435ed350ba5
+/qilin-accounts-local/use-this-package/the-account-session-gate:
+  en: d4c3a9a055156116
+  zh: d607c8394daf2a51
+/qilin-accounts-local/understand-the-implementation:
+  en: c32062a621a7118a
+  zh: 80c8a079d4044db3
+/qilin-accounts-local/understand-the-implementation/design-concept:
+  en: cace85fa05952eee
+  zh: b00a9990954ccaf1
+/qilin-accounts-local/understand-the-implementation/the-account-file:
+  en: c3be975e9e9493b6
+  zh: 34991848bb7bf326
+/qilin-accounts-local/understand-the-implementation/passwords-and-sessions:
+  en: c6370fa1e127ee8a
+  zh: 9b64ac06d18ee7e3
+/qilin-accounts-local/understand-the-implementation/source-map:
+  en: 713eecaa52f3995b
+  zh: a8016df9b07a92fe
+/qilin-accounts-local/further-exploration:
+  en: 58427dbec4d021b7
+  zh: f1765d31b7765a94
+/qilin-accounts-local/model-experience:
+  en: 93e7d0e85952575d
+  zh: e0f501bcd50fad16
+/qilin-accounts-local/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-accounts-local/known-limitations-and-deferred-work:
+  en: ddac322d589910c8
+  zh: 7400704690fea695
+/qilin-accounts-local/known-limitations-and-deferred-work/dev-note:
+  en: a97ad081ac8d7fa4
+  zh: b540876947c6f7c6

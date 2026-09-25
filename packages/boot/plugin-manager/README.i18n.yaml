@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/boot/plugin-manager/README.md
-README.md: ef4933ebf5c109b46b53dd21e9dbefe18cdae598
-README.zh.md: a081ce56257bc8528a181d6ed95dfa0202ea3adb
+/:
+  en: 65283627208ef4c9
+  zh: aa3f833ec24bb65a
+/qilin-plugin-manager:
+  en: 4c61f205a3f12678
+  zh: 7c4d8d0b6fd8ade9
+/qilin-plugin-manager/summary:
+  en: d6afcaa1594efcdb
+  zh: 459cb6ac0dcb2d46
+/qilin-plugin-manager/table-of-contents:
+  en: 87679c51aa3693f5
+  zh: 11684a48a5806afb
+/qilin-plugin-manager/use-this-package:
+  en: f8e87a2899dbb2ce
+  zh: b59462a8c4797859
+/qilin-plugin-manager/use-this-package/version-compatibility-and-exemptions:
+  en: cb5b84daa9fe515d
+  zh: 74887d5f4c95bd22
+/qilin-plugin-manager/use-this-package/configuration:
+  en: afbc7ac394075dee
+  zh: ac693c9fc67cc884
+/qilin-plugin-manager/understand-the-implementation:
+  en: 1a22bfa382273baa
+  zh: 50b19c9aeedf8516
+/qilin-plugin-manager/further-exploration:
+  en: fa0b4837e6d7faf8
+  zh: e3c3dd037336098d
+/qilin-plugin-manager/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-plugin-manager/model-experience/management-tool:
+  en: 1815ec6ce56c80d4
+  zh: 2d7ac75d3b25eb6b
+/qilin-plugin-manager/model-experience/management-tool/what-the-model-sees:
+  en: d494b40586275f52
+  zh: bdc5875e18109996
+/qilin-plugin-manager/model-experience/management-tool/token-effect:
+  en: bc70208bd361dbcd
+  zh: bb651d6066066c6c
+/qilin-plugin-manager/model-experience/management-tool/kv-cache-effect:
+  en: c29f60be7f3edc1a
+  zh: d9b9388b96ef95cc
+/qilin-plugin-manager/known-limitations-and-deferred-work:
+  en: f1d84496b5816f60
+  zh: cc930faed146764e
+/qilin-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
+  en: b0830652a655a5ea
+  zh: 0f3748773d911e90
+/qilin-plugin-manager/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

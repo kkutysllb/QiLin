@@ -54,6 +54,7 @@
     "@qilin/home-paths": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-projection": "workspace:*",
     "@qilin/system-prompt": "workspace:*",

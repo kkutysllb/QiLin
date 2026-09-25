@@ -388,6 +388,7 @@
       "@qilin/llm": ["./packages/llm/llm/src"],
       "@qilin/llm/invariant": ["./packages/llm/llm/src/invariant.ts"],
       "@qilin/llm-deepseek": ["./packages/llm/llm-deepseek/src"],
+      "@qilin/llm-deepseek-api-key": ["./packages/llm/llm-deepseek-api-key/src"],
       "@qilin/llm-mock-server": ["./packages/test-support/llm-mock-server/src"],
       "@qilin/llm-pi-ai": ["./packages/llm/llm-pi-ai/src"],
       "@qilin/llm-replay": ["./packages/test-support/llm-replay/src"],

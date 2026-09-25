@@ -1,6 +1,6 @@
 {
   "name": "@qilin/time-context",
-  "description": "Opt-in durable per-step context with the current time and elapsed time",
+  "description": "Durable per-step context with the current time and elapsed time",
   "version": "3.0.4",
   "publishConfig": {
     "access": "public"

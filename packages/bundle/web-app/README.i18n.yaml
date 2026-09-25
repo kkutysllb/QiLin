@@ -1,6 +1,79 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/web-app/README.md
-README.md: ddd9a9d0639fe27b141b06c421c5751c263bd01d
-README.zh.md: fcb64ad5502f1b5fc774a5ec50e549c532de4b8b
+/:
+  en: 3b2d51dc6437d2cb
+  zh: d6c392f854f4d3cd
+/qilin-web-app:
+  en: 34597dc6b410853f
+  zh: 330b6b2afb49162a
+/qilin-web-app/summary:
+  en: e59ed929162674c7
+  zh: d003fe310e664ac3
+/qilin-web-app/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-web-app/use-this-package:
+  en: 3bd37b85139d2fa7
+  zh: ba86c807eb83866e
+/qilin-web-app/use-this-package/starting-the-web-gui:
+  en: b8701afe8a30e1d3
+  zh: f277191807580528
+/qilin-web-app/use-this-package/configuration:
+  en: 53e80dc8b83f307d
+  zh: 4d37d4a04d5ee930
+/qilin-web-app/use-this-package/accounts-and-the-entry-documents:
+  en: 8bc66acdabce1a55
+  zh: 1759ea51be69708f
+/qilin-web-app/use-this-package/lan-access-and-trusted-hosts:
+  en: 05f91e2b5971c17a
+  zh: f39e72bc6693bf6a
+/qilin-web-app/use-this-package/running-over-ssh:
+  en: 4b0b24b50bcc18ae
+  zh: 6ad377393b6c7a8c
+/qilin-web-app/use-this-package/per-session-agent-setup:
+  en: 5e8fc9b16d189e9a
+  zh: 1c71a0af1136b8ca
+/qilin-web-app/understand-the-implementation:
+  en: b8ce668fc5c6119a
+  zh: 610af684bff9eccf
+/qilin-web-app/understand-the-implementation/patch-semantics:
+  en: 9e4e36d3b833d36b
+  zh: 761bfd66d622ff48
+/qilin-web-app/understand-the-implementation/readiness:
+  en: 973128fd346869df
+  zh: 54e6792f9f82a192
+/qilin-web-app/understand-the-implementation/lan-trust-sampling:
+  en: b5ed8ff0056ca9da
+  zh: fdc1fa4f14cb00b3
+/qilin-web-app/understand-the-implementation/source-map:
+  en: d42e6a25917ccb15
+  zh: 09502b9e51ee1036
+/qilin-web-app/understand-the-implementation/invariant-ownership:
+  en: 34767bb4c0471622
+  zh: e6d76e7c7a0b9ce8
+/qilin-web-app/further-exploration:
+  en: f43c3d97b65287ac
+  zh: e72644b902210411
+/qilin-web-app/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-web-app/model-experience/harness-source-and-web-surface-context:
+  en: e6febc53efe0f51d
+  zh: 9177816a8678d65d
+/qilin-web-app/model-experience/harness-source-and-web-surface-context/what-the-model-sees:
+  en: 919bc3f0f62e777a
+  zh: 0ef6e05bcc69d1c8
+/qilin-web-app/model-experience/harness-source-and-web-surface-context/token-effect:
+  en: 908fc84d6849a830
+  zh: 56fe5e418bab60ba
+/qilin-web-app/model-experience/harness-source-and-web-surface-context/kv-cache-effect:
+  en: da0f568d6d661c5e
+  zh: 606919b7d37c95bf
+/qilin-web-app/known-limitations-and-deferred-work:
+  en: 208a1642eac1191c
+  zh: 04d769f050478e7f
+/qilin-web-app/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

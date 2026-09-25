@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write apps/desktop/README.md
-README.md: 97ed706c0b468408c5766459685e1e715992cce5
-README.zh.md: ccfa12cb383f749eb7e2e868c4ac00e01749a3d4
+/qilin-desktop:
+  en: 45bc64b203629601
+  zh: 8a4b96226586b78c
+/qilin-desktop/key-technical-decisions:
+  en: 47ec880441223749
+  zh: 3be7731db888b4a4
+/qilin-desktop/key-technical-decisions/bundled-workspace-dependencies:
+  en: 3e1b38f6204779db
+  zh: b7ba6a8a6caa1f42
+/qilin-desktop/installation-ownership:
+  en: b2bdf7f906b64268
+  zh: 9d53d4a53d9a7582
+/qilin-desktop/installation-ownership/runtime-and-plugin-activation:
+  en: 7202b40d3fcf229a
+  zh: 90956bff4ab2e8bb
+/qilin-desktop/develop:
+  en: 9f2a7585572076b7
+  zh: 26c4e4ea884b1a5b
+/qilin-desktop/package:
+  en: 4cd8a8da6977928d
+  zh: 9f624855a2edac37
+/qilin-desktop/package/release-versions:
+  en: 43bacf090e84bb94
+  zh: f1a2239ba0d0165c
+/qilin-desktop/package/runtime-file-selection:
+  en: 079237f76104d44b
+  zh: 30dfdca5fc303d28
+/qilin-desktop/package/upload-updates:
+  en: fdfff7a4594abcc9
+  zh: 89facde8bef3973c
+/qilin-desktop/package/unsigned-windows-test-installer:
+  en: f1d9dab666525c9c
+  zh: 01bbf5d9c54502b6
+/qilin-desktop/package/windows-installer-interface:
+  en: 7256db56719c9a68
+  zh: b554f61a6971dd8d
+/qilin-desktop/package/windows-ev-signing:
+  en: 4ca97879a02a6c6d
+  zh: aca417d9aa93289d
+/qilin-desktop/updates:
+  en: 2df70771a9673d17
+  zh: 0cf29fc5188f1759
+/qilin-desktop/updates/mandatory-update-policy:
+  en: 33d677d133031f37
+  zh: 64685e9ddf586387
+/qilin-desktop/updates/local-updater-qualification:
+  en: 207b20c502449dee
+  zh: 00463f0f5baac7ea
+/qilin-desktop/low-level-development-overrides:
+  en: 272659bc1fd89e95
+  zh: 7bc8c876cb6ad995
+/qilin-desktop/known-limitations:
+  en: 50ccfdb9c252c395
+  zh: 4fd87b09cca59bf9
+/qilin-desktop/dev-note:
+  en: 6c80aa642d66ceea
+  zh: 019fca9ad58f3480

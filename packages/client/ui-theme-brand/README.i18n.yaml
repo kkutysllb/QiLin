@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-theme-brand/README.md
-README.md: 34279f4b81f9b784e0c0a175c738a32a806cd4f6
-README.zh.md: 49e135afdcea19b4f4b3fb0cc2a9135643cd48b2
+/:
+  en: 6e9bd51222d0dc75
+  zh: e0d8fcb968e24d8c
+/qilin-client-ui-theme-brand:
+  en: f2f70faeba42aaf1
+  zh: 1e2a0cb78aa1d261
+/qilin-client-ui-theme-brand/summary:
+  en: eb3a4cf2b15b5ad5
+  zh: 6d773ac60447620c
+/qilin-client-ui-theme-brand/table-of-contents:
+  en: 4e53164159b5ce41
+  zh: 024420bdbdd3e0ac
+/qilin-client-ui-theme-brand/use-this-package:
+  en: c2af5a84d31b6e79
+  zh: 842ee12706f09677
+/qilin-client-ui-theme-brand/dev-note:
+  en: f3c698886ef928a7
+  zh: eaac63c14c20b932
+/qilin-client-ui-theme-brand/model-experience:
+  en: 387945fb175a89ea
+  zh: f4ba5dcf2b061ba9
+/qilin-client-ui-theme-brand/model-experience/kv-cache-effect:
+  en: d47c23dd182c8c5a
+  zh: db61ce21c1c13a37
+/qilin-client-ui-theme-brand/known-limitations-and-deferred-work:
+  en: 99f08b5ef854da83
+  zh: 71904ac531a328b1

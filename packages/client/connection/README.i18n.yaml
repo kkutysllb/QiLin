@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/connection/README.md
-README.md: b084d5e8126ddc3657ca312732cc541c9f86dd74
-README.zh.md: a2379d49fbb8645f6933241f283875ec68d51a23
+/:
+  en: 13b131457d03a224
+  zh: 541bd85b21259ff3
+/qilin-client-connection:
+  en: bfbb88dd96c1e4cb
+  zh: 37988d4aa00fa2a5
+/qilin-client-connection/summary:
+  en: a83b5e9fd1968062
+  zh: ac68628e185a4bff
+/qilin-client-connection/table-of-contents:
+  en: 18792bf2fb4f8030
+  zh: 84c63acc7e0099ae
+/qilin-client-connection/use-this-package:
+  en: ef04350968741ba3
+  zh: abcded86153ddd9b
+/qilin-client-connection/browser-authentication-and-request-trust:
+  en: 73a9f2fd2c2d559e
+  zh: 4b629185fecee159
+/qilin-client-connection/connection-generation:
+  en: 9ab2b92f7be612e3
+  zh: e2f6994b29f4a9cc
+/qilin-client-connection/model-experience:
+  en: 88bbc33fe9ae9df8
+  zh: bfbab6d51b4abd40
+/qilin-client-connection/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-connection/known-limitations-and-deferred-work:
+  en: 21d90520c2e5d4b9
+  zh: c9ae88395b272977
+/qilin-client-connection/known-limitations-and-deferred-work/dev-note:
+  en: c51db1312f6a43ef
+  zh: a71fd7ea855718ae

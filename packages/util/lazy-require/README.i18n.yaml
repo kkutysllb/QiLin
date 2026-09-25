@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/util/lazy-require/README.md
-README.md: 2c0dd889dfc2e6e6dcf3e10c3b329f8f0d4e9a7b
-README.zh.md: aef2851632ce7a770da672f2ec8e0c5dcb648c93
+/:
+  en: e5a2fddbf7e87185
+  zh: 6a416161c9fb4a42
+/qilin-lazy-require:
+  en: 9edea7245a2030a0
+  zh: 4dac7396defc9712
+/qilin-lazy-require/summary:
+  en: 0ce8e19fb0d87811
+  zh: 41bf25ddcb0b361d
+/qilin-lazy-require/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-lazy-require/use-this-package:
+  en: fcc361ec6f3eedb6
+  zh: be2fee303fcdba1a
+/qilin-lazy-require/understand-the-implementation:
+  en: 4344e07bfc2f4ea7
+  zh: aa9127a1a2f199d8
+/qilin-lazy-require/understand-the-implementation/source-map:
+  en: 483265845e364e38
+  zh: bd45f2adbd18f020
+/qilin-lazy-require/further-exploration:
+  en: 6f0444f9c9b203c7
+  zh: b23c139ff5d321b2
+/qilin-lazy-require/model-experience:
+  en: 2e5c9a1971d91c2e
+  zh: f3618c564abc7f1c
+/qilin-lazy-require/model-experience/kv-cache-effect:
+  en: 4f0eadf94828e66e
+  zh: 4f8a6ec170ebbfb6
+/qilin-lazy-require/known-limitations-and-deferred-work:
+  en: 0973de93cdfa0bee
+  zh: 22e1e00a8df2f3f2
+/qilin-lazy-require/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

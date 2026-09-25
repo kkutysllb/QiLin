@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 0002-js-expression-disabled-filesystem-tools.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/postmortem/0002-js-expression-disabled-filesystem-tools.md
-0002-js-expression-disabled-filesystem-tools.md: 3ede92f661ce928e2b36af1b5ab645bf7e36c92c
-0002-js-expression-disabled-filesystem-tools.zh.md: 2f5d48c107f58d7a3c2e4ac5e5dd0879d500582d
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled:
+  en: d9829f0eb7b46572
+  zh: a04291e5fb060309
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/executive-summary:
+  en: 60e1b7ef7295c918
+  zh: b0db593fba02e523
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/summary:
+  en: 8a73cf1e19acf5d8
+  zh: e124288bc0f416d5
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/impact:
+  en: 94b56ca57f1f5df8
+  zh: 301a312868bb7845
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/timeline:
+  en: 87721ebe7ffd51b1
+  zh: c0a1116cccf96b2e
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/root-cause:
+  en: 6bc8392c0b578c99
+  zh: 96cba7b750571fd1
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/guardrails-added:
+  en: 39a7dce37bb6024c
+  zh: 9a68268e6671c3c9
+/post-mortem-0002-filesystem-snapshot-tools-were-permanently-disabled/lessons:
+  en: 375a29a336c99be9
+  zh: ee64c6abe3f923ff

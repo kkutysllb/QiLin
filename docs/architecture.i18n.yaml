@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for architecture.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/architecture.md
-architecture.md: 094f0e0f68acc753572b49a950fbfa913daf8ef6
-architecture.zh.md: 4f03ccf8c49f325164bb9313e069de63fa736d60
+/qilin-architecture:
+  en: c5102b192541c50a
+  zh: efff48335279177c
+/qilin-architecture/kylin:
+  en: 2bf3f31df1348648
+  zh: 9a7084ab7de6f83d
+/qilin-architecture/profiles-and-bundles:
+  en: fb40b070304b2138
+  zh: ad5b5482860bba2c
+/qilin-architecture/application-launch:
+  en: 946e2f48fb4bcd2c
+  zh: c3aa1aa44a7aaa22
+/qilin-architecture/desktop-application:
+  en: 8cd13b4b66418818
+  zh: 16b6e28976a6655f
+/qilin-architecture/core-packages:
+  en: 1ea25545a23c74c1
+  zh: 91aa1f8f03c7718d
+/qilin-architecture/events:
+  en: 4f40593d71ef06f2
+  zh: 7751103fc615e213
+/qilin-architecture/turn-flow:
+  en: cdf556d42492bb26
+  zh: 99576e9def6e9321
+/qilin-architecture/session-log:
+  en: ded0fae0a613d8da
+  zh: fb393402e877fb9a
+/qilin-architecture/capability-seams:
+  en: da5d43af3db132f4
+  zh: b4720869d092cd7f
+/qilin-architecture/where-new-behavior-goes:
+  en: bf73d4abb227e3af
+  zh: 4786af40efe63158

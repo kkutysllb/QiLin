@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-08-desktop-mandatory-update-api.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-09-08-desktop-mandatory-update-api.md
-2026-09-08-desktop-mandatory-update-api.md: ca4b338ae7dc87d7e8d10301095181900dcca860
-2026-09-08-desktop-mandatory-update-api.zh.md: 170d0379ab2979387421b28874f69b29ed286580
+/agent-note-desktop-mandatory-update-api:
+  en: f0c6cd3d45d43b66
+  zh: a99a44dc3dcc8953
+/agent-note-desktop-mandatory-update-api/problem:
+  en: cc14e499c0f87586
+  zh: 4cf849710b782d4b
+/agent-note-desktop-mandatory-update-api/proposal:
+  en: 23ecf3f19c540952
+  zh: f93bbcedb92a2773
+/agent-note-desktop-mandatory-update-api/proposal/endpoint-and-access:
+  en: e4abf2834bb10171
+  zh: e450490973cf73fd
+/agent-note-desktop-mandatory-update-api/proposal/request:
+  en: 9bbc8100f5d2caab
+  zh: 4f607c5b9116f675
+/agent-note-desktop-mandatory-update-api/proposal/no-mandatory-update:
+  en: 4814b1bd7002d6ed
+  zh: 3f0d77beb046e2fc
+/agent-note-desktop-mandatory-update-api/proposal/mandatory-update:
+  en: d3ae240665143695
+  zh: 486115cd2fdf35ed
+/agent-note-desktop-mandatory-update-api/proposal/errors-and-policy-matching:
+  en: bdabb584b3945bd6
+  zh: 187e4e9dcaa3f9f8
+/agent-note-desktop-mandatory-update-api/proposal/policy-publication-and-current-decisions:
+  en: d4d70e1541b2c2d1
+  zh: a1b6e62a05b239be
+/agent-note-desktop-mandatory-update-api/proposal/capacity-and-caching:
+  en: d176fc8d0eb355db
+  zh: b9f60de3e4f0a3fc
+/agent-note-desktop-mandatory-update-api/alternatives-considered:
+  en: 392b5d14262d0a09
+  zh: 48f3d43516d891ce
+/agent-note-desktop-mandatory-update-api/acceptance-criteria:
+  en: 7384f79c04bda0a2
+  zh: 5d107fcaec75e014
+/agent-note-desktop-mandatory-update-api/risks:
+  en: a5689674032b188e
+  zh: 06b83a878fba55b3

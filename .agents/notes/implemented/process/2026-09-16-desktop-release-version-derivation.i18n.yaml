@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-16-desktop-release-version-derivation.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-16-desktop-release-version-derivation.md
-2026-09-16-desktop-release-version-derivation.md: 1bfda520a826e071c4545386a88eb126877f023d
-2026-09-16-desktop-release-version-derivation.zh.md: d7f62fbe5be6924e1fa3f1f7c92cde59ec0d739f
+/agent-note-derive-desktop-test-versions-from-the-complete-qilin-version:
+  en: b78737402bc4e970
+  zh: 85d8d1fe175ccd55
+/agent-note-derive-desktop-test-versions-from-the-complete-qilin-version/problem:
+  en: 1089566509a7f507
+  zh: 4d883ac2eaa9d929
+/agent-note-derive-desktop-test-versions-from-the-complete-qilin-version/decision:
+  en: d322cd704b9c2a25
+  zh: 317cd4f9f593a3f9
+/agent-note-derive-desktop-test-versions-from-the-complete-qilin-version/alternatives-considered:
+  en: cf86267e11a4e534
+  zh: daa4fb017b2725a5
+/agent-note-derive-desktop-test-versions-from-the-complete-qilin-version/consequences:
+  en: ce62d7f641c0cd45
+  zh: 08b05c154f38d816

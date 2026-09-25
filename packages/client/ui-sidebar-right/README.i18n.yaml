@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-right/README.md
-README.md: 5d0bb7f2028006f00b092e05effa5aa5ccdbcee0
-README.zh.md: d5568b0dba3b4886649504cf2bb12bd7bae91885
+/:
+  en: fd3cb0c58d72d7e6
+  zh: 62cd02983c58693c
+/qilin-client-ui-sidebar-right:
+  en: a9275a5a781327b3
+  zh: a849c7ac706f8cc1
+/qilin-client-ui-sidebar-right/summary:
+  en: 8aafe5400014fdac
+  zh: b2d7d0e8dc4f1291
+/qilin-client-ui-sidebar-right/table-of-contents:
+  en: ff17f27d8c5557d1
+  zh: 6efe4b3d4902a441
+/qilin-client-ui-sidebar-right/what-lives-here-and-what-does-not:
+  en: 5d0f7c9513da4cef
+  zh: 9b8ee3ca15757ce2
+/qilin-client-ui-sidebar-right/presentations:
+  en: 183df47ffaea738a
+  zh: f15e06f2db21a854
+/qilin-client-ui-sidebar-right/the-expand-button:
+  en: 7d3388757be75b4e
+  zh: a9aec6f4295f3f9a
+/qilin-client-ui-sidebar-right/state:
+  en: ade5a425b8620792
+  zh: 8d7b7a5e960bf2ef
+/qilin-client-ui-sidebar-right/extension-seats:
+  en: bd7b9346cf5ebccc
+  zh: 0feb7cb6b59d6107
+/qilin-client-ui-sidebar-right/ctx-sidebarright:
+  en: 96e4937eba58bacc
+  zh: 952fdbe62f48379a
+/qilin-client-ui-sidebar-right/the-tab-domain:
+  en: 17e7293db961dba6
+  zh: 2957776d8b948524
+/qilin-client-ui-sidebar-right/the-guide:
+  en: 1e671d989a55e5da
+  zh: 82f5baf4cb7af1f5
+/qilin-client-ui-sidebar-right/copy:
+  en: 4315a1c03ca5fef3
+  zh: c09a09f1d9b99107
+/qilin-client-ui-sidebar-right/model-experience:
+  en: 3120df665299c634
+  zh: 242f3d68e8267e55
+/qilin-client-ui-sidebar-right/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: f57cc48a1b5cbfa9
+/qilin-client-ui-sidebar-right/known-limitations-and-deferred-work:
+  en: a5597f70b4d3e553
+  zh: a3c19118873eaced
+/qilin-client-ui-sidebar-right/known-limitations-and-deferred-work/dev-note:
+  en: 33274d681fac9a21
+  zh: e024c1c4766b289f

@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/ssh/subprocess-ssh/README.md
-README.md: 796db325f429fc55ab66566d23bb3256271ce2c5
-README.zh.md: b3f1f76d37d34db400d2ba0a85063aebdcd2b261
+/:
+  en: 3e3b8e1b999fccbb
+  zh: 996257b8c3c219a8
+/qilin-subprocess-ssh:
+  en: 9adce00b74484da9
+  zh: 04474aa55aa0d2a4
+/qilin-subprocess-ssh/summary:
+  en: 5197c59d7f9d45f8
+  zh: a895c45c12ec79d8
+/qilin-subprocess-ssh/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 725b47765ee8f30b
+/qilin-subprocess-ssh/use-this-package:
+  en: e3e7d4860e591363
+  zh: 5eb940d016dc0d5c
+/qilin-subprocess-ssh/understand-the-implementation:
+  en: 38db03ee88bcd073
+  zh: 760a2a5a32a16dd3
+/qilin-subprocess-ssh/further-exploration:
+  en: 5775794dcd44a344
+  zh: 3b8ecbb093446992
+/qilin-subprocess-ssh/model-experience:
+  en: 02267d26e71b847c
+  zh: 749305233e7f63e4
+/qilin-subprocess-ssh/model-experience/kv-cache-effect:
+  en: 21f304c66e5ba98b
+  zh: 18185d5b164f8216
+/qilin-subprocess-ssh/known-limitations-and-deferred-work:
+  en: 0aa40f28ee1eb6e1
+  zh: da785a9b66cdbed9
+/qilin-subprocess-ssh/known-limitations-and-deferred-work/dev-note:
+  en: 6ca4f1d4b4810fff
+  zh: e42f580ca971972b

@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-input-trigger/README.md
-README.md: eeed7dade2e06c643b4cb7648412d6fabacea1d2
-README.zh.md: eb68bd41c293fb62e11aa1ce0fadcd7dc3fc254f
+/:
+  en: 99c36d8cf52f1a8a
+  zh: 3cc3f1e8c2f42c23
+/qilin-client-ui-input-trigger:
+  en: 22234a487220fcd4
+  zh: 20077d3dbaffc169
+/qilin-client-ui-input-trigger/summary:
+  en: 2a968a6e0bc65ac4
+  zh: 883f1be84003a5c5
+/qilin-client-ui-input-trigger/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-input-trigger/use-this-package:
+  en: 331a1247c318b1e3
+  zh: 6689a92ce0c82942
+/qilin-client-ui-input-trigger/use-this-package/keyboard-and-mouse:
+  en: b198d6256a961f99
+  zh: 292e0bb94c18c9ca
+/qilin-client-ui-input-trigger/understand-the-implementation:
+  en: 81ac247b6e84a670
+  zh: a81221be009a1f47
+/qilin-client-ui-input-trigger/further-exploration:
+  en: fb584dab51c0f0c9
+  zh: 34502ebd83de1e54
+/qilin-client-ui-input-trigger/model-experience:
+  en: 5d1596f50088f468
+  zh: 3c72b4f6b1ba27ee
+/qilin-client-ui-input-trigger/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-input-trigger/known-limitations-and-deferred-work:
+  en: 560e5df72c0fb698
+  zh: ed6fa149bc90258a
+/qilin-client-ui-input-trigger/known-limitations-and-deferred-work/dev-note:
+  en: 749345762f3fe660
+  zh: 59485cb70b0c94e3

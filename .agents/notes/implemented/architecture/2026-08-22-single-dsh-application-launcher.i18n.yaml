@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-22-single-dsh-application-launcher.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-22-single-dsh-application-launcher.md
-2026-08-22-single-dsh-application-launcher.md: 9bdaa56b110bba05ef328f0afa09ef414093cd83
-2026-08-22-single-dsh-application-launcher.zh.md: 9cd7f5818348444aca0c088120cfe978b05659ac
+/agent-note-one-dsh-launcher-for-application-profiles:
+  en: b80fdde931706096
+  zh: fa08947f6e200eff
+/agent-note-one-dsh-launcher-for-application-profiles/problem:
+  en: 03e2b3c5bf0a3951
+  zh: 5475190bf16dc36d
+/agent-note-one-dsh-launcher-for-application-profiles/decision:
+  en: a15c7c13f167e5ac
+  zh: a15c7c13f167e5ac
+/agent-note-one-dsh-launcher-for-application-profiles/decision/launch-scope:
+  en: 48aecbb264153b93
+  zh: 0858bd6d5029c9c4
+/agent-note-one-dsh-launcher-for-application-profiles/decision/profile-applications:
+  en: 69e36769f6e9285f
+  zh: b28905a62c9956c5
+/agent-note-one-dsh-launcher-for-application-profiles/decision/typescript-sdk-customization:
+  en: eaf72872152a4d45
+  zh: 07915814aa117363
+/agent-note-one-dsh-launcher-for-application-profiles/decision/python-runtime:
+  en: 863b38b69cf449cf
+  zh: 76218ad04db572cb
+/agent-note-one-dsh-launcher-for-application-profiles/decision/enforcement:
+  en: 9ce8d86b65064f38
+  zh: 27b8ad426cb319a2
+/agent-note-one-dsh-launcher-for-application-profiles/existing-decisions-and-supersession:
+  en: 5287f91a2301f4b4
+  zh: 2729a96490e54812
+/agent-note-one-dsh-launcher-for-application-profiles/alternatives-considered:
+  en: 763d9f86e10af3db
+  zh: e87b35f1f7425da7
+/agent-note-one-dsh-launcher-for-application-profiles/verification:
+  en: 0b883651974d3ac3
+  zh: 8ed0bb3ee97a25f8
+/agent-note-one-dsh-launcher-for-application-profiles/consequences:
+  en: 8453d34835bf6ada
+  zh: 86308a497c969b81

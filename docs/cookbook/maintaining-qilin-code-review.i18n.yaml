@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for maintaining-qilin-code-review.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/maintaining-qilin-code-review.md
-maintaining-qilin-code-review.md: 7cf3c47466940a52fb7d46f900a599a9c714b869
-maintaining-qilin-code-review.zh.md: 431264aafd31428d9d888915c90a36415d0e8d7b
+/maintaining-the-qilin-code-review-skill:
+  en: 965c55bceddfbc0a
+  zh: eb4e0a21440bf41e
+/maintaining-the-qilin-code-review-skill/what-the-maintainer-receives:
+  en: f974696e8dc661ad
+  zh: 8689c914d142e39b
+/maintaining-the-qilin-code-review-skill/what-the-operator-does-with-a-candidate-diff:
+  en: a229d49abe192fe3
+  zh: 0d1bfe17575c0c93
+/maintaining-the-qilin-code-review-skill/when-a-run-produces-no-candidate:
+  en: feb6d261939d6c19
+  zh: 044d8238cd6537d3
+/maintaining-the-qilin-code-review-skill/interruptions-and-handoff:
+  en: d159d99bebddd8d0
+  zh: 1f36197e98ea92d2
+/maintaining-the-qilin-code-review-skill/where-the-operator-s-private-setup-lives:
+  en: ae06145764738c16
+  zh: d527b944db8c52be

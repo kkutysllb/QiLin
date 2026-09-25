@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-10-deepseek-v41-request-image-projection.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-10-deepseek-v41-request-image-projection.md
-2026-09-10-deepseek-v41-request-image-projection.md: 995dc08936ac163213ef03bc9e3c512dc666d48c
-2026-09-10-deepseek-v41-request-image-projection.zh.md: 3e8918288cae193738b2c95c6f0d68470a5d3e33
+/agent-note-deepseek-request-images-on-the-published-token-grid:
+  en: 0caeeff229db8cc5
+  zh: 10dcf995a1038856
+/agent-note-deepseek-request-images-on-the-published-token-grid/problem:
+  en: a6040ba310a27b89
+  zh: c1658f7ff7601bcf
+/agent-note-deepseek-request-images-on-the-published-token-grid/decision:
+  en: d38841ac57524f54
+  zh: 1474d1589a5d182a
+/agent-note-deepseek-request-images-on-the-published-token-grid/alternatives-considered:
+  en: bbea6759aeedc5a0
+  zh: 10e88e4cf6509cf7
+/agent-note-deepseek-request-images-on-the-published-token-grid/consequences:
+  en: 95bc8d0d09928dee
+  zh: 090292fa154e854f

@@ -9,7 +9,7 @@ import AgentRegistry, { type Agent } from '@qilin/agent'
 
 import AgentLoop from '@qilin/agent-loop'
 import SessionProjectionRegistry from '@qilin/session-projection'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 
 /**
  * With-key proof that log-derived requests translate into real provider cache hits: a

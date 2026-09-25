@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/webworker-packer/README.md
-README.md: 3776c8b9390ed0682e358d761092cc61ee7d2b30
-README.zh.md: d88a49007e72109a3efad707a66f667616e82ae7
+/:
+  en: 5bf871fc6ff3da7c
+  zh: eae970e01432a92a
+/qilin-experimental-webworker-packer:
+  en: 12cc3834a61fcb55
+  zh: 8c6f422682945751
+/qilin-experimental-webworker-packer/summary:
+  en: aa404abb7a90502e
+  zh: aaa872579c20cdd5
+/qilin-experimental-webworker-packer/table-of-contents:
+  en: 4e53164159b5ce41
+  zh: 89582dc0294d0776
+/qilin-experimental-webworker-packer/use-this-package:
+  en: 0cc324a0ca5ca115
+  zh: 8b8372f847c27e0c
+/qilin-experimental-webworker-packer/model-experience:
+  en: e16b355530dadc1c
+  zh: 8488e03b253b7b33
+/qilin-experimental-webworker-packer/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: 64715dc7e6d02f71
+/qilin-experimental-webworker-packer/known-limitations-and-deferred-work:
+  en: 953db6ed50bc8ffa
+  zh: f7e6e365065a25dc
+/qilin-experimental-webworker-packer/known-limitations-and-deferred-work/dev-note:
+  en: 46176f90f22845c7
+  zh: 8e6ba8ba2958fba3

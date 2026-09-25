@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-15-dsh-plugin-ecosystem-compat.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-15-dsh-plugin-ecosystem-compat.md
-2026-09-15-dsh-plugin-ecosystem-compat.md: 8f947d4f1192e2649dd548dc72961734a148b675
-2026-09-15-dsh-plugin-ecosystem-compat.zh.md: ed90616ce61ede45b1b905915d3b20f4c749bcf5
+/agent-note-dsh-plugin-compatibility-and-profile-scoped-user-plugins:
+  en: 5ae554da09db173a
+  zh: 56374287ea5baafe
+/agent-note-dsh-plugin-compatibility-and-profile-scoped-user-plugins/problem:
+  en: 045a901a7ccccdc9
+  zh: 28d510a6d4a82602
+/agent-note-dsh-plugin-compatibility-and-profile-scoped-user-plugins/decision:
+  en: 23134a23c17faa24
+  zh: 14382cdb1f368a3a
+/agent-note-dsh-plugin-compatibility-and-profile-scoped-user-plugins/alternatives-considered:
+  en: 05e15af6da2afbba
+  zh: cdd97fbf06896fed
+/agent-note-dsh-plugin-compatibility-and-profile-scoped-user-plugins/consequences:
+  en: fe5b88e1d98047b5
+  zh: 265d183adc79d528
+/agent-note-dsh-plugin-compatibility-and-profile-scoped-user-plugins/verification:
+  en: 167ac066d57c82fb
+  zh: 51c88fb838aecb3c

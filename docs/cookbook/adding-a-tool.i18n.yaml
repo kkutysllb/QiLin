@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for adding-a-tool.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/adding-a-tool.md
-adding-a-tool.md: aafde56d18bd313e4453900e9788adfac4e98b40
-adding-a-tool.zh.md: 73c30c464ca011b4df2e01dd9d8e009ef0b64bb4
+/tool-authoring-reference:
+  en: 9a52c384ac50241f
+  zh: 457841a024cfe264
+/tool-authoring-reference/the-minimal-shape:
+  en: 2cc80a2a79e23005
+  zh: 87e43383055890ce
+/tool-authoring-reference/rules-of-the-execute-contract:
+  en: 110fa68298c53f96
+  zh: f5762893eb615ddf
+/tool-authoring-reference/long-running-work:
+  en: cbcf7c489aa48536
+  zh: f19fc13602b0d9aa
+/tool-authoring-reference/execution-policy-and-observation:
+  en: 99acf99bc265d8a9
+  zh: 5192f86268f5b1aa
+/tool-authoring-reference/ptc-mode-reaches-your-tool-for-free:
+  en: 9d32d6eb3cffbbb0
+  zh: 03027cc232c697b5
+/tool-authoring-reference/how-your-tool-renders-in-a-ui:
+  en: 8199cfb06fe813a7
+  zh: d60cb05aa07959f3
+/tool-authoring-reference/web-client-presentation:
+  en: 90355fed17009231
+  zh: 1603210238f0b787
+/tool-authoring-reference/verification:
+  en: 98fad0fb2ce450e4
+  zh: 208e11b5f04b173b

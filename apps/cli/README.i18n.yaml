@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write apps/cli/README.md
-README.md: 683581c5820eb6668ceba297af8ce3c2a16e2f8a
-README.zh.md: 966fbbc8250272c7fe0566b8f99754b3b4182d30
+/qilin-cli:
+  en: 30f6f6d09ef3f96b
+  zh: 9215ee1c45f8a0f6
+/qilin-cli/entry-modes:
+  en: a42915d2fea0d689
+  zh: 7399c1ad755c46c8
+/qilin-cli/app-arguments:
+  en: 979c1c9bedaf1b3e
+  zh: a77b6d9db2cfc191
+/qilin-cli/profiles:
+  en: 2403793fc28a4574
+  zh: b7655fd1d77a8501
+/qilin-cli/optional-overlays:
+  en: 55972a91e0d1d24d
+  zh: 920ae26285d8e1b6
+/qilin-cli/development:
+  en: e83101b27f5dd5a3
+  zh: 17d66dcf09613c3c

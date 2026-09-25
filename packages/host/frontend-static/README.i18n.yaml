@@ -1,6 +1,58 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/host/frontend-static/README.md
-README.md: 8229c799dd5877bfa55d4849db0b9cb0da5b4b0b
-README.zh.md: 495b709bb94c88b19cc539925ed19f23037393b6
+/:
+  en: 66e47e51b9ba40ad
+  zh: ea08913ca80ebad9
+/qilin-host-frontend-static:
+  en: 8f9ddfd1c8676936
+  zh: a3c7b2f9a4345070
+/qilin-host-frontend-static/summary:
+  en: 8f84a154fe651810
+  zh: 210cd16c4eeaf6c7
+/qilin-host-frontend-static/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-host-frontend-static/use-this-package:
+  en: 06c1d77e2bd8cce1
+  zh: c0d1f1ead45449cd
+/qilin-host-frontend-static/use-this-package/minimal-configuration:
+  en: d99d8876adf5b239
+  zh: 30b5e2c5d7bcfaf6
+/qilin-host-frontend-static/use-this-package/what-the-server-enforces:
+  en: 04da37e7f04b1a0c
+  zh: b5448bdbfc154594
+/qilin-host-frontend-static/use-this-package/document-validation:
+  en: 6b0e9f1e2f84fc8c
+  zh: 4e80edf1c48827ab
+/qilin-host-frontend-static/use-this-package/observable-failures:
+  en: 7b6cca6ed823f515
+  zh: 30b5a5c594e8f1b8
+/qilin-host-frontend-static/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: 4ed0861911abaf5d
+/qilin-host-frontend-static/understand-the-implementation/design-concept:
+  en: 78d6b62de8c9d905
+  zh: fbff1103b31a7eb6
+/qilin-host-frontend-static/understand-the-implementation/the-traversal-fence:
+  en: 0ca9ccfdf4101cf1
+  zh: 5a01e561397afcb1
+/qilin-host-frontend-static/understand-the-implementation/source-map:
+  en: ea557235c1b1ae52
+  zh: ce272423ca550951
+/qilin-host-frontend-static/further-exploration:
+  en: 1dd1b94acbd765b9
+  zh: 984d221d92e712b5
+/qilin-host-frontend-static/model-experience:
+  en: 731366616bc410a6
+  zh: ce51eb296a6efddb
+/qilin-host-frontend-static/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-host-frontend-static/known-limitations-and-deferred-work:
+  en: 6bde9bc26ebe46b5
+  zh: 737d7188036e7bde
+/qilin-host-frontend-static/known-limitations-and-deferred-work/dev-note:
+  en: b0c11e19ebc773d3
+  zh: 897d6eaf60489227

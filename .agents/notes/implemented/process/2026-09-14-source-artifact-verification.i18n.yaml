@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-source-artifact-verification.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-14-source-artifact-verification.md
-2026-09-14-source-artifact-verification.md: af1d45b325132976ab96c7707ea3ab4163f3035c
-2026-09-14-source-artifact-verification.zh.md: 6cbd4a57f8c7ee5d15d1c1558f3a346c89d964e8
+/agent-note-source-and-artifact-plane-verification:
+  en: d3bce122cb013b94
+  zh: b853479402feb5e3
+/agent-note-source-and-artifact-plane-verification/problem:
+  en: 6603f061de70716c
+  zh: 9021bf49a9b91b9d
+/agent-note-source-and-artifact-plane-verification/decision:
+  en: 30f59e0cac72999c
+  zh: 4dffddaa3e496651
+/agent-note-source-and-artifact-plane-verification/verification:
+  en: 08d1bc873f649241
+  zh: 43fa2f4fc2f02497
+/agent-note-source-and-artifact-plane-verification/alternatives-considered:
+  en: 8f2bd2b499025625
+  zh: 5c634908e068bbe2
+/agent-note-source-and-artifact-plane-verification/consequences:
+  en: fa247954eb334dc2
+  zh: 32d287607ff992dd

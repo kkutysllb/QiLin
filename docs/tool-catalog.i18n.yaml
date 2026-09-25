@@ -1,6 +1,307 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for tool-catalog.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/tool-catalog.md
-tool-catalog.md: 435613c708389e62777bbbb7a69ffc967444c84d
-tool-catalog.zh.md: b1e7a96140764e7e0dd33d4ae7f977798946277c
+/:
+  en: 0be8ffbf23193557
+  zh: ce2c69aa86875171
+/tool-schema-catalog:
+  en: dd81e27c4521158a
+  zh: 01417e2b5c61928a
+/tool-schema-catalog/tool-package-map:
+  en: cc84fcf4c4923d2c
+  zh: bf6331e402f86131
+/tool-schema-catalog/qilin-plugin-manager:
+  en: 137ab7ab9dfccf59
+  zh: 137ab7ab9dfccf59
+/tool-schema-catalog/qilin-plugin-manager/plugin-manager:
+  en: eb84224f3fa19fb5
+  zh: 051b956a05f169a2
+/tool-schema-catalog/qilin-mcp-resources:
+  en: 39c44bbbe6e043aa
+  zh: 39c44bbbe6e043aa
+/tool-schema-catalog/qilin-mcp-resources/list-mcp-resource-templates:
+  en: 96275ece9d040944
+  zh: 1fa9744642601ece
+/tool-schema-catalog/qilin-mcp-resources/list-mcp-resources:
+  en: bf4236607199d61e
+  zh: 82f4f749dcabc89f
+/tool-schema-catalog/qilin-mcp-resources/read-mcp-resource:
+  en: 196322ae22991c1c
+  zh: bd44332d86e8c44e
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native:
+  en: 0b75a96f9ef4b660
+  zh: 0b75a96f9ef4b660
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native/stagehand-act:
+  en: c4b27bf62c534dcc
+  zh: 70c53824ed57ac23
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native/stagehand-extract:
+  en: ec7462ab99848155
+  zh: 632fe0249040708e
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native/stagehand-navigate:
+  en: ef97f063a037a006
+  zh: 27727ccc908e007f
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native/stagehand-observe:
+  en: 2068f1baa0a59e1b
+  zh: 5743c7b33e2c5ccb
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native/stagehand-screenshot:
+  en: 4910ab327694ee97
+  zh: 17e79e4366cb636d
+/tool-schema-catalog/qilin-experimental-browser-use-stagehand-native/stagehand-tabs:
+  en: 55b3929f4116a1fe
+  zh: 9e4dd0d02b07e539
+/tool-schema-catalog/qilin-tool-ask-user:
+  en: a0ca2b2f3549032c
+  zh: a0ca2b2f3549032c
+/tool-schema-catalog/qilin-tool-ask-user/ask-user-question:
+  en: 957440af26ff203a
+  zh: 121a9dfe0be9a2da
+/tool-schema-catalog/qilin-tools:
+  en: d8bfe92141b92bf9
+  zh: d8bfe92141b92bf9
+/tool-schema-catalog/qilin-tools/run-code:
+  en: 91686fe4a398c246
+  zh: bb6956ac9ca860d4
+/tool-schema-catalog/qilin-plan-mode:
+  en: fe8fc5a5b1b4793c
+  zh: fe8fc5a5b1b4793c
+/tool-schema-catalog/qilin-plan-mode/exit-plan-mode:
+  en: 47acd0487d7059f9
+  zh: 944b4ba7813c1f75
+/tool-schema-catalog/qilin-tool-bash:
+  en: 25b9b7460e76060b
+  zh: 25b9b7460e76060b
+/tool-schema-catalog/qilin-tool-bash/bash:
+  en: e8b769ed7fcec18e
+  zh: 8d2fc34c179ad42a
+/tool-schema-catalog/qilin-tool-present:
+  en: 84e18c93580dc8e9
+  zh: 84e18c93580dc8e9
+/tool-schema-catalog/qilin-tool-present/present:
+  en: dd03fdbbe4a5384e
+  zh: bec9d9c08832f40e
+/tool-schema-catalog/qilin-tool-pwsh:
+  en: 96681a107031e710
+  zh: 96681a107031e710
+/tool-schema-catalog/qilin-tool-pwsh/pwsh:
+  en: 4e9f18d0a9ada37e
+  zh: a9c7b6e1b743f989
+/tool-schema-catalog/qilin-tool-kylin:
+  en: c5157b36bf85e5ce
+  zh: c5157b36bf85e5ce
+/tool-schema-catalog/qilin-tool-kylin/cordis-inspect-list:
+  en: 110e0e7f0817aa37
+  zh: a8c81e723d1dfa7a
+/tool-schema-catalog/qilin-tool-kylin/cordis-inspect-query:
+  en: afad7fcaaf5afb33
+  zh: dc30f689282da230
+/tool-schema-catalog/qilin-tool-bash-persistent:
+  en: 242fdef722e6a846
+  zh: 242fdef722e6a846
+/tool-schema-catalog/qilin-tool-bash-persistent/bash:
+  en: 27a5443c73d7c202
+  zh: 5f771e97927c650b
+/tool-schema-catalog/qilin-tool-pwsh-persistent:
+  en: d32044ac27d44c8f
+  zh: d32044ac27d44c8f
+/tool-schema-catalog/qilin-tool-pwsh-persistent/pwsh:
+  en: b7b93778e3d834ed
+  zh: ad228c4c926926d3
+/tool-schema-catalog/qilin-tool-str-replace-editor:
+  en: 57074c81c6b49c9f
+  zh: 57074c81c6b49c9f
+/tool-schema-catalog/qilin-tool-str-replace-editor/str-replace-editor:
+  en: 21b330e42957ee3c
+  zh: 3068b15860ef8733
+/tool-schema-catalog/qilin-tool-fs:
+  en: 32c50f632edacf2f
+  zh: 32c50f632edacf2f
+/tool-schema-catalog/qilin-tool-fs/edit:
+  en: 5b6a252adde51af6
+  zh: 7aa172a5d8b9cbd2
+/tool-schema-catalog/qilin-tool-fs/read:
+  en: 94bfc5b03c63baef
+  zh: 339338a0e74696c3
+/tool-schema-catalog/qilin-tool-fs/read-image:
+  en: 4e82f36d958c9c1c
+  zh: 1f87182c327bec10
+/tool-schema-catalog/qilin-tool-fs/write:
+  en: 8639cb531ec7f22b
+  zh: 47b34eacbd5fd38c
+/tool-schema-catalog/qilin-tool-fs-search:
+  en: d2914a5360dd9b44
+  zh: d2914a5360dd9b44
+/tool-schema-catalog/qilin-tool-fs-search/glob:
+  en: 418d627507ddd693
+  zh: 85f14b433c93efbe
+/tool-schema-catalog/qilin-tool-fs-search/grep:
+  en: 14e974faba384752
+  zh: a8579546870522d3
+/tool-schema-catalog/qilin-tool-terminal:
+  en: e7e3fcdfa8268c5c
+  zh: e7e3fcdfa8268c5c
+/tool-schema-catalog/qilin-tool-terminal/terminal-close:
+  en: 6d6e428c866ac6c1
+  zh: 8033539fcdcb6e7b
+/tool-schema-catalog/qilin-tool-terminal/terminal-list:
+  en: ae7d5bce32142aa5
+  zh: e956a650a5bf294b
+/tool-schema-catalog/qilin-tool-terminal/terminal-open:
+  en: c542bd7f7e872441
+  zh: 14731de81780b518
+/tool-schema-catalog/qilin-tool-terminal/terminal-read:
+  en: 6a7491d2436e4404
+  zh: 772ff408ec0a67e3
+/tool-schema-catalog/qilin-tool-terminal/terminal-send:
+  en: e24ca8735dd59adb
+  zh: 24f7140a0aed0968
+/tool-schema-catalog/qilin-tool-terminal/terminal-signal:
+  en: 35b076cf30238e33
+  zh: 044a13efcd57dee4
+/tool-schema-catalog/qilin-tool-goal:
+  en: 99c3335f72e35e92
+  zh: 99c3335f72e35e92
+/tool-schema-catalog/qilin-tool-goal/create-goal:
+  en: b22408124a0a6f34
+  zh: 7b3bf9ceb5d7f1dc
+/tool-schema-catalog/qilin-tool-goal/get-goal:
+  en: 73ab2b24d4de682d
+  zh: 82c42a427774c67d
+/tool-schema-catalog/qilin-tool-goal/update-goal:
+  en: b61566147c8371a9
+  zh: 9cb4ca900d083e71
+/tool-schema-catalog/qilin-schedule:
+  en: b21524aa51012c24
+  zh: b21524aa51012c24
+/tool-schema-catalog/qilin-schedule/schedule-create:
+  en: 0a10b5db8919d316
+  zh: 8b4f751da5d26d02
+/tool-schema-catalog/qilin-schedule/schedule-delete:
+  en: cff096695f06e298
+  zh: c8ff7983d733d293
+/tool-schema-catalog/qilin-schedule/schedule-list:
+  en: d8543c8503d0947e
+  zh: 113501fde825006f
+/tool-schema-catalog/qilin-schedule/schedule-update:
+  en: 78477ea5a6d8df82
+  zh: c9051cacd5e1166f
+/tool-schema-catalog/qilin-tool-lsp:
+  en: da101fc9a9715c1d
+  zh: da101fc9a9715c1d
+/tool-schema-catalog/qilin-tool-lsp/lsp:
+  en: 2f7c6db9464296c8
+  zh: d39316d2b2291423
+/tool-schema-catalog/qilin-tool-ralph:
+  en: 702ce3c0458d7ea6
+  zh: 702ce3c0458d7ea6
+/tool-schema-catalog/qilin-tool-ralph/ralph:
+  en: 416a0bbe963c887d
+  zh: 4983f2b54851bf68
+/tool-schema-catalog/qilin-tool-skill:
+  en: f23a179e5ff4e012
+  zh: f23a179e5ff4e012
+/tool-schema-catalog/qilin-tool-skill/skill:
+  en: e0fc2c1d1289cb65
+  zh: 30e24948754d875c
+/tool-schema-catalog/qilin-tool-session-query:
+  en: 33026d5b772fec03
+  zh: 33026d5b772fec03
+/tool-schema-catalog/qilin-tool-session-query/session-event-read:
+  en: 6687105065ac3a5f
+  zh: 48b2f4d38536e4c7
+/tool-schema-catalog/qilin-tool-session-query/session-event-search:
+  en: 41251b4cbe9af70d
+  zh: 8855a5f32b4720e5
+/tool-schema-catalog/qilin-tool-session-query/session-event-trace:
+  en: 14b5ec05fa8c0932
+  zh: 3c85d44c13cc42c5
+/tool-schema-catalog/qilin-tool-session-query/session-search:
+  en: 8263202c97568fc3
+  zh: 92067337294c7a00
+/tool-schema-catalog/qilin-tool-session-query/session-trace:
+  en: bc1f307f374cf7ba
+  zh: fc5cdb9277a67e82
+/tool-schema-catalog/qilin-tool-subagent:
+  en: dc3270770d38a227
+  zh: dc3270770d38a227
+/tool-schema-catalog/qilin-tool-subagent/list-subagent-models:
+  en: c89084b31ffccbce
+  zh: d7b3b7000f2d2be9
+/tool-schema-catalog/qilin-tool-subagent/subagent:
+  en: fbc5b58c8f6eb4c1
+  zh: 2b91bb93e43756ad
+/tool-schema-catalog/qilin-tool-subagent-control:
+  en: 7e876f543a7e0ffb
+  zh: 7e876f543a7e0ffb
+/tool-schema-catalog/qilin-tool-subagent-control/interrupt-agent:
+  en: 3eb5ac28342e354f
+  zh: 91ca5628d8e333f0
+/tool-schema-catalog/qilin-tool-subagent-control/list-agents:
+  en: e688153e9ba4a684
+  zh: e478528ed1737e6c
+/tool-schema-catalog/qilin-tool-subagent-control/send-message:
+  en: 860b2516c084f1ed
+  zh: c56fc9cc0c16fa9d
+/tool-schema-catalog/qilin-tool-jobs:
+  en: d245a22300c8e661
+  zh: d245a22300c8e661
+/tool-schema-catalog/qilin-tool-jobs/job-kill:
+  en: 39e53ddd7ea31c2d
+  zh: 16640c2952c263b6
+/tool-schema-catalog/qilin-tool-jobs/job-list:
+  en: 0c37fb1fed979d72
+  zh: 5ea9d07f5a4a8a6c
+/tool-schema-catalog/qilin-tool-jobs/job-output:
+  en: 46c22538eb7e9d01
+  zh: 87f0610836a1f92d
+/tool-schema-catalog/qilin-experimental-tool-agent-team:
+  en: 3736d545b6a0384f
+  zh: 3736d545b6a0384f
+/tool-schema-catalog/qilin-experimental-tool-agent-team/interrupt-agent:
+  en: c3c7af05ceb9f8c9
+  zh: ec379e0b42110c6a
+/tool-schema-catalog/qilin-experimental-tool-agent-team/list-agents:
+  en: a8dd8ced34d10a47
+  zh: 7ea31e0a536dc318
+/tool-schema-catalog/qilin-experimental-tool-agent-team/send-message:
+  en: af9766c5b81792a7
+  zh: 308b7cab8901e240
+/tool-schema-catalog/qilin-experimental-tool-agent-team/spawn-teammate:
+  en: 02d6cc746e234b99
+  zh: 49bc60ac098bca48
+/tool-schema-catalog/qilin-experimental-tool-agent-team/team-task-create:
+  en: 91e84febe063c3bd
+  zh: 550555d0f44f603b
+/tool-schema-catalog/qilin-experimental-tool-agent-team/team-task-get:
+  en: 1c6ae0aba0b8041d
+  zh: f8d634387b74121d
+/tool-schema-catalog/qilin-experimental-tool-agent-team/team-task-list:
+  en: 2084d494aae8798a
+  zh: e4c136c91028a7b1
+/tool-schema-catalog/qilin-experimental-tool-agent-team/team-task-update:
+  en: 2eac7360ba68b1bd
+  zh: b5d676bf288c245e
+/tool-schema-catalog/qilin-experimental-tool-agent-team/wait-agent:
+  en: 1e26551a80fef804
+  zh: 6bc71ef9d8bdb72e
+/tool-schema-catalog/qilin-tool-todo:
+  en: 0c203a8570632dd8
+  zh: 0c203a8570632dd8
+/tool-schema-catalog/qilin-tool-todo/todo-write:
+  en: 928df01d1c6dbd10
+  zh: a4b5a6f1c97aaf06
+/tool-schema-catalog/qilin-tool-workflow:
+  en: 80bab5bccee10310
+  zh: 80bab5bccee10310
+/tool-schema-catalog/qilin-tool-workflow/workflow:
+  en: c52e04e6b8ba105b
+  zh: 1af3f060174e0101
+/tool-schema-catalog/qilin-tool-web:
+  en: b2ece8a24ad215d0
+  zh: b2ece8a24ad215d0
+/tool-schema-catalog/qilin-tool-web/web-fetch:
+  en: 8673f203aea9bdf2
+  zh: 4e17783ffdf34c83
+/tool-schema-catalog/qilin-tool-web/web-search:
+  en: 096d6a19c83af773
+  zh: fa5213caf9401216

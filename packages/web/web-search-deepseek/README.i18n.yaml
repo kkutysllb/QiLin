@@ -1,6 +1,85 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/web/web-search-deepseek/README.md
-README.md: c82959a552ca1f2159421dc7acbc543bd0ff898c
-README.zh.md: 15a18c1f4c3941ec0feb5caaac2aefd7a1069aca
+/:
+  en: d3ed4f8639422b9d
+  zh: 35c2ac10b0158bd3
+/qilin-web-search-deepseek:
+  en: b119009596bfde8c
+  zh: 1822ebd6b26907e0
+/qilin-web-search-deepseek/summary:
+  en: 0714f1b61d880505
+  zh: 55121a46e47152c0
+/qilin-web-search-deepseek/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-web-search-deepseek/use-this-package:
+  en: e0d352d6402d9d3b
+  zh: a449234557ef8bd6
+/qilin-web-search-deepseek/use-this-package/when-to-choose-it:
+  en: 942798c9aa6ba90f
+  zh: 800ddd760ff4ae0b
+/qilin-web-search-deepseek/use-this-package/minimal-configuration:
+  en: d136e273c00f1d3f
+  zh: 1c414b3b3cebc98f
+/qilin-web-search-deepseek/use-this-package/what-a-search-returns:
+  en: e30442c90365357b
+  zh: 9c9e2f1182963a8a
+/qilin-web-search-deepseek/use-this-package/request-logging:
+  en: 467b8238cf7e140c
+  zh: 85a519c8811557aa
+/qilin-web-search-deepseek/use-this-package/failures-and-recovery:
+  en: 8b9211a88d2927dd
+  zh: a2b6bbaa8c4e1996
+/qilin-web-search-deepseek/understand-the-implementation:
+  en: 9842c69ad3636bb3
+  zh: 3cdc3f816cbdd0cb
+/qilin-web-search-deepseek/understand-the-implementation/design-philosophy:
+  en: 39d77f6c18cc791c
+  zh: d03a8d0a4e4addb2
+/qilin-web-search-deepseek/understand-the-implementation/source-map:
+  en: 92935c0a8db050ed
+  zh: 3cd0603714a34e44
+/qilin-web-search-deepseek/understand-the-implementation/request-flow:
+  en: c62da1892ded8f3b
+  zh: 3b9d7f7604c286cb
+/qilin-web-search-deepseek/further-exploration:
+  en: 8e8a84b3e6c68e13
+  zh: a1b8d3d169f86acd
+/qilin-web-search-deepseek/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-web-search-deepseek/model-experience/auxiliary-deepseek-search-request:
+  en: 722e4bf02953e236
+  zh: b3432958beb7b60f
+/qilin-web-search-deepseek/model-experience/auxiliary-deepseek-search-request/what-the-model-sees:
+  en: cac44ad2353afadd
+  zh: 23b27f833e47bf7e
+/qilin-web-search-deepseek/model-experience/auxiliary-deepseek-search-request/token-effect:
+  en: f244b4dd6c9e6ad4
+  zh: 50f2434d5119296b
+/qilin-web-search-deepseek/model-experience/auxiliary-deepseek-search-request/kv-cache-effect:
+  en: 2bac9662f1792a79
+  zh: 556d9baabd79f9cb
+/qilin-web-search-deepseek/model-experience/conversation-tool-result-indirectly:
+  en: 666f5753c99783ab
+  zh: b44328e99bcc45c9
+/qilin-web-search-deepseek/model-experience/conversation-tool-result-indirectly/what-the-model-sees:
+  en: ec4f9a02b0434bb5
+  zh: ca8e422f23a174ab
+/qilin-web-search-deepseek/model-experience/conversation-tool-result-indirectly/token-effect:
+  en: 01ec43a9b616139d
+  zh: 0a5b7c28fde34bcf
+/qilin-web-search-deepseek/model-experience/conversation-tool-result-indirectly/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: f681f89596f500f5
+/qilin-web-search-deepseek/known-limitations-and-deferred-work:
+  en: c9fa522bcfa7bfef
+  zh: f95aeb879603bb62
+/qilin-web-search-deepseek/known-limitations-and-deferred-work/dev-note:
+  en: 7f775cc79dbce94b
+  zh: 12b8f68f9e7c48ca
+/qilin-web-search-deepseek/known-limitations-and-deferred-work/dev-note/future-dedicated-retrieval-endpoint:
+  en: 5cfe3e3773c0abe7
+  zh: a97e11f22b7a0434

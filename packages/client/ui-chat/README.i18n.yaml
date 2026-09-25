@@ -1,6 +1,49 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-chat/README.md
-README.md: 424e9f314c13763e5f510aecb32589c4fa57376c
-README.zh.md: 053f1d364f23048175f990d9d85fe861d054fe1c
+/:
+  en: d88f75fc0178ba53
+  zh: 52bc7ae9551ab1cf
+/qilin-client-ui-chat:
+  en: 506d97db5618d95c
+  zh: b369944a84588939
+/qilin-client-ui-chat/summary:
+  en: 98d792dbc1b1975e
+  zh: 96acf5c3a5165047
+/qilin-client-ui-chat/table-of-contents:
+  en: 8f619b0e01a9f416
+  zh: f79274b180454e83
+/qilin-client-ui-chat/reference-previews:
+  en: 66e17df4efe43eb8
+  zh: 82d91d704004d8f2
+/qilin-client-ui-chat/system-prompt-row:
+  en: 939728341ffbff11
+  zh: 74ec4ec5ca1fbd60
+/qilin-client-ui-chat/turn-token-usage:
+  en: 45bb016cb1c65785
+  zh: 2b791b42065351de
+/qilin-client-ui-chat/completed-turn-footer:
+  en: bb3e55382117d78f
+  zh: 75a2b59c1a5cf9ce
+/qilin-client-ui-chat/turn-process-folding:
+  en: 48fc0c985bad99af
+  zh: ba861c30e1e96952
+/qilin-client-ui-chat/tool-call-nodes:
+  en: 8ea74e997efa882e
+  zh: 05be7975fe2ea14c
+/qilin-client-ui-chat/scroll-ownership:
+  en: cf13f01361fb6b6e
+  zh: cf7da989b282a8ee
+/qilin-client-ui-chat/model-experience:
+  en: c17b4dd43a61c569
+  zh: f7414309810c3a08
+/qilin-client-ui-chat/model-experience/kv-cache-effect:
+  en: 15a7151ff9268f15
+  zh: 6eae68c718be579b
+/qilin-client-ui-chat/known-limitations-and-deferred-work:
+  en: 7799c90d513ea7ff
+  zh: 1eee681ed487dcd1
+/qilin-client-ui-chat/known-limitations-and-deferred-work/dev-note:
+  en: b8b7eeb4ae675d2a
+  zh: fbe7022074ba81b9

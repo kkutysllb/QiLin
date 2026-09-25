@@ -1,6 +1,34 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for filesystem.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/filesystem.md
-filesystem.md: 3289797427a00707cdd9548cfb7c360e498a2aee
-filesystem.zh.md: 6748b49c3b79b2f3219cfff54ea2292015fac8dd
+/filesystem:
+  en: 315e6d1d848d021a
+  zh: ed0fed70205ea9d3
+/filesystem/target-identity-and-metadata-provider-contract:
+  en: 345def8a8e6c58e0
+  zh: 01d6e2f0f22daf9d
+/filesystem/write-and-edit-guards-provider-contract:
+  en: 067137c8b8181c98
+  zh: 0a9c8282789d147f
+/filesystem/the-fs-policy-events-provider-contract-vocabulary:
+  en: d0672e6bce6ecc3a
+  zh: 029ab19175f1004d
+/filesystem/execution-context-policy-plugin:
+  en: 0d8c86dd14e18e14
+  zh: b7a4b3793b42005e
+/filesystem/read-outcome-consumer-read-rendering:
+  en: 70f1906dafab4101
+  zh: b37e0bed4602ae7d
+/filesystem/observed-file-state-policy-plugin:
+  en: a67a1a30466e77c2
+  zh: fe97674b524bdd28
+/filesystem/error-taxonomy-provider-contract:
+  en: 15b19fc0d5df24ec
+  zh: b80f1a414202ca1d
+/filesystem/no-timeouts-on-file-io:
+  en: dca26e09c4f93a16
+  zh: e07ed063b5486cd5
+/filesystem/the-service-and-the-plugin:
+  en: 513353811ed596d8
+  zh: 29f5e1990de9e315

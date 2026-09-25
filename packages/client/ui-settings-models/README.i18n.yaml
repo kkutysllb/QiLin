@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-models/README.md
-README.md: 6e1a4e153cbf29f252292d079f1e264dc2dbad2e
-README.zh.md: d7d46d4e813d236a888b353cdceb8b5d758d8703
+/:
+  en: c6e46e2f596d3f0e
+  zh: 82a5bd28463975ff
+/qilin-client-ui-settings-models:
+  en: 5074e7c19d597fd9
+  zh: 6ffa0e17faf963f2
+/qilin-client-ui-settings-models/summary:
+  en: 5fb6b042b125f685
+  zh: 809e060bfb9cff1a
+/qilin-client-ui-settings-models/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-settings-models/use-this-package:
+  en: cac50319f379a794
+  zh: 5452cb099584cfd7
+/qilin-client-ui-settings-models/use-this-package/api-keys:
+  en: 52dc56789932574f
+  zh: e79a8684569ceca8
+/qilin-client-ui-settings-models/use-this-package/editing-a-provider:
+  en: 63243594b46bbf07
+  zh: e83c8383ca376de6
+/qilin-client-ui-settings-models/use-this-package/adding-and-deleting-providers:
+  en: 51f4bac2296ac90e
+  zh: 0b1e3e41bb8ad0a9
+/qilin-client-ui-settings-models/use-this-package/first-run-dialogs:
+  en: 589397a35f82244e
+  zh: 1528fc78b5d38db3
+/qilin-client-ui-settings-models/use-this-package/extension-slots:
+  en: 7a755256c3d1b3a1
+  zh: 45b1aa9fd44c312e
+/qilin-client-ui-settings-models/understand-the-implementation:
+  en: a87afbec5e339b36
+  zh: 0c06c1a3447e1263
+/qilin-client-ui-settings-models/understand-the-implementation/validation:
+  en: b3b05a09b9a0a29f
+  zh: 76c0d9af824e59c4
+/qilin-client-ui-settings-models/understand-the-implementation/concurrency-and-credentials:
+  en: dfa69c8f6c7e522e
+  zh: ee084759767805b4
+/qilin-client-ui-settings-models/understand-the-implementation/onboarding-coordinator:
+  en: 9b6d2ab855c49bd3
+  zh: 6fc401f0587d725d
+/qilin-client-ui-settings-models/further-exploration:
+  en: 79d843a7353898ac
+  zh: ba499db1207ea7ac
+/qilin-client-ui-settings-models/model-experience:
+  en: 3120df665299c634
+  zh: 1d9f365d091d0d2a
+/qilin-client-ui-settings-models/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-settings-models/known-limitations-and-deferred-work:
+  en: 7c9e422161e3613d
+  zh: e340b8f0a325d9f0
+/qilin-client-ui-settings-models/known-limitations-and-deferred-work/dev-note:
+  en: 4f6749870e661a48
+  zh: 2964e44f35366623

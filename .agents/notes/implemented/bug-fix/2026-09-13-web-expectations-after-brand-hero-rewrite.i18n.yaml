@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-web-expectations-after-brand-hero-rewrite.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-13-web-expectations-after-brand-hero-rewrite.md
-2026-09-13-web-expectations-after-brand-hero-rewrite.md: 1ee3fac3cf3c2c9a2a0db2c3ae83c8c5603ac113
-2026-09-13-web-expectations-after-brand-hero-rewrite.zh.md: be1de084c564486f7145f95d7cc2ab6faa9495e3
+/agent-note-web-expectations-after-the-qilin-brand-and-hero-rewrite:
+  en: 300d714a9318861d
+  zh: 34591b767d7432dc
+/agent-note-web-expectations-after-the-qilin-brand-and-hero-rewrite/problem:
+  en: 66295d023494f974
+  zh: 12c58cee7b69f8c6
+/agent-note-web-expectations-after-the-qilin-brand-and-hero-rewrite/decision:
+  en: 2938d5d0d1de9664
+  zh: cbc1c2f76e5e1660
+/agent-note-web-expectations-after-the-qilin-brand-and-hero-rewrite/alternatives-considered:
+  en: 962aa8e965eae7a4
+  zh: abe17460b80dc4a2
+/agent-note-web-expectations-after-the-qilin-brand-and-hero-rewrite/consequences:
+  en: 03b31ad64533e0f7
+  zh: bce045b59dd3a1ef

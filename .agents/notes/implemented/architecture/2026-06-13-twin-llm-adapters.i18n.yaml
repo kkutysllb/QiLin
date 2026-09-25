@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-06-13-twin-llm-adapters.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.md
-2026-06-13-twin-llm-adapters.md: fe8b0b55e0e027e29eb0920e64a1760d0dc35aee
-2026-06-13-twin-llm-adapters.zh.md: 4248b5afeb9f3fd4503914e53203c674e3a80dbf
+/agent-note-two-llm-adapters-as-a-design-verification-twin:
+  en: bd7f691b42330390
+  zh: ca3e984df71291e9
+/agent-note-two-llm-adapters-as-a-design-verification-twin/problem:
+  en: 12ef053b86de899e
+  zh: 0353126533a8023e
+/agent-note-two-llm-adapters-as-a-design-verification-twin/decision:
+  en: 0dd6ebb29aebc164
+  zh: 20065ae72f4d131d
+/agent-note-two-llm-adapters-as-a-design-verification-twin/alternatives-considered:
+  en: c523a9b402588189
+  zh: bced37eb1040360a
+/agent-note-two-llm-adapters-as-a-design-verification-twin/consequences:
+  en: f9b67824a0ca53f5
+  zh: e60cebfec12659d9

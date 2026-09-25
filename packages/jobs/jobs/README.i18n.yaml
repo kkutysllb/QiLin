@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/jobs/jobs/README.md
-README.md: a86a9c3bfea322774f8ae6c136d80940bd567698
-README.zh.md: 714b1627e6fcf2667488352ad9e28b2ba215f2f4
+/:
+  en: 4007b9566a0f4678
+  zh: 1a5c7251227f43c2
+/qilin-jobs:
+  en: 34eb23fbecbbd4fb
+  zh: b84a2ca9694b605d
+/qilin-jobs/summary:
+  en: 8e44c110a9169089
+  zh: 0e307bdb3c4ec62c
+/qilin-jobs/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-jobs/use-this-package:
+  en: 4c7c85312e8a9733
+  zh: 259cc59bcdcc2f7c
+/qilin-jobs/use-this-package/what-a-background-job-gives-you:
+  en: 811421c9320c255f
+  zh: 7d409b97d55362fd
+/qilin-jobs/use-this-package/the-ownership-boundary:
+  en: 873494750b38dae5
+  zh: 2e6142ab889f7a8b
+/qilin-jobs/use-this-package/starting-background-work-needs-a-controller:
+  en: cd1e4be0edbbe875
+  zh: d1a92925d6d07a38
+/qilin-jobs/use-this-package/smallest-working-composition:
+  en: 3eb8d00581d4aa07
+  zh: 200f59312cbe9e1d
+/qilin-jobs/use-this-package/what-can-go-wrong:
+  en: fcfee3f72ea703ac
+  zh: 80299901bd44783b
+/qilin-jobs/understand-the-implementation:
+  en: 7e13d669ecc96d59
+  zh: b5fe7ae65812d926
+/qilin-jobs/understand-the-implementation/design-philosophy:
+  en: f648d719556dae97
+  zh: 2df368704283f1c8
+/qilin-jobs/understand-the-implementation/source-map:
+  en: d9f404dac06d430d
+  zh: d6c3c86665bf45d0
+/qilin-jobs/understand-the-implementation/service-operations:
+  en: f678720ae5857207
+  zh: 30bd4aa110c77c9b
+/qilin-jobs/further-exploration:
+  en: fb6626dfc94ed3fd
+  zh: 59064582170ed60e
+/qilin-jobs/model-experience:
+  en: efb58cac0fc08163
+  zh: 838791f77fd79917
+/qilin-jobs/model-experience/kv-cache-effect:
+  en: e290ccc9b3c92c08
+  zh: d75d48f485447a74
+/qilin-jobs/known-limitations-and-deferred-work:
+  en: a324f5cd696028ed
+  zh: 47ce05206b7ef6a5
+/qilin-jobs/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

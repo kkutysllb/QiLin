@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 01-first-plugin.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/01-first-plugin.md
-01-first-plugin.md: e86cefc5c20a0d97fb6b48a1dfd596a79feb552e
-01-first-plugin.zh.md: 72413b546f946c3a56690de378ee5b5ecd961e6a
+/1-your-first-plugin:
+  en: e4bbb789aec9f86e
+  zh: e83e4861b9ea8b57
+/1-your-first-plugin/write-the-plugin:
+  en: 7da7e203b16d9f51
+  zh: 1d1a036fd177a84a
+/1-your-first-plugin/compose-the-app:
+  en: 209c3f914691549e
+  zh: b3b240be3fe96824
+/1-your-first-plugin/run-it:
+  en: 0c1c061fdb64afee
+  zh: fb9ec0a5736b731d
+/1-your-first-plugin/the-two-other-plugin-shapes:
+  en: d2deb5f6559275f6
+  zh: 643ef980cae8eb05
+/1-your-first-plugin/try-breaking-it:
+  en: ce42e5472fbb7364
+  zh: feb3c0fbb1fcb10b

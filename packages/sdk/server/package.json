@@ -31,7 +31,8 @@
   "license": "MIT",
   "dependencies": {
     "@qilin/brand": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin/schemastery": "workspace:~",
+    "@qilin/llm-deepseek-api-key": "workspace:*"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",

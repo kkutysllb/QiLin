@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for kylin-primer.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-primer.md
-kylin-primer.md: ede15c3e2371e76aa10afdfe0989b7444c03630f
-kylin-primer.zh.md: b76bb68f9ba5ebd9261a4aadd40ab1f5ca3c69c7
+/kylin-primer:
+  en: 1434df8096951cf0
+  zh: 9e44956c6c21ad53
+/kylin-primer/kylin-in-five-ideas:
+  en: e9e72daacc4ef8ca
+  zh: e391a711574309f0
+/kylin-primer/dispatch-modes:
+  en: 7adc1e4cc7a7a471
+  zh: 51c4a94fce96217d
+/kylin-primer/kylin-waterfall-semantics:
+  en: cd58b710fe009a35
+  zh: 236461fc3d3ec3e0
+/kylin-primer/loader-configuration:
+  en: 82b44c0caaf25a4b
+  zh: bf276e009d6d9ed9
+/kylin-primer/practical-rules:
+  en: d4962704b1a4f141
+  zh: d8b5231fc1ee4349

@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-12-session-unarchive-settings-page.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-12-session-unarchive-settings-page.md
-2026-09-12-session-unarchive-settings-page.md: 6690d9e8876c915aedece5054b67d62bcf7848d7
-2026-09-12-session-unarchive-settings-page.zh.md: 4ded1c2fc1884d944f64dd945f9e29fa6a36fe5c
+/agent-note-session-unarchive-settings-page:
+  en: 73240c5d56b210ee
+  zh: c85c8326bd0ca65c
+/agent-note-session-unarchive-settings-page/problem:
+  en: 5671235a6f43f1f1
+  zh: f5f08b23b89a76d5
+/agent-note-session-unarchive-settings-page/decision:
+  en: 15320c461729d0cd
+  zh: e227537a08293c9b
+/agent-note-session-unarchive-settings-page/alternatives-considered:
+  en: 8080d9aeb428ce57
+  zh: 4aee0c245fb0a404
+/agent-note-session-unarchive-settings-page/consequences:
+  en: fe7e1264779f306e
+  zh: 838f2df6442f71f0
+/agent-note-session-unarchive-settings-page/testing:
+  en: 72b80aeac73e35fb
+  zh: a3d6ebea8cfdb671
+/agent-note-session-unarchive-settings-page/related:
+  en: f52fa7ec01ea1f35
+  zh: ebbacbeb24f6cc72

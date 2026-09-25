@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/persistence-changes/releases/README.md
-README.md: 6a26b2f2daf0f851c4481ebdd79ff55d56b71d93
-README.zh.md: 56127fefdd042b24fd9201d044e718e9dcfe075b
+/:
+  en: f2f1e04417725af5
+  zh: 520822afb2ec7760
+/persistence-changes-across-qilin-prereleases:
+  en: 6a31a4ff5ff5d191
+  zh: bac4488b8c1d6f71
+/persistence-changes-across-qilin-prereleases/summary:
+  en: a566aa5b0f364c57
+  zh: ba395919f0b886f9
+/persistence-changes-across-qilin-prereleases/table-of-contents:
+  en: 66af6c63111e0d4f
+  zh: d2cda8c92eda8473
+/persistence-changes-across-qilin-prereleases/archived-releases:
+  en: 11e4ec9954e73637
+  zh: 5cc71deac1764bca
+/persistence-changes-across-qilin-prereleases/files-and-scope:
+  en: c7b3012355eec9c6
+  zh: c31da79dc5cf326c
+/persistence-changes-across-qilin-prereleases/extraction-and-limitations:
+  en: 2212c587e280c935
+  zh: e1e12ec7d87f9bd2
+/persistence-changes-across-qilin-prereleases/verification:
+  en: 1b797602288479b3
+  zh: 24d853092c7d50fc
+/persistence-changes-across-qilin-prereleases/dev-note:
+  en: 5de1d6304e00c58f
+  zh: e58fc8dda0bea8d5

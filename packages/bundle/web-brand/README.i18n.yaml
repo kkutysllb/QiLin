@@ -1,6 +1,40 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/web-brand/README.md
-README.md: d987ebf74750212e3c92429e44271c54d8020990
-README.zh.md: 95ab0c472deae468c6e37f7c095342aaa42892e8
+/:
+  en: fa07442eca9dd607
+  zh: 1501bece2cd8120b
+/qilin-web-brand:
+  en: 576a821ff49e3757
+  zh: a96600d70a5020d2
+/qilin-web-brand/summary:
+  en: 6613a9edb5251e09
+  zh: 721bc1466e0a228c
+/qilin-web-brand/table-of-contents:
+  en: 4e53164159b5ce41
+  zh: 024420bdbdd3e0ac
+/qilin-web-brand/use-this-package:
+  en: 6e5a2fe0c8a331a9
+  zh: f23820d484cf04c2
+/qilin-web-brand/dev-note:
+  en: f3c698886ef928a7
+  zh: eaac63c14c20b932
+/qilin-web-brand/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-web-brand/model-experience/product-identity:
+  en: 3488e65a0f897971
+  zh: a514515b2e477f89
+/qilin-web-brand/model-experience/product-identity/what-the-model-sees:
+  en: 0090508d5c3ec94a
+  zh: d232513385ce2027
+/qilin-web-brand/model-experience/product-identity/token-effect:
+  en: 157538d686197193
+  zh: 91bf79cee4ced156
+/qilin-web-brand/model-experience/product-identity/kv-cache-effect:
+  en: d4d47d6bddb0cfd8
+  zh: 09451f111664b516
+/qilin-web-brand/known-limitations-and-deferred-work:
+  en: c1506114d7100333
+  zh: 2ae70c7ff290ab79

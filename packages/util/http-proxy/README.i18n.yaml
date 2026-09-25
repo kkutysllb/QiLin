@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/util/http-proxy/README.md
-README.md: 6f9bdb9052a6a2b282ae7c5a013c5fd92a69e3eb
-README.zh.md: 58d2e98794dc40c029d4be35989d4f99458461c2
+/:
+  en: 117b4d191f773a9c
+  zh: 0b9e150f6cd23b04
+/qilin-http-proxy:
+  en: e3d33d2aa4e5270e
+  zh: 3502335e912012e5
+/qilin-http-proxy/summary:
+  en: c3b1b32ab36f5f97
+  zh: 143b744ab361f0d4
+/qilin-http-proxy/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-http-proxy/use-this-package:
+  en: 559207e93d89f1a9
+  zh: 8f6975b4c42589b4
+/qilin-http-proxy/use-this-package/writing-a-new-outbound-call:
+  en: 782b24f91ee8ce71
+  zh: af4b75a0d5a98fdc
+/qilin-http-proxy/use-this-package/what-the-policy-reads:
+  en: 5ebd23809d3f0ded
+  zh: 4913ca6a8935e2ac
+/qilin-http-proxy/use-this-package/failures:
+  en: 4248bc9a662680ed
+  zh: 4150ade9f1aa9287
+/qilin-http-proxy/understand-the-implementation:
+  en: ee4615a04fa6503d
+  zh: ee2c5fb2204a43cf
+/qilin-http-proxy/understand-the-implementation/design-philosophy:
+  en: 4c5ed05a5cd07bc3
+  zh: a6aee9a484e92a79
+/qilin-http-proxy/understand-the-implementation/source-map:
+  en: a099f88dd0c7d394
+  zh: 7325b7ea973bce13
+/qilin-http-proxy/understand-the-implementation/bypass-matching:
+  en: e9ad6c2e8ee2fc21
+  zh: c10de6995cf594bc
+/qilin-http-proxy/further-exploration:
+  en: 3712e481f8cbeb24
+  zh: 390dd890d3d66e70
+/qilin-http-proxy/model-experience:
+  en: e0af6a1073934d5a
+  zh: d8bf9c77b54ed5ae
+/qilin-http-proxy/model-experience/kv-cache-effect:
+  en: 7f12ca92e7722f98
+  zh: 97fa75de6a3f6a3f
+/qilin-http-proxy/known-limitations-and-deferred-work:
+  en: 4367d85a8e5e0101
+  zh: 68a5c63e23aed832
+/qilin-http-proxy/known-limitations-and-deferred-work/dev-note:
+  en: e7d8628ccd7e0d36
+  zh: 751da266bfb84bef

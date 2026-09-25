@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-browser/README.md
-README.md: a48263f9c6f2af48354dc55e481dd734900030ea
-README.zh.md: f65e4f5f39ef0ce27b79888958cdefb8adac3381
+/:
+  en: aceaa4f1e64f54b1
+  zh: 0f43a543e01f0778
+/qilin-client-ui-sidebar-browser:
+  en: 9f9263df01d584e4
+  zh: 9caebcee40fef885
+/qilin-client-ui-sidebar-browser/summary:
+  en: 445ca89282df57ac
+  zh: dfe6239547e3c4a2
+/qilin-client-ui-sidebar-browser/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: de4a2a92773d135e
+/qilin-client-ui-sidebar-browser/use-this-package:
+  en: eb290f26cfe96a18
+  zh: eb80fd35440fd3cb
+/qilin-client-ui-sidebar-browser/use-this-package/when-to-choose-it:
+  en: 638bc5f88739898b
+  zh: 9cce8ed4a99187ca
+/qilin-client-ui-sidebar-browser/use-this-package/minimal-configuration:
+  en: aaab23ff2bca2fd0
+  zh: 7760a3a406dd2733
+/qilin-client-ui-sidebar-browser/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: e15901d8462ec7c7
+/qilin-client-ui-sidebar-browser/understand-the-implementation/protocol-policy:
+  en: ae4bf6dcb1d9aca9
+  zh: a52fd529b175df78
+/qilin-client-ui-sidebar-browser/understand-the-implementation/iframe-carrier:
+  en: 89a93904a4cb37f8
+  zh: fbbd9bd7ff27184a
+/qilin-client-ui-sidebar-browser/understand-the-implementation/controller:
+  en: eaef9fc9999348c6
+  zh: 325d26183996cf3e
+/qilin-client-ui-sidebar-browser/further-exploration:
+  en: ba6b428973d50727
+  zh: 354ac9f0ef374c6c
+/qilin-client-ui-sidebar-browser/model-experience:
+  en: 69e711858e7d9ebc
+  zh: d84610491e69a35b
+/qilin-client-ui-sidebar-browser/model-experience/kv-cache-effect:
+  en: e17a5fd3d5405745
+  zh: db957a16dddce770
+/qilin-client-ui-sidebar-browser/known-limitations-and-deferred-work:
+  en: c0dc4f92cbaa62af
+  zh: 204949db5f0c9304
+/qilin-client-ui-sidebar-browser/known-limitations-and-deferred-work/dev-note:
+  en: 289c45472a4f8ed4
+  zh: ecb7efb0e9e1f63f

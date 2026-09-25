@@ -147,6 +147,7 @@
     "@qilin/user-approval": "workspace:*",
     "@qilin/util-time": "workspace:*",
     "@qilin/permission-presets": "workspace:*",
-    "@qilin/settings": "workspace:*"
+    "@qilin/settings": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*"
   }
 }

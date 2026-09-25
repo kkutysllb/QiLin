@@ -4,7 +4,8 @@ import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, Rea
 import type { Message, ToolSchema } from '@qilin/llm'
 import * as LlmPiAi from '@qilin/llm-pi-ai'
 import type { PiAiProviderProfile } from '@qilin/llm-pi-ai'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import { PUBLIC_BASE_URL as deepseekPublicBaseUrl } from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import { assemble, type AssembledResult } from './assemble.ts'
 
 /**
@@ -24,7 +25,7 @@ async function harness(_model: string, config: Partial<PiAiProviderProfile> = {}
     providers: {
       deepseek: {
         ...process.env.DEEPSEEK_API_KEY === undefined ? {} : { apiKey: process.env.DEEPSEEK_API_KEY },
-        baseURL: LlmDeepSeek.PUBLIC_BASE_URL,
+        baseURL: deepseekPublicBaseUrl,
         ...config,
       },
     },

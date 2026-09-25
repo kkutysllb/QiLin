@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/core/agent-default-model/README.md
-README.md: 7f6b3ca1ce0b43dc46c9a42ee42cf5c8992569f3
-README.zh.md: d4feaaab6b34073afede5cf4c1ee5bcb9c1838db
+/:
+  en: eaf7d3ea3e52ddfd
+  zh: 34028b95d994f15d
+/qilin-agent-default-model:
+  en: a6873cfd84d65d39
+  zh: 6d23edc801eb1021
+/qilin-agent-default-model/summary:
+  en: b5c36b2a1feb3d3b
+  zh: 4a56de11215261c4
+/qilin-agent-default-model/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-default-model/use-this-package:
+  en: 426a019d26019bc7
+  zh: 89e57948e3ed9cf8
+/qilin-agent-default-model/use-this-package/configure-the-default:
+  en: 9c5ffada9c0e5c49
+  zh: 36c9c6d947319827
+/qilin-agent-default-model/use-this-package/read-and-change-the-default:
+  en: 84f6049c038b2e53
+  zh: 26511878205db79e
+/qilin-agent-default-model/understand-the-implementation:
+  en: 592af7e68423bd1c
+  zh: a509b637f2a14687
+/qilin-agent-default-model/understand-the-implementation/design-concept:
+  en: 162e8bf736ef1539
+  zh: b7e0c7d0381a807c
+/qilin-agent-default-model/understand-the-implementation/source-map:
+  en: 34d2241b1177476a
+  zh: 4ed0b3780bd6f6e2
+/qilin-agent-default-model/understand-the-implementation/behavior-notes:
+  en: b96ca27ccd2962d5
+  zh: 2a1e8c04b987eda1
+/qilin-agent-default-model/further-exploration:
+  en: 8a8c1661ab632e4d
+  zh: f3a4e74ad4397454
+/qilin-agent-default-model/model-experience:
+  en: 1550007294eab687
+  zh: 39e797cb0ca691d7
+/qilin-agent-default-model/model-experience/kv-cache-effect:
+  en: 814ad1a657587419
+  zh: 5c1968a55beb1af4
+/qilin-agent-default-model/known-limitations-and-deferred-work:
+  en: b2ca47dc66112268
+  zh: 3152307b726e2336
+/qilin-agent-default-model/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

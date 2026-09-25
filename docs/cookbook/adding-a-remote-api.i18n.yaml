@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for adding-a-remote-api.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/adding-a-remote-api.md
-adding-a-remote-api.md: cfe593fa817e1599d3393347822f6cc170293381
-adding-a-remote-api.zh.md: 5eb57ecd12d3d6f8ff685bc214cba5dd33e83393
+/cookbook-adding-a-remote-api:
+  en: 79508cdc9ac9bde2
+  zh: 4803f51144660bb6
+/cookbook-adding-a-remote-api/1-declare-the-api:
+  en: 2913ee8e9720fe42
+  zh: a4ce2f4d3fc77c03
+/cookbook-adding-a-remote-api/2-declare-the-failures:
+  en: 56f7616e5583c801
+  zh: 022115786b69874f
+/cookbook-adding-a-remote-api/3-register-it-on-the-package:
+  en: b54ddff8d6c0ecf6
+  zh: cc89ea47aac88918
+/cookbook-adding-a-remote-api/4-consume-it-on-the-client:
+  en: e731407eac4052b8
+  zh: 7524dadfc4383db4
+/cookbook-adding-a-remote-api/5-test-it:
+  en: db3cc042866c737e
+  zh: 47f3930f05f9b7bb
+/cookbook-adding-a-remote-api/verify:
+  en: 180a1b9d703c17e4
+  zh: 09683439533eda79

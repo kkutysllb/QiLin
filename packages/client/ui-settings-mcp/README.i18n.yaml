@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-mcp/README.md
-README.md: 8140dc9e80a0506d8960f1d10788335abb463336
-README.zh.md: ddb7c955682b08da54e11c0b1d26ee075d08440b
+/:
+  en: 0b5850d01be805fc
+  zh: 9c82426a055cb122
+/qilin-client-ui-settings-mcp:
+  en: 1da98dbdd9e63d00
+  zh: cb3fdd7501f8d92d
+/qilin-client-ui-settings-mcp/summary:
+  en: 1b3a49207c082132
+  zh: a2a510a9c89629dc
+/qilin-client-ui-settings-mcp/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-settings-mcp/use-this-package:
+  en: 73b86c399317f108
+  zh: 3e6fc5c6622851fc
+/qilin-client-ui-settings-mcp/use-this-package/configured-servers:
+  en: 8655728675244581
+  zh: 86999b0883721aba
+/qilin-client-ui-settings-mcp/use-this-package/recommended-servers:
+  en: b05e341dae2a014d
+  zh: 25df7672e8b8db80
+/qilin-client-ui-settings-mcp/use-this-package/refusals:
+  en: ca56db83fb01e75f
+  zh: 817c290913ef8a63
+/qilin-client-ui-settings-mcp/understand-the-implementation:
+  en: 5fd0aa8e7ae562c7
+  zh: 3b003dac8a003b80
+/qilin-client-ui-settings-mcp/further-exploration:
+  en: a035c2545ce1040d
+  zh: 3f56f4eeb1466599
+/qilin-client-ui-settings-mcp/model-experience:
+  en: df6db7dd4f472f25
+  zh: 816196313e81bbc4
+/qilin-client-ui-settings-mcp/model-experience/kv-cache-effect:
+  en: 367f49a7a6b3feeb
+  zh: 0252d6aa928896d7
+/qilin-client-ui-settings-mcp/known-limitations-and-deferred-work:
+  en: e1fd638e7fa60c96
+  zh: 8d0449ee5778e311
+/qilin-client-ui-settings-mcp/known-limitations-and-deferred-work/dev-note:
+  en: 209555538815b9d8
+  zh: 6154143bb77329a1

@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-session/README.md
-README.md: 464cdf5019bba65856449d2ea94c338bf6875879
-README.zh.md: 5c8f2bb254955f50915ab61fe6af5b487909d2c7
+/:
+  en: af287bddb3c67f95
+  zh: 162d447352ac8366
+/qilin-client-ui-session:
+  en: e4b045a2c5157034
+  zh: 446dd02421028f8d
+/qilin-client-ui-session/summary:
+  en: a1aacfe596eb6276
+  zh: e8dc10cac8c0251d
+/qilin-client-ui-session/table-of-contents:
+  en: b4683d2a53256fda
+  zh: 4e65ff63dc8c48fe
+/qilin-client-ui-session/model-experience:
+  en: cb2d4451e8bf8520
+  zh: 6d3adbb930d90c59
+/qilin-client-ui-session/model-experience/kv-cache-effect:
+  en: 209b4471032b0f9d
+  zh: 6c2e39ac1dedf71c
+/qilin-client-ui-session/known-limitations-and-deferred-work:
+  en: 61ef65087e3d4ac8
+  zh: 01b38db2957f9096
+/qilin-client-ui-session/known-limitations-and-deferred-work/dev-note:
+  en: 48d675ab370a4967
+  zh: 0e22dedcf99801ad

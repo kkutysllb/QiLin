@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 03-services.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/kylin-tutorial/03-services.md
-03-services.md: 5515c42e83f519d00f8388231d7f895722e532c7
-03-services.zh.md: 4075d9d44d3adb6059322546a9cff8d9e66401be
+/3-services:
+  en: b79af63edf770ff6
+  zh: 7696da8089a58b59
+/3-services/provide-a-service:
+  en: 65cdeb49d5a39cd0
+  zh: 558e4ff2bd9e8cbe
+/3-services/consume-a-service-with-inject:
+  en: 29e4b9e7cc808242
+  zh: c392df6e954325ff
+/3-services/dependencies-are-tracked-after-load:
+  en: 9b1e473f875c4d70
+  zh: efe3ee6fd911f842
+/3-services/optional-dependencies:
+  en: f765739ab1e2061a
+  zh: 71ddc054022b66a9
+/3-services/naming:
+  en: 4f10bcaa4438022c
+  zh: 6f231d2a412affdb

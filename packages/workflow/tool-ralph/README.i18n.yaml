@@ -1,6 +1,100 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/workflow/tool-ralph/README.md
-README.md: c960852a501364d0be3ec0aaee695bca8f95676d
-README.zh.md: b1171deae38aaf5f90146f64896901b7f6a58f6b
+/:
+  en: e2a31cca62823561
+  zh: c06ff93cf98b67e4
+/qilin-tool-ralph:
+  en: d69827659ecd00ca
+  zh: 077a3869d6434523
+/qilin-tool-ralph/summary:
+  en: 9821960147153443
+  zh: 0b24aab94a5dc12b
+/qilin-tool-ralph/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-tool-ralph/use-this-package:
+  en: 13380e1170c6a3b5
+  zh: 2f2665f2ee5ff6f7
+/qilin-tool-ralph/use-this-package/calling-the-tool:
+  en: f43e8fbcf272ac45
+  zh: 46719b415d9ad4bf
+/qilin-tool-ralph/use-this-package/what-each-round-sees:
+  en: 2d8b861c4bcb9424
+  zh: 63c7b2d00c324727
+/qilin-tool-ralph/use-this-package/config:
+  en: 81ce5c0f6c5dbffb
+  zh: 89ad5c88a477bb68
+/qilin-tool-ralph/understand-the-implementation:
+  en: 0999ea3a4c9da48c
+  zh: 83013ee36a8689af
+/qilin-tool-ralph/understand-the-implementation/design-concept:
+  en: b2f347571c9798bf
+  zh: 07d9b2ab791b82e1
+/qilin-tool-ralph/understand-the-implementation/fixed-script-and-routing:
+  en: fa2cfda2d9d121e6
+  zh: 75720bd6244a2c96
+/qilin-tool-ralph/understand-the-implementation/report-validation:
+  en: 65f90bce7ef1fe5b
+  zh: 04c8d5ad08a9007c
+/qilin-tool-ralph/understand-the-implementation/lifecycle-and-cancellation:
+  en: fdd98f9e2d2ec378
+  zh: 72e3da1f3c717aa6
+/qilin-tool-ralph/understand-the-implementation/render-intent:
+  en: 07e071bd44b1df65
+  zh: 26f1cb2eab8c25b0
+/qilin-tool-ralph/understand-the-implementation/source-map:
+  en: b0cf0927913968fb
+  zh: 6170b4c8d2529a41
+/qilin-tool-ralph/further-exploration:
+  en: d93994bdadd55c34
+  zh: d90cd7e8e06d374a
+/qilin-tool-ralph/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tool-ralph/model-experience/system-prompt:
+  en: cf78b9dd5596495f
+  zh: bd44560f8c2435e8
+/qilin-tool-ralph/model-experience/system-prompt/what-the-model-sees:
+  en: bcfb20c5be49c2c4
+  zh: c666f686a648fc0f
+/qilin-tool-ralph/model-experience/system-prompt/what-the-model-sees/ralph-guidance:
+  en: 4ee32d69a7ae2aba
+  zh: bdf2035f010ab56a
+/qilin-tool-ralph/model-experience/system-prompt/token-effect:
+  en: dab67480bfde6224
+  zh: 85bbf18da3767aa7
+/qilin-tool-ralph/model-experience/system-prompt/kv-cache-effect:
+  en: 13e7c6007bf6b5dc
+  zh: 2b0da8b6dc00aa5e
+/qilin-tool-ralph/model-experience/tool-schema:
+  en: e4c7376d4f29dbd5
+  zh: 6b7a9eaf69c9ea53
+/qilin-tool-ralph/model-experience/tool-schema/what-the-model-sees:
+  en: 95bf82aa74e99bec
+  zh: 89cca14506234a98
+/qilin-tool-ralph/model-experience/tool-schema/token-effect:
+  en: 0af719618f9f99d2
+  zh: a719a4e5df1406a4
+/qilin-tool-ralph/model-experience/tool-schema/kv-cache-effect:
+  en: 79a20d1db0f4a32e
+  zh: c72a19d9a6c0bff3
+/qilin-tool-ralph/model-experience/child-requests-and-parent-result:
+  en: 55181fb745ab8135
+  zh: ebeea6a8748986d2
+/qilin-tool-ralph/model-experience/child-requests-and-parent-result/what-the-model-sees:
+  en: 788029304e88ea74
+  zh: 0e0281c7cc393dff
+/qilin-tool-ralph/model-experience/child-requests-and-parent-result/token-effect:
+  en: ab2d30ed91979cbc
+  zh: bb074b02c4b05e4f
+/qilin-tool-ralph/model-experience/child-requests-and-parent-result/kv-cache-effect:
+  en: 8f28959dc87d1f2f
+  zh: c034c5c0bdaf9bba
+/qilin-tool-ralph/known-limitations-and-deferred-work:
+  en: 922fd33532125ebb
+  zh: 27d508697ebc7668
+/qilin-tool-ralph/known-limitations-and-deferred-work/dev-note:
+  en: 8f24c317039e1974
+  zh: c6209969ad21f16c

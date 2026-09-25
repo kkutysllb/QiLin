@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for slots.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/slots.md
-slots.md: b55e12a13f8f0b64cbb07bb7b768b82aaf891aca
-slots.zh.md: 7935c406ec415afdb447a0ee05041f0485c2e553
+/web-client-slots:
+  en: 1b00f0c824e5450e
+  zh: ff43db5de61ba9f0
+/web-client-slots/declaration-and-lifecycle:
+  en: c3d672d5c0d19bdc
+  zh: dd8a480820e191df
+/web-client-slots/cardinality-and-scope:
+  en: 5b0ada069239576b
+  zh: 7e71ced7f17d78a6
+/web-client-slots/component-inputs:
+  en: 9cb70abb2e39b958
+  zh: cd4b6f1705d90e17
+/web-client-slots/framework-provided-hooks:
+  en: 2fcfc55fbac80f72
+  zh: ea3016f394c56b07
+/web-client-slots/developer-provided-injection:
+  en: 3264d8a561fb1b9c
+  zh: ef6fa19f94ac7a23
+/web-client-slots/current-hierarchy:
+  en: 8a4cc4b8608ce0f6
+  zh: 21281dcf047503b2
+/web-client-slots/extension-rules:
+  en: 52151be5226a47ef
+  zh: c0e72c41b8a94a1c

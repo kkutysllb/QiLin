@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-qilin-brand-surfaces-and-settings-entry-point.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-13-qilin-brand-surfaces-and-settings-entry-point.md
-2026-09-13-qilin-brand-surfaces-and-settings-entry-point.md: f38f859b2cbd4a6eac2a80ce2cbaa4545f64beda
-2026-09-13-qilin-brand-surfaces-and-settings-entry-point.zh.md: 0a52024c479241adc02d0dc68bb743e728eda867
+/agent-note-qilin-brand-surfaces-and-the-single-settings-entry-point:
+  en: 991271fbede192f1
+  zh: e3bb2310251028f9
+/agent-note-qilin-brand-surfaces-and-the-single-settings-entry-point/problem:
+  en: 1f07b050c19e2de0
+  zh: d29c0d550a4ca040
+/agent-note-qilin-brand-surfaces-and-the-single-settings-entry-point/decision:
+  en: da16209cb996a29c
+  zh: 0eb8dbabff273ad6
+/agent-note-qilin-brand-surfaces-and-the-single-settings-entry-point/alternatives-considered:
+  en: b899ca4df24eefa5
+  zh: 330f5039d9377693
+/agent-note-qilin-brand-surfaces-and-the-single-settings-entry-point/consequences:
+  en: 9f84f653cc4226bc
+  zh: 83c82229a036eebf

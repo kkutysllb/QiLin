@@ -1,6 +1,6 @@
 {
   "name": "@qilin/schedule",
-  "description": "Agent-scoped durable after, at, and fixed-rate reminders over the session event log",
+  "description": "Host-wide durable reminders with shared management and original-Session delivery",
   "version": "3.0.4",
   "publishConfig": {
     "access": "public"
@@ -30,27 +30,44 @@
       "default": "./lib/types/client.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    }
   },
   "files": [
     "lib/index.js",
     "lib/invariant.js",
     "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
   ],
   "license": "MIT",
   "peerDependencies": {
     "@qilin/agent": "workspace:*",
+    "@qilin/api-session-controller": "workspace:*",
     "@qilin/brand": "workspace:*",
     "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",
     "@qilin/session-projection": "workspace:*",
+    "@qilin/storage-domain": "workspace:*",
     "@qilin/tools": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
     "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
+    "@qilin/schemastery": "workspace:~",
+    "@js-temporal/polyfill": "0.5.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -58,6 +75,7 @@
     "@qilin/agent": "workspace:*",
     "@qilin/agent-loop": "workspace:*",
     "@qilin/agent-loop-testkit": "workspace:*",
+    "@qilin/api-session-controller": "workspace:*",
     "@qilin/brand": "workspace:*",
     "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
@@ -65,8 +83,12 @@
     "@qilin/session-persistence": "workspace:*",
     "@qilin/session-persistence-jsonl": "workspace:*",
     "@qilin/session-projection": "workspace:*",
+    "@qilin/storage": "workspace:*",
+    "@qilin/storage-domain": "workspace:*",
+    "@qilin/storage-json": "workspace:*",
     "@qilin/system-prompt": "workspace:*",
     "@qilin/tools": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
     "@qilin/kylin": "workspace:~"
   }
 }

@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-brand-official/README.md
-README.md: bd83a82febc706e4142f0383cad6c0e88e7af3a0
-README.zh.md: 89bf2e110a0d62f70f94996e001c8c2596148894
+/:
+  en: a04432eebdc794fd
+  zh: b24be060e8258946
+/qilin-client-ui-brand-official:
+  en: caaadfd83fe7273a
+  zh: 441ce334a97b5cef
+/qilin-client-ui-brand-official/summary:
+  en: 1953d02a8024a4ed
+  zh: c5579f840cfe8fdc
+/qilin-client-ui-brand-official/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-brand-official/use-this-package:
+  en: 716dc268f98996db
+  zh: 7372a67ef81a0d5e
+/qilin-client-ui-brand-official/use-this-package/choosing-the-profile:
+  en: 0ad84ad533a0b3a1
+  zh: 7b3aee7c95c8cd8d
+/qilin-client-ui-brand-official/use-this-package/replacing-the-brand:
+  en: 6a923aa630d01d65
+  zh: 5df0c24eebd9d0d0
+/qilin-client-ui-brand-official/understand-the-implementation:
+  en: 0405d69b9d19a7ae
+  zh: 16e1448309ea363b
+/qilin-client-ui-brand-official/further-exploration:
+  en: 810cc72a841b9f36
+  zh: 4265b618e220809a
+/qilin-client-ui-brand-official/model-experience:
+  en: 618008c7641070e7
+  zh: 7233febb4d92ccfb
+/qilin-client-ui-brand-official/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: f57cc48a1b5cbfa9
+/qilin-client-ui-brand-official/known-limitations-and-deferred-work:
+  en: 0d878dff0f86a84b
+  zh: 972b3dd214bf69fb
+/qilin-client-ui-brand-official/known-limitations-and-deferred-work/dev-note:
+  en: e368635c2e69b577
+  zh: 6b0fcfc1e089e5d6

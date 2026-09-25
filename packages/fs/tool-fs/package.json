@@ -55,6 +55,7 @@
     "@qilin/fs-observation-policy": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/sandbox": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/session": "workspace:*",

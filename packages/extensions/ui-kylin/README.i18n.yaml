@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/extensions/ui-kylin/README.md
-README.md: 44f4cf4c7e27eb5e2e9ddd222dcddad94827d80a
-README.zh.md: 9efd9c1bea60c6bc291752f2e5e40e1183bb55cc
+/:
+  en: 64e59d5fa5c7e820
+  zh: 52b08a80582a7399
+/qilin-client-ui-kylin:
+  en: 2e6a6aa32a4bdb02
+  zh: ba73381c2ba21f1d
+/qilin-client-ui-kylin/summary:
+  en: 314837b404d49c43
+  zh: 686fb31e31f5bf28
+/qilin-client-ui-kylin/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-kylin/use-this-package:
+  en: b2f4dd7bdcfa5fea
+  zh: 23e48220e532f98a
+/qilin-client-ui-kylin/use-this-package/what-the-panel-shows:
+  en: ba6b30addb75d9e3
+  zh: 77a658804b7476dc
+/qilin-client-ui-kylin/use-this-package/what-the-tool-cards-show:
+  en: 9facad523f1d48f3
+  zh: ba2b5f86c7199109
+/qilin-client-ui-kylin/use-this-package/boundaries-to-plan-around:
+  en: c76ace6595f805d6
+  zh: 53ee7e51823f367c
+/qilin-client-ui-kylin/understand-the-implementation:
+  en: e4e1b788078bcd0d
+  zh: 93d0cb3132fd2157
+/qilin-client-ui-kylin/understand-the-implementation/design-philosophy:
+  en: b27840fda9efefc6
+  zh: 53ed0401355290eb
+/qilin-client-ui-kylin/understand-the-implementation/source-map:
+  en: 09c2b97a405e1b8b
+  zh: c634ec6d86469acf
+/qilin-client-ui-kylin/understand-the-implementation/how-the-panel-stays-current:
+  en: cbcc34aa282d8739
+  zh: ad054d71184037e3
+/qilin-client-ui-kylin/further-exploration:
+  en: 2529fd6e21e2dfd2
+  zh: 945d7ed812f86379
+/qilin-client-ui-kylin/model-experience:
+  en: c9dce228e7b0710c
+  zh: edf38276ad463198
+/qilin-client-ui-kylin/model-experience/kv-cache-effect:
+  en: ec4562df89d18e78
+  zh: 30084e7fb8dee95d
+/qilin-client-ui-kylin/known-limitations-and-deferred-work:
+  en: 2c6442056e3ebf09
+  zh: e044816c5b1de5f0
+/qilin-client-ui-kylin/known-limitations-and-deferred-work/dev-note:
+  en: 82bc60a2bd964744
+  zh: 900679483cdbde4b

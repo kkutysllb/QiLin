@@ -11,7 +11,7 @@ import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 import MessageFeedback from '@qilin/message-feedback'
 import { recordFeedback } from '@qilin/command-feedback'
 import LlmRuntime, { createAssistantMessage, createUserMessage } from '@qilin/llm'
-import * as LlmDeepSeek from '@qilin/llm-deepseek'
+import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
 import DeepSeekLlmApiExtensions from '@qilin/deepseek-llm-api-extensions'
 import { startMockLlmServer, type MockLlmServer } from '@qilin/llm-mock-server'
 import * as SessionLogDeepSeek from '../src/index.ts'
@@ -41,7 +41,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     ['@qilin/session-persistence-jsonl', JsonlSessionPersistence],
     ['@qilin/message-feedback', MessageFeedback],
     ['@qilin/llm', LlmRuntime],
-    ['@qilin/llm-deepseek', LlmDeepSeek],
+    ['@qilin/llm-deepseek-api-key', LlmDeepSeek],
     ['@qilin/deepseek-llm-api-extensions', DeepSeekLlmApiExtensions],
     ['@qilin/session-log-deepseek', SessionLogDeepSeek],
   ])
@@ -52,7 +52,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
       ? { config: { root: join(root!, 'sessions'), compression: 'none' } }
       : name === '@qilin/message-feedback'
         ? { config: { maxNoteBytes: 1024 } }
-        : name === '@qilin/llm-deepseek'
+        : name === '@qilin/llm-deepseek-api-key'
           ? { config: { baseURL: server!.baseURL } }
           : name === '@qilin/session-log-deepseek'
             ? { config: { enabled: true } }

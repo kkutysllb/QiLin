@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-07-02-bilingual-docs-and-pairing-gate.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-07-02-bilingual-docs-and-pairing-gate.md
-2026-07-02-bilingual-docs-and-pairing-gate.md: 160f8fc34755deeb53c72fc915e15935e6bf0453
-2026-07-02-bilingual-docs-and-pairing-gate.zh.md: 07913f43e146815585e605e0eda3c7cd71cb4ec2
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate:
+  en: 92f8c69ec2697f8c
+  zh: 412188c1c9ac54df
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate/problem:
+  en: 5e758dcf2d09c2ca
+  zh: af4dab15fc158099
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate/decision:
+  en: fc8e880d608e5700
+  zh: d29ce7f2ec36e4bb
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate/verification:
+  en: 8fbf681b863a831c
+  zh: e5ba11a549a92612
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate/alternatives-considered:
+  en: 995a746c59ea7b6c
+  zh: 04a248329dc0d04b
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate/industry-precedent:
+  en: 6b5d62086bfd3868
+  zh: 219dad72943f590a
+/agent-note-bilingual-documentation-via-paired-sibling-files-and-a-pairing-gate/consequences:
+  en: 92c60965f81e4602
+  zh: d4e1485d29d72bf7

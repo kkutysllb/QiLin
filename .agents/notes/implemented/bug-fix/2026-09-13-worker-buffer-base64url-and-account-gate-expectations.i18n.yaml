@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-worker-buffer-base64url-and-account-gate-expectations.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-13-worker-buffer-base64url-and-account-gate-expectations.md
-2026-09-13-worker-buffer-base64url-and-account-gate-expectations.md: b645ca614749939cf139d0b4afc0a379b786746a
-2026-09-13-worker-buffer-base64url-and-account-gate-expectations.zh.md: cc45e4d36a92248532cc7e1d5f24e5f351065fba
+/agent-note-the-worker-buffer-s-base64url-spelling-and-the-account-surface-s-gate:
+  en: d8376d38114df546
+  zh: e1f22e85c6b1bd90
+/agent-note-the-worker-buffer-s-base64url-spelling-and-the-account-surface-s-gate/problem:
+  en: 56f8d2002909e2df
+  zh: 7cd7740f2ab7a6f8
+/agent-note-the-worker-buffer-s-base64url-spelling-and-the-account-surface-s-gate/decision:
+  en: 0b890dbb944899e8
+  zh: 745cd6332d879225
+/agent-note-the-worker-buffer-s-base64url-spelling-and-the-account-surface-s-gate/alternatives-considered:
+  en: 0fce8bbb29355b04
+  zh: ce8756c745ab7cd1
+/agent-note-the-worker-buffer-s-base64url-spelling-and-the-account-surface-s-gate/consequences:
+  en: f9188a6692f589e0
+  zh: 9b6191ac6bb0cebf

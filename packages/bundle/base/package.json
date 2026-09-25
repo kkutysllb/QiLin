@@ -62,7 +62,7 @@
     "@qilin/goal-round-driver": "workspace:*",
     "@qilin/api-gateway": "workspace:*",
     "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-deepseek-api-key": "workspace:*",
     "@qilin/llm-pi-ai": "workspace:*",
     "@qilin/llm-retry": "workspace:*",
     "@qilin/mcp-resources": "workspace:*",

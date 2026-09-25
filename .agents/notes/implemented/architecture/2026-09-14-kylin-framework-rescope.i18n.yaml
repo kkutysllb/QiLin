@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-kylin-framework-rescope.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-14-kylin-framework-rescope.md
-2026-09-14-kylin-framework-rescope.md: c6aa1c9c2ebb68f324f01d01f1ab17010bec99dc
-2026-09-14-kylin-framework-rescope.zh.md: 095decdea6b5c20750073612d13258bea6a7e26f
+/agent-note-kylin-framework-rescope:
+  en: 755c39a6013ea896
+  zh: a47386a581870ecb
+/agent-note-kylin-framework-rescope/problem:
+  en: 0a34308c10582e04
+  zh: bac7b6fde92d0aff
+/agent-note-kylin-framework-rescope/decision:
+  en: 37ed95a8ce58e772
+  zh: eb81849292e62c52
+/agent-note-kylin-framework-rescope/verification:
+  en: 983dc305a0afeff6
+  zh: 78263933fa51f5b1
+/agent-note-kylin-framework-rescope/alternatives-considered:
+  en: 088de309b2af4f45
+  zh: d56323c429420350
+/agent-note-kylin-framework-rescope/consequences:
+  en: 2b6a29a9c5150588
+  zh: 027fdce678523e6c

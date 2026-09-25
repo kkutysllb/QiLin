@@ -1,6 +1,58 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/fs/fs/README.md
-README.md: d3d7edb7a91951b65ccd03dff3b2c8d41f2c9adc
-README.zh.md: 59dd4de037043723f532f9074a463f724c066cb2
+/:
+  en: a94eb1470c498a2c
+  zh: cdd5faa0a8fcb562
+/qilin-fs:
+  en: 0302981d61c4750b
+  zh: af1118338ade3a7e
+/qilin-fs/summary:
+  en: af53aaae86b4fe66
+  zh: d048a6f95d0009b0
+/qilin-fs/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-fs/use-this-package:
+  en: c935aeef50118bbc
+  zh: 218ca6a49545668f
+/qilin-fs/use-this-package/choosing-and-mounting-a-backend:
+  en: 6644d749bb66bd8d
+  zh: 929dcc5cd4ee70ea
+/qilin-fs/use-this-package/what-the-service-lets-you-do:
+  en: 48aa680bb26e99c7
+  zh: 4f9b6e47292c233e
+/qilin-fs/understand-the-implementation:
+  en: 7e13d669ecc96d59
+  zh: b5fe7ae65812d926
+/qilin-fs/understand-the-implementation/design-philosophy:
+  en: 37041fefd9b2af0b
+  zh: b35df67e44d083a0
+/qilin-fs/understand-the-implementation/source-map:
+  en: 9507d7d9259fc89e
+  zh: aa500435e02e6de3
+/qilin-fs/understand-the-implementation/how-a-call-flows:
+  en: 6ce9e67b0f5653e5
+  zh: 6d974a760352417f
+/qilin-fs/understand-the-implementation/the-fs-policy-events:
+  en: 64bb44beb5e68508
+  zh: 306dafa5e3fe39af
+/qilin-fs/understand-the-implementation/invariants:
+  en: 15b98bc9800b6eae
+  zh: 434d9dd05fa1a332
+/qilin-fs/further-exploration:
+  en: bc28a173da8fd4db
+  zh: 9e981417d86b72a5
+/qilin-fs/model-experience:
+  en: cd1c5414ab00174f
+  zh: 6c7ce64b9e618f93
+/qilin-fs/model-experience/kv-cache-effect:
+  en: 40294c1c31b74824
+  zh: 0857e9b4dd363e0a
+/qilin-fs/known-limitations-and-deferred-work:
+  en: 4e3bf8d3729cb804
+  zh: bb4f1f86e7b14802
+/qilin-fs/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

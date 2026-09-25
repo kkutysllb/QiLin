@@ -14,7 +14,7 @@ The launcher names in `OPTIONAL_BUNDLES` (`packages/boot/app-boot/src/profile.ts
 
 Default-product isolation keeps its rules with one declared exception: an optional bundle's dependency graph is outside the default product. The static gate skips the `dependencies` edge from `@qilin/cli` to a listed bundle and still rejects a runtime import, a shipped composition, a preset, or a default template that names it, an experimental dependency the list does not name, and a listed name that is not a runtime dependency or not a bundle. The workspace-constraints check accepts the same `dependencies` edges and no other runtime section, and the packed-install release check skips them from the installed entry package while requiring each listed bundle to be installed.
 
-Agent Teams ships this way, as `@qilin/experimental-agent-team-profile` and `@qilin/experimental-agent-team-web-profile`. Auto review is a published experimental package the page's install guide names as its example, not an optional bundle.
+Agent Teams ships this way, as `@qilin/experimental-agent-team-profile` and `@qilin/experimental-agent-team-web-profile`. The [optional-bundle decision for experimental capabilities](../architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md) names the current list and the display metadata each entry carries.
 
 ## Alternatives considered
 

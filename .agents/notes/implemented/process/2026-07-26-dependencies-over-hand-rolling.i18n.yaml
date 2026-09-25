@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-07-26-dependencies-over-hand-rolling.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-07-26-dependencies-over-hand-rolling.md
-2026-07-26-dependencies-over-hand-rolling.md: 68cf6ff19dd97060416f2a0986335b53c9fe957f
-2026-07-26-dependencies-over-hand-rolling.zh.md: bb66aa082241543368892d4846b2638f9687f82a
+/agent-note-prefer-maintained-dependencies-over-hand-rolling:
+  en: 6fad47fae9798b92
+  zh: bd0859f61a6e350b
+/agent-note-prefer-maintained-dependencies-over-hand-rolling/problem:
+  en: a7de93e1fd5be7fd
+  zh: 6beeaa873f9ce3e3
+/agent-note-prefer-maintained-dependencies-over-hand-rolling/decision:
+  en: 40a124b703b10c8c
+  zh: a7901edc2caa86f8
+/agent-note-prefer-maintained-dependencies-over-hand-rolling/alternatives-considered:
+  en: c3575c5c8b4a6e51
+  zh: f20aa07eefed8a3b
+/agent-note-prefer-maintained-dependencies-over-hand-rolling/consequences:
+  en: c7dba8a6ff7a6d03
+  zh: c0825c791b7fec91

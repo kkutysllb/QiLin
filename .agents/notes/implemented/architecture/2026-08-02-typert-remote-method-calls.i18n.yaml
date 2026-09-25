@@ -1,6 +1,76 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-08-02-typert-remote-method-calls.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-02-typert-remote-method-calls.md
-2026-08-02-typert-remote-method-calls.md: e9366802ed276608c6d9ac3c486e4a45b04b1e1e
-2026-08-02-typert-remote-method-calls.zh.md: 3bff3d77a8d50f07354d6ef4e755a49a58d4abc5
+/agent-note-typert-gateway-targeted-method-calls:
+  en: 39d4d15dbbcfb454
+  zh: ed7dd65dd2d71cf6
+/agent-note-typert-gateway-targeted-method-calls/problem:
+  en: 14a83a0440499136
+  zh: 15587f8e821c5a17
+/agent-note-typert-gateway-targeted-method-calls/decision:
+  en: 44d946b53496974c
+  zh: 403447c25a5b2d7c
+/agent-note-typert-gateway-targeted-method-calls/components-and-cordis-services:
+  en: a4d42d3fcb8c0eb0
+  zh: 959af2006d7e5676
+/agent-note-typert-gateway-targeted-method-calls/business-declarations:
+  en: c6b70d442b137d2e
+  zh: 6d0dbefe89937ef1
+/agent-note-typert-gateway-targeted-method-calls/decorators-and-the-explicit-gateway-facet:
+  en: f7f54272bbdb7cc5
+  zh: 13abcfb65b7175b6
+/agent-note-typert-gateway-targeted-method-calls/lookup-and-remote-scope-registration:
+  en: 9f7448898cf5cadc
+  zh: 419573c589ed6f7d
+/agent-note-typert-gateway-targeted-method-calls/invocationdescriptor:
+  en: 61906baf257ab78e
+  zh: 893f3af68c96bd88
+/agent-note-typert-gateway-targeted-method-calls/typert-runtime-registry:
+  en: 14ad652e20e699ca
+  zh: 9272bc04a35e3c6a
+/agent-note-typert-gateway-targeted-method-calls/canonical-types-symbols-and-zod:
+  en: 4c178740f9c911e6
+  zh: 035fa6f1425c14b6
+/agent-note-typert-gateway-targeted-method-calls/three-artifact-kinds-and-two-typescript-programs:
+  en: 6ea4bddcf35a834d
+  zh: 4af474c6818b1cf0
+/agent-note-typert-gateway-targeted-method-calls/the-remote-package-entry:
+  en: 75e977fe0fb71d59
+  zh: 00760c79da173cb7
+/agent-note-typert-gateway-targeted-method-calls/strict-consumer-api-types:
+  en: 75b3c23b0c66d51a
+  zh: 722ba0ff172e6736
+/agent-note-typert-gateway-targeted-method-calls/client-typert-and-the-api-gateway-client-face:
+  en: 9dc732c13ffaee63
+  zh: 4977aaef0856956d
+/agent-note-typert-gateway-targeted-method-calls/cross-environment-isomorphism-constraints:
+  en: 5d14e1b7afc53efb
+  zh: e2f4b5814083738f
+/agent-note-typert-gateway-targeted-method-calls/src-and-lib-operating-modes:
+  en: 1e366dcfab74831b
+  zh: 14199f25f20a9352
+/agent-note-typert-gateway-targeted-method-calls/host-gateway-resolution:
+  en: 88a95d7ab4621caf
+  zh: 89b63fb6440fca79
+/agent-note-typert-gateway-targeted-method-calls/the-shared-api-call-chain:
+  en: 5de8fb2238b97d4e
+  zh: 3fbc50bb6dbe51a4
+/agent-note-typert-gateway-targeted-method-calls/connection-and-protocol-boundaries:
+  en: e8f9d48c42e27fb6
+  zh: 445bc192d67c71f1
+/agent-note-typert-gateway-targeted-method-calls/package-boundaries:
+  en: df2c448d3a0680eb
+  zh: 47327d4d26ec5887
+/agent-note-typert-gateway-targeted-method-calls/shipped-scope-and-deferred-work:
+  en: b1c0c3dd77c56ce8
+  zh: 769ffd4aeefd949c
+/agent-note-typert-gateway-targeted-method-calls/alternatives-considered:
+  en: 0d68c499b7780f4f
+  zh: bdd1e57232b996e2
+/agent-note-typert-gateway-targeted-method-calls/verification:
+  en: 7433bdb522bb2083
+  zh: 545c17613b636f00
+/agent-note-typert-gateway-targeted-method-calls/consequences:
+  en: 78c0429db2f828b5
+  zh: f11e854140fc3e9c

@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-09-turn-duration-hour-unit.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-09-turn-duration-hour-unit.md
-2026-09-09-turn-duration-hour-unit.md: f0f5cb478dafa7938614bdeeec3a6de9f58aed8d
-2026-09-09-turn-duration-hour-unit.zh.md: c9c94eef2a88a0f58d5f5a05332b4b5034ef977a
+/agent-note-turn-duration-labels-gain-an-hour-unit:
+  en: 0c3011d54c35f12d
+  zh: 82427ba66ad5e03c
+/agent-note-turn-duration-labels-gain-an-hour-unit/problem:
+  en: cd18cdf83a96a4da
+  zh: ee81ca1f56a44551
+/agent-note-turn-duration-labels-gain-an-hour-unit/decision:
+  en: 0fed1132579977cd
+  zh: bc30b3438bc8a73e
+/agent-note-turn-duration-labels-gain-an-hour-unit/alternatives-considered:
+  en: d45799bdc8c7143e
+  zh: 6a59ebea0ee4fbba
+/agent-note-turn-duration-labels-gain-an-hour-unit/consequences:
+  en: 81f85a5e6f26e59b
+  zh: 958c175aa85c02d0

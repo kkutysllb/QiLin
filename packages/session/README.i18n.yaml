@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/session/README.md
-README.md: d8ba013a8d2f6ae179291cec81876f4b1d383822
-README.zh.md: b1bc9f3e3684e84c2dc3677be2a502af881c83af
+/:
+  en: 4301d9cb9fc0a0e9
+  zh: 3127f24ac355656b
+/session-durable-session-data-plane:
+  en: 25411cc932ab73fd
+  zh: bed78d82812aefd1
+/session-durable-session-data-plane/summary:
+  en: 4cced6bd65f9b42c
+  zh: 1e5c5fd08f3e2655
+/session-durable-session-data-plane/table-of-contents:
+  en: 1eb35b015a6c423f
+  zh: a8a3dceee2c9e943
+/session-durable-session-data-plane/packages:
+  en: 7be50f4cafe40dab
+  zh: a6f06f187e686c05
+/session-durable-session-data-plane/packages/persistence:
+  en: 5e2879b970722448
+  zh: 5e6813876a3a9b79
+/session-durable-session-data-plane/packages/projection:
+  en: c7ca284bc659f462
+  zh: 512c9bc8e542a277
+/session-durable-session-data-plane/packages/titles:
+  en: a55fac33cf72bce2
+  zh: ad22610df9059233
+/session-durable-session-data-plane/packages/telemetry:
+  en: f5fdacf7dc2f3cb5
+  zh: a8f059f3e33b03a9
+/session-durable-session-data-plane/related-documentation:
+  en: c83f5b2ee14ea9f8
+  zh: f6d64fdcf6fb4910
+/session-durable-session-data-plane/dev-note:
+  en: b75c8458928b72b9
+  zh: 003ba4e17b4b5269

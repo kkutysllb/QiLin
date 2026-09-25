@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/speech-to-text-sensevoice/README.md
-README.md: 2f44315335b0b9318f2842afbb6a58d527b7674f
-README.zh.md: 13a36d96fc3d84d41fa60ba11c2a60247cc90281
+/:
+  en: 2c603fb20d2332f0
+  zh: 2efd7f2811fe18bb
+/qilin-experimental-speech-to-text-sensevoice:
+  en: 2d779fa5a7034c56
+  zh: 8dcf3f24679dec6e
+/qilin-experimental-speech-to-text-sensevoice/summary:
+  en: 3d96e31f42eec217
+  zh: 9738184df0d5c781
+/qilin-experimental-speech-to-text-sensevoice/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 364c80ee00a374ff
+/qilin-experimental-speech-to-text-sensevoice/use-this-package:
+  en: 7f75f22385cd319d
+  zh: e8f9dc3f7af4a16b
+/qilin-experimental-speech-to-text-sensevoice/understand-the-implementation:
+  en: 74f6f23853e74e18
+  zh: b8f7e82335d44fce
+/qilin-experimental-speech-to-text-sensevoice/further-exploration:
+  en: f28e8965407ec7b0
+  zh: 5e5e0fd8e8737a09
+/qilin-experimental-speech-to-text-sensevoice/model-experience:
+  en: 3c5a85f8b7129ce8
+  zh: d5f491ca88d9a810
+/qilin-experimental-speech-to-text-sensevoice/model-experience/kv-cache-effect:
+  en: b5ec79db2e1d0dbc
+  zh: e5aff567ae5ee6fc
+/qilin-experimental-speech-to-text-sensevoice/known-limitations-and-deferred-work:
+  en: c9a41fba4d25fe72
+  zh: 9453cca1d6806549
+/qilin-experimental-speech-to-text-sensevoice/known-limitations-and-deferred-work/dev-note:
+  en: 0225ba087c5266f3
+  zh: 4e706f1b2b984e63

@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write apps/desktop/tests/installed-update/publication/README.md
-README.md: d74892107052a11e01ae89316fad46f8c1b021fa
-README.zh.md: d4311fd05c6b5b9a360ea78edf8b56c5e4860c0b
+/:
+  en: d68b29f85e3467f2
+  zh: ab8af9ba530dbf58
+/test-update-upload-and-publication:
+  en: a3cfe2efbca2a332
+  zh: 553b54b32678e0b8
+/test-update-upload-and-publication/summary:
+  en: 1bfd00a24050f90f
+  zh: baecac1b319c7474
+/test-update-upload-and-publication/table-of-contents:
+  en: 852cb727f419695e
+  zh: 4923ccde4b312dc6
+/test-update-upload-and-publication/prerequisites:
+  en: cf2aafe5524add92
+  zh: 73116a4b24f0d2f1
+/test-update-upload-and-publication/operator-sequence:
+  en: 9c548a1c7d135824
+  zh: 8336b80fcc2157f4
+/test-update-upload-and-publication/evidence-and-recovery:
+  en: a34627fc81e143e3
+  zh: 5069e86f05987f4c
+/test-update-upload-and-publication/dev-note:
+  en: 6eb02d896722c4ca
+  zh: 9d08782425e6f1b0

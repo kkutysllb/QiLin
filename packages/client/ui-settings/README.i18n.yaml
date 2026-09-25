@@ -1,6 +1,55 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings/README.md
-README.md: e2b22f4aba4f6cbcf6708ed016fa28e1240d70c8
-README.zh.md: 52eebbbd31b19fafaa8e7c358c2a25a05c497587
+/:
+  en: 742836a3de7c0c22
+  zh: c0af061477b751ce
+/qilin-client-ui-settings:
+  en: 18328728f91ac899
+  zh: 5f5d5c9bc9cced76
+/qilin-client-ui-settings/summary:
+  en: 0404ff8b4ec867e0
+  zh: 9c3f03dfd1306cc9
+/qilin-client-ui-settings/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-client-ui-settings/use-this-package:
+  en: 2417d8409aad6ca7
+  zh: 449eee623a2f334b
+/qilin-client-ui-settings/use-this-package/binding-a-namespace:
+  en: b02b6dcb66004d18
+  zh: 28ff6e44560b594a
+/qilin-client-ui-settings/use-this-package/filling-the-settings-slots:
+  en: 68170d86a83a366a
+  zh: 33ae71bc2f3f6710
+/qilin-client-ui-settings/use-this-package/observable-success-and-failures:
+  en: 89653dbe1347b63e
+  zh: 78db241b28c9be64
+/qilin-client-ui-settings/understand-the-implementation:
+  en: 36deecb9bd4af281
+  zh: 52f7cadd2efa2037
+/qilin-client-ui-settings/understand-the-implementation/the-describe-mirror:
+  en: 2d8f3ff0f62e170f
+  zh: 9f8fd368b9f0e69b
+/qilin-client-ui-settings/understand-the-implementation/scope-derivation:
+  en: ce017c88b674ee6b
+  zh: 3d0dc433040381b7
+/qilin-client-ui-settings/understand-the-implementation/schema-service:
+  en: 2e933711aed70953
+  zh: 15ff849f66f9dbd7
+/qilin-client-ui-settings/further-exploration:
+  en: 2ce4e8d3a90e61ce
+  zh: 9b5510de7f4b320d
+/qilin-client-ui-settings/model-experience:
+  en: 3120df665299c634
+  zh: 1d9f365d091d0d2a
+/qilin-client-ui-settings/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-client-ui-settings/known-limitations-and-deferred-work:
+  en: b692f6ebe4291c07
+  zh: 85d896703dc94940
+/qilin-client-ui-settings/known-limitations-and-deferred-work/dev-note:
+  en: 26f0b742de49074e
+  zh: 71882cdcd21496b6

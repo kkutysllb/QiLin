@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for terminal.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/terminal.md
-terminal.md: 689f643e592ea1111b6a6a2130c4bf3d2cd78f8b
-terminal.zh.md: 4f428202a2e2486817258aba9069b1f0d87f32c7
+/persistent-pty-sessions:
+  en: cfff7106ea916c3e
+  zh: 2da7edf0db715dcc
+/persistent-pty-sessions/identity-and-readiness:
+  en: d2b0f4a2ea428e95
+  zh: 732e30b50b24a1cd
+/persistent-pty-sessions/backend-and-live-session:
+  en: 327d7a0e306ceb35
+  zh: 3ad5ef2c23413cdd
+/persistent-pty-sessions/send-and-retained-output:
+  en: c895ec190cf3e5d8
+  zh: 6fc443e08946e17d
+/persistent-pty-sessions/ownership-and-durability:
+  en: 5604e1d1c450882a
+  zh: b97d925978aad7e2

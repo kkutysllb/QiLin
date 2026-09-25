@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-04-right-sidebar-docking-infrastructure.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-04-right-sidebar-docking-infrastructure.md
-2026-09-04-right-sidebar-docking-infrastructure.md: f2f64d96bf7784965d6585a8ccf4f723a7efaaeb
-2026-09-04-right-sidebar-docking-infrastructure.zh.md: 90ca1626e487318c8fcc54e96ccf85672529c989
+/agent-note-right-sidebar-docking-infrastructure:
+  en: 16809591cc77e1bb
+  zh: 507fd1f0f21c3464
+/agent-note-right-sidebar-docking-infrastructure/problem:
+  en: dae256ae605900f2
+  zh: 11e9c51126ad836c
+/agent-note-right-sidebar-docking-infrastructure/decision:
+  en: c96a41ee3e95415e
+  zh: ebd627f9dc35a7a6
+/agent-note-right-sidebar-docking-infrastructure/decision/package-topology:
+  en: cb60723da59f606a
+  zh: 080ec832651e7c6f
+/agent-note-right-sidebar-docking-infrastructure/decision/layout-engine:
+  en: af79bc03cd8e8f72
+  zh: 88145221570301bf
+/agent-note-right-sidebar-docking-infrastructure/decision/the-frame-s-right-column:
+  en: 57696811d3be6329
+  zh: d0e612699766f391
+/agent-note-right-sidebar-docking-infrastructure/decision/state:
+  en: 8cbed823fdca3a50
+  zh: 1d0dee1958a7c84a
+/agent-note-right-sidebar-docking-infrastructure/decision/beyond-the-surface:
+  en: 234a8435888a7391
+  zh: 549a5ff5c9d5983e
+/agent-note-right-sidebar-docking-infrastructure/decision/entry-points-and-removals:
+  en: 900eb83e71cfed81
+  zh: a5741261641dc189
+/agent-note-right-sidebar-docking-infrastructure/alternatives-considered:
+  en: 6c1041ab60eabc12
+  zh: bc37081edbbe8203
+/agent-note-right-sidebar-docking-infrastructure/consequences:
+  en: 7348e8d6550675fa
+  zh: 67e9d95f8fdf19c1
+/agent-note-right-sidebar-docking-infrastructure/testing:
+  en: c7ca930dede9f819
+  zh: 44c76a4faefe7268
+/agent-note-right-sidebar-docking-infrastructure/deferred:
+  en: b57120af1c7eb518
+  zh: 0c07cd1765d251bc

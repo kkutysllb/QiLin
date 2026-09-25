@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-14-composer-selection-keyboard.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-14-composer-selection-keyboard.md
-2026-09-14-composer-selection-keyboard.md: fb353a7072e7c2245aeeb22af9018edd9a6009f0
-2026-09-14-composer-selection-keyboard.zh.md: f51e5ca5096785ae6d059e3c8497292483490437
+/agent-note-composer-selection-surfaces-mirror-the-composer-s-enter-and-escape-keys:
+  en: 327aa2ef542fe62b
+  zh: 757c79d1f1eda515
+/agent-note-composer-selection-surfaces-mirror-the-composer-s-enter-and-escape-keys/problem:
+  en: e5f4084d8eda4d0e
+  zh: 4dc98999d008fecd
+/agent-note-composer-selection-surfaces-mirror-the-composer-s-enter-and-escape-keys/decision:
+  en: 1e0f4ae903fb6ec7
+  zh: 4ca8dd23e07277f9
+/agent-note-composer-selection-surfaces-mirror-the-composer-s-enter-and-escape-keys/alternatives-considered:
+  en: f062131fb8b9cbcf
+  zh: a14b718ed6381b3f
+/agent-note-composer-selection-surfaces-mirror-the-composer-s-enter-and-escape-keys/verification:
+  en: 581236a7a690b918
+  zh: e572aa19e6d6a4ac
+/agent-note-composer-selection-surfaces-mirror-the-composer-s-enter-and-escape-keys/consequences:
+  en: 1310807e3a7a259d
+  zh: c35aca580ee553b7

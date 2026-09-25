@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-13-workflow-ptc-sandbox-reuse.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md
-2026-09-13-workflow-ptc-sandbox-reuse.md: eb17f52cdb8cfeef74734cd6a15ad1a5f59c7f2d
-2026-09-13-workflow-ptc-sandbox-reuse.zh.md: 508779d692b95dab1f7f4623816f2812d9744786
+/agent-note-reuse-the-ptc-node-sandbox-for-workflows:
+  en: ddf423ffe4a0db38
+  zh: 684c640f1a27bc0b
+/agent-note-reuse-the-ptc-node-sandbox-for-workflows/problem:
+  en: 42235162e945e015
+  zh: 4edc5633720cd6cc
+/agent-note-reuse-the-ptc-node-sandbox-for-workflows/decision:
+  en: 269c563e28b9f905
+  zh: 0f53d9e958699d65
+/agent-note-reuse-the-ptc-node-sandbox-for-workflows/alternatives-considered:
+  en: 56d9a25713227146
+  zh: 2cd89bf6ccc3b3bd
+/agent-note-reuse-the-ptc-node-sandbox-for-workflows/consequences:
+  en: e650b834a6f6a3f2
+  zh: de677719cdd49047

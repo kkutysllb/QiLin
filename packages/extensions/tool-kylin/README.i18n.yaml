@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/extensions/tool-kylin/README.md
-README.md: e366d6eb3b9aeccefb84051aed7ff839e1e73847
-README.zh.md: 91fab9c72544caf31601394c60b1a54bb26af04e
+/:
+  en: 784a82be07311e99
+  zh: 85d917ecc6386ec9
+/qilin-tool-kylin:
+  en: 71879270d21bfdb7
+  zh: 7dac53baa714b421
+/qilin-tool-kylin/summary:
+  en: 67a4c1c60139c771
+  zh: 28865575569ece03
+/qilin-tool-kylin/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 3a2f21ff0dc3420d
+/qilin-tool-kylin/use-this-package:
+  en: f09f499b6dc475c1
+  zh: 9c92dba6cdca3ca5
+/qilin-tool-kylin/understand-the-implementation:
+  en: cf89ca2a6785f52b
+  zh: 706d46b24906f3e7
+/qilin-tool-kylin/further-exploration:
+  en: aa15eb717fed1c36
+  zh: d4bc4ca328628ea6
+/qilin-tool-kylin/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tool-kylin/model-experience/runtime-inspection:
+  en: 72ffb7cae674c31a
+  zh: 85674f298a78592a
+/qilin-tool-kylin/model-experience/runtime-inspection/what-the-model-sees:
+  en: f6374eba54b0e70e
+  zh: f403ede6134a32c3
+/qilin-tool-kylin/model-experience/runtime-inspection/token-effect:
+  en: bf64325845e8a14c
+  zh: d68b010f0f6a4593
+/qilin-tool-kylin/model-experience/runtime-inspection/kv-cache-effect:
+  en: 3fbcd1610c7462e8
+  zh: 885574a33bc57b10
+/qilin-tool-kylin/known-limitations-and-deferred-work:
+  en: 315d42bfb8874275
+  zh: 5a764d97328484f3
+/qilin-tool-kylin/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

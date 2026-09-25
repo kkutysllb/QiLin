@@ -1,6 +1,10 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for dynamic-kylin.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/develop/practice/dynamic-kylin.md
-dynamic-kylin.md: f7cb76ab83e1142ef359272e2d5a2edf04c46f5b
-dynamic-kylin.zh.md: cd1cf14251b476b0d9e1ddfd0fe14830fd9f70f2
+/configure-persistent-plugins-from-a-prompt:
+  en: e79819983c45b8f6
+  zh: 63f64b458b35038c
+/configure-persistent-plugins-from-a-prompt/connect-an-mcp-server:
+  en: 29f4dbdeaa1804b3
+  zh: 2a2316f95bde8feb

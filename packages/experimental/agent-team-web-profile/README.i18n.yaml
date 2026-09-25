@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/agent-team-web-profile/README.md
-README.md: 978e988577294de28ffde826744a811cf5ba4d25
-README.zh.md: bf83a5490ce932332069ea74389317f527d8ea2f
+/:
+  en: 7417b72ee953318c
+  zh: 39a963cf65ea2afb
+/qilin-experimental-agent-team-web-profile:
+  en: 82ea4555ba860e13
+  zh: cd0b3c0206970373
+/qilin-experimental-agent-team-web-profile/summary:
+  en: 1289b5444a00c86a
+  zh: 0baafd93946b82d2
+/qilin-experimental-agent-team-web-profile/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-experimental-agent-team-web-profile/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/qilin-experimental-agent-team-web-profile/use-this-package/install-into-a-profile:
+  en: 4ba14342150bf8c5
+  zh: 513e649c15d97ef9
+/qilin-experimental-agent-team-web-profile/use-this-package/what-you-get:
+  en: cbede6328fb34f27
+  zh: ab935eeda0ec2d5c
+/qilin-experimental-agent-team-web-profile/understand-the-implementation:
+  en: ad09dfcddb898774
+  zh: a8e9b0dfccba0304
+/qilin-experimental-agent-team-web-profile/further-exploration:
+  en: bfb808d3378bbb6c
+  zh: 3f9264aa0028c004
+/qilin-experimental-agent-team-web-profile/model-experience:
+  en: 78597e4915ffb252
+  zh: d80cf9e16ffcd829
+/qilin-experimental-agent-team-web-profile/model-experience/kv-cache-effect:
+  en: fd005940699dac76
+  zh: c9e14e07b9c3fb58
+/qilin-experimental-agent-team-web-profile/known-limitations-and-deferred-work:
+  en: 8869f80cd905099e
+  zh: 52924c7a5387c2e7
+/qilin-experimental-agent-team-web-profile/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

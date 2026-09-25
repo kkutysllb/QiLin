@@ -1,6 +1,61 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/test-support/llm-mock-server/README.md
-README.md: 72afed0adcfde3d970c23a553a4330d7aab0dbdd
-README.zh.md: 48aec86d90c0fb63aa5c25cbe2ee8b72ffab59d6
+/:
+  en: 0325d862894a8a30
+  zh: e4255cda707cb7e6
+/qilin-llm-mock-server:
+  en: 4499c81cc5fa594f
+  zh: f8176b4da2b2f474
+/qilin-llm-mock-server/summary:
+  en: 4b953e4f715dab15
+  zh: 848741fc14d43cdc
+/qilin-llm-mock-server/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-llm-mock-server/use-this-package:
+  en: 63ee5ceab28cd036
+  zh: d0028db082c0eb66
+/qilin-llm-mock-server/use-this-package/running-it-standalone:
+  en: fb03795caf1a8c60
+  zh: 4fe448d9610186fb
+/qilin-llm-mock-server/use-this-package/scripting-behaviors:
+  en: 6b7a2b230324c945
+  zh: b90a504e7eef1ed6
+/qilin-llm-mock-server/use-this-package/random-mode:
+  en: 8287cedf469f450f
+  zh: cdf4509f60441983
+/qilin-llm-mock-server/use-this-package/timing-and-content-controls:
+  en: 05b2d4a2c0cfe312
+  zh: bbf3c58c49a63a55
+/qilin-llm-mock-server/use-this-package/what-can-go-wrong:
+  en: d8fdcce3d03cc0c0
+  zh: 19d44b1c18803a26
+/qilin-llm-mock-server/understand-the-implementation:
+  en: 14ffdce5018881ec
+  zh: 7701df55150a8704
+/qilin-llm-mock-server/understand-the-implementation/design:
+  en: 847d645191185889
+  zh: 2017ce9a93db2326
+/qilin-llm-mock-server/understand-the-implementation/source-map:
+  en: b2ed23d5129e5bf8
+  zh: 3b4c782b56e024db
+/qilin-llm-mock-server/understand-the-implementation/wire-flow:
+  en: 34abeb79b2e0cdcd
+  zh: d175185e4f1cc190
+/qilin-llm-mock-server/further-exploration:
+  en: 8fe25a5411fa13e6
+  zh: b19f6b2cdf46606c
+/qilin-llm-mock-server/model-experience:
+  en: cab9e731c97838bd
+  zh: 9a540b7a27929ea9
+/qilin-llm-mock-server/model-experience/kv-cache-effect:
+  en: 59d1d037a1ddde08
+  zh: 08a72ec95d5bf454
+/qilin-llm-mock-server/known-limitations-and-deferred-work:
+  en: 968ce23ce200caf5
+  zh: 953408a424bc0297
+/qilin-llm-mock-server/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

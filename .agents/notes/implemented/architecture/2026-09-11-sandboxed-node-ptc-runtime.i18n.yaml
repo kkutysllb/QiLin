@@ -1,6 +1,31 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-11-sandboxed-node-ptc-runtime.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-11-sandboxed-node-ptc-runtime.md
-2026-09-11-sandboxed-node-ptc-runtime.md: cf6002d733c477dc6fdce80dc6652454a5d44ae8
-2026-09-11-sandboxed-node-ptc-runtime.zh.md: fef23bdfd397ee775ac64a8ae5649fba16cad757
+/agent-note-sandboxed-node-execution-for-ptc:
+  en: 871cda145f2c31ce
+  zh: d22a3f925d27f63d
+/agent-note-sandboxed-node-execution-for-ptc/problem:
+  en: 2844e9df5dd2c232
+  zh: 8b3e51e3a932ad83
+/agent-note-sandboxed-node-execution-for-ptc/decision:
+  en: 5499abefd8f67afe
+  zh: 1f64ee16defde4af
+/agent-note-sandboxed-node-execution-for-ptc/decision/resolved-inputs-and-policy:
+  en: e93df995efab569a
+  zh: 850daf02d1207028
+/agent-note-sandboxed-node-execution-for-ptc/decision/control-and-lifetime:
+  en: 2c7a694b04951772
+  zh: 133b95b0477b127f
+/agent-note-sandboxed-node-execution-for-ptc/decision/resource-limits:
+  en: b4e47d818336557c
+  zh: cf812e896b5ef3cf
+/agent-note-sandboxed-node-execution-for-ptc/alternatives-considered:
+  en: 8ffcc2b32a2243d7
+  zh: 81d48d38947abc76
+/agent-note-sandboxed-node-execution-for-ptc/consequences:
+  en: c0aa3a23a03ba234
+  zh: 257c7d35a17abbea
+/agent-note-sandboxed-node-execution-for-ptc/deferred-timeout-design:
+  en: 455d66252cd23253
+  zh: bf3839a13dbaaab5

@@ -1,6 +1,73 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/settings/settings/README.md
-README.md: 8e16e3b15d334df178cc6d2cd9ec03ad298213e1
-README.zh.md: dfc284052ae3028679fea19b8e8f05f0c5f9bb9b
+/:
+  en: aeac4ca34caf87ae
+  zh: ddf72f847dfb85d0
+/qilin-settings:
+  en: d8e419dbcf584ed3
+  zh: d9541a4cf762e4e6
+/qilin-settings/summary:
+  en: 473ed9bed3894114
+  zh: 82e67a763a00bdea
+/qilin-settings/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-settings/use-this-package:
+  en: 80c6c32d31829da3
+  zh: e955767b15d45f3c
+/qilin-settings/use-this-package/when-to-choose-it:
+  en: 3a8409419dd306eb
+  zh: b56e782b45dfa9c2
+/qilin-settings/use-this-package/mounting-a-provider:
+  en: fbca706c0a5ef1d9
+  zh: 06ba04691305ef92
+/qilin-settings/use-this-package/registering-a-namespace:
+  en: dc4ccccf5c9c7669
+  zh: 70ffed7dfc05d9cc
+/qilin-settings/use-this-package/reading-and-observing-values:
+  en: dc3bf5534bd298fe
+  zh: 145c4d484789d3cd
+/qilin-settings/use-this-package/writing-values:
+  en: ba8b4b2b5c3f7856
+  zh: 19e33c136d15daa7
+/qilin-settings/use-this-package/configuration-surfaces:
+  en: c4483a8a5704233f
+  zh: 1acc450f46828294
+/qilin-settings/use-this-package/events-and-failures:
+  en: cfe0631ffe33c8e2
+  zh: 764515dca44920e2
+/qilin-settings/understand-the-implementation:
+  en: 6a18034f1ccc247a
+  zh: e08b0eb0ccb41ea8
+/qilin-settings/understand-the-implementation/design-philosophy:
+  en: 2db3f3f25206b511
+  zh: 45e85df33e231901
+/qilin-settings/understand-the-implementation/source-map:
+  en: 2304f4453beea1a2
+  zh: 63bfd35ab36d68e9
+/qilin-settings/understand-the-implementation/resolution-and-write-paths:
+  en: 2f1c0ad893ead85c
+  zh: add384925a641ae0
+/qilin-settings/understand-the-implementation/change-detection-and-events:
+  en: 1947c9be1c3e44ca
+  zh: 2eea5704a5ef9d8d
+/qilin-settings/understand-the-implementation/client-safe-types:
+  en: 7130eed21c22f188
+  zh: a664bccaa2438a51
+/qilin-settings/further-exploration:
+  en: 9e256a77efc22d09
+  zh: 267534bc7349edea
+/qilin-settings/model-experience:
+  en: bfe74a4235da7968
+  zh: 1ef78930d003a3e9
+/qilin-settings/model-experience/kv-cache-effect:
+  en: d8fa18fc74ed1024
+  zh: eac0f0623400a4db
+/qilin-settings/known-limitations-and-deferred-work:
+  en: 183932f4f078b23e
+  zh: a7f89b9ead831cfe
+/qilin-settings/known-limitations-and-deferred-work/dev-note:
+  en: 68ca3cfcb228078f
+  zh: d7343faaf32672bf

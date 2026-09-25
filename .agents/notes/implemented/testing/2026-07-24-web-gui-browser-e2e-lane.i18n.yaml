@@ -1,6 +1,46 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-07-24-web-gui-browser-e2e-lane.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/testing/2026-07-24-web-gui-browser-e2e-lane.md
-2026-07-24-web-gui-browser-e2e-lane.md: b08d99a7d750bdeabac3dcbb7007e922d32dbdcd
-2026-07-24-web-gui-browser-e2e-lane.zh.md: fbb92a094bbd14042d33e5ebd20d2d3ffd490d43
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui:
+  en: 7cf8a3da8fb21fd4
+  zh: a0434bb4b7b14d4e
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/problem:
+  en: a7d89e189dc81e41
+  zh: 918b918319c6ae57
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision:
+  en: 8542245742e142b2
+  zh: 0d2aa862b9271385
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision/scaffold-apps-web-tests-scaffold-ts:
+  en: 151967c67667cc90
+  zh: d7e23fb09c5d202d
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision/determinism-rules:
+  en: 0029b35015f5512e
+  zh: d1d09c3625328930
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision/expected-outputs:
+  en: ca1ae9ccbeab8c01
+  zh: 662cd5d98ee20ccc
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision/modes-and-fixtures:
+  en: 54f10befeaaade72
+  zh: 3a7726c1f4be51cc
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision/coverage-contract:
+  en: c529437d4fbaeeb3
+  zh: fe13551e56cba7df
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/decision/ci-stance:
+  en: 5353df5b442bcced
+  zh: 82d43af37760a86c
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/prior-art:
+  en: 7472e212043721dd
+  zh: 61dd9f5a8e12730b
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/alternatives-considered:
+  en: 5bd57b3dbacd8380
+  zh: a154f27d93930f77
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/testing:
+  en: f4459a24f56c9cfe
+  zh: a15bdc45785ed7e8
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/deferred:
+  en: aef84d3933bb72a1
+  zh: 1cc5e2f1c9bcccf9
+/agent-note-keyless-browser-e2e-lane-for-the-web-gui/consequences:
+  en: 73622b86e77b2089
+  zh: 1622436991215ca9
