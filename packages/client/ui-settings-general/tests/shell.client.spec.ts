@@ -52,7 +52,7 @@ const PRODUCT_ONBOARDING: readonly { id: string; order: number }[] = [
 
 describe('ui-settings-general shell', () => {
   it('declares its services', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection', 'shortcuts'])
+    expect(inject).toEqual(['slots', 'locale', 'connection', 'shortcuts', 'remote', 'remote.settings', 'settingsScope', 'developerTools'])
   })
 
   it('occupies sidebar.settings, declared by ui-sidebar, and declares every child slot', async ({ start }) => {

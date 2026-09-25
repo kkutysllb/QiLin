@@ -114,7 +114,7 @@
   padding: 9px 16px 9px 12px;
   box-sizing: border-box;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--dsw-radius-md);
   background: transparent;
   cursor: pointer;
   font-family: inherit;
@@ -202,7 +202,7 @@
   background: var(--dsw-alias-interactive-bg-hover);
 }
 
-/* Close button (figma .Icon_container 501:29982): 28x28, r28, 14px glyph. */
+/* Compact close control. */
 .close {
   display: inline-flex;
   align-items: center;
@@ -211,7 +211,7 @@
   height: 28px;
   padding: 0;
   border: none;
-  border-radius: 28px;
+  border-radius: var(--dsw-radius-sm);
   background: transparent;
   cursor: pointer;
   color: var(--dsw-alias-label-primary);

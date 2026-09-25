@@ -24,6 +24,7 @@ import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
 import type { KeyedSnapshotSelectorHook, SnapshotSelectorHook } from '@qilin/client-ui-slots'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
+import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { createChatStore } from '../src/client/stores.ts'
@@ -270,6 +271,7 @@ function makeHarness(
   // Rows and the harness must observe the same chat-store instance.
   const chat = createChatStore().create()
   const transcriptView = createSnapshotStore<TranscriptViewMode>('compact')
+  const presentation = derivePresentationPolicy(transcriptView)
   const t = makeTranslate(zh, commonZh)
   const toolOwners: Array<{
     callId: string
@@ -401,7 +403,7 @@ function makeHarness(
     },
     useStore: bindSnapshotSelector(chat),
     actions: chat.actions,
-    useTranscriptView: bindSnapshotSelector(transcriptView),
+    usePresentation: bindSnapshotSelector(presentation),
     renderSlot,
     SessionProvider: SessionProviderStub,
     openTrajectory,
@@ -1572,7 +1574,7 @@ describe('ChatView', () => {
     expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
     expect(processRow.getAttribute('hidden')).toBe('until-found')
 
-    act(() => { h.setTranscriptView('normal') })
+    act(() => { h.setTranscriptView('verbose') })
     expect(turnProcessControl(view.container)).toBeNull()
     expect(processRow.getAttribute('hidden')).toBeNull()
 

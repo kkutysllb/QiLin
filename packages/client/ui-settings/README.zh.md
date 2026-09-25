@@ -31,6 +31,10 @@ kind: "package-reference"
 
 功能调用 `ctx.settingsScope.bind(spec)` 并传入按命名空间的 spec，得到一个由共享文档镜像派生的 scope。scope 快照携带解析后的分区、组合 `base`、原始 `user`、revision、可写性以及 host/内存模式；字段只要出现在 `user` 中即视为覆盖，即使其值与 `base` 相等，`unset` 会清除该覆盖。写入经 scope 进行：`set` 与 `unset` 提交一个操作，`mutate` 则原子提交多个有序操作。每次写入都以命名空间 revision 作为 `expectedRevision` 围栏，因此来自另一界面的并发写入会被拒绝，而不是被静默覆盖。暂存编辑器可以把开始草拟时读取的 revision 作为固定围栏传入；否则 scope 使用最新排队或镜像 revision。
 
+### 共享的开发者工具偏好
+
+`ctx.developerTools` 管理代码工作工具开关，背后是共享的 `ui-settings.enabled` 偏好，默认为 `true`。其 `enabled` 可观察值发布已接受的选择，`setEnabled` 经同一有序 scope 写入；使用 Host 偏好的客户端在首个经过 schema 解析并接受的值到达前保持开发者功能关闭，远程浏览器则把该选择保存在单个浏览器本地可观察值中，刷新后重置。[ui-settings-general](../ui-settings-general/README.zh.md#use-this-package) 渲染该开关。
+
 ### 填充设置 slot
 
 设置界面会注册进本包声明的 slot 类型。外壳（`sidebar.settings` 占位方、导航、界面框架）位于 ui-settings-general；功能页面注册 `settings.section` 贡献；「插件」分区承载 `settings.plugins.tab` 页面；首次使用引导步骤注册 `settings.onboarding`。外壳自有的「关于」页面渲染 `settings.about.mark`；QiLin 品牌包为该标识席位提供印章。跨命名空间的表面（schema 内省、已服务命名空间目录、`hasDocument`）通过 `ctx.settingsScope.describe()` 读同一面镜像。

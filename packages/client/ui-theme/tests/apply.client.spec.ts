@@ -8,11 +8,12 @@ import { LocaleRuntime } from '@qilin/client-locale/client'
 import { TestRemote } from '@qilin/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
 import { apply, inject, SETTINGS_NS } from '@qilin/client-ui-theme/client'
-import type { FontSizeRowInjected, LineSpacingRowInjected, ThemeRuntime } from '@qilin/client-ui-theme/client'
+import type { AppearanceRowInjected, FontSizeRowInjected, LineSpacingRowInjected, ThemeRuntime } from '@qilin/client-ui-theme/client'
 import { THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema } from '../src/theme-settings.ts'
+import { AppearanceRow } from '../src/client/AppearanceRow.tsx'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'
 import { LineSpacingRow } from '../src/client/LineSpacingRow.tsx'
-import type { createTypographyRowStore } from '../src/client/settings-store.ts'
+import type { createAppearanceRowStore, createTypographyRowStore } from '../src/client/settings-store.ts'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
 // so browser-language detection never runs and a fresh LocaleRuntime opens on
@@ -82,15 +83,19 @@ describe('ui-theme apply', () => {
     expect(inject).toEqual(['slots', 'locale', 'remote', 'settingsScope'])
   })
 
-  it('provides the service, registers localized copy, and registers both typography rows (declaration before or after apply)', async () => {
+  it('provides the service, registers localized copy, and registers the appearance and typography rows (declaration before or after apply)', async () => {
     const before = await bench()
     declareItems(before.slots)
     await before.ctx.plugin({ inject: [...inject], apply }).await()
+    expect(before.locale.bind(SETTINGS_NS)('appearance.title')).toBe('外观')
     expect(before.locale.bind(SETTINGS_NS)('fontSize.title')).toBe('字号大小')
     expect(before.locale.bind(SETTINGS_NS)('leading.title')).toBe('行间距')
     before.locale.setLocale('en')
     expect(before.locale.bind(SETTINGS_NS)('fontSize.title')).toBe('Font size')
     expect(before.locale.bind(SETTINGS_NS)('leading.title')).toBe('Line spacing')
+    const appearanceEntry = before.slots.entries(SLOT).find(e => e.component === AppearanceRow)!
+    expect(appearanceEntry.options).toMatchObject({ id: 'appearance', order: 10 })
+    expect(appearanceEntry.locale).toBe(SETTINGS_NS)
     const fontEntry = before.slots.entries(SLOT).find(e => e.component === FontSizeRow)!
     expect(fontEntry.options).toMatchObject({ id: 'font-size', order: 11 })
     expect(fontEntry.locale).toBe(SETTINGS_NS)
@@ -105,6 +110,27 @@ describe('ui-theme apply', () => {
     declareItems(after.slots)
     await Promise.resolve()
     expect(after.slots.entries(SLOT).some(e => e.component === FontSizeRow)).toBe(true)
+    expect(after.slots.entries(SLOT).some(e => e.component === AppearanceRow)).toBe(true)
+  })
+
+  it('mirrors the persisted preference into the appearance row and routes face writes back', async () => {
+    const b = await bench()
+    declareItems(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const theme = b.ctx.get('theme') as ThemeRuntime
+    theme.setTheme('dark')
+
+    const entry = b.slots.entries(SLOT).find(e => e.component === AppearanceRow)!
+    const handle = entry.store as ReturnType<typeof createAppearanceRowStore>
+    const instance = handle.create()
+    const face = (entry.inject as unknown as (a: typeof instance.actions) => AppearanceRowInjected)(instance.actions)
+    // The inject-time re-sync sealed the init window: the mirror is current.
+    expect(instance.getSnapshot().preference).toBe('dark')
+
+    face.setTheme('light')
+    expect(theme.getTheme().preference).toBe('light')
+    expect(instance.getSnapshot().preference).toBe('light')
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalled() })
   })
 
   it('projects theme snapshots into both row stores and routes face writes back', async () => {
@@ -214,7 +240,7 @@ describe('ui-theme apply', () => {
     const b = await bench()
     const host = declareItems(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(b.slots.entries(SLOT)).toHaveLength(2)
+    expect(b.slots.entries(SLOT)).toHaveLength(3)
 
     // Collapse: the declarer dies, the cascade removes our entries while the
     // apply closure still holds its (now stale) disposers.
@@ -232,7 +258,7 @@ describe('ui-theme apply', () => {
     declareItems(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
-    expect(b.slots.entries(SLOT)).toHaveLength(2)
+    expect(b.slots.entries(SLOT)).toHaveLength(3)
     await fiber.dispose()
     expect(b.slots.entries(SLOT)).toHaveLength(0)
     // Dictionary disposal: translation falls back to the bare key.

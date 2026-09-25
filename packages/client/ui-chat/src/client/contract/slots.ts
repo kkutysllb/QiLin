@@ -9,7 +9,6 @@ import type {
   InjectFace, KeyedSnapshotSelectorHook, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
   SlotHookFactory, SnapshotSelectorHook,
 } from '@qilin/client-ui-slots'
-import type { SnapshotStore } from '@qilin/client-store'
 import type { MarkdownFileMentions } from '@qilin/client-ui-primitives'
 import type {} from '@qilin/client-ui-layout/client'
 import type { createChatStore } from '../stores.ts'
@@ -19,7 +18,8 @@ import type {
   ChatNodeProcessSource, ChatNodeSource, ChatSnapshot, ChatTurnProcessPresentation,
 } from './snapshot.ts'
 import type { TurnProcessSpec } from './turn-process.ts'
-import type { TranscriptViewMode } from '../../chat-settings.ts'
+import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ChatPresentationPolicy } from '../presentation-policy.ts'
 
 /** Selector hook over the current Conversation binding's Chat target. */
 export type UseChat = SnapshotSelectorHook<ChatSnapshot>
@@ -131,8 +131,8 @@ export interface ChatScrollPosition {
 /** Business callbacks injected into the Chat view. */
 export interface ChatViewInjected {
   hooks: {
-    /** Persisted completed-Turn transcript presentation. */
-    transcriptView: SnapshotStore<TranscriptViewMode>
+    /** Live presentation policy derived from the accepted work-details mode. */
+    presentation: ObservableSnapshot<ChatPresentationPolicy>
   }
   keyedHooks: {
     /** Resolve the stable source for one Chat Node key. */

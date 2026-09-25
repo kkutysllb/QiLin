@@ -91,7 +91,7 @@ describe('Chat apply wiring', () => {
     expect(b.runtime.slots.entries('conversation.composer.dock').map(row => row.options.id))
       .toEqual(['stats'])
     expect(b.runtime.slots.entries('settings.general.item').map(row => row.options.id))
-      .toEqual(['transcript-view', 'content-width', 'composer-enter'])
+      .toEqual(['transcript-view', 'performance-usage', 'content-width', 'link-opening', 'composer-enter'])
     await b.runtime.dispose()
   })
 
@@ -101,13 +101,15 @@ describe('Chat apply wiring', () => {
       .find(entry => entry.options.id === 'transcript-view')!
     const face = (row.inject as unknown as () => TranscriptViewRowInjected)()
 
-    expect(face.hooks.transcriptView.getSnapshot()).toBe('compact')
-    face.setTranscriptView('normal')
-    expect(face.hooks.transcriptView.getSnapshot()).toBe('normal')
-    expect(b.chatSettings.set).toHaveBeenCalledWith('transcriptView', 'normal')
+    expect(face.hooks.transcriptView.getSnapshot()).toBe('standard')
+    face.setTranscriptView('verbose')
+    expect(face.hooks.transcriptView.getSnapshot()).toBe('verbose')
+    expect(b.chatSettings.set).toHaveBeenCalledWith('transcriptView', 'verbose')
 
     b.chatSettings.publish({
-      status: 'ready', value: { transcriptView: 'compact' }, revision: 1, writable: true,
+      status: 'ready',
+      value: { transcriptView: 'compact', performanceUsage: 'detailed', linkOpening: 'sidebar' },
+      revision: 1, writable: true,
     })
     expect(face.hooks.transcriptView.getSnapshot()).toBe('compact')
     await b.runtime.dispose()

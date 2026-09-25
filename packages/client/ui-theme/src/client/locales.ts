@@ -1,7 +1,11 @@
-/** `settings.theme` namespace dictionary (the font-size and line-spacing rows' copy). */
+/** `settings.theme` namespace dictionaries (the Appearance, font-size, and line-spacing rows' copy). */
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'appearance.title': '外观',
+  'appearance.light': '浅色',
+  'appearance.dark': '深色',
+  'appearance.system': '跟随系统',
   'fontSize.title': '字号大小',
   'fontSize.description': '仅影响会话内容的字号',
   'fontSize.unit': 'px',
@@ -19,6 +23,10 @@ export type ThemeKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
+  'appearance.title': 'Appearance',
+  'appearance.light': 'Light',
+  'appearance.dark': 'Dark',
+  'appearance.system': 'System',
   'fontSize.title': 'Font size',
   'fontSize.description': 'Only affects conversation content',
   'fontSize.unit': 'px',

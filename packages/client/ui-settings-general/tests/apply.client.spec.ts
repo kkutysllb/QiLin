@@ -81,7 +81,7 @@ function generalEntry(slots: SlotRegistry) {
 
 describe('ui-settings-general apply', () => {
   it('declares the services it uses', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection', 'shortcuts'])
+    expect(inject).toEqual(['slots', 'locale', 'connection', 'shortcuts', 'remote', 'remote.settings', 'settingsScope', 'developerTools'])
   })
 
   it('fills every seat for declarations before or after apply', async () => {
@@ -97,7 +97,13 @@ describe('ui-settings-general apply', () => {
     // The nav label is a locale-following thunk; owners resolve at read time.
     expect(resolveSlotLabel(entry.options.label)).toBe('通用设置')
     expect(before.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
-    expect(before.slots.entries('settings.general.item')).toEqual([])
+    // The shell's own rows: the coding-tools switch, then the release version last.
+    const rows = before.slots.entries('settings.general.item')
+    expect(rows.map(e => e.options)).toMatchObject([
+      { id: 'developer-tools', order: 15 },
+      { id: 'current-version', order: 100 },
+    ])
+    expect(rows.every(e => e.locale === 'settings')).toBe(true)
     // The onboarding hole stays declared for feature-owned steps; this plugin
     // no longer seats one.
     expect(before.slots.entries('settings.onboarding')).toEqual([])
@@ -175,7 +181,7 @@ describe('ui-settings-general apply', () => {
     for (const [name, component] of SEATS) {
       expect(b.slots.entries(name)[0]!.component).toBe(component)
     }
-    expect(b.slots.entries('settings.general.item')).toEqual([])
+    expect(b.slots.entries('settings.general.item').map(e => e.options.id)).toEqual(['developer-tools', 'current-version'])
     expect(b.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
     // The recovered registrations still ride the locale path.
     b.locale.setLocale('en')

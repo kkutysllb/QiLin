@@ -31,6 +31,10 @@ Feature plugins use this package to store and edit their preferences without re-
 
 A feature calls `ctx.settingsScope.bind(spec)` with a per-namespace spec and gets a scope derived from the shared document mirror. The scope snapshot carries the resolved section, composition `base`, raw `user`, revision, writability, and host/memory mode; a field is overridden when it is present in `user`, even when its value equals `base`, and `unset` clears that override. Writes go through the scope: `set` and `unset` submit one operation, while `mutate` submits several ordered operations atomically. Each write is fenced by the namespace revision as `expectedRevision`, so a concurrent write from another surface is refused instead of silently overwritten. A staged editor can supply the revision where its draft began as a fixed fence; otherwise the scope uses the latest queued or mirrored revision.
 
+### The shared developer-tools preference
+
+`ctx.developerTools` owns the Coding Tools switch over the shared `ui-settings.enabled` preference, defaulting to `true`. Its `enabled` observable publishes accepted choices, and `setEnabled` writes through the same ordered scope; Host-backed clients keep developer features disabled until the first accepted schema-resolved value arrives, while remote browsers keep the choice in one browser-local observable until reload. [ui-settings-general](../ui-settings-general/README.md#use-this-package) renders the switch.
+
 ### Filling the settings slots
 
 A settings surface registers into the slot types this package declares. The shell (`sidebar.settings` occupant, navigation, chrome) lives in ui-settings-general; feature pages register `settings.section` contributions; the Plugins section hosts `settings.plugins.tab` pages; onboarding steps register `settings.onboarding`. The shell-owned About page renders `settings.about.mark`; the QiLin brand package supplies the mark occupant. Cross-namespace surfaces (schema introspection, the served-namespace directory, `hasDocument`) read the same mirror through `ctx.settingsScope.describe()`.

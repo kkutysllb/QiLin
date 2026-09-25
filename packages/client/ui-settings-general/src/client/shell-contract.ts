@@ -77,8 +77,8 @@ export type SettingsRootInjected = {
 /**
  * Full component props of the settings shell root: the sidebar owner share
  * (wide/rail state) plus the declared render shares and the injected face
- * (hooks compartment bound to useSections). No store is registered — modal
- * open state and active section id are component-local viewing state.
+ * (hooks compartment bound to useSections). The declared store shares modal
+ * visibility and section selection with application commands.
  */
 export type SettingsRootComponentProps =
   PropsRuntime<'sidebar.settings'>

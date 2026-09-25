@@ -23,6 +23,9 @@ import type {} from '@qilin/settings/types'
 import { SettingsSchemaService } from './schema.ts'
 import { SettingsScopeBinder } from './settings-scope.ts'
 import { SettingsDescribeMirror } from './settings-mirror.ts'
+import { DeveloperToolsPreference } from './developer-tools.ts'
+import { DEVELOPER_TOOLS_NAMESPACE } from '../developer-tools-settings.ts'
+import type { DeveloperToolsSettings } from '../developer-tools-settings.ts'
 
 export type {
   SettingsGeneralItemOwnerProps, SettingsHeaderOwnerProps, SettingsMarkOwnerProps,
@@ -35,6 +38,14 @@ export type { SchemaNode } from './schema.ts'
 export type {
   SettingsDescribeFace, SettingsDescribeView, SettingsMirrorSnapshot,
 } from './settings-mirror.ts'
+export type { DeveloperToolsPreference } from './developer-tools.ts'
+
+declare module '@qilin/kylin' {
+  interface Context {
+    /** The shared developer-tool preference over the `ui-settings` namespace. */
+    developerTools: DeveloperToolsPreference
+  }
+}
 
 /**
  * Required services: the Remote namespace the mirror reads through and the
@@ -70,4 +81,9 @@ export function apply(ctx: Context): void {
     return () => { for (const dispose of disposers) dispose() }
   }, 'ui-settings: describe mirror invalidations')
   new SettingsScopeBinder(ctx, { mirror, schema, persistence })
+  const developerTools = new DeveloperToolsPreference(
+    ctx.settingsScope.bind<DeveloperToolsSettings>({ namespace: DEVELOPER_TOOLS_NAMESPACE }),
+  )
+  const disposePreference = ctx.reflect.provide('developerTools', developerTools)
+  ctx.effect(() => () => { void disposePreference() }, 'ui-settings: developer-tools preference')
 }

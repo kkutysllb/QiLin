@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use this package to give the qilin web client a settings page, connection-recovery control, feature-contributed navigation, and sequential first-run onboarding. Users open it from the account menu's Settings row in the sidebar footer, retry a failed connection immediately, and access a local configuration file when the Host makes one available on a loopback browser. Feature packages supply their own settings rows, sections, and onboarding steps; this package supplies their shared presentation and does not add onboarding copy or built-in General rows.
+Use this package to give the qilin web client a settings page, connection-recovery control, feature-contributed navigation, and sequential first-run onboarding. Users open it from the account menu's Settings row in the sidebar footer, retry a failed connection immediately, and access a local configuration file when the Host makes one available on a loopback browser. Feature packages supply their own settings rows, sections, and onboarding steps; this package supplies their shared presentation, the Coding Tools switch, and the current-release version row, without adding onboarding copy.
 
 ## Table of Contents
 
@@ -39,7 +39,9 @@ Each settings page is centered inside a stable detail card. The header's **Back 
 
 ### The General section
 
-The General section holds rows registered into `settings.general.item` by feature packages — it has no built-in rows. Feature plugins own the row copy and behavior; the shell only provides the section and its slot. The Appearance row, for example, lives in ui-theme.
+The Coding Tools switch controls the shared developer-tool preference that [ui-settings](../ui-settings/README.md#use-this-package) stores under the `ui-settings` namespace. It follows accepted changes immediately, disables duplicate input while a write settles, and displays localized retry guidance after a failed write. The current release version appears at the bottom of the section, using the build's `QILIN_CLIENT_VERSION` metadata and the active language; partial builds without version metadata omit the row.
+
+The General section holds the built-in Coding Tools and Current version rows alongside rows registered into `settings.general.item` by feature packages. Each registrant owns its row copy and behavior. The Appearance row, for example, lives in ui-theme.
 
 ### Onboarding steps
 
@@ -100,7 +102,7 @@ None; this package neither assembles nor sends a provider request.
 
 These limits define what the shell itself provides versus what features must supply; they are current package constraints.
 
-- **The General section has no built-in rows** — each row appears only when its owning feature plugin is mounted; the shell cannot fill the section alone.
+- **Additional General rows require their feature plugins** — the shell supplies Coding Tools and Current version; feature plugins supply the remaining preferences.
 
 <a id="dev-note"></a>
 ### Dev Note

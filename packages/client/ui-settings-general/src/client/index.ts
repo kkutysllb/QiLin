@@ -27,6 +27,10 @@ import { SettingsRoot } from './SettingsRoot.tsx'
 import { CloseLabel, HeaderContent } from './chrome.tsx'
 import { AboutSection } from './AboutSection.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
+import { CurrentVersionRow } from './CurrentVersionRow.tsx'
+import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
+import { SettingsDocumentAction, type SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
+import { SettingsDocumentStore } from './settings-document-store.ts'
 import { en, zh, type SettingsKey } from './locales.ts'
 
 export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
@@ -36,6 +40,10 @@ export type {
 export type {
   GeneralSectionComponentProps,
 } from './GeneralSection.tsx'
+export type { DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
+export type { SettingsDocumentActionInjected, SettingsDocumentActionProps } from './SettingsDocumentAction.tsx'
+export type { SettingsDocumentState } from './settings-document-store.ts'
+export { SettingsDocumentStore } from './settings-document-store.ts'
 export type { SettingsKey } from './locales.ts'
 
 declare module '@qilin/client-ui-slots' {
@@ -52,8 +60,10 @@ const NS = 'settings'
  * Required services (cordis fiber inject). The target slots are declared by
  * ui-settings' apply, whose activation order relative to this one is NOT
  * constrained; registrations depend on their slots through `slots.inject()`.
+ * `settingsScope` serves the local-document availability mirror and
+ * `developerTools` the shared coding-tools preference.
  */
-export const inject = ['slots', 'locale', 'connection', 'shortcuts']
+export const inject = ['slots', 'locale', 'connection', 'shortcuts', 'remote', 'remote.settings', 'settingsScope', 'developerTools']
 
 /**
  * Register the `settings` dictionaries, the chrome content, and the General
@@ -61,8 +71,38 @@ export const inject = ['slots', 'locale', 'connection', 'shortcuts']
  * @param ctx - client root context.
  */
 export function apply(ctx: ClientContext): void {
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item', id: 'developer-tools', order: 15, locale: NS,
+    inject: (): DeveloperToolsRowInjected => ({
+      hooks: { developerTools: ctx.developerTools.enabled },
+      setEnabled: enabled => ctx.developerTools.setEnabled(enabled),
+    }),
+  }, DeveloperToolsRow))
+  // Last row: every feature-registered preference row orders below 100.
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item', id: 'current-version', order: 100, locale: NS,
+  }, CurrentVersionRow))
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-general: dictionaries')
   const connection = ctx.get('connection') as ConnectionHandle
+
+  // The shared ConfigForm mirror updates after document commits and reconnects.
+  const documentController = ctx.remote.$host.isLoopback
+    ? new SettingsDocumentStore(ctx, ctx.settingsScope.describe())
+    : undefined
+  ctx.effect(() => () => { documentController?.dispose() }, 'ui-settings-general: document action directory')
+  if (documentController !== undefined) {
+    const documentInjected = (): SettingsDocumentActionInjected => ({
+      controller: documentController,
+      hooks: { snapshot: documentController.store },
+    })
+    ctx.slots.inject('settings.action', () => ctx.slots.register({
+      name: 'settings.action',
+      id: 'open-document',
+      order: 0,
+      locale: NS,
+      inject: documentInjected,
+    }, SettingsDocumentAction))
+  }
 
   // Copy freshness is framework-owned: components read the standard `t`
   // seat, and the nav label is a thunk the owner resolves per render — no

@@ -21,10 +21,24 @@ describe('ui-chat Host settings', () => {
     await fiber.await()
     const ns = CHAT_SETTINGS_NAMESPACE
 
-    expect(ctx.settings.get(ns)).toEqual({ transcriptView: DEFAULT_TRANSCRIPT_VIEW_MODE })
+    expect(ctx.settings.get(ns)).toEqual({
+      transcriptView: DEFAULT_TRANSCRIPT_VIEW_MODE, performanceUsage: 'detailed', linkOpening: 'sidebar',
+    })
+    // The durable section keeps saved legacy values verbatim; the browser
+    // policy reads them as their current-generation modes.
     await ctx.settings.update(ns, { transcriptView: 'normal' })
-    expect(ctx.settings.get(ns)).toEqual({ transcriptView: 'normal' })
-    await expect(ctx.settings.update(ns, { transcriptView: 'dense' })).rejects.toThrow()
+    expect(ctx.settings.get(ns)).toEqual({
+      transcriptView: 'normal', performanceUsage: 'detailed', linkOpening: 'sidebar',
+    })
+    await ctx.settings.update(ns, { transcriptView: 'expanded', performanceUsage: 'compact', linkOpening: 'new-tab' })
+    expect(ctx.settings.get(ns)).toEqual({
+      transcriptView: 'expanded', performanceUsage: 'compact', linkOpening: 'new-tab',
+    })
+    // Unrecognized saved modes do not reject: the loose schema falls back to Standard.
+    await ctx.settings.update(ns, { transcriptView: 'dense' })
+    expect(ctx.settings.get(ns)).toEqual({
+      transcriptView: 'standard', performanceUsage: 'compact', linkOpening: 'new-tab',
+    })
 
     await fiber.dispose()
     expect(ctx.settings.describe().map(row => row.ns)).not.toContain(ns)
