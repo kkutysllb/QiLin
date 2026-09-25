@@ -48,8 +48,8 @@ export function apply(ctx: Context): void {
     description:
       'Run a read-only query explicitly declared by an Inspect Provider. platform, provider, and method must come '
       + 'from cordis_inspect_list, and input must satisfy that method\'s schema. Use this Tool before writing plugin code '
-      + 'to read exact Service methods, Event modes, Builtin signatures, Tool schemas, theme tokens, or live Slot '
-      + 'trees and props. Host queries run locally. A Client query waits for the first valid page response and '
+      + 'to read exact Service methods, Event modes, plugin Config schemas, Builtin signatures, Tool schemas, theme '
+      + 'tokens, or live Slot trees and props. Host queries run locally. A Client query waits for the first valid page response and '
       + 'remains pending until a page answers or the Tool is cancelled. This Tool cannot invoke business Service '
       + 'methods or modify the runtime. For Service.listService and Event.listEvents, query without input to navigate '
       + 'the compact signature directory, then query the exact service or event for its structured contract and '

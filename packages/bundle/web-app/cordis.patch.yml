@@ -121,6 +121,11 @@
     - id: session-controller
       name: '@qilin/api-session-controller'
 
+    # The background-job roster, one job's observation record, and the human
+    # kill, all over the generated `job` Remote namespace.
+    - id: job-controller
+      name: '@qilin/api-job-controller'
+
     # Workspace file service: bounded read, directory listing, and the
     # agent-write change feed inside the session workspace root.
     - id: terminal-controller
@@ -397,7 +402,7 @@
       name: '@qilin/client-ui-schedule'
       disabled: true
 
-    # Background jobs: the session-header list over the jobsBySession mirror.
+    # Background jobs: the session-header list over the job Remote streams.
     - id: ui-jobs
       name: '@qilin/client-ui-jobs'
 

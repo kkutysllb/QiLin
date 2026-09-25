@@ -21,8 +21,10 @@ import type {} from '@qilin/client-ui-session/client'
 import type {} from '@qilin/client-ui-sidebar-right/client'
 import { TASKS_ID, tasksDefinition } from './definition.tsx'
 import { tasksFace } from './face.ts'
-import { NS, en, zh } from './locales.ts'
+import type { TasksJobsFace } from './face.ts'
 import { TasksBadge } from './TasksBadge.tsx'
+import type { TasksBadgeInjected } from './TasksBadge.tsx'
+import { NS, en, zh } from './locales.ts'
 import { TasksBody } from './TasksBody.tsx'
 
 export type { SidebarTasksKey } from './locales.ts'
@@ -36,7 +38,7 @@ export type { TasksBodyProps } from './TasksBody.tsx'
  * Required browser services: the tab registry, the keyed seats, the Session
  * service and its subagent Remote, and copy.
  */
-export const inject = ['slots', 'locale', 'sessions', 'sidebarRightTabs', 'remote', 'remote.subagents']
+export const inject = ['slots', 'locale', 'sessions', 'sidebarRightTabs', 'remote', 'remote.subagents', 'jobs']
 
 /**
  * Client plugin body: register the type, its dictionaries, its body, and the
@@ -50,18 +52,22 @@ export function apply(ctx: ClientContext): void {
 
   // The Session Controller owns the catalog; revealing a child as the current
   // Session is navigation, so it goes through the workspace service.
+  const jobsFace: TasksJobsFace = {
+    hooks: { jobs: ctx.jobs.state },
+    watchRows: sessionId => ctx.jobs.watchRows(sessionId),
+  }
   const face = tasksFace({
     openSubagent: address => ctx.uiWorkspace.openSession(address),
     refreshProjections: parentSessionId => ctx.sessions.refreshProjections(parentSessionId),
-  }, ctx.remote.subagents)
+  }, ctx.remote.subagents, jobsFace)
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab', key: TASKS_ID, locale: NS, inject: () => face },
     TasksBody,
   )), 'ui-sidebar-tasks: tasks tab body')
-  // The badge draws a count the two snapshots already hold, so it declares no
-  // inject face: the standard `useSessions` hook is the whole data path.
+  // The badge draws the job count from the jobs roster and owns its
+  // subscription, because the strip mounts it whether or not the pane is open.
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab.badge', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab.badge', key: TASKS_ID },
+    { name: 'sidebar.right.pane.tab.badge', key: TASKS_ID, inject: (): TasksBadgeInjected => jobsFace },
     TasksBadge,
   )), 'ui-sidebar-tasks: tasks tab badge')
 }

@@ -48,6 +48,8 @@
     "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin/api-job-controller": "workspace:*",
+    "@qilin/jobs": "workspace:*",
     "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/client-locale": "workspace:*",

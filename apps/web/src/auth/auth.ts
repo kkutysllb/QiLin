@@ -15,6 +15,16 @@ const SETUP_ENDPOINT = '/api/auth/setup'
 const REGISTER_ENDPOINT = '/api/auth/register'
 /** Server path starting a session for an existing account. */
 const LOGIN_ENDPOINT = '/api/auth/login'
+
+/**
+ * Browser-relative forms of the credential endpoints above, which the served
+ * document resolves against its own mount. See
+ * .agents/notes/implemented/architecture/2026-09-14-web-document-relative-app-routes.md.
+ */
+const SETUP_ROUTE = SETUP_ENDPOINT.slice(1)
+const REGISTER_ROUTE = REGISTER_ENDPOINT.slice(1)
+const LOGIN_ROUTE = LOGIN_ENDPOINT.slice(1)
+
 /** Path of the setup document. */
 const SETUP_PATH = '/setup'
 /** Path of the sign-in document; every other path renders it. */
@@ -182,13 +192,13 @@ function clearError(): void {
 }
 
 /**
- * Resolve the POST endpoint for one mode.
+ * Resolve the POST route for one mode.
  * @param current - mode whose form is being submitted.
- * @returns the API path accepting this mode's credentials.
+ * @returns the document-relative API route accepting this mode's credentials.
  */
 function endpointFor(current: AuthMode): string {
-  if (current === 'setup') return SETUP_ENDPOINT
-  return current === 'register' ? REGISTER_ENDPOINT : LOGIN_ENDPOINT
+  if (current === 'setup') return SETUP_ROUTE
+  return current === 'register' ? REGISTER_ROUTE : LOGIN_ROUTE
 }
 
 /**

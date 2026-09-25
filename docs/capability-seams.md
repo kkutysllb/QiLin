@@ -76,6 +76,8 @@ flowchart LR
   svc_workspaceFiles["ctx.workspaceFiles<br/>Host workspace file Remote service"]
   pkg_workspace_changes["workspace-changes"]
   svc_workspaceChanges["ctx.workspaceChanges<br/>Host per-turn changed-file summaries"]
+  pkg_api_job_controller["api-job-controller"]
+  svc_jobController["ctx.jobController<br/>Host background-job Remote controller"]
   pkg_api_terminal_controller["api-terminal-controller"]
   svc_terminalController["ctx.terminalController<br/>Session interactive terminal Remote controller"]
   pkg_api_workspace_controller["api-workspace-controller"]
@@ -266,6 +268,7 @@ flowchart LR
   pkg_agent_loop --> svc_agentLoop
   pkg_agent_presets --> svc_agentPresets
   pkg_api_gateway --> svc_typertGateway
+  pkg_api_job_controller --> svc_jobController
   pkg_api_session_controller --> svc_sessionController
   pkg_api_session_controller --> svc_sessionFileReferences
   pkg_api_session_controller --> svc_sessionSkillCatalog
@@ -572,6 +575,7 @@ flowchart LR
 | `ctx.settingsController` | `core` | [`api-settings-controller`](../packages/api/settings-controller) | - | - | - | Projects the user-settings seam onto the generated Remote namespace: the read is always redacted and every refusal is classified here, not on the seam Definition. |
 | `ctx.workspaceFiles` | `core` | [`api-workspace-files`](../packages/api/workspace-files) | - | - | - | Serves stat, paged text, byte windows, directory listings, the change feed, and the guarded save for files inside a Session's workspace root, confined by lstat, containment, and a stat re-check. |
 | `ctx.workspaceChanges` | `core` | [`workspace-changes`](../packages/deliverables/workspace-changes) | - | - | - | Serves the summary each workspace/changes event announced and each listed file's turn-start and turn-end comparison, by Session and event sequence, until that Session is disposed; the log carries only the turn. |
+| `ctx.jobController` | `core` | [`api-job-controller`](../packages/api/job-controller) | - | - | - | Streams the per-session job roster and one retained output, and stops a job for a human, as projections of the ctx.jobs registry over the generated Remote namespace. |
 | `ctx.terminalController` | `core` | [`api-terminal-controller`](../packages/api/terminal-controller) | - | - | - | Owns user terminal processes, default shell resolution and bounded screen recovery through the subprocess provider and typed Remote transport. |
 | `ctx.workspaceController` | `core` | [`api-workspace-controller`](../packages/api/workspace-controller) | - | - | - | Owns Workspace commands and reconnect-safe Workspace state delivery through the generated Remote namespace. |
 | `ctx.directoryPickerController` | `core` | [`api-workspace-controller`](../packages/api/workspace-controller) | - | - | - | Carries the picking seam onto the wire: capability gating, cancellation, and the seam-coded failures a browser directory flow discriminates on. |

@@ -2,8 +2,9 @@
 import type { MessageId } from '@qilin/llm/brand'
 import type { SessionId, SessionSeq } from '@qilin/session/types'
 import type {
-  CommandNode, CompactionSummaryNode, ConversationLocationDataStore, ConversationTurnDataMap,
-  MessageImageLoader, MessageImagesOwnerProps, RenderMessageImages, TurnLocation,
+  CommandNode, CompactionSummaryNode, ConversationGroupData, ConversationLocationDataStore,
+  ConversationTurnDataMap, GroupSnapshot, MessageImageLoader, MessageImagesOwnerProps,
+  RenderMessageImages, TurnLocation,
 } from '@qilin/client-ui-conversation/client'
 import type {
   InjectFace, KeyedSnapshotSelectorHook, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
@@ -79,40 +80,56 @@ export type UseChatNodeTurnData = <Key extends Extract<keyof ConversationTurnDat
   key: Key,
 ) => Readonly<ConversationTurnDataMap[Key]> | undefined
 
-/** Slot-level Hook factory for keyed Chat renderers. */
-export interface ChatNodeTurnDataInjected {
-  hooks: { turnData: SlotHookFactory<'conversation.chat.node', UseChatNodeTurnData> }
+/**
+ * Subscribe to enclosing-Turn resets and own one initially collapsed disclosure.
+ * Each invocation has independent open state; display-mode changes do not reset it.
+ * @returns the current open state, explicit setter, and toggle action.
+ */
+export type UseDisclosure = () => {
+  readonly expanded: boolean
+  /** @param open - whether this disclosure is expanded. */
+  readonly setExpanded: (open: boolean) => void
+  readonly toggle: () => void
+}
+
+/** Stable sources bound to one rendered Chat Node. */
+export interface ChatNodeHookContext {
+  readonly turnData: ConversationLocationDataStore<ConversationTurnDataMap> | undefined
+  readonly disclosureReset: ObservableSnapshot<number>
+}
+
+/** Slot-level Hook factories for keyed Chat renderers. */
+export interface ChatNodeInjected {
+  hooks: {
+    turnData: SlotHookFactory<'conversation.chat.node', UseChatNodeTurnData>
+    disclosure: SlotHookFactory<'conversation.chat.node', UseDisclosure>
+  }
 }
 
 /** Stable owner currency delivered to a keyed Chat renderer. */
 export interface ChatNodeOwnerProps {
+  /** Renderer-owned Node portion selected by the grouping Definition. */
+  groupPart?: string
   cwd?: string | undefined
   /** Open the current source file of a skill referenced by a sent message. */
   openSkill: (name: string) => void
   openFile: (path: string, options?: OpenFileOptions) => void
   inspectCall: (callId: ToolCallId) => void
   forkAt: (seq: number) => void
-  /**
-   * Session-authorized image loader, down-threaded from the Chat view so a
-   * chat-node renderer can render the attachment presentation slot directly
-   * with only the durable references plus this loader, instead of receiving a
-   * rendering closure.
-   */
+  /** Session-authorized image loader for the attachment presentation slot. */
   loadImage: MessageImageLoader
   renderMessageImages: RenderMessageImages
   fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined
   /** Turn-process state when this Node belongs to a projected Turn. */
   turnProcess?: TurnProcessOwnerProps | undefined
-  /**
-   * How a settled tool-call row presents its detail body, from the accepted
-   * work-details mode. Absent in detached renderers reads as `'collapsed'`,
-   * the Standard presentation.
-   */
+  /** Detail body a settled tool-call row shows, from the work-details mode; absent reads as `'collapsed'`. */
   toolDetail?: ToolCallDetail | undefined
 }
 
 /** Shared presentation state for one Turn-process answer generation. */
 export interface TurnProcessOwnerProps {
+  /** Process content eligible to share one Turn-level disclosure. */
+  readonly hasContent: boolean
   readonly spec: TurnProcessSpec
   readonly foldable: boolean
   readonly open: boolean
@@ -169,6 +186,8 @@ export interface ChatViewInjected {
     chatNode: (key: string) => ChatNodeSource
     /** Resolve the stable Turn-process source for one Chat Node key. */
     chatNodeProcess: (key: string) => ChatNodeProcessSource
+    /** Resolve one optional group without subscribing the root View to its data. */
+    chatGroup: (key: string) => ObservableSnapshot<GroupSnapshot<ConversationGroupData<'chat'>> | undefined> | undefined
   }
   /** Open the current source file of a skill referenced by a sent message. */
   openSkill: (name: string) => void
@@ -222,8 +241,8 @@ declare module '@qilin/client-ui-slots' {
       scope: 'session'
       owner: ChatNodeOwnerProps
       keyProps: { [Kind in ChatNodeKind]: { node: ChatNode<Kind> } }
-      hookContext: ConversationLocationDataStore<ConversationTurnDataMap> | undefined
-      inject: ChatNodeTurnDataInjected
+      hookContext: ChatNodeHookContext
+      inject: ChatNodeInjected
     }
     /**
      * Renderer for one consecutive group of durable message images. The owner

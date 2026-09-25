@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 /** Call-scoped preparation subscriptions and file-mutation progress. */
 import { useMemo } from 'react'
 import { act, cleanup, render } from '@testing-library/react'
@@ -99,6 +100,7 @@ describe('tool argument prefix Hook', () => {
     const usePartial = bindToolCallArgumentsPartial(standard, { assistant, callId: 'first' })
     const props = {
       phase: 'preparing', toolName, callId: 'first', useToolCallArgumentsPartial: usePartial,
+      useDisclosure,
       block: { phase: 'preparing', callId: 'first', name: toolName, turn: 1, step: 1, time: 1, subCalls: [] },
       openFile: vi.fn(), loadImage: vi.fn(), t: makeTranslate(dictionary),
     } as Parameters<typeof FileMutationRow>[0]

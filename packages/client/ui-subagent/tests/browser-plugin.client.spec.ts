@@ -34,7 +34,7 @@ const sid = (id: string) => id as SessionId
 function sessionsWith(sessions: SessionSummary[]) {
   const byId: Record<string, SessionSummary> = {}
   for (const s of sessions) byId[s.id] = s
-  const snapshot: SessionListState = { ids: sessions.map(s => s.id), byId, phase: 'ready', projectionsBySession: {}, jobsBySession: {} }
+  const snapshot: SessionListState = { ids: sessions.map(s => s.id), byId, phase: 'ready', projectionsBySession: {} }
   const actionCalls: { method: string; args: unknown[] }[] = []
   const address: SubagentAddress = {
     parentSessionId: sid('parent'),

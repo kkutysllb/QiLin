@@ -39,6 +39,9 @@
 
       "@qilin/office-to-pdf/types": ["./packages/document/office-to-pdf/src/types.ts"],
       "@qilin/api-terminal-controller": ["./packages/api/terminal-controller/src/index.ts"],
+      "@qilin/api-job-controller": ["./packages/api/job-controller/src/index.ts"],
+      "@qilin/api-job-controller/types": ["./packages/api/job-controller/src/types.ts"],
+      "@qilin/api-job-controller/client": ["./packages/api/job-controller/src/client/index.ts"],
       "@qilin/api-terminal-controller/types": ["./packages/api/terminal-controller/src/types.ts"],
       "@qilin/api-terminal-controller/client": ["./packages/api/terminal-controller/src/client/index.ts"],
       "@qilin/client-ui-sidebar-terminal": ["./packages/client/ui-sidebar-terminal/src/index.ts"],
@@ -128,6 +131,7 @@
       "@qilin/commands/brand": ["./packages/interaction/commands/src/brand.ts"],
       "@qilin/commands/types": ["./packages/interaction/commands/src/types.ts"],
       "@qilin/jobs/brand": ["./packages/jobs/jobs/src/brand.ts"],
+      "@qilin/jobs/view": ["./packages/jobs/jobs/src/view.ts"],
       "@qilin/credentials/types": ["./packages/credentials/credentials/src/types.ts"],
       "@qilin/authorization/types": ["./packages/credentials/authorization/src/types.ts"],
       "@qilin/settings/types": ["./packages/settings/settings/src/types.ts"],

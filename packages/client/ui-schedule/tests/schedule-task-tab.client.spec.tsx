@@ -27,7 +27,7 @@ const other: ScheduleCatalogEntry = { ...at, id: 'task-other' as ScheduleId, tit
 const sessions: SessionListState = {
   ids: [SESSION],
   byId: { [SESSION]: { id: SESSION, displayTitle: SESSION, running: false, blank: false, updatedAt: 0, retainedBy: {} } },
-  phase: 'ready', projectionsBySession: {}, jobsBySession: {},
+  phase: 'ready', projectionsBySession: {},
 }
 const workspaces: WorkspaceSnapshot = { items: [], archivedSessionIds: [], state: 'idle', phase: 'ready', error: null }
 

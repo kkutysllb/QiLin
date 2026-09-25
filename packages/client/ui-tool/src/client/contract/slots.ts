@@ -5,6 +5,7 @@ import type {
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type {
   AssistantChatData, OpenFileOptions, PreparingToolCall, StartedToolCall, ToolCallDetail, ToolResultNode,
+  UseDisclosure,
 } from '@qilin/client-ui-chat/client'
 import type { MessageImageLoader, MessageImageSource } from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-locale/client'
@@ -79,6 +80,8 @@ export interface ToolImagesOwnerProps {
 
 /** Standard owner currency supplied to every atomic Tool view. */
 export interface ToolCallCommonProps {
+  /** Stable Hook; each invocation owns its open state and subscribes to enclosing-Turn resets. */
+  useDisclosure: UseDisclosure
   /** Call identity, stable across all stages. */
   callId: string
   /** Wire Tool name and keyed dispatch value. */
@@ -87,25 +90,13 @@ export interface ToolCallCommonProps {
   cwd?: string | undefined
   /** Host account home; POSIX home-rooted summaries display as `~`. */
   home?: string | undefined
-  /**
-   * Open a Tool argument path. A view that knows which line the call was about
-   * passes it, and the opened surface lands there.
-   */
+  /** Open a Tool argument path, at its optional requested line. */
   openFile: (path: string, options?: OpenFileOptions) => void
-  /**
-   * Session-authorized image loader for the `tool.call.images` slot, supplied
-   * by the chat node that owns this call. A composed chat node always
-   * supplies it (`ChatNodeOwnerProps.loadImage` is required), so the tool
-   * layer never imports an attachment implementation nor handles URL
-   * authorization.
-   */
+  /** Session-authorized loader for the `tool.call.images` slot; the owning chat node supplies it. */
   loadImage: MessageImageLoader
   /** Inspect this call in the trajectory view when available. */
   inspect?: (() => void) | undefined
-  /**
-   * How the row presents its detail body, from the accepted work-details mode.
-   * Absent reads as `'collapsed'`, the Standard presentation.
-   */
+  /** Detail body the row presents, from the work-details mode; absent reads as `'collapsed'`. */
   detail?: ToolCallDetail | undefined
 }
 

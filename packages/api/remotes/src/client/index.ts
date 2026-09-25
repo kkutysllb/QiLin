@@ -20,6 +20,7 @@ import sessionReferencesRemote from '@qilin/session-reference/remote'
 import subagentsRemote from '@qilin/subagent/remote'
 import sessionRemote from '@qilin/api-session-controller/remote'
 import workspaceRemote from '@qilin/api-workspace-controller/remote'
+import jobRemote from '@qilin/api-job-controller/remote'
 import terminalRemote from '@qilin/api-terminal-controller/remote'
 import workspaceFilesRemote from '@qilin/api-workspace-files/remote'
 import type { ClientRemote } from '@qilin/api-gateway/client'
@@ -58,7 +59,8 @@ export type {} from '@qilin/api-workspace-files/remote'
 export type * from '@qilin/api-workspace-files/types'
 export type {} from '@qilin/api-terminal-controller/remote'
 export type * from '@qilin/api-terminal-controller/types'
-export type { SessionJob as JobView } from '@qilin/api-session-controller/types'
+export type {} from '@qilin/api-job-controller/remote'
+export type * from '@qilin/api-job-controller/types'
 // The forwarded-event allowlist's selection seat: without it in the consumer's
 // compilation face `TypertRemoteEvent` is `never` and every `$on` call fails.
 export type { ApiRemoteForwardedEvent } from '../types.ts'
@@ -175,7 +177,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
       agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote, scheduleRemote,
       pluginInventoryRemote, pluginManagerRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
-      permissionPresetsRemote, subagentsRemote, sessionRemote, workspaceRemote, workspaceFilesRemote, terminalRemote,
+      permissionPresetsRemote, subagentsRemote, sessionRemote, jobRemote, workspaceRemote, workspaceFilesRemote, terminalRemote,
       officeToPdfRemote,
     ]) {
       disposers.push(await ctx.remote.$mount(contribution))

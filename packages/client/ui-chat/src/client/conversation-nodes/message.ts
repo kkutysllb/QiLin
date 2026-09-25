@@ -21,7 +21,8 @@ interface ReferencedSteeringMessageNode extends SteeringMessageNode {
   readonly skillNames?: readonly string[]
 }
 
-type MessageNode = ReferencedUserMessageNode | ReferencedSteeringMessageNode | ContextMessageNode
+type MessageNode = ReferencedUserMessageNode | ReferencedSteeringMessageNode
+  | (ContextMessageNode & { readonly waking?: boolean })
 
 /** Context presentation shared by user-role injections and developer messages. */
 function contextMessage(
@@ -49,6 +50,8 @@ declare module '../contract/chat-nodes.ts' {
     context: ContextMessageNode
     /** Developer history: context presentation over a developer-role event. */
     'developer-message': ContextMessageNode
+    /** Non-human input that starts a Turn. */
+    'turn-trigger': ContextMessageNode
   }
 }
 
@@ -70,7 +73,23 @@ export const messageDefinition: ConversationNodeDefinition<MessageNode> = {
   start: (_context, match, reader) => {
     if (match.event.type !== 'user/message') throw new Error('input-message start requires user/message')
     const event = match.event
-    if (event.data.source.kind !== 'user') return contextMessage(event, event.data)
+    if (event.data.source.kind !== 'user') {
+      const nextTurn = reader.previous<InboxState>('inbox-next-turn')?.state
+      const nextStep = reader.previous<InboxState>('inbox-next-step')?.state
+      const location = match.location
+      const turnStart = location.kind === 'step' ? location.turn.start?.seq : undefined
+      // An idle steer opens Step 1 without a next-turn claim in this Turn.
+      // A human in that same next-step claim owns the opening instead of its notices.
+      const idleSteer = location.kind === 'step' && location.step.step === 1
+        && turnStart !== undefined && (nextStep?.claimSeq ?? -1) > turnStart
+        && (nextTurn?.claimSeq ?? -1) < turnStart && nextStep?.claimedHuman === false
+        && nextStep.currentClaimed.has(String(event.data.id))
+
+      return {
+        ...contextMessage(event, event.data),
+        waking: nextTurn?.currentClaimed.has(String(event.data.id)) === true || idleSteer,
+      }
+    }
     const claimed = reader.previous<InboxState>('inbox-next-step')
       ?.state.currentClaimed.has(String(event.data.id)) === true
     return claimed
@@ -93,7 +112,10 @@ export const messageDefinition: ConversationNodeDefinition<MessageNode> = {
   update: context => context.state,
   buildViewNode: (context) => {
     if (context.state === undefined) return null
-    return chatNode(context, context.state.kind, context.state.seq, context.state)
+    const waking = context.state.kind === 'context'
+      && context.start?.event.type === 'user/message'
+      && context.state.waking === true
+    return chatNode(context, waking ? 'turn-trigger' : context.state.kind, context.state.seq, context.state)
   },
 }
 

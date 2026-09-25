@@ -5,13 +5,14 @@ import { bytesToBase64 } from '@qilin/util-crypto'
 import { RemoteError } from '@qilin/typert-protocol'
 import type { RemoteResult } from '@qilin/typert-protocol'
 import type { SessionId } from '@qilin/session/types'
-import { FILE_UPLOAD_PATH } from '../protocol.ts'
+import { FILE_UPLOAD_ROUTE } from '../protocol.ts'
 import type {
   ClientFileUploadHooks, EncodedFileUploadRequest, FileUploadFetch, FileUploadValue,
 } from '../types.ts'
 import type { FileUploadBody, FileUploadService } from './contract.ts'
 
 interface FileUploadRequest {
+  /** Document-relative app-owned upload route, query string included. */
   readonly path: string
   readonly body: FileUploadBody
   readonly headers?: Readonly<Record<string, string>>
@@ -198,7 +199,7 @@ export class FileUploadRuntime extends Service implements FileUploadService {
       const query = new URLSearchParams({ sessionId })
       if (name !== undefined) query.set('name', name)
       const response = await this.post({
-        path: `${FILE_UPLOAD_PATH}?${query.toString()}`,
+        path: `${FILE_UPLOAD_ROUTE}?${query.toString()}`,
         body: data,
         headers: { 'content-type': 'application/octet-stream' },
         ...(signal === undefined ? {} : { signal }),
@@ -295,13 +296,15 @@ function workerTransport(): FileUploadTransport {
   }
 }
 
+/**
+ * Resolve one browser route against the base the served document provides.
+ * The dedicated Worker's own base is a `blob:` URL, so its request needs the
+ * absolute form the page computed.
+ * @param path - document-relative app route, query string included.
+ * @returns the absolute URL the upload carriers require.
+ */
 function resolveUrl(path: string): URL {
-  const pageLocation = Reflect.get(globalThis, 'location') as unknown
-  const origin = typeof pageLocation === 'object' && pageLocation !== null
-    && 'origin' in pageLocation && typeof pageLocation.origin === 'string'
-    ? pageLocation.origin
-    : undefined
-  return new URL(path, origin === undefined || origin === 'null' ? 'http://qilin.internal' : origin)
+  return new URL(path, document.baseURI)
 }
 
 function parseFileUploadResult(body: string): RemoteResult<FileUploadValue> {

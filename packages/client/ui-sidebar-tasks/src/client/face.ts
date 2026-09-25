@@ -5,6 +5,7 @@
  * `interruptChild`, and this face performs the service and Remote calls behind
  * them. Each action resolves what it needs at call time, never at render time.
  */
+import type { JobsSnapshot } from '@qilin/api-job-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { SubagentAddress, SubagentInterruptReceipt } from '@qilin/subagent/client'
 import type { RemoteResult } from '@qilin/typert-protocol'
@@ -63,19 +64,42 @@ export interface TasksInjected {
    * @param parentSessionId - the child's direct parent.
    */
   readonly interruptChild: (childSessionId: SessionId, parentSessionId: SessionId) => void
+  /** The client jobs roster the page draws, bound by the renderer as useJobs. */
+  readonly hooks: { readonly jobs: {
+    getSnapshot(): JobsSnapshot
+    subscribe(listener: () => void): () => void
+  } }
+  /**
+   * Keep this Session's roster current while the page is mounted; returns the
+   * stop function.
+   * @param sessionId - the Session whose visible jobs to mirror.
+   */
+  readonly watchRows: (sessionId: SessionId) => () => void
+}
+
+/** The background-job roster and watcher the page draws from. */
+export interface TasksJobsFace {
+  readonly hooks: { readonly jobs: {
+    getSnapshot(): JobsSnapshot
+    subscribe(listener: () => void): () => void
+  } }
+  readonly watchRows: (sessionId: SessionId) => () => void
 }
 
 /**
  * Bind the page's actions to the service and Remote they call.
  * @param sessions - the Client Session service's navigation and catalog reads.
  * @param subagents - the generated `subagents` Remote namespace.
+ * @param jobs - the client jobs roster and its watcher.
  * @returns the Slot `inject` face the body receives.
  */
 export function tasksFace(
   sessions: TasksSessionActions,
   subagents: TasksSubagentsRemote,
+  jobs: TasksJobsFace,
 ): TasksInjected {
   return {
+    ...jobs,
     openChild(address) {
       sessions.openSubagent(address)
     },

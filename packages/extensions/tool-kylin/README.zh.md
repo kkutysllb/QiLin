@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-创造模式包含这组工具。其他组合需要同时挂载 `@qilin/tool-kylin` 和提供 `cordisInspect` 的 host runner。调用 `cordis_inspect_list` 发现 provider，再用 `cordis_inspect_query` 查询其具体方法和类型。通过 [Plugin Manager](../../boot/plugin-manager/README.zh.md) 安装包含插件代码或 MCP 配置的组合包。
+创造模式包含这组工具。其他组合需要同时挂载 `@qilin/tool-kylin` 和提供 `cordisInspect` 的 host runner。调用 `cordis_inspect_list` 发现 provider，再用 `cordis_inspect_query` 查询其具体方法和类型，或查询实时 `Config` provider 为某个运行中条目投影出的 JSON Schema。通过 [Plugin Manager](../../boot/plugin-manager/README.zh.md) 安装包含插件代码或 MCP 配置的组合包。
 
 -----
 
@@ -35,7 +35,7 @@ kind: "package-reference"
 <details>
 <summary>实现细节 — 点击展开</summary>
 
-Host provider 结合生成的 Service/Event 目录与请求 agent 的工具注册表。Client provider 通过现有检查注册表同步清单，并从已连接页面回答查询。工具插件通过 Kylin effect 持有注册；释放时移除工具和提示词贡献。检查直接读取 provider，不维护独立运行时投影，因此不发布不变式配套插件。
+Host provider 结合生成的 Service/Event 目录、经 [`@qilin/app-boot`](../../boot/app-boot/README.zh.md) 投影的运行中 Loader 所声明的 `Config` schema，以及请求 agent 的工具注册表。Client provider 通过现有检查注册表同步清单，并从已连接页面回答查询。工具插件通过 Kylin effect 持有注册；释放时移除工具和提示词贡献。检查直接读取 provider，不维护独立运行时投影，因此不发布不变式配套插件。
 
 </details>
 

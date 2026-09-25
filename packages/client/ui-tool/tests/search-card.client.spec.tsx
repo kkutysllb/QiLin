@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
@@ -176,6 +177,7 @@ describe('searchCardModel', () => {
 describe('chat row search body (GenericToolCard fallback)', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode, toolName: string): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useDisclosure,
     callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
   /** The whole summary row is the expand toggle (ToolRow's unified interaction). */
@@ -226,7 +228,7 @@ describe('chat row search body (GenericToolCard fallback)', () => {
 
 describe('SearchRow keyed card', () => {
   const rowProps = (block: StartedToolCall | ToolResultNode, toolName: string): SearchRowProps => ({
-    callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), sessionId: SID, t,
+    useDisclosure, callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), sessionId: SID, t,
   } as unknown as SearchRowProps)
 
   /** The whole summary row is the expand toggle (ToolRow's unified interaction). */

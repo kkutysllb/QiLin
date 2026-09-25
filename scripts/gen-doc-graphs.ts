@@ -287,6 +287,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Serves the summary each workspace/changes event announced and each listed file\'s turn-start and turn-end comparison, by Session and event sequence, until that Session is disposed; the log carries only the turn.',
   },
   {
+    key: 'jobController',
+    pkg: 'api-job-controller',
+    title: 'Host background-job Remote controller',
+    mode: 'core',
+    note: 'Streams the per-session job roster and one retained output, and stops a job for a human, as projections of the ctx.jobs registry over the generated Remote namespace.',
+  },
+  {
     key: 'terminalController',
     pkg: 'api-terminal-controller',
     title: 'Session interactive terminal Remote controller',

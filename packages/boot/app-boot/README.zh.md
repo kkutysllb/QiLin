@@ -51,7 +51,7 @@ profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`he
 
 在 profile 导入插件之前，QiLin 会用 `getQilinRuntimeVersion()` 返回的单一运行时版本检查插件对 `@qilin/cli` 与 `@qilin/*` 的 `peerDependencies`。每条声明的范围都必须匹配，预发布版本也参与范围匹配。源码工作区的 `workspace:^`、`workspace:~` 与 `workspace:*` 指的就是该运行时。随仓库 vendor 的 `@qilin/kylin` 框架族虽然发布在同一 scope 下，但版本独立于 harness 发布，因此它以及 `@qilin/` 之外的任何 peer 都不构成约束；非法范围视为不兼容。这些检查读取的是 peer 声明，不是 `engines.qilin`，也不能作为防范恶意包代码的沙箱。
 
-准入只发生在 QiLin 自己掌握的组态边界上，被拒绝的行是在启动器自己那份组态里被拒绝的：profile 的 patch 层、依赖清单与组合包列表都不会改变。`prepareProfilePatches` 在启动器的空 profile 根上组合，并在根 Include 挂载期间以及每次 profile 重组时运行，因此被拒绝的插件永远不会导入它的模块；`prepareProfileEntries` 对 preset 的行做同样的事。被拒绝的普通行会变成分离的 `disabled: true` 行；原生 group 保持挂载而其被拒绝的子行不会加载；触达被拒绝插件的原生 Include 会被整体省略，因为它的文件永远不会被改写。被策略拒绝的行在 profile 中保留其配置的 `disabled` 值，每次拒绝都会报告包、版本与风险。组合包不是行，因此 `loadProfileDirectory` 在加载 profile 的组合包层时，会在启动和每次重组时检查每个组合包自身的 qilin peer；不兼容的组合包会像缺少组合包、或组合包未声明 patch 一样让启动明确失败。这些边界不覆盖其他嵌入方通过自己的 `ctx.plugin` 调用挂载的插件。会话期间直接对文件做的两处修改只会在下次重组或启动时被判定：运行中插件自身 `package.json` 的 peer 声明，以及 Loader 自己读取的条目列表文件（例如启动器的根配置或嵌套的 `cordis:include` 文件）。`--dump-config` 报告的是配置出的组态，因此被拒绝的插件行仍然出现在其中，而被拒绝的组合包不贡献任何行；`--dump-config-schema` 会导入每个组合后的模块以读取其 schema，请只对已信任其插件的 profile 运行。
+准入只发生在 QiLin 自己掌握的组态边界上，被拒绝的行是在启动器自己那份组态里被拒绝的：profile 的 patch 层、依赖清单与组合包列表都不会改变。`prepareProfilePatches` 在启动器的空 profile 根上组合，并在根 Include 挂载期间以及每次 profile 重组时运行，因此被拒绝的插件永远不会导入它的模块；`prepareProfileEntries` 对 preset 的行做同样的事。被拒绝的普通行会变成分离的 `disabled: true` 行；原生 group 保持挂载而其被拒绝的子行不会加载；触达被拒绝插件的原生 Include 会被整体省略，因为它的文件永远不会被改写。被策略拒绝的行在 profile 中保留其配置的 `disabled` 值，每次拒绝都会报告包、版本与风险。组合包不是行，因此 `loadProfileDirectory` 在加载 profile 的组合包层时，会在启动和每次重组时检查每个组合包自身的 qilin peer；不兼容的组合包会像缺少组合包、或组合包未声明 patch 一样让启动明确失败。这些边界不覆盖其他嵌入方通过自己的 `ctx.plugin` 调用挂载的插件。会话期间直接对文件做的两处修改只会在下次重组或启动时被判定：运行中插件自身 `package.json` 的 peer 声明，以及 Loader 自己读取的条目列表文件（例如启动器的根配置或嵌套的 `cordis:include` 文件）。`--dump-config` 报告的是配置出的组态，因此被拒绝的插件行仍然出现在其中，而被拒绝的组合包不贡献任何行；`generateConfigSchema` 读取的是每个组合后模块声明的 Config schema（而非配置值），请只对已信任其插件的 profile 运行。
 
 精确版本豁免存放在 profile 自己的 `compatibility.json` 中，而不是它的 `package.json`，因此写入豁免永远不会触碰依赖清单、组合包列表或 Kylin patch 文件。它把精确的 `package-name@version` 键映射到精确 QiLin 运行时版本列表，且授权只覆盖那一对确切组合：插件升级和 QiLin 升级都不会继承许可，撤销某个运行时版本也会保留该对的其它授权。`setProfileVersionExemption` 以 `0600` 权限创建该文件，并在该文件自己的锁下原子重写。文件缺失表示没有任何豁免。文件损坏永远不会阻止 profile 启动：读取方接受的记录仍然生效，每条被拒绝的记录会连同插件拒绝信息一起输出到 stderr，随后该文件被视为只读，于是授权或撤销都会拒绝执行，并要求用户手工修复，而不是覆盖他们的内容。每次变更所需的授权、撤销与风险确认由[插件管理器](../plugin-manager/README.zh.md#version-compatibility-and-exemptions)负责。
 
@@ -71,6 +71,10 @@ profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`he
 ### 预览生效配置
 
 启动前，你可以打印应用将挂载的确切配置：dump 会以 `!!js` 表达式原样展示组合后的条目列表，并按注释分组标明每个源文件及其 patch 层，输出是一份可加载的 YAML 文档。未匹配到任何行的 patch 会连同其层标签一起报告；配置缺失、无法解析或字段无效都会使 dump 失败。
+
+### 投影已声明的 Config schema
+
+`generateConfigSchema(profile, layers, installAnchor)` 组合传入的 patch 层，并返回一份 JSON Schema 2020-12 文档，描述组合后的条目列表与可单独寻址的 patch 列表，既不挂载插件也不求值 `!!js` 表达式。每个条目声明的 `Config` 会投影进 `$defs`，并由 `x-cordis.entries` 引用；`Config` 不是原生 Schemastery 图的条目会被报告为 `unsupported`，每条投影限制都会成为一条诊断。`createConfigProjector()` 供已持有原生图的调用方投影单个图——[`@qilin/tool-kylin`](../../extensions/tool-kylin/README.zh.md) 的实时 Config 检查 provider 用它读取运行中的 Loader 树——`isNativeConfigSchema` 是两条路径共用的身份判定。投影不会运行原生校验器或 transform 回调，但读取插件声明的 `Config` 会导入其模块，从而执行该插件的代码。
 
 <a id="startup-and-reload-failures"></a>
 ### 启动与重载失败
@@ -189,6 +193,7 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 - **快照回放替换仅识别特定 basename**——只有以 `cordis.yml` 或 `cordis.yaml` 结尾的配置会映射到同级 `cordis.snapshot.yml`；自定义配置名称需要调用方自行选择。
 - **环境发现以启动为界**——`loadLayeredEnv` 只读取一次调用目录与 harness home 中的 `.env`；它不搜索父目录，也不跟随之后选择的 workspace。`loadEnv` 仍是非产品 bin 使用的单目录 helper。
 - **用户 patch 会替换匹配到的整个配置**——按 id 定位的 patch 不做深度合并，因此 profile 覆盖必须重述需要保留的组合包字段。
+- **schema dump 尚未暴露为 CLI flag**——`--dump-config` 打印的是配置值；`generateConfigSchema` 目前只能由库与实时 Config 检查 provider 调用，shell 用户还无法请求该文档。
 
 <a id="dev-note"></a>
 ### 开发备注

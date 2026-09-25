@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
@@ -293,6 +294,7 @@ describe('terminalCardModel', () => {
 describe('chat row terminal body', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useDisclosure,
     callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
 
@@ -407,11 +409,11 @@ describe('BashRow terminal card', () => {
     ids: [SID],
     byId: { [SID]: { id: SID, displayTitle: 'r', running: false, retainedBy: {}, blank: false, updatedAt: 0 } },
     phase: 'ready',
-    projectionsBySession: {}, jobsBySession: {},
+    projectionsBySession: {},
   })
 
   const rowProps = (block: StartedToolCall | ToolResultNode): BashRowProps => ({
-    callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
+    useDisclosure, callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     t,
   } as unknown as BashRowProps)

@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
@@ -124,7 +125,7 @@ describe('webCardModel', () => {
 
 describe('chat row web body', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode, toolName: string): ToolCallOwnerProps => ({
-    callId: block.callId, toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useDisclosure, callId: block.callId, toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
   })
   // WebRow reads only toolName/block off the full runtime share plus the locale
   // seat; the standard kit is unused, so the cast supplies the owner slice and

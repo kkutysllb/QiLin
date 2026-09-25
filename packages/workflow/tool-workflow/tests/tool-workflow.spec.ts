@@ -119,7 +119,7 @@ describe('qilin-tool-workflow', () => {
     const result = await pending
     expect(result.isError).toBe(false)
     if (result.isError) throw new Error('expected workflow success')
-    expect(result.value).toEqual({ runId: 'run-1', agentsStarted: 7, result: { findings: [1, 2] } })
+    expect(result.value).toEqual({ kind: 'foreground', runId: 'run-1', agentsStarted: 7, result: { findings: [1, 2] } })
     const rendered = (result.content[0] as { text: string }).text
     expect(rendered).toContain('workflow "audit" completed (7 agents)')
     expect(rendered).toContain('"findings"')
@@ -361,7 +361,7 @@ describe('qilin-tool-workflow', () => {
     engine.settle({ value: { blob: 'x'.repeat(500) }, stopReason: 'completed', agentsStarted: 1 })
     const result = await pending
     if (result.isError) throw new Error('expected workflow success')
-    expect(result.value).toEqual({ runId: 'run-1', agentsStarted: 1, result: { blob: 'x'.repeat(500) } })
+    expect(result.value).toEqual({ kind: 'foreground', runId: 'run-1', agentsStarted: 1, result: { blob: 'x'.repeat(500) } })
     const rendered = (result.content[0] as { text: string }).text
     expect(rendered).toContain('[truncated:')
     expect(rendered.length).toBeLessThan(400)

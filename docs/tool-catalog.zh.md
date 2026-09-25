@@ -741,7 +741,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 ### `cordis_inspect_query`
 
-执行 Inspect Provider 明确声明的只读查询。platform、provider 和 method 必须来自 cordis_inspect_list，input 必须符合该方法的 schema。编写插件代码前，用本工具读取准确的 Service 方法、Event 模式、Builtin 签名、Tool schema、主题 token，或实时 Slot 树与 props。Host 查询在本地运行。Client 查询等待页面首个有效响应，直到页面回应或工具取消。本工具不能调用业务 Service 方法或修改运行时。对于 Service.listService 和 Event.listEvents，不传 input 可浏览精简签名目录，再查询准确服务或事件以获得完整约定及引用类型。对于 Slots.listSubTree，不传 root 可浏览精简树；查询准确的 Slot root 可获得完整注册约定和 props，而查询准确的 Factory root 只返回 identity、scope 与 registrant。
+执行 Inspect Provider 明确声明的只读查询。platform、provider 和 method 必须来自 cordis_inspect_list，input 必须符合该方法的 schema。编写插件代码前，用本工具读取准确的 Service 方法、Event 模式、插件 Config schema、Builtin 签名、Tool schema、主题 token，或实时 Slot 树与 props。Host 查询在本地运行。Client 查询等待页面首个有效响应，直到页面回应或工具取消。本工具不能调用业务 Service 方法或修改运行时。对于 Service.listService 和 Event.listEvents，不传 input 可浏览精简签名目录，再查询准确服务或事件以获得完整约定及引用类型。对于 Slots.listSubTree，不传 root 可浏览精简树；查询准确的 Slot root 可获得完整注册约定和 props，而查询准确的 Factory root 只返回 identity、scope 与 registrant。
 
 ```json
 {
@@ -2200,11 +2200,11 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
     },
     "wait": {
       "type": "boolean",
-      "description": "Block until the job reaches a terminal status or the timeout expires. A timed-out wait returns [status: running] and leaves the job alive."
+      "description": "Block until the job finishes or the timeout expires; a timed-out wait leaves the job running. Defaults to false."
     },
     "timeout_ms": {
       "type": "number",
-      "description": "Max wait in milliseconds (only meaningful with wait: true). Defaults to the configured wait timeout; capped by the configured maximum."
+      "description": "Max wait in milliseconds with wait: true. Defaults to and is capped by configuration."
     }
   },
   "required": [
@@ -2643,6 +2643,10 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
       "type": "object",
       "description": "Optional JSON input exposed to the script as the `args` global (wrap a bare list as a field, e.g. {\"files\": [...]}).",
       "additionalProperties": true
+    },
+    "run_in_background": {
+      "type": "boolean",
+      "description": "Run as a background job: return a job id immediately instead of waiting; the return value arrives with the completion notice."
     }
   },
   "required": [

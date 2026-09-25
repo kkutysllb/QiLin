@@ -418,7 +418,6 @@
     "e6094011d02333f6809cf20e06b9e576af8eaa68b43611a59dc2602ffc73affc": 1
   },
   "packages/client/file-upload/src/client/runtime.ts": {
-    "411af786a52607d3f0a36aeac171ef127e1c0529dd98db1049bfd61ecfaa6e31": 1,
     "e941ee9320fe4d2fc699606b2b7d7d93900fc398eb12a6413476fc0cb2202a8c": 1
   },
   "packages/client/file-upload/tests/file-upload-http.host.spec.ts": {
@@ -522,11 +521,11 @@
   "packages/client/ui-chat/tests/chat-view.client.spec.tsx": {
     "06eab82cdd7ea7f6c7b4c9239b377402c222145f8013c0d7ec04bce85bdd1cfc": 1,
     "19bd9f34bd0abe1902c19420967ccfd067279542f7e59a74fb77c540ed1149b8": 1,
-    "28750167446e99780852e21d646d75218909e2d4de3bb0522d04390daeb9496a": 1,
     "6061de0a1e01547eb1abf9d4e1b5fa79fda112fa35dda980775491123413dcce": 4,
     "6787497d471fc8faaa78ffcbd497c36ceba82c1b8ee16d0d450b405ad4dddc25": 1,
-    "8900ef02574048d62cd12c9a964b87136ca1a519d034421654eb57e00f44ed82": 1,
+    "8ea8b9a35f487d7989c6258dca480915b915ae6b0d2d74333dacc3b0a3548d60": 1,
     "984aca669e68d8dc9f17916567f59d8f9a008eb31d8fe0a7d79480581a19e88e": 1,
+    "b99cd9e9bc390c8d81ff349422b0805d8f5f4bc83642ae4877354601d6fee21a": 1,
     "effc640c659132aaf43fcbcf13833772ee1240198b7f8491d75a58c6b0f4c21e": 1
   },
   "packages/client/ui-chat/tests/conversation-node-definitions.client.spec.ts": {
@@ -632,9 +631,6 @@
   "packages/client/ui-input-trigger/tests/apply.client.spec.ts": {
     "fc590cb703f599e5bb15f23909cedddeb2a77cb2cad0d4b9b8e664a62c46f44e": 1
   },
-  "packages/client/ui-jobs/tests/job-list-action.client.spec.tsx": {
-    "0a7212cab13eacbb983b226949951fc76bad9e2d93dab9fad4639f7c541c2547": 1
-  },
   "packages/client/ui-message-feedback/tests/browser-plugin.client.spec.tsx": {
     "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2
   },
@@ -651,8 +647,8 @@
     "eee35b4d8641824c6eaacfe03ed60d353d81d5257d1111132f34d46a7b13ef35": 2
   },
   "packages/client/ui-open-in-app/tests/open-in-app-action.client.spec.tsx": {
-    "8f35c30929be28c26f7fde2b6ec43a46fb0e6c7ce4a9fead5a8ce37f796d9b91": 1,
-    "d6ca469f487b05b19564776f9a8f8288b1f0d9fb5b7fb6681e68f063fb021f38": 1
+    "4269979029e56a91148c3f6ab876c2d1d380843249b4e1fc2c3bb535cf6ab421": 1,
+    "fdc0ec545dc17a50bdc1c64102915706cfbfdbb65a2165ae4691f29d577063cd": 1
   },
   "packages/client/ui-permission-presets/src/client/settings-store.ts": {
     "b2df49a6ee30fc9061526ed8bcd8f32a8e011e38e0e378615637c3f41e130669": 1
@@ -919,12 +915,12 @@
   },
   "packages/client/ui-subagent/tests/sidebar-chat.client.spec.tsx": {
     "024f8748e8908a495117a23a7673046a871f0d8187f8fe561aceba1269aefa31": 1,
-    "6f46259a9f4093d68b3fc7859c263f21b6318197b74aba368e8904321ab5c4f9": 1,
-    "7eb46f4e5e11cef80bd04f36bf7e9b81b3b3e0811e6a50c8dc0e59b13409ab47": 1,
-    "93043ae394699d6c87db0291ac271884e16d5f5e5f80b8dffd6ec2ccbe0cb774": 1,
+    "6b28bc676d40af4e9323674864681f5f4b77d09269fb5b965331a639b2e146b0": 1,
     "9fe5203965e5ff62ab3b914bbcbb5229a5146bf9b12839d99684742579b0f30f": 1,
     "c3f6bb95ba0791435add9be26269aec3bd5cf7bb8a1ffd88913ff8b08b142ed3": 1,
+    "d7f7505ddc1a210f9562369d4b27c46219d315bd1ce70fbda3d1f903dceedef7": 1,
     "e9abfbf3920ecd6502b74e5eb04d3a1a40b2519f849f5daa193ab7819184ee8b": 1,
+    "f79d7548ae66e3db68e8efb7d0f07fbe52ab2ac56f1610170d6f8ed00ae86281": 1,
     "ffb048df32b10bac91f37b55c618701aa0f9d24c5b5504a3d3f953dc8b7cc7fb": 1
   },
   "packages/client/ui-theme/tests/apply.client.spec.ts": {
@@ -934,37 +930,34 @@
     "6adc289cf963470891b9b4aea9e09db4c98d96d09a245bf41bf679f8f608ba49": 1
   },
   "packages/client/ui-tool/tests/ask-question-row.client.spec.tsx": {
-    "6c5d515baefa7ae94d299082c4608ebf1baccf92b3dc05cc97cf34951628cf34": 1
+    "e4eaea47d81a304fffd298b9dde59b9846a150e7a18b0cad6403bc541b70d08a": 1
   },
   "packages/client/ui-tool/tests/coverage-tails.client.spec.tsx": {
-    "6de1698ed6315e39166efcbd9f4b0f78fe084a8483d1ef3afbe6bf04961e1429": 1
+    "89928b6d47434837e0ff1afc56684d1138d649bd9affb7d7f63fda485cd84b57": 1
   },
   "packages/client/ui-tool/tests/diff-card.client.spec.tsx": {
-    "1c867c917ea59cf305edad5cdecd6efbda19af50341d198212d27375aaa5cd05": 1
+    "99fd6ea1fbf9d3307d13a5ff20db27c9ad70f92bce994034a7b77786da816aef": 1
   },
   "packages/client/ui-tool/tests/image-card.client.spec.tsx": {
     "1a5ae4c2528dae3d43a3decbe30410647b6e60104341e070fd4de2c6a668a607": 1,
     "1d34efc5aadced56f018a7f1b453e5b2117ab13ab6e414a7bf32584a9b168af4": 1,
-    "7266b2c682605ac318dad266d9371b6061a73746beac20f2fd94e9391eca5d4a": 1,
-    "a4968fcd795d3444b0896dcd7e9688e84335d4fcc72e138c46f951d157a421c7": 1,
-    "e7e43fe6a2b3c7bd57e36b112dec7f132e3bb2fe044e5a325f1cfdb2186f891a": 1
+    "243adbaaccfd67bbb9294fd50402e79b23a9b3dbdd75571a4cf62a15a5ecf52d": 1,
+    "54b3d0738d9c8c1970c6eab1a041473d39b05b5b59c7ef98dd7fc99b0f02fac5": 1,
+    "a4968fcd795d3444b0896dcd7e9688e84335d4fcc72e138c46f951d157a421c7": 1
   },
   "packages/client/ui-tool/tests/read-card.client.spec.tsx": {
-    "0d71edd57c445ab1e438d44ee58004b345477b78a330b859e1751b56ce11ac78": 1,
+    "aa98581300209dbe4752ea457d6d073c41d56e05fff8f0d728cfb7f7f5336454": 1,
     "ad325101d9586299adfd569b444e203060197b4613a9ca3b36671b96a635c569": 1
   },
   "packages/client/ui-tool/tests/search-card.client.spec.tsx": {
-    "a55bf3db1325c2e464bd6441f694b493f376c9b527d8adbd9605cebb20c41b62": 1
+    "aca0e80a6213157b951bfb4a828c58cf9e9912315ca07855d4a792637ed8e7f0": 1
   },
   "packages/client/ui-tool/tests/terminal-card.client.spec.tsx": {
-    "fa04944d94670703de0422a6c2440ec2389f1560baef162f30bbdeda545081fa": 1
-  },
-  "packages/client/ui-tool/tests/todo-row.client.spec.tsx": {
-    "146b45b93a2e506578e28e7e6fd03939ca553297d18d9d0fb86cf1834081f5c9": 1
+    "647a0df1a0eadd4392e10402f060f3f5a1762e6521c75ea8227deba39997c467": 1
   },
   "packages/client/ui-tool/tests/tool-call-tree.client.spec.tsx": {
     "0579b8a3ceb3401991284810b465c683c710280c41f8e454e41183872b2475d1": 1,
-    "16eb0db786fdc3f0142b2cdc0b395de0375b4e7678eb8feb4e1663954813d654": 1
+    "43724ac52ee351bf7359b6c45b8fbc1bd0383de7cc8e0268e97901b0335d966e": 1
   },
   "packages/client/ui-tool/tests/tool-fixtures.client.ts": {
     "9a6d99786c6afdc9d28a2984f465f14ddf09c84795c6c02abfad39c3013cec69": 1,
@@ -1662,19 +1655,12 @@
   "packages/jobs/jobs-local/tests/loader-composition.spec.ts": {
     "6c63bac19d6b2a4ff9dfe30f3680730c3a33c1902f78072741bccdb4896a8215": 1
   },
-  "packages/jobs/jobs/tests/invariant.spec.ts": {
-    "2c66826d784c113eaf3f8ae7ac490920b0a9a5a0c8c3540743927379bebdddc9": 1
-  },
-  "packages/jobs/jobs/tests/service.spec.ts": {
-    "fefd68922319baf710eb6a4d8fbdc96901f0770b5da4dafd8285cadd7766dd7f": 1
-  },
   "packages/jobs/tool-jobs/src/index.ts": {
     "64ab5463fdb068e88a33f022baff473b7a0da77854c4ecf8e26412763d6dccf6": 1
   },
   "packages/jobs/tool-jobs/tests/tool-jobs.spec.ts": {
     "0683cfd7f792f1b6333bc8c419d8ce32a7a630179280a31083a8f664e26e0ec0": 1,
     "0cf18056bb99a9f7435d55db31bed426d69b9973f7e15ebbca466f9e08ac9ee3": 1,
-    "284e4fe44c92b2f7e60f312649a22debe743ec6640e3b7b0ff8c9c35b02c24f2": 1,
     "52faf4558fcd91bd27dbdfa7e497843e8eeb75ea5f68ee231335018d5b3f2053": 2
   },
   "packages/llm/deepseek-llm-api-extensions/src/index.ts": {

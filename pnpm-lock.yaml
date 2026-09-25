@@ -870,6 +870,46 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  packages/api/job-controller:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin/api-gateway':
+        specifier: workspace:*
+        version: link:../gateway
+      '@qilin/client-connection':
+        specifier: workspace:*
+        version: link:../../client/connection
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../../client/store
+      '@qilin/jobs':
+        specifier: workspace:*
+        version: link:../../jobs/jobs
+      '@qilin/jobs-local':
+        specifier: workspace:*
+        version: link:../../jobs/jobs-local
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin/typert-registry':
+        specifier: workspace:*
+        version: link:../../typert/registry
+
   packages/api/remotes:
     dependencies:
       '@qilin/deque':
@@ -891,6 +931,9 @@ importers:
       '@qilin/api-gateway':
         specifier: workspace:*
         version: link:../gateway
+      '@qilin/api-job-controller':
+        specifier: workspace:*
+        version: link:../job-controller
       '@qilin/api-session-controller':
         specifier: workspace:*
         version: link:../session-controller
@@ -1338,6 +1381,9 @@ importers:
 
   packages/boot/app-boot:
     dependencies:
+      '@eslint-community/regexpp':
+        specifier: ^4.12.2
+        version: 4.12.2
       '@qilin/atomic-write':
         specifier: workspace:*
         version: link:../../util/atomic-write
@@ -1347,6 +1393,9 @@ importers:
       '@qilin/package-manifest':
         specifier: workspace:*
         version: link:../../util/package-manifest
+      ajv:
+        specifier: ^8.20.0
+        version: 8.20.0
       js-yaml:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1381,6 +1430,9 @@ importers:
       '@qilin/launch-environment':
         specifier: workspace:*
         version: link:../../util/launch-environment
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
@@ -1994,6 +2046,9 @@ importers:
       '@qilin/agent-presets':
         specifier: workspace:*
         version: link:../../preset/agent-presets
+      '@qilin/api-job-controller':
+        specifier: workspace:*
+        version: link:../../api/job-controller
       '@qilin/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
@@ -2879,6 +2934,9 @@ importers:
       '@qilin/attachment':
         specifier: workspace:*
         version: link:../../attachment/attachment
+      '@qilin/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
@@ -2963,6 +3021,9 @@ importers:
       '@qilin/tools':
         specifier: workspace:*
         version: link:../../core/tools
+      '@qilin/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
       '@qilin/util-workspace-path':
         specifier: workspace:*
         version: link:../../util/workspace-path
@@ -3484,9 +3545,9 @@ importers:
 
   packages/client/ui-jobs:
     devDependencies:
-      '@qilin/api-session-controller':
+      '@qilin/api-job-controller':
         specifier: workspace:*
-        version: link:../../api/session-controller
+        version: link:../../api/job-controller
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
@@ -3508,9 +3569,15 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin/jobs':
+        specifier: workspace:*
+        version: link:../../jobs/jobs
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -5092,6 +5159,9 @@ importers:
 
   packages/client/ui-sidebar-tasks:
     devDependencies:
+      '@qilin/api-job-controller':
+        specifier: workspace:*
+        version: link:../../api/job-controller
       '@qilin/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
@@ -5122,6 +5192,9 @@ importers:
       '@qilin/client-ui-workspace':
         specifier: workspace:*
         version: link:../ui-workspace
+      '@qilin/jobs':
+        specifier: workspace:*
+        version: link:../../jobs/jobs
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -7754,6 +7827,9 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../../core/agent
+      '@qilin/app-boot':
+        specifier: workspace:*
+        version: link:../../boot/app-boot
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -8826,6 +8902,9 @@ importers:
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin/workspace':
+        specifier: workspace:*
+        version: link:../../workspace/workspace
 
   packages/jobs/jobs-local:
     dependencies:

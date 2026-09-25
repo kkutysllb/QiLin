@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
 
@@ -273,6 +274,7 @@ describe('tool-call-model', () => {
 
 describe('ToolRow', () => {
   const rowProps = {
+    useDisclosure,
     t,
     variant: 'bash' as const, icon: <i data-testid="tool-icon" />, title: 'Bash',
     summary: 'List files', bodyRaw: '{"a":1}', state: 'ok' as const,
@@ -523,6 +525,7 @@ describe('ToolRow', () => {
 describe('GenericToolCard', () => {
   const props = (toolName: string, block: StartedToolCall | ToolResultNode): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useDisclosure,
     callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
 

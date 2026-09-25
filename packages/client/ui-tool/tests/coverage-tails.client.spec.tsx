@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
@@ -28,13 +29,13 @@ function listStore() {
       [SID]: { id: SID, title: 'r', displayTitle: 'r', running: false, retainedBy: {}, blank: false, updatedAt: 0 },
     },
     phase: 'ready',
-    projectionsBySession: {}, jobsBySession: {},
+    projectionsBySession: {},
   })
 }
 
 function bashProps(block: StartedToolCall | ToolResultNode): BashRowProps {
   return {
-    callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
+    useDisclosure, callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
     sessionId: SID, useSessions: bindSnapshotSelector(listStore()),
     t,
   } as unknown as BashRowProps
@@ -43,7 +44,7 @@ function bashProps(block: StartedToolCall | ToolResultNode): BashRowProps {
 describe('Tool presentation tails', () => {
   it('ToolRow stopped state renders the warning dot in the leading slot', () => {
     const view = render(
-      <ToolRow t={t} variant="bash" icon={<i data-testid="icon" />} title="Bash" summary="s" state="stopped" />,
+      <ToolRow useDisclosure={useDisclosure} t={t} variant="bash" icon={<i data-testid="icon" />} title="Bash" summary="s" state="stopped" />,
     )
     expect(view.queryByTestId('icon')).toBeNull()
     expect(view.container.querySelector('[data-state="stopped"]')).not.toBeNull()
@@ -58,7 +59,7 @@ describe('Tool presentation tails', () => {
     }
     const props: GenericToolCardProps = {
       loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
-      callId: 'c5', toolName: 'todo_write', phase: 'result', block: settled, openFile: vi.fn(), t,
+      useDisclosure, callId: 'c5', toolName: 'todo_write', phase: 'result', block: settled, openFile: vi.fn(), t,
     }
     const view = render(<GenericToolCard {...props} />)
     expect(view.container.querySelector('[data-variant="others"] svg')).not.toBeNull()

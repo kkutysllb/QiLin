@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 /** todo_write atomic Tool presentation and its plan-summary model. */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -67,12 +68,12 @@ const resultNode = (argsRaw: string, over?: Partial<ToolResultNode>): ToolResult
 
 function rowProps(block: unknown): TodoRowProps {
   return {
-    callId: 'c1', toolName: 'todo_write', block,
+    useDisclosure, callId: 'c1', toolName: 'todo_write', block,
     openFile: vi.fn(),
     sessionId: 's1',
     useSessions: () => undefined,
     t,
-  } as unknown as TodoRowProps
+  } as TodoRowProps
 }
 
 describe('TodoRow', () => {

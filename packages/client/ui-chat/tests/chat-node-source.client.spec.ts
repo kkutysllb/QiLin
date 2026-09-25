@@ -32,6 +32,7 @@ describe('Chat Node keyed sources', () => {
     const builder = new ChatSnapshotBuilder()
     const nodes = Array.from({ length: 4_000 }, (_, index) => userNode(index + 1))
     const initial = builder.replace({ nodes, timeline })
+    builder.publish()
     const listeners = nodes.map(() => vi.fn())
     const sources: ChatNodeSource[] = nodes.map((node, index) => {
       const source = initial.nodes.source(node.key)
@@ -42,6 +43,7 @@ describe('Chat Node keyed sources', () => {
     const target = 2_347
     const changed = userNode(target + 1, 'streamed update')
     const next = builder.apply({ upserts: [changed], timeline })
+    builder.publish()
 
     expect(listeners[target]).toHaveBeenCalledOnce()
     expect(listeners.reduce((count, listener) => count + listener.mock.calls.length, 0)).toBe(1)

@@ -176,7 +176,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.assistant-actions\', () => ctx.slots.register(\n      { name: \'conversation.chat.assistant-actions\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:251',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:270',
   },
   {
     key: 'conversation.chat.commandview',
@@ -224,7 +224,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.commandview\', () => ctx.slots.register(\n      { name: \'conversation.chat.commandview\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:239',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:258',
   },
   {
     key: 'conversation.chat.node',
@@ -241,7 +241,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       },
     ],
     ownerProps: [
-      '/** Stable owner currency delivered to a keyed Chat renderer. */\nexport interface ChatNodeOwnerProps {\n  cwd?: string | undefined\n  /** Open the current source file of a skill referenced by a sent message. */\n  openSkill: (name: string) => void\n  openFile: (path: string, options?: OpenFileOptions) => void\n  inspectCall: (callId: ToolCallId) => void\n  forkAt: (seq: number) => void\n  /**\n   * Session-authorized image loader, down-threaded from the Chat view so a\n   * chat-node renderer can render the attachment presentation slot directly\n   * with only the durable references plus this loader, instead of receiving a\n   * rendering closure.\n   */\n  loadImage: MessageImageLoader\n  renderMessageImages: RenderMessageImages\n  fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined\n  /** Turn-process state when this Node belongs to a projected Turn. */\n  turnProcess?: TurnProcessOwnerProps | undefined\n  /**\n   * How a settled tool-call row presents its detail body, from the accepted\n   * work-details mode. Absent in detached renderers reads as `\'collapsed\'`,\n   * the Standard presentation.\n   */\n  toolDetail?: ToolCallDetail | undefined\n}',
+      '/** Stable owner currency delivered to a keyed Chat renderer. */\nexport interface ChatNodeOwnerProps {\n  /** Renderer-owned Node portion selected by the grouping Definition. */\n  groupPart?: string\n  cwd?: string | undefined\n  /** Open the current source file of a skill referenced by a sent message. */\n  openSkill: (name: string) => void\n  openFile: (path: string, options?: OpenFileOptions) => void\n  inspectCall: (callId: ToolCallId) => void\n  forkAt: (seq: number) => void\n  /** Session-authorized image loader for the attachment presentation slot. */\n  loadImage: MessageImageLoader\n  renderMessageImages: RenderMessageImages\n  fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined\n  /** Turn-process state when this Node belongs to a projected Turn. */\n  turnProcess?: TurnProcessOwnerProps | undefined\n  /** Detail body a settled tool-call row shows, from the work-details mode; absent reads as `\'collapsed\'`. */\n  toolDetail?: ToolCallDetail | undefined\n}',
     ],
     ownerPropsReferences: [
       'MarkdownFileMentions',
@@ -269,14 +269,15 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'useProjection: UseProjection',
       'useTrajectory: UseTrajectory',
     ],
-    keyDomain: 'fixed by the owner\'s key table { [Kind in ChatNodeKind]: { node: ChatNode<Kind> } }, already taken: assistant-step, command, command-input, compaction, context, manual-compaction, model-retry, steering, system-prompt, tool-call, turn-error, turn-max-tokens, turn-process, turn-tail, unknown, user, workflow-run',
-    hookContext: 'ConversationLocationDataStore<ConversationTurnDataMap> | undefined',
-    slotInject: 'ChatNodeTurnDataInjected',
+    keyDomain: 'fixed by the owner\'s key table { [Kind in ChatNodeKind]: { node: ChatNode<Kind> } }, already taken: assistant-step, command, command-input, compaction, context, manual-compaction, model-retry, steering, system-prompt, tool-call, turn-error, turn-max-tokens, turn-process, turn-tail, turn-trigger, unknown, user, workflow-run',
+    hookContext: 'ChatNodeHookContext',
+    slotInject: 'ChatNodeInjected',
     declaredBy: 'an entry in \'conversation.view\' (client-ui-chat), so it exists while that entry is mounted',
     occupants: [
       'client-ui-chat UserMessageNodeView key \'user\'',
       'client-ui-chat UserMessageNodeView key \'steering\'',
       'client-ui-chat ContextMessageNodeView key \'context\'',
+      'client-ui-chat TurnTriggerNodeView key \'turn-trigger\'',
       'client-ui-chat SystemPromptNodeView key \'system-prompt\'',
       'client-ui-chat AssistantNodeView key \'assistant-step\'',
       'client-ui-chat CommandNodeView key \'command\'',
@@ -294,7 +295,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.node\', () => ctx.slots.register(\n      { name: \'conversation.chat.node\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:220',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:239',
   },
   {
     key: 'conversation.chat.turnTail',
@@ -356,7 +357,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.turnTail\', () => ctx.slots.register(\n      { name: \'conversation.chat.turnTail\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:245',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:264',
   },
   {
     key: 'conversation.composer',
@@ -1107,7 +1108,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.message.images\', () => ctx.slots.register(\n      { name: \'conversation.message.images\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:233',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:252',
   },
   {
     key: 'conversation.plan-review.actions',
@@ -3319,7 +3320,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'tool.call.images\', () => ctx.slots.register(\n      { name: \'tool.call.images\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-tool/src/client/contract/slots.ts:49',
+    source: 'packages/client/ui-tool/src/client/contract/slots.ts:50',
   },
   {
     key: 'tool.call.toolview',
@@ -3336,18 +3337,18 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       },
     ],
     ownerProps: [
-      '/** Standard owner currency supplied to every atomic Tool view. */\nexport interface ToolCallCommonProps {\n  /** Call identity, stable across all stages. */\n  callId: string\n  /** Wire Tool name and keyed dispatch value. */\n  toolName: string\n  /** Session workspace root for relative summaries. */\n  cwd?: string | undefined\n  /** Host account home; POSIX home-rooted summaries display as `~`. */\n  home?: string | undefined\n  /**\n   * Open a Tool argument path. A view that knows which line the call was about\n   * passes it, and the opened surface lands there.\n   */\n  openFile: (path: string, options?: OpenFileOptions) => void\n  /**\n   * Session-authorized image loader for the `tool.call.images` slot, supplied\n   * by the chat node that owns this call. A composed chat node always\n   * supplies it (`ChatNodeOwnerProps.loadImage` is required), so the tool\n   * layer never imports an attachment implementation nor handles URL\n   * authorization.\n   */\n  loadImage: MessageImageLoader\n  /** Inspect this call in the trajectory view when available. */\n  inspect?: (() => void) | undefined\n  /**\n   * How the row presents its detail body, from the accepted work-details mode.\n   * Absent reads as  /* …truncated — full shape in source */',
+      '/** Standard owner currency supplied to every atomic Tool view. */\nexport interface ToolCallCommonProps {\n  /** Stable Hook; each invocation owns its open state and subscribes to enclosing-Turn resets. */\n  useDisclosure: UseDisclosure\n  /** Call identity, stable across all stages. */\n  callId: string\n  /** Wire Tool name and keyed dispatch value. */\n  toolName: string\n  /** Session workspace root for relative summaries. */\n  cwd?: string | undefined\n  /** Host account home; POSIX home-rooted summaries display as `~`. */\n  home?: string | undefined\n  /** Open a Tool argument path, at its optional requested line. */\n  openFile: (path: string, options?: OpenFileOptions) => void\n  /** Session-authorized loader for the `tool.call.images` slot; the owning chat node supplies it. */\n  loadImage: MessageImageLoader\n  /** Inspect this call in the trajectory view when available. */\n  inspect?: (() => void) | undefined\n  /** Detail body the row presents, from the work-details mode; absent reads as `\'collapsed\'`. */\n  detail?: ToolCallDetail | undefined\n}',
       '/** Common owner callbacks and the data admitted at the current tool stage. */\nexport type ToolCallOwnerProps = ToolCallCommonProps & ToolCallPhaseProps',
       '/** Stage-specific tool data; only start/result expose the dispatched call material. */\nexport type ToolCallPhaseProps =\n  | { readonly phase: \'preparing\'; readonly block: PreparingToolCall }\n  | { readonly phase: \'start\'; readonly block: StartedToolCall }\n  | { readonly phase: \'result\'; readonly block: ToolResultNode }',
     ],
     ownerPropsReferences: [
-      'ChatNodeOwnerProps',
       'MessageImageLoader',
       'OpenFileOptions',
       'PreparingToolCall',
       'StartedToolCall',
       'ToolCallDetail',
       'ToolResultNode',
+      'UseDisclosure',
     ],
     standardProps: [
       'useResource: UseResource',
@@ -3391,7 +3392,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'tool.call.toolview\', () => ctx.slots.register(\n      { name: \'tool.call.toolview\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-tool/src/client/contract/slots.ts:29',
+    source: 'packages/client/ui-tool/src/client/contract/slots.ts:30',
   },
   {
     key: 'tool.view.cordis',

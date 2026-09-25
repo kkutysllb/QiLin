@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
@@ -25,7 +26,7 @@ function preparation(name: string): Props {
   return {
     phase: 'preparing', callId: 'call', toolName: name,
     block: { phase: 'preparing', callId: 'call', name, turn: 1, step: 1, time: 1, subCalls: [] },
-    t: makeTranslate(en, common), useToolCallArgumentsPartial: vi.fn(() => ''), openFile: vi.fn(), loadImage: vi.fn(),
+    t: makeTranslate(en, common), useDisclosure, useToolCallArgumentsPartial: vi.fn(() => ''), openFile: vi.fn(), loadImage: vi.fn(),
   } as Props
 }
 

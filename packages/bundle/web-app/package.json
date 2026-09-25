@@ -45,6 +45,7 @@
     "@qilin/accounts-local": "workspace:*",
     "@qilin/agent-presets": "workspace:*",
     "@qilin/api-remotes": "workspace:*",
+    "@qilin/api-job-controller": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/api-settings-controller": "workspace:*",
     "@qilin/api-terminal-controller": "workspace:*",

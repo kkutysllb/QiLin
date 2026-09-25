@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 /** ToolCallTree-owned root/subcall markers and selection projection. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
@@ -46,6 +47,7 @@ function props(
       data: { root: block },
     },
     selectedCallId,
+    useDisclosure,
     openFile: vi.fn(),
     inspectCall: vi.fn(),
     forkAt: vi.fn(),

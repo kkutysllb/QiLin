@@ -12,13 +12,8 @@ export interface OpenInAppLaunchState {
   readonly path: string | null
 }
 
+/** Fetch-shaped carrier; a document-relative route reaches the served mount when the carrier resolves it. */
 type Fetch = (input: string | URL, init?: RequestInit) => Promise<Response>
-
-/** Resolve the browser's Host base with the connection carrier's null-origin fallback. */
-function hostBase(): string {
-  const origin = (globalThis as { location?: { origin?: string } }).location?.origin
-  return origin !== undefined && origin !== 'null' ? origin : 'http://qilin.internal'
-}
 
 /**
  * Owns the once-per-page availability read, the persisted last choice, and
@@ -83,7 +78,7 @@ export class OpenInAppController {
     this.operation.set({ phase: 'busy', path })
     const body: OpenInAppOpenPayload = { app: appId, path }
     try {
-      const response = await this.fetcher(new URL(OPEN_IN_APP_OPEN_ROUTE, hostBase()), {
+      const response = await this.fetcher(OPEN_IN_APP_OPEN_ROUTE, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(body),
@@ -99,7 +94,7 @@ export class OpenInAppController {
   private async run(): Promise<void> {
     let apps: readonly string[] = []
     try {
-      const response = await this.fetcher(new URL(OPEN_IN_APP_APPS_ROUTE, hostBase()), {
+      const response = await this.fetcher(OPEN_IN_APP_APPS_ROUTE, {
         headers: { accept: 'application/json' },
       })
       if (response.ok) {

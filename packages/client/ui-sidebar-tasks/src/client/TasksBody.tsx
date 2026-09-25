@@ -9,7 +9,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
-import type { SessionJob } from '@qilin/api-session-controller/types'
+import type { JobView } from '@qilin/jobs/view'
 import {
   IconChevronDownOutline14, IconChevronRightOutline14, IconRefreshOutline14, IconRefreshOutline16,
   StateDot,
@@ -138,7 +138,7 @@ function SubagentRowView({ row, t, onOpen, onInterrupt }: {
 
 /** One job row: status marker, kind, label, the producer's detail, and elapsed time. */
 function TaskRowView({ job, now, t }: {
-  readonly job: SessionJob
+  readonly job: JobView
   readonly now: number
   readonly t: TranslateNS<typeof NS>
 }): ReactNode {
@@ -171,11 +171,13 @@ function TaskRowView({ job, now, t }: {
  * @returns the two sections, or the single line a Session with no work shows.
  */
 export function TasksBody({
-  sessionId, useSessions, openChild, refresh, interruptChild, t,
+  sessionId, useSessions, useJobs, watchRows, openChild, refresh, interruptChild, t,
 }: TasksBodyProps): ReactNode {
   const summaries = useSessions(state => state.byId)
   const projections = useSessions(state => state.projectionsBySession)
-  const jobs = useSessions(state => state.jobsBySession[sessionId]) ?? NO_JOBS
+  const jobs = useJobs(state => state.rows[sessionId]) ?? NO_JOBS
+  // The pane keeps its Session roster current for as long as it is mounted.
+  useEffect(() => watchRows(sessionId), [sessionId, watchRows])
   const catalogs = useMemo(
     () => catalogsOf(projections, id => summaries[id]?.running === true),
     [projections, summaries],

@@ -5,7 +5,10 @@ import type { GlobalStandardProps } from '@qilin/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect } from 'react'
-import type { PerformanceUsageInjected, PresentationInjected } from '../src/client/contract/slots.ts'
+import type {
+  ChatNodeHookContext, PerformanceUsageInjected, PresentationInjected,
+} from '../src/client/contract/slots.ts'
+import { bindDisclosure } from '../src/client/chat/use-disclosure.ts'
 import type {
   AssistantMessageNode, ChatNode, ChatNodeOwnerProps, ChatNodeViewProps, ChatSnapshot,
   ChatViewSlotProps, CommandNode, CompactionSummaryNode, ContextMessageNode, ConversationNode,
@@ -16,9 +19,6 @@ import type {
 import type {
   SessionListState, SessionSnapshot,
 } from '@qilin/api-session-controller/client'
-import type {
-  ConversationLocationDataStore, ConversationTurnDataMap,
-} from '@qilin/client-ui-conversation/client'
 import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
@@ -206,7 +206,7 @@ const compaction = (over: Partial<CompactionSummaryNode> = {}): CompactionSummar
 /** Empty sessions-list hook for the global standard-kit seat. */
 function emptySessions() {
   const store = createSnapshotStore<SessionListState>(
-    { ids: [], byId: {}, phase: 'ready', projectionsBySession: {}, jobsBySession: {} })
+    { ids: [], byId: {}, phase: 'ready', projectionsBySession: {} })
   return bindSnapshotSelector(store)
 }
 
@@ -298,15 +298,15 @@ function makeHarness(
     if (nodeSlotOverride !== undefined) return nodeSlotOverride(key as never, owner as never, opts as never)
     if (key !== 'conversation.chat.node') return opts?.fallback ?? null
     const nodeOwner = owner as RoutedChatNodeOwner
-    const turnData = opts?.hookContext as
-      ConversationLocationDataStore<ConversationTurnDataMap> | undefined
-    const useTurnData: UseChatNodeTurnData = dataKey => useTurnDataValue(turnData, dataKey)
+    const hookContext = opts?.hookContext as ChatNodeHookContext | undefined
+    const useTurnData: UseChatNodeTurnData = dataKey => useTurnDataValue(hookContext?.turnData, dataKey)
     const nodeProps = <Kind extends ChatNode['kind']>(): ChatNodeViewProps<Kind>
       & InjectFace<PresentationInjected> & InjectFace<PerformanceUsageInjected> => (
       {
         ...props,
         ...nodeOwner,
         useTurnData,
+        useDisclosure: bindDisclosure(hookContext?.disclosureReset ?? createSnapshotStore(0)),
         // The shipped default detail level; mode coverage flips tailUsageMode.
         usePerformanceUsage: (selector: (value: 'compact' | 'detailed') => unknown) => selector(tailUsageMode),
       } as unknown as ChatNodeViewProps<Kind> & InjectFace<PresentationInjected>
@@ -392,6 +392,7 @@ function makeHarness(
     openSkill: () => {},
     useChatNode,
     useChatNodeProcess,
+    useChatGroup: () => undefined,
     useConversation: bindSnapshotSelector(createSnapshotStore(EMPTY_CONVERSATION_SNAPSHOT)),
     useTrajectory: (() => { throw new Error('unused') }),
     useSessions: emptySessions(),
@@ -492,10 +493,12 @@ function withSystemPrompt(
     visibility: 'visible',
     data: { text },
   }
-  return builder.replace({
+  const next = builder.replace({
     nodes: [prompt, ...snapshot.nodes.values()],
     timeline: snapshot.timeline,
   })
+  builder.publish()
+  return next
 }
 
 function renderedFlowKinds(container: HTMLElement): Array<string | undefined> {
@@ -1536,7 +1539,7 @@ describe('ChatView', () => {
     expect(answer?.hasAttribute('data-turn-process-answer')).toBe(false)
   })
 
-  it('keeps ordinary spacing when steering precedes the first process evidence', () => {
+  it('lets the answer own the disclosure when steering precedes the first process evidence', () => {
     const h = makeHarness({
       nodes: [
         steering(1, 'question', 1),
@@ -1549,8 +1552,10 @@ describe('ChatView', () => {
     const view = render(<h.ChatView {...h.props} />)
     const answer = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="assistant-step"]:not([hidden])')
 
+    // The opening input is the last one before the recorded process; steering
+    // ahead of that opening neither splits the range nor holds the disclosure open.
     expect(view.getByText('also mention safety')).toBeTruthy()
-    expect(answer?.hasAttribute('data-turn-process-answer')).toBe(false)
+    expect(answer?.hasAttribute('data-turn-process-answer')).toBe(true)
   })
 
   it('keeps a live Turn expanded and folds it once at turn/end', () => {
@@ -1718,7 +1723,7 @@ describe('ChatView', () => {
     expect(contextRow?.getAttribute('hidden')).toBe('until-found')
   })
 
-  it('keeps a foldable closed Turn fully visible while history is partial', () => {
+  it('folds a completed Turn whose start is outside a partial history window', () => {
     const h = makeHarness({
       nodes: [
         user(1, 'question'),
@@ -1732,14 +1737,15 @@ describe('ChatView', () => {
     const view = render(<h.ChatView {...h.props} />)
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
 
-    expect(turnProcessControl(view.container)).toBeNull()
-    expect(contextRow?.getAttribute('hidden')).toBeNull()
-    expect(contextRow?.hasAttribute('data-turn-process-member')).toBe(false)
-
-    act(() => { h.set({ hasMore: false }) })
+    // A loaded end is enough to fold a Turn: unloaded older history no longer
+    // withholds the process disclosure.
     const toggle = turnProcessControl(view.container)!
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(contextRow?.getAttribute('hidden')).toBe('until-found')
+    expect(contextRow?.hasAttribute('data-turn-process-member')).toBe(true)
+
+    act(() => { h.set({ hasMore: false }) })
+    expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('withholds process controls for partial history and folds final-page groups', () => {
@@ -1801,9 +1807,12 @@ describe('ChatView', () => {
       nodes: source.nodes.values().map(node => node.key === process.key ? partialProcess : node),
       timeline: source.timeline,
     })
+    builder.publish()
     const h = makeHarness({ chat: partial, hasMore: true })
     const view = render(<h.ChatView {...h.props} />)
-    expect(turnProcessControl(view.container)).toBeNull()
+    // The disclosure control stays mounted for a partial process range; only
+    // its foldable members are absent until the range fills in.
+    expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
 
     const beforeKeys = partial.locations.getTurn(1)
     const completeSpec = { ...partialSpec, processStartSeq: 2 }
@@ -1812,6 +1821,7 @@ describe('ChatView', () => {
       upserts: [{ ...partialProcess, data: completeSpec }],
       timeline: source.timeline,
     })
+    builder.publish()
     expect(complete.order).toBe(partial.order)
     expect(complete.nodes).toBe(partial.nodes)
     expect(complete.locations.getTurn(1)).not.toBe(beforeKeys)

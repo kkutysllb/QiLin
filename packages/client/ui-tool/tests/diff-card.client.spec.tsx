@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
@@ -160,6 +161,7 @@ describe('diffCardModel', () => {
 describe('chat row diff body', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useDisclosure,
     callId: 'c1', toolName: 'edit', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
 
@@ -184,7 +186,7 @@ describe('chat row diff body', () => {
     // A non-file tool name so the row is not single-file (no path link), and its
     // args body is the fallback the diff card must not have replaced.
     const view = render(<GenericToolCard {...{
-      callId: 'c1', toolName: 'some_tool', phase: 'result' as const, openFile: vi.fn(),
+      useDisclosure, callId: 'c1', toolName: 'some_tool', phase: 'result' as const, openFile: vi.fn(),
       loadImage: vi.fn(() => Promise.reject(new Error('not used'))), t,
       block: settled({
         call: { name: 'some_tool', argsRaw: '{"foo":"bar"}' },
@@ -202,11 +204,11 @@ describe('FileMutationRow diff card', () => {
     ids: [SID],
     byId: { [SID]: { id: SID, displayTitle: 'r', running: false, retainedBy: {}, blank: false, updatedAt: 0, cwd: '/w/app' } },
     phase: 'ready',
-    projectionsBySession: {}, jobsBySession: {},
+    projectionsBySession: {},
   })
 
   const rowProps = (block: StartedToolCall | ToolResultNode, toolName = 'edit'): FileMutationRowProps => ({
-    callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), cwd: '/w/app',
+    useDisclosure, callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), cwd: '/w/app',
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     t,
   } as unknown as FileMutationRowProps)

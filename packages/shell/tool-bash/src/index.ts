@@ -22,9 +22,9 @@ import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import { ESCALATION_TARGETS, approveEscalation, validateEscalationArgs } from '@qilin/sandbox'
 import type { SandboxPolicyService } from '@qilin/sandbox-policy'
 import { QILIN_ENV_PREFIX } from '@qilin/shell'
-import type { ShellRunResult } from '@qilin/shell'
-import { processJob } from './background.ts'
-import { parseExitStatus, renderProcessRead, renderResult } from './render.ts'
+import type { ShellProcess, ShellRunResult } from '@qilin/shell'
+import { processJob, processOutcome, processSources } from './background.ts'
+import { parseExitStatus, renderResult } from './render.ts'
 
 export const name = 'tool-bash'
 export const inject = ['tools', 'shell', 'systemPrompt', 'shellEnv']
@@ -365,13 +365,18 @@ export function apply(ctx: Context, config: Config = {}): void {
           throw error
         }
         // Task preflight finishes before the starter can spawn a process.
+        let proc: ShellProcess | undefined
         const id = jobs.start({
           kind: 'bash',
           label: args.command,
-          ...exec.agent ? { owner: exec.agent } : {},
+          ...exec.agent ? { owner: exec.agent.id } : {},
+          output: processSources(() => proc, escalationModes),
           run: () => processJob(
-            signal => ctx.shell.start(ctx.shell.resolve({ ...request, signal })),
-            proc => renderProcessRead(proc.readOutput(), proc.sandbox, escalationModes),
+            async (signal) => {
+              proc = await ctx.shell.start(ctx.shell.resolve({ ...request, signal }))
+              return proc
+            },
+            started => processOutcome(started, escalationModes),
           ),
         })
         return { kind: 'background' as const, jobId: id }

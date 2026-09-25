@@ -4,14 +4,23 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { browserFaceSources, findRouteResolutionViolations, type RouteGateFace } from './verify-client-route-resolution.ts'
+import {
+  browserFaceSources, findRouteResolutionViolations, routeKeyIndex,
+  type RouteGateFace, type RouteKeyIndex,
+} from './verify-client-route-resolution.ts'
 
-function patterns(file: string, source: string, face?: RouteGateFace): string[] {
-  return findRouteResolutionViolations(file, source, face).map(violation => violation.pattern)
+function patterns(file: string, source: string, face?: RouteGateFace, index?: RouteKeyIndex): string[] {
+  return findRouteResolutionViolations(file, source, face, index).map(violation => violation.pattern)
 }
 
-function rules(file: string, source: string, face?: RouteGateFace): string[] {
-  return findRouteResolutionViolations(file, source, face).map(violation => violation.rule)
+function rules(file: string, source: string, face?: RouteGateFace, index?: RouteKeyIndex): string[] {
+  return findRouteResolutionViolations(file, source, face, index).map(violation => violation.rule)
+}
+
+/** Lines and rules of every violation, in source order. */
+function located(file: string, source: string, index?: RouteKeyIndex): [number, string][] {
+  return findRouteResolutionViolations(file, source, 'browser', index)
+    .map(violation => [violation.line, violation.rule] as [number, string])
 }
 
 const CLIENT_FILE = 'packages/client/ui-example/src/client/View.tsx'
@@ -88,6 +97,101 @@ describe('browser app-route guard', () => {
       const mapped = new URL(input, globalThis.location.origin)
       return [url, ok, mapped]
     `).map(violation => [violation.line, violation.rule])).toEqual([[2, 'location-base']])
+  })
+
+  it('rejects a request target that resolves to a root-absolute route through a local call or binding', () => {
+    const source = `
+      const SETUP_ENDPOINT = '/api/auth/setup'
+      const LOGIN_ROUTE = 'api/auth/login'
+      function endpointFor(mode: string): string {
+        if (mode === 'setup') return SETUP_ENDPOINT
+        return LOGIN_ROUTE
+      }
+      export async function submit(mode: string) {
+        const resolved = endpointFor(mode)
+        await fetch(endpointFor(mode))
+        await fetch(resolved)
+      }
+    `
+    expect(located(CLIENT_FILE, source)).toEqual([[10, 'request-target'], [11, 'request-target']])
+  })
+
+  it('leaves a request target alone when it resolves to a relative route or to nothing local', () => {
+    const source = `
+      const LOGIN_ROUTE = 'api/auth/login'
+      function routeFor(mode: string): string {
+        return mode === 'setup' ? LOGIN_ROUTE : 'api/auth/register'
+      }
+      const imported = externalRouteFor('setup')
+      await fetch(routeFor('setup'))
+      await fetch(imported)
+    `
+    expect(patterns(CLIENT_FILE, source)).toEqual([])
+  })
+
+  it('rejects a route key composed into a browser address by a template', () => {
+    const source = `
+      import { FILE_UPLOAD_PATH } from '../protocol.ts'
+      const CHANGED_FILES_PATH = '/api/changes.summary'
+      const SAMPLE_PATH = 'M0 0h4v4z'
+      export function url(id: string, query: string) {
+        const registersPath = server.register({ path: CHANGED_FILES_PATH })
+        const svg = \`\${SAMPLE_PATH} z\`
+        const upload = \`\${FILE_UPLOAD_PATH}?\${query}\`
+        const summary = \`\${CHANGED_FILES_PATH}?id=\${id}\`
+        const derived = \`\${CHANGED_FILES_PATH.slice(1)}?id=\${id}\`
+        return [registersPath, svg, upload, summary, derived]
+      }
+    `
+    expect(located(CLIENT_FILE, source)).toEqual([[8, 'host-route-key'], [9, 'host-route-key']])
+  })
+
+  it('rejects a route key resolved against a location read reached through a local helper', () => {
+    const source = `
+      import { OPEN_IN_APP_APPS_ROUTE } from '@qilin/host-open-in-app/shared'
+      function hostBase(): string {
+        const origin = (globalThis as { location?: { origin?: string } }).location?.origin
+        return origin !== undefined && origin !== 'null' ? origin : 'http://qilin.internal'
+      }
+      const bad = new URL(OPEN_IN_APP_APPS_ROUTE, hostBase())
+      const documentRelative = new URL('open-in-app/apps', document.baseURI)
+      const literalBase = new URL(OPEN_IN_APP_APPS_ROUTE, 'http://qilin.internal')
+      return [bad, documentRelative, literalBase]
+    `
+    expect(located(CLIENT_FILE, source)).toEqual([[7, 'location-base']])
+  })
+
+  it('leaves a URL whose base is not a location read, and a non-route operand, alone', () => {
+    const source = `
+      import { OPEN_IN_APP_APPS_ROUTE } from '@qilin/host-open-in-app/shared'
+      const item = new URL(input, location.origin)
+      const route = new URL(OPEN_IN_APP_APPS_ROUTE, scene.base)
+      return [item, route]
+    `
+    expect(patterns(CLIENT_FILE, source)).toEqual([])
+  })
+
+  it('reads the corpus declaration of a shared route key instead of its name alone', () => {
+    const index = routeKeyIndex([
+      ['packages/client/ui-primitives/src/index.ts', `
+        export const FISH_LOGO_PATH = 'M22.9 1.4C'
+      `],
+      ['packages/client/file-upload/src/protocol.ts', `
+        export const FILE_UPLOAD_PATH = '/api/session/uploadFileBinary'
+        export const FILE_UPLOAD_ROUTE = FILE_UPLOAD_PATH.slice(1)
+      `],
+    ])
+    expect([...index.appRoutes]).toEqual(['FILE_UPLOAD_PATH'])
+    expect([...index.otherKeys]).toEqual(['FISH_LOGO_PATH'])
+    // A key the corpus declares over a non-app value is not an app route, even
+    // where no local declaration is visible.
+    expect(rules(CLIENT_FILE, `
+      export const v = \`\${FISH_LOGO_PATH} z\`
+    `, 'browser', index)).toEqual([])
+    // A key declared outside the corpus stays app-owned by convention.
+    expect(rules(CLIENT_FILE, `
+      export const v = \`\${FILE_UPLOAD_PATH} z\`
+    `, 'browser', index)).toEqual(['host-route-key'])
   })
 
   it('leaves identity and transport reads of location alone', () => {

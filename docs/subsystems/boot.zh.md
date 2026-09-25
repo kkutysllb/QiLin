@@ -125,8 +125,10 @@ Manage profile files and apply their declared reload lifecycle.
 @Remote setBundleEnabled(name: string, enabled: boolean): Promise<ChangeResult>
 
 /**
- * Install a package using the same pnpm implementation as qilin plugin. A run
- * that fails, is cancelled, or adds a package without a bundle patch restores
+ * Install a package using the same pnpm implementation as qilin plugin. GitHub
+ * repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts;
+ * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback.
+ * A run that fails, is cancelled, or adds a package without a bundle patch restores
  * `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.
  * @param spec One package spec, including local paths relative to the invocation directory.
  * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names, and

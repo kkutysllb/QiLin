@@ -10,6 +10,8 @@ import type { RenderResult } from '@testing-library/react'
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
 import type { SessionListState } from '@qilin/api-session-controller/client'
+import type { JobsSnapshot } from '@qilin/api-job-controller/client'
+import type { JobView } from '@qilin/jobs/view'
 import { makeTranslate } from '@qilin/client-test-runtime'
 import type { SessionId } from '@qilin/session/types'
 import type { TasksInjected } from '../src/client/face.ts'
@@ -55,13 +57,24 @@ function listState(state: Partial<SessionListState>): SessionListState {
     byId: {},
     phase: 'ready',
     projectionsBySession: {},
-    jobsBySession: {},
     ...state,
   }
 }
 
+/** A bare jobs source over the rows a spec hands the mount. */
+function jobsSource(rows: readonly JobView[]) {
+  const snapshot: JobsSnapshot = {
+    rows: rows.length === 0 ? {} : { [SESSION]: rows },
+    observed: {},
+  }
+  return {
+    getSnapshot: () => snapshot,
+    subscribe: () => () => {},
+  }
+}
+
 /** The four shares a mount needs, plus the actions a spec asserts on. */
-function hands(state: Partial<SessionListState>) {
+function hands(state: Partial<SessionListState>, rows: readonly JobView[] = []) {
   const openChild = vi.fn<TasksInjected['openChild']>()
   const refresh = vi.fn<TasksInjected['refresh']>()
   const interruptChild = vi.fn<TasksInjected['interruptChild']>()
@@ -73,6 +86,9 @@ function hands(state: Partial<SessionListState>) {
     openChild,
     refresh,
     interruptChild,
+    hooks: { jobs: jobsSource(rows) },
+    useJobs: <S,>(selector: (snapshot: JobsSnapshot) => S): S => selector(jobsSource(rows).getSnapshot()),
+    watchRows: () => () => {},
     t: makeTranslate(zh),
   }
   return { shared, openChild, refresh, interruptChild }
@@ -83,8 +99,8 @@ function hands(state: Partial<SessionListState>) {
  * @param state - the Session list fields the spec wants the body to see.
  * @returns the rendered view and the injected action mocks.
  */
-export function mountBody(state: Partial<SessionListState> = {}): Mounted {
-  const { shared, openChild, refresh, interruptChild } = hands(state)
+export function mountBody(state: Partial<SessionListState> = {}, rows: readonly JobView[] = []): Mounted {
+  const { shared, openChild, refresh, interruptChild } = hands(state, rows)
   const view = render(<TasksBody {...shared as unknown as TasksBodyProps} />)
   return { view, openChild, refresh, interruptChild }
 }
@@ -94,7 +110,7 @@ export function mountBody(state: Partial<SessionListState> = {}): Mounted {
  * @param state - the Session list fields the spec wants the badge to see.
  * @returns the rendered view.
  */
-export function mountBadge(state: Partial<SessionListState> = {}): RenderResult {
-  const { shared } = hands(state)
+export function mountBadge(state: Partial<SessionListState> = {}, rows: readonly JobView[] = []): RenderResult {
+  const { shared } = hands(state, rows)
   return render(<TasksBadge {...shared as unknown as TasksBadgeProps} />)
 }

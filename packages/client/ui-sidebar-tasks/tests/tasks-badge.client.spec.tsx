@@ -24,16 +24,14 @@ describe('TasksBadge', () => {
     const view = mountBadge({
       projectionsBySession: { [SESSION]: projection([child('busy'), child('idle')]) },
       byId: { [sid('busy')]: summary(sid('busy'), true) },
-      jobsBySession: { [SESSION]: [job('live'), job('done', { status: 'completed' })] },
-    })
+    }, [job('live'), job('done', { status: 'completed' })])
     expect(view.container.textContent).toBe('2')
   })
 
   it('renders nothing while no subagent and no job is running', () => {
     const view = mountBadge({
       projectionsBySession: { [SESSION]: projection([child('idle')]) },
-      jobsBySession: { [SESSION]: [job('done', { status: 'failed' })] },
-    })
+    }, [job('done', { status: 'failed' })])
     expect(view.container.textContent).toBe('')
   })
 

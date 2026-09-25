@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-jobs",
-  "description": "Session-header background-job list: live registry state mirrored from session/jobs frames",
+  "description": "Session-header background-job list with on-demand streaming record panels",
   "version": "3.0.4",
   "type": "module",
   "main": "lib/index.js",
@@ -20,6 +20,7 @@
   "qilin": {
     "client": {
       "inject": [
+        "@qilin/api-job-controller",
         "@qilin/client-locale",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-primitives"
@@ -47,6 +48,7 @@
     "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin/api-job-controller": "workspace:*",
     "@qilin/client-locale": "workspace:*",
     "@qilin/client-test-runtime": "workspace:*",
     "@qilin/client-ui-conversation": "workspace:*",
@@ -55,9 +57,10 @@
     "@types/react": "~18.3.1",
     "@qilin/kylin": "workspace:~",
     "react": "^18.2.0",
-    "@qilin/api-session-controller": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*"
+    "@qilin/client-ui-session": "workspace:*",
+    "@qilin/jobs": "workspace:*",
+    "@qilin/session": "workspace:*"
   },
   "files": [
     "lib/index.js",

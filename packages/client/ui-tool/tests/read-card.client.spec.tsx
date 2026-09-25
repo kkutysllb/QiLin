@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
@@ -165,6 +166,7 @@ describe('readCallLine', () => {
 describe('GenericToolCard read body', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useDisclosure,
     callId: 'c1', toolName: 'read', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
 
@@ -187,7 +189,7 @@ describe('GenericToolCard read body', () => {
 
   it('a non-read tool renders the bare row with no read card', () => {
     const view = render(<GenericToolCard {...({
-      callId: 'c1', toolName: 'echo', phase: 'result' as const, block: settled({
+      useDisclosure, callId: 'c1', toolName: 'echo', phase: 'result' as const, block: settled({
         call: { name: 'echo', argsRaw: '{"text":"x"}' }, meta: undefined,
       }), openFile: vi.fn(), loadImage: vi.fn(() => Promise.reject(new Error('not used'))), t,
     })} />)
@@ -206,11 +208,11 @@ describe('ReadRow keyed toolview', () => {
     ids: [SID],
     byId: { [SID]: { id: SID, displayTitle: 'r', running: false, retainedBy: {}, blank: false, updatedAt: 0, cwd: '/w/app' } },
     phase: 'ready',
-    projectionsBySession: {}, jobsBySession: {},
+    projectionsBySession: {},
   })
 
   const rowProps = (block: StartedToolCall | ToolResultNode): Parameters<typeof ReadRow>[0] => ({
-    callId: 'c1', toolName: 'read', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
+    useDisclosure, callId: 'c1', toolName: 'read', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     t,
   } as unknown as Parameters<typeof ReadRow>[0])

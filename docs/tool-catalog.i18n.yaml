@@ -93,8 +93,8 @@
   en: 110e0e7f0817aa37
   zh: a8c81e723d1dfa7a
 /tool-schema-catalog/qilin-tool-kylin/cordis-inspect-query:
-  en: afad7fcaaf5afb33
-  zh: dc30f689282da230
+  en: e1230a7cc033f7ec
+  zh: 9a8d2574d8cb319e
 /tool-schema-catalog/qilin-tool-bash-persistent:
   en: 242fdef722e6a846
   zh: 242fdef722e6a846
@@ -246,13 +246,13 @@
   en: d245a22300c8e661
   zh: d245a22300c8e661
 /tool-schema-catalog/qilin-tool-jobs/job-kill:
-  en: 39e53ddd7ea31c2d
+  en: 14294cc1988ae768
   zh: 16640c2952c263b6
 /tool-schema-catalog/qilin-tool-jobs/job-list:
   en: 0c37fb1fed979d72
   zh: 5ea9d07f5a4a8a6c
 /tool-schema-catalog/qilin-tool-jobs/job-output:
-  en: 46c22538eb7e9d01
+  en: 4ba47dba245f959b
   zh: 87f0610836a1f92d
 /tool-schema-catalog/qilin-experimental-tool-agent-team:
   en: 3736d545b6a0384f
@@ -294,7 +294,7 @@
   en: 80bab5bccee10310
   zh: 80bab5bccee10310
 /tool-schema-catalog/qilin-tool-workflow/workflow:
-  en: c52e04e6b8ba105b
+  en: 931986087b5743c9
   zh: 1af3f060174e0101
 /tool-schema-catalog/qilin-tool-web:
   en: b2ece8a24ad215d0

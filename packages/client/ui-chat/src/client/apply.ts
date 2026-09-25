@@ -3,6 +3,7 @@ import type { Context } from '@qilin/kylin'
 import type { ImageAttachmentRef } from '@qilin/attachment'
 import type {} from '@qilin/api-remotes/client'
 import type { SessionBinding } from '@qilin/api-session-controller/client'
+import type { GroupKey } from '@qilin/client-ui-conversation/client'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/client-ui-sidebar-right/client'
@@ -22,7 +23,7 @@ import type {} from '@qilin/client-ui-session/client'
 import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-workspace/client'
 import type {
-  ChatNodeTurnDataInjected, ChatScrollPosition, ChatViewInjected,
+  ChatNodeInjected, ChatScrollPosition, ChatViewInjected,
   TurnTailOwnerProps,
 } from './contract/slots.ts'
 import type { ChatSnapshot } from './contract/snapshot.ts'
@@ -42,12 +43,14 @@ import { PerformanceUsagePolicy } from './performance-usage.ts'
 import { derivePresentationPolicy } from './presentation-policy.ts'
 import { CHAT_SETTINGS_NAMESPACE, DEFAULT_LINK_OPENING, type ChatSettings, type LinkOpening } from '../chat-settings.ts'
 import { useTurnDataValue } from './chat/use-turn-data.ts'
+import { bindDisclosure } from './chat/use-disclosure.ts'
 
-const CHAT_NODE_INJECT: ChatNodeTurnDataInjected = {
+const CHAT_NODE_INJECT: ChatNodeInjected = {
   hooks: {
-    turnData: (_standard, data) => function useTurnData(key) {
-      return useTurnDataValue(data, key)
+    turnData: (_standard, { turnData }) => function useTurnData(key) {
+      return useTurnDataValue(turnData, key)
     },
+    disclosure: (_standard, { disclosureReset }) => bindDisclosure(disclosureReset),
   },
 }
 
@@ -160,11 +163,14 @@ export function apply(ctx: Context): void {
         if (binding === undefined) throw new Error(`ui-chat: unknown session "${sessionId}"`)
         const session = binding.session
         const chat = chatSource(binding)
+        const conversation = ctx.uiConversation.binding(binding)
         return {
           hooks: { presentation },
           keyedHooks: {
             chatNode: key => chat.getSnapshot().nodes.source(key),
             chatNodeProcess: key => chat.getSnapshot().nodes.processSource(key),
+            chatGroup: key => conversation.snapshot.getSnapshot()
+              .views.grouped('chat')?.groupSource(key as GroupKey),
           },
           fileMentions: (owner: TurnTailOwnerProps) => ctx.get('chatFileMentions')?.forClosing(owner, sessionId),
           // A tool card's inspect action opens the Sidebar's ledger tab,

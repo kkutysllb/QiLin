@@ -545,7 +545,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
             const id = jobs.start({
               kind: 'subagent',
               label: args.description,
-              owner: parent,
+              owner: parent.id,
               run: () => {
                 const controller = new AbortController()
                 const start = runtimeCtx.subagents.start(config.provider, { ...request, signal: controller.signal })

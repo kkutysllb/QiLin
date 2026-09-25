@@ -36,12 +36,15 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin/agent": "workspace:*",
+    "@qilin/app-boot": "workspace:*",
     "@qilin/kylin-host-runner": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~",
     "@qilin/system-prompt": "workspace:*",
     "@qilin/tools": "workspace:*",
     "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin/app-boot": "workspace:*",
     "@qilin/kylin-plugin-loader": "workspace:~",
     "@qilin/agent": "workspace:*",
     "@qilin/kylin-host-runner": "workspace:*",

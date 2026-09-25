@@ -64,7 +64,6 @@ function bench(options: {
   const sessions = createSnapshotStore<SessionListState>({
     ids: Object.keys(byId) as SessionId[], byId, phase: 'ready',
     projectionsBySession: options.projections ?? { [SESSION]: { state: 'ready', error: null, values: { agentTeam: team } } },
-    jobsBySession: {},
   })
   const statuses = createSnapshotStore<SessionStatusSnapshot>(options.statuses ?? new Map())
   const session = createSnapshotStore<SessionSnapshot>({

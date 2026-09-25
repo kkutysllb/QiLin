@@ -55,6 +55,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`@codemirror/view`](https://code.haverbeke.berlin/codemirror/view) | MIT |
 | [`@deepseek-ai/libreoffice-kit`](https://github.com/deepseek-harness/libreoffice-kit) | MPL-2.0 |
 | [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi) | MIT |
+| [`@eslint-community/regexpp`](https://github.com/eslint-community/regexpp) | MIT |
 | [`@joplin/turndown-plugin-gfm`](https://github.com/laurent22/joplin-turndown-plugin-gfm) | MIT |
 | [`@jridgewell/gen-mapping`](https://github.com/jridgewell/sourcemaps) | MIT |
 | [`@js-temporal/polyfill`](https://github.com/js-temporal/temporal-polyfill) | ISC |
@@ -87,6 +88,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`@xterm/xterm`](https://github.com/xtermjs/xterm.js) | MIT |
 | [`@yarnpkg/parsers`](https://github.com/yarnpkg/berry) | BSD-2-Clause |
 | [`acorn`](https://github.com/acornjs/acorn) | MIT |
+| [`ajv`](https://github.com/ajv-validator/ajv) | MIT |
 | [`anser`](https://github.com/IonicaBizau/anser) | MIT |
 | [`buffer`](https://github.com/feross/buffer) | MIT |
 | [`chokidar`](https://github.com/paulmillr/chokidar) | MIT |

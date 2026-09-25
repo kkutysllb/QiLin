@@ -20,18 +20,19 @@ export function FileMutationRow(props: FileMutationRowProps) {
     : <StartedFileMutationRow {...props} />
 }
 
-function PreparingFileMutationRow({ toolName, useToolCallArgumentsPartial, t }: Extract<FileMutationRowProps, { phase: 'preparing' }>) {
+function PreparingFileMutationRow({ toolName, useToolCallArgumentsPartial, useDisclosure, t }: Extract<FileMutationRowProps, { phase: 'preparing' }>) {
   const raw = useToolCallArgumentsPartial()
-  return <PreparingToolRow toolName={toolName} icon={FILE_MUTATION_ICON}
+  return <PreparingToolRow toolName={toolName} useDisclosure={useDisclosure} icon={FILE_MUTATION_ICON}
     title={t(toolTitleKey(toolName))} t={t}
     summary={t('tool.preparing.content', { kilobytes: Math.ceil(raw.length / 1024) })} />
 }
 
-function StartedFileMutationRow({ toolName, block, cwd, home, openFile, inspect, detail, t }: Exclude<FileMutationRowProps, { phase: 'preparing' }>) {
+function StartedFileMutationRow({ toolName, block, cwd, home, openFile, inspect, detail, useDisclosure, t }: Exclude<FileMutationRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block, cwd, home)
   const diff = diffCardModel(block)
   return (
     <ToolRow
+      useDisclosure={useDisclosure}
       t={t}
       detail={detail}
       variant={model.variant}

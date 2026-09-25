@@ -184,7 +184,7 @@ flowchart LR
   cfg --> plugin_qilin_base_agent_loop
   plugin_qilin_base_fs_sandbox["fs-sandbox<br/>@qilin/fs-sandbox"]
   cfg --> plugin_qilin_base_fs_sandbox
-  plugin_qilin_base_llm_deepseek["llm-deepseek<br/>@qilin/llm-deepseek"]
+  plugin_qilin_base_llm_deepseek["llm-deepseek<br/>@qilin/llm-deepseek-api-key"]
   cfg --> plugin_qilin_base_llm_deepseek
 ```
 
@@ -278,7 +278,7 @@ flowchart LR
 | `system-prompt` | `@qilin/system-prompt` |
 | `agent-loop` | `@qilin/agent-loop` |
 | `fs-sandbox` | `@qilin/fs-sandbox` |
-| `llm-deepseek` | `@qilin/llm-deepseek` |
+| `llm-deepseek` | `@qilin/llm-deepseek-api-key` |
 
 Source config: [`packages/bundle/base/cordis.patch.yml`](../../packages/bundle/base/cordis.patch.yml).
 

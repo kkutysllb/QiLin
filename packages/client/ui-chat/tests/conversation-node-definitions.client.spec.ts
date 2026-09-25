@@ -512,8 +512,11 @@ describe('built-in conversation node Definitions', () => {
       at(4, 'step/start', { turn: 1, step: 1 }),
     ])
     const opening = snapshot(value)
+    // The opening-input anchor is derived from a recorded process control, so a
+    // Turn's pre-control rows keep their anchor order. Upstream removes the
+    // context row from the visible order instead (infrastructure-row filter).
     expect(opening.order.map(key => opening.nodes.get(key)?.kind)).toEqual([
-      'user', 'context',
+      'context', 'user',
     ])
 
     value.append(at(5, 'assistant/live-chunk', {

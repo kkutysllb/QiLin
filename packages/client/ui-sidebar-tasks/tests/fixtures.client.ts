@@ -3,7 +3,7 @@
  * diagnostic rows, and one background-job row.
  */
 import type { SessionProjectionSnapshot } from '@qilin/api-session-controller/client'
-import type { SessionJob } from '@qilin/api-session-controller/types'
+import type { JobView } from '@qilin/jobs/view'
 import type { SessionId } from '@qilin/session/types'
 import type { SubagentCatalogEntry, SubagentListEntry } from '@qilin/subagent/client'
 import type { CatalogRow, CatalogSnapshot } from '../src/client/rows.ts'
@@ -107,7 +107,7 @@ export function diagnostic(
 
 /** Options one job fixture accepts. */
 export interface JobOptions {
-  readonly status?: SessionJob['status']
+  readonly status?: JobView['status']
   readonly startedAt?: number
   readonly finishedAt?: number
   readonly detail?: string
@@ -119,13 +119,14 @@ export interface JobOptions {
  * @param options - status, start, settlement time, and producer detail.
  * @returns the job the Session list holds.
  */
-export function job(value: string, options: JobOptions = {}): SessionJob {
+export function job(value: string, options: JobOptions = {}): JobView {
   return {
-    id: value as SessionJob['id'],
+    id: value as JobView['id'],
     kind: 'bash',
     label: value,
     status: options.status ?? 'running',
     startedAt: options.startedAt ?? 0,
+    output: { total: 0, earliest: 0 },
     ...(options.finishedAt === undefined ? {} : { finishedAt: options.finishedAt }),
     ...(options.detail === undefined ? {} : { detail: options.detail }),
   }

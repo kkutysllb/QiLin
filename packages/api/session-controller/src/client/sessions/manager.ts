@@ -7,7 +7,6 @@ import type { WorkspaceId } from '@qilin/workspace/types'
 import type {
   SessionControlBaseline,
   SessionControlFrame,
-  SessionJob as JobView,
   SessionProjectionHints,
   SessionRenameValue,
   SessionSummary,
@@ -56,8 +55,6 @@ export interface SessionListSnapshot {
   phase: SessionListPhase
   error: RemoteFailure | null
   projectionsBySession: Readonly<Record<SessionId, SessionProjectionSnapshot>>
-  /** Background jobs per session; an absent key is an empty set. */
-  jobsBySession: Readonly<Record<SessionId, readonly JobView[]>>
 }
 
 /** Shared projection values and the lifecycle of their explicit baseline read. */
@@ -112,14 +109,6 @@ export class SessionManager {
   private readonly addresses = new Map<SessionId, SubagentAddress>()
   private readonly projectionLoads = new Map<SessionId, ProjectionLoad>()
   private readonly projectionInflight = new Map<SessionId, ProjectionInflight>()
-  /**
-   * Background jobs per session, last-wins from Session Controller's control
-   * stream. An empty set is stored as an absent key, so absence and `[]` are
-   * one representation.
-   */
-  private readonly jobsBySession = new Map<SessionId, readonly JobView[]>()
-
-
   private listSnapshotCache: SessionListSnapshot
   /** Entry-identity cache (reference stability): list rebuilds reuse the previous entry
    *  object when every field matches — wire refreshes mint all-new summary objects, so identity
@@ -194,7 +183,6 @@ export class SessionManager {
     if (session !== expected) return Promise.resolve()
     this.sessions.delete(sessionId)
     this.addresses.delete(sessionId)
-    this.jobsBySession.delete(sessionId)
     this.pruneEngagement(sessionId, this.retainedIds(this.summaries))
     return this.startSessionDisposal(session)
   }
@@ -635,16 +623,10 @@ export class SessionManager {
       this.notifier.markDirty()
       return
     }
-    if (frame.jobs.length === 0) this.jobsBySession.delete(frame.sessionId)
-    else this.jobsBySession.set(frame.sessionId, frame.jobs)
-    this.notifier.markDirty()
+    assertNever(frame)
   }
 
   private replaceControlBaseline(baseline: SessionControlBaseline): void {
-    this.jobsBySession.clear()
-    for (const [sessionId, jobs] of Object.entries(baseline.jobs)) {
-      if (jobs.length > 0) this.jobsBySession.set(sessionId as SessionId, jobs)
-    }
 
     for (const [sessionId, block] of Object.entries(baseline.projections)) {
       const store = this.projectionStore(sessionId as SessionId)
@@ -813,7 +795,6 @@ export class SessionManager {
         sessionId,
         { values: store.values(), state: 'idle', error: null, ...this.projectionLoads.get(sessionId) },
       ])),
-      jobsBySession: Object.fromEntries(this.jobsBySession),
     }
   }
 }

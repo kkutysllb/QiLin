@@ -1,4 +1,4 @@
-import { useMemo, useState, type KeyboardEvent } from 'react'
+import { useCallback, useMemo, useState, type KeyboardEvent } from 'react'
 import type { Context } from '@qilin/kylin'
 import clsx from 'clsx'
 import {
@@ -49,7 +49,7 @@ export function BashRow(props: BashRowProps) {
   return <StartedBashRow {...props} />
 }
 
-function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, detail = 'collapsed', t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
+function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, detail = 'collapsed', useDisclosure, t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block)
   // An omitted shell workdir is the session workspace; relative values resolve
   // against it before reaching the terminal primitive.
@@ -64,15 +64,17 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, deta
   const status = stateStatus(state, t)
   // The mode sets the resting presentation; a manual toggle overrides it for
   // that row, so switching modes re-renders untouched rows immediately while
-  // touched rows keep the reader's choice.
-  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
+  // touched rows keep the reader's choice. The override lives in the injected
+  // disclosure state, which an enclosing Turn's collapse resets.
+  const { expanded: disclosureExpanded, setExpanded, toggle: toggleDisclosure } = useDisclosure()
+  const [touched, setTouched] = useState(false)
   // Failures, persistent-shell results, and spill previews use a generic body;
   // background acknowledgements and malformed calls remain collapsed.
   const genericBody = terminal === null
     && (model.state === 'error' || isSettledPersistentShellCall(block) || isSpilledShellCall(block))
     && (model.bodyRaw !== null || model.output !== null)
   const expandable = detail !== 'summary' && (terminal !== null || genericBody)
-  const open = expandable && (userExpanded ?? detail === 'expanded')
+  const open = expandable && (touched ? disclosureExpanded : detail === 'expanded')
   const body = useMemo(
     () => open && genericBody && model.bodyRaw !== null
       ? formatToolBody(model.variant, model.bodyRaw)
@@ -80,9 +82,11 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, deta
     [genericBody, model.bodyRaw, model.variant, open],
   )
   const failureLine = model.state === 'error' ? model.errorSummary : null
-  const toggleExpand = () => {
-    setUserExpanded(!open)
-  }
+  const toggleExpand = useCallback(() => {
+    setTouched(true)
+    if (touched) toggleDisclosure()
+    else setExpanded(!(detail === 'expanded'))
+  }, [detail, setExpanded, touched, toggleDisclosure])
   const toggleFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!expandable || (event.key !== 'Enter' && event.key !== ' ')) return
     event.preventDefault()

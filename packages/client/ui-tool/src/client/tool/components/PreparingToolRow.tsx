@@ -5,7 +5,7 @@ import { classifyTool } from '../models/tool-call-model.ts'
 import { ToolRow, type ToolRowProps } from './ToolRow.tsx'
 
 /** Inputs contain a tool-owned icon/title and no expandable body. */
-type PreparingToolRowProps = Pick<ToolCallViewProps, 'toolName'> & {
+type PreparingToolRowProps = Pick<ToolCallViewProps, 'toolName' | 'useDisclosure'> & {
   readonly icon: ReactNode
   readonly title: string
   readonly summary?: string
@@ -17,7 +17,7 @@ type PreparingToolRowProps = Pick<ToolCallViewProps, 'toolName'> & {
  * @param props - tool prefix and locale.
  * @returns the preparation row.
  */
-export function PreparingToolRow({ toolName, icon, title, summary = '', t }: PreparingToolRowProps) {
-  return <ToolRow t={t} variant={classifyTool(toolName)} toolName={toolName}
+export function PreparingToolRow({ toolName, useDisclosure, icon, title, summary = '', t }: PreparingToolRowProps) {
+  return <ToolRow useDisclosure={useDisclosure} t={t} variant={classifyTool(toolName)} toolName={toolName}
     icon={icon} title={title} summary={summary} state="preparing" />
 }

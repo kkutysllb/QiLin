@@ -3,15 +3,18 @@
 
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
 import type {
-  ConversationTimelineSnapshot, RenderMessageImages,
+  ConversationTimelineSnapshot, NodeKey, RenderEntry, RenderMessageImages,
 } from '@qilin/client-ui-conversation/client'
 import type { SessionSeq } from '@qilin/session/types'
 import type { InboxState } from '@qilin/agent/types'
 import { Button, IconChevronDownOutline14, MarkdownDelegateProvider, Modal } from '@qilin/client-ui-primitives'
 import type { ChatViewSlotProps, OpenFileOptions } from '../contract/slots.ts'
 import type { ChatSnapshot } from '../contract/snapshot.ts'
+import { assertNever } from '@qilin/util-values'
 import { PendingSteeringBubble, PendingSubmissionBubble } from './MessageItem.tsx'
 import { ChatNodeSeat } from './ChatNodeSeat.tsx'
+import { ChatGroupSeat } from './ChatGroupSeat.tsx'
+import { chatRenderKey } from './render-entry.ts'
 import { TurnNavigator } from './TurnNavigator.tsx'
 import { mergeTurnRailItems, type TurnRailItem } from './turn-rail-items.ts'
 import { formatRunDuration } from './message-chrome.ts'
@@ -204,14 +207,23 @@ function TurnStatus({ startTime, showClock, t }: {
   )
 }
 
-type ChatNodeListProps = Omit<ComponentProps<typeof ChatNodeSeat>, 'nodeKey'> & {
-  readonly order: readonly string[]
+type ChatNodeListProps = Omit<ComponentProps<typeof ChatNodeSeat>, 'nodeKey' | 'groupPart'> & {
+  readonly entries: readonly RenderEntry[]
+  readonly useChatGroup: ChatViewSlotProps['useChatGroup']
 }
 
-const ChatNodeList = memo(function ChatNodeList({ order, ...seatProps }: ChatNodeListProps) {
-  return order.map(nodeKey => (
-    <ChatNodeSeat key={nodeKey} nodeKey={nodeKey} {...seatProps} />
-  ))
+const ChatNodeList = memo(function ChatNodeList({ entries, useChatGroup, ...seatProps }: ChatNodeListProps) {
+  return entries.map((entry) => {
+    switch (entry.kind) {
+      case 'node':
+        return <ChatNodeSeat {...seatProps} key={chatRenderKey(entry)} nodeKey={entry.key}
+          {...entry.groupPart === undefined ? {} : { groupPart: entry.groupPart }} />
+      case 'group':
+        return <ChatGroupSeat {...seatProps} key={chatRenderKey(entry)} groupKey={entry.key} useChatGroup={useChatGroup} />
+      default:
+        return assertNever(entry)
+    }
+  })
 })
 
 /**
@@ -219,11 +231,15 @@ const ChatNodeList = memo(function ChatNodeList({ order, ...seatProps }: ChatNod
  * ordered business Node crosses the keyed renderer seat.
  */
 export function ChatView({
-  useSession, useChat, useChatNode, useChatNodeProcess, useSessions, useStore, actions, renderSlot,
+  useSession, useChat, useChatNode, useChatNodeProcess, useChatGroup, useConversation,
+  useSessions, useStore, actions, renderSlot,
   sessionId, openFile, openSkill, openExternalLink, loadOlder, loadThrough, loadImage, openTrajectory, chatScroll, forkAt, fileMentions,
   usePresentation, useProjection, t,
 }: ChatViewSlotProps) {
   const order = useChat(s => s.order)
+  const groupedEntries = useConversation(snapshot => snapshot.views.grouped('chat')?.entries)
+  const entries = useMemo<readonly RenderEntry[]>(() => groupedEntries
+    ?? order.map(key => ({ kind: 'node', key: key as NodeKey })), [groupedEntries, order])
   const nodeStore = useChat(s => s.nodes)
   // The rail's items are accumulated in the Chat snapshot, so this selector is
   // both the data and its change signal: the array identity moves only when a
@@ -252,7 +268,6 @@ export function ChatView({
   const openError = useSession(s => s.openError)
   const hasMore = useSession(s => s.hasMore)
   const loadingOlder = useSession(s => s.loadingOlder)
-  const compactTranscript = usePresentation(policy => policy.foldCompletedTurns)
   const toolDetail = usePresentation(policy => policy.toolCallDetail)
   const liveProcessDetail = usePresentation(policy => policy.liveProcessDetail)
   const inspectCall = useCallback((callId: string) => {
@@ -796,11 +811,12 @@ export function ChatView({
           )}
           <MarkdownDelegateProvider openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
             <ChatNodeList
-              order={order}
+              entries={entries}
+              useChatGroup={useChatGroup}
+              nodeStore={nodeStore}
               useChatNode={useChatNode}
               useChatNodeProcess={useChatNodeProcess}
-              historyIncomplete={hasMore}
-              compactTranscript={compactTranscript}
+              usePresentation={usePresentation}
               toolDetail={toolDetail}
               useStore={useStore}
               actions={actions}

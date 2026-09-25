@@ -28,6 +28,15 @@
     },
     {
       "path": "../kylin-host-runner"
+    },
+    {
+      "path": "../../../vendor/loader"
+    },
+    {
+      "path": "../../boot/app-boot"
+    },
+    {
+      "path": "../../util/values"
     }
   ]
 }

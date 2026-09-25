@@ -5,7 +5,6 @@ import type {
   AttachmentIdType, ImageAttachmentLimits, ImageAttachmentRef, ImageMediaType,
 } from '@qilin/attachment'
 import type { Branded } from '@qilin/brand'
-import type { JobId } from '@qilin/jobs/brand'
 import type { LlmAttemptId, MessageId } from '@qilin/llm/brand'
 import type { TextBlock } from '@qilin/llm'
 import type { SessionId, SessionSeqCursor } from '@qilin/session/types'
@@ -559,20 +558,8 @@ export type SessionFollowFrame =
   | SessionEventEntry
   | { readonly type: 'assistant-stream'; readonly frame: SessionAssistantStreamFrame }
 
-/** One live Job row as the control stream reports it. */
-export interface SessionJob {
-  readonly id: JobId
-  readonly kind: string
-  readonly label: string
-  readonly status: 'running' | 'stopping' | 'completed' | 'killed' | 'failed'
-  readonly detail?: string
-  readonly startedAt: number
-  readonly finishedAt?: number
-}
-
 /** Complete live control baseline emitted once per control stream generation. */
 export interface SessionControlBaseline {
-  readonly jobs: Readonly<Record<SessionId, readonly SessionJob[]>>
   readonly projections: Readonly<Record<SessionId, SessionProjectionBaseline>>
 }
 
@@ -587,7 +574,6 @@ export interface SessionProjectionUpdate {
 /** Host-wide live state stream. Each generation starts with exactly one baseline. */
 export type SessionControlFrame =
   | { readonly type: 'baseline'; readonly value: SessionControlBaseline }
-  | { readonly type: 'jobs'; readonly sessionId: SessionId; readonly jobs: readonly SessionJob[] }
   | ({ readonly type: 'projection' } & SessionProjectionUpdate)
 
 declare module '@qilin/kylin' {

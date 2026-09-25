@@ -230,6 +230,32 @@ rc.2 主体（批次 A–F2）确实在树里。真正的未对齐是 **8 个功
   品牌口径：`cordis.yml`/`cordis:group`/`cordis:include`/`!!js`/`cordis_inspect_*`/技能名保留 Cordis；Harness→QiLin、`@deepseek-ai/dsh-*`→`@qilin/*`、`$DSH_HOME`→`$QILIN_HOME`、`dsh.client`→`qilin.client`；Desktop/app.asar 段与 `DSH_PROFILE` 段删除。
   **G4 暴露的新缺口**：① `Config` inspect provider 在 QiLin 缺失（上游 `packages/extensions/tool-cordis/src/config.ts`；QiLin `tool-kylin/providers.ts` 只有 Service/Event/Builtin/Tool + Slots/Theme），技能里 3 处已改写为 QiLin 可行路径；② 上游 `editing-cordis-compositions` 是 #4569「声明式 preset」重写版，而 QiLin 仍是 `presets/<id>/agent.cordis.yml` 目录式——逐字移植会教模型使用不存在的 `@qilin/agent-preset` 声明行，故采取「保留结构 + 带过 rc.2 新增」，字面对齐需连带移植 `agent-preset-registry`；③ 技能渲染长度受 pruner 8192 阈值约束（改前 `editing-cordis-compositions` ≈8.8k 已超阈），已把 2,834 码点段落移入 references；④ `snapshots/session/skill-load/*` 内嵌旧技能正文，且 `test:snapshot -t skill-load` 在 HEAD 因无关 stderr 断言（`llm-deepseek` 重复注册告警）即失败，重录需 key。
 
+## 16. 批次二执行记录（2026-09-26）
+
+- **门禁盲区四处已补**（提交前）：`host/open-in-app` 的 `OPEN_IN_APP_*_PATH` 派生 ROUTE（客户端删 `hostBase()`）、`file-upload`（`resolveUrl` 改 `document.baseURI`）、`ui-deliverables/changes.ts` 三个 `CHANGES_*_ROUTE`、`apps/web/src/auth/auth.ts` 的 `*_ROUTE`；新增 `apps/web/tests/auth-document.spec.ts`。
+- **门禁检测面同时扩展**：间接请求目标（局部 const/函数 return，深度 4）、模板拼接里的 `*_PATH`/`*_ENDPOINT`、location-base 追踪（含 `globalThis` as-cast 形态），并用「语料声明索引」区分同名非路由键；1073 个浏览器源文件零误报，spec 16 例；**未加任何白名单**，`main()` 加空语料守卫。
+- **又发现一处同类盲区**：`packages/client/connection/src/client/rpc.ts` 仍用 `location.origin` 拼 RPC 目标（`new URL(channel/endpoint, resolveBase())`），门禁看不见 → 列入后续批次。
+- **配置 schema 投影 + `Config` inspect provider（第二层第一步）已落地**：`boot/app-boot/src/config-schema/{types,native,pattern,projector,collect,document,index}.ts` 7 个文件 + 对应 4 个 spec 移植（`RuntimeResolution`→`ProfileResolutionGeneration`、`installRuntimeInterception`→`installProfileResolution` 三处适配，其余逐字）；`tool-kylin/src/config.ts` 的 `queryLiveConfig` 注册为 `Config`/`listConfigs`。**真实查询已验证**（`@qilin/settings-file` 投影出完整 JSON Schema 2020-12；`@qilin/session-persistence-jsonl` 为 `acceptsMissing=false`，`required:["root"]`）。app-boot 与 tool-kylin 两包 **576 测试绿**。
+  顺带修正 `app-boot/README` 中「存在 `--dump-config-schema`」的虚假声明（QiLin CLI 无此 flag），并记入 Known Limitations。
+  **第二层（声明式 preset）仍需的前置**：① CLI `--dump-config-schema` 接线（`generateConfigSchema` 目前无生产消费者）；② `Profile.skippedBundles` 追踪（上游有、QiLin 无）；③ **决定 preset 行是否成为 Loader 条目**——`queryLiveConfig` 只读 `ctx.loader.entries()`，而 QiLin 的 preset 树是运行时 `ctx.plugin` 挂载、不在 Loader 树内，声明式 preset 必须先解决这一点，否则 Config provider 覆盖不到它们；④ patch 定向 id 语义对齐。
+- **卫生事故（已清理）**：并行任务把 **143 个编译产物直写各包 `src/`**（`packages/boot` 52、`vendor/loader` 32、`packages/util` 30、`packages/jobs` 20 等）。已按「同基名有受跟踪的 `.ts`/`.tsx` 源」判据删除 142 个，只剩 `client/ui-jobs/src/css-modules.d.ts`（手写声明件，与 53 个同类受跟踪件一致）。**后续提交不得盲用 `git add -A`**。
+- **快照 lane 当前不可用**：`test:snapshot` 在无 key 工作树因无关 stderr 断言失败（`llm-deepseek` 与 `llm-deepseek-api-key` 都注册 `deepseek-official` adapter），对照组 `-t text-turn` 同样失败 → 任何"快照未回放"的结论都需在有 key 环境复验。
+- **又一条既有红（已修）**：`packages/client/ui-open-in-app/tests/browser-plugin.client.spec.ts` 4 例失败——bench 只 provide 了 `sessions`/`locale`，而 `inject` 声明了 `layout`/`shortcuts`，fiber 因此始终 pending、apply 从未执行（子代理用临时还原 HEAD 复跑证明确为既有红）。已按插件实际读取面给 bench 补上 `layout.panelInfo.getSnapshot()`、`shortcuts.register`、`sessions.list.getSnapshot()` 三个驱动桩，spec 转 **7/7 绿**。
+
+### 簇 C2 落地记录（2026-09-26）
+
+- **已落地**：ui-conversation 的 `contract/groups.ts` + `conversation/{group-registry,group-store}` + assembler/location-index/assembly 的 `changedTurns`/`grouped` 支持；ui-chat 的 `ChatGroupSeat`、`render-entry`、`step-process`、`use-disclosure`、`use-process-scroll`、`use-scroll-follow`、`turn-trigger`、`TurnTriggerNodeView`、`contract/{process-groups,chat-visibility}`、`conversation-nodes/process-{activity,groups}`；ui-tool 的 `ToolCallCommonProps.useDisclosure` 面。
+- **验证**：7 包 **1493 测试绿**（含 process-groups 28、conversation-groups 12+19、turn-trigger 17）；`verify-client-catalog` up to date（catalog 不再截断）；`verify-client-ui-i18n` 846 文件通过；**`kylin-client-runner` 的 `useDisclosure?` 那条既有红已消除**。
+- **未触及**：`SessionEventMap`/会话格式/持久化（本簇确实不改格式）；`TurnProcessNodeView` 仍是 QiLin 自有计数式控件，分组只接管过程行。
+- **遗留**：① 上游「基础设施行过滤」（system-prompt/普通 context/permission command 隐藏）未移植 → 无 control 的回合前段注入行按锚点排序，可能出现 context 先于开场 user，已在 README 与注释标注；② `ChatGroupSeat`/`use-process-scroll`/`use-scroll-follow`/`render-entry`/`step-process` 缺渲染级 spec，**`test:coverage` 逐文件 100% 很可能红**；③ 上游 turn-tail 完成页脚、ChatView viewport 重构、`toolCallFocus`、`ChatNodeStore.turnDataSource`、`apps/web/tests/step-process.e2e.ts` 属其他簇，未动。
+
+### 簇 J 落地记录（2026-09-26）
+
+- **范围比原清单大**：落 `api-job-controller` 的前置是上游「jobs seam 收敛」（Note `2026-09-03-jobs-seam-consolidation`）。实际落地：`jobs/jobs` 新增 `view.ts`/`archive-admission.ts` 并重写 `types.ts`/`index.ts`；`jobs-local` 新增 `ring/pump/events`；六个生产者外科式改造（`tool-jobs`+`render.ts`、`tool-bash`、`tool-pwsh`、`tool-terminal`+`background.ts`、`subagent/*`、`tool-workflow`+`record.ts`）；新包 `api/job-controller`（Host `ctx.jobController` + 生成式 client `ctx.jobs` + 7 spec + 双语 README）；`client/ui-jobs` 重写（实时输出面板 + 两击确认 stop）；`client/ui-sidebar-tasks` 迁移；**`session/jobs` 帧退役**并清理全仓 42 处 `jobsBySession` fixture；bundle/tsconfig 接线；`docs/subsystems/jobs.md` 全量重写。
+- **验证**：8 包 **720 passed / 8 skipped**；`tsc -b` 双面零错误；`test:docs` 20/20。
+- **过程中的两个根因**：① Typert 生成器拒绝 `@qilin/jobs/view` 跨包引用，实为 `tsconfig.base.json` 生成式 paths 别名缺条目（补 4 条手写别名即可，无需偏离上游写法）；② `verify-kylin-catalog` 的 `SERVICE_PAGE` 值被误写成整句说明而非页名（应为 `jobs.md`），我已修正；另 `ctx.developerTools` 属既有 partition 缺口（声明文件未改），按生成器指示补入 `serviceWalkExemptions` 并注明文档归属。
+- **未移植**：`promoteOnTimeout`（前台超时转后台，需动 shell seam）、`live-job-stream.e2e.ts`、C2 的 `step-process.e2e.ts`；`background-job-list.e2e.ts` 已改签名但未跑真机。
+
 **最终验证（批次一收尾）**：门禁 spec 合并跑 `314 passed | 1 skipped`；`run-gates.spec` 107/107；`test:docs` **20 passed / 0 failed**；`verify-plugin-packages` up to date；`tsc -b tsconfig.client.json` 与 `tsconfig.host.json` 双面 exit 0；plugin-manager + ui-primitives 1165 测试绿；ui-settings-models + ui-conversation 746 测试绿；agent-presets 195 测试绿。
 - 门禁盲区：`apps/web/src/auth/auth.ts`、`open-in-app`（客户端仍用 `hostBase()`）、`file-upload`、`ui-deliverables/changes.ts` 仍绑源站根，门禁按名字判定看不见。
 - 既存红（与 C2 簇绑定，未 hack）：`packages/extensions/kylin-client-runner/tests/providers.client.spec.ts` 断言 `conversation.chat.*` 注入面含 `useDisclosure?`，该字段随上游「过程分组」而来（簇 C2 未落地）；`ui-chat` 源码在 HEAD 即无此字段，故这是 C2 的又一证据。

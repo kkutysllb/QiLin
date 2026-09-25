@@ -1,11 +1,11 @@
-import { useMemo, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
   CodeBlock, DiffBlock, DisclosureRow, IconInspectOutline12, ReadBlock, SearchBlock, StateDot, TerminalBlock, WebBlock,
   diffTotals,
 } from '@qilin/client-ui-primitives'
 import type { PropsRenderSlots, TranslateNS } from '@qilin/client-ui-slots'
-import type { OpenFileOptions, ToolCallDetail } from '@qilin/client-ui-chat/client'
+import type { OpenFileOptions, ToolCallDetail, UseDisclosure } from '@qilin/client-ui-chat/client'
 import type { MessageImageLoader } from '@qilin/client-ui-conversation/client'
 import { CHAT_DIFF_MAX_LINES, type DiffCardModel } from '../models/diff-card-model.ts'
 import { CHAT_READ_MAX_LINES, type ReadCardModel } from '../models/read-card-model.ts'
@@ -26,6 +26,8 @@ import { AskQuestionCard } from './AskQuestionCard.tsx'
 import css from './ToolRow.module.css'
 
 export interface ToolRowProps {
+  /** Subscribe here, where the row owns its expanded body. */
+  useDisclosure: UseDisclosure
   t: TranslateNS<'conversation'>
   variant: ToolRowVariant
   /** Wire tool name for tool-owned styling layered over the generic variant. */
@@ -140,12 +142,16 @@ export function ToolRow({
   filePathLine,
   onOpenFile,
   inspect,
+  useDisclosure,
   detail = 'collapsed',
 }: ToolRowProps) {
   // The mode sets the resting presentation; a manual toggle overrides it for
   // that row until the reader toggles back, so switching modes re-renders the
   // untouched rows immediately while touched rows keep the reader's choice.
-  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
+  // The override lives in the injected disclosure state, which an enclosing
+  // Turn's collapse resets.
+  const { expanded: disclosureExpanded, setExpanded, toggle: toggleDisclosure } = useDisclosure()
+  const [touched, setTouched] = useState(false)
   const terminalLabels = useMemo(() => terminalBlockLabels(t), [t])
   const diffLabels = useMemo(() => diffBlockLabels(t), [t])
   const readLabels = useMemo(() => readBlockLabels(t), [t])
@@ -167,7 +173,7 @@ export function ToolRow({
   const card = askQuestionBody ?? terminalBody ?? diffBody ?? readBody ?? imageBody ?? searchBody ?? webBody
   const expandable = state !== 'preparing' && detail !== 'summary'
     && (inputRaw !== null || outputText !== null || card !== null)
-  const open = expandable && (userExpanded ?? detail === 'expanded')
+  const open = expandable && (touched ? disclosureExpanded : detail === 'expanded')
   const bodyText = useMemo(
     () => open && card === null && inputRaw !== null ? formatToolBody(variant, inputRaw) : null,
     [card, inputRaw, open, variant],
@@ -185,9 +191,11 @@ export function ToolRow({
     return `+${added} -${removed}`
   }, [diffBody])
   const suffix = failureLine === null ? summarySuffix ?? diffStat : null
-  const toggleExpand = () => {
-    setUserExpanded(!open)
-  }
+  const toggleExpand = useCallback(() => {
+    setTouched(true)
+    if (touched) toggleDisclosure()
+    else setExpanded(!(detail === 'expanded'))
+  }, [detail, setExpanded, touched, toggleDisclosure])
   const openFile = filePath !== undefined && onOpenFile !== undefined && failureLine === null
     ? (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation()

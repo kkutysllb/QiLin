@@ -22,6 +22,7 @@ import { inspectSystemPrompt, type SystemPromptState } from '../contract/system-
 import { ConversationNodeAssembler } from './assembler.ts'
 import { ConversationEventRegistry } from './event-registry.ts'
 import { HistoricalImageCache } from './historical-images.ts'
+import { ConversationGroupRegistry } from './group-registry.ts'
 import { ConversationViewRegistry } from './view-registry.ts'
 
 /** Observable faces published for one Session's Conversation assembly. */
@@ -92,6 +93,7 @@ class BoundConversation implements ConversationBinding {
 
   activate(target: string): void {
     if (this.assembler.activateTarget(target)) this.snapshot.set(this.currentSnapshot())
+    this.openTurn.set(this.assembler.openTurn())
   }
 
   rebuild(): void { this.publish(this.assembler.rebuildRegistry()) }
@@ -136,7 +138,6 @@ class BoundConversation implements ConversationBinding {
   }
 
   private publish(publication: ConversationPublication): void {
-    this.openTurn.set(this.assembler.openTurn())
     if (publication === 'none') return
     if (publication === 'animation-frame' && typeof requestAnimationFrame === 'function') {
       if (this.frame !== undefined) return
@@ -164,6 +165,7 @@ class BoundConversation implements ConversationBinding {
 
   private flush(): void {
     if (this.assembler.flush()) this.snapshot.set(this.currentSnapshot())
+    this.openTurn.set(this.assembler.openTurn())
   }
 
   private currentSnapshot(): ConversationSnapshot {
@@ -186,6 +188,8 @@ export class UiConversation extends Service {
   readonly events: ConversationEventRegistry
   /** Registry of target View definitions. */
   readonly views: ConversationViewRegistry
+  /** Business grouping rules over already materialized target Nodes. */
+  readonly groups: ConversationGroupRegistry
   private readonly bindings = new WeakMapWithValues<SessionBinding, BindingRecord>()
   private readonly images: HistoricalImageCache
 
@@ -197,6 +201,7 @@ export class UiConversation extends Service {
     super(ctx, 'uiConversation')
     this.events = new ConversationEventRegistry(ctx)
     this.views = new ConversationViewRegistry(ctx)
+    this.groups = new ConversationGroupRegistry(ctx, this.views)
     this.images = new HistoricalImageCache(ctx, sessions)
     const rebuild = (): void => {
       for (const record of this.bindings.values) record.binding.rebuild()
@@ -213,7 +218,9 @@ export class UiConversation extends Service {
     ctx.effect(() => {
       const disposeEvents = this.events.subscribe(scheduleRebuild)
       const disposeViews = this.views.subscribe(scheduleRebuild)
+      const disposeGroups = this.groups.subscribe(scheduleRebuild)
       return () => {
+        disposeGroups()
         disposeViews()
         disposeEvents()
         for (const record of [...this.bindings.values]) this.drop(record, true)
@@ -237,7 +244,7 @@ export class UiConversation extends Service {
     if (current !== undefined) return current.binding
     const binding = new BoundConversation(
       owner.eventSource,
-      new ConversationNodeAssembler(this.events, this.views),
+      new ConversationNodeAssembler(this.events, this.views, this.groups),
     )
     const record: BindingRecord = { source: owner, binding, disposeScope: () => {} }
     this.bindings.set(owner, record)

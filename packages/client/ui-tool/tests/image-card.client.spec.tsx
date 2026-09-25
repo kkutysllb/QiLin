@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
 // The image render intent on the web side: the pure imageCardModel derivation over
 // a settled call's persisted metadata and raw envelope, and the chat tool row that
 // consumes it — the keyed ReadImageRow composing ToolRow with the image card as its
@@ -269,7 +270,7 @@ describe('ReadImageRow keyed toolview', () => {
     byId: { [SID]: { id: SID, displayTitle: 'r', running: false, blank: false, updatedAt: 0, cwd: '/w/app' } },
     current: SID,
     phase: 'ready',
-    projectionsBySession: {}, jobsBySession: {},
+    projectionsBySession: {},
     currentAddress: undefined,
   } as unknown as SessionListState)
 
@@ -278,7 +279,7 @@ describe('ReadImageRow keyed toolview', () => {
     renderSlot?: PropsRenderSlots<'tool.call.images'>['renderSlot'],
     loader: MessageImageLoader = loadImage,
   ): Parameters<typeof ReadImageRow>[0] => ({
-    callId: 'c1', toolName: 'read_image', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), renderSlot, loadImage: loader,
+    useDisclosure, callId: 'c1', toolName: 'read_image', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), renderSlot, loadImage: loader,
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     t,
   } as unknown as Parameters<typeof ReadImageRow>[0])

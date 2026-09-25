@@ -30,6 +30,11 @@ function settled(over: Partial<ToolResultNode> = {}): ToolResultNode {
   }
 }
 
+/** Stand-in for the Chat-injected disclosure hook: this spec never expands a row. */
+const useDisclosure: ToolCallOwnerProps['useDisclosure'] = () => ({
+  expanded: false, setExpanded: () => {}, toggle: () => {},
+})
+
 function running(argsRaw = '{"name":"qilin-manage-issues"}'): StartedToolCall {
   return {
     phase: 'start' as const, callId: 'call-skill', name: 'skill', argsRaw, turn: 1, step: 1, time: 2_000, subCalls: [],
@@ -38,6 +43,7 @@ function running(argsRaw = '{"name":"qilin-manage-issues"}'): StartedToolCall {
 
 function props(block: SkillRowProps['block'], inspect?: () => void): SkillRowProps {
   const owner: ToolCallOwnerProps = {
+    useDisclosure,
     callId: block.callId,
     toolName: 'skill',
     ...('kind' in block ? { phase: 'result' as const, block }

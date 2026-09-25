@@ -304,13 +304,13 @@ const listState = (overrides: Partial<SessionListState> = {}): SessionListState 
   },
   phase: 'ready',
   projectionsBySession: {},
-  jobsBySession: {},
   ...overrides,
 })
 
 function panelProps(data: WorkflowRunChatData, sessions = listState(), openSession = vi.fn()): WorkflowRunPanelProps {
   return {
     node: node(data),
+    useDisclosure: () => ({ expanded: false, setExpanded: () => {}, toggle: () => {} }),
     sessionId: PARENT_ID,
     useSessions: selector => selector(sessions),
     usePanelInfo, useResource,

@@ -9,7 +9,7 @@
  * the direct children a catalog reports.
  */
 import type { SessionProjectionSnapshot } from '@qilin/api-session-controller/client'
-import type { SessionJob } from '@qilin/api-session-controller/types'
+import type { JobView } from '@qilin/jobs/view'
 import type { StateDotState } from '@qilin/client-ui-primitives'
 import type { TranslateNS } from '@qilin/client-ui-slots'
 import type { SessionId } from '@qilin/session/types'
@@ -18,7 +18,7 @@ import type { SubagentDescendantSummary } from './lineage.ts'
 import { NS } from './locales.ts'
 
 /** Stable empty job list, so a Session without jobs keeps one array identity. */
-export const NO_JOBS: readonly SessionJob[] = []
+export const NO_JOBS: readonly JobView[] = []
 
 /**
  * One row of a parent's direct-child catalog as the page draws it: a described
@@ -215,7 +215,7 @@ export function subagentTotal(
  * @param job - the Session job row.
  * @returns whether the job is running or stopping.
  */
-export function isLive(job: SessionJob): boolean {
+export function isLive(job: JobView): boolean {
   return job.status === 'running' || job.status === 'stopping'
 }
 
@@ -227,7 +227,7 @@ export function isLive(job: SessionJob): boolean {
  * @param jobs - the Session's job rows.
  * @returns a new array in display order.
  */
-export function orderedJobs(jobs: readonly SessionJob[]): SessionJob[] {
+export function orderedJobs(jobs: readonly JobView[]): JobView[] {
   return [...jobs].sort((left, right) => {
     const liveLeft = isLive(left)
     if (liveLeft !== isLive(right)) return liveLeft ? -1 : 1
@@ -243,7 +243,7 @@ export function orderedJobs(jobs: readonly SessionJob[]): SessionJob[] {
  * @param now - the clock sample a live duration measures against.
  * @returns its span so far while it runs, its own span once it settled.
  */
-export function jobElapsed(job: SessionJob, now: number): number {
+export function jobElapsed(job: JobView, now: number): number {
   return isLive(job) ? now - job.startedAt : (job.finishedAt ?? job.startedAt) - job.startedAt
 }
 
@@ -276,7 +276,7 @@ function assertNever(value: never): never {
  * @param t - namespace-bound translate.
  * @returns the word the row shows.
  */
-export function jobStatusLabel(status: SessionJob['status'], t: TranslateNS<typeof NS>): string {
+export function jobStatusLabel(status: JobView['status'], t: TranslateNS<typeof NS>): string {
   switch (status) {
     case 'running': return t('tasks.status.running')
     case 'stopping': return t('tasks.status.stopping')
@@ -294,7 +294,7 @@ export function jobStatusLabel(status: SessionJob['status'], t: TranslateNS<type
  * @param status - the wire status.
  * @returns the state the dot draws.
  */
-export function jobDotState(status: SessionJob['status']): StateDotState {
+export function jobDotState(status: JobView['status']): StateDotState {
   switch (status) {
     case 'running': return 'ongoing'
     case 'stopping': return 'warning'
@@ -321,7 +321,7 @@ export function jobDotState(status: SessionJob['status']): StateDotState {
  */
 export function activeWorkCount(
   catalogs: Catalogs,
-  jobs: readonly SessionJob[],
+  jobs: readonly JobView[],
   sessionId: SessionId,
 ): number {
   const entries = catalogs[sessionId]?.entries ?? []

@@ -6,7 +6,7 @@ import {
 } from '@qilin/client-test-runtime'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import type { SessionBinding } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { WorkspaceId } from '@qilin/workspace/types'
@@ -20,7 +20,7 @@ import {
   apply as applyChat, EMPTY_CHAT_SNAPSHOT, inject as injectChat,
 } from '@qilin/client-ui-chat/client'
 import type {
-  ChatNodeTurnDataInjected, ChatSnapshot, TranscriptViewRowInjected, UseChatNodeTurnData,
+  ChatNodeInjected, ChatSnapshot, TranscriptViewRowInjected, UseChatNodeTurnData,
 } from '@qilin/client-ui-chat/client'
 import { CHAT_SETTINGS_NAMESPACE, type ChatSettings } from '../src/chat-settings.ts'
 
@@ -165,7 +165,7 @@ describe('Chat apply wiring', () => {
   it('binds Turn data directly to its keyed Location source', async () => {
     const b = await bench()
     const spec = b.runtime.slots.spec('conversation.chat.node') as unknown as {
-      inject: ChatNodeTurnDataInjected
+      inject: ChatNodeInjected
     }
     let value: number | undefined = 42
     const listeners = new Set<() => void>()
@@ -183,7 +183,7 @@ describe('Chat apply wiring', () => {
     const useChat = vi.fn(() => { throw new Error('Turn data must not read the Chat snapshot') })
     const useTurnData = spec.inject.hooks.turnData(
       { useChat } as unknown as Parameters<typeof spec.inject.hooks.turnData>[0],
-      data,
+      { turnData: data, disclosureReset: createSnapshotStore(0) },
     )
     const Probe = ({ useData }: { useData: UseChatNodeTurnData }) => (
       <output>{useData('metric') ?? 'missing'}</output>
@@ -201,7 +201,7 @@ describe('Chat apply wiring', () => {
 
     view.rerender(<Probe useData={spec.inject.hooks.turnData(
       { useChat } as unknown as Parameters<typeof spec.inject.hooks.turnData>[0],
-      undefined,
+      { turnData: undefined, disclosureReset: createSnapshotStore(0) },
     )} />)
     expect(view.getByText('missing')).toBeTruthy()
     expect(useChat).not.toHaveBeenCalled()

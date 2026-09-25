@@ -82,6 +82,9 @@ export {
   type ProfileTemplate,
 } from './profile.ts'
 export { readPluginMeta } from './package-meta.ts'
+export { generateConfigSchema, type ConfigSchemaDump, type NativeConfigSchema } from './config-schema/index.ts'
+export { createConfigProjector, LOADER_EXPRESSION_SCHEMA, type ConfigProjection } from './config-schema/projector.ts'
+export { isNativeConfigSchema } from './config-schema/native.ts'
 export {
   doctorPluginPackage,
   type PluginDoctorCheck,

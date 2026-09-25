@@ -12,8 +12,8 @@
   en: 98d792dbc1b1975e
   zh: 96acf5c3a5165047
 /qilin-client-ui-chat/table-of-contents:
-  en: 8f619b0e01a9f416
-  zh: f79274b180454e83
+  en: e7894dec53e4732d
+  zh: cdf9d812077b1741
 /qilin-client-ui-chat/reference-previews:
   en: 66e17df4efe43eb8
   zh: 82d91d704004d8f2
@@ -27,8 +27,14 @@
   en: bb3e55382117d78f
   zh: 75a2b59c1a5cf9ce
 /qilin-client-ui-chat/turn-process-folding:
-  en: 84870c68fae691cc
-  zh: dd39c90d1fb3bbb2
+  en: e9d00b9fe93c14e8
+  zh: 503f9c3629d31b57
+/qilin-client-ui-chat/grouped-rendering:
+  en: 72f6f2b808602026
+  zh: b06fe01a87d89b3f
+/qilin-client-ui-chat/turn-triggers:
+  en: 4a2ec4ccc2f92b7c
+  zh: ac3f1402d0875ec4
 /qilin-client-ui-chat/tool-call-nodes:
   en: 8ea74e997efa882e
   zh: 05be7975fe2ea14c

@@ -20,7 +20,7 @@ const summary = (id: string, updatedAt: number, cwd?: string): SessionSummary =>
 const list = (...items: SessionSummary[]): SessionListState => ({
   ids: items.map(item => item.id),
   byId: Object.fromEntries(items.map(item => [item.id, item])),
-  phase: 'ready', projectionsBySession: {}, jobsBySession: {},
+  phase: 'ready', projectionsBySession: {},
 })
 const withMain = (state: SessionListState, id: SessionId): SessionListState => ({
   ...state,

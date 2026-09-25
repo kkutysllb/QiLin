@@ -525,7 +525,7 @@ describe('list lifecycle', () => {
       // The control baseline is the connected Session's own value: it replaces
       // the list-surface title even at the same cursor.
       manager.handleControlFrame({
-        type: 'baseline', value: { jobs: {}, projections: { [S1]: { asOfSeq: -1, values: { title: 'cold baseline' } } } },
+        type: 'baseline', value: { projections: { [S1]: { asOfSeq: -1, values: { title: 'cold baseline' } } } },
       })
       expect(manager.getListSnapshot().items[0]?.title).toBe('cold baseline')
     } finally {
@@ -664,7 +664,6 @@ describe('list lifecycle', () => {
       manager.handleControlFrame({
         type: 'baseline',
         value: {
-          jobs: {},
           projections: { [S1]: { asOfSeq: 2, values: { title: 'Durable' } } },
         },
       })

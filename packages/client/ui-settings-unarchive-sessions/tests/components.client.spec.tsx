@@ -29,7 +29,6 @@ function sessionState(sessions: readonly SessionSummary[], phase: SessionListSta
     byId: Object.fromEntries(sessions.map(session => [session.id, session])),
     phase,
     projectionsBySession: {},
-    jobsBySession: {},
   }
 }
 

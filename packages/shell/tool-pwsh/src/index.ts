@@ -32,10 +32,10 @@ import type {} from '@qilin/user-approval'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import { ESCALATION_TARGETS, approveEscalation, validateEscalationArgs } from '@qilin/sandbox'
 import type { SandboxPolicyService } from '@qilin/sandbox-policy'
-import type { ShellRunResult } from '@qilin/shell'
+import type { ShellProcess, ShellRunResult } from '@qilin/shell'
 import { parseExitStatus } from '@qilin/shell'
-import { processJob } from './background.ts'
-import { renderPwshProcessRead, renderPwshResult } from './render.ts'
+import { processJob, processOutcome, processSources } from './background.ts'
+import { renderPwshResult } from './render.ts'
 import type { RenderablePwshResult } from './render.ts'
 
 declare module '@qilin/jobs' {
@@ -378,13 +378,18 @@ export function apply(ctx: Context, config: Config = {}): void {
           throw error
         }
         // Task preflight finishes before the starter can spawn a process.
+        let proc: ShellProcess | undefined
         const id = jobs.start({
           kind: 'pwsh',
           label: args.command,
-          ...exec.agent ? { owner: exec.agent } : {},
+          ...exec.agent ? { owner: exec.agent.id } : {},
+          output: processSources(() => proc, escalationModes),
           run: () => processJob(
-            signal => ctx.shell.start(ctx.shell.resolve({ ...request, signal })),
-            proc => renderPwshProcessRead(proc.readOutput(), proc.sandbox, escalationModes),
+            async (signal) => {
+              proc = await ctx.shell.start(ctx.shell.resolve({ ...request, signal }))
+              return proc
+            },
+            started => processOutcome(started, escalationModes),
           ),
         })
         return { kind: 'background' as const, jobId: id }

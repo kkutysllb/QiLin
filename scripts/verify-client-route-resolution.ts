@@ -1,19 +1,22 @@
 /**
  * Browser-face route gate: an app-owned route reachable from browser code is
- * document-relative. Only request targets are governed: a root-absolute
- * (`/api/x`), protocol-relative (`//host/api/x`) or absolute
- * (`https://host/api/x`) app route used to address a resource binds the bundle
- * to one mount, and a relative app route resolved against a `location` read
- * rebuilds the base the served document already provides. A request target is
- * the first argument of a request constructor, of a `fetch`/`fetcher` callee,
- * or of a dynamic import; an assigned resource property (`script.src = ...`);
- * or a JSX `src`/`href` attribute.
+ * document-relative. A root-absolute (`/api/x`), protocol-relative
+ * (`//host/api/x`) or absolute (`https://host/api/x`) app route used to
+ * address a resource binds the bundle to one mount, and a relative app route
+ * resolved against a `location` read rebuilds the base the served document
+ * already provides. A request target is the first argument of a request
+ * constructor, of a `fetch`/`fetcher` callee, or of a dynamic import; an
+ * assigned resource property (`script.src = ...`); or a JSX `src`/`href`
+ * attribute. A target or a URL base reached through a local binding or a local
+ * function is followed to the expressions it can evaluate to, so
+ * `fetch(endpointFor(mode))` is governed as the route that function returns.
  *
  * Route keys stay absolute pathnames — the RPC channel key, the path a route is
  * registered under, and the shared `*_PATH`/`*_ENDPOINT` constants carrying
  * them — so a literal that is not a request target is out of scope. A browser
- * half addresses such a key by stripping its leading slash, which the shared-key
- * rule below requires.
+ * half addresses such a key by composing the derived `*_ROUTE`; substituting
+ * the registration key into a template literal — the form a browser address is
+ * built in — is refused as well, which the shared-key rule below requires.
  *
  * The static producers of browser references are checked in the same pass: a
  * field the browser resolves against its document (`url`, `src`, `href`)
@@ -44,6 +47,12 @@ const ABSOLUTE_ROUTE = new RegExp(`^(?:[A-Za-z][A-Za-z\\d+.-]*:)?//[^/]+/${APP_R
 const RELATIVE_APP_ROUTE = new RegExp(`^(?:\\./)*${APP_ROUTE_PREFIX}`)
 /** A shared host route key: the absolute pathname a route is registered under. */
 const HOST_ROUTE_KEY = /(?:^|_)(?:PATH|ENDPOINT)$/
+
+/** A route key a browser address may carry: a registration key or its derived browser form. */
+const ADDRESSED_ROUTE_KEY = /(?:^|_)(?:ROUTE|PATH|ENDPOINT)$/
+
+/** How many local bindings the gate follows before it stops tracing a value. */
+const LOCAL_TRACE_DEPTH = 4
 
 /** Request constructors whose first argument addresses a resource. */
 const REQUEST_CONSTRUCTORS: Record<string, true> = { Request: true, EventSource: true, WebSocket: true, URL: true }
@@ -88,31 +97,204 @@ export interface RouteResolutionViolation {
   rule: RouteResolutionRule
 }
 
-/** A location expression: `location`, optionally behind its owning global. */
-const LOCATION_EXPRESSION = /^(?:(?:window|self|globalThis|document|top|parent|frames)\.)?(?:defaultView\.)?location$/
-
-/** Source text of a location expression, without whitespace. */
-function locationText(node: ts.Expression): string | undefined {
-  const text = node.getText().replace(/\s+/g, '')
-  return LOCATION_EXPRESSION.test(text) ? text : undefined
+/**
+ * Whether an expression reads the page location anywhere inside it: the global
+ * `location` itself, or a property naming it behind any receiver. Local
+ * bindings and local calls are followed, so a helper that returns a location
+ * read is a location read.
+ * @param node - expression to inspect.
+ * @param locals - local values of the containing file.
+ * @param depth - local bindings already followed.
+ * @returns whether a location read is reachable.
+ */
+function readsLocation(node: ts.Node, locals: Map<string, ts.Expression[]>, depth = 0): boolean {
+  if (ts.isIdentifier(node) && node.text === 'location') return true
+  if (ts.isPropertyAccessExpression(node) && node.name.text === 'location') return true
+  if (depth < LOCAL_TRACE_DEPTH && ts.isExpression(node)) {
+    const name = referencedName(node)
+    const local = name === undefined ? undefined : locals.get(name)
+    if (local !== undefined) return local.some(value => readsLocation(value, locals, depth + 1))
+  }
+  let found = false
+  node.forEachChild((child) => { found ||= readsLocation(child, locals, depth) })
+  return found
 }
 
-/** Whether an expression rebuilds a base from the page location anywhere inside it. */
-function readsLocation(node: ts.Node): boolean {
-  if (ts.isExpression(node) && locationText(node) !== undefined) return true
-  return node.forEachChild(readsLocation) === true
+/** Whether a route key is the receiver of the `slice` call that derives its browser form. */
+function isDerivedKey(node: ts.Identifier): boolean {
+  return ts.isPropertyAccessExpression(node.parent) && node.parent.name.text === 'slice'
 }
 
 /** Host route keys an expression references without stripping their leading slash. */
 function unstrippedHostRouteKeys(node: ts.Node): ts.Identifier[] {
   if (ts.isIdentifier(node)) {
-    if (!HOST_ROUTE_KEY.test(node.text)) return []
-    const derived = ts.isPropertyAccessExpression(node.parent) && node.parent.name.text === 'slice'
-    return derived ? [] : [node]
+    if (!HOST_ROUTE_KEY.test(node.text) || isDerivedKey(node)) return []
+    return [node]
   }
   const keys: ts.Identifier[] = []
   node.forEachChild((child) => { keys.push(...unstrippedHostRouteKeys(child)) })
   return keys
+}
+
+/**
+ * Parse one source file with the kind its extension selects.
+ * @param file - repository-relative path, which selects the JSX dialect.
+ * @param sourceText - TypeScript or TSX source.
+ * @returns the parsed source file.
+ */
+function parseSource(file: string, sourceText: string): ts.SourceFile {
+  return ts.createSourceFile(
+    file,
+    sourceText,
+    ts.ScriptTarget.Latest,
+    true,
+    file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  )
+}
+
+/** Name of a local binding, or of a call to one; undefined for anything else. */
+function referencedName(node: ts.Expression): string | undefined {
+  if (ts.isIdentifier(node)) return node.text
+  if (ts.isParenthesizedExpression(node)) return referencedName(node.expression)
+  if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) return node.expression.text
+  return undefined
+}
+
+/** Expressions one local name can evaluate to: its initializer and any value it returns. */
+function localValues(source: ts.SourceFile): Map<string, ts.Expression[]> {
+  const values = new Map<string, ts.Expression[]>()
+  const add = (name: string, ...expressions: readonly ts.Expression[]): void => {
+    const known = values.get(name)
+    if (known === undefined) values.set(name, [...expressions])
+    else known.push(...expressions)
+  }
+  const visit = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer !== undefined) {
+      add(node.name.text, node.initializer)
+      const body = callableBody(node.initializer)
+      if (body !== undefined) add(node.name.text, ...returnedExpressions(body))
+    } else if (ts.isFunctionDeclaration(node) && node.name !== undefined && node.body !== undefined) {
+      add(node.name.text, ...returnedExpressions(node.body))
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return values
+}
+
+/** Body of a function literal, when the expression is one. */
+function callableBody(node: ts.Expression): ts.ConciseBody | undefined {
+  if (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) return node.body
+  return undefined
+}
+
+/** Expressions a function body returns, without descending into nested functions. */
+function returnedExpressions(body: ts.ConciseBody): ts.Expression[] {
+  if (!ts.isBlock(body)) return [body]
+  const returns: ts.Expression[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionLike(node)) return
+    if (ts.isReturnStatement(node)) {
+      if (node.expression !== undefined) returns.push(node.expression)
+      return
+    }
+    node.forEachChild(visit)
+  }
+  for (const statement of body.statements) visit(statement)
+  return returns
+}
+
+/** Leaf expressions a value can evaluate to, following local bindings and local calls. */
+function expandValue(node: ts.Expression, locals: Map<string, ts.Expression[]>, depth = 0): ts.Expression[] {
+  if (depth >= LOCAL_TRACE_DEPTH) return [node]
+  const name = referencedName(node)
+  const local = name === undefined ? undefined : locals.get(name)
+  if (local === undefined) return [node]
+  return local.flatMap(value => expandValue(value, locals, depth + 1))
+}
+
+/** Whether one expression composes a root-absolute app route. */
+function isAppRouteValue(node: ts.Expression): boolean {
+  return literalFragments(node).some(
+    fragment => ROOT_ABSOLUTE_ROUTE.test(fragment.text) || ABSOLUTE_ROUTE.test(fragment.text),
+  )
+}
+
+/**
+ * Which shared route keys the corpus declares. A key declared over a
+ * root-absolute app route is app-owned; a key declared over anything else is
+ * not, whatever a template does with it. A key the corpus never declares lives
+ * in a host module outside the scanned faces and stays app-owned by convention.
+ */
+export interface RouteKeyIndex {
+  /** Keys with at least one corpus declaration over an app-owned absolute path. */
+  readonly appRoutes: ReadonlySet<string>
+  /** Keys the corpus declares, all over values that are not app-owned absolute paths. */
+  readonly otherKeys: ReadonlySet<string>
+}
+
+/** Index used when a caller analyzes one source without a scanned corpus. */
+const EMPTY_ROUTE_KEY_INDEX: RouteKeyIndex = { appRoutes: new Set(), otherKeys: new Set() }
+
+/** Whether a route key addresses an app-owned absolute path. */
+function isAppRouteKey(
+  name: string,
+  locals: Map<string, ts.Expression[]>,
+  index: RouteKeyIndex,
+): boolean {
+  const local = locals.get(name)
+  if (local !== undefined) return local.some(isAppRouteValue)
+  return index.appRoutes.has(name) || !index.otherKeys.has(name)
+}
+
+/** Registration keys a browser composes into a template literal, which is where an address is built. */
+function templateRouteKeys(
+  node: ts.Node,
+  locals: Map<string, ts.Expression[]>,
+  index: RouteKeyIndex,
+): ts.Identifier[] {
+  const keys: ts.Identifier[] = []
+  const collect = (expression: ts.Node): void => {
+    if (ts.isIdentifier(expression)) {
+      if (HOST_ROUTE_KEY.test(expression.text) && !isDerivedKey(expression)
+        && isAppRouteKey(expression.text, locals, index)) keys.push(expression)
+      return
+    }
+    expression.forEachChild(collect)
+  }
+  const visit = (current: ts.Node): void => {
+    if (ts.isTemplateExpression(current)) for (const span of current.templateSpans) collect(span.expression)
+    current.forEachChild(visit)
+  }
+  visit(node)
+  return keys
+}
+
+/**
+ * Collect the route-key index of one scanned corpus.
+ * @param sources - repository-relative path and text of every browser source.
+ * @returns the declared app-owned keys and the keys declared over anything else.
+ */
+export function routeKeyIndex(sources: Iterable<readonly [string, string]>): RouteKeyIndex {
+  const appRoutes = new Set<string>()
+  const otherKeys = new Set<string>()
+  for (const [file, sourceText] of sources) {
+    const source = parseSource(file, sourceText)
+    const record = (name: string, value: ts.Expression): void => {
+      if (isAppRouteValue(value)) appRoutes.add(name)
+      else otherKeys.add(name)
+    }
+    const visit = (node: ts.Node): void => {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
+        && node.initializer !== undefined && HOST_ROUTE_KEY.test(node.name.text)) {
+        record(node.name.text, node.initializer)
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  for (const name of appRoutes) otherKeys.delete(name)
+  return { appRoutes, otherKeys }
 }
 
 /** Callee name of a call or construction, for constructors and `fetch`-shaped carriers. */
@@ -184,21 +366,19 @@ function literalFragments(node: ts.Expression): LiteralFragment[] {
  * @param sourceText - TypeScript or TSX source.
  * @param face - `browser` for request targets, `reference-producer` for the
  * fields a static host emits into the browser.
+ * @param index - route keys the scanned corpus declares; a key outside it is
+ * app-owned by convention.
  * @returns violations in source order.
  */
 export function findRouteResolutionViolations(
   file: string,
   sourceText: string,
   face: RouteGateFace = 'browser',
+  index: RouteKeyIndex = EMPTY_ROUTE_KEY_INDEX,
 ): RouteResolutionViolation[] {
-  const source = ts.createSourceFile(
-    file,
-    sourceText,
-    ts.ScriptTarget.Latest,
-    true,
-    file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-  )
+  const source = parseSource(file, sourceText)
   const violations = new Map<number, RouteResolutionViolation>()
+  const locals = localValues(source)
 
   const report = (node: ts.Node, rule: RouteResolutionRule): void => {
     const start = node.getStart(source)
@@ -207,23 +387,34 @@ export function findRouteResolutionViolations(
     violations.set(start, { column: character + 1, file, line: line + 1, pattern: node.getText(source), rule })
   }
 
-  /** A request target's own literals must be document-relative. */
+  const isRootAbsolute = (text: string): boolean => ROOT_ABSOLUTE_ROUTE.test(text) || ABSOLUTE_ROUTE.test(text)
+
+  /** A request target's own literals must be document-relative, including the values it resolves to. */
   const checkTarget = (target: ts.Expression): void => {
-    for (const fragment of literalFragments(target)) {
-      if (ROOT_ABSOLUTE_ROUTE.test(fragment.text) || ABSOLUTE_ROUTE.test(fragment.text)) {
-        report(fragment.node, 'request-target')
+    for (const value of expandValue(target, locals)) {
+      for (const fragment of literalFragments(value)) {
+        // A value the target only resolves to is reported at the target, which is
+        // where the browser builds the address.
+        if (isRootAbsolute(fragment.text)) report(value === target ? fragment.node : target, 'request-target')
       }
     }
     // A shared route key used as-is: the browser half strips the leading slash.
     for (const key of unstrippedHostRouteKeys(target)) report(key, 'host-route-key')
   }
 
+  /** Whether a URL operand carries an app route: an inline route literal or a route key. */
+  const carriesAppRoute = (operand: ts.Expression): boolean => {
+    if (ts.isIdentifier(operand) && ADDRESSED_ROUTE_KEY.test(operand.text)) return true
+    return expandValue(operand, locals).some(value =>
+      literalFragments(value).some(fragment => RELATIVE_APP_ROUTE.test(fragment.text)))
+  }
+
   /** A relative app route belongs to the document base, not to a rebuilt origin. */
   const checkUrlBase = (node: ts.NewExpression): void => {
     const [first, second] = node.arguments ?? []
-    if (first === undefined || second === undefined || !readsLocation(second)) return
-    const literal = literalFragments(first)
-    if (literal.some(fragment => RELATIVE_APP_ROUTE.test(fragment.text))) report(first, 'location-base')
+    if (first === undefined || second === undefined) return
+    if (!readsLocation(second, locals)) return
+    if (carriesAppRoute(first)) report(first, 'location-base')
   }
 
   /** A field the browser resolves against its document carries a reference. */
@@ -247,6 +438,9 @@ export function findRouteResolutionViolations(
     ts.forEachChild(node, visit)
   }
   visit(source)
+  if (face === 'browser') {
+    for (const key of templateRouteKeys(source, locals, index)) report(key, 'host-route-key')
+  }
 
   return [...violations.values()].sort((left, right) => left.line - right.line || left.column - right.column)
 }
@@ -317,8 +511,11 @@ function scan(file: string, face: RouteGateFace): RouteResolutionViolation[] {
 
 function main(): void {
   const files = browserFaceSources()
+  if (files.length === 0) throw new Error(`${GATE}: the Client aggregate contributed no browser source; discovery is broken.`)
+  const sources = files.map(file => [file, readFileSync(resolve(root, file), 'utf8')] as const)
+  const index = routeKeyIndex(sources)
   const violations = [
-    ...files.flatMap(file => scan(file, 'browser')),
+    ...sources.flatMap(([file, sourceText]) => findRouteResolutionViolations(file, sourceText, 'browser', index)),
     ...REFERENCE_PRODUCERS.flatMap(file => scan(file, 'reference-producer')),
   ]
   if (violations.length > 0) {

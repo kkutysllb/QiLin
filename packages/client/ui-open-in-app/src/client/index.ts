@@ -12,7 +12,7 @@ import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-layout/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
-import { OPEN_IN_APP_ICON_PREFIX } from '@qilin/host-open-in-app/shared'
+import { OPEN_IN_APP_ICON_PREFIX_ROUTE } from '@qilin/host-open-in-app/shared'
 import { OpenInAppController } from './controller.ts'
 import { OpenInAppAction, type OpenInAppActionInjected } from './OpenInAppAction.tsx'
 import { en, NS, zh, type OpenInAppKey } from './locales.ts'
@@ -78,7 +78,7 @@ export function apply(ctx: ClientContext): void {
       },
       launch: (appId, path) => controller.launch(appId, path),
       choose: (appId) => { controller.choose(appId) },
-      iconUrl: appId => `${OPEN_IN_APP_ICON_PREFIX}/${appId}`,
+      iconUrl: appId => `${OPEN_IN_APP_ICON_PREFIX_ROUTE}/${appId}`,
     }),
   }, OpenInAppAction))
 }

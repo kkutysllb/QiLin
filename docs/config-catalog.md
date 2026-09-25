@@ -239,6 +239,25 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin/api-gateway -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin/api-job-controller -->
+<a id="qilinapi-job-controller"></a>
+
+## `@qilin/api-job-controller`
+
+- `inject`: `jobs` · `typert`
+- `source`: [`packages/api/job-controller/src/index.ts:35`](../packages/api/job-controller/src/index.ts)
+
+```ts config-catalog
+/** Job Controller deployment policy. */
+export interface Config {
+  /** Coalescing window after a registry commit before the next rows or output read, in milliseconds (default 100). */
+  readonly observeFlushMs?: number
+  /** Soft byte budget per observation output frame (default 65536); one larger chunk ships whole. */
+  readonly observeMaxFrameBytes?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin/api-job-controller -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin/api-session-controller -->
 <a id="qilinapi-session-controller"></a>
 
@@ -1328,7 +1347,7 @@ export interface Config {
 
 ## `@qilin/jobs-local`
 
-- `source`: [`packages/jobs/jobs-local/src/index.ts:31`](../packages/jobs/jobs-local/src/index.ts)
+- `source`: [`packages/jobs/jobs-local/src/index.ts:45`](../packages/jobs/jobs-local/src/index.ts)
 
 ```ts config-catalog
 /** Configuration for the process-local job registry. */
@@ -1338,6 +1357,16 @@ export interface Config {
    * omission defaults to 10.
    */
   maxConcurrentJobsPerOwner?: number
+  /** Live ring retention per job in UTF-8 bytes; omission defaults to 262144. */
+  retainBytes?: number
+  /**
+   * Ring retention kept after a job settles, in UTF-8 bytes; omission defaults to 16384.
+   * Settlement keeps every byte the model cursor has not consumed on top of
+   * this cap; the first terminal model read then trims to it.
+   */
+  settledRetainBytes?: number
+  /** Poll interval for a job's pull sources, in milliseconds; omission defaults to 150. */
+  pumpPollMs?: number
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/jobs-local -->
@@ -3355,7 +3384,7 @@ export interface Config {
 ## `@qilin/tool-jobs`
 
 - `inject`: `tools` · `jobs` · `systemPrompt`
-- `source`: [`packages/jobs/tool-jobs/src/index.ts:38`](../packages/jobs/tool-jobs/src/index.ts)
+- `source`: [`packages/jobs/tool-jobs/src/index.ts:41`](../packages/jobs/tool-jobs/src/index.ts)
 
 ```ts config-catalog
 /** Configures bounded `job_output` waits and completion-notice delivery. */
@@ -3378,7 +3407,7 @@ export interface Config {
 }
 
 /**
- * How an unreported completion reaches an owner that is already idle: `wakeup`
+ * How an uncollected completion reaches an owner that is already idle: `wakeup`
  * opens a turn for it, `quiet` leaves it pending until something else wakes the
  * owner. A busy owner is injected either way.
  */
@@ -3619,7 +3648,7 @@ export interface Config {
 ## `@qilin/tool-terminal`
 
 - `inject`: `terminals` · `tools` · `systemPrompt`
-- `source`: [`packages/terminal/tool-terminal/src/index.ts:35`](../packages/terminal/tool-terminal/src/index.ts)
+- `source`: [`packages/terminal/tool-terminal/src/index.ts:36`](../packages/terminal/tool-terminal/src/index.ts)
 
 ```ts config-catalog
 /** Model-facing terminal tool configuration. */
@@ -3690,7 +3719,7 @@ export interface Config {
 ## `@qilin/tool-workflow`
 
 - `inject`: `tools` · `workflowEngine` · `systemPrompt`
-- `source`: [`packages/workflow/tool-workflow/src/index.ts:32`](../packages/workflow/tool-workflow/src/index.ts)
+- `source`: [`packages/workflow/tool-workflow/src/index.ts:44`](../packages/workflow/tool-workflow/src/index.ts)
 
 ```ts config-catalog
 /** Config: the model-facing tool name plus result rendering caps. */
@@ -3699,6 +3728,14 @@ export interface Config {
   toolName?: string
   /** Rendered-result ceiling, in characters: a longer JSON value is truncated with a notice (default 50000). */
   maxResultChars?: number
+  /**
+   * Expose `run_in_background` (default true); disabled calls are also
+   * rejected. A background run needs a live `ctx.jobs` registry with a
+   * controller serving the caller (`@qilin/jobs-local` plus `@qilin/tool-jobs`
+   * in the shipped composition); without one the call fails with the missing
+   * piece named.
+   */
+  enableRunInBackground?: boolean
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/tool-workflow -->
