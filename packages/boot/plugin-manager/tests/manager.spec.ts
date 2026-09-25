@@ -7,8 +7,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { Context } from '@qilin/kylin'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import {
-  boot, composeEntries, initProfile, readProfilePatches, readProfileManifest, reconcileProfilePatches, OPTIONAL_BUNDLES,
-  type ProfileContext,
+  boot, composeEntries, getQilinRuntimeVersion, initProfile, readProfilePatches, readProfileManifest, reconcileProfilePatches,
+  OPTIONAL_BUNDLES, type ProfileContext,
 } from '@qilin/app-boot'
 import PluginManager, { type Config, type PluginChange, type PluginInstallLogChunk, type PluginInstallProgress, type PluginInstallRequestId } from '../src/index.ts'
 import Hmr from '@qilin/hmr'
@@ -18,7 +18,10 @@ import { Group } from '@qilin/kylin-plugin-loader'
 import * as operations from '../src/operations.ts'
 import { parse, parseDocument } from 'yaml'
 
-async function fixture(reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {}, packageManager?: ProfileContext['packageManager']) {
+async function fixture(
+  reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {},
+  packageManager?: ProfileContext['packageManager'], mutateProfile?: (dir: string) => void,
+) {
   // pnpm resolves workspace roots through native realpath, including Windows 8.3 aliases.
   const home = await realpath(mkdtempSync(join(tmpdir(), 'plugin-manager-')))
   const dir = join(home, 'profiles', 'test')
@@ -34,6 +37,8 @@ async function fixture(reload: 'live' | 'startup' = 'live', overlay = false, pre
   }
   bundle('core', [{ id: 'manager', name: 'cordis:manager', config }])
   bundle('extra', [{ id: 'managed', name: './plugin.mjs' }])
+  // The declaration a bundle carries decides its admission, which happens while the profile loads.
+  mutateProfile?.(dir)
   const manifest = readProfileManifest('test', dir)
   manifest.dependencies = { extra: '1.0.0' }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
@@ -122,6 +127,7 @@ it('retains installed dependencies when toggling a bundle and appends it when re
   bundle('third', [])
   await manager.setBundleEnabled('third', true)
   expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ changed: true, application: 'applied' })
+  expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ changed: false, application: 'applied' })
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
   expect((await manager.listPlugins()).some(row => row.patchId === 'managed')).toBe(false)
   await manager.setBundleEnabled('extra', true)
@@ -868,4 +874,77 @@ it('searches the plugin topic on GitHub and reads only the fields the catalog sh
 
   // A full page may have another one behind it.
   expect(await manager.catalog('', 1)).toMatchObject({ page: 1, hasMore: true })
+})
+
+it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and re-admits a denied row in a %s profile', async (mode) => {
+  const { manager, dir, ctx } = await fixture(mode, false, undefined, {}, undefined, (dir) => {
+    const guarded = join(dir, 'node_modules', 'guarded')
+    mkdirSync(guarded, { recursive: true })
+    writeFileSync(join(guarded, 'package.json'), JSON.stringify({
+      name: 'guarded', version: '1.0.0', type: 'module', peerDependencies: { '@qilin/session': '999.0.0' },
+    }))
+    writeFileSync(join(guarded, 'index.mjs'), 'export function apply(ctx) { ctx.provide("guardedProbe", true) }\n')
+    writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), JSON.stringify([
+      { insert: [{ id: 'managed', name: './plugin.mjs' },
+        { id: 'guarded', name: pathToFileURL(join(dir, 'node_modules', 'guarded', 'index.mjs')).href }] },
+    ]))
+  })
+  const runtime = getQilinRuntimeVersion()
+  const active = () => ctx.get('guardedProbe') === true
+  // The row's own plugin peers are incompatible, so it mounts disabled before any plugin code is imported.
+  expect(active()).toBe(false)
+  expect(await manager.setVersionExemption('guarded@1.0.0', runtime, true)).toMatchObject({ changed: false, application: 'failed' })
+  expect(manager.listVersionExemptions()).toEqual({ exemptions: {}, warnings: [] })
+  expect(existsSync(join(dir, 'compatibility.json'))).toBe(false)
+  expect(await manager.setVersionExemption('guarded@1.0.0', runtime, true, true)).toMatchObject({
+    changed: true, application: mode === 'live' ? 'applied' : 'restart-required',
+  })
+  expect(manager.listVersionExemptions()).toEqual({ exemptions: { 'guarded@1.0.0': [runtime] }, warnings: [] })
+  // The grant is persisted only in the profile's compatibility file, never in its package manifest.
+  expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({ 'guarded@1.0.0': [runtime] })
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
+  // `setVersionExemption` reconciles the profile itself, so a live tree re-admits the row here;
+  // no manifest watch or Loader instrumentation participates. A startup-only profile keeps it out until restart.
+  if (mode === 'live') expect(active()).toBe(true)
+  else expect(active()).toBe(false)
+  expect(await manager.setVersionExemption('guarded@1.0.0', runtime, false)).toMatchObject({ changed: true })
+  expect(manager.listVersionExemptions()).toEqual({ exemptions: {}, warnings: [] })
+  expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({})
+  if (mode === 'live') expect(active()).toBe(false)
+})
+
+it('reports a package run refused for compatibility as a typed refusal', async () => {
+  const { manager } = await fixture()
+  const incompatible = [{ name: 'qilin-x', version: '2.0.0', runtimeVersion: getQilinRuntimeVersion(), peers: { '@qilin/session': '999.0.0' } }]
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({
+    exitCode: 1, output: 'qilin: installation rejected', truncated: false, logPath: 'pnpm.log', incompatible,
+  })
+  onTestFinished(() => { install.mockRestore() })
+  const result = await manager.installBundle('qilin-x')
+  expect(result).toMatchObject({ application: 'failed', changed: false, error: { code: 'incompatible-version', incompatible } })
+  expect(install).toHaveBeenCalledTimes(1)
+})
+
+it.each([false, true])('rechecks installed bundle peers before accepting a disabled installation (exempted=%s)', async (exempted) => {
+  const { manager, dir, bundle } = await fixture()
+  if (exempted) await manager.setVersionExemption('incompatible@1.0.0', getQilinRuntimeVersion(), true, true)
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    bundle('incompatible', [])
+    const file = join(dir, 'node_modules', 'incompatible', 'package.json')
+    const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
+    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@qilin/session': '<0.0.0' } }))
+    const profile = readProfileManifest('test', dir)
+    profile.dependencies = { ...profile.dependencies, incompatible: '1.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(profile))
+    return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
+  })
+  onTestFinished(() => { install.mockRestore() })
+  const result = await manager.installBundle('incompatible', { enabled: false })
+  expect(result).toMatchObject({ application: exempted ? 'applied' : 'failed', changed: exempted })
+  if (!exempted) {
+    expect(result.error).toMatchObject({ code: 'incompatible-version', incompatible: [{ name: 'incompatible', version: '1.0.0' }] })
+    expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
+  }
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
 })

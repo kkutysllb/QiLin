@@ -133,12 +133,12 @@ function checkManifest(
     owner.packageName,
     manifest.qilin,
   )
-  const expectedRange = 'workspace:^'
+  const expectedRange = 'workspace:*'
   const peerRange = manifest.peerDependencies?.['@qilin/invariants']
   if (developmentOnlyInvariant ? peerRange !== undefined : peerRange !== expectedRange) {
     addViolation(violations, owner.manifestPath, developmentOnlyInvariant
       ? '@qilin/invariants must not be a peerDependency under this package dependency policy'
-      : '@qilin/invariants must be a workspace:^ peerDependency')
+      : '@qilin/invariants must be a workspace:* peerDependency')
   }
   if (manifest.devDependencies?.['@qilin/invariants'] !== expectedRange) {
     addViolation(

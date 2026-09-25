@@ -15,6 +15,7 @@ import type {} from '@qilin/deepseek-llm-api-extensions'
 import { SESSION_FORMAT_VERSION, SessionLogOffset, type SessionEvent } from '@qilin/session'
 import type { SessionLogOffset as SessionLogOffsetType } from '@qilin/session'
 import {
+  createSessionFormatCatalogWithChildren,
   SessionFormatUnsupportedMigrationError,
   sessionFormatCatalog,
 } from '@qilin/session-format-catalog'
@@ -232,7 +233,7 @@ function parseSessionFixture(text: string): ParsedSessionFixture {
       headerLineNumber = lineNumber
       sourceHeader = recordValue
       try {
-        restore = sessionFormatCatalog.createRestore(normalizeProjectedHeader(recordValue), {
+        restore = createSessionFormatCatalogWithChildren([]).createRestore(normalizeProjectedHeader(recordValue), {
           recovery: 'strict',
           validation: 'current',
         })

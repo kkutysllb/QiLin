@@ -30,21 +30,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/settings": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/settings": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/settings": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/settings": "workspace:*"
   }
 }

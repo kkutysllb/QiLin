@@ -78,10 +78,10 @@ function fixture(options: {
     exports,
     files: ['lib/index.js', ...invariantFile ? ['lib/invariant.js'] : []],
     peerDependencies: !invariantDependency || developmentOnlyInvariant ? {} : {
-      '@qilin/invariants': 'workspace:^',
+      '@qilin/invariants': 'workspace:*',
     },
     devDependencies: !invariantDependency ? {} : {
-      '@qilin/invariants': 'workspace:^',
+      '@qilin/invariants': 'workspace:*',
     },
   }
   writeFileSync(join(dir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`)

@@ -196,18 +196,18 @@
     "postinstall": "node scripts/install-lefthook.mjs"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/browser-use": "workspace:^",
-    "@qilin/experimental-browser-use-runtime": "workspace:^",
-    "@qilin/experimental-browser-use-playwright-mcp": "workspace:^",
-    "@qilin/experimental-browser-use-chrome-devtools-mcp": "workspace:^",
-    "@qilin/experimental-browser-use-stagehand-native": "workspace:^",
-    "@qilin/computer-use": "workspace:^",
-    "@qilin/experimental-computer-use-cua-driver-mcp": "workspace:^",
-    "@qilin/experimental-computer-use-cua-driver-native": "workspace:^",
-    "@qilin/llm-replay": "workspace:^",
-    "@qilin/tool-session-query": "workspace:^",
-    "@qilin/web-fetch-http": "workspace:^",
+    "@qilin/agent": "workspace:*",
+    "@qilin/browser-use": "workspace:*",
+    "@qilin/experimental-browser-use-runtime": "workspace:*",
+    "@qilin/experimental-browser-use-playwright-mcp": "workspace:*",
+    "@qilin/experimental-browser-use-chrome-devtools-mcp": "workspace:*",
+    "@qilin/experimental-browser-use-stagehand-native": "workspace:*",
+    "@qilin/computer-use": "workspace:*",
+    "@qilin/experimental-computer-use-cua-driver-mcp": "workspace:*",
+    "@qilin/experimental-computer-use-cua-driver-native": "workspace:*",
+    "@qilin/llm-replay": "workspace:*",
+    "@qilin/tool-session-query": "workspace:*",
+    "@qilin/web-fetch-http": "workspace:*",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
@@ -242,6 +242,6 @@
     "typescript": "^6.0.3",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.8",
-    "@qilin/skill-office": "workspace:^"
+    "@qilin/skill-office": "workspace:*"
   }
 }

@@ -36,7 +36,7 @@ profile 变更由 `@qilin/plugin-manager`（`packages/boot/plugin-manager`）负
 
 ## Consequences
 
-依赖已重命名 QiLin API、Electron bridge 或不兼容 resource scheme 的 DSH 包仍需逐个验证。在 `.env` 中声明 `DSH_HOME` 会被记入其所在层但永远不会胜出；迁移根目录是 `QILIN_HOME` 的职责。被拒绝的安装会把冲突引擎包留在磁盘上，直到操作者执行打印出的清除命令，因为启动器从不改写 profile 的依赖。doctor 读取源码文本而不执行插件，因此包可能通过检查却在运行期因 API 改名失败；其引擎重复告警只覆盖安装实例自身的目录树，不含通过 `NODE_PATH` 可达的包。包操作要求 pnpm 和可写 profile，成功变更必须重启进程后才会激活。浏览器级安装与重启验收仍依赖部署环境。
+依赖已重命名 QiLin API、Electron bridge 或不兼容 resource scheme 的 DSH 包仍需逐个验证。在 `.env` 中声明 `DSH_HOME` 会被记入其所在层但永远不会胜出；迁移根目录是 `QILIN_HOME` 的职责。被拒绝的安装会把冲突引擎包留在磁盘上，直到操作者执行打印出的清除命令，因为启动器从不改写 profile 的依赖。doctor 读取源码文本而不执行插件，因此包可能通过检查却在运行期因 API 改名失败；其引擎重复告警只覆盖安装实例自身的目录树，不含通过 `NODE_PATH` 可达的包。包操作要求 pnpm 和可写 profile，成功变更必须重启进程后才会激活。浏览器级安装与重启验收仍依赖部署环境。声明的 peer 版本范围是另一套机制，由[运行时版本兼容笔记](2026-09-24-plugin-runtime-version-compatibility-exemptions.zh.md)决定：它在安装或准入抵达上述失败模式之前就予以拒绝。
 
 ## Verification
 

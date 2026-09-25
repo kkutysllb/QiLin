@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import LlmRuntime, { createUserMessage, ToolCallId, LlmError, StreamChunk, errorChain  } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import SessionStore, { SessionId, TurnEndReason } from '@qilin/session'
 import type { SessionEvent } from '@qilin/session'
 import SystemPrompt from '@qilin/system-prompt'
@@ -10,6 +11,12 @@ import AgentRegistry, { type Agent } from '@qilin/agent'
 import AgentLoop from '@qilin/agent-loop'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from './mock-adapter.ts'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'test': { kind: 'test' } & ContextFormed
+  }
+}
 
 function driverDone(agent: Agent): Promise<void> {
   return (agent as Agent & { done: Promise<void> }).done
@@ -237,7 +244,7 @@ describe('structured tool error propagation (the runtime-validation Agent Note, 
     await waitForIdle(ctx, agent)
 
     const toolResult = agent.session.snapshotEvents().find(e => e.type === 'tool/result')
-    expect(toolResult?.type === 'tool/result' && toolResult.data.message.content[0].isError).toBe(true)
+    expect(toolResult?.type === 'tool/result' && toolResult.data.message.isError).toBe(true)
     expect(toolResult?.type === 'tool/result' && toolResult.data.error)
       .toEqual({ name: 'HarnessError', code: 'BOOM' })
   })
@@ -493,7 +500,7 @@ describe('driver bookkeeping edges', () => {
     ctx.on('agent/turn-stopping', ({ agent: subject }) => {
       subject.inject(createUserMessage({
         content: [{ type: 'text', text: 'do not enter the next step' }],
-        source: { kind: 'plugin', plugin: 'test' },
+        source: { kind: 'test' },
       }))
     })
 

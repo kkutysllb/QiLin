@@ -1,6 +1,7 @@
 /** Generic unary RPC contracts shared by the Host and Client Connection halves. */
 
 import type { Branded } from '@qilin/brand'
+import type { PeerScope } from '@qilin/typert-protocol'
 
 /** Correlation id minted by a caller and echoed by the Connection response. */
 export type RpcId = Branded<'rpc-id'>
@@ -97,11 +98,20 @@ export interface ConnectionIndexResponse {
   end(body?: string): unknown
 }
 
-/** Handler invoked after Connection has decoded the transport envelope. */
+/** Outcome of admitting one request: the operator Peer it speaks for, or the status refusing it. */
+export type PeerAdmission =
+  | { readonly peer: PeerScope }
+  | { readonly rejection: 401 | 403 }
+
+/**
+ * Handler invoked after Connection has decoded the transport envelope.
+ * `peer` is the Peer the request was admitted as: the operator.
+ */
 export type ConnectionRpcHandler = (
   endpoint: string,
   payload: unknown,
   signal: AbortSignal,
+  peer: PeerScope,
 ) => Promise<ConnectionRpcResult<unknown>>
 
 /** Synchronous ownership test for one endpoint on a shared RPC channel. */
@@ -205,12 +215,14 @@ export interface HostConnectionSession {
   install(authority: ConnectionSessionAuthority): void
 }
 
-/** Host `ctx.connection` shape consumed by transport-independent adapters. */
+/** Host `ctx.connection` members consumed by transport-independent adapters. */
 export interface HostConnectionHandle {
   /** Generic RPC channel registry. */
   readonly rpc: HostConnectionRpc
   /** Exact Fetch routes for streaming or browser-native responses. */
   readonly fetch: HostConnectionFetch
+  /** The operator Peer every admitted request speaks for; its scope lives as long as Connection. */
+  readonly operator: PeerScope
   /** Account-session gate seat; unclaimed keeps device-token authentication. */
   readonly session: HostConnectionSession
 
@@ -234,6 +246,14 @@ export interface HostConnectionHandle {
    * @returns rejection status, or undefined when the route may accept the request.
    */
   requestRejection(request: ConnectionTrustRequest): ConnectionRequestRejection
+
+  /**
+   * Admit one request: it passes {@link requestRejection} and speaks for the
+   * operator, or it is refused with that status.
+   * @param request - request headers from the HTTP or upgrade request.
+   * @returns the operator Peer, or the rejection status.
+   */
+  admit(request: ConnectionTrustRequest): PeerAdmission
 
   /**
    * Authenticate one frontend index request, owning a token redirect or 401.
@@ -292,6 +312,7 @@ export interface ClientConnectionRpc {
    * @param endpoint - channel-relative endpoint such as `session/follow`.
    * @param payload - channel-owned request payload.
    * @param signal - caller cancellation for this logical stream.
+   * @param uplink - Client uplink items the Host method reads through `invocation.uplink()`.
    * @returns decoded stream values from the in-process carrier.
    */
   readonly open?: (
@@ -299,5 +320,6 @@ export interface ClientConnectionRpc {
     endpoint: string,
     payload: unknown,
     signal: AbortSignal,
+    uplink?: AsyncIterable<unknown>,
   ) => AsyncIterable<unknown>
 }

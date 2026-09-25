@@ -30,15 +30,15 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-title": "workspace:^",
-    "@qilin/tool-todo": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/session-projection-cache": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-title": "workspace:*",
+    "@qilin/tool-todo": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/session-projection-cache": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "peerDependenciesMeta": {
     "@qilin/session-persistence": {
@@ -52,17 +52,17 @@
     }
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-title": "workspace:^",
-    "@qilin/tool-todo": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/session-projection-cache": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-title": "workspace:*",
+    "@qilin/tool-todo": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/session-projection-cache": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/session-format-catalog": "workspace:^"
+    "@qilin/session-format-catalog": "workspace:*"
   }
 }

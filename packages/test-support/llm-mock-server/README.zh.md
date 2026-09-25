@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-本包为测试与演示提供可编脚本的 OpenAI 兼容 HTTP／SSE（Server-Sent Events）端点，使其无需提供方密钥即可检验模型提供方的失败与成功。每个已接受的 `/chat/completions` 请求依次消费下一个脚本行为，包括重置、停滞、畸形分片、限流、服务器错误、补全与工具调用。测试作者可以通过 `pnpm run mock:llm` 运行服务器，也可以调用 `startMockLlmServer`，后者会返回捕获的请求供断言使用。带种子的 `random` 行为支持可复现的混合故障压力运行。
+本包为测试与演示提供可编脚本的 HTTP／SSE（Server-Sent Events）端点，使其无需提供方密钥即可检验模型提供方的失败与成功。每条已接受的 chat-completions 或 Messages 路径请求依次消费下一个脚本行为，包括重置、停滞、畸形分片、限流、服务器错误、补全与工具调用。测试作者可以通过 `pnpm run mock:llm` 运行服务器，也可以调用 `startMockLlmServer`，后者会返回捕获的请求供断言使用。带种子的 `random` 行为支持可复现的混合故障压力运行。
 
 ## 目录
 
@@ -39,7 +39,7 @@ pnpm run mock:llm \
   --partial-text "discard this half"
 ```
 
-将发布的 DeepSeek 适配器指向服务器；它会将 `/chat/completions` 追加到已配置 base：
+将发布的 DeepSeek 适配器指向服务器；它在已配置 base 下访问 `/v1/messages`：
 
 ```sh
 DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1 \
@@ -108,7 +108,7 @@ CLI 公开 `--success-text`、`--partial-text`、`--reasoning-text`、`--chunk-s
 
 ### 设计
 
-服务器建立在一个规则之上：每个已接受的 chat-completions 请求从按到达顺序排列的 FIFO 游标消费恰好一个行为，服务器从不重试或解读 harness 策略。校验先于游标推进——只有 `POST` 且路径以 `/chat/completions` 结尾、配置密钥时携带有效 Bearer token、且 JSON 正文可解析的请求才消费脚本；其余请求都收到普通 4xx。`random` 条目在请求时通过带种子的 PRNG 按配置权重解析，因此一次运行可由其打印出的种子复现。
+服务器建立在一个规则之上：每条已接受的请求从按到达顺序排列的 FIFO 游标消费恰好一个行为，服务器从不重试或解读 harness 策略。校验先于游标推进——只有 `POST` 且路径以 `/chat/completions` 或 `/v1/messages` 结尾、配置密钥时 chat-completions 携带有效 Bearer token（Messages 携带 `x-api-key`）、且 JSON 正文可解析的请求才消费脚本；其余请求都收到普通 4xx。`random` 条目在请求时通过带种子的 PRNG 按配置权重解析，因此一次运行可由其打印出的种子复现。
 
 ### 源码地图
 

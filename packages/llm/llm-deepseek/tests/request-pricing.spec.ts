@@ -3,9 +3,9 @@ import { offloadedImageText, requestImageHandleText, textOnlyImageText } from '@
 import type { ImageBlock } from '@qilin/llm'
 import { AttachmentId } from '@qilin/attachment'
 import type { ImageAttachmentRef } from '@qilin/attachment'
-import { deepSeekImageRequestPricing } from '../src/common/request-pricing.ts'
+import { deepSeekImageRequestPricing } from '../src/request-pricing.ts'
 import { resolveAdapterOptions } from '../src/index.ts'
-import type { Config } from '../src/index.ts'
+import type { Options as Config } from '../src/index.ts'
 
 const VISION_MODEL = {
   id: 'vision',

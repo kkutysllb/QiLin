@@ -16,8 +16,9 @@
 
 import { pathToFileURL } from 'node:url'
 import { Context, type Fiber } from '@qilin/kylin'
+import { prepareProfileEntries } from '@qilin/app-boot'
 import { Include } from '@qilin/kylin-plugin-include'
-import type { EntryTree } from '@qilin/kylin-plugin-loader'
+import { EntryGroup, type EntryOptions, type EntryTree } from '@qilin/kylin-plugin-loader'
 import { scopeOf, scopeParentOf, type ScopeKey } from '@qilin/scope'
 import { RemoteError } from '@qilin/typert-protocol'
 import type { AgentPreset } from './preset.ts'
@@ -52,6 +53,32 @@ const mounted = new WeakMap<object, MountedTree>()
 const harnessBase = new WeakMap<object, string>()
 
 /**
+ * Entry group that admits a preset's rows through the profile compatibility
+ * policy before mounting them. `Include` owns the file read, so the rows it
+ * composes reach the Loader only through this group; inside a profile a row
+ * whose plugin the profile denies is mounted disabled, and the audit then reads
+ * it as intentionally inactive instead of reporting a failed import.
+ */
+class PresetEntryGroup extends EntryGroup {
+  /**
+   * @param ctx - the tree's context, which carries the owning profile when one exists.
+   * @param tree - the Include subtree these rows belong to.
+   * @param base - the URL bare package names resolve from, the same one {@link PresetTree.import} uses.
+   */
+  constructor(ctx: Context, tree: EntryTree, private readonly base: string | undefined) {
+    super(ctx, tree)
+  }
+
+  /**
+   * @param config - the rows `Include` composed from the preset file.
+   * @returns after the admitted rows mount.
+   */
+  override async update(config: EntryOptions[]): Promise<void> {
+    await super.update(prepareProfileEntries(this.ctx, config, this.base))
+  }
+}
+
+/**
  * Include subclass that publishes its tree and fiber for the audit, and never
  * writes to the file it read.
  */
@@ -66,6 +93,9 @@ class PresetTree extends Include {
     // not being a Loader entry. Reclaim the slot.
     const owner = this.ctx.fiber.entry
     if (owner?.subtree === this) delete owner.subtree
+    // Compatibility admission is a property of this tree, not of one loader
+    // path, so the group that every `update` reaches is the one replaced.
+    this.root = new PresetEntryGroup(this.ctx, this, harnessBase.get(config) ?? this.ctx.baseUrl)
     mounted.set(config, { tree: this, fiber: ctx.fiber })
   }
 
@@ -361,6 +391,9 @@ function mountDetail(error: unknown): string {
  *
  * The subtree is owned by `agentCtx`'s fiber, so it unwinds with the agent and
  * the caller receives no disposer. A rejection leaves nothing mounted.
+ * Inside a profile, compatibility policy decides admission first: a row whose
+ * plugin the profile denies mounts disabled, so the audit reads it as
+ * intentionally inactive instead of reporting a failed import.
  * @param agentCtx - the agent's scope context, from the agent factory's `setup`.
  * @param preset - the resolved preset to compose the agent from.
  * @throws when `agentCtx` carries no scope, a row is unusable, or a row

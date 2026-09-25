@@ -30,10 +30,10 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
     "zod": "^4.4.3"

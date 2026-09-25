@@ -51,7 +51,7 @@ This table connects model-visible tool names to the plugin package and service s
 
 ### `plugin_manager`
 
-List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately; startup profiles require restart.
+List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately; startup profiles require restart. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.
 
 ```json
 {
@@ -66,7 +66,9 @@ List plugins or bundles in the current profile, enable or disable them, install 
         "set_plugin",
         "set_bundle",
         "install_bundle",
-        "remove_bundle"
+        "remove_bundle",
+        "list_version_exemptions",
+        "set_version_exemption"
       ]
     },
     "target": {
@@ -75,7 +77,15 @@ List plugins or bundles in the current profile, enable or disable them, install 
     },
     "enabled": {
       "type": "boolean",
-      "description": "Required for set operations; defaults to true for installation."
+      "description": "Required for set operations; defaults to true for installation. For set_version_exemption, true grants and false revokes."
+    },
+    "runtimeVersion": {
+      "type": "string",
+      "description": "For set_version_exemption: exact qilin version from list_version_exemptions. Target must be the manifest package-name@version, not an alias or version range."
+    },
+    "acceptRisk": {
+      "type": "boolean",
+      "description": "For granting an exemption: true only after warning the user about possible crashes and data loss and receiving explicit permission for this exact plugin/runtime pair. General installation permission is not enough."
     },
     "approvedBuilds": {
       "type": "array",
@@ -1882,7 +1892,7 @@ Source: [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/sub
 
 ### `list_agents`
 
-List your continuable background subagents by durable id and label. Use it to recall which ones you started, not to poll for completion — you are told when one finishes. Status comes from the live registry: running means the agent is working right now, idle means it is loaded but between turns (it may be waiting on agents it started), and ready means it exists only in storage — resumable, not terminal, and not a result waiting to be collected; a `send_message` steers a running child at its nearest step boundary or starts a turn for an idle or ready child, and a direct child remains a `send_message` candidate in every status. The snapshot is not a delivery promise — `send_message` performs the authoritative check and may still fail. Children that could not be read are reported as diagnostics instead of being silently dropped. Scope `descendants` walks the whole tree below you in stable pre-order, annotating each entry with its durable direct-parent session id and depth. You may use `send_message` only for depth-1 entries; deeper entries are candidates for `interrupt_agent` only.
+List your continuable background subagents by durable id and label. Use it to recall which ones you started, not to poll for completion — you are told when one finishes. Status comes from the live registry: running means the agent is working right now; inactive means no turn is executing, whether the child is loaded or must be resumed. inactive does not describe task completion, success, failure, or waiting for other agents. A `send_message` steers a running child at its nearest step boundary or starts or resumes a turn for an inactive child, and a direct child remains a `send_message` candidate in every status. The snapshot is not a delivery promise — `send_message` performs the authoritative check and may still fail. Children that could not be read are reported as diagnostics only in `descendants` scope. Scope `descendants` walks the whole tree below you in stable pre-order, annotating each entry with its durable direct-parent session id and depth. You may use `send_message` only for depth-1 entries; deeper entries are candidates for `interrupt_agent` only.
 
 ```json
 {
@@ -1904,7 +1914,7 @@ Source: [`packages/subagent/tool-subagent-control/src/list-agents.ts`](../packag
 
 ### `send_message`
 
-Send a message to a direct continuable child by its agent id. If you are a resident continuable child, you may also target your direct parent. If the target is still working, the message steers its nearest step; if it is idle, the message starts a turn. This call returns no answer from the agent — only confirmation that the message was delivered. A failure means the message was NOT delivered.
+Send a message to a direct continuable child by its agent id. If you are a resident continuable child, you may also target your direct parent. If the target is still working, the message steers its nearest step; if it is inactive, the message starts or resumes a turn. This call returns no answer from the agent — only confirmation that the message was delivered. A failure means the message was NOT delivered.
 
 ```json
 {

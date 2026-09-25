@@ -28,7 +28,7 @@ function sessionState(sessions: readonly SessionSummary[], phase: SessionListSta
     ids: sessions.map(session => session.id),
     byId: Object.fromEntries(sessions.map(session => [session.id, session])),
     phase,
-    subagentsByParent: {},
+    projectionsBySession: {},
     jobsBySession: {},
   }
 }

@@ -19,10 +19,10 @@
 - button "Thought for a while" [expanded]:
   - text: Thought for a while
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - button "Context injection user-invoke-demo":
   - img
   - img

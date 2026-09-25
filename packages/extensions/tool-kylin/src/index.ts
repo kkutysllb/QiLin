@@ -9,7 +9,6 @@ import { defineTool } from '@qilin/tools'
 import type { ToolExecution } from '@qilin/tools'
 import { presentInspectListCall, presentInspectQueryCall } from './present.ts'
 import { CORDIS_SYSTEM_PROMPT } from './prompt.ts'
-import { hostInspectProviders } from './providers.ts'
 
 export const name = 'tool-kylin'
 export const inject = ['tools', 'systemPrompt', 'cordisInspect']
@@ -19,14 +18,12 @@ function requireAgent(exec: ToolExecution): Agent {
   return exec.agent
 }
 
-/** Register read-only runtime inspection tools.
+/** Register read-only runtime inspection tools over the Host providers that
+ * `@qilin/tool-kylin/host` registers once per process.
  * @param ctx Agent-scoped registration context.
  */
 export function apply(ctx: Context): void {
   ctx.systemPrompt.section({ name: 'tool:cordis', order: ctx.systemPrompt.getSectionOrder('TOOL_CORDIS'), text: CORDIS_SYSTEM_PROMPT })
-  for (const provider of hostInspectProviders(ctx)) {
-    ctx.effect(() => ctx.cordisInspect.register(provider), `tool-kylin: inspect ${provider.manifest.id}`)
-  }
   ctx.tools.register(defineTool({
     name: 'cordis_inspect_list',
     description:

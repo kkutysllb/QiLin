@@ -44,16 +44,16 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/user-questions": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/commands": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/user-questions": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "peerDependenciesMeta": {
     "@qilin/commands": {
@@ -61,21 +61,21 @@
     }
   },
   "dependencies": {
-    "@qilin/brand": "workspace:^",
+    "@qilin/brand": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/agent-loop": "workspace:^",
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/user-questions": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/agent-loop": "workspace:*",
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/commands": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/user-questions": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

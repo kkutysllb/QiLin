@@ -44,17 +44,17 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/api-remotes": "workspace:^",
-    "@qilin/api-session-controller": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/util-values": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-remotes": "workspace:*",
+    "@qilin/api-session-controller": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/util-values": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0"
   },

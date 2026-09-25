@@ -5,6 +5,8 @@
 
 import type { Branded } from '@qilin/brand'
 import type {} from '@qilin/session/types'
+// Type-only: the Workspace registry's archive-admission family map this plugin merges `schedule` into.
+import type {} from '@qilin/workspace/types'
 
 /** Stable reminder identity that is unique and never reused within one session. */
 export type ScheduleId = Branded<'ScheduleId'>
@@ -209,6 +211,13 @@ export type ScheduleDeleteResult =
 
 /** Canonical `schedule_delete` value. */
 export type ScheduleDeleteValue = ScheduleDeleteResult | ScheduleToolError
+
+declare module '@qilin/workspace/types' {
+  interface SessionActivityKindMap {
+    /** A scheduled follow-up for this session is still active. */
+    schedule: true
+  }
+}
 
 declare module '@qilin/session/types' {
   interface SessionEventMap {

@@ -29,7 +29,7 @@ const COPY: Record<string, string> = {
 /** Empty global standard-kit hooks (the row reads neither). */
 function emptySessions() {
   const store = createSnapshotStore<SessionListState>(
-    { ids: [], byId: {}, phase: 'ready', subagentsByParent: {}, jobsBySession: {} })
+    { ids: [], byId: {}, phase: 'ready', projectionsBySession: {}, jobsBySession: {} })
   return bindSnapshotSelector(store)
 }
 function emptyWorkspaces() {

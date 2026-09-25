@@ -88,6 +88,7 @@ export function apply(ctx: ClientContext): void {
     inject: () => controller.inject(configLedger),
     children: {
       'plugins.item': { kind: 'list', scope: 'root' },
+      'plugins.bundle.activation': { kind: 'keyed', scope: 'root' },
       'plugins.bundle.config': { kind: 'keyed', scope: 'root' },
       'plugins.row.config': { kind: 'keyed', scope: 'root' },
     },

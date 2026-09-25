@@ -30,20 +30,20 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/pwsh-local": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/pwsh-local": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/pwsh-local": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-local": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/pwsh-local": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-local": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

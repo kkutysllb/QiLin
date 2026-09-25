@@ -30,18 +30,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/credentials-local": "workspace:^",
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/credentials-local": "workspace:*",
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

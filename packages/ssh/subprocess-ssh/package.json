@@ -30,19 +30,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/ssh": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/ssh": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/ssh": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/ssh": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*"
   }
 }

@@ -15,6 +15,13 @@ import { isPlugin, normalizeHandler } from './guard.ts'
 import { CordisInspectRegistryService } from './inspect-registry.ts'
 import { missingServices, startHostHalf } from './lifecycle.ts'
 import { DynamicCordisRegistry } from './registry.ts'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'kylin-host-runner': { kind: 'kylin-host-runner' }
+  }
+}
+
 import type {
   DynamicCordisDefineReceipt, DynamicCordisDefineRequest, DynamicCordisDefinition,
   DynamicCordisPackageInspection, DynamicCordisPendingRequest, DynamicCordisPlugin,
@@ -1042,7 +1049,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
     }
     agent.steer(createUserMessage({
       content: [{ type: 'text', text }],
-      source: { kind: 'plugin', plugin: 'kylin-host-runner' },
+      source: { kind: 'kylin-host-runner' },
     }))
   }
 
@@ -1062,7 +1069,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
           + `entryAbdicated: ${failure.abdicated}\n`
           + 'Report the Client render failure to the user; the definition can be stopped through the Kylin panel.',
       }],
-      source: { kind: 'plugin', plugin: 'kylin-host-runner' },
+      source: { kind: 'kylin-host-runner' },
     }))
   }
 
@@ -1086,7 +1093,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
           + 'The Plugin remains running. Report the Host handler failure to the user. If the handler needs a Service, either declare '
           + 'that Service in the returned Plugin inject list or read it with ctx.get(name) and handle undefined.',
       }],
-      source: { kind: 'plugin', plugin: 'kylin-host-runner' },
+      source: { kind: 'kylin-host-runner' },
     }))
   }
 
@@ -1109,7 +1116,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
           + `(${run.pluginRunId}) after activation.\n${formatErrorDetails(failure)}\n`
           + 'The Plugin remains running. Report the guard rejection to the user; it can be stopped through the Kylin panel.',
       }],
-      source: { kind: 'plugin', plugin: 'kylin-host-runner' },
+      source: { kind: 'kylin-host-runner' },
     }))
   }
   /* jscpd:ignore-end */
@@ -1149,7 +1156,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
     if (agents?.get(agent.id) !== agent) return
     agent.inject(createUserMessage({
       content: [{ type: 'text', text }],
-      source: { kind: 'plugin', plugin: 'kylin-host-runner' },
+      source: { kind: 'kylin-host-runner' },
     }))
   }
 

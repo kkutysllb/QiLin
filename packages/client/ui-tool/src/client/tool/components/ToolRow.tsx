@@ -101,6 +101,7 @@ function leadingFor(state: ToolRowState, icon: ReactNode): ReactNode {
  *  summary already describe a settled row). */
 function stateStatus(state: ToolRowState, t: TranslateNS<'conversation'>): string | null {
   switch (state) {
+    case 'preparing': return t('row.preparing')
     case 'running': return t('row.running')
     case 'error': return t('row.failed')
     case 'stopped': return t('row.stopped')
@@ -154,7 +155,7 @@ export function ToolRow({
   const inputRaw = bodyRaw ?? null
   const outputText = output ?? null
   const card = askQuestionBody ?? terminalBody ?? diffBody ?? readBody ?? imageBody ?? searchBody ?? webBody
-  const expandable = inputRaw !== null || outputText !== null || card !== null
+  const expandable = state !== 'preparing' && (inputRaw !== null || outputText !== null || card !== null)
   const open = expanded && expandable
   const bodyText = useMemo(
     () => open && card === null && inputRaw !== null ? formatToolBody(variant, inputRaw) : null,

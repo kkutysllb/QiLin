@@ -40,26 +40,26 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/typert-registry": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/typert-registry": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

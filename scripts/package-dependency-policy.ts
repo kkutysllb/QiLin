@@ -61,8 +61,9 @@ const SAFE_HOST_DEPENDENCY_EXPORTS = {
 
 /** Runtime exports that require every consumer to resolve the provider's shared peer instance. */
 const PEER_REQUIRED_HOST_EXPORTS = {
+  '@qilin/client-connection': ['OperatorPeer'],
   '@qilin/subprocess': ['SubprocessExecutableNotFoundError'],
-  '@qilin/scope': ['carrierKeyOf', 'scopeOf', 'scopeTarget'],
+  '@qilin/scope': ['carrierKeyOf', 'createScope', 'scopeOf', 'scopeTarget'],
   '@qilin/session': ['SESSION_FORMAT_VERSION'],
   '@qilin/session-persistence': ['SessionPersistenceNotFoundError'],
 } as const satisfies HostDependencyExports

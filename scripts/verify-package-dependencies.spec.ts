@@ -121,8 +121,8 @@ function generatedHostFixture(mode: 'schema' | 'object'): { root: string; manife
     },
     files: ['lib/typert.host.js', 'lib/typert.host.d.ts'],
     dependencies: { zod: '^4.0.0' },
-    devDependencies: { [CORDIS]: 'workspace:^' },
-    peerDependencies: { [CORDIS]: 'workspace:^' },
+    devDependencies: { [CORDIS]: 'workspace:~' },
+    peerDependencies: { [CORDIS]: 'workspace:~' },
   }
   const files = {
     'tsconfig.base.json': JSON.stringify({
@@ -214,7 +214,7 @@ describe('package dependency scope', () => {
     expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/session/types']).toBeUndefined()
     expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/typert-protocol']).toBeUndefined()
     expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin/scope']).toEqual([
-      'carrierKeyOf', 'scopeOf', 'scopeTarget',
+      'carrierKeyOf', 'createScope', 'scopeOf', 'scopeTarget',
     ])
     expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin/typert-protocol']).toBeUndefined()
   })
@@ -621,8 +621,6 @@ describe('face-aware source classification', () => {
     ].join('\n')
     const uses = collectRuntimeSourceExportUses('probe.ts', source)
     expect(uses.map(({ specifier, exportName }) => ({ specifier, exportName }))).toEqual([
-      { specifier: '@qilin/lazy-require', exportName: '*' },
-      { specifier: '@qilin/lazy-require', exportName: 'createLazyRequire' },
       { specifier: '@f/dynamic', exportName: '*' },
       { specifier: '@f/effect', exportName: '(side effect)' },
       { specifier: '@f/lazy', exportName: '*' },
@@ -633,6 +631,8 @@ describe('face-aware source classification', () => {
       { specifier: '@f/root', exportName: 'default' },
       { specifier: '@f/root', exportName: 'value' },
       { specifier: '@f/star', exportName: '*' },
+      { specifier: '@qilin/lazy-require', exportName: '*' },
+      { specifier: '@qilin/lazy-require', exportName: 'createLazyRequire' },
     ])
     expect(uses.find(use => use.specifier === '@f/root' && use.exportName === 'value')).toMatchObject({
       line: 1,
@@ -680,9 +680,9 @@ describe('dependency sections', () => {
       'src/index.ts': 'export function apply() {}',
       'src/client/index.ts': "import 'external'",
     }, {
-      devDependencies: { [CORDIS]: 'workspace:^' },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
-      [section]: { [CORDIS]: 'workspace:^', external: '~1.2.3' },
+      devDependencies: { [CORDIS]: 'workspace:~' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
+      [section]: { [CORDIS]: 'workspace:~', external: '~1.2.3' },
       peerDependenciesMeta: { external: { optional: true } },
     })
     if (section === 'optionalDependencies') delete subject.manifest.optionalDependencies?.[CORDIS]
@@ -744,9 +744,9 @@ describe('dependency sections', () => {
   it('moves browser-only third-party imports to development dependencies without changing their ranges', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:^', external: '^1.2.3' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/types': 'workspace:^' },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
+      dependencies: { '@qilin/runtime': 'workspace:*', external: '^1.2.3' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const base = facts(manifest)
     const subject: PackageDependencyFacts = {
@@ -771,9 +771,9 @@ describe('dependency sections', () => {
   it('does not leak repository configuration into captured dependency facts', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/client-locale',
-      dependencies: { '@qilin/runtime': 'workspace:^' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/types': 'workspace:^' },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
+      dependencies: { '@qilin/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const base = facts(manifest)
     const subject: PackageDependencyFacts = {
@@ -789,9 +789,9 @@ describe('dependency sections', () => {
   it('requires non-workspace Host runtime imports in dependencies', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:^' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/types': 'workspace:^', external: '^1.0.0' },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
+      dependencies: { '@qilin/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*', external: '^1.0.0' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const subject: PackageDependencyFacts = {
       ...facts(manifest),
@@ -830,15 +830,15 @@ describe('dependency sections', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
       dependencies: {
-        '@qilin/runtime': 'workspace:^',
-        '@qilin/schemastery': 'workspace:^',
+        '@qilin/runtime': 'workspace:*',
+        '@qilin/schemastery': 'workspace:~',
         external: '^1.0.0',
       },
       devDependencies: {
-        '@qilin/types': 'workspace:^',
-        [CORDIS]: 'workspace:^',
+        '@qilin/types': 'workspace:*',
+        [CORDIS]: 'workspace:~',
       },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     expect(collectPackageDependencyViolations({
       facts: [facts(manifest)], packages: [], policyViolations: [], workspaceNames: facts(manifest).workspaceNames,
@@ -858,9 +858,9 @@ describe('dependency sections', () => {
   it('reports an unapproved Host runtime export without rewriting its dependency section', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:^' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/types': 'workspace:^' },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
+      dependencies: { '@qilin/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const subject = facts(manifest)
     const safetyViolations = collectHostDependencyExportPolicyViolations(
@@ -877,15 +877,15 @@ describe('dependency sections', () => {
       + 'safe or peer-required — import { runtimeValue } from \'@qilin/runtime\'',
     ])
     expect(fixPackageDependencies('/unused', state)).toEqual([])
-    expect(manifest.dependencies).toEqual({ '@qilin/runtime': 'workspace:^' })
+    expect(manifest.dependencies).toEqual({ '@qilin/runtime': 'workspace:*' })
   })
 
   it('keeps an edge as a peer when one imported export requires shared identity', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:^' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/types': 'workspace:^' },
-      peerDependencies: { [CORDIS]: 'workspace:^' },
+      dependencies: { '@qilin/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const subject: PackageDependencyFacts = {
       ...facts(manifest),
@@ -905,12 +905,12 @@ describe('dependency sections', () => {
     repairPackageDependencyManifest(subject)
     expect(manifest.dependencies).toBeUndefined()
     expect(manifest.peerDependencies).toMatchObject({
-      [CORDIS]: 'workspace:^',
-      '@qilin/runtime': 'workspace:^',
+      [CORDIS]: 'workspace:~',
+      '@qilin/runtime': 'workspace:*',
     })
     expect(manifest.devDependencies).toMatchObject({
-      [CORDIS]: 'workspace:^',
-      '@qilin/runtime': 'workspace:^',
+      [CORDIS]: 'workspace:~',
+      '@qilin/runtime': 'workspace:*',
     })
     expect(formatPeerRequiredRuntimeDependencies({
       facts: [subject], packages: [], policyViolations: [], workspaceNames: subject.workspaceNames,
@@ -923,9 +923,9 @@ describe('dependency sections', () => {
   it('reports wrong sections, workspace ranges, and stale peer metadata', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      dependencies: { '@qilin/types': 'workspace:*' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/runtime': 'workspace:^' },
-      peerDependencies: { [CORDIS]: 'workspace:*', '@qilin/runtime': 'workspace:^' },
+      dependencies: { '@qilin/types': 'workspace:^' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
+      peerDependencies: { [CORDIS]: 'workspace:*', '@qilin/runtime': 'workspace:*' },
       peerDependenciesMeta: { '@qilin/missing': { optional: true } },
     }
     const state = {
@@ -936,7 +936,7 @@ describe('dependency sections', () => {
       expect.stringContaining('@qilin/runtime'),
       expect.stringContaining('@qilin/types'),
       expect.stringContaining(`${CORDIS} must be matching peerDependencies + devDependencies`),
-      expect.stringContaining('dependencies.@qilin/types must use workspace:^'),
+      expect.stringContaining('dependencies.@qilin/types must use workspace:*'),
       expect.stringContaining('peerDependenciesMeta.@qilin/missing has no matching'),
     ]))
   })
@@ -948,11 +948,11 @@ describe('dependency sections', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
       dependencies: { '@qilin/schemastery': 'workspace:*', external: '^1.0.0' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/runtime': 'workspace:^' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
       peerDependencies: {
-        [CORDIS]: 'workspace:^',
-        '@qilin/runtime': 'workspace:^',
-        '@qilin/stale': 'workspace:^',
+        [CORDIS]: 'workspace:~',
+        '@qilin/runtime': 'workspace:*',
+        '@qilin/stale': 'workspace:*',
       },
       peerDependenciesMeta: { '@qilin/stale': { optional: true } },
     }
@@ -963,27 +963,27 @@ describe('dependency sections', () => {
     expect(fixPackageDependencies(root, state)).toEqual([manifestPath])
     const fixed = JSON.parse(readFileSync(join(root, manifestPath), 'utf8')) as PackageDependencyManifest
     expect(fixed.dependencies).toEqual({
-      '@qilin/schemastery': 'workspace:^',
+      '@qilin/schemastery': 'workspace:~',
       external: '^1.0.0',
-      '@qilin/runtime': 'workspace:^',
+      '@qilin/runtime': 'workspace:*',
     })
     expect(fixed.devDependencies).toEqual({
-      [CORDIS]: 'workspace:^',
-      '@qilin/types': 'workspace:^',
-      '@qilin/stale': 'workspace:^',
+      [CORDIS]: 'workspace:~',
+      '@qilin/types': 'workspace:*',
+      '@qilin/stale': 'workspace:*',
     })
-    expect(fixed.peerDependencies).toEqual({ [CORDIS]: 'workspace:^' })
+    expect(fixed.peerDependencies).toEqual({ [CORDIS]: 'workspace:~' })
     expect(fixed.peerDependenciesMeta).toBeUndefined()
   })
 
   it('repairs an in-memory manifest for benchmark simulation', () => {
     const manifest: PackageDependencyManifest = {
       name: '@qilin/probe',
-      peerDependencies: { [CORDIS]: 'workspace:^', '@qilin/runtime': 'workspace:^' },
-      devDependencies: { [CORDIS]: 'workspace:^', '@qilin/runtime': 'workspace:^' },
+      peerDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
     }
     repairPackageDependencyManifest(facts(manifest))
-    expect(manifest.dependencies).toEqual({ '@qilin/runtime': 'workspace:^' })
-    expect(manifest.peerDependencies).toEqual({ [CORDIS]: 'workspace:^' })
+    expect(manifest.dependencies).toEqual({ '@qilin/runtime': 'workspace:*' })
+    expect(manifest.peerDependencies).toEqual({ [CORDIS]: 'workspace:~' })
   })
 })

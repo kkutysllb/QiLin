@@ -12,10 +12,10 @@
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy":
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - text: ts
 - button "Copy"
 - code: "const first: number = 1 const second = \"two\" let tail"

@@ -10,6 +10,13 @@ import z from '@qilin/schemastery'
 import { z as zod } from 'zod'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'time-context': { kind: 'time-context' } & ContextFormed
+  }
+}
+
 import type { UserMessage } from '@qilin/llm'
 import { SessionSeq } from '@qilin/session'
 import type {} from '@qilin/session-projection'
@@ -160,7 +167,7 @@ export function apply(ctx: Context, config: Config): void {
         return state.lastTurnInjectionTime === null ? state : { ...state, lastTurnInjectionTime: null }
       }
       if (event.type === 'user/message') {
-        const injected = event.data.source.kind === 'plugin' && event.data.source.plugin === name
+        const injected = event.data.source.kind === name
         const withMessage = state.lastMessageTime === event.time
           ? state
           : { ...state, lastMessageTime: event.time }
@@ -214,7 +221,7 @@ export function apply(ctx: Context, config: Config): void {
         ...decision.messages,
         createUserMessage({
           content: [{ type: 'text', text }],
-          source: { kind: 'plugin', plugin: name, form: 'snapshot', sections: [{ name, text }] },
+          source: { kind: name, form: 'snapshot', sections: [{ name, text }] },
         }),
       ],
     }

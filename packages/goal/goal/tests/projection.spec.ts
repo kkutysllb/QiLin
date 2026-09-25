@@ -13,12 +13,19 @@ import { Context } from '@qilin/kylin'
 import AgentRegistry, { agentEvents } from '@qilin/agent'
 import type { Agent, AgentStatus } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import SessionStore from '@qilin/session'
 import type { Session } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import GoalService, { GoalId, applyGoalProjection, foldGoal, goalProjectionDefinition } from '@qilin/goal'
 import type { GoalProjection, GoalProjectionState, GoalRef } from '@qilin/goal'
 import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'test': { kind: 'test' } & ContextFormed
+  }
+}
 
 interface Bench {
   ctx: Context
@@ -132,9 +139,10 @@ describe('goal projection unit', () => {
       start: 0,
       inserted: [createUserMessage({
         content: [{ type: 'text', text: 'unrelated pending context' }],
-        source: { kind: 'plugin', plugin: 'test' },
+        source: { kind: 'test' },
       })],
     })
+
 
     expect(bench.tailValues().goal).toBeNull()
     expect(foldGoal(bench.session.snapshotEvents()).goal).toBeUndefined()

@@ -37,8 +37,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/credentials": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "files": [
@@ -47,19 +47,22 @@
     "lib/types/**/*.d.ts"
   ],
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/scope": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/attachment": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/tool-todo": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/host-directory-picker": "workspace:^",
-    "@qilin/settings": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/brand": "workspace:*",
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/tool-todo": "workspace:*",
+    "@qilin/commands": "workspace:*",
+    "@qilin/host-directory-picker": "workspace:*",
+    "@qilin/settings": "workspace:*"
   }
 }

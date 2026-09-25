@@ -11,6 +11,7 @@ import type { MessageId, ToolCallId } from '@qilin/llm/brand'
 import type {
   AssistantMessage,
   ContentBlock,
+  ContextFormed,
   MessageSource,
   StreamChunk,
   TokenUsage,
@@ -47,6 +48,12 @@ import type {
 } from '../rpc.ts'
 
 const FIXTURE_SESSION_SEARCH_RESULT_LIMIT = 20
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'fixture': { kind: 'fixture' } & ContextFormed
+  }
+}
 
 interface ModelSelection {
   readonly provider: string
@@ -727,7 +734,7 @@ function buildAlphaLog(): SessionEvent[] {
     if (turn === 0) {
       push({
         type: 'system/message', surfaceOp: 'append',
-        data: { turn, step: 0, message: createSystemMessage(FIXTURE_SYSTEM_PROMPT, '@qilin/system-prompt') },
+        data: { turn, step: 0, message: createSystemMessage(FIXTURE_SYSTEM_PROMPT) },
       })
     }
     const userSeq = push({
@@ -741,7 +748,7 @@ function buildAlphaLog(): SessionEvent[] {
       })
     }
     if (turn % 9 === 4) {
-      push({ type: 'user/message', surfaceOp: 'append', data: userMessage(text(`[fixture] 上下文注入（turn ${turn}）`), { kind: 'plugin', plugin: 'fixture' }) })
+      push({ type: 'user/message', surfaceOp: 'append', data: userMessage(text(`[fixture] 上下文注入（turn ${turn}）`), { kind: 'fixture' }) })
     }
     push({ type: 'step/start', data: { turn, step: 0 } })
     const withTool = turn % 5 === 2
@@ -1257,11 +1264,8 @@ function estimateFixtureContent(blocks: readonly ContentBlock[]): number {
       return tokens + densityPrice(block.name) + densityPrice(block.arguments) + BLOCK_OVERHEAD
     }
     // ContentBlockMap is merge-extensible: this client graph sees only the
-    // base four members, but fixture turns do carry extended blocks at
-    // runtime, so the structural JSON fallback below is live code.
-    if (block.type === 'tool-result') {
-      return tokens + estimateFixtureContent(block.content) + BLOCK_OVERHEAD
-    }
+    // base members, but fixture turns do carry extended blocks at runtime, so
+    // the structural JSON fallback below is live code.
     return tokens + densityPrice(JSON.stringify(block)) + BLOCK_OVERHEAD
   }, 0)
 }
@@ -1560,20 +1564,22 @@ function searchBlockText(block: ContentBlock): string[] {
       return []
     case 'tool-call':
       return [block.name, block.arguments]
-    case 'tool-result':
-      return block.content.flatMap(searchBlockText)
+    // ContentBlockMap is merge-extensible. Unknown blocks do not become
+    // searchable merely because their payload happens to contain strings.
     default:
       return []
   }
 }
 
-/** One current-surface user/assistant document, if searchable. */
+/** One current-surface user/assistant/tool document, if searchable. */
 function searchEventText(event: SessionEvent): string {
   const content = event.type === 'user/message'
     ? event.data.content
     : event.type === 'assistant/message'
       ? event.data.message.content
-      : undefined
+      : event.type === 'tool/result'
+        ? event.data.message.content
+        : undefined
   if (content === undefined) return ''
   return content.flatMap(searchBlockText).map(part => part.trim()).filter(Boolean).join('\n')
 }

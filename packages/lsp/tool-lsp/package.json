@@ -30,29 +30,29 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/lsp": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/tools": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/llm": "workspace:*",
+    "@qilin/lsp": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/tools": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/fs-local": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/lsp": "workspace:^",
-    "@qilin/lsp-stdio": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/tool-call-timeout-policy": "workspace:^",
-    "@qilin/tools": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/fs-local": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/lsp": "workspace:*",
+    "@qilin/lsp-stdio": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/tool-call-timeout-policy": "workspace:*",
+    "@qilin/tools": "workspace:*"
   }
 }

@@ -36,18 +36,18 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/experimental-webworker-runtime": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/experimental-webworker-runtime": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
     "js-yaml": "^4.2.0",
     "picomatch": "^4.0.4"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "@types/js-yaml": "^4.0.9",
     "@types/picomatch": "^3.0.2"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   }
 }

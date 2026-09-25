@@ -42,14 +42,14 @@
     }
   },
   "dependencies": {
-    "@qilin/session-format": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/session-format": "workspace:*",
+    "@qilin/util-values": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/session": "workspace:*"
   }
 }

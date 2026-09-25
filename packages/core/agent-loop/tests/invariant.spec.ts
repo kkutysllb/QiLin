@@ -4,6 +4,13 @@ import SessionStore, { SessionId } from '@qilin/session'
 import InvariantRegistry from '@qilin/invariants'
 import * as AgentLoopInvariant from '@qilin/agent-loop/invariant'
 import { createUserMessage, markAgentLoopRequest, type GenerateOptions  } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'x': { kind: 'x' } & ContextFormed
+  }
+}
 
 async function setup(): Promise<Context> {
   const ctx = new Context()
@@ -45,7 +52,7 @@ describe('request-reconstruction invariant', () => {
   it('includes context appended inside the open step before dispatch', async () => {
     const { ctx, session } = await requestSetup()
     session.append('user/message', createUserMessage({
-      content: [{ type: 'text', text: '[step context]' }], source: { kind: 'plugin', plugin: 'x' },
+      content: [{ type: 'text', text: '[step context]' }], source: { kind: 'x' },
     }), { surfaceOp: 'append' })
     const options = loopRequest({
       model: 'm',

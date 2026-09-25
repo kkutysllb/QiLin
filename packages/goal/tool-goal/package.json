@@ -30,29 +30,29 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/goal": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/goal": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/session-projection": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/agent-loop-testkit": "workspace:^",
-    "@qilin/agent-loop": "workspace:^",
-    "@qilin/goal": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/agent-loop-testkit": "workspace:*",
+    "@qilin/agent-loop": "workspace:*",
+    "@qilin/goal": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/session-projection": "workspace:*"
   }
 }

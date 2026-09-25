@@ -11,7 +11,7 @@ import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector } from '@qilin/client-test-runtime'
 import type { ContentBlock } from '@qilin/llm/types'
 import type {
-  AssistantMessageNode, ConversationNode, RequestView, RunningToolCall, ToolResultNode,
+  AssistantMessageNode, ConversationNode, RequestView, StartedToolCall, ToolResultNode,
   UserMessageNode,
 } from '@qilin/client-ui-conversation/client'
 import type { SessionId } from '@qilin/session/types'
@@ -50,9 +50,9 @@ function requestView(startSeq: number, over: Partial<Extract<RequestView, { purp
   }
 }
 
-function runningCall(callId: string, over: Partial<RunningToolCall> = {}): RunningToolCall {
+function runningCall(callId: string, over: Partial<StartedToolCall> = {}): StartedToolCall {
   return {
-    callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
+    phase: 'start', callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
   }
 }
 

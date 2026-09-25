@@ -14,11 +14,14 @@ import {
   terminalCardModel,
   terminalFailed,
 } from '../models/terminal-card-model.ts'
-import { formatToolBody, toolRowModel, type ToolRowState } from '../models/tool-call-model.ts'
+import { formatToolBody, toolRowModel, toolTitleKey, type ToolRowState } from '../models/tool-call-model.ts'
+import { PreparingToolRow } from '../components/PreparingToolRow.tsx'
 import { CONVERSATION_NS as NS } from '../../locale.ts'
 import css from './bash-sample.module.css'
 
 type BashRowProps = ToolCallViewProps & PropsLocale<'conversation'>
+
+const BASH_ICON = <IconApiOutline14 size={14} />
 
 function leadingFor(state: ToolRowState) {
   switch (state) {
@@ -40,7 +43,13 @@ function stateStatus(state: ToolRowState, t: BashRowProps['t']): string | null {
 }
 
 /** Renders expandable Bash output with an accessible lifecycle label. */
-export function BashRow({ toolName, block, sessionId, useSessions, inspect, t }: BashRowProps) {
+export function BashRow(props: BashRowProps) {
+  if (props.phase === 'preparing') return <PreparingToolRow {...props}
+    icon={BASH_ICON} title={props.t(toolTitleKey(props.toolName))} />
+  return <StartedBashRow {...props} />
+}
+
+function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block)
   // An omitted shell workdir is the session workspace; relative values resolve
   // against it before reaching the terminal primitive.

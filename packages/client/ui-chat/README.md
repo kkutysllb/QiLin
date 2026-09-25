@@ -19,6 +19,7 @@ File-mention providers receive the viewed Session ID with the closing-turn owner
 - [Turn token usage](#turn-token-usage)
 - [Completed-turn footer](#completed-turn-footer)
 - [Turn Process Folding](#turn-process-folding)
+- [Tool call nodes](#tool-call-nodes)
 - [Scroll ownership](#scroll-ownership)
 - [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
@@ -30,6 +31,8 @@ File-mention providers receive the viewed Session ID with the closing-turn owner
 ## Reference previews
 
 Chat supplies file and HTTP(S) navigation through one `MarkdownDelegateProvider` around its node list. Assistant Markdown file links open in the right Sidebar after the message settles, including references to unmodified files. Relative paths resolve in the viewed Session's workspace; absolute paths retain the same Session's filesystem access. `#L24` and `#L24-L30` navigate to the first specified line and reuse an existing file tab. Missing files show the preview's error state.
+
+Standalone Markdown images show contained previews and open the shared image lightbox; local paths resolve against the viewed workspace after settlement. Image file links keep their sidebar activation and show a thumbnail after hover dwell or keyboard focus. Escape dismisses the thumbnail. Failed images retain a localized status and their description; no duplicate-image filtering is applied.
 
 HTTP(S) links in Assistant Markdown open a new right-Sidebar Browser tab on ordinary clicks when that type is registered, or the system browser otherwise; modified clicks retain the native external-link behavior. Sent file references and skills confirmed by the message’s logged invocation also open in the right Sidebar. File paths use the viewed Session; skill names resolve through its current input-trigger source. Both use the prose file-link dotted underline on hover or focus. Sessions, directories, and command labels remain non-navigating references.
 
@@ -58,6 +61,14 @@ The completed-turn action footer starts 20px below the preceding prose or extens
 Each reasoning row starts collapsed, including during streaming and in reasoning-only replies. Clicking the row opens or closes its complete Markdown; incoming answer text, Tool calls, and stream completion preserve that choice. Expanded reasoning uses compact secondary typography: headings add bold weight without changing text size, line height, or color. The collapsed summary stays on one line, follows the latest reasoning line while streaming, and shows the first line after settlement.
 
 Settings → General exposes a persisted, localized `Normal` / `Compact` conversation-display preference in the `ui-chat` namespace; `Compact` is the default. Normal leaves process rows visible and renders no Turn-process control. In Compact mode, the System prompt remains independently visible before the opening User throughout the Turn. Context injection, reasoning, Assistant material, Tool rows, and Retry rows remain expanded while a Turn is open. At `turn/end`, its latest Step becomes the final-answer boundary only when it contains non-blank text, an image, or an unknown visible block—and no Tool-call block; preceding Context injection, reasoning, earlier Assistant material, Tool rows, and Retry rows then collapse by default. The control reports Turn-wide durable counts for non-subagent Tool calls, reply-bearing Assistant messages before the final answer, and subagent delegation calls; zero-valued segments are omitted, the Tool and subagent figures are mutually exclusive, and neither System prompt nor Context injection contributes a count. When all three counts are zero, the process still folds and the control reads `Thought for a while`. A full-width divider below the summary separates it from the answer or expanded process rows. User and steering messages, System prompt, error, max-token, and turn-tail rows stay outside, and a closed Turn with no final answer keeps all process evidence visible. A newly available process control is inserted without changing the relative order of existing rows: opening human input precedes the control and process rows from their first projection, while System prompt remains above that input. While older history remains available through Load earlier, process controls stay absent and no members are hidden; once history is complete, every eligible closed Turn uses the collapsed default immediately. Stable Chat Node Seats keep every renderer mounted, hidden members add no flow spacing, and a closed control sits 8px above its answer only when no independent input intervenes. Completion collapse does not depend on tail-follow position, so a reader above the tail may see the transcript reflow. An automatic collapse that would hide keyboard focus keeps the group open and leaves focus in place; a manual close focuses the process control before hiding its members. The session-scoped store records only manually expanded Turn-and-answer-Step generations; a different answer generation starts collapsed.
+
+-----
+
+
+<a id="tool-call-nodes"></a>
+## Tool call nodes
+
+The `tool-call` Chat Node owns one call's preparing, dispatched, and result stages under a single callId, so a call that the model names before its arguments are complete appears once and keeps its identity when `tool/call` arrives. Live tool deltas share reasoning's frame-batched publication; durable calls and results publish immediately. Repeated named deltas retain the Tool node and its data reference when the projected call, anchor, location, and visibility are unchanged. Historical windows never expand a settled Assistant message back into live deltas, so replay presents start → result directly.
 
 -----
 

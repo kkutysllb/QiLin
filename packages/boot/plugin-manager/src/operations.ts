@@ -1,15 +1,20 @@
 /** Shared profile package operations used by qilin plugin and the running manager. */
-import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, open } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
+import { mkdir, mkdtemp, open, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { execa } from 'execa'
+import type { EntryOptions } from '@qilin/kylin-plugin-loader'
 import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
 import {
-  DEFAULT_PROFILE_BUNDLES, initProfile, PROFILE_TEMPLATES, readProfileManifest,
-  resolveBundleDir, resolveProfileDir, loadOverlayPatches, type ProfileManifest,
+  composeEntries, DEFAULT_PROFILE_BUNDLES, evaluatePluginCompatibility, initProfile, loadOverlayPatches,
+  pluginCompatibilityWarning, PROFILE_TEMPLATES, readProfileManifest, readProfileVersionExemptions,
+  resolveBundleDir, resolveProfileDir, type ProfileManifest,
 } from '@qilin/app-boot'
 import { scrubbedParentEnv } from '@qilin/subprocess'
-import type { PackageResult } from './types.ts'
+import { parseInstallSpec } from './install-spec.ts'
+import { incompatiblePlugin } from './failure.ts'
+import type { IncompatiblePlugin, PackageResult } from './types.ts'
+export { setProfileVersionExemption, readProfileVersionExemptions } from '@qilin/app-boot'
 
 /** Profile and invocation locations supplied by the launcher. */
 export interface PackageOperationContext {
@@ -36,6 +41,8 @@ export interface PackageOperationOptions {
   onOutput?: (text: string, stream: 'stdout' | 'stderr') => void
   activateNewBundles?: boolean
   lockWaitMs?: number
+  /** Bound on the pre-install registry lookup, in milliseconds; without one a fixed bound applies. */
+  lookupTimeoutMs?: number
 }
 
 /** Resolve relative package specs against the caller's directory.
@@ -96,17 +103,163 @@ async function reconcile(before: ProfileManifest, dir: string, anchor: string, o
   await saveManifest(dir, after)
 }
 
+/** Install commands that take the packages to install as positionals. */
+const INSTALL_COMMANDS = new Set(['add', 'install', 'i'])
+
+/** Bound on a pre-install registry lookup when the caller names none. */
+const LOOKUP_TIMEOUT_MS = 20_000
+
+/** Package specs an install command names explicitly, in order. */
+function namedSpecs(args: readonly string[]): string[] {
+  const index = args.findIndex(argument => !argument.startsWith('-'))
+  const command = index < 0 ? undefined : args[index]
+  if (command === undefined || !INSTALL_COMMANDS.has(command)) return []
+  return args.slice(index + 1).filter(argument => !argument.startsWith('-'))
+}
+
+/** The manifest a named spec would install, read without installing it.
+ * A path spec is read from disk. A registry spec asks pnpm's own configuration for the version the
+ * range selects and its peer requirements. A git or tarball spec needs the fetch itself, so the
+ * check after installation is what judges it.
+ * @param dir Profile directory the lookup runs in.
+ * @param spec Anchored install spec.
+ * @param options Pnpm executable, prefix arguments, the caller's bound and signal.
+ * @param environment Environment of the caller's pnpm invocations.
+ * @param flags Flags of the run itself, so the lookup asks the registry that run will use.
+ * @returns The package manifest, or undefined when reading it would need the installation itself.
+ */
+async function namedSpecManifest(
+  dir: string, spec: string, options: LookupOptions, environment: Readonly<Record<string, string | undefined>>,
+  flags: readonly string[],
+): Promise<object | undefined> {
+  const parsed = parseInstallSpec(spec)
+  if (parsed.kind === 'path') {
+    const filename = join(parsed.path, 'package.json')
+    return existsSync(filename) ? JSON.parse(readFileSync(filename, 'utf8')) as object : undefined
+  }
+  if (parsed.kind !== 'registry') return undefined
+  const viewed = await execa(options.command ?? 'pnpm', [
+    ...options.args ?? [], 'view', parsed.spec, 'name', 'version', 'peerDependencies', '--json',
+    ...flags, '--config.fetch-retries=0',
+  ], {
+    cwd: dir, env: environment, extendEnv: false, reject: false, stdin: 'ignore',
+    ...options.signal === undefined ? {} : { cancelSignal: options.signal },
+    timeout: options.lookupTimeoutMs ?? LOOKUP_TIMEOUT_MS,
+  })
+  if (viewed.exitCode !== 0) return undefined
+  const value: unknown = JSON.parse(viewed.stdout)
+  return (Array.isArray(value) ? value.at(-1) : value) as object
+}
+
+/** The executable, environment, and bound one pre-install registry lookup needs. */
+export type LookupOptions = Pick<
+  PackageOperationOptions, 'execution' | 'command' | 'args' | 'env' | 'signal' | 'lookupTimeoutMs'
+>
+
+/** The packages one install command names that the running runtime version refuses. */
+export interface RefusedInstallSpecs {
+  /** One English diagnostic per refused package, for logs and the CLI's stderr. */
+  warnings: string[]
+  /** The refused packages, for a surface with its own grant mechanism or locale. */
+  incompatible: IncompatiblePlugin[]
+}
+
+/**
+ * Read the manifests an install command names and report the ones the running
+ * runtime version refuses, without installing anything. A path spec is read
+ * from disk and a registry spec through pnpm's own lookup; a git or tarball
+ * spec needs the fetch itself, so only the check after installation judges it.
+ * @param context Launcher-owned profile and resolution locations.
+ * @param args Pnpm arguments, before relative path anchoring.
+ * @param options Executable, environment, cancellation, and the lookup bound.
+ * @returns One warning per refused package; empty when none is refused.
+ */
+export async function refusedInstallSpecs(
+  context: PackageOperationContext, args: readonly string[], options: LookupOptions,
+): Promise<RefusedInstallSpecs> {
+  const dir = context.dir ?? resolveProfileDir(context.profile, context.home)
+  const environment = { ...(options.execution === 'cli' ? process.env : scrubbedParentEnv()), ...options.env }
+  const exemptions = readProfileVersionExemptions(dir)
+  // The run's own registry flags, so the lookup asks the registry the installation will use.
+  const registryFlags = args.filter(argument => argument.startsWith('--registry='))
+  const warnings: string[] = []
+  const incompatible: IncompatiblePlugin[] = []
+  for (const raw of namedSpecs(args)) {
+    // A spec whose manifest cannot be read or validated is left to the run itself and to the check
+    // after installation, which reports what it could not validate.
+    try {
+      const manifest = await namedSpecManifest(dir, anchorPathSpec(raw, context.cwd), options, environment, registryFlags)
+      if (manifest === undefined) continue
+      const issue = evaluatePluginCompatibility(manifest, exemptions)
+      if (issue !== undefined && !issue.exempted) {
+        warnings.push(pluginCompatibilityWarning(issue))
+        incompatible.push(incompatiblePlugin(issue))
+      }
+    } catch (error) { void error; continue }
+  }
+  return { warnings, incompatible }
+}
+
+/** Missing installed packages are repairable; their absence is part of the before/after comparison. */
+function optionalFile(path: string): string | undefined {
+  try { return readFileSync(path, 'utf8') } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+    throw error
+  }
+}
+
+/** pnpm can install plugins through any direct-dependency field. */
+function directDependencies(manifest: ProfileManifest): Record<string, string> {
+  const extra = manifest as ProfileManifest & { devDependencies?: Record<string, string>; optionalDependencies?: Record<string, string> }
+  return { ...extra.devDependencies, ...manifest.dependencies, ...extra.optionalDependencies }
+}
+
+/** Inspect only plugin rows contributed by the changed bundle, not its dependency closure. */
+function bundleComponentManifests(name: string, dir: string, anchor: string): ProfileManifest[] {
+  const bundle = bundleManifest(name, dir, anchor)
+  const patch = bundle?.qilin?.bundle?.patch
+  if (patch === undefined) return []
+  const packageDir = resolveBundleDir('qilin', name, anchor, dir)
+  const patches = loadOverlayPatches('qilin', join(packageDir, patch))
+  const names = new Set<string>()
+  const visit = (rows: EntryOptions[]) => {
+    for (const row of rows) {
+      if (row.group && Array.isArray(row.config)) visit(row.config as EntryOptions[])
+      if (typeof row.name !== 'string' || row.name.startsWith('.') || row.name.startsWith('/') || row.name.includes(':')) continue
+      const parts = row.name.split('/')
+      names.add(parts.slice(0, row.name.startsWith('@') ? 2 : 1).join('/'))
+    }
+  }
+  visit(composeEntries([patches.filter(entry => entry.insert !== undefined)]))
+  return [...names].flatMap((component) => {
+    let directory: string
+    try { directory = resolveBundleDir('qilin', component, anchor, dir) } catch (error) {
+      // Resolution errors for uninstalled or dynamic rows remain subject to the startup loader's checks.
+      void error
+      return []
+    }
+    return [readProfileManifest('qilin', directory)]
+  })
+}
+
 /** Execute pnpm inside a profile whose caller already holds the profile write lock.
+ * Newly installed or updated direct dependencies are checked even when activation is disabled;
+ * an untouched dependency never blocks an unrelated operation and stays denied at startup.
+ * Compatibility denial restores the profile manifest and lockfile, but leaves downloaded modules on disk.
  * @param context Launcher-owned profile and resolution locations.
  * @param args Pnpm arguments, before relative path anchoring.
  * @param options Output, activation and cancellation policy.
- * @returns Exit status and diagnostic path; service output is bounded, CLI output uses inherited descriptors.
+ * @returns Exit status, whether the silence bound stopped the run, and the diagnostic path.
+ * A compatibility denial returns exit code 1. Service output is bounded; CLI output uses inherited descriptors.
  */
 export async function runProfilePnpm(
   context: PackageOperationContext, args: readonly string[], options: PackageOperationOptions,
 ): Promise<PackageResult> {
   const dir = context.dir ?? resolveProfileDir(context.profile, context.home)
   const before = readProfileManifest('qilin', dir)
+  const savedFiles = ['package.json', 'pnpm-lock.yaml'].map(name => ({ path: join(dir, name), text: optionalFile(join(dir, name)) }))
+  const beforeDependencies = directDependencies(before)
+  const installedBefore = new Map(Object.keys(beforeDependencies).map(name => [name, optionalFile(join(dir, 'node_modules', name, 'package.json'))]))
   const logRoot = join(dir, '.plugin-manager', 'logs')
   await mkdir(logRoot, { recursive: true, mode: 0o700 })
   const logDir = await mkdtemp(join(logRoot, 'operation-'))
@@ -114,9 +267,40 @@ export async function runProfilePnpm(
   const log = await open(logPath, 'wx', 0o600)
   let output = Buffer.alloc(0)
   let truncated = false
+  const append = (bytes: Buffer): void => {
+    output = Buffer.concat([output, bytes])
+    if (output.length > options.outputBytes) {
+      truncated = true
+      output = output.subarray(output.length - options.outputBytes)
+    }
+  }
+  const environment = { ...(options.execution === 'cli' ? process.env : scrubbedParentEnv()), ...options.env }
+  const restore = async (): Promise<void> => {
+    for (const file of savedFiles) {
+      if (file.text === undefined) await rm(file.path, { force: true })
+      else await writeFileAtomic(file.path, file.text, { mode: 0o600 })
+    }
+  }
+  /** Packages a compatibility check refused; callers render them for their own surface. */
+  const incompatible: IncompatiblePlugin[] = []
+  const rejected = async (warnings: readonly string[], restoration: string): Promise<PackageResult> => {
+    const diagnostic = `\nqilin: installation rejected: ${warnings.join('\n')}\nqilin: ${restoration}.\n`
+    await log.write(diagnostic)
+    options.onOutput?.(diagnostic, 'stderr')
+    append(Buffer.from(diagnostic))
+    await log.close()
+    return { exitCode: 1, output: output.toString('utf8'), truncated, logPath, incompatible }
+  }
+  // An install command names the packages it adds, so their manifests are read and checked before
+  // pnpm runs: an incompatible version is never installed, and the one already in use keeps working.
+  const refused = await refusedInstallSpecs(context, args, options)
+  if (refused.warnings.length > 0) {
+    incompatible.push(...refused.incompatible)
+    return rejected(refused.warnings, 'nothing was installed')
+  }
   const cancellation = new AbortController()
   const child = execa(options.command ?? 'pnpm', [...options.args ?? [], ...args.map(arg => anchorPathSpec(arg, context.cwd))], {
-    cwd: dir, env: { ...(options.execution === 'cli' ? process.env : scrubbedParentEnv()), ...options.env }, extendEnv: false, reject: false,
+    cwd: dir, env: environment, extendEnv: false, reject: false,
     stdout: options.execution === 'cli' ? 'inherit' : 'pipe',
     stderr: options.execution === 'cli' ? 'inherit' : 'pipe',
     buffer: false, stdin: options.execution === 'cli' ? 'inherit' : 'ignore', cancelSignal: options.signal === undefined
@@ -130,11 +314,7 @@ export async function runProfilePnpm(
         writes = writes.then(async () => { await log.write(bytes) })
         await writes
         options.onOutput?.(bytes.toString('utf8'), kind)
-        output = Buffer.concat([output, bytes])
-        if (output.length > options.outputBytes) {
-          truncated = true
-          output = output.subarray(output.length - options.outputBytes)
-        }
+        append(bytes)
       }
     } catch (error) {
       cancellation.abort()
@@ -157,11 +337,71 @@ export async function runProfilePnpm(
       truncated = Buffer.byteLength(diagnostic) > options.outputBytes
       output = Buffer.from(diagnostic).subarray(0, options.outputBytes)
     }
-    if (exitCode === 0 && options.activateNewBundles !== false) await reconcile(before, dir, context.installAnchor, options)
+    // A terminated run's exit status says nothing about what it wrote, so it never reconciles the selection.
+    if (exitCode === 0) {
+      const after = readProfileManifest('qilin', dir)
+      const warnings: string[] = []
+      for (const [name, spec] of Object.entries(directDependencies(after))) {
+        const packageDir = join(dir, 'node_modules', name)
+        const installed = optionalFile(join(packageDir, 'package.json'))
+        if (installed === undefined) continue
+        // A dependency this run did not touch never blocks an unrelated operation; profile startup denies it.
+        const untouched = beforeDependencies[name] === spec && installedBefore.get(name) === installed
+        const found: string[] = []
+        const issues: IncompatiblePlugin[] = []
+        try {
+          const manifest = readProfileManifest('qilin', packageDir)
+          for (const candidate of [manifest, ...bundleComponentManifests(name, dir, context.installAnchor)]) {
+            const issue = evaluatePluginCompatibility(candidate, readProfileVersionExemptions(dir))
+            if (issue !== undefined && !issue.exempted) {
+              found.push(pluginCompatibilityWarning(issue))
+              issues.push(incompatiblePlugin(issue))
+            }
+          }
+        } catch (error) {
+          found.push(`Cannot validate installed package ${name}: ${String(error)}`)
+        }
+        if (found.length === 0) continue
+        if (!untouched) {
+          warnings.push(...found)
+          incompatible.push(...issues)
+        }
+        else {
+          const notice = `\nqilin: warning: ${found.join('\n')}\nqilin: it stays installed but profile startup denies it until you grant an exemption for those exact versions.\n`
+          await log.write(notice)
+          options.onOutput?.(notice, 'stderr')
+        }
+      }
+      if (warnings.length > 0) {
+        // A bundle component's peers need installed contents, so this rejection lands after pnpm
+        // replaced the tree: restore the files, then reinstall the restored lockfile so the version
+        // that worked before this run keeps loading. A profile that had no lockfile is reinstalled
+        // from its restored manifest without creating one, which removes what this run added.
+        await restore()
+        const hadLockfile = savedFiles.some(file => file.path.endsWith('pnpm-lock.yaml') && file.text !== undefined)
+        const repair = ['install', hadLockfile ? '--frozen-lockfile' : '--config.lockfile=false']
+        const repaired = await execa(options.command ?? 'pnpm', [...options.args ?? [], ...repair], {
+          cwd: dir, env: environment, extendEnv: false, reject: false, stdin: 'ignore',
+        })
+        exitCode = 1
+        const restoration = repaired.exitCode === 0
+          ? 'restored package.json, pnpm-lock.yaml, and node_modules'
+          : "restored package.json and pnpm-lock.yaml, but node_modules could not be reinstalled; run 'qilin plugin install'"
+        const diagnostic = `\nqilin: installation rejected: ${warnings.join('\n')}\nqilin: ${restoration}.\n`
+        await log.write(diagnostic)
+        options.onOutput?.(diagnostic, 'stderr')
+        append(Buffer.from(diagnostic))
+      } else if (options.activateNewBundles !== false) {
+        await reconcile(before, dir, context.installAnchor, options)
+      }
+    }
   } finally {
     await log.close()
   }
-  return { exitCode, output: output.toString('utf8'), truncated, logPath }
+  return {
+    exitCode, output: output.toString('utf8'), truncated, logPath,
+    ...incompatible.length > 0 ? { incompatible } : {},
+  }
 }
 
 /** Initialize and run the qilin plugin command with the same write lock as the service.

@@ -40,33 +40,33 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/agent-default-model": "workspace:^",
-    "@qilin/agent-presets": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/permission-presets": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-title": "workspace:^",
-    "@qilin/workspace": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/agent-default-model": "workspace:*",
+    "@qilin/agent-presets": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/permission-presets": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-title": "workspace:*",
+    "@qilin/workspace": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/agent-default-model": "workspace:^",
-    "@qilin/agent-presets": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/permission-presets": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-title": "workspace:^",
-    "@qilin/workspace": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/agent-default-model": "workspace:*",
+    "@qilin/agent-presets": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/permission-presets": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-title": "workspace:*",
+    "@qilin/workspace": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*"
   }
 }

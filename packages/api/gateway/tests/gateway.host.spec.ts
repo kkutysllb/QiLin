@@ -5,6 +5,7 @@ import { Context, Service, symbols } from '@qilin/kylin'
 import { z } from 'zod'
 import { apply as applyConnection, inject as connectionInject } from '@qilin/client-connection'
 import type { HostConnectionHandle } from '@qilin/client-connection'
+import type { PeerId, PeerScope } from '@qilin/typert-protocol'
 import type { WebServer, WebRoute } from '@qilin/host-webserver'
 import {
   bindTypertRemote,
@@ -112,9 +113,12 @@ class FakeConnectionService extends Service {
   channel: string | undefined
   matches: ((endpoint: string) => boolean) | undefined
   handler: FakeRpcHandler | undefined
+  /** The operator Peer every call this fake dispatches speaks for. */
+  readonly operator: PeerScope
 
   constructor(ctx: Context) {
     super(ctx, 'connection')
+    this.operator = { id: 'fake-operator' as PeerId, ctx, dispose: () => Promise.resolve() }
   }
 
   get rpc() {

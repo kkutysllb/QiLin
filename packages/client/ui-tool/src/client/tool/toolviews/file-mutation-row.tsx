@@ -3,16 +3,31 @@ import { IconEditOutline16 } from '@qilin/client-ui-primitives'
 import type { PropsLocale } from '@qilin/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { diffCardModel } from '../models/diff-card-model.ts'
-import { toolRowModel } from '../models/tool-call-model.ts'
+import { toolRowModel, toolTitleKey } from '../models/tool-call-model.ts'
 import { ToolRow } from '../components/ToolRow.tsx'
+import { PreparingToolRow } from '../components/PreparingToolRow.tsx'
 import { CONVERSATION_NS as NS } from '../../locale.ts'
 
 type FileMutationRowProps = ToolCallViewProps & PropsLocale<'conversation'>
+const FILE_MUTATION_ICON = <IconEditOutline16 size={14} />
 
 /**
  * Lets users expand an applied file diff and open the reported path.
  */
-export function FileMutationRow({ toolName, block, cwd, home, openFile, inspect, t }: FileMutationRowProps) {
+export function FileMutationRow(props: FileMutationRowProps) {
+  return props.phase === 'preparing'
+    ? <PreparingFileMutationRow {...props} />
+    : <StartedFileMutationRow {...props} />
+}
+
+function PreparingFileMutationRow({ toolName, useToolCallArgumentsPartial, t }: Extract<FileMutationRowProps, { phase: 'preparing' }>) {
+  const raw = useToolCallArgumentsPartial()
+  return <PreparingToolRow toolName={toolName} icon={FILE_MUTATION_ICON}
+    title={t(toolTitleKey(toolName))} t={t}
+    summary={t('tool.preparing.content', { kilobytes: Math.ceil(raw.length / 1024) })} />
+}
+
+function StartedFileMutationRow({ toolName, block, cwd, home, openFile, inspect, t }: Exclude<FileMutationRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block, cwd, home)
   const diff = diffCardModel(block)
   return (
@@ -20,7 +35,7 @@ export function FileMutationRow({ toolName, block, cwd, home, openFile, inspect,
       t={t}
       variant={model.variant}
       toolName={toolName}
-      icon={<IconEditOutline16 size={14} />}
+      icon={FILE_MUTATION_ICON}
       title={t(model.titleKey)}
       summary={model.summary}
       output={model.output}

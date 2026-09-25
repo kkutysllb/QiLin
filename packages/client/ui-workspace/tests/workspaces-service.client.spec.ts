@@ -74,7 +74,7 @@ function sessionState(
     ids: summaries.map(item => item.id),
     byId: Object.fromEntries(summaries.map(item => [item.id, item])),
     phase,
-    subagentsByParent: {},
+    projectionsBySession: {},
     jobsBySession: {},
   }
 }
@@ -131,7 +131,7 @@ class FakeSessions implements ISessions {
   readonly create: ReturnType<typeof vi.fn<ISessions['create']>>
   readonly fork = vi.fn<ISessions['fork']>(async () => sid('forked'))
   readonly retained: RetainedSession[] = []
-  readonly refreshSubagents = vi.fn<ISessions['refreshSubagents']>(() => Promise.resolve())
+  readonly refreshProjections = vi.fn<ISessions['refreshProjections']>(() => Promise.resolve())
   readonly retain = vi.fn<ISessions['retain']>((target) => {
     const release = vi.fn<() => void>()
     const sessionId = typeof target === 'string' ? target : target.childSessionId
@@ -150,7 +150,6 @@ class FakeSessions implements ISessions {
   declare readonly using: ISessions['using']
   declare readonly retainInfo: ISessions['retainInfo']
   declare readonly searchResultLimit: ISessions['searchResultLimit']
-  declare readonly setSubagentCatalogOpen: ISessions['setSubagentCatalogOpen']
   declare readonly refresh: ISessions['refresh']
   declare readonly search: ISessions['search']
   declare readonly scope: ISessions['scope']
@@ -274,7 +273,7 @@ describe('UiWorkspaceService', () => {
     b.uiWorkspace.openSession(sid('target'))
     expect(b.selectPanel).toHaveBeenCalledWith(null)
     expect(b.sessions.retain).toHaveBeenCalledWith(sid('target'), { source: 'mainView' })
-    expect(b.sessions.refreshSubagents).toHaveBeenCalledWith(sid('target'))
+    expect(b.sessions.refreshProjections).toHaveBeenCalledWith(sid('target'))
   })
 
   it('keeps the current panel when retaining the target fails', () => {
@@ -514,7 +513,7 @@ describe('UiWorkspaceService', () => {
     })
 
     expect(b.sessions.retain).toHaveBeenCalledExactlyOnceWith(address, { source: 'mainView' })
-    expect(b.sessions.refreshSubagents.mock.calls).toEqual([
+    expect(b.sessions.refreshProjections.mock.calls).toEqual([
       [address.parentSessionId],
       [address.childSessionId],
     ])

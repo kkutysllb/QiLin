@@ -34,7 +34,7 @@ import css from './PluginManagerPage.module.css'
 export type PluginManagerPageProps =
   PropsRuntime<'settings.plugins.tab'>
   & PropsLocale<'pluginManager'>
-  & PropsRenderSlots<'plugins.item' | 'plugins.bundle.config' | 'plugins.row.config'>
+  & PropsRenderSlots<'plugins.item' | 'plugins.bundle.activation' | 'plugins.bundle.config' | 'plugins.row.config'>
   & InjectFace<PluginManagerFace>
 
 /** The page's slot renderer, narrowed to the configuration slots. */
@@ -570,6 +570,10 @@ const SUBJECT_KIND_KEYS = {
  */
 function failureText(failure: InstallState['failure'], t: Translate): string {
   if (failure === null) return t('installFailureGeneric')
+  // A compatibility refusal is the package's own answer, whatever pnpm's exit classified the run as.
+  if (failure.code === 'incompatible-version') {
+    return managementText({ code: failure.code, ...failure.incompatible === undefined ? {} : { incompatible: failure.incompatible } }, t)
+  }
   // Blocked scripts the Host could not name leave the person to allow them in the profile's pnpm settings by hand.
   if (failure.kind === 'build-blocked' && !failure.pendingBuilds?.length) return t('installFailureBuildBlockedManual')
   if (failure.kind !== undefined) return t(FAILURE_KIND_KEYS[failure.kind])
@@ -968,6 +972,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const ledger = props.useConfigLedger(snapshot => snapshot)
   // What is open; a package that leaves the list (uninstalled) drops back to the cards.
   const [view, setView] = useState<View>({ kind: 'list' })
+  const [activation, setActivation] = useState<string | null>(null)
   useEffect(() => { ensure() }, [ensure])
   // A package an install just enabled: scroll it into view and mark it for a moment.
   const { highlight, clearHighlight } = { highlight: state.highlight, clearHighlight: props.clearHighlight }
@@ -992,6 +997,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const openItem = view.kind === 'item' ? ledger.items.find(item => item.id === view.id) : undefined
   const openRow = view.kind === 'row' && openPkg !== undefined ? openPkg.rows.find(row => row.rowId === view.rowId) : undefined
   const showsCards = openPkg === undefined && openItem === undefined
+  const activated = listed.find(pkg => pkg.name === activation && pkg.enabled && !state.busy.includes(pkg.name))
   const setRowEnabled = (row: PackageRow, enabled: boolean): void => {
     /* v8 ignore next -- a row without a live entry has its switch disabled */
     if (row.entryId !== undefined) props.setRowEnabled(row.entryId, enabled)
@@ -1007,8 +1013,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
       t={t}
       busy={state.busy.includes(pkg.name)}
       highlighted={state.highlight === pkg.name}
-      onOpen={() => { setView({ kind: 'package', name: pkg.name }) }}
-      onSetEnabled={(enabled) => { props.setEnabled(pkg.name, enabled) }}
+      onOpen={() => { setActivation(null); setView({ kind: 'package', name: pkg.name }) }}
+      onSetEnabled={(enabled) => { setActivation(enabled ? pkg.name : null); props.setEnabled(pkg.name, enabled) }}
     />
   )
   // The Official group: the bundles the installation ships, then the plugins that registered their configuration.
@@ -1144,6 +1150,12 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
           />
         )
         : null}
+      {showsCards && activated !== undefined && !state.install.open
+        ? renderSlot('plugins.bundle.activation', {
+          packageName: activated.name,
+          onDismiss: () => { setActivation(null) },
+          onOpenDetails: () => { setActivation(null); setView({ kind: 'package', name: activated.name }) },
+        }, { entryKey: activated.name }) : null}
       <InstallDialog
         install={state.install}
         t={t}

@@ -35,15 +35,15 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

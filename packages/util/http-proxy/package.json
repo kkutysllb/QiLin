@@ -30,13 +30,13 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
     "undici": "^8.10.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/invariants": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/invariants": "workspace:*"
   }
 }

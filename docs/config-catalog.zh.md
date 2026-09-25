@@ -128,7 +128,7 @@ export interface Config {
    * Maximum parallel-safe calls in flight per agent step. `1` is serial;
    * omission defaults to {@link DEFAULT_MAX_PARALLEL_TOOL_CALLS}.
    */
-  maxParallelToolCalls?: number
+  maxParallelToolCalls: Volatile<number>
   /** Agents created or resumed at plugin startup. */
   agents: (AgentOptions & {
     /** Stable config label used in logs and as the fresh combined-id prefix. */
@@ -228,10 +228,12 @@ Depends on: [`ToolPresentationMode`](subsystems/tools.zh.md)
 export interface Config {
   /** WebSocket Ping interval from 1 through 2,147,483,647 milliseconds. @default 2000 */
   readonly websocketHeartbeatIntervalMs?: number
+  /** Buffered uplink frame bytes one logical stream may hold before it fails with `gateway/uplink-overflow`. @default 262144 */
+  readonly streamInboxBytes?: number
 }
 ```
 
-来源：[`packages/api/gateway/src/index.ts:119`](../packages/api/gateway/src/index.ts)
+ 来源：[`packages/api/gateway/src/index.ts:141`](../packages/api/gateway/src/index.ts)
 
 <a id="qilinapi-session-controller"></a>
 
@@ -520,9 +522,11 @@ export interface BasicCompactionConfig extends CompactionPolicyConfig {
 
 /** Policy fields shared by the default policy and exact model overrides. */
 export interface CompactionPolicyConfig {
-  /** Compact at this fraction of the model's context window. Defaults to `0.8`. */
+  /** Window fraction for pressure; capped at context window minus reserved output and `headroomTokens`. Defaults to `0.8`. */
   thresholdRatio?: number
-  /** Recent context retained as a fraction of the model's window. Defaults to `0.16`. */
+  /** Additional pressure headroom beyond the routed output reservation. Non-negative integer; defaults to `65536`. */
+  headroomTokens?: number
+  /** Recent context retained as a fraction of context window minus reserved output tokens. Defaults to `0.16`. */
   retainRatio?: number
   /** Absolute recent-context budget; mutually exclusive with `retainRatio`. */
   retainTokens?: number
@@ -530,7 +534,7 @@ export interface CompactionPolicyConfig {
   summarizationProvider?: string
   /** Summary model; set together with `summarizationProvider`, or inherit the conversation target. */
   summarizationModel?: string
-  /** Provider generation cap for summarization. Defaults to `8192`. */
+  /** Provider generation cap for summarization. Defaults to the resolved `headroomTokens`; an explicit cap must be positive. */
   maxTokens?: number
   /** Extra attempts after the first compaction when pressure remains above threshold. Defaults to `1`. */
   compactionRetries?: number
@@ -547,7 +551,7 @@ export interface ModelCompactPolicyConfig extends CompactionPolicyConfig {
 }
 ```
 
-来源：[`packages/compaction/compaction-basic/src/types.ts:38`](../packages/compaction/compaction-basic/src/types.ts)
+来源：[`packages/compaction/compaction-basic/src/types.ts:40`](../packages/compaction/compaction-basic/src/types.ts)
 
 <a id="qilincompaction-tool-result-pruner"></a>
 
@@ -612,6 +616,24 @@ export interface Config {
 ```
 
 来源：[`packages/experimental/agent-team/src/types.ts:130`](../packages/experimental/agent-team/src/types.ts)
+
+<a id="qilinexperimental-api-speech-to-text"></a>
+
+## `@qilin/experimental-api-speech-to-text`
+
+需要：`speechToText` · `typert`
+
+```ts config-catalog
+/** Limits applied before decoding or calling a provider. */
+export interface Config {
+  /** Maximum decoded WAV bytes per request. */
+  maxAudioBytes: number
+  /** Maximum PCM recording duration in seconds. */
+  maxDurationSeconds: number
+}
+```
+
+来源：[`packages/experimental/api-speech-to-text/src/index.ts:20`](../packages/experimental/api-speech-to-text/src/index.ts)
 
 <a id="qilinexperimental-browser-use-chrome-devtools-mcp"></a>
 
@@ -842,6 +864,82 @@ export interface Config {
 ```
 
 来源：[`packages/experimental/ptc-runtime-python/src/index.ts:42`](../packages/experimental/ptc-runtime-python/src/index.ts)
+
+<a id="qilinexperimental-speech-to-text"></a>
+
+## `@qilin/experimental-speech-to-text`
+
+```ts config-catalog
+/** Live selection read before a transcription starts; `configure()` writes it through the profile. */
+export interface Config {
+  /** Registered provider selected when the caller omits an id. */
+  defaultProvider: Volatile<string>
+  /** Provider language hint selected when the caller omits one. */
+  language: Volatile<string>
+}
+```
+
+Depends on: `Volatile` (`@qilin/kylin`)
+
+来源：[`packages/experimental/speech-to-text/src/index.ts:20`](../packages/experimental/speech-to-text/src/index.ts)
+
+<a id="qilinexperimental-speech-to-text-sensevoice"></a>
+
+## `@qilin/experimental-speech-to-text-sensevoice`
+
+需要：`speechToText` · `subprocess`
+
+```ts config-catalog
+/** Local runtime, inference, and retention settings. */
+export interface Config {
+  /** Unique registration id; consumers select this exact id. */
+  providerId: string
+  /** Absolute directory for verified ONNX models. */
+  dataRoot: string
+  /** Existing directory containing the selected ONNX model and tokens.txt; omission downloads verified files. */
+  modelDirectory?: string | undefined
+  /** Existing Silero VAD ONNX file; omission downloads the verified model. */
+  vadModelPath?: string | undefined
+  /** Weight precision; INT8 minimizes first-use download and model storage. */
+  precision: 'int8' | 'fp32'
+  /** Explicit Hugging Face-compatible origin; bypasses automatic selection and public fallback. */
+  modelOrigin?: string | undefined
+  /** Hugging Face-compatible origins compared before downloading each missing asset. */
+  modelOrigins: string[]
+  /** Deadline for concurrent HEAD probes, including redirects to the actual asset. */
+  modelProbeTimeoutMs: number
+  /** CPU intra-operation thread count. */
+  threads: number
+  /** Maximum speech segment length passed to the recognizer. */
+  segmentSeconds: number
+  /** Silero speech probability threshold. */
+  vadThreshold: number
+  /** Minimum speech duration retained by VAD. */
+  minSpeechSeconds: number
+  /** Silence separating two speech segments. */
+  minSilenceSeconds: number
+  /** Maximum decoded WAV bytes accepted by the private worker. */
+  maxAudioBytes: number
+  /** Deadline for runtime preparation and cold model loading. */
+  prepareTimeoutMs: number
+  /** Deadline for one inference after the worker is ready. */
+  inferenceTimeoutMs: number
+  /** Idle period before stopping the worker; zero keeps it warm. */
+  idleTimeoutMs: number
+  /** Maximum accepted running and waiting transcriptions. */
+  maxPending: number
+  /** Managed process termination grace period. */
+  graceMs: number
+  /** Maximum retained worker diagnostic bytes. */
+  maxLogBytes: number
+  /** Maximum transcript response bytes. */
+  maxResponseBytes: number
+  /** Minimum interval between intermediate download progress notifications. */
+  progressIntervalMs: number
+}
+```
+
+来源：[`packages/experimental/speech-to-text-sensevoice/src/config.ts:6`](../packages/experimental/speech-to-text-sensevoice/src/config.ts)
 
 <a id="qilinexperimental-tool-agent-team"></a>
 
@@ -1214,50 +1312,45 @@ export interface Config {
  * reasoning effort resolves to `high`.
  */
 export interface Config {
-  /** Wire protocol; defaults to messages. Configure through Cordis YAML. */
-  protocol?: DeepSeekProtocol
   /** Credential reference (environment-variable name) resolved per request; defaults to `DEEPSEEK_API_KEY`. */
-  apiKeyEnv?: string
+  apiKeyEnv: Volatile<string>
   /** Endpoint base; falls back to $DEEPSEEK_BASE_URL from a trusted environment layer, then the public API. */
-  baseURL?: string
+  baseURL: Volatile<string | undefined>
   /** Deployment thinking policy; `disabled` limits every conversation request to `off`. */
-  thinking?: 'enabled' | 'disabled'
+  thinking: Volatile<'enabled' | 'disabled' | undefined>
   /** Default thinking effort (default `high`); `off` disables thinking per request. */
-  reasoningEffort?: 'off' | 'low' | 'high' | 'max'
+  reasoningEffort: Volatile<'off' | 'low' | 'high' | 'max' | undefined>
   /** Default per-request output cap (default 256,000); a model's own cap and explicit request values win. */
-  maxTokens?: number
+  maxTokens: Volatile<number>
   /** Positive context capacity used when the selected model has no exact value (default 1,000,000). */
-  defaultContextWindow?: number
+  defaultContextWindow: Volatile<number>
   /** Advisory models shown by discovery consumers; defaults to V41 Flash and V4 Pro. */
-  models?: DeepSeekCatalogModel[]
+  models: Volatile<DeepSeekCatalogModel[]>
   /** Maximum provider idle time while one stream read is outstanding (default five minutes). */
-  streamIdleTimeoutMs?: number
+  streamIdleTimeoutMs: Volatile<number>
   /** Maximum accumulated file-referenced image bytes per chat request (default 128 MiB). */
-  maxRequestFilesBytes?: number
+  maxRequestFilesBytes: Volatile<number>
   /** Maximum accumulated base64 image payload after Files API fallback (default 20 MiB). */
-  maxInlineRequestImageBytes?: number
+  maxInlineRequestImageBytes: Volatile<number>
   /** Maximum number of represented images per chat request (default 600). */
-  maxImagesPerRequest?: number
+  maxImagesPerRequest: Volatile<number>
   /** Raw-byte removal step after the request exceeds its file bound (default 64 MiB). */
-  imageOffloadByteQuantum?: number
+  imageOffloadByteQuantum: Volatile<number>
   /** Base64-byte removal step after inline fallback exceeds its bound (default 10 MiB). */
-  inlineImageOffloadByteQuantum?: number
+  inlineImageOffloadByteQuantum: Volatile<number>
   /** Image-count removal step after the request exceeds its count bound (default 20). */
-  imageOffloadCountQuantum?: number
+  imageOffloadCountQuantum: Volatile<number>
   /** Maximum duration of one request-image Files API resolution (default one minute). */
-  filesApiTimeoutMs?: number
+  filesApiTimeoutMs: Volatile<number>
   /** Explicit lifetime assigned to each uploaded image (default seven days). */
-  fileExpiresAfterSeconds?: number
+  fileExpiresAfterSeconds: Volatile<number>
   /** Remaining lifetime below which an indexed file is replaced (default one hour). */
-  fileRefreshMarginSeconds?: number
+  fileRefreshMarginSeconds: Volatile<number>
   /** Oldest harness-owned files deleted before one quota-recovery upload retry (default 100). */
-  fileQuotaCleanupBatch?: number
+  fileQuotaCleanupBatch: Volatile<number>
   /** Provider-owned model-request retry policy; omission uses normal mode with five retries. */
-  retryPolicy?: RetryPolicyConfig
+  retryPolicy: Volatile<RetryPolicyConfig | undefined>
 }
-
-/** Supported wire implementations; Responses is not yet implemented. */
-export type DeepSeekProtocol = 'chat-completions' | 'messages'
 
 /** One optional model entry advertised by the direct-fetch adapter. */
 export interface DeepSeekCatalogModel {
@@ -1951,7 +2044,7 @@ export interface Config {
 }
 ```
 
-来源：[`packages/boot/plugin-manager/src/index.ts:34`](../packages/boot/plugin-manager/src/index.ts)
+来源：[`packages/boot/plugin-manager/src/index.ts:36`](../packages/boot/plugin-manager/src/index.ts)
 
 <a id="qilinplugin-package-inventory-deepseek"></a>
 
@@ -2541,6 +2634,10 @@ export interface Config {
 export interface Config {
   /** Absolute assets directory containing the three skill folders and shared scripts; defaults to packaged assets. */
   assetRoot?: string
+  /** Standalone Node executable; defaults to the current executable outside Electron and SEA. */
+  node?: string
+  /** Absolute LibreOffice Kit CLI entry; false explicitly disables CLI access. */
+  cli?: string | false
 }
 ```
 
@@ -2582,14 +2679,10 @@ export interface Config {
 需要：`tools`
 
 ```ts config-catalog
-/** Plugin config. */
+/** Optional result-retention budget. */
 export interface Config {
-  /**
-   * The model-facing context cap for a plain-text tool result, in UTF-8 bytes.
-   * Omitted disables the policy entirely (no-op). When set, a result larger than
-   * this is spilled and replaced with a preview derived from this same budget.
-   */
-  maxInlineBytes?: number
+  /** Maximum estimated tokens in a retained result, including image descriptors and omission notices. Omitted disables retention. */
+  maxInlineTokens?: number
 }
 ```
 
@@ -3195,9 +3288,11 @@ export interface Config {
   completionDelivery?: CompletionDelivery
   /**
    * Turns one owner may have opened by completion wakes before the next
-   * notice degrades to injection, reset by any user-authored input (default 3).
-   * Bounds the self-exciting chain where a woken turn starts the job whose
-   * completion wakes it again.
+   * notice degrades to injection, reset by any user-authored input. Absent by
+   * default: every idle completion wakes its owner. Set it to bound the
+   * self-exciting chain where a woken turn starts the job whose completion
+   * wakes it again, at the cost of notices past the cap waiting silently for
+   * the next user input.
    */
   maxConsecutiveWakes?: number
 }
@@ -3897,6 +3992,7 @@ export interface Config {
 - `@qilin/deepseek-llm-api-extensions`（[`packages/llm/deepseek-llm-api-extensions/src/index.ts`](../packages/llm/deepseek-llm-api-extensions/src/index.ts)）
 - `@qilin/experimental-auto-review` — 需要 `llm` · `permissionPresets` · `sessions` · `tools`（[`packages/experimental/auto-review/src/index.ts`](../packages/experimental/auto-review/src/index.ts)）
 - `@qilin/experimental-client-ui-agent-team`（[`packages/experimental/client-ui-agent-team/src/index.ts`](../packages/experimental/client-ui-agent-team/src/index.ts)）
+- `@qilin/experimental-client-ui-voice-input`（[`packages/experimental/client-ui-voice-input/src/index.ts`](../packages/experimental/client-ui-voice-input/src/index.ts)）
 - `@qilin/experimental-computer-use-cua-driver-native` — requires `computerUse` · `tools` · `systemPrompt` ([`packages/experimental/computer-use-cua-driver-native/src/index.ts`](../packages/experimental/computer-use-cua-driver-native/src/index.ts))
 - `@qilin/fs-observation-policy`（[`packages/fs/fs-observation-policy/src/index.ts`](../packages/fs/fs-observation-policy/src/index.ts)）
 - `@qilin/fs-ssh` — 需要 `ssh` · `sandboxPolicy`（[`packages/ssh/fs-ssh/src/index.ts`](../packages/ssh/fs-ssh/src/index.ts)）
@@ -3973,6 +4069,7 @@ export interface Config {
 - `@qilin/experimental-agent-team-profile`（[`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts)）
 - `@qilin/experimental-agent-team-web-profile`（[`packages/experimental/agent-team-web-profile/src/index.ts`](../packages/experimental/agent-team-web-profile/src/index.ts)）
 - `@qilin/experimental-browser-use-runtime` ([`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts))
+- `@qilin/experimental-voice-input-bundle` ([`packages/experimental/voice-input-bundle/src/index.ts`](../packages/experimental/voice-input-bundle/src/index.ts))
 - `@qilin/experimental-webworker-packer`（[`packages/experimental/webworker-packer/src/index.ts`](../packages/experimental/webworker-packer/src/index.ts)）
 - `@qilin/experimental-webworker-runtime`（[`packages/experimental/webworker-runtime/src/index.ts`](../packages/experimental/webworker-runtime/src/index.ts)）
 - `@qilin/home-paths`（[`packages/util/home-paths/src/index.ts`](../packages/util/home-paths/src/index.ts)）
@@ -3996,6 +4093,7 @@ export interface Config {
 - `@qilin/session-format-v0-to-v1`（[`packages/session/session-format-v0-to-v1/src/index.ts`](../packages/session/session-format-v0-to-v1/src/index.ts)）
 - `@qilin/session-format-v1-to-v2`（[`packages/session/session-format-v1-to-v2/src/index.ts`](../packages/session/session-format-v1-to-v2/src/index.ts)）
 - `@qilin/session-format-v2-to-v3`（[`packages/session/session-format-v2-to-v3/src/index.ts`](../packages/session/session-format-v2-to-v3/src/index.ts)）
+- `@qilin/session-format-v3-to-v4`（[`packages/session/session-format-v3-to-v4/src/index.ts`](../packages/session/session-format-v3-to-v4/src/index.ts)）
 - `@qilin/session-snapshot`（[`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts)）
 - `@qilin/session-telemetry`（[`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts)）
 - `@qilin/session-title-llm`（[`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts)）

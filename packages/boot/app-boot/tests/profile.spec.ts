@@ -18,12 +18,14 @@ import {
   composeEntries,
   EngineNameCollisionError,
   engineNameCollisions,
+  getQilinRuntimeVersion,
   healProfilesModuleFallback,
   healIsolatedProfileModuleFallback,
   initProfile,
   unlinkProfileModuleFallback,
   loadProfile,
   loadProfileDirectory,
+  PROFILE_COMPATIBILITY_FILENAME,
   PROFILE_OWNED_BUNDLES,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
@@ -450,6 +452,28 @@ describe('loadProfile', () => {
     writeProfileManifest(dir, { name: 'bare' })
     const bare = loadProfile('t', 'demo', anchor, home)
     expect(bare.layers).toEqual([])
+  })
+
+  it('refuses a bundle whose own qilin peers are incompatible until the profile exempts that exact pair', () => {
+    const anchor = stageInstallation({
+      guarded: { patch: '- insert: [{ id: a, name: pkg-a }]\n' },
+      kept: { patch: '- insert: [{ id: b, name: pkg-b }]\n' },
+    })
+    const manifestPath = join(anchor, '..', 'node_modules', 'guarded', 'package.json')
+    writeFileSync(manifestPath, JSON.stringify({
+      ...JSON.parse(readFileSync(manifestPath, 'utf8')) as object, peerDependencies: { '@qilin/session': '999.0.0' },
+    }))
+    const dir = resolveProfileDir('demo', tmp())
+    initProfile(dir, ['guarded', 'kept'])
+
+    // A bundle is not a plugin row, so row admission never reads its own peers: the profile loader is
+    // the only gate that can refuse it, and it fails the whole startup rather than loading a rejected
+    // bundle beside its siblings.
+    expect(() => loadProfileDirectory('qilin', dir, anchor)).toThrow(
+      `Plugin guarded@0.0.0 is incompatible with QiLin ${getQilinRuntimeVersion()}`,
+    )
+    writeFileSync(join(dir, PROFILE_COMPATIBILITY_FILENAME), JSON.stringify({ 'guarded@0.0.0': [getQilinRuntimeVersion()] }))
+    expect(loadProfileDirectory('qilin', dir, anchor).layers.map(layer => layer.packageName)).toEqual(['guarded', 'kept'])
   })
 
   it('auto-initializes only shipped templates and fails loud otherwise', () => {

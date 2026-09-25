@@ -1,4 +1,5 @@
 import { createUserMessage } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import {
@@ -12,6 +13,12 @@ import { Session, SessionId } from '@qilin/session'
 import type { SessionSeq } from '@qilin/session'
 import type { CompactionAgentContext } from '@qilin/compaction'
 import type { ManualCompactAgentContext } from '@qilin/compaction'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'other': { kind: 'other' } & ContextFormed
+  }
+}
 
 /**
  * A trivial concrete CompactionEngine implementing the abstract contract. The
@@ -146,7 +153,7 @@ describe('CompactionEngine seam', () => {
       && isCompactCheckpointSource(event.data.source))
     expect(checkpoint?.type === 'user/message' && checkpoint.data.source)
       .toEqual(compactCheckpointSource(result.compactionId))
-    expect(isCompactCheckpointSource({ kind: 'plugin', plugin: 'other' })).toBe(false)
+    expect(isCompactCheckpointSource({ kind: 'other' })).toBe(false)
     expect(isCompactCheckpointSource({ kind: 'user' })).toBe(false)
     expect(session.snapshotEvents().filter(e => e.type.startsWith('compaction/')).map(e => e.type))
       .toEqual(['compaction/start', 'compaction/summary', 'compaction/end'])

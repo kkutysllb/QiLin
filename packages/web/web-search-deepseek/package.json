@@ -30,26 +30,26 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/credentials": "workspace:^",
-    "@qilin/launch-environment": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/web": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/settings": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/launch-environment": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/web": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/settings": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/credentials": "workspace:^",
-    "@qilin/credentials-local": "workspace:^",
-    "@qilin/launch-environment": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/web": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/settings": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/credentials-local": "workspace:*",
+    "@qilin/launch-environment": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/web": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/settings": "workspace:*",
+    "@qilin/http-proxy": "workspace:*"
   }
 }

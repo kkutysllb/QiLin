@@ -106,3 +106,7 @@ Create a configuration-only bundle: its manifest needs a unique name, version, a
 ```
 
 Replace the endpoint, install the bundle through `plugin_manager`, then call `mcp__demo__ping` or another discovered tool. For stdio, use `transport: stdio`, `command`, and optional `args`, `env`, and `cwd`. Ambient credentials are scrubbed; reference existing credentials with Loader `!!js` rather than copying secrets into conversation text. Repair the same bundle on failure instead of creating duplicates.
+
+## Read next
+
+Read `references/practices.md` with the file-read tool before choosing an extension point for anything beyond a static decoration: tool policy, agent context, session-derived state, or Chat rows. It states which mechanism owns each decision — `ctx.tools.restrict()`, `ctx.tools.guard()`, a waterfall listener, or `system-prompt/assemble` — and how plugin UI stays inside the host's theme tokens, locale, and slots.

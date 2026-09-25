@@ -44,22 +44,22 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/remote-mock": "workspace:^",
-    "@qilin/api-remotes": "workspace:^",
-    "@qilin/client-locale": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/client-test-runtime": "workspace:^",
-    "@qilin/client-ui-primitives": "workspace:^",
-    "@qilin/client-ui-settings": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/remote-mock": "workspace:*",
+    "@qilin/api-remotes": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-settings": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "react": "^18.2.0",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/util-values": "workspace:*"
   },
   "files": [
     "lib/index.js",

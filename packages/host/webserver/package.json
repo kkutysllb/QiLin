@@ -30,15 +30,15 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "compression": "^1.8.1",
     "negotiator": "^1.0.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "@types/compression": "^1.8.1",
     "@types/negotiator": "^0.6.5"
   }

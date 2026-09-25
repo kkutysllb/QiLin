@@ -17,7 +17,7 @@ import { Context } from '@qilin/kylin'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { createSnapshotStore } from '@qilin/client-store'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import type { RunningToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
+import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
 import type { SessionListState } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
@@ -55,8 +55,8 @@ const withImage = (attachment: unknown) => [
   { type: 'image', attachment },
 ]
 
-const running = (over?: Partial<RunningToolCall>): RunningToolCall => ({
-  callId: 'c1', name: 'read_image', argsRaw: ARGS,
+const running = (over?: Partial<StartedToolCall>): StartedToolCall => ({
+  phase: 'start' as const, callId: 'c1', name: 'read_image', argsRaw: ARGS,
   turn: 1, step: 1, time: 1_000, subCalls: [], ...over,
 })
 
@@ -269,16 +269,16 @@ describe('ReadImageRow keyed toolview', () => {
     byId: { [SID]: { id: SID, displayTitle: 'r', running: false, blank: false, updatedAt: 0, cwd: '/w/app' } },
     current: SID,
     phase: 'ready',
-    subagentsByParent: {}, jobsBySession: {},
+    projectionsBySession: {}, jobsBySession: {},
     currentAddress: undefined,
   } as unknown as SessionListState)
 
   const rowProps = (
-    block: RunningToolCall | ToolResultNode,
+    block: StartedToolCall | ToolResultNode,
     renderSlot?: PropsRenderSlots<'tool.call.images'>['renderSlot'],
     loader: MessageImageLoader = loadImage,
   ): Parameters<typeof ReadImageRow>[0] => ({
-    callId: 'c1', toolName: 'read_image', block, openFile: vi.fn(), renderSlot, loadImage: loader,
+    callId: 'c1', toolName: 'read_image', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), renderSlot, loadImage: loader,
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     t,
   } as unknown as Parameters<typeof ReadImageRow>[0])

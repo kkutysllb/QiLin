@@ -56,33 +56,33 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/settings": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/user-approval": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/commands": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/settings": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/user-approval": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/shell": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/settings": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/user-approval": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/shell": "workspace:*",
+    "@qilin/commands": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/settings": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/user-approval": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

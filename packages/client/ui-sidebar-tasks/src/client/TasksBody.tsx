@@ -20,7 +20,7 @@ import type { TasksInjected } from './face.ts'
 import { NS } from './locales.ts'
 import { indexSubagentDescendants } from './lineage.ts'
 import {
-  NO_JOBS, childRowCount, formatDuration, isLive, jobDotState, jobElapsed, jobStatusLabel,
+  NO_JOBS, catalogsOf, childRowCount, formatDuration, isLive, jobDotState, jobElapsed, jobStatusLabel,
   orderedJobs, subagentRows, subagentTotal,
 } from './rows.ts'
 import type { SubagentRow } from './rows.ts'
@@ -174,8 +174,12 @@ export function TasksBody({
   sessionId, useSessions, openChild, refresh, interruptChild, t,
 }: TasksBodyProps): ReactNode {
   const summaries = useSessions(state => state.byId)
-  const catalogs = useSessions(state => state.subagentsByParent)
+  const projections = useSessions(state => state.projectionsBySession)
   const jobs = useSessions(state => state.jobsBySession[sessionId]) ?? NO_JOBS
+  const catalogs = useMemo(
+    () => catalogsOf(projections, id => summaries[id]?.running === true),
+    [projections, summaries],
+  )
   const catalog = catalogs[sessionId]
   const [sections, setSections] = useState<Sections>({ subagents: true, tasks: true })
   const [allSubagents, setAllSubagents] = useState(false)

@@ -64,20 +64,20 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/util-crypto": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/util-crypto": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^"
+    "@qilin/timeout": "workspace:*",
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/attachment": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/attachment": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

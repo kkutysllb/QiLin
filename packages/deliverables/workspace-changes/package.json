@@ -35,25 +35,25 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "diff": "^9.0.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/tools": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/tools": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/llm": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/llm": "workspace:*"
   }
 }

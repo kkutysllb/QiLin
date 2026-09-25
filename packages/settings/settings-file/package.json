@@ -30,21 +30,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/atomic-write": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
-    "@qilin/settings": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/atomic-write": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
+    "@qilin/settings": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "chokidar": "^4.0.3",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/atomic-write": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
-    "@qilin/settings": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/atomic-write": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
+    "@qilin/settings": "workspace:*"
   }
 }

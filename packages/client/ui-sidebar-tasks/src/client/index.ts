@@ -52,7 +52,7 @@ export function apply(ctx: ClientContext): void {
   // Session is navigation, so it goes through the workspace service.
   const face = tasksFace({
     openSubagent: address => ctx.uiWorkspace.openSession(address),
-    refreshSubagents: parentSessionId => ctx.sessions.refreshSubagents(parentSessionId),
+    refreshProjections: parentSessionId => ctx.sessions.refreshProjections(parentSessionId),
   }, ctx.remote.subagents)
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab', key: TASKS_ID, locale: NS, inject: () => face },

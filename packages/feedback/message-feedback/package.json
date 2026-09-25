@@ -47,28 +47,28 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/command-feedback": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/command-feedback": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/session-persistence-jsonl": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/command-feedback": "workspace:^"
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/session-persistence-jsonl": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/command-feedback": "workspace:*"
   }
 }

@@ -32,15 +32,15 @@
     "@qilin/cli": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/sdk-protocol": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/sdk-protocol": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/sdk-protocol": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/sdk-protocol": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

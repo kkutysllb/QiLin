@@ -12,6 +12,7 @@ import type {
   BundleInfo,
   ChangeResult,
   CommunityPluginEntry,
+  IncompatiblePlugin,
   ManagementError,
   PluginEntryId,
   PluginInfo,
@@ -45,6 +46,8 @@ export type ManagerNotice =
     readonly code?: ManagementError['code']
     /** The Host's diagnostic or the transport's words, shown verbatim; empty when the code says it all. */
     readonly reason: string
+    /** The packages an `incompatible-version` refusal names. */
+    readonly incompatible?: readonly IncompatiblePlugin[]
     readonly packageName?: string
     readonly seq: number
   }
@@ -143,6 +146,8 @@ export interface InstallState {
   readonly failure: {
     readonly reason: string
     readonly code?: ManagementError['code']
+    /** The packages an `incompatible-version` refusal names. */
+    readonly incompatible?: readonly IncompatiblePlugin[]
     readonly kind?: PluginInstallFailureKind
     readonly pendingBuilds?: readonly string[]
     readonly cancelUnconfirmed?: true
@@ -278,7 +283,9 @@ type Answer<T> =
 
 /** A refused answer or a change the Host could not apply, carrying what it said and, for a refusal, its code. */
 class RemoteAnswerError extends Error {
-  constructor(readonly reason: string, readonly code?: ManagementError['code']) {
+  constructor(
+    readonly reason: string, readonly code?: ManagementError['code'], readonly incompatible?: readonly IncompatiblePlugin[],
+  ) {
     super(reason)
     this.name = 'RemoteAnswerError'
   }
@@ -291,6 +298,7 @@ function failureOf(
   return {
     reason: error?.diagnostic ?? '',
     ...error === undefined ? {} : { code: error.code },
+    ...error?.incompatible === undefined ? {} : { incompatible: error.incompatible },
     ...kind === undefined ? {} : { kind },
     ...pendingBuilds === undefined || pendingBuilds.length === 0 ? {} : { pendingBuilds },
   }
@@ -299,7 +307,11 @@ function failureOf(
 /** The notice a thrown failure becomes: a refusal keeps its code, anything else its words. */
 function failedNotice(error: unknown, subject: { action: FailedAction; packageName?: string }, seq: number): ManagerNotice {
   const code = error instanceof RemoteAnswerError ? error.code : undefined
-  return { kind: 'failed', reason: reasonOf(error), ...code === undefined ? {} : { code }, ...subject, seq }
+  const incompatible = error instanceof RemoteAnswerError ? error.incompatible : undefined
+  return {
+    kind: 'failed', reason: reasonOf(error), ...code === undefined ? {} : { code },
+    ...incompatible === undefined ? {} : { incompatible }, ...subject, seq,
+  }
 }
 
 /** The runs with every one still open settled at `exitCode`. */
@@ -837,7 +849,7 @@ export class PluginManagerController {
     const result = answer.value
     switch (result.application) {
       case 'failed':
-        throw new RemoteAnswerError(result.error?.diagnostic ?? '', result.error?.code)
+        throw new RemoteAnswerError(result.error?.diagnostic ?? '', result.error?.code, result.error?.incompatible)
       case 'cancelled':
         this.patch({ notice: { kind: 'cancelled', seq: ++this.noticeSeq } })
         return

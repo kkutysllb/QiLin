@@ -11,7 +11,7 @@ import type {
   TypertOwnedValue,
   TypertRemoteEvent,
 } from '@qilin/typert-protocol'
-import { isTypertOwnedValue } from '@qilin/typert-protocol'
+import { isRemoteJsonValue, isTypertOwnedValue } from '@qilin/typert-protocol'
 import { randomUUID } from '@qilin/util-crypto'
 import {
   REMOTE_EVENT_RESULT_ENDPOINT,
@@ -20,7 +20,6 @@ import {
   isRemoteEventAgentId,
   isRemoteEventClientId,
   isRemoteEventId,
-  isRemoteJsonValue,
   projectRemoteEventRejection,
   type RemoteEventClientId,
   type RemoteEventDownlinkFrame,

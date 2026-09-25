@@ -11,7 +11,6 @@ import type { Agent, PreStepDecision } from '@qilin/agent'
 import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 import { createUserMessage, freezeMessage, LlmError } from '@qilin/llm'
 import type { ContentBlock, LlmResolvedModelInfo, UserMessage } from '@qilin/llm'
-import { SessionLogOffset } from '@qilin/session'
 import type { SessionId } from '@qilin/session'
 // Type-only: the `title` projection key plus the live registry and durable
 // cache Context merges — the two projection faces discovery labels from.
@@ -239,9 +238,8 @@ export class SessionReferenceResolver extends TypertRemoteService {
    * Nothing else is attempted. Folding a title from a log costs the whole
    * log, and this call sits under every keystroke of `@` completion. A
    * session that no projection can answer for — one persisted before the
-   * cache was composed, or seeded straight to disk — is labeled by its id
-   * and cannot be found by its title until it is opened once, which
-   * checkpoints it.
+   * cache was composed — is labeled by its id and cannot be found by its
+   * title until it is opened once, which checkpoints it.
    * @param record - the listed session, live or cold.
    * @returns the title-backed mention label and the subagent-label-first display title.
    */
@@ -250,13 +248,7 @@ export class SessionReferenceResolver extends TypertRemoteService {
     const projections = this.ctx.get('sessionProjections')
     const snapshot = attached !== undefined && projections !== undefined
       ? projections.snapshot(attached, ['title', 'subagent'])
-      : record.header.isSeeded
-        ? undefined
-        : this.ctx.get('sessionProjectionCache')?.cachedSnapshot(
-          record.header,
-          SessionLogOffset(0),
-          ['title', 'subagent'],
-        )
+      : this.ctx.get('sessionProjectionCache')?.cachedSnapshot(record.header, ['title', 'subagent'])
     const label = titleOf(snapshot) ?? record.header.id
     const subagent = snapshot?.values.subagent
     return {

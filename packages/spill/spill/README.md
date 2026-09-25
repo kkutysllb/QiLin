@@ -33,13 +33,13 @@ Choose spill storage when a deployment needs to keep full text retrievable after
 
 ### Smallest working composition
 
-Mount a backend and the policy together; with `maxInlineBytes` set, any oversized plain-text tool result becomes a preview plus a locator automatically.
+Mount a backend and the policy together; with `maxInlineTokens` set, an oversized text/image tool result becomes a preview plus a locator automatically.
 
 ```yaml
 - name: '@qilin/spill-local'
 - name: '@qilin/spill-policy'
   config:
-    maxInlineBytes: 50000
+    maxInlineTokens: 12500
 ```
 
 ### Saving text

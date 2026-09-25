@@ -12,6 +12,8 @@ import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
 import { pluginEntryId, readPluginInventory } from '@qilin/host-plugin-inventory'
 import {
   readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches, readProfilePatches, OPTIONAL_BUNDLES,
+  evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption,
+  PROFILE_COMPATIBILITY_FILENAME,
 } from '@qilin/app-boot'
 import type {} from '@qilin/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin/app-boot'
@@ -19,7 +21,7 @@ import { bundleManifest, runProfilePnpm, saveManifest, viewProfilePackage } from
 import { classifyInstallFailure } from './install-failure.ts'
 import { InvalidInstallSpecError, parseInstallSpec } from './install-spec.ts'
 import { writePluginEnabled } from './patch.ts'
-import { ManagementFailure } from './failure.ts'
+import { incompatiblePlugin, ManagementFailure } from './failure.ts'
 import { approveBuilds, readPendingBuilds } from './build-approval.ts'
 import type {
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InstallBundleOptions, ManagementError,
@@ -82,7 +84,8 @@ function messageOf(error: unknown): string { return error instanceof Error ? err
 
 /** An expected refusal keeps its code; anything else becomes an operation error carrying its exact diagnostic. */
 function managementError(error: unknown): ManagementError {
-  return error instanceof ManagementFailure ? { code: error.code } : { code: 'operation-error', diagnostic: messageOf(error) }
+  if (!(error instanceof ManagementFailure)) return { code: 'operation-error', diagnostic: messageOf(error) }
+  return { code: error.code, ...error.incompatible === undefined ? {} : { incompatible: error.incompatible } }
 }
 
 /** The caller stopped an installation; its files are restored before this is thrown. */
@@ -176,6 +179,31 @@ export class PluginManager extends TypertRemoteService {
     }, 'plugin-manager: package cancellation')
   }
 
+  /** Read exact plugin-version exemptions saved in this profile.
+   * @returns Accepted package-name@version keys with the runtime versions they may run on, and any
+   * record or file problem the reader rejected, which the caller reports instead of failing.
+   */
+  @Remote
+  listVersionExemptions(): { exemptions: Record<string, string[]>; warnings: string[] } {
+    const { exemptions, warnings } = readProfileCompatibility(this.profile.dir)
+    return { exemptions, warnings }
+  }
+
+  /** Grant or revoke one exact plugin/runtime exemption and reevaluate live plugins.
+   * @param packageVersion Exact manifest package name followed by @ and its version; never an installation spec or alias.
+   * @param runtimeVersion Exact current qilin version for grants; revocation may name a previous runtime.
+   * @param enabled Whether to grant rather than revoke the exemption.
+   * @param acceptRisk Required true for grants after the user accepts possible crashes and data loss.
+   * @returns Saved and runtime outcomes. Startup-only profiles require restart.
+   */
+  @Remote
+  setVersionExemption(packageVersion: string, runtimeVersion: string, enabled: boolean, acceptRisk?: boolean): Promise<ChangeResult> {
+    return this.change(result => this.configure(async () => {
+      await setProfileVersionExemption(this.profile.dir, packageVersion, runtimeVersion, enabled, acceptRisk === true)
+      result.warnings = await this.reload()
+    }), { stage: 'enable', target: packageVersion, enabled }, 'bundle')
+  }
+
   /** Read current plugins, including why a row cannot be changed through the profile patch.
    * @returns Current runtime entries with persistent patch targets.
    */
@@ -206,6 +234,7 @@ export class PluginManager extends TypertRemoteService {
   @Remote
   listBundles(): Promise<BundleInfo[]> {
     const manifest = readProfileManifest('qilin', this.profile.dir)
+    const exemptions = readProfileVersionExemptions(this.profile.dir)
     const selected = manifest.qilin?.profile?.bundles ?? []
     const dependencies = Object.keys(manifest.dependencies ?? {})
     const installation = JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
@@ -223,6 +252,10 @@ export class PluginManager extends TypertRemoteService {
           continue
         }
         const readOnlyReason = this.protectsManager(name) ? 'management-required' as const : undefined
+        const compatibility = evaluatePluginCompatibility(info, exemptions)
+        if (compatibility !== undefined && !compatibility.exempted) {
+          throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
+        }
         bundles.push({ name, ...(info.version === undefined ? {} : { version: info.version }),
           ...(info.description === undefined || info.description === '' ? {} : { description: info.description }),
           enabled, installed, optional, removable: removable && readOnlyReason === undefined,
@@ -409,6 +442,10 @@ export class PluginManager extends TypertRemoteService {
       try {
         result.packageResult = await this.runPnpm(['add', spec], control.abort.signal, requestId)
         if (stopped()) throw new InstallCancelledError()
+        // A compatibility refusal is the package's own answer, so no other registry is asked.
+        if (result.packageResult.incompatible !== undefined) {
+          throw new ManagementFailure('incompatible-version', result.packageResult.incompatible)
+        }
         if (result.packageResult.exitCode !== 0) {
           // pnpm-workspace.yaml is not restored, so the names pnpm left undecided there can be offered for approval.
           try { result.pendingBuilds = await readPendingBuilds(this.profile.dir) }
@@ -427,6 +464,10 @@ export class PluginManager extends TypertRemoteService {
         const dir = resolveBundleDir('qilin', name, this.profile.installAnchor, this.profile.dir)
         const manifest = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
         if (manifest?.qilin?.bundle?.patch === undefined) throw new ManagementFailure('not-bundle')
+        const compatibility = evaluatePluginCompatibility(manifest, readProfileVersionExemptions(this.profile.dir))
+        if (compatibility !== undefined && !compatibility.exempted) {
+          throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
+        }
         loadOverlayPatches('qilin', join(dir, manifest.qilin.bundle.patch))
       } catch (error) {
         // pnpm has exited by now, so the files it rewrote go back as they were.
@@ -532,6 +573,7 @@ export class PluginManager extends TypertRemoteService {
       execution: 'service', ...this.profile.packageManager ?? { command: this.pnpmCommand },
       signal: signal === undefined ? this.abort.signal : AbortSignal.any([this.abort.signal, signal]),
       outputBytes: this.outputBytes, activateNewBundles: false,
+      lookupTimeoutMs: this.inspectTimeoutMs,
       onOutput: (text, stream) => {
         this.ownerContext.emit('plugin-manager/install-log', { ...identity, jobId, argv, cwd, stream, text })
       },
@@ -572,8 +614,16 @@ export class PluginManager extends TypertRemoteService {
   private async selectBundle(name: string, enabled: boolean): Promise<void> {
     const manifest = readProfileManifest('qilin', this.profile.dir)
     const previous = manifest.qilin?.profile?.bundles ?? []
-    if ((enabled || !previous.includes(name)) && bundleManifest(name, this.profile.dir, this.profile.installAnchor) === undefined) {
-      throw new ManagementFailure('not-bundle')
+    if (enabled || !previous.includes(name)) {
+      const metadata = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
+      if (metadata === undefined) throw new ManagementFailure('not-bundle')
+      if (enabled) {
+        const compatibility = evaluatePluginCompatibility(metadata, readProfileVersionExemptions(this.profile.dir))
+        if (compatibility !== undefined && !compatibility.exempted) {
+          throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
+        }
+        this.bundleRows(name)
+      }
     }
     if (!enabled && previous.includes(name)) {
       if (this.protectsManager(name)) throw new ManagementFailure('management-required')
@@ -633,7 +683,7 @@ export class PluginManager extends TypertRemoteService {
   }
 
   private diskState(): string {
-    return ['package.json', 'cordis.patch.yml', 'pnpm-workspace.yaml'].map((file) => {
+    return ['package.json', 'cordis.patch.yml', 'pnpm-workspace.yaml', PROFILE_COMPATIBILITY_FILENAME].map((file) => {
       try { return readFileSync(join(this.profile.dir, file), 'utf8') }
       catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') return ''

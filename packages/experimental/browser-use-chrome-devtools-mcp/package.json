@@ -30,27 +30,27 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/experimental-browser-use-runtime": "workspace:^",
+    "@qilin/experimental-browser-use-runtime": "workspace:*",
     "chrome-devtools-mcp": "1.9.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/browser-use": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/system-prompt": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/browser-use": "workspace:*",
+    "@qilin/agent": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/system-prompt": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/browser-use": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/agent-loop": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/browser-use": "workspace:*",
+    "@qilin/agent": "workspace:*",
+    "@qilin/agent-loop": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/session-projection": "workspace:*"
   }
 }

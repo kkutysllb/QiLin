@@ -132,12 +132,12 @@ Files 模式通过 `maxRequestFilesBytes` 与 `maxImagesPerRequest` 限制保留
 | [`src/index.ts`](src/index.ts) | settings、凭据与提供方注册 |
 | [`src/config.ts`](src/config.ts) | schema 与请求配置解析 |
 | [`src/adapter.ts`](src/adapter.ts) | 按协议分派，并冻结已准备请求的配置 |
-| [`src/common/models.ts`](src/common/models.ts) | 共享模型目录 |
-| [`src/common/model-info.ts`](src/common/model-info.ts) | 共享模型能力与推理选项 |
-| [`src/common/file-store.ts`](src/common/file-store.ts) | 共享 Files 缓存、刷新、配额清理与取消 |
-| [`src/common/files-api.ts`](src/common/files-api.ts) | 各协议的 Files 端点与响应映射 |
-| [`src/protocols/chat-completions/adapter.ts`](src/protocols/chat-completions/adapter.ts) | Chat 传输、图片投影与请求扩展 |
-| [`src/protocols/messages/adapter.ts`](src/protocols/messages/adapter.ts) | Messages 传输、图片投影、请求扩展与原生回放 |
+| [`src/common/models.ts`](src/models.ts) | 共享模型目录 |
+| [`src/common/model-info.ts`](src/model-info.ts) | 共享模型能力与推理选项 |
+| [`src/common/file-store.ts`](src/file-store.ts) | 共享 Files 缓存、刷新、配额清理与取消 |
+| [`src/common/files-api.ts`](src/files-api.ts) | 各协议的 Files 端点与响应映射 |
+| `src/protocols/chat-completions/adapter.ts` | Chat 传输、图片投影与请求扩展 |
+| [`src/protocols/messages/adapter.ts`](src/adapter.ts) | Messages 传输、图片投影、请求扩展与原生回放 |
 
 ### 协议流程
 
@@ -210,7 +210,7 @@ loop 保留的响应块会追加到下一个请求，并保留其更早的可复
 - **跳过插件新增的内容块类型**——核心文本与受支持图片块会被序列化，空工具输出以字面量 `(no output)` 过线。
 - **图片是仅用于输入的持久附件**——不支持直接外部 URL 与 assistant 图片输出；DeepSeek 输入通常使用 Files API，仅在单次请求恢复时使用内联 base64。
 - 默认目录预注册 `deepseek-flash` 及其文本、图片和历史内更新能力，不探测网关可用性。网关开放该 ID 前，请求可能以 `INVALID_REQUEST` 失败。配置 `DEEPSEEK_API_KEY` 和支持该 ID 的网关后，设置 `DEEPSEEK_FLASH_E2E=1` 可启用[本包 e2e 测试文件](tests/adapter.e2e.ts)中的 Chat Completions 协议验证。
-- [Messages system 更新 e2e](tests/messages/adapter.e2e.ts) 要求通过 `DEEPSEEK_IN_HISTORY_MODEL` 指定支持该能力的模型，例如 `deepseek-flash`，并使用 `high` 思考强度。该变量未设置或为空时跳过；普通 `off` 文本检查仍在有凭据时运行。关闭思考时已知的指令遵循不稳定，使这些 system 更新检查不适合使用 `off`。
+- [Messages system 更新 e2e](tests/adapter.e2e.ts) 要求通过 `DEEPSEEK_IN_HISTORY_MODEL` 指定支持该能力的模型，例如 `deepseek-flash`，并使用 `high` 思考强度。该变量未设置或为空时跳过；普通 `off` 文本检查仍在有凭据时运行。关闭思考时已知的指令遵循不稳定，使这些 system 更新检查不适合使用 `off`。
 
 <a id="dev-note"></a>
 ### 开发备注

@@ -37,15 +37,15 @@
     }
   },
   "dependencies": {
-    "@qilin/acp": "workspace:^",
-    "@qilin/cmdline": "workspace:^",
+    "@qilin/acp": "workspace:*",
+    "@qilin/cmdline": "workspace:*",
     "commander": "^15.0.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin": "workspace:~"
   }
 }

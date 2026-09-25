@@ -1,7 +1,7 @@
 {
   "name": "@qilin/kylin-plugin-loader",
   "description": "Plugin loader for cordis",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "publishConfig": {
     "access": "public"
   },
@@ -33,7 +33,7 @@
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "node-addon-require-builtin": "^0.1.6"
   },
   "peerDependenciesMeta": {
@@ -42,6 +42,7 @@
     }
   },
   "dependencies": {
-    "@qilin/cosmokit": "workspace:^"
+    "@qilin/cosmokit": "workspace:~",
+    "@qilin/schemastery": "workspace:~"
   }
 }

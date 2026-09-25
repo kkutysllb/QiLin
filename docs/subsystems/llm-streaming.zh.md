@@ -17,7 +17,9 @@
 ```ts type-equiv
 /**
  * Merge-extensible content blocks keyed by `type`. New core blocks must land
- * with adapter, UI, and compaction support.
+ * with adapter, UI, and compaction support. Developer tool-change blocks are
+ * reserved for Session V4 persistence; providers and UI reject them until
+ * their producers and consumers are implemented together.
  */
 interface ContentBlockMap {
   'text': TextBlock
@@ -25,7 +27,8 @@ interface ContentBlockMap {
   'image': ImageBlock
   'file': FileBlock
   'tool-call': ToolCallBlock
-  'tool-result': ToolResultBlock
+  'tool-addition': ToolAdditionBlock
+  'tool-removal': ToolRemovalBlock
 }
 ```
 
@@ -64,31 +67,25 @@ interface AssistantProviderMetadata {
 ```
 
 ```ts type-equiv
-/** One immutable message representation shared by delivery, durable history, and model requests. */
-interface Message {
-  /** Stable identity preserved across every representation boundary. */
-  readonly id: MessageId
-  /** Provider-neutral conversation role. */
-  readonly role: 'system' | 'user' | 'assistant'
-  /** Exact model-facing blocks. */
-  readonly content: ContentBlock[]
-  /** Required source fields supplied by the producer. */
-  readonly source: MessageSource
-}
+/** Any persisted conversation message, discriminated by its `role`. */
+type Message = MessageRoleMap[keyof MessageRoleMap]
 ```
 
 消息来源本身也是一个可合并扩展的和类型：
 
 ```ts type-equiv
 /**
- * Where a message (or injected content) came from.
- * Merge-extensible sum type — plugins add their own `kind`s.
+ * Where a message (or injected content) came from, in the harness's own
+ * vocabulary. Merge-extensible sum type — each producer declares its own
+ * `kind` in its own module; there is no shared catch-all `plugin` kind.
+ * Model and tool sources answer their role messages; user messages carry any
+ * producer's kind, and consumers fall through unknown kinds.
  */
 interface MessageSourceMap {
   user: { kind: 'user' }
-  plugin: { kind: 'plugin'; plugin: string } & ContextFormed
   model: ModelMessageSource
   tool: ToolMessageSource
+  'system-prompt': SystemPromptMessageSource
 }
 ```
 
@@ -421,10 +418,10 @@ declare class BlockAssembler {
   get replayState(): ReplayEnvelope | undefined;
   /**
    * The assembled assistant message.
-   * @param source - producer attribution for the assembled message.
+   * @param source - provider/model attribution (without the `kind` tag) for the assembled message.
    * @returns a frozen assistant-role message over `blocks()` (same open-block assembly rules).
    */
-  message(source: MessageSource = { kind: 'plugin', plugin: 'qilin-llm/assembler' }): Message;
+  message(source: Omit<ModelMessageSource, 'kind'>): AssistantMessage;
 }
 ```
 
@@ -595,9 +592,9 @@ interface GenerateOptions {
    * Ordered conversation messages, exactly as the provider sees them. A
    * loop-built request passes the derived history (qilin-agent-loop), whose
    * leading system-role message carries the system prompt; a hand-built
-   * one-shot passes any list.
+   * one-shot may include identity-free user inputs.
    */
-  messages: Message[]
+  messages: RequestMessage[]
   /**
    * System prompt text for one-shot callers; adapters map it to the provider's
    * system slot ahead of `messages`. Loop-built requests leave it undefined.
@@ -657,6 +654,12 @@ interface FinishReasonMap {
  * it from this package.
  */
 interface ToolSchema {
+  /**
+   * Requests deferred loading of the tool definition into model context,
+   * independently of whether a tool-addition block records the tool.
+   * Uses Anthropic's defer_loading terminology.
+   */
+  deferLoading?: true
   name: string
   description: string
   /** JSON Schema object for the arguments. */
@@ -1095,8 +1098,8 @@ Waterfall around every streaming model call (retry, replay, routing). Bound to t
  *   process-local {@link markAgentLoopRequest} identity and arrives deep-frozen
  *   (mutation throws): its content is a pure function of the session log (the
  *   reconstructability Agent Note), so listeners read it, never rewrite it.
- *   Hand-built calls do not carry that marker; their messages already obey
- *   the immutable creation contract.
+ *   Hand-built calls do not carry that marker; callers own their request
+ *   inputs and must keep them unchanged until the stream settles.
  * @mode waterfall
  */
 'llm/stream'(this: LlmRuntime, options: GenerateOptions, next: () => AsyncIterable<StreamChunk>): AsyncIterable<StreamChunk>

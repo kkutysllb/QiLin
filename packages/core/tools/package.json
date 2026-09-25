@@ -44,35 +44,35 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/user-approval": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/user-approval": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/user-approval": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/user-approval": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*"
   }
 }

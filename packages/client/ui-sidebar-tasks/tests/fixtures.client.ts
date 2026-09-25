@@ -2,10 +2,11 @@
  * Fixtures the tasks specs share: one direct-child catalog, its child and
  * diagnostic rows, and one background-job row.
  */
-import type { SubagentCatalogSnapshot } from '@qilin/api-session-controller/client'
+import type { SessionProjectionSnapshot } from '@qilin/api-session-controller/client'
 import type { SessionJob } from '@qilin/api-session-controller/types'
 import type { SessionId } from '@qilin/session/types'
-import type { SubagentListEntry } from '@qilin/subagent/client'
+import type { SubagentCatalogEntry, SubagentListEntry } from '@qilin/subagent/client'
+import type { CatalogRow, CatalogSnapshot } from '../src/client/rows.ts'
 
 /**
  * One session id.
@@ -22,11 +23,42 @@ export const sid = (value: string): SessionId => value as SessionId
  * @returns the snapshot the Session list holds for the parent.
  */
 export function catalog(
+  entries: readonly CatalogRow[],
+  state: CatalogSnapshot['state'] = 'ready',
+  error: CatalogSnapshot['error'] = null,
+): CatalogSnapshot {
+  return { entries, state, error }
+}
+
+/**
+ * One parent's projection snapshot carrying a direct-child catalog.
+ * @param entries - the catalog's durable child rows.
+ * @param state - the read state; ready by default.
+ * @param error - the failure a failed read carries.
+ * @returns the snapshot the Session list holds for the parent.
+ */
+export function projection(
   entries: readonly SubagentListEntry[],
-  state: SubagentCatalogSnapshot['state'] = 'ready',
-  error: SubagentCatalogSnapshot['error'] = null,
-): SubagentCatalogSnapshot {
-  return { entries, parentAvailable: true, state, error }
+  state: SessionProjectionSnapshot['state'] = 'ready',
+  error: SessionProjectionSnapshot['error'] = null,
+): SessionProjectionSnapshot {
+  return {
+    // The catalog projection carries described children only: a diagnostic
+    // candidate has no identity the projection can publish.
+    values: {
+      subagentCatalog: entries.flatMap((entry): SubagentCatalogEntry[] => {
+        if (entry.kind === 'diagnostic') return []
+        if (entry.mode === 'one-shot') {
+          return [entry.label === undefined
+            ? { id: entry.id, createdAt: 1, mode: 'one-shot' }
+            : { id: entry.id, createdAt: 1, mode: 'one-shot', label: entry.label }]
+        }
+        return [{ id: entry.id, createdAt: 1, mode: 'continuable', label: entry.label }]
+      }),
+    },
+    state,
+    error,
+  }
 }
 
 /** Options one child fixture accepts. */

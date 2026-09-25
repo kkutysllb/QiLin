@@ -30,13 +30,13 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/host-directory-picker": "workspace:^",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/host-directory-picker": "workspace:*",
+    "@qilin/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   }
 }

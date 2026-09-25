@@ -1,7 +1,9 @@
 /**
- * Scriptable OpenAI-compatible HTTP/SSE server for transport, protocol, and
- * semantic-empty LLM recovery tests. Each accepted chat-completions request
- * consumes one behavior; the server never retries or interprets harness policy.
+ * Scriptable LLM HTTP/SSE server for transport, protocol, and semantic-empty
+ * recovery tests. A path ending in `/chat/completions` serves OpenAI-shaped
+ * chunks and one ending in `/v1/messages` serves Messages-shaped chunks; each
+ * accepted request consumes one behavior; the server never retries or
+ * interprets harness policy.
  *
  * @module @qilin/llm-mock-server
  */
@@ -95,7 +97,7 @@ export type MockLlmServerEvent =
 
 /** Captured wire request and its final server-side outcome. */
 export interface MockLlmRequestRecord {
-  /** One-based accepted chat-completions request number. */
+  /** One-based accepted request number. */
   readonly attempt: number
   /** Script entry consumed for this request before random resolution. */
   readonly scriptBehavior: MockLlmBehavior | 'script_exhausted'
@@ -119,7 +121,7 @@ export interface MockLlmServerOptions {
   readonly host?: string
   /** TCP port; zero requests an OS-assigned port. */
   readonly port?: number
-  /** Optional exact bearer token; omission accepts any authorization header. */
+  /** Optional exact credential: `Bearer <key>` for chat completions, `x-api-key` for Messages; omission accepts either. */
   readonly apiKey?: string
   /** Ordered request behaviors; exhaustion fails loud unless `repeatLast` is true. */
   readonly sequence: readonly MockLlmBehavior[]
@@ -155,7 +157,7 @@ export interface MockLlmServerOptions {
 
 /** Running mock server and captured request state. */
 export interface MockLlmServer {
-  /** Base URL without `/v1`; both root and `/v1` chat-completions paths are accepted. */
+  /** Base URL without `/v1`; `/chat/completions` and `/v1/messages` are both accepted. */
   readonly baseURL: string
   /** Actual bound port, including an OS-assigned value. */
   readonly port: number
@@ -324,8 +326,8 @@ function writeSse(record: MockLlmRequestRecord, response: ServerResponse, payloa
   record.chunksSent += 1
 }
 
-function writeDone(record: MockLlmRequestRecord, response: ServerResponse): void {
-  writeSse(record, response, '[DONE]')
+function writeDone(record: MockLlmRequestRecord, response: ServerResponse, dialect: MockDialect): void {
+  writeSse(record, response, dialect === 'messages' ? { type: 'message_stop' } : '[DONE]')
 }
 
 function finishRecord(
@@ -364,7 +366,14 @@ function httpError(
   finishRecord(options, record, 'completed')
 }
 
-function terminalChunk(reason: string, outputTokens: number): unknown {
+function terminalChunk(reason: string, outputTokens: number, dialect: MockDialect): unknown {
+  if (dialect === 'messages') {
+    return {
+      type: 'message_delta',
+      delta: { stop_reason: MESSAGE_STOP_REASON[reason] ?? reason, stop_sequence: null },
+      usage: { output_tokens: outputTokens },
+    }
+  }
   return {
     choices: [{ index: 0, delta: { content: '' }, finish_reason: reason }],
     usage: { prompt_tokens: 3, completion_tokens: outputTokens },
@@ -393,9 +402,13 @@ async function streamText(
   response: ServerResponse,
   text: string,
   delayMs: number,
+  dialect: MockDialect,
+  index = 0,
 ): Promise<boolean> {
   for (const chunk of splitText(text, options.chunkSize)) {
-    writeSse(record, response, { choices: [{ index: 0, delta: { content: chunk }, finish_reason: null }] })
+    writeSse(record, response, dialect === 'messages'
+      ? { type: 'content_block_delta', index, delta: { type: 'text_delta', text: chunk } }
+      : { choices: [{ index: 0, delta: { content: chunk }, finish_reason: null }] })
     if (!await pause(delayMs, response)) return false
   }
   return true
@@ -407,13 +420,17 @@ async function completeText(
   response: ServerResponse,
   reason: 'stop' | 'length',
   delayMs: number,
+  dialect: MockDialect,
+  index = 0,
 ): Promise<void> {
-  if (!await streamText(options, record, response, options.successText, delayMs)) {
+  openText(record, response, dialect, index)
+  if (!await streamText(options, record, response, options.successText, delayMs, dialect, index)) {
     finishRecord(options, record, 'client_closed')
     return
   }
-  writeSse(record, response, terminalChunk(reason, Array.from(options.successText).length))
-  writeDone(record, response)
+  if (dialect === 'messages') writeSse(record, response, { type: 'content_block_stop', index })
+  writeSse(record, response, terminalChunk(reason, Array.from(options.successText).length, dialect))
+  writeDone(record, response, dialect)
   response.end()
   finishRecord(options, record, 'completed')
 }
@@ -431,8 +448,17 @@ async function disconnect(
   response.destroy()
 }
 
-function toolCallChunks(options: ResolvedOptions): readonly unknown[] {
+function toolCallChunks(options: ResolvedOptions, dialect: MockDialect): readonly unknown[] {
   const midpoint = Math.max(1, Math.floor(options.toolArguments.length / 2))
+  if (dialect === 'messages') {
+    return [
+      { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'mock-call-1', name: options.toolName, input: {} } },
+      ...[options.toolArguments.slice(0, midpoint), options.toolArguments.slice(midpoint)].map(partial => ({
+        type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: partial },
+      })),
+      { type: 'content_block_stop', index: 0 },
+    ]
+  }
   return [
     {
       choices: [{
@@ -458,11 +484,44 @@ function toolCallChunks(options: ResolvedOptions): readonly unknown[] {
   ]
 }
 
+/** Wire dialect selected by the request path. */
+type MockDialect = 'openai' | 'messages'
+
+/** OpenAI finish reason to its Messages `stop_reason` spelling. */
+const MESSAGE_STOP_REASON: Record<string, string> = {
+  stop: 'end_turn',
+  length: 'max_tokens',
+  tool_calls: 'tool_use',
+}
+
+/** Open the Messages response envelope; chat completions carry no equivalent. */
+function openMessage(record: MockLlmRequestRecord, response: ServerResponse, dialect: MockDialect): void {
+  if (dialect !== 'messages') return
+  writeSse(record, response, {
+    type: 'message_start',
+    message: {
+      id: 'mock-message',
+      type: 'message',
+      role: 'assistant',
+      model: 'mock-model',
+      content: [],
+      usage: { input_tokens: 3, output_tokens: 0 },
+    },
+  })
+}
+
+/** Open one Messages text content block; chat completions carry no equivalent. */
+function openText(record: MockLlmRequestRecord, response: ServerResponse, dialect: MockDialect, index = 0): void {
+  if (dialect !== 'messages') return
+  writeSse(record, response, { type: 'content_block_start', index, content_block: { type: 'text', text: '' } })
+}
+
 async function runBehavior(
   options: ResolvedOptions,
   record: MockLlmRequestRecord,
   request: IncomingMessage,
   response: ServerResponse,
+  dialect: MockDialect,
 ): Promise<void> {
   switch (record.behavior) {
     case 'script_exhausted':
@@ -478,8 +537,9 @@ async function runBehavior(
       return
     case 'empty':
       openSse(response)
-      writeSse(record, response, terminalChunk('stop', 0))
-      writeDone(record, response)
+      openMessage(record, response, dialect)
+      writeSse(record, response, terminalChunk('stop', 0, dialect))
+      writeDone(record, response, dialect)
       response.end()
       finishRecord(options, record, 'completed')
       return
@@ -490,19 +550,26 @@ async function runBehavior(
       return
     case 'stream_eof':
       openSse(response)
-      writeSse(record, response, { choices: [{ index: 0, delta: { role: 'assistant' }, finish_reason: null }] })
+      openMessage(record, response, dialect)
+      writeSse(record, response, dialect === 'messages'
+        ? { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }
+        : { choices: [{ index: 0, delta: { role: 'assistant' }, finish_reason: null }] })
       response.end()
       finishRecord(options, record, 'completed')
       return
     case 'partial_eof':
       openSse(response)
-      await streamText(options, record, response, options.partialText, 0)
+      openMessage(record, response, dialect)
+      openText(record, response, dialect)
+      await streamText(options, record, response, options.partialText, 0, dialect)
       response.end()
       finishRecord(options, record, 'completed')
       return
     case 'partial_disconnect':
       openSse(response)
-      if (!await streamText(options, record, response, options.partialText, options.chunkDelayMs)) return
+      openMessage(record, response, dialect)
+      openText(record, response, dialect)
+      if (!await streamText(options, record, response, options.partialText, options.chunkDelayMs, dialect)) return
       await disconnect(options, record, response)
       return
     case 'stall':
@@ -512,20 +579,23 @@ async function runBehavior(
     case 'malformed_json':
       openSse(response)
       writeSse(record, response, '{not-json')
-      writeDone(record, response)
+      writeDone(record, response, dialect)
       response.end()
       finishRecord(options, record, 'completed')
       return
     case 'malformed_event':
       openSse(response)
-      writeSse(record, response, { choices: [null] })
-      writeDone(record, response)
+      writeSse(record, response, dialect === 'messages'
+        ? { type: 'content_block_start', index: 0, content_block: null }
+        : { choices: [null] })
+      writeDone(record, response, dialect)
       response.end()
       finishRecord(options, record, 'completed')
       return
     case 'wrong_content_type':
       openSse(response, 'application/json')
-      await completeText(options, record, response, 'stop', 0)
+      openMessage(record, response, dialect)
+      await completeText(options, record, response, 'stop', 0, dialect)
       return
     case 'rate_limit':
       httpError(options, record, response, 429, 'mock rate limit', 'rate_limit')
@@ -558,32 +628,41 @@ async function runBehavior(
       return
     case 'success':
       openSse(response)
-      await completeText(options, record, response, 'stop', 0)
+      openMessage(record, response, dialect)
+      await completeText(options, record, response, 'stop', 0, dialect)
       return
     case 'reasoning_success':
       openSse(response)
-      for (const chunk of splitText(options.reasoningText, options.chunkSize)) {
-        writeSse(record, response, {
-          choices: [{ index: 0, delta: { reasoning_content: chunk }, finish_reason: null }],
-        })
+      openMessage(record, response, dialect)
+      if (dialect === 'messages') {
+        writeSse(record, response, { type: 'content_block_start', index: 0, content_block: { type: 'thinking', thinking: '' } })
       }
-      await completeText(options, record, response, 'stop', 0)
+      for (const chunk of splitText(options.reasoningText, options.chunkSize)) {
+        writeSse(record, response, dialect === 'messages'
+          ? { type: 'content_block_delta', index: 0, delta: { type: 'thinking_delta', thinking: chunk } }
+          : { choices: [{ index: 0, delta: { reasoning_content: chunk }, finish_reason: null }] })
+      }
+      if (dialect === 'messages') writeSse(record, response, { type: 'content_block_stop', index: 0 })
+      await completeText(options, record, response, 'stop', 0, dialect, 1)
       return
     case 'tool_call_success':
       openSse(response)
-      for (const chunk of toolCallChunks(options)) writeSse(record, response, chunk)
-      writeSse(record, response, terminalChunk('tool_calls', 2))
-      writeDone(record, response)
+      openMessage(record, response, dialect)
+      for (const chunk of toolCallChunks(options, dialect)) writeSse(record, response, chunk)
+      writeSse(record, response, terminalChunk('tool_calls', 2, dialect))
+      writeDone(record, response, dialect)
       response.end()
       finishRecord(options, record, 'completed')
       return
     case 'max_tokens':
       openSse(response)
-      await completeText(options, record, response, 'length', 0)
+      openMessage(record, response, dialect)
+      await completeText(options, record, response, 'length', 0, dialect)
       return
     case 'slow_success':
       openSse(response)
-      await completeText(options, record, response, 'stop', options.chunkDelayMs)
+      openMessage(record, response, dialect)
+      await completeText(options, record, response, 'stop', options.chunkDelayMs, dialect)
       return
   }
 }
@@ -615,10 +694,11 @@ function chooseRandomBehavior(
 }
 
 /**
- * Start a local chat-completions server that consumes one configured behavior
- * per accepted request. Only a `POST` path ending in `/chat/completions` consumes the script;
- * invalid routes, methods, authorization, and JSON receive ordinary 4xx
- * responses. Closing the handle terminates stalled connections.
+ * Start a local LLM server that consumes one configured behavior per accepted
+ * request. Only a `POST` path ending in `/chat/completions` (OpenAI chunks) or
+ * `/v1/messages` (Messages chunks) consumes the script; invalid routes, methods,
+ * credentials, and JSON receive ordinary 4xx responses. Closing the handle
+ * terminates stalled connections.
  *
  * @param options - listener, script, response content, timing, and telemetry options.
  * @returns the listening handle after the port is bound.
@@ -652,13 +732,21 @@ export async function startMockLlmServer(options: MockLlmServerOptions): Promise
       response.writeHead(405, { allow: 'POST' }).end()
       return
     }
-    if (!path.endsWith('/chat/completions')) {
+    const dialect: MockDialect | undefined = path.endsWith('/v1/messages') ? 'messages'
+      : path.endsWith('/chat/completions') ? 'openai'
+        : undefined
+    if (dialect === undefined) {
       response.writeHead(404).end()
       return
     }
-    if (resolved.apiKey !== undefined && request.headers.authorization !== `Bearer ${resolved.apiKey}`) {
+    if (resolved.apiKey !== undefined
+      && (dialect === 'messages'
+        ? request.headers['x-api-key'] !== resolved.apiKey
+        : request.headers.authorization !== `Bearer ${resolved.apiKey}`)) {
       response.writeHead(401, { 'content-type': 'application/json' })
-      response.end(JSON.stringify({ error: { message: 'invalid mock bearer token', code: 'invalid_api_key' } }))
+      response.end(JSON.stringify({
+        error: { message: dialect === 'messages' ? 'invalid mock API key' : 'invalid mock bearer token', code: 'invalid_api_key' },
+      }))
       return
     }
 
@@ -694,7 +782,7 @@ export async function startMockLlmServer(options: MockLlmServerOptions): Promise
       behavior: record.behavior,
       path,
     })
-    await runBehavior(resolved, record, request, response)
+    await runBehavior(resolved, record, request, response, dialect)
   }
 
   const server = createServer((request, response) => {

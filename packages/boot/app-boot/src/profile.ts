@@ -35,6 +35,8 @@ import type { EntryOptions } from '@qilin/kylin-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@qilin/kylin-plugin-include'
 import { resolveQilinHome } from '@qilin/home-paths'
 import { bundlePatchOf, dshCompatModuleId } from '@qilin/dsh-compat'
+import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
+import { readProfileVersionExemptions } from './profile-compatibility.ts'
 import type { QilinManifest, QilinPackageManifest } from '@qilin/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { loadOverlayPatches } from './index.ts'
@@ -263,6 +265,7 @@ export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
  * manager ([rationale](../../../../.agents/notes/implemented/process/2026-09-15-shipped-optional-bundles.md)).
  */
 export const OPTIONAL_BUNDLES: readonly string[] = [
+  '@qilin/experimental-voice-input-bundle',
   '@qilin/experimental-agent-team-profile',
   '@qilin/experimental-agent-team-web-profile',
 ]
@@ -1218,6 +1221,8 @@ export function reconcileProfileBundles(
  * Load an already initialized profile directory without resolving it through
  * the shared Harness home. This is used by application-owned profiles whose
  * package project and lifecycle belong to that application.
+ * A bundle whose own qilin peers the profile does not exempt fails startup
+ * loudly, beside a missing bundle and one without a patch declaration.
  * @param binName - the diagnostic prefix on thrown errors.
  * @param dir - absolute profile package directory.
  * @param installAnchor - absolute path of the owning qilin app's package.json.
@@ -1232,6 +1237,7 @@ export function loadProfileDirectory(
 ): Profile {
   const manifest = readProfileManifest(binName, dir)
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles ?? []
+  const exemptions = bundles.length === 0 ? {} : readProfileVersionExemptions(dir)
   const layers = bundles.map((packageName): ProfileLayer => {
     const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
     const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
@@ -1239,6 +1245,9 @@ export function loadProfileDirectory(
     if (declared === undefined) {
       throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
     }
+    // A bundle is not a plugin row, so row admission never reads its own peers.
+    const issue = evaluatePluginCompatibility(bundleManifest, exemptions)
+    if (issue !== undefined && !issue.exempted) throw new Error(`${binName}: ${pluginCompatibilityWarning(issue)}`)
     const patchPath = join(packageDir, declared)
     return { packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) }
   })
@@ -1253,7 +1262,8 @@ export function loadProfileDirectory(
  * Load a profile: resolve every `qilin.profile.bundles` entry to its patch
  * layer and parse the profile's own patch file. A listed bundle without a
  * `qilin.bundle` manifest fails loud — naming a bundle-less package as a layer
- * is a misconfiguration, not "no patches".
+ * is a misconfiguration, not "no patches"; a bundle the profile does not
+ * exempt for the running runtime version fails the same way.
  * @param binName - the diagnostic prefix on thrown errors.
  * @param name - the profile name.
  * @param installAnchor - absolute path of the qilin app's package.json (first resolution anchor).

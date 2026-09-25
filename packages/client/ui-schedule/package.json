@@ -44,23 +44,23 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-session-controller": "workspace:^",
-    "@qilin/client-locale": "workspace:^",
-    "@qilin/client-test-runtime": "workspace:^",
-    "@qilin/client-ui-conversation": "workspace:^",
-    "@qilin/client-ui-primitives": "workspace:^",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-session": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
-    "@qilin/schedule": "workspace:^",
-    "@qilin/session": "workspace:^",
+    "@qilin/api-session-controller": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-conversation": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/schedule": "workspace:*",
+    "@qilin/session": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

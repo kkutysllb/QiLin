@@ -30,23 +30,23 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/agent": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/llm": "workspace:*",
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/agent": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^"
+    "@qilin/util-values": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@qilin/system-prompt": {

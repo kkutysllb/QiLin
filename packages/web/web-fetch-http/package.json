@@ -30,20 +30,20 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/web": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/web": "workspace:*",
+    "@qilin/http-proxy": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "ipaddr.js": "^2.5.0",
     "undici": "^8.10.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/web": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/web": "workspace:*",
+    "@qilin/http-proxy": "workspace:*"
   }
 }

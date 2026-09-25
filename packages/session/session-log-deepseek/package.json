@@ -40,28 +40,28 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/deepseek-llm-api-extensions": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/session": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/command-feedback": "workspace:^",
-    "@qilin/deepseek-llm-api-extensions": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/llm-deepseek": "workspace:^",
-    "@qilin/llm-mock-server": "workspace:^",
-    "@qilin/message-feedback": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-persistence-jsonl": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/command-feedback": "workspace:*",
+    "@qilin/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/llm-mock-server": "workspace:*",
+    "@qilin/message-feedback": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-persistence-jsonl": "workspace:*"
   }
 }

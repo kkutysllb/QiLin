@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/spill/spill-policy/README.md
-README.md: d20b16b79c7cae0f78d852204a0327d7f324cbf2
-README.zh.md: 74c98f97253e3d6fe0028c2d0eedaed1ba15c6cb
+README.md: ef55b1d10e84cd59e44e39769ff42ee4061b62c4
+README.zh.md: 7993dee0d6675ceb1dedce0cbd1acc258a79b9a2

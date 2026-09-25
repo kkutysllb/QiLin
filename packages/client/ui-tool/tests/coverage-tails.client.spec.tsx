@@ -5,7 +5,7 @@ import { cleanup, render } from '@testing-library/react'
 import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { RunningToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
+import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
 import type { SessionId } from '@qilin/session/types'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
@@ -28,13 +28,13 @@ function listStore() {
       [SID]: { id: SID, title: 'r', displayTitle: 'r', running: false, retainedBy: {}, blank: false, updatedAt: 0 },
     },
     phase: 'ready',
-    subagentsByParent: {}, jobsBySession: {},
+    projectionsBySession: {}, jobsBySession: {},
   })
 }
 
-function bashProps(block: RunningToolCall | ToolResultNode): BashRowProps {
+function bashProps(block: StartedToolCall | ToolResultNode): BashRowProps {
   return {
-    callId: 'c1', toolName: 'bash', block, openFile: vi.fn(),
+    callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
     sessionId: SID, useSessions: bindSnapshotSelector(listStore()),
     t,
   } as unknown as BashRowProps
@@ -58,7 +58,7 @@ describe('Tool presentation tails', () => {
     }
     const props: GenericToolCardProps = {
       loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
-      callId: 'c5', toolName: 'todo_write', block: settled, openFile: vi.fn(), t,
+      callId: 'c5', toolName: 'todo_write', phase: 'result', block: settled, openFile: vi.fn(), t,
     }
     const view = render(<GenericToolCard {...props} />)
     expect(view.container.querySelector('[data-variant="others"] svg')).not.toBeNull()
@@ -80,8 +80,8 @@ describe('Tool presentation tails', () => {
   })
 
   it('BashRow carries data-state for running and StateDots for error/stopped', () => {
-    const running: RunningToolCall = {
-      callId: 'c1', name: 'bash', argsRaw: '{"command":"ls","description":"List"}',
+    const running: StartedToolCall = {
+      phase: 'start', callId: 'c1', name: 'bash', argsRaw: '{"command":"ls","description":"List"}',
       turn: 1, step: 1, time: 1_000, subCalls: [],
     }
     const errorResult: ToolResultNode = {

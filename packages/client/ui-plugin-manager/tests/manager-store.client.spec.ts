@@ -13,6 +13,7 @@ import type { HostObservable } from '@qilin/client-ui-slots'
 import type { ConfigLedger } from '../src/client/config-ledger.ts'
 import { packageView, PluginManagerController, rowKey, sortPackages, updatable } from '../src/client/manager-store.ts'
 
+const INCOMPATIBLE = { name: 'qilin-late', version: '2.0.0', runtimeVersion: '0.1.0', peers: { '@qilin/session': '^0.2.0' } }
 const ROW_ENTRY = 'include:sidebar' as PluginEntryId
 
 const BUNDLE: BundleInfo = {
@@ -221,7 +222,8 @@ describe('PluginManagerController', () => {
         .mockRejectedValueOnce('odd')
         .mockResolvedValueOnce(ok(failed({ code: 'bundle-in-use' })))
         .mockResolvedValueOnce(ok(failed()))
-        .mockResolvedValueOnce(ok({ ...failed(), application: 'cancelled' })),
+        .mockResolvedValueOnce(ok({ ...failed(), application: 'cancelled' }))
+        .mockResolvedValueOnce(ok(failed({ code: 'incompatible-version', incompatible: [INCOMPATIBLE] }))),
     })
     await controller.load()
     face.setEnabled(BUNDLE.name, true)
@@ -240,6 +242,13 @@ describe('PluginManagerController', () => {
     // A change the Host stopped is said in passing.
     face.setEnabled(BUNDLE.name, true)
     await vi.waitFor(() => { expect(state().notice).toEqual({ kind: 'cancelled', seq: 7 }) })
+    // An incompatibility keeps the packages it names for the page to word.
+    face.setEnabled(BUNDLE.name, true)
+    await vi.waitFor(() => {
+      expect(state().notice).toEqual({
+        kind: 'failed', action: 'enable', code: 'incompatible-version', incompatible: [INCOMPATIBLE], reason: '', packageName: BUNDLE.name, seq: 8,
+      })
+    })
     face.dismissNotice()
     expect(state().notice).toBeNull()
   })
@@ -704,12 +713,17 @@ describe('PluginManagerController', () => {
       { jobId: 'k', command: 'pnpm add x', cwd: '/p', output: 'open', exitCode: null },
     ])
     expect(state().install.failure).toEqual({ reason: '', code: 'not-bundle' })
+    // An incompatibility keeps the packages it names.
+    await installing()
+    answer(ok(failed({ code: 'incompatible-version', incompatible: [INCOMPATIBLE] })))
+    await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
+    expect(state().install.failure).toEqual({ reason: '', code: 'incompatible-version', incompatible: [INCOMPATIBLE] })
     // A failure the Host does not explain has neither code nor words.
     await installing()
     answer(ok(failed()))
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
     expect(state().install.failure).toEqual({ reason: '' })
-    expect(plugins.installBundle).toHaveBeenCalledTimes(5)
+    expect(plugins.installBundle).toHaveBeenCalledTimes(6)
     // Editing the spec after a failure starts over too.
     face.editInstallSpec('y')
     expect(state().install).toMatchObject({ phase: 'idle', spec: 'y', runs: [], failure: null })

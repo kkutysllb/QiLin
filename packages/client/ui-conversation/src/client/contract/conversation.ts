@@ -1,7 +1,7 @@
 import type { SessionEventLike } from '@qilin/api-session-controller/client'
 import type { SessionEvent } from '@qilin/session/types'
 
-/** Definition-local identity and lifecycle role extracted from one event. */
+/** Definition-local identity; start permits initialization when no earlier start is present. */
 export interface ConversationMatchResult {
   readonly id: string
   readonly role: 'start' | 'update'
@@ -115,8 +115,8 @@ interface ConversationMatchOf<
   readonly location: ConversationLocation
 }
 
-/** One scalar event accepted as a Context's unique start. */
-export type ConversationStartMatch = ConversationMatchOf<SessionEvent, 'start'>
+/** A durable or transient event that can initialize its Context. */
+export type ConversationStartMatch = ConversationMatchOf<SessionEventLike, 'start'>
 
 /** One event accepted by a Definition, with its lifecycle role and resolved Location. */
 export type ConversationMatch =
@@ -193,7 +193,7 @@ export interface ConversationNodeDefinition<State = unknown> {
    */
   match(event: SessionEventLike): ConversationMatchResult | null
   /**
-   * Create State from the unique start Match.
+   * Create State from the earliest currently loaded start Match.
    * @param context - complete evidence currently collected for the Context.
    * @param match - the start Match.
    * @param reader - strictly-backward read-only Context lookup.
@@ -205,9 +205,9 @@ export interface ConversationNodeDefinition<State = unknown> {
     reader: ConversationContextReader,
   ): State
   /**
-   * Apply one post-start update Match.
+   * Apply a later Match, including another event marked start.
    * @param context - Context with its current State.
-   * @param match - update Match in ascending log order.
+   * @param match - subsequent Match in ascending event order.
    * @returns the State adopted by the engine.
    */
   update(

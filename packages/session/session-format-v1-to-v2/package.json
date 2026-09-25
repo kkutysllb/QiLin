@@ -42,16 +42,16 @@
     }
   },
   "dependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/session-format": "workspace:^",
-    "@qilin/session-format-v0-to-v1": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/session-format": "workspace:*",
+    "@qilin/session-format-v0-to-v1": "workspace:*",
+    "@qilin/util-values": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/session": "workspace:*"
   }
 }

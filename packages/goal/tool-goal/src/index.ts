@@ -9,6 +9,13 @@ import z from '@qilin/schemastery'
 import { GoalId } from '@qilin/goal'
 import type { GoalRef, GoalView } from '@qilin/goal'
 import { boundContextSummary, createUserMessage, HarnessError } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'tool-goal': { kind: 'tool-goal' } & ContextFormed
+  }
+}
+
 import { defineTool } from '@qilin/tools'
 import type { GenericCallView } from '@qilin/tools'
 import {
@@ -323,8 +330,7 @@ export function apply(ctx: Context, config: Config): void {
             ? renderWrapupContext(goal.objective)
             : renderWrapupContext(goal.objective, args.blocked_reason as string),
           source: {
-            kind: 'plugin',
-            plugin: 'tool-goal',
+            kind: 'tool-goal',
             form: 'notice',
             summary: boundContextSummary(`${args.action as string}: ${goal.objective}`),
           },

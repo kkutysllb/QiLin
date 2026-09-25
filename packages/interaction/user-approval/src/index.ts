@@ -9,6 +9,13 @@ import { Context, Service } from '@qilin/kylin'
 import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage, type ToolCallId } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'user-approval': { kind: 'user-approval' } & ContextFormed
+  }
+}
+
 import { scopeTarget } from '@qilin/scope'
 import type { Session } from '@qilin/session'
 import { SessionSeq } from '@qilin/session'
@@ -183,7 +190,7 @@ export class ApprovalService extends Service {
         type: 'text',
         text: `The approval policy changed from "${previous}" to "${policy}" (changed by the user).`,
       }],
-      source: { kind: 'plugin', plugin: 'user-approval' },
+      source: { kind: 'user-approval' },
     }))
   }
 

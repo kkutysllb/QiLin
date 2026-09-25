@@ -5,6 +5,8 @@
  */
 
 import type { UserMessage } from '@qilin/llm/types'
+// Type-only: the Workspace registry's archive-admission family map this registry merges `turn` into.
+import type {} from '@qilin/workspace/types'
 import type { OptionalSessionSeq, SessionId, SessionSeq } from '@qilin/session/types'
 import type { TypertContext, TypertLookup } from '@qilin/typert-protocol'
 import type { JsonValue } from '@qilin/util-values'
@@ -13,6 +15,13 @@ import type { JsonValue } from '@qilin/util-values'
 export interface Agent {
   /** Session-backed Agent identity. */
   readonly id: SessionId
+}
+
+declare module '@qilin/workspace/types' {
+  interface SessionActivityKindMap {
+    /** The session's own Agent is inside a turn, including one waiting for an approval or an answer. */
+    turn: true
+  }
 }
 
 declare module '@qilin/typert-protocol' {

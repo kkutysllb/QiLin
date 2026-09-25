@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-10-remote-event-delivery.md
-2026-08-10-remote-event-delivery.md: 8a1a34accbc7e0fba94fd00620ab50ad358829f5
-2026-08-10-remote-event-delivery.zh.md: b7c3f9c46736c6a6964e72088da18d739573d1b8
+2026-08-10-remote-event-delivery.md: 6ed1a9dda7dcdbace6f9732bb2e1df98a2cafe7e
+2026-08-10-remote-event-delivery.zh.md: 4b490f957ba85afcb6ef6cd8208a9975472f724a

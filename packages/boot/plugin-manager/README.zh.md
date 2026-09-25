@@ -47,6 +47,17 @@ kind: "package-reference"
 
 pnpm 11 拦下依赖脚本时，失败的安装在 `pendingBuilds` 里报告 profile 中所有待决定的包名，包括先前尝试留下的；失败的运行会恢复 `package.json` 与 `pnpm-lock.yaml`，但有意不恢复 pnpm 记录这些名字的 `pnpm-workspace.yaml`。Web 插件页提供**允许这些脚本并重试**；工具可以在用户于对话中批准这些脚本后，通过 `install_bundle` 的 `approvedBuilds` 代为授权。服务只校验待决定的名字，不核实对话中的批准。授权按包名保存在当前 profile，允许以宿主用户的权限执行命令，并在再次安装失败后保留。只能批准当前未决定的名字；已有的拒绝与通配规则不能通过此操作覆盖。`allowBuilds` 里出现 YAML 锚点或别名时拒绝授权。重试保留原来的启用选择。
 
+<a id="version-compatibility-and-exemptions"></a>
+### 版本兼容性与豁免
+
+点名包的安装命令（`add`，或带规格的 `install`）会在 pnpm 运行前被检查：本地路径从它自己的 `package.json` 读取，注册表规格则通过 pnpm 的注册表查询解析出该范围选中的版本及其声明的 peer。不兼容的 qilin peer 会在 pnpm 运行前拒绝这次操作，因此不会下载任何内容，也不会执行构建脚本；调用方随请求给出的构建授权在该检查之前就已记录，会继续保留。git 或 tarball 规格需要先真正抓取，因此在安装之后才判定：操作随后恢复 profile 清单与 lockfile，按恢复后的 lockfile 重新安装（profile 原本没有 lockfile 时，按恢复后的清单重新安装且不新建 lockfile），并报告该恢复是否成功；已被允许的构建脚本副作用可能保留。本次运行没有改动的依赖永远不会阻塞无关操作：它保持安装，运行输出一条点名它的警告，profile 启动时拒绝它。`enabled: false` 的安装请求同样被检查。启动期检查独立运行；范围语义见 [App boot](../app-boot/README.zh.md#profiles)。版本豁免不授权依赖脚本。
+
+一条豁免是 profile 自己 `compatibility.json` 中精确的 `package-name@version` 到精确 QiLin 运行时版本列表的映射，位于 `package.json` 与 `cordis.patch.yml` 之旁。写入它不会改动任何依赖、组合包选择或 patch 层。授权只覆盖那一对确切组合：插件升级和 QiLin 升级都不会继承许可，撤销某对组合中的某个运行时版本也会保留它的其它授权。用 `plugin_manager` 的 `list_version_exemptions` 取得运行时版本与已保存的授权，再用 `set_version_exemption` 传入 `target`、`runtimeVersion` 与 `enabled`。授权还要求 `acceptRisk: true`，且只能在警告用户不兼容插件可能导致崩溃或数据丢失、并取得用户对这一对组合的明确许可之后。服务校验的是确认与版本，而不是对话历史。撤销可以移除历史版本的授权。
+
+授权在下一次组态时生效。支持热更新的 profile 会重组，被授权的插件因此在正在运行的会话中挂载，结果报告 `applied`；仅启动时加载的 profile 保留当前条目直到重启，并报告 `restart-required`。
+
+CLI 提供 `qilin plugin --profile <profile> version-exemptions`、`allow-version <package@version> --qilin-version <runtime> --accept-risk` 与 `revoke-version <package@version> --qilin-version <runtime>`。授权会在保存前打印风险警告。兼容性拒绝会带上 `incompatible-version` 代码以及每个被拒绝包的 `name`、`version`、`runtimeVersion` 与未满足的 `peers`；各界面自行渲染该记录。Web 页面通过自己的本地化字典表述，CLI 拒绝则打印确切的 `allow-version` 命令。用工具或 CLI 授予豁免后，重试原来的操作。
+
 ### 配置
 
 | 字段 | 默认值 | 含义 |

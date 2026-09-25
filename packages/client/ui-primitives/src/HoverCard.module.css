@@ -52,3 +52,19 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* An inline media anchor stays in the prose flow; the card it opens is a
+ * contained panel rather than the fixed-width session card above. */
+.inline { display: inline; }
+
+.media {
+  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  overflow: auto;
+  padding: 8px;
+  border: 0;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-specific-menu);
+  backdrop-filter: var(--dsw-menu-backdrop-filter);
+  box-shadow: var(--dsw-elevation-panel);
+}

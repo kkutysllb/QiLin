@@ -11,7 +11,7 @@ import { DeepSeekAdapter, resolveAdapterOptions } from '@qilin/llm-deepseek'
 import { SessionId } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 import * as SubagentSpawn from '@qilin/subagent-spawn-in-process'
-import { end, MODEL, server, sse, start } from '../../../llm/llm-deepseek/tests/messages/helpers.ts'
+import { end, MODEL, server, sse, start } from '../../../llm/llm-deepseek/tests/helpers.ts'
 import SubagentRuntime, { type SubagentRunEndInfo } from '../src/index.ts'
 import { loadStoredSession } from './persistence-helpers.ts'
 

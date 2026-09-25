@@ -68,30 +68,30 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:^",
+    "@qilin/deque": "workspace:*",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/api-gateway": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/host-directory-picker": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/storage-domain": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/workspace": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-gateway": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/host-directory-picker": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/storage-domain": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/workspace": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/api-gateway": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/client-test-runtime": "workspace:^",
-    "@qilin/host-directory-picker": "workspace:^",
-    "@qilin/remote-mock": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/storage-domain": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/workspace": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-gateway": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/host-directory-picker": "workspace:*",
+    "@qilin/remote-mock": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/storage-domain": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/workspace": "workspace:*"
   }
 }

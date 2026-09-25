@@ -15,6 +15,7 @@ import { ChatNodeSeat } from './ChatNodeSeat.tsx'
 import { TurnNavigator } from './TurnNavigator.tsx'
 import { mergeTurnRailItems, type TurnRailItem } from './turn-rail-items.ts'
 import { formatRunDuration } from './message-chrome.ts'
+import { fileMediaUrl, resolveWorkspacePath } from '@qilin/util-workspace-path'
 import css from './ChatView.module.css'
 
 const FOLLOW_THRESHOLD = 24
@@ -237,6 +238,13 @@ export function ChatView({
   const inbox = useProjection('inbox') as unknown as InboxState | undefined
   // Workspace root off the session list row: path summaries display relative to it.
   const cwd = useSessions(s => s.byId[sessionId]?.cwd)
+  const fileImages = useMemo(() => ({
+    resolve: (path: string) => fileMediaUrl(document.baseURI, resolveWorkspacePath(cwd, path)),
+    labels: {
+      open: t('image.open'), loading: t('image.loading'), failed: t('image.failed'),
+      dialog: t('image.dialog'), close: t('image.close'),
+    },
+  }), [cwd, t])
   const running = useSession(s => s.running)
   const openState = useSession(s => s.openState)
   const openError = useSession(s => s.openError)
@@ -782,7 +790,7 @@ export function ChatView({
               </button>
             </div>
           )}
-          <MarkdownDelegateProvider openExternalLink={openExternalLink} openFile={requestOpenFile}>
+          <MarkdownDelegateProvider openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
             <ChatNodeList
               order={order}
               useChatNode={useChatNode}

@@ -14,6 +14,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
+import type { Volatile } from '@qilin/kylin'
 import Loader from '@qilin/kylin-plugin-loader'
 import Include from '@qilin/kylin-plugin-include'
 import LlmRuntime from '@qilin/llm'
@@ -29,14 +30,12 @@ import * as DeepSeekPluginPackageInventory from '@qilin/plugin-package-inventory
 import * as LlmDeepSeek from '@qilin/llm-deepseek'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
-import { server as messagesServer } from './messages/helpers.ts'
 
 const NS = 'llm-deepseek'
 const KEY_REF = credentialRef('DEEPSEEK_API_KEY')
 
 let root: string | undefined
 let context: Context | undefined
-const closeMessagesServers: (() => Promise<void>)[] = []
 
 afterEach(async () => {
   await context?.fiber.dispose()
@@ -44,12 +43,11 @@ afterEach(async () => {
   if (root !== undefined) await rm(root, { recursive: true, force: true })
   root = undefined
   await closeMockServers()
-  while (closeMessagesServers.length) await closeMessagesServers.pop()!()
   vi.unstubAllEnvs()
 })
 
 async function loadComposition(
-  options: { withDynamic: boolean; baseURL: string; reuseRoot?: string; enableSessionLog?: boolean; protocol?: 'chat-completions' | 'messages' },
+  options: { withDynamic: boolean; baseURL: string; reuseRoot?: string; enableSessionLog?: boolean },
 ): Promise<{ ctx: Context; settingsPath: string; credentialsPath: string }> {
   // A reused root is the restart case: the same harness home, its documents
   // exactly as the previous process left them.
@@ -97,7 +95,6 @@ async function loadComposition(
     '- id: llm-deepseek',
     "  name: '@qilin/llm-deepseek'",
     '  config:',
-    `    protocol: ${options.protocol ?? 'chat-completions'}`,
     `    baseURL: ${JSON.stringify(options.baseURL)}`,
     '',
   ].join('\n'))
@@ -144,18 +141,11 @@ async function loadComposition(
   return { ctx, settingsPath, credentialsPath }
 }
 
-async function extensionServer(protocol: 'chat-completions' | 'messages') {
-  if (protocol === 'chat-completions') return mockServer([{ kind: 'sse', events: textEvents }])
-  const server = await messagesServer()
-  closeMessagesServers.push(() => server.close())
-  return { url: server.url, get requests() { return server.requests.map(request => request.body) } }
-}
-
 describe('llm-deepseek real dynamic composition', () => {
-  it.each(['chat-completions', 'messages'] as const)('keeps package inventory on when the %s Loader composition disables session upload', async (protocol) => {
+  it('keeps package inventory on when the Loader composition disables session upload', async () => {
     vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
-    const server = await extensionServer(protocol)
-    const { ctx } = await loadComposition({ withDynamic: false, baseURL: server.url, protocol, enableSessionLog: false })
+    const server = await mockServer([{ kind: 'sse', events: textEvents }])
+    const { ctx } = await loadComposition({ withDynamic: false, baseURL: server.url, enableSessionLog: false })
     const session = ctx.sessions.create(SessionId('extension-composition'))
     session.append('turn/start', { turn: 1 })
 
@@ -171,13 +161,12 @@ describe('llm-deepseek real dynamic composition', () => {
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
   })
 
-  it.each(['chat-completions', 'messages'] as const)('sends the canonical session suffix by default through %s Loader composition', async (protocol) => {
+  it('sends the canonical session suffix by default through Loader composition', async () => {
     vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
-    const server = await extensionServer(protocol)
+    const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx } = await loadComposition({
       withDynamic: false,
       baseURL: server.url,
-      protocol,
     })
     const session = ctx.sessions.create(SessionId('extension-composition-enabled'))
     session.append('turn/start', { turn: 1 })
@@ -210,13 +199,15 @@ describe('llm-deepseek real dynamic composition', () => {
 
     expect(ctx.get('settings')!.describe().map(entry => entry.ns)).toEqual([NS])
     await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
-    expect(serverA.headers[0]?.authorization).toBe('Bearer boot-key')
+    expect(serverA.headers[0]?.['x-api-key']).toBe('boot-key')
     expect(serverA.headers[0]?.['x-deepseek-harness-user-id']).toBe(getOrCreateAnonymousUserId())
 
     // External edits, exactly as a user or the web UI would leave them on disk.
     await writeFile(settingsPath, `llm-deepseek:\n  baseURL: ${serverB.url}\n`)
     await vi.waitFor(() => {
-      expect((ctx.get('settings')!.get(NS) as { baseURL?: string }).baseURL).toBe(serverB.url)
+      // The section schema is volatile, so the resolved value is a reference.
+      const section = ctx.get('settings')!.get(NS) as { baseURL: Volatile<string | undefined> }
+      expect(section.baseURL.get()).toBe(serverB.url)
     }, { timeout: 5000 })
     await writeFile(credentialsPath, 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: rotated-key\n', { mode: 0o600 })
     await vi.waitFor(async () => {
@@ -225,7 +216,7 @@ describe('llm-deepseek real dynamic composition', () => {
 
     await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
     expect(serverA.requests).toHaveLength(1)
-    expect(serverB.headers[0]?.authorization).toBe('Bearer rotated-key')
+    expect(serverB.headers[0]?.['x-api-key']).toBe('rotated-key')
   })
 
   it('keeps a stored key writable and rotatable across a real restart', async () => {
@@ -240,7 +231,7 @@ describe('llm-deepseek real dynamic composition', () => {
     expect(await boot.ctx.get('credentials')!.describe(KEY_REF))
       .toEqual({ configured: true, source: 'file', writable: true })
     await assemble(boot.ctx, { model: 'deepseek-v4-flash', messages: [] })
-    expect(first.headers[0]?.authorization).toBe('Bearer stored-by-ui')
+    expect(first.headers[0]?.['x-api-key']).toBe('stored-by-ui')
     await boot.ctx.fiber.dispose()
     context = undefined
 
@@ -254,7 +245,7 @@ describe('llm-deepseek real dynamic composition', () => {
     // Rotation still works after the restart, and the next request uses it.
     await credentials.set(KEY_REF, 'rotated-after-restart')
     await assemble(restarted.ctx, { model: 'deepseek-v4-flash', messages: [] })
-    expect(second.headers[0]?.authorization).toBe('Bearer rotated-after-restart')
+    expect(second.headers[0]?.['x-api-key']).toBe('rotated-after-restart')
   })
 
   it('boots the same adapter on entry config alone, resolving the reference from the environment', async () => {
@@ -267,6 +258,6 @@ describe('llm-deepseek real dynamic composition', () => {
     expect(ctx.get('settings')).toBeUndefined()
     expect(ctx.get('credentials')).toBeUndefined()
     await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
-    expect(server.headers[0]?.authorization).toBe('Bearer entry-key')
+    expect(server.headers[0]?.['x-api-key']).toBe('entry-key')
   })
 })

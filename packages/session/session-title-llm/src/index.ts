@@ -7,6 +7,13 @@
 import type { Context } from '@qilin/kylin'
 import z from '@qilin/schemastery'
 import { createUserMessage, BlockAssembler } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'qilin-session-title-llm': { kind: 'qilin-session-title-llm' } & ContextFormed
+  }
+}
+
 import type { FinishReason, GenerateOptions, Message } from '@qilin/llm'
 import { deadline, MAX_TIMER_DELAY_MS } from '@qilin/timeout'
 import { deepFreeze } from '@qilin/util-values'
@@ -247,7 +254,7 @@ export async function generateSessionTitleWithLlm(
   const route = resolveRoute(config, request)
   const messages: Message[] = [createUserMessage({
     content: [{ type: 'text', text: framedInput }],
-    source: { kind: 'plugin', plugin: 'qilin-session-title-llm' },
+    source: { kind: 'qilin-session-title-llm' },
   })]
   const system = systemPrompt(config)
   using callDeadline = deadline(request.signal, config.timeoutMs, SESSION_TITLE_TIMEOUT_CODE)

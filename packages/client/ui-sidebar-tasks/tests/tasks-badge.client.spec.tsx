@@ -5,17 +5,25 @@
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup } from '@testing-library/react'
-import { catalog, child, job, sid } from './fixtures.client.ts'
+import type { SessionSummary } from '@qilin/api-session-controller/client'
+import type { SessionId } from '@qilin/session/types'
+import { child, job, projection, sid } from './fixtures.client.ts'
 import { SESSION, mountBadge } from './mount.client.tsx'
 
 afterEach(cleanup)
 
+/** One Session-list row, so a child's running state is what the badge reads. */
+function summary(id: SessionId, running: boolean): SessionSummary {
+  return {
+    id, displayTitle: id, running, retainedBy: {}, blank: false, updatedAt: 0,
+  }
+}
+
 describe('TasksBadge', () => {
   it('renders the running subagents and jobs as one number', () => {
     const view = mountBadge({
-      subagentsByParent: {
-        [SESSION]: catalog([child('busy', { activity: 'running' }), child('idle')]),
-      },
+      projectionsBySession: { [SESSION]: projection([child('busy'), child('idle')]) },
+      byId: { [sid('busy')]: summary(sid('busy'), true) },
       jobsBySession: { [SESSION]: [job('live'), job('done', { status: 'completed' })] },
     })
     expect(view.container.textContent).toBe('2')
@@ -23,14 +31,14 @@ describe('TasksBadge', () => {
 
   it('renders nothing while no subagent and no job is running', () => {
     const view = mountBadge({
-      subagentsByParent: { [SESSION]: catalog([child('idle')]) },
+      projectionsBySession: { [SESSION]: projection([child('idle')]) },
       jobsBySession: { [SESSION]: [job('done', { status: 'failed' })] },
     })
     expect(view.container.textContent).toBe('')
   })
 
   it('renders nothing for a Session the snapshots do not mention', () => {
-    const view = mountBadge({ subagentsByParent: { [sid('other')]: catalog([]) } })
+    const view = mountBadge({ projectionsBySession: { [sid('other')]: projection([]) } })
     expect(view.container.textContent).toBe('')
   })
 })

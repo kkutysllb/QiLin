@@ -8,6 +8,13 @@
 
 import { brandString } from '@qilin/brand'
 import { createUserMessage, HarnessError } from '@qilin/llm'
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    /** Images deferred from a successful PTC subcall's final result. */
+    'ptc-mode': { kind: 'ptc-mode' }
+  }
+}
+
 import type { ContentBlock, ToolCallId, ToolSchema } from '@qilin/llm'
 import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@qilin/ptc-runtime'
 import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@qilin/sandbox'
@@ -632,7 +639,7 @@ export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeO
               if (!result.isError && result.content.some(block => block.type === 'image')) {
                 exec.deferContext(createUserMessage({
                   content: result.content,
-                  source: { kind: 'plugin', plugin: 'tools-ptc' },
+                  source: { kind: 'ptc-mode' },
                 }))
               }
               for (const context of result.additionalContexts ?? []) {

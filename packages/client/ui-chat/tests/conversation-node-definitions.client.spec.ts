@@ -208,14 +208,11 @@ function assistantMessage(id: string, text: string) {
 function toolResult(callId: string, text: string, isError = false) {
   return {
     id: `result-${callId}`,
-    role: 'user',
+    role: 'tool',
+    toolCallId: callId,
     source: { kind: 'tool', callId },
-    content: [{
-      type: 'tool-result',
-      toolCallId: callId,
-      content: [{ type: 'text', text }],
-      isError,
-    }],
+    content: [{ type: 'text', text }],
+    isError,
   }
 }
 
@@ -878,7 +875,8 @@ describe('built-in conversation node Definitions', () => {
       }, { surfaceOp: 'append' }),
     ])
     const toolOnlySnapshot = snapshot(toolOnlyValue)
-    expect(toolOnlySnapshot.order).toEqual([])
+    expect(toolOnlySnapshot.order.map(key => toolOnlySnapshot.nodes.get(key)?.kind)).toEqual(['tool-call'])
+    expect(node(toolOnlySnapshot, 'tool-call')?.data).toMatchObject({ root: { phase: 'preparing' } })
     expect(node(toolOnlySnapshot, 'assistant-step')?.visibility).toBe('hidden')
     expect(toolOnlySnapshot.legacy.nodes).toMatchObject([{
       kind: 'assistant',
@@ -1912,7 +1910,7 @@ describe('built-in conversation node Definitions', () => {
       }),
       at(6, 'user/message', {
         ...textMessage('compacted', 'summary'),
-        source: { kind: 'plugin', plugin: 'compact' },
+        source: { kind: 'compact-checkpoint' },
       }, { surfaceOp: { op: 'replace', startSeq: 4, endSeq: 4 } }),
       at(7, 'request/header', {
         reason: 'series',
@@ -2181,8 +2179,7 @@ describe('built-in conversation node Definitions', () => {
       at(13, 'user/message', {
         ...textMessage('manual-checkpoint', 'checkpoint'),
         source: {
-          kind: 'plugin',
-          plugin: 'compact',
+          kind: 'compact-checkpoint',
           compactionId: 'manual-1',
           sourceCommandId: 'command-1',
         },
@@ -2206,7 +2203,7 @@ describe('built-in conversation node Definitions', () => {
       }),
       at(22, 'user/message', {
         ...textMessage('automatic-checkpoint', 'checkpoint'),
-        source: { kind: 'plugin', plugin: 'compact', compactionId: 'automatic-1' },
+        source: { kind: 'compact-checkpoint', compactionId: 'automatic-1' },
       }, { surfaceOp: { op: 'replace', startSeq: 3, endSeq: 4 } }),
       at(23, 'compaction/end', { compactionId: 'automatic-1', turn: null }),
     ])
@@ -2225,7 +2222,7 @@ describe('built-in conversation node Definitions', () => {
     const value = assembler([
       at(13, 'user/message', {
         ...textMessage('checkpoint', 'checkpoint'),
-        source: { kind: 'plugin', plugin: 'compact', compactionId: 'compact-1' },
+        source: { kind: 'compact-checkpoint', compactionId: 'compact-1' },
       }, { surfaceOp: { op: 'replace', startSeq: 1, endSeq: 8 } }),
     ], true)
     const before = node(snapshot(value), 'compaction')
@@ -2266,7 +2263,7 @@ describe('built-in conversation node Definitions', () => {
       }),
       at(11, 'user/message', {
         ...textMessage('checkpoint-windowed', 'checkpoint'),
-        source: { kind: 'plugin', plugin: 'compact', compactionId: 'compact-windowed' },
+        source: { kind: 'compact-checkpoint', compactionId: 'compact-windowed' },
       }, { surfaceOp: { op: 'replace', startSeq: 1, endSeq: 3 } }),
     ], true)
 
@@ -2290,7 +2287,7 @@ describe('built-in conversation node Definitions', () => {
       }),
       at(22, 'user/message', {
         ...textMessage('legacy-checkpoint', 'checkpoint'),
-        source: { kind: 'plugin', plugin: 'compact' },
+        source: { kind: 'compact-checkpoint' },
       }, { surfaceOp: { op: 'replace', startSeq: 1, endSeq: 3 } }),
       at(23, 'compaction/end', { turn: null }),
     ], true)
@@ -2496,8 +2493,7 @@ describe('built-in conversation node Definitions', () => {
       at(21, 'user/message', {
         ...textMessage('manual-checkpoint', 'checkpoint'),
         source: {
-          kind: 'plugin',
-          plugin: 'compact',
+          kind: 'compact-checkpoint',
           compactionId: 'manual-1',
           sourceCommandId: 'command-1',
         },

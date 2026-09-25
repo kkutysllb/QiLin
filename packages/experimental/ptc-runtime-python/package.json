@@ -27,19 +27,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/util-values": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/util-values": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "publishConfig": {
     "access": "public"

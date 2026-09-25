@@ -49,6 +49,12 @@ Profile 与组合包的声明类型从 [`@qilin/package-manifest`](../../util/pa
 
 profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包和自身 `cordis.patch.yml` 组成。YAML 组合决定是否启用 HMR。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。缺失组合包或未声明 patch 的组合包会让启动明确失败。协调 profile 已安装依赖（`reconcileProfilePlugins`）时还会拒绝安装了上游 DSH 时代引擎包的 profile：诊断指明每个冲突包、它映射到的 QiLin 包与清除命令；bundle 列表保持不变，CLI 与 Web 插件管理器共用这一规则。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
 
+在 profile 导入插件之前，QiLin 会用 `getQilinRuntimeVersion()` 返回的单一运行时版本检查插件对 `@qilin/cli` 与 `@qilin/*` 的 `peerDependencies`。每条声明的范围都必须匹配，预发布版本也参与范围匹配。源码工作区的 `workspace:^`、`workspace:~` 与 `workspace:*` 指的就是该运行时。随仓库 vendor 的 `@qilin/kylin` 框架族虽然发布在同一 scope 下，但版本独立于 harness 发布，因此它以及 `@qilin/` 之外的任何 peer 都不构成约束；非法范围视为不兼容。这些检查读取的是 peer 声明，不是 `engines.qilin`，也不能作为防范恶意包代码的沙箱。
+
+准入只发生在 QiLin 自己掌握的组态边界上，被拒绝的行是在启动器自己那份组态里被拒绝的：profile 的 patch 层、依赖清单与组合包列表都不会改变。`prepareProfilePatches` 在启动器的空 profile 根上组合，并在根 Include 挂载期间以及每次 profile 重组时运行，因此被拒绝的插件永远不会导入它的模块；`prepareProfileEntries` 对 preset 的行做同样的事。被拒绝的普通行会变成分离的 `disabled: true` 行；原生 group 保持挂载而其被拒绝的子行不会加载；触达被拒绝插件的原生 Include 会被整体省略，因为它的文件永远不会被改写。被策略拒绝的行在 profile 中保留其配置的 `disabled` 值，每次拒绝都会报告包、版本与风险。组合包不是行，因此 `loadProfileDirectory` 在加载 profile 的组合包层时，会在启动和每次重组时检查每个组合包自身的 qilin peer；不兼容的组合包会像缺少组合包、或组合包未声明 patch 一样让启动明确失败。这些边界不覆盖其他嵌入方通过自己的 `ctx.plugin` 调用挂载的插件。会话期间直接对文件做的两处修改只会在下次重组或启动时被判定：运行中插件自身 `package.json` 的 peer 声明，以及 Loader 自己读取的条目列表文件（例如启动器的根配置或嵌套的 `cordis:include` 文件）。`--dump-config` 报告的是配置出的组态，因此被拒绝的插件行仍然出现在其中，而被拒绝的组合包不贡献任何行；`--dump-config-schema` 会导入每个组合后的模块以读取其 schema，请只对已信任其插件的 profile 运行。
+
+精确版本豁免存放在 profile 自己的 `compatibility.json` 中，而不是它的 `package.json`，因此写入豁免永远不会触碰依赖清单、组合包列表或 Kylin patch 文件。它把精确的 `package-name@version` 键映射到精确 QiLin 运行时版本列表，且授权只覆盖那一对确切组合：插件升级和 QiLin 升级都不会继承许可，撤销某个运行时版本也会保留该对的其它授权。`setProfileVersionExemption` 以 `0600` 权限创建该文件，并在该文件自己的锁下原子重写。文件缺失表示没有任何豁免。文件损坏永远不会阻止 profile 启动：读取方接受的记录仍然生效，每条被拒绝的记录会连同插件拒绝信息一起输出到 stderr，随后该文件被视为只读，于是授权或撤销都会拒绝执行，并要求用户手工修复，而不是覆盖他们的内容。每次变更所需的授权、撤销与风险确认由[插件管理器](../plugin-manager/README.zh.md#version-compatibility-and-exemptions)负责。
+
 你的机器本地偏好同样位于 harness home 中：
 
 - **`.env`**——你的普通环境层：调用目录的文件优先于 harness home 的文件，两者都低于继承环境。在文件中设置的进程启动变量（如 `PATH`、`QILIN_*`、`XDG_*`）会被拒绝：请改为导出这些变量。四个代理名（`HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY`、`NO_PROXY`）只从 harness home 的文件接受，绝不从调用目录的文件接受——后者随 clone 一起到来。对于只想加载某个目录 `.env` 的非产品 bin，文件缺失不影响启动，文件无法加载时输出一行带标签的警告。启动器还会在这些层生效前把 `DSH_HOME` 钉定为 harness home，因此为 DSH 编写的第三方插件会把数据目录解析到本 home，而不是共同安装的 DSH 的 home；文件中设置该变量会被记入[启动环境](../../util/launch-environment/README.zh.md)，但永远不会胜出。
@@ -69,7 +75,7 @@ profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`he
 <a id="startup-and-reload-failures"></a>
 ### 启动与重载失败
 
-profile 重载返回未变化的已有故障诊断，不让无关修改因此失败。新增未激活条目、配置或 fiber 变化、诊断变化都会使重载失败；被移除的 fiber 仍须完成释放。显式启用的目标必须成功激活，即使它的故障早于本次操作。
+profile 重载返回未变化的已有故障诊断，不让无关修改因此失败。新增未激活条目、配置或 fiber 变化、诊断变化都会使重载失败；被移除的 fiber 仍须完成释放。显式启用的目标必须成功激活，即使它的故障早于本次操作。成功的重载在生命周期结算与诊断检查完成后返回；仅 volatile 的条目变化由 Loader 在更新过程中就地提交。
 
 Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如果已启用的 required 条目无法激活，`boot()` 会在释放资源后以 `StartupError` 拒绝。独立管理生命周期的 logger exporter 会保留异步资源释放期间的警告和错误记录，并在 `boot()` 结算前释放。其消息分组列出所有失败插件和等待的服务，标记 required 条目，并保留原始堆栈、嵌套原因和聚合错误成员。CLI 仅输出该消息一次，并在保存[完整启动诊断](../../../apps/cli/reference/README.zh.md#startup-diagnostics)后以退出码 1 结束；其他异常保留正常堆栈输出。表中的“终止启动”指释放已挂载插件并以非零码退出，不报告就绪；“继续”指保留成功运行的插件。后续配置 HMR 不会再次执行 required 启动审计，也不会回滚整个更新。
 
@@ -109,6 +115,7 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 
 ### 设计说明
 
+- **运行时版本。** `getQilinRuntimeVersion()` 通过文件系统路径读取本包的清单，包括可执行文件的虚拟文件系统；版本缺失或非法会明确失败，而不是绕过兼容性检查。
 - **Profile 启动数据。** `ctx.profileContext` 只包含 profile 位置、启动时组合包名称、已解析的调用级 overlay 与遥测退出值。`readProfilePatches()` 组合传入的启动 profile，或读取这些位置上的当前文件；调用方负责调度和应用结果。
 - **进程内模块解析。** runtime 和 dual 模式会在挂载 profile 条目前，将一份 generation 安装到 Node 的 ESM 与 CommonJS 内部 resolver；link 模式不修改这两个 resolver。exports、conditions、subpath、模块缓存和错误码仍由 Node 负责；路由后的 ESM 失败会报告原始 importer，而不是内部查找锚点。`ctx.pluginPackages` 从同一 generation 提供 package metadata，不记录 Entry import；安装 generation 后，即使查询未命中也以 generation 为准，仅安装服务而未提供 generation 的底层嵌入方仍使用 Node 原生查找。
 - **两个 Loader builtin。** `mountRootInclude` 把 `cordis:include` 与 `cordis:group` 注册为 Loader builtin：group 行能把一个提供方与它的消费方放进同一个 `isolate` realm，而位于本工作区之外的 agent preset 无法按名称解析 `@qilin/kylin-plugin-group`。两者都通过宿主的模块管线加载，而非被包含树自身的说明符解析。
@@ -133,6 +140,9 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 | [`src/index.ts`](src/index.ts) | 启动 helper：配置解析、环境加载、会明确报错的保护机制、激活审计、patch 解析、配置 dump、harness 源码段落 |
 | [`src/profile.ts`](src/profile.ts) | profile 发现、初始化、组合包解析、模块后备机制、协调与可管理的插件行 |
 | [`src/doctor.ts`](src/doctor.ts) | 针对单个第三方插件包的静态 DSH 时代兼容性报告 |
+| [`src/plugin-compatibility.ts`](src/plugin-compatibility.ts) | 对照运行中的运行时版本评估 peer 范围，并给出英文兼容性诊断 |
+| [`src/profile-compatibility.ts`](src/profile-compatibility.ts) | profile 的精确版本豁免文件：读取、校验、授权与撤销 |
+| [`src/compatibility-preflight.ts`](src/compatibility-preflight.ts) | QiLin 自己掌握的组态边界上的行与 patch 准入 |
 | [`src/profile.ts`](src/profile.ts) | profile 发现、初始化、组合包解析、模块后备机制 |
 | [`src/profile-plugins.ts`](src/profile-plugins.ts) | 已安装依赖、bundle 启用策略与 manifest 更新 |
 | [`src/profile-sanitize.ts`](src/profile-sanitize.ts) | profile patch 备份与恢复 bundle 启用状态 |

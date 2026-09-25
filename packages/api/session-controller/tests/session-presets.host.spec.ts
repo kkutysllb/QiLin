@@ -29,7 +29,6 @@ function roster(ids: readonly string[]): unknown {
   const presetOf = (id: string): object => ({
     id,
     trust: 'system',
-    path: `/presets/${id}/agent.cordis.yml`,
   })
   return {
     defaultId: ids[0],

@@ -1,9 +1,11 @@
 /** Tool UI slot declarations and their composed component props. */
 import type {
-  HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
+  HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, SlotHookFactory,
 } from '@qilin/client-ui-slots'
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
-import type { OpenFileOptions, ToolCallBlock } from '@qilin/client-ui-chat/client'
+import type {
+  AssistantChatData, OpenFileOptions, PreparingToolCall, StartedToolCall, ToolResultNode,
+} from '@qilin/client-ui-chat/client'
 import type { MessageImageLoader, MessageImageSource } from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-locale/client'
 
@@ -19,11 +21,18 @@ declare module '@qilin/client-ui-slots' {
      * A key the shipped composition already covers is replaced, not shared;
      * an unclaimed key falls back to the generic tool row, so registering is
      * additive for your own tool and a takeover for a shipped one. The owner
-     * passes the call's identity, its frozen running-or-settled node, and the
-     * expansion state (see ToolCallOwnerProps), so the view stays a pure
-     * function of what the turn already knows.
+     * supplies the call identity and the data admitted at the current stage
+     * (see ToolCallOwnerProps), so the view stays a pure function of what the
+     * turn already knows. A preparing block carries no dispatched arguments;
+     * `useToolCallArgumentsPartial` optionally subscribes to its raw prefix.
      */
-    'tool.call.toolview': { kind: 'keyed'; scope: 'session'; owner: ToolCallOwnerProps }
+    'tool.call.toolview': {
+      kind: 'keyed'
+      scope: 'session'
+      owner: ToolCallOwnerProps
+      hookContext: ToolCallHookContext
+      inject: ToolCallInjected
+    }
     /**
      * Durable images of a settled image-bearing Tool call, rendered through
      * the attachment presentation plugin. The Tool layer never imports an
@@ -41,6 +50,23 @@ declare module '@qilin/client-ui-slots' {
   }
 }
 
+/** Subscribe to this preparing call's raw argument prefix; other phases return an empty string. */
+export type UseToolCallArgumentsPartial = () => string
+
+/** Call-local sources supplied by the Tool tree to the slot's Hook binding. */
+export interface ToolCallHookContext {
+  readonly callId: string
+  /** This call's Step source, present only while preparing. */
+  readonly assistant: HostObservable<Readonly<AssistantChatData> | undefined> | undefined
+}
+
+/** Framework-bound subscriptions available to atomic Tool views on demand. */
+export interface ToolCallInjected {
+  hooks: {
+    toolCallArgumentsPartial: SlotHookFactory<'tool.call.toolview', UseToolCallArgumentsPartial>
+  }
+}
+
 /** Owner currency of the Tool image gallery slot: references plus the loader. */
 export interface ToolImagesOwnerProps {
   /** Durable references or submission-echo previews in result order. */
@@ -52,13 +78,11 @@ export interface ToolImagesOwnerProps {
 }
 
 /** Standard owner currency supplied to every atomic Tool view. */
-export interface ToolCallOwnerProps {
-  /** Tool call identity, stable across running and settled forms. */
+export interface ToolCallCommonProps {
+  /** Call identity, stable across all stages. */
   callId: string
   /** Wire Tool name and keyed dispatch value. */
   toolName: string
-  /** Frozen running call or settled result node. */
-  block: ToolCallBlock
   /** Session workspace root for relative summaries. */
   cwd?: string | undefined
   /** Host account home; POSIX home-rooted summaries display as `~`. */
@@ -80,8 +104,20 @@ export interface ToolCallOwnerProps {
   inspect?: (() => void) | undefined
 }
 
+/** Stage-specific tool data; only start/result expose the dispatched call material. */
+export type ToolCallPhaseProps =
+  | { readonly phase: 'preparing'; readonly block: PreparingToolCall }
+  | { readonly phase: 'start'; readonly block: StartedToolCall }
+  | { readonly phase: 'result'; readonly block: ToolResultNode }
+
+/** Common owner callbacks and the data admitted at the current tool stage. */
+export type ToolCallOwnerProps = ToolCallCommonProps & ToolCallPhaseProps
+
 /** Full props of a registered atomic Tool view. */
 export type ToolCallViewProps = PropsRuntime<'tool.call.toolview'>
+
+/** Existing argument/result business components exclude the preparation stage. */
+export type StartedToolCallViewProps = Exclude<ToolCallViewProps, { readonly phase: 'preparing' }>
 
 /** Injected Host description for POSIX home-path display. */
 export type ToolHostInfoInjected = {

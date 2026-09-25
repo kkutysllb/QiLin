@@ -5,6 +5,7 @@ export const NS = 'cordis'
 /** Simplified Chinese Kylin UI messages. */
 export const zh = {
   'row.defineTitle': '注册 Kylin 插件',
+  'a11y.preparing': '准备调用 Kylin 工具',
   'row.runTitle': '运行 Kylin 插件',
   'row.updateTitle': '更新 Kylin 插件',
   'row.stopTitle': '停止 Kylin 插件',
@@ -69,6 +70,7 @@ declare module '@qilin/client-ui-slots' {
 /** English Kylin UI messages. */
 export const en = {
   'row.defineTitle': 'Register Kylin Plugin',
+  'a11y.preparing': 'Preparing a Kylin tool call',
   'row.runTitle': 'Run Kylin Plugin',
   'row.updateTitle': 'Update Kylin Plugin',
   'row.stopTitle': 'Stop Kylin Plugin',

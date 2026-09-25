@@ -27,10 +27,10 @@
   - img
   - img
   - text: Context injection webhook github webhook handled by review-pr-when-ready
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - paragraph: "Review complete: no actionable findings."
 - button "Copy":
   - img

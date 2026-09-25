@@ -42,12 +42,12 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/client-test-runtime": "workspace:^",
-    "@qilin/client-ui-theme": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-theme": "workspace:*"
   },
   "files": [
     "lib/index.js",

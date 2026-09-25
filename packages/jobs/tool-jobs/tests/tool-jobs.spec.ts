@@ -128,9 +128,9 @@ describe('tool-jobs setup', () => {
       .rejects.toThrow('waitTimeoutMs (100) exceeds maxWaitTimeoutMs (50)')
   })
 
-  it('defaults delivery to wakeup and rejects an unknown lane', () => {
+  it('defaults delivery to unbounded wakeup and rejects an unknown lane', () => {
     expect(ToolJobs.Config({}).completionDelivery).toBe('wakeup')
-    expect(ToolJobs.Config({}).maxConsecutiveWakes).toBe(3)
+    expect(ToolJobs.Config({}).maxConsecutiveWakes).toBeUndefined()
     expect(() => ToolJobs.Config({ completionDelivery: 'loud' as never })).toThrow()
     expect(() => ToolJobs.Config({ maxConsecutiveWakes: 0 })).toThrow()
   })
@@ -151,7 +151,7 @@ describe('tool-jobs setup', () => {
     }
 
     // The field exists to bound runaway waking; a fractional budget counts
-    // nothing and an infinite one removes the bound it was configured for.
+    // nothing and an infinite one is spelled by omitting the field.
     expect(await loadWith(Number.POSITIVE_INFINITY)).toContain('maxConsecutiveWakes')
     expect(await loadWith(2.5)).toContain('maxConsecutiveWakes')
     expect(await loadWith(1)).toBe('loaded')
@@ -582,6 +582,19 @@ describe('completion notice delivery', () => {
     expect(followup).not.toHaveBeenCalled()
   })
 
+  it('wakes an idle owner for every completion when no wake budget is set', async () => {
+    const { ctx } = await setup()
+    const inject = vi.fn()
+    const followup = vi.fn()
+    const owner = await fakeAgent(ctx, 'sess-1', { inject, followup, status: 'idle' })
+
+    // Four unattended completions in a row must each open a turn; no
+    // user input arrives in between to refill anything.
+    await settleTasks(ctx, owner, 4)
+    expect(followup).toHaveBeenCalledTimes(4)
+    expect(inject).not.toHaveBeenCalled()
+  })
+
   it('degrades to injection once the consecutive wake budget is spent', async () => {
     const { ctx } = await setup({ maxConsecutiveWakes: 2 })
     const inject = vi.fn()
@@ -672,7 +685,7 @@ describe('completion notice delivery', () => {
     emitAgentEvent(ctx, owner, 'agent/inbox/claimed', {
       message: createUserMessage({
         content: [{ type: 'text', text: 'background job bash-1 finished' }],
-        source: { kind: 'plugin', plugin: 'tool-jobs', form: 'notice', summary: 'bash' },
+        source: { kind: 'tool-jobs', form: 'notice', summary: 'bash' },
       }),
       turn: 1,
     })
@@ -697,8 +710,7 @@ describe('completion notices', () => {
       role: 'user',
       content: [{ type: 'text', text: 'background job bash-1 (bash: pnpm test) finished [status: completed, exit code: 0]. Read its output with job_output.' }],
       source: {
-        kind: 'plugin',
-        plugin: 'tool-jobs',
+        kind: 'tool-jobs',
         form: 'notice',
         summary: 'bash pnpm test [status: completed, exit code: 0]',
       },
@@ -728,8 +740,7 @@ describe('completion notices', () => {
         // The label and status detail are unbounded caller text, so the durable
         // one-line account caps itself rather than committing their full length.
         source: {
-          kind: 'plugin',
-          plugin: 'tool-jobs',
+          kind: 'tool-jobs',
           form: 'notice',
           summary: `subagent ${'x'.repeat(110)}…`,
         },

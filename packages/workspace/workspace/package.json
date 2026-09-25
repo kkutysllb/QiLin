@@ -40,25 +40,25 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/storage": "workspace:^",
-    "@qilin/storage-domain": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/storage": "workspace:*",
+    "@qilin/storage-domain": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:^",
+    "@qilin/brand": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/storage": "workspace:^",
-    "@qilin/storage-domain": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/storage": "workspace:*",
+    "@qilin/storage-domain": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*"
   }
 }

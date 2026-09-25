@@ -45,18 +45,18 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/client-locale": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-session": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
-    "@qilin/client-ui-theme": "workspace:^",
+    "@qilin/brand": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/client-ui-theme": "workspace:*",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "react": "^18.2.0"
   },
   "files": [

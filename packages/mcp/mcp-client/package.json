@@ -30,38 +30,38 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/attachment": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/mcp-resources": "workspace:^",
-    "@qilin/system-prompt": "workspace:^"
+    "@qilin/attachment": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/mcp-resources": "workspace:*",
+    "@qilin/system-prompt": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "@modelcontextprotocol/client": "2.0.0",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/util-values": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/attachment": "workspace:^",
-    "@qilin/attachment-local": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/tools": "workspace:^",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/attachment-local": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/tools": "workspace:*",
     "@modelcontextprotocol/server-everything": "^2026.7.4",
     "@modelcontextprotocol/server-filesystem": "^2026.7.4",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/http-proxy": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/http-proxy": "workspace:*",
     "@modelcontextprotocol/server": "2.0.0",
     "@modelcontextprotocol/node": "2.0.0",
     "zod": "^4.4.3",
-    "@qilin/mcp-resources": "workspace:^",
-    "@qilin/system-prompt": "workspace:^"
+    "@qilin/mcp-resources": "workspace:*",
+    "@qilin/system-prompt": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@qilin/mcp-resources": {

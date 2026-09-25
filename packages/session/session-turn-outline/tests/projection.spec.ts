@@ -12,12 +12,19 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import { createAssistantMessage, createUserMessage } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
 import type { Session, SessionEvent } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import * as SessionTurnOutlinePlugin from '@qilin/session-turn-outline'
 import { turnOutlineProjectionDefinition } from '@qilin/session-turn-outline/src/projection.ts'
 import type { TurnOutlineEntry, TurnOutlineState } from '@qilin/session-turn-outline/types'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'test-injector': { kind: 'test-injector' } & ContextFormed
+  }
+}
 
 async function harness(withOutlinePlugin: boolean): Promise<{ ctx: Context; session: Session }> {
   const ctx = new Context()
@@ -136,7 +143,7 @@ describe('turn outline projection unit', () => {
     session.append('turn/start', { turn: 1 })
     session.append('user/message', createUserMessage({
       content: [{ type: 'text', text: 'injected context' }],
-      source: { kind: 'plugin', plugin: 'test-injector', form: 'relay' },
+      source: { kind: 'test-injector', form: 'relay' },
     }), { surfaceOp: 'append' })
     expect(outlineOf(ctx, session)).toEqual([
       { turn: 1, seq: 1, prompt: '', response: '' },

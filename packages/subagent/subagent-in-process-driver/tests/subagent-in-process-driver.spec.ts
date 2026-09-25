@@ -1,4 +1,5 @@
 import { ToolCallId, createUserMessage } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin/kylin'
 import { type Agent, type AgentOptions } from '@qilin/agent'
@@ -13,6 +14,12 @@ import SubagentRuntime, { snapshotSubagentDescriptor } from '@qilin/subagent'
 import { defineContentToolFixture } from '@qilin/tools'
 import { maxTokensResponse, MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { startInProcessRun } from '../src/index.ts'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'late-metadata': { kind: 'late-metadata' } & ContextFormed
+  }
+}
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
@@ -155,7 +162,7 @@ describe('startInProcessRun', () => {
       injected = true
       session.append('user/message', createUserMessage({
         content: [{ type: 'text', text: 'late metadata' }],
-        source: { kind: 'plugin', plugin: 'late-metadata' },
+        source: { kind: 'late-metadata' },
       }), { surfaceOp: 'append' })
     })
 

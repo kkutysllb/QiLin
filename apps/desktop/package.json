@@ -38,8 +38,8 @@
     "semver": "^7.8.5"
   },
   "devDependencies": {
-    "@qilin/app-boot": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
+    "@qilin/app-boot": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
     "@electron/get": "^5.1.0",
     "@electron/notarize": "2.5.0",
     "@types/js-yaml": "^4.0.9",

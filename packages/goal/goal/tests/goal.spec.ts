@@ -3,6 +3,7 @@ import { Context } from '@qilin/kylin'
 import AgentRegistry, { agentEvents } from '@qilin/agent'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage, HarnessError } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import SessionStore, { Session, SessionId, type UserMessage } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import GoalService, {
@@ -13,6 +14,13 @@ import GoalService, {
 } from '@qilin/goal'
 import type { GoalChangeMeta, GoalRef, GoalSnapshotChangeMeta } from '@qilin/goal'
 import { createInboxStub } from '@qilin/agent-loop-testkit'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'test': { kind: 'test' } & ContextFormed
+    'ordinary-user-message': { kind: 'ordinary-user-message' } & ContextFormed
+  }
+}
 
 interface StubAgent {
   agent: Agent
@@ -618,7 +626,7 @@ describe('goal replay validation', () => {
     expect(foldGoal(session.snapshotEvents())).toMatchObject({ goal: { id: change.goal.id, revision: 1 } })
     const message = createUserMessage({
       content: [{ type: 'text', text: 'unrelated pending context' }],
-      source: { kind: 'plugin', plugin: 'test' },
+      source: { kind: 'test' },
     })
     const inbox = stubAgentForSession(session).agent.inbox
     inbox.append('next-step', message)
@@ -639,10 +647,10 @@ describe('goal replay validation', () => {
     const session = Session.create(SessionId('unrelated'))
     appendInjection(session, createUserMessage({
       content: [{ type: 'text', text: 'other' }],
-      source: { kind: 'plugin', plugin: 'test' },
+      source: { kind: 'test' },
     }))
     expect(foldGoal(session.snapshotEvents())).toEqual({ roundsStarted: 0 })
-    const source = { kind: 'plugin', plugin: 'ordinary-user-message' } as const
+    const source = { kind: 'ordinary-user-message' } as const
     const turn = nextTurn(session)
     session.append('turn/start', { turn })
     session.append('user/message', createUserMessage({

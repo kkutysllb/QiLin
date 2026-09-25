@@ -675,7 +675,7 @@ export function buildTrajectoryGraph(
         step: call.step,
         label: call.name,
         badge: t('graph.live'),
-        ...(call.argsRaw === '' ? {} : { args: call.argsRaw }),
+        ...(call.phase === 'preparing' || call.argsRaw === '' ? {} : { args: call.argsRaw }),
         live: true,
       },
     })

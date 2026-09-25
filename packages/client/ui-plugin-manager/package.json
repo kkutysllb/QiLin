@@ -45,27 +45,27 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/api-remotes": "workspace:^",
-    "@qilin/client-locale": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/client-test-runtime": "workspace:^",
-    "@qilin/client-ui-layout": "workspace:^",
-    "@qilin/client-ui-primitives": "workspace:^",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-sidebar": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
-    "@qilin/plugin-manager": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-remotes": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-layout": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-sidebar": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/plugin-manager": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "clsx": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@qilin/util-crypto": "workspace:^",
-    "@qilin/client-ui-settings": "workspace:^"
+    "@qilin/util-crypto": "workspace:*",
+    "@qilin/client-ui-settings": "workspace:*"
   },
   "files": [
     "lib/index.js",

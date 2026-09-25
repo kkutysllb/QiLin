@@ -25,6 +25,10 @@
       "types": "./lib/types/invariant.d.ts",
       "default": "./lib/invariant.js"
     },
+    "./fork": {
+      "types": "./lib/types/fork.d.ts",
+      "default": "./lib/types/fork.js"
+    },
     "./types": {
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
@@ -44,19 +48,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/scope": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/scope": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/invariants": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/typert-registry": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/invariants": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/typert-registry": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*"
   }
 }

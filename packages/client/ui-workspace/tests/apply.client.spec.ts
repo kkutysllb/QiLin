@@ -63,7 +63,7 @@ async function bench() {
     list: {
       getSnapshot: () => ({
         ids: [], byId: {}, current: undefined, phase: 'ready',
-        subagentsByParent: {}, jobsBySession: {}, currentAddress: undefined,
+        projectionsBySession: {}, jobsBySession: {}, currentAddress: undefined,
       }),
       subscribe,
     },
@@ -74,7 +74,7 @@ async function bench() {
     searchResultLimit: 20,
     binding,
     subagentAddress: vi.fn(() => undefined),
-    refreshSubagents: vi.fn(() => Promise.resolve()),
+    refreshProjections: vi.fn(() => Promise.resolve()),
     fork,
   } as never)
   const pickDirectory = vi.fn(() => Promise.resolve({ ok: true as const, value: '/projects/picked' }))

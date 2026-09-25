@@ -28,6 +28,7 @@ import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
 import type { Agent, PreStepDecision } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import type { Session, UserMessage } from '@qilin/session'
 import { defineTool } from '@qilin/tools'
 import { UserQuestionError } from '@qilin/user-questions'
@@ -35,6 +36,11 @@ import type { CommandDefinitionId, CommandId } from '@qilin/commands'
 import type {} from '@qilin/session-projection'
 import type { ProjectionDefinition } from '@qilin/session-projection'
 import type { PlanProjection, PlanUnitState } from './types.ts'
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'plan-mode': { kind: 'plan-mode' } & ContextFormed
+  }
+}
 export type * from './types.ts'
 
 declare module '@qilin/session/types' {
@@ -458,7 +464,7 @@ export class PlanModeController extends Service {
     return createUserMessage({
       content: [{ type: 'text', text }],
       // The narration is already one sentence, so it is its own summary.
-      source: { kind: 'plugin', plugin: 'plan-mode', form: 'notice', summary: text },
+      source: { kind: 'plan-mode', form: 'notice', summary: text },
     })
   }
 }

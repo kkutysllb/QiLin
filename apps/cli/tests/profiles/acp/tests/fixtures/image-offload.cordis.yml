@@ -4,7 +4,6 @@
 - id: llm-deepseek
   name: '@qilin/llm-deepseek'
   config:
-    protocol: !!js process.env.QILIN_SNAPSHOT_PROTOCOL
     apiKeyEnv: QILIN_SNAPSHOT_API_KEY
     baseURL: !!js process.env.QILIN_SNAPSHOT_BASE_URL
     thinking: disabled

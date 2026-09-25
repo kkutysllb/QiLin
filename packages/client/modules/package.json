@@ -45,15 +45,15 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/dsh-compat": "workspace:^"
+    "@qilin/dsh-compat": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/invariants": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/package-manifest": "workspace:^",
-    "@qilin/client-store": "workspace:^"
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/invariants": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/package-manifest": "workspace:*",
+    "@qilin/client-store": "workspace:*"
   },
   "files": [
     "lib/index.js",
@@ -62,6 +62,6 @@
     "lib/types/**/*.d.ts"
   ],
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   }
 }

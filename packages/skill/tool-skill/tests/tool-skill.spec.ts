@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { Context } from '@qilin/kylin'
 import { createUserMessage, ToolCallId, type Message } from '@qilin/llm'
+import type { ContextFormed, MessageSource } from '@qilin/llm'
 import { createScope, type Scope } from '@qilin/scope'
 import {
   SESSION_FORMAT_VERSION, Session, SessionId, type SessionEvent, type UserMessage,
@@ -15,6 +16,20 @@ import SkillRegistry from '@qilin/skill'
 import * as SkillFileSystem from '@qilin/skill-filesystem'
 import * as toolSkill from '@qilin/tool-skill'
 import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'qilin-tool-skill': { kind: 'qilin-tool-skill' } & ContextFormed
+    'later-contribution': { kind: 'later-contribution' } & ContextFormed
+  }
+}
+
+type CheckpointSource = Extract<MessageSource, { readonly kind: 'compact-checkpoint' }>
+
+/** Build a typed checkpoint source for a skill projection fixture. */
+function checkpointSource(compactionId: string): CheckpointSource {
+  return { kind: 'compact-checkpoint', compactionId: compactionId as CheckpointSource['compactionId'] }
+}
 
 const testToolSignal = new AbortController().signal
 
@@ -261,7 +276,7 @@ describe('qilin-tool-skill', () => {
           ...decision.messages,
           createUserMessage({
             content: [{ type: 'text', text: 'later contribution' }],
-            source: { kind: 'plugin', plugin: 'later-contribution' },
+            source: { kind: 'later-contribution' },
           }),
         ],
       }
@@ -274,7 +289,7 @@ describe('qilin-tool-skill', () => {
         id: expect.any(String) as unknown,
         role: 'user',
         content: [{ type: 'text', text: 'later contribution' }],
-        source: { kind: 'plugin', plugin: 'later-contribution' },
+        source: { kind: 'later-contribution' },
       },
       {
         id: expect.any(String) as unknown,
@@ -534,7 +549,7 @@ describe('qilin-tool-skill', () => {
     }), { surfaceOp: 'append' })
     session.append('user/message', createUserMessage({
       content: catalogContent(['- `resumed-skill`: Resumed skill']),
-      source: { kind: 'plugin', plugin: 'qilin-tool-skill' },
+      source: { kind: 'qilin-tool-skill' },
     }), { surfaceOp: 'append' })
 
     await fireStep(ctx, agent, 1, 1)
@@ -628,7 +643,7 @@ describe('qilin-tool-skill', () => {
     if (initial === undefined) throw new Error('expected initial catalog')
     session.append('user/message', createUserMessage({
       content: [{ type: 'text', text: 'compacted history' }],
-      source: { kind: 'plugin', plugin: 'compact' },
+      source: checkpointSource('skill-compaction'),
     }), {
       surfaceOp: { op: 'replace', startSeq: initial.seq, endSeq: initial.seq },
       sourceEventSeqs: [initial.seq],

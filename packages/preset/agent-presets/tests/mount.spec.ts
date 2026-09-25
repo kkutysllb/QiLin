@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -6,7 +7,7 @@ import { Context } from '@qilin/kylin'
 import Loader from '@qilin/kylin-plugin-loader'
 import Include from '@qilin/kylin-plugin-include'
 import Group from '@qilin/kylin-plugin-group'
-import { PluginPackages } from '@qilin/app-boot'
+import { getQilinRuntimeVersion, PluginPackages, PROFILE_COMPATIBILITY_FILENAME, type ProfileContext } from '@qilin/app-boot'
 import LlmRuntime from '@qilin/llm'
 import SessionStore, { SessionId } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
@@ -873,4 +874,44 @@ describe('editing a composition file', () => {
 
     expect(livePresetMounts().filter(mount => mount.presetId === 'stale')).toHaveLength(1)
   })
+})
+
+it('mounts a profile-denied preset row disabled and the same row active once exempted', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'qilin-preset-compat-'))
+  roots.push(root)
+  const pluginDir = join(root, 'plugin')
+  mkdirSync(pluginDir, { recursive: true })
+  const loaded = join(pluginDir, 'loaded.txt')
+  writeFileSync(join(pluginDir, 'package.json'), JSON.stringify({
+    name: 'incompatible-preset-plugin', version: '1.0.0', type: 'module', main: 'index.mjs',
+    peerDependencies: { '@qilin/session': '<0.0.0' },
+  }))
+  writeFileSync(join(pluginDir, 'index.mjs'), [
+    "import { writeFileSync } from 'node:fs'",
+    "writeFileSync(new URL('./loaded.txt', import.meta.url), '')",
+    'export function apply() {}',
+    '',
+  ].join('\n'))
+  const presetDir = join(root, 'guarded')
+  mkdirSync(presetDir, { recursive: true })
+  writeFileSync(join(presetDir, COMPOSITION_FILE), `- id: row\n  name: ${join(pluginDir, 'index.mjs')}\n`)
+  const profileDir = join(root, 'profile')
+  mkdirSync(profileDir, { recursive: true })
+  const compatibilityPath = join(profileDir, PROFILE_COMPATIBILITY_FILENAME)
+  writeFileSync(compatibilityPath, '{}\n')
+  const scoped = await harness({ default: 'guarded', roots: [{ path: root, trust: 'user' }], includeShippedRoot: false, includeUserRoot: false })
+  scoped.provide('profileContext', {
+    name: 'test', dir: profileDir, patchPath: join(profileDir, 'cordis.patch.yml'), home: root,
+    cwd: root, installAnchor: join(root, 'package.json'), startedBundles: [], overlays: [], telemetryDisabledEnv: undefined,
+  } satisfies ProfileContext)
+  const preset = await scoped.agentPresets.resolve('guarded')
+
+  // Admission decides before the row's module is imported, so a denied row mounts disabled.
+  await mountPreset(createScope(scoped, {}).ctx, preset)
+  expect(existsSync(loaded)).toBe(false)
+  expect(livePresetMounts().filter(mount => mount.presetId === 'guarded')).toHaveLength(1)
+
+  writeFileSync(compatibilityPath, JSON.stringify({ 'incompatible-preset-plugin@1.0.0': [getQilinRuntimeVersion()] }) + '\n')
+  await mountPreset(createScope(scoped, {}).ctx, preset)
+  expect(existsSync(loaded)).toBe(true)
 })

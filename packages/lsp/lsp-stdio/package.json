@@ -30,28 +30,28 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/lsp": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/timeout": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/lsp": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/timeout": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/fs-local": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/lsp": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/timeout": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/fs-local": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/lsp": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/timeout": "workspace:*",
     "typescript": "^6.0.3",
     "typescript-language-server": "^5.0.0"
   }

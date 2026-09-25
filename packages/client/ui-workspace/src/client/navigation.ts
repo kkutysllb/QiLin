@@ -256,7 +256,7 @@ class UiWorkspaceService extends Service implements UiWorkspace {
         initial = 'connecting'
         try {
           if (saved.subagentAddress !== undefined) {
-            void this.sessions.refreshSubagents(saved.subagentAddress.parentSessionId)
+            void this.sessions.refreshProjections(saved.subagentAddress.parentSessionId)
           }
           this.openSession(savedTarget)
           initial = 'done'
@@ -340,7 +340,7 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     const previous = this.mainReference
     this.mainReference = reference
     previous?.release()
-    void this.sessions.refreshSubagents(reference.sessionId)
+    void this.sessions.refreshProjections(reference.sessionId)
     this.ctx.layout.selectPanel(null)
   }
 

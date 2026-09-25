@@ -37,16 +37,16 @@
     }
   },
   "dependencies": {
-    "@qilin/client-ui-brand": "workspace:^",
-    "@qilin/client-ui-theme-brand": "workspace:^"
+    "@qilin/client-ui-brand": "workspace:*",
+    "@qilin/client-ui-theme-brand": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
     "js-yaml": "^4.1.0"
   }
 }

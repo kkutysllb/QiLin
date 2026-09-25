@@ -17,8 +17,8 @@ export type { ToolCallBlock } from '@qilin/client-ui-chat/client'
 /** Tool-call row variants selected by the generic atomic renderer. */
 export type ToolRowVariant = 'search' | 'read' | 'bash' | 'write' | 'edit' | 'code' | 'others'
 
-/** Row state semantic; colors self-supplied via StateDot (design gives none). */
-export type ToolRowState = 'running' | 'ok' | 'error' | 'stopped'
+/** Row lifecycle state used by summary styling and accessible status text. */
+export type ToolRowState = 'preparing' | 'running' | 'ok' | 'error' | 'stopped'
 
 /** Locale-neutral structured fact consumed only by the user-facing Tool row. */
 export interface AutoReviewDenial {
@@ -93,10 +93,20 @@ export function classifyTool(toolName: string): ToolRowVariant {
   return TOOL_VARIANTS[toolName] ?? 'others'
 }
 
+/**
+ * Select a tool-owned or generic title without reading arguments.
+ * @param toolName - wire tool name.
+ * @returns the localized title key.
+ */
+export function toolTitleKey(toolName: string): ToolTitleKey {
+  return TOOL_TITLE_KEYS[toolName] ?? VARIANT_TITLE_KEYS[classifyTool(toolName)]
+}
+
 /** Everything ToolRow needs, derived once from the frozen slice. */
 export interface ToolRowModel {
   variant: ToolRowVariant
   titleKey: ToolTitleKey
+  /** Generic rows retain the wire tool name; available arguments append their summary. */
   summary: string
   /**
    * Filesystem path from args (`path` / `file_path`) when the row is a file
@@ -229,26 +239,28 @@ export function formatToolBody(variant: ToolRowVariant, argsRaw: string): string
 /**
  * Derive the full row model from a frozen call slice.
  * @param toolName - wire tool name (dispatch-supplied; survives windowless results).
- * @param block - RunningToolCall or ToolResultNode off the snapshot caches.
+ * @param block - preparing call, dispatched call, or result from the snapshot.
  * @param cwd - session workspace root; workspace-rooted path summaries display relative to it.
  * @param home - host account home; a leftover POSIX home path displays as `~`.
  * @returns the row model.
  */
 export function toolRowModel(toolName: string, block: ToolCallBlock, cwd?: string, home?: string): ToolRowModel {
   const variant = classifyTool(toolName)
+  const titleKey = toolTitleKey(toolName)
   const done = 'kind' in block
-  const argsRaw = (done ? block.call?.argsRaw : block.argsRaw) ?? ''
-  const state: ToolRowState = !done ? 'running'
+  const argsRaw = done ? block.call?.argsRaw ?? '' : block.phase === 'start' ? block.argsRaw : null
+  const state: ToolRowState = !done ? block.phase === 'preparing' ? 'preparing' : 'running'
     : block.error?.code === 'interrupted' ? 'stopped'
       : block.isError ? 'error' : 'ok'
-  const base = argsRaw === ''
-    ? block.callId
-    : abbreviateHomePath(relativizeToCwd(deriveSummary(variant, argsRaw), cwd), home)
-  const toolTitleKey = TOOL_TITLE_KEYS[toolName]
+  const base = argsRaw === null ? ''
+    : argsRaw === '' ? block.callId
+      : abbreviateHomePath(relativizeToCwd(deriveSummary(variant, argsRaw), cwd), home)
   // Others keeps the static "Tool call" title (figma literal); the real tool
   // name rides the mutable summary slot unless the tool owns a specific title.
-  const summary = variant === 'others' && toolName !== '' && toolTitleKey === undefined
-    ? `${toolName} · ${base}`
+  // A preparing call has no base yet, so the name stands alone rather than
+  // trailing a separator with nothing after it.
+  const summary = variant === 'others' && toolName !== '' && TOOL_TITLE_KEYS[toolName] === undefined
+    ? [toolName, base].filter(Boolean).join(' · ')
     : base
   // The empty string is "no text" for both derived result fields: a settled
   // call with blank content has nothing to expand, and a blank first line
@@ -258,9 +270,9 @@ export function toolRowModel(toolName: string, block: ToolCallBlock, cwd?: strin
   const bodyRaw = argsRaw === '' ? null : argsRaw
   return {
     variant,
-    titleKey: toolTitleKey ?? VARIANT_TITLE_KEYS[variant],
+    titleKey,
     summary,
-    filePath: deriveFilePath(variant, argsRaw),
+    filePath: argsRaw === null ? undefined : deriveFilePath(variant, argsRaw),
     bodyRaw,
     output,
     errorSummary,

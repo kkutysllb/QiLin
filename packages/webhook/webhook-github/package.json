@@ -35,24 +35,24 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/credentials": "workspace:^",
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/webhook": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/webhook": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "@octokit/webhooks": "^14.2.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/credentials": "workspace:^",
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/webhook": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/webhook": "workspace:*"
   }
 }

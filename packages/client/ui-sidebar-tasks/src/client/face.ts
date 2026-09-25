@@ -21,7 +21,7 @@ export interface TasksSessionActions {
    * @param parentSessionId - catalog owner.
    * @returns completion of the current or newly started read.
    */
-  refreshSubagents(parentSessionId: SessionId): Promise<void>
+  refreshProjections(parentSessionId: SessionId): Promise<void>
 }
 
 /** One child interrupt, as the Host's generated `subagents.interruptByParent` declares it. */
@@ -80,7 +80,7 @@ export function tasksFace(
       sessions.openSubagent(address)
     },
     refresh(parentSessionId) {
-      void sessions.refreshSubagents(parentSessionId)
+      void sessions.refreshProjections(parentSessionId)
     },
     // `interruptByParent` names the durably continuable delivery the caller's
     // row already carries; a one-shot child draws no control at all.

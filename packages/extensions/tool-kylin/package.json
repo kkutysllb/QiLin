@@ -22,26 +22,31 @@
       "default": "./lib/index.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./host": {
+      "types": "./lib/types/host.d.ts",
+      "default": "./lib/types/host.js"
+    }
   },
   "files": [
     "lib/index.js",
+    "lib/types/**/*.js",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/kylin-host-runner": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/kylin-host-runner": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/kylin-host-runner": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/kylin-host-runner": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

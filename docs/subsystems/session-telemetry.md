@@ -80,7 +80,7 @@ type SessionTelemetryCapture = 'live' | 'on-demand'
 interface SessionTelemetryCaptureOptions {
   /** Follow live events, or wait for explicit capture; defaults to live. */
   capture?: SessionTelemetryCapture
-  /** Include stored history before this lifecycle; defaults to false. */
+  /** Include inherited fork history and stored history from earlier lifecycles; defaults to false. */
   includeHistory?: boolean
 }
 ```

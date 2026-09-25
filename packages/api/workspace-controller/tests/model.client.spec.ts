@@ -19,10 +19,15 @@ import type {
   WorkspaceId,
   WorkspaceView,
 } from '../src/types.ts'
-import { RemoteError, type RemoteFailure, type RemoteResult } from '@qilin/typert-protocol'
+import { RemoteError, type RemoteFailure, type RemoteResult, type RemoteStreamHandle } from '@qilin/typert-protocol'
+import { streamHandle } from '@qilin/remote-mock'
 import type { SessionId } from '@qilin/session/types'
 
 const sid = (id: string): SessionId => id as SessionId
+
+/** An idle Host follow generation: this fake answers unary calls only. */
+async function* noFrames(): AsyncGenerator<WorkspaceFollowFrame> {}
+
 const wid = (id: string): WorkspaceId => id as WorkspaceId
 
 function workspace(
@@ -125,7 +130,9 @@ class FakeWorkspaceRemote implements WorkspaceRemote {
     return this.onUnarchiveSession(request)
   }
 
-  async *follow(_signal?: AbortSignal): AsyncGenerator<WorkspaceFollowFrame> {}
+  follow(_signal?: AbortSignal): RemoteStreamHandle<WorkspaceFollowFrame, never> {
+    return streamHandle(noFrames())
+  }
 
   private record(method: string, request: unknown): void {
     this.calls.push({ method, request })

@@ -36,33 +36,33 @@
     "@opentelemetry/otlp-exporter-base": "^0.220.0",
     "@opentelemetry/resources": "^2.9.0",
     "@opentelemetry/sdk-logs": "^0.220.0",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/command-feedback": "workspace:^",
-    "@qilin/message-feedback": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-telemetry": "workspace:^",
-    "@qilin/anonymous-user-id": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/command-feedback": "workspace:*",
+    "@qilin/message-feedback": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-telemetry": "workspace:*",
+    "@qilin/anonymous-user-id": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-logger-console": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/app-boot": "workspace:^",
-    "@qilin/bash-local": "workspace:^",
-    "@qilin/command-feedback": "workspace:^",
-    "@qilin/message-feedback": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/loader-smoke": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-checkpoint-policy": "workspace:^",
-    "@qilin/session-persistence-jsonl": "workspace:^",
-    "@qilin/session-telemetry": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/anonymous-user-id": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/kylin-plugin-logger-console": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/app-boot": "workspace:*",
+    "@qilin/bash-local": "workspace:*",
+    "@qilin/command-feedback": "workspace:*",
+    "@qilin/message-feedback": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/loader-smoke": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-checkpoint-policy": "workspace:*",
+    "@qilin/session-persistence-jsonl": "workspace:*",
+    "@qilin/session-telemetry": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/anonymous-user-id": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/http-proxy": "workspace:*"
   }
 }

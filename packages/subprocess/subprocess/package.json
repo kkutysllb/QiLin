@@ -35,12 +35,12 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/http-proxy": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/http-proxy": "workspace:^",
-    "@qilin/launch-environment": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/http-proxy": "workspace:*",
+    "@qilin/launch-environment": "workspace:*"
   }
 }

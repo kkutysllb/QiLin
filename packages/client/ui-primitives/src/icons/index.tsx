@@ -1067,3 +1067,11 @@ export const IconPluginPinwheelOutline16 = ({ size = 16, className }: IconProps)
     <path d="M10.7476 7.89535C10.8708 11.7113 9.66109 14.847 8.0456 14.8991C6.83496 14.9382 5.74 13.2346 5.21536 10.7723" stroke="currentColor" strokeWidth="1.2" />
   </svg>
 )
+
+/** Microphone with uniform one-pixel strokes; speech-input record control. */
+export const IconMicrophoneOutline16 = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1} aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <rect x={5} y={1.5} width={6} height={9} rx={3} />
+    <path d="M2.35 8.675C3.075 11.3 5.2 13.125 8 13.125C10.8 13.125 12.925 11.3 13.65 8.675M8 13.125V15" />
+  </svg>
+)

@@ -142,7 +142,7 @@ describe('Remote model generation', { timeout: 60_000 }, () => {
       "'agent:goals/rename': (request: RenameGoalRequest) => Promise<RemoteResult<RenameGoalResult>>",
     )
     expect(artifact?.remote?.dts).toContain(
-      "'goals/watch': (agentId: AgentId, signal?: AbortSignal) => AsyncIterable<CreateGoalResult>",
+      "'goals/watch': (agentId: AgentId, signal?: AbortSignal) => RemoteStreamHandle<CreateGoalResult, never>",
     )
 
     const remoteJs = artifact?.remote?.js

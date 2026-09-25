@@ -17,10 +17,18 @@ import * as SubagentSpawn from '@qilin/subagent-spawn-in-process'
 import { renderPrompt, renderContextSnapshot } from '@qilin/system-prompt'
 import * as ToolSubagentControl from '@qilin/tool-subagent-control'
 import { defineContentToolFixture } from '@qilin/tools'
-import { serializeRequest } from '@qilin/llm-deepseek/src/protocols/chat-completions/serialize.ts'
+import { resolveAdapterOptions } from '@qilin/llm-deepseek'
+import { serialize } from '@qilin/llm-deepseek/src/serialize.ts'
+import type { GenerateOptions } from '@qilin/llm'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import TeamService from '../../agent-team/src/index.ts'
 import * as toolTeam from '../src/index.ts'
+
+/** Serialize one captured adapter request through the shipped DeepSeek wire writer. */
+function serializeRequest(request: GenerateOptions) {
+  const connection = resolveAdapterOptions({ models: [{ id: request.model, systemPromptUpdate: 'in-history' }] })
+  return serialize(request, connection, request.messages, new Map(), () => undefined)
+}
 
 const SIGNAL = new AbortController().signal
 const TOOL_NAMES = [
@@ -193,18 +201,18 @@ describe('qilin-tool-team', () => {
     await waitNoAgent(ctx, childId)
     const childRequest = serializeRequest(adapter.requests[1]!)
     expect(childRequest.tools).toEqual(parentRequest.tools)
-    expect(childRequest.messages[0]).toEqual(parentRequest.messages[0])
-    expect(JSON.stringify(childRequest.messages[0])).not.toContain('Your Team role')
+    expect(childRequest.system).toEqual(parentRequest.system)
+    expect(childRequest.system).not.toContain('Your Team role')
     if (mode === 'fork') {
       expect(childRequest.messages.slice(0, parentRequest.messages.length)).toEqual(parentRequest.messages)
       expect(adapter.requests[1]!.messages.slice(0, parentHistory.length)).toEqual(parentHistory)
     } else {
       expect(JSON.stringify(childRequest.messages)).not.toContain('Parent task')
     }
-    expect(childRequest.messages).toContainEqual({
-      role: 'user',
-      content: '<system-reminder>\nYou are teammate "reviewer".\n</system-reminder>\n\nReview the work',
-    })
+    expect(childRequest.messages.at(-1)?.content.slice(0, 2)).toEqual([
+      { type: 'text', text: '<system-reminder>\nYou are teammate "reviewer".\n</system-reminder>\n\n' },
+      { type: 'text', text: 'Review the work' },
+    ])
     await using persisted = await ctx.sessionPersistence.open(childId, 'read')
     const { events } = await persisted.read()
     const initial = events.findLast(event => event.type === 'user/message' && event.data.source.kind === 'user')
@@ -232,7 +240,7 @@ describe('qilin-tool-team', () => {
     const childRequest = serializeRequest(adapter.requests[1]!)
     expect(childRequest.tools).toEqual(parentRequest.tools)
     expect(childRequest.messages.slice(0, parentRequest.messages.length)).toEqual(parentRequest.messages)
-    expect(childRequest.messages.at(-1)?.content).toBe('Continue independently')
+    expect(childRequest.messages.at(-1)?.content).toContainEqual({ type: 'text', text: 'Continue independently' })
     expect(JSON.stringify(childRequest.messages)).not.toContain('system-reminder')
     expect(handle.agent.session.snapshotEvents().slice(0, seed.length)).toEqual(seed)
     expect(ctx.agentTeams.listMembers(handle.agent).map(member => member.name)).toEqual(['lead'])
@@ -266,7 +274,7 @@ describe('qilin-tool-team', () => {
       expect(fork.tools).toEqual(original.tools)
       expect(fork.messages.slice(0, original.messages.length)).toEqual(original.messages)
       expect(forkRequest.messages.slice(0, inheritedHistory.length)).toEqual(inheritedHistory)
-      expect(fork.messages).toContainEqual({ role: 'user', content: 'Continue independently' })
+      expect(fork.messages.at(-1)?.content).toContainEqual({ type: 'text', text: 'Continue independently' })
       expect(JSON.stringify(fork.messages)).not.toContain('You are the Team Lead')
       expect(handle.agent.session.snapshotEvents().slice(0, seed.length)).toEqual(seed)
     } finally {
@@ -287,7 +295,7 @@ describe('qilin-tool-team', () => {
         if (identity === undefined) throw new Error('expected initial teammate reminder')
         agent.session.append('user/message', createUserMessage({
           content: [{ type: 'text', text: 'Compacted earlier context.' }],
-          source: { kind: 'plugin', plugin: 'test-compaction' },
+          source: { kind: 'test-compaction' },
         }), {
           surfaceOp: { op: 'replace', startSeq: identity.seq, endSeq: identity.seq },
           sourceEventSeqs: [identity.seq],
@@ -302,14 +310,14 @@ describe('qilin-tool-team', () => {
     await waitNoAgent(ctx, childId)
     const reminder = '<system-reminder>\nYou are teammate "reviewer".\n</system-reminder>\n\n'
     const first = serializeRequest(adapter.requests[0]!).messages
-    expect(first).toContainEqual({ role: 'user', content: `${reminder}Review the work` })
+    expect(first.at(-1)?.content.slice(0, 2)).toEqual([{ type: 'text', text: reminder }, { type: 'text', text: 'Review the work' }])
     expect(adapter.requests[1]!.messages.filter(message => message.content.some(block =>
       block.type === 'text' && block.text === reminder))).toHaveLength(1)
     expect(JSON.stringify(serializeRequest(adapter.requests[2]!).messages)).not.toContain('You are teammate')
     await using persisted = await ctx.sessionPersistence.open(childId, 'read')
     const { events } = await persisted.read()
     expect(events.filter(event => event.type === 'user/message'
-      && event.data.source.kind === 'plugin' && event.data.source.plugin === toolTeam.name)).toHaveLength(0)
+      && (event.data.source as { readonly kind?: unknown }).kind === toolTeam.name)).toHaveLength(0)
   })
 
   it.each(['reject', 'empty', 'abort'] as const)('does not revive a teammate step after %s', async (mode) => {
@@ -341,8 +349,10 @@ describe('qilin-tool-team', () => {
     })
     expect(spawned.isError, text(spawned)).toBe(false)
     await waitNoAgent(ctx, spawnedChildId(spawned))
-    expect(serializeRequest(adapter.requests[0]!).messages.at(-1)?.content)
-      .toBe('<system-reminder>\nYou are teammate "reviewer".\n</system-reminder>\n\nReview the work')
+    expect(serializeRequest(adapter.requests[0]!).messages.at(-1)?.content).toEqual([
+      { type: 'text', text: '<system-reminder>\nYou are teammate "reviewer".\n</system-reminder>\n\n' },
+      { type: 'text', text: 'Review the work' },
+    ])
   })
 
   it('returns actionable no-progress output and renders structured wait cancellation', async () => {

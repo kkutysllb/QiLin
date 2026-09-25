@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest'
 import type {
   AssistantBlock, AssistantMessageNode, CommandNode, CompactionSummaryNode, ContextMessageNode,
-  ConversationNode, ModelRetryNode, PartialAssistant, RequestView, RunningToolCall, SteeringMessageNode,
+  ConversationNode, ModelRetryNode, PartialAssistant, RequestView, StartedToolCall, SteeringMessageNode,
   SystemPromptNode, ToolResultNode, TurnErrorNode, TurnMaxTokensNode, UnknownSurfaceNode, UserMessageNode,
 } from '@qilin/client-ui-conversation/client'
 import type { ContentBlock } from '@qilin/llm/types'
@@ -47,9 +47,9 @@ function toolResult(seq: number, callId: string, over: Partial<ToolResultNode> =
   }
 }
 
-function runningCall(callId: string, over: Partial<RunningToolCall> = {}): RunningToolCall {
+function runningCall(callId: string, over: Partial<StartedToolCall> = {}): StartedToolCall {
   return {
-    callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
+    phase: 'start', callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
   }
 }
 

@@ -37,16 +37,16 @@
     }
   },
   "dependencies": {
-    "@qilin/cmdline": "workspace:^",
-    "@qilin/sdk-jsonrpc-server": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/cmdline": "workspace:*",
+    "@qilin/sdk-jsonrpc-server": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "commander": "^15.0.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin": "workspace:~"
   }
 }

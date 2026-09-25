@@ -8,6 +8,7 @@ import type { StreamChunk } from '@qilin/llm'
 import FileSettingsProvider from '@qilin/settings-file'
 import * as LlmPiAi from '@qilin/llm-pi-ai'
 import { PiAiAdapter } from '@qilin/llm-pi-ai'
+import type { ContextFormed } from '@qilin/llm'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { AssistantMessageEventStream } from '@earendil-works/pi-ai/utils/event-stream'
 import type { Api, Model, OpenAICompletionsCompat, Provider } from '@earendil-works/pi-ai'
@@ -19,6 +20,12 @@ import { memoryAuth } from './auth-double.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
 const homes: string[] = []
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'test': { kind: 'test' } & ContextFormed
+  }
+}
 
 // Routes name their credential by reference; the value lives in the
 // environment, which is the layer the adapter falls back to without a
@@ -85,7 +92,7 @@ describe('hand-declared providers', () => {
       model: 'acme-large',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'plugin', plugin: 'test' },
+        source: { kind: 'test' },
       })],
     })
 

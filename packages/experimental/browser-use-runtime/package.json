@@ -35,33 +35,33 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/browser-use": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/system-prompt": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/browser-use": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/system-prompt": "workspace:*"
   },
   "dependencies": {
-    "@qilin/mcp-client": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/mcp-client": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/browser-use": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/agent-loop-testkit": "workspace:^",
-    "@qilin/agent-loop": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/mcp-resources": "workspace:^",
-    "@qilin/ptc-runtime": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/attachment-local": "workspace:^",
-    "@qilin/session-persistence-jsonl": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/browser-use": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/agent-loop-testkit": "workspace:*",
+    "@qilin/agent-loop": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/mcp-resources": "workspace:*",
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/attachment-local": "workspace:*",
+    "@qilin/session-persistence-jsonl": "workspace:*"
   }
 }

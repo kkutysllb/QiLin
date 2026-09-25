@@ -30,24 +30,24 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/dsh-compat": "workspace:^",
-    "@qilin/client-modules": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/client-ui-dockkit": "workspace:^",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-primitives": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/dsh-compat": "workspace:*",
+    "@qilin/client-modules": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-ui-dockkit": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^6.0.3",
-    "@qilin/host-webserver": "workspace:^"
+    "@qilin/host-webserver": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "files": [
     "lib/index.js",

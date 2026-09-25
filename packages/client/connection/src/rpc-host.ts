@@ -2,6 +2,7 @@
 
 import { Context, Service } from '@qilin/kylin'
 import type { WebRoute } from '@qilin/host-webserver'
+import type { PeerScope } from '@qilin/typert-protocol'
 import {
   RpcId,
   type ClientRequest,
@@ -12,8 +13,10 @@ import { bridge } from './http-bridge.ts'
 import { isTrustedApiRequest } from './api-request-trust.ts'
 import { API_PATH } from './api-path.ts'
 import { WEB_ENTRY_PATH } from './web-entry.ts'
+import { OperatorPeer } from './operator-peer.ts'
 import type { BrowserAuth } from './browser-auth.ts'
 import type {
+  PeerAdmission,
   ConnectionIndexRequest,
   ConnectionIndexResponse,
   ConnectionFetchRoute,
@@ -61,6 +64,8 @@ declare module '@qilin/kylin' {
 
 /** Host Connection service whose channel registrations belong to the caller fiber. */
 export class HostConnectionService extends Service implements HostConnectionHandle {
+  /** The operator Peer every admitted request speaks for. */
+  readonly operator: PeerScope
   private readonly interceptors = new Map<string, ConnectionRpcInterceptor>()
   private readonly fetchRoutes = new Map<string, RegisteredFetchRoute>()
   private sessionAuthority: ConnectionSessionAuthority | undefined
@@ -77,6 +82,8 @@ export class HostConnectionService extends Service implements HostConnectionHand
     private readonly browserAuth: BrowserAuth,
   ) {
     super(ctx, 'connection')
+    this.operator = new OperatorPeer(ctx)
+    ctx.effect(() => () => this.operator.dispose(), 'client-connection: operator Peer')
   }
 
   /** Generic channel registry scoped to the Context reading this service. */
@@ -121,6 +128,12 @@ export class HostConnectionService extends Service implements HostConnectionHand
     if (authority === undefined) return this.browserAuth.isAuthenticated(request) ? undefined : 401
     if (authority.isPublicApiRequest(request)) return undefined
     return authority.verify(request) ? undefined : 401
+  }
+
+  /** A request that passes the fence and authentication speaks for the operator. */
+  admit(request: ConnectionTrustRequest): PeerAdmission {
+    const rejection = this.requestRejection(request)
+    return rejection === undefined ? { peer: this.operator } : { rejection }
   }
 
   /**
@@ -207,15 +220,15 @@ export class HostConnectionService extends Service implements HostConnectionHand
     handler: ConnectionRpcHandler,
   ): () => Promise<void> {
     assertChannel(channel)
-    const fetchHandler = rpcFetchHandler(channel, handler)
+    const fetchHandler = rpcFetchHandler(channel, handler, this.operator)
     const route: WebRoute = {
       kind: 'prefix',
       path: channel,
       handler: async (req, res) => {
-        const rejection = this.requestRejection(req)
-        if (rejection !== undefined) {
-          res.writeHead(rejection)
-          res.end(rejection === 401 ? 'unauthorized' : 'forbidden')
+        const admission = this.admit(req)
+        if ('rejection' in admission) {
+          res.writeHead(admission.rejection)
+          res.end(admission.rejection === 401 ? 'unauthorized' : 'forbidden')
           return
         }
         await bridge(req, res, fetchHandler)
@@ -238,7 +251,7 @@ export class HostConnectionService extends Service implements HostConnectionHand
     }
     const interceptor: ConnectionRpcInterceptor = {
       matches,
-      fetchHandler: rpcFetchHandler(channel, handler),
+      fetchHandler: rpcFetchHandler(channel, handler, this.operator),
     }
     return owner.effect(() => {
       if (this.interceptors.has(channel)) {
@@ -255,6 +268,7 @@ export class HostConnectionService extends Service implements HostConnectionHand
 function rpcFetchHandler(
   channel: string,
   handler: ConnectionRpcHandler,
+  peer: PeerScope,
 ): ConnectionFetchHandler {
   return {
     requestBodyMode: () => 'buffered',
@@ -290,7 +304,7 @@ function rpcFetchHandler(
       }
 
       try {
-        const result = await handler(endpoint, message.payload, request.signal)
+        const result = await handler(endpoint, message.payload, request.signal, peer)
         return fullResponse(message.rpcId, result)
       } catch (error) {
         return new Response(`handler failure: ${String(error)}`, { status: 500 })

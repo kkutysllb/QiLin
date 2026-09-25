@@ -7,10 +7,10 @@
 
 import { BlockAssembler } from '@qilin/llm'
 import type { Context } from '@qilin/kylin'
-import type { FinishReason, GenerateOptions, Message, TokenUsage } from '@qilin/llm'
+import type { AssistantMessage, FinishReason, GenerateOptions, TokenUsage } from '@qilin/llm'
 
 export interface AssembledResult {
-  message: Message
+  message: AssistantMessage
   usage?: TokenUsage
   finish: FinishReason
 }
@@ -21,7 +21,6 @@ export async function assemble(ctx: Context, options: Omit<GenerateOptions, 'pro
   for await (const chunk of ctx.llm.stream(request)) assembler.push(chunk)
   return {
     message: assembler.message({
-      kind: 'model',
       provider: request.provider,
       model: request.model,
       ...assembler.replayState === undefined ? {} : { replayState: assembler.replayState },

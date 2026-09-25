@@ -26,10 +26,10 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "zustand": "~4.4.7",
     "immer": "^10.1.1"
   },

@@ -57,32 +57,32 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:^",
-    "@qilin/lazy-require": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/deque": "workspace:*",
+    "@qilin/lazy-require": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
+    "@xterm/headless": "^6.0.0",
+    "@xterm/addon-serialize": "^0.14.0",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/api-gateway": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/client-store": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-projection": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/util-crypto": "workspace:^",
-    "@xterm/headless": "^6.0.0",
-    "@xterm/addon-serialize": "^0.14.0"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/api-gateway": "workspace:*",
+    "@qilin/brand": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/util-crypto": "workspace:*"
   },
   "files": [
     "lib/index.js",

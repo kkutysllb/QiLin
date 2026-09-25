@@ -31,31 +31,31 @@
   "license": "MIT",
   "dependencies": {
     "@vscode/ripgrep": "^1.18.0",
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/output-retention": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/spill": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/output-retention": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/spill": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/output-retention": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/spill": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/scope": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/output-retention": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/spill": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/scope": "workspace:*"
   }
 }

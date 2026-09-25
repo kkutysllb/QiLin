@@ -54,7 +54,7 @@ function listState(state: Partial<SessionListState>): SessionListState {
     ids: [SESSION],
     byId: {},
     phase: 'ready',
-    subagentsByParent: {},
+    projectionsBySession: {},
     jobsBySession: {},
     ...state,
   }

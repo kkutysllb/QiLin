@@ -30,15 +30,15 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/scope": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/scope": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

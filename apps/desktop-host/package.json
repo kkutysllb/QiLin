@@ -10,15 +10,15 @@
     "lib/index.js"
   ],
   "dependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/cli": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/app-boot": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/host-webserver": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
-    "@qilin/jobs": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/skill-office": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/cli": "workspace:*",
+    "@qilin/agent": "workspace:*",
+    "@qilin/app-boot": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/host-webserver": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
+    "@qilin/jobs": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/skill-office": "workspace:*"
   }
 }

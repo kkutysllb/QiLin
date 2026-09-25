@@ -30,14 +30,14 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

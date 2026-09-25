@@ -22,10 +22,10 @@
 - button "3 tool calls" [expanded]:
   - text: 3 tool calls
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - button "Think I will inspect the current Session's dynamic Cordis Plugins before defining the snapshot Package.":
   - img
   - img

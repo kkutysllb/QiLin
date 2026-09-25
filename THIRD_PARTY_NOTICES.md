@@ -81,6 +81,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`@trycua/cua-driver`](https://github.com/trycua/cua) | MIT |
 | [`@vscode/ripgrep`](https://github.com/microsoft/vscode-ripgrep) | MIT |
 | [`@xterm/addon-fit`](https://github.com/xtermjs/xterm.js/tree/master/addons/addon-fit) | MIT |
+| [`@xterm/addon-serialize`](https://github.com/xtermjs/xterm.js/tree/master/addons/addon-serialize) | MIT |
 | [`@xterm/headless`](https://github.com/xtermjs/xterm.js) | MIT |
 | [`@xterm/xterm`](https://github.com/xtermjs/xterm.js) | MIT |
 | [`@yarnpkg/parsers`](https://github.com/yarnpkg/berry) | BSD-2-Clause |
@@ -127,6 +128,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`resolve.exports`](https://github.com/lukeed/resolve.exports) | MIT |
 | [`semver`](https://github.com/npm/node-semver) | ISC |
 | [`sharp`](https://github.com/lovell/sharp) | Apache-2.0 |
+| [`sherpa-onnx-node`](https://github.com/csukuangfj/sherpa-onnx) | Apache-2.0 |
 | [`shiki`](https://github.com/shikijs/shiki) | MIT |
 | [`simple-icons`](https://github.com/simple-icons/simple-icons) | CC0-1.0 |
 | [`supports-color`](https://github.com/chalk/supports-color) | MIT |
@@ -210,7 +212,6 @@ External packages **directly declared** for development, tests, types, or toolin
 | [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react) | MIT |
 | [`@vitest/coverage-v8`](https://github.com/vitest-dev/vitest) | MIT |
 | [`@vitest/spy`](https://github.com/vitest-dev/vitest) | MIT |
-| [`@xterm/addon-serialize`](https://github.com/xtermjs/xterm.js/tree/master/addons/addon-serialize) | MIT |
 | [`@yao-pkg/pkg`](https://github.com/yao-pkg/pkg) | MIT |
 | [`@yarnpkg/cli-dist`](https://github.com/yarnpkg/berry) | BSD-2-Clause |
 | [`app-builder-lib`](https://github.com/electron-userland/electron-builder) | MIT |

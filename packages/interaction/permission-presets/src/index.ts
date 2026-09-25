@@ -301,7 +301,11 @@ export class PermissionPresetService extends TypertRemoteService {
    */
   @Remote('catalog')
   catalog(): PermissionCatalog {
-    return { options: this.names.map(name => this.optionOf(name)) }
+    return {
+      options: this.names.map(name => this.optionOf(name)),
+      defaultOptions: Object.keys(this.presets).map(name => this.optionOf(name)),
+      defaultPreset: this.defaultSettings().defaultPreset,
+    }
   }
 
   /**

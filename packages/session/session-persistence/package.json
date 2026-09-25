@@ -30,19 +30,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/timeout": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/timeout": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/timeout": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/timeout": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^"
+    "@qilin/util-values": "workspace:*"
   }
 }

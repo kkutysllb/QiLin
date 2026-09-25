@@ -30,32 +30,32 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/web": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/llm": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/web": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "@joplin/turndown-plugin-gfm": "^1.0.67",
     "turndown": "^7.2.4"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/spill-local": "workspace:^",
-    "@qilin/spill-policy": "workspace:^",
-    "@qilin/system-prompt": "workspace:^",
-    "@qilin/tool-call-timeout-policy": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/web": "workspace:^",
-    "@qilin/web-fetch-http": "workspace:^",
-    "@qilin/web-search-exa": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/spill-local": "workspace:*",
+    "@qilin/spill-policy": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tool-call-timeout-policy": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/web": "workspace:*",
+    "@qilin/web-fetch-http": "workspace:*",
+    "@qilin/web-search-exa": "workspace:*",
     "@types/turndown": "^5.0.6",
-    "@qilin/scope": "workspace:^"
+    "@qilin/scope": "workspace:*"
   }
 }

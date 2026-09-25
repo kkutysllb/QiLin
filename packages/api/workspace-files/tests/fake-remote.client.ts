@@ -3,7 +3,7 @@
  * opened `changes` generation, and a supervisor that runs one generation and
  * classifies its end the way the real one does.
  */
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { RemoteResult, RemoteStreamHandle } from '@qilin/typert-protocol'
 import type { SessionId } from '@qilin/session/types'
 import type { WorkspaceFileWatchFrame, WorkspaceFileStat } from '../src/types.ts'
 import type { SupervisedStream, SupervisedStreamOptions, WorkspaceFilesRemote } from '../src/client/remote.ts'
@@ -154,7 +154,7 @@ export class FakeRemote implements WorkspaceFilesRemote {
         for (const waiter of this.statWaiters.get(index) ?? []) waiter(stat)
         this.statWaiters.delete(index)
       }),
-    changes: (sessionId: SessionId, signal?: AbortSignal): AsyncIterable<WorkspaceFileWatchFrame> => {
+    changes: (sessionId: SessionId, signal?: AbortSignal): RemoteStreamHandle<WorkspaceFileWatchFrame, never> => {
       this.calls.push('changes')
       if (signal === undefined) throw new Error('the feed must hand its signal to the Host stream')
       const source = new Source<WorkspaceFileWatchFrame>(signal)
@@ -164,7 +164,12 @@ export class FakeRemote implements WorkspaceFilesRemote {
       for (const waiter of this.watchWaiters.get(index) ?? []) waiter(watch)
       this.watchWaiters.delete(index)
       if (this.autoReady) source.push({ kind: 'ready' })
-      return source
+      return {
+        [Symbol.asyncIterator]: () => source[Symbol.asyncIterator](),
+        send: () => undefined,
+        end: () => undefined,
+        dispose: () => undefined,
+      }
     },
   }
 }

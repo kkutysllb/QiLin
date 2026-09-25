@@ -30,17 +30,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/skill": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/skill": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/skill": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^"
+    "@qilin/skill": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@deepseek-ai/libreoffice-kit": "^0.1.0",
+    "@qilin/schemastery": "workspace:~",
     "yaml": "^2.4.2"
   }
 }

@@ -33,7 +33,7 @@ describe('localPathMediaUrl', () => {
     expect(localPathMediaUrl('http:', ORIGIN, '')).toBeUndefined()
     expect(localPathMediaUrl('http:', ORIGIN, '//cdn.example.com/x.png')).toBeUndefined()
     expect(localPathMediaUrl('http:', ORIGIN, 'relative.png')).toBeUndefined()
-    expect(localPathMediaUrl('http:', ORIGIN, 'C:\\tmp\\x.png')).toBeUndefined()
+    expect(new URL(localPathMediaUrl('http:', ORIGIN, 'C:\\tmp\\x.png')!).searchParams.get('path')).toBe('C:\\tmp\\x.png')
   })
 
   it('encodes the full path including spaces', () => {
@@ -71,4 +71,13 @@ describe('AssistantMarkdown local-path images', () => {
     expect(container.querySelector('img')).toBeNull()
     expect(container.textContent).toContain('diagram')
   })
+})
+
+it('decodes Markdown URL escapes once before encoding the file query', () => {
+  for (const [authored, path] of [
+    ['/work/test%20workspace/图.png', '/work/test workspace/图.png'],
+    ['/work/100%25%23.png', '/work/100%#.png'],
+    ['/work/literal%2520.png', '/work/literal%20.png'],
+  ]) expect(new URL(localPathMediaUrl('http:', ORIGIN, authored!)!).searchParams.get('path')).toBe(path)
+  expect(localPathMediaUrl('http:', ORIGIN, '/work/bad%escape.png')).toBeUndefined()
 })

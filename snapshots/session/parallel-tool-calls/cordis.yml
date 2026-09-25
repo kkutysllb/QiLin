@@ -10,7 +10,7 @@
 - id: spill-policy
   name: '@qilin/spill-policy'
   config:
-    maxInlineBytes: !!js process.env.QILIN_SNAPSHOT && 800 || 50000
+    maxInlineTokens: !!js process.env.QILIN_SNAPSHOT && 200 || 12500
 
 - insert:
     - id: snapshot-spill-locators

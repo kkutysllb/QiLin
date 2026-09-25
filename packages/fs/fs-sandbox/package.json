@@ -30,18 +30,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/fs": "workspace:^",
-    "@qilin/fs-local": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/fs": "workspace:*",
+    "@qilin/fs-local": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/fs": "workspace:^",
-    "@qilin/fs-local": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/fs": "workspace:*",
+    "@qilin/fs-local": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/session-projection": "workspace:*"
   }
 }

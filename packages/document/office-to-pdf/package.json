@@ -47,21 +47,21 @@
     "lib/typert.remote-client.d.ts"
   ],
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/api-workspace-files": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/api-workspace-files": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/session": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/libreoffice-kit": "0.0.1",
-    "@qilin/schemastery": "workspace:^",
-    "@qilin/brand": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
+    "@deepseek-ai/libreoffice-kit": "^0.1.0",
+    "@qilin/schemastery": "workspace:~",
+    "@qilin/brand": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
     "zod": "^4.4.3"
   }
 }

@@ -55,24 +55,24 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/deque": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3",
-    "@qilin/fs": "workspace:^"
+    "@qilin/fs": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/api-gateway": "workspace:^",
-    "@qilin/client-resources": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/session-persistence": "workspace:^",
-    "@qilin/util-workspace-path": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-gateway": "workspace:*",
+    "@qilin/client-resources": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-persistence": "workspace:*",
+    "@qilin/util-workspace-path": "workspace:*"
   },
   "files": [
     "lib/index.js",

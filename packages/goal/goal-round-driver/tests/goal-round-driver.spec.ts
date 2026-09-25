@@ -8,9 +8,16 @@ import GoalService, { GoalId } from '@qilin/goal'
 import type { GoalView } from '@qilin/goal'
 import { createUserMessage, LlmAdapter, LlmError  } from '@qilin/llm'
 import type { GenerateOptions, StreamChunk } from '@qilin/llm'
+import type { ContextFormed } from '@qilin/llm'
 import { SessionId } from '@qilin/session'
 import type { UserMessage } from '@qilin/session'
 import * as goalSession from '../src/index.ts'
+
+declare module '@qilin/llm' {
+  interface MessageSourceMap {
+    'test': { kind: 'test' } & ContextFormed
+  }
+}
 
 type ScriptEntry = StreamChunk[] | Error | 'hang' | ((options: GenerateOptions) => StreamChunk[])
 
@@ -481,7 +488,7 @@ describe('same-session goal driving', () => {
     const test = await harness([textResponse('side contexts'), textResponse('revised goal')])
     const claimedContext = createUserMessage({
       content: [{ type: 'text', text: 'claimed context to restore' }],
-      source: { kind: 'plugin', plugin: 'test' },
+      source: { kind: 'test' },
     })
     const roundZeroContext = createUserMessage({
       content: [{ type: 'text', text: 'obsolete goal context' }],
@@ -489,11 +496,11 @@ describe('same-session goal driving', () => {
     })
     const queuedStepContext = createUserMessage({
       content: [{ type: 'text', text: 'context already queued for the next step' }],
-      source: { kind: 'plugin', plugin: 'test' },
+      source: { kind: 'test' },
     })
     const queuedTurnContext = createUserMessage({
       content: [{ type: 'text', text: 'context already queued for the next turn' }],
-      source: { kind: 'plugin', plugin: 'test' },
+      source: { kind: 'test' },
     })
     let staged = false
     const stopInserted = onInboxMessage(test.ctx, test.agent, (message) => {

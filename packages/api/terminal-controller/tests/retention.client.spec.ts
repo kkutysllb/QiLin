@@ -3,15 +3,21 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { createSnapshotStore } from '@qilin/client-store'
 import { RemoteStream, type ClientRemote } from '@qilin/api-gateway/client'
 import type { SessionId } from '@qilin/session/types'
+import { streamMethod } from './stream-method.client.ts'
 import type { TerminalRemote } from '../src/client/model.ts'
 import { TerminalWindowHold } from '../src/client/retention.ts'
 import type { TerminalRetentionFrame, WebTerminalId } from '../src/types.ts'
 
 const holds: TerminalWindowHold[] = []
 afterEach(async () => { await Promise.all(holds.splice(0).map(hold => hold.dispose())) })
-function hold(retain: TerminalRemote['retain']) {
+function hold(retain: Parameters<typeof streamMethod<TerminalRemote['retain']>>[0]) {
   const gateway: Pick<ClientRemote, '$stream'> = { $stream: options => new RemoteStream({ generation: createSnapshotStore(undefined) }, options) }
-  const held = new TerminalWindowHold(gateway, { retain } as TerminalRemote, 'session' as SessionId, 'terminal' as WebTerminalId)
+  const held = new TerminalWindowHold(
+    gateway,
+    { retain: streamMethod<TerminalRemote['retain']>(retain) } as TerminalRemote,
+    'session' as SessionId,
+    'terminal' as WebTerminalId,
+  )
   holds.push(held)
   return held
 }

@@ -5,11 +5,18 @@ import { Context } from '@qilin/kylin'
 import AgentRegistry, { type Agent, type AssistantStreamFrame } from '@qilin/agent'
 import SessionStore from '@qilin/session'
 import { LlmAttemptId, ToolCallId, createMessage, createToolResultMessage, createUserMessage } from '@qilin/llm'
+import type { MessageSource } from '@qilin/llm'
 import type { Session, SessionEvent, SessionId } from '@qilin/session'
 import { SessionHistoryController } from '@qilin/api-session-controller/src/history.ts'
 import type { SessionFollowFrame, SessionPage, SessionWireEvent } from '@qilin/api-session-controller/types'
 import { createSessionTestRemote, installSessionReadTestServices } from './test-remote.ts'
 
+type CheckpointSource = Extract<MessageSource, { readonly kind: 'compact-checkpoint' }>
+
+/** Build a typed checkpoint source for a journal fixture without owning compaction. */
+function checkpointSource(compactionId: string): CheckpointSource {
+  return { kind: 'compact-checkpoint', compactionId: compactionId as CheckpointSource['compactionId'] }
+}
 /** Append a production-shaped human prompt to the session surface. */
 function appendUserText(session: Session, text: string): SessionEvent {
   return session.append('user/message', createUserMessage({
@@ -768,7 +775,7 @@ describe('Session history raw journal', () => {
     })
     session.append('user/message', createUserMessage({
       content: [{ type: 'text', text: '<context_checkpoint>summary</context_checkpoint>' }],
-      source: { kind: 'plugin', plugin: 'compact' },
+      source: checkpointSource('journal-compaction'),
     }), {
       surfaceOp: { op: 'replace', startSeq: shadowedStart, endSeq: shadowedEnd },
       sourceEventSeqs: [...shadowed, summary.seq],

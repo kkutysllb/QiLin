@@ -39,12 +39,12 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/tool-kylin": "workspace:^",
-    "@qilin/typert-registry": "workspace:^",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/tool-kylin": "workspace:*",
+    "@qilin/typert-registry": "workspace:*",
+    "@qilin/kylin": "workspace:~",
     "zod": "^4.4.3"
   }
 }

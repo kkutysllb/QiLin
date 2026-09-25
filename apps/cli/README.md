@@ -42,6 +42,8 @@ qilin --help                          # the launcher's own help
 
 A profile directory holds a `package.json` (out-of-tree plugin dependencies plus the profile manifest `qilin.profile` with its ordered `bundles` list) and a `cordis.patch.yml` (the user's own patch layer). `qilin-hmr`, when enabled in YAML, watches the profile manifest and both profile and home patch files, then recomposes all layers through one serialized reload. Without HMR, changes apply on restart. Edits arriving during watcher registration use the same nonfatal reload reporting as later edits. [Plugin Manager](../../packages/boot/plugin-manager/README.md) shares package operations and the profile write lock with `qilin plugin`; package updates retain disabled bundle selections. CLI package commands inherit authentication variables and terminal descriptors, including interactive build approval; service calls retain their scrubbed environment and captured diagnostics.
 
+Installation and profile startup enforce declared qilin peer ranges against the same runtime version `qilin --version` prints. Incompatible plugins require an explicitly acknowledged exact-version exemption, which `qilin plugin allow-version`, `revoke-version`, and `version-exemptions` manage for one profile. The [plugin manager's compatibility reference](../../packages/boot/plugin-manager/README.md#version-compatibility-and-exemptions) documents the commands, persistence, and risks.
+
 The tree composes over an empty root:
 - each bundle's patch in `qilin.profile.bundles` order
 - then the profile's `cordis.patch.yml`, then the home-level `$QILIN_HOME/cordis.patch.yml`

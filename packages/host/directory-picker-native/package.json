@@ -35,15 +35,15 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/host-directory-picker": "workspace:^",
-    "@qilin/native-command": "workspace:^",
+    "@qilin/host-directory-picker": "workspace:*",
+    "@qilin/native-command": "workspace:*",
     "koffi": "^3.1.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "tsx": "^4.19.2"
   }
 }

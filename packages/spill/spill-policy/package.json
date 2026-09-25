@@ -1,6 +1,6 @@
 {
   "name": "@qilin/spill-policy",
-  "description": "Tool-result spill policy for the QiLin — replaces oversized plain-text tool results with a retained preview plus a spill-file path (no service API)",
+  "description": "Token-budgeted tool-result retention with recoverable text and image paths",
   "version": "3.0.4",
   "publishConfig": {
     "access": "public"
@@ -35,29 +35,42 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/llm": "workspace:^",
-    "@qilin/output-retention": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/spill": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/llm": "workspace:*",
+    "@qilin/output-retention": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/spill": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/token-meter": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:^",
-    "@qilin/ptc-runtime-node": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/output-retention": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/spill": "workspace:^",
-    "@qilin/tools": "workspace:^",
-    "@qilin/kylin": "workspace:^",
-    "@qilin/fs-local": "workspace:^",
-    "@qilin/subprocess-local": "workspace:^",
-    "@qilin/sandbox-local": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^",
-    "@qilin/session-projection": "workspace:^"
+    "@qilin/agent": "workspace:*",
+    "@qilin/ptc-runtime-node": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/output-retention": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/spill": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/fs-local": "workspace:*",
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/sandbox-local": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/token-meter": "workspace:*",
+    "@qilin/mcp-client": "workspace:*",
+    "@qilin/spill-local": "workspace:*",
+    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/attachment-local": "workspace:*",
+    "@qilin/tool-fs": "workspace:*",
+    "sharp": "^0.35.3"
   }
 }

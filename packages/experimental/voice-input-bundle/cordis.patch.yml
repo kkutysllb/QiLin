@@ -1,0 +1,13 @@
+- insert:
+    - id: speech-to-text
+      name: '@qilin/experimental-speech-to-text'
+      config:
+        defaultProvider: sensevoice-local
+    - id: speech-to-text-sensevoice
+      name: '@qilin/experimental-speech-to-text-sensevoice'
+      config:
+        dataRoot: !!js qilinHomePath('speech-to-text', 'sensevoice')
+    - id: api-speech-to-text
+      name: '@qilin/experimental-api-speech-to-text'
+    - id: ui-voice-input
+      name: '@qilin/experimental-client-ui-voice-input'

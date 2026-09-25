@@ -29,13 +29,14 @@
     "@vitest/spy": "^4.1.8"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/typert-protocol": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/api-settings-controller": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/typert-protocol": "workspace:^",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-settings-controller": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*",
     "typescript": "^6.0.3"
   },
   "files": [

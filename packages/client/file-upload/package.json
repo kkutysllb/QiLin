@@ -66,22 +66,22 @@
   ],
   "dependencies": {
     "zod": "^4.4.3",
-    "@qilin/typert-protocol": "workspace:^",
-    "@qilin/brand": "workspace:^"
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/brand": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/scope": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/scope": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/agent": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/commands": "workspace:^",
-    "@qilin/scope": "workspace:^",
-    "@qilin/util-crypto": "workspace:^",
-    "@qilin/api-remotes": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/attachment": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/agent": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/commands": "workspace:*",
+    "@qilin/scope": "workspace:*",
+    "@qilin/util-crypto": "workspace:*",
+    "@qilin/api-remotes": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/attachment": "workspace:*"
   }
 }

@@ -30,21 +30,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/ssh": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/ssh": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/ssh": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/sandbox": "workspace:^",
-    "@qilin/sandbox-policy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/ssh": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
+    "@qilin/sandbox-policy": "workspace:*"
   }
 }

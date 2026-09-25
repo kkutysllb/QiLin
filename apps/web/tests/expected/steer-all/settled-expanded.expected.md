@@ -15,10 +15,10 @@
 - button "1 tool call" [expanded]:
   - text: 1 tool call
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - button "Think The user wants me to ask them a checkpoint question first, then continue with whatever they interject. Let me do exactly that.":
   - img
   - img

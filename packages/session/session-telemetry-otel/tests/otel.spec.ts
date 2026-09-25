@@ -47,17 +47,17 @@ interface OtlpLogsRequest {
 const servers: Server[] = []
 
 // The backend resolves the harness home's anonymous user id at construction;
-// pin QILIN_HOME to a temp dir so the suite never touches the ambient ~/.qilin.
+// pin QILIN_HOME to a temp dir so the suite never touches the ambient ~/.dsh.
 let tempHome: string
-let previousQilinHome: string | undefined
+let previousDshHome: string | undefined
 beforeAll(() => {
   tempHome = mkdtempSync(join(tmpdir(), 'qilin-otel-home-'))
-  previousQilinHome = process.env.QILIN_HOME
+  previousDshHome = process.env.QILIN_HOME
   process.env.QILIN_HOME = tempHome
 })
 afterAll(() => {
-  if (previousQilinHome === undefined) delete process.env.QILIN_HOME
-  else process.env.QILIN_HOME = previousQilinHome
+  if (previousDshHome === undefined) delete process.env.QILIN_HOME
+  else process.env.QILIN_HOME = previousDshHome
   rmSync(tempHome, { recursive: true, force: true })
 })
 
@@ -571,9 +571,13 @@ describe('OpenTelemetrySessionBackend route and feedback', () => {
       const session = ctx.sessions.create(SessionId('live-ratings'))
       const handle = await ctx.sessionPersistence.create(session.header)
       try {
+        session.append('turn/start', { turn: 1 })
+        session.append('step/start', { turn: 1, step: 1 })
         if (provider !== undefined) session.append('request/header', { header: { config: { provider, model: 'm' } }, reason: 'initial' })
         const message = createAssistantMessage({ content: [{ type: 'text', text: 'answer' }], source: { provider: provider ?? 'mock', model: 'm' } })
         session.append('assistant/message', { message, stream: [], turn: 1, step: 1 }, { surfaceOp: 'append' })
+        session.append('step/end', { turn: 1, step: 1 })
+        session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
         const request = { sessionId: session.id, messageId: message.id, rating: 'positive' as const, ifVersion: null }
         const before = session.seq
         expect((await ctx.messageFeedback.put({ ...request, note: ' ' })).ok).toBe(false)
@@ -639,9 +643,13 @@ describe('OpenTelemetrySessionBackend route and feedback', () => {
       await ctx.plugin(MessageFeedbackService, { maxNoteBytes: 1024 })
       await ctx.plugin(OpenTelemetrySessionBackend, { mode, exporter: { url }, processor: { scheduledDelayMillis: 1 } })
       const parent = Session.create(SessionId('cold-parent'))
+      parent.append('turn/start', { turn: 1 })
+      parent.append('step/start', { turn: 1, step: 1 })
       parent.append('request/header', { header: { config: { provider: 'mock', model: 'm' } }, reason: 'initial' })
       const message = createAssistantMessage({ content: [{ type: 'text', text: 'inherited answer' }], source: { provider: 'mock', model: 'm' } })
       parent.append('assistant/message', { message, stream: [], turn: 1, step: 1 }, { surfaceOp: 'append' })
+      parent.append('step/end', { turn: 1, step: 1 })
+      parent.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
       const child = Session.create(SessionId('cold-child'), parent.snapshotEvents(), {
         ...parent.header, id: SessionId('cold-child'), parentSession: parent.id, isSeeded: true,
       }, parent.seq)
@@ -669,7 +677,8 @@ describe('OpenTelemetrySessionBackend route and feedback', () => {
       rmSync(root, { recursive: true, force: true })
     }
     expect(eventTypes(captures)).toEqual([
-      'request/header', 'assistant/message', 'session/end-seed', 'feedback/record', 'feedback/message-put',
+      'turn/start', 'step/start', 'request/header', 'assistant/message', 'step/end', 'turn/end',
+      'session/end-seed', 'feedback/record', 'feedback/message-put',
     ])
     expect(allRecords(captures).some(record => record.scope.endsWith('/ops'))).toBe(false)
   })
@@ -690,9 +699,13 @@ describe('OpenTelemetrySessionBackend route and feedback', () => {
       await ctx.plugin(MessageFeedbackService, { maxNoteBytes: 1024 })
       await ctx.plugin(OpenTelemetrySessionBackend, { mode, exporter: { url }, processor: { scheduledDelayMillis: 1 } })
       const session = Session.create(SessionId('cold-feedback'))
+      session.append('turn/start', { turn: 1 })
+      session.append('step/start', { turn: 1, step: 1 })
       if (provider !== undefined) session.append('request/header', { header: { config: { provider, model: 'm' } }, reason: 'initial' })
       const message = createAssistantMessage({ content: [{ type: 'text', text: 'answer' }], source: { provider: provider ?? 'mock', model: 'm' } })
       session.append('assistant/message', { message, stream: [], turn: 1, step: 1 }, { surfaceOp: 'append' })
+      session.append('step/end', { turn: 1, step: 1 })
+      session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
       const handle = await ctx.sessionPersistence.create(session.header)
       try {
         await handle.append(session.snapshotEvents())
@@ -799,7 +812,7 @@ describe('OpenTelemetrySessionBackend config fails loud', () => {
       get shutdownTimeoutMillis() {
         return transportRead()
       },
-    } as unknown as Config
+    } as Config
 
     new OpenTelemetrySessionBackend(ctx, config)
     expect(transportRead).not.toHaveBeenCalled()

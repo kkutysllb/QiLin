@@ -30,18 +30,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/typert-registry": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/typert-registry": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:^"
+    "@qilin/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/app-boot": "workspace:^",
-    "@qilin/kylin-plugin-loader": "workspace:^",
-    "@qilin/typert-registry": "workspace:^",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/app-boot": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/typert-registry": "workspace:*",
+    "@qilin/kylin": "workspace:~",
     "zod": "^4.4.3"
   }
 }

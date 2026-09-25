@@ -45,20 +45,20 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/lazy-require": "workspace:^",
-    "@qilin/win32-process": "workspace:^",
+    "@qilin/lazy-require": "workspace:*",
+    "@qilin/win32-process": "workspace:*",
     "koffi": "^3.1.0",
     "node-pty": "1.2.0-beta.15"
   },
   "devDependencies": {
-    "@qilin/loader-smoke": "workspace:^",
-    "@qilin/subprocess": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/loader-smoke": "workspace:*",
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

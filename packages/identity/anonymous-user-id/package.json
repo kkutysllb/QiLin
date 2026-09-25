@@ -30,13 +30,13 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/home-paths": "workspace:^",
-    "@qilin/kylin": "workspace:^"
+    "@qilin/brand": "workspace:*",
+    "@qilin/home-paths": "workspace:*",
+    "@qilin/kylin": "workspace:~"
   }
 }

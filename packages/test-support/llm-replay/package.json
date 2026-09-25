@@ -30,11 +30,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/compaction": "workspace:^",
-    "@qilin/deepseek-llm-api-extensions": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/compaction": "workspace:*",
+    "@qilin/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@qilin/deepseek-llm-api-extensions": {
@@ -42,14 +42,14 @@
     }
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/compaction": "workspace:^",
-    "@qilin/deepseek-llm-api-extensions": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/session": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/compaction": "workspace:*",
+    "@qilin/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/session": "workspace:*"
   },
   "dependencies": {
-    "@qilin/session-format-catalog": "workspace:^",
-    "@qilin/util-values": "workspace:^"
+    "@qilin/session-format-catalog": "workspace:*",
+    "@qilin/util-values": "workspace:*"
   }
 }

@@ -199,7 +199,7 @@ function standaloneDuration(): Pick<
 /** Empty sessions-list hook; breadcrumbs therefore fall back to the raw id. */
 function emptySessions() {
   const store = createSnapshotStore<SessionListState>(
-    { ids: [], byId: {}, phase: 'ready', subagentsByParent: {}, jobsBySession: {} })
+    { ids: [], byId: {}, phase: 'ready', projectionsBySession: {}, jobsBySession: {} })
   return bindSnapshotSelector(store)
 }
 
@@ -241,6 +241,8 @@ function standaloneProps(
     draft: '', attachmentIds: [], draftRev: 0, phase: 'plain', occurrences: [], queue: [],
   })
   const inputActions: InputActions = {
+    captureInsertion: () => ({ start: 0, end: 0, draftRev: 0 }),
+    insertText: () => false,
     setDraft: () => {},
     addAttachments: () => false,
     removeAttachment: () => {},
@@ -383,6 +385,8 @@ function mount(
     draft: '', attachmentIds: [], draftRev: 0, phase: 'plain', occurrences: [], queue: [],
   }))
   const inputActions: InputActions = {
+    captureInsertion: () => ({ start: 0, end: 0, draftRev: 0 }),
+    insertText: () => false,
     setDraft: vi.fn(),
     addAttachments: vi.fn(() => false),
     removeAttachment: vi.fn(),
@@ -1420,7 +1424,7 @@ describe('TrajectoryView state', () => {
       content: [],
       isError: false,
       subCalls: [{
-        callId: 'hidden-child', parentCallId: 'hidden-root', name: 'bash', argsRaw: '{}',
+        phase: 'start' as const, callId: 'hidden-child', parentCallId: 'hidden-root', name: 'bash', argsRaw: '{}',
         turn: 1, step: 1, time: 3, subCalls: [],
       }],
     }, 'hidden-child'],

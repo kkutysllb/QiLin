@@ -37,14 +37,14 @@
     }
   },
   "dependencies": {
-    "@qilin/experimental-client-ui-agent-team": "workspace:^"
+    "@qilin/experimental-client-ui-agent-team": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:^",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/kylin": "workspace:~",
     "js-yaml": "^4.2.0"
   }
 }

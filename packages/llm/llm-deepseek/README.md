@@ -132,12 +132,12 @@ The plugin is built on one explicit resolve step and one registration fact. `res
 | [`src/index.ts`](src/index.ts) | Settings, credentials, and provider registration |
 | [`src/config.ts`](src/config.ts) | Schema and request-local configuration resolution |
 | [`src/adapter.ts`](src/adapter.ts) | Protocol dispatch with frozen prepared-call configuration |
-| [`src/common/models.ts`](src/common/models.ts) | Shared model catalog |
-| [`src/common/model-info.ts`](src/common/model-info.ts) | Shared model capabilities and reasoning choices |
-| [`src/common/file-store.ts`](src/common/file-store.ts) | Shared Files cache, refresh, quota cleanup, and cancellation |
-| [`src/common/files-api.ts`](src/common/files-api.ts) | Protocol-specific Files endpoints and response mapping |
-| [`src/protocols/chat-completions/adapter.ts`](src/protocols/chat-completions/adapter.ts) | Chat transport, image projection, and request extensions |
-| [`src/protocols/messages/adapter.ts`](src/protocols/messages/adapter.ts) | Messages transport, image projection, request extensions, and native replay |
+| [`src/common/models.ts`](src/models.ts) | Shared model catalog |
+| [`src/common/model-info.ts`](src/model-info.ts) | Shared model capabilities and reasoning choices |
+| [`src/common/file-store.ts`](src/file-store.ts) | Shared Files cache, refresh, quota cleanup, and cancellation |
+| [`src/common/files-api.ts`](src/files-api.ts) | Protocol-specific Files endpoints and response mapping |
+| `src/protocols/chat-completions/adapter.ts` | Chat transport, image projection, and request extensions |
+| [`src/protocols/messages/adapter.ts`](src/adapter.ts) | Messages transport, image projection, request extensions, and native replay |
 
 ### Wire flow
 
@@ -210,7 +210,7 @@ These limits define where the adapter stops and future work begins. They are cur
 - **Plugin-added content block types are skipped** — core text and supported image blocks are serialized, and empty tool output crosses the wire as the literal `(no output)`.
 - **Images are input-only durable attachments** — direct external URLs and assistant image output are not supported; DeepSeek input normally uses the Files API and uses inline base64 only for per-request recovery.
 - The default catalog pre-registers `deepseek-flash` and its text/image and in-history capabilities without probing gateway availability. Requests can fail with `INVALID_REQUEST` until the gateway enables the id. With `DEEPSEEK_API_KEY` and a supporting gateway configured, `DEEPSEEK_FLASH_E2E=1` enables the Chat Completions check in [this package's e2e suite](tests/adapter.e2e.ts).
-- The [Messages system-update e2e checks](tests/messages/adapter.e2e.ts) require `DEEPSEEK_IN_HISTORY_MODEL` to name a supported model, such as `deepseek-flash`, and run with `high` effort. They skip when that variable is unset or empty; ordinary `off` text checks remain enabled with credentials. Known instruction-following instability with thinking disabled makes these system-update checks unsuitable for `off`.
+- The [Messages system-update e2e checks](tests/adapter.e2e.ts) require `DEEPSEEK_IN_HISTORY_MODEL` to name a supported model, such as `deepseek-flash`, and run with `high` effort. They skip when that variable is unset or empty; ordinary `off` text checks remain enabled with credentials. Known instruction-following instability with thinking disabled makes these system-update checks unsuitable for `off`.
 
 <a id="dev-note"></a>
 ### Dev Note

@@ -30,33 +30,33 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/attachment": "workspace:^",
-    "@qilin/authorization": "workspace:^",
-    "@qilin/credentials": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/launch-environment": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/settings": "workspace:^",
-    "@qilin/timeout": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/authorization": "workspace:*",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/launch-environment": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/settings": "workspace:*",
+    "@qilin/timeout": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:^",
-    "@qilin/util-values": "workspace:^",
-    "@qilin/schemastery": "workspace:^",
+    "@qilin/brand": "workspace:*",
+    "@qilin/util-values": "workspace:*",
+    "@qilin/schemastery": "workspace:~",
     "@earendil-works/pi-ai": "^0.85.1"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:^",
-    "@qilin/attachment": "workspace:^",
-    "@qilin/authorization": "workspace:^",
-    "@qilin/credentials": "workspace:^",
-    "@qilin/fs": "workspace:^",
-    "@qilin/launch-environment": "workspace:^",
-    "@qilin/llm": "workspace:^",
-    "@qilin/llm-deepseek": "workspace:^",
-    "@qilin/settings": "workspace:^",
-    "@qilin/timeout": "workspace:^",
-    "@qilin/http-proxy": "workspace:^"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/attachment": "workspace:*",
+    "@qilin/authorization": "workspace:*",
+    "@qilin/credentials": "workspace:*",
+    "@qilin/fs": "workspace:*",
+    "@qilin/launch-environment": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/llm-deepseek": "workspace:*",
+    "@qilin/settings": "workspace:*",
+    "@qilin/timeout": "workspace:*",
+    "@qilin/http-proxy": "workspace:*"
   }
 }

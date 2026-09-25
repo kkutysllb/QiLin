@@ -49,22 +49,22 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:^"
+    "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-remotes": "workspace:^",
-    "@qilin/client-connection": "workspace:^",
-    "@qilin/kylin-client-runner": "workspace:^",
-    "@qilin/client-locale": "workspace:^",
-    "@qilin/session": "workspace:^",
-    "@qilin/client-ui-primitives": "workspace:^",
-    "@qilin/client-ui-sidebar": "workspace:^",
-    "@qilin/client-ui-renderer": "workspace:^",
-    "@qilin/client-ui-session": "workspace:^",
-    "@qilin/client-ui-slots": "workspace:^",
-    "@qilin/client-ui-tool": "workspace:^",
+    "@qilin/api-remotes": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/kylin-client-runner": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-sidebar": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/client-ui-tool": "workspace:*",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:^",
+    "@qilin/kylin": "workspace:~",
     "react": "^18.2.0"
   },
   "files": [

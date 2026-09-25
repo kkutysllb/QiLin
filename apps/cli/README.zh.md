@@ -42,6 +42,8 @@ qilin --help                          # the launcher's own help
 
 profile 目录包含一个 `package.json`，其中记录树外插件依赖，以及 profile manifest（元数据清单）`qilin.profile`、其中按顺序排列的 `bundles` 列表；还包含一个 `cordis.patch.yml`，其中保存用户自己的 patch 层。在 YAML 中启用的 `qilin-hmr` 监视 profile manifest、profile 与 home 级 patch 文件，再通过统一串行重载重新组合所有层。未启用 HMR 时，更改在重启后生效。监听器注册期间发生的编辑与后续编辑使用相同的非致命重载错误报告。[插件管理器](../../packages/boot/plugin-manager/README.zh.md) 与 `qilin plugin` 共享包操作和 profile 写锁；更新依赖会保留已停用的组合包选择。CLI 包操作继承认证环境和终端描述符，支持交互式构建批准；service 调用保留清理后的环境并捕获诊断。
 
+安装与 profile 启动会用 `qilin --version` 打印的同一个运行时版本校验已声明的 qilin peer 范围。不兼容的插件必须显式确认精确版本豁免，`qilin plugin allow-version`、`revoke-version` 与 `version-exemptions` 按 profile 管理这些豁免。[插件管理器兼容性参考](../../packages/boot/plugin-manager/README.zh.md#version-compatibility-and-exemptions)记录了命令、持久化方式与风险。
+
 配置树以空根为起点，依次叠加以下配置层：
 - `qilin.profile.bundles` 中各组合包的 patch
 - profile 自身的 `cordis.patch.yml`，然后是 home 级的 `$QILIN_HOME/cordis.patch.yml`
