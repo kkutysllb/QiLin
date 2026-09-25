@@ -76,7 +76,9 @@ const CHROME_ROWS: readonly ChromeRow[] = [
   {
     file: CONVERSATION,
     selector: '.header',
-    markup: 'client/ui-conversation/src/client/skeleton/ConversationSession.tsx',
+    // The resident header owns the mark for the one header element: the
+    // Session-specific child renders inside it without a second chrome row.
+    markup: 'client/ui-conversation/src/client/skeleton/ConversationHeader.tsx',
     height: ['height', '48px'],
   },
   {

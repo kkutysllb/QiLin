@@ -11,7 +11,8 @@ import clsx from 'clsx'
 import {
   HoverCard, IconArchiveOutline20, IconBranchOutline16,
   IconEditOutline16, IconEllipsisOutline16, IconFolderClose16, IconFolderOpen16,
-  IconPlusOutline16, IconTrashOutline16, IconTriangleRightFill14, Menu, relativeTime,
+  IconPinFillRegular, IconPinOutlineRegular, IconPlusOutline16, IconTrashOutline16,
+  IconTriangleRightFill14, Menu, relativeTime,
   StateDot,
 } from '@qilin/client-ui-primitives'
 import type { StateDotState } from '@qilin/client-ui-primitives'
@@ -308,6 +309,16 @@ function SessionStatusDots({ statuses }: { statuses: readonly [SessionStatus, ..
   )
 }
 
+/** Non-interactive pinned-row marker; the enclosing row remains the only action. */
+function PinnedIndicator({ t }: { t: RowTranslate }) {
+  const label = t('row.pinned')
+  return (
+    <span className={css.pinIndicator} role="img" aria-label={label} title={label}>
+      <IconPinFillRegular size={14} />
+    </span>
+  )
+}
+
 /** Child seats a Session row renders: its leading decoration and hover-card section. */
 type SessionRowRenderSlots = PropsRenderSlots<'sidebar.session.row.leading' | 'sidebar.session.row.hover'>['renderSlot']
 
@@ -395,13 +406,15 @@ export function SearchResultItem({ result, currentId, onOpen, t }: {
  * @param props.onRename - open the session rename dialog (id + current title).
  * @param props.onFork - fork a session at its last completed turn.
  * @param props.onArchive - archive a session by id.
+ * @param props.onPin - pin a session by id (leading its group and the flat list).
+ * @param props.onUnpin - drop a session's pin.
  * @param props.onReveal - scroll this row into view after search navigation, then acknowledge it.
  * @param props.drag - optional row-drag target wiring; blank rows cannot start a drag.
  * @param props.t - the browser root's locale seat.
  * @returns the session row.
  */
 export function SessionNodeItem({
-  node, currentId, now, onOpen, onRename, onFork, onArchive, onReveal, drag, renderSlot, t,
+  node, currentId, now, onOpen, onRename, onFork, onArchive, onPin, onUnpin, onReveal, drag, renderSlot, t,
 }: {
   node: SessionNode
   currentId: string | undefined
@@ -413,6 +426,10 @@ export function SessionNodeItem({
   onFork: (id: SessionNode['id']) => void
   /** Archive this session (row menu action; commits without a dialog). */
   onArchive: (id: SessionNode['id']) => void
+  /** Pin this session ahead of unpinned rows (row menu and hover action). */
+  onPin: (id: SessionNode['id']) => void
+  /** Drop this session's pin (row menu and hover action). */
+  onUnpin: (id: SessionNode['id']) => void
   /** Scroll this row into view after search navigation, then acknowledge it. */
   onReveal?: (() => void) | undefined
   /** Present on reorderable-list rows so every row can remain a drop target. */
@@ -440,6 +457,13 @@ export function SessionNodeItem({
   // touches the session log, so it is not styled as destructive and needs no
   // confirmation dialog.
   const sessionMenuItems = [
+    // Pin leads the menu: it changes where the row sits, before any action on
+    // its content. Upstream's order is pin 100, rename 200, fork 300, archive 400.
+    {
+      id: 'pin',
+      label: t(row.pinned ? 'menu.unpinSession' : 'menu.pinSession'),
+      icon: row.pinned ? <IconPinFillRegular /> : <IconPinOutlineRegular />,
+    },
     { id: 'rename', label: t('rename'), icon: <IconEditOutline16 /> },
     { id: 'fork', label: t('menu.fork'), icon: <IconBranchOutline16 /> },
     // 20-native glyph in the menu's 16px icon slot (Menu.module.css .itemIcon).
@@ -502,14 +526,26 @@ export function SessionNodeItem({
           (rename/fork/archive) would all act on content that does not
           exist — both trailing cells stay off until the first prompt. */}
       {!row.blank && <span className={css.time}>{timeLabel(row.updatedAt, now, t)}</span>}
+      {/* Trails the time so the marker occupies the same right-edge cell as
+          the hover pin button that replaces it. */}
+      {row.pinned && !row.blank && <PinnedIndicator t={t} />}
       {!row.blank && (
         <span className={css.rowActions}>
+          <button
+            type="button"
+            className={css.iconButton}
+            aria-label={t(row.pinned ? 'actions.unpin' : 'actions.pin')}
+            onClick={(e) => { e.stopPropagation(); (row.pinned ? onUnpin : onPin)(node.id) }}
+          >
+            {row.pinned ? <IconPinFillRegular size={14} /> : <IconPinOutlineRegular size={14} />}
+          </button>
           <Menu
             open={menuOpen}
             onClose={() => { setMenuOpen(false) }}
             items={sessionMenuItems}
             onSelect={(id) => {
               setMenuOpen(false)
+              if (id === 'pin') (row.pinned ? onUnpin : onPin)(node.id)
               if (id === 'rename') onRename(node.id, row.title)
               if (id === 'fork') onFork(node.id)
               if (id === 'archive') onArchive(node.id)

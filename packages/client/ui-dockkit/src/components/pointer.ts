@@ -40,6 +40,12 @@ export function followPointer(element: HTMLElement, pointerId: number, followers
   capturePointer(element, pointerId)
   const controller = new AbortController()
   const { signal } = controller
+  // The marker names the gesture that currently owns the element. A superseding
+  // follower overwrites it; an older detach must not clear the newer marker.
+  element.dataset.dockkitPointer = String(pointerId)
+  signal.addEventListener('abort', () => {
+    if (element.dataset.dockkitPointer === String(pointerId)) delete element.dataset.dockkitPointer
+  }, { once: true })
   const own = (event: PointerEvent): boolean => event.pointerId === pointerId
   window.addEventListener('pointermove', (event) => { if (own(event)) followers.move(event) }, { signal })
   window.addEventListener('pointerup', (event) => {

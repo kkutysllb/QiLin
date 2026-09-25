@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { SessionSeq } from '@qilin/session/types'
 import type { MessageId } from '@qilin/llm/brand'
-import type { ConversationTimelineSnapshot, TurnLocation } from '@qilin/client-ui-conversation/client'
+import type { CommandNode, ConversationTimelineSnapshot, TurnLocation } from '@qilin/client-ui-conversation/client'
 import type { ChatNode } from '../src/client/contract/chat-nodes.ts'
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 import { ProcessState } from '../src/client/conversation-nodes/process-groups.ts'
@@ -36,6 +36,17 @@ function tool(key: string, seq: number, name = 'bash', owner = turn): ChatNode<'
     key, id: key, kind: 'tool-call', target: 'chat', anchorSeq: seq,
     location: { kind: 'turn', turn: owner }, visibility: 'visible',
     data: { root: { phase: 'start' as const, callId: key, name, argsRaw: '{"command":"pwd"}', turn: owner.turn, step: 1, time: seq, subCalls: [] } },
+  }
+}
+
+function command(name: string, seq: number): ChatNode<'command'> {
+  return {
+    key: `command:${name}`, id: `command:${name}`, kind: 'command', target: 'chat', anchorSeq: seq,
+    location: { kind: 'turn', turn }, visibility: 'visible',
+    data: {
+      kind: 'command', seq, time: seq, commandId: `command-${seq}` as CommandNode['commandId'],
+      name, args: '', outcome: { kind: 'success', text: 'done' },
+    },
   }
 }
 
@@ -368,6 +379,19 @@ describe('Definition-owned Chat process groups', () => {
     expect(h.store.entries).toHaveLength(1)
     expect(source.getSnapshot()).toBeUndefined()
     expect(h.builder.groupInput().order).toHaveLength(2)
+  })
+
+  it('renders a permission command as its own row instead of grouping it with process work', () => {
+    const h = harness([command('permission', 2), tool('a', 4), command('plan', 6)])
+    expect(h.store.entries.map(entry => entry.kind)).toEqual(['node', 'group'])
+    const group = h.store.entries[1]!
+    if (group.kind !== 'group') throw new Error('expected group')
+    // The visible plan command shares the process group; the permission command
+    // never joins it, so its own row survives the same Turn.
+    expect(h.store.groupSource(group.key).getSnapshot()?.members.map(member => member.key))
+      .toEqual(['a', 'command:plan'])
+    expect(h.store.entries[0]).toEqual({ kind: 'node', key: 'command:permission' })
+    expect(h.snapshot.nodes.get('command:permission')?.visibility).toBe('visible')
   })
 
   it('closes an active group on a lifecycle-only update', () => {

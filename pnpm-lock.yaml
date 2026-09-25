@@ -5117,6 +5117,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin/client-ui-workspace':
+        specifier: workspace:*
+        version: link:../ui-workspace
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -5511,6 +5514,9 @@ importers:
       '@qilin/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
+      '@qilin/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
       '@qilin/api-workspace-controller':
         specifier: workspace:*
         version: link:../../api/workspace-controller
@@ -5565,6 +5571,15 @@ importers:
       '@qilin/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
+      '@qilin/tool-jobs':
+        specifier: workspace:*
+        version: link:../../jobs/tool-jobs
+      '@qilin/tool-session-query':
+        specifier: workspace:*
+        version: link:../../session-query/tool-session-query
+      '@qilin/tool-terminal':
+        specifier: workspace:*
+        version: link:../../terminal/tool-terminal
       '@qilin/tools':
         specifier: workspace:*
         version: link:../../core/tools

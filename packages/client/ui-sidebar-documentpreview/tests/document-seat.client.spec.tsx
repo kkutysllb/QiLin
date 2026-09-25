@@ -37,6 +37,13 @@ async function boot() {
   const rt = await SlotTestRuntime.create()
   runtime = rt
   rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn() } as never)
+  // The retained Session Views follow the Workspace UI's main selection.
+  rt.ctx.provide('uiWorkspace', {
+    selection: {
+      getSnapshot: () => ({ sessionId: SESSION }),
+      subscribe: () => () => {},
+    },
+  } as never)
   const locale = new LocaleRuntime(rt.ctx)
   rt.ctx.provide('locale', locale)
   rt.slots.installLocale(locale)

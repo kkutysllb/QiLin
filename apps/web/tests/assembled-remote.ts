@@ -81,6 +81,7 @@ interface CapturedFixture {
     readonly value: {
       readonly items: readonly WorkspaceView[]
       readonly archivedSessionIds: readonly string[]
+      readonly pinnedSessionIds: readonly string[]
     }
   }
   readonly control: ControlBaseline
@@ -168,6 +169,7 @@ export function createAssembledRemote(options: AssembledRemoteOptions = {}): Ass
       value: {
         items: structuredClone(workspaces),
         archivedSessionIds: structuredClone(fixture.workspace.value.archivedSessionIds),
+        pinnedSessionIds: structuredClone(fixture.workspace.value.pinnedSessionIds),
       },
     })
   })

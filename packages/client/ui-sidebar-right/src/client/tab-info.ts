@@ -11,6 +11,8 @@ export interface TabHookContext {
   readonly tabId: TabId
   readonly title: boolean
   readonly fullscreen: boolean
+  /** Whether the owning View is the foreground Conversation's on-screen Sidebar. */
+  readonly active: boolean
   readonly signal: AbortSignal
   readonly actions: SidebarRightTabActions
   readonly useStore: PropsStore<ReturnType<typeof createSidebarRightStore>>['useStore']
@@ -25,7 +27,7 @@ export interface TabHookContext {
  */
 export const tabInfoFactory: SlotHookFactory<'sidebar.right.pane.tab', UseSidebarRightTabInfo> = (standard, context) => {
   const { sessionId } = standard
-  const { tabId, title, fullscreen, signal, actions, useStore, useTabNavigation } = context
+  const { tabId, title, fullscreen, active, signal, actions, useStore, useTabNavigation } = context
   return function useTabInfo() {
     const layout = useStore(state => state.bySession[sessionId]?.layout)
     const navigation = useTabNavigation(tabId)
@@ -40,13 +42,16 @@ export const tabInfoFactory: SlotHookFactory<'sidebar.right.pane.tab', UseSideba
         panel: { id: pane.id },
         tab: {
           ...tab,
-          visible: pane.host === 'float' || (layout.expanded && (title || pane.activeTabId === tabId)),
+          // A hidden View's docked bodies are off screen whatever the layout
+          // says, so visibility depends on the View being foreground too.
+          visible: active
+            && (pane.host === 'float' || (layout.expanded && (title || pane.activeTabId === tabId))),
           navigation,
           signal,
           actions,
         },
       }
-    }, [layout, navigation, tabId, title, fullscreen, signal, actions])
+    }, [layout, navigation, tabId, title, fullscreen, active, signal, actions])
   }
 }
 

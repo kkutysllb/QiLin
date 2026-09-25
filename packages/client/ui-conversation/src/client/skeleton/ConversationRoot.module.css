@@ -39,6 +39,22 @@
   margin-left: auto;
 }
 
+/* No Session is selected: the resident header keeps its leading navigation
+   seat and drops the row's title metrics. */
+.headerSessionless {
+  min-height: 0;
+  padding-bottom: 10px;
+}
+
+.headerSessionless .titleRow {
+  min-height: 0;
+}
+
+/* Only the macOS titlebar needs reserved drag space before a Session exists. */
+:global(html:not([data-platform='darwin'])) .headerSessionless {
+  padding-top: 0;
+}
+
 /* macOS hiddenInset titlebar: the header block owns the window drag over its
    own box — title row plus the view tab strip, so the draggable geometry is the
    header's geometry and no frame band has to match its height. The header marks

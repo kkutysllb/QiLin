@@ -191,6 +191,19 @@
   opacity: 1;
 }
 
+/* A receipt card reserves its top-right corner for the Inspect pill, so the
+   pill floats over the card instead of taking a line below it. */
+.detailsBodyWrap {
+  position: relative;
+}
+
+.detailsBodyWrap .inspectButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  margin: 0;
+}
+
 /* Solid hover fill (a translucent token would let content bleed through). */
 .inspectButton:hover {
   background: var(--dsw-alias-interactive-bg-hover-solid);

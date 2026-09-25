@@ -131,8 +131,17 @@ declare module '@qilin/client-ui-slots' {
       scope: 'session'
       owner: { view?: string }
     }
+    /** Resident navigation container, including when no Session is selected. */
+    'conversation.header': { kind: 'single'; scope: 'session-maybe' }
     /** Strict per-Session title, actions, and View navigation. */
-    'conversation.session.header': { kind: 'single'; scope: 'session' }
+    'conversation.session.header': {
+      kind: 'single'
+      scope: 'session'
+      owner: {
+        /** Parent-owned visibility shared with the header container styling. */
+        hideChrome: boolean
+      }
+    }
     /** Optional replacement for one Session breadcrumb title. */
     'conversation.session.header.lineage': {
       kind: 'single'
@@ -152,15 +161,14 @@ declare module '@qilin/client-ui-slots' {
       owner: ConversationHeaderActionOwnerProps
     }
     /**
-     * Leading seat before the Session breadcrumbs, for window-chrome-adjacent
-     * controls (macOS desktop sidebar reopen and New Session while the sidebar
-     * is hidden). The seat is laid out only while its occupant renders
-     * something, and it stays mounted through the blank-session state so a
-     * hidden sidebar always keeps a reopen control on screen.
+     * Global navigation before the Session title, available without a Session,
+     * for window-chrome-adjacent controls (macOS desktop sidebar reopen and
+     * New Session while the sidebar is hidden). The seat is laid out only while
+     * its occupant renders something.
      */
-    'conversation.session.header.leading': {
+    'conversation.header.leading': {
       kind: 'single'
-      scope: 'session'
+      scope: 'root'
       owner: ConversationHeaderLeadingOwnerProps
     }
     /**
@@ -439,8 +447,13 @@ export interface HeroBrandMarkOwnerProps {
 /** Full props of the resident optional-Session Conversation shell. */
 export type ConversationSlotProps =
   PropsRuntime<'main.conversation'>
-  & PropsRenderSlots<'conversation.session.header'>
+  & PropsRenderSlots<'conversation.header'>
   & PropsRenderFactories
+
+/** Full props of the resident navigation header. */
+export type ConversationHeaderProps =
+  PropsRuntime<'conversation.header'>
+  & PropsRenderSlots<'conversation.header.leading' | 'conversation.session.header'>
 
 /** Inputs shared by main and embedded Conversation content occurrences. */
 export interface ConversationContentInputProps {
@@ -482,7 +495,6 @@ export type ConversationSessionHeaderSlotProps =
   PropsRuntime<'conversation.session.header'>
   & PropsRenderSlots<
     'conversation.session.header.lineage'
-    | 'conversation.session.header.leading'
     | 'conversation.session.header.actions'
     | 'conversation.session.header.utilities'
     | 'conversation.session.header.corner'

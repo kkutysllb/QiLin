@@ -26,6 +26,8 @@ import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
 import type { ILayout } from '@qilin/client-ui-layout/client'
 import type {} from '@qilin/client-ui-layout/client'
+// Type-only: pulls the Workspace UI service merge (ctx.uiWorkspace.selection).
+import type {} from '@qilin/client-ui-workspace/client'
 import type {} from '@qilin/client-ui-conversation/client'
 import type { SessionId } from '@qilin/session/types'
 import type {} from './contract/slots.ts'
@@ -33,10 +35,11 @@ import { GuideBody, type GuideInjected } from './tabs/guide/GuideBody.tsx'
 import { GuideTitle } from './tabs/guide/GuideTitle.tsx'
 import { ExpandButton } from './shell/ExpandButton.tsx'
 import { RightbarSeat, type SidebarRightInjected } from './shell/SidebarRight.tsx'
-import { RightbarRoot } from './shell/RightbarRoot.tsx'
+import { RightbarRoot, type RightbarRootInjected } from './shell/RightbarRoot.tsx'
 import { createSidebarRightController, type SidebarRightController } from './service.ts'
 import { readDisabledTabs, writeDisabledTabs } from './prefs.ts'
 import { SidebarRightTabRegistry } from './tab-registry.ts'
+import { SidebarSessionViews } from './session-views.ts'
 import { createSidebarRightStore } from './stores.ts'
 import { TabSettingsSection, type TabSettingsSectionInjected } from './tabs/settings/TabSettingsSection.tsx'
 import { en, zh } from './locales.ts'
@@ -77,7 +80,7 @@ export type { SidebarRightOpenTab } from './tab-inventory.ts'
 const NS = 'sidebarRight'
 
 /** Required browser services: the slot registry, the frame's panel actions, copy, the resource model, and shortcuts. */
-export const inject = ['slots', 'layout', 'locale', 'resources', 'shortcuts']
+export const inject = ['slots', 'layout', 'locale', 'resources', 'sessions', 'uiWorkspace', 'shortcuts']
 
 declare module '@qilin/kylin' {
   interface Context {
@@ -105,6 +108,17 @@ export function apply(ctx: ClientContext): void {
   // its own apply top level for the same reason.
   const t = ctx.locale.bind(NS)
   const tabs = new SidebarRightTabRegistry(ctx, readDisabledTabs())
+  // One retained View per Session the frame has shown: each holds its own
+  // Session reference, so a background Sidebar keeps its tab state while the
+  // foreground Conversation changes.
+  const views = new SidebarSessionViews(ctx.sessions)
+  ctx.effect(() => {
+    const selection = ctx.uiWorkspace.selection
+    const sync = (): void => { views.select(selection.getSnapshot().sessionId) }
+    const unsubscribe = selection.subscribe(sync)
+    sync()
+    return () => { unsubscribe(); views.dispose() }
+  }, 'ui-sidebar-right: retained Session views')
   const { controller, adopt, forget } = createSidebarRightController(
     tabs,
     (address, signal) => { ctx.resources.pin(address, signal) },
@@ -167,6 +181,10 @@ export function apply(ctx: ClientContext): void {
       yield ctx.slots.register({
         name: 'rightbar',
         children: { 'rightbar.session': { kind: 'single', scope: 'session' } },
+        inject: (): RightbarRootInjected => ({
+          hooks: { views: views.source },
+          mountView: reference => views.mount(reference),
+        }),
       }, RightbarRoot)
       yield ctx.slots.register({
         name: 'rightbar.session',

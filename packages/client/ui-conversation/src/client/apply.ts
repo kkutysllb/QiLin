@@ -33,6 +33,7 @@ import type { ContentWidthRowInjected } from './settings/ContentWidthRow.tsx'
 import { EnterBehaviorRow } from './settings/EnterBehaviorRow.tsx'
 import { installStopShortcut } from './stop-shortcut.ts'
 import type { EnterBehaviorRowInjected } from './settings/EnterBehaviorRow.tsx'
+import { ConversationHeader } from './skeleton/ConversationHeader.tsx'
 import { ConversationRoot } from './skeleton/ConversationRoot.tsx'
 import { ConversationContent } from './skeleton/ConversationContent.tsx'
 import { ConversationPanel } from './skeleton/ConversationPanel.tsx'
@@ -290,7 +291,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
   const registerConversationRoot = () => slots.register({
     name: 'main.conversation',
     children: {
-      'conversation.session.header': { kind: 'single', scope: 'session' },
+      'conversation.header': { kind: 'single', scope: 'session-maybe' },
     },
   }, ConversationRoot)
 
@@ -357,12 +358,22 @@ export function apply(ctx: Context, config: Config = Config({})): void {
     }),
   }, ConversationSession)
 
+  // The resident header owns the global navigation seat and defers the
+  // Session-specific half to the strict Session child; a Session-less frame
+  // still renders the header with only the leading seat in it.
+  const registerHeader = () => slots.register({
+    name: 'conversation.header',
+    children: {
+      'conversation.header.leading': { kind: 'single', scope: 'root' },
+      'conversation.session.header': { kind: 'single', scope: 'session' },
+    },
+  }, ConversationHeader)
+
   const registerConversationHeader = () => slots.register({
     name: 'conversation.session.header',
     locale: NS,
     children: {
       'conversation.session.header.lineage': { kind: 'single', scope: 'session' },
-      'conversation.session.header.leading': { kind: 'single', scope: 'session' },
       'conversation.session.header.actions': { kind: 'list', scope: 'session' },
       'conversation.session.header.utilities': { kind: 'list', scope: 'session' },
       'conversation.session.header.corner': { kind: 'single', scope: 'session' },
@@ -472,6 +483,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
       children: { 'main.conversation': { kind: 'single', scope: 'session-maybe' } },
     }, ConversationPanel)
     yield registerConversationRoot()
+    yield registerHeader()
     yield registerConversationContent()
     yield registerConversationSession()
     yield registerConversationHeader()

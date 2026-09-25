@@ -14,6 +14,7 @@ import { SessionId } from '@qilin/session/types'
 import { LayoutController } from '@qilin/client-ui-layout/client'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
 import { DirectoryBrowseError, UiWorkspaceService } from '../src/client/navigation.ts'
+import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
 
 const sid = (id: string): SessionId => SessionId(id)
 const wid = (id: string): WorkspaceId => id as WorkspaceId
@@ -81,11 +82,13 @@ function sessionState(
 function workspaceState(
   items: WorkspaceSnapshot['items'] = [],
   archivedSessionIds: readonly SessionId[] = [],
+  pinnedSessionIds: readonly SessionId[] = [],
   phase: WorkspaceSnapshot['phase'] = 'ready',
 ): WorkspaceSnapshot {
   return {
     items,
     archivedSessionIds,
+    pinnedSessionIds,
     phase,
     state: phase === 'ready' ? 'idle' : 'loading',
     error: null,
@@ -186,6 +189,21 @@ class FakeWorkspaces implements IWorkspaces {
   declare readonly delete: IWorkspaces['delete']
   declare readonly insertBefore: IWorkspaces['insertBefore']
   declare readonly insertSessionBefore: IWorkspaces['insertSessionBefore']
+  readonly pinCalls: SessionId[] = []
+  readonly unpinCalls: SessionId[] = []
+  onPin: IWorkspaces['pinSession'] = async (sessionId) => {
+    this.list.update(state => ({
+      ...state,
+      pinnedSessionIds: [sessionId, ...state.pinnedSessionIds.filter(id => id !== sessionId)],
+    }))
+  }
+
+  onUnpin: IWorkspaces['unpinSession'] = async (sessionId) => {
+    this.list.update(state => ({
+      ...state,
+      pinnedSessionIds: state.pinnedSessionIds.filter(id => id !== sessionId),
+    }))
+  }
 
   constructor(initial: WorkspaceSnapshot) {
     this.list = new MutableSource(initial)
@@ -199,6 +217,16 @@ class FakeWorkspaces implements IWorkspaces {
   unarchiveSession(sessionId: SessionId): Promise<void> {
     this.unarchiveCalls.push(sessionId)
     return this.onUnarchive(sessionId)
+  }
+
+  pinSession(sessionId: SessionId): Promise<void> {
+    this.pinCalls.push(sessionId)
+    return this.onPin(sessionId)
+  }
+
+  unpinSession(sessionId: SessionId): Promise<void> {
+    this.unpinCalls.push(sessionId)
+    return this.onUnpin(sessionId)
   }
 }
 
@@ -254,16 +282,18 @@ function bench(options: BenchOptions = {}) {
   ctx.provide('layout', layout)
   ctx.effect(() => () => { layout.dispose() })
   const directoryPicker = new FakeDirectoryPicker()
-  const workspaces = new FakeWorkspaces(options.workspaces ?? workspaceState([], [], 'pending'))
+  const workspaces = new FakeWorkspaces(options.workspaces ?? workspaceState([], [], [], 'pending'))
   const sessions = new FakeSessions(options.sessions ?? sessionState([], 'pending'))
   options.configureSessions?.(sessions)
+  const views = createWorkspaceViewStore().create()
   const uiWorkspace = new UiWorkspaceService(
     ctx,
     directoryPicker.remote,
     workspaces,
     sessions,
+    views.actions,
   )
-  return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel }
+  return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views }
 }
 
 describe('UiWorkspaceService', () => {
@@ -347,7 +377,7 @@ describe('UiWorkspaceService', () => {
     const created = Promise.withResolvers<SessionId>()
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const b = bench({
-      workspaces: workspaceState([workspace('a')], [], 'ready'),
+      workspaces: workspaceState([workspace('a')], [], [], 'ready'),
       sessions: sessionState([], 'pending'),
       configureSessions: (sessions) => { sessions.create.mockReturnValue(created.promise) },
     })
@@ -632,5 +662,40 @@ describe('UiWorkspaceService', () => {
     await expect(b.uiWorkspace.createDirectory('/home/u', 'new')).rejects.toMatchObject({
       rpcError: { code: 'directory-picker/exists' },
     })
+  })
+
+  it('forwards pin commands, fronts the pinned Session in its accounts, and preserves failures', async () => {
+    const pinned = sid('pinned')
+    const other = sid('other')
+    const loose = sid('loose')
+    const b = bench({
+      workspaces: workspaceState([workspace('first', [pinned, other])]),
+      sessions: sessionState([
+        { id: pinned, displayTitle: 'pinned', running: false, blank: false, updatedAt: 3, retainedBy: {} },
+        { id: other, displayTitle: 'other', running: false, blank: false, updatedAt: 2, retainedBy: {} },
+        { id: loose, displayTitle: 'loose', running: false, blank: false, updatedAt: 1, retainedBy: {} },
+      ]),
+    })
+    b.store.actions.setSessionOrder('first', [other, pinned], {})
+    b.store.actions.setSessionOrder('', [loose], {})
+
+    await b.uiWorkspace.pinSession(pinned)
+    expect(b.workspaces.pinCalls).toEqual([pinned])
+    const orders = b.store.getSnapshot().sessionOrderByAccount
+    expect(orders.first).toEqual([pinned, other])
+    // Accounts that do not own the Session keep their saved positions.
+    expect(orders['']).toEqual([loose])
+    // The flat account is reconciled from membership and fronts the pin too.
+    expect(orders[FLAT_SESSION_ORDER_KEY]?.[0]).toBe(pinned)
+
+    b.workspaces.onPin = () => Promise.reject(new Error('pin rejected'))
+    await expect(b.uiWorkspace.pinSession(pinned)).rejects.toThrow('pin rejected')
+
+    await b.uiWorkspace.unpinSession(pinned)
+    expect(b.workspaces.unpinCalls).toEqual([pinned])
+    // Unpin never rewrites saved order: the position the pin fronted stays.
+    expect(b.store.getSnapshot().sessionOrderByAccount.first).toEqual([pinned, other])
+    b.workspaces.onUnpin = () => Promise.reject(new Error('unpin rejected'))
+    await expect(b.uiWorkspace.unpinSession(pinned)).rejects.toThrow('unpin rejected')
   })
 })

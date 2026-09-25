@@ -175,6 +175,14 @@ export type WorkspaceBrowserInjected = {
    * session clears the selection into the New Session view state.
    */
   archiveSession: (sessionId: SessionId) => Promise<void>
+  /**
+   * Pin a Session ahead of unpinned ones in its group and the flat list, and
+   * front its saved manual position. Rejects on Host failure so the caller
+   * can report it.
+   */
+  pinSession: (sessionId: SessionId) => Promise<void>
+  /** Drop one Session's pin; saved positions stay as they are. */
+  unpinSession: (sessionId: SessionId) => Promise<void>
   /** Adopt a picked host directory as a real Workspace before targeting a Session. */
   createWorkspace: (input: { path: string }) => Promise<WorkspaceView>
 }

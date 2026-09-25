@@ -6,7 +6,6 @@ import type { SessionId } from '@qilin/session/types'
 import type {
   ConversationSessionHeaderSlotProps, ConversationSessionSlotProps,
 } from '../contract/slots.ts'
-import { conversationPhase } from '../contract/snapshot.ts'
 import { resolveActiveView } from '../view-selection.ts'
 import { DefaultConversationViews } from './DefaultConversationViews.tsx'
 import css from './ConversationRoot.module.css'
@@ -52,27 +51,23 @@ function equalBreadcrumbs(left: readonly Breadcrumb[], right: readonly Breadcrum
 }
 
 /**
- * Renders Session header chrome above the resident conversation scrollport.
- * @param props - Strict Session store, view ledger, navigation, render, and locale shares.
- * @returns Session navigation controls, with title and tabs after conversation starts.
+ * Renders the Session-specific half of the resident header: breadcrumbs,
+ * Session actions, utilities, and the View tab strip.
+ * @param props - Session identity, parent-owned chrome visibility, view ledger, navigation, render, and locale shares.
+ * @returns the title row and, with more than one View, the tab strip.
  */
 export function ConversationSessionHeader({
-  sessionId, useSession, useSessions, useConversation, useConversationViews, useStore,
+  sessionId, hideChrome, useSessions, useConversationViews, useStore,
   renderSlot, open, selectView, t,
 }: ConversationSessionHeaderProps) {
   const tabs = useConversationViews(value => value)
   const selectedId = useStore(s => s.view)
   const active = resolveActiveView(tabs, selectedId)
   const ancestry = useSessions(s => deriveAncestry(s, sessionId), equalBreadcrumbs)
-  const session = useSession(s => s)
-  const conversation = useConversation(s => s)
-  const hideChrome = session.blank && conversationPhase(session, conversation) === 'blank'
+  const showTabs = !hideChrome && tabs.length > 1
   return (
-    <header className={clsx(css.header, hideChrome && css.headerBlank)} data-window-drag>
+    <>
       <div className={css.titleRow}>
-        <div className={css.headerLeading} data-conversation-header-leading="">
-          {renderSlot('conversation.session.header.leading', {})}
-        </div>
         {!hideChrome && (
           <>
             <div className={css.titleCluster}>
@@ -138,7 +133,7 @@ export function ConversationSessionHeader({
           {renderSlot('conversation.session.header.corner', {})}
         </div>
       </div>
-      {!hideChrome && tabs.length > 1 && (
+      {showTabs && (
         // data-conversation-tabs: marks the tab strip, which the window-chrome
         // geometry and the browser coverage lane anchor on.
         <div className={css.tabs} role="tablist" data-conversation-tabs="">
@@ -156,7 +151,7 @@ export function ConversationSessionHeader({
           ))}
         </div>
       )}
-    </header>
+    </>
   )
 }
 

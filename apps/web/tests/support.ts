@@ -79,6 +79,15 @@ export async function expandOwningTurnProcess(page: Page, target: Locator): Prom
   const control = page.locator(`[data-turn-process="${turn}"]`)
   await control.waitFor({ state: 'visible', timeout: 10_000 })
   if (await control.getAttribute('aria-expanded') !== 'true') await control.click()
+  if (await target.isVisible()) return
+  // A grouped process row hides inside a collapsed group seat that the Turn
+  // process reveals, so open that seat before retrying the visibility check.
+  const group = target.locator('xpath=ancestor::*[@data-chat-group-key][1]')
+  if (await group.count() === 0) return
+  const groupControl = group.locator('[data-process-activity]').first()
+  if (await groupControl.count() === 0) return
+  await groupControl.waitFor({ state: 'visible', timeout: 10_000 })
+  if (await groupControl.getAttribute('aria-expanded') !== 'true') await groupControl.click()
 }
 
 /** Fail loud on a stale checkout instead of testing yesterday's bundle. */

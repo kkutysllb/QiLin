@@ -69,7 +69,8 @@ const workspace = (id: string, sessionIds: string[], title = id): WorkspaceView 
 const workspaceState = (
   items: readonly WorkspaceView[],
   archivedSessionIds: readonly SessionId[] = [],
-): WorkspaceSnapshot => ({ items, archivedSessionIds, state: 'idle', phase: 'ready', error: null })
+  pinnedSessionIds: readonly SessionId[] = [],
+): WorkspaceSnapshot => ({ items, archivedSessionIds, pinnedSessionIds, state: 'idle', phase: 'ready', error: null })
 const noPendingInteraction: SessionStatusSnapshot = new Map()
 function hook<T>(snapshot: T) {
   return function select<S>(selector: (state: T) => S): S { return selector(snapshot) }
@@ -120,6 +121,8 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     renameWorkspace: vi.fn(async () => {}),
     deleteWorkspace: vi.fn(async () => {}),
     archiveSession: vi.fn(async () => {}),
+    pinSession: vi.fn(async () => {}),
+    unpinSession: vi.fn(async () => {}),
     insertWorkspaceBefore: vi.fn(async () => {}),
     createWorkspace: vi.fn(async () => workspace('created', [])),
     useDirectoryFlow: bindSnapshotSelector({ getSnapshot: () => true, subscribe: () => () => {} }),
@@ -730,6 +733,46 @@ describe('WorkspaceBrowser', () => {
       await Promise.resolve()
       expect(warn).toHaveBeenCalledWith('session archive rejected:', rejection)
       expect(screen.getByText('alpha-s')).toBeTruthy()
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+
+  it('pins and unpins a session from the row menu, fronting and marking it, and logs a rejection', async () => {
+    const pinSession = vi.fn(async () => {})
+    const unpinSession = vi.fn(async () => {})
+    const b = mount({
+      useSessions: hook(sessionState([summary('two', 2), summary('one', 1)])),
+      useWorkspaces: hook(workspaceState([workspace('alpha', ['two', 'one'])])),
+      pinSession,
+      unpinSession,
+    })
+    fireEvent.click(screen.getByText('alpha'))
+    fireEvent.click(screen.getByRole('button', { name: '会话“one”的操作' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: '置顶会话' }))
+    expect(pinSession).toHaveBeenCalledWith(sid('one'))
+
+    // The pin-set echo fronts the row and draws the marker in the same cell
+    // the hover button occupies.
+    rerender(b, { useWorkspaces: hook(workspaceState([workspace('alpha', ['two', 'one'])], [], [sid('one')])) })
+    const rows = screen.getAllByRole('treeitem').slice(1)
+    expect(rows[0]?.textContent).toContain('one')
+    expect(rows[1]?.textContent).toContain('two')
+    expect(screen.getByRole('img', { name: '已置顶' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '会话“one”的操作' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: '取消置顶' }))
+    expect(unpinSession).toHaveBeenCalledWith(sid('one'))
+
+    const rejection = new Error('pin exploded')
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      rerender(b, { pinSession: vi.fn(async () => { throw rejection }) })
+      fireEvent.click(screen.getByRole('button', { name: '会话“two”的操作' }))
+      fireEvent.click(screen.getByRole('menuitem', { name: '置顶会话' }))
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(warn).toHaveBeenCalledWith('session pin rejected:', rejection)
     } finally {
       warn.mockRestore()
     }

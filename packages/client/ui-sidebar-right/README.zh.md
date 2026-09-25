@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-右侧 Sidebar：停靠套件与本产品相遇的地方。它为每个会话持有一个停靠面，以两种呈现形态之一把它画成贴靠框架右列边缘的一块面板，把展开按钮放进会话 header，并拥有导航控制器（`ctx.sidebarRight`）、tab 类型注册表（`ctx.sidebarRightTabs`），以及告诉每个已开 tab 它是如何被导航到、能活多久的 Tab 域。
+右侧 Sidebar：停靠套件与本产品相遇的地方。root 作用域的 `rightbar` entry 通过独立的 `rightbar.session` 子树渲染选中的 Session 与需要保活的后台 Session，每个子树各自持有 Session reference；只有前台会话会上报框架列宽并绑定公共导航。每个 Session 的界面由 `DockLayout` 绘制，因此 tab 在选中变化、跨格移动与浮窗期间保留自己的 DOM。本包拥有导航控制器（`ctx.sidebarRight`）、tab 类型注册表（`ctx.sidebarRightTabs`），以及告诉每个已开 tab 它是如何被导航到、能活多久的 Tab 域。
 
 ## 目录
 

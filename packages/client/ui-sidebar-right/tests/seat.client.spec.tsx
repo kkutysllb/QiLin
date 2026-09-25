@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent } from '@testing-library/react'
 import { useState } from 'react'
 import { SlotTestRuntime } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import type { PropsRuntime } from '@qilin/client-ui-slots'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
@@ -64,6 +65,10 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
   const pin = vi.fn<(address: string, signal: AbortSignal) => void>()
   runtime.ctx.provide('layout', frame as never)
   runtime.ctx.provide('resources', { pin } as never)
+  // The retained Session Views follow the Workspace UI's main selection; the
+  // seat renders one subtree per Session the frame has shown.
+  const selection = createSnapshotStore<{ sessionId?: SessionId }>({ sessionId: SESSION })
+  runtime.ctx.provide('uiWorkspace', { selection } as never)
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)
@@ -113,10 +118,11 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0) {
     const next = runtime.sessions.retainFor(runtime.ctx, id, { source: 'mainView' })
     reference.release()
     reference = next
+    act(() => { selection.set({ sessionId: id }) })
   }
   return {
     runtime, feature, controller, instance, actions: instance.actions, layout,
-    open, selectSession, frame, pin, bodies, titles, hooks, view,
+    open, selectSession, selection, frame, pin, bodies, titles, hooks, view,
   }
 }
 
@@ -132,11 +138,13 @@ describe('RightbarSeat presentation', () => {
     h.open('retained.txt')
     const retained = h.layout()
     act(() => { h.runtime.panelInfo.set({ activePanelId: 'other-panel' as MainPanelId }) })
-    expect(h.view.container.querySelector('[data-sidebar-right-panel]')).toBeNull()
+    // The View stays mounted and hidden: its content tree survives the frame
+    // change, and only the foreground View holds the frame's track.
+    expect(h.view.container.querySelector('[data-sidebar-right-session]')).toHaveProperty('hidden', true)
     expect(h.frame.closeRightbar).toHaveBeenCalled()
     expect(h.layout()).toBe(retained)
     act(() => { h.runtime.panelInfo.set({ activePanelId: null }) })
-    expect(h.view.container.querySelector('[data-sidebar-right-panel]')).not.toBeNull()
+    expect(h.view.container.querySelector('[data-sidebar-right-session]')).toHaveProperty('hidden', false)
     expect(h.layout()).toBe(retained)
   })
 

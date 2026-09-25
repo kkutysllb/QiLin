@@ -6,6 +6,9 @@
  * share from the return type.
  */
 import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
+import type { SessionListState } from '@qilin/api-session-controller/client'
+import type { SessionId } from '@qilin/session/types'
+import { reconcileManualOrder } from './tree.ts'
 
 /** Browser-local order account for the hierarchy-free flat Session list. */
 export const FLAT_SESSION_ORDER_KEY = '__flat_session_order__'
@@ -23,6 +26,14 @@ type WorkspaceViewState = {
   groupExpansion: Record<string, boolean>
   /** Saved manual order per Workspace group plus the browser-local flat-list account. */
   sessionOrderByAccount: Record<string, string[]>
+}
+
+/** What a pin order write reconciles a pinned Session's accounts against. */
+export interface PinOrderSource {
+  /** Every account's complete membership: each Workspace, Ungrouped, and the flat list. */
+  members: Readonly<Record<string, readonly SessionId[]>>
+  /** Session summaries the reconciliation orders new members by. */
+  summaries: SessionListState['byId']
 }
 
 /**
@@ -48,7 +59,16 @@ type WorkspaceViewActions = {
     order: readonly string[],
     initialOrders: Readonly<Record<string, readonly string[]>>,
   ) => void
+  pinSessionOrder: (
+    draft: WorkspaceViewState,
+    sessionId: SessionId,
+    accountKeys: readonly string[],
+    source: PinOrderSource,
+  ) => void
 }
+
+/** The bound write set of one viewing-store instance (what the UiWorkspace service drives). */
+export type WorkspaceViewStoreActions = ReturnType<ReturnType<typeof createWorkspaceViewStore>['create']>['actions']
 
 /** Copy read-only projections into the persisted mutable store representation. */
 function copySessionOrders(
@@ -96,6 +116,16 @@ export function createWorkspaceViewStore(): EngineStoreHandle<WorkspaceViewState
         if (d.orderBy === 'updated') d.sessionOrderByAccount = copySessionOrders(initialOrders)
         d.orderBy = 'manual'
         d.sessionOrderByAccount[accountKey] = [...order]
+      },
+      // Pin is a Host fact, not a local gesture: the write fronts the Session
+      // in every account that owns it and leaves the other accounts' saved
+      // positions exactly as they were.
+      pinSessionOrder: (d, sessionId, accountKeys, source) => {
+        const selected = new Set(accountKeys)
+        d.sessionOrderByAccount = Object.fromEntries(Object.entries(source.members).map(([key, members]) => {
+          const order = reconcileManualOrder(members, d.sessionOrderByAccount[key], source.summaries)
+          return [key, selected.has(key) ? [sessionId, ...order.filter(id => id !== sessionId)] : order]
+        }))
       },
     },
   })

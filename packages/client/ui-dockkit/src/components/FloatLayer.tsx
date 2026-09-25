@@ -18,7 +18,7 @@ import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import clsx from 'clsx'
 import { IconCloseOutline16, IconPanelLeftOutline16, Tooltip } from '@qilin/client-ui-primitives'
 import type { DockIntents, DockLabels, TabRenderer } from '../contract/adapter.ts'
-import type { FloatRect, LayoutState, PaneId, TabId } from '../contract/types.ts'
+import type { FloatRect, LayoutState, PaneId, TabId, TabRecord } from '../contract/types.ts'
 import { FLOAT_MIN_SIZE } from '../engine/constraints.ts'
 import { movedRect, resizedRect } from '../engine/geometry.ts'
 import { floatRect, getPane, getTab, onlyTabId } from '../engine/tree.ts'
@@ -67,8 +67,19 @@ function raised(state: LayoutState, paneId: PaneId): boolean {
   return state.activePaneId === paneId && state.floats.at(-1) === paneId
 }
 
-/** Every floating panel, in z order. */
-export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, renderTabIcon, canCloseTab }: FloatLayerProps): ReactNode {
+/**
+ * Shared move/resize gestures for floating panels. The gesture state lives here
+ * so a layout that keeps every tab in one stable tree owns the same behavior as
+ * the standalone layer.
+ * @param state - committed layout and float stacking order.
+ * @param intents - gesture settlements.
+ * @returns the live preview and the focus/gesture callbacks.
+ */
+export function useFloatGestures(state: LayoutState, intents: DockIntents): {
+  readonly preview: { readonly paneId: PaneId; readonly rect: FloatRect } | undefined
+  readonly raise: (paneId: PaneId) => void
+  readonly drag: (mode: 'move' | 'resize', paneId: PaneId, event: ReactPointerEvent<HTMLElement>) => void
+} {
   const [preview, setPreview] = useState<{ paneId: PaneId; rect: FloatRect } | undefined>(undefined)
   const begin = useGesture(() => { setPreview(undefined) })
 
@@ -95,6 +106,79 @@ export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, 
     })
   }
 
+  return { preview, raise, drag }
+}
+
+/**
+ * A floating panel's header: its chip, the send-back control, and its close.
+ * Content-free so the body can be retained or visibility-mounted by its owner.
+ * @param props.paneId - the floating pane this header moves.
+ * @param props.tab - the pane's single tab.
+ * @param props.labels - localized kit copy.
+ * @param props.intents - gesture settlements.
+ * @param props.renderTabTitle - the header's title content; omit for the record title.
+ * @param props.renderTabIcon - the header's leading glyph; omit for none.
+ * @param props.canCloseTab - whether the close control draws; omitted keeps it.
+ * @param props.drag - the float gesture starter.
+ * @returns the header.
+ */
+export function FloatHeader({ paneId, tab, labels, intents, renderTabTitle, renderTabIcon, canCloseTab, drag }: {
+  readonly paneId: PaneId
+  readonly tab: TabRecord
+  readonly labels: DockLabels
+  readonly intents: DockIntents
+  readonly renderTabTitle: TabRenderer | undefined
+  readonly renderTabIcon: TabRenderer | undefined
+  readonly canCloseTab: ((tabId: TabId) => boolean) | undefined
+  readonly drag: ReturnType<typeof useFloatGestures>['drag']
+}): ReactNode {
+  return (
+    <header
+      className={clsx(css.tabStrip, css.floatHeader)}
+      data-dockkit-float-grip={paneId}
+      onPointerDown={(event) => { drag('move', paneId, event) }}
+    >
+      <div className={clsx(css.tab, css.floatTitle)} data-dockkit-float-title>
+        {renderTabIcon !== undefined && (
+          <span className={css.chipIcon} data-dockkit-tab-icon={tab.id}>{renderTabIcon(tab)}</span>
+        )}
+        <TabTitle>{renderTabTitle?.(tab) ?? tab.title}</TabTitle>
+      </div>
+      <div className={css.stripFill} />
+      <Tooltip label={labels.dockFloat} side="bottom" delayMs={500}>
+        <button
+          type="button"
+          className={css.iconButton}
+          aria-label={labels.dockFloat}
+          data-dockkit-float-dock={paneId}
+          onPointerDown={(event) => { event.stopPropagation() }}
+          onClick={() => { intents.unfloatPane(paneId) }}
+        >
+          <IconPanelLeftOutline16 className={css.dockGlyph} />
+        </button>
+      </Tooltip>
+      {(canCloseTab?.(tab.id) ?? true) && (
+        <Tooltip label={labels.closeFloat} side="bottom" delayMs={500}>
+          <button
+            type="button"
+            className={css.iconButton}
+            aria-label={labels.closeFloat}
+            data-dockkit-float-close={paneId}
+            onPointerDown={(event) => { event.stopPropagation() }}
+            onClick={() => { intents.closeTab(tab.id) }}
+          >
+            <IconCloseOutline16 />
+          </button>
+        </Tooltip>
+      )}
+    </header>
+  )
+}
+
+/** Every floating panel, in z order. */
+export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, renderTabIcon, canCloseTab }: FloatLayerProps): ReactNode {
+  const { preview, raise, drag } = useFloatGestures(state, intents)
+
   return (
     <>
       {state.floats.map((paneId, depth) => {
@@ -119,45 +203,7 @@ export function FloatLayer({ state, intents, labels, renderTab, renderTabTitle, 
             }}
             onPointerDown={() => { raise(paneId) }}
           >
-            <header
-              className={clsx(css.tabStrip, css.floatHeader)}
-              data-dockkit-float-grip={paneId}
-              onPointerDown={(event) => { drag('move', paneId, event) }}
-            >
-              <div className={clsx(css.tab, css.floatTitle)} data-dockkit-float-title>
-                {renderTabIcon !== undefined && (
-                  <span className={css.chipIcon} data-dockkit-tab-icon={tab.id}>{renderTabIcon(tab)}</span>
-                )}
-                <TabTitle>{renderTabTitle?.(tab) ?? tab.title}</TabTitle>
-              </div>
-              <div className={css.stripFill} />
-              <Tooltip label={labels.dockFloat} side="bottom" delayMs={500}>
-                <button
-                  type="button"
-                  className={css.iconButton}
-                  aria-label={labels.dockFloat}
-                  data-dockkit-float-dock={paneId}
-                  onPointerDown={(event) => { event.stopPropagation() }}
-                  onClick={() => { intents.unfloatPane(paneId) }}
-                >
-                  <IconPanelLeftOutline16 className={css.dockGlyph} />
-                </button>
-              </Tooltip>
-              {(canCloseTab?.(tab.id) ?? true) && (
-                <Tooltip label={labels.closeFloat} side="bottom" delayMs={500}>
-                  <button
-                    type="button"
-                    className={css.iconButton}
-                    aria-label={labels.closeFloat}
-                    data-dockkit-float-close={paneId}
-                    onPointerDown={(event) => { event.stopPropagation() }}
-                    onClick={() => { intents.closeTab(tab.id) }}
-                  >
-                    <IconCloseOutline16 />
-                  </button>
-                </Tooltip>
-              )}
-            </header>
+            <FloatHeader {...{ paneId, tab, labels, intents, renderTabTitle, renderTabIcon, canCloseTab, drag }} />
             <div className={css.floatBody}>{renderTab(tab)}</div>
             <div
               className={css.floatResize}

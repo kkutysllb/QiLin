@@ -366,6 +366,9 @@ interface WorkspaceInsertSessionBeforeRequest {
 }
 interface WorkspaceArchiveSessionRequest { readonly sessionId: SessionId }
 interface WorkspaceArchiveValue { readonly archivedSessionIds: readonly SessionId[] }
+interface WorkspacePinSessionRequest { readonly sessionId: SessionId }
+interface WorkspaceUnpinSessionRequest { readonly sessionId: SessionId }
+interface WorkspacePinValue { readonly pinnedSessionIds: readonly SessionId[] }
 
 type WorkspaceFollowFrame =
   | {
@@ -373,12 +376,14 @@ type WorkspaceFollowFrame =
     readonly value: {
       readonly items: readonly WorkspaceView[]
       readonly archivedSessionIds: readonly SessionId[]
+      readonly pinnedSessionIds: readonly SessionId[]
     }
   }
   | { readonly type: 'upsert'; readonly workspace: WorkspaceView }
   | { readonly type: 'remove'; readonly workspaceId: WorkspaceId }
   | { readonly type: 'order'; readonly workspaceIds: readonly WorkspaceId[] }
   | { readonly type: 'archived'; readonly archivedSessionIds: readonly SessionId[] }
+  | { readonly type: 'pinned'; readonly pinnedSessionIds: readonly SessionId[] }
 
 interface FixtureWorkspaceApi {
   create(request: WorkspaceCreateRequest): Promise<ConnectionRpcResult<WorkspaceCreateValue>>
@@ -387,6 +392,8 @@ interface FixtureWorkspaceApi {
   insertBefore(request: WorkspaceInsertBeforeRequest): Promise<ConnectionRpcResult<WorkspaceOrderValue>>
   insertSessionBefore(request: WorkspaceInsertSessionBeforeRequest): Promise<ConnectionRpcResult<WorkspaceValue>>
   archiveSession(request: WorkspaceArchiveSessionRequest): Promise<ConnectionRpcResult<WorkspaceArchiveValue>>
+  pinSession(request: WorkspacePinSessionRequest): Promise<ConnectionRpcResult<WorkspacePinValue>>
+  unpinSession(request: WorkspaceUnpinSessionRequest): Promise<ConnectionRpcResult<WorkspacePinValue>>
 }
 
 interface FixtureWorkspace {
@@ -2008,6 +2015,9 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
   // Registry-global archive set mirroring the host: archived sessions keep
   // their workspace accounting slot and only grouping surfaces hide them.
   const archivedSessionIds: SessionId[] = []
+  // Registry-global pin set, most recently pinned first; mirror of the Host's
+  // mutual exclusion with the archive set.
+  const pinnedSessionIds: SessionId[] = []
   const workspaceSnapshot = (workspace: FixtureWorkspace): WorkspaceView => ({
     ...workspace,
     sessionIds: [...workspace.sessionIds],
@@ -2017,6 +2027,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
     value: {
       items: workspaces.map(workspaceSnapshot),
       archivedSessionIds: [...archivedSessionIds],
+      pinnedSessionIds: [...pinnedSessionIds],
     },
   })
 
@@ -3801,8 +3812,44 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
       if (!archivedSessionIds.includes(request.sessionId)) {
         archivedSessionIds.push(request.sessionId)
         emitWorkspace({ type: 'archived', archivedSessionIds: [...archivedSessionIds] })
+        const dropPin = pinnedSessionIds.indexOf(request.sessionId)
+        if (dropPin !== -1) {
+          pinnedSessionIds.splice(dropPin, 1)
+          emitWorkspace({ type: 'pinned', pinnedSessionIds: [...pinnedSessionIds] })
+        }
       }
       return sessionOk({ archivedSessionIds: [...archivedSessionIds] })
+    },
+    pinSession: (request) => {
+      if (summaryOf(request.sessionId) === undefined) {
+        return sessionErr({
+          code: 'session/not-found',
+          message: `no session ${request.sessionId}`,
+          details: { sessionId: request.sessionId },
+        })
+      }
+      if (archivedSessionIds.includes(request.sessionId)) {
+        return sessionErr({
+          code: 'gateway/bad-request',
+          message: `session ${request.sessionId} is archived`,
+          details: {},
+        })
+      }
+      if (pinnedSessionIds[0] !== request.sessionId) {
+        const at = pinnedSessionIds.indexOf(request.sessionId)
+        if (at !== -1) pinnedSessionIds.splice(at, 1)
+        pinnedSessionIds.unshift(request.sessionId)
+        emitWorkspace({ type: 'pinned', pinnedSessionIds: [...pinnedSessionIds] })
+      }
+      return sessionOk({ pinnedSessionIds: [...pinnedSessionIds] })
+    },
+    unpinSession: (request) => {
+      const at = pinnedSessionIds.indexOf(request.sessionId)
+      if (at !== -1) {
+        pinnedSessionIds.splice(at, 1)
+        emitWorkspace({ type: 'pinned', pinnedSessionIds: [...pinnedSessionIds] })
+      }
+      return sessionOk({ pinnedSessionIds: [...pinnedSessionIds] })
     },
   }
 
@@ -4010,6 +4057,8 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
           request as WorkspaceInsertSessionBeforeRequest,
         )
         case 'workspace/archiveSession': return workspaceApi.archiveSession(request as WorkspaceArchiveSessionRequest)
+        case 'workspace/pinSession': return workspaceApi.pinSession(request as WorkspacePinSessionRequest)
+        case 'workspace/unpinSession': return workspaceApi.unpinSession(request as WorkspaceUnpinSessionRequest)
         default:
           return Promise.reject(new Error(`fixture connection RPC endpoint ${JSON.stringify(endpoint)} is unavailable`))
       }

@@ -56,6 +56,8 @@ kind: "package-reference"
 
 tab 的 `kind` 是不透明字符串。种子 tab 是工厂（`DockControllerOptions`），因此新格里放什么由嵌入方决定，与本包无关。内容身份是二元组（`kind`、`contentId`）：`findContentTab(state, contentId, kind?)` 在任意位置找到展示它的 tab，`findPaneContentTab(state, paneId, contentId, kind?)` 在一个格内找；`planOpenContent` 会聚焦该 tab 而非再开一个，除非被告知 `revealIfOpened: false`；显式的 `index` 把新 tab 放到 tab 条的某个位置而非末尾。
 
+`DockLayout` 在同一棵稳定内容树上渲染同一套手势：每个 tab 在选中变化、跨格移动与浮窗期间始终占同一个格位，因此已连接的嵌入式文档不会因布局变化而被重新挂载。它接受一个停靠格或左右两个格，由 CSS Grid 决定宽度；`keepMounted(tab)` 保留已访问正文，`active` 控制所属 Session 是否在屏。浮窗渲染在同一棵树里，因此这种布局无需另外挂载 `FloatLayer`。
+
 `DockSurface` 是停靠区。它周围的 chrome——轨道、折叠形态、任何历史控件——属于嵌入方，由嵌入方读取 `state.expanded` 后自行决定；套件不自带撤销/重做控件。嵌入方确实想放到面上的整面控件通过 `chrome` prop 传入，套件把它放在右上格 tab 条的最末端（每个横向分裂的最后一个子节点、每个纵向分裂的第一个子节点），因此停靠面不需要自己的标题行。`FloatLayer` 拥有自己的手势并以视口坐标定位浮窗，因此可以挂在任何位置，包括 portal 里。
 
 <a id="interaction-rules-worth-keeping"></a>

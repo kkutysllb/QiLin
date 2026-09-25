@@ -88,11 +88,12 @@ export function apply(ctx: ClientContext): void {
     inject: injectProps,
   }, SidebarRoot))
   // macOS desktop hides the collapsed sidebar entirely, so the open/New
-  // Session controls move into the conversation header's leading seat; the
-  // occupant reuses the shell's injected actions and shows itself purely
-  // through CSS against the AppFrame's data-sidebar-collapsed attribute.
-  ctx.slots.inject('conversation.session.header.leading', () => ctx.slots.register({
-    name: 'conversation.session.header.leading',
+  // Session controls move into the conversation header's root-scoped leading
+  // seat (present even with no Session selected); the occupant reuses the
+  // shell's injected actions and shows itself purely through CSS against the
+  // AppFrame's data-sidebar-collapsed attribute.
+  ctx.slots.inject('conversation.header.leading', () => ctx.slots.register({
+    name: 'conversation.header.leading',
     locale: NS,
     inject: injectProps,
   }, HeaderLeadingControls))

@@ -57,10 +57,20 @@ export interface SessionNode {
   /** Finished running while not selected and not yet opened (the green "done" reminder dot). */
   completed: boolean
   updatedAt: number
+  /** In the registry-global pin set: leads its section, and the row marks itself pinned. */
+  pinned: boolean
 }
 
 /** Session order selected by the Workspace browser. */
 export type SessionOrderBy = 'manual' | 'updated'
+
+/** Registry-global row membership every tree derivation reads. */
+export interface SessionRowState {
+  /** Registry-global pin ids; pinned rows lead their section without changing the caller's local order. */
+  pinnedSessionIds: readonly SessionId[]
+  /** Registry-global archive set. */
+  archivedSessionIds: readonly SessionId[]
+}
 
 /** One workspace group section: header row facts + visible top-level session rows. */
 export interface GroupNode {
@@ -306,6 +316,7 @@ function sessionNode(
   s: SessionSummary,
   descendants: ReadonlyMap<SessionId, SubagentDescendantSummary>,
   statuses: SessionStatuses,
+  pinned: ReadonlySet<SessionId>,
 ): SessionNode {
   const status = statuses.get(s.id)
   const pendingInteraction = visiblePendingKind(status?.pendingInteraction?.kind)
@@ -317,8 +328,29 @@ function sessionNode(
     runningSubagentCount: descendants.get(s.id)?.runningCount ?? 0,
     completed: status?.completionUnread === true,
     updatedAt: s.updatedAt,
+    pinned: pinned.has(s.id),
     ...(pendingInteraction === undefined ? {} : { pendingInteraction }),
   }
+}
+
+/**
+ * Front pinned rows without changing either partition's caller order, so the
+ * provisional New Session placeholder's own position is untouched.
+ * @param members - caller-ordered rows.
+ * @param pinned - registry-global pin set.
+ * @returns pinned rows first, then the rest.
+ */
+function sectionMembers<T extends { readonly id: SessionId }>(
+  members: readonly T[],
+  pinned: ReadonlySet<SessionId>,
+): T[] {
+  const leading: T[] = []
+  const rest: T[] = []
+  for (const member of members) {
+    if (pinned.has(member.id)) leading.push(member)
+    else rest.push(member)
+  }
+  return [...leading, ...rest]
 }
 
 /**
@@ -331,7 +363,7 @@ function sessionNode(
  * (see {@link deriveSearchResults}).
  * @param list - sessions list snapshot (`mainView` retention feeds containsCurrent).
  * @param workspaces - real Workspaces in Host group order with caller-projected Session order.
- * @param archivedSessionIds - registry-global archive set.
+ * @param rowState - registry-global pin and archive membership.
  * @param statuses - unified UI status by Session.
  * @param view - local expansion arrays.
  * @returns group sections in render order.
@@ -339,11 +371,12 @@ function sessionNode(
 export function deriveGroups(
   list: SessionListState,
   workspaces: readonly WorkspaceView[],
-  archivedSessionIds: readonly SessionId[],
+  rowState: SessionRowState,
   statuses: SessionStatuses,
   view: TreeView,
 ): GroupNode[] {
-  const archived = new Set(archivedSessionIds)
+  const archived = new Set(rowState.archivedSessionIds)
+  const pinned = new Set(rowState.pinnedSessionIds)
   const expandedGroups = new Set(view.expandedGroups)
   const descendants = indexSubagentDescendants(list.byId)
   const current = mainSessionId(list)
@@ -363,7 +396,7 @@ export function deriveGroups(
       expanded,
       containsCurrent: g.key === currentGroup,
       sessions: expanded
-        ? g.sessions.map(session => sessionNode(session, descendants, statuses))
+        ? sectionMembers(g.sessions, pinned).map(session => sessionNode(session, descendants, statuses, pinned))
         : [],
     })
   }
@@ -373,14 +406,28 @@ export function deriveGroups(
 /**
  * Select flat-list members without deriving row presentation or ordering.
  * @param list - sessions list snapshot.
- * @param archivedSessionIds - registry-global archive set.
+ * @param rowState - registry-global pin and archive membership.
  * @returns known visible Session ids in list order, including ordinary forks and only the current blank.
  */
 export function visibleSessionIds(
   list: SessionListState,
-  archivedSessionIds: readonly SessionId[],
+  rowState: Pick<SessionRowState, 'archivedSessionIds'>,
 ): SessionId[] {
-  const archived = new Set(archivedSessionIds)
+  return memberIds(list, new Set(rowState.archivedSessionIds))
+}
+
+/**
+ * Select complete flat-list membership, independently of archive visibility.
+ * The pin write-back reconciles this account, so an archived Session keeps its
+ * slot and no pin silently drops it.
+ * @param list - sessions list snapshot.
+ * @returns known ordinary Session ids, including archived ones.
+ */
+export function sessionMemberIds(list: SessionListState): SessionId[] {
+  return memberIds(list, new Set())
+}
+
+function memberIds(list: SessionListState, archived: ReadonlySet<SessionId>): SessionId[] {
   const current = mainSessionId(list)
   return list.ids.filter((id) => {
     const s = list.byId[id]
@@ -391,18 +438,22 @@ export function visibleSessionIds(
 /**
  * Derive flat rows from the browser's ordered visible Session ids.
  * @param list - sessions list snapshot used to select the ids.
- * @param sessionIds - known visible members in render order, including any pinned blank.
+ * @param sessionIds - known visible members in caller order, including any pinned blank.
+ * @param pinnedSessionIds - registry-global pin set; pinned rows lead after the blank.
  * @param statuses - unified UI status by Session.
- * @returns flat rows in the supplied order with current status indicators.
+ * @returns flat rows with pinned rows fronted and current status indicators.
  */
 export function deriveFlat(
   list: SessionListState,
   sessionIds: readonly SessionId[],
+  pinnedSessionIds: readonly SessionId[],
   statuses: SessionStatuses,
 ): SessionNode[] {
   const descendants = indexSubagentDescendants(list.byId)
-  return sessionIds
-    .map(id => sessionNode(list.byId[id] as SessionSummary, descendants, statuses))
+  const pinned = new Set(pinnedSessionIds)
+  const members = sessionIds.map(id => list.byId[id] as SessionSummary)
+  return sectionMembers(members, pinned)
+    .map(session => sessionNode(session, descendants, statuses, pinned))
 }
 
 /**
@@ -412,7 +463,7 @@ export function deriveFlat(
  * @param list - session metadata authority.
  * @param workspaces - Workspace membership and display labels.
  * @param query - caller text; surrounding whitespace is ignored.
- * @param archivedSessionIds - registry-global archive set (members never match).
+ * @param rowState - registry-global archive membership (members never match).
  * @param statuses - unified UI status by Session.
  * @param content - ranked Host content-search page.
  * @param limit - protocol-owned maximum merged row count.
@@ -422,14 +473,14 @@ export function deriveSearchResults(
   list: SessionListState,
   workspaces: readonly WorkspaceView[],
   query: string,
-  archivedSessionIds: readonly SessionId[],
+  rowState: Pick<SessionRowState, 'archivedSessionIds'>,
   statuses: SessionStatuses,
   content: { items: readonly SessionSearchResultItem[]; hasMore: boolean },
   limit: number,
 ): SearchResultSet {
   const q = query.trim().toLowerCase()
   if (q === '') return { items: [], hasMore: false }
-  const archived = new Set(archivedSessionIds)
+  const archived = new Set(rowState.archivedSessionIds)
   const descendants = indexSubagentDescendants(list.byId)
   const current = mainSessionId(list)
 

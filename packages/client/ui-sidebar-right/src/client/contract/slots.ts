@@ -25,7 +25,7 @@ import type { RightbarOwnerProps } from '@qilin/client-ui-layout/client'
 // The locale plugin's own merge carries the shared `common` vocabulary that the
 // lookup chain consults after this namespace misses.
 import type {} from '@qilin/client-locale/client'
-import type { PaneId, TabRecord } from '@qilin/client-ui-dockkit'
+import type { PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
 import type { SlotHookFactory } from '@qilin/client-ui-slots'
 import type { TabHookContext } from '../tab-info.ts'
 import type { SidebarRightKey } from '../locales.ts'
@@ -39,7 +39,21 @@ declare module '@qilin/client-ui-slots' {
 
   interface SlotMap {
     /** Session content selected by the root-scoped right Sidebar controller. */
-    'rightbar.session': { kind: 'single'; scope: 'session'; owner: RightbarOwnerProps }
+    'rightbar.session': {
+      kind: 'single'
+      scope: 'session'
+      owner: RightbarOwnerProps & {
+        /** Whether this View is the foreground Conversation's on-screen Sidebar. */
+        readonly active: boolean
+        /**
+         * Hold an initialized retained body until unmount or occurrence cancellation.
+         * @param tabId - retained body identity.
+         * @param signal - tab occurrence lifetime.
+         * @returns releases the View-owned hold.
+         */
+        readonly retainTab: (tabId: TabId, signal: AbortSignal) => () => void
+      }
+    }
     /**
      * One tab's body, dispatched with the `id` of the type in force for
      * `tab.kind`. A tab type registers here under its definition's `id` and

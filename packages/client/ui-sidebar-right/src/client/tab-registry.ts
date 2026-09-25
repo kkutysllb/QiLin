@@ -146,6 +146,14 @@ export interface SidebarRightTabDefinition {
    * one tab opens per address and a page opens once per pane.
    */
   readonly single?: boolean
+  /**
+   * Retain this type's visited bodies across tab and Session changes, collapse,
+   * and docking. A retained body keeps its DOM (and any connected embedded
+   * document) alive while its View holds it, and the View's stable hold
+   * callback survives a rebuilt Session injection binding. Unvisited bodies are
+   * not mounted eagerly. Omit for the default visibility-mounted behavior.
+   */
+  readonly keepMounted?: boolean
   /** Entry boxes for the guide page. Omit to stay off it. */
   readonly guide?: readonly SidebarRightGuideEntry[]
 }

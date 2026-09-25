@@ -48,7 +48,7 @@ async function bench() {
   ctx.provide('workspaces', {
     list: {
       getSnapshot: () => ({
-        items: [], archivedSessionIds: [], state: 'idle', phase: 'ready', error: null,
+        items: [], archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null,
       }),
       subscribe,
     },
@@ -168,6 +168,13 @@ describe('ui-workspace apply', () => {
       expect(b.retain).toHaveBeenCalledWith('forked', { source: 'mainView' })
     })
     expect(b.fork).toHaveBeenCalledWith({ sessionId: 'session', increaseTitle: true })
+    // Pin rides the injected callback into the same service the store writes through.
+    const pin = vi.spyOn(b.ctx.uiWorkspace, 'pinSession').mockResolvedValue()
+    const unpin = vi.spyOn(b.ctx.uiWorkspace, 'unpinSession').mockResolvedValue()
+    await browser.pinSession('session' as never)
+    expect(pin).toHaveBeenCalledWith('session')
+    await browser.unpinSession('session' as never)
+    expect(unpin).toHaveBeenCalledWith('session')
     await browser.renameWorkspace('ws' as never, 'renamed')
     expect(b.rename).toHaveBeenCalledWith('ws', 'renamed')
     await browser.createWorkspace({ path: '/tmp/browser-project' })

@@ -22,6 +22,7 @@ import { SessionInputShell } from '../src/client/input/facade.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { ConversationContent } from '../src/client/skeleton/ConversationContent.tsx'
 import { ConversationMainPanel } from '../src/client/skeleton/ConversationMainPanel.tsx'
+import { ConversationHeader } from '../src/client/skeleton/ConversationHeader.tsx'
 import { ConversationSession, ConversationSessionHeader } from '../src/client/skeleton/ConversationSession.tsx'
 import { conversationPhase } from '../src/client/contract/snapshot.ts'
 import { HeroShell } from '../src/client/skeleton/EmptyHero.tsx'
@@ -136,7 +137,7 @@ function workspace(id = 'w1'): WorkspaceView {
 }
 
 const workspaceState = (items: readonly WorkspaceView[]): WorkspaceSnapshot => ({
-  items, archivedSessionIds: [], state: 'idle', phase: 'ready', error: null,
+  items, archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null,
 })
 
 function sessionSnapshotOf(overrides: Partial<SessionSnapshot> = {}): SessionSnapshot {
@@ -227,17 +228,40 @@ function mount(
       lineageOwners.push(owner as ConversationHeaderLineageOwnerProps)
       return opts?.fallback ?? null
     }
-    if (key === 'conversation.session.header') {
+    if (key === 'conversation.header') {
+      // The real resident header: it renders the root-scoped leading seat and
+      // defers the Session half to the branch below.
       return (
-        <ConversationSessionHeader
+        <ConversationHeader
           sessionId={SID}
           SessionProvider={({ children }) => children}
           useSession={useSession}
           useConversation={useConversation}
+          useSessions={props.useSessions}
+          usePanelInfo={props.usePanelInfo}
+          useResource={useResource}
+          useSessionStatus={useSessionStatus}
+          useSessionRetainInfo={() => undefined}
+          useWorkspaces={props.useWorkspaces}
+          useProjection={(() => undefined)}
+          useInput={useInput}
+          inputActions={inputActions}
+          renderSlot={renderSlot as never}
+        />
+      )
+    }
+    if (key === 'conversation.session.header') {
+      return (
+        <ConversationSessionHeader
+          sessionId={SID}
+          hideChrome={(owner as { hideChrome: boolean }).hideChrome}
+          SessionProvider={({ children }) => children}
+          useSession={useSession}
+          useConversation={useConversation}
+          useSessions={props.useSessions}
           useConversationViews={useConversationViews}
           useChat={useChat}
           useTrajectory={useTrajectory}
-          useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
           useResource={useResource}
           useSessionStatus={useSessionStatus}
@@ -552,7 +576,7 @@ describe('ConversationRoot resident composer', () => {
     expect(host?.contains(seat)).toBe(true)
     expect(seat?.contains(textarea)).toBe(true)
     expect(b.slotCalls).toContain('conversation.session.header.lineage')
-    expect(b.slotCalls).toContain('conversation.session.header.leading')
+    expect(b.slotCalls).toContain('conversation.header.leading')
     expect(b.slotCalls).toContain('conversation.session.header.actions')
     expect(b.slotCalls).toContain('conversation.session.header.utilities')
     expect(b.slotCalls).toContain('conversation.session.header.corner')

@@ -62,10 +62,36 @@ async function boot() {
   }
   const layout = { openRightbar: vi.fn(), closeRightbar: vi.fn() }
   const resources = { pin: vi.fn<(address: string, signal: AbortSignal) => void>() }
+  // The retained Session Views subscribe to the Workspace UI's main selection
+  // and allocate one reference per view, so both faces are recorders here.
+  const selectionListeners = new Set<() => void>()
+  const selection = {
+    getSnapshot: () => ({}),
+    subscribe: (listener: () => void) => {
+      selectionListeners.add(listener)
+      return () => { selectionListeners.delete(listener) }
+    },
+  }
+  const retained: { sessionId: SessionId; released: boolean }[] = []
+  const sessions = {
+    retain: vi.fn((sessionId: SessionId) => {
+      const entry = { sessionId, released: false }
+      retained.push(entry)
+      return {
+        sessionId,
+        binding: { sessionId },
+        ready: Promise.resolve(undefined),
+        release: () => { entry.released = true },
+        [Symbol.dispose]: () => { entry.released = true },
+      }
+    }),
+  }
   ctx.provide('slots', slots as never)
   ctx.provide('locale', locale as never)
   ctx.provide('layout', layout as never)
   ctx.provide('resources', resources as never)
+  ctx.provide('sessions', sessions as never)
+  ctx.provide('uiWorkspace', { selection } as never)
   ctx.provide('shortcuts', {
     register: vi.fn(() => () => {}), registerFixed: vi.fn(() => () => {}),
     observeFixedInput: vi.fn(() => () => {}),
@@ -82,7 +108,7 @@ async function boot() {
     if (entry.inject === undefined) throw new Error(`expected ${entry.name} to inject`)
     return entry.inject(SESSION)
   }
-  return { ctx, registered, dictionaries, layout, resources, fiber, seat, injectedOf }
+  return { ctx, registered, dictionaries, layout, resources, sessions, retained, selectionListeners, fiber, seat, injectedOf }
 }
 
 describe('ui-sidebar-right apply', () => {

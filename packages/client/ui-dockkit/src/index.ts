@@ -62,7 +62,7 @@ export type { IdMinter, TabFactory } from './engine/initial.ts'
 export type { DockIntents, DockLabels, TabMenuExtras, TabRenderer } from './contract/adapter.ts'
 
 // React surface.
-export { DockSurface } from './components/DockSurface.tsx'
-export type { DockSurfaceProps } from './components/DockSurface.tsx'
+export { DockLayout, DockSurface } from './components/DockSurface.tsx'
+export type { DockLayoutProps, DockSurfaceProps } from './components/DockSurface.tsx'
 export { FloatLayer } from './components/FloatLayer.tsx'
 export type { FloatLayerProps } from './components/FloatLayer.tsx'

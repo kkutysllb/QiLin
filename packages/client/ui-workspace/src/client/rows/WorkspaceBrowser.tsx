@@ -192,6 +192,12 @@ type SessionTreeProps = Pick<
   setSessionOrder: (accountKey: string, order: readonly string[]) => void
   /** Registry-global archive set (hidden rows). */
   archivedSessionIds: readonly SessionNode['id'][]
+  /** Registry-global pin set; pinned rows lead their group. */
+  pinnedSessionIds: readonly SessionNode['id'][]
+  /** Pin a session (row menu and hover action). */
+  onSessionPin: (sessionId: SessionNode['id']) => void
+  /** Drop a session's pin. */
+  onSessionUnpin: (sessionId: SessionNode['id']) => void
   /** Open the browser-owned rename dialog for a real Workspace group. */
   onRenameRequest: (workspaceId: WorkspaceId, currentTitle: string) => void
   /** Open the browser-owned delete-confirmation dialog for a real Workspace group. */
@@ -209,7 +215,7 @@ type SessionTreeProps = Pick<
 /** The scrolling session tree; unmounting drops the sessions subscription and expand-all state. */
 function SessionTree({
   list, useSessionStatus, startSession, open, forkSession, workspaces, ungroupedSessionIds,
-  archivedSessionIds,
+  archivedSessionIds, pinnedSessionIds, onSessionPin, onSessionUnpin,
   workspaceReady, usePanelInfo,
   onRenameRequest, onDeleteRequest, onSessionRename, onSessionArchive,
   insertWorkspaceBefore,
@@ -262,11 +268,11 @@ function SessionTree({
       .filter(key => groupExpansion[key] ?? ancestorKeys.has(key))
   }, [groupExpansion, parents, workspaces])
   const groups = useMemo(
-    () => deriveGroups(list, workspaces, archivedSessionIds, statuses, {
+    () => deriveGroups(list, workspaces, { pinnedSessionIds, archivedSessionIds }, statuses, {
       expandedGroups,
       ungroupedOrder: ungroupedSessionIds,
     }),
-    [list, workspaces, archivedSessionIds, statuses, expandedGroups, ungroupedSessionIds],
+    [list, workspaces, pinnedSessionIds, archivedSessionIds, statuses, expandedGroups, ungroupedSessionIds],
   )
   useEffect(() => {
     for (let key = revealGroup; key !== undefined; key = parents.get(key)) {
@@ -522,6 +528,8 @@ function SessionTree({
               onRename={onSessionRename}
               onFork={forkSession}
               onArchive={onSessionArchive}
+              onPin={onSessionPin}
+              onUnpin={onSessionUnpin}
               onReveal={node.id === revealSessionId && group.key === revealGroup
                 ? () => { onSessionRevealed(node.id) }
                 : undefined}
@@ -567,7 +575,8 @@ function SessionTree({
 
 /** The flat "In one list" body: every session is one draggable top-level row. */
 function FlatList({
-  list, sessionIds, useSessionStatus, open, forkSession, onSessionRename, onSessionArchive,
+  list, sessionIds, pinnedSessionIds, useSessionStatus, open, forkSession, onSessionRename, onSessionArchive,
+  onSessionPin, onSessionUnpin,
   usePanelInfo, setSessionOrder,
   revealSessionId, onSessionRevealed, t, renderSlot,
 }: Pick<
@@ -577,6 +586,8 @@ function FlatList({
   | 'forkSession'
   | 'onSessionRename'
   | 'onSessionArchive'
+  | 'onSessionPin'
+  | 'onSessionUnpin'
   | 'usePanelInfo'
   | 'setSessionOrder'
   | 'revealSessionId'
@@ -586,12 +597,13 @@ function FlatList({
 > & {
   list: SessionListState
   sessionIds: readonly SessionId[]
+  pinnedSessionIds: readonly SessionId[]
 }) {
   const panelActive = usePanelInfo(info => info.activePanelId !== null)
   const statuses = useSessionStatus(s => s)
   const rows = useMemo(
-    () => deriveFlat(list, sessionIds, statuses),
-    [list, sessionIds, statuses],
+    () => deriveFlat(list, sessionIds, pinnedSessionIds, statuses),
+    [list, sessionIds, pinnedSessionIds, statuses],
   )
   const [drag, setDrag] = useState<DragState | null>(null)
   const dropCommitted = useRef(false)
@@ -637,6 +649,8 @@ function FlatList({
               onRename={onSessionRename}
               onFork={forkSession}
               onArchive={onSessionArchive}
+              onPin={onSessionPin}
+              onUnpin={onSessionUnpin}
               onReveal={node.id === revealSessionId
                 ? () => { onSessionRevealed(node.id) }
                 : undefined}
@@ -709,7 +723,7 @@ function SearchResults({
       list,
       workspaces,
       query,
-      archivedSessionIds,
+      { archivedSessionIds },
       statuses,
       currentRemote,
       resultLimit,
@@ -780,6 +794,8 @@ export function WorkspaceBrowser({
   deleteWorkspace,
   insertWorkspaceBefore,
   archiveSession,
+  pinSession,
+  unpinSession,
   createWorkspace,
   searchSessions,
   searchResultLimit,
@@ -802,6 +818,7 @@ export function WorkspaceBrowser({
   const workspacePhase = useWorkspaces(state => state.phase)
   const workspaceStreamState = useWorkspaces(state => state.state)
   const archivedSessionIds = useWorkspaces(state => state.archivedSessionIds)
+  const pinnedSessionIds = useWorkspaces(state => state.pinnedSessionIds)
   // Live occupancy of this surface's directory-flow hole (the same source the
   // flow reads): a composition without a picking affordance can add nothing.
   const directoryFlowAvailable = useDirectoryFlow(occupied => occupied)
@@ -820,7 +837,7 @@ export function WorkspaceBrowser({
     return list.ids.filter(id => list.byId[id] !== undefined && !accounted.has(id))
   }, [list, workspaces])
   const flatMemberIds = useMemo(
-    () => visibleSessionIds(list, archivedSessionIds),
+    () => visibleSessionIds(list, { archivedSessionIds }),
     [archivedSessionIds, list],
   )
   const orderedWorkspaces = useMemo(() => workspaces.map((workspace) => {
@@ -1112,6 +1129,19 @@ export function WorkspaceBrowser({
     })
   }
 
+  // Pin is a two-sided gesture: the Host call decides the set, and a rejection
+  // is a non-fatal console diagnostic like the other row verbs.
+  const onSessionPin = (sessionId: SessionNode['id']) => {
+    pinSession(sessionId).catch((reason: unknown) => {
+      console.warn('session pin rejected:', reason)
+    })
+  }
+  const onSessionUnpin = (sessionId: SessionNode['id']) => {
+    unpinSession(sessionId).catch((reason: unknown) => {
+      console.warn('session unpin rejected:', reason)
+    })
+  }
+
   // Delete dialog is separate from the row so a successful removal can
   // unmount that row without tearing down the in-flight confirmation state.
   const [deleteTarget, setDeleteTarget] = useState<{ workspaceId: WorkspaceId; title: string } | null>(null)
@@ -1306,6 +1336,8 @@ export function WorkspaceBrowser({
                 useSessionStatus={useSessionStatus}
                 open={open} forkSession={forkSession}
                 onSessionRename={onSessionRename} onSessionArchive={onSessionArchive}
+                onSessionPin={onSessionPin} onSessionUnpin={onSessionUnpin}
+                pinnedSessionIds={pinnedSessionIds}
                 setSessionOrder={saveSessionOrder}
                 revealSessionId={revealSessionId}
                 onSessionRevealed={acknowledgeSessionReveal}
@@ -1321,6 +1353,8 @@ export function WorkspaceBrowser({
                 renderSlot={renderSlot}
                 onSessionRename={onSessionRename}
                 onSessionArchive={onSessionArchive}
+                onSessionPin={onSessionPin}
+                onSessionUnpin={onSessionUnpin}
                 forkSession={forkSession}
                 workspaces={orderedWorkspaces}
                 ungroupedSessionIds={orderedUngroupedSessionIds}
@@ -1330,6 +1364,7 @@ export function WorkspaceBrowser({
                 setGroupExpanded={actions.setGroupExpanded}
                 setSessionOrder={saveSessionOrder}
                 archivedSessionIds={archivedSessionIds}
+                pinnedSessionIds={pinnedSessionIds}
                 startSession={startSession}
                 open={open}
                 insertWorkspaceBefore={insertWorkspaceBefore}

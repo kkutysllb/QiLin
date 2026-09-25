@@ -247,7 +247,7 @@ rc.2 主体（批次 A–F2）确实在树里。真正的未对齐是 **8 个功
 - **已落地**：ui-conversation 的 `contract/groups.ts` + `conversation/{group-registry,group-store}` + assembler/location-index/assembly 的 `changedTurns`/`grouped` 支持；ui-chat 的 `ChatGroupSeat`、`render-entry`、`step-process`、`use-disclosure`、`use-process-scroll`、`use-scroll-follow`、`turn-trigger`、`TurnTriggerNodeView`、`contract/{process-groups,chat-visibility}`、`conversation-nodes/process-{activity,groups}`；ui-tool 的 `ToolCallCommonProps.useDisclosure` 面。
 - **验证**：7 包 **1493 测试绿**（含 process-groups 28、conversation-groups 12+19、turn-trigger 17）；`verify-client-catalog` up to date（catalog 不再截断）；`verify-client-ui-i18n` 846 文件通过；**`kylin-client-runner` 的 `useDisclosure?` 那条既有红已消除**。
 - **未触及**：`SessionEventMap`/会话格式/持久化（本簇确实不改格式）；`TurnProcessNodeView` 仍是 QiLin 自有计数式控件，分组只接管过程行。
-- **遗留**：① 上游「基础设施行过滤」（system-prompt/普通 context/permission command 隐藏）未移植 → 无 control 的回合前段注入行按锚点排序，可能出现 context 先于开场 user，已在 README 与注释标注；② `ChatGroupSeat`/`use-process-scroll`/`use-scroll-follow`/`render-entry`/`step-process` 缺渲染级 spec，**`test:coverage` 逐文件 100% 很可能红**；③ 上游 turn-tail 完成页脚、ChatView viewport 重构、`toolCallFocus`、`ChatNodeStore.turnDataSource`、`apps/web/tests/step-process.e2e.ts` 属其他簇，未动。
+- **遗留**：① 上游「基础设施行过滤」（system-prompt/普通 context/permission command 隐藏）未移植 → 无 control 的回合前段注入行按锚点排序，可能出现 context 先于开场 user，已在 README 与注释标注；② ~~`ChatGroupSeat`/`use-process-scroll`/`use-scroll-follow`/`render-entry`/`step-process` 缺渲染级 spec 会红覆盖率门禁~~ —— **该判断已被实测推翻**：这些路径在 `vitest.config.ts` 的 `coverage.exclude` 里（上游同样豁免）。真正卡门禁的是 `contract/chat-visibility.ts` 的 branches 85.71%（`permission` command 分支从未被求值，因为移植时裁掉了上游同名用例），已单独修复；③ 上游 turn-tail 完成页脚、ChatView viewport 重构、`toolCallFocus`、`ChatNodeStore.turnDataSource`、`apps/web/tests/step-process.e2e.ts` 属其他簇，未动。
 
 ### 簇 J 落地记录（2026-09-26）
 
@@ -255,6 +255,58 @@ rc.2 主体（批次 A–F2）确实在树里。真正的未对齐是 **8 个功
 - **验证**：8 包 **720 passed / 8 skipped**；`tsc -b` 双面零错误；`test:docs` 20/20。
 - **过程中的两个根因**：① Typert 生成器拒绝 `@qilin/jobs/view` 跨包引用，实为 `tsconfig.base.json` 生成式 paths 别名缺条目（补 4 条手写别名即可，无需偏离上游写法）；② `verify-kylin-catalog` 的 `SERVICE_PAGE` 值被误写成整句说明而非页名（应为 `jobs.md`），我已修正；另 `ctx.developerTools` 属既有 partition 缺口（声明文件未改），按生成器指示补入 `serviceWalkExemptions` 并注明文档归属。
 - **未移植**：`promoteOnTimeout`（前台超时转后台，需动 shell seam）、`live-job-stream.e2e.ts`、C2 的 `step-process.e2e.ts`；`background-job-list.e2e.ts` 已改签名但未跑真机。
+
+### 批次二提交与整波复验（2026-09-26）
+
+**提交**：批次二（`feat: 对齐上游 dsh 0.1.7-rc.2——门禁盲区/jobs 远程面/过程分组/配置 schema 与 Config inspect`）。
+
+**复验结果**
+
+| 项 | 结果 |
+|---|---|
+| 门禁扫描（route / no-unknown-casts / package-meta / package-dependencies / client-catalog / kylin-catalog / module-graph / doc-graphs / export-jsdoc / plugin-packages） | 全 PASS |
+| `test:docs` | 20 passed / 0 failed |
+| `tsc -b tsconfig.client.json` / `tsconfig.host.json` | 零错误 |
+| `pnpm run test:gui` | 521 文件中 **520 通过**；7729 测试通过 / 1 失败（见下） |
+
+**过程中修掉的门禁红**：① `verify-kylin-catalog` —— J 把 `SERVICE_PAGE.jobController` 的值写成整句说明而非页名（应为 `jobs.md`），另 `ctx.developerTools` 属既有 partition 缺口（声明文件未改），按生成器指示补入 `serviceWalkExemptions` 并注明文档归属；② `verify-package-dependencies` —— ui-chat 缺 `@qilin/brand`/`@qilin/util-values` devDependencies（C2 引入），已 `--fix`；③ `verify-no-unknown-casts` —— 16 处**既有** `as unknown` 因夹具新增必填属性而指纹变化（逐文件计数与 HEAD 相同，无净新增），按门禁自身写路径重采基线（642 文件 / 1361 条，断言 1691）；④ `verify-plugin-packages` —— 新包入列后重生成；⑤ 提交前清理 **44 个被 `git add -A` 误纳的编译残留**（`.d.ts` 直写 `src/`）。
+
+**既有红（非本批引入，已逐条核实）**
+
+- `client/ui-trajectory/tests/views.client.spec.tsx` 1 例失败（"marks an unloaded history prefix…"，focus 后取不到 tooltip）。核实方式：把 spec 临时还原到 HEAD 复跑，**同样失败**；且 `ui-primitives` 的 Tooltip 与该包子代自批次一以来只有 barrel 新增导出，未改行为。
+- `client/ui-approval/tests/ui-approval.client.spec.tsx` 测试全绿但抛未处理拒绝（`test invariants: invariant service settled without becoming active`），单独跑同样出现；该包未被本波触碰。
+- `test:snapshot` lane 仍因无关 stderr 断言（`deepseek-official` 适配器重复注册）整体不可用，需有 key 环境。
+
+### 既有红清单（与本轮对齐无关，逐条核实过，供裁决）
+
+| # | 位置 | 症状 | 核实方式 |
+|---|---|---|---|
+| 1 | `packages/client/ui-trajectory/tests/views.client.spec.tsx` | "marks an unloaded history prefix…" focus 后取不到 tooltip | 把 spec 临时还原到 HEAD 复跑同样失败；单独跑该文件仍失败、`-t` 单跑通过 → 文件内状态/顺序缺陷 |
+| 2 | `packages/client/ui-approval/tests/ui-approval.client.spec.tsx` | 15 例全绿但抛未处理拒绝（`invariant service settled without becoming active`） | 该包未被本波触碰；单独跑同样出现 |
+| 3 | `scripts/session-fixture-layout.spec.ts` | 1/29 失败（`preserving source reference order`） | 文件未被本波触碰 |
+| 4 | `scripts/session-snapshot-corpus.corpus.ts` 的保留角色断言 | 硬写 `retainedRoles: 11` vs 实得 10 | 加/不加 C4 的 scenario 都是 10 |
+| 5 | `test:snapshot` lane | 因 `llm-deepseek` 与 `llm-deepseek-api-key` 都注册 `deepseek-official` adapter 而整条不可用（对照组 `-t text-turn` 同样失败） | 需有 key 环境复验 |
+| 6 | `apps/web/tests/tool-details.e2e.ts` + `snapshots/web/tool-details/*`（本波新增） | 未真机回放（树当次 client typecheck 不过，无法重建 web dist） | 提交前需 `QILIN_SNAPSHOT=refresh` 重录，否则先不入库 |
+
+**已在本轮修掉的既有红**：`source-artifacts` 门禁未接线、`replaceWindow` JSDoc 错位、`ui-settings` 依赖归类、`ui-open-in-app` bench 缺服务、`gen-client-catalog` 缺 `@example` 分支、`ctx.developerTools` partition 豁免、ui-chat 依赖缺项。
+
+### 批次三（下批建议第 4/5 项 + 覆盖率补测）
+
+**C3 侧边栏与会话基础设施（5 项落地 4 项）**
+
+1. **会话置顶全链路**：Host `workspaceController` 的 `pinSession`/`unpinSession` Remote + `pinned` follow 增量 + 归档丢弃置顶；客户端 model/service 的 pin 集与回显；ui-workspace 行菜单/悬停按钮/尾随标记 + 派生期置顶前置 + 手动顺序写回；ui-primitives 补 pin 字形。QiLin 无上游的 `sidebar.workspaces.session.menu.item`/`row.action` 槽体系，按现有「行内菜单 + 悬停按钮」适配。
+2. **常驻会话头部**：新增 `conversation.header`（session-maybe）与 `conversation.header.leading`（root），`ConversationHeader.tsx` 无条件渲染；ui-sidebar 导航控件迁到新 root 席位。
+3. **侧边栏视图引用**：`session-view.ts`/`session-views.ts`（每 View 独立持有 Session reference、`retainTab` 保活、retire/mount 生命周期）+ 多子树渲染 + `active` 列宽门控 + `keepMounted`。**上游 `focus.ts`/`close-focus.ts` 跳过**：调用点分布在 QiLin 未对齐的 `service.commandTarget` 与 seat 注入上，单独移植会成无 owner 死代码。
+4. **停靠稳定标签容器**：`TabLayout`/`DockLayout`（平坦 Grid、浮动同树、`keepMounted`/`active`、焦点交接、非法树形抛错），右侧栏 `SidebarPanel` 切到 `DockLayout`。
+5. **文件树目录监听：未做**。上游依赖按路径的 OS 级 watch（`workspaceFiles.changes(scope, path, signal)`），QiLin 的 `workspace-files.changes(scope, signal)` 只转发 `fs/observed`（无 watch），忠实移植需新增 `fs watch` 能力 seam（Host + provider + Remote + 测试），超出本簇 → 如实跳过，列作独立缺口。
+
+**C4 工具详情卡**：`ToolDetails` + 4 个 detail model + `details-row`（37 keyed 注册）+ `todo-diff-model`/`todo-history`；`ToolRow` 在 C2 之上外科式加 `details`；恢复 37 个 `tool.title.*` 映射；ui-conversation 词典补 201 键。**顺手修掉既有回归**：`scripts/gen-client-catalog.ts` 丢了上游 `@example` 分支（仓库自带 spec 在 HEAD 即红）。catalog 预算所限把 `tool.call.toolview` 槽 JSDoc 13→6 行（summary 首句未变）。
+
+**覆盖率补测（纠错）**：C2 报的 5 个「缺渲染 spec 会红门禁」文件实测**都在 `vitest.config.ts` 的豁免名单里**（与上游逐行相同）。真正卡门禁的只有 `contract/chat-visibility.ts` 的分支 85.71%（`permission` command 分支从未求值，因移植时裁掉上游同名用例）→ 按行为语义补回，**分支 7/7 = 100%**，未加任何 `v8 ignore`。另按「上游是否有具名 spec」对齐：移植上游 `scroll-follow.client.spec.ts`（11 例），并把上游藏在 `chat-view` 集成用例里的覆盖面落成 `group-seat.client.spec.tsx`（13 例）。
+
+**过程中修掉的生成器红**：`verify-kylin-catalog`/`verify-doc-graphs` 因 C3 新增 `WorkspacePinSessionRequest`/`WorkspaceUnpinSessionRequest`/`WorkspacePinValue` 三个类型未分类而红 → 补入 `linkedTypePages` 并重生成两份产物。
+
+**既有红新增**：`verify-client-domain-graph` **38 处违规**（`skeleton→input`、`view→browser`、`text→document` 等），已逐条与工作树改动求交：**0 处涉及本轮改动的文件**，且门禁脚本本身未改 → 纯既有红；`test-support/client-runtime` 的 `assembly-test-client` ResizeObserver 泄漏（用 HEAD 版本复现）。
 
 **最终验证（批次一收尾）**：门禁 spec 合并跑 `314 passed | 1 skipped`；`run-gates.spec` 107/107；`test:docs` **20 passed / 0 failed**；`verify-plugin-packages` up to date；`tsc -b tsconfig.client.json` 与 `tsconfig.host.json` 双面 exit 0；plugin-manager + ui-primitives 1165 测试绿；ui-settings-models + ui-conversation 746 测试绿；agent-presets 195 测试绿。
 - 门禁盲区：`apps/web/src/auth/auth.ts`、`open-in-app`（客户端仍用 `hostBase()`）、`file-upload`、`ui-deliverables/changes.ts` 仍绑源站根，门禁按名字判定看不见。

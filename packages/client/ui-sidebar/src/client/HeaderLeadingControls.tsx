@@ -10,15 +10,16 @@ import css from './HeaderLeadingControls.module.css'
 
 /** Full props of the conversation-header leading occupant. */
 export type HeaderLeadingControlsProps =
-  PropsRuntime<'conversation.session.header.leading'>
+  PropsRuntime<'conversation.header.leading'>
   & InjectFace<SidebarRootInjected>
   & PropsLocale<'sidebar'>
 
 /**
- * Sidebar-open and New Session controls in the conversation header's leading
- * seat. On macOS desktop a collapsed sidebar hides entirely (no rail), taking
- * both controls off screen; this occupant puts them back beside the traffic
- * lights. Mounted whenever the platform matches; visibility rides the
+ * Sidebar-open and New Session controls in the conversation header's
+ * root-scoped leading seat, which the resident header renders with or without
+ * a selected Session. On macOS desktop a collapsed sidebar hides entirely (no
+ * rail), taking both controls off screen; this occupant puts them back beside
+ * the traffic lights. Mounted whenever the platform matches; visibility rides the
  * AppFrame-published `data-sidebar-collapsed` attribute in CSS, so no
  * collapse-state pipe is added here.
  * @param props - Injected sidebar actions plus the sidebar locale seat.

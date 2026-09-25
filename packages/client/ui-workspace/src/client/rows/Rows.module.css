@@ -224,6 +224,24 @@
   flex: none;
 }
 
+/* The rest-state pin marker: the same 16x20 cell the hover pin button lands
+   in, so switching between them moves nothing. */
+.pinIndicator {
+  display: inline-flex;
+  flex: none;
+  width: 16px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.sessionRow:hover .pinIndicator,
+.sessionRow.menuOpen .pinIndicator {
+  display: none;
+}
+
 /* Trailing action buttons surface on hover only (figma 27:4668 / 27:4656):
    bare 16px glyphs, gap 12, tertiary grey. */
 .rowActions {
