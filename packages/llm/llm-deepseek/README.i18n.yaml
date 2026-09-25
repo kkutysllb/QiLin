@@ -26,9 +26,9 @@
 /qilin-llm-deepseek/use-this-package/endpoint-and-wire-format:
   en: fce88d2ebad6296c
   zh: 0c351f26b472d521
-/qilin-llm-deepseek/use-this-package/account-credentials:
-  en: 8f59f269a166a3f1
-  zh: 21ad398f8e8b1148
+/qilin-llm-deepseek/use-this-package/credentials:
+  en: 6ec16b1dad8fc8c2
+  zh: 1c4d4d46bc01f91f
 /qilin-llm-deepseek/use-this-package/streaming-with-thinking-and-images:
   en: 9b82549c6ce25261
   zh: 22a3978c5022576b
@@ -39,8 +39,8 @@
   en: 82e9335793303b7f
   zh: 5e377fdf8b270ca6
 /qilin-llm-deepseek/use-this-package/failures-and-recovery:
-  en: 1e55403ac4b534b1
-  zh: 189d6c948f4a7146
+  en: 997658e5d9ba9e20
+  zh: 6ba51cf06cde0467
 /qilin-llm-deepseek/understand-the-implementation:
   en: 1598ac8a8bb9b6bf
   zh: fdd089c5ae7722cd
@@ -84,8 +84,8 @@
   en: ddfbea043596878d
   zh: 4fbf5864a684c053
 /qilin-llm-deepseek/known-limitations-and-deferred-work:
-  en: 03bf12cee9cb3697
-  zh: 04e683b1ac433bfa
+  en: 27c340339892b5c7
+  zh: 2ab24438300df6ab
 /qilin-llm-deepseek/known-limitations-and-deferred-work/dev-note:
-  en: 1eba34b7c86fccdc
-  zh: 7d23896e9ebe3bf5
+  en: eec9fb94abe8a5b7
+  zh: 3bc42d13924ce3b7

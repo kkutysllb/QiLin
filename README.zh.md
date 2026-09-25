@@ -30,7 +30,6 @@ QiLin 处于 _开发者预览_ 阶段，正在快速迭代。**未来将出现�
 - `qilin --profile headless "task"` —— 一次性持久化运行，打印最终回答后退出。
 - `qilin --profile sdk` 与 `qilin --profile sdk-minimal` —— 由 [TypeScript](packages/sdk/README.zh.md) 与 [Python](python/README.zh.md) SDK 驱动的 JSON-RPC 服务器。
 - `qilin --profile acp` —— 面向自动化客户端的 ACP（Agent Client Protocol）服务器。
-- [桌面应用](apps/desktop/README.zh.md)以签名 Electron 应用的形式交付同一运行时。
 
 **工具与执行。** 工具集覆盖一次性与持久 PTY 两种形式的 bash 与 PowerShell、文件读写编辑与图片读取、基于内置 ripgrep 的 glob/grep 发现、LSP 查询、网络搜索与抓取、skill（技能）、todo/plan/goal 跟踪以及向用户提问的 ask-user 交互。工作可委派给后台任务、支持模型选择与中途引导的 subagent、脚本化多 agent 工作流或定时跟进；会话支持 fork、恢复与全文检索。自动生成的[工具目录](docs/tool-catalog.zh.md)列出了全部面向模型的工具。
 

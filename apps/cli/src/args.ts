@@ -70,9 +70,9 @@ function selectProfile(value: string, previous?: string): string {
   return value
 }
 
-function rejectElectronProfile(program: Command, profile: string): void {
+function rejectReservedDesktopProfile(program: Command, profile: string): void {
   if (profile.toLowerCase() === 'desktop') {
-    program.error('error: profile "desktop" is managed exclusively by the Electron application')
+    program.error('error: profile "desktop" belongs to the separate QiLin desktop application, not this repository')
   }
 }
 
@@ -180,7 +180,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       }
       const profile = options.profile ?? PRODUCT_PROFILE
       if (profile === '') program.error('error: --profile needs a name')
-      rejectElectronProfile(program, profile)
+      rejectReservedDesktopProfile(program, profile)
       resolved = resolveBoot(program, profile, options, args)
     })
 
@@ -193,7 +193,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       .action((args: string[], options: { profile?: string }) => {
         const profile = options.profile ?? PRODUCT_PROFILE
         if (profile === '') program.error('error: --profile needs a name')
-        rejectElectronProfile(plugin, profile)
+        rejectReservedDesktopProfile(plugin, profile)
         if (args.length === 0) {
           program.error('error: plugin needs a subcommand (list, doctor <name|path>, version-exemptions, allow-version <package@version>, revoke-version <package@version>) or pnpm arguments to forward (e.g. add <package>)')
         }

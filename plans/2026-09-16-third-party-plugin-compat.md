@@ -37,7 +37,7 @@
 
 ## 工作流 A：环境身份（home 根）
 
-**A1 强制注入 `DSH_HOME`。** 在 `loadLayeredEnv`（`packages/boot/app-boot/src/index.ts:212`）末尾，用已解析出的 home 覆盖 `process.env.DSH_HOME`，并把该写入作为独立来源记进 `LaunchEnvironmentSnapshot`（保持可审计）。单点修复即可覆盖两个载体：`apps/cli/src/bin.ts:35` 与 `apps/desktop-host/src/index.ts:304`。
+**A1 强制注入 `DSH_HOME`。** 在 `loadLayeredEnv`（`packages/boot/app-boot/src/index.ts:212`）末尾，用已解析出的 home 覆盖 `process.env.DSH_HOME`，并把该写入作为独立来源记进 `LaunchEnvironmentSnapshot`（保持可审计）。单点修复即可覆盖 CLI 载体：`apps/cli/src/bin.ts:35`。
 
 - 覆盖语义与现有“不覆盖更高优先级”策略相反：`DSH_HOME` 必须强制。本机进程会继承到 `DSH_HOME=/Users/libing/.kcoder`，透传即写到别的世界里去。
 - 命名空间取 `~/.qilin`，**不取** `~/.qilin/dsh-compat`。理由：`dsh-terminal` 用 `$DSH_HOME/profiles/<name>` 兜底发现 profile，插件预设写 `$DSH_HOME/.agent-presets`——只有指向真实 home 才能同时修好这两件事。代价是插件自有目录落在 home 根（`~/.qilin/super-ppts/`），这与 DSH 的既有约定一致。

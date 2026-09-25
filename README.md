@@ -30,7 +30,6 @@ Every connection in this map carries a flowing packet, and the palette follows y
 - `qilin --profile headless "task"` — a one-shot persisted run that prints the final answer and exits.
 - `qilin --profile sdk` and `qilin --profile sdk-minimal` — a JSON-RPC server driven by the [TypeScript](packages/sdk/README.md) and [Python](python/README.md) SDKs.
 - `qilin --profile acp` — an Agent Client Protocol server for automation clients.
-- The [desktop app](apps/desktop/README.md) packages the same runtime as a signed Electron application.
 
 **Tools and execution.** The tool set covers bash and PowerShell in one-shot and persistent-PTY form, file read/write/edit and image reading, glob/grep discovery over a packaged ripgrep, LSP queries, web search and fetch, skills, todo/plan/goal tracking, and ask-user questions. Work can be delegated to background jobs, subagents with model selection and steering, scripted multi-agent workflows, or scheduled follow-ups, and sessions can be forked, resumed, and full-text searched. The generated [tool catalog](docs/tool-catalog.md) lists every model-facing tool.
 

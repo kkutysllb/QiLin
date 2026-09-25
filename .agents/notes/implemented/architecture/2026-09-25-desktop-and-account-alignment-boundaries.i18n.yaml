@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-09-25-desktop-and-account-alignment-boundaries.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md
+/agent-note-desktop-shell-and-upstream-account-stack-boundaries:
+  en: 5ed6346319841234
+  zh: 1b862629d9bbf4c1
+/agent-note-desktop-shell-and-upstream-account-stack-boundaries/problem:
+  en: 2785b275d1222bc3
+  zh: e6af8a6008f0a441
+/agent-note-desktop-shell-and-upstream-account-stack-boundaries/decision:
+  en: 3deba6af58c29719
+  zh: f857ba497ff0c6e2
+/agent-note-desktop-shell-and-upstream-account-stack-boundaries/retained-web-side-interfaces:
+  en: 52769dfa26989bd5
+  zh: 247d71734da72c3c
+/agent-note-desktop-shell-and-upstream-account-stack-boundaries/alternatives-considered:
+  en: 82bdfebd05faa3e9
+  zh: 41af2924df820325
+/agent-note-desktop-shell-and-upstream-account-stack-boundaries/consequences:
+  en: 0f9e4e6c64fab8e8
+  zh: 67b389eb1442d3a6

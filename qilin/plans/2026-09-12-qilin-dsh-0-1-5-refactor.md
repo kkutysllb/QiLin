@@ -85,8 +85,8 @@
 ### 失败分类（24 个文件 / 82 项）
 1. 本机沙箱限制：fs-sandbox（EPERM mkdtemp 于用户主目录）、terminal-bash 与 tool-terminal（真实 shell）、
    tool-bash-persistent、scripts/run-gates.spec.ts（进程组与信号）、install-lefthook（git worktree 操作）。
-2. 改名引入：需要同步旧包名或旧文件名的门禁脚本与桌面应用用例，例如
-   scripts/verify-application-entrypoints.spec.ts、apps/desktop/tests/{core-package-set,prepare-package-set,project-manager}.spec.ts、
+2. 改名引入：需要同步旧包名或旧文件名的门禁脚本，例如
+   scripts/verify-application-entrypoints.spec.ts、
    scripts/{browser-bundled-externals,client-bundle-purity,lint-rule-fingerprint,package-invariants,release/families,translation-pairing-merge,verify-npm-install-layout}.spec.ts。
 3. 改名前已存在：scripts/doc-standard.spec.ts 报 packages/bundle/web-brand/README.zh.md 缺少标准中文章节标题（概述、开发备注），
    与本轮改名无关，是更早提交的 README 章节命名问题。

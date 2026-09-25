@@ -83,11 +83,11 @@ kind: "package-reference"
 
 Messages 以内容块发送文本、思考、工具调用和工具结果，以 `output_config.effort` 发送推理强度，并以 Files 引用或内联 base64 发送图片。声明 `systemPromptUpdate: in-history` 的模型保留初始顶层 system，在对应 user/tool-result 轮次之后发送新的 system 快照；未声明能力时，使用最新快照作为顶层 system。回放元数据保留模型与思考签名。无效的回放元数据产生警告并省略签名，不丢弃文本或工具历史。 模型条目可声明 `toolUpdate: addition-only` 或 `in-history`；默认 `deepseek-flash` 条目声明 `addition-only`。投影后的 developer 工具更新转换为 system 角色的 `tool_addition` 和 `tool_removal` 块，引用已声明名称，延迟声明携带 `defer_loading`。包含这些块的请求发送 `mid-conversation-tool-changes-2026-07-01` beta 请求头。
 
-### 账号凭据
+### 凭据
 
-`deepseek-official` 仅解析配置的 API Key 引用。账号路由（`deepseek-account`）仅解析账号提供方保存的授权，其允许的 `inferenceOrigin` 默认为 `https://api.deepseek.com`。两条路由均不回退到另一凭证。退出登录删除账号授权，保留 API Key。
+`deepseek-official` 仅解析配置的 API Key 引用。QiLin 账号面为自有 ui-account 包（`/api/auth` gate），上游 `deepseek-account` 栈不采，因此这里不存在账号 provider 路由或已存授权。退登由账号面负责，不属于本适配器。
 
-Messages 和 Files 请求通过 `x-qilin-auth-token` 发送账号 token，不加 Bearer 前缀；API Key 使用 `x-api-key`。两种凭据模式均拒绝重定向。账号 provider 负责 HTTP 401 分类和凭据失效处理；传输层将错误交给其回调。
+Messages 和 Files 请求以 `x-api-key` 发送 API Key，并一律拒绝重定向。
 
 ### 带 thinking 与图片的流式调用
 
@@ -117,7 +117,7 @@ Files 模式通过 `maxRequestFilesBytes` 与 `maxImagesPerRequest` 限制保留
 
 非 2xx 响应以稳定 code 失败：`AUTH`（401/403）、`QUOTA`、`RATE_LIMIT`、`CONTEXT_WINDOW_EXCEEDED`、`INVALID_REQUEST`、`SERVER` 以及其他情况的 `HTTP_<status>`；响应前传输失败抛出 `TRANSPORT`，调用方中止抛出 `ABORTED`，流空闲超时抛出 `TIMEOUT`。请求扩展准备、字段冲突或 2xx 后接受失败使用 `REQUEST_EXTENSION`。当提供方未指出 file id 时，规范化图片拒绝会列出所有可能附件及其持久位置。陈旧文件拒绝会使点名映射（或该次尝试使用的全部映射）失效，并允许一次替换模型请求。协议违规抛出 `STREAM_CLOSED` 或 `MALFORMED_RESPONSE`；不带内容块的终止 `stop` 变成 `EMPTY_RESPONSE`，默认重试策略会重试它。官方路由缺少 API Key 的请求以 `MISSING_CREDENTIAL` 失败；格式错误的凭据以 `INVALID_CREDENTIAL` 失败，并点名需要修复的引用——绝不包含密钥的任何部分。
 
-提供方插件负责目录可用性；仅账号路由要求存有凭据才能发现模型。两者的目录独立配置；传输层提供共享的默认模型元数据和能力解析。
+提供方插件负责目录可用性。两者的目录独立配置；传输层提供共享的默认模型元数据和能力解析。
 
 -----
 
@@ -204,7 +204,7 @@ loop 保留的响应块会追加到下一个请求，并保留其更早的可复
 - **替换 `models` 会替换完整目录列表**——修改单个模型条目时使用路径编辑。
 - **不映射 `tool_choice`**——不属于核心词汇（与 pi-ai 孪生共享）。
 - **请求使用原始 `fetch`，而非 `@cordisjs/plugin-http`**——没有共享代理或拦截配置。
-- **本仓库未附带账号 provider**——`deepseek-account` 尚无对应的 provider 插件；所有端点都解析 API Key，账号令牌请求头不会发送。
+- **不引入账号 provider，属决策**——QiLin 账号面为自有 ui-account（`/api/auth` gate），上游 `deepseek-account` 栈不采；所有端点都解析 API Key，账号令牌请求头不会发送。
 - **Messages 历史内 system 更新需要保留用户或工具结果轮次**——若更新后的全部用户输入都被省略，且前一个协议轮次是 assistant，序列化会在下一个 assistant 之前或请求结束处以 `UNSUPPORTED_CONTENT` 失败。文本或空工具结果可以保留该轮次。不支持将更新移到更早的轮次。
 - **图片是仅用于输入的持久附件**——不支持直接外部 URL 与 assistant 图片输出；DeepSeek 输入通常使用 Files API，仅在单次请求恢复时使用内联 base64。
 - 默认目录公布 `deepseek-flash` 及其文本、图片和历史内更新能力，不探测网关可用性。网关开放该 ID 前，请求可能以 `INVALID_REQUEST` 失败。
@@ -217,4 +217,4 @@ loop 保留的响应块会追加到下一个请求，并保留其更早的可复
 
 **运行时不变式：** 不发布伴生入口。本包没有独立事件序列或可变数据关系，相关约定在所属 seam 强制执行。
 
-`deepseek-official` 仅使用配置的 API Key 引用；延后落地的 `deepseek-account` 路由将仅在账号提供方允许的推理来源使用已保存的授权。两条路由共享 Messages 传输，模型与文件设置独立配置。账号凭证缺失或不适用于目标时拒绝请求并提示登录；两条路由均不回退到另一凭证。Chat 和 Files 请求拒绝重定向。账号提供方根据运行中 Agent 已记录的请求上下文负责退登取消，包括工具执行阶段；传输层接收现有请求的中止信号。
+`deepseek-official` 仅使用配置的 API Key 引用。QiLin 账号面为自有 ui-account（`/api/auth` gate），上游 `deepseek-account` 栈不采，因此这里没有存授权路由。Chat 和 Files 请求拒绝重定向；退登取消由账号面负责，不属于本传输层。

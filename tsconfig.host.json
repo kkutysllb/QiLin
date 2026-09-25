@@ -8,7 +8,6 @@
     "rewriteRelativeImportExtensions": false
   },
   "files": [
-    "packages/client/ui-settings-general/src/client/desktop-update-bridge.ts",
     "packages/client/web/src/window-drag/regions.ts"
   ],
   "include": [
@@ -139,9 +138,6 @@
     "apps/web/tests/workflow-run.e2e.ts",
     "apps/web/stress-tests/reasoning-chunks.stress.ts",
     "apps/cli/tests/**/*.ts",
-    "apps/desktop/scripts/**/*.ts",
-    "apps/desktop/tests/**/*.ts",
-    "apps/desktop-host/tests/**/*.ts",
     "benchmarks/**/*.ts",
     "packages/*/*/tests/**/*.ts",
     // Client-face entries pulled into this program by host-side specs and e2e fixtures
@@ -159,7 +155,6 @@
   // suffixes are mutually exclusive, so each aggregate excludes the other's
   // and the package test glob above needs no per-file entry.
   "exclude": [
-    "apps/desktop/tests/keyboard.spec.ts",
     "packages/client/file-upload/src/**",
     "packages/client/hmr/src/**",
     "packages/client/locale/src/**",
@@ -489,8 +484,6 @@
     { "path": "./packages/lsp/lsp" },
     { "path": "./packages/lsp/lsp-stdio" },
     { "path": "./packages/lsp/tool-lsp" },
-    { "path": "./apps/cli" },
-    { "path": "./apps/desktop-host" },
-    { "path": "./apps/desktop" }
+    { "path": "./apps/cli" }
   ]
 }

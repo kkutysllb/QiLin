@@ -1,7 +1,7 @@
 /**
  * Settings shell root: the full-window settings page (figma 501:29947) with
  * the resizable section nav rail, plus the closed-panel sidebar foot row for
- * connection recovery and desktop updates. The shell is a pure composition
+ * connection recovery. The shell is a pure composition
  * face — slot-owned text (panel title, close label, sections) arrives from
  * registrants through slots; accessible names resolve from localized content
  * (dialog: aria-labelledby the title node; close: visually-hidden slot text).
@@ -24,7 +24,6 @@ import {
 import type { ConnectionIndicatorState } from '@qilin/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
 import css from './SettingsRoot.module.css'
-import { DesktopUpdateIndicator } from './DesktopUpdateIndicator.tsx'
 
 const RECOVERY_CONFIRMATION_MS = 2_000
 
@@ -248,7 +247,7 @@ function SettingsPanel({
 export function SettingsRoot(props: SettingsRootComponentProps) {
   const {
     wide, reconnect, registerOpen, useConnectionState, useSections, useOnboardingSteps, useSessions,
-    renderSlot, t, useDesktopUpdate, openDesktopUpdate, useStore, actions,
+    renderSlot, t, useStore, actions,
   } = props
   const { open, activeId } = useStore(state => state)
   const [navWidth, setNavWidth] = useState(SETTINGS_NAV_DEFAULT_WIDTH)
@@ -272,7 +271,6 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
   // freshly localized text on locale change, and the header/close seats
   // re-render through their own outlets' subscriptions.
   const rows = useSections(s => s)
-  const desktopUpdate = useDesktopUpdate(state => state)
   const connectionState = useConnectionState(state => state)
   const previousConnectionState = useRef(connectionState)
   const onboardingSteps = useOnboardingSteps(s => s)
@@ -347,16 +345,13 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
   }
 
   // The foot row is the closed panel's only status seat, so it renders whenever
-  // either the connection state or the desktop update has something to show.
-  const updateActive = desktopUpdate.failed
-    || (desktopUpdate.presentation !== undefined && desktopUpdate.presentation.phase !== 'idle')
-
+  // the connection state has something to show.
   return (
     <>
-      {wide && (connectionIndicator !== undefined || updateActive) && (
+      {wide && connectionIndicator !== undefined && (
         <div className={css.connectionRow}>
           <ConnectionIndicator
-            state={desktopUpdate.presentation?.phase === 'installing' ? undefined : connectionIndicator}
+            state={connectionIndicator}
             disconnectedLabel={t('connection.error')}
             connectingLabel={t('connection.connecting')}
             recoveredLabel={t('connection.connected')}
@@ -364,8 +359,6 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
             restartActionLabel={t('connection.restart')}
             onReconnect={reconnect}
           />
-          <DesktopUpdateIndicator wide={wide} hidden={connectionIndicator !== undefined && desktopUpdate.presentation?.phase !== 'installing'}
-            t={t} view={desktopUpdate} onOpen={openDesktopUpdate} />
         </div>
       )}
       {open && (

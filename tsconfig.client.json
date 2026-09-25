@@ -144,7 +144,6 @@
     { "path": "./packages/api/workspace-files/tsconfig.client.json" },
     { "path": "./packages/client/web" },
     { "path": "./packages/context/file-reference" },
-    { "path": "./apps/web" },
-    { "path": "./tsconfig.desktop-keyboard-tests.json" }
+    { "path": "./apps/web" }
   ]
 }

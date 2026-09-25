@@ -11,7 +11,6 @@ import { createSettingsShellStore } from '../src/client/shell-store.ts'
 import { bindSnapshotSelector } from '@qilin/client-test-runtime'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
 import { en, zh } from '../src/client/locales.ts'
-import type { DesktopUpdateView } from '../src/client/desktop-update-bridge.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
@@ -52,7 +51,6 @@ function mount({
   wide = true,
   dictionary = en,
   connectionState = 'connected',
-  desktopUpdate = { failed: false, opening: false },
   onboardingActive = true,
   mainView = true,
   rows = [
@@ -69,7 +67,6 @@ function mount({
   wide?: boolean
   dictionary?: typeof en
   connectionState?: ConnectionSnapshot
-  desktopUpdate?: DesktopUpdateView
   onboardingActive?: boolean
   mainView?: boolean
   rows?: Row[]
@@ -120,8 +117,6 @@ function mount({
       openHandlers.add(handler)
       return () => { openHandlers.delete(handler) }
     },
-    openDesktopUpdate: () => {},
-    useDesktopUpdate: select => select(desktopUpdate),
     t: makeTranslate(dictionary),
     useConnectionState: (select) => {
       const [, force] = useState(0)
@@ -164,12 +159,8 @@ function mount({
     })
   }
   requestMountedOpen = () => { requestOpen() }
-  const setDesktopUpdate = (next: DesktopUpdateView) => {
-    desktopUpdate = next
-    view.rerender(<SettingsRoot {...props} />)
-  }
   return {
-    view, renderSlot, bump, listeners, reconnect, setConnectionState, setDesktopUpdate, requestOpen,
+    view, renderSlot, bump, listeners, reconnect, setConnectionState, requestOpen,
     openHandlers,
   }
 }
@@ -309,35 +300,6 @@ describe('SettingsRoot connection status', () => {
   it('keeps the reconnect indicator out of the collapsed rail', () => {
     mount({ wide: false, connectionState: 'disconnected' })
     expect(screen.queryByRole('button', { name: 'Disconnected, reconnect now' })).toBeNull()
-  })
-})
-
-describe('SettingsRoot desktop update', () => {
-  it('reports the update status in the closed-panel foot row', () => {
-    const f = mount({
-      desktopUpdate: { failed: false, opening: false, presentation: { phase: 'available', version: '1.0.1' } },
-    })
-    expect(screen.getByRole('button', { name: 'Update' })).toBeTruthy()
-
-    // A failed carrier keeps the seat with a retry label and no status.
-    f.setDesktopUpdate({ failed: true, opening: false })
-    expect(screen.getByRole('button', { name: 'Retry update' })).toBeTruthy()
-
-    f.setDesktopUpdate({ failed: false, opening: false })
-    expect(screen.queryByRole('button', { name: 'Retry update' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Update' })).toBeNull()
-  })
-
-  it('shows installation instead of expected backend reconnection and restores connection feedback after failure', () => {
-    const presentation = { phase: 'installing' as const, version: '1.0.1' }
-    const f = mount({ dictionary: zh, connectionState: 'connecting',
-      desktopUpdate: { failed: false, opening: false, presentation } })
-    expect(screen.getByRole('button', { name: '正在准备重启…' })).toBeTruthy()
-    expect(screen.queryByText('重新连接中')).toBeNull()
-    f.setDesktopUpdate({ failed: false, opening: false,
-      presentation: { phase: 'error', version: presentation.version, failure: 'install' } })
-    expect(screen.queryByRole('button', { name: '重试更新' })).toBeNull()
-    expect(screen.getByText('重新连接中')).toBeTruthy()
   })
 })
 

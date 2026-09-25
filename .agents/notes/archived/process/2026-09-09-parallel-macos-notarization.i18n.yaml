@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write
+2026-09-09-parallel-macos-notarization.md: 956751a3798d38a41486f283c8ab116c2a296c98
+2026-09-09-parallel-macos-notarization.zh.md: 12e9d20e347cdf4364a1dcb7c9e2a8ae5b5d18c0

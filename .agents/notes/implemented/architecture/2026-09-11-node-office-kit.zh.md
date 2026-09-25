@@ -28,8 +28,6 @@ QILIN 按可配置分辨率导出栅格图片，默认 192 DPI，对应共享 PD
 
 [kit 归属决策](2026-09-14-independent-libreoffice-kit.zh.md)定义 npm 分发和随应用打包的离线转换。
 
-Desktop 通过现有的目标 Node pnpm 依赖安装流程安装 kit，并保留完整依赖树。Worker 路径和可执行权限仍由普通包文件承载。[Desktop 构建指南](../../../../apps/desktop/README.zh.md) 负责目标选择与打包；每个签名应用仍需在目标平台验收。
-
 [Python 可执行分发](2026-07-10-single-file-executable-sdk-runtime-distribution.zh.md)将 kit、目标引擎及其依赖闭包保留在可执行文件旁。安装后的 wheel 冒烟测试会迁移载荷，要求仅存在目标后端，并通过该引擎转换一次 DOCX。各平台的打包与发布限制由[平台引擎决策](2026-09-15-platform-office-engines.zh.md)说明。
 
 声明检查仅放行精确的 API 与引擎包名及 MPL-2.0 条款，继续拒绝无关 MPL 包或变更后的非宽松条款。每位接收者都必须保有访问 kit 对应 LibreOffice 源码版本、补丁、构建说明与许可证声明的权限；引擎包保留各自的第三方声明。向组织外部分发受覆盖的可执行文件时，须满足 [MPL 源码可用性要求](https://www.mozilla.org/en-US/MPL/2.0/FAQ/)。
