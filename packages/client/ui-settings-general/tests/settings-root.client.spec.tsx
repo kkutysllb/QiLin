@@ -165,6 +165,14 @@ function mount({
   }
 }
 
+function pointer(element: Element, type: string, clientX: number, pointerId = 1): void {
+  act(() => {
+    const event = new MouseEvent(type, { button: 0, bubbles: true, clientX })
+    Object.defineProperty(event, 'pointerId', { configurable: true, value: pointerId })
+    element.dispatchEvent(event)
+  })
+}
+
 function openPanel() {
   if (requestMountedOpen === undefined) throw new Error('settings shell is not mounted')
   requestMountedOpen()
@@ -197,21 +205,18 @@ describe('settings shell open channel', () => {
     expect(screen.getByRole('dialog')).toBeTruthy()
   })
 
-  it('renders About as the nav list\'s last row and closes the panel from it', () => {
+  it('pins About to the nav footer and returns through the workspace action', () => {
     const b = mount()
     b.requestOpen('models')
 
-    // The about section's ledger order keeps it after every other section in
-    // the one scrolling nav list; the workspace-facing entry stays the account
-    // menu, so the panel chrome is the header close control alone.
     const navButtons = within(screen.getByRole('navigation')).getAllByRole('button')
     expect(navButtons[navButtons.length - 1]?.textContent).toContain('About QiLin')
-    expect(screen.queryByRole('button', { name: 'Back to workspace' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Back to workspace' })).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: 'About QiLin' }))
     expect(screen.getByTestId('section-about')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Back to workspace' }))
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
@@ -358,6 +363,23 @@ describe('SettingsPanel close paths', () => {
 })
 
 describe('SettingsPanel navigation', () => {
+  it('resizes the navigation rail through its draggable separator', () => {
+    const mounted = mount()
+    mounted.requestOpen()
+    const separator = screen.getByRole('separator', { name: 'Resize settings navigation' })
+    expect(separator).toBeTruthy()
+
+    const nav = separator.parentElement
+    if (nav === null) throw new Error('settings navigation separator must be inside the navigation rail')
+    expect(nav.getAttribute('style')).toContain('width: 188px')
+
+    pointer(separator, 'pointerdown', 188)
+    pointer(separator, 'pointermove', 248)
+    pointer(separator, 'pointerup', 248)
+
+    expect(nav.getAttribute('style')).toContain('width: 248px')
+  })
+
   it('projects rows, marks the first active, and renders only that section', () => {
     mount()
     openPanel()
