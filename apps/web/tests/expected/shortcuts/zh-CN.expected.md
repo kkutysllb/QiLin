@@ -1,0 +1,63 @@
+- dialog "快捷键":
+  - banner:
+    - heading "快捷键" [level=2]
+    - button "关闭快捷键":
+      - img
+  - search "搜索快捷键":
+    - searchbox "搜索快捷键"
+  - region "应用操作":
+    - list:
+      - listitem:
+        - button "修改快捷键速查快捷键"
+        - text: 快捷键速查 ⌘ /
+      - listitem:
+        - button "修改新会话快捷键"
+        - text: 新会话 ⌥ ⌘ N
+      - listitem:
+        - button "修改展开／收起左侧栏快捷键"
+        - text: 展开／收起左侧栏 ⌥ ⌘ B
+      - listitem:
+        - button "修改搜索会话快捷键"
+        - text: 搜索会话 ⌥ ⌘ K
+      - listitem:
+        - button "修改添加工作区快捷键"
+        - text: 添加工作区 ⌥ ⌘ O
+      - listitem:
+        - button "修改重命名会话快捷键"
+        - text: 重命名会话 ⇧ ⌘ R
+      - listitem:
+        - button "修改分叉会话快捷键"
+        - text: 分叉会话 ⇧ ⌘ F
+      - listitem:
+        - button "修改归档会话快捷键"
+        - text: 归档会话 ⌥ ⌘ A
+      - listitem:
+        - button "修改打开设置快捷键"
+        - text: 打开设置 ⌘ ,
+      - listitem:
+        - button "修改展开／收起右侧栏快捷键"
+        - text: 展开／收起右侧栏 ⇧ ⌘ B
+  - region "消息输入":
+    - heading "消息输入" [level=3]
+    - list:
+      - listitem: 发送消息 ⌘ Enter
+      - listitem: 引用文件 @
+      - listitem: 插入换行 ⇧ Enter
+      - listitem: 发送消息 Enter
+      - listitem: 命令面板 /
+      - listitem: 停止生成 Esc Esc
+  - region "菜单与弹层":
+    - heading "菜单与弹层" [level=3]
+    - list:
+      - listitem: 关闭菜单或顶层弹窗 Esc
+      - listitem: 移动菜单选择 ↑ ↓
+      - listitem: 选择菜单项 Enter
+  - region "审批区域":
+    - heading "审批区域" [level=3]
+    - list:
+      - listitem: 允许一次 Enter
+      - listitem: 拒绝 Esc
+  - contentinfo:
+    - button "恢复全部默认" [disabled]:
+      - img
+      - text: 恢复全部默认

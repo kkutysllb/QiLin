@@ -22,7 +22,7 @@ import { commandDefinition } from '../src/client/conversation-nodes/command.ts'
 import { compactionDefinition } from '../src/client/conversation-nodes/compaction.ts'
 import { unknownFallbackDefinition } from '../src/client/conversation-nodes/fallback.ts'
 import { nextStepInboxDefinition } from '../src/client/conversation-nodes/inbox.ts'
-import { messageDefinition } from '../src/client/conversation-nodes/message.ts'
+import { developerMessageDefinition, messageDefinition } from '../src/client/conversation-nodes/message.ts'
 import { inspectRequestPrompt } from '@qilin/client-ui-conversation/client'
 import { requestPromptDefinition, systemMessageDefinition } from '../src/client/conversation-nodes/request-prompt.ts'
 import { retryDefinition } from '../src/client/conversation-nodes/retry.ts'
@@ -38,6 +38,7 @@ import type {
 const DEFINITIONS: readonly ConversationNodeDefinition[] = [
   nextStepInboxDefinition,
   messageDefinition,
+  developerMessageDefinition,
   systemMessageDefinition(inspectSystemPrompt),
   requestPromptDefinition(inspectRequestPrompt),
   assistantDefinition,
@@ -240,6 +241,58 @@ describe('built-in conversation node Definitions', () => {
 
     expect(systemMessageDefinition(inspectSystemPrompt).match(invalidStart.event)).toBeNull()
     expect(systemMessageDefinition(inspectSystemPrompt).update({ state } as never, invalidStart)).toBe(state)
+  })
+
+  it.each(['replay', 'live', 'prepend'] as const)('keeps developer tool changes visible while hiding ordinary Context (%s)', (mode) => {
+    const entries = [
+      at(0, 'request/header', { reason: 'initial', header: {
+        config: { provider: 'test', model: 'test' },
+        tools: ['search', 'read_file'].map(name => ({ name, description: '', parameters: {} })),
+      } }),
+      at(1, 'user/message', {
+        ...textMessage('context', 'workspace context'),
+        source: { kind: 'context' },
+      }, { surfaceOp: 'append' }),
+      at(2, 'developer/message', { turn: 1, step: 1, message: {
+        id: 'developer', role: 'developer', source: { kind: 'tool-registry' },
+        content: [{ type: 'tool-addition', toolName: 'search' }, { type: 'tool-removal', toolName: 'old_search' }],
+      } }, { surfaceOp: 'append' }),
+      at(3, 'request/header', { reason: 'change', header: { config: { provider: 'test', model: 'test' }, tools: [] } }),
+    ]
+    const value = assembler(mode === 'replay' ? entries : [])
+    if (mode === 'live') {
+      for (const entry of entries) {
+        value.append(entry)
+        value.flush()
+      }
+    } else if (mode === 'prepend') {
+      value.replaceWindow(entries.slice(2), true)
+      value.prepend(entries.slice(0, 2), false)
+      value.flush()
+    }
+    const current = snapshot(value)
+    const visible = current.order.map(key => current.nodes.get(key))
+    // QiLin keeps every logged context row visible; the tool-registry update
+    // carries its disclosure content instead of hiding the ordinary context.
+    expect(visible.map(candidate => candidate?.kind)).toEqual(['context', 'context'])
+    const updates = visible.find(candidate => Array.isArray((candidate?.data as { content?: unknown }).content)
+      && ((candidate?.data as { content: { type: string }[] }).content).length > 0
+      && ((candidate?.data as { content: { type: string }[] }).content)[0]?.type === 'tool-addition')
+    expect(updates?.data).toMatchObject({
+      kind: 'context', content: [{ type: 'tool-addition', toolName: 'search' }, { type: 'tool-removal', toolName: 'old_search' }],
+    })
+    expect([...current.nodes.values()].filter(candidate => candidate.kind === 'context')).toHaveLength(2)
+  })
+
+  it('preserves tool removals without a loaded header', () => {
+    const value = assembler([at(1, 'developer/message', { turn: 1, step: 1, message: {
+      id: 'developer', role: 'developer', source: { kind: 'tool-registry' },
+      content: [{ type: 'tool-removal', toolName: 'old_search' }],
+    } }, { surfaceOp: 'append' })], true)
+    const current = snapshot(value)
+    const removal = node(current, 'context')
+    expect(removal?.data).toMatchObject({ content: [{ type: 'tool-removal', toolName: 'old_search' }] })
+    expect(current.order).toContain(removal?.key)
   })
 
   it('keeps ordinary command-only history inactive for the Conversation shell', () => {

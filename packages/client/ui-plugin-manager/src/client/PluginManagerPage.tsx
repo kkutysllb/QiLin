@@ -278,8 +278,12 @@ function DetailTop({ crumbLabel, crumbText, onBack, icon, actions }: {
   readonly icon?: ReactNode
   readonly actions?: ReactNode
 }): ReactNode {
+  // The mark sits on the head row the detail views share (crumb over the
+  // icon/actions row), not on the detail container: marking the container would
+  // drag the window over its text and form labels wherever no control covers
+  // them.
   return (
-    <>
+    <div className={css.detailTop} data-window-drag>
       <button type="button" className={css.crumb} aria-label={crumbLabel} onClick={onBack}>
         <IconChevronDownOutline14 className={css.crumbIcon} aria-hidden="true" />
         <span>{crumbText}</span>
@@ -288,7 +292,7 @@ function DetailTop({ crumbLabel, crumbText, onBack, icon, actions }: {
         <span className={css.cardIcon} aria-hidden="true">{icon ?? <IconPluginPinwheelOutline16 size={20} />}</span>
         {actions}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -1047,7 +1051,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     <section className={css.page} data-plugin-panel aria-busy={state.status === 'loading'}>
       {showsCards
         ? (
-          <header className={css.pageHead}>
+          <header className={css.pageHead} data-window-drag>
             <div>
               <h1 className={css.pageTitle}>{t('title')}</h1>
               <p className={css.pageIntro}>{t('intro')}</p>

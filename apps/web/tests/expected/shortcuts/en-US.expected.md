@@ -1,0 +1,63 @@
+- dialog "Keyboard shortcuts":
+  - banner:
+    - heading "Keyboard shortcuts" [level=2]
+    - button "Close keyboard shortcuts":
+      - img
+  - search "Search shortcuts":
+    - searchbox "Search shortcuts"
+  - region "Application":
+    - list:
+      - listitem:
+        - button "Edit shortcut for Open keyboard shortcuts"
+        - text: Open keyboard shortcuts Ctrl + /
+      - listitem:
+        - button "Edit shortcut for New Session"
+        - text: New Session Ctrl + Alt + N
+      - listitem:
+        - button "Edit shortcut for Toggle left sidebar"
+        - text: Toggle left sidebar Ctrl + Alt + B
+      - listitem:
+        - button "Edit shortcut for Search sessions"
+        - text: Search sessions Ctrl + Alt + K
+      - listitem:
+        - button "Edit shortcut for Add workspace"
+        - text: Add workspace Ctrl + Alt + O
+      - listitem:
+        - button "Edit shortcut for Rename session"
+        - text: Rename session Ctrl + Shift + R
+      - listitem:
+        - button "Edit shortcut for Fork session"
+        - text: Fork session Ctrl + Shift + F
+      - listitem:
+        - button "Edit shortcut for Archive session"
+        - text: Archive session Ctrl + Alt + A
+      - listitem:
+        - button "Edit shortcut for Open settings"
+        - text: Open settings Ctrl + ,
+      - listitem:
+        - button "Edit shortcut for Toggle right sidebar"
+        - text: Toggle right sidebar Ctrl + Shift + B
+  - region "Message input":
+    - heading "Message input" [level=3]
+    - list:
+      - listitem: Send message Ctrl + Enter
+      - listitem: Mention a file @
+      - listitem: Insert a line break Shift + Enter
+      - listitem: Send message Enter
+      - listitem: Command surface /
+      - listitem: Stop generating Esc Esc
+  - region "Menus and dialogs":
+    - heading "Menus and dialogs" [level=3]
+    - list:
+      - listitem: Close menu or top dialog Esc
+      - listitem: Move menu selection ↑ ↓
+      - listitem: Select menu item Enter
+  - region "Approval area":
+    - heading "Approval area" [level=3]
+    - list:
+      - listitem: Allow once Enter
+      - listitem: Reject Esc
+  - contentinfo:
+    - button "Restore all defaults" [disabled]:
+      - img
+      - text: Restore all defaults

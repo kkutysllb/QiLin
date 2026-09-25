@@ -13,13 +13,13 @@ vi.mock('../src/preload-windows.ts', () => ({ syncWindowsAppearance: vi.fn() }))
 
 afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); vi.resetModules() })
 
-it('limits product documents to update status and a native confirmation action', async () => {
+it('limits product documents to updates, shortcut preferences, and verified native input', async () => {
   vi.stubGlobal('location', new URL('qilin-app://app/index.html'))
   await import('../src/preload-app.ts')
   const api = electron.contextBridge.exposeInMainWorld.mock.calls.find(([name]) => name === 'qilinDesktop')?.[1] as QilinDesktopProductApi
   await api.updates.status()
   await api.updates.open()
-  expect(electron.ipcRenderer.invoke.mock.calls).toEqual([[DESKTOP_IPC.updatesStatus], [DESKTOP_IPC.updatesOpen]])
+  expect(electron.ipcRenderer.invoke.mock.calls.slice(0, 2)).toEqual([[DESKTOP_IPC.updatesStatus], [DESKTOP_IPC.updatesOpen]])
   expect(api).not.toHaveProperty('plugins')
   expect(api).not.toHaveProperty('backend')
   expect(api.updates).not.toHaveProperty('install')
@@ -30,6 +30,31 @@ it('limits product documents to update status and a native confirmation action',
   expect(listener).toHaveBeenCalledWith({ visible: false })
   dispose()
   expect(electron.ipcRenderer.off).toHaveBeenCalledWith(DESKTOP_IPC.updatesPresentation, handler)
+  // The preference face forwards exactly the catalog read, the constrained edit,
+  // and the recording switch; the close request carries the accepted revision.
+  await api.shortcuts.get([])
+  await api.shortcuts.edit({ type: 'reset-all' }, 'revision' as never)
+  await api.shortcuts.recording(true)
+  const snapshotListener = vi.fn()
+  const off = api.shortcuts.subscribe(snapshotListener)
+  const changedHandler = electron.ipcRenderer.on.mock.calls.find(([channel]) => channel === DESKTOP_IPC.shortcutsChanged)![1]
+  changedHandler({}, { status: 'ready' })
+  expect(snapshotListener).toHaveBeenCalledWith({ status: 'ready' })
+  off()
+  expect(electron.ipcRenderer.invoke.mock.calls.slice(-3)).toEqual([
+    [DESKTOP_IPC.shortcutsGet, []],
+    [DESKTOP_IPC.shortcutsEdit, { type: 'reset-all' }, 'revision'],
+    [DESKTOP_IPC.shortcutsRecording, true],
+  ])
+  await api.keyboard.closeWindow('revision' as never)
+  expect(electron.ipcRenderer.invoke).toHaveBeenLastCalledWith(DESKTOP_IPC.shortcutsCloseWindow, 'revision')
+  const inputListener = vi.fn()
+  const offInput = api.keyboard.subscribe(inputListener)
+  const inputHandler = electron.ipcRenderer.on.mock.calls.find(([channel]) => channel === DESKTOP_IPC.shortcutsInput)![1]
+  inputHandler({}, { kind: 'keyboard', code: 'KeyB' })
+  expect(inputListener).toHaveBeenCalledWith({ kind: 'keyboard', code: 'KeyB' })
+  offInput()
+  expect(electron.ipcRenderer.off).toHaveBeenCalledWith(DESKTOP_IPC.shortcutsInput, inputHandler)
 })
 
 it.each(['qilin-app://shell/plugin-manager.html', 'qilin-app://other/index.html', 'https://shell/startup.html', 'http://example.com/'])('exposes only the carrier marker to %s', async (url) => {

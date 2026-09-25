@@ -8,7 +8,8 @@
     "rewriteRelativeImportExtensions": false
   },
   "files": [
-    "packages/client/ui-settings-general/src/client/desktop-update-bridge.ts"
+    "packages/client/ui-settings-general/src/client/desktop-update-bridge.ts",
+    "packages/client/web/src/window-drag/regions.ts"
   ],
   "include": [
     "apps/web/product-isolation.ts",
@@ -32,6 +33,9 @@
     "apps/web/tests/live-interactions.e2e.ts",
     "apps/web/tests/question-composer.e2e.ts",
     "apps/web/tests/approval-composer.e2e.ts",
+    "apps/web/tests/shortcuts.e2e.ts",
+    "apps/web/tests/shortcuts-fixed.e2e.ts",
+    "apps/web/tests/composer-shortcuts.e2e.ts",
     "apps/web/tests/plan-control-row.e2e.ts",
     "apps/web/tests/plan-review.e2e.ts",
     "apps/web/tests/steering.e2e.ts",
@@ -129,6 +133,7 @@
     "apps/web/tests/chat-long-interactions.e2e.ts",
     "apps/web/tests/chat-continuous-conversation.e2e.ts",
     "apps/web/tests/composer-tab-geometry.e2e.ts",
+    "apps/web/tests/window-drag-coverage.e2e.ts",
     "apps/web/tests/complex-history.perf.ts",
     "apps/web/tests/pwsh-terminal.e2e.ts",
     "apps/web/tests/workflow-run.e2e.ts",
@@ -154,6 +159,7 @@
   // suffixes are mutually exclusive, so each aggregate excludes the other's
   // and the package test glob above needs no per-file entry.
   "exclude": [
+    "apps/desktop/tests/keyboard.spec.ts",
     "packages/client/file-upload/src/**",
     "packages/client/hmr/src/**",
     "packages/client/locale/src/**",

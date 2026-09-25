@@ -129,6 +129,11 @@ export function registerComposerKeymap(editor: LexicalEditor, handlers: Composer
       return false
     }, COMMAND_PRIORITY_CRITICAL),
     editor.registerCommand(KEY_ENTER_COMMAND, (event) => {
+      // Application chords carrying modifiers beyond the submit gestures never
+      // submit or break the line: returning true stops Lexical's fallback line
+      // break without consuming the DOM event those shortcuts need.
+      if (event !== null && (event.altKey || event.getModifierState('AltGraph')
+        || (event.ctrlKey && event.metaKey) || (event.shiftKey && (event.ctrlKey || event.metaKey)))) return true
       // Shift+Enter is the native line break UNCONDITIONALLY — decided before
       // the IME guard so a composition-closing Shift+Enter still breaks the line.
       if (event?.shiftKey === true) return false

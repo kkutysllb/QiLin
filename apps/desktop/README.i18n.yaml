@@ -50,9 +50,12 @@
 /qilin-desktop/updates/local-updater-qualification:
   en: 207b20c502449dee
   zh: 00463f0f5baac7ea
+/qilin-desktop/keyboard-shortcuts:
+  en: 56397d811e42bc0b
+  zh: 7bc8c876cb6ad995
 /qilin-desktop/low-level-development-overrides:
   en: 272659bc1fd89e95
-  zh: 7bc8c876cb6ad995
+  zh: 2740ea790d892fdb
 /qilin-desktop/known-limitations:
   en: 50ccfdb9c252c395
   zh: 4fd87b09cca59bf9

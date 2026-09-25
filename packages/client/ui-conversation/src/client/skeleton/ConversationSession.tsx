@@ -68,7 +68,7 @@ export function ConversationSessionHeader({
   const conversation = useConversation(s => s)
   const hideChrome = session.blank && conversationPhase(session, conversation) === 'blank'
   return (
-    <header className={clsx(css.header, hideChrome && css.headerBlank)}>
+    <header className={clsx(css.header, hideChrome && css.headerBlank)} data-window-drag>
       <div className={css.titleRow}>
         <div className={css.headerLeading} data-conversation-header-leading="">
           {renderSlot('conversation.session.header.leading', {})}
@@ -139,7 +139,9 @@ export function ConversationSessionHeader({
         </div>
       </div>
       {!hideChrome && tabs.length > 1 && (
-        <div className={css.tabs} role="tablist">
+        // data-conversation-tabs: marks the tab strip, which the window-chrome
+        // geometry and the browser coverage lane anchor on.
+        <div className={css.tabs} role="tablist" data-conversation-tabs="">
           {tabs.map(viewTab => (
             <button
               key={viewTab.id}

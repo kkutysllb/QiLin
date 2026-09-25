@@ -316,6 +316,12 @@ node apps/desktop/node_modules/pnpm/bin/pnpm.mjs --dir apps/desktop run test:upd
 
 未打包的 Electron 进程使用应用目录下的 `.desktop-build/development/project` 作为开发项目。`QILIN_DESKTOP_PNPM_ENTRY` 和 `QILIN_DESKTOP_QILIN_DIR` 用于选择明确的运行时资源。打包应用会忽略这些变量，从 `process.resourcesPath` 解析签名资源，并使用受管 Desktop profile。
 
+## 键盘快捷键
+
+快捷键覆盖存储在 `app.getPath('userData')/keybindings.json`，与 `QILIN_HOME` 分离。主进程先校验并串行化变更，再发布已接受的绑定。读取失败时保留最近一次接受的绑定并阻止编辑（包括全部恢复默认）；不可读与未来版本的文件保持原样。格式与冲突语义见[快捷键服务](../../packages/client/shortcuts/README.zh.md)。
+
+macOS 的 File 菜单显示已接受的单键 Close 绑定并经客户端页面属主路由；页面注册 `page.close` 属主之前该条目保持禁用。在 Windows 与 macOS 上，所有完整接受的绑定都会在主文档与嵌入 frame 输入之前被截获（包括编辑与终端输入）；录制与输入法组字始终受保护；两键组合的首键初次按压仍交给页面，只有完整组合及其重复被消费。接受的命令经受信 preload 单次转发。Linux 的主文档快捷键走 DOM 分发。[原生/渲染键盘测试](tests/keyboard.spec.ts) 编译在[独立的 Client 测试工程](../../tsconfig.desktop-keyboard-tests.json)中，由仓库 Client typecheck 触达；其 Desktop 导入仅限无 Cordis 依赖的输入、持久化与 IPC 模块。
+
 ## 已知限制
 
 - 发布签名、公证、更新托管和跨上一版本的已安装产物验证需要生产发布环境。

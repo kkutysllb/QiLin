@@ -221,8 +221,10 @@ export function SidebarRoot({
       onPointerLeave={() => { armLinger() }}
     >
       {/* macOS hiddenInset titlebar: the strip shares the row with the
-          traffic lights and keeps the toggle at the sidebar's top-right. */}
-      {darwinDesktop && <div className={css.topStrip}>{toggle}</div>}
+          traffic lights and keeps the toggle at the sidebar's top-right; the
+          mark makes the strip's own box the window drag region (ui-web
+          base.css declares the one darwin rule). */}
+      {darwinDesktop && <div className={css.topStrip} data-window-drag>{toggle}</div>}
       <div className={css.logoRow}>
         {/* Expanded, the brand doubles as a New Session shortcut; the
             collapsed rail's logo is the expand toggle below instead. */}

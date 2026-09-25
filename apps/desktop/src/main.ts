@@ -38,6 +38,7 @@ import { DesktopMandatoryUpdatePolicy, resolveDesktopPolicyConfig, type DesktopP
 import { DesktopMandatoryUpdateWindow } from './mandatory-update-window.ts'
 import { DesktopPolicyTestAuth } from './policy-test-auth.ts'
 import { DesktopUpdateDialog, type UpdateDialogOptions } from './update-dialog.ts'
+import { installDesktopShortcuts } from './keyboard.ts'
 import { readDesktopRuntime } from './runtime-tree.ts'
 
 let focusPrimaryWindow = (): void => {}
@@ -576,7 +577,7 @@ async function main(): Promise<void> {
   })
 
   app.setAboutPanelOptions({
-    applicationName: 'DeepSeek Harness',
+    applicationName: 'QiLin',
     applicationVersion: app.getVersion(),
     // The release has no separate build number; omit Electron's bundle version.
     version: '',
@@ -585,11 +586,26 @@ async function main(): Promise<void> {
       : join(process.resourcesPath, 'icon.png'),
   })
   // A custom application menu replaces Electron's default menu, so macOS needs
-  // its standard menus and application hide commands declared explicitly.
+  // its standard menus and application hide commands declared explicitly. The
+  // shortcuts installer owns the File menu: its Close entry carries the user's
+  // page.close binding and routes through the renderer's command dispatch, and
+  // the menu rebuilds whenever that binding or its availability changes.
   const darwin = process.platform === 'darwin'
-  const platformMenus: MenuItemConstructorOptions[] = darwin
-    ? [{ role: 'fileMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]
-    : [{ role: 'editMenu' }]
+  const shortcuts = installDesktopShortcuts(() => mainWindow, app.getPath('userData'),
+    process.platform === 'darwin' ? 'macos' : process.platform === 'win32' ? 'windows' : 'linux',
+    () => { refreshApplicationMenu() })
+  app.on('will-quit', () => { shortcuts.dispose() })
+  const refreshApplicationMenu = (): void => {
+    // Windows owns its caption menus, not an application menu bar.
+    if (process.platform === 'win32') { Menu.setApplicationMenu(null); return }
+    const platformMenus: MenuItemConstructorOptions[] = darwin
+      ? [shortcuts.fileMenu(currentDesktopLocale().messages), { role: 'editMenu' }, { role: 'windowMenu' }]
+      : [{ role: 'editMenu' }]
+    Menu.setApplicationMenu(Menu.buildFromTemplate([{
+      label: darwin ? app.name : currentDesktopLocale().messages.application,
+      submenu: applicationItems(),
+    }, ...platformMenus]))
+  }
   const hideCommands: MenuItemConstructorOptions[] = darwin
     ? [{ role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' }]
     : []
@@ -601,11 +617,7 @@ async function main(): Promise<void> {
     ...hideCommands,
     { role: 'quit', ...(process.platform === 'win32' ? { label: currentDesktopLocale().messages.exitApplication } : {}) },
   ]
-  Menu.setApplicationMenu(process.platform === 'win32' ? null : Menu.buildFromTemplate([{
-    label: darwin ? app.name : currentDesktopLocale().messages.application,
-    submenu: applicationItems(),
-  }, ...platformMenus]))
-
+  refreshApplicationMenu()
   if (process.platform === 'win32') {
     ipcMain.handle(DESKTOP_IPC.windowsMenu, (event, name: unknown, x: unknown, y: unknown) => {
       assertDesktopSender(event, ['app'])
@@ -658,6 +670,9 @@ async function main(): Promise<void> {
   const createMainWindow = (): BrowserWindow => {
     const window = createWindow(appPreload, true, true)
     mainWindow = window
+    // The product page owns the command registry; native input is verified and
+    // forwarded to it through the shortcuts channels.
+    shortcuts.attach(window)
     window.on('focus', automaticCheck)
     window.on('closed', () => { if (mainWindow === window) mainWindow = undefined })
     window.webContents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {

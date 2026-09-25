@@ -18,9 +18,9 @@ Electron 主进程在 darwin 上以 `titleBarStyle: 'hiddenInset'`、`trafficLig
 
 **原生主题同步。** 毛玻璃材质跟随 `nativeTheme.themeSource`，后者默认跟踪系统外观，会与应用自身的主题偏好背离。ui-theme 引导脚本与 ui-layout 的 `ThemePresenter` 发布 `html[data-ds-theme-source]`（`light`、`dark` 或 `system`；固定偏好——包括注册主题 id——发布其解析后的配色）。应用 preload 观察该属性并经 `qilin-desktop:native-theme-set` 转发；主进程校验取值与发送者（主窗口的 WebContents，包括其本地静态 Web 文档）后赋给 `nativeTheme.themeSource`。发布偏好而非解析值，可在偏好为 `system` 时保留跟随系统。
 
-**侧边栏顶部条与完全隐藏。** darwin 上侧边栏展开时有一条 52px 的顶部条，避开红绿灯、承载收起按钮，并作为窗口拖拽区（`-webkit-app-region: drag`；按钮退出拖拽）。收起侧边栏时整列隐藏——`computeColumns` 接受显式 `collapsedWidth`，AppFrame 在 darwin 桌面传 0——而非其他平台保留的 56px rail。重新打开的入口移入会话头部：新增 single、session 作用域的 slot `conversation.session.header.leading` 位于面包屑之前，ui-sidebar 向其注册 `HeaderLeadingControls`（打开侧边栏 + 新会话，复用 shell 的 inject face 与 locale）。显隐纯由 CSS 依据 AppFrame 发布的 `data-sidebar-collapsed` 属性控制；不新增收起状态管道。darwin 上空白会话的头部保持 leading 座挂载，确保侧边栏隐藏时屏幕上始终有重新打开的控件。
+**侧边栏顶部条与完全隐藏。** darwin 上侧边栏展开时有一条 52px 的顶部条，避开红绿灯并承载收起按钮；顶部条给自身打上 `data-window-drag`，于是它自己的盒子就是窗口拖拽区（唯一的 darwin drag 规则由 ui-web base.css 声明；收起按钮经其交互规则退出，其下方品牌按钮保持内容态，New Session 快捷入口不受影响）。收起侧边栏时整列隐藏——`computeColumns` 接受显式 `collapsedWidth`，AppFrame 在 darwin 桌面传 0——而非其他平台保留的 56px rail。重新打开的入口移入会话头部：新增 single、session 作用域的 slot `conversation.session.header.leading` 位于面包屑之前，ui-sidebar 向其注册 `HeaderLeadingControls`（打开侧边栏 + 新会话，复用 shell 的 inject face 与 locale）。显隐纯由 CSS 依据 AppFrame 发布的 `data-sidebar-collapsed` 属性控制；不新增收起状态管道。darwin 上空白会话的头部保持 leading 座挂载，确保侧边栏隐藏时屏幕上始终有重新打开的控件。
 
-**拖拽区。** darwin 上会话标题行是拖拽区，所有可交互后代退出。Electron 按 DOM 顺序以窗口几何计算拖拽区，不看层叠：覆盖标题带的浮层必须自行减除，否则下层区域仍会截获指针。因此右侧边栏的全屏面板对整个盒子设 `-webkit-app-region: no-drag`，再在其 tab 条空白处恢复拖拽。
+**拖拽区。** Shell 只声明一次 `-webkit-app-region: drag`：ui-web base.css 针对 chrome 行打在自己盒子上的 `data-window-drag` 标记——侧边栏顶部条、右侧边栏的 dockkit 条行、会话头部、插件管理器的页面头与详情头行。Electron 按 DOM 顺序以窗口几何计算拖拽区，不看层叠：覆盖拖拽行的浮层必须自行减除，否则下层区域仍会截获指针。因此右侧边栏的全屏面板对整个盒子设 `-webkit-app-region: no-drag`，由其内部的条行标记重新加回自己的区段；覆盖型浮层 portal 到 `#root` 旁，由 base.css 的 `body > :not(#root)` 规则减除。[覆盖约定 Agent Note](../architecture/2026-09-19-window-drag-coverage-contract.zh.md) 拥有清单、浏览器车道与手工状态矩阵。
 
 **全屏避开红绿灯。** ui-dockkit 把 tab 条起始内边距发布为 `--qilin-dockkit-strip-inline-start`（回退为设计自身的 10px）。右侧边栏全屏形态在 darwin 上对面板主体设 88px，并对每个非首格 split 单元的子树重置为 10px，使得任意分屏深度下恰好只有触及窗口左上角的 pane 避开红绿灯。
 

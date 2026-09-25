@@ -41,7 +41,7 @@ function headerEntryIds(ctx: Context): (string | undefined)[] {
 
 describe('open-in-app browser half', () => {
   it('declares the services it binds', () => {
-    expect(inject).toEqual(['sessions', 'slots', 'locale'])
+    expect(inject).toEqual(['sessions', 'slots', 'locale', 'layout', 'shortcuts'])
   })
 
   it('registers the header split button, and fiber teardown removes it (HMR safety)', async () => {

@@ -13,6 +13,7 @@
  * mounted-but-deciding step paints nothing here.
  */
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
   ConnectionIndicator,
@@ -167,7 +168,12 @@ function SettingsPanel({
   const panel = useRef<HTMLDivElement>(null)
   useModalLayer(panel, true, onClose)
 
-  return (
+  // Portalled beside #root like the Modal primitive: a covering surface mounted
+  // inside the root would precede the columns' chrome in document order, so a
+  // chrome row that declares window drag after it would override its
+  // subtraction. Beside the root, ui-web base.css's `body > :not(#root)` rule
+  // subtracts it instead.
+  return createPortal((
     <div className={css.overlay} role="presentation">
       <div className={css.mask} aria-hidden="true" onClick={onClose} />
       <div ref={panel} tabIndex={-1} data-shortcut-modal="settings" className={css.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
@@ -231,7 +237,7 @@ function SettingsPanel({
         </div>
       </div>
     </div>
-  )
+  ), document.body)
 }
 
 /**

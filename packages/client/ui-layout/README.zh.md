@@ -40,6 +40,8 @@ Windows Electron 的 `data-windows-titlebar` 标记在所有列上方预留顶�
 <a id="understand-the-implementation"></a>
 ## 理解实现
 
+桌面端 `Mod+B` 通过与框架收起控件相同的布局动作切换左侧栏；该快捷键命令在模态对话框后不可用，并让位于终端输入。
+
 <details>
 <summary>实现细节——点击展开</summary>
 

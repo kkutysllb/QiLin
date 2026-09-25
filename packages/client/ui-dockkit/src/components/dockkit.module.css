@@ -756,3 +756,21 @@
 .float:focus {
   outline: none;
 }
+
+/* macOS desktop: an embedder may pin this surface at the window's top edge (the
+   right sidebar does, in both presentations). The strip row is marked
+   `data-window-drag` in markup (TabPanel), so ui-web base.css's single darwin
+   rule drags it over its own box; the chip run, the strip-end chrome, the pane
+   body, the split divider, and a floating pane subtract their whole boxes so
+   tabs, controls, content, and the resize grab stay usable wherever they
+   overlap that row. The divider must be named here: it is a plain div, so
+   ui-web base.css's interactive-element subtraction never matches it. Hidden
+   surfaces contribute nothing: Blink skips non-visible boxes when it collects
+   draggable regions. */
+:global(html[data-platform='darwin']) .stripTabs,
+:global(html[data-platform='darwin']) .stripChrome,
+:global(html[data-platform='darwin']) .paneBody,
+:global(html[data-platform='darwin']) .float,
+:global(html[data-platform='darwin']) .divider {
+  -webkit-app-region: no-drag;
+}

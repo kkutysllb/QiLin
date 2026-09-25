@@ -1,6 +1,7 @@
-/** Origin-scoped boot, native directory selection, and update presentation with native confirmation actions. */
+/** Origin-scoped boot, native directory selection, update presentation, and shortcut preferences. */
 
 import { contextBridge, ipcRenderer } from 'electron'
+import type { ShortcutConfigSnapshot, ShortcutSaveResult } from '@qilin/client-shortcuts/protocol'
 import { DESKTOP_IPC, SCHEME, type QilinDesktopProductApi, type DesktopUpdatePresentation } from './ipc.ts'
 import { markDocumentPlatform } from './preload-platform.ts'
 import { syncNativeTheme } from './preload-theme.ts'
@@ -16,6 +17,24 @@ const product: QilinDesktopProductApi = {
       ipcRenderer.on(DESKTOP_IPC.updatesPresentation, handle)
       return () => { ipcRenderer.off(DESKTOP_IPC.updatesPresentation, handle) }
     },
+  },
+  keyboard: {
+    subscribe(listener) {
+      const handle = (_event: Electron.IpcRendererEvent, input: Parameters<typeof listener>[0]): void => { listener(input) }
+      ipcRenderer.on(DESKTOP_IPC.shortcutsInput, handle)
+      return () => { ipcRenderer.off(DESKTOP_IPC.shortcutsInput, handle) }
+    },
+    closeWindow: revision => ipcRenderer.invoke(DESKTOP_IPC.shortcutsCloseWindow, revision) as Promise<void>,
+  },
+  shortcuts: {
+    get: definitions => ipcRenderer.invoke(DESKTOP_IPC.shortcutsGet, definitions) as Promise<ShortcutConfigSnapshot>,
+    edit: (edit, revision) => ipcRenderer.invoke(DESKTOP_IPC.shortcutsEdit, edit, revision) as Promise<ShortcutSaveResult>,
+    subscribe(listener) {
+      const handle = (_event: Electron.IpcRendererEvent, snapshot: Parameters<typeof listener>[0]): void => { listener(snapshot) }
+      ipcRenderer.on(DESKTOP_IPC.shortcutsChanged, handle)
+      return () => { ipcRenderer.off(DESKTOP_IPC.shortcutsChanged, handle) }
+    },
+    recording: active => ipcRenderer.invoke(DESKTOP_IPC.shortcutsRecording, active) as Promise<void>,
   },
 }
 

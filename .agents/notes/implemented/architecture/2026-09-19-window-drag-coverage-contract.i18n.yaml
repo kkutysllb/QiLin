@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-09-19-window-drag-coverage-contract.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-19-window-drag-coverage-contract.md
+/agent-note-window-drag-coverage-as-a-contract:
+  en: 9344dc393850cb31
+  zh: 0bfe63a7abab696e
+/agent-note-window-drag-coverage-as-a-contract/problem:
+  en: 6f5dc296c2b6f5ad
+  zh: d090873de6dac115
+/agent-note-window-drag-coverage-as-a-contract/decision:
+  en: b67d1941d2109164
+  zh: 0338885e961a0d01
+/agent-note-window-drag-coverage-as-a-contract/alternatives-considered:
+  en: ba238106630f40b3
+  zh: ffa1f1994841b3db
+/agent-note-window-drag-coverage-as-a-contract/consequences:
+  en: a97fe79ac1b0dcdb
+  zh: b41874abfaa3cc5b
+/agent-note-window-drag-coverage-as-a-contract/testing:
+  en: 4b78c4e008efd298
+  zh: 910f22a0d1225835
+/agent-note-window-drag-coverage-as-a-contract/manual-state-matrix:
+  en: 1d766fb2cb332265
+  zh: fbb23b6ac0431e00

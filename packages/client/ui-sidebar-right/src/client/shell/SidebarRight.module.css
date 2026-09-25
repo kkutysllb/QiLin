@@ -51,11 +51,14 @@
   inset: 0;
   z-index: 40;
   border: none;
-  /* Electron drag regions are window geometry, not stacking: the conversation
-     title row's and the sidebar top strip's drag bands underneath keep taking
-     the pointer through this overlay, making the first strip's tabs unclickable.
-     The panel appears after both in DOM order, so this subtracts its whole box;
-     the strip rule below restores dragging on the strip's blank run. */
+  /* Electron composes app-regions from geometry in DOM order, not stacking:
+     the Conversation header's and the sidebar top strip's drag rows underneath
+     keep taking the pointer through this overlay, making content presses drag
+     the window. The panel appears after both in DOM order, so this subtracts
+     its whole box; the strip rows inside mark themselves `data-window-drag`
+     (ui-dockkit TabPanel), so a strip's blank runs keep the native-tab-bar drag
+     affordance while its tabs and strip-end chrome subtract through the kit's
+     own sheet and the ui-web base.css interactive rule. */
   -webkit-app-region: no-drag;
 }
 
@@ -82,16 +85,6 @@
 
 :global([data-platform='darwin']) .panel[data-sidebar-right-panel='fullscreen'] .panelBody :global([data-dockkit-cell]):not(:first-child) {
   --qilin-dockkit-strip-inline-start: 10px;
-}
-
-/* Fullscreen keeps a window drag affordance on the tab strips' blank runs;
-   tabs and strip controls opt back out. */
-:global([data-platform='darwin']) .panel[data-sidebar-right-panel='fullscreen'] :global([data-dockkit-strip]) {
-  -webkit-app-region: drag;
-}
-
-:global([data-platform='darwin']) .panel[data-sidebar-right-panel='fullscreen'] :global([data-dockkit-strip]) > * {
-  -webkit-app-region: no-drag;
 }
 
 @media (prefers-reduced-motion: reduce) {

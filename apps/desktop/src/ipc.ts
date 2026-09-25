@@ -1,6 +1,7 @@
 /** Typed preload operations exposed only by the Electron shell. */
 
 import type { IpcMainInvokeEvent } from 'electron'
+import type { DesktopKeyboardApi, DesktopShortcutsApi } from '@qilin/client-shortcuts/protocol'
 
 /** IPC channel names kept private to the desktop application bundle. */
 export const DESKTOP_IPC = {
@@ -13,6 +14,12 @@ export const DESKTOP_IPC = {
   nativeThemeSet: 'qilin-desktop:native-theme-set',
   windowsAppearance: 'qilin-desktop:windows-appearance',
   windowsMenu: 'qilin-desktop:windows-menu',
+  shortcutsGet: 'qilin-desktop:shortcuts-get',
+  shortcutsEdit: 'qilin-desktop:shortcuts-edit',
+  shortcutsRecording: 'qilin-desktop:shortcuts-recording',
+  shortcutsCloseWindow: 'qilin-desktop:shortcuts-close-window',
+  shortcutsChanged: 'qilin-desktop:shortcuts-changed',
+  shortcutsInput: 'qilin-desktop:shortcuts-input',
 } as const
 
 /** Desktop release update state rendered by desktop-owned UI. */
@@ -58,6 +65,10 @@ export interface QilinDesktopProductApi {
     open(): Promise<void>
     subscribe(listener: (state: DesktopUpdatePresentation) => void): () => void
   }
+  /** Verified native input; the close request carries the accepted configuration identity. */
+  readonly keyboard: DesktopKeyboardApi
+  /** Restricted preference transaction face; definitions travel renderer → main only. */
+  readonly shortcuts: DesktopShortcutsApi
 }
 
 /** Scheme of Desktop-owned application documents. */

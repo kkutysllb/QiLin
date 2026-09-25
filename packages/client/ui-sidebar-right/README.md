@@ -54,7 +54,7 @@ The panel has no header row. Its two controls — the presentation switch and th
 
 While the panel is hidden, one button in the conversation header's corner seat (`conversation.session.header.corner`, past the utilities' right edge and level with the Session log control) is the way back in. Its glyph is the left sidebar's collapse icon mirrored. It shares the panel's store (the slot runtime allows one handle across two same-scope seats); while the panel is shown it renders nothing, and the corner seat collapses with it. A collapsed Sidebar therefore costs the conversation nothing: no rail, no width, and the transcript's scrollbar stays at the column's edge. Without a session there is no button and no panel.
 
-The panel takes the conversation's ground colour and content font sizes rather than a raised layer of its own: it is a column of the page, not a card over it.
+The panel takes the conversation's ground colour and content font sizes rather than a raised layer of its own: it is a column of the page, not a card over it. The shortcut reference includes the right-sidebar toggle command (desktop `Mod+Alt+B`, Web `Mod+Shift+B`); the same effective binding appears on the expand control, and the command is unavailable without a selected Session.
 
 The `rightbar` entry is a root-scoped controller. It reads `usePanelInfo` and mounts the Session-scoped `rightbar.session` subtree only while the Conversation is selected. Switching to a global panel hides the right Sidebar and releases its frame track without deleting the Session's tab state.
 

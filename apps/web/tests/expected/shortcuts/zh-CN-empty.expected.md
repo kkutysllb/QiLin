@@ -1,0 +1,14 @@
+- dialog "快捷键":
+  - banner:
+    - heading "快捷键" [level=2]
+    - button "关闭快捷键":
+      - img
+  - search "搜索快捷键":
+    - searchbox "搜索快捷键": abc
+    - button "清空搜索":
+      - img
+  - status: 没有匹配的快捷键
+  - contentinfo:
+    - button "恢复全部默认" [disabled]:
+      - img
+      - text: 恢复全部默认

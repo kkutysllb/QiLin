@@ -498,6 +498,22 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin/client-hmr -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin/client-shortcuts -->
+<a id="qilinclient-shortcuts"></a>
+
+## `@qilin/client-shortcuts`
+
+- `source`: [`packages/client/shortcuts/src/config.ts:5`](../packages/client/shortcuts/src/config.ts)
+
+```ts config-catalog
+/** Fixed shortcut sequence settings. */
+export interface Config {
+  /** Maximum interval between independent Escape presses for stopping a reply, in milliseconds. */
+  stopSequenceMs: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin/client-shortcuts -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin/client-ui-sidebar-documentpreview -->
 <a id="qilinclient-ui-sidebar-documentpreview"></a>
 
@@ -4059,6 +4075,7 @@ export interface Config {
 | `@qilin/client-ui-settings-plugins` | — | [`packages/client/ui-settings-plugins/src/index.ts`](../packages/client/ui-settings-plugins/src/index.ts) |
 | `@qilin/client-ui-settings-skills` | — | [`packages/client/ui-settings-skills/src/index.ts`](../packages/client/ui-settings-skills/src/index.ts) |
 | `@qilin/client-ui-settings-unarchive-sessions` | — | [`packages/client/ui-settings-unarchive-sessions/src/index.ts`](../packages/client/ui-settings-unarchive-sessions/src/index.ts) |
+| `@qilin/client-ui-shortcuts` | — | [`packages/client/ui-shortcuts/src/index.ts`](../packages/client/ui-shortcuts/src/index.ts) |
 | `@qilin/client-ui-sidebar` | — | [`packages/client/ui-sidebar/src/index.ts`](../packages/client/ui-sidebar/src/index.ts) |
 | `@qilin/client-ui-sidebar-browser` | — | [`packages/client/ui-sidebar-browser/src/index.ts`](../packages/client/ui-sidebar-browser/src/index.ts) |
 | `@qilin/client-ui-sidebar-files` | — | [`packages/client/ui-sidebar-files/src/index.ts`](../packages/client/ui-sidebar-files/src/index.ts) |

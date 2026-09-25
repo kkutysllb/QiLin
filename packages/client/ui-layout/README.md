@@ -40,6 +40,8 @@ The presenter consumes resolved theme snapshots and projects them onto the docum
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
+Desktop `Mod+B` toggles the left sidebar through the same layout action the frame's collapse control uses; the shortcut command is unavailable behind modal dialogs and yields to terminal input.
+
 <details>
 <summary>Implementation internals — click to expand</summary>
 

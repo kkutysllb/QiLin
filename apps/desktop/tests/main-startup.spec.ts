@@ -63,6 +63,10 @@ const harness = await vi.hoisted(async () => {
       focus: vi.fn(),
       sendInputEvent: vi.fn(),
       send: vi.fn(),
+      isDestroyed: () => this.destroyed,
+      isFocused: () => true,
+      setIgnoreMenuShortcuts: vi.fn(),
+      focusedFrame: null,
     })
     readonly show = vi.fn()
     readonly hide = vi.fn()
@@ -119,6 +123,7 @@ const harness = await vi.hoisted(async () => {
     getLocale: (): string => 'en-US',
     getVersion: () => '1.0.0',
     getAppPath: () => 'desktop-test-app',
+    getPath: (name: 'userData'): string => join('desktop-test-app', `${name}-test`),
     setAboutPanelOptions: vi.fn<(options: Electron.AboutPanelOptionsOptions) => void>(),
     requestSingleInstanceLock: () => true,
     exit: vi.fn(),
@@ -547,7 +552,7 @@ describe('desktop main startup', () => {
     expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
     const application = handler(event, 'application', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 DeepSeek Harness', 'separator', '检查更新…', 'separator', '退出',
+      '关于 QiLin', 'separator', '检查更新…', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
@@ -579,9 +584,15 @@ describe('desktop main startup', () => {
       .map(call => call[0])
       .find(items => items.some(item => item.role === 'editMenu'))
     if (template === undefined) throw new Error('application menu missing')
+    // The shortcuts installer owns the File menu on macOS: a labeled menu whose
+    // one entry carries the accepted page.close binding.
     expect(template.map(describeItem)).toEqual(platform === 'darwin'
-      ? ['Desktop test', 'fileMenu', 'editMenu', 'windowMenu']
+      ? ['Desktop test', en.fileMenu, 'editMenu', 'windowMenu']
       : ['Application', 'editMenu'])
+    if (platform === 'darwin') {
+      const file = template[1]!.submenu as MenuItemConstructorOptions[]
+      expect(file.map(describeItem)).toEqual([en.closePage])
+    }
     const application = template[0]!.submenu as MenuItemConstructorOptions[]
     expect(application.map(describeItem)).toEqual(platform === 'darwin'
       ? ['about', 'separator', en.checkUpdatesMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']

@@ -864,6 +864,15 @@
   flex-direction: column;
 }
 
+/* The head row every detail view shares: the crumb over the icon/actions row.
+   It carries the drag ownership (the mark in PluginManagerPage), so this row's
+   own box is the window's draggable geometry. The detail container below stays
+   content: marking it would drag the window over its text and form labels. */
+.detailTop {
+  display: flex;
+  flex-direction: column;
+}
+
 .crumb {
   display: inline-flex;
   align-items: center;

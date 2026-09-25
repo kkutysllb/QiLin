@@ -39,14 +39,13 @@
   margin-left: auto;
 }
 
-/* macOS hiddenInset titlebar: the title row doubles as the window drag
-   region; interactive children opt out. */
-:global([data-platform='darwin']) .titleRow {
-  -webkit-app-region: drag;
-}
-
-:global([data-platform='darwin']) .titleRow button,
-:global([data-platform='darwin']) .titleRow a,
+/* macOS hiddenInset titlebar: the header block owns the window drag over its
+   own box — title row plus the view tab strip, so the draggable geometry is the
+   header's geometry and no frame band has to match its height. The header marks
+   itself `data-window-drag` (ConversationSessionHeader); below it the title-row
+   clusters subtract their whole boxes, and individual controls are covered by
+   the ui-web base.css interactive rule. A covering overlay portals beside #root
+   (ui-settings-general), which puts it after this row in document order. */
 :global([data-platform='darwin']) .headerLeading,
 :global([data-platform='darwin']) .headerActions,
 :global([data-platform='darwin']) .headerUtilities,

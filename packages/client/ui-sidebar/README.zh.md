@@ -47,7 +47,7 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 
 ### macOS 桌面
 
-在 `html[data-platform='darwin']`（仅由桌面 preload 设置）下，展开的侧边栏列顶部有一条 52px 的顶部条：避开 hiddenInset 红绿灯、承载收起按钮，并作为窗口拖拽区；收起时整列隐藏而非保留轨道。本包向会话头部的 `conversation.session.header.leading` 座注册 `HeaderLeadingControls`——打开侧边栏与 New Session 两个控件，纯由 CSS 依据 AppFrame 发布的 `data-sidebar-collapsed` 属性仅在列隐藏时显示。设计依据与窗口集成约定见 [macOS 隐藏标题栏 Agent Note](../../../.agents/notes/implemented/feature/2026-09-13-macos-hidden-titlebar-vibrancy.zh.md)。
+在 `html[data-platform='darwin']`（仅由桌面 preload 设置）下，展开的侧边栏列顶部有一条 52px 的顶部条：避开 hiddenInset 红绿灯并承载收起按钮；顶部条给自身打上 `data-window-drag`，于是它自己的盒子就是窗口拖拽区（唯一的 darwin drag 规则由 ui-web base.css 声明，收起按钮经其交互规则排除在外），其下方的品牌按钮保留 New Session 快捷入口；收起时整列隐藏而非保留轨道。本包向会话头部的 `conversation.session.header.leading` 座注册 `HeaderLeadingControls`——打开侧边栏与 New Session 两个控件，纯由 CSS 依据 AppFrame 发布的 `data-sidebar-collapsed` 属性仅在列隐藏时显示。设计依据与窗口集成约定见 [macOS 隐藏标题栏 Agent Note](../../../.agents/notes/implemented/feature/2026-09-13-macos-hidden-titlebar-vibrancy.zh.md)。
 
 ### 滚动条
 
