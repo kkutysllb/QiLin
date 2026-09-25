@@ -465,9 +465,13 @@ export interface ToolRuntimeScheduler {
 
 /**
  * Scheduler entry point omitted from the generated named service API.
+ * The registry symbol is process-global (`Symbol.for`) because src-launch can
+ * load this package twice — the plugin entry through the profile resolution
+ * and bare-name imports through the built `lib` — and each copy mints its own
+ * `Symbol`, so a per-copy symbol makes the scheduler lookup miss.
  * @internal
  */
-export const TOOL_RUNTIME_SCHEDULER: unique symbol = Symbol('@qilin/tools.scheduler')
+export const TOOL_RUNTIME_SCHEDULER: unique symbol = Symbol.for('@qilin/tools.scheduler')
 
 /** Canonical error code for cancellation after a tool body was invoked. */
 export const TOOL_ABORTED = 'ABORTED'
