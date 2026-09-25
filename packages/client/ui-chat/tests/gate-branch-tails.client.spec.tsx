@@ -2,6 +2,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
+import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
@@ -49,6 +50,7 @@ describe('render branch tails', () => {
         t={t}
         useChat={bindSnapshotSelector(source)}
         useProjection={() => undefined}
+        usePerformanceUsage={bindSnapshotSelector(createSnapshotStore('detailed'))}
       />,
     )
     expect(view.container.textContent).toBe('2 轮 3 步')

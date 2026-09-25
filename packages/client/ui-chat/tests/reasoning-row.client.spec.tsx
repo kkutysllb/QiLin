@@ -1,7 +1,10 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
+import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
+import type { TranscriptViewMode } from '../src/chat-settings.ts'
+import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locale.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
@@ -213,5 +216,49 @@ describe('ReasoningRow', () => {
         '[data-variant="think"][data-expanded] [data-open] [data-disclosure-row]',
       ),
     ).not.toBeNull()
+  })
+})
+
+describe('ReasoningRow settled preview by work-details mode', () => {
+  const rendering = (mode: TranscriptViewMode) => render(
+    <AssistantMarkdown
+      t={t}
+      blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
+      streaming={false}
+      renderMessageImages={renderMessageImages}
+      usePresentation={bindSnapshotSelector(derivePresentationPolicy(createSnapshotStore(mode)))}
+    />,
+  )
+
+  it('compact drops the settled preview: a bare Think title', () => {
+    const view = rendering('compact')
+    // The preview fact is off; the stylesheet hides the separator and summary
+    // behind [data-preview], so jsdom asserts the attribute, not computed CSS.
+    expect(view.container.querySelector('[data-variant="think"]')?.hasAttribute('data-preview')).toBe(false)
+    // The body stays reachable through the title toggle.
+    fireEvent.click(view.getByRole('button'))
+    expect(view.getByText(/Check persistence/)).toBeTruthy()
+  })
+
+  it.each(['standard', 'detailed', 'verbose'] as const)(
+    '%s previews the settled first line beside the title',
+    (mode) => {
+      const view = rendering(mode)
+      expect(view.container.querySelector('[data-variant="think"]')?.hasAttribute('data-preview')).toBe(true)
+      expect(view.getByText('Inspect the session')).toBeTruthy()
+    },
+  )
+
+  it('a streaming tail always previews, even in compact', () => {
+    const view = render(
+      <AssistantMarkdown
+        t={t}
+        blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest tokens' }]}
+        streaming
+        renderMessageImages={renderMessageImages}
+        usePresentation={bindSnapshotSelector(derivePresentationPolicy(createSnapshotStore('compact')))}
+      />,
+    )
+    expect(view.getByText('Newest tokens')).toBeTruthy()
   })
 })

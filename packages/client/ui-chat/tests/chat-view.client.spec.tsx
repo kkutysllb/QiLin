@@ -5,6 +5,7 @@ import type { GlobalStandardProps } from '@qilin/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect } from 'react'
+import type { PerformanceUsageInjected, PresentationInjected } from '../src/client/contract/slots.ts'
 import type {
   AssistantMessageNode, ChatNode, ChatNodeOwnerProps, ChatNodeViewProps, ChatSnapshot,
   ChatViewSlotProps, CommandNode, CompactionSummaryNode, ContextMessageNode, ConversationNode,
@@ -21,7 +22,9 @@ import type {
 import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
 import type { SessionId } from '@qilin/session/types'
 import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
-import type { KeyedSnapshotSelectorHook, SnapshotSelectorHook } from '@qilin/client-ui-slots'
+import type {
+  InjectFace, KeyedSnapshotSelectorHook, SnapshotSelectorHook,
+} from '@qilin/client-ui-slots'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
@@ -270,7 +273,8 @@ function makeHarness(
   const forkAt = vi.fn()
   // Rows and the harness must observe the same chat-store instance.
   const chat = createChatStore().create()
-  const transcriptView = createSnapshotStore<TranscriptViewMode>('compact')
+  // Standard is the shipped default mode; tests flip the store for the others.
+  const transcriptView = createSnapshotStore<TranscriptViewMode>('standard')
   const presentation = derivePresentationPolicy(transcriptView)
   const t = makeTranslate(zh, commonZh)
   const toolOwners: Array<{
@@ -284,6 +288,8 @@ function makeHarness(
     opts?.fallback ?? null) as unknown as React.ComponentProps<typeof CommandNodeView>['renderSlot']
   const renderTurnTailSlot = (() => null) as unknown as
     React.ComponentProps<typeof TurnTailNodeView>['renderSlot']
+  // Harness-wide performance/usage detail for tail nodes; mode tests flip it.
+  let tailUsageMode: 'compact' | 'detailed' = 'detailed'
   let nodeSlotOverride: React.ComponentProps<typeof ChatNodeSeat>['renderSlot'] | undefined
   const renderNodeSlot = ((key: string, owner: object, opts?: {
     fallback?: React.ReactNode
@@ -295,8 +301,16 @@ function makeHarness(
     const turnData = opts?.hookContext as
       ConversationLocationDataStore<ConversationTurnDataMap> | undefined
     const useTurnData: UseChatNodeTurnData = dataKey => useTurnDataValue(turnData, dataKey)
-    const nodeProps = <Kind extends ChatNode['kind']>(): ChatNodeViewProps<Kind> => (
-      { ...props, ...nodeOwner, useTurnData } as unknown as ChatNodeViewProps<Kind>
+    const nodeProps = <Kind extends ChatNode['kind']>(): ChatNodeViewProps<Kind>
+      & InjectFace<PresentationInjected> & InjectFace<PerformanceUsageInjected> => (
+      {
+        ...props,
+        ...nodeOwner,
+        useTurnData,
+        // The shipped default detail level; mode coverage flips tailUsageMode.
+        usePerformanceUsage: (selector: (value: 'compact' | 'detailed') => unknown) => selector(tailUsageMode),
+      } as unknown as ChatNodeViewProps<Kind> & InjectFace<PresentationInjected>
+        & InjectFace<PerformanceUsageInjected>
     )
     switch (nodeOwner.node.kind) {
       case 'user':
@@ -442,6 +456,7 @@ function makeHarness(
     setOutline: (value: unknown) => { outlineValue = value },
     chatScroll, forkAt, toolOwners,
     setTranscriptView: (mode: TranscriptViewMode) => { transcriptView.set(mode) },
+    setTailUsageMode: (mode: 'compact' | 'detailed') => { tailUsageMode = mode },
     setNodeRenderer: (renderer: React.ComponentProps<typeof ChatNodeSeat>['renderSlot']) => {
       nodeSlotOverride = renderer
     },
@@ -1581,6 +1596,29 @@ describe('ChatView', () => {
     act(() => { h.setTranscriptView('compact') })
     expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
     expect(processRow.getAttribute('hidden')).toBe('until-found')
+  })
+
+  it('gates the turn-tail usage and time pills on the performance and usage detail', () => {
+    const h = makeHarness({
+      nodes: [user(1, 'question'), assistant(2, 'final answer', 1, 1)],
+      turnTimings: new Map([[1, { startTime: 1_000, endTime: 9_000 }]]),
+      turnEnds: new Map([[1, 3]]),
+      turnUsages: new Map([[
+        1,
+        { uncachedInputTokens: 100, outputTokens: 20, totalTokens: 120, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      ]]),
+    })
+    const detailed = render(<h.ChatView {...h.props} />)
+    // Detailed appends both accounting pills beside the branch action.
+    expect(detailed.getByText(/^用量 /)).toBeTruthy()
+    expect(detailed.getByText(/^用时 /)).toBeTruthy()
+    detailed.unmount()
+
+    h.setTailUsageMode('compact')
+    const compact = render(<h.ChatView {...h.props} />)
+    // Compact renders the bare action row: no usage pill, no time pill.
+    expect(compact.queryByText(/^用量 /)).toBeNull()
+    expect(compact.queryByText(/^用时 /)).toBeNull()
   })
 
   it('folds final-step reasoning under the fallback title when every summary count is zero', () => {

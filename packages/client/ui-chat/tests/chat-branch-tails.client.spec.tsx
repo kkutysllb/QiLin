@@ -2,6 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import type {
@@ -1069,6 +1070,7 @@ describe('small branch tails', () => {
         useProjection={(key: string) => key === 'tokenUsage'
           ? { uncachedInputTokens: 0, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 }
           : undefined}
+        usePerformanceUsage={bindSnapshotSelector(createSnapshotStore('detailed'))}
       />,
     )
     // The untimed counts pill renders static, so the usage pill is the only button.

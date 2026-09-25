@@ -5,7 +5,7 @@ import {
   diffTotals,
 } from '@qilin/client-ui-primitives'
 import type { PropsRenderSlots, TranslateNS } from '@qilin/client-ui-slots'
-import type { OpenFileOptions } from '@qilin/client-ui-chat/client'
+import type { OpenFileOptions, ToolCallDetail } from '@qilin/client-ui-chat/client'
 import type { MessageImageLoader } from '@qilin/client-ui-conversation/client'
 import { CHAT_DIFF_MAX_LINES, type DiffCardModel } from '../models/diff-card-model.ts'
 import { CHAT_READ_MAX_LINES, type ReadCardModel } from '../models/read-card-model.ts'
@@ -85,6 +85,12 @@ export interface ToolRowProps {
    * over the expanded body. Absent = no affordance.
    */
   inspect?: (() => void) | undefined
+  /**
+   * Work-details presentation for the detail body: `'summary'` drops the body
+   * (the row is its one-line summary), `'collapsed'` keeps it behind the row
+   * toggle, `'expanded'` opens it. Absent = `'collapsed'`.
+   */
+  detail?: ToolCallDetail | undefined
 }
 
 function leadingFor(state: ToolRowState, icon: ReactNode): ReactNode {
@@ -134,8 +140,12 @@ export function ToolRow({
   filePathLine,
   onOpenFile,
   inspect,
+  detail = 'collapsed',
 }: ToolRowProps) {
-  const [expanded, setExpanded] = useState(false)
+  // The mode sets the resting presentation; a manual toggle overrides it for
+  // that row until the reader toggles back, so switching modes re-renders the
+  // untouched rows immediately while touched rows keep the reader's choice.
+  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
   const terminalLabels = useMemo(() => terminalBlockLabels(t), [t])
   const diffLabels = useMemo(() => diffBlockLabels(t), [t])
   const readLabels = useMemo(() => readBlockLabels(t), [t])
@@ -155,8 +165,9 @@ export function ToolRow({
   const inputRaw = bodyRaw ?? null
   const outputText = output ?? null
   const card = askQuestionBody ?? terminalBody ?? diffBody ?? readBody ?? imageBody ?? searchBody ?? webBody
-  const expandable = state !== 'preparing' && (inputRaw !== null || outputText !== null || card !== null)
-  const open = expanded && expandable
+  const expandable = state !== 'preparing' && detail !== 'summary'
+    && (inputRaw !== null || outputText !== null || card !== null)
+  const open = expandable && (userExpanded ?? detail === 'expanded')
   const bodyText = useMemo(
     () => open && card === null && inputRaw !== null ? formatToolBody(variant, inputRaw) : null,
     [card, inputRaw, open, variant],
@@ -175,7 +186,7 @@ export function ToolRow({
   }, [diffBody])
   const suffix = failureLine === null ? summarySuffix ?? diffStat : null
   const toggleExpand = () => {
-    setExpanded(v => !v)
+    setUserExpanded(!open)
   }
   const openFile = filePath !== undefined && onOpenFile !== undefined && failureLine === null
     ? (event: MouseEvent<HTMLButtonElement>) => {

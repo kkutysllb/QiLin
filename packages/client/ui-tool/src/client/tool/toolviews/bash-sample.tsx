@@ -49,7 +49,7 @@ export function BashRow(props: BashRowProps) {
   return <StartedBashRow {...props} />
 }
 
-function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
+function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, detail = 'collapsed', t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block)
   // An omitted shell workdir is the session workspace; relative values resolve
   // against it before reaching the terminal primitive.
@@ -62,14 +62,17 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, t }:
     ? 'error'
     : model.state
   const status = stateStatus(state, t)
-  const [expanded, setExpanded] = useState(false)
+  // The mode sets the resting presentation; a manual toggle overrides it for
+  // that row, so switching modes re-renders untouched rows immediately while
+  // touched rows keep the reader's choice.
+  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
   // Failures, persistent-shell results, and spill previews use a generic body;
   // background acknowledgements and malformed calls remain collapsed.
   const genericBody = terminal === null
     && (model.state === 'error' || isSettledPersistentShellCall(block) || isSpilledShellCall(block))
     && (model.bodyRaw !== null || model.output !== null)
-  const expandable = terminal !== null || genericBody
-  const open = expanded && expandable
+  const expandable = detail !== 'summary' && (terminal !== null || genericBody)
+  const open = expandable && (userExpanded ?? detail === 'expanded')
   const body = useMemo(
     () => open && genericBody && model.bodyRaw !== null
       ? formatToolBody(model.variant, model.bodyRaw)
@@ -78,7 +81,7 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, t }:
   )
   const failureLine = model.state === 'error' ? model.errorSummary : null
   const toggleExpand = () => {
-    setExpanded(v => !v)
+    setUserExpanded(!open)
   }
   const toggleFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!expandable || (event.key !== 'Enter' && event.key !== ' ')) return

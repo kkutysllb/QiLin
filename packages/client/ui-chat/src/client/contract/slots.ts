@@ -19,7 +19,8 @@ import type {
 } from './snapshot.ts'
 import type { TurnProcessSpec } from './turn-process.ts'
 import type { ObservableSnapshot } from '@qilin/client-store'
-import type { ChatPresentationPolicy } from '../presentation-policy.ts'
+import type { ChatPresentationPolicy, ToolCallDetail } from '../presentation-policy.ts'
+import type { PerformanceUsageMode } from '../../chat-settings.ts'
 
 /** Selector hook over the current Conversation binding's Chat target. */
 export type UseChat = SnapshotSelectorHook<ChatSnapshot>
@@ -29,6 +30,13 @@ export type UseChatNode = KeyedSnapshotSelectorHook<ChatConversationViewNode | u
 
 /** Per-key selector hook over one Chat Node's Turn-process presentation. */
 export type UseChatNodeProcess = KeyedSnapshotSelectorHook<ChatTurnProcessPresentation | undefined>
+
+/**
+ * Selector hook over the live presentation policy. Callers select one field or
+ * a derived conclusion, never the whole policy, so a mode change re-renders
+ * only components whose selected value changed.
+ */
+export type UsePresentation = SnapshotSelectorHook<ChatPresentationPolicy>
 
 /** Where in a file an open should land. */
 export interface OpenFileOptions {
@@ -95,6 +103,12 @@ export interface ChatNodeOwnerProps {
   fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined
   /** Turn-process state when this Node belongs to a projected Turn. */
   turnProcess?: TurnProcessOwnerProps | undefined
+  /**
+   * How a settled tool-call row presents its detail body, from the accepted
+   * work-details mode. Absent in detached renderers reads as `'collapsed'`,
+   * the Standard presentation.
+   */
+  toolDetail?: ToolCallDetail | undefined
 }
 
 /** Shared presentation state for one Turn-process answer generation. */
@@ -103,6 +117,22 @@ export interface TurnProcessOwnerProps {
   readonly foldable: boolean
   readonly open: boolean
   setOpen(open: boolean): void
+}
+
+/** Shared presentation-policy source for renderers that depend on the work-details mode. */
+export interface PresentationInjected {
+  hooks: {
+    /** Live presentation policy derived from the accepted work-details mode. */
+    presentation: ObservableSnapshot<ChatPresentationPolicy>
+  }
+}
+
+/** Shared settings source for the performance row, composer statistics, and turn tail. */
+export interface PerformanceUsageInjected {
+  hooks: {
+    /** Accepted performance and usage detail preference. */
+    performanceUsage: ObservableSnapshot<PerformanceUsageMode>
+  }
 }
 
 /** Full props of one keyed Chat renderer. */

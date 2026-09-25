@@ -4,7 +4,7 @@ import type {
 } from '@qilin/client-ui-slots'
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type {
-  AssistantChatData, OpenFileOptions, PreparingToolCall, StartedToolCall, ToolResultNode,
+  AssistantChatData, OpenFileOptions, PreparingToolCall, StartedToolCall, ToolCallDetail, ToolResultNode,
 } from '@qilin/client-ui-chat/client'
 import type { MessageImageLoader, MessageImageSource } from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-locale/client'
@@ -102,6 +102,11 @@ export interface ToolCallCommonProps {
   loadImage: MessageImageLoader
   /** Inspect this call in the trajectory view when available. */
   inspect?: (() => void) | undefined
+  /**
+   * How the row presents its detail body, from the accepted work-details mode.
+   * Absent reads as `'collapsed'`, the Standard presentation.
+   */
+  detail?: ToolCallDetail | undefined
 }
 
 /** Stage-specific tool data; only start/result expose the dispatched call material. */

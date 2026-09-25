@@ -29,7 +29,7 @@ export type GenericToolCardProps = ToolCallOwnerProps & {
 }
 
 /** @param props - current tool stage and locale. @returns its preparation or dispatched card. */
-export function GenericToolCard({ toolName, block, cwd, home, openFile, inspect, t }: GenericToolCardProps) {
+export function GenericToolCard({ toolName, block, cwd, home, openFile, inspect, detail, t }: GenericToolCardProps) {
   const model = toolRowModel(toolName, block, cwd, home)
   const autoReview = model.autoReviewDenial === null
     ? null
@@ -48,6 +48,7 @@ export function GenericToolCard({ toolName, block, cwd, home, openFile, inspect,
   return (
     <ToolRow
       t={t}
+      detail={detail}
       variant={model.variant}
       toolName={toolName}
       icon={VARIANT_ICONS[model.variant]}

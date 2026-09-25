@@ -14,6 +14,7 @@ import type { SnapshotSelectorHook } from '@qilin/client-ui-slots'
 import type {} from '@qilin/session-stats/client'
 import type { TokenUsageProjection } from '@qilin/token-meter/client'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
+import type { PerformanceUsageMode } from '../../chat-settings.ts'
 import type { ChatSnapshot } from '../contract/snapshot.ts'
 import { formatTokensPerSecond } from './message-chrome.ts'
 import { assistantStepReading } from '../contract/turn-metrics.ts'
@@ -120,10 +121,12 @@ export function billedInputTokens(usage: TokenUsageProjection): number {
   return usage.uncachedInputTokens + usage.cacheReadTokens + usage.cacheWriteTokens
 }
 
-/** Props: the conversation-snapshot selector plus the projection read seat. */
+/** Props: the conversation-snapshot selector, the projection read seat, and the detail preference. */
 export interface StatsPillsProps {
   useChat: SnapshotSelectorHook<ChatSnapshot>
   useProjection: UseProjection
+  /** Accepted performance and usage detail preference, bound as usePerformanceUsage. */
+  usePerformanceUsage: SnapshotSelectorHook<PerformanceUsageMode>
   /** The owning dock's locale seat. */
   t: ChatViewSlotProps['t']
 }
@@ -314,7 +317,12 @@ function UsagePill({ usage, t, dialog }: {
   )
 }
 
-export const StatsPills = memo(function StatsPills({ useChat, useProjection, t }: StatsPillsProps) {
+export const StatsPills = memo(function StatsPills({
+  useChat, useProjection, usePerformanceUsage, t,
+}: StatsPillsProps) {
+  // Compact keeps two static readings (speed, cache hit) and drops the counts
+  // and both dialogs; detailed renders the full pill pair.
+  const mode = usePerformanceUsage(value => value)
   const settledNodes = useChat(s => s.legacy.nodes)
   const usage = useProjection('tokenUsage')
   // One exclusive slot for both dialogs: opening either pill closes the other.
@@ -329,9 +337,27 @@ export const StatsPills = memo(function StatsPills({ useChat, useProjection, t }
   // billing (e.g. every request failed) shows its counts without a usage pill.
   const hasTokens = usage !== undefined
     && (billedInputTokens(usage) > 0 || usage.outputTokens > 0)
+  if (mode === 'compact') {
+    const speed = stats.decodeMs > 0
+      ? t('message.tokensPerSecond', { tps: formatTokensPerSecond(stats.decodeTokens / (stats.decodeMs / 1_000)) })
+      : null
+    const cacheHit = hasTokens ? cacheHitPercent(usage) : null
+    if (speed === null && cacheHit === null) return null
+    return (
+      <div className={css.root} data-composer-stats>
+        {speed !== null && <span className={css.pill}><IconGaugeOutline16 />{speed}</span>}
+        {cacheHit !== null && (
+          <span className={css.pill}>
+            <IconDatabaseOutline16 />
+            {t('stats.cacheHit', { percent: cacheHit })}
+          </span>
+        )}
+      </div>
+    )
+  }
   if (stats.steps === 0 && !hasTokens) return null
   return (
-    <div className={css.root}>
+    <div className={css.root} data-composer-stats>
       {stats.steps > 0 && (
         <TimePill
           stats={stats}

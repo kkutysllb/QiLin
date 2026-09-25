@@ -29,13 +29,9 @@ Users reach the shell from the sidebar footer's account menu, whose Settings row
 
 <details>
 <details>
-### Resizing the navigation
+### Panel chrome and About
 
-The settings page navigation seeds at 188px and its right edge is a vertical, pointer-captured separator: dragging reports a clamped 160–360px width, and the separator keeps the localized accessible name from the `settings` namespace. Width is viewing state local to the shell occupant, so it resets when the panel unmounts rather than persisting into the settings document.
-
-### Section cards and About
-
-Each settings page is centered inside a stable detail card. The header's **Back to workspace** capsule uses the same close path as the mask and Escape key. The navigation keeps the shell-owned **About QiLin** entry pinned to its bottom edge, and that page introduces the project with the two-character 麒麟 mark. The `settings.about.mark` seat lets the active QiLin brand provider render the vector seal; localized 麒麟 text remains the explicit fallback.
+The settings shell renders as a centered 800×800 modal panel over a blurred mask: the section navigation sits on its left at the fixed 188px rail width, sections render directly in the scrolling options column, and the header carries the document actions plus one close control that shares its close path with the mask and Escape. The navigation lists every `settings.section` entry in ledger order, ending with the shell-owned **About QiLin** row, and that page introduces the project with the two-character 麒麟 mark. The `settings.about.mark` seat lets the active QiLin brand provider render the vector seal; localized 麒麟 text remains the explicit fallback.
 
 ### The General section
 

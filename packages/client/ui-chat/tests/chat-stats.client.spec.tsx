@@ -5,10 +5,12 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import type {
   AssistantMessageNode, ChatSnapshot, LegacyConversationSlice, ToolResultNode,
 } from '@qilin/client-ui-chat/client'
+import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { StatsPills, deriveStats, formatDuration, type StatsPillsProps } from '../src/client/chat/StatsPills.tsx'
+import type { PerformanceUsageMode } from '../src/chat-settings.ts'
 import { formatTokens } from '../src/client/chat/token-format.ts'
 import { en, zh } from '../src/client/locale.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
@@ -144,8 +146,14 @@ describe('StatsPills', () => {
   function props(
     source: { getSnapshot(): ChatSnapshot; subscribe(fn: () => void): () => void },
     values: Record<string, unknown> = { tokenUsage: USAGE },
+    mode: PerformanceUsageMode = 'detailed',
   ): StatsPillsProps {
-    return { useChat: bindSnapshotSelector(source), useProjection: projections(values), t: tEn }
+    return {
+      useChat: bindSnapshotSelector(source),
+      useProjection: projections(values),
+      usePerformanceUsage: bindSnapshotSelector(createSnapshotStore(mode)),
+      t: tEn,
+    }
   }
 
   function tokenUsage(cacheReadTokens: number, uncachedInputTokens: number) {
@@ -443,5 +451,30 @@ describe('StatsPills', () => {
     act(() => { set({ partial: { turn: 1, step: 2, blocks: [{ kind: 'text', text: 'a' }] } }) })
     act(() => { set({ partial: { turn: 1, step: 2, blocks: [{ kind: 'text', text: 'ab' }] } }) })
     expect(renders).toBe(before)
+  })
+
+  it('compact renders only the speed and cache-hit readings, without dialogs', () => {
+    const { source } = makeSource({ nodes: [timedStep()] })
+    const view = render(
+      <StatsPills
+        {...props(
+          source,
+          { tokenUsage: USAGE, sessionStats: sessionStats({ decodeMs: 3_000, decodeTokens: 60 }) },
+          'compact',
+        )}
+      />,
+    )
+    // Two static readings; the turn/step counts and both dialogs drop out.
+    expect(view.container.textContent).toContain('20 tok/s')
+    expect(view.container.textContent).toContain('90%')
+    expect(view.container.textContent).not.toContain('1 turns 1 steps')
+    expect(view.queryAllByRole('button')).toHaveLength(0)
+  })
+
+  it('compact renders nothing when no timed or billed figure exists', () => {
+    const { source } = makeSource({ nodes: [assistant(1, 1)] })
+    // No decode timing and (with the usage projection dropped) no cache hit.
+    const view = render(<StatsPills {...props(source, {}, 'compact')} />)
+    expect(view.container.querySelector('[data-composer-stats]')).toBeNull()
   })
 })

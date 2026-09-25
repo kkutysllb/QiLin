@@ -167,10 +167,12 @@ function runningTurnStartTime(timeline: ConversationTimelineSnapshot): number | 
 }
 
 /** Turn-level model activity label retained across first-token, tool, and streaming phases. */
-function TurnStatus({ startTime, t }: {
+function TurnStatus({ startTime, showClock, t }: {
   /** The running turn's logged `turn/start` time; null falls back to mount
    *  time when that boundary is outside the window. */
   startTime: number | null
+  /** Whether the elapsed-time clock rides the label (work-details live detail). */
+  showClock: boolean
   /** The owning view's locale seat. */
   t: ChatViewSlotProps['t']
 }) {
@@ -189,11 +191,11 @@ function TurnStatus({ startTime, t }: {
   }, [anchor])
   // Short turns keep the plain label; the clock only appears once the turn
   // has clearly been running for a while.
-  const showClock = elapsedMs >= 15_000
+  const clockVisible = showClock && elapsedMs >= 15_000
   return (
     <div className={css.turnStatus} role="status" aria-live="polite">
       {t('chat.deepDiving')}
-      {showClock && (
+      {clockVisible && (
         <span className={css.turnStatusClock} aria-hidden>
           {formatRunDuration(elapsedMs, t)}
         </span>
@@ -251,6 +253,8 @@ export function ChatView({
   const hasMore = useSession(s => s.hasMore)
   const loadingOlder = useSession(s => s.loadingOlder)
   const compactTranscript = usePresentation(policy => policy.foldCompletedTurns)
+  const toolDetail = usePresentation(policy => policy.toolCallDetail)
+  const liveProcessDetail = usePresentation(policy => policy.liveProcessDetail)
   const inspectCall = useCallback((callId: string) => {
     openTrajectory(callId)
   }, [openTrajectory])
@@ -797,6 +801,7 @@ export function ChatView({
               useChatNodeProcess={useChatNodeProcess}
               historyIncomplete={hasMore}
               compactTranscript={compactTranscript}
+              toolDetail={toolDetail}
               useStore={useStore}
               actions={actions}
               cwd={cwd}
@@ -816,7 +821,7 @@ export function ChatView({
               double-render the same wait. */}
           {/* Turn-level loading signal: rides the whole running turn (first-token
               wait, tool execution, streaming) so it never flickers per step. */}
-          {running && <TurnStatus startTime={runningTurnStart} t={t} />}
+          {running && <TurnStatus startTime={runningTurnStart} showClock={liveProcessDetail} t={t} />}
           {pendingSteering.map(item => (
             <PendingSteeringBubble
               key={item.id}

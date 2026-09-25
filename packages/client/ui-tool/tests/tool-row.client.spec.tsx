@@ -286,6 +286,34 @@ describe('ToolRow', () => {
     expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('presents a one-line summary in the compact mode: no toggle, no body', () => {
+    const view = render(<ToolRow {...rowProps} detail="summary" />)
+    expect(view.getByText('List files')).toBeTruthy()
+    // No expandable body: the row is not a button and the args never render.
+    expect(view.container.querySelector('[aria-expanded]')).toBeNull()
+    expect(view.container.querySelector('[class*="ioCard"]')).toBeNull()
+  })
+
+  it('defaults the detail body to collapsed and expanded from the mode, keeping a manual toggle', () => {
+    const collapsed = render(<ToolRow {...rowProps} detail="collapsed" />)
+    expect(collapsed.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(collapsed.getByRole('button'))
+    expect(collapsed.getByText(/"a": 1/)).toBeTruthy()
+    collapsed.unmount()
+
+    const expanded = render(<ToolRow {...rowProps} detail="expanded" />)
+    expect(expanded.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('true')
+    expect(expanded.container.querySelector('[class*="ioCard"]')).not.toBeNull()
+    // A reader-touched row keeps its choice when the mode changes underneath it.
+    fireEvent.click(expanded.getByRole('button'))
+    expect(expanded.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('keeps the preparing state non-expandable in every detail mode', () => {
+    const view = render(<ToolRow {...rowProps} state="preparing" detail="expanded" />)
+    expect(view.container.querySelector('[aria-expanded]')).toBeNull()
+  })
+
   it('row click expands: chevron leading, summary kept inline, body in the scrolling card', () => {
     const view = render(<ToolRow {...rowProps} />)
     fireEvent.click(view.getByRole('button'))

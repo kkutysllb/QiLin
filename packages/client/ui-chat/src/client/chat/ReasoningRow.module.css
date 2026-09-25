@@ -97,6 +97,13 @@
   text-overflow: clip;
 }
 
+/* Modes without the settled preview show a bare Think title: the separator
+   and summary fold away with the preview fact. */
+.root:not([data-preview]) .separator,
+.root:not([data-preview]) .summary {
+  display: none;
+}
+
 .thinkBody {
   /* Indent under the title, which starts at leading (16 + delta) + gap 6. */
   padding: 4px 0 4px calc(22px + var(--qilin-content-font-delta, 0px));

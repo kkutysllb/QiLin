@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import type { ChatNodeViewProps, TurnTailOwnerProps } from '../contract/slots.ts'
+import type { InjectFace, PropsRenderSlots } from '@qilin/client-ui-slots'
+import type { ChatNodeViewProps, PerformanceUsageInjected, TurnTailOwnerProps } from '../contract/slots.ts'
 import { MessageIconActions } from './MessageIconActions.tsx'
 import { TurnTimePanel, TurnUsagePanel } from './TurnUsagePanel.tsx'
 import { assistantText } from './turn-assistant.ts'
@@ -8,11 +8,15 @@ import css from './TurnTailNodeView.module.css'
 
 type TurnTailNodeViewProps = ChatNodeViewProps<'turn-tail'>
   & PropsRenderSlots<'conversation.chat.turnTail' | 'conversation.chat.assistant-actions'>
+  & InjectFace<PerformanceUsageInjected>
 
 /** Turn-local actions and feature tail over the Location index, independent of Assistant placement. */
 export const TurnTailNodeView = memo(function TurnTailNodeView({
-  node, openFile, forkAt, renderSlot, t, useChat,
+  node, openFile, forkAt, renderSlot, t, useChat, usePerformanceUsage,
 }: TurnTailNodeViewProps) {
+  // The per-Turn performance and usage pills ride the accepted detail level:
+  // compact renders the bare action row, detailed appends the accounting pills.
+  const detailed = usePerformanceUsage(mode => mode) === 'detailed'
   const data = node.data
   const hasLaterChatNode = useChat(snapshot =>
     snapshot.locations.getTurn(data.turn).at(-1) !== node.key)
@@ -49,7 +53,7 @@ export const TurnTailNodeView = memo(function TurnTailNodeView({
         branchUnavailable={data.branchUnavailable || hasLaterChatNode}
         className={css.actions}
         extraActions={assistantActions}
-        usageAction={(
+        usageAction={!detailed ? null : (
           <>
             {data.tokenUsage !== undefined && <TurnUsagePanel usage={data.tokenUsage} t={t} />}
             {runMs !== undefined && (

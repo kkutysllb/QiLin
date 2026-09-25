@@ -46,11 +46,12 @@ function summarize(argsRaw: string | null, t: TodoRowProps['t']): RowSummary | n
 }
 
 /** Summarizes a plan update without presenting a cancelled call as completed. */
-export function TodoRow({ toolName, block, inspect, t }: TodoRowProps) {
+export function TodoRow({ toolName, block, inspect, detail, t }: TodoRowProps) {
   const model = toolRowModel(toolName, block)
   const summary = summarize(model.bodyRaw, t) ?? { text: model.summary, extra: 0 }
   return (
     <ToolRow
+      detail={detail}
       t={t}
       variant={model.variant}
       toolName={toolName}
