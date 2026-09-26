@@ -69,7 +69,7 @@ Settings → General exposes a persisted, localized `Compact` / `Standard` / `De
 <a id="grouped-rendering"></a>
 ## Grouped rendering
 
-Consecutive reasoning, Tool, and Assistant rows between independent inputs become activity groups owned by one Chat Group Definition. A group seat subscribes only to its member array, and each member keeps its keyed Node source and renderer. `groupPart` selects the renderer-owned part, with a distinct DOM anchor per part. System-prompt, Context injection, and command rows remain independent rows: the upstream infrastructure-row filter is not ported, so grouping keeps those kinds outside every process group. Presentation modes change group visibility, never member parents.
+Consecutive reasoning, Tool, and Assistant rows between independent inputs become activity groups owned by one Chat Group Definition. A group seat subscribes only to its member array, and each member keeps its keyed Node source and renderer. `groupPart` selects the renderer-owned part, with a distinct DOM anchor per part. System-prompt, Context injection, and command rows remain independent rows and end the preceding group: the upstream infrastructure-row filter is not ported, so grouping keeps those kinds outside every process group. Presentation modes change group visibility, never member parents. The [business-rule reference](src/client/conversation-nodes/README.md) owns segmentation, display-mode titles, and activity summaries.
 
 -----
 
@@ -91,7 +91,7 @@ The `tool-call` Chat Node owns one call's preparing, dispatched, and result stag
 <a id="scroll-ownership"></a>
 ## Scroll ownership
 
-Chat restores semantic anchors across history prepend and renderer remounts. Pinned scroll deliveries without reader movement update follow ownership immediately, before subsequent layout changes can invalidate their floor. Reader movement remains pending until the sampling interval or `scrollend`, even inside the follow threshold, so layout growth cannot erase small scroll gestures. While the reader is pinned to the floor, `ResizeObserver` follows the new floor and selects the latest loaded Turn without reading row geometry. Once the reader moves away, flow-height changes preserve the top position and the reading-line geometry selects the active Turn. Turn-rail previews paint above sticky Markdown code-block banners, while the rail frame remains inside the transcript band above the composer.
+Chat restores semantic anchors across history prepend and renderer remounts. Pinned scroll deliveries without reader movement update follow ownership immediately, before subsequent layout changes can invalidate their floor. Reader movement remains pending until the sampling interval or `scrollend`, even inside the follow threshold, so layout growth cannot erase small scroll gestures. While the reader is pinned to the floor, `ResizeObserver` follows the new floor and selects the latest loaded Turn without reading row geometry. Once the reader moves away, flow-height changes preserve the top position and the reading-line geometry selects the active Turn. Turn-rail previews paint above sticky Markdown code-block banners, while the rail frame remains inside the transcript band above the composer. The policy is split by responsibility: `use-chat-viewport` owns scrollport geometry and the element refs, `use-chat-reading` owns follow intent, reader sampling, and the active Turn, `use-chat-navigation` owns Turn jumps and prepend anchoring, and `use-chat-scroll` reconciles them after each commit. `ChatView` renders what they publish.
 
 -----
 
