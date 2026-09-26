@@ -20,6 +20,7 @@ import {
 } from '@qilin/client-test-runtime'
 import { createSnapshotStore } from '@qilin/client-store'
 import type { SessionListState, SessionSnapshot } from '@qilin/api-session-controller/client'
+import type { ContextPressureProjection } from '@qilin/token-meter/client'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import type { Context } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
@@ -27,7 +28,7 @@ import type { SubmitOutcome } from '../src/client/contract/input.ts'
 import { SessionInputShell } from '../src/client/input/facade.ts'
 import { $replaceDetectSpanWithText, $selectDetectSpan } from '../src/client/input/editor/span-map.ts'
 import type {
-  ComposerAttachment, ComposerAttachmentsOwnerProps, DraftFileUploads,
+  ComposerAttachment, ComposerAttachmentsOwnerProps, DraftFileUploads, InputActivityOwnerProps,
 } from '../src/client/contract/slots.ts'
 import type { DraftAttachmentId } from '../src/client/contract/input.ts'
 import { InputBar } from '../src/client/skeleton/InputBar.tsx'
@@ -57,6 +58,8 @@ interface BenchOptions {
   planEntry?: React.ReactNode
   /** The `plan` projection value the standard-kit useProjection serves. */
   plan?: { active: boolean; pending: boolean }
+  /** The `contextPressure` projection value the dock meter reads. */
+  contextPressure?: ContextPressureProjection
   /** The `goal` projection value used only to prove attachment intake remains ordinary. */
   goal?: { phase: 'active'; objective: string }
   modelEntry?: React.ReactNode
@@ -94,6 +97,8 @@ interface BenchOptions {
   leftItems?: React.ReactNode
   rightItems?: React.ReactNode
   footer?: React.ReactNode
+  /** The `conversation.input.activity` occupant, rendered with the owner props the bar hands it. */
+  activityEntry?: (owner: InputActivityOwnerProps) => React.ReactNode
   attachments?: readonly ComposerAttachment[]
   /** Upload states served for file-kind drafts (absent = every file is ready). */
   fileUploads?: DraftFileUploads
@@ -163,6 +168,7 @@ function bench(over?: BenchOptions) {
     if (key === 'conversation.input.plan') return over?.planEntry ?? null
     if (key === 'conversation.input.permission') return over?.permissionEntry ?? null
     if (key === 'conversation.input.model') return over?.modelEntry ?? null
+    if (key === 'conversation.input.activity') return over?.activityEntry?.(owner as InputActivityOwnerProps) ?? null
     return null
   }) as never
   const props: InputBarProps = {
@@ -185,7 +191,8 @@ function bench(over?: BenchOptions) {
       (selector ?? (v => v))(key === 'plan'
         ? over?.plan
         : key === 'goal' ? over?.goal
-          : key === 'imageLimits' ? over?.imageLimits : undefined)),
+          : key === 'imageLimits' ? over?.imageLimits
+            : key === 'contextPressure' ? over?.contextPressure : undefined)),
     useInput: bindSnapshotSelector(shell.state),
     inputActions: shell.actions,
     keyboard: shell,
@@ -1611,7 +1618,7 @@ describe('command launcher chrome and control seats', () => {
     expect([...new Set(slotCalls.map(c => c.key))]).toEqual([
       'conversation.input.overlay', 'conversation.input.attachments',
       'conversation.input.permission', 'conversation.input.plan', 'conversation.input.left',
-      'conversation.input.right', 'conversation.input.model',
+      'conversation.input.right', 'conversation.input.model', 'conversation.input.activity',
       'conversation.composer.dock',
     ])
     expect(view.queryByLabelText('Plan mode')).toBeNull()
@@ -1672,5 +1679,78 @@ describe('command launcher chrome and control seats', () => {
     cleanup()
     const live = bench({ running: true })
     expect((live.view.getByLabelText('添加文件或调用指令') as HTMLButtonElement).disabled).toBe(false)
+  })
+})
+
+describe('toolbar activity seat', () => {
+  it('renders the registered occupant between the model selector and the submit action', () => {
+    const { view, slotCalls } = bench({
+      modelEntry: <button>model choice</button>,
+      activityEntry: () => <button>dictate</button>,
+    })
+    const model = view.getByRole('button', { name: 'model choice' })
+    const dictate = view.getByRole('button', { name: 'dictate' })
+    const send = view.getByRole('button', { name: '发送消息' })
+    // The seat exists in the composer, in the model-to-submit span the contract
+    // declares (an occupant that never renders is the defect this guards).
+    expect(model.compareDocumentPosition(dictate) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(dictate.compareDocumentPosition(send) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const owner = slotCalls.filter(call => call.key === 'conversation.input.activity').at(-1)?.owner as InputActivityOwnerProps
+    expect(typeof owner.onActiveChange).toBe('function')
+    expect(owner.locked).toBe(false)
+  })
+
+  it('lets a toolbar activity replace accessories without replacing the draft editor or send action', () => {
+    const { view } = bench({
+      draft: 'keep this draft', modelEntry: <button>model choice</button>,
+      activityEntry: owner => <>
+        <button onClick={() => { owner.onActiveChange(true) }}>expand activity</button>
+        <button onClick={() => { owner.onActiveChange(false) }}>close activity</button>
+      </>,
+    })
+    const editor = view.getByRole('textbox')
+    fireEvent.click(view.getByRole('button', { name: 'expand activity' }))
+    expect(view.queryByRole('button', { name: 'model choice' })).toBeNull()
+    expect(view.queryByRole('button', { name: '添加文件或调用指令' })).toBeNull()
+    expect(view.getByRole('textbox')).toBe(editor)
+    expect(editor.textContent).toBe('keep this draft')
+    expect(view.getByRole('button', { name: '发送消息' })).toBeTruthy()
+    fireEvent.click(view.getByRole('button', { name: 'close activity' }))
+    expect(view.getByRole('button', { name: 'model choice' })).toBeTruthy()
+    expect(view.getByRole('button', { name: '添加文件或调用指令' })).toBeTruthy()
+  })
+
+  it('places context usage below the composer and hides it until the activity closes', () => {
+    const { view } = bench({
+      draft: 'draft', contextPressure: { pressureTokens: 32_000, contextWindow: 128_000 },
+      activityEntry: owner => <>
+        <button onClick={() => { owner.onActiveChange(true) }}>microphone</button>
+        <button onClick={() => { owner.onActiveChange(false) }}>close activity</button>
+      </>,
+    })
+    const meter = view.getByRole('button', { name: '上下文已用 25%' })
+    const microphone = view.getByRole('button', { name: 'microphone' })
+    expect(microphone.compareDocumentPosition(meter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    fireEvent.click(meter)
+    expect(view.getByRole('dialog', { name: '上下文已用' })).toBeTruthy()
+    fireEvent.click(microphone)
+    expect(view.queryByRole('dialog', { name: '上下文已用' })).toBeNull()
+    expect(view.queryByRole('button', { name: '上下文已用 25%' })).toBeNull()
+    expect(view.getByRole('button', { name: '发送消息' })).toBeTruthy()
+    fireEvent.click(view.getByRole('button', { name: 'close activity' }))
+    fireEvent.click(view.getByRole('button', { name: '上下文已用 25%' }))
+    expect(view.getByRole('dialog', { name: '上下文已用' })).toBeTruthy()
+    expect(view.getByRole('button', { name: '发送消息' })).toBeTruthy()
+  })
+
+  it('a session switch closes the activity so the next session starts compact', () => {
+    const b = bench({
+      modelEntry: <button>model choice</button>,
+      activityEntry: owner => <button onClick={() => { owner.onActiveChange(true) }}>expand activity</button>,
+    })
+    fireEvent.click(b.view.getByRole('button', { name: 'expand activity' }))
+    expect(b.view.queryByRole('button', { name: 'model choice' })).toBeNull()
+    b.view.rerender(<InputBar {...b.props} sessionId={'s2' as SessionId} />)
+    expect(b.view.getByRole('button', { name: 'model choice' })).toBeTruthy()
   })
 })

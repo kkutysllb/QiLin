@@ -403,3 +403,39 @@
   font-size: 12px;
   cursor: pointer;
 }
+
+/* Expanded toolbar activity. The ordinary accessories (right entries and the
+   model selector) keep their DOM but leave the row to the occupant, which
+   takes the freed width beside the still-live editor and submit action. */
+.standardControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.tools[hidden],
+.standardControls[hidden] {
+  display: none;
+}
+
+.trailingActive {
+  flex: 1;
+  margin-left: 0;
+}
+
+.activity {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+/* A seat with no occupant contributes no width. */
+.activity:empty {
+  display: none;
+}
+
+.activityExpanded {
+  flex: 1;
+  min-width: 0;
+}

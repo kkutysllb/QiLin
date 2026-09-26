@@ -6,7 +6,7 @@ import { act, cleanup, fireEvent, waitFor, within } from '@testing-library/react
 import { useState } from 'react'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import type { ISession } from '@qilin/api-session-controller/client'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
+import type { PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
 import {
   RemoteError, SlotTestRuntime, usePinnedBrowserLanguages, stubSettingsScope,
 } from '@qilin/client-test-runtime'
@@ -66,6 +66,19 @@ function provideWorkspaceNavigation(runtime: SlotTestRuntime): (id: SessionId) =
     openSession,
   } as never)
   return openSession
+}
+
+/** A composer toolbar activity that expands the way a capture occupant does. */
+function ActivityProbe({ onActiveChange }: PropsRuntime<'conversation.input.activity'>) {
+  const [open, setOpen] = useState(false)
+  return (
+    <button
+      data-testid="activity-probe"
+      onClick={() => { const next = !open; setOpen(next); onActiveChange(next) }}
+    >
+      {String(open)}
+    </button>
+  )
 }
 
 function WorkspaceProbe({ open }: EmptyWorkspaceOwnerProps) {
@@ -235,6 +248,30 @@ describe('prompt rejection through the assembled composer', () => {
     await waitFor(() => {
       expect(shell.snapshot.draft).toBe('do not lose this')
     })
+    await runtime.dispose()
+  })
+})
+
+describe('toolbar activity seat', () => {
+  it('renders the registered activity occupant and hides the standard controls while it expands', async () => {
+    const runtime = await bench()
+    // The registration path the voice plugin uses (a dynamic package mounting
+    // into the declared seat); a seat that renders nothing is the defect.
+    runtime.slots.register({ name: 'conversation.input.activity' }, ActivityProbe)
+    const view = runtime.renderRoot()
+    const probe = view.getByTestId('activity-probe')
+    const card = view.container.querySelector('[data-composer-card]')!
+    const send = view.getByRole('button', { name: '发送消息' })
+    expect(card.contains(probe)).toBe(true)
+    expect(probe.compareDocumentPosition(send) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    fireEvent.click(probe)
+    expect(probe.textContent).toBe('true')
+    // The expanded activity owns the toolbar: the ordinary accessories leave
+    // the accessibility tree while the editor and submit action stay.
+    expect(view.queryByRole('button', { name: '添加文件或调用指令' })).toBeNull()
+    expect(view.getByTestId('activity-probe')).toBe(probe)
+    expect(view.getByRole('button', { name: '发送消息' })).toBe(send)
     await runtime.dispose()
   })
 })
