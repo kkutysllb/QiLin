@@ -2,7 +2,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { chromium, type Browser, type Page } from 'playwright'
+import { chromium, type Browser, type Locator, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
@@ -12,6 +12,38 @@ import { newEnglishPage, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/markdown-file-links', import.meta.url))
 const MODE = webSnapshotMode()
+
+/** The tile CodeMirror keeps on its own DOM nodes, and the view state behind it. */
+interface CodeMirrorTileHost {
+  readonly cmTile?: {
+    readonly root?: {
+      readonly view?: {
+        readonly state: {
+          readonly doc: { lineAt(position: number): { readonly number: number } }
+          readonly selection: { readonly main: { readonly head: number } }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * The source line the editor's caret sits on. A reference's line reaches the
+ * tab as its navigation parameter and the workbench answers it in CodeMirror's
+ * own selection, which no product attribute exposes; the tile CodeMirror keeps
+ * on its content element is that state's only browser-side handle (the
+ * package's unit spec reads the same view through EditorView.findFromDOM).
+ * @param column - the right Sidebar column holding the active editor tab.
+ * @returns the 1-based line of the editor's primary selection.
+ */
+async function caretLine(column: Locator): Promise<number> {
+  return await column.locator('[data-file-host] .cm-content')
+    .evaluate<number, HTMLElement & CodeMirrorTileHost>((node) => {
+      const view = node.cmTile?.root?.view
+      if (view === undefined) throw new Error('the editor content element carries no CodeMirror tile')
+      return view.state.doc.lineAt(view.state.selection.main.head).number
+    })
+}
 
 describe('web e2e: Markdown file links', () => {
   let scaffold: WebScaffold
@@ -42,7 +74,7 @@ describe('web e2e: Markdown file links', () => {
     await scaffold?.close()
   })
 
-  it('previews relative and absolute links at the requested line without duplicate tabs', async () => {
+  it('opens relative and absolute links at the requested line without duplicate tabs', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-markdown-file-links'))
     const source = page.getByRole('button', { name: 'src/example.txt:24–30', exact: true })
     const prose = await source.locator('..').ariaSnapshot()
@@ -50,13 +82,18 @@ describe('web e2e: Markdown file links', () => {
     const beforeUrl = page.url()
     await source.click()
     const column = page.locator('[data-rightbar-col]')
-    await expect.poll(() => column.locator('[data-textpreview-target="24"]').textContent()).toBe('source line 24\n')
-    await expect.poll(() => column.locator('[data-textpreview-path]').textContent())
-      .toBe(join(scaffold.workspaceCwd, 'src/example.txt'))
+    // A known text extension is claimed by the editable workbench, which
+    // outranks the read-only viewer; the reference's line is the file tab's
+    // navigation parameter, so the editor opens the file and lands there.
+    await column.locator('[data-file-state="ready"]').waitFor({ timeout: 15_000 })
+    // The reference's own spelling is the address; a workspace-relative path
+    // stays relative in the tab.
+    await expect.poll(() => column.locator('[data-file-path]').textContent()).toBe('src/example.txt')
+    await expect.poll(() => caretLine(column)).toBe(24)
     const absolute = page.getByRole('button', { name: 'src/example.txt:30', exact: true })
     await absolute.focus()
     await absolute.press('Enter')
-    await expect.poll(() => column.locator('[data-textpreview-target="30"]').textContent()).toBe('source line 30\n')
+    await expect.poll(() => caretLine(column)).toBe(30)
     expect(await column.locator('[data-dockkit-tab-title]').allTextContents()).toEqual(['example.txt'])
     expect(page.url()).toBe(beforeUrl)
     expect(page.context().pages()).toHaveLength(1)
@@ -65,14 +102,18 @@ describe('web e2e: Markdown file links', () => {
     await mkdir(artifacts, { recursive: true })
     await page.screenshot({ path: join(artifacts, 'markdown-file-links.png'), animations: 'disabled' })
     await page.getByRole('button', { name: 'other/example.txt', exact: true }).click()
+    await expect.poll(() => column.locator('[data-file-path]').textContent()).toBe('other/example.txt')
+    expect(await column.locator('[data-dockkit-tab-title]').allTextContents()).toEqual(['example.txt', 'example.txt'])
+    // The workbench's Preview action hands the same file to the read-only
+    // viewer, whose state attributes exist only on that surface.
+    await column.locator('[data-file-preview]').click()
     await expect.poll(() => column.locator('[data-textpreview-path]').textContent())
       .toBe(join(scaffold.workspaceCwd, 'other/example.txt'))
     await expect.poll(() => column.locator('[data-textpreview-line="1"]').textContent()).toBe('other file\n')
-    expect(await column.locator('[data-dockkit-tab-title]').allTextContents()).toEqual(['example.txt', 'example.txt'])
     const preview = await captureStableAria(page, '[data-textpreview-state="text"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'preview.expected.md'), preview, MODE)
     await page.getByRole('button', { name: 'Missing file', exact: true }).click()
-    await column.locator('[data-textpreview-failed="workspace-file/not-found"]').waitFor()
+    await column.locator('[data-file-state="failed"] [data-file-code="workspace-file/not-found"]').waitFor()
     expect(page.url()).toBe(beforeUrl)
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])

@@ -70,10 +70,16 @@ async function canvasColor(canvas: Locator): Promise<string> {
   })
 }
 
-/** Select a workspace file through the Files tab and wait for its preview identity. */
+/** Select a workspace file through the Files tab and settle on its read-only preview body. */
 async function openPreviewFile(column: Locator, filesTab: Locator, preview: Locator, name: string): Promise<void> {
   await filesTab.click()
   await column.locator('[data-files-entry="file"]').getByRole('button', { name, exact: true }).click()
+  // An editable extension is claimed by the `file` workbench, which outranks
+  // the read-only viewer; that editor's toolbar hands the same file over.
+  await expect.poll(async () => await column.locator('[data-file-state="ready"]').count() > 0
+    ? 'editor'
+    : await preview.count() > 0 ? 'preview' : 'pending', { timeout: 30_000 }).not.toBe('pending')
+  if (await column.locator('[data-file-state="ready"]').count() > 0) await column.locator('[data-file-preview]').click()
   await expect.poll(async () => (await preview.getAttribute('data-textpreview-url'))?.endsWith(`/${name}`)).toBe(true)
 }
 
@@ -229,7 +235,10 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     const tailHeading = await markdownTail.innerText()
     await preview.getByRole('heading', { name: heading, exact: true }).scrollIntoViewIfNeeded()
     await successShot(page, 'markdown')
-    const markdownTab = column.locator('[data-dockkit-tab]').filter({ has: page.getByText('smoke.md', { exact: true }) })
+    // The workbench tab and its Preview tab both carry the basename, so the
+    // reader tracks the active one.
+    const markdownTab = column.locator('[data-dockkit-tab][aria-selected="true"]')
+      .filter({ has: page.getByText('smoke.md', { exact: true }) })
     const markdownTabId = await markdownTab.getAttribute('data-dockkit-tab')
     expect(markdownTabId).not.toBeNull()
     const tabCount = await column.locator('[data-dockkit-tab]').count()
@@ -471,6 +480,13 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     expect(scrolled).toEqual({ left: 0, horizontalOverflow: false })
     expect(await page.locator('html').getAttribute('data-image-preview-escape')).toBeNull()
 
+    // The editor claims .ts, so it reads the whole file before its toolbar can
+    // hand the content over; open it first and hold the preview's own first
+    // page, which keeps the reading indicator observable without blocking
+    // that hand-off.
+    await filesTab.click()
+    await column.locator('[data-files-entry="file"]').getByRole('button', { name: 'pages.ts', exact: true }).click()
+    await column.locator('[data-file-state="ready"]').waitFor({ timeout: 15_000 })
     const releaseRead = Promise.withResolvers<undefined>()
     let waitingForRead = false
     const readPage = scaffold.ctx.workspaceFiles.read.bind(scaffold.ctx.workspaceFiles)
@@ -483,7 +499,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     })
     let initialReading = false
     try {
-      await openFile('pages.ts')
+      await column.locator('[data-file-preview]').click()
       await expect.poll(() => waitingForRead).toBe(true)
       const reading = preview.locator('[data-document-loading]')
       initialReading = await reading.isVisible()
@@ -561,7 +577,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     ].join('\n'))
 
     const officeMenus: number[] = []
-    const configurationGuide = 'Read failed: Office previews are unavailable. Enable the document preview service on the computer running DeepSeek Harness.'
+    const configurationGuide = 'Read failed: Office previews are unavailable. Enable the document preview service on the computer running QiLin.'
     for (const extension of ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']) {
       await openFile(`unavailable.${extension}`)
       expect(await preview.locator('[data-document-viewer-menu]').count()).toBe(0)

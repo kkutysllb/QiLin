@@ -117,7 +117,8 @@ describe('web e2e: generic file upload through the real assembly', () => {
     if (userMessage?.type !== 'user/message') throw new Error('the replayed turn recorded no user message')
     const content = userMessage.data.content
     const imageName = IMAGE_NAMES[0]!
-    await page.getByRole('tab', { name: 'Chat', exact: true }).click()
+    // The conversation is the centre column's only view now that the ledger
+    // lives in the right Sidebar, so the settled answer is already on screen.
     const chatImage = page.getByRole('img', { name: imageName, exact: true })
     await expect.poll(() => chatImage.getAttribute('src'), { timeout: 10_000 }).toMatch(/^blob:/)
     const chatImageUrl = await chatImage.getAttribute('src')
@@ -398,7 +399,7 @@ describe('web e2e: generic file upload through the real assembly', () => {
       const warningStart = tripwire.warnings.length
       await page.reload({ waitUntil: 'load' })
       acknowledgeReloadConnectionLoss(tripwire, warningStart)
-      await page.getByRole('tab', { name: 'Trajectory', exact: true }).click()
+      await openTrajectoryTab(page)
       await page.getByRole('row', { name: `USER, Images ×1 · Files ×1 · ${PROMPT}`, exact: true }).click()
       await page.getByRole('tab', { name: 'Preview', exact: true }).click()
       const panel = page.getByRole('tabpanel')

@@ -71,15 +71,20 @@ async function columns(page: Page): Promise<number[]> {
     getComputedStyle(element).gridTemplateColumns.split(' ').map(value => Math.round(Number.parseFloat(value))))
 }
 
-/** Tab order and selection inside each docked pane, independent of generated ids. */
+/**
+ * Tab order and selection inside each docked pane, independent of generated
+ * ids. The dock keeps its panes in mount order, which a split does not keep in
+ * step with the visual columns, so panes are keyed by their first tab's title.
+ */
 async function paneSnapshot(page: Page) {
-  return await page.locator('[data-rightbar-col] [data-dockkit-pane]').evaluateAll(panes => panes.map(pane => ({
+  const panes = await page.locator('[data-rightbar-col] [data-dockkit-pane]').evaluateAll(elements => elements.map(pane => ({
     active: pane.hasAttribute('data-dockkit-pane-active'),
     tabs: [...pane.querySelectorAll('[data-dockkit-tab]')].map(tab => ({
       title: tab.querySelector('[data-dockkit-tab-title]')?.textContent?.trim(),
       selected: tab.getAttribute('aria-selected') === 'true',
     })),
   })))
+  return panes.sort((left, right) => (left.tabs[0]?.title ?? '').localeCompare(right.tabs[0]?.title ?? ''))
 }
 
 /** Product-visible geometry, pane state, and expanded Files directories at a settled checkpoint. */
@@ -166,8 +171,13 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
     await page.locator('[data-sidebar-right-expand]').click()
     await blankColumn.locator('[data-sidebar-right-guide-entry="files"]').click()
     await blankColumn.locator('[data-files-entry="file"]').getByRole('button', { name: 'before-chat.md', exact: true }).click()
+    // A Markdown path is an editable extension, so the workbench claims the
+    // row and the editor opens it; the loaded line is the content proof.
+    await blankColumn.locator('[data-file-state="ready"]').waitFor({ timeout: 15_000 })
     await blankColumn.getByText('Workspace preview is available.', { exact: true }).waitFor()
-    await page.getByText('Into the Unknown', { exact: false }).waitFor()
+    // The blank-draft hero carries no session title and QiLin's own headline
+    // copy is locale-owned; the conversation root's phase is the anchor.
+    await page.locator('div[data-phase="hero"]').waitFor({ timeout: 15_000 })
     const blankPanes = await paneSnapshot(page)
     expect(blankPanes.map(pane => pane.tabs.map(tab => tab.title))).toEqual([['Files', 'before-chat.md']])
     await page.screenshot({ path: join(SHOT_DIR, `blank-preview-${MODE}-${process.pid}.png`), fullPage: true })
@@ -210,8 +220,8 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
       '# Blank Session workspace sidebar', '',
       '- No selected Session: expand control absent',
       '- Selected workspace before first message: expand control visible',
-      '- Files: before-chat.md opens as a Markdown preview',
-      '- Narrow viewport: reopened preview fills the viewport',
+      '- Files: before-chat.md opens in the editable file workbench',
+      '- Narrow viewport: the reopened file workbench fills the viewport',
       '- Terminal: writes a file in the selected workspace before any user message or turn', '',
       `\`\`\`json\n${JSON.stringify(await paneSnapshot(page), null, 2)}\n\`\`\``,
     ].join('\n'), MODE)
@@ -317,7 +327,6 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
 
     await select(original, 'LIGHTHOUSE')
     await open()
-    await column.locator('[data-sidebar-right-guide-entry="files"]').click()
     // The content-box panel adds its one rendered border pixel outside the
     // CSS width assigned by the grid solver.
     await expect.poll(() => sidebarSnapshot(page), { timeout: 5_000 })
@@ -331,9 +340,10 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
     await expect.poll(() => split.isDisabled()).toBe(false)
     await split.click()
     await expect.poll(() => panes.count()).toBe(2)
-    await panes.last().locator('[data-sidebar-right-guide-entry="files"]').click()
-    await panes.first().locator('[data-dockkit-tab]').filter({ hasText: 'Files' }).click()
-    await expect.poll(() => panes.first().locator('[data-files-state="tree"]').count()).toBe(1)
+    // The split moved the active guide tab into a pane of its own, so the
+    // Files pane's body is unmounted; selecting its tab returns the tree.
+    await column.locator('[data-dockkit-tab]').filter({ hasText: 'Files' }).click()
+    await expect.poll(() => column.locator('[data-files-state="tree"]').count()).toBe(1)
     const retainedA = await paneSnapshot(page)
     expect(retainedA.map(pane => pane.tabs.map(tab => tab.title))).toEqual([['Files', 'Start'], ['Start']])
     await checkpoint('A normal: two panes')
@@ -354,8 +364,6 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
     await expect.poll(() => detailsTrack(page)).toBe(0)
     await open()
     expect(await panel.getAttribute('data-sidebar-right-panel')).toBe('push')
-    await column.locator('[data-sidebar-right-guide-entry="files"]').click()
-    await column.locator('[data-files-state="tree"]').waitFor({ timeout: 15_000 })
     const workspaceDirectory = column.locator('[data-files-entry="directory"] > button').filter({ hasText: /^workspace$/ })
     await workspaceDirectory.waitFor({ timeout: 15_000 })
     await workspaceDirectory.click()
