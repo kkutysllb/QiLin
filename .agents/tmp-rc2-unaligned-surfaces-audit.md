@@ -539,3 +539,33 @@ agent-preset-authoring、approval-composer、background-job-list、bash-abort-ro
 **两个值得回馈上游的真问题**：① `document.fonts` 在无 CSS Font Loading 的环境（jsdom、部分 WebView）会让 composer 整块崩——上游同源代码；本仓在测试环境补桩（生产代码保持与上游一致）；② `replaceBaseline` 遇到缺字段会**半途中断并静默降级**，建议组装态夹具加载对必填字段 fail loud（下一步可做）。
 
 **结果**：全量 replay 泳道 **0 failed / 127 passed / 1 skipped**（文件）、**0 failed / 448 passed / 15 skipped**（用例），耗时约 11 分钟。
+
+### Step B2 落地记录（2026-09-26）：裸 `- img` 清零
+
+残留测量（本步开始时 460 条 / 32 文件）→ **0 条 / 0 文件**。结论与证据：460 条里
+458 条其实是波① golden 收敛时顺带清掉的陈旧基线，真正剩下的只有文档预览里
+`Line wrap` 按钮内的两个自有图元（IconNowrapFill16 / IconWrapFill16）——已补
+`aria-hidden="true"`（git `4a2310c9bf`）。逐文件与上游 rc.2 比对后**不动**：
+`code-file-icon-artwork.ts`（15 个 svg）与 `DropOverlay.tsx`（2 个）上游同样没有
+aria-hidden；`ui-trajectory` 的轨迹画布是 `role="img" + aria-label`，属有意保留的
+可访问名。
+
+### ③ 的决策简报（C1 文档预览族 / O Office 随包 runtime）
+
+**已核实的最新缺口（不是旧审计的转抄）**：
+
+| 项 | 现状 | 上游 rc.2 |
+|---|---|---|
+| `packages/skill/tool-workspace-dependencies` | **整包缺失** | 有 |
+| `skill-office` 挂载 | 包在树里，**7 个 bundle 全 0 引用** | sdk-app 挂载（`id: skill-office`） |
+| sdk-app bundle 行 | 缺 `workspace-dependencies` + `skill-office` 两行 | 有（第 30/36 行） |
+| `client/ui-sidebar-documentpreview` | 118 文件 | 185 文件（+67） |
+| C1 依赖补丁（fortune-sheet ×2、exceljs） | **不存在**（patches/ 仅 pi-ai / pkg / node-pty） | 有 |
+| DOMPurify / exceljs / fortune-sheet 依赖 | 全仓无引用 | 有 |
+
+**需要你拍板的两件事**：
+
+1. **C1（文档预览族）**：是否引入 xlsx 预览栈（fortune-sheet ×2 + exceljs，各自带 vendored 补丁）与静态 HTML 预览（DOMPurify）？代价：3 个依赖补丁 + 67 文件子树 + 安全面（DOMPurify 解析不可信 HTML）+ 包体增大。**建议**：先做无依赖的三项（缩放、本地图片、资源变更刷新、工具栏插件位），把「表格原生渲染 / 静态 HTML」单列一批，等你确认依赖口径再动。
+2. **O（Office 随包 runtime）**：QiLin 是否要随包带 Office 能力？最小对齐 = 移植 `tool-workspace-dependencies` 新包 + sdk-app 补两行 + `python/sdk-runtime` 资源面。**建议**：做（属上游默认随包能力，且 `skill-office` 现在是「在树里但没人挂」的半成品状态，比缺包更糟——门禁与文档都看不出它没接）。
+
+拍板后我按「先无依赖项、后依赖项」的顺序继续。
