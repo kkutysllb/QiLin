@@ -77,10 +77,10 @@ declare module '@qilin/client-ui-slots' {
 
 /**
  * Required browser services: the tab registry, the slot registry, copy, the
- * shared resource model, and the Remote carrier with its `workspaceFiles`
- * namespace.
+ * shared resource model, the developer-tools preference that selects the HTML
+ * preview policy, and the Remote carrier with its `workspaceFiles` namespace.
  */
-export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'resources']
+export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'developerTools', 'resources']
 
 /**
  * Client plugin body: register the type, its dictionaries, its body, and its chip title.

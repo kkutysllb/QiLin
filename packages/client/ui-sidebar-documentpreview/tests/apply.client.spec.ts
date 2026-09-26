@@ -29,6 +29,7 @@ import { CodeBody } from '../src/client/code/CodeBody.tsx'
 import { LazyExcelBody } from '../src/client/excel/LazyExcelBody.tsx'
 import { en, zh } from '../src/client/locales.ts'
 import { RemoteError } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
 import type { textFace } from '../src/client/face.ts'
 import type { TextStore } from '../src/client/store.ts'
 import { FILE, SESSION, TAB_ID, createResources, page } from './fixtures.client.ts'
@@ -45,6 +46,7 @@ interface Recorded {
 async function boot() {
   const ctx = new Context()
   ctx.provide('resources', createResources())
+  ctx.provide('developerTools', { enabled: createSnapshotStore(true) } as never)
   const tabs = new SidebarRightTabRegistry(ctx)
   const registered: Recorded[] = []
   const slots = {

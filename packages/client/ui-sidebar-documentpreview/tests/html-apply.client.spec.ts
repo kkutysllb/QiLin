@@ -1,18 +1,19 @@
 /** HTML metadata and keyed slot contributions share one identity and unwind with their fiber. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
+import { createSnapshotStore } from '@qilin/client-store'
 import { sessionFileAddress } from '@qilin/util-workspace-path'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { apply, HTML_BODY_ID, htmlBodyDefinition } from '../src/client/html/index.ts'
 import { HtmlBody } from '../src/client/html/HtmlBody.tsx'
+import type { HtmlBodyInjected } from '../src/client/html/HtmlBody.tsx'
 import { en, zh } from '../src/client/html/locales.ts'
-import type { HtmlBodyProps } from '../src/client/html/HtmlBody.tsx'
 
 type Registration = {
   name: string
   key: string
   locale: string
-  inject: () => Pick<HtmlBodyProps, 'readRelated'>
+  inject: () => HtmlBodyInjected
 }
 
 let dispose: (() => Promise<void>) | undefined
@@ -30,6 +31,8 @@ describe('HTML registration', () => {
 
   it('registers its dictionary and matching keyed body, and removes all contributions on disposal', async () => {
     const ctx = new Context()
+    const interactivePreview = createSnapshotStore(true)
+    ctx.provide('developerTools', { enabled: interactivePreview } as never)
     // No Session or Tab services are mounted; the global callback must use its file address.
     const registry = new DocumentPreviewRegistry()
     const dictionaries = new Map<string, unknown>()
@@ -46,7 +49,7 @@ describe('HTML registration', () => {
       bind: () => (key: keyof typeof en) => en[key],
       register: (name: string, value: unknown) => { dictionaries.set(name, value); return () => { dictionaries.delete(name) } },
     } as never)
-    const fiber = ctx.plugin({ apply })
+    const fiber = ctx.plugin({ inject: ['developerTools'], apply })
     dispose = async () => { await fiber.dispose() }
     await fiber.await()
     expect(registry.candidates('INDEX.HTM').map(entry => entry.id)).toEqual([HTML_BODY_ID])
@@ -57,6 +60,7 @@ describe('HTML registration', () => {
     expect(registration).toMatchObject({ name: 'sidebar.right.tab.document', key: HTML_BODY_ID, locale: 'documentHtml' })
     expect(register.mock.calls[0]?.[1]).toBe(HtmlBody)
     const injected = registration?.inject()
+    expect(injected?.hooks.interactivePreview).toBe(interactivePreview)
     expect(typeof injected?.readRelated).toBe('function')
     const signal = new AbortController().signal
     await injected?.readRelated('qilin-resource://file/session/explicit-session/sub/index.html', '../app.js', signal)

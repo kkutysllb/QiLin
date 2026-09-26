@@ -37,7 +37,8 @@
         "@qilin/client-ui-sidebar-right",
         "@qilin/client-ui-session",
         "@qilin/api-remotes",
-        "@qilin/client-locale"
+        "@qilin/client-locale",
+        "@qilin/client-ui-settings"
       ],
       "platform": "web"
     }
@@ -64,6 +65,7 @@
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-settings": "workspace:*",
     "@qilin/client-ui-sidebar-right": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
     "@qilin/host-webserver": "workspace:*",
@@ -76,6 +78,7 @@
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
     "clsx": "^2.0.0",
+    "dompurify": "^3.4.11",
     "exceljs": "4.4.0",
     "fast-xml-parser": "5.11.1",
     "fflate": "^0.8.3",
