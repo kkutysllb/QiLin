@@ -1525,6 +1525,9 @@ function normalizeAria(snapshot: string, workspaceCwd: string, age: boolean): st
     // Seeded compaction prices realized file paths, whose length differs
     // between local worktrees and CI scratch directories.
     .replace(/(Compacted \d+ history items \(~)\d+( tokens\))/g, '$1{{tokens}}$2')
+    // The empty-state greeting follows the viewer's local time of day, so a
+    // golden captured in the afternoon must not fail an evening run.
+    .replace(/(?:Good (?:morning, a fresh start to a new day|afternoon, hope your work goes well|evening, great job today)|早上好，新的一天，新的开始|下午好，愿你工作顺利|晚上好，今天辛苦了)/g, '{{greeting}}')
     // Session summaries and Message IconActions clocks cross calendar
     // boundaries; collapse every shape so goldens stay stable across them.
     .replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z/g, '{{timestamp}}')

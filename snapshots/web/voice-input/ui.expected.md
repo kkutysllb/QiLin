@@ -1,6 +1,6 @@
 - banner:
   - button "Open right sidebar"
-- paragraph: Good afternoon, hope your work goes well
+- paragraph: {{greeting}}
 - heading "Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit" [level=1]
 - button "Choose workspace": workspace
 - button "Standard mode"
