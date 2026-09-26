@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-09-26-root-slot-lifetime-transition.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-26-root-slot-lifetime-transition.md
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing:
+  en: 006467f24d34bf0e
+  zh: 6c02cad19345704d
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing/problem:
+  en: 57b56f35d2791dda
+  zh: 95d996694f17b682
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing/decision:
+  en: 1d41a919008f1399
+  zh: acf70a3f7f3f6d85
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing/trigger-chain:
+  en: 146962d90a1412cb
+  zh: 448de3e97d6a41ea
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing/alternatives-considered:
+  en: 808fadb0758cb039
+  zh: d4c8acf7238ac518
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing/testing:
+  en: 21e82cd1df669649
+  zh: b2395475db398e9f
+/agent-note-root-slot-lifetime-transitions-render-the-crash-face-instead-of-throwing/consequences:
+  en: ab9d78d78b830137
+  zh: 2fa3eff980fdc2e2
