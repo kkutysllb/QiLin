@@ -3,7 +3,7 @@
  * authorization, and entry boundaries contain registrant failures.
  */
 import {
-  Component, createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore,
+  Component, createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore,
   type FC, type ReactNode,
 } from 'react'
 import {
@@ -1264,7 +1264,14 @@ function renderChainResult(
   )
 }
 
-/** Root outlet: the shell's single ctx-level render entry — an unregistered 'root' is a boot-order failure, never a silent blank. */
+/**
+ * Root outlet: the shell's single ctx-level render entry. Before this outlet
+ * commits an occupant, an empty 'root' is the boot-order failure the
+ * ctx-level `renderSlot('root')` rejects. Afterwards it is a registration
+ * lifetime transition — replacing the occupant's client entry disposes the
+ * registration and re-registers it under the still-mounted application —
+ * which the crash face covers until the replacement arrives.
+ */
 function RootOutlet({ ownerProps }: { ownerProps: object }) {
   const host = useHost()
   useSyncExternalStore(
@@ -1273,11 +1280,17 @@ function RootOutlet({ ownerProps }: { ownerProps: object }) {
   )
   useLocaleRevision(host.locale)
   const entry = host.entriesOfSlot('root')[0]
+  // Set once a commit actually rendered an occupant, so the throw below stays
+  // limited to a fresh render: an outlet React mounted after a concurrent
+  // render split, whose ctx-level `renderSlot('root')` never produced one.
+  const committed = useRef(false)
+  useLayoutEffect(() => { if (entry) committed.current = true })
   if (!entry) {
-    // Registrations exist but every one abdicated: the shadowing collapse ran
-    // dry, so the crash face replaces the tree (registered-but-broken is a
-    // crash, not the boot-order assembly failure below).
-    if (host.entriesOf('root').length > 0) return <div data-slot-error="root" />
+    // Either every registration abdicated (the shadowing collapse ran dry), or
+    // this mounted outlet sits between a registration's disposal and its
+    // replacement. Both replace the tree with the crash face rather than the
+    // boot-order assembly failure below.
+    if (host.entriesOf('root').length > 0 || committed.current) return <div data-slot-error="root" />
     throw new SlotAssemblyError("renderSlot('root') before any 'root' registration (boot order)")
   }
   // Same anchor contract as SlotOutlet: 'root' is a slot like any other, and

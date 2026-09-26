@@ -84,6 +84,24 @@ describe('UI renderer plugin', () => {
     expect(records.some(record => record.target === boot)).toBe(false)
   })
 
+  it('keeps the application alive while the root occupant is replaced', async () => {
+    const { ctx, slots } = await bench()
+    const el = container()
+    const disposeOccupant = slots.register({ name: 'root' }, () => <div data-testid="first-occupant" />)
+    act(() => { mounted.push(ctx.get('uiRenderer')!.mount(el)) })
+    expect(el.querySelector('[data-testid="first-occupant"]')).toBeTruthy()
+
+    // Replacing the occupant's client entry (client HMR) disposes this
+    // registration and re-registers it while the application stays mounted;
+    // the outlet renders the empty face between the two and must not crash.
+    await act(async () => { disposeOccupant() })
+    expect(el.querySelector('[data-testid="first-occupant"]')).toBeNull()
+    let disposeReplacement: () => void = () => {}
+    await act(async () => { disposeReplacement = slots.register({ name: 'root' }, () => <div data-testid="second-occupant" />) })
+    expect(el.querySelector('[data-testid="second-occupant"]')).toBeTruthy()
+    act(() => { disposeReplacement() })
+  })
+
   it('returns an unmount disposer', async () => {
     const { ctx, slots } = await bench()
     slots.register({ name: 'root' }, () => <div data-testid="root-probe" />)

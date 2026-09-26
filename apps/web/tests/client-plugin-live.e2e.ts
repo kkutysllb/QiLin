@@ -2,7 +2,7 @@
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdtemp, readFile, rm, utimes, writeFile } from 'node:fs/promises'
 import { chromium, type Page } from 'playwright'
 import { expect, it, onTestFailed, onTestFinished } from 'vitest'
 import { launchWebScaffold, watchConsole, captureStableAria, compareOrRefreshGolden, openSettingsDialog, webSnapshotMode } from './scaffold.ts'
@@ -10,6 +10,9 @@ import { saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
 
 const FIXTURE = fileURLToPath(new URL('./fixtures/plugins/fixture-live-client', import.meta.url))
 const EXPECTED = fileURLToPath(new URL('./expected/client-plugin-live', import.meta.url))
+/** Shipped client row whose replacement cascades into the root occupant's registration. */
+const THEME_ENTRY = '@qilin/client-ui-theme'
+const THEME_BUNDLE = fileURLToPath(new URL('../../../packages/client/ui-theme/lib/client.js', import.meta.url))
 
 async function openInventory(page: Page, url: string) {
   await page.goto(url, { waitUntil: 'load' })
@@ -205,6 +208,34 @@ it('reports bootstrap rebuilds without remounting the settings page or navigatin
   }
 })
 
+it('keeps the assembled application alive when a rebuild replaces the root occupant', async () => {
+  const scaffold = await launchWebScaffold()
+  onTestFinished(() => scaffold.close())
+  const browser = await chromium.launch()
+  try {
+    const page = await browser.newPage({ locale: ZH_BROWSER_LOCALE })
+    const console = watchConsole(page)
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-client-root-rebuild'))
+    await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
+    await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
+    const revisionOf = (id: string) => scaffold.ctx.clientModules.graph().entries.find(row => row.id === id)?.rev
+    const startupRevision = revisionOf(THEME_ENTRY)
+    expect(startupRevision).toBeDefined()
+    // A rebuild re-stamps the built bundle; the Host's stat poll publishes the
+    // new revision, the SSE channel hands it to every open page, and the entry
+    // is replaced in place. That disposes the theme service and, with it, the
+    // frame's registration in 'root' while the application stays mounted.
+    const stamp = new Date()
+    await utimes(THEME_BUNDLE, stamp, stamp)
+    await expect.poll(() => revisionOf(THEME_ENTRY), { timeout: 30_000 }).not.toBe(startupRevision)
+    // The replacement re-registers the occupant; the page must survive the
+    // interruption it renders the crash face through.
+    await expect.poll(() => page.locator('[class*="frame"]').count(), { timeout: 30_000 }).toBeGreaterThan(0)
+    expect(console.pageErrors).toEqual([])
+  } finally {
+    await browser.close()
+  }
+}, 90_000)
 it('removes the client UI and resources while Host cleanup is still pending', async () => {
   const scaffold = await launchWebScaffold({ extraInstallAnchors: [join(FIXTURE, 'package.json')] })
   let release!: () => void
