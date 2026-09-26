@@ -958,6 +958,9 @@ importers:
       '@qilin/client-file-upload':
         specifier: workspace:*
         version: link:../../client/file-upload
+      '@qilin/client-ui-plugin-manager':
+        specifier: workspace:*
+        version: link:../../client/ui-plugin-manager
       '@qilin/command-feedback':
         specifier: workspace:*
         version: link:../../feedback/command-feedback
@@ -3961,6 +3964,19 @@ importers:
         version: 18.3.1
 
   packages/client/ui-plugin-manager:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@qilin/api-remotes':
         specifier: workspace:*

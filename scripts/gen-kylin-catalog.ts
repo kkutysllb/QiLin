@@ -52,6 +52,7 @@ export { REGION_BEGIN, REGION_END }
 export const SERVICE_PAGE: Record<string, string> = {
   connection: 'web-server.md',
   pluginManager: 'boot.md',
+  pluginRegistryProbe: 'boot.md',
   profileContext: 'boot.md',
   hmr: 'boot.md',
   mcpResources: 'mcp.md',
@@ -275,6 +276,9 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   BundleInfo: 'boot.md',
   ChangeResult: 'boot.md',
   InstallBundleOptions: 'boot.md',
+  InspectOptions: 'boot.md',
+  PluginRegistries: 'boot.md',
+  Registry: 'boot.md',
   PluginEntryId: 'boot.md',
   BundleRowInfo: 'boot.md',
   PluginInstallCancellation: 'boot.md',

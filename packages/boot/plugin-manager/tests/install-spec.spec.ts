@@ -17,11 +17,22 @@ describe('parseInstallSpec', () => {
     expect(parseInstallSpec('/packs/qilin-x-1.0.0.tgz')).toEqual({ kind: 'tarball', spec: '/packs/qilin-x-1.0.0.tgz', path: '/packs/qilin-x-1.0.0.tgz' })
   })
 
-  it('reads git hosts and tarball URLs', () => {
-    for (const spec of ['github:someone/qilin-plugin', 'gitlab:a/b#main', 'git+ssh://git@github.com/a/b.git', 'git://host/a/b', 'git@github.com:a/b.git', 'https://github.com/a/b', 'https://github.com/a/b.git#v1']) {
-      expect(parseInstallSpec(spec)).toEqual({ kind: 'git', spec })
-    }
-    expect(parseInstallSpec('https://cdn.example.com/x/y/z/qilin-x-1.0.0.tgz')).toEqual({ kind: 'tarball', spec: 'https://cdn.example.com/x/y/z/qilin-x-1.0.0.tgz' })
+  it('reads git hosts and tarball URLs, with the host no registry stands in for', () => {
+    const hosts: ReadonlyArray<readonly [string, string]> = [
+      ['github:someone/qilin-plugin', 'github.com'],
+      ['gitlab:a/b#main', 'gitlab.com'],
+      ['bitbucket:a/b', 'bitbucket.org'],
+      ['gist:abc123', 'gist.github.com'],
+      ['git+ssh://git@github.com/a/b.git', 'github.com'],
+      ['git://host/a/b', 'host'],
+      ['git@github.com:a/b.git', 'github.com'],
+      ['https://github.com/a/b', 'github.com'],
+      ['https://github.com/a/b.git#v1', 'github.com'],
+    ]
+    for (const [spec, host] of hosts) expect(parseInstallSpec(spec)).toEqual({ kind: 'git', spec, host })
+    expect(parseInstallSpec('https://cdn.example.com/x/y/z/qilin-x-1.0.0.tgz')).toEqual({
+      kind: 'tarball', spec: 'https://cdn.example.com/x/y/z/qilin-x-1.0.0.tgz', host: 'cdn.example.com',
+    })
   })
 
   it('refuses what neither the registry nor pnpm would take, naming why', () => {

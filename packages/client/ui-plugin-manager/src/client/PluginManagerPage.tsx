@@ -10,7 +10,8 @@
  */
 
 import { useEffect, useId, useState, type ReactNode } from 'react'
-import type { PluginInstallFailureKind } from '@qilin/api-remotes/client'
+import type { PluginInstallFailureKind, Registry } from '@qilin/api-remotes/client'
+import type { ConfigPageForm } from './slot-contract.ts'
 import {
   Button, IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14, IconChevronRightOutline14, IconCloseOutline16,
   IconCordisPluginOutline14, IconDownloadOutline16, IconPluginPinwheelOutline16, IconPlusOutline16, IconRefreshOutline16,
@@ -22,11 +23,11 @@ import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@q
 import { rowConfigKey, type OfficialItem } from './config-ledger.ts'
 import type { PluginManagerLocaleKey } from './locales.ts'
 import {
-  isInstallPending, rowKey,
+  asksMirror, githubRecoveryRegistry, isInstallPending, offeredRegistries, rowKey,
   type CatalogState, type ConfirmState, type InstallInputError, type InstallState, type InstallSubject, type PackageRow,
-  type PackageView, type PluginManagerFace, type UpdateState,
+  type PackageView, type PluginManagerFace, type RegistryChoice, type UpdateState,
 } from './manager-store.ts'
-import { managementText, noticeText, packageText, type Translate } from './presentation.ts'
+import { managementText, noticeText, packageText, registryText, type Translate } from './presentation.ts'
 import type {} from './slot-contract.ts'
 import css from './PluginManagerPage.module.css'
 
@@ -349,11 +350,12 @@ function ItemCard({ item, t, onOpen, renderSlot }: {
 }
 
 /** An official plugin's page: the crumb back to the cards, its icon, its title over its one-liner, and the form the entry renders. */
-function ItemDetail({ item, t, onBack, renderSlot }: {
+function ItemDetail({ item, t, onBack, renderSlot, form }: {
   readonly item: OfficialItem
   readonly t: Translate
   readonly onBack: () => void
   readonly renderSlot: RenderConfig
+  readonly form: ConfigPageForm | undefined
 }): ReactNode {
   return (
     <div className={css.detail} data-plugin-item-detail={item.id}>
@@ -365,7 +367,7 @@ function ItemDetail({ item, t, onBack, renderSlot }: {
         <p className={css.detailDesc}>{renderSlot('plugins.item', { view: 'summary' }, { only: item.id })}</p>
       </div>
       <div className={css.detailSections} data-plugin-config>
-        {renderSlot('plugins.item', { view: 'page' }, { only: item.id })}
+        {renderSlot('plugins.item', { view: 'page', form }, { only: item.id })}
       </div>
     </div>
   )
@@ -375,12 +377,13 @@ function ItemDetail({ item, t, onBack, renderSlot }: {
  * A row's configuration page: the crumb back to its bundle's page, the row id
  * over the module it names and the entry's one-liner, and the form the entry renders.
  */
-function RowDetail({ pkg, row, t, onBack, renderSlot }: {
+function RowDetail({ pkg, row, t, onBack, renderSlot, form }: {
   readonly pkg: PackageView
   readonly row: PackageRow
   readonly t: Translate
   readonly onBack: () => void
   readonly renderSlot: RenderConfig
+  readonly form: ConfigPageForm | undefined
 }): ReactNode {
   const { title } = packageText(pkg, t)
   const key = rowConfigKey(pkg.name, row.rowId)
@@ -395,7 +398,7 @@ function RowDetail({ pkg, row, t, onBack, renderSlot }: {
         <p className={css.detailDesc}>{renderSlot('plugins.row.config', { view: 'summary' }, { entryKey: key })}</p>
       </div>
       <div className={css.detailSections} data-plugin-config>
-        {renderSlot('plugins.row.config', { view: 'page' }, { entryKey: key })}
+        {renderSlot('plugins.row.config', { view: 'page', form }, { entryKey: key })}
       </div>
     </div>
   )
@@ -568,11 +571,26 @@ const SUBJECT_KIND_KEYS = {
   tarball: 'installSubjectTarball',
 } satisfies Record<InstallSubject['kind'], PluginManagerLocaleKey | undefined>
 
+/** The registries asked, by name, in the dictionary's list form. */
+function registryList(registries: readonly Registry[], t: Translate, resolved: string | null): string {
+  return registries.map(registry => registryText(registry, t, resolved).name).join(t('registryListSeparator'))
+}
+
+/** An option's label: the registry's name with the host it names, unless the host is the name. */
+function registryOption(registry: Registry, t: Translate, resolved: string | null): string {
+  const { name, host } = registryText(registry, t, resolved)
+  return name === host ? name : t('registryWithHost', { name, host })
+}
+
 /**
  * The failed screen's one line: a pnpm failure by its kind, a refusal by its
  * code, any other failure in the Host's words; the run's output stays behind the details.
+ * A run the Host laid at the spec's own host says so; one it laid at a registry
+ * names every registry asked when there were several.
  */
-function failureText(failure: InstallState['failure'], t: Translate): string {
+function failureText(
+  failure: InstallState['failure'], t: Translate, install?: Pick<InstallState, 'attempts' | 'subject' | 'registries'>,
+): string {
   if (failure === null) return t('installFailureGeneric')
   // A compatibility refusal is the package's own answer, whatever pnpm's exit classified the run as.
   if (failure.code === 'incompatible-version') {
@@ -580,6 +598,12 @@ function failureText(failure: InstallState['failure'], t: Translate): string {
   }
   // Blocked scripts the Host could not name leave the person to allow them in the profile's pnpm settings by hand.
   if (failure.kind === 'build-blocked' && !failure.pendingBuilds?.length) return t('installFailureBuildBlockedManual')
+  const host = install?.subject?.host
+  if (failure.failedAt === 'spec-host' && host !== undefined) return t('installFailureNetworkHost', { host })
+  const asked = install?.attempts?.registries ?? []
+  if (failure.failedAt === 'registry' && (failure.kind === 'network' || failure.kind === 'timeout') && asked.length > 1) {
+    return t('installFailureNetworkAll', { registries: registryList(asked, t, install?.registries?.resolved ?? null) })
+  }
   if (failure.kind !== undefined) return t(FAILURE_KIND_KEYS[failure.kind])
   if (failure.code !== undefined) return managementText({ code: failure.code, diagnostic: failure.reason }, t)
   return failure.reason === '' ? t('installFailureGeneric') : failure.reason
@@ -606,6 +630,7 @@ function SubjectCard({ subject, t }: { readonly subject: InstallSubject; readonl
  */
 function InstallDialog({
   install, t, onClose, onEditSpec, onRun, onCancel, onCancelAndClose, onToggleDetails, onEnableNow, onApproveBuilds,
+  onToggleRegistry, onChooseRegistry, onChangeRegistry, onUseGithubMirror,
 }: {
   readonly install: InstallState
   readonly t: Translate
@@ -618,22 +643,41 @@ function InstallDialog({
   readonly onToggleDetails: () => void
   readonly onEnableNow: () => void
   readonly onApproveBuilds: () => void
+  readonly onToggleRegistry: () => void
+  readonly onChooseRegistry: (choice: RegistryChoice) => void
+  /** From the failed screen: back to the spec with the registry options unfolded. */
+  readonly onChangeRegistry: () => void
+  readonly onUseGithubMirror: () => void
 }): ReactNode {
   const errorId = useId()
   const guideId = useId()
   const approvalId = useId()
+  const registryId = useId()
+  const registryErrorId = useId()
   const [guideOpen, setGuideOpen] = useState(false)
   const { phase } = install
   if (phase === 'idle' || phase === 'checking') {
     const checking = phase === 'checking'
     const empty = install.spec.trim() === ''
+    const choice = install.registry
+    const resolved = install.registries?.resolved ?? null
+    const chosenTitle = choice.kind === 'custom' ? t('registryCustom') : registryText(choice.registry, t, resolved).name
+    const inputProblem = install.inputError
+    // A check no registry answered names every registry asked; any other refusal reads by its problem.
+    const askedByCheck = inputProblem?.registries ?? []
+    const inputSentence = inputProblem === null
+      ? null
+      : inputProblem.problem === 'network' && askedByCheck.length > 1
+        ? t('installProblemNetworkAll', { registries: registryList(askedByCheck, t, resolved) })
+        : t(INPUT_PROBLEM_KEYS[inputProblem.problem], { reason: inputProblem.reason })
+    const registryShown = install.registryOpen && !checking
     return (
       <Modal
         open={install.open}
         onClose={onClose}
         title={t('installTitle')}
         closeLabel={t('close')}
-        description={t('installDescription')}
+        {...install.mirrorRecovery === true ? {} : { description: t('installDescription') }}
         className={css.installDialog as string}
         footer={(
           <Button variant="primary" className={css.wide} disabled={checking || empty} aria-busy={checking} onClick={onRun}>
@@ -644,9 +688,10 @@ function InstallDialog({
       >
         <div className={css.installBody}>
           <label className={css.installField}>
-            <span>{t('installSpecLabel')}</span>
+            <span>{t(install.mirrorRecovery === true ? 'installPackageLabel' : 'installSpecLabel')}</span>
             <input
               type="text"
+              autoFocus={install.mirrorRecovery === true}
               value={install.spec}
               placeholder={t('installSpecPlaceholder')}
               disabled={checking}
@@ -656,19 +701,76 @@ function InstallDialog({
               onKeyDown={(event) => { if (event.key === 'Enter' && !empty && !checking) onRun() }}
             />
           </label>
-          {install.inputError === null
+          {inputSentence === null
             ? null
-            : <p id={errorId} className={css.inputError} role="alert">{t(INPUT_PROBLEM_KEYS[install.inputError.problem], { reason: install.inputError.reason })}</p>}
-          <button
-            type="button"
-            className={css.guideToggle}
-            aria-expanded={guideOpen}
-            aria-controls={guideId}
-            onClick={() => { setGuideOpen(open => !open) }}
-          >
-            <IconChevronDownOutline14 className={css.guideChevron} aria-hidden="true" />
-            <span>{t(guideOpen ? 'installGuideHide' : 'installGuideToggle')}</span>
-          </button>
+            : <p id={errorId} className={css.inputError} role="alert">{inputSentence}</p>}
+          <div className={css.optionsRow}>
+            <button
+              type="button"
+              className={css.registryToggle}
+              aria-expanded={install.registryOpen}
+              aria-controls={registryId}
+              disabled={checking}
+              onClick={onToggleRegistry}
+            >
+              <span>{t('registryToggle')}</span>
+              {' '}
+              <span className={css.registryChosen}>{chosenTitle}</span>
+              <IconChevronDownOutline14 className={css.guideChevron} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className={css.guideToggle}
+              aria-expanded={guideOpen}
+              aria-controls={guideId}
+              onClick={() => { setGuideOpen(open => !open) }}
+            >
+              <IconChevronDownOutline14 className={css.guideChevron} aria-hidden="true" />
+              <span>{t(guideOpen ? 'installGuideHide' : 'installGuideToggle')}</span>
+            </button>
+          </div>
+          {registryShown
+            ? (
+              <fieldset id={registryId} className={css.registry} data-install-registry aria-label={t('registryLegend')}>
+                {offeredRegistries(install.registries).map((registry) => {
+                  const checked = choice.kind === 'offered' && choice.registry === registry
+                  return (
+                    <label key={registry ?? ''} className={css.registryOption} data-checked={checked}>
+                      <input type="radio" name={registryId} checked={checked} onChange={() => { onChooseRegistry({ kind: 'offered', registry }) }} />
+                      <span className={css.registryTitle}><span>{registryOption(registry, t, resolved)}</span></span>
+                    </label>
+                  )
+                })}
+                <div className={css.registryOption} data-checked={choice.kind === 'custom'}>
+                  <label className={css.registryCustomPick}>
+                    <input
+                      type="radio"
+                      name={registryId}
+                      checked={choice.kind === 'custom'}
+                      onChange={() => { onChooseRegistry({ kind: 'custom', url: '' }) }}
+                    />
+                    <span className={css.registryTitle}><span>{t('registryCustom')}</span></span>
+                  </label>
+                  <input
+                    type="text"
+                    className={css.registryCustomField}
+                    aria-label={t('registryCustom')}
+                    placeholder={t('registryCustomPlaceholder')}
+                    value={choice.kind === 'custom' ? choice.url : ''}
+                    disabled={choice.kind !== 'custom'}
+                    aria-invalid={install.registryError}
+                    aria-describedby={install.registryError ? registryErrorId : undefined}
+                    onChange={(event) => { onChooseRegistry({ kind: 'custom', url: event.currentTarget.value }) }}
+                    onKeyDown={(event) => { if (event.key === 'Enter' && !empty) onRun() }}
+                  />
+                  {install.registryError
+                    ? <p id={registryErrorId} className={css.inputError} role="alert">{t('registryCustomInvalid')}</p>
+                    : null}
+                  <span className={css.registryHint}>{t('registryCustomHint')}</span>
+                </div>
+              </fieldset>
+            )
+            : null}
           {guideOpen
             ? (
               <div id={guideId} className={css.guide} data-install-guide>
@@ -717,6 +819,22 @@ function InstallDialog({
   const pendingBuilds = phase === 'failed' ? install.failure?.pendingBuilds ?? [] : []
   const approvable = pendingBuilds.length > 0
   const firstRun = install.runs[0]
+  // The registries the Host asked, once there is more than one: the attempt under way while it runs, a badge on each run.
+  const asked = install.attempts !== null && install.attempts.registries.length > 1 ? install.attempts : null
+  const current = asked === null ? undefined : asked.registries.at(-1)
+  const previous = asked === null ? undefined : asked.registries.at(-2)
+  const registryResolved = install.registries?.resolved ?? null
+  const attemptLine = pending && asked !== null && current !== undefined && previous !== undefined
+    ? t('installAttempt', {
+      previous: registryText(previous, t, registryResolved).name, registry: registryText(current, t, registryResolved).name,
+      index: String(asked.registries.length), total: String(asked.total),
+    })
+    : null
+  // Another registry is worth offering only for a failure the Host laid at the one it asked.
+  const changeable = phase === 'failed' && !approvable && install.failure?.failedAt === 'registry'
+  // A confirmed GitHub connection failure offers the configured mainland mirror instead of a plain retry.
+  const mirror = githubRecoveryRegistry(install)
+  const mirrorOffered = mirror !== undefined
   return (
     <Modal open={install.open} onClose={onClose} title={heading} headless className={css.installDialog as string}>
       <div className={css.wizard} data-install-phase={phase}>
@@ -747,7 +865,8 @@ function InstallDialog({
                 : phase === 'done' ? <IconCheckOutline16 size={28} /> : <IconWarningOutline16 size={28} />}
             </span>
             <h2 className={css.wizardTitle} role={phase === 'failed' ? 'alert' : 'status'}>{heading}</h2>
-            {phase === 'failed' ? <p className={css.wizardSub}>{failureText(install.failure, t)}</p> : null}
+            {phase === 'failed' ? <p className={css.wizardSub}>{failureText(install.failure, t, install)}</p> : null}
+            {attemptLine === null ? null : <p className={css.attemptLine} role="status">{attemptLine}</p>}
             {unconfirmed === undefined ? null : <p className={css.wizardSub} role="alert">{t('installCancelUnconfirmed', { reason: unconfirmed })}</p>}
           </div>
           {install.subject === null ? null : <SubjectCard subject={install.subject} t={t} />}
@@ -786,24 +905,43 @@ function InstallDialog({
                 </Button>
               )
               : null}
-            {phase === 'failed' && !approvable ? <Button variant="primary" size="sm" onClick={onRun}>{t('installRetry')}</Button> : null}
+            {changeable
+              ? <Button variant="outline" size="sm" className={css.footAction} onClick={onChangeRegistry}>{t('installChangeRegistry')}</Button>
+              : null}
+            {mirrorOffered
+              ? (
+                <Button variant={asksMirror(install) ? 'outline' : 'primary'} size="sm" className={css.footAction} onClick={onUseGithubMirror}>
+                  {t(asksMirror(install) ? 'installTryAnotherWay' : 'installUseGithubMirror')}
+                </Button>
+              )
+              : null}
+            {phase === 'failed' && !approvable && !mirrorOffered ? <Button variant="primary" size="sm" onClick={onRun}>{t('installRetry')}</Button> : null}
           </div>
           {install.detailsOpen
             ? (
               <div className={css.detailsBody}>
                 <p className={css.installLocation}>{firstRun === undefined ? t('terminalNoOutput') : t('installLocation', { dir: firstRun.cwd })}</p>
-                {install.runs.map(run => (
-                  <TerminalBlock
-                    key={run.jobId}
-                    command={run.command}
-                    output={run.output}
-                    running={run.exitCode === undefined}
-                    exitCode={run.exitCode}
-                    maxLines={INSTALL_TERMINAL_LINES}
-                    labels={{ ...terminalLabels(t), ...phase === 'cancelling' ? { failed: t('installCancelledShort') } : {} }}
-                    className={css.terminal}
-                  />
-                ))}
+                {install.runs.map((run, index) => {
+                  const askedHere = asked?.registries[index]
+                  return (
+                    <div key={run.jobId} className={css.run}>
+                      {askedHere === undefined ? null : (
+                        <p className={css.attemptBadge}>
+                          {t('installAttemptBadge', { index: String(index + 1), registry: registryText(askedHere, t, registryResolved).name })}
+                        </p>
+                      )}
+                      <TerminalBlock
+                        command={run.command}
+                        output={run.output}
+                        running={run.exitCode === undefined}
+                        exitCode={run.exitCode}
+                        maxLines={INSTALL_TERMINAL_LINES}
+                        labels={{ ...terminalLabels(t), ...phase === 'cancelling' ? { failed: t('installCancelledShort') } : {} }}
+                        className={css.terminal}
+                      />
+                    </div>
+                  )
+                })}
               </div>
             )
             : null}
@@ -974,6 +1112,13 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const { t, ensure, renderSlot } = props
   const state = props.usePluginManager(snapshot => snapshot)
   const ledger = props.useConfigLedger(snapshot => snapshot)
+  // A contributed page that wants the shared form gets it only for a namespace the Host serves.
+  const configurations = props.useConfigurations(snapshot => snapshot.view?.namespaces)
+  const formFor = (id: string): ConfigPageForm | undefined => {
+    if (!configurations?.some(view => view.ns === id)) return undefined
+    const form = props.configForm<Record<string, unknown>>(id)
+    return { state: form.getSnapshot(), mutate: (ops, expectedRevision) => form.mutate(ops, expectedRevision) }
+  }
   // What is open; a package that leaves the list (uninstalled) drops back to the cards.
   const [view, setView] = useState<View>({ kind: 'list' })
   const [activation, setActivation] = useState<string | null>(null)
@@ -1114,6 +1259,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             row={openRow}
             t={t}
             renderSlot={renderSlot}
+            form={formFor(rowConfigKey(openPkg.name, openRow.rowId))}
             onBack={() => { setView({ kind: 'package', name: openPkg.name }) }}
           />
         )
@@ -1136,7 +1282,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
         )
         : null}
       {loaded && openItem !== undefined
-        ? <ItemDetail item={openItem} t={t} renderSlot={renderSlot} onBack={() => { setView({ kind: 'list' }) }} />
+        ? <ItemDetail item={openItem} t={t} renderSlot={renderSlot} form={formFor(openItem.id)} onBack={() => { setView({ kind: 'list' }) }} />
         : null}
       {loaded && showsCards
         ? officialCards.length === 0 && mine.length === 0
@@ -1177,6 +1323,10 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
         onToggleDetails={props.toggleInstallDetails}
         onEnableNow={props.enableInstalled}
         onApproveBuilds={props.approveBuildsAndRetry}
+        onToggleRegistry={props.toggleRegistryOptions}
+        onChooseRegistry={props.chooseRegistry}
+        onChangeRegistry={props.changeRegistry}
+        onUseGithubMirror={props.useGithubMirror}
       />
       {state.confirm === null
         ? null

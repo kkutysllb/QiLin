@@ -182,6 +182,7 @@
       "@qilin/host-frontend-static": ["./packages/host/frontend-static/src"],
       "@qilin/plugin-manager": ["./packages/boot/plugin-manager/src"],
       "@qilin/plugin-manager/types": ["./packages/boot/plugin-manager/src/types.ts"],
+      "@qilin/plugin-manager/registry": ["./packages/boot/plugin-manager/src/registry.ts"],
       "@qilin/plugin-manager/operations": ["./packages/boot/plugin-manager/src/operations.ts"],
       "@qilin/plugin-manager/tools": ["./packages/boot/plugin-manager/src/tools.ts"],
       "@qilin/host-plugin-inventory": ["./packages/host/plugin-inventory/src"],

@@ -17,17 +17,20 @@ import {
 } from '@qilin/app-boot'
 import type {} from '@qilin/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin/app-boot'
-import { bundleManifest, runProfilePnpm, saveManifest, viewProfilePackage } from './operations.ts'
+import {
+  bundleManifest, readProfileRegistry, registryArguments, runProfilePnpm, saveManifest, viewProfilePackage,
+} from './operations.ts'
 import { classifyInstallFailure } from './install-failure.ts'
 import { InvalidInstallSpecError, parseInstallSpec, type ParsedInstallSpec } from './install-spec.ts'
 import { checkGithubConnection } from './github-connection.ts'
 import { writePluginEnabled } from './patch.ts'
 import { incompatiblePlugin, ManagementFailure } from './failure.ts'
+import { attributeFailure, NPMMIRROR_REGISTRY, normalizeRegistry, REGISTRY_URL, registryPlan } from './registry.ts'
 import { approveBuilds, readPendingBuilds } from './build-approval.ts'
 import type {
-  BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InstallBundleOptions, ManagementError,
-  PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation, PluginInstallProgress,
-  PluginInstallRequestId, PluginSpecInspection, PluginUpdateEntry, PluginUpdateSnapshot,
+  BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InspectOptions, InstallBundleOptions,
+  ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
+  PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection, PluginUpdateEntry, PluginUpdateSnapshot, Registry,
 } from './types.ts'
 export type * from './types.ts'
 export { classifyInstallFailure, type InstallFailureFacts } from './install-failure.ts'
@@ -45,6 +48,14 @@ export interface Config {
   inspectTimeoutMs?: number
   /** Maximum duration of the GitHub repository connection check before installation, in milliseconds. */
   githubConnectionTimeoutMs?: number
+  /** The registry lookups and installations ask first, as an http(s) URL; absent, the one pnpm's own configuration names. */
+  registry?: string
+  /**
+   * Registries asked in turn, as http(s) URLs, while the one before is unreachable or holds no copy of the package.
+   * A registry outside this set and `registry` is asked alone, and so is the one pnpm's own configuration names
+   * unless that is npm's own registry or one of these.
+   */
+  fallbackRegistries?: string[]
 }
 
 const protectedModules = new Set([
@@ -119,8 +130,8 @@ interface InstallationManifest {
   dependencies?: Record<string, string>
 }
 
-/** What a package manifest says about the package: identity, one-liner, and whether it is a bundle. */
-function inspectionOf(kind: 'registry' | 'path', manifest: object): Extract<PluginSpecInspection, { status: 'accepted' }> {
+/** What a package manifest says about the package: identity, one-liner, whether it is a bundle, and the registry it was read from. */
+function inspectionOf(kind: 'registry' | 'path', manifest: object, registry: Registry): Extract<PluginSpecInspection, { status: 'accepted' }> {
   const qilin = (manifest as { qilin?: unknown }).qilin
   const declared = typeof qilin === 'object' && qilin !== null ? qilin as { bundle?: unknown } : undefined
   const bundle = declared !== undefined && typeof declared.bundle === 'object' && declared.bundle !== null
@@ -128,7 +139,7 @@ function inspectionOf(kind: 'registry' | 'path', manifest: object): Extract<Plug
   const version = stringField(manifest, 'version')
   const description = stringField(manifest, 'description')
   return {
-    status: 'accepted', kind, bundle,
+    status: 'accepted', kind, bundle, registry,
     ...name === undefined ? {} : { name },
     ...version === undefined ? {} : { version },
     ...description === undefined || description === '' ? {} : { description },
@@ -137,6 +148,17 @@ function inspectionOf(kind: 'registry' | 'path', manifest: object): Extract<Plug
 
 function refused(problem: PluginInspectProblem, reason: string): PluginSpecInspection {
   return { status: 'refused', problem, reason }
+}
+
+/** The refusal `pnpm view --json` prints on stdout, `{ error: { code, message } }`, as one log line; empty for anything else. */
+function printedError(printed: string): string {
+  let parsed: unknown
+  try { parsed = JSON.parse(printed || 'null') }
+  catch { return '' /* not JSON: nothing pnpm printed as a refusal */ }
+  const error = typeof parsed === 'object' && parsed !== null ? (parsed as { error?: unknown }).error : undefined
+  if (typeof error !== 'object' || error === null) return ''
+  const { code, message } = error as { code?: unknown; message?: unknown }
+  return [code, message].filter((part): part is string => typeof part === 'string').join('  ')
 }
 
 /**
@@ -169,6 +191,8 @@ export class PluginManager extends TypertRemoteService {
     lockWaitMs: z.number().step(1).min(0).default(120000),
     inspectTimeoutMs: z.number().step(1).min(1000).default(20000),
     githubConnectionTimeoutMs: z.number().step(1).min(1000).default(5000),
+    registry: z.string().pattern(REGISTRY_URL),
+    fallbackRegistries: z.array(z.string().pattern(REGISTRY_URL)).default([NPMMIRROR_REGISTRY]),
   })
   private readonly ownerEntryId: string | undefined
   private readonly packageOperations = new Set<Promise<unknown>>()
@@ -178,6 +202,7 @@ export class PluginManager extends TypertRemoteService {
   private readonly inspectTimeoutMs: number
   private readonly githubConnectionTimeoutMs: number
   private readonly pnpmCommand: string
+  private readonly configuredRegistries: Omit<PluginRegistries, 'resolved'>
   private readonly ownerContext: Context
   private readonly abort = new AbortController()
   /** Installations by request id, from their call until it settles. */
@@ -193,6 +218,10 @@ export class PluginManager extends TypertRemoteService {
     this.inspectTimeoutMs = (config as Required<Config>).inspectTimeoutMs
     this.githubConnectionTimeoutMs = (config as Required<Config>).githubConnectionTimeoutMs
     this.pnpmCommand = (config as Required<Config>).pnpmCommand
+    this.configuredRegistries = {
+      registry: config.registry === undefined ? null : normalizeRegistry(config.registry),
+      fallbackRegistries: (config as Required<Config>).fallbackRegistries.map(normalizeRegistry),
+    }
     ctx.effect(() => async () => {
       this.abort.abort()
       await Promise.allSettled([...this.packageOperations])
@@ -328,13 +357,27 @@ export class PluginManager extends TypertRemoteService {
     return { entries: items.flatMap(communityEntry), page: safePage, hasMore: items.length === GITHUB_PAGE_SIZE }
   }
 
+  /** Read the registries this manager asks: the configured first one, its fallbacks in order, and what pnpm's own configuration names.
+   * @returns The registries in pnpm's comparison form; null is the one pnpm's own configuration names, `resolved` as pnpm reads it now.
+   */
+  @Remote
+  async registries(): Promise<PluginRegistries> {
+    return {
+      ...this.configuredRegistries, fallbackRegistries: [...this.configuredRegistries.fallbackRegistries],
+      resolved: await readProfileRegistry(this.profile.dir, {
+        ...this.profile.packageManager ?? { command: this.pnpmCommand }, timeoutMs: this.inspectTimeoutMs,
+      }),
+    }
+  }
+
   /** Read what a spec names before installing it.
    * @param spec One package spec: a registry name, an absolute path, a git address, or a tarball.
+   * @param options The registry asked first.
    * @param signal Ends a registry lookup early.
    * @returns The package the spec names, or why it is refused.
    */
   @Remote
-  async inspect(spec: string, signal?: AbortSignal): Promise<PluginSpecInspection> {
+  async inspect(spec: string, options?: InspectOptions, signal?: AbortSignal): Promise<PluginSpecInspection> {
     let parsed
     try {
       parsed = parseInstallSpec(spec)
@@ -349,11 +392,13 @@ export class PluginManager extends TypertRemoteService {
       ...manifest.qilin?.profile?.bundles ?? [],
       ...Object.keys(manifest.dependencies ?? {}), ...Object.keys(installation.dependencies ?? {}),
     ])
+    const plan = registryPlan(options?.registry, await this.registries())
+    const registry = plan[0] as Registry
     switch (parsed.kind) {
-      case 'git': return { status: 'accepted', kind: 'git', bundle: null }
+      case 'git': return { status: 'accepted', kind: 'git', bundle: null, registry, host: parsed.host }
       case 'tarball':
         if (parsed.path !== undefined && !existsSync(parsed.path)) return refused('not-a-package', 'the tarball does not exist')
-        return { status: 'accepted', kind: 'tarball', bundle: null }
+        return { status: 'accepted', kind: 'tarball', bundle: null, registry, ...parsed.host === undefined ? {} : { host: parsed.host } }
       case 'path': {
         if (!existsSync(parsed.path)) return refused('not-a-package', 'the path does not exist')
         let read: object
@@ -362,7 +407,7 @@ export class PluginManager extends TypertRemoteService {
         } catch (error) {
           return refused('not-a-package', `no readable package.json at the path: ${messageOf(error)}`)
         }
-        const inspection = inspectionOf('path', read)
+        const inspection = inspectionOf('path', read, registry)
         if (inspection.name === undefined) return refused('not-a-package', 'the package.json names no package')
         if (known.has(inspection.name)) return refused('already-installed', `${inspection.name} is already installed`)
         if (!inspection.bundle) return refused('not-a-bundle', `${inspection.name} declares no qilin.bundle`)
@@ -370,31 +415,43 @@ export class PluginManager extends TypertRemoteService {
       }
       case 'registry': {
         if (known.has(parsed.name)) return refused('already-installed', `${parsed.name} is already installed`)
-        const view = await viewProfilePackage(this.profile.dir, spec.trim(), {
-          ...this.profile.packageManager ?? { command: this.pnpmCommand },
-          timeoutMs: this.inspectTimeoutMs, ...signal === undefined ? {} : { signal },
-        })
-        const log = `${view.stderr}${view.cause === undefined ? '' : `${messageOf(view.cause)}\n`}`.trim()
-        if (view.exitCode !== 0 || view.cause !== undefined || view.timedOut) {
-          const kind = classifyInstallFailure({ log, timedOut: view.timedOut, ...view.cause === undefined ? {} : { cause: view.cause } })
-          const reason = log || view.stdout.trim() || `pnpm view exited with ${String(view.exitCode)}`
-          if (kind === 'not-found' || kind === 'no-matching-version') return refused('not-found', reason)
-          if (kind === 'network') return refused('network', reason)
-          return refused('unknown', view.timedOut ? `pnpm view timed out after ${String(this.inspectTimeoutMs)}ms` : reason)
+        const registries: Registry[] = []
+        const refusedBy = (problem: PluginInspectProblem, reason: string): PluginSpecInspection =>
+          ({ status: 'refused', problem, reason, registries })
+        for (const current of plan) {
+          registries.push(current)
+          const view = await viewProfilePackage(this.profile.dir, spec.trim(), {
+            ...this.profile.packageManager ?? { command: this.pnpmCommand },
+            timeoutMs: this.inspectTimeoutMs, ...signal === undefined ? {} : { signal }, registry: current,
+          })
+          const printed = view.stdout.replace(ANSI_SEQUENCE, '').trim()
+          if (view.exitCode !== 0 || view.cause !== undefined || view.timedOut) {
+            // pnpm prints a refusal as `{ error: { code, message } }` on stdout, with nothing on stderr.
+            const log = [view.stderr.trim(), printedError(printed), view.cause === undefined ? '' : messageOf(view.cause)].filter(Boolean).join('\n')
+            const kind = classifyInstallFailure({ log, timedOut: view.timedOut, ...view.cause === undefined ? {} : { cause: view.cause } })
+            // A lookup the caller dropped is not carried to the next registry.
+            if (registries.length < plan.length && signal?.aborted !== true && attributeFailure(kind, log, parsed) === 'registry') continue
+            const reason = view.timedOut ? `pnpm view timed out after ${String(this.inspectTimeoutMs)}ms` : log || printed || `pnpm view exited with ${String(view.exitCode)}`
+            if (kind === 'not-found' || kind === 'no-matching-version') return refusedBy('not-found', reason)
+            if (kind === 'network' || kind === 'timeout') return refusedBy('network', reason)
+            return refusedBy('unknown', reason)
+          }
+          let answer: unknown
+          try {
+            answer = JSON.parse(printed || 'null')
+          } catch (error) {
+            return refusedBy('unknown', `unreadable pnpm view output: ${messageOf(error)}`)
+          }
+          // A range answers one object per matching version, oldest first.
+          const latest: unknown = Array.isArray(answer) ? answer.at(-1) : answer
+          if (typeof latest !== 'object' || latest === null) return refusedBy('unknown', 'pnpm view answered no package')
+          const inspection = inspectionOf('registry', latest, current)
+          const named = inspection.name === undefined ? { ...inspection, name: parsed.name } : inspection
+          if (!named.bundle) return refusedBy('not-a-bundle', `${named.name} declares no qilin.bundle`)
+          return named
         }
-        let answer: unknown
-        try {
-          answer = JSON.parse(view.stdout.replace(ANSI_SEQUENCE, '').trim() || 'null')
-        } catch (error) {
-          return refused('unknown', `unreadable pnpm view output: ${messageOf(error)}`)
-        }
-        // A range answers one object per matching version, oldest first.
-        const latest: unknown = Array.isArray(answer) ? answer.at(-1) : answer
-        if (typeof latest !== 'object' || latest === null) return refused('unknown', 'pnpm view answered no package')
-        const inspection = inspectionOf('registry', latest)
-        const named = inspection.name === undefined ? { ...inspection, name: parsed.name } : inspection
-        if (!named.bundle) return refused('not-a-bundle', `${named.name} declares no qilin.bundle`)
-        return named
+        /* v8 ignore next -- the plan is never empty: every attempt returns or continues to the next */
+        throw new Error('no registry was asked')
       }
     }
   }
@@ -437,9 +494,9 @@ export class PluginManager extends TypertRemoteService {
    * A run that fails, is cancelled, or adds a package without a bundle patch restores
    * `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.
    * @param spec One package spec, including local paths relative to the invocation directory.
-   * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names, and
-   * the pending build scripts to allow for this profile before pnpm runs.
-   * @returns Package-manager diagnostics and observed activation outcome.
+   * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names,
+   * the pending build scripts to allow for this profile before pnpm runs, and the registry asked first.
+   * @returns Package-manager diagnostics, the registries asked, and the observed activation outcome.
    */
   @Remote
   installBundle(spec: string, options?: InstallBundleOptions): Promise<ChangeResult> {
@@ -447,8 +504,10 @@ export class PluginManager extends TypertRemoteService {
     const control: InstallControl = { abort: new AbortController(), phase: 'installing', settled: Promise.resolve() }
     const stopped = (): boolean => control.abort.signal.aborted
     if (requestId !== undefined) this.installs.set(requestId, control)
-    const announce = (phase: PluginInstallProgress['phase']): void => {
-      if (requestId !== undefined) this.ownerContext.emit('plugin-manager/install-state', { requestId, phase })
+    const announce = (phase: PluginInstallProgress['phase'], attempt?: PluginInstallProgress['attempt']): void => {
+      if (requestId !== undefined) {
+        this.ownerContext.emit('plugin-manager/install-state', { requestId, phase, ...attempt === undefined ? {} : { attempt } })
+      }
     }
     const result = this.change(async (result) => {
       if (spec.trim() === '' || spec.startsWith('-')) throw new ManagementFailure('invalid-spec')
@@ -459,9 +518,9 @@ export class PluginManager extends TypertRemoteService {
       }
       const files = await this.readRestoredFiles()
       const before = readProfileManifest('qilin', this.profile.dir).dependencies ?? {}
-      announce('installing')
       let name: string
       try {
+        result.registries = []
         const connection = checkGithubConnection(parsedForRegistry(spec), this.profile.dir, {
           timeoutMs: this.githubConnectionTimeoutMs, outputBytes: this.outputBytes,
           signal: AbortSignal.any([this.abort.signal, control.abort.signal]),
@@ -477,19 +536,39 @@ export class PluginManager extends TypertRemoteService {
           result.failedAt = 'spec-host'
           throw new Error(connectionFailure.output)
         }
-        result.packageResult = await this.runPnpm(['add', spec], control.abort.signal, requestId)
-        if (stopped()) throw new InstallCancelledError()
-        // A compatibility refusal is the package's own answer, so no other registry is asked.
-        if (result.packageResult.incompatible !== undefined) {
-          throw new ManagementFailure('incompatible-version', result.packageResult.incompatible)
+        // The last run is the result's; the registries asked stay listed whatever the outcome.
+        const plan = registryPlan(options?.registry, await this.registries())
+        let run: PackageResult | undefined
+        for (const [index, registry] of plan.entries()) {
+          if (index > 0) await this.restoreFiles(files)
+          // A stop that landed while the files went back, or before the first run, starts no run with a dead signal.
+          if (stopped()) throw new InstallCancelledError()
+          result.registries.push(registry)
+          announce('installing', { registry, index: index + 1, total: plan.length })
+          run = await this.runPnpm(['add', spec, ...registryArguments(registry)], control.abort.signal, requestId)
+          result.packageResult = run
+          if (stopped()) throw new InstallCancelledError()
+          // A compatibility refusal is the package's own answer, so no other registry is asked.
+          if (run.incompatible !== undefined) throw new ManagementFailure('incompatible-version', run.incompatible)
+          if (run.exitCode === 0) break
+          /* v8 ignore next 2 -- runPnpm classifies every run it does not report as succeeded */
+          if (run.kind === undefined) break
+          // What the last failed run could not reach; a later run that succeeds leaves nothing to say.
+          delete result.failedAt
+          const failedAt = attributeFailure(run.kind, run.output, parsedForRegistry(spec))
+          if (failedAt !== 'other') result.failedAt = failedAt
+          if (failedAt !== 'registry' || index === plan.length - 1) break
         }
-        if (result.packageResult.exitCode !== 0) {
+        /* v8 ignore next -- the plan is never empty, so a run always settled */
+        if (run === undefined) throw new Error('no registry was asked')
+        if (run.exitCode === 0) delete result.failedAt
+        if (run.exitCode !== 0) {
           // pnpm-workspace.yaml is not restored, so the names pnpm left undecided there can be offered for approval.
           try { result.pendingBuilds = await readPendingBuilds(this.profile.dir) }
           catch (error) {
             this.ownerContext.logger.warn('Could not read pending build approvals after pnpm failed', error)
           }
-          throw new Error(result.packageResult.output)
+          throw new Error(run.output)
         }
         const after = readProfileManifest('qilin', this.profile.dir).dependencies ?? {}
         const installed = Object.keys(after).filter(name => before[name] !== after[name])

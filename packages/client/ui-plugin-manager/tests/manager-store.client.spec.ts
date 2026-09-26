@@ -11,7 +11,10 @@ import type {
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { HostObservable } from '@qilin/client-ui-slots'
 import type { ConfigLedger } from '../src/client/config-ledger.ts'
-import { packageView, PluginManagerController, rowKey, sortPackages, updatable } from '../src/client/manager-store.ts'
+import {
+  asksMirror, githubRecoveryRegistry, offeredRegistries, packageView, PluginManagerController, registryKey, rowKey, sortPackages, updatable,
+  type InstallState,
+} from '../src/client/manager-store.ts'
 
 const INCOMPATIBLE = { name: 'qilin-late', version: '2.0.0', runtimeVersion: '0.1.0', peers: { '@qilin/session': '^0.2.0' } }
 const ROW_ENTRY = 'include:sidebar' as PluginEntryId
@@ -34,7 +37,10 @@ const PLUGINS: PluginInfo[] = [
 ]
 
 /** What the check answers for a registry name. */
-const INSPECTED = { status: 'accepted' as const, kind: 'registry' as const, name: 'qilin-better-sidebar', version: '1.0.0', bundle: true }
+const INSPECTED = { status: 'accepted' as const, kind: 'registry' as const, name: 'qilin-better-sidebar', version: '1.0.0', bundle: true, registry: null }
+
+/** What the Host answers for the registries it asks, and the fastest one it probed. */
+const REGISTRIES = { registry: null, fallbackRegistries: [], resolved: 'https://registry.npmjs.org/' }
 
 const FIRST: CommunityPluginEntry = {
   fullName: 'acme/qilin-remote', description: 'A remote.', stars: 12, updatedAt: '2025-01-02T03:04:05Z', url: 'https://github.com/acme/qilin-remote',
@@ -88,9 +94,20 @@ function bench(overrides: Partial<Record<string, ReturnType<typeof vi.fn>>> = {}
     setPluginEnabled: vi.fn(() => Promise.resolve(ok(APPLIED))),
     checkUpdates: vi.fn(() => Promise.resolve(ok({ entries: [] }))),
     catalog: vi.fn(() => Promise.resolve(ok({ entries: [], page: 1, hasMore: false }))),
+    registries: vi.fn(() => Promise.resolve(ok(REGISTRIES))),
     ...overrides,
   }
-  const ctx = { remote: { pluginManager: plugins, pluginInventory: inventory } } as never
+  const configForms = {
+    describe: vi.fn(() => ({ getSnapshot: () => ({ view: undefined }), subscribe: () => () => {} })),
+    get: vi.fn(() => ({ getSnapshot: () => ({ status: 'ready', value: undefined, base: undefined, user: undefined, revision: 1, writable: true, mode: 'host' }), mutate: vi.fn() })),
+  }
+  const ctx = {
+    remote: {
+      pluginManager: plugins, pluginInventory: inventory,
+      pluginRegistryProbe: { fastest: overrides.probeFastest ?? vi.fn(() => Promise.resolve(ok(null))) },
+    },
+    configForms,
+  } as never
   const controller = new PluginManagerController(ctx)
   const face = controller.inject(NO_CONFIG)
   const state = () => controller.getSnapshot()
@@ -99,8 +116,379 @@ function bench(overrides: Partial<Record<string, ReturnType<typeof vi.fn>>> = {}
     await vi.waitFor(() => { expect(state().install.phase).toBe('starting') })
     return state().install.requestId as PluginInstallRequestId
   }
-  return { plugins, inventory, controller, face, state, started }
+  return { plugins, inventory, controller, face, state, started, configForms }
 }
+
+
+const MIRROR = 'https://registry.npmmirror.com/'
+const OFFICIAL = 'https://registry.npmjs.org/'
+
+describe('registryKey and offeredRegistries', () => {
+  it('compares pnpm\'s own registry by the URL it names, and a registry that does not parse as written', () => {
+    expect(registryKey(null, OFFICIAL)).toBe(OFFICIAL)
+    expect(registryKey(null, null)).toBe('')
+    expect(registryKey('https://REGISTRY.npmmirror.com', null)).toBe(MIRROR)
+    expect(registryKey('not a url', null)).toBe('not a url')
+  })
+
+  it('offers the Host\'s registry, its fallbacks, and pnpm\'s own once each', () => {
+    expect(offeredRegistries({ registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL })).toEqual([null, MIRROR])
+    // pnpm's own configuration already names a fallback: the entry standing for it is not offered twice.
+    expect(offeredRegistries({ registry: MIRROR, fallbackRegistries: [MIRROR, OFFICIAL], resolved: OFFICIAL })).toEqual([MIRROR, OFFICIAL])
+    // Nothing read yet: only pnpm's own entry.
+    expect(offeredRegistries(null)).toEqual([null])
+  })
+})
+
+describe('registry recovery', () => {
+  const base: InstallState = {
+    open: true, spec: 'github:acme/x', phase: 'failed', registries: { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL },
+    registry: { kind: 'offered', registry: null }, registryOpen: false, registryError: false, attempts: null,
+    inputError: null, runs: [], detailsOpen: false, installed: null, restartRequired: false,
+    approvedBuilds: [], enabling: false,
+    subject: { spec: 'github:acme/x', status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' },
+    failure: { reason: 'unreachable', kind: 'network', failedAt: 'spec-host' },
+  }
+
+  it('offers the mirror only for a GitHub connection failure the Host laid at the spec host', () => {
+    expect(githubRecoveryRegistry(base)).toBe(MIRROR)
+    expect(githubRecoveryRegistry({ ...base, phase: 'running' })).toBeUndefined()
+    expect(githubRecoveryRegistry({ ...base, failure: { reason: 'x', kind: 'network', failedAt: 'registry' } })).toBeUndefined()
+    expect(githubRecoveryRegistry({ ...base, failure: { reason: 'x', kind: 'integrity', failedAt: 'spec-host' } })).toBeUndefined()
+    expect(githubRecoveryRegistry({ ...base, subject: { spec: 'gitlab:a/b', status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'gitlab.com' } })).toBeUndefined()
+    // The configured set no longer holds the mirror.
+    expect(githubRecoveryRegistry({ ...base, registries: { registry: null, fallbackRegistries: [], resolved: OFFICIAL } })).toBeUndefined()
+    // A subdomain of the GitHub host counts as GitHub.
+    expect(githubRecoveryRegistry({ ...base, subject: { spec: 's', status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'GHE.github.com:8443' } })).toBe(MIRROR)
+  })
+
+  it('reads whether the choice already asks npmmirror, offered or typed', () => {
+    expect(asksMirror({ ...base, registry: { kind: 'offered', registry: MIRROR } })).toBe(true)
+    expect(asksMirror({ ...base, registry: { kind: 'custom', url: ' https://REGISTRY.npmmirror.com ' } })).toBe(true)
+    expect(asksMirror({ ...base, registry: { kind: 'offered', registry: null } })).toBe(false)
+    // Nothing read yet: the choice compares against itself alone.
+    expect(asksMirror({ ...base, registries: null, registry: { kind: 'offered', registry: MIRROR } })).toBe(true)
+    expect(asksMirror({ ...base, registries: null, registry: { kind: 'offered', registry: null } })).toBe(false)
+    expect(githubRecoveryRegistry({ ...base, registries: null })).toBeUndefined()
+  })
+})
+
+describe('PluginManagerController registry choice', () => {
+  /** Open the dialog and wait for the registry read it starts. */
+  async function opened(overrides: Partial<Record<string, ReturnType<typeof vi.fn>>> = {}) {
+    const benchResult = bench(overrides)
+    await benchResult.controller.load()
+    benchResult.face.openInstall()
+    await vi.waitFor(() => { expect(benchResult.state().install.registries).not.toBeNull() })
+    return benchResult
+  }
+
+  it('starts from the registry the Host asks first and folds the options on request', async () => {
+    const { face, state, plugins } = await opened()
+    expect(state().install.registry).toEqual({ kind: 'offered', registry: null })
+    expect(plugins.registries).toHaveBeenCalledTimes(1)
+    face.toggleRegistryOptions()
+    expect(state().install.registryOpen).toBe(true)
+    face.toggleRegistryOptions()
+    expect(state().install.registryOpen).toBe(false)
+    // The shared configuration form is resolved through the face.
+    expect(face.configForm('bash')).toBeDefined()
+    // A choice is only possible while the spec is still editable.
+    face.chooseRegistry({ kind: 'offered', registry: 'https://npm.corp.example/' })
+    expect(state().install.registry).toEqual({ kind: 'offered', registry: 'https://npm.corp.example/' })
+    // Change-registry does nothing outside the failed screen, nor does the mirror recovery
+    // when no GitHub failure offered it, and a choice made after the spec left the editable
+    // phase is dropped.
+    face.changeRegistry()
+    expect(state().install.registryOpen).toBe(false)
+    face.useGithubMirror()
+    expect(state().install.spec).toBe('')
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    expect(state().install.phase).toBe('checking')
+    face.chooseRegistry({ kind: 'offered', registry: null })
+    expect(state().install.registry).toEqual({ kind: 'offered', registry: 'https://npm.corp.example/' })
+  })
+
+  it('reconciles the registry last used: kept when offered, typed when the Host no longer offers it', async () => {
+    const mirrored = { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }
+    let answer = mirrored
+    const { controller, face, state, plugins } = bench({ registries: vi.fn(() => Promise.resolve(ok(answer))) })
+    await controller.load()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    face.chooseRegistry({ kind: 'offered', registry: MIRROR })
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
+    // A later dialog starts from what was used and takes the entry the Host offers for it.
+    face.closeInstall()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registry).toEqual({ kind: 'offered', registry: MIRROR }) })
+    face.closeInstall()
+    // A registry the Host no longer offers becomes the typed one.
+    answer = { registry: null, fallbackRegistries: [], resolved: OFFICIAL }
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registry).toEqual({ kind: 'custom', url: MIRROR }) })
+  })
+
+  it('leaves a refused registry read alone, and a dialog closed during the read', async () => {
+    const refusedRead = bench({ registries: vi.fn(() => Promise.resolve(refused('boom', 'no'))) })
+    await refusedRead.controller.load()
+    refusedRead.face.openInstall()
+    await vi.waitFor(() => { expect(refusedRead.state().install.registry).toEqual({ kind: 'offered', registry: null }) })
+    await Promise.resolve()
+    expect(refusedRead.state().install.registries).toBeNull()
+    // A read that settles after the dialog closed changes nothing.
+    const gate = deferred<ReturnType<typeof ok<typeof REGISTRIES>>>()
+    const { face, state } = bench({ registries: vi.fn(() => gate.promise) })
+    face.openInstall()
+    face.closeInstall()
+    gate.resolve(ok(REGISTRIES))
+    await Promise.resolve()
+    expect(state().install.registries).toBeNull()
+    expect(state().install.open).toBe(false)
+  })
+
+  it('starts from the fastest public registry the probe answers, and only while nothing is remembered', async () => {
+    const mirrored = { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }
+    const probed = await opened({
+      registries: vi.fn(() => Promise.resolve(ok(mirrored))),
+      probeFastest: vi.fn(() => Promise.resolve(ok(MIRROR))),
+    })
+    expect(probed.state().install.registry).toEqual({ kind: 'offered', registry: MIRROR })
+    // A slower answer than the mirror leaves pnpm's own entry chosen.
+    const slower = await opened({
+      registries: vi.fn(() => Promise.resolve(ok(mirrored))),
+      probeFastest: vi.fn(() => Promise.resolve(ok('https://npm.corp.example/'))),
+    })
+    expect(slower.state().install.registry).toEqual({ kind: 'offered', registry: null })
+    // A private default is nobody's recommendation: the probe is never asked.
+    const privateDefault = await opened({
+      registries: vi.fn(() => Promise.resolve(ok({ registry: null, fallbackRegistries: [MIRROR], resolved: 'https://npm.corp.example/' }))),
+      probeFastest: vi.fn(() => Promise.resolve(ok(MIRROR))),
+    })
+    expect(privateDefault.state().install.registry).toEqual({ kind: 'offered', registry: null })
+    // A configured mirror is the Host's own first choice: nothing to recommend over it.
+    const configured = await opened({
+      registries: vi.fn(() => Promise.resolve(ok({ registry: MIRROR, fallbackRegistries: [MIRROR], resolved: OFFICIAL }))),
+      probeFastest: vi.fn(() => Promise.resolve(ok(MIRROR))),
+    })
+    expect(configured.state().install.registry).toEqual({ kind: 'offered', registry: MIRROR })
+    // A pnpm registry that does not parse receives no recommendation either.
+    const unreadable = await opened({
+      registries: vi.fn(() => Promise.resolve(ok({ registry: null, fallbackRegistries: [MIRROR], resolved: 'not a url' }))),
+      probeFastest: vi.fn(() => Promise.resolve(ok(MIRROR))),
+    })
+    expect(unreadable.state().install.registry).toEqual({ kind: 'offered', registry: null })
+  })
+
+  it('refuses a typed registry that is not an http(s) URL before asking the Host, and asks the chosen one', async () => {
+    const { face, state, plugins } = await opened()
+    face.chooseRegistry({ kind: 'custom', url: 'npm.corp.example' })
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    expect(state().install.registryError).toBe(true)
+    expect(plugins.inspect).not.toHaveBeenCalled()
+    face.chooseRegistry({ kind: 'custom', url: ' https://npm.corp.example ' })
+    expect(state().install.registryError).toBe(false)
+    face.runInstall()
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    expect(plugins.inspect).toHaveBeenCalledWith('qilin-x', { registry: 'https://npm.corp.example' }, expect.anything())
+  })
+
+  it('keeps a manual choice made before the registry list arrives, and a read that lands after the run started', async () => {
+    const gate = deferred<ReturnType<typeof ok<typeof REGISTRIES>>>()
+    const { face, state, controller, plugins } = bench({ registries: vi.fn(() => gate.promise) })
+    await controller.load()
+    face.openInstall()
+    // The person picks before the Host answers: the arriving list must not replace it.
+    face.chooseRegistry({ kind: 'offered', registry: 'https://npm.corp.example/' })
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    expect(state().install.phase).toBe('checking')
+    gate.resolve(ok(REGISTRIES))
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    expect(state().install.registry).toEqual({ kind: 'offered', registry: 'https://npm.corp.example/' })
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    // A read whose probes settle after the run started changes no choice.
+    expect(state().install.registry).toEqual({ kind: 'offered', registry: 'https://npm.corp.example/' })
+  })
+
+  it('drops a check whose registry read settles after the dialog closed', async () => {
+    const gate = deferred<ReturnType<typeof ok<typeof REGISTRIES>>>()
+    const { face, state, controller, plugins } = bench({ registries: vi.fn(() => gate.promise) })
+    await controller.load()
+    face.openInstall()
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    // The check waits for the read; closing the dialog drops it before the read lands.
+    face.closeInstall()
+    gate.resolve(ok(REGISTRIES))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(plugins.inspect).not.toHaveBeenCalled()
+    expect(state().install.open).toBe(false)
+  })
+
+  it('leaves a probe that settles after the run started, and a read a newer dialog replaced', async () => {
+    const probeGate = deferred<ReturnType<typeof ok<string | null>>>()
+    const { face, state, controller, plugins } = bench({
+      registries: vi.fn(() => Promise.resolve(ok({ registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }))),
+      probeFastest: vi.fn(() => probeGate.promise),
+    })
+    await controller.load()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    // A typed registry is not the read's own choice, so the check does not wait for the probe.
+    face.chooseRegistry({ kind: 'custom', url: 'https://npm.corp.example/' })
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    await vi.waitFor(() => { expect(state().install.phase).toBe('starting') })
+    // The probe settles while the Host already runs the installation: no choice changes.
+    probeGate.resolve(ok(MIRROR))
+    await Promise.resolve()
+    expect(state().install.registry).toEqual({ kind: 'custom', url: 'https://npm.corp.example/' })
+    // A dialog opened again replaces the read of the one before it.
+    const slow = deferred<ReturnType<typeof ok<typeof REGISTRIES>>>()
+    const racing = bench({ registries: vi.fn(() => slow.promise) })
+    await racing.controller.load()
+    racing.face.openInstall()
+    racing.face.closeInstall()
+    racing.face.openInstall()
+    await racing.controller.load()
+    slow.resolve(ok(REGISTRIES))
+    await Promise.resolve()
+    expect(racing.state().install.open).toBe(true)
+  })
+
+  it('lists the registries its answer names even when no attempt was announced', async () => {
+    const { face, state, controller, plugins } = bench({
+      installBundle: vi.fn(() => Promise.resolve(ok({ ...APPLIED, bundle: 'qilin-new', registries: [null, MIRROR] }))),
+    })
+    await controller.load()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    face.editInstallSpec('qilin-new')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
+    expect(plugins.installBundle).toHaveBeenCalledTimes(1)
+    expect(state().install.attempts).toEqual({ registries: [null, MIRROR], total: 2 })
+  })
+
+  it('returns from the failed screen to the spec when the registry is changed there', async () => {
+    const { face, state, controller } = bench({
+      installBundle: vi.fn(() => Promise.resolve(ok({
+        ...APPLIED, application: 'failed', failedAt: 'registry',
+        packageResult: { exitCode: 1, output: 'ERR', truncated: false, logPath: '/l', kind: 'network' },
+      }))),
+    })
+    await controller.load()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    face.editInstallSpec('fallen')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
+    face.changeRegistry()
+    expect(state().install).toMatchObject({ phase: 'idle', spec: 'fallen', registryOpen: true, failure: null })
+  })
+
+  it('checks a spec whose dialog already read its registries, and keeps a lost answer worded', async () => {
+    const { face, state, plugins } = await opened()
+    // The read settled before the run: the check goes straight to the Host.
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
+    // An answer the transport never delivered settles as a failure without registry detail.
+    const lost = bench({ installBundle: vi.fn(() => Promise.resolve(refused('lost', 'no answer'))) })
+    await lost.controller.load()
+    lost.face.openInstall()
+    await vi.waitFor(() => { expect(lost.state().install.registries).not.toBeNull() })
+    lost.face.editInstallSpec('qilin-x')
+    lost.face.runInstall()
+    await vi.waitFor(() => { expect(lost.state().install.phase).toBe('failed') })
+    expect(lost.state().install.failure).toEqual({ reason: 'no answer' })
+  })
+
+  it('carries the registries a refused check asked into the field error', async () => {
+    const { face, state } = await opened({
+      inspect: vi.fn(() => Promise.resolve(ok({ status: 'refused', problem: 'network', reason: 'offline', registries: [null, MIRROR] }))),
+      registries: vi.fn(() => Promise.resolve(ok({ registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }))),
+    })
+    face.editInstallSpec('qilin-x')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.inputError).not.toBeNull() })
+    expect(state().install.inputError).toEqual({ problem: 'network', reason: 'offline', registries: [null, MIRROR] })
+  })
+
+  it('tracks each attempt the Host announces and every registry its answer names', async () => {
+    const gate = deferred<ReturnType<typeof ok<ChangeResult>>>()
+    const { face, state, controller, started } = bench({
+      registries: vi.fn(() => Promise.resolve(ok({ registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }))),
+      installBundle: vi.fn(() => gate.promise),
+      // The spec starts from a registry the dialog already read.
+      probeFastest: vi.fn(() => Promise.resolve(ok(null))),
+    })
+    await controller.load()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    face.editInstallSpec('fallen')
+    face.runInstall()
+    const requestId = await started()
+    // A phase without an attempt leaves the list alone.
+    controller.installProgress({ requestId, phase: 'installing' })
+    expect(state().install.attempts).toBeNull()
+    controller.installProgress({ requestId, phase: 'installing', attempt: { registry: null, index: 1, total: 2 } })
+    expect(state().install.attempts).toEqual({ registries: [null], total: 2 })
+    controller.installProgress({ requestId, phase: 'installing', attempt: { registry: MIRROR, index: 2, total: 2 } })
+    expect(state().install.attempts).toEqual({ registries: [null, MIRROR], total: 2 })
+    gate.resolve(ok({
+      ...APPLIED, application: 'failed', registries: [null, MIRROR], failedAt: 'registry',
+      packageResult: { exitCode: 1, output: 'ERR', truncated: false, logPath: '/l', kind: 'network' },
+    }))
+    await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
+    expect(state().install.failure).toMatchObject({ kind: 'network', failedAt: 'registry' })
+    expect(state().install.attempts).toEqual({ registries: [null, MIRROR], total: 2 })
+    // From the failed screen the registry options reopen over a fresh spec.
+    face.changeRegistry()
+    expect(state().install).toMatchObject({ phase: 'idle', spec: 'fallen', registryOpen: true, failure: null })
+  })
+
+  it('offers the mainland mirror after a GitHub connection failure, keeping a spec that already asks it', async () => {
+    const subject = { status: 'accepted' as const, kind: 'git' as const, bundle: null, registry: null, host: 'github.com' }
+    const { face, state, plugins } = bench({
+      registries: vi.fn(() => Promise.resolve(ok({ registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }))),
+      inspect: vi.fn(() => Promise.resolve(ok(subject))),
+      installBundle: vi.fn(() => Promise.resolve(ok({
+        ...APPLIED, application: 'failed', failedAt: 'spec-host',
+        packageResult: { exitCode: 1, output: 'git failed', truncated: false, logPath: '/l', kind: 'network' },
+      }))),
+    })
+    face.ensure()
+    await Promise.resolve()
+    face.openInstall()
+    await vi.waitFor(() => { expect(state().install.registries).not.toBeNull() })
+    face.editInstallSpec('github:acme/qilin-x')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
+    expect(githubRecoveryRegistry(state().install)).toBe(MIRROR)
+    face.useGithubMirror()
+    expect(state().install).toMatchObject({ phase: 'idle', spec: '', mirrorRecovery: true })
+    expect(state().install.registry).toEqual({ kind: 'offered', registry: MIRROR })
+    // Asking again keeps the choice that already asks the mirror.
+    face.changeRegistry()
+    face.chooseRegistry({ kind: 'custom', url: MIRROR })
+    face.editInstallSpec('github:acme/qilin-x')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
+    face.useGithubMirror()
+    expect(state().install.registry).toEqual({ kind: 'custom', url: MIRROR })
+    expect(plugins.inspect).toHaveBeenCalledTimes(2)
+  })
+})
 
 describe('packageView', () => {
   it('joins a bundle with the entries its rows run as', () => {
@@ -306,12 +694,13 @@ describe('PluginManagerController', () => {
     // Neither typing nor a second run reaches the Host while it checks.
     face.editInstallSpec('other')
     expect(state().install.spec).toBe('  qilin-new ')
-    expect(plugins.inspect).toHaveBeenCalledTimes(1)
-    expect(plugins.inspect).toHaveBeenCalledWith('qilin-new', expect.any(AbortSignal))
+    // The dialog's registry read settles first; the check then asks the registry it settled on.
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    expect(plugins.inspect).toHaveBeenCalledWith('qilin-new', { registry: null }, expect.any(AbortSignal))
     const requestId = await started()
     expect(state().install.subject).toEqual({ spec: 'qilin-new', ...INSPECTED })
     expect(plugins.installBundle).toHaveBeenCalledTimes(1)
-    expect(plugins.installBundle).toHaveBeenCalledWith('qilin-new', { enabled: false, requestId })
+    expect(plugins.installBundle).toHaveBeenCalledWith('qilin-new', { enabled: false, requestId, registry: null })
     // The Host's acknowledgement makes the run stoppable; a chunk of another request is not this run's.
     controller.installProgress({ requestId, phase: 'installing' })
     expect(state().install.phase).toBe('running')
@@ -381,15 +770,20 @@ describe('PluginManagerController', () => {
 
   it('leaves the check or the failed screen for the spec at once', async () => {
     const inspectGate = deferred<ReturnType<typeof ok<typeof INSPECTED>>>()
+    const droppedGate = deferred<ReturnType<typeof ok<typeof INSPECTED>>>()
     const { plugins, face, state, controller } = bench({
-      inspect: vi.fn().mockReturnValueOnce(inspectGate.promise).mockResolvedValue(ok(INSPECTED)),
+      inspect: vi.fn()
+        .mockReturnValueOnce(inspectGate.promise)
+        .mockReturnValueOnce(droppedGate.promise)
+        .mockResolvedValue(ok(INSPECTED)),
       installBundle: vi.fn().mockResolvedValue(ok(failed({ code: 'operation-error', diagnostic: 'ERR' }, { exitCode: 1, output: 'ERR', truncated: false, logPath: '/l', kind: 'network' }))),
     })
     await controller.load()
     face.openInstall()
     face.editInstallSpec('qilin-x')
     face.runInstall()
-    const checkSignal = (plugins.inspect.mock.calls[0] as unknown[])[1] as AbortSignal
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(1) })
+    const checkSignal = (plugins.inspect.mock.calls[0] as unknown[])[2] as AbortSignal
     face.cancelInstall()
     expect(checkSignal.aborted).toBe(true)
     expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'qilin-x', inputError: null })
@@ -401,9 +795,11 @@ describe('PluginManagerController', () => {
     expect(plugins.installBundle).not.toHaveBeenCalled()
     // Closing during a check drops it too.
     face.runInstall()
+    await vi.waitFor(() => { expect(plugins.inspect).toHaveBeenCalledTimes(2) })
     face.closeInstall()
     expect(state().install.open).toBe(false)
-    expect((plugins.inspect.mock.calls[1] as unknown[])[1]).toMatchObject({ aborted: true })
+    expect((plugins.inspect.mock.calls[1] as unknown[])[2]).toMatchObject({ aborted: true })
+    droppedGate.resolve(ok(INSPECTED))
     // From the failed screen the same control goes back to the spec.
     face.openInstall()
     face.editInstallSpec('qilin-x')
@@ -619,7 +1015,7 @@ describe('PluginManagerController', () => {
     face.approveBuildsAndRetry()
     const second = await started()
     expect(second).not.toBe(first)
-    expect(plugins.installBundle).toHaveBeenLastCalledWith('x', { enabled: false, requestId: second, approvedBuilds: ['native'] })
+    expect(plugins.installBundle).toHaveBeenLastCalledWith('x', { enabled: false, requestId: second, approvedBuilds: ['native'], registry: null })
     expect(state().install).toMatchObject({ subject: { spec: 'x', name: 'qilin-better-sidebar' }, failure: null })
     gates[1]!.resolve(ok({ ...APPLIED, bundle: 'qilin-better-sidebar', approvedBuilds: ['native'] }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })

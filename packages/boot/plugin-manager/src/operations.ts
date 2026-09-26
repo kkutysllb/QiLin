@@ -14,7 +14,7 @@ import { scrubbedParentEnv } from '@qilin/subprocess'
 import { awaitTreeGone, leadsOwnGroup, treeAlive, type RunTree } from './run-tree.ts'
 import { parseInstallSpec } from './install-spec.ts'
 import { incompatiblePlugin } from './failure.ts'
-import type { IncompatiblePlugin, PackageResult } from './types.ts'
+import type { IncompatiblePlugin, PackageResult, Registry } from './types.ts'
 export { setProfileVersionExemption, readProfileVersionExemptions } from '@qilin/app-boot'
 
 /** Profile and invocation locations supplied by the launcher. */
@@ -513,6 +513,8 @@ export interface PackageViewOptions {
   signal?: AbortSignal
   /** Bound on the lookup, in milliseconds. */
   timeoutMs: number
+  /** The registry asked; null asks the one pnpm's own configuration names. */
+  registry?: Registry
 }
 
 /**
@@ -524,7 +526,10 @@ export interface PackageViewOptions {
  * @returns pnpm's exit, output, and how the lookup ended.
  */
 export async function viewProfilePackage(dir: string, spec: string, options: PackageViewOptions): Promise<PackageViewResult> {
-  const result = await execa(options.command ?? 'pnpm', [...options.args ?? [], 'view', spec, 'name', 'version', 'description', 'qilin', '--json'], {
+  const result = await execa(options.command ?? 'pnpm', [
+    ...options.args ?? [], 'view', spec, 'name', 'version', 'description', 'qilin', '--json',
+    ...registryArguments(options.registry ?? null), '--config.fetch-retries=0',
+  ], {
     cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore',
     timeout: options.timeoutMs, ...options.signal === undefined ? {} : { cancelSignal: options.signal },
   })
@@ -535,4 +540,31 @@ export async function viewProfilePackage(dir: string, spec: string, options: Pac
     exitCode: result.exitCode ?? null, stdout: result.stdout, stderr: result.stderr, timedOut: result.timedOut,
     ...cause === undefined ? {} : { cause },
   }
+}
+
+/**
+ * The argument that sends one pnpm command to a registry.
+ * @param registry - the registry, or null for the one pnpm's own configuration names.
+ * @returns `--registry=<url>` for a URL; nothing for null.
+ */
+export function registryArguments(registry: Registry): string[] {
+  return registry === null ? [] : [`--registry=${registry}`]
+}
+
+/**
+ * Read the registry pnpm's own configuration names in the profile: its `.npmrc` chain and workspace settings,
+ * as `pnpm config get registry` resolves them.
+ * @param dir - Profile directory.
+ * @param options - The pnpm executable and the time bound.
+ * @returns The registry URL as pnpm printed it, or null when pnpm did not answer with one.
+ */
+export async function readProfileRegistry(
+  dir: string, options: { command?: string; args?: readonly string[]; env?: Readonly<Record<string, string>>; timeoutMs: number },
+): Promise<string | null> {
+  const result = await execa(options.command ?? 'pnpm', [...options.args ?? [], 'config', 'get', 'registry'], {
+    cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore', timeout: options.timeoutMs,
+  })
+  // The registry is the last line: pnpm may print a notice before it.
+  const answer = result.exitCode === 0 ? result.stdout.trim().replace(/^[\s\S]*\n/, '').trim() : ''
+  return /^https?:\/\/\S+$/.test(answer) ? answer : null
 }

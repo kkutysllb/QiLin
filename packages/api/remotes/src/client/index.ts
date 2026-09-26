@@ -11,6 +11,7 @@ import llmRemote from '@qilin/llm/remote'
 import dynamicRemote from '@qilin/kylin-host-runner/remote'
 import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
 import pluginManagerRemote from '@qilin/plugin-manager/remote'
+import pluginRegistryProbeRemote from '@qilin/client-ui-plugin-manager/remote'
 import mcpServersRemote from '@qilin/mcp-servers/remote'
 import messageFeedbackRemote from '@qilin/message-feedback/remote'
 import permissionPresetsRemote from '@qilin/permission-presets/remote'
@@ -30,10 +31,11 @@ export type {
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
   InstallBundleOptions, InstallSpecKind,
   ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
-  PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginSpecInspection,
-  PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason,
+  PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
+  PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry,
 } from '@qilin/plugin-manager/types'
 export type {} from '@qilin/plugin-manager/remote'
+export type {} from '@qilin/client-ui-plugin-manager/remote'
 export type { PluginInventorySnapshot } from '@qilin/host-plugin-inventory/types'
 export type {} from '@qilin/agent-presets/remote'
 export type {} from '@qilin/commands/remote'
@@ -175,7 +177,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
   try {
     for (const contribution of [
       agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote, scheduleRemote,
-      pluginInventoryRemote, pluginManagerRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
+      pluginInventoryRemote, pluginManagerRemote, pluginRegistryProbeRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
       permissionPresetsRemote, subagentsRemote, sessionRemote, jobRemote, workspaceRemote, workspaceFilesRemote, terminalRemote,
       officeToPdfRemote,

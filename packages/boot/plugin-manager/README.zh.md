@@ -39,7 +39,7 @@ kind: "package-reference"
 
 插件开关只更新 profile 的 `cordis.patch.yml` 中最后一条匹配覆盖项的 `disabled`；没有匹配项时追加。匹配依据是条目 id，以及覆盖项声明的模块名称。组合包开关修改 `package.json` 的有序 `qilin.profile.bundles` 列表。关闭保留依赖；开启追加到列表末尾，可能改变配置优先级。安装新组合包默认启用。home 和单次启动 patch 保留更高优先级。
 
-`inspect(spec)` 在任何东西安装之前读出 spec 指向什么：注册表包名通过 `pnpm view` 询问注册表，在 profile 目录中运行，因而与安装使用同样的注册表与代理设置；绝对路径读取其 `package.json`；git 地址或 tarball 只答复自己的形式。答复携带名称、版本、描述以及该包是否声明组合包，否则给出 `problem`：`invalid-spec`、`already-installed`、`not-found`、`not-a-package`、`not-a-bundle`、`network` 或 `unknown`。调用方的 `signal` 或 `inspectTimeoutMs` 会结束查询。
+`registries()` 给出管理器询问的注册表：配置的首选、按序的备用源，以及 pnpm 在 profile 中自己配置指定的那个（通过 `pnpm config get registry` 读取）。被请求的源属于该集合时排在最前，否则单独询问，因此私有源不会回落到公共源；可被另一个源改变的失败会继续下一个，而由 spec 自身主机造成的失败不会。`inspect(spec, options)` 在任何东西安装之前读出 spec 指向什么：注册表包名通过 `pnpm view` 询问注册表，在 profile 目录中运行，因而与安装使用同样的注册表与代理设置；绝对路径读取其 `package.json`；git 地址或 tarball 只答复自己的形式。答复携带名称、版本、描述以及该包是否声明组合包，否则给出 `problem`：`invalid-spec`、`already-installed`、`not-found`、`not-a-package`、`not-a-bundle`、`network` 或 `unknown`。调用方的 `signal` 或 `inspectTimeoutMs` 会结束查询。
 
 `installBundle` 在启动 pnpm 前用 `git ls-remote` 检查 GitHub 仓库，在 profile 目录中运行，并沿用安装器自己的 Git 与代理配置。`githubConnectionTimeoutMs` 默认 5000 毫秒，只限制这次检查，不限制包下载或构建。检查会禁用凭据助手与交互提示；只有网络故障和超时会阻止安装，此时报告 `failedAt: 'spec-host'`，并附本次运行的失败类别与诊断日志。认证、仓库查找与其他失败都留给 pnpm，包括它的 HTTPS 回退到 SSH。取消与管理器销毁会终止该检查及其子进程。注册表包、路径、tarball 与其他 Git 主机跳过该检查；可达的仓库仍可能在下载或组合包校验时失败。
 
@@ -67,6 +67,8 @@ CLI 提供 `qilin plugin --profile <profile> version-exemptions`、`allow-versio
 | `pnpmCommand` | `pnpm` | pnpm 可执行文件名或路径，与 `qilin plugin` 命令一样通过 `PATH` 解析。 |
 | `inspectTimeoutMs` | `20000` | 单次检查所做注册表查询的上限，单位毫秒。 |
 | `githubConnectionTimeoutMs` | `5000` | 安装前 GitHub 仓库检查的时限，单位毫秒。 |
+| `registry` | — | 查询与安装首先询问的注册表，http(s) URL；缺省时用 pnpm 自身配置指定的那个。 |
+| `fallbackRegistries` | `['https://registry.npmmirror.com/']` | 前一个不可达或没有该包副本时，依次询问的注册表。 |
 | `outputBytes` | `16384` | 每次操作返回的 pnpm 诊断字节上限；完整输出保留在返回的日志路径中。 |
 | `lockWaitMs` | `120000` | 获取 profile 写锁的最长等待毫秒数。 |
 

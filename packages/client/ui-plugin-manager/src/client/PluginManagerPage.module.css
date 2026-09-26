@@ -1216,3 +1216,164 @@
 .catalogName:focus-visible {
   color: var(--dsw-alias-brand-primary);
 }
+
+/* The spec field's row of small controls: the registry picker and the guide toggle. */
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.registryToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px 0 10px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-2);
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.registryToggle:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+}
+
+.registryToggle:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.registryToggle[aria-expanded='true'] {
+  border-color: var(--dsw-alias-border-l3);
+  background: var(--dsw-alias-bg-layer-3);
+}
+
+.registryToggle[aria-expanded='true'] .guideChevron {
+  transform: rotate(180deg);
+}
+
+.registryChosen {
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* The registry options unfold under the spec, inside the dialog's own scroll area. */
+.registry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 10px 12px;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-2);
+  min-width: 0;
+}
+
+.registryOption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 0.5px solid transparent;
+  border-radius: var(--dsw-radius-lg);
+  cursor: pointer;
+}
+
+.registryOption[data-checked='true'] {
+  border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, transparent);
+  background: var(--dsw-alias-bg-layer-3);
+}
+
+.registryOption input[type='radio'] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--dsw-alias-brand-primary);
+}
+
+.registryOption > .inputError,
+.registryOption > .registryHint {
+  margin-left: 26px;
+}
+
+.registryTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.registryCustomPick {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.registryCustomField {
+  height: 32px;
+  margin-left: 26px;
+  padding: 0 10px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-bg-layer-3);
+  font: inherit;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.registryCustomField[aria-invalid='true'] {
+  border-color: var(--dsw-alias-state-error-primary);
+}
+
+.registryHint {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}
+
+/* The registry the running install is retrying through, above the subject card. */
+.attemptLine {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* One pnpm attempt: its badge, then its terminal. */
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.attemptBadge {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0 6px;
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-3);
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.footAction {
+  height: 32px;
+  border-radius: var(--dsw-radius-md);
+}

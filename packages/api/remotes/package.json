@@ -73,6 +73,7 @@
     "@qilin/api-workspace-files": "workspace:*",
     "@qilin/client-connection": "workspace:*",
     "@qilin/client-file-upload": "workspace:*",
+    "@qilin/client-ui-plugin-manager": "workspace:*",
     "@qilin/command-feedback": "workspace:*",
     "@qilin/commands": "workspace:*",
     "@qilin/credentials": "workspace:*",

@@ -33,6 +33,8 @@ Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用�
 
 **添加插件**接受包名（可带版本）、Git 地址、压缩包或本地绝对路径；对话框说明包名就是 README 里 `qilin plugin add` 后面的那一段。输入框下方的**不知道该填什么？**展开一段引导，给出三种常见形式各一个示例；**填入示例**把示例填进输入框。**安装**先让 Host 读出 spec 指向什么（`pluginManager.inspect`）：列表中已有的名字、注册表没有的名字、没有包的路径、没有组合包 patch 的包，或 pnpm 会拒绝的 spec，都以一句话回到输入框下方，spec 保留可继续编辑。通过检查的 spec 打开安装中界面，展示 Host 读到的包名、一句话简介和版本，pnpm 的命令与输出折叠在**查看安装详情**之后。安装完成后提供**立即启用**：启用新组合包、关闭对话框并把列表滚动到它；直接关闭则让它保持已安装但关闭。安装失败时用一行话说明原因——注册表或网络不可达、包不存在、磁盘已满、profile 不可写、pnpm 拦下了构建脚本——pnpm 输出在详情里，**重试**就在手边；Host 已经把 profile 文件放回原样。pnpm 拦下依赖的安装脚本时，失败界面列出等待允许的包，并以**允许这些脚本并重试**取代**重试**；Host 把授权写进 profile 的 `pnpm-workspace.yaml`（失败的运行保留 pnpm 写入的这个文件）再运行 pnpm，安装完成界面会说明允许了哪些脚本。安装成功不代表模块一定能够激活。
 
+spec 旁的**安装源**控件显示这次安装首先询问的源，取自 Host 对 `pluginManager.registries()` 的回答：pnpm 自己配置的源、配置的备用源（npmmirror 随包提供）、以及必须 `http://` 或 `https://` 开头的自定义地址。打开对话框时会读取这份清单，并通过 `pluginRegistryProbe.fastest()` 探测公共源；当 pnpm 自己的源就是 npm 官方源、且已配置镜像时，两者中更快的一个会被选中，直到人另行选择；上一次的手动选择会在对话框之间记住。某个源不可达时安装继续用下一个（私有源则单独询问），对话框会标注每次尝试所用的源；所有源都答不上时，失败说明会列出询问过的源。
+
 安装期间可点击**取消安装**，对话框显示**正在停止安装…**，直到 Host 确认。加载组合包的阶段不可取消。确认后对话框回到 spec 输入界面，可再次安装，并用 toast 说明安装已取消；manifest 与 lockfile 已恢复原样，已下载文件可能保留。安装进行中关闭对话框，同样会请求 Host 停止安装，Host 确认后对话框才关闭；Host 正在准备、停止或加载时不能关闭对话框。连接错误不代表取消成功：安装中界面会如此说明，可以再次尝试取消。
 
 ### 检查更新
@@ -53,7 +55,7 @@ Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用�
 
 ### 配置页
 
-自带配置的插件把配置渲染在本页，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、子智能体模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册：
+自带配置的插件把配置渲染在本页，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单；当 `page` 视图对应的 Host 条目由设置文档服务时，还会给出 `form`——页面从 `ctx.configForms` 取到的共享 `ConfigPageForm`（已接受的值加一个原子 mutate），自管控件的条目可以忽略它。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、子智能体模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册：
 
 ```tsx ignore-check
 ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
@@ -123,6 +125,8 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 - **行只显示阶段，不显示原因**——失败的行只显示为失败，没有 Host 的错误文本；Host 日志里有。
 - **一次只能安装一个**——对话框一次运行一个 pnpm 命令；第二个 spec 要等前一个完成。
 - **更新只跟随注册表的 `latest` 标签**——检查只针对 profile 管理的层，并把它们升到最新版本；要锁定某个具体版本仍须手动输入 spec。
+- **管理视图是设置页标签，不是侧边栏面板**——「插件」入口与主面板组合归设置中「插件」分区所有；上游随包提供的侧边栏面板、`plugins.detail.*` 贡献 slot 与按元数据本地化的包文本都属于有意延期（[对齐边界](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.zh.md)）。
+- **丢失的安装应答无法恢复**——Host 不提供 `waitForInstall`，因此对话框只报告传输失败，不会向 Host 追问该次运行的结果。
 
 <a id="dev-note"></a>
 ### 开发备注

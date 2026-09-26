@@ -9,7 +9,6 @@ import { TestRemote, usePinnedBrowserLanguages } from '@qilin/client-test-runtim
 import { apply, inject, NS, TAB_ID } from '../src/client/index.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
 import type { PluginManagerFace } from '../src/client/manager-store.ts'
-import { apply as hostApply } from '../src/index.ts'
 
 usePinnedBrowserLanguages('zh-CN')
 afterEach(cleanup)
@@ -25,15 +24,26 @@ async function bench() {
     }
   }
   new LocaleHolder(ctx)
+  // The shared configuration forms the page hands a contributed page; nothing is served here.
+  ctx.provide('configForms', {
+    describe: () => ({ getSnapshot: () => ({ view: undefined }), subscribe: () => () => {} }),
+    get: () => ({
+      getSnapshot: () => ({ status: 'unavailable', value: undefined, base: undefined, user: undefined, revision: undefined, writable: false, mode: 'host' }),
+      mutate: () => Promise.resolve(false),
+    }),
+  })
   const list = vi.fn(() => Promise.resolve({ ok: true as const, value: { entries: [], managementAvailable: true } }))
+  const fastest = vi.fn(() => Promise.resolve({ ok: true as const, value: null }))
   const remote = new TestRemote(ctx, {
     pluginInventory: { list },
     pluginManager: {
       listBundles: vi.fn(() => Promise.resolve({ ok: true as const, value: [] })),
       listPlugins: vi.fn(() => Promise.resolve({ ok: true as const, value: [] })),
+      registries: vi.fn(() => Promise.resolve({ ok: true as const, value: { registry: null, fallbackRegistries: [], resolved: 'https://registry.npmjs.org/' } })),
     },
+    pluginRegistryProbe: { fastest },
   })
-  return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, list, remote }
+  return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, list, fastest, remote }
 }
 
 function declare(slots: SlotRegistry): () => void {
@@ -46,10 +56,6 @@ function declare(slots: SlotRegistry): () => void {
 }
 
 describe('ui-plugin-manager browser plugin', () => {
-  it('keeps the host Loader entry inert', () => {
-    expect(hostApply).not.toThrow()
-  })
-
   it('routes pluginNavigation through the settings shell and the mounted page reveal', async () => {
     const b = await bench()
     const openSection = vi.fn()
@@ -71,13 +77,22 @@ describe('ui-plugin-manager browser plugin', () => {
     unregister()
     b.ctx.pluginNavigation.openBundle('qilin-navigation-test')
     expect(reveal).toHaveBeenCalledOnce()
+    // A second registration replaces the first: the first's disposer must not withdraw the live one.
+    const replacement = vi.fn()
+    const unregisterSecond = face.registerOpen!(replacement)
+    unregister()
+    b.ctx.pluginNavigation.openBundle('qilin-navigation-test')
+    expect(replacement).toHaveBeenCalledWith('qilin-navigation-test')
+    unregisterSecond()
     // Unmounting the tab withdraws the whole channel.
     await fiber.dispose()
     expect(b.ctx.get('pluginNavigation')).toBeUndefined()
   })
 
-  it('declares only the services the page and its Remote methods use', () => {
-    expect(inject).toEqual(['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory'])
+  it('declares only the services the page, its Remote methods, and the shared configuration forms use', () => {
+    expect(inject).toEqual([
+      'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
+    ])
   })
 
   it('registers the management tab, which reads the Host only once rendered and follows Host changes', async () => {

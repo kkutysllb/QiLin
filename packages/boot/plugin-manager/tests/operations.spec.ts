@@ -174,10 +174,10 @@ it('removes the record of a recorded run that stopped and runs', async () => {
   state.output = 'installed'
   const exited = 2_000_000_000
   const kill = process.kill.bind(process)
-  vi.spyOn(process, 'kill').mockImplementation(((target: number, signal?: NodeJS.Signals | number) => {
+  vi.spyOn(process, 'kill').mockImplementation((target: number, signal?: string | number) => {
     if (target === exited) throw Object.assign(new Error('ESRCH: injected'), { code: 'ESRCH' })
     return kill(target, signal)
-  }) as typeof process.kill)
+  })
   onTestFinished(() => { vi.restoreAllMocks() })
   mkdirSync(join(dir, '.plugin-manager'), { recursive: true })
   writeFileSync(runRecord(dir), JSON.stringify({ pid: exited, grouped: false }))
@@ -202,7 +202,7 @@ it.each(['not json', 'null', '{"pid":0,"grouped":false}', '{"pid":12,"grouped":"
 it.each(['cli', 'service'] as const)('records a %s run while it runs and removes the record once it ends', async (execution) => {
   const { dir, context } = fixture()
   const child = observingResult(dir, 4242)
-  command.run.mockImplementationOnce(() => child as unknown as ReturnType<typeof result>)
+  command.run.mockImplementationOnce(() => child)
   const outcome = await runProfilePnpm(context, ['list'], { execution, outputBytes: 8192 })
   expect(outcome.exitCode).toBe(0)
   expect(JSON.parse(child.observed.record ?? 'null')).toEqual({
@@ -219,7 +219,7 @@ it('records the install that repairs a refused installation', async () => {
   const repair = observingResult(dir, 4343)
   command.run.mockImplementation((...call: unknown[]) => {
     const argv = call[1] as readonly string[]
-    return argv.includes('--config.lockfile=false') ? repair as unknown as ReturnType<typeof result> : base(...call)
+    return argv.includes('--config.lockfile=false') ? repair : base(...call)
   })
   const outcome = await runProfilePnpm(context, ['add', 'incompatible'], { execution: 'service', outputBytes: 8192 })
   expect(outcome.exitCode).toBe(1)
@@ -338,7 +338,9 @@ it('asks the registry through pnpm view in the profile directory and reports how
   const answer = (value: object) => command.run.mockResolvedValueOnce(value as never)
   answer({ exitCode: 0, stdout: '{"name":"x"}', stderr: '', timedOut: false, isCanceled: false })
   expect(await viewProfilePackage(dir, 'x@^1', { timeoutMs: 5 })).toEqual({ exitCode: 0, stdout: '{"name":"x"}', stderr: '', timedOut: false })
-  expect(command.run).toHaveBeenLastCalledWith('pnpm', ['view', 'x@^1', 'name', 'version', 'description', 'qilin', '--json'], expect.objectContaining({
+  expect(command.run).toHaveBeenLastCalledWith('pnpm', [
+    'view', 'x@^1', 'name', 'version', 'description', 'qilin', '--json', '--config.fetch-retries=0',
+  ], expect.objectContaining({
     cwd: dir, timeout: 5, reject: false, stdin: 'ignore',
   }))
   expect((command.run.mock.lastCall as unknown[])[2]).not.toHaveProperty('cancelSignal')
@@ -365,7 +367,7 @@ it('uses application-owned executable arguments and environment for package oper
   command.run.mockResolvedValueOnce(Object.assign({ exitCode: 0, failed: false }, { stdout: '{}', stderr: '', timedOut: false }))
   await viewProfilePackage(dir, 'example', { ...runtime, timeoutMs: 1000 })
   expect(command.run).toHaveBeenLastCalledWith(runtime.command,
-    [...runtime.args, 'view', 'example', 'name', 'version', 'description', 'qilin', '--json'],
+    [...runtime.args, 'view', 'example', 'name', 'version', 'description', 'qilin', '--json', '--config.fetch-retries=0'],
     expect.objectContaining({ env: expect.objectContaining(runtime.env) as unknown }))
 })
 

@@ -103,12 +103,18 @@ Manage profile files and apply their declared reload lifecycle.
  */
 @Remote async catalog(query: string, page: number): Promise<CommunityPluginSnapshot>
 
+/** Read the registries this manager asks: the configured first one, its fallbacks in order, and what pnpm's own configuration names.
+ * @returns The registries in pnpm's comparison form; null is the one pnpm's own configuration names, `resolved` as pnpm reads it now.
+ */
+@Remote async registries(): Promise<PluginRegistries>
+
 /** Read what a spec names before installing it.
  * @param spec One package spec: a registry name, an absolute path, a git address, or a tarball.
+ * @param options The registry asked first.
  * @param signal Ends a registry lookup early.
  * @returns The package the spec names, or why it is refused.
  */
-@Remote async inspect(spec: string, signal?: AbortSignal): Promise<PluginSpecInspection>
+@Remote async inspect(spec: string, options?: InspectOptions, signal?: AbortSignal): Promise<PluginSpecInspection>
 
 /** Persist a plugin entry's desired enablement and apply it on live profiles.
  * @param id Loader entry identity returned by listPlugins.
@@ -131,9 +137,9 @@ Manage profile files and apply their declared reload lifecycle.
  * A run that fails, is cancelled, or adds a package without a bundle patch restores
  * `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.
  * @param spec One package spec, including local paths relative to the invocation directory.
- * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names, and
- * the pending build scripts to allow for this profile before pnpm runs.
- * @returns Package-manager diagnostics and observed activation outcome.
+ * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names,
+ * the pending build scripts to allow for this profile before pnpm runs, and the registry asked first.
+ * @returns Package-manager diagnostics, the registries asked, and the observed activation outcome.
  */
 @Remote installBundle(spec: string, options?: InstallBundleOptions): Promise<ChangeResult>
 
@@ -152,6 +158,24 @@ Manage profile files and apply their declared reload lifecycle.
 ```
 
 Source: [`packages/boot/plugin-manager/src/index.ts`](../../packages/boot/plugin-manager/src/index.ts)
+
+<a id="ctxpluginregistryprobe--pluginregistryprobe"></a>
+
+### `ctx.pluginRegistryProbe` — `PluginRegistryProbe`
+
+Compares public registry responses on the Host; the Client owns the initial selection.
+
+```ts cordis-catalog
+/**
+ * Race npm and npmmirror HTTPS ping responses through the Host's fetch proxy.
+ * Concurrent readers share a probe; a winner cancels and awaits the other request.
+ * @returns the first registry with a successful response, or null when disabled or neither responds successfully; results are cached.
+ * @throws rejects when the service has been unloaded.
+ */
+@Remote async fastest(): Promise<string | null>
+```
+
+Source: [`packages/client/ui-plugin-manager/src/index.ts`](../../packages/client/ui-plugin-manager/src/index.ts)
 
 <a id="ctxprofilecontext--profilecontext"></a>
 
@@ -241,13 +265,14 @@ Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin
 
 #### `plugin-manager/install-state` — emit
 
-An installation moved between its Host phases.
+An installation moved between its Host phases. `installing` is announced once per registry the installation asks, with the attempt's registry and position; `cancelling` and `applying` once.
 
 ```ts cordis-catalog
 /**
- * An installation moved between its Host phases.
+ * An installation moved between its Host phases. `installing` is announced once per registry the
+ * installation asks, with the attempt's registry and position; `cancelling` and `applying` once.
  * @mode emit
- * @param progress - the installation's request id and phase.
+ * @param progress - the installation's request id and phase, with the attempt while installing.
  */
 'plugin-manager/install-state'(progress: PluginInstallProgress): void
 ```

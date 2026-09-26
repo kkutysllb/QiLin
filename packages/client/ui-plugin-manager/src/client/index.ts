@@ -31,7 +31,7 @@ export type { PluginManagerPageProps } from './PluginManagerPage.tsx'
 export type { ConfigLedger, OfficialItem } from './config-ledger.ts'
 export type { PluginManagerFace } from './manager-store.ts'
 export type { PluginManagerLocaleKey } from './locales.ts'
-export type { PluginConfigViewProps } from './slot-contract.ts'
+export type { ConfigPageForm, PluginConfigViewProps } from './slot-contract.ts'
 
 declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
@@ -46,8 +46,10 @@ export const NS = 'pluginManager'
 /** Tab key of the management view in the Plugins settings section. */
 export const TAB_ID = 'manage'
 
-/** Services required by the tab registration and the Remote methods; the inventory says whether the Host manages a profile. */
-export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory']
+/** Services required by the tab registration, the Remote methods, and the shared configuration forms. */
+export const inject = [
+  'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
+]
 
 declare module '@qilin/kylin' {
   interface Context {

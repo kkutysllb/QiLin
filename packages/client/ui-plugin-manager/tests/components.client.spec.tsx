@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { PluginEntryId } from '@qilin/api-remotes/client'
+import type { PluginEntryId, PluginRegistries } from '@qilin/api-remotes/client'
 import { bindSnapshotSelector } from '@qilin/client-test-runtime'
 import { createSnapshotStore } from '@qilin/client-store'
 import type { ReactNode } from 'react'
@@ -43,7 +43,8 @@ const incompatibleText = (name = INCOMPATIBLE.name): string => en.reasonIncompat
   .replace('{plugin}', `${name}@2.0.0`).replace('{runtime}', '0.1.0').replace('{peers}', '@qilin/session ^0.2.0, @qilin/tools ^0.2.0')
 
 const IDLE_INSTALL: InstallState = {
-  open: false, spec: '', phase: 'idle', inputError: null, subject: null, runs: [], detailsOpen: false,
+  open: false, spec: '', phase: 'idle', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false,
+  registryError: false, attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
   installed: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
@@ -59,12 +60,19 @@ const READY: PluginManagerState = {
   catalog: { status: 'idle', query: '', page: 1, entries: [], hasMore: false, reason: '' },
 }
 
-/** Configuration entries a test supplies: what each slot cell renders, by `<slot>:<cell>` and the view asked for. */
-type SlotBodies = Record<string, (view: 'summary' | 'page') => ReactNode>
+/** Configuration entries a test supplies: what each slot cell renders, by `<slot>:<cell>`, the view asked for, and its owner props. */
+type SlotBodies = Record<string, (
+  view: 'summary' | 'page',
+  owner: { form?: unknown; onDismiss?: () => void; onOpenDetails?: () => void },
+) => ReactNode>
 
 const NO_CONFIG: ConfigLedger = { items: [], bundles: new Set(), rows: new Set() }
 
-function renderTab(state: Partial<PluginManagerState> = {}, config: Partial<ConfigLedger> = {}, bodies: SlotBodies = {}) {
+function renderTab(
+  state: Partial<PluginManagerState> = {}, config: Partial<ConfigLedger> = {}, bodies: SlotBodies = {},
+  namespaces: readonly { ns: string }[] = [],
+  extra: Partial<PluginManagerPageProps> = {},
+) {
   const store = createSnapshotStore<PluginManagerState>({ ...READY, ...state })
   const ledger = createSnapshotStore<ConfigLedger>({ ...NO_CONFIG, ...config })
   const actions = {
@@ -91,23 +99,280 @@ function renderTab(state: Partial<PluginManagerState> = {}, config: Partial<Conf
     updatePackage: vi.fn(),
     catalog: vi.fn(),
     installCatalogSpec: vi.fn(),
+    toggleRegistryOptions: vi.fn(),
+    chooseRegistry: vi.fn(),
+    changeRegistry: vi.fn(),
+    useGithubMirror: vi.fn(),
   }
+  const configurations = createSnapshotStore<{ view?: { namespaces: readonly { ns: string }[] } }>({ view: { namespaces } })
   const props = {
     t,
     ...actions,
+    configForm: vi.fn(() => ({
+      getSnapshot: () => ({ status: 'ready', value: {}, base: undefined, user: undefined, revision: 1, writable: true, mode: 'host' }),
+      mutate: vi.fn(),
+    })),
+    ...extra,
     usePluginManager: bindSnapshotSelector(store),
     useConfigLedger: bindSnapshotSelector(ledger),
-    renderSlot: (name: string, owner: { view: 'summary' | 'page' }, opts: { only?: string; entryKey?: string }) =>
-      bodies[`${name}:${opts.only ?? opts.entryKey ?? ''}`]?.(owner.view) ?? null,
+    useConfigurations: bindSnapshotSelector(configurations),
+    renderSlot: (name: string, owner: { view: 'summary' | 'page'; form?: unknown }, opts: { only?: string; entryKey?: string }) =>
+      bodies[`${name}:${opts.only ?? opts.entryKey ?? ''}`]?.(owner.view, owner) ?? null,
   } as unknown as PluginManagerPageProps
   const { rerender } = render(<PluginManagerPage {...props} />)
   return {
     store,
     actions,
+    configForm: props.configForm as unknown as ReturnType<typeof vi.fn>,
     set: (next: Partial<PluginManagerState>) => { act(() => { store.set({ ...store.getSnapshot(), ...next }) }) },
     setLanguage: (dict: typeof en) => { rerender(<PluginManagerPage {...props} t={translate(dict)} />) },
   }
 }
+
+
+describe('PluginManagerPage registry choice', () => {
+  const MIRROR = 'https://registry.npmmirror.com/'
+  const OFFICIAL = 'https://registry.npmjs.org/'
+  const REGISTRIES: PluginRegistries = { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL }
+  const GIT_SUBJECT = { spec: 'github:acme/qilin-x', status: 'accepted' as const, kind: 'git' as const, bundle: null, registry: null as string | null, host: 'github.com' }
+
+  it('offers the registries under the spec, picks one, and refuses a typed address that is not http(s)', () => {
+    const { actions, set } = renderTab({ install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES } })
+    // The picker names the registry pnpm's own configuration falls back on.
+    const toggle = () => screen.getByRole('button', { name: new RegExp(en.registryToggle) })
+    // pnpm's own entry reads by the registry it names once the Host has read it.
+    expect(toggle().textContent).toContain(en.registryOfficial)
+    fireEvent.click(toggle())
+    expect(actions.toggleRegistryOptions).toHaveBeenCalledTimes(1)
+    set({ install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES, registryOpen: true } })
+    const panel = document.querySelector('[data-install-registry]') as HTMLElement
+    expect(panel.getAttribute('aria-label')).toBe(en.registryLegend)
+    const option = (name: string, host: string) => en.registryWithHost.replace('{name}', name).replace('{host}', host)
+    expect(within(panel).getByLabelText(option(en.registryOfficial, 'registry.npmjs.org'))).toBeTruthy()
+    expect(within(panel).getByLabelText(option(en.registryNpmmirror, 'registry.npmmirror.com'))).toBeTruthy()
+    expect(within(panel).getByText(en.registryCustomHint)).toBeTruthy()
+    fireEvent.click(within(panel).getByLabelText(option(en.registryNpmmirror, 'registry.npmmirror.com')))
+    expect(actions.chooseRegistry).toHaveBeenCalledWith({ kind: 'offered', registry: MIRROR })
+    fireEvent.click(within(panel).getAllByLabelText(en.registryCustom)[0]!)
+    expect(actions.chooseRegistry).toHaveBeenCalledWith({ kind: 'custom', url: '' })
+    // The typed field carries what was chosen, and its refusal is announced under it.
+    set({ install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES, registryOpen: true, registry: { kind: 'custom', url: 'npm.corp.example' }, registryError: true } })
+    const field = screen.getAllByLabelText(en.registryCustom)[1] as HTMLInputElement
+    expect(field.value).toBe('npm.corp.example')
+    expect(field.getAttribute('aria-invalid')).toBe('true')
+    expect(screen.getByRole('alert').textContent).toBe(en.registryCustomInvalid)
+    fireEvent.change(field, { target: { value: 'https://npm.corp.example' } })
+    expect(actions.chooseRegistry).toHaveBeenCalledWith({ kind: 'custom', url: 'https://npm.corp.example' })
+    // A chosen mirror reads by name in the picker.
+    set({ install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES, registry: { kind: 'offered', registry: MIRROR } } })
+    expect(toggle().textContent).toContain(en.registryNpmmirror)
+  })
+
+  it('labels a spec reopened from a GitHub mirror recovery as the package name', () => {
+    renderTab({ install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES, mirrorRecovery: true } })
+    expect(screen.getByText(en.installPackageLabel)).toBeTruthy()
+    expect(screen.queryByText(en.installDescription)).toBeNull()
+  })
+
+  it('words a check no registry answered with every registry it asked', () => {
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'qilin-x',
+        inputError: { problem: 'network', reason: 'offline', registries: [null, MIRROR] },
+      },
+    })
+    expect(screen.getByRole('alert').textContent)
+      .toBe(en.installProblemNetworkAll.replace('{registries}', `${en.registryOfficial}${en.registryListSeparator}${en.registryNpmmirror}`))
+  })
+
+  it('names the registry each attempt asks while installing, and words a failure all of them explain', () => {
+    const run = { jobId: 'j1', command: 'pnpm add fallen', cwd: '/p', output: 'x\n' }
+    const { set } = renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'fallen', phase: 'running', subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        runs: [run], attempts: { registries: [null, MIRROR], total: 2 },
+      },
+    })
+    expect(screen.getByText(en.installAttempt.replace('{previous}', en.registryOfficial).replace('{registry}', en.registryNpmmirror).replace('{index}', '2').replace('{total}', '2'))).toBeTruthy()
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'fallen', phase: 'failed', detailsOpen: true,
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        runs: [{ ...run, exitCode: 1 }, { jobId: 'j2', command: 'pnpm add fallen --registry=mirror', cwd: '/p', output: 'y\n', exitCode: 1 }],
+        attempts: { registries: [null, MIRROR], total: 2 },
+        failure: { reason: 'ERR', kind: 'network', failedAt: 'registry' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetworkAll.replace('{registries}', `${en.registryOfficial}${en.registryListSeparator}${en.registryNpmmirror}`))).toBeTruthy()
+    expect(screen.getByText(en.installAttemptBadge.replace('{index}', '1').replace('{registry}', en.registryOfficial))).toBeTruthy()
+    expect(screen.getByText(en.installAttemptBadge.replace('{index}', '2').replace('{registry}', en.registryNpmmirror))).toBeTruthy()
+  })
+
+  it('offers another registry, or the mainland mirror, from the failed screen', () => {
+    const { actions, set } = renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'fallen', phase: 'failed',
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        attempts: { registries: [null, MIRROR], total: 2 },
+        failure: { reason: 'ERR', kind: 'network', failedAt: 'registry' },
+      },
+    })
+    fireEvent.click(screen.getByRole('button', { name: en.installChangeRegistry }))
+    expect(actions.changeRegistry).toHaveBeenCalledTimes(1)
+    // A GitHub connection failure offered the mirror instead of a plain retry.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'github:acme/qilin-x', phase: 'failed',
+        subject: GIT_SUBJECT, failure: { reason: 'unreachable', kind: 'network', failedAt: 'spec-host' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetworkHost.replace('{host}', 'github.com'))).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: en.installUseGithubMirror }))
+    expect(actions.useGithubMirror).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('button', { name: en.installRetry })).toBeNull()
+    // The mirror is already asked: the action reads as the way to another kind of spec.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'github:acme/qilin-x', phase: 'failed',
+        registry: { kind: 'custom', url: MIRROR }, subject: GIT_SUBJECT,
+        failure: { reason: 'unreachable', kind: 'timeout', failedAt: 'spec-host' },
+      },
+    })
+    expect(screen.getByRole('button', { name: en.installTryAnotherWay })).toBeTruthy()
+  })
+
+
+  it('names a registry whose host is its only name, and words a one-registry failure by its kind', () => {
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, registryOpen: true, registries: { registry: 'https://npm.corp.example/', fallbackRegistries: [], resolved: OFFICIAL },
+        registry: { kind: 'offered', registry: 'https://npm.corp.example/' },
+      },
+    })
+    const panel = document.querySelector('[data-install-registry]') as HTMLElement
+    // The host is the name: no parenthesized host is repeated beside it.
+    expect(within(panel).getByLabelText('npm.corp.example')).toBeTruthy()
+    cleanup()
+    // A failure no registry answered for reads by its kind alone.
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, registries: REGISTRIES, spec: 'fallen', phase: 'failed',
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        failure: { reason: 'ERR', kind: 'network', failedAt: 'registry' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetwork)).toBeTruthy()
+  })
+
+  it('submits the typed registry on Enter and edits it as it is typed', () => {
+    const { actions, set } = renderTab({
+      install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES, registryOpen: true, spec: 'qilin-x', registry: { kind: 'custom', url: 'https://npm.corp.example' } },
+    })
+    const field = screen.getAllByLabelText(en.registryCustom)[1] as HTMLInputElement
+    fireEvent.keyDown(field, { key: 'Enter' })
+    expect(actions.runInstall).toHaveBeenCalledTimes(1)
+    fireEvent.keyDown(field, { key: 'a' })
+    expect(actions.runInstall).toHaveBeenCalledTimes(1)
+    set({ install: { ...IDLE_INSTALL, open: true, registries: REGISTRIES, registryOpen: true, registry: { kind: 'custom', url: '' } } })
+    fireEvent.keyDown(screen.getAllByLabelText(en.registryCustom)[1]!, { key: 'Enter' })
+    expect(actions.runInstall).toHaveBeenCalledTimes(1)
+  })
+
+
+  it('offers activation guidance from the card switch and routes both of its actions', () => {
+    const bodies: SlotBodies = {
+      'plugins.bundle.activation:qilin-off': (_view: 'summary' | 'page', owner) => (
+        <>
+          <button type="button" onClick={() => { owner.onDismiss?.() }}>dismiss guidance</button>
+          <button type="button" onClick={() => { owner.onOpenDetails?.() }}>open guidance</button>
+        </>
+      ),
+    }
+    const rendered = renderTab({ packages: [pkg({ name: 'qilin-off', enabled: false })] }, {}, bodies)
+    fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', 'off') }))
+    // The Host's read turns the bundle on; the guidance then shows over the cards.
+    act(() => { rendered.set({ packages: [pkg({ name: 'qilin-off', enabled: true })] }) })
+    fireEvent.click(screen.getByRole('button', { name: 'dismiss guidance' }))
+    expect(screen.queryByRole('button', { name: 'dismiss guidance' })).toBeNull()
+    // Disabling a bundle offers nothing; enabling again opens its page from the guidance.
+    fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', 'off') }))
+    act(() => { rendered.set({ packages: [pkg({ name: 'qilin-off', enabled: false })] }) })
+    expect(screen.queryByRole('button', { name: 'dismiss guidance' })).toBeNull()
+    fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', 'off') }))
+    act(() => { rendered.set({ packages: [pkg({ name: 'qilin-off', enabled: true })] }) })
+    fireEvent.click(screen.getByRole('button', { name: 'open guidance' }))
+    expect(document.querySelector('[data-plugin-detail="qilin-off"]')).toBeTruthy()
+  })
+
+  it('words a failure that asked one registry, and one whose Host list was never read', () => {
+    // Every registry failed, and the Host never listed them: the names fall back to the entries' defaults.
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'fallen', phase: 'failed', registries: null,
+        attempts: { registries: [null, MIRROR], total: 2 },
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        failure: { reason: 'ERR', kind: 'network', failedAt: 'registry' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetworkAll.replace('{registries}', `${en.registryDefault}${en.registryListSeparator}${en.registryNpmmirror}`))).toBeTruthy()
+    cleanup()
+    // A registry that never answered reads the same way, and one registry asked is not an
+    // "every registry" sentence.
+    cleanup()
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'fallen', phase: 'failed', registries: REGISTRIES,
+        attempts: { registries: [null, MIRROR], total: 2 },
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        failure: { reason: 'ERR', kind: 'timeout', failedAt: 'registry' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetworkAll.replace('{registries}', `${en.registryOfficial}${en.registryListSeparator}${en.registryNpmmirror}`))).toBeTruthy()
+    cleanup()
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'fallen', phase: 'failed',
+        attempts: { registries: [null], total: 1 },
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        failure: { reason: 'ERR', kind: 'network', failedAt: 'registry' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetwork)).toBeTruthy()
+  })
+
+  it('words a failure no attempt list explains by its kind', () => {
+    renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'fallen', phase: 'failed',
+        subject: { spec: 'fallen', status: 'accepted', kind: 'registry', name: 'fallen', bundle: true, registry: null },
+        failure: { reason: 'ERR', kind: 'network', failedAt: 'registry' },
+      },
+    })
+    expect(screen.getByText(en.installFailureNetwork)).toBeTruthy()
+  })
+
+  it('reveals a bundle through the navigation channel the tab registers', () => {
+    const registerOpen = vi.fn()
+    renderTab({ packages: [pkg()] }, {}, {}, [], { registerOpen })
+    // The channel's reveal opens the bundle's page; an unknown name falls back to the cards.
+    const reveal = registerOpen.mock.calls[0]![0] as (name: string) => void
+    act(() => { reveal('qilin-better-sidebar') })
+    expect(document.querySelector('[data-plugin-detail="qilin-better-sidebar"]')).toBeTruthy()
+  })
+
+  it('hands a contributed page the shared configuration form only for a namespace the Host serves', () => {
+    const bodies: SlotBodies = { 'plugins.item:bash': (_view: 'summary' | 'page', owner) => owner.form === undefined ? null : <form aria-label="shared form" /> }
+    const served = renderTab({ packages: [] }, { items: [{ id: 'bash', label: 'Shell' }] }, bodies, [{ ns: 'bash' }])
+    fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Shell') }))
+    expect(screen.getByRole('form', { name: 'shared form' })).toBeTruthy()
+    expect(served.configForm).toHaveBeenCalledWith('bash')
+    cleanup()
+    // A namespace the Host does not serve leaves the contribution without a form.
+    renderTab({ packages: [] }, { items: [{ id: 'bash', label: 'Shell' }] }, bodies)
+    fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Shell') }))
+    expect(screen.queryByRole('form', { name: 'shared form' })).toBeNull()
+  })
+})
 
 describe('PluginManagerPage', () => {
   it('asks the store once mounted and renders the loading, unavailable, error, and empty states', () => {
@@ -480,7 +745,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('shows the subject while installing, folds the pnpm output behind the details, and stops through the Host', () => {
-    const subject = { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', version: '1.4.2', description: 'A sidebar.', bundle: true } as const
+    const subject = { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', version: '1.4.2', description: 'A sidebar.', bundle: true, registry: null } as const
     const run = { jobId: 'j1', command: 'pnpm add qilin-x', cwd: '/home/u/.qilin/profiles/web', output: 'Progress: resolved \x1b[96m1\x1b[39m\n' }
     const { actions, set } = renderTab({ install: { ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'running', subject, runs: [run] } })
     expect(screen.getByRole('status').textContent).toBe(en.installingTitle)
@@ -523,7 +788,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('waits with the Host through starting, stopping, and applying, and words an unconfirmed stop', () => {
-    const subject = { spec: 'slow', status: 'accepted', kind: 'registry', name: 'slow', bundle: true } as const
+    const subject = { spec: 'slow', status: 'accepted', kind: 'registry', name: 'slow', bundle: true, registry: null } as const
     const { actions, set } = renderTab({ install: { ...IDLE_INSTALL, open: true, spec: 'slow', phase: 'starting', subject } })
     // Before the Host acknowledges the run there is nothing to stop: cancel, back, and close all wait.
     expect(screen.getByRole('status').textContent).toBe(en.installStarting)
@@ -554,7 +819,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('offers to enable what a finished install added, and says when it waits for a restart', () => {
-    const subject = { spec: '/plugins/qilin-x', status: 'accepted', kind: 'path', name: 'qilin-x', bundle: true } as const
+    const subject = { spec: '/plugins/qilin-x', status: 'accepted', kind: 'path', name: 'qilin-x', bundle: true, registry: null } as const
     const { actions, set } = renderTab({
       install: {
         ...IDLE_INSTALL,
@@ -580,7 +845,7 @@ describe('PluginManagerPage', () => {
     expect(screen.getByText(en.installDoneRestart)).toBeTruthy()
 
     // A run that named no bundle leaves only Done.
-    set({ install: { ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'done', subject: { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', bundle: true } } })
+    set({ install: { ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'done', subject: { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', bundle: true, registry: null } } })
     expect(screen.getByText(en.installDoneNothing)).toBeTruthy()
     expect(screen.queryByRole('button', { name: en.installEnableNow })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: en.installClose }))
@@ -588,7 +853,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('asks to allow the scripts a blocked install left pending, retries with them, and says what was allowed', () => {
-    const subject = { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', bundle: true } as const
+    const subject = { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', bundle: true, registry: null } as const
     const { actions, set } = renderTab({
       install: {
         ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'failed', subject,
@@ -615,7 +880,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('words a failed install by its kind, else in the Host\'s words, and retries it', () => {
-    const subject = { spec: 'github:a/b', status: 'accepted', kind: 'git', bundle: null } as const
+    const subject = { spec: 'github:a/b', status: 'accepted', kind: 'git', bundle: null, registry: null } as const
     const { actions, set } = renderTab({
       install: {
         ...IDLE_INSTALL,
@@ -667,7 +932,7 @@ describe('PluginManagerPage', () => {
     set({ install: { ...IDLE_INSTALL, open: true, spec: 'x', phase: 'failed', failure: null } })
     expect(screen.getByText(en.installFailureGeneric)).toBeTruthy()
     // A tarball spec reads by its kind too.
-    set({ install: { ...IDLE_INSTALL, open: true, spec: '/p/x.tgz', phase: 'failed', subject: { spec: '/p/x.tgz', status: 'accepted', kind: 'tarball', bundle: null }, failure: null } })
+    set({ install: { ...IDLE_INSTALL, open: true, spec: '/p/x.tgz', phase: 'failed', subject: { spec: '/p/x.tgz', status: 'accepted', kind: 'tarball', bundle: null, registry: null }, failure: null } })
     expect(screen.getByText(en.installSubjectTarball)).toBeTruthy()
   })
 

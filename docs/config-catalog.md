@@ -531,6 +531,26 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin/client-shortcuts -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin/client-ui-plugin-manager -->
+<a id="qilinclient-ui-plugin-manager"></a>
+
+## `@qilin/client-ui-plugin-manager`
+
+- `source`: [`packages/client/ui-plugin-manager/src/index.ts:15`](../packages/client/ui-plugin-manager/src/index.ts)
+
+```ts config-catalog
+/** Registry-probe deadline and process-local cache policy. */
+export interface Config {
+  /** Whether the dialog can compare the public npm registries. */
+  registryProbeEnabled: boolean
+  /** Deadline for the parallel HTTPS probes, including response cleanup. */
+  registryProbeTimeoutMs: number
+  /** Lifetime of a winning registry or unavailable result. */
+  registryProbeCacheTtlMs: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin/client-ui-plugin-manager -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin/client-ui-sidebar-documentpreview -->
 <a id="qilinclient-ui-sidebar-documentpreview"></a>
 
@@ -2068,7 +2088,7 @@ export interface PlanModeConfig {
 ## `@qilin/plugin-manager`
 
 - `inject`: `loader` · `profileContext`
-- `source`: [`packages/boot/plugin-manager/src/index.ts:37`](../packages/boot/plugin-manager/src/index.ts)
+- `source`: [`packages/boot/plugin-manager/src/index.ts:40`](../packages/boot/plugin-manager/src/index.ts)
 
 ```ts config-catalog
 /** The pnpm executable and the limits for package diagnostics and registry lookups. */
@@ -2083,6 +2103,14 @@ export interface Config {
   inspectTimeoutMs?: number
   /** Maximum duration of the GitHub repository connection check before installation, in milliseconds. */
   githubConnectionTimeoutMs?: number
+  /** The registry lookups and installations ask first, as an http(s) URL; absent, the one pnpm's own configuration names. */
+  registry?: string
+  /**
+   * Registries asked in turn, as http(s) URLs, while the one before is unreachable or holds no copy of the package.
+   * A registry outside this set and `registry` is asked alone, and so is the one pnpm's own configuration names
+   * unless that is npm's own registry or one of these.
+   */
+  fallbackRegistries?: string[]
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/plugin-manager -->
@@ -4147,7 +4175,6 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin/client-ui-open-in-app` | — | [`packages/client/ui-open-in-app/src/index.ts`](../packages/client/ui-open-in-app/src/index.ts) |
 | `@qilin/client-ui-permission-presets` | — | [`packages/client/ui-permission-presets/src/index.ts`](../packages/client/ui-permission-presets/src/index.ts) |
 | `@qilin/client-ui-plan` | — | [`packages/client/ui-plan/src/index.ts`](../packages/client/ui-plan/src/index.ts) |
-| `@qilin/client-ui-plugin-manager` | — | [`packages/client/ui-plugin-manager/src/index.ts`](../packages/client/ui-plugin-manager/src/index.ts) |
 | `@qilin/client-ui-reference` | — | [`packages/client/ui-reference/src/index.ts`](../packages/client/ui-reference/src/index.ts) |
 | `@qilin/client-ui-renderer` | — | [`packages/client/ui-renderer/src/index.ts`](../packages/client/ui-renderer/src/index.ts) |
 | `@qilin/client-ui-schedule` | — | [`packages/client/ui-schedule/src/index.ts`](../packages/client/ui-schedule/src/index.ts) |
