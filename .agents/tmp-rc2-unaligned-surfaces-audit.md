@@ -530,7 +530,7 @@ agent-preset-authoring、approval-composer、background-job-list、bash-abort-ro
 
 | 组 | 文件 | 根因 | 处置 |
 |---|---|---|---|
-| 组装态夹具与桩 | built-boot、command-image-envelope、home-path-tilde、image-display、max-tokens-notice、search-card、todo-row、trajectory-image-display、submission-echo | ① fixture 的 workspace baseline 缺 `pinnedSessionIds` → `replaceBaseline` 抛错半途中断，界面静默降级成「Ungrouped」；② RemoteMock 缺 `session/projections`、`job/list` 两个通道；③ jsdom 无 `document.fonts`，`observeControlRow` 直接解引用导致 InputBar 整块不渲染 | 补夹具字段、两个 mock 通道、`document.fonts` 桩（提交 `f37307fa9d`） |
+| 组装态夹具与桩 | built-boot、command-image-envelope、home-path-tilde、image-display、max-tokens-notice、search-card、todo-row、trajectory-image-display、submission-echo | ① fixture 的 workspace baseline 缺 `pinnedSessionIds` → `replaceBaseline` 抛错半途中断，界面静默降级成「Ungrouped」；② RemoteMock 缺 `session/projections`、`job/list` 两个通道；③ jsdom 无 `document.fonts`，`observeControlRow` 直接解引用导致 InputBar 整块不渲染 | 补夹具字段、两个 mock 通道、`document.fonts` 桩（提交 subject：`fix+test(web): 组装态夹具补 pinned/projections/job-list 并补 document.fonts 桩`） |
 | 过程分组可见性 | bash-abort-row、minimal-preset、workflow-run、clickable-links-gallery | C2 把过程行放进默认折叠的组 seat，旧断言/定位前提失效 | 先 `expandTurnProcesses` 再断言；workflow-run 的 `/^Run/` 与 run 行撞名，改按 `[data-workflow-run] [data-disclosure-row]` 取 phase 行 |
 | 探针量错元素 | window-drag-coverage | 拖拽标记在**外层常驻 header**，探针取的是内层 session header（批次三新增 leading 席位后两者高度不同） | 改用 `header[data-window-drag]` 矩形 |
 | golden 落后 | 33 个 golden 文件（agent-preset-authoring、background-job-list、github-ready-review、goal-multi-turn-actions、markdown-\*、math-rendering、queue-\*、streaming-fence-highlight、voice-input、workflow-run…） | 基线都拍在 C2 过程行 / 批次三头部改版 / Step A 状态-时长标题 / Step B 图标去噪落地之前 | 定向 refresh，差异逐类可解释（新增过程行与 status、移除已删的头标签页、图标离开可访问性树） |
@@ -545,7 +545,7 @@ agent-preset-authoring、approval-composer、background-job-list、bash-abort-ro
 残留测量（本步开始时 460 条 / 32 文件）→ **0 条 / 0 文件**。结论与证据：460 条里
 458 条其实是波① golden 收敛时顺带清掉的陈旧基线，真正剩下的只有文档预览里
 `Line wrap` 按钮内的两个自有图元（IconNowrapFill16 / IconWrapFill16）——已补
-`aria-hidden="true"`（git `4a2310c9bf`）。逐文件与上游 rc.2 比对后**不动**：
+`aria-hidden="true"`（提交 subject：`fix+test(web): 文档预览换行图元补 aria-hidden，最后 2 条裸 - img 清零`）。逐文件与上游 rc.2 比对后**不动**：
 `code-file-icon-artwork.ts`（15 个 svg）与 `DropOverlay.tsx`（2 个）上游同样没有
 aria-hidden；`ui-trajectory` 的轨迹画布是 `role="img" + aria-label`，属有意保留的
 可访问名。
