@@ -60,10 +60,10 @@ const NS = 'settings'
  * Required services (cordis fiber inject). The target slots are declared by
  * ui-settings' apply, whose activation order relative to this one is NOT
  * constrained; registrations depend on their slots through `slots.inject()`.
- * `settingsScope` serves the local-document availability mirror and
- * `developerTools` the shared coding-tools preference.
+ * `configForms` serves the local-document availability mirror and the
+ * shared coding-tools preference.
  */
-export const inject = ['slots', 'locale', 'connection', 'shortcuts', 'remote', 'remote.settings', 'settingsScope', 'developerTools']
+export const inject = ['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts']
 
 /**
  * Register the `settings` dictionaries, the chrome content, and the General
@@ -74,8 +74,8 @@ export function apply(ctx: ClientContext): void {
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
     name: 'settings.general.item', id: 'developer-tools', order: 15, locale: NS,
     inject: (): DeveloperToolsRowInjected => ({
-      hooks: { developerTools: ctx.developerTools.enabled },
-      setEnabled: enabled => ctx.developerTools.setEnabled(enabled),
+      hooks: { developerTools: ctx.configForms.developerTools.enabled },
+      setEnabled: enabled => ctx.configForms.developerTools.setEnabled(enabled),
     }),
   }, DeveloperToolsRow))
   // Last row: every feature-registered preference row orders below 100.
@@ -87,7 +87,7 @@ export function apply(ctx: ClientContext): void {
 
   // The shared ConfigForm mirror updates after document commits and reconnects.
   const documentController = ctx.remote.$host.isLoopback
-    ? new SettingsDocumentStore(ctx, ctx.settingsScope.describe())
+    ? new SettingsDocumentStore(ctx, ctx.configForms.describe())
     : undefined
   ctx.effect(() => () => { documentController?.dispose() }, 'ui-settings-general: document action directory')
   if (documentController !== undefined) {

@@ -38,7 +38,7 @@ async function boot() {
   const rt = await SlotTestRuntime.create()
   runtime = rt
   rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn() } as never)
-  rt.ctx.provide('developerTools', { enabled: createSnapshotStore(true) } as never)
+  rt.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) } } as never)
   // The retained Session Views follow the Workspace UI's main selection.
   rt.ctx.provide('uiWorkspace', {
     selection: {

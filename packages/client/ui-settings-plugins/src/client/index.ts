@@ -12,7 +12,7 @@
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin/client-locale/client'
 // Type-only: the settings shell's SlotMap merge (the 'settings.section' entry)
-// and the ctx.settingsScope Context merge. Cross-plugin collaboration goes
+// and the ctx.configForms Context merge. Cross-plugin collaboration goes
 // through the service, never a value import (client bundle purity gate).
 import type {} from '@qilin/client-ui-settings/client'
 // Type-only: the Plugins page's SlotMap merge (the 'plugins.item' entry).
@@ -53,7 +53,7 @@ const NS = 'settings.plugins'
 
 /** Required services (cordis fiber inject). */
 export const inject = [
-  'slots', 'locale', 'remote', 'remote.credentials', 'remote.session', 'settingsScope',
+  'slots', 'locale', 'remote', 'remote.credentials', 'remote.session', 'configForms',
 ]
 
 /**
@@ -64,13 +64,13 @@ export function apply(ctx: ClientContext): void {
   const t = ctx.locale.bind(NS)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-plugins: section dictionaries')
 
-  const bash = new BashCardController(ctx.settingsScope.bind({ namespace: SHELL_NS }))
-  const agentLoop = new AgentLoopCardController(ctx.settingsScope.bind({ namespace: AGENT_LOOP_NS }))
+  const bash = new BashCardController(ctx.configForms.get(SHELL_NS))
+  const agentLoop = new AgentLoopCardController(ctx.configForms.get(AGENT_LOOP_NS))
   const webSearch = new WebSearchCardController(
-    ctx.settingsScope.bind({ namespace: WEB_SEARCH_NS }), ctx)
-  const subagentLimits = new SubagentLimitsCardController(ctx.settingsScope.bind({ namespace: 'subagent' }))
+    ctx.configForms.get(WEB_SEARCH_NS), ctx)
+  const subagentLimits = new SubagentLimitsCardController(ctx.configForms.get('subagent'))
   const subagentModelSelection = new SubagentModelSelectionCardController(
-    ctx.settingsScope.bind({ namespace: SUBAGENT_MODEL_SELECTION_NS }),
+    ctx.configForms.get(SUBAGENT_MODEL_SELECTION_NS),
     ctx,
   )
   const subagentLimitsFace = subagentLimits.inject()
@@ -120,31 +120,10 @@ export function apply(ctx: ClientContext): void {
       name: 'plugins.item', id: 'web-search', order: 40, label: () => t('webSearchTitle'), locale: NS, inject: () => webSearch.inject(),
     }, WebSearchCard))],
   ]
-  // The shared SettingsScope mirror updates after document commits and reconnects.
-  const describeFace = ctx.settingsScope.describe()
   ctx.effect(() => {
-    const registered = new Map<string, () => void>()
-    const sync = (): void => {
-      const served = new Set(describeFace.getSnapshot().view?.namespaces.map(view => view.ns) ?? [])
-      for (const [namespaces, register] of pages) {
-        const namespace = namespaces[0]
-        const available = namespaces.some(namespace => served.has(namespace))
-        const off = registered.get(namespace)
-        if (available && off === undefined) registered.set(namespace, register())
-        else if (!available && off !== undefined) {
-          off()
-          registered.delete(namespace)
-        }
-      }
-    }
-    const unsubscribe = describeFace.subscribe(sync)
-    void describeFace.ensure()
-    sync()
-    return () => {
-      unsubscribe()
-      for (const off of registered.values()) off()
-      registered.clear()
-    }
+    const offs = pages.map(([namespaces, register]) =>
+      ctx.configForms.whileServed([...namespaces], () => register()))
+    return () => { for (const off of offs) off() }
   }, 'ui-settings-plugins: configuration pages')
 
   let tabsVersion = -1

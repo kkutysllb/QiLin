@@ -47,7 +47,7 @@ export function apply(ctx: Context, config: Config) {
 
 ## 2. Register the card (browser half)
 
-The card registers into `settings.plugin.item` under its namespace and owns everything inside it — chrome, controls, and copy. It reads and writes through `ctx.settingsScope`, which fences each write with the revision it read:
+The card registers into `settings.plugin.item` under its namespace and owns everything inside it — chrome, controls, and copy. It reads and writes through `ctx.configForms`, which fences each write with the revision it read:
 
 ```ts ignore-check
 import type { Context as ClientContext } from '@qilin/kylin'
@@ -55,10 +55,10 @@ import type { Context as ClientContext } from '@qilin/kylin'
 // through cordis services; a value import fails the client bundle-purity gate.
 import type {} from '@qilin/client-ui-settings-plugins/client'
 
-export const inject = ['slots', 'locale', 'connection', 'remote', 'settingsScope']
+export const inject = ['slots', 'locale', 'connection', 'remote', 'configForms']
 
 export function apply(ctx: ClientContext): void {
-  const card = new MyPluginCardController(ctx.settingsScope.bind({ namespace: 'my-plugin' }))
+  const card = new MyPluginCardController(ctx.configForms.get('my-plugin'))
   ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
     name: 'settings.plugin.item',
     key: 'my-plugin',
@@ -69,7 +69,7 @@ export function apply(ctx: ClientContext): void {
 }
 ```
 
-The scope snapshot carries what a form needs: the resolved `value`, the composition `base`, and the raw `user` layer, whose key **presence** — not its value — is what marks a field overridden. `scope.set(field, value)` stores one field and `scope.unset(field)` clears it back to the composition layer.
+The form snapshot carries what a card needs: the resolved `value`, the composition `base`, and the raw `user` layer, whose key **presence** — not its value — is what marks a field overridden. `form.set(field, value)` stores one field and `form.unset(field)` clears it back to the composition layer.
 
 ## 3. What the tab does with it
 

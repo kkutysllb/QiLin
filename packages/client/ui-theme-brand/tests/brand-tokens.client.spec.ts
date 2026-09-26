@@ -8,7 +8,7 @@
 import { Context } from '@qilin/kylin'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { stubSettingsScope } from '@qilin/client-test-runtime'
+import { stubConfigForm } from '@qilin/client-test-runtime'
 import { ThemeRuntime } from '@qilin/client-ui-theme/client'
 import type { ThemeSettings } from '@qilin/client-ui-theme/client'
 import { describe, expect, it } from 'vitest'
@@ -37,7 +37,7 @@ const SEAL_STOPS = [...readFileSync(
  */
 function bench() {
   const ctx = new Context()
-  const theme = new ThemeRuntime(ctx, stubSettingsScope<ThemeSettings>().scope)
+  const theme = new ThemeRuntime(ctx, stubConfigForm<ThemeSettings>().scope)
   ctx.provide('theme', theme)
   return { ctx, theme }
 }

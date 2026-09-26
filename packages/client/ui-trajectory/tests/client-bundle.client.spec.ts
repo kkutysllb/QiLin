@@ -9,7 +9,8 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Context } from '@qilin/kylin'
-import { stubSettingsScope } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
+import { stubConfigForm } from '@qilin/client-test-runtime'
 import { afterEach, describe, expect, it } from 'vitest'
 import { UiConversation } from '@qilin/client-ui-conversation/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
@@ -102,7 +103,7 @@ describe('tsdown client artifact', () => {
     const { events, views } = uiConversation
     ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
     ctx.provide('remote', { $on: () => () => {} } as never)
-    ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+    ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
     const locale = await import('@qilin/client-locale/client')
     ctx.plugin({ inject: [...locale.inject], apply: locale.apply })
     const fiber = ctx.plugin(exports as { apply: (ctx: Context) => void })

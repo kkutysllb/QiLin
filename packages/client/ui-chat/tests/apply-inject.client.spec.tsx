@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 /** Chat inject factories exercised over independently mounted Conversation and Chat plugins. */
 import { describe, expect, it, vi } from 'vitest'
+import { createSnapshotStore } from '@qilin/client-store'
 import { AttachmentId } from '@qilin/attachment'
 import type { ISession, SessionReference } from '@qilin/api-session-controller/client'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import {
-  SlotTestRuntime, stubSettingsScope, usePinnedBrowserLanguages,
+  SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
 } from '@qilin/client-test-runtime'
 import type { SessionBehaviorOverrides } from '@qilin/client-test-runtime'
 import type { ClientRemote } from '@qilin/api-remotes/client'
@@ -48,7 +49,7 @@ function sessionFakeFor() {
 
 async function bench() {
   const runtime = await SlotTestRuntime.create()
-  runtime.ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   const layout = { closeRightbar: vi.fn(), openRightbar: vi.fn() }
   runtime.ctx.provide('layout', layout as never)
   const sidebarRight = {

@@ -1,7 +1,7 @@
 /** The shell card's staged form over the `bash` settings namespace. */
 
 import type { SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin/client-ui-settings/client'
 import { CardForm, numberField, type CardActions, type CardFieldState, type CardShell } from './card-form.ts'
 
 /**
@@ -41,7 +41,7 @@ export class BashCardController {
   private readonly store: SnapshotStore<BashCardState>
 
   /** @param scope - the bound settings scope for the `bash` namespace. */
-  constructor(scope: SettingsScope<BashSettings>) {
+  constructor(scope: ConfigForm<BashSettings>) {
     this.form = new CardForm(scope, [numberField('timeoutMs'), numberField('maxOutputBytes')])
     this.store = this.form.bind(() => this.projection())
   }

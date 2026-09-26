@@ -5,7 +5,7 @@
  * the General section shows are one fact.
  */
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin/client-ui-settings/client'
 import {
   CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_FIELD, CONTENT_WIDTH_MAX, CONTENT_WIDTH_MIN,
   DEFAULT_CONTENT_WIDTH,
@@ -51,7 +51,7 @@ function widthOverridden(user: unknown): boolean {
 export class ConversationLayoutPolicy {
   /** Reactive width source for the shell and the Settings row. */
   readonly contentWidth: SnapshotStore<number> = createSnapshotStore<number>(DEFAULT_CONTENT_WIDTH)
-  private readonly host: SettingsScope<ConversationSettings> | undefined
+  private readonly host: ConfigForm<ConversationSettings> | undefined
   /** Width carried from pre-durable storage, awaiting its first Host view. */
   private pendingSeed: number | null = null
 
@@ -60,7 +60,7 @@ export class ConversationLayoutPolicy {
    * compositions stay process-local. The adoption subscription shares the
    * scope's plugin lifetime, so a disposed scope never publishes again.
    */
-  constructor(host?: SettingsScope<ConversationSettings>) {
+  constructor(host?: ConfigForm<ConversationSettings>) {
     this.host = host
     const legacy = takeLegacyWidth()
     if (legacy !== null) {
@@ -96,7 +96,7 @@ export class ConversationLayoutPolicy {
    * the carried pre-durable preference still awaits its first Host view.
    * @param host - the constructor-narrowed scope driving this adoption.
    */
-  private adopt(host: SettingsScope<ConversationSettings>): void {
+  private adopt(host: ConfigForm<ConversationSettings>): void {
     const snapshot = host.getSnapshot()
     const section = snapshot.value
     if (section === undefined) return

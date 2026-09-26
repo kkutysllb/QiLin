@@ -73,7 +73,7 @@ describe('ui-settings-plugins apply', () => {
 
   it('declares the services it uses', () => {
     expect(inject).toEqual([
-      'slots', 'locale', 'remote', 'remote.credentials', 'remote.session', 'settingsScope',
+      'slots', 'locale', 'remote', 'remote.credentials', 'remote.session', 'configForms',
     ])
   })
 
@@ -156,7 +156,7 @@ describe('ui-settings-plugins apply', () => {
       })
       remote.emit('settings/document-updated', ['subagent', 1])
       await vi.waitFor(() => {
-        expect(ctx.settingsScope.describe().getSnapshot().view?.namespaces.map(view => view.ns)).toEqual(namespaces)
+        expect(ctx.configForms.describe().getSnapshot().view?.namespaces.map(view => view.ns)).toEqual(namespaces)
         expect(slots.entries('plugins.item')).toEqual(namespaces.length > 0 ? [entry] : [])
       })
     }

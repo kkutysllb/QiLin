@@ -53,7 +53,7 @@ kind: "package-reference"
 <details>
 <summary>实现细节——点击展开</summary>
 
-本包是一条注册规则加一条写入路径：每个页面在其命名空间被服务期间注册；保存经由客户端 settings scope。
+本包是一条注册规则加一条写入路径：每个页面在其命名空间被服务期间通过 `ctx.configForms.whileServed` 注册；保存经由客户端配置表单。
 
 ### 注册规则
 
@@ -61,7 +61,7 @@ kind: "package-reference"
 
 ### 写入路径
 
-保存时，暂存字段通过客户端 settings scope 写入；每次单字段写入或有序 mutation 都以草稿读取时的命名空间 revision 设栅，因此已与文档脱节的表单会被拒绝，而不是覆盖并发变更。字段是否被覆盖，取决于它是否出现在原始用户层中，而非取决于它的值；重置会清除该字段，使其重新继承组装层。secret 角色的字段绝不搭乘响应；页面会在转发来的 `credentials/reference-updated` 事件到来时重读它所关注的引用。
+保存时，暂存字段通过客户端配置表单写入；每次单字段写入或有序 mutation 都以草稿读取时的命名空间 revision 设栅，因此已与文档脱节的表单会被拒绝，而不是覆盖并发变更。字段是否被覆盖，取决于它是否出现在原始用户层中，而非取决于它的值；重置会清除该字段，使其重新继承组装层。secret 角色的字段绝不搭乘响应；页面会在转发来的 `credentials/reference-updated` 事件到来时重读它所关注的引用。
 
 </details>
 
@@ -73,7 +73,7 @@ kind: "package-reference"
 以下页面覆盖插件页、设置底座、清单标签页与表单背后的持久化 seam。
 
 - [ui-plugin-manager](../ui-plugin-manager/README.zh.md)——分区的「插件管理」标签页，其 `plugins.item`、`plugins.bundle.config` 与 `plugins.row.config` slot 承载配置页。
-- [ui-settings](../ui-settings/README.zh.md)——声明 `settings.section` 与 settings scope 的领域底座。
+- [ui-settings](../ui-settings/README.zh.md)——声明 `settings.section` 与共享配置表单的领域底座。
 - [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md)——分区显示的只读插件列表。
 - [settings](../../settings/README.zh.md)——持久化用户设置 seam 及其文件提供方。
 - [credentials](../../credentials/README.zh.md)——secret 字段写入所经的凭据引用 seam。

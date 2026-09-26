@@ -46,7 +46,7 @@ describe('locale apply', () => {
   // setLocale or a Host preference instead of leaning on a dead browser pin.
 
   it('declares the slot service', () => {
-    expect(inject).toEqual(['slots', 'remote', 'settingsScope'])
+    expect(inject).toEqual(['slots', 'remote', 'configForms'])
   })
 
   it('provides the service with the base dictionaries and leaves the settings rows to their features', async () => {

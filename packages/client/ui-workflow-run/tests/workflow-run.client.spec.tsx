@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import { createSnapshotStore } from '@qilin/client-store'
 import { Context } from '@qilin/kylin'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -19,7 +20,7 @@ import type { SessionEvent, SessionId } from '@qilin/session/types'
 import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
 import {
   chatSnapshot as emptyChatSnapshot, conversationSnapshot, makeTranslate, sessionSnapshot,
-  stubSettingsScope, TestSessions, workspaceSnapshot,
+  stubConfigForm, TestSessions, workspaceSnapshot,
 } from '@qilin/client-test-runtime'
 import {
   WorkflowRunPanel, type WorkflowRunInjected, type WorkflowRunPanelProps,
@@ -886,7 +887,7 @@ describe('plugin lifecycle', () => {
     await ctx.plugin(SlotRegistry).await()
     ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
     ctx.provide('remote', { $on: () => () => {} } as never)
-    ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+    ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
     const sessions = new TestSessions(async (action) => { await action() }, ctx)
     ctx.provide('sessions', sessions)
     const openSession = vi.fn(async () => {})

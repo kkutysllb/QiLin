@@ -80,7 +80,7 @@ function rowFaceOf(slots: SlotRegistry, component: unknown) {
 
 describe('ui-theme apply', () => {
   it('declares the slot and locale services', () => {
-    expect(inject).toEqual(['slots', 'locale', 'remote', 'settingsScope'])
+    expect(inject).toEqual(['slots', 'locale', 'remote', 'configForms'])
   })
 
   it('provides the service, registers localized copy, and registers the appearance and typography rows (declaration before or after apply)', async () => {

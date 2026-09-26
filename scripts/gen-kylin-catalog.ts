@@ -173,7 +173,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   uiConversation: 'client-side Conversation registries and assembler — packages/client/ui-conversation/README.md owns the API',
   uiWorkspace: 'client-side Workspace navigation adapter — packages/client/ui-workspace/README.md owns the API',
   settingsSchema: 'client-side schema introspection service — packages/client/ui-settings/README.md owns the API',
-  settingsScope: 'client-side settings-namespace transport service — packages/client/ui-settings/README.md owns the API',
+  configForms: 'client-side shared configuration-form service — packages/client/ui-settings/README.md owns the API',
   chatFileMentions: 'client-side slot-contract accessor (ChatFileMentions) — packages/client/ui-chat/README.md owns the API',
   shortcuts: 'client-side interface-typed keyboard service — packages/client/shortcuts/README.md owns the API',
   commandUi: 'client-side interface-typed browser service — packages/client/ui-commands/README.md owns the API',
@@ -196,7 +196,6 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   documentPreviews: 'client-side document renderer registry — docs/subsystems/sidebar-right.md owns the API',
   qilinProfile: 'immutable launch profile facts handed to profile-management host plugins — packages/boot/app-boot/README.md owns the API',
   settingsShell: 'client-side interface-typed browser service (the settings panel open channel, SettingsShell) — packages/client/ui-settings-general/README.md owns the API',
-  developerTools: 'client-side interface-typed preference seat (DeveloperToolsPreference) read by the settings page — packages/client/ui-settings/README.md owns the API',
 }
 
 /**

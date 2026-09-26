@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createSnapshotStore } from '@qilin/client-store'
 import { cleanup, fireEvent } from '@testing-library/react'
 import type { ISession } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
@@ -9,7 +10,7 @@ import {
   apply as applyChat, inject as injectChat, type ToolResultNode,
 } from '@qilin/client-ui-chat/client'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import { SlotTestRuntime, stubSettingsScope } from '@qilin/client-test-runtime'
+import { SlotTestRuntime, stubConfigForm } from '@qilin/client-test-runtime'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import { apply as applyConversation, inject as injectConversation } from '@qilin/client-ui-conversation/client'
 import { apply as applyTool, inject as injectTool } from '@qilin/client-ui-tool/client'
@@ -67,7 +68,7 @@ async function bench(nodes: ToolResultNode[]) {
   const runtime = await SlotTestRuntime.create()
   const openWorkspacePath = vi.fn(async () => ({ ok: true, value: { opened: true } }))
   runtime.remote.provideNamespaces({ session: { openWorkspacePath } })
-  runtime.ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   const layout = { openDetails: vi.fn(), closeDetails: vi.fn() }
   runtime.ctx.provide('layout', layout)
   const sidebarRight = { openResource: vi.fn<(address: string) => void>() }
@@ -288,7 +289,7 @@ describe('registrant declaration injection', () => {
         openWorkspacePath: vi.fn(async () => ({ ok: true, value: { opened: true } })),
       },
     })
-    runtime.ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
     runtime.ctx.provide('layout', { openDetails: vi.fn(), closeDetails: vi.fn() })
     runtime.ctx.provide('sidebarRight', { openResource: vi.fn() } as never)
     runtime.ctx.provide('uiWorkspace', {

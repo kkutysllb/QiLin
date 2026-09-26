@@ -7,7 +7,7 @@ import type {
   ChatSnapshot, StartedToolCall, ToolCallBlock, ToolResultNode,
 } from '@qilin/client-ui-chat/client'
 import type { SessionId } from '@qilin/session/types'
-import { SlotTestRuntime, stubSettingsScope } from '@qilin/client-test-runtime'
+import { SlotTestRuntime, stubConfigForm } from '@qilin/client-test-runtime'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
 import { LocaleRuntime } from '@qilin/client-locale/client'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
@@ -101,7 +101,7 @@ async function bench(snapshot: ChatSnapshot) {
   const conversation = createSnapshotStore(EMPTY_CONVERSATION_SNAPSHOT)
   const events = new ConversationEventRegistry(ctx)
   const views = new ConversationViewRegistry(ctx)
-  ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   ctx.provide('uiConversation', {
     events,
     views,

@@ -4,11 +4,12 @@
  * removal — HMR safety), and the inert node entry.
  */
 import { Context } from '@qilin/kylin'
+import { createSnapshotStore } from '@qilin/client-store'
 import { JobId } from '@qilin/jobs/brand'
 import { SessionId } from '@qilin/session/types'
 import { describe, expect, it } from 'vitest'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { stubSettingsScope } from '@qilin/client-test-runtime'
+import { stubConfigForm } from '@qilin/client-test-runtime'
 import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
 import { apply, inject } from '../src/client/index.ts'
 import type { JobListInjected } from '../src/client/JobListAction.tsx'
@@ -60,7 +61,7 @@ async function bench(): Promise<{ ctx: Context; fiber: ReturnType<Context['plugi
   // and the forwarded-event port.
   ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
   ctx.provide('remote', { $on: () => () => {} } as never)
-  ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   await ctx.plugin({ inject: localeInject, apply: applyLocale }).await()
   // These specs assert the shipped Chinese copy. There is no jsdom `window` in
   // this lane, so browser-language detection never runs and the locale comes

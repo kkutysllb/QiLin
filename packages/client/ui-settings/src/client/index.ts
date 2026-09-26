@@ -1,6 +1,6 @@
 /**
- * Settings domain base plugin, browser half. Provides `ctx.settingsScope`, the
- * settings-namespace scope service every preference row binds its durable
+ * Settings domain base plugin, browser half. Provides `ctx.configForms`, the
+ * shared configuration-form service every preference row reaches its durable
  * section through, and owns the one `settings.describe` reader in the browser:
  * the describe mirror, whose invalidation subscriptions
  * (`settings/document-updated`, `connection/reset`) live here so every derived
@@ -17,35 +17,24 @@ import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/api-remotes/client'
 // Type-only pair supplying `$on` and its key face without dragging a build
 // artifact into the Host graph (rationale beside the same pair in
-// settings-scope.ts).
+// config-form.ts).
 import type {} from '@qilin/api-remotes/types'
 import type {} from '@qilin/settings/types'
 import { SettingsSchemaService } from './schema.ts'
-import { SettingsScopeBinder } from './settings-scope.ts'
+import { ConfigForms } from './config-form.ts'
 import { SettingsDescribeMirror } from './settings-mirror.ts'
-import { DeveloperToolsPreference } from './developer-tools.ts'
-import { DEVELOPER_TOOLS_NAMESPACE } from '../developer-tools-settings.ts'
-import type { DeveloperToolsSettings } from '../developer-tools-settings.ts'
 
 export type {
   SettingsGeneralItemOwnerProps, SettingsHeaderOwnerProps, SettingsMarkOwnerProps,
   SettingsOnboardingOwnerProps, SettingsPluginsTabOwnerProps, SettingsSectionOwnerProps,
 } from './contract/slots.ts'
-export type { SettingsScopeController, SettingsScopeBinder } from './settings-scope.ts'
-export type { SettingsScope, SettingsScopeSnapshot, SettingsScopeSpec } from './settings-contract.ts'
+export type { ConfigForms } from './config-form.ts'
+export type { ConfigForm, ConfigFormSnapshot } from './config-form-types.ts'
 export type { SettingsSchemaService } from './schema.ts'
 export type { SchemaNode } from './schema.ts'
 export type {
   SettingsDescribeFace, SettingsDescribeView, SettingsMirrorSnapshot,
 } from './settings-mirror.ts'
-export type { DeveloperToolsPreference } from './developer-tools.ts'
-
-declare module '@qilin/kylin' {
-  interface Context {
-    /** The shared developer-tool preference over the `ui-settings` namespace. */
-    developerTools: DeveloperToolsPreference
-  }
-}
 
 /**
  * Required services: the Remote namespace the mirror reads through and the
@@ -54,9 +43,9 @@ declare module '@qilin/kylin' {
 export const inject = ['remote', 'remote.settings']
 
 /**
- * Provide the settings-namespace scope service over one shared describe
- * mirror, and keep that mirror fresh on the two signals that can move the
- * settings document: a document commit and a (re)connect.
+ * Provide the shared configuration forms over one describe mirror, and keep
+ * that mirror fresh on the two signals that can move the settings document: a
+ * document commit and a (re)connect.
  *
  * Constructing the service in this plugin's fiber keeps its traced methods
  * bound to each consuming plugin's context.
@@ -64,8 +53,7 @@ export const inject = ['remote', 'remote.settings']
  */
 export function apply(ctx: Context): void {
   const schema = new SettingsSchemaService(ctx)
-  // Resolved once here, where `remote` is declared in this plugin's own
-  // `inject`; the binder hands the same answer to every scope it binds.
+  // Every form uses the persistence mode resolved from the connected Host.
   const persistence = ctx.remote.$host.isLoopback ? 'host' : 'memory'
   const mirror = new SettingsDescribeMirror(ctx, persistence)
   ctx.effect(() => {
@@ -80,10 +68,5 @@ export function apply(ctx: Context): void {
     void mirror.ensure()
     return () => { for (const dispose of disposers) dispose() }
   }, 'ui-settings: describe mirror invalidations')
-  new SettingsScopeBinder(ctx, { mirror, schema, persistence })
-  const developerTools = new DeveloperToolsPreference(
-    ctx.settingsScope.bind<DeveloperToolsSettings>({ namespace: DEVELOPER_TOOLS_NAMESPACE }),
-  )
-  const disposePreference = ctx.reflect.provide('developerTools', developerTools)
-  ctx.effect(() => () => { void disposePreference() }, 'ui-settings: developer-tools preference')
+  new ConfigForms(ctx, { mirror, schema, persistence })
 }

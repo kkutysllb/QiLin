@@ -7,6 +7,7 @@
  * SlotRegistry.
  */
 import { Context } from '@qilin/kylin'
+import { createSnapshotStore } from '@qilin/client-store'
 import { cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SessionLiveEventEntry, SessionListState } from '@qilin/api-session-controller/client'
@@ -21,7 +22,7 @@ import type {
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
 import type { ChatFileMentions, TurnTailOwnerProps } from '@qilin/client-ui-chat/client'
-import { makeTranslate, stubSettingsScope } from '@qilin/client-test-runtime'
+import { makeTranslate, stubConfigForm } from '@qilin/client-test-runtime'
 import { Deliverables, DeliverablesTail, selectDeliverables, type DeliverablesInjected } from '../src/client/Deliverables.tsx'
 import type { ReviewInjected } from '../src/client/ReviewTab.tsx'
 import { ChangesSummaryStore } from '../src/client/changes-summary.ts'
@@ -705,7 +706,7 @@ describe('plugin registration', () => {
       session,
     } as never)
     ctx.provide('remote.session', session as never)
-    ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+    ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
     await ctx.plugin({ inject: localeInject, apply: applyLocale }).await()
 
     const fiber = ctx.plugin({ inject: [...inject], apply })

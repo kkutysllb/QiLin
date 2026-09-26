@@ -1,4 +1,5 @@
 import { toolSessionEvents } from './tool-fixtures.client.ts'
+import { createSnapshotStore } from '@qilin/client-store'
 // @vitest-environment jsdom
 /** Tool assembly acceptance through the real ui-conversation host. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -12,7 +13,7 @@ import {
   apply as applyChat, inject as injectChat, type ToolResultNode,
 } from '@qilin/client-ui-chat/client'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import { SlotTestRuntime, usePinnedBrowserLanguages, stubSettingsScope } from '@qilin/client-test-runtime'
+import { SlotTestRuntime, usePinnedBrowserLanguages, stubConfigForm } from '@qilin/client-test-runtime'
 import { apply as applyConversation, inject as injectConversation } from '@qilin/client-ui-conversation/client'
 import { apply as applyTool, inject as injectTool } from '../src/client/apply.ts'
 
@@ -76,7 +77,7 @@ async function bench(nodes: ToolResultNode[]) {
       openWorkspacePath: vi.fn(async () => ({ ok: true, value: { opened: true } })),
     },
   })
-  runtime.ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   runtime.ctx.provide('layout', { openDetails: vi.fn(), closeDetails: vi.fn() })
   runtime.ctx.provide('sidebarRight', { openResource: vi.fn() } as never)
   runtime.ctx.provide('uiWorkspace', {

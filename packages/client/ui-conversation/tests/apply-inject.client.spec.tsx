@@ -3,9 +3,9 @@ import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { CommandContribution, CommandUiContract } from '@qilin/client-ui-commands/client'
 import type { ISession, SessionReference } from '@qilin/api-session-controller/client'
 import { LocaleRuntime } from '@qilin/client-locale/client'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import {
-  SlotTestRuntime, stubSettingsScope, usePinnedBrowserLanguages,
+  SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
 } from '@qilin/client-test-runtime'
 import type { SessionBehaviorOverrides } from '@qilin/client-test-runtime'
 import {
@@ -47,7 +47,7 @@ async function bench() {
     if (upload === undefined) throw new Error('test file upload has no Session fixture')
     return upload(...args)
   }
-  runtime.ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   const connectWorkspace = vi.fn(async () => ROOT)
   const references = new Map<SessionId, SessionReference>()
   const opened = vi.fn<(id: SessionId) => void>()

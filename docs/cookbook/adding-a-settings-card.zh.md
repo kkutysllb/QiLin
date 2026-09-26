@@ -47,7 +47,7 @@ export function apply(ctx: Context, config: Config) {
 
 ## 2. 注册卡片（浏览器半侧）
 
-卡片以自己的命名空间为键注册进 `settings.plugin.item`，并拥有其中的一切——外观、控件与文案。它通过 `ctx.settingsScope` 读写，后者用读取时的 revision 为每次写入设栅：
+卡片以自己的命名空间为键注册进 `settings.plugin.item`，并拥有其中的一切——外观、控件与文案。它通过 `ctx.configForms` 读写，后者用读取时的 revision 为每次写入设栅：
 
 ```ts ignore-check
 import type { Context as ClientContext } from '@qilin/kylin'
@@ -55,10 +55,10 @@ import type { Context as ClientContext } from '@qilin/kylin'
 // through cordis services; a value import fails the client bundle-purity gate.
 import type {} from '@qilin/client-ui-settings-plugins/client'
 
-export const inject = ['slots', 'locale', 'connection', 'remote', 'settingsScope']
+export const inject = ['slots', 'locale', 'connection', 'remote', 'configForms']
 
 export function apply(ctx: ClientContext): void {
-  const card = new MyPluginCardController(ctx.settingsScope.bind({ namespace: 'my-plugin' }))
+  const card = new MyPluginCardController(ctx.configForms.get('my-plugin'))
   ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
     name: 'settings.plugin.item',
     key: 'my-plugin',
@@ -69,7 +69,7 @@ export function apply(ctx: ClientContext): void {
 }
 ```
 
-scope 快照携带表单所需的一切：解析后的 `value`、组装层 `base`，以及原始的 `user` 层——字段是否被覆盖，取决于它在 `user` 层中是否**出现**，而非它的值。`scope.set(field, value)` 存一个字段，`scope.unset(field)` 把它清回组装层。
+表单快照携带卡片所需的一切：解析后的 `value`、组装层 `base`，以及原始的 `user` 层——字段是否被覆盖，取决于它在 `user` 层中是否**出现**，而非它的值。`form.set(field, value)` 存一个字段，`form.unset(field)` 把它清回组装层。
 
 ## 3. 标签页拿它做什么
 

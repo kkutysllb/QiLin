@@ -53,7 +53,7 @@ A key control starts blank, reports only whether one is configured, and writes t
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package is one registration rule and one write path: each page is registered while its namespace is served, and saves go through the client settings scope.
+The package is one registration rule and one write path: each page is registered through `ctx.configForms.whileServed` while its namespace is served, and saves go through the client configuration form.
 
 ### The registration rule
 
@@ -61,7 +61,7 @@ The section declares `settings.plugins.tab`, a root list slot whose labels becom
 
 ### The write path
 
-Saving writes staged fields through the client settings scope, which fences each write or ordered mutation with the namespace revision the draft read, so a form that has drifted from the document is refused rather than overwriting a concurrent change. A field's presence in the raw user layer — not its value — is what marks it overridden; a reset clears that field so it re-inherits the composition layer. Secret-role fields never ride a response; the page re-reads on the forwarded `credentials/reference-updated` event for the reference it watches.
+Saving writes staged fields through the client configuration form, which fences each write or ordered mutation with the namespace revision the draft read, so a form that has drifted from the document is refused rather than overwriting a concurrent change. A field's presence in the raw user layer — not its value — is what marks it overridden; a reset clears that field so it re-inherits the composition layer. Secret-role fields never ride a response; the page re-reads on the forwarded `credentials/reference-updated` event for the reference it watches.
 
 </details>
 
@@ -73,7 +73,7 @@ Saving writes staged fields through the client settings scope, which fences each
 These pages cover the Plugins page, the settings base, the inventory tab, and the durable seams behind the forms.
 
 - [ui-plugin-manager](../ui-plugin-manager/README.md) — the section's management tab, whose `plugins.item`, `plugins.bundle.config`, and `plugins.row.config` slots host configuration pages.
-- [ui-settings](../ui-settings/README.md) — the domain base declaring `settings.section` and the settings scope.
+- [ui-settings](../ui-settings/README.md) — the domain base declaring `settings.section` and the shared configuration forms.
 - [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) — the read-only inventory the section shows.
 - [settings](../../settings/README.md) — the durable user-settings seam and its file provider.
 - [credentials](../../credentials/README.md) — the credential-reference seam secret fields write through.

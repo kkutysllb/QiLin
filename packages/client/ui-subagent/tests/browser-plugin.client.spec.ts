@@ -1,6 +1,7 @@
 /** ui-subagent browser half: catalog actions and read-only composer routing. */
 import { Context } from '@qilin/kylin'
-import { stubSettingsScope } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
+import { stubConfigForm } from '@qilin/client-test-runtime'
 import { describe, expect, it } from 'vitest'
 import type {
   SessionListState, SessionSnapshot, SessionSummary,
@@ -85,7 +86,7 @@ async function fullBench(sessions: SessionSummary[]) {
     },
   } as never)
   ctx.provide('remote', { $on: () => () => {} } as never)
-  ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   await provideSlotFaces(ctx)
   await ctx.plugin({ inject: localeInject, apply: applyLocale }).await()
   await ctx.plugin({ inject: [...inject], apply }).await()

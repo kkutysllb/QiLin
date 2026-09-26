@@ -14,7 +14,7 @@
  */
 
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope, SettingsScopeSnapshot } from '@qilin/client-ui-settings/client'
+import type { ConfigForm, ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
 
 /** The write one field's staged text performs when the card is saved. */
 export type FieldWrite =
@@ -166,7 +166,7 @@ export class CardForm<T> {
    * @param secrets - the card's write-only controls, written outside the section.
    */
   constructor(
-    private readonly scope: SettingsScope<T>,
+    private readonly scope: ConfigForm<T>,
     specs: CardFieldSpec[],
     secrets: CardSecretSpec[] = [],
   ) {
@@ -324,7 +324,7 @@ export class CardForm<T> {
     return spec
   }
 
-  private snapshotOf(): SettingsScopeSnapshot<T> {
+  private snapshotOf(): ConfigFormSnapshot<T> {
     return this.scope.getSnapshot()
   }
 

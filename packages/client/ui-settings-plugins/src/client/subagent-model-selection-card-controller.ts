@@ -3,7 +3,7 @@
 import type { Context as ClientContext } from '@qilin/kylin'
 import type { ModelProviderGroup } from '@qilin/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin/client-ui-settings/client'
 import type { CardShell } from './card-form.ts'
 
 /** Namespace of the Host-owned subagent model-selection preference. */
@@ -147,7 +147,7 @@ export class SubagentModelSelectionCardController {
    * answers the Host model catalog.
    */
   constructor(
-    private readonly scope: SettingsScope<SubagentModelSelectionSettings>,
+    private readonly scope: ConfigForm<SubagentModelSelectionSettings>,
     private readonly ctx: ClientContext,
   ) {
     this.store = createSnapshotStore(this.projection())

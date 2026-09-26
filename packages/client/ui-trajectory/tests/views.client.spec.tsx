@@ -10,7 +10,7 @@ import type { GlobalStandardProps, StoredEntry } from '@qilin/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createElement, type ComponentProps, type FC } from 'react'
-import { bindSnapshotSelector, SlotTestRuntime, stubSettingsScope } from '@qilin/client-test-runtime'
+import { bindSnapshotSelector, SlotTestRuntime, stubConfigForm } from '@qilin/client-test-runtime'
 import {
   EMPTY_CONVERSATION_SNAPSHOT, UiConversation,
 } from '@qilin/client-ui-conversation/client'
@@ -327,7 +327,7 @@ async function bench(snapshot = historySnapshot(NODES)) {
   // The locale plugin backs registration-time copy ('locale' in inject); its
   // settings scope needs a connection handle and the forwarded-event port.
   ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
-  ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
   await runtime.mount({ inject: [...localeInject], apply: localeApply })
   const provide = vi.spyOn(ctx.uiSession, 'provide')
   const feature = await runtime.mount({ inject: [...inject], apply })

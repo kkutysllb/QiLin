@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, stubSettingsScope } from '@qilin/client-test-runtime'
+import { bindSnapshotSelector, stubConfigForm } from '@qilin/client-test-runtime'
 import { DeveloperToolsPreference } from '@qilin/client-ui-settings/src/client/developer-tools.ts'
 import type { DeveloperToolsSettings } from '@qilin/client-ui-settings/src/developer-tools-settings.ts'
 import type { Resources, ResourceSnapshot } from '@qilin/client-resources/client'
@@ -162,7 +162,7 @@ describe('HtmlBody', () => {
   })
 
   it('follows the shared developer-tools preference from loading through a stored false to enabled', async () => {
-    const host = stubSettingsScope<DeveloperToolsSettings>()
+    const host = stubConfigForm<DeveloperToolsSettings>()
     const preference = new DeveloperToolsPreference(host.scope)
     const readRelated = vi.fn<HtmlBodyProps['readRelated']>().mockResolvedValue({ ok: true, value: {
       absolutePath: '/workspace/asset.js', version: 'asset-v1', offset: 0, eof: true,

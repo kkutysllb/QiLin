@@ -217,7 +217,9 @@ installSection<const Namespace extends string, T>( owner: Context, ns: Namespace
 /**
  * Describe every registered namespace for configuration surfaces, including
  * the composition `base` and raw user layers so a form can mark which fields
- * the user overrode (presence in `user`) and what a reset returns to.
+ * the user overrode (presence in `user`) and what a reset returns to. Every
+ * layer is plain data: a `volatile()` field rides as the value it holds, not
+ * as the reference that value lives behind.
  * @param options - redaction switch; wire surfaces must redact.
  * @returns one descriptor per registered namespace, in registration order.
  */

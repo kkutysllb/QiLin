@@ -2,7 +2,7 @@
 /** ConversationLayoutPolicy: width writes, the durable adoption, and the
  * pre-durable localStorage handoff. */
 import { beforeEach, describe, expect, it } from 'vitest'
-import { stubSettingsScope } from '@qilin/client-test-runtime'
+import { stubConfigForm } from '@qilin/client-test-runtime'
 import { ConversationLayoutPolicy } from '../src/client/layout-policy.ts'
 import {
   CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_MAX, CONTENT_WIDTH_MIN,
@@ -22,7 +22,7 @@ describe('ConversationLayoutPolicy', () => {
   })
 
   it('rounds a drag request, publishes it locally, then writes it through the scope', () => {
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     policy.setContentWidth(969.6)
     expect(policy.contentWidth.getSnapshot()).toBe(970)
@@ -39,7 +39,7 @@ describe('ConversationLayoutPolicy', () => {
   })
 
   it('reverts to the adaptive clamp by clearing the override', () => {
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     policy.setContentWidth(970)
     policy.setContentWidth(CONTENT_WIDTH_ADAPTIVE)
@@ -49,7 +49,7 @@ describe('ConversationLayoutPolicy', () => {
   })
 
   it('leaves an identical width untouched', () => {
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     policy.setContentWidth(970)
     policy.setContentWidth(970.2)
@@ -57,7 +57,7 @@ describe('ConversationLayoutPolicy', () => {
   })
 
   it('adopts a Host width without writing it back', () => {
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     host.publish({
       status: 'ready', value: { ...ENTER_ONLY, contentWidth: 1100 }, user: { contentWidth: 1100 }, revision: 1, writable: true,
@@ -68,7 +68,7 @@ describe('ConversationLayoutPolicy', () => {
 
   it('carries a pre-durable dragged width into the namespace that has no override', () => {
     localStorage.setItem(LEGACY_WIDTH_KEY, '860')
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     // The live value is current immediately, so the transcript never flashes back.
     expect(policy.contentWidth.getSnapshot()).toBe(860)
@@ -80,7 +80,7 @@ describe('ConversationLayoutPolicy', () => {
 
   it('lets a stored Host override win over the pre-durable width', () => {
     localStorage.setItem(LEGACY_WIDTH_KEY, '860')
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     host.publish({
       status: 'ready', value: { ...ENTER_ONLY, contentWidth: 1500 }, user: { contentWidth: 1500 }, revision: 1, writable: true,
@@ -98,7 +98,7 @@ describe('ConversationLayoutPolicy', () => {
 
   it('a width chosen before the first Host view supersedes the carried value', () => {
     localStorage.setItem(LEGACY_WIDTH_KEY, '860')
-    const host = stubSettingsScope<ConversationSettings>()
+    const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
     policy.setContentWidth(CONTENT_WIDTH_ADAPTIVE)
     host.publish({ status: 'ready', value: ENTER_ONLY, user: {}, revision: 1, writable: true })

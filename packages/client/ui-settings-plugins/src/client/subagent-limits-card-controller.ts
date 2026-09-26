@@ -1,7 +1,7 @@
 /** Staged delegation limits backed by the Host's subagent settings section. */
 
 import type { SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin/client-ui-settings/client'
 import { CardForm, numberField, type CardActions, type CardFieldSpec, type CardFieldState, type CardShell } from './card-form.ts'
 
 /** Host-owned delegation defaults and live capacity. */
@@ -42,7 +42,7 @@ export class SubagentLimitsCardController {
   private readonly store: SnapshotStore<SubagentLimitsCardState>
 
   /** @param scope - The Host's `subagent` settings section. */
-  constructor(scope: SettingsScope<SubagentLimitsSettings>) {
+  constructor(scope: ConfigForm<SubagentLimitsSettings>) {
     this.form = new CardForm(scope, [limitField('maxDepth', 0), limitField('maxActiveSubagents', 1)])
     this.store = this.form.bind(() => ({
       ...this.form.shell(),

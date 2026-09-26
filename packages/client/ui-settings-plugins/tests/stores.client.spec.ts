@@ -5,7 +5,7 @@
 
 import { describe, expect, it, vi } from 'vitest'
 import type { SettingsPathOpView } from '@qilin/api-remotes/client'
-import { RemoteError, stubSettingsScope, type StubSettingsScope } from '@qilin/client-test-runtime'
+import { RemoteError, stubConfigForm, type StubConfigForm } from '@qilin/client-test-runtime'
 import { CardForm, numberField, textField } from '../src/client/card-form.ts'
 import { SubagentLimitsCardController, type SubagentLimitsSettings } from '../src/client/subagent-limits-card-controller.ts'
 import { subagentCardFace, subagentCardShell } from '../src/client/subagent-card-controller.ts'
@@ -19,7 +19,7 @@ import {
 import { WebSearchCardController, type WebSearchSettings } from '../src/client/web-search-card-controller.ts'
 
 /** Make the stub behave like a Host that accepts every write. */
-function acceptWrites<T>(host: StubSettingsScope<T>): void {
+function acceptWrites<T>(host: StubConfigForm<T>): void {
   const section = (): Record<string, unknown> => ({ ...host.scope.getSnapshot().value as object })
   const layer = (): Record<string, unknown> => ({ ...host.scope.getSnapshot().user as object })
   host.set.mockImplementation((field: string, value: unknown) => {
@@ -36,6 +36,7 @@ function acceptWrites<T>(host: StubSettingsScope<T>): void {
       }
     }
     host.publish({ value: value as T, user })
+    return Promise.resolve(true)
   })
   host.unset.mockImplementation((field: string) => {
     const user = Object.fromEntries(Object.entries(layer()).filter(([key]) => key !== field))
@@ -87,7 +88,7 @@ function deferred<T>() {
 
 describe('CardForm', () => {
   function form() {
-    const host = stubSettingsScope<Record<string, unknown>>()
+    const host = stubConfigForm<Record<string, unknown>>()
     const subject = new CardForm(host.scope, [numberField('timeoutMs'), textField('baseURL')])
     host.publish({
       status: 'ready',
@@ -305,7 +306,7 @@ describe('CardForm', () => {
   })
 
   it('renders an absent section value as an empty draft', () => {
-    const host = stubSettingsScope<Record<string, unknown>>()
+    const host = stubConfigForm<Record<string, unknown>>()
     const subject = new CardForm(host.scope, [numberField('timeoutMs'), textField('baseURL')])
 
     host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: undefined })
@@ -316,7 +317,7 @@ describe('CardForm', () => {
   })
 
   it('stays unavailable while the namespace is not served', () => {
-    const host = stubSettingsScope<Record<string, unknown>>()
+    const host = stubConfigForm<Record<string, unknown>>()
     const subject = new CardForm(host.scope, [numberField('timeoutMs')])
 
     host.publish({ status: 'unavailable' })
@@ -327,7 +328,7 @@ describe('CardForm', () => {
 
 describe('BashCardController', () => {
   it('projects both fields and saves them in one write pass', async () => {
-    const host = stubSettingsScope<BashSettings>()
+    const host = stubConfigForm<BashSettings>()
     acceptWrites(host)
     const controller = new BashCardController(host.scope)
     host.publish({
@@ -359,7 +360,7 @@ describe('BashCardController', () => {
   })
 
   it('stages a reset and applies it on save', async () => {
-    const host = stubSettingsScope<BashSettings>()
+    const host = stubConfigForm<BashSettings>()
     acceptWrites(host)
     const controller = new BashCardController(host.scope)
     host.publish({
@@ -384,7 +385,7 @@ describe('BashCardController', () => {
   })
 
   it('discards staged edits without writing', () => {
-    const host = stubSettingsScope<BashSettings>()
+    const host = stubConfigForm<BashSettings>()
     const controller = new BashCardController(host.scope)
     host.publish({ status: 'ready', writable: true, value: { timeoutMs: 5_000 }, user: {} })
     const face = controller.inject()
@@ -399,7 +400,7 @@ describe('BashCardController', () => {
 
 describe('AgentLoopCardController', () => {
   it('saves the only field it owns', async () => {
-    const host = stubSettingsScope<AgentLoopSettings>()
+    const host = stubConfigForm<AgentLoopSettings>()
     acceptWrites(host)
     const controller = new AgentLoopCardController(host.scope)
     host.publish({
@@ -422,7 +423,7 @@ describe('AgentLoopCardController', () => {
   })
 
   it('reports a read-only document so the card can disable its controls', () => {
-    const host = stubSettingsScope<AgentLoopSettings>()
+    const host = stubConfigForm<AgentLoopSettings>()
     const controller = new AgentLoopCardController(host.scope)
 
     host.publish({ status: 'ready', writable: false, value: { maxParallelToolCalls: 10 } })
@@ -452,7 +453,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('loads adapter models and saves the switch and routes atomically', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     acceptWrites(host)
     const models = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha API', models: [{ id: 'fast', name: 'Fast' }] }],
@@ -487,7 +488,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('starts an empty draft when a ready test scope has no decoded value', () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const controller = new SubagentModelSelectionCardController(host.scope, modelsApi().ctx)
     host.publish({ status: 'ready', writable: true, revision: 0, value: undefined })
     const face = controller.inject()
@@ -500,7 +501,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('keeps the Host value and reports a rejected write', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const models = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha API', models: [{ id: 'fast', name: 'Fast' }] }],
     })
@@ -526,7 +527,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('loads stored routes, stages removal and disablement, and discards both', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const models = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha API', models: [{ id: 'fast', name: 'Fast' }] }],
       failures: [{ id: 'beta', name: 'Beta', message: 'offline' }],
@@ -555,7 +556,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('retains selected routes when disabling and loads an already-ready enabled card', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     acceptWrites(host)
     host.publish({
       status: 'ready', writable: true, revision: 5,
@@ -582,7 +583,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('reports a directory error and retries it', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const models = modelsApi({ error: 'offline' })
     const controller = new SubagentModelSelectionCardController(host.scope, models.ctx)
     host.publish({ status: 'ready', writable: true, value: { enabled: false, allowedModels: [] }, user: {} })
@@ -596,7 +597,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('rejects a draft after the Host revision changes', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const models = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha API', models: [{ id: 'fast', name: 'Fast' }] }],
     })
@@ -630,7 +631,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('settles a draft when a newer Host revision already contains it', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const models = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha', models: [{ id: 'fast', name: 'Fast' }] }],
     })
@@ -655,7 +656,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('retains unsaved routes across a catalog refresh', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     acceptWrites(host)
     host.publish({
       status: 'ready', writable: true, revision: 2,
@@ -702,7 +703,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('drops a draft when the connection generation changes', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const models = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha', models: [{ id: 'fast', name: 'Fast' }] }],
     })
@@ -731,7 +732,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('reloads the model catalog after invalidation', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     host.publish({
       status: 'ready', writable: true, revision: 1,
       value: { enabled: true, allowedModels: [] }, user: {},
@@ -762,7 +763,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('suppresses duplicate actions and late save settlements', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const catalog = modelsApi({
       groups: [{ id: 'alpha', name: 'Alpha API', models: [{ id: 'fast', name: 'Fast' }] }],
     })
@@ -775,6 +776,7 @@ describe('SubagentModelSelectionCardController', () => {
         enabled: enabled?.op === 'set' ? enabled.value as boolean : false,
         allowedModels: allowedModels?.op === 'set' ? allowedModels.value as never[] : [],
       } })
+      return true
     })
     const controller = new SubagentModelSelectionCardController({ ...host.scope, mutate }, catalog.ctx)
     const face = controller.inject()
@@ -800,7 +802,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('suppresses duplicate directory loads and late settlements', async () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     host.publish({ status: 'ready', writable: true, value: { enabled: false, allowedModels: [] }, user: {} })
 
     const pending = deferred<never>()
@@ -829,7 +831,7 @@ describe('SubagentModelSelectionCardController', () => {
   })
 
   it('ignores writes while read-only and scope notifications after disposal', () => {
-    const host = stubSettingsScope<SubagentModelSelectionSettings>()
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
     const controller = new SubagentModelSelectionCardController(host.scope, modelsApi().ctx)
     host.publish({ status: 'ready', writable: false, value: { enabled: false, allowedModels: [] }, user: {} })
     const face = controller.inject()
@@ -853,7 +855,7 @@ describe('SubagentModelSelectionCardController', () => {
 
 describe('WebSearchCardController', () => {
   it('reads the credential state for the reference the tab names', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(true)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
     const state = () => controller.inject().hooks.webSearchCard.getSnapshot()
@@ -869,7 +871,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('writes the staged key through the credentials domain, never the settings section', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
@@ -894,7 +896,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('keeps the stored key when the draft is left blank', () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(true)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
@@ -909,7 +911,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('re-reads when the Host reports the watched reference changed', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
@@ -933,7 +935,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('addresses the reference the tab declares rather than the default', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: { apiKeyEnv: 'SEARCH_KEY' }, user: {} })
@@ -947,7 +949,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('reports a key the Host did not store as a failed save', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
@@ -962,7 +964,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('keeps the card usable when the credential read is refused', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const refusal = () => Promise.resolve({
       ok: false as const,
       error: new RemoteError('credential/rejected', 'offline', { ref: 'DEEPSEEK_API_KEY' }),
@@ -986,7 +988,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('ignores a credential read the Host refused', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     const describe = vi.fn(() => Promise.resolve({
       ok: false as const,
       error: new RemoteError('gateway/internal', 'no credential provider', {}),
@@ -1000,7 +1002,7 @@ describe('WebSearchCardController', () => {
   })
 
   it('saves the endpoint and the search budget together', async () => {
-    const host = stubSettingsScope<WebSearchSettings>()
+    const host = stubConfigForm<WebSearchSettings>()
     acceptWrites(host)
     const credentials = credentialsApi(true)
     const controller = new WebSearchCardController(host.scope, credentials.ctx)
@@ -1019,7 +1021,7 @@ describe('WebSearchCardController', () => {
 
 describe('SubagentLimitsCardController', () => {
   it('validates staged limits, saves them, and restores composed defaults', async () => {
-    const host = stubSettingsScope<SubagentLimitsSettings>()
+    const host = stubConfigForm<SubagentLimitsSettings>()
     const face = new SubagentLimitsCardController(host.scope).inject()
     const state = () => face.hooks.subagentLimitsCard.getSnapshot()
     host.publish({ status: 'ready', writable: true, value: { maxDepth: 3, maxActiveSubagents: 8 }, base: { maxDepth: 3, maxActiveSubagents: 8 }, user: {} })
@@ -1048,8 +1050,8 @@ describe('SubagentLimitsCardController', () => {
 
 describe('shared Subagent card actions', () => {
   function card() {
-    const limits = stubSettingsScope<SubagentLimitsSettings>()
-    const models = stubSettingsScope<SubagentModelSelectionSettings>()
+    const limits = stubConfigForm<SubagentLimitsSettings>()
+    const models = stubConfigForm<SubagentModelSelectionSettings>()
     const limitFace = new SubagentLimitsCardController(limits.scope).inject()
     const modelFace = new SubagentModelSelectionCardController(models.scope, modelsApi().ctx).inject()
     limits.publish({
@@ -1100,6 +1102,7 @@ describe('shared Subagent card actions', () => {
     const set = vi.spyOn(limits.scope, 'set').mockImplementationOnce(async () => {
       await pending.promise
       limits.publish({ value: { maxDepth: 2, maxActiveSubagents: 8 }, user: { maxDepth: 2 } })
+      return false
     })
     face.editLimit('maxDepth', '2')
     face.toggleEnabled()
@@ -1135,7 +1138,7 @@ describe('shared Subagent card actions', () => {
 
   it('retains a rejected model draft after limits save, and retries only that draft', async () => {
     const { limits, models, face, state } = card()
-    models.mutate.mockImplementationOnce(() => {})
+    models.mutate.mockImplementationOnce(() => Promise.resolve(false))
     face.editLimit('maxDepth', '2')
     face.toggleEnabled()
     face.save()

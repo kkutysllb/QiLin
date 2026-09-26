@@ -1,7 +1,7 @@
 /** Host-backed work-details presentation policy. */
 
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin/client-ui-settings/client'
 import {
   DEFAULT_TRANSCRIPT_VIEW_MODE, LEGACY_TRANSCRIPT_VIEW_MODE, LEGACY_EXPANDED_TRANSCRIPT_VIEW_MODE, TRANSCRIPT_VIEW_FIELD,
   type ChatSettings, type TranscriptViewMode,
@@ -16,7 +16,7 @@ export class TranscriptViewPolicy {
   /**
    * @param host - durable Chat settings scope.
    */
-  constructor(private readonly host: SettingsScope<ChatSettings>) {
+  constructor(private readonly host: ConfigForm<ChatSettings>) {
     this.unsubscribe = host.subscribe(() => { this.adopt() })
     this.adopt()
   }

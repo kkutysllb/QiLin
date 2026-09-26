@@ -56,7 +56,7 @@ target package 通过 declaration merge 扩展 snapshot 与 Location data map，
 
 常驻的 `conversation.header` entry 无论是否选中 Session 都挂载 root 作用域的 `conversation.header.leading` 席位，并把标题、actions、utilities 与 View tabs 交给它的 strict Session 子项 `conversation.session.header`。blank Session 保留 header 的 leading 与 corner 控件，包括右侧栏展开入口，同时隐藏标题、actions、utilities 和 View tabs。选择 Workspace 会创建这些控件所需的 Session，无需先发送消息。没有选中 Session 时，strict Session header 不挂载，而 leading 席位仍在屏上。侧栏各入口仍遵循自身的数据与执行环境要求。
 
-View 选择规则固定：有效且已注册的持久化选择优先，其次是已注册的 `chat`，否则不渲染 View；绝不选择第一个已注册 View。Shell phase 只组合 Session lifecycle 与 active-target set，不读取任何 target-specific 快照。
+View 选择规则固定：有效且已注册的持久化选择优先，其次是已注册的 `chat`，否则不渲染 View；绝不选择第一个已注册 View。`ctx.configForms.developerTools` 关闭时，roster 隐藏 `trajectory` View，并跟随该偏好，在开发者工具重新打开时让标签页回来。Shell phase 只组合 Session lifecycle 与 active-target set，不读取任何 target-specific 快照。
 
 Session 首次绑定或缓存的 Session 成为 current 时，shell 会在渲染前读取持久化 View 偏好，激活已注册的偏好 View 或 Chat fallback，并在后续 tab 或 focus 选择写入 store 前先激活对应 target。blank Session 仍不渲染 `conversation.view` slot；未选中的 target 不会激活。
 

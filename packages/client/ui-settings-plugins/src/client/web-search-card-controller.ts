@@ -13,7 +13,7 @@ import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
 import type {} from '@qilin/api-remotes/client'
 import type { SnapshotStore } from '@qilin/client-store'
-import type { SettingsScope, SettingsScopeSnapshot } from '@qilin/client-ui-settings/client'
+import type { ConfigForm, ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
 import {
   CardForm, numberField, textField,
   type CardActions, type CardFieldState, type CardShell,
@@ -85,7 +85,7 @@ export class WebSearchCardController {
    * answers for the credential the section references.
    */
   constructor(
-    private readonly scope: SettingsScope<WebSearchSettings>,
+    private readonly scope: ConfigForm<WebSearchSettings>,
     private readonly ctx: ClientContext,
   ) {
     this.form = new CardForm(
@@ -180,7 +180,7 @@ export class WebSearchCardController {
  * @param snapshot - the current scope snapshot.
  * @returns the reference to address.
  */
-function refOf(snapshot: SettingsScopeSnapshot<WebSearchSettings>): string {
+function refOf(snapshot: ConfigFormSnapshot<WebSearchSettings>): string {
   const declared = snapshot.value?.apiKeyEnv
   return declared !== undefined && declared.length > 0 ? declared : DEFAULT_API_KEY_REF
 }

@@ -80,7 +80,7 @@ declare module '@qilin/client-ui-slots' {
  * shared resource model, the developer-tools preference that selects the HTML
  * preview policy, and the Remote carrier with its `workspaceFiles` namespace.
  */
-export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'developerTools', 'resources']
+export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'configForms', 'resources']
 
 /**
  * Client plugin body: register the type, its dictionaries, its body, and its chip title.

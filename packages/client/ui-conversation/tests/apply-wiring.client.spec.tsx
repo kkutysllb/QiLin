@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import {
-  SlotTestRuntime, stubSettingsScope, usePinnedBrowserLanguages,
+  SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
 } from '@qilin/client-test-runtime'
 import { LocaleRuntime } from '@qilin/client-locale/client'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 import { apply, inject, type ViewTab } from '@qilin/client-ui-conversation/client'
 
@@ -20,7 +20,8 @@ async function bench(options: { declareConversation?: boolean } = {}) {
     }),
     openSession: vi.fn(),
   } as never)
-  runtime.ctx.provide('settingsScope', { bind: () => stubSettingsScope().scope } as never)
+  const developerTools = createSnapshotStore(true)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: developerTools }, get: () => stubConfigForm().scope } as never)
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)
@@ -32,7 +33,7 @@ async function bench(options: { declareConversation?: boolean } = {}) {
   }
   const feature = await runtime.mount({ inject: [...inject], apply })
   if (options.declareConversation !== false) runtime.renderRoot()
-  return { runtime, feature }
+  return { runtime, feature, developerTools }
 }
 
 function entry(
@@ -116,6 +117,39 @@ describe('target-neutral Conversation apply wiring', () => {
 
     disposeView()
     await vi.waitFor(() => { expect(source?.getSnapshot()).toEqual([]) })
+    await b.runtime.dispose()
+  })
+
+  it('hides the trajectory View while Developer tools are off and restores it when they turn back on', async () => {
+    const b = await bench()
+    await b.runtime.sessions.add({ id: SID })
+    using reference = b.runtime.sessions.retain(SID)
+    expect(b.runtime.ctx.uiSession.adapter.bindingSource(reference).getSnapshot().hooks.conversationViews).toBeUndefined()
+    const header = b.runtime.slots.entries('conversation.session.header')[0]
+    const source = (header?.inject?.() as {
+      hooks: { conversationViews: ObservableSnapshot<readonly ViewTab[]> }
+    } | undefined)?.hooks.conversationViews
+
+    // The trajectory View is registered by ui-trajectory; here its identity is
+    // what the roster filters on.
+    const disposeView = b.runtime.slots.register({
+      name: 'conversation.view',
+      id: 'trajectory',
+      label: () => 'Trajectory',
+    }, (() => null) as never)
+    await vi.waitFor(() => {
+      expect(source?.getSnapshot()).toEqual([{ id: 'trajectory', label: 'Trajectory' }])
+    })
+
+    b.developerTools.set(false)
+    await vi.waitFor(() => { expect(source?.getSnapshot()).toEqual([]) })
+
+    b.developerTools.set(true)
+    await vi.waitFor(() => {
+      expect(source?.getSnapshot()).toEqual([{ id: 'trajectory', label: 'Trajectory' }])
+    })
+
+    disposeView()
     await b.runtime.dispose()
   })
 

@@ -1,8 +1,7 @@
 /** One accepted preference drives every developer-tool consumer. */
-
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import type { DeveloperToolsSettings } from '../developer-tools-settings.ts'
-import type { SettingsScope } from './settings-contract.ts'
+import type { ConfigForm } from './config-form-types.ts'
 
 /** Shared preference; Host-backed features stay disabled until an accepted value arrives. */
 export class DeveloperToolsPreference {
@@ -11,10 +10,10 @@ export class DeveloperToolsPreference {
   private readonly local = createSnapshotStore(true)
 
   /**
-   * @param scope - settings-owned namespace scope.
+   * @param scope - settings-owned namespace controller.
    */
-  constructor(private readonly scope: SettingsScope<DeveloperToolsSettings>) {
-    // A remote browser keeps the choice process-local: the scope never writes
+  constructor(private readonly scope: ConfigForm<DeveloperToolsSettings>) {
+    // A remote browser keeps the choice process-local: the form never writes
     // in memory mode, so the row's choice lives here until reload.
     this.enabled = scope.getSnapshot().mode === 'memory' ? this.local : {
       getSnapshot: () => scope.getSnapshot().value?.enabled ?? false,
@@ -31,16 +30,15 @@ export class DeveloperToolsPreference {
   }
 
   /**
-   * Persist a Host choice, or update the shared browser-local choice.
+   * Persist a Host choice with ordered writes, or update the shared browser-local choice.
    * @param enabled - requested developer-tool mode.
-   * @returns settlement after local publication or Host acceptance; rejects when
-   * the write fails on the wire (a refused write recovers silently instead).
+   * @returns settlement after local publication or Host acceptance; rejects after a refused write recovers.
    */
   async setEnabled(enabled: boolean): Promise<void> {
     if (this.scope.getSnapshot().mode === 'memory') {
       this.local.set(enabled)
       return
     }
-    await this.scope.set('enabled', enabled)
+    if (!await this.scope.set('enabled', enabled)) throw new Error('Developer tools preference was not saved')
   }
 }
