@@ -296,23 +296,21 @@ describe('ToolRow', () => {
     expect(view.container.querySelector('[class*="ioCard"]')).toBeNull()
   })
 
-  it('defaults the detail body to collapsed and expanded from the mode, keeping a manual toggle', () => {
-    const collapsed = render(<ToolRow {...rowProps} detail="collapsed" />)
-    expect(collapsed.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
-    fireEvent.click(collapsed.getByRole('button'))
-    expect(collapsed.getByText(/"a": 1/)).toBeTruthy()
-    collapsed.unmount()
+  it('starts the detail body collapsed and follows the reader toggle, never a mode default', () => {
+    const view = render(<ToolRow {...rowProps} detail="collapsed" />)
+    expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
 
-    const expanded = render(<ToolRow {...rowProps} detail="expanded" />)
-    expect(expanded.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('true')
-    expect(expanded.container.querySelector('[class*="ioCard"]')).not.toBeNull()
-    // A reader-touched row keeps its choice when the mode changes underneath it.
-    fireEvent.click(expanded.getByRole('button'))
-    expect(expanded.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(view.getByRole('button'))
+    expect(view.getByText(/"a": 1/)).toBeTruthy()
+    expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('true')
+    expect(view.container.querySelector('[class*="ioCard"]')).not.toBeNull()
+
+    fireEvent.click(view.getByRole('button'))
+    expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('keeps the preparing state non-expandable in every detail mode', () => {
-    const view = render(<ToolRow {...rowProps} state="preparing" detail="expanded" />)
+  it.each(['collapsed', 'summary'] as const)('keeps the preparing state non-expandable in the %s detail', (detail) => {
+    const view = render(<ToolRow {...rowProps} state="preparing" detail={detail} />)
     expect(view.container.querySelector('[aria-expanded]')).toBeNull()
   })
 

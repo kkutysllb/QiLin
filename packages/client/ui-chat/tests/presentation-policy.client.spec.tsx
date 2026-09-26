@@ -12,8 +12,8 @@ describe('Chat presentation policy', () => {
   it.each([
     ['compact', true, 'collapsed', false, false, 'summary'],
     ['standard', true, 'collapsed', true, true, 'collapsed'],
-    ['detailed', true, 'history', true, true, 'expanded'],
-    ['verbose', false, 'none', true, false, 'expanded'],
+    ['detailed', true, 'history', true, true, 'collapsed'],
+    ['verbose', false, 'none', true, false, 'collapsed'],
   ] as const)('maps %s to stable presentation capabilities', (
     mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail, toolCallDetail,
   ) => {
@@ -57,14 +57,20 @@ describe('Chat presentation policy', () => {
     expect(foldRender).toHaveBeenCalledTimes(1)
     expect(detailRender).toHaveBeenCalledTimes(1)
     act(() => { mode.set('detailed') })
-    // Both selected fields moved, so both consumers re-render.
+    // The detail body leaves its one-line summary; folding does not move.
     expect(foldRender).toHaveBeenCalledTimes(1)
     expect(detailRender).toHaveBeenCalledTimes(2)
     act(() => { mode.set('verbose') })
-    // verbose keeps 'expanded' details and keeps folding off, so neither moves.
+    // verbose keeps the collapsed tool body and turns folding off, so only the
+    // fold consumer re-renders.
     expect(foldRender).toHaveBeenCalledTimes(2)
     expect(detailRender).toHaveBeenCalledTimes(2)
     act(() => { mode.set('standard') })
+    expect(foldRender).toHaveBeenCalledTimes(3)
+    expect(detailRender).toHaveBeenCalledTimes(2)
+    act(() => { mode.set('compact') })
+    // Only Compact drops the body, so the detail consumer moves again while
+    // folding stays on.
     expect(foldRender).toHaveBeenCalledTimes(3)
     expect(detailRender).toHaveBeenCalledTimes(3)
   })

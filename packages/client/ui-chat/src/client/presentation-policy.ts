@@ -23,8 +23,12 @@ export interface ChatPresentationPolicy {
   readonly toolCallDetail: ToolCallDetail
 }
 
-/** Detail level a settled tool-call row shows for its argument/result body. */
-export type ToolCallDetail = 'summary' | 'collapsed' | 'expanded'
+/**
+ * Detail level a settled tool-call row shows for its argument/result body:
+ * `'summary'` drops the body and its toggle, `'collapsed'` keeps the body behind
+ * the row toggle. No level opens the body without a reader click.
+ */
+export type ToolCallDetail = 'summary' | 'collapsed'
 
 const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
   compact: {
@@ -49,7 +53,7 @@ const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
     stepGrouping: 'history',
     liveProcessDetail: true,
     settledReasoningPreview: true,
-    toolCallDetail: 'expanded',
+    toolCallDetail: 'collapsed',
   },
   verbose: {
     mode: 'verbose',
@@ -57,7 +61,7 @@ const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
     stepGrouping: 'none',
     liveProcessDetail: false,
     settledReasoningPreview: true,
-    toolCallDetail: 'expanded',
+    toolCallDetail: 'collapsed',
   },
 }
 
