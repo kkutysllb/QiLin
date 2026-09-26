@@ -523,3 +523,19 @@ agent-preset-authoring、approval-composer、background-job-list、bash-abort-ro
 **验证**：ui-primitives 单元 992 passed；`test:docs` 20/20；图标文件 oxlint 干净；`test:gui` 1 failed / 7822 passed（唯一失败是既有 ui-trajectory）；全量 replay 泳道 **27 文件红——失败文件集合与基线 `identical: True`**，用例 40（基线 38）。
 
 **解释那 +2（重要，避免被误读成 Step B 回归）**：`agent-preset-authoring` 是既有红文件。它的「copies 极简模式」用例第一个失败点因该 golden 同样含图标噪声而从 **147 前移到 125**（复制对话框尚未关闭就 abort）→ 残留模态挡住后面两个用例（行 165 / 243 超时）。改动前后的失败**文件**集合一致，故不是新红；该文件属既有红波次，**不做盲刷**（它的根因是更早波次的设置入口迁移遗留，与图标无关）。
+
+### 既有红根因波（2026-09-26）：27 文件 → 0
+
+**方法**：把 Step A/B 后的 27 个既有红逐条取错误详情并按根因分组，只修「真根因」，golden 类先跑 replay 拿到精确失败集再定向 refresh（未定性/仍红的文件一律不刷）；每批定向 replay 验证，最后全量泳道收口。
+
+| 组 | 文件 | 根因 | 处置 |
+|---|---|---|---|
+| 组装态夹具与桩 | built-boot、command-image-envelope、home-path-tilde、image-display、max-tokens-notice、search-card、todo-row、trajectory-image-display、submission-echo | ① fixture 的 workspace baseline 缺 `pinnedSessionIds` → `replaceBaseline` 抛错半途中断，界面静默降级成「Ungrouped」；② RemoteMock 缺 `session/projections`、`job/list` 两个通道；③ jsdom 无 `document.fonts`，`observeControlRow` 直接解引用导致 InputBar 整块不渲染 | 补夹具字段、两个 mock 通道、`document.fonts` 桩（提交 `f37307fa9d`） |
+| 过程分组可见性 | bash-abort-row、minimal-preset、workflow-run、clickable-links-gallery | C2 把过程行放进默认折叠的组 seat，旧断言/定位前提失效 | 先 `expandTurnProcesses` 再断言；workflow-run 的 `/^Run/` 与 run 行撞名，改按 `[data-workflow-run] [data-disclosure-row]` 取 phase 行 |
+| 探针量错元素 | window-drag-coverage | 拖拽标记在**外层常驻 header**，探针取的是内层 session header（批次三新增 leading 席位后两者高度不同） | 改用 `header[data-window-drag]` 矩形 |
+| golden 落后 | 33 个 golden 文件（agent-preset-authoring、background-job-list、github-ready-review、goal-multi-turn-actions、markdown-\*、math-rendering、queue-\*、streaming-fence-highlight、voice-input、workflow-run…） | 基线都拍在 C2 过程行 / 批次三头部改版 / Step A 状态-时长标题 / Step B 图标去噪落地之前 | 定向 refresh，差异逐类可解释（新增过程行与 status、移除已删的头标签页、图标离开可访问性树） |
+| 代际硬编码 | preset-migration | spec 把 successor 名与 `version` 硬编码成 v3（当前代已是 v4） | 改为由 `SESSION_FORMAT_VERSION` 派生 |
+
+**两个值得回馈上游的真问题**：① `document.fonts` 在无 CSS Font Loading 的环境（jsdom、部分 WebView）会让 composer 整块崩——上游同源代码；本仓在测试环境补桩（生产代码保持与上游一致）；② `replaceBaseline` 遇到缺字段会**半途中断并静默降级**，建议组装态夹具加载对必填字段 fail loud（下一步可做）。
+
+**结果**：全量 replay 泳道 **0 failed / 127 passed / 1 skipped**（文件）、**0 failed / 448 passed / 15 skipped**（用例），耗时约 11 分钟。
