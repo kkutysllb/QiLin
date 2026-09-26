@@ -124,7 +124,7 @@ export interface Config {
 
 - `inject`: `agents` · `sessions` · `llm` · `tools` · `systemPrompt` · `sessionProjections`
 - `refs`: [`AgentOptions`](subsystems/core.md) · [`SessionId`](subsystems/core.md) · `Volatile` (`@qilin/cosmokit`)
-- `source`: [`packages/core/agent-loop/src/index.ts:292`](../packages/core/agent-loop/src/index.ts)
+- `source`: [`packages/core/agent-loop/src/index.ts:311`](../packages/core/agent-loop/src/index.ts)
 
 ```ts config-catalog
 /** Agent-loop plugin configuration. */
@@ -2395,10 +2395,10 @@ export type SessionLogCompressionLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 ## `@qilin/session-persistence-jsonl`
 
-- `source`: [`packages/session/session-persistence-jsonl/src/index.ts:90`](../packages/session/session-persistence-jsonl/src/index.ts)
+- `source`: [`packages/session/session-persistence-jsonl/src/index.ts:102`](../packages/session/session-persistence-jsonl/src/index.ts)
 
 ```ts config-catalog
-/** Plugin config for the JSONL backend's root and physical encoding. */
+/** Plugin config for the JSONL backend's root, physical encoding, and full-generation verification placement. */
 export interface Config {
   /**
    * Root directory for all session files. Required (no default): a default of
@@ -2410,10 +2410,26 @@ export interface Config {
   root: string
   /** Physical encoding; defaults to checksummed Zstandard frames. */
   compression?: JsonlCompression
+  /**
+   * Where a staged or competing current generation is verified. `'isolated'`
+   * (default) verifies it in a fresh Worker Thread, keeping the decode of
+   * untrusted bytes out of the heap that owns the session; `'inline'` verifies
+   * on the calling thread. Select `'inline'` only in a host that replaces
+   * `node:worker_threads`: the browser worker host stubs that module because the
+   * whole tree already runs inside one Web Worker, where `new Worker` refuses.
+   * Both settings run the same verification and refuse a corrupt generation
+   * identically. Inline gives up the isolate's separation — a decode that
+   * exhausts memory or throws takes the host process down with it — while the
+   * shared permit still bounds concurrent full-generation decodes.
+   */
+  verification?: JsonlVerification
 }
 
 /** Physical encoding selected for JSONL session artifacts. */
 export type JsonlCompression = 'zstd' | 'none'
+
+/** Where full-generation verification runs. */
+export type JsonlVerification = 'isolated' | 'inline'
 ```
 <!-- END GENERATED config-catalog:@qilin/session-persistence-jsonl -->
 

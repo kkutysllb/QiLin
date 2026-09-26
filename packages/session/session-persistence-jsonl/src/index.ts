@@ -44,7 +44,7 @@ import {
   compressZstdFrame, createZstdFrameDecoder, decompressZstdFrame, decompressZstdPrefix, scanZstdFrames,
 } from './zstd.ts'
 import { ensureDurableDirectoryWin32, publishNewFileWin32 } from './win32.ts'
-import { verifyCurrentGenerationInWorker } from './migration-verifier.ts'
+import { verifyCurrentGenerationInWorker, verifyCurrentGenerationInline } from './migration-verifier.ts'
 import { prepareCatalogFacts } from './catalog-migration.ts'
 import {
   JsonlGenerationSourceChangedError,
@@ -54,6 +54,7 @@ import {
   type JsonlGenerationFormatAdapter,
   type JsonlPhysicalIdentity,
   type PreparedJsonlMigration,
+  type PrepareJsonlMigrationOptions,
 } from './generation.ts'
 
 export type { JsonlCompression } from './format.ts'
@@ -66,6 +67,8 @@ export type { JsonlCompression } from './format.ts'
 const COLD_LOG_MEMO_MAX_ENTRIES = 2
 
 const DEFAULT_COMPRESSION: JsonlCompression = 'zstd'
+/** Full-generation verification runs in a Worker Thread unless a host says otherwise. */
+const DEFAULT_VERIFICATION: JsonlVerification = 'isolated'
 /**
  * Internal scheduling constant, not deployment configuration: balance
  * frame-boundary event-loop yields against `setImmediate` overhead. One frame
@@ -86,7 +89,16 @@ export const JsonlCompressionSchema: z<JsonlCompression> = z.union([
   z.const('none'),
 ]).default(DEFAULT_COMPRESSION)
 
-/** Plugin config for the JSONL backend's root and physical encoding. */
+/** Where full-generation verification runs. */
+export type JsonlVerification = 'isolated' | 'inline'
+
+/** Loader schema for where full-generation verification runs. */
+export const JsonlVerificationSchema: z<JsonlVerification> = z.union([
+  z.const('isolated'),
+  z.const('inline'),
+]).default(DEFAULT_VERIFICATION)
+
+/** Plugin config for the JSONL backend's root, physical encoding, and full-generation verification placement. */
 export interface Config {
   /**
    * Root directory for all session files. Required (no default): a default of
@@ -98,6 +110,19 @@ export interface Config {
   root: string
   /** Physical encoding; defaults to checksummed Zstandard frames. */
   compression?: JsonlCompression
+  /**
+   * Where a staged or competing current generation is verified. `'isolated'`
+   * (default) verifies it in a fresh Worker Thread, keeping the decode of
+   * untrusted bytes out of the heap that owns the session; `'inline'` verifies
+   * on the calling thread. Select `'inline'` only in a host that replaces
+   * `node:worker_threads`: the browser worker host stubs that module because the
+   * whole tree already runs inside one Web Worker, where `new Worker` refuses.
+   * Both settings run the same verification and refuse a corrupt generation
+   * identically. Inline gives up the isolate's separation — a decode that
+   * exhausts memory or throws takes the host process down with it — while the
+   * shared permit still bounds concurrent full-generation decodes.
+   */
+  verification?: JsonlVerification
 }
 
 /** One stored event graph whose producer has established immutable sharing. */
@@ -246,6 +271,7 @@ class JsonlSessionPersistence extends SessionPersistence {
   static Config: z<Config> = z.object({
     root: z.string().required(),
     compression: JsonlCompressionSchema,
+    verification: JsonlVerificationSchema,
   })
 
   /** Backend label for diagnostics and effects; shadows `Service.name` without changing the service key. */
@@ -253,6 +279,7 @@ class JsonlSessionPersistence extends SessionPersistence {
 
   private root: string
   private compression: JsonlCompression
+  private readonly verifyCurrentFile: PrepareJsonlMigrationOptions['verifyCurrentFile']
   private rootEncodingCheck: Promise<void> | undefined
   private readonly tracker = new JsonlBackendTracker(this.name)
   private readonly generationFormat: Omit<JsonlGenerationFormatAdapter, 'createRestore'>
@@ -279,6 +306,9 @@ class JsonlSessionPersistence extends SessionPersistence {
     // Resolve once so later process.cwd() changes cannot split one backend across roots.
     this.root = resolve(config.root)
     this.compression = config.compression ?? DEFAULT_COMPRESSION
+    this.verifyCurrentFile = (config.verification ?? DEFAULT_VERIFICATION) === 'inline'
+      ? verifyCurrentGenerationInline
+      : verifyCurrentGenerationInWorker
     this.generationFormat = {
       currentVersion: sessionFormatCatalog.currentVersion,
       encodeHeader: (header, inheritedEventCount) =>
@@ -657,7 +687,7 @@ class JsonlSessionPersistence extends SessionPersistence {
           }),
         },
         validateRelatedSources,
-        verifyCurrentFile: verifyCurrentGenerationInWorker,
+        verifyCurrentFile: this.verifyCurrentFile,
         validateHistoricalHeader: headerValue => this.validateSourceIdentity(
           selected,
           headerValue,

@@ -1,5 +1,10 @@
+import { SESSION_FORMAT_VERSION } from '@qilin/session'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { verifyCurrentGenerationInWorker } from '../src/migration-verifier.ts'
+import { createHash } from 'node:crypto'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { verifyCurrentGenerationInline, verifyCurrentGenerationInWorker } from '../src/migration-verifier.ts'
 
 const state = vi.hoisted(() => ({ workers: [] as unknown[] }))
 
@@ -228,5 +233,65 @@ describe('migration verifier Worker lifecycle', () => {
       message: 'migration verifier aborted',
       cause: 'cancelled',
     })
+  })
+})
+
+describe('inline verification on the calling thread', () => {
+  const roots: string[] = []
+
+  afterEach(async () => {
+    for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true })
+  })
+
+  /** Write one current generation whose header is valid and whose body is the caller's bytes. */
+  async function generationFile(body: string): Promise<string> {
+    const root = await mkdtemp(join(tmpdir(), 'qilin-inline-verifier-'))
+    roots.push(root)
+    const path = join(root, 'inline-session.v4.jsonl')
+    const header = {
+      type: 'session', version: SESSION_FORMAT_VERSION, id: 'inline-session',
+      createdAt: 1, isSeeded: false, delegationDepth: 0,
+    }
+    await writeFile(path, `${JSON.stringify(header)}\n${body}`)
+    return path
+  }
+
+  it('reports the physical identity and digest of a valid generation', async () => {
+    const event = { type: 'turn/start', seq: 0, time: 2, data: { turn: 1 } }
+    const path = await generationFile(`${JSON.stringify(event)}\n`)
+    const bytes = await readFile(path)
+
+    await expect(verifyCurrentGenerationInline(path, 'none', 'inline-session', 1)).resolves.toMatchObject({
+      bytes: bytes.length,
+      digest: createHash('sha256').update(bytes).digest('hex'),
+    })
+  })
+
+  it('refuses a corrupt generation without a Worker Thread', async () => {
+    const path = await generationFile('{bad json}\n')
+
+    await expect(verifyCurrentGenerationInline(path, 'none', 'inline-session', 1))
+      .rejects.toThrow('corrupt session log: unparsable committed event at line 1')
+  })
+
+  it('refuses a header whose id or event count disagrees with the caller', async () => {
+    const event = { type: 'turn/start', seq: 0, time: 2, data: { turn: 1 } }
+    const path = await generationFile(`${JSON.stringify(event)}\n`)
+
+    await expect(verifyCurrentGenerationInline(path, 'none', 'other-session', 1))
+      .rejects.toThrow('expected "other-session"')
+    await expect(verifyCurrentGenerationInline(path, 'none', 'inline-session', 2))
+      .rejects.toThrow('contains 1 events')
+  })
+
+  it('observes cancellation before reading the generation', async () => {
+    const event = { type: 'turn/start', seq: 0, time: 2, data: { turn: 1 } }
+    const path = await generationFile(`${JSON.stringify(event)}\n`)
+    const controller = new AbortController()
+    const reason = new Error('inline verification cancelled')
+    controller.abort(reason)
+
+    await expect(verifyCurrentGenerationInline(path, 'none', 'inline-session', 1, undefined, controller.signal))
+      .rejects.toBe(reason)
   })
 })

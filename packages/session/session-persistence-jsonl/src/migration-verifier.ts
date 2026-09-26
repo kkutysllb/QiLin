@@ -1,7 +1,8 @@
-/** Isolated verification for a staged or competing current JSONL generation. */
+/** Verification for a staged or competing current JSONL generation, isolated in a Worker Thread or on the calling thread. */
 
 import { Worker } from 'node:worker_threads'
 import type { WorkerOptions } from 'node:worker_threads'
+import { verifyJsonlCurrentGeneration } from './generation.ts'
 import type { JsonlCompression } from './format.ts'
 import type { JsonlExpectedPrefix, JsonlVerifiedGeneration } from './generation.ts'
 
@@ -120,6 +121,43 @@ export function verifyCurrentGenerationInWorker(
     expectedEventCount,
     expectedPrefix,
     signal,
+  ), signal)
+}
+
+/**
+ * Verify one current generation on the calling thread.
+ *
+ * A host that replaces `node:worker_threads` cannot spawn the isolate
+ * `verifyCurrentGenerationInWorker` needs: the browser worker host stubs the
+ * module because the whole tree already runs inside one Web Worker, where
+ * nested workers are unsupported. This runs the same verification over the same
+ * bytes, so a corrupt generation is refused by the same checks. It takes the
+ * shared permit, so at most two full-generation decodes are live at once, and it
+ * observes cancellation before the decode starts, including while queued. What it gives up is
+ * the isolate's separation: a decode that exhausts memory or throws crashes the
+ * host, and a decode already running cannot be interrupted by cancellation.
+ * @param path - staged or competing current-generation path.
+ * @param compression - configured physical encoding.
+ * @param expectedId - Session id expected in the decoded header.
+ * @param expectedEventCount - exact logical event count expected after decoding.
+ * @param expectedPrefix - verified physical prefix; an append tail may be present and is not validated.
+ * @param signal - optional cancellation for scheduler wait and before the decode starts.
+ * @returns stable physical identity and digest observed on the calling thread.
+ */
+export function verifyCurrentGenerationInline(
+  path: string,
+  compression: JsonlCompression,
+  expectedId: string,
+  expectedEventCount: number,
+  expectedPrefix?: JsonlExpectedPrefix,
+  signal?: AbortSignal,
+): Promise<JsonlVerifiedGeneration> {
+  return verificationScheduler.run(() => verifyJsonlCurrentGeneration(
+    path,
+    compression,
+    expectedId,
+    expectedEventCount,
+    expectedPrefix,
   ), signal)
 }
 
