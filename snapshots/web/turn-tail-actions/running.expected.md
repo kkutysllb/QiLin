@@ -13,9 +13,8 @@
 - button "Copy":
   - img
 - tooltip "Copy"
-- button "1 tool call · 1 message" [expanded]:
-  - text: 1 tool call · 1 message
-  - img
+- status: QiLin...
+- button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context":
   - img
   - img

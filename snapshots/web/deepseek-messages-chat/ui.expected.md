@@ -12,9 +12,8 @@
 - text: 只回复 MESSAGES_WEB_READY，不调用工具。 {{clock}}
 - button "复制":
   - img
-- button "已思考":
-  - text: 已思考
-  - img
+- status: 已完成工作
+- button "用时 {{duration}}" [disabled]
 - paragraph: MESSAGES_WEB_READY
 - button "复制":
   - img

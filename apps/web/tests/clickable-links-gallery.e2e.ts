@@ -35,7 +35,7 @@ import {
   webSnapshotMode,
   type WebScaffold,
 } from './scaffold.ts'
-import { newEnglishPage, saveFailureShot } from './support.ts'
+import { expandTurnProcesses, newEnglishPage, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/clickable-links-gallery', import.meta.url))
 const UI_EXPECTED = fileURLToPath(new URL('./expected/clickable-links-gallery/ui.expected.md', import.meta.url))
@@ -377,7 +377,7 @@ describe('web e2e: clickable links gallery', () => {
     // it opens first. Rows expand via a right-edge click: the row center can
     // land on the nested fileLink button, which would hand the path to the
     // Host's opener.
-    await page.getByRole('button', { name: `${String(CALLS.length)} tool calls` }).click()
+    await expandTurnProcesses(page)
     for (const row of [
       /^Search clickable link styles/,
       /^Fetch /,

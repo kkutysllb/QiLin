@@ -16,9 +16,8 @@
 - text: and confirm the fixture wiring {{clock}}
 - button "Copy":
   - img
-- button "Thought for a while" [expanded]:
-  - text: Thought for a while
-  - img
+- status: Worked
+- button "Took {{duration}}" [disabled]
 - button "Context injection runtime-context":
   - img
   - img

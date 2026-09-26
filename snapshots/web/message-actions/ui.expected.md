@@ -15,9 +15,8 @@
 - button "Copy":
   - img
 - tooltip "Copy"
-- button "2 tool calls · 1 message" [expanded]:
-  - text: 2 tool calls · 1 message
-  - img
+- status: Stopped
+- button "Stopped" [disabled] [expanded]
 - button "Analysis completed"
 - paragraph: I will read both files before answering.
 - button "Copy":
@@ -41,9 +40,8 @@
 - text: Now give the final answer. {{clock}}
 - button "Copy":
   - img
-- button "Thought for a while":
-  - text: Thought for a while
-  - img
+- status: Worked
+- button "Took {{duration}}" [disabled]
 - paragraph: DONE
 - button "Copy":
   - img
@@ -59,9 +57,8 @@
 - text: {{clock}} Keep this later input in the original conversation. {{clock}}
 - button "Copy":
   - img
-- button "Thought for a while":
-  - text: Thought for a while
-  - img
+- status: Worked
+- button "Took {{duration}}" [disabled]
 - paragraph: ORIGINAL ONLY
 - button "Copy":
   - img

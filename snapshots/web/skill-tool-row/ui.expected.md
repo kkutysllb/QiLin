@@ -10,8 +10,9 @@
 - text: Load the editing-cordis-compositions skill with the skill tool, then reply DONE. {{date}} {{clock}}
 - button "Copy":
   - img
-- button "1 tool call" [expanded]:
-  - text: 1 tool call
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
   - img
 - button "Context injection runtime-context":
   - img

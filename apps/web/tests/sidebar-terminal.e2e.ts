@@ -508,7 +508,13 @@ describe.skipIf(process.platform === 'win32')('Web sidebar terminal', () => {
     expect(await page.getByRole('alert').count()).toBe(0)
     expect(alive(original)).toBe(true)
     const disconnected = fileURLToPath(new URL('./expected/sidebar-terminal/disconnected.expected.md', import.meta.url))
-    await compareOrRefreshGolden(disconnected, await page.getByRole('status').ariaSnapshot(), webSnapshotMode())
+    // Scope to the terminal panel: the Chat transcript also renders a status
+    // region for the Turn process.
+    await compareOrRefreshGolden(
+      disconnected,
+      await page.locator('[data-sidebar-terminal]').getByRole('status').ariaSnapshot(),
+      webSnapshotMode(),
+    )
     await page.screenshot({ path: `${shots}/disconnected.png`, fullPage: true })
     await reconnect.click()
     transport.reconnect()

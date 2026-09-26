@@ -30,6 +30,14 @@ const UI_EXPANDED_EXPECTED = join(SNAPSHOT_DIR, 'ui-expanded.expected.md')
 const MODE = webSnapshotMode()
 
 const SKILL_NAME = 'user-invoke-demo'
+
+/** Reveal a hidden-until-found process member through the browser's find-in-page event. */
+async function revealHiddenRow(page: Page, hasText: string): Promise<void> {
+  await page.locator('[data-chat-flow-kind="context"]').filter({ hasText }).first().evaluate((element) => {
+    const hidden = element.matches('[hidden]') ? element : element.querySelector('[hidden]')
+    hidden?.dispatchEvent(new Event('beforematch'))
+  })
+}
 const ARGS_TEXT = '@"meeting notes.md" and confirm the fixture wiring'
 const REPLY = 'USER_INVOKE_REPLY acknowledged; following the injected skill.'
 
@@ -123,19 +131,23 @@ describe.skipIf(MODE === 'record')('web e2e: user-explicit skill invocation thro
     expect(await bubble.textContent()).toBe(`/${SKILL_NAME}`)
 
     // The rendered body arrives as a context-injection row named after the
-    // skill. Context plus the final answer contributes no summary count, so
-    // the Turn uses the fallback title while the row's own disclosure remains usable.
+    // skill, inside the Turn process whose control titles the Turn status.
     const injectionFlow = page.locator('[data-chat-flow-kind="context"]').filter({ hasText: SKILL_NAME })
     await injectionFlow.waitFor({ state: 'attached', timeout: 15_000 })
     await page.getByText('USER_INVOKE_REPLY', { exact: false }).first().waitFor({ timeout: 20_000 })
     await settled
-    const process = page.getByRole('button', { name: 'Thought for a while', exact: true })
+    const process = page.locator('[data-turn-process]').first()
     await process.waitFor({ state: 'visible', timeout: 10_000 })
     // The chip derives from the step's logged injection, so it must survive
     // every later Node rebuild of the Turn (process publication, turn close).
     expect(await bubble.count()).toBe(1)
     expect(await bubble.textContent()).toBe(`/${SKILL_NAME}`)
     await expandOwningTurnProcess(page, injectionFlow)
+    // A Turn whose only process evidence is Context injection carries no
+    // external process and no inline reasoning, so its control offers no
+    // collapse action and the row stays hidden until found: the browser's
+    // find-in-page `beforematch` is the product path that reveals it.
+    await revealHiddenRow(page, SKILL_NAME)
     const injectionRow = page.getByRole('button', { name: `Context injection ${SKILL_NAME}` })
     await injectionRow.click()
     const injectionBody = page
@@ -146,10 +158,14 @@ describe.skipIf(MODE === 'record')('web e2e: user-explicit skill invocation thro
     expect(injected).toContain('Reply with the fixture acknowledgement line.')
     expect(injected).not.toContain(ARGS_TEXT)
     await injectionRow.click()
-    await process.click()
+    // This Turn's control offers no collapse action, so the default collapsed
+    // state comes back from the log rather than from a click.
+    await page.reload({ waitUntil: 'load' })
+    await page.getByText('USER_INVOKE_REPLY', { exact: false }).first().waitFor({ timeout: 20_000 })
 
     const snapshot = await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(UI_EXPECTED, snapshot, MODE)
+    await revealHiddenRow(page, SKILL_NAME)
     const expanded = await captureExpandedTurnProcessAria(
       page,
       '[class*="centerCol"]',

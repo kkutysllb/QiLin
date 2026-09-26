@@ -159,8 +159,10 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     const runningProcess = page.locator('[data-turn-process]')
     expect(await runningProcess.count()).toBe(1)
     expect(await runningProcess.getAttribute('aria-expanded')).toBe('true')
+    // The Turn-process row announces the same running text to assistive
+    // technology; the visible running status is the center-column one.
     await expect.poll(
-      () => page.getByRole('status').filter({ hasText: 'QiLin...' }).isVisible(),
+      () => page.locator('div[class*="turnStatus"]').first().isVisible(),
       { timeout: 10_000 },
     ).toBe(true)
     await page.locator('[data-streaming="true"]')
@@ -277,12 +279,14 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     expect(await process.getAttribute('aria-expanded')).toBe('false')
     expect(await tool.isVisible()).toBe(false)
 
-    // Folding belongs to the work-details mode: only the mode that keeps every
-    // step inline (Full detail) drops the whole-Turn control. The two-mode
-    // generation's saved `normal` is no longer offered, so the switch runs
-    // against the modes the selector actually lists.
+    // Folding belongs to the work-details mode: the mode that keeps every step
+    // inline (Full detail) leaves the whole-Turn control mounted as a disabled,
+    // permanently open header. The two-mode generation's saved `normal` is no
+    // longer offered, so the switch runs against the modes the selector lists.
     await selectWorkDetails('Standard', 'Full detail')
-    await expect.poll(() => process.count(), { timeout: 10_000 }).toBe(0)
+    await expect.poll(() => process.count(), { timeout: 10_000 }).toBe(1)
+    await expect.poll(() => process.isDisabled(), { timeout: 10_000 }).toBe(true)
+    expect(await process.getAttribute('aria-expanded')).toBe('true')
     await tool.waitFor({ state: 'visible', timeout: 10_000 })
     await expect.poll(async () => readFile(join(scaffold!.harnessHome, 'settings.yaml'), 'utf8'), { timeout: 5_000 })
       .toMatch(/ui-chat:\n\s+transcriptView: verbose/)

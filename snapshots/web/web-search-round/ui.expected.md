@@ -12,8 +12,9 @@
 - text: Use web_search once with queries ["QiLin snapshot search","QiLin multi-query search"]. Then reply exactly SEARCH_DONE and stop. {{clock}}
 - button "Copy":
   - img
-- button "1 tool call" [expanded]:
-  - text: 1 tool call
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
   - img
 - button "Context injection runtime-context":
   - img

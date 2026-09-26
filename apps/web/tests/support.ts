@@ -78,7 +78,10 @@ export async function expandOwningTurnProcess(page: Page, target: Locator): Prom
   if (turn === undefined || await target.isVisible()) return
   const control = page.locator(`[data-turn-process="${turn}"]`)
   await control.waitFor({ state: 'visible', timeout: 10_000 })
-  if (await control.getAttribute('aria-expanded') !== 'true') await control.click()
+  // Only a collapsed control opens its members. An absent aria-expanded means
+  // the Turn has nothing to collapse, and a disabled control cannot be clicked
+  // at all (Playwright would wait for it to become enabled).
+  if (await control.getAttribute('aria-expanded') === 'false') await control.click()
   if (await target.isVisible()) return
   // A grouped process row hides inside a collapsed group seat that the Turn
   // process reveals, so open that seat before retrying the visibility check.

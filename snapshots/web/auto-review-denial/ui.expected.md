@@ -8,8 +8,9 @@
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
 - button "Copy":
   - img
-- button "2 tool calls" [expanded]:
-  - text: 2 tool calls
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
   - img
 - button "Called tools, ran code, ran commands" [expanded]
 - text: Failed
@@ -48,8 +49,9 @@
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
 - button "Copy":
   - img
-- button "2 tool calls" [expanded]:
-  - text: 2 tool calls
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
   - img
 - button "Called tools, ran code, ran commands" [expanded]
 - text: Failed

@@ -5,8 +5,9 @@
 - text: 简单画一个 SVG 表示冯诺依曼架构, 保存为 von-neumann.svg {{clock}}
 - button "复制":
   - img
-- button "2 次工具调用 · 1 条消息" [expanded]:
-  - text: 2 次工具调用 · 1 条消息
+- status: 已完成工作
+- button "用时 {{duration}}" [expanded]:
+  - text: 用时 {{duration}}
   - img
 - button "上下文注入 runtime-context":
   - img

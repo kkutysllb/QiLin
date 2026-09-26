@@ -6,9 +6,8 @@
 - text: Show the Markdown image policy. {{clock}}
 - button "Copy":
   - img
-- button "Thought for a while":
-  - text: Thought for a while
-  - img
+- status: Worked
+- button "Took {{duration}}" [disabled]
 - heading "Markdown images" [level=2]
 - paragraph:
   - 'button "View full image: Remote test image"':

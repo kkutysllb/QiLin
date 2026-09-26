@@ -44,7 +44,7 @@ import {
 import { TurnTailNodeView } from '../src/client/chat/TurnTailNodeView.tsx'
 import { TurnProcessNodeView } from '../src/client/chat/TurnProcessNodeView.tsx'
 import { SystemPromptNodeView } from '../src/client/chat/SystemPromptRow.tsx'
-import { formatRunDuration } from '../src/client/chat/message-chrome.ts'
+import { formatLiveRunDuration, formatRunDuration } from '../src/client/chat/message-chrome.ts'
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 import type { TurnProcessSpec } from '../src/client/contract/turn-process.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
@@ -578,6 +578,17 @@ describe('Chat node rendering', () => {
     expect(formatRunDuration(-500, t)).toBe('0秒')
     expect(formatRunDuration(15_999, t)).toBe('15秒')
     expect(formatRunDuration(125_000, t)).toBe('2分05秒')
+  })
+
+  it('formatLiveRunDuration omits the live seconds pad and rolls over on exact bounds', () => {
+    const t = makeTranslate(zh, commonZh)
+    expect(formatLiveRunDuration(0, t)).toBe('0秒')
+    expect(formatLiveRunDuration(-500, t)).toBe('0秒')
+    expect(formatLiveRunDuration(15_999, t)).toBe('15秒')
+    expect(formatLiveRunDuration(59_000, t)).toBe('59秒')
+    expect(formatLiveRunDuration(60_000, t)).toBe('1分0秒')
+    expect(formatLiveRunDuration(125_000, t)).toBe('2分5秒')
+    expect(formatLiveRunDuration(3_723_000, t)).toBe('1小时02分3秒')
   })
 
 })
@@ -1383,7 +1394,10 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 6]]),
     })
     const view = render(<h.ChatView {...h.props} />)
-    const toggle = view.getByRole('button', { name: '1 次工具调用 · 1 条消息 · 1 个 subagent' })
+    // The tail time pill carries the same duration text, so select the control
+    // by its own seat attribute.
+    const toggle = turnProcessControl(view.container)!
+    expect(toggle.textContent).toBe('用时 4秒')
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('1')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('1')
@@ -1409,12 +1423,14 @@ describe('ChatView', () => {
     expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null, null])
 
     act(() => { h.set({ nodes: [user(1, 'question'), first] }) })
-    expect(view.getByRole('button', { name: '已思考' }).getAttribute('aria-expanded')).toBe('false')
+    const trimmedToggle = turnProcessControl(view.container)!
+    expect(trimmedToggle.textContent).toBe('用时 4秒')
+    expect(trimmedToggle.getAttribute('aria-expanded')).toBe('false')
     expect(members[0]?.getAttribute('hidden')).toBeNull()
     act(() => { h.set({
       nodes: [user(1, 'question'), first, toolResult(3, 'a'), toolResult(4, 'b', 'subagent'), second],
     }) })
-    const renewedToggle = view.getByRole('button', { name: '1 次工具调用 · 1 条消息 · 1 个 subagent' })
+    const renewedToggle = turnProcessControl(view.container)!
     expect(renewedToggle.getAttribute('aria-expanded')).toBe('true')
     expect(members[0]?.getAttribute('hidden')).toBeNull()
   })
@@ -1506,22 +1522,27 @@ describe('ChatView', () => {
     expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null])
   })
 
-  it('folds Context under the fallback title when every summary count is zero', () => {
+  it('folds Context under the worked title when the Turn carries no timings', () => {
     const h = makeHarness({
       nodes: [user(1, 'question'), context(2, 'runtime policy', 1), assistant(3, 'final answer', 1, 1)],
       turnEnds: new Map([[1, 4]]),
     })
     const view = render(<h.ChatView {...h.props} />)
-    const toggle = view.getByRole('button', { name: '已思考' })
+    const toggle = view.getByRole('button', { name: '已完成工作' })
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
 
-    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    // No external process and no inline reasoning: this Turn has nothing to
+    // collapse, so the control is disabled, omits aria-expanded, and leaves
+    // the Context row to find-in-page.
+    expect(toggle.hasAttribute('data-open')).toBe(false)
+    expect(toggle.hasAttribute('disabled')).toBe(true)
+    expect(toggle.getAttribute('aria-expanded')).toBeNull()
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('0')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('0')
     expect(toggle.getAttribute('data-turn-process-subagents')).toBe('0')
     expect(contextRow?.getAttribute('hidden')).toBe('until-found')
     fireEvent.click(toggle)
-    expect(contextRow?.getAttribute('hidden')).toBeNull()
+    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
   })
 
   it('keeps ordinary spacing when steering separates the process control from its answer', () => {
@@ -1597,7 +1618,11 @@ describe('ChatView', () => {
     expect(processRow.getAttribute('hidden')).toBe('until-found')
 
     act(() => { h.setTranscriptView('verbose') })
-    expect(turnProcessControl(view.container)).toBeNull()
+    // Verbose mode inlines every process row; the control stays mounted as a
+    // disabled, permanently open header instead of unmounting.
+    const verboseControl = turnProcessControl(view.container)
+    expect(verboseControl?.disabled).toBe(true)
+    expect(verboseControl?.hasAttribute('data-open')).toBe(true)
     expect(processRow.getAttribute('hidden')).toBeNull()
 
     act(() => { h.setTranscriptView('compact') })
@@ -1616,19 +1641,22 @@ describe('ChatView', () => {
       ]]),
     })
     const detailed = render(<h.ChatView {...h.props} />)
-    // Detailed appends both accounting pills beside the branch action.
+    // Detailed appends both accounting pills beside the branch action. Scope
+    // the time query to the tail: the process row shows 用时 too.
+    const detailedTail = detailed.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(detailed.getByText(/^用量 /)).toBeTruthy()
-    expect(detailed.getByText(/^用时 /)).toBeTruthy()
+    expect(within(detailedTail).getByText(/^用时 /)).toBeTruthy()
     detailed.unmount()
 
     h.setTailUsageMode('compact')
     const compact = render(<h.ChatView {...h.props} />)
     // Compact renders the bare action row: no usage pill, no time pill.
+    const compactTail = compact.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(compact.queryByText(/^用量 /)).toBeNull()
-    expect(compact.queryByText(/^用时 /)).toBeNull()
+    expect(within(compactTail).queryByText(/^用时 /)).toBeNull()
   })
 
-  it('folds final-step reasoning under the fallback title when every summary count is zero', () => {
+  it('folds final-step reasoning under the worked title when the Turn carries no timings', () => {
     const final = {
       ...assistant(3, 'final answer', 1, 1),
       blocks: [
@@ -1638,7 +1666,7 @@ describe('ChatView', () => {
     }
     const h = makeHarness({ nodes: [user(1, 'question'), final], turnEnds: new Map([[1, 4]]) })
     const view = render(<h.ChatView {...h.props} />)
-    const toggle = view.getByRole('button', { name: '已思考' })
+    const toggle = view.getByRole('button', { name: '已完成工作' })
     const reasoning = view.container.querySelector<HTMLElement>('[data-turn-process-inline]')
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(reasoning?.getAttribute('hidden')).toBe('until-found')
@@ -1689,7 +1717,7 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 4]]),
     }) })
     const toggle = turnProcessControl(view.container)!
-    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    expect(toggle.hasAttribute('data-open')).toBe(false)
     expect(contextRow?.getAttribute('hidden')).toBe('until-found')
     expect(view.getByLabelText('回到底部')).toBeTruthy()
   })
@@ -1715,14 +1743,13 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 4]]),
     }) })
     const processToggle = turnProcessControl(view.container)!
-    expect(processToggle.getAttribute('aria-expanded')).toBe('true')
+    expect(processToggle.hasAttribute('data-open')).toBe(true)
     expect(contextRow?.getAttribute('hidden')).toBeNull()
     expect(document.activeElement).toBe(contextToggle)
 
-    fireEvent.click(processToggle)
-    expect(document.activeElement).toBe(processToggle)
-    expect(processToggle.getAttribute('aria-expanded')).toBe('false')
-    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
+    // Nothing to collapse in this Turn, so the control stays disabled and the
+    // focused Context row keeps the reader's focus.
+    expect(processToggle.disabled).toBe(true)
   })
 
   it('folds a completed Turn whose start is outside a partial history window', () => {
@@ -1813,8 +1840,9 @@ describe('ChatView', () => {
     const h = makeHarness({ chat: partial, hasMore: true })
     const view = render(<h.ChatView {...h.props} />)
     // The disclosure control stays mounted for a partial process range; only
-    // its foldable members are absent until the range fills in.
-    expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
+    // its foldable members are absent until the range fills in. The range is
+    // not yet collapsible content, so it carries no aria-expanded.
+    expect(turnProcessControl(view.container)).toBeTruthy()
 
     const beforeKeys = partial.locations.getTurn(1)
     const completeSpec = { ...partialSpec, processStartSeq: 2 }
@@ -1941,7 +1969,8 @@ describe('ChatView', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     // The time pill carries the run time; first-step ttft (1.2s) and 100
     // tokens over 5s of decode move into its dialog.
-    const timeTrigger = view.getByRole('button', { name: /用时 19秒/ })
+    const timeTrigger = within(view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!)
+      .getByRole('button', { name: /用时 19秒/ })
     expect(timeTrigger.textContent).toBe('用时 19秒')
     expect(view.queryByText(/速度 20 tok\/s|首 token/)).toBeNull()
     fireEvent.click(timeTrigger)
@@ -1966,7 +1995,8 @@ describe('ChatView', () => {
     const view = render(<h.ChatView {...h.props} />)
     // Timing facts keep their pill, but with no usage in the window there is
     // no usage pill to click.
-    expect(view.getByRole('button', { name: /用时/ })).toBeTruthy()
+    expect(within(view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!)
+      .getByRole('button', { name: /用时/ })).toBeTruthy()
     expect(view.queryByRole('button', { name: /用量/ })).toBeNull()
   })
 
