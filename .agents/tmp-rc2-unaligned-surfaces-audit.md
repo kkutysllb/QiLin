@@ -588,3 +588,33 @@ aria-hidden；`ui-trajectory` 的轨迹画布是 `role="img" + aria-label`，属
 | 8 | O Office | `skill/tool-workspace-dependencies` 新包 + sdk-app 两行（`workspace-dependencies`/`skill-office`）+ `python/sdk-runtime` 资源面 | 中 | 已拍板 |
 
 **执行纪律（沿用本仓既有做法）**：每个波次先出**差分报告**再动手；只搬该能力增量、其它未对齐项只报告；每波跑包级 vitest + `tsc` + `test:docs` + 改动路径 oxlint；golden 不盲刷（只刷相关 spec 并逐条解释 diff）；探针不进 `apps/web/tests/`；不边跑 e2e 边 build；每波结束时由主会话跑一次**全量 replay 泳道**做认证。
+
+### 8 波收口与本会话总账（2026-09-26）
+
+**本轮 ③ 的 8 个波次全部落地**（每波都有差分报告与包级验证，主会话对 1-4、5、6+7 分别跑过全量 replay 泳道认证）：
+
+| 波 | 内容 | 依赖变化 | 认证 |
+|---|---|---|---|
+| 1 | 缩放（zoom 视口 + 浮动控件 + PDF 缩放后重绘） | 无 | 全量泳道 0 failed |
+| 2 | Markdown 本地图片（path-images） | 无 | 含在 1-4 合并认证 |
+| 3 | 资源变更刷新（ResourceGroup + autoRefresh 整链） | 无 | 含在 1-4 合并认证 |
+| 4 | 文档头部三席位（actions / unpreviewable / action）+ ui-open-in-app 打开入口 | 无 | 含在 1-4 合并认证 |
+| 5 | zoom 的 e2e 覆盖面（揭示/隐藏、预设切换、图片 200%、Office 捏合 166%/400%、DPR 重绘断言） | 无（只动测试面 + 2 个 golden 定向刷新） | 全量泳道 0 failed |
+| 6 | Excel 表格预览整族 | 重：fortune-sheet ×2 / exceljs 三个补丁 + exceljs/fast-xml-parser/fflate/papaparse/xlsx 依赖 + lockfile | 6+7 合并认证 0 failed |
+| 7 | 静态 HTML 预览（DOMPurify 清理 + CSP） | dompurify ^3.4.11 | 1-7 合并认证 0 failed |
+| 8 | Office 随包（tool-workspace-dependencies 新包 + sdk-app 两行 + python deploy closure） | 两条 workspace 依赖 | 终认证见下 |
+
+**必须记下的两个边界判定（主会话裁决后执行）**
+
+1. Office 的启用 gate 翻译：上游 sdk-app 的两行用 DSH_PRIMARY_RUNTIME / DSH_BUNDLED_PRIMARY_RUNTIME（桌面 primary runtime）做 !!js 条件启停，而本仓明确不采桌面壳与 scripts/primary-runtime。判定：env 改名为 QILIN_PRIMARY_RUNTIME / QILIN_BUNDLED_PRIMARY_RUNTIME，保持「没有 runtime 就不启用」的语义；不改 runtime-bootstrap.mjs，因此默认两行保持 disabled（不会去读不存在的 payload）。激活方式（env、payload 目录结构、office-skills 从 packages/skill/skill-office/assets/ 复制）写进 sdk-app patch 注释与新包 README 的 Carrier activation 一节。没有凭空造 runtime，也没有无条件启用。
+2. python 资源校验面（_resources.py、hatch_build 的 runpy 校验、__init__ 的 validate_resources、runtime-bootstrap 载体默认）：它们校验 scripts/primary-runtime 的产出，而本仓的 build-exe-for-python-sdk.ts 早已删除 preparePrimaryRuntime 调用、也没有该目录。照搬会让 wheel 构建直接失败，故只补 exe deploy closure 两行，并在 README 声明「payload 始终由部署方提供」。
+
+**遗留与建议（按优先级）**
+
+1. libreoffice-kit ^0.1.0 -> ^0.1.1 跨包 chore（牵 web-app、office-to-pdf、minimumReleaseAgeExclude、lockfile；只改 skill-office 会同时装两份）——建议单独一波。
+2. tests/fuzz/（Excel 模糊测试 harness）不采：generate.py 需 Openpyxl/XlsxWriter/Pillow 且由桌面 primary runtime 驱动；README 死链已改写，本仓现只有 14 个已提交夹具的回归。
+3. 既有门禁红（均已在 HEAD 或干净 worktree 复现，非本会话引入）：verify-cordis-config（唯一报错：packages/bundle/web-app/cordis.patch.yml 的 @qilin/tool-kylin/host 缺 tsconfig.base.json 源面映射——主会话已独立复核：本会话对该文件的改动只有新增 @qilin/tool-workspace-dependencies 一行）、verify-runtime-closure、verify-npm-install-layout、verify-client-domain-graph、packages/client/ui-chat/tests/chat-view.client.spec.tsx 的 pre-existing oxlint、test:gui 的 ui-trajectory tooltip 与 ui-approval invariant 噪声。
+4. 漂移类残留：cordis-tool-round / schedule-catalog 的 pin「陈旧但无人断言」；complex-history.perf 的 v4 合成日志失败（opt-in、非 CI）。
+5. 待决策的小项：双 live region（ChatView 可见状态行 + 控件 visually-hidden 宣布）是否合并；chevron 取 label-caption 还是 QiLin 原 label-tertiary；面包屑 disabled button vs 上游 span；可选 bundle 本地化 BUILTIN_COPY vs pkg.meta 的结构性分歧；boot-patch 在 jsonl 行改名后静默跳过。
+
+**本会话的方法学沉淀（写给后续）**：① 每一波都先做「改动前基线 vs 改动后」的对照，净新增失败必须为 0 才算完成；② golden 刷新先取精确失败集、只刷相关 spec、逐条解释 diff，禁止整片 refresh；③ 偶发竞态必须造出真实触发事件才谈复现；④ 同树并发（agent 写文件 vs 泳道运行）会产生假红（hmr-live 已实测证实一次），串行是纪律不是建议；⑤ 生成物门禁（client slot catalog、third-party notices、docs catalogs、tsconfig paths、lockfile integrity）要跟着源改动一起结清，否则会在 doc-sync/CI 处积欠。
