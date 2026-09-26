@@ -9,7 +9,8 @@
  * workspace unknown — takes the same bar's place over the pages already loaded,
  * with the same reload. The type's controls — the editor open for a file the
  * editor type takes, viewer choice, wrap, and reload — sit at the end of the
- * path row; the Sidebar's strip carries none of them.
+ * path row, and the seats other plugins contribute to act on the file through
+ * its Host path; the Sidebar's strip carries none of them.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
@@ -69,7 +70,12 @@ export interface TextPreviewInjected extends TextInjected {
 /** The body's composed props: the tab, its navigation, the shared store and face, and copy. */
 export type TextPreviewProps =
   & PropsRuntime<'sidebar.right.pane.tab'>
-  & PropsRenderSlots<'sidebar.right.tab.document'>
+  & PropsRenderSlots<
+    | 'sidebar.right.tab.document'
+    | 'sidebar.right.tab.document.action'
+    | 'sidebar.right.tab.document.actions'
+    | 'sidebar.right.tab.document.unpreviewable'
+  >
   & PropsStore<TextStore>
   & InjectFace<TextPreviewInjected>
   & PropsLocale<'sidebarDocumentPreview'>
@@ -122,7 +128,10 @@ export function TextPreview({
   const pathRef = useRef<HTMLDivElement | null>(null)
   const pathTextRef = useRef<HTMLSpanElement | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  const displayPath = meta.value?.absolutePath ?? current?.complete?.absolutePath ?? file.path
+  const absolutePath = meta.value?.absolutePath ?? current?.complete?.absolutePath
+  const displayPath = absolutePath ?? file.path
+  // Contributions that hand the file to the Host wait for its Host path.
+  const fileOwner = absolutePath === undefined ? undefined : { absolutePath }
   usePathClipped(pathRef, pathTextRef, displayPath, state !== undefined)
   // Every tab of this type is a `file` resource address, so its params are the
   // `file` type's; the union is narrowed on the one field read, not validated.
@@ -235,11 +244,13 @@ export function TextPreview({
               <span className={css.pathName}>{unsupportedName}</span>
             </span>
           </div>
+          {fileOwner !== undefined && renderSlot('sidebar.right.tab.document.actions', fileOwner)}
         </div>
         <div className={css.body} data-textpreview-body>
           <div className={css.empty} data-textpreview-unsupported>
             <FileTypeIcon kind={classifyFileType(unsupportedName)} size={36} className={css.emptyIcon} />
             <p className={css.emptyLine}>{t('unsupportedFile')}</p>
+            {fileOwner !== undefined && renderSlot('sidebar.right.tab.document.unpreviewable', fileOwner)}
           </div>
         </div>
       </div>
@@ -349,6 +360,7 @@ export function TextPreview({
             </button>
           </Tooltip>
         )}
+        {content !== undefined && renderSlot('sidebar.right.tab.document.action', { content }, { entryKey: selected.id, hookContext: useTabInfo })}
         <span hidden>
           <Tooltip label={t(state.autoRefresh ? 'autoRefresh.disable' : 'autoRefresh.enable')} side="bottom" delayMs={500}>
             <button type="button" className={css.tool} aria-label={t('autoRefresh')}
@@ -369,6 +381,7 @@ export function TextPreview({
             <IconRefreshOutline16 />
           </button>
         </Tooltip>
+        {fileOwner !== undefined && renderSlot('sidebar.right.tab.document.actions', fileOwner)}
       </div>
       <div
         ref={bindBody}

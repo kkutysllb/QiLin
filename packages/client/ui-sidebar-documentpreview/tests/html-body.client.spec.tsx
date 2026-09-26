@@ -7,7 +7,6 @@ import type { Resources, ResourceSnapshot } from '@qilin/client-resources/client
 import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
 import type { SessionId } from '@qilin/session/types'
 import { TextPreview } from '../src/client/TextPreview.tsx'
-import type { DocumentBodyOwner } from '../src/client/document/contract.ts'
 import { textFace } from '../src/client/face.ts'
 import { HtmlBody } from '../src/client/html/HtmlBody.tsx'
 import type { HtmlBodyProps } from '../src/client/html/HtmlBody.tsx'
@@ -91,7 +90,7 @@ describe('HtmlBody', () => {
     const definition = { ...htmlBodyDefinition(() => 'HTML'), extensions: ['md'] }
     const preview = () => <TextPreview {...previewProps} {...face}
       useDocumentPreviews={select => select([definition])}
-      renderSlot={documentSlots((_key, owner) => <HtmlBody {...htmlProps} {...owner as unknown as DocumentBodyOwner}
+      renderSlot={documentSlots((_key, owner) => <HtmlBody {...htmlProps} {...owner}
         useTabInfo={previewProps.useTabInfo} readRelated={readRelated} />)} />
     const view = render(preview())
     await waitFor(() => {

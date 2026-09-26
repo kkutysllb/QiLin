@@ -46,7 +46,10 @@
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-layout",
         "@qilin/client-ui-renderer",
-        "@qilin/client-ui-session"
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-sidebar-documentpreview",
+        "@qilin/api-remotes",
+        "@qilin/api-session-controller"
       ],
       "platform": "web"
     }
@@ -55,6 +58,7 @@
     "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/client-locale": "workspace:*",
     "@qilin/client-shortcuts": "workspace:*",
@@ -65,6 +69,7 @@
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-sidebar-documentpreview": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
     "@qilin/host-open-in-app": "workspace:*",
     "@qilin/kylin": "workspace:~",

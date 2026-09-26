@@ -109,6 +109,9 @@ Sidebar 声明五个扩展 slot；其文档 tab 另行声明下表中的 keyed �
 | `sidebar.right.tab.guide` | chain，会话作用域 | 替换引导 tab 的内容而不替换 tab；第一个不拒绝的条目接管正文，否则渲染自带引导。 |
 | `sidebar.right.tab.menu.item` | list，会话作用域 | 追加在 kit 自身布局动作之后的内容级动作。执行了动作的条目必须调用 owner 的 `dismiss()`。 |
 | `sidebar.right.tab.document` | 按文档实现的 `id` keyed，会话作用域 | 文档 tab 内选中的文件渲染器；父组件拥有共享加载与工具栏控件。 |
+| `sidebar.right.tab.document.actions` | list，会话作用域 | 作用于被预览文件的工具栏贡献，在 Host 报告文件的绝对路径后渲染于路径行末尾。每个条目接收 `{ absolutePath }`。 |
+| `sidebar.right.tab.document.unpreviewable` | list，会话作用域 | 本预览无法渲染的文件的空态贡献，渲染在不支持预览的说明下方。每个条目接收同样的 `{ absolutePath }`。 |
+| `sidebar.right.tab.document.action` | 按渲染器的 `id` keyed，会话作用域 | 渲染器专属控件，位于工具栏重新载入按钮之前。每个条目接收所选渲染器的 `content` 与所在 tab 的 `useTabInfo` 钩子上下文。 |
 
 正文、标题、徽标与引导页替换项接收框架注入的 `useTabInfo()`。它返回 `{ sidebar, panel, tab }`：`sidebar` 包含 `expanded` 与 `fullscreen`，`panel.id` 标识所属窗格，`tab` 包含记录字段以及 `visible`、`navigation`、`signal` 和 `actions`。停靠正文仅在展开且活跃时可见；停靠标题只要求展开；浮窗保持可见。`signal` 在记录消失或插件卸载时中止，不因隐藏或切换 Session 而中止。`tab.actions` 提供绑定到标签所属 Session 的 `openResource`、`openTab` 与 `close`。打开位置缺省为当前所属窗格；`revealIfOpened` 缺省为 `true`，`replaceTab: true` 在同一历史项中替换本记录。菜单项保留普通的 `tab` 与 `dismiss` owner 参数。
 
@@ -125,7 +128,7 @@ Sidebar 声明五个扩展 slot；其文档 tab 另行声明下表中的 keyed �
 
 ## 文档渲染器
 
-`text` tab 是共享的 Document Preview 所有者。其[根注册](../../packages/client/ui-sidebar-documentpreview/src/client/index.ts)声明 `sidebar.right.tab.document` 并提供 `ctx.documentPreviews`。渲染器在自己的 effect 中注册 `DocumentPreviewDefinition` 元数据，再通过 `ctx.slots.inject('sidebar.right.tab.document', ...)` 等待 slot，以 `key: definition.id` 和自己的 locale 命名空间注册组件。渲染器注册自己的正文，并可通过子 slot 复用共享展示组件。切换渲染器不改变 tab 或资源地址；[扩展决议](../../.agents/notes/implemented/architecture/2026-09-08-document-preview-operations.zh.md)将预览策略与资源归属分开。
+`text` tab 是共享的 Document Preview 所有者。其[根注册](../../packages/client/ui-sidebar-documentpreview/src/client/index.ts)声明 `sidebar.right.tab.document` 并提供 `ctx.documentPreviews`。渲染器在自己的 effect 中注册 `DocumentPreviewDefinition` 元数据，再通过 `ctx.slots.inject('sidebar.right.tab.document', ...)` 等待 slot，以 `key: definition.id` 和自己的 locale 命名空间注册组件。渲染器注册自己的正文，并可通过子 slot 复用共享展示组件。另有三个子 slot 把文件交给其他插件：list 席位 `sidebar.right.tab.document.actions` 与 `sidebar.right.tab.document.unpreviewable` 接收 `{ absolutePath }`，keyed 席位 `sidebar.right.tab.document.action` 接收所选渲染器的 `content`。切换渲染器不改变 tab 或资源地址；[扩展决议](../../.agents/notes/implemented/architecture/2026-09-08-document-preview-operations.zh.md)将预览策略与资源归属分开。
 
 [注册表](../../packages/client/ui-sidebar-documentpreview/src/client/document/registry.ts)记录唯一的 `id`、`extensions`、本地化 `title()`、`loading`，以及可选的 `priority` 和 `wrap`。后缀匹配不区分大小写，先排 `extension`（缺省值）、再排 `builtin`，随后比较后缀长度（长者优先）与注册顺序。与 tab kind 替换不同，注册表保留所有实现；工具栏列出匹配的候选，按 tab 记住选择。未知扩展名使用纯文本。`binaryExtensions` 声明的后缀不提供纯文本备选，见[包 README](../../packages/client/ui-sidebar-documentpreview/README.zh.md#what-it-registers)。`loading` 为 `text-pages`、`bytes-complete` 或 `renderer`；`wrap` 声明是否支持共享的源码换行控件。
 

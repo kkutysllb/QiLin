@@ -1,0 +1,84 @@
+/* The document header's file opener: a 28px split button matching the tool
+   row, and its labeled larger form in an unpreviewable file's empty state. */
+
+.split {
+  display: inline-flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  height: 28px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--dsw-font-family);
+}
+
+.main,
+.chevron {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.main {
+  padding: 0 6px;
+}
+
+.chevron {
+  padding: 0 5px;
+  border-left: 0.5px solid var(--dsw-alias-border-l4);
+}
+
+.main:hover:not(:disabled),
+.main:focus-visible,
+.chevron:hover:not(:disabled),
+.chevron:focus-visible {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.main:disabled,
+.chevron:disabled {
+  color: var(--dsw-alias-label-dimmed);
+  cursor: wait;
+}
+
+.split[data-state='error'] .main {
+  color: var(--dsw-alias-state-error-primary);
+  box-shadow: inset 0 0 0 1px var(--dsw-alias-state-error-primary);
+}
+
+.split[data-size='large'] {
+  height: 32px;
+  border-radius: 9px;
+}
+
+.split[data-size='large'] .main {
+  padding: 0 10px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.split[data-size='large'] .chevron {
+  padding: 0 7px;
+}
+
+.label {
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.icon {
+  flex: none;
+}
+
+img.appIcon {
+  display: block;
+  object-fit: contain;
+  user-select: none;
+  flex: none;
+}

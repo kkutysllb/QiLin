@@ -1,4 +1,4 @@
-/** `open-in-app` namespace dictionaries. */
+/** `open-in-app` namespace dictionaries: the workspace split button and the document preview's file controls. */
 
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'open-in-app'
@@ -42,6 +42,14 @@ export const zh = {
   'open.title': '在 {app} 中打开工作目录',
   'open.tooltip': '在本地打开',
   'open.error': '打开失败',
+  'path.open': '在本地打开',
+  'path.more': '更多打开方式',
+  'path.reveal': '显示文件位置',
+  'path.appDefault': '{app}（默认）',
+  'path.appsLoading': '正在获取应用列表…',
+  'path.appsError': '无法获取应用列表',
+  'path.openError': '打开失败，请重试',
+  'path.revealError': '无法显示文件位置，请重试',
   'shortcut.busy': '正在打开工作区',
   'shortcut.unavailable': '当前工作区或本地应用不可用',
   'menu.toggle': '选择打开方式',
@@ -58,6 +66,14 @@ export const en: Record<OpenInAppKey, string> = {
   'open.title': 'Open workspace in {app}',
   'open.tooltip': 'Open locally',
   'open.error': 'Failed to open',
+  'path.open': 'Open locally',
+  'path.more': 'More ways to open',
+  'path.reveal': 'Show file location',
+  'path.appDefault': '{app} (default)',
+  'path.appsLoading': 'Loading applications…',
+  'path.appsError': 'Could not load applications',
+  'path.openError': 'Could not open. Try again.',
+  'path.revealError': 'Could not show the file location. Try again.',
   'shortcut.busy': 'Opening workspace',
   'shortcut.unavailable': 'Current workspace or local application unavailable',
   'menu.toggle': 'Choose an app to open in',

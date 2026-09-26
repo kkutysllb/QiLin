@@ -3761,6 +3761,9 @@ importers:
 
   packages/client/ui-open-in-app:
     devDependencies:
+      '@qilin/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
       '@qilin/api-session-controller':
         specifier: workspace:*
         version: link:../../api/session-controller
@@ -3791,6 +3794,9 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin/client-ui-sidebar-documentpreview':
+        specifier: workspace:*
+        version: link:../ui-sidebar-documentpreview
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots

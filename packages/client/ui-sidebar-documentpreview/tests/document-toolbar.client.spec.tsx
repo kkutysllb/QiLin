@@ -2,7 +2,6 @@
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { RemoteError } from '@qilin/client-test-runtime'
-import type { OwnerOf } from '@qilin/client-ui-slots'
 import { TextPreview } from '../src/client/TextPreview.tsx'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import type { DocumentPreviewDefinition } from '../src/client/document/registry.ts'
@@ -27,7 +26,7 @@ function codeProps(h: ReturnType<typeof harness>): TextPreviewProps {
   return {
     ...props,
     useDocumentPreviews: selector => selector([definition]),
-    renderSlot: documentSlots((_key, owner) => <CodeBody {...props} {...owner as unknown as OwnerOf<'sidebar.right.tab.document'>} t={key => key} />),
+    renderSlot: documentSlots((_key, owner) => <CodeBody {...props} {...owner} t={key => key} />),
   }
 }
 
@@ -157,12 +156,12 @@ describe('document toolbar', () => {
     expect(view.getByRole('status').hasAttribute('data-document-loading')).toBe(true)
     expect(view.getByRole('status').getAttribute('aria-label')).toBe('loading')
     expect(view.container.querySelector('[data-textpreview-body]')?.firstElementChild).toBe(view.getByRole('status'))
-    expect(renderSlot).not.toHaveBeenCalled()
+    expect(renderSlot).not.toHaveBeenCalledWith('sidebar.right.tab.document', expect.anything(), expect.anything())
     await act(async () => {
       pending.resolve(result)
       await pending.promise
     })
-    expect(renderSlot).toHaveBeenCalled()
+    expect(renderSlot).toHaveBeenCalledWith('sidebar.right.tab.document', expect.anything(), expect.anything())
     expect(view.queryByRole('status')).toBeNull()
   })
 
@@ -321,6 +320,48 @@ describe('document toolbar', () => {
     expect(view.container.querySelector('[data-textpreview-tool="reload"]')).toBeNull()
     expect(h.read).not.toHaveBeenCalled()
     expect(h.bytes).not.toHaveBeenCalled()
+    h.controller.abort()
+  })
+
+  it('hands the file to the header and action seats once its Host path is known', async () => {
+    const h = harness({ 1: page(1, ['held'], true) })
+    const renderSlot = vi.fn(() => null)
+    const view = render(<TextPreview {...h.props()} renderSlot={renderSlot} />)
+    await settle()
+    expect(view.container.querySelector('[data-textpreview-body]')).not.toBeNull()
+    expect(renderSlot).toHaveBeenCalledWith('sidebar.right.tab.document.actions', { absolutePath: ABSOLUTE_PATH })
+    expect(renderSlot).toHaveBeenCalledWith('sidebar.right.tab.document.action', expect.anything(), expect.objectContaining({ entryKey: PLAIN_BODY_ID }))
+    expect(renderSlot).not.toHaveBeenCalledWith('sidebar.right.tab.document.unpreviewable', expect.anything())
+    h.controller.abort()
+  })
+
+  it('offers an unpreviewable file to both its header and empty-state seats', async () => {
+    const h = harness()
+    const base = h.props()
+    const info = base.useTabInfo()
+    const address = 'qilin-resource://file/session/s-1/work/clip.mp4'
+    const renderSlot = vi.fn(() => null)
+    const props: TextPreviewProps = {
+      ...base,
+      useTabInfo: () => ({ ...info, tab: { ...info.tab, contentId: address, navigation: { ...info.tab.navigation, address } } }),
+      renderSlot,
+    }
+    render(<TextPreview {...props} />)
+    await settle()
+    expect(renderSlot).toHaveBeenCalledWith('sidebar.right.tab.document.actions', { absolutePath: ABSOLUTE_PATH })
+    expect(renderSlot).toHaveBeenCalledWith('sidebar.right.tab.document.unpreviewable', { absolutePath: ABSOLUTE_PATH })
+    expect(h.read).not.toHaveBeenCalled()
+    h.controller.abort()
+  })
+
+  it('withholds every file seat until the Host reports the file path', async () => {
+    const h = harness({ 1: page(1, ['held'], true) })
+    h.useResource.mockReturnValue({ status: 'loading', value: undefined, failure: undefined })
+    const renderSlot = vi.fn(() => null)
+    render(<TextPreview {...h.props()} renderSlot={renderSlot} />)
+    await settle()
+    expect(renderSlot).not.toHaveBeenCalledWith('sidebar.right.tab.document.actions', expect.anything())
+    expect(renderSlot).not.toHaveBeenCalledWith('sidebar.right.tab.document.unpreviewable', expect.anything())
     h.controller.abort()
   })
 

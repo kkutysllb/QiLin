@@ -4,7 +4,6 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, onTestFinished, vi } from 'vitest'
 import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
-import type { OwnerOf } from '@qilin/client-ui-slots'
 import type { OfficeToPdfGeneration } from '@qilin/office-to-pdf/types'
 import type { DocumentPreviewDefinition } from '../src/client/document/registry.ts'
 import type { DocumentContent } from '../src/client/document/contract.ts'
@@ -13,7 +12,7 @@ import { OfficeBody, type OfficeBodyProps } from '../src/client/office/OfficeBod
 import { createOfficeStore, type OfficeState } from '../src/client/office/store.ts'
 import type { ReadOfficeDocument } from '../src/client/office/cache.ts'
 import { en } from '../src/client/office/locales.ts'
-import { harness, ABSOLUTE_PATH, TAB_ID, settle } from './fixtures.client.ts'
+import { documentSlots, harness, ABSOLUTE_PATH, TAB_ID, settle } from './fixtures.client.ts'
 
 beforeEach(() => {
   vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} })
@@ -45,10 +44,8 @@ it('lets a non-Office renderer load content, report its version, and reload thro
     useEffect(() => { if (displayed !== undefined) request?.loaded(displayed.version) }, [displayed, request?.loaded])
     return <p>{displayed?.text ?? 'Loading custom content'}</p>
   }
-  const renderSlot: TextPreviewProps['renderSlot'] = (_name, input) => {
-    const owner = input as unknown as OwnerOf<'sidebar.right.tab.document'>
-    return <CustomBody content={owner.content} />
-  }
+  const renderSlot: TextPreviewProps['renderSlot'] = documentSlots((_key, owner) =>
+    <CustomBody content={owner.content} />)
   const useDocumentPreviews: TextPreviewProps['useDocumentPreviews'] = selector => selector([custom])
   const view = render(<TextPreview {...h.props()} renderSlot={renderSlot} useDocumentPreviews={useDocumentPreviews} />)
   expect(read).toHaveBeenCalledTimes(1)
@@ -100,8 +97,7 @@ function setup() {
   }
   const describeFailure: OfficeBodyProps['describeFailure'] = error => error.message
   let request: Extract<DocumentContent, { kind: 'renderer' }> | undefined
-  const slots: TextPreviewProps['renderSlot'] = (_key, input, options) => {
-    const owner = input as unknown as OwnerOf<'sidebar.right.tab.document'>
+  const slots: TextPreviewProps['renderSlot'] = documentSlots((_key, owner, options) => {
     if (owner.content.kind !== 'renderer') return <p>Raw bytes</p>
     request = owner.content
     // The component fixture supplies the standard seats used by Office; the real slot binding is exercised by the browser scenario.
@@ -112,7 +108,7 @@ function setup() {
       ),
     } as unknown as OfficeBodyProps
     return <OfficeBody {...props} />
-  }
+  })
   function View({ renderer = true }: { renderer?: boolean }) {
     return <TextPreview {...h.props()} renderSlot={slots}
       useDocumentPreviews={selector => selector([renderer ? definition : { ...definition, id: 'raw', loading: 'bytes-complete' }])} />

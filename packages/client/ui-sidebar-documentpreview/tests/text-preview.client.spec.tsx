@@ -13,7 +13,6 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { TabId } from '@qilin/client-ui-dockkit'
-import type { OwnerOf } from '@qilin/client-ui-slots'
 import { TextPreview } from '../src/client/TextPreview.tsx'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import { CodeBody } from '../src/client/code/CodeBody.tsx'
@@ -88,7 +87,7 @@ function codeProps(h: ReturnType<typeof harness>, navigation: { params?: unknown
   return {
     ...props,
     useDocumentPreviews: selector => selector([definition]),
-    renderSlot: documentSlots((_key, owner) => <CodeBody {...props} {...owner as unknown as OwnerOf<'sidebar.right.tab.document'>} t={key => key} />),
+    renderSlot: documentSlots((_key, owner) => <CodeBody {...props} {...owner} t={key => key} />),
   }
 }
 
@@ -500,7 +499,7 @@ describe('TextPreview — navigation and view', () => {
       ...base,
       useDocumentPreviews: selector => selector(definitions),
       renderSlot: documentSlots((_key, owner, opts) => {
-        const documentOwner = owner as unknown as OwnerOf<'sidebar.right.tab.document'>
+        const documentOwner = owner
         if (opts.entryKey === 'code') return <CodeBody {...base} {...documentOwner} t={key => key} />
         if (opts.entryKey === PLAIN_BODY_ID) return <TextBody {...base} {...documentOwner} />
         return <div data-test-no-lines />
