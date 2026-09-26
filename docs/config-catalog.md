@@ -552,6 +552,15 @@ export interface Config {
     /** Maximum readers including source and renderer metadata lookups. */
     maxReaders: number
   }
+  /** Browser spreadsheet parser and dense cell allocation limits. */
+  excel: {
+    /** Maximum source file bytes. */
+    maxBytes: number
+    /** Maximum combined rectangular cell area across worksheets. */
+    maxCells: number
+    /** Maximum parser Worker lifetime in milliseconds. */
+    timeoutMs: number
+  }
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/client-ui-sidebar-documentpreview -->
@@ -3755,6 +3764,29 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/tool-workflow -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin/tool-workspace-dependencies -->
+<a id="qilintool-workspace-dependencies"></a>
+
+## `@qilin/tool-workspace-dependencies`
+
+- `inject`: `tools`
+- `source`: [`packages/skill/tool-workspace-dependencies/src/index.ts:15`](../packages/skill/tool-workspace-dependencies/src/index.ts)
+
+```ts config-catalog
+/** Payload location and optional installation directory. */
+export interface Config {
+  /** Payload directory carrying `runtime.json` and `dependencies/`. */
+  readonly source: string
+  /**
+   * Installation directory under the QiLin home. When set, the payload is copied there on the
+   * first call (the copy-on-first-use behavior); when omitted, the payload is used in place without copying,
+   * which suits read-only carriers such as container image layers.
+   */
+  readonly root?: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin/tool-workspace-dependencies -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin/tools -->
 <a id="qilintools"></a>

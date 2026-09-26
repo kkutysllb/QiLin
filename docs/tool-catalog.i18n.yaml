@@ -9,8 +9,8 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: cc84fcf4c4923d2c
-  zh: bf6331e402f86131
+  en: a89460b8009f684b
+  zh: 6344d1e8e02ee537
 /tool-schema-catalog/qilin-plugin-manager:
   en: 137ab7ab9dfccf59
   zh: 137ab7ab9dfccf59
@@ -294,8 +294,14 @@
   en: 80bab5bccee10310
   zh: 80bab5bccee10310
 /tool-schema-catalog/qilin-tool-workflow/workflow:
-  en: 931986087b5743c9
-  zh: 1af3f060174e0101
+  en: 8e1ba5c2cf2e7a7d
+  zh: 761d79fda14f4a3c
+/tool-schema-catalog/qilin-tool-workspace-dependencies:
+  en: 5419f390d306911c
+  zh: 5419f390d306911c
+/tool-schema-catalog/qilin-tool-workspace-dependencies/load-workspace-dependencies:
+  en: ff51cce19248e9e3
+  zh: f7a151f0ab2a2d38
 /tool-schema-catalog/qilin-tool-web:
   en: b2ece8a24ad215d0
   zh: b2ece8a24ad215d0

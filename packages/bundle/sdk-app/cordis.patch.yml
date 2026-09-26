@@ -23,3 +23,23 @@
 
 - id: hmr
   disabled: true
+
+# Office rows: QILIN_PRIMARY_RUNTIME points at a primary-runtime/ payload whose
+# sibling office-skills/ holds the workflows; a packaged carrier may supply that
+# path instead through QILIN_BUNDLED_PRIMARY_RUNTIME. With neither set both rows
+# stay disabled, and an empty QILIN_PRIMARY_RUNTIME opts out explicitly. This
+# repository ships no carrier builder, so activation is always explicit. Each
+# row can be patched independently.
+- insert:
+    - id: workspace-dependencies
+      name: '@qilin/tool-workspace-dependencies'
+      disabled: !!js "!(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME)"
+      config:
+        source: !!js "process.getBuiltinModule('node:path').resolve(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME ?? '')"
+
+    - id: skill-office
+      name: '@qilin/skill-office'
+      disabled: !!js "!(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME)"
+      config:
+        assetRoot: !!js "process.getBuiltinModule('node:path').resolve(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME ?? '', '..', 'office-skills')"
+        node: !!js "process.getBuiltinModule('node:path').resolve(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME ?? '', 'dependencies', 'node', 'bin', process.platform === 'win32' ? 'node.exe' : 'node')"

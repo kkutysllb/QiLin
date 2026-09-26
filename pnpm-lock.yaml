@@ -1939,6 +1939,12 @@ importers:
       '@qilin/sdk-jsonrpc-server':
         specifier: workspace:*
         version: link:../../sdk/server
+      '@qilin/skill-office':
+        specifier: workspace:*
+        version: link:../../skill/skill-office
+      '@qilin/tool-workspace-dependencies':
+        specifier: workspace:*
+        version: link:../../skill/tool-workspace-dependencies
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -11409,6 +11415,34 @@ importers:
         specifier: workspace:*
         version: link:../../core/tools
 
+  packages/skill/tool-workspace-dependencies:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+
   packages/spill/spill:
     devDependencies:
       '@qilin/brand':
@@ -13926,6 +13960,9 @@ importers:
       '@qilin/skill-filesystem':
         specifier: workspace:^
         version: link:../../packages/skill/skill-filesystem
+      '@qilin/skill-office':
+        specifier: workspace:^
+        version: link:../../packages/skill/skill-office
       '@qilin/spill':
         specifier: workspace:^
         version: link:../../packages/spill/spill
@@ -14025,6 +14062,9 @@ importers:
       '@qilin/tool-workflow':
         specifier: workspace:^
         version: link:../../packages/workflow/tool-workflow
+      '@qilin/tool-workspace-dependencies':
+        specifier: workspace:^
+        version: link:../../packages/skill/tool-workspace-dependencies
       '@qilin/tools':
         specifier: workspace:^
         version: link:../../packages/core/tools

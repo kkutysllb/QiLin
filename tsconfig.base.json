@@ -524,6 +524,7 @@
       "@qilin/tool-web": ["./packages/web/tool-web/src"],
       "@qilin/tool-workflow": ["./packages/workflow/tool-workflow/src"],
       "@qilin/tool-workflow/invariant": ["./packages/workflow/tool-workflow/src/invariant.ts"],
+      "@qilin/tool-workspace-dependencies": ["./packages/skill/tool-workspace-dependencies/src"],
       "@qilin/tools": ["./packages/core/tools/src"],
       "@qilin/tools/invariant": ["./packages/core/tools/src/invariant.ts"],
       "@qilin/user-approval": ["./packages/interaction/user-approval/src"],

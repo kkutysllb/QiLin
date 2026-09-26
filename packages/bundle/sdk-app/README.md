@@ -33,6 +33,8 @@ The startup provider binds stdin EOF to the launcher's bounded successful shutdo
 
 The SDK uses the base `read`, `write`, and `edit` defaults. To add `str_replace_editor`, use the explicit insertion patch in the [base configuration guide](../base/README.md#use-this-package). The standalone `sdk-minimal` profile owns its separate tool selection.
 
+The [Office runtime query and skills](../../skill/tool-workspace-dependencies/README.md#use-this-package) are opt-in: set `QILIN_PRIMARY_RUNTIME` to a `primary-runtime/` payload whose sibling `office-skills/` holds the workflows, or let a packaged carrier supply `QILIN_BUNDLED_PRIMARY_RUNTIME`. With neither set, both rows stay disabled, and an empty `QILIN_PRIMARY_RUNTIME` opts out explicitly. This repository ships no carrier builder, so a source launch has no bundled default. The tool reads the payload in place. Profile patches can disable `skill-office` or replace its `assetRoot` independently of `workspace-dependencies`; filesystem skills with the same name take precedence over bundled skills.
+
 -----
 
 <a id="model-experience"></a>

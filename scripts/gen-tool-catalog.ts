@@ -75,6 +75,7 @@ import WorkflowEngine from '@qilin/workflow'
 import type { WorkflowRun, WorkflowStartRequest } from '@qilin/workflow'
 import * as ToolRalph from '@qilin/tool-ralph'
 import * as ToolWorkflow from '@qilin/tool-workflow'
+import * as ToolWorkspaceDependencies from '@qilin/tool-workspace-dependencies'
 import { githubSlug } from './verify-md-links.ts'
 
 /** Attachment seam marker that makes the attachments-conditional `read_image` schema harvestable. */
@@ -635,6 +636,17 @@ const TOOL_PACKAGES: ToolPackage[] = [
       registerCatalogSubagentProvider(ctx, 'mock')
       await ctx.plugin(CatalogWorkflowEngine)
       await ctx.plugin(ToolWorkflow)
+    },
+  },
+  {
+    pkg: '@qilin/tool-workspace-dependencies',
+    dir: 'tool-workspace-dependencies',
+    source: 'packages/skill/tool-workspace-dependencies/src/index.ts',
+    requires: ['ctx.tools'],
+    writes: ['tool/call', 'tool/result'],
+    async mount(ctx) {
+      // Schema harvest never prepares a payload; the directory need not exist.
+      await ctx.plugin(ToolWorkspaceDependencies, { source: resolve(root, '.tmp/tool-catalog/primary-runtime') })
     },
   },
   {

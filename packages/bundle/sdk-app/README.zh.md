@@ -33,6 +33,8 @@ kind: "package-bundle"
 
 SDK 使用 base 默认提供的 `read`、`write` 和 `edit`。要添加 `str_replace_editor`，请使用 [base 配置指南](../base/README.zh.md#use-this-package)中的显式插入 patch。独立的 `sdk-minimal` profile 自行决定其工具选择。
 
+[Office 运行时查询与 skills](../../skill/tool-workspace-dependencies/README.zh.md#use-this-package)属于显式启用：把 `QILIN_PRIMARY_RUNTIME` 设为某个 `primary-runtime/` payload，其同级 `office-skills/` 存放这些工作流；打包载体也可以通过 `QILIN_BUNDLED_PRIMARY_RUNTIME` 提供该路径。两者都未设置时，两行保持禁用，空的 `QILIN_PRIMARY_RUNTIME` 则表示显式退出。本仓不提供载体构建器，因此源码启动没有随包默认路径。工具原位读取 payload。profile patch 可独立于 `workspace-dependencies` 禁用 `skill-office` 或替换其 `assetRoot`；同名文件系统 skills 优先于随包 skills。
+
 -----
 
 <a id="model-experience"></a>

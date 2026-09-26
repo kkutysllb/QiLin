@@ -1,6 +1,6 @@
 {
-  "name": "@qilin/sdk-app",
-  "description": "The qilin SDK profile bundle: stdio JSON-RPC serving and process lifecycle over qilin-base",
+  "name": "@qilin/tool-workspace-dependencies",
+  "description": "The load_workspace_dependencies tool: absolute paths into a bundled Python, Node.js, and pnpm payload",
   "version": "3.0.4",
   "publishConfig": {
     "access": "public"
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kkutysllb/QiLin.git",
-    "directory": "packages/bundle/sdk-app"
+    "directory": "packages/skill/tool-workspace-dependencies"
   },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
@@ -21,34 +21,27 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./cordis.patch.yml": "./cordis.patch.yml",
-    "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
   "files": [
     "lib/index.js",
-    "cordis.patch.yml",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
-  "qilin": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
-  },
-  "dependencies": {
-    "@qilin/cmdline": "workspace:*",
-    "@qilin/sdk-jsonrpc-server": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
-    "commander": "^15.0.0",
-    "@qilin/skill-office": "workspace:*",
-    "@qilin/tool-workspace-dependencies": "workspace:*"
-  },
   "peerDependencies": {
+    "@qilin/tools": "workspace:*",
     "@qilin/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin/agent": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@qilin/system-prompt": "workspace:*",
+    "@qilin/tools": "workspace:*",
+    "@qilin/kylin": "workspace:~",
     "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin": "workspace:~"
+    "@qilin/kylin-plugin-loader": "workspace:~"
+  },
+  "dependencies": {
+    "@qilin/schemastery": "workspace:~"
   }
 }

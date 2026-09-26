@@ -402,6 +402,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/skill-filesystem` | yes | Local filesystem skill provider for the QiLin |
 | `@qilin/skill-office` | yes | Bundled Word, PowerPoint, and Excel workflows and structural checks |
 | `@qilin/tool-skill` | yes | Model-facing skill loading tool for the QiLin |
+| `@qilin/tool-workspace-dependencies` | yes | The load_workspace_dependencies tool: absolute paths into a bundled Python, Node.js, and pnpm payload |
 
 ## spill
 

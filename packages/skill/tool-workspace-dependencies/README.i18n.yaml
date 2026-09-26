@@ -1,0 +1,67 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/skill/tool-workspace-dependencies/README.md
+/:
+  en: 96f7fe2b814c798f
+  zh: 7ee4937b35eba80f
+/qilin-tool-workspace-dependencies:
+  en: 9746e3c844d93309
+  zh: b1c5d63872311530
+/qilin-tool-workspace-dependencies/summary:
+  en: e9ce608fa512599f
+  zh: 09fb6924aa46acd5
+/qilin-tool-workspace-dependencies/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-tool-workspace-dependencies/use-this-package:
+  en: 40137c2655ff1b8a
+  zh: d93c48d438f8a587
+/qilin-tool-workspace-dependencies/use-this-package/minimal-configuration:
+  en: e8ed32b430c875c3
+  zh: 0646e4e1b9279458
+/qilin-tool-workspace-dependencies/use-this-package/payload-layout:
+  en: f92262be81174420
+  zh: 9823d4d5b8ad8375
+/qilin-tool-workspace-dependencies/use-this-package/carrier-activation:
+  en: 4a97522d95e563f0
+  zh: db2107d9d4375750
+/qilin-tool-workspace-dependencies/understand-the-implementation:
+  en: 6483ea7f648cf57f
+  zh: 40cb1ae839429968
+/qilin-tool-workspace-dependencies/further-exploration:
+  en: 5042e4f62017d3e7
+  zh: 08c582d257a56a22
+/qilin-tool-workspace-dependencies/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-tool-workspace-dependencies/model-experience/tool-schema:
+  en: e4c7376d4f29dbd5
+  zh: 6b7a9eaf69c9ea53
+/qilin-tool-workspace-dependencies/model-experience/tool-schema/what-the-model-sees:
+  en: e58a0dbc3531d942
+  zh: 3cadaa61bd65d3ce
+/qilin-tool-workspace-dependencies/model-experience/tool-schema/token-effect:
+  en: 615cce9c7fcb746d
+  zh: 837f23d49b53151f
+/qilin-tool-workspace-dependencies/model-experience/tool-schema/kv-cache-effect:
+  en: 4ee92571a5f8a71a
+  zh: b218ce5a939481dc
+/qilin-tool-workspace-dependencies/model-experience/tool-result:
+  en: f8ffc2b983f05ffc
+  zh: 8573891441963be4
+/qilin-tool-workspace-dependencies/model-experience/tool-result/what-the-model-sees:
+  en: c25c9db51e7d06da
+  zh: 94fbe03e91eb2382
+/qilin-tool-workspace-dependencies/model-experience/tool-result/token-effect:
+  en: 0efada793d1e65b1
+  zh: 3eed908f43174b88
+/qilin-tool-workspace-dependencies/model-experience/tool-result/kv-cache-effect:
+  en: 42325f307b6c259d
+  zh: 658da42a5a6320d4
+/qilin-tool-workspace-dependencies/known-limitations-and-deferred-work:
+  en: e8977bc1a21223de
+  zh: 9934bad01ad1585c
+/qilin-tool-workspace-dependencies/known-limitations-and-deferred-work/dev-note:
+  en: 000d86d9a81c929a
+  zh: f1d501916e29e5ed
