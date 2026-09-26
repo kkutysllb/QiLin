@@ -11,6 +11,7 @@ import type { IconProps } from '@qilin/client-ui-primitives'
 /** Two margin bars, a straight arrow running to the right one: lines run past the edge. */
 export const IconNowrapFill16 = ({ size = 16, className }: IconProps) => (
   <svg
+    aria-hidden="true"
     width={size}
     height={size}
     className={className}
@@ -28,6 +29,7 @@ export const IconNowrapFill16 = ({ size = 16, className }: IconProps) => (
 /** Two margin bars, an arrow sweeping around and back left: lines turn under themselves. */
 export const IconWrapFill16 = ({ size = 16, className }: IconProps) => (
   <svg
+    aria-hidden="true"
     width={size}
     height={size}
     className={className}
