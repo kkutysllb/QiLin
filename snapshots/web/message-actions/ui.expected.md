@@ -15,10 +15,10 @@
 - button "Copy":
   - img
 - tooltip "Copy"
-- button "Think The user wants me to read a.txt and b.txt, then reply with \"DONE\". Let me do both reads in parallel.":
+- button "2 tool calls · 1 message" [expanded]:
+  - text: 2 tool calls · 1 message
   - img
-  - img
-  - text: Think The user wants me to read a.txt and b.txt, then reply with "DONE". Let me do both reads in parallel.
+- button "Analysis completed"
 - paragraph: I will read both files before answering.
 - button "Copy":
   - img
@@ -33,22 +33,16 @@
   - img
   - text: Ran for {{duration}}
 - text: {{clock}}
-- button "Read a.txt":
-  - img
-  - img
-  - text: Read
-  - button "a.txt"
-- button "Read b.txt":
-  - img
-  - img
-  - text: Read
-  - button "b.txt"
+- button "Read files"
 - button "System prompt":
   - img
   - img
   - text: System prompt
 - text: Now give the final answer. {{clock}}
 - button "Copy":
+  - img
+- button "Thought for a while":
+  - text: Thought for a while
   - img
 - paragraph: DONE
 - button "Copy":
@@ -64,6 +58,9 @@
   - text: Ran for {{duration}}
 - text: {{clock}} Keep this later input in the original conversation. {{clock}}
 - button "Copy":
+  - img
+- button "Thought for a while":
+  - text: Thought for a while
   - img
 - paragraph: ORIGINAL ONLY
 - button "Copy":

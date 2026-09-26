@@ -3,10 +3,13 @@ import { fileURLToPath } from 'node:url'
 import { chromium, type Browser } from 'playwright'
 import { expect, it, onTestFinished } from 'vitest'
 import { captureStableAria, compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
-import { newEnglishPage } from './support.ts'
+import { newEnglishPage, openSettings } from './support.ts'
 
 const bundle = fileURLToPath(new URL('../../../packages/experimental/voice-input-bundle', import.meta.url))
 const expected = fileURLToPath(new URL('./expected/voice-setup.expected.md', import.meta.url))
+// The Settings dialog is open behind the activation prompt, and both are
+// role="dialog"; name the prompt's own modal so the golden captures it.
+const DIALOG_SELECTOR = '[role="dialog"][aria-label="Set up voice input before recording"]'
 
 it('guides a newly enabled voice plugin to installation and lets the user postpone it', async () => {
   const resources: { scaffold?: WebScaffold; browser?: Browser } = {}
@@ -19,15 +22,17 @@ it('guides a newly enabled voice plugin to installation and lets the user postpo
   resources.browser = browser
   const page = await newEnglishPage(browser), tripwire = watchConsole(page)
   await page.goto(scaffold.authenticatedUrl)
-  await page.getByRole('button', { name: 'Plugins', exact: true }).click()
-  const toggle = page.getByRole('switch', { name: 'Enable Voice input', exact: true })
+  const settings = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
+  await settings.getByRole('button', { name: 'Built-in plugins', exact: true }).click()
+  await settings.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
+  const toggle = settings.getByRole('switch', { name: 'Enable Voice input', exact: true })
   await toggle.waitFor()
   expect(await toggle.getAttribute('aria-checked')).toBe('false')
   const dialog = page.getByRole('dialog', { name: 'Set up voice input before recording', exact: true })
   expect(await dialog.count()).toBe(0)
   await toggle.click()
   await dialog.waitFor()
-  await compareOrRefreshGolden(expected, await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd), webSnapshotMode())
+  await compareOrRefreshGolden(expected, await captureStableAria(page, DIALOG_SELECTOR, scaffold.workspaceCwd), webSnapshotMode())
   await dialog.getByRole('button', { name: 'Later', exact: true }).click()
   await dialog.waitFor({ state: 'hidden' })
   expect(await toggle.getAttribute('aria-checked')).toBe('true')

@@ -385,6 +385,10 @@ describe.skipIf(MODE === 'record')('web e2e: cancelled question transcript', () 
 
   it('expands to the cancellation verdict and original questions', async () => {
     onTestFailed(() => saveFailureShot(cancelledPage, 'web-e2e-question-cancelled-row'))
+    // The tool round trip is a process row, which Compact presentation seats
+    // inside the Turn's collapsed process group; open that group before
+    // addressing the cancelled card.
+    await expandTurnProcesses(cancelledPage)
     const row = cancelledPage.getByRole('button', { name: 'Ask question cancelled', exact: true })
     await row.waitFor({ timeout: 15_000 })
     await row.click()

@@ -10,6 +10,7 @@
 - button "First use downloads the local recognition models.":
   - text: First use downloads the local recognition models.
   - status
+  - img
 - text: Model download source
 - combobox "Model download source":
   - option "Automatic (recommended)"
