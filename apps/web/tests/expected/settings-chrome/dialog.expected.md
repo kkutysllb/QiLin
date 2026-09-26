@@ -1,89 +1,45 @@
 - dialog "设置":
   - navigation:
     - text: 设置
-    - button "通用设置":
-      - img
-      - text: 通用设置
-    - button "模型":
-      - img
-      - text: 模型
-    - button "内置插件":
-      - img
-      - text: 内置插件
-    - button "MCP 服务器":
-      - img
-      - text: MCP 服务器
-    - button "Agent 预设":
-      - img
-      - text: Agent 预设
-    - button "已归档会话":
-      - img
-      - text: 已归档会话
-    - button "技能":
-      - img
-      - text: 技能
-    - button "侧边栏":
-      - img
-      - text: 侧边栏
-    - button "关于 QiLin":
-      - img
-      - text: 关于 QiLin
+    - button "通用设置"
+    - button "模型"
+    - button "内置插件"
+    - button "MCP 服务器"
+    - button "Agent 预设"
+    - button "已归档会话"
+    - button "技能"
+    - button "侧边栏"
+    - button "关于 QiLin"
     - separator "调整设置导航宽度"
   - button "打开配置文件"
-  - button "返回工作区":
-    - img
-    - text: 返回工作区
-  - button "关闭":
-    - img
-    - text: 关闭
+  - button "返回工作区"
+  - button "关闭"
   - text: 权限 选择新会话的默认权限模式
-  - button "工作区内修改":
-    - text: 工作区内修改
-    - img
+  - button "工作区内修改"
   - text: 外观
-  - button "浅色":
-    - img
-    - text: 浅色
-  - button "深色":
-    - img
-    - text: 深色
-  - button "跟随系统" [pressed]:
-    - img
-    - text: 跟随系统
+  - button "浅色"
+  - button "深色"
+  - button "跟随系统" [pressed]
   - text: 字号大小 仅影响会话内容的字号 14
-  - button "增大字号":
-    - img
-  - button "减小字号":
-    - img
+  - button "增大字号"
+  - button "减小字号"
   - text: px 工作步骤展示 选择希望看到多少工具调用细节
-  - button "标准":
-    - text: 标准
-    - img
+  - button "标准"
   - text: 行间距 在默认行高上增减会话正文的行间距，0 为默认 0
-  - button "增大行间距":
-    - img
-  - button "减小行间距":
-    - img
+  - button "增大行间距"
+  - button "减小行间距"
   - text: px 性能与用量 选择性能与用量信息展示的详细程度
-  - button "详细":
-    - text: 详细
-    - img
+  - button "详细"
   - text: 消息区域宽度 会话消息区域的宽度；也可以直接拖动消息区两侧的手柄 自适应
-  - button "自定义消息区域宽度":
-    - img
-  - button "收窄消息区域" [disabled]:
-    - img
+  - button "自定义消息区域宽度"
+  - button "收窄消息区域" [disabled]
   - text: 网页链接默认打开方式 对话中网页链接的打开位置
-  - button "应用内侧边栏":
-    - text: 应用内侧边栏
-    - img
+  - button "应用内侧边栏"
   - text: 代码工作工具 开启后显示轨迹、本轮代码差异，新对话中的 Agent 预设切换
   - switch "代码工作工具" [checked]
   - text: 快捷键
   - paragraph: 查看和编辑当前可用的快捷键和输入操作
   - button "编辑快捷键"
   - text: 繁忙时的发送行为 智能体运行时 Enter 键和发送按钮的行为；Cmd/Ctrl+Enter 使用另一行为
-  - button "排队发送":
-    - text: 排队发送
-    - img
+  - button "排队发送"
   - text: 当前版本：{{version}}

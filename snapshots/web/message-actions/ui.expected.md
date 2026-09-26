@@ -1,88 +1,53 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use the read tool twice" [disabled]
-  - button "Open right sidebar":
-    - img
+  - button "Open right sidebar"
 - navigation "Turn navigation":
   - button "Jump to turn 1"
   - button "Jump to turn 2"
   - button "Jump to turn 3"
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+- button "System prompt"
 - text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
-- button "Copy":
-  - img
+- button "Copy"
 - tooltip "Copy"
 - status: Stopped
 - button "Stopped" [disabled] [expanded]
 - button "Analysis completed"
 - paragraph: I will read both files before answering.
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation" [disabled]:
-  - img
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation" [disabled]
 - text: Available only on the last message of a completed turn
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Ran for {{duration}}"
 - text: {{clock}}
 - button "Read files"
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+- button "System prompt"
 - text: Now give the final answer. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - paragraph: DONE
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Ran for {{duration}}"
 - text: {{clock}} Keep this later input in the original conversation. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - paragraph: ORIGINAL ONLY
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Ran for {{duration}}"
 - text: {{clock}}
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "3 turns 4 steps · {{throughput}} tok/s":
-  - img
-  - text: 3 turns 4 steps{{throughput}} tok/s
-- button "7.9K tok · Cache hit 98%":
-  - img
-  - text: 7.9K tokCache hit 98%
+- button "3 turns 4 steps · {{throughput}} tok/s": 3 turns 4 steps{{throughput}} tok/s
+- button "7.9K tok · Cache hit 98%": 7.9K tokCache hit 98%

@@ -1,20 +1,15 @@
 - tablist:
   - tab "Trajectory Close" [selected]:
-    - img
     - text: Trajectory
-    - button "Close":
-      - img
-  - button "New tab":
-    - img
+    - button "Close"
+  - button "New tab"
   - button "Split"
   - button "Fullscreen"
-  - button "Collapse right sidebar":
-    - img
+  - button "Collapse right sidebar"
 - toolbar "Trajectory toolbar":
   - button "Use actual duration": Duration
   - button "Collapse turns": Turns
   - button "Collapse calls": Calls
-  - img
   - searchbox "Search trajectory"
 - region "Trajectory timeline"
 - table:

@@ -1,8 +1,6 @@
 - dialog "Agent Team":
   - heading "Members" [level=3]
-  - button "lead Current chat Inactive" [disabled]:
-    - img
-    - text: lead Current chat Inactive
+  - button "lead Current chat Inactive" [disabled]
   - heading "Shared tasks 1" [level=3]
   - article:
     - strong: Agent task

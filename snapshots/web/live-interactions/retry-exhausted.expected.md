@@ -1,35 +1,22 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with a one-sentence description" [disabled]
-  - img
   - text: Standard mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Failed
 - button "Failed" [disabled] [expanded]
-- button "Context injection runtime-context":
-  - img
-  - img
-  - text: Context injection runtime-context
+- button "Context injection runtime-context"
 - group:
   - status: Retried model request (2/2) · {{duration}}
 - status:
   - text: This turn failedupstream 503
   - code: SERVER
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- img
 - text: 1 turns 1 steps

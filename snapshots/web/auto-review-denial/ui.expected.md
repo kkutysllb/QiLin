@@ -3,106 +3,69 @@
 - banner:
   - navigation "Session hierarchy":
     - button "{{workspace}}" [disabled]
-  - button "Open right sidebar":
-    - img
+  - button "Open right sidebar"
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
-- button "Took {{duration}}" [expanded]:
-  - text: Took {{duration}}
-  - img
+- button "Took {{duration}}" [expanded]
 - button "Called tools, ran code, ran commands" [expanded]
 - text: Failed
-- button "Tool call Rejected by Auto review":
-  - img
-  - text: Tool call Rejected by Auto review
-- button "Code Catch an Auto-denied inner call":
-  - img
-  - img
-  - text: Code Catch an Auto-denied inner call
+- button "Tool call Rejected by Auto review"
+- button "Code Catch an Auto-denied inner call"
 - text: Failed
-- button "Bash Rejected by Auto review":
-  - img
-  - text: Bash Rejected by Auto review
+- button "Bash Rejected by Auto review"
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Auto review EXP"':
   - text: Auto review
   - superscript: EXP
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 2 steps":
-  - img
-  - text: 1 turns 2 steps
+- button "1 turns 2 steps"
 
 ## Expanded
 
 - banner:
   - navigation "Session hierarchy":
     - button "{{workspace}}" [disabled]
-  - button "Open right sidebar":
-    - img
+  - button "Open right sidebar"
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
-- button "Took {{duration}}" [expanded]:
-  - text: Took {{duration}}
-  - img
+- button "Took {{duration}}" [expanded]
 - button "Called tools, ran code, ran commands" [expanded]
 - text: Failed
-- button "Tool call Rejected by Auto review" [expanded]:
-  - img
-  - text: Tool call Rejected by Auto review
+- button "Tool call Rejected by Auto review" [expanded]
 - text: "OUT Tool was not executed. Reason: raw reason"
 - button "Inspect"
-- button "Code Catch an Auto-denied inner call":
-  - img
-  - img
-  - text: Code Catch an Auto-denied inner call
+- button "Code Catch an Auto-denied inner call"
 - text: Failed
-- button "Bash Rejected by Auto review" [expanded]:
-  - img
-  - text: Bash Rejected by Auto review
+- button "Bash Rejected by Auto review" [expanded]
 - text: "OUT Tool was not executed. Reason: ptc raw reason"
 - button "Inspect"
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Auto review EXP"':
   - text: Auto review
   - superscript: EXP
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 2 steps":
-  - img
-  - text: 1 turns 2 steps
+- button "1 turns 2 steps"
 
 ## Trajectory
 
 - tablist:
   - tab "Trajectory Close" [selected]:
-    - img
     - text: Trajectory
-    - button "Close":
-      - img
-  - button "New tab":
-    - img
+    - button "Close"
+  - button "New tab"
   - button "Split"
   - button "Fullscreen"
-  - button "Collapse right sidebar":
-    - img
+  - button "Collapse right sidebar"
 - toolbar "Trajectory toolbar":
   - button "Use actual duration": Duration
   - button "Collapse turns": Turns
   - button "Collapse calls": Calls
-  - img
   - searchbox "Search trajectory"
 - region "Trajectory timeline"
 - table:
@@ -125,9 +88,7 @@
       - cell "(tool call only)"
     - row "TOOL, run_code Catch an Auto-denied inner call":
       - cell "TOOL"
-      - cell "run_codeCatch an Auto-denied inner call → denial caught":
-        - img
-        - text: run_codeCatch an Auto-denied inner call → denial caught
+      - cell "run_codeCatch an Auto-denied inner call → denial caught"
     - 'row "SUBTOOL, bash {\"command\":\"echo hidden-input-ptc\"}" [selected]':
       - cell "SUBTOOL"
       - 'cell "bash{\"command\":\"echo hidden-input-ptc\"} → AUTO_REVIEW_DENIED"'

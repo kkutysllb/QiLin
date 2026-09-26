@@ -1,8 +1,7 @@
 - dialog "快捷键":
   - banner:
     - heading "快捷键" [level=2]
-    - button "关闭快捷键":
-      - img
+    - button "关闭快捷键"
   - search "搜索快捷键":
     - searchbox "搜索快捷键"
   - region "应用操作":
@@ -58,6 +57,4 @@
       - listitem: 允许一次 Enter
       - listitem: 拒绝 Esc
   - contentinfo:
-    - button "恢复全部默认" [disabled]:
-      - img
-      - text: 恢复全部默认
+    - button "恢复全部默认" [disabled]

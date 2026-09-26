@@ -1,52 +1,30 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Begin your reply with the" [disabled]
-  - img
   - text: Standard mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: Begin your reply with the plain sentence "Reading the workspace now." as text, and in that same message call the bash tool with the command "echo alpha". After the tool result, reply with the single word DONE and stop. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Stopped
 - button "Stopped" [disabled] [expanded]
-- button "Context injection runtime-context":
-  - img
-  - img
-  - text: Context injection runtime-context
+- button "Context injection runtime-context"
 - button "Analysis completed"
 - paragraph: Reading the workspace now.
 - button "Ran commands"
 - paragraph: partial
 - text: Stopped
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Ran for {{duration}}"
 - text: {{clock}}
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 2 steps · {{throughput}} tok/s":
-  - img
-  - text: 1 turns 2 steps{{throughput}} tok/s
-- button "7.9K tok · Cache hit 0%":
-  - img
-  - text: 7.9K tokCache hit 0%
+- button "1 turns 2 steps · {{throughput}} tok/s": 1 turns 2 steps{{throughput}} tok/s
+- button "7.9K tok · Cache hit 0%": 7.9K tokCache hit 0%
 - button "6% of context used": 6%

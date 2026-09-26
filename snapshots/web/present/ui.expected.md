@@ -1,48 +1,22 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use one run_code program to" [disabled]
-  - img
   - text: PTC mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: "Use one run_code program to do the following in order. Call present for missing.txt and catch its error without creating that file. Use bash to run exactly `printf \"DELIVERED_REPORT\\n\" > report.txt; printf \"DELIVERED_NOTE\\n\" > 说明.txt`. Call present for report.txt and 说明.txt. After present succeeds, deliberately throw the string \"AFTER_PRESENT\" (not an Error object) from that same run_code program. Do not retry the program or create any other files. Finish by mentioning `report.txt` and `说明.txt` in inline code, and put PRESENT_DONE in a separate paragraph. {{clock}}"
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
-- button "Took {{duration}}" [expanded]:
-  - text: Took {{duration}}
-  - img
-- button "Context injection runtime-context":
-  - img
-  - img
-  - text: Context injection runtime-context
+- button "Took {{duration}}" [expanded]
+- button "Context injection runtime-context"
 - button "Called tools, ran code, ran commands" [expanded]
-- button "Think The user wants one run_code program that:":
-  - img
-  - img
-  - text: "Think The user wants one run_code program that:"
+- button "Think The user wants one run_code program that:"
 - text: Failed
-- 'button "Code Error: code run failed (exception): AFTER_PRESENT"':
-  - img
-  - text: "Code Error: code run failed (exception): AFTER_PRESENT"
-- button "Present files Delivery failed missing.txt":
-  - img
-  - text: Present files Delivery failed missing.txt
-- button "Bash Write DELIVERED_REPORT and DELIVERED_NOTE to files":
-  - img
-  - img
-  - text: Bash Write DELIVERED_REPORT and DELIVERED_NOTE to files
-- button "Present files Delivered report.txt, 说明.txt":
-  - img
-  - text: Present files Delivered report.txt, 说明.txt
-- button "Think The program ran as intended:":
-  - img
-  - img
-  - text: "Think The program ran as intended:"
+- 'button "Code Error: code run failed (exception): AFTER_PRESENT"'
+- button "Present files Delivery failed missing.txt"
+- button "Bash Write DELIVERED_REPORT and DELIVERED_NOTE to files"
+- button "Present files Delivered report.txt, 说明.txt"
+- button "Think The program ran as intended:"
 - paragraph:
   - text: "The single program ran exactly as ordered:"
   - code: present
@@ -64,41 +38,24 @@
 - text: report.txt
 - status: Opened in default app
 - button "Open report.txt in sidebar": Open
-- button "More file actions for report.txt":
-  - img
+- button "More file actions for report.txt"
 - button "Preview 说明.txt in sidebar"
 - text: 说明.txt
 - status: Opened in default app
 - button "Open 说明.txt in sidebar": Open
-- button "More file actions for 说明.txt":
-  - img
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Usage 19K tok":
-  - img
-  - text: Usage 19K tok
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "More file actions for 说明.txt"
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Usage 19K tok"
+- button "Ran for {{duration}}"
 - text: {{clock}}
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 2 steps · {{throughput}} tok/s":
-  - img
-  - text: 1 turns 2 steps{{throughput}} tok/s
-- button "19K tok · Cache hit 94%":
-  - img
-  - text: 19K tokCache hit 94%
+- button "1 turns 2 steps · {{throughput}} tok/s": 1 turns 2 steps{{throughput}} tok/s
+- button "19K tok · Cache hit 94%": 19K tokCache hit 94%
 - button "8% of context used": 8%

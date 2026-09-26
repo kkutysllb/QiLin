@@ -1,8 +1,6 @@
 - text: {{cwd}}/other/example.txt
-- button "Open in the editor":
-  - img
+- button "Open in the editor"
 - button "Line wrap" [pressed]:
   - img
-- button "Read the file again":
-  - img
+- button "Read the file again"
 - text: other file

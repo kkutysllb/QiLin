@@ -1,60 +1,31 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Begin your reply with the" [disabled]
-  - img
   - text: Standard mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: Begin your reply with the plain sentence "Reading the workspace now." as text, and in that same message call the bash tool with the command "echo alpha". After the tool result, reply with the single word DONE and stop. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
-- button "Took {{duration}}" [expanded]:
-  - text: Took {{duration}}
-  - img
-- button "Context injection runtime-context":
-  - img
-  - img
-  - text: Context injection runtime-context
+- button "Took {{duration}}" [expanded]
+- button "Context injection runtime-context"
 - button "Analysis completed"
 - paragraph: Reading the workspace now.
 - button "Ran commands" [expanded]
-- button "Bash Print alpha to stdout":
-  - img
-  - img
-  - text: Bash Print alpha to stdout
+- button "Bash Print alpha to stdout"
 - paragraph: DONE
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Usage 15.8K tok":
-  - img
-  - text: Usage 15.8K tok
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Usage 15.8K tok"
+- button "Ran for {{duration}}"
 - text: {{clock}}
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 2 steps · {{throughput}} tok/s":
-  - img
-  - text: 1 turns 2 steps{{throughput}} tok/s
-- button "15.8K tok · Cache hit 50%":
-  - img
-  - text: 15.8K tokCache hit 50%
+- button "1 turns 2 steps · {{throughput}} tok/s": 1 turns 2 steps{{throughput}} tok/s
+- button "15.8K tok · Cache hit 50%": 15.8K tokCache hit 50%
 - button "6% of context used": 6%

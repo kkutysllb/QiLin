@@ -1,3 +1,2 @@
 - button "New terminal"
-- button "Choose shell" [expanded]:
-  - img
+- button "Choose shell" [expanded]

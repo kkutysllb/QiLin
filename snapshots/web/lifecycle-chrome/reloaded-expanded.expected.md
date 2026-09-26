@@ -1,55 +1,28 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with the single word" [disabled]
-  - img
   - text: Standard mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: Reply with the single word LIGHTHOUSE and stop. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
-- button "Took {{duration}}" [expanded]:
-  - text: Took {{duration}}
-  - img
-- button "Context injection runtime-context":
-  - img
-  - img
-  - text: Context injection runtime-context
+- button "Took {{duration}}" [expanded]
+- button "Context injection runtime-context"
 - button "Analysis completed" [expanded]
-- button "Think The user wants me to reply with a single word. Let me comply.":
-  - img
-  - img
-  - text: Think The user wants me to reply with a single word. Let me comply.
+- button "Think The user wants me to reply with a single word. Let me comply."
 - paragraph: LIGHTHOUSE
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Ran for {{duration}}"
 - text: {{clock}}
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 1 steps · {{throughput}} tok/s":
-  - img
-  - text: 1 turns 1 steps{{throughput}} tok/s
-- button "10K tok · Cache hit 99.5%":
-  - img
-  - text: 10K tokCache hit 99.5%
+- button "1 turns 1 steps · {{throughput}} tok/s": 1 turns 1 steps{{throughput}} tok/s
+- button "10K tok · Cache hit 99.5%": 10K tokCache hit 99.5%
 - button "8% of context used": 8%

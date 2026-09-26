@@ -1,50 +1,26 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with the single word" [disabled]
-  - img
   - text: Standard mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: Reply with the single word LIGHTHOUSE and stop. {{clock}}
-- button "Copy":
-  - img
+- button "Copy"
 - status: Worked
-- button "Took {{duration}}":
-  - text: Took {{duration}}
-  - img
+- button "Took {{duration}}"
 - paragraph: LIGHTHOUSE
-- button "Copy":
-  - img
-- button "Good response":
-  - img
-- button "Bad response":
-  - img
-- button "Branch into a new conversation":
-  - img
-- button "Ran for {{duration}}":
-  - img
-  - text: Ran for {{duration}}
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- button "Ran for {{duration}}"
 - text: {{clock}}
-- 'button "feedback Feedback recorded for session session-{{uuid}} Anonymous user: {{uuid}}."':
-  - img
-  - img
-  - text: "feedback Feedback recorded for session session-{{uuid}} Anonymous user: {{uuid}}."
+- 'button "feedback Feedback recorded for session session-{{uuid}} Anonymous user: {{uuid}}."'
 - textbox "Message or run a task, / commands, @ files or sessions"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
-- button "1 turns 1 steps · {{throughput}} tok/s":
-  - img
-  - text: 1 turns 1 steps{{throughput}} tok/s
-- button "7.8K tok · Cache hit 99%":
-  - img
-  - text: 7.8K tokCache hit 99%
+- button "1 turns 1 steps · {{throughput}} tok/s": 1 turns 1 steps{{throughput}} tok/s
+- button "7.8K tok · Cache hit 99%": 7.8K tokCache hit 99%
 - button "6% of context used": 6%
