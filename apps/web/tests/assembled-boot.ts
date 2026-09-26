@@ -212,6 +212,14 @@ export function installAssembledBootEnv(): void {
   if (typeof Element.prototype.scrollIntoView !== 'function') {
     Element.prototype.scrollIntoView = () => {}
   }
+  // jsdom implements no CSS Font Loading API: the composer's control-row
+  // observer subscribes to the document font set for its re-measure hook.
+  if (Reflect.get(document, 'fonts') === undefined) {
+    Object.defineProperty(document, 'fonts', {
+      configurable: true,
+      value: { addEventListener: () => {}, removeEventListener: () => {} },
+    })
+  }
   // jsdom implements no Range geometry either: Lexical's selection reveal
   // measures the caret with one after a programmatic edit settles focus.
   if (typeof Range.prototype.getBoundingClientRect !== 'function') {

@@ -20,9 +20,9 @@ async function freshComposer(): Promise<HTMLElement> {
   if (start === null) throw new Error('fixture Workspace new-session action missing')
   fireEvent.click(start)
   return await waitFor(() => {
-    const surface = document.querySelector<HTMLElement>(
-      '[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]',
-    )
+    // The composer identity is the input seat; its placeholder follows the
+    // hero/default state the new session lands in.
+    const surface = document.querySelector<HTMLElement>('[data-composer-input]')
     if (surface === null) throw new Error('composer surface missing')
     return surface
   }, { timeout: 10_000 })

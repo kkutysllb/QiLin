@@ -89,9 +89,9 @@ it('accepts pasted images into the composer rail in order and removes them', asy
   // Image-only send arming is pinned at package level (input-bar.spec.tsx);
   // this assembled lane pins the intake chain over the built graph.
   const textarea = await waitFor(() => {
-    const surface = document.querySelector<HTMLElement>(
-      '[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]',
-    )
+    // The composer identity is the input seat; its placeholder follows the
+    // hero/default state the new session lands in.
+    const surface = document.querySelector<HTMLElement>('[data-composer-input]')
     if (surface === null) throw new Error('composer surface missing')
     return surface
   }, { timeout: 10_000 })
@@ -160,9 +160,9 @@ it('accepts a whole-page drop under the limits-labeled overlay and refuses an ov
   if (start === null) throw new Error('fixture Workspace new-session action missing')
   fireEvent.click(start)
   const textarea = await waitFor(() => {
-    const surface = document.querySelector<HTMLElement>(
-      '[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]',
-    )
+    // The composer identity is the input seat; its placeholder follows the
+    // hero/default state the new session lands in.
+    const surface = document.querySelector<HTMLElement>('[data-composer-input]')
     if (surface === null) throw new Error('composer surface missing')
     return surface
   }, { timeout: 10_000 })
@@ -215,9 +215,9 @@ it('renders a host dimension rejection with the projected 2000px limit', async (
   fireEvent.click(start)
 
   const textarea = await waitFor(() => {
-    const surface = document.querySelector<HTMLElement>(
-      '[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]',
-    )
+    // The composer identity is the input seat; its placeholder follows the
+    // hero/default state the new session lands in.
+    const surface = document.querySelector<HTMLElement>('[data-composer-input]')
     if (surface === null) throw new Error('composer surface missing')
     return surface
   }, { timeout: 10_000 })

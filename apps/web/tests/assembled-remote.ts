@@ -163,6 +163,10 @@ export function createAssembledRemote(options: AssembledRemoteOptions = {}): Ass
   mock.stream('session/control', (_args, stream) => {
     stream.push(structuredClone(fixture.control))
   })
+  mock.stream('job/list', ([args], stream) => {
+    const sessionId = recordString(recordValue(args, 'request'), 'sessionId')
+    stream.push({ type: 'rows', jobs: structuredClone(fixture.control.value.jobs[sessionId] ?? []) })
+  })
   mock.stream('workspace/follow', (_args, stream) => {
     stream.push({
       type: 'baseline',
@@ -206,6 +210,13 @@ export function createAssembledRemote(options: AssembledRemoteOptions = {}): Ass
     return ok(undefined)
   })
   mock.unary('session/list', () => ok({ items: structuredClone(sessions) }))
+  // The transcript asks for the durable projections separately; the control
+  // baseline carries one entry per fixture Session.
+  mock.unary('session/projections', (request: unknown) => {
+    const sessionId = recordString(recordValue(request, 'request'), 'sessionId')
+    const projections = fixture.control.value.projections[sessionId] ?? blankSessionProjections
+    return ok(structuredClone(projections))
+  })
   mock.unary('workspace/create', (request: unknown) => {
     const path = recordString(recordValue(request, 'request'), 'path')
     const existing = workspaces.find(workspace => workspace.path === path)
