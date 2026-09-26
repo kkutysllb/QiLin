@@ -315,7 +315,10 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     const canvas = preview.getByRole('img', { name: 'PDF page 1', exact: true })
     await canvas.waitFor({ state: 'visible', timeout: 30_000 })
     expect(await viewer.count()).toBe(0)
-    expect(await preview.locator('[role="toolbar"]').count()).toBe(0)
+    // The shared zoom control is the PDF body's only toolbar; it starts hidden
+    // until the pointer enters the frame's bottom reveal zone.
+    expect(await preview.locator('[data-document-zoom-controls]').count()).toBe(1)
+    await expect.poll(() => preview.locator('[data-document-zoom-controls]').getAttribute('data-document-zoom-visible')).toBeNull()
     expect(await preview.locator('[data-pdf-page]').count()).toBe(2)
     await expect.poll(() => canvasColor(canvas), { timeout: 30_000 }).toBe('red')
     const firstColor = await canvasColor(canvas)

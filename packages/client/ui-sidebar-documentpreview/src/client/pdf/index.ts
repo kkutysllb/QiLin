@@ -8,6 +8,7 @@ import { LazyPdfBody } from './LazyPdfBody.tsx'
 import type { BoundActions } from '@qilin/client-store'
 import type { SessionId } from '@qilin/session/types'
 import { createPdfStore, type PdfStore } from './store.ts'
+import { ZoomViewport, zoomSurfaceClass } from '../zoom/ZoomViewport.tsx'
 import { en, zh } from './locales.ts'
 
 /** PDF metadata and keyed body share this package-local implementation identity. */
@@ -48,6 +49,8 @@ export function pdfBodyRegistration(ctx: Context): {
     store,
     inject: (_sessionId, actions): PdfBodyInjected => ({
       retainTab: (tabId, signal) => { retainTab(tabId, signal, actions.forget) },
+      ZoomViewport,
+      zoomSurfaceClass,
     }),
   }
 }
