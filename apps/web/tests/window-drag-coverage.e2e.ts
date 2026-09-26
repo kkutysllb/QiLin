@@ -252,6 +252,9 @@ describe('web e2e: macOS window drag coverage', () => {
       const panel = await rectOf(page, '[data-sidebar-right-panel]')
       const tabs = await rectOf(page, '[data-conversation-tabs]')
       const header = await rectOf(page, '[data-slot="conversation.session.header"] > header')
+      // The drag mark lives on the persistent outer header, which also hosts the
+      // leading seat above the Session's own title row.
+      const dragHeader = await rectOf(page, 'header[data-window-drag]')
       // The sidebar column drags through its own rows (ui-sidebar), so its
       // coverage is the rows' geometry rather than a frame band's height.
       const toggle = await rectOf(page, 'button[aria-label="Collapse sidebar"]')
@@ -285,7 +288,7 @@ describe('web e2e: macOS window drag coverage', () => {
         {
           row: 'conversation header',
           what: 'the transcript run below the header block',
-          at: () => [header.x + header.width / 2, header.y + header.height + 4],
+          at: () => [dragHeader.x + dragHeader.width / 2, dragHeader.y + dragHeader.height + 4],
           drag: false,
         },
       ]

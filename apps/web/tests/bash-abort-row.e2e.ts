@@ -11,7 +11,7 @@ import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { newEnglishPage, saveFailureShot } from './support.ts'
+import { expandTurnProcesses, newEnglishPage, saveFailureShot } from './support.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../../snapshots/acp/cancel-tool-calls/session.v3.jsonl', import.meta.url))
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/bash-abort-row', import.meta.url))
@@ -43,6 +43,9 @@ describe.skipIf(MODE === 'record')('web e2e: cancelled Bash row disclosure', () 
     const sessionRow = page.locator('[role="treeitem"]').nth(1)
     await sessionRow.waitFor({ timeout: 10_000 })
     await sessionRow.click()
+    // The recorded Bash rows live inside the Turn process and its grouped
+    // seat, both collapsed by default.
+    await expandTurnProcesses(page)
     await page.locator('[data-sample="bash"]').nth(1).waitFor({ timeout: 15_000 })
   }, 120_000)
 

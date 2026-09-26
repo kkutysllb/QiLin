@@ -1,29 +1,19 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with a one-sentence description" [disabled]
-  - img
   - text: Standard mode
-  - button "Open right sidebar":
-    - img
-- button "System prompt":
-  - img
-  - img
-  - text: System prompt
+  - button "Open right sidebar"
+- button "System prompt"
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
-- button "Copy":
-  - img
-- button "Context injection @qilin/system-prompt":
-  - img
-  - img
-  - text: Context injection @qilin/system-prompt
+- button "Copy"
+- status: QiLin...
+- button "QiLin... for {{duration}}" [disabled] [expanded]
+- button "Context injection runtime-context"
 - paragraph: partial
 - status: QiLin...
 - button "2 queued messages"
 - textbox "Cmd/Ctrl+Enter steers all queued messages"
-- button "Add files or run commands":
-  - img
+- button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current DeepSeek-V4-Flash":
-  - text: DeepSeek-V4-Flash
-  - img
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Stop generating"

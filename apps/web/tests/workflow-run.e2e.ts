@@ -89,6 +89,9 @@ describe.skipIf(MODE === 'record')('web e2e: durable workflow run in Chat', () =
     await input.fill(prompt)
     await input.press('Enter')
 
+    // The live workflow section renders inside the Turn process and its
+    // grouped seat, both collapsed by default.
+    await expandTurnProcesses(page)
     const workflow = page.locator('[data-workflow-run][data-run-status="running"]')
     await workflow.waitFor({ timeout: 30_000 })
     const disclosures = workflow.locator('[data-disclosure-row]')
@@ -187,7 +190,9 @@ describe.skipIf(MODE === 'record')('web e2e: durable workflow run in Chat', () =
     expect(await terminalWorkflow.getAttribute('aria-expanded')).toBe('false')
     expect(await terminalWorkflow.evaluate(element => getComputedStyle(element).cursor)).toBe('pointer')
     await terminalWorkflow.click()
-    const terminalPhase = page.getByRole('button', { name: /^Run/ })
+    // Scope the phase row to the workflow section: the run row's own name also
+    // starts with "Run".
+    const terminalPhase = page.locator('[data-workflow-run] [data-disclosure-row]').nth(1)
     await terminalPhase.waitFor()
     expect(await terminalPhase.getAttribute('aria-expanded')).toBe('false')
     expect(await terminalPhase.evaluate(element => getComputedStyle(element).cursor)).toBe('pointer')
@@ -210,7 +215,9 @@ describe.skipIf(MODE === 'record')('web e2e: durable workflow run in Chat', () =
     const snapshot = await captureStableAria(page, '[data-chat-flow]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(UI_EXPECTED, snapshot, MODE)
     await workflow.click()
-    const phase = page.getByRole('button', { name: /^Run/ })
+    // Scope the phase row to the workflow section: the run row's own name
+    // also starts with "Run".
+    const phase = page.locator('[data-workflow-run] [data-disclosure-row]').nth(1)
     await phase.waitFor()
     expect(await phase.getAttribute('aria-expanded')).toBe('false')
     await phase.click()
