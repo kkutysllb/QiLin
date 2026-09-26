@@ -2,7 +2,7 @@ import { memo } from 'react'
 import type { InjectFace, PropsRenderSlots } from '@qilin/client-ui-slots'
 import type { ChatNodeViewProps, PerformanceUsageInjected, TurnTailOwnerProps } from '../contract/slots.ts'
 import { MessageIconActions } from './MessageIconActions.tsx'
-import { TurnTimePanel, TurnUsagePanel } from './TurnUsagePanel.tsx'
+import { TurnUsagePanel } from './TurnUsagePanel.tsx'
 import { assistantText } from './turn-assistant.ts'
 import css from './TurnTailNodeView.module.css'
 
@@ -14,8 +14,8 @@ type TurnTailNodeViewProps = ChatNodeViewProps<'turn-tail'>
 export const TurnTailNodeView = memo(function TurnTailNodeView({
   node, openFile, forkAt, renderSlot, t, useChat, usePerformanceUsage,
 }: TurnTailNodeViewProps) {
-  // The per-Turn performance and usage pills ride the accepted detail level:
-  // compact renders the bare action row, detailed appends the accounting pills.
+  // The per-Turn usage pill rides the accepted detail level: compact renders
+  // the bare action row, detailed appends the accounting pill.
   const detailed = usePerformanceUsage(mode => mode) === 'detailed'
   const data = node.data
   const hasLaterChatNode = useChat(snapshot =>
@@ -29,9 +29,6 @@ export const TurnTailNodeView = memo(function TurnTailNodeView({
   const owner: TurnTailOwnerProps = { turn, seq: closing?.finalNode.seq ?? data.seq, openFile }
   const tail = renderSlot('conversation.chat.turnTail', owner)
   if (closing === null) return tail === null ? null : <div className={css.root} data-turn-tail={data.turn}>{tail}</div>
-  const runMs = turn.start === undefined || turn.end === undefined
-    ? undefined
-    : Math.max(0, turn.end.time - turn.start.time)
   // Interruption-frozen partials carry no messageId, so they address no
   // durable message and contribute no per-message actions.
   const messageId = closing.finalNode.messageId
@@ -53,19 +50,9 @@ export const TurnTailNodeView = memo(function TurnTailNodeView({
         branchUnavailable={data.branchUnavailable || hasLaterChatNode}
         className={css.actions}
         extraActions={assistantActions}
-        usageAction={!detailed ? null : (
-          <>
-            {data.tokenUsage !== undefined && <TurnUsagePanel usage={data.tokenUsage} t={t} />}
-            {runMs !== undefined && (
-              <TurnTimePanel
-                runMs={runMs}
-                tokensPerSecond={data.tokensPerSecond}
-                ttftMs={data.ttftMs}
-                t={t}
-              />
-            )}
-          </>
-        )}
+        usageAction={detailed && data.tokenUsage !== undefined
+          ? <TurnUsagePanel usage={data.tokenUsage} t={t} />
+          : null}
         t={t}
       />
     </div>

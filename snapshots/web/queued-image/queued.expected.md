@@ -10,7 +10,6 @@
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
 - paragraph: partial
-- status: QiLin...
 - list:
   - listitem:
     - img "Queued message image"

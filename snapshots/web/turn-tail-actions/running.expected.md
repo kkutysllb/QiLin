@@ -14,7 +14,6 @@
 - paragraph: Reading the workspace now.
 - button "Ran commands"
 - paragraph: partial
-- status: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

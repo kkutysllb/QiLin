@@ -12,7 +12,6 @@
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
 - paragraph: partial
-- status: QiLin...
 - list:
   - listitem:
     - text: Keep working until I stop you again.

@@ -14,5 +14,4 @@
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation"
-- button "Ran for {{duration}}"
 - text: {{clock}}

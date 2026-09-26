@@ -36,7 +36,6 @@
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation"
-- button "Ran for {{duration}}"
 - text: 9/1 {{clock}}
 - button "Execution requested 9/1 {{clock}}":
   - text: Execution requested
@@ -48,7 +47,6 @@
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation"
-- button "Ran for {{duration}}"
 - text: 9/1 {{clock}} Use only Cordis tools. Call cordis_stop with pluginId "snap-1". After it succeeds, reply exactly CORDIS_UI_DONE and stop. 9/1 {{clock}}
 - button "Copy"
 - status: Worked
@@ -62,7 +60,6 @@
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation"
-- button "Ran for {{duration}}"
 - text: 9/1 {{clock}}
 - button "Back to bottom"
 - textbox "Message or run a task, / commands, @ files or sessions"

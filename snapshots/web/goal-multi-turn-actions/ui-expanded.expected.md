@@ -42,7 +42,6 @@
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation"
-- button "Ran for {{duration}}"
 - text: {{clock}}
 - button "System prompt"
 - button "Continuing goal {{clock}}":
@@ -130,7 +129,6 @@
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation"
-- button "Ran for {{duration}}"
 - text: {{clock}}
 - button "Back to bottom"
 - textbox "Message or run a task, / commands, @ files or sessions"

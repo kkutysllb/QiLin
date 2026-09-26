@@ -10,7 +10,6 @@
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
 - button "Waiting for your action · Ready to continue?"
-- status: QiLin...
 - text: "Interjection: include the word BANANA in your final reply."
 - button "Copy"
 - text: "Interjection: include the word ORANGE in your final reply."

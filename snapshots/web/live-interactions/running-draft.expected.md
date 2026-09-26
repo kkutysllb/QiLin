@@ -10,7 +10,6 @@
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
 - paragraph: partial
-- status: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions":
   - paragraph: Queue this follow-up while the current turn is running.
 - button "Add files or run commands"

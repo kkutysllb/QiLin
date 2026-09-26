@@ -1,9 +1,9 @@
 // An enclosing `[data-conversation-scroll]` owns scrolling when present;
 // otherwise this view owns it. Each row subscribes to one stable node key.
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react'
+import { memo, useCallback, useMemo, useRef, useState, type ComponentProps } from 'react'
 import type {
-  ConversationTimelineSnapshot, NodeKey, RenderEntry, RenderMessageImages,
+  NodeKey, RenderEntry, RenderMessageImages,
 } from '@qilin/client-ui-conversation/client'
 import type { InboxState } from '@qilin/agent/types'
 import { Button, IconChevronDownOutline14, MarkdownDelegateProvider, Modal } from '@qilin/client-ui-primitives'
@@ -16,7 +16,6 @@ import { ChatGroupSeat } from './ChatGroupSeat.tsx'
 import { chatRenderKey } from './render-entry.ts'
 import { TurnNavigator } from './TurnNavigator.tsx'
 import { mergeTurnRailItems } from './turn-rail-items.ts'
-import { formatRunDuration } from './message-chrome.ts'
 import { useChatScroll } from './use-chat-scroll.ts'
 import { scrollerOf } from './use-chat-viewport.ts'
 import { fileMediaUrl, resolveWorkspacePath } from '@qilin/util-workspace-path'
@@ -53,52 +52,6 @@ function observedRpcIds(
     if (source.kind === 'user' && 'rpcId' in source) observed.add(source.rpcId)
   }
   return observed
-}
-
-function runningTurnStartTime(timeline: ConversationTimelineSnapshot): number | null {
-  let latest: number | null = null
-  for (const turn of timeline.turns.values()) {
-    if (turn.status === 'open') latest = turn.start?.time ?? null
-  }
-  return latest
-}
-
-/** Turn-level model activity label retained across first-token, tool, and streaming phases. */
-function TurnStatus({ startTime, showClock, t }: {
-  /** The running turn's logged `turn/start` time; null falls back to mount
-   *  time when that boundary is outside the window. */
-  startTime: number | null
-  /** Whether the elapsed-time clock rides the label (work-details live detail). */
-  showClock: boolean
-  /** The owning view's locale seat. */
-  t: ChatViewSlotProps['t']
-}) {
-  const [mountedAt] = useState(() => Date.now())
-  // Anchored to turn/start so a mid-turn reload keeps the real
-  // elapsed time and the final footer's Ran-for label matches this clock.
-  const anchor = startTime ?? mountedAt
-  const [elapsedMs, setElapsedMs] = useState(() => Math.max(0, Date.now() - anchor))
-  useEffect(() => {
-    const tick = (): void => {
-      setElapsedMs(Math.max(0, Date.now() - anchor))
-    }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => { clearInterval(id) }
-  }, [anchor])
-  // Short turns keep the plain label; the clock only appears once the turn
-  // has clearly been running for a while.
-  const clockVisible = showClock && elapsedMs >= 15_000
-  return (
-    <div className={css.turnStatus} role="status" aria-live="polite">
-      {t('chat.deepDiving')}
-      {clockVisible && (
-        <span className={css.turnStatusClock} aria-hidden>
-          {formatRunDuration(elapsedMs, t)}
-        </span>
-      )}
-    </div>
-  )
 }
 
 type ChatNodeListProps = Omit<ComponentProps<typeof ChatNodeSeat>, 'nodeKey' | 'groupPart'> & {
@@ -146,7 +99,6 @@ export function ChatView({
     () => mergeTurnRailItems(turnNavigationItems, turnOutline),
     [turnNavigationItems, turnOutline],
   )
-  const timeline = useChat(s => s.timeline)
   const inbox = useProjection('inbox') as unknown as InboxState | undefined
   // Workspace root off the session list row: path summaries display relative to it.
   const cwd = useSessions(s => s.byId[sessionId]?.cwd)
@@ -163,7 +115,6 @@ export function ChatView({
   const hasMore = useSession(s => s.hasMore)
   const loadingOlder = useSession(s => s.loadingOlder)
   const toolDetail = usePresentation(policy => policy.toolCallDetail)
-  const liveProcessDetail = usePresentation(policy => policy.liveProcessDetail)
   const inspectCall = useCallback((callId: string) => {
     openTrajectory(callId)
   }, [openTrajectory])
@@ -221,8 +172,6 @@ export function ChatView({
     owner => renderSlot('conversation.message.images', { ...owner, loadImage }),
     [loadImage, renderSlot],
   )
-  const runningTurnStart = useMemo(() => runningTurnStartTime(timeline), [timeline])
-
   // Scroll policy: viewport refs, reading state, and history navigation own the
   // scrollport; this shell renders what they publish.
   const scroll = useChatScroll({
@@ -280,9 +229,6 @@ export function ChatView({
           {/* No pending placeholders: questions (ui-user-questions) and approvals
               (ApprovalPanel) both take over the composer, so a flow card would
               double-render the same wait. */}
-          {/* Turn-level loading signal: rides the whole running turn (first-token
-              wait, tool execution, streaming) so it never flickers per step. */}
-          {running && <TurnStatus startTime={runningTurnStart} showClock={liveProcessDetail} t={t} />}
           {pendingSteering.map(item => (
             <PendingSteeringBubble
               key={item.id}

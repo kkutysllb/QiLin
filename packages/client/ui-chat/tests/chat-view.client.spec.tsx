@@ -1028,9 +1028,6 @@ describe('ChatView', () => {
     fireEvent.click(within(pendingBubble as HTMLElement).getByRole('button', { name: '复制' }))
     expect(writeText).toHaveBeenCalledWith('interrupt now')
     expect(within(pendingBubble as HTMLElement).queryByRole('button', { name: '在新对话中分支' })).toBeNull()
-    expect(view.getByRole('status').compareDocumentPosition(view.getByText('interrupt now'))
-      & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0)
-
     act(() => {
       h.setSession({ testInbox: { 'next-turn': [queued], 'next-step': [] } })
       h.setChat({
@@ -1630,7 +1627,7 @@ describe('ChatView', () => {
     expect(processRow.getAttribute('hidden')).toBe('until-found')
   })
 
-  it('gates the turn-tail usage and time pills on the performance and usage detail', () => {
+  it('gates the turn-tail usage pill on the performance and usage detail', () => {
     const h = makeHarness({
       nodes: [user(1, 'question'), assistant(2, 'final answer', 1, 1)],
       turnTimings: new Map([[1, { startTime: 1_000, endTime: 9_000 }]]),
@@ -1641,19 +1638,17 @@ describe('ChatView', () => {
       ]]),
     })
     const detailed = render(<h.ChatView {...h.props} />)
-    // Detailed appends both accounting pills beside the branch action. Scope
-    // the time query to the tail: the process row shows 用时 too.
+    // Detailed appends the usage pill beside the branch action; elapsed time
+    // stays on the Turn-process control, outside the footer.
     const detailedTail = detailed.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(detailed.getByText(/^用量 /)).toBeTruthy()
-    expect(within(detailedTail).getByText(/^用时 /)).toBeTruthy()
+    expect(within(detailedTail).queryByText(/^用时 /)).toBeNull()
     detailed.unmount()
 
     h.setTailUsageMode('compact')
     const compact = render(<h.ChatView {...h.props} />)
-    // Compact renders the bare action row: no usage pill, no time pill.
-    const compactTail = compact.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
+    // Compact renders the bare action row: no usage pill.
     expect(compact.queryByText(/^用量 /)).toBeNull()
-    expect(within(compactTail).queryByText(/^用时 /)).toBeNull()
   })
 
   it('folds final-step reasoning under the worked title when the Turn carries no timings', () => {
@@ -1917,7 +1912,7 @@ describe('ChatView', () => {
     expect(view.getAllByRole('button', { name: '复制' })).toHaveLength(4)
   })
 
-  it('the actions-owning assistant footer shows the turn run time', () => {
+  it('the assistant footer omits turn run time', () => {
     const h = makeHarness({
       nodes: [
         user(1, 'hi'), // time 1_000
@@ -1929,11 +1924,28 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 20]]),
     })
     const view = render(<h.ChatView {...h.props} />)
-    // The exact turn/end includes trailing tool activity after the final text.
-    expect(view.container.querySelector('[data-turn-tail="1"]')?.textContent).toContain('用时 19秒')
+    // The exact turn/end includes trailing tool activity after the final text;
+    // elapsed time lives on the Turn-process control, not in the footer.
+    expect(view.container.querySelector('[data-turn-tail="1"]')?.textContent).not.toContain('用时 19秒')
   })
 
-  it('the settled footer exposes ttft, decode throughput, and usage as the details trigger', () => {
+  it('the assistant footer omits hour-scale run time', () => {
+    const h = makeHarness({
+      nodes: [
+        user(1, 'hi'),
+        assistant(2, 'mid-turn text', 1, 1),
+        assistant(16, 'final answer', 1, 2),
+        toolResult(18, 'trailing'),
+      ],
+      turnTimings: new Map([[1, { startTime: 1_000, endTime: 3_904_000 }]]),
+      turnEnds: new Map([[1, 20]]),
+    })
+    const view = render(<h.ChatView {...h.props} />)
+    expect(view.container.querySelector('[data-turn-tail="1"]')?.textContent)
+      .not.toContain('用时 1小时05分03秒')
+  })
+
+  it('the settled footer exposes usage as the only details trigger', () => {
     const first: AssistantMessageNode = {
       kind: 'assistant', seq: 2, time: 2_000, turn: 1, step: 1, blocks: [{ kind: 'text', text: 'mid' }],
       timing: { stepStartTime: 1_000, firstTokenTime: 2_200, completedTime: 5_200 },
@@ -1967,18 +1979,13 @@ describe('ChatView', () => {
     expect(dialog.textContent).toContain('缓存命中49.4%')
     expect(dialog.textContent).toContain('未缓存输入5,060 tok')
     fireEvent.keyDown(document, { key: 'Escape' })
-    // The time pill carries the run time; first-step ttft (1.2s) and 100
-    // tokens over 5s of decode move into its dialog.
-    const timeTrigger = within(view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!)
-      .getByRole('button', { name: /用时 19秒/ })
-    expect(timeTrigger.textContent).toBe('用时 19秒')
+    expect(view.queryByRole('dialog')).toBeNull()
+    // The footer owns the usage disclosure alone: elapsed time stays on the
+    // Turn-process control, and neither ttft nor decode throughput appears.
+    const footer = view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
+    expect(within(footer).queryByRole('button', { name: /用时/ })).toBeNull()
+    expect(turnProcessControl(view.container)?.textContent).toBe('用时 19秒')
     expect(view.queryByText(/速度 20 tok\/s|首 token/)).toBeNull()
-    fireEvent.click(timeTrigger)
-    const timeDialog = view.getByRole('dialog')
-    expect(timeDialog.getAttribute('aria-label')).toBe('本轮用时和速度')
-    expect(timeDialog.textContent).toContain('本轮总用时19秒')
-    expect(timeDialog.textContent).toContain('输出速度（TPS）20 tok/s')
-    expect(timeDialog.textContent).toContain('首 token 用时（TTFT）1.2秒')
   })
 
   it('withholds the usage-details trigger when turn usage is outside the window', () => {
@@ -1993,10 +2000,11 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 20]]),
     })
     const view = render(<h.ChatView {...h.props} />)
-    // Timing facts keep their pill, but with no usage in the window there is
-    // no usage pill to click.
-    expect(within(view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!)
-      .getByRole('button', { name: /用时/ })).toBeTruthy()
+    // With no usage in the window there is no usage pill to click; the elapsed
+    // time stays on the Turn-process control.
+    const footer = view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
+    expect(within(footer).queryByRole('button', { name: /用时/ })).toBeNull()
+    expect(turnProcessControl(view.container)?.textContent).toBe('用时 19秒')
     expect(view.queryByRole('button', { name: /用量/ })).toBeNull()
   })
 
@@ -2186,7 +2194,6 @@ describe('ChatView', () => {
     const view = render(<h.ChatView {...h.props} />)
     expect(view.getByTestId('tool-seat-r1')).toBeTruthy()
     expect(h.toolOwners[0]?.block).toMatchObject({ callId: 'r1', argsRaw: '{"command":"cmd-r1"}' })
-    expect(view.getByRole('status').textContent).toBe('QiLin...')
   })
 
   it('keeps the Tool renderer mounted when a running call settles into log order', () => {
@@ -2240,14 +2247,19 @@ describe('ChatView', () => {
     const startTime = Date.now() - 125_000
     const trigger: UserMessageNode = { ...user(1, 'go'), time: startTime + 1 }
     const h = makeHarness(
-      { nodes: [trigger], turnTimings: new Map([[1, { startTime }]]) },
+      { nodes: [trigger, assistant(2, 'reading the workspace', 1, 1)], turnTimings: new Map([[1, { startTime }]]) },
       { running: true },
     )
     const view = render(<h.ChatView {...h.props} />)
-    // Freshly mounted (as after a reload) yet already past the 15s gate.
+    // Freshly mounted (as after a reload) yet already past the 2-minute mark;
+    // the clock rides the Turn-process control, and the live region carries
+    // only the running label.
     const status = view.getByRole('status')
-    expect(status.textContent).toMatch(/^QiLin\.\.\.2分0\d秒$/)
-    expect(status.querySelector('[aria-hidden="true"]')).not.toBeNull()
+    expect(status.textContent).toBe('QiLin...')
+    expect(status.getAttribute('aria-live')).toBe('polite')
+    const toggle = turnProcessControl(view.container)!
+    expect(toggle.textContent).toMatch(/^QiLin\.\.\.，用时2分\d{1,2}秒$/)
+    expect(toggle.closest('[aria-live]')).toBeNull()
     act(() => {
       h.setSession({ testInbox: { 'next-turn': [], 'next-step': [{
         id: 'steering-occurrence' as never,
@@ -2256,7 +2268,8 @@ describe('ChatView', () => {
         role: 'user', source: { kind: 'user' },
       }] } })
     })
-    expect(status.textContent).toMatch(/^QiLin\.\.\.2分0\d秒$/)
+    expect(toggle.textContent).toMatch(/^QiLin\.\.\.，用时2分\d{1,2}秒$/)
+    expect(status.textContent).toBe('QiLin...')
   })
 
   it('hands each ordered root call to the keyed business-node slot', () => {
