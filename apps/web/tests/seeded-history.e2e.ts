@@ -482,6 +482,41 @@ describe('web e2e: seeded history renders through cold resume', () => {
     await expect.poll(() => disclosure.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it.skipIf(MODE === 'record')('restores the active turn rail mark across a Session round trip', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-seeded-rail-mark'))
+    // Upstream e22b0d75e8 drove this across its Chat/Trajectory view tabs; the
+    // tabs are gone here, and the same ChatView remount is what a Session
+    // switch round trip produces. The reading position must sit away from the
+    // tail first, or a restore that fell back to the tail would still pass.
+    const rail = page.getByRole('navigation', { name: 'Turn navigation' })
+    const current = rail.locator('[aria-current="true"]')
+    await current.waitFor({ state: 'visible' })
+    const originalViewport = page.viewportSize() ?? { width: 1680, height: 1000 }
+    await page.setViewportSize({ width: originalViewport.width, height: 360 })
+    const scroller = page.locator('[data-conversation-scroll]')
+    const box = await scroller.boundingBox()
+    if (box === null) throw new Error('conversation scrollport has no layout box')
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.wheel(0, -480)
+    // The control only exists once the sample settled and the position saved.
+    await page.getByRole('button', { name: 'Back to bottom', exact: true }).waitFor({ timeout: 10_000 })
+    const active = await current.getAttribute('aria-label')
+    const top = await scroller.evaluate(element => element.scrollTop)
+
+    await page.getByRole('button', { name: 'New session', exact: true }).first().click()
+    await rail.waitFor({ state: 'detached' })
+    await page.getByRole('treeitem', { name: /Use the read tool twice/ }).click()
+    await page.locator('[data-chat-flow-key]:visible').first().waitFor({ timeout: 30_000 })
+
+    await expect.poll(() => current.getAttribute('aria-label')).toBe(active)
+    await expect.poll(async () => Math.abs(await scroller.evaluate(element => element.scrollTop) - top)).toBeLessThanOrEqual(2)
+    expect(tripwire.pageErrors).toEqual([])
+
+    // Later cases found the conversation tail-following at the full viewport.
+    await page.getByRole('button', { name: 'Back to bottom', exact: true }).click()
+    await page.setViewportSize(originalViewport)
+  })
+
   it.skipIf(MODE === 'record')('file-path tool rows rebuilt from the cold log open the right Sidebar', async () => {
     onTestFailed(async () => {
       await mkdir(fileURLToPath(new URL('../../../.artifacts/screenshots/0907-2205-sidebar', import.meta.url)), { recursive: true })
