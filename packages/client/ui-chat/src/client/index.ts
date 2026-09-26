@@ -30,7 +30,7 @@ export type {
 export type { ChatStoreState, ToolCallId, TurnProcessViewEntry } from './contract/store.ts'
 export type { TranscriptViewRowInjected, TranscriptViewRowProps } from './settings/TranscriptViewRow.tsx'
 export type { TranscriptViewMode } from '../chat-settings.ts'
-export type { ChatPresentationPolicy, ToolCallDetail } from './presentation-policy.ts'
+export type { ChatPresentationPolicy } from './presentation-policy.ts'
 export type {
   AssistantActionOwnerProps, ChatFileMentions, ChatNodeHookContext, ChatNodeInjected,
   ChatNodeOwnerProps, ChatNodeViewProps, ChatScrollPosition, ChatStore, ChatViewInjected,

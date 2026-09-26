@@ -5,7 +5,7 @@ import {
   diffTotals,
 } from '@qilin/client-ui-primitives'
 import type { PropsRenderSlots, TranslateNS } from '@qilin/client-ui-slots'
-import type { OpenFileOptions, ToolCallDetail, UseDisclosure } from '@qilin/client-ui-chat/client'
+import type { OpenFileOptions, UseDisclosure } from '@qilin/client-ui-chat/client'
 import type { MessageImageLoader } from '@qilin/client-ui-conversation/client'
 import { CHAT_DIFF_MAX_LINES, type DiffCardModel } from '../models/diff-card-model.ts'
 import { CHAT_READ_MAX_LINES, type ReadCardModel } from '../models/read-card-model.ts'
@@ -90,12 +90,6 @@ export interface ToolRowProps {
    * over the expanded body. Absent = no affordance.
    */
   inspect?: (() => void) | undefined
-  /**
-   * Work-details presentation for the detail body: `'summary'` drops the body
-   * (the row is its one-line summary, with no toggle), `'collapsed'` keeps it
-   * behind the row toggle. Absent = `'collapsed'`.
-   */
-  detail?: ToolCallDetail | undefined
 }
 
 function leadingFor(state: ToolRowState, icon: ReactNode): ReactNode {
@@ -147,7 +141,6 @@ export function ToolRow({
   onOpenFile,
   inspect,
   useDisclosure,
-  detail = 'collapsed',
 }: ToolRowProps) {
   // The injected disclosure state is the row's whole open state; an enclosing
   // Turn's collapse resets it.
@@ -172,9 +165,8 @@ export function ToolRow({
   const inputRaw = bodyRaw ?? null
   const outputText = output ?? null
   const card = askQuestionBody ?? terminalBody ?? diffBody ?? readBody ?? imageBody ?? searchBody ?? webBody ?? detailsBody
-  const expandable = state !== 'preparing' && detail !== 'summary'
-    && (inputRaw !== null || outputText !== null || card !== null)
-  const open = expandable && expanded
+  const expandable = state !== 'preparing' && (inputRaw !== null || outputText !== null || card !== null)
+  const open = expanded && expandable
   const bodyText = useMemo(
     () => open && card === null && inputRaw !== null ? formatToolBody(variant, inputRaw) : null,
     [card, inputRaw, open, variant],

@@ -113,7 +113,6 @@ export function ChatView({
   const openError = useSession(s => s.openError)
   const hasMore = useSession(s => s.hasMore)
   const loadingOlder = useSession(s => s.loadingOlder)
-  const toolDetail = usePresentation(policy => policy.toolCallDetail)
   const inspectCall = useCallback((callId: string) => {
     openTrajectory(callId)
   }, [openTrajectory])
@@ -244,7 +243,6 @@ export function ChatView({
                 useChatNode={useChatNode}
                 useChatNodeProcess={useChatNodeProcess}
                 usePresentation={usePresentation}
-                toolDetail={toolDetail}
                 useStore={useStore}
                 actions={actions}
                 cwd={cwd}

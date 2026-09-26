@@ -27,14 +27,13 @@ function PreparingFileMutationRow({ toolName, useToolCallArgumentsPartial, useDi
     summary={t('tool.preparing.content', { kilobytes: Math.ceil(raw.length / 1024) })} />
 }
 
-function StartedFileMutationRow({ toolName, block, cwd, home, openFile, inspect, detail, useDisclosure, t }: Exclude<FileMutationRowProps, { phase: 'preparing' }>) {
+function StartedFileMutationRow({ toolName, block, cwd, home, openFile, inspect, useDisclosure, t }: Exclude<FileMutationRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block, cwd, home)
   const diff = diffCardModel(block)
   return (
     <ToolRow
       useDisclosure={useDisclosure}
       t={t}
-      detail={detail}
       variant={model.variant}
       toolName={toolName}
       icon={FILE_MUTATION_ICON}

@@ -19,16 +19,7 @@ export interface ChatPresentationPolicy {
   readonly liveProcessDetail: boolean
   /** Whether a settled reasoning row previews its first line beside the Think title. */
   readonly settledReasoningPreview: boolean
-  /** How a settled tool-call row presents its detail body under this mode. */
-  readonly toolCallDetail: ToolCallDetail
 }
-
-/**
- * Detail level a settled tool-call row shows for its argument/result body:
- * `'summary'` drops the body and its toggle, `'collapsed'` keeps the body behind
- * the row toggle. No level opens the body without a reader click.
- */
-export type ToolCallDetail = 'summary' | 'collapsed'
 
 const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
   compact: {
@@ -37,7 +28,6 @@ const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
     stepGrouping: 'collapsed',
     liveProcessDetail: false,
     settledReasoningPreview: false,
-    toolCallDetail: 'summary',
   },
   standard: {
     mode: 'standard',
@@ -45,7 +35,6 @@ const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
     stepGrouping: 'collapsed',
     liveProcessDetail: true,
     settledReasoningPreview: true,
-    toolCallDetail: 'collapsed',
   },
   detailed: {
     mode: 'detailed',
@@ -53,7 +42,6 @@ const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
     stepGrouping: 'history',
     liveProcessDetail: true,
     settledReasoningPreview: true,
-    toolCallDetail: 'collapsed',
   },
   verbose: {
     mode: 'verbose',
@@ -61,7 +49,6 @@ const POLICIES: Readonly<Record<TranscriptViewMode, ChatPresentationPolicy>> = {
     stepGrouping: 'none',
     liveProcessDetail: false,
     settledReasoningPreview: true,
-    toolCallDetail: 'collapsed',
   },
 }
 
@@ -86,6 +73,6 @@ export function derivePresentationPolicy(
 ): ObservableSnapshot<ChatPresentationPolicy> {
   return {
     getSnapshot: () => POLICIES[mode.getSnapshot()],
-    subscribe: mode.subscribe,
+    subscribe: listener => mode.subscribe(listener),
   }
 }

@@ -20,7 +20,7 @@ import type {
 } from './snapshot.ts'
 import type { TurnProcessSpec } from './turn-process.ts'
 import type { ObservableSnapshot } from '@qilin/client-store'
-import type { ChatPresentationPolicy, ToolCallDetail } from '../presentation-policy.ts'
+import type { ChatPresentationPolicy } from '../presentation-policy.ts'
 import type { PerformanceUsageMode } from '../../chat-settings.ts'
 
 /** Selector hook over the current Conversation binding's Chat target. */
@@ -122,8 +122,6 @@ export interface ChatNodeOwnerProps {
   fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined
   /** Turn-process state when this Node belongs to a projected Turn. */
   turnProcess?: TurnProcessOwnerProps | undefined
-  /** Detail body a settled tool-call row shows, from the work-details mode; absent reads as `'collapsed'`. */
-  toolDetail?: ToolCallDetail | undefined
 }
 
 /** Shared presentation state for one Turn-process answer generation. */

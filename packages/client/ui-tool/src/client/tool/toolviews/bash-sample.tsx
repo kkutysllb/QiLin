@@ -49,7 +49,7 @@ export function BashRow(props: BashRowProps) {
   return <StartedBashRow {...props} />
 }
 
-function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, detail = 'collapsed', useDisclosure, t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
+function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, useDisclosure, t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
   const model = toolRowModel(toolName, block)
   // An omitted shell workdir is the session workspace; relative values resolve
   // against it before reaching the terminal primitive.
@@ -70,8 +70,8 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, deta
   const genericBody = terminal === null
     && (model.state === 'error' || isSettledPersistentShellCall(block) || isSpilledShellCall(block))
     && (model.bodyRaw !== null || model.output !== null)
-  const expandable = detail !== 'summary' && (terminal !== null || genericBody)
-  const open = expandable && expanded
+  const expandable = terminal !== null || genericBody
+  const open = expanded && expandable
   const body = useMemo(
     () => open && genericBody && model.bodyRaw !== null
       ? formatToolBody(model.variant, model.bodyRaw)

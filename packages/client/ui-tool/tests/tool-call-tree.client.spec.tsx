@@ -25,7 +25,6 @@ function props(
   selectedCallId?: string,
   home?: string,
   owners?: ToolCallOwnerProps[],
-  toolDetail?: ToolTreeProps['toolDetail'],
 ): ToolTreeProps {
   const snapshot = {} as SessionSnapshot
   const useSession = ((selector: (value: SessionSnapshot) => unknown) => selector(snapshot)) as ToolTreeProps['useSession']
@@ -54,7 +53,6 @@ function props(
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
     fileMentions: vi.fn(),
     useHostInfo: ((selector: (info: { home: string | undefined }) => unknown) => selector({ home })) as ToolTreeProps['useHostInfo'],
-    ...(toolDetail === undefined ? {} : { toolDetail }),
     t,
   } as unknown as ToolTreeProps
 }
@@ -67,13 +65,6 @@ describe('ToolCallTree', () => {
     expect(row?.getAttribute('data-chat-anchor-key')).toBe('call:w1')
     expect(view.container.querySelector('[data-variant="others"]')).not.toBeNull()
     expect(view.getByText('w1')).toBeTruthy()
-  })
-
-  it('forwards the work-details detail level into each dispatched owner', () => {
-    const owners: ToolCallOwnerProps[] = []
-    const block = root('w1', { name: 'bash', argsRaw: '{"command":"ls"}' })
-    render(<ToolCallTree {...props(block, 'w1', undefined, owners, 'summary')} />)
-    expect(owners[0]?.detail).toBe('summary')
   })
 
   it('renders a current-ID leaf under its historical-ID parent', () => {

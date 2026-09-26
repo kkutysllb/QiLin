@@ -2,7 +2,6 @@
 import { memo, useMemo, type ReactNode } from 'react'
 import type { ToolCallBlock } from '@qilin/client-ui-chat/client'
 import type { ToolCallHookContext, ToolCallOwnerProps, ToolCallPhaseProps, ToolTreeProps } from '../contract/slots.ts'
-import type { ToolCallDetail } from '@qilin/client-ui-chat/client'
 import { toolRowModel } from './models/tool-call-model.ts'
 import { GenericToolCard } from './toolviews/GenericToolCard.tsx'
 import css from './ToolCallTree.module.css'
@@ -19,15 +18,13 @@ function callName(call: ToolCallPhaseProps): string {
 
 /** One atomic call dispatched through the Tool-owned keyed slot. */
 const ToolCall = memo(function ToolCall({
-  renderSlot, callId, toolName, call, assistant, openFile, cwd, home, inspectCall, loadImage, useDisclosure, detail, t, children,
+  renderSlot, callId, toolName, call, assistant, openFile, cwd, home, inspectCall, loadImage, useDisclosure, t, children,
 }: Pick<ToolTreeProps, 'renderSlot' | 'openFile' | 'cwd' | 'inspectCall' | 'loadImage' | 'useDisclosure' | 't'> & {
   callId: string
   toolName: string
   call: ToolCallPhaseProps
   assistant: ToolCallHookContext['assistant']
   home?: string | undefined
-  /** Resolved work-details presentation for the dispatched rows. */
-  detail: ToolCallDetail
   children?: ReactNode
 }) {
   const preparing = call.phase === 'preparing'
@@ -44,8 +41,7 @@ const ToolCall = memo(function ToolCall({
     loadImage,
     useDisclosure,
     inspect: () => { inspectCall(callId) },
-    detail,
-  }), [callId, toolName, call, openFile, cwd, home, loadImage, useDisclosure, inspectCall, detail])
+  }), [callId, toolName, call, openFile, cwd, home, loadImage, useDisclosure, inspectCall])
   const autoReviewDenied = useMemo(
     () => call.phase === 'result' && toolRowModel(toolName, call.block).autoReviewDenial !== null,
     [toolName, call],
@@ -69,13 +65,11 @@ const ToolCall = memo(function ToolCall({
 })
 
 const ToolCallBranch = memo(function ToolCallBranch({
-  renderSlot, block, assistant, cwd, home, openFile, inspectCall, loadImage, useDisclosure, detail, t,
+  renderSlot, block, assistant, cwd, home, openFile, inspectCall, loadImage, useDisclosure, t,
 }: Pick<ToolTreeProps, 'renderSlot' | 'cwd' | 'openFile' | 'inspectCall' | 'loadImage' | 'useDisclosure' | 't'> & {
   block: ToolCallBlock
   assistant: ToolCallHookContext['assistant']
   home?: string | undefined
-  /** Resolved work-details presentation for the dispatched rows. */
-  detail: ToolCallDetail
 }) {
   const call = useMemo(() => toolCallPhase(block), [block])
   return (
@@ -91,7 +85,6 @@ const ToolCallBranch = memo(function ToolCallBranch({
       inspectCall={inspectCall}
       loadImage={loadImage}
       useDisclosure={useDisclosure}
-      detail={detail}
       t={t}
     >
       {call.phase !== 'preparing' && call.block.subCalls.length > 0 ? (
@@ -108,7 +101,6 @@ const ToolCallBranch = memo(function ToolCallBranch({
               inspectCall={inspectCall}
               loadImage={loadImage}
               useDisclosure={useDisclosure}
-              detail={detail}
               t={t}
             />
           ))}
@@ -125,12 +117,10 @@ const ToolCallBranch = memo(function ToolCallBranch({
  * @returns the Tool call tree.
  */
 export function ToolCallTree({
-  renderSlot, node, cwd, openFile, inspectCall, loadImage, useDisclosure, toolDetail, useHostInfo, t,
+  renderSlot, node, cwd, openFile, inspectCall, loadImage, useDisclosure, useHostInfo, t,
 }: ToolTreeProps) {
   const home = useHostInfo(info => info.home)
   const assistant = node.location.kind === 'step' ? node.location.step.data.source('assistant-step') : undefined
-  // Detached renderers without a mode read as the Standard presentation.
-  const detail = toolDetail ?? 'collapsed'
   return (
     <ToolCallBranch
       renderSlot={renderSlot}
@@ -142,7 +132,6 @@ export function ToolCallTree({
       inspectCall={inspectCall}
       loadImage={loadImage}
       useDisclosure={useDisclosure}
-      detail={detail}
       t={t}
     />
   )

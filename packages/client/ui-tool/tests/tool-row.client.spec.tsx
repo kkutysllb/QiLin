@@ -288,29 +288,8 @@ describe('ToolRow', () => {
     expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('presents a one-line summary in the compact mode: no toggle, no body', () => {
-    const view = render(<ToolRow {...rowProps} detail="summary" />)
-    expect(view.getByText('List files')).toBeTruthy()
-    // No expandable body: the row is not a button and the args never render.
-    expect(view.container.querySelector('[aria-expanded]')).toBeNull()
-    expect(view.container.querySelector('[class*="ioCard"]')).toBeNull()
-  })
-
-  it('starts the detail body collapsed and follows the reader toggle, never a mode default', () => {
-    const view = render(<ToolRow {...rowProps} detail="collapsed" />)
-    expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
-
-    fireEvent.click(view.getByRole('button'))
-    expect(view.getByText(/"a": 1/)).toBeTruthy()
-    expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('true')
-    expect(view.container.querySelector('[class*="ioCard"]')).not.toBeNull()
-
-    fireEvent.click(view.getByRole('button'))
-    expect(view.container.querySelector('[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false')
-  })
-
-  it.each(['collapsed', 'summary'] as const)('keeps the preparing state non-expandable in the %s detail', (detail) => {
-    const view = render(<ToolRow {...rowProps} state="preparing" detail={detail} />)
+  it('keeps the preparing state non-expandable', () => {
+    const view = render(<ToolRow {...rowProps} state="preparing" />)
     expect(view.container.querySelector('[aria-expanded]')).toBeNull()
   })
 

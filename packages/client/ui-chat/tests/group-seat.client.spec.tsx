@@ -130,7 +130,6 @@ function makeSeat(options: SeatOptions = {}) {
     useStore: bindSnapshotSelector(chat),
     actions: chat.actions,
     renderSlot: () => null,
-    toolDetail: 'collapsed',
     openFile: () => {},
     openSkill: () => {},
     inspectCall: () => {},

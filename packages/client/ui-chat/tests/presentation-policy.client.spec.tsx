@@ -10,17 +10,13 @@ afterEach(cleanup)
 
 describe('Chat presentation policy', () => {
   it.each([
-    ['compact', true, 'collapsed', false, false, 'summary'],
-    ['standard', true, 'collapsed', true, true, 'collapsed'],
-    ['detailed', true, 'history', true, true, 'collapsed'],
-    ['verbose', false, 'none', true, false, 'collapsed'],
-  ] as const)('maps %s to stable presentation capabilities', (
-    mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail, toolCallDetail,
-  ) => {
+    ['compact', true, 'collapsed', false, false],
+    ['standard', true, 'collapsed', true, true],
+    ['detailed', true, 'history', true, true],
+    ['verbose', false, 'none', true, false],
+  ] as const)('maps %s to stable presentation capabilities', (mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail) => {
     const policy = presentationPolicyFor(mode)
-    expect(policy).toEqual({
-      mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail, toolCallDetail,
-    })
+    expect(policy).toEqual({ mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail })
     expect(presentationPolicyFor(mode)).toBe(policy)
   })
 
@@ -42,36 +38,28 @@ describe('Chat presentation policy', () => {
     const mode = createSnapshotStore<TranscriptViewMode>('compact')
     const usePresentation = bindSnapshotSelector(derivePresentationPolicy(mode))
     const foldRender = vi.fn()
-    const detailRender = vi.fn()
+    const previewRender = vi.fn()
     function Fold() {
       const fold = usePresentation(policy => policy.foldCompletedTurns)
       foldRender(fold)
       return <span>{String(fold)}</span>
     }
-    function Detail() {
-      const detail = usePresentation(policy => policy.toolCallDetail)
-      detailRender(detail)
-      return <span>{detail}</span>
+    function Preview() {
+      const preview = usePresentation(policy => policy.settledReasoningPreview)
+      previewRender(preview)
+      return <span>{String(preview)}</span>
     }
-    render(<><Fold /><Detail /></>)
+    render(<><Fold /><Preview /></>)
     expect(foldRender).toHaveBeenCalledTimes(1)
-    expect(detailRender).toHaveBeenCalledTimes(1)
+    expect(previewRender).toHaveBeenCalledTimes(1)
     act(() => { mode.set('detailed') })
-    // The detail body leaves its one-line summary; folding does not move.
     expect(foldRender).toHaveBeenCalledTimes(1)
-    expect(detailRender).toHaveBeenCalledTimes(2)
-    act(() => { mode.set('verbose') })
-    // verbose keeps the collapsed tool body and turns folding off, so only the
-    // fold consumer re-renders.
-    expect(foldRender).toHaveBeenCalledTimes(2)
-    expect(detailRender).toHaveBeenCalledTimes(2)
+    expect(previewRender).toHaveBeenCalledTimes(2)
     act(() => { mode.set('standard') })
-    expect(foldRender).toHaveBeenCalledTimes(3)
-    expect(detailRender).toHaveBeenCalledTimes(2)
+    expect(foldRender).toHaveBeenCalledTimes(1)
+    expect(previewRender).toHaveBeenCalledTimes(2)
     act(() => { mode.set('compact') })
-    // Only Compact drops the body, so the detail consumer moves again while
-    // folding stays on.
-    expect(foldRender).toHaveBeenCalledTimes(3)
-    expect(detailRender).toHaveBeenCalledTimes(3)
+    expect(foldRender).toHaveBeenCalledTimes(1)
+    expect(previewRender).toHaveBeenCalledTimes(3)
   })
 })

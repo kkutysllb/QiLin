@@ -50,7 +50,7 @@ function summarize(argsRaw: string | null, t: TodoRowProps['t']): RowSummary | n
 }
 
 /** Summarizes a plan update without presenting a cancelled call as completed. */
-export function TodoRow({ toolName, block, inspect, detail, useDisclosure, useTodoHistory, useSession, t }: TodoRowProps) {
+export function TodoRow({ toolName, block, inspect, useDisclosure, useTodoHistory, useSession, t }: TodoRowProps) {
   const baseline = useTodoHistory(snapshot => snapshot?.get(block.callId))
   const hasMore = useSession(snapshot => snapshot.hasMore)
   const diff = useMemo(() => todoDiffModel(block, baseline, hasMore, t), [block, baseline, hasMore, t])
@@ -59,7 +59,6 @@ export function TodoRow({ toolName, block, inspect, detail, useDisclosure, useTo
   return (
     <ToolRow
       useDisclosure={useDisclosure}
-      detail={detail}
       t={t}
       variant={model.variant}
       toolName={toolName}
