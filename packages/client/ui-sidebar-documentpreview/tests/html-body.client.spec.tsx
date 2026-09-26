@@ -1,11 +1,19 @@
 // @vitest-environment jsdom
 /** HTML iframe ownership follows file identity and bytes, not locale or wrapping changes. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import { createSnapshotStore } from '@qilin/client-store'
+import type { Resources, ResourceSnapshot } from '@qilin/client-resources/client'
+import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
 import type { SessionId } from '@qilin/session/types'
+import { TextPreview } from '../src/client/TextPreview.tsx'
+import type { DocumentBodyOwner } from '../src/client/document/contract.ts'
+import { textFace } from '../src/client/face.ts'
 import { HtmlBody } from '../src/client/html/HtmlBody.tsx'
 import type { HtmlBodyProps } from '../src/client/html/HtmlBody.tsx'
+import { htmlBodyDefinition } from '../src/client/html/index.ts'
 import { en } from '../src/client/html/locales.ts'
+import { ADDRESS, ABSOLUTE_PATH, SESSION, TAB_ID, documentSlots, harness } from './fixtures.client.ts'
 
 const translations: ReadonlyMap<string, string> = new Map(Object.entries(en))
 let createDescriptor: PropertyDescriptor | undefined
@@ -40,6 +48,8 @@ function props(text = '<p>hello</p>'): HtmlBodyProps {
     sessionId: 'html' as SessionId,
     useTabInfo: () => ({ tab: { signal } }),
     readRelated: vi.fn(),
+    addResource: vi.fn(),
+    setResources: vi.fn(),
     useResource: () => ({ value: undefined }),
     t: key => translations.get(key) ?? key,
   } as HtmlBodyProps
@@ -48,6 +58,69 @@ function props(text = '<p>hello</p>'): HtmlBodyProps {
 const utf8 = (text: string): Uint8Array<ArrayBuffer> => new TextEncoder().encode(text)
 
 describe('HtmlBody', () => {
+  it.each(['css', 'js'] as const)('reloads the HTML preview when only its %s dependency changes', async (extension) => {
+    const h = harness()
+    const previewProps = h.props()
+    const htmlProps = props()
+    const metadata = (version: string): ResourceSnapshot<WorkspaceFileStat> => ({
+      status: 'live', value: { absolutePath: ABSOLUTE_PATH, version }, failure: undefined,
+    })
+    const root = createSnapshotStore(metadata('root-v1'))
+    const dependency = createSnapshotStore(metadata('asset-v1'))
+    const release = vi.fn()
+    const dependencySource = {
+      getSnapshot: () => dependency.getSnapshot(),
+      subscribe: (listener: () => void) => {
+        const off = dependency.subscribe(listener)
+        return () => { off(); release() }
+      },
+    }
+    const resources: Resources = {
+      source: address => address === ADDRESS ? root : dependencySource,
+      register: () => () => {}, pin: () => {},
+    }
+    const face = textFace(h.read, h.bytes, resources)(SESSION, h.instance.actions)
+    const data = utf8(extension === 'css'
+      ? '<link rel="stylesheet" href="./asset.css"><p>HTML content</p>'
+      : '<p>HTML content</p><script src="./asset.js"></script>')
+    h.bytes.mockResolvedValue({ ok: true, value: { absolutePath: ABSOLUTE_PATH, version: 'root-v1', data, offset: 0, eof: true } })
+    const readRelated = vi.fn<HtmlBodyProps['readRelated']>().mockResolvedValue({ ok: true, value: {
+      absolutePath: `/workspace/asset.${extension}`, version: 'asset-v1', offset: 0, eof: true,
+      data: btoa(extension === 'css' ? 'body { color: red }' : 'window.loaded = true'),
+    } })
+    const definition = { ...htmlBodyDefinition(() => 'HTML'), extensions: ['md'] }
+    const preview = () => <TextPreview {...previewProps} {...face}
+      useDocumentPreviews={select => select([definition])}
+      renderSlot={documentSlots((_key, owner) => <HtmlBody {...htmlProps} {...owner as unknown as DocumentBodyOwner}
+        useTabInfo={previewProps.useTabInfo} readRelated={readRelated} />)} />
+    const view = render(preview())
+    await waitFor(() => {
+      expect(screen.getByTitle(en.frame)).toBeDefined()
+      expect(h.instance.getSnapshot().byTab[TAB_ID]).toMatchObject({ loading: false, resourcesDirty: false })
+    })
+    const previous = screen.getByTitle(en.frame)
+    const reads = h.bytes.mock.calls.length
+    const relatedReads = readRelated.mock.calls.length
+    expect(reads).toBe(1)
+    expect(relatedReads).toBe(1)
+    expect(create).toHaveBeenCalledOnce()
+    readRelated.mockResolvedValueOnce({ ok: true, value: {
+      absolutePath: `/workspace/asset.${extension}`, version: 'asset-v2', offset: 0, eof: true,
+      data: btoa(extension === 'css' ? 'body { color: blue }' : 'window.loaded = false'),
+    } })
+    act(() => { dependency.set(metadata('asset-v2')) })
+    await waitFor(() => { expect(screen.getByTitle(en.frame)).not.toBe(previous) })
+    expect(h.bytes).toHaveBeenCalledTimes(reads + 1)
+    expect(readRelated).toHaveBeenCalledTimes(relatedReads + 1)
+    expect(h.instance.getSnapshot().byTab[TAB_ID]?.version).toBe('root-v1')
+    expect(h.read).not.toHaveBeenCalled()
+    act(() => { root.set(metadata('root-v2')) })
+    await waitFor(() => { expect(h.bytes).toHaveBeenCalledTimes(reads + 2) })
+    // The reloaded document repacks from its bytes, so it reads the dependency again.
+    expect(readRelated).toHaveBeenCalledTimes(relatedReads + 2)
+    view.unmount()
+  })
+
   it('renders a Blob iframe with only scripts allowed, keeping it mounted for unrelated props', async () => {
     const initial = props()
     const view = render(<HtmlBody {...initial} />)

@@ -33,6 +33,7 @@
       "inject": [
         "@qilin/api-gateway",
         "@qilin/api-workspace-files",
+        "@qilin/client-resources",
         "@qilin/client-ui-sidebar-right",
         "@qilin/client-ui-session",
         "@qilin/api-remotes",

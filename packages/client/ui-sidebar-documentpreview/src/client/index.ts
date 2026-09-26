@@ -75,10 +75,11 @@ declare module '@qilin/client-ui-slots' {
 }
 
 /**
- * Required browser services: the tab registry, the slot registry, copy, and the
- * Remote carrier with its `workspaceFiles` namespace.
+ * Required browser services: the tab registry, the slot registry, copy, the
+ * shared resource model, and the Remote carrier with its `workspaceFiles`
+ * namespace.
  */
-export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles']
+export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'resources']
 
 /**
  * Client plugin body: register the type, its dictionaries, its body, and its chip title.
@@ -100,6 +101,7 @@ export function apply(ctx: ClientContext): void {
       const result = await ctx.remote.workspaceFiles.readAll(file.sessionId, file.path, signal)
       return result.ok ? { ok: true, value: documentFileBytes(result.value) } : result
     },
+    ctx.resources,
   )
   const source = { getSnapshot: previews.getSnapshot, subscribe: previews.subscribe }
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(

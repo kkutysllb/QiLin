@@ -8,6 +8,8 @@
  * not the slot runtime.
  */
 import { onTestFinished, vi } from 'vitest'
+import { Context } from '@qilin/kylin'
+import { ResourceRegistry } from '@qilin/client-resources/src/client/resources.ts'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
 import type { Mock } from 'vitest'
 import { act } from '@testing-library/react'
@@ -28,6 +30,13 @@ import { textBodyDefinition } from '../src/client/text/index.ts'
 import type { TabId } from '@qilin/client-ui-dockkit'
 
 type BodySlot = PropsRenderSlots<'sidebar.right.tab.document'>['renderSlot']
+
+/** A real resource face over a fresh Context; the face's membership bookkeeping is what the specs drive. */
+export function createResources(): ResourceRegistry {
+  const ctx = new Context()
+  onTestFinished(() => ctx.fiber.dispose())
+  return new ResourceRegistry(ctx)
+}
 
 /** Preserve the body-slot callback used by component fixtures. */
 export function documentSlots(body: BodySlot): TextPreviewProps['renderSlot'] { return body }
@@ -129,7 +138,7 @@ export function harness(
   const read = vi.fn<ReadWorkspaceFilePage>((_session, _path, offset) =>
     Promise.resolve(pages[offset] ?? failure('workspace-file/not-found', { path: PATH })))
   const bytes = vi.fn<ReadDocumentBytes>()
-  const face = textFace(read, bytes)(SESSION, instance.actions)
+  const face = textFace(read, bytes, createResources())(SESSION, instance.actions)
   const current = { version: 'v1' as string | undefined, failure: undefined as RemoteFailure | undefined, snapshot: meta('v1', undefined) }
   const refresh = (): void => { current.snapshot = meta(current.version, current.failure) }
   const useResource = vi.fn<() => ResourceSnapshot<WorkspaceFileStat>>(() => current.snapshot)
@@ -159,6 +168,7 @@ export function harness(
     reloadPages: face.reloadPages,
     prepareRenderer: face.prepareRenderer, loadAll: face.loadAll,
     reloadAll: face.reloadAll,
+    addResource: face.addResource, setResources: face.setResources,
     useDocumentPreviews: () => definitions,
     renderSlot,
     t,

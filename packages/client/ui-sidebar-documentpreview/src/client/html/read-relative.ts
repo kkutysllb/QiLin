@@ -1,7 +1,8 @@
 /** Adapt a Remote relative read without changing its Session or Host path authority. */
 import type { RemoteResult } from '@qilin/api-remotes/client'
 import type { WorkspaceFileBytes } from '@qilin/api-workspace-files/types'
-import { documentFileBytes } from '../rpc.ts'
+import { sessionFileAddress } from '@qilin/util-workspace-path'
+import { documentFileBytes, hostFileOf } from '../rpc.ts'
 import type { ReadHtmlRelative } from './pack.ts'
 
 /**
@@ -18,9 +19,15 @@ export type ReadHtmlRelated = (address: string, relativePath: string, signal: Ab
  * @param readRelated - Remote reader using the Session in the root HTML address.
  * @param address - root HTML file address.
  * @param lifetime - tab lifetime.
+ * @param addResource - subscribes to the dependency path reported by the Host.
  * @returns a reader that strips URL query/fragment, decodes one path, and preserves Host failures.
  */
-export function createReadHtmlRelative(readRelated: ReadHtmlRelated, address: string, lifetime: AbortSignal): ReadHtmlRelative {
+export function createReadHtmlRelative(
+  readRelated: ReadHtmlRelated,
+  address: string,
+  lifetime: AbortSignal,
+  addResource: (address: string) => void,
+): ReadHtmlRelative {
   return async (reference, signal) => {
     const suffix = reference.search(/[?#]/u)
     const path = decodeURIComponent(suffix === -1 ? reference : reference.slice(0, suffix))
@@ -29,9 +36,16 @@ export function createReadHtmlRelative(readRelated: ReadHtmlRelated, address: st
     }
     const combined = AbortSignal.any([lifetime, signal])
     combined.throwIfAborted()
+    const file = hostFileOf(address)
     const result = await readRelated(address, path, combined)
     combined.throwIfAborted()
-    if (!result.ok) throw new Error(result.error.message)
+    if (!result.ok) {
+      if ('path' in result.error.details && typeof result.error.details.path === 'string') {
+        addResource(sessionFileAddress(file.sessionId, result.error.details.path))
+      }
+      throw new Error(result.error.message)
+    }
+    addResource(sessionFileAddress(file.sessionId, result.value.absolutePath))
     return documentFileBytes(result.value)
   }
 }
