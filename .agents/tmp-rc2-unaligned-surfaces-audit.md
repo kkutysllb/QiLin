@@ -446,10 +446,10 @@ _（历史条目：门禁盲区四处与 `useDisclosure?` 那条红均已在批�
 | 步 | 内容 | 状态 |
 |---|---|---|
 | A | `TurnProcessNodeView` 按上游 rc.2 整体对齐（实时时长标签 / `turnProcessAlwaysOpen` / `hasContent` / `disabled` / 仅可折叠时渲染 chevron / visually-hidden `role="status"` 宣布）+ 其 golden 刷新 | **已完成**（净新增失败 0，见下节记录） |
-| B | 图标 `aria-hidden` 对齐 + 165 个 golden 去噪（**严格不变量：每条 diff 只允许删 `- img` 行**） | 待办（泳道全绿后单开专波） |
+| B | 图标 `aria-hidden` 对齐 + golden 去噪（**严格不变量：每条 diff 只允许是图标离开可访问性树**） | **已完成**（87/87；137 个 golden；不变量校验 0 未解释） |
 | C | 全量 128 文件泳道跑一遍，给出最终数字 | **已完成**（基线 + 最终各一次，见 Step A 收口复验） |
 
-A 与 B 拆成两趟刷新，保证 diff 可归因。
+A 与 B 拆成两趟刷新，保证 diff 可归因（各自都有「改动前基线 vs 改动后」的全量泳道对照）。
 
 **Step B 的规模已实测（不是估计）**：QiLin `packages/client/ui-primitives/src/icons/index.tsx` 共 87 个 `<svg>`，仅 6 个带 `aria-hidden`；上游 rc.2 同文件 87/87。golden 噪声为 2123 条裸 `- img` 行 / 167 个文件（apps/web/tests/expected 789 + snapshots 1334）。关键细节：上游 rc.2 的 golden 里仍保留 25 条带访问名的 `- img "…"`（markdown 真实图片、带 alt 的状态图），所以去噪只能删「裸 - img」——这是 Step B 必须守住的唯一不变量。
 
@@ -503,3 +503,23 @@ agent-preset-authoring、approval-composer、background-job-list、bash-abort-ro
 **本步验证阶梯（都在最终树上跑）**：`pnpm run build` 通过（282 client artifacts）；双面 `tsc -b`（client 由 build 覆盖、host 单独 `tsc -b tsconfig.host.json`）零错误；`npx vitest run packages/client/ui-chat` 464 passed；`pnpm run test:docs` **20/20**；`pnpm run test:gui` 7822 passed / 1 failed / 1 skipped——唯一失败是既有的 `packages/client/ui-approval`（单跑该文件 15/15 通过，D6 波次已在干净树上复现过同一失败，属间歇既有红）；改动路径 `run-oxlint` 0 warning 0 error。
 
 **残留红（本步之外，均有测量证据）**：`verify-client-domain-graph`（`ui-sidebar-documentpreview` 的 text⇄document 兄弟域互引，29 处匹配，HEAD 原状同样红）；`run-oxlint` 对 `packages/client/ui-chat/tests/chat-view.client.spec.tsx:303` 报 `typescript(no-unnecessary-type-parameters)`（该行在 HEAD 逐字存在，pre-commit 钩子不含该规则，故从未拦住）；`test:gui` 的 `ui-approval` 间歇红。
+
+### Step B 落地记录：图标 aria-hidden 对齐 + golden 去噪（2026-09-26）
+
+**改动范围**：packages/client/ui-primitives/src/icons/index.tsx 的 **87 个 `<svg>` 全部补 `aria-hidden="true"`**（原本只有 6 个）→ 81 处新增；diff 纯净（162 条变更行全部是 `<svg>` 开标签行），模块仍导出 89 个符号。
+
+**关键判断：不移植上游图标**。QiLin 的图标集是自有 `ic_ds_*` 一套（上游是 artwork + strokeWidth 的另一套，命名与结构都不同）。整体对齐等于把 dsh 图标换进麒麟——违反品牌红线，故本步只补可访问性属性、不换图形。同理未带入 kcoder 专属补丁。
+
+**归属**：全量 replay 后新增 **57 个失败文件**（与既有 27 个红 **零交集**）；其中 86 条是 golden、32 条是同文件内 golden 失败导致清理未完成而引发的级联（菜单/模态残留 → 后续用例超时）。
+
+**刷新与不变量校验**：57 spec → **137 个 golden 文件**（−3664/+1349）。校验脚本对全部变更行归口：
+- removed 3664 = **1613 条裸 `- img`** + 702 条子文本行（父行折叠时被吸收）+ 1200 条父行折叠（去掉冒号）+ 143 条父行内联文本 + 6 条 diff 对齐重发；**未解释 0，其中交互元素 0**。
+- added 1349 = 1200 条折叠父行 + 143 条内联 + 6 条重发。
+即：没有任何交互元素、可访问名或标签被改动，唯一变化是图标离开可访问性树。
+另有 4 个 jsdom 快照（`packages/client/ui-sidebar/tests/__snapshots__`）更新，diff 仅 10 行 `aria-hidden="true"` 属性（该快照序列化 DOM 标记）。
+
+**残留（Step B2 候选）**：仍有 **460 条裸 `- img` / 32 个文件**，来源是图标集之外的 svg：FishLogo / CodeFileIcon / SiteGlyph / LinkIcon / FileTypeIcon / ReferenceIcon / StateDot / JsonTree、ui-brand/Seal、ui-deliverables/icons、ui-conversation 内联 svg 等。其中含品牌图形，需逐文件确认语义（装饰 vs 有含义）后再决定，**不批量刷**。
+
+**验证**：ui-primitives 单元 992 passed；`test:docs` 20/20；图标文件 oxlint 干净；`test:gui` 1 failed / 7822 passed（唯一失败是既有 ui-trajectory）；全量 replay 泳道 **27 文件红——失败文件集合与基线 `identical: True`**，用例 40（基线 38）。
+
+**解释那 +2（重要，避免被误读成 Step B 回归）**：`agent-preset-authoring` 是既有红文件。它的「copies 极简模式」用例第一个失败点因该 golden 同样含图标噪声而从 **147 前移到 125**（复制对话框尚未关闭就 abort）→ 残留模态挡住后面两个用例（行 165 / 243 超时）。改动前后的失败**文件**集合一致，故不是新红；该文件属既有红波次，**不做盲刷**（它的根因是更早波次的设置入口迁移遗留，与图标无关）。
