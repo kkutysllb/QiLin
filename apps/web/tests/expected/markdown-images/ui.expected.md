@@ -6,17 +6,23 @@
 - text: Show the Markdown image policy. {{clock}}
 - button "Copy":
   - img
+- button "Thought for a while":
+  - text: Thought for a while
+  - img
 - heading "Markdown images" [level=2]
 - paragraph:
-  - img "Remote test image"
-- paragraph: Local test image
+  - 'button "View full image: Remote test image"':
+    - img "Remote test image"
+- paragraph: Image preview unavailable · Local test image
 - paragraph:
-  - img "Workspace test image"
-- paragraph: Oversized image
+  - 'button "View full image: Workspace test image"':
+    - img "Workspace test image"
+- paragraph: Image preview unavailable · Oversized image
 - paragraph:
-  - img "Outside workspace image"
-- paragraph: Missing image
-- paragraph: {{cwd}}/corrupt.png
+  - 'button "View full image: Outside workspace image"':
+    - img "Outside workspace image"
+- paragraph: Image preview unavailable · Missing image
+- paragraph: Image preview unavailable · {{cwd}}/corrupt.png
 - paragraph: REMOTE_IMAGE_DONE
 - button "Copy":
   - img

@@ -103,15 +103,16 @@ describe('redactSecrets', () => {
   })
 })
 
+const NS = 'adapter'
+
+/** Boot the in-memory provider, optionally over a stored document. */
+async function boot(doc?: Record<string, unknown>) {
+  const ctx = new Context()
+  await ctx.plugin(MemorySettings, doc === undefined ? undefined : { doc })
+  return ctx
+}
+
 describe('describe() layers and redaction', () => {
-  const NS = 'adapter'
-
-  async function boot(doc?: Record<string, unknown>) {
-    const ctx = new Context()
-    await ctx.plugin(MemorySettings, doc === undefined ? undefined : { doc })
-    return ctx
-  }
-
   it('exposes detached base and user layers beside the resolved value', async () => {
     const ctx = await boot({ adapter: { baseURL: 'https://user' } })
     const base = { apiKey: 'entry-key', baseURL: 'https://base' }
@@ -164,5 +165,74 @@ describe('describe() layers and redaction', () => {
     expect(descriptor?.secrets).toEqual([{ path: ['apiKey'], set: true }])
     const [verbatim] = ctx.settings.describe()
     expect(verbatim?.value).toEqual({ apiKey: 'user-key', baseURL: 'https://user' })
+  })
+})
+
+describe('describe() projection of volatile fields', () => {
+  const VolatileProfile: z<object> = z.object({
+    apiKey: z.string().role('secret'),
+    apiKeyEnv: z.string().role('credential-ref'),
+    baseURL: z.string().volatile(),
+    nested: z.object({
+      url: z.string().volatile(),
+    }),
+  })
+
+  it('carries the value behind a volatile field instead of the reference', async () => {
+    const ctx = await boot()
+    const entry = {
+      apiKeyEnv: 'EXAMPLE_API_KEY',
+      baseURL: 'https://base',
+      nested: { url: 'https://nested' },
+    }
+    ctx.settings.register(NS, VolatileProfile, { base: entry })
+    const [descriptor] = ctx.settings.describe()
+    expect(descriptor?.value).toEqual(entry)
+    // The same fact as the wire sees it: an unprojected reference serializes as
+    // an empty object, so the round trip is what a configuration page reads.
+    expect(JSON.parse(JSON.stringify(descriptor?.value))).toEqual(entry)
+  })
+
+  it('keeps secret removal and reports the secret slots of a volatile profile', async () => {
+    const ctx = await boot({ adapter: { apiKey: 'sk-live', baseURL: 'https://user' } })
+    ctx.settings.register(NS, VolatileProfile, {
+      base: { apiKeyEnv: 'EXAMPLE_API_KEY', baseURL: 'https://base', nested: { url: 'https://nested' } },
+    })
+    const [descriptor] = ctx.settings.describe({ redactSecrets: true })
+    expect(descriptor?.value).toEqual({
+      apiKeyEnv: 'EXAMPLE_API_KEY',
+      baseURL: 'https://user',
+      nested: { url: 'https://nested' },
+    })
+    expect(descriptor?.secrets).toEqual([{ path: ['apiKey'], set: true }])
+    expect(JSON.stringify(descriptor)).not.toContain('sk-live')
+  })
+
+  it('keeps the user layer winning over the projected base and the base detached', async () => {
+    const ctx = await boot({ adapter: { baseURL: 'https://user' } })
+    const entry = {
+      apiKeyEnv: 'EXAMPLE_API_KEY',
+      baseURL: 'https://base',
+      nested: { url: 'https://nested' },
+    }
+    ctx.settings.register(NS, VolatileProfile, { base: entry })
+    const [descriptor] = ctx.settings.describe()
+    expect(descriptor?.value).toEqual({
+      apiKeyEnv: 'EXAMPLE_API_KEY',
+      baseURL: 'https://user',
+      nested: { url: 'https://nested' },
+    })
+    expect(descriptor?.base).toEqual(entry)
+    expect(descriptor?.base).not.toBe(entry)
+    expect(descriptor?.user).toEqual({ baseURL: 'https://user' })
+    ;(descriptor?.base as Record<string, unknown>).baseURL = 'mutated'
+    expect(ctx.settings.describe()[0]?.base).toEqual(entry)
+  })
+
+  it('keeps resolving a namespace whose schema declares no volatile field', async () => {
+    const ctx = await boot({ adapter: { baseURL: 'https://user' } })
+    ctx.settings.register(NS, Profile, { base: { baseURL: 'https://base' } })
+    const [descriptor] = ctx.settings.describe()
+    expect(descriptor?.value).toEqual({ baseURL: 'https://user' })
   })
 })

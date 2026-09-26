@@ -9,7 +9,7 @@
 import { Context, Service } from '@qilin/kylin'
 import type z from '@qilin/schemastery'
 import { deepEqualJson, deepFreeze } from '@qilin/util-values'
-import { redactSecrets } from './redact.ts'
+import { plainConfig, redactSecrets } from './redact.ts'
 import type { RedactedSecret } from './redact.ts'
 import type { SettingsNamespace, SettingsUpdateSource } from './types.ts'
 
@@ -498,7 +498,9 @@ export abstract class SettingsProvider extends Service {
   /**
    * Describe every registered namespace for configuration surfaces, including
    * the composition `base` and raw user layers so a form can mark which fields
-   * the user overrode (presence in `user`) and what a reset returns to.
+   * the user overrode (presence in `user`) and what a reset returns to. Every
+   * layer is plain data: a `volatile()` field rides as the value it holds, not
+   * as the reference that value lives behind.
    * @param options - redaction switch; wire surfaces must redact.
    * @returns one descriptor per registered namespace, in registration order.
    */
@@ -513,12 +515,15 @@ export abstract class SettingsProvider extends Service {
         // and describing it as "no user layer" keeps this read total.
         user = undefined
       }
-      const base = registration.base === undefined ? undefined : structuredClone(registration.base)
+      // A volatile schema resolves its fields to references, which carry no
+      // value across a wire, so every layer is projected to plain data first.
+      const value = plainConfig(registration.resolved)
+      const base = registration.base === undefined ? undefined : plainConfig(registration.base)
       const detachedUser = user === undefined ? undefined : structuredClone(user)
       const descriptor: SettingsDescriptor = {
         ns: registration.ns,
         schema: registration.schema.toJSON(),
-        value: registration.resolved,
+        value,
         revision: registration.revision,
         ...base === undefined ? {} : { base },
         ...detachedUser === undefined ? {} : { user: detachedUser },
@@ -526,7 +531,7 @@ export abstract class SettingsProvider extends Service {
       }
       if (options?.redactSecrets !== true) return descriptor
       const schema = registration.schema as z<never>
-      const redacted = redactSecrets(schema, registration.resolved)
+      const redacted = redactSecrets(schema, value)
       return {
         ...descriptor,
         value: redacted.value,

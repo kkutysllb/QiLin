@@ -216,6 +216,7 @@ describe('PluginManagerPage', () => {
     ['agent-team-profile', 'builtinAgentTeamTitle', 'builtinAgentTeamDescription'],
     ['agent-team-web-profile', 'builtinAgentTeamWebTitle', 'builtinAgentTeamWebDescription'],
     ['auto-review', 'builtinAutoReviewTitle', 'builtinAutoReviewDescription'],
+    ['voice-input-bundle', 'builtinVoiceInputTitle', 'builtinVoiceInputDescription'],
   ] as const)('localizes %s across cards, details, switches, and uninstall confirmation', (suffix, titleKey, descriptionKey) => {
     const name = `@qilin/experimental-${suffix}`
     const { actions, set, setLanguage } = renderTab({ packages: [pkg({ name, description: 'Original metadata.' })] })

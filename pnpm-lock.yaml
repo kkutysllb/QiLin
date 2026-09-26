@@ -10816,6 +10816,9 @@ importers:
 
   packages/settings/settings:
     dependencies:
+      '@qilin/cosmokit':
+        specifier: link:../../../vendor/cosmokit
+        version: link:../../../vendor/cosmokit
       '@qilin/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery

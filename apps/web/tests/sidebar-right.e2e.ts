@@ -200,6 +200,20 @@ async function tabTitles(root: Locator): Promise<string[]> {
 }
 
 /**
+ * One docked pane by its grid column.
+ *
+ * A pane's cell belongs to the tab it currently shows, so document order
+ * follows the tabs' arrival order, not the columns' left-to-right order; a
+ * position-dependent case must name the column it means.
+ * @param column - the `[data-rightbar-col]` container.
+ * @param index - zero-based grid column of the pane.
+ * @returns the pane's locator.
+ */
+function paneAt(column: Locator, index: number): Locator {
+  return column.locator(`[data-dockkit-pane][data-dockkit-column="${index}"]`)
+}
+
+/**
  * A rendered width, read once the frame's track transition has settled.
  *
  * The frame eases its grid tracks, so a single sample taken right after a
@@ -409,7 +423,10 @@ describe('web e2e: shipped right Sidebar', () => {
       }
 
       await expect.poll(async () => await tabTitles(column)).toEqual(['Start'])
-      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(3)
+      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(7)
+      for (const kind of ['files', 'terminal', 'trajectory', 'trajectory-graph', 'browser', 'tasks', 'plans']) {
+        expect(await column.locator('[data-sidebar-right-guide-entry="' + kind + '"]').count(), kind).toBe(1)
+      }
       await column.locator('[data-sidebar-right-guide-entry="files"]').click()
 
       // A manual guide is closable beside Files and suppresses another add
@@ -718,7 +735,7 @@ describe('web e2e: shipped right Sidebar', () => {
       onTestFailed(() => saveFailureShot(page, 'web-e2e-sidebar-right-content'))
       const column = page.locator('[data-rightbar-col]')
       const panes = column.locator('[data-dockkit-pane]')
-      const floats = page.locator('[data-sidebar-right-float-host] [data-dockkit-float]')
+      const floats = page.locator('[data-sidebar-right-session]:not([hidden]) [data-dockkit-float]')
 
       // Observation before action: does the read ever leave the browser? The
       // assertion states the healthy answer so a failure prints the real one.
@@ -750,17 +767,18 @@ describe('web e2e: shipped right Sidebar', () => {
       await expect.poll(async () => await tabTitles(column)).toEqual(['Files', SAMPLE_NAME])
 
       // Opening the same content again focuses rather than duplicating.
-      await panes.first().locator('[data-dockkit-tab]').first().click()
+      await paneAt(column, 0).locator('[data-dockkit-tab]').first().click()
       await chip.click()
       await expect.poll(async () => await tabTitles(column)).toEqual(['Files', SAMPLE_NAME])
 
-      // The body arrives through the text type's keyed registration, and its
-      // content came over the wire from the real file.
+      // The body arrives through the file type's keyed registration, and its
+      // content came over the wire from the real file. The editable workbench
+      // outranks the read-only viewer that claimed this address before it.
       // A real Remote round-trip settles well after the default poll window.
-      await column.locator('[data-textpreview-state="text"]')
+      await column.locator('[data-file-state="ready"]')
         .waitFor({ timeout: 15_000 })
-        .catch(() => { throw new Error(`preview never settled; wire=${JSON.stringify(wire)}`) })
-      expect(await column.locator('pre').first().innerText()).toContain('produced by the seeded turn')
+        .catch(() => { throw new Error('file body never settled; wire=' + JSON.stringify(wire)) })
+      expect(await column.locator('[data-file-host]').first().innerText()).toContain('produced by the seeded turn')
       // The whole batch-E chain in one frame: a file mention in the
       // conversation, the tab it opened, and the file's real content read over
       // the workspace endpoint.
@@ -775,20 +793,20 @@ describe('web e2e: shipped right Sidebar', () => {
       expect(await folders.count()).toBe(await page.locator('[data-changed-files]').getByRole('button', { name: /folder/i }).count())
 
       // Split, then dock-drag: the kit's gestures drive the store's actions.
-      await panes.first().locator('[data-dockkit-split-button]').click()
+      await paneAt(column, 0).locator('[data-dockkit-split-button]').click()
       await expect.poll(async () => await panes.count()).toBe(2)
       await dragTo(
         page,
         column.locator('[data-dockkit-tab]').filter({ hasText: SAMPLE_NAME }).first(),
-        await pointIn(panes.nth(1), 0.5, 0.94),
+        await pointIn(paneAt(column, 1), 0.5, 0.94),
       )
       await expect.poll(async () => await panes.count()).toBe(2)
 
-      const splitGuide = panes.nth(1).locator('[data-dockkit-tab]').filter({ hasText: 'Start' })
+      const splitGuide = paneAt(column, 1).locator('[data-dockkit-tab]').filter({ hasText: 'Start' })
       expect(await splitGuide.locator('[data-dockkit-tab-close]').count()).toBe(1)
-      await dragTo(page, splitGuide, await pointIn(panes.first(), 0.5, 0.5))
-      await expect.poll(async () => await tabTitles(panes.nth(1))).toEqual([SAMPLE_NAME])
-      const movedGuide = panes.first().locator('[data-dockkit-tab]').filter({ hasText: 'Start' })
+      await dragTo(page, splitGuide, await pointIn(paneAt(column, 0), 0.5, 0.5))
+      await expect.poll(async () => await tabTitles(paneAt(column, 1))).toEqual([SAMPLE_NAME])
+      const movedGuide = paneAt(column, 0).locator('[data-dockkit-tab]').filter({ hasText: 'Start' })
       await movedGuide.hover()
       await movedGuide.locator('[data-dockkit-tab-close]').click()
 
@@ -797,12 +815,17 @@ describe('web e2e: shipped right Sidebar', () => {
       await expect.poll(async () => await filePane.locator('[data-dockkit-add-tab]').count()).toBe(1)
       expect(await column.locator('[data-dockkit-add-tab]').count()).toBe(2)
 
-      // Floating leaves the column entirely, and survives collapsing it. The
-      // pane the tab was alone in goes with it: an emptied pane never stays.
+      // A float stays in the column's DOM but draws outside it, and survives
+      // collapsing the column. The pane the tab was alone in goes with it: an
+      // emptied pane never stays.
       const tab = column.locator('[data-dockkit-tab]').filter({ hasText: SAMPLE_NAME }).first()
       await floatByDrag(page, tab)
       await expect.poll(async () => await floats.count()).toBe(1)
-      expect(await column.locator('[data-dockkit-float]').count()).toBe(0)
+      expect(await column.locator('[data-dockkit-float]').count()).toBe(1)
+      const floatBox = await floats.first().boundingBox()
+      const columnBox = await column.boundingBox()
+      if (floatBox === null || columnBox === null) throw new Error('float or column is not rendered')
+      expect(floatBox.x).toBeLessThan(columnBox.x)
       await expect.poll(async () => await panes.count()).toBe(1)
       await shot(page, '04-split-and-float')
 
@@ -832,8 +855,8 @@ describe('web e2e: shipped right Sidebar', () => {
         await ensureExpanded(fx, column)
         await width(column)
         await proseChip(fx).click()
-        await column.locator('[data-textpreview-state="text"]').waitFor({ timeout: 15_000 })
-        const wrap = column.locator('[data-textpreview-tool="wrap"]')
+        await column.locator('[data-file-state="ready"]').waitFor({ timeout: 15_000 })
+        const wrap = column.locator('[data-file-wrap]')
         expect(await wrap.getAttribute('aria-pressed')).toBe('true')
         await wrap.click()
         await expect.poll(async () => await wrap.getAttribute('aria-pressed')).toBe('false')
@@ -848,24 +871,26 @@ describe('web e2e: shipped right Sidebar', () => {
         const before = await records()
 
         // The real New Session action selects a distinct blank Session; its
-        // collapsed surface must not inherit the settled Session's tabs.
+        // collapsed surface must not inherit the settled Session's tabs. The
+        // file type retains nothing, so the settled Session's body leaves with
+        // the selection.
         await fx.getByRole('button', { name: 'New session', exact: true }).last().click()
         await expect.poll(async () => await settled.getAttribute('aria-selected')).toBe('false')
         await expect.poll(async () => await frame.getAttribute('data-rightbar-collapsed')).toBe('true')
         expect(await column.locator('[data-sidebar-right-open]').count()).toBe(0)
-        expect(await column.locator('[data-textpreview-state="text"]').count()).toBe(0)
+        expect(await column.locator('[data-file-state="ready"]').count()).toBe(0)
 
         await settled.click()
         await expect.poll(async () => await settled.getAttribute('aria-selected')).toBe('true')
         await expect.poll(records, { timeout: 15_000 }).toEqual(before)
         expect(await column.locator('[data-sidebar-right-open]').count()).toBe(1)
         expect(await wrap.getAttribute('aria-pressed')).toBe('true')
-        expect(await column.locator('pre').first().innerText()).toContain('produced by the seeded turn')
+        expect(await column.locator('[data-file-host]').first().innerText()).toContain('produced by the seeded turn')
         let warningStart = fxTripwire.warnings.length
         await fx.reload({ waitUntil: 'load' })
         acknowledgeReloadConnectionLoss(fxTripwire, warningStart)
         await expect.poll(records, { timeout: 15_000 }).toEqual(before)
-        await expect.poll(async () => await column.locator('pre').first().innerText()).toContain('produced by the seeded turn')
+        await expect.poll(async () => await column.locator('[data-file-host]').first().innerText()).toContain('produced by the seeded turn')
         await column.locator('[data-sidebar-right-toggle]').click()
         warningStart = fxTripwire.warnings.length
         await fx.reload({ waitUntil: 'load' })
@@ -890,7 +915,7 @@ describe('web e2e: shipped right Sidebar', () => {
       onTestFailed(() => saveFailureShot(page, 'web-e2e-sidebar-right-gestures'))
       const column = await resetSidebar(page)
       const panes = column.locator('[data-dockkit-pane]')
-      const floats = page.locator('[data-sidebar-right-float-host] [data-dockkit-float]')
+      const floats = page.locator('[data-sidebar-right-session]:not([hidden]) [data-dockkit-float]')
 
       // Chromium cancels pointer capture if a render replaces the pressed
       // element; jsdom cannot establish that the whole gesture survives.
@@ -898,7 +923,7 @@ describe('web e2e: shipped right Sidebar', () => {
       // 1. Reorder inside one strip: drop the last tab left of its neighbours.
       //    The first pane needs two tabs for this — and for the move below to
       //    leave it standing, since a pane emptied by a move is dropped.
-      const first = panes.first()
+      const first = paneAt(column, 0)
       const strip = first.locator('[data-dockkit-strip]')
       await proseChip(page).click()
       await expect.poll(async () => await tabTitles(first)).toEqual(['Files', SAMPLE_NAME])
@@ -917,8 +942,8 @@ describe('web e2e: shipped right Sidebar', () => {
       }
       const moving = first.locator('[data-dockkit-tab]').first()
       const title = await moving.locator('[data-dockkit-tab-title]').innerText()
-      await dragTo(page, moving, await pointIn(panes.nth(1), 0.5, 0.5))
-      await expect.poll(async () => await tabTitles(panes.nth(1))).toContain(title)
+      await dragTo(page, moving, await pointIn(paneAt(column, 1), 0.5, 0.5))
+      await expect.poll(async () => await tabTitles(paneAt(column, 1))).toContain(title)
 
       const splitButtons = column.locator('[data-dockkit-split-button]')
       await expect.poll(async () => await splitButtons.count()).toBe(0)
@@ -927,14 +952,14 @@ describe('web e2e: shipped right Sidebar', () => {
       await expect.poll(async () => await splitButtons.count()).toBe(0)
 
       const outer = column.locator('[data-dockkit-divider]').first()
-      const before = await width(panes.last())
+      const before = await width(paneAt(column, 1))
       const grip = await centre(outer)
       await dragElement(page, outer, { x: grip.x - 100, y: grip.y })
-      await expect.poll(async () => await width(panes.last())).toBeGreaterThan(before)
+      await expect.poll(async () => await width(paneAt(column, 1))).toBeGreaterThan(before)
       await dragElement(page, outer, { x: 0, y: grip.y })
       const ratio = async (): Promise<number> => {
-        const left = await width(panes.first())
-        const right = await width(panes.last())
+        const left = await width(paneAt(column, 0))
+        const right = await width(paneAt(column, 1))
         return left / (left + right)
       }
       await expect.poll(ratio).toBeCloseTo(0.2, 2)
@@ -946,7 +971,7 @@ describe('web e2e: shipped right Sidebar', () => {
       expect(await splitButtons.count()).toBe(0)
 
       // 5. The split's guide and the document float while Files stays docked.
-      const floatOne = panes.last().locator('[data-dockkit-tab]').filter({ hasText: SAMPLE_NAME })
+      const floatOne = paneAt(column, 1).locator('[data-dockkit-tab]').filter({ hasText: SAMPLE_NAME })
       await floatByDrag(page, floatOne)
       await expect.poll(async () => await floats.count()).toBe(1)
       const box = await floats.first().boundingBox()
@@ -954,8 +979,8 @@ describe('web e2e: shipped right Sidebar', () => {
       await dragElement(page, floats.first().locator('[data-dockkit-float-grip]'), { x: box.x + 140, y: box.y + 90 })
       await expect.poll(async () => (await floats.first().boundingBox())?.x ?? box.x).not.toBe(box.x)
 
-      await expect.poll(async () => await tabTitles(panes.last())).toEqual(['Start'])
-      const second = panes.last().locator('[data-dockkit-tab]').filter({ hasText: 'Start' })
+      await expect.poll(async () => await tabTitles(paneAt(column, 1))).toEqual(['Start'])
+      const second = paneAt(column, 1).locator('[data-dockkit-tab]').filter({ hasText: 'Start' })
       await floatByDrag(page, second)
       await expect.poll(async () => await floats.count()).toBe(2)
 
@@ -975,14 +1000,14 @@ describe('web e2e: shipped right Sidebar', () => {
       const panes = column.locator('[data-dockkit-pane]')
       expect(await column.locator('[data-dockkit-tab-close]').count()).toBe(1)
       await proseChip(page).click()
-      await expect.poll(async () => await tabTitles(panes.first())).toEqual(['Files', SAMPLE_NAME])
-      await panes.first().locator('[data-dockkit-split-button]').click()
+      await expect.poll(async () => await tabTitles(paneAt(column, 0))).toEqual(['Files', SAMPLE_NAME])
+      await paneAt(column, 0).locator('[data-dockkit-split-button]').click()
       await expect.poll(async () => await panes.count()).toBe(2)
 
       // Closing a pane's last tab drops the pane: there is no separate
       // "close pane" gesture, and none is needed.
-      await panes.nth(1).locator('[data-dockkit-tab]').first().hover()
-      await panes.nth(1).locator('[data-dockkit-tab-close]').first().click()
+      await paneAt(column, 1).locator('[data-dockkit-tab]').first().hover()
+      await paneAt(column, 1).locator('[data-dockkit-tab-close]').first().click()
       await expect.poll(async () => await panes.count()).toBe(1)
       await expect.poll(async () => await tabTitles(column)).toEqual(['Files', SAMPLE_NAME])
 
@@ -1107,8 +1132,10 @@ describe('web e2e: shipped right Sidebar', () => {
         // as a layout defect that is not there.
         expect(await width(column)).toBeGreaterThan(300)
         await expect.poll(async () => await tabTitles(column)).toEqual(['文件', '开始'])
+        // Seven registered entries exceed the guide's description budget, so
+        // every capsule shows its title alone.
         await expect.poll(async () => await guide.locator('[data-sidebar-right-guide-entry="files"]').innerText())
-          .toBe('工作区文件\n浏览会话工作区的文件')
+          .toBe('工作区文件')
         await shot(zhPage, '05-guide-copy-zh')
 
         expect(zhTripwire.pageErrors).toEqual([])

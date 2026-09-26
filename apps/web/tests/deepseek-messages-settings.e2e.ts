@@ -1,4 +1,4 @@
-/** Opt-in Web Messages configuration, credential reuse, and recovery from a saved Chat Completions selection. */
+/** The DeepSeek Messages settings card, its credential reuse, and recovery from a saved model selection. */
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -8,7 +8,7 @@ import {
   captureStableAria, compareOrRefreshGolden, launchWebScaffold,
   watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspaceZh, saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
+import { connectFreshWorkspaceZh, openSettings, saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
 
 const EXPECTED = fileURLToPath(new URL('./expected/deepseek-messages-settings/', import.meta.url))
 
@@ -43,8 +43,8 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages opt-
     await onboarding.getByLabel('API 密钥', { exact: true }).fill('sk-messages-onboarding')
     await onboarding.getByRole('button', { name: '保存并继续' }).click()
     await onboarding.waitFor({ state: 'detached' })
-    await page.getByRole('button', { name: '设置', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: '设置', exact: true })
+    // The sidebar footer's account row is the only Settings entry point.
+    const dialog = await openSettings(page)
     await dialog.getByRole('button', { name: '模型', exact: true }).click()
     await dialog.getByText('DeepSeek', { exact: true }).waitFor()
     expect(await dialog.getByText('DeepSeek', { exact: true }).count()).toBe(1)
@@ -68,7 +68,9 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages opt-
     await expect(scaffold.ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-flash')).resolves.toMatchObject({
       name: 'Messages Flash', inputModalities: ['text', 'image'], systemPromptUpdate: 'in-history',
     })
-    expect(scaffold.ctx.settings.get('llm-deepseek')).toMatchObject({ protocol: 'messages' })
+    // The shipped DeepSeek adapter speaks Messages only (`protocol` is not a
+    // configurable field), so the endpoint the card wrote is the whole route.
+    expect(settings).toContain('baseURL: https://messages.example/anthropic')
     expect(settings).not.toContain('sk-e2e-')
     const credentials = await readFile(join(scaffold.harnessHome, '.credentials.yaml'), 'utf8')
     expect(credentials).toContain('DEEPSEEK_API_KEY: sk-e2e-messages')
@@ -84,8 +86,10 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages opt-
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
-  it('keeps a saved Chat Completions selection available after the YAML protocol switch', async () => {
+  it('keeps a saved model selection available beside the reconfigured Messages model', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-deepseek-messages-default'))
+    // The DeepSeek route carries one protocol, so an older saved model id must
+    // still resolve while the configured Messages model stays pickable.
     await page.keyboard.press('Escape')
     await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'deepseek-official', model: 'deepseek-v4-flash' })
     await page.reload({ waitUntil: 'load' })

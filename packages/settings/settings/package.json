@@ -51,9 +51,11 @@
     "@qilin/brand": "workspace:*",
     "@qilin/invariants": "workspace:*",
     "@qilin/session": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin/schemastery": "workspace:~",
+    "@qilin/cosmokit": "workspace:~"
   },
   "dependencies": {
+    "@qilin/cosmokit": "workspace:~",
     "@qilin/util-values": "workspace:*"
   }
 }

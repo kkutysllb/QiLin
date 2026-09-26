@@ -237,11 +237,11 @@ describe('web e2e: Markdown image rendering', () => {
       borderRadius: '8px',
       decoding: 'async',
       loading: 'lazy',
-      maxWidth: '100%',
+      maxWidth: 'min(100%, 640px)',
       referrerPolicy: 'no-referrer',
     })
     expect(await page.getByRole('img', { name: LOCAL_ALT }).count()).toBe(0)
-    expect(await page.getByText(LOCAL_ALT, { exact: true }).count()).toBe(1)
+    expect(await page.getByText(`Image preview unavailable · ${LOCAL_ALT}`, { exact: true }).count()).toBe(1)
     expect(imageOrigin.requests).toEqual([{ path: '/image.png', referer: undefined }])
 
     const workspaceImage = page.getByRole('img', { name: WORKSPACE_ALT })
@@ -253,12 +253,15 @@ describe('web e2e: Markdown image rendering', () => {
     const outsideImage = page.getByRole('img', { name: 'Outside workspace image' })
     await expect.poll(() => outsideImage.evaluate(element => (element as HTMLImageElement).naturalWidth)).toBe(1)
     for (const alt of ['Oversized image', 'Missing image']) {
-      await page.getByText(alt, { exact: true }).waitFor()
+      await page.getByText(`Image preview unavailable · ${alt}`, { exact: true }).waitFor()
       expect(await page.getByRole('img', { name: alt }).count()).toBe(0)
     }
-    await page.getByText(join(scaffold.workspaceCwd, 'corrupt.png'), { exact: true }).waitFor()
+    await page.getByText(`Image preview unavailable · ${join(scaffold.workspaceCwd, 'corrupt.png')}`, { exact: true }).waitFor()
     expect(mediaResponses).toEqual(new Map([
       [join(scaffold.workspaceCwd, 'valid.png'), 200],
+      // The relative destination resolves against the session cwd, so the
+      // fixture's absent local-image.png is requested (and 404s) by name.
+      [`${scaffold.workspaceCwd}/./local-image.png`, 404],
       [join(scaffold.workspaceCwd, 'oversized.png'), 413],
       [join(scaffold.persistenceRoot, 'outside.png'), 200],
       [join(scaffold.workspaceCwd, 'missing.png'), 404],

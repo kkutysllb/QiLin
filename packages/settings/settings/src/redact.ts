@@ -1,13 +1,15 @@
 /**
- * Structural secret redaction for settings values. `role('secret')` fields are
- * removed from a value before it crosses a wire boundary; a sidecar records
- * each schema-declared secret position and whether it currently holds a value,
- * so a configuration surface can render a write-only input without ever
- * receiving the secret itself.
+ * Structural projection of settings values for the wire boundary. Runtime
+ * references are replaced by the ordinary values they hold, so a resolved
+ * configuration is readable as data; `role('secret')` fields are then removed,
+ * with a sidecar recording each schema-declared secret position and whether it
+ * currently holds a value, so a configuration surface can render a write-only
+ * input without ever receiving the secret itself.
  * @module @qilin/settings/redact
  */
 
 import type z from '@qilin/schemastery'
+import { isVolatile } from '@qilin/cosmokit'
 
 /**
  * Minimal structural view of a live schemastery node. Only the relations the
@@ -89,6 +91,26 @@ function walk(node: SchemaNode | undefined, value: unknown, path: string[], secr
       // here, with nothing recording that it was missed.
       return value
   }
+}
+
+/**
+ * Replace every runtime reference inside a resolved configuration with the
+ * ordinary value it holds, so the result is detached data a wire can carry.
+ * Schemas marked `volatile()` resolve their fields to references rather than
+ * values; an unprojected reference serializes as an empty object, which is why
+ * every descriptor layer passes through here before it leaves the Host. The
+ * input is never mutated.
+ * @param value - parsed configuration value (resolved value, composition base,
+ *   or user section).
+ * @returns the same value with every reference unwrapped and every container copied.
+ */
+export function plainConfig(value: unknown): unknown {
+  if (isVolatile(value)) return plainConfig(value.get())
+  if (Array.isArray(value)) return value.map(plainConfig)
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, plainConfig(child)]))
+  }
+  return value
 }
 
 /**

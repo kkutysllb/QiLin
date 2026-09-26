@@ -10,13 +10,29 @@
     - button "内置插件":
       - img
       - text: 内置插件
+    - button "MCP 服务器":
+      - img
+      - text: MCP 服务器
     - button "Agent 预设":
       - img
       - text: Agent 预设
     - button "已归档会话":
       - img
       - text: 已归档会话
+    - button "技能":
+      - img
+      - text: 技能
+    - button "侧边栏":
+      - img
+      - text: 侧边栏
+    - button "关于 QiLin":
+      - img
+      - text: 关于 QiLin
+    - separator "调整设置导航宽度"
   - button "打开配置文件"
+  - button "返回工作区":
+    - img
+    - text: 返回工作区
   - button "关闭":
     - img
     - text: 关闭

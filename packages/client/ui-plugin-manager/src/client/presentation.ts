@@ -19,6 +19,9 @@ const BUILTIN_COPY = new Map<string, { title: PluginManagerLocaleKey; descriptio
   ['@qilin/experimental-auto-review', {
     title: 'builtinAutoReviewTitle', description: 'builtinAutoReviewDescription', beta: true,
   }],
+  ['@qilin/experimental-voice-input-bundle', {
+    title: 'builtinVoiceInputTitle', description: 'builtinVoiceInputDescription', beta: true,
+  }],
 ])
 
 /** The sentence each of the Host's refusal codes reads as. */

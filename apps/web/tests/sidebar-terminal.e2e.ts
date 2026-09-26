@@ -8,7 +8,7 @@ import type {} from '@qilin/api-terminal-controller'
 import type { SubprocessTerminalHandle } from '@qilin/subprocess'
 import { createProcessInspector, type ProcessIdentity } from '@qilin/subprocess-local/src/process-inspector.ts'
 import { compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
-import { connectFreshWorkspace, saveFailureShot } from './support.ts'
+import { connectFreshWorkspace, openSettings, saveFailureShot } from './support.ts'
 
 const expected = fileURLToPath(new URL('./expected/sidebar-terminal/running.expected.md', import.meta.url))
 const shots = fileURLToPath(new URL('../../../.artifacts/screenshots/sidebar-terminal/', import.meta.url))
@@ -47,8 +47,8 @@ async function controlTransport(page: Page) {
 }
 
 async function selectTerminalTheme(page: Page, name: string): Promise<void> {
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
-  const dialog = page.getByRole('dialog', { name: 'Settings' })
+  // The sidebar footer's account row owns the only Settings entry point.
+  const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
   const [response] = await Promise.all([
     page.waitForResponse(candidate => new URL(candidate.url()).pathname === '/api/settings/mutate' && candidate.request().method() === 'POST'),
     dialog.getByRole('button', { name, exact: true }).click(),

@@ -23,6 +23,7 @@ import type {
   TurnBoundaryProjection,
 } from '@qilin/agent'
 import { errorChain, ReasoningEffortId } from '@qilin/llm'
+import type {} from '@qilin/settings'
 import { interruptedTurnClosers, SessionLogOffset, SessionPreparation, SessionSeq } from '@qilin/session'
 import type { Session, SessionHeader, SessionId } from '@qilin/session'
 import type {} from '@qilin/system-prompt'
@@ -288,6 +289,24 @@ function applyLauncherIdentities(
   })
 }
 
+/** Settings namespace carrying the tool-call parallelism a user owns. */
+export const AGENT_LOOP_SETTINGS_NAMESPACE = 'agent-loop'
+
+/**
+ * The agent-loop fields a user owns. Deliberately a strict subset of
+ * {@link Config}: `agents` is a boot-time composition array consumed once when
+ * the service starts, so a stored change could only look like it had an effect.
+ */
+export interface AgentLoopSettings {
+  /** Maximum parallel-safe calls in flight per agent step. */
+  maxParallelToolCalls: number
+}
+
+/** Schema of the agent-loop settings section. */
+export const AGENT_LOOP_SETTINGS_SCHEMA: z<AgentLoopSettings> = z.object({
+  maxParallelToolCalls: z.number().step(1).min(1).default(DEFAULT_MAX_PARALLEL_TOOL_CALLS),
+})
+
 /** Agent-loop plugin configuration. */
 export interface Config {
   /**
@@ -354,10 +373,32 @@ export class AgentLoop extends Service implements AgentFactory {
   constructor(ctx: Context, config: Config) {
     super(ctx, 'agentLoop')
 
+    // The active section source: the settings provider's resolved namespace while
+    // one is attached, this composition entry otherwise.
+    const entry: AgentLoopSettings = { maxParallelToolCalls: config.maxParallelToolCalls.get() }
+    let source: () => AgentLoopSettings = () => entry
     this.config = {
       agents: applyLauncherIdentities(config.agents, ctx.get(CONFIGURED_AGENT_IDENTITIES_KEY)),
-      maxParallelToolCalls: config.maxParallelToolCalls,
+      // Read through on every scheduler decision: `tool-calls.ts` calls `get()`
+      // at the start of each group, so a committed change caps the next group
+      // without disturbing the one in flight.
+      get maxParallelToolCalls(): Volatile<number> {
+        const value = source().maxParallelToolCalls
+        return { get: () => value }
+      },
     }
+    ctx.inject(['settings'], (settingsCtx) => {
+      // The section's own schema owns the cap rule (`.step(1).min(1)`), so a refused
+      // write leaves the running scheduler on its last good cap. `agents` stays out
+      // of the section: the loop consumes it once, above.
+      settingsCtx.settings.installSection(ctx, AGENT_LOOP_SETTINGS_NAMESPACE, AGENT_LOOP_SETTINGS_SCHEMA, entry, {
+        setSource: (current) => {
+          source = current
+        },
+        // Nothing is derived from the cap: the getter above is the only reader.
+        onChange: () => {},
+      })
+    })
     validateConfiguredAgents(this.config.agents)
     // Register only after every config validation above has passed, so a
     // rejected constructor leaves no projection unit behind.

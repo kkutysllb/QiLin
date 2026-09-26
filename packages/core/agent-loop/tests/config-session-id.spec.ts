@@ -380,7 +380,13 @@ describe('config-driven session id', () => {
 
     const resumeEffect = loopFiber.getEffects().find(effect => effect.label === 'agentLoop.resume(main)')
     expect(resumeEffect?.children.map(child => child.label)).toEqual(['ctx.plugin()'])
-    expect(loopFiber.getEffects().filter(effect => effect.label === 'ctx.plugin()')).toHaveLength(0)
+    // The settings section contributes its own pending `ctx.plugin()` effect; the
+    // resume injection must still be owned by its labeled effect instead of
+    // sitting at the loop fiber's level.
+    const resumeInject = resumeEffect?.children[0]
+    expect(loopFiber.getEffects()
+      .filter(effect => effect.label === 'ctx.plugin()')
+      .flatMap(effect => effect.children)).not.toContain(resumeInject)
 
     await loopFiber.dispose()
   })

@@ -10,23 +10,35 @@
     - button "Built-in plugins":
       - img
       - text: Built-in plugins
+    - button "MCP servers":
+      - img
+      - text: MCP servers
     - button "Agent presets":
       - img
       - text: Agent presets
     - button "Archived sessions":
       - img
       - text: Archived sessions
+    - button "Skills":
+      - img
+      - text: Skills
+    - button "Sidebar":
+      - img
+      - text: Sidebar
+    - button "About QiLin":
+      - img
+      - text: About QiLin
+    - separator "Resize settings navigation"
   - button "Open configuration file"
+  - button "Back to workspace":
+    - img
+    - text: Back to workspace
   - button "Close":
     - img
     - text: Close
   - text: Permission Choose the default permission mode for new sessions
   - button "Workspace Write":
     - text: Workspace Write
-    - img
-  - text: Language
-  - button "English":
-    - text: English
     - img
   - text: Appearance
   - button "Light":
@@ -43,21 +55,35 @@
     - img
   - button "Decrease font size":
     - img
-  - text: px Conversation display Controls process content in completed turns
-  - button "Compact":
-    - text: Compact
+  - text: px Work details Choose how much tool-call detail to show
+  - button "Standard":
+    - text: Standard
     - img
   - text: Line spacing Adds or removes pixels from the default line height of message text; 0 is the default 0
   - button "Increase line spacing":
     - img
   - button "Decrease line spacing":
     - img
-  - text: px Message width How wide the message area is; you can also drag the handles on either side of it Adaptive
+  - text: px Performance & usage Choose how much performance and usage information to show
+  - button "Detailed":
+    - text: Detailed
+    - img
+  - text: Message width How wide the message area is; you can also drag the handles on either side of it Adaptive
   - button "Set a custom message area width":
     - img
   - button "Narrow message area" [disabled]:
     - img
+  - text: Open chat links in Choose where web links from the conversation open
+  - button "In-app sidebar":
+    - text: In-app sidebar
+    - img
+  - text: Coding Tools Shows trajectory, code diffs, and Agent preset switching in new chats
+  - switch "Coding Tools" [checked]
+  - text: Keyboard shortcuts
+  - paragraph: View and edit available shortcuts and input actions
+  - button "Edit shortcuts"
   - text: Send behavior while busy What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior
   - button "Queue":
     - text: Queue
     - img
+  - text: "Current version: {{version}}"

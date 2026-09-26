@@ -42,20 +42,33 @@ describe('web e2e: plugin manager', () => {
     await scaffold?.close()
   })
 
-  /** Close any open settings dialog, so the sidebar and the main column are clickable. */
+  /**
+   * Close any open settings dialog, so the sidebar and the main column are
+   * clickable. The dialog's accessible name follows the UI language, so it is
+   * closed by role: the language scenario can leave the page in English.
+   */
   async function closeSettings() {
-    if (await page.getByRole('dialog', { name: '设置' }).count() > 0) {
-      await page.keyboard.press('Escape')
-      await expect.poll(() => page.getByRole('dialog', { name: '设置' }).count(), { timeout: 5_000 }).toBe(0)
-    }
+    await page.keyboard.press('Escape')
+    await expect.poll(() => page.locator('[role="dialog"]').count(), { timeout: 5_000 }).toBe(0)
+  }
+
+  /**
+   * Put the interface back on the browser's Chinese locale after the language
+   * scenario, including when one of its assertions failed mid-switch. The
+   * scenarios share one page, and every later one looks for Chinese labels.
+   */
+  async function restoreBrowserLocale() {
+    await closeSettings()
+    if (await page.evaluate(() => document.documentElement.lang) === ZH_BROWSER_LOCALE) return
+    await page.getByRole('button', { name: 'Account', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Language', exact: true }).click()
+    await page.getByRole('menuitem', { name: '中文', exact: true }).click()
+    await expect.poll(() => page.evaluate(() => document.documentElement.lang), { timeout: 10_000 }).toBe(ZH_BROWSER_LOCALE)
   }
 
   /** Reopen the Settings Plugins section's management tab and wait for its cards page. */
   async function openPluginsPanel() {
-    if (await page.getByRole('dialog', { name: '设置' }).count() > 0) {
-      await page.keyboard.press('Escape')
-      await expect.poll(() => page.getByRole('dialog', { name: '设置' }).count(), { timeout: 5_000 }).toBe(0)
-    }
+    await closeSettings()
     const dialog = await openSettingsDialog(page, '账户', '设置')
     await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
     await dialog.getByRole('tab', { name: '插件管理', exact: true }).click()
@@ -77,12 +90,14 @@ describe('web e2e: plugin manager', () => {
     const toggle = panel.getByRole('switch', { name: '启用 bundle' })
     expect(await toggle.getAttribute('aria-checked')).toBe('false')
     // The profile's own group holds its one bundle; the installation's optional bundles open the Official
-    // group, followed by the official plugins that registered their configuration, and its other bundles
-    // stay off the page.
+    // group (OPTIONAL_BUNDLES: the two Agent Teams layers, voice input, and Auto review — the decision note
+    // ships four entries), followed by the official plugins that registered their configuration, and its
+    // other bundles stay off the page.
     expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(1)
-    expect(await panel.locator('[data-plugin-group="official"] [data-plugin-package]').count()).toBe(2)
+    expect(await panel.locator('[data-plugin-group="official"] [data-plugin-package]').count()).toBe(4)
     expect(await panel.locator('[data-plugin-group="official"] [data-plugin-item]').count()).toBe(4)
-    expect(await panel.getByText('Beta', { exact: true }).count()).toBe(2)
+    // Every optional bundle is an experimental one, so all four carry the tag.
+    expect(await panel.getByText('Beta', { exact: true }).count()).toBe(4)
     // A bundle that is off still shows the rows its patch declares, without switches.
     await panel.getByRole('button', { name: '查看 bundle' }).click()
     await panel.locator('[data-plugin-row]', { hasText: 'fixture-row' }).waitFor({ timeout: 10_000 })
@@ -139,7 +154,7 @@ describe('web e2e: plugin manager', () => {
       const zhPanel = await openPluginsPanel()
       await zhPanel.getByRole('button', { name: '查看 智能体团队', exact: true }).waitFor()
     } finally {
-      await closeSettings()
+      await restoreBrowserLocale()
     }
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
