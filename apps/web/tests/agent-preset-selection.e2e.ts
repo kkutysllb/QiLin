@@ -25,7 +25,7 @@ import {
   webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
 import {
-  connectFreshWorkspace, newEnglishPage, saveFailureShot, writeComposerDraft,
+  connectFreshWorkspace, newEnglishPage, openSettings, saveFailureShot, writeComposerDraft,
 } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/agent-preset-selection', import.meta.url))
@@ -34,6 +34,8 @@ const MENU_EXPECTED = join(SNAPSHOT_DIR, 'menu.expected.md')
 const HEADER_EXPECTED = join(SNAPSHOT_DIR, 'header.expected.md')
 const MODE = webSnapshotMode()
 const SEED_ID = 'agent-preset-selection-web-e2e'
+const SEEDED_CHILD_ID = sessionId('agent-preset-selection-child')
+const SEEDED_CHILD_CREATED_AT = 1784974100100
 /** A project skill only a preset that mounts `skill-filesystem` can discover. */
 const SKILL_NAME = 'preset-catalog-demo'
 /** The preset whose rows resolve and then refuse to start. */
@@ -114,7 +116,17 @@ function seedLog(): string {
     }),
     at(4, { type: 'session/title', data: { title: 'Seeded turn', messageSeqs: [3], source: { kind: 'fallback' } } }),
     at(5, { type: 'step/end', data: { turn: 1, step: 1 } }),
-    at(6, { type: 'turn/end', data: { turn: 1, reason: { kind: 'completed' } } }),
+    at(6, {
+      type: 'subagent/catalog',
+      data: {
+        version: 0,
+        childId: SEEDED_CHILD_ID,
+        childCreatedAt: SEEDED_CHILD_CREATED_AT,
+        mode: 'one-shot',
+        label: 'header order probe',
+      },
+    }),
+    at(7, { type: 'turn/end', data: { turn: 1, reason: { kind: 'completed' } } }),
   ].join('\n')
 }
 
@@ -125,8 +137,8 @@ function seedLog(): string {
  * @param parentId - the seeded session whose header the browser opens.
  */
 async function seedSubagent(scaffold: WebScaffold, parentId: SessionId): Promise<void> {
-  const childId = sessionId('agent-preset-selection-child')
-  const createdAt = 1784974100100
+  const childId = SEEDED_CHILD_ID
+  const createdAt = SEEDED_CHILD_CREATED_AT
   const header: SessionHeader = {
     version: SESSION_FORMAT_VERSION,
     id: childId,
@@ -252,8 +264,7 @@ describe('web e2e: agent-preset selection', () => {
     await connectFreshWorkspace(page, scaffold.workspaceCwd)
     await page.getByRole('button', { name: 'Standard mode', exact: true }).waitFor({ timeout: 10_000 })
 
-    await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: 'Settings' })
+    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await dialog.getByRole('button', { name: 'Agent presets' }).click()
     const toggle = dialog.getByRole('switch', { name: 'Allow switching Agent modes' })
     await dialog.getByRole('button', { name: 'New task default: Standard mode' }).waitFor({ timeout: 10_000 })
@@ -352,8 +363,7 @@ describe('web e2e: agent-preset selection', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-disabled'))
     await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('standard')
 
-    await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: 'Settings' })
+    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await dialog.getByRole('button', { name: 'Agent presets' }).click()
     await dialog.getByRole('button', { name: 'Set as default: Minimal mode' }).click()
     await dialog.getByRole('button', { name: 'New task default: Minimal mode' }).waitFor({ timeout: 10_000 })
@@ -369,8 +379,7 @@ describe('web e2e: agent-preset selection', () => {
 
     // The switch controls availability only: re-enabling restores the saved
     // default and aligns this same still-blank task with it.
-    await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const reopened = page.getByRole('dialog', { name: 'Settings' })
+    const reopened = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await reopened.getByRole('button', { name: 'Agent presets' }).click()
     const reopenedToggle = reopened.getByRole('switch', { name: 'Allow switching Agent modes' })
     await reopenedToggle.click()
@@ -388,14 +397,21 @@ describe('web e2e: agent-preset selection', () => {
     await page.getByRole('treeitem', { name: /^Ungrouped/ }).click()
     await page.locator('[role="treeitem"]').last().click()
     await page.getByText('Seeded turn.').waitFor({ timeout: 15_000 })
+    // The descendant count reads the parent's own subagent catalog projection,
+    // which lands after the Session opens; waiting for it keeps the capture
+    // from racing its arrival.
+    await page.getByRole('button', { name: '1 subagent' }).waitFor({ timeout: 15_000 })
 
     const snapshot = await captureStableAria(page, '[class*="titleRow"]', scaffold.workspaceCwd)
 
     await compareOrRefreshGolden(HEADER_EXPECTED, snapshot, MODE)
     expect(snapshot).toContain('Minimal mode')
     expect(snapshot).toContain('button "1 subagent"')
-    expect(snapshot.indexOf('button "1 subagent"')).toBeLessThan(snapshot.indexOf('Minimal mode'))
-    expect(snapshot.indexOf('Minimal mode')).toBeLessThan(snapshot.indexOf('button "Open right sidebar"'))
+    // A root session carries no breadcrumb switcher: its descendant count is an
+    // occupant of the actions band, so it follows the preset label the same band
+    // carries and still precedes the corner's own control.
+    expect(snapshot.indexOf('Minimal mode')).toBeLessThan(snapshot.indexOf('button "1 subagent"'))
+    expect(snapshot.indexOf('button "1 subagent"')).toBeLessThan(snapshot.indexOf('button "Open right sidebar"'))
     // Static chrome, not a control: the header can only report a composition
     // the host would refuse to change.
     expect(snapshot).not.toContain('button "Minimal mode"')

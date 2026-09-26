@@ -393,10 +393,15 @@ describe('web e2e: empty-draft Cmd+Enter steers the whole queue', () => {
     ).toBe(2)
     releaseReplay.resolve(undefined)
     expect(await page.locator('[data-queue-dock]').count()).toBe(0)
-    // The reasoning row streams independently of the steering handoff. Wait
-    // for the block to settle so the mid snapshot does not race its transient
-    // visually-hidden Running label while the question keeps the turn open.
-    await page.locator('[data-variant="think"][data-state="ok"]').first().waitFor({ timeout: 10_000 })
+    // The question card is this turn's stable waiting state: the tool call has
+    // landed and no further chunks arrive until it is answered, so the
+    // transcript below is settled. The reasoning row now sits collapsed inside
+    // its activity group, so settle it by state rather than by visibility.
+    await page.locator('[data-question-key]').waitFor({ timeout: 30_000 })
+    await expect.poll(
+      () => page.locator('[data-variant="think"]').first().getAttribute('data-state'),
+      { timeout: 10_000 },
+    ).toBe('ok')
     const mid = await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(STEER_ALL_MID, mid, MODE)
 

@@ -12,15 +12,14 @@
 - text: Use the ask_user_question tool to ask me exactly one question with id "checkpoint", question "Ready to continue?", header "Checkpoint", and options labeled "Yes" and "No". After I answer, reply with one short sentence acknowledging my answer and stop. {{clock}}
 - button "Copy":
   - img
-- button "Context injection @qilin/system-prompt":
+- button "1 tool call" [expanded]:
+  - text: 1 tool call
+  - img
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
-- text: Running
-- button "Ask question waiting":
-  - img
-  - img
-  - text: Ask question waiting
+  - text: Context injection runtime-context
+- button "Waiting for your action · Ready to continue?"
 - status: QiLin...
 - text: "Interjection: include the word BANANA in your final reply."
 - button "Copy":

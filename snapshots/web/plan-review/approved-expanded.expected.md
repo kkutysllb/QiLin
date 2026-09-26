@@ -3,11 +3,6 @@
     - 'button "Plan a small change: add" [disabled]'
   - img
   - text: Standard mode
-  - button "More actions":
-    - img
-  - tablist:
-    - tab "Chat" [selected]
-    - tab "Trajectory"
 - img
 - text: plan Plan mode on. Use /plan off to leave.
 - button "System prompt":
@@ -20,10 +15,11 @@
 - button "1 tool call · 1 message" [expanded]:
   - text: 1 tool call · 1 message
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
+- button "Analysis completed" [expanded]
 - 'button "Think The user wants me to plan a small change to add a `--greeting` flag to a CLI. They explicitly told me not to read or write any files, and to call exit_plan_mode with a short plan. Let me do that directly."':
   - img
   - img
@@ -32,6 +28,7 @@
   - text: Since the user has explicitly asked me not to read or write any files and to go straight to planning, I'll proceed with
   - code: exit_plan_mode
   - text: .
+- button "Called tools" [expanded]
 - 'button "Tool call exit_plan_mode · # Add `--greeting` flag to CLI"':
   - img
   - img
@@ -40,6 +37,7 @@
   - img
   - img
   - text: System prompt
+- button "Analysis completed" [expanded]
 - 'button "Think The plan was approved. The user''s last instruction says: \"Once the plan is approved, reply with the single word DONE and stop.\" So I should just reply with DONE and stop."':
   - img
   - img
