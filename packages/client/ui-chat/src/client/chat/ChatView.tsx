@@ -17,7 +17,6 @@ import { chatRenderKey } from './render-entry.ts'
 import { TurnNavigator } from './TurnNavigator.tsx'
 import { mergeTurnRailItems } from './turn-rail-items.ts'
 import { useChatScroll } from './use-chat-scroll.ts'
-import { scrollerOf } from './use-chat-viewport.ts'
 import { fileMediaUrl, resolveWorkspacePath } from '@qilin/util-workspace-path'
 import css from './ChatView.module.css'
 
@@ -172,16 +171,47 @@ export function ChatView({
     owner => renderSlot('conversation.message.images', { ...owner, loadImage }),
     [loadImage, renderSlot],
   )
-  // Scroll policy: viewport refs, reading state, and history navigation own the
-  // scrollport; this shell renders what they publish.
+
+  const firstKey = order[0]
+  const firstSeq = firstKey === undefined ? null : nodeStore.get(firstKey)?.anchorSeq ?? null
+  const lastKey = order.at(-1) ?? null
+  // The newest pending input's identity, keeping the local echo's requestId
+  // through the Host claim so the scroll policy sees one input, not an
+  // arrival: a steering bubble that merely changes owner must not force-scroll.
+  const steeringId = useMemo(() => {
+    const local = new Map(visibleSubmissions.map(submission => [submission.requestId, submission]))
+    // Admitted local identities outlive their bubbles until the Inbox claim watermark.
+    const localIds = new Set(pendingSubmissions.filter(submission => submission.placement !== 'queued')
+      .map(submission => submission.requestId))
+    const identities: string[] = []
+    for (const item of pendingSteering) {
+      const source = item.source
+      if (source.kind !== 'user' || !('rpcId' in source)) { identities.push(item.id); continue }
+      const submission = local.get(source.rpcId)
+      if (submission === undefined) {
+        if (!localIds.has(source.rpcId)) identities.push(item.id)
+        continue
+      }
+      local.delete(source.rpcId)
+      identities.push(submission.requestId)
+    }
+    for (const submission of local.values()) identities.push(submission.requestId)
+    return identities.at(-1) ?? null
+  }, [pendingSteering, pendingSubmissions, visibleSubmissions])
+  // Scroll policy: viewport operations, reading policy, and history navigation
+  // own the scrollport; this shell renders what they publish.
   const scroll = useChatScroll({
-    chatScroll, order, nodeStore, openState, running, loadingOlder, hasMore,
-    loadOlder, loadThrough, turnNavigationItems, railItems, pendingSteering, visibleSubmissions,
+    ready: openState === 'open',
+    order, firstSeq, lastKey, running, loadingOlder, hasMore, chatScroll, loadOlder, loadThrough,
+    lastIsUser: lastKey !== null && nodeStore.get(lastKey)?.kind === 'user',
+    steeringId,
+    submissionId: visibleSubmissions.at(-1)?.requestId ?? null,
+    loadedTurns: turnNavigationItems,
   })
 
   return (
-    <div className={css.root}>
-      <div ref={scroll.listRef} className={css.scroll}>
+    <div className={css.frame}>
+      {scroll.initialized && (
         <TurnNavigator
           items={railItems}
           activeTurn={scroll.activeTurn}
@@ -189,80 +219,80 @@ export function ChatView({
           onNavigate={scroll.navigateToTurn}
           t={t}
         />
-        <div ref={scroll.columnRef} className={css.column} data-chat-flow="">
-          {openState === 'loading' && <div className={css.hint}>{t('chat.loadingHistory')}</div>}
-          {openState === 'error' && openError !== null && (
-            <div className={css.openError}>
-              {t('chat.loadError', { message: openError.message, code: openError.code })}
-            </div>
-          )}
-          {hasMore && (
-            <div className={css.older}>
-              <button type="button" disabled={loadingOlder} onClick={scroll.loadEarlier}>
-                {loadingOlder ? t('loading') : t('chat.loadOlder')}
-              </button>
-            </div>
-          )}
-          <MarkdownDelegateProvider openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
-            <ChatNodeList
-              entries={entries}
-              useChatGroup={useChatGroup}
-              nodeStore={nodeStore}
-              useChatNode={useChatNode}
-              useChatNodeProcess={useChatNodeProcess}
-              usePresentation={usePresentation}
-              toolDetail={toolDetail}
-              useStore={useStore}
-              actions={actions}
-              cwd={cwd}
-              openFile={requestOpenFile}
-              openSkill={openSkill}
-              inspectCall={inspectCall}
-              forkAt={forkAt}
-              loadImage={loadImage}
-              renderMessageImages={renderMessageImages}
-              fileMentions={fileMentions}
-              renderSlot={renderSlot}
-              t={t}
-            />
-          </MarkdownDelegateProvider>
-          {/* No pending placeholders: questions (ui-user-questions) and approvals
-              (ApprovalPanel) both take over the composer, so a flow card would
-              double-render the same wait. */}
-          {pendingSteering.map(item => (
-            <PendingSteeringBubble
-              key={item.id}
-              content={item.content}
-              renderMessageImages={renderMessageImages}
-              t={t}
-            />
-          ))}
-          {visibleSubmissions.map(submission => (
-            <PendingSubmissionBubble
-              key={submission.requestId}
-              submission={submission}
-              renderMessageImages={renderMessageImages}
-              t={t}
-            />
-          ))}
-        </div>
-        {!scroll.atBottom && (
-          <div className={css.toBottomSlot}>
-            <button
-              type="button"
-              className={css.toBottom}
-              aria-label={t('chat.toBottom')}
-              onClick={() => {
-                const local = scroll.listRef.current
-                /* v8 ignore next -- ref-null guard: the button only renders alongside the mounted list. */
-                if (local !== null) scroll.toBottom(scrollerOf(local))
-              }}
-            >
-              <IconChevronDownOutline14 />
-            </button>
+      )}
+      <div className={css.root} data-chat-following-tail={scroll.followingTail ? '' : undefined}>
+        <div ref={scroll.listRef} className={css.scroll}>
+          <div ref={scroll.columnRef} className={css.column} data-chat-flow="">
+            {openState === 'loading' && <div className={css.hint}>{t('chat.loadingHistory')}</div>}
+            {openState === 'error' && openError !== null && (
+              <div className={css.openError}>
+                {t('chat.loadError', { message: openError.message, code: openError.code })}
+              </div>
+            )}
+            {hasMore && (
+              <div className={css.older}>
+                <button type="button" disabled={loadingOlder} onClick={scroll.loadEarlier}>
+                  {loadingOlder ? t('loading') : t('chat.loadOlder')}
+                </button>
+              </div>
+            )}
+            <MarkdownDelegateProvider openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
+              <ChatNodeList
+                entries={entries}
+                useChatGroup={useChatGroup}
+                nodeStore={nodeStore}
+                useChatNode={useChatNode}
+                useChatNodeProcess={useChatNodeProcess}
+                usePresentation={usePresentation}
+                toolDetail={toolDetail}
+                useStore={useStore}
+                actions={actions}
+                cwd={cwd}
+                openFile={requestOpenFile}
+                openSkill={openSkill}
+                inspectCall={inspectCall}
+                forkAt={forkAt}
+                loadImage={loadImage}
+                renderMessageImages={renderMessageImages}
+                fileMentions={fileMentions}
+                renderSlot={renderSlot}
+                t={t}
+              />
+            </MarkdownDelegateProvider>
+            {/* No pending placeholders: questions (ui-user-questions) and approvals
+                (ApprovalPanel) both take over the composer, so a flow card would
+                double-render the same wait. */}
+            {pendingSteering.map(item => (
+              <PendingSteeringBubble
+                key={item.id}
+                content={item.content}
+                renderMessageImages={renderMessageImages}
+                t={t}
+              />
+            ))}
+            {visibleSubmissions.map(submission => (
+              <PendingSubmissionBubble
+                key={submission.requestId}
+                submission={submission}
+                renderMessageImages={renderMessageImages}
+                t={t}
+              />
+            ))}
           </div>
-        )}
+        </div>
       </div>
+      {!scroll.followingTail && (
+        <div className={css.toBottomSlot}>
+          <button
+            type="button"
+            className={css.toBottom}
+            aria-label={t('chat.toBottom')}
+            onClick={scroll.returnToBottom}
+          >
+            <IconChevronDownOutline14 />
+          </button>
+        </div>
+      )}
       {fileOpenError !== null && (
         <FileOpenErrorDialog
           message={fileOpenError.message}

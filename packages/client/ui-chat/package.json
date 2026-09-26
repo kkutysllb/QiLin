@@ -95,7 +95,8 @@
     "react-dom": "^18.2.0",
     "@qilin/client-ui-input-trigger": "workspace:*",
     "@qilin/util-values": "workspace:*",
-    "@qilin/brand": "workspace:*"
+    "@qilin/brand": "workspace:*",
+    "@tanstack/react-virtual": "^3.14.9"
   },
   "dependencies": {
     "@qilin/schemastery": "workspace:~"

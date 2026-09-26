@@ -1,205 +1,206 @@
-/** Turn jumps and history-prepend anchoring for Chat, independent of DOM ownership. */
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react'
+/** Turn jumps and history-prepend anchoring, independent of DOM measurement. */
+import { useLayoutEffect, useState } from 'react'
 import type { SessionSeq } from '@qilin/session/types'
+import type { ChatNode } from '../contract/chat-nodes.ts'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
-import type { ChatReadingState } from './use-chat-reading.ts'
-import { anchorElement, flowTop, pagingAnchor, scrollerOf, type ChatViewportRefs } from './use-chat-viewport.ts'
 import type { TurnRailItem } from './turn-rail-items.ts'
+import type { ChatReading, ReadingSample } from './use-chat-reading.ts'
+import type { ChatViewport } from './use-chat-viewport.ts'
 
-/** Committed history availability and the reading policy this navigation drives. */
-export interface ChatNavigationInput {
-  readonly viewport: ChatViewportRefs
-  readonly reading: ChatReadingState
-  readonly railItems: readonly TurnRailItem[]
-  readonly firstSeq: number | null
+/** History availability and loading operations for the committed Chat window. */
+export interface ChatNavigationInput extends Pick<ChatViewSlotProps, 'loadOlder' | 'loadThrough'> {
+  readonly firstSeq: ChatNode['anchorSeq'] | null
   readonly hasMore: boolean
   readonly loadingOlder: boolean
-  readonly loadOlder: ChatViewSlotProps['loadOlder']
-  readonly loadThrough: ChatViewSlotProps['loadThrough']
 }
 
-/** History navigation facts consumed by the scroll composition and the turn rail. */
-export interface ChatNavigationState {
-  readonly busyTurn: number | null
-  /** Unloaded-turn jump in flight: target turn plus its load-through seq. */
-  readonly pendingJumpRef: MutableRefObject<{ turn: number; seq: SessionSeq } | null>
-  /** {@inheritDoc ChatNavigationInput} */
-  readonly navigateToTurn: (item: TurnRailItem) => void
-  /** Retain the reading anchor and request one older page. */
-  readonly loadEarlier: () => void
-  /** Land the pending jump once its Turn has a rendered anchor row; false while it must keep waiting. */
-  readonly realizePendingJump: (local: HTMLElement, el: HTMLElement, settle: boolean) => boolean
-  /** Release the jump and its busy indicator without cancelling shared history I/O. */
-  readonly clearJump: () => void
+interface TurnJump {
+  readonly turn: number
+  readonly seq: SessionSeq
+  phase: 'loading' | 'settled'
+  landing: 'pending' | 'landed' | 'interrupted'
+  repageHead: ChatNavigationInput['firstSeq']
 }
 
-/**
- * Own the replaceable turn jump and the anchor retained while history loads.
- * @param input - scrollport refs, reading policy, committed history state, and load operations.
- * @returns the jump state and the navigation callbacks composition and the rail read.
- */
-export function useChatNavigation(input: ChatNavigationInput): ChatNavigationState {
-  const { viewport, reading, railItems, firstSeq, hasMore, loadingOlder, loadOlder, loadThrough } = input
-  const { listRef, anchorRef } = viewport
-  const { atBottomRef, setAtBottom, landOnRowRef } = reading
+/** Owns one replaceable turn jump and the anchor retained while history loads. */
+export class ChatNavigation {
+  private jump: TurnJump | null = null
+  private settleFrame: number | null = null
 
-  /** Unloaded-turn jump in flight: target turn plus its load-through seq. */
-  const pendingJumpRef = useRef<{ turn: number; seq: SessionSeq } | null>(null)
-  /** Whether the in-flight jump already landed mid-paging (settle then only corrects an untouched landing). */
-  const jumpLandedRef = useRef(false)
-  const [busyJumpTurn, setBusyJumpTurn] = useState<number | null>(null)
-  /** Bumped when a loadThrough completion settles, after its last page's commit. */
-  const [jumpSettleTick, setJumpSettleTick] = useState(0)
-  /** Window head at the last settle-time repage; an unmoved head falls back instead of repaging forever. */
-  const jumpRepageHeadRef = useRef<number | null>(null)
+  constructor(
+    private readonly viewport: ChatViewport,
+    private readonly reading: ChatReading,
+    private input: ChatNavigationInput,
+    private readonly onBusyTurn: (turn: number | null) => void,
+  ) {}
 
   /**
-   * Land the pending jump once its Turn has a rendered anchor row; false
-   * while it must keep waiting. Mid-jump landings (`settle` false) keep the
-   * jump armed with the target row as the paging anchor, so later chunks and
-   * the load-earlier button's unmount re-land on the same row; the settling
-   * call clears the jump.
+   * Adopt committed history availability without starting a request.
+   * @param input - history state from the latest committed render.
    */
-  const realizePendingJump = (local: HTMLElement, el: HTMLElement, settle: boolean): boolean => {
-    const pending = pendingJumpRef.current
-    if (pending === null) return true
-    const item = railItems.find(candidate => candidate.turn === pending.turn)
-    if (item === undefined || item.anchor.kind !== 'loaded') return false
-    const row = anchorElement(local, item.anchor.key)
-    if (row === null) return false
-    if (settle) {
-      pendingJumpRef.current = null
-      setBusyJumpTurn(null)
-      const held = anchorRef.current
-      const landedEarlier = jumpLandedRef.current
-      jumpLandedRef.current = false
-      anchorRef.current = null
-      // A reader who moved off an already-landed target mid-jump keeps their
-      // place; a first landing, or an untouched one, takes the correction.
-      if (!landedEarlier || held?.key === item.anchor.key) {
-        landOnRowRef.current(local, el, row, pending.turn)
-      }
-      return true
+  setInput(input: ChatNavigationInput): void { this.input = input }
+
+  /** Cancel navigation when opening a Chat view. */
+  reset(): void {
+    this.cancel()
+  }
+
+  /** Cancel local callbacks; late history completions cannot revive a task. */
+  dispose(): void {
+    this.clearTask()
+  }
+
+  /** Release the jump, paging anchor, and busy indicator without cancelling shared history I/O. */
+  cancel(): void {
+    this.clearTask()
+    this.onBusyTurn(null)
+  }
+
+  private clearTask(): void {
+    this.cancelFrame()
+    this.jump = null
+    this.viewport.stopPreserving()
+  }
+
+  /**
+   * Replace the current jump with an explicit turn selection.
+   * @param item - loaded anchor or unloaded turn to fetch before landing.
+   */
+  readonly navigateToTurn = (item: TurnRailItem): void => {
+    if (item.anchor.kind === 'loaded') {
+      this.cancel()
+      const landing = this.viewport.scrollToTurn(item.turn)
+      if (landing === null) return
+      this.reading.acceptNavigation(landing)
+      if (this.input.loadingOlder) this.viewport.beginPreserving(landing.position)
+      return
     }
-    landOnRowRef.current(local, el, row, pending.turn)
-    jumpLandedRef.current = true
-    anchorRef.current = { key: item.anchor.key, top: flowTop(row, el) }
+    this.cancel()
+    this.viewport.beginPreserving()
+    this.reading.pauseFollowing()
+    const jump: TurnJump = {
+      turn: item.turn,
+      seq: item.anchor.seq,
+      phase: 'loading',
+      landing: 'pending',
+      repageHead: null,
+    }
+    this.jump = jump
+    this.onBusyTurn(jump.turn)
+    this.request(jump)
+  }
+
+  /** Request one older page while retaining the current semantic position. */
+  readonly loadEarlier = (): void => {
+    this.cancel()
+    this.viewport.beginPaging()
+    this.reading.pauseFollowing()
+    this.input.loadOlder()
+  }
+
+  /**
+   * Preserve reader ownership across pending history work.
+   * @param sample - settled reader movement that can update or interrupt an anchor.
+   */
+  readerSampled(sample: ReadingSample): void {
+    if (sample.movedByReader && this.jump?.landing === 'landed') this.jump.landing = 'interrupted'
+    if (sample.followingTail || sample.movedByReader) this.viewport.stopPreserving()
+  }
+
+  /**
+   * Preserve one paging anchor after a commit or a later size change, regardless of head identity.
+   * @returns whether the retained anchor handled the layout change.
+   */
+  contentCommitted(): boolean {
+    if (!this.viewport.preserving || this.reading.pending) return false
+    if (this.landJump(false)) return true
+    const landing = this.viewport.preserve()
+    if (landing === null) return false
+    this.reading.preservePosition(landing)
     return true
   }
 
-
-  const clearJump = (): void => {
-    pendingJumpRef.current = null
-    setBusyJumpTurn(current => current === null ? current : null)
+  /** Retarget a still-loading page only after inner or outer reader scrolling ends. */
+  readerSettled(): void {
+    if (this.input.loadingOlder && this.jump === null && !this.viewport.preserving && !this.reading.followingTail) {
+      this.viewport.beginPreserving()
+    }
   }
 
-  // A failed/empty page leaves the head unchanged. Once the request leaves
-  // its busy state there is no future prepend for the saved anchor to own.
-  useEffect(() => {
-    if (!loadingOlder) anchorRef.current = null
-  }, [loadingOlder])
-
-  // Jump settlement: every loadThrough completion bumps the tick after its
-  // last page's commit, and a plain pull's loadingOlder flip re-settles a
-  // jump it made wait. A still-pending jump is realized now, held while a
-  // plain load-earlier pull owns the pager (its completion retries below),
-  // repaged once per head movement, or landed on the nearest rendered Turn
-  // at or after the target (failure, exhausted history, or a Turn with no
-  // visible row).
-  useEffect(() => {
-    const pending = pendingJumpRef.current
-    const local = listRef.current
-    if (pending === null || local === null) return
-    const el = scrollerOf(local)
-    // The settling landing runs after the load-earlier button's unmount
-    // commit, so the target row cannot drift once the jump clears.
-    if (realizePendingJump(local, el, true)) return
-    const uncovered = firstSeq === null || firstSeq > pending.seq
-    if (uncovered && hasMore) {
-      // A plain pull owns the pager right now: hold the jump (busy stays)
-      // instead of degrading to a wrong landing.
-      if (loadingOlder) return
-      if (jumpRepageHeadRef.current !== firstSeq) {
-        jumpRepageHeadRef.current = firstSeq
-        const held = pagingAnchor(local, el)
-        if (held !== null && held.dataset.chatAnchorKey !== undefined) {
-          anchorRef.current = { key: held.dataset.chatAnchorKey, top: flowTop(held, el) }
-        }
-        void loadThrough(pending.seq).finally(() => { setJumpSettleTick(tick => tick + 1) })
-        return
-      }
-    }
-    for (const row of local.querySelectorAll<HTMLElement>('[data-chat-turn]:not([hidden])')) {
-      const turn = Number(row.dataset.chatTurn)
-      if (!Number.isSafeInteger(turn) || turn < pending.turn) continue
-      landOnRowRef.current(local, el, row, turn)
-      break
-    }
-    pendingJumpRef.current = null
-    setBusyJumpTurn(null)
-    // Snapshot values are read at settle time; the completion tick is the trigger.
-  }, [jumpSettleTick])
-
-  // A jump held while a plain pull owned the pager waits in the effect
-  // above; the pull's completion is its retry signal.
-  useEffect(() => {
-    if (!loadingOlder && pendingJumpRef.current !== null) setJumpSettleTick(tick => tick + 1)
-  }, [loadingOlder])
-
-  const loadOlderAnchored = (): void => {
-    const local = listRef.current
-    /* v8 ignore next -- ref-null guard: the paging button renders inside the list tree. */
-    if (local !== null) {
-      const el = scrollerOf(local)
-      const row = pagingAnchor(local, el)
-      if (row !== null && row.dataset.chatAnchorKey !== undefined) {
-        anchorRef.current = {
-          key: row.dataset.chatAnchorKey,
-          top: flowTop(row, el),
-        }
-      }
-    }
-    loadOlder()
-  }
-
-  // Identity feeds the memoized rail; a fresh closure per render would defeat it.
-  const navigateToTurn = useCallback((item: TurnRailItem): void => {
-    const local = listRef.current
-    if (local === null) return
-    const el = scrollerOf(local)
-    if (item.anchor.kind === 'unloaded') {
-      // Jumping into history is leaving the live tail: release bottom
-      // ownership on the click itself, or the pinned-scroll snap (a
-      // non-reader scroll delivery during the first prepend's compensation)
-      // would call toBottom and cancel the jump.
-      atBottomRef.current = false
-      setAtBottom(false)
-      // Hold the reader's place through the paging chunks; the layout effect
-      // lands on the target once its rows commit.
-      const held = pagingAnchor(local, el)
-      if (held !== null && held.dataset.chatAnchorKey !== undefined) {
-        anchorRef.current = { key: held.dataset.chatAnchorKey, top: flowTop(held, el) }
-      }
-      pendingJumpRef.current = { turn: item.turn, seq: item.anchor.seq }
-      jumpRepageHeadRef.current = null
-      jumpLandedRef.current = false
-      setBusyJumpTurn(item.turn)
-      void loadThrough(item.anchor.seq).finally(() => { setJumpSettleTick(tick => tick + 1) })
+  /** Land, retry, or complete the current jump against the committed window. */
+  reconcile(): void {
+    const jump = this.jump
+    if (jump === null || this.reading.pending) return
+    if (jump.phase === 'loading') {
+      if (jump.landing === 'pending') this.landJump(false)
       return
     }
-    const row = anchorElement(local, item.anchor.key)
-    if (row === null) return
-    // A loaded-mark click supersedes any jump still landing.
-    pendingJumpRef.current = null
-    setBusyJumpTurn(current => current === null ? current : null)
-    landOnRowRef.current(local, el, row, item.turn)
-    // A pending older page still has to compensate the prepended height, so
-    // navigation moves that anchor to the new position instead of dropping it.
-    const landed = loadingOlder ? pagingAnchor(local, el) : null
-    anchorRef.current = landed === null || landed.dataset.chatAnchorKey === undefined
-      ? null
-      : { key: landed.dataset.chatAnchorKey, top: flowTop(landed, el) }
-  }, [loadingOlder, loadThrough])
+    if (this.input.loadingOlder) return
+    if (this.landJump(true)) return
+    const uncovered = this.input.firstSeq === null || this.input.firstSeq > jump.seq
+    if (uncovered && this.input.hasMore && jump.repageHead !== this.input.firstSeq) {
+      jump.repageHead = this.input.firstSeq
+      this.viewport.beginPreserving()
+      this.request(jump)
+      return
+    }
+    const fallback = this.viewport.scrollToTurnAtOrAfter(jump.turn)
+    this.cancel()
+    if (fallback !== null) this.reading.acceptNavigation(fallback)
+  }
 
-  return { busyTurn: busyJumpTurn, pendingJumpRef, navigateToTurn, loadEarlier: loadOlderAnchored, realizePendingJump, clearJump }
+  private landJump(settle: boolean): boolean {
+    const jump = this.jump
+    if (jump === null) return false
+    if (jump.landing === 'interrupted') {
+      if (settle) { this.cancel(); return true }
+      return false
+    }
+    const landing = this.viewport.scrollToTurn(jump.turn)
+    if (landing === null) return false
+    this.reading.acceptNavigation(landing)
+    if (settle) this.cancel()
+    else {
+      this.viewport.beginPreserving(landing.position)
+      jump.landing = 'landed'
+    }
+    return true
+  }
+
+  private request(jump: TurnJump): void {
+    jump.phase = 'loading'
+    const settled = (): void => {
+      if (this.jump !== jump) return
+      jump.phase = 'settled'
+      this.cancelFrame()
+      if (typeof requestAnimationFrame !== 'function') this.reconcile()
+      else this.settleFrame = requestAnimationFrame(() => {
+        this.settleFrame = null
+        if (this.jump === jump) this.reconcile()
+      })
+    }
+    void this.input.loadThrough(jump.seq).then(settled, settled)
+  }
+
+  private cancelFrame(): void {
+    if (this.settleFrame !== null && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(this.settleFrame)
+    this.settleFrame = null
+  }
+}
+
+/**
+ * Retain one navigation owner for the component's lifetime.
+ * @param viewport - turn-aware DOM operations.
+ * @param reading - reading and follow policy receiving navigation landings.
+ * @param input - committed history state and load operations.
+ * @returns the navigation owner and its visible busy turn.
+ */
+export function useChatNavigation(
+  viewport: ChatViewport, reading: ChatReading, input: ChatNavigationInput,
+): { navigation: ChatNavigation; busyTurn: number | null } {
+  const [busyTurn, setBusyTurn] = useState<number | null>(null)
+  const [navigation] = useState(() => new ChatNavigation(viewport, reading, input, setBusyTurn))
+  useLayoutEffect(() => { navigation.setInput(input) }, [navigation, input])
+  useLayoutEffect(() => () => { navigation.dispose() }, [navigation])
+  return { navigation, busyTurn }
 }

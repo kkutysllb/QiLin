@@ -48,18 +48,22 @@ import { formatLiveRunDuration, formatRunDuration } from '../src/client/chat/mes
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 import type { TurnProcessSpec } from '../src/client/contract/turn-process.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
+import { installTurnNavigatorObserver } from './turn-navigator-fixture.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
 
 afterEach(() => {
   cleanup()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 // Keyless create() persists under the bare declared key; clear between cases
 // so one harness's selection cannot rehydrate into the next.
 beforeEach(() => {
   localStorage.clear()
+  installTurnNavigatorObserver()
 })
 
 const SID = 's1' as SessionId
@@ -467,6 +471,7 @@ function makeHarness(
 /** Simulate reader input (any device): a delivered position that deviates
  * from the observed-top ledger of programmatic writes. */
 function readerScroll(element: HTMLElement, top: number): void {
+  fireEvent.wheel(element)
   element.scrollTop = top
   fireEvent.scroll(element)
   fireEvent(element, new Event('scrollend'))
@@ -622,7 +627,7 @@ describe('ChatView', () => {
     expect(railRenders).toBe(afterMount)
   })
 
-  it('projects loaded turns into prompt and response navigation previews', () => {
+  it('projects loaded turns into prompt and response navigation previews', async () => {
     const snapshot = chatSnapshotFixture({
       nodes: [
         userInTurn(1, 'first prompt', 1),
@@ -639,11 +644,11 @@ describe('ChatView', () => {
     const h = makeHarness({}, {}, snapshot)
     const view = render(<h.ChatView {...h.props} />)
     const navigation = view.getByRole('navigation', { name: '轮次导航' })
-    expect(navigation.style.getPropertyValue('--turn-natural-height')).toBe('22px')
-    const first = view.getByRole('button', { name: '跳转到第 1 轮' })
+    const first = await view.findByRole('button', { name: '跳转到第 1 轮' })
+    expect(within(navigation).getAllByRole('button').map(mark => mark.getAttribute('aria-label'))).toEqual([
+      '跳转到第 1 轮', '跳转到第 2 轮',
+    ])
     const second = view.getByRole('button', { name: '跳转到第 2 轮' })
-    expect(first.parentElement?.style.getPropertyValue('--turn-natural-position')).toBe('0px')
-    expect(second.parentElement?.style.getPropertyValue('--turn-natural-position')).toBe('10px')
     expect(second.getAttribute('aria-current')).toBe('true')
     fireEvent.focus(first)
     const preview = view.getByRole('tooltip')
@@ -651,18 +656,16 @@ describe('ChatView', () => {
     expect(preview.textContent).toContain('first response')
   })
 
-  it('jumps to a turn anchor and reflows stable marks after an older page arrives', () => {
+  it('jumps to a turn anchor and reflows stable marks after an older page arrives', async () => {
     const later = [
       userInTurn(4, 'second prompt', 2), assistant(5, 'second response', 2),
       userInTurn(7, 'third prompt', 3), assistant(8, 'third response', 3),
     ]
     const h = makeHarness({ nodes: later }, { hasMore: true })
     const view = render(<h.ChatView {...h.props} />)
-    const second = view.getByRole('button', { name: '跳转到第 2 轮' })
-    const secondPosition = second.parentElement as HTMLElement
-    expect(secondPosition.style.getPropertyValue('--turn-natural-position')).toBe('0px')
+    const second = await view.findByRole('button', { name: '跳转到第 2 轮' })
 
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     const metrics = installScrollMetrics(scroller, 1_000, 300)
     metrics.setLayout(1_000, 700)
     vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue({ top: 0, bottom: 300 } as DOMRect)
@@ -679,9 +682,10 @@ describe('ChatView', () => {
       })
     })
     const movedSecond = view.getByRole('button', { name: '跳转到第 2 轮' })
-    expect(movedSecond.parentElement).toBe(secondPosition)
-    // Fixed pitch: the mark moves one slot down and never compresses.
-    expect(secondPosition.style.getPropertyValue('--turn-natural-position')).toBe('10px')
+    expect(movedSecond).toBe(second)
+    expect(within(view.getByRole('navigation')).getAllByRole('button').map(mark => mark.getAttribute('aria-label'))).toEqual([
+      '跳转到第 1 轮', '跳转到第 2 轮', '跳转到第 3 轮',
+    ])
   })
 
   it('extends the rail with unloaded outline turns, pages on click, and falls back when nothing lands', async () => {
@@ -693,7 +697,7 @@ describe('ChatView', () => {
       { turn: 3, seq: 8, prompt: 'third prompt', response: 'third response' },
     ])
     const view = render(<h.ChatView {...h.props} />)
-    const first = view.getByRole('button', { name: '加载并跳转到第 1 轮' })
+    const first = await view.findByRole('button', { name: '加载并跳转到第 1 轮' })
     view.getByRole('button', { name: '加载并跳转到第 2 轮' })
     const third = view.getByRole('button', { name: '跳转到第 3 轮' })
     expect(third.getAttribute('aria-current')).toBe('true')
@@ -708,9 +712,8 @@ describe('ChatView', () => {
 
     // The fake loader never delivers rows: settlement repages once for the
     // unmoved head, then lands on the nearest rendered turn and un-busies.
-    await act(async () => {})
+    await waitFor(() => { expect(first.getAttribute('aria-busy')).toBeNull() })
     expect(h.loadThrough.mock.calls).toEqual([[0], [0]])
-    expect(first.getAttribute('aria-busy')).toBeNull()
     expect(view.getByRole('button', { name: '跳转到第 3 轮' }).getAttribute('aria-current')).toBe('true')
   })
 
@@ -727,13 +730,13 @@ describe('ChatView', () => {
     // Pinned to the tail on open: the back-to-bottom control is absent.
     expect(view.queryByRole('button', { name: '回到底部' })).toBeNull()
 
-    const first = view.getByRole('button', { name: '加载并跳转到第 1 轮' })
+    const first = await view.findByRole('button', { name: '加载并跳转到第 1 轮' })
     fireEvent.click(first)
     // The click itself leaves the tail...
     expect(view.getByRole('button', { name: '回到底部' })).toBeTruthy()
     // ...so a non-reader scroll delivery at the floor (the first prepend's
     // compensation fires one) no longer snaps to the tail and cancel the jump.
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLElement
     fireEvent.scroll(scroller)
     expect(first.getAttribute('aria-busy')).toBe('true')
     await act(async () => { releaseJump?.() })
@@ -747,7 +750,7 @@ describe('ChatView', () => {
       { turn: 3, seq: 8, prompt: 'third prompt', response: '' },
     ])
     const view = render(<h.ChatView {...h.props} />)
-    const first = view.getByRole('button', { name: '加载并跳转到第 1 轮' })
+    const first = await view.findByRole('button', { name: '加载并跳转到第 1 轮' })
     fireEvent.click(first)
     // The session-side guard refuses the busy-pager jump instantly, yet the
     // mark stays busy instead of degrading to the nearest loaded turn.
@@ -757,12 +760,11 @@ describe('ChatView', () => {
 
     // The plain pull settles: the flip re-settles the jump, which repages.
     act(() => { h.setSession({ loadingOlder: false }) })
-    await act(async () => {})
+    await waitFor(() => { expect(first.getAttribute('aria-busy')).toBeNull() })
     expect(h.loadThrough.mock.calls).toEqual([[0], [0]])
-    expect(first.getAttribute('aria-busy')).toBeNull()
   })
 
-  it('scrolls the fixed-pitch rail inside its frame with gradient fades at the scrollable ends', () => {
+  it('scrolls the fixed-pitch rail inside its frame with gradient fades at the scrollable ends', async () => {
     const h = makeHarness(
       { nodes: [userInTurn(8, 'latest prompt', 60), assistant(9, 'latest response', 60)] },
       { hasMore: true },
@@ -775,11 +777,11 @@ describe('ChatView', () => {
     })))
     const view = render(<h.ChatView {...h.props} />)
     const nav = view.getByRole('navigation', { name: '轮次导航' })
-    // 60 marks at the fixed 10px pitch: the ladder keeps its natural height.
-    expect(nav.style.getPropertyValue('--turn-natural-height')).toBe('602px')
     const scroller = nav.querySelector('[class*="scroller"]') as HTMLElement
-    Object.defineProperty(scroller, 'scrollHeight', { value: 602, configurable: true })
-    Object.defineProperty(scroller, 'clientHeight', { value: 300, configurable: true })
+    const latest = await within(nav).findByRole('button', { name: '跳转到第 60 轮' })
+    expect(scroller.scrollTop).toBe(302)
+    expect(within(nav).getAllByRole('button').length).toBeLessThan(60)
+    expect(latest.getAttribute('aria-current')).toBe('true')
     scroller.scrollTop = 0
     fireEvent.scroll(scroller)
     expect(scroller.className).toContain('fadeBottom')
@@ -789,12 +791,7 @@ describe('ChatView', () => {
     fireEvent.scroll(scroller)
     expect(scroller.className).toContain('fadeTop')
     expect(scroller.className).toContain('fadeBottom')
-    expect(nav.style.getPropertyValue('--turn-scroll-top')).toBe('150px')
-
-    // Pointer mapping subtracts the rail scroll: y=94 with scrollTop 150 is
-    // natural offset 238px → the 25th mark.
-    vi.spyOn(nav, 'getBoundingClientRect').mockReturnValue({ top: 0 } as DOMRect)
-    fireEvent.pointerMove(nav, { clientY: 94 })
+    fireEvent.pointerMove(within(nav).getByRole('button', { name: '加载并跳转到第 25 轮' }))
     expect(view.getByRole('tooltip').textContent).toContain('p25')
   })
 
@@ -808,8 +805,18 @@ describe('ChatView', () => {
     let releaseJump: (() => void) | undefined
     h.loadThrough.mockImplementation(() => new Promise<void>((resolve) => { releaseJump = resolve }))
     const view = render(<h.ChatView {...h.props} />)
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
+    installScrollMetrics(scroller, 1_000, 300)
+    scroller.scrollTop = 700
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.dataset.chatAnchorKey === 'fixture:user:0') {
+        const top = 100 - scroller.scrollTop
+        return { top, bottom: top + 40 } as DOMRect
+      }
+      return { top: 0, bottom: 300 } as DOMRect
+    })
 
-    fireEvent.click(view.getByRole('button', { name: '加载并跳转到第 1 轮' }))
+    fireEvent.click(await view.findByRole('button', { name: '加载并跳转到第 1 轮' }))
     expect(h.loadThrough).toHaveBeenCalledWith(0)
 
     // The paged window commits: turn 1's rows and rail item enter the snapshot.
@@ -821,15 +828,14 @@ describe('ChatView', () => {
     })
     const first = view.getByRole('button', { name: '跳转到第 1 轮' })
     expect(first.getAttribute('aria-current')).toBe('true')
+    expect(scroller.scrollTop).toBe(76)
     // The mark stays busy until the jump settles: the loader's completion
     // runs the final landing correction after the load-earlier button leaves.
     expect(first.getAttribute('aria-busy')).toBe('true')
     await act(async () => { releaseJump?.() })
-    // Only the busy lifecycle is asserted after settlement: jsdom's zero
-    // geometry makes the rAF active-turn resync read "at bottom" and hand the
-    // mark to the last turn, so aria-current here is timing-dependent under
-    // instrumentation; the landing position contract lives in the browser e2e.
-    expect(first.getAttribute('aria-busy')).toBeNull()
+    await waitFor(() => { expect(first.getAttribute('aria-busy')).toBeNull() })
+    expect(first.getAttribute('aria-current')).toBe('true')
+    expect(scroller.scrollTop).toBe(76)
   })
 
   it('hands a windowless tool result to the Tool seat with an empty tool name', () => {
@@ -847,7 +853,7 @@ describe('ChatView', () => {
       { hasMore: true },
     )
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     const first = view.container.querySelector('[data-chat-flow-key="fixture:user:9"]') as HTMLDivElement
     const next = view.container.querySelector('[data-chat-flow-key="fixture:user:10"]') as HTMLDivElement
     let firstTop = 100
@@ -865,6 +871,7 @@ describe('ChatView', () => {
     Object.defineProperty(scroller, 'clientHeight', { value: 200, writable: true })
     readerScroll(scroller, 50)
     fireEvent.click(view.getByText('加载更早'))
+    act(() => { h.set({ loadingOlder: true }) })
     // The reader moves after the request starts; this, not the click-time
     // row, is the intent the arriving page must preserve.
     firstTop = -200
@@ -873,7 +880,7 @@ describe('ChatView', () => {
     Object.defineProperty(scroller, 'scrollHeight', { value: 1300, writable: true })
     nextTop = 560
     act(() => {
-      h.setChat({ nodes: [assistant(2, 'older'), user(9, 'first visible'), user(10, 'next visible')] })
+      h.set({ nodes: [assistant(2, 'older'), user(9, 'first visible'), user(10, 'next visible')], loadingOlder: false })
     })
     expect(scroller.scrollTop).toBe(590) // latest 90 + the anchored row's 500px prepend shift
   })
@@ -911,7 +918,7 @@ describe('ChatView', () => {
     }
   })
 
-  it('falls back to the first visible row when the viewport top hit-test misses', () => {
+  it('anchors the first transcript row for paging regardless of the viewport reading line', () => {
     const originalHitTest = Object.getOwnPropertyDescriptor(document, 'elementsFromPoint')
     const nodes = Array.from({ length: 16 }, (_, index) => user(20 + index, `row ${String(index)}`))
     const h = makeHarness(
@@ -919,7 +926,7 @@ describe('ChatView', () => {
       { hasMore: true },
     )
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     const rows = [...view.container.querySelectorAll<HTMLElement>('[data-chat-flow-key]')]
     let prepended = false
     let rowRectCalls = 0
@@ -946,16 +953,16 @@ describe('ChatView', () => {
     try {
       rowRectCalls = 0
       fireEvent.click(view.getByText('加载更早'))
-      expect(hitTest).toHaveBeenCalledTimes(1)
-      expect(hitTest.mock.calls[0]?.[1]).toBe(1)
-      expect(rowRectCalls).toBeLessThanOrEqual(6)
+      expect(hitTest).not.toHaveBeenCalled()
+      expect(rowRectCalls).toBe(1)
 
       Object.defineProperty(scroller, 'scrollHeight', { value: 1_300, writable: true })
       prepended = true
       act(() => {
         h.setChat({ nodes: [assistant(2, 'older'), ...nodes] })
       })
-      expect(scroller.scrollTop).toBe(450) // reader offset 50 + first visible row's 400px shift
+      expect(scroller.scrollTop).toBe(550)
+      expect(h.chatScroll.read()?.anchorKey).toBe('fixture:user:20')
     } finally {
       if (originalHitTest !== undefined) {
         Object.defineProperty(document, 'elementsFromPoint', originalHitTest)
@@ -1156,6 +1163,36 @@ describe('ChatView', () => {
     expect(view.getAllByText('带图纠偏')).toHaveLength(1)
     expect(view.container.querySelector('[data-submission-echo]')).toBeNull()
     expect(view.container.querySelector('[data-pending-steering]')).not.toBeNull()
+  })
+
+  it('does not pull the reader back to the tail when a local steer becomes Host-pending', () => {
+    const h = makeHarness({ nodes: [assistant(1, 'working')] }, { running: true })
+    const view = render(<h.ChatView {...h.props} />)
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement!
+    installScrollMetrics(scroller, 1_000, 300)
+    act(() => {
+      h.setSession({
+        pendingSubmissions: [{
+          requestId: 'req-steer' as never, placement: 'steering', time: 5_000, text: 'continue here', attachments: [],
+        }],
+      })
+    })
+    expect(scroller.scrollTop).toBe(700)
+    readerScroll(scroller, 100)
+
+    act(() => {
+      h.setSession({
+        testInbox: {
+          'next-turn': [], 'next-step': [{
+            id: 'steer-occurrence' as never, role: 'user', source: { kind: 'user', rpcId: 'req-steer' as never },
+            content: [{ type: 'text', text: 'continue here' }],
+          }],
+        },
+      })
+    })
+    expect(view.getAllByText('continue here')).toHaveLength(1)
+    expect(scroller.scrollTop).toBe(100)
+    expect(view.getByLabelText('回到底部')).toBeTruthy()
   })
 
   it('keeps a queued echo out of the Chat flow before and after Host admission', () => {
@@ -2391,7 +2428,7 @@ describe('ChatView', () => {
       { hasMore: true },
     )
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     // jsdom has no layout: fake the metrics the anchor math reads.
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000, writable: true })
     Object.defineProperty(scroller, 'clientHeight', { value: 400, writable: true })
@@ -2415,13 +2452,13 @@ describe('ChatView', () => {
         nodes: [user(1, 'old'), assistant(2, 'b'), user(5, 'later'), assistant(6, 'a'), user(9, 'mine')],
       })
     })
-    expect(scroller.scrollTop).toBe(1600)
+    expect(scroller.scrollTop).toBe(1200)
   })
 
   it('back-to-bottom cancels an in-flight paging anchor', () => {
     const h = makeHarness({ nodes: [user(9, 'late')] }, { hasMore: true })
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     Object.defineProperty(scroller, 'scrollHeight', { value: 800, writable: true })
     Object.defineProperty(scroller, 'clientHeight', { value: 200, writable: true })
     readerScroll(scroller, 50)
@@ -2429,26 +2466,28 @@ describe('ChatView', () => {
     fireEvent.click(view.getByLabelText('回到底部'))
     Object.defineProperty(scroller, 'scrollHeight', { value: 1_300, writable: true })
     act(() => { h.setChat({ nodes: [assistant(2, 'older'), user(9, 'late')] }) })
-    expect(scroller.scrollTop).toBe(1_300)
+    expect(scroller.scrollTop).toBe(1_100)
     expect(h.chatScroll.read()).toBeNull()
   })
 
   it('scrolling away disables follow and shows the back-to-bottom button; clicking returns', () => {
     const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000, writable: true })
     Object.defineProperty(scroller, 'clientHeight', { value: 300, writable: true })
     readerScroll(scroller, 100) // far from bottom
     const backButton = view.getByLabelText('回到底部')
     expect(backButton).toBeTruthy()
+    expect(view.container.querySelector('[data-chat-following-tail]')).toBeNull()
     // Streaming growth must NOT drag a scrolled-away reader down.
     act(() => {
       h.setChat({ partial: { turn: 1, step: 1, blocks: [{ kind: 'text', text: 'grow' }] } })
     })
     expect(scroller.scrollTop).toBe(100)
     fireEvent.click(backButton)
-    expect(scroller.scrollTop).toBe(1000)
+    expect(scroller.scrollTop).toBe(700)
+    expect(view.container.querySelector('[data-chat-following-tail]')).not.toBeNull()
     // At the bottom again: follow re-arms and the button unmounts.
     expect(view.queryByLabelText('回到底部')).toBeNull()
   })
@@ -2651,7 +2690,7 @@ describe('ChatView', () => {
 
   it('one ResizeObserver owns pinned dynamic-height follow and ignores growth while away', () => {
     let notify: (() => void) | undefined
-    const observe = vi.fn()
+    const observe = vi.fn<(element: Element) => void>()
     class ResizeObserverStub {
       constructor(callback: ResizeObserverCallback) {
         notify = () => { callback([], this as unknown as ResizeObserver) }
@@ -2663,7 +2702,7 @@ describe('ChatView', () => {
     vi.stubGlobal('ResizeObserver', ResizeObserverStub)
     const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     Object.defineProperty(scroller, 'scrollHeight', { value: 1_000, writable: true })
     Object.defineProperty(scroller, 'clientHeight', { value: 300, writable: true })
     scroller.scrollTop = 700
@@ -2671,15 +2710,51 @@ describe('ChatView', () => {
     fireEvent(scroller, new Event('scrollend'))
     Object.defineProperty(scroller, 'scrollHeight', { value: 1_200, writable: true })
     act(() => { notify?.() })
-    expect(scroller.scrollTop).toBe(1_200)
+    expect(scroller.scrollTop).toBe(900)
     readerScroll(scroller, 200)
     Object.defineProperty(scroller, 'scrollHeight', { value: 1_400, writable: true })
     act(() => { notify?.() })
     expect(scroller.scrollTop).toBe(200)
-    expect(observe).toHaveBeenCalledTimes(1)
+    expect(observe.mock.calls.map(([element]) => element)).toEqual([
+      view.container.querySelector('[data-chat-flow]'), scroller,
+    ])
   })
 
-  it('pinned dynamic-height updates select the latest Turn without reading row geometry', () => {
+  it('restores the reader row when a layout change moves it while away from the tail', () => {
+    let notify: (() => void) | undefined
+    class ResizeObserverStub {
+      constructor(callback: ResizeObserverCallback) {
+        notify = () => { callback([], this) }
+      }
+
+      observe = vi.fn()
+      unobserve = vi.fn()
+      disconnect = vi.fn()
+    }
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+    const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
+    const view = render(<h.ChatView {...h.props} />)
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
+    installScrollMetrics(scroller, 1_000, 300)
+    const row = view.container.querySelector<HTMLElement>('[data-chat-flow-key]')!
+    let rowTop = 120
+    vi.spyOn(row, 'getBoundingClientRect').mockImplementation(
+      () => ({ top: rowTop, bottom: rowTop + 40 } as DOMRect),
+    )
+    vi.spyOn(scroller, 'getBoundingClientRect').mockImplementation(
+      () => ({ top: 0, bottom: 300 } as DOMRect),
+    )
+    readerScroll(scroller, 200)
+
+    // A sidebar reflow rewraps the rows above the sampled one and slides it down.
+    rowTop = 300
+    act(() => { notify?.() })
+
+    expect(scroller.scrollTop).toBe(380)
+    expect(h.chatScroll.read()?.anchorKey).toBe(row.dataset.chatAnchorKey)
+  })
+
+  it('pinned dynamic-height updates select the latest Turn without reading row geometry', async () => {
     let notify: (() => void) | undefined
     let nextFrame = 0
     const frames = new Map<number, FrameRequestCallback>()
@@ -2689,13 +2764,19 @@ describe('ChatView', () => {
       return nextFrame
     })
     vi.stubGlobal('cancelAnimationFrame', (id: number) => { frames.delete(id) })
-    class ResizeObserverStub {
+    const RailObserver = ResizeObserver
+    class ResizeObserverStub extends RailObserver {
+      private readonly onResize: () => void
+
       constructor(callback: ResizeObserverCallback) {
-        notify = () => { callback([], this as unknown as ResizeObserver) }
+        super(callback)
+        this.onResize = () => { callback([], this) }
       }
 
-      observe = vi.fn()
-      disconnect = vi.fn()
+      override observe(element: Element): void {
+        super.observe(element)
+        if (element.closest('nav') === null) notify = this.onResize
+      }
     }
     vi.stubGlobal('ResizeObserver', ResizeObserverStub)
     const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
@@ -2708,7 +2789,8 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 3], [2, 6]]),
     })
     const view = render(<h.ChatView {...h.props} />)
-    const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
+    await view.findByRole('button', { name: '跳转到第 2 轮' })
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
     const metrics = installScrollMetrics(scroller, 1_000, 300)
     scroller.scrollTop = 700
     act(() => {
@@ -2755,11 +2837,11 @@ describe('ChatView', () => {
       const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
       const view = render(<h.ChatView {...h.props} />, { container: host })
       // Open jump uses the host, not the local .scroll node.
-      expect(host.scrollTop).toBe(2000)
+      expect(host.scrollTop).toBe(1500)
       readerScroll(host, 100)
       expect(view.getByLabelText('回到底部')).toBeTruthy()
       fireEvent.click(view.getByLabelText('回到底部'))
-      expect(host.scrollTop).toBe(2000)
+      expect(host.scrollTop).toBe(1500)
     } finally {
       host.remove()
     }
@@ -2772,12 +2854,13 @@ describe('ChatView', () => {
     Object.defineProperty(host, 'clientHeight', { value: 500, writable: true, configurable: true })
     Object.defineProperty(host, 'scrollTop', { value: 0, writable: true, configurable: true })
     document.body.appendChild(host)
-    let anchorTop = 80
+    let anchorOffset = 180
     vi.spyOn(host, 'getBoundingClientRect').mockImplementation(
       () => ({ top: 0, bottom: 500 } as DOMRect),
     )
     const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
       if (this.dataset.chatAnchorKey === 'fixture:user:1') {
+        const anchorTop = anchorOffset - host.scrollTop
         return { top: anchorTop, bottom: anchorTop + 40 } as DOMRect
       }
       return { top: 0, bottom: 40 } as DOMRect
@@ -2786,15 +2869,15 @@ describe('ChatView', () => {
       const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
       // Fresh open (nothing saved): the bottom jump stands.
       const view = render(<h.ChatView {...h.props} />, { container: host })
-      expect(host.scrollTop).toBe(2000)
+      expect(host.scrollTop).toBe(1500)
       // Reader scrolls up; the position is recorded continuously.
       readerScroll(host, 100)
       // View-tab switch away and back: the view unmounts, then remounts.
       view.rerender(<div />)
-      anchorTop = 560
+      anchorOffset = 660
       host.scrollTop = 0
       view.rerender(<h.ChatView {...h.props} />)
-      expect(host.scrollTop).toBe(580) // approximate 100 + the row's 480px reflow shift
+      expect(host.scrollTop).toBe(580)
       // The restored position is above the floor: follow stays disarmed.
       expect(view.getByLabelText('回到底部')).toBeTruthy()
     } finally {
@@ -2816,7 +2899,10 @@ describe('ChatView', () => {
     })
     document.body.appendChild(host)
     const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      if (this.dataset.chatAnchorKey === 'fixture:user:1') return { top: 300, bottom: 340 } as DOMRect
+      if (this.dataset.chatAnchorKey === 'fixture:user:1') {
+        const top = 1_700 - host.scrollTop
+        return { top, bottom: top + 40 } as DOMRect
+      }
       return { top: 0, bottom: 500 } as DOMRect
     })
     try {
@@ -2851,7 +2937,7 @@ describe('ChatView', () => {
       view.rerender(<div />)
       host.scrollTop = 0
       view.rerender(<h.ChatView {...h.props} />)
-      expect(host.scrollTop).toBe(2000)
+      expect(host.scrollTop).toBe(1500)
     } finally {
       host.remove()
     }
