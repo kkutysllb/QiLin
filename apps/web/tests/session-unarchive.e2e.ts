@@ -12,7 +12,7 @@ import { SessionId } from '@qilin/session'
 import {
   acknowledgeReloadConnectionLoss, launchWebScaffold, seedSession, watchConsole, type WebScaffold,
 } from './scaffold.ts'
-import { newEnglishPage, saveFailureShot } from './support.ts'
+import { newEnglishPage, openSettings, saveFailureShot } from './support.ts'
 
 // The seed is another scenario's committed fixture, reused read-only: this
 // spec needs any one cold Session row, not new recorded content.
@@ -105,9 +105,8 @@ describe('web e2e: archived sessions are restored from the Settings page', () =>
       .toContain(SessionId(SEED_ID))
 
     // The Settings page lists the archived Session behind its own search box.
-    await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const dialog = page.getByRole('dialog', { name: 'Settings' })
-    await dialog.waitFor({ timeout: 10_000 })
+    // The sidebar footer's account row is the product's only Settings entry.
+    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await dialog.getByRole('button', { name: 'Archived sessions' }).click()
     const search = dialog.getByRole('searchbox', { name: 'Search archived sessions' })
     await search.waitFor({ timeout: 10_000 })

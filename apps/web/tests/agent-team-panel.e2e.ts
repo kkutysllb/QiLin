@@ -156,7 +156,9 @@ describe('web e2e: Agent Teams panel', () => {
       expect(await trigger.evaluate(element => element === document.activeElement)).toBe(true)
       await page.keyboard.press('Enter')
       await panel.waitFor()
-      const outside = page.getByRole('button', { name: 'Settings', exact: true })
+      // The sidebar footer's account row is the product's only Settings
+      // entry point, so it is the reachable control outside the panel.
+      const outside = page.locator('[class*="footArea"] [aria-haspopup="menu"]')
       await outside.focus()
       expect(await panel.count()).toBe(1)
       await page.keyboard.press('Escape')
