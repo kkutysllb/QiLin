@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-documentpreview/README.md
 /:
-  en: ef50065f5ff17aa1
-  zh: ee5d2b7986739fca
+  en: 4e951e1a16a156cf
+  zh: 49a92f729c5f12ee
 /qilin-client-ui-sidebar-documentpreview:
   en: 7f134a73ec57776f
   zh: d03deead0ebff702
 /qilin-client-ui-sidebar-documentpreview/summary:
-  en: dc579dc1935a150f
-  zh: dd6e1ccf281213df
+  en: e53c6b2d5aa2c1a5
+  zh: 04898e8084c22e41
 /qilin-client-ui-sidebar-documentpreview/table-of-contents:
-  en: 60c4f8c4b08f3545
-  zh: bf6193641c1364dc
+  en: 0dd8c3a22e28aacf
+  zh: c27c11bf4b5cceba
 /qilin-client-ui-sidebar-documentpreview/what-it-registers:
   en: b8831a11853a6067
   zh: 9a2b999aac654924
@@ -21,11 +21,14 @@
   en: 3b4b340123bf608e
   zh: 267427348f4b80e4
 /qilin-client-ui-sidebar-documentpreview/how-it-reads:
-  en: 38d46828c52ad6c4
-  zh: 53b710629d253fd6
+  en: f5aeb43cb5f141b2
+  zh: a81bb3e87939c0a0
+/qilin-client-ui-sidebar-documentpreview/excel-preview:
+  en: 9588eca681e6d323
+  zh: 4f990e58ed5272d7
 /qilin-client-ui-sidebar-documentpreview/office-preview:
-  en: 94ae30b3ea610dee
-  zh: 5abaf9a2f764233b
+  en: 7bb5e350243dbb28
+  zh: 6b3eeb88684033b2
 /qilin-client-ui-sidebar-documentpreview/navigation:
   en: 5cd81a7b3cdc83bd
   zh: 4cdd1b7ede497925

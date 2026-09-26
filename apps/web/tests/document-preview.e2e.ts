@@ -664,7 +664,7 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
 
     const officeMenus: number[] = []
     const configurationGuide = 'Read failed: Office previews are unavailable. Enable the document preview service on the computer running QiLin.'
-    for (const extension of ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']) {
+    for (const extension of ['doc', 'docx', 'ppt', 'pptx']) {
       await openFile(`unavailable.${extension}`)
       expect(await preview.locator('[data-document-viewer-menu]').count()).toBe(0)
       await preview.getByText(configurationGuide, { exact: true }).waitFor({ timeout: 15_000 })
@@ -675,11 +675,17 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     await successShot(page, 'office-unavailable')
     sections.push([
       '## Office unavailable', '',
-      `- DOC, DOCX, XLS, XLSX, PPT, PPTX viewer menus: ${officeMenus.join(' | ')}`,
+      `- DOC, DOCX, PPT, PPTX viewer menus: ${officeMenus.join(' | ')}`,
       `- Guidance: ${configurationGuide}`,
       '- Binary text shown: false',
       '- Plain-text option and viewer picker: hidden',
     ].join('\n'))
+
+    const invalidWorkbook = 'This spreadsheet could not be opened. Check its format, contents, or password protection.'
+    for (const extension of ['xls', 'xlsx']) {
+      await openFile(`unavailable.${extension}`)
+      await preview.getByText(invalidWorkbook, { exact: true }).waitFor()
+    }
 
     await openFile('notes.unknown')
     const plainLines = preview.locator('[data-textpreview-line]')
@@ -740,10 +746,9 @@ describe.skipIf(MODE === 'record')('web e2e: Host Office preview', () => {
     await Promise.all([
       writeFile(join(cwd, 'renamed.docx'), 'This is plain text renamed to docx.'),
       writeFile(join(cwd, 'chinese.docx'), realOfficeBytes('docx', 'DSH Missing Preview Font')),
-      writeFile(join(cwd, 'chinese.xlsx'), realOfficeBytes('xlsx')),
       writeFile(join(cwd, 'chinese.pptx'), realOfficeBytes('pptx')),
-      ...(['doc', 'xls', 'ppt'] as const).map(extension => writeFile(join(cwd, `chinese.${extension}`), realOfficeBytes(extension))),
-      ...['doc', 'xls', 'ppt'].map(extension => writeFile(join(cwd, `renamed.${extension}`), 'Plain text is not a binary Office document.')),
+      ...(['doc', 'ppt'] as const).map(extension => writeFile(join(cwd, `chinese.${extension}`), realOfficeBytes(extension))),
+      ...['doc', 'ppt'].map(extension => writeFile(join(cwd, `renamed.${extension}`), 'Plain text is not a binary Office document.')),
     ])
     const convert = vi.spyOn(scaffold.ctx.officeToPdf, 'convert')
     try {
@@ -859,7 +864,7 @@ describe.skipIf(MODE === 'record')('web e2e: Host Office preview', () => {
         `- Document top inset after dismissal: ${topInset}px`,
       ].join('\n'), MODE)
       await successShot(page, 'office-docx')
-      for (const extension of ['doc', 'xls', 'xlsx', 'ppt', 'pptx']) {
+      for (const extension of ['doc', 'ppt', 'pptx']) {
         await openPreviewFile(column, filesTab, preview, `chinese.${extension}`)
         await preview.getByRole('img', { name: 'PDF page 1', exact: true }).waitFor({ state: 'visible', timeout: 60_000 })
         await expect.poll(async () => (await preview.locator('[data-pdf-text]').allTextContents()).join(''), { timeout: 30_000 }).toContain('中文文档')
@@ -869,23 +874,23 @@ describe.skipIf(MODE === 'record')('web e2e: Host Office preview', () => {
         await expectPdfResolution(canvas)
         await successShot(page, `office-${extension}`)
       }
-      expect(convert).toHaveBeenCalledTimes(6)
+      expect(convert).toHaveBeenCalledTimes(4)
       await openPreviewFile(column, filesTab, preview, 'chinese.docx')
       await preview.getByRole('img', { name: 'PDF page 1', exact: true }).waitFor({ state: 'visible' })
       await preview.getByRole('button', { name: 'Read the file again', exact: true }).click()
-      await expect.poll(() => convert.mock.calls.length).toBe(7)
+      await expect.poll(() => convert.mock.calls.length).toBe(5)
       await preview.getByRole('img', { name: 'PDF page 1', exact: true }).waitFor({ state: 'visible' })
       await openPreviewFile(column, filesTab, preview, 'renamed.docx')
       await preview.getByText('Read failed: This Office file cannot be previewed. It may be damaged, password protected, or have the wrong extension.', { exact: true }).waitFor({ timeout: 30_000 })
       expect(await preview.locator('[data-textpreview-line]').count()).toBe(0)
       await successShot(page, 'office-invalid')
-      expect(convert).toHaveBeenCalledTimes(8)
-      for (const extension of ['doc', 'xls', 'ppt']) {
+      expect(convert).toHaveBeenCalledTimes(6)
+      for (const extension of ['doc', 'ppt']) {
         await openPreviewFile(column, filesTab, preview, `renamed.${extension}`)
         await preview.getByText('Read failed: This Office file cannot be previewed. It may be damaged, password protected, or have the wrong extension.', { exact: true }).waitFor({ timeout: 30_000 })
         expect(await preview.locator('[data-textpreview-line]').count()).toBe(0)
       }
-      expect(convert).toHaveBeenCalledTimes(11)
+      expect(convert).toHaveBeenCalledTimes(8)
       expect(tripwire.pageErrors).toEqual([])
     } finally { convert.mockRestore() }
   })

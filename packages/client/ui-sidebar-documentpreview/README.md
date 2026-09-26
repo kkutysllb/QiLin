@@ -1,5 +1,5 @@
 ---
-description: "Document previews in the right Sidebar: shared file loading and controls, selectable Markdown, code, image, PDF, Office and HTML renderers, and plain-text fallback."
+description: "Document previews in the right Sidebar: shared file loading and controls, selectable Markdown, code, image, PDF, spreadsheet, Office and HTML renderers, and plain-text fallback."
 kind: "package-reference"
 ---
 
@@ -9,13 +9,14 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Preview readable files in the right Sidebar and choose among registered renderers without opening another tab. Markdown and code receive accumulated text pages; PDF, HTML, and common images receive complete bytes; unknown file extensions use plain text. Office documents convert locally to PDF. The tab owns loading, file status, renderer selection, wrap, and automatic or manual reload, while document bodies register through the same metadata registry and child slot. The Sidebar tab kind is `text`.
+Preview readable files in the right Sidebar and choose among registered renderers without opening another tab. Markdown and code receive accumulated text pages; PDF, HTML, common images, and spreadsheets receive complete bytes; unknown file extensions use plain text. Word and PowerPoint documents convert locally to PDF; spreadsheets open in the browser. The tab owns loading, file status, renderer selection, wrap, and automatic or manual reload, while document bodies register through the same metadata registry and child slot. The Sidebar tab kind is `text`.
 
 ## Table of Contents
 
 - [What it registers](#what-it-registers)
 - [Addresses](#addresses)
 - [How it reads](#how-it-reads)
+- [Excel preview](#excel-preview)
 - [Office preview](#office-preview)
 - [Navigation](#navigation)
 - [Model Experience](#model-experience)
@@ -61,10 +62,33 @@ Shared copy comes from `sidebarDocumentPreview`; each builtin renderer owns its 
 
 Initial reads, additional pages, and HTML/PDF/image preparation share an icon-only loading spinner that exposes its label to assistive technology and respects reduced-motion preferences; every wait before content exists centres the spinner in the pane, so opening a file shows one spinner in one position until the body appears. Loaded pages stay visible while another page loads. The PDF body loads its package-local `client.pdf.js` chunk only when a PDF preview mounts; PDF.js, its Worker source, and embedded support data stay out of the startup `client.js`. PDF pages fill the pane's width edge to edge as one vertical sequence and render lazily near the viewport; an unrendered page holds its place as a quiet 3:4 placeholder block. PDF.js’s official TextLayerBuilder manages selection boundaries and normalized copying over an aligned text layer. Its companion styles keep blank line breaks unhighlighted; alignment accounts for PDF page units, page rotation, and viewport resizing, and page disposal cancels both layers. Image-only PDFs contain no selectable text. Code previews show source line numbers by default without including them in copied text; plain text uses the same font size and line height as code. Code sits on the pane's own background rather than the chat card's fill; its banner is adjacent to a full-height inner scrollport, so both scrollbars begin below the copy control.
 
+<a id="excel-preview"></a>
+## Excel preview
+
+Open `.xlsx`, `.xls`, `.csv`, and `.tsv` directly in the browser with worksheet tabs, cell selection, copying, and a read-only formula bar. XLSX retains fonts, solid fills, borders, number formats, rich text, merged cells, row and column sizes, hidden rows/columns/sheets, and frozen headings. XLS retains saved values, formulas, number formats, merges, and available row/column metadata; fonts, borders, and frozen panes are unsupported. Workbooks display saved formula results without recalculating; missing results remain blank, and a compact formula-bar warning marks workbooks whose displayed results may be incomplete or inaccurate. The workbook viewport fills the preview pane and follows its size changes without reloading its sheets or selection. Worksheet tabs start at the left edge; overflowing tabs scroll with horizontal trackpad gestures or left/right navigation beside a separate zoom control. Spreadsheet controls retain dark text on their light background in both app themes. Pixel-based trackpad gestures pan the grid on both axes together, including diagonally, at the gesture's speed; frozen headings stay fixed. Reversing direction at a sheet edge retains the next gesture's movement. Selection statistics and inactive worksheet menu arrows are hidden. Frozen headings remain fixed while scrolling, without freeze dividers or drag handles. Spreadsheet preview does not call the Office conversion service.
+
+XLSX preview omits DrawingML parts from an in-memory copy before parsing and ignores worksheet drawing references. The original file and worksheet XML remain unchanged. A notice above the table lists detected charts, images, shapes, and conditional formatting that are not displayed, and recommends opening the workbook in a system application. Files without these detected features have no notice; formula warnings remain separate.
+
+CSV and TSV default to the spreadsheet viewer and also offer Plain text; CSV additionally offers syntax-highlighted Code. Commas and tabs delimit their fields respectively; quoted separators, escaped quotes, multiline fields, empty fields, and unequal row lengths are supported. The first row remains data. Values remain literal strings, including leading zeros, dates, booleans, and formula-looking text. Text files accept UTF-8 or BOM-marked UTF-16; invalid encoding receives conversion guidance. Malformed quoted fields fail the table preview rather than silently dropping data.
+
+Configure `excel` on the same `ui-sidebar-documentpreview` entry. These limits complement the Host's complete-file read limit; they do not cap browser process memory or decompression allocations.
+
+| Field | Default | Meaning |
+|---|---|---|
+| `excel.maxBytes` | `16777216` (16 MiB) | Maximum source file bytes |
+| `excel.maxCells` | `250000` | Maximum combined rectangular worksheet area, including empty cells |
+| `excel.timeoutMs` | `15000` | Maximum parser Worker lifetime in milliseconds |
+
+The lazy Excel chunk bundles FortuneSheet, ExcelJS for XLSX, SheetJS CE for XLS, and PapaParse for CSV/TSV. Package-local, React-independent adapters map parser output directly to FortuneSheet cells and share cell formatting and initial selection. Third-party license texts remain in the published chunk; SheetJS CE retains its Apache-2.0 terms. Each parse owns a disposable Worker and transfers a copy of retained file bytes; replacement, unmount, failure, and timeout terminate that Worker. The stylesheet is scoped to the Excel preview. Charts, drawings/images, pivot tables, conditional formatting, editing, recalculation, and export are unsupported; font availability, Excel column-width approximation, and theme-tint approximation can affect fidelity. Hyperlinks display as text without loading their targets. ExcelJS decodes entity spellings in cached XLSX string formula results again; a saved literal `&lt;` is displayed as `<`.
+
+The read-only formula bar displays formulas and cell text literally on one line, with horizontal scrolling for long content. Copying preserves an HTML table with escaped cell contents, including saved formula results. Retain these behaviors and worksheet selection when upgrading FortuneSheet.
+
+The pinned [ExcelJS patch](../../../patches/exceljs@4.4.0.patch) resolves the workbook, styles, shared strings, worksheets, comments, Tables, and VML through package relationships, including absolute and relative targets and ASCII case-equivalent part names, and recognizes SpreadsheetML and VML names by namespace URI. Strict OOXML SpreadsheetML and relationship URIs map to the same supported preview features; this is not full Strict conformance. XML parts accept UTF-8 and either byte order of UTF-16; CDATA contributes literal text. Drawing and conditional-format notices follow relationships regardless of part directories. Unreferenced `xl/drawings/*.xml` parts and their relationship files are also omitted, without adding notices; comment VML remains. Missing referenced parts and ambiguous case-equivalent ZIP entries fail the preview. Comments and Table metadata survive parsing but have no dedicated preview controls. The patch covers the Node sources and `dist/exceljs.js`; its browser entry selects that patched bundle. Dependency upgrades must preserve both entry paths and pass the independent-writer regressions in `tests/excel-opc.client.spec.ts` and `tests/excel-xml.client.spec.ts`.
+
 <a id="office-preview"></a>
 ## Office preview
 
-Open `.doc`, `.docx`, `.xls`, `.xlsx`, `.ppt`, and `.pptx` as PDF previews with the same loading state, zoom controls, cancellation, and selectable text as PDF files. The [Host provider](../../document/office-to-pdf/README.md) performs local conversion; invalid files, conversion failures, and timeouts receive localized messages. Missing Host services show configuration guidance.
+Open `.doc`, `.docx`, `.ppt`, and `.pptx` as PDF previews with the same loading state, zoom controls, cancellation, and selectable text as PDF files. The [Host provider](../../document/office-to-pdf/README.md) performs local conversion and keeps its spreadsheet conversion API for other consumers; invalid files, conversion failures, and timeouts receive localized messages. Missing Host services show configuration guidance.
 
 The [Web bundle](../../bundle/web-app/README.md) mounts this package as `ui-sidebar-documentpreview`. Configure its transient Office cache through that entry's `office` settings; the [configuration catalog](../../../docs/config-catalog.md#qilinclient-ui-sidebar-documentpreview) defines accepted values. Settings are embedded in each served page; reload the browser page after changing YAML.
 

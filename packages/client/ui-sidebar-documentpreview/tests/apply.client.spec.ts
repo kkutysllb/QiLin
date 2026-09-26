@@ -26,6 +26,7 @@ import { IMAGE_BODY_ID } from '../src/client/image/index.ts'
 import { LazyPdfBody } from '../src/client/pdf/LazyPdfBody.tsx'
 import { PDF_BODY_ID } from '../src/client/pdf/index.ts'
 import { CodeBody } from '../src/client/code/CodeBody.tsx'
+import { LazyExcelBody } from '../src/client/excel/LazyExcelBody.tsx'
 import { en, zh } from '../src/client/locales.ts'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { textFace } from '../src/client/face.ts'
@@ -98,6 +99,7 @@ describe('ui-sidebar-documentpreview apply', () => {
       ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/code', 'sidebarCodePreview', CodeBody],
       ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeBody],
       ['sidebar.right.tab.document.office.pdf', '@qilin/client-ui-sidebar-documentpreview/office', 'sidebarPdf', LazyPdfBody],
+      ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/excel', 'sidebarExcel', LazyExcelBody],
     ])
     expect(registered[0]?.store).toBeDefined()
     expect(typeof registered[0]?.inject).toBe('function')

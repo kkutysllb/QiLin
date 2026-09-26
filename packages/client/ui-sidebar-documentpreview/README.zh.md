@@ -1,5 +1,5 @@
 ---
-description: "右侧 Sidebar 的文档预览：共享文件加载与控件，可选 Markdown、代码、图片、PDF、Office 和 HTML 渲染器，并以纯文本兜底。"
+description: "右侧 Sidebar 的文档预览：共享文件加载与控件，可选 Markdown、代码、图片、PDF、表格、Office 和 HTML 渲染器，并以纯文本兜底。"
 kind: "package-reference"
 ---
 
@@ -9,13 +9,14 @@ kind: "package-reference"
 
 ## 概述
 
-在右侧 Sidebar 预览可读文件，无需另开 tab 即可切换已注册的渲染器。Markdown 和代码接收累计文本页；PDF、HTML 和常见图片接收完整字节；未知文件扩展名使用纯文本。Office 文档在本地转换为 PDF。tab 负责加载、文件状态、渲染器选择、换行以及自动或手动重新载入，文档正文通过同一元数据注册表与子 slot 注册。Sidebar tab 的 kind 为 `text`。
+在右侧 Sidebar 预览可读文件，无需另开 tab 即可切换已注册的渲染器。Markdown 和代码接收累计文本页；PDF、HTML、常见图片和表格接收完整字节；未知文件扩展名使用纯文本。Word 与 PowerPoint 文档在本地转换为 PDF；表格在浏览器内打开。tab 负责加载、文件状态、渲染器选择、换行以及自动或手动重新载入，文档正文通过同一元数据注册表与子 slot 注册。Sidebar tab 的 kind 为 `text`。
 
 ## 目录
 
 - [注册了什么](#what-it-registers)
 - [地址](#addresses)
 - [怎么读](#how-it-reads)
+- [Excel 预览](#excel-preview)
 - [Office 预览](#office-preview)
 - [导航](#navigation)
 - [模型体验](#model-experience)
@@ -61,10 +62,33 @@ PNG、JPEG、GIF、WebP、BMP、ICO 和 SVG 通过 Blob URL 在 `<img>` 静态�
 
 首次读取、追加页及 HTML/PDF/图片准备共用仅图标的加载 spinner，其标签暴露给辅助技术，并遵循减少动态效果偏好；内容出现前的每个等待都把 spinner 居中在面板中，打开文件到正文出现始终是同一位置的一个 spinner。下一页加载期间保留已显示的内容。PDF 正文仅在 PDF 预览挂载时加载包内 `client.pdf.js` chunk；PDF.js、Worker 源码和内嵌支持数据不会进入启动 `client.js`。PDF 页面贴边占满面板宽度，组成一个纵向连续序列并在接近视口时惰性渲染；未渲染的页以安静的 3:4 占位块保持位置。PDF.js 官方 TextLayerBuilder 在与画面重合的文字层上管理选区边界和复制文本规范化。配套样式不高亮空白换行；对齐同时考虑 PDF 页面单位、页面旋转与视口宽度变化，页面释放时取消两层渲染。纯图片 PDF 不包含可选取的文字。代码预览默认显示源码行号，但复制文本不包含行号；纯文本与代码使用相同字号和行高。代码直接坐在分栏自身的背景上，而不是会话卡片的填充色；复制条与占满剩余高度的内部滚动区相邻，因此横纵滚动条都从复制控件下方开始。
 
+<a id="excel-preview"></a>
+## Excel 预览
+
+直接在浏览器中打开 `.xlsx`、`.xls`、`.csv` 和 `.tsv`，支持工作表标签、单元格选择、复制和只读公式栏。XLSX 保留字体、纯色填充、边框、数字格式、富文本、合并单元格、行列尺寸、隐藏行列及工作表，以及冻结标题。XLS 保留已保存的值、公式、数字格式、合并及可用的行列元数据；不支持字体、边框和冻结窗格。工作簿显示已保存的公式结果而不重新计算；缺少的结果保持为空，公式栏旁的紧凑提示会标记显示结果可能不完整或不准确的工作簿。工作簿视图填满预览面板，并随面板尺寸变化自动调整，无需重新加载工作表或选择状态。工作表标签从左侧边缘开始排列；标签溢出时可用触控板横向手势或左右按钮滚动，缩放控件独立占位。表格控件在应用的明暗两种主题下均保持浅色背景和深色文字。触控板的像素位移可同时平移表格的横纵两个方向，包括斜向平移，移动距离跟随手势；冻结标题保持固定。到达工作表边缘后反向移动，仍会保留下一次手势的位移。隐藏选区统计栏及无效的工作表菜单箭头。冻结标题在滚动时保持固定，不显示冻结分隔线和拖拽条。表格预览不调用 Office 转换服务。
+
+XLSX 预览在解析前从内存副本中移除 DrawingML 部件，并忽略工作表的绘图引用。原文件和工作表 XML 保持不变。表格上方的提示列出实际检测到但未展示的图表、图片、形状和条件格式，并建议使用系统应用打开工作簿。未检测到这些内容的文件不显示此提示；公式提示保持独立。
+
+CSV 和 TSV 默认使用表格查看器，也可选择纯文本；CSV 还提供带语法高亮的 Code 预览。两者分别以逗号和制表符分隔字段，支持引号内分隔符、转义引号、多行字段、空字段和不等长行。首行仍作为数据。值保持为字面字符串，包括前导零、日期、布尔值和类似公式的文本。文本文件支持 UTF-8 或带 BOM 的 UTF-16；无效编码会显示转换提示。引号字段格式错误会使表格预览失败，不会静默丢弃数据。
+
+在同一个 `ui-sidebar-documentpreview` 条目上配置 `excel`。这些限制补充 Host 的完整文件读取限制，但不限制浏览器进程内存或解压分配量。
+
+| 字段 | 默认值 | 含义 |
+|---|---|---|
+| `excel.maxBytes` | `16777216`（16 MiB） | 最大源文件字节数 |
+| `excel.maxCells` | `250000` | 所有工作表矩形区域的最大合计单元格数，包含空单元格 |
+| `excel.timeoutMs` | `15000` | 解析 Worker 的最长存活时间，单位毫秒 |
+
+惰性 Excel chunk 打包 FortuneSheet、用于 XLSX 的 ExcelJS、用于 XLS 的 SheetJS CE，以及用于 CSV/TSV 的 PapaParse。包内独立于 React 的适配层将解析结果直接映射为 FortuneSheet 单元格，并复用单元格格式化和初始选区。第三方许可证文本保留在发布的 chunk 中；SheetJS CE 保留其 Apache-2.0 条款。每次解析拥有一个独立可释放的 Worker，并传输所保留文件字节的副本；内容替换、卸载、失败或超时都会终止该 Worker。样式表仅作用于 Excel 预览区域。暂不支持图表、绘图/图片、数据透视表、条件格式、编辑、重新计算和导出；字体可用性、Excel 列宽近似和主题色明暗近似会影响保真度。超链接显示为文本，不加载目标地址。ExcelJS 会再次解码 XLSX 字符串公式缓存结果中的实体写法；保存的字面文本 `&lt;` 会显示为 `<`。
+
+只读公式栏以单行按字面显示公式和单元格文本，长内容可横向滚动。复制时保留 HTML 表格，并转义单元格内容，包括已保存的公式结果。升级 FortuneSheet 时必须保留这些行为与工作表选区。
+
+固定版本的 [ExcelJS 补丁](../../../patches/exceljs@4.4.0.patch)通过包内关系解析工作簿、样式、共享字符串、工作表、批注、Table 和 VML，支持绝对及相对目标，以及 ASCII 大小写等价的部件名，并按命名空间 URI 识别 SpreadsheetML 和 VML 名称。Strict OOXML 的 SpreadsheetML 和关系 URI 映射到相同的已支持预览功能；这不代表完整支持 Strict 标准。XML 部件支持 UTF-8 及两种字节序的 UTF-16；CDATA 按字面文本读取。绘图和条件格式提示按关系查找内容，不依赖部件目录。未被引用的 `xl/drawings/*.xml` 部件及其关系文件也会被移除，但不会产生提示；批注 VML 保持不变。缺失引用部件或存在大小写等价的歧义 ZIP 条目会使预览失败。解析保留批注和 Table 元数据，但预览器没有专门展示它们的控件。补丁同时覆盖 Node 源码和 `dist/exceljs.js`，浏览器入口选择已修补的 bundle。升级依赖时必须保留两个入口的行为，并通过 `tests/excel-opc.client.spec.ts` 与 `tests/excel-xml.client.spec.ts` 中的独立写入器回归测试。
+
 <a id="office-preview"></a>
 ## Office 预览
 
-将 `.doc`、`.docx`、`.xls`、`.xlsx`、`.ppt` 和 `.pptx` 打开为 PDF 预览，使用与 PDF 文件相同的加载状态、缩放控件、取消和文本选择能力。[Host 提供方](../../document/office-to-pdf/README.zh.md)负责本地转换；无效文件、转换失败和超时会显示本地化消息。缺少 Host 服务时显示配置引导。
+将 `.doc`、`.docx`、`.ppt` 和 `.pptx` 打开为 PDF 预览，使用与 PDF 文件相同的加载状态、缩放控件、取消和文本选择能力。[Host 提供方](../../document/office-to-pdf/README.zh.md)负责本地转换，并为其他消费者保留电子表格转换 API；无效文件、转换失败和超时会显示本地化消息。缺少 Host 服务时显示配置引导。
 
 [Web bundle](../../bundle/web-app/README.zh.md) 以 `ui-sidebar-documentpreview` 挂载本包。通过该条目的 `office` 设置配置临时 Office 缓存；[配置目录](../../../docs/config-catalog.zh.md#qilinclient-ui-sidebar-documentpreview)定义可接受的值。设置注入到每个页面；修改 YAML 后重新加载浏览器页面。
 
