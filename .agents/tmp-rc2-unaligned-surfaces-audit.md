@@ -569,3 +569,22 @@ aria-hidden；`ui-trajectory` 的轨迹画布是 `role="img" + aria-label`，属
 2. **O（Office 随包 runtime）**：QiLin 是否要随包带 Office 能力？最小对齐 = 移植 `tool-workspace-dependencies` 新包 + sdk-app 补两行 + `python/sdk-runtime` 资源面。**建议**：做（属上游默认随包能力，且 `skill-office` 现在是「在树里但没人挂」的半成品状态，比缺包更糟——门禁与文档都看不出它没接）。
 
 拍板后我按「先无依赖项、后依赖项」的顺序继续。
+
+### ③ 的三条口径已拍板（2026-09-26）与其落地顺序
+
+用户答复：**① 补 zoom 的 e2e 覆盖面；② C1 依赖口径照做（即引入 fortune-sheet ×2 + exceljs + DOMPurify 等，把表格预览与静态 HTML 预览一并完成）；③ O 随包带 Office。**
+
+落地顺序（同工作树，**串行**执行，避免两个 writer 冲突）：
+
+| 序 | 波次 | 范围 | 依赖 | 状态 |
+|---|---|---|---|---|
+| 1 | C1 缩放 | `src/client/zoom/*` + image/pdf/office 接入 | 无 | **已完成**（提交 subject：`feat(client): 文档预览移植上游缩放能力（zoom 视口与浮动控件）`） |
+| 2 | C1 本地图片 | `markdown/path-images.ts` + MarkdownBody | 无 | **已完成**（`feat(client): 文档预览移植上游 Markdown 本地图片解析`） |
+| 3 | C1 资源刷新 | `document/resource-group.ts` + store/contract/face/TextPreview/HtmlBody/OfficeBody 整链 | 无 | **已完成**（`feat(client): 文档预览移植上游资源变更刷新（ResourceGroup 与自动刷新）`） |
+| 4 | C1 席位 | `document.{actions,unpreviewable,action}` 三席位 + ui-open-in-app occupant | 无 | 进行中 |
+| 5 | zoom e2e | 上游同提交的四个场景（底部揭示/隐藏、预设切换、图片 200%、Office 捏合 166%），需新增 golden 行并 refresh | 无 | 待办（已拍板要做） |
+| 6 | C1 表格预览 | `src/client/excel/**`（16 文件）+ 13 个 xlsx 夹具 + fortune-sheet ×2 / exceljs 三个 vendored 补丁 + licenses + README | **重** | 已拍板 |
+| 7 | C1 静态 HTML | `html/basic-document.ts`、BasicHtmlFrame、interactivePreview、frameName、DOMPurify | **重** | 已拍板 |
+| 8 | O Office | `skill/tool-workspace-dependencies` 新包 + sdk-app 两行（`workspace-dependencies`/`skill-office`）+ `python/sdk-runtime` 资源面 | 中 | 已拍板 |
+
+**执行纪律（沿用本仓既有做法）**：每个波次先出**差分报告**再动手；只搬该能力增量、其它未对齐项只报告；每波跑包级 vitest + `tsc` + `test:docs` + 改动路径 oxlint；golden 不盲刷（只刷相关 spec 并逐条解释 diff）；探针不进 `apps/web/tests/`；不边跑 e2e 边 build；每波结束时由主会话跑一次**全量 replay 泳道**做认证。
