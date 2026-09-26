@@ -15,10 +15,10 @@
 - button "Thought for a while" [expanded]:
   - text: Thought for a while
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - paragraph: partial
 - text: Stopped
 - button "Copy":

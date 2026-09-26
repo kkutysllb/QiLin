@@ -13,7 +13,7 @@ import {
   compareOrRefreshGolden, fixtureUserPrompts, launchWebScaffold, recordFixture,
   watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, newEnglishPage } from './support.ts'
+import { connectFreshWorkspace, expandTurnProcesses, newEnglishPage } from './support.ts'
 
 const DIR = fileURLToPath(new URL('../../../snapshots/web/present', import.meta.url))
 const FIXTURE = join(DIR, 'session.v3.jsonl')
@@ -128,10 +128,13 @@ fs.appendFileSync(${JSON.stringify(openLog)}, JSON.stringify({ path, action, con
       for (const [name, content] of [['report.txt', 'EDITED_REPORT'], ['说明.txt', 'EDITED_NOTE']] as const) {
         const mention = page.locator('code').getByRole('button', { name: `Open ${name} in sidebar`, exact: true })
         await mention.click()
-        const preview = column.locator('[data-document-preview]')
-        await expect.poll(() => preview.getAttribute('data-textpreview-url'))
-          .toBe(`qilin-resource://file/session/${sessionId}/${encodeURIComponent(name)}`)
-        await preview.getByText(content, { exact: true }).waitFor()
+        // A known text extension is claimed by the editable workbench, which
+        // outranks the read-only viewer; the mention's own spelling is the
+        // session-relative address, and the editor reads the file the turn
+        // just wrote, so the edited bytes are what the surface holds.
+        await column.locator('[data-file-state="ready"]').waitFor({ timeout: 15_000 })
+        await expect.poll(() => column.locator('[data-file-path]').textContent()).toBe(name)
+        await expect.poll(() => column.locator('[data-file-host] .cm-content').innerText()).toContain(content)
         await mention.click()
         expect(await column.locator('[data-dockkit-tab]').filter({ hasText: name }).count()).toBe(1)
       }
@@ -176,7 +179,9 @@ fs.appendFileSync(${JSON.stringify(openLog)}, JSON.stringify({ path, action, con
     if (MODE !== 'record') {
       const aria = await captureExpandedTurnProcessAria(page, '[class*="centerCol"]', scaffold.workspaceCwd)
       await compareOrRefreshGolden(join(DIR, 'ui.expected.md'), aria, MODE)
-      await page.locator('[data-turn-process]').click()
+      // A completed Turn folds its process rows into a group seat, so the
+      // status rows exist only after the Turn process and that seat open.
+      await expandTurnProcesses(page)
       const failed = page.locator('[data-tool="present"][data-state="error"]')
       const delivered = page.locator('[data-tool="present"][data-state="ok"]')
       expect(await failed.count()).toBe(1)

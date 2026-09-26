@@ -1,5 +1,8 @@
 /** Chromium acceptance of the shipped Web profile's actual Client plugin and module registries. */
 
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { FiberState } from '@qilin/kylin'
 import type { Context, Plugin, RegistryService } from '@qilin/kylin'
 import type { ClientModuleLoader, ClientModuleLoaderTarget } from '@qilin/client-modules/client'
@@ -48,6 +51,14 @@ function experimentalClientReferences(roster: Awaited<ReturnType<typeof readClie
 }
 
 it('activates the actual default Client registry without experimental packages', async (test) => {
+  // The shipped composition gates the application behind a local account, so a
+  // fresh world serves the landing page instead of the application document.
+  // This scenario drives the Client registry, not sign-in: the gate is off, as
+  // in every other ordinary Web scenario (see the scaffold's own accounts row).
+  const patchDirectory = await mkdtemp(join(tmpdir(), 'qilin-default-isolation-'))
+  const patchPath = join(patchDirectory, 'accounts-off.patch.yml')
+  await writeFile(patchPath, '- id: accounts\n  config:\n    enabled: false\n')
+  test.onTestFinished(() => rm(patchDirectory, { recursive: true, force: true }))
   await withDefaultWeb(test, async ({ url, request }) => {
     const browser = await chromium.launch({ timeout: test.task.timeout })
     test.onTestFinished(async () => { await browser.close() })
@@ -108,5 +119,5 @@ it('activates the actual default Client registry without experimental packages',
     } finally {
       await browser.close()
     }
-  })
+  }, { patches: [patchPath] })
 })

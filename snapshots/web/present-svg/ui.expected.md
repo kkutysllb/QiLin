@@ -8,15 +8,17 @@
 - button "2 次工具调用 · 1 条消息" [expanded]:
   - text: 2 次工具调用 · 1 条消息
   - img
-- button "上下文注入 @qilin/system-prompt":
+- button "上下文注入 runtime-context":
   - img
   - img
-  - text: 上下文注入 @qilin/system-prompt
+  - text: 上下文注入 runtime-context
+- button "已完成分析" [expanded]
 - button "思考 The user wants a simple SVG diagram of the von Neumann architecture, saved as von-neumann.svg. Let me create a clean SVG showing CPU (control unit, ALU), memory, input, and output with bidirectional data/control buses.":
   - img
   - img
   - text: 思考 The user wants a simple SVG diagram of the von Neumann architecture, saved as von-neumann.svg. Let me create a clean SVG showing CPU (control unit, ALU), memory, input, and output with bidirectional data/control buses.
 - paragraph: 我来创建一个冯诺依曼架构的 SVG 示意图。
+- button "已写入文件并调用工具" [expanded]
 - button "写入 von-neumann.svg +83 -0":
   - img
   - img

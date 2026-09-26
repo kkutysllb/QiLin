@@ -67,6 +67,25 @@ function authenticatedWeb(launchUrl: string): Promise<{ origin: string; cookie: 
 
 const comboMapUrl = (url: string): string => url.replace(/\/client\.js(?=,|&rev=)/g, '/client.js.map')
 
+/**
+ * Turn the shipped account gate off for the transport-focused keyless
+ * scenarios. A fresh Harness home enables `accounts-local`, whose session
+ * authority answers the launch-token device cookie with a session refusal on
+ * every non-auth /api route; accounts-auth.e2e.ts owns the sign-in surface that
+ * gate guards. Writing the row into the harness home's patch layer is the same
+ * move the scaffold lane and apps/cli/tests/web-auth.e2e.ts make.
+ * @param qilinHome - the harness home the spawned CLI reads its patch layer from.
+ */
+function disableAccountGate(qilinHome: string): void {
+  mkdirSync(qilinHome, { recursive: true })
+  writeFileSync(join(qilinHome, 'cordis.patch.yml'), [
+    '- id: accounts',
+    '  config:',
+    '    enabled: false',
+    '',
+  ].join('\n'))
+}
+
 function waitForReadyLine(child: ChildProcess): Promise<string> {
   return new Promise((resolveReady, reject) => {
     let out = ''
@@ -312,6 +331,8 @@ describe('qilin web keyless CLI smoke', () => {
   it('serves a usable app from two immutable plugin batches', async () => {
     requireDist()
     const sessionsDir = mkdtempSync(join(tmpdir(), 'qilin-web-keyless-'))
+    const qilinHome = join(sessionsDir, '.qilin')
+    disableAccountGate(qilinHome)
     const tsxLoader = pathToFileURL(createRequire(join(REPO_ROOT, 'package.json')).resolve('tsx')).href
     const child = spawn(
       process.execPath,
@@ -321,7 +342,7 @@ describe('qilin web keyless CLI smoke', () => {
         env: {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-no-call',
-          QILIN_HOME: join(sessionsDir, '.qilin'),
+          QILIN_HOME: qilinHome,
           QILIN_AGENTS_HOME: join(sessionsDir, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
@@ -331,7 +352,10 @@ describe('qilin web keyless CLI smoke', () => {
     let browser: Browser | undefined
     try {
       const readyUrl = await waitForReadyLine(child)
-      expect(readyUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/\?token=[A-Za-z0-9_-]+$/u)
+      const ready = new URL(readyUrl)
+      expect(ready.origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u)
+      expect(ready.pathname).toBe('/workspace')
+      expect(ready.searchParams.get('token')).toMatch(/^[A-Za-z0-9_-]+$/u)
       expect((await fetch(readyUrl, { redirect: 'manual' })).status).toBe(303)
       browser = await chromium.launch({ headless: true })
       const page = await newEnglishPage(browser)
@@ -363,7 +387,7 @@ describe('qilin web keyless CLI smoke', () => {
       expect(batchPaths).toContainEqual(expect.stringMatching(
         /^\/plugins\/\?\?@qilin\/client-modules\/client\.js&rev=[a-f\d]{12}$/,
       ))
-      const readyOrigin = new URL(readyUrl).origin
+      const readyOrigin = ready.origin
       expect([...cacheHeaders.values()]).toEqual([
         'public, max-age=31536000, immutable',
         'public, max-age=31536000, immutable',
@@ -402,6 +426,8 @@ describe('qilin web keyless CLI smoke', () => {
   it('routes web runtime context and workspace instructions through the real CLI request', async () => {
     requireDist()
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-workspace-'))
+    const qilinHome = join(workspace, '.qilin')
+    disableAccountGate(qilinHome)
     mkdirSync(join(workspace, '.git'))
     writeFileSync(join(workspace, 'AGENTS.md'), 'web-workspace-context-probe\n')
 
@@ -440,7 +466,7 @@ describe('qilin web keyless CLI smoke', () => {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-workspace',
           DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
-          QILIN_HOME: join(workspace, '.qilin'),
+          QILIN_HOME: qilinHome,
           QILIN_AGENTS_HOME: join(workspace, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
@@ -507,6 +533,8 @@ describe('qilin web keyless CLI smoke', () => {
   it('retries a partial transport failure through the shipped Web composition', async () => {
     requireDist()
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-retry-'))
+    const qilinHome = join(workspace, '.qilin')
+    disableAccountGate(qilinHome)
     const promptMarker = 'WEB_RETRY_REQUEST'
     const recoveredMarker = 'WEB_RETRY_RECOVERED'
     let mainAttempts = 0
@@ -545,7 +573,7 @@ describe('qilin web keyless CLI smoke', () => {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-retry',
           DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
-          QILIN_HOME: join(workspace, '.qilin'),
+          QILIN_HOME: qilinHome,
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -592,6 +620,8 @@ describe('qilin web keyless CLI smoke', () => {
   it('QILIN_TOOLS_MODE=ptc collapses the provider wire tools to run_code with the SDK prompt section', async () => {
     requireDist()
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-ptc-'))
+    const qilinHome = join(workspace, '.qilin')
+    disableAccountGate(qilinHome)
 
     interface PtcModeProviderRequest {
       system?: string
@@ -626,7 +656,7 @@ describe('qilin web keyless CLI smoke', () => {
           DEEPSEEK_API_KEY: 'keyless-web-ptc',
           DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
           QILIN_TOOLS_MODE: 'ptc',
-          QILIN_HOME: join(workspace, '.qilin'),
+          QILIN_HOME: qilinHome,
           QILIN_AGENTS_HOME: join(workspace, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },
@@ -674,6 +704,11 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
   beforeAll(async () => {
     requireDist()
     sessionsDir = mkdtempSync(join(tmpdir(), 'qilin-web-w5-'))
+    // The shipped flow list is not the account surface: the gate would replace
+    // the console with its sign-in document, so this scenario runs with it off
+    // like the transport scenarios above.
+    const qilinHome = join(sessionsDir, '.qilin')
+    disableAccountGate(qilinHome)
     const port = await probeFreePort()
     // tsx boot mirrors the runtime half of the root qilin script. Isolate
     // the host-level Harness and shared-agent homes inside the temp world; tsx
@@ -695,7 +730,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
         cwd: sessionsDir,
         env: {
           ...process.env,
-          QILIN_HOME: join(sessionsDir, '.qilin'),
+          QILIN_HOME: qilinHome,
           QILIN_AGENTS_HOME: join(sessionsDir, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
         },

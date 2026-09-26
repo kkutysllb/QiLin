@@ -12,10 +12,13 @@
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
 - button "Copy":
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Thought for a while" [expanded]:
+  - text: Thought for a while
+  - img
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - group:
   - status: Retried model request (2/2) · {{duration}}
 - status:

@@ -13,19 +13,16 @@
 - button "Copy":
   - img
 - tooltip "Copy"
-- button "Context injection @qilin/system-prompt":
+- button "1 tool call · 1 message" [expanded]:
+  - text: 1 tool call · 1 message
+  - img
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
-- button "Think The user wants me to begin with \"Reading the workspace now.\" and call bash with \"echo alpha\" in the same message. Then after the tool result, reply with the single word DONE and stop.":
-  - img
-  - img
-  - text: Think The user wants me to begin with "Reading the workspace now." and call bash with "echo alpha" in the same message. Then after the tool result, reply with the single word DONE and stop.
+  - text: Context injection runtime-context
+- button "Analysis completed"
 - paragraph: Reading the workspace now.
-- button "Bash Print alpha to stdout":
-  - img
-  - img
-  - text: Bash Print alpha to stdout
+- button "Ran commands"
 - paragraph: partial
 - status: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions"

@@ -121,15 +121,26 @@ class FakeServer {
  */
 export class ServerResponse {}
 
+/** Node's `http.createServer` accepts an options object before the request listener. */
+export interface CreateServerOptions {
+  /** Accepted for signature parity; the tunnel synthesizes requests, so no header limit applies. */
+  readonly maxHeaderSize?: number
+}
+
 /**
  * Create the fake server and retain its request listener for the tunnel.
- * @param listener - the request listener the webserver installs.
+ * @param optionsOrListener - the request listener, or Node's leading options object.
+ * @param listener - the request listener when options come first.
  * @returns the fake Server.
  */
-export function createServer(listener?: RequestListener): FakeServer {
-  if (listener !== undefined) {
-    captured = listener
-    for (const resolve of waiting) resolve(listener)
+export function createServer(
+  optionsOrListener?: CreateServerOptions | RequestListener,
+  listener?: RequestListener,
+): FakeServer {
+  const requestListener = typeof optionsOrListener === 'function' ? optionsOrListener : listener
+  if (requestListener !== undefined) {
+    captured = requestListener
+    for (const resolve of waiting) resolve(requestListener)
     waiting.clear()
   }
   return new FakeServer()

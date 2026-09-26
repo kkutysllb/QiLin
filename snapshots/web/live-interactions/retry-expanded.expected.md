@@ -15,12 +15,13 @@
 - button "Thought for a while" [expanded]:
   - text: Thought for a while
   - img
-- button "Context injection @qilin/system-prompt":
+- button "Context injection runtime-context":
   - img
   - img
-  - text: Context injection @qilin/system-prompt
+  - text: Context injection runtime-context
 - group:
   - status: Retried model request (1/5) · {{duration}}
+- button "Analysis completed" [expanded]
 - button "Think The user is asking for a one-sentence description of event sourcing. This is a straightforward knowledge question that doesn't require any skill loading or tool calls.":
   - img
   - img

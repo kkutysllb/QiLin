@@ -12,14 +12,20 @@
 - text: Begin your reply with the plain sentence "Reading the workspace now." as text, and in that same message call the bash tool with the command "echo alpha". After the tool result, reply with the single word DONE and stop. {{clock}}
 - button "Copy":
   - img
-- button "1 tool call · 1 message":
+- button "1 tool call · 1 message" [expanded]:
   - text: 1 tool call · 1 message
   - img
+- button "Context injection runtime-context":
+  - img
+  - img
+  - text: Context injection runtime-context
+- button "Analysis completed"
+- paragraph: Reading the workspace now.
+- button "Ran commands"
 - paragraph: partial
 - text: Stopped
 - button "Copy":
   - img
-- tooltip "Copy"
 - button "Good response":
   - img
 - button "Bad response":

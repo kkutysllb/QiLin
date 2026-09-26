@@ -16,7 +16,7 @@ import {
   webSnapshotMode,
   type WebScaffold,
 } from './scaffold.ts'
-import { expandTurnProcesses, newEnglishPage, saveFailureShot } from './support.ts'
+import { expandTurnProcesses, newEnglishPage, openTrajectoryTab, saveFailureShot } from './support.ts'
 
 const EXPECTED_DIR = fileURLToPath(new URL('./expected/thinking-markdown', import.meta.url))
 const UI_EXPECTED = fileURLToPath(new URL('./expected/thinking-markdown/ui.expected.md', import.meta.url))
@@ -226,13 +226,22 @@ describe('web e2e: secondary Thinking Markdown', () => {
       .evaluate(element => Number.parseFloat(getComputedStyle(element).fontSize))
     expect(answerSize).toBeGreaterThan(Number.parseFloat(summaryStyle.fontSize))
     await page.setViewportSize({ width: 1680, height: 1000 })
-    await page.locator('[data-conversation-scroll]').evaluate((host) => {
+    // The reasoning disclosure sits in the process group's body, which is the
+    // scrollport its sticky header pins to; the conversation host does not
+    // scroll at all once the group owns a bounded body.
+    const groupScroll = thinking.locator('xpath=ancestor::*[@data-step-process-body][1]')
+    await expect.poll(() => groupScroll.evaluate((element) => {
+      if (!element.isConnected) return false
+      element.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' })
+      return true
+    }), { timeout: 10_000 }).toBe(true)
+    await groupScroll.evaluate((host) => {
       const row = host.querySelector('[data-variant="think"] tbody tr:nth-child(12)')
       if (row === null) throw new Error('tall Thinking table row missing')
       host.scrollTop += row.getBoundingClientRect().top - host.getBoundingClientRect().top
     })
     await expect.poll(() => toggle.evaluate((button) => {
-      const host = button.closest('[data-conversation-scroll]')
+      const host = button.closest('[data-step-process-body]')
       const table = button.closest('[data-variant="think"]')?.querySelector('table')
       if (host === null || table === null || table === undefined) throw new Error('Thinking scroll context missing')
       const buttonRect = button.getBoundingClientRect()
@@ -252,9 +261,11 @@ describe('web e2e: secondary Thinking Markdown', () => {
     expect(await summary.evaluate(element => getComputedStyle(element).textOverflow)).toBe('ellipsis')
 
     await page.setViewportSize({ width: 1680, height: 1000 })
-    await page.getByRole('tab', { name: 'Trajectory', exact: true }).click()
-    await page.locator('tr[data-trajectory-row-key]', { hasText: DONE }).click()
-    const details = page.getByRole('tabpanel')
+    // The ledger's only seat is the right Sidebar and its inspection pane is the
+    // Event details landmark; the conversation header carries no view tabs.
+    await openTrajectoryTab(page)
+    await page.locator('[data-trajectory-scroll] tr[data-trajectory-row-key]', { hasText: DONE }).click()
+    const details = page.getByRole('complementary', { name: 'Event details' })
     const trajectoryToggle = details.getByRole('button', { name: 'Thinking', exact: true })
     if (await trajectoryToggle.getAttribute('aria-expanded') !== 'true') await trajectoryToggle.click()
     const trajectoryHeading = details.locator('[data-markdown-variant="compact"] h1')

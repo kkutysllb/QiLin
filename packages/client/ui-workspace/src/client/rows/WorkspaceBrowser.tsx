@@ -1103,7 +1103,10 @@ export function WorkspaceBrowser({
       setSearchOnExpand(true)
       expandSidebar()
     } else searchInput.current?.focus({ preventScroll: true })
-  }, [closeAddWorkspace, expandSidebar, shortcutState.searchRequest, wide])
+    // Only a new request opens the search: the counter never resets, so listing
+    // the unstable sidebar callbacks re-runs this effect on unrelated renders
+    // and reopens a search the user just closed.
+  }, [shortcutState.searchRequest])
   useEffect(() => {
     if (!shortcutState.addRequested) return
     closeAddWorkspace()

@@ -20,7 +20,9 @@ import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, newEnglishPage, openSettings, saveFailureShot } from './support.ts'
+import {
+  connectFreshWorkspace, expandTurnProcesses, newEnglishPage, openSettings, saveFailureShot,
+} from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/turn-tail-actions', import.meta.url))
 const FIXTURE = join(SNAPSHOT_DIR, 'session.v3.jsonl')
@@ -103,6 +105,22 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     return { settled }
   }
 
+  /**
+   * Switch the Work-details preference through the Settings row's own
+   * selector; the row's current label is read back before the menu opens, so a
+   * stale value fails instead of silently no-op selecting.
+   * @param current - label the row shows before the switch.
+   * @param next - label of the mode to select.
+   */
+  async function selectWorkDetails(current: string, next: string): Promise<void> {
+    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
+    const row = dialog.getByText('Work details', { exact: true }).locator('../..')
+    await row.getByRole('button', { name: current, exact: true }).click()
+    await page.getByRole('menuitem', { name: next, exact: true }).click()
+    await row.getByRole('button', { name: next, exact: true }).waitFor({ timeout: 10_000 })
+    await page.keyboard.press('Escape')
+  }
+
   it.skipIf(MODE !== 'record')('records the narrate-then-call turn live through the composer', async () => {
     await launch()
     onTestFailed(() => saveFailureShot(page, 'web-e2e-turn-tail-actions-record'))
@@ -135,7 +153,12 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     // The marker IS the synchronization: the second call is provably parked,
     // so the first step's message and tool result are already durable.
     await expect.poll(() => existsSync(marker), { timeout: 20_000 }).toBe(true)
-    expect(await page.locator('[data-turn-process]').count()).toBe(0)
+    // The parked Turn already seats its live process fold, held open so the
+    // running rows stay visible; the disclosure only becomes the reader's at
+    // turn/end, when the answer takes the tail.
+    const runningProcess = page.locator('[data-turn-process]')
+    expect(await runningProcess.count()).toBe(1)
+    expect(await runningProcess.getAttribute('aria-expanded')).toBe('true')
     await expect.poll(
       () => page.getByRole('status').filter({ hasText: 'QiLin...' }).isVisible(),
       { timeout: 10_000 },
@@ -243,7 +266,7 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     expect(tripwire.warnings).toEqual([])
   }, 60_000)
 
-  it.skipIf(MODE === 'record')('switches a completed Turn between Compact and Normal', async () => {
+  it.skipIf(MODE === 'record')('switches a completed Turn between Standard and Full detail', async () => {
     await launch()
     onTestFailed(() => saveFailureShot(page, 'web-e2e-turn-process-setting'))
     const { settled } = await sendPrompt()
@@ -254,20 +277,17 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     expect(await process.getAttribute('aria-expanded')).toBe('false')
     expect(await tool.isVisible()).toBe(false)
 
-    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-    await dialog.getByRole('button', { name: 'Compact', exact: true }).click()
-    await page.getByRole('menuitem', { name: 'Normal', exact: true }).click()
-    await page.keyboard.press('Escape')
-
+    // Folding belongs to the work-details mode: only the mode that keeps every
+    // step inline (Full detail) drops the whole-Turn control. The two-mode
+    // generation's saved `normal` is no longer offered, so the switch runs
+    // against the modes the selector actually lists.
+    await selectWorkDetails('Standard', 'Full detail')
     await expect.poll(() => process.count(), { timeout: 10_000 }).toBe(0)
     await tool.waitFor({ state: 'visible', timeout: 10_000 })
     await expect.poll(async () => readFile(join(scaffold!.harnessHome, 'settings.yaml'), 'utf8'), { timeout: 5_000 })
-      .toMatch(/ui-chat:\n\s+transcriptView: normal/)
+      .toMatch(/ui-chat:\n\s+transcriptView: verbose/)
 
-    const restored = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-    await restored.getByRole('button', { name: 'Normal', exact: true }).click()
-    await page.getByRole('menuitem', { name: 'Compact', exact: true }).click()
-    await page.keyboard.press('Escape')
+    await selectWorkDetails('Full detail', 'Standard')
     await process.waitFor({ timeout: 10_000 })
     expect(await process.getAttribute('aria-expanded')).toBe('false')
     expect(await tool.isVisible()).toBe(false)
@@ -280,7 +300,13 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-turn-tail-actions-focused'))
     const { settled } = await sendPrompt()
     const tool = page.getByRole('button', { name: 'Bash Print alpha to stdout' })
-    await tool.waitFor({ timeout: 30_000 })
+    // A live Turn holds its process fold open, but the step's rows still seat
+    // inside a collapsed group, and a role locator skips rows hidden that way;
+    // the row's own attribute is what exists while it is hidden, and opening
+    // the seats is what the reader does before focusing a member.
+    await page.locator('[data-sample="bash"]').waitFor({ state: 'attached', timeout: 30_000 })
+    await expandTurnProcesses(page)
+    await tool.waitFor({ state: 'visible', timeout: 10_000 })
     await tool.focus()
     expect(await tool.evaluate(element => element.ownerDocument.activeElement === element)).toBe(true)
     await settled

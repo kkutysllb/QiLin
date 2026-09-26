@@ -3,8 +3,9 @@
  *
  * A resource type in the `builtin` band claiming every session-scoped file
  * address `file-guard` accepts — text and code extensions only, so images,
- * PDFs, markdown, and unknown extensions fall through to the `text` fallback
- * viewer. One tab opens per address: the registry's default, and the reason
+ * PDFs, and unknown extensions fall through to the `text` fallback viewer.
+ * Markdown is a text extension, so this editor claims it and the preview
+ * control opens the rendered document. One tab opens per address: the registry's default, and the reason
  * the type declares no `single` and no guide entry.
  */
 import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
