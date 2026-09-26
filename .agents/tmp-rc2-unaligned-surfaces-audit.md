@@ -359,8 +359,147 @@ _（历史条目：门禁盲区四处与 `useDisclosure?` 那条红均已在批�
 **(a)/(b) 两条断言的收敛**：(a) 轨迹账本几何改写为右侧栏 dock 契约（保留 `paneOverflowX`/`paneScrollableWidth`、新增 `ledgerScrollSeat`；删掉的两条——会话滚动宿主 relative 与 composer seat absolute——逐条写明「输入框不会进入右栏，无等价物」）；(b) header 下载入口是批次三既定移除，用例收敛为只覆盖仍存在的 `/export` 斜杠路径（保留 ZIP 内容与命令生命周期断言）。
 
 **收尾复验（提交前）**：12 项门禁全 PASS（含 `verify-repository-references`）；`test:docs` 20/20；双面 `tsc -b` 零错误；**17 条受影响的 e2e 全绿**（86 passed / 2 skipped，另修掉 `ptc-round` 最后一处过期轨迹入口定位后 7/7）；staged lint 0 error、whitespace 干净。
-**提交**：`672c46152f fix(client): 修 reload 挂死/过程组重复渲染/分支锚点/todo 详情，并适配分组后的 web e2e 泳道`（46 文件，+1635/−247）。
+**提交**：`fix(client): 修 reload 挂死/过程组重复渲染/分支锚点/todo 详情，并适配分组后的 web e2e 泳道`（46 文件，+1635/−247）。
 
 **仍未覆盖/未做的**：web 泳道其余约 107 条 spec 本次未跑（只跑了受分组影响的 17 条）；`cordis-tool-round`/`schedule-catalog` 的 pin「陈旧但无人断言」；`complex-history.perf` 的 v4 合成日志失败（opt-in 非 CI）；`navigation-panes` 头部下载面已按产品移除收敛。
 
 **其它处置**：`snapshots/web/**/session.v4.jsonl` 是 jsonl 持久化打开历史代时发布的兄弟文件（每次运行都重生成，`snapshots/web/**` 无消费者）→ 已加入 `.gitignore` 并删除现有 3 个；`snapshots/session/*` 里 4 个受跟踪的 v4 保留。另：新回归测试里 family C 引入的一处 `as unknown` 被 `verify-no-unknown-casts` 拦下，已改成 `makeTranslate(zh, commonZh)` 显式类型。
+
+---
+
+## 独立项目：web e2e 泳道复原（2026-09-26 起）
+
+### 存量规模与归因（已用实验证明，非估计）
+
+全量 replay（`QILIN_SNAPSHOT=replay pnpm run test:web:built`，串行 43.8 分钟）：
+
+| 指标 | 数值 |
+|---|---|
+| 文件 | **72 failed / 55 passed / 1 skipped（128）** |
+| 测试 | **135 failed / 297 passed / 29 skipped（461）** |
+| 失败形态 | `AssertionError` 62、`TimeoutError` 52、其余零星 |
+| 去重后的失败文件 | **41 个**（日志里的 72 含进度重复行） |
+
+**归因实验（决定性）**：把仓库切到**批次一之前**的提交（即「设置页恢复整页布局，撤回模态框化」那一条）、`pnpm run build`（exit 0）后跑 6 个代表性 spec，与 HEAD 逐文件失败数**完全一致**：
+
+| spec | 批次一之前 | HEAD（批次四之后） |
+|---|---|---|
+| settings-chrome | 10/12 失败 | 10/12 |
+| voice-download | 5/5 | 5/5 |
+| preview-boot | 1/1 | 1/1 |
+| default-product-isolation | 1/1 | 1/1 |
+| access-confirmation | 4/6 | 4/6 |
+| plugin-manager | 4/6 | 4/6 |
+
+→ **结论：这些红是存量欠账，与本轮对齐工作无关**。本轮只把「受分组影响的 17 条」修绿（已提交）；泳道其余部分从未在此状态下绿过。
+
+### 典型根因（按报错形态）
+
+1. **定位器/前提过期**：fork 自己的产品改动让入口与可访问名变化。例：`settings-chrome` 仍在等头部 `设置` 按钮，而批次三已把设置入口移入 Account 行；`navigation-panes` 仍在等 `More actions`（已随轨迹迁移移除）。
+2. **golden 落后于历史产品改动**：输出合法变化但基线未更新。
+3. **被 D1 掩盖的断言过期**：D1（reload 挂死）修复后，一批 reload 类用例从"跳过/超时"转为暴露真正的断言问题。
+4. **少数环境性**：无网、端口或并发导致的超时（需证据，不得当作真缺陷修）。
+
+### 推进方式（每波固定流程）
+
+**跑该区域 → 逐条定性（定位器过期 / golden 落后 / 真缺陷 / 环境）→ 只修真缺陷与合法过期 → 复跑 → 提交**；**禁止盲刷 golden**（本轮已证明盲刷会把折叠态/退化写成基线），golden 刷新必须逐条解释 diff 且页面处于 spec 名称声明的状态。
+
+**优先级与波次**
+
+| 波 | 范围 | 状态 |
+|---|---|---|
+| 1 | settings 壳层 + 模型/引导 | **已完成**（`fix: web 泳道复原波1+2`） |
+| 2 | `plugin-*`、`sidebar-*`、`markdown-*` | **已完成**（同波 1 提交） |
+| 3 | `voice-*`、`model*` 余项、`message-*` | **已完成**（`test(web): 泳道复原波3`；`fix(client): 恢复 composer 的 conversation.input.activity 渲染席位`） |
+| 4a | team / subagent | **已完成**（`test(web): 泳道复原波4a`） |
+| 4b | 引导 / 预设 | **已完成**（`test(web): 泳道复原波4b`） |
+| 4c | 文档 / 文件面（可编辑 workbench、轨迹迁移） | **已完成**（`test(web): 泳道复原波4c`） |
+| 5 | preview 宿主 http shim、搜索关闭竞态、账号门禁 | **已完成**（`fix+test(web): 泳道复原波5`；`fix: 预览宿主无 worker`） |
+| 收口 | root 槽热替换崩根（见下节 D6） | **已完成**（`fix: 客户端热替换的静默期不再炸 React 根` + 对应 Agent Note） |
+
+上表括号内即提交 subject，可用 `git log --oneline` 检索；本仓未 push、未打 tag，故不写裸 hash（`verify-repository-references` 会拒绝）。
+
+说明：`settings-chrome` 与 `deepseek-messages-settings` 含 reload 场景，D1 修复后它们正常启动，余下差异才是真实断言问题——已按此定性并修完。
+
+### 本波踩到的三条工程坑（写给后续所有泳道）
+
+1. **不要把探针放进 `apps/web/tests/`**：`apps/web/tsconfig.json` 是**逐条 exclude** 每个 e2e spec 的，任何新增的 `apps/web/tests/*.e2e.ts` 只要 import 了被排除的 `./scaffold.ts`，就会把 host 面的 scaffold/test-support 源拉进 client program，触发一片 `TS6059/TS6307/TS2339`，`build:lib` 直接 exit 2，整条 `pnpm run build` 走不到 `build:web`。本波为此被卡两次。探针请放仓外或用 `tsx` 一次性脚本；**也正因如此，不要用 `build:web` 单独绕** —— 那会让客户端构建记录（public values + 产物 digest）与产物不一致，等于在"基线不可信"下刷基线。
+2. **在途也不要让 spec 处于"不编译"状态**：这些 e2e 文件会被 client/host program 编译到，保存一次就会挡住**所有**泳道的 `pnpm run build`。调试代码（例如在 `evaluateAll` 里用 `Element.hidden`）用完即删。
+3. **全仓 `tsc` 会把编译产物直写进某些包的 `src/`**：本波一次性产生 61 个（`packages/test-support/*` 48、`packages/settings/settings` 12、`packages/api/job-controller` 1）。清理判据：扩展名属产物（`.js/.d.ts/.js.map/.d.ts.map`）**且**同基名存在受跟踪的 `.ts`/`.tsx`；**注意别误删未跟踪的源文件**（例如另一路新增的 `packages/core/agent-loop/tests/settings.spec.ts`），也**不要用 `git add -A` 盲扫**。
+
+### 泳道收口：root 槽热替换崩根（D6，真缺陷）
+
+**现象**：页面偶发整屏 `SlotAssemblyError: renderSlot('root') before any 'root' registration (boot order)`（React 会 `recoverFromConcurrentError` 重试，替换到达后自愈，因此表现为偶发；`file-upload-round` 5 次运行命中 1 次）。
+
+**排除的错误假设**：先怀疑「名册稳定前渲染 app 树」。插桩 500+ 次浏览器/jsdom 启动后证伪：`mount` 调用点唯一且恒在 `loader.await()` + `assertEntriesActive` 之后，启动期 `root` 注册恒为 1。
+
+**真实触发链**（宿主 `packages/client/hmr/src/index.ts:118`）：每 500ms stat-poll 每个 client bundle → mtime/size 变化 → `clientModules.rebuilt(id)` → SSE `rebuilt` 帧 → 页面 `entries.reload` → `replace(entry)` 重建该 entry 的 fiber，其 effect 全部 dispose；若被替换者是 root 占位者（ui-layout）或其 inject 链上的服务提供者（theme/locale/shortcuts/settingsScope…），级联会在应用仍挂载时 dispose 掉 `root` 注册 → 已挂载的 `RootOutlet` 经版本订阅重渲染看到 `entries=0` → 抛错。确定性复现：浏览器内 touch `packages/client/ui-theme/lib/client.js`（逐帧日志：`root registered` → `mount` → `theme unload` → `layout unload` → `root DISPOSED` → `RootOutlet render entries=0` → pageerror）。
+
+**修法**：`RootOutlet` 增加「已成功提交过 occupant」的 latch（无依赖 layout effect 内条件置位）。**首帧渲染仍 fail loud 抛 boot-order**，ctx 级 `renderSlot('root')` 守卫与既有 boot-order 断言（`scoped-slots.client.spec.tsx:305`、`registry.client.spec.ts:585`）全部保持响亮；只有挂载成功之后的空档改渲染 crash face（crash face 不是静默空白——替换到达即自愈）。决策依据见 Agent Note `2026-09-26-root-slot-lifetime-transition`。
+
+**证据**：新增 ui-renderer 单测（修复前因 SlotAssemblyError 失败）+ 新增 `client-plugin-live` e2e「rebuild 替换 root 占位者」（修复前 30s 未恢复、修复后 676ms 通过，且断言宿主 graph rev 变化以防真空通过）；文件 `ui-renderer`+`client/web` 单测 190 passed、live e2e 6 passed、`pnpm run build` 通过。
+
+**方法论留档**：安静环境下 5/5 + 30 次 + 72 次压力循环全部 0 命中——**偶发竞态必须造出真实触发事件才能复现与验证**，"跑很多次没复现" 不构成该竞态不存在的证据。
+
+### 后续三步（A/B/C，本轮计划的剩余部分）
+
+| 步 | 内容 | 状态 |
+|---|---|---|
+| A | `TurnProcessNodeView` 按上游 rc.2 整体对齐（实时时长标签 / `turnProcessAlwaysOpen` / `hasContent` / `disabled` / 仅可折叠时渲染 chevron / visually-hidden `role="status"` 宣布）+ 其 golden 刷新 | **已完成**（净新增失败 0，见下节记录） |
+| B | 图标 `aria-hidden` 对齐 + 165 个 golden 去噪（**严格不变量：每条 diff 只允许删 `- img` 行**） | 待办（泳道全绿后单开专波） |
+| C | 全量 128 文件泳道跑一遍，给出最终数字 | **已完成**（基线 + 最终各一次，见 Step A 收口复验） |
+
+A 与 B 拆成两趟刷新，保证 diff 可归因。
+
+**Step B 的规模已实测（不是估计）**：QiLin `packages/client/ui-primitives/src/icons/index.tsx` 共 87 个 `<svg>`，仅 6 个带 `aria-hidden`；上游 rc.2 同文件 87/87。golden 噪声为 2123 条裸 `- img` 行 / 167 个文件（apps/web/tests/expected 789 + snapshots 1334）。关键细节：上游 rc.2 的 golden 里仍保留 25 条带访问名的 `- img "…"`（markdown 真实图片、带 alt 的状态图），所以去噪只能删「裸 - img」——这是 Step B 必须守住的唯一不变量。
+
+### Step A 落地记录：TurnProcessNodeView 按上游 rc.2 整体对齐（2026-09-26）
+
+源改动（packages/client/ui-chat）：
+
+| 文件 | 改动 |
+|---|---|
+| src/client/chat/TurnProcessNodeView.tsx | 换为 rc.2 原文；QiLin 侧只改 import 前缀与图标名（上游 IconChevronDownOutlineRegular，QiLin 只有 IconChevronDownOutline14） |
+| src/client/chat/TurnProcessNodeView.module.css | 随之上游化：高度随 --qilin-content-font-delta、标签用 --qilin-content-font-size-secondary、补 disabled/hover 态、chevron 14px 且展开 rotate(180deg) |
+| src/client/chat/message-chrome.ts | 补 LIVE_RUN_CLOCK_INTERVAL_MS 与 formatLiveRunDuration（rc.2 原文含 JSDoc）；保留 QiLin 本地 formatLatencySeconds（TurnUsagePanel 在用，上游无此函数） |
+| src/client/locale.ts | zh/en 各补 message.turnProcess.{worked,deepDivingFor,took,failed}；品牌沿用 QiLin 对 chat.deepDiving（= QiLin...）的处理：zh「QiLin...，用时{duration}」/ en「QiLin... for {duration}」 |
+| tests/chat-view.client.spec.tsx | 旧行为断言按新行为改写；新增 formatLiveRunDuration 边界覆盖 |
+| README.md / README.zh.md（含 README.i18n.yaml 重录） | 原段落写「控件汇报三项计数、全为 0 时显示『已思考』」，随行为作废；改写为「标题汇报轮次状态/时长、计数只留在数据属性上供测试、无外部过程也无内联推理时控件禁用且行留给页内查找」 |
+
+行为变化：标题由计数改为轮次状态/时长（运行中「QiLin...，用时 Xs」，结算后「用时 Xs」/「已完成工作」/「已停止」/「处理失败」）；新增 visually-hidden role=status 宣布；disabled={!canCollapse}；aria-expanded 仅在 hasContent 时存在；chevron 仅在可折叠时渲染；运行中每秒 tick 刷新时长。
+
+未带入 KCoder 分支的深蓝扫光补丁（data-turn-running + shimmer CSS）：那是 kcoder fork 的自有改动，不属于 rc.2。
+
+**推论：ChatNodeSeat 早已对齐**（避免重复移植）：组件消费的 hasContent / foldable / open / setOpen 由 ChatNodeSeat 提供，两树 diff 除 import 改名、格式与 QiLin 的 toolDetail 增项外，hasContent 表达式与 rc.2 逐字相同。「无外部过程且无内联推理 → 没有可折叠内容」的语义本已在 QiLin 生效，缺的只是组件侧据此渲染禁用态与省略 aria-expanded。
+
+**连带修正的四处过期**（不是回归）：
+
+1. 十条 ui-chat 单测断言写死旧计数标题（「1 次工具调用 · 1 条消息 · 1 个 subagent」「已思考」）与「点击即可展开 Context」的前设。按新契约改写：折叠态改用 data-open（因为 aria-expanded 在无内容时按上游契约不再出现）；只有 Context 行、无外部过程的轮次不再可点开，断言改为「控件禁用、行保持 until-found」；两处「/用时 /」文本查询因控件标题也含「用时」而与尾部用时药丸撞名，改为在 [data-turn-tail] 作用域内查询；两条用例标题从「计数全为 0 时的兜底标题」改为「无计时时的 worked 标题」。
+2. 既有 helper 缺陷（本步暴露）：apps/web/tests/support.ts 的 expandOwningTurnProcess 用 aria-expanded !== 'true' 判「需要点开」。遇到 aria-expanded 缺失（无内容）且按钮禁用时会去点一个禁用按钮，Playwright 会一直等它变为可用 → 30s 超时（chat-scroll-contract 的 keeps streaming ownership 用例 31.3s 超时即此）。上游同函数写的是 aria-expanded === 'false'；旧标记下永远不命中，因为旧按钮从不禁用。已按上游语义修正。
+3. 定位器过期：clickable-links-gallery 与 skill-user-invoke 写死旧计数标题（`button "2 tool calls"` / `button "Thought for a while"`），改为按 `[data-turn-process]` 定位；后者因「只有 Context 注入的轮次不可点开」改用产品自身的 find-in-page `beforematch` 揭示路径，并在最终 golden 前用 reload 回到默认折叠态。
+4. getByRole('status') 撞名：控件新增 visually-hidden `role="status"` 宣布后，页面上出现第二个含「QiLin...」的 live region（另一个是 ChatView 可见的 turnStatus）。live-interactions / turn-tail-actions 两处断言改为取 `div[class*="turnStatus"]`；sidebar-terminal 的终端状态快照加 `[data-sidebar-terminal]` 作用域。**双 live region 本身留作待决策项**（见文末），本步先按上游整体对齐、不擅自删 QiLin 的可见状态行。
+
+**归属方法（先测基线，再归因）**：把 Step A 的全部改动 stash 掉，在 HEAD 原状重新构建后跑一次**全量 replay 泳道**，再与带改动的全量结果按「文件 :: 用例」做集合差。两次都是同一命令（`QILIN_SNAPSHOT=replay pnpm run test:web:built`）、同一构建流程。
+
+| 指标 | 基线（HEAD 原状） | 带 Step A（刷新 golden 前） |
+|---|---|---|
+| 文件 | 27 failed / 100 passed / 1 skipped（128） | 54 failed / 73 passed / 1 skipped |
+| 用例 | 38 failed / 408 passed / 17 skipped（463） | 77 failed / 369 passed / 17 skipped |
+| 耗时 | 约 11 分钟 | 约 11 分钟 |
+
+集合差结果：**基线红的用例全部仍然红（ONLY-BASELINE = 0）**；新增红 **42 条**，其中 36 条是 golden 比对、6 条是连带的二级失败（steering / subagent-interrupt-ui 的 `llm-replay: fixture not fully consumed` 是测试提前失败导致录制调用没走完；sidebar-terminal 是上面第 4 条的 status 撞名；feedback-release 的解析噪声）。**没有任何文件同时含「既有红」和「Step A 新增红」**——所以可以只对新增红那 27 个 spec 做定向刷新，不会碰到既有红。
+
+**golden 刷新（定向，27 个 spec → 54 个 golden 文件）**：`QILIN_SNAPSHOT=refresh npx vitest run --config vitest.web.config.ts <27 spec>` → 27 文件 / 148 通过。刷新后 diff 为 **+214 / −226**，把全部 442 条变更行按类别归口：按钮行 176、标签文本行 126、aria `status` 行 88、图标/空行 50，**未归口 0 条**。按钮行的增删是封闭集合：删掉的全是旧计数标题（`Thought for a while` 40、`1 tool call` 14、`1 tool call · 1 message` 4、`2 tool calls` 3、中文两处…），新增的全是时长/状态标题（`Took {{duration}} [disabled]` 38、`Took {{duration}} [expanded]` 20、`QiLin... for {{duration}} [disabled]` 5…）。
+
+**与上游 goldens 的形状对照（关键验收）**：上游 rc.2 自己的 golden 里同样是 `button "Took {{duration}}" [disabled]` ×49、`[expanded]` ×29、无标记 ×21、`"Deep diving for {{duration}}" [disabled]` ×12——**禁用/展开的分布与 QiLin 刷新后一致**，差异只在 QiLin 的品牌运行文案（`QiLin... for {{duration}}` / `QiLin...，用时`）。这说明「无外部过程且无内联推理 → 控件禁用」是上游真实行为，不是移植偏差。
+
+**Step A 收口复验（全量泳道，刷新后再跑一次）**：`27 failed / 100 passed / 1 skipped`（文件）、`38 failed / 408 passed / 17 skipped`（用例）——**与基线逐字相同**；两边的失败文件集合做集合比较结果为 `identical sets: True`（only-in-final 与 only-in-baseline 均为空）。即 **Step A 净新增失败 = 0**，剩余红全部是既有欠账。
+
+**既有红清单（27 文件 / 38 用例，基线与最终一致；本步不修）**：
+agent-preset-authoring、approval-composer、background-job-list、bash-abort-row、built-boot.expected、clickable-links-gallery、command-image-envelope.expected、github-ready-review、goal-multi-turn-actions、home-path-tilde.expected、image-display.expected、markdown-cjk-strong、markdown-inline-code-links、math-rendering、max-tokens-notice.expected、minimal-preset.snapshot、preset-migration.snapshot、queue-actions、queue-image、search-card.expected、streaming-fence-highlight、submission-echo、todo-row.expected、trajectory-image-display.expected、voice-input、window-drag-coverage、workflow-run。
+
+失败形态归三类：(a) 组装态夹具级——`Error: fixture Workspace new-session action missing`（command-image-envelope / image-display）、built-boot 找不到文本 `fixture`；(b) 录制夹具级——`llm-replay fixture not fully consumed`、preset-migration 的会话目录 ENOENT、`[data-sample="bash"]` 超时（bash-abort-row / minimal-preset）；(c) golden 落后于历史产品改动（clickable-links-gallery 的 `16 tool calls` 与真实分组区不一致等）。**这批不是 Step A 造成，也不是 Step A 能安全顺手修的**——修它们要动组装夹具/录制夹具，属独立波次。
+
+**本步验证阶梯（都在最终树上跑）**：`pnpm run build` 通过（282 client artifacts）；双面 `tsc -b`（client 由 build 覆盖、host 单独 `tsc -b tsconfig.host.json`）零错误；`npx vitest run packages/client/ui-chat` 464 passed；`pnpm run test:docs` **20/20**；`pnpm run test:gui` 7822 passed / 1 failed / 1 skipped——唯一失败是既有的 `packages/client/ui-approval`（单跑该文件 15/15 通过，D6 波次已在干净树上复现过同一失败，属间歇既有红）；改动路径 `run-oxlint` 0 warning 0 error。
+
+**残留红（本步之外，均有测量证据）**：`verify-client-domain-graph`（`ui-sidebar-documentpreview` 的 text⇄document 兄弟域互引，29 处匹配，HEAD 原状同样红）；`run-oxlint` 对 `packages/client/ui-chat/tests/chat-view.client.spec.tsx:303` 报 `typescript(no-unnecessary-type-parameters)`（该行在 HEAD 逐字存在，pre-commit 钩子不含该规则，故从未拦住）；`test:gui` 的 `ui-approval` 间歇红。
