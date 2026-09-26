@@ -3062,4 +3062,52 @@ describe('ChatView', () => {
     expect(failedView.getByText('Compaction cancelled.')).toBeTruthy()
     expect(failedView.container.querySelector('[data-state="error"]')).not.toBeNull()
   })
+
+  it('a local submission echo supersedes away reading and follows the tail', () => {
+    const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
+    const view = render(<h.ChatView {...h.props} />)
+    const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
+    installScrollMetrics(scroller, 1_000, 300)
+    readerScroll(scroller, 400)
+    expect(view.getByLabelText('回到底部')).toBeTruthy()
+
+    act(() => {
+      h.setSession({
+        pendingSubmissions: [{
+          requestId: 'req-late' as never, placement: 'transcript',
+          time: 6_000, text: '再补一句', attachments: [],
+        }],
+      })
+    })
+
+    expect(view.getByText('再补一句')).toBeTruthy()
+    expect(scroller.scrollTop).toBe(700)
+    expect(view.queryByLabelText('回到底部')).toBeNull()
+    expect(h.chatScroll.read()).toBeNull()
+  })
+
+  it('processes a session commit only after the pending reader sample settles', () => {
+    vi.useFakeTimers()
+    try {
+      const h = makeHarness({ nodes: [user(1, 'q'), assistant(2, 'a')] })
+      const view = render(<h.ChatView {...h.props} />)
+      const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
+      installScrollMetrics(scroller, 1_000, 300)
+      readerScroll(scroller, 400)
+
+      // A layout-attributed move arms a new sample; the running flip commits
+      // while it is pending, so scroll policy must defer to the settled read.
+      scroller.scrollTop = 350
+      fireEvent.scroll(scroller)
+      act(() => { h.setSession({ running: true }) })
+      expect(scroller.scrollTop).toBe(350)
+      expect(view.getByLabelText('回到底部')).toBeTruthy()
+
+      fireEvent(scroller, new Event('scrollend'))
+      expect(view.getByLabelText('回到底部')).toBeTruthy()
+      expect(h.chatScroll.read()?.scrollTop).toBe(350)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })

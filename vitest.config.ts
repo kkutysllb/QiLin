@@ -244,6 +244,10 @@ export default defineConfig({
         'packages/client/ui-conversation/src/client/*',
         // Chat presentation and assembly retain the same GUI debt exemption;
         // package wiring and the new approval-detail adapter remain gated.
+        // The scroll policy stack (use-chat-navigation/reading/scroll) is
+        // measured at 90-95% branches by chat-reading-navigation.client.spec
+        // with the residual arms geometry-, attribution-, or detach-grade;
+        // the component layer still needs the same browser-grade harness.
         'packages/client/ui-chat/src/client/chat/!(ApprovalCommand).{ts,tsx}',
         'packages/client/ui-chat/src/client/conversation-nodes/*',
         'packages/client/ui-chat/src/client/details/*',
