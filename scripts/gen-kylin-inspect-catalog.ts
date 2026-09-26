@@ -12,7 +12,7 @@ const CLIENT_OUT = 'packages/extensions/kylin-client-runner/src/client/api-catal
 const CLIENT_SERVICES: Readonly<Record<string, readonly string[]>> = {
   layout: ['selectPanel', 'beginNavigation', 'toggleSidebar', 'openRightbar', 'closeRightbar'],
   locale: ['getLocale', 'getSnapshot', 'subscribe', 'setLocale', 'addLanguage', 'register', 'bind'],
-  sessions: ['retain', 'using', 'retainInfo', 'setSubagentCatalogOpen', 'refreshSubagents', 'search', 'fork', 'scope', 'binding'],
+  sessions: ['retain', 'using', 'retainInfo', 'search', 'fork', 'scope', 'binding'],
   slots: ['register', 'registerFactory', 'inject'],
   theme: ['getTheme', 'setTheme', 'setFontSize', 'setLeading', 'register', 'overrideTokens'],
   uiWorkspace: [
