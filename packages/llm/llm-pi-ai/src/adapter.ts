@@ -37,6 +37,7 @@ import type {
   SimpleStreamOptions,
   ThinkingLevel,
 } from '@earendil-works/pi-ai'
+import { normalizeContext } from '@earendil-works/pi-ai'
 import {
   attributionHeaders,
   contentHasImage,
@@ -377,7 +378,12 @@ export class PiAiAdapter extends LlmAdapter {
             maxBytes: profile.requestImageMaxBytes,
           },
         }, onReplayDegrade)
-      const events = snapshot.models.streamSimple(model, context, {
+      // pi-ai 0.87 hands API implementations a branded TranscriptContext; the
+      // collection normalizes a plain Context itself, but the protocol-fallback
+      // attempt calls the Responses API directly, so normalize once here and
+      // hand both paths the same transcript.
+      const transcript = normalizeContext(context)
+      const events = snapshot.models.streamSimple(model, transcript, {
         ...profileOptions(profile, reasoning, apiKey),
         ...options.temperature === undefined ? {} : { temperature: options.temperature },
         ...options.maxTokens === undefined ? {} : { maxTokens: options.maxTokens },

@@ -44,7 +44,7 @@
     "@qilin/brand": "workspace:*",
     "@qilin/util-values": "workspace:*",
     "@qilin/schemastery": "workspace:~",
-    "@earendil-works/pi-ai": "^0.85.1"
+    "@earendil-works/pi-ai": "^0.87.1"
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:~",
