@@ -1,6 +1,6 @@
 {
   "name": "@qilin/root",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -181,7 +181,8 @@
     "demo:inspector": "node --import tsx/esm apps/cli/src/bin.ts web --patch ./packages/experimental/inspector/cordis.source.patch.yml",
     "mock:llm": "node --import tsx packages/test-support/llm-mock-server/src/bin.ts",
     "dev:web": "tsx scripts/dev-web.ts --poll",
-    "postinstall": "node scripts/install-lefthook.mjs"
+    "postinstall": "node scripts/install-lefthook.mjs",
+    "version:set": "tsx scripts/set-version.ts"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:*",

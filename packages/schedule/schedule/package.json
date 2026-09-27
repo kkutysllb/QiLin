@@ -1,7 +1,7 @@
 {
   "name": "@qilin/schedule",
   "description": "Host-wide durable reminders with shared management and original-Session delivery",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/skill",
   "description": "Agent skill provider registry for the QiLin",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "publishConfig": {
     "access": "public"
   },

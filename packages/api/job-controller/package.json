@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-job-controller",
   "description": "Job Remote observation stream and the reference-counted client job-output service",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "publishConfig": {
     "access": "public"
   },

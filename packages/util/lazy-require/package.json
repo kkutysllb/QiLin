@@ -1,7 +1,7 @@
 {
   "name": "@qilin/lazy-require",
   "description": "Caller-relative, success-cached lazy loading for CommonJS-compatible Host dependencies",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "publishConfig": {
     "access": "public"
   },

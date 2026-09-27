@@ -64,7 +64,7 @@ describe('evaluateReleaseReadiness', () => {
   })
 
   it('fails with the publish remedy when the tag has no release', () => {
-    const result = evaluateReleaseReadiness(sha, ['v3.0.2'], () => undefined)
+    const result = evaluateReleaseReadiness(sha, ['v3.0.2'], () => undefined, '3.0.2')
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.problem).toBe('release')
@@ -72,14 +72,34 @@ describe('evaluateReleaseReadiness', () => {
   })
 
   it('fails when the release body is too short to be written notes', () => {
-    const result = evaluateReleaseReadiness(sha, ['v3.0.2'], () => 'TODO')
+    const result = evaluateReleaseReadiness(sha, ['v3.0.2'], () => 'TODO', '3.0.2')
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.problem).toBe('notes')
   })
 
   it('passes with the first tag whose release carries notes', () => {
-    const result = evaluateReleaseReadiness(sha, ['v3.0.1', 'v3.0.2'], tag => (tag === 'v3.0.2' ? NOTES : undefined))
+    const result = evaluateReleaseReadiness(
+      sha,
+      ['v3.0.1', 'v3.0.2'],
+      tag => (tag === 'v3.0.2' ? NOTES : undefined),
+      '3.0.2',
+    )
     expect(result).toEqual({ ok: true, tag: 'v3.0.2' })
+  })
+
+  it('fails when the commit declares a version other than its tag', () => {
+    const result = evaluateReleaseReadiness(sha, ['v3.0.2'], () => NOTES, '3.0.1')
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.problem).toBe('version')
+    expect(result.message).toContain('pnpm run version:set 3.0.2')
+  })
+
+  it('fails when the commit declares no version at all', () => {
+    const result = evaluateReleaseReadiness(sha, ['v3.0.2'], () => NOTES, undefined)
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.problem).toBe('version')
   })
 })

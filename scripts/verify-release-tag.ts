@@ -50,13 +50,45 @@ export function releaseTagsAt(tags: readonly string[]): string[] {
 /** What blocks shipping `sha`, given the tags at it and each tag's release body. */
 export type ReleaseReadiness =
   | { readonly ok: true; readonly tag: string }
-  | { readonly ok: false; readonly problem: 'tag' | 'release' | 'notes'; readonly message: string }
+  | { readonly ok: false; readonly problem: 'tag' | 'release' | 'notes' | 'version'; readonly message: string }
 
-/** Decide whether `sha` may ship: some `v*` tag at it must carry a release with notes. */
+/**
+ * The version a `vX.Y.Z` tag names.
+ * @param tag - Release tag.
+ * @returns The version, or undefined when the tag names none.
+ */
+export function tagVersion(tag: string): string | undefined {
+  return /^v(\d+(?:\.\d+)*)$/u.exec(tag)?.[1]
+}
+
+/**
+ * Whether the shipping commit declares the version its tag names. The interface
+ * reads the root manifest's version at build time, so a release whose manifests
+ * were never bumped ships screens that still name the predecessor.
+ * @param tag - Release tag.
+ * @param declared - Root manifest version at the shipping commit.
+ * @returns The blocking message, or undefined when they agree.
+ */
+export function versionProblem(tag: string, declared: string | undefined): string | undefined {
+  const version = tagVersion(tag)
+  if (version === undefined || declared === version) return undefined
+  return `tag ${tag} names ${version} but the root manifest declares ${declared ?? '(no version)'}; bump the family before tagging: pnpm run version:set ${version}`
+}
+
+/**
+ * Decide whether `sha` may ship: some `v*` tag at it must carry a release with
+ * notes, and the commit's declared version must be the tag's.
+ * @param sha - Commit to ship.
+ * @param tags - Tags at that commit.
+ * @param releaseBodyOf - Release body reader.
+ * @param declaredVersion - Root manifest version at that commit.
+ * @returns The readiness verdict.
+ */
 export function evaluateReleaseReadiness(
   sha: string,
   tags: readonly string[],
   releaseBodyOf: (tag: string) => string | undefined,
+  declaredVersion?: string,
 ): ReleaseReadiness {
   const candidates = releaseTagsAt(tags)
   if (candidates.length === 0) {
@@ -76,6 +108,8 @@ export function evaluateReleaseReadiness(
         message: `release ${tag} has no written notes (body under ${String(MIN_NOTES_LENGTH)} chars); edit it or recreate with --notes-file`,
       }
     }
+    const drifted = versionProblem(tag, declaredVersion)
+    if (drifted !== undefined) return { ok: false, problem: 'version', message: drifted }
     return { ok: true, tag }
   }
   return {
@@ -94,6 +128,16 @@ function tagsAt(sha: string): string[] {
 function releaseBodyOf(tag: string): string | undefined {
   try {
     return execFileSync('gh', ['release', 'view', tag, '--json', 'body', '-q', '.body'], { encoding: 'utf8' })
+  } catch {
+    return undefined
+  }
+}
+
+/** The root manifest's version at one commit, or undefined when it declares none. */
+function declaredVersionAt(sha: string): string | undefined {
+  try {
+    const manifest = JSON.parse(execFileSync('git', ['show', `${sha}:package.json`], { encoding: 'utf8' })) as { version?: unknown }
+    return typeof manifest.version === 'string' ? manifest.version : undefined
   } catch {
     return undefined
   }
@@ -146,7 +190,7 @@ async function main(): Promise<void> {
     }
     sha = local
   }
-  const result = evaluateReleaseReadiness(sha, tagsAt(sha), releaseBodyOf)
+  const result = evaluateReleaseReadiness(sha, tagsAt(sha), releaseBodyOf, declaredVersionAt(sha))
   if (result.ok) {
     console.log(`verify-release-tag: main ships ${result.tag}`)
     return

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-shortcuts",
   "description": "Keyboard shortcut reference, recording, and local preference editing",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "publishConfig": {
     "access": "public"
   },
