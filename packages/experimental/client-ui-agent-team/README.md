@@ -25,7 +25,7 @@ This package adds an Agent Teams action to the Web conversation header, where a 
 <a id="use-this-package"></a>
 ## Use this package
 
-Install the package through [`@qilin/experimental-agent-team-web-profile`](../agent-team-web-profile/README.md) after the stable Web bundle and the Host-side Agent Teams profile. The Web Client loader mounts the `/client` export; the root Host export is inert, and the package has no user configuration fields.
+This package ships the Agent Teams Client plugin. No shipped bundle mounts it today; a custom Web profile can mount the `/client` export after the stable Web bundle and the Host-side Agent Teams profile. The root Host export is inert, and the package has no user configuration fields.
 
 ### Inspect and navigate the roster
 
@@ -65,7 +65,6 @@ The panel renders outside the conversation container and stays within the viewpo
 <a id="further-exploration"></a>
 ## Further Exploration
 
-- [Agent Teams Web profile](../agent-team-web-profile/README.md) — the published opt-in bundle that mounts this Client plugin.
 - [Agent Teams service](../agent-team/README.md) — authoritative roster, task, and projection behavior.
 - [Conversation UI](../../client/ui-conversation/README.md) — the stable header slot and addressed-subagent navigation surface.
 - [Experimental packages](../README.md) — incubation status and publication policy.

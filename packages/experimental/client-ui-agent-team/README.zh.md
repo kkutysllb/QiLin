@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在稳定 Web bundle 与 Host-side Agent Teams profile 之后，通过 [`@qilin/experimental-agent-team-web-profile`](../agent-team-web-profile/README.zh.md) 安装本包。Web Client loader 挂载 `/client` export；root Host export 不执行行为，本包也没有用户配置字段。
+本包提供 Agent Teams 的 Client plugin。当前没有任何已交付 bundle 挂载它；自定义 Web profile 可在稳定 Web bundle 与 Host-side Agent Teams profile 之后挂载 `/client` export。root Host export 不执行行为，本包也没有用户配置字段。
 
 ### 检查并导航 roster
 
@@ -65,7 +65,6 @@ Client export 通过 Cordis effect 注册 locale dictionary 与一个 conversati
 <a id="further-exploration"></a>
 ## 进一步探索
 
-- [Agent Teams Web profile](../agent-team-web-profile/README.zh.md)——挂载本 Client plugin 的公开 opt-in bundle。
 - [Agent Teams service](../agent-team/README.zh.md)——权威 roster、task 与投影行为。
 - [会话 UI](../../client/ui-conversation/README.zh.md)——稳定 header slot 与 addressed-subagent 导航表层。
 - [实验性包](../README.zh.md)——孵化状态与发布规则。

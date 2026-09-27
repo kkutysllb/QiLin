@@ -51,7 +51,6 @@
     "@qilin/compaction-tool-result-pruner": "workspace:*",
     "@qilin/kylin-client-runner": "workspace:*",
     "@qilin/experimental-agent-team-profile": "workspace:*",
-    "@qilin/experimental-agent-team-web-profile": "workspace:*",
     "@qilin/experimental-voice-input-bundle": "workspace:*",
     "@qilin/experimental-auto-review": "workspace:*",
     "@qilin/fs-local": "workspace:*",

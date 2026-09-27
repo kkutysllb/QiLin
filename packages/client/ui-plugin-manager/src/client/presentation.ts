@@ -13,9 +13,6 @@ const BUILTIN_COPY = new Map<string, { title: PluginManagerLocaleKey; descriptio
   ['@qilin/experimental-agent-team-profile', {
     title: 'builtinAgentTeamTitle', description: 'builtinAgentTeamDescription', beta: true,
   }],
-  ['@qilin/experimental-agent-team-web-profile', {
-    title: 'builtinAgentTeamWebTitle', description: 'builtinAgentTeamWebDescription', beta: true,
-  }],
   ['@qilin/experimental-auto-review', {
     title: 'builtinAutoReviewTitle', description: 'builtinAutoReviewDescription', beta: true,
   }],

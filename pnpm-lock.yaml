@@ -207,9 +207,6 @@ importers:
       '@qilin/experimental-agent-team-profile':
         specifier: workspace:*
         version: link:../../packages/experimental/agent-team-profile
-      '@qilin/experimental-agent-team-web-profile':
-        specifier: workspace:*
-        version: link:../../packages/experimental/agent-team-web-profile
       '@qilin/experimental-auto-review':
         specifier: workspace:*
         version: link:../../packages/experimental/auto-review
@@ -6927,22 +6924,6 @@ importers:
       '@qilin/experimental-tool-agent-team':
         specifier: workspace:*
         version: link:../tool-agent-team
-    devDependencies:
-      '@qilin/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin/kylin-plugin-include':
-        specifier: workspace:~
-        version: link:../../../vendor/include
-      js-yaml:
-        specifier: ^4.2.0
-        version: 4.3.1
-
-  packages/experimental/agent-team-web-profile:
-    dependencies:
-      '@qilin/experimental-client-ui-agent-team':
-        specifier: workspace:*
-        version: link:../client-ui-agent-team
     devDependencies:
       '@qilin/kylin':
         specifier: workspace:~

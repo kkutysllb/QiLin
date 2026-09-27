@@ -49,7 +49,6 @@ describe('release families', () => {
       .filter(member => member.directory.startsWith('packages/experimental/'))
       .map(member => member.name)).toEqual([
       '@qilin/experimental-agent-team-profile',
-      '@qilin/experimental-agent-team-web-profile',
       '@qilin/experimental-agent-team',
       '@qilin/experimental-api-speech-to-text',
       '@qilin/experimental-auto-review',

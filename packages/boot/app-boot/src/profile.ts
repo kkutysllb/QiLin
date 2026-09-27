@@ -268,7 +268,6 @@ export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
  */
 export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin/experimental-agent-team-profile',
-  '@qilin/experimental-agent-team-web-profile',
   '@qilin/experimental-voice-input-bundle',
   '@qilin/experimental-auto-review',
 ]

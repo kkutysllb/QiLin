@@ -4295,7 +4295,6 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@qilin/deque` | — | [`packages/util/deque/src/index.ts`](../packages/util/deque/src/index.ts) |
 | `@qilin/dsh-compat` | — | [`packages/util/dsh-compat/src/index.ts`](../packages/util/dsh-compat/src/index.ts) |
 | `@qilin/experimental-agent-team-profile` | — | [`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts) |
-| `@qilin/experimental-agent-team-web-profile` | — | [`packages/experimental/agent-team-web-profile/src/index.ts`](../packages/experimental/agent-team-web-profile/src/index.ts) |
 | `@qilin/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
 | `@qilin/experimental-voice-input-bundle` | — | [`packages/experimental/voice-input-bundle/src/index.ts`](../packages/experimental/voice-input-bundle/src/index.ts) |
 | `@qilin/experimental-webworker-packer` | — | [`packages/experimental/webworker-packer/src/index.ts`](../packages/experimental/webworker-packer/src/index.ts) |
