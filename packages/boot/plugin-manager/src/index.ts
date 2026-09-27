@@ -12,6 +12,7 @@ import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
 import { pluginEntryId, readPluginInventory } from '@qilin/host-plugin-inventory'
 import {
   readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches, readProfilePatches, OPTIONAL_BUNDLES,
+  PROFILE_TEMPLATES, profileLayerUpdatable,
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption,
   PROFILE_COMPATIBILITY_FILENAME,
 } from '@qilin/app-boot'
@@ -28,6 +29,7 @@ import { incompatiblePlugin, ManagementFailure } from './failure.ts'
 import { attributeFailure, NPMMIRROR_REGISTRY, normalizeRegistry, REGISTRY_URL, registryPlan } from './registry.ts'
 import { approveBuilds, readPendingBuilds } from './build-approval.ts'
 import type {
+  ReadOnlyReason,
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InspectOptions, InstallBundleOptions,
   ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
   PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection, PluginUpdateEntry, PluginUpdateSnapshot, Registry,
@@ -288,31 +290,35 @@ export class PluginManager extends TypertRemoteService {
     const dependencies = Object.keys(manifest.dependencies ?? {})
     const installation = JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
     const names = [...new Set([...selected, ...dependencies, ...Object.keys(installation.dependencies ?? {})])]
+    // The shipped template names the layers an installation owns; a profile
+    // switches one off through its rows, never by dropping the layer.
+    const builtIn = [...PROFILE_TEMPLATES[this.profile.name]?.bundles ?? []]
     const bundles: BundleInfo[] = []
     for (const name of names) {
       const installed = dependencies.includes(name)
       const optional = OPTIONAL_BUNDLES.includes(name)
+      const updatable = profileLayerUpdatable(name, builtIn)
       const removable = installed && !Object.hasOwn(installation.dependencies ?? {}, name)
       const enabled = selected.includes(name)
       try {
         const info = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
         if (info === undefined) {
-          if (enabled) bundles.push({ name, enabled, installed, optional, removable, error: { code: 'not-bundle' }, rows: [], overrides: [] })
+          if (enabled) bundles.push({ name, enabled, installed, optional, updatable, removable, error: { code: 'not-bundle' }, rows: [], overrides: [] })
           continue
         }
-        const readOnlyReason = this.protectsManager(name) ? 'management-required' as const : undefined
+        const readOnlyReason = this.layerLock(name, builtIn)
         const compatibility = evaluatePluginCompatibility(info, exemptions)
         if (compatibility !== undefined && !compatibility.exempted) {
           throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
         }
         bundles.push({ name, ...(info.version === undefined ? {} : { version: info.version }),
           ...(info.description === undefined || info.description === '' ? {} : { description: info.description }),
-          enabled, installed, optional, removable: removable && readOnlyReason === undefined,
+          enabled, installed, optional, updatable, removable: removable && readOnlyReason === undefined,
           ...(readOnlyReason === undefined ? {} : { readOnlyReason }),
           ...this.declaredRows(name, info) })
       } catch (error) {
         if (enabled || installed) {
-          bundles.push({ name, enabled, installed, optional, removable, error: managementError(error), rows: [], overrides: [] })
+          bundles.push({ name, enabled, installed, optional, updatable, removable, error: managementError(error), rows: [], overrides: [] })
         }
       }
     }
@@ -678,6 +684,18 @@ export class PluginManager extends TypertRemoteService {
   }
 
   /** Run one pnpm command in the profile, streaming its output as install-log chunks. */
+  /**
+   * Why a layer cannot be switched off as a layer, when it cannot: the manager
+   * needs its own package, and a shipped layer arrives with the release.
+   * @param name - the bundle's package name.
+   * @param builtIn - bundle names supplied by the selected shipped template.
+   * @returns the lock reason, or undefined when the layer is the person's own to switch.
+   */
+  private layerLock(name: string, builtIn: readonly string[]): ReadOnlyReason | undefined {
+    if (this.protectsManager(name)) return 'management-required'
+    return builtIn.includes(name) ? 'shipped-layer' : undefined
+  }
+
   private async runPnpm(
     args: readonly string[], signal?: AbortSignal, requestId?: PluginInstallRequestId,
   ): Promise<PackageResult> {

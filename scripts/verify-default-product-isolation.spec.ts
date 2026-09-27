@@ -114,6 +114,34 @@ describe('default product isolation', () => {
     expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(`optional bundle ${layer} must not be a default bundle`)
   })
 
+  it('composes a Web template bundle the installation carries and rejects one it does not declare', () => {
+    const root = fixture()
+    const installed = 'installed-anim-bundle'
+    write(root, 'apps/cli/node_modules/' + installed + '/package.json', {
+      name: installed, version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
+    })
+    write(root, 'apps/cli/node_modules/' + installed + '/cordis.patch.yml', [{ insert: [{ name: experimental }] }])
+    manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:^', [installed]: '^1.0.0' } })
+    write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}', '${installed}'] } }\n`
+      + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\n`)
+    // The installation's copy contributes a layer, so the composed scan still
+    // sees what it inserts.
+    expect(verifyDefaultProductIsolation(root).failures.join('\n'))
+      .toContain('default product must not include experimental packages')
+
+    // An undeclared package is a distribution gap, not a template detail.
+    write(root, 'apps/cli/node_modules/' + installed + '/cordis.patch.yml', '[]\n')
+    manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:^' } })
+    expect(verifyDefaultProductIsolation(root).failures.join('\n'))
+      .toContain(`default Web bundle ${installed} must be a workspace package or a runtime dependency of apps/cli`)
+
+    // Declared, but without a bundle patch: the layer set stays incomplete.
+    manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:^', [installed]: '^1.0.0' } })
+    write(root, 'apps/cli/node_modules/' + installed + '/package.json', { name: installed, version: '1.0.0' })
+    expect(verifyDefaultProductIsolation(root).failures.join('\n'))
+      .toContain('default Web bundle layers are incomplete')
+  })
+
   it('requires each optional bundle to be a runtime dependency that declares a bundle patch, an icon, and locale metadata', () => {
     const root = fixture()
     write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`

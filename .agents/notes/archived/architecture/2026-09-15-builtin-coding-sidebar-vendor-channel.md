@@ -1,6 +1,7 @@
 # Agent Note: coding-sidebar is vendored as the built-in right Sidebar with a plugin-channel upgrade path
 
 Status: implemented
+Archived: 2026-09-27
 
 English | [中文](2026-09-15-builtin-coding-sidebar-vendor-channel.zh.md)
 

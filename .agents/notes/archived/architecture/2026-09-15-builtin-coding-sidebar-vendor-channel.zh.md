@@ -1,6 +1,7 @@
 # Agent Note：coding-sidebar 以 vendor 内置为默认右侧栏，插件通道承担在线升级
 
 Status: implemented
+Archived: 2026-09-27
 
 [English](2026-09-15-builtin-coding-sidebar-vendor-channel.md) | 中文
 

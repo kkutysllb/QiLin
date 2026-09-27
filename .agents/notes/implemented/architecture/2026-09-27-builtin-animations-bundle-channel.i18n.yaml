@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-09-27-builtin-animations-bundle-channel.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-27-builtin-animations-bundle-channel.md
+/agent-note-the-animations-skill-pack-ships-as-a-built-in-bundle-with-a-plugin-channel-upgrade:
+  en: 411d6ea30887fb1e
+  zh: b851f812cdc3b0e1
+/agent-note-the-animations-skill-pack-ships-as-a-built-in-bundle-with-a-plugin-channel-upgrade/problem:
+  en: 04c7f88ee7417928
+  zh: 260efff3a5a90f49
+/agent-note-the-animations-skill-pack-ships-as-a-built-in-bundle-with-a-plugin-channel-upgrade/decision:
+  en: 64c50c9c3d6e7cbf
+  zh: 374264a27aefb3ec
+/agent-note-the-animations-skill-pack-ships-as-a-built-in-bundle-with-a-plugin-channel-upgrade/the-update-path:
+  en: 1106c405cd25caf6
+  zh: 7c98a3a15c5d1cb0
+/agent-note-the-animations-skill-pack-ships-as-a-built-in-bundle-with-a-plugin-channel-upgrade/alternatives-considered:
+  en: 34bc0b03c180c238
+  zh: 1a2be42bb162422f
+/agent-note-the-animations-skill-pack-ships-as-a-built-in-bundle-with-a-plugin-channel-upgrade/consequences:
+  en: f18d14242206cdc3
+  zh: 7a1c258a06930279

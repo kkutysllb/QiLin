@@ -5,7 +5,7 @@ export type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
 import type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
 
 /** Reasons a profile control cannot modify its target. */
-export type ReadOnlyReason = 'management-required' | 'unaddressable'
+export type ReadOnlyReason = 'management-required' | 'unaddressable' | 'shipped-layer'
 
 /** A package whose declared qilin peers reject the running runtime version, without an exemption for the exact pair. */
 export interface IncompatiblePlugin {
@@ -54,6 +54,11 @@ export interface BundleInfo {
    * held by the installation's dependencies, selected by no shipped template, and never removable.
    */
   optional: boolean
+  /**
+   * Whether an installed copy of this layer resolves ahead of the installation's, so the layer can be upgraded in
+   * place: a bundle the profile installed, or a shipped bundle whose resolution the profile owns.
+   */
+  updatable: boolean
   removable: boolean
   readOnlyReason?: ReadOnlyReason
   error?: ManagementError

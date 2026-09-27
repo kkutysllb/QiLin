@@ -1,7 +1,7 @@
 /** Persistent manager behavior through a real profile Include and Loader. */
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { realpath } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { pathToFileURL } from 'node:url'
 import type { Context } from '@qilin/kylin'
@@ -27,10 +27,11 @@ const MIRROR = 'https://registry.npmmirror.com/'
 async function fixture(
   reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {},
   packageManager?: ProfileContext['packageManager'], mutateProfile?: (dir: string) => void,
+  profileName = 'test',
 ) {
   // pnpm resolves workspace roots through native realpath, including Windows 8.3 aliases.
   const home = await realpath(mkdtempSync(join(tmpdir(), 'plugin-manager-')))
-  const dir = join(home, 'profiles', 'test')
+  const dir = join(home, 'profiles', profileName)
   const anchor = join(home, 'package.json')
   writeFileSync(anchor, '{"name":"installation","dependencies":{}}\n')
   initProfile(dir, ['core', 'extra'])
@@ -45,19 +46,19 @@ async function fixture(
   bundle('extra', [{ id: 'managed', name: './plugin.mjs' }])
   // The declaration a bundle carries decides its admission, which happens while the profile loads.
   mutateProfile?.(dir)
-  const manifest = readProfileManifest('test', dir)
+  const manifest = readProfileManifest(profileName, dir)
   manifest.dependencies = { extra: '1.0.0' }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   writeFileSync(join(dir, 'cordis.yml'), '[]\n')
   const overlays: PatchOptions[] = overlay ? [{ id: 'managed', disabled: true }] : []
   const profile: ProfileContext = {
-    name: 'test',
+    name: profileName,
     ...(packageManager === undefined ? {} : { packageManager }),
     startedBundles: ['core', 'extra'],
     dir, patchPath: join(dir, 'cordis.patch.yml'), installAnchor: anchor, cwd: home, home,
     overlays, telemetryDisabledEnv: undefined,
   }
-  const ctx = await boot('test', join(dir, 'cordis.yml'), readProfilePatches('test', profile), (ctx) => {
+  const ctx = await boot('test', join(dir, 'cordis.yml'), readProfilePatches(profileName, profile), (ctx) => {
     ctx.provide('appReady', { onReady: (listener: () => void) => { listener(); return () => {} } })
     prepare?.(ctx)
     ctx.provide('profileContext', profile)
@@ -84,14 +85,73 @@ it('lists bundle versions and current-profile plugin targets', async () => {
   expect(plugins.find(row => row.entryId === 'include:manager')?.readOnlyReason).toBe('management-required')
   expect(await manager.listBundles()).toEqual([
     {
-      name: 'core', version: '1.0.0', enabled: true, installed: false, optional: false, removable: false, readOnlyReason: 'management-required',
+      name: 'core', version: '1.0.0', enabled: true, installed: false, optional: false, updatable: true,
+      removable: false, readOnlyReason: 'management-required',
       rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager' }], overrides: [],
     },
     {
-      name: 'extra', version: '1.0.0', enabled: true, installed: true, optional: false, removable: true,
+      name: 'extra', version: '1.0.0', enabled: true, installed: true, optional: false, updatable: true, removable: true,
       rows: [{ rowId: 'managed', moduleName: pathToFileURL(join(dir, 'node_modules', 'extra', 'plugin.mjs')).href, entryId: 'include:managed' }], overrides: [],
     },
   ])
+})
+
+it('reports a shipped layer as locked at the layer level and updatable when the profile owns its resolution', async () => {
+  // The shipped template locks the layer: a profile switches it off through its
+  // rows, because dropping the entry would come back on the next load.
+  const { manager, dir, profile } = await fixture('live', false, undefined, {}, undefined, undefined, 'web')
+  const shipped = '@qilin/web-app'
+  const owned = 'dsh-animations'
+  for (const [name, version] of [[shipped, '3.0.4'], [owned, '1.2.3']] as const) {
+    const installedDir = join(dirname(profile.installAnchor), 'node_modules', name)
+    mkdirSync(installedDir, { recursive: true })
+    writeFileSync(join(installedDir, 'package.json'), JSON.stringify({
+      name, version, qilin: { bundle: { patch: './cordis.patch.yml' } },
+    }))
+    writeFileSync(join(installedDir, 'cordis.patch.yml'), '[]\n')
+  }
+  const installation = JSON.parse(readFileSync(profile.installAnchor, 'utf8')) as { dependencies: Record<string, string> }
+  installation.dependencies = { ...installation.dependencies, [shipped]: '3.0.4', [owned]: '1.2.3' }
+  writeFileSync(profile.installAnchor, JSON.stringify(installation))
+  const manifest = readProfileManifest(profile.name, dir)
+  manifest.qilin = { profile: { bundles: ['core', shipped, owned] } }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+
+  const rows = await manager.listBundles()
+  // A shipped layer the profile does not own moves with the installation.
+  expect(rows.find(row => row.name === shipped)).toMatchObject({
+    enabled: true, installed: false, optional: false, updatable: false, removable: false, readOnlyReason: 'shipped-layer',
+  })
+  // The one the profile owns can be upgraded in place, and is still locked as a layer.
+  expect(rows.find(row => row.name === owned)).toMatchObject({
+    enabled: true, installed: false, optional: false, updatable: true, removable: false, readOnlyReason: 'shipped-layer',
+  })
+  // A bundle the template never named keeps being switchable as a layer.
+  expect(rows.find(row => row.name === 'extra')?.updatable).toBe(true)
+  expect(rows.find(row => row.name === 'extra')?.readOnlyReason).toBeUndefined()
+})
+
+it('offers the registry latest for a bundle the installation supplies and the profile does not install', async () => {
+  const { manager, profile } = await fixture()
+  // A shipped bundle: the profile lists it without depending on it, so the
+  // copy the installation carries serves until an upgrade lands in the profile.
+  const anchor = profile.installAnchor
+  const installation = JSON.parse(readFileSync(anchor, 'utf8')) as { dependencies: Record<string, string> }
+  installation.dependencies = { ...installation.dependencies, 'shipped-anim': '1.2.3' }
+  writeFileSync(anchor, JSON.stringify(installation))
+  const shipped = join(dirname(anchor), 'node_modules', 'shipped-anim')
+  mkdirSync(shipped, { recursive: true })
+  writeFileSync(join(shipped, 'package.json'), JSON.stringify({
+    name: 'shipped-anim', version: '1.2.3', qilin: { bundle: { patch: './cordis.patch.yml' } },
+  }))
+  writeFileSync(join(shipped, 'cordis.patch.yml'), '[]\n')
+  vi.stubGlobal('fetch', async () => new Response(JSON.stringify({ latest: '1.3.0' }), { status: 200 }))
+  onTestFinished(() => { vi.unstubAllGlobals() })
+
+  expect((await manager.listBundles()).find(row => row.name === 'shipped-anim'))
+    .toMatchObject({ version: '1.2.3', enabled: false, installed: false, removable: false })
+  expect((await manager.checkUpdates()).entries.find(entry => entry.name === 'shipped-anim'))
+    .toEqual({ name: 'shipped-anim', currentVersion: '1.2.3', latestVersion: '1.3.0' })
 })
 
 it('describes a bundle by its manifest and patch: one-liner, rows without a live entry, and the built-in rows it changes', async () => {
@@ -109,7 +169,8 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   const moduleName = pathToFileURL(join(dir, 'node_modules', 'described', 'plugin.mjs')).href
   expect((await manager.listBundles()).find(row => row.name === 'described')).toEqual({
-    name: 'described', version: '2.0.0', description: 'Describes itself.', enabled: false, installed: true, optional: false, removable: true,
+    name: 'described', version: '2.0.0', description: 'Describes itself.', enabled: false, installed: true, optional: false,
+    updatable: true, removable: true,
     rows: [{ rowId: 'described-row', moduleName }], overrides: ['managed'],
   })
   await manager.setBundleEnabled('described', true)
@@ -775,7 +836,7 @@ it('offers the launcher\'s optional bundles switched off and never removable', a
   writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { [offered]: '3.0.0' } }))
   expect((await manager.listBundles()).find(row => row.name === offered)).toEqual({
     name: offered, version: '3.0.0', description: 'Package one-liner.',
-    enabled: false, installed: false, optional: true, removable: false,
+    enabled: false, installed: false, optional: true, updatable: true, removable: false,
     rows: [{ rowId: 'offered-row', moduleName: pathToFileURL(join(supplied, 'plugin.mjs')).href }], overrides: [],
   })
   expect(await manager.setBundleEnabled(offered, true)).toMatchObject({ application: 'applied' })

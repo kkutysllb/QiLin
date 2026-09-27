@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getQilinRuntimeVersion, readProfileVersionExemptions } from '@qilin/app-boot'
+import { getQilinRuntimeVersion, PROFILE_TEMPLATES, readProfileVersionExemptions } from '@qilin/app-boot'
 import { runPlugin } from '../src/plugin.ts'
 
 vi.mock('node:child_process', async importOriginal => ({
@@ -103,6 +103,18 @@ describe('qilin plugin list', () => {
     expect(code).toBe(0)
     expect(out.match(/\(shipped\)/gu)).toHaveLength(2)
     expect(out).not.toContain('\tuser')
+    // Neither shipped layer takes an in-place upgrade: both move with the installation.
+    expect(out).not.toContain('(updatable)')
+  })
+
+  it('marks the shipped layer an in-place upgrade can move', async () => {
+    const dir = stageProfile('web', {
+      qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app', 'dsh-animations'] } },
+    })
+    file(join(dir, 'node_modules', 'dsh-animations', 'package.json'), JSON.stringify({ name: 'dsh-animations', version: '1.2.3' }))
+    const { code, out } = await capture(() => runPlugin('web', ['list']))
+    expect(code).toBe(0)
+    expect(out).toContain('2\tdsh-animations@1.2.3\tbuiltin  (shipped)  (updatable)')
   })
 
   it('reports a profile that lists no layers', async () => {
@@ -206,7 +218,8 @@ describe('qilin plugin version exemptions', () => {
     const { code, out } = await capture(() => runPlugin('web', ['version-exemptions']))
     expect(code).toBe(0)
     expect(out).toBe('{}\n')
-    expect(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))).toMatchObject({ qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app'] } } })
+    expect(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')))
+      .toMatchObject({ qilin: { profile: { bundles: [...PROFILE_TEMPLATES.web?.bundles ?? []] } } })
     expect(spawnSync).not.toHaveBeenCalled()
   })
 })

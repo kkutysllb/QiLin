@@ -61,6 +61,16 @@ export interface ProfileTemplate {
   bundles: readonly string[]
 }
 
+/**
+ * The animations skill pack, shipped by this installation as a built-in
+ * bundle. `dsh-animations` releases on its own line, so a profile installs a
+ * newer copy through the plugin channel and {@link PROFILE_OWNED_BUNDLES} lets
+ * that copy serve while a profile holding none resolves the installation's.
+ * {@link PROFILE_TEMPLATES} names the same package in its browser entries,
+ * which `verify-default-product-isolation` reads as string literals.
+ */
+export const ANIMATIONS_BUNDLE = 'dsh-animations'
+
 /** Package metadata accepted by the profile reader; local profiles need no published identity. */
 export type ProfileManifest = Partial<QilinPackageManifest> & {
   /** DSH-era profile or bundle metadata accepted by the compatibility loader. */
@@ -145,10 +155,23 @@ export function readProfilePluginRows(
       layer,
       version: installedVersionOf(binName, name, installAnchor, profileDir),
       source: shipped && !dependencies.has(name) ? 'builtin' : 'user',
-      updatable: !shipped || PROFILE_OWNED_BUNDLES.includes(name),
+      updatable: profileLayerUpdatable(name, builtInBundles),
       removable: !shipped,
     }
   })
+}
+
+/**
+ * Whether one declared layer can be upgraded in place: a bundle the profile
+ * installed, or a shipped bundle whose resolution the profile owns
+ * ({@link PROFILE_OWNED_BUNDLES}). Every other shipped layer moves with the
+ * running installation instead.
+ * @param name - the bundle's package name from `qilin.profile.bundles`.
+ * @param builtInBundles - bundle names supplied by the selected shipped template.
+ * @returns whether an installed copy of this layer resolves ahead of the installation's.
+ */
+export function profileLayerUpdatable(name: string, builtInBundles: readonly string[]): boolean {
+  return !builtInBundles.includes(name) || PROFILE_OWNED_BUNDLES.includes(name)
 }
 
 /**
@@ -234,13 +257,13 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     bundles: ['@qilin/base', '@qilin/acp-app'],
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app'],
+    bundles: ['@qilin/base', '@qilin/web-app', 'dsh-animations'],
   },
   headless: {
     bundles: ['@qilin/base', '@qilin/headless'],
   },
   qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
   },
   sdk: {
     bundles: ['@qilin/base', '@qilin/sdk-app'],
@@ -253,6 +276,11 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
+  // The tuples the browser surfaces shipped before the animations bundle
+  // joined them: a profile their owner never edited gains the built-in plugin
+  // on its next load, while one carrying a custom list keeps it.
+  web: ['@qilin/base', '@qilin/web-app'],
+  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
 }
 
 /** The bundle list a `qilin plugin` init uses for a name with no shipped template. */
@@ -954,23 +982,33 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
 }
 
 /**
- * Normalize an exact installation-owned bundle tuple to its shipped template,
- * preserving all other manifest fields. Other bundle lists remain untouched.
+ * Restore a shipped profile's template layers, preserving every entry the
+ * template never owned. A shipped layer is not removable in product — the
+ * plugin page offers no removal, `readProfilePluginRows` reports
+ * `removable: false`, and a row is switched off through the profile patch —
+ * so a list that lost one, or that predates a layer a release added, is
+ * brought back to the template on its next load. Entries added since (an
+ * installed plugin, a dependency-managed bundle) keep their order after the
+ * template's layers. A profile whose list is already the template plus those
+ * entries is left untouched, so the write converges. Profiles with no shipped
+ * template are left alone, and all other manifest fields are preserved.
  */
 function normalizeShippedProfile(name: string, dir: string, manifest: ProfileManifest): ProfileManifest {
-  const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[name]
   const template = PROFILE_TEMPLATES[name]
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles
   if (template === undefined || bundles === undefined) return manifest
-  const isRetiredTuple = installationOwned !== undefined && sameBundles(bundles, installationOwned)
-  if (!isRetiredTuple) return manifest
+  // Names a shipped template of this profile ever supplied are the installation's
+  // to place; anything else in the list belongs to its owner.
+  const shipped = new Set([...template.bundles, ...INSTALLATION_OWNED_PROFILE_TUPLES[name] ?? []])
+  const restored = [...template.bundles, ...bundles.filter(entry => !shipped.has(entry))]
+  if (sameBundles(bundles, restored)) return manifest
   const normalized: ProfileManifest = {
     ...manifest,
     qilin: {
       ...manifest.qilin,
       profile: {
         ...manifest.qilin?.profile,
-        bundles: [...template.bundles],
+        bundles: restored,
       },
     },
   }
@@ -1005,8 +1043,12 @@ function packageDirFromAnchor(
  * online-upgrade channel) replaces the installation's seed for that name,
  * while a fresh profile still resolves the seed with no profile install.
  * Every bundle not named here keeps the installation-first contract.
+ *
+ * Profile-first is also the order the Loader's own module resolution applies
+ * (a profile-local `node_modules` entry wins over the shared installation
+ * fallback), so one copy supplies both the patch layer and the code.
  */
-export const PROFILE_OWNED_BUNDLES: readonly string[] = []
+export const PROFILE_OWNED_BUNDLES: readonly string[] = [ANIMATIONS_BUNDLE]
 
 /**
  * Whether the running installation itself provides one package name. The
@@ -1035,8 +1077,8 @@ export function installationProvides(packageName: string, installAnchor: string)
  * profile directory. The installation-first order is the contract that
  * `@qilin/base` (and every other in-box bundle) always comes from
  * the same installation as the running qilin, never from a profile-local copy;
- * {@link PROFILE_OWNED_BUNDLES} members reverse the order (profile copy first,
- * installation seed as the fallback).
+ * {@link PROFILE_OWNED_BUNDLES} members reverse it (profile copy first, the
+ * installation's seed as the fallback).
  * Resolution does not require the package to export `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.
  * @param packageName - the bundle's package name from `qilin.profile.bundles`.

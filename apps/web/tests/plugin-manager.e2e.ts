@@ -89,11 +89,13 @@ describe('web e2e: plugin manager', () => {
     await panel.getByText('bundle', { exact: true }).waitFor({ timeout: 20_000 })
     const toggle = panel.getByRole('switch', { name: '启用 bundle' })
     expect(await toggle.getAttribute('aria-checked')).toBe('false')
-    // The profile's own group holds its one bundle; the installation's optional bundles open the Official
-    // group (OPTIONAL_BUNDLES: Agent Teams, voice input, and Auto review — the decision note ships three
-    // entries), followed by the official plugins that registered their configuration, and its other
-    // bundles stay off the page. The enabled ui-schedule page is the fourth item.
-    expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(1)
+    // The profile's own group holds the layers the shipped template composes
+    // (base, web-app, and the built-in animations pack); the installation's
+    // optional bundles open the Official group (OPTIONAL_BUNDLES: Agent Teams,
+    // voice input, and Auto review), followed by the official plugins that
+    // registered their configuration, and its other bundles stay off the page.
+    // The enabled ui-schedule page is the fourth item.
+    expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(3)
     expect(await panel.locator('[data-plugin-group="official"] [data-plugin-package]').count()).toBe(3)
     expect(await panel.locator('[data-plugin-group="official"] [data-plugin-item]').count()).toBe(4)
     // Every optional bundle is an experimental one, so all three carry the tag.

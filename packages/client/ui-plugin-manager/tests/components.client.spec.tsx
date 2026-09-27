@@ -27,6 +27,7 @@ function pkg(overrides: Partial<PackageView> = {}): PackageView {
     version: '0.16.0',
     installed: true,
     optional: false,
+    updatable: true,
     enabled: true,
     rows: [],
     ...overrides,
@@ -452,6 +453,39 @@ describe('PluginManagerPage', () => {
       '@qilin/experimental-agent-team-profile', '@acme/qilin-base', 'qilin-better-sidebar',
     ])
     expect([...document.querySelectorAll('[data-plugin-count]')].map(count => count.textContent)).toEqual(['1', '2'])
+  })
+
+  it('lists a shipped template layer the Host cannot read, which no ownership lets upgrade', () => {
+    // A shipped layer the profile does not own reaches the list only through the
+    // problem the Host reports; it is not profile-installed, optional, or updatable.
+    renderTab({
+      packages: [pkg({
+        name: '@qilin/web-brand', installed: false, updatable: false,
+        error: { code: 'operation-error', diagnostic: 'Unreadable bundle' },
+      })],
+    })
+    expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual(['@qilin/web-brand'])
+    expect(screen.getByText(en.statusProblem)).toBeTruthy()
+  })
+
+  it('shows a card for a shipped layer the profile owns and locks its layer switch with the reason', () => {
+    renderTab({
+      packages: [pkg({ name: 'dsh-animations', installed: false, optional: false, version: '1.2.3', readOnlyReason: 'shipped-layer' })],
+    })
+    // The layer is not profile-installed and not optional, so it reaches the list
+    // only through `updatable`.
+    const card = screen.getByRole('listitem')
+    expect(card.getAttribute('data-plugin-package')).toBe('dsh-animations')
+    const toggle = screen.getByRole('switch', { name: en.enableToggle.replace('{name}', 'dsh-animations') })
+    expect(toggle).toHaveProperty('disabled', true)
+    expect(toggle.getAttribute('title')).toBe(en.reasonShippedLayer)
+    // Its page states the reason in full: the layer arrives with the release, and
+    // a shipped layer offers no uninstall.
+    fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-animations') }))
+    const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
+    expect(within(detail).getByText(en.versionTag.replace('{version}', '1.2.3'))).toBeTruthy()
+    expect(within(detail).getByRole('status').textContent).toBe(en.reasonShippedLayer)
+    expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', 'dsh-animations') })).toBeNull()
   })
 
   it.each([false, true])('shows an empty list for built-in bundles with errors and installed=%s', (installed) => {

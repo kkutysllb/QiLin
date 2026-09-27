@@ -81,6 +81,8 @@ export interface PackageView {
   readonly installed: boolean
   /** Whether the installation ships the bundle for the person to switch on: official, off until selected, never removable. */
   readonly optional: boolean
+  /** Whether an installed copy of this layer resolves ahead of the installation's, so it can be upgraded in place. */
+  readonly updatable: boolean
   /** Whether the bundle is in the profile's layer list. */
   readonly enabled: boolean
   /** Why the Host refuses to switch the bundle off or remove it, when it does. */
@@ -499,6 +501,7 @@ export function packageView(bundle: BundleInfo, plugins: readonly PluginInfo[]):
     name: bundle.name,
     installed: bundle.installed,
     optional: bundle.optional,
+    updatable: bundle.updatable,
     enabled: bundle.enabled,
     rows,
     ...bundle.version === undefined ? {} : { version: bundle.version },

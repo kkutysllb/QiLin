@@ -43,6 +43,7 @@ declare module '@qilin/kylin' {
 }
 
 export {
+  ANIMATIONS_BUNDLE,
   assertNoEngineNameCollisions,
   composeEntries,
   createProfileResolutionGeneration,
@@ -60,6 +61,7 @@ export {
   loadProfileDirectory,
   PROFILE_OWNED_BUNDLES,
   PROFILE_PATCH_FILENAME,
+  profileLayerUpdatable,
   PROFILE_TEMPLATES,
   PROFILES_DIR,
   QILIN_LAUNCH_PROFILE_KEY,

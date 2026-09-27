@@ -105,6 +105,7 @@
     "@qilin/workflow-ptc": "workspace:*",
     "@qilin/schemastery": "workspace:~",
     "commander": "^15.0.0",
+    "dsh-animations": "^1.2.3",
     "js-yaml": "^4.2.0",
     "node-addon-require-builtin": "^0.1.6",
     "@qilin/http-proxy": "workspace:*",

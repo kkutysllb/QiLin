@@ -1,0 +1,39 @@
+# Agent Note: the animations skill pack ships as a built-in bundle with a plugin-channel upgrade
+
+Status: implemented
+
+English | [中文](2026-09-27-builtin-animations-bundle-channel.zh.md)
+
+## Problem
+
+The web surfaces had no animation skill pack: the eight HTML demo skills (PPT-style flip decks, flowcharts, protocol visualizations, architecture diagrams, notebook notes, card theater, video shot demos, phone-UI demos) reached an agent only after a person installed the `dsh-animations` npm package into a profile. The package is an ordinary out-of-tree bundle — a `qilin.bundle.patch` row that registers its skills through `ctx.skills.register()` plus a systemPrompt section, and a `qilin.client` bundle for its sidebar workbench — and it releases on its own line.
+
+Making it built-in raised two questions beyond "add the row". First, how its copy ships with QiLin at all: the package carries roughly 84 MB unpacked of skill sources, templates, and images, so a vendored repository copy would put that into git and every clone. Second, how a shipped copy stays upgradable when the plugin publishes a newer version to npm.
+
+## Decision
+
+- **Ship it in the installation closure, never in the repository.** `apps/cli` — the installation every profile bundle resolves from — declares `dsh-animations` as a dependency beside `@qilin/base`, `@qilin/web-app`, and the optional bundles. A checkout gets it from `pnpm install` and a packaged runtime from its own closure, so a release pins the floor and no skill asset enters the repository. `verify-default-product-isolation` holds the two declarations together: a template bundle that is neither a workspace package nor a runtime dependency of `apps/cli` fails the gate, and a resolved copy without a bundle patch leaves the composed Web layer set incomplete.
+- **Seed it from the browser templates.** `PROFILE_TEMPLATES.web` and `PROFILE_TEMPLATES.qilin` append `ANIMATIONS_BUNDLE` as their last layer, so a fresh profile composes the plugin's row with no profile install, and the bundle keeps owning that row in its own `cordis.patch.yml` rather than in a QiLin bundle's patch.
+- **Retrofit the browser profiles that already exist.** Loading a shipped profile restores its template's layers and keeps every entry the template never owned, using `INSTALLATION_OWNED_PROFILE_TUPLES` to recognize the entries an earlier release placed. A profile that predates the bundle gains it on the next load, a profile someone extended with their own plugins keeps them (after the template's layers), and a list that is already the template plus those entries is left untouched, so the write converges. Restoring rather than adding only to an exact match is what the product's own rule implies: a shipped layer is not removable — the plugin page offers no removal and `readProfilePluginRows` reports `removable: false` — and a row is switched off through the profile patch.
+- **The profile owns the name for resolution.** `PROFILE_OWNED_BUNDLES` names `ANIMATIONS_BUNDLE`, reversing the installation-first contract for that one bundle: a copy installed through `qilin plugin` or the plugin page's update action — both are `installBundle('<name>@latest')` — resolves ahead of the installation's seed, which is what makes the built-in plugin upgradable in place.
+- **Ownership is order-only, not version-compared.** The Loader's own module resolution prefers a profile-local `node_modules` entry in every case, so a version comparison inside `resolveBundleDir` would let the patch layer come from one copy while the code came from another. Both the patch layer and the code therefore follow the same profile-first order whenever the profile holds a copy.
+- **The upgrade is discoverable.** `readProfilePluginRows` already marked a profile-owned shipped layer `updatable`; `qilin plugin list` prints that marker, and the plugin manager's `checkUpdates()` covers the layer because `listBundles` lists the installation's dependencies even while the profile installs none of them. The layer also reaches the manage-plugins list: `BundleInfo.updatable` carries the profile-owned fact to the page, which lists such a layer as a card showing the version the profile resolves, with its layer switch locked (`readOnlyReason: 'shipped-layer'`) because dropping the entry would not survive the next load, and its rows still switchable. The update itself stays the updates list's action — `checkUpdates` reads the same layer — and the layer's row appears in Settings' Plugin list tab beside the other in-box rows.
+
+## The update path
+
+`qilin plugin add dsh-animations@latest` and the plugin page's update action run the same package operation in the profile directory. The first upgrade — installation seed to profile copy — resolves a different directory afterwards, so the manager reloads the profile live and the new copy serves. A later upgrade rewrites a dependency the profile already holds, which the manager reports as `restart-required`: its existing rule for a version bumped in place, because a reload cannot prove the module cache dropped the old files.
+
+## Alternatives considered
+
+- **Vendor the package into the repository**, the channel the retired [coding-sidebar vendor note](../../archived/architecture/2026-09-15-builtin-coding-sidebar-vendor-channel.md) documents for a TypeScript-built plugin. Rejected on size: 84 MB unpacked of skills and templates per clone, against a plugin that already publishes a self-contained npm artifact with no build step.
+- **Materialize a shipped copy into the profile at boot**, the shape the reference desktop product uses for its out-of-tree bundles. Rejected because QiLin has no materialization step to hang it on: profile bundles resolve through two anchors, and writing files into a user's profile would duplicate a package pnpm already owns.
+- **Seed the bundle for every profile**, including `headless`, `acp`, and the SDK surfaces. Rejected because the client half is web-only and the host half only adds presentation skills; `web` and `qilin` are the surfaces that use them.
+- **Compare versions and let the newer copy win**, so a release could advance past an older profile copy. Rejected as inconsistent: the Loader would still prefer the profile copy for the code, which would pair a newer patch layer with older plugin code — a mismatch decided at load time, invisible to the user.
+- **Auto-update on boot.** Rejected for a manual one-click upgrade: a boot-time registry lookup would add a network dependency to every start and silently change what a running installation loads.
+
+## Consequences
+
+- Both browser profiles always have the eight skills and their prompt announcement. A boot of `--profile web` composes the plugin's row, registers all eight runtime skills, and serves the client row in the boot graph with its `@deepseek-ai/dsh-client-*` inject edges canonicalized onto `@qilin/client-*` — the DSH-era names the package declares cost nothing, because the compatibility layer already maps them.
+- Every QiLin installation carries the skill pack's assets in its dependency closure. The Python-runtime executable's asset globs gained `node_modules/dsh-animations/skills/**/*`, because its entry point resolves skill bodies and templates through `import.meta.url` and the pack's templates are HTML, which the previous globs did not include.
+- A profile-installed copy pins the name for as long as it exists: a release that raises the dependency floor cannot advance that layer by resolution alone. The move-forward paths are the registry update and a profile `pnpm install`, both of which the CLI and the plugin page make routine.
+- `readProfilePluginRows` reports the layer's `source` as `user` once the profile depends on it while `removable` stays false, so the CLI prints `(shipped)  (updatable)` for a layer it will not let the person remove — the shipped-marker meaning "not removable", not "not installed".

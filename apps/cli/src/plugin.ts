@@ -64,7 +64,10 @@ function listPlugins(profile: string, dir: string): number {
   }
   for (const row of rows) {
     const locked = row.removable ? '' : '  (shipped)'
-    process.stdout.write(`${String(row.layer)}\t${row.name}@${row.version ?? 'not installed'}\t${row.source}${locked}\n`)
+    // A shipped layer the profile owns resolves from the profile once a newer
+    // copy is installed there, which is what an in-place upgrade does.
+    const upgradable = row.updatable && !row.removable ? '  (updatable)' : ''
+    process.stdout.write(`${String(row.layer)}\t${row.name}@${row.version ?? 'not installed'}\t${row.source}${locked}${upgradable}\n`)
   }
   return 0
 }

@@ -26,6 +26,7 @@ const BUNDLE: BundleInfo = {
   enabled: false,
   installed: true,
   optional: false,
+  updatable: true,
   removable: true,
   rows: [{ rowId: 'sidebar', moduleName: 'qilin-better-sidebar', entryId: ROW_ENTRY }, { rowId: 'theme', moduleName: 'qilin-better-sidebar/theme' }],
   overrides: [],
@@ -494,7 +495,7 @@ describe('packageView', () => {
   it('joins a bundle with the entries its rows run as', () => {
     expect(packageView(BUNDLE, PLUGINS)).toEqual({
       name: 'qilin-better-sidebar', version: '0.16.0', description: 'A sidebar.',
-      installed: true, optional: false, enabled: false,
+      installed: true, optional: false, updatable: true, enabled: false,
       rows: [
         { rowId: 'sidebar', moduleName: 'qilin-better-sidebar', entryId: ROW_ENTRY, enabled: true, phase: 'active' },
         { rowId: 'theme', moduleName: 'qilin-better-sidebar/theme', enabled: false, phase: null },
@@ -502,13 +503,15 @@ describe('packageView', () => {
     })
     // A row the inventory no longer lists, a protected row, and a bundle the Host cannot read.
     const protectedBundle: BundleInfo = {
-      name: '@qilin/base', enabled: true, installed: false, optional: false, removable: false, readOnlyReason: 'management-required',
+      name: '@qilin/base', enabled: true, installed: false, optional: false, updatable: false, removable: false,
+      readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [{ rowId: 'core', moduleName: '@qilin/base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
       overrides: [],
     }
     expect(packageView(protectedBundle, PLUGINS)).toEqual({
-      name: '@qilin/base', installed: false, optional: false, enabled: true, readOnlyReason: 'management-required',
+      name: '@qilin/base', installed: false, optional: false, updatable: false, enabled: true,
+      readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [
         { rowId: 'core', moduleName: '@qilin/base', entryId: 'include:core', enabled: true, phase: 'active', readOnlyReason: 'management-required' },
@@ -520,7 +523,7 @@ describe('packageView', () => {
 
 describe('sortPackages', () => {
   it('orders packages by the short name a person reads, not by the Host order or enablement', async () => {
-    const plain = { enabled: true, installed: true, optional: false, removable: true, rows: [], overrides: [] }
+    const plain = { enabled: true, installed: true, optional: false, updatable: true, removable: true, rows: [], overrides: [] }
     const zeta: BundleInfo = { ...plain, name: 'qilin-zeta' }
     const alpha: BundleInfo = { ...plain, name: '@acme/qilin-alpha', enabled: false }
     const views = [zeta, BUNDLE, alpha].map(bundle => packageView(bundle, PLUGINS))
