@@ -435,8 +435,8 @@ describe('Hero chrome', () => {
     const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
     // The ambient wordmark is decoration and carries no heading role.
-    expect(view.getByText('QiLin').getAttribute('aria-hidden')).toBe('true')
-    expect(view.getByRole('heading', { level: 1 }).textContent).toBe('Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit')
+    expect(view.getByText(en['hero.headline']).getAttribute('aria-hidden')).toBe('true')
+    expect(view.getByRole('heading', { level: 1 }).textContent).toBe(en['hero.tagline'])
     expect(renderSlot).toHaveBeenCalledOnce()
     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
     const brandMarkOwner = renderSlot.mock.calls[0]?.[1]
@@ -608,9 +608,9 @@ describe('ConversationRoot resident composer', () => {
     expect(b.view.queryByRole('tablist')).toBeNull()
     expect(b.slotCalls).not.toContain('conversation.session.header.utilities')
     expect(b.slotCalls).not.toContain('conversation.session.header.actions')
-    expect(b.view.getByText('QiLin')).toBeTruthy()
+    expect(b.view.getByText(zh['hero.headline'])).toBeTruthy()
     // Hero copy reaches the component through the owner's locale seat.
-    expect(b.view.getByText('以仁为界，以灵为智，以中为枢，以瑞为果')).toBeTruthy()
+    expect(b.view.getByText(zh['hero.tagline'])).toBeTruthy()
     expect(b.view.queryByTestId('view-chat')).toBeNull()
     // The same machine-backed textarea is live in the hero, and the
     // persistence mirror stays bound (ConversationSession mounts chrome-hidden
@@ -643,7 +643,7 @@ describe('ConversationRoot resident composer', () => {
     expect(conversationPhase(failed, EMPTY_CONVERSATION_SNAPSHOT)).toBe('engaging')
     const b = mount(failed, undefined, undefined, { summaryBlank: true })
     expect(b.view.container.querySelector('[data-phase]')?.getAttribute('data-phase')).toBe('active')
-    expect(b.view.queryByText('QiLin')).toBeNull()
+    expect(b.view.queryByText(zh['hero.headline'])).toBeNull()
   })
 
   it('settling phase: a summary that does not prove the session blank hides the composer while it opens', () => {
@@ -675,7 +675,7 @@ describe('ConversationRoot resident composer', () => {
     // blank the column for the history round-trip.
     const root = b.view.container.querySelector('[data-phase]')
     expect(root?.getAttribute('data-phase')).toBe('hero')
-    expect(b.view.getByText('QiLin')).toBeTruthy()
+    expect(b.view.getByText(zh['hero.headline'])).toBeTruthy()
     expect(b.view.getByRole('textbox')).toBeTruthy()
   })
 
