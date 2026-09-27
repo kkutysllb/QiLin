@@ -51,14 +51,19 @@ interface LocalBuild {
  * @returns the badge facts, or undefined when the artifact carries no version.
  */
 function localBuild(): LocalBuild | undefined {
-  const version = process.env.QILIN_CLIENT_VERSION
+  // The deployment's own product version wins the chip; the engine version the
+  // artifact was built from stays in the tooltip, so a product release remains
+  // traceable back to the engine that produced the bytes.
+  const engine = process.env.QILIN_CLIENT_VERSION
+  const version = process.env.QILIN_CLIENT_PRODUCT_VERSION ?? engine
   if (version === undefined) return undefined
   const commit = process.env.QILIN_CLIENT_COMMIT_HASH
   return {
     version,
     detail: version
       + (commit === undefined ? '' : `-${commit}`)
-      + (process.env.QILIN_CLIENT_GIT_DIRTY === 'true' ? '-dirty' : ''),
+      + (process.env.QILIN_CLIENT_GIT_DIRTY === 'true' ? '-dirty' : '')
+      + (engine === undefined || engine === version ? '' : `（引擎 ${engine}）`),
   }
 }
 
