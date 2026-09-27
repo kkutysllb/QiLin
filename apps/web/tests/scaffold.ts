@@ -1613,6 +1613,11 @@ export async function captureExpandedTurnProcessAria(
         return Math.abs(distanceFromBottom) <= 1 && await backToBottom.count() === 0
       }, { timeout: 10_000 }).toBe(true)
     }
+    // Expansion clicks and the programmatic scroll shift content under the
+    // stationary pointer; a hover tooltip left open at the capture point is a
+    // pointer-dependent artifact, not product content.
+    await page.mouse.move(0, 0)
+    await expect.poll(() => page.getByRole('tooltip').count(), { timeout: 5_000 }).toBe(0)
     return await captureStableAria(page, selector, workspaceCwd)
   } finally {
     for (const index of opened.reverse()) {
