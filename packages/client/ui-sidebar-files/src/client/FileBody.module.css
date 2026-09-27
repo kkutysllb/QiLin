@@ -212,6 +212,16 @@
   background: var(--dsw-alias-button-ghost-active-fill);
 }
 
+/* The wrap toggle carries a text label, not a glyph: width follows the
+   label on one line instead of the 28px icon circle, which would wrap the
+   four characters into a vertical strip. */
+.toolText {
+  width: auto;
+  padding: 6px 8px;
+  border-radius: 14px;
+  white-space: nowrap;
+}
+
 .wrapLabel {
   font-size: 11px;
 }

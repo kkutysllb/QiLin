@@ -215,7 +215,7 @@ export function FileBody({
         </button>
         <button
           type="button"
-          className={clsx(css.tool, edit.wrap && css.toolActive)}
+          className={clsx(css.tool, css.toolText, edit.wrap && css.toolActive)}
           aria-label={t('file.wrap')}
           title={t('file.wrap')}
           aria-pressed={edit.wrap}
