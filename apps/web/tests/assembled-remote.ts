@@ -69,6 +69,25 @@ interface ControlBaseline {
   }
 }
 
+/** The wire shape of one list-surface projection block: the sequence space named. */
+interface SessionListHints {
+  readonly kind: 'sequenced' | 'cached'
+  readonly asOfSeq: number
+  readonly values: Readonly<Record<string, unknown>>
+}
+
+/**
+ * The captured fixture stores the kind-less baseline shape, but the live host
+ * this mock stands in for always names the sequence space on list summaries;
+ * a kind-less block reaching the client's projection switch is unreachable by
+ * contract. Every summary leaving the mock gains the live-registry kind here.
+ */
+function withListHints(summary: SessionSummary): Omit<SessionSummary, 'projections'> & { projections?: SessionListHints | undefined } {
+  const { projections, ...rest } = summary
+  if (projections === undefined) return { ...rest }
+  return { ...rest, projections: { kind: 'sequenced', asOfSeq: projections.asOfSeq, values: projections.values } }
+}
+
 interface CapturedFixture {
   readonly sessionList: { readonly ok: true; readonly value: { readonly items: readonly SessionSummary[] } }
   readonly settingsDescribe: unknown
@@ -209,7 +228,7 @@ export function createAssembledRemote(options: AssembledRemoteOptions = {}): Ass
     mock.streams.push('$events', { type: 'cancel', eventId })
     return ok(undefined)
   })
-  mock.unary('session/list', () => ok({ items: structuredClone(sessions) }))
+  mock.unary('session/list', () => ok({ items: structuredClone(sessions.map(withListHints)) }))
   // The transcript asks for the durable projections separately; the control
   // baseline carries one entry per fixture Session.
   mock.unary('session/projections', (request: unknown) => {
@@ -262,7 +281,7 @@ export function createAssembledRemote(options: AssembledRemoteOptions = {}): Ass
         workspace: structuredClone(workspace),
       })
     }
-    mock.streams.push('$events', { type: 'emit', event: 'api-session/added', args: [structuredClone(summary)] })
+    mock.streams.push('$events', { type: 'emit', event: 'api-session/added', args: [structuredClone(withListHints(summary))] })
     return ok({ sessionId })
   })
   mock.unary('session/attachment', (request: unknown) => {
