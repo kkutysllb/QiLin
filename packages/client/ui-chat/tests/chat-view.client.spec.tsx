@@ -1435,6 +1435,8 @@ describe('ChatView', () => {
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('1')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('1')
+    // A settled Turn keeps the plain label (no running sweep).
+    expect(toggle.getAttribute('data-turn-running')).toBe(null)
     expect(toggle.getAttribute('data-turn-process-subagents')).toBe('1')
     const members = [...view.container.querySelectorAll<HTMLElement>('[data-turn-process-member]')]
     expect(members).toHaveLength(3)

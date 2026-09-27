@@ -49,9 +49,47 @@
   white-space: nowrap;
 }
 
+/* The running status label sweeps deep blue: 0.1.6's .turnStatus sweep that
+   did not come along when the status line moved into this row — the label is
+   a bare span here and the group headers' TextShimmer sweeps currentColor
+   (grey). Same static tokens, 250% background, 1.8s linear loop; the duration
+   travels inside the same label string, so it sweeps too. */
+.root[data-turn-running] .label {
+  background: linear-gradient(
+    90deg,
+    var(--dsw-static-deepseek-500) 0%,
+    var(--dsw-static-deepseek-500) 40%,
+    var(--dsw-static-deepseek-200) 50%,
+    var(--dsw-static-deepseek-500) 60%,
+    var(--dsw-static-deepseek-500) 100%
+  );
+  background-position: 100% 0;
+  background-size: 250% 100%;
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: qilin-turn-status-shimmer 1.8s linear infinite;
+}
+
+@keyframes qilin-turn-status-shimmer {
+  to {
+    background-position: 0 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .root,
   .chevron {
     transition: none;
+  }
+
+  .root[data-turn-running] .label {
+    background: none;
+    background-position: 0 0;
+    background-size: 100% 100%;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
   }
 }

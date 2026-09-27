@@ -20,6 +20,7 @@ import type {
 import { inspectRequestPrompt } from '../contract/request-inspection.ts'
 import { inspectSystemPrompt, type SystemPromptState } from '../contract/system-prompt.ts'
 import { ConversationNodeAssembler } from './assembler.ts'
+import type { SessionInputResolver } from '../contract/input.ts'
 import { ConversationEventRegistry } from './event-registry.ts'
 import { HistoricalImageCache } from './historical-images.ts'
 import { ConversationGroupRegistry } from './group-registry.ts'
@@ -275,6 +276,24 @@ export class UiConversation extends Service {
    */
   peekImageUrl(sessionId: SessionId, attachment: ImageAttachmentRef): string | undefined {
     return this.images.peek(sessionId, attachment)
+  }
+
+  /**
+   * Replace one Session's composer draft with `text` — the transcript
+   * "edit this message and resend" entry. Resolves the Session's resident
+   * input shell through the conversation service's input registry; no-op
+   * when the session has no shell. SessionId-explicit, like {@link imageUrl},
+   * so a call from any package needs no scope-addressed service inject.
+   * @param sessionId - target Session.
+   * @param text - full draft text.
+   */
+  fillDraft(sessionId: SessionId, text: string): void {
+    const owner = this.sessions.binding(sessionId)
+    if (owner === undefined) return
+    const conversation = this.ctx.get('conversation') as
+      | { readonly input: SessionInputResolver }
+      | undefined
+    conversation?.input.for(owner.ctx).setDraft(text)
   }
 
   /**
