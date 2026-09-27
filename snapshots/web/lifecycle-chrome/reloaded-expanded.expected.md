@@ -6,6 +6,7 @@
 - button "System prompt"
 - text: Reply with the single word LIGHTHOUSE and stop. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"

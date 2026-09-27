@@ -250,7 +250,10 @@ describe('web e2e: message IconActions and clocks on settled history', () => {
     await page.keyboard.press('Tab')
     await expect.poll(() => page.getByRole('tooltip').allTextContents(), { timeout: 5_000 })
       .toEqual(['Available only on the last message of a completed turn'])
-    await expect.poll(() => page.getByRole('button', { name: 'Edit' }).count(), { timeout: 5_000 }).toBe(0)
+    // Every user bubble carries the edit action now; the keyboard-modality
+    // dance above lands focus on the unavailable branch control, so its
+    // tooltip is the one asserted above while the edit tooltips stay shut.
+    await expect.poll(() => page.getByRole('button', { name: 'Edit' }).count(), { timeout: 5_000 }).toBe(3)
   }, 60_000)
 
   it.skipIf(MODE === 'record')('keeps an action tooltip above the sticky composer', async () => {

@@ -145,42 +145,61 @@ function packageNameOf(specifier: string): string {
 }
 
 /**
+ * Whether one row `name` names a module the image has to carry. A scope or a
+ * path separator is a module specifier by shape. A bare name counts only when
+ * {@link resolvePackage} finds it: a shipped bundle may carry an unscoped
+ * package name, while builtin rows (`cordis:group`) and preset metadata
+ * words resolve nowhere.
+ * @param name - Row `name` field.
+ * @param options - Pack options carrying the workspace index and resolution root.
+ * @returns Whether the name is a module specifier to materialize.
+ */
+function isModuleSpecifier(name: string, options: PackOptions): boolean {
+  if (name.startsWith('@') || name.includes('/')) return true
+  if (name.includes(':')) return false
+  return resolvePackage(name, options) !== undefined
+}
+
+/**
  * Collect module-specifier `name` fields from parsed entry rows, recursively
  * through nested `config` row lists (groups). Builtin rows (`cordis:group`)
  * and preset metadata documents carry names that are not module specifiers;
- * only names with a scope or a path separator count.
+ * {@link isModuleSpecifier} decides which bare names still count.
  * @param rows - Parsed YAML value; anything but an entry array is ignored.
  * @param names - Package names collected so far.
+ * @param options - Pack options carrying the workspace index and resolution root.
  */
-function moduleNamesOf(rows: unknown, names: Set<string>): void {
+function moduleNamesOf(rows: unknown, names: Set<string>, options: PackOptions): void {
   if (!Array.isArray(rows)) return
   for (const row of rows) {
     if (typeof row !== 'object' || row === null) continue
     const { name, config } = row as { name?: unknown; config?: unknown }
-    if (typeof name === 'string' && (name.startsWith('@') || name.includes('/'))) {
+    if (typeof name === 'string' && isModuleSpecifier(name, options)) {
       names.add(packageNameOf(name))
     }
-    moduleNamesOf(config, names)
+    moduleNamesOf(config, names, options)
   }
 }
 
 /**
  * Package names the composition names.
  * @param config - Composed profile; `!!js` scalars parse under Include's dialect.
+ * @param options - Pack options carrying the workspace index and resolution root.
  * @returns Package names, deduplicated.
  */
-function rosterOf(config: string): string[] {
+function rosterOf(config: string, options: PackOptions): string[] {
   const names = new Set<string>()
-  moduleNamesOf(yaml.load(config, { schema: entryListSchema }), names)
+  moduleNamesOf(yaml.load(config, { schema: entryListSchema }), names, options)
   return [...names]
 }
 
 /**
  * Package names the compositions under one config tree name.
  * @param root - Directory to walk.
+ * @param options - Pack options carrying the workspace index and resolution root.
  * @returns Package names, deduplicated.
  */
-function treeRosterOf(root: string): string[] {
+function treeRosterOf(root: string, options: PackOptions): string[] {
   const names = new Set<string>()
   const walk = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -190,7 +209,7 @@ function treeRosterOf(root: string): string[] {
         continue
       }
       if (!entry.name.endsWith('.yml') && !entry.name.endsWith('.yaml')) continue
-      moduleNamesOf(yaml.load(readFileSync(absolute, 'utf8'), { schema: entryListSchema }), names)
+      moduleNamesOf(yaml.load(readFileSync(absolute, 'utf8'), { schema: entryListSchema }), names, options)
     }
   }
   walk(root)
@@ -212,6 +231,26 @@ function resolveDependency(fromDirectory: string, name: string): string | undefi
     if (parent === directory) return undefined
     directory = parent
   }
+}
+
+/**
+ * Resolve one package the image has to carry. Node-style resolution from the
+ * pack root covers the installation's own tree; a workspace member's
+ * `node_modules` is the other provider, because pnpm installs the
+ * dependencies a member declares beneath that member — the shipped entry
+ * package declares a bundle the pack root itself never sees.
+ * @param name - Package name.
+ * @param options - Pack options carrying the workspace index and resolution root.
+ * @returns The real path of the package directory, or undefined.
+ */
+function resolvePackage(name: string, options: PackOptions): string | undefined {
+  const direct = resolveDependency(options.resolveFrom, name)
+  if (direct !== undefined) return direct
+  for (const directory of options.workspaces.values()) {
+    const found = resolveDependency(directory, name)
+    if (found !== undefined) return found
+  }
+  return undefined
 }
 
 /**
@@ -298,7 +337,9 @@ interface SweepOutcome {
  * this pass cannot see.
  * @param files - Candidate entries after the publish-view filter.
  * @param options - Pack options carrying the sweep roots.
- * @param rootPackages - Roster package names from the workspace.
+ * @param rootPackages - Roster package names the composition loads, workspace or
+ *   external: the config names each at runtime, so its declared faces are roots
+ *   whether or not the workspace index owns it.
  * @param root - Virtual root the candidates mount under.
  * @returns The final entries plus the sweep's counts.
  */
@@ -515,7 +556,9 @@ function materialize(
   for (let entry = queue.shift(); entry !== undefined; entry = queue.shift()) {
     const { name, from } = entry
     if (packages.has(name) || replaced.has(name)) continue
-    const directory = options.workspaces.get(name) ?? resolveDependency(from, name)
+    const directory = options.workspaces.get(name)
+      ?? resolveDependency(from, name)
+      ?? resolvePackage(name, options)
     if (directory === undefined) {
       missing.push(`${name} (from ${relative(options.resolveFrom, from) || '.'})`)
       continue
@@ -599,8 +642,8 @@ export function packVfsImage(options: PackOptions): PackResult {
   }
 
   const roster = [...new Set([
-    ...rosterOf(options.config),
-    ...configTrees.filter(tree => tree.scanRoster === true).flatMap(tree => treeRosterOf(tree.directory)),
+    ...rosterOf(options.config, options),
+    ...configTrees.filter(tree => tree.scanRoster === true).flatMap(tree => treeRosterOf(tree.directory, options)),
   ])]
   const { files, packages, missing } = materialize(roster, options)
 
@@ -608,7 +651,12 @@ export function packVfsImage(options: PackOptions): PackResult {
   for (const tree of configTrees) collectTree(tree.directory, files, tree.mount, relativePath => !excluded(relativePath))
 
   const executables = dropExecutables(files)
-  const rootPackages = [...packages.keys()].filter(name => options.workspaces.has(name))
+  // Two root classes: every workspace package the closure carries, whose code a
+  // runtime `import()` may reach without a static edge, and every roster name,
+  // which the composition loads by config — an external shipped bundle's entry
+  // is otherwise unreachable and would be dropped.
+  const rosterNames = new Set(roster)
+  const rootPackages = [...packages.keys()].filter(name => options.workspaces.has(name) || rosterNames.has(name))
   const { swept, transform, javascriptEntries, droppedJavascriptEntries, unresolvedExternalRequests } =
     sweepImage(files, options, rootPackages, root)
 

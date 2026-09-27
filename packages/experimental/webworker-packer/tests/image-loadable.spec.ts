@@ -78,6 +78,42 @@ describe('preview example overlays', () => {
 })
 
 /**
+ * A shipped bundle may carry an unscoped package name. The roster has to admit
+ * it — the pack root itself never resolves it, its declaring workspace member
+ * does — and the reachability sweep has to root it, or the worker boots with a
+ * config row whose entry file never made it into the image. `picomatch` is the
+ * cheap subject: bare name, installed under a member's `node_modules`, one
+ * `index.js` entry.
+ */
+describe('bare-name roster', () => {
+  it('admits an unscoped name and keeps its entry through the sweep', () => {
+    const result = packVfsImage({
+      config: "- id: subject\n  name: 'picomatch'\n",
+      profile: 'bare-name-check',
+      workspaces,
+      resolveFrom: repoRoot,
+      entries: [],
+    })
+    expect(result.roster).toEqual(['picomatch'])
+    expect(result.packages.has('picomatch')).toBe(true)
+    expect(result.missing).toEqual([])
+    expect(Object.hasOwn(result.files, 'node_modules/picomatch/index.js')).toBe(true)
+  })
+
+  it('leaves a bare name that resolves nowhere out of the roster', () => {
+    const result = packVfsImage({
+      config: "- id: subject\n  name: 'qilin-no-such-package'\n",
+      profile: 'bare-name-miss-check',
+      workspaces,
+      resolveFrom: repoRoot,
+      entries: [],
+    })
+    expect(result.roster).toEqual([])
+    expect(result.missing).toEqual([])
+  })
+})
+
+/**
  * The pack consumes built `lib/` output. An unbuilt checkout (both coverage
  * lanes run before any build) self-skips; the serial-windows complete
  * reference routes this suite through its post-build uninstrumented gate, and

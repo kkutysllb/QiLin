@@ -6,6 +6,7 @@
 - button "System prompt"
 - text: "Use the bash tool to run exactly: printf 'MINIMAL_BASH_CARD_OK\\n'. Then reply exactly MINIMAL_PRESET_REQUEST_OK and stop. {{clock}}"
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection time-context"

@@ -10,6 +10,7 @@
 - text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
 - button "Copy"
 - tooltip "Copy"
+- button "Edit this message and resend"
 - status: Stopped
 - button "Stopped" [disabled] [expanded]
 - button "Analysis completed"
@@ -23,6 +24,7 @@
 - button "System prompt"
 - text: Now give the final answer. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - paragraph: DONE
@@ -32,6 +34,7 @@
 - button "Branch into a new conversation"
 - text: {{clock}} Keep this later input in the original conversation. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - paragraph: ORIGINAL ONLY

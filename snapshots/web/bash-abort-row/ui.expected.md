@@ -5,6 +5,7 @@
 - button "System prompt"
 - text: "Run two shell commands: wait for cancellation, then write skipped.txt. {{clock}}"
 - button "Copy"
+- button "Edit this message and resend"
 - status: Stopped
 - button "Stopped" [disabled] [expanded]
 - button "Context injection runtime-context"

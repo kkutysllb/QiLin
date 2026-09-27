@@ -12,6 +12,7 @@
 - button "System prompt"
 - text: "Explain event sourcing in one sentence.Your parent agent id is \"session-{{uuid}}\". Before you finish, send your result to that agent with send_message({ agent_id: \"session-{{uuid}}\", message: \"<self-contained result>\" }). The parent shares your workspace but does not automatically receive your transcript, tool output, or reasoning. Send earlier messages as well when a finding changes what the parent should do next; sending a message does not end your turn. {{clock}}"
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
@@ -27,6 +28,7 @@
 - button "System prompt"
 - text: Now give the same explanation to a human reader. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection time-context"

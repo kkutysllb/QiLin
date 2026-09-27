@@ -3,6 +3,7 @@
     - button "Inline code links" [disabled]
 - text: Show the local preview URL. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - heading "Inline code links" [level=2]

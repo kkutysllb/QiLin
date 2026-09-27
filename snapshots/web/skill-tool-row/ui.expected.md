@@ -5,6 +5,7 @@
 - button "System prompt"
 - text: Load the editing-cordis-compositions skill with the skill tool, then reply DONE. {{date}} {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"

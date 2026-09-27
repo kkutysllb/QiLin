@@ -4,6 +4,7 @@
   - button "Open right sidebar"
 - text: Render adjacent CJK strong emphasis. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - heading "CJK strong emphasis" [level=2]

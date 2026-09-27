@@ -8,6 +8,7 @@
   - button "Open right sidebar"
 - text: Give one concrete event sourcing example. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status:
   - strong: This subagent is read-only for now
   - text: The parent session is offline; reopen it to continue sending messages.

@@ -4,6 +4,7 @@
   - button "Open right sidebar"
 - text: "Assemble the link gallery: write the report and styles, inspect the sources, and summarize. {{clock}}"
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Wrote files, called tools, searched code, etc." [expanded]

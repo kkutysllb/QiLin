@@ -6,6 +6,7 @@
 - button "System prompt"
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: QiLin...
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"

@@ -6,6 +6,7 @@
   - button "Open right sidebar"
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Called tools, ran code, ran commands" [expanded]
@@ -31,6 +32,7 @@
   - button "Open right sidebar"
 - text: Inspect the protected operation, but do not run it unless authorized. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Called tools, ran code, ran commands" [expanded]

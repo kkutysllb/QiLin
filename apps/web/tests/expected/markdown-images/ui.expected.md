@@ -4,6 +4,7 @@
   - button "Open right sidebar"
 - text: Show the Markdown image policy. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - heading "Markdown images" [level=2]

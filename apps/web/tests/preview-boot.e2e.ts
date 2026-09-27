@@ -238,16 +238,31 @@ async function serveDist(overrides: ReadonlyMap<string, string>): Promise<Site> 
  * @param stalled - Error message when it does not arrive in time.
  * @returns What `work` resolved to.
  */
-async function within<T>(work: Promise<T>, ms: number, stalled: string): Promise<T> {
+async function within<T>(work: Promise<T>, ms: number, stalled: string | (() => string)): Promise<T> {
   let timer: NodeJS.Timeout | undefined
   try {
     return await Promise.race([
       work,
-      new Promise<never>((_, reject) => { timer = setTimeout(() => { reject(new Error(stalled)) }, ms) }),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => { reject(new Error(typeof stalled === 'function' ? stalled() : stalled)) }, ms)
+      }),
     ])
   } finally {
     clearTimeout(timer)
   }
+}
+
+/**
+ * Name the boot milestone that stalled together with the console lines collected
+ * while waiting: the worker reports activation failures there, so a bare
+ * timeout would hide the cause.
+ * @param milestone - Milestone text.
+ * @param consoleLines - Error and warning lines collected so far.
+ * @returns The stall message.
+ */
+function stalledBoot(milestone: string, consoleLines: readonly string[]): string {
+  const recent = consoleLines.slice(-12)
+  return recent.length === 0 ? milestone : `${milestone} — console:\n${recent.join('\n')}`
 }
 
 it('boots the packed worker deployment to an interactive page', async () => {
@@ -305,7 +320,10 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     )
     await page.getByRole('button', { name: 'Start Preview' }).click()
     await page.getByText('Loading plugins…', { exact: true }).waitFor({ timeout: 10_000 })
-    const bootLine = await within(treeActive, BOOT_TIMEOUT_MS, `preview boot: the worker never reported "${TREE_ACTIVE}"`)
+    const bootLine = await within(treeActive, BOOT_TIMEOUT_MS, () => stalledBoot(
+      `preview boot: the worker never reported "${TREE_ACTIVE}"`,
+      consoleErrors,
+    ))
     // The activated tree ran bodies lowered against the contract this
     // checkout's packer emits; a dist built before a contract change would
     // report the older one.
@@ -471,7 +489,7 @@ async function bootEmptyPreview(origin: string, browser: Browser): Promise<void>
     const bootLine = await within(
       treeActive,
       BOOT_TIMEOUT_MS,
-      `empty preview boot: the worker never reported "${TREE_ACTIVE}"`,
+      () => stalledBoot(`empty preview boot: the worker never reported "${TREE_ACTIVE}"`, consoleErrors),
     )
     expect(bootLine).toContain(`image lowering=${WRAPPER_CONTRACT}`)
     expect(bootLine).toContain('data overlays=0')

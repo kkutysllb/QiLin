@@ -4,6 +4,7 @@
   - button "Open right sidebar"
 - text: Render this mathematical proof. {{clock}}
 - button "Copy"
+- button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - heading "Math rendering" [level=2]
