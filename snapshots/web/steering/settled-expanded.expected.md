@@ -9,10 +9,12 @@
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Asked questions" [expanded]
 - button "Ask question 1/1 answered"
 - text: "Interjection: include the word BANANA in your final reply. {{clock}}"
 - button "Copy"
+- button "Context injection time-context"
 - paragraph: Great, let's move forward. BANANA!
 - button "Copy"
 - button "Good response"

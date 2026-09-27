@@ -31,7 +31,7 @@ Users reach the shell from the sidebar footer's account menu, whose Settings row
 <details>
 ### Panel chrome and About
 
-The settings shell renders as a centered 800×800 modal panel over a blurred mask: the section navigation sits on its left at the fixed 188px rail width, sections render directly in the scrolling options column, and the header carries the document actions plus one close control that shares its close path with the mask and Escape. The navigation lists every `settings.section` entry in ledger order, ending with the shell-owned **About QiLin** row, and that page introduces the project with the two-character 麒麟 mark. The `settings.about.mark` seat lets the active QiLin brand provider render the vector seal; localized 麒麟 text remains the explicit fallback.
+The settings shell renders as a full-window page: the section navigation is a filled 240px rail carrying the workspace return control at its head and a draggable right edge, sections render in the scrolling content column capped to a 960px reading width, and every `settings.general.item` contribution draws as its own card. The header carries the document actions plus one close control that shares its close path with the mask and Escape. The navigation lists every `settings.section` entry in ledger order, ending with the shell-owned **About QiLin** row, and that page introduces the project with the two-character 麒麟 mark. The `settings.about.mark` seat lets the active QiLin brand provider render the vector seal; localized 麒麟 text remains the explicit fallback.
 
 ### The General section
 

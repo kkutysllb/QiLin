@@ -1,5 +1,14 @@
-/* Feature-contributed rows own their chrome and separators; the section
- * strips the trailing separator wherever the column ends. */
+/* Every feature contribution is its own card, so the General column reads as a
+ * stack of independent settings instead of one long form. The slot renders one
+ * layout-neutral anchor holding all item roots, so the card rules have to reach
+ * through it and land on each registrant's root element — and the closing rule
+ * targets the last item *inside* that anchor: the anchor is the section's only
+ * child, so a `:last-child` on the anchor itself would match on every render.
+ *
+ * Registrants own their row chrome (padding plus a hairline separator) for the
+ * flat column they were written against; the card replaces both, and these
+ * selectors outrank a registrant's single class wherever the two disagree. The
+ * card keeps the page's own surface — the outline alone separates it. */
 
 .section {
   display: flex;
@@ -7,6 +16,15 @@
   width: 100%;
 }
 
-.section > :global([data-slot='settings.general.item']) > :last-child {
-  border-bottom: none;
+.section > :global([data-slot='settings.general.item']) > * {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 20px 24px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 16px;
+}
+
+.section > :global([data-slot='settings.general.item']) > *:last-child {
+  margin-bottom: 0;
 }

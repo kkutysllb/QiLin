@@ -9,6 +9,7 @@
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Analysis completed" [expanded]
 - 'button "Think The user wants me to plan a small change to add a `--greeting` flag to a CLI. They explicitly told me not to read or write any files, and to call exit_plan_mode with a short plan. Let me do that directly."'
 - paragraph:
@@ -18,6 +19,7 @@
 - button "Called tools" [expanded]
 - 'button "Tool call exit_plan_mode · # Add `--greeting` flag to CLI"'
 - button "System prompt"
+- button "Context injection time-context"
 - button "Analysis completed" [expanded]
 - 'button "Think The plan was approved. The user''s last instruction says: \"Once the plan is approved, reply with the single word DONE and stop.\" So I should just reply with DONE and stop."'
 - paragraph: DONE
@@ -27,6 +29,7 @@
 - button "Bad response"
 - button "Branch into a new conversation"
 - text: {{clock}}
+- button "Back to bottom"
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

@@ -138,13 +138,17 @@
     # `time-context` supplies the current time, browser zone, and elapsed time
     # the model needs to resolve an unqualified date or time. The browser half
     # is the `ui-schedule` row below.
+    #
+    # Enabled here, on the profile that ships them: the three rows are one
+    # capability, and the shipped bundle is the only layer that can turn them
+    # on. The upstream default is `disabled: true` with no in-product entry to
+    # change it — the plugin manager excludes built-in profile bundles by
+    # design, so the owner of the release, not the user, restores them.
     - id: time-context
       name: '@qilin/time-context'
-      disabled: true
 
     - id: schedule
       name: '@qilin/schedule'
-      disabled: true
 
     # Configuration-surface reads and writes over Typert Remote. Each method
     # reports an actionable error when its settings-domain provider is absent.
@@ -397,10 +401,9 @@
       name: '@qilin/client-ui-reference'
 
     # Task management and Session reminder catalog over the Host Schedule
-    # service mounted above.
+    # service mounted above. Enabled with the two host rows it renders.
     - id: ui-schedule
       name: '@qilin/client-ui-schedule'
-      disabled: true
 
     # Background jobs: the session-header list over the job Remote streams.
     - id: ui-jobs

@@ -9,6 +9,7 @@
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Called tools, ran code, ran commands" [expanded]
 - button "Think The user wants one run_code program that:"
 - text: Failed
@@ -16,6 +17,8 @@
 - button "Present files Delivery failed missing.txt"
 - button "Bash Write DELIVERED_REPORT and DELIVERED_NOTE to files"
 - button "Present files Delivered report.txt, 说明.txt"
+- button "Context injection time-context"
+- button "Analysis completed" [expanded]
 - button "Think The program ran as intended:"
 - paragraph:
   - text: "The single program ran exactly as ordered:"
@@ -50,6 +53,7 @@
 - button "Branch into a new conversation"
 - button "Usage 19K tok"
 - text: {{clock}}
+- button "Back to bottom"
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

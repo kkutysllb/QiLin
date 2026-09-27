@@ -4,10 +4,13 @@
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Called tools" [expanded]
 - button "Think The user wants me to use the workflow tool exactly once with specific parameters. Let me carefully follow the instructions:"
 - button "Run workflow snapshot-flow"
 - button "snapshot-flow 1 member Completed"
+- button "Context injection time-context"
+- button "Analysis completed" [expanded]
 - button "Think The workflow returned successfully with the reply \"WF_CHILD_OK\". Now I need to reply with exactly \"WORKFLOW_DONE\" and stop."
 - paragraph: WORKFLOW_DONE
 - button "Copy"

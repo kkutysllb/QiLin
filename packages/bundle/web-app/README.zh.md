@@ -52,7 +52,7 @@ qilin --profile web --no-open --port 8080
 | `surfaceContext` | `true` | 给 agent 提供 GUI 定位上下文，并把 `QILIN_WEB_URL` 暴露给其 shell 命令 |
 | `trustedHosts` | `[]` | 允许从网络访问 GUI 的额外主机 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 随发行版交付的组合默认禁用 `schedule`、`ui-schedule` 和 `time-context`。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilinweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 随发行版交付的组合将 `schedule`、`ui-schedule` 与 `time-context` 一起启用：上游默认把这三行全部禁用，且产品内没有入口可以反转它——插件管理页按设计排除内置 profile 组合包。承载它们的 profile 就是恢复它们的层。
 
 ### 账户与入口文档
 

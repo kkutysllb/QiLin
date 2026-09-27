@@ -52,7 +52,7 @@ Most users never set these; the command-line flags feed the four settings below 
 | `surfaceContext` | `true` | Give the agent GUI-orientation context and expose `QILIN_WEB_URL` to its shell commands |
 | `trustedHosts` | `[]` | Extra hosts allowed to reach the GUI from the network |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinweb-app) is the exhaustive source for every accepted field and its JSDoc. The shipped composition disables `schedule`, `ui-schedule`, and `time-context` by default.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilinweb-app) is the exhaustive source for every accepted field and its JSDoc. The shipped composition enables `schedule`, `ui-schedule`, and `time-context` together: the upstream default disables all three, and no in-product control reverses it, because the plugin manager excludes built-in profile bundles. The profile that ships them is the layer that restores them.
 
 ### Accounts and the entry documents
 

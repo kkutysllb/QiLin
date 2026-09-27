@@ -30,7 +30,7 @@ const RECOVERY_CONFIRMATION_MS = 2_000
 /** Minimum visible time for the connecting pill; shorter attempts read as flicker. */
 const CONNECTING_MIN_VISIBLE_MS = 800
 
-const SETTINGS_NAV_DEFAULT_WIDTH = 188
+const SETTINGS_NAV_DEFAULT_WIDTH = 240
 const SETTINGS_NAV_MIN_WIDTH = 160
 const SETTINGS_NAV_MAX_WIDTH = 360
 
@@ -177,6 +177,10 @@ function SettingsPanel({
       <div className={css.mask} aria-hidden="true" onClick={onClose} />
       <div ref={panel} tabIndex={-1} data-shortcut-modal="settings" className={css.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <nav className={css.nav} style={{ width: navWidth }}>
+          <button type="button" className={css.navBack} onClick={onClose}>
+            <IconChevronLeftOutline14 size={14} />
+            <span>{backToWorkspaceLabel}</span>
+          </button>
           <div className={css.navTitle} id={titleId}
             data-modal-autofocus={active === undefined ? '' : undefined}>{renderSlot('settings.header', {})}</div>
           <div className={css.navList}>
@@ -215,20 +219,14 @@ function SettingsPanel({
         <div className={css.content}>
           <div className={css.header}>
             <div className={css.actions}>{renderSlot('settings.action', {})}</div>
-            <div className={css.headerRight}>
-              <button type="button" className={css.returnButton} onClick={onClose}>
-                <IconChevronLeftOutline14 size={14} />
-                <span>{backToWorkspaceLabel}</span>
-              </button>
-              <button type="button" className={css.close} onClick={onClose}>
-                <IconCloseOutline16 size={14} />
-                <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
-              </button>
-            </div>
+            <button type="button" className={css.close} onClick={onClose}>
+              <IconCloseOutline16 size={14} />
+              <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
+            </button>
           </div>
           <div className={css.options}>
             {active !== undefined && (
-              <section className={css.sectionCard} data-section-id={active}>
+              <section className={css.sectionColumn} data-section-id={active}>
                 {renderSlot('settings.section', { close: onClose }, { only: active })}
               </section>
             )}

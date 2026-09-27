@@ -9,7 +9,7 @@ import { withDefaultWeb, webGet } from './default-web-process.ts'
 
 const experimentalName = '@qilin/experimental-client-ui-agent-team'
 
-it('boots the default Web profile without experimental Host modules, scheduling, time context, mounted plugins, or Client entries', async (test) => {
+it('boots the default Web profile without experimental Host modules or mounted plugins', async (test) => {
   await withDefaultWeb(test, async ({ url, request }) => {
     const auth = await webGet(url, test.signal)
     const cookie = auth.headers['set-cookie']?.[0]?.split(';', 1)[0]
@@ -32,13 +32,20 @@ it('boots the default Web profile without experimental Host modules, scheduling,
     expect(roster.plugins.length).toBeGreaterThan(roster.entries.length)
     expect(roster.modules.some(url => modulePackage(url) === '@qilin/cli')).toBe(true)
     expect(roster.client.entries.length).toBeGreaterThan(0)
-    // The shipped graph resolves these rows but leaves each disabled: they
-    // appear in the roster with no settled state and are never delivered.
+    // The shipped schedule capability: the profile enables the Host service,
+    // the time context, and the browser half together, and all three reach the
+    // Client graph. The built-in browser row keeps its upstream default,
+    // because its value is decided by profile name rather than by this bundle.
+    for (const name of ['@qilin/time-context', '@qilin/schedule']) {
+      expect(roster.entries, name).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name, state: FiberState.ACTIVE }),
+      ]))
+    }
+    expect(delivered.entries.some(entry => entry.id === '@qilin/client-ui-schedule')).toBe(true)
+    // The shipped graph resolves this row but leaves it disabled: it appears in
+    // the roster with no settled state and is never delivered.
     for (const name of [
       '@qilin/client-ui-sidebar-browser',
-      '@qilin/time-context',
-      '@qilin/schedule',
-      '@qilin/client-ui-schedule',
     ]) {
       const entry = roster.entries.find(entry => entry.name === name)
       expect(entry, name).toBeDefined()

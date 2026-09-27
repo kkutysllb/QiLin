@@ -838,15 +838,17 @@ describe.skipIf(MODE === 'record')('web e2e: active Schedule catalog', () => {
       loadOverlayPatches('Schedule catalog shipped roster', BASE_PATCH),
       loadOverlayPatches('Schedule catalog shipped roster', WEB_PATCH),
     ])
-    expect(shipped.find(entry => entry.id === 'ui-schedule')).toMatchObject({
-      name: '@qilin/client-ui-schedule',
-    })
-    expect(shipped.find(entry => entry.id === 'ui-schedule')?.disabled).toBe(true)
+    // The shipped profile enables the capability: none of the three rows
+    // carries a disabling expression, and a deployment opts out through an
+    // overlay instead.
     for (const row of [
+      { id: 'ui-schedule', name: '@qilin/client-ui-schedule' },
       { id: 'time-context', name: '@qilin/time-context' },
       { id: 'schedule', name: '@qilin/schedule' },
     ]) {
-      expect(shipped.filter(entry => entry.id === row.id && entry.name === row.name)).toHaveLength(1)
+      const entry = shipped.find(candidate => candidate.id === row.id && candidate.name === row.name)
+      expect(entry, row.id).toBeDefined()
+      expect(entry!.disabled, row.id).toBeUndefined()
     }
 
     await page.getByRole('button', { name: 'Automation tasks', exact: true }).click()

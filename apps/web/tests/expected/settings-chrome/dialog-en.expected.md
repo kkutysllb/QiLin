@@ -1,5 +1,6 @@
 - dialog "Settings":
   - navigation:
+    - button "Back to workspace"
     - text: Settings
     - button "General"
     - button "Models"
@@ -12,7 +13,6 @@
     - button "About QiLin"
     - separator "Resize settings navigation"
   - button "Open configuration file"
-  - button "Back to workspace"
   - button "Close"
   - text: Permission Choose the default permission mode for new sessions
   - button "Workspace Write"

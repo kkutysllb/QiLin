@@ -484,7 +484,7 @@ describe('web e2e: seeded history renders through cold resume', () => {
 
   it.skipIf(MODE === 'record')('restores the active turn rail mark across a Session round trip', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-seeded-rail-mark'))
-    // Upstream e22b0d75e8 drove this across its Chat/Trajectory view tabs; the
+    // The upstream release this port descends from drove this across its Chat/Trajectory view tabs; the
     // tabs are gone here, and the same ChatView remount is what a Session
     // switch round trip produces. The reading position must sit away from the
     // tail first, or a restore that fell back to the tail would still pass.

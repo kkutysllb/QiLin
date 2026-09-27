@@ -4,16 +4,12 @@
 - button "刷新"
 - button "添加插件"
 - heading "官方" [level=3]
-- text: "8"
+- text: "7"
 - list:
   - listitem:
     - button "查看 智能体团队": 智能体团队
     - text: Beta 启用智能体团队协作与团队工具。
     - switch "启用 智能体团队"
-  - listitem:
-    - button "查看 智能体团队 Web 界面": 智能体团队 Web 界面
-    - text: Beta 在浏览器中查看团队成员、任务看板和成员会话。
-    - switch "启用 智能体团队 Web 界面"
   - listitem:
     - button "查看 自动授权审查": 自动授权审查
     - text: Beta 提供自动审查权限模式，由模型在每次工具调用前判断是否授权。

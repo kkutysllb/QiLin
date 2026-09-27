@@ -9,6 +9,7 @@
 - status: QiLin...
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Waiting for your action · Ready to continue?"
 - text: "Interjection: include the word BANANA in your final reply."
 - button "Copy"

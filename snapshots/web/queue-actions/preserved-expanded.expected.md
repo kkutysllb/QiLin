@@ -9,6 +9,7 @@
 - status: Stopped
 - button "Stopped" [disabled]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - paragraph: partial
 - text: Stopped
 - button "Copy"

@@ -9,6 +9,7 @@
 - status: QiLin...
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - paragraph: partial
 - button "2 queued messages"
 - textbox "Cmd/Ctrl+Enter steers all queued messages"

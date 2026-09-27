@@ -9,9 +9,11 @@
 - status: Stopped
 - button "Stopped" [disabled] [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Analysis completed"
 - paragraph: Reading the workspace now.
 - button "Ran commands"
+- button "Context injection time-context"
 - paragraph: partial
 - text: Stopped
 - button "Copy"

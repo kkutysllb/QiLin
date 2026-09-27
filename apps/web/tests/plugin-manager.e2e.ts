@@ -90,14 +90,14 @@ describe('web e2e: plugin manager', () => {
     const toggle = panel.getByRole('switch', { name: '启用 bundle' })
     expect(await toggle.getAttribute('aria-checked')).toBe('false')
     // The profile's own group holds its one bundle; the installation's optional bundles open the Official
-    // group (OPTIONAL_BUNDLES: the two Agent Teams layers, voice input, and Auto review — the decision note
-    // ships four entries), followed by the official plugins that registered their configuration, and its
-    // other bundles stay off the page.
+    // group (OPTIONAL_BUNDLES: Agent Teams, voice input, and Auto review — the decision note ships three
+    // entries), followed by the official plugins that registered their configuration, and its other
+    // bundles stay off the page. The enabled ui-schedule page is the fourth item.
     expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(1)
-    expect(await panel.locator('[data-plugin-group="official"] [data-plugin-package]').count()).toBe(4)
+    expect(await panel.locator('[data-plugin-group="official"] [data-plugin-package]').count()).toBe(3)
     expect(await panel.locator('[data-plugin-group="official"] [data-plugin-item]').count()).toBe(4)
-    // Every optional bundle is an experimental one, so all four carry the tag.
-    expect(await panel.getByText('Beta', { exact: true }).count()).toBe(4)
+    // Every optional bundle is an experimental one, so all three carry the tag.
+    expect(await panel.getByText('Beta', { exact: true }).count()).toBe(3)
     // A bundle that is off still shows the rows its patch declares, without switches.
     await panel.getByRole('button', { name: '查看 bundle' }).click()
     await panel.locator('[data-plugin-row]', { hasText: 'fixture-row' }).waitFor({ timeout: 10_000 })
@@ -137,11 +137,10 @@ describe('web e2e: plugin manager', () => {
       expect(await packageName.textContent()).toBe('@qilin/experimental-agent-team-profile')
       expect(await englishPanel.getByText('Enable agent team collaboration and team tools.').count()).toBe(1)
       await englishPanel.getByRole('button', { name: 'Back to plugins', exact: true }).click()
-      for (const title of ['Agent Teams', 'Agent Teams Web UI']) {
+      for (const title of ['Agent Teams']) {
         await englishPanel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
         expect(await englishPanel.getByRole('switch', { name: `Enable ${title}`, exact: true }).count()).toBe(1)
       }
-      expect(await englishPanel.getByText('View team members, the task board, and teammate sessions in the browser.').count()).toBe(1)
       // The official configuration pages follow the language too, from their own dictionary.
       for (const title of ['Shell', 'Agent loop', 'Subagent', 'Web search']) {
         await englishPanel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()

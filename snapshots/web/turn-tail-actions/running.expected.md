@@ -10,9 +10,11 @@
 - status: QiLin...
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Analysis completed"
 - paragraph: Reading the workspace now.
 - button "Ran commands"
+- button "Context injection time-context"
 - paragraph: partial
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"

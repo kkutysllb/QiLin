@@ -12,6 +12,7 @@
 - button "Took {{duration}}" [disabled]
 - button "Context injection runtime-context"
 - button "Context injection user-invoke-demo"
+- button "Context injection time-context"
 - paragraph: USER_INVOKE_REPLY acknowledged; following the injected skill.
 - button "Copy"
 - button "Good response"

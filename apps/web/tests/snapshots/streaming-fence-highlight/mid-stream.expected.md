@@ -9,6 +9,7 @@
 - status: QiLin...
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - text: ts
 - button "Copy"
 - code: "const first: number = 1 const second = \"two\" let tail"

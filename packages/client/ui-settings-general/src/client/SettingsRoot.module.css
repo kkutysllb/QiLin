@@ -25,8 +25,8 @@
   backdrop-filter: var(--dsw-mask-blur);
 }
 
-/* Panel (figma Settings 501:29947): r24, white; the figma lv3 effects are
-   superseded by the shared elevation treatment; figma's 1080x700 is shrunk to 800 wide.
+/* Full-window page (figma Settings 501:29947): the panel keeps the overlay as
+   its positioning host and fills it, so no radius, shadow, or mask edge shows.
    One height for every section, taken from the viewport rather than the
    content: sections differ by hundreds of pixels (a settings list against the
    composition editor), and a content-sized panel would resize under the
@@ -38,7 +38,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--dsw-alias-bg-layer-2);
   /* Elevated surface: the scrollbar thumb takes the l2 elevation tokens.
      Declared on the panel rather than the scrolling `.options` child so the
      elevation choice sits with the surface; the custom properties inherit
@@ -48,19 +48,59 @@
   --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
-/* Nav rail (figma .Setting-nav 501:29958): 188 wide, pad (12,22,12,0),
-   gap 18, no own fill — the panel white shows through. */
+/* Nav rail (figma .Setting-nav 501:29958): default 240 wide, pad (12,22,12,0),
+   gap 18, filled with the sidebar surface and closed by a hairline — the same
+   left-list/right-content split every other page uses. */
 .nav {
   position: relative;
   flex: none;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  width: 188px;
+  width: 240px;
   padding: 22px 12px 0;
   box-sizing: border-box;
   background: var(--dsw-specific-sidebar-fill);
   border-right: 0.5px solid var(--dsw-alias-border-l1);
+}
+
+/* Workspace return control at the rail head: one nav-cell box above the panel
+   title, so leaving the page is the first row of the same list. */
+.navBack {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 9px 16px 9px 12px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: var(--dsw-radius-md);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+  text-align: left;
+}
+
+.navBack:hover {
+  background: var(--dsw-specific-sidebar-nav-item-hover);
+}
+
+.navBack:active {
+  background: var(--dsw-specific-sidebar-nav-item-active);
+}
+
+.navBack > svg {
+  flex: none;
+  display: block;
+}
+
+.navBack > span {
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .resizeHandle {
@@ -157,11 +197,11 @@
 .header {
   flex: none;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 64px;
-  padding: 12px 20px 12px 24px;
+  gap: 8px;
+  height: 54px;
+  padding: 20px 14px 8px 10px;
   box-sizing: border-box;
 }
 
@@ -169,37 +209,9 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 8px;
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-}
-
-.returnButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 0 12px 0 9px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: 999px;
-  corner-shape: round;
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 20px;
-  white-space: nowrap;
-}
-
-.returnButton:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  margin-left: auto;
 }
 
 /* Compact close control. */
@@ -221,26 +233,20 @@
   background: var(--dsw-alias-interactive-bg-hover);
 }
 
-/* Scrolling content keeps every section inside a stable centered card layout. */
+/* Scrolling content column: every section is capped to a stable reading width,
+ * so a wide window never stretches a form into a horizontal band. */
 .options {
   flex: 1;
   min-height: 0;
-  padding: 8px 32px 40px;
+  padding: 28px 40px 48px;
   overflow-y: auto;
 }
 
-.sectionCard {
+.sectionColumn {
   min-width: 0;
   width: 100%;
-  max-width: 760px;
+  max-width: 960px;
   margin-inline: auto;
-  min-height: 360px;
-  padding: 24px 28px 28px;
-  box-sizing: border-box;
-  overflow: hidden;
-  border-radius: var(--dsw-radius-panel);
-  box-shadow: var(--dsw-elevation-prominent);
-  background: var(--dsw-alias-bg-layer-1);
 }
 
 @media (max-width: 680px) {
@@ -256,6 +262,10 @@
     gap: 12px;
     border-right: 0;
     border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  }
+
+  .navBack {
+    align-self: flex-start;
   }
 
   .navList {
@@ -282,8 +292,9 @@
   }
 
   .header {
+    height: auto;
     min-height: 56px;
-    padding: 10px 16px;
+    padding: 12px 16px;
     flex-wrap: wrap;
     row-gap: 8px;
   }
@@ -293,17 +304,13 @@
     flex: 1 1 100%;
   }
 
-  .headerRight {
+  .close {
     order: 1;
     margin-left: auto;
   }
 
   .options {
-    padding: 8px 16px 24px;
-  }
-
-  .sectionCard {
-    border-radius: var(--dsw-radius-lg);
+    padding: 20px 16px 32px;
   }
 }
 

@@ -9,6 +9,7 @@
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Asked questions" [expanded]
 - button "Think The user wants me to ask them a checkpoint question first, then continue with whatever they interject. Let me do exactly that."
 - button "Ask question 1/1 answered"
@@ -16,6 +17,7 @@
 - button "Copy"
 - text: "Interjection: include the word ORANGE in your final reply. {{clock}}"
 - button "Copy"
+- button "Context injection time-context"
 - paragraph: "Got it: BANANA and ORANGE."
 - button "Copy"
 - button "Good response"

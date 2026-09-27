@@ -9,8 +9,10 @@
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
+- button "Context injection time-context"
 - button "Searched the web" [expanded]
 - button "Search QiLin snapshot search, QiLin multi-query search"
+- button "Context injection time-context"
 - paragraph: SEARCH_DONE
 - button "Copy"
 - button "Good response"

@@ -209,9 +209,12 @@ describe('settings shell open channel', () => {
     const b = mount()
     b.requestOpen('models')
 
-    const navButtons = within(screen.getByRole('navigation')).getAllByRole('button')
+    const navigation = screen.getByRole('navigation')
+    const navButtons = within(navigation).getAllByRole('button')
     expect(navButtons[navButtons.length - 1]?.textContent).toContain('About QiLin')
-    expect(screen.getByRole('button', { name: 'Back to workspace' })).toBeTruthy()
+    // The return control heads the same rail: leaving the page is the first row
+    // of the section list, one click away from wherever the user is.
+    expect(navButtons[0]?.textContent).toContain('Back to workspace')
 
     fireEvent.click(screen.getByRole('button', { name: 'About QiLin' }))
     expect(screen.getByTestId('section-about')).toBeTruthy()
@@ -371,13 +374,13 @@ describe('SettingsPanel navigation', () => {
 
     const nav = separator.parentElement
     if (nav === null) throw new Error('settings navigation separator must be inside the navigation rail')
-    expect(nav.getAttribute('style')).toContain('width: 188px')
+    expect(nav.getAttribute('style')).toContain('width: 240px')
 
-    pointer(separator, 'pointerdown', 188)
-    pointer(separator, 'pointermove', 248)
-    pointer(separator, 'pointerup', 248)
+    pointer(separator, 'pointerdown', 240)
+    pointer(separator, 'pointermove', 300)
+    pointer(separator, 'pointerup', 300)
 
-    expect(nav.getAttribute('style')).toContain('width: 248px')
+    expect(nav.getAttribute('style')).toContain('width: 300px')
   })
 
   it('projects rows, marks the first active, and renders only that section', () => {

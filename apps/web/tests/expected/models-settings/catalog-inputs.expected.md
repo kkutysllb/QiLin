@@ -1,5 +1,6 @@
 - dialog "设置":
   - navigation:
+    - button "返回工作区"
     - text: 设置
     - button "通用设置"
     - button "模型"
@@ -12,7 +13,6 @@
     - button "关于 QiLin"
     - separator "调整设置导航宽度"
   - button "打开配置文件"
-  - button "返回工作区"
   - button "关闭"
   - heading "模型" [level=2]
   - paragraph: 填入各提供方的 API 密钥即可使用其模型。
