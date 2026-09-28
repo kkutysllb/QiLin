@@ -16,7 +16,7 @@ export const FILES_KIND = 'files'
 /** This implementation's identity in the tab system, and the key its body registers under. */
 export const FILES_ID = '@qilin/client-ui-sidebar-files'
 
-/** The type's coloured folder sheet at the guide capsule's glyph size, as the chip title draws it. */
+/** The type's coloured folder sheet at the guide capsule's glyph size. The chip title owns the tab's folder glyph. */
 function FolderSheetGlyph({ size, className }: IconProps) {
   return <FileTypeIcon kind="folder" size={size} className={className} />
 }
@@ -32,7 +32,6 @@ export function filesDefinition(t: TranslateNS<'sidebarFiles'>): SidebarRightTab
     kind: FILES_KIND,
     priority: 'builtin',
     label: () => t('type.label'),
-    icon: FolderSheetGlyph,
     // One workspace tree per surface: opening Files from another pane focuses
     // the tree the user already has rather than seating a second one.
     single: true,
