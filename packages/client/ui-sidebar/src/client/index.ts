@@ -11,7 +11,7 @@ import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
 // Type-only: pulls the conversation header slot declarations.
 import type {} from '@qilin/client-ui-conversation/client'
-import type { SidebarPanelMetadata, SidebarRootInjected } from './contract/slots.ts'
+import type { SidebarPanelMetadata, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps } from './contract/slots.ts'
 import { HeaderLeadingControls } from './HeaderLeadingControls.tsx'
 import { SidebarRoot } from './SidebarRoot.tsx'
 import { en, zh, type SidebarKey } from './locales.ts'
@@ -19,7 +19,8 @@ import { en, zh, type SidebarKey } from './locales.ts'
 export type {
   SidebarBrandMarkOwnerProps, SidebarBrandNameOwnerProps, SidebarFooterActionOwnerProps,
   SidebarPanelIconOwnerProps, SidebarPanelMetadata,
-  SidebarRootComponentProps, SidebarRootInjected, SidebarSectionOwnerProps, SidebarSettingsOwnerProps,
+  SidebarRootComponentProps, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps,
+  SidebarSectionOwnerProps, SidebarSettingsOwnerProps,
 } from './contract/slots.ts'
 export type { SidebarKey } from './locales.ts'
 
@@ -48,10 +49,20 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-sidebar: dictionaries')
   const panels = createSnapshotStore<readonly SidebarPanelMetadata[]>([])
   const syncPanels = (): void => {
+    // Deployment-side section assignment: each `sidebar.section.assignments`
+    // occupant contributes a row-id → section map through its inject face,
+    // applied before grouping, so rows the deployment does not register
+    // itself (engine panels) join sections of the deployment's naming. An
+    // assignment wins over the row's own `section`.
+    const assigned: Record<string, string> = {}
+    for (const entry of ctx.slots.entriesOfSlot('sidebar.section.assignments')) {
+      const face = entry.inject?.(undefined as never) as Partial<SidebarSectionAssignmentsOwnerProps> | undefined
+      if (face?.assignments !== undefined) Object.assign(assigned, face.assignments)
+    }
     const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
       // The list registration requires an id; StoredEntry erases the slot kind.
       const id = options.id as MainPanelId
-      const section = resolveSlotLabel(options.section)
+      const section = assigned[id] ?? resolveSlotLabel(options.section)
       return { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section }
     }).sort((a, b) => a.order - b.order)
     const previous = panels.getSnapshot()
@@ -63,6 +74,7 @@ export function apply(ctx: ClientContext): void {
     panels.set(next)
   }
   ctx.effect(() => ctx.slots.subscribe('sidebar.panellist', syncPanels), 'ui-sidebar: panel entries')
+  ctx.effect(() => ctx.slots.subscribe('sidebar.section.assignments', syncPanels), 'ui-sidebar: section assignments')
   ctx.effect(() => ctx.locale.subscribe(syncPanels), 'ui-sidebar: panel labels')
 
   const injectProps = (): SidebarRootInjected => ({
@@ -81,6 +93,7 @@ export function apply(ctx: ClientContext): void {
       'sidebar.brand.name': { kind: 'single', scope: 'root' },
       'sidebar.toggle.badge': { kind: 'single', scope: 'root' },
       'sidebar.panellist': { kind: 'list', scope: 'root' },
+      'sidebar.section.assignments': { kind: 'list', scope: 'root' },
       'sidebar.workspaces': { kind: 'single', scope: 'root' },
       'sidebar.settings': { kind: 'single', scope: 'root' },
       'sidebar.footer.action': { kind: 'list', scope: 'root' },
