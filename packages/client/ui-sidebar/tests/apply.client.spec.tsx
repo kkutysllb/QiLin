@@ -73,6 +73,7 @@ describe('ui-sidebar apply', () => {
     expect(b.slots.spec('sidebar.workspaces')).toEqual({ kind: 'single', scope: 'root' })
     expect(b.slots.spec('sidebar.settings')).toEqual({ kind: 'single', scope: 'root' })
     expect(b.slots.spec('sidebar.footer.action')).toEqual({ kind: 'list', scope: 'root' })
+    expect(b.slots.spec('sidebar.section.assignments')).toEqual({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('sidebar.panellist')).toEqual({ kind: 'list', scope: 'root' })
     // Copy rides the standard locale seat, not the inject face.
     expect(b.slots.entries('sidebar')[0]!.locale).toBe('sidebar')
@@ -138,6 +139,37 @@ describe('ui-sidebar apply', () => {
       await panel.dispose()
       await vi.waitFor(() => { expect(injected.hooks.panels.getSnapshot()).toEqual([]) })
       expect(b.slots.entries('main')).toEqual([])
+    } finally {
+      await panel.dispose()
+      await sidebar.dispose()
+    }
+  })
+
+  it('applies deployment section assignments over panel rows', async () => {
+    const b = await bench()
+    const sidebar = b.ctx.plugin({ inject: [...inject], apply })
+    await sidebar.await()
+    const injected = (b.slots.entries('sidebar')[0]!.inject as () => SidebarRootInjected)()
+    const panel = b.ctx.plugin({
+      inject: ['slots'],
+      apply(ctx: Context) {
+        ctx.slots.register({ name: 'main', key: 'schedules' }, () => 'Automation tasks')
+        ctx.slots.register({
+          name: 'sidebar.panellist', id: 'schedules', order: 10, label: 'Automation tasks',
+        }, () => null)
+        ctx.slots.register({
+          name: 'sidebar.section.assignments', id: 'lingshu-sections',
+          inject: () => ({ assignments: { schedules: '系统功能' } }),
+        }, () => null)
+      },
+    })
+    try {
+      await panel.await()
+      await vi.waitFor(() => {
+        expect(injected.hooks.panels.getSnapshot()).toEqual([
+          { id: 'schedules', order: 10, label: 'Automation tasks', section: '系统功能' },
+        ])
+      })
     } finally {
       await panel.dispose()
       await sidebar.dispose()
