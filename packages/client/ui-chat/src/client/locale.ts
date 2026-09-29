@@ -28,6 +28,7 @@ export const zh = {
   'chat.loadOlder': '加载更早',
   'chat.toBottom': '回到底部',
   'chat.deepDiving': 'QiLin...',
+  'chat.deepDivingFor': 'QiLin，用时 {duration}...',
   'chat.turnNavigation.label': '轮次导航',
   'chat.turnNavigation.jump': '跳转到第 {turn} 轮',
   'chat.turnNavigation.jumpLoad': '加载并跳转到第 {turn} 轮',
@@ -222,6 +223,8 @@ export const en = {
   'chat.loadOlder': 'Load earlier',
   'chat.toBottom': 'Back to bottom',
   'chat.deepDiving': 'QiLin...',
+  'chat.deepDivingFor': 'Deep diving for {duration}...',
+
   'chat.turnNavigation.label': 'Turn navigation',
   'chat.turnNavigation.jump': 'Jump to turn {turn}',
   'chat.turnNavigation.jumpLoad': 'Load and jump to turn {turn}',
