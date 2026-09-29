@@ -188,7 +188,7 @@ export function harness(
     useDocumentPreviews: () => definitions,
     renderSlot,
     t,
-  }) as unknown as TextPreviewProps
+  }) as TextPreviewProps
   return {
     instance,
     face,

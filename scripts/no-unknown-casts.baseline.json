@@ -322,10 +322,8 @@
     "e16418d396e5aa0dc24e4e963fd984fcd0d6641c2286f101fff3a87a160a4805": 1
   },
   "packages/boot/plugin-manager/tests/operations.spec.ts": {
-    "2b288b0f2cde5f2791caa5dc06c48999c5a5fda66b46ecd9a96c0edda4ec4a05": 1,
     "3f67668a2a47b23d156327c25aec9838ccfb824ad8e28234cf3e3ed78b7ca84b": 1,
-    "657d57900ec8cdcfa9a4b11544ef4799d3a60c43c49e20f7aea13d3522ddbbee": 2,
-    "f086badf08d3369658137d08146b463db7b9a00306ca1236bf4e152a58599909": 1
+    "657d57900ec8cdcfa9a4b11544ef4799d3a60c43c49e20f7aea13d3522ddbbee": 2
   },
   "packages/boot/plugin-manager/tests/tools.spec.ts": {
     "29e5ec01ee79a9c66e7c5755f8c629c193db226dc08b29f16b5967957ad8602c": 1,
@@ -521,7 +519,7 @@
   "packages/client/ui-chat/tests/chat-view.client.spec.tsx": {
     "06eab82cdd7ea7f6c7b4c9239b377402c222145f8013c0d7ec04bce85bdd1cfc": 1,
     "19bd9f34bd0abe1902c19420967ccfd067279542f7e59a74fb77c540ed1149b8": 1,
-    "6061de0a1e01547eb1abf9d4e1b5fa79fda112fa35dda980775491123413dcce": 4,
+    "6061de0a1e01547eb1abf9d4e1b5fa79fda112fa35dda980775491123413dcce": 3,
     "6787497d471fc8faaa78ffcbd497c36ceba82c1b8ee16d0d450b405ad4dddc25": 1,
     "8ea8b9a35f487d7989c6258dca480915b915ae6b0d2d74333dacc3b0a3548d60": 1,
     "984aca669e68d8dc9f17916567f59d8f9a008eb31d8fe0a7d79480581a19e88e": 1,
@@ -691,9 +689,6 @@
   "packages/client/ui-plugin-manager/tests/browser-plugin.client.spec.tsx": {
     "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2
   },
-  "packages/client/ui-plugin-manager/tests/components.client.spec.tsx": {
-    "624ce7f0e7acb423fcd3937994cd5ca0916ac27b76cb56a7587025f209a14351": 1
-  },
   "packages/client/ui-primitives/tests/highlight-viewport.client.spec.tsx": {
     "6061de0a1e01547eb1abf9d4e1b5fa79fda112fa35dda980775491123413dcce": 1
   },
@@ -794,24 +789,18 @@
   "packages/client/ui-settings/tests/schema.client.spec.ts": {
     "0584be4cde4cd33049ef7c02e9d1562a30ec48ef2176f2f22b328b5be2903407": 1
   },
-  "packages/client/ui-settings/tests/settings-scope.client.spec.ts": {
-    "14a0dc9ccde2879c016f779e0e43f3aa71792759126530b418c9a31a5a2e7a53": 1,
-    "ad8886dedfafd8e5f4bf7cb55525bb961822ad0c4fb0ff4a643bfb336fb9d94b": 1
-  },
   "packages/client/ui-sidebar-browser/tests/browser-body.client.spec.tsx": {
     "dac38a9cc792ab6f3a345802975995e35a48d5a706c26d67cb7dba1c906ee3d5": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/document-toolbar.client.spec.tsx": {
-    "60691e1e3472fcd6a86bc90567fe49dca956802881aecdba99f98139e531d09d": 1,
-    "fb9804cc2774409af6935d5a1369497b433c34cd9305cac88e3400eae0f70936": 1
+    "60691e1e3472fcd6a86bc90567fe49dca956802881aecdba99f98139e531d09d": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/failure-line.client.spec.ts": {
     "fd6a096d3e7b6ef3e57058b9246118020d10aab852ba64f3296ba07d9e8e7116": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/fixtures.client.ts": {
     "332a2e40bf39292722d715fd8150323f34895af154f5395a3fb5bb463dbe01c7": 1,
-    "bccbd200429e3147b8602a65bc06d46264a54c0318232051adeac835deaa311b": 1,
-    "bdac8d692fd04899af3990bbed48500dd8108a1c2e7b56340bbcb45252b2a59d": 1
+    "bccbd200429e3147b8602a65bc06d46264a54c0318232051adeac835deaa311b": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/html-body.client.spec.tsx": {
     "22b3974b8491b34e461c2800076ba37bdc78d803305e0a5152f7439b8393653e": 1,
@@ -833,7 +822,6 @@
     "ed59d2814914c377dda69ab030e0b51de776a34205ab85e6364fda6fbe903de5": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/renderer-loading.client.spec.tsx": {
-    "2c01874686204d2e1723ae4a9c54f15c98a53cc1e88682b0b432f79f91dd28ac": 2,
     "3729313792d93c55cad1437e7ca1c5f9d5d6d4e02ab0000b0a3b01246504f898": 1,
     "a03cd7a7b64fa65133a31c63c52859ad5e08be8a5b098efebb63461d20d9c541": 1
   },
@@ -841,8 +829,7 @@
     "9173285d1c600b0eeb00bc3f852d2e3c8c46ea83cd36488a422d5fd05194935a": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/text-preview.client.spec.tsx": {
-    "6061de0a1e01547eb1abf9d4e1b5fa79fda112fa35dda980775491123413dcce": 1,
-    "fb9804cc2774409af6935d5a1369497b433c34cd9305cac88e3400eae0f70936": 2
+    "6061de0a1e01547eb1abf9d4e1b5fa79fda112fa35dda980775491123413dcce": 1
   },
   "packages/client/ui-sidebar-documentpreview/tests/text-title.client.spec.tsx": {
     "1bbd18e22567ce0529d02b770533f9bda84ff379b161dda8b9548053a18a0e97": 1
@@ -956,8 +943,7 @@
     "647a0df1a0eadd4392e10402f060f3f5a1762e6521c75ea8227deba39997c467": 1
   },
   "packages/client/ui-tool/tests/tool-call-tree.client.spec.tsx": {
-    "0579b8a3ceb3401991284810b465c683c710280c41f8e454e41183872b2475d1": 1,
-    "43724ac52ee351bf7359b6c45b8fbc1bd0383de7cc8e0268e97901b0335d966e": 1
+    "0579b8a3ceb3401991284810b465c683c710280c41f8e454e41183872b2475d1": 1
   },
   "packages/client/ui-tool/tests/tool-fixtures.client.ts": {
     "9a6d99786c6afdc9d28a2984f465f14ddf09c84795c6c02abfad39c3013cec69": 1,

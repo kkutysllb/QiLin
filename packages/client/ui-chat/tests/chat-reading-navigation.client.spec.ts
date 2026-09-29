@@ -46,10 +46,11 @@ function makeWorld(init: {
   let notifyResize: (() => void) | undefined
   class ResizeObserverStub {
     constructor(callback: ResizeObserverCallback) {
-      notifyResize = () => { callback([], this as unknown as ResizeObserver) }
+      notifyResize = () => { callback([], this as ResizeObserver) }
     }
     observe = vi.fn()
     disconnect = vi.fn()
+    unobserve = vi.fn()
   }
   vi.stubGlobal('ResizeObserver', ResizeObserverStub)
   Object.defineProperties(column, {

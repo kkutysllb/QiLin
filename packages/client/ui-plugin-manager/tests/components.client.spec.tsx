@@ -106,25 +106,26 @@ function renderTab(
     useGithubMirror: vi.fn(),
   }
   const configurations = createSnapshotStore<{ view?: { namespaces: readonly { ns: string }[] } }>({ view: { namespaces } })
+  const configForm = vi.fn(() => ({
+    getSnapshot: () => ({ status: 'ready', value: {}, base: undefined, user: undefined, revision: 1, writable: true, mode: 'host' }),
+    mutate: vi.fn(),
+  }))
   const props = {
     t,
     ...actions,
-    configForm: vi.fn(() => ({
-      getSnapshot: () => ({ status: 'ready', value: {}, base: undefined, user: undefined, revision: 1, writable: true, mode: 'host' }),
-      mutate: vi.fn(),
-    })),
+    configForm,
     ...extra,
     usePluginManager: bindSnapshotSelector(store),
     useConfigLedger: bindSnapshotSelector(ledger),
     useConfigurations: bindSnapshotSelector(configurations),
     renderSlot: (name: string, owner: { view: 'summary' | 'page'; form?: unknown }, opts: { only?: string; entryKey?: string }) =>
       bodies[`${name}:${opts.only ?? opts.entryKey ?? ''}`]?.(owner.view, owner) ?? null,
-  } as unknown as PluginManagerPageProps
+  } as PluginManagerPageProps
   const { rerender } = render(<PluginManagerPage {...props} />)
   return {
     store,
     actions,
-    configForm: props.configForm as unknown as ReturnType<typeof vi.fn>,
+    configForm,
     set: (next: Partial<PluginManagerState>) => { act(() => { store.set({ ...store.getSnapshot(), ...next }) }) },
     setLanguage: (dict: typeof en) => { rerender(<PluginManagerPage {...props} t={translate(dict)} />) },
   }
