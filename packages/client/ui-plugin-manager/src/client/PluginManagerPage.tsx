@@ -298,15 +298,16 @@ function DetailTop({ crumbLabel, crumbText, onBack, icon, actions }: {
 }
 
 /** One package as a card that opens its page: its name, its one-liner, its tags, and its bundle switch. */
-function PackageCard({ pkg, t, busy, highlighted, onOpen, onSetEnabled }: {
+function PackageCard({ pkg, t, resolveText, busy, highlighted, onOpen, onSetEnabled }: {
   readonly pkg: PackageView
   readonly t: Translate
+  readonly resolveText: PluginManagerFace['resolveText']
   readonly busy: boolean
   readonly highlighted: boolean
   readonly onOpen: () => void
   readonly onSetEnabled: (enabled: boolean) => void
 }): ReactNode {
-  const { title, description, beta } = packageText(pkg, t)
+  const { title, description, beta } = packageText(pkg, t, resolveText)
   const status = packageStatus(pkg)
   return (
     <li
@@ -377,15 +378,16 @@ function ItemDetail({ item, t, onBack, renderSlot, form }: {
  * A row's configuration page: the crumb back to its bundle's page, the row id
  * over the module it names and the entry's one-liner, and the form the entry renders.
  */
-function RowDetail({ pkg, row, t, onBack, renderSlot, form }: {
+function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form }: {
   readonly pkg: PackageView
-  readonly row: PackageRow
   readonly t: Translate
+  readonly resolveText: PluginManagerFace['resolveText']
+  readonly row: PackageRow
   readonly onBack: () => void
   readonly renderSlot: RenderConfig
   readonly form: ConfigPageForm | undefined
 }): ReactNode {
-  const { title } = packageText(pkg, t)
+  const { title } = packageText(pkg, t, resolveText)
   const key = rowConfigKey(pkg.name, row.rowId)
   return (
     <div className={css.detail} data-plugin-row-detail={key}>
@@ -413,11 +415,12 @@ function RowDetail({ pkg, row, t, onBack, renderSlot, form }: {
  * itself; and its rows with their switches and configure controls.
  */
 function PackageDetail({
-  pkg, t, busy, rowBusy, configured, configure, renderSlot,
+  pkg, t, resolveText, busy, rowBusy, configured, configure, renderSlot,
   onBack, onSetEnabled, onUninstall, onSetRowEnabled,
 }: {
   readonly pkg: PackageView
   readonly t: Translate
+  readonly resolveText: PluginManagerFace['resolveText']
   readonly busy: boolean
   /** Whether a row has a write in flight. */
   readonly rowBusy: (row: PackageRow) => boolean
@@ -430,7 +433,7 @@ function PackageDetail({
   readonly onUninstall: () => void
   readonly onSetRowEnabled: (row: PackageRow, enabled: boolean) => void
 }): ReactNode {
-  const { title, description, beta } = packageText(pkg, t)
+  const { title, description, beta } = packageText(pkg, t, resolveText)
   const status = packageStatus(pkg)
   return (
     <div className={css.detail} data-plugin-detail={pkg.name}>
@@ -957,13 +960,14 @@ function InstallDialog({
 }
 
 /** The confirmation an uninstall waits on. */
-function ConfirmDialog({ confirm, t, onConfirm, onCancel }: {
+function ConfirmDialog({ confirm, t, resolveText, onConfirm, onCancel }: {
   readonly confirm: ConfirmState
   readonly t: Translate
+  readonly resolveText: PluginManagerFace['resolveText']
   readonly onConfirm: () => void
   readonly onCancel: () => void
 }): ReactNode {
-  const { title: name } = packageText({ name: confirm.packageName }, t)
+  const { title: name } = packageText({ name: confirm.packageName }, t, resolveText)
   return (
     <Modal
       open
@@ -1109,7 +1113,7 @@ function CatalogPanel({ catalog, t, busy, onSearch, onMore, onInstall }: {
 
 /** Render the plugin manager: the official plugins and installed bundles, their pages, the install dialog, and the confirmation. */
 export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
-  const { t, ensure, renderSlot } = props
+  const { t, ensure, renderSlot, resolveText } = props
   const state = props.usePluginManager(snapshot => snapshot)
   const ledger = props.useConfigLedger(snapshot => snapshot)
   // A contributed page that wants the shared form gets it only for a namespace the Host serves.
@@ -1171,6 +1175,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
       key={pkg.name}
       pkg={pkg}
       t={t}
+      resolveText={resolveText}
       busy={state.busy.includes(pkg.name)}
       highlighted={state.highlight === pkg.name}
       onOpen={() => { setActivation(null); setView({ kind: 'package', name: pkg.name }) }}
@@ -1273,6 +1278,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             pkg={openPkg}
             row={openRow}
             t={t}
+            resolveText={resolveText}
             renderSlot={renderSlot}
             form={formFor(rowConfigKey(openPkg.name, openRow.rowId))}
             onBack={() => { setView({ kind: 'package', name: openPkg.name }) }}
@@ -1284,6 +1290,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
           <PackageDetail
             pkg={openPkg}
             t={t}
+            resolveText={resolveText}
             busy={state.busy.includes(openPkg.name)}
             rowBusy={row => row.entryId !== undefined && state.busy.includes(rowKey(row.entryId))}
             configured={ledger.bundles.has(openPkg.name)}
@@ -1349,6 +1356,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
           <ConfirmDialog
             confirm={state.confirm}
             t={t}
+            resolveText={resolveText}
             onConfirm={props.confirm}
             onCancel={props.cancelConfirm}
           />

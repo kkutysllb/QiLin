@@ -112,7 +112,7 @@ export function apply(ctx: ClientContext): void {
   // own; a plugin's configuration arrives through the slots the page declares
   // here, so the page never names a configurable plugin.
   const configLedger = configLedgerSource(ctx)
-  const face = controller.inject(configLedger)
+  const face = controller.inject(configLedger, text => ctx.locale.resolveText(text))
   // A failed manual refresh announces through the frame-wide overlay seat, so
   // the notice outlives the Settings tab it started in; the page's own toast
   // keeps every other notice kind.

@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
 import { Context } from '@qilin/kylin'
 import type { EntryOptions } from '@qilin/kylin-plugin-loader'
@@ -11,8 +12,8 @@ import z from '@qilin/schemastery'
 import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
 import { pluginEntryId, readPluginInventory } from '@qilin/host-plugin-inventory'
 import {
-  readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches, readProfilePatches, OPTIONAL_BUNDLES,
-  PROFILE_TEMPLATES, profileLayerUpdatable,
+  readPluginMeta, readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches,
+  readProfilePatches, OPTIONAL_BUNDLES, PROFILE_TEMPLATES, profileLayerUpdatable,
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption,
   PROFILE_COMPATIBILITY_FILENAME,
 } from '@qilin/app-boot'
@@ -311,7 +312,11 @@ export class PluginManager extends TypertRemoteService {
         if (compatibility !== undefined && !compatibility.exempted) {
           throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
         }
+        // Localized display text reads through the package's own exported locale files; a metadata
+        // diagnostic rides along while the bundle stays fully manageable.
+        const meta = readPluginMeta(info.name ?? name, pathToFileURL(join(this.profile.dir, 'package.json')).href)
         bundles.push({ name, ...(info.version === undefined ? {} : { version: info.version }),
+          ...meta === undefined ? {} : { meta },
           ...(info.description === undefined || info.description === '' ? {} : { description: info.description }),
           enabled, installed, optional, updatable, removable: removable && readOnlyReason === undefined,
           ...(readOnlyReason === undefined ? {} : { readOnlyReason }),

@@ -3,7 +3,7 @@
 import type { IncompatiblePlugin, ManagementError, Registry } from '@qilin/api-remotes/client'
 import type { PropsLocale } from '@qilin/client-ui-slots'
 import type { PluginManagerLocaleKey } from './locales.ts'
-import type { FailedAction, ManagerNotice, PackageView } from './manager-store.ts'
+import type { FailedAction, ManagerNotice, PackageView, PluginManagerFace } from './manager-store.ts'
 
 /** The translate seat of the manager's dictionary. */
 export type Translate = PropsLocale<'pluginManager'>['t']
@@ -117,18 +117,23 @@ export function shortName(name: string): string {
 }
 
 /**
- * Localize known official packages by exact npm name at render time.
- * @param pkg - original package identity and optional metadata description.
+ * Localize a known official package by exact npm name at render time, then the
+ * package's own exported locale metadata, then the technical name.
+ * @param pkg - original package identity, optional metadata, and optional manifest description.
  * @param t - the manager's current translate function.
- * @returns localized copy and whether the package is a beta feature, or the package's short name and original description.
+ * @param resolveText - the locale seat's package-text resolver for metadata values.
+ * @returns localized copy and whether the package is a beta feature.
  */
 export function packageText(
-  pkg: Pick<PackageView, 'name' | 'description'>, t: Translate,
+  pkg: Pick<PackageView, 'name' | 'description' | 'meta'>, t: Translate, resolveText: PluginManagerFace['resolveText'],
 ): { title: string; description: string | undefined; beta: boolean } {
   const keys = BUILTIN_COPY.get(pkg.name)
-  return keys === undefined
-    ? { title: shortName(pkg.name), description: pkg.description, beta: false }
-    : { title: t(keys.title), description: t(keys.description), beta: keys.beta }
+  if (keys !== undefined) return { title: t(keys.title), description: t(keys.description), beta: keys.beta }
+  return {
+    title: pkg.meta?.title === undefined ? shortName(pkg.name) : resolveText(pkg.meta.title),
+    description: pkg.meta?.description === undefined ? pkg.description : resolveText(pkg.meta.description) || undefined,
+    beta: false,
+  }
 }
 
 /**

@@ -28,6 +28,7 @@ import type {
   Registry,
 } from '@qilin/api-remotes/client'
 import { normalizeRegistry, NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY, REGISTRY_URL } from '@qilin/plugin-manager/registry'
+import type { LocalizedText, PluginLocalizedMeta } from '@qilin/package-manifest'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 import type { ConfigForms, SettingsDescribeFace } from '@qilin/client-ui-settings/client'
 import type { HostObservable } from '@qilin/client-ui-slots'
@@ -77,6 +78,8 @@ export interface PackageRow {
 export interface PackageView {
   readonly name: string
   readonly version?: string
+  /** Localized package display text read by the Host from the bundle's exported locale files. */
+  readonly meta?: PluginLocalizedMeta
   readonly description?: string
   /** Whether the profile's own dependencies hold the package; false for a bundle the installation supplies. */
   readonly installed: boolean
@@ -369,6 +372,8 @@ export interface PluginManagerState {
 export interface PluginManagerFace {
   /** Resolve a configuration form by the Host entry id, for a contributed page that wants the shared form. */
   configForm: ConfigForms['get']
+  /** Resolve package text through the active language's declared fallback chain. */
+  resolveText: (text: LocalizedText) => string
   hooks: {
     /** Shared accepted configuration values, bound by the renderer as useConfigurations. */
     configurations: SettingsDescribeFace
@@ -515,6 +520,7 @@ export function packageView(bundle: BundleInfo, plugins: readonly PluginInfo[]):
     enabled: bundle.enabled,
     rows,
     ...bundle.version === undefined ? {} : { version: bundle.version },
+    ...bundle.meta === undefined ? {} : { meta: bundle.meta },
     ...bundle.description === undefined ? {} : { description: bundle.description },
     ...bundle.readOnlyReason === undefined ? {} : { readOnlyReason: bundle.readOnlyReason },
     ...bundle.error === undefined ? {} : { error: bundle.error },
@@ -604,11 +610,13 @@ export class PluginManagerController {
   /**
    * Build the face the tab's slot registration injects.
    * @param configLedger - the projection of the plugins carrying configuration, bound beside the tab's own state.
+   * @param resolveText - the locale seat's package-text resolver, for the bundle metadata the page shows.
    * @returns the tab's snapshot sources and its actions.
    */
-  inject(configLedger: HostObservable<ConfigLedger>): PluginManagerFace {
+  inject(configLedger: HostObservable<ConfigLedger>, resolveText: PluginManagerFace['resolveText']): PluginManagerFace {
     return {
       configForm: id => this.ctx.configForms.get(id),
+      resolveText,
       hooks: { configurations: this.ctx.configForms.describe(), pluginManager: this.store, configLedger },
       ensure: () => { if (this.getSnapshot().status === 'idle') void this.load() },
       refresh: () => { void this.refresh() },

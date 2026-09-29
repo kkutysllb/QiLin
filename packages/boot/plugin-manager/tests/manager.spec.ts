@@ -85,12 +85,13 @@ it('lists bundle versions and current-profile plugin targets', async () => {
   expect(plugins.find(row => row.entryId === 'include:manager')?.readOnlyReason).toBe('management-required')
   expect(await manager.listBundles()).toEqual([
     {
-      name: 'core', version: '1.0.0', enabled: true, installed: false, optional: false, updatable: true,
-      removable: false, readOnlyReason: 'management-required',
+      name: 'core', version: '1.0.0', meta: { title: 'core' }, enabled: true, installed: false, optional: false,
+      updatable: true, removable: false, readOnlyReason: 'management-required',
       rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager' }], overrides: [],
     },
     {
-      name: 'extra', version: '1.0.0', enabled: true, installed: true, optional: false, updatable: true, removable: true,
+      name: 'extra', version: '1.0.0', meta: { title: 'extra' }, enabled: true, installed: true, optional: false,
+      updatable: true, removable: true,
       rows: [{ rowId: 'managed', moduleName: pathToFileURL(join(dir, 'node_modules', 'extra', 'plugin.mjs')).href, entryId: 'include:managed' }], overrides: [],
     },
   ])
@@ -169,7 +170,8 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   const moduleName = pathToFileURL(join(dir, 'node_modules', 'described', 'plugin.mjs')).href
   expect((await manager.listBundles()).find(row => row.name === 'described')).toEqual({
-    name: 'described', version: '2.0.0', description: 'Describes itself.', enabled: false, installed: true, optional: false,
+    name: 'described', version: '2.0.0', meta: { title: 'described', description: 'Describes itself.' },
+    description: 'Describes itself.', enabled: false, installed: true, optional: false,
     updatable: true, removable: true,
     rows: [{ rowId: 'described-row', moduleName }], overrides: ['managed'],
   })
@@ -835,7 +837,8 @@ it('offers the launcher\'s optional bundles switched off and never removable', a
   writeFileSync(join(supplied, 'plugin.mjs'), 'export function apply(ctx, config) { ctx.provide(config?.service ?? "offeredProbe", true) }\n')
   writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { [offered]: '3.0.0' } }))
   expect((await manager.listBundles()).find(row => row.name === offered)).toEqual({
-    name: offered, version: '3.0.0', description: 'Package one-liner.',
+    name: offered, version: '3.0.0', meta: { title: offered, description: 'Package one-liner.' },
+    description: 'Package one-liner.',
     enabled: false, installed: false, optional: true, updatable: true, removable: false,
     rows: [{ rowId: 'offered-row', moduleName: pathToFileURL(join(supplied, 'plugin.mjs')).href }], overrides: [],
   })

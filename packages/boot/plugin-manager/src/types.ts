@@ -3,6 +3,7 @@ import type { Branded } from '@qilin/brand'
 import type { PluginInventoryEntry } from '@qilin/host-plugin-inventory/types'
 export type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
 import type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
+import type { PluginLocalizedMeta } from '@qilin/package-manifest'
 
 /** Reasons a profile control cannot modify its target. */
 export type ReadOnlyReason = 'management-required' | 'unaddressable' | 'shipped-layer'
@@ -44,6 +45,8 @@ export interface BundleRowInfo {
 export interface BundleInfo {
   name: string
   version?: string
+  /** Local display text with available translations or literal fallbacks, or a metadata diagnostic. */
+  meta?: PluginLocalizedMeta
   /** `description` of the package manifest. */
   description?: string
   enabled: boolean
