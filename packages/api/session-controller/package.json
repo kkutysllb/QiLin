@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-session-controller",
   "description": "Session Remote commands, cold reads, and live control transport",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

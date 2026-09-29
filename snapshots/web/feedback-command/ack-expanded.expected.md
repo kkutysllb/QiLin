@@ -5,12 +5,25 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: Reply with the single word LIGHTHOUSE and stop. {{clock}}
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
 - button "Context injection time-context"
+=======
+- button "Copy":
+  - img
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
+  - img
+- button "Context injection runtime-context":
+  - img
+  - img
+  - text: Context injection runtime-context
+>>>>>>> Stashed changes
 - button "Analysis completed" [expanded]
 - button "Think The user wants me to reply with a single word. Let me comply."
 - paragraph: LIGHTHOUSE

@@ -4,12 +4,29 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: Load the editing-cordis-compositions skill with the skill tool, then reply DONE. {{date}} {{clock}}
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
 - button "Context injection skill-catalog"
+=======
+- button "Copy":
+  - img
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
+  - img
+- button "Context injection runtime-context":
+  - img
+  - img
+  - text: Context injection runtime-context
+- button "Context injection skill-catalog":
+  - img
+  - img
+  - text: Context injection skill-catalog
+>>>>>>> Stashed changes
 - button "Called tools" [expanded]
 - button "Think Load the requested skill."
 - button "Skill editing-cordis-compositions" [expanded]

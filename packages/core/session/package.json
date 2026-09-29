@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session",
   "description": "Event-sourced session store for the QiLin",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

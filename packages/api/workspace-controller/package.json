@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-workspace-controller",
   "description": "Workspace Remote commands and reconnect-safe state transport",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

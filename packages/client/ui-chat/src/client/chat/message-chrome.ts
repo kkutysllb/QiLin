@@ -65,6 +65,26 @@ export function formatRunDuration(ms: number, t: RunDurationTranslate): string {
  * @param t - Translate seat supplying the duration templates.
  * @returns Whole seconds without a leading zero; minutes start at 60 seconds
  * and hours start at exactly 60 minutes.
+<<<<<<< Updated upstream
+=======
+ */
+export function formatLiveRunDuration(ms: number, t: RunDurationTranslate): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor(totalSeconds / 60) % 60
+  const seconds = String(totalSeconds % 60)
+  if (hours > 0) return t('duration.hours', { hours, minutes: pad2(minutes), seconds })
+  return minutes > 0
+    ? t('duration.minutes', { minutes, seconds })
+    : t('duration.seconds', { seconds })
+}
+
+/**
+ * Sub-turn latency figure: one decimal under ten seconds, whole seconds
+ * beyond. Unit-less so the locale template owns the second suffix.
+ * @param ms - Latency in milliseconds (negatives clamp to zero).
+ * @returns Display number in seconds without unit.
+>>>>>>> Stashed changes
  */
 export function formatLiveRunDuration(ms: number, t: RunDurationTranslate): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000))

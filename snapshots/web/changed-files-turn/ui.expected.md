@@ -1,5 +1,6 @@
 - button "系统提示词"
 - text: 不用先查看目录，直接做四件事：把 intro.md 里的标题「示例项目」改成「项目说明」，新建 src/util.ts 导出一个两数相加的 add 函数，新建 app.local 写一行 mode=demo，最后用 bash 在 notes.txt 末尾追加一行 done。 {{clock}}
+<<<<<<< Updated upstream
 - button "复制"
 - button "编辑此消息并重新发送"
 - status: 已完成工作
@@ -8,6 +9,23 @@
 - button "上下文注入 time-context"
 - button "已读取文件并执行了命令" [expanded]
 - button "思考 The user wants four things done directly. But I need to read intro.md before editing (fs-observation-policy requires reading existing file first). The user says don't look at the directory first, but reading intro.md is needed for the edit tool. Let me just do it."
+=======
+- button "复制":
+  - img
+- status: 已完成工作
+- button "用时 {{duration}}" [expanded]:
+  - text: 用时 {{duration}}
+  - img
+- button "上下文注入 runtime-context":
+  - img
+  - img
+  - text: 上下文注入 runtime-context
+- button "执行了命令，已写入文件，已读取文件等" [expanded]
+- button "思考 The user wants four things done directly. But I need to read intro.md before editing (fs-observation-policy requires reading existing file first). The user says don't look at the directory first, but reading intro.md is needed for the edit tool. Let me just do it.":
+  - img
+  - img
+  - text: 思考 The user wants four things done directly. But I need to read intro.md before editing (fs-observation-policy requires reading existing file first). The user says don't look at the directory first, but reading intro.md is needed for the edit tool. Let me just do it.
+>>>>>>> Stashed changes
 - button "读取 intro.md":
   - text: 读取
   - button "intro.md"

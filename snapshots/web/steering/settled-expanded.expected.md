@@ -5,12 +5,23 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: Use the ask_user_question tool to ask me exactly one question with id "checkpoint", question "Ready to continue?", header "Checkpoint", and options labeled "Yes" and "No". After I answer, reply with one short sentence acknowledging my answer and stop. {{clock}}
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [disabled]
 - button "Context injection runtime-context"
 - button "Context injection time-context"
+=======
+- button "Copy":
+  - img
+- status: Worked
+- button "Took {{duration}}" [disabled]
+- button "Context injection runtime-context":
+  - img
+  - img
+  - text: Context injection runtime-context
+>>>>>>> Stashed changes
 - button "Asked questions" [expanded]
 - button "Ask question 1/1 answered"
 - text: "Interjection: include the word BANANA in your final reply. {{clock}}"

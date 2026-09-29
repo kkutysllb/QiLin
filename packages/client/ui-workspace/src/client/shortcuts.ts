@@ -86,7 +86,7 @@ export function installWorkspaceShortcuts(
   register('session.rename', () => t('rename.session.title'), ['rename session'], 'KeyR', ['primary', 'alt'], ['primary', 'shift'], () => {
     const target = current()
     return target === undefined ? { status: 'blocked', reason: t('shortcut.noSession') }
-      : { status: 'handled', run: () => { controls.rename(target.id, target.title?.trim() ?? '') } }
+      : { status: 'handled', run: () => { controls.rename(target.id, target.displayTitle) } }
   })
   register('session.fork', () => t('menu.fork'), ['fork session'], 'KeyF', ['primary', 'alt'], ['primary', 'shift'], () => {
     const target = current()

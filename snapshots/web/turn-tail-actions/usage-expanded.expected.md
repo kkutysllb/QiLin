@@ -5,10 +5,19 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: Begin your reply with the plain sentence "Reading the workspace now." as text, and in that same message call the bash tool with the command "echo alpha". After the tool result, reply with the single word DONE and stop. {{clock}}
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}"
+=======
+- button "Copy":
+  - img
+- status: Worked
+- button "Took {{duration}}":
+  - text: Took {{duration}}
+  - img
+>>>>>>> Stashed changes
 - paragraph: DONE
 - button "Copy"
 - button "Good response"

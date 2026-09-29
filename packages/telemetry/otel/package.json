@@ -1,7 +1,7 @@
 {
   "name": "@qilin/otel",
   "description": "Cordis service for independent ordinary-event and byte-bounded Session-log OTLP channels",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

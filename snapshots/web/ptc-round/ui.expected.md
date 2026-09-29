@@ -5,12 +5,25 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: "Using ONE run_code program: run bash `echo CODE_ROUND_OK`, then read the file missing.txt catching its error in the program. Return an object with both outcomes. Then reply DONE and stop. {{clock}}"
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}" [expanded]
 - button "Context injection runtime-context"
 - button "Context injection time-context"
+=======
+- button "Copy":
+  - img
+- status: Worked
+- button "Took {{duration}}" [expanded]:
+  - text: Took {{duration}}
+  - img
+- button "Context injection runtime-context":
+  - img
+  - img
+  - text: Context injection runtime-context
+>>>>>>> Stashed changes
 - button "Ran code, ran commands, read files" [expanded]
 - 'button "Think The user wants me to write a single `run_code` program that:"'
 - button "Code Run bash echo and catch missing file read"

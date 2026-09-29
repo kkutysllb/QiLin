@@ -5,8 +5,20 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
+=======
+- button "Copy":
+  - img
+- status: QiLin...
+- button "QiLin... for {{duration}}" [disabled] [expanded]
+- button "Context injection runtime-context":
+  - img
+  - img
+  - text: Context injection runtime-context
+- paragraph: partial
+>>>>>>> Stashed changes
 - status: QiLin...
 - button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"

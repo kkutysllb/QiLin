@@ -164,6 +164,12 @@ const context = (seq: number, text: string, turn?: number): ContextMessageNode &
   producer: { role: 'inject', label: null }, form: null,
   ...(turn === undefined ? {} : { turn }),
 })
+/** Context row that survives {`isVisibleChatNode`} by carrying a tool change. */
+const toolChangeContext = (seq: number, turn: number): ContextMessageNode & { turn: number } => ({
+  ...context(seq, 'runtime policy', turn),
+  content: [{ type: 'tool-addition', toolName: 'search' }] as never,
+  turn,
+})
 const steering = (seq: number, text: string, turn: number): SteeringMessageNode & { turn: number } => ({
   kind: 'steering', messageId: `steering-${String(seq)}` as SteeringMessageNode['messageId'],
   seq, time: seq * 1_000, turn, content: [{ type: 'text', text }], source: null,
@@ -481,6 +487,13 @@ function turnProcessControl(container: HTMLElement): HTMLButtonElement | null {
   return container.querySelector<HTMLButtonElement>('[data-turn-process]')
 }
 
+/** The settled Turn tail row owning the usage and time pills. */
+function turnTailRow(container: HTMLElement): HTMLElement {
+  const row = container.querySelector<HTMLElement>('[data-chat-flow-kind="turn-tail"]')
+  if (row === null) throw new Error('missing turn-tail row')
+  return row
+}
+
 function withSystemPrompt(
   snapshot: ChatSnapshot,
   builder = new ChatSnapshotBuilder(),
@@ -585,15 +598,27 @@ describe('Chat node rendering', () => {
     expect(formatRunDuration(125_000, t)).toBe('2分05秒')
   })
 
+<<<<<<< Updated upstream
   it('formatLiveRunDuration omits the live seconds pad and rolls over on exact bounds', () => {
+=======
+  it('formatLiveRunDuration keeps seconds unpadded and rolls units over late', () => {
+>>>>>>> Stashed changes
     const t = makeTranslate(zh, commonZh)
     expect(formatLiveRunDuration(0, t)).toBe('0秒')
     expect(formatLiveRunDuration(-500, t)).toBe('0秒')
     expect(formatLiveRunDuration(15_999, t)).toBe('15秒')
+<<<<<<< Updated upstream
     expect(formatLiveRunDuration(59_000, t)).toBe('59秒')
     expect(formatLiveRunDuration(60_000, t)).toBe('1分0秒')
     expect(formatLiveRunDuration(125_000, t)).toBe('2分5秒')
     expect(formatLiveRunDuration(3_723_000, t)).toBe('1小时02分3秒')
+=======
+    expect(formatLiveRunDuration(59_999, t)).toBe('59秒')
+    expect(formatLiveRunDuration(60_000, t)).toBe('1分0秒')
+    expect(formatLiveRunDuration(125_000, t)).toBe('2分5秒')
+    expect(formatLiveRunDuration(3_600_000, t)).toBe('1小时00分0秒')
+    expect(formatLiveRunDuration(3_661_000, t)).toBe('1小时01分1秒')
+>>>>>>> Stashed changes
   })
 
 })
@@ -1428,10 +1453,17 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 6]]),
     })
     const view = render(<h.ChatView {...h.props} />)
+<<<<<<< Updated upstream
     // The tail time pill carries the same duration text, so select the control
     // by its own seat attribute.
     const toggle = turnProcessControl(view.container)!
     expect(toggle.textContent).toBe('用时 4秒')
+=======
+    // rc.2 replaces the count label with the live run-duration label, so the
+    // control is addressed structurally and its count facts stay on the data
+    // attributes asserted below. The Turn-tail time pill now shares the label.
+    const toggle = turnProcessControl(view.container)!
+>>>>>>> Stashed changes
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('1')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('1')
@@ -1459,9 +1491,13 @@ describe('ChatView', () => {
     expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null, null])
 
     act(() => { h.set({ nodes: [user(1, 'question'), first] }) })
+<<<<<<< Updated upstream
     const trimmedToggle = turnProcessControl(view.container)!
     expect(trimmedToggle.textContent).toBe('用时 4秒')
     expect(trimmedToggle.getAttribute('aria-expanded')).toBe('false')
+=======
+    expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
+>>>>>>> Stashed changes
     expect(members[0]?.getAttribute('hidden')).toBeNull()
     act(() => { h.set({
       nodes: [user(1, 'question'), first, toolResult(3, 'a'), toolResult(4, 'b', 'subagent'), second],
@@ -1558,9 +1594,13 @@ describe('ChatView', () => {
     expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null])
   })
 
+<<<<<<< Updated upstream
   it('folds Context under the worked title when the Turn carries no timings', () => {
+=======
+  it('folds a visible Context under the settled label when the summary counts are zero', () => {
+>>>>>>> Stashed changes
     const h = makeHarness({
-      nodes: [user(1, 'question'), context(2, 'runtime policy', 1), assistant(3, 'final answer', 1, 1)],
+      nodes: [user(1, 'question'), toolChangeContext(2, 1), assistant(3, 'final answer', 1, 1)],
       turnEnds: new Map([[1, 4]]),
     })
     const view = render(<h.ChatView {...h.props} />)
@@ -1654,11 +1694,19 @@ describe('ChatView', () => {
     expect(processRow.getAttribute('hidden')).toBe('until-found')
 
     act(() => { h.setTranscriptView('verbose') })
+<<<<<<< Updated upstream
     // Verbose mode inlines every process row; the control stays mounted as a
     // disabled, permanently open header instead of unmounting.
     const verboseControl = turnProcessControl(view.container)
     expect(verboseControl?.disabled).toBe(true)
     expect(verboseControl?.hasAttribute('data-open')).toBe(true)
+=======
+    // Report order keeps the control mounted as a non-collapsible run label;
+    // every process row is already visible without a disclosure.
+    const verboseToggle = turnProcessControl(view.container)!
+    expect(verboseToggle.disabled).toBe(true)
+    expect(verboseToggle.querySelector('[class*="chevron"]')).toBeNull()
+>>>>>>> Stashed changes
     expect(processRow.getAttribute('hidden')).toBeNull()
 
     act(() => { h.setTranscriptView('compact') })
@@ -1677,20 +1725,39 @@ describe('ChatView', () => {
       ]]),
     })
     const detailed = render(<h.ChatView {...h.props} />)
+<<<<<<< Updated upstream
     // Detailed appends the usage pill beside the branch action; elapsed time
     // stays on the Turn-process control, outside the footer.
     const detailedTail = detailed.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(detailed.getByText(/^用量 /)).toBeTruthy()
     expect(within(detailedTail).queryByText(/^用时 /)).toBeNull()
+=======
+    // Detailed appends both accounting pills beside the branch action. The
+    // time pill is addressed inside the Turn tail because the process control
+    // now carries the same run-duration label.
+    const detailedTail = within(turnTailRow(detailed.container))
+    expect(detailedTail.getByText(/^用量 /)).toBeTruthy()
+    expect(detailedTail.getByText(/^用时 /)).toBeTruthy()
+>>>>>>> Stashed changes
     detailed.unmount()
 
     h.setTailUsageMode('compact')
     const compact = render(<h.ChatView {...h.props} />)
+<<<<<<< Updated upstream
     // Compact renders the bare action row: no usage pill.
     expect(compact.queryByText(/^用量 /)).toBeNull()
   })
 
   it('folds final-step reasoning under the worked title when the Turn carries no timings', () => {
+=======
+    // Compact renders the bare action row: no usage pill, no time pill.
+    const compactTail = within(turnTailRow(compact.container))
+    expect(compactTail.queryByText(/^用量 /)).toBeNull()
+    expect(compactTail.queryByText(/^用时 /)).toBeNull()
+  })
+
+  it('folds final-step reasoning under the settled label when the summary counts are zero', () => {
+>>>>>>> Stashed changes
     const final = {
       ...assistant(3, 'final answer', 1, 1),
       blocks: [
@@ -1731,7 +1798,9 @@ describe('ChatView', () => {
 
   it('folds when the process controller first appears off-tail', () => {
     const h = makeHarness({
-      nodes: [user(1, 'question'), context(2, 'runtime policy', 1)],
+      // A prior-step assistant is external process content, so the control stays
+      // collapsible once the Turn settles.
+      nodes: [user(1, 'question'), reasoningAssistant(2, 'inspect', 1, 1), context(3, 'runtime policy', 1)],
       running: true,
     })
     const view = render(<h.ChatView {...h.props} />)
@@ -1744,11 +1813,12 @@ describe('ChatView', () => {
     act(() => { h.set({
       nodes: [
         user(1, 'question'),
-        context(2, 'runtime policy', 1),
-        assistant(3, 'final answer', 1, 1),
+        reasoningAssistant(2, 'inspect', 1, 1),
+        context(3, 'runtime policy', 1),
+        assistant(4, 'final answer', 1, 2),
       ],
       running: false,
-      turnEnds: new Map([[1, 4]]),
+      turnEnds: new Map([[1, 5]]),
     }) })
     const toggle = turnProcessControl(view.container)!
     expect(toggle.hasAttribute('data-open')).toBe(false)
@@ -1758,7 +1828,9 @@ describe('ChatView', () => {
 
   it('keeps a focused process row visible when a live Turn completes', () => {
     const h = makeHarness({
-      nodes: [user(1, 'question'), context(2, 'runtime policy', 1)],
+      // A prior-step assistant is external process content, so the settled
+      // control can still fold the row the focus is holding open.
+      nodes: [user(1, 'question'), reasoningAssistant(2, 'inspect', 1, 1), context(3, 'runtime policy', 1)],
       running: true,
     })
     const view = render(<h.ChatView {...h.props} />)
@@ -1770,11 +1842,12 @@ describe('ChatView', () => {
     act(() => { h.set({
       nodes: [
         user(1, 'question'),
-        context(2, 'runtime policy', 1),
-        assistant(3, 'final answer', 1, 1),
+        reasoningAssistant(2, 'inspect', 1, 1),
+        context(3, 'runtime policy', 1),
+        assistant(4, 'final answer', 1, 2),
       ],
       running: false,
-      turnEnds: new Map([[1, 4]]),
+      turnEnds: new Map([[1, 5]]),
     }) })
     const processToggle = turnProcessControl(view.container)!
     expect(processToggle.hasAttribute('data-open')).toBe(true)
@@ -1873,10 +1946,19 @@ describe('ChatView', () => {
     builder.publish()
     const h = makeHarness({ chat: partial, hasMore: true })
     const view = render(<h.ChatView {...h.props} />)
+<<<<<<< Updated upstream
     // The disclosure control stays mounted for a partial process range; only
     // its foldable members are absent until the range fills in. The range is
     // not yet collapsible content, so it carries no aria-expanded.
     expect(turnProcessControl(view.container)).toBeTruthy()
+=======
+    // The control stays mounted for a partial process range, but with no
+    // external process content it is a non-collapsible status label: no
+    // disclosure state until the range fills in.
+    const partialToggle = turnProcessControl(view.container)!
+    expect(partialToggle.disabled).toBe(true)
+    expect(partialToggle.getAttribute('aria-expanded')).toBeNull()
+>>>>>>> Stashed changes
 
     const beforeKeys = partial.locations.getTurn(1)
     const completeSpec = { ...partialSpec, processStartSeq: 2 }
@@ -2018,12 +2100,19 @@ describe('ChatView', () => {
     expect(dialog.textContent).toContain('缓存命中49.4%')
     expect(dialog.textContent).toContain('未缓存输入5,060 tok')
     fireEvent.keyDown(document, { key: 'Escape' })
+<<<<<<< Updated upstream
     expect(view.queryByRole('dialog')).toBeNull()
     // The footer owns the usage disclosure alone: elapsed time stays on the
     // Turn-process control, and neither ttft nor decode throughput appears.
     const footer = view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(within(footer).queryByRole('button', { name: /用时/ })).toBeNull()
     expect(turnProcessControl(view.container)?.textContent).toBe('用时 19秒')
+=======
+    // The time pill carries the run time; first-step ttft (1.2s) and 100
+    // tokens over 5s of decode move into its dialog.
+    const timeTrigger = within(turnTailRow(view.container)).getByRole('button', { name: /用时 19秒/ })
+    expect(timeTrigger.textContent).toBe('用时 19秒')
+>>>>>>> Stashed changes
     expect(view.queryByText(/速度 20 tok\/s|首 token/)).toBeNull()
   })
 
@@ -2039,11 +2128,18 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 20]]),
     })
     const view = render(<h.ChatView {...h.props} />)
+<<<<<<< Updated upstream
     // With no usage in the window there is no usage pill to click; the elapsed
     // time stays on the Turn-process control.
     const footer = view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(within(footer).queryByRole('button', { name: /用时/ })).toBeNull()
     expect(turnProcessControl(view.container)?.textContent).toBe('用时 19秒')
+=======
+    // Timing facts keep their pill, but with no usage in the window there is
+    // no usage pill to click. The process control also reads 用时, so the pill
+    // is scoped to the Turn tail.
+    expect(within(turnTailRow(view.container)).getByRole('button', { name: /用时/ })).toBeTruthy()
+>>>>>>> Stashed changes
     expect(view.queryByRole('button', { name: /用量/ })).toBeNull()
   })
 

@@ -5,10 +5,19 @@
   - button "Open right sidebar"
 - button "System prompt"
 - text: "Use the bash tool to run exactly: echo WEB_E2E_OK. Then reply with the single word DONE and stop. {{clock}}"
+<<<<<<< Updated upstream
 - button "Copy"
 - button "Edit this message and resend"
 - status: Worked
 - button "Took {{duration}}"
+=======
+- button "Copy":
+  - img
+- status: Worked
+- button "Took {{duration}}":
+  - text: Took {{duration}}
+  - img
+>>>>>>> Stashed changes
 - paragraph: DONE
 - button "Copy"
 - button "Good response"

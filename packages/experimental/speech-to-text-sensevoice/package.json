@@ -1,7 +1,7 @@
 {
   "name": "@qilin/experimental-speech-to-text-sensevoice",
   "description": "Local SenseVoice ONNX transcription with a managed sherpa-onnx process",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },
