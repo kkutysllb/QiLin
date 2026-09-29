@@ -1,7 +1,7 @@
 {
   "name": "@qilin/loader-smoke",
   "description": "Shared subprocess and direct-agent harness for keyless real-Loader example smoke tests",
-  "version": "3.1.0",
+  "version": "3.0.6",
   "publishConfig": {
     "access": "public"
   },

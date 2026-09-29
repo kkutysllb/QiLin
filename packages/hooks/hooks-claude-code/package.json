@@ -1,7 +1,7 @@
 {
   "name": "@qilin/hooks-claude-code",
   "description": "Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams",
-  "version": "3.1.0",
+  "version": "3.0.6",
   "publishConfig": {
     "access": "public"
   },

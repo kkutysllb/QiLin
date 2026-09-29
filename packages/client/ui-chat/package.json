@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-chat",
   "description": "Chat Conversation target, node definitions, renderers, and details surface",
-  "version": "3.1.0",
+  "version": "3.0.6",
   "publishConfig": {
     "access": "public"
   },
