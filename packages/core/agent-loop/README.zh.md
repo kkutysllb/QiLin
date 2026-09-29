@@ -124,6 +124,8 @@ const handle = await ctx.agents.create({
 
 最终适配器选择、分发与迭代失败以终止结束的形式到达并进入 `agent/request-error`；处理该失败的监听器返回 `{ kind: 'retry' }` 且不调用 `next()`，未被处理的失败则是终态。Middleware、结果处理、工具及其他扩展失败仍会抛出并直接关闭轮次——插件失败结束的是轮次，不是循环。取消后未分发的模型工具调用会收到合成的 `tool/call` 加 `ABORTED_BEFORE_DISPATCH` 结果对。[显式取消决策](../../../.agents/notes/implemented/architecture/2026-07-16-explicit-turn-cancellation.zh.md)拥有信号生命周期。
 
+关闭失败步骤之前，驱动器为每个尚无结果的 assistant 工具调用记录错误结果。已有 `tool/call` 记录但尚无已提交结果的调用获得 `TOOL_OUTCOME_UNKNOWN`；没有调用记录的请求获得 `TOOL_NOT_STARTED`。已提交的结果保持完整，已启动的派发先结算再恢复，轮次保留原始失败。这些结果让后续请求使用配对完整的工具历史，而不自动重试结果不明的操作（[决策](../../../.agents/notes/implemented/bug-fix/2026-09-19-failed-step-tool-results.zh.md)）。
+
 </details>
 
 -----
@@ -156,6 +158,20 @@ const handle = await ctx.agents.create({
 系统文本与 schema 在每个步骤都会再次计入，在 `in-history` 路由上，每个保留的提示词版本都会持续计入，直到压缩将其遮蔽或提示词协调将其清空。逐 agent 作用域决定贡献，而权威组装 waterfall 可以改变最终请求，并使其监听器负责保持协议连贯。
 
 #### KV Cache 影响
+
+### 步骤失败后尚无结果的调用
+
+#### 模型看到什么
+
+每个尚无结果的工具调用都会在后续历史中获得错误结果。对于已有记录的调用，结果说明 `Its outcome is unknown.`，且仅允许重试只读或幂等操作；可能存在副作用时，必须先核验外部状态或询问用户。没有启动记录的调用说明 `The tool call was interrupted before the Harness recorded it as started. Retry it if it is still needed.`。
+
+#### Token 影响
+
+每个尚无结果的调用都会在历史中保留一个恢复结果，直到压缩将其遮蔽。
+
+#### KV Cache 影响
+
+恢复结果追加在既有历史之后，保留其可复用前缀。
 
 前缀复用要求在同一提供方与模型路由下，此前消息和声明保持逐字节一致。渲染后的提示词未变时，缓存前缀得以保留，除非不具备能力的路由或新请求序列必须归并保留的历史内系统节点。原地替换某个系统节点的提示词变更会使请求从该节点的第一个 token 起就不同——该节点是第 0 号节点时则整个请求都不同——因此提供方前缀缓存从那里开始未命中；当已准备调用声明 `systemPromptUpdate: 'in-history'` 时，同一请求序列延续期间的非空提示词变更会追加到已缓存历史之后，因此直到该历史末尾的前缀仍可复用。更改保留工具的定义或重建声明，会从第一个改变的请求 token 起使复用失效。
 
@@ -195,6 +211,7 @@ const handle = await ctx.agents.create({
 这些限制说明循环何时需要特别留意。它们是当前包约束，不是任务积压。
 
 - **分类是一元的**：安全性取决于比较同级调用或资源的调用必须保持独占（[原理](../../../.agents/notes/implemented/feature/2026-07-10-parallel-tool-call-execution.zh.md)）。
+- **此前已关闭的不一致历史**：失败步骤恢复不会改写已关闭历史轮次中尚无结果的调用。
 - **配置标签默认对应新会话**：省略 `sessionId` 时，每次启动都会创建新的 `${id}-session-<uuid>`；如需确切的恢复或创建行为，必须显式提供稳定的 `sessionId`，而 `resumeSessionId` 要求已有持久化历史。
 - **配置 agent 没有逐 agent persona 字段或 setup 钩子**：它们使用部署 persona；只有编程式 `ctx.agents.create()` / `resume()` 工厂选项支持带作用域的 persona 与工具组合。
 - **没有内置轮次预算**：工具调用或 steering 会让当前轮次继续；限制失控轮次的策略必须从既有生命周期扩展点（如 `agent/turn-stopping`）执行取消。

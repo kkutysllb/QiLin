@@ -124,6 +124,9 @@ interface SdkAssertions {
 }
 
 const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
+  'tool-scheduler-recovery': {
+    patches: [fileURLToPath(new URL('./tool-scheduler-recovery/runtime.cordis.yml', import.meta.url))],
+  },
   'tool-error-details': {
     patches: [fileURLToPath(new URL('./tool-error-details/runtime.cordis.yml', import.meta.url))],
     expectedFinalResponse: 'ERROR_DETAILS_OK',
@@ -812,6 +815,25 @@ describe('TypeScript SDK snapshots over the jsonrpc runtime', () => {
         assertions.qilinSdkChild !== undefined,
       )
       const actualContext = contextOf(ordered, cwd)
+      if (scenario.name === 'tool-scheduler-recovery') {
+        expect(results).toHaveLength(2)
+        const events = results.flatMap(result => result.events)
+        expect(results[1]?.finalResponse, JSON.stringify(events.filter(event => event.type === 'turn/end')))
+          .toBe('SCHEDULER_RECOVERY_OK')
+        expect(events.filter(event => event.type === 'turn/end').map(event => event.data['reason']))
+          .toEqual([
+            { kind: 'error', error: { message: 'Snapshot scheduler preparation failed', code: 'UNKNOWN' } },
+            { kind: 'completed' },
+          ])
+        expect(events.filter(event => event.type === 'tool/call').map(event => event.data['callId']))
+          .toEqual(['scheduler-complete', 'scheduler-fail'])
+        const toolResults = events.filter(event => event.type === 'tool/result')
+          .map(event => event.data['message'] as { role: string; toolCallId: string; isError: boolean })
+        expect(toolResults.map(result => [result.role, result.toolCallId, result.isError])).toEqual([
+          ['tool', 'scheduler-complete', false], ['tool', 'scheduler-fail', true], ['tool', 'scheduler-unstarted', true],
+        ])
+        expect(events.filter(event => event.type === 'todo/write')).toHaveLength(1)
+      }
       if (scenario.name === 'subagent-activation-limit') {
         expect(ordered).toHaveLength(2)
         const denied = records(ordered[0]!.content).find(record => record.type === 'tool/result'

@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-09-19-failed-step-tool-results.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-09-19-failed-step-tool-results.md
+/agent-note-record-unanswered-tool-results-before-closing-a-failed-step:
+  en: 23c605369815dcbd
+  zh: 616e8862495e88b2
+/agent-note-record-unanswered-tool-results-before-closing-a-failed-step/problem:
+  en: 1fa7525f83af9035
+  zh: 401ce968e3dd5434
+/agent-note-record-unanswered-tool-results-before-closing-a-failed-step/decision:
+  en: 856b64c8b0ff5e6a
+  zh: d6b34b7e3beca339
+/agent-note-record-unanswered-tool-results-before-closing-a-failed-step/alternatives-considered:
+  en: 37da4d9c8533b736
+  zh: e52a59763ae2b62e
+/agent-note-record-unanswered-tool-results-before-closing-a-failed-step/consequences:
+  en: 1ea72421a98551d8
+  zh: c01e02ddac8a3454

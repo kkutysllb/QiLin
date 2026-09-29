@@ -42,11 +42,14 @@
   en: 349c1fd1716753e6
   zh: 643e721f14123848
 /qilin-session/understand-the-implementation/source-map:
-  en: e02d3809645858e4
-  zh: 1ded90e7dcce0643
+  en: 7f26cad384c21bdc
+  zh: 2697da36523fcf2d
 /qilin-session/understand-the-implementation/append-validation:
   en: 5c09583bc8e1ffc6
   zh: 3b25552de2d1f9b6
+/qilin-session/understand-the-implementation/shared-recovery:
+  en: 59f7e76b22320772
+  zh: c07598c53952c772
 /qilin-session/understand-the-implementation/derived-history:
   en: 0cc7a06f76bd7eca
   zh: 1db25185b15cad23
@@ -71,16 +74,16 @@
 /qilin-session/model-experience/derived-message-history/kv-cache-effect:
   en: 6c8079c7de029ed4
   zh: 634d6f93ce6373c4
-/qilin-session/model-experience/crash-repair-and-fork-results:
-  en: 4aa585f38846e017
-  zh: ef28f54125a9021d
-/qilin-session/model-experience/crash-repair-and-fork-results/what-the-model-sees:
+/qilin-session/model-experience/tool-result-recovery-and-fork-results:
+  en: 9c2efc3e9064e3c4
+  zh: 9a7783991b322750
+/qilin-session/model-experience/tool-result-recovery-and-fork-results/what-the-model-sees:
   en: d3eb9b8746460793
-  zh: a927e1318566456a
-/qilin-session/model-experience/crash-repair-and-fork-results/token-effect:
-  en: ac63e0f30175f72d
-  zh: 20f63deeffa249f2
-/qilin-session/model-experience/crash-repair-and-fork-results/kv-cache-effect:
+  zh: f1bb867a0b1f2102
+/qilin-session/model-experience/tool-result-recovery-and-fork-results/token-effect:
+  en: 1339facbd3d7cee0
+  zh: 9d392a053ef90032
+/qilin-session/model-experience/tool-result-recovery-and-fork-results/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: b84ef7f75f2e25d0
 /qilin-session/model-experience/logged-request-header:
