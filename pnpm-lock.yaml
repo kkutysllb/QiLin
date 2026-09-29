@@ -2124,9 +2124,6 @@ importers:
       '@qilin/client-ui-attachment':
         specifier: workspace:*
         version: link:../../client/ui-attachment
-      '@qilin/client-ui-brand-official':
-        specifier: workspace:*
-        version: link:../../client/ui-brand-official
       '@qilin/client-ui-chat':
         specifier: workspace:*
         version: link:../../client/ui-chat
@@ -2888,33 +2885,6 @@ importers:
       '@qilin/client-ui-settings':
         specifier: workspace:*
         version: link:../ui-settings
-      '@qilin/client-ui-sidebar':
-        specifier: workspace:*
-        version: link:../ui-sidebar
-      '@qilin/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@testing-library/react':
-        specifier: ^16.1.0
-        version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: ~18.3.1
-        version: 18.3.31
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-
-  packages/client/ui-brand-official:
-    devDependencies:
-      '@qilin/client-ui-primitives':
-        specifier: workspace:*
-        version: link:../ui-primitives
-      '@qilin/client-ui-renderer':
-        specifier: workspace:*
-        version: link:../ui-renderer
       '@qilin/client-ui-sidebar':
         specifier: workspace:*
         version: link:../ui-sidebar
@@ -12794,9 +12764,6 @@ importers:
       '@qilin/client-ui-brand':
         specifier: workspace:*
         version: link:../../client/ui-brand
-      '@qilin/client-ui-brand-official':
-        specifier: workspace:*
-        version: link:../../client/ui-brand-official
       '@qilin/client-ui-chat':
         specifier: workspace:*
         version: link:../../client/ui-chat

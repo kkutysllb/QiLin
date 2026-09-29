@@ -18,7 +18,7 @@ const SIDEBAR = '@qilin/client-ui-sidebar'
 const PARALLEL_PROBE = '@qilin/client-test-parallel-probe'
 /** Declared by ui-sidebar, whose SlotMap merge is outside this package's compilation face. */
 const SIDEBAR_SETTINGS = 'sidebar.settings' as never
-const BRAND = '@qilin/client-ui-brand-official'
+const BRAND = '@qilin/client-ui-approval'
 const globals = globalThis as { EventSource?: unknown; ResizeObserver?: unknown }
 /** The whole roster's first boot pays the cold module transform of every plugin package. */
 const COLD_BOOT_TIMEOUT_MS = 60_000

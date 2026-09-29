@@ -78,7 +78,6 @@
     "@qilin/client-ui-approval": "workspace:*",
     "@qilin/client-ui-attachment": "workspace:*",
     "@qilin/client-ui-brand": "workspace:*",
-    "@qilin/client-ui-brand-official": "workspace:*",
     "@qilin/client-ui-chat": "workspace:*",
     "@qilin/client-ui-commands": "workspace:*",
     "@qilin/client-ui-conversation": "workspace:*",

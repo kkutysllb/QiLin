@@ -17,7 +17,7 @@ import { MODULES_PACKAGE, createInProcessModules, loadPluginModules } from '../s
 
 const RENDERER = '@qilin/client-ui-renderer'
 const TYPERT = '@qilin/typert-registry'
-const BRAND = '@qilin/client-ui-brand-official'
+const BRAND = '@qilin/client-ui-approval'
 const MISSING = '@qilin/client-does-not-exist'
 
 const row = (name: string, immediately = false) => ({ name, inject: [], immediately })

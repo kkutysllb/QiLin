@@ -67,7 +67,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/client-ui-approval` | no | Approval composer takeover over the scoped Remote Event waterfall |
 | `@qilin/client-ui-attachment` | no | Dynamic attachment presentation plugin for conversation input, message-image, and trajectory image slots |
 | `@qilin/client-ui-brand` | no | QiLin brand occupants for the Web client's sidebar and conversation-hero brand slots: the 麒麟 seal mark |
-| `@qilin/client-ui-brand-official` | no | Official QiLin brand occupants for the Web client's sidebar slots |
 | `@qilin/client-ui-chat` | no | Chat Conversation target, node definitions, renderers, and details surface |
 | `@qilin/client-ui-commands` | no | Client command surface: global directory cache, '/' source, three command UI kinds, popupSelect registry |
 | `@qilin/client-ui-conversation` | no | Target-neutral Conversation assembly, shell, composer, queue, and view navigation |
