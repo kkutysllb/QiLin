@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-09-29-running-status-shimmer-redecision.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-29-running-status-shimmer-redecision.md
+/agent-note-running-status-shimmer-revert-rationale-and-0-2-0-re-adoption-decision:
+  en: 91a075fb43d640c0
+  zh: 351fb1b178f0387d
+/agent-note-running-status-shimmer-revert-rationale-and-0-2-0-re-adoption-decision/problem:
+  en: a204d4b724d23c5a
+  zh: eb933be826eebe4e
+/agent-note-running-status-shimmer-revert-rationale-and-0-2-0-re-adoption-decision/decision:
+  en: 6833a85e16a3d412
+  zh: 4b8f8a5180fc3ff1
+/agent-note-running-status-shimmer-revert-rationale-and-0-2-0-re-adoption-decision/alternatives-considered:
+  en: 8eeb29df862f0eea
+  zh: f9abc458edd19de6
+/agent-note-running-status-shimmer-revert-rationale-and-0-2-0-re-adoption-decision/consequences:
+  en: 1d3e066745a073d5
+  zh: 656c2a529d660bbe
