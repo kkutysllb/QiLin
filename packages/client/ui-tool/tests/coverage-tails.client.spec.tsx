@@ -110,6 +110,8 @@ describe('Tool presentation tails', () => {
 
     const stoppedView = render(<BashRow {...bashProps(stoppedResult)} />)
     expect(stoppedView.container.querySelector('[data-state="stopped"]')).not.toBeNull()
-    expect(stoppedView.getByText('已停止')).toBeTruthy()
+    // The stopped status renders twice: the visually hidden state label and the
+    // interrupted summary slot that replaces the ordinary summary.
+    expect(stoppedView.getAllByText('已停止')).toHaveLength(2)
   })
 })

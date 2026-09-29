@@ -18,27 +18,6 @@
   cursor: pointer;
 }
 
-.card[data-state='running'] .row::after,
-.card[data-state='preparing'] .row::after {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 300px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--dsw-alias-bg-base) 60%, transparent) 55%,
-    transparent 100%
-  );
-  animation: qilin-skill-row-sweep 2.6s ease-out infinite;
-  pointer-events: none;
-}
-
-@keyframes qilin-skill-row-sweep {
-  0% { left: -300px; }
-  90%, 100% { left: 100%; }
-}
-
 .leading {
   position: relative;
   flex: none;
@@ -106,6 +85,10 @@
 
 .errorSummary {
   color: var(--dsw-alias-state-error-primary);
+}
+
+.stoppedSummary {
+  color: var(--dsw-alias-state-warn-label);
 }
 
 .bodyWrap {
@@ -201,11 +184,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card[data-state='running'] .row::after {
-    animation: none;
-    display: none;
-  }
-
   .iconIdle,
   .chevronHover,
   .inspectButton {

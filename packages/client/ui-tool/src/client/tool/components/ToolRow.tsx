@@ -2,7 +2,7 @@ import { useMemo, type KeyboardEvent, type MouseEvent, type ReactNode } from 're
 import clsx from 'clsx'
 import {
   CodeBlock, DiffBlock, DisclosureRow, IconInspectOutline12, ReadBlock, SearchBlock, StateDot, TerminalBlock, WebBlock,
-  diffTotals,
+  TextShimmer, diffTotals,
 } from '@qilin/client-ui-primitives'
 import type { PropsRenderSlots, TranslateNS } from '@qilin/client-ui-slots'
 import type { OpenFileOptions, UseDisclosure } from '@qilin/client-ui-chat/client'
@@ -172,8 +172,12 @@ export function ToolRow({
     [card, inputRaw, open, variant],
   )
   const status = stateStatus(state, t)
+  const running = state === 'running' || state === 'preparing'
   // A failure must replace, not supplement, the normal summary.
   const failureLine = state === 'error' ? errorSummary ?? null : null
+  // A settled-with-cue row (failed or interrupted) drops the trailing suffix and
+  // the path link so the state dot and summary tone stay the row's only cues.
+  const settledWithCue = state === 'error' || state === 'stopped'
   // A receipt card states its recorded status in the body, so the expanded
   // header drops the status the collapsed summary carried.
   const normalSummary = terminalBody?.description
@@ -187,8 +191,8 @@ export function ToolRow({
     const { added, removed } = diffTotals(diffBody.card.diffs)
     return `+${added} -${removed}`
   }, [diffBody])
-  const suffix = failureLine === null ? summarySuffix ?? diffStat : null
-  const openFile = filePath !== undefined && onOpenFile !== undefined && failureLine === null
+  const suffix = settledWithCue ? null : summarySuffix ?? diffStat
+  const openFile = filePath !== undefined && onOpenFile !== undefined && !settledWithCue
     ? (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation()
       if (filePathLine === undefined) onOpenFile(filePath)
@@ -215,6 +219,7 @@ export function ToolRow({
         chevronClassName={css.chevron}
         icon={leadingFor(state, icon)}
         title={title}
+        running={running}
         open={open}
         expandable={expandable}
         expandOnRowClick
@@ -224,7 +229,7 @@ export function ToolRow({
           /* An empty summary drops the separator with it (a row that is only
              its title shows no trailing dot). */
           <>
-            <span className={css.sep} aria-hidden />
+            <span className={css.sep} data-shimmer-decoration aria-hidden />
             {openFile !== undefined ? (
               <button
                 type="button"
@@ -232,17 +237,21 @@ export function ToolRow({
                 onClick={openFile}
                 onKeyDown={fileLinkKeyDown}
               >
-                {summaryText}
+                <TextShimmer>{summaryText}</TextShimmer>
               </button>
             ) : (
               <span
-                className={clsx(css.summary, failureLine !== null && css.errorSummary)}
+                className={clsx(
+                  css.summary,
+                  state === 'error' && css.errorSummary,
+                  state === 'stopped' && css.stoppedSummary,
+                )}
               >
-                {summaryText}
+                <TextShimmer>{summaryText}</TextShimmer>
               </span>
             )}
             {suffix !== null && (
-              <span className={clsx(css.summarySuffix, suffix === diffStat && css.diffStat)}>{suffix}</span>
+              <TextShimmer className={clsx(css.summarySuffix, suffix === diffStat && css.diffStat)}>{suffix}</TextShimmer>
             )}
           </>
         )}

@@ -325,7 +325,8 @@
       "@qilin/host-plugin-manager": ["./packages/host/plugin-manager/src"],
       "@qilin/kylin-client-runner/client": ["./packages/extensions/kylin-client-runner/src/client"],
       "@qilin/kylin-host-runner/types": ["./packages/extensions/kylin-host-runner/src/types.ts"],
-      // Hand-written: package names that don't match their directory cannot be generated.      "@qilin/tool-kylin/host": ["./packages/extensions/tool-kylin/src/host.ts"],
+      // Hand-written: package names that don't match their directory cannot be generated.
+      "@qilin/tool-kylin/host": ["./packages/extensions/tool-kylin/src/host.ts"],
 
       "@qilin/otel": ["./packages/telemetry/otel/src"],
       "@qilin/client-ui-settings-session-log": ["./packages/client/ui-settings-session-log/src"],

@@ -11,37 +11,6 @@
   flex-direction: column;
 }
 
-.row {
-  position: relative; /* sweep-glare overlay anchor */
-  overflow: hidden;
-}
-
-/* Running sweep (deepsuite ShimmerText pattern): a fixed-width glare band —
-   theme background at 60% — glides over the row content from off-left to
-   off-right, washing glyphs and icon toward the background as it passes.
-   ease-out with a 10% end hold gives each pass a beat before the next. */
-.root[data-state='running'] .row::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 300px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--dsw-alias-bg-base) 60%, transparent) 55%,
-    transparent 100%
-  );
-  animation: qilin-tool-row-sweep 2.6s ease-out infinite;
-  pointer-events: none;
-}
-
-@keyframes qilin-tool-row-sweep {
-  0% { left: -300px; }
-  90%, 100% { left: 100%; }
-}
-
 .leading {
   flex-shrink: 0;
 }
@@ -153,6 +122,11 @@
 /* Error row's collapsed summary: the failure's first line in the error color. */
 .errorSummary {
   color: var(--dsw-alias-state-error-primary);
+}
+
+/* Interrupted row's collapsed summary: the explicit stopped status in the warn tone. */
+.stoppedSummary {
+  color: var(--dsw-alias-state-warn-label);
 }
 
 /* Expanded body + Inspect pill wrapper (sibling of .row: clicks never toggle). */
@@ -357,8 +331,8 @@
   border: 0.5px solid var(--dsw-alias-border-l1);
 }
 
-/* Visually hidden run-state label for assistive technology: the StateDot and
-   the running sweep are aria-hidden / colour-only, so the text carries the
+/* Visually hidden run-state label for assistive technology: the business icon
+   and animated text treatment do not name the state, so this text carries the
    running/failed/interrupted state to a screen reader. */
 .visuallyHidden {
   position: absolute;

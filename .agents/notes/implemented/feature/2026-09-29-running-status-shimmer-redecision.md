@@ -6,42 +6,30 @@ English | [中文](2026-09-29-running-status-shimmer-redecision.zh.md)
 
 ## Problem
 
-QiLin 在 2026-09-20/23 落地了过程行动效（`007241d2a8` → `b09dd94827`），随后
-`7c8a44ac31` 以 163 文件 +783/−1280 整体 revert（回退 `036d53fb61`），**未记录理由**。
-上游 0.2.0-rc.1 的 A1（`fa3d555cd8` 等）是重做版且与该 revert 正面冲突。
+QiLin shipped the process-row running animation during the 0.1.7 series (the text-shimmer running rows commit, then the grouped work details polish), and later reverted the whole surface with a 163-file +783/−1280 change that recorded no reason. Upstream 0.2.0-rc.1's A1 (the whale-tail cluster) is a redo of the same surface and collides head-on with that revert.
 
 ## Decision
 
-本轮（2026-09-29）补档该 revert 的已知上下文：
+This round (2026-09-29) records the revert's known context:
 
-- 当时的 shimmer 实现使用 `background-clip: text` 渐变方案，DOM 中为每个活动行
-  创建独立的渐变文字层；多行同时运行时引发 GPU 合成层开销，在低性能设备上
-  表现为明显的滚动卡顿。
-- 0.1.7 系列的改动是在 grouped work details 上叠加运行态效果，未考虑与
-  QiLin 自有图标集（85/87-glyph `IconChevronDownOutline14` 等命名与上游
-  `IconXxxRegular` 不同）的兼容。
-- 上述因素导致了 revert。
+- The era's shimmer used a `background-clip: text` gradient scheme that created a separate gradient text layer per active row; several rows running at once caused GPU compositing overhead that showed as visible scroll jank on low-end devices.
+- The 0.1.7 changes overlaid running-state effects on grouped work details without considering QiLin's own icon set (the 85/87-glyph `IconChevronDownOutline14`-style names differ from upstream's `IconXxxRegular` naming).
+- Those two factors forced the revert.
 
-0.2.0-rc.1 的 A1 改用「真实文本 + `inert` 装饰副本双轨对向位移」，代价是
-DOM 中同一段文字出现两次，但消除了 GPU 合成层。QiLin 决定**采纳该重做版**
-，理由：
+Upstream 0.2.0-rc.1's A1 replaced the scheme with real text plus an `inert` decorative copy sweeping in the opposite direction: the same text appears twice in the DOM, but the GPU compositing layer is gone. QiLin adopts the redo:
 
-1. 上游方案解决了原方案的 GPU 合成层问题。
-2. `inert` 装饰副本对辅助技术不可见，不引入可访问性回归。
-3. QiLin 自有图标集与设计令牌的适配成本为一次性（在 0.2.0 批中完成）。
+1. The upstream scheme fixes the original GPU compositing problem.
+2. The `inert` decorative copy is invisible to assistive technology, so the redo introduces no accessibility regression.
+3. Adapting QiLin's icon set and design tokens is a one-time cost, completed in the 0.2.0 batch.
 
 ## Alternatives considered
 
-**永久否决 A1。** 会使 QiLin 用户永远缺少运行态可视化，且每轮上游同步都
-需要重新处理该冲突。采纳后后续同步成本趋近于零。
+Rejecting A1 permanently would leave QiLin users without running-state visualization and would re-create the same conflict at every upstream sync; adopting it drives the follow-up sync cost toward zero.
 
-**部分采纳（只移植 RunningStatus 不移植 TextShimmer）。** RunningStatus
-依赖 TextShimmer 的 `active` 属性来渲染数字段的闪烁效果；分开移植会产生
-半成品状态。
+Adopting only RunningStatus without TextShimmer would produce a half-state: RunningStatus relies on TextShimmer's `active` prop for its numeric-segment animation.
 
 ## Consequences
 
-- QiLin 的 `ui-primitives` 包新增 `TextShimmer.tsx`（重写版）和
-  `DisclosureRow.running` 属性——这些是 QiLin 此前 revert 掉的公开原语。
-- 12 个卫星插件实测零消费这些原语，因此不构成跨插件破坏面。
-- 后续每轮上游同步时，A1 面不再需要特殊处理。
+- QiLin's `ui-primitives` gains `TextShimmer.tsx` (rewritten) and the `DisclosureRow.running` prop — primitives the earlier revert had removed.
+- The 12 satellite plugins consume none of these primitives, so the change is not a cross-plugin break surface.
+- Future upstream syncs need no special handling for the A1 surface.

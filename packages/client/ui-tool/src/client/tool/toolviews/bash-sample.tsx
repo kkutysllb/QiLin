@@ -2,7 +2,7 @@ import { useMemo, type KeyboardEvent } from 'react'
 import type { Context } from '@qilin/kylin'
 import clsx from 'clsx'
 import {
-  IconApiOutline14, IconChevronDownOutline14, IconInspectOutline12, StateDot, TerminalBlock,
+  IconApiOutline14, IconChevronDownOutline14, IconInspectOutline12, StateDot, TerminalBlock, TextShimmer,
 } from '@qilin/client-ui-primitives'
 import type { PropsLocale } from '@qilin/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
@@ -27,7 +27,7 @@ function leadingFor(state: ToolRowState) {
   switch (state) {
     case 'error': return <StateDot state="error" />
     case 'stopped': return <StateDot state="warning" />
-    // Running keeps the icon — the row sweep carries the in-flight signal.
+    // Running keeps the icon — the shimmer carries the in-flight signal.
     default: return <IconApiOutline14 size={14} />
   }
 }
@@ -79,6 +79,9 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, useD
     [genericBody, model.bodyRaw, model.variant, open],
   )
   const failureLine = model.state === 'error' ? model.errorSummary : null
+  // An interrupted call states its stop in the summary slot instead of the name.
+  const settlementLine = failureLine ?? (state === 'stopped' ? t('bash.stopped') : null)
+  const running = state === 'running'
   const toggleFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!expandable || (event.key !== 'Enter' && event.key !== ' ')) return
     event.preventDefault()
@@ -110,11 +113,17 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, useD
       >
         <span className={css.leading}>{leading}</span>
         {status !== null && <span className={css.visuallyHidden}>{status}</span>}
-        <span className={css.title}>{t(model.titleKey)}</span>
-        <span className={css.sep} aria-hidden />
-        <span className={clsx(css.summary, failureLine !== null && css.errorSummary)}>
-          {failureLine ?? terminal?.description ?? model.summary}
-        </span>
+        <TextShimmer active={running}>
+          <TextShimmer className={css.title}>{t(model.titleKey)}</TextShimmer>
+          <span className={css.sep} data-shimmer-decoration aria-hidden />
+          <span className={clsx(
+            css.summary,
+            state === 'error' && css.errorSummary,
+            state === 'stopped' && css.stoppedSummary,
+          )}>
+            <TextShimmer>{settlementLine ?? terminal?.description ?? model.summary}</TextShimmer>
+          </span>
+        </TextShimmer>
       </div>
       {open && (
         <div className={css.bodyWrap}>

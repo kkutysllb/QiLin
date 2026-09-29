@@ -347,7 +347,7 @@ describe('ToolRow', () => {
     expect(view.queryByText(/"a": 1/)).toBeNull()
   })
 
-  it('running keeps the icon (row sweep carries the signal); error swaps in a StateDot', () => {
+  it('running keeps the icon (the shimmer carries the signal); error swaps in a StateDot', () => {
     const runningView = render(<ToolRow {...rowProps} state="running" />)
     expect(runningView.queryByTestId('tool-icon')).not.toBeNull()
     expect(runningView.container.querySelector('[data-state="running"]')).not.toBeNull()
@@ -356,6 +356,29 @@ describe('ToolRow', () => {
     // The dot rides the idle slot, so an expandable error row keeps the
     // icon→chevron hover preview instead of losing it with the icon.
     expect(errorView.container.querySelector('[class*="chevronHover"]')).not.toBeNull()
+  })
+
+  it('an interrupted row keeps its summary but drops the suffix and path link', () => {
+    const open = vi.fn()
+    const settledView = render(
+      <ToolRow {...rowProps} summarySuffix="+2" filePath="src/a.ts" onOpenFile={open} />,
+    )
+    expect(settledView.getByText('+2')).toBeTruthy()
+    settledView.unmount()
+    const stoppedView = render(
+      <ToolRow {...rowProps} state="stopped" summarySuffix="+2" filePath="src/a.ts" onOpenFile={open} />,
+    )
+    expect(stoppedView.getByText('List files')).toBeTruthy()
+    expect(stoppedView.queryByText('+2')).toBeNull()
+    expect(stoppedView.queryByText('src/a.ts')).toBeNull()
+  })
+
+  it('a running row animates its collapsed content through the disclosure shimmer', () => {
+    const runningView = render(<ToolRow {...rowProps} state="running" />)
+    expect(runningView.container.querySelector('[data-shimmer]')).not.toBeNull()
+    runningView.unmount()
+    const settledView = render(<ToolRow {...rowProps} />)
+    expect(settledView.container.querySelector('[data-shimmer]')).toBeNull()
   })
 
   it('non-expandable rows render a passive leading slot and no row button', () => {
