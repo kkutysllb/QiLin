@@ -9,6 +9,9 @@
 
 import type {} from '@qilin/client-locale/client'
 import type { Context as ClientContext } from '@qilin/kylin'
+// Type-only: declares the `shell.overlay` seat the refresh-failure toast
+// registers into, so a failed refresh outlives the Plugins tab.
+import type {} from '@qilin/client-ui-layout/client'
 // Type-only: the Settings shell declares the tab list this page registers into
 // (`settings.plugins.tab`), and the Plugins section owner renders the tab and
 // mounts the page inside it.
@@ -22,6 +25,7 @@ import type {} from '@qilin/api-remotes/client'
 // through the owning package's client-safe types subpath).
 import type {} from '@qilin/plugin-manager/types'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
+import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
 import { configLedgerSource } from './config-ledger.ts'
 import { PluginManagerController } from './manager-store.ts'
 import { en, zh, type PluginManagerLocaleKey } from './locales.ts'
@@ -108,6 +112,17 @@ export function apply(ctx: ClientContext): void {
   // own; a plugin's configuration arrives through the slots the page declares
   // here, so the page never names a configurable plugin.
   const configLedger = configLedgerSource(ctx)
+  const face = controller.inject(configLedger)
+  // A failed manual refresh announces through the frame-wide overlay seat, so
+  // the notice outlives the Settings tab it started in; the page's own toast
+  // keeps every other notice kind.
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay', id: 'plugin-manager.refresh-toast', locale: NS,
+    inject: (): PluginRefreshToastFace => ({
+      hooks: { pluginManager: face.hooks.pluginManager },
+      dismissNotice: face.dismissNotice,
+    }),
+  }, PluginRefreshToast))
   ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
     name: 'settings.plugins.tab',
     id: TAB_ID,
@@ -115,7 +130,7 @@ export function apply(ctx: ClientContext): void {
     label: () => t('tab'),
     locale: NS,
     inject: () => ({
-      ...controller.inject(configLedger),
+      ...face,
       registerOpen: (handler: (packageName: string) => void) => {
         revealPackage = handler
         return () => { if (revealPackage === handler) revealPackage = undefined }

@@ -51,6 +51,7 @@ const IDLE_INSTALL: InstallState = {
 
 const READY: PluginManagerState = {
   status: 'ready',
+  refreshStatus: 'idle',
   packages: [],
   busy: [],
   notice: null,
@@ -394,6 +395,25 @@ describe('PluginManagerPage', () => {
     expect(screen.getByText(en.empty)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: en.addPlugin }))
     expect(actions.openInstall).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps a refresh failure off the page toast, spins the refresh control, and words the inline failure', () => {
+    const { set } = renderTab({ notice: { kind: 'refresh-failed', seq: 1 } })
+    // The overlay toast owns the refresh failure; the page toast stays empty.
+    expect(screen.queryByRole('alert')).toBeNull()
+    // While the manual refresh spins, the refresh control is busy and disabled.
+    set({ refreshStatus: 'refreshing' })
+    const refresh = screen.getByRole('button', { name: en.refresh })
+    expect(refresh).toHaveProperty('disabled', true)
+    expect(refresh.getAttribute('aria-busy')).toBe('true')
+    // A refreshing page over cached cards suppresses the inline failure block.
+    set({ status: 'error', refreshStatus: 'refreshing' })
+    expect(screen.queryByRole('alert')).toBeNull()
+    // A settled refresh failure without cache words the inline block as the refresh error.
+    set({ refreshStatus: 'failed' })
+    expect(screen.getByRole('alert').textContent).toBe(en.refreshError)
+    fireEvent.click(screen.getByRole('button', { name: en.retry }))
+    expect(screen.getByRole('button', { name: en.refresh })).toHaveProperty('disabled', false)
   })
 
   it('lists the installed bundles as cards, the installation\'s offered ones as official, and tags a problem the Host reports', () => {

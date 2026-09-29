@@ -1138,7 +1138,11 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     const timer = setTimeout(clearHighlight, HIGHLIGHT_MS)
     return () => { clearTimeout(timer) }
   }, [highlight, clearHighlight])
-  const noticeLine = state.notice === null ? null : noticeText(state.notice, t)
+  // A refresh failure announces through the shell overlay toast, so the page's
+  // own toast keeps the notices about install and row actions only.
+  const noticeLine = state.notice === null || state.notice.kind === 'refresh-failed'
+    ? null
+    : noticeText(state.notice, t)
 
   // The page manages what the person installed, what the installation ships for them to switch on, what a
   // profile-installed copy can upgrade in place, and a selected name the Host cannot read; the installation's
@@ -1148,6 +1152,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const mine = listed.filter(pkg => pkg.installed || !pkg.optional)
   const official = listed.filter(pkg => pkg.optional && !pkg.installed)
   const loaded = state.status === 'ready' || state.status === 'error'
+  const refreshing = state.refreshStatus === 'refreshing'
   const openPkg = view.kind === 'package' || view.kind === 'row' ? listed.find(pkg => pkg.name === view.name) : undefined
   const openItem = view.kind === 'item' ? ledger.items.find(item => item.id === view.id) : undefined
   const openRow = view.kind === 'row' && openPkg !== undefined ? openPkg.rows.find(row => row.rowId === view.rowId) : undefined
@@ -1193,7 +1198,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     )
 
   return (
-    <section className={css.page} data-plugin-panel aria-busy={state.status === 'loading'}>
+    <section className={css.page} data-plugin-panel aria-busy={state.status === 'loading' || refreshing}>
       {showsCards
         ? (
           <header className={css.pageHead} data-window-drag>
@@ -1212,8 +1217,18 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
               >
                 <span className={css.iconWrap} aria-hidden="true"><IconDownloadOutline16 /></span>
               </button>
-              <button type="button" className={css.iconButton} aria-label={t('refresh')} title={t('refresh')} disabled={!loaded} onClick={props.refresh}>
-                <span className={css.iconWrap} aria-hidden="true"><IconRefreshOutline16 /></span>
+              <button
+                type="button"
+                className={css.iconButton}
+                aria-label={t('refresh')}
+                title={t('refresh')}
+                aria-busy={refreshing}
+                disabled={!loaded || refreshing}
+                onClick={props.refresh}
+              >
+                <span className={css.iconWrap} aria-hidden="true">
+                  {refreshing ? <StateDot state="ongoing" /> : <IconRefreshOutline16 />}
+                </span>
               </button>
               <Button variant="primary" size="sm" icon={<IconPlusOutline16 size={13} />} disabled={!loaded} onClick={props.openInstall}>{t('addPlugin')}</Button>
             </div>
@@ -1222,10 +1237,10 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
         : null}
       {state.status === 'loading' ? <p className={css.status}>{t('loading')}</p> : null}
       {state.status === 'unavailable' ? <p className={css.status} role="status">{t('unavailable')}</p> : null}
-      {state.status === 'error'
+      {state.status === 'error' && !refreshing
         ? (
           <div className={css.failure}>
-            <p role="alert">{t('error')}</p>
+            <p role="alert">{t(state.refreshStatus === 'failed' ? 'refreshError' : 'error')}</p>
             <Button variant="outline" size="sm" onClick={props.refresh}>{t('retry')}</Button>
           </div>
         )

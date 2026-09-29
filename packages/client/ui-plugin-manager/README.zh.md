@@ -83,7 +83,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### store
 
-`PluginManagerController` 拥有组合包视图、忙碌键、提示、安装进度和卸载确认。每次读取先问清单 Host 是否管理着 profile，再把 `listBundles` 与 `listPlugins` 合成每个组合包一份视图，其行携带存活条目的启停状态与 fiber 阶段。它合并重叠读取，在操作后、收到 `plugin-manager/changed` 时以及重连后刷新，并在销毁后忽略晚到结果。安装输出按 job id 分组。安装对话框沿 `idle → checking → starting → running → done | failed` 推进，`cancelling` 与 `applying` 按 Host 的报告呈现。检查在一个 `AbortController` 下运行，返回编辑或关闭会中止它并丢弃其结果；运行只能通过 `pluginManager.cancelInstall` 停止，对话框等待其答复。Host 无法应用的变更、要等重启的变更、被更高层覆盖的变更，都是会自行消失的 toast。检查更新与目录搜索是各自的读取：状态与失败文本都留在发起它们的区块里，因此一次失败的查询不会改动卡片。
+`PluginManagerController` 拥有组合包视图、忙碌键、提示、安装进度和卸载确认。每次读取先问清单 Host 是否管理着 profile，再把 `listBundles` 与 `listPlugins` 合成每个组合包一份视图，其行携带存活条目的启停状态与 fiber 阶段。它合并重叠读取，在操作后、收到 `plugin-manager/changed` 时以及重连后刷新，并在销毁后忽略晚到结果。手动刷新保留已缓存的列表，在「刷新」控件上显示 spinner，直至读取完成且至少经过 400 ms，并忽略重复请求；后台读取从不显示它。已加载列表后，一次失败的手动刷新保留缓存内容，并在全页 overlay 座位上弹出 `refresh-failed` toast，即使离开面板也会显示；在任何成功读取之前，失败就地显示并附「重试」。安装输出按 job id 分组。安装对话框沿 `idle → checking → starting → running → done | failed` 推进，`cancelling` 与 `applying` 按 Host 的报告呈现。检查在一个 `AbortController` 下运行，返回编辑或关闭会中止它并丢弃其结果；运行只能通过 `pluginManager.cancelInstall` 停止，对话框等待其答复。Host 无法应用的变更、要等重启的变更、被更高层覆盖的变更，都是会自行消失的 toast。检查更新与目录搜索是各自的读取：状态与失败文本都留在发起它们的区块里，因此一次失败的查询不会改动卡片。
 
 ### 配置 slot
 

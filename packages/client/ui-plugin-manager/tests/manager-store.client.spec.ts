@@ -3,7 +3,7 @@
  * outcomes become toasts, and how the install run folds its output.
  */
 
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type {
   BundleInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, ManagementError, PluginEntryId, PluginInfo,
   PluginInstallRequestId, PluginUpdateSnapshot,
@@ -1309,6 +1309,128 @@ describe('PluginManagerController', () => {
     await Promise.resolve()
     await Promise.resolve()
     expect(state()).toBe(before)
+  })
+})
+
+describe('manual refresh feedback', () => {
+  it('keeps cached packages while a manual refresh reads and ignores repeated refreshes without a success notice', async () => {
+    vi.useFakeTimers()
+    onTestFinished(() => { vi.useRealTimers() })
+    const { plugins, inventory, face, state, controller } = bench()
+    await controller.load()
+    const packages = state().packages
+    const gate = deferred<ReturnType<typeof ok<BundleInfo[]>>>()
+    plugins.listBundles.mockReturnValueOnce(gate.promise)
+    face.refresh()
+    expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'refreshing', notice: null })
+    expect(state().packages).toBe(packages)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(plugins.listBundles).toHaveBeenCalledTimes(2)
+    face.refresh()
+    face.refresh()
+    gate.resolve(ok([{ ...BUNDLE, version: '0.17.0' }]))
+    await vi.advanceTimersByTimeAsync(399)
+    expect(state().refreshStatus).toBe('refreshing')
+    await vi.advanceTimersByTimeAsync(1)
+    expect(state().refreshStatus).toBe('idle')
+    expect(state().packages[0]?.version).toBe('0.17.0')
+    expect(state().status).toBe('ready')
+    expect(state().notice).toBeNull()
+    expect(inventory.list).toHaveBeenCalledTimes(2)
+    expect(plugins.listBundles).toHaveBeenCalledTimes(2)
+    expect(plugins.listPlugins).toHaveBeenCalledTimes(2)
+  })
+
+  it.each(['refused', 'rejected'] as const)('keeps cached packages ready after a %s refresh and clears its toast when retry starts', async (failure) => {
+    vi.useFakeTimers()
+    onTestFinished(() => { vi.useRealTimers() })
+    const { inventory, plugins, face, state, controller } = bench()
+    await controller.load()
+    const packages = state().packages
+    if (failure === 'refused') inventory.list.mockResolvedValueOnce(refused('gateway/internal', 'offline'))
+    else inventory.list.mockRejectedValueOnce(new Error('transport down'))
+    face.refresh()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state().refreshStatus).toBe('idle')
+    expect(state()).toMatchObject({ status: 'ready', notice: { kind: 'refresh-failed', seq: 1 } })
+    expect(state().packages).toBe(packages)
+    const gate = deferred<ReturnType<typeof ok<BundleInfo[]>>>()
+    plugins.listBundles.mockReturnValueOnce(gate.promise)
+    face.refresh()
+    expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'refreshing', notice: null })
+    expect(state().packages).toBe(packages)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(plugins.listBundles).toHaveBeenCalledTimes(2)
+    gate.resolve(ok([BUNDLE]))
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state().refreshStatus).toBe('idle')
+    expect(state()).toMatchObject({ status: 'ready', notice: null })
+    inventory.list.mockResolvedValueOnce(refused('gateway/internal', 'offline again'))
+    face.refresh()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state().notice).toEqual({ kind: 'refresh-failed', seq: 2 })
+    face.dismissNotice()
+    expect(state().notice).toBeNull()
+  })
+
+  it.each(['refused', 'rejected'] as const)('keeps a %s first refresh failure inline without a toast', async (failure) => {
+    vi.useFakeTimers()
+    onTestFinished(() => { vi.useRealTimers() })
+    const inventory = failure === 'refused'
+      ? vi.fn().mockResolvedValueOnce(refused('gateway/internal', 'offline'))
+      : vi.fn().mockRejectedValueOnce(new Error('transport down'))
+    const { face, state } = bench({ inventory })
+    face.refresh()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state().refreshStatus).toBe('failed')
+    expect(state()).toMatchObject({ status: 'error', packages: [], notice: null })
+  })
+
+  it('treats an empty successful inventory as cached for refresh failures', async () => {
+    vi.useFakeTimers()
+    onTestFinished(() => { vi.useRealTimers() })
+    const { inventory, face, state, controller } = bench({ listBundles: vi.fn().mockResolvedValue(ok([])) })
+    await controller.load()
+    expect(state().packages).toEqual([])
+    inventory.list.mockResolvedValueOnce(refused('gateway/internal', 'offline'))
+    face.refresh()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state().refreshStatus).toBe('idle')
+    expect(state()).toMatchObject({ status: 'ready', packages: [], notice: { kind: 'refresh-failed' } })
+  })
+
+  it('forgets cached inventory when the managed profile becomes unavailable', async () => {
+    vi.useFakeTimers()
+    onTestFinished(() => { vi.useRealTimers() })
+    const { inventory, face, state, controller } = bench()
+    await controller.load()
+    inventory.list.mockResolvedValueOnce(ok({ entries: [], managementAvailable: false }))
+    inventory.list.mockResolvedValueOnce(refused('gateway/internal', 'offline'))
+    face.refresh()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state()).toMatchObject({ status: 'unavailable', refreshStatus: 'idle', notice: null })
+    // The next failed read has nothing cached: the failure shows inline, not as a toast over stale cards.
+    inventory.list.mockResolvedValueOnce(ok({ entries: [], managementAvailable: true }))
+    inventory.list.mockRejectedValueOnce(new Error('transport down again'))
+    face.refresh()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state()).toMatchObject({ status: 'error', refreshStatus: 'failed', notice: null })
+  })
+
+  it('does not start the spinner for background reads', async () => {
+    vi.useFakeTimers()
+    onTestFinished(() => { vi.useRealTimers() })
+    const { plugins, state, controller } = bench()
+    await controller.load()
+    const gate = deferred<ReturnType<typeof ok<BundleInfo[]>>>()
+    plugins.listBundles.mockReturnValueOnce(gate.promise)
+    void controller.load()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(plugins.listBundles).toHaveBeenCalledTimes(2)
+    expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'idle' })
+    gate.resolve(ok([BUNDLE]))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'idle' })
   })
 })
 

@@ -142,6 +142,7 @@ export function noticeText(notice: ManagerNotice, t: Translate): string {
     case 'restart': return t('restartNotice')
     case 'overridden': return t('overriddenNotice', { name: notice.packageName })
     case 'cancelled': return t('installCancelled')
+    case 'refresh-failed': return t('refreshError')
     case 'failed': {
       const reason = notice.code === undefined ? notice.reason : managementText({
         code: notice.code, diagnostic: notice.reason, ...notice.incompatible === undefined ? {} : { incompatible: notice.incompatible },
