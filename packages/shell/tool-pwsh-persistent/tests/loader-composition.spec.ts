@@ -97,6 +97,11 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
       '    exactProbeAfterMs: 20',
       '    idleSilenceMs: 300',
       '    handoffGraceMs: 300',
+      // The self-hosted Windows pool stalls the console renderer for seconds (issue 2487): the
+      // OSC marker reaches the session while the prompt tail that follows it does not arrive
+      // until the plain silence bound has passed. The tolerance keeps those sends on the
+      // controlled-prompt path without letting a missing prompt escape the silence tier.
+      '    promptTailGraceMs: 5000',
       '    scrollbackLines: 20000',
       // The first call pays the full pwsh cold-start latency (spawn + .NET +
       // PSReadLine + Defender) inside the tool deadline; a 60s bound on the

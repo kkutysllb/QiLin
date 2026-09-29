@@ -3,7 +3,7 @@ description: "持久终端会话的随产品交付的 shell 后端：在共享�
 kind: "package-reference"
 ---
 
-# @qilin/terminal-bash
+# @deepseek-ai/qilin-terminal-bash
 
 [English](README.md) | 中文
 
@@ -25,23 +25,23 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当组合需要持久 shell 会话时挂载此后端——cwd、导出的变量、函数或正在运行的交互式子进程等状态必须跨工具调用存活。它是默认的 `shell` 类型：组合只挂载 `@qilin/terminal` 而不挂载它时，将没有任何会话可打开。
+当组合需要持久 shell 会话时挂载此后端——cwd、导出的变量、函数或正在运行的交互式子进程等状态必须跨工具调用存活。它是默认的 `shell` 类型：组合只挂载 `@deepseek-ai/dsh-terminal` 而不挂载它时，将没有任何会话可打开。
 
 ### 何时选择
 
-当工作需要状态持续存在的交互式 shell 或 REPL 时选择此后端：在调试器中单步执行、在 Python 或 Node REPL 中探索，或中断前台命令后回到 shell。对于应当一次调用即开始并结束的有界命令，请选择单次 bash 工具。bash 方言面向 POSIX；pwsh 方言面向 `qilin-pwsh-local` 能解析出 pwsh 可执行文件的 Windows 主机。
+当工作需要状态持续存在的交互式 shell 或 REPL 时选择此后端：在调试器中单步执行、在 Python 或 Node REPL 中探索，或中断前台命令后回到 shell。对于应当一次调用即开始并结束的有界命令，请选择单次 bash 工具。bash 方言面向 POSIX；pwsh 方言面向 `dsh-pwsh-local` 能解析出 pwsh 可执行文件的 Windows 主机。
 
 ### 组合方式
 
 挂载终端服务、子进程提供方、沙箱与策略服务、此后端以及一个工具包：
 
 ```yaml
-- name: '@qilin/terminal'
-- name: '@qilin/subprocess-local'
-- name: '@qilin/sandbox-local'
-- name: '@qilin/sandbox-policy'
-- name: '@qilin/terminal-bash'
-- name: '@qilin/tool-terminal'
+- name: '@deepseek-ai/dsh-terminal'
+- name: '@deepseek-ai/dsh-subprocess-local'
+- name: '@deepseek-ai/dsh-sandbox-local'
+- name: '@deepseek-ai/dsh-sandbox-policy'
+- name: '@deepseek-ai/qilin-terminal-bash'
+- name: '@deepseek-ai/dsh-tool-terminal'
 ```
 
 `danger-full-access` 直接启动 shell。受限模式要求同一执行世界中存在 `ctx.sandbox` 提供方：缺少时，spawn 会在 shell 启动前失败。限制准备过程接收打开操作的取消信号；即使提供方稍后返回，取消仍会阻止终端分配。
@@ -57,11 +57,11 @@ kind: "package-reference"
 | `timeoutMs` | `30000` | 一次发送等待的绝对上限 |
 | `disposeGraceMs` | `3000` | 清理升级到 `SIGKILL` 前的宽限时间 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinterminal-bash)是每个字段的穷尽式真源，包括就绪计时（`pollIntervalMs`、`exactProbeAfterMs`、`idleSilenceMs`、`handoffGraceMs`）、终端尺寸（`rows`、`cols`）与 scrollback 上限（`scrollbackLines`、`scrollbackMaxBytes`）。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilinterminal-bash)是每个字段的穷尽式真源，包括就绪计时（`pollIntervalMs`、`exactProbeAfterMs`、`idleSilenceMs`、`handoffGraceMs`、`promptTailGraceMs`）、终端尺寸（`rows`、`cols`）与 scrollback 上限（`scrollbackLines`、`scrollbackMaxBytes`）。
 
 ### shell 方言与就绪
 
-两种方言暴露相同的就绪约定，因此消费方与方言无关。当 shell 再次就绪时发送即结算：受控提示符被验证之后、前台进程组被证明在等待 stdin（Linux）之后、输出静默（`inferred_idle`）之后，或到达绝对 `timeoutMs`。`inferred_idle` 或 `timeout` 结果并不证明前台命令已退出。
+两种方言暴露相同的就绪约定，因此消费方与方言无关。当 shell 再次就绪时发送即结算：受控提示符被验证之后、前台进程组被证明在等待 stdin（Linux）之后、输出静默（`inferred_idle`）之后，或到达绝对 `timeoutMs`。若提示符标记已到达而其可打印尾部尚未到达，send 会在 `idleSilenceMs + handoffGraceMs` 之外继续等待 `promptTailGraceMs`，因为标记与尾部由同一次提示符渲染写出。`inferred_idle` 或 `timeout` 结果并不证明前台命令已退出。
 
 ### 沙箱与安全运行
 
@@ -133,7 +133,7 @@ Scrollback 和尚未读取的发送输出保留独立拥有的字符串，并增
 
 #### 模型看到什么
 
-此包不注册提示词或工具。模型通过 `@qilin/tool-terminal` 或其他 PTY 消费方可能收到有界的启动输出、发送增量、scrollback 页、就绪原因与清理错误。
+此包不注册提示词或工具。模型通过 `@deepseek-ai/dsh-tool-terminal` 或其他 PTY 消费方可能收到有界的启动输出、发送增量、scrollback 页、就绪原因与清理错误。
 
 #### Token 影响
 
