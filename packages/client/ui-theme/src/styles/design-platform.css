@@ -354,4 +354,7 @@ body[data-ds-dark-theme] {
 
 /* Document text-selection visibility in Office/PDF previews across themes. */
 [data-theme='light'] { --dsw-alias-bg-document-selection: rgba(101, 142, 255, 0.32); }
+  --dsw-alias-label-shimmer: color-mix(in srgb, var(--dsw-static-neutral-1000, #0f1115) 30%, transparent);
+  --dsw-alias-label-deep-diving: color-mix(in srgb, var(--dsw-static-blue-500, #658eff) 70%, var(--dsw-static-neutral-bluish-1000, #0f1115));
+  --dsw-alias-label-deep-diving-shimmer: color-mix(in srgb, var(--dsw-static-blue-500, #658eff) 30%, var(--dsw-static-neutral-bluish-1000, #0f1115));
 [data-theme='dark'] { --dsw-alias-bg-document-selection: rgba(101, 142, 255, 0.45); }
