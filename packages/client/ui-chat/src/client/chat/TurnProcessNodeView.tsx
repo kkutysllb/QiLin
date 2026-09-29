@@ -23,7 +23,7 @@ export const TurnProcessNodeView = memo(function TurnProcessNodeView({
     const timer = setInterval(() => { setNow(Date.now()) }, LIVE_RUN_CLOCK_INTERVAL_MS)
     return () => { clearInterval(timer) }
   }, [ticking])
-  if (turn?.start === undefined && turn?.status !== 'closed') return null
+  if (turn?.status !== 'closed') return null
   const canCollapse = turnProcess.foldable && turnProcess.hasContent && !turnProcessAlwaysOpen(node)
   const running = turn.status === 'open'
   const reason = turn.end?.data.reason.kind
@@ -38,13 +38,8 @@ export const TurnProcessNodeView = memo(function TurnProcessNodeView({
       : reason === 'error' ? t('message.turnProcess.failed')
         : duration === undefined ? t('message.turnProcess.worked')
           : t('message.turnProcess.took', { duration })
-  const announcement = running ? t('chat.deepDiving')
-    : reason === 'aborted' ? t('message.stopped')
-      : reason === 'error' ? t('message.turnProcess.failed')
-        : t('message.turnProcess.worked')
   return (
     <>
-      <span className={a11yCss.visuallyHidden} role="status" aria-live="polite" aria-atomic="true">{announcement}</span>
       <button
         type="button"
         className={css.root}
