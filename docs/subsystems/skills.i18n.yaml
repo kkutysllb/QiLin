@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/skills.md
 /skills:
-  en: 156eb22ca5e3e4ca
-  zh: fe5dad8fa70ab9c7
+  en: 8868def7ae0b7197
+  zh: 9a4cd9df1881b4ab
 /skills/provider-registry:
   en: 287f1ec8754e011b
   zh: 1e43f9f99e0c5661

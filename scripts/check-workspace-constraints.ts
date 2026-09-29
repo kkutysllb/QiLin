@@ -185,7 +185,7 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // The argv-prefix runner entry ships beside the lib as its own bundle;
   // sandbox-local resolves it through the package's ./runner export. tsdown
   // also shares its generated FFI code through a hashed runtime chunk.
-  '@qilin/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js'],
+  '@qilin/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js', 'assets'],
   '@qilin/skill-badge': ['assets'],
   '@qilin/skill-office': ['assets'],
   '@qilin/subprocess': ['lib/control.js'],

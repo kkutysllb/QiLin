@@ -5,63 +5,63 @@
 /:
   en: 14d3fdd57b94c86f
   zh: abcd3b4f9dd908fa
-/qilin-sandbox-windows-acl:
-  en: a42b4ee850611fa4
-  zh: 3e0f65bafda9ea59
-/qilin-sandbox-windows-acl/summary:
-  en: 777921135c23ee55
-  zh: 7c726cc63995d443
-/qilin-sandbox-windows-acl/table-of-contents:
+/deepseek-ai-dsh-sandbox-windows-acl:
+  en: 446bdfd5375dae6c
+  zh: b5c38bba5c668568
+/deepseek-ai-dsh-sandbox-windows-acl/summary:
+  en: 97aab6dc2b5bf9bd
+  zh: 22ed2234582f7f50
+/deepseek-ai-dsh-sandbox-windows-acl/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-sandbox-windows-acl/use-this-package:
+/deepseek-ai-dsh-sandbox-windows-acl/use-this-package:
   en: 58b220faa66b2f05
   zh: dda42e4197d80bfe
-/qilin-sandbox-windows-acl/use-this-package/when-to-choose-it:
+/deepseek-ai-dsh-sandbox-windows-acl/use-this-package/when-to-choose-it:
   en: 510d0b1ef7db159d
   zh: dc2cf25b3db14c63
-/qilin-sandbox-windows-acl/use-this-package/direct-api:
+/deepseek-ai-dsh-sandbox-windows-acl/use-this-package/direct-api:
   en: 16596607bbccc2a3
   zh: 30bc370a5281bf0d
-/qilin-sandbox-windows-acl/use-this-package/what-confinement-gives-you:
+/deepseek-ai-dsh-sandbox-windows-acl/use-this-package/what-confinement-gives-you:
   en: 289e65bddf20dd79
-  zh: 44b9fcedf944546a
-/qilin-sandbox-windows-acl/use-this-package/failures-and-recovery:
-  en: f93372e784cda63e
-  zh: f8371114f3481550
-/qilin-sandbox-windows-acl/understand-the-implementation:
+  zh: 7ff72ed64c4b4d1c
+/deepseek-ai-dsh-sandbox-windows-acl/use-this-package/failures-and-recovery:
+  en: 0c83e48ddb5f4df8
+  zh: a52516c22b8dc5a0
+/deepseek-ai-dsh-sandbox-windows-acl/understand-the-implementation:
   en: c2cde86c85c2c619
   zh: a29a114e591f9d3f
-/qilin-sandbox-windows-acl/understand-the-implementation/mechanism:
+/deepseek-ai-dsh-sandbox-windows-acl/understand-the-implementation/mechanism:
   en: 8bccc0a93044baa1
   zh: 57030b90a85cf735
-/qilin-sandbox-windows-acl/understand-the-implementation/modes-and-token-lists:
+/deepseek-ai-dsh-sandbox-windows-acl/understand-the-implementation/modes-and-token-lists:
   en: 9c8d9af84f9abd99
   zh: 1c82b355aa5f210f
-/qilin-sandbox-windows-acl/understand-the-implementation/the-confinement-runner:
-  en: 0847de0e53e50061
-  zh: 90fa3dcaf080c3be
-/qilin-sandbox-windows-acl/understand-the-implementation/verified-boundaries:
+/deepseek-ai-dsh-sandbox-windows-acl/understand-the-implementation/the-confinement-runner:
+  en: 7442125f719d533d
+  zh: c50e079a78ece2c2
+/deepseek-ai-dsh-sandbox-windows-acl/understand-the-implementation/verified-boundaries:
   en: ad02570eae90037f
   zh: fd78c2318de18dda
-/qilin-sandbox-windows-acl/understand-the-implementation/header-verification-and-source-map:
-  en: 3569a4d1074bf9c3
-  zh: 6b3e19d8a920ef69
-/qilin-sandbox-windows-acl/further-exploration:
+/deepseek-ai-dsh-sandbox-windows-acl/understand-the-implementation/header-verification-and-source-map:
+  en: d2b1af3355c5e477
+  zh: 418ac9b775b14b6e
+/deepseek-ai-dsh-sandbox-windows-acl/further-exploration:
   en: 16fa0a234961b35f
   zh: 33a483696aef6619
-/qilin-sandbox-windows-acl/model-experience:
-  en: 0960b3bad947bbfb
-  zh: f18419e01590d3a5
-/qilin-sandbox-windows-acl/model-experience/kv-cache-effect:
-  en: 796af37d6f6add68
-  zh: 1e0dc5a58e5456be
-/qilin-sandbox-windows-acl/known-limitations-and-deferred-work:
-  en: 2b6b967c62766d47
-  zh: 0faf9ec390504967
-/qilin-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note:
+/deepseek-ai-dsh-sandbox-windows-acl/model-experience:
+  en: 8dab6ce01c0ae387
+  zh: 4ff3ebb87384d233
+/deepseek-ai-dsh-sandbox-windows-acl/model-experience/kv-cache-effect:
+  en: 817eb1b7de13872e
+  zh: 06fe175e41e7459b
+/deepseek-ai-dsh-sandbox-windows-acl/known-limitations-and-deferred-work:
+  en: 046831a864786b2a
+  zh: 4a261fbab3396ea4
+/deepseek-ai-dsh-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note:
   en: cc273320f6a1beaf
   zh: 5c57a312ddc50651
-/qilin-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note/future-warnings-and-cleanup-surfaces:
+/deepseek-ai-dsh-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note/future-warnings-and-cleanup-surfaces:
   en: 4c65be775f25c367
   zh: 467b2ce99030dcf5

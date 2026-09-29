@@ -1,0 +1,4 @@
+- id: sandbox
+  name: '@qilin/sandbox-local'
+- id: skills
+  name: '@qilin/skill'

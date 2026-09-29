@@ -3,13 +3,13 @@ description: "面向 Linux、macOS 或 Windows 上选择、配置或排查进程
 kind: "package-reference"
 ---
 
-# @qilin/sandbox-local
+# @deepseek-ai/dsh-sandbox-local
 
 [English](README.md) | 中文
 
 ## 概述
 
-`qilin-sandbox-local` 在共享宿主内核和文件系统的同时，限制 Linux、macOS 与 Windows 上的命令及其派生进程。它自动选择受支持的平台 runner；没有可用 runner 时以 `SANDBOX_UNAVAILABLE` 失败，因此命令绝不会静默无限制运行。每次执行都会报告 `full` 或 `partial` 强制执行，以及拒绝和 runner 失败签名，让调用方能区分不可用或损坏的沙箱与策略拒绝。宿主本地 bash 或 pwsh 执行适合选择它；进程需要隔离环境时应改用容器或远程执行器。
+`@qilin/sandbox-local` 在共享宿主内核和文件系统的同时，限制 Linux、macOS 与 Windows 上的命令及其派生进程。它自动选择受支持的平台 runner；没有可用 runner 时以 `SANDBOX_UNAVAILABLE` 失败，因此命令绝不会静默无限制运行。每次执行都会报告 `full` 或 `partial` 强制执行，以及拒绝和 runner 失败签名，让调用方能区分不可用或损坏的沙箱与策略拒绝。宿主本地 bash 或 pwsh 执行适合选择它；进程需要隔离环境时应改用容器或远程执行器。
 
 ## 目录
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 
 ```yaml
 - id: sandbox
-  name: '@qilin/sandbox-local'
+  name: '@deepseek-ai/dsh-sandbox-local'
 ```
 
 | 字段 | 默认值 | 含义 |
@@ -50,7 +50,7 @@ kind: "package-reference"
 
 ### 受限执行与强制执行
 
-挂载提供方后，命令在你逐调用解析的模式下运行。强制执行是报告的事实，而非承诺：`full` 表示后端管辖模式承诺的每个文件操作，`partial` 表示它只管辖子集——Windows ACL 档（Everyone 与硬链接边界）与较旧的 Landlock ABI 是当前的部分强制执行情形，因此需要绝对边界的消费方可以拒绝或向上暴露它们。被拒绝的文件操作通过后端的拒绝方言呈现，执行命令前失败的 runner 会报告结构化的 runner 失败签名。
+挂载提供方后，命令在你逐调用解析的模式下运行。强制执行是报告的事实，而非承诺：`full` 表示后端管辖模式承诺的每个文件操作，`partial` 表示它只管辖子集——Windows ACL 档（硬链接、读取不受限与 AppContainer ACL 边界）与较旧的 Landlock ABI 是当前的部分强制执行情形，因此需要绝对边界的消费方可以拒绝或向上暴露它们。被拒绝的文件操作通过后端的拒绝方言呈现，执行命令前失败的 runner 会报告结构化的 runner 失败签名。
 
 ### 失败与恢复
 
@@ -74,11 +74,13 @@ kind: "package-reference"
 
 bwrap profile 组合只读宿主根目录、全新 `/dev` 与私有 PID 命名空间中的 `/proc`——命令可管理其后代，但看不到宿主进程，因此 procfs 魔法链接无法绕过挂载；`workspace-write` 另加临时的 `/tmp` 与可写工作区绑定挂载。[私有 PID 笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-bwrap-private-pid-namespace.zh.md)记录该边界。
 
-`@qilin/node-addon-system/landlock-run` API 提供平台 launcher、功能探测与授权词汇；此提供方只做模式到授权的映射，把路径解析与探测解析保留在带版本的 binary 中。
+`@deepseek-ai/node-addon-system/landlock-run` API 提供平台 launcher、功能探测与授权词汇；此提供方只做模式到授权的映射，把路径解析与探测解析保留在带版本的 binary 中。
 
 Seatbelt profile 默认允许，带 `(deny file-write*)` 与来自共享 `writableRoots` 辅助函数的写入 allow-list，因此恰好管辖模式承诺的文件操作；每个根目录都经过规范化，因为 Seatbelt 匹配解析后的路径（`/tmp` 就是 `/private/tmp`）。
 
-Windows 档为每个工作区保留一个确定性写入 SID 和常驻 ACE，同时为每个活跃的会话/工作区对分配一个随机私有临时目录，以及不同的 SID 和可撤销 ACE——共享工作区的会话共享其预期写权限，却不会继承彼此的临时目录权限。新的提供方总会选择新的临时路径和 SID，因此崩溃残留既无法阻止恢复的会话，也无法向其授权。该档报告 `partial` 强制执行，因为受限令牌必须保留 Everyone，且 NTFS 硬链接会把同一文件对象别名为多个路径。
+Windows 档为每个工作区保留一个确定性写入 SID 和常驻 ACE，同时为每个活跃的会话/工作区对分配一个随机私有临时目录，以及不同的 SID 和可撤销 ACE——共享工作区的会话共享其预期写权限，却不会继承彼此的临时目录权限。新的提供方总会选择新的临时路径和 SID，因此崩溃残留既无法阻止恢复的会话，也无法向其授权。该档报告 `partial` 强制执行，因为 NTFS 硬链接会把同一文件对象别名为多个路径、读取仍不受限，且被其他 AppContainer 工具以包 SID 标记过的目录树对 Low 完整性子进程不可读。
+
+当内置 Windows runner 与技能注册表同时可用时，此提供方会注册 [ACL 诊断技能](../sandbox-windows-acl/README.zh.md#failures-and-recovery)。自定义 `runnerCommand` 不注册该技能；提供方释放时移除技能及其提取的资源。
 
 构建后的 ACL runner 缺失时，源码启动将 `tsx/esm/api` 加载器和 TypeScript 路径映射固定到本安装目录。命令的工作目录和环境中的 `TSX_TSCONFIG_PATH` 无法选择 runner 的源码依赖。
 
@@ -114,7 +116,7 @@ Windows 档为每个工作区保留一个确定性写入 SID 和常驻 ACE，同
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 [`qilin-bash-sandbox`](../../shell/bash-sandbox/README.zh.md) 和 [`qilin-tool-bash`](../../shell/tool-bash/README.zh.md) 间接影响；它们渲染此提供方的强制执行与拒绝事实，而 [`qilin-sandbox`](../sandbox/README.zh.md) seam 拥有 `SANDBOX_UNAVAILABLE` 文本、本提供方拥有 runner 选择，profile 不进入上下文。
+通过 [`dsh-bash-sandbox`](../../shell/bash-sandbox/README.zh.md) 和 [`dsh-tool-bash`](../../shell/tool-bash/README.zh.md) 间接影响；它们渲染此提供方的强制执行与拒绝事实，而 [`dsh-sandbox`](../sandbox/README.zh.md) seam 拥有 `SANDBOX_UNAVAILABLE` 文本、本提供方拥有 runner 选择，profile 不进入上下文。
 
 #### KV Cache 影响
 
@@ -127,7 +129,7 @@ Windows 档为每个工作区保留一个确定性写入 SID 和常驻 ACE，同
 
 这些限制说明提供方何时不合适，或何时需要特别运维。它们是当前包约束，不是通用平台对比或任务积压。
 
-- **Windows ACL 只能实现部分强制执行**——受限令牌必须保留 Everyone 以完成进程初始化，因此授予 Everyone 写访问的外部对象仍可写；NTFS 硬链接也会使工作区路径与外部路径指向同一个文件对象。提供方报告 `enforcement: 'partial'`，而不会把该边界夸大为完整强制执行。
+- **Windows ACL 只能实现部分强制执行**——NTFS 硬链接会使工作区路径与外部路径指向同一个文件对象，读取仍不受限，且被其他 AppContainer 工具以包 SID 标记过的目录树对 Low 完整性子进程不可读。提供方报告 `enforcement: 'partial'`，而不会把该边界夸大为完整强制执行。
 - **Landlock 可能只实现部分强制执行**——较旧且受支持的内核 ABI 只能限制自身公开的访问类别，因此报告 `enforcement: 'partial'`，不会夸大为完整强制执行。
 - **Seatbelt 依赖已弃用的 `sandbox-exec`**——macOS 仍会提供它，但若 Apple 移除该私有策略引擎，该提供方无法替换或探测。
 - **runner 选择在提供方生命周期内缓存**——安装、移除或修复 runner 后，必须重载插件才能改变选择。

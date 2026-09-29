@@ -3,13 +3,13 @@ description: "Local per-platform sandbox backends for users and maintainers choo
 kind: "package-reference"
 ---
 
-# @qilin/sandbox-local
+# @deepseek-ai/dsh-sandbox-local
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-sandbox-local` confines commands and their descendants on Linux, macOS, and Windows while sharing the host kernel and filesystem. It chooses a supported platform runner automatically and fails with `SANDBOX_UNAVAILABLE` when none is usable, so commands never silently run without confinement. Each execution reports `full` or `partial` enforcement plus denial and runner-failure signatures, allowing callers to distinguish an unavailable or broken sandbox from a policy denial. Choose it for host-local bash or pwsh execution; use a container or remote executor when the process needs an isolated environment.
+`@qilin/sandbox-local` confines commands and their descendants on Linux, macOS, and Windows while sharing the host kernel and filesystem. It chooses a supported platform runner automatically and fails with `SANDBOX_UNAVAILABLE` when none is usable, so commands never silently run without confinement. Each execution reports `full` or `partial` enforcement plus denial and runner-failure signatures, allowing callers to distinguish an unavailable or broken sandbox from a policy denial. Choose it for host-local bash or pwsh execution; use a container or remote executor when the process needs an isolated environment.
 
 ## Table of Contents
 
@@ -37,7 +37,7 @@ Load the sandbox service and mount the provider; the defaults below are the sele
 
 ```yaml
 - id: sandbox
-  name: '@qilin/sandbox-local'
+  name: '@deepseek-ai/dsh-sandbox-local'
 ```
 
 | Field | Default | Meaning |
@@ -50,7 +50,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilinsandb
 
 ### Confined execution and enforcement
 
-With the provider mounted, a command runs under the mode you resolve per call. Enforcement is a reported fact, not a promise: `full` means the backend governs every promised file effect, while `partial` means it governs only a subset — the Windows ACL rung (Everyone and hard-link boundaries) and older Landlock ABIs are the current partial cases, so a consumer that requires an absolute boundary can reject or surface them. Denied file effects surface through the backend's denial dialect, and a runner that fails before executing the command reports a structured runner-failure signature.
+With the provider mounted, a command runs under the mode you resolve per call. Enforcement is a reported fact, not a promise: `full` means the backend governs every promised file effect, while `partial` means it governs only a subset — the Windows ACL rung (hard-link, unconfined-read, and AppContainer-ACL boundaries) and older Landlock ABIs are the current partial cases, so a consumer that requires an absolute boundary can reject or surface them. Denied file effects surface through the backend's denial dialect, and a runner that fails before executing the command reports a structured runner-failure signature.
 
 ### Failures and recovery
 
@@ -74,11 +74,13 @@ Selection is by platform first, probes second: each platform has a runner chain 
 
 The bwrap profile combines a read-only host root, a fresh `/dev`, and `/proc` from a private PID namespace — commands manage their descendants but cannot see host processes, so procfs magic links cannot bypass the mounts; `workspace-write` adds an ephemeral `/tmp` and a writable workspace bind. The [private-PID note](../../../.agents/notes/implemented/bug-fix/2026-08-06-bwrap-private-pid-namespace.md) records the boundary.
 
-The `@qilin/node-addon-system/landlock-run` API supplies the platform launcher, functional probe, and grant vocabulary; this provider maps mode to grants only, keeping path resolution and probe parsing with the versioned binary.
+The `@deepseek-ai/node-addon-system/landlock-run` API supplies the platform launcher, functional probe, and grant vocabulary; this provider maps mode to grants only, keeping path resolution and probe parsing with the versioned binary.
 
 The Seatbelt profile is allow-default with `(deny file-write*)` plus write allow-lists derived from the shared `writableRoots` helper, so exactly the mode's promised file effects are governed; every root is canonicalized because Seatbelt matches resolved paths (`/tmp` IS `/private/tmp`).
 
-The Windows rung keeps one deterministic write SID and standing ACE per workspace, while every live session/workspace pair gets a random private temp directory with a distinct SID and revocable ACE — sessions sharing a workspace share its intended write authority without inheriting one another's temp authority. A fresh provider always chooses a new temp path and SID, so crash residue cannot block or authorize a resumed session. The rung reports `partial` enforcement because the restricted token must retain Everyone and NTFS hard links alias one file object across paths.
+The Windows rung keeps one deterministic write SID and standing ACE per workspace, while every live session/workspace pair gets a random private temp directory with a distinct SID and revocable ACE — sessions sharing a workspace share its intended write authority without inheriting one another's temp authority. A fresh provider always chooses a new temp path and SID, so crash residue cannot block or authorize a resumed session. The rung reports `partial` enforcement because NTFS hard links alias one file object across paths, reads stay unconfined, and a tree another AppContainer tool has ACL'd with a package SID is unreadable to the Low-integrity child.
+
+With the built-in Windows runner and a skill registry, this provider registers the [ACL diagnosis skill](../sandbox-windows-acl/README.md#failures-and-recovery). An operator-supplied `runnerCommand` does not register it; provider disposal removes the skill and its extracted resources.
 
 When the built ACL runner is absent, source launch pins the `tsx/esm/api` loader and TypeScript path mapping to this installation. The command's working directory and ambient `TSX_TSCONFIG_PATH` cannot select the runner's source dependencies.
 
@@ -114,7 +116,7 @@ Start with the subsystem reference for the shared vocabulary, then the seam cont
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through [`qilin-bash-sandbox`](../../shell/bash-sandbox/README.md) and [`qilin-tool-bash`](../../shell/tool-bash/README.md), which render this provider's enforcement and denial facts, while the [`qilin-sandbox`](../sandbox/README.md) seam owns the `SANDBOX_UNAVAILABLE` text and this provider owns runner selection, and profiles stay outside context.
+Indirectly, through [`dsh-bash-sandbox`](../../shell/bash-sandbox/README.md) and [`dsh-tool-bash`](../../shell/tool-bash/README.md), which render this provider's enforcement and denial facts, while the [`dsh-sandbox`](../sandbox/README.md) seam owns the `SANDBOX_UNAVAILABLE` text and this provider owns runner selection, and profiles stay outside context.
 
 #### KV Cache effect
 
@@ -127,7 +129,7 @@ No direct invalidation; the named consumers own any request-prefix changes.
 
 These limits define when the provider is a poor fit or needs special operational care. They are current package constraints, not a general platform comparison or a task backlog.
 
-- **Windows ACL enforcement is partial** — the restricted token must retain Everyone for process initialization, so external objects granting Everyone write access remain writable; NTFS hard links also alias one file object across workspace and external paths. The provider reports `enforcement: 'partial'` rather than overstating that boundary as full.
+- **Windows ACL enforcement is partial** — NTFS hard links alias one file object across workspace and external paths, reads stay unconfined, and a tree another AppContainer tool has ACL'd with a package SID is unreadable to the Low-integrity child. The provider reports `enforcement: 'partial'` rather than overstating that boundary as full.
 - **Landlock may be partial** — older supported kernel ABIs confine only the access classes they expose, reported as `enforcement: 'partial'` rather than overstated as full.
 - **Seatbelt depends on deprecated `sandbox-exec`** — macOS still ships it, but this provider cannot replace or probe that private policy engine if Apple removes it.
 - **Runner selection is cached for the provider lifetime** — installing, removing, or repairing a runner requires reloading the plugin before selection changes.

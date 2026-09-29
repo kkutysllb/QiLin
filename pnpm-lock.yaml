@@ -10008,16 +10008,28 @@ importers:
       koffi:
         specifier: 3.1.1
         version: 3.1.1
+      yaml:
+        specifier: ^2.4.2
+        version: 2.9.0
     devDependencies:
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
       '@qilin/pwsh-local':
         specifier: workspace:*
         version: link:../../shell/pwsh-local
       '@qilin/sandbox-local':
         specifier: workspace:*
         version: link:../sandbox-local
+      '@qilin/skill':
+        specifier: workspace:*
+        version: link:../../skill/skill
       '@qilin/subprocess':
         specifier: workspace:*
         version: link:../../subprocess/subprocess

@@ -32,23 +32,29 @@
     "lib/index.js",
     "lib/runner.js",
     "lib/types-*.js",
+    "assets",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",
-    "@qilin/subprocess": "workspace:*"
+    "@qilin/subprocess": "workspace:*",
+    "@qilin/skill": "workspace:*"
   },
   "dependencies": {
     "@qilin/lazy-require": "workspace:*",
     "@qilin/win32-process": "workspace:*",
-    "koffi": "3.1.1"
+    "koffi": "3.1.1",
+    "yaml": "^2.4.2"
   },
   "devDependencies": {
     "@qilin/pwsh-local": "workspace:*",
     "@qilin/sandbox-local": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/subprocess": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*"
+    "@qilin/subprocess-local": "workspace:*",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin/skill": "workspace:*"
   }
 }
