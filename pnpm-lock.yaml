@@ -10452,6 +10452,9 @@ importers:
       '@qilin/session-format-v2-to-v3':
         specifier: workspace:*
         version: link:../session-format-v2-to-v3
+      '@qilin/session-format-v3-to-v4':
+        specifier: workspace:*
+        version: link:../session-format-v3-to-v4
     devDependencies:
       '@qilin/kylin':
         specifier: workspace:~

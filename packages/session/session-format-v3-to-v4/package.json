@@ -50,5 +50,17 @@
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:~"
+  },
+  "qilin": {
+    "sessionFormatMigration": {
+      "from": 3,
+      "to": 4,
+      "export": ".",
+      "migration": "sessionFormatV3ToV4",
+      "sourceCodec": "releasedV3SessionFormatCodec",
+      "targetCodec": "releasedV4SessionFormatCodec",
+      "targetHeaderValidator": "assertReleasedV4Header",
+      "targetRestorer": "restoreReleasedV4Artifact"
+    }
   }
 }

@@ -399,6 +399,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'The seam captures, redacts, and hands session records to one backend; nothing else consumes the service — its output leaves the process.',
   },
   {
+    key: 'otel',
+    pkg: 'otel',
+    title: 'Shared OTel reporting channels',
+    mode: 'core',
+    consumers: ['session-telemetry-otel'],
+    note: 'Owns transport and SDK batching for ordinary-event and Session-log OTLP channels; business consumers inject it and own each channel\'s shutdown.',
+  },
+  {
     key: 'storage',
     pkg: 'storage',
     title: 'Non-session storage hub',

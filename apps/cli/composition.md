@@ -68,6 +68,8 @@ flowchart LR
   cfg --> plugin_qilin_base_storage_domain
   plugin_qilin_base_session_projection_cache["session-projection-cache<br/>@qilin/session-projection-cache"]
   cfg --> plugin_qilin_base_session_projection_cache
+  plugin_qilin_base_otel["otel<br/>@qilin/otel"]
+  cfg --> plugin_qilin_base_otel
   plugin_qilin_base_session_telemetry_otel["session-telemetry-otel<br/>@qilin/session-telemetry-otel"]
   cfg --> plugin_qilin_base_session_telemetry_otel
   plugin_qilin_base_subprocess["subprocess<br/>@qilin/subprocess-local"]
@@ -220,6 +222,7 @@ flowchart LR
 | `storage-json` | `@qilin/storage-json` |
 | `storage-domain` | `@qilin/storage-domain` |
 | `session-projection-cache` | `@qilin/session-projection-cache` |
+| `otel` | `@qilin/otel` |
 | `session-telemetry-otel` | `@qilin/session-telemetry-otel` |
 | `subprocess` | `@qilin/subprocess-local` |
 | `sandbox` | `@qilin/sandbox-local` |
