@@ -333,6 +333,7 @@
     { "path": "./packages/identity/anonymous-user-id" },
     { "path": "./packages/session/session-telemetry-otel" },
     { "path": "./packages/telemetry/otel" },
+    { "path": "./packages/experimental/schedule-bundle" },
     { "path": "./packages/core/system-prompt" },
     { "path": "./packages/core/agent" },
     { "path": "./packages/core/agent-default-model" },

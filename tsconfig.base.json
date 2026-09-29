@@ -460,6 +460,7 @@
       "@qilin/session-title/invariant": ["./packages/session/session-title/src/invariant.ts"],
       "@qilin/otel": ["./packages/telemetry/otel/src"],
       "@qilin/client-ui-settings-session-log": ["./packages/client/ui-settings-session-log/src"],
+      "@qilin/experimental-schedule-bundle": ["./packages/experimental/schedule-bundle/src"],
       "@qilin/session-title-all-prompts-llm": ["./packages/session/session-title-all-prompts-llm/src"],
       "@qilin/session-title-first-prompt-llm": ["./packages/session/session-title-first-prompt-llm/src"],
       "@qilin/session-title-llm": ["./packages/session/session-title-llm/src"],
