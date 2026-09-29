@@ -1,6 +1,5 @@
 # Keyless activation-capacity overlay holds the first child until the parent finishes.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

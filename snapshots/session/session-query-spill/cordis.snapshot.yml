@@ -1,7 +1,6 @@
 # Keyless session-query snapshot patch: replay plus the filesystem spill
 # settings inherited by this scenario. The ACP row re-pins the recorded flash model.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

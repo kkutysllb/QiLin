@@ -1,7 +1,6 @@
 # Keyless counterpart to depth-two.cordis.yml: apply the depth patch and replace
 # the live adapter with per-session replay.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: sandbox

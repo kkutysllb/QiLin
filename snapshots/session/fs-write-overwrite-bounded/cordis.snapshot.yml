@@ -1,7 +1,6 @@
 # Keyless replay counterpart to fs-diff-bound.cordis.yml. The ACP and
 # persistence rows keep the recorded flash model and raw JSONL harvest.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

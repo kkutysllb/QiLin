@@ -1,7 +1,6 @@
 # Keyless replay keeps both recorded model routes in the replay catalog and
 # applies the same second-assembly selection change as the live composition.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: plugin-package-inventory-deepseek

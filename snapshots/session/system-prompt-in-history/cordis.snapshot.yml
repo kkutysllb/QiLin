@@ -1,7 +1,6 @@
 # Keyless replay counterpart of system-prompt-in-history/cordis.yml: the
 # replay route declares the same in-history capability.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

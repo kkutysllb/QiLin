@@ -3,7 +3,6 @@
 # so the strict read_image gate accepts the route and the tool result carries
 # the durable image block.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: acp

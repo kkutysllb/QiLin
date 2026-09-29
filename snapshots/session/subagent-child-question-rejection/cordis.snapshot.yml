@@ -2,7 +2,6 @@
 # seam, model-facing tool, and tripwire provider while replacing DeepSeek with
 # per-session replay.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: sandbox

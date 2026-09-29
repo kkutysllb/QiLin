@@ -1,5 +1,4 @@
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

@@ -1,6 +1,5 @@
 # Minimal keyless composition: real app, bash, and search tool; replayed model.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - insert:

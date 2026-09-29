@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-09-28-upstream-0-2-0-rc-1-alignment-decisions.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-09-28-upstream-0-2-0-rc-1-alignment-decisions.md
+/agent-note-upstream-0-2-0-rc-1-alignment-decision-gate:
+  en: 811095e1c03888d9
+  zh: 58df3e94998a820c
+/agent-note-upstream-0-2-0-rc-1-alignment-decision-gate/problem:
+  en: 38cf601920a21616
+  zh: 86b699aefe711a40
+/agent-note-upstream-0-2-0-rc-1-alignment-decision-gate/decision:
+  en: 79d2602496e5efdc
+  zh: 17773dbd9bbacc62
+/agent-note-upstream-0-2-0-rc-1-alignment-decision-gate/alternatives-considered:
+  en: 46f681f1758dbf47
+  zh: 98195e3d3438b626
+/agent-note-upstream-0-2-0-rc-1-alignment-decision-gate/consequences:
+  en: 1ba06564d02cf871
+  zh: 3a3fc75b7911a801
+/agent-note-upstream-0-2-0-rc-1-alignment-decision-gate/verification:
+  en: 50c11c0da3042eb7
+  zh: a94dce16f5c44006

@@ -2,7 +2,6 @@
 # script comes from the scenario's committed session JSONL.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: plugin-package-inventory-deepseek

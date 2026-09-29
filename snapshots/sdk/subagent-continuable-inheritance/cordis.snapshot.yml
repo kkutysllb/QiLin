@@ -2,7 +2,6 @@
 # the live adapter with replay and switch the root session to read-only at
 # creation.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

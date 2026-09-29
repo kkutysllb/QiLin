@@ -1,7 +1,6 @@
 # Keyless replay counterpart of agent-instructions.cordis.yml: apply the
 # scenario values and model swap to the ACP profile.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

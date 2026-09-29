@@ -3,7 +3,6 @@
 # text-only, so the strict read_image gate refuses and no image ever enters
 # the durable log.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

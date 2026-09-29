@@ -1,6 +1,5 @@
 # Replay counterpart to advanced.cordis.yml; only the live model is replaced.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

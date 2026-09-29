@@ -2,7 +2,6 @@
 # DeepSeek adapter with replay while preserving the app's one-task admission
 # config and the recorded flash route.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

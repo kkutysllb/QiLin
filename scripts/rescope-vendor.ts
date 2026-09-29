@@ -105,6 +105,10 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // DSH-era specifiers the compatibility layer recognizes and rewrites itself.
   { file: 'packages/boot/app-boot/src/doctor.ts', upstream: ['cordis'] },
   { file: 'packages/boot/app-boot/tests/doctor.spec.ts', upstream: ['cordis', 'schemastery'] },
+  // The Schemastery protocol key (`Symbol.for('schemastery')`) is the vendored
+  // library's wire contract, not a package specifier.
+  { file: 'packages/boot/app-boot/src/config-schema/native.ts', upstream: ['schemastery'] },
+  { file: 'packages/boot/app-boot/tests/config-schema.spec.ts', upstream: ['schemastery'] },
   // The alias table's keys ARE the upstream spellings it maps onto @qilin names.
   { file: 'packages/util/dsh-compat/src/aliases.ts', upstream: ['cordis'] },
   { file: 'packages/util/dsh-compat/tests/dsh-compat.spec.ts', upstream: ['cordis'] },
@@ -143,6 +147,7 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/extensions/ui-kylin/src/client/CordisActionRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/CordisDefineRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/CordisPanel.tsx', upstream: ['cordis'] },
+  { file: 'packages/extensions/ui-kylin/src/client/CordisPreparingRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/CordisRunRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/locales.ts', upstream: ['cordis'] },
 ]

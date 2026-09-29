@@ -1,7 +1,6 @@
 # Keyless counterpart to subagent-durability-failure.cordis.yml: replace the
 # live adapter with replay and fail the provider-owned final child checkpoint.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

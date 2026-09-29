@@ -1,6 +1,5 @@
 # Replay the authored model turns through the shipped OS sandbox.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: plugin-package-inventory-deepseek

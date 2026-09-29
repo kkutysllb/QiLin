@@ -2,13 +2,16 @@
  * Verify that the executable deploy manifest supplies every plugin referenced
  * by a shipped agent preset and every required workspace peer in its dependency
  * graph. With auto peer installation disabled, either omission can otherwise
- * fail only when Cordis loads the packaged plugin.
+ * fail only when Cordis loads the packaged plugin. QiLin ships agent presets as
+ * the agent-plane compositions under `packages/preset/agent-presets/presets/`,
+ * mounted once per process by `@qilin/agent-presets`; each `agent.cordis.yml`
+ * is one composition.
  */
 import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
-import { isCordisGroupEntry, loadCordisYaml, presetDefinitions } from './cordis-yaml.ts'
+import { isCordisGroupEntry, loadCordisYaml } from './cordis-yaml.ts'
 
 interface PackageManifest {
   name?: string
@@ -30,7 +33,7 @@ interface RuntimePlatform {
 
 type RuntimePlatformManifest = Record<string, RuntimePlatform>
 
-const AGENT_PRESET_GLOB = 'packages/bundle/web-app/presets/*.patch.yml'
+const AGENT_PRESET_GLOB = 'packages/preset/agent-presets/presets/*/agent.cordis.yml'
 
 export interface RuntimeClosureResult {
   failures: string[]
@@ -67,7 +70,8 @@ export async function verifyRuntimeClosure(
   const failures: string[] = []
   if (presetPaths.length === 0) failures.push(`no agent presets matched ${AGENT_PRESET_GLOB}`)
   if (targets.length === 0) failures.push('python/sdk-runtime/platforms.json defines no runtime targets')
-  failures.push(...await missingPresetPlugins(root, runtimeDependencies, presetPaths, targets))
+  const compositions = await presetCompositions(root, presetPaths, failures)
+  failures.push(...await missingPresetPlugins(runtimeDependencies, compositions, targets))
   for (let index = 0; index < queue.length; index += 1) {
     const packageName = queue[index]
     if (packageName === undefined) continue
@@ -93,7 +97,7 @@ export async function verifyRuntimeClosure(
 
   return {
     failures,
-    presetCount: (await Promise.all(presetPaths.map(async path => presetDefinitions(loadCordisYaml(await readFile(resolve(root, path), 'utf8'))).length))).reduce((a, b) => a + b, 0),
+    presetCount: compositions.length,
     workspacePackageCount: queue.length,
   }
 }
@@ -116,35 +120,55 @@ if (import.meta.main) {
   }
 }
 
-async function missingPresetPlugins(
+/** One shipped preset composition: the preset directory name and its plugin rows. */
+interface PresetComposition {
+  id: string
+  plugins: unknown[]
+}
+
+/**
+ * Load each shipped preset file as one agent-plane composition keyed by its
+ * directory name. A file whose root is not a Loader entry array is reported in
+ * {@link failures} and skipped.
+ */
+async function presetCompositions(
   root: string,
-  runtimeDependencies: Readonly<Record<string, string>>,
   presetPaths: readonly string[],
-  targets: readonly string[],
-): Promise<string[]> {
-  const missing = new Map<string, Set<string>>()
-  const failures: string[] = []
+  failures: string[],
+): Promise<PresetComposition[]> {
+  const compositions: PresetComposition[] = []
   for (const presetPath of presetPaths) {
     const document = loadCordisYaml(await readFile(resolve(root, presetPath), 'utf8'))
     if (!Array.isArray(document)) {
       failures.push(`${presetPath}: preset root must be a Loader entry array`)
       continue
     }
-    for (const definition of presetDefinitions(document)) {
-      for (const target of targets) {
-        const processPlatform = processPlatformForTarget(target)
-        for (const plugin of activeBarePluginPackages(definition.plugins, processPlatform)) {
-          const version = runtimeDependencies[plugin]
-          if (version?.startsWith('workspace:') === true) continue
-          const preset = definition.id
-          const declaration = version === undefined
-            ? ''
-            : ` [runtime dependency is ${JSON.stringify(version)}; expected workspace:]`
-          const key = `${preset} preset -> ${plugin}${declaration}`
-          const targets = missing.get(key) ?? new Set<string>()
-          targets.add(target)
-          missing.set(key, targets)
-        }
+    compositions.push({ id: basename(dirname(presetPath)), plugins: document })
+  }
+  return compositions
+}
+
+async function missingPresetPlugins(
+  runtimeDependencies: Readonly<Record<string, string>>,
+  compositions: readonly PresetComposition[],
+  targets: readonly string[],
+): Promise<string[]> {
+  const missing = new Map<string, Set<string>>()
+  const failures: string[] = []
+  for (const definition of compositions) {
+    for (const target of targets) {
+      const processPlatform = processPlatformForTarget(target)
+      for (const plugin of activeBarePluginPackages(definition.plugins, processPlatform)) {
+        const version = runtimeDependencies[plugin]
+        if (version?.startsWith('workspace:') === true) continue
+        const preset = definition.id
+        const declaration = version === undefined
+          ? ''
+          : ` [runtime dependency is ${JSON.stringify(version)}; expected workspace:]`
+        const key = `${preset} preset -> ${plugin}${declaration}`
+        const targets = missing.get(key) ?? new Set<string>()
+        targets.add(target)
+        missing.set(key, targets)
       }
     }
   }

@@ -1,7 +1,6 @@
 # Replay layer for the TypeScript SDK minimal customization patch.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - insert:

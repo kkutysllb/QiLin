@@ -2,7 +2,6 @@
 # trigger from 8,240 to 7,500, between the history and its condensed replacement.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: session-persistence-jsonl

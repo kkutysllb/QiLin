@@ -2,7 +2,6 @@
 # request output reservation lowers the proactive trigger to 7,500 tokens.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: session-persistence-jsonl

@@ -12,9 +12,11 @@ function fixture(files: Record<string, string | Record<string, unknown>>): strin
   roots.push(root)
   for (const [relative, value] of Object.entries(files)) {
     const preset = /^preset:(.+)$/.exec(relative)
-    const path = join(root, preset === null ? relative : `packages/bundle/web-app/presets/${preset[1]}.patch.yml`)
+    const path = join(root, preset === null ? relative : `packages/preset/agent-presets/presets/${preset[1]}/agent.cordis.yml`)
     mkdirSync(dirname(path), { recursive: true })
-    writeFileSync(path, preset === null ? (typeof value === 'string' ? value : `${JSON.stringify(value, null, 2)}\n`) : JSON.stringify([{ insert: [{ name: '@qilin/agent-preset', config: { id: preset[1], plugins: typeof value === 'string' ? loadCordisYaml(value) : value } }] }]))
+    writeFileSync(path, preset === null
+      ? (typeof value === 'string' ? value : `${JSON.stringify(value, null, 2)}\n`)
+      : `${JSON.stringify(typeof value === 'string' ? loadCordisYaml(value) : value)}\n`)
   }
   return root
 }
@@ -134,7 +136,7 @@ describe('verifyRuntimeClosure', () => {
 
     expect(result.presetCount).toBe(0)
     expect(result.failures).toEqual([
-      'no agent presets matched packages/bundle/web-app/presets/*.patch.yml',
+      'no agent presets matched packages/preset/agent-presets/presets/*/agent.cordis.yml',
     ])
   })
 

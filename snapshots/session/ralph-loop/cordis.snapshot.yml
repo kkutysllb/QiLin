@@ -2,7 +2,6 @@
 # `text-turn/cordis.snapshot.yml` applies only to the `default` composition, so
 # a sibling composition restates those swaps and adds its own rows.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: plugin-package-inventory-deepseek

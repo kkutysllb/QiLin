@@ -1,7 +1,6 @@
 # Keyless replay counterpart: deterministic HTTP remains real; only the model
 # adapter is replaced by replay.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - insert:

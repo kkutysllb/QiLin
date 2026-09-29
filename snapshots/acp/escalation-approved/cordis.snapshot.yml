@@ -3,7 +3,6 @@
 # raw for fixture harvesting.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: acp

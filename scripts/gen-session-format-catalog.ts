@@ -210,7 +210,9 @@ export function renderSessionFormatCatalog(
     '/** Static assembly shared by current reads and parent-specific historical restoration. */',
     'export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {',
     `  currentVersion: ${currentVersion},`,
-    `  codecs: [${codecs.join(', ')}],`,
+    '  codecs: [',
+    ...codecs.map(codec => `    ${codec},`),
+    '  ],',
     `  currentEncoder: ${currentCodec},`,
     `  migrations: [${declarations.map(item => item.migration).join(', ')}],`,
     '  restoreCurrent(artifact) {',
@@ -228,6 +230,7 @@ export function renderSessionFormatCatalog(
     '  },',
     '}',
     '',
+    '/** Physical codec dispatch and complete adjacent chain, independent of mounted plugins. */',
     'export const sessionFormatCatalog = createSessionFormatCatalog(sessionFormatCatalogOptions)',
     '',
   ].join('\n')

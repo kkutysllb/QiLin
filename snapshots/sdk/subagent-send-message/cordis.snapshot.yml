@@ -1,7 +1,6 @@
 # Keyless counterpart to subagent-send-message/cordis.yml: replace the live adapter
 # with replay and preserve its child and parent scheduling fence.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - id: agent-default-model

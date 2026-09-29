@@ -15,7 +15,13 @@ import { assertReleasedV4Header, releasedV4SessionFormatCodec, restoreReleasedV4
 /** Static assembly shared by current reads and parent-specific historical restoration. */
 export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {
   currentVersion: 4,
-  codecs: [releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, releasedV2SessionFormatCodec, releasedV3SessionFormatCodec, releasedV4SessionFormatCodec],
+  codecs: [
+    releasedV0SessionFormatCodec,
+    releasedV1SessionFormatCodec,
+    releasedV2SessionFormatCodec,
+    releasedV3SessionFormatCodec,
+    releasedV4SessionFormatCodec,
+  ],
   currentEncoder: releasedV4SessionFormatCodec,
   migrations: [sessionFormatV0ToV1, sessionFormatV1ToV2, sessionFormatV2ToV3, sessionFormatV3ToV4],
   restoreCurrent(artifact) {
@@ -33,4 +39,5 @@ export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {
   },
 }
 
+/** Physical codec dispatch and complete adjacent chain, independent of mounted plugins. */
 export const sessionFormatCatalog = createSessionFormatCatalog(sessionFormatCatalogOptions)

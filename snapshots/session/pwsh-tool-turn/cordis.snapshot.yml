@@ -1,6 +1,5 @@
 # Minimal keyless composition: real app, pwsh executor, and pwsh tool; replayed model.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
   disabled: true
 
 - insert:
