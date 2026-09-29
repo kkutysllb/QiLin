@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@qilin/lazy-require": "workspace:*",
-    "koffi": "^3.1.0"
+    "koffi": "3.1.1"
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:~"

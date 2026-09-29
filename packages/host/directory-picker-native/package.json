@@ -37,7 +37,7 @@
   "dependencies": {
     "@qilin/host-directory-picker": "workspace:*",
     "@qilin/native-command": "workspace:*",
-    "koffi": "^3.1.0"
+    "koffi": "3.1.1"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:~"
