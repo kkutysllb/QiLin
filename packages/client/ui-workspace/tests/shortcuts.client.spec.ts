@@ -118,7 +118,7 @@ describe('installWorkspaceShortcuts', () => {
     expect(empty.command('session.archive')).toMatchObject({ status: 'blocked', reason: en['shortcut.noSession'] })
 
     const h = await installed([
-      { id: 's1', displayTitle: 'Current', blank: false, retainedBy: { mainView: 1 } },
+      { id: 's1', title: 'Current', displayTitle: 'Current', blank: false, retainedBy: { mainView: 1 } },
     ])
     h.command('session.rename').run?.()
     expect(h.controls.state.getSnapshot().renameTarget).toEqual({ sessionId: 's1', currentTitle: 'Current' })
@@ -126,7 +126,7 @@ describe('installWorkspaceShortcuts', () => {
     // A blank main-view session has no completed turn to fork.
     h.setSessions([{ id: 's2', displayTitle: 'Blank', blank: true, retainedBy: { mainView: 1 } }])
     expect(h.command('session.fork')).toMatchObject({ status: 'blocked', reason: en['shortcut.noCompletedTurn'] })
-    h.setSessions([{ id: 's1', displayTitle: 'Current', blank: false, retainedBy: { mainView: 1 } }])
+    h.setSessions([{ id: 's1', title: 'Current', displayTitle: 'Current', blank: false, retainedBy: { mainView: 1 } }])
     h.command('session.fork').run?.()
     expect(h.navigation.forkSession).toHaveBeenCalledWith('s1')
     h.command('session.archive').run?.()

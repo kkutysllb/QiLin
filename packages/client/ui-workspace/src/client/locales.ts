@@ -8,6 +8,7 @@
 export const zh = {
   'group.ungrouped': '未分组',
   'session.new': '新会话',
+  'session.untitled': '未命名',
   'shortcut.noSession': '请先选择一个会话',
   'shortcut.noPicker': '目录选择器不可用',
   'shortcut.directoryBusy': '正在选择或添加工作区',
@@ -87,6 +88,7 @@ export type WorkspaceKey = keyof typeof zh
 export const en = {
   'group.ungrouped': 'Ungrouped',
   'session.new': 'New Session',
+  'session.untitled': 'Untitled',
   'shortcut.noSession': 'Select a session first',
   'shortcut.noPicker': 'Directory picker unavailable',
   'shortcut.directoryBusy': 'Selecting or adding a workspace',
