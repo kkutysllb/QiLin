@@ -7,7 +7,6 @@ import type {
 } from '@qilin/client-ui-conversation/client'
 import type { InboxState } from '@qilin/agent/types'
 import { Button, IconChevronDownOutline14, MarkdownDelegateProvider, Modal } from '@qilin/client-ui-primitives'
-import { RunningStatus } from './RunningStatus.tsx'
 import type { ChatViewSlotProps, OpenFileOptions } from '../contract/slots.ts'
 import type { ChatSnapshot } from '../contract/snapshot.ts'
 import { assertNever } from '@qilin/util-values'
@@ -111,12 +110,6 @@ export function ChatView({
     },
   }), [cwd, t])
   const running = useSession(s => s.running)
-  const runningStartTime = useChatNode('__latest__', (node) => {
-    const location = node?.location
-    return location?.kind === 'turn' || location?.kind === 'step'
-      ? location.turn.status === 'open' ? location.turn.start?.time : undefined
-      : undefined
-  })
   const openState = useSession(s => s.openState)
   const openError = useSession(s => s.openError)
   const hasMore = useSession(s => s.hasMore)
@@ -266,7 +259,6 @@ export function ChatView({
                 t={t}
               />
             </MarkdownDelegateProvider>
-            {running && <RunningStatus startTime={runningStartTime} t={t} />}
             {/* No pending placeholders: questions (ui-user-questions) and approvals
                 (ApprovalPanel) both take over the composer, so a flow card would
                 double-render the same wait. */}
