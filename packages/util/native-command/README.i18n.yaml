@@ -5,48 +5,48 @@
 /:
   en: 3e0acbcc586810bb
   zh: 688d34f126d1450e
-/qilin-native-command:
-  en: c111b63d7946b5f3
-  zh: 8b72ecad9db202ff
-/qilin-native-command/summary:
-  en: 935ff3e58a2566ea
-  zh: 02d07e36c7710a35
-/qilin-native-command/table-of-contents:
+/deepseek-ai-qilin-native-command:
+  en: 9a6641464f6ea3c9
+  zh: 2147eb13ceaffda7
+/deepseek-ai-qilin-native-command/summary:
+  en: f42eea20853031c3
+  zh: e9f052e2550c4cbb
+/deepseek-ai-qilin-native-command/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-native-command/use-this-package:
+/deepseek-ai-qilin-native-command/use-this-package:
   en: aba695cba233905f
   zh: c6359da30eb8e372
-/qilin-native-command/use-this-package/running-a-command:
-  en: 3a499bda33e33102
-  zh: d01abbf863810607
-/qilin-native-command/use-this-package/injecting-the-command-boundary:
+/deepseek-ai-qilin-native-command/use-this-package/running-a-command:
+  en: 6dbc6c9bf6db34be
+  zh: 9ab16a86ca5abcc2
+/deepseek-ai-qilin-native-command/use-this-package/injecting-the-command-boundary:
   en: 987bed629737b59d
   zh: 258e30f813b0edcb
-/qilin-native-command/use-this-package/opening-a-host-path:
+/deepseek-ai-qilin-native-command/use-this-package/opening-a-host-path:
   en: b4ec677605b12ff8
   zh: f35256957eea141a
-/qilin-native-command/understand-the-implementation:
+/deepseek-ai-qilin-native-command/understand-the-implementation:
   en: 78e86818bea36f9f
   zh: 71dc1ad3e4cbe9f1
-/qilin-native-command/understand-the-implementation/source-map:
+/deepseek-ai-qilin-native-command/understand-the-implementation/source-map:
   en: a19bb4cb9f6de785
   zh: cc930d8facf1ca07
-/qilin-native-command/understand-the-implementation/what-execfile-gives-the-runner:
-  en: b16da99b2ed73bfd
-  zh: 5e806c31a6296366
-/qilin-native-command/further-exploration:
+/deepseek-ai-qilin-native-command/understand-the-implementation/what-execfile-gives-the-runner:
+  en: ce6180ce8209db94
+  zh: 30000a1a073110e8
+/deepseek-ai-qilin-native-command/further-exploration:
   en: 93a2556791670e90
   zh: 365f62ef908b11e8
-/qilin-native-command/model-experience:
+/deepseek-ai-qilin-native-command/model-experience:
   en: d478457568b9517e
   zh: 0460368e7567a13f
-/qilin-native-command/model-experience/kv-cache-effect:
+/deepseek-ai-qilin-native-command/model-experience/kv-cache-effect:
   en: 296c060e95197cc5
   zh: b9d3fdf11b5ebe1e
-/qilin-native-command/known-limitations-and-deferred-work:
+/deepseek-ai-qilin-native-command/known-limitations-and-deferred-work:
   en: d3af15e86d679b8e
   zh: ee5aa3c8cbd9d2db
-/qilin-native-command/known-limitations-and-deferred-work/dev-note:
+/deepseek-ai-qilin-native-command/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98
