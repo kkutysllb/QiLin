@@ -23,6 +23,8 @@ export type { MenuItemButtonProps, MenuEntry, MenuItem, MenuSeparator, MenuLabel
 export { ShortcutKeys } from './ShortcutKeys.tsx'
 export { useAnchoredMaxHeight } from './useAnchoredMaxHeight.ts'
 export { overlayTopMargin } from './overlay-top-margin.ts'
+export { TextShimmer } from './TextShimmer.tsx'
+export type { TextShimmerProps } from './TextShimmer.tsx'
 export { useAnchoredPosition } from './useAnchoredPosition.ts'
 export type { AnchoredPositionOptions } from './useAnchoredPosition.ts'
 export { useDismissOnOutsidePointer } from './useDismissOnOutsidePointer.ts'
