@@ -5,7 +5,7 @@
  * @module @qilin/session-log-deepseek
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context, Volatile } from '@qilin/kylin'
 import z from '@qilin/schemastery'
 import { brandString } from '@qilin/brand'
 import type {} from '@qilin/deepseek-llm-api-extensions'
@@ -36,13 +36,19 @@ export const inject = ['deepseekLlmApiExtensions', 'sessions']
 
 /** Session-log request contribution configuration. */
 export interface Config {
-  /** Contribute `qilin_session_log` to official DeepSeek requests. Defaults to `true`. */
-  enabled?: boolean
+  enabled: Volatile<boolean>
+  /**
+   * Largest serialized `qilin_session_log` field, in UTF-8 bytes, that one request carries.
+   * A request uploads the longest pending event prefix that fits; later requests continue
+   * after its acceptance. Defaults to 8 MiB.
+   */
+  maxBytes: number
 }
 
 /** Validated Session-log request contribution configuration. */
-export const Config: z<Config> = z.object({
-  enabled: z.boolean().default(true),
+export const Config = z.object({
+  enabled: z.boolean().default(true).volatile(),
+  maxBytes: z.number().step(1).min(1).default(8 * 1024 * 1024),
 })
 
 interface AcceptanceFold {
@@ -152,14 +158,31 @@ export function acceptedThrough(session: Session): SessionSeqCursor {
 }
 
 /**
- * Register the incremental `qilin_session_log` request contribution when enabled.
+ * Serialized byte length of one wire value.
+ * @returns `Infinity` when the value fails to serialize, which counts as exceeding every limit.
+ */
+function jsonBytes(value: DeepSeekSessionLogExtension | DeepSeekSessionLogWireEvent): number {
+  let text: string
+  try {
+    text = JSON.stringify(value)
+  } catch (_unserializable) {
+    // No request can carry a value that fails to serialize.
+    return Number.POSITIVE_INFINITY
+  }
+  return Buffer.byteLength(text)
+}
+
+/**
+ * Register the incremental request contribution; enablement is read for each request.
  * @param ctx - plugin context carrying Sessions and the DeepSeek request-extension registry.
  * @param config - validated configuration.
  */
 export function apply(ctx: Context, config: Config): void {
-  if (config.enabled !== true) return
+  // Schemastery validates and fills the defaults before `apply` runs.
+  const { maxBytes } = config
   ctx.deepseekLlmApiExtensions.register('qilin_session_log', {
     prepare: (request) => {
+      if (!config.enabled.get()) return undefined
       // TODO: Define an explicit wire result for direct or stale-session calls if they become a supported product path.
       if (request.sessionId === undefined) return undefined
       const session = ctx.sessions.get(brandString<SessionId>(request.sessionId))
@@ -167,19 +190,42 @@ export function apply(ctx: Context, config: Config): void {
 
       const afterSeq = acceptedThrough(session)
       // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
-      const snapshot = session.snapshotEvents()
-      const throughSeq = snapshot.at(-1)?.seq
-      if (throughSeq === undefined) return undefined
-      // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
-      const suffix = session.snapshotEvents(SessionLogOffset(afterSeq + 1))
-      const value: DeepSeekSessionLogExtension = {
+      const pending = session.snapshotEvents(SessionLogOffset(afterSeq + 1))
+      const envelope = {
         version: 1,
         sessionFormatVersion: session.header.version,
         session: wireHeader(session),
         afterSeq: Number(afterSeq),
-        throughSeq: Number(throughSeq),
-        events: suffix.map(wireEvent),
+      } as const
+      // Field bytes without events or throughSeq digits; each candidate prefix adds its own.
+      let bytes = jsonBytes({ ...envelope, throughSeq: 0, events: [] }) - 1
+      const events: DeepSeekSessionLogWireEvent[] = []
+      // Field bytes with the last examined event; when none fits, the first event's own field size.
+      let candidateBytes = 0
+      for (const event of pending) {
+        const wire = wireEvent(event)
+        const next = bytes + (events.length === 0 ? 0 : 1) + jsonBytes(wire)
+        candidateBytes = next + String(event.seq).length
+        if (candidateBytes > maxBytes) break
+        bytes = next
+        events.push(wire)
       }
+      const last = events.length === 0 ? undefined : pending[events.length - 1]
+      if (last === undefined) {
+        const first = pending[0]
+        if (first !== undefined) {
+          const seq = String(first.seq)
+          ctx.logger.warn(Number.isFinite(candidateBytes)
+            ? `session-log-deepseek: event ${seq} of session "${session.id}" needs a ${String(candidateBytes)}-byte`
+              + ` qilin_session_log field, above maxBytes ${String(maxBytes)}; this session's upload stays at event ${seq}`
+              + ' until maxBytes admits it'
+            : `session-log-deepseek: event ${seq} of session "${session.id}" is too large to serialize into a qilin_session_log field;`
+              + ` this session's upload stays at event ${seq}`)
+        }
+        return undefined
+      }
+      const throughSeq = last.seq
+      const value: DeepSeekSessionLogExtension = { ...envelope, throughSeq: Number(throughSeq), events }
       return {
         value,
         accept: () => {

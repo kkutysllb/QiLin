@@ -430,6 +430,9 @@
     # sessions created later. Absent a roster it renders nothing.
     - id: ui-agent-preset
       name: '@qilin/client-ui-agent-preset'
+    - id: ui-settings-session-log
+      name: '@qilin/client-ui-settings-session-log'
+
 
     # Plugin configuration: the host-plane sections a user owns, as expandable
     # cards. A namespace this deployment does not expose renders nothing.

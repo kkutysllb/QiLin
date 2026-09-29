@@ -1,7 +1,7 @@
 {
   "name": "@qilin/session-telemetry-otel",
-  "description": "OpenTelemetry backend for the QiLin telemetry seam: hands captured session records to the OTel JS SDK's log pipeline",
-  "version": "3.0.5",
+  "description": "Feedback-authorized Session logs over byte-bounded OpenTelemetry HTTP requests",
+  "version": "0.2.0-rc.1",
   "publishConfig": {
     "access": "public"
   },
@@ -9,9 +9,6 @@
     "type": "git",
     "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/session/session-telemetry-otel"
-  },
-  "engines": {
-    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -30,11 +27,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/api-logs": "^0.220.0",
-    "@opentelemetry/exporter-logs-otlp-http": "^0.220.0",
     "@opentelemetry/otlp-exporter-base": "^0.220.0",
-    "@opentelemetry/resources": "^2.9.0",
     "@opentelemetry/sdk-logs": "^0.220.0",
     "@qilin/schemastery": "workspace:~"
   },
@@ -45,7 +39,8 @@
     "@qilin/session": "workspace:*",
     "@qilin/session-telemetry": "workspace:*",
     "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/otel": "workspace:*"
   },
   "devDependencies": {
     "@qilin/kylin-plugin-logger-console": "workspace:~",
@@ -63,6 +58,7 @@
     "@qilin/subprocess-local": "workspace:*",
     "@qilin/anonymous-user-id": "workspace:*",
     "@qilin/kylin": "workspace:~",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin/http-proxy": "workspace:*",
+    "@qilin/otel": "workspace:*"
   }
 }

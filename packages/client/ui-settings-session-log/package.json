@@ -1,0 +1,67 @@
+{
+  "name": "@qilin/client-ui-settings-session-log",
+  "description": "General settings control for Session-log upload with DeepSeek API requests",
+  "version": "0.2.0-rc.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/client/ui-settings-session-log"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:~",
+    "@qilin/api-remotes": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-settings": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0",
+    "@qilin/client-ui-layout": "workspace:*",
+    "react-dom": "^18.2.0",
+    "@types/react-dom": "~18.3.0"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/client-locale",
+        "@qilin/client-ui-settings",
+        "@qilin/client-ui-layout"
+      ],
+      "platform": "web"
+    }
+  }
+}

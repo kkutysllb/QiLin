@@ -1,3 +1,4 @@
+import OTel from '@qilin/otel'
 import { createServer, type Server } from 'node:http'
 import { once } from 'node:events'
 import { mkdtempSync, rmSync } from 'node:fs'
@@ -28,7 +29,7 @@ async function listen(server: Server): Promise<string> {
 }
 
 beforeAll(async () => {
-  home = mkdtempSync(join(tmpdir(), 'qilin-otel-egress-'))
+  home = mkdtempSync(join(tmpdir(), 'dsh-otel-egress-'))
   previousHome = process.env.QILIN_HOME
   process.env.QILIN_HOME = home
   const proxy = createServer((request, response) => {
@@ -80,6 +81,7 @@ describe('session-telemetry-otel egress', () => {
       captures.length = 0
       const disposeProxy = await installProxyFromEnvironment(proxyEnv(), () => undefined)
       const ctx = new Context()
+      ctx.plugin(OTel)
       try {
         // The positive control proves a fetch-based exporter would reach the proxy.
         const response = await fetch(collectorUrl)

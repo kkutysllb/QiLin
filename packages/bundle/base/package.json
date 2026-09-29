@@ -124,7 +124,8 @@
     "@qilin/workflow-ptc": "workspace:*",
     "@qilin/agent-instructions": "workspace:*",
     "@qilin/ptc-runtime-node": "workspace:*",
-    "@qilin/plugin-manager": "workspace:*"
+    "@qilin/plugin-manager": "workspace:*",
+    "@qilin/otel": "workspace:*"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:~"

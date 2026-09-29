@@ -140,7 +140,8 @@
     "@qilin/workspace": "workspace:*",
     "@qilin/workspace-changes": "workspace:*",
     "commander": "^15.0.0",
-    "open": "^11.0.0"
+    "open": "^11.0.0",
+    "@qilin/client-ui-settings-session-log": "workspace:*"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",

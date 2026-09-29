@@ -9,8 +9,8 @@
   en: 2062daf21edc35da
   zh: cf2303b3d3ab63c1
 /qilin-session-telemetry-otel/summary:
-  en: 1cd7071dac57ebd0
-  zh: ceee58cc3fee7b37
+  en: ecb394b3a3d41976
+  zh: dd4e4b5dd6d4e99a
 /qilin-session-telemetry-otel/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,29 +21,29 @@
   en: 5b5400d227614168
   zh: 838ebefb70347007
 /qilin-session-telemetry-otel/use-this-package/minimal-configuration:
-  en: 3de0d5db3156a7e4
-  zh: 71199133cd9998c4
+  en: 11845fd50dc0a494
+  zh: ee990bfca3621bd3
 /qilin-session-telemetry-otel/use-this-package/what-leaves-the-machine:
-  en: b94ca8299ad60c5d
-  zh: 3791131f3440e3b3
+  en: 98d08623b0821f33
+  zh: d72f0554c10b72cf
 /qilin-session-telemetry-otel/use-this-package/failures-and-shutdown:
-  en: 20c6e78df8ad2c2a
-  zh: fd6a00f98c4cc05c
+  en: a66831cb9de57e04
+  zh: 3ada28bb868e0932
 /qilin-session-telemetry-otel/understand-the-implementation:
   en: ee672a6a6f0fa02d
   zh: c3bab8e6b60e768c
 /qilin-session-telemetry-otel/understand-the-implementation/design-concept:
-  en: 3534153110a7abdd
-  zh: 8a28ec6117e3f720
+  en: 34f8a88224a1f6cf
+  zh: 40839dabaea39602
 /qilin-session-telemetry-otel/understand-the-implementation/source-map:
   en: 0b99d2e5c27213cd
   zh: 3cbdaa7f6a45d81a
 /qilin-session-telemetry-otel/understand-the-implementation/capture-wiring:
-  en: 9bdc01d0fa130b3a
-  zh: 63bf30c4cc983ca0
+  en: 5c85eb0992eb5b2b
+  zh: a19cdd5814c0e2b9
 /qilin-session-telemetry-otel/understand-the-implementation/field-mapping:
-  en: 38590f3afee40bb8
-  zh: b2fc1f4341008d79
+  en: a42e9e081fb93bee
+  zh: b8e817c2455278b9
 /qilin-session-telemetry-otel/further-exploration:
   en: 908b1edeaa7ea84e
   zh: d557281ada407b07
@@ -57,5 +57,5 @@
   en: e43087aea7af4c9e
   zh: f8b529e2012b4c63
 /qilin-session-telemetry-otel/known-limitations-and-deferred-work/dev-note:
-  en: a770daec456212ab
-  zh: 1b861566d591837d
+  en: 0065df2648b09ac9
+  zh: b5bac41fc3aec70e
