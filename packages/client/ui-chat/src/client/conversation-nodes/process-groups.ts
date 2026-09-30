@@ -79,6 +79,15 @@ class ProcessGroup {
 }
 
 /** One Turn's grouping result and member lookup; summaries stay with their groups. */
+function questionReplyIds(input: ProcessInput, keys: readonly NodeKey[]): ReadonlySet<string> {
+  const ids = new Set<string>()
+  for (const key of keys) {
+    const node: ChatConversationViewNode = readNode(input, key)
+    if (node.kind === 'question-reply') ids.add(node.id)
+  }
+  return ids
+}
+
 class TurnGroups {
   private groups = new Map<GroupKey, ProcessGroup>()
   private membership = new Map<NodeKey, GroupKey>()
@@ -143,7 +152,9 @@ class TurnGroups {
     }
     let previous: NodeKey | undefined
     let followed = false
-    for (const key of input.readTurn(this.turn)) {
+    const keys = input.readTurn(this.turn)
+    const replies = questionReplyIds(input, keys)
+    for (const key of keys) {
       const position = readPosition(input, key)
       if (previous !== undefined && position.previous !== previous) flush(true)
       previous = key
@@ -152,6 +163,8 @@ class TurnGroups {
       // Infrastructure rows stay independent transcript rows: QiLin renders
       // them as rows because the upstream infrastructure-row filter is not
       // ported yet, so they must not fold into a process group.
+      // Both Definitions retain the same message id; only its question presentation renders.
+      if (node.kind === 'turn-trigger' && replies.has(node.id)) { flush(true); continue }
       if (INDEPENDENT.has(node.kind) || !isVisibleChatNode(node)) {
         flush(true)
         emit(key, { kind: 'node', key })
@@ -280,9 +293,14 @@ export class ProcessState {
   }
 
   private rootEntries(input: ProcessInput): RenderEntry[] {
+    const unscoped = input.order.filter(key => readPosition(input, key).turn === undefined)
+    const replies = questionReplyIds(input, unscoped)
     return input.order.flatMap<RenderEntry>((key) => {
       const turn = readPosition(input, key).turn
-      if (turn === undefined) return [{ kind: 'node', key }]
+      if (turn === undefined) {
+        const node = readNode(input, key)
+        return node.kind === 'turn-trigger' && replies.has(node.id) ? [] : [{ kind: 'node', key }]
+      }
       const groups = this.turns.get(turn)
       if (groups === undefined) throw new Error(`Chat grouping order is missing Turn ${turn}`)
       return groups.references(key)

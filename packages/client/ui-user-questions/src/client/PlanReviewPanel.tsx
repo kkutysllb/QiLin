@@ -54,7 +54,7 @@ export function PlanReviewPanel({ pending, review, t, renderSlot }: PlanReviewPa
 
   return (
     <div className={css.frame} data-plan-review-key={pending.key}>
-      <section className={css.card} aria-label={review.question}>
+      <section className={css.card} aria-label={review.question} aria-busy={busy}>
         <div className={css.strip}>
           <span className={css.dot} />
           {t('plan.header')}

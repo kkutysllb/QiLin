@@ -44,7 +44,10 @@ import {
 import { TurnTailNodeView } from '../src/client/chat/TurnTailNodeView.tsx'
 import { TurnProcessNodeView } from '../src/client/chat/TurnProcessNodeView.tsx'
 import { SystemPromptNodeView } from '../src/client/chat/SystemPromptRow.tsx'
-import { formatLiveRunDuration, formatRunDuration } from '../src/client/chat/message-chrome.ts'
+import { formatRunDuration as durationParts } from '../src/client/chat/message-chrome.ts'
+function formatRunDuration(ms: number, t: Parameters<typeof durationParts>[1]): string {
+  return durationParts(ms, t).map(part => part.text).join('')
+}
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 import type { TurnProcessSpec } from '../src/client/contract/turn-process.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
@@ -582,18 +585,9 @@ describe('Chat node rendering', () => {
     expect(formatRunDuration(0, t)).toBe('0秒')
     expect(formatRunDuration(-500, t)).toBe('0秒')
     expect(formatRunDuration(15_999, t)).toBe('15秒')
-    expect(formatRunDuration(125_000, t)).toBe('2分05秒')
-  })
-
-  it('formatLiveRunDuration omits the live seconds pad and rolls over on exact bounds', () => {
-    const t = makeTranslate(zh, commonZh)
-    expect(formatLiveRunDuration(0, t)).toBe('0秒')
-    expect(formatLiveRunDuration(-500, t)).toBe('0秒')
-    expect(formatLiveRunDuration(15_999, t)).toBe('15秒')
-    expect(formatLiveRunDuration(59_000, t)).toBe('59秒')
-    expect(formatLiveRunDuration(60_000, t)).toBe('1分0秒')
-    expect(formatLiveRunDuration(125_000, t)).toBe('2分5秒')
-    expect(formatLiveRunDuration(3_723_000, t)).toBe('1小时02分3秒')
+    expect(formatRunDuration(125_000, t)).toBe('2分5秒')
+    expect(formatRunDuration(3_600_000, t)).toBe('1小时0分0秒')
+    expect(formatRunDuration(3_903_000, t)).toBe('1小时5分3秒')
   })
 
 })
@@ -1431,7 +1425,7 @@ describe('ChatView', () => {
     // The tail time pill carries the same duration text, so select the control
     // by its own seat attribute.
     const toggle = turnProcessControl(view.container)!
-    expect(toggle.textContent).toBe('用时 4秒')
+    expect(toggle.textContent).toBe('已完成，用时 4秒')
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('1')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('1')
@@ -1460,7 +1454,7 @@ describe('ChatView', () => {
 
     act(() => { h.set({ nodes: [user(1, 'question'), first] }) })
     const trimmedToggle = turnProcessControl(view.container)!
-    expect(trimmedToggle.textContent).toBe('用时 4秒')
+    expect(trimmedToggle.textContent).toBe('已完成，用时 4秒')
     expect(trimmedToggle.getAttribute('aria-expanded')).toBe('false')
     expect(members[0]?.getAttribute('hidden')).toBeNull()
     act(() => { h.set({
@@ -1564,7 +1558,7 @@ describe('ChatView', () => {
       turnEnds: new Map([[1, 4]]),
     })
     const view = render(<h.ChatView {...h.props} />)
-    const toggle = view.getByRole('button', { name: '已完成工作' })
+    const toggle = view.getByRole('button', { name: '已完成' })
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
 
     // No external process and no inline reasoning: this Turn has nothing to
@@ -1700,7 +1694,7 @@ describe('ChatView', () => {
     }
     const h = makeHarness({ nodes: [user(1, 'question'), final], turnEnds: new Map([[1, 4]]) })
     const view = render(<h.ChatView {...h.props} />)
-    const toggle = view.getByRole('button', { name: '已完成工作' })
+    const toggle = view.getByRole('button', { name: '已完成' })
     const reasoning = view.container.querySelector<HTMLElement>('[data-turn-process-inline]')
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(reasoning?.getAttribute('hidden')).toBe('until-found')
@@ -1965,7 +1959,7 @@ describe('ChatView', () => {
     const view = render(<h.ChatView {...h.props} />)
     // The exact turn/end includes trailing tool activity after the final text;
     // elapsed time lives on the Turn-process control, not in the footer.
-    expect(view.container.querySelector('[data-turn-tail="1"]')?.textContent).not.toContain('用时 19秒')
+    expect(view.container.querySelector('[data-turn-tail="1"]')?.textContent).not.toContain('已完成，用时 19秒')
   })
 
   it('the assistant footer omits hour-scale run time', () => {
@@ -1981,7 +1975,7 @@ describe('ChatView', () => {
     })
     const view = render(<h.ChatView {...h.props} />)
     expect(view.container.querySelector('[data-turn-tail="1"]')?.textContent)
-      .not.toContain('用时 1小时05分03秒')
+      .not.toContain('已完成，用时 1小时05分03秒')
   })
 
   it('the settled footer exposes usage as the only details trigger', () => {
@@ -2023,7 +2017,7 @@ describe('ChatView', () => {
     // Turn-process control, and neither ttft nor decode throughput appears.
     const footer = view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(within(footer).queryByRole('button', { name: /用时/ })).toBeNull()
-    expect(turnProcessControl(view.container)?.textContent).toBe('用时 19秒')
+    expect(turnProcessControl(view.container)?.textContent).toBe('已完成，用时 19秒')
     expect(view.queryByText(/速度 20 tok\/s|首 token/)).toBeNull()
   })
 
@@ -2043,7 +2037,7 @@ describe('ChatView', () => {
     // time stays on the Turn-process control.
     const footer = view.container.querySelector<HTMLElement>('[data-turn-tail="1"]')!
     expect(within(footer).queryByRole('button', { name: /用时/ })).toBeNull()
-    expect(turnProcessControl(view.container)?.textContent).toBe('用时 19秒')
+    expect(turnProcessControl(view.container)?.textContent).toBe('已完成，用时 19秒')
     expect(view.queryByRole('button', { name: /用量/ })).toBeNull()
   })
 

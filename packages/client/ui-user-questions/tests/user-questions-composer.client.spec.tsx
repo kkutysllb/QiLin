@@ -75,6 +75,7 @@ const chatState: ChatState = {
     get: () => undefined,
     source: () => emptyNodeSource,
     processSource: () => emptyNodeSource,
+    turnDataSource: () => ({ getSnapshot: () => [], subscribe: () => () => {} }) as never,
     values: () => [],
   },
   locations: { getTurn: () => emptyKeys, getStep: () => emptyKeys },

@@ -87,11 +87,11 @@ describe('FontSizeRow', () => {
   })
 
   it('disables the outward arrow at each bound', () => {
-    mount(17)
+    mount(22)
     expect(arrow('增大字号').disabled).toBe(true)
     expect(arrow('减小字号').disabled).toBe(false)
     cleanup()
-    mount(12)
+    mount(10)
     expect(arrow('增大字号').disabled).toBe(false)
     expect(arrow('减小字号').disabled).toBe(true)
   })

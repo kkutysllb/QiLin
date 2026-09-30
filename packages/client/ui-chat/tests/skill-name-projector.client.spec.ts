@@ -38,6 +38,7 @@ function storeOf(nodes: readonly ChatConversationViewNode[]): ChatNodeStore & { 
       return [...byKey.values()]
     },
     source: () => { throw new Error('unused') },
+    turnDataSource: () => ({ getSnapshot: () => [], subscribe: () => () => {} }) as never,
     processSource: () => { throw new Error('unused') },
   }
   return store

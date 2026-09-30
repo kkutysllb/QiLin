@@ -1,0 +1,10 @@
+feat(B5-1): 客户端接缝第一批——ui-chat 时长结构与 turnDataSource、字号 10–22 与主题 token、transcript 默认 Detailed、设置文案与顺序
+
+- ui-chat：message-chrome formatRunDuration 返回 RunDurationPart[]、删 formatLiveRunDuration；locale duration.seconds/minutes/hours → secondUnit/minuteUnit/hourUnit（双语）、turnProcess 文案「已完成，用时」；RunningStatus/TurnProcessNodeView/RunningWhaleTail 对位 rc.2（whale 2x 资产+contain:strict 精简、aborted/error 回合不显用时）；process-groups 增 question-reply/turn-trigger 同 id 去重（保留 QiLin 基础设施行渲染补偿，上游过滤随 B5-2）；contract/snapshot 与 builder 增 turnDataSource 接缝（委托式实现，增量子系统记 TODO B5-2）；设置 order 14→17/13→30；transcriptView 默认 standard→detailed
+- ui-theme：FONT_SIZE 12–17→10–22；design-platform.css 新增 3 token × 明暗（turn-trigger-bg/-hover、menu-group-header-fill）；字号级联注释更新
+- ui-settings-general：developerTools 文案「显示代码工作视图/Show coding view」
+- ui-tool：ToolTitleKey 并入 ask.rowTitle、TOOL_TITLE_KEYS 补 ask_user_question 行；ask-question-row.spec 对位 rc.2（inject 期望、parts API）；diff-card/tool-row 断言 +N/-N 分离着色
+- ui-user-questions：plan-review 面板补 aria-busy；StateDot 断言按 QiLin 无该组件适配
+- 夹具：group-seat/skill-projector/tool-fixtures/plan-review/composer 补 turnDataSource 桩
+
+验证：涉及包 1703 用例绿（1 平台跳过）；typecheck 双面绿。B5-2 待办（记入计划）：模型选择器搜索链（commands contract+MenuGroup+ModelSelect+provider-order QiLin 化）、sidebar-right/files/open-in-app 三方合并、builder 增量子系统、plugin-manager 文案、tile 圆角批次、web 快照刷新

@@ -37,7 +37,7 @@ describe('ui-chat Host settings', () => {
     // Unrecognized saved modes do not reject: the loose schema falls back to Standard.
     await ctx.settings.update(ns, { transcriptView: 'dense' })
     expect(ctx.settings.get(ns)).toEqual({
-      transcriptView: 'standard', performanceUsage: 'compact', linkOpening: 'new-tab',
+      transcriptView: 'detailed', performanceUsage: 'compact', linkOpening: 'new-tab',
     })
 
     await fiber.dispose()

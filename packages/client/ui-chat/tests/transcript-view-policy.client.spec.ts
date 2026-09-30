@@ -10,7 +10,7 @@ function section(transcriptView: ChatSettings['transcriptView']): ChatSettings {
 }
 
 describe('TranscriptViewPolicy', () => {
-  it('defaults to Standard and publishes explicit choices before persistence settles', () => {
+  it('defaults to Detailed and publishes explicit choices before persistence settles', () => {
     const host = stubConfigForm<ChatSettings>()
     const observed: string[] = []
     let current = (): string => 'unconstructed'
@@ -24,7 +24,7 @@ describe('TranscriptViewPolicy', () => {
     const policy = new TranscriptViewPolicy(scope)
     current = () => policy.mode.getSnapshot()
 
-    expect(policy.mode.getSnapshot()).toBe('standard')
+    expect(policy.mode.getSnapshot()).toBe('detailed')
     policy.setMode('verbose')
     expect(policy.mode.getSnapshot()).toBe('verbose')
     expect(observed).toEqual(['transcriptView=verbose:verbose'])

@@ -29,7 +29,7 @@ const TRANSCRIPT_VIEW_SETTING_VALUES = [
 ] as const
 
 /** Standard process summaries for users without an explicit preference. */
-export const DEFAULT_TRANSCRIPT_VIEW_MODE: TranscriptViewMode = 'standard'
+export const DEFAULT_TRANSCRIPT_VIEW_MODE: TranscriptViewMode = 'detailed'
 
 /** Performance and usage detail levels accepted by user settings. */
 export const PERFORMANCE_USAGE_MODES = ['compact', 'detailed'] as const

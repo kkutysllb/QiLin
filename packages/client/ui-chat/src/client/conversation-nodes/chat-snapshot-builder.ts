@@ -1,11 +1,11 @@
 import type { Context } from '@qilin/kylin'
-import { notifySubscribers } from '@qilin/client-store'
+import { notifySubscribers, type ObservableSnapshot } from '@qilin/client-store'
 import type {
   ConversationGroupInput, ConversationLocation, ConversationNode, ConversationTimelineSnapshot,
   ConversationViewBuilder, ConversationViewDefinition, GroupNodePosition, NodeChange, NodeKey,
   PartialAssistant, RunningToolCall,
 } from '@qilin/client-ui-conversation/client'
-import type { ChatConversationViewNode, ChatNode } from '../contract/chat-nodes.ts'
+import type { ChatConversationViewNode, ChatNode, ChatNodeDataMap, ChatNodeKind } from '../contract/chat-nodes.ts'
 import { isRunningTool } from '../contract/chat-nodes.ts'
 import type {
   ChatLocationNodeIndex, ChatNodeProcessSource, ChatNodeSource, ChatNodeStore, ChatSnapshot,
@@ -85,6 +85,17 @@ class MutableChatNodeStore implements ChatNodeStore {
       () => this.get(key),
       `[ui-chat] node source ${key}`,
     ))
+  }
+
+  // TODO(B5-part-2): port the incremental TurnKindNodes subsystem; this
+  // delegated snapshot is correct but not identity-stable across reads.
+  turnDataSource<Kind extends ChatNodeKind>(turn: number, kind: Kind): ObservableSnapshot<readonly ChatNodeDataMap[Kind][]> {
+    const nodes = this as { values(): readonly ChatConversationViewNode[] }
+    return {
+      getSnapshot: () => nodes.values().filter((node): node is ChatNodeDataMap[Kind] & ChatConversationViewNode =>
+        node.kind === kind && locationCoordinates(node.location).turn === turn),
+      subscribe: () => () => {},
+    }
   }
 
   processSource(key: string): ChatNodeProcessSource {
