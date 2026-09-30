@@ -8,6 +8,8 @@ import css from './ConversationRoot.module.css'
  * @param props - the original `main.conversation` Slot props.
  * @returns the unchanged root, Header, content, and width-control subtree.
  */
+const CONTENT_SLOTS = { widthControls: ConversationWidthControls }
+
 export function ConversationMainPanel(props: ConversationSlotProps) {
   const { sessionId, useSession, useSessions, useConversation, renderSlot, renderFactorySlot } = props
   const session = useSession(s => s)
@@ -48,7 +50,7 @@ export function ConversationMainPanel(props: ConversationSlotProps) {
         phase,
         hero,
       }, {
-        slots: { widthControls: ConversationWidthControls },
+        slots: CONTENT_SLOTS,
       })}
     </div>
   )

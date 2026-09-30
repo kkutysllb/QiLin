@@ -342,3 +342,10 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+.row:is(:hover, [aria-expanded='true']) .diffAdded {
+  color: var(--dsw-alias-state-success-primary);
+}
+.row:is(:hover, [aria-expanded='true']) .diffRemoved {
+  color: var(--dsw-alias-state-error-primary);
+}

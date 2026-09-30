@@ -1,17 +1,14 @@
 {
   "name": "@qilin/tool-ask-user",
   "description": "Model-facing ask_user_question tool over the ctx.userQuestions seam",
-  "version": "3.0.6",
+  "version": "0.2.0-rc.2",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/interaction/tool-ask-user"
-  },
-  "engines": {
-    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -42,5 +39,8 @@
     "@qilin/tools": "workspace:*",
     "@qilin/user-questions": "workspace:*",
     "@qilin/kylin": "workspace:~"
+  },
+  "dependencies": {
+    "@qilin/schemastery": "workspace:~"
   }
 }

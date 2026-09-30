@@ -1,17 +1,14 @@
 {
   "name": "@qilin/user-questions",
   "description": "Abstract user-questions seam (ctx.userQuestions) for asking the human during agent runs",
-  "version": "3.0.6",
+  "version": "0.2.0-rc.2",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/interaction/user-questions"
-  },
-  "engines": {
-    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -26,24 +23,48 @@
       "default": "./lib/types/types.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    }
   },
   "files": [
     "lib/index.js",
     "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
   ],
   "license": "MIT",
   "peerDependencies": {
     "@qilin/agent": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/scope": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*"
   },
   "devDependencies": {
     "@qilin/agent": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/scope": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin/kylin": "workspace:~",
+    "@qilin/typert-protocol": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/session-projection": "workspace:*",
+    "@qilin/session-persistence-jsonl": "workspace:*",
+    "@qilin/tools": "workspace:*"
+  },
+  "dependencies": {
+    "zod": "^4.4.3",
+    "@qilin/schemastery": "workspace:~"
   }
 }

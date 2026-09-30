@@ -186,11 +186,7 @@ export function ToolRow({
   // A diff row's collapsed line carries the card's +/- totals (the same
   // numbers the expanded footer prints) so the change size reads without
   // expanding; an explicit summarySuffix (none today on diff rows) wins.
-  const diffStat = useMemo(() => {
-    if (diffBody === null) return null
-    const { added, removed } = diffTotals(diffBody.card.diffs)
-    return `+${added} -${removed}`
-  }, [diffBody])
+  const diffStat = useMemo(() => diffBody === null ? null : diffTotals(diffBody.card.diffs), [diffBody])
   const suffix = settledWithCue ? null : summarySuffix ?? diffStat
   const openFile = filePath !== undefined && onOpenFile !== undefined && !settledWithCue
     ? (event: MouseEvent<HTMLButtonElement>) => {
@@ -251,7 +247,9 @@ export function ToolRow({
               </span>
             )}
             {suffix !== null && (
-              <TextShimmer className={clsx(css.summarySuffix, suffix === diffStat && css.diffStat)}>{suffix}</TextShimmer>
+              <TextShimmer className={clsx(css.summarySuffix, typeof suffix !== 'string' && css.diffStat)}>
+                {typeof suffix === 'string' ? suffix : <><span className={css.diffAdded}>{`+${suffix.added}`}</span>{' '}<span className={css.diffRemoved}>{`-${suffix.removed}`}</span></>}
+              </TextShimmer>
             )}
           </>
         )}

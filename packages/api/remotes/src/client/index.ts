@@ -5,6 +5,8 @@ import agentPresetsRemote from '@qilin/agent-presets/remote'
 import commandsRemote from '@qilin/commands/remote'
 import settingsControllerRemote from '@qilin/api-settings-controller/remote'
 import officeToPdfRemote from '@qilin/office-to-pdf/remote'
+import userQuestionsRemote from '@qilin/user-questions/remote'
+export type {} from '@qilin/user-questions/remote'
 import goalsRemote from '@qilin/goal/remote'
 import scheduleRemote from '@qilin/schedule/remote'
 import llmRemote from '@qilin/llm/remote'
@@ -77,6 +79,7 @@ export type {} from '@qilin/agent-presets/types'
 export type {} from '@qilin/permission-presets/types'
 export type {} from '@qilin/settings/types'
 export type {} from '@qilin/user-approval/types'
+export type {} from '@qilin/user-questions/types'
 export type {} from '@qilin/user-questions/types'
 export type {} from '@qilin/api-session-controller/types'
 
@@ -180,7 +183,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
       pluginInventoryRemote, pluginManagerRemote, pluginRegistryProbeRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
       permissionPresetsRemote, subagentsRemote, sessionRemote, jobRemote, workspaceRemote, workspaceFilesRemote, terminalRemote,
-      officeToPdfRemote,
+      officeToPdfRemote, userQuestionsRemote,
     ]) {
       disposers.push(await ctx.remote.$mount(contribution))
     }

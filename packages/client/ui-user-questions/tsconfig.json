@@ -33,6 +33,9 @@
       "path": "../store"
     },
     {
+      "path": "../ui-chat"
+    },
+    {
       "path": "../ui-conversation"
     },
     {
@@ -46,6 +49,9 @@
     },
     {
       "path": "../ui-session"
+    },
+    {
+      "path": "../ui-tool"
     },
     {
       "path": "../../llm/llm"

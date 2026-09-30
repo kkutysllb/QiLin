@@ -1,0 +1,9 @@
+feat(B4): 引入实验性异步问答（timed questions）全链路，默认 legacy 关闭
+
+- interaction/user-questions：timed-wait.ts（Host 时钟 deadline/Client claim 暂停/abort 级联）、projection.ts（active/settled 投影，迟到回答经 user-question-reply 消息源折叠）、types.ts +69（含四 root 事件同版本声明合并扩展）、index.ts 接入（answer Remote 排队+REPLY_QUEUED/BAD_ANSWER、attachWait 流、askTimed、错误码 EMPTY_QUESTIONS→BAD_INTENT）；4 个 spec 全量移植（89 用例绿）
+- interaction/tool-ask-user：新 Config {mode:'legacy'|'timed', timeout:120|-1}（默认 legacy 不生效）、timed.ts 注册带超时的新版 ask_user_question；描述对齐上游规范文本（QiLin 旧本地附加句随之退役）
+- api/remotes：userQuestionsRemote 注册 + remote/types 双类型再导出；user-questions 包 exports 增 ./typert 与 ./remote（构建期生成物）
+- client：ui-user-questions slots.ts 115→574 行（QuestionWaterfallChannel/ASK_TIMED_OUT/QuestionCardSnapshot/QuestionComposerProps 扩展）、新 question-reply.ts/QuestionReplyView.tsx、draft-store progressByRequest、PlanReviewPanel settle(remote) 语义+dismiss、QuestionComposer 整取（推荐项预选/REMOVED_CARD/isQuestionDraftProgress；图标映射回 QiLin 编号集）、locales 双语；ui-tool 契约 UserQuestionRecord/UserQuestionPanels+ctx.userQuestionPanels、ask-question-row 整取、新 QuestionToolRow 组件、ToolRow diffStat 对象化(+N/-N 着色)；ui-conversation ask.* 12 locale 键+CONTENT_SLOTS；tsconfig 引用增量合并（ui-chat/ui-tool/util/brand）
+- 快照：待 B5 客户端批统一刷新（question-composer web 期望、slot-catalog/api-catalog 生成物）
+
+已知跟进（记入 B5）：ui-chat contract/snapshot.ts 的 turnDataSource 接缝（rc.1 期上游演进，QiLin 缺，两处 spec 已临时按现 API 适配）；6 个新移植 client spec 的 QiLin 接缝打磨（图标断言/ask 行 titleKey/shimmer 样式，35+2+2 失败待适配）；interaction 侧全绿、typecheck 全绿
