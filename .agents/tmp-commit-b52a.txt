@@ -1,0 +1,9 @@
+feat(B5-2a): 模型选择器搜索链与文件页动作槽——MenuGroup/MenuSurface/Input forwardRef、fuzzy 搜索、provider 排序 QiLin 化、sidebar.right.tab.files.actions
+
+- ui-primitives：新 MenuGroup（sticky 分组头+IntersectionObserver）与 MenuSurface（缺失补齐）；Input 改 forwardRef（搜索框聚焦）
+- ui-commands：contract 增 SelectOptionGroup/PopupSearchMode('substring'|'fuzzy-label')/PopupSearchLabels/SelectOption.group/PopupSelectSpec.searchMode·searchLabels（全部可选=向后兼容）；popup.ts filterOptions fuzzy+分组排序；PopupSelectView 对位
+- ui-model-selection：ModelSelect 内联搜索框（>4 模型显示、aria 联动、清空按钮）；provider-order.ts 新增并 QiLin 化（仅 deepseek-official 置首，无账号分支）；目录状态补 pending/retainedEffort 字段与状态机；resolver 保留 QiLin blockReason 配置；触发词「请选择模型」对齐；locale 增 search.* 三键、删两条内置描述；账号组两个用例按铁律二移除、排序用例改 official-first；目录 reasoning 查找本地化（groups 直查）
+- ui-sidebar-files：SlotMap 声明合并新 slot sidebar.right.tab.files.actions（session 域 list，owner absolutePath）；tab 注册带 children；FilesBody reload 后渲染 renderSlot；mount 夹具补 renderSlot 桩
+- 测试：涉及包 1301 用例绿；typecheck 双面绿
+
+B5-2 剩余（第四轮）：ui-open-in-app 通用化（本地差 239/78 行，含 SessionOpenInAppAction 改名与双注入）、sidebar-right 架构重写三方合并、builder 增量子系统、plugin-manager 文案、tile 圆角批次、web 快照刷新

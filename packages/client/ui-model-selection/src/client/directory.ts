@@ -7,7 +7,7 @@
 import type {
   ModelCatalogFailure, ModelProviderGroup, ModelSelection, ModelSelectionProjection,
 } from '@qilin/api-session-controller/types'
-import type { SessionId } from '@qilin/api-remotes/client'
+import type { ModelReasoningEffort, SessionId } from '@qilin/api-remotes/client'
 import type { RemoteResult, TypertClientRemote } from '@qilin/typert-protocol'
 import type { ObservableSnapshot, SnapshotStore } from '@qilin/client-store'
 import { createSnapshotStore } from '@qilin/client-store'
@@ -33,13 +33,17 @@ export interface ModelDirectoryState {
   status: 'idle' | 'loading' | 'ready' | 'selecting' | 'error'
   /** Whole-request or selection failure text; null when none. */
   error: string | null
+  /** Saved effort caption retained when the selected model is unavailable. */
+  retainedEffort?: string
+  /** Selection submitted by the latest `select` until it settles; null otherwise. */
+  pending: ModelSelection | null
 }
 
 /** One session's shared directory controller; disposed with the session scope. */
 export class ModelDirectory {
   /** The shared snapshot both entries render from (uSES-safe store). */
   readonly store: SnapshotStore<ModelDirectoryState> = createSnapshotStore<ModelDirectoryState>({
-    current: null, routable: null, groups: [], failures: [], status: 'idle', error: null,
+    current: null, routable: null, groups: [], failures: [], status: 'idle', pending: null, error: null,
   })
 
   /** Latest selection operation wins; an older response never overwrites a newer one. */
@@ -89,7 +93,7 @@ export class ModelDirectory {
   async select(selection: ModelSelection): Promise<RemoteResult<void>> {
     this.assertAvailable()
     const generation = ++this.generation
-    this.store.update((s) => { s.status = 'selecting'; s.error = null })
+    this.store.update((s) => { s.status = 'selecting'; s.pending = selection; s.error = null })
     const result = await this.sessions.selectModel({
       sessionId: this.sessionId,
       provider: selection.provider,
@@ -104,6 +108,7 @@ export class ModelDirectory {
     if (!result.ok) {
       this.store.update((s) => {
         s.status = 'error'
+        s.pending = null
         s.error = `${result.error.code}: ${result.error.message}`
       })
       return result
@@ -159,20 +164,28 @@ export class ModelDirectory {
         groups: [],
         failures: [],
         status: catalog.status === 'error' ? 'error' : 'loading',
+        pending: this.store.getSnapshot().pending,
         error: catalog.error,
       })
       return
     }
     const current = projected.next ?? catalog.value.default
     this.resolved = true
+    const reasoning = catalog.value.groups.find(group => group.id === current.provider)
+      ?.models.find(model => model.id === current.model)?.reasoning
+    const effort = current.reasoningEffort ?? reasoning?.defaultEffort
+    const retainedEffort = effort === undefined ? undefined
+      : reasoning?.efforts.find((level: ModelReasoningEffort) => level.id === effort)?.name ?? effort
     this.store.set({
       current,
+      ...retainedEffort === undefined ? {} : { retainedEffort },
       routable: catalog.value.routableProviders.includes(current.provider),
       groups: catalog.value.groups,
       failures: catalog.value.failures,
       status: this.store.getSnapshot().status === 'selecting'
         ? 'selecting'
         : 'ready',
+      pending: null,
       error: null,
     })
   }

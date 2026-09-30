@@ -85,6 +85,7 @@ function harness(cwd: string | null) {
     useSessions: <S,>(sel: (s: SessionListState) => S) => sel(sessions),
     useStore: hookOf(instance),
     actions: instance.actions,
+    renderSlot: (): null => null,
     ...face,
     t: makeTranslate(zh),
   }

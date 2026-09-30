@@ -42,6 +42,20 @@ import { FileTitle } from './FileTitle.tsx'
 import { en, zh } from './locales.ts'
 import { createFilesStore } from './store.ts'
 
+declare module '@qilin/client-ui-slots' {
+  interface SlotMap {
+    /** Workspace directory actions after the file tree's reload control. */
+    'sidebar.right.tab.files.actions': {
+      kind: 'list'
+      scope: 'session'
+      owner: {
+        /** Absolute directory path displayed by the file tree. */
+        readonly absolutePath: string
+      }
+    }
+  }
+}
+
 export type { SidebarFilesKey } from './locales.ts'
 export type { DirLevel, FileEditState, FilesState, FilesTabState, LevelState } from './store.ts'
 export type { FilesInjected, ListWorkspaceDirectory, WorkspaceFilesListRemote } from './face.ts'
@@ -117,7 +131,10 @@ export function apply(ctx: ClientContext): void {
     ...previewFace(),
   })
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab', key: FILES_ID, locale: NS, store, inject: treeFace },
+    {
+      name: 'sidebar.right.pane.tab', key: FILES_ID, locale: NS, store, inject: treeFace,
+      children: { 'sidebar.right.tab.files.actions': { kind: 'list', scope: 'session' } },
+    },
     FilesBody,
   )), 'ui-sidebar-files: files tab body')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register(

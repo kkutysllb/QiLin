@@ -13,7 +13,7 @@ import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
 import { fileAddressFor, pathPartsOf } from '@qilin/util-workspace-path'
 import { FileTree } from './FileTree.tsx'
 import type { FilesInjected } from './face.ts'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+import type { PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
 import type {} from './locales.ts'
 import type { createFilesStore } from './store.ts'
 import css from './FilesBody.module.css'
@@ -24,6 +24,7 @@ export type FilesBodyProps =
   & PropsStore<ReturnType<typeof createFilesStore>>
   & FilesInjected
   & PropsLocale<'sidebarFiles'>
+  & PropsRenderSlots<'sidebar.right.tab.files.actions'>
 
 /* jscpd:ignore-start -- the header row is the document preview's (ui-sidebar-documentpreview
    TextPreview `usePathClipped`), copied because a plugin bundle shares runtime code
@@ -60,7 +61,7 @@ function usePathClipped(
 
 /** The file tree's body: the workspace root and whatever the reader has opened under it. */
 export function FilesBody({
-  useTabInfo, sessionId, useSessions, useStore, actions, start, load, toggle, t,
+  useTabInfo, sessionId, useSessions, useStore, actions, start, load, toggle, t, renderSlot,
 }: FilesBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const { signal, actions: tabActions } = tab
@@ -130,6 +131,9 @@ export function FilesBody({
         >
           <IconRefreshOutline16 />
         </button>
+        {renderSlot('sidebar.right.tab.files.actions', {
+          absolutePath: state.root,
+        })}
       </div>
       {/* jscpd:ignore-end */}
       <div
