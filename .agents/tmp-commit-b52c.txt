@@ -1,0 +1,9 @@
+feat(B5-2c): sidebar-right 架构重写同步——on-screen Session 命名替代 seat 绑定（用户指令移植）
+
+- service.ts/index.ts/SidebarRight.tsx/shell 全目录、contract、tabs（guide）、focus/close-focus/tab-domain/stores/tab-info/shortcuts/locales/labels 整体对齐 rc.2：SidebarRightHost（autoFullscreen/openWithFocus/closeWithFocus）、controller 4 参（tabs/pin/host/sessions）、mounted=渲染前推导的屏幕会话 ObservableSnapshot、focus 助手独立模块化
+- QiLin 本地面保留并适配：tabs/settings 设置页（TabDefinition 增 label/icon/single 可选字段，locales 补 settings.* 双语键）、tasks badge slot（contract 精确重插 sidebar.right.pane.tab.badge）、file-preview 去 scope 路由（rc.2 打开落屏幕会话）、ui-chat locale 从 B5-1 还原去重
+- 测试：rc.2 全 15 个测试文件移植；seat spec 去 QiLin 运行时重复的 shortcuts provide；外部 TabActions mock 补 bindCommands 桩（schedule/deliverables）；chat-apply 期望序与 transcript 默认对齐
+- 已知跟进：seat.client.spec 42 例在 jsdom 下 DockSurface 无依赖 remeasure 循环（Maximum update depth——疑 fits 写入或注入回调标识未等值抑制，需调试 measurePaneFits/sameFits 与 service 房间上报交互）；expand-button 1 例；plan-review e2e 待 B7 web 批
+- 验证：typecheck 双面绿；sidebar 族其余测试全绿（persistence/session-views/tab-domain/stores/guide/settings 等）
+
+注：本次移植依用户指令执行，推翻此前「本地架构无对应缺陷不移植」的记录

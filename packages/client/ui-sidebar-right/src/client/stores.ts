@@ -57,15 +57,6 @@ export interface SidebarRightState {
   bySession: Record<string, SurfaceState>
 }
 
-/**
- * Recorded intents kept per surface.
- *
- * The sequence is the in-window undo depth, so it is bounded: the oldest
- * entries drop first, which shortens how far back a step reaches and nothing
- * else.
- */
-const HISTORY_LIMIT = 100
-
 /** A planner call, as the store needs it: state and a mint in, operations out. */
 type SurfacePlan = (state: LayoutState, mint: Mint, makeTab: (id: TabId) => TabRecord) => readonly LayoutOp[]
 
@@ -94,11 +85,6 @@ export interface OpenContentIntent {
   readonly kind: string
   readonly contentId: string
   readonly title: string
-  /**
-   * Focus an open tab of this kind wherever it sits instead of opening a
-   * second one, for a type the registry marks `single`.
-   */
-  readonly single?: boolean
   /** Land a new tab in this pane. */
   readonly paneId?: PaneId
   /** Split the target pane and put new content alone in the new pane. */
@@ -212,14 +198,7 @@ function advance(surface: SurfaceState, plan: SurfacePlan, seed: () => SidebarRi
   const after = replay(surface.layout, planned)
   const settled = planSettle(after, counter.mint, after.expanded ? makeTab : undefined)
   const stepped = record(surface.history, surface.layout, [...planned, ...settled])
-  return { layout: stepped.state, history: trimHistory(stepped.history), minted: counter.used() }
-}
-
-/** Drop the oldest entries once the sequence exceeds its limit, keeping the cursor aligned. */
-function trimHistory(history: History): History {
-  const excess = history.entries.length - HISTORY_LIMIT
-  if (excess <= 0) return history
-  return { entries: history.entries.slice(excess), cursor: Math.max(0, history.cursor - excess) }
+  return { layout: stepped.state, history: stepped.history, minted: counter.used() }
 }
 
 /**
@@ -341,16 +320,10 @@ export function createSidebarRightStore(
           // The same page in another pane never draws the open away — the kit's
           // cross-pane reveal is for resources only.
           const page = contentId === pageAddress(kind)
-          // A `single` type is unique across the whole surface, floats
-          // included; a page is unique per pane, which is where it lands.
-          const held = intent.single === true
-            ? Object.values(state.tabs).find(candidate => candidate.kind === kind)?.id
-            : page ? panePage(state, paneId ?? activeDockPaneId(state), kind) : undefined
-          const revealed = held ?? (
-            page || intent.revealIfOpened === false
-              ? undefined
-              : findContentTab(state, contentId, kind)
-          )
+          const held = page ? panePage(state, paneId ?? activeDockPaneId(state), kind) : undefined
+          const revealed = page
+            ? held
+            : intent.revealIfOpened === false ? undefined : findContentTab(state, contentId, kind)
           let openedInNewPane: TabId | undefined
           const split = intent.preferNewPane === true && replace === undefined && revealed === undefined
             ? planSplitPane(state, mint, paneId, (id) => {

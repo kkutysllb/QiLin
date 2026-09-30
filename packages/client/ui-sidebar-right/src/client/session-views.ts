@@ -22,7 +22,6 @@ export class SidebarSessionViews {
   private selected: SessionId | undefined
   private closed = false
 
-  /** @param sessions - Client Session Controller whose references these views retain. */
   constructor(private readonly sessions: ISessions) {}
 
   /**
@@ -74,13 +73,8 @@ export class SidebarSessionViews {
   }
 
   private publish(): void {
-    this.source.set([...this.views.values()]
-      .sort((a, b) => a.sessionId.localeCompare(b.sessionId))
-      .map(view => ({
-        sessionId: view.sessionId,
-        reference: view.reference,
-        selected: view.sessionId === this.selected,
-        retainTab: view.retainTab,
-      })))
+    this.source.set([...this.views.values()].sort((a, b) => a.sessionId.localeCompare(b.sessionId)).map(view => ({
+      sessionId: view.sessionId, reference: view.reference, selected: view.sessionId === this.selected, retainTab: view.retainTab,
+    })))
   }
 }

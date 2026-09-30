@@ -31,8 +31,8 @@ export interface FilePreviewInjected {
  */
 export function filePreviewFace(sidebarRight: ISidebarRight): () => FilePreviewInjected {
   return (): FilePreviewInjected => ({
-    openPreview(sessionId, address) {
-      sidebarRight.openResource(address, { kind: 'text', scope: sessionId })
+    openPreview(_sessionId, address) {
+      sidebarRight.openResource(address, { kind: 'text' })
     },
   })
 }

@@ -59,11 +59,15 @@ it('pins restored records during adoption before the first render or store mutat
   storage()
   const first = createSidebarRightStore(seed).create(sessionId)
   let file!: TabId
-  const address = 'qilin-resource://file/session/first/a.txt'
+  const address = 'dsh-resource://file/session/first/a.txt'
   first.actions.openContent(sessionId, { kind: 'text', contentId: address, title: 'a' }, (id) => { file = id })
   const ctx = new Context()
   const pin = vi.fn()
-  const { controller, adopt } = createSidebarRightController(new SidebarRightTabRegistry(ctx), pin)
+  const { controller, adopt } = createSidebarRightController(new SidebarRightTabRegistry(ctx), pin, {
+    autoFullscreen: () => false,
+    openWithFocus: (_sessionId, open) => { open() },
+    closeWithFocus: (_sessionId, _paneId, close) => { close() },
+  })
   expect(controller.tabsIn(sessionId)).toEqual([])
   const restored = createSidebarRightStore(seed).create(sessionId)
   const release = adopt(sessionId, restored)
@@ -83,7 +87,7 @@ it('pins restored records during adoption before the first render or store mutat
 
 it('starts from an empty layout when stored JSON is corrupt and keeps working when storage rejects writes', () => {
   const values = storage()
-  values.set(`qilin.sidebar-right.v1.${sessionId}`, '{broken')
+  values.set(`dsh.sidebar-right.v1.${sessionId}`, '{broken')
   vi.spyOn(console, 'error').mockImplementation(() => {})
   const instance = createSidebarRightStore(seed).create(sessionId)
   expect(instance.getSnapshot()).toEqual({ bySession: {} })

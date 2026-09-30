@@ -9,31 +9,21 @@ import css from './SidebarRight.module.css'
 /** Root-only retained Session targets and their committed mount lifetimes. */
 export interface RightbarRootInjected {
   readonly hooks: { readonly views: HostObservable<readonly SidebarSessionViewSnapshot[]> }
-  /** Bind a committed root; releases a retired view once that root unmounts. */
   readonly mountView: (reference: SessionReference) => () => void
 }
 
 type RootProps = PropsRuntime<'rightbar'> & PropsRenderSlots<'rightbar.session'> & InjectFace<RightbarRootInjected>
 
-/**
- * One retained Session subtree, hidden unless it is the foreground Conversation.
- * @param props - frame geometry, view target, and visibility.
- * @returns the View's provider and its rendered Session content.
- */
 function SessionView({ view, visible, SessionProvider, renderSlot, mountView, width, viewportWidth, canShow }:
   Pick<RootProps, 'SessionProvider' | 'renderSlot' | 'mountView' | 'width' | 'viewportWidth' | 'canShow'>
   & { readonly view: SidebarSessionViewSnapshot; readonly visible: boolean }) {
   useLayoutEffect(() => mountView(view.reference), [mountView, view.reference])
   const active = visible && view.selected
-  return (
-    <div className={css.session} hidden={!active} data-sidebar-right-session={view.sessionId}>
-      <SessionProvider session={view.reference}>
-        {renderSlot('rightbar.session', {
-          width, viewportWidth, canShow, active, retainTab: view.retainTab,
-        })}
-      </SessionProvider>
-    </div>
-  )
+  return <div className={css.session} hidden={!active} data-sidebar-right-session={view.sessionId}>
+    <SessionProvider session={view.reference}>
+      {renderSlot('rightbar.session', { width, viewportWidth, canShow, active, retainTab: view.retainTab })}
+    </SessionProvider>
+  </div>
 }
 
 /**

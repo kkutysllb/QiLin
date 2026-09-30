@@ -12,7 +12,7 @@ import { TabDomain, type TabOccurrence } from '../src/client/tab-domain.ts'
 import { tabInfoFactory, type TabHookContext } from '../src/client/tab-info.ts'
 
 const SESSION = 's-info' as SessionId
-const ADDRESS = 'qilin-resource://file/session/s-info/a.txt'
+const ADDRESS = 'dsh-resource://file/session/s-info/a.txt'
 const domains: TabDomain[] = []
 
 afterEach(() => {
@@ -40,8 +40,8 @@ function harness() {
     const occurrence = domain.occurrence(SESSION, { id: tabId })
     navigationSources.set(tabId, occurrence.navigation)
     return tabInfoFactory(standard, {
-      tabId, title: false, fullscreen: false, active: true, signal: occurrence.signal,
-      actions: occurrence.tabActions, useStore, useTabNavigation,
+      tabId, title: false, fullscreen: false, active: true, shortcuts: [],
+      signal: occurrence.signal, actions: occurrence.tabActions, useStore, useTabNavigation,
     })
   }
   const open = (beforeCommit?: (tabId: TabId) => void): TabId => {

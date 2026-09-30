@@ -5,33 +5,36 @@
  * means what those faces do; the slot, locale, frame, and resource faces are
  * recorders, because what matters here is what was handed to them — two seats
  * over one store, the guide's body under its own id, the frame reports, the
- * service binding — and that every registration is gone after dispose, which
+ * on-screen Session — and that every registration is gone after dispose, which
  * is what makes a reload safe. The seats' components have their own specs.
  */
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
+import { createSnapshotStore } from '@qilin/client-store'
 import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { SessionId } from '@qilin/session/types'
+import type { Shortcuts, ShortcutCommand } from '@qilin/client-shortcuts/client'
 import { apply, inject } from '../src/client/index.ts'
 import type { GuideInjected, SidebarRightInjected } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { SidebarRightController } from '../src/client/service.ts'
 import { SidebarRightTabRegistry } from '../src/client/tab-registry.ts'
 import type { createSidebarRightStore } from '../src/client/stores.ts'
+import * as sidebarStores from '../src/client/stores.ts'
 import { RightbarSeat } from '../src/client/shell/SidebarRight.tsx'
 import { RightbarRoot } from '../src/client/shell/RightbarRoot.tsx'
 import { ExpandButton } from '../src/client/shell/ExpandButton.tsx'
 import { GuideBody } from '../src/client/tabs/guide/GuideBody.tsx'
 import { GuideTitle } from '../src/client/tabs/guide/GuideTitle.tsx'
-import { TabSettingsSection } from '../src/client/tabs/settings/TabSettingsSection.tsx'
 import { GUIDE_ID } from '../src/client/tabs/guide/definition.ts'
 import { en, zh } from '../src/client/locales.ts'
+
+const SHORTCUT_CATALOG: readonly never[] = []
 
 const SESSION = 's-test' as SessionId
 
 interface Recorded {
   name: string
-  id?: string
   key?: string
   locale?: string
   store?: unknown
@@ -40,12 +43,7 @@ interface Recorded {
   component: unknown
 }
 
-async function boot(options: {
-  /** Persisted main selection the restored window starts from. */
-  selection?: { readonly sessionId?: SessionId }
-  /** Identities the catalog already lists at boot. */
-  listed?: readonly SessionId[]
-} = {}) {
+async function boot(shortcuts: Partial<Shortcuts> = {}) {
   const ctx = new Context()
   const registered: Recorded[] = []
   const slots = {
@@ -65,56 +63,20 @@ async function boot(options: {
       return () => { dictionaries.delete(ns) }
     }),
   }
-  const layout = { openRightbar: vi.fn(), closeRightbar: vi.fn() }
+  const layout = {
+    openRightbar: vi.fn(), closeRightbar: vi.fn(),
+    panelInfo: createSnapshotStore<{ activePanelId: string | null }>({ activePanelId: null }),
+  }
+  const current = createSnapshotStore<{ key: SessionId | undefined }>({ key: undefined })
   const resources = { pin: vi.fn<(address: string, signal: AbortSignal) => void>() }
-  // The retained Session Views subscribe to the Workspace UI's main selection
-  // and allocate one reference per view, so both faces are recorders here.
-  const selectionListeners = new Set<() => void>()
-  const selected = { ...options.selection }
-  const selection = {
-    getSnapshot: () => selected,
-    subscribe: (listener: () => void) => {
-      selectionListeners.add(listener)
-      return () => { selectionListeners.delete(listener) }
-    },
-  }
-  // The catalog the retained views are gated on: a restored window publishes a
-  // selection before the list that proves it has arrived.
-  const catalogListeners = new Set<() => void>()
-  let listed = [...options.listed ?? []]
-  const catalog = {
-    getSnapshot: () => ({ byId: Object.fromEntries(listed.map(id => [id, {}])) }),
-    subscribe: (listener: () => void) => {
-      catalogListeners.add(listener)
-      return () => { catalogListeners.delete(listener) }
-    },
-  }
-  const retained: { sessionId: SessionId; released: boolean }[] = []
-  const sessions = {
-    list: catalog,
-    retain: vi.fn((sessionId: SessionId) => {
-      const entry = { sessionId, released: false }
-      retained.push(entry)
-      return {
-        sessionId,
-        binding: { sessionId },
-        ready: Promise.resolve(undefined),
-        release: () => { entry.released = true },
-        [Symbol.dispose]: () => { entry.released = true },
-      }
-    }),
-  }
   ctx.provide('slots', slots as never)
   ctx.provide('locale', locale as never)
+  ctx.provide('shortcuts', { runtime: 'web', register: () => () => {},
+    catalog: { getSnapshot: () => SHORTCUT_CATALOG, subscribe: () => () => {} }, ...shortcuts } as never)
   ctx.provide('layout', layout as never)
   ctx.provide('resources', resources as never)
-  ctx.provide('sessions', sessions as never)
-  ctx.provide('uiWorkspace', { selection } as never)
-  ctx.provide('shortcuts', {
-    register: vi.fn(() => () => {}), registerFixed: vi.fn(() => () => {}),
-    observeFixedInput: vi.fn(() => () => {}),
-    catalog: { getSnapshot: () => [], subscribe: () => () => {} },
-  } as never)
+  ctx.provide('sessions', { retain: vi.fn(() => ({ ready: Promise.resolve(), release: vi.fn() })) } as never)
+  ctx.provide('uiSession', { adapter: { current } } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
   const seat = (name: string): Recorded => {
@@ -126,14 +88,7 @@ async function boot(options: {
     if (entry.inject === undefined) throw new Error(`expected ${entry.name} to inject`)
     return entry.inject(SESSION)
   }
-  const listSession = (id: SessionId): void => {
-    listed = [...listed, id]
-    for (const listener of catalogListeners) listener()
-  }
-  return {
-    ctx, registered, dictionaries, layout, resources, sessions, retained, selectionListeners,
-    catalogListeners, listSession, fiber, seat, injectedOf,
-  }
+  return { ctx, registered, dictionaries, layout, current, resources, fiber, seat, injectedOf }
 }
 
 describe('ui-sidebar-right apply', () => {
@@ -141,23 +96,25 @@ describe('ui-sidebar-right apply', () => {
     expect(hostApply).not.toThrow()
   })
 
-  it('holds no Session view while the restored selection names a Session the catalog has not listed', async () => {
-    const { sessions, selectionListeners, catalogListeners } = await boot({ selection: { sessionId: SESSION } })
-    // Retaining an unlisted identity throws in the Session Controller, and a
-    // throw here fails this plugin's fiber and takes every waiting package down
-    // with it, so the selection alone must not allocate a reference.
-    expect(sessions.retain).not.toHaveBeenCalled()
-    expect(selectionListeners.size).toBe(1)
-    expect(catalogListeners.size).toBe(1)
-  })
-
-  it('retains the selected view once the catalog lists the Session', async () => {
-    const { sessions, catalogListeners, listSession } = await boot({ selection: { sessionId: SESSION } })
-    expect(sessions.retain).not.toHaveBeenCalled()
-    listSession(SESSION)
-    expect(sessions.retain).toHaveBeenCalledTimes(1)
-    expect(sessions.retain).toHaveBeenCalledWith(SESSION, { source: 'sidebarView' })
-    expect(catalogListeners.size).toBe(1)
+  it('routes native close through the shortcut service and contains bridge rejections', async () => {
+    onTestFinished(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
+    const closeWindow = vi.fn<() => Promise<void>>().mockResolvedValue()
+    const commands = new Map<string, ShortcutCommand>()
+    const h = await boot({ runtime: 'desktop',
+      closeWindow,
+      register: (command) => { commands.set(command.id, command); return () => { commands.delete(command.id) } },
+    })
+    onTestFinished(async () => { await h.ctx.fiber.dispose() })
+    const close = commands.get('page.close')!.resolve({ region: 'page', modal: null, target: null })
+    expect(close.status).toBe('handled')
+    if (close.status !== 'handled') throw new Error('Expected native close')
+    close.run()
+    expect(closeWindow).toHaveBeenCalledExactlyOnceWith()
+    const failure = new Error('Window unavailable')
+    closeWindow.mockRejectedValueOnce(failure)
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    close.run()
+    await vi.waitFor(() => { expect(error).toHaveBeenCalledExactlyOnceWith('Window close failed', failure) })
   })
 
   it('provides both faces, and registers the guide through the same two-stage path as any other type', async () => {
@@ -170,23 +127,19 @@ describe('ui-sidebar-right apply', () => {
     expect(guide?.id).toBe(GUIDE_ID)
     expect(guide?.priority).toBe('builtin')
     expect(guide?.title('sidebar://guide')).toBe('tab.guide.title')
-    // Six registrations: the root and panel seats, the header's corner seat,
-    // the guide body and chip title under the guide implementation's id, and
-    // the tab switches the settings shell renders. The guide draws no product
-    // copy of its own, so neither guide seat binds the dictionary.
+    // Five registrations: the root and panel seats, the header's corner seat,
+    // and the guide body and chip title under the guide implementation's id.
+    // The guide draws no product copy of its own, so neither guide seat binds the dictionary.
     expect(registered.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
       ['rightbar', undefined, undefined, RightbarRoot],
       ['rightbar.session', undefined, 'sidebarRight', RightbarSeat],
       ['conversation.session.header.corner', undefined, 'sidebarRight', ExpandButton],
       ['sidebar.right.pane.tab', GUIDE_ID, undefined, GuideBody],
       ['sidebar.right.pane.tab.title', GUIDE_ID, undefined, GuideTitle],
-      ['settings.section', undefined, 'sidebarRight', TabSettingsSection],
     ])
-    // A list seat names itself with `id`; the settings shell renders it as one page.
-    expect(registered.find(entry => entry.name === 'settings.section')?.id).toBe('sidebar-right')
     // The panel declares the extension seats; the guide declares its chain child.
     expect(Object.keys(seat('rightbar.session').children as object)).toEqual([
-      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.pane.tab.badge', 'sidebar.right.tab.menu.item',
+      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
     ])
     expect(seat('sidebar.right.pane.tab').children).toMatchObject({ 'sidebar.right.tab.guide': { kind: 'chain', scope: 'session' } })
     // Both seats read one store: the button only needs to know whether the panel is expanded.
@@ -194,8 +147,21 @@ describe('ui-sidebar-right apply', () => {
     expect(seat('conversation.session.header.corner').store).toBe(seat('rightbar.session').store)
   })
 
-  it('hands the panel seat the frame report, the service binding, the opens, the observable registry, and the Tab domain', async () => {
-    const { ctx, layout, resources, seat, injectedOf } = await boot()
+  it('names the selected Session as on screen while the Conversation fills the main column', async () => {
+    const { ctx, layout, current } = await boot()
+    expect(ctx.sidebarRight.mounted.getSnapshot()).toBeUndefined()
+    current.set({ key: SESSION })
+    expect(ctx.sidebarRight.mounted.getSnapshot()).toBe(SESSION)
+    layout.panelInfo.set({ activePanelId: 'plugins' })
+    expect(ctx.sidebarRight.mounted.getSnapshot()).toBeUndefined()
+    layout.panelInfo.set({ activePanelId: null })
+    expect(ctx.sidebarRight.mounted.getSnapshot()).toBe(SESSION)
+    current.set({ key: undefined })
+    expect(ctx.sidebarRight.mounted.getSnapshot()).toBeUndefined()
+  })
+
+  it('hands the panel seat the frame report, the room rule, the opens, the observable registry, and the Tab domain', async () => {
+    const { ctx, layout, current, resources, seat, injectedOf } = await boot()
     const injected = injectedOf(seat('rightbar.session')) as SidebarRightInjected
     // The frame learns the composition of expanded and presentation, nothing else.
     injected.syncPresentation({ shown: true, track: true, fullscreen: false })
@@ -210,26 +176,45 @@ describe('ui-sidebar-right apply', () => {
     expect(injected.hooks.tabTypes.getSnapshot().find(type => type.kind === 'guide')?.id).toBe(GUIDE_ID)
     const seen = vi.fn()
     const unsubscribe = injected.hooks.tabTypes.subscribe(seen)
-    ctx.sidebarRightTabs.register({
-      id: 'spec/text', kind: 'text', patterns: ['qilin-resource://file/**'], label: () => 'text', title: () => 'text',
-    })
+    ctx.sidebarRightTabs.register({ id: 'spec/text', kind: 'text', patterns: ['dsh-resource://file/**'], title: () => 'text' })
     expect(seen).toHaveBeenCalledOnce()
     unsubscribe()
-    // The binding makes the service act on this seat's session; the seat's
-    // store instance is minted here from the handle the registration declared.
+    // The runtime mints each Session's store from the handle the registration
+    // declared; selecting the Session puts it on screen, and the service acts on
+    // its adopted store.
     const handle = seat('rightbar.session').store as ReturnType<typeof createSidebarRightStore>
-    const instance = handle.create()
-    instance.clearPersisted()
-    const release = injected.bindService({ sessionId: SESSION, actions: instance.actions, surfaces: {}, canSplitPane: () => true })
+    handle.create().clearPersisted()
+    const instance = handle.create(SESSION)
+    vi.stubGlobal('document', { activeElement: null, querySelectorAll: () => [] })
+    onTestFinished(() => { vi.unstubAllGlobals() })
+    injected.toggleFullscreen()
+    expect(injectedOf(seat('conversation.session.header.corner'))).toHaveProperty('hooks.shortcuts')
+    current.set({ key: SESSION })
     injected.openTab('guide', { revealIfOpened: false })
     const surface = instance.getSnapshot().bySession[SESSION]
     expect(surface?.layout.expanded).toBe(true)
     expect(Object.values(surface?.layout.tabs ?? {}).map(tab => tab.kind)).toEqual(['guide'])
     // Holding a record pins its address through the resource model.
     if (surface === undefined) throw new Error('expected a surface')
-    ctx.sidebarRight.tabDomain.sync(SESSION, surface.layout)
     expect(resources.pin).toHaveBeenCalledWith('sidebar://guide', expect.any(AbortSignal))
-    release()
+    // The seat reports the room rule its kit measured; a narrow pane is not split.
+    const panes = () => Object.values(instance.getSnapshot().bySession[SESSION]?.layout.nodes ?? {}).filter(node => node.kind === 'pane')
+    injected.measureRoom(() => false)
+    injected.splitPane(surface.layout.activePaneId)
+    expect(panes()).toHaveLength(1)
+    injected.measureRoom(() => true)
+    injected.splitPane(surface.layout.activePaneId)
+    expect(panes()).toHaveLength(2)
+    // The fullscreen command follows the automatic fullscreen rule the seats report.
+    const layoutOf = () => instance.getSnapshot().bySession[SESSION]?.layout
+    injected.toggleFullscreen()
+    expect(layoutOf()?.mode).toBe('fullscreen')
+    injected.reportAutoFullscreen(true)
+    injected.toggleFullscreen()
+    expect(layoutOf()?.expanded).toBe(false)
+    expect(layoutOf()?.mode).toBe('push')
+    // A global panel takes the Conversation's place: no Session is on screen.
+    layout.panelInfo.set({ activePanelId: 'plugins' })
     expect(() => { ctx.sidebarRight.toggleExpanded() }).toThrow('no session surface is mounted')
   })
 
@@ -242,7 +227,7 @@ describe('ui-sidebar-right apply', () => {
     instance.actions.open(SESSION)
     // The first expansion seeds the guide; a second tab beside it makes it closable.
     instance.actions.setExpanded(SESSION, true)
-    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'qilin-resource://file/session/s/a.txt', title: 'a' }, () => {})
+    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s/a.txt', title: 'a' }, () => {})
     const guide = Object.values(instance.getSnapshot().bySession[SESSION]?.layout.tabs ?? {}).find(tab => tab.kind === 'guide')
     if (guide === undefined) throw new Error('expected the seeded guide')
     // Held and pinned from the store's own commit: no seat synced anything.
@@ -256,6 +241,50 @@ describe('ui-sidebar-right apply', () => {
     expect(ctx.sidebarRight.openTabs.getSnapshot()).toEqual([])
   })
 
+  it('releases replaced store adoptions once and keeps the latest store for each Session', async () => {
+    const originalFactory = sidebarStores.createSidebarRightStore
+    const stops: Array<ReturnType<typeof vi.fn<() => void>>> = []
+    const factory = vi.spyOn(sidebarStores, 'createSidebarRightStore').mockImplementation((seed) => {
+      const handle = originalFactory(seed)
+      return {
+        ...handle,
+        create(scopeKey) {
+          const instance = handle.create(scopeKey)
+          return {
+            ...instance,
+            subscribe(listener) {
+              const stop = vi.fn(instance.subscribe(listener))
+              stops.push(stop)
+              return stop
+            },
+          }
+        },
+      }
+    })
+    let b: Awaited<ReturnType<typeof boot>> | undefined
+    try {
+      b = await boot()
+      const handle = b.seat('rightbar.session').store as ReturnType<typeof createSidebarRightStore>
+      const other = 's-other' as SessionId
+      handle.create(SESSION)
+      handle.create(other)
+      handle.create(SESSION)
+      handle.create(other)
+      const current = handle.create(SESSION)
+      const currentOther = handle.create(other)
+      expect(stops.map(stop => stop.mock.calls.length)).toEqual([1, 1, 1, 1, 0, 0])
+      current.actions.setExpanded(SESSION, true)
+      currentOther.actions.setExpanded(other, true)
+      expect(new Set(b.ctx.sidebarRight.openTabs.getSnapshot().map(tab => tab.sessionId)))
+        .toEqual(new Set([SESSION, other]))
+      await b.fiber.dispose()
+      expect(stops.map(stop => stop.mock.calls.length)).toEqual([1, 1, 1, 1, 1, 1])
+    } finally {
+      await b?.ctx.fiber.dispose()
+      factory.mockRestore()
+    }
+  })
+
   it('hands the guide body the registry\'s entry boxes, observable', async () => {
     const { ctx, seat, injectedOf } = await boot()
     const { hooks: { guideEntries } } = injectedOf(seat('sidebar.right.pane.tab')) as GuideInjected
@@ -265,7 +294,6 @@ describe('ui-sidebar-right apply', () => {
     ctx.sidebarRightTabs.register({
       id: 'spec/files',
       kind: 'files',
-      label: () => 'Files',
       title: () => 'Files',
       guide: [{ id: 'default', order: 10, title: () => 'Files' }],
     })
@@ -274,12 +302,12 @@ describe('ui-sidebar-right apply', () => {
   })
 
   it('takes every registration and both faces back when disposed, aborting the open records, so a reload registers again', async () => {
-    const { ctx, registered, dictionaries, fiber, seat, injectedOf } = await boot()
+    const { ctx, registered, dictionaries, current, fiber, seat, injectedOf } = await boot()
     const injected = injectedOf(seat('rightbar.session')) as SidebarRightInjected
     const handle = seat('rightbar.session').store as ReturnType<typeof createSidebarRightStore>
     // Minted under the session key, so the instance is adopted and the teardown releases it.
     const instance = handle.create(SESSION)
-    injected.bindService({ sessionId: SESSION, actions: instance.actions, surfaces: {}, canSplitPane: () => true })
+    current.set({ key: SESSION })
     injected.openTab('guide')
     const surface = instance.getSnapshot().bySession[SESSION]
     const guide = Object.values(surface?.layout.tabs ?? {})[0]
@@ -296,6 +324,6 @@ describe('ui-sidebar-right apply', () => {
     expect(dictionaries.size).toBe(0)
     await ctx.plugin({ inject: [...inject], apply }).await()
     expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
-    expect(registered).toHaveLength(6)
+    expect(registered).toHaveLength(5)
   })
 })

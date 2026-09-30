@@ -13,7 +13,7 @@
  * survivors are ranked by priority band, then by matched-pattern length, then by
  * registration order. Addresses are `scheme://` URIs; the one local change to
  * VS Code's glob rule is that a pattern containing `:` matches the whole address
- * (`qilin-resource://file/**`, `sidebar://guide`) rather than the URI's path.
+ * (`dsh-resource://file/**`, `sidebar://guide`) rather than the URI's path.
  *
  * A kind may carry one `builtin` and one `extension` registration at once: the
  * extension is the one in force — claims, `get`, the guide page, and the body
@@ -24,6 +24,7 @@
  * Thunked copy (`title`, `guide[].title`, `guide[].description`) is read again
  * on every use, so a language change needs no re-registration.
  */
+import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
 import type { ComponentType } from 'react'
 import type { Context } from '@qilin/kylin'
 import type { IconProps } from '@qilin/client-ui-primitives'
@@ -59,6 +60,8 @@ const DEFAULT_BAND: SidebarRightTabPriority = 'extension'
 
 /** One entry capsule the guide page offers, contributed by the type it opens (picking it opens that type as a page). */
 export interface SidebarRightGuideEntry {
+  /** Effective shortcut shown on this entry, when the provider registers one. */
+  readonly commandId?: ShortcutCommandId
   /** Stable entry identity within its provider. */
   readonly id: string
   /** Ascending position among every registered type's entries. */
@@ -77,6 +80,8 @@ export interface SidebarRightGuideEntry {
   readonly description?: () => string
   /** Optional glyph, drawn before the title; without one the guide draws its cube placeholder. */
   readonly icon?: ComponentType<IconProps>
+  /** QiLin-local: short name for the settings page's per-type switches. */
+  readonly label?: () => string
 }
 
 /** A guide entry as the registry lists it: with the kind of the type that contributed it, which is what picking it opens. */
@@ -93,32 +98,33 @@ export interface SidebarRightTabDefinition {
    * This implementation's identity in the tab system, unique across every
    * registration (a package name is the natural value). A kind is not unique —
    * an extension may take a builtin's over — so the implementation carries its
-   * own name, and it is the key its body, title, and badge register under in
-   * the `sidebar.right.pane.tab`, `sidebar.right.pane.tab.title`, and
-   * `sidebar.right.pane.tab.badge` seats.
+   * own name, and it is the key its body and title register under in the
+   * `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats.
    */
   readonly id: string
   /** Type discriminator: what the tabs of this type are, and what `openTab` names. */
   readonly kind: string
+  /** QiLin-local: short localized name for the settings page's per-type switches. */
+  readonly label?: () => string
   /** Each open by kind creates independent content; omission keeps one page per kind in each pane. */
   readonly multiple?: boolean
-  /**
-   * The type's own name, for surfaces that name the type rather than one tab:
-   * the enable switch's row. A page type's `title(address)` cannot serve —
-   * it names the open content, and a resource type has no single address.
-   * Omission shows {@link kind}.
-   * @returns the name in the current language.
-   */
-  readonly label?: () => string
-  /** The glyph a tab chip draws before its title; omit for a chip whose title carries the whole identity. */
+  /** QiLin-local: optional glyph for the settings page's rows. */
   readonly icon?: ComponentType<IconProps>
+  /**
+   * QiLin-local: this type keeps at most one open tab per pane; opening the
+   * second one replaces it. Omit for the default, where one tab opens per
+   * address and a page opens once per pane.
+   */
+  readonly single?: boolean
+  /** Lazily keep a visited body mounted through hiding, Session changes and docking; default false. */
+  readonly keepMounted?: boolean
   /**
    * Resource-address globs this type recognizes; omit for a page type, which is
    * opened by kind and recognizes no address.
    *
    * A pattern containing `:` is matched against the whole address
-   * (`qilin-resource://file/**`); one without is matched against the URI's path at
-   * any depth (`*.md` matches `qilin-resource://file/session/s1/home/me/notes.md`),
+   * (`dsh-resource://file/**`); one without is matched against the URI's path at
+   * any depth (`*.md` matches `dsh-resource://file/session/s1/home/me/notes.md`),
    * and an address that is not a URI matches no such pattern. Matching ignores
    * case and does not hide dotfiles.
    */
@@ -140,20 +146,6 @@ export interface SidebarRightTabDefinition {
    * @returns the title in the current language.
    */
   readonly title: (address: string) => string
-  /**
-   * Focus an open tab of this kind wherever it sits instead of opening a
-   * second one, so the surface holds at most one. Omit for the default, where
-   * one tab opens per address and a page opens once per pane.
-   */
-  readonly single?: boolean
-  /**
-   * Retain this type's visited bodies across tab and Session changes, collapse,
-   * and docking. A retained body keeps its DOM (and any connected embedded
-   * document) alive while its View holds it, and the View's stable hold
-   * callback survives a rebuilt Session injection binding. Unvisited bodies are
-   * not mounted eagerly. Omit for the default visibility-mounted behavior.
-   */
-  readonly keepMounted?: boolean
   /** Entry boxes for the guide page. Omit to stay off it. */
   readonly guide?: readonly SidebarRightGuideEntry[]
 }
@@ -214,7 +206,7 @@ interface Ranked {
 
 /**
  * The address's URI path: what a pattern with no scheme separator matches
- * against. `qilin-resource://file/session/s1/home/me/b.md` gives `/session/s1/home/me/b.md`;
+ * against. `dsh-resource://file/session/s1/home/me/b.md` gives `/session/s1/home/me/b.md`;
  * `sidebar://guide` gives `''`; an address that is not a URI gives nothing.
  */
 function pathOf(address: string): string | undefined {
@@ -253,17 +245,9 @@ export class SidebarRightTabRegistry {
   private registrations = 0
   private cached: readonly SidebarRightTabDefinition[] = []
   private guideEntries: readonly SidebarRightGuideBox[] = []
-  private readonly disabled = new Set<string>()
 
-  /**
-   * @param ctx - Context whose effects own the contributed types.
-   * @param disabled - registration ids the user has turned off, as the plugin
-   *   persisted them. An id no type registered is kept, so a type that arrives
-   *   later arrives switched off.
-   */
-  constructor(private readonly ctx: Context, disabled: readonly string[] = []) {
-    for (const id of disabled) this.disabled.add(id)
-  }
+  /** @param ctx - Context whose effects own the contributed types. */
+  constructor(private readonly ctx: Context) {}
 
   /**
    * Register one tab type for the caller's lifetime.
@@ -423,39 +407,6 @@ export class SidebarRightTabRegistry {
   }
 
   /**
-   * Whether a type is offered to the user.
-   *
-   * A turned-off type stays registered and keeps drawing the tabs already
-   * open; what stops is being offered (its guide entries) and being opened.
-   * @param id - the type's registration id.
-   * @returns whether the switches leave it on.
-   */
-  isEnabled(id: string): boolean {
-    return !this.disabled.has(id)
-  }
-
-  /**
-   * Turn a type on or off and republish the offered set. Persistence belongs
-   * to the caller: it reads `disabledIds` and stores them itself.
-   * @param id - the type's registration id.
-   * @param enabled - whether the type is offered.
-   */
-  setEnabled(id: string, enabled: boolean): void {
-    const wasOff = this.disabled.has(id)
-    if (enabled) this.disabled.delete(id)
-    else this.disabled.add(id)
-    if (wasOff !== !enabled) this.refresh()
-  }
-
-  /**
-   * The ids the user has turned off, to persist across reloads.
-   * @returns the switched-off ids, in no particular order.
-   */
-  disabledIds(): readonly string[] {
-    return [...this.disabled]
-  }
-
-  /**
    * Observe low-frequency registry changes.
    * @param listener - synchronous invalidation callback.
    * @returns unsubscribe callback.
@@ -467,11 +418,7 @@ export class SidebarRightTabRegistry {
 
   private refresh(): void {
     this.cached = this.active().map(entry => entry.definition)
-    // A turned-off type offers nothing: its guide entries are how a user
-    // reaches it, so removing them is what "off" means. Its open tabs keep
-    // rendering — the seat looks a kind up in `entries`, not here.
     this.guideEntries = this.cached
-      .filter(definition => this.isEnabled(definition.id))
       .flatMap(definition => (definition.guide ?? []).map(entry => ({ ...entry, kind: definition.kind, providerId: definition.id })))
       .sort((left, right) => left.order - right.order)
     notifySubscribers(this.listeners, '[ui-sidebar-right] tab registry')

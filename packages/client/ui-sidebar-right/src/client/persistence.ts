@@ -4,7 +4,7 @@ import { EMPTY_HISTORY, type LayoutState } from '@qilin/client-ui-dockkit'
 import type { SurfaceState } from './stores.ts'
 
 /** Persistence namespace shared by scoped stores and startup discovery. */
-export const sidebarPersistence = 'qilin.sidebar-right.v1'
+export const sidebarPersistence = 'dsh.sidebar-right.v1'
 
 const paneId = z.string().regex(/^(?:pane|float)[1-9][0-9]*$/u)
 const splitId = z.string().regex(/^split[1-9][0-9]*$/u)
@@ -38,7 +38,8 @@ function validateReferences(value: z.infer<typeof surface>): void {
     if (visited.has(id) || entry === undefined) reject()
     visited.add(id)
     if (entry.kind === 'split') {
-      if (host !== 'dock' || entry.children.length !== entry.sizes.length
+      if (host !== 'dock' || id !== layout.rootId || entry.axis !== 'row' || entry.children.length !== 2
+        || entry.children.length !== entry.sizes.length
         || Math.abs(entry.sizes.reduce((sum, size) => sum + size, 0) - 1) > 1e-9) reject()
       pending.push(...entry.children.map(id => ({ id, host })))
     } else {

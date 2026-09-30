@@ -20,6 +20,7 @@
  * registering into one already depends on it for the declaration. The types
  * therefore live with their declarer.
  */
+import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
 import type {} from '@qilin/client-ui-slots'
 import type { RightbarOwnerProps } from '@qilin/client-ui-layout/client'
 // The locale plugin's own merge carries the shared `common` vocabulary that the
@@ -43,14 +44,8 @@ declare module '@qilin/client-ui-slots' {
       kind: 'single'
       scope: 'session'
       owner: RightbarOwnerProps & {
-        /** Whether this View is the foreground Conversation's on-screen Sidebar. */
         readonly active: boolean
-        /**
-         * Hold an initialized retained body until unmount or occurrence cancellation.
-         * @param tabId - retained body identity.
-         * @param signal - tab occurrence lifetime.
-         * @returns releases the View-owned hold.
-         */
+        /** @param tabId - retained body. @param signal - tab occurrence lifetime. @returns releases the View-owned hold. */
         readonly retainTab: (tabId: TabId, signal: AbortSignal) => () => void
       }
     }
@@ -75,21 +70,18 @@ declare module '@qilin/client-ui-slots' {
      * nothing and the chip shows the registry's `title(address)` text captured
      * at open time.
      */
-    'sidebar.right.pane.tab.title': {
+    /**
+     * QiLin-local: per-tab status pill (tasks). Registrants render a keyed cell
+     * beside the tab title; the strip calls it on every render, so a registrant
+     * reads an already-computed fact rather than deriving one.
+     */
+    'sidebar.right.pane.tab.badge': {
       kind: 'keyed'
       scope: 'session'
       hookContext: TabHookContext
       inject: SidebarRightTabInjected
     }
-    /**
-     * A tab chip's status pill, drawn between the chip's glyph and its title,
-     * dispatched with the same key and information hook as the body. A type with
-     * a live count — jobs still running, subagents still working — registers
-     * here and reads its own store; a type with none registers nothing and no
-     * pill is drawn. The strip calls it on every render, so a registrant reads
-     * an already-computed fact rather than deriving one.
-     */
-    'sidebar.right.pane.tab.badge': {
+    'sidebar.right.pane.tab.title': {
       kind: 'keyed'
       scope: 'session'
       hookContext: TabHookContext
@@ -149,11 +141,23 @@ export interface SidebarRightTabPlacement {
   readonly replaceTab?: boolean
 }
 
+/** Page-owned operations registered for a mounted tab body. */
+export interface SidebarRightTabCommands {
+  /** Refresh this page through its existing resource owner. */
+  readonly refresh?: () => void
+}
+
 /** The actions one tab may take on itself; each acts on the session the tab is in. */
 export interface SidebarRightTabActions {
   /**
+   * Bind page operations until the body unmounts or the tab lifetime ends.
+   * @param commands - operations supported by this page; omitted operations are unavailable.
+   * @returns disposer that cannot remove a newer body's registration.
+   */
+  bindCommands(commands: SidebarRightTabCommands): () => void
+  /**
    * Open a resource from this tab; see `ISidebarRight.openResource`.
-   * @param address - a `qilin-resource://` address.
+   * @param address - a `dsh-resource://` address.
    * @param options - placement and the resource's navigation parameters.
    */
   openResource(address: string, options?: SidebarRightTabPlacement & { readonly params?: SidebarRightResourceParams }): void
@@ -176,7 +180,12 @@ export interface SidebarRightTabInfo {
   }
   readonly panel: { readonly id: PaneId }
   readonly tab: TabRecord & {
-    /** Docked bodies need an expanded sidebar and an active tab; expanded titles include inactive tabs. Floats stay visible. */
+    /** Effective refresh binding for this page's controls. */
+    readonly refreshShortcut?: ShortcutCatalogEntry | undefined
+    /**
+     * Only the foreground Session is visible. Docked bodies require expansion and selection;
+     * expanded titles include inactive tabs. Floats survive collapse.
+     */
     readonly visible: boolean
     readonly navigation: SidebarRightTabNavigation
     /** Aborted only when the record disappears or this plugin unloads, not on hide or session switch. */

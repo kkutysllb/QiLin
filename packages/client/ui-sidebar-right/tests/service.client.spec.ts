@@ -2,8 +2,8 @@
  * What `ctx.sidebarRight` promises other plugins.
  *
  * The service is root-scoped and the surface is per session, so every command
- * depends on a binding the mounted seat publishes; the interesting cases are all
- * about that seam. Opening is asserted against a real store instance, because
+ * acts on the Session the plugin names as on screen, through the store the
+ * runtime minted for it; the interesting cases are all about that seam. Opening is asserted against a real store instance, because
  * "already open" and "in that tab's place" mean whatever the planner means by
  * them and nothing else, and against the Tab domain, because an open is not
  * complete until the tab knows how it was navigated to.
@@ -13,10 +13,10 @@ import { Context } from '@qilin/kylin'
 import type { SessionId } from '@qilin/session/types'
 import type { LayoutState, PaneId, TabId } from '@qilin/client-ui-dockkit'
 import { dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
-import { createSidebarRightController, type SidebarRightFeature } from '../src/client/service.ts'
+import { createSidebarRightController } from '../src/client/service.ts'
 import { SidebarRightTabRegistry } from '../src/client/tab-registry.ts'
-import { createSidebarRightStore, type SurfaceState } from '../src/client/stores.ts'
-import { GUIDE_ID, guideDefinition } from '../src/client/tabs/guide/definition.ts'
+import { createSidebarRightStore } from '../src/client/stores.ts'
+import { guideDefinition } from '../src/client/tabs/guide/definition.ts'
 
 // The params map is empty in this package; a test-only scheme lets specs hand
 // parameters through the typed `open`/`navigate` faces.
@@ -31,7 +31,7 @@ const SESSION = 's-test' as SessionId
 /** Key-echoing translate: this file asserts behaviour, not copy. */
 const t = ((key: string) => key) as Parameters<typeof guideDefinition>[0]
 
-/** A controller over a real registry and a real store, bound as a mounted seat would be. */
+/** A controller over a real registry and a real store, adopted as the runtime mints it. */
 function harness() {
   const ctx = new Context()
   const tabs = new SidebarRightTabRegistry(ctx)
@@ -42,28 +42,31 @@ function harness() {
   tabs.register({
     id: 'test/text',
     kind: 'text',
-    patterns: ['qilin-resource://file/**'],
+    patterns: ['dsh-resource://file/**'],
     priority: 'fallback',
-    label: () => 'Text',
     title: address => address.slice(address.lastIndexOf('/') + 1),
   })
   const pin = vi.fn<(address: string, signal: AbortSignal) => void>()
-  const { controller, adopt } = createSidebarRightController(tabs, pin)
+  const { controller, adopt, show, measure } = createSidebarRightController(tabs, pin, {
+    autoFullscreen: () => false,
+    openWithFocus: (_sessionId, open) => { open() },
+    closeWithFocus: (_sessionId, _paneId, close) => { close() },
+  })
   const instance = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create()
+  // The runtime mints the Session's store before any seat renders, and the plugin adopts it.
+  const unadopt = adopt(SESSION, instance)
   const layout = (): LayoutState => {
     const surface = instance.getSnapshot().bySession[SESSION]
     if (surface === undefined) throw new Error('expected a surface')
     return surface.layout
   }
-  /** Republish the way the seat does after each commit, and sync the domain the way it does too. */
   /** The room rule's verdict the seat would report; a spec flips it to model a narrow pane. */
   const room = { allowed: true }
+  /** Put the Session on screen the way the plugin does from the selection, with the room rule its seat reports. */
   const publish = (): (() => void) => {
-    const surface = instance.getSnapshot().bySession[SESSION]
-    if (surface !== undefined) controller.tabDomain.sync(SESSION, surface.layout)
-    return controller.bind({
-      sessionId: SESSION, actions: instance.actions, surfaces: instance.getSnapshot().bySession, canSplitPane: () => room.allowed,
-    })
+    show(SESSION)
+    measure(SESSION, () => room.allowed)
+    return () => { show(undefined) }
   }
   const titles = (): string[] => {
     const surface = instance.getSnapshot().bySession[SESSION]
@@ -77,13 +80,32 @@ function harness() {
   const entries = (): number => instance.getSnapshot().bySession[SESSION]?.history.entries.length ?? 0
   // A surface starts empty; expanding seeds the default guide ('seed').
   const expand = (): void => { instance.actions.setExpanded(SESSION, true) }
-  return { controller, adopt, tabs, instance, pin, publish, titles, tabOf, layout, entries, room, expand }
+  return { controller, adopt, unadopt, show, measure, tabs, instance, pin, publish, titles, tabOf, layout, entries, room, expand }
 }
 
 describe('SidebarRightController — opening', () => {
-  it('refuses every write while no seat is mounted', () => {
+  it('keeps independently opened instances distinct when they return to the same pane', () => {
+    const h = harness()
+    h.tabs.register({ id: 'test/terminal', kind: 'terminal', multiple: true, title: () => 'terminal' })
+    const release = h.publish()
+    try {
+      h.controller.openTab('terminal')
+      h.controller.openTab('terminal')
+      const terminals = Object.values(h.layout().tabs).filter(tab => tab.kind === 'terminal')
+      expect(terminals).toHaveLength(2)
+      expect(terminals[0]!.contentId).not.toBe(terminals[1]!.contentId)
+      const pane = findTabPane(h.layout(), terminals[0]!.id).id
+      h.instance.actions.floatTab(SESSION, terminals[0]!.id)
+      const floating = findTabPane(h.layout(), terminals[0]!.id).id
+      h.instance.actions.unfloatPane(SESSION, floating)
+      expect(getPane(h.layout(), pane).tabs).toContain(terminals[0]!.id)
+      expect(getPane(h.layout(), pane).tabs).toContain(terminals[1]!.id)
+    } finally { release() }
+  })
+
+  it('refuses every write while no Session is on screen', () => {
     const { controller } = harness()
-    expect(() => { controller.openResource('qilin-resource://file/session/s-test/a.txt') }).toThrow('no session surface is mounted')
+    expect(() => { controller.openResource('dsh-resource://file/session/s-test/a.txt') }).toThrow('no session surface is mounted')
     expect(() => { controller.openTab('guide') }).toThrow('no session surface is mounted')
     expect(() => { controller.close('tab1' as TabId) }).toThrow('no session surface is mounted')
     expect(() => { controller.toggleExpanded() }).toThrow('no session surface is mounted')
@@ -91,6 +113,24 @@ describe('SidebarRightController — opening', () => {
     expect(() => { controller.split() }).toThrow('no session surface is mounted')
     expect(() => { controller.float('tab1' as TabId) }).toThrow('no session surface is mounted')
     expect(() => { controller.dock('pane1' as PaneId) }).toThrow('no session surface is mounted')
+  })
+
+  it('publishes the on-screen Session only when it changes', () => {
+    const h = harness()
+    const seen: (string | undefined)[] = []
+    const unsubscribe = h.controller.mounted.subscribe(() => { seen.push(h.controller.mounted.getSnapshot()) })
+    try {
+      expect(h.controller.mounted.getSnapshot()).toBeUndefined()
+      h.show(SESSION)
+      expect(h.controller.mounted.getSnapshot()).toBe(SESSION)
+      // Naming the same Session again, and the Session's own store commits, are silent.
+      h.show(SESSION)
+      h.expand()
+      expect(seen).toEqual([SESSION])
+      h.show(undefined)
+      expect(h.controller.mounted.getSnapshot()).toBeUndefined()
+      expect(seen).toEqual([SESSION, undefined])
+    } finally { unsubscribe() }
   })
 
   it('refuses an address no registered type claims, before touching the surface', () => {
@@ -103,7 +143,7 @@ describe('SidebarRightController — opening', () => {
   it('opens claimed content and reveals the column in one history entry', () => {
     const { controller, publish, layout, titles, entries } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
     expect(layout().expanded).toBe(true)
     expect(titles()).toContain('readme.txt')
     // One intent, one entry: stepping back removes the tab and re-collapses.
@@ -117,24 +157,24 @@ describe('SidebarRightController — opening', () => {
   it('focuses the tab already showing the same (kind, contentId) instead of opening a second one', () => {
     const { controller, publish, titles, layout, tabOf } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
     publish()
     controller.openTab('guide')
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
     expect(titles().filter(title => title === 'readme.txt')).toHaveLength(1)
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('readme.txt'))
   })
 
   it('opens another tab for the same address when told not to reveal, and when another kind is named', () => {
     const { controller, tabs, publish, titles } = harness()
-    tabs.register({ id: 'test/hex', kind: 'hex', patterns: [], label: () => 'Hex', title: () => 'hex view' })
+    tabs.register({ id: 'test/hex', kind: 'hex', patterns: [], title: () => 'hex view' })
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt')
+    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt')
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt', { revealIfOpened: false })
+    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt', { revealIfOpened: false })
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/readme.txt', { kind: 'hex' })
+    controller.openResource('dsh-resource://file/session/s-test/notes/readme.txt', { kind: 'hex' })
     expect(titles().filter(title => title === 'readme.txt')).toHaveLength(2)
     expect(titles()).toContain('hex view')
   })
@@ -147,7 +187,7 @@ describe('SidebarRightController — opening', () => {
     publish()
     const [left, right] = Object.values(layout().nodes).filter(node => node.kind === 'pane').map(node => node.id)
     if (left === undefined || right === undefined) throw new Error('expected two panes')
-    controller.openResource('qilin-resource://file/session/s-test/a.txt', { paneId: left })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt', { paneId: left })
     expect(findTabPane(layout(), tabOf('a.txt')).id).toBe(left)
   })
 
@@ -156,7 +196,7 @@ describe('SidebarRightController — opening', () => {
     expand()
     publish()
     const before = entries()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt', { preferNewPane: true })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt', { preferNewPane: true })
     const a = tabOf('a.txt')
     const pane = findTabPane(layout(), a)
     expect(dockPaneIds(layout())).toHaveLength(2)
@@ -164,7 +204,7 @@ describe('SidebarRightController — opening', () => {
     expect(entries()).toBe(before + 1)
 
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/b.txt', { preferNewPane: true })
+    controller.openResource('dsh-resource://file/session/s-test/b.txt', { preferNewPane: true })
     expect(dockPaneIds(layout())).toHaveLength(2)
     expect(findTabPane(layout(), tabOf('b.txt')).id).toBe(pane.id)
   })
@@ -174,12 +214,12 @@ describe('SidebarRightController — opening', () => {
     expand()
     publish()
     room.allowed = false
-    controller.openResource('qilin-resource://file/session/s-test/a.txt', { preferNewPane: true })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt', { preferNewPane: true })
     expect(dockPaneIds(layout())).toHaveLength(1)
     publish()
 
     room.allowed = true
-    controller.openResource('qilin-resource://file/session/s-test/a.txt', { preferNewPane: true })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt', { preferNewPane: true })
     expect(dockPaneIds(layout())).toHaveLength(1)
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('a.txt'))
   })
@@ -187,13 +227,13 @@ describe('SidebarRightController — opening', () => {
   it('takes the replaced tab\'s pane and slot, closes it, and records one entry', () => {
     const { controller, publish, layout, tabOf, entries } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/b.txt')
+    controller.openResource('dsh-resource://file/session/s-test/b.txt')
     publish()
     const a = tabOf('a.txt')
     const before = entries()
-    controller.openResource('qilin-resource://file/session/s-test/c.txt', { replaceTab: a })
+    controller.openResource('dsh-resource://file/session/s-test/c.txt', { replaceTab: a })
     const pane = findTabPane(layout(), tabOf('c.txt'))
     // a took slot 0 of the lazily-seeded (still empty) surface; c took a's slot.
     expect(pane.tabs.indexOf(tabOf('c.txt'))).toBe(0)
@@ -208,12 +248,12 @@ describe('SidebarRightController — opening', () => {
   it('still closes the replaced tab when the address is already open elsewhere', () => {
     const { controller, publish, layout, tabOf, titles } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/b.txt')
+    controller.openResource('dsh-resource://file/session/s-test/b.txt')
     publish()
     const spare = tabOf('b.txt')
-    controller.openResource('qilin-resource://file/session/s-test/a.txt', { replaceTab: spare })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt', { replaceTab: spare })
     expect(layout().tabs[spare]).toBeUndefined()
     expect(titles().filter(title => title === 'a.txt')).toHaveLength(1)
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('a.txt'))
@@ -224,7 +264,7 @@ describe('SidebarRightController — opening', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     const before = entries()
     instance.actions.duplicateTab(SESSION, tabOf('seed'))
@@ -240,7 +280,7 @@ describe('SidebarRightController — opening', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     controller.openTab('guide')
     expect(Object.values(layout().tabs).filter(tab => tab.contentId === 'sidebar://guide')).toHaveLength(1)
@@ -252,7 +292,7 @@ describe('SidebarRightController — opening', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     const root = getPane(layout(), layout().rootId).id
     let settled: TabId | undefined
@@ -311,18 +351,18 @@ describe('SidebarRightController — opening', () => {
   it('records the navigation in the Tab domain: params delivered, revision counting every open', () => {
     const { controller, publish, tabOf } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt', { params: { line: 3 } })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt', { params: { line: 3 } })
     const occurrence = controller.tabDomain.occurrence(SESSION, { id: tabOf('a.txt') })
-    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'qilin-resource://file/session/s-test/a.txt', params: { line: 3 }, revision: 1 })
+    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-test/a.txt', params: { line: 3 }, revision: 1 })
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
-    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'qilin-resource://file/session/s-test/a.txt', params: undefined, revision: 2 })
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
+    expect(occurrence.navigation.getSnapshot()).toEqual({ address: 'dsh-resource://file/session/s-test/a.txt', params: undefined, revision: 2 })
   })
 
   it('closes a tab of the mounted session', () => {
     const { controller, publish, tabOf, titles } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     controller.close(tabOf('a.txt'))
     expect(titles()).not.toContain('a.txt')
@@ -342,14 +382,14 @@ describe('SidebarRightController — opening', () => {
 })
 
 describe('SidebarRightController — the two opens', () => {
-  it('refuses an address outside qilin-resource:// on the same path as an unclaimed one', () => {
+  it('refuses an address outside dsh-resource:// on the same path as an unclaimed one', () => {
     const { controller, instance, publish, entries } = harness()
     instance.actions.open(SESSION)
     publish()
     const before = entries()
     expect(() => { controller.openResource('sidebar://guide') }).toThrow('no registered tab type claims')
     expect(() => { controller.openResource('https://example.com/a.txt') }).toThrow('no registered tab type claims')
-    expect(() => { controller.openResource('qilin-resource://unknown/x') }).toThrow('no registered tab type claims')
+    expect(() => { controller.openResource('dsh-resource://unknown/x') }).toThrow('no registered tab type claims')
     expect(entries()).toBe(before)
   })
 
@@ -357,7 +397,7 @@ describe('SidebarRightController — the two opens', () => {
     const { controller, instance, publish, layout, entries } = harness()
     instance.actions.open(SESSION)
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     // No pane holds the page yet: opening it by kind opens its tab.
     controller.openTab('guide')
@@ -374,7 +414,7 @@ describe('SidebarRightController — the two opens', () => {
     instance.actions.open(SESSION)
     expand()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     const before = entries()
     controller.openTab('guide', { replaceTab: tabOf('a.txt') })
@@ -388,7 +428,7 @@ describe('SidebarRightController — layout operations', () => {
     const { controller, publish, layout, tabOf, entries, expand } = harness()
     expand()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     expect(getPane(layout(), layout().activePaneId).activeTabId).toBe(tabOf('a.txt'))
     const before = entries()
@@ -439,7 +479,7 @@ describe('SidebarRightController — layout operations', () => {
   it('floats a docked tab, and leaves a floating or missing tab alone', () => {
     const { controller, publish, layout, tabOf, entries } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     controller.float(tabOf('a.txt'), { x: 10, y: 20, width: 300, height: 200 })
     expect(layout().floats).toHaveLength(1)
@@ -455,7 +495,7 @@ describe('SidebarRightController — layout operations', () => {
   it('docks a floating panel back into the active docked pane, and leaves a docked or missing pane alone', () => {
     const { controller, publish, layout, tabOf, entries } = harness()
     publish()
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
     controller.float(tabOf('a.txt'))
     publish()
@@ -474,28 +514,18 @@ describe('SidebarRightController — layout operations', () => {
 
 describe('SidebarRightController — a tab\'s own actions', () => {
   const OTHER = 's-other' as SessionId
-  const A_TXT = 'qilin-resource://file/session/s-test/a.txt'
-  const B_TXT = 'qilin-resource://file/session/s-test/b.txt'
+  const A_TXT = 'dsh-resource://file/session/s-test/a.txt'
+  const B_TXT = 'dsh-resource://file/session/s-test/b.txt'
 
   it('opens into an adopted store before that store has created its session surface', () => {
-    const { controller, adopt, instance, titles } = harness()
-    const releaseOwn = adopt(SESSION, instance)
-    const other = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create(OTHER)
-    const releaseBinding = controller.bind({
-      sessionId: OTHER,
-      actions: other.actions,
-      surfaces: other.getSnapshot().bySession,
-      canSplitPane: () => true,
-    })
+    const { controller, show, titles } = harness()
+    show(OTHER)
     controller.openResourceIn(SESSION, A_TXT)
     expect(titles()).toContain('a.txt')
-    releaseBinding()
-    releaseOwn()
   })
 
-  it('land in the session the tab is in through its own adopted store, after another session\'s seat took over', () => {
-    const { controller, adopt, instance, publish, layout, expand } = harness()
-    const releaseOwn = adopt(SESSION, instance)
+  it('land in the session the tab is in through its own adopted store, after another session came on screen', () => {
+    const { controller, adopt, show, publish, layout, expand } = harness()
     expand()
     publish()
     controller.openResource(A_TXT)
@@ -504,7 +534,7 @@ describe('SidebarRightController — a tab\'s own actions', () => {
     if (own === undefined || guide === undefined) throw new Error('expected the opened tab and the seeded guide')
     const fromOwn = controller.tabDomain.occurrence(SESSION, own).tabActions
     const guideOccurrence = controller.tabDomain.occurrence(SESSION, guide)
-    // The user switches sessions: the other seat binds with the other session's
+    // The user switches sessions: the other Session comes on screen with its
     // own instance, whose store knows nothing of this session.
     const other = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create(OTHER)
     const releaseOther = adopt(OTHER, other)
@@ -512,7 +542,7 @@ describe('SidebarRightController — a tab\'s own actions', () => {
     other.actions.setExpanded(OTHER, true)
     const otherSurface = other.getSnapshot().bySession[OTHER]
     if (otherSurface === undefined) throw new Error('expected the other surface')
-    controller.bind({ sessionId: OTHER, actions: other.actions, surfaces: other.getSnapshot().bySession, canSplitPane: () => true })
+    show(OTHER)
     fromOwn.openResource(B_TXT)
     fromOwn.openTab('guide', { revealIfOpened: false })
     expect(Object.values(layout().tabs).map(tab => tab.title)).toContain('b.txt')
@@ -527,17 +557,17 @@ describe('SidebarRightController — a tab\'s own actions', () => {
     expect(other.getSnapshot().bySession[OTHER]).toBe(otherSurface)
     expect(controller.active()?.kind).toBe('guide')
     releaseOther()
-    releaseOwn()
   })
 
   it('do nothing for a session whose store is not adopted, and again once its adoption is released', () => {
-    const { controller, adopt, instance, publish, layout, titles } = harness()
+    const { controller, adopt, unadopt, instance, publish, layout, titles } = harness()
     publish()
     controller.openResource(A_TXT)
-    publish()
     const own = Object.values(layout().tabs).find(tab => tab.title === 'a.txt')
     if (own === undefined) throw new Error('expected the opened tab')
     const { tabActions } = controller.tabDomain.occurrence(SESSION, own)
+    // The runtime disposed the Session's store generation.
+    unadopt()
     const before = instance.getSnapshot().bySession
     tabActions.openResource(B_TXT)
     tabActions.openTab('guide')
@@ -555,8 +585,8 @@ describe('SidebarRightController — a tab\'s own actions', () => {
   it('adoption syncs the Tab domain on each commit of that store: the seeded guide is pinned, a closed tab aborted', () => {
     const { controller, adopt, instance, pin } = harness()
     const first = adopt(SESSION, instance)
-    // An empty adopted surface has no resources to pin, and a commit that
-    // materializes another session leaves this session's occurrences alone.
+    // An empty adopted surface has no resources to pin; another Session's
+    // commits do not populate it.
     instance.actions.open(OTHER)
     expect(pin).not.toHaveBeenCalled()
     instance.actions.setExpanded(SESSION, true)
@@ -584,28 +614,13 @@ describe('SidebarRightController — a tab\'s own actions', () => {
     const replacement = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create()
     const third = adopt(SESSION, replacement)
     const pins = pin.mock.calls.length
-    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'qilin-resource://file/session/s-test/c.txt', title: 'c' }, () => {})
+    instance.actions.openContent(SESSION, { kind: 'text', contentId: 'dsh-resource://file/session/s-test/c.txt', title: 'c' }, () => {})
     expect(pin.mock.calls.length).toBe(pins)
     expect(held.signal.aborted).toBe(false)
     replacement.actions.open(SESSION)
     expect(held.signal.aborted).toBe(true)
     second()
     third()
-  })
-
-  it('adopts a store whose surface is already committed — the rehydration shape — and reconciles it at adoption', () => {
-    const { controller, adopt, instance, pin } = harness()
-    // Persistence rehydrates the store before any subscriber exists: the commits
-    // that produced the surface are gone by the time adoption subscribes, so
-    // adoption itself must reconcile, or the seat renders unreconciled tabs.
-    instance.actions.setExpanded(SESSION, true)
-    instance.actions.openContent(SESSION, { kind: 'text', contentId: A_TXT, title: 'a' }, () => {})
-    const surface = instance.getSnapshot().bySession[SESSION]
-    const tab = Object.values(surface?.layout.tabs ?? {}).find(record => record.contentId === A_TXT)
-    if (tab === undefined) throw new Error('expected the restored tab')
-    adopt(SESSION, instance)
-    const occurrence = controller.tabDomain.occurrence(SESSION, tab)
-    expect(pin).toHaveBeenCalledWith(A_TXT, occurrence.signal)
   })
 })
 
@@ -622,24 +637,23 @@ describe('SidebarRightController — the readable slice', () => {
     controller.toggleExpanded()
     publish()
     expect(controller.isExpanded()).toBe(true)
-    controller.openResource('qilin-resource://file/session/s-test/a.txt')
+    controller.openResource('dsh-resource://file/session/s-test/a.txt')
     publish()
-    expect(Object.values(layout().tabs).filter(tab => tab.contentId === 'qilin-resource://file/session/s-test/a.txt')).toHaveLength(1)
-    expect(controller.active()?.contentId).toBe('qilin-resource://file/session/s-test/a.txt')
+    expect(Object.values(layout().tabs).filter(tab => tab.contentId === 'dsh-resource://file/session/s-test/a.txt')).toHaveLength(1)
+    expect(controller.active()?.contentId).toBe('dsh-resource://file/session/s-test/a.txt')
   })
 })
 
-describe('SidebarRightController — binding lifetime', () => {
-  it('acts on the newest binding when a seat republishes', () => {
+describe('SidebarRightController — the on-screen Session', () => {
+  it('acts on the on-screen Session through its adopted store', () => {
     const { controller, publish, layout } = harness()
     publish()
     controller.toggleExpanded()
-    publish()
     expect(controller.isExpanded()).toBe(true)
     expect(layout().expanded).toBe(true)
   })
 
-  it('goes back to refusing writes once the seat releases', () => {
+  it('goes back to refusing writes once no Session is on screen', () => {
     const { controller, publish } = harness()
     const release = publish()
     release()
@@ -647,131 +661,105 @@ describe('SidebarRightController — binding lifetime', () => {
     expect(controller.isExpanded()).toBe(false)
   })
 
-  it('a stale release does not clear a newer binding', () => {
-    const { controller, publish } = harness()
-    const stale = publish()
-    publish()
-    stale()
-    expect(() => { controller.toggleExpanded() }).not.toThrow()
+  it('refuses writes for an on-screen Session whose store the runtime has not minted', () => {
+    const { controller, show } = harness()
+    show('s-unminted' as SessionId)
+    expect(() => { controller.openResource('dsh-resource://file/session/s-test/a.txt') }).toThrow('no session surface is mounted')
+    expect(controller.active()).toBeUndefined()
+  })
+
+  it('treats panes its seat has not measured as having room', () => {
+    const { controller, show, instance, layout, expand } = harness()
+    instance.actions.open(SESSION)
+    expand()
+    show(SESSION)
+    expect(controller.split()).toBeDefined()
+    expect(dockPaneIds(layout())).toHaveLength(2)
   })
 })
 
-describe('SidebarRightController — opening a file by the session it belongs to', () => {
-  it('opens it at that session\'s own address through that session\'s store, with no seat mounted', () => {
-    const { controller, adopt, instance, pin } = harness()
-    const release = adopt(SESSION, instance)
-    // No seat is bound at all: `openFile` names the session it opens in.
-    controller.openFile(SESSION, 'notes/readme.txt')
-
-    const surface = instance.getSnapshot().bySession[SESSION]
-    if (surface === undefined) throw new Error('expected a surface')
-    const [tab] = Object.values(surface.layout.tabs)
-    expect(tab?.contentId).toBe('qilin-resource://file/session/s-test/notes/readme.txt')
-    expect(tab?.title).toBe('readme.txt')
-    expect(surface.layout.expanded).toBe(true)
-    // The commit reached the Tab domain through the adoption, so the address is held.
-    expect(pin).toHaveBeenCalledWith('qilin-resource://file/session/s-test/notes/readme.txt', expect.any(AbortSignal))
-    release()
-
-    // A session whose store was never adopted has nothing to open into.
-    const before = instance.getSnapshot()
-    controller.openFile(SESSION, 'notes/other.txt')
-    expect(instance.getSnapshot()).toBe(before)
-  })
-})
-
-describe('SidebarRightController — opening into another session', () => {
-  const OTHER = 's-other' as SessionId
-  const A_TXT = 'qilin-resource://file/session/s-test/a.txt'
-
-  /** The mounted session plus a second session with its own adopted store already materialized. */
-  function twoSessions() {
+describe('explicit tab resource cleanup', () => {
+  it.each(['close', 'replace'] as const)('immediately removes the tab after a synchronous cleanup handler during %s', (operation) => {
     const h = harness()
-    const other = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create(OTHER)
-    h.adopt(OTHER, other)
-    other.actions.open(OTHER)
-    h.publish()
-    const otherSurface = (): SurfaceState => {
-      const surface = other.getSnapshot().bySession[OTHER]
-      if (surface === undefined) throw new Error('expected the other session\'s surface')
-      return surface
+    const release = h.adopt(SESSION, h.instance)
+    const unbind = h.publish()
+    h.controller.openResource('dsh-resource://file/session/s-test/terminal')
+    const tabId = h.tabOf('terminal')
+    const original = h.layout().tabs[tabId]
+    const handler = vi.fn(() => { expect(h.layout().tabs[tabId]).toBe(original) })
+    const unregister = h.controller.registerCloseHandler('text', handler)
+    try {
+      const before = h.entries()
+      if (operation === 'close') h.controller.close(tabId)
+      else h.controller.openTab('guide', { replaceTab: tabId, revealIfOpened: false })
+      expect(handler).toHaveBeenCalledExactlyOnceWith(SESSION, original)
+      expect(h.layout().tabs[tabId]).toBeUndefined()
+      expect(h.entries()).toBe(before + 1)
+      h.controller.closeIn(SESSION, tabId)
+      expect(handler).toHaveBeenCalledOnce()
+    } finally {
+      unregister()
+      unbind()
+      release()
     }
-    return { ...h, otherSurface }
-  }
-
-  it('lands a scoped resource in that session\'s store and leaves the mounted session\'s surface alone', () => {
-    const { controller, instance, otherSurface } = twoSessions()
-    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
-
-    controller.openResource(A_TXT, { scope: OTHER })
-
-    const surface = otherSurface()
-    expect(Object.values(surface.layout.tabs).map(tab => tab.contentId)).toEqual([A_TXT])
-    expect(surface.layout.expanded).toBe(true)
-    // The session on screen was not touched by an open that belongs elsewhere.
-    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
   })
 
-  it('lands a scoped page in that session\'s store, at the address pages are recorded under', () => {
-    const { controller, instance, otherSurface } = twoSessions()
-
-    controller.openTab('guide', { scope: OTHER })
-
-    const surface = otherSurface()
-    expect(Object.values(surface.layout.tabs).map(tab => tab.contentId)).toEqual(['sidebar://guide'])
-    expect(surface.layout.expanded).toBe(true)
-    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
+  it('does not invoke cleanup on collapse or when revealing the same tab', () => {
+    const h = harness()
+    h.adopt(SESSION, h.instance)
+    h.publish()
+    const address = 'dsh-resource://file/session/s-test/terminal'
+    h.controller.openResource(address)
+    h.publish()
+    const tabId = h.tabOf('terminal')
+    const handler = vi.fn()
+    h.controller.registerCloseHandler('text', handler)
+    h.controller.toggleExpanded()
+    h.controller.openResource(address, { replaceTab: tabId })
+    expect(handler).not.toHaveBeenCalled()
+    expect(h.layout().tabs[tabId]).toBeDefined()
   })
 
-  it('opens nothing into a session whose store was never adopted', () => {
-    const { controller, instance, otherSurface } = twoSessions()
-    const before = instance.getSnapshot()
-
-    controller.openResource(A_TXT, { scope: 's-never' as SessionId })
-
-    expect(Object.values(otherSurface().layout.tabs)).toEqual([])
-    expect(instance.getSnapshot()).toBe(before)
-  })
-})
-
-describe('SidebarRightController — types the user turned off', () => {
-  const A_TXT = 'qilin-resource://file/session/s-test/a.txt'
-
-  it('opens nothing for a turned-off type, while a kind nothing registered still refuses the call', () => {
-    const { controller, tabs, instance, publish, entries } = harness()
-    publish()
-
-    tabs.setEnabled('test/text', false)
-    controller.openResource(A_TXT)
-
-    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
-    expect(entries()).toBe(0)
-
-    tabs.setEnabled(GUIDE_ID, false)
-    controller.openTab('guide')
-
-    expect(instance.getSnapshot().bySession[SESSION]).toBeUndefined()
-    expect(entries()).toBe(0)
-
-    // The switches say nothing about a kind that was never registered.
-    expect(() => { controller.openTab('nope') }).toThrow('no tab type is registered as "nope"')
-    expect(entries()).toBe(0)
-
-    // Switched back on, the same call opens as it did before.
-    tabs.setEnabled('test/text', true)
-    controller.openResource(A_TXT)
-    expect(entries()).toBe(1)
+  it.each(['close', 'replace'] as const)('preserves a tab when its synchronous %s handler throws', (operation) => {
+    const h = harness()
+    h.adopt(SESSION, h.instance)
+    h.publish()
+    h.controller.openResource('dsh-resource://file/session/s-test/terminal')
+    const tabId = h.tabOf('terminal')
+    const release = h.controller.registerCloseHandler('text', () => { throw new Error('cannot retain cleanup') })
+    const perform = () => {
+      if (operation === 'close') h.controller.closeIn(SESSION, tabId)
+      else h.controller.openTab('guide', { replaceTab: tabId, revealIfOpened: false })
+    }
+    expect(perform).toThrow('cannot retain cleanup')
+    expect(h.layout().tabs[tabId]).toBeDefined()
+    release()
+    perform()
+    expect(h.layout().tabs[tabId]).toBeUndefined()
   })
 })
 
-describe('SidebarRightController — the outward promise list', () => {
-  /** The capabilities the rest of this build implements; a consumer gates new API use on membership. */
-  const IMPLEMENTED: readonly SidebarRightFeature[] = [
-    'tabIcon', 'tabBadge', 'tabSettings', 'singleInstance', 'openFile', 'targetedOpen', 'layoutPersistence',
-  ]
-
-  it('promises every capability this build implements, so a type can gate on membership', () => {
-    const { controller } = harness()
-    expect(controller.features).toEqual(expect.arrayContaining([...IMPLEMENTED]))
-  })
+it('releases close handlers without a stale disposer removing a replacement', () => {
+  const h = harness()
+  h.adopt(SESSION, h.instance)
+  h.publish()
+  const first = vi.fn(() => {})
+  const second = vi.fn(() => {})
+  const release = h.controller.registerCloseHandler('text', first)
+  expect(() => h.controller.registerCloseHandler('text', second)).toThrow('already registered')
+  release()
+  const releaseSecond = h.controller.registerCloseHandler('text', second)
+  release()
+  h.controller.openResource('dsh-resource://file/session/s-test/one')
+  h.publish()
+  h.controller.closeIn(SESSION, h.tabOf('one'))
+  expect(first).not.toHaveBeenCalled()
+  expect(second).toHaveBeenCalledOnce()
+  releaseSecond()
+  h.controller.openResource('dsh-resource://file/session/s-test/two')
+  h.publish()
+  const tabId = h.tabOf('two')
+  h.controller.openTab('guide', { replaceTab: tabId, revealIfOpened: false })
+  expect(h.layout().tabs[tabId]).toBeUndefined()
+  expect(second).toHaveBeenCalledOnce()
 })

@@ -1,9 +1,0 @@
-feat(B5-2b/B6): open-in-app 文件页注入、插件管理文案精简、目录生成物与文档门禁批量复位
-
-- ui-open-in-app：OpenInAppAction 增可选 absolutePath（文件树直传目录，会话头路径不变）；注册 sidebar.right.tab.files.actions 动作（ QiLin 组件为可选 prop 适配，无需上游 Session 包装器）；tsconfig 增 ui-sidebar-files 引用
-- ui-plugin-manager：安装引导精简为 npm 包名单项（删 git/path 引导双语 6 键）、新增 installUpgradeNotice/sentenceSeparator、installProblemInstalled 升级指引与 installProblemShipped（随 QiLin 提供）、reasonIncompatible 拆分 Install/Installed；InstallInputError.problem 联合扩展 'shipped'（已装/内置分支区分）；spec 对位
-- 生成物：gen-client-catalog/gen-kylin-catalog/gen-kylin-api/gen-kylin-inspect-catalog/gen-tool-catalog/gen-config-catalog/gen-doc-graphs/gen-plugin-packages/gen-persistence-catalog 全部重跑（目录登记新类型 ToolCallId/TimedUserQuestionResult/userQuestionPanels；SERVICE_WALK_EXEMPTIONS 补 userQuestionPanels）；清理 1347 个未跟踪 src 编译产物（生成器因 slots.d.ts 重复声明而失败）
-- 文档门禁复位：config-catalog 死链（ui-brand-official 遗留行）随重生成消除；tool-catalog.i18n 配对重录；typert.md/zh 的 TypertGateway type-equiv 块补 hasLiveClient；verify-package-readme-model-experience 清除指向已删包的豁免行；计划文档裸 hash 全部改写（repository-references 复位）；移植 docs/persistence-changes/2026-09-21-user-question-reply 三件套
-- 遗留（owner-gated，见计划文档）：verify-persistence-changes 的 SessionHeader 摘要失配（基线亦红——v4 记录对当前源摘要漂移，需以记录工具对 B4 全表面重算并可能补 SessionHeader same-version 条目）；ui-chat builder 增量子系统；tile 圆角装饰批；sidebar-right/PlanCard 架构重写经评估不移植（QiLin 为本地分叉架构，上游修复无对应缺陷面）
-
-验证：typecheck 双面绿；本轮涉及包规格全绿（ui-open-in-app/ui-plugin-manager 171+131）；doc-sync 除上列遗留外全绿
