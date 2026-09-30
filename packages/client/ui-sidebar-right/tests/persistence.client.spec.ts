@@ -59,7 +59,7 @@ it('pins restored records during adoption before the first render or store mutat
   storage()
   const first = createSidebarRightStore(seed).create(sessionId)
   let file!: TabId
-  const address = 'dsh-resource://file/session/first/a.txt'
+  const address = 'qilin-resource://file/session/first/a.txt'
   first.actions.openContent(sessionId, { kind: 'text', contentId: address, title: 'a' }, (id) => { file = id })
   const ctx = new Context()
   const pin = vi.fn()

@@ -12,7 +12,7 @@ import { TabDomain, type TabOccurrence } from '../src/client/tab-domain.ts'
 import { tabInfoFactory, type TabHookContext } from '../src/client/tab-info.ts'
 
 const SESSION = 's-info' as SessionId
-const ADDRESS = 'dsh-resource://file/session/s-info/a.txt'
+const ADDRESS = 'qilin-resource://file/session/s-info/a.txt'
 const domains: TabDomain[] = []
 
 afterEach(() => {
