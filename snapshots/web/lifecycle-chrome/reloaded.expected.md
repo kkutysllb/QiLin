@@ -7,8 +7,8 @@
 - text: Reply with the single word LIGHTHOUSE and stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}"
+- status: Completed
+- button "Completed in {{duration}}"
 - paragraph: LIGHTHOUSE
 - button "Copy"
 - button "Good response"

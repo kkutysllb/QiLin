@@ -6,8 +6,8 @@
 - text: Load the editing-cordis-compositions skill with the skill tool, then reply DONE. {{date}} {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [expanded]
+- status: Completed
+- button "Completed in {{duration}}" [expanded]
 - button "Context injection runtime-context"
 - button "Context injection skill-catalog"
 - button "Called tools" [expanded]

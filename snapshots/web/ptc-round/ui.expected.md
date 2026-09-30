@@ -7,10 +7,9 @@
 - text: "Using ONE run_code program: run bash `echo CODE_ROUND_OK`, then read the file missing.txt catching its error in the program. Return an object with both outcomes. Then reply DONE and stop. {{clock}}"
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [expanded]
+- status: Completed
+- button "Completed in {{duration}}" [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - button "Ran code, ran commands, read files" [expanded]
 - 'button "Think The user wants me to write a single `run_code` program that:"'
 - button "Code Run bash echo and catch missing file read"
@@ -21,8 +20,6 @@
 - button "Inspect"
 - text: Failed
 - 'button "Read Error: cannot read \"{{cwd}}/workspace/missing.txt\": not found"'
-- button "Context injection time-context"
-- button "Analysis completed" [expanded]
 - button "Think The program ran successfully. Let me now reply DONE as instructed."
 - paragraph: DONE
 - button "Copy"

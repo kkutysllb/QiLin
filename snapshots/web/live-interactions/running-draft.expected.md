@@ -7,11 +7,10 @@
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: QiLin...
-- button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - paragraph: partial
+- status: QiLin...
+- text: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions":
   - paragraph: Queue this follow-up while the current turn is running.
 - button "Add files or run commands"

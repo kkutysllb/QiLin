@@ -9,7 +9,6 @@
     - button "Agent presets"
     - button "Archived sessions"
     - button "Skills"
-    - button "Sidebar"
     - button "About QiLin"
     - separator "Resize settings navigation"
   - button "Open configuration file"
@@ -24,22 +23,22 @@
   - button "Increase font size"
   - button "Decrease font size"
   - text: px Work details Choose how much tool-call detail to show
-  - button "Standard"
+  - button "Detailed"
   - text: Line spacing Adds or removes pixels from the default line height of message text; 0 is the default 0
   - button "Increase line spacing"
   - button "Decrease line spacing"
-  - text: px Performance & usage Choose how much performance and usage information to show
-  - button "Detailed"
-  - text: Message width How wide the message area is; you can also drag the handles on either side of it Adaptive
+  - text: px Message width How wide the message area is; you can also drag the handles on either side of it Adaptive
   - button "Set a custom message area width"
   - button "Narrow message area" [disabled]
+  - text: Show coding view Shows trajectory, code diffs, and all Agent presets
+  - switch "Show coding view" [checked]
   - text: Open chat links in Choose where web links from the conversation open
   - button "In-app sidebar"
-  - text: Coding Tools Shows trajectory, code diffs, and Agent preset switching in new chats
-  - switch "Coding Tools" [checked]
   - text: Keyboard shortcuts
   - paragraph: View and edit available shortcuts and input actions
   - button "Edit shortcuts"
   - text: Send behavior while busy What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior
   - button "Queue"
+  - text: Performance & usage Choose how much performance and usage information to show
+  - button "Detailed"
   - text: "Current version: {{version}}"

@@ -8,7 +8,6 @@
 - button "Copy"
 - button "Edit this message and resend"
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - status:
   - text: This turn failedAPI key is invalid
   - code: AUTH

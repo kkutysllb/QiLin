@@ -10,8 +10,8 @@
 - text: Read the attached file with the read tool, reply with exactly the single word it contains, and stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}"
+- status: Completed
+- button "Completed in {{duration}}"
 - paragraph: UPLOAD_ROUND_OK
 - button "Copy"
 - button "Good response"

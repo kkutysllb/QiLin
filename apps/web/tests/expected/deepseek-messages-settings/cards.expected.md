@@ -9,7 +9,6 @@
     - button "Agent 预设"
     - button "已归档会话"
     - button "技能"
-    - button "侧边栏"
     - button "关于 QiLin"
     - separator "调整设置导航宽度"
   - button "打开配置文件"

@@ -9,11 +9,10 @@
 - button "Continuing goal {{clock}}":
   - text: Continuing goal
   - time: {{clock}}
-- status: QiLin...
-- button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - paragraph: partial
+- status: QiLin...
+- text: QiLin...
 - region "To-dos":
   - button "To-dos 1 completed · 1 in progress"
 - text: Ongoing Goal Keep the composer context panels aligned

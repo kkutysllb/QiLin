@@ -49,7 +49,7 @@ Program-only SDK bindings:
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue }
 
 interface ToolArgsMap {
-  /** Ask the user a concise question when you need confirmation, a choice, or missing information before proceeding. Send one or more questions, each with a stable id that will be echoed in the answer. */
+  /** Ask the user a concise question when you need confirmation, a choice, or missing information before proceeding. */
   ask_user_question: {
     /** Questions to ask the user before continuing. */
     questions: ({
@@ -70,7 +70,7 @@ interface ToolArgsMap {
       multi_select?: boolean;
     } & Record<string, JsonValue>)[];
   } & Record<string, JsonValue>;
-  /** Execute a bash command (`bash -c`) and return its stdout/stderr. Each call runs in a fresh shell: no state (cwd, variables, functions) persists between calls — pass `workdir` instead of using `cd`. Non-zero exits are reported as `[exit code: N]`. Current harness environment facts are exposed through managed `$QILIN_*` variables; inspect them when needed. Commands may run under a file sandbox; a blocked file operation is reported as `[sandbox: file access denied under <mode> mode]` — a policy denial, not a bug in the command; do not retry another way. Long output is truncated to its tail; the full output is saved to a file whose path is reported when available. Set `run_in_background: true` for long-running commands: the call returns a job id immediately; read its output with `job_output` and stop it with `job_kill`. Attempting a command the sandbox may deny is safe and expected: run it and read the marker rather than assuming the denial. When a command is denied and a wider mode would let it succeed, escalate immediately in the same turn — the one sanctioned exception to a denial: retry the exact same command once with `sandbox_permissions` (the narrowest wider mode that suffices) plus a one-sentence `justification`. Do not detour through chat to ask permission first — the approval prompt raised by that retry is how the user consents. If the session states approval prompts are disabled, there is no exception: a denial is final — do not set `sandbox_permissions`. Never escalate speculatively: ground the request in a real denial — normally the one this command just hit; escalating up front is fine only when this session already denied the same access. A rejected escalation is final for that command — stop and explain, never work around it — but it does not forbid attempting or escalating other commands later. */
+  /** Execute a bash command (`bash -c`) and return its stdout/stderr. Each call runs in a fresh shell: no state (cwd, variables, functions) persists between calls — pass `workdir` instead of using `cd`. Non-zero exits are reported as `[exit code: N]`. Current harness environment facts are exposed through managed `$QILIN_*` variables; inspect them when needed. Commands may run under a file sandbox; a blocked file operation is reported as `[sandbox: file access denied under <mode> mode]` — a policy denial, not a bug in the command; do not retry another way. Long output is truncated to its tail; the full output is saved to a file whose path is reported when available. Before any delete or move, verify that the resolved absolute target path is the intended one; never run it against a computed path you have not checked. An unset variable expands to an empty string, so guard variables in such paths with `${VAR:?}`. Set `run_in_background: true` for long-running commands: the call returns a job id immediately; read its output with `job_output` and stop it with `job_kill`. Attempting a command the sandbox may deny is safe and expected: run it and read the marker rather than assuming the denial. When a command is denied and a wider mode would let it succeed, escalate immediately in the same turn — the one sanctioned exception to a denial: retry the exact same command once with `sandbox_permissions` (the narrowest wider mode that suffices) plus a one-sentence `justification`. Do not detour through chat to ask permission first — the approval prompt raised by that retry is how the user consents. If the session states approval prompts are disabled, there is no exception: a denial is final — do not set `sandbox_permissions`. Never escalate speculatively: ground the request in a real denial — normally the one this command just hit; escalating up front is fine only when this session already denied the same access. A rejected escalation is final for that command — stop and explain, never work around it — but it does not forbid attempting or escalating other commands later. */
   bash: {
     /** The bash command to execute. */
     command: string;
@@ -106,7 +106,7 @@ interface ToolArgsMap {
     replace_all?: boolean;
     /** The wider sandbox mode this file operation needs. Only valid as a one-shot retry of an operation the sandbox just denied; requires justification and user approval. */
     sandbox_permissions?: "workspace-write" | "danger-full-access";
-    /** Required with sandbox_permissions: one sentence for the user explaining why this exact file operation needs the wider access.. Use the language of the user’s current request. */
+    /** Required with sandbox_permissions: one sentence for the user explaining why this exact file operation needs the wider access. Use the language of the user’s current request. */
     justification?: string;
   } & Record<string, JsonValue>;
   /** Use only in plan mode. Present your plan for the user's review and, on approval, leave plan mode. Send the COMPLETE plan as markdown, starting with a # heading that names it. The user may approve (carry out the plan from your next step) or keep planning — their feedback comes back in the tool result; revise and present again. */
@@ -183,93 +183,6 @@ interface ToolArgsMap {
     /** Path to the image file, resolved by the filesystem backend. */
     file_path: string;
   } & Record<string, JsonValue>;
-  /** Create a reminder in the current session that delivers prompt when it becomes due. Supply exactly one timing parameter: after_seconds, at, every_seconds, daily, weekly, or cron. Local times that do not exist in the zone are skipped; repeated local times fire once, at the earlier instant. After downtime, a recurring reminder delivers only its latest missed occurrence. Delivery can repeat after a crash. */
-  schedule_create: {
-    /** Reminder content to present when the target becomes due. */
-    prompt: string;
-    /** Task name of at most 120 characters, shown on the task card and in task lists. */
-    title: string;
-    /** Delay in whole seconds. */
-    after_seconds?: number;
-    /** Fixed-rate interval in whole seconds, at least 60, aligned to the creation time; changing it with schedule_update re-aligns it to the save time. */
-    every_seconds?: number;
-    /** Every day at a local time. */
-    daily?: {
-      /** HH:mm:ss with optional 1-3 fractional digits, for example 23:00:00. */
-      time: string;
-      /** UTC or IANA Area/Location, for example Asia/Shanghai. */
-      time_zone: string;
-    };
-    /** On the given weekdays at a local time. */
-    weekly?: {
-      /** HH:mm:ss with optional 1-3 fractional digits, for example 09:00:00. */
-      time: string;
-      /** UTC or IANA Area/Location, for example Asia/Shanghai. */
-      time_zone: string;
-      /** ISO weekdays, Monday 1 through Sunday 7, without repetitions. */
-      weekdays: number[];
-    };
-    /** Five-field Vixie cron expression in a time zone. */
-    cron?: {
-      /** minute hour day-of-month month day-of-week, for example "*\/15 9-17 * * 1-5". When both day fields are restricted, a date matches if either one matches. */
-      expression: string;
-      /** UTC or IANA Area/Location, for example Asia/Shanghai. */
-      time_zone: string;
-    };
-    /** Absolute target: an RFC 3339 date-time with offset, or a local date, time, and IANA time_zone. */
-    at?: string | {
-      date: string;
-      time: string;
-      time_zone: string;
-    };
-  } & Record<string, JsonValue>;
-  /** Delete a reminder in the current session, active or inactive. Deletion does not retract a reminder message that is already queued. */
-  schedule_delete: {
-    /** Schedule id returned by schedule_list. */
-    id: string;
-  } & Record<string, JsonValue>;
-  /** List the active reminders in the current session. */
-  schedule_list: Record<string, JsonValue>;
-  /** Change a reminder in place, keeping its id. Supply a new title, prompt, or at most one timing parameter; omitted fields keep their stored values. To change a relative delay, create a new reminder. */
-  schedule_update: {
-    /** Schedule id returned by schedule_list. */
-    id: string;
-    /** New task name of at most 120 characters. */
-    title?: string;
-    /** New reminder content. */
-    prompt?: string;
-    /** Fixed-rate interval in whole seconds, at least 60, aligned to the creation time; changing it with schedule_update re-aligns it to the save time. */
-    every_seconds?: number;
-    /** Every day at a local time. */
-    daily?: {
-      /** HH:mm:ss with optional 1-3 fractional digits, for example 23:00:00. */
-      time: string;
-      /** UTC or IANA Area/Location, for example Asia/Shanghai. */
-      time_zone: string;
-    };
-    /** On the given weekdays at a local time. */
-    weekly?: {
-      /** HH:mm:ss with optional 1-3 fractional digits, for example 09:00:00. */
-      time: string;
-      /** UTC or IANA Area/Location, for example Asia/Shanghai. */
-      time_zone: string;
-      /** ISO weekdays, Monday 1 through Sunday 7, without repetitions. */
-      weekdays: number[];
-    };
-    /** Five-field Vixie cron expression in a time zone. */
-    cron?: {
-      /** minute hour day-of-month month day-of-week, for example "*\/15 9-17 * * 1-5". When both day fields are restricted, a date matches if either one matches. */
-      expression: string;
-      /** UTC or IANA Area/Location, for example Asia/Shanghai. */
-      time_zone: string;
-    };
-    /** Absolute target: an RFC 3339 date-time with offset, or a local date, time, and IANA time_zone. */
-    at?: string | {
-      date: string;
-      time: string;
-      time_zone: string;
-    };
-  } & Record<string, JsonValue>;
   /** Send a message to a direct continuable child by its agent id. If you are a resident continuable child, you may also target your direct parent. If the target is still working, the message steers its nearest step; if it is inactive, the message starts or resumes a turn. This call returns no answer from the agent — only confirmation that the message was delivered. A failure means the message was NOT delivered. */
   send_message: {
     /** The agent id of your direct continuable child, or your direct parent when you are a resident continuable child. */
@@ -343,7 +256,7 @@ interface ToolArgsMap {
     content: string;
     /** The wider sandbox mode this file operation needs. Only valid as a one-shot retry of an operation the sandbox just denied; requires justification and user approval. */
     sandbox_permissions?: "workspace-write" | "danger-full-access";
-    /** Required with sandbox_permissions: one sentence for the user explaining why this exact file operation needs the wider access.. Use the language of the user’s current request. */
+    /** Required with sandbox_permissions: one sentence for the user explaining why this exact file operation needs the wider access. Use the language of the user’s current request. */
     justification?: string;
   } & Record<string, JsonValue>;
 }
@@ -516,288 +429,6 @@ interface ToolOutputMap {
         height: number;
       };
     };
-  };
-  schedule_create: {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "after";
-    afterSeconds: number;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "at";
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "every";
-    everySeconds: number;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "daily";
-    time: string;
-    timeZone: string;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "weekly";
-    time: string;
-    timeZone: string;
-    weekdays: number[];
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "cron";
-    expression: string;
-    timeZone: string;
-  } | {
-    code: "invalid_prompt";
-    message: string;
-  } | {
-    code: "invalid_selector";
-    message: string;
-  } | {
-    code: "invalid_rule";
-    message: string;
-  } | {
-    code: "invalid_time_zone";
-    message: string;
-  } | {
-    code: "not_future";
-    message: string;
-  } | {
-    code: "time_out_of_range";
-    message: string;
-  } | {
-    code: "frequency_too_high";
-    message: string;
-  } | {
-    code: "internal_error";
-    message: string;
-  };
-  schedule_delete: {
-    id: string;
-    deleted: true;
-  } | {
-    id: string;
-    deleted: false;
-    code: "schedule_not_found";
-  } | {
-    code: "invalid_prompt";
-    message: string;
-  } | {
-    code: "invalid_selector";
-    message: string;
-  } | {
-    code: "invalid_rule";
-    message: string;
-  } | {
-    code: "invalid_time_zone";
-    message: string;
-  } | {
-    code: "not_future";
-    message: string;
-  } | {
-    code: "time_out_of_range";
-    message: string;
-  } | {
-    code: "frequency_too_high";
-    message: string;
-  } | {
-    code: "internal_error";
-    message: string;
-  };
-  schedule_list: ({
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "after";
-    afterSeconds: number;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "at";
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "every";
-    everySeconds: number;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "daily";
-    time: string;
-    timeZone: string;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "weekly";
-    time: string;
-    timeZone: string;
-    weekdays: number[];
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "cron";
-    expression: string;
-    timeZone: string;
-  })[] | {
-    code: "invalid_prompt";
-    message: string;
-  } | {
-    code: "invalid_selector";
-    message: string;
-  } | {
-    code: "invalid_rule";
-    message: string;
-  } | {
-    code: "invalid_time_zone";
-    message: string;
-  } | {
-    code: "not_future";
-    message: string;
-  } | {
-    code: "time_out_of_range";
-    message: string;
-  } | {
-    code: "frequency_too_high";
-    message: string;
-  } | {
-    code: "internal_error";
-    message: string;
-  };
-  schedule_update: {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "after";
-    afterSeconds: number;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "at";
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "every";
-    everySeconds: number;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "daily";
-    time: string;
-    timeZone: string;
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "weekly";
-    time: string;
-    timeZone: string;
-    weekdays: number[];
-  } | {
-    id: string;
-    title: string;
-    prompt: string;
-    scheduledAt: string;
-    state: "scheduled" | "overdue";
-    deliveryMode: "host";
-    kind: "cron";
-    expression: string;
-    timeZone: string;
-  } | {
-    id: string;
-    updated: false;
-    code: "schedule_not_found" | "schedule_ended" | "schedule_conflict";
-  } | {
-    code: "invalid_prompt";
-    message: string;
-  } | {
-    code: "invalid_selector";
-    message: string;
-  } | {
-    code: "invalid_rule";
-    message: string;
-  } | {
-    code: "invalid_time_zone";
-    message: string;
-  } | {
-    code: "not_future";
-    message: string;
-  } | {
-    code: "time_out_of_range";
-    message: string;
-  } | {
-    code: "frequency_too_high";
-    message: string;
-  } | {
-    code: "internal_error";
-    message: string;
   };
   send_message: {
     messageId: string;

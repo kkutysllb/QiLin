@@ -25,8 +25,8 @@
 - text: Now give the final answer. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [disabled]
+- status: Completed
+- button "Completed in {{duration}}" [disabled]
 - paragraph: DONE
 - button "Copy"
 - button "Good response"
@@ -35,8 +35,8 @@
 - text: {{clock}} Keep this later input in the original conversation. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [disabled]
+- status: Completed
+- button "Completed in {{duration}}" [disabled]
 - paragraph: ORIGINAL ONLY
 - button "Copy"
 - button "Good response"

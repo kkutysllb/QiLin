@@ -5,8 +5,8 @@
 - text: Show the Markdown image policy. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [disabled]
+- status: Completed
+- button "Completed in {{duration}}" [disabled]
 - heading "Markdown images" [level=2]
 - paragraph:
   - 'button "View full image: Remote test image"':

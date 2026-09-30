@@ -7,13 +7,11 @@
 - text: Use web_search once with queries ["QiLin snapshot search","QiLin multi-query search"]. Then reply exactly SEARCH_DONE and stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [expanded]
+- status: Completed
+- button "Completed in {{duration}}" [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - button "Searched the web" [expanded]
 - button "Search QiLin snapshot search, QiLin multi-query search"
-- button "Context injection time-context"
 - paragraph: SEARCH_DONE
 - button "Copy"
 - button "Good response"

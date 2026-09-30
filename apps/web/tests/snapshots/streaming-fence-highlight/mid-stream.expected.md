@@ -7,13 +7,12 @@
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: QiLin...
-- button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - text: ts
 - button "Copy"
 - code: "const first: number = 1 const second = \"two\" let tail"
+- status: QiLin...
+- text: QiLin...
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

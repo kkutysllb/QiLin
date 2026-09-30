@@ -7,11 +7,10 @@
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: QiLin...
-- button "QiLin... for {{duration}}" [disabled] [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - paragraph: partial
+- status: QiLin...
+- text: QiLin...
 - button "2 queued messages" [disabled] [expanded]
 - list:
   - listitem:

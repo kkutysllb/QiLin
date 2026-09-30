@@ -36,6 +36,18 @@
       - listitem:
         - button "Edit shortcut for Toggle right sidebar"
         - text: Toggle right sidebar Ctrl + Shift + B
+      - listitem:
+        - button "Edit shortcut for Split"
+        - text: Split Ctrl + \
+      - listitem:
+        - button "Edit shortcut for Toggle panel fullscreen"
+        - text: Toggle panel fullscreen Ctrl + Alt + Enter
+      - listitem:
+        - button "Edit shortcut for Refresh current page"
+        - text: Refresh current page Ctrl + Alt + R
+      - listitem:
+        - button "Edit shortcut for Close current page or window"
+        - text: Close current page or window Ctrl + Alt + W
   - region "Message input":
     - heading "Message input" [level=3]
     - list:

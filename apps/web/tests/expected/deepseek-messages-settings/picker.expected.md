@@ -1,4 +1,4 @@
-- menu "模型与推理等级":
+- menu "模型":
   - group "DeepSeek":
     - text: DeepSeek
     - menuitemradio "Messages Flash" [checked]

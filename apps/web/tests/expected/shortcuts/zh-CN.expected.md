@@ -36,6 +36,18 @@
       - listitem:
         - button "修改展开／收起右侧栏快捷键"
         - text: 展开／收起右侧栏 ⇧ ⌘ B
+      - listitem:
+        - button "修改分栏快捷键"
+        - text: 分栏 ⌘ \
+      - listitem:
+        - button "修改面板全屏／退出全屏快捷键"
+        - text: 面板全屏／退出全屏 ⌥ ⌘ Enter
+      - listitem:
+        - button "修改刷新当前页面快捷键"
+        - text: 刷新当前页面 暂无快捷键
+      - listitem:
+        - button "修改关闭当前页面／窗口快捷键"
+        - text: 关闭当前页面／窗口 ⌥ ⌘ W
   - region "消息输入":
     - heading "消息输入" [level=3]
     - list:

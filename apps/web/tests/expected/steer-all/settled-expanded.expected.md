@@ -7,10 +7,9 @@
 - text: Use the ask_user_question tool to ask me exactly one question with id "checkpoint", question "Ready to continue?", header "Checkpoint", and options labeled "Yes" and "No". After I answer, reply with one short sentence acknowledging my answer and stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [disabled]
+- status: Completed
+- button "Completed in {{duration}}" [disabled]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - button "Asked questions" [expanded]
 - button "Think The user wants me to ask them a checkpoint question first, then continue with whatever they interject. Let me do exactly that."
 - button "Ask question 1/1 answered"
@@ -20,7 +19,6 @@
 - text: "Interjection: include the word ORANGE in your final reply. {{clock}}"
 - button "Copy"
 - button "Edit this message and resend"
-- button "Context injection time-context"
 - paragraph: "Got it: BANANA and ORANGE."
 - button "Copy"
 - button "Good response"
