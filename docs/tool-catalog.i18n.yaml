@@ -54,7 +54,7 @@
   en: a0ca2b2f3549032c
   zh: a0ca2b2f3549032c
 /tool-schema-catalog/qilin-tool-ask-user/ask-user-question:
-  en: 957440af26ff203a
+  en: 109d67e543118c66
   zh: 121a9dfe0be9a2da
 /tool-schema-catalog/qilin-tools:
   en: d8bfe92141b92bf9
@@ -72,7 +72,7 @@
   en: 25b9b7460e76060b
   zh: 25b9b7460e76060b
 /tool-schema-catalog/qilin-tool-bash/bash:
-  en: e8b769ed7fcec18e
+  en: 1c5f9a721d9afc74
   zh: 8d2fc34c179ad42a
 /tool-schema-catalog/qilin-tool-present:
   en: 84e18c93580dc8e9
@@ -84,7 +84,7 @@
   en: 96681a107031e710
   zh: 96681a107031e710
 /tool-schema-catalog/qilin-tool-pwsh/pwsh:
-  en: 4e9f18d0a9ada37e
+  en: 29f572cff2a85869
   zh: a9c7b6e1b743f989
 /tool-schema-catalog/qilin-tool-kylin:
   en: c5157b36bf85e5ce
@@ -93,7 +93,7 @@
   en: 110e0e7f0817aa37
   zh: a8c81e723d1dfa7a
 /tool-schema-catalog/qilin-tool-kylin/cordis-inspect-query:
-  en: e1230a7cc033f7ec
+  en: c9ff65ed873706c5
   zh: 9a8d2574d8cb319e
 /tool-schema-catalog/qilin-tool-bash-persistent:
   en: 242fdef722e6a846

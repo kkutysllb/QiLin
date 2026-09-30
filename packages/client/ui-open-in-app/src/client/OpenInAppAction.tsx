@@ -17,11 +17,12 @@ export interface OpenInAppActionInjected {
   iconUrl: (appId: string) => string
 }
 
-/** Full props for the Session-header open-in-app split button. */
+/** Browser operations and state shared by the Session header and file tree contributions. */
 export type OpenInAppActionProps =
   PropsRuntime<'conversation.session.header.utilities'>
   & PropsLocale<typeof NS>
   & InjectFace<OpenInAppActionInjected>
+  & { absolutePath?: string }
 
 /**
  * Label keys per catalog id: the browser renders only ids it can name, so a
@@ -128,7 +129,7 @@ const BUSY_DRESS_DELAY_MS = 250
  */
 export function OpenInAppAction(props: OpenInAppActionProps): React.JSX.Element | null {
   const { sessionId, useSessions, useOpenInAppApps, useOpenInAppChoice, t } = props
-  const cwd = useSessions(state => state.byId[sessionId]?.cwd)
+  const cwd = props.absolutePath ?? useSessions(state => state.byId[sessionId]?.cwd)
   const available = useOpenInAppApps(apps => apps)
   const choice = useOpenInAppChoice(id => id)
   const [open, setOpen] = useState(false)

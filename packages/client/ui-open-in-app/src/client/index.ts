@@ -19,6 +19,7 @@ import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
 import type {} from '@qilin/api-remotes/client'
 import type {} from '@qilin/api-session-controller/remote'
 import { OPEN_IN_APP_ICON_PREFIX_ROUTE } from '@qilin/host-open-in-app/shared'
+import type {} from '@qilin/client-ui-sidebar-files/client'
 import { OpenInAppController } from './controller.ts'
 import { OpenInAppAction, type OpenInAppActionInjected } from './OpenInAppAction.tsx'
 import { OpenInAppPathController } from './open-path.ts'
@@ -89,6 +90,22 @@ export function apply(ctx: ClientContext): void {
     name: 'conversation.session.header.utilities',
     id: 'open-in-app',
     order: -10,
+    locale: NS,
+    inject: (): OpenInAppActionInjected => ({
+      hooks: {
+        openInAppApps: controller.apps,
+        openInAppChoice: controller.choice,
+      },
+      launch: (appId, path) => controller.launch(appId, path),
+      choose: (appId) => { controller.choose(appId) },
+      iconUrl: appId => `${OPEN_IN_APP_ICON_PREFIX_ROUTE}/${appId}`,
+    }),
+  }, OpenInAppAction))
+  // Workspace directory controls: the file tree's reload-adjacent action list
+  // renders the same shared control against the displayed directory.
+  ctx.slots.inject('sidebar.right.tab.files.actions', () => ctx.slots.register({
+    name: 'sidebar.right.tab.files.actions',
+    id: 'open-in-app',
     locale: NS,
     inject: (): OpenInAppActionInjected => ({
       hooks: {

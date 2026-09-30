@@ -266,7 +266,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin/commands` | no | Plugin-owned human command registry for QiLin UIs |
 | `@qilin/permission-presets` | yes | User-facing permission presets (ctx.permissionPresets) for the QiLin: one product-level Permissions select bundling the sandbox-mode and approval-policy knobs, written through to their own session events |
-| `@qilin/tool-ask-user` | no | Model-facing ask_user_question tool over the ctx.userQuestions seam |
+| `@qilin/tool-ask-user` | yes | Model-facing ask_user_question tool over the ctx.userQuestions seam |
 | `@qilin/user-approval` | yes | User-approval seam (ctx.approval) for the QiLin: one-shot permission decisions dispatched to composed answerers over the approval/request waterfall, fail-closed by default |
 | `@qilin/user-questions` | no | Abstract user-questions seam (ctx.userQuestions) for asking the human during agent runs |
 

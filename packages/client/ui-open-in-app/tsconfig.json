@@ -30,6 +30,9 @@
       "path": "../ui-conversation"
     },
     {
+      "path": "../ui-sidebar-files"
+    },
+    {
       "path": "../ui-primitives"
     },
     {
