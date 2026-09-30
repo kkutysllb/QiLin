@@ -1,5 +1,5 @@
 /**
- * Dynamic Kylin Plugin service: immutable package definitions, one active run
+ * Dynamic Cordis Plugin service: immutable package definitions, one active run
  * per Plugin, human-approved Client activation, and Host/Client invocation.
  * @module @qilin/kylin-host-runner
  */
@@ -9,19 +9,18 @@ import type { Fiber } from '@qilin/kylin'
 import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
 import { createUserMessage } from '@qilin/llm'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
-import type { JsonValue } from '@qilin/util-values'
-import { isPlugin, normalizeHandler } from './guard.ts'
-import { CordisInspectRegistryService } from './inspect-registry.ts'
-import { missingServices, startHostHalf } from './lifecycle.ts'
-import { DynamicCordisRegistry } from './registry.ts'
-
 declare module '@qilin/llm' {
   interface MessageSourceMap {
     'kylin-host-runner': { kind: 'kylin-host-runner' }
   }
 }
 
+import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
+import type { JsonValue } from '@qilin/util-values'
+import { isPlugin, normalizeHandler } from './guard.ts'
+import { CordisInspectRegistryService } from './inspect-registry.ts'
+import { missingServices, startHostHalf } from './lifecycle.ts'
+import { DynamicCordisRegistry } from './registry.ts'
 import type {
   DynamicCordisDefineReceipt, DynamicCordisDefineRequest, DynamicCordisDefinition,
   DynamicCordisPackageInspection, DynamicCordisPendingRequest, DynamicCordisPlugin,
@@ -45,8 +44,8 @@ export type {
   DynamicCordisReference, DynamicCordisRun,
 } from './registry.ts'
 export { CordisInspectRegistryService } from './inspect-registry.ts'
-export type { HostCordisInspectProviderRegistration } from './inspect-registry.ts'
 export { HOST_BUILTIN_INSPECTION } from './sandbox.ts'
+export type { HostCordisInspectProviderRegistration } from './inspect-registry.ts'
 
 /**
  * Brand a Host-minted Plugin ID.
@@ -95,6 +94,8 @@ declare module '@qilin/kylin' {
 export interface Config {
   /** Maximum synchronous VM evaluation time in milliseconds. */
   vmTimeoutMs?: number
+  /** Maximum wait for a valid Client inspect response in milliseconds. */
+  clientInspectTimeoutMs?: number
 }
 
 type ResolvedConfig = Required<Config>
@@ -133,6 +134,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
 
   static Config: z<Config> = z.object({
     vmTimeoutMs: z.number().min(1).default(5000),
+    clientInspectTimeoutMs: z.number().step(1).min(1).max(2_147_483_647).default(10_000),
   })
 
   private readonly rootCtx: Context
@@ -147,7 +149,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
     super(ctx, 'dynamicCordisRunner')
     this.rootCtx = ctx
     this.resolved = config as ResolvedConfig
-    this.inspectRegistry = new CordisInspectRegistryService(ctx)
+    this.inspectRegistry = new CordisInspectRegistryService(ctx, this.resolved.clientInspectTimeoutMs)
   }
 
   /**
@@ -236,7 +238,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
     if (result.ok) {
       this.injectUserContext(
         agent,
-        `The user removed Kylin Plugin ${pluginId} and all of its Packages. The Plugin no longer exists.`,
+        `The user removed Cordis Plugin ${pluginId} and all of its Packages. The Plugin no longer exists.`,
       )
     }
     return result
@@ -490,7 +492,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
     const plugin = this.owned(agent, pluginId)
     this.injectUserContext(
       agent,
-      `The user stopped Kylin Plugin ${pluginId}. Its Packages remain defined; currentPackageId is `
+      `The user stopped Cordis Plugin ${pluginId}. Its Packages remain defined; currentPackageId is `
         + `${plugin?.currentPackageId ?? 'none'}.`,
     )
     return result
@@ -508,11 +510,12 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
   }
 
   /**
-   * Claim one pending Client inspect query with its live result.
+   * Submit a Client inspect result or failure for a pending query.
    * @param agent - Session that owns the query.
    * @param requestId - exact pending query identity.
    * @param resolution - provider result or structured refusal.
-   * @returns whether this answer won the query.
+   * @returns acknowledgement with accepted true only for a valid success that settles the query;
+   * pending-query failures return { accepted: false } and retain only the first diagnostic.
    */
   @Remote('resolveInspectQuery')
   resolveInspectQuery(
@@ -1045,7 +1048,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
         + `${settled.reason}\n${formatErrorDetails(settled)}\n`
         + `currentPackageId: ${plugin?.currentPackageId ?? 'none'}\n`
         + `nextPackageId: ${plugin?.nextPackageId ?? pending.packageId}\n`
-        + 'Report the failure to the user; the definition can be managed through the Kylin panel.'
+        + 'Report the failure to the user; the definition can be managed through the Cordis panel.'
     }
     agent.steer(createUserMessage({
       content: [{ type: 'text', text }],
@@ -1067,7 +1070,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
           + `Slot "${failure.slot}" after activation.\n`
           + `${formatErrorDetails(failure)}\n`
           + `entryAbdicated: ${failure.abdicated}\n`
-          + 'Report the Client render failure to the user; the definition can be stopped through the Kylin panel.',
+          + 'Report the Client render failure to the user; the definition can be stopped through the Cordis panel.',
       }],
       source: { kind: 'kylin-host-runner' },
     }))
@@ -1114,7 +1117,7 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
         type: 'text',
         text: `Cordis ${platform} guard rejected runtime code in ${plugin.pluginId}/${run.packageId} `
           + `(${run.pluginRunId}) after activation.\n${formatErrorDetails(failure)}\n`
-          + 'The Plugin remains running. Report the guard rejection to the user; it can be stopped through the Kylin panel.',
+          + 'The Plugin remains running. Report the guard rejection to the user; it can be stopped through the Cordis panel.',
       }],
       source: { kind: 'kylin-host-runner' },
     }))
@@ -1138,11 +1141,11 @@ export class DynamicCordisRunnerService extends TypertRemoteService {
     const plugin = this.owned(agent, pluginId)
     let text: string
     if (settled.ok) {
-      text = `The user manually ran Kylin Plugin ${pluginId}, Package ${settled.packageId}, `
+      text = `The user manually ran Cordis Plugin ${pluginId}, Package ${settled.packageId}, `
         + `as ${settled.pluginRunId}. The activation succeeded; currentPackageId is ${settled.currentPackageId}.`
     } else {
       const attempt = plugin?.latestRun
-      text = `The user manually ran Kylin Plugin ${pluginId}`
+      text = `The user manually ran Cordis Plugin ${pluginId}`
         + `${attempt === undefined ? '' : `, Package ${attempt.packageId}, as ${attempt.pluginRunId}`}, but it failed: `
         + `${settled.reason}\n${formatErrorDetails(settled)}\n`
         + `currentPackageId: ${plugin?.currentPackageId ?? 'none'}\n`

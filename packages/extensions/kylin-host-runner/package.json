@@ -62,10 +62,11 @@
     "@qilin/typert-protocol": "workspace:*"
   },
   "devDependencies": {
+    "@qilin/agent": "workspace:*",
+    "@qilin/api-gateway": "workspace:*",
+    "@qilin/brand": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/kylin-plugin-timer": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/brand": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/scope": "workspace:*",
     "@qilin/session": "workspace:*",

@@ -68,7 +68,7 @@ Unchanged schemas and guidance remain prefix-stable. Query results append to his
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- Client queries wait for a responding page or cancellation. Inspection cannot invoke service methods, configure plugins, or execute generated code.
+- Client queries need a responding page and use the Host runner's [bounded wait and retry policy](../kylin-host-runner/README.md#client-inspection). Inspection cannot invoke service methods, configure plugins, or execute generated code.
 
 <a id="dev-note"></a>
 ### Dev Note

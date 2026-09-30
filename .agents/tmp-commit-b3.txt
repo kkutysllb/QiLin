@@ -1,0 +1,10 @@
+fix(B3): 对齐上游 rc.2 引擎接缝——Gateway 就绪门与 hasLiveClient、Client 检查有界等待、定时提醒用户消息框架
+
+- api/gateway：RemoteEventClient 记录 lifetime signal，TypertGateway 新增 hasLiveClient()（接口+实现+JSDoc）；WebSocket 接纳包一层 appReady 就绪门（无 appReady 服务时行为不变，上游 rc.1 期特性补齐）；gateway-stream.host.spec 整体对齐 rc.2（含裸 WebSocket 不计数/已取消流不计入两组新用例）；双语 README 增 hasLiveClient 段落
+- kylin-host-runner（上游 cordis-host-runner）：inspect-registry 构造器接收 clientQueryTimeoutMs，新 Config clientInspectTimeoutMs（默认 10s）；离线（网关无活 Client）发送前快速失败、超时保留首个失败诊断、卸载结算 pending、resolveClientQuery 失败留诊不阻断他页成功；补齐 inspect-registry.spec（QiLin 此前缺失该 spec）与 @qilin/api-gateway devDep/tsconfig 引用；保留 QiLin 本地 HOST_BUILTIN_INSPECTION 再导出与 kylin 日志前缀/dyn-404 文案
+- tool-kylin：cordis_inspect_query 描述改为「配置超时内等待有效响应否则报 Client 失败/要求重连」；README 已知限制条目链接到有界等待策略
+- schedule：到期提醒框架行改为固定 SCHEDULED_MESSAGE_FRAMING='This is a scheduled message from the user'（放弃不可信标记防御，随上游 2026-09-24 风险决策 note 三件套移植）；4 个 spec 与双语 README、web schedule-after e2e 期望同步
+- 快照：新增 cordis-inspect-liveness / cordis-inspect-timeout 套件（rescope：qilinHomePath、kylin-host-runner/tool-kylin 包名）；jsdoc 套件刷新至当前代（session.v4 + sidecar，工具结果内嵌活目录数据）
+- apps/cli：pi-ai 夹具与 headless 期望 deepseek-v4-flash→deepseek-flash；ptc.e2e 后台任务注册等待改为事件驱动（上游稳定性修复）；CLI 桌面捆绑签名系列按红线不移植
+
+验证：B3 相关规格 1025/1025 绿；typecheck 双面绿；全量快照道 24 红（零新增，全部为基线既有漂移）

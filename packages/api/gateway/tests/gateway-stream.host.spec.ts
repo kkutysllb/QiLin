@@ -7,6 +7,7 @@ import { Context, symbols } from '@qilin/kylin'
 import { apply as applyConnection, inject as connectionInject } from '@qilin/client-connection'
 import WebServer from '@qilin/host-webserver'
 import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import type { AppReady } from '@qilin/cmdline'
 import {
   Remote,
   remoteErrorOf,
@@ -236,6 +237,30 @@ class FeedService extends TypertRemoteService {
 
 const roots: Context[] = []
 
+class StartupProbe implements AppReady {
+  private ready = false
+  private readonly listeners = new Set<() => void>()
+  lastListener: (() => void) | undefined
+
+  get pending(): number { return this.listeners.size }
+
+  onReady(listener: () => void): () => void {
+    this.lastListener = listener
+    if (this.ready) {
+      listener()
+      return () => {}
+    }
+    this.listeners.add(listener)
+    return () => { this.listeners.delete(listener) }
+  }
+
+  commit(): void {
+    this.ready = true
+    for (const listener of this.listeners) listener()
+    this.listeners.clear()
+  }
+}
+
 class RemoteEventSourceProbe {
   readonly source = (signal: AbortSignal): AsyncIterable<TypertRemoteEventDispatch> => {
     this.signal = signal
@@ -314,6 +339,79 @@ afterEach(async () => {
 })
 
 describe('Typert Remote streams', () => {
+  it('reports Client event streams without counting a bare WebSocket', async () => {
+    const { ctx } = await setup(true)
+    const source = new RemoteEventSourceProbe()
+    const unregister = ctx.effect(() => ctx.typertGateway.registerRemoteEvents(source.source, REMOTE_HOST))
+    expect(ctx.typertGateway.hasLiveClient()).toBe(false)
+    expect(await acceptsSocket(ctx)).toBe(true)
+    expect(ctx.typertGateway.hasLiveClient()).toBe(false)
+    const first = await openEventClient(ctx, 'first-live')
+    const second = await openEventClient(ctx, 'second-live')
+    expect(ctx.typertGateway.hasLiveClient()).toBe(true)
+    const firstClosed = once(first.socket, 'close')
+    first.socket.close()
+    await firstClosed
+    expect(ctx.typertGateway.hasLiveClient()).toBe(true)
+    const secondClosed = once(second.socket, 'close')
+    second.socket.close()
+    await secondClosed
+    await vi.waitFor(() => { expect(ctx.typertGateway.hasLiveClient()).toBe(false) })
+    await unregister()
+  })
+
+  it('ignores cancelled event streams before their paused consumers finish cleanup', async () => {
+    const { ctx } = await setup(false)
+    const source = new RemoteEventSourceProbe()
+    const unregister = ctx.effect(() => ctx.typertGateway.registerRemoteEvents(source.source, REMOTE_HOST))
+    const abort = new AbortController()
+    const empty = (async function* () {})()
+    const events = await ctx.typertGateway.wireStream.open('$events', { args: {} }, empty, undefined, abort.signal)
+    const first = events[Symbol.asyncIterator]()
+    await first.next()
+    expect(ctx.typertGateway.hasLiveClient()).toBe(true)
+    abort.abort()
+    expect(ctx.typertGateway.hasLiveClient()).toBe(false)
+    const replacement = await ctx.typertGateway.wireStream.open('$events', { args: {} }, empty, undefined, new AbortController().signal)
+    const second = replacement[Symbol.asyncIterator]()
+    try {
+      await second.next()
+      expect(ctx.typertGateway.hasLiveClient()).toBe(true)
+      await first.return?.()
+      expect(ctx.typertGateway.hasLiveClient()).toBe(true)
+      await unregister()
+      expect(ctx.typertGateway.hasLiveClient()).toBe(false)
+    } finally {
+      await unregister()
+      await first.return?.()
+      await second.return?.()
+    }
+  })
+
+  it.each([false, true])('accepts WebSockets only after application readiness (already ready: %s)', async (alreadyReady) => {
+    const startup = new StartupProbe()
+    if (alreadyReady) startup.commit()
+    const { ctx } = await setup(true, {}, startup)
+    if (!alreadyReady) {
+      expect(startup.pending).toBe(1)
+      expect(await acceptsSocket(ctx)).toBe(false)
+      startup.commit()
+    }
+    expect(await acceptsSocket(ctx)).toBe(true)
+    expect(startup.pending).toBe(0)
+  })
+
+  it('withdraws a pending WebSocket startup subscription when the Gateway unloads', async () => {
+    const startup = new StartupProbe()
+    const { ctx } = await setup(true, {}, startup)
+    expect(startup.pending).toBe(1)
+    await ctx.fiber.dispose()
+    expect(startup.pending).toBe(0)
+    // A launcher commit can already hold a copy of the cancelled listener.
+    expect(() => { startup.lastListener?.() }).not.toThrow()
+    expect(() => { startup.commit() }).not.toThrow()
+  })
+
   it('validates the WebSocket heartbeat timer range and the stream inbox bound', () => {
     expect(TypertGatewayService.Config({})).toEqual({ websocketHeartbeatIntervalMs: 2_000, streamInboxBytes: 262_144 })
     expect(TypertGatewayService.Config({ websocketHeartbeatIntervalMs: MAX_TIMER_DELAY_MS, streamInboxBytes: 1 }))
@@ -1452,9 +1550,11 @@ describe('Typert Remote streams', () => {
 async function setup(
   transport: boolean,
   gatewayConfig: GatewayConfig = {},
+  ready?: AppReady,
 ): Promise<{ readonly ctx: Context; readonly service: FeedService }> {
   const ctx = new Context()
   roots.push(ctx)
+  if (ready !== undefined) ctx.provide('appReady', ready)
   if (transport) {
     await ctx.plugin(WebServer, { host: '127.0.0.1', port: 0 })
     provideBrowserCredentials(ctx)
@@ -1474,6 +1574,17 @@ async function setup(
   })
   const receiver = ctx.get('feed') as unknown as FeedService & { [symbols.original]?: FeedService }
   return { ctx, service: receiver[symbols.original] ?? receiver }
+}
+
+async function acceptsSocket(ctx: Context): Promise<boolean> {
+  const socket = new WebSocket(`ws://127.0.0.1:${String(ctx.webServer.port)}/api/remote.mux`, {
+    headers: { cookie: browserCookie(ctx) },
+  })
+  const closed = new Promise<void>((resolve) => { socket.once('close', () => { resolve() }) })
+  const opened = await once(socket, 'open').then(() => true, () => false)
+  if (opened) socket.close()
+  await closed
+  return opened
 }
 
 function descriptors(): InvocationDescriptor[] {
@@ -1631,7 +1742,7 @@ function rawText(data: RawData): string {
 function streamErrorMessage(frames: readonly Record<string, unknown>[], streamId: string): string | undefined {
   const error = frames.find(frame => frame.streamId === streamId)?.error
   if (typeof error !== 'object' || error === null) return undefined
-  const message = Reflect.get(error, 'message') as unknown
+  const message: unknown = Reflect.get(error, 'message')
   return typeof message === 'string' ? message : undefined
 }
 

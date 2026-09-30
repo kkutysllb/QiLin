@@ -105,7 +105,7 @@ async function deepseekDefaultsServer(options: { waitForTitleRequest?: boolean; 
         }
         if (options.protocol === 'messages') {
           response.end([
-            { type: 'message_start', message: { id: 'defaults-response', model: 'deepseek-v4-flash', usage: { input_tokens: 3, output_tokens: 0 } } },
+            { type: 'message_start', message: { id: 'defaults-response', model: 'deepseek-flash', usage: { input_tokens: 3, output_tokens: 0 } } },
             { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
             { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'DEFAULTS_OK' } },
             { type: 'content_block_stop', index: 0 },
@@ -621,7 +621,7 @@ describe('headless stream-json snapshots', () => {
       expect(header?.config).toMatchInlineSnapshot(`
         {
           "maxTokens": 256000,
-          "model": "deepseek-v4-flash",
+          "model": "deepseek-flash",
           "provider": "deepseek-official",
           "reasoningEffort": "low",
         }
@@ -711,7 +711,7 @@ describe('headless stream-json snapshots', () => {
       expect(header?.config).toMatchInlineSnapshot(`
         {
           "maxTokens": 1024,
-          "model": "deepseek-v4-flash",
+          "model": "deepseek-flash",
           "provider": "deepseek",
           "reasoningEffort": "low",
         }

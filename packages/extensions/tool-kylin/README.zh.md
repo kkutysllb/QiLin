@@ -68,7 +68,7 @@ Host provider 结合生成的 Service/Event 目录、经 [`@qilin/app-boot`](../
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- Client 查询等待页面响应或取消。检查不能调用服务方法、配置插件或执行生成代码。
+- Client 查询需要页面响应，并采用 Host runner 的[有界等待与重试策略](../kylin-host-runner/README.zh.md#client-inspection)。检查不能调用服务方法、配置插件或执行生成代码。
 
 <a id="dev-note"></a>
 ### 开发备注

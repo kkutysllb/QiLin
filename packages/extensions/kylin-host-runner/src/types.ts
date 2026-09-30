@@ -1,5 +1,5 @@
 /**
- * Client-safe wire vocabulary of the dynamic Kylin plugin runner.
+ * Client-safe wire vocabulary of the dynamic Cordis plugin runner.
  * @module @qilin/kylin-host-runner/types
  */
 
@@ -84,7 +84,10 @@ export interface CordisInspectQueryResolved {
 
 /** Whether a Client answer claimed the still-pending query. */
 export interface CordisInspectResolveAck {
-  /** False for unknown, cancelled, stale, or late answers. */
+  /**
+   * True only for a valid success that settles the query;
+   * false for retained failures and unknown, timed out, cancelled, or late answers.
+   */
   accepted: boolean
 }
 

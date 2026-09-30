@@ -7912,6 +7912,9 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../../core/agent
+      '@qilin/api-gateway':
+        specifier: workspace:*
+        version: link:../../api/gateway
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
