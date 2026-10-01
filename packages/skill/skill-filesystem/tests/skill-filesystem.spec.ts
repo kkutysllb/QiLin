@@ -31,6 +31,8 @@ async function writeFlatSkill(root: string, name: string, description: string, b
 }
 
 class TestFileSystem extends FileSystem {
+
+  override async writeBytes(): Promise<FsWriteOutcome> { throw new FsError('not under test', 'FS_IO_ERROR') }
   listDirCalls = 0
   failResolvePaths = new Set<string>()
   failStatPaths = new Set<string>()

@@ -185,6 +185,9 @@ class RecordingFileSystem extends FileSystem {
   override async writeText(_target: FsTarget, _content: string, _expected?: FsWriteIntent): Promise<FsWriteOutcome> {
     return { operation: 'update', version: FsVersion('unused'), before: '', after: _content }
   }
+  override async writeBytes(_target: FsTarget, _content: Uint8Array, _expected?: FsWriteIntent): Promise<FsWriteOutcome> {
+    return { operation: 'update', version: FsVersion('unused'), before: null, after: null }
+  }
 
   override async editText(_target: FsTarget, _edit: FsEditRequest): Promise<FsEditOutcome> {
     return { version: FsVersion('unused'), before: '', after: '' }

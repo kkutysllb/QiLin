@@ -21,6 +21,11 @@ import type {
 
 /** A minimal in-memory fake implementing the provider primitives. */
 class FakeFileSystem extends FileSystem {
+  override async writeBytes(target: FsTarget, _content: Uint8Array, _expected?: FsWriteIntent): Promise<FsWriteOutcome> {
+    const existed = this.files?.has(target.targetKey) ?? false
+    return { operation: existed ? 'update' : 'create', version: FsVersion('v-bytes'), before: null, after: null }
+  }
+
   files = new Map<string, string>()
 
   override async resolve(path: string): Promise<FsTarget> {

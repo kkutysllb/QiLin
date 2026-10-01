@@ -127,7 +127,8 @@ export function applyWriteTool(ctx: Context, sandbox: FsSandboxController): void
         path: target.displayPath,
         operation: outcome.operation,
         before: outcome.before,
-        after: outcome.after,
+        // The write tool always goes through writeText, whose after is a string.
+        after: outcome.after as string,
       }
     },
     // Pure display: a diff card. A call-time presenter has no access to prior

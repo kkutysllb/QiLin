@@ -229,6 +229,38 @@ export class LocalFileSystem extends FileSystem {
     })
   }
 
+  override async writeBytes(
+    target: FsTarget,
+    content: Uint8Array,
+    expected?: FsWriteIntent,
+    signal?: AbortSignal,
+  ): Promise<FsWriteOutcome> {
+    return this.withLock(target.targetKey, async () => {
+      const existing = await probe(target.targetKey)
+      if (existing && existing.type !== 'file') {
+        throw new FsError(`cannot write "${target.displayPath}": not a regular file`, 'FS_NOT_REGULAR_FILE')
+      }
+      if (expected?.kind === 'replaceIfVersion') {
+        if (!existing) throw new FsError(`cannot write "${target.displayPath}": file no longer exists`, 'FS_STALE_VERSION')
+        if (existing.version !== expected.version) {
+          throw new FsError(`cannot write "${target.displayPath}": file changed since it was read`, 'FS_STALE_VERSION')
+        }
+      } else if (expected?.kind === 'createIfAbsent' && existing) {
+        throw new FsError(`cannot overwrite existing "${target.displayPath}" without reading it first`, 'FS_NOT_OBSERVED')
+      }
+      await writeFileAtomic(
+        target.targetKey,
+        content,
+        existing?.mode,
+        signal,
+        this.internals,
+        expected?.kind === 'createIfAbsent' ? { displayPath: target.displayPath } : undefined,
+      )
+      const after = await probe(target.targetKey)
+      return { operation: existing ? 'update' : 'create', version: this.versionAfterWrite(after, target), before: null, after: null }
+    })
+  }
+
   override async editText(
     target: FsTarget,
     edit: FsEditRequest,

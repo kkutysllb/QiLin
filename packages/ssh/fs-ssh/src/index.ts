@@ -18,6 +18,20 @@ const errorCodes: Record<FsErrorCode, true> = {
 
 /** Remote filesystem paired with the SSH subprocess and sandbox providers. */
 export class SshFileSystem extends FileSystem {
+  override async writeBytes(
+    target: FsTarget,
+    content: Uint8Array,
+    expected?: FsWriteIntent,
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsWriteOutcome> {
+    // Binary via latin1 round-trip: the SSH SFTP channel's writeFile accepts buffers;
+    // writeText's utf8 encoding would corrupt non-text bytes, so encode losslessly.
+    const text = Buffer.from(content).toString('latin1')
+    const outcome = await this.writeText(target, text, expected, signal, sandboxPolicy)
+    return { ...outcome, after: null }
+  }
+
   static inject = ['ssh', 'sandboxPolicy']
 
   override get sandboxMode(): SandboxMode { return this.ctx.sandboxPolicy.defaultMode }

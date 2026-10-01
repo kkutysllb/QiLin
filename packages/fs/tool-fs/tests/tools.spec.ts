@@ -41,6 +41,11 @@ const testToolSignal = new AbortController().signal
 
 /** An in-memory fake provider; a test can arm a rejection on any primitive. */
 class FakeFs extends FileSystem {
+  override async writeBytes(target: FsTarget, _content: Uint8Array, _expected?: FsWriteIntent): Promise<FsWriteOutcome> {
+    const existed = this.files?.has(target.targetKey) ?? false
+    return { operation: existed ? 'update' : 'create', version: FsVersion('v-bytes'), before: null, after: null }
+  }
+
   files = new Map<string, string>()
   rejectWith?: FsError
   writeIntents: (FsWriteIntent | undefined)[] = []
