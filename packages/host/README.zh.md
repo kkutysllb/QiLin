@@ -34,6 +34,7 @@ kind: "package-group"
 | [`directory-picker-auto/`](directory-picker-auto/README.zh.md) | 在启动时挂载匹配后端的宿主自适应选择器 | 挂载一个后端 |
 | [`open-in-app/`](open-in-app/README.zh.md) | 在已安装应用中打开 workspace 目录的应用探测、图标与启动路由 | 消费 `ctx.webServer` |
 | [`plugin-inventory/`](plugin-inventory/README.zh.md) | 当前 Loader 条目的只读投影 | Remote `pluginInventory/list` |
+| [`preview-media/`](preview-media/README.zh.md) | 面向内联预览的会话工作区媒体路由，带 HTTP Range 窗口供视频拖动进度条 | 消费 `ctx.webServer` |
 
 -----
 
