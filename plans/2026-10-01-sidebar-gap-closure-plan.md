@@ -33,7 +33,7 @@ kind: "plan"
 | # | 功能 | 插件实现（1.0.36 源） | 原生状态 | 实施落点 |
 |---|---|---|---|---|
 | G1 | **Git 面板**：变更/diff/历史/分支/暂存/提交/还原/上游距离/推送 + GitHub 操作 | GitView 1012 行 + GitBranchView 280 + GitHubView + host `git.ts` 830 + `github.ts` 331（shell git 命令驱动） | **完全没有** | 新内置插件包 `ui-sidebar-git`（+host 面） |
-| G2 | **Office 预览补齐：docx/pptx** | PptxView + office-view（自持渲染库，依赖已钉版本） | excel 有；docx/pptx 无 | documentpreview 新增 `docx/`、`pptx/` body |
+| G2 | ~~Office 预览补齐：docx/pptx~~ | — | **非缺口（10-01 修正）**：原生 office/ body 已覆盖 doc/docx/ppt/pptx（宿主 office-to-pdf 转换+版本化缓存+字体提示，默认组合接线）→ 按上游已有不动，移除 |
 | G3 | **视频预览（16 格式 Range 流式）** | VideoView + host `media-range.ts`（HTTP Range 转发） | 无 | documentpreview 新增 `video/` body + host Range 路由 |
 | G4 | **文件上传 + 拖放上传** | UploadOverlay + host 上传面 | client-file-upload 只接会话附件；files 页无上传 | ui-sidebar-files 增强（复用 file-upload 面或走 workspaceFiles） |
 | G5 | **全局文件名搜索** | host `fs-search.ts` + 树内搜索框 | 无 | ui-sidebar-files 增强 + host 搜索面 |
@@ -55,7 +55,7 @@ kind: "plan"
 
 | 批 | 内容 | 估量 | 说明 |
 |---|---|---|---|
-| **S1 预览与文件工作台** | G2 docx/pptx + G3 视频 + G4 上传拖放 + G5 全局搜索 + G6 Mermaid（+软链/右键小项） | ~2 天 | 用户日常触碰面最广；依赖搬运为主（渲染库已钉版本），风险低 |
+| **S1 预览与文件工作台** | ~~G2~~（非缺口移除）+ G3 视频 + G4 上传拖放 + G5 全局搜索 + G6 Mermaid（+软链/右键小项） | ~1.5 天 | G3 已落（提交 1cba11b816：media 路由+video body）；依赖搬运为主，风险低 |
 | **S2 Git 面板** | G1 全块 | ~2-3 天 | 最大单块；host shell-git 驱动 + 2200 行 UI；独立新包不扰现有面 |
 | **S3 图与团队** | G7 轨迹增强 + G8 团队页 + G9 任务管理图 | ~1.5-2 天 | 增强现有包 |
 | **S4 sidechat** | G10 | ~0.5-1 天 | 依赖会话续写语义，独立 tab |
@@ -68,3 +68,10 @@ kind: "plan"
 1. 3.0.8 装哪些批（建议 S1+S2）？
 2. G8 团队页：并入 ui-sidebar-tasks 还是独立新页（建议独立新页 `ui-sidebar-team`，tasks 页保留拓扑形态）？
 3. G1 GitHub 操作（PR/issue 面）是否纳入首批（建议纳入，随 Git 面板一体）？
+
+
+## 批次执行状态（2026-10-01 18:10）
+
+- S1a 已提交：`1cba11b816`（宿主包 preview-media + 视频 body + G2 修正撤除）+ `a368875a37`（README 三件套/组表）
+- 已知测试面遗留（登记）：jsdm 下 DockSurface 度量循环（seat 40 例 + document-seat 7 例；度量代码与上游 rc.2 逐行一致、真机正常——用户 3.0.7 已验同款座席）
+- 剩余：G6 Mermaid → G4 上传/拖放 → G5 全局搜索 →（软链/右键小项）→ S2 Git 面板（含 GitHub）→ 发版 3.0.8
