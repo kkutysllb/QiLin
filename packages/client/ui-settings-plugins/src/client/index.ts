@@ -29,9 +29,11 @@ import type { PluginsSettingsSectionInjected, PluginsSettingsTabEntry } from './
 import { SubagentCard } from './SubagentCard.tsx'
 import { subagentCardFace } from './subagent-card-controller.ts'
 import { SubagentLimitsCardController } from './subagent-limits-card-controller.ts'
+import { GitCard } from './GitCard.tsx'
 import { WebSearchCard } from './WebSearchCard.tsx'
 import { AGENT_LOOP_NS, AgentLoopCardController } from './agent-loop-card-controller.ts'
 import { SHELL_NS, BashCardController } from './bash-card-controller.ts'
+import { GIT_NS, GitCardController } from './git-card-controller.ts'
 import {
   SUBAGENT_MODEL_SELECTION_NS, SubagentModelSelectionCardController,
 } from './subagent-model-selection-card-controller.ts'
@@ -65,6 +67,7 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-plugins: section dictionaries')
 
   const bash = new BashCardController(ctx.configForms.get(SHELL_NS))
+  const git = new GitCardController(ctx.configForms.get(GIT_NS))
   const agentLoop = new AgentLoopCardController(ctx.configForms.get(AGENT_LOOP_NS))
   const webSearch = new WebSearchCardController(
     ctx.configForms.get(WEB_SEARCH_NS), ctx)
@@ -105,6 +108,9 @@ export function apply(ctx: ClientContext): void {
     [[SHELL_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
       name: 'plugins.item', id: 'bash', order: 10, label: () => t('bashTitle'), locale: NS, inject: () => bash.inject(),
     }, BashCard))],
+    [[GIT_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
+      name: 'plugins.item', id: 'git', order: 15, label: () => t('gitTitle'), locale: NS, inject: () => git.inject(),
+    }, GitCard))],
     [[AGENT_LOOP_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
       name: 'plugins.item', id: 'agent-loop', order: 20, label: () => t('agentLoopTitle'), locale: NS, inject: () => agentLoop.inject(),
     }, AgentLoopCard))],

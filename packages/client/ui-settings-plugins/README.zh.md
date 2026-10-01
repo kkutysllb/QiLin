@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-打开设置中的**内置插件**查看只读的插件列表；[ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md) 贡献了分区两个标签页中的一个，[ui-plugin-manager](../ui-plugin-manager/README.zh.md) 贡献了承载配置的另一个——**插件管理**。要配置宿主平面插件，打开**插件管理**标签页：官方分组为本部署组装的每个插件列出一张卡片，顺序依次为 shell 执行器（`shell`）、agent loop 的工具调用并行度（`agent-loop`）、Subagent 委派限制和模型选择（`subagent` 与 `subagent-model-selection`）以及 DeepSeek 搜索提供方（`web-search-deepseek`），点开卡片就是该插件带表单的页面。
+打开设置中的**内置插件**查看只读的插件列表；[ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md) 贡献了分区两个标签页中的一个，[ui-plugin-manager](../ui-plugin-manager/README.zh.md) 贡献了承载配置的另一个——**插件管理**。要配置宿主平面插件，打开**插件管理**标签页：官方分组为本部署组装的每个插件列出一张卡片，顺序依次为 shell 执行器（`shell`）、工作区 Git 服务的二进制与限额（`workspace-git`）、agent loop 的工具调用并行度（`agent-loop`）、Subagent 委派限制和模型选择（`subagent` 与 `subagent-model-selection`）以及 DeepSeek 搜索提供方（`web-search-deepseek`），点开卡片就是该插件带表单的页面。
 
 ### 这里会出现什么
 

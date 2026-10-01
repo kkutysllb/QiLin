@@ -11,6 +11,12 @@ export type PluginsSettingsLocaleKey =
   | 'webSearchTitle' | 'webSearchDescription'
   | 'webSearchApiKey' | 'webSearchApiKeyHint' | 'webSearchApiKeySet' | 'webSearchApiKeyUnset'
   | 'webSearchBaseUrl' | 'webSearchBaseUrlHint' | 'webSearchMaxUses' | 'webSearchMaxUsesHint'
+  | 'gitTitle' | 'gitDescription'
+  | 'gitBin' | 'gitBinHint' | 'ghBin' | 'ghBinHint'
+  | 'gitTimeoutMs' | 'gitTimeoutMsHint' | 'gitDiscoveryTimeoutMs' | 'gitDiscoveryTimeoutMsHint'
+  | 'ghTimeoutMs' | 'ghTimeoutMsHint'
+  | 'gitMaxDiffBytes' | 'gitMaxDiffBytesHint' | 'gitMaxStderrChars' | 'gitMaxStderrCharsHint'
+  | 'gitMaxListEntries' | 'gitMaxListEntriesHint'
   | 'subagentTitle' | 'subagentDescription' | 'subagentLimitsTitle'
   | 'subagentMaxDepth'
   | 'subagentDepthHelpLabel' | 'subagentDepthHelp'
@@ -51,6 +57,24 @@ export const en: Record<PluginsSettingsLocaleKey, string> = {
   agentLoopDescription: 'How the agent dispatches tool calls.',
   agentLoopMaxParallel: 'Parallel tool calls',
   agentLoopMaxParallelHint: 'Upper bound on parallel-safe calls running at once within one step.',
+  gitTitle: 'Git repositories',
+  gitDescription: 'Binaries and limits behind repository status, commits, and pull requests.',
+  gitBin: 'Git executable',
+  gitBinHint: 'Path of the git binary every repository call spawns.',
+  ghBin: 'gh executable',
+  ghBinHint: 'Path of the gh binary every pull-request call spawns.',
+  gitTimeoutMs: 'Command timeout (ms)',
+  gitTimeoutMsHint: 'How long one diff or mutation command may run before it is killed.',
+  gitDiscoveryTimeoutMs: 'Discovery timeout (ms)',
+  gitDiscoveryTimeoutMsHint: 'How long repository discovery may run; failing workspaces read as not a repository.',
+  ghTimeoutMs: 'gh timeout (ms)',
+  ghTimeoutMsHint: 'How long one GitHub API call may run; gh is slower than local git.',
+  gitMaxDiffBytes: 'Diff cap (bytes)',
+  gitMaxDiffBytesHint: 'A larger diff fails with too-large instead of being shortened.',
+  gitMaxStderrChars: 'Error detail cap (chars)',
+  gitMaxStderrCharsHint: 'How many stderr characters one failure answer carries.',
+  gitMaxListEntries: 'List cap (entries)',
+  gitMaxListEntriesHint: 'Upper bound on branches or pull requests one list answer returns.',
   webSearchTitle: 'Web search',
   webSearchDescription: 'The DeepSeek search provider.',
   webSearchApiKey: 'API key',
@@ -116,6 +140,24 @@ export const zh: Record<PluginsSettingsLocaleKey, string> = {
   agentLoopDescription: 'Agent 如何派发工具调用。',
   agentLoopMaxParallel: '并行工具调用数',
   agentLoopMaxParallelHint: '同一步内最多同时运行多少个可并行的调用。',
+  gitTitle: 'Git 仓库',
+  gitDescription: '仓库状态、提交与拉取请求背后的二进制与限额。',
+  gitBin: 'Git 可执行文件',
+  gitBinHint: '每次仓库调用启动的 git 二进制路径。',
+  ghBin: 'gh 可执行文件',
+  ghBinHint: '每次拉取请求调用启动的 gh 二进制路径。',
+  gitTimeoutMs: '命令超时（毫秒）',
+  gitTimeoutMsHint: '单条差异或变更命令允许运行多久，超时即被终止。',
+  gitDiscoveryTimeoutMs: '发现超时（毫秒）',
+  gitDiscoveryTimeoutMsHint: '仓库发现允许运行多久；失败的工作区按「不是仓库」应答。',
+  ghTimeoutMs: 'gh 超时（毫秒）',
+  ghTimeoutMsHint: '单次 GitHub API 调用允许运行多久；gh 比本地 git 慢。',
+  gitMaxDiffBytes: '差异上限（字节）',
+  gitMaxDiffBytesHint: '超过上限的差异以 too-large 失败，而不是被截短。',
+  gitMaxStderrChars: '错误详情上限（字符）',
+  gitMaxStderrCharsHint: '一次失败应答携带多少 stderr 字符。',
+  gitMaxListEntries: '列表上限（条）',
+  gitMaxListEntriesHint: '一次列表应答最多返回多少分支或拉取请求。',
   webSearchTitle: '网页搜索',
   webSearchDescription: 'DeepSeek 搜索提供方。',
   webSearchApiKey: 'API Key',

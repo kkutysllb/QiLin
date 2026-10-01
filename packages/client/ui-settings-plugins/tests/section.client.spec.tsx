@@ -10,12 +10,15 @@ import { AgentLoopCard } from '../src/client/AgentLoopCard.tsx'
 import type { AgentLoopCardProps } from '../src/client/AgentLoopCard.tsx'
 import { BashCard } from '../src/client/BashCard.tsx'
 import type { BashCardProps } from '../src/client/BashCard.tsx'
+import { GitCard } from '../src/client/GitCard.tsx'
+import type { GitCardProps } from '../src/client/GitCard.tsx'
 import { PluginsSettingsSection } from '../src/client/PluginsSettingsSection.tsx'
 import type { PluginsSettingsSectionProps, PluginsSettingsTabEntry } from '../src/client/PluginsSettingsSection.tsx'
 import { WebSearchCard } from '../src/client/WebSearchCard.tsx'
 import type { WebSearchCardProps } from '../src/client/WebSearchCard.tsx'
 import type { AgentLoopCardState } from '../src/client/agent-loop-card-controller.ts'
 import type { BashCardState } from '../src/client/bash-card-controller.ts'
+import type { GitCardState } from '../src/client/git-card-controller.ts'
 import type { CardFieldState, CardShell } from '../src/client/card-form.ts'
 import type { WebSearchCardState } from '../src/client/web-search-card-controller.ts'
 import type { SubagentModelSelectionCardState } from '../src/client/subagent-model-selection-card-controller.ts'
@@ -184,6 +187,83 @@ describe('PluginsSettingsSection', () => {
     fireEvent.keyDown(configurable, { key: 'Escape' })
     expect(document.activeElement).toBe(configurable)
     expect(configurable.getAttribute('aria-selected')).toBe('true')
+  })
+})
+
+/** Render the Git card against a settled store carrying its eight fields. */
+function renderGitCard(state: Partial<GitCardState> = {}, view: ConfigView = 'page') {
+  const store = createSnapshotStore<GitCardState>({
+    ...settled,
+    gitBin: field('/usr/bin/git'),
+    ghBin: field('gh'),
+    timeoutMs: field('30000'),
+    discoveryTimeoutMs: field('5000'),
+    ghTimeoutMs: field('30000'),
+    maxDiffBytes: field('1048576'),
+    maxStderrChars: field('4000'),
+    maxListEntries: field('200'),
+    ...state,
+  })
+  const actions = cardActions()
+  const props = { ...actions, view, t, useGitCard: bindSnapshotSelector(store) } as unknown as GitCardProps
+  render(<GitCard {...props} />)
+  return { actions, store }
+}
+
+/** Render the Git card and return only its staged-form actions. */
+function renderGit(state: Partial<GitCardState> = {}) {
+  return renderGitCard(state).actions
+}
+
+describe('GitCard', () => {
+  it('renders its one-liner alone in the summary view', () => {
+    renderGitCard({}, 'summary')
+
+    expect(document.body.textContent).toBe(en.gitDescription)
+    expect(screen.queryByLabelText(en.gitBin)).toBeNull()
+  })
+
+  it('says the plugin is not loaded in place of its fields while its namespace is unavailable', () => {
+    renderGitCard({ available: false })
+
+    expect(screen.getByRole('status').textContent).toBe(en.unavailable)
+    expect(screen.queryByLabelText(en.gitBin)).toBeNull()
+  })
+
+  it('shows all eight fields at once on its page, without a title of its own', () => {
+    renderGitCard()
+
+    for (const label of [en.gitBin, en.ghBin, en.gitTimeoutMs, en.gitDiscoveryTimeoutMs, en.ghTimeoutMs,
+      en.gitMaxDiffBytes, en.gitMaxStderrChars, en.gitMaxListEntries]) {
+      expect(screen.getByLabelText(label)).toBeTruthy()
+    }
+    expect(screen.queryByText(en.gitTitle)).toBeNull()
+  })
+
+  it('stages a binary edit and a limit edit through their own fields', () => {
+    const actions = renderGit()
+
+    fireEvent.change(screen.getByLabelText(en.gitBin), { target: { value: '/opt/git/bin/git' } })
+    fireEvent.change(screen.getByLabelText(en.gitMaxDiffBytes), { target: { value: '2097152' } })
+
+    expect(actions.edit).toHaveBeenCalledWith('gitBin', '/opt/git/bin/git')
+    expect(actions.edit).toHaveBeenCalledWith('maxDiffBytes', '2097152')
+    expect(actions.save).not.toHaveBeenCalled()
+  })
+
+  it('offers the reset for an overridden field only', () => {
+    const actions = renderGit({ ghTimeoutMs: field('60000', { overridden: true }) })
+
+    expect(screen.getAllByText(en.overridden)).toHaveLength(1)
+    fireEvent.click(screen.getByRole('button', { name: en.reset }))
+
+    expect(actions.resetField).toHaveBeenCalledWith('ghTimeoutMs')
+  })
+
+  it('keeps the save inert until something is staged', () => {
+    renderGitCard()
+
+    expect(screen.getByRole('button', { name: en.save })).toHaveProperty('disabled', true)
   })
 })
 

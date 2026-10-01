@@ -4,7 +4,7 @@
 - button "刷新"
 - button "添加插件"
 - heading "官方" [level=3]
-- text: "7"
+- text: "8"
 - list:
   - listitem:
     - button "查看 智能体团队": 智能体团队
@@ -21,6 +21,9 @@
   - listitem:
     - button "查看 终端": 终端
     - text: 限制 agent 运行的每一条命令。
+  - listitem:
+    - button "查看 Git 仓库": Git 仓库
+    - text: 仓库状态、提交与拉取请求背后的二进制与限额。
   - listitem:
     - button "查看 Agent 循环": Agent 循环
     - text: Agent 如何派发工具调用。

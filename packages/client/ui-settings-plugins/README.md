@@ -25,7 +25,7 @@ Use the **Built-in plugins** settings section to inspect the plugins this deploy
 <a id="use-this-package"></a>
 ## Use this package
 
-Open **Built-in plugins** in Settings for the read-only inventory; [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) contributes it as one of the section's two tabs, and [ui-plugin-manager](../ui-plugin-manager/README.md) contributes the other, **Manage plugins**, which hosts configuration. To configure a host-plane plugin, open the **Manage plugins** tab: the Official group lists one card per plugin this deployment composes, in this order — the shell executor (`shell`), the agent loop's tool-call parallelism (`agent-loop`), Subagent delegation limits and model selection (`subagent` and `subagent-model-selection`), and the DeepSeek search provider (`web-search-deepseek`) — and a card opens the plugin's page with its form.
+Open **Built-in plugins** in Settings for the read-only inventory; [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) contributes it as one of the section's two tabs, and [ui-plugin-manager](../ui-plugin-manager/README.md) contributes the other, **Manage plugins**, which hosts configuration. To configure a host-plane plugin, open the **Manage plugins** tab: the Official group lists one card per plugin this deployment composes, in this order — the shell executor (`shell`), the workspace Git service's binaries and limits (`workspace-git`), the agent loop's tool-call parallelism (`agent-loop`), Subagent delegation limits and model selection (`subagent` and `subagent-model-selection`), and the DeepSeek search provider (`web-search-deepseek`) — and a card opens the plugin's page with its form.
 
 ### What appears here
 
