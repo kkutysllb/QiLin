@@ -1064,6 +1064,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the outcome, including the version the write produced.',
       },
       {
+        signature: 'abstract writeBytes( target: FsTarget, content: Uint8Array, expected?: FsWriteIntent, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsWriteOutcome>',
+        description: 'Atomically create or replace raw bytes. Same intent and staleness contract as writeText; the bytes are published as-is, so the caller owns the content encoding.',
+        parameters: [{ name: 'target', description: 'the resolved target to write.' }, { name: 'content', description: 'the full new file content as raw bytes.' }, { name: 'expected', description: 'the write intent guarding the write; omit for unconditional.' }, { name: 'signal', description: 'aborts before atomic publication takes effect.' }, { name: 'sandboxPolicy', description: 'the per-call mode and workspace root this write runs under; a sandboxing backend fences the write by it, the bare backend ignores it. Omit to leave the backend its own default.' }],
+        returns: 'the outcome, including the version the write produced.',
+      },
+      {
         signature: 'abstract editText( target: FsTarget, edit: FsEditRequest, expected?: { version: FsVersion }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsEditOutcome>',
         description: 'Atomically edit literal text. When supplied, the version guard is checked before matching so stale content reports `FS_STALE_VERSION`; omission edits the current content without a freshness precondition.',
         parameters: [{ name: 'target', description: 'the resolved target to edit.' }, { name: 'edit', description: 'the literal search/replace request.' }, { name: 'expected', description: 'the version guard; omit for an unconditional edit.' }, { name: 'signal', description: 'aborts before atomic publication takes effect.' }, { name: 'sandboxPolicy', description: 'the per-call mode and workspace root this edit runs under; a sandboxing backend fences the edit by it, the bare backend ignores it. Omit to leave the backend its own default.' }],
@@ -3610,6 +3616,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the file\'s absolute path, current version, and byte size.',
       },
       {
+        signature: '@Remote async searchNames( workspaceFileScope: WorkspaceFileScope, query: string, signal: AbortSignal, ): Promise<WorkspaceFileNameSearch>',
+        description: 'Search file names below the workspace root for a substring, comparing each basename case-insensitively. The walk visits directories breadth-first, so a shallow match precedes a deeper one, and every match is reported as a path relative to the workspace root. Only regular files match: a directory is walked, never offered.\n\nThis is a name lookup, not a code search: no ignore file is consulted, and the configured excluded directories are neither matched nor descended, so a dependency store neither crowds the matches nor burns the visit budget. A directory the workspace root does not contain is not descended either: a symbolic link to a directory elsewhere neither reports names outside the workspace nor loops the walk.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'query', description: 'the substring matched against each basename; blank matches nothing.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the matching paths, cut to the configured match cap, and whether a cap stopped the walk.',
+      },
+      {
         signature: '@Remote async write( workspaceFileScope: WorkspaceFileScope, path: string, text: string, request: WorkspaceFileWriteRequest, signal: AbortSignal, ): Promise<WorkspaceFileStat>',
         description: 'Save one complete UTF-8 text file inside the Session\'s workspace: replace an existing regular file or create one. The path is refused before anything is written when its own entry is not a regular file (a final symbolic link included) or when the resolved target lies outside the workspace root.\n\nThe write is guarded by the caller\'s own freshness basis, not by the `fs/write-intent` slot. That slot decides from the per-Session observations an Agent accumulates by reading (`fs-observation-policy`, `writeIntent`), and its actor is a tool execution this Remote has none of; a browser save has read nothing through the Agent, so delegating to it would refuse every save of an existing file with `FS_NOT_OBSERVED`. Passing the Session as the actor instead would attribute the user\'s own save to the Agent\'s observation record and let a later Agent edit rewrite content it never read. `baseVersion` is therefore the basis the provider compares, and the successful write emits `fs/observed` with no actor, so the change feed reports the new version while the policy records no Agent observation.',
         parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.' }, { name: 'text', description: 'the complete new file content, written as UTF-8; more bytes than the configured `maxFileBytes` fails with too-large.' }, { name: 'request', description: 'the freshness basis; an omitted `baseVersion` writes unconditionally.' }, { name: 'signal', description: 'caller cancellation.' }],
@@ -3626,6 +3638,127 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Stream every `fs/observed` observation of a file inside the Session\'s workspace. Only instrumented filesystem operations report here; the OS is not watched.',
         parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'generation cancellation.' }],
         returns: '`ready` once the Host observation queue is active and the workspace root is resolved, then queued and live observations in emission order.',
+      },
+    ],
+  },
+  {
+    key: 'workspaceGit',
+    summary: 'Host Remote git operations for the Session workspace root.',
+    description: 'Host Remote git operations for the Session workspace root.',
+    methods: [
+      {
+        signature: '@Remote async isRepo(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<boolean>',
+        description: 'Report whether the Session workspace root lies inside a Git work tree.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the discovery answer; `false` on every failure, including a missing binary or timeout.',
+      },
+      {
+        signature: '@Remote async repoRoot(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<string>',
+        description: 'Name the work tree\'s top-level directory.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the absolute path `git rev-parse --show-toplevel` prints.',
+        throws: ['{RemoteError} `workspace-git/not-a-repo` when discovery cannot place the root inside a work tree.'],
+      },
+      {
+        signature: '@Remote async status(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GitStatus>',
+        description: 'Read one porcelain status of the work tree, its current branch, and that branch\'s position against its upstream. Untracked files are included; ignored files are not.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'porcelain entries in order, the `HEAD` abbreviated ref (`undefined` when unborn), and `upstream` when one is configured.',
+        throws: ['{RemoteError} `workspace-git/not-a-repo` outside a work tree.'],
+      },
+      {
+        signature: '@Remote async diff( workspaceFileScope: WorkspaceFileScope, path: string, staged: boolean, signal: AbortSignal, ): Promise<string>',
+        description: 'Read one unified diff as text. `staged` selects the index-versus-`HEAD` diff; otherwise the diff is worktree-versus-index.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'repo-relative pathspec limiting the diff; empty diffs the whole work tree.' }, { name: 'staged', description: 'whether to diff the index against `HEAD` instead of the worktree against the index.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the complete diff text, bounded by the configured `maxDiffBytes`.',
+        throws: ['{RemoteError} `workspace-git/too-large` when the diff exceeds `maxDiffBytes`; `bytes` is then a lower bound of the whole.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero.'],
+      },
+      {
+        signature: '@Remote async stage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>',
+        description: 'Stage changes into the index.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'repo-relative pathspec limiting the stage; empty stages the whole work tree.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/command-failed` when git exits nonzero, including a pathspec git refuses.'],
+      },
+      {
+        signature: '@Remote async unstage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>',
+        description: 'Unstage changes: reset index entries to their `HEAD` state.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'repo-relative pathspec limiting the unstage; empty unstages the whole index.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/command-failed` when git exits nonzero.'],
+      },
+      {
+        signature: '@Remote async discard(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>',
+        description: 'Discard worktree changes of one path: restore it from the index. The whole-repo discard does not exist here; a missing or empty path is refused before anything runs.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'repo-relative pathspec; required, never `undefined`.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/bad-path` when `path` is absent or empty.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero.'],
+      },
+      {
+        signature: '@Remote async commit(workspaceFileScope: WorkspaceFileScope, message: string, signal: AbortSignal): Promise<void>',
+        description: 'Commit the staged index with one message.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'message', description: 'commit message; trimmed, then required to be 1..2000 characters.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/bad-message` when the trimmed message is empty or longer than 2000 characters.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero, including an empty index.'],
+      },
+      {
+        signature: '@Remote async branches(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GitBranches>',
+        description: 'List local branches with the current marker, each branch\'s upstream, and each branch\'s ahead/behind counts, from one `for-each-ref` invocation.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'branches in ref order, cut to the configured `maxListEntries` with `truncated` reporting the cut.',
+        throws: ['{RemoteError} `workspace-git/not-a-repo` outside a work tree.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero.'],
+      },
+      {
+        signature: '@Remote async checkout(workspaceFileScope: WorkspaceFileScope, branch: string, signal: AbortSignal): Promise<void>',
+        description: 'Switch the work tree to an existing local branch.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'branch', description: 'branch to check out; must pass the accepted-name check.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/bad-branch` when the name fails the accepted-name check.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero, including a missing branch or dirty conflict.'],
+      },
+      {
+        signature: '@Remote async createBranch( workspaceFileScope: WorkspaceFileScope, name: string, from: string, signal: AbortSignal, ): Promise<void>',
+        description: 'Create a local branch, optionally starting from a revision.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'name', description: 'branch to create; must pass the accepted-name check.' }, { name: 'from', description: 'starting branch or revision; validated by the same check, empty starts from `HEAD`.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/bad-branch` when either name fails the accepted-name check.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero.'],
+      },
+      {
+        signature: '@Remote async push(workspaceFileScope: WorkspaceFileScope, setUpstream: boolean, signal: AbortSignal): Promise<void>',
+        description: 'Push the current branch. With `setUpstream`, the push targets `origin` by that fixed name and names the branch there after itself.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'setUpstream', description: 'whether to pass `--set-upstream origin HEAD`.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/command-failed` when git exits nonzero, including a missing remote and authentication failures.'],
+      },
+      {
+        signature: '@Remote async pull(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<void>',
+        description: 'Pull into the current branch from its upstream.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `workspace-git/command-failed` when git exits nonzero, including no configured upstream and merge conflicts.'],
+      },
+      {
+        signature: '@Remote async ghAvailable(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<boolean>',
+        description: 'Report whether the configured gh binary answers at all.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'whether `gh --version` completed; `false` on every failure, including a missing binary or timeout.',
+      },
+      {
+        signature: '@Remote async ghAuthStatus(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GhAuthStatus>',
+        description: 'Report what `gh auth status` says about the GitHub login. This call never throws: a missing binary, a timeout, and a missing login are all `authenticated: false` with a readable message, so the rest of the panel keeps working without gh installed or signed in.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the login state; `account` when the output names one, and `message` for people.',
+      },
+      {
+        signature: '@Remote async ghListPrs( workspaceFileScope: WorkspaceFileScope, state: \'open\' | \'closed\' | \'all\', signal: AbortSignal, ): Promise<readonly GhPr[]>',
+        description: 'List the repository\'s pull requests from the GitHub API through one `gh pr list --json` call, capped by the configured `maxListEntries`. Fields gh omits arrive as their zero values; output that is not a JSON array yields no rows.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'state', description: 'which pull requests to list: `open`, `closed`, or `all`.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'pull requests in gh order.',
+        throws: ['{RemoteError} `gateway/bad-request` when `state` is not one of the three words.', '{RemoteError} `workspace-git/not-a-repo` outside a work tree.', '{RemoteError} `workspace-git/command-failed` when gh exits nonzero, including no GitHub remote and a missing login.'],
+      },
+      {
+        signature: '@Remote async ghCreatePr( workspaceFileScope: WorkspaceFileScope, title: string, body: string, base: string, signal: AbortSignal, ): Promise<GhCreatedPr>',
+        description: 'Open one pull request for the current branch. `title` and `body` are trimmed and bounds-checked before gh runs; `base` must pass the accepted-name check, and an empty `base` lets GitHub use the repository default branch.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'title', description: 'pull-request title; 1..500 characters after trimming.' }, { name: 'body', description: 'pull-request body; 1..4000 characters after trimming.' }, { name: 'base', description: 'branch to merge into; empty selects the repository default branch.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the number parsed from the URL gh printed and that URL verbatim.',
+        throws: ['{RemoteError} `workspace-git/bad-pr-title` when the title or body fails its bounds; nothing ran.', '{RemoteError} `workspace-git/bad-branch` when a non-empty `base` fails the accepted-name check; nothing ran.', '{RemoteError} `workspace-git/not-a-repo` outside a work tree.', '{RemoteError} `workspace-git/command-failed` when gh exits nonzero or prints no pull-request URL.'],
+      },
+      {
+        signature: '@Remote async ghMergePr( workspaceFileScope: WorkspaceFileScope, number: number, method: \'\' | \'merge\' | \'squash\' | \'rebase\', signal: AbortSignal, ): Promise<void>',
+        description: 'Merge one pull request through `gh pr merge`. An empty `method` passes no strategy flag and leaves the choice to gh\'s non-interactive rules and the repository\'s allowed methods; every other value names its matching flag.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'number', description: 'pull request to merge; a positive integer.' }, { name: 'method', description: '`\'\'`, `\'merge\'`, `\'squash\'`, or `\'rebase\'`.' }, { name: 'signal', description: 'caller cancellation.' }],
+        throws: ['{RemoteError} `gateway/bad-request` when `number` or `method` is outside its allowed values.', '{RemoteError} `workspace-git/not-a-repo` outside a work tree.', '{RemoteError} `workspace-git/command-failed` when gh exits nonzero, including an unmergeable pull request.'],
       },
     ],
   },
@@ -5108,7 +5241,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'FsDirEntry',
-    declaration: 'export interface FsDirEntry {\n    name: string;\n    type: \'file\' | \'directory\' | \'other\';\n    target: FsTarget;\n    version?: FsVersion;\n    size?: number;\n}',
+    declaration: 'export interface FsDirEntry {\n    name: string;\n    type: \'file\' | \'directory\' | \'other\';\n    target: FsTarget;\n    version?: FsVersion;\n    size?: number;\n    symlink?: boolean;\n}',
   },
   {
     name: 'FsEditOutcome',
@@ -5148,7 +5281,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'FsWriteOutcome',
-    declaration: 'export interface FsWriteOutcome {\n    operation: \'create\' | \'update\';\n    version: FsVersion;\n    before: string | null;\n    after: string;\n}',
+    declaration: 'export interface FsWriteOutcome {\n    operation: \'create\' | \'update\';\n    version: FsVersion;\n    before: string | null;\n    after: string | null;\n}',
   },
   {
     name: 'GenerateOptions',
@@ -5161,6 +5294,38 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'GenericResultView',
     declaration: 'export interface GenericResultView {\n    card: \'generic\';\n    title?: string;\n    content?: ContentBlock[];\n}',
+  },
+  {
+    name: 'GhAuthStatus',
+    declaration: 'export interface GhAuthStatus {\n    readonly authenticated: boolean;\n    readonly account?: string;\n    readonly message: string;\n}',
+  },
+  {
+    name: 'GhCreatedPr',
+    declaration: 'export interface GhCreatedPr {\n    readonly number: number;\n    readonly url: string;\n}',
+  },
+  {
+    name: 'GhPr',
+    declaration: 'export interface GhPr {\n    readonly number: number;\n    readonly title: string;\n    readonly headRefName: string;\n    readonly baseRefName: string;\n    readonly isDraft: boolean;\n    readonly updatedAt: string;\n    readonly author: string;\n}',
+  },
+  {
+    name: 'GitBranch',
+    declaration: 'export interface GitBranch {\n    readonly name: string;\n    readonly current: boolean;\n    readonly upstream?: string;\n    readonly ahead: number;\n    readonly behind: number;\n}',
+  },
+  {
+    name: 'GitBranches',
+    declaration: 'export interface GitBranches {\n    readonly branches: readonly GitBranch[];\n    readonly truncated: boolean;\n}',
+  },
+  {
+    name: 'GitStatus',
+    declaration: 'export interface GitStatus {\n    readonly branch?: string;\n    readonly upstream?: GitUpstream;\n    readonly entries: readonly GitStatusEntry[];\n}',
+  },
+  {
+    name: 'GitStatusEntry',
+    declaration: 'export interface GitStatusEntry {\n    readonly path: string;\n    readonly index: string;\n    readonly worktree: string;\n    readonly staged: boolean;\n    readonly unstaged: boolean;\n    readonly untracked: boolean;\n}',
+  },
+  {
+    name: 'GitUpstream',
+    declaration: 'export interface GitUpstream {\n    readonly ahead: number;\n    readonly behind: number;\n}',
   },
   {
     name: 'GoalActivation',
@@ -7940,7 +8105,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'WorkspaceDirectoryEntry',
-    declaration: 'export interface WorkspaceDirectoryEntry {\n    readonly name: string;\n    readonly type: \'file\' | \'directory\' | \'other\';\n    readonly size?: number;\n}',
+    declaration: 'export interface WorkspaceDirectoryEntry {\n    readonly name: string;\n    readonly type: \'file\' | \'directory\' | \'other\';\n    readonly size?: number;\n    readonly symlink?: boolean;\n}',
   },
   {
     name: 'WorkspaceDirectoryListing',
@@ -7957,6 +8122,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceFileDiff',
     declaration: 'export type WorkspaceFileDiff = {\n    kind: \'text\';\n    path: string;\n    display: string;\n    before: boolean;\n    after: boolean;\n    hunks: WorkspaceDiffHunk[];\n    coarse: boolean;\n} | {\n    kind: \'binary\';\n    path: string;\n    display: string;\n} | {\n    kind: \'oversized\';\n    path: string;\n    display: string;\n};',
+  },
+  {
+    name: 'WorkspaceFileNameMatch',
+    declaration: 'export interface WorkspaceFileNameMatch {\n    readonly path: string;\n    readonly bytes?: number;\n}',
+  },
+  {
+    name: 'WorkspaceFileNameSearch',
+    declaration: 'export interface WorkspaceFileNameSearch {\n    readonly matches: readonly WorkspaceFileNameMatch[];\n    readonly truncated: boolean;\n}',
   },
   {
     name: 'WorkspaceFileRange',

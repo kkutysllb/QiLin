@@ -343,7 +343,7 @@ export interface Config {
 ## `@qilin/api-workspace-files`
 
 - `inject`: `fs` · `sandboxPolicy` · `sessions` · `typert`
-- `source`: [`packages/api/workspace-files/src/index.ts:79`](../packages/api/workspace-files/src/index.ts)
+- `source`: [`packages/api/workspace-files/src/index.ts:81`](../packages/api/workspace-files/src/index.ts)
 
 ```ts config-catalog
 /** Deployment caps on one page or one listing. */
@@ -362,9 +362,51 @@ export interface Config {
   readonly maxLines: number
   /** Cap on returned directory entries; the rest is dropped and reported cut. */
   readonly maxEntries: number
+  /** Cap on returned filename-search matches; the walk stops at this many and reports the cut. */
+  readonly maxSearchMatches: number
+  /** Cap on directory entries one filename search visits; past it the walk reports the cut. */
+  readonly maxSearchVisited: number
+  /**
+   * Directory basenames a filename search neither matches nor descends into.
+   *
+   * Version-control and dependency stores plus build outputs carry generated
+   * names that crowd out project files, so the default skips them; a workspace
+   * that keeps sources in one of them narrows the list here.
+   */
+  readonly searchExcludedDirectories: string[]
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/api-workspace-files -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin/api-workspace-git -->
+<a id="qilinapi-workspace-git"></a>
+
+## `@qilin/api-workspace-git`
+
+- `source`: [`packages/api/workspace-git/src/index.ts:37`](../packages/api/workspace-git/src/index.ts)
+
+```ts config-catalog
+/** Deployment knobs on the git and gh binaries, the spawn timeouts, and the answer caps. */
+export interface Config {
+  /** Git executable spawned for every repository call. */
+  readonly gitBin: string
+  /** gh executable spawned for every pull-request call. */
+  readonly ghBin: string
+  /** Timeout on one content or mutation command; a command past it is killed and reported as command-failed. */
+  readonly timeoutMs: number
+  /** Timeout on one repository-discovery command (`rev-parse` and upstream resolution). */
+  readonly discoveryTimeoutMs: number
+  /** Timeout on one `gh` call; gh talks to the GitHub API and is slower than local git. */
+  readonly ghTimeoutMs: number
+  /** Inclusive byte cap on one diff; a larger diff fails with too-large, never shortened. */
+  readonly maxDiffBytes: number
+  /** Character cap on the stderr one command failure carries. */
+  readonly maxStderrChars: number
+  /** Cap on returned branch and pull-request entries; pull requests are capped in the gh `--limit`. */
+  readonly maxListEntries: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin/api-workspace-git -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin/attachment-local -->
 <a id="qilinattachment-local"></a>
@@ -1326,6 +1368,23 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/host-open-in-app -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin/host-preview-media -->
+<a id="qilinhost-preview-media"></a>
+
+## `@qilin/host-preview-media`
+
+- `inject`: `webServer` · `connection` · `sessions` · `sandboxPolicy` · `fs`
+- `source`: [`packages/host/preview-media/src/index.ts:37`](../packages/host/preview-media/src/index.ts)
+
+```ts config-catalog
+/** Cordis row selecting the media limit. */
+export interface Config {
+  /** Ceiling in bytes for one whole-file (non-ranged) response. */
+  mediaLimitBytes?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin/host-preview-media -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin/host-webserver -->
 <a id="qilinhost-webserver"></a>
@@ -4228,6 +4287,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin/client-ui-sidebar` | — | [`packages/client/ui-sidebar/src/index.ts`](../packages/client/ui-sidebar/src/index.ts) |
 | `@qilin/client-ui-sidebar-browser` | — | [`packages/client/ui-sidebar-browser/src/index.ts`](../packages/client/ui-sidebar-browser/src/index.ts) |
 | `@qilin/client-ui-sidebar-files` | — | [`packages/client/ui-sidebar-files/src/index.ts`](../packages/client/ui-sidebar-files/src/index.ts) |
+| `@qilin/client-ui-sidebar-git` | — | [`packages/client/ui-sidebar-git/src/index.ts`](../packages/client/ui-sidebar-git/src/index.ts) |
 | `@qilin/client-ui-sidebar-plans` | — | [`packages/client/ui-sidebar-plans/src/index.ts`](../packages/client/ui-sidebar-plans/src/index.ts) |
 | `@qilin/client-ui-sidebar-right` | — | [`packages/client/ui-sidebar-right/src/index.ts`](../packages/client/ui-sidebar-right/src/index.ts) |
 | `@qilin/client-ui-sidebar-tasks` | — | [`packages/client/ui-sidebar-tasks/src/index.ts`](../packages/client/ui-sidebar-tasks/src/index.ts) |

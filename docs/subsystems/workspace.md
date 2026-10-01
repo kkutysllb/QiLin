@@ -420,6 +420,27 @@ Host Remote file reads and writes plus workspace directory observations over the
 @Remote async stat(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<WorkspaceFileStat>
 
 /**
+ * Search file names below the workspace root for a substring, comparing each
+ * basename case-insensitively. The walk visits directories breadth-first, so
+ * a shallow match precedes a deeper one, and every match is reported as a
+ * path relative to the workspace root. Only regular files match: a directory
+ * is walked, never offered.
+ *
+ * This is a name lookup, not a code search: no ignore file is consulted, and
+ * the configured excluded directories are neither matched nor descended, so a
+ * dependency store neither crowds the matches nor burns the visit budget. A
+ * directory the workspace root does not contain is not descended either: a
+ * symbolic link to a directory elsewhere neither reports names outside the
+ * workspace nor loops the walk.
+ *
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param query - the substring matched against each basename; blank matches nothing.
+ * @param signal - caller cancellation.
+ * @returns the matching paths, cut to the configured match cap, and whether a cap stopped the walk.
+ */
+@Remote async searchNames( workspaceFileScope: WorkspaceFileScope, query: string, signal: AbortSignal, ): Promise<WorkspaceFileNameSearch>
+
+/**
  * Save one complete UTF-8 text file inside the Session's workspace: replace an
  * existing regular file or create one. The path is refused before anything is
  * written when its own entry is not a regular file (a final symbolic link
@@ -468,6 +489,213 @@ Host Remote file reads and writes plus workspace directory observations over the
 ```
 
 Source: [`packages/api/workspace-files/src/index.ts`](../../packages/api/workspace-files/src/index.ts)
+
+<a id="ctxworkspacegit--workspacegit"></a>
+
+### `ctx.workspaceGit` — `WorkspaceGit`
+
+Host Remote git operations for the Session workspace root.
+
+```ts cordis-catalog
+/**
+ * Report whether the Session workspace root lies inside a Git work tree.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @returns the discovery answer; `false` on every failure, including a missing binary or timeout.
+ */
+@Remote async isRepo(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<boolean>
+
+/**
+ * Name the work tree's top-level directory.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @returns the absolute path `git rev-parse --show-toplevel` prints.
+ * @throws {RemoteError} `workspace-git/not-a-repo` when discovery cannot place the root inside a work tree.
+ */
+@Remote async repoRoot(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<string>
+
+/**
+ * Read one porcelain status of the work tree, its current branch, and that
+ * branch's position against its upstream. Untracked files are included;
+ * ignored files are not.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @returns porcelain entries in order, the `HEAD` abbreviated ref (`undefined` when unborn), and `upstream` when one is configured.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ */
+@Remote async status(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GitStatus>
+
+/**
+ * Read one unified diff as text. `staged` selects the index-versus-`HEAD`
+ * diff; otherwise the diff is worktree-versus-index.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - repo-relative pathspec limiting the diff; empty diffs the whole work tree.
+ * @param staged - whether to diff the index against `HEAD` instead of the worktree against the index.
+ * @param signal - caller cancellation.
+ * @returns the complete diff text, bounded by the configured `maxDiffBytes`.
+ * @throws {RemoteError} `workspace-git/too-large` when the diff exceeds `maxDiffBytes`; `bytes` is then a lower bound of the whole.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero.
+ */
+@Remote async diff( workspaceFileScope: WorkspaceFileScope, path: string, staged: boolean, signal: AbortSignal, ): Promise<string>
+
+/**
+ * Stage changes into the index.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - repo-relative pathspec limiting the stage; empty stages the whole work tree.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a pathspec git refuses.
+ */
+@Remote async stage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>
+
+/**
+ * Unstage changes: reset index entries to their `HEAD` state.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - repo-relative pathspec limiting the unstage; empty unstages the whole index.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero.
+ */
+@Remote async unstage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>
+
+/**
+ * Discard worktree changes of one path: restore it from the index. The
+ * whole-repo discard does not exist here; a missing or empty path is
+ * refused before anything runs.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - repo-relative pathspec; required, never `undefined`.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/bad-path` when `path` is absent or empty.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero.
+ */
+@Remote async discard(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>
+
+/**
+ * Commit the staged index with one message.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param message - commit message; trimmed, then required to be 1..2000 characters.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/bad-message` when the trimmed message is empty or longer than 2000 characters.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including an empty index.
+ */
+@Remote async commit(workspaceFileScope: WorkspaceFileScope, message: string, signal: AbortSignal): Promise<void>
+
+/**
+ * List local branches with the current marker, each branch's upstream, and
+ * each branch's ahead/behind counts, from one `for-each-ref` invocation.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @returns branches in ref order, cut to the configured `maxListEntries` with `truncated` reporting the cut.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero.
+ */
+@Remote async branches(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GitBranches>
+
+/**
+ * Switch the work tree to an existing local branch.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param branch - branch to check out; must pass the accepted-name check.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/bad-branch` when the name fails the accepted-name check.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a missing branch or dirty conflict.
+ */
+@Remote async checkout(workspaceFileScope: WorkspaceFileScope, branch: string, signal: AbortSignal): Promise<void>
+
+/**
+ * Create a local branch, optionally starting from a revision.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param name - branch to create; must pass the accepted-name check.
+ * @param from - starting branch or revision; validated by the same check, empty starts from `HEAD`.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/bad-branch` when either name fails the accepted-name check.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero.
+ */
+@Remote async createBranch( workspaceFileScope: WorkspaceFileScope, name: string, from: string, signal: AbortSignal, ): Promise<void>
+
+/**
+ * Push the current branch. With `setUpstream`, the push targets `origin`
+ * by that fixed name and names the branch there after itself.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param setUpstream - whether to pass `--set-upstream origin HEAD`.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a missing remote and authentication failures.
+ */
+@Remote async push(workspaceFileScope: WorkspaceFileScope, setUpstream: boolean, signal: AbortSignal): Promise<void>
+
+/**
+ * Pull into the current branch from its upstream.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including no configured upstream and merge conflicts.
+ */
+@Remote async pull(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<void>
+
+/**
+ * Report whether the configured gh binary answers at all.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @returns whether `gh --version` completed; `false` on every failure, including a missing binary or timeout.
+ */
+@Remote async ghAvailable(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<boolean>
+
+/**
+ * Report what `gh auth status` says about the GitHub login. This call never
+ * throws: a missing binary, a timeout, and a missing login are all
+ * `authenticated: false` with a readable message, so the rest of the panel
+ * keeps working without gh installed or signed in.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param signal - caller cancellation.
+ * @returns the login state; `account` when the output names one, and `message` for people.
+ */
+@Remote async ghAuthStatus(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GhAuthStatus>
+
+/**
+ * List the repository's pull requests from the GitHub API through one
+ * `gh pr list --json` call, capped by the configured `maxListEntries`.
+ * Fields gh omits arrive as their zero values; output that is not a JSON
+ * array yields no rows.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param state - which pull requests to list: `open`, `closed`, or `all`.
+ * @param signal - caller cancellation.
+ * @returns pull requests in gh order.
+ * @throws {RemoteError} `gateway/bad-request` when `state` is not one of the three words.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ * @throws {RemoteError} `workspace-git/command-failed` when gh exits nonzero, including no GitHub remote and a missing login.
+ */
+@Remote async ghListPrs( workspaceFileScope: WorkspaceFileScope, state: 'open' | 'closed' | 'all', signal: AbortSignal, ): Promise<readonly GhPr[]>
+
+/**
+ * Open one pull request for the current branch. `title` and `body` are
+ * trimmed and bounds-checked before gh runs; `base` must pass the
+ * accepted-name check, and an empty `base` lets GitHub use the repository
+ * default branch.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param title - pull-request title; 1..500 characters after trimming.
+ * @param body - pull-request body; 1..4000 characters after trimming.
+ * @param base - branch to merge into; empty selects the repository default branch.
+ * @param signal - caller cancellation.
+ * @returns the number parsed from the URL gh printed and that URL verbatim.
+ * @throws {RemoteError} `workspace-git/bad-pr-title` when the title or body fails its bounds; nothing ran.
+ * @throws {RemoteError} `workspace-git/bad-branch` when a non-empty `base` fails the accepted-name check; nothing ran.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ * @throws {RemoteError} `workspace-git/command-failed` when gh exits nonzero or prints no pull-request URL.
+ */
+@Remote async ghCreatePr( workspaceFileScope: WorkspaceFileScope, title: string, body: string, base: string, signal: AbortSignal, ): Promise<GhCreatedPr>
+
+/**
+ * Merge one pull request through `gh pr merge`. An empty `method` passes no
+ * strategy flag and leaves the choice to gh's non-interactive rules and the
+ * repository's allowed methods; every other value names its matching flag.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param number - pull request to merge; a positive integer.
+ * @param method - `''`, `'merge'`, `'squash'`, or `'rebase'`.
+ * @param signal - caller cancellation.
+ * @throws {RemoteError} `gateway/bad-request` when `number` or `method` is outside its allowed values.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ * @throws {RemoteError} `workspace-git/command-failed` when gh exits nonzero, including an unmergeable pull request.
+ */
+@Remote async ghMergePr( workspaceFileScope: WorkspaceFileScope, number: number, method: '' | 'merge' | 'squash' | 'rebase', signal: AbortSignal, ): Promise<void>
+```
+
+Source: [`packages/api/workspace-git/src/index.ts`](../../packages/api/workspace-git/src/index.ts)
 
 <a id="ctxworkspaceregistry--workspaceregistry"></a>
 

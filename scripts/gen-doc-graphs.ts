@@ -288,6 +288,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Serves stat, paged text, byte windows, directory listings, the change feed, and the guarded save for files inside a Session\'s workspace root, confined by lstat, containment, and a stat re-check.',
   },
   {
+    key: 'workspaceGit',
+    pkg: 'api-workspace-git',
+    title: 'Host workspace git Remote service',
+    mode: 'core',
+    note: 'Drives fixed-argv git and gh processes in the Session workspace root: repo discovery, porcelain status with upstream position, bounded diffs, staging, commit, branch listing and switching, push, pull, and the gh pull-request face.',
+  },
+  {
     key: 'workspaceChanges',
     pkg: 'workspace-changes',
     title: 'Host per-turn changed-file summaries',

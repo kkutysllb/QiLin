@@ -63,14 +63,6 @@ declare module '@qilin/client-ui-slots' {
       inject: SidebarRightTabInjected
     }
     /**
-     * A tab's title as its chip (and a floating panel's header) shows it,
-     * dispatched with the same key and information hook as the body. A type with a
-     * live title — a terminal named after its shell, a chat after its first
-     * line — registers here and reads its own store; one without registers
-     * nothing and the chip shows the registry's `title(address)` text captured
-     * at open time.
-     */
-    /**
      * QiLin-local: per-tab status pill (tasks). Registrants render a keyed cell
      * beside the tab title; the strip calls it on every render, so a registrant
      * reads an already-computed fact rather than deriving one.
@@ -81,6 +73,14 @@ declare module '@qilin/client-ui-slots' {
       hookContext: TabHookContext
       inject: SidebarRightTabInjected
     }
+    /**
+     * A tab's title as its chip (and a floating panel's header) shows it,
+     * dispatched with the same key and information hook as the body. A type with a
+     * live title — a terminal named after its shell, a chat after its first
+     * line — registers here and reads its own store; one without registers
+     * nothing and the chip shows the registry's `title(address)` text captured
+     * at open time.
+     */
     'sidebar.right.pane.tab.title': {
       kind: 'keyed'
       scope: 'session'
