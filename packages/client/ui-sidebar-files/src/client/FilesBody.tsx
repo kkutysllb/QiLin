@@ -1,7 +1,8 @@
 /**
  * The `files` page's body: the session's workspace root, listed one level at
  * a time. The tree itself is `FileTree.tsx`, shared with the `file` editor's
- * side pane; this component adds the header row and the no-workspace case.
+ * side pane; this component adds the header row, the filename search beside
+ * it, and the no-workspace case.
  *
  * The header row is the text preview's: the root's path, directories greyed
  * and the last segment in full ink, then the one control at its end, reload,
@@ -11,6 +12,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
 import { fileAddressFor, pathPartsOf } from '@qilin/util-workspace-path'
+import { FileSearchBox, FileSearchResults } from './FileSearch.tsx'
 import { FileTree } from './FileTree.tsx'
 import type { FilesInjected } from './face.ts'
 import type { PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
@@ -62,7 +64,7 @@ function usePathClipped(
 
 /** The file tree's body: the workspace root and whatever the reader has opened under it. */
 export function FilesBody({
-  useTabInfo, sessionId, useSessions, useStore, actions, start, load, toggle, t, renderSlot,
+  useTabInfo, sessionId, useSessions, useStore, actions, start, load, toggle, search, t, renderSlot,
 }: FilesBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const { signal, actions: tabActions } = tab
@@ -117,6 +119,14 @@ export function FilesBody({
     load(tab.id, state.root, signal)
     for (const path of state.expanded) load(tab.id, path, signal)
   }
+  // A standing query takes the body: the matches describe the whole workspace,
+  // so the open levels underneath have nothing to add. The box's own state
+  // carries the query, which is why a blank box — not an empty result — is what
+  // brings the tree back.
+  const searching = state.search.query.trim() !== ''
+  const openResult = (path: string): void => {
+    tabActions.openResource(fileAddressFor(sessionId, state.root, path))
+  }
   return (
     <UploadOverlay sessionId={sessionId} root={state.root} onUploaded={uploaded} t={t}>
       <div className={css.root} data-files-state="tree" data-files-root={state.root}>
@@ -143,19 +153,39 @@ export function FilesBody({
           })}
         </div>
         {/* jscpd:ignore-end */}
+        <FileSearchBox
+          query={state.search.query}
+          onQuery={(query) => {
+            actions.searchTyped(tab.id, query)
+            search(tab.id, query, signal)
+          }}
+          onClear={() => {
+            actions.searchCleared(tab.id)
+            search(tab.id, '', signal)
+          }}
+          t={t}
+        />
         <div
           ref={bodyRef}
           className={css.body}
           data-files-body
           onScroll={(event) => { scrollTopRef.current = event.currentTarget.scrollTop }}
         >
-          <FileTree
-            state={state}
-            onToggle={(path) => { toggle(tab.id, path, state.levels[path] !== undefined, signal) }}
-            // Every row is under the tree's root, so its address is session-relative.
-            onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, state.root, path)) }}
-            t={t}
-          />
+          {searching
+            ? (
+              <ul className={css.level} data-files-search-results>
+                <FileSearchResults state={state.search} onOpen={openResult} t={t} />
+              </ul>
+            )
+            : (
+              <FileTree
+                state={state}
+                onToggle={(path) => { toggle(tab.id, path, state.levels[path] !== undefined, signal) }}
+                // Every row is under the tree's root, so its address is session-relative.
+                onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, state.root, path)) }}
+                t={t}
+              />
+            )}
         </div>
       </div>
     </UploadOverlay>

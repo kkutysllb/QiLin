@@ -33,7 +33,7 @@ describe('createFilesStore', () => {
     const { actions } = store
     const getSnapshot = (): ReturnType<typeof store.getSnapshot> => store.getSnapshot()
     actions.start(TAB, ROOT)
-    expect(getSnapshot().byTab[TAB]).toEqual({ root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0 })
+    expect(getSnapshot().byTab[TAB]).toEqual({ root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0, search: { kind: 'idle', query: '' } })
   })
 
   it('walks one level through loading, ready, and failed', () => {
@@ -75,7 +75,7 @@ describe('createFilesStore', () => {
     actions.toggled(TAB, child)
     actions.loaded(TAB, child, LEVEL)
     actions.reset(TAB)
-    expect(getSnapshot().byTab[TAB]).toEqual({ root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0 })
+    expect(getSnapshot().byTab[TAB]).toEqual({ root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0, search: { kind: 'idle', query: '' } })
   })
 
   it('remembers where the body is scrolled to', () => {
@@ -99,5 +99,27 @@ describe('createFilesStore', () => {
     actions.start('tab-2' as TabId, ROOT)
     actions.forget(TAB)
     expect(Object.keys(getSnapshot().byTab)).toEqual(['tab-2'])
+  })
+
+  it('walks the search through typed, running, ready, and failed', () => {
+    const store = createFilesStore().create()
+    const { actions } = store
+    const getSnapshot = (): ReturnType<typeof store.getSnapshot> => store.getSnapshot()
+    actions.start(TAB, ROOT)
+    // Typing drops whatever the previous text had answered, whatever it was.
+    actions.searchRunning(TAB, 're')
+    actions.searchTyped(TAB, 'read')
+    expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'idle', query: 'read' })
+    actions.searchRunning(TAB, 'read')
+    expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'running', query: 'read' })
+    actions.searchSettled(TAB, 'read', [{ path: 'README.md', bytes: 12 }], true)
+    expect(getSnapshot().byTab[TAB]!.search).toEqual({
+      kind: 'ready', query: 'read', matches: [{ path: 'README.md', bytes: 12 }], truncated: true,
+    })
+    const failure = new RemoteError('workspace-file/not-found', 'gone', { path: ROOT })
+    actions.searchFailed(TAB, 'read', failure)
+    expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'failed', query: 'read', failure })
+    actions.searchCleared(TAB)
+    expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'idle', query: '' })
   })
 })

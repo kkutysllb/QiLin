@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-把本包与 `qilin-fs`、`qilin-sandbox-policy`、Session store 和 Typert Gateway 一起挂载；bundle 把它紧随 Session Controller 之后挂载。每个方法都在线路上携带 Session 身份，Client 调用 `remote.workspaceFiles.read(sessionId, path, range, signal)`、`stat(sessionId, path, signal)`、`readBytes(sessionId, path, range, signal)`、`write(sessionId, path, text, { baseVersion? }, signal)`、`list(sessionId, path, signal)` 或 `changes(sessionId, signal)`，从不自己指定根。Host 读取 live Session header，cold Session 则使用持久层 `stat`；它不会激活 Agent、读取事件正文或借用父 Session 的根。live 读取不要求挂载 Session persistence；未挂载时 cold Session 无法解析，Gateway 返回 `gateway/lookup-not-found`。
+把本包与 `qilin-fs`、`qilin-sandbox-policy`、Session store 和 Typert Gateway 一起挂载；bundle 把它紧随 Session Controller 之后挂载。每个方法都在线路上携带 Session 身份，Client 调用 `remote.workspaceFiles.read(sessionId, path, range, signal)`、`stat(sessionId, path, signal)`、`readBytes(sessionId, path, range, signal)`、`write(sessionId, path, text, { baseVersion? }, signal)`、`list(sessionId, path, signal)`、`searchNames(sessionId, query, signal)` 或 `changes(sessionId, signal)`，从不自己指定根。Host 读取 live Session header，cold Session 则使用持久层 `stat`；它不会激活 Agent、读取事件正文或借用父 Session 的根。live 读取不要求挂载 Session persistence；未挂载时 cold Session 无法解析，Gateway 返回 `gateway/lookup-not-found`。
 
 | 方法 | 返回 | 用途 |
 |---|---|---|
@@ -36,6 +36,7 @@ kind: "package-reference"
 | `readRelated(path, relativePath)` | `WorkspaceFileBytes` | Host 从基文件目录解析出的文件的完整字节 |
 | `write(path, text, { baseVersion? })` | `WorkspaceFileStat { absolutePath, version, bytes? }` | 在工作区内替换或新建一个完整的 UTF-8 文本文件；`baseVersion` 不再匹配时以 `workspace-file/stale` 失败且不写入 |
 | `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | 一个目录的直接子项 |
+| `searchNames(query)` | `WorkspaceFileNameSearch { matches, truncated }` | 工作区根之下 basename 包含查询串的文件，不区分大小写 |
 | `changes()` | `WorkspaceFileWatchFrame` 流 | 订阅就绪确认，随后为工作区根内的文件系统观察 |
 
 ### 寻址与路径
@@ -62,6 +63,10 @@ kind: "package-reference"
 
 `changes` 是 `stream` 模式的 Remote。一代流注册观察队列并解析 Session 工作区根之后，才产出 `{ kind: 'ready' }`。随后产出 `{ kind: 'change', change }`，其中 `change` 对存在的文件为 `{ absolutePath, version }`，对被观察到已消失的文件为 `{ absolutePath, absent: true }`。来源是按该根内目标过滤的 `fs/observed`；操作系统并未被监视。一代流首次拉取后的观察都会排队，包括解析根期间的观察。流在取消或插件释放时结束。
 
+### 文件名搜索
+
+`searchNames` 自工作区根广度优先遍历：浅层匹配排在深层之前，每条匹配以相对该根的路径回报。只有普通文件会匹配；目录只被遍历，不会作为结果。比较只针对 basename，不区分大小写。这是名称查找而非代码搜索：不读取任何 ignore 文件，配置中排除的目录既不匹配也不进入，依赖目录既不会挤占匹配也不会耗尽访问预算。根不包含的目录同样不会进入，指向工作区之外的符号链接目录既不会泄露外部名称，也无法让遍历成环。命中匹配上限或访问上限即停止并置 `truncated: true`；空白查询不触碰文件系统，直接返回空结果。
+
 ### 配置
 
 | 字段 | 默认值 | 含义 |
@@ -70,6 +75,9 @@ kind: "package-reference"
 | `maxFileBytes` | `33554432`（32 MiB） | `readAll` 和 `readRelated` 的完整文件字节上限（含）；更大文件以 `too-large` 失败 |
 | `maxLines` | `5000` | 页大小的缺省值与上限（行）；更大的 `limit` 被拒绝 |
 | `maxEntries` | `2000` | 返回目录条目数上限；其余丢弃并报告截断 |
+| `maxSearchMatches` | `100` | 文件名搜索返回匹配数上限；走到即停并报告截断 |
+| `maxSearchVisited` | `100000` | 单次文件名搜索访问的目录条目数上限；超过即报告截断 |
+| `searchExcludedDirectories` | [`.git`、`node_modules` 等](src/index.ts) | 文件名搜索既不匹配也不进入的目录名 |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilinapi-workspace-files)是每个可接受字段及其 JSDoc 的完备来源。
 

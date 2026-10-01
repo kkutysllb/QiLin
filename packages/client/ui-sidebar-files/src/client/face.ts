@@ -21,6 +21,7 @@
 import type { ClientRemote, RemoteResult } from '@qilin/api-remotes/client'
 import type { BoundActions } from '@qilin/client-store'
 import type { TabId } from '@qilin/client-ui-dockkit'
+import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
 import type { SessionId } from '@qilin/session/types'
 import type { DirLevel, createFilesStore } from './store.ts'
 
@@ -38,11 +39,24 @@ export type ListWorkspaceDirectory = (
 ) => Promise<RemoteResult<DirLevel>>
 
 /**
- * The slice of the Client Remote face this package calls: the `workspaceFiles`
- * namespace's `list`, exactly as the Host's generated client declares it.
+ * One filename search, bound to a Remote face.
+ *
+ * The query is matched against basenames below the same workspace root the
+ * listing is rooted at, and the answer is workspace-relative paths.
  */
-export type WorkspaceFilesListRemote = {
-  readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'list'>
+export type SearchWorkspaceFileNames = (
+  sessionId: SessionId,
+  query: string,
+  signal: AbortSignal,
+) => Promise<RemoteResult<WorkspaceFileNameSearch>>
+
+/**
+ * The slice of the Client Remote face this package calls: the `workspaceFiles`
+ * namespace's `list` and `searchNames`, exactly as the Host's generated client
+ * declares them.
+ */
+export type WorkspaceFilesTreeRemote = {
+  readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'list' | 'searchNames'>
 }
 
 /**
@@ -50,12 +64,29 @@ export type WorkspaceFilesListRemote = {
  * @param remote - the Client Remote face carrying the `workspaceFiles` namespace.
  * @returns the listing the tree's face performs.
  */
-export function createList(remote: WorkspaceFilesListRemote): ListWorkspaceDirectory {
+export function createList(remote: WorkspaceFilesTreeRemote): ListWorkspaceDirectory {
   return async (sessionId, path, signal) => {
     const result = await remote.workspaceFiles.list(sessionId, path, signal)
     if (!result.ok) return result
     return { ok: true, value: { entries: result.value.entries, truncated: result.value.truncated } }
   }
+}
+
+/**
+ * How long the box settles before a query reaches the Host. Keystrokes that
+ * arrive inside the window replace the pending query instead of asking the
+ * Host for a prefix nobody wants finished.
+ */
+export const SEARCH_SETTLE_MS = 200
+
+/**
+ * Bind the filename search to one Remote face, dropping the entries this
+ * package does not draw.
+ * @param remote - the Client Remote face carrying the `workspaceFiles` namespace.
+ * @returns the search the tree's face performs.
+ */
+export function createSearch(remote: WorkspaceFilesTreeRemote): SearchWorkspaceFileNames {
+  return (sessionId, query, signal) => remote.workspaceFiles.searchNames(sessionId, query, signal)
 }
 
 /**
@@ -95,15 +126,24 @@ export interface FilesInjected {
    * @param signal - the tab record's lifetime.
    */
   readonly toggle: (tabId: TabId, path: string, loaded: boolean, signal: AbortSignal) => void
+  /**
+   * Ask for the files whose names contain one query, after the box settles.
+   * @param tabId - the tab being drawn.
+   * @param query - the box's text, exactly as typed; blank asks nothing.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly search: (tabId: TabId, query: string, signal: AbortSignal) => void
 }
 
 /**
- * Bind the tree's face to one directory listing.
+ * Bind the tree's face to one directory listing and one filename search.
  * @param list - the bound `workspaceFiles.list` call.
+ * @param searchNames - the bound `workspaceFiles.searchNames` call.
  * @returns the Slot `inject` factory: session and bound actions in, face out.
  */
 export function filesFace(
   list: ListWorkspaceDirectory,
+  searchNames: SearchWorkspaceFileNames,
 ): (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>) => FilesInjected {
   return (
     sessionId: SessionId,
@@ -130,10 +170,44 @@ export function filesFace(
         else actions.failed(tabId, path, result.error)
       })
     }
+    /**
+     * Per tab, the settled-query generation an answer must match: the newest
+     * text wins, and an answer for replaced text is dropped rather than shown.
+     */
+    const queryGenerations = new Map<TabId, number>()
+    /** Per tab, the settle timer still waiting to ask the Host. */
+    const settling = new Map<TabId, ReturnType<typeof setTimeout>>()
+    const searchQuery = (tabId: TabId, query: string, signal: AbortSignal): void => {
+      if (signal.aborted) return
+      const generation = (queryGenerations.get(tabId) ?? 0) + 1
+      queryGenerations.set(tabId, generation)
+      const waiting = settling.get(tabId)
+      if (waiting !== undefined) clearTimeout(waiting)
+      const needle = query.trim()
+      if (needle === '') {
+        settling.delete(tabId)
+        actions.searchCleared(tabId)
+        return
+      }
+      settling.set(tabId, setTimeout(() => {
+        settling.delete(tabId)
+        if (queryGenerations.get(tabId) !== generation) return
+        actions.searchRunning(tabId, query)
+        void searchNames(sessionId, needle, signal).then((result) => {
+          if (queryGenerations.get(tabId) !== generation) return
+          if (result.ok) actions.searchSettled(tabId, query, result.value.matches, result.value.truncated)
+          else actions.searchFailed(tabId, query, result.error)
+        })
+      }, SEARCH_SETTLE_MS))
+    }
     return {
       start(tabId, root, signal) {
         actions.start(tabId, root)
         signal.addEventListener('abort', () => {
+          const waiting = settling.get(tabId)
+          if (waiting !== undefined) clearTimeout(waiting)
+          settling.delete(tabId)
+          queryGenerations.delete(tabId)
           generations.delete(tabId)
           actions.forget(tabId)
         }, { once: true })
@@ -143,6 +217,9 @@ export function filesFace(
       toggle(tabId, path, loaded, signal) {
         actions.toggled(tabId, path)
         if (!loaded) load(tabId, path, signal)
+      },
+      search(tabId, query, signal) {
+        searchQuery(tabId, query, signal)
       },
     }
   }

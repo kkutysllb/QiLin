@@ -78,7 +78,9 @@ function harness(cwd: string | null, initialParams: Record<string, unknown> | un
   const instance = createFilesStore().create()
   const script = scriptedList()
   const edits = scriptedEdit()
-  const treeFace: FilesInjected = filesFace(script.list)(SESSION, instance.actions)
+  // The editor's tree pane never opens the search box, so its search hand is
+  // the scripted mock's default: never called.
+  const treeFace: FilesInjected = filesFace(script.list, vi.fn())(SESSION, instance.actions)
   const editFace: FileEditorInjected = fileEditFace(edits.readWhole, edits.write)(SESSION, instance.actions)
   const controller = new AbortController()
   const tabActions: MockedTabActions = {

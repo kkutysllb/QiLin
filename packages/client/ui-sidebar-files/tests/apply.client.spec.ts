@@ -97,7 +97,7 @@ describe('ui-sidebar-files apply', () => {
       's-1', storeInstance.actions,
     )
     expect(Object.keys(face).sort()).toEqual([
-      'load', 'openPreview', 'readFile', 'saveFile', 'start', 'toggle',
+      'load', 'openPreview', 'readFile', 'saveFile', 'search', 'start', 'toggle',
     ])
     const file = tabs.get(FILE_KIND)
     expect(file?.id).toBe(FILE_ID)

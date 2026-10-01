@@ -8,8 +8,9 @@
  *   filesystem's execution world, because their consumer is the Client
  *   resource system, whose `qilin-resource://file/session/<id>/<path>` address carries that
  *   same path.
- * - `list` speaks workspace paths — the same syntax its `path` argument accepts —
- *   because its consumer is a tree rooted at the workspace root.
+ * - `list` and `searchNames` speak workspace paths — the same syntax `list`'s
+ *   `path` argument accepts — because their consumer is a tree rooted at the
+ *   workspace root.
  *
  * @module @qilin/api-workspace-files/types
  */
@@ -126,6 +127,33 @@ export interface WorkspaceDirectoryListing {
    */
   readonly entries: readonly WorkspaceDirectoryEntry[]
   /** Whether the entry cap dropped children from {@link entries}. */
+  readonly truncated: boolean
+}
+
+/** One file whose basename matched a workspace filename search. */
+export interface WorkspaceFileNameMatch {
+  /**
+   * The file as a workspace path: relative to the workspace root,
+   * `/`-separated, and never empty.
+   */
+  readonly path: string
+  /** Byte size, present only for a regular file whose backend reported it during the walk. */
+  readonly bytes?: number
+}
+
+/** The matches of one workspace filename search. */
+export interface WorkspaceFileNameSearch {
+  /**
+   * Matching files in walk order — breadth-first, so a shallow match precedes a
+   * deeper one, and siblings keep the backend's stable name order. Cut to the
+   * configured match cap.
+   */
+  readonly matches: readonly WorkspaceFileNameMatch[]
+  /**
+   * Whether a configured cap stopped the walk with directories unvisited or
+   * matches unfound. `false` means the walk covered every directory within the
+   * depth cap and reported all matches there.
+   */
   readonly truncated: boolean
 }
 

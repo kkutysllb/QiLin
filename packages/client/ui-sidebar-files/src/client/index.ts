@@ -27,7 +27,7 @@ import type {} from '@qilin/client-ui-session/client'
 import type {} from '@qilin/client-ui-sidebar-right/client'
 import { FILES_ID, filesDefinition } from './definition.tsx'
 import { FILE_ID, fileDefinition } from './file-definition.ts'
-import { createList, filesFace } from './face.ts'
+import { createList, createSearch, filesFace } from './face.ts'
 import { fileEditFace } from './file-face.ts'
 import { filePreviewFace } from './file-preview.ts'
 import type { FilesInjected } from './face.ts'
@@ -58,7 +58,7 @@ declare module '@qilin/client-ui-slots' {
 
 export type { SidebarFilesKey } from './locales.ts'
 export type { DirLevel, FileEditState, FilesState, FilesTabState, LevelState } from './store.ts'
-export type { FilesInjected, ListWorkspaceDirectory, WorkspaceFilesListRemote } from './face.ts'
+export type { FilesInjected, ListWorkspaceDirectory, SearchWorkspaceFileNames, WorkspaceFilesTreeRemote } from './face.ts'
 export type { FilePreviewInjected } from './file-preview.ts'
 export type { FilesBodyProps } from './FilesBody.tsx'
 
@@ -118,7 +118,7 @@ export function apply(ctx: ClientContext): void {
   // One store instance per session, shared by both seats: the editor's tree
   // pane and the files page keep their buckets apart by tab id.
   const store = createFilesStore()
-  const treeFace = filesFace(createList(ctx.remote))
+  const treeFace = filesFace(createList(ctx.remote), createSearch(ctx.remote))
   const editFace = fileEditFace(
     createReadWhole(createReadPage(ctx.remote)),
     createWriteFile(ctx.remote),

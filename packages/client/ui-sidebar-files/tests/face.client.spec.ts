@@ -10,16 +10,18 @@
  * truncation flag reach the store, the endpoint's workspace-relative path does
  * not, and a failure passes through untouched.
  */
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { SessionId } from '@qilin/session/types'
 import type { WorkspaceDirectoryListing } from '@qilin/api-workspace-files/types'
-import { childPath, createList, filesFace } from '../src/client/face.ts'
-import type { WorkspaceFilesListRemote } from '../src/client/face.ts'
+import { SEARCH_SETTLE_MS, childPath, createList, createSearch, filesFace } from '../src/client/face.ts'
+import type { WorkspaceFilesTreeRemote } from '../src/client/face.ts'
 import { createFilesStore } from '../src/client/store.ts'
 import type { DirLevel } from '../src/client/store.ts'
 import { scriptedList } from './scripted-list.client.ts'
+import { scriptedSearch } from './scripted-search.client.ts'
 import type { TabId } from '@qilin/client-ui-dockkit'
+import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
 
 const SESSION = 's-1' as SessionId
 const ROOT = '/work/app'
@@ -30,8 +32,16 @@ const LEVEL: DirLevel = { entries: [{ name: 'src', type: 'directory' }], truncat
 function mount() {
   const instance = createFilesStore().create()
   const script = scriptedList()
-  const face = filesFace(script.list)(SESSION, instance.actions)
-  return { ...script, face, snapshot: () => instance.getSnapshot().byTab[TAB] }
+  const searchScript = scriptedSearch()
+  const face = filesFace(script.list, searchScript.search)(SESSION, instance.actions)
+  // The two scripts each own a `settle`; keep the listing's name for itself.
+  return {
+    ...script,
+    searchMock: searchScript.search,
+    settleSearch: searchScript.settle,
+    face,
+    snapshot: () => instance.getSnapshot().byTab[TAB],
+  }
 }
 
 describe('filesFace', () => {
@@ -116,7 +126,7 @@ describe('createList', () => {
       entries: [{ name: 'a.ts', type: 'file', size: 3 }],
       truncated: true,
     }
-    const list = vi.fn<WorkspaceFilesListRemote['workspaceFiles']['list']>()
+    const list = vi.fn<WorkspaceFilesTreeRemote['workspaceFiles']['list']>()
       .mockResolvedValue({ ok: true, value: listing })
     const signal = new AbortController().signal
     const result = await createList({ workspaceFiles: { list } })(SESSION, `${ROOT}/src`, signal)
@@ -126,10 +136,117 @@ describe('createList', () => {
 
   it('returns a failure as the endpoint reported it', async () => {
     const error = new RemoteError('workspace-file/not-directory', 'file', { path: 'x', kind: 'file' })
-    const list = vi.fn<WorkspaceFilesListRemote['workspaceFiles']['list']>()
+    const list = vi.fn<WorkspaceFilesTreeRemote['workspaceFiles']['list']>()
       .mockResolvedValue({ ok: false, error })
     const result = await createList({ workspaceFiles: { list } })(SESSION, `${ROOT}/x`, new AbortController().signal)
     expect(result).toEqual({ ok: false, error })
+  })
+})
+
+describe('filesFace search', () => {
+  beforeEach(() => { vi.useFakeTimers() })
+  afterEach(() => { vi.useRealTimers() })
+
+  /** Type into the box through the face, as the body does. */
+  function type(face: ReturnType<typeof mount>['face'], query: string, signal: AbortSignal): void {
+    face.search(TAB, query, signal)
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS)
+  }
+
+  const SIGNAL = (): AbortSignal => new AbortController().signal
+
+  it('asks nothing until the box settles, then asks with the trimmed query and records the answer', async () => {
+    const { face, searchMock, settleSearch, snapshot } = mount()
+    const signal = SIGNAL()
+    face.start(TAB, ROOT, signal)
+    face.search(TAB, '  read  ', signal)
+    expect(searchMock).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS)
+    expect(searchMock).toHaveBeenCalledWith(SESSION, 'read', signal)
+    expect(snapshot()!.search).toEqual({ kind: 'running', query: '  read  ' })
+    await settleSearch({ ok: true, value: { matches: [{ path: 'README.md', bytes: 1 }], truncated: false } })
+    expect(snapshot()!.search).toEqual({
+      kind: 'ready', query: '  read  ', matches: [{ path: 'README.md', bytes: 1 }], truncated: false,
+    })
+  })
+
+  it('records a failed search under the box', async () => {
+    const { face, settleSearch, snapshot } = mount()
+    const signal = SIGNAL()
+    face.start(TAB, ROOT, signal)
+    type(face, 'read', signal)
+    const error = new RemoteError('workspace-file/not-found', 'gone', { path: ROOT })
+    await settleSearch({ ok: false, error })
+    expect(snapshot()!.search).toEqual({ kind: 'failed', query: 'read', failure: error })
+  })
+
+  it('replaces a pending query inside the settle window, so the Host is asked once, for the latest text', () => {
+    const { face, searchMock, snapshot } = mount()
+    const signal = SIGNAL()
+    face.start(TAB, ROOT, signal)
+    face.search(TAB, 're', signal)
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS - 1)
+    face.search(TAB, 'readme', signal)
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS)
+    expect(searchMock).toHaveBeenCalledTimes(1)
+    expect(searchMock).toHaveBeenCalledWith(SESSION, 'readme', signal)
+    expect(snapshot()!.search).toEqual({ kind: 'running', query: 'readme' })
+  })
+
+  it('drops an answer whose query was replaced while it was out', async () => {
+    const { face, searchMock, settleSearch, snapshot } = mount()
+    const signal = SIGNAL()
+    face.start(TAB, ROOT, signal)
+    type(face, 're', signal)
+    type(face, 'readme', signal)
+    expect(searchMock).toHaveBeenCalledTimes(2)
+    await settleSearch({ ok: true, value: { matches: [{ path: 'a' }], truncated: false } })
+    expect(snapshot()!.search).toEqual({ kind: 'running', query: 'readme' })
+    await settleSearch({ ok: true, value: { matches: [{ path: 'README.md' }], truncated: true } })
+    expect(snapshot()!.search).toEqual({ kind: 'ready', query: 'readme', matches: [{ path: 'README.md' }], truncated: true })
+  })
+
+  it('clears the box outright on blank text and asks nothing', () => {
+    const { face, searchMock, snapshot } = mount()
+    const signal = SIGNAL()
+    face.start(TAB, ROOT, signal)
+    type(face, 'read', signal)
+    face.search(TAB, '   ', signal)
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS)
+    expect(searchMock).toHaveBeenCalledTimes(1)
+    expect(snapshot()!.search).toEqual({ kind: 'idle', query: '' })
+  })
+
+  it('cancels the pending ask when the record aborts, and a late settlement writes nothing', async () => {
+    const { face, searchMock, snapshot } = mount()
+    const controller = new AbortController()
+    face.start(TAB, ROOT, controller.signal)
+    face.search(TAB, 'read', controller.signal)
+    controller.abort()
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS)
+    expect(searchMock).not.toHaveBeenCalled()
+    expect(snapshot()).toBeUndefined()
+  })
+
+  it('makes no request for a record that already ended', () => {
+    const { face, searchMock } = mount()
+    const controller = new AbortController()
+    controller.abort()
+    face.search(TAB, 'read', controller.signal)
+    vi.advanceTimersByTime(SEARCH_SETTLE_MS)
+    expect(searchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('createSearch', () => {
+  it('passes the session, the query, and the signal through untouched', async () => {
+    const answer: WorkspaceFileNameSearch = { matches: [{ path: 'a.ts', bytes: 2 }], truncated: false }
+    const searchNames = vi.fn<WorkspaceFilesTreeRemote['workspaceFiles']['searchNames']>()
+      .mockResolvedValue({ ok: true, value: answer })
+    const signal = new AbortController().signal
+    const result = await createSearch({ workspaceFiles: { searchNames } })(SESSION, 'a', signal)
+    expect(searchNames).toHaveBeenCalledWith(SESSION, 'a', signal)
+    expect(result).toEqual({ ok: true, value: answer })
   })
 })
 

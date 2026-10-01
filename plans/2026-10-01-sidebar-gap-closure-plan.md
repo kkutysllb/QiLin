@@ -86,3 +86,12 @@ kind: "plan"
 - **G4 架构前提发现**：fs 抽象服务仅有 `writeText`（UTF-8）；二进制上传需跨全部后端（local/sandbox/remote）新增 `writeBytes` 原语——这是架构级变更，需专项批（影响 fs/fs-local/fs-sandbox/fs-remote + 测试）
 - **G5 搜索前提**：需 host 侧递归文件名扫描（插件 `fs-search.ts` 走 node:fs 直接扫描；QiLin 需走抽象 fs 或新增 fs 原语）
 - 下轮执行：①fs writeBytes 原语批（G4 前提）→ ②G4 上传/拖放（preview-media POST 路由+files 页 drop 覆盖层）→ ③G5 搜索 → ④S1e 软链/右键 → ⑤S2 Git 面板 → ⑥发版 3.0.8
+
+## 批次执行状态补充三（2026-10-01 20:30）
+
+- S1a 已提交：`1cba11b816`（视频预览+media 路由）；S1b：`c04d1ce57c`（Mermaid）；S1c 前置：`7b3215ecf6`+`eac2f4fa96`（fs writeBytes）；S1c：`463b787664`（上传拖放）
+- **S1d G5 全局文件名搜索已落地**：
+  - host：workspace-files 新增 `searchNames` Remote——广度优先、只匹配普通文件、不区分大小写 basename 子串；Config 新增 `maxSearchMatches`(100)/`maxSearchVisited`(100k)/`searchExcludedDirectories`（默认 .git/node_modules 等噪声目录既不匹配也不进入；与 file-reference-local 的 @ 提及索引互不共用——那次是本地 fs 的排序候选，这次是会话工作区的 Remote 语义）；根外符号链接目录不进入（防泄露防成环）；命中匹配/访问任一上限即 truncated
+  - client：ui-sidebar-files 新增 FileSearch（ui-primitives Input + 搜索图标），标题行下搜索框 200ms 防抖、代次守卫（换字即弃旧答案）、结果占据正文、点击走树行同款会话作用域地址；query+答案入 store 桶随重挂载恢复；locales 双语 7 键
+  - 附带修正：file-preview 的 scope 文案与 B5-2c 后实际语义不符（ISidebarRight 无 scope），按 3.0.7 已发行为准改 spec+文档；ui-primitives Input className 允许 undefined（exactOptionalPropertyTypes）
+- 下一步：S1e（软链标识/树右键小项）→ S2 Git 面板 → 发版 3.0.8

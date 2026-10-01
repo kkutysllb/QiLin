@@ -2,8 +2,9 @@
  * The two view states this package owns, one store per session, bucketed by
  * tab id because two tabs in one session are independent:
  *
- * - the file tree: which directories are expanded, and what each loaded level
- *   contains. Shared by the `files` page and the `file` editor's tree pane.
+ * - the file tree: which directories are expanded, what each loaded level
+ *   contains, and the filename search beside it. Shared by the `files` page and
+ *   the `file` editor's tree pane.
  * - the file editor: one open file's load state, draft, and save state.
  *
  * Writers run between `start` and `forget` (tree) or the editor face's abort
@@ -13,7 +14,7 @@
 import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { TabId } from '@qilin/client-ui-dockkit'
-import type { WorkspaceDirectoryEntry } from '@qilin/api-workspace-files/types'
+import type { WorkspaceDirectoryEntry, WorkspaceFileNameMatch } from '@qilin/api-workspace-files/types'
 
 /**
  * One directory's contents, as one expanded level of the tree.
@@ -35,7 +36,27 @@ export type LevelState =
   | { readonly kind: 'failed'; readonly failure: RemoteFailure }
 
 /**
- * One tab's tree: its root, the levels it has asked for, and what is open.
+ * What one tab's filename search is showing, carrying the box's own text so the
+ * input is restored with its result after a remount.
+ *
+ * `idle` is the box's content with nothing asked of the Host yet — including the
+ * empty box — and it is also where typing lands: the previous answer describes a
+ * different query, so it is dropped the moment the text changes.
+ */
+export type FileSearchState =
+  | { readonly kind: 'idle'; readonly query: string }
+  | { readonly kind: 'running'; readonly query: string }
+  | {
+    readonly kind: 'ready'
+    readonly query: string
+    readonly matches: readonly WorkspaceFileNameMatch[]
+    readonly truncated: boolean
+  }
+  | { readonly kind: 'failed'; readonly query: string; readonly failure: RemoteFailure }
+
+/**
+ * One tab's tree: its root, the levels it has asked for, what is open, and the
+ * filename search beside it.
  *
  * Every path here is absolute: the root is the session's working directory as
  * the Host reports it, and a child is the parent joined with the entry name.
@@ -49,6 +70,8 @@ export interface FilesTabState {
   expanded: string[]
   /** The body's scroll offset in px, so a remounted tree comes back where the reader was. */
   scrollTop: number
+  /** What the search box holds and has last heard back. */
+  search: FileSearchState
 }
 
 /** What one file editor is doing with its file right now. */
@@ -155,6 +178,17 @@ type FilesActions = {
   failed: (draft: FilesState, tabId: TabId, path: string, failure: RemoteFailure) => void
   toggled: (draft: FilesState, tabId: TabId, path: string) => void
   scrolled: (draft: FilesState, tabId: TabId, scrollTop: number) => void
+  searchTyped: (draft: FilesState, tabId: TabId, query: string) => void
+  searchRunning: (draft: FilesState, tabId: TabId, query: string) => void
+  searchSettled: (
+    draft: FilesState,
+    tabId: TabId,
+    query: string,
+    matches: readonly WorkspaceFileNameMatch[],
+    truncated: boolean,
+  ) => void
+  searchFailed: (draft: FilesState, tabId: TabId, query: string, failure: RemoteFailure) => void
+  searchCleared: (draft: FilesState, tabId: TabId) => void
   reset: (draft: FilesState, tabId: TabId) => void
   forget: (draft: FilesState, tabId: TabId) => void
   editRead: (draft: FilesState, tabId: TabId) => void
@@ -193,7 +227,7 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        * @param root - absolute path of the workspace root.
        */
       start: (d, tabId: TabId, root: string) => {
-        d.byTab[tabId] = { root, levels: {}, expanded: [root], scrollTop: 0 }
+        d.byTab[tabId] = { root, levels: {}, expanded: [root], scrollTop: 0, search: { kind: 'idle', query: '' } }
       },
       /**
        * Mark one directory as being listed.
@@ -246,6 +280,54 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        */
       scrolled: (d, tabId: TabId, scrollTop: number) => {
         bucket(d, tabId).scrollTop = scrollTop
+      },
+      /**
+       * Record what the search box now holds, dropping any answer the previous
+       * text produced: it describes a query the box no longer asks.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param query - the box's text, exactly as typed.
+       */
+      searchTyped: (d, tabId: TabId, query: string) => {
+        bucket(d, tabId).search = { kind: 'idle', query }
+      },
+      /**
+       * Mark one query as asked of the Host and not yet answered.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param query - the query the Host is looking for.
+       */
+      searchRunning: (d, tabId: TabId, query: string) => {
+        bucket(d, tabId).search = { kind: 'running', query }
+      },
+      /**
+       * Record one query's answer.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param query - the query the answer belongs to.
+       * @param matches - the matching files, in the endpoint's walk order.
+       * @param truncated - whether a Host cap stopped the walk.
+       */
+      searchSettled: (d, tabId: TabId, query: string, matches: readonly WorkspaceFileNameMatch[], truncated: boolean) => {
+        bucket(d, tabId).search = { kind: 'ready', query, matches, truncated }
+      },
+      /**
+       * Record why one query could not be answered.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param query - the query the failure belongs to.
+       * @param failure - the settled Remote failure.
+       */
+      searchFailed: (d, tabId: TabId, query: string, failure: RemoteFailure) => {
+        bucket(d, tabId).search = { kind: 'failed', query, failure }
+      },
+      /**
+       * Empty the search box.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      searchCleared: (d, tabId: TabId) => {
+        bucket(d, tabId).search = { kind: 'idle', query: '' }
       },
       /**
        * Drop every loaded level, keeping what is expanded.

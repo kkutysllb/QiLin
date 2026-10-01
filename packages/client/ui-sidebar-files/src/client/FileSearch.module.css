@@ -1,0 +1,102 @@
+/* The search row sits between the pane's header and the tree, on the header's
+   own 38px rhythm so the two rules read as one strip. */
+.search {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+/* The input primitive owns the field's box; this only sets the row's width. */
+.field {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The box's clear control, at the tree header's 28px circle. */
+.clear {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  color: var(--dsw-alias-label-secondary);
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.clear svg {
+  width: 15px;
+  height: 15px;
+}
+
+.clear:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* One line naming the search's state, in the tree's note styling. */
+.note {
+  margin: 0;
+  padding: 3px 10px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+/* A matched file: the tree's row, with the workspace-relative path under the
+   basename so two files of one name stay apart. */
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  padding: 5px 10px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.result:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.resultName {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.resultText {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Where the file sits, in the tertiary ink the tree greys directories with. */
+.resultDirectory {
+  max-width: 100%;
+  margin-left: 22px;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

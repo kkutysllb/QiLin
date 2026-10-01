@@ -25,7 +25,7 @@ Use this package to preview files readable through a Session's filesystem from t
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, and the Typert Gateway; the bundle does so right after the Session Controller. Every method takes the Session identity on the wire, so a Client calls `remote.workspaceFiles.read(sessionId, path, range, signal)`, `stat(sessionId, path, signal)`, `readBytes(sessionId, path, range, signal)`, `write(sessionId, path, text, { baseVersion? }, signal)`, `list(sessionId, path, signal)`, or `changes(sessionId, signal)` and never names a root itself. The Host reads a live Session header or uses persistence `stat` for a cold Session; it does not activate an Agent, read the event body, or borrow a parent Session's root. Session persistence is optional for live reads, but without it a cold Session cannot resolve and the Gateway returns `gateway/lookup-not-found`.
+Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, and the Typert Gateway; the bundle does so right after the Session Controller. Every method takes the Session identity on the wire, so a Client calls `remote.workspaceFiles.read(sessionId, path, range, signal)`, `stat(sessionId, path, signal)`, `readBytes(sessionId, path, range, signal)`, `write(sessionId, path, text, { baseVersion? }, signal)`, `list(sessionId, path, signal)`, `searchNames(sessionId, query, signal)`, or `changes(sessionId, signal)` and never names a root itself. The Host reads a live Session header or uses persistence `stat` for a cold Session; it does not activate an Agent, read the event body, or borrow a parent Session's root. Session persistence is optional for live reads, but without it a cold Session cannot resolve and the Gateway returns `gateway/lookup-not-found`.
 
 | Method | Returns | Purpose |
 |---|---|---|
@@ -36,6 +36,7 @@ Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, 
 | `readRelated(path, relativePath)` | `WorkspaceFileBytes` | Complete bytes of a file resolved from the base file's directory on the Host |
 | `write(path, text, { baseVersion? })` | `WorkspaceFileStat { absolutePath, version, bytes? }` | Replace or create one complete UTF-8 text file inside the workspace; a `baseVersion` that no longer matches fails with `workspace-file/stale` and writes nothing |
 | `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | Direct children of one directory |
+| `searchNames(query)` | `WorkspaceFileNameSearch { matches, truncated }` | Files below the workspace root whose basenames contain the query, case-insensitively |
 | `changes()` | stream of `WorkspaceFileWatchFrame` | Subscription readiness, then filesystem observations inside the workspace root |
 
 ### Addressing and paths
@@ -62,6 +63,10 @@ Every operation that needs an existing entry first uses `lstat` to reject a miss
 
 `changes` is a `stream` Remote. A generation registers its observation queue and resolves the Session workspace root before yielding `{ kind: 'ready' }`. It then yields `{ kind: 'change', change }`, where `change` is `{ absolutePath, version }` for a present file or `{ absolutePath, absent: true }` for one observed gone. The source is `fs/observed`, filtered to targets inside that root; the operating system is not watched. Observations after the generation's first pull are queued, including while the root resolves. The generation ends on cancellation or plugin disposal.
 
+### Filename search
+
+`searchNames` walks the workspace root breadth-first, so a shallow match precedes a deeper one, and reports every match as a path relative to that root. Only regular files match; a directory is walked, never offered. The comparison is case-insensitive on the basename alone. This is a name lookup, not a code search: no ignore file is consulted, and the configured excluded directories are neither matched nor descended, so a dependency store neither crowds the matches nor burns the visit budget. A directory the root does not contain is not descended either, so a symbolic link to a directory elsewhere reports nothing outside the workspace and cannot loop the walk. Reaching either the match cap or the visit cap stops the walk with `truncated: true`; a blank query matches nothing without touching the filesystem.
+
 ### Configuration
 
 | Field | Default | Meaning |
@@ -70,6 +75,9 @@ Every operation that needs an existing entry first uses `lstat` to reject a miss
 | `maxFileBytes` | `33554432` (32 MiB) | Inclusive complete-file cap for `readAll` and `readRelated`; larger files fail with `too-large` |
 | `maxLines` | `5000` | Default and largest page size in lines; a larger `limit` is refused |
 | `maxEntries` | `2000` | Cap on returned directory entries; the rest is dropped and reported cut |
+| `maxSearchMatches` | `100` | Cap on returned filename-search matches; the walk stops there and reports the cut |
+| `maxSearchVisited` | `100000` | Cap on directory entries one filename search visits; past it the walk reports the cut |
+| `searchExcludedDirectories` | [`.git`, `node_modules`, …](src/index.ts) | Directory basenames a filename search neither matches nor descends into |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilinapi-workspace-files) is the exhaustive source for every accepted field and its JSDoc.
 

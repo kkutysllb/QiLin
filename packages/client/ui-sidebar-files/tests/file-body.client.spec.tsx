@@ -69,7 +69,7 @@ describe('FileBody', () => {
     const button = view.container.querySelector('[data-file-preview]')!
     expect(button.getAttribute('aria-label')).toBe(zh['file.preview'])
     fireEvent.click(button)
-    expect(sidebarRight.openResource).toHaveBeenCalledWith(ADDRESS, { kind: 'text', scope: SESSION })
+    expect(sidebarRight.openResource).toHaveBeenCalledWith(ADDRESS, { kind: 'text' })
   })
 
   it('the tree pane toggle hides and restores the pane', async () => {

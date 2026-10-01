@@ -44,6 +44,8 @@ import type {
   WorkspaceDirectoryEntry,
   WorkspaceDirectoryListing,
   WorkspaceFileBytes,
+  WorkspaceFileNameMatch,
+  WorkspaceFileNameSearch,
   WorkspaceFileRange,
   WorkspaceFileStat,
   WorkspaceFileText,
@@ -91,6 +93,18 @@ export interface Config {
   readonly maxLines: number
   /** Cap on returned directory entries; the rest is dropped and reported cut. */
   readonly maxEntries: number
+  /** Cap on returned filename-search matches; the walk stops at this many and reports the cut. */
+  readonly maxSearchMatches: number
+  /** Cap on directory entries one filename search visits; past it the walk reports the cut. */
+  readonly maxSearchVisited: number
+  /**
+   * Directory basenames a filename search neither matches nor descends into.
+   *
+   * Version-control and dependency stores plus build outputs carry generated
+   * names that crowd out project files, so the default skips them; a workspace
+   * that keeps sources in one of them narrows the list here.
+   */
+  readonly searchExcludedDirectories: string[]
 }
 
 /** One page cut from a decoded text stream. */
@@ -197,6 +211,26 @@ export class WorkspaceFiles extends TypertRemoteService {
     maxFileBytes: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER - 1).default(32 * 1024 * 1024),
     maxLines: z.number().step(1).min(1).default(5000),
     maxEntries: z.number().step(1).min(1).default(2000),
+    maxSearchMatches: z.number().step(1).min(1).default(100),
+    maxSearchVisited: z.number().step(1).min(1).default(100_000),
+    searchExcludedDirectories: z.array(z.string()).default([
+      '.git',
+      'node_modules',
+      '.pnpm-store',
+      '.yarn',
+      '.turbo',
+      '.next',
+      '.nuxt',
+      '.output',
+      '.cache',
+      'coverage',
+      'dist',
+      'build',
+      'out',
+      'target',
+      '.venv',
+      '__pycache__',
+    ]),
   })
 
   private readonly feed: WorkspaceChangeFeed
@@ -333,6 +367,70 @@ export class WorkspaceFiles extends TypertRemoteService {
   async stat(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<WorkspaceFileStat> {
     const { target, info } = await this.locateFile(workspaceFileScope, path, signal)
     return this.statOf(target, info)
+  }
+
+  /**
+   * Search file names below the workspace root for a substring, comparing each
+   * basename case-insensitively. The walk visits directories breadth-first, so
+   * a shallow match precedes a deeper one, and every match is reported as a
+   * path relative to the workspace root. Only regular files match: a directory
+   * is walked, never offered.
+   *
+   * This is a name lookup, not a code search: no ignore file is consulted, and
+   * the configured excluded directories are neither matched nor descended, so a
+   * dependency store neither crowds the matches nor burns the visit budget. A
+   * directory the workspace root does not contain is not descended either: a
+   * symbolic link to a directory elsewhere neither reports names outside the
+   * workspace nor loops the walk.
+   *
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param query - the substring matched against each basename; blank matches nothing.
+   * @param signal - caller cancellation.
+   * @returns the matching paths, cut to the configured match cap, and whether a cap stopped the walk.
+   */
+  @Remote
+  async searchNames(
+    workspaceFileScope: WorkspaceFileScope,
+    query: string,
+    signal: AbortSignal,
+  ): Promise<WorkspaceFileNameSearch> {
+    const needle = query.trim().toLowerCase()
+    if (needle === '') return { matches: [], truncated: false }
+    const root = await this.ctx.fs.resolve(workspaceFileScope.workspaceRoot, { signal })
+    const excluded = new Set(this.config.searchExcludedDirectories.map(name => name.toLowerCase()))
+    const matches: WorkspaceFileNameMatch[] = []
+    let visited = 0
+    let truncated = false
+    let frontier: { target: FsTarget; path: string }[] = [{ target: root, path: '' }]
+    while (frontier.length > 0 && !truncated) {
+      const below: { target: FsTarget; path: string }[] = []
+      for (const directory of frontier) {
+        signal.throwIfAborted()
+        for (const child of await this.ctx.fs.listDir(directory.target, signal)) {
+          if (visited >= this.config.maxSearchVisited) {
+            truncated = true
+            break
+          }
+          visited += 1
+          const path = directory.path === '' ? child.name : `${directory.path}/${child.name}`
+          if (child.type === 'directory') {
+            if (!excluded.has(child.name.toLowerCase()) && this.ctx.fs.contains(root, child.target)) {
+              below.push({ target: child.target, path })
+            }
+            continue
+          }
+          if (child.type !== 'file' || !child.name.toLowerCase().includes(needle)) continue
+          if (matches.length >= this.config.maxSearchMatches) {
+            truncated = true
+            break
+          }
+          matches.push({ path, ...child.size === undefined ? {} : { bytes: child.size } })
+        }
+        if (truncated) break
+      }
+      frontier = below
+    }
+    return { matches, truncated }
   }
 
   /**

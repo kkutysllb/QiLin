@@ -72,6 +72,9 @@ export async function openWorkspace(prefix: string): Promise<Harness> {
         maxFileBytes: caps?.maxFileBytes ?? 1024 * 1024,
         maxLines: caps?.maxLines ?? 5000,
         maxEntries: caps?.maxEntries ?? 2000,
+        maxSearchMatches: caps?.maxSearchMatches ?? 100,
+        maxSearchVisited: caps?.maxSearchVisited ?? 100_000,
+        searchExcludedDirectories: caps?.searchExcludedDirectories ?? [],
       })
       return service
     },

@@ -27,12 +27,12 @@ The right Sidebar's navigator: the session's workspace root as a tree, listed on
 
 - **The `files` type** — `ctx.sidebarRightTabs.register(...)` with kind `files`, id `@qilin/client-ui-sidebar-files`, band `builtin`, no patterns, and one guide entry (order 10, its title and description from the `sidebarFiles` namespace, its glyph the shared folder icon) that opens the type. One workspace tree per surface: it declares `single: true`.
 - **The `file` type** — kind `file`, id `@qilin/client-ui-sidebar-files/file`, band `builtin`, patterns `qilin-resource://file/**`. Its `canOpen` takes only session-scoped addresses whose path carries a known text or code extension (the shared editable set in `@qilin/util-workspace-path`), so images, PDFs, unknown extensions, and bare absolute addresses fall through to the `text` fallback viewer; an absolute address is refused because saving it has no authorizing Session. It declares no `single` (one tab per address, the registry's default), no guide entry, and no static `icon` — the chip's sheet is the open file's own, drawn by the title slot. The tab title is the address's decoded basename.
-- **The `files` body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin/client-ui-sidebar-files`: the header row and the tree. The header row is the document preview's (`ui-sidebar-documentpreview`): the root path, its directories greyed and its last segment in full ink, never ellipsized (a path wider than the row keeps its end and fades its start), with the one control, reload, at its right. The row is copied rather than shared because a plugin bundle shares runtime code only through the platform modules; once the artifact and slot surfaces settle, one copy in `ui-primitives` could serve every pane header.
+- **The `files` body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin/client-ui-sidebar-files`: the header row, the filename search, and the tree. The header row is the document preview's (`ui-sidebar-documentpreview`): the root path, its directories greyed and its last segment in full ink, never ellipsized (a path wider than the row keeps its end and fades its start), with the one control, reload, at its right. The row is copied rather than shared because a plugin bundle shares runtime code only through the platform modules; once the artifact and slot surfaces settle, one copy in `ui-primitives` could serve every pane header.
 - **The `file` body and chip title** — the same two seats under `@qilin/client-ui-sidebar-files/file`: the workbench (tree pane left at a fixed width, collapsible; editor right) and the per-file `FileTypeIcon` sheet before the captured basename.
 
 Both seats share one store instance per session, bucketed by tab id: the tree buckets and the editor buckets never mix.
 
-The browser half lives under `src/client/`: `definition.tsx` and `file-definition.ts` (what each type is), `store.ts` (what they keep), `face.ts`, `file-face.ts`, and `file-pages.ts` (how they list, read, and save, Remote binding included), `file-preview.ts` (the preview open), `file-editor.ts` (the CodeMirror adapter), `file-guard.ts` (the claim gate and naming), `file-lang.ts` (grammar per extension), `file-failure.ts` (the editor's failure lines), `FileTree.tsx` (the shared tree), `FilesBody.tsx`, `FilesTitle.tsx`, `FileBody.tsx`, `FileTitle.tsx` (what they draw), `locales.ts` (what they say), and `index.ts` (the wiring).
+The browser half lives under `src/client/`: `definition.tsx` and `file-definition.ts` (what each type is), `store.ts` (what they keep), `face.ts`, `file-face.ts`, and `file-pages.ts` (how they list, read, and save, Remote binding included), `file-preview.ts` (the preview open), `file-editor.ts` (the CodeMirror adapter), `file-guard.ts` (the claim gate and naming), `file-lang.ts` (grammar per extension), `file-failure.ts` (the editor's failure lines), `FileTree.tsx` (the shared tree), `FileSearch.tsx` (the search box and its matches), `FilesBody.tsx`, `FilesTitle.tsx`, `FileBody.tsx`, `FileTitle.tsx` (what they draw), `locales.ts` (what they say), and `index.ts` (the wiring).
 
 <a id="the-tree"></a>
 ## The tree
@@ -46,6 +46,10 @@ The root is the session's working directory, read from `useSessions().byId[sessi
 | `other` | Shown greyed and not clickable, so the directory is reported whole. |
 
 A level cut by the endpoint's entry cap ends with a marker; an empty level says so; a level that failed shows one line per code — `workspace-file/not-found`, `outside-workspace`, `not-directory` — and the transport's own message otherwise. Reload drops every listed level and asks again for the expanded ones; collapsed levels are fetched again when they next open. A session without a working directory shows a single line instead of a tree.
+
+Dropping files onto the pane uploads them (`UploadOverlay.tsx`): each file is PUT whole to the `preview-media` host route `sidebar/media/upload`, which writes it under the workspace root through the filesystem's `writeBytes`, and a finished batch reloads the open levels. The overlay reports per-file results; a failed upload changes nothing on disk.
+
+Under the header row sits the filename search (`FileSearch.tsx`): one box whose text, once it settles, asks the `workspaceFiles` `searchNames` Remote for the files below the root whose basenames contain it, case-insensitively. While a query stands the matches take the body — a blank box, not an empty result, brings the tree back — and a click opens the match through the same session-scoped address a tree row uses. The box's text and its latest answer live in the tab's store bucket, so a remounted body comes back with both; typing drops the previous answer, because it describes a query the box no longer holds.
 
 <a id="the-editor"></a>
 ## The editor
@@ -68,7 +72,7 @@ None; directory listings and file content travel over the Remote and assemble no
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
-- **Listing only.** No search, artifact filter, drag-and-drop, rename, context menu, current-file highlight, or filesystem watching; a level changes only through reload.
+- **Listing and search only.** No artifact filter, rename, context menu, current-file highlight, or filesystem watching; a level changes only through reload. Name search is the one global view (`searchNames`); nothing filters the tree in place, and upload is the tree's only write gesture (drop, `ui-sidebar-documentpreview` `preview-media`).
 - **One root.** The tree is rooted at the session's working directory; there is no way to browse above it, and the Host refuses paths outside the workspace root anyway.
 - **Editor caps.** A file past 2 MB does not open (the Host's own per-page caps bound each read); there is no search panel and no column selection.
 

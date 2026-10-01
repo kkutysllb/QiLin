@@ -9,12 +9,13 @@
  * was cut or could not be read, and reload asks again for the expanded levels
  * only. The two pure helpers the rows are built from are checked on their own.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent } from '@testing-library/react'
 import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import { fileAddressFor } from '@qilin/util-workspace-path'
 import { failureLine, orderEntries } from '../src/client/FileTree.tsx'
+import { SEARCH_SETTLE_MS } from '../src/client/face.ts'
 import type { DirLevel } from '../src/client/store.ts'
 import { zh } from '../src/client/locales.ts'
 import { mountBody, ROOT, SESSION, TAB } from './mount.client.tsx'
@@ -250,5 +251,71 @@ describe('failureLine', () => {
   it('carries an unclassified failure\'s own message', () => {
     const failure = { code: 'remote/transport', message: 'socket closed' } as unknown as RemoteFailure
     expect(failureLine(t, failure)).toBe('读取失败：socket closed')
+  })
+})
+
+describe('FilesBody search', () => {
+  beforeEach(() => { vi.useFakeTimers() })
+  afterEach(() => { vi.useRealTimers(); cleanup() })
+
+  /** Type into the box as the reader does, through the body's own wiring. */
+  function type(view: ReturnType<typeof mountBody>['view'], text: string): void {
+    const input = view.container.querySelector('[data-files-search-input]') as HTMLInputElement
+    fireEvent.change(input, { target: { value: text } })
+    act(() => { vi.advanceTimersByTime(SEARCH_SETTLE_MS) })
+  }
+
+  it('shows the box beside the header and keeps the tree while it is blank', () => {
+    const { view } = mountBody()
+    expect(view.container.querySelector('[data-files-search-input]')).not.toBeNull()
+    expect(view.container.querySelector('[data-files-search-clear]')).toBeNull()
+    expect(view.container.querySelector('[data-files-search-results]')).toBeNull()
+  })
+
+  it('takes the body for a standing query and returns the matches as openable rows', async () => {
+    const mounted = mountBody()
+    const { view, searchScript, tabActions } = mounted
+    type(view, 'read')
+    expect(searchScript.search).toHaveBeenCalledWith(SESSION, 'read', expect.any(AbortSignal))
+    expect(view.container.querySelector('[data-files-row="search-running"]')?.textContent).toBe(zh['search.running'])
+    expect(view.container.querySelector('[data-files-search-results]')).not.toBeNull()
+    await act(() => searchScript.settle({
+      ok: true,
+      value: { matches: [{ path: 'src/readme.ts', bytes: 3 }, { path: 'README.md' }], truncated: true },
+    }))
+    const rows = [...view.container.querySelectorAll('[data-files-entry="match"]')]
+      .map(li => li.getAttribute('data-files-path'))
+    expect(rows).toEqual(['src/readme.ts', 'README.md'])
+    expect(view.container.querySelector('[data-files-row="search-truncated"]')?.textContent).toBe(zh['search.truncated'])
+    fireEvent.click(view.container.querySelector('[data-files-path="src/readme.ts"] button')!)
+    expect(tabActions.openResource).toHaveBeenCalledWith(fileAddressFor(SESSION, ROOT, 'src/readme.ts'))
+  })
+
+  it('says so when nothing matched', async () => {
+    const { view, searchScript } = mountBody()
+    type(view, 'zzz')
+    await act(() => searchScript.settle({ ok: true, value: { matches: [], truncated: false } }))
+    expect(view.container.querySelector('[data-files-row="search-empty"]')?.textContent).toBe(zh['search.empty'])
+  })
+
+  it('names a failed search with the tree failure lines', async () => {
+    const { view, searchScript } = mountBody()
+    type(view, 'read')
+    await act(() => searchScript.settle({
+      ok: false,
+      error: new RemoteError('workspace-file/not-directory', 'not a directory', { path: ROOT, kind: 'file' }),
+    }))
+    expect(view.container.querySelector('[data-files-row="search-failed"]')?.textContent).toBe(zh['error.notDirectory'])
+  })
+
+  it('clearing the box brings the tree back and asks nothing more', async () => {
+    const { view, searchScript } = mountBody()
+    type(view, 'read')
+    await act(() => searchScript.settle({ ok: true, value: { matches: [{ path: 'README.md' }], truncated: false } }))
+    expect(view.container.querySelector('[data-files-search-clear]')).not.toBeNull()
+    fireEvent.click(view.container.querySelector('[data-files-search-clear]')!)
+    expect(view.container.querySelector('[data-files-search-results]')).toBeNull()
+    expect(view.container.querySelector('[data-files-search-input]')).not.toBeNull()
+    expect(searchScript.search).toHaveBeenCalledTimes(1)
   })
 })

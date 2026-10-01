@@ -10,6 +10,9 @@ const CAPS = {
   maxFileBytes: 1024,
   maxLines: 100,
   maxEntries: 100,
+  maxSearchMatches: 100,
+  maxSearchVisited: 100_000,
+  searchExcludedDirectories: [],
 }
 
 function header(id: SessionId, cwd?: string): SessionHeader {
