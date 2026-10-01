@@ -8,6 +8,7 @@
  * @param sessionId - Session whose workspace root resolves the path.
  * @param path - absolute path or workspace-relative path.
  * @param options - `download` switches the disposition to an attachment.
+ * @returns the relative `/sidebar/media` URL carrying the session and path.
  */
 export function previewMediaUrl(sessionId: string, path: string, options?: { readonly download?: boolean }): string {
   const params = new URLSearchParams({ sessionId, path })

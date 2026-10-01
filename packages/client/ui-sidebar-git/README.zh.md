@@ -65,7 +65,7 @@ kind: "package-reference"
 - **分支列表有上限，拉取请求一次一个筛选。** 分支列表在 Host 列表上限截断时说明；拉取请求行自身不带打开/关闭列（线类型没有），筛选是唯一的状态视图。
 
 <a id="dev-note"></a>
-### Dev Note
+### 开发备注
 
 <details>
 <summary>维护者的工作上下文——点击展开</summary>

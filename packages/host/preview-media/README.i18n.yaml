@@ -21,11 +21,14 @@
   en: cc5101057995ecaa
   zh: b9fcfd8eb9c921c4
 /qilin-host-preview-media/model-experience:
-  en: fb11b80e89c56624
-  zh: bc72f6016b6f7569
+  en: 942a0174b133bcfe
+  zh: b6dca2d453309eb1
+/qilin-host-preview-media/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: ac87fc083e6f2eb0
 /qilin-host-preview-media/known-limitations-and-deferred-work:
-  en: be02eba46c802fb9
-  zh: 403d45493f7c34b8
+  en: e501ac1171311128
+  zh: 2ed1b3666cc8af6d
 /qilin-host-preview-media/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -22,6 +22,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/api-terminal-controller` | yes | Session-owned interactive terminals with shell discovery, screen recovery and typed Remote control |
 | `@qilin/api-workspace-controller` | no | Workspace Remote commands and reconnect-safe state transport |
 | `@qilin/api-workspace-files` | yes | Workspace file service and Client resource provider: bounded reads, directory listing, and live metadata over the workspaceFiles Remote namespace |
+| `@qilin/api-workspace-git` | yes | Host owner of the workspaceGit Remote namespace: repository discovery, porcelain status, staging, commits, branches, and push/pull inside the session workspace root |
 
 ## attachment
 
@@ -101,6 +102,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/client-ui-sidebar-browser` | no | Sandboxed Web browser tabs for the right Sidebar |
 | `@qilin/client-ui-sidebar-documentpreview` | yes | Extensible document previews for Sidebar files: Office, Markdown, highlighted code, images, PDF, HTML, and plain text |
 | `@qilin/client-ui-sidebar-files` | no | Workspace file tree tab type for the right Sidebar: lazy directory listing over the workspaceFiles Remote namespace, opening files into the Sidebar |
+| `@qilin/client-ui-sidebar-git` | no | Source-control tab type for the right Sidebar: repository status, staging, commits, branches, and push/pull over the workspaceGit Remote namespace |
 | `@qilin/client-ui-sidebar-plans` | no | Task-plan tab type for the right Sidebar: scans the session workspace's convention plan documents and opens one as a file resource |
 | `@qilin/client-ui-sidebar-right` | no | Right Sidebar: the docking surface's session-bound state, its panel and header expand control, and the navigation service over it |
 | `@qilin/client-ui-sidebar-tasks` | no | Subagent topology and background-job tab type for the right Sidebar: this Session's direct-child catalog, the descendant totals its summary lineage records, and its live job list |
@@ -252,6 +254,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/host-frontend-static` | yes | SPA dist server for the Web shell: owns the webserver fallback seat, serving explicit index entries and static assets with traversal rejection and 404 misses |
 | `@qilin/host-open-in-app` | yes | Host half of open-in-app: resolved application catalog, icons, and the launch endpoint as three webServer routes |
 | `@qilin/host-plugin-inventory` | no | Read-only Remote projection of current Cordis Loader plugin state |
+| `@qilin/host-preview-media` | yes | Host half of preview media: the /sidebar/media route serving session-workspace files to inline previews, with HTTP Range windows for seeking video |
 | `@qilin/host-webserver` | yes | Web route-registration plugin: HTTP and upgrade routes, index transform taps, and static dist fallback; knows no harness concepts |
 
 ## identity

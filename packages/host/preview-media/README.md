@@ -31,11 +31,17 @@ Mount it in any composition that serves the web app and wants inline media previ
 
 ## Model Experience
 
-The route serves bytes the user can already read through the preview surface; it registers no tools and reaches no model context, so the token and KV-cache effect is none.
+None, as this package registers no tool, contributes no prompt section, and appends no session event; the route serves bytes the user can already read through the preview surface.
+
+#### KV Cache effect
+
+None; this package neither assembles nor sends a provider request.
 
 ## Known Limitations and Deferred Work
 
-None.
+- **Single-window ranges** — one `Range` spec is honored per request; a multi-spec header serves the first window only.
+- **Whole-file GET bounded, upload capped once** — a plain `GET` beyond `mediaLimitBytes` is refused, and an upload body crossing the same cap is rejected before any write; there is no chunked or resumable transfer.
+- **Disposition is all-or-nothing** — `?download=1` forces the attachment disposition on the whole answer; no partial-content download resumes.
 
 <a id="dev-note"></a>
 ### Dev Note

@@ -28,6 +28,7 @@ export type ParsedRange = ByteRange | { unsatisfiable: true } | null
  * - a start at or past EOF is unsatisfiable (416).
  * @param raw - the raw `Range` header value (undefined when absent).
  * @param size - the file size in bytes.
+ * @returns the parsed window, `null` when the header admits no range, or an unsatisfiable marker for a start at or past EOF.
  */
 export function parseRange(raw: string | undefined, size: number): ParsedRange {
   if (raw === undefined) return null
