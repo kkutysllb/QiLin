@@ -75,6 +75,7 @@
     "@qilin/kylin": "workspace:~",
     "@qilin/session": "workspace:*",
     "@types/react": "~18.3.1",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "@qilin/client-ui-sidebar-files": "workspace:*"
   }
 }

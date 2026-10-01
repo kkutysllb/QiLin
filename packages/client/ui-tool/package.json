@@ -78,7 +78,8 @@
     "@qilin/util-workspace-path": "workspace:*",
     "@qilin/attachment": "workspace:*",
     "clsx": "^2.0.0",
-    "@qilin/ptc-runtime": "workspace:*"
+    "@qilin/ptc-runtime": "workspace:*",
+    "@qilin/user-questions": "workspace:*"
   },
   "files": [
     "lib/index.js",
