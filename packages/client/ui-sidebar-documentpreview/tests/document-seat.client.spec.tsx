@@ -37,7 +37,7 @@ afterEach(async () => {
 async function boot() {
   const rt = await SlotTestRuntime.create()
   runtime = rt
-  rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn(), panelInfo: createSnapshotStore({ activePanelId: null }) } as never)
+  rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn(), panelInfo: rt.panelInfo } as never)
   rt.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) } } as never)
   // The retained Session Views follow the Workspace UI's main selection.
   rt.ctx.provide('uiWorkspace', {
@@ -55,6 +55,7 @@ async function boot() {
   })
   await rt.sessions.add({ id: SESSION })
   await rt.sessions.retainFor(rt.ctx, SESSION, { source: 'mainView' }).ready
+  // rc.2 座席：主视图引用必须存活，会话视图随其建立与释放
   await rt.mount({ inject: [...resourcesInject], apply: resourcesApply })
   const read = vi.fn<ClientRemote['workspaceFiles']['read']>().mockImplementation(async (_sessionId, _path, range) => ({
     ok: true,

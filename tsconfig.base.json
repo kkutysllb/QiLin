@@ -176,6 +176,7 @@
       "@qilin/host-directory-picker-native/*": ["./packages/host/directory-picker-native/src/*"],
       "@qilin/host-directory-picker-auto": ["./packages/host/directory-picker-auto/src"],
       "@qilin/host-directory-picker-auto/*": ["./packages/host/directory-picker-auto/src/*"],
+      "@qilin/host-preview-media": ["./packages/host/preview-media/src"],
       "@qilin/host-open-in-app": ["./packages/host/open-in-app/src"],
       "@qilin/host-open-in-app/shared": ["./packages/host/open-in-app/src/shared.ts"],
       "@qilin/host-webserver": ["./packages/host/webserver/src"],

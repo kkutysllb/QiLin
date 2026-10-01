@@ -1,0 +1,48 @@
+{
+  "name": "@qilin/host-preview-media",
+  "description": "Host half of preview media: the /sidebar/media route serving session-workspace files to inline previews, with HTTP Range windows for seeking video",
+  "version": "3.0.7",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/host/preview-media"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@qilin/schemastery": "workspace:~"
+  },
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin/kylin": "workspace:~",
+    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin/host-webserver": "workspace:*"
+  }
+}

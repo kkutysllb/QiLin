@@ -59,6 +59,12 @@
     # Session-header "Open In..." split button over the host application
     # resolution (macOS/Windows/Linux; a host with no resolved application
     # renders no button). Two halves: the host routes and the browser surface.
+    # Session-workspace file media for inline previews: the document
+    # preview's video viewer streams from this route (HTTP Range windows),
+    # and the download disposition serves the raw file.
+    - id: preview-media
+      name: '@qilin/host-preview-media'
+
     - id: open-in-app
       name: '@qilin/host-open-in-app'
       config:

@@ -31,6 +31,7 @@ import { en, zh } from './locales.ts'
 import { DocumentPreviewRegistry } from './document/registry.ts'
 import { documentTabInfoFactory } from './document/contract.ts'
 import { apply as registerText } from './text/index.ts'
+import { apply as registerVideo } from './video/index.ts'
 import { apply as registerMarkdown } from './markdown/index.ts'
 import { apply as registerHtml } from './html/index.ts'
 import { apply as registerImage } from './image/index.ts'
@@ -132,4 +133,5 @@ export function apply(ctx: ClientContext): void {
   registerCode(ctx)
   registerOffice(ctx, config.office)
   registerExcel(ctx, config.excel)
+  registerVideo(ctx)
 }

@@ -1,0 +1,9 @@
+feat(S1a): 视频预览与宿主媒体路由——/sidebar/media Range 流式 + documentpreview 视频 body
+
+- 新宿主包 packages/host/preview-media：GET/HEAD /sidebar/media 前缀路由；connection 拒绝门先行；会话工作区根（live header cwd ?? sandbox 根）经抽象 fs 服务 resolve+stat；RFC9110 单区间语义（parseRange 纯函数 + 9 用例）：ranged 走 fs.readByteRange 窗口读答 206（远程后端同样可寻址）、unsatisfiable 416、无 Range 整文件受 mediaLimitBytes（默认 20MiB，Config 可调）约束；?download=1 附件处置；27 项媒体内容类型表
+- documentpreview 新 video body：16 种视频扩展（mp4/webm/mov/mkv/avi/…，ts 不认领避免 TypeScript 冲突，m2ts 覆盖 MPEG-TS）；loading:'renderer' 模式（<video> 元素自流自寻址，不占整文件上限）；挂载即报 loaded、元素 error 报 failed 并降级下载链接；media-url.ts 构造同源相对 URL；locales 双语 + 命名空间登记；apply 规格期望表对位（12 行）
+- 差距修正：G2 docx/pptx 非缺口——原生 office/ body 已覆盖 doc/docx/ppt/pptx（宿主 office-to-pdf 转换 + 版本化缓存 + 字体提示，默认组合已接线），按「上游已有不动」从计划移除（本轮误建的 docx body 已撤）
+- document-seat 夹具对位 rc.2 座席：layout.panelInfo 接 runtime.panelInfo、保留主视图引用注释
+- 已知测试面遗留（非本轮引入，登记在案）：jsdom 下 DockSurface 度量循环致 seat 40 例 + document-seat 7 例失败（度量代码与上游逐行一致，真机正常）
+
+验证：typecheck 双面绿；range 9/9、video 2/2、apply 3/3、documentpreview 其余套件绿

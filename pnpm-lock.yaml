@@ -2292,6 +2292,9 @@ importers:
       '@qilin/host-plugin-inventory':
         specifier: workspace:*
         version: link:../../host/plugin-inventory
+      '@qilin/host-preview-media':
+        specifier: workspace:*
+        version: link:../../host/preview-media
       '@qilin/host-webserver':
         specifier: workspace:*
         version: link:../../host/webserver
@@ -8787,6 +8790,22 @@ importers:
       '@qilin/typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol
+
+  packages/host/preview-media:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin/host-webserver':
+        specifier: workspace:*
+        version: link:../webserver
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
 
   packages/host/webserver:
     dependencies:
