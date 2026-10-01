@@ -55,7 +55,7 @@ kind: "plan"
 
 | 批 | 内容 | 估量 | 说明 |
 |---|---|---|---|
-| **S1 预览与文件工作台** | ~~G2~~（非缺口移除）+ G3 视频 + G4 上传拖放 + G5 全局搜索 + G6 Mermaid（+软链/右键小项） | ~1.5 天 | G3 已落（提交 1cba11b816：media 路由+video body）；依赖搬运为主，风险低 |
+| **S1 预览与文件工作台** | ~~G2~~（非缺口移除）+ G3 视频 + G4 上传拖放 + G5 全局搜索 + G6 Mermaid（+软链/右键小项） | ~1.5 天 | G3 已落（提交 ：media 路由+video body）；依赖搬运为主，风险低 |
 | **S2 Git 面板** | G1 全块 | ~2-3 天 | 最大单块；host shell-git 驱动 + 2200 行 UI；独立新包不扰现有面 |
 | **S3 图与团队** | G7 轨迹增强 + G8 团队页 + G9 任务管理图 | ~1.5-2 天 | 增强现有包 |
 | **S4 sidechat** | G10 | ~0.5-1 天 | 依赖会话续写语义，独立 tab |
@@ -72,24 +72,24 @@ kind: "plan"
 
 ## 批次执行状态（2026-10-01 18:10）
 
-- S1a 已提交：`1cba11b816`（宿主包 preview-media + 视频 body + G2 修正撤除）+ `a368875a37`（README 三件套/组表）
+- S1a 已提交：（宿主包 preview-media + 视频 body + G2 修正撤除）+ （README 三件套/组表）
 - 已知测试面遗留（登记）：jsdm 下 DockSurface 度量循环（seat 40 例 + document-seat 7 例；度量代码与上游 rc.2 逐行一致、真机正常——用户 3.0.7 已验同款座席）
 - 剩余：G6 Mermaid → G4 上传/拖放 → G5 全局搜索 →（软链/右键小项）→ S2 Git 面板（含 GitHub）→ 发版 3.0.8
 
-- S1b 已提交：`c04d1ce57c`（Mermaid 一等围栏渲染：懒加载+严格安全+净化器+缩放模态；regex 空分支 bug 修正）
+- S1b 已提交：（Mermaid 一等围栏渲染：懒加载+严格安全+净化器+缩放模态；regex 空分支 bug 修正）
 
 
 ## 批次执行状态补充二（2026-10-01 18:45）
 
-- S1a 已提交：`1cba11b816`（视频预览+media 路由；G2 修正非缺口）
-- S1b 已提交：`c04d1ce57c`（Mermaid 一等围栏渲染；regex 空分支修正）
+- S1a 已提交（视频预览+media 路由；G2 修正非缺口）
+- S1b 已提交（Mermaid 一等围栏渲染；regex 空分支修正）
 - **G4 架构前提发现**：fs 抽象服务仅有 `writeText`（UTF-8）；二进制上传需跨全部后端（local/sandbox/remote）新增 `writeBytes` 原语——这是架构级变更，需专项批（影响 fs/fs-local/fs-sandbox/fs-remote + 测试）
 - **G5 搜索前提**：需 host 侧递归文件名扫描（插件 `fs-search.ts` 走 node:fs 直接扫描；QiLin 需走抽象 fs 或新增 fs 原语）
 - 下轮执行：①fs writeBytes 原语批（G4 前提）→ ②G4 上传/拖放（preview-media POST 路由+files 页 drop 覆盖层）→ ③G5 搜索 → ④S1e 软链/右键 → ⑤S2 Git 面板 → ⑥发版 3.0.8
 
 ## 批次执行状态补充三（2026-10-01 20:30）
 
-- S1a 已提交：`1cba11b816`（视频预览+media 路由）；S1b：`c04d1ce57c`（Mermaid）；S1c 前置：`7b3215ecf6`+`eac2f4fa96`（fs writeBytes）；S1c：`463b787664`（上传拖放）
+- S1a 已提交（视频预览+media 路由）；S1b 已提交（Mermaid）；S1c 前置两提交已落（fs writeBytes）；S1c 已提交（上传拖放）
 - **S1d G5 全局文件名搜索已落地**：
   - host：workspace-files 新增 `searchNames` Remote——广度优先、只匹配普通文件、不区分大小写 basename 子串；Config 新增 `maxSearchMatches`(100)/`maxSearchVisited`(100k)/`searchExcludedDirectories`（默认 .git/node_modules 等噪声目录既不匹配也不进入；与 file-reference-local 的 @ 提及索引互不共用——那次是本地 fs 的排序候选，这次是会话工作区的 Remote 语义）；根外符号链接目录不进入（防泄露防成环）；命中匹配/访问任一上限即 truncated
   - client：ui-sidebar-files 新增 FileSearch（ui-primitives Input + 搜索图标），标题行下搜索框 200ms 防抖、代次守卫（换字即弃旧答案）、结果占据正文、点击走树行同款会话作用域地址；query+答案入 store 桶随重挂载恢复；locales 双语 7 键

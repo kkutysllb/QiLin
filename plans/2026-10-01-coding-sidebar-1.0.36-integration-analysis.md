@@ -13,9 +13,9 @@ kind: "plan"
 
 | 时点 | 事件 |
 |---|---|
-| 09-15 `309989bd44` | 以 vendor 通道内置 `@qilin/coding-sidebar@1.0.14`，禁用五行原生右侧栏（ui-sidebar-right/-documentpreview/-files/-tasks/-plans） |
-| 09-15 `38ce354659` | 同日退役：上游 0.1.6-alpha.1 原生侧栏补齐（文件树/预览/终端），替换通道不再必要；「功能缺口留给插件通道升级」 |
-| 09-27 `1943249699` | 动效插件走新「内置随附层通道」（npm 依赖 + PROFILE_TEMPLATES 行 + profileLayerUpdatable + 收敛迁移），旧 vendor 通道 note 归档 |
+| 09-15 上游决策 | 以 vendor 通道内置 `@qilin/coding-sidebar@1.0.14`，禁用五行原生右侧栏（ui-sidebar-right/-documentpreview/-files/-tasks/-plans） |
+| 09-15 上游决策 | 同日退役：上游 0.1.6-alpha.1 原生侧栏补齐（文件树/预览/终端），替换通道不再必要；「功能缺口留给插件通道升级」 |
+| 09-27  | 动效插件走新「内置随附层通道」（npm 依赖 + PROFILE_TEMPLATES 行 + profileLayerUpdatable + 收敛迁移），旧 vendor 通道 note 归档 |
 | 09-24→10-01 | 插件独立演进 1.0.15→1.0.36（91 提交），持续适配 DSH 0.1.6/0.1.7 契约 |
 | 10-01 | 用户指令：按 1.0.36 功能实现完善右侧栏，发 3.0.8 |
 

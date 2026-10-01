@@ -910,6 +910,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   WorkspaceFileScope: 'Host workspace file lookup contract is owned by packages/api/workspace-files/README.md',
   WorkspaceByteRange: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceDirectoryListing: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
+  WorkspaceFileNameSearch: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceFileBytes: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceFileChange: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceFileWatchFrame: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',

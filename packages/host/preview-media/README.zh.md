@@ -9,7 +9,13 @@ kind: "package-reference"
 
 ## 概述
 
-一条前缀 webServer 路由 `GET/HEAD /sidebar/media?sessionId=<id>&path=<p>`，向浏览器内联预览供出一个会话工作区文件。带 `Range` 头的请求以窗口读回答 `206`，文档预览的 video 元素因此可拖动进度条；`?download=1` 切换处置方式让浏览器保存文件。整文件回答受 `mediaLimitBytes` 约束。
+`/sidebar/media` 之下的两条 webServer 路由服务浏览器的内联预览。`GET/HEAD /sidebar/media?sessionId=<id>&path=<p>` 供出一个会话工作区文件。带 `Range` 头的请求以窗口读回答 `206`，文档预览的 video 元素因此可拖动进度条；`?download=1` 切换处置方式让浏览器保存文件。整文件回答受 `mediaLimitBytes` 约束。
+
+## 目录
+
+- [使用本包](#使用本包)
+- [模型体验](#模型体验)
+- [已知限制与后续工作](#已知限制与后续工作)
 
 ## 使用本包
 
@@ -20,6 +26,7 @@ kind: "package-reference"
 - 可满足的单区间得 `206` 与 `Content-Range`；起点越过 EOF 得 `416`；无可用 Range 头得普通 `200`。
 - 读取经抽象文件系统服务解析，远程执行世界同样由此路由供出。
 - connection 服务的请求拒绝（来源围栏加浏览器认证）先于一切字节放行。
+- `PUT /sidebar/media/upload?sessionId=<id>&path=<p>` 经文件系统的 `writeBytes` 向会话工作区写入一个完整文件（创建或覆盖，无版本守卫）；请求体受 `mediaLimitBytes` 约束，超限在写入前即以 `400` 拒绝。文件页的拖放上传是它的调用方。
 
 ## 模型体验
 

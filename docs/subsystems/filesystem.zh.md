@@ -108,6 +108,8 @@ interface FsDirEntry {
   version?: FsVersion
   /** Byte size of a regular file, when the backend can report it. */
   size?: number
+  /** Present when the listed name itself is a symbolic link; `type` still names what it resolves to. */
+  symlink?: boolean
 }
 ```
 
@@ -143,8 +145,8 @@ interface FsWriteOutcome {
    * `before` is present, else falls back to a whole-file diff.
    */
   before: string | null
-  /** The file's content AFTER the write, LF-normalized to share `before`'s diff basis. */
-  after: string
+  /** The file's content AFTER the write, LF-normalized to share `before`'s diff basis; `null` for a raw-bytes write (no text basis). */
+  after: string | null
 }
 ```
 
