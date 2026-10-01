@@ -1810,6 +1810,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'settings.plugins.tab\' (client-ui-plugin-manager), so it exists while that entry is mounted',
     occupants: [
       'client-ui-settings-plugins BashCard id \'bash\'',
+      'client-ui-settings-plugins GitCard id \'git\'',
       'client-ui-settings-plugins AgentLoopCard id \'agent-loop\'',
       'client-ui-settings-plugins SubagentCard id \'subagent\'',
       'client-ui-settings-plugins WebSearchCard id \'web-search\'',
