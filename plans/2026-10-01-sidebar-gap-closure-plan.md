@@ -75,3 +75,5 @@ kind: "plan"
 - S1a 已提交：`1cba11b816`（宿主包 preview-media + 视频 body + G2 修正撤除）+ `a368875a37`（README 三件套/组表）
 - 已知测试面遗留（登记）：jsdm 下 DockSurface 度量循环（seat 40 例 + document-seat 7 例；度量代码与上游 rc.2 逐行一致、真机正常——用户 3.0.7 已验同款座席）
 - 剩余：G6 Mermaid → G4 上传/拖放 → G5 全局搜索 →（软链/右键小项）→ S2 Git 面板（含 GitHub）→ 发版 3.0.8
+
+- S1b 已提交：`c04d1ce57c`（Mermaid 一等围栏渲染：懒加载+严格安全+净化器+缩放模态；regex 空分支 bug 修正）
