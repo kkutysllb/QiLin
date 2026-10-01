@@ -1,14 +1,15 @@
 /**
  * Workspace Git service: repository discovery, porcelain status, staging,
- * discard, commits, branch switching, and push/pull inside the Session
- * workspace root, exposed as `workspaceGit`.
+ * discard, commits, branch switching, push/pull, and the `gh` pull-request
+ * face, all inside the Session workspace root, exposed as `workspaceGit`.
  *
- * Every call spawns the configured git binary with a fixed argv inside the
- * Session's workspace root — no shell ever interprets it. Caller strings
+ * Every call spawns the configured git or gh binary with a fixed argv inside
+ * the Session's workspace root — no shell ever interprets it. Caller strings
  * enter argv only as a pathspec after `--`, as the one `-m` commit message,
- * or as a branch name that passed the accepted-name check. The `@qilin/shell`
- * seam takes a single command-line string, so a fixed-argv spawn is not
- * expressible there; this service uses `node:child_process` directly.
+ * as the `--title`/`--body` pull-request values, or as a branch name that
+ * passed the accepted-name check. The `@qilin/shell` seam takes a single
+ * command-line string, so a fixed-argv spawn is not expressible there; this
+ * service uses `node:child_process` directly.
  *
  * The workspace root arrives through the `workspaceFileScope` Typert lookup
  * that `@qilin/api-workspace-files` registers; this package declares no
@@ -20,8 +21,8 @@ import type { Context } from '@qilin/kylin'
 import type { WorkspaceFileScope } from '@qilin/api-workspace-files'
 import z from '@qilin/schemastery'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import { parseAheadBehind, parseBranches, parseStatusPorcelain } from './parse.ts'
-import type { GitBranches, GitStatus, GitUpstream } from './types.ts'
+import { firstLine, parseAheadBehind, parseBranches, parseGhAccount, parseGhPrNumber, parseGhPrs, parseGhPrUrl, parseStatusPorcelain } from './parse.ts'
+import type { GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitStatus, GitUpstream } from './types.ts'
 
 export type * from './types.ts'
 
@@ -32,19 +33,23 @@ declare module '@qilin/kylin' {
   }
 }
 
-/** Deployment knobs on the git binary, the spawn timeouts, and the answer caps. */
+/** Deployment knobs on the git and gh binaries, the spawn timeouts, and the answer caps. */
 export interface Config {
-  /** Git executable spawned for every call. */
+  /** Git executable spawned for every repository call. */
   readonly gitBin: string
+  /** gh executable spawned for every pull-request call. */
+  readonly ghBin: string
   /** Timeout on one content or mutation command; a command past it is killed and reported as command-failed. */
   readonly timeoutMs: number
   /** Timeout on one repository-discovery command (`rev-parse` and upstream resolution). */
   readonly discoveryTimeoutMs: number
+  /** Timeout on one `gh` call; gh talks to the GitHub API and is slower than local git. */
+  readonly ghTimeoutMs: number
   /** Inclusive byte cap on one diff; a larger diff fails with too-large, never shortened. */
   readonly maxDiffBytes: number
   /** Character cap on the stderr one command failure carries. */
   readonly maxStderrChars: number
-  /** Cap on returned branch entries; the rest is dropped and reported cut. */
+  /** Cap on returned branch and pull-request entries; pull requests are capped in the gh `--limit`. */
   readonly maxListEntries: number
 }
 
@@ -58,8 +63,15 @@ const BRANCH_NAME = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/u
 /** The tab-joined for-each-ref format whose output {@link parseBranches} reads. */
 const BRANCH_FORMAT = '%(refname:short)%09%(HEAD)%09%(upstream:short)%09%(upstream:track,nobracket)'
 
-/** One completed git invocation: exit facts plus everything it printed. */
-interface GitRun {
+/** The one `--json` field list `ghListPrs` requests; argv and the parser share it. */
+const GH_PR_FIELDS = 'number,title,headRefName,baseRefName,isDraft,updatedAt,author'
+
+/** Pull-request title and body bounds, fixed like GitHub's own form limits; both are checked before gh runs. */
+const PR_TITLE_MAX = 500
+const PR_BODY_MAX = 4000
+
+/** One completed git or gh invocation: exit facts plus everything it printed. */
+interface CliRun {
   /** Exit status, `null` when the process died from a signal or never spawned. */
   readonly code: number | null
   /** Decoded stdout. */
@@ -80,8 +92,10 @@ interface GitRun {
 export class WorkspaceGit extends TypertRemoteService {
   static Config: z<Config> = z.object({
     gitBin: z.string().default('git'),
+    ghBin: z.string().default('gh'),
     timeoutMs: z.number().step(1).min(1).default(30_000),
     discoveryTimeoutMs: z.number().step(1).min(1).default(5_000),
+    ghTimeoutMs: z.number().step(1).min(1).default(30_000),
     maxDiffBytes: z.number().step(1).min(1).default(1_048_576),
     maxStderrChars: z.number().step(1).min(1).default(2000),
     maxListEntries: z.number().step(1).min(1).default(200),
@@ -103,7 +117,7 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async isRepo(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<boolean> {
-    const probe = await this.run(workspaceFileScope, ['rev-parse', '--is-inside-work-tree'], this.config.discoveryTimeoutMs, signal)
+    const probe = await this.run(workspaceFileScope, this.config.gitBin, ['rev-parse', '--is-inside-work-tree'], this.config.discoveryTimeoutMs, signal)
     return probe.code === 0 && !probe.timedOut && probe.spawnError === undefined && probe.stdout.trim() === 'true'
   }
 
@@ -116,7 +130,7 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async repoRoot(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<string> {
-    const probe = await this.run(workspaceFileScope, ['rev-parse', '--show-toplevel'], this.config.discoveryTimeoutMs, signal)
+    const probe = await this.run(workspaceFileScope, this.config.gitBin, ['rev-parse', '--show-toplevel'], this.config.discoveryTimeoutMs, signal)
     const root = probe.stdout.trim()
     if (this.failed(probe) || root.length === 0) {
       throw new RemoteError('workspace-git/not-a-repo', 'the workspace root is not inside a Git work tree', {})
@@ -138,12 +152,15 @@ export class WorkspaceGit extends TypertRemoteService {
     await this.requireRepo(workspaceFileScope, signal)
     const porcelain = await this.run(
       workspaceFileScope,
+      this.config.gitBin,
       ['status', '--porcelain=v1', '-z', '--untracked-files=all'],
       this.config.timeoutMs,
       signal,
     )
-    if (this.failed(porcelain)) throw this.commandFailure(['status', '--porcelain=v1', '-z', '--untracked-files=all'], porcelain)
-    const head = await this.run(workspaceFileScope, ['rev-parse', '--abbrev-ref', 'HEAD'], this.config.discoveryTimeoutMs, signal)
+    if (this.failed(porcelain)) {
+      throw this.commandFailure(this.config.gitBin, ['status', '--porcelain=v1', '-z', '--untracked-files=all'], porcelain)
+    }
+    const head = await this.run(workspaceFileScope, this.config.gitBin, ['rev-parse', '--abbrev-ref', 'HEAD'], this.config.discoveryTimeoutMs, signal)
     const branch = this.failed(head) ? undefined : head.stdout.trim()
     const upstream = await this.upstreamOf(workspaceFileScope, signal)
     return {
@@ -172,8 +189,8 @@ export class WorkspaceGit extends TypertRemoteService {
     signal: AbortSignal,
   ): Promise<string> {
     const args = [...(staged ? ['diff', '--cached'] : ['diff']), ...this.pathspec(path)]
-    const run = await this.run(workspaceFileScope, args, this.config.timeoutMs, signal, this.config.maxDiffBytes)
-    if (this.failed(run)) throw this.commandFailure(args, run)
+    const run = await this.run(workspaceFileScope, this.config.gitBin, args, this.config.timeoutMs, signal, this.config.maxDiffBytes)
+    if (this.failed(run)) throw this.commandFailure(this.config.gitBin, args, run)
     if (run.oversized) {
       throw new RemoteError(
         'workspace-git/too-large',
@@ -193,7 +210,7 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async stage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void> {
-    await this.mutate(workspaceFileScope, ['add', '-A', ...this.pathspec(path)], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['add', '-A', ...this.pathspec(path)], this.config.timeoutMs, signal)
   }
 
   /**
@@ -205,7 +222,7 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async unstage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void> {
-    await this.mutate(workspaceFileScope, ['reset', '-q', ...this.pathspec(path)], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['reset', '-q', ...this.pathspec(path)], this.config.timeoutMs, signal)
   }
 
   /**
@@ -220,7 +237,7 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async discard(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void> {
-    await this.mutate(workspaceFileScope, ['checkout', '--', this.requiredPath(path)], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['checkout', '--', this.requiredPath(path)], this.config.timeoutMs, signal)
   }
 
   /**
@@ -241,7 +258,7 @@ export class WorkspaceGit extends TypertRemoteService {
         { length: trimmed.length },
       )
     }
-    await this.mutate(workspaceFileScope, ['commit', '-m', trimmed], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['commit', '-m', trimmed], this.config.timeoutMs, signal)
   }
 
   /**
@@ -257,8 +274,8 @@ export class WorkspaceGit extends TypertRemoteService {
   async branches(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GitBranches> {
     await this.requireRepo(workspaceFileScope, signal)
     const args = ['for-each-ref', `--format=${BRANCH_FORMAT}`, 'refs/heads/']
-    const run = await this.run(workspaceFileScope, args, this.config.timeoutMs, signal)
-    if (this.failed(run)) throw this.commandFailure(args, run)
+    const run = await this.run(workspaceFileScope, this.config.gitBin, args, this.config.timeoutMs, signal)
+    if (this.failed(run)) throw this.commandFailure(this.config.gitBin, args, run)
     const all = parseBranches(run.stdout)
     return {
       branches: all.slice(0, this.config.maxListEntries),
@@ -276,7 +293,7 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async checkout(workspaceFileScope: WorkspaceFileScope, branch: string, signal: AbortSignal): Promise<void> {
-    await this.mutate(workspaceFileScope, ['checkout', this.branchName(branch)], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['checkout', this.branchName(branch)], this.config.timeoutMs, signal)
   }
 
   /**
@@ -296,7 +313,7 @@ export class WorkspaceGit extends TypertRemoteService {
     signal: AbortSignal,
   ): Promise<void> {
     const start = from === '' ? [] : [this.branchName(from)]
-    await this.mutate(workspaceFileScope, ['branch', this.branchName(name), ...start], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['branch', this.branchName(name), ...start], this.config.timeoutMs, signal)
   }
 
   /**
@@ -311,7 +328,9 @@ export class WorkspaceGit extends TypertRemoteService {
   async push(workspaceFileScope: WorkspaceFileScope, setUpstream: boolean, signal: AbortSignal): Promise<void> {
     await this.mutate(
       workspaceFileScope,
+      this.config.gitBin,
       setUpstream ? ['push', '--set-upstream', 'origin', 'HEAD'] : ['push'],
+      this.config.timeoutMs,
       signal,
     )
   }
@@ -324,23 +343,164 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   @Remote
   async pull(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<void> {
-    await this.mutate(workspaceFileScope, ['pull'], signal)
+    await this.mutate(workspaceFileScope, this.config.gitBin, ['pull'], this.config.timeoutMs, signal)
+  }
+
+  /**
+   * Report whether the configured gh binary answers at all.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param signal - caller cancellation.
+   * @returns whether `gh --version` completed; `false` on every failure, including a missing binary or timeout.
+   */
+  @Remote
+  async ghAvailable(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<boolean> {
+    const probe = await this.run(workspaceFileScope, this.config.ghBin, ['--version'], this.config.discoveryTimeoutMs, signal)
+    return !this.failed(probe)
+  }
+
+  /**
+   * Report what `gh auth status` says about the GitHub login. This call never
+   * throws: a missing binary, a timeout, and a missing login are all
+   * `authenticated: false` with a readable message, so the rest of the panel
+   * keeps working without gh installed or signed in.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param signal - caller cancellation.
+   * @returns the login state; `account` when the output names one, and `message` for people.
+   */
+  @Remote
+  async ghAuthStatus(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GhAuthStatus> {
+    const run = await this.run(workspaceFileScope, this.config.ghBin, ['auth', 'status'], this.config.ghTimeoutMs, signal)
+    // gh prints its login state to stderr even on success; stdout only when stderr stayed empty.
+    const account = parseGhAccount(run.stderr === '' ? run.stdout : run.stderr)
+    const message = firstLine(run.stderr) ?? firstLine(run.stdout) ?? this.wordless(run)
+    if (this.failed(run)) return { authenticated: false, message }
+    return { authenticated: true, ...(account === undefined ? {} : { account }), message }
+  }
+
+  /**
+   * List the repository's pull requests from the GitHub API through one
+   * `gh pr list --json` call, capped by the configured `maxListEntries`.
+   * Fields gh omits arrive as their zero values; output that is not a JSON
+   * array yields no rows.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param state - which pull requests to list: `open`, `closed`, or `all`.
+   * @param signal - caller cancellation.
+   * @returns pull requests in gh order.
+   * @throws {RemoteError} `gateway/bad-request` when `state` is not one of the three words.
+   * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+   * @throws {RemoteError} `workspace-git/command-failed` when gh exits nonzero, including no GitHub remote and a missing login.
+   */
+  @Remote
+  async ghListPrs(
+    workspaceFileScope: WorkspaceFileScope,
+    state: 'open' | 'closed' | 'all',
+    signal: AbortSignal,
+  ): Promise<readonly GhPr[]> {
+    const asked = this.prState(state)
+    await this.requireRepo(workspaceFileScope, signal)
+    const args = ['pr', 'list', '--state', asked, '--limit', String(this.config.maxListEntries), '--json', GH_PR_FIELDS]
+    const run = await this.run(workspaceFileScope, this.config.ghBin, args, this.config.ghTimeoutMs, signal)
+    if (this.failed(run)) throw this.commandFailure(this.config.ghBin, args, run)
+    return parseGhPrs(run.stdout)
+  }
+
+  /**
+   * Open one pull request for the current branch. `title` and `body` are
+   * trimmed and bounds-checked before gh runs; `base` must pass the
+   * accepted-name check, and an empty `base` lets GitHub use the repository
+   * default branch.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param title - pull-request title; 1..500 characters after trimming.
+   * @param body - pull-request body; 1..4000 characters after trimming.
+   * @param base - branch to merge into; empty selects the repository default branch.
+   * @param signal - caller cancellation.
+   * @returns the number parsed from the URL gh printed and that URL verbatim.
+   * @throws {RemoteError} `workspace-git/bad-pr-title` when the title or body fails its bounds; nothing ran.
+   * @throws {RemoteError} `workspace-git/bad-branch` when a non-empty `base` fails the accepted-name check; nothing ran.
+   * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+   * @throws {RemoteError} `workspace-git/command-failed` when gh exits nonzero or prints no pull-request URL.
+   */
+  @Remote
+  async ghCreatePr(
+    workspaceFileScope: WorkspaceFileScope,
+    title: string,
+    body: string,
+    base: string,
+    signal: AbortSignal,
+  ): Promise<GhCreatedPr> {
+    const askedTitle = this.prField('title', title, PR_TITLE_MAX)
+    const askedBody = this.prField('body', body, PR_BODY_MAX)
+    const args = [
+      'pr',
+      'create',
+      '--title',
+      askedTitle,
+      '--body',
+      askedBody,
+      ...(base === '' ? [] : ['--base', this.branchName(base)]),
+    ]
+    await this.requireRepo(workspaceFileScope, signal)
+    const run = await this.run(workspaceFileScope, this.config.ghBin, args, this.config.ghTimeoutMs, signal)
+    if (this.failed(run)) throw this.commandFailure(this.config.ghBin, args, run)
+    const url = parseGhPrUrl(run.stdout)
+    const number = url === undefined ? undefined : parseGhPrNumber(url)
+    if (url === undefined || number === undefined) {
+      throw this.commandFailure(this.config.ghBin, args, run, 'gh printed no pull-request URL')
+    }
+    return { number, url }
+  }
+
+  /**
+   * Merge one pull request through `gh pr merge`. An empty `method` passes no
+   * strategy flag and leaves the choice to gh's non-interactive rules and the
+   * repository's allowed methods; every other value names its matching flag.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param number - pull request to merge; a positive integer.
+   * @param method - `''`, `'merge'`, `'squash'`, or `'rebase'`.
+   * @param signal - caller cancellation.
+   * @throws {RemoteError} `gateway/bad-request` when `number` or `method` is outside its allowed values.
+   * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+   * @throws {RemoteError} `workspace-git/command-failed` when gh exits nonzero, including an unmergeable pull request.
+   */
+  @Remote
+  async ghMergePr(
+    workspaceFileScope: WorkspaceFileScope,
+    number: number,
+    method: '' | 'merge' | 'squash' | 'rebase',
+    signal: AbortSignal,
+  ): Promise<void> {
+    const askedNumber = this.prNumber(number)
+    const askedMethod = this.mergeMethod(method)
+    await this.requireRepo(workspaceFileScope, signal)
+    await this.mutate(
+      workspaceFileScope,
+      this.config.ghBin,
+      ['pr', 'merge', String(askedNumber), ...(askedMethod === '' ? [] : [`--${askedMethod}`])],
+      this.config.ghTimeoutMs,
+      signal,
+    )
   }
 
   /** Run one mutation and map every failure to `command-failed`. */
-  private async mutate(workspaceFileScope: WorkspaceFileScope, args: readonly string[], signal: AbortSignal): Promise<void> {
-    const run = await this.run(workspaceFileScope, args, this.config.timeoutMs, signal)
-    if (this.failed(run)) throw this.commandFailure(args, run)
+  private async mutate(
+    workspaceFileScope: WorkspaceFileScope,
+    bin: string,
+    args: readonly string[],
+    timeoutMs: number,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const run = await this.run(workspaceFileScope, bin, args, timeoutMs, signal)
+    if (this.failed(run)) throw this.commandFailure(bin, args, run)
   }
 
   /** Fail fast unless the workspace root sits inside a Git work tree. */
   private async requireRepo(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<void> {
-    const probe = await this.run(workspaceFileScope, ['rev-parse', '--is-inside-work-tree'], this.config.discoveryTimeoutMs, signal)
+    const probe = await this.run(workspaceFileScope, this.config.gitBin, ['rev-parse', '--is-inside-work-tree'], this.config.discoveryTimeoutMs, signal)
     this.requireInsideWorkTree(probe)
   }
 
   /** Throw `not-a-repo` unless one discovery probe answered inside a work tree. */
-  private requireInsideWorkTree(probe: GitRun): void {
+  private requireInsideWorkTree(probe: CliRun): void {
     if (this.failed(probe) || probe.stdout.trim() !== 'true') {
       throw new RemoteError('workspace-git/not-a-repo', 'the workspace root is not inside a Git work tree', {})
     }
@@ -350,6 +510,7 @@ export class WorkspaceGit extends TypertRemoteService {
   private async upstreamOf(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): Promise<GitUpstream | undefined> {
     const name = await this.run(
       workspaceFileScope,
+      this.config.gitBin,
       ['rev-parse', '--abbrev-ref', '@{upstream}'],
       this.config.discoveryTimeoutMs,
       signal,
@@ -357,6 +518,7 @@ export class WorkspaceGit extends TypertRemoteService {
     if (this.failed(name) || name.stdout.trim().length === 0) return undefined
     const counts = await this.run(
       workspaceFileScope,
+      this.config.gitBin,
       ['rev-list', '--left-right', '--count', 'HEAD...@{upstream}'],
       this.config.discoveryTimeoutMs,
       signal,
@@ -366,8 +528,55 @@ export class WorkspaceGit extends TypertRemoteService {
   }
 
   /** Whether the invocation did not complete with exit status zero. */
-  private failed(run: GitRun): boolean {
+  private failed(run: CliRun): boolean {
     return run.code !== 0 || run.timedOut || run.spawnError !== undefined
+  }
+
+  /** A readable failure line when the binary printed nothing at all. */
+  private wordless(run: CliRun): string {
+    if (run.spawnError !== undefined) return run.spawnError.message
+    if (run.timedOut) return 'the command was killed by its timeout'
+    return 'the command printed nothing'
+  }
+
+  /**
+   * Require one of the three `gh pr list` states. The declared parameter
+   * widens to `undefined` for the same wire reason as {@link requiredPath}.
+   */
+  private prState(state: string | undefined): 'open' | 'closed' | 'all' {
+    if (state === 'open' || state === 'closed' || state === 'all') return state
+    throw new RemoteError('gateway/bad-request', 'state must be one of open, closed, or all', {})
+  }
+
+  /** Require a positive integer pull-request number; widened to `undefined` for the same wire reason. */
+  private prNumber(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) {
+      throw new RemoteError('gateway/bad-request', 'number must be a positive integer', {})
+    }
+    return value
+  }
+
+  /** Require one of the four merge-method words; widened to `undefined` for the same wire reason. */
+  private mergeMethod(method: string | undefined): '' | 'merge' | 'squash' | 'rebase' {
+    if (method === '' || method === 'merge' || method === 'squash' || method === 'rebase') return method
+    throw new RemoteError('gateway/bad-request', 'method must be "", "merge", "squash", or "rebase"', {})
+  }
+
+  /**
+   * Require one pull-request text field to be 1..max characters after
+   * trimming; a field outside its bounds refuses the call before gh runs.
+   * Widened to `undefined` for the same wire reason as {@link requiredPath}.
+   */
+  private prField(field: 'title' | 'body', value: string | undefined, max: number): string {
+    const trimmed = typeof value === 'string' ? value.trim() : ''
+    if (trimmed.length < 1 || trimmed.length > max) {
+      throw new RemoteError(
+        'workspace-git/bad-pr-title',
+        `the pull-request ${field} must be 1..${max} characters after trimming`,
+        { field, length: trimmed.length },
+      )
+    }
+    return trimmed
   }
 
   /**
@@ -404,10 +613,15 @@ export class WorkspaceGit extends TypertRemoteService {
   }
 
   /** The Remote failure for one nonzero, timed-out, or unspawnable invocation. */
-  private commandFailure(args: readonly string[], run: GitRun): RemoteError<'workspace-git/command-failed'> {
-    const command = `${this.config.gitBin} ${args.join(' ')}`
+  private commandFailure(
+    bin: string,
+    args: readonly string[],
+    run: CliRun,
+    fallback = '',
+  ): RemoteError<'workspace-git/command-failed'> {
+    const command = `${bin} ${args.join(' ')}`
     const raw = run.timedOut ? `the command exceeded its timeout. ${run.stderr}` : run.stderr
-    const stderr = (raw.length > 0 ? raw : run.spawnError?.message ?? '').trim().slice(0, this.config.maxStderrChars)
+    const stderr = (raw.length > 0 ? raw : run.spawnError?.message ?? fallback).trim().slice(0, this.config.maxStderrChars)
     return new RemoteError(
       'workspace-git/command-failed',
       `${command} failed`,
@@ -416,13 +630,14 @@ export class WorkspaceGit extends TypertRemoteService {
   }
 
   /**
-   * Spawn git with a fixed argv in the workspace root and collect its output.
-   * No shell is involved; every argument is one argv element. The call is
-   * killed by its timeout, by caller cancellation, or — with `byteCap` — by
-   * stdout passing the cap; the first two leave the result to the caller's
-   * failure mapping, the cap marks `oversized`.
+   * Spawn one binary with a fixed argv in the workspace root and collect its
+   * output. No shell is involved; every argument is one argv element. The
+   * call is killed by its timeout, by caller cancellation, or — with
+   * `byteCap` — by stdout passing the cap; the first two leave the result to
+   * the caller's failure mapping, the cap marks `oversized`.
    * @param workspaceFileScope - workspace root the command runs in.
-   * @param args - fixed git arguments, including validated caller strings.
+   * @param bin - configured binary to spawn, git or gh.
+   * @param args - fixed arguments, including validated caller strings.
    * @param timeoutMs - kill deadline from Config.
    * @param signal - caller cancellation; kills the child and rejects with its reason.
    * @param byteCap - optional stdout byte cap whose breach kills the child and marks `oversized`.
@@ -430,14 +645,15 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   private run(
     workspaceFileScope: WorkspaceFileScope,
+    bin: string,
     args: readonly string[],
     timeoutMs: number,
     signal: AbortSignal,
     byteCap?: number,
-  ): Promise<GitRun> {
+  ): Promise<CliRun> {
     signal.throwIfAborted()
     return new Promise((resolve, reject) => {
-      const child = spawn(this.config.gitBin, args, { cwd: workspaceFileScope.workspaceRoot, stdio: ['ignore', 'pipe', 'pipe'] })
+      const child = spawn(bin, args, { cwd: workspaceFileScope.workspaceRoot, stdio: ['ignore', 'pipe', 'pipe'] })
       const out: Buffer[] = []
       const err: Buffer[] = []
       let bytes = 0

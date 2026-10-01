@@ -1,5 +1,5 @@
 ---
-description: "workspaceGit Remote 命名空间的 Host 方：仓库探测、porcelain 状态、暂存、提交、分支列举与切换、有界 diff、push 与 pull，每一次都是会话工作区根目录内固定 argv 的 git 进程。"
+description: "workspaceGit Remote 命名空间的 Host 方：仓库探测、porcelain 状态、暂存、提交、分支列举与切换、有界 diff、push、pull 与 gh pull request 面，每一次都是会话工作区根目录内固定 argv 的 git 或 gh 进程。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-用这个包从 Web 客户端驱动会话工作区根目录上的 Git：探测根目录是否为仓库、读取带当前分支与上游位置的 porcelain 状态、读取有界 diff、按路径暂存与取消暂存、丢弃单个路径的工作区改动、用一条消息提交索引、列举与切换分支、push 或 pull。每次调用都在工作区根目录内以固定 argv 拉起配置的 git 可执行文件；任何 caller 字符串都不会经过 shell 解释。
+用这个包从 Web 客户端驱动会话工作区根目录上的 Git：探测根目录是否为仓库、读取带当前分支与上游位置的 porcelain 状态、读取有界 diff、按路径暂存与取消暂存、丢弃单个路径的工作区改动、用一条消息提交索引、列举与切换分支、push 或 pull。经由 `gh` CLI，它还探测 GitHub 登录态并列举、创建、合并 pull request。每次调用都在工作区根目录内以固定 argv 拉起配置的 git 或 gh 可执行文件；任何 caller 字符串都不会经过 shell 解释。
 
 ## 目录
 
@@ -42,10 +42,19 @@ kind: "package-reference"
 | `createBranch(name, from)` | `void` | 创建本地分支；`from` 为空时自 `HEAD` 起 |
 | `push(setUpstream)` | `void` | 推送当前分支；`setUpstream` 时附加 `--set-upstream origin HEAD` |
 | `pull()` | `void` | 从当前分支的上游拉取 |
+| `ghAvailable()` | `boolean` | 配置的 gh 可执行文件是否应答 `--version`；任何失败都返回 `false` |
+| `ghAuthStatus()` | `GhAuthStatus { authenticated, account?, message }` | gh 登录态；绝不抛错——二进制缺失、超时或未登录都是 `authenticated: false` 加可读的 `message` |
+| `ghListPrs(state)` | `readonly GhPr[]` | 来自一次 `gh pr list --json` 调用的 pull request，受 `maxListEntries` 约束；`state` 为 `open`、`closed` 或 `all` |
+| `ghCreatePr(title, body, base)` | `GhCreatedPr { number, url }` | 为当前分支开一个 pull request；`base` 为空时选择仓库默认分支 |
+| `ghMergePr(number, method)` | `void` | 合并一个 pull request；`method` 为空时不传策略旗标，选择留给 gh |
 
 ### 固定 argv，无 shell
 
-`@qilin/shell` seam 通过 shell 执行单条命令行字符串，因此"一次调用等于一次固定 argv 拉起"在那里无法表达；本服务直接使用 `node:child_process` 拉起，每个参数都是独立的 argv 元素。caller 字符串进入 argv 只有三种途径：`--` 之后的路径规格（任何前导 `-` 因此是路径字符而非选项）、唯一一条 `-m` 提交消息、以及匹配 `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/` 的分支名——其余一律在 git 运行前以 `bad-branch` 失败。首字符类别保证任何被接受的名称都不可能拼出 git 选项。
+`@qilin/shell` seam 通过 shell 执行单条命令行字符串，因此"一次调用等于一次固定 argv 拉起"在那里无法表达；本服务直接使用 `node:child_process` 拉起，每个参数都是独立的 argv 元素。caller 字符串进入 argv 只有四种途径：`--` 之后的路径规格（任何前导 `-` 因此是路径字符而非选项）、唯一一条 `-m` 提交消息、`--title`/`--body` pull request 取值、以及匹配 `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/` 的分支名——其余一律在 git 运行前以 `bad-branch` 失败。首字符类别保证任何被接受的名称都不可能拼出 git 选项。
+
+### gh pull request 面
+
+`ghAvailable` 与 `ghAuthStatus` 探测环境且绝不抛错：二进制缺失、超时或未登录都正常返回，面板因此渲染降级态而不是捕获错误。`ghListPrs` 读取一次 `gh pr list --json` 答案并报告面板列举所需的七个字段；gh 省略了某字段的行以零值抵达，不是 JSON 数组的输出产生零行。`ghCreatePr` 修剪 `title` 与 `body` 并在 gh 运行前做界检查（1..500 与 1..4000 字符），取 gh 答案中最后一个 https URL 并从中解析 pull request 编号。`ghMergePr` 把方式映射为对应的 `--merge`/`--squash`/`--rebase` 旗标；方式为空时不传任何策略旗标——由 gh 的非交互规则与仓库允许的方式决定。
 
 ### 状态分类
 
@@ -55,18 +64,20 @@ kind: "package-reference"
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
-| `gitBin` | `git` | 每次调用拉起的 git 可执行文件 |
+| `gitBin` | `git` | 每次仓库调用拉起的 git 可执行文件 |
+| `ghBin` | `gh` | 每次 pull request 调用拉起的 gh 可执行文件 |
 | `timeoutMs` | `30000` | 单条内容或变更命令（`status`、`diff`、`add`、`reset`、`checkout`、`commit`、`for-each-ref`、`push`、`pull`）的杀死时限 |
-| `discoveryTimeoutMs` | `5000` | 单条仓库探测命令（`rev-parse`、上游解析）的杀死时限 |
+| `discoveryTimeoutMs` | `5000` | 单条仓库探测命令（`rev-parse`、上游解析、`gh --version`）的杀死时限 |
+| `ghTimeoutMs` | `30000` | 单条 `gh` 调用的杀死时限；gh 访问 GitHub API，比本地 git 慢 |
 | `maxDiffBytes` | `1048576`（1 MiB） | 单条 diff 的含端字节上限；超限以 `too-large` 失败，绝不截断 |
 | `maxStderrChars` | `2000` | 单条命令失败所携带 stderr 的字符上限 |
-| `maxListEntries` | `200` | 返回分支条目的上限；其余丢弃并报告截断 |
+| `maxListEntries` | `200` | 返回分支条目的上限，也是 gh pull request `--limit` 的上限 |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilinapi-workspace-git)是每个受支持字段及其 JSDoc 的穷尽来源。
 
 ### 失败
 
-每种失败都是带类型化 details 的一个 `RemoteError` code，声明于 [`src/types.ts`](src/types.ts)：`workspace-git/not-a-repo`、`workspace-git/bad-branch`（`branch`）、`workspace-git/bad-message`（`length`）、`workspace-git/bad-path`（`path`）、`workspace-git/too-large`（`bytes` 是杀死前观察到的下界，另附 `maxBytes`）、以及 `workspace-git/command-failed`（`command` 指名调用、有退出码时附 `code`、`stderr` 修剪到 `maxStderrChars`；超时在 `stderr` 中自述且不携带 `code`）。调用方按 code 分支，绝不按消息文本。
+每种失败都是带类型化 details 的一个 `RemoteError` code，声明于 [`src/types.ts`](src/types.ts)：`workspace-git/not-a-repo`、`workspace-git/bad-branch`（`branch`）、`workspace-git/bad-message`（`length`）、`workspace-git/bad-path`（`path`）、`workspace-git/bad-pr-title`（`field` 指名被拒的 `title` 或 `body`，另附 `length`）、`workspace-git/too-large`（`bytes` 是杀死前观察到的下界，另附 `maxBytes`）、以及 `workspace-git/command-failed`（`command` 指名调用、有退出码时附 `code`、`stderr` 修剪到 `maxStderrChars`；超时在 `stderr` 中自述且不携带 `code`）。结构非法的线上取值——`ghListPrs` 的 state 超出三个词、`ghMergePr` 的编号不是正整数、方式超出四个词——在任何运行前以 `gateway/bad-request` 失败。调用方按 code 分支，绝不按消息文本。
 
 -----
 
@@ -78,14 +89,14 @@ kind: "package-reference"
 
 ### 设计概念
 
-工作区根目录经 `@qilin/api-workspace-files` 注册的 `workspaceFileScope` Typert 查找到达；本包不声明自己的查找，只以 type-only 方式导入 scope 类型，因为 Typert 按 Host 类型符号而非结构形状绑定查找参数。一个私有的 `run` 以固定 argv 拉起 git，套用该调用的超时，尊重 caller 取消（以中止原因拒绝），并在 stdout 越过 `maxDiffBytes` 时杀死子进程，使超限的 diff 绝不整体缓冲。每个方法在一处映射失败：探测拒绝到 `not-a-repo`、任何拉起前的校验拒绝、其余全部到 `command-failed` 并附调用与修剪后的 stderr。各解析器是对录制输出字符串的纯函数，导出以供 fixture 规格。
+工作区根目录经 `@qilin/api-workspace-files` 注册的 `workspaceFileScope` Typert 查找到达；本包不声明自己的查找，只以 type-only 方式导入 scope 类型，因为 Typert 按 Host 类型符号而非结构形状绑定查找参数。一个私有的 `run` 以固定 argv 拉起所配置的二进制——git 或 gh，套用该调用的超时，尊重 caller 取消（以中止原因拒绝），并在 stdout 越过 `maxDiffBytes` 时杀死子进程，使超限的 diff 绝不整体缓冲。每个方法在一处映射失败：探测拒绝到 `not-a-repo`、任何拉起前的校验拒绝、其余全部到 `command-failed` 并附调用与修剪后的 stderr。各解析器是对录制输出字符串的纯函数，导出以供 fixture 规格。
 
 ### 源码地图
 
 | 文件 | 角色 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | `WorkspaceGit`：`workspaceGit` 服务与 Remote 命名空间、`Config`、固定 argv 拉起器、全部 Remote 方法 |
-| [`src/parse.ts`](src/parse.ts) | 纯解析器：porcelain `-z` 状态、固定 `for-each-ref` 格式、`rev-list --left-right --count` |
+| [`src/parse.ts`](src/parse.ts) | 纯解析器：porcelain `-z` 状态、固定 `for-each-ref` 格式、`rev-list --left-right --count`，以及 gh 答案（PR 行、账户、URL、首行） |
 | [`src/types.ts`](src/types.ts) | 线上类型与 `RemoteErrorDetailsMap` code，以 `./types` 发布给 Client 包 |
 | — | 不发布运行时不变量伴件；每个答案都来自调用时一次全新的 git 进程。 |
 
@@ -117,9 +128,11 @@ Typert 生成由 `./typert` 与 `./remote` 暴露的 Host 与 Client Remote 工�
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- **仅核心 git** —— 没有 GitHub/`gh` 面：没有 pull request、issue 或远端仓库管理。
 - **`push --set-upstream` 固定名为 `origin`** —— 上游推送以固定名称指向 `origin` 远端；名称不同的远端以 `command-failed` 及其 stderr 失败。
-- **无合并方式参数** —— `pull` 使用仓库自身的合并配置；argv 规则允许的 merge/squash/rebase 枚举暂无消费方法。
+- **`pull` 没有合并方式参数** —— `pull` 使用仓库自身的合并配置；merge/squash/rebase 枚举只由 `ghMergePr` 消费。
+- **空的 `ghMergePr` 方式交由 gh 决定** —— 不传策略旗标时 gh 套用其非交互规则；仓库允许多种方式时 gh 可能拒绝并以 `command-failed` 呈现。
+- **gh 输出格式由 fixture 钉住** —— 账户读取要求 gh 的 `account NAME (` 措辞、创建答案须包含 https URL；gh 版本变更二者之一会退化为 `account` 缺省或 `command-failed`。
+- **`ghListPrs` 把零退出的畸形输出降级为零行** —— gh 以零退出但输出非 JSON 时回答空列表而非错误。
 - **路径按 UTF-8 解码** —— porcelain 路径按 UTF-8 从 diff/状态字节解码；含不可解码字节的路径会有损往返。
 - **`diff` 拒绝时 bytes 是下界** —— 子进程在达到上限时被杀死，`too-large` 报告的是杀死前观察到的字节数，不是完整 diff 的大小。
 - **超时只杀一次，用 SIGTERM** —— 忽略 SIGTERM 的 git 会占用调用直到进程退出；没有 SIGKILL 升级。

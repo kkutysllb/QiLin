@@ -74,6 +74,45 @@ export interface GitBranches {
   readonly truncated: boolean
 }
 
+/**
+ * One pull request as `ghListPrs` reports it, from one `gh pr list --json`
+ * invocation; fields gh omits arrive as their zero values.
+ */
+export interface GhPr {
+  /** Pull-request number within the repository. */
+  readonly number: number
+  /** Pull-request title as GitHub stores it. */
+  readonly title: string
+  /** Branch the pull request asks to merge. */
+  readonly headRefName: string
+  /** Branch the pull request asks to merge into. */
+  readonly baseRefName: string
+  /** Whether GitHub marks the pull request as a draft. */
+  readonly isDraft: boolean
+  /** Last-update timestamp exactly as gh printed it, RFC 3339 text. */
+  readonly updatedAt: string
+  /** Author login; empty when gh reported no author. */
+  readonly author: string
+}
+
+/** The `ghAuthStatus` answer: what the panel renders about the `gh` login. */
+export interface GhAuthStatus {
+  /** Whether `gh auth status` exited zero. */
+  readonly authenticated: boolean
+  /** Active account login, absent when the output names none. */
+  readonly account?: string
+  /** First line gh printed, or the failure wording; for people, never parsed. */
+  readonly message: string
+}
+
+/** The `ghCreatePr` answer identifying the pull request gh opened. */
+export interface GhCreatedPr {
+  /** Pull-request number parsed from the URL gh printed. */
+  readonly number: number
+  /** The pull-request URL gh printed, verbatim. */
+  readonly url: string
+}
+
 declare module '@qilin/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The workspace root is not inside a Git work tree, or discovery could not answer. */
@@ -84,6 +123,11 @@ declare module '@qilin/typert-protocol' {
     'workspace-git/bad-message': { readonly length: number }
     /** A required path is absent or empty; nothing ran. */
     'workspace-git/bad-path': { readonly path: string }
+    /**
+     * A pull-request title or body failed its bounds check after trimming
+     * (`field` names which); nothing ran.
+     */
+    'workspace-git/bad-pr-title': { readonly field: 'title' | 'body'; readonly length: number }
     /** The diff exceeds the configured byte cap; the complete diff is refused, never shortened. */
     'workspace-git/too-large': { readonly bytes: number; readonly maxBytes: number }
     /**

@@ -1,11 +1,12 @@
 /**
- * Pure parsers for the fixed git formats this service consumes. Each takes a
- * recorded output string and returns wire values with no filesystem or
- * process access, so fixtures in `tests/parse.spec.ts` pin the grammar.
+ * Pure parsers for the fixed git and gh output formats this service consumes.
+ * Each takes a recorded output string and returns wire values with no
+ * filesystem or process access, so fixtures in `tests/parse.spec.ts` and
+ * `tests/gh-parse.spec.ts` pin the grammar.
  * @module @qilin/api-workspace-git
  */
 
-import type { GitBranch, GitStatusEntry, GitUpstream } from './types.ts'
+import type { GhPr, GitBranch, GitStatusEntry, GitUpstream } from './types.ts'
 
 /**
  * Parse `git status --porcelain=v1 -z --untracked-files=all` output into
@@ -81,4 +82,90 @@ function countsOf(track: string): { ahead: number; behind: number } {
   const ahead = /\bahead (\d+)\b/u.exec(track)
   const behind = /\bbehind (\d+)\b/u.exec(track)
   return { ahead: ahead === null ? 0 : Number(ahead[1]), behind: behind === null ? 0 : Number(behind[1]) }
+}
+
+/**
+ * Parse the `gh pr list --json …` answer into rows. A row without a positive
+ * integer number is dropped; a field gh omitted becomes its zero value, and
+ * output that is not a JSON array yields no rows.
+ * @param output - the complete stdout of the one `gh pr list` invocation.
+ * @returns pull requests in output order.
+ */
+export function parseGhPrs(output: string): readonly GhPr[] {
+  let value: unknown
+  try {
+    value = JSON.parse(output)
+  } catch {
+    return []
+  }
+  if (!Array.isArray(value)) return []
+  const prs: GhPr[] = []
+  for (const row of value) {
+    if (typeof row !== 'object' || row === null) continue
+    const record = row as Record<string, unknown>
+    const number = record['number']
+    if (typeof number !== 'number' || !Number.isInteger(number) || number < 1) continue
+    const author = record['author']
+    const login = typeof author === 'object' && author !== null
+      ? (author as { login?: unknown }).login
+      : undefined
+    prs.push({
+      number,
+      title: typeof record['title'] === 'string' ? record['title'] : '',
+      headRefName: typeof record['headRefName'] === 'string' ? record['headRefName'] : '',
+      baseRefName: typeof record['baseRefName'] === 'string' ? record['baseRefName'] : '',
+      isDraft: record['isDraft'] === true,
+      updatedAt: typeof record['updatedAt'] === 'string' ? record['updatedAt'] : '',
+      author: typeof login === 'string' ? login : '',
+    })
+  }
+  return prs
+}
+
+/**
+ * Read the account login out of `gh auth status` output. gh always follows
+ * the login with its credential source in parentheses (`account NAME
+ * (keyring)`); requiring that keeps arbitrary prose containing the word
+ * "account" from being read as a login.
+ * @param output - the combined stderr and stdout of `gh auth status`.
+ * @returns the login, or `undefined` when the output names none.
+ */
+export function parseGhAccount(output: string): string | undefined {
+  return /account\s+([A-Za-z0-9-]+)\s*\(/u.exec(output)?.[1]
+}
+
+/**
+ * Read the pull-request URL out of `gh pr create` output, which prints prose
+ * around the address; the last https URL is the address.
+ * @param output - the complete stdout of the one `gh pr create` invocation.
+ * @returns the URL, or `undefined` when the output contains none.
+ */
+export function parseGhPrUrl(output: string): string | undefined {
+  let last: string | undefined
+  for (const match of output.matchAll(/https:\/\/\S+/gu)) last = match[0]
+  return last
+}
+
+/**
+ * Read the pull-request number at the end of one github.com pull-request URL.
+ * @param url - a URL `gh pr create` printed.
+ * @returns the number, or `undefined` when the URL ends in no `pull/<digits>`.
+ */
+export function parseGhPrNumber(url: string): number | undefined {
+  const digits = /\/pull\/(\d+)\/?$/u.exec(url)?.[1]
+  return digits === undefined ? undefined : Number.parseInt(digits, 10)
+}
+
+/**
+ * The first non-empty trimmed line of one command output; gh and git failures
+ * are multi-line and the first line names the problem.
+ * @param output - any decoded command output.
+ * @returns the first non-blank line, or `undefined` when every line is blank.
+ */
+export function firstLine(output: string): string | undefined {
+  for (const line of output.split('\n')) {
+    const trimmed = line.trim()
+    if (trimmed !== '') return trimmed
+  }
+  return undefined
 }
