@@ -15,6 +15,7 @@ Two webServer routes under `/sidebar/media` serve the browser's inline previews.
 
 - [Use this package](#use-this-package)
 - [Model Experience](#model-experience)
+- [Dev Note](#dev-note)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
 
 ## Use this package
@@ -35,3 +36,13 @@ The route serves bytes the user can already read through the preview surface; it
 ## Known Limitations and Deferred Work
 
 None.
+
+<a id="dev-note"></a>
+### Dev Note
+
+<details>
+<summary>Working context for maintainers — click to expand</summary>
+
+None.
+
+</details>

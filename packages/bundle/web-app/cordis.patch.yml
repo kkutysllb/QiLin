@@ -139,6 +139,11 @@
     - id: workspace-files
       name: '@qilin/api-workspace-files'
 
+    # Workspace Git service: repository discovery, porcelain status, staging,
+    # commits, branches, and push/pull inside the session workspace root.
+    - id: workspace-git
+      name: '@qilin/api-workspace-git'
+
     # Configuration-surface reads and writes over Typert Remote. Each method
     # reports an actionable error when its settings-domain provider is absent.
     - id: settings-controller

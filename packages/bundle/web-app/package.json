@@ -51,6 +51,7 @@
     "@qilin/api-terminal-controller": "workspace:*",
     "@qilin/api-workspace-controller": "workspace:*",
     "@qilin/api-workspace-files": "workspace:*",
+    "@qilin/api-workspace-git": "workspace:*",
     "@qilin/app-boot": "workspace:*",
     "@qilin/client-connection": "workspace:*",
     "@qilin/client-file-upload": "workspace:*",

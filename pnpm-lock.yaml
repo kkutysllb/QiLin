@@ -1357,6 +1357,28 @@ importers:
         specifier: workspace:*
         version: link:../../util/workspace-path
 
+  packages/api/workspace-git:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin/api-workspace-files':
+        specifier: workspace:*
+        version: link:../workspace-files
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
+
   packages/attachment/attachment:
     devDependencies:
       '@qilin/brand':
@@ -2088,6 +2110,9 @@ importers:
       '@qilin/api-workspace-files':
         specifier: workspace:*
         version: link:../../api/workspace-files
+      '@qilin/api-workspace-git':
+        specifier: workspace:*
+        version: link:../../api/workspace-git
       '@qilin/app-boot':
         specifier: workspace:*
         version: link:../../boot/app-boot

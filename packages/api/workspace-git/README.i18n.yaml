@@ -1,0 +1,55 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/api/workspace-git/README.md
+/:
+  en: 0732b5500315cd71
+  zh: 5da36707665859f4
+/qilin-api-workspace-git:
+  en: 4cd317bb22f81f80
+  zh: 73fcb7c6992a1cad
+/qilin-api-workspace-git/summary:
+  en: 3dec92a060099ea2
+  zh: 967b7f1f4f01fddd
+/qilin-api-workspace-git/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 9f0336825ccdaacd
+/qilin-api-workspace-git/use-this-package:
+  en: 2693813146bd88e2
+  zh: 867d6815a8b4b976
+/qilin-api-workspace-git/use-this-package/fixed-argv-no-shell:
+  en: 344a19b59e9dd526
+  zh: cc59823c1cbd7007
+/qilin-api-workspace-git/use-this-package/status-classification:
+  en: 10126129702cefe9
+  zh: a7d6d9db87771c1c
+/qilin-api-workspace-git/use-this-package/configuration:
+  en: edbb9a2250d456c6
+  zh: c94189e82f8fb81a
+/qilin-api-workspace-git/use-this-package/failures:
+  en: 112c511bb16fe0dd
+  zh: 75288b70fce8aeb4
+/qilin-api-workspace-git/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: c5500056b41ce570
+/qilin-api-workspace-git/understand-the-implementation/design-concept:
+  en: b9a3a1dcaacdb19b
+  zh: bfcc035057cdd1ed
+/qilin-api-workspace-git/understand-the-implementation/source-map:
+  en: 7764f9fd27a9ecd2
+  zh: 422ea8077e799c73
+/qilin-api-workspace-git/further-exploration:
+  en: 39865f72a1a277d8
+  zh: 6055153edf0d7124
+/qilin-api-workspace-git/model-experience:
+  en: 37b4264c8301323f
+  zh: c04a254f80fe939b
+/qilin-api-workspace-git/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: cb72d2c8350f9b4e
+/qilin-api-workspace-git/known-limitations-and-deferred-work:
+  en: fd5c9d9b9d627c75
+  zh: 0dcb178438ad50e5
+/qilin-api-workspace-git/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98
