@@ -23,6 +23,7 @@ import type * as Md from 'mdast'
 import type {} from 'mdast-util-math'
 import { normalizeUri } from 'micromark-util-sanitize-uri'
 import { CodeBlock } from './CodeBlock.tsx'
+import { MermaidDiagram } from './mermaid.tsx'
 import { parseFileLink } from './file-link.ts'
 import { renderTexToReact } from './katex.tsx'
 import { LinkIcon, classifyLinkPath } from '../LinkIcon.tsx'
@@ -381,6 +382,16 @@ function renderCode(node: Md.Code, key: Key, context: MarkdownRenderContext): Re
   // The replaced pipeline recovered the grammar id from the hast class with
   // /language-([\w-]+)/, which truncates at the first non-word character.
   const lang = language === undefined ? undefined : /^[\w-]+/.exec(language)?.[0]
+  if (lang === 'mermaid') {
+    // A mermaid fence renders as a lazy static diagram (its own chunk); the
+    // streaming case keeps the source visible until the fence settles.
+    const codeLabels = context.labels.code
+    if (context.streaming) {
+      return <CodeBlock key={key} code={`${node.value}\n`}
+        copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel} streaming lang={lang} />
+    }
+    return <MermaidDiagram key={key} code={node.value} copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel} />
+  }
   if (!context.streaming && lang === 'math') {
     // ```math fences render as display TeX once settled (rehype-katex parity);
     // its text extraction saw the code block's trailing newline.

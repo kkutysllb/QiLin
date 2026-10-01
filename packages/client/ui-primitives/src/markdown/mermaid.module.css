@@ -1,0 +1,49 @@
+/* Mermaid diagram stage: centered, theme-neutral, click-to-zoom. */
+.stage {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: var(--dsw-radius-md, 8px);
+  background: var(--dsw-alias-markdown-code-block, transparent);
+  cursor: zoom-in;
+  overflow-x: auto;
+}
+.stage:focus-visible {
+  outline: 2px solid var(--dsw-alias-focus-ring, currentColor);
+  outline-offset: 2px;
+}
+.stage[data-mermaid-loading] {
+  min-height: 48px;
+  cursor: default;
+}
+.error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.errorLine {
+  color: var(--dsw-alias-state-error-primary, inherit);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+.zoomOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: var(--dsw-alias-scrim, rgba(0, 0, 0, 0.5));
+  cursor: zoom-out;
+}
+.zoomStage {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  background: var(--dsw-alias-surface-raised, white);
+  border-radius: var(--dsw-radius-lg, 10px);
+  padding: 16px;
+  cursor: default;
+}
