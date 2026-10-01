@@ -125,6 +125,7 @@ flowchart TD
     pkg_api_terminal_controller["api-terminal-controller"]
     pkg_api_workspace_controller["api-workspace-controller"]
     pkg_api_workspace_files["api-workspace-files"]
+    pkg_api_workspace_git["api-workspace-git"]
   end
   subgraph group_attachment["packages/attachment"]
     pkg_attachment["attachment"]
@@ -198,6 +199,7 @@ flowchart TD
     pkg_client_ui_sidebar_browser["client-ui-sidebar-browser"]
     pkg_client_ui_sidebar_documentpreview["client-ui-sidebar-documentpreview"]
     pkg_client_ui_sidebar_files["client-ui-sidebar-files"]
+    pkg_client_ui_sidebar_git["client-ui-sidebar-git"]
     pkg_client_ui_sidebar_plans["client-ui-sidebar-plans"]
     pkg_client_ui_sidebar_right["client-ui-sidebar-right"]
     pkg_client_ui_sidebar_tasks["client-ui-sidebar-tasks"]
@@ -289,6 +291,7 @@ flowchart TD
     pkg_host_frontend_static["host-frontend-static"]
     pkg_host_open_in_app["host-open-in-app"]
     pkg_host_plugin_inventory["host-plugin-inventory"]
+    pkg_host_preview_media["host-preview-media"]
     pkg_host_webserver["host-webserver"]
   end
   subgraph group_identity["packages/identity"]
@@ -658,6 +661,9 @@ flowchart TD
   pkg_user_questions --> pkg_agent
   pkg_user_questions --> pkg_llm
   pkg_user_questions --> pkg_scope
+  pkg_user_questions --> pkg_session
+  pkg_user_questions --> pkg_session_projection
+  pkg_user_questions --> pkg_typert_protocol
   pkg_jobs --> pkg_agent
   pkg_jobs --> pkg_brand
   pkg_jobs --> pkg_invariants
@@ -1391,6 +1397,7 @@ flowchart TD
 | [`llm`](../packages/llm/llm) | `llm` | — |
 | [`api-job-controller`](../packages/api/job-controller) | `api` | — |
 | [`api-workspace-files`](../packages/api/workspace-files) | `api` | — |
+| [`api-workspace-git`](../packages/api/workspace-git) | `api` | — |
 | [`cmdline`](../packages/boot/cmdline) | `boot` | — |
 | [`acp-app`](../packages/bundle/acp-app) | `bundle` | — |
 | [`base`](../packages/bundle/base) | `bundle` | — |
@@ -1444,6 +1451,7 @@ flowchart TD
 | [`client-ui-sidebar-browser`](../packages/client/ui-sidebar-browser) | `client` | — |
 | [`client-ui-sidebar-documentpreview`](../packages/client/ui-sidebar-documentpreview) | `client` | — |
 | [`client-ui-sidebar-files`](../packages/client/ui-sidebar-files) | `client` | — |
+| [`client-ui-sidebar-git`](../packages/client/ui-sidebar-git) | `client` | — |
 | [`client-ui-sidebar-plans`](../packages/client/ui-sidebar-plans) | `client` | — |
 | [`client-ui-sidebar-right`](../packages/client/ui-sidebar-right) | `client` | — |
 | [`client-ui-sidebar-tasks`](../packages/client/ui-sidebar-tasks) | `client` | — |
@@ -1470,6 +1478,7 @@ flowchart TD
 | [`host-directory-picker-browse`](../packages/host/directory-picker-browse) | `host` | — |
 | [`host-directory-picker-native`](../packages/host/directory-picker-native) | `host` | — |
 | [`host-open-in-app`](../packages/host/open-in-app) | `host` | — |
+| [`host-preview-media`](../packages/host/preview-media) | `host` | — |
 | [`host-webserver`](../packages/host/webserver) | `host` | — |
 | [`invariants`](../packages/runtime-diagnostics/invariants) | `runtime-diagnostics` | — |
 | [`session-format`](../packages/session/session-format) | `session` | — |
@@ -1567,7 +1576,7 @@ flowchart TD
 | [`experimental-speech-to-text-sensevoice`](../packages/experimental/speech-to-text-sensevoice) | `experimental` | [`experimental-speech-to-text`](../packages/experimental/speech-to-text), [`subprocess`](../packages/subprocess/subprocess) |
 | [`commands`](../packages/interaction/commands) | `interaction` | [`agent`](../packages/core/agent), [`attachment`](../packages/attachment/attachment), [`brand`](../packages/util/brand), [`invariants`](../packages/runtime-diagnostics/invariants), [`llm`](../packages/llm/llm), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`typert-protocol`](../packages/typert/protocol) |
 | [`user-approval`](../packages/interaction/user-approval) | `interaction` | [`agent`](../packages/core/agent), [`brand`](../packages/util/brand), [`invariants`](../packages/runtime-diagnostics/invariants), [`llm`](../packages/llm/llm), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`system-prompt`](../packages/core/system-prompt) |
-| [`user-questions`](../packages/interaction/user-questions) | `interaction` | [`agent`](../packages/core/agent), [`llm`](../packages/llm/llm), [`scope`](../packages/core/scope) |
+| [`user-questions`](../packages/interaction/user-questions) | `interaction` | [`agent`](../packages/core/agent), [`llm`](../packages/llm/llm), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection), [`typert-protocol`](../packages/typert/protocol) |
 | [`jobs`](../packages/jobs/jobs) | `jobs` | [`agent`](../packages/core/agent), [`brand`](../packages/util/brand), [`invariants`](../packages/runtime-diagnostics/invariants), [`session`](../packages/core/session), [`workspace`](../packages/workspace/workspace) |
 | [`lsp-stdio`](../packages/lsp/lsp-stdio) | `lsp` | [`brand`](../packages/util/brand), [`fs`](../packages/fs/fs), [`llm`](../packages/llm/llm), [`lsp`](../packages/lsp/lsp), [`subprocess`](../packages/subprocess/subprocess), [`timeout`](../packages/util/timeout) |
 | [`sandbox-policy`](../packages/sandbox/sandbox-policy) | `sandbox` | [`agent`](../packages/core/agent), [`invariants`](../packages/runtime-diagnostics/invariants), [`sandbox`](../packages/sandbox/sandbox), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection), [`system-prompt`](../packages/core/system-prompt) |
