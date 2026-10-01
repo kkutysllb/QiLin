@@ -1,0 +1,37 @@
+/* Upload overlay: a full-cover drop target and a compact report strip. */
+.active {
+  position: relative;
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--dsw-alias-text-link, currentColor);
+  border-radius: var(--dsw-radius-lg, 10px);
+  background: var(--dsw-alias-scrim, rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+}
+.hint {
+  color: var(--dsw-alias-text-primary, white);
+  font-size: 14px;
+}
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.ok {
+  color: var(--dsw-alias-state-success-primary, inherit);
+}
+.fail {
+  color: var(--dsw-alias-state-error-primary, inherit);
+}
+.done {
+  color: var(--dsw-alias-label-tertiary, inherit);
+  font-size: 11px;
+}

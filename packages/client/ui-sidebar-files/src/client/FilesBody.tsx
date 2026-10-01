@@ -17,6 +17,7 @@ import type { PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@q
 import type {} from './locales.ts'
 import type { createFilesStore } from './store.ts'
 import css from './FilesBody.module.css'
+import { UploadOverlay } from './UploadOverlay.tsx'
 
 /** The body's composed props: the tab it draws, its store, its face, and its copy. */
 export type FilesBodyProps =
@@ -111,45 +112,52 @@ export function FilesBody({
     for (const path of state.expanded) load(tab.id, path, signal)
   }
   const { directory, name } = pathPartsOf(state.root)
+  const uploaded = (): void => {
+    actions.reset(tab.id)
+    load(tab.id, state.root, signal)
+    for (const path of state.expanded) load(tab.id, path, signal)
+  }
   return (
-    <div className={css.root} data-files-state="tree" data-files-root={state.root}>
-      {/* jscpd:ignore-start -- the text preview's header row; see `usePathClipped`. */}
-      <div className={css.header}>
-        <div ref={pathRef} className={css.path} title={state.root} data-files-path>
-          <span ref={pathTextRef} className={css.pathText}>
-            {directory !== '' && <span className={css.pathDirectory}>{directory}</span>}
-            <span className={css.pathName}>{name}</span>
-          </span>
+    <UploadOverlay sessionId={sessionId} root={state.root} onUploaded={uploaded} t={t}>
+      <div className={css.root} data-files-state="tree" data-files-root={state.root}>
+        {/* jscpd:ignore-start -- the text preview's header row; see `usePathClipped`. */}
+        <div className={css.header}>
+          <div ref={pathRef} className={css.path} title={state.root} data-files-path>
+            <span ref={pathTextRef} className={css.pathText}>
+              {directory !== '' && <span className={css.pathDirectory}>{directory}</span>}
+              <span className={css.pathName}>{name}</span>
+            </span>
+          </div>
+          <button
+            type="button"
+            className={css.tool}
+            aria-label={t('reload')}
+            title={t('reload')}
+            data-files-reload
+            onClick={reload}
+          >
+            <IconRefreshOutline16 />
+          </button>
+          {renderSlot('sidebar.right.tab.files.actions', {
+            absolutePath: state.root,
+          })}
         </div>
-        <button
-          type="button"
-          className={css.tool}
-          aria-label={t('reload')}
-          title={t('reload')}
-          data-files-reload
-          onClick={reload}
+        {/* jscpd:ignore-end */}
+        <div
+          ref={bodyRef}
+          className={css.body}
+          data-files-body
+          onScroll={(event) => { scrollTopRef.current = event.currentTarget.scrollTop }}
         >
-          <IconRefreshOutline16 />
-        </button>
-        {renderSlot('sidebar.right.tab.files.actions', {
-          absolutePath: state.root,
-        })}
+          <FileTree
+            state={state}
+            onToggle={(path) => { toggle(tab.id, path, state.levels[path] !== undefined, signal) }}
+            // Every row is under the tree's root, so its address is session-relative.
+            onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, state.root, path)) }}
+            t={t}
+          />
+        </div>
       </div>
-      {/* jscpd:ignore-end */}
-      <div
-        ref={bodyRef}
-        className={css.body}
-        data-files-body
-        onScroll={(event) => { scrollTopRef.current = event.currentTarget.scrollTop }}
-      >
-        <FileTree
-          state={state}
-          onToggle={(path) => { toggle(tab.id, path, state.levels[path] !== undefined, signal) }}
-          // Every row is under the tree's root, so its address is session-relative.
-          onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, state.root, path)) }}
-          t={t}
-        />
-      </div>
-    </div>
+    </UploadOverlay>
   )
 }

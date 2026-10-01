@@ -28,6 +28,10 @@ export const zh = {
   empty: '空目录',
   truncated: '条目太多，只显示了一部分。',
   noWorkspace: '这个会话没有工作区目录。',
+  'upload.dropHint': '拖放文件到此处上传',
+  'upload.uploading': '上传中…',
+  'upload.done': '{count} 个文件已上传',
+  'upload.failed': '上传失败',
   reload: '重新读取',
   'entry.other': '这不是文件或目录，没法打开。',
   'error.notFound': '这个目录不在了。可能已被移动或删除。',
@@ -62,6 +66,10 @@ export type SidebarFilesKey = keyof typeof zh
 
 /** English dictionary, checked against the Chinese key set. */
 export const en = {
+  'upload.dropHint': 'Drop files here to upload',
+  'upload.uploading': 'Uploading…',
+  'upload.done': '{count} file(s) uploaded',
+  'upload.failed': 'upload failed',
   'type.label': 'Files',
   'guide.title': 'Workspace files',
   'guide.description': 'Browse files in this session\'s workspace',

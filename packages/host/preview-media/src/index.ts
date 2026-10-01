@@ -208,6 +208,55 @@ export function apply(ctx: Context, config: Config): void {
       }
     },
   }), `preview-media: GET/HEAD ${PREVIEW_MEDIA_PATH}`)
+
+  /** Buffer one request body up to a byte ceiling; the caller names its limit. */
+  const readBody = async (req: IncomingMessage, limit: number): Promise<Buffer> => {
+    const chunks: Buffer[] = []
+    let total = 0
+    for await (const chunk of req) {
+      const piece = chunk as Buffer
+      total += piece.byteLength
+      if (total > limit) throw new MediaError(400, 'upload exceeds the media limit')
+      chunks.push(piece)
+    }
+    return Buffer.concat(chunks)
+  }
+
+  ctx.effect(() => ctx.webServer.register({
+    kind: 'exact',
+    path: `${PREVIEW_MEDIA_PATH}/upload`,
+    handler: async (req, res) => {
+      const rejection = rejectionOf(req)
+      if (rejection !== undefined) {
+        res.statusCode = rejection
+        res.end()
+        return
+      }
+      if (req.method !== 'PUT') {
+        res.writeHead(405, { allow: 'PUT' })
+        res.end()
+        return
+      }
+      try {
+        const url = new URL(req.url ?? '/', 'http://qilin.internal')
+        const sessionId = url.searchParams.get('sessionId')
+        const path = url.searchParams.get('path')
+        if (sessionId === null || path === null || path === '') {
+          throw new MediaError(400, 'sessionId and path are required')
+        }
+        const live = ctx.sessions.get(sessionId as SessionId)
+        if (live === undefined) throw new MediaError(404, `no session "${sessionId}"`)
+        const root = live.header.cwd ?? ctx.sandboxPolicy.workspaceRoot
+        const target = await ctx.fs.resolve(path, { cwd: root })
+        const body = await readBody(req, mediaLimitBytes)
+        const outcome = await ctx.fs.writeBytes(target, body)
+        res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' })
+        res.end(JSON.stringify({ ok: true, path, version: outcome.version }))
+      } catch (error) {
+        writeError(res, error)
+      }
+    },
+  }), `preview-media: PUT ${PREVIEW_MEDIA_PATH}/upload`)
 }
 
 /** Cordis row Config schema: the media limit is a positive byte count. */
