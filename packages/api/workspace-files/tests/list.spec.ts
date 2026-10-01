@@ -57,11 +57,11 @@ describe('workspaceFiles.list — the happy path', () => {
     await symlink(join(workspace, 'missing'), join(workspace, 'dangling'))
     const listing = await endpoint().list(harness.scope, '.', signal())
     expect(listing.entries).toEqual([
-      { name: 'dangling', type: 'other' },
+      { name: 'dangling', type: 'other', symlink: true },
       { name: 'dir', type: 'directory' },
       { name: 'real.txt', type: 'file', size: 1 },
-      { name: 'to-dir', type: 'directory' },
-      { name: 'to-file', type: 'file', size: 1 },
+      { name: 'to-dir', type: 'directory', symlink: true },
+      { name: 'to-file', type: 'file', size: 1, symlink: true },
     ])
   })
 })

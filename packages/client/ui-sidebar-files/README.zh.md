@@ -49,6 +49,8 @@ kind: "package-reference"
 
 把文件拖到窗格上即上传（`UploadOverlay.tsx`）：每个文件整体 PUT 到 `preview-media` 宿主路由 `sidebar/media/upload`，由它经文件系统的 `writeBytes` 写到工作区根之下，完成一批后重载展开中的层。覆盖层按文件报告结果；失败的上传不会改动磁盘。
 
+右键目录或文件行会在光标处打开该行自己的菜单（`FileTree.tsx`）：文件行提供打开，所有行都提供复制工作区相对路径与绝对路径（`copyTextOf`，经 `ui-primitives` 的 `writeClipboard` 写入宿主剪贴板；根自身复制为 `.`）。`other` 行没有菜单。名字本身是符号链接的子项在名称旁带链接图标，因为行图标与类型描述的仍是它解析到的目标。
+
 标题行下方是文件名搜索（`FileSearch.tsx`）：一个输入框，文本停稳后向 `workspaceFiles` 的 `searchNames` Remote 询问根之下 basename 包含它的文件，不区分大小写。查询存在时匹配结果占据正文——让树回来的是清空的输入框，而不是空结果——点击匹配走树行同一套会话作用域地址打开。输入框文本与最近一次回答都住在该 tab 的 store 桶里，重挂载的正文连同两者一起回来；输入即丢弃上一个回答，因为它描述的是输入框已不再持有的查询。
 
 <a id="the-editor"></a>
@@ -72,7 +74,7 @@ tab 的地址就是它的整个文件身份：`file-guard.sessionFileOf` 在每�
 ## 已知限制与暂缓事项
 
 <a id="known-limitations-and-deferred-work"></a>
-- **只有列目录与搜索。**没有产物过滤、重命名、右键菜单、当前文件高亮或文件系统监听；一层只会因重新读取而变化。名称搜索是唯一的全局视图（`searchNames`）；没有就地过滤树的能力，上传是树唯一的写入手势（拖放，`ui-sidebar-documentpreview` 的 `preview-media`）。
+- **只有列目录与搜索。**没有产物过滤、重命名、当前文件高亮或文件系统监听；一层只会因重新读取而变化。行菜单是打开、展开与复制之外的唯一树上手势。名称搜索是唯一的全局视图（`searchNames`）；没有就地过滤树的能力，上传是树唯一的写入手势（拖放，`ui-sidebar-documentpreview` 的 `preview-media`）。
 - **只有一个根。**树以会话工作目录为根；没有办法浏览到它之上，而 Host 本来也拒绝工作区根之外的路径。
 - **编辑器上限。**超过 2 MB 的文件不打开（Host 自己的每页上限约束每次读取）；没有搜索面板、没有列选择。
 

@@ -134,6 +134,8 @@ export interface LocalDirEntry {
   target: LocalTarget
   version?: FsVersion
   size?: number
+  /** Present when the listed name itself is a symbolic link; `type` still names what it resolves to. */
+  symlink?: boolean
 }
 
 /**
@@ -328,6 +330,7 @@ export async function listDirectory(target: LocalTarget, signal?: AbortSignal): 
         target: childTarget,
         ...(childInfo ? { version: childInfo.version } : {}),
         ...(childInfo?.type === 'file' ? { size: childInfo.size } : {}),
+        ...(entry.isSymbolicLink() ? { symlink: true } : {}),
       })
     } catch (error: unknown) {
       throw listingIoError(localDisplayPath(target.displayPath, entry.name), error)

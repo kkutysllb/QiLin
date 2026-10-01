@@ -199,6 +199,7 @@ function directoryEntry(child: FsDirEntry): WorkspaceDirectoryEntry {
     name: child.name,
     type: child.type,
     ...child.size === undefined ? {} : { size: child.size },
+    ...child.symlink === true ? { symlink: true } : {},
   }
 }
 

@@ -135,6 +135,19 @@
   flex: 0 0 auto;
 }
 
+.linkIcon {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.menuAnchor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
 .name {
   min-width: 0;
   overflow: hidden;

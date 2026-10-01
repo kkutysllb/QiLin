@@ -111,6 +111,8 @@ export interface WorkspaceDirectoryEntry {
   readonly type: 'file' | 'directory' | 'other'
   /** Byte size, present only for a regular file whose backend reports it. */
   readonly size?: number
+  /** Present when the listed name itself is a symbolic link; `type` still names what it resolves to. */
+  readonly symlink?: boolean
 }
 
 /** Direct children of one workspace directory. */

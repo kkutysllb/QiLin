@@ -366,6 +366,8 @@ describe('listDir', () => {
     await symlink(join(dir, 'skills', 'missing-target'), join(dir, 'skills', 'broken-link'))
 
     const entries = await fs.listDir(await fs.resolve('skills'))
+    // Symlinked names keep their resolved type and gain the link flag.
+    expect(entries.filter(entry => entry.symlink === true).map(entry => entry.name)).toEqual(['broken-link'])
     expect(entries.map(entry => [entry.name, entry.type])).toEqual([
       ['alpha.md', 'file'],
       ['broken-link', 'other'],

@@ -112,6 +112,8 @@ export interface FsDirEntry {
   version?: FsVersion
   /** Byte size of a regular file, when the backend can report it. */
   size?: number
+  /** Present when the listed name itself is a symbolic link; `type` still names what it resolves to. */
+  symlink?: boolean
 }
 
 /**

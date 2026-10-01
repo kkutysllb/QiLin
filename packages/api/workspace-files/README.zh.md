@@ -35,7 +35,7 @@ kind: "package-reference"
 | `readAll(path)` | `WorkspaceFileBytes`，其中 `offset: 0`、`eof: true` | `maxFileBytes` 内的完整原始字节；超大文件失败，不截断 |
 | `readRelated(path, relativePath)` | `WorkspaceFileBytes` | Host 从基文件目录解析出的文件的完整字节 |
 | `write(path, text, { baseVersion? })` | `WorkspaceFileStat { absolutePath, version, bytes? }` | 在工作区内替换或新建一个完整的 UTF-8 文本文件；`baseVersion` 不再匹配时以 `workspace-file/stale` 失败且不写入 |
-| `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | 一个目录的直接子项 |
+| `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | 一个目录的直接子项；名字本身是符号链接的子项在解析目标类型之外携带 `symlink: true` |
 | `searchNames(query)` | `WorkspaceFileNameSearch { matches, truncated }` | 工作区根之下 basename 包含查询串的文件，不区分大小写 |
 | `changes()` | `WorkspaceFileWatchFrame` 流 | 订阅就绪确认，随后为工作区根内的文件系统观察 |
 

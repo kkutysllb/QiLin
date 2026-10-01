@@ -6,13 +6,17 @@
  * component only decides what to draw for each absolute path and what a click
  * means: a directory toggles, a file opens through the owner's `tabActions`
  * for a viewer to claim, and anything else is shown but refuses to open.
+ * A right-click on a directory or file row opens this module's own menu at
+ * the cursor: open (files), copy the workspace-relative path, copy the
+ * absolute path.
  */
-import type { ReactNode } from 'react'
+import { useRef, useState } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import clsx from 'clsx'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { TranslateNS } from '@qilin/client-locale/client'
 import {
-  FileTypeIcon, IconFolderClose16, IconFolderOpen16, classifyFileType,
+  FileTypeIcon, IconFolderClose16, IconFolderOpen16, IconLinkOutline14, Menu, classifyFileType, writeClipboard,
 } from '@qilin/client-ui-primitives'
 import type { WorkspaceDirectoryEntry } from '@qilin/api-workspace-files/types'
 import { childPath } from './face.ts'
@@ -54,24 +58,63 @@ export function failureLine(t: TranslateNS<'sidebarFiles'>, failure: RemoteFailu
   }
 }
 
-/** What every level shares: the tab's tree and the two gestures. */
+/**
+ * The text one row's menu copies.
+ * @param root - the workspace root, the prefix relative paths drop.
+ * @param path - the row's absolute path.
+ * @param form - whether the copy keeps or drops the root prefix.
+ * @returns `.` for the root itself, the suffix after the root's `/` when under
+ * it, and the absolute path for a tree rooted somewhere neither covers.
+ */
+export function copyTextOf(root: string, path: string, form: 'relative' | 'absolute'): string {
+  if (form === 'absolute') return path
+  if (path === root) return '.'
+  return path.startsWith(`${root}/`) ? path.slice(root.length + 1) : path
+}
+
+/** What every level shares: the tab's tree and its gestures. */
 interface TreeContext {
   readonly state: FilesTabState
   readonly onToggle: (path: string) => void
   readonly onOpen: (path: string) => void
+  readonly onMenu: (path: string, kind: 'directory' | 'file', x: number, y: number) => void
   readonly t: TranslateNS<'sidebarFiles'>
+}
+
+/**
+ * The link glyph a row whose listed name is itself a symbolic link carries.
+ * @param t - namespace-bound translate, for the glyph's tooltip.
+ * @returns the icon wrapped in its tooltip span; drawn only for a symlinked name.
+ */
+function LinkMark({ t }: { t: TranslateNS<'sidebarFiles'> }): ReactNode {
+  return (
+    <span className={css.linkIcon} title={t('entry.symlink')} data-files-symlink>
+      <IconLinkOutline14 aria-label={t('entry.symlink')} />
+    </span>
+  )
 }
 
 /** One entry's row, and its children when it is an expanded directory. */
 function Entry({ parent, entry, tree }: { parent: string; entry: WorkspaceDirectoryEntry; tree: TreeContext }): ReactNode {
   const path = childPath(parent, entry.name)
+  const menu = (event: MouseEvent<HTMLButtonElement>): void => {
+    event.preventDefault()
+    tree.onMenu(path, entry.type === 'directory' ? 'directory' : 'file', event.clientX, event.clientY)
+  }
   if (entry.type === 'directory') {
     const expanded = tree.state.expanded.includes(path)
     return (
       <li className={css.item} data-files-entry="directory" data-files-path={path}>
-        <button type="button" className={css.row} aria-expanded={expanded} onClick={() => { tree.onToggle(path) }}>
+        <button
+          type="button"
+          className={css.row}
+          aria-expanded={expanded}
+          onClick={() => { tree.onToggle(path) }}
+          onContextMenu={menu}
+        >
           {expanded ? <IconFolderOpen16 className={css.icon} /> : <IconFolderClose16 className={css.icon} />}
           <span className={css.name}>{entry.name}</span>
+          {entry.symlink === true && <LinkMark t={tree.t} />}
         </button>
         {expanded && <ul className={css.level}><Level path={path} tree={tree} /></ul>}
       </li>
@@ -80,9 +123,10 @@ function Entry({ parent, entry, tree }: { parent: string; entry: WorkspaceDirect
   if (entry.type === 'file') {
     return (
       <li className={css.item} data-files-entry="file" data-files-path={path}>
-        <button type="button" className={css.row} onClick={() => { tree.onOpen(path) }}>
+        <button type="button" className={css.row} onClick={() => { tree.onOpen(path) }} onContextMenu={menu}>
           <FileTypeIcon kind={classifyFileType(entry.name)} size={16} className={css.fileIcon} />
           <span className={css.name}>{entry.name}</span>
+          {entry.symlink === true && <LinkMark t={tree.t} />}
         </button>
       </li>
     )
@@ -121,9 +165,10 @@ function Level({ path, tree }: { path: string; tree: TreeContext }): ReactNode {
 }
 
 /**
- * The tree itself: the root level and whatever the reader has opened under it.
+ * The tree itself: the root level, whatever the reader has opened under it,
+ * and the one context menu its rows share.
  * @param props - the tab's tree state, its two gestures, and its copy.
- * @returns the root level's rows.
+ * @returns the root level's rows, with the row menu in a portal.
  */
 export function FileTree(props: {
   readonly state: FilesTabState
@@ -131,6 +176,47 @@ export function FileTree(props: {
   readonly onOpen: (path: string) => void
   readonly t: TranslateNS<'sidebarFiles'>
 }): ReactNode {
-  const tree: TreeContext = { state: props.state, onToggle: props.onToggle, onOpen: props.onOpen, t: props.t }
-  return <ul className={css.level}><Level path={props.state.root} tree={tree} /></ul>
+/** The row the open menu serves, and the cursor rect it opened at. */
+  const [menu, setMenu] = useState<{ path: string; kind: 'directory' | 'file' } | null>(null)
+  const rectRef = useRef<DOMRect | null>(null)
+  const onMenu = (path: string, kind: 'directory' | 'file', x: number, y: number): void => {
+    rectRef.current = new DOMRect(x, y, 0, 0)
+    setMenu({ path, kind })
+  }
+  const tree: TreeContext = { state: props.state, onToggle: props.onToggle, onOpen: props.onOpen, onMenu, t: props.t }
+  const close = (): void => { setMenu(null) }
+  const t = props.t
+  const items = menu?.kind === 'file'
+    ? [
+      { id: 'open', label: t('menu.open') },
+      { id: 'relative', label: t('menu.copyRelative') },
+      { id: 'absolute', label: t('menu.copyAbsolute') },
+    ]
+    : [
+      { id: 'relative', label: t('menu.copyRelative') },
+      { id: 'absolute', label: t('menu.copyAbsolute') },
+    ]
+  const select = (id: string): void => {
+    const open = menu
+    /* v8 ignore next -- the Menu fires onSelect only for a row of an open menu. */
+    if (open === null) return
+    close()
+    if (id === 'open') props.onOpen(open.path)
+    else if (id === 'relative' || id === 'absolute') void writeClipboard(copyTextOf(props.state.root, open.path, id))
+  }
+  return (
+    <>
+      <ul className={css.level}><Level path={props.state.root} tree={tree} /></ul>
+      <Menu
+        open={menu !== null}
+        anchor={<span className={css.menuAnchor} data-files-menu-anchor hidden />}
+        items={items}
+        autoFocus
+        portal
+        onClose={close}
+        onSelect={select}
+        getAnchorRect={() => rectRef.current}
+      />
+    </>
+  )
 }

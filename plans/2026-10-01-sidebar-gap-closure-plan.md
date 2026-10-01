@@ -95,3 +95,8 @@ kind: "plan"
   - client：ui-sidebar-files 新增 FileSearch（ui-primitives Input + 搜索图标），标题行下搜索框 200ms 防抖、代次守卫（换字即弃旧答案）、结果占据正文、点击走树行同款会话作用域地址；query+答案入 store 桶随重挂载恢复；locales 双语 7 键
   - 附带修正：file-preview 的 scope 文案与 B5-2c 后实际语义不符（ISidebarRight 无 scope），按 3.0.7 已发行为准改 spec+文档；ui-primitives Input className 允许 undefined（exactOptionalPropertyTypes）
 - 下一步：S1e（软链标识/树右键小项）→ S2 Git 面板 → 发版 3.0.8
+
+## 批次执行状态补充四（2026-10-01 21:35）
+
+- **S1e 已落地**：FsDirEntry 新增可选 `symlink` 标志（`readdir(withFileTypes)` 原生信息，零额外 stat；type 仍为解析目标类型）——fs/fs 类型、fs-local fsio+映射、ssh entriesSchema（strict 校验加可选字段）、workspace-files directoryEntry+wire 类型全链贯通；FileTree 文件/目录行带链接图标+tooltip（locale 键 entry.symlink）。行右键菜单（Menu portal+getAnchorRect 光标定位）：文件行=打开/复制相对路径/复制绝对路径，目录行=两复制（copyTextOf：根=`.`、根下剥前缀、根外原样；writeClipboard 宿主剪贴板）。已知预存失败清单更新：file-body preview 断言已随 B5-2c 语义修正；jsdom DockSurface 度量循环 47 例、expand-button 1 例、settings shell ledger 1 例均为预存（stash 往返验证）。
+- S2 host 半（@qilin/api-workspace-git，git core 无 gh）：子代理进行中；client 半（ui-sidebar-git）待 host 落地后另行委派。

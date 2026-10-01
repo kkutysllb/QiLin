@@ -49,6 +49,8 @@ A level cut by the endpoint's entry cap ends with a marker; an empty level says 
 
 Dropping files onto the pane uploads them (`UploadOverlay.tsx`): each file is PUT whole to the `preview-media` host route `sidebar/media/upload`, which writes it under the workspace root through the filesystem's `writeBytes`, and a finished batch reloads the open levels. The overlay reports per-file results; a failed upload changes nothing on disk.
 
+A right-click on a directory or file row opens the row's own menu at the cursor (`FileTree.tsx`): a file row offers open, every row offers copying the workspace-relative path and the absolute path (`copyTextOf`, written to the host clipboard through `ui-primitives`' `writeClipboard`; the root itself copies as `.`). An `other` row has no menu. A child whose listed name is itself a symbolic link carries the link glyph beside its name, because its row icon and type still describe what it resolves to.
+
 Under the header row sits the filename search (`FileSearch.tsx`): one box whose text, once it settles, asks the `workspaceFiles` `searchNames` Remote for the files below the root whose basenames contain it, case-insensitively. While a query stands the matches take the body — a blank box, not an empty result, brings the tree back — and a click opens the match through the same session-scoped address a tree row uses. The box's text and its latest answer live in the tab's store bucket, so a remounted body comes back with both; typing drops the previous answer, because it describes a query the box no longer holds.
 
 <a id="the-editor"></a>
@@ -72,7 +74,7 @@ None; directory listings and file content travel over the Remote and assemble no
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
-- **Listing and search only.** No artifact filter, rename, context menu, current-file highlight, or filesystem watching; a level changes only through reload. Name search is the one global view (`searchNames`); nothing filters the tree in place, and upload is the tree's only write gesture (drop, `ui-sidebar-documentpreview` `preview-media`).
+- **Listing and search only.** No artifact filter, rename, current-file highlight, or filesystem watching; a level changes only through reload. The row menu is the one tree gesture beyond open, toggle, and the copies. Name search is the one global view (`searchNames`); nothing filters the tree in place, and upload is the tree's only write gesture (drop, `ui-sidebar-documentpreview` `preview-media`).
 - **One root.** The tree is rooted at the session's working directory; there is no way to browse above it, and the Host refuses paths outside the workspace root anyway.
 - **Editor caps.** A file past 2 MB does not open (the Host's own per-page caps bound each read); there is no search panel and no column selection.
 

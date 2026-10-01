@@ -14,11 +14,18 @@ import { act, cleanup, fireEvent } from '@testing-library/react'
 import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import { fileAddressFor } from '@qilin/util-workspace-path'
-import { failureLine, orderEntries } from '../src/client/FileTree.tsx'
+import { copyTextOf, failureLine, orderEntries } from '../src/client/FileTree.tsx'
 import { SEARCH_SETTLE_MS } from '../src/client/face.ts'
 import type { DirLevel } from '../src/client/store.ts'
 import { zh } from '../src/client/locales.ts'
 import { mountBody, ROOT, SESSION, TAB } from './mount.client.tsx'
+
+/** The host clipboard write, mocked so a copy lands somewhere observable. */
+const clipboard = vi.hoisted(() => ({ write: vi.fn().mockResolvedValue(true) }))
+vi.mock('@qilin/client-ui-primitives', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin/client-ui-primitives')>()
+  return { ...actual, writeClipboard: clipboard.write }
+})
 
 const ROOT_LEVEL: DirLevel = {
   entries: [
@@ -317,5 +324,60 @@ describe('FilesBody search', () => {
     expect(view.container.querySelector('[data-files-search-results]')).toBeNull()
     expect(view.container.querySelector('[data-files-search-input]')).not.toBeNull()
     expect(searchScript.search).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('FileTree row menu and link marks', () => {
+  afterEach(() => { cleanup(); clipboard.write.mockClear() })
+
+  it('derives both copy forms from the root: dot for the root, suffix under it, path otherwise', () => {
+    expect(copyTextOf(ROOT, ROOT, 'relative')).toBe('.')
+    expect(copyTextOf(ROOT, `${ROOT}/src/a.ts`, 'relative')).toBe('src/a.ts')
+    expect(copyTextOf(ROOT, `${ROOT}/src/a.ts`, 'absolute')).toBe(`${ROOT}/src/a.ts`)
+    // A tree rooted somewhere the row does not sit under keeps the path whole.
+    expect(copyTextOf('/elsewhere', `${ROOT}/README.md`, 'relative')).toBe(`${ROOT}/README.md`)
+  })
+
+  it('a file row right-click opens the menu at the cursor: open, and both copies', async () => {
+    const { view, script, tabActions } = mountBody()
+    await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+    act(() => { fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${ROOT}/README.md"] > button`)!, { clientX: 10, clientY: 20 }) })
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.open'] }))
+    expect(tabActions.openResource).toHaveBeenCalledWith(fileAddressFor(SESSION, ROOT, 'README.md'))
+    act(() => { fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${ROOT}/README.md"] > button`)!) })
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.copyRelative'] }))
+    expect(clipboard.write).toHaveBeenCalledWith('README.md')
+    act(() => { fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${ROOT}/README.md"] > button`)!) })
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.copyAbsolute'] }))
+    expect(clipboard.write).toHaveBeenCalledWith(`${ROOT}/README.md`)
+    expect(view.queryByRole('menuitem', { name: zh['menu.open'] })).toBeNull()
+  })
+
+  it('a directory row right-click offers the copies but no open', async () => {
+    const { view, script } = mountBody()
+    await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+    act(() => { fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${ROOT}/src"] > button`)!) })
+    expect(view.queryByRole('menuitem', { name: zh['menu.open'] })).toBeNull()
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.copyRelative'] }))
+    expect(clipboard.write).toHaveBeenCalledWith('src')
+  })
+
+  it('marks a symlinked name with the link glyph and tooltip; plain names carry none', async () => {
+    const { view, script } = mountBody()
+    await act(() => script.settle({
+      ok: true,
+      value: {
+        entries: [
+          { name: 'linked.md', type: 'file', symlink: true },
+          { name: 'linked-dir', type: 'directory', symlink: true },
+          { name: 'plain.md', type: 'file' },
+        ],
+        truncated: false,
+      },
+    }))
+    for (const name of ['linked.md', 'linked-dir']) {
+      expect(view.container.querySelector(`[data-files-path="${ROOT}/${name}"] [data-files-symlink]`)?.getAttribute('title')).toBe(zh['entry.symlink'])
+    }
+    expect(view.container.querySelector(`[data-files-path="${ROOT}/plain.md"] [data-files-symlink]`)).toBeNull()
   })
 })

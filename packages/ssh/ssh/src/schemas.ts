@@ -22,7 +22,7 @@ export const pathInfoSchema = infoSchema.extend({ type: z.enum(['file', 'directo
 /** A resolved file-effect policy; the remote helper owns path canonicalization. */
 export const policySchema = z.object({ mode: z.enum(['read-only', 'workspace-write', 'danger-full-access']), workspaceRoot: remotePath, sessionId: z.string().optional() }).strict()
 /** Complete directory entries. */
-export const entriesSchema = z.array(z.object({ name: z.string(), type: z.enum(['file', 'directory', 'other']), target: targetSchema, version: z.string().optional(), size: z.number().nonnegative().optional() }).strict())
+export const entriesSchema = z.array(z.object({ name: z.string(), type: z.enum(['file', 'directory', 'other']), target: targetSchema, version: z.string().optional(), size: z.number().nonnegative().optional(), symlink: z.boolean().optional() }).strict())
 /** Guarded write intent. */
 export const intentSchema = z.discriminatedUnion('kind', [z.object({ kind: z.literal('createIfAbsent') }).strict(), z.object({ kind: z.literal('replaceIfVersion'), version: z.string() }).strict()])
 /** Literal text edit. */

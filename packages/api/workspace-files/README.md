@@ -35,7 +35,7 @@ Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, 
 | `readAll(path)` | `WorkspaceFileBytes` with `offset: 0`, `eof: true` | Complete raw bytes under `maxFileBytes`; oversized files fail instead of being truncated |
 | `readRelated(path, relativePath)` | `WorkspaceFileBytes` | Complete bytes of a file resolved from the base file's directory on the Host |
 | `write(path, text, { baseVersion? })` | `WorkspaceFileStat { absolutePath, version, bytes? }` | Replace or create one complete UTF-8 text file inside the workspace; a `baseVersion` that no longer matches fails with `workspace-file/stale` and writes nothing |
-| `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | Direct children of one directory |
+| `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | Direct children of one directory; a child whose listed name is itself a symbolic link carries `symlink: true` beside the type of what it resolves to |
 | `searchNames(query)` | `WorkspaceFileNameSearch { matches, truncated }` | Files below the workspace root whose basenames contain the query, case-insensitively |
 | `changes()` | stream of `WorkspaceFileWatchFrame` | Subscription readiness, then filesystem observations inside the workspace root |
 
