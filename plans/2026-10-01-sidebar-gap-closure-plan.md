@@ -77,3 +77,12 @@ kind: "plan"
 - 剩余：G6 Mermaid → G4 上传/拖放 → G5 全局搜索 →（软链/右键小项）→ S2 Git 面板（含 GitHub）→ 发版 3.0.8
 
 - S1b 已提交：`c04d1ce57c`（Mermaid 一等围栏渲染：懒加载+严格安全+净化器+缩放模态；regex 空分支 bug 修正）
+
+
+## 批次执行状态补充二（2026-10-01 18:45）
+
+- S1a 已提交：`1cba11b816`（视频预览+media 路由；G2 修正非缺口）
+- S1b 已提交：`c04d1ce57c`（Mermaid 一等围栏渲染；regex 空分支修正）
+- **G4 架构前提发现**：fs 抽象服务仅有 `writeText`（UTF-8）；二进制上传需跨全部后端（local/sandbox/remote）新增 `writeBytes` 原语——这是架构级变更，需专项批（影响 fs/fs-local/fs-sandbox/fs-remote + 测试）
+- **G5 搜索前提**：需 host 侧递归文件名扫描（插件 `fs-search.ts` 走 node:fs 直接扫描；QiLin 需走抽象 fs 或新增 fs 原语）
+- 下轮执行：①fs writeBytes 原语批（G4 前提）→ ②G4 上传/拖放（preview-media POST 路由+files 页 drop 覆盖层）→ ③G5 搜索 → ④S1e 软链/右键 → ⑤S2 Git 面板 → ⑥发版 3.0.8
