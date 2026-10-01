@@ -19,6 +19,7 @@ type T = TranslateNS<'conversation'>
 export function markdownLabels(t: T): MarkdownLabels {
   return {
     code: { copyLabel: t('copy'), copiedLabel: t('copied') },
+    mermaid: { diagramLabel: t('markdown.diagram'), enlargedLabel: t('markdown.enlarged') },
     footnotes: t('markdown.footnotes'),
   }
 }

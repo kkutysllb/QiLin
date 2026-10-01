@@ -37,7 +37,7 @@ describe('MermaidDiagram render integration', () => {
     }))
     const view = render(<MarkdownText
       text={'```mermaid\ngraph TD\n  broken[\n```'}
-      labels={{ code: { copyLabel: 'Copy', copiedLabel: 'Copied' }, footnotes: undefined } as never}
+      labels={{ code: { copyLabel: 'Copy', copiedLabel: 'Copied' }, mermaid: { diagramLabel: 'Mermaid diagram', enlargedLabel: 'Mermaid diagram (enlarged)' }, footnotes: undefined } as never}
     />)
     expect(await view.findByRole('alert')).toBeTruthy()
     expect(view.container.textContent).toContain('diagram syntax error')

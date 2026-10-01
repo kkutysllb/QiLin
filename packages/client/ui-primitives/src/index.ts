@@ -54,6 +54,8 @@ export { closeTopModal, isBehindModal, modalSelector, useModalLayer } from './us
 export { Toast } from './Toast.tsx'
 export { fileSizeText } from './file-size.ts'
 export { writeClipboard } from './clipboard.ts'
+export { useCopyFeedback } from './use-copy-feedback.ts'
+export type { CopyFeedback } from './use-copy-feedback.ts'
 export { relativeTime } from './relative-time.ts'
 export { rankByName } from './rank-by-name.ts'
 export { isDarwinDesktop } from './darwin-desktop.ts'

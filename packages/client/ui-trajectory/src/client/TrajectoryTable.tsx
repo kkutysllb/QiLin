@@ -251,6 +251,7 @@ function jsonTreeLabels(t: TrajectoryTranslate): JsonTreeLabels {
 function markdownLabels(t: TrajectoryTranslate): MarkdownLabels {
   return {
     code: { copyLabel: t('copy'), copiedLabel: t('copied') },
+    mermaid: { diagramLabel: t('markdown.diagram'), enlargedLabel: t('markdown.enlarged') },
     footnotes: t('markdown.footnotes'),
   }
 }

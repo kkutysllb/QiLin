@@ -955,6 +955,9 @@ importers:
       '@qilin/api-workspace-files':
         specifier: workspace:*
         version: link:../workspace-files
+      '@qilin/api-workspace-git':
+        specifier: workspace:*
+        version: link:../workspace-git
       '@qilin/client-connection':
         specifier: workspace:*
         version: link:../../client/connection
@@ -2254,6 +2257,9 @@ importers:
       '@qilin/client-ui-sidebar-files':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-files
+      '@qilin/client-ui-sidebar-git':
+        specifier: workspace:*
+        version: link:../../client/ui-sidebar-git
       '@qilin/client-ui-sidebar-plans':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-plans
@@ -5119,6 +5125,66 @@ importers:
       '@qilin/util-workspace-path':
         specifier: workspace:*
         version: link:../../util/workspace-path
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-sidebar-git:
+    devDependencies:
+      '@qilin/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin/api-workspace-git':
+        specifier: workspace:*
+        version: link:../../api/workspace-git
+      '@qilin/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-dockkit':
+        specifier: workspace:*
+        version: link:../ui-dockkit
+      '@qilin/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin/client-ui-session':
+        specifier: workspace:*
+        version: link:../ui-session
+      '@qilin/client-ui-sidebar-right':
+        specifier: workspace:*
+        version: link:../ui-sidebar-right
+      '@qilin/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

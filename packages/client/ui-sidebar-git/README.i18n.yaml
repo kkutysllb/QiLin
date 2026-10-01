@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-git/README.md
+/:
+  en: 570b81502fdd8bea
+  zh: e193403ae4a1dc12
+/qilin-client-ui-sidebar-git:
+  en: ec8983f64584efad
+  zh: a1a6d05f26a59c9e
+/qilin-client-ui-sidebar-git/summary:
+  en: ae19b46c8b611cf3
+  zh: 25e9a9011d2bdd98
+/qilin-client-ui-sidebar-git/table-of-contents:
+  en: 60eabb50525af663
+  zh: d7314ec91c52090e
+/qilin-client-ui-sidebar-git/what-it-registers:
+  en: 292403b817882235
+  zh: 59277245657877ba
+/qilin-client-ui-sidebar-git/the-panel:
+  en: d4b3e5b3969f769d
+  zh: 3c4070c8dbb293b2
+/qilin-client-ui-sidebar-git/the-github-section:
+  en: adc28d13fdab7c69
+  zh: afaa5b1005902a64
+/qilin-client-ui-sidebar-git/model-experience:
+  en: c2ae5c7056945550
+  zh: fc19e26ebcc9faf1
+/qilin-client-ui-sidebar-git/model-experience/kv-cache-effect:
+  en: c33111ed4e6101e7
+  zh: a8280519da33dcdf
+/qilin-client-ui-sidebar-git/known-limitations-and-deferred-work:
+  en: c291d39bfd8dbcca
+  zh: f37c44861c2b8472
+/qilin-client-ui-sidebar-git/known-limitations-and-deferred-work/dev-note:
+  en: 3ec4a880ff9d4cff
+  zh: ee59ac32c67f9805

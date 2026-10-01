@@ -4,6 +4,8 @@ export const zh = {
   'code.copy': '复制',
   'code.copied': '已复制',
   'footnotes': '脚注',
+  'mermaid.diagram': 'Mermaid 图',
+  'mermaid.enlarged': 'Mermaid 图（放大）',
 } satisfies Record<string, string>
 
 /** Markdown namespace keys. */
@@ -15,6 +17,8 @@ export const en = {
   'code.copy': 'Copy',
   'code.copied': 'Copied',
   'footnotes': 'Footnotes',
+  'mermaid.diagram': 'Mermaid diagram',
+  'mermaid.enlarged': 'Mermaid diagram (enlarged)',
 } satisfies Record<MarkdownPreviewKey, string>
 
 declare module '@qilin/client-ui-slots' {

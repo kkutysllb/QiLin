@@ -24,9 +24,11 @@ export function MarkdownBody({ content, resourceAddress, useResource, t }: Markd
   const copyLabel = t('code.copy')
   const copiedLabel = t('code.copied')
   const footnotes = t('footnotes')
+  const diagramLabel = t('mermaid.diagram')
+  const enlargedLabel = t('mermaid.enlarged')
   const labels = useMemo<MarkdownLabels>(() => ({
-    code: { copyLabel, copiedLabel }, footnotes,
-  }), [copyLabel, copiedLabel, footnotes])
+    code: { copyLabel, copiedLabel }, mermaid: { diagramLabel, enlargedLabel }, footnotes,
+  }), [copyLabel, copiedLabel, footnotes, diagramLabel, enlargedLabel])
   if (content.kind !== 'text') return null
   return (
     <div className={css.document} data-document-markdown>

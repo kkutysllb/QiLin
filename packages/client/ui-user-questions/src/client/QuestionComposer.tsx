@@ -163,6 +163,7 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
   const review = pending.review
   const markdownLabels = useMemo(() => ({
     code: { copyLabel: t('copy'), copiedLabel: t('copied') },
+    mermaid: { diagramLabel: t('markdown.diagram'), enlargedLabel: t('markdown.enlarged') },
     footnotes: t('markdown.footnotes'),
   }), [t])
   const initialDrafts = useMemo<QuestionDraftAnswer[]>(() => {

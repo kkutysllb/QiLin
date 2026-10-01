@@ -36,6 +36,8 @@ export const en = {
   'truncated': 'Truncated',
   'json.label': 'JSON',
   'markdown.footnotes': 'Footnotes',
+  'markdown.diagram': 'Mermaid diagram',
+  'markdown.enlarged': 'Mermaid diagram (enlarged)',
   'markdown.truncatedCharacters': '… truncated at {total} characters',
   'number.thousand': '{value}K',
   'number.million': '{value}M',

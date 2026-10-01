@@ -42,9 +42,18 @@ export interface MarkdownCodeLabels {
   copiedLabel: string
 }
 
+/** Localized alt text for a rendered Mermaid diagram. */
+export interface MarkdownMermaidLabels {
+  /** Alt text naming the on-page diagram stage. */
+  diagramLabel: string
+  /** Alt text naming the enlarged overlay copy. */
+  enlargedLabel: string
+}
+
 /** Localized chrome for a Markdown document. */
 export interface MarkdownLabels {
   code: MarkdownCodeLabels
+  mermaid: MarkdownMermaidLabels
   footnotes: string
 }
 
@@ -390,7 +399,10 @@ function renderCode(node: Md.Code, key: Key, context: MarkdownRenderContext): Re
       return <CodeBlock key={key} code={`${node.value}\n`}
         copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel} streaming lang={lang} />
     }
-    return <MermaidDiagram key={key} code={node.value} copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel} />
+    const mermaidLabels = context.labels.mermaid
+    return <MermaidDiagram key={key} code={node.value}
+      copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel}
+      diagramLabel={mermaidLabels.diagramLabel} enlargedLabel={mermaidLabels.enlargedLabel} />
   }
   if (!context.streaming && lang === 'math') {
     // ```math fences render as display TeX once settled (rehype-katex parity);

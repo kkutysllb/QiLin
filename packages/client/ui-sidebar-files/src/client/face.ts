@@ -61,10 +61,12 @@ export type WorkspaceFilesTreeRemote = {
 
 /**
  * Bind the listing to one Remote face, keeping only what the tree stores.
- * @param remote - the Client Remote face carrying the `workspaceFiles` namespace.
+ * @param remote - the Client Remote face carrying the `workspaceFiles` namespace's `list`.
  * @returns the listing the tree's face performs.
  */
-export function createList(remote: WorkspaceFilesTreeRemote): ListWorkspaceDirectory {
+export function createList(
+  remote: { readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'list'> },
+): ListWorkspaceDirectory {
   return async (sessionId, path, signal) => {
     const result = await remote.workspaceFiles.list(sessionId, path, signal)
     if (!result.ok) return result
@@ -82,10 +84,12 @@ export const SEARCH_SETTLE_MS = 200
 /**
  * Bind the filename search to one Remote face, dropping the entries this
  * package does not draw.
- * @param remote - the Client Remote face carrying the `workspaceFiles` namespace.
+ * @param remote - the Client Remote face carrying the `workspaceFiles` namespace's `searchNames`.
  * @returns the search the tree's face performs.
  */
-export function createSearch(remote: WorkspaceFilesTreeRemote): SearchWorkspaceFileNames {
+export function createSearch(
+  remote: { readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'searchNames'> },
+): SearchWorkspaceFileNames {
   return (sessionId, query, signal) => remote.workspaceFiles.searchNames(sessionId, query, signal)
 }
 

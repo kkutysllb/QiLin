@@ -1,0 +1,521 @@
+/* The pane body is a block scroller with a definite height; the header row
+   stays put and the sections below are the one scroller. */
+.root {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
+  line-height: 1.5;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+/* The status header: one row flush under the pane's strip, the branch glyph
+   and name at its start, the remote actions at its end. */
+.header {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 5px 6px 5px 12px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+.toolIcon {
+  display: inline-flex;
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.branch {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The upstream position chip: ahead in success ink, behind in error ink,
+   matching the diff rows they summarize. */
+.upstream {
+  display: inline-flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.upstreamNone {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.ahead {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.behind {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The remote actions: quiet text buttons in secondary ink. */
+.action {
+  flex: none;
+  padding: 3px 8px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.action:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* The same icon button as the Sidebar's strip controls: a 28px circle around
+   a 15px glyph. */
+.tool {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  color: var(--dsw-alias-label-secondary);
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.tool svg {
+  width: 15px;
+  height: 15px;
+}
+
+.tool:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.tool:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* The quiet inline action inside a section header. */
+.link {
+  display: inline-flex;
+  flex: none;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 6px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.link:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.link[aria-pressed='true'] {
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.section {
+  flex: none;
+  padding: 6px 6px 6px 10px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+.sectionHeader {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 26px;
+}
+
+.sectionTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sectionToggle {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  align-items: center;
+  width: 100%;
+  min-height: 26px;
+  padding: 2px 4px;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sectionToggle:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.chevron {
+  flex: none;
+  transition: transform 120ms ease;
+}
+
+.chevronClosed {
+  transform: rotate(-90deg);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 6px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.row:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.row:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* The XY letter a change row carries, in a fixed monospace cell. */
+.badge {
+  flex: none;
+  min-width: 12px;
+  color: var(--dsw-alias-label-tertiary);
+  font-family: var(--dsw-font-markdown-code-block);
+  font-size: 11px;
+  text-align: center;
+}
+
+.name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The current branch's marker pill. */
+.pill {
+  flex: none;
+  padding: 0 6px;
+  color: var(--dsw-alias-state-business-primary);
+  font-size: 11px;
+  line-height: 18px;
+  background: var(--dsw-alias-state-business-primary-weak, transparent);
+  border-radius: 9px;
+}
+
+/* A branch row's upstream note, trailing the name in tertiary ink. */
+.tracking {
+  flex: none;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.note {
+  margin: 2px 0;
+  padding: 3px 6px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.failed {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.status {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px;
+}
+
+.statusLine {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* The diff pane: the path truncated at its end, the colored lines in the
+   markdown code block face. */
+.diffPath {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.diffBody {
+  margin: 4px 0 0;
+  padding: 8px 0;
+  overflow-x: auto;
+  color: var(--dsw-alias-label-primary);
+  font-family: var(--dsw-font-markdown-code-block);
+  font-size: 12px;
+  line-height: 1.6;
+  background: var(--dsw-alias-markdown-code-block);
+  border-radius: 8px;
+}
+
+.diffLine {
+  padding: 0 10px;
+  white-space: pre;
+}
+
+.diffMeta,
+.diffHunk {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.diffAdd {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.diffDel {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+/* The commit box: the message over its hint and button. */
+.commit {
+  flex: none;
+  padding: 8px 6px 8px 10px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+}
+
+.commitInput {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 56px;
+  padding: 6px 8px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 12px;
+  background: var(--dsw-alias-interactive-bg-default, transparent);
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.commitInput::placeholder {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.commitInput:disabled {
+  opacity: 0.6;
+}
+
+.commitRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+/* The create-branch form: two inputs and the create action in one row. */
+.branchForm {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.input {
+  flex: 1 1 40%;
+  min-width: 0;
+}
+
+/* One inline pair: a note beside one action, inside a section's flow. */
+.subrow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.subrow .note {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.noticeText {
+  flex: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+}
+
+/* One pull-request row: its number and title, then its refs and the merge
+   controls underneath. */
+.prRow {
+  margin: 0;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.prRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.prLine {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.prNumber {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+  font-family: var(--dsw-font-markdown-code-block);
+  font-size: 11px;
+}
+
+.prSub {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  margin-top: 2px;
+}
+
+/* The merge-strategy chooser, in the same quiet face as the inputs. */
+.select {
+  flex: none;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 12px;
+  background: var(--dsw-alias-interactive-bg-default, transparent);
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* The create-pull-request form: fields stacked, actions in the last row. */
+.prForm {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.prForm .input {
+  flex: none;
+}
+
+.prBody {
+  min-height: 48px;
+}
+
+.menuAnchor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The focus ring every interactive row and control of the panel shares. */
+.action:focus-visible,
+.commitInput:focus-visible,
+.link:focus-visible,
+.row:focus-visible,
+.sectionToggle:focus-visible,
+.select:focus-visible,
+.tool:focus-visible {
+  outline: 2px solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+}
+
+/* The branch glyph before the chip's text; the chip's title row centres it
+   on the text's line and spaces it. */
+.titleIcon {
+  flex: none;
+}

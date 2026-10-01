@@ -108,9 +108,13 @@ export interface MermaidDiagramProps {
   /** Copy-control labels for the fallback source block. */
   readonly copyLabel: string
   readonly copiedLabel: string
+  /** Alt text naming the on-page diagram stage. */
+  readonly diagramLabel: string
+  /** Alt text naming the enlarged overlay copy. */
+  readonly enlargedLabel: string
 }
 
-export function MermaidDiagram({ code, copyLabel, copiedLabel }: MermaidDiagramProps): ReactNode {
+export function MermaidDiagram({ code, copyLabel, copiedLabel, diagramLabel, enlargedLabel }: MermaidDiagramProps): ReactNode {
   const reactId = useId()
   const [state, setState] = useState<DiagramState>({ status: 'loading' })
   const [zoom, setZoom] = useState<string | null>(null)
@@ -152,7 +156,7 @@ export function MermaidDiagram({ code, copyLabel, copiedLabel }: MermaidDiagramP
       onClick={() => { setZoom(state.svg) }}
       role="button"
       tabIndex={0}
-      aria-label="mermaid diagram"
+      aria-label={diagramLabel}
       onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setZoom(state.svg) }}
     />
   )
@@ -166,7 +170,7 @@ export function MermaidDiagram({ code, copyLabel, copiedLabel }: MermaidDiagramP
           dangerouslySetInnerHTML={{ __html: zoom }}
           onClick={(event) => { event.stopPropagation() }}
           role="img"
-          aria-label="mermaid diagram (enlarged)"
+          aria-label={enlargedLabel}
         />
       </div>,
       document.body,
