@@ -495,3 +495,46 @@ mdast 在**行内**上下文里是**逐标签**交出 html 节点的（`<sub>` �
 | 门禁 | `tsc -b tsconfig.client.json` 0；`oxlint` 全仓 **88 = 基线**；`doc-sync` 41 过 / 1 红（预存）；`verify-export-jsdoc` / `verify-no-unknown-casts` / `verify-client-ui-i18n` / `verify-package-dependencies` 全过 |
 
 **说明**：本批只让侧栏文档预览加入；聊天区的 Markdown 仍保持字面文本（`ui-primitives` 默认不变）。若要让聊天区也对齐，需要同一批里再裁决一次——它渲染的是同样的不可信输出，但影响面从「打开文件预览」扩到「每条助手消息」。
+
+## 批次执行状态补充二十八（2026-10-02 22:05）——批次九「终端字体偏好」，终端一线收口
+
+提交主体：`feat(client-ui-sidebar-terminal): let the user choose the terminal font`。
+
+### 一、交付
+
+| 件 | 内容 |
+|---|---|
+| `src/terminal-settings.ts` | 用户设置段 `ui-sidebar-terminal`：`fontFamily`（空串 = 内置等宽栈）与 `fontSize`（8–32，步长 1，默认 13）。Host 半 `src/index.ts` 注册 schema，浏览器半经 `ctx.configForms` 读取并订阅。 |
+| `src/client/terminal-font.ts` | 纯模块：字体系列切分（引号/括号/转义）、通用族收尾、Nerd Font 回退追加、字号夹取与解析。 |
+| `src/client/TerminalFontRow.tsx` | 通用设置行：字体系列与字号，失焦或回车提交。字段显示的是**存量偏好**，仅在编辑期间持有草稿——外部改动仍能透出，半途输入不会送到终端。 |
+| `src/client/terminal.tsx` | 用解析结果创建 xterm；字体变化时改 `options` 并按可见性重新测量（不可见时只存值，等显示时再测量）。 |
+
+**为什么通用族收尾是必须的**：无法解析的字体名会让浏览器落到**按比例排版的默认字体**，xterm 于是按比例字宽测量单元格，整个网格崩坏——这比"只是字体没生效"严重得多。追加图标回退的顺序也有讲究：带拉丁字形的完整补丁若排在**开头的通用族**之前，会成为测量基准并覆盖用户请求的字体，因此只有不含拉丁的 symbols-only 补丁可以前置。
+
+### 二、审计订正（补记）
+
+上一批把「Markdown 原始 HTML」判为需要产品决策，用户答复**不并一并对齐聊天区**：本仓只让**侧栏文档预览**渲染作者手写 HTML，聊天区保持字面文本。该裁决已记于此，后续不再重开。
+
+### 三、终端一线的最终口径
+
+上游 `TerminalView` 三件（URL 链接 / 字体偏好 / 等待横幅）逐项验证结果：
+
+| 项 | 结论 |
+|---|---|
+| URL 链接 | **是缺口**，已实现（批次七） |
+| 字体偏好 | **是缺口**，已实现（本批） |
+| 等待横幅 | **不是缺口**：上游它是 `terminal_wait_for` 的 UI，而 QiLin 的终端工具集没有该工具，模型从不阻塞等待终端输出；照搬会造出一个永不出现的组件 |
+
+### 四、验证
+
+| 项 | 结果 |
+|---|---|
+| 包级 | `ui-sidebar-terminal` **107 例全绿**（新增字体纯模块 14、设置行 7、body 字体应用 1、apply 侧 2 条） |
+| 覆盖率 | 包内 `src/**` 逐文件 **100/100/100/100** |
+| `pnpm run typecheck` | **0** |
+| `oxlint` 全仓 | **88 = 基线**（新增文件零违例） |
+| `test:gui` | **596 全过 / 1 红**（ui-theme 的 ModelSelect 滚动面，预存） |
+| `doc-sync` | **41 过 / 1 红**（唯一红 `verify-persistence-changes` 预存） |
+| 其余门禁 | `verify-package-dependencies` 77 包合规、`verify-client-packages` 66 包合规、`verify-export-jsdoc` 全绿、`verify-client-ui-i18n` 947 文件合规、`verify-no-unknown-casts` 零新增（且总数由 1672 降到 1671）、`hygiene` 18 过 / 1 红（vendor rescope 预存） |
+
+被门禁拦下的真问题两处：新依赖 `@qilin/settings` 必须放在 `devDependencies` 且用 `workspace:*`（Host 类型导入不是发布依赖）；新增的槽位注册必须重跑 `gen-client-catalog`（客户端槽位目录是生成物）。
