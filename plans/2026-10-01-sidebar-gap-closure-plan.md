@@ -455,3 +455,43 @@ React 18 只把 `ref` 交给 `forwardRef` 与 DOM 元素；普通函数组件收
 | 包级 | `ui-sidebar-terminal` **82 例全绿** |
 | `test:gui` | **593 全过 / 1 红**（ui-theme 的 ModelSelect 滚动面，预存） |
 | 门禁 | `tsc -b tsconfig.client.json` 0；`oxlint` 全仓 **88 = 基线**；`doc-sync` 41 过 / 1 红（预存 `verify-persistence-changes`）；`verify-package-dependencies` / `verify-client-packages` / `verify-export-jsdoc` / `verify-client-ui-i18n` 全过 |
+
+## 批次执行状态补充二十九（2026-10-02 21:45）——批次八「Markdown 原始 HTML」，按用户裁决走「保留消毒的解析路径」
+
+用户对「是否放开消毒渲染」的裁决：**A. 对齐上游：新增 HTML 解析路径，保留 DOMPurify 消毒**。先把上游事实摆清楚——`MarkdownHtml.tsx` 的模块头写明每个 HTML 字符串都过 DOMPurify 并叠显式 denylist，锚点强制 `noopener`、本地媒体走会话级路由；**上游并没有取消消毒**，它只是引入了 HTML 解析器。这一批按此口径落地（提交主体：`feat(client-ui-sidebar-documentpreview): render authored raw HTML through the preview's sanitizer`）。
+
+### 一、实现路径与上游不同（有意）
+
+上游用 331 行 `markdown-html.ts` 自己把 HTML run 从源码里**切出来**，再配 301 行渲染组件处理嵌套。QiLin 的 mdast 本来就带 `html` 节点且位置正确，所以不需要切分：在渲染上下文加一个**可选的 `html` 渲染器**，`case 'html'` 有渲染器就交给持有方、没有就保持字面文本。这样 `ui-primitives` 对聊天等所有其他消费者维持原来的「无 HTML 解析器」严格默认，只有侧栏预览显式加入，且不引入第二套解析器去和 mdast 的分块判断赛跑。
+
+### 二、安全姿态
+
+| 面 | 做法 |
+|---|---|
+| 元素 | DOMPurify 默认 + 本包 denylist：`script/style/iframe/frame/frameset/object/embed/applet/form/input/button/select/option/textarea/meta/link/base/noscript` |
+| 属性 | `srcdoc`、`formaction`；DOMPurify 自身剥掉 `on*` 事件处理器 |
+| 锚点 | 强制 `target="_blank"` + `rel="noopener noreferrer"` |
+| 媒体 | `src` 经与 Markdown 图片**同一条** `/api/file` 路由重写；解析器拒绝的源直接删除该属性，而不是留原值让浏览器去取 |
+
+安全用例（`markdown-html-sanitize` + `markdown-body` 两组）：脚本/`onerror`/`onclick`/iframe/form/base/meta 全部进不了 DOM，且断言 `globalThis.compromised` 仍为 undefined；锚点与本地图片的加固逐条断言。
+
+### 三、两处「保持字面文本」的边界（已写入 README 与 Known Limitations）
+
+mdast 在**行内**上下文里是**逐标签**交出 html 节点的（`<sub>` 与 `</sub>` 是两个节点、中间夹着 text 节点），块级上下文才整块交出。因此：
+
+1. **行内 run**（段落里的 `<sub>x</sub>`、表格单元格里的 `<br/>`）保持字面文本——只渲染 `<sub>` 会变成一个空标签、文本掉到标签外面，比现状更糟；
+2. **闭合标签落在另一个 run 的块级开头**（`<div class="note">` … Markdown … `</div>`、`<details>`）保持字面文本——只渲染开头会得到一个空元素，后面的 Markdown 掉到它外面。
+
+上游对这两类都做了完整支持（这正是那 300 行的去处），所以这是**与上游的有意差异**，不是遗漏；代价是 `<details>` 折叠块在 QiLin 仍是字面文本。要做齐需要单独一批引入「源码切分 + 嵌套 mdast」的机制，届时再评。
+
+### 四、验证
+
+| 项 | 结果 |
+|---|---|
+| 新增测试 | 消毒单元 17 例、`MarkdownBody` 端到端 4 例、`renderBlocks` 的 html 分支两态 1 例 |
+| 覆盖率 | `sanitize-html.ts`、`MarkdownBody.tsx`、`MarkdownText.tsx` 均 **100/100/100/100**（`render.tsx` 仅剩 414 行一处**预存**未覆盖，与本批无关） |
+| 包级 | documentpreview + ui-primitives 相关 661 例全绿 |
+| `test:gui` | **593 全过 / 2 红**：`ui-theme` ModelSelect 滚动面（预存）+ `ui-subagent` 的 lineage 计时用例（**单跑 36/36 通过**，属该用例的计时 flake，与本批无关） |
+| 门禁 | `tsc -b tsconfig.client.json` 0；`oxlint` 全仓 **88 = 基线**；`doc-sync` 41 过 / 1 红（预存）；`verify-export-jsdoc` / `verify-no-unknown-casts` / `verify-client-ui-i18n` / `verify-package-dependencies` 全过 |
+
+**说明**：本批只让侧栏文档预览加入；聊天区的 Markdown 仍保持字面文本（`ui-primitives` 默认不变）。若要让聊天区也对齐，需要同一批里再裁决一次——它渲染的是同样的不可信输出，但影响面从「打开文件预览」扩到「每条助手消息」。
