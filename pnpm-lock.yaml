@@ -303,6 +303,9 @@ importers:
       '@qilin/session-reference':
         specifier: workspace:*
         version: link:../../packages/context/session-reference
+      '@qilin/sidebar-opens':
+        specifier: workspace:*
+        version: link:../../packages/host/sidebar-opens
       '@qilin/skill':
         specifier: workspace:*
         version: link:../../packages/skill/skill
@@ -1800,6 +1803,9 @@ importers:
       '@qilin/shell-env':
         specifier: workspace:*
         version: link:../../shell/shell-env
+      '@qilin/sidebar-opens':
+        specifier: workspace:*
+        version: link:../../host/sidebar-opens
       '@qilin/skill':
         specifier: workspace:*
         version: link:../../skill/skill
@@ -2146,6 +2152,9 @@ importers:
       '@qilin/client-ui-account':
         specifier: workspace:*
         version: link:../../client/ui-account
+      '@qilin/client-ui-agent-opens':
+        specifier: workspace:*
+        version: link:../../client/ui-agent-opens
       '@qilin/client-ui-agent-preset':
         specifier: workspace:*
         version: link:../../client/ui-agent-preset
@@ -2754,6 +2763,51 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-agent-opens:
+    devDependencies:
+      '@qilin/api-gateway':
+        specifier: workspace:*
+        version: link:../../api/gateway
+      '@qilin/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin/client-ui-session':
+        specifier: workspace:*
+        version: link:../ui-session
+      '@qilin/client-ui-sidebar-browser':
+        specifier: workspace:*
+        version: link:../ui-sidebar-browser
+      '@qilin/client-ui-sidebar-right':
+        specifier: workspace:*
+        version: link:../ui-sidebar-right
+      '@qilin/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin/sidebar-opens':
+        specifier: workspace:*
+        version: link:../../host/sidebar-opens
+      '@qilin/util-workspace-path':
+        specifier: workspace:*
+        version: link:../../util/workspace-path
 
   packages/client/ui-agent-preset:
     devDependencies:
@@ -9021,6 +9075,46 @@ importers:
       '@qilin/kylin-plugin-loader':
         specifier: workspace:~
         version: link:../../../vendor/loader
+
+  packages/host/sidebar-opens:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin/fs':
+        specifier: workspace:*
+        version: link:../../fs/fs
+      '@qilin/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin/scope':
+        specifier: workspace:*
+        version: link:../../core/scope
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
 
   packages/host/webserver:
     dependencies:

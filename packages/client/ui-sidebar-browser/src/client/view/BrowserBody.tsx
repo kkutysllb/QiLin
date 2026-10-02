@@ -54,7 +54,11 @@ function useBrowserDraft(
   return [value, (draft) => { setEdit({ requestId, value: draft }) }]
 }
 
-/** Browser tab renderer for a controller-owned URL state and Web iframe carrier. */
+/**
+ * Browser tab renderer for a controller-owned URL state and Web iframe carrier.
+ * @param props - composed slot props for the Browser tab body.
+ * @returns the toolbar and the carrier frame.
+ */
 export function BrowserBody(props: BrowserBodyProps): ReactNode {
   const {
     goBack, goForward, loadUrl, mount, reload, reportLoaded, reportLoadFailed, toggleSandbox,

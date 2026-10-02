@@ -110,6 +110,7 @@
     "@qilin/tool-subagent": "workspace:*",
     "@qilin/tool-subagent-control": "workspace:*",
     "@qilin/tool-jobs": "workspace:*",
+    "@qilin/sidebar-opens": "workspace:*",
     "@qilin/tool-todo": "workspace:*",
     "@qilin/tool-web": "workspace:*",
     "@qilin/tool-workflow": "workspace:*",

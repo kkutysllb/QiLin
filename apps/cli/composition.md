@@ -94,6 +94,8 @@ flowchart LR
   cfg --> plugin_qilin_base_tool_pwsh
   plugin_qilin_base_tool_jobs["tool-jobs<br/>@qilin/tool-jobs"]
   cfg --> plugin_qilin_base_tool_jobs
+  plugin_qilin_base_sidebar_opens["sidebar-opens<br/>@qilin/sidebar-opens"]
+  cfg --> plugin_qilin_base_sidebar_opens
   plugin_qilin_base_fs_observation_policy["fs-observation-policy<br/>@qilin/fs-observation-policy"]
   cfg --> plugin_qilin_base_fs_observation_policy
   plugin_qilin_base_tool_fs["tool-fs<br/>@qilin/tool-fs"]
@@ -235,6 +237,7 @@ flowchart LR
 | `tool-bash` | `@qilin/tool-bash` |
 | `tool-pwsh` | `@qilin/tool-pwsh` |
 | `tool-jobs` | `@qilin/tool-jobs` |
+| `sidebar-opens` | `@qilin/sidebar-opens` |
 | `fs-observation-policy` | `@qilin/fs-observation-policy` |
 | `tool-fs` | `@qilin/tool-fs` |
 | `tool-fs-search` | `@qilin/tool-fs-search` |

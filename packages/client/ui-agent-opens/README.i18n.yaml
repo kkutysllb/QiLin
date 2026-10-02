@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-agent-opens/README.md
+/:
+  en: 4229f048f4b85bcf
+  zh: 6f3bcf3fa8f84842
+/qilin-client-ui-agent-opens:
+  en: 5e211958f9b9125a
+  zh: 6e44e7b616852f3b
+/qilin-client-ui-agent-opens/summary:
+  en: ab228b85522273b5
+  zh: ee06c54161a4a96e
+/qilin-client-ui-agent-opens/table-of-contents:
+  en: 8be5c7fe49b63b1f
+  zh: c698cfc8c561a921
+/qilin-client-ui-agent-opens/known-limitations-and-deferred-work:
+  en: 2284af55257e37c1
+  zh: b2663a37bcd536da
+/qilin-client-ui-agent-opens/known-limitations-and-deferred-work/dev-note:
+  en: cd7772eb3ae522be
+  zh: 0329391c4ff9ccd5

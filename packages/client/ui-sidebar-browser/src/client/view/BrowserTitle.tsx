@@ -9,8 +9,13 @@ import css from './Browser.module.css'
 /** Browser title props assembled by the Sidebar title seat. */
 export type BrowserTitleProps = PropsRuntime<'sidebar.right.pane.tab.title'> & PropsStore<BrowserStore>
 
-/** Browser icon and current host name. */
-export function BrowserTitle({ useTabInfo, useStore }: BrowserTitleProps): ReactNode {
+/**
+ * Browser icon and current host name.
+ * @param props - composed slot props for the Browser tab title.
+ * @returns the icon and the current host name.
+ */
+export function BrowserTitle(props: BrowserTitleProps): ReactNode {
+  const { useTabInfo, useStore } = props
   const { tab } = useTabInfo()
   const entry = useStore(state => BrowserNavigation.current(state.byTab[tab.id]))
   return <><IconGlobeOutline14 className={css.titleIcon} />{entry?.title ?? tab.title}</>

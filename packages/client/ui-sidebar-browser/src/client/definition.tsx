@@ -10,7 +10,11 @@ export const BROWSER_KIND = 'browser'
 /** Browser implementation identity and keyed Slot dispatch key. */
 export const BROWSER_ID = '@qilin/client-ui-sidebar-browser'
 
-/** Build the Browser type with locale-live copy. */
+/**
+ * Build the Browser type with locale-live copy.
+ * @param t - namespace-bound translate, read fresh on every label call.
+ * @returns the definition to register.
+ */
 export function browserDefinition(t: TranslateNS<'sidebarBrowser'>): SidebarRightTabDefinition {
   return {
     id: BROWSER_ID,

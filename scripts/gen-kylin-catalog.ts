@@ -138,6 +138,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   workspaceGit: 'workspace.md',
   workspaceChanges: 'deliverables.md',
   terminalController: 'workspace.md',
+  sidebarOpens: 'workspace.md',
   directoryPickerController: 'workspace.md',
 }
 
@@ -957,6 +958,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   TerminalRetentionFrame: 'Browser terminal window holds are owned by packages/api/terminal-controller/README.md',
   WebTerminalId: 'Browser terminal identity is owned by packages/api/terminal-controller/README.md',
   WorkspaceFileWriteRequest: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
+  SidebarOpenRequest: 'Model-facing sidebar open requests are owned by packages/host/sidebar-opens/README.md',
 }
 
 /** Repository data policy consumed by the Cordis catalog projector. */

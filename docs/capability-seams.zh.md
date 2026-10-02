@@ -84,6 +84,8 @@ flowchart LR
   svc_workspaceChanges["ctx.workspaceChanges<br/>Host per-turn changed-file summaries"]
   pkg_api_job_controller["api-job-controller"]
   svc_jobController["ctx.jobController<br/>Host background-job Remote controller"]
+  pkg_sidebar_opens["sidebar-opens"]
+  svc_sidebarOpens["ctx.sidebarOpens<br/>Host model-requested Sidebar opens"]
   pkg_api_terminal_controller["api-terminal-controller"]
   svc_terminalController["ctx.terminalController<br/>Session interactive terminal Remote controller"]
   pkg_api_workspace_controller["api-workspace-controller"]
@@ -376,6 +378,7 @@ flowchart LR
   pkg_settings_file --> svc_settings
   pkg_shell --> svc_shell
   pkg_shell_env --> svc_shellEnv
+  pkg_sidebar_opens --> svc_sidebarOpens
   pkg_skill --> svc_skills
   pkg_skill_badge --> svc_skills
   pkg_skill_filesystem --> svc_skills
@@ -591,6 +594,7 @@ flowchart LR
 | `ctx.workspaceGit` | `core` | [`api-workspace-git`](../packages/api/workspace-git) | - | - | - | 在会话工作区根内驱动固定 argv 的 git 与 gh 进程：仓库探测、带上游位置的 porcelain 状态、有界 diff、暂存、提交、分支列举与切换、push、pull，以及 gh 的 pull-request 面。 |
 | `ctx.workspaceChanges` | `core` | [`workspace-changes`](../packages/deliverables/workspace-changes) | - | - | - | Serves the summary each workspace/changes event announced and each listed file's turn-start and turn-end comparison, by Session and event sequence, until that Session is disposed; the log carries only the turn. |
 | `ctx.jobController` | `core` | [`api-job-controller`](../packages/api/job-controller) | - | - | - | 以 ctx.jobs 注册表的投影，经生成的 Remote 命名空间流式发送每个会话的任务名册与单个任务的保留输出，并代表人工停止任务。 |
+| `ctx.sidebarOpens` | `core` | [`sidebar-opens`](../packages/host/sidebar-opens) | - | - | - | 把 sidebar_open 工具的请求以 Remote 流送到浏览器：每会话一个有界队列，视图附着时随发随取，工具把每个请求绑定到发起它的会话。 |
 | `ctx.terminalController` | `core` | [`api-terminal-controller`](../packages/api/terminal-controller) | - | - | - | 通过子进程提供方与类型化 Remote 传输管理用户终端进程、解析默认 shell，并恢复有界终端屏幕。 |
 | `ctx.workspaceController` | `core` | [`api-workspace-controller`](../packages/api/workspace-controller) | - | - | - | 通过生成的 Remote namespace 负责 Workspace 命令和可在重连后收敛的 Workspace 状态投递。 |
 | `ctx.directoryPickerController` | `core` | [`api-workspace-controller`](../packages/api/workspace-controller) | - | - | - | 把选目录 seam 送上线：能力门禁、取消传播，以及浏览器目录流程用于分支判断的 seam 错误码。 |

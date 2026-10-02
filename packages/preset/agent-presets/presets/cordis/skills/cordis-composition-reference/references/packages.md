@@ -64,6 +64,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/client-resources` | no | Unified client resource model: protocol-registered providers turn URL addresses into live values, consumed through the useResource global standard hook |
 | `@qilin/client-shortcuts` | yes | Application keyboard command registry and physical-key routing |
 | `@qilin/client-ui-account` | no | Account menu in the Web client sidebar footer: theme, language, Settings, and sign-out |
+| `@qilin/client-ui-agent-opens` | no | Opens what the model asked to see in the Session's Sidebar |
 | `@qilin/client-ui-agent-preset` | no | Agent-preset surfaces: the default for later sessions, this session's seat, and the composition editor |
 | `@qilin/client-ui-approval` | no | Approval composer takeover over the scoped Remote Event waterfall |
 | `@qilin/client-ui-attachment` | no | Dynamic attachment presentation plugin for conversation input, message-image, and trajectory image slots |
@@ -257,6 +258,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/host-plugin-inventory` | no | Read-only Remote projection of current Cordis Loader plugin state |
 | `@qilin/host-preview-media` | yes | Host half of preview media: the /sidebar/media route serving session-workspace files to inline previews, with HTTP Range windows for seeking video |
 | `@qilin/host-webserver` | yes | Web route-registration plugin: HTTP and upgrade routes, index transform taps, and static dist fallback; knows no harness concepts |
+| `@qilin/sidebar-opens` | yes | Model-facing requests to open a file or an http(s) page in the Session's Sidebar |
 
 ## identity
 

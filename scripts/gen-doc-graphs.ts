@@ -309,6 +309,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Streams the per-session job roster and one retained output, and stops a job for a human, as projections of the ctx.jobs registry over the generated Remote namespace.',
   },
   {
+    key: 'sidebarOpens',
+    pkg: 'sidebar-opens',
+    title: 'Host model-requested Sidebar opens',
+    mode: 'core',
+    note: 'Carries the sidebar_open tool\'s requests to the browser as a Remote stream: one bounded queue per Session, consumed on send while a view is attached, with the tool binding each request to its own calling Session.',
+  },
+  {
     key: 'terminalController',
     pkg: 'api-terminal-controller',
     title: 'Session interactive terminal Remote controller',

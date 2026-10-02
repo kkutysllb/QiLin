@@ -183,6 +183,42 @@ Host service backing the generated `ctx.remote.directoryPicker` namespace. The s
 
 Source: [`packages/api/workspace-controller/src/directory-picker.ts`](../../packages/api/workspace-controller/src/directory-picker.ts)
 
+<a id="ctxsidebaropens--sidebaropens"></a>
+
+### `ctx.sidebarOpens` — `SidebarOpens`
+
+Per-Session open queues with their attached watchers.
+
+One request has one destination: with a watcher attached it is pushed there and forgotten, and with none it waits in the Session's queue until a view attaches. The queue is bounded because a Session nobody is watching must not accumulate requests without end.
+
+```ts cordis-catalog
+/**
+ * Deliver one request to the Session's view, or queue it for the next one.
+ * @param sessionId - the Session whose Sidebar the request targets.
+ * @param request - the resolved request.
+ * @returns whether an attached view consumed it now.
+ */
+enqueue(sessionId: SessionId, request: SidebarOpenRequest): boolean
+
+/**
+ * Watch one Session's opens: what queued while nothing was attached, then
+ * every request as it arrives.
+ * @param sessionId - the Session whose Sidebar is watching.
+ * @param signal - physical Remote stream cancellation.
+ * @returns the queued requests followed by the live ones.
+ */
+@Remote({ mode: 'stream' }) async *watch(sessionId: SessionId, signal: AbortSignal): AsyncIterable<SidebarOpenRequest>
+
+/**
+ * Drop every queue, for a Host that is going away.
+ */
+dispose(): void
+```
+
+Types: [SessionId](core.zh.md)
+
+Source: [`packages/host/sidebar-opens/src/index.ts`](../../packages/host/sidebar-opens/src/index.ts)
+
 <a id="ctxterminalcontroller--terminalcontroller"></a>
 
 ### `ctx.terminalController` — `TerminalController`

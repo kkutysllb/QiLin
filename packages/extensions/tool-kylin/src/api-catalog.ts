@@ -2634,6 +2634,30 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'sidebarOpens',
+    summary: 'Per-Session open queues with their attached watchers.',
+    description: 'Per-Session open queues with their attached watchers.\n\nOne request has one destination: with a watcher attached it is pushed there and forgotten, and with none it waits in the Session\'s queue until a view attaches. The queue is bounded because a Session nobody is watching must not accumulate requests without end.',
+    methods: [
+      {
+        signature: 'enqueue(sessionId: SessionId, request: SidebarOpenRequest): boolean',
+        description: 'Deliver one request to the Session\'s view, or queue it for the next one.',
+        parameters: [{ name: 'sessionId', description: 'the Session whose Sidebar the request targets.' }, { name: 'request', description: 'the resolved request.' }],
+        returns: 'whether an attached view consumed it now.',
+      },
+      {
+        signature: '@Remote({ mode: \'stream\' }) async *watch(sessionId: SessionId, signal: AbortSignal): AsyncIterable<SidebarOpenRequest>',
+        description: 'Watch one Session\'s opens: what queued while nothing was attached, then every request as it arrives.',
+        parameters: [{ name: 'sessionId', description: 'the Session whose Sidebar is watching.' }, { name: 'signal', description: 'physical Remote stream cancellation.' }],
+        returns: 'the queued requests followed by the live ones.',
+      },
+      {
+        signature: 'dispose(): void',
+        description: 'Drop every queue, for a Host that is going away.',
+        parameters: [],
+      },
+    ],
+  },
+  {
     key: 'skills',
     summary: 'Layered registry of skill providers, the host+per-scope shape the tools registry established.',
     description: 'Layered registry of skill providers, the host+per-scope shape the tools registry established. A registration files into the layer of its calling context\'s scope (scopeOf): host rows and repository plugins land in the global layer, while a plugin mounted by an agent preset\'s standing composition lands in that preset\'s layer. A read merges the global layer with the viewing scope\'s chain — the nearest layer\'s entry wins a duplicate name outright, and the rank order decides duplicates only within one layer. It exposes sorted invocation-neutral summaries and loads full skill bodies on demand.',
@@ -7263,6 +7287,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ShellSandboxInfo',
     declaration: 'export interface ShellSandboxInfo {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n    runnerFailed?: boolean;\n}',
+  },
+  {
+    name: 'SidebarOpenRequest',
+    declaration: 'export interface SidebarOpenRequest {\n    readonly id: string;\n    readonly kind: \'file\' | \'url\';\n    readonly target: string;\n    readonly title: string;\n}',
   },
   {
     name: 'SidechatThreadInfo',

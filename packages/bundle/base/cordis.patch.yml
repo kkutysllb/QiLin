@@ -262,6 +262,11 @@
     - id: tool-jobs
       name: '@qilin/tool-jobs'
 
+    # The model-facing "show me that" tool: its requests ride a Remote stream to
+    # the browser's Sidebar, so the service and the tool share one host row.
+    - id: sidebar-opens
+      name: '@qilin/sidebar-opens'
+
     - id: fs-observation-policy
       name: '@qilin/fs-observation-policy'
 

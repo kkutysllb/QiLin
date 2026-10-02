@@ -581,3 +581,34 @@ mdast 在**行内**上下文里是**逐标签**交出 html 节点的（`<sub>` �
 
 - **ZIP 打包下载**：全仓 grep 不到任何浏览器下载面——这不是「补一个 zip writer」，而是要从零建「字节如何到用户磁盘」的能力（认证路由 + 触发手势 + 限额 + 文件名编码）。上游那个 236 行自研 writer 按本仓「能用维护中的依赖就别手搓」的规矩应换成 `fflate`（`session-log-export` 已在 Host 侧使用）。
 - **sidebar_open（模型侧）**：模型可见的新输入，按铁律「模型可见 ⟺ 已记录」必须带 session 事件 + 工具 + 客户端监听，属于会动持久化格式的一类，需要单独设计后再动。
+
+## 批次执行状态补充二十九（2026-10-02 23:20）——批次十一「sidebar_open（模型侧）」进行中
+
+用户选定这一项（ZIP 打包下载按用户回复暂缓）。上半程（宿主面）已完成并验证，下半程（浏览器消费者 + 文档）随后落地。
+
+### 一、为什么是流而不是会话事件
+
+上游用一条专用 WebSocket 推 `sidebar_open` 请求，并明确写了 **consume-on-send**：附着视图在时立刻投递并**丢弃**，否则留在每会话队列里等下一次附着。原因是浏览器 tab 类型没有按 URL 去重，重放会凭空再开一个 tab——所以这条指令**刻意不做持久化**：如果做成会话事件，每次打开会话都会重放历史请求，把用户已经关掉的 tab 再开一遍。
+
+QiLin 的对应缝是 `@Remote({ mode: 'stream' })`（与 `terminalController.follow`、`jobController.follow` 同型）。模型的**工具调用与结果**照旧进会话日志，因此"模型要求了什么"仍可从日志重建；只有"让浏览器现在打开"这一瞬时不落盘。
+
+### 二、宿主面交付（新包 `packages/host/sidebar-opens`）
+
+- `SidebarOpens`（TypertRemoteService）：每会话一个有界队列 + 一个 watcher。`enqueue` 在有人看时投递并返回 `delivered: true`，没人看时入队并**丢弃最旧的**（上限 `maxQueued`，默认 16）；`watch(sessionId, signal)` 先排空队列再转直播，新 watcher 接管旧 watcher，abort/宿主销毁时清理。
+- `sidebar_open` 工具：`path` 或 `url` **恰好一个**。文件经 `ctx.fs.resolve/stat` 验证为**已存在的普通文件**（`exec.signal.throwIfAborted()` 在任何 fs 工作之前），URL 只接受 http(s)；标题取 basename 或 host。返回值只含 `{kind,target,title,delivered}`——Host 铸造的 `id` 留在内部（首版把它一起返回，被工具输出 schema 的 `additionalProperties: false` 当场拦下，这是门禁生效的又一例）。
+- 组合：宿主行加在 `packages/bundle/base/cordis.patch.yml`（与 `tool-jobs` 同组）。**架构判断**：预设是 agent 平面，而预设注释明确要求"服务行必须放进带 `isolate` realm 的组，否则发布到 root realm 会与别的预设冲突、宿主读取者还会解析到别的预设的实例"；本服务正需要**宿主读取者（gateway）解析到同一个实例**，所以服务与工具同放宿主平面（`base` 里已有大量 `tool-*` 行，工具在宿主平面注册是既有做法）。
+- 目录：`LINK_MAP` 增补 `SidebarOpenRequest`（归属本包 README）、`SERVICE_PAGE` 增补 `sidebarOpens: 'workspace.md'`、工具目录重新生成。
+
+### 三、验证（上半程）
+
+新包 9 例全绿：工具四例（URL 入队并报 queued、文件经 fs 验证与 basename 标题、六种非法输入、无 agent）；投递五例（附着即投递且不重放、队列按序重放且超界丢最旧、新 watcher 接管旧 watcher 并 abort 后不再投递、宿主销毁清空、`maxQueued` 非正整数拒绝）。`pnpm run typecheck` 0；`verify-cordis-config` 214 个配置通过；`verify-package-dependencies` 77 包合规。
+
+### 四、浏览器面交付（新包 `packages/client/ui-agent-opens`）
+
+订阅方是**查看中的会话**：`watch(sessionId)` 跟随 `uiSession` 的当前会话，切换会话时退订旧流、订阅新流。收到请求后按 `kind` 分派——URL 走 `sidebarRightTabs.openTab('browser', …)`（tab 类型存在时）否则 `window.open`；文件走 `openResource(fileAddressFor(sessionId, cwd, target))`，与文件树打开同一路径，因此沿用既有的文件校验与标签页策略。
+
+**为什么不放进 `ui-sidebar-right`**：浏览器 tab 类型由 `ui-sidebar-browser` 声明，要打开它就得引用该包，而 `ui-sidebar-browser` 反过来已依赖 `ui-sidebar-right`（tab 域的定义在后者），直接引用会构成包引用环。放到两者之上的新包，只用**类型**导入来命名 browser tab 的 params，环消失。这一层顺带暴露了 `tab-domain.ts` 一个潜伏问题：`openTabIn` 的 K 收窄在 browser 增强进入编译程序后被擦除，参数报错——已把导航器接口改为泛型，`tsc -b tsconfig.client.json` 由此从 0 变红再到 0，属于门禁真实拦住的问题。
+
+### 五、验证（下半程）
+
+`ui-agent-opens` 5 例全绿（URL 命中 tab 类型、URL 退化为 `window.open`、文件走 `openResource`、文件地址缺 cwd 时不动作、会话切换重订阅）。译档门禁 `verify-translation-pairing --write` 写入 3 条（两个 README + `docs/capability-seams.md`）；`gen-doc-graphs` 要求新缝显式声明角色分类，`sidebarOpens` seam 条目已补，否则构建直接失败。

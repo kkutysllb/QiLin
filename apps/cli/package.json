@@ -92,6 +92,7 @@
     "@qilin/tool-fs-search": "workspace:*",
     "@qilin/tool-goal": "workspace:*",
     "@qilin/tool-jobs": "workspace:*",
+    "@qilin/sidebar-opens": "workspace:*",
     "@qilin/tool-kylin": "workspace:*",
     "@qilin/tool-present": "workspace:*",
     "@qilin/tool-pwsh": "workspace:*",

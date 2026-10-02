@@ -2772,6 +2772,23 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin/shell-env -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin/sidebar-opens -->
+<a id="qilinsidebar-opens"></a>
+
+## `@qilin/sidebar-opens`
+
+- `inject`: `tools` · `fs`
+- `source`: [`packages/host/sidebar-opens/src/index.ts:40`](../packages/host/sidebar-opens/src/index.ts)
+
+```ts config-catalog
+/** Deployment limits for the pending queue. */
+export interface Config {
+  /** Open requests a Session may queue while no Sidebar view is attached. */
+  readonly maxQueued: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin/sidebar-opens -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin/skill -->
 <a id="qilinskill"></a>
 
@@ -4254,6 +4271,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin/client-modules` | `loader` | [`packages/client/modules/src/index.ts`](../packages/client/modules/src/index.ts) |
 | `@qilin/client-resources` | — | [`packages/client/resources/src/index.ts`](../packages/client/resources/src/index.ts) |
 | `@qilin/client-ui-account` | — | [`packages/client/ui-account/src/index.ts`](../packages/client/ui-account/src/index.ts) |
+| `@qilin/client-ui-agent-opens` | — | [`packages/client/ui-agent-opens/src/index.ts`](../packages/client/ui-agent-opens/src/index.ts) |
 | `@qilin/client-ui-agent-preset` | — | [`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts) |
 | `@qilin/client-ui-approval` | — | [`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts) |
 | `@qilin/client-ui-attachment` | — | [`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts) |
