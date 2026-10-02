@@ -33,7 +33,8 @@ export interface AgentLoopTestHarness {
    * @param meta - optional fresh-session workspace metadata.
    * @returns the published production Agent after creation completes.
    */
-  create(id: SessionId, options?: AgentOptions, meta?: Pick<SessionHeader, 'cwd'>): Promise<Agent>
+  create(id: SessionId, options?: AgentOptions,
+    meta?: Partial<Pick<SessionHeader, 'cwd' | 'agentPreset' | 'delegationDepth'>>): Promise<Agent>
   /**
    * Admit pending messages through the production loop driver's claim operation.
    * @param agent - Agent returned by this harness's `create` method.

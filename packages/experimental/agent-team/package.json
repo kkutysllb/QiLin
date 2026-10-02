@@ -33,6 +33,14 @@
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
     },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
     "./locale/*.json": "./locale/*.json",
     "./src/*": "./src/*",
     "./package.json": "./package.json"
@@ -42,7 +50,11 @@
     "lib/index.js",
     "lib/invariant.js",
     "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
   ],
   "license": "MIT",
   "dependencies": {
@@ -58,7 +70,8 @@
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",
     "@qilin/session-projection": "workspace:*",
-    "@qilin/subagent": "workspace:*"
+    "@qilin/subagent": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*"
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:~",
@@ -74,6 +87,7 @@
     "@qilin/session-query": "workspace:*",
     "@qilin/subagent": "workspace:*",
     "@qilin/subagent-fork-in-process": "workspace:*",
-    "@qilin/subagent-spawn-in-process": "workspace:*"
+    "@qilin/subagent-spawn-in-process": "workspace:*",
+    "@qilin/typert-protocol": "workspace:*"
   }
 }

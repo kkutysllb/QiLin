@@ -119,6 +119,7 @@ Lead 可以停止 teammate 的当前轮次，而不会删除其排队的消息�
 | [`src/task-board.ts`](src/task-board.ts) | 任务 CAS 命令、DAG 校验与派生视图 |
 | [`src/journal.ts`](src/journal.ts) | 串行化的 Lead 日志事务与提交通知 |
 | [`src/projection.ts`](src/projection.ts) | 解码并校验 Team 事件、发布 `agentTeam` 客户端视图的严格回放投影 |
+| [`src/remote.ts`](src/remote.ts) | 浏览器写入桥 face：wire 错误映射与 `RemoteErrorDetailsMap` 的 Team 扩充 |
 | [`src/task-view.ts`](src/task-view.ts) | 任务板与客户端视图共用的纯任务派生：就绪状态、owner 名称与写入范围重叠 |
 | [`src/activity.ts`](src/activity.ts) | 一次性变更等待者与 dispose（资源释放）时的等待解除 |
 | [`src/lifecycle.ts`](src/lifecycle.ts) | 共享准入截止与有界结算 |
@@ -172,7 +173,11 @@ dispose 会关闭准入、中止并等待已获准的创建与 mailbox dispatch 
 
 `agentTeam` Session 投影发布 Lead Session 的持久成员身份与阶段、成员错误、未删除任务视图，以及最后有效状态旁的 `failure`。其 `apply` 只替换被触及的集合；仅邮箱的变化保留客户端视图引用，不产生 frame。[子系统参考](../../../docs/subsystems/agent-team.zh.md#web-projection) 定义传输类型。
 
-[Web UI](../client-ui-agent-team/README.zh.md) 读取共享 Session 投影，并从 Session 状态叠加活动信息。任务创建与更新由 Team agent 通过服务和模型工具完成。`./client` 导出可供浏览器使用的 roster、任务与投影类型。
+[Web UI](../client-ui-agent-team/README.zh.md) 读取共享 Session 投影，并从 Session 状态叠加活动信息。`./client` 导出可供浏览器使用的 roster、任务与投影类型。
+
+### 浏览器写入桥
+
+服务在 `agentTeams` Typert namespace 上暴露两个 wire 方法——`createTask` 与 `updateTask`——它们是同名服务操作的直接 wire face。`updateTask` 以类型化 action 承载浏览器提供的全部任务板变更：`edit`、`complete`、`reopen`、`delete`、`reassign` 与 `set_dependencies`。wire 调用方是当前活跃的会话 agent；由于 Web 会话提示词路径以 Lead 身份运行，浏览器始终以 Lead 权限写入，teammate 会话会在调用前把写入解析到 Lead。领域拒绝经 `src/remote.ts` 映射到共享 Remote 词汇：`TEAM_TASK_STALE_REVISION` 变为 `agent-team/stale-revision`，非成员调用方变为 `agent-team/not-a-member`，其余 Team 错误变为 `agent-team/rejected` 并在 details 中携带原始 Team code。同一文件还以 Team code 扩充 `RemoteErrorDetailsMap`，让浏览器消费者以类型安全方式分支。读取路径仍走 `agentTeam` 投影；该桥不新增模型可见输入。
 
 ## 模型体验
 

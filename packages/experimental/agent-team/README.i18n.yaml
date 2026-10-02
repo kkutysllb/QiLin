@@ -45,8 +45,8 @@
   en: 62cc9e1343ad5fb1
   zh: df16544571a02a80
 /qilin-experimental-agent-team/understand-the-implementation/source-map:
-  en: 53e2dda7c2adb34c
-  zh: 562590e3d42c029e
+  en: 37613ba9fa961f36
+  zh: d1ae63fff00823e1
 /qilin-experimental-agent-team/understand-the-implementation/team-identity-and-roster:
   en: 85f97723e45e43de
   zh: def66721e21339cc
@@ -69,8 +69,11 @@
   en: 7bf1185e46e3afc7
   zh: 99ffb9a0e8997b2f
 /qilin-experimental-agent-team/further-exploration/browser-projection:
-  en: 247bb258478a6551
-  zh: 4c66ad9888756f26
+  en: 96186095e80f835f
+  zh: 2f6d699872a07730
+/qilin-experimental-agent-team/further-exploration/browser-write-bridge:
+  en: af8b1417a9566469
+  zh: b9ddc7d585d34be5
 /qilin-experimental-agent-team/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90

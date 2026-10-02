@@ -9,12 +9,19 @@ import type {} from '@qilin/api-session-controller/client'
 import {
   IconChevronDownOutline14,
   IconUserOutline16, StateDot, Tag, Tooltip,
-  useAnchoredPosition, useDismissOnOutsidePointer, type StateDotState,
+  useAnchoredPosition, useDismissOnOutsidePointer,
 } from '@qilin/client-ui-primitives'
 import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
 import type { TranslateNS } from '@qilin/client-ui-slots'
 import type {} from '@qilin/client-ui-conversation/client'
-import { NS, type TeamKey } from './locales.ts'
+import type { MemberStatus } from './team-model.ts'
+import {
+  memberDotState,
+  memberStatusKey,
+  statusKey,
+  taskDotState,
+} from './team-model.ts'
+import { NS } from './locales.ts'
 import css from './TeamAction.module.css'
 
 /** Business actions injected by the browser plugin. */
@@ -23,49 +30,9 @@ export interface TeamActionInjected {
   openTeammate: (sessionId: SessionId, childSessionId: SessionId) => void
 }
 
-/** Durable lifecycle overlaid with the member Session's live turn activity. */
-type MemberStatus = 'running' | 'inactive' | 'provisioning' | 'failed'
-
 /** Full props of the Team conversation-header action. */
 export type TeamActionProps =
   PropsRuntime<'conversation.session.header.actions'> & TeamActionInjected & PropsLocale<typeof NS>
-
-function statusKey(status: TeamTask['status']): TeamKey {
-  switch (status) {
-    case 'pending': return 'status.pending'
-    case 'in_progress': return 'status.in_progress'
-    case 'completed': return 'status.completed'
-    /* v8 ignore next -- Team views omit deleted task tombstones. */
-    case 'deleted': return 'status.completed'
-  }
-}
-
-function memberStatusKey(status: MemberStatus): TeamKey {
-  switch (status) {
-    case 'running': return 'memberStatus.running'
-    case 'inactive': return 'memberStatus.inactive'
-    case 'provisioning': return 'memberStatus.provisioning'
-    case 'failed': return 'memberStatus.failed'
-  }
-}
-
-function memberDotState(status: Exclude<MemberStatus, 'inactive'>): StateDotState {
-  switch (status) {
-    case 'running':
-    case 'provisioning': return 'ongoing'
-    case 'failed': return 'error'
-  }
-}
-
-function taskDotState(task: TeamTask): StateDotState {
-  switch (task.status) {
-    case 'pending': return task.ready ? 'idle' : 'warning'
-    case 'in_progress': return 'ongoing'
-    case 'completed': return 'done'
-    /* v8 ignore next -- Team views omit deleted task tombstones. */
-    case 'deleted': return 'idle'
-  }
-}
 
 type TeamMemberRowProps = Pick<TeamActionProps,
   'sessionId' | 'useSessions' | 'useSessionStatus' | 'openTeammate' | 't'

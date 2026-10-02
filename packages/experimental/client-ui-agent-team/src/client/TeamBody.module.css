@@ -1,0 +1,345 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 10px 12px 16px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.toolbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.toolbarText {
+  margin-right: auto;
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.notice {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+}
+
+.warningNotice {
+  color: var(--dsw-alias-state-warning-primary);
+}
+
+.errorNotice {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.noticeClose {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  margin-left: auto;
+  padding: 2px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.noticeClose:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.root h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 8px;
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.count {
+  color: var(--dsw-alias-label-caption);
+  font-size: 12px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+}
+
+.roster {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.member {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);
+  box-shadow: var(--dsw-elevation-stroke);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.member:disabled {
+  cursor: default;
+}
+
+.member:not(:disabled):hover,
+.member:not(:disabled):focus-visible {
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l3);
+  box-shadow: var(--dsw-elevation-panel);
+}
+
+.memberDot {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 1lh;
+}
+
+.inactiveGlyph {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.memberText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.memberName {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.memberNameText,
+.memberText small {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.currentTag {
+  flex: 0 999 auto;
+  min-width: 0;
+  padding: 0 4px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 14%, transparent);
+  color: var(--dsw-alias-state-business-primary);
+  font-size: 10px;
+  line-height: 15px;
+  text-overflow: ellipsis;
+}
+
+.memberText small,
+.meta {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+}
+
+.diagnostic {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task {
+  padding: 11px 13px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 9px;
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+.taskTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.taskTitle strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.taskState {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+}
+
+.taskDescription {
+  margin: 6px 0 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+}
+
+.warning {
+  color: var(--dsw-alias-state-warning-primary);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 8px;
+}
+
+.ownerSelect {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+}
+
+.ownerSelect select {
+  max-width: 140px;
+  min-height: 24px;
+  padding: 1px 4px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  font-size: 11px;
+}
+
+.actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.actionButton,
+.commitButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-3);
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.actionButton:hover:not(:disabled),
+.actionButton:focus-visible,
+.commitButton:hover:not(:disabled),
+.commitButton:focus-visible {
+  color: var(--dsw-alias-label-primary);
+}
+
+.actionButton:disabled,
+.commitButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.deleteArmed {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.toolbarActive {
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.commitButton {
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 18%, transparent);
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 12px;
+  padding: 11px 13px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 9px;
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+.form strong {
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.textInput {
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+}
+
+.textInput::placeholder {
+  color: var(--dsw-alias-label-caption);
+}
+
+.hint {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+}
+
+.form .actions {
+  margin-left: 0;
+}
+
+.emptyNotice {
+  margin: 4px 0 0;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.titleIcon {
+  color: var(--dsw-alias-label-tertiary);
+}

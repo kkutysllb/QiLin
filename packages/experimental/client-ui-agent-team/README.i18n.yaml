@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/client-ui-agent-team/README.md
 /:
-  en: 6deb254c416ff51b
-  zh: e0913c7be837da78
+  en: 13392ac86fb64ae3
+  zh: 99361a9562ec4441
 /qilin-experimental-client-ui-agent-team:
   en: a6a6b0cc2bc5be7a
   zh: a361f60e5b9bdffd
 /qilin-experimental-client-ui-agent-team/summary:
-  en: ff35fda9cb135a6a
-  zh: 53c37372baac0030
+  en: 67f8650d6c862ff3
+  zh: 6a3d58866e9483a5
 /qilin-experimental-client-ui-agent-team/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,11 +21,14 @@
   en: 62778e911a4ee9e9
   zh: dff1dbbc3d5e4af6
 /qilin-experimental-client-ui-agent-team/use-this-package/inspect-the-task-board:
-  en: cf09faa436dad9fd
-  zh: e7423f4111eb88f9
+  en: d1156074d801be53
+  zh: 0b75da44eefbf406
+/qilin-experimental-client-ui-agent-team/use-this-package/edit-tasks-from-the-browser:
+  en: 9a8d5dfd48fdd8e4
+  zh: a230d33942b8e6a2
 /qilin-experimental-client-ui-agent-team/understand-the-implementation:
-  en: a460b6666a503fb0
-  zh: dba02b20bef0fd7f
+  en: 66e09c350db5f083
+  zh: 6b52ed92d76ae542
 /qilin-experimental-client-ui-agent-team/further-exploration:
   en: db8878a3ec1100ba
   zh: 2eb7cb7253d9864c
@@ -36,8 +39,8 @@
   en: b51b320f5e4dacfc
   zh: 6695947c3f9fed28
 /qilin-experimental-client-ui-agent-team/known-limitations-and-deferred-work:
-  en: 254e4aa2f81037d2
-  zh: 3cdf19dffafb51df
+  en: 40dd61294e1e9916
+  zh: ec6cf49efc675e2c
 /qilin-experimental-client-ui-agent-team/known-limitations-and-deferred-work/dev-note:
   en: 317e07f2fd605e55
   zh: 66836ceef6216892

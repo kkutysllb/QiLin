@@ -1,8 +1,9 @@
 /** Agent Teams service façade over roster, mailbox, task, and runtime lifecycle owners. */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context } from '@qilin/kylin'
 import z from '@qilin/schemastery'
 import type { Agent } from '@qilin/agent'
+import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
 import type {} from '@qilin/session-persistence'
 import { TeamActivity } from './activity.ts'
 import { errorMessage, TeamError } from './error.ts'
@@ -10,6 +11,7 @@ import { TeamJournal } from './journal.ts'
 import { TeamRuntimeLifecycle } from './lifecycle.ts'
 import { TeamMailbox } from './mailbox.ts'
 import { teamProjectionDefinition } from './projection.ts'
+import { teamWireError } from './remote.ts'
 import { TeamRoster } from './roster.ts'
 import type { TeamMembership } from './roster.ts'
 import { TeamTaskBoard } from './task-board.ts'
@@ -52,8 +54,13 @@ function positiveLimit(name: string, value: number): number {
   return value
 }
 
-/** Agent Teams service backed by the exact live Lead Session log. */
-export class TeamService extends Service {
+/**
+ * Agent Teams service backed by the exact live Lead Session log. `createTask`
+ * and `updateTask` also carry the browser write bridge through the `agentTeams`
+ * Typert Remote namespace; the wire faces map domain failures onto the shared
+ * Remote failure vocabulary without changing the domain methods' contracts.
+ */
+export class TeamService extends TypertRemoteService {
   static inject = ['agents', 'sessions', 'sessionPersistence', 'sessionProjections', 'subagents']
 
   static Config: z<Config> = z.object({
@@ -198,6 +205,44 @@ export class TeamService extends Service {
    */
   async updateTask(caller: Agent, request: UpdateTeamTaskRequest): Promise<TeamTaskView> {
     return await this.tasks.update(caller, this.roster.membership(caller), request)
+  }
+
+  /**
+   * Wire face of {@link TeamService.createTask}: create one shared task on a
+   * person's behalf through the browser write bridge.
+   * @param agent - exact live Team member resolved from the wire identity.
+   * @param request - subject, description, optional blockers, and optional write scopes.
+   * @returns the revision-one task view.
+   * @throws {RemoteError} `agent-team/not-a-member` when the identity is not a Team member, and
+   *   `agent-team/rejected` when the domain refuses the request.
+   */
+  @Remote('createTask')
+  async remoteCreateTask(agent: Agent, request: CreateTeamTaskRequest): Promise<TeamTaskView> {
+    try {
+      return await this.createTask(agent, request)
+    } catch (error: unknown) {
+      throw teamWireError(error)
+    }
+  }
+
+  /**
+   * Wire face of {@link TeamService.updateTask}: commit one compare-and-set
+   * task transition on a person's behalf. A committed mutation is durable and
+   * never undone by a later wire cancellation.
+   * @param agent - exact live Team member resolved from the wire identity.
+   * @param request - task identity, expected revision, action, and action fields.
+   * @returns the committed next task view.
+   * @throws {RemoteError} `agent-team/not-a-member` when the identity is not a Team member,
+   *   `agent-team/stale-revision` when the expected revision no longer matches, and
+   *   `agent-team/rejected` when the domain refuses the transition.
+   */
+  @Remote('updateTask')
+  async remoteUpdateTask(agent: Agent, request: UpdateTeamTaskRequest): Promise<TeamTaskView> {
+    try {
+      return await this.updateTask(agent, request)
+    } catch (error: unknown) {
+      throw teamWireError(error)
+    }
   }
 
   /**

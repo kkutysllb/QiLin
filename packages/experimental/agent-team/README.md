@@ -119,6 +119,7 @@ The [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-
 | [`src/task-board.ts`](src/task-board.ts) | Task CAS commands, DAG validation, and derived views |
 | [`src/journal.ts`](src/journal.ts) | Serialized Lead-log transactions and commit notification |
 | [`src/projection.ts`](src/projection.ts) | Strict replay projection that decodes and validates Team events and publishes the `agentTeam` client view |
+| [`src/remote.ts`](src/remote.ts) | Browser write-bridge face: wire error mapping and the `RemoteErrorDetailsMap` Team augmentation |
 | [`src/task-view.ts`](src/task-view.ts) | Pure task readiness, owner-name, and write-overlap derivation shared by the task board and the client view |
 | [`src/activity.ts`](src/activity.ts) | One-shot change waiters and disposal release |
 | [`src/lifecycle.ts`](src/lifecycle.ts) | Shared admission cutoff and bounded settlement |
@@ -172,7 +173,11 @@ Read these pages when the package-level contract is not enough. They move from t
 
 The `agentTeam` Session projection publishes the Lead Session's durable roster identities and phases, member errors, non-deleted task views, and any `failure` beside the last valid state. Its `apply` replaces only the touched collection; mailbox-only changes retain the client view reference and produce no frame. The [subsystem reference](../../../docs/subsystems/agent-team.md#web-projection) defines the wire types.
 
-The [Web UI](../client-ui-agent-team/README.md) reads the shared Session projections and overlays activity from Session status. Task creation and updates belong to Team agents through the service and model tools. The `./client` export supplies browser-safe roster, task, and projection types.
+The [Web UI](../client-ui-agent-team/README.md) reads the shared Session projections and overlays activity from Session status. The `./client` export supplies browser-safe roster, task, and projection types.
+
+### Browser write bridge
+
+The service exposes two wire methods on the `agentTeams` Typert namespace — `createTask` and `updateTask` — the direct wire face of the same-named service operations. `updateTask` carries every board mutation the browser offers as a typed action: `edit`, `complete`, `reopen`, `delete`, `reassign`, and `set_dependencies`. The wire caller is the exact live conversation agent; because the Web conversation prompt path runs as the Lead, the browser always writes with Lead authority, and a teammate conversation resolves its writes to the Lead before calling. Domain refusals map onto the shared Remote vocabulary through `src/remote.ts`: `TEAM_TASK_STALE_REVISION` becomes `agent-team/stale-revision`, a non-member caller becomes `agent-team/not-a-member`, and every other Team error becomes `agent-team/rejected` carrying the originating Team code in its details. The same file augments `RemoteErrorDetailsMap` with the Team codes so browser consumers branch on them type-safely. Read paths stay on the `agentTeam` projection; the bridge adds no model-visible input.
 
 ## Model Experience
 
