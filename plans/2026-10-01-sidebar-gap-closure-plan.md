@@ -197,3 +197,11 @@ kind: "plan"
 - **对照证据（同构正确实现）**：`packages/experimental/client-ui-voice-input/src/client/mount.ts` —— 插件级 `inject = ['remote', 'slots', 'locale', 'pluginNavigation']` **不含** `remote.speech`，自挂载的命名空间只出现在内层 `ctx.inject(['remote.speech', ...], registerUi)`。区别正是本次回归点。
 - **修复**：`packages/experimental/client-ui-agent-team/src/client/mount.ts` 拆开两处声明——插件级 `inject` 去掉 `remote.agentTeams`（JSDoc 写明「本插件挂载它，写在这里会永远 PENDING」），新增模块私有 `UI_INJECT = [...inject, 'remote.agentTeams']` 供 `mountAgentTeamUi` 在 `$mount` 完成后的内层注册使用（此时服务已存在，等待立即满足）。同步更新 `tests/browser-plugin.client.spec.ts` 中固化了旧列表的断言并注明原因——该断言现在就是这条契约的回归守卫。
 - **验证**：重建该包 client bundle 后 `default-product-isolation.e2e.ts` **1.6s PASS**（修复前 180s 确定性超时）；包内 8 文件 88/88 过；`pnpm run typecheck` exit 0；oxlint 103 条与基线一致（NEW=0）。probe6 已删除，工作树无探针残留。
+
+## 批次执行状态补充十九（2026-10-02 16:55）——12 批提交落地、3.0.8 发版（tag + Release）
+
+- **提交序列（12 批，逐批过 pre-commit）**：① interaction 仓库/engines 约束 + 删除 src 陈旧产物 ② fs writeBytes 沙箱围栏 ③ workspace-git 解析/失败面覆盖 + 侧栏 guide 7→8 ④ sidechat 全链 ⑤ 预览/文件面覆盖与 README 收口 ⑥ 任务管理图 ⑦ 轨迹图回放/画布/检查器 ⑧ Agent Teams 写面与团队页（含自锁修复）⑨ 类型断言清理与基线纯删 ⑩⑪ 目录再生成 ⑫ 文档与计划。领先 origin 共 41 提交。
+- **提交后终验**：`pnpm run build` ✅ 406 artifacts / 零 src 泄漏；`pnpm run typecheck` ✅ exit 0；hygiene **18/19**（唯一红 vendor rescope 3 处残迹，v3.0.7 基线同红）；doc-sync **41/42**（唯一红 persistence owner 门，已在 `/private/tmp/qilin-v307-web` 基线 worktree 复跑同报 `SessionHeader: schema digest mismatch`）；oxlint 103 条=基线（NEW=0）。修掉一处自造红：计划文档原写提交哈希触发 verify-repository-references，已改述。
+- **发版**：321 manifest 升 3.0.8 → 重建（406 artifacts）→ 发版构建上复验 default-product-isolation **2.0s 通过** → annotated tag `v3.0.8`（tag 对象 6b3905cf，指向 9b3ca5854c）→ `gh release create v3.0.8 --verify-tag`（标题「QiLin 3.0.8 — 对齐上游 coding-sidebar 1.0.36」，说明用本会话中文终稿）。
+- **用户决定：暂不推 main**（远端 main 仍为 f91c39f643 = 3.0.7）。tag-only push 触发 pre-push 的发布门（Release 尚未存在，文档写明的 bootstrap 情形），按仓库文档用一次性 `QILIN_RELEASE_SKIP=first-tag-push-before-release` 推 tag；Release 建好后该门后续推送可正常通过。
+- **遗留观察（非本会话引入）**：`/private/tmp/qilin-v307-web` 基线 worktree 的 `packages/api/job-controller/src/` 下存在 06:19 生成的完整泄漏三件套（types.js / .js.map / .d.ts / .d.ts.map），说明该类残渣来自中断或并发的编译发射而非单一脚本；发射源未定位，`verify-source-artifacts` 是既有守卫（本会话提交树该门为绿）。基线 worktree 暂留，供 main 推送前可能的再次对拍。
