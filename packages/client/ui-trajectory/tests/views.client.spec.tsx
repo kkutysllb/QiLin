@@ -851,6 +851,12 @@ describe('timeline projection', () => {
     expect(view.container.querySelector('[data-timeline-hover-line]')).toBeTruthy()
     fireEvent.pointerEnter(boundary)
     expect(view.container.querySelector('[data-timeline-hover-line]')).toBeNull()
+    // Earlier cases in this file drag with the pointer, which leaves the
+    // document in pointer modality — where the product deliberately keeps
+    // keyboard focus silent. A key returns the document to keyboard modality,
+    // which is what a keyboard user has pressed by the time this control is
+    // focused.
+    fireEvent.keyDown(document.body, { key: 'Tab' })
     fireEvent.focus(boundary)
     expect(screen.getByRole('tooltip').textContent)
       .toContain('Click to load earlier history')

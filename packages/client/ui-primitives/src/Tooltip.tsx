@@ -44,6 +44,7 @@ type TooltipLabel = string | (() => string)
  * @param props.maxWidth - bubble width cap in pixels, for labels long enough that the default
  * half-viewport cap would render a slab wider than the surface the anchor sits on.
  * @param props.children - a single anchor element; its own ref (callback or object) is forwarded alongside the tooltip's.
+ * An anchor that accepts no ref still positions the bubble: a raise records the element the event ran on.
  * @returns the cloned anchor plus a fixed-position bubble while hovered/focused.
  */
 export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disabled = false, portal = false, maxWidth, children }: { label: TooltipLabel; shortcutKeys?: readonly string[] | undefined; side?: TooltipSide; delayMs?: number; disabled?: boolean; portal?: boolean; maxWidth?: number; children: ReactElement<AnchorProps> }) {
@@ -56,6 +57,13 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
     if (typeof childRef === 'function') childRef(el)
     else if (childRef != null) (childRef as MutableRefObject<HTMLElement | null>).current = el
   }, [childRef])
+  // React 18 delivers a ref to forwardRef and DOM anchors only, so a plain
+  // function-component anchor never reaches `mergedRef` at all. Every raising
+  // event still names the node its cloned handler is mounted on, which is the
+  // element that ref would have named; `show()` prefers the ref so a replaced
+  // anchor stays current.
+  const eventAnchor = useRef<Element | null>(null)
+  const trackAnchor = (event: { readonly currentTarget: EventTarget & Element }) => { eventAnchor.current = event.currentTarget }
   // The anchor's edges rather than final coordinates: a vertical flip has to
   // re-derive the bubble's own top from the opposite edge.
   const [pos, setPos] = useState<{ x: number; top: number; bottom: number } | null>(null)
@@ -140,8 +148,8 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
 
   const show = () => {
     if (disabled) return
-    const el = anchor.current
-    /* v8 ignore next -- the ref is attached by event time: events fire on the cloned anchor. */
+    const el = anchor.current ?? eventAnchor.current
+    /* v8 ignore next -- show() only runs from a raising event, which recorded its anchor synchronously. */
     if (el === null) return
     const r = el.getBoundingClientRect()
     // Every show starts from the requested side; the fit pass flips it only
@@ -189,11 +197,18 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
     <TooltipSuppression.Provider value={setSuppressed}>
       {cloneElement(children, {
         ref: mergedRef,
-        onMouseEnter: (e) => { children.props.onMouseEnter?.(e); triggers.current.hover = true; showAfterHoverDelay() },
+        onMouseEnter: (e) => { children.props.onMouseEnter?.(e); trackAnchor(e); triggers.current.hover = true; showAfterHoverDelay() },
         onMouseLeave: (e) => { children.props.onMouseLeave?.(e); triggers.current.hover = false; cancelShow(); withdraw() },
         // Pointer focus is silent: after a mouse selection a closing menu refocuses
         // its trigger, and that programmatic return must not raise the bubble.
-        onFocus: (e) => { children.props.onFocus?.(e); if (pointerModality()) return; triggers.current.focus = true; cancelShow(); show() },
+        onFocus: (e) => {
+          children.props.onFocus?.(e)
+          trackAnchor(e)
+          if (pointerModality()) return
+          triggers.current.focus = true
+          cancelShow()
+          show()
+        },
         onBlur: (e) => { children.props.onBlur?.(e); triggers.current.focus = false; hide() },
       })}
       {portal ? createPortal(bubbleNode, document.body) : bubbleNode}

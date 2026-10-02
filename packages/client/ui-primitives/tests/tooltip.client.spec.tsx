@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Tooltip } from '@qilin/client-ui-primitives'
+import { Button, Tooltip } from '@qilin/client-ui-primitives'
 
 afterEach(cleanup)
 
@@ -404,5 +404,76 @@ describe('Tooltip', () => {
       </Tooltip>,
     )
     expect(screen.getByRole('tooltip').textContent).toBe('Open sidebar')
+  })
+
+  // React 18 hands the merged ref to DOM and forwardRef anchors only, so a
+  // wrapped function component (Button among them) never receives it. The
+  // raising event supplies its own element instead; the cases below pin that
+  // fallback, the ref path it must not disturb, and the input-modality rule
+  // both paths obey.
+  it('positions the bubble from the event element when the anchor forwards no ref', () => {
+    const spy = placed(0, 20, 20)
+    try {
+      render(
+        <Tooltip label="Keyboard shortcut" side="bottom">
+          <Button size="sm">anchor</Button>
+        </Tooltip>,
+      )
+      fireEvent.mouseEnter(screen.getByRole('button', { name: 'anchor' }))
+      const bubble = screen.getByRole('tooltip')
+      expect(bubble.textContent).toBe('Keyboard shortcut')
+      // The anchor's center and bottom edge, which only the event element can
+      // supply for this child.
+      expect(bubble.style.left).toBe('150px')
+      expect(bubble.style.top).toBe('28px')
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  it('raises the bubble on keyboard focus for an anchor that forwards no ref', () => {
+    render(
+      <Tooltip label="Focused">
+        <Button size="sm">plain</Button>
+      </Tooltip>,
+    )
+    fireEvent.focus(screen.getByRole('button', { name: 'plain' }))
+    expect(screen.getByRole('tooltip').textContent).toBe('Focused')
+  })
+
+  it('keeps a DOM anchor on the merged ref and mounts one bubble across both raises', () => {
+    const objectRef = { current: null as HTMLButtonElement | null }
+    render(
+      <Tooltip label="Both paths">
+        <button type="button" ref={objectRef}>anchor</button>
+      </Tooltip>,
+    )
+    const anchor = screen.getByText('anchor')
+    expect(objectRef.current).toBe(anchor)
+    fireEvent.mouseEnter(anchor)
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+    fireEvent.focus(anchor)
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+  })
+
+  it('keeps keyboard focus silent while the pointer owns the modality', () => {
+    render(
+      <Tooltip label="Pointer last">
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    const anchor = screen.getByText('anchor')
+    try {
+      // A pointer press leaves the document in pointer modality: the focus a
+      // closing menu returns to its trigger must not raise the bubble.
+      fireEvent.pointerDown(document.body)
+      fireEvent.focus(anchor)
+      expect(screen.queryByRole('tooltip')).toBeNull()
+    } finally {
+      // Return the document to keyboard modality for the rest of this file.
+      fireEvent.keyDown(document.body, { key: 'Tab' })
+    }
+    fireEvent.focus(anchor)
+    expect(screen.getByRole('tooltip').textContent).toBe('Pointer last')
   })
 })

@@ -81,6 +81,10 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0, o
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   const catalog = createSnapshotStore<readonly ShortcutCatalogEntry[]>([])
+  // SlotTestRuntime stubs the shortcut service with a frozen empty catalog; the
+  // seats read the catalog through the inject hook, so this spec's store
+  // replaces only that value, in the root fiber that provided the service.
+  runtime.ctx.set('shortcuts', { ...runtime.ctx.shortcuts, catalog })
   runtime.slots.installLocale(locale)
   await runtime.declare({
     'sidebar-right.test.opener': { kind: 'single', scope: 'session' },
@@ -817,7 +821,10 @@ describe('slot-owned useTabInfo', () => {
       h.controller.toggleExpanded()
       h.controller.split()
     })
-    const anchor = element(h.view.container, '[data-dockkit-split-button]').parentElement!
+    // The split control is its own tooltip anchor: a focus on an ancestor
+    // raises nothing, and the disabled button is the element the bubble
+    // measures.
+    const anchor = element(h.view.container, '[data-dockkit-split-button]')
     fireEvent.focus(anchor)
     expect(document.querySelector('[role="tooltip"]')?.getAttribute('aria-label')).toBe('Two panes is the limit ⌘ \\')
     act(() => { h.catalog.set([{ ...split, binding: { code: 'KeyG', modifiers: ['control'] },
