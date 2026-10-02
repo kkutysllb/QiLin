@@ -361,3 +361,27 @@ kind: "plan"
 - 根因：Tooltip 用 `cloneElement(children, { ref: mergedRef })` 送 ref，而 **React 18 不会把 ref 作为 props 交给普通函数组件**；`ui-primitives` 的 `Button` 正是普通函数组件（无 `forwardRef`）。于是 ref 静默丢失。
 - 影响面：**所有把 Tooltip 包在非 forwardRef 组件外的用法都不显示 tooltip**。已确认同因的 4 例（`ui-sidebar-right` 3 例 + `ui-trajectory` 1 例）在本会话开始前的提交上用 `git checkout` 对拍**同样红**，属既有缺陷而非本会话回归。
 - 处置：单独一批修根因（优先在 Tooltip 侧用 `event.currentTarget` 兜底，一次修好所有非 forwardRef 子元素；不得弱化断言、不得退化 `portal`/`delayMs`/`disabled`/`side` 翻转/嵌套抑制/owner ref 转发）。
+
+## 批次执行状态补充二十六（2026-10-02 20:45）——批次五「Tooltip 锚点定位修复」与根因归属订正
+
+补充二十五把 4 例 `Unable to find role="tooltip"` 全归因于 Tooltip 的 ref 缺陷。逐例 A/B 后**只有 1 例成立**，其余 3 例各有独立根因——订正如下（提交主体：`fix(ui-primitives): position a tooltip from an anchor that accepts no ref`）。
+
+### 一、成立的那一例（产品缺陷，已修）
+
+React 18 只把 `ref` 交给 `forwardRef` 与 DOM 元素；普通函数组件收不到，`cloneElement` 的 merged ref 从不运行 → `anchor.current` 恒 null → `show()` 在发布坐标前早返回 → **气泡永不挂载**。`ui-primitives` 的 `Button` 正是普通函数组件，所有把 Tooltip 包在非 forwardRef 组件外的用法对用户都是静默的（`ui-sidebar-right` 的展开按钮即一例）。
+
+修复走「事件节点兜底」：克隆的每个升起 handler 同步记下 `event.currentTarget`，`show()` 取 `anchor.current ?? eventAnchor.current`，优先 ref（锚点被替换后仍取新节点）。接受 ref 的锚点行为逐字不变（owner ref 转发、portal、delayMs、disabled 丢弃、side 翻转、嵌套抑制）。新增 4 例测试（函数组件 hover 与键盘、DOM 锚点单气泡、指针模态静默后按键恢复）。
+
+### 二、另外 3 例（测试侧缺陷，非 Tooltip）
+
+| 用例 | 真因 |
+|---|---|
+| `ui-sidebar-right › keeps the current binding in the disabled split tooltip…` | 该 spec 的 `mountSeat` 建了 shortcuts catalog 快照 store **却从未接进运行时**（提交 `f451cb68c1` 自述删掉重复 provide、断言却留着），于是 `h.catalog.set(...)` 全是空转；且它 focus 的是分割按钮的**父节点**，而 Tooltip 的 handler 挂在按钮本体上。修：按运行时既有 `ctx.set` 惯例接线 catalog，focus 改为真正的锚点。 |
+| `ui-sidebar-right › advertises configured pane and page-close controls` | **与 tooltip 无关**（断言 `aria-keyshortcuts`），失效原因同为上面的「catalog 未接线」。 |
+| `ui-trajectory › marks an unloaded history prefix…` | 锚点是 DOM `<button>`（ref 正常）。真因是 `input-modality.ts` 的模块级 `pointer` 标志被同文件更早的 `pointerDown` 置真后不复位，而产品**故意**在指针模态下让键盘 focus 静默——这就是历史上被登记为「tooltip flake／顺序污染」的那条。修：focus 前补一次 `keyDown(Tab)`，把「键盘用户按过键」显式化。 |
+
+三例的 A/B 取证方式：把 `Tooltip.tsx` 换回 HEAD 原版后，这两组测试侧修复**依然全绿**，反证与 Tooltip 缺陷无关。
+
+### 三、验证
+
+四例验收：`expand-button + seat + views` **84/84 通过**（修复前 4 红）。`ui-primitives` 包 1001 例全绿；四文件 + 整包合计 1085 例全绿。`tsc -b tsconfig.client.json` exit 0；`oxlint` 全仓 **88 = 基线，净新增 0**；`Tooltip.tsx` 覆盖率 **100/100/100/100**（并入其 5 个消费者包口径）。此后 `test:gui` 由 6 红降到 **1 红**（`ui-theme` 的 ModelSelect 滚动面，A/B 证实预存）。
