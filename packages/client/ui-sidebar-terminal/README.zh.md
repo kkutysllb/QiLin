@@ -45,6 +45,8 @@ kind: "package-reference"
 
 输出流中打印的 http(s) URL 会成为链接：屏幕注册 xterm link provider，逐行扫描出每个 URL 并给出其缓冲区范围。普通点击仍是 xterm 的文本选择手势，只有按住 Ctrl（Windows/Linux）或 Cmd（macOS）才打开目标。插件把它开在终端旁边的侧栏内置浏览器里；该 tab 类型未被组合进来时退回新开浏览器标签页。扫描只认 http(s)，因此打印出的 `file://` 或 `mailto:` URL 保持纯文本，协议白名单在激活时再挡一次。
 
+终端屏幕按 `ui-sidebar-terminal` 设置段测量：字体系列（留空即使用内置等宽字体栈）与以 CSS 像素为单位的字号。通用设置行编辑这两项，失焦或回车提交，改动立即重新测量字符网格。解析出的字体栈始终以通用族收尾——否则无法解析的字体名会落到浏览器按比例排版的默认字体上，导致字符网格崩坏而不只是丢字体——并追加 Nerd Font 族，使提示符图标能从私有使用区解析出来。仅含符号的补丁族排在第一个通用族之前，完整补丁的发行版排在其后，因为带拉丁字形的字体若排在开头的通用族之前会成为测量基准并覆盖用户请求的字体。
+
 Session header contribution 查询 Host 终端，只打开没有现有标签关联的终端。终端 controller 独立保存每个全局唯一内容身份与 Host 的关联，并负责内容恢复；侧栏负责布局持久化。恢复视图不能分配替代进程。侧栏关闭 handler 通过[终端 controller](../../api/terminal-controller/README.zh.md#understand-the-implementation)安排清理并同步返回。浏览器组件清理和 tab 的 abort signal 只停止浏览器工作。
 
 插件启动时，侧栏完整打开标签清单中的 terminal 条目会持有相匹配的已保存 Host 身份，包括非当前 Session。窗口持有关系独立于 React 挂载和屏幕订阅。删除最后一个匹配的 occurrence 会释放持有关系；折叠或切换视图不会释放。[终端控制器](../../api/terminal-controller/README.zh.md#use-this-package) 负责无人持有时的空闲回收和长命令保护。
@@ -71,6 +73,7 @@ Session header contribution 查询 Host 终端，只打开没有现有标签关�
 
 <a id="known-limitations-and-deferred-work"></a>
 
+- **字体偏好不做探测。** 浏览器无法解析的字体名不会被检测出来；通用族收尾保证网格完好，只是请求的字体未被采用。终端字体设置位于通用设置页，而非终端卡片旁边。
 - 默认 shell 或原生 PTY 可能启动失败。标签页显示错误，不启动其他 shell。
 - 补全菜单和内联建议取决于 shell 配置，Web UI 不提供独立补全引擎。
 - 应用的 OSC 颜色覆盖由已挂载的渲染器保留；新打开的渲染器无法从 Host 屏幕快照恢复这些颜色。

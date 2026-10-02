@@ -2127,6 +2127,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'client-ui-settings-general CurrentVersionRow id \'current-version\'',
       'client-ui-settings-session-log UploadRow',
       'client-ui-shortcuts ShortcutsRow id \'shortcuts\'',
+      'client-ui-sidebar-terminal TerminalFontRow id \'terminal-font\'',
       'client-ui-theme AppearanceRow id \'appearance\'',
       'client-ui-theme FontSizeRow id \'font-size\'',
       'client-ui-theme LineSpacingRow id \'line-spacing\'',

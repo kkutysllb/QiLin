@@ -33,6 +33,15 @@
       "path": "../ui-session"
     },
     {
+      "path": "../../../vendor/schemastery"
+    },
+    {
+      "path": "../../settings/settings"
+    },
+    {
+      "path": "../ui-settings"
+    },
+    {
       "path": "../ui-sidebar-browser"
     },
     {

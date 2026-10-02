@@ -14,7 +14,11 @@ export interface TerminalInjected {
 
 /** The terminal screen follows the resolved application theme through a framework hook. */
 export interface TerminalBodyInjected extends TerminalInjected {
-  readonly hooks: { readonly theme: HostObservable<ThemeSnapshot> }
+  readonly hooks: {
+    readonly theme: HostObservable<ThemeSnapshot>
+    /** The font the screen measures with, resolved from the user's preference. */
+    readonly font: HostObservable<{ readonly fontFamily: string; readonly fontSize: number }>
+  }
   /**
    * Open one URL a terminal line carries, in the destination this application
    * uses for a link.

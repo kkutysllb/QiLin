@@ -17,7 +17,7 @@ const fake = vi.hoisted(() => ({
   dimensions: { cols: 120, rows: 40 } as { cols: number; rows: number } | undefined,
 }))
 class FakeTerminal {
-  options: { disableStdin?: boolean; theme?: ITheme }
+  options: { disableStdin?: boolean; theme?: ITheme; fontFamily: string; fontSize: number }
   textarea: HTMLTextAreaElement | undefined = document.createElement('textarea')
   input: ((data: string) => void) | undefined
   readonly disposeInput = vi.fn()
@@ -43,11 +43,11 @@ class FakeTerminal {
     this.linkProvider = provider
     return { dispose: this.disposeLinks }
   })
-  constructor(options: object) { this.options = options; fake.terminals.push(this) }
+  constructor(options: FakeTerminal['options']) { this.options = options; fake.terminals.push(this) }
   open(node: HTMLElement) { node.appendChild(this.textarea!) }
   onData(input: (data: string) => void) { this.input = input; return { dispose: this.disposeInput } }
 }
-vi.mock('@xterm/xterm', () => ({ Terminal: vi.fn(function (options: object) { return new FakeTerminal(options) }) }))
+vi.mock('@xterm/xterm', () => ({ Terminal: vi.fn(function (options: object) { return new FakeTerminal(options as FakeTerminal['options']) }) }))
 vi.mock('@xterm/addon-fit', () => ({ FitAddon: class { proposeDimensions() { return fake.dimensions } } }))
 
 let measure: (() => void) | undefined
@@ -89,6 +89,7 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
   }
   const openTab = vi.fn()
   const openUrl = vi.fn()
+  let font = { fontFamily: 'User Mono, monospace', fontSize: 13 }
   const tab = () => ({ tab: { id: 'tab', title: 'Terminal', visible, actions: { openTab } } })
   // The test supplies the owner and model hooks consumed here; the remaining slot props are framework-owned.
   const props = {
@@ -97,10 +98,12 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
     useTheme: (select: (value: ThemeSnapshot) => unknown) => select(theme),
     useTabInfo: tab, t: makeTranslate(dictionary),
     openUrl,
+    useFont: (select: (value: { fontFamily: string; fontSize: number }) => unknown) => select(font),
   } as TerminalBodyProps
   const view = render(<TerminalBody {...props} />)
   return {
     view, props, model, detach, openTab, openUrl,
+    changeFont(next: { fontFamily: string; fontSize: number }) { font = next; view.rerender(<TerminalBody {...props} />) },
     changeTheme() { theme = { ...theme, revision: theme.revision + 1 }; view.rerender(<TerminalBody {...props} />) },
     update(next: TerminalViewState | undefined, shown = visible) {
       state = next; visible = shown; view.rerender(<TerminalBody {...props} />)
@@ -474,4 +477,28 @@ it('reports no links for a line without a URL and for a row outside the buffer',
   expect(answers).toEqual([undefined, undefined])
   h.view.unmount()
   expect(terminal.disposeLinks).toHaveBeenCalledOnce()
+})
+
+it('creates the screen with the resolved font and re-measures when the preference changes', () => {
+  const h = mount({ ...idle, info, phase: 'connected', writable: true })
+  const terminal = fake.terminals[0]!
+  expect(terminal.options.fontFamily).toBe('User Mono, monospace')
+  expect(terminal.options.fontSize).toBe(13)
+
+  h.changeFont({ fontFamily: 'Adopted Mono, monospace', fontSize: 18 })
+  expect(terminal.options.fontFamily).toBe('Adopted Mono, monospace')
+  expect(terminal.options.fontSize).toBe(18)
+  expect(terminal.resize).toHaveBeenCalled()
+
+  // Re-publishing the same font leaves the emulator alone.
+  terminal.resize.mockClear()
+  h.changeFont({ fontFamily: 'Adopted Mono, monospace', fontSize: 18 })
+  expect(terminal.resize).not.toHaveBeenCalled()
+
+  // A hidden screen still takes the new options; it re-measures when shown.
+  terminal.resize.mockClear()
+  h.update({ ...idle, info, phase: 'connected', writable: true }, false)
+  h.changeFont({ fontFamily: 'Later Mono, monospace', fontSize: 20 })
+  expect(terminal.options.fontFamily).toBe('Later Mono, monospace')
+  expect(terminal.resize).not.toHaveBeenCalled()
 })

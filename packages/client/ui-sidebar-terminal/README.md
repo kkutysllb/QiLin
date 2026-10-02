@@ -45,6 +45,8 @@ This plugin registers the `terminal` type and body/title seats with the right si
 
 An http(s) URL printed in the stream becomes a link: the screen registers an xterm link provider whose per-line scan finds every URL and reports its buffer range. A plain click stays xterm's text-selection gesture, and only Ctrl (Windows/Linux) or Cmd (macOS) opens the target. The plugin opens it in the Sidebar's own browser beside the terminal, and falls back to a new browser tab when that tab type is not composed. The scan reads only http(s), so a printed `file://` or `mailto:` URL stays plain text, and the scheme guard refuses anything else at activation.
 
+The screen measures with the `ui-sidebar-terminal` settings section: a font family (empty selects the built-in monospace stack) and a size in CSS pixels. The General Settings row edits both, committing on blur or Enter, and a change re-measures the grid immediately. The resolved stack is always terminated with a generic family — an unresolvable name would otherwise fall through to the browser's proportional standard font and break the cell grid rather than merely losing the requested typeface — and is topped up with Nerd Font families so prompt icons resolve from the Private Use Areas. The symbols-only patches are appended ahead of the first generic and the fully patched distributions after it, because a Latin-carrying font in front of a leading generic would become the measuring base and override the requested family.
+
 A Session header contribution queries Host terminals and opens only those without an existing tab association. The terminal controller saves each globally unique content identity's Host association independently and owns content recovery; the sidebar owns layout persistence. A recovered view cannot allocate a replacement process. The sidebar's close handler schedules cleanup through the [terminal controller](../../api/terminal-controller/README.md#understand-the-implementation) and returns synchronously. Browser component cleanup and the tab's abort signal only detach browser work.
 
 At plugin startup, terminal-kind entries in the sidebar's complete open-tab inventory retain matching saved Host identities, including dormant Sessions. This window hold remains independent of React mounts and screen subscriptions. Removing the last matching occurrence releases it; collapsing or switching views does not. The [terminal controller](../../api/terminal-controller/README.md#use-this-package) owns unattended idle reclamation and long-command protection.
@@ -71,6 +73,7 @@ None; terminal output travels only between the browser and Host.
 
 <a id="known-limitations-and-deferred-work"></a>
 
+- **The font preference is not probed.** A family the browser cannot resolve is not detected; the generic terminator keeps the grid intact and the requested typeface is simply not used. Terminal font settings live in General Settings rather than beside the terminal card.
 - Shell discovery or native PTY startup can fail. The tab reports the failure without launching a different shell.
 - Completion menus and inline suggestions depend on shell configuration. The Web UI adds no independent completion engine.
 - Application OSC color overrides are retained by the mounted renderer; a newly opened renderer cannot recover them from the Host screen snapshot.

@@ -22,9 +22,10 @@ export type TerminalBodyProps = PropsRuntime<'sidebar.right.pane.tab'> & PropsLo
  * @param props - sidebar occurrence, model lookup and translated copy.
  * @returns the terminal screen and any pending or exceptional state.
  */
-export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, openUrl, t }: TerminalBodyProps): ReactNode {
+export function TerminalBody({ useTabInfo, useTerminal, useTheme, useFont, view, openUrl, t }: TerminalBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const theme = useTheme(value => value)
+  const font = useFont(value => value)
   const model = view(tab.id)
   const state = useTerminal(tab.id)
   useEffect(() => model.mount(), [model])
@@ -64,19 +65,20 @@ export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, openUrl,
           : <Button variant="outline" size="sm" onClick={() => { model.connect() }}>{t('reconnect')}</Button>)}
         {ended && newTerminal}
       </div>}
-      {state.info !== undefined && <TerminalScreen state={state} model={model} visible={tab.visible} label={t('title')} theme={theme} openUrl={openUrl} />}
+      {state.info !== undefined && <TerminalScreen state={state} model={model} visible={tab.visible} label={t('title')} theme={theme} font={font} openUrl={openUrl} />}
       {error !== undefined && <p className={css.error} role="alert">{t('failed', { message: error })}</p>}
     </section>
   )
 }
 
 /* oxlint-disable typescript/no-non-null-assertion -- React sets the DOM ref, then these effects initialize and use the emulator. */
-function TerminalScreen({ state, model, visible, label, theme, openUrl }: {
+function TerminalScreen({ state, model, visible, label, theme, font, openUrl }: {
   state: TerminalViewState
   model: TerminalView
   visible: boolean
   label: string
   theme: ThemeSnapshot
+  font: { readonly fontFamily: string; readonly fontSize: number }
   openUrl: (url: string) => void
 }): ReactNode {
   const element = useRef<HTMLDivElement>(null)
@@ -90,10 +92,17 @@ function TerminalScreen({ state, model, visible, label, theme, openUrl }: {
   // opener may be rebuilt with its registration, so the handler reads it late.
   const opener = useRef(openUrl)
   opener.current = openUrl
+  // A font change moves the cell metrics, so the screen must re-measure after
+  // the options land rather than only re-rendering.
+  const fontRef = useRef(font)
+  fontRef.current = font
 
   useLayoutEffect(() => {
     const node = element.current!
-    const xterm = new Terminal({ minimumContrastRatio: 4.5, cursorBlink: true, fontSize: 13, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', scrollback: current.current.state.environment?.scrollback ?? 0 })
+    const xterm = new Terminal({
+      minimumContrastRatio: 4.5, cursorBlink: true, fontSize: font.fontSize, fontFamily: font.fontFamily,
+      scrollback: current.current.state.environment?.scrollback ?? 0,
+    })
     const addon = new FitAddon()
     xterm.loadAddon(addon)
     xterm.open(node)
@@ -154,6 +163,19 @@ function TerminalScreen({ state, model, visible, label, theme, openUrl }: {
     const style = getComputedStyle(element.current!)
     colors.current!.update(style.backgroundColor, style.color)
   }, [theme, model])
+
+  useLayoutEffect(() => {
+    const xterm = terminal.current!
+    if (xterm.options.fontFamily === font.fontFamily && xterm.options.fontSize === font.fontSize) return
+    xterm.options.fontFamily = font.fontFamily
+    xterm.options.fontSize = font.fontSize
+    // The cell metrics moved with the font, so a visible screen re-measures now
+    // rather than at the next resize.
+    const node = element.current
+    if (visible && state.writable && node?.clientWidth && node.clientHeight) {
+      fitScreen(xterm, fit.current!, state, model)
+    }
+  }, [font, state, visible, model])
 
   useLayoutEffect(() => {
     const xterm = terminal.current!

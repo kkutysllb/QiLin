@@ -5442,6 +5442,10 @@ importers:
         version: 18.3.1(react@18.3.1)
 
   packages/client/ui-sidebar-terminal:
+    dependencies:
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
     devDependencies:
       '@qilin/api-remotes':
         specifier: workspace:*
@@ -5476,6 +5480,9 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin/client-ui-settings':
+        specifier: workspace:*
+        version: link:../ui-settings
       '@qilin/client-ui-sidebar-browser':
         specifier: workspace:*
         version: link:../ui-sidebar-browser
@@ -5494,6 +5501,9 @@ importers:
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin/settings':
+        specifier: workspace:*
+        version: link:../../settings/settings
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

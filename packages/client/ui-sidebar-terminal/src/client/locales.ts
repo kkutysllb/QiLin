@@ -22,6 +22,10 @@ export const zh = {
   attachmentEnded: '终端连接已结束，请重新连接。',
   invalidOutput: '终端画面传输异常，请重新连接。',
   terminalLimit: '终端数量已达上限，请关闭不用的终端后重试。已退出的终端也计入数量。',
+  'settings.font.title': '终端字体',
+  'settings.font.description': '终端测量字符网格所用的字体与字号。留空字体系列即使用内置等宽字体栈；提示图标会自动追加 Nerd Font 回退。',
+  'settings.font.family': '字体系列',
+  'settings.font.size': '字号（像素）',
 } satisfies Record<string, string>
 
 /** English terminal copy. */
@@ -39,4 +43,8 @@ export const en = {
   attachmentEnded: 'The terminal connection ended. Reconnect to continue.',
   invalidOutput: 'The terminal screen could not be received. Reconnect to recover it.',
   terminalLimit: 'The terminal limit has been reached. Close unused terminals and try again. Exited terminals also count toward the limit.',
+  'settings.font.title': 'Terminal font',
+  'settings.font.description': 'The family and size the terminal measures its character grid with. An empty family uses the built-in monospace stack; icon fonts are appended as fallbacks.',
+  'settings.font.family': 'Font family',
+  'settings.font.size': 'Size (px)',
 } satisfies Record<keyof typeof zh, string>

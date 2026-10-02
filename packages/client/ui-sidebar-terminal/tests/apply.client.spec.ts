@@ -12,6 +12,7 @@ import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/clie
 import type { SidebarRightCloseHandler } from '@qilin/client-ui-sidebar-right/client'
 import type { SidebarRightOpenTab } from '@qilin/client-ui-sidebar-right/client'
 import { apply, inject } from '../src/client/index.ts'
+import { TerminalFontRow, type TerminalFontRowInjected } from '../src/client/TerminalFontRow.tsx'
 import { apply as hostApply } from '../src/index.ts'
 import { TerminalGuide, type TerminalGuideInjected } from '../src/client/TerminalGuide.tsx'
 import { LazyTerminalBody } from '../src/client/LazyTerminalBody.tsx'
@@ -20,6 +21,7 @@ import { TerminalRecovery, type TerminalRecoveryInjected } from '../src/client/T
 import { TerminalCleanup, type TerminalCleanupInjected } from '../src/client/TerminalCleanup.tsx'
 import type { TerminalBodyInjected } from '../src/client/face.ts'
 import { en, zh } from '../src/client/locales.ts'
+import { DEFAULT_TERMINAL_FONT_SIZE, TERMINAL_SETTINGS_NAMESPACE, TerminalSettingsSchema, type TerminalSettings } from '../src/terminal-settings.ts'
 
 vi.mock('@xterm/xterm', () => ({ Terminal: vi.fn() }))
 const renderedTerminal = vi.hoisted(() => vi.fn(() => null))
@@ -29,7 +31,7 @@ afterEach(() => { cleanup(); renderedTerminal.mockClear() })
 
 const terminalInfo = (id: string): WebTerminalInfo => ({ id: id as WebTerminalId, title: id, shell: { path: '/bin/sh', name: 'sh', args: ['-i'] }, cwd: '/workspace', cols: 80, rows: 24, state: 'running', exitCode: null })
 
-async function mountPlugin() {
+async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User Mono', fontSize: 15 }) {
   const ctx = new Context()
   const tabs = new SidebarRightTabRegistry(ctx)
   ctx.provide('sidebarRightTabs', tabs)
@@ -70,9 +72,22 @@ async function mountPlugin() {
   } as never)
   const theme = { preference: 'light' as const, fontSize: 14, leading: 0, active: { id: 'light', colorScheme: 'light' as const, tokens: {} }, themes: [], revision: 0 }
   ctx.provide('theme', { getTheme: () => theme } as never)
+  // The terminal section as the settings service serves it: one accepted
+  // value, observed, with a recording write queue.
+  const settings = createSnapshotStore<{ value: TerminalSettings | undefined }>({ value: stored ?? undefined })
+  const setField = vi.fn(async () => true)
+  const configForms = {
+    get: vi.fn(() => ({
+      getSnapshot: () => settings.getSnapshot(),
+      subscribe: (listener: () => void) => settings.subscribe(listener),
+      set: setField,
+    })),
+  }
+  ctx.provide('configForms', configForms as never)
   const fiber = await ctx.plugin({ inject, apply })
   return {
     tabs, entries, dictionaries, terminals, model, occurrence, openTabIn, openTab, tabsIn, openTabs, theme,
+    settings, setField,
     emitTheme() { ctx.emit('theme/change', theme) },
     get closeHandler() { return closeHandler },
     setParams(next: typeof params) { params = next },
@@ -80,8 +95,15 @@ async function mountPlugin() {
   }
 }
 
+it('registers the durable font section when a settings provider exists', () => {
+  const registered: [string, unknown][] = []
+  const provider = { settings: { register: (name: string, schema: unknown) => { registered.push([name, schema]) } } }
+  const ctx = { inject: (names: string[], run: (scoped: typeof provider) => void) => { expect(names).toEqual(['settings']); run(provider) } }
+  hostApply(ctx as never)
+  expect(registered).toEqual([[TERMINAL_SETTINGS_NAMESPACE, TerminalSettingsSchema]])
+})
+
 it('registers terminal views, recovery and cleanup, then releases every contribution on unload', async () => {
-  expect(hostApply).not.toThrow()
   const h = await mountPlugin()
   try {
     const definition = h.tabs.get('terminal')!
@@ -100,8 +122,30 @@ it('registers terminal views, recovery and cleanup, then releases every contribu
       ['sidebar.right.pane.tab.title', TerminalTitle, 'sidebarTerminal'],
       ['conversation.session.header.actions', TerminalRecovery, 'sidebarTerminal'],
       ['shell.overlay', TerminalCleanup, 'sidebarTerminal'],
+      ['settings.general.item', TerminalFontRow, 'sidebarTerminal'],
     ])
     const sessionId = 'session' as SessionId
+    const row = h.entries.at(-1)!.inject(sessionId) as TerminalFontRowInjected
+    expect(row.hooks.font.getSnapshot()).toEqual({ fontFamily: 'User Mono', fontSize: 15 })
+    const body = h.entries.find(entry => entry.component === LazyTerminalBody)!.inject(sessionId) as TerminalBodyInjected
+    expect(body.hooks.font.getSnapshot().fontFamily.startsWith('User Mono, ')).toBe(true)
+    row.setFont({ fontSize: 20 })
+    expect(row.hooks.font.getSnapshot().fontSize).toBe(20)
+    expect(body.hooks.font.getSnapshot().fontSize).toBe(20)
+    expect(h.setField).toHaveBeenCalledWith('fontSize', 20)
+    const seen = vi.fn()
+    const unsubscribeFont = body.hooks.font.subscribe(seen)
+    const unsubscribeRow = row.hooks.font.subscribe(seen)
+    h.settings.set({ value: { fontFamily: 'Accepted', fontSize: 22 } })
+    expect(row.hooks.font.getSnapshot()).toEqual({ fontFamily: 'Accepted', fontSize: 22 })
+    expect(seen).toHaveBeenCalledTimes(2)
+    unsubscribeFont()
+    unsubscribeRow()
+    // A write that cannot be persisted still applies locally.
+    h.setField.mockRejectedValueOnce(new Error('offline'))
+    row.setFont({ fontSize: 9 })
+    await Promise.resolve()
+    expect(body.hooks.font.getSnapshot().fontSize).toBe(9)
     const launcher = h.entries[0]!.inject(sessionId) as TerminalGuideInjected
     const signal = new AbortController().signal
     await launcher.loadShells(signal)
@@ -261,4 +305,24 @@ it('opens a terminal link beside the terminal, and falls back to a browser tab w
     opened.mockRestore()
   }
   await h.dispose()
+})
+
+it('measures with the built-in font until the Host publishes a stored section', async () => {
+  const h = await mountPlugin(null)
+  try {
+    const sessionId = 'session' as SessionId
+    const row = h.entries.at(-1)!.inject(sessionId) as TerminalFontRowInjected
+    const body = h.entries.find(entry => entry.component === LazyTerminalBody)!.inject(sessionId) as TerminalBodyInjected
+    expect(row.hooks.font.getSnapshot()).toEqual({ fontFamily: '', fontSize: DEFAULT_TERMINAL_FONT_SIZE })
+    expect(body.hooks.font.getSnapshot().fontSize).toBe(DEFAULT_TERMINAL_FONT_SIZE)
+    // A later publish still carries nothing: the fallback stands.
+    const seen = vi.fn()
+    const unsubscribe = body.hooks.font.subscribe(seen)
+    h.settings.set({ value: undefined })
+    expect(seen).not.toHaveBeenCalled()
+    expect(body.hooks.font.getSnapshot().fontSize).toBe(DEFAULT_TERMINAL_FONT_SIZE)
+    unsubscribe()
+  } finally {
+    await h.dispose()
+  }
 })
