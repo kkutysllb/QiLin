@@ -538,3 +538,46 @@ mdast 在**行内**上下文里是**逐标签**交出 html 节点的（`<sub>` �
 | 其余门禁 | `verify-package-dependencies` 77 包合规、`verify-client-packages` 66 包合规、`verify-export-jsdoc` 全绿、`verify-client-ui-i18n` 947 文件合规、`verify-no-unknown-casts` 零新增（且总数由 1672 降到 1671）、`hygiene` 18 过 / 1 红（vendor rescope 预存） |
 
 被门禁拦下的真问题两处：新依赖 `@qilin/settings` 必须放在 `devDependencies` 且用 `workspace:*`（Host 类型导入不是发布依赖）；新增的槽位注册必须重跑 `gen-client-catalog`（客户端槽位目录是生成物）。
+
+## 批次执行状态补充二十八（2026-10-02 23:00）——批次十「会话级变更清单 + 变更目录树」
+
+目标清单里的「变更目录树与会话级变更清单」落地，分两个提交：`feat(workspace-changes): fold a Session's changed files across its turns` 与 `feat(client-ui-deliverables): open a Session changes page from the guide`。
+
+### 一、为什么是「折叠」而不是「再记一份」
+
+`workspace-changes` 的 recorder 在 Session 存活期内一直按事件序号保存每轮的 summary（`records: Map<seq, TurnRecord>`），所以会话级视图只是对**已有记录**做一次折叠，不需要新增记录面：
+- `files`：按路径去重、按 `display` 排序；每个文件的**行数与标记取自列出它的最新一轮**（重写读作它留下的那次 delta，而不是每次重写的总和），`turns` 承载churn；
+- `total` = 去重后的文件数，`added`/`deleted` = 各轮**完整**计数之和（因此包含被单轮 `maxFiles` 截断掉的文件的贡献）；
+- `lastSeq`/`lastIndex` 指向最新一轮在该轮 summary 里的坐标，于是行点击可以复用**既有**的 `/api/changes.diff`，不新增差异渲染。
+
+服务方法 `workspaceChanges.session(sessionId)` + 认证路由 `GET /api/changes.session`（工作目录仍留在 Host 侧），客户端 `changes.ts` 新增 URL/校验器，页面本身是**按 kind 打开的页面类型**（与 Git 面板同型，不认领地址），因此不需要新的地址文法。
+
+### 二、目录树
+
+`changes-tree.ts` 是通用纯模块（上游 1.0.37 同款语义，按本仓需要裁剪）：目录先于文件、各按大小写不敏感的字母序、**单子链压缩**（自身不含文件的层级合并成一行 `a/b/c`）、递归文件计数、折叠后展平。三处死分支在覆盖率检查下被删掉（`pop()` 的空值兜底、`[0]` 的 undefined 兜底、`segment === ''` 的无用判断），改成先算文件名再拆父段。
+
+### 三、这一批被门禁拦下的四处（都是真问题）
+
+| 门禁 | 拦下的内容 |
+|---|---|
+| `verify-no-unknown-casts` | 新 spec 里两处 `as unknown as`。改为：props 直接单次断言（对象字面量与 props 类型足以重叠）；slot entry 的 inject 用**类型谓词**窄化而不是断言穿透 |
+| `verify-kylin-catalog` | 新服务方法的返回类型必须在 `LINK_MAP` 里归类，否则 Cordis 目录的类型链接覆盖检查失败 |
+| `verify-type-equiv` | `docs/subsystems/deliverables.md` 的 `WorkspaceChanges` 块必须与源码逐字对齐，**中英两份都要改**（zh 是字节一致的派生块） |
+| `verify-config-catalog` / `verify-persistence-catalog` | 两处生成物因 `types.ts`/`index.ts` 行号位移而过期（纯行号引用），重新生成即可 |
+
+另外客户端新增槽位注册要重跑 `gen-client-catalog`（批次九也踩过同一条）。
+
+### 四、验证
+
+| 项 | 结果 |
+|---|---|
+| 新增测试 | `plugin.spec` 折叠 2 例（跨两轮折叠、未记录轮次时为 undefined）；`changes-tree` 13 例；`session-changes` 14 例（四种状态、嵌套缩进、二进制/过大/纯删除行、折叠、行点击、定义与图标、store 四种应答）；宿主路由 1 例；注册面 1 例 |
+| 覆盖率 | `ui-deliverables` 包内 `src/**` **100/100/100/100**（含新增 5 个文件） |
+| 包级 | ui-deliverables 186 例 + workspace-changes 18 例全绿 |
+| `test:gui` | **598 全过 / 1 红**（ui-theme 的 ModelSelect 滚动面，预存） |
+| 门禁 | `typecheck` 0；`oxlint` 全仓 **88 = 基线**；`verify-no-unknown-casts` 绿（1671 条既有）；`doc-sync` **41 过 / 1 红**（`verify-persistence-changes` 预存）；`hygiene` 18 过 / 1 红（vendor rescope 预存） |
+
+### 五、剩余两项的摸底结论（供下一轮决策）
+
+- **ZIP 打包下载**：全仓 grep 不到任何浏览器下载面——这不是「补一个 zip writer」，而是要从零建「字节如何到用户磁盘」的能力（认证路由 + 触发手势 + 限额 + 文件名编码）。上游那个 236 行自研 writer 按本仓「能用维护中的依赖就别手搓」的规矩应换成 `fflate`（`session-log-export` 已在 Host 侧使用）。
+- **sidebar_open（模型侧）**：模型可见的新输入，按铁律「模型可见 ⟺ 已记录」必须带 session 事件 + 工具 + 客户端监听，属于会动持久化格式的一类，需要单独设计后再动。
