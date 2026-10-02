@@ -39,10 +39,14 @@ async function boot() {
   runtime = rt
   rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn(), panelInfo: rt.panelInfo } as never)
   rt.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) } } as never)
-  // The retained Session Views follow the Workspace UI's main selection.
+  // The retained Session Views follow the Workspace UI's main selection. One
+  // frozen reading: an observable source returns the same reference until the
+  // fact moves, and a fresh object per `getSnapshot` re-renders the seat's
+  // subscription forever.
+  const selection = { sessionId: SESSION }
   rt.ctx.provide('uiWorkspace', {
     selection: {
-      getSnapshot: () => ({ sessionId: SESSION }),
+      getSnapshot: () => selection,
       subscribe: () => () => {},
     },
   } as never)

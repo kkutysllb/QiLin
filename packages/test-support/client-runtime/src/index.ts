@@ -81,6 +81,12 @@ export function createSlotRenderer(): SlotRenderer {
 /** Erased register face for the internal root call (the public declaration contract holds the typing). */
 type ErasedRegister = (options: object, component: unknown) => () => void
 
+/** The empty keycap catalog, one frozen reference (see the shortcuts stub below). */
+const NO_SHORTCUTS: readonly never[] = []
+
+/** The idle shortcut-config reading, one frozen reference for the same reason. */
+const DEFAULT_SHORTCUTS_CONFIG = { sequence: 0, status: 'ready' }
+
 /** Per-view render options; the caller owns the explicitly supplied Session reference. */
 export interface SlotTestRenderOptions extends RenderOpts {
   readonly session?: SessionReference | undefined
@@ -263,12 +269,15 @@ export class SlotTestRuntime {
     ctx.provide('workspaces', this.workspaces)
     ctx.provide('fileUpload', this.fileUpload as never)
     // The assembled roster always mounts the shortcuts service; a spec that
-    // asserts command registration replaces this stub via provide().
+    // asserts command registration replaces this stub via provide(). Both
+    // readings are frozen module-level values: an observable source returns
+    // the same reference until the fact moves, and a fresh array per
+    // `getSnapshot` re-renders every subscriber forever.
     ctx.provide('shortcuts', {
       runtime: 'web', platform: 'macos', stopSequenceMs: 500,
-      catalog: { getSnapshot: () => [], subscribe: () => () => {} },
-      fixedCatalog: { getSnapshot: () => [], subscribe: () => () => {} },
-      config: { getSnapshot: () => ({ sequence: 0, status: 'ready' } as never), subscribe: () => () => {} },
+      catalog: { getSnapshot: () => NO_SHORTCUTS, subscribe: () => () => {} },
+      fixedCatalog: { getSnapshot: () => NO_SHORTCUTS, subscribe: () => () => {} },
+      config: { getSnapshot: () => DEFAULT_SHORTCUTS_CONFIG, subscribe: () => () => {} },
       register: () => () => {}, registerFixed: () => () => {}, observeFixedInput: () => () => {},
       describeBinding: () => ({ binding: null, keys: [], issue: null, conflicts: [] }),
       edit: () => Promise.resolve({ status: 'saved' } as never),
