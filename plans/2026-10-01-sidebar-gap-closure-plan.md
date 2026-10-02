@@ -202,6 +202,33 @@ kind: "plan"
 
 - **提交序列（12 批，逐批过 pre-commit）**：① interaction 仓库/engines 约束 + 删除 src 陈旧产物 ② fs writeBytes 沙箱围栏 ③ workspace-git 解析/失败面覆盖 + 侧栏 guide 7→8 ④ sidechat 全链 ⑤ 预览/文件面覆盖与 README 收口 ⑥ 任务管理图 ⑦ 轨迹图回放/画布/检查器 ⑧ Agent Teams 写面与团队页（含自锁修复）⑨ 类型断言清理与基线纯删 ⑩⑪ 目录再生成 ⑫ 文档与计划。领先 origin 共 41 提交。
 - **提交后终验**：`pnpm run build` ✅ 406 artifacts / 零 src 泄漏；`pnpm run typecheck` ✅ exit 0；hygiene **18/19**（唯一红 vendor rescope 3 处残迹，v3.0.7 基线同红）；doc-sync **41/42**（唯一红 persistence owner 门，已在 `/private/tmp/qilin-v307-web` 基线 worktree 复跑同报 `SessionHeader: schema digest mismatch`）；oxlint 103 条=基线（NEW=0）。修掉一处自造红：计划文档原写提交哈希触发 verify-repository-references，已改述。
-- **发版**：321 manifest 升 3.0.8 → 重建（406 artifacts）→ 发版构建上复验 default-product-isolation **2.0s 通过** → annotated tag `v3.0.8`（tag 对象 6b3905cf，指向 9b3ca5854c）→ `gh release create v3.0.8 --verify-tag`（标题「QiLin 3.0.8 — 对齐上游 coding-sidebar 1.0.36」，说明用本会话中文终稿）。
-- **用户决定：暂不推 main**（远端 main 仍为 f91c39f643 = 3.0.7）。tag-only push 触发 pre-push 的发布门（Release 尚未存在，文档写明的 bootstrap 情形），按仓库文档用一次性 `QILIN_RELEASE_SKIP=first-tag-push-before-release` 推 tag；Release 建好后该门后续推送可正常通过。
+- **发版**：321 manifest 升 3.0.8 → 重建（406 artifacts）→ 发版构建上复验 default-product-isolation **2.0s 通过** → annotated tag `v3.0.8`（指向 3.0.8 发版提交）→ `gh release create v3.0.8 --verify-tag`（标题「QiLin 3.0.8 — 对齐上游 coding-sidebar 1.0.36」，说明用本会话中文终稿）。
+- **用户决定：暂不推 main**（远端 main 仍停留在 `v3.0.7` 发版提交）。tag-only push 触发 pre-push 的发布门（Release 尚未存在，文档写明的 bootstrap 情形），按仓库文档用一次性 `QILIN_RELEASE_SKIP=first-tag-push-before-release` 推 tag；Release 建好后该门后续推送可正常通过。
 - **遗留观察（非本会话引入）**：`/private/tmp/qilin-v307-web` 基线 worktree 的 `packages/api/job-controller/src/` 下存在 06:19 生成的完整泄漏三件套（types.js / .js.map / .d.ts / .d.ts.map），说明该类残渣来自中断或并发的编译发射而非单一脚本；发射源未定位，`verify-source-artifacts` 是既有守卫（本会话提交树该门为绿）。基线 worktree 暂留，供 main 推送前可能的再次对拍。
+
+## 批次执行状态补充二十（2026-10-02 17:40）——遗留问题收口与全量缺口重新盘点
+
+用户启动 `pnpm qilin --port 3090` 实测后指出「右侧栏功能并未与 dsh-coding-sidebar 全面对齐」。复核成立：本轮收口四处**已实现但坏掉或未交付**的遗留，并重新盘点全部剩余缺口。
+
+### 一、四处遗留（均已修复）
+
+1. **团队页从未交付（可见能力半交付）——最高价值**。全仓扫描 70 个客户端包，`@qilin/experimental-client-ui-agent-team` 是**唯一**没有任何 cordis 配置行引用的包：`agent-team-profile` 组合包只 insert 了 `experimental-agent-team`（宿主域）与 `experimental-tool-agent-team`（工具），客户端半从未挂载。后果是 Agent Teams 的宿主能力在用户 profile 里是**开着但不可见**的——没有右侧栏团队页。对照同构正确实现 `experimental-voice-input-bundle`：宿主与客户端两半都 insert。修复：组合包 `dependencies` 增加该包 + patch insert 一行（实验包之间互相依赖被 `packages/experimental/AGENTS.md` 明确允许）。`pnpm qilin --dump-config` 已见 `client-ui-agent-team` 行进入产品树。
+2. **document-seat 7 例红（S1a 提交登记的「已知遗留」）根因订正**。S1a 提交信息把成因写成「jsdom 下 DockSurface 度量循环（度量代码与上游逐行一致，真机正常）」——**该判断是错的**。实测：`sameFits` 只分歧一次（0→1 pane）后即稳定，度量不是驱动源；崩溃栈的真实末端是 `forceStoreRerender` ← `updateStoreInstance`（React uSES 在被动 effect 里发现快照变了）。真因是**共享测试运行时 stub 违反框架自身契约**：`packages/test-support/client-runtime/src/index.ts` 的快捷方式 stub 写成 `getSnapshot: () => []`，每次返回新数组；`RightbarSeat` 的 `useShortcuts(entries => entries)` 因此永远判定「快照已变」，无限 `forceStoreRerender` 直到 React 抛 `Maximum update depth exceeded`，`rightbar.session` 座席被 error boundary 整体卸载，测试只见空 DOM。`seat.client.spec.tsx` 之所以一直是绿的，是它自己 `provide()` 覆盖了这个 stub。修复：stub 的 `catalog` / `fixedCatalog` / `config` 三处读数改为冻结的模块级引用；另把 `document-seat` 夹具里的 `uiWorkspace.selection` 同样改为冻结读数（同类违约）。该 spec **8/8 过、242ms**（修复前 7 红、9.3s）。插桩全部还原，未改一行产品代码。
+3. **`agent-team-profile/tests/profile.spec.ts` 在 3.0.8 发布树上就是红的**：manifest 依赖被规范成 `workspace:*` 后，断言仍写 `workspace:^`（全仓真实 manifest 从不用该写法）。改为 `workspace:*` 并补上新增客户端行的断言。
+4. **`verify-repository-references` 在 3.0.8 发布树上就是红的**：计划文档补充十九残留两处裸提交哈希（补充十八声称已改述，实际只改了另一处）。改用发布 tag 指代，门转绿。
+
+### 二、剩余缺口重盘点（两份只读逐文件审计，上游 1.0.37）
+
+**客户端**（153 文件，约 100 已对齐）：高价值缺失 5、明显弱化 11。按用户可见度：
+1. 外链不从侧栏打开——`link-intercept` 无对应，`ui-chat/src/client/apply.ts` 一律 `window.open(url,'_blank')`。
+2. 变更评审弱化——无 VSCode 式 diff（文件分区/hunk 头/双列行号/折叠）、无 diff tab、无会话级变更清单（`changes.ops`）、无预览凭据遮蔽、无变更目录树。
+3. Git 无提交历史区（作者、相对时间、提交 diff）。
+4. 文档预览弱化——Markdown 不渲染原始 HTML（README 徽章墙/`<details>` 不可见）、无文档大纲、docx/pptx 依赖宿主 LibreOffice 转换、xlsx 不重算公式；`…/client/pptx/` 是空目录残留。
+5. 选中文本无法加入对话（`selection-popup` / `selection-payload` 无对应）。
+6. 终端三缺：URL 链接 provider、字体偏好、代理等待横幅。
+7. 跨会话 pinned 终端缺失；8. Agent 浏览器实况（CDP screencast）缺失；9. 资源管理器无多选、无插件文件图标注册、打开方式无自定义编辑器；10. 任务页不上溯 main session、运行中子卡无实时最后输出/工具、作业行无输出尾；11. 侧聊无工具卡与耗时、面板内不能答待答问题；12. 无作业输出/任务详情的常驻浮窗；13. 侧栏设置只剩 tab 开关（无宽度/查看器/终端/方案偏好）；14. HTML 预览无沙箱状态行。
+
+**宿主面**（39 文件，24 已对齐、9 弱化、6 缺失）：模型侧 `sidebar_open` 全缺；ZIP 打包下载整族缺失（`zip.ts` + `archive-routes.ts`）；侧栏浏览器 iframe 可嵌入性探测缺失；运行中子代理实时活动行缺失；文件树 rename/delete 缺失；Git 缺 log/show/commit-diff/revert/cherry-pick/worktrees/summary；GitHub Issues 缺失；模型终端缺 `terminal_wait_for`/`terminal_resize`（8→6）；计划扫描不递归。**已核实非缺口**：1.0.37 的「后台任务浮动面板显示作业真实输出」在本仓由 `api/job-controller` 的 `observeJobOutput`（非消费 `readAt` 流式帧）覆盖且更强；`fs-sandbox` 的 `writeBytes` 围栏已在（`src/index.ts:101` override，审计中的旧指控不成立）。
+
+### 三、遗留验证口径
+侧栏相关 14 包：**2 红，均为预存**（`ui-trajectory/tests/views.client.spec.tsx` tooltip 用例；`test-support/client-runtime/tests/assembly-test-client.client.spec.ts` TestResizeObserver 全局泄漏——已用 HEAD 版本文件对拍确认为预存）。同样对拍确认预存的还有：`apps/cli/tests/profiles/web/tests/web-default-isolation.expected.e2e.ts`（302≠200，环境账户门）、`apps/cli/tests/agent-team-headless.e2e.ts`（90s 超时，把新增客户端行**禁用后同样挂住**，故与本次改动无关）。门禁：`verify-cordis-config` ✅214、`verify-package-dependencies` ✅、`verify-default-product-isolation` ✅179、`verify-translation-pairing` ✅1064 对、hygiene 18/19（红=vendor rescope 预存）、doc-sync 41/42（红=persistence 预存）、oxlint 触及文件 0 错。
