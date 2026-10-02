@@ -348,7 +348,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'agentTeams',
     summary: 'Agent Teams service backed by the exact live Lead Session log.',
-    description: 'Agent Teams service backed by the exact live Lead Session log.',
+    description: 'Agent Teams service backed by the exact live Lead Session log. `createTask` and `updateTask` also carry the browser write bridge through the `agentTeams` Typert Remote namespace; the wire faces map domain failures onto the shared Remote failure vocabulary without changing the domain methods\' contracts.',
     methods: [
       {
         signature: 'membership(agent: Agent): TeamMembership',
@@ -397,6 +397,20 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Compare-and-set one authorized task transition.',
         parameters: [{ name: 'caller', description: 'exact live Team member authorizing the mutation.' }, { name: 'request', description: 'task identity, expected revision, action, and action fields.' }],
         returns: 'the committed next task revision.',
+      },
+      {
+        signature: '@Remote(\'createTask\') async remoteCreateTask(agent: Agent, request: CreateTeamTaskRequest): Promise<TeamTaskView>',
+        description: 'Wire face of TeamService.createTask: create one shared task on a person\'s behalf through the browser write bridge.',
+        parameters: [{ name: 'agent', description: 'exact live Team member resolved from the wire identity.' }, { name: 'request', description: 'subject, description, optional blockers, and optional write scopes.' }],
+        returns: 'the revision-one task view.',
+        throws: ['{RemoteError} `agent-team/not-a-member` when the identity is not a Team member, and `agent-team/rejected` when the domain refuses the request.'],
+      },
+      {
+        signature: '@Remote(\'updateTask\') async remoteUpdateTask(agent: Agent, request: UpdateTeamTaskRequest): Promise<TeamTaskView>',
+        description: 'Wire face of TeamService.updateTask: commit one compare-and-set task transition on a person\'s behalf. A committed mutation is durable and never undone by a later wire cancellation.',
+        parameters: [{ name: 'agent', description: 'exact live Team member resolved from the wire identity.' }, { name: 'request', description: 'task identity, expected revision, action, and action fields.' }],
+        returns: 'the committed next task view.',
+        throws: ['{RemoteError} `agent-team/not-a-member` when the identity is not a Team member, `agent-team/stale-revision` when the expected revision no longer matches, and `agent-team/rejected` when the domain refuses the transition.'],
       },
       {
         signature: 'async waitForChange(caller: Agent, timeoutMs: number, signal: AbortSignal): Promise<TeamWaitResult>',
@@ -1920,6 +1934,42 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Cancel one active Agent turn without dropping its pending inbox.',
         parameters: [{ name: 'request', description: 'Session whose active Agent turn is cancelled.' }],
         returns: 'acknowledgement that cancellation was requested.',
+      },
+      {
+        signature: '@Remote(\'sidechatStart\') sidechatStart(request: SessionSidechatStartRequest, signal: AbortSignal): Promise<SessionSidechatStartValue>',
+        description: 'Start one sidechat thread: fork the parent\'s log up to the cut into a `subagent`-origin child whose inherited prefix is reference context, and deliver the boundary plus an optional first question.',
+        parameters: [{ name: 'request', description: 'parent Session, optional exact inclusive cut, optional first question.' }, { name: 'signal', description: 'caller cancellation for source reads and delivery.' }],
+        returns: 'the new thread identity.',
+      },
+      {
+        signature: '@Remote(\'sidechatPrompt\') sidechatPrompt(request: SessionSidechatPromptRequest, signal: AbortSignal): Promise<SessionSidechatPromptValue>',
+        description: 'Deliver one follow-up message to a sidechat thread, resuming a cold thread first; the first prompt injects the inheritance boundary and earns the thread\'s durable label.',
+        parameters: [{ name: 'request', description: 'thread identity, message text, and correlation id.' }, { name: 'signal', description: 'caller cancellation for resume and source reads.' }],
+        returns: 'the acceptance, earned label, and model-follow outcome.',
+      },
+      {
+        signature: '@Remote(\'sidechatCancel\') sidechatCancel(request: SessionSidechatCancelRequest): SessionSidechatCancelValue',
+        description: 'Cancel one sidechat thread\'s running turn, keeping its queued inbox.',
+        parameters: [{ name: 'request', description: 'thread whose active turn is cancelled.' }],
+        returns: 'acknowledgement that cancellation was requested.',
+      },
+      {
+        signature: '@Remote(\'sidechatSnapshot\') sidechatSnapshot(request: SessionSidechatSnapshotRequest, signal: AbortSignal): Promise<SessionSidechatSnapshotValue>',
+        description: 'Read one sidechat thread\'s own durable events (tail-bounded) and its live facts; the inherited prefix stays excluded.',
+        parameters: [{ name: 'request', description: 'thread identity.' }, { name: 'signal', description: 'caller cancellation for persistence reads.' }],
+        returns: 'the thread info and its own event tail.',
+      },
+      {
+        signature: '@Remote(\'sidechatRelease\') sidechatRelease(request: SessionSidechatReleaseRequest): Promise<SessionSidechatReleaseValue>',
+        description: 'Release one sidechat thread\'s live Agent; its persisted history stays and a later prompt resumes it.',
+        parameters: [{ name: 'request', description: 'thread whose live Agent is released.' }],
+        returns: 'acknowledgement that the release was applied.',
+      },
+      {
+        signature: '@Remote(\'sidechatThreads\') sidechatThreads(request: SessionSidechatThreadsRequest, signal: AbortSignal): Promise<SessionSidechatThreadsValue>',
+        description: 'List a parent Session\'s sidechat threads in creation order.',
+        parameters: [{ name: 'request', description: 'parent Session identity.' }, { name: 'signal', description: 'caller cancellation for persistence reads.' }],
+        returns: 'one row per sidechat thread, oldest first.',
       },
       {
         signature: '@Remote(\'page\') page(request: SessionPageRequest, signal: AbortSignal): Promise<SessionPage>',
@@ -6912,6 +6962,58 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type SessionSeqCursor = SessionSeq | -1;',
   },
   {
+    name: 'SessionSidechatCancelRequest',
+    declaration: 'export interface SessionSidechatCancelRequest {\n    readonly sessionId: SessionId;\n}',
+  },
+  {
+    name: 'SessionSidechatCancelValue',
+    declaration: 'export interface SessionSidechatCancelValue {\n    readonly accepted: true;\n}',
+  },
+  {
+    name: 'SessionSidechatModelFollow',
+    declaration: 'export type SessionSidechatModelFollow = {\n    readonly ok: true;\n    readonly provider: string;\n    readonly model: string;\n} | {\n    readonly ok: false;\n    readonly reason: string;\n};',
+  },
+  {
+    name: 'SessionSidechatPromptRequest',
+    declaration: 'export interface SessionSidechatPromptRequest {\n    readonly sessionId: SessionId;\n    readonly text: string;\n    readonly requestId?: SessionRequestId;\n}',
+  },
+  {
+    name: 'SessionSidechatPromptValue',
+    declaration: 'export interface SessionSidechatPromptValue {\n    readonly accepted: true;\n    readonly label?: string;\n    readonly modelFollow?: SessionSidechatModelFollow;\n}',
+  },
+  {
+    name: 'SessionSidechatReleaseRequest',
+    declaration: 'export interface SessionSidechatReleaseRequest {\n    readonly sessionId: SessionId;\n}',
+  },
+  {
+    name: 'SessionSidechatReleaseValue',
+    declaration: 'export interface SessionSidechatReleaseValue {\n    readonly accepted: true;\n}',
+  },
+  {
+    name: 'SessionSidechatSnapshotRequest',
+    declaration: 'export interface SessionSidechatSnapshotRequest {\n    readonly sessionId: SessionId;\n}',
+  },
+  {
+    name: 'SessionSidechatSnapshotValue',
+    declaration: 'export interface SessionSidechatSnapshotValue {\n    readonly info: SidechatThreadInfo;\n    readonly records: readonly SessionHistoryRecord[];\n}',
+  },
+  {
+    name: 'SessionSidechatStartRequest',
+    declaration: 'export interface SessionSidechatStartRequest {\n    readonly sessionId: SessionId;\n    readonly atSeq?: number;\n    readonly question?: string;\n}',
+  },
+  {
+    name: 'SessionSidechatStartValue',
+    declaration: 'export interface SessionSidechatStartValue {\n    readonly threadId: SessionId;\n}',
+  },
+  {
+    name: 'SessionSidechatThreadsRequest',
+    declaration: 'export interface SessionSidechatThreadsRequest {\n    readonly sessionId: SessionId;\n}',
+  },
+  {
+    name: 'SessionSidechatThreadsValue',
+    declaration: 'export interface SessionSidechatThreadsValue {\n    readonly threads: readonly SidechatThreadRow[];\n}',
+  },
+  {
     name: 'SessionStartSource',
     declaration: 'export type SessionStartSource = \'startup\' | \'resume\' | \'clear\' | \'compact\';',
   },
@@ -7090,6 +7192,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ShellSandboxInfo',
     declaration: 'export interface ShellSandboxInfo {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n    runnerFailed?: boolean;\n}',
+  },
+  {
+    name: 'SidechatThreadInfo',
+    declaration: 'export interface SidechatThreadInfo {\n    readonly sessionId: SessionId;\n    readonly label: string;\n    readonly live: boolean;\n    readonly running: boolean;\n    readonly provider?: string;\n    readonly model?: string;\n    readonly preset?: string;\n}',
+  },
+  {
+    name: 'SidechatThreadRow',
+    declaration: 'export interface SidechatThreadRow {\n    readonly id: SessionId;\n    readonly createdAt: number;\n    readonly label: string;\n    readonly live: boolean;\n    readonly running: boolean;\n}',
   },
   {
     name: 'SkillCandidate',
