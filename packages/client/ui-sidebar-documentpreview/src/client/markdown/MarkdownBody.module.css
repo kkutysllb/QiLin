@@ -5,3 +5,12 @@
   font-family: var(--dsw-font, inherit);
   white-space: normal;
 }
+
+/* Authored block HTML: the element list keeps its own spacing, so this only
+   restores the document's family and prevents a wide table from widening the
+   preview pane. */
+.htmlBlock {
+  min-width: 0;
+  overflow-x: auto;
+  font-family: inherit;
+}

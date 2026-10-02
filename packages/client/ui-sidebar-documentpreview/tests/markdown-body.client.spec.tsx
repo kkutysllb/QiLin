@@ -135,3 +135,83 @@ describe('MarkdownBody', () => {
     expect(view.container.childElementCount).toBe(0)
   })
 })
+
+describe('MarkdownBody — authored raw HTML', () => {
+  it('renders sanitized HTML elements around the Markdown that carries them', () => {
+    vi.spyOn(document, 'baseURI', 'get').mockReturnValue('http://localhost/')
+    const text = [
+      'before',
+      '',
+      '<div class="note"><b>bold</b> and <i>italic</i></div>',
+      '',
+      'after',
+    ].join('\n')
+    const view = render(<MarkdownBody {...props(content([text], true), undefined, '/work/guide/notes.md')} />)
+    const note = view.container.querySelector('div.note')
+    expect(note?.querySelector('b')?.textContent).toBe('bold')
+    expect(note?.querySelector('i')?.textContent).toBe('italic')
+    expect(view.container.textContent).toContain('before')
+    expect(view.container.textContent).toContain('after')
+  })
+
+  it('keeps an inline tag literal and a block opening that closes in another run', () => {
+    const text = [
+      'a paragraph with <sub>subscript</sub> inline',
+      '',
+      '<div class="note">',
+      '',
+      'Markdown body',
+      '',
+      '</div>',
+    ].join('\n')
+    const view = render(<MarkdownBody {...props(content([text], true))} />)
+    // Both stay literal text: the parse hands the inline tag over one tag at a
+    // time, and the block would render as an empty element around nothing.
+    expect(view.container.querySelector('sub')).toBeNull()
+    expect(view.container.textContent).toContain('<sub>subscript</sub>')
+    expect(view.container.querySelector('div.note')).toBeNull()
+    expect(view.container.textContent).toContain('Markdown body')
+  })
+
+  it('never lets active content reach the document', () => {
+    const text = [
+      '<script>globalThis.compromised = true</script>',
+      '',
+      '<img src="x" onerror="globalThis.compromised = true">',
+      '',
+      '<iframe src="https://evil.test"></iframe>',
+      '',
+      '<form action="/x"><input value="1"><button>go</button></form>',
+      '',
+      '<p onclick="globalThis.compromised = true">kept</p>',
+    ].join('\n')
+    const view = render(<MarkdownBody {...props(content([text], true))} />)
+    expect(view.container.querySelector('script')).toBeNull()
+    expect(view.container.querySelector('iframe')).toBeNull()
+    expect(view.container.querySelector('form')).toBeNull()
+    expect(view.container.querySelector('input')).toBeNull()
+    expect(view.container.querySelector('button')).toBeNull()
+    expect(view.container.querySelector('[onerror]')).toBeNull()
+    expect(view.container.querySelector('[onclick]')).toBeNull()
+    expect((globalThis as { compromised?: boolean }).compromised).toBeUndefined()
+    expect(view.container.querySelector('p')?.textContent).toBe('kept')
+  })
+
+  it('renders nothing for a block run whose every element is refused', () => {
+    const view = render(<MarkdownBody {...props(content(['<form action="/x"><input value="1"></form>', '', 'kept'], true))} />)
+    expect(view.container.querySelector('form')).toBeNull()
+    expect(view.container.textContent).not.toContain('<form')
+    expect(view.container.textContent).toContain('kept')
+  })
+
+  it('hardens anchors and rewrites a local image through the file route', () => {
+    vi.spyOn(document, 'baseURI', 'get').mockReturnValue('http://localhost/')
+    const text = '<div><a href="https://example.test/x">link</a><img src="images/a.png" alt="local"></div>'
+    const view = render(<MarkdownBody {...props(content([text], true), undefined, '/work/guide/notes.md')} />)
+    const anchor = view.container.querySelector('a')
+    expect(anchor?.getAttribute('target')).toBe('_blank')
+    expect(anchor?.getAttribute('rel')).toBe('noopener noreferrer')
+    const image = view.getByAltText('local')
+    expect(new URL(image.getAttribute('src')!).searchParams.get('path')).toBe('/work/guide/images/a.png')
+  })
+})

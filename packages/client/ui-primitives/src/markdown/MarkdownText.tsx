@@ -20,11 +20,13 @@ import {
   collectReferenceTargets, createReferenceTargets, renderBlocks, renderFootnoteSection,
   wrapBlockChildren,
 } from './render.tsx'
-import type { MarkdownFileMentions, MarkdownLabels, MarkdownPathImages, MarkdownRenderContext, ReferenceTargets } from './render.tsx'
+import type {
+  MarkdownFileMentions, MarkdownHtmlRenderer, MarkdownLabels, MarkdownPathImages, MarkdownRenderContext, ReferenceTargets,
+} from './render.tsx'
 import 'katex/dist/katex.min.css'
 import css from './MarkdownText.module.css'
 
-export type { MarkdownCodeLabels, MarkdownFileMentions, MarkdownLabels, MarkdownPathImages } from './render.tsx'
+export type { MarkdownCodeLabels, MarkdownFileMentions, MarkdownHtmlRenderer, MarkdownLabels, MarkdownPathImages } from './render.tsx'
 
 /** One settled full render: parse with math, resolve references, append the footnote section. */
 function renderSettled(
@@ -32,6 +34,7 @@ function renderSettled(
   labels: MarkdownLabels,
   fileMentions: MarkdownFileMentions | undefined,
   pathImages: MarkdownPathImages | undefined,
+  html: MarkdownHtmlRenderer | undefined,
 ): ReactNode[] {
   const root = parseGfmWithMath(text)
   const targets = createReferenceTargets()
@@ -41,6 +44,7 @@ function renderSettled(
     labels,
     fileMentions,
     pathImages,
+    html,
     targets,
     footnoteOrder: [],
     footnoteCounts: new Map(),
@@ -74,8 +78,11 @@ class StreamingRenderer {
   private lastText: string | null = null
   private lastRendered: ReactNode[] = []
 
-  /** @param labels - Localized Markdown chrome baked into cached elements; the owner replaces the renderer when it changes. */
-  constructor(private readonly labels: MarkdownLabels) {}
+  /**
+   * @param labels - Localized Markdown chrome baked into cached elements; the owner replaces the renderer when it changes.
+   * @param html - Raw-HTML renderer baked into the same cached elements, replaced on the same terms.
+   */
+  constructor(private readonly labels: MarkdownLabels, private readonly html: MarkdownHtmlRenderer | undefined) {}
 
   /**
    * Render the current accumulated text. Idempotent per text value, so React
@@ -110,6 +117,7 @@ class StreamingRenderer {
         labels: this.labels,
         fileMentions: undefined,
         pathImages: undefined,
+        html: this.html,
         targets: frameTargets,
         footnoteOrder: this.frozenFootnoteOrder,
         footnoteCounts: this.frozenFootnoteCounts,
@@ -129,6 +137,7 @@ class StreamingRenderer {
       labels: this.labels,
       fileMentions: undefined,
       pathImages: undefined,
+      html: this.html,
       targets: frameTargets,
       footnoteOrder: [...this.frozenFootnoteOrder],
       footnoteCounts: new Map(this.frozenFootnoteCounts),
@@ -160,40 +169,47 @@ class StreamingRenderer {
  * displayable URLs its resolver vouches for. Those two vocabularies are the
  * single streaming gate — they apply to settled renders only, because a
  * streaming message's vocabulary is not final and frozen cached elements
- * must not bake in handlers that could go stale. A surrounding
+ * must not bake in handlers that could go stale. `html` renders authored raw
+ * HTML through the owner's own sanitizer; without it the runs stay literal
+ * text, and it joins `labels` in the streaming cache identity because frozen
+ * elements bake it in. A surrounding
  * `MarkdownDelegateProvider` can delegate ordinary HTTP(S) activation while
  * modified clicks retain native behavior. `variant="compact"` uses secondary
  * text sizing, uniform bold headings, and tight block spacing; the default
  * `body` variant uses the full document typography.
  * The provider's `openFile` enables local Markdown links in settled messages,
  * including `#L24` and `#L24-L30` destinations (ranges open at their first line).
- * @returns A GFM document with TeX math rendered through KaTeX; raw HTML and
- * unsafe protocols are disabled. Local links without an opener remain text;
- * absolute HTTP(S) images render directly.
+ * @returns A GFM document with TeX math rendered through KaTeX; raw HTML
+ * stays literal unless `html` supplies a renderer, and unsafe protocols are
+ * disabled. Local links without an opener remain text; absolute HTTP(S)
+ * images render directly.
  */
 export const MarkdownText = memo(function MarkdownText({
-  text, streaming = false, labels, fileMentions, pathImages, variant = 'body',
+  text, streaming = false, labels, fileMentions, pathImages, html, variant = 'body',
 }: {
   text: string
   streaming?: boolean
   labels: MarkdownLabels
   fileMentions?: MarkdownFileMentions | undefined
   pathImages?: MarkdownPathImages | undefined
+  html?: MarkdownHtmlRenderer | undefined
   variant?: 'body' | 'compact'
 }) {
   const streamRef = useRef<StreamingRenderer | null>(null)
   const streamLabelsRef = useRef<MarkdownLabels>(labels)
+  const streamHtmlRef = useRef<MarkdownHtmlRenderer | undefined>(html)
   const children = useMemo(() => {
     if (!streaming) {
       streamRef.current = null
-      return renderSettled(text, labels, fileMentions, pathImages)
+      return renderSettled(text, labels, fileMentions, pathImages, html)
     }
-    if (streamRef.current === null || streamLabelsRef.current !== labels) {
-      streamRef.current = new StreamingRenderer(labels)
+    if (streamRef.current === null || streamLabelsRef.current !== labels || streamHtmlRef.current !== html) {
+      streamRef.current = new StreamingRenderer(labels, html)
       streamLabelsRef.current = labels
+      streamHtmlRef.current = html
     }
     return streamRef.current.render(text)
-  }, [text, streaming, labels, fileMentions, pathImages])
+  }, [text, streaming, labels, fileMentions, pathImages, html])
   return <div className={clsx(css.markdown, variant === 'compact' && css.compact)}
     data-markdown-variant={variant === 'compact' ? variant : undefined}>{children}</div>
 })

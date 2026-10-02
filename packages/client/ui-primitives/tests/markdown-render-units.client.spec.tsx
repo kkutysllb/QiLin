@@ -13,16 +13,17 @@ import { markdownLabels } from './labels.client.ts'
 import {
   collectReferenceTargets, createReferenceTargets, renderBlocks, renderFootnoteSection,
 } from '../src/markdown/render.tsx'
-import type { MarkdownRenderContext } from '../src/markdown/render.tsx'
+import type { MarkdownHtmlRenderer, MarkdownRenderContext } from '../src/markdown/render.tsx'
 
 afterEach(cleanup)
 
-function makeContext(): MarkdownRenderContext {
+function makeContext(html?: MarkdownHtmlRenderer): MarkdownRenderContext {
   return {
     streaming: false,
     labels: markdownLabels,
     fileMentions: undefined,
     pathImages: undefined,
+    html,
     targets: createReferenceTargets(),
     footnoteOrder: [],
     footnoteCounts: new Map(),
@@ -184,6 +185,15 @@ describe('renderBlocks over hand-built trees', () => {
       { type: 'paragraph', children: [text('after')] },
     ])
     expect(container.textContent).toBe('after')
+  })
+
+  it('keeps a raw HTML run literal until the owner installs a renderer', () => {
+    const node: Md.RootContent = { type: 'html', value: '<b>raw</b>' }
+    expect(renderNodes([node]).textContent).toBe('<b>raw</b>')
+    expect(renderNodes([node]).querySelector('b')).toBeNull()
+    const rendered = renderNodes([node], makeContext(source => <i data-owner-html>{source}</i>))
+    expect(rendered.querySelector('[data-owner-html]')?.textContent).toBe('<b>raw</b>')
+    expect(rendered.querySelector('b')).toBeNull()
   })
 })
 

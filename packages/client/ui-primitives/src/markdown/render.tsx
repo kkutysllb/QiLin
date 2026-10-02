@@ -199,6 +199,12 @@ export interface MarkdownRenderContext {
   readonly fileMentions: MarkdownFileMentions | undefined
   /** Local-path image vocabulary; absent wherever no rewriting owner exists. */
   readonly pathImages: MarkdownPathImages | undefined
+  /**
+   * Owner-supplied renderer for one authored raw-HTML run. Absent — the default
+   * — keeps the run as literal text, which is what every consumer that renders
+   * untrusted model output gets unless it installs a sanitizer of its own.
+   */
+  readonly html: MarkdownHtmlRenderer | undefined
   /** Inside an anchor's children: interactive mentions must not nest there. */
   readonly inLink?: boolean
   /** Reference targets visible to this pass. */
@@ -208,6 +214,13 @@ export interface MarkdownRenderContext {
   /** References rendered per identifier; drives the section's back-reference count. */
   readonly footnoteCounts: Map<string, number>
 }
+
+/**
+ * Owner-side renderer for authored raw HTML in a Markdown source.
+ * @param source - the raw HTML run exactly as the stream carried it.
+ * @returns the element to render in the run's place.
+ */
+export type MarkdownHtmlRenderer = (source: string) => ReactNode
 
 /**
  * Render top-level blocks. Nodes that render nothing (definitions, unmapped
@@ -337,8 +350,10 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
       return <code key={key}>{value}</code>
     }
     case 'html':
-      // No HTML parser enters the pipeline: raw HTML stays literal text.
-      return node.value
+      // Without an owner-supplied renderer no HTML parser enters the pipeline:
+      // raw HTML stays literal text. An owner that installs one has taken on
+      // sanitizing untrusted runs itself.
+      return context.html === undefined ? node.value : context.html(node.value)
     case 'code':
       return renderCode(node, key, context)
     case 'math':
