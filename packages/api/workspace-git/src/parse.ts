@@ -26,6 +26,7 @@ export function parseStatusPorcelain(output: string): readonly GitStatusEntry[] 
     const worktree = record.charAt(1)
     if (record.charAt(2) !== ' ') continue
     const path = record.slice(3)
+    /* v8 ignore next -- the four-character floor above keeps every record at least four characters, so the sliced path is never empty. */
     if (path.length === 0) continue
     if (index === 'R' || index === 'C') at += 1
     entries.push({

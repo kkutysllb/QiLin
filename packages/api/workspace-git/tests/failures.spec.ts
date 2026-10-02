@@ -37,6 +37,30 @@ describe('workspaceGit — validated refusals', () => {
     expect(failure.code).toBe('workspace-git/bad-branch')
     expect(failure.details).toMatchObject({ branch: 'bad;name' })
   })
+
+  it('refuses a wire-delivered absent path like an empty one', async () => {
+    const failure = await failureOf(
+      harness.endpoint().discard(harness.scope, undefined as never, signal()),
+    )
+    expect(failure.code).toBe('workspace-git/bad-path')
+    expect(failure.details).toEqual({ path: '' })
+  })
+
+  it('refuses a wire-delivered absent branch name', async () => {
+    const failure = await failureOf(
+      harness.endpoint().checkout(harness.scope, undefined as never, signal()),
+    )
+    expect(failure.code).toBe('workspace-git/bad-branch')
+    expect(failure.details).toEqual({ branch: '' })
+  })
+
+  it('refuses a wire-delivered absent pull-request title like a blank one', async () => {
+    const failure = await failureOf(
+      harness.endpoint().ghCreatePr(harness.scope, undefined as never, 'body', '', signal()),
+    )
+    expect(failure.code).toBe('workspace-git/bad-pr-title')
+    expect(failure.details).toEqual({ field: 'title', length: 0 })
+  })
 })
 
 describe('workspaceGit — command failures', () => {
@@ -76,5 +100,40 @@ describe('workspaceGit — command failures', () => {
     const failure = await failureOf(harness.endpoint().pull(harness.scope, signal()))
     expect(failure.code).toBe('workspace-git/command-failed')
     expect((failure.details as { command: string }).command).toBe('git pull')
+  })
+
+  it('maps a failing status command to command-failed after the repository probe passes', async () => {
+    const stub = await harness.stubGit({
+      'rev-parse': { stdout: 'true\n' },
+      status: { code: 128, stderr: 'fatal: bad object refs/heads/x\n' },
+    })
+    const failure = await failureOf(harness.endpoint({ gitBin: stub.bin }).status(harness.scope, signal()))
+    expect(failure.code).toBe('workspace-git/command-failed')
+    const details = failure.details as { command: string; stderr: string }
+    expect(details.command).toContain(' status --porcelain=v1')
+    expect(details.stderr).toContain('fatal')
+  })
+
+  it('maps a failing branch listing to command-failed after the repository probe passes', async () => {
+    const stub = await harness.stubGit({
+      'rev-parse': { stdout: 'true\n' },
+      'for-each-ref': { code: 1, stderr: 'fatal: bad ref\n' },
+    })
+    const failure = await failureOf(harness.endpoint({ gitBin: stub.bin }).branches(harness.scope, signal()))
+    expect(failure.code).toBe('workspace-git/command-failed')
+    const details = failure.details as { command: string; stderr: string }
+    expect(details.command).toContain('for-each-ref')
+    expect(details.stderr).toContain('fatal')
+  })
+
+  it('maps a failing diff command to command-failed with its stderr', async () => {
+    const stub = await harness.stubGit({ diff: { code: 1, stderr: 'fatal: cannot diff\n' } })
+    const failure = await failureOf(
+      harness.endpoint({ gitBin: stub.bin }).diff(harness.scope, 'seed.txt', false, signal()),
+    )
+    expect(failure.code).toBe('workspace-git/command-failed')
+    const details = failure.details as { command: string; stderr: string }
+    expect(details.command).toContain(' diff -- seed.txt')
+    expect(details.stderr).toBe('fatal: cannot diff')
   })
 })

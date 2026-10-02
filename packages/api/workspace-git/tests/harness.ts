@@ -32,11 +32,30 @@ export interface GhStubBehavior {
   readonly stdout?: string
   readonly stderr?: string
   readonly code?: number
+  /** Whole seconds the stub sleeps before answering, long enough for a configured timeout to kill it. */
+  readonly sleepSeconds?: number
 }
 
 /** An executable gh stub answering one fixed behavior, living outside the repository. */
 export interface GhStub {
   /** Path to hand to `ghBin`; it records every argv it receives. */
+  readonly bin: string
+  /** The argv elements of the last invocation, one per recorded line. */
+  recorded(): Promise<readonly string[]>
+}
+
+/** What one git stub subcommand prints and how it exits; the argv it received is recorded either way. */
+export interface GitStubBehavior {
+  readonly stdout?: string
+  readonly stderr?: string
+  readonly code?: number
+  /** Whole seconds the subcommand sleeps before answering, long enough for a configured timeout to kill it. */
+  readonly sleepSeconds?: number
+}
+
+/** An executable git stub answering per subcommand, living outside the repository. */
+export interface GitStub {
+  /** Path to hand to `gitBin`; it records every argv it receives. */
   readonly bin: string
   /** The argv elements of the last invocation, one per recorded line. */
   recorded(): Promise<readonly string[]>
@@ -62,6 +81,12 @@ export interface Harness {
    * repository so no fixture file ever reaches a status listing.
    */
   stubGh(behavior: GhStubBehavior): Promise<GhStub>
+  /**
+   * Write one executable git stub answering the given behavior per subcommand
+   * (the first argv element), outside the repository so no fixture file ever
+   * reaches a status listing. Subcommands without an entry exit zero silently.
+   */
+  stubGit(behaviors: Readonly<Record<string, GitStubBehavior>>): Promise<GitStub>
   dispose(): Promise<void>
 }
 
@@ -116,6 +141,7 @@ export async function openWorkspace(prefix: string): Promise<Harness> {
       await writeFile(bin, [
         '#!/bin/sh',
         'printf \'%s\\n\' "$@" > "$0.argv"',
+        'if [ -f "$0.sleep" ]; then sleep "$(cat "$0.sleep")" >/dev/null 2>&1; fi',
         '[ ! -f "$0.out" ] || cat "$0.out"',
         '[ ! -f "$0.err" ] || cat "$0.err" 1>&2',
         `exit ${String(behavior.code ?? 0)}`,
@@ -123,7 +149,38 @@ export async function openWorkspace(prefix: string): Promise<Harness> {
       ].join('\n'))
       if ((behavior.stdout ?? '') !== '') await writeFile(`${bin}.out`, behavior.stdout ?? '')
       if ((behavior.stderr ?? '') !== '') await writeFile(`${bin}.err`, behavior.stderr ?? '')
+      if (behavior.sleepSeconds !== undefined) await writeFile(`${bin}.sleep`, String(behavior.sleepSeconds))
       await chmod(bin, 0o755)
+      return {
+        bin,
+        recorded: async () => {
+          const lines = (await readFile(`${bin}.argv`, 'utf8')).split('\n')
+          return lines.slice(0, -1)
+        },
+      }
+    },
+    stubGit: async (behaviors) => {
+      stubCount += 1
+      await mkdir(stubDir, { recursive: true })
+      const bin = join(stubDir, `git-${String(stubCount)}.sh`)
+      await writeFile(bin, [
+        '#!/bin/sh',
+        'printf \'%s\\n\' "$@" > "$0.argv"',
+        'sub="$1"',
+        'if [ -f "$0.$sub.sleep" ]; then sleep "$(cat "$0.$sub.sleep")" >/dev/null 2>&1; fi',
+        '[ ! -f "$0.$sub.out" ] || cat "$0.$sub.out"',
+        '[ ! -f "$0.$sub.err" ] || cat "$0.$sub.err" 1>&2',
+        'if [ -f "$0.$sub.code" ]; then exit "$(cat "$0.$sub.code")"; fi',
+        'exit 0',
+        '',
+      ].join('\n'))
+      await chmod(bin, 0o755)
+      for (const [command, behavior] of Object.entries(behaviors)) {
+        if ((behavior.stdout ?? '') !== '') await writeFile(`${bin}.${command}.out`, behavior.stdout ?? '')
+        if ((behavior.stderr ?? '') !== '') await writeFile(`${bin}.${command}.err`, behavior.stderr ?? '')
+        if (behavior.code !== undefined) await writeFile(`${bin}.${command}.code`, String(behavior.code))
+        if (behavior.sleepSeconds !== undefined) await writeFile(`${bin}.${command}.sleep`, String(behavior.sleepSeconds))
+      }
       return {
         bin,
         recorded: async () => {

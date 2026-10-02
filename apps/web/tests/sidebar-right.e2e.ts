@@ -423,8 +423,8 @@ describe('web e2e: shipped right Sidebar', () => {
       }
 
       await expect.poll(async () => await tabTitles(column)).toEqual(['Start'])
-      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(7)
-      for (const kind of ['files', 'terminal', 'trajectory', 'trajectory-graph', 'browser', 'tasks', 'plans']) {
+      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(8)
+      for (const kind of ['files', 'terminal', 'trajectory', 'trajectory-graph', 'browser', 'tasks', 'plans', 'git']) {
         expect(await column.locator('[data-sidebar-right-guide-entry="' + kind + '"]').count(), kind).toBe(1)
       }
       await column.locator('[data-sidebar-right-guide-entry="files"]').click()

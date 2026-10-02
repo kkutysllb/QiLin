@@ -48,6 +48,24 @@ describe('workspaceGit.ghAuthStatus', () => {
     expect(status.account).toBeUndefined()
     expect(status.message.length).toBeGreaterThan(0)
   })
+
+  it('reports authenticated without an account when the answer names none', async () => {
+    const stub = await harness.stubGh({ stdout: '✓ Logged in to github.com\n' })
+    const status = await harness.endpoint({ ghBin: stub.bin }).ghAuthStatus(harness.scope, signal())
+    expect(status).toEqual({ authenticated: true, message: '✓ Logged in to github.com' })
+  })
+
+  it('reports a silent successful answer as authenticated with the wordless message', async () => {
+    const stub = await harness.stubGh({})
+    const status = await harness.endpoint({ ghBin: stub.bin }).ghAuthStatus(harness.scope, signal())
+    expect(status).toEqual({ authenticated: true, message: 'the command printed nothing' })
+  })
+
+  it('reports unauthenticated with the timeout wording when gh hangs past ghTimeoutMs', async () => {
+    const stub = await harness.stubGh({ sleepSeconds: 5 })
+    const status = await harness.endpoint({ ghBin: stub.bin, ghTimeoutMs: 50 }).ghAuthStatus(harness.scope, signal())
+    expect(status).toEqual({ authenticated: false, message: 'the command was killed by its timeout' })
+  })
 })
 
 describe('workspaceGit.ghListPrs', () => {
@@ -165,6 +183,17 @@ describe('workspaceGit.ghCreatePr', () => {
     expect(failure.code).toBe('workspace-git/command-failed')
     const details = failure.details as { stderr: string }
     expect(details.stderr).toContain('gh printed no pull-request URL')
+  })
+
+  it('maps a nonzero gh exit to command-failed with its stderr', async () => {
+    const stub = await harness.stubGh({ stderr: 'gh: pull request creation failed\n', code: 1 })
+    const failure = await failureOf(
+      harness.endpoint({ ghBin: stub.bin }).ghCreatePr(harness.scope, 'title', 'body', '', signal()),
+    )
+    expect(failure.code).toBe('workspace-git/command-failed')
+    const details = failure.details as { command: string; stderr: string }
+    expect(details.command).toContain('pr create')
+    expect(details.stderr).toContain('creation failed')
   })
 })
 

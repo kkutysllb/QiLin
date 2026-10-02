@@ -65,6 +65,14 @@ describe('gh parsers', () => {
     ])
   })
 
+  it('drops rows that are not objects and defaults a non-string title', () => {
+    const fixture = JSON.stringify([null, 7, { number: 3, title: 42 }, { number: 5, title: 'kept' }])
+    expect(parseGhPrs(fixture)).toEqual([
+      { number: 3, title: '', headRefName: '', baseRefName: '', isDraft: false, updatedAt: '', author: '' },
+      { number: 5, title: 'kept', headRefName: '', baseRefName: '', isDraft: false, updatedAt: '', author: '' },
+    ])
+  })
+
   it('yields no rows for output that is not a JSON array', () => {
     expect(parseGhPrs('{"number": 7}')).toEqual([])
     expect(parseGhPrs('not json at all')).toEqual([])

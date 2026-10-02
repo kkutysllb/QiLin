@@ -33,6 +33,10 @@ describe('parseStatusPorcelain — NUL-terminated porcelain v1', () => {
     ])
   })
 
+  it('skips a record whose third character is not the status column separator', () => {
+    expect(parseStatusPorcelain('??oops.txt\0')).toEqual([])
+  })
+
   it('returns no entry for empty output and for the trailing NUL of a complete record', () => {
     expect(parseStatusPorcelain('')).toEqual([])
     expect(parseStatusPorcelain('\0')).toEqual([])
@@ -73,6 +77,13 @@ describe('parseBranches — the fixed for-each-ref format', () => {
     const fixture = 'release/1.x\t \t\t\nnot a branch line\n'
     expect(parseBranches(fixture)).toEqual([
       { name: 'release/1.x', current: false, upstream: undefined, ahead: 0, behind: 0 },
+    ])
+  })
+
+  it('reads a two-field line with zero counts and drops a nameless line', () => {
+    const fixture = 'lone\t*\n\t*\tnope\tahead 1\n'
+    expect(parseBranches(fixture)).toEqual([
+      { name: 'lone', current: true, upstream: undefined, ahead: 0, behind: 0 },
     ])
   })
 })
