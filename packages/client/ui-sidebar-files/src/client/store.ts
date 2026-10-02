@@ -55,8 +55,19 @@ export type FileSearchState =
   | { readonly kind: 'failed'; readonly query: string; readonly failure: RemoteFailure }
 
 /**
- * One tab's tree: its root, the levels it has asked for, what is open, and the
- * filename search beside it.
+ * What one tab's last row mutation is doing: the create, rename, or delete
+ * gesture the tree asked for and has not heard back about, or the failure it
+ * ended in. One gesture is in force at a time, so a newer one replaces the
+ * record rather than queueing behind it.
+ */
+export type TreeMutationState =
+  | { readonly kind: 'idle' }
+  | { readonly kind: 'running' }
+  | { readonly kind: 'failed'; readonly failure: RemoteFailure }
+
+/**
+ * One tab's tree: its root, the levels it has asked for, what is open, the
+ * filename search beside it, and the last row mutation.
  *
  * Every path here is absolute: the root is the session's working directory as
  * the Host reports it, and a child is the parent joined with the entry name.
@@ -72,6 +83,8 @@ export interface FilesTabState {
   scrollTop: number
   /** What the search box holds and has last heard back. */
   search: FileSearchState
+  /** How the last create, rename, or delete gesture ended, for the tree's strip. */
+  mutation: TreeMutationState
 }
 
 /** What one file editor is doing with its file right now. */
@@ -189,6 +202,9 @@ type FilesActions = {
   ) => void
   searchFailed: (draft: FilesState, tabId: TabId, query: string, failure: RemoteFailure) => void
   searchCleared: (draft: FilesState, tabId: TabId) => void
+  mutationStarted: (draft: FilesState, tabId: TabId) => void
+  mutationFailed: (draft: FilesState, tabId: TabId, failure: RemoteFailure) => void
+  mutationCleared: (draft: FilesState, tabId: TabId) => void
   reset: (draft: FilesState, tabId: TabId) => void
   forget: (draft: FilesState, tabId: TabId) => void
   editRead: (draft: FilesState, tabId: TabId) => void
@@ -227,7 +243,14 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        * @param root - absolute path of the workspace root.
        */
       start: (d, tabId: TabId, root: string) => {
-        d.byTab[tabId] = { root, levels: {}, expanded: [root], scrollTop: 0, search: { kind: 'idle', query: '' } }
+        d.byTab[tabId] = {
+          root,
+          levels: {},
+          expanded: [root],
+          scrollTop: 0,
+          search: { kind: 'idle', query: '' },
+          mutation: { kind: 'idle' },
+        }
       },
       /**
        * Mark one directory as being listed.
@@ -328,6 +351,32 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        */
       searchCleared: (d, tabId: TabId) => {
         bucket(d, tabId).search = { kind: 'idle', query: '' }
+      },
+      /**
+       * Mark one row mutation as asked of the Host and not yet answered.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      mutationStarted: (d, tabId: TabId) => {
+        bucket(d, tabId).mutation = { kind: 'running' }
+      },
+      /**
+       * Record why one row mutation failed; the tree keeps it until the next
+       * gesture or a dismissal.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param failure - the settled Remote failure.
+       */
+      mutationFailed: (d, tabId: TabId, failure: RemoteFailure) => {
+        bucket(d, tabId).mutation = { kind: 'failed', failure }
+      },
+      /**
+       * Clear the row mutation's record, for one that finished or a dismissal.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      mutationCleared: (d, tabId: TabId) => {
+        bucket(d, tabId).mutation = { kind: 'idle' }
       },
       /**
        * Drop every loaded level, keeping what is expanded.

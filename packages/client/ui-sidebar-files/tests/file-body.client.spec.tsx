@@ -266,3 +266,49 @@ describe('FileBody', () => {
     expect(edits.readWhole).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('FileBody tree mutations', () => {
+  /** Right-click one row of the tree pane. */
+  function rowMenu(view: ReturnType<typeof mountFileBody>['view'], path: string): void {
+    act(() => {
+      fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${path}"] > button`)!, { clientX: 5, clientY: 6 })
+    })
+  }
+
+  it('dispatches create, rename, delete, and the dismissal through the shared face', async () => {
+    const mounted = await settled()
+    const { view, instance, script, mutations, tabs, controller } = mounted
+    act(() => { fireEvent.click(view.container.querySelector(`[data-files-path="${ROOT}/src"] > button`)!) })
+    await act(() => script.settle({ ok: true, value: SRC_LEVEL }))
+
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.newFile'] }))
+    fireEvent.change(view.getByRole('dialog').querySelector('[data-files-create-name]')!, { target: { value: 'note.md' } })
+    fireEvent.click(view.getByRole('dialog').querySelector('[data-files-create-confirm]')!)
+    expect(mutations.createFile.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/src/note.md`, controller.signal)
+
+    rowMenu(view, `${ROOT}/README.md`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.rename'] }))
+    const box = view.container.querySelector<HTMLInputElement>('[data-files-name-input]')!
+    fireEvent.change(box, { target: { value: 'GUIDE.md' } })
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(mutations.move.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/README.md`, `${ROOT}/GUIDE.md`, controller.signal)
+    await act(() => mutations.move.settle({ ok: true, value: undefined }))
+    expect(tabs.tabsIn).toHaveBeenCalledWith(SESSION)
+    // The directory that held the entry is read again before its rows come back.
+    await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+
+    rowMenu(view, `${ROOT}/README.md`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.delete'] }))
+    fireEvent.click(view.getByRole('dialog').querySelector('[data-files-delete-confirm]')!)
+    expect(mutations.remove.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/README.md`, false, controller.signal)
+
+    act(() => {
+      instance.actions.mutationFailed(TAB, new RemoteError('workspace-file/exists', 'taken', { path: ROOT }))
+    })
+    expect(view.container.querySelector('[data-files-row="mutation-failed"]')?.textContent).toContain(zh['error.exists'])
+    fireEvent.click(view.container.querySelector('[data-files-mutation-dismiss]')!)
+    expect(view.container.querySelector('[data-files-row="mutation-failed"]')).toBeNull()
+    expect(instance.getSnapshot().byTab[TAB]!.mutation).toEqual({ kind: 'idle' })
+  })
+})

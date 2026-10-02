@@ -14,12 +14,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { SessionId } from '@qilin/session/types'
 import type { WorkspaceDirectoryListing } from '@qilin/api-workspace-files/types'
-import { SEARCH_SETTLE_MS, childPath, createList, createSearch, filesFace } from '../src/client/face.ts'
+import { SEARCH_SETTLE_MS, createList, createSearch, filesFace } from '../src/client/face.ts'
 import type { WorkspaceFilesTreeRemote } from '../src/client/face.ts'
 import { createFilesStore } from '../src/client/store.ts'
 import type { DirLevel } from '../src/client/store.ts'
 import { scriptedList } from './scripted-list.client.ts'
 import { scriptedSearch } from './scripted-search.client.ts'
+import { recordedReconcile, scriptedMutations } from './scripted-mutations.client.ts'
 import type { TabId } from '@qilin/client-ui-dockkit'
 import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
 
@@ -33,12 +34,18 @@ function mount() {
   const instance = createFilesStore().create()
   const script = scriptedList()
   const searchScript = scriptedSearch()
-  const face = filesFace(script.list, searchScript.search)(SESSION, instance.actions)
+  const mutations = scriptedMutations()
+  const tabs = recordedReconcile()
+  const face = filesFace(script.list, searchScript.search, mutations.mutations, tabs.reconcile)(
+    SESSION, instance.actions,
+  )
   // The two scripts each own a `settle`; keep the listing's name for itself.
   return {
     ...script,
     searchMock: searchScript.search,
     settleSearch: searchScript.settle,
+    mutations,
+    tabs,
     face,
     snapshot: () => instance.getSnapshot().byTab[TAB],
   }
@@ -250,11 +257,104 @@ describe('createSearch', () => {
   })
 })
 
-describe('childPath', () => {
-  it('joins with one slash whatever the parent ends in', () => {
-    expect(childPath('/work/app', 'src')).toBe('/work/app/src')
-    expect(childPath('/work/app/', 'src')).toBe('/work/app/src')
-    expect(childPath('/', 'etc')).toBe('/etc')
-    expect(childPath('C:\\work\\', 'src')).toBe('C:\\work/src')
+describe('filesFace mutations', () => {
+  const SIGNAL = (): AbortSignal => new AbortController().signal
+
+  /** A started tab with its root listed, so the mutations have a bucket and a directory. */
+  async function started() {
+    const mounted = mount()
+    const signal = SIGNAL()
+    mounted.face.start(TAB, ROOT, signal)
+    await mounted.settle({ ok: true, value: LEVEL })
+    mounted.list.mockClear()
+    return { ...mounted, signal }
+  }
+
+  it('creates an empty file at the joined path and re-lists the directory that holds it', async () => {
+    const { face, mutations, list, snapshot, signal } = await started()
+    face.createEntry(TAB, ROOT, 'note.md', 'file', signal)
+    expect(mutations.createFile.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/note.md`, signal)
+    expect(snapshot()!.mutation).toEqual({ kind: 'running' })
+    await mutations.createFile.settle({ ok: true, value: { absolutePath: `${ROOT}/note.md`, version: 'v1' } })
+    expect(snapshot()!.mutation).toEqual({ kind: 'idle' })
+    expect(list).toHaveBeenCalledWith(SESSION, ROOT, signal)
+  })
+
+  it('creates a directory and records a refusal with its own code', async () => {
+    const { face, mutations, list, snapshot, signal } = await started()
+    face.createEntry(TAB, ROOT, 'docs', 'directory', signal)
+    expect(mutations.createDirectory.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/docs`, signal)
+    const error = new RemoteError('workspace-file/exists', 'taken', { path: `${ROOT}/docs` })
+    await mutations.createDirectory.settle({ ok: false, error })
+    expect(snapshot()!.mutation).toEqual({ kind: 'failed', failure: error })
+    // Nothing changed on disk, so no level is asked for again.
+    expect(list).not.toHaveBeenCalled()
+  })
+
+  it('moves one entry to the name it was given and retargets the tabs open on it', async () => {
+    const { face, mutations, list, tabs, snapshot, signal } = await started()
+    const from = `${ROOT}/src`
+    face.renameEntry(TAB, from, 'lib', ROOT, signal)
+    expect(mutations.move.mock).toHaveBeenCalledWith(SESSION, from, `${ROOT}/lib`, signal)
+    await mutations.move.settle({ ok: true, value: undefined })
+    expect(tabs.tabsIn).toHaveBeenCalledWith(SESSION)
+    expect(snapshot()!.mutation).toEqual({ kind: 'idle' })
+    expect(list).toHaveBeenCalledWith(SESSION, ROOT, signal)
+  })
+
+  it('removes a file without recursion and a directory with it', async () => {
+    const { face, mutations, tabs, signal } = await started()
+    face.removeEntry(TAB, `${ROOT}/a.ts`, 'file', ROOT, signal)
+    expect(mutations.remove.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/a.ts`, false, signal)
+    await mutations.remove.settle({ ok: true, value: undefined })
+    face.removeEntry(TAB, `${ROOT}/src`, 'directory', ROOT, signal)
+    expect(mutations.remove.mock).toHaveBeenLastCalledWith(SESSION, `${ROOT}/src`, true, signal)
+    await mutations.remove.settle({ ok: true, value: undefined })
+    // Each successful removal settled the tabs of the session it happened in.
+    expect(tabs.tabsIn.mock.calls).toEqual([[SESSION], [SESSION]])
+  })
+
+  it('lets the newest gesture win: a retired settlement writes nothing and re-lists nothing', async () => {
+    const { face, mutations, list, snapshot, signal } = await started()
+    face.createEntry(TAB, ROOT, 'a.md', 'file', signal)
+    face.createEntry(TAB, ROOT, 'b.md', 'file', signal)
+    await mutations.createFile.settle({ ok: false, error: new RemoteError('workspace-file/exists', 'taken', { path: `${ROOT}/a.md` }) })
+    // The retired failure is dropped; the newest gesture is still out.
+    expect(snapshot()!.mutation).toEqual({ kind: 'running' })
+    await mutations.createFile.settle({ ok: true, value: undefined })
+    expect(snapshot()!.mutation).toEqual({ kind: 'idle' })
+    expect(list).toHaveBeenCalledTimes(1)
+  })
+
+  it('makes no call for a record that already ended', async () => {
+    const { face, mutations, snapshot } = await started()
+    const controller = new AbortController()
+    controller.abort()
+    face.createEntry(TAB, ROOT, 'late.md', 'file', controller.signal)
+    expect(mutations.createFile.mock).not.toHaveBeenCalled()
+    expect(snapshot()!.mutation).toEqual({ kind: 'idle' })
+  })
+
+  it('drops a settlement whose record aborted while the call was out', async () => {
+    const mounted = mount()
+    const controller = new AbortController()
+    mounted.face.start(TAB, ROOT, controller.signal)
+    await mounted.settle({ ok: true, value: LEVEL })
+    mounted.face.createEntry(TAB, ROOT, 'a.md', 'file', controller.signal)
+    expect(mounted.snapshot()!.mutation).toEqual({ kind: 'running' })
+    controller.abort()
+    expect(mounted.snapshot()).toBeUndefined()
+    await mounted.mutations.createFile.settle({ ok: true, value: undefined })
+    expect(mounted.snapshot()).toBeUndefined()
+  })
+
+  it('refuses a path with no parent directory to rename or remove in', async () => {
+    const { face, mutations, signal } = await started()
+    expect(() => { face.renameEntry(TAB, 'a.ts', 'b.ts', ROOT, signal) })
+      .toThrow('"a.ts" has no parent directory')
+    expect(() => { face.removeEntry(TAB, 'a.ts', 'file', ROOT, signal) })
+      .toThrow('"a.ts" has no parent directory')
+    expect(mutations.move.mock).not.toHaveBeenCalled()
+    expect(mutations.remove.mock).not.toHaveBeenCalled()
   })
 })

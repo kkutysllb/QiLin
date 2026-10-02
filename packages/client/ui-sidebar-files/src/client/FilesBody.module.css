@@ -148,6 +148,12 @@
   height: 0;
 }
 
+/* The tree fills its scroller, so the background below the last row is still
+   the tree's own and reaches the root menu rather than the pane's. */
+.treeRoot {
+  min-height: 100%;
+}
+
 .name {
   min-width: 0;
   overflow: hidden;
@@ -171,6 +177,77 @@
   padding: 3px 10px;
   color: var(--dsw-alias-label-tertiary);
   font-size: 12px;
+}
+
+/* The row's name while it is renamed: the row's own box, so the tree does not
+   jump when the input replaces it. */
+.nameInput {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 1px 0;
+  padding: 3px 6px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  background: var(--dsw-alias-bg-layer-1);
+  border: 0.5px solid var(--dsw-alias-state-business-primary);
+  border-radius: 8px;
+  outline: none;
+}
+
+/* One row mutation's outcome: the line, and the control that clears it. */
+.mutation {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 3px 4px 3px 10px;
+  color: var(--dsw-static-red-500);
+  font-size: 12px;
+}
+
+.mutationText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mutationDismiss {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: inherit;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.mutationDismiss svg {
+  width: 12px;
+  height: 12px;
+}
+
+.mutationDismiss:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* The dialog's own copy and the refusal under a name box. */
+.dialogBody {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.nameError {
+  margin: 8px 0 0;
+  color: var(--dsw-static-red-500);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .status {

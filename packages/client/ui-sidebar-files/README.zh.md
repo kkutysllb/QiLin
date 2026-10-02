@@ -32,7 +32,7 @@ kind: "package-reference"
 
 两组坑位共享一个按会话实例化的 store，按 tab id 分桶：树的桶与编辑器的桶互不掺混。
 
-浏览器半部住在 `src/client/` 下：`definition.tsx` 与 `file-definition.ts`（各类型是什么）、`store.ts`（它们保存什么）、`face.ts`、`file-face.ts` 与 `file-pages.ts`（它们如何列目录、读文件与保存，含 Remote 绑定）、`file-preview.ts`（预览打开）、`file-editor.ts`（CodeMirror 适配层）、`file-guard.ts`（认领门槛与命名）、`file-lang.ts`（按扩展名的语法）、`file-failure.ts`（编辑器的失败行）、`FileTree.tsx`（共享的树）、`FileSearch.tsx`（搜索框与匹配结果）、`FilesBody.tsx`、`FilesTitle.tsx`、`FileBody.tsx`、`FileTitle.tsx`（它们画什么）、`locales.ts`（它们说什么）、`index.ts`（接线）。
+浏览器半部住在 `src/client/` 下：`definition.tsx` 与 `file-definition.ts`（各类型是什么）、`store.ts`（它们保存什么）、`face.ts`、`file-mutations.ts`、`file-face.ts` 与 `file-pages.ts`（它们如何列目录、改动、读文件与保存，含 Remote 绑定）、`file-preview.ts`（预览打开）、`file-editor.ts`（CodeMirror 适配层）、`file-guard.ts`（认领门槛与命名）、`file-lang.ts`（按扩展名的语法）、`file-failure.ts`（编辑器的失败行）、`FileTree.tsx`（共享的树）、`FileSearch.tsx`（搜索框与匹配结果）、`FilesBody.tsx`、`FilesTitle.tsx`、`FileBody.tsx`、`FileTitle.tsx`（它们画什么）、`locales.ts`（它们说什么）、`index.ts`（接线）。
 
 <a id="the-tree"></a>
 ## 树
@@ -50,6 +50,8 @@ kind: "package-reference"
 把文件拖到窗格上即上传（`UploadOverlay.tsx`）：每个文件整体 PUT 到 `preview-media` 宿主路由 `sidebar/media/upload`，由它经文件系统的 `writeBytes` 写到工作区根之下，完成一批后重载展开中的层。覆盖层按文件报告结果；失败的上传不会改动磁盘。
 
 右键目录或文件行会在光标处打开该行自己的菜单（`FileTree.tsx`）：文件行提供打开，所有行都提供复制工作区相对路径与绝对路径（`copyTextOf`，经 `ui-primitives` 的 `writeClipboard` 写入宿主剪贴板；根自身复制为 `.`）。`other` 行没有菜单。名字本身是符号链接的子项在名称旁带链接图标，因为行图标与类型描述的仍是它解析到的目标。
+
+同一个菜单也承载树的改动（`file-mutations.ts`）：目录提供在其中新建文件或文件夹，每一行都提供就地重命名与删除，右键树的空白背景则在工作区根新建。重命名把那行换成名称输入框——Enter 提交、Escape 放弃、处于输入法组字中的 Enter 留给输入法；新建与删除走对话框，因为一个名字、以及一次会连同目录内容一起的删除，都需要一个答复。名称是单个路径段：首尾空白被去掉，空白、点段、或带分隔符的任何输入都就地拒绝。新建经 `workspaceFiles.write`（不带 `baseVersion`）写入空文件，或经 `createDirectory` 建目录；重命名经 `move` 移动该条目，目标已存在会被拒绝；删除经 `remove`，目录带 `recursive`。每次手势的结果落进该 tab 的改动记录，由行上方的提示条报告——`workspace-file/*` 码用树自己的话，其余用传输层的消息——点关闭即清空。成功后会重新列出该条目所在的目录，打开它的 tab 也随之跟进：地址指向被移动路径的 tab 会在原位置按新地址重新打开，位于被删除路径之上或之下的 tab 会被关闭，因此不会留下指向不存在路径的 tab。宿主对三者都拒绝末端符号链接，提示条如实说明而不隐藏。
 
 标题行下方是文件名搜索（`FileSearch.tsx`）：一个输入框，文本停稳后向 `workspaceFiles` 的 `searchNames` Remote 询问根之下 basename 包含它的文件，不区分大小写。查询存在时匹配结果占据正文——让树回来的是清空的输入框，而不是空结果——点击匹配走树行同一套会话作用域地址打开。输入框文本与最近一次回答都住在该 tab 的 store 桶里，重挂载的正文连同两者一起回来；输入即丢弃上一个回答，因为它描述的是输入框已不再持有的查询。
 
@@ -74,7 +76,7 @@ tab 的地址就是它的整个文件身份：`file-guard.sessionFileOf` 在每�
 ## 已知限制与暂缓事项
 
 <a id="known-limitations-and-deferred-work"></a>
-- **只有列目录与搜索。**没有产物过滤、重命名、当前文件高亮或文件系统监听；一层只会因重新读取而变化。行菜单是打开、展开与复制之外的唯一树上手势。名称搜索是唯一的全局视图（`searchNames`）；没有就地过滤树的能力，上传是树唯一的写入手势（拖放，`ui-sidebar-documentpreview` 的 `preview-media`）。
+- **只有列目录、搜索与行改动。**没有产物过滤、当前文件高亮或文件系统监听；一层只会因重新读取或改动自身的重列而变化。名称搜索是唯一的全局视图（`searchNames`）；没有就地过滤树的能力，上传是树另一项写入手势（拖放，`ui-sidebar-documentpreview` 的 `preview-media`）。重命名把条目留在原目录——没有移动、没有多选，也不能把一行拖到另一个目录上；在新地址重新打开的 tab 会重新读取文件，所以被重命名文件的 tab 里未保存的草稿不会随重命名留下。
 - **只有一个根。**树以会话工作目录为根；没有办法浏览到它之上，而 Host 本来也拒绝工作区根之外的路径。
 - **编辑器上限。**超过 2 MB 的文件不打开（Host 自己的每页上限约束每次读取）；没有搜索面板、没有列选择。
 

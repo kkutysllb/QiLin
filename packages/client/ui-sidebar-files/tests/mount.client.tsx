@@ -24,6 +24,8 @@ import { scriptedList } from './scripted-list.client.ts'
 import type { ScriptedList } from './scripted-list.client.ts'
 import { scriptedSearch } from './scripted-search.client.ts'
 import type { ScriptedSearch } from './scripted-search.client.ts'
+import { recordedReconcile, scriptedMutations } from './scripted-mutations.client.ts'
+import type { RecordedReconcile, ScriptedMutations } from './scripted-mutations.client.ts'
 import type { TabId } from '@qilin/client-ui-dockkit'
 
 export const SESSION = 's-test' as SessionId
@@ -53,6 +55,8 @@ export interface Mounted {
   readonly instance: FilesStoreInstance
   readonly script: ScriptedList
   readonly searchScript: ScriptedSearch
+  readonly mutations: ScriptedMutations
+  readonly tabs: RecordedReconcile
   readonly face: FilesInjected
   readonly controller: AbortController
   readonly tabActions: MockedTabActions
@@ -65,7 +69,11 @@ function harness(cwd: string | null) {
   const instance = createFilesStore().create()
   const script = scriptedList()
   const searchScript = scriptedSearch()
-  const face = filesFace(script.list, searchScript.search)(SESSION, instance.actions)
+  const mutations = scriptedMutations()
+  const tabs = recordedReconcile()
+  const face = filesFace(script.list, searchScript.search, mutations.mutations, tabs.reconcile)(
+    SESSION, instance.actions,
+  )
   const controller = new AbortController()
   const tabActions: MockedTabActions = {
     openResource: vi.fn<SidebarRightTabActions['openResource']>(),
@@ -93,7 +101,7 @@ function harness(cwd: string | null) {
     ...face,
     t: makeTranslate(zh),
   }
-  return { instance, script, searchScript, face, controller, tabActions, shared }
+  return { instance, script, searchScript, mutations, tabs, face, controller, tabActions, shared }
 }
 
 /**

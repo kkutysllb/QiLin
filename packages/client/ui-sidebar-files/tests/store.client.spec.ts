@@ -33,7 +33,9 @@ describe('createFilesStore', () => {
     const { actions } = store
     const getSnapshot = (): ReturnType<typeof store.getSnapshot> => store.getSnapshot()
     actions.start(TAB, ROOT)
-    expect(getSnapshot().byTab[TAB]).toEqual({ root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0, search: { kind: 'idle', query: '' } })
+    expect(getSnapshot().byTab[TAB]).toEqual({
+      root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0, search: { kind: 'idle', query: '' }, mutation: { kind: 'idle' },
+    })
   })
 
   it('walks one level through loading, ready, and failed', () => {
@@ -75,7 +77,9 @@ describe('createFilesStore', () => {
     actions.toggled(TAB, child)
     actions.loaded(TAB, child, LEVEL)
     actions.reset(TAB)
-    expect(getSnapshot().byTab[TAB]).toEqual({ root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0, search: { kind: 'idle', query: '' } })
+    expect(getSnapshot().byTab[TAB]).toEqual({
+      root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0, search: { kind: 'idle', query: '' }, mutation: { kind: 'idle' },
+    })
   })
 
   it('remembers where the body is scrolled to', () => {
@@ -121,5 +125,25 @@ describe('createFilesStore', () => {
     expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'failed', query: 'read', failure })
     actions.searchCleared(TAB)
     expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'idle', query: '' })
+  })
+
+  it('walks one row mutation through running, failed, and cleared', () => {
+    const store = createFilesStore().create()
+    const { actions } = store
+    const getSnapshot = (): ReturnType<typeof store.getSnapshot> => store.getSnapshot()
+    actions.start(TAB, ROOT)
+    expect(getSnapshot().byTab[TAB]!.mutation).toEqual({ kind: 'idle' })
+    actions.mutationStarted(TAB)
+    expect(getSnapshot().byTab[TAB]!.mutation).toEqual({ kind: 'running' })
+    const failure = new RemoteError('workspace-file/exists', 'taken', { path: ROOT })
+    actions.mutationFailed(TAB, failure)
+    expect(getSnapshot().byTab[TAB]!.mutation).toEqual({ kind: 'failed', failure })
+    actions.mutationCleared(TAB)
+    expect(getSnapshot().byTab[TAB]!.mutation).toEqual({ kind: 'idle' })
+  })
+
+  it('refuses to record a row mutation for a tab that was never started', () => {
+    const { actions } = createFilesStore().create()
+    expect(() => { actions.mutationStarted('tab-nowhere' as TabId) }).toThrow('no tree for tab "tab-nowhere"')
   })
 })

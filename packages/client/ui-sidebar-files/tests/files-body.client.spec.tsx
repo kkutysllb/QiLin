@@ -11,9 +11,11 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent } from '@testing-library/react'
+import type { RenderResult } from '@testing-library/react'
 import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
-import { fileAddressFor } from '@qilin/util-workspace-path'
+import type { TabId } from '@qilin/client-ui-dockkit'
+import { fileAddressFor, sessionFileAddress } from '@qilin/util-workspace-path'
 import { copyTextOf, failureLine, orderEntries } from '../src/client/FileTree.tsx'
 import { SEARCH_SETTLE_MS } from '../src/client/face.ts'
 import type { DirLevel } from '../src/client/store.ts'
@@ -36,6 +38,8 @@ const ROOT_LEVEL: DirLevel = {
   ],
   truncated: false,
 }
+
+const SRC_LEVEL: DirLevel = { entries: [{ name: 'a.ts', type: 'file', size: 7 }], truncated: false }
 
 afterEach(() => { cleanup() })
 
@@ -379,5 +383,234 @@ describe('FileTree row menu and link marks', () => {
       expect(view.container.querySelector(`[data-files-path="${ROOT}/${name}"] [data-files-symlink]`)?.getAttribute('title')).toBe(zh['entry.symlink'])
     }
     expect(view.container.querySelector(`[data-files-path="${ROOT}/plain.md"] [data-files-symlink]`)).toBeNull()
+  })
+})
+
+describe('FileTree row mutations', () => {
+  afterEach(() => { cleanup() })
+
+  /** Right-click one row's own button, as the reader does. */
+  function rowMenu(view: RenderResult, path: string): void {
+    act(() => {
+      fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${path}"] > button`)!, { clientX: 5, clientY: 6 })
+    })
+  }
+
+  /** Right-click the tree's own background, below its rows. */
+  function backgroundMenu(view: RenderResult): void {
+    act(() => { fireEvent.contextMenu(view.container.querySelector('[data-files-tree]')!, { clientX: 5, clientY: 6 }) })
+  }
+
+  /** The tree's inline name box. */
+  function nameBox(view: RenderResult): HTMLInputElement {
+    return view.container.querySelector<HTMLInputElement>('[data-files-name-input]')!
+  }
+
+  /** A mounted tree with its root listed. */
+  async function settled() {
+    const mounted = mountBody()
+    await act(() => mounted.script.settle({ ok: true, value: ROOT_LEVEL }))
+    return mounted
+  }
+
+  it('offers create, rename, and delete on a directory row, and open, rename, and delete on a file row', async () => {
+    const { view } = await settled()
+    rowMenu(view, `${ROOT}/src`)
+    expect(view.queryByRole('menuitem', { name: zh['menu.newFile'] })).not.toBeNull()
+    expect(view.queryByRole('menuitem', { name: zh['menu.newFolder'] })).not.toBeNull()
+    expect(view.queryByRole('menuitem', { name: zh['menu.rename'] })).not.toBeNull()
+    expect(view.queryByRole('menuitem', { name: zh['menu.delete'] })).not.toBeNull()
+    expect(view.queryByRole('menuitem', { name: zh['menu.open'] })).toBeNull()
+    // A new folder lands in that same directory; its dialog is the folder one.
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.newFolder'] }))
+    expect(view.getByRole('dialog').getAttribute('aria-label')).toBe(zh['create.directoryTitle'])
+    fireEvent.click(view.getByRole('dialog').querySelector('[data-files-create-cancel]')!)
+    expect(view.queryByRole('dialog')).toBeNull()
+    rowMenu(view, `${ROOT}/README.md`)
+    expect(view.queryByRole('menuitem', { name: zh['menu.open'] })).not.toBeNull()
+    expect(view.queryByRole('menuitem', { name: zh['menu.newFile'] })).toBeNull()
+  })
+
+  it('creates a file in a collapsed directory, opening it first and re-listing it after the write', async () => {
+    const { view, script, mutations, controller } = await settled()
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.newFile'] }))
+    // The entry lands in the directory's own rows, so the tree opens them first.
+    expect(script.list).toHaveBeenLastCalledWith(SESSION, `${ROOT}/src`, controller.signal)
+    const dialog = view.getByRole('dialog')
+    expect(dialog.getAttribute('aria-label')).toBe(zh['create.fileTitle'])
+    expect(dialog.querySelector('[data-files-create-name]')?.getAttribute('placeholder')).toBe(zh['create.placeholder'])
+    fireEvent.change(dialog.querySelector('[data-files-create-name]')!, { target: { value: '  note.md  ' } })
+    fireEvent.click(dialog.querySelector('[data-files-create-confirm]')!)
+    // The typed text is trimmed before it becomes a name, and the dialog closes.
+    expect(mutations.createFile.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/src/note.md`, controller.signal)
+    expect(view.queryByRole('dialog')).toBeNull()
+    expect(view.container.querySelector('[data-files-row="mutation-running"]')?.textContent).toBe(zh.mutating)
+    await act(() => mutations.createFile.settle({ ok: true, value: undefined }))
+    expect(script.list).toHaveBeenLastCalledWith(SESSION, `${ROOT}/src`, controller.signal)
+    expect(view.container.querySelector('[data-files-row="mutation-running"]')).toBeNull()
+  })
+
+  it('creates from the tree background at the workspace root, refusing a blank name in place, and cancels', async () => {
+    const { view, script, mutations, controller } = await settled()
+    backgroundMenu(view)
+    expect(view.queryByRole('menuitem', { name: zh['menu.rename'] })).toBeNull()
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.newFolder'] }))
+    const dialog = view.getByRole('dialog')
+    expect(dialog.getAttribute('aria-label')).toBe(zh['create.directoryTitle'])
+    expect(dialog.textContent).toContain(ROOT)
+    fireEvent.click(dialog.querySelector('[data-files-create-confirm]')!)
+    expect(dialog.querySelector('[data-files-create-invalid]')?.textContent).toBe(zh['name.invalid'])
+    expect(mutations.createDirectory.mock).not.toHaveBeenCalled()
+    fireEvent.change(dialog.querySelector('[data-files-create-name]')!, { target: { value: 'docs' } })
+    fireEvent.click(dialog.querySelector('[data-files-create-confirm]')!)
+    expect(mutations.createDirectory.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/docs`, controller.signal)
+    await act(() => mutations.createDirectory.settle({ ok: true, value: undefined }))
+    // The directory that gained the entry is read again, so wait for its rows.
+    await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+
+    // A second create is abandoned: the dialog's own cancel asks the Host nothing.
+    fireEvent.click(view.container.querySelector(`[data-files-path="${ROOT}/src"] > button`)!)
+    await act(() => script.settle({ ok: true, value: SRC_LEVEL }))
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.newFile'] }))
+    fireEvent.click(view.getByRole('dialog').querySelector('[data-files-create-cancel]')!)
+    expect(view.queryByRole('dialog')).toBeNull()
+    expect(mutations.createFile.mock).not.toHaveBeenCalled()
+  })
+
+  it('closes the create dialog on Escape without asking the Host', async () => {
+    const { view, mutations } = await settled()
+    backgroundMenu(view)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.newFile'] }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(view.queryByRole('dialog')).toBeNull()
+    expect(mutations.createFile.mock).not.toHaveBeenCalled()
+  })
+
+  it('renames a row in place: Enter moves the entry and retargets the tab open on it', async () => {
+    const { view, script, mutations, tabs, controller } = await settled()
+    tabs.openTabs([{ id: 'tab-a' as TabId, contentId: sessionFileAddress(SESSION, 'README.md') }])
+    script.list.mockClear()
+    rowMenu(view, `${ROOT}/README.md`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.rename'] }))
+    const box = nameBox(view)
+    expect(box.value).toBe('README.md')
+    expect(box.getAttribute('aria-label')).toBe(zh['menu.rename'])
+    expect(box.hasAttribute('aria-invalid')).toBe(false)
+    // A click inside the box stays the box's own.
+    fireEvent.click(box)
+    fireEvent.change(box, { target: { value: 'GUIDE.md' } })
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(mutations.move.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/README.md`, `${ROOT}/GUIDE.md`, controller.signal)
+    expect(view.container.querySelector('[data-files-name-input]')).toBeNull()
+    await act(() => mutations.move.settle({ ok: true, value: undefined }))
+    expect(tabs.openResourceIn).toHaveBeenCalledWith(
+      SESSION,
+      sessionFileAddress(SESSION, 'GUIDE.md'),
+      { replaceTab: 'tab-a' },
+    )
+    // The directory that held the entry is read again.
+    expect(script.list.mock.calls.map(call => call[1])).toEqual([ROOT])
+  })
+
+  it('refuses a rename that is not one name, and abandons it on Escape', async () => {
+    const { view, mutations } = await settled()
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.rename'] }))
+    const box = nameBox(view)
+    fireEvent.change(box, { target: { value: '   ' } })
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(box.getAttribute('aria-invalid')).toBe('true')
+    fireEvent.change(box, { target: { value: 'a/b' } })
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(box.getAttribute('aria-invalid')).toBe('true')
+    expect(mutations.move.mock).not.toHaveBeenCalled()
+    fireEvent.keyDown(box, { key: 'Escape' })
+    expect(view.container.querySelector('[data-files-name-input]')).toBeNull()
+    expect(mutations.move.mock).not.toHaveBeenCalled()
+  })
+
+  it('leaves an entry named as it already was alone, and lets an IME finish its own Enter', async () => {
+    const { view, mutations } = await settled()
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.rename'] }))
+    const box = nameBox(view)
+    // A composing Enter commits the composition, not the name.
+    fireEvent.keyDown(box, { key: 'Enter', isComposing: true })
+    expect(view.container.querySelector('[data-files-name-input]')).not.toBeNull()
+    // Any other key leaves the box to the reader.
+    fireEvent.keyDown(box, { key: 'a' })
+    expect(view.container.querySelector('[data-files-name-input]')).not.toBeNull()
+    fireEvent.change(box, { target: { value: ' src ' } })
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(mutations.move.mock).not.toHaveBeenCalled()
+    expect(view.container.querySelector('[data-files-name-input]')).toBeNull()
+  })
+
+  it('deletes a directory whole after confirming, closing the tabs under it', async () => {
+    const { view, script, mutations, tabs, controller } = await settled()
+    tabs.openTabs([{ id: 'tab-b' as TabId, contentId: sessionFileAddress(SESSION, 'src/a.ts') }])
+    script.list.mockClear()
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.delete'] }))
+    const dialog = view.getByRole('dialog')
+    expect(dialog.getAttribute('aria-label')).toBe('删除「src」？')
+    expect(dialog.textContent).toContain(zh['delete.directoryBody'])
+    fireEvent.click(dialog.querySelector('[data-files-delete-confirm]')!)
+    expect(mutations.remove.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/src`, true, controller.signal)
+    await act(() => mutations.remove.settle({ ok: true, value: undefined }))
+    expect(tabs.closeIn).toHaveBeenCalledWith(SESSION, 'tab-b')
+    expect(script.list.mock.calls.map(call => call[1])).toEqual([ROOT])
+  })
+
+  it('deletes a file without recursion, and abandoning the dialog asks nothing', async () => {
+    const { view, mutations, controller } = await settled()
+    rowMenu(view, `${ROOT}/README.md`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.delete'] }))
+    const dialog = view.getByRole('dialog')
+    expect(dialog.textContent).toContain(zh['delete.fileBody'])
+    fireEvent.click(dialog.querySelector('[data-files-delete-cancel]')!)
+    expect(view.queryByRole('dialog')).toBeNull()
+    expect(mutations.remove.mock).not.toHaveBeenCalled()
+
+    rowMenu(view, `${ROOT}/README.md`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.delete'] }))
+    fireEvent.click(view.getByRole('dialog').querySelector('[data-files-delete-confirm]')!)
+    expect(mutations.remove.mock).toHaveBeenCalledWith(SESSION, `${ROOT}/README.md`, false, controller.signal)
+  })
+
+  it('closes the delete dialog on Escape', async () => {
+    const { view, mutations } = await settled()
+    rowMenu(view, `${ROOT}/src`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.delete'] }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(view.queryByRole('dialog')).toBeNull()
+    expect(mutations.remove.mock).not.toHaveBeenCalled()
+  })
+
+  it('closes a row menu on Escape', async () => {
+    const { view } = await settled()
+    rowMenu(view, `${ROOT}/src`)
+    expect(view.queryByRole('menu')).not.toBeNull()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(view.queryByRole('menu')).toBeNull()
+  })
+
+  it('reports a refused mutation over the rows and clears it on dismissal', async () => {
+    const { view, instance, mutations } = await settled()
+    rowMenu(view, `${ROOT}/README.md`)
+    fireEvent.click(view.getByRole('menuitem', { name: zh['menu.delete'] }))
+    fireEvent.click(view.getByRole('dialog').querySelector('[data-files-delete-confirm]')!)
+    await act(() => mutations.remove.settle({
+      ok: false,
+      error: new RemoteError('workspace-file/not-regular-file', 'link', { path: `${ROOT}/README.md`, kind: 'symlink' }),
+    }))
+    const strip = view.container.querySelector('[data-files-row="mutation-failed"]')!
+    expect(strip.getAttribute('data-files-code')).toBe('workspace-file/not-regular-file')
+    expect(strip.textContent).toContain(zh['error.notRegular'])
+    fireEvent.click(view.container.querySelector('[data-files-mutation-dismiss]')!)
+    expect(view.container.querySelector('[data-files-row="mutation-failed"]')).toBeNull()
+    expect(instance.getSnapshot().byTab[TAB]!.mutation).toEqual({ kind: 'idle' })
   })
 })

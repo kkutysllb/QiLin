@@ -10,7 +10,8 @@
  *
  * The file split is this package's layering: what each type IS
  * (`definition.tsx`, `file-definition.ts`), what it keeps (`store.ts`), how it
- * lists and saves (`face.ts`, `file-face.ts`, `file-pages.ts`), how it hands a
+ * lists, mutates, and saves (`face.ts`, `file-mutations.ts`, `file-face.ts`,
+ * `file-pages.ts`), how it hands a
  * file to the preview viewer (`file-preview.ts`), what it draws
  * (`FilesBody.tsx`, `FilesTitle.tsx`, `FileBody.tsx`, `FileTitle.tsx`,
  * `FileTree.tsx`), the editor surface behind the adapter (`file-editor.ts`),
@@ -28,6 +29,7 @@ import type {} from '@qilin/client-ui-sidebar-right/client'
 import { FILES_ID, filesDefinition } from './definition.tsx'
 import { FILE_ID, fileDefinition } from './file-definition.ts'
 import { createList, createSearch, filesFace } from './face.ts'
+import { createMutations, createTabReconcile } from './file-mutations.ts'
 import { fileEditFace } from './file-face.ts'
 import { filePreviewFace } from './file-preview.ts'
 import type { FilesInjected } from './face.ts'
@@ -118,7 +120,12 @@ export function apply(ctx: ClientContext): void {
   // One store instance per session, shared by both seats: the editor's tree
   // pane and the files page keep their buckets apart by tab id.
   const store = createFilesStore()
-  const treeFace = filesFace(createList(ctx.remote), createSearch(ctx.remote))
+  const treeFace = filesFace(
+    createList(ctx.remote),
+    createSearch(ctx.remote),
+    createMutations(ctx.remote),
+    createTabReconcile(ctx.sidebarRight),
+  )
   const editFace = fileEditFace(
     createReadWhole(createReadPage(ctx.remote)),
     createWriteFile(ctx.remote),

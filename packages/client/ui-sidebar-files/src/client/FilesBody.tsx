@@ -64,7 +64,8 @@ function usePathClipped(
 
 /** The file tree's body: the workspace root and whatever the reader has opened under it. */
 export function FilesBody({
-  useTabInfo, sessionId, useSessions, useStore, actions, start, load, toggle, search, t, renderSlot,
+  useTabInfo, sessionId, useSessions, useStore, actions, start, load, toggle, search, createEntry, renameEntry,
+  removeEntry, t, renderSlot,
 }: FilesBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const { signal, actions: tabActions } = tab
@@ -183,6 +184,10 @@ export function FilesBody({
                 onToggle={(path) => { toggle(tab.id, path, state.levels[path] !== undefined, signal) }}
                 // Every row is under the tree's root, so its address is session-relative.
                 onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, state.root, path)) }}
+                onCreate={(directory, name, kind) => { createEntry(tab.id, directory, name, kind, signal) }}
+                onRename={(path, name) => { renameEntry(tab.id, path, name, state.root, signal) }}
+                onDelete={(path, kind) => { removeEntry(tab.id, path, kind, state.root, signal) }}
+                onDismissMutation={() => { actions.mutationCleared(tab.id) }}
                 t={t}
               />
             )}

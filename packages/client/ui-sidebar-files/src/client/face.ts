@@ -1,28 +1,35 @@
 /**
- * The tree's asynchronous half: listing directories into the store.
+ * The tree's asynchronous half: listing directories into the store, and the
+ * row mutations that change what a directory holds.
  *
- * The component never awaits anything. It calls `start` / `load` / `toggle`, and
- * this face performs the listing and writes the outcome through the store's own
- * actions — the Slot-standard `inject` shape, so the session id is resolved by
- * the framework and the write set stays the store's.
+ * The component never awaits anything. It calls `start` / `load` / `toggle` /
+ * `search` / `createEntry` / `renameEntry` / `removeEntry`, and this face
+ * performs the work and writes the outcome through the store's own actions —
+ * the Slot-standard `inject` shape, so the session id is resolved by the
+ * framework and the write set stays the store's.
  *
  * The listing itself is bound here to the Client Remote face: the tree keys
  * every level by absolute path and hands the endpoint that same absolute path;
  * the endpoint answers with the directory's workspace-relative path as well,
- * which the tree has no use for and drops.
+ * which the tree has no use for and drops. The mutations are bound the same
+ * way, and their successful settlement re-lists the directory that held the
+ * entry and reconciles the tabs open on the touched path.
  *
- * One level has one listing in force: asking for a level again — the reload
- * gesture, a directory reopened after a reset — retires the listing still in
- * flight for it, whose settlement then writes nothing. Cleanup rides the owner's
- * `signal`: a request is not made for a record that already ended, and when the
- * record goes away the bucket and the tab's listing bookkeeping are forgotten,
- * so no later settlement writes to it.
+ * One level has one listing in force, and one tab has one mutation in force:
+ * asking for a level again — the reload gesture, a directory reopened after a
+ * reset — retires the listing still in flight for it, and a newer gesture
+ * retires the mutation still out, whose settlement then writes nothing.
+ * Cleanup rides the owner's `signal`: a request is not made for a record that
+ * already ended, and when the record goes away the bucket and the tab's
+ * listing bookkeeping are forgotten, so no later settlement writes to it.
  */
 import type { ClientRemote, RemoteResult } from '@qilin/api-remotes/client'
 import type { BoundActions } from '@qilin/client-store'
 import type { TabId } from '@qilin/client-ui-dockkit'
 import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
 import type { SessionId } from '@qilin/session/types'
+import { joinEntryPath, parentDirectoryOf } from './file-mutations.ts'
+import type { EntryKind, TabReconcile, WorkspaceFileMutations } from './file-mutations.ts'
 import type { DirLevel, createFilesStore } from './store.ts'
 
 /**
@@ -94,19 +101,8 @@ export function createSearch(
 }
 
 /**
- * The absolute path of one child entry.
- *
- * Joined with `/` whatever the parent's separators: the Host resolves mixed
- * separators, and the tree only needs a stable key.
- * @param parent - absolute path of the listed directory.
- * @param name - the entry's basename.
- * @returns the child's absolute path.
+ * The tree's injected business face, as the body receives it.
  */
-export function childPath(parent: string, name: string): string {
-  return `${parent.replace(/[/\\]+$/, '')}/${name}`
-}
-
-/** The tree's injected business face, as the body receives it. */
 export interface FilesInjected {
   /**
    * Seed this tab's tree and list its root.
@@ -137,17 +133,55 @@ export interface FilesInjected {
    * @param signal - the tab record's lifetime.
    */
   readonly search: (tabId: TabId, query: string, signal: AbortSignal) => void
+  /**
+   * Create one empty file or one directory inside a listed directory.
+   * @param tabId - the tab being drawn.
+   * @param directory - absolute path of the directory to create the entry in.
+   * @param name - the entry name, already normalized by the caller.
+   * @param kind - whether to write an empty file or make a directory.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly createEntry: (
+    tabId: TabId,
+    directory: string,
+    name: string,
+    kind: EntryKind,
+    signal: AbortSignal,
+  ) => void
+  /**
+   * Rename one entry in place, keeping it in its own directory.
+   * @param tabId - the tab being drawn.
+   * @param path - absolute path of the entry to rename.
+   * @param name - the entry name, already normalized by the caller.
+   * @param root - absolute workspace root, which the tabs' addresses are relative to.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly renameEntry: (tabId: TabId, path: string, name: string, root: string, signal: AbortSignal) => void
+  /**
+   * Delete one entry; a directory goes with everything inside it.
+   * @param tabId - the tab being drawn.
+   * @param path - absolute path of the entry to delete.
+   * @param kind - whether the entry is a directory, which decides `recursive`.
+   * @param root - absolute workspace root, which the tabs' addresses are relative to.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly removeEntry: (tabId: TabId, path: string, kind: EntryKind, root: string, signal: AbortSignal) => void
 }
 
 /**
- * Bind the tree's face to one directory listing and one filename search.
+ * Bind the tree's face to one directory listing, one filename search, and the
+ * row mutations.
  * @param list - the bound `workspaceFiles.list` call.
  * @param searchNames - the bound `workspaceFiles.searchNames` call.
+ * @param mutations - the bound create, move, and remove calls.
+ * @param reconcile - how a touched path is settled against the open tabs.
  * @returns the Slot `inject` factory: session and bound actions in, face out.
  */
 export function filesFace(
   list: ListWorkspaceDirectory,
   searchNames: SearchWorkspaceFileNames,
+  mutations: WorkspaceFileMutations,
+  reconcile: TabReconcile,
 ): (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>) => FilesInjected {
   return (
     sessionId: SessionId,
@@ -204,6 +238,34 @@ export function filesFace(
         })
       }, SEARCH_SETTLE_MS))
     }
+    /**
+     * Per tab, the mutation generation a settlement must match: the newest
+     * gesture wins, and an answer for a replaced one is dropped rather than
+     * written or re-listed.
+     */
+    const mutationGenerations = new Map<TabId, number>()
+    const mutate = (
+      tabId: TabId,
+      signal: AbortSignal,
+      call: () => Promise<RemoteResult<unknown>>,
+      settle: () => void,
+    ): void => {
+      if (signal.aborted) return
+      const generation = (mutationGenerations.get(tabId) ?? 0) + 1
+      mutationGenerations.set(tabId, generation)
+      actions.mutationStarted(tabId)
+      void call().then((result) => {
+        // A newer gesture was asked for since, or the record is gone and its
+        // bookkeeping with it: nothing left for this one to write or reload.
+        if (signal.aborted || mutationGenerations.get(tabId) !== generation) return
+        if (!result.ok) {
+          actions.mutationFailed(tabId, result.error)
+          return
+        }
+        actions.mutationCleared(tabId)
+        settle()
+      })
+    }
     return {
       start(tabId, root, signal) {
         actions.start(tabId, root)
@@ -213,6 +275,7 @@ export function filesFace(
           settling.delete(tabId)
           queryGenerations.delete(tabId)
           generations.delete(tabId)
+          mutationGenerations.delete(tabId)
           actions.forget(tabId)
         }, { once: true })
         load(tabId, root, signal)
@@ -224,6 +287,47 @@ export function filesFace(
       },
       search(tabId, query, signal) {
         searchQuery(tabId, query, signal)
+      },
+      createEntry(tabId, directory, name, kind, signal) {
+        const path = joinEntryPath(directory, name)
+        mutate(
+          tabId,
+          signal,
+          () => kind === 'file'
+            ? mutations.createFile(sessionId, path, signal)
+            : mutations.createDirectory(sessionId, path, signal),
+          () => { load(tabId, directory, signal) },
+        )
+      },
+      renameEntry(tabId, path, name, root, signal) {
+        // A rename keeps the entry in its directory, so a path naming no
+        // directory is a caller that never had a row to act on.
+        const directory = parentDirectoryOf(path)
+        if (directory === '') throw new Error(`ui-sidebar-files: "${path}" has no parent directory`)
+        const destination = joinEntryPath(directory, name)
+        mutate(
+          tabId,
+          signal,
+          () => mutations.move(sessionId, path, destination, signal),
+          () => {
+            reconcile.moved(sessionId, root, path, destination)
+            load(tabId, directory, signal)
+          },
+        )
+      },
+      removeEntry(tabId, path, kind, root, signal) {
+        // As for a rename: a removed entry is named under a directory.
+        const directory = parentDirectoryOf(path)
+        if (directory === '') throw new Error(`ui-sidebar-files: "${path}" has no parent directory`)
+        mutate(
+          tabId,
+          signal,
+          () => mutations.remove(sessionId, path, kind === 'directory', signal),
+          () => {
+            reconcile.removed(sessionId, root, path)
+            load(tabId, directory, signal)
+          },
+        )
       },
     }
   }

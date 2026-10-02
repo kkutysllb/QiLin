@@ -59,7 +59,8 @@ function statusLine(edit: FileEditState, t: FileBodyProps['t']): string {
 
 /** The file editor's body: the tree pane and the open file's editor pane. */
 export function FileBody({
-  useTabInfo, sessionId, useSessions, useStore, actions, start, toggle, readFile, saveFile, openPreview, t,
+  useTabInfo, sessionId, useSessions, useStore, actions, start, toggle, createEntry, renameEntry, removeEntry,
+  readFile, saveFile, openPreview, t,
 }: FileBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const { signal, actions: tabActions } = tab
@@ -292,6 +293,10 @@ export function FileBody({
                 // Every row is under the tree's root, so its address is
                 // session-relative; the open lands on this type and dedupes.
                 onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, root, path)) }}
+                onCreate={(directory, name, kind) => { createEntry(tab.id, directory, name, kind, signal) }}
+                onRename={(path, name) => { renameEntry(tab.id, path, name, root, signal) }}
+                onDelete={(path, kind) => { removeEntry(tab.id, path, kind, root, signal) }}
+                onDismissMutation={() => { actions.mutationCleared(tab.id) }}
                 t={t}
               />
             </div>

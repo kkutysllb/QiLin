@@ -28,6 +28,8 @@ import { scriptedList } from './scripted-list.client.ts'
 import type { ScriptedList } from './scripted-list.client.ts'
 import { scriptedEdit } from './scripted-edit.client.ts'
 import type { ScriptedEdit } from './scripted-edit.client.ts'
+import { recordedReconcile, scriptedMutations } from './scripted-mutations.client.ts'
+import type { RecordedReconcile, ScriptedMutations } from './scripted-mutations.client.ts'
 import type { TabId } from '@qilin/client-ui-dockkit'
 
 export const SESSION = 's-test' as SessionId
@@ -59,6 +61,8 @@ export interface MountedFile {
   readonly instance: FilesStoreInstance
   readonly script: ScriptedList
   readonly edits: ScriptedEdit
+  readonly mutations: ScriptedMutations
+  readonly tabs: RecordedReconcile
   readonly controller: AbortController
   readonly tabActions: MockedTabActions
   /** The Sidebar controller mock the preview open records on. */
@@ -78,9 +82,13 @@ function harness(cwd: string | null, initialParams: Record<string, unknown> | un
   const instance = createFilesStore().create()
   const script = scriptedList()
   const edits = scriptedEdit()
+  const mutations = scriptedMutations()
+  const tabs = recordedReconcile()
   // The editor's tree pane never opens the search box, so its search hand is
   // the scripted mock's default: never called.
-  const treeFace: FilesInjected = filesFace(script.list, vi.fn())(SESSION, instance.actions)
+  const treeFace: FilesInjected = filesFace(script.list, vi.fn(), mutations.mutations, tabs.reconcile)(
+    SESSION, instance.actions,
+  )
   const editFace: FileEditorInjected = fileEditFace(edits.readWhole, edits.write)(SESSION, instance.actions)
   const controller = new AbortController()
   const tabActions: MockedTabActions = {
@@ -114,7 +122,7 @@ function harness(cwd: string | null, initialParams: Record<string, unknown> | un
     ...filePreviewFace(sidebarRight as unknown as ISidebarRight)(),
     t: makeTranslate(zh),
   }
-  return { instance, script, edits, controller, tabActions, sidebarRight, navigation, shared }
+  return { instance, script, edits, mutations, tabs, controller, tabActions, sidebarRight, navigation, shared }
 }
 
 /**
