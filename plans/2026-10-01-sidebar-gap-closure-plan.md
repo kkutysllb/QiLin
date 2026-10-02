@@ -306,3 +306,34 @@ kind: "plan"
 - 覆盖率：fs / fs-local / fs-sandbox 本包范围 **100%**；fs-ssh、ssh helper、workspace-files 的剩余未覆盖行经脚本比对确认全部是**改动前既有行**，新代码 100%。
 - `doc-sync` 40 passed / 2 failed，两条均为预存红（persistence type history 摘要、已提交 plan 文档第 259 行的提交哈希引用）。
 - 生成物：5 个包 README 中英 + 配对重录、`docs/subsystems/filesystem.md|zh`（新小节与错误码 type-equiv 块）、`docs/subsystems/workspace.md|zh`、`config-catalog.*`、`event-producer-consumer.*`、`tool-kylin/src/api-catalog.ts`、`scripts/gen-kylin-catalog.ts`（+2 条类型归属）。
+
+## 批次执行状态补充二十四（2026-10-02 20:05）——批次三「资源管理器新建/重命名/删除」与一处新遗留
+
+### 一、批次三（提交主体：`feat(ui-sidebar-files): rename, delete, and create entries from the tree`）
+
+- **新模块 `file-mutations.ts`**：名称校验（trim；拒空/`.`/`..`/含分隔符）、路径拼接与父子判定、失败文案映射（`not-found/exists/not-empty/not-regular-file/outside-workspace` 各有可读文案，`FS_*` 透传码走通用），四个 Remote 绑定，以及**打开标签的迁移/关闭**（`replaceTab` 在原 pane 按新地址重开；删除则关闭其下标签）。
+- **交互**：文件行菜单＝打开/重命名/删除/复制相对与绝对路径；目录行＝新建文件/新建文件夹/重命名/删除/复制两式；树背景＝根级新建。重命名是**行内输入**（Enter 提交、Escape 取消、组字不提交、非法名就地 `aria-invalid` 且不发请求、同名不发请求）；新建与删除用既有 Modal（目录删除提示会一并删内容并传 `recursive:true`）。
+- **数据流**：新增每 tab 的 `mutationGenerations`（新手势胜出，旧结算不写状态也不重列，abort 时清理）；成功后重列**持有该条目的目录**；失败走既有失败条语言。
+- 新增 22 个 zh/en 成对 locale 键；README 中英同步并重录配对。
+
+### 二、验证与对拍
+
+- 包内 172 例全绿；`file-mutations.ts`、`FileTree.tsx` 覆盖率 **100%**。
+- **覆盖率对拍**：把本包 `git stash` 回工作树前状态跑同一命令，未覆盖行与改动后**逐一同源**（`FileBody`、`FilesBody`、`UploadOverlay`、`face.ts` 各 1–2 处，行号仅因插行位移），整包覆盖率反而由 98.53% 升到 98.85% → 本批零新增缺口。
+- **lint 对拍**：`git stash` 前后跑 `scripts/run-oxlint.ts` 均为 **88 errors** → 本批零新增。
+- `tsc -b tsconfig.client.json` exit 0；`verify-client-ui-i18n`、`verify-translation-pairing` 全绿。
+
+### 三、`test:gui` 的 6 处红全部为预存（附证据，不修）
+
+| 失败用例 | 事实 |
+|---|---|
+| `ui-theme` › every sheet that scrolls on an elevated surface rebinds | 报错点名 **`ui-model-selection/src/client/ModelSelect.module.css`**（本会话未触碰该包）；我新增的 CSS 只有 `overflow: hidden` 与 `text-overflow`，无滚动面、无 elevated 底色 |
+| `ui-settings-general` › projects the section ledger | 缺 `'sidebar-right'` 区块——见下节新遗留；期望值自 2026-09-26 起就在，测试文件与相关实现本会话未改 |
+| `ui-sidebar-right` › expand-button / seat（2 例） | 均为 `Unable to find role="tooltip"`；两个 spec 最后改动 2026-09-30（早于本会话全部提交） |
+| `ui-trajectory` › marks an unloaded history prefix | 同「tooltip 类」既有红，补充二十已登记 |
+
+结论：本会话三个特性批次（Git 历史、fs seam、资源管理器操作）在各自包内全绿，且零新增 lint / 零新增覆盖缺口。
+
+### 四、新发现遗留：侧栏设置区块「已实现但从未交付」
+
+`packages/client/ui-sidebar-right/src/client/tabs/settings/TabSettingsSection.tsx`（每个 tab 类型一个开关的设置页）**从未注册**——全仓只有它自己的 spec 导入它；`src/client/prefs.ts`（`readDisabledTabs`/`writeDisabledTabs`）**也没有任何消费者**。这正是 `ui-settings-general` 那条红的原因，与补充二十的「团队页半交付」同类。处置：单独一批（进行中），把注册、观察源、开关语义（关掉的类型不出现在引导页、拒绝新打开、已开标签保持渲染）与持久化接通，并让该 spec 转绿。
