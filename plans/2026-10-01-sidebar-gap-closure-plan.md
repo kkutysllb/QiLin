@@ -279,3 +279,30 @@ kind: "plan"
 ### 三、下一批（进行中）
 
 `ctx.fs` 能力 seam 增加 `remove` / `move` / `createDirectory`（fs、fs-local、fs-sandbox、fs-ssh 与 SSH helper、workspace-files 三个 Remote），为资源管理器右键菜单（重命名、删除、新建）提供能力；随后是客户端资源管理器 UI。
+
+## 批次执行状态补充二十三（2026-10-02 19:45）——批次二「文件系统 seam：删除/移动/新建目录」
+
+上游资源管理器能重命名、删除、新建，而本仓 `ctx.fs` 只有读与写——**能力本身不存在**，所以先补 seam，再做 UI。提交 `5b8b97df9d`。
+
+### 一、改动
+
+- **seam（`packages/fs/fs`）**：`FileSystem` 增三个 abstract：`remove(target,{recursive})`（非空目录在 `recursive:false` 下以 `FS_NOT_EMPTY` 拒绝）、`move(from,to,{overwrite})`（目标存在即 `FS_EXISTS`；目标为空目录时先 rmdir 再 rename，使替换语义跨平台一致）、`createDirectory(target,{recursive})`；新增 `FsRemoveOutcome`/`FsMoveOutcome` 与错误码 `FS_NOT_EMPTY`/`FS_EXISTS`。
+- **fs-local**：`fsio.ts` 的 `removePath`/`movePath`/`createDirectoryPath` + `mutationIoError` 分类（ENOENT→not-found、EACCES/EPERM→permission、其余含 EXDEV/ENOTDIR→I/O，**不做隐式复制**）。`move` 按**排序后的 targetKey** 取两把锁（同 key 只取一次），注释说明防双向并发互等。
+- **fs-sandbox**：先围栏再委托；`move` 用调用方策略**同时**围栏两端，目标越界则整次拒绝。
+- **fs-ssh + ssh helper**：三个操作经 helper RPC；helper dispatch 增两个分支（不加则真机 `Unknown SSH helper operation`）。helper 侧结果 schema 就近内联，未动 `schemas.ts` 以缩小越界面。
+- **workspace-files**：三个 `@Remote`，复用既有 entry 探测 + `confine` + `publish` 的 per-call `workspace-write` 策略；**末端符号链接一律拒绝**（与 `write` 同口径）；成功发 `fs/observed`：删除 absent、移动 源 absent + 目标 present、新建目录 present。新增错误码 `workspace-file/exists`、`workspace-file/not-empty`。
+- 四个包的测试替身因 abstract 方法补了 3 行 stub（`fs/tool-fs`、`skill/skill-filesystem`、`context/agent-instructions`、`bundle/headless` 夹具），未改任何既有断言。
+
+### 二、裁决记录（三条有意决定，均写入 README/JSDoc）
+
+1. **`move` 固定不覆盖**：目标已存在一律 `workspace-file/exists`。重命名是高频破坏性操作，默认不替换更安全；要「覆盖式重命名」需另加 wire 参数。
+2. **拒绝末端 symlink**：沿用 `write` 的既有门禁，资源管理器因此**不能**直接删除/重命名链接条目本身；seam 层按解析身份操作。要支持需给 seam 增 no-follow 口径。
+3. **三个变更操作不受 `fs/write-intent`/`fs/edit-intent` 守卫、无版本防护**：与 Remote `write` 绕过该 slot 的先例一致（该 slot 的 actor 是 Agent，浏览器操作没有 actor）。
+
+### 三、验证
+
+- 六包 `vitest run`：43 文件 / 644 passed / 3 skipped，exit 0（父代理独立复跑一致）。
+- 逐包 `tsc --noEmit` ×5 exit 0；`pnpm run typecheck` exit 0；`build:lib:host` exit 0（生成的 remote client 已含三方法）。
+- 覆盖率：fs / fs-local / fs-sandbox 本包范围 **100%**；fs-ssh、ssh helper、workspace-files 的剩余未覆盖行经脚本比对确认全部是**改动前既有行**，新代码 100%。
+- `doc-sync` 40 passed / 2 failed，两条均为预存红（persistence type history 摘要、已提交 plan 文档第 259 行的提交哈希引用）。
+- 生成物：5 个包 README 中英 + 配对重录、`docs/subsystems/filesystem.md|zh`（新小节与错误码 type-equiv 块）、`docs/subsystems/workspace.md|zh`、`config-catalog.*`、`event-producer-consumer.*`、`tool-kylin/src/api-catalog.ts`、`scripts/gen-kylin-catalog.ts`（+2 条类型归属）。
