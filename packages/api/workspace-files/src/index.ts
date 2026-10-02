@@ -536,7 +536,7 @@ export class WorkspaceFiles extends TypertRemoteService {
    * @returns nothing; the caller observes the removal through `list`/`stat`.
    */
   @Remote
-  async remove(
+  async delete(
     workspaceFileScope: WorkspaceFileScope,
     path: string,
     recursive: boolean,

@@ -126,7 +126,7 @@ export interface WorkspaceFileMutations {
  * exactly as the Host's generated client declares it.
  */
 export type WorkspaceFilesMutationRemote = {
-  readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'write' | 'createDirectory' | 'move' | 'remove'>
+  readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'write' | 'createDirectory' | 'move' | 'delete'>
 }
 
 /**
@@ -139,7 +139,9 @@ export function createMutations(remote: WorkspaceFilesMutationRemote): Workspace
     createFile: (sessionId, path, signal) => remote.workspaceFiles.write(sessionId, path, '', {}, signal),
     createDirectory: (sessionId, path, signal) => remote.workspaceFiles.createDirectory(sessionId, path, signal),
     move: (sessionId, from, to, signal) => remote.workspaceFiles.move(sessionId, from, to, signal),
-    remove: (sessionId, path, recursive, signal) => remote.workspaceFiles.remove(sessionId, path, recursive, signal),
+    // The wire operation is `delete`: `remove` is reserved on the Host's
+    // namespace service, which refuses a mounted method that shadows it.
+    remove: (sessionId, path, recursive, signal) => remote.workspaceFiles.delete(sessionId, path, recursive, signal),
   }
 }
 

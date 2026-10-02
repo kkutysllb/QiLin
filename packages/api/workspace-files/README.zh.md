@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-把本包与 `qilin-fs`、`qilin-sandbox-policy`、Session store 和 Typert Gateway 一起挂载；bundle 把它紧随 Session Controller 之后挂载。每个方法都在线路上携带 Session 身份，Client 调用 `remote.workspaceFiles.read(sessionId, path, range, signal)`、`stat(sessionId, path, signal)`、`readBytes(sessionId, path, range, signal)`、`write(sessionId, path, text, { baseVersion? }, signal)`、`remove(sessionId, path, recursive, signal)`、`move(sessionId, from, to, signal)`、`createDirectory(sessionId, path, signal)`、`list(sessionId, path, signal)`、`searchNames(sessionId, query, signal)` 或 `changes(sessionId, signal)`，从不自己指定根。Host 读取 live Session header，cold Session 则使用持久层 `stat`；它不会激活 Agent、读取事件正文或借用父 Session 的根。live 读取不要求挂载 Session persistence；未挂载时 cold Session 无法解析，Gateway 返回 `gateway/lookup-not-found`。
+把本包与 `qilin-fs`、`qilin-sandbox-policy`、Session store 和 Typert Gateway 一起挂载；bundle 把它紧随 Session Controller 之后挂载。每个方法都在线路上携带 Session 身份，Client 调用 `remote.workspaceFiles.read(sessionId, path, range, signal)`、`stat(sessionId, path, signal)`、`readBytes(sessionId, path, range, signal)`、`write(sessionId, path, text, { baseVersion? }, signal)`、`delete(sessionId, path, recursive, signal)`、`move(sessionId, from, to, signal)`、`createDirectory(sessionId, path, signal)`、`list(sessionId, path, signal)`、`searchNames(sessionId, query, signal)` 或 `changes(sessionId, signal)`，从不自己指定根。Host 读取 live Session header，cold Session 则使用持久层 `stat`；它不会激活 Agent、读取事件正文或借用父 Session 的根。live 读取不要求挂载 Session persistence；未挂载时 cold Session 无法解析，Gateway 返回 `gateway/lookup-not-found`。
 
 | 方法 | 返回 | 用途 |
 |---|---|---|
@@ -35,7 +35,7 @@ kind: "package-reference"
 | `readAll(path)` | `WorkspaceFileBytes`，其中 `offset: 0`、`eof: true` | `maxFileBytes` 内的完整原始字节；超大文件失败，不截断 |
 | `readRelated(path, relativePath)` | `WorkspaceFileBytes` | Host 从基文件目录解析出的文件的完整字节 |
 | `write(path, text, { baseVersion? })` | `WorkspaceFileStat { absolutePath, version, bytes? }` | 在工作区内替换或新建一个完整的 UTF-8 文本文件；`baseVersion` 不再匹配时以 `workspace-file/stale` 失败且不写入 |
-| `remove(path, recursive)` | 无 | 删除一个文件，或在 `recursive` 为 true 时连全部内容删除一个目录；未带该参数的非空目录以 `not-empty` 失败 |
+| `delete(path, recursive)` | 无 | 删除一个文件，或在 `recursive` 为 true 时连全部内容删除一个目录；未带该参数的非空目录以 `not-empty` 失败 |
 | `move(from, to)` | 无 | 在工作区内重命名或移动一个条目；目标已存在时以 `exists` 失败，绝不替换 |
 | `createDirectory(path)` | 无 | 新建一个父目录已存在的目录；条目已存在时以 `exists` 失败 |
 | `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | 一个目录的直接子项；名字本身是符号链接的子项在解析目标类型之外携带 `symlink: true` |
@@ -44,7 +44,7 @@ kind: "package-reference"
 
 ### 寻址与路径
 
-`read`、`readBytes`、`readAll`、`readRelated`、`stat`、`write`、`remove`、`move` 和 `createDirectory` 接受绝对路径或相对于所选 Session 工作区根的路径。组合文件系统决定路径是否可读；本服务不额外要求文件读取限定于工作区。写入是例外：只有解析后位于工作区根内的目标会被写入。`readRelated` 从基文件所在目录解析相对文件系统路径，基文件或目标文件位于工作区外时同样适用。这些方法以文件系统执行环境中的绝对路径报告文件。`list` 仍限定于工作区，并以相对于该根的路径报告被列举目录。`changes` 同样只报告工作区根内已埋点的文件系统观察。
+`read`、`readBytes`、`readAll`、`readRelated`、`stat`、`write`、`delete`、`move` 和 `createDirectory` 接受绝对路径或相对于所选 Session 工作区根的路径。组合文件系统决定路径是否可读；本服务不额外要求文件读取限定于工作区。写入是例外：只有解析后位于工作区根内的目标会被写入。`readRelated` 从基文件所在目录解析相对文件系统路径，基文件或目标文件位于工作区外时同样适用。这些方法以文件系统执行环境中的绝对路径报告文件。`list` 仍限定于工作区，并以相对于该根的路径报告被列举目录。`changes` 同样只报告工作区根内已埋点的文件系统观察。
 
 ### 分页
 
@@ -64,7 +64,7 @@ kind: "package-reference"
 
 ### 条目变更
 
-`remove`、`move` 与 `createDirectory` 改变的是条目而非内容，因此不带版本防护：每一个都在调用时刻作用于其路径解析到的条目。三者共用写入路径的门禁——先探测路径自身的条目，再让解析跟随它；末端符号链接以 `not-regular-file` 被拒绝（删除绝不能穿过链接到达调用方未指定的文件）；解析后的目标必须留在工作区根内，否则调用以 `outside-workspace` 失败且不触碰任何内容。`move` 对两端都设门禁，因此工作区内的源不可能被重命名到工作区外。删除以 `{ directory: true }` 报告删掉的是一个目录；新建遇到缺失的父目录以 `not-found` 拒绝而不是代为创建，遇到已存在的条目以 `exists` 拒绝。成功的变更会发出 `fs/observed`：删除的目标为 absent，移动的源为 absent、目标为 present，新建则以新目录的版本发出 present。每次发射都不携带 actor，与保存完全一致。
+`delete`、`move` 与 `createDirectory` 改变的是条目而非内容，因此不带版本防护：每一个都在调用时刻作用于其路径解析到的条目。三者共用写入路径的门禁——先探测路径自身的条目，再让解析跟随它；末端符号链接以 `not-regular-file` 被拒绝（删除绝不能穿过链接到达调用方未指定的文件）；解析后的目标必须留在工作区根内，否则调用以 `outside-workspace` 失败且不触碰任何内容。`move` 对两端都设门禁，因此工作区内的源不可能被重命名到工作区外。删除以 `{ directory: true }` 报告删掉的是一个目录；新建遇到缺失的父目录以 `not-found` 拒绝而不是代为创建，遇到已存在的条目以 `exists` 拒绝。成功的变更会发出 `fs/observed`：删除的目标为 absent，移动的源为 absent、目标为 present，新建则以新目录的版本发出 present。每次发射都不携带 actor，与保存完全一致。
 
 ### 变更流
 

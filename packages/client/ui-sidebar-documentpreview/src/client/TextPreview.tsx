@@ -58,10 +58,10 @@ function usePathClipped(
       else delete outer.dataset.textpreviewPathClipped
     }
     apply()
-    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(apply)
-    observer?.observe(outer)
-    observer?.observe(inner)
-    return () => { observer?.disconnect() }
+    const observer = new ResizeObserver(apply)
+    observer.observe(outer)
+    observer.observe(inner)
+    return () => { observer.disconnect() }
   }, [box, text, path, shown])
 }
 

@@ -119,7 +119,8 @@ describe('createMutations', () => {
       }),
       createDirectory: vi.fn<Mutations['createDirectory']>().mockResolvedValue({ ok: true, value: undefined }),
       move: vi.fn<Mutations['move']>().mockResolvedValue({ ok: true, value: undefined }),
-      remove: vi.fn<Mutations['remove']>().mockResolvedValue({ ok: true, value: undefined }),
+      // The wire operation is `delete`; `remove` is the Client-side name for it.
+      delete: vi.fn<Mutations['delete']>().mockResolvedValue({ ok: true, value: undefined }),
     }
     const remote: WorkspaceFilesMutationRemote = { workspaceFiles: calls }
     const mutations = createMutations(remote)
@@ -130,7 +131,7 @@ describe('createMutations', () => {
     await mutations.move(SESSION, `${ROOT}/a.ts`, `${ROOT}/b.ts`, signal)
     expect(calls.move).toHaveBeenCalledWith(SESSION, `${ROOT}/a.ts`, `${ROOT}/b.ts`, signal)
     await mutations.remove(SESSION, `${ROOT}/docs`, true, signal)
-    expect(calls.remove).toHaveBeenCalledWith(SESSION, `${ROOT}/docs`, true, signal)
+    expect(calls.delete).toHaveBeenCalledWith(SESSION, `${ROOT}/docs`, true, signal)
   })
 })
 

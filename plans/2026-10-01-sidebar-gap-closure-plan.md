@@ -612,3 +612,40 @@ QiLin 的对应缝是 `@Remote({ mode: 'stream' })`（与 `terminalController.fo
 ### 五、验证（下半程）
 
 `ui-agent-opens` 5 例全绿（URL 命中 tab 类型、URL 退化为 `window.open`、文件走 `openResource`、文件地址缺 cwd 时不动作、会话切换重订阅）。译档门禁 `verify-translation-pairing --write` 写入 3 条（两个 README + `docs/capability-seams.md`）；`gen-doc-graphs` 要求新缝显式声明角色分类，`sidebarOpens` seam 条目已补，否则构建直接失败。
+
+## 批次执行状态补充三十（2026-10-02 23:50）——批次十二「Web 起不来的阻断修复」，并订正我自己的三处误判
+
+用户把真实启动界面贴了回来：`@qilin/api-remotes: failed: client api: method "workspaceFiles/remove" conflicts with its namespace service`，随之 `web boot: 64 entries did not activate`。也就是说，我此前报的「门禁全绿」与「实现没问题」在真实装配面前不成立。这一批只做修复与补门禁，不做任何发布动作。
+
+### 一、阻断根因：远端方法名撞了命名空间服务自身的成员
+
+`packages/api/workspace-files/src/index.ts` 的 `@Remote async remove(...)`。网关在挂载期就拒绝与命名空间服务自身成员同名的远端方法（`packages/api/gateway/src/client/index.ts` 的 `isRemoteMethodNameAvailable`），`remove` 正在其列——该处 JSDoc 写明「Packages name their operations around the reservation instead of shadowing it」。实测只有 `remove` 违例，`move` 与 `createDirectory` 合法；仓库对同类操作的惯例名是 `delete`（`workspace-controller.delete`），故把**线名**改为 `delete`：宿主方法、客户端调用点（`ui-sidebar-files/src/client/file-mutations.ts`）与其桩、宿主测试，以及 workspace-files 中英 README 的方法清单。客户端本地的 `mutations.remove` 保留为 UI 侧名字，并在调用点注明线名为何不对称。
+
+### 二、同批第二个真缺陷：AbortSignal 监听器泄漏
+
+`Inbox.next()` 每次停等都往 transport 的 signal 上挂一个 `abort` 监听器，而正常唤醒走 `wake`，唤醒时不摘除。实测 12 次投递留下 13 个监听器（12 个停等 + `watch` 自身一个），长会话必然累积并在超过 10 时触发 `MaxListenersExceededWarning`。修法是删掉这条冗余监听：abort 时 `watch` 自己的 `release` 会调用 `close()`，而 `close()` 已经会唤醒停等者，因此 `next()` 不再需要 signal。删除后 `sidebar-opens/src/index.ts` 覆盖率为 **100/100/100/100**（12 例）。
+
+### 三、第三处：我把自己的债记成了「预存」
+
+`ui-sidebar-documentpreview/src/client/TextPreview.tsx` 里 `typeof ResizeObserver === 'undefined'` 的不可达防御臂，最后改动它的提交是我自己的批次六；浏览器包里该分支不可达，按约定应删除而不是标 ignore。已删除，该文件恢复 **100/100/100/100**。
+
+### 四、门禁为什么全绿——空洞在哪，如何补上
+
+`verify-cordis-config` 只做静态配置检查；`test:gui` 用手搭 `ctx.plugin(...)`，从不装配真实 client 目录；唯一能发现的 `test:web` 在本机被 Playwright 二进制缺失挡死；而 `isRemoteMethodNameAvailable` 这个契约只在 gateway 单测里对**假名字**测过，没有任何检查遍历**真实发布的**远端方法名集合。
+
+新增 `scripts/verify-remote-method-names.ts`（并挂进 `ciSharedStaticGates()` 与 `package.json`）：用 TypeScript 语法解析从**机制自己的源码**读出保留名集合（`RemoteNamespaceService` 的成员 + `REMOTE_NAMESPACE_FIELDS`），再遍历 `packages/*/*/src/**/*.ts` 中所有 `@Remote` 声明逐一校验，因此不会与规则漂移；并对语料设下限（保留名 ≥5、声明数 ≥50），防止扫描被悄悄收窄。规格 8 例覆盖两种装饰器形态、只认装饰器声明而不误报同名 provider 调用、以及真实树扫描。
+
+**有效性证据**：把宿主方法名临时改回 `remove` 后，该门禁以 `packages/api/workspace-files/src/index.ts:538 remove` 报错退出（exit 1）；还原后通过。这是它抓住真实 bug 的验证，而不是「跑绿了就算数」。
+
+### 五、验证
+
+| 项 | 结果 |
+|---|---|
+| 构建 | `pnpm run build` 0（改名后 `typert` 客户端面重新生成，曾以 `file-mutations.client.spec.ts` 的旧桩两次拦下） |
+| 受影响用例 | workspace-files + ui-sidebar-files + sidebar-opens + 门禁规格 **33 文件 / 393 例全过** |
+| 覆盖率（被改文件） | `sidebar-opens/src/index.ts` 100/100/100/100（12 例）；`file-mutations.ts` 100/100/100/100；`TextPreview.tsx` 100/100/100/100 |
+| 门禁 | `verify-remote-method-names` 扫 170 条声明全清；`verify-translation-pairing` 中英配对重录 |
+
+### 六、遗留（未伪装成已覆盖）
+
+`workspace-files/src/index.ts` 仍有 3 处未覆盖（430 的 `child.size === undefined`、807/810 的 stale 重抛），`git blame` 指向 `94e87e9fff` 与 `c00c13a19c` 两个 **v3.0.8 之前**的提交，与本批无关，但**真实装配级的客户端组成测试仍然缺失**——本批新增的是静态名字门禁，不是「装起来能跑」的证据。本机 Playwright 二进制缺失使 `test:web` 无法运行，这一条只能由用户在自己的机器上启动验证。

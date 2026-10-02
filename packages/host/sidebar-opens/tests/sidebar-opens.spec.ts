@@ -134,6 +134,30 @@ describe('sidebar_open tool', () => {
     })
     expect(result).toMatchObject({ isError: true })
   })
+
+  it('resolves an absolute path for a Session that declares no working directory', async () => {
+    const cwd = await workspace()
+    const { call } = await boot(undefined)
+    const result = await call({ path: join(cwd, 'notes.md') })
+    expect(result).toMatchObject({
+      isError: false,
+      value: { kind: 'file', target: join(cwd, 'notes.md'), title: 'notes.md' },
+    })
+  })
+
+  it('tells the model an attached view opened the target, not that it queued', async () => {
+    const { ctx, call, session } = await boot(await workspace())
+    const controller = new AbortController()
+    const parked = ctx.sidebarOpens.watch(session.id, controller.signal)[Symbol.asyncIterator]().next()
+    await Promise.resolve()
+    const result = await call({ url: 'https://example.test/docs' })
+    expect(result).toMatchObject({ isError: false, value: { delivered: true } })
+    expect(result).toMatchObject({
+      content: [{ type: 'text', text: 'Opened https://example.test/docs in the sidebar.' }],
+    })
+    expect((await parked).value).toMatchObject({ target: 'https://example.test/docs' })
+    controller.abort()
+  })
 })
 
 describe('sidebar open delivery', () => {
@@ -167,6 +191,17 @@ describe('sidebar open delivery', () => {
     expect(ctx.sidebarOpens.enqueue(session.id, request('four'))).toBe(true)
     expect((await iterator.next()).value).toMatchObject({ target: 'four' })
     controller.abort()
+  })
+
+  it('stops replaying a queue once the stream is aborted', async () => {
+    const { ctx, session } = await boot(await workspace(), { maxQueued: 3 })
+    for (const target of ['one', 'two', 'three']) ctx.sidebarOpens.enqueue(session.id, request(target))
+    const controller = new AbortController()
+    const iterator = ctx.sidebarOpens.watch(session.id, controller.signal)[Symbol.asyncIterator]()
+    expect((await iterator.next()).value).toMatchObject({ target: 'one' })
+    controller.abort()
+    // The two requests still queued are not handed to a view that is going away.
+    expect(await iterator.next()).toMatchObject({ done: true })
   })
 
   it('hands the Session to the newest view and stops on abort', async () => {

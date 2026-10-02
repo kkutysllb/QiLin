@@ -71,15 +71,17 @@ class Inbox {
 
   /**
    * The next request, the moment one arrives.
-   * @param signal - the transport's cancellation.
-   * @returns the request, or undefined once the watcher is closed or aborted.
+   *
+   * A parked wait is released by {@link close}, which a watcher's own abort
+   * handler calls, so this adds no listener of its own: one per wait would
+   * accumulate on the transport's signal for the whole life of the watch.
+   * @returns the request, or undefined once the watcher is closed.
    */
-  async next(signal: AbortSignal): Promise<SidebarOpenRequest | undefined> {
+  async next(): Promise<SidebarOpenRequest | undefined> {
     while (this.items.length === 0) {
-      if (this.closed || signal.aborted) return undefined
+      if (this.closed) return undefined
       await new Promise<void>((resolve) => {
         this.wake = resolve
-        signal.addEventListener('abort', () => { resolve() }, { once: true })
       })
     }
     return this.items.shift()
@@ -157,7 +159,7 @@ export class SidebarOpens extends TypertRemoteService {
         yield request
       }
       while (!signal.aborted) {
-        const request = await inbox.next(signal)
+        const request = await inbox.next()
         if (request === undefined) return
         yield request
       }

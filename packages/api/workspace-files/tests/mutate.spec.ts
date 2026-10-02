@@ -1,5 +1,5 @@
 /**
- * The `remove`, `move`, and `createDirectory` endpoints: the workspace
+ * The `delete`, `move`, and `createDirectory` endpoints: the workspace
  * containment gates they share with `list`/`write`, the provider refusals they
  * re-name, and the `fs/observed` observations they publish for the change feed.
  */
@@ -38,10 +38,10 @@ const exists = (path: string): Promise<boolean> => stat(path).then(() => true, (
 const absolute = async (path: string): Promise<string> =>
   harness.ctx.fs.processPath(await harness.ctx.fs.resolve(path, { cwd: workspace }))
 
-describe('workspaceFiles.remove', () => {
+describe('workspaceFiles.delete', () => {
   it('removes a file and reports it absent', async () => {
     await writeFile(join(workspace, 'notes.txt'), 'x', 'utf8')
-    await endpoint().remove(harness.scope, 'notes.txt', false, signal())
+    await endpoint().delete(harness.scope, 'notes.txt', false, signal())
     expect(await exists(join(workspace, 'notes.txt'))).toBe(false)
     expect(observed).toEqual([
       { path: await absolute('notes.txt'), observation: { kind: 'absent' } },
@@ -51,14 +51,14 @@ describe('workspaceFiles.remove', () => {
   it('removes a populated directory only with recursive', async () => {
     await mkdir(join(workspace, 'tree/inner'), { recursive: true })
     await writeFile(join(workspace, 'tree/inner/a.txt'), 'x', 'utf8')
-    await endpoint().remove(harness.scope, 'tree', true, signal())
+    await endpoint().delete(harness.scope, 'tree', true, signal())
     expect(await exists(join(workspace, 'tree'))).toBe(false)
   })
 
   it('refuses a non-empty directory without recursive and leaves it intact', async () => {
     await mkdir(join(workspace, 'tree'))
     await writeFile(join(workspace, 'tree/a.txt'), 'x', 'utf8')
-    const failure = await failureOf(endpoint().remove(harness.scope, 'tree', false, signal()))
+    const failure = await failureOf(endpoint().delete(harness.scope, 'tree', false, signal()))
     expect(failure.code).toBe('workspace-file/not-empty')
     expect(failure.details).toMatchObject({ path: 'tree' })
     expect(await readFile(join(workspace, 'tree/a.txt'), 'utf8')).toBe('x')
@@ -66,21 +66,21 @@ describe('workspaceFiles.remove', () => {
   })
 
   it('reports a missing path as not found', async () => {
-    const failure = await failureOf(endpoint().remove(harness.scope, 'gone.txt', false, signal()))
+    const failure = await failureOf(endpoint().delete(harness.scope, 'gone.txt', false, signal()))
     expect(failure.code).toBe('workspace-file/not-found')
     expect(failure.details).toMatchObject({ path: 'gone.txt' })
   })
 
   it('refuses a non-boolean recursive flag before touching the workspace', async () => {
     await writeFile(join(workspace, 'notes.txt'), 'x', 'utf8')
-    const failure = await failureOf(endpoint().remove(harness.scope, 'notes.txt', 'yes' as never, signal()))
+    const failure = await failureOf(endpoint().delete(harness.scope, 'notes.txt', 'yes' as never, signal()))
     expect(failure.code).toBe('gateway/bad-request')
     expect(await exists(join(workspace, 'notes.txt'))).toBe(true)
   })
 
   it('refuses an absolute target outside the workspace', async () => {
     await writeFile(join(outside, 'keep.txt'), 'keep', 'utf8')
-    const failure = await failureOf(endpoint().remove(harness.scope, join(outside, 'keep.txt'), true, signal()))
+    const failure = await failureOf(endpoint().delete(harness.scope, join(outside, 'keep.txt'), true, signal()))
     expect(failure.code).toBe('workspace-file/outside-workspace')
     expect(await readFile(join(outside, 'keep.txt'), 'utf8')).toBe('keep')
   })
@@ -88,7 +88,7 @@ describe('workspaceFiles.remove', () => {
   it('refuses a symbolic link before resolution follows it', async () => {
     await writeFile(join(workspace, 'real.txt'), 'x', 'utf8')
     await symlink(join(workspace, 'real.txt'), join(workspace, 'link.txt'))
-    const failure = await failureOf(endpoint().remove(harness.scope, 'link.txt', false, signal()))
+    const failure = await failureOf(endpoint().delete(harness.scope, 'link.txt', false, signal()))
     expect(failure.code).toBe('workspace-file/not-regular-file')
     expect(failure.details).toMatchObject({ path: 'link.txt', kind: 'symlink' })
     expect(await exists(join(workspace, 'real.txt'))).toBe(true)
@@ -98,7 +98,7 @@ describe('workspaceFiles.remove', () => {
     await writeFile(join(workspace, 'notes.txt'), 'x', 'utf8')
     const fault = new FsError('backend fault', 'FS_IO_ERROR')
     vi.spyOn(harness.ctx.fs, 'remove').mockRejectedValueOnce(fault)
-    const error = await endpoint().remove(harness.scope, 'notes.txt', false, signal())
+    const error = await endpoint().delete(harness.scope, 'notes.txt', false, signal())
       .then(() => undefined, (caught: unknown) => caught)
     expect(error).toBe(fault)
   })
