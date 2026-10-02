@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tool-workspace-dependencies",
   "description": "The load_workspace_dependencies tool: absolute paths into a bundled Python, Node.js, and pnpm payload",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "publishConfig": {
     "access": "public"
   },

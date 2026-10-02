@@ -1,7 +1,7 @@
 {
   "name": "@qilin/api-workspace-git",
   "description": "Host owner of the workspaceGit Remote namespace: repository discovery, porcelain status, staging, commits, branches, and push/pull inside the session workspace root",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "publishConfig": {
     "access": "public"
   },
