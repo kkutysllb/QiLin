@@ -337,3 +337,27 @@ kind: "plan"
 ### 四、新发现遗留：侧栏设置区块「已实现但从未交付」
 
 `packages/client/ui-sidebar-right/src/client/tabs/settings/TabSettingsSection.tsx`（每个 tab 类型一个开关的设置页）**从未注册**——全仓只有它自己的 spec 导入它；`src/client/prefs.ts`（`readDisabledTabs`/`writeDisabledTabs`）**也没有任何消费者**。这正是 `ui-settings-general` 那条红的原因，与补充二十的「团队页半交付」同类。处置：单独一批（进行中），把注册、观察源、开关语义（关掉的类型不出现在引导页、拒绝新打开、已开标签保持渲染）与持久化接通，并让该 spec 转绿。
+
+## 批次执行状态补充二十五（2026-10-02 20:30）——批次四「侧栏设置页交付」，并定位 Tooltip 真实缺陷
+
+### 一、批次四（提交主体：`feat(ui-sidebar-right): deliver the tab-type switches settings section`）
+
+补上补充二十四登记的「已实现但从未交付」：
+
+- **注册**：`ctx.slots.inject('settings.section', …)` 注册 `id: 'sidebar-right'`、`order: 30`、`locale: NS`；注入面 `hooks.tabTypes` 复用注册表既有 `subscribe`/`entries`（未新造观察机制），`setEnabled`/`isEnabled` 由注册表提供，组件仍不碰 ctx。
+- **开关语义（三个决策点）**：新增 `requireOpenable(kind)`（被 `claim` 具名臂与 `service.placeTab` 复用）；`candidates` 改为 `rank(address,false)` 跳过被关类型，无候选时再 `rank(address,true)` 找出「本会认领却被关掉」的那个并**点名报错**（不把开关伪装成「无人认领」）；`refresh()` 过滤引导条目。**`entries()`/`get()` 刻意保持完整**——这正是「已开标签继续渲染」与「设置页可再打开」的机制。
+- **持久化**：构造时 `readDisabledTabs()` 播种，`setEnabled` 改内存 → `writeDisabledTabs` → `refresh()` 同 tick 重发；存储被拒时内存态仍生效；未存储过的新类型默认开启。另给引导类型补了 `label`，避免设置页出现裸 kind。
+- **文档/依赖**：README 中英同步并重录配对；`package.json` 增 `@qilin/client-ui-settings`（type-only，仿 `ui-settings-uninstall-sessions` 的写法）并同步 `pnpm-lock.yaml`；模块图文档随之刷新（`gen-doc-graphs --check` 通过）。
+- **顺带修掉一批依赖违规**：批次二引入的 `import type { SandboxExecutionPolicy } from '@qilin/sandbox'` 未登记，`verify-package-dependencies` 报 `packages/api/workspace-files` 一条；补进 `devDependencies` 后该门转绿（77 包全合规）。
+
+**验证**：`ui-settings-general/tests/shell.client.spec.ts` 由红转 **9/9 全绿**（原先缺 `'sidebar-right'` 的投影断言）；两包 330 过 / 3 红（3 红即下述既有 tooltip 例）。A/B 对拍：把本批 stash 掉后同命令为 4 红（settings shell + 3 tooltip），本批只减不增。覆盖率：本批触及文件全 100%（`TabSettingsSection.tsx` 分支 66.66→100）；残余未覆盖点在 `tab-info.ts`、`SidebarRight.tsx`（`git stash` 对拍证明基线同红，未顺手修）。`tsc -b tsconfig.client.json` exit 0；`oxlint` 净新增 0。
+
+### 二、新定位的真实缺陷：Tooltip 对非 forwardRef 子元素永不显示（修复进行中）
+
+追查上面 3 例 `Unable to find role="tooltip"` 时定位到根因，**不是测试问题，是产品缺陷**：
+
+- 一次性探针（已删）在 `Tooltip.show()` 与克隆的 `onMouseEnter` 各加一行日志：`PROBE-ENTER` → `PROBE-SHOW {"disabled":false,"anchor":false}` → 气泡始终不挂载。
+- 即 hover 与 `show()` 都到了，但 `anchor.current === null`，`show()` 的早返回使 `pos` 永远为 null。
+- 根因：Tooltip 用 `cloneElement(children, { ref: mergedRef })` 送 ref，而 **React 18 不会把 ref 作为 props 交给普通函数组件**；`ui-primitives` 的 `Button` 正是普通函数组件（无 `forwardRef`）。于是 ref 静默丢失。
+- 影响面：**所有把 Tooltip 包在非 forwardRef 组件外的用法都不显示 tooltip**。已确认同因的 4 例（`ui-sidebar-right` 3 例 + `ui-trajectory` 1 例）在本会话开始前的提交上用 `git checkout` 对拍**同样红**，属既有缺陷而非本会话回归。
+- 处置：单独一批修根因（优先在 Tooltip 侧用 `event.currentTarget` 兜底，一次修好所有非 forwardRef 子元素；不得弱化断言、不得退化 `portal`/`delayMs`/`disabled`/`side` 翻转/嵌套抑制/owner ref 转发）。
