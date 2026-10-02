@@ -251,3 +251,31 @@ kind: "plan"
 - 症状：`packages/api/job-controller/src/` 被写入 `types.js`/`types.js.map`/`types.d.ts`/`types.d.ts.map`（历史上曾被误提交，本次全量构建再次复现）。
 - 根因：`packages/api/remotes/src/client/index.ts` 有 `export type * from '@qilin/api-job-controller/types'`，而 remotes 的 client 工程 `tsconfig.client.json` **没有引用** `../job-controller/tsconfig.client.json`；tsc 于是把该包 `src/types.ts` 当成本工程输入文件，按原位发射（`--force` 复现率 100%，增量构建则时有时无——这解释了此前「疑似中断/并发」的假象）。
 - 修复：在 remotes 的 client 工程 references 中补入 job-controller 的 client 面；`--force` 重跑后 src 目录无任何发射物。`scripts/project-reference-faces.ts` 通过。
+
+## 批次执行状态补充二十二（2026-10-02 19:25）——批次一「Git 提交历史」落地，并订正旧审计
+
+用户指示「删除轨迹 tab 只是第一步，其他还没有」，据此按「先验证缺口、再分批实现」推进。本批完成上游 1.0.37 Git 面板最显眼的缺失：提交历史与单次提交的 patch。
+
+### 一、本批改动（提交 `ded0e8bebf`）
+
+- **宿主 `api-workspace-git`**：新增两个 `@Remote`。
+  - `log(count, skip)`：固定 `--pretty=format` 记录（`%H`/`%h`/`%an`/`%aI`/`%D`/`%s`，单元分隔符 0x1f、记录终止符 0x1e），subject 放最后以免其内分隔符移位字段；页大小限 `1..100`，`skip` 限非负整数，越界以 `gateway/bad-request` 在运行前失败。
+  - `commitDiff(revision)`：`git show --format= -m --first-parent <rev>`，合并提交只比第一个父提交，整体返回或 `too-large`；revision 只接受 `/^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/`（首字符类阻止拼出 git 选项）。
+  - `parseGitLog` 纯解析 + 装饰名去重（`HEAD -> main, tag: v1.0.0` → `main`、`v1.0.0`；裸分离 `HEAD` 不算引用）。新增 11 例测试，包内 104 例全绿，**src 逐文件覆盖 100%**。
+  - 已知限制（已写入 README）：`HEAD` 尚无提交的仓库 `git log` 非零退出，历史读以 `command-failed` 应答而非空列表。
+- **客户端 `ui-sidebar-git`**：可折叠「历史」区，页大小 30 惰性分页（短页即到底），行显示 short hash、subject、ref 徽标、作者、本地时区格式化时间；行点开该提交 patch，复用与工作区 diff **同一个** `DiffLines` 渲染器。`log`/`commitDiff` 走既有 per-tab 代次纪律（六类读取各自的代次 + abort 清理），组件零订阅、零 ctx。包内 118 例全绿，**src 逐文件覆盖 100%**（无 `v8 ignore`）。
+- **文档与生成物**：两个包的 README 中英同步（配对记录重录，1064 对一致）、`scripts/gen-kylin-catalog.ts` 增 `GitLogEntry` 类型分类、`docs/subsystems/workspace.md|zh.md` 与 `tool-kylin/src/api-catalog.ts` 重新生成。
+
+### 二、旧审计订正（本轮对 HEAD 实测，替换补充二十的对应条目）
+
+逐条核验发现补充二十的缺口清单有四处不准确，先订正再排期：
+
+1. **「外链不从侧栏打开」不成立（严重低估已实现度）**。`ui-chat/src/chat-settings.ts` 的 `DEFAULT_LINK_OPENING = 'sidebar'`，`apply.ts` 的 `openExternalLink` 在偏好为 sidebar 且 browser tab 类型在册时直接 `ctx.sidebarRight.openTab('browser', …)`；Markdown 链接经 `MarkdownDelegateProvider` 汇入同一入口。真实缺口收窄为：**非 Markdown 渲染面的裸锚点没有 document 级捕获**（上游 `link-intercept.ts` 是全局 capture），属小改动。
+2. **「Markdown 无 Mermaid」不成立**。`ui-primitives/src/markdown/mermaid.tsx` 已存在，`ui-sidebar-documentpreview` 的 `MarkdownBody` 正常使用（`t('mermaid.diagram')` 等）。
+3. **「变更评审无 diff tab / 无行号」部分不成立**。`ui-deliverables` 的 `ReviewTab` 已有统一/并排两栏、双列行号、折行开关、每轮文件选择器、截断预算。真实缺口是 **hunk 头、折叠、会话级变更清单、变更目录树**。
+4. **「Markdown 原始 HTML」成立，但是有意设计**。`ui-primitives/src/markdown/render.tsx` 明确注释「No HTML parser enters the pipeline: raw HTML stays literal text」。要对齐必须**产品/安全决策**（上游用 DOMPurify + 媒体重写），不适合静默改。
+5. **确认成立**：Git 无提交历史（本批已补）、文件树无 rename/delete/新建（需扩 `ctx.fs` seam，进行中）、选中文本无法加入对话、终端三缺、宿主 ZIP/sidebar_open 等。
+
+### 三、下一批（进行中）
+
+`ctx.fs` 能力 seam 增加 `remove` / `move` / `createDirectory`（fs、fs-local、fs-sandbox、fs-ssh 与 SSH helper、workspace-files 三个 Remote），为资源管理器右键菜单（重命名、删除、新建）提供能力；随后是客户端资源管理器 UI。
