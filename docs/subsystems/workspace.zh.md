@@ -539,6 +539,32 @@ Host Remote git operations for the Session workspace root.
 @Remote async diff( workspaceFileScope: WorkspaceFileScope, path: string, staged: boolean, signal: AbortSignal, ): Promise<string>
 
 /**
+ * Read one page of the current branch's history, newest first.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param count - page size; an integer in `1..100`.
+ * @param skip - commits to skip before the page; a non-negative integer.
+ * @param signal - caller cancellation.
+ * @returns the page's commits in `git log` order, at most `count` of them.
+ * @throws {RemoteError} `gateway/bad-request` when `count` or `skip` is outside its bounds; nothing ran.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a repository whose `HEAD` has no commits yet.
+ */
+@Remote async log( workspaceFileScope: WorkspaceFileScope, count: number | undefined, skip: number | undefined, signal: AbortSignal, ): Promise<readonly GitLogEntry[]>
+
+/**
+ * Read the patch one commit introduced, against its first parent.
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param revision - the commit to show; an accepted revision spelling (object name, ref name, or `HEAD~n`).
+ * @param signal - caller cancellation.
+ * @returns the complete patch text, bounded by the configured `maxDiffBytes`.
+ * @throws {RemoteError} `gateway/bad-request` when `revision` is not an accepted spelling; nothing ran.
+ * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+ * @throws {RemoteError} `workspace-git/too-large` when the patch exceeds `maxDiffBytes`; `bytes` is then a lower bound of the whole.
+ * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a revision the repository does not know.
+ */
+@Remote async commitDiff( workspaceFileScope: WorkspaceFileScope, revision: string | undefined, signal: AbortSignal, ): Promise<string>
+
+/**
  * Stage changes into the index.
  * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
  * @param path - repo-relative pathspec limiting the stage; empty stages the whole work tree.

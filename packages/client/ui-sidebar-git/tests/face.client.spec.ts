@@ -13,8 +13,9 @@ import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { SessionId } from '@qilin/session/types'
 import type { TabId } from '@qilin/client-ui-dockkit'
 import { createGitReader, gitFace } from '../src/client/face.ts'
+import { HISTORY_PAGE_SIZE } from '../src/client/git-model.ts'
 import { createGitStore } from '../src/client/store.ts'
-import { CLEAN_STATUS, DIRTY_STATUS, flush, gatedGit, staticGit } from './scripted-git.client.ts'
+import { CLEAN_STATUS, DIRTY_STATUS, flush, gatedGit, LOG, logPage, staticGit } from './scripted-git.client.ts'
 import type { GatedGit, StaticGit } from './scripted-git.client.ts'
 
 const SESSION = 's-1' as SessionId
@@ -329,6 +330,124 @@ describe('gitFace diff', () => {
   })
 })
 
+describe('gitFace history', () => {
+  it('reads the first page with the panel page size and records it', async () => {
+    const script = staticGit({ log: { ok: true, value: LOG } })
+    const { instance, face } = mount(script)
+    face.start(TAB, SIGNAL)
+    await flush()
+    face.loadHistory(TAB, SIGNAL)
+    expect(bucketOf(instance)?.history).toEqual({ kind: 'loading' })
+    await flush()
+    expect(script.mocks.log).toHaveBeenCalledWith(SESSION, 30, 0, SIGNAL)
+    // Two commits are short of a page: the whole log, so no further page.
+    expect(bucketOf(instance)?.history).toEqual({
+      kind: 'ready', entries: LOG, complete: true, appending: false, failure: undefined,
+    })
+  })
+
+  it('appends a later page from the count it is given, keeping the entries read', async () => {
+    const script = staticGit({ log: { ok: true, value: logPage(HISTORY_PAGE_SIZE) } })
+    const { instance, face } = mount(script)
+    face.start(TAB, SIGNAL)
+    await flush()
+    face.loadHistory(TAB, SIGNAL)
+    await flush()
+    expect(bucketOf(instance)?.history).toMatchObject({ complete: false })
+
+    script.mocks.log.mockResolvedValueOnce({ ok: true, value: [LOG[0]!] })
+    face.loadMoreHistory(TAB, HISTORY_PAGE_SIZE, SIGNAL)
+    expect(bucketOf(instance)?.history).toMatchObject({ appending: true, failure: undefined })
+    await flush()
+    expect(script.mocks.log).toHaveBeenLastCalledWith(SESSION, HISTORY_PAGE_SIZE, HISTORY_PAGE_SIZE, SIGNAL)
+    expect(bucketOf(instance)?.history).toEqual({
+      kind: 'ready', entries: [...logPage(HISTORY_PAGE_SIZE), LOG[0]], complete: true, appending: false, failure: undefined,
+    })
+  })
+
+  it('takes the section over when the first page cannot answer, and reports a later one beside its entries', async () => {
+    const refused = staticGit({ log: { ok: false, error: REJECTED } })
+    const first = mount(refused)
+    first.face.start(TAB, SIGNAL)
+    await flush()
+    first.face.loadHistory(TAB, SIGNAL)
+    await flush()
+    expect(bucketOf(first.instance)?.history).toEqual({ kind: 'failed', failure: REJECTED })
+
+    const later = staticGit({ log: { ok: true, value: logPage(HISTORY_PAGE_SIZE) } })
+    const second = mount(later)
+    second.face.start(TAB, SIGNAL)
+    await flush()
+    second.face.loadHistory(TAB, SIGNAL)
+    await flush()
+    later.mocks.log.mockResolvedValueOnce({ ok: false, error: REJECTED })
+    second.face.loadMoreHistory(TAB, HISTORY_PAGE_SIZE, SIGNAL)
+    await flush()
+    expect(bucketOf(second.instance)?.history).toEqual({
+      kind: 'ready', entries: logPage(HISTORY_PAGE_SIZE), complete: false, appending: false, failure: REJECTED,
+    })
+  })
+
+  it('lets the latest history read of a tab win, whichever settles first', async () => {
+    const script = gatedGit()
+    const { instance, face } = mount(script)
+    face.start(TAB, SIGNAL)
+    script.q.isRepo[0]?.resolve({ ok: true, value: true })
+    await flush()
+    face.loadHistory(TAB, SIGNAL)
+    face.loadHistory(TAB, SIGNAL)
+    script.q.log[1]?.resolve({ ok: true, value: LOG })
+    await flush()
+    expect(bucketOf(instance)?.history).toMatchObject({ kind: 'ready', entries: LOG })
+    script.q.log[0]?.resolve({ ok: false, error: REJECTED })
+    await flush()
+    expect(bucketOf(instance)?.history).toMatchObject({ kind: 'ready', entries: LOG })
+  })
+})
+
+describe('gitFace commit patch', () => {
+  it('opens one commit patch and settles its text', async () => {
+    const script = staticGit({ commitDiff: { ok: true, value: 'diff --git a/x b/x' } })
+    const { instance, face } = mount(script)
+    face.start(TAB, SIGNAL)
+    await flush()
+    face.openPatch(TAB, 'aaaaaaa', SIGNAL)
+    expect(bucketOf(instance)?.patch).toEqual({ revision: 'aaaaaaa', phase: { kind: 'loading' } })
+    await flush()
+    expect(script.mocks.commitDiff).toHaveBeenCalledWith(SESSION, 'aaaaaaa', SIGNAL)
+    expect(bucketOf(instance)?.patch).toEqual({ revision: 'aaaaaaa', phase: { kind: 'ready', text: 'diff --git a/x b/x' } })
+  })
+
+  it('records a refused patch by its own code, the size cap included', async () => {
+    const oversized = new RemoteError('workspace-git/too-large', 'big', { bytes: 11, maxBytes: 10 })
+    const script = staticGit({ commitDiff: { ok: false, error: oversized } })
+    const { instance, face } = mount(script)
+    face.start(TAB, SIGNAL)
+    await flush()
+    face.openPatch(TAB, 'aaaaaaa', SIGNAL)
+    await flush()
+    expect(bucketOf(instance)?.patch).toEqual({
+      revision: 'aaaaaaa', phase: { kind: 'failed', failure: oversized },
+    })
+  })
+
+  it('lets the latest patch read win, whichever settles first', async () => {
+    const script = gatedGit()
+    const { instance, face } = mount(script)
+    face.start(TAB, SIGNAL)
+    script.q.isRepo[0]?.resolve({ ok: true, value: true })
+    await flush()
+    face.openPatch(TAB, 'aaaaaaa', SIGNAL)
+    face.openPatch(TAB, 'bbbbbbb', SIGNAL)
+    script.q.commitDiff[1]?.resolve({ ok: true, value: 'the second patch' })
+    await flush()
+    expect(bucketOf(instance)?.patch).toEqual({ revision: 'bbbbbbb', phase: { kind: 'ready', text: 'the second patch' } })
+    script.q.commitDiff[0]?.resolve({ ok: false, error: REJECTED })
+    await flush()
+    expect(bucketOf(instance)?.patch).toEqual({ revision: 'bbbbbbb', phase: { kind: 'ready', text: 'the second patch' } })
+  })
+})
+
 describe('gitFace GitHub section', () => {
   it('probes the login, then reads the list under the filter it was given', async () => {
     const script = staticGit()
@@ -498,6 +617,34 @@ describe('gitFace aborts', () => {
     script.q.commit[0]?.resolve({ ok: true, value: undefined })
     await flush()
     expect(script.q.status).toHaveLength(1)
+  })
+
+  it('drops a history read that resolves after the tab aborted', async () => {
+    const { script, instance, face, controller } = abortedMount()
+    face.start(TAB, controller.signal)
+    script.q.isRepo[0]?.resolve({ ok: true, value: true })
+    await flush()
+    script.q.status[0]?.resolve({ ok: true, value: CLEAN_STATUS })
+    await flush()
+    face.loadHistory(TAB, controller.signal)
+    controller.abort()
+    script.q.log[0]?.resolve({ ok: true, value: LOG })
+    await flush()
+    expect(bucketOf(instance)).toBeUndefined()
+  })
+
+  it('drops a commit patch that resolves after the tab aborted', async () => {
+    const { script, instance, face, controller } = abortedMount()
+    face.start(TAB, controller.signal)
+    script.q.isRepo[0]?.resolve({ ok: true, value: true })
+    await flush()
+    script.q.status[0]?.resolve({ ok: true, value: CLEAN_STATUS })
+    await flush()
+    face.openPatch(TAB, 'aaaaaaa', controller.signal)
+    controller.abort()
+    script.q.commitDiff[0]?.resolve({ ok: true, value: 'diff --git a/x b/x' })
+    await flush()
+    expect(bucketOf(instance)).toBeUndefined()
   })
 
   it('drops the gh login probe that resolves after the tab aborted', async () => {

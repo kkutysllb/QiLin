@@ -6,7 +6,7 @@
  * @module @qilin/api-workspace-git
  */
 
-import type { GhPr, GitBranch, GitStatusEntry, GitUpstream } from './types.ts'
+import type { GhPr, GitBranch, GitLogEntry, GitStatusEntry, GitUpstream } from './types.ts'
 
 /**
  * Parse `git status --porcelain=v1 -z --untracked-files=all` output into
@@ -83,6 +83,54 @@ function countsOf(track: string): { ahead: number; behind: number } {
   const ahead = /\bahead (\d+)\b/u.exec(track)
   const behind = /\bbehind (\d+)\b/u.exec(track)
   return { ahead: ahead === null ? 0 : Number(ahead[1]), behind: behind === null ? 0 : Number(behind[1]) }
+}
+
+/**
+ * Parse the fixed `--pretty=format` history records this service requests —
+ * `%H`, `%h`, `%an`, `%aI`, `%D`, `%s` joined by unit separators and each
+ * terminated by a record separator — into commits. The subject is read from
+ * everything after the fifth separator, so a separator inside a subject
+ * shifts no field. git writes one newline between records, after the
+ * terminator before it. A record with fewer than six fields is not a history
+ * record and is dropped.
+ * @param output - the complete stdout of the one `git log` invocation.
+ * @returns commits in output order, newest first.
+ */
+export function parseGitLog(output: string): readonly GitLogEntry[] {
+  const entries: GitLogEntry[] = []
+  for (const record of output.split('\x1e')) {
+    const text = record.replace(/^\n+/u, '')
+    if (text.length === 0) continue
+    const fields = text.split('\x1f')
+    if (fields.length < 6) continue
+    const [hash = '', short = '', author = '', date = '', decorations = ''] = fields
+    entries.push({
+      hash,
+      short,
+      author,
+      date,
+      subject: fields.slice(5).join('\x1f'),
+      refs: decorationsOf(decorations),
+    })
+  }
+  return entries
+}
+
+/**
+ * The ref names of one `%D` decoration value, deduplicated. Each name drops
+ * its decoration kind (`HEAD -> `, `tag: `); a bare `HEAD` — a detached
+ * `HEAD` pointing nowhere else — names no ref.
+ * @param decorations - the `%D` value of one commit, as git printed it.
+ * @returns the names, in the order git listed them.
+ */
+function decorationsOf(decorations: string): readonly string[] {
+  const refs: string[] = []
+  for (const decorated of decorations.split(', ')) {
+    const name = decorated.trim().replace(/^HEAD -> /u, '').replace(/^tag: /u, '')
+    if (name.length === 0 || name === 'HEAD' || refs.includes(name)) continue
+    refs.push(name)
+  }
+  return refs
 }
 
 /**

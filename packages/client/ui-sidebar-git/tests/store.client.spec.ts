@@ -7,7 +7,9 @@ import { RemoteError } from '@qilin/client-test-runtime'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { GhPr, GitStatus } from '@qilin/api-workspace-git/types'
 import type { TabId } from '@qilin/client-ui-dockkit'
+import { HISTORY_PAGE_SIZE } from '../src/client/git-model.ts'
 import { createGitStore } from '../src/client/store.ts'
+import { LOG, logPage } from './scripted-git.client.ts'
 
 const TAB = 'tab-1' as TabId
 const OTHER = 'tab-2' as TabId
@@ -19,6 +21,8 @@ const STATUS: GitStatus = { branch: 'main', entries: [] }
 const PR: GhPr = {
   number: 7, title: 'Fix', headRefName: 'fix', baseRefName: 'main', isDraft: false, updatedAt: '', author: '',
 }
+/** One full history page: as many commits as a read asks for, so more remain. */
+const FULL_PAGE = logPage(HISTORY_PAGE_SIZE)
 
 /** A live store instance seeded with one started tab. */
 function mounted() {
@@ -37,6 +41,8 @@ describe('createGitStore', () => {
       failure: undefined,
       commitDraft: '',
       branches: undefined,
+      history: undefined,
+      patch: undefined,
       diff: undefined,
       gh: { kind: 'probing' },
       prs: { kind: 'idle' },
@@ -104,6 +110,71 @@ describe('createGitStore', () => {
     expect(instance.getSnapshot().byTab[TAB]?.branches).toEqual({ kind: 'failed', failure: FAILURE })
     instance.actions.branchesSettled(TAB, [], true)
     expect(instance.getSnapshot().byTab[TAB]?.branches).toEqual({ kind: 'ready', branches: [], truncated: true })
+  })
+
+  it('carries the history through its first page, pages, and failures', () => {
+    const instance = mounted()
+    instance.actions.historyLoading(TAB)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toEqual({ kind: 'loading' })
+    instance.actions.historyFailed(TAB, FAILURE)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toEqual({ kind: 'failed', failure: FAILURE })
+
+    instance.actions.historySettled(TAB, [LOG[0]!])
+    // One commit is short of a page: the whole log, so no further page exists.
+    expect(instance.getSnapshot().byTab[TAB]?.history).toEqual({
+      kind: 'ready', entries: [LOG[0]], complete: true, appending: false, failure: undefined,
+    })
+
+    instance.actions.historySettled(TAB, FULL_PAGE)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toMatchObject({ complete: false })
+    instance.actions.historyAppending(TAB)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toMatchObject({ appending: true, failure: undefined })
+    instance.actions.historyAppendFailed(TAB, FAILURE)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toMatchObject({
+      appending: false, failure: FAILURE, entries: FULL_PAGE,
+    })
+    instance.actions.historyAppending(TAB)
+    instance.actions.historyAppended(TAB, [LOG[1]!])
+    expect(instance.getSnapshot().byTab[TAB]?.history).toEqual({
+      kind: 'ready', entries: [...FULL_PAGE, LOG[1]], complete: true, appending: false, failure: undefined,
+    })
+  })
+
+  it('ignores a page settlement the section has already replaced', () => {
+    const instance = mounted()
+    // Nothing to append to yet: both later-page actions leave the section alone.
+    instance.actions.historyAppending(TAB)
+    instance.actions.historyAppended(TAB, LOG)
+    instance.actions.historyAppendFailed(TAB, FAILURE)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toBeUndefined()
+
+    instance.actions.historyLoading(TAB)
+    instance.actions.historyAppending(TAB)
+    instance.actions.historyAppended(TAB, LOG)
+    instance.actions.historyAppendFailed(TAB, FAILURE)
+    expect(instance.getSnapshot().byTab[TAB]?.history).toEqual({ kind: 'loading' })
+  })
+
+  it('lets only the commit patch still open settle or fail', () => {
+    const instance = mounted()
+    instance.actions.patchOpen(TAB, 'aaaa')
+    instance.actions.patchClosed(TAB)
+    // The read's settlement arrives after the patch was closed: nothing reopens.
+    instance.actions.patchSettled(TAB, '+text')
+    instance.actions.patchFailed(TAB, FAILURE)
+    expect(instance.getSnapshot().byTab[TAB]?.patch).toBeUndefined()
+
+    instance.actions.patchOpen(TAB, 'aaaa')
+    instance.actions.patchFailed(TAB, FAILURE)
+    instance.actions.patchSettled(TAB, '+text')
+    // The failed read's late success changes nothing.
+    expect(instance.getSnapshot().byTab[TAB]?.patch).toEqual({
+      revision: 'aaaa', phase: { kind: 'failed', failure: FAILURE },
+    })
+
+    instance.actions.patchOpen(TAB, 'bbbb')
+    instance.actions.patchSettled(TAB, '+text')
+    expect(instance.getSnapshot().byTab[TAB]?.patch).toEqual({ revision: 'bbbb', phase: { kind: 'ready', text: '+text' } })
   })
 
   it('lets only the read still open settle or fail the diff', () => {

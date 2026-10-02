@@ -1,5 +1,5 @@
 ---
-description: "Host owner of the workspaceGit Remote namespace: repository discovery, porcelain status, staging, commits, branch listing and switching, bounded diff, push, pull, and the gh pull-request face, each one fixed-argv git or gh spawn inside the Session workspace root."
+description: "Host owner of the workspaceGit Remote namespace: repository discovery, porcelain status, staging, commits, branch listing and switching, bounded diff, paged commit history with one commit's patch, push, pull, and the gh pull-request face, each one fixed-argv git or gh spawn inside the Session workspace root."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use this package to drive Git on a Session's workspace root from the web client: discover whether the root is a repository, read porcelain status with the current branch and its upstream position, read bounded diffs, stage and unstage paths, discard one path's worktree changes, commit the index with one message, list and switch branches, and push or pull. Through the `gh` CLI it also probes the GitHub login and lists, opens, and merges pull requests. Every call spawns the configured git or gh binary with a fixed argv inside the workspace root; no shell ever interprets a caller string.
+Use this package to drive Git on a Session's workspace root from the web client: discover whether the root is a repository, read porcelain status with the current branch and its upstream position, read bounded diffs, stage, unstage, and discard paths, commit the index with one message, list and switch branches, page the history and read a commit's patch, and push or pull. The `gh` CLI face probes the login and lists, opens, and merges pull requests. Every call spawns the configured git or gh binary with a fixed argv in the workspace root; no shell interprets a caller string.
 
 ## Table of Contents
 
@@ -33,6 +33,8 @@ Mount the package beside the Typert Gateway and `@qilin/api-workspace-files`, wh
 | `repoRoot()` | `string` | The work tree's top-level directory; outside a work tree fails with `not-a-repo` |
 | `status()` | `GitStatus { branch?, upstream?, entries }` | Porcelain entries with staged/unstaged/untracked classification, the abbreviated `HEAD` ref, and the ahead/behind position against the upstream |
 | `diff(path, staged)` | `string` | One unified diff as text — worktree-versus-index, or index-versus-`HEAD` with `staged`; an empty `path` diffs everything — bounded by `maxDiffBytes` |
+| `log(count, skip)` | `readonly GitLogEntry[]` | One page of the current branch's history, newest first; `count` is 1..100 and `skip` pages past earlier commits |
+| `commitDiff(revision)` | `string` | The patch one commit introduced against its first parent, bounded by `maxDiffBytes` |
 | `stage(path)` | `void` | `git add -A` limited to one pathspec, or the whole work tree when `path` is empty |
 | `unstage(path)` | `void` | `git reset -q` limited to one pathspec, or the whole index when `path` is empty |
 | `discard(path)` | `void` | `git checkout -- <path>` for one path only; the whole-repo discard does not exist here |
@@ -50,7 +52,7 @@ Mount the package beside the Typert Gateway and `@qilin/api-workspace-files`, wh
 
 ### Fixed argv, no shell
 
-The `@qilin/shell` seam executes one command-line string through a shell, so a one-call-one-fixed-argv spawn is not expressible there; this service spawns `node:child_process` directly and every argument is one argv element. Caller strings enter argv only as a pathspec after `--` (which makes any leading `-` a pathspec character, not an option), as the one `-m` commit message, as the `--title`/`--body` pull-request values, or as a branch name matching `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/` — anything else fails with `bad-branch` before git runs. That first-character class keeps every accepted name from spelling a git option.
+The `@qilin/shell` seam executes one command-line string through a shell, so a one-call-one-fixed-argv spawn is not expressible there; this service spawns `node:child_process` directly and every argument is one argv element. Caller strings enter argv only as a pathspec after `--` (which makes any leading `-` a pathspec character, not an option), as the one `-m` commit message, as the `--title`/`--body` pull-request values, as a branch name matching `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/`, or as a revision matching `/^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/` — anything else fails with `bad-branch` or `gateway/bad-request` before git runs. That first-character class keeps every accepted name and revision from spelling a git option.
 
 ### The gh pull-request face
 
@@ -60,13 +62,19 @@ The `@qilin/shell` seam executes one command-line string through a shell, so a o
 
 `status` runs `git status --porcelain=v1 -z --untracked-files=all` and classifies each `XY` record: `staged` is a non-blank, non-`?` index column; `unstaged` is the same for the worktree column, so an unmerged conflict reports both; `untracked` is the `??` pair. A rename or copy reports the path the entry now lives at, not the origin. `branch` is `git rev-parse --abbrev-ref HEAD`, absent on an unborn `HEAD`; `upstream` is `{ ahead, behind }` from `git rev-list --left-right --count HEAD...@{upstream}`, absent when no upstream is configured or it is gone. Ignored files never appear.
 
+### History
+
+`log` runs one `git log -n <count> --skip <skip>` with the fixed record format this service requests, so the panel pages a long history instead of asking for an unbounded list; each entry carries the full and abbreviated object names, the subject, the author name, the author date as `%aI` printed it, and the deduplicated decoration names (`HEAD -> main, tag: v1.0.0` becomes `main` and `v1.0.0`; a bare detached `HEAD` names no ref). A repository whose `HEAD` has no commits yet fails with `command-failed` like any other nonzero `git log`.
+
+`commitDiff` runs one `git show --format= -m --first-parent <revision>`, so a merge commit is compared against its first parent only, and returns the patch text whole or fails with `too-large` — never a shortened patch.
+
 ### Configuration
 
 | Field | Default | Meaning |
 |---|---|---|
 | `gitBin` | `git` | Git executable spawned for every repository call |
 | `ghBin` | `gh` | gh executable spawned for every pull-request call |
-| `timeoutMs` | `30000` | Kill deadline on one content or mutation command (`status`, `diff`, `add`, `reset`, `checkout`, `commit`, `for-each-ref`, `push`, `pull`) |
+| `timeoutMs` | `30000` | Kill deadline on one content or mutation command (`status`, `diff`, `log`, `show`, `add`, `reset`, `checkout`, `commit`, `for-each-ref`, `push`, `pull`) |
 | `discoveryTimeoutMs` | `5000` | Kill deadline on one repository-discovery command (`rev-parse`, upstream resolution, `gh --version`) |
 | `ghTimeoutMs` | `30000` | Kill deadline on one `gh` call; gh talks to the GitHub API and is slower than local git |
 | `maxDiffBytes` | `1048576` (1 MiB) | Inclusive byte cap on one diff; a larger diff fails with `too-large`, never shortened |
@@ -77,7 +85,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilinapi-w
 
 ### Failures
 
-Each failure is one `RemoteError` code with typed details, declared in [`src/types.ts`](src/types.ts): `workspace-git/not-a-repo`, `workspace-git/bad-branch` (`branch`), `workspace-git/bad-message` (`length`), `workspace-git/bad-path` (`path`), `workspace-git/bad-pr-title` (`field` names the refused `title` or `body`, plus `length`), `workspace-git/too-large` (`bytes` is a lower bound observed before the kill, plus `maxBytes`), and `workspace-git/command-failed` (`command` names the invocation, `code` the exit status when there is one, `stderr` trimmed to `maxStderrChars`; a timeout names itself in `stderr` and carries no `code`). Structurally invalid wire values — a `ghListPrs` state outside the three words, a `ghMergePr` number that is not a positive integer, or a method outside the four words — fail with `gateway/bad-request` before anything runs. Callers branch on the code, never on message text.
+Each failure is one `RemoteError` code with typed details, declared in [`src/types.ts`](src/types.ts): `workspace-git/not-a-repo`, `workspace-git/bad-branch` (`branch`), `workspace-git/bad-message` (`length`), `workspace-git/bad-path` (`path`), `workspace-git/bad-pr-title` (`field` names the refused `title` or `body`, plus `length`), `workspace-git/too-large` (`bytes` is a lower bound observed before the kill, plus `maxBytes`), and `workspace-git/command-failed` (`command` names the invocation, `code` the exit status when there is one, `stderr` trimmed to `maxStderrChars`; a timeout names itself in `stderr` and carries no `code`). Structurally invalid wire values — a `ghListPrs` state outside the three words, a `ghMergePr` number that is not a positive integer, a method outside the four words, a `log` page size outside `1..100` or a negative `skip`, or a `commitDiff` revision outside the accepted spelling — fail with `gateway/bad-request` before anything runs. Callers branch on the code, never on message text.
 
 -----
 
@@ -96,7 +104,7 @@ The workspace root arrives through the `workspaceFileScope` Typert lookup that `
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | `WorkspaceGit`: the `workspaceGit` service and Remote namespace, `Config`, the fixed-argv spawn runner, and every Remote method |
-| [`src/parse.ts`](src/parse.ts) | Pure parsers: porcelain `-z` status, the fixed `for-each-ref` format, `rev-list --left-right --count`, and the gh answers (PR rows, account, URL, first line) |
+| [`src/parse.ts`](src/parse.ts) | Pure parsers: porcelain `-z` status, the fixed `for-each-ref` format, `rev-list --left-right --count`, the fixed history record format, and the gh answers (PR rows, account, URL, first line) |
 | [`src/types.ts`](src/types.ts) | Wire types and the `RemoteErrorDetailsMap` codes, published as `./types` for Client packages |
 | — | No runtime invariant companion is published; every answer is derived from one fresh git invocation at call time. |
 
@@ -135,6 +143,7 @@ None; this package neither assembles nor sends a provider request.
 - **`ghListPrs` degrades malformed zero-exit output to no rows** — gh exiting zero with non-JSON output answers an empty list rather than an error.
 - **Paths decode as UTF-8** — porcelain paths are decoded from the diff/status bytes as UTF-8; a path with undecodable bytes round-trips lossily.
 - **`diff` bytes are a lower bound on refusal** — the child is killed at the cap, so `too-large` reports the bytes observed before the kill, not the complete diff's size.
+- **`log` fails on an unborn `HEAD`** — a repository with no first commit makes `git log` exit nonzero, so the history read answers `command-failed` instead of an empty list.
 - **Timeouts kill once, with SIGTERM** — a git that ignores SIGTERM holds the call until the process exits; there is no SIGKILL escalation.
 - **No timeout coverage in tests** — the timeout arm is exercised only by production; no deterministic in-repo git command was found that reliably exceeds a configured deadline.
 

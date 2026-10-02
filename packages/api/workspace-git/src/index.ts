@@ -21,8 +21,8 @@ import type { Context } from '@qilin/kylin'
 import type { WorkspaceFileScope } from '@qilin/api-workspace-files'
 import z from '@qilin/schemastery'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import { firstLine, parseAheadBehind, parseBranches, parseGhAccount, parseGhPrNumber, parseGhPrs, parseGhPrUrl, parseStatusPorcelain } from './parse.ts'
-import type { GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitStatus, GitUpstream } from './types.ts'
+import { firstLine, parseAheadBehind, parseBranches, parseGhAccount, parseGhPrNumber, parseGhPrs, parseGhPrUrl, parseGitLog, parseStatusPorcelain } from './parse.ts'
+import type { GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitLogEntry, GitStatus, GitUpstream } from './types.ts'
 
 export type * from './types.ts'
 
@@ -62,6 +62,25 @@ const BRANCH_NAME = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/u
 
 /** The tab-joined for-each-ref format whose output {@link parseBranches} reads. */
 const BRANCH_FORMAT = '%(refname:short)%09%(HEAD)%09%(upstream:short)%09%(upstream:track,nobracket)'
+
+/**
+ * The unit- and record-separated log format whose output {@link parseGitLog}
+ * reads: full object name, abbreviated object name, author name, author date,
+ * decorations, subject. The subject is last so a separator inside it shifts
+ * no earlier field.
+ */
+const LOG_FORMAT = '%H%x1f%h%x1f%an%x1f%aI%x1f%D%x1f%s%x1e'
+
+/** Cap on one history page; the panel pages the log instead of asking for an unbounded list. */
+const LOG_PAGE_MAX = 100
+
+/**
+ * Revisions accepted into argv: one letter or digit, then letters, digits,
+ * dots, underscores, slashes, tildes, carets, at-signs, braces, or hyphens,
+ * at most 256 characters in all. The first-character class keeps every
+ * accepted revision from spelling a git option.
+ */
+const REVISION = /^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/u
 
 /** The one `--json` field list `ghListPrs` requests; argv and the parser share it. */
 const GH_PR_FIELDS = 'number,title,headRefName,baseRefName,isDraft,updatedAt,author'
@@ -195,6 +214,65 @@ export class WorkspaceGit extends TypertRemoteService {
       throw new RemoteError(
         'workspace-git/too-large',
         `the diff exceeds the ${this.config.maxDiffBytes} byte cap`,
+        { bytes: run.stdoutBytes, maxBytes: this.config.maxDiffBytes },
+      )
+    }
+    return run.stdout
+  }
+
+  /**
+   * Read one page of the current branch's history, newest first.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param count - page size; an integer in `1..100`.
+   * @param skip - commits to skip before the page; a non-negative integer.
+   * @param signal - caller cancellation.
+   * @returns the page's commits in `git log` order, at most `count` of them.
+   * @throws {RemoteError} `gateway/bad-request` when `count` or `skip` is outside its bounds; nothing ran.
+   * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+   * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a repository whose `HEAD` has no commits yet.
+   */
+  @Remote
+  async log(
+    workspaceFileScope: WorkspaceFileScope,
+    count: number | undefined,
+    skip: number | undefined,
+    signal: AbortSignal,
+  ): Promise<readonly GitLogEntry[]> {
+    const page = this.pageCount(count)
+    const offset = this.pageSkip(skip)
+    await this.requireRepo(workspaceFileScope, signal)
+    const args = ['log', '-n', String(page), '--skip', String(offset), '--decorate=short', `--pretty=format:${LOG_FORMAT}`]
+    const run = await this.run(workspaceFileScope, this.config.gitBin, args, this.config.timeoutMs, signal)
+    if (this.failed(run)) throw this.commandFailure(this.config.gitBin, args, run)
+    return parseGitLog(run.stdout)
+  }
+
+  /**
+   * Read the patch one commit introduced, against its first parent.
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param revision - the commit to show; an accepted revision spelling (object name, ref name, or `HEAD~n`).
+   * @param signal - caller cancellation.
+   * @returns the complete patch text, bounded by the configured `maxDiffBytes`.
+   * @throws {RemoteError} `gateway/bad-request` when `revision` is not an accepted spelling; nothing ran.
+   * @throws {RemoteError} `workspace-git/not-a-repo` outside a work tree.
+   * @throws {RemoteError} `workspace-git/too-large` when the patch exceeds `maxDiffBytes`; `bytes` is then a lower bound of the whole.
+   * @throws {RemoteError} `workspace-git/command-failed` when git exits nonzero, including a revision the repository does not know.
+   */
+  @Remote
+  async commitDiff(
+    workspaceFileScope: WorkspaceFileScope,
+    revision: string | undefined,
+    signal: AbortSignal,
+  ): Promise<string> {
+    const asked = this.revision(revision)
+    await this.requireRepo(workspaceFileScope, signal)
+    const args = ['show', '--no-ext-diff', '--no-color', '--format=', '-m', '--first-parent', asked]
+    const run = await this.run(workspaceFileScope, this.config.gitBin, args, this.config.timeoutMs, signal, this.config.maxDiffBytes)
+    if (this.failed(run)) throw this.commandFailure(this.config.gitBin, args, run)
+    if (run.oversized) {
+      throw new RemoteError(
+        'workspace-git/too-large',
+        `the patch exceeds the ${this.config.maxDiffBytes} byte cap`,
         { bytes: run.stdoutBytes, maxBytes: this.config.maxDiffBytes },
       )
     }
@@ -586,6 +664,40 @@ export class WorkspaceGit extends TypertRemoteService {
    */
   private pathspec(path: string): string[] {
     return path === '' ? [] : ['--', this.requiredPath(path)]
+  }
+
+  /**
+   * Require one history page size. Widened to `undefined` for the same wire
+   * reason as {@link requiredPath}.
+   */
+  private pageCount(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > LOG_PAGE_MAX) {
+      throw new RemoteError('gateway/bad-request', `count must be an integer in 1..${String(LOG_PAGE_MAX)}`, {})
+    }
+    return value
+  }
+
+  /**
+   * Require a non-negative count of commits to skip. Widened to `undefined`
+   * for the same wire reason as {@link requiredPath}.
+   */
+  private pageSkip(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
+      throw new RemoteError('gateway/bad-request', 'skip must be a non-negative integer', {})
+    }
+    return value
+  }
+
+  /**
+   * Require an accepted revision spelling, refusing anything that could spell
+   * a git option. Widened to `undefined` for the same wire reason as
+   * {@link requiredPath}.
+   */
+  private revision(value: string | undefined): string {
+    if (typeof value !== 'string' || !REVISION.test(value)) {
+      throw new RemoteError('gateway/bad-request', 'the revision is not accepted', {})
+    }
+    return value
   }
 
   /**

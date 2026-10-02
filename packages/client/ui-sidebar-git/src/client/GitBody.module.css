@@ -357,6 +357,88 @@
   color: var(--dsw-alias-state-error-primary);
 }
 
+/* One history row: the short hash and subject over the refs and the author's
+   time. The row is the whole disclosure control, so the patch below is its
+   sibling rather than its child. */
+.logRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 6px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.logRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.logRow[aria-expanded='true'] {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.logLine {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+/* The abbreviated object name, in the same monospace cell as a change row's
+   status letter. */
+.logHash {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+  font-family: var(--dsw-font-markdown-code-block);
+  font-size: 11px;
+}
+
+.logSubject {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* One decorated ref of a history row, in the current-branch pill's ink. */
+.logRef {
+  flex: 0 1 auto;
+  max-width: 45%;
+  overflow: hidden;
+  padding: 0 5px;
+  color: var(--dsw-alias-state-business-primary);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: var(--dsw-alias-state-business-primary-weak, transparent);
+  border-radius: 8px;
+}
+
+/* The row's trailing author and time, in tertiary ink. */
+.logMeta {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The expanded commit patch, indented under the row that opened it. */
+.patch {
+  margin: 0 0 4px 12px;
+}
+
 /* The commit box: the message over its hint and button. */
 .commit {
   flex: none;
@@ -507,6 +589,7 @@
 .action:focus-visible,
 .commitInput:focus-visible,
 .link:focus-visible,
+.logRow:focus-visible,
 .row:focus-visible,
 .sectionToggle:focus-visible,
 .select:focus-visible,

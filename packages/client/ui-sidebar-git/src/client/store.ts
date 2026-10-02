@@ -2,14 +2,16 @@
  * The source-control panel's view state, one bucket per tab.
  *
  * The bucket carries what the panel keeps across a body's unmounts: the last
- * settled status, the commit draft, the branches the section has loaded, and
- * the inline diff the reader opened. A bucket is born at `start` and dies with
- * the tab record's abort, which is also the only thing that ends its life.
+ * settled status, the commit draft, the branches the section has loaded, the
+ * inline diff the reader opened, the history it paged, and the commit patch it
+ * expanded. A bucket is born at `start` and dies with the tab record's abort,
+ * which is also the only thing that ends its life.
  */
 import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { GhPr, GitBranch, GitStatus } from '@qilin/api-workspace-git/types'
+import type { GhPr, GitBranch, GitLogEntry, GitStatus } from '@qilin/api-workspace-git/types'
 import type { TabId } from '@qilin/client-ui-dockkit'
+import { HISTORY_PAGE_SIZE } from './git-model.ts'
 
 /** What the repository probe and the status reads settled on. */
 export type GitRepoPhase =
@@ -37,6 +39,38 @@ export interface GitDiffView {
     | { readonly kind: 'failed'; readonly failure: RemoteFailure }
 }
 
+/**
+ * What the history section holds; absent until the section is first expanded.
+ *
+ * A first page that cannot answer takes the section over; a later page that
+ * cannot leaves the entries already read in place beside its failure.
+ */
+export type GitHistoryPhase =
+  | { readonly kind: 'loading' }
+  | {
+    readonly kind: 'ready'
+    /** Every commit read so far, newest page first. */
+    readonly entries: readonly GitLogEntry[]
+    /** Whether the last page came back short: the log has no more commits. */
+    readonly complete: boolean
+    /** Whether a later page is still in flight. */
+    readonly appending: boolean
+    /** Why the last later page failed; absent with nothing to report. */
+    readonly failure: RemoteFailure | undefined
+  }
+  | { readonly kind: 'failed'; readonly failure: RemoteFailure }
+
+/** One read of a commit patch. */
+export interface GitPatchView {
+  /** The commit the patch belongs to. */
+  readonly revision: string
+  /** The read's state. */
+  readonly phase:
+    | { readonly kind: 'loading' }
+    | { readonly kind: 'ready'; readonly text: string }
+    | { readonly kind: 'failed'; readonly failure: RemoteFailure }
+}
+
 /** One tab's bucket. */
 export interface GitTabState {
   /** The repository probe's outcome; a `ready` repo carries its last settled status. */
@@ -49,6 +83,10 @@ export interface GitTabState {
   commitDraft: string
   /** The branches section's data, in the state the section left it. */
   branches: GitBranchesPhase | undefined
+  /** The history section's data, in the state the section left it. */
+  history: GitHistoryPhase | undefined
+  /** The commit patch, while one is expanded. */
+  patch: GitPatchView | undefined
   /** The inline diff, while one is open. */
   diff: GitDiffView | undefined
   /** The GitHub section's probe and auth state. */
@@ -123,6 +161,16 @@ type GitActions = {
   branchesLoading: (draft: GitState, tabId: TabId) => void
   branchesSettled: (draft: GitState, tabId: TabId, branches: readonly GitBranch[], truncated: boolean) => void
   branchesFailed: (draft: GitState, tabId: TabId, failure: RemoteFailure) => void
+  historyLoading: (draft: GitState, tabId: TabId) => void
+  historySettled: (draft: GitState, tabId: TabId, entries: readonly GitLogEntry[]) => void
+  historyFailed: (draft: GitState, tabId: TabId, failure: RemoteFailure) => void
+  historyAppending: (draft: GitState, tabId: TabId) => void
+  historyAppended: (draft: GitState, tabId: TabId, entries: readonly GitLogEntry[]) => void
+  historyAppendFailed: (draft: GitState, tabId: TabId, failure: RemoteFailure) => void
+  patchOpen: (draft: GitState, tabId: TabId, revision: string) => void
+  patchSettled: (draft: GitState, tabId: TabId, text: string) => void
+  patchFailed: (draft: GitState, tabId: TabId, failure: RemoteFailure) => void
+  patchClosed: (draft: GitState, tabId: TabId) => void
   diffOpen: (draft: GitState, tabId: TabId, path: string, staged: boolean) => void
   diffSettled: (draft: GitState, tabId: TabId, text: string) => void
   diffFailed: (draft: GitState, tabId: TabId, failure: RemoteFailure) => void
@@ -163,6 +211,8 @@ export function createGitStore(): EngineStoreHandle<GitState, GitActions> {
           failure: undefined,
           commitDraft: '',
           branches: undefined,
+          history: undefined,
+          patch: undefined,
           diff: undefined,
           gh: { kind: 'probing' },
           prs: { kind: 'idle' },
@@ -286,6 +336,116 @@ export function createGitStore(): EngineStoreHandle<GitState, GitActions> {
        */
       branchesFailed: (d, tabId: TabId, failure: RemoteFailure) => {
         bucket(d, tabId).branches = { kind: 'failed', failure }
+      },
+      /**
+       * Mark the first history page in flight.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      historyLoading: (d, tabId: TabId) => {
+        bucket(d, tabId).history = { kind: 'loading' }
+      },
+      /**
+       * Record the first history page. A page short of the read's own size is
+       * the whole log, so the section offers no further page.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param entries - the commits the page returned, newest first.
+       */
+      historySettled: (d, tabId: TabId, entries: readonly GitLogEntry[]) => {
+        bucket(d, tabId).history = {
+          kind: 'ready', entries, complete: entries.length < HISTORY_PAGE_SIZE, appending: false, failure: undefined,
+        }
+      },
+      /**
+       * Record why the first history page could not answer.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param failure - the settled Remote failure.
+       */
+      historyFailed: (d, tabId: TabId, failure: RemoteFailure) => {
+        bucket(d, tabId).history = { kind: 'failed', failure }
+      },
+      /**
+       * Mark the next history page in flight, keeping the entries already
+       * read and retiring the previous page's failure line.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      historyAppending: (d, tabId: TabId) => {
+        const held = bucket(d, tabId).history
+        if (held?.kind !== 'ready') return
+        bucket(d, tabId).history = { ...held, appending: true, failure: undefined }
+      },
+      /**
+       * Append one settled history page to the entries already read.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param entries - the commits the page returned, newest first.
+       */
+      historyAppended: (d, tabId: TabId, entries: readonly GitLogEntry[]) => {
+        const held = bucket(d, tabId).history
+        // A settlement with nothing to append to belongs to a read the section
+        // has already replaced; the entries it holds stay as they are.
+        if (held?.kind !== 'ready') return
+        bucket(d, tabId).history = {
+          kind: 'ready',
+          entries: [...held.entries, ...entries],
+          complete: entries.length < HISTORY_PAGE_SIZE,
+          appending: false,
+          failure: undefined,
+        }
+      },
+      /**
+       * Record why one later history page could not answer, keeping the
+       * entries already read.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param failure - the settled Remote failure.
+       */
+      historyAppendFailed: (d, tabId: TabId, failure: RemoteFailure) => {
+        const held = bucket(d, tabId).history
+        if (held?.kind !== 'ready') return
+        bucket(d, tabId).history = { ...held, appending: false, failure }
+      },
+      /**
+       * Open (or re-point) the commit patch at one revision.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param revision - the commit the patch belongs to.
+       */
+      patchOpen: (d, tabId: TabId, revision: string) => {
+        bucket(d, tabId).patch = { revision, phase: { kind: 'loading' } }
+      },
+      /**
+       * Record the patch text of the commit still open.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param text - the unified diff text.
+       */
+      patchSettled: (d, tabId: TabId, text: string) => {
+        const patch = bucket(d, tabId).patch
+        if (patch === undefined || patch.phase.kind !== 'loading') return
+        bucket(d, tabId).patch = { ...patch, phase: { kind: 'ready', text } }
+      },
+      /**
+       * Record why the commit still open could not answer.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param failure - the settled Remote failure.
+       */
+      patchFailed: (d, tabId: TabId, failure: RemoteFailure) => {
+        const patch = bucket(d, tabId).patch
+        if (patch === undefined || patch.phase.kind !== 'loading') return
+        bucket(d, tabId).patch = { ...patch, phase: { kind: 'failed', failure } }
+      },
+      /**
+       * Close the commit patch.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       */
+      patchClosed: (d, tabId: TabId) => {
+        bucket(d, tabId).patch = undefined
       },
       /**
        * Open (or re-side) the inline diff at one read.

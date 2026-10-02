@@ -50,6 +50,7 @@ async function boot() {
   const workspaceGit = {
     isRepo: vi.fn(), status: vi.fn(), diff: vi.fn(), stage: vi.fn(), unstage: vi.fn(), discard: vi.fn(),
     commit: vi.fn(), branches: vi.fn(), checkout: vi.fn(), createBranch: vi.fn(), push: vi.fn(), pull: vi.fn(),
+    log: vi.fn(), commitDiff: vi.fn(),
     ghAvailable: vi.fn(), ghAuthStatus: vi.fn(), ghListPrs: vi.fn(), ghCreatePr: vi.fn(), ghMergePr: vi.fn(),
   }
   ctx.provide('sidebarRightTabs', tabs as never)

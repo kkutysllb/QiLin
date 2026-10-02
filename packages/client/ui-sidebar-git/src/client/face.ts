@@ -7,29 +7,32 @@
  * the store's own actions — the Slot-standard `inject` shape, so the session
  * id is resolved by the framework and the write set stays the store's.
  *
- * Four reads have a generation each — status, branches, diff, pull requests —
- * so the latest request of a tab wins whichever settles first. One mutation
- * flies at a time (`busy`), its failure is recorded beside its code, and
- * every success is followed by a status read that reports what the mutation
- * did. Cleanup rides the owner's `signal`: nothing starts for a record that
- * already ended, and when the record goes away its bucket and its generations
- * are forgotten together, so no later settlement writes to it.
+ * Six reads have a generation each — status, branches, diff, pull requests,
+ * history, and the open commit patch — so the latest request of a tab wins
+ * whichever settles first. One mutation flies at a time (`busy`), its failure
+ * is recorded beside its code, and every success is followed by a status read
+ * that reports what the mutation did. Cleanup rides the owner's `signal`:
+ * nothing starts for a record that already ended, and when the record goes
+ * away its bucket and its generations are forgotten together, so no later
+ * settlement writes to it.
  */
 import type { ClientRemote, RemoteResult } from '@qilin/api-remotes/client'
 import type { BoundActions } from '@qilin/client-store'
 import type { TabId } from '@qilin/client-ui-dockkit'
 import type { SessionId } from '@qilin/session/types'
+import { HISTORY_PAGE_SIZE } from './git-model.ts'
 import type { createGitStore, GhPrState } from './store.ts'
 
 /**
  * The slice of the Client Remote face this package calls: the `workspaceGit`
- * namespace's seventeen panel methods, exactly as the Host's generated client
+ * namespace's nineteen panel methods, exactly as the Host's generated client
  * declares them.
  */
 export type WorkspaceGitRemote = {
   readonly workspaceGit: Pick<ClientRemote['workspaceGit'],
     | 'isRepo' | 'status' | 'diff' | 'stage' | 'unstage' | 'discard' | 'commit'
     | 'branches' | 'checkout' | 'createBranch' | 'push' | 'pull'
+    | 'log' | 'commitDiff'
     | 'ghAvailable' | 'ghAuthStatus' | 'ghListPrs' | 'ghCreatePr' | 'ghMergePr'>
 }
 
@@ -124,6 +127,26 @@ export interface GitInjected {
    */
   readonly loadBranches: (tabId: TabId, signal: AbortSignal) => void
   /**
+   * Read the first page of the commit history for the history section.
+   * @param tabId - the tab being drawn.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly loadHistory: (tabId: TabId, signal: AbortSignal) => void
+  /**
+   * Append the next page of commits after the ones already read.
+   * @param tabId - the tab being drawn.
+   * @param skip - how many commits the panel already holds.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly loadMoreHistory: (tabId: TabId, skip: number, signal: AbortSignal) => void
+  /**
+   * Read one commit's patch, replacing any patch already open.
+   * @param tabId - the tab being drawn.
+   * @param revision - the commit to read.
+   * @param signal - the tab record's lifetime.
+   */
+  readonly openPatch: (tabId: TabId, revision: string, signal: AbortSignal) => void
+  /**
    * Open (or re-side) the inline diff at one path.
    * @param tabId - the tab being drawn.
    * @param path - repo-relative path being diffed.
@@ -192,6 +215,8 @@ export function gitFace(
     /** Per tab, per read kind: the generation a settlement must match; the latest request wins. */
     const statusGenerations = new Map<TabId, number>()
     const branchesGenerations = new Map<TabId, number>()
+    const historyGenerations = new Map<TabId, number>()
+    const patchGenerations = new Map<TabId, number>()
     const diffGenerations = new Map<TabId, number>()
     const prsGenerations = new Map<TabId, number>()
     /** Tabs whose abort listener is already armed. */
@@ -203,6 +228,8 @@ export function gitFace(
         armed.delete(tabId)
         statusGenerations.delete(tabId)
         branchesGenerations.delete(tabId)
+        historyGenerations.delete(tabId)
+        patchGenerations.delete(tabId)
         diffGenerations.delete(tabId)
         prsGenerations.delete(tabId)
         actions.forget(tabId)
@@ -225,6 +252,31 @@ export function gitFace(
         if (signal.aborted || branchesGenerations.get(tabId) !== generation) return
         if (result.ok) actions.branchesSettled(tabId, result.value.branches, result.value.truncated)
         else actions.branchesFailed(tabId, result.error)
+      })
+    }
+    /**
+     * Read one history page: the first replaces the section, a later one
+     * appends to it. Both ride the same per-tab generation, so a page the
+     * section has already replaced never writes.
+     * @param tabId - the tab being drawn.
+     * @param skip - how many commits the panel already holds.
+     * @param signal - the tab record's lifetime.
+     */
+    const readHistory = (tabId: TabId, skip: number, signal: AbortSignal): void => {
+      const generation = (historyGenerations.get(tabId) ?? 0) + 1
+      historyGenerations.set(tabId, generation)
+      const first = skip === 0
+      if (first) actions.historyLoading(tabId)
+      else actions.historyAppending(tabId)
+      void reader.log(sessionId, HISTORY_PAGE_SIZE, skip, signal).then((result) => {
+        if (signal.aborted || historyGenerations.get(tabId) !== generation) return
+        if (!result.ok) {
+          if (first) actions.historyFailed(tabId, result.error)
+          else actions.historyAppendFailed(tabId, result.error)
+          return
+        }
+        if (first) actions.historySettled(tabId, result.value)
+        else actions.historyAppended(tabId, result.value)
       })
     }
     const readPrs = (tabId: TabId, state: GhPrState, signal: AbortSignal): void => {
@@ -338,6 +390,24 @@ export function gitFace(
       },
       loadBranches(tabId, signal) {
         guarded(tabId, () => { readBranches(tabId, signal) }, signal)
+      },
+      loadHistory(tabId, signal) {
+        guarded(tabId, () => { readHistory(tabId, 0, signal) }, signal)
+      },
+      loadMoreHistory(tabId, skip, signal) {
+        guarded(tabId, () => { readHistory(tabId, skip, signal) }, signal)
+      },
+      openPatch(tabId, revision, signal) {
+        guarded(tabId, () => {
+          const generation = (patchGenerations.get(tabId) ?? 0) + 1
+          patchGenerations.set(tabId, generation)
+          actions.patchOpen(tabId, revision)
+          void reader.commitDiff(sessionId, revision, signal).then((result) => {
+            if (signal.aborted || patchGenerations.get(tabId) !== generation) return
+            if (result.ok) actions.patchSettled(tabId, result.value)
+            else actions.patchFailed(tabId, result.error)
+          })
+        }, signal)
       },
       openDiff(tabId, path, staged, signal) {
         guarded(tabId, () => {

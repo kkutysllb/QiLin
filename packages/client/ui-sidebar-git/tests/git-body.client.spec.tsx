@@ -6,17 +6,19 @@
  * probe's three outcomes, the header's branch, position, and remote actions,
  * the three change sections with their rows and context menu, the inline diff
  * with its sides and coloring, the commit box's guard and stage-all hint, the
- * branch list with its create form, and the GitHub section's sign-in, list,
- * merge, and create flows.
+ * history's paging and its commit patches, the branch list with its create
+ * form, and the GitHub section's sign-in, list, merge, and create flows.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, within } from '@testing-library/react'
+import type { RenderResult } from '@testing-library/react'
 import { RemoteError } from '@qilin/client-test-runtime'
-import type { GhPr, GitBranches, GitStatus } from '@qilin/api-workspace-git/types'
+import type { GhPr, GitBranches, GitLogEntry, GitStatus } from '@qilin/api-workspace-git/types'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
+import { HISTORY_PAGE_SIZE } from '../src/client/git-model.ts'
 import { zh } from '../src/client/locales.ts'
 import { mountBody, SESSION, TAB } from './mount.client.tsx'
-import { CLEAN_STATUS, DIRTY_STATUS } from './scripted-git.client.ts'
+import { CLEAN_STATUS, DIRTY_STATUS, LOG, logPage } from './scripted-git.client.ts'
 
 /** The host clipboard write, mocked so a copy lands somewhere observable. */
 const clipboard = vi.hoisted(() => ({ write: vi.fn().mockResolvedValue(true) }))
@@ -52,6 +54,18 @@ const PRS: readonly GhPr[] = [
 const REJECTED: RemoteFailure = new RemoteError('workspace-git/command-failed', 'exit 1', {
   command: 'git commit', code: 1, stderr: 'nothing to commit',
 })
+
+/** One commit of a fixed past day, so its row's date label is the same in every zone. */
+const PAST: GitLogEntry = {
+  hash: 'c'.repeat(40), short: 'ccccccc', subject: 'Ship the panel', author: 'Cy',
+  date: new Date(2020, 0, 2, 3, 4).toISOString(), refs: [],
+}
+
+/** The date label {@link PAST}'s row carries. */
+const PAST_LABEL = `${zh['history.date.ymd'].replace('{y}', '2020').replace('{m}', '1').replace('{d}', '2')} 03:04`
+
+/** The patch one commit read returns: a file header, a hunk, and both sides. */
+const PATCH = 'diff --git a/src/a.ts b/src/a.ts\n@@ -1 +1,2 @@\n context\n+added\n-removed'
 
 afterEach(() => { cleanup(); clipboard.write.mockClear() })
 
@@ -343,6 +357,169 @@ describe('GitBody commit box', () => {
     expect(instance.getSnapshot().byTab[TAB]?.commitDraft).toBe('blocked')
     expect(view.container.querySelector('[data-git-failure]')?.getAttribute('data-git-failure'))
       .toBe('workspace-git/command-failed')
+  })
+})
+
+describe('GitBody history', () => {
+  /** Expand the history section of a mounted panel. */
+  function expand(view: RenderResult): void {
+    fireEvent.click(view.getByRole('button', { name: zh['history.title'] }))
+  }
+
+  it('expands into the commit list with its hash, subject, ref, author, and date', async () => {
+    const { view, script } = mountBody({ answers: { log: { ok: true, value: [...LOG, PAST] } } })
+    await flush()
+    const toggle = view.getByRole('button', { name: zh['history.title'] })
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    expand(view)
+    await flush()
+    expect(script.mocks.log).toHaveBeenCalledWith(SESSION, 30, 0, expect.any(AbortSignal))
+
+    const row = view.container.querySelector(`[data-git-log="${LOG[0]!.hash}"]`) as HTMLElement
+    expect(row.querySelector('[data-git-commit-short]')?.textContent).toBe('aaaaaaa')
+    expect(row.textContent).toContain('Add the history section')
+    expect(row.querySelector('[data-git-commit-author]')?.textContent).toBe('Ada')
+    expect(row.querySelector('[data-git-ref="main"]')?.textContent).toBe('main')
+    expect(row.querySelector('time')?.getAttribute('dateTime')).toBe(LOG[0]!.date)
+
+    const past = view.container.querySelector(`[data-git-log="${PAST.hash}"]`) as HTMLElement
+    expect(past.textContent).toContain(PAST_LABEL)
+    expect(past.querySelector('[data-git-ref]')).toBeNull()
+
+    // Collapsing and reopening keeps the list it already read.
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    await flush()
+    expect(script.mocks.log).toHaveBeenCalledTimes(1)
+  })
+
+  it('says the log is empty, or why it could not answer', async () => {
+    const empty = mountBody()
+    await flush()
+    expand(empty.view)
+    await flush()
+    expect(empty.view.container.querySelector('[data-git-section="history"] [data-git-row="empty"]')?.textContent)
+      .toBe(zh['history.empty'])
+    empty.view.unmount()
+
+    const refused = mountBody({ answers: { log: { ok: false, error: REJECTED } } })
+    await flush()
+    expand(refused.view)
+    await flush()
+    expect(refused.view.container.querySelector('[data-git-section="history"] [data-git-row="failed"]')?.textContent)
+      .toContain(zh['error.commandFailed'].replace('{command}', 'git commit'))
+  })
+
+  it('appends the next page from the rows it holds, and reports a page that fails', async () => {
+    const { view, script } = mountBody({ answers: { log: { ok: true, value: logPage(HISTORY_PAGE_SIZE) } } })
+    await flush()
+    expand(view)
+    await flush()
+    expect(view.container.querySelectorAll('[data-git-log]')).toHaveLength(HISTORY_PAGE_SIZE)
+    const more = view.container.querySelector('[data-git-history-more]') as HTMLElement
+    expect(more.textContent).toBe(zh['history.loadMore'])
+
+    script.mocks.log.mockResolvedValueOnce({ ok: true, value: [PAST] })
+    fireEvent.click(more)
+    await flush()
+    expect(script.mocks.log).toHaveBeenLastCalledWith(SESSION, HISTORY_PAGE_SIZE, HISTORY_PAGE_SIZE, expect.any(AbortSignal))
+    expect(view.container.querySelectorAll('[data-git-log]')).toHaveLength(HISTORY_PAGE_SIZE + 1)
+    // A page short of the read's size is the whole log: no further page is offered.
+    expect(view.container.querySelector('[data-git-history-more]')).toBeNull()
+    expect(view.container.querySelector(`[data-git-log="${PAST.hash}"]`)).not.toBeNull()
+  })
+
+  it('keeps the rows it read and words a later page that fails', async () => {
+    const { view, script } = mountBody({ answers: { log: { ok: true, value: logPage(HISTORY_PAGE_SIZE) } } })
+    await flush()
+    expand(view)
+    await flush()
+    script.mocks.log.mockResolvedValueOnce({ ok: false, error: REJECTED })
+    fireEvent.click(view.container.querySelector('[data-git-history-more]') as HTMLElement)
+    await flush()
+    expect(view.container.querySelectorAll('[data-git-log]')).toHaveLength(HISTORY_PAGE_SIZE)
+    const section = view.container.querySelector('[data-git-section="history"]') as HTMLElement
+    expect(section.querySelector('[data-git-row="failed"]')?.textContent)
+      .toContain(zh['error.commandFailed'].replace('{command}', 'git commit'))
+    // The page stays reachable, so the read can be asked for again.
+    expect(section.querySelector('[data-git-history-more]')).not.toBeNull()
+  })
+
+  it('expands one commit patch below its row, and collapses it on a second click', async () => {
+    const { view, script } = mountBody({
+      answers: { log: { ok: true, value: [PAST] }, commitDiff: { ok: true, value: PATCH } },
+    })
+    await flush()
+    expand(view)
+    await flush()
+    const row = view.container.querySelector(`[data-git-log="${PAST.hash}"]`) as HTMLElement
+    fireEvent.click(row)
+    expect(view.container.querySelector(`[data-git-patch="${PAST.hash}"] [data-git-row="loading"]`)?.textContent)
+      .toBe(zh.loading)
+    await flush()
+    expect(script.mocks.commitDiff).toHaveBeenCalledWith(SESSION, PAST.hash, expect.any(AbortSignal))
+    expect(row.getAttribute('aria-expanded')).toBe('true')
+
+    const patch = view.container.querySelector(`[data-git-patch="${PAST.hash}"]`) as HTMLElement
+    expect(patch.querySelector('[data-git-diff="commit"]')).not.toBeNull()
+    expect(patch.querySelector('[data-git-diff-line="add"]')?.textContent).toBe('+added')
+    expect(patch.querySelector('[data-git-diff-line="del"]')?.textContent).toBe('-removed')
+    expect(patch.querySelector('[data-git-diff-line="hunk"]')?.textContent).toContain('@@')
+
+    fireEvent.click(within(patch).getByRole('button', { name: zh['diff.close'] }))
+    expect(view.container.querySelector('[data-git-patch]')).toBeNull()
+    expect(row.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(row)
+    await flush()
+    expect(view.container.querySelector('[data-git-patch]')).not.toBeNull()
+    fireEvent.click(row)
+    expect(view.container.querySelector('[data-git-patch]')).toBeNull()
+  })
+
+  it('leaves the working diff standing beside a commit patch', async () => {
+    const { view } = mountBody({
+      answers: {
+        status: { ok: true, value: DIRTY_STATUS },
+        diff: { ok: true, value: PATCH },
+        log: { ok: true, value: [PAST] },
+        commitDiff: { ok: true, value: PATCH },
+      },
+    })
+    await flush()
+    fireEvent.click(view.container.querySelector('[data-git-path="src/b.ts"]') as HTMLElement)
+    await flush()
+    expand(view)
+    await flush()
+    fireEvent.click(view.container.querySelector(`[data-git-log="${PAST.hash}"]`) as HTMLElement)
+    await flush()
+    expect(view.container.querySelector('[data-git-section="diff"] [data-git-diff="working"]')).not.toBeNull()
+    expect(view.container.querySelector(`[data-git-patch="${PAST.hash}"] [data-git-diff="commit"]`)).not.toBeNull()
+  })
+
+  it('says an empty patch, and words a refused one by its own code', async () => {
+    const empty = mountBody({ answers: { log: { ok: true, value: [PAST] }, commitDiff: { ok: true, value: '' } } })
+    await flush()
+    expand(empty.view)
+    await flush()
+    fireEvent.click(empty.view.container.querySelector(`[data-git-log="${PAST.hash}"]`) as HTMLElement)
+    await flush()
+    expect(empty.view.container.querySelector(`[data-git-patch="${PAST.hash}"] [data-git-row="empty"]`)?.textContent)
+      .toBe(zh['diff.empty'])
+    empty.view.unmount()
+
+    const oversized = new RemoteError('workspace-git/too-large', 'big', { bytes: 11, maxBytes: 10 })
+    const refused = mountBody({ answers: { log: { ok: true, value: [PAST] }, commitDiff: { ok: false, error: oversized } } })
+    await flush()
+    expand(refused.view)
+    await flush()
+    fireEvent.click(refused.view.container.querySelector(`[data-git-log="${PAST.hash}"]`) as HTMLElement)
+    await flush()
+    const line = refused.view.container.querySelector(`[data-git-patch="${PAST.hash}"] [data-git-failure]`) as HTMLElement
+    expect(line.getAttribute('data-git-failure')).toBe('workspace-git/too-large')
+    expect(line.textContent)
+      .toContain(zh['error.tooLarge'].replace('{bytes}', '11').replace('{maxBytes}', '10'))
   })
 })
 

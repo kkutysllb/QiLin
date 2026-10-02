@@ -1,14 +1,21 @@
 /**
- * Pure status, diff, and failure arithmetic for the source-control tab.
+ * Pure status, diff, history, and failure arithmetic for the source-control tab.
  *
- * The three decisions worth testing stay free of React and the wire: which of
- * the three change sections a row belongs to, how one unified-diff line is
- * colored, and which line a Remote failure reports.
+ * The decisions worth testing stay free of React and the wire: which of the
+ * three change sections a row belongs to, how one unified-diff line is
+ * colored, which line a Remote failure reports, and what label one commit's
+ * author time carries.
  */
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { GitStatusEntry } from '@qilin/api-workspace-git/types'
 import type { TranslateNS } from '@qilin/client-ui-slots'
 import type {} from './locales.ts'
+
+/**
+ * Commits one history read asks for: the section loads lazily in pages, so a
+ * long history never floods the panel. The Host accepts `1..100`.
+ */
+export const HISTORY_PAGE_SIZE = 30
 
 /** The three change sections, in the order the panel lists them. */
 export interface GitChangeGroups {
@@ -82,6 +89,42 @@ export function diffLineKind(line: string): DiffLineKind {
   if (line.startsWith('+')) return 'add'
   if (line.startsWith('-')) return 'del'
   return 'context'
+}
+
+/** Two-digit zero padding for the clock half of a commit's time. */
+function pad2(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+/**
+ * The time one history row shows, in the panel's clock convention: a commit
+ * from today carries its clock alone, one from this year its date and clock,
+ * an older one its full date and clock. The Host reports the author date in
+ * strict ISO 8601 with its offset, so the two dates are compared in the
+ * reader's own zone.
+ * @param iso - the commit's author date, as `log` reported it.
+ * @param t - namespace-bound translate.
+ * @param now - the clock the date is compared against; defaults to this moment.
+ * @returns the label the row carries.
+ */
+export function formatCommitTime(
+  iso: string,
+  t: TranslateNS<'sidebarGit'>,
+  now: number = Date.now(),
+): string {
+  const date = new Date(iso)
+  const today = new Date(now)
+  const clock = `${pad2(date.getHours())}:${pad2(date.getMinutes())}`
+  if (
+    date.getFullYear() === today.getFullYear()
+    && date.getMonth() === today.getMonth()
+    && date.getDate() === today.getDate()
+  ) {
+    return clock
+  }
+  const params = { y: date.getFullYear(), m: date.getMonth() + 1, d: date.getDate() }
+  const day = date.getFullYear() === today.getFullYear() ? t('history.date.md', params) : t('history.date.ymd', params)
+  return `${day} ${clock}`
 }
 
 /** One localized failure line for the shared status strip, with its tooltip. */

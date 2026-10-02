@@ -5,8 +5,9 @@
  * through its injected face. Top to bottom: the status header (branch,
  * upstream position, pull, push, refresh), the three change sections with a
  * per-row context menu (stage, unstage, discard, copy path) and the inline
- * diff a row click opens, the commit box, and the collapsible branch list
- * with its inline create form. One failure strip reports the last Remote
+ * diff a row click opens, the commit box, the collapsible history with its
+ * lazy pages and the commit patch a row expands, and the collapsible branch
+ * list with its inline create form. One failure strip reports the last Remote
  * failure by its own code.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -20,7 +21,7 @@ import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin/c
 import type { GitStatusEntry } from '@qilin/api-workspace-git/types'
 import type { GitInjected } from './face.ts'
 import type {} from './locales.ts'
-import { badgeOf, canDiscardEntry, diffLineKind, gitFailureLine, groupChanges } from './git-model.ts'
+import { badgeOf, canDiscardEntry, diffLineKind, formatCommitTime, gitFailureLine, groupChanges } from './git-model.ts'
 import type { DiffLineKind } from './git-model.ts'
 import type { GhPrState, createGitStore } from './store.ts'
 import css from './GitBody.module.css'
@@ -52,19 +53,43 @@ const DIFF_CLASS: Record<DiffLineKind, string | undefined> = {
   context: undefined,
 }
 
-/** The panel: status header, changes, inline diff, commit box, branches, and GitHub. */
+/**
+ * One unified diff, colored line by line. Both the working diff and an
+ * expanded commit patch draw through it, so the two panes stay one renderer.
+ * @param props - the diff text and the marker distinguishing its pane.
+ * @returns the diff lines in the panel's code face.
+ */
+function DiffLines({ text, marker }: { readonly text: string; readonly marker: string }): ReactNode {
+  return (
+    <pre className={css.diffBody} data-git-diff={marker}>
+      {text.split('\n').map((line, index) => {
+        const kind = diffLineKind(line)
+        return (
+          <div className={clsx(css.diffLine, DIFF_CLASS[kind])} data-git-diff-line={kind} key={index}>
+            {line === '' ? '\u00a0' : line}
+          </div>
+        )
+      })}
+    </pre>
+  )
+}
+
+/** The panel: status header, changes, inline diff, commit box, history, branches, and GitHub. */
 export function GitBody({
   useTabInfo, useStore, actions, t, start, refresh, stage, unstage, discard, commit, push, pull, checkout,
-  createBranch, loadBranches, openDiff, ghAuth, ghList, ghCreatePr, ghMergePr,
+  createBranch, loadBranches, loadHistory, loadMoreHistory, openPatch, openDiff, ghAuth, ghList, ghCreatePr, ghMergePr,
 }: GitBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const { signal } = tab
   const state = useStore(store => store.byTab[tab.id])
   const diff = state?.diff
+  const history = state?.history
+  const patch = state?.patch
   const diffText = diff?.phase.kind === 'ready' ? diff.phase.text : ''
   const [menu, setMenu] = useState<{ entry: GitStatusEntry; x: number; y: number } | null>(null)
   const menuRect = useRef<DOMRect | null>(null)
   const [branchesOpen, setBranchesOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [name, setName] = useState('')
   const [from, setFrom] = useState('')
@@ -124,6 +149,10 @@ export function GitBody({
   const openBranches = (): void => {
     setBranchesOpen(true)
     if (state.branches === undefined) loadBranches(tab.id, signal)
+  }
+  const openHistory = (): void => {
+    setHistoryOpen(true)
+    if (history === undefined) loadHistory(tab.id, signal)
   }
   const create = (): void => {
     if (name.trim() === '') return
@@ -301,18 +330,7 @@ export function GitBody({
           {diff.phase.kind === 'ready' && diff.phase.text === '' && (
             <p className={css.note} data-git-row="empty">{t('diff.empty')}</p>
           )}
-          {diff.phase.kind === 'ready' && diff.phase.text !== '' && (
-            <pre className={css.diffBody} data-git-diff>
-              {diff.phase.text.split('\n').map((line, index) => {
-                const kind = diffLineKind(line)
-                return (
-                  <div className={clsx(css.diffLine, DIFF_CLASS[kind])} data-git-diff-line={kind} key={index}>
-                    {line === '' ? '\u00a0' : line}
-                  </div>
-                )
-              })}
-            </pre>
-          )}
+          {diff.phase.kind === 'ready' && diff.phase.text !== '' && <DiffLines text={diff.phase.text} marker="working" />}
         </section>
       )}
       <div className={css.commit}>
@@ -344,6 +362,118 @@ export function GitBody({
           </Button>
         </div>
       </div>
+      <section className={css.section} data-git-section="history">
+        <button
+          type="button"
+          className={css.sectionToggle}
+          aria-expanded={historyOpen}
+          onClick={() => { if (historyOpen) setHistoryOpen(false); else openHistory() }}
+        >
+          <IconChevronDownOutline14 className={clsx(css.chevron, !historyOpen && css.chevronClosed)} />
+          {t('history.title')}
+        </button>
+        {historyOpen && history?.kind === 'loading' && (
+          <p className={css.note} data-git-row="loading">{t('loading')}</p>
+        )}
+        {historyOpen && history?.kind === 'failed' && (
+          <p
+            className={clsx(css.note, css.failed)}
+            role="status"
+            data-git-row="failed"
+            title={gitFailureLine(t, history.failure).title}
+          >
+            {gitFailureLine(t, history.failure).line}
+          </p>
+        )}
+        {historyOpen && history?.kind === 'ready' && history.entries.length === 0 && (
+          <p className={css.note} data-git-row="empty">{t('history.empty')}</p>
+        )}
+        {historyOpen && history?.kind === 'ready' && history.entries.length > 0 && (
+          <ul className={css.list}>
+            {history.entries.map(entry => (
+              <li className={css.item} key={entry.hash}>
+                <button
+                  type="button"
+                  className={css.logRow}
+                  data-git-log={entry.hash}
+                  aria-expanded={patch?.revision === entry.hash}
+                  onClick={() => {
+                    if (patch?.revision === entry.hash) actions.patchClosed(tab.id)
+                    else openPatch(tab.id, entry.hash, signal)
+                  }}
+                >
+                  <span className={css.logLine}>
+                    <span className={css.logHash} data-git-commit-short>{entry.short}</span>
+                    <span className={css.logSubject}>{entry.subject}</span>
+                  </span>
+                  <span className={css.logLine}>
+                    {entry.refs.map(ref => (
+                      <span className={css.logRef} data-git-ref={ref} key={ref}>{ref}</span>
+                    ))}
+                    <span className={css.logMeta} data-git-commit-author>{entry.author}</span>
+                    <time className={css.logMeta} dateTime={entry.date}>{formatCommitTime(entry.date, t)}</time>
+                  </span>
+                </button>
+                {patch?.revision === entry.hash && (
+                  <div className={css.patch} data-git-patch={entry.hash}>
+                    <div className={css.sectionHeader}>
+                      <span className={css.diffPath} title={entry.hash}>{entry.short}</span>
+                      <span className={css.spacer} />
+                      <button
+                        type="button"
+                        className={css.tool}
+                        aria-label={t('diff.close')}
+                        title={t('diff.close')}
+                        onClick={() => { actions.patchClosed(tab.id) }}
+                      >
+                        <IconCloseOutline16 />
+                      </button>
+                    </div>
+                    {patch.phase.kind === 'loading' && <p className={css.note} data-git-row="loading">{t('loading')}</p>}
+                    {patch.phase.kind === 'failed' && (
+                      <p
+                        className={clsx(css.note, css.failed)}
+                        role="status"
+                        data-git-failure={patch.phase.failure.code}
+                        title={gitFailureLine(t, patch.phase.failure).title}
+                      >
+                        {gitFailureLine(t, patch.phase.failure).line}
+                      </p>
+                    )}
+                    {patch.phase.kind === 'ready' && patch.phase.text === '' && (
+                      <p className={css.note} data-git-row="empty">{t('diff.empty')}</p>
+                    )}
+                    {patch.phase.kind === 'ready' && patch.phase.text !== '' && (
+                      <DiffLines text={patch.phase.text} marker="commit" />
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {historyOpen && history?.kind === 'ready' && !history.complete && (
+          <button
+            type="button"
+            className={css.link}
+            data-git-history-more
+            disabled={history.appending}
+            onClick={() => { loadMoreHistory(tab.id, history.entries.length, signal) }}
+          >
+            {history.appending ? t('loading') : t('history.loadMore')}
+          </button>
+        )}
+        {historyOpen && history?.kind === 'ready' && history.failure !== undefined && (
+          <p
+            className={clsx(css.note, css.failed)}
+            role="status"
+            data-git-row="failed"
+            title={gitFailureLine(t, history.failure).title}
+          >
+            {gitFailureLine(t, history.failure).line}
+          </p>
+        )}
+      </section>
       <section className={css.section} data-git-section="branches">
         <button
           type="button"

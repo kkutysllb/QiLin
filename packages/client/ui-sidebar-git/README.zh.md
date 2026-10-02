@@ -1,5 +1,5 @@
 ---
-description: "qilin web 客户端右侧 Sidebar 的 Git 面板 tab 类型：分支状态与上游位置，按未暂存、已暂存、未跟踪分组的变更与逐文件暂存、内联差异、带全部暂存语义的提交框、可检出与新建的本地分支列表，以及走 workspaceGit Remote 命名空间的 GitHub 拉取请求节。"
+description: "qilin web 客户端右侧 Sidebar 的 Git 面板 tab 类型：分支状态与上游位置，按未暂存、已暂存、未跟踪分组的变更与逐文件暂存、内联差异、带全部暂存语义的提交框、按页惰性读取且行可展开为补丁的提交历史、可检出与新建的本地分支列表，以及走 workspaceGit Remote 命名空间的 GitHub 拉取请求节。"
 kind: "package-reference"
 ---
 
@@ -9,12 +9,13 @@ kind: "package-reference"
 
 ## 概述
 
-右侧 Sidebar 的源代码管理面板：一个从引导页进入的 `git` 页面，展示会话工作区根目录下的仓库。头部携带分支与上游位置，旁边是拉取、推送与刷新；变更按未暂存、已暂存、未跟踪分组，每行有自己的上下文菜单；点击一行在下方打开该文件的内联差异；提交框按面板的全部暂存语义提交；分支列表支持检出与新建；GitHub 节在 `gh` 可应答时列出、创建并合并拉取请求。一切走 `@qilin/api-workspace-git` Remote 命名空间，`ui-sidebar-right` 对本包一无所知。
+右侧 Sidebar 的源代码管理面板：一个从引导页进入的 `git` 页面，展示工作区根目录下的仓库。头部携带分支与上游位置，旁边是拉取、推送与刷新；变更按未暂存、已暂存、未跟踪分组，每行有自己的上下文菜单；点击一行在下方打开该文件的内联差异；提交框按全部暂存语义提交；历史节按最新在前分页读取提交，并可将一行展开为该提交的补丁；分支列表支持检出与新建；GitHub 节在 `gh` 可应答时列出、创建并合并拉取请求。一切走 `@qilin/api-workspace-git` Remote 命名空间。
 
 ## 目录
 
 - [注册内容](#what-it-registers)
 - [面板](#the-panel)
+- [历史节](#the-history-section)
 - [GitHub 节](#the-github-section)
 - [Model Experience](#model-experience)
 - [已知限制与遗留工作](#known-limitations-and-deferred-work)
@@ -28,7 +29,7 @@ kind: "package-reference"
 - **`git` 类型** — `ctx.sidebarRightTabs.register(...)`：kind 为 `git`，id 为 `@qilin/client-ui-sidebar-git`，`builtin` 档，无 patterns，引导页一条目（order 20，标题与描述来自 `sidebarGit` 命名空间，图形是共享的分支图标）打开该类型。每个 surface 一个面板：声明 `single: true`。
 - **正文与 chip 标题** — `@qilin/client-ui-sidebar-git` 名下键控的 `sidebar.right.pane.tab` 与 `sidebar.right.pane.tab.title` 两个座位：面板本身，以及 chip 里标题前的分支图形。
 
-两个座位共享每会话一个 store 实例，按 tab id 分桶；浏览器半边在 `src/client/` 下：`definition.tsx`（类型是什么）、`store.ts`（留下什么）、`face.ts`（如何请求 `workspaceGit` 命名空间，带代次守卫）、`git-model.ts`（分组、角标、差异行与失败文案的纯计算）、`GitBody.tsx` 与 `GitTitle.tsx`（画什么）、`locales.ts`（说什么）、`index.ts`（接线）。
+两个座位共享每会话一个 store 实例，按 tab id 分桶；浏览器半边在 `src/client/` 下：`definition.tsx`（类型是什么）、`store.ts`（留下什么）、`face.ts`（如何请求 `workspaceGit` 命名空间，带代次守卫）、`git-model.ts`（分组、角标、差异行、提交时间与失败文案的纯计算）、`GitBody.tsx` 与 `GitTitle.tsx`（画什么）、`locales.ts`（说什么）、`index.ts`（接线）。
 
 <a id="the-panel"></a>
 ## 面板
@@ -40,6 +41,13 @@ kind: "package-reference"
 内联差异逐行渲染统一文本：文件头与块头暗色，新增行成功色，删除行错误色。暂存开关重读同一路径的另一侧；复制控件写入整段差异文本；关闭把它收下。被 Host 按字节上限整段拒绝的差异会说明，空差异也会说明。
 
 提交框先修剪再做任何事：修剪为空时按钮在空提示下休止，干净树上按钮同样休止。对脏树提交未动过的索引会先全部暂存——全部暂存提示点名此事——且从不覆盖选择性索引。成功清空输入框；`Ctrl-Enter` 提交。
+
+<a id="the-history-section"></a>
+## 历史节
+
+历史节可折叠；展开读取仓库提交的第一页，最新在前，一次 `workspaceGit.log` 调用要 30 条。每行的上半是缩写对象名与提交主题，下半是它的装饰引用名、作者，以及按面板自己的时钟约定呈现的作者时间：当天的只显示时钟，本年的显示日期与时钟，更早的显示完整日期与时钟。下一页按需在「加载更多」控件后追加，而某一页返回的条目少于这一次读取要的数量时该控件消失——日志到底了。应答不了的后续页保留已读的行并措辞其失败；第一页应答不了则接管整节。
+
+点击一行读取该提交的补丁——`workspaceGit.commitDiff`，即该提交相对其第一个父提交的差异——并用与工作区差异同一套逐行渲染器绘制，缩进在该行之下；再次点击或用关闭控件收起。被 Host 按字节上限整段拒绝的补丁会说明，没有引入文本的提交也会说明。展开补丁时，已打开的工作区差异会留在原处。
 
 分支节可折叠；展开读取本地分支列表，被上限截断时说明。当前分支带标记且该行休止；点击其他分支检出并重读列表。内联新建表单取名字与可选起点（留空从 `HEAD` 起），提交即收起，被拒绝的名字——`bad-branch`——带着自己的名字浮现在共享失败条里。
 
@@ -55,13 +63,14 @@ kind: "package-reference"
 
 #### KV Cache effect
 
-无：状态、差异、分支列表与拉取请求走 Remote，不组装任何模型请求。
+无：状态、差异、分支列表、提交历史与拉取请求走 Remote，不组装任何模型请求。
 
 ## 已知限制与遗留工作
 
 <a id="known-limitations-and-deferred-work"></a>
 - **推送的上游固定为 `origin`。** Host 的 `push` Remote 在被要求时把上游设为 `origin`；不提供改名的远端。无上游时拉取休止，面板如实说明。
 - **差异整段或拒绝。** 超过 Host 字节上限的差异整段拒绝（`too-large`），从不截短；没有分块分页，也没有文件系统监听，面板只随自己的读取与变更而变化。
+- **历史按页惰性读取。** 该节每次请求只读一页，也只追加读到的内容；不画分支图，不列逐文件提交清单，除 `log` 报出的引用名外不做别的装饰，除补丁外不提供针对提交的动作。
 - **分支列表有上限，拉取请求一次一个筛选。** 分支列表在 Host 列表上限截断时说明；拉取请求行自身不带打开/关闭列（线类型没有），筛选是唯一的状态视图。
 
 <a id="dev-note"></a>
@@ -70,7 +79,7 @@ kind: "package-reference"
 <details>
 <summary>维护者的工作上下文——点击展开</summary>
 
-一个 store 工厂（`createGitStore`）、一个注册期句柄、按 tab id 分桶。face（`face.ts`）是 Slot 的 `inject` 形态：会话 id 与绑定的动作进，每个请求一个入口，组件里没有任何 await。四类读取各带每 tab 代次——状态、分支、差异、拉取请求——谁后请求谁赢，无论谁先应答；tab 记录的中止监听每 tab 只武装一次，遗忘时连同代次一起清桶。变更走同一条 `mutate` 路径：busy、调用、失败记录或成功后跟一次状态读取（检出与新建还会重读分支列表；拉取请求的创建与合并按节面所示筛选重读列表）。
+一个 store 工厂（`createGitStore`）、一个注册期句柄、按 tab id 分桶。face（`face.ts`）是 Slot 的 `inject` 形态：会话 id 与绑定的动作进，每个请求一个入口，组件里没有任何 await。六类读取各带每 tab 代次——状态、分支、历史、仍展开的提交补丁、差异、拉取请求——谁后请求谁赢，无论谁先应答；tab 记录的中止监听每 tab 只武装一次，遗忘时连同代次一起清桶。变更走同一条 `mutate` 路径：busy、调用、失败记录或成功后跟一次状态读取（检出与新建还会重读分支列表；拉取请求的创建与合并按节面所示筛选重读列表）。
 
 </details>
 

@@ -1,5 +1,5 @@
 ---
-description: "The right Sidebar's Git panel tab type for the qilin web client: branch status with upstream position, changes grouped unstaged, staged, and untracked with per-file staging and an inline diff, the commit box with stage-all semantics, the local branch list with checkout and create, and the GitHub pull-request section over the workspaceGit Remote namespace."
+description: "The right Sidebar's Git panel tab type for the qilin web client: branch status with upstream position, changes grouped unstaged, staged, and untracked with per-file staging and an inline diff, the commit box with stage-all semantics, a lazily paged commit history whose rows expand into their patches, the local branch list with checkout and create, and the GitHub pull-request section over the workspaceGit Remote namespace."
 kind: "package-reference"
 ---
 
@@ -9,12 +9,13 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The right Sidebar's source-control panel: one `git` page, reached from the guide, that shows the repository at the session's workspace root. The header carries the branch and its upstream position beside pull, push, and refresh; the changes are grouped unstaged, staged, and untracked with a per-file context menu; a row click opens that file's inline diff; the commit box commits with the panel's stage-all semantics; the branch list checks out and creates branches; and the GitHub section lists, creates, and merges pull requests when `gh` answers. Everything travels over the `@qilin/api-workspace-git` Remote namespace and nothing in `ui-sidebar-right` knows this package.
+The right Sidebar's source-control panel: one `git` page, reached from the guide, showing the repository at the workspace root. The header carries the branch and its upstream position beside pull, push, and refresh; changes are grouped unstaged, staged, and untracked with a per-file context menu; a row click opens that file's inline diff; the commit box commits with stage-all semantics; the history pages commits newest first and expands a row into its patch; the branch list checks out and creates; and the GitHub section lists, creates, and merges pull requests when `gh` answers. Everything travels over the `@qilin/api-workspace-git` Remote namespace.
 
 ## Table of Contents
 
 - [What it registers](#what-it-registers)
 - [The panel](#the-panel)
+- [The history section](#the-history-section)
 - [The GitHub section](#the-github-section)
 - [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
@@ -28,7 +29,7 @@ The right Sidebar's source-control panel: one `git` page, reached from the guide
 - **The `git` type** — `ctx.sidebarRightTabs.register(...)` with kind `git`, id `@qilin/client-ui-sidebar-git`, band `builtin`, no patterns, and one guide entry (order 20, its title and description from the `sidebarGit` namespace, its glyph the shared branch icon) that opens the type. One panel per surface: it declares `single: true`.
 - **The body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin/client-ui-sidebar-git`: the panel itself, and the branch glyph before the tab's title in the chip.
 
-Both seats share one store instance per session, bucketed by tab id; the browser half lives under `src/client/`: `definition.tsx` (what the type is), `store.ts` (what it keeps), `face.ts` (how it asks the `workspaceGit` namespace, generation-guarded), `git-model.ts` (the pure grouping, badge, diff-line, and failure arithmetic), `GitBody.tsx` and `GitTitle.tsx` (what they draw), `locales.ts` (what they say), and `index.ts` (the wiring).
+Both seats share one store instance per session, bucketed by tab id; the browser half lives under `src/client/`: `definition.tsx` (what the type is), `store.ts` (what it keeps), `face.ts` (how it asks the `workspaceGit` namespace, generation-guarded), `git-model.ts` (the pure grouping, badge, diff-line, commit-time, and failure arithmetic), `GitBody.tsx` and `GitTitle.tsx` (what they draw), `locales.ts` (what they say), and `index.ts` (the wiring).
 
 <a id="the-panel"></a>
 ## The panel
@@ -40,6 +41,13 @@ The changes are grouped by the entry's own flags — unstaged, staged, untracked
 The inline diff renders the unified text line by line: headers and hunks dim, additions in success ink, deletions in error ink. The staged toggle re-reads the same path's other side; the copy control writes the whole diff text; close takes it down. A diff the Host refuses whole by its byte cap says so, and an empty diff says so too.
 
 The commit box trims before anything: an empty trim rests the button under the empty hint, and the button also rests on a clean tree. Committing an untouched index with a dirty tree stages everything first — the auto-stage hint names it — and never overrides a selective index. Success empties the box; `Ctrl-Enter` submits.
+
+<a id="the-history-section"></a>
+## The history section
+
+The history section is collapsible; expanding it reads the first page of the repository's commits, newest first, one `workspaceGit.log` call asking for 30. Each row carries its abbreviated object name and subject over its decorated ref names, its author, and the author time in the panel's own clock convention: today's clock alone, this year's date and clock, an older commit's full date and clock. A later page appends on demand behind a load-more control, which disappears once a page comes back short of the read's own size — the log is exhausted. A later page that cannot answer keeps the rows already read and words its failure; a first page that cannot takes the section over.
+
+A row click reads that commit's patch — `workspaceGit.commitDiff`, the commit against its first parent — and draws it through the same line-by-line renderer as the working diff, indented under the row; a second click, or the close control, takes it down. A patch the Host refuses whole by its byte cap says so, and a commit that introduced no text says so. Expanding a patch leaves a working diff open beside it.
 
 The branches section is collapsible; expanding it reads the local branch list, whose cap says so when it cuts. The current branch is marked and rests its row; a click on another checks out and re-reads the list. The inline create form takes a name and an optional start point (empty starts at `HEAD`) and closes on submit, so a refused name — `bad-branch` — surfaces with its own name in the shared failure strip.
 
@@ -55,13 +63,14 @@ None, as this package draws a source-control panel in the browser and registers 
 
 #### KV Cache effect
 
-None; status, diffs, branch lists, and pull requests travel over the Remote and assemble no model request.
+None; status, diffs, branch lists, commit history, and pull requests travel over the Remote and assemble no model request.
 
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
 - **Push's upstream hardcodes `origin`.** The Host's `push` Remote sets the upstream to `origin` when asked; a remote named otherwise is not offered. Pull rests without an upstream and the panel says so.
 - **Diff whole or refused.** A diff past the Host's byte cap is refused whole (`too-large`), never shortened; there is no per-hunk paging and no filesystem watching, so the panel changes only through its own reads and mutations.
+- **History pages lazily.** The section reads one page per ask and appends only what it read; it draws no branch graph and no per-file commit list, decorates a row only with the ref names `log` reports, and offers no action on a commit beyond its patch.
 - **Branch list capped, pull requests one filter at a time.** The branch list says when the Host's list cap cut it; the pull-request rows carry no open/closed column of their own (the wire type has none), so the filter is the only state view.
 
 <a id="dev-note"></a>
@@ -70,7 +79,7 @@ None; status, diffs, branch lists, and pull requests travel over the Remote and 
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-One store factory (`createGitStore`), one registration-time handle, buckets keyed by tab id. The face (`face.ts`) is the Slot `inject` shape: session id and bound actions in, one entry per ask, nothing awaited in a component. Four reads carry a per-tab generation — status, branches, diff, pull requests — so the latest request wins whichever settles first; the tab record's abort listener is armed once per tab and forgets the bucket with its generations. Mutations ride one `mutate` path: busy, the call, its failure recorded or its success followed by a status read (checkout and create also re-read the branch list; pull-request create and merge re-read the list under the filter the section shows).
+One store factory (`createGitStore`), one registration-time handle, buckets keyed by tab id. The face (`face.ts`) is the Slot `inject` shape: session id and bound actions in, one entry per ask, nothing awaited in a component. Six reads carry a per-tab generation — status, branches, history, the commit patch still open, diff, pull requests — so the latest request wins whichever settles first; the tab record's abort listener is armed once per tab and forgets the bucket with its generations. Mutations ride one `mutate` path: busy, the call, its failure recorded or its success followed by a status read (checkout and create also re-read the branch list; pull-request create and merge re-read the list under the filter the section shows).
 
 </details>
 

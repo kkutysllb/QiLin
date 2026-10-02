@@ -3,35 +3,38 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/api/workspace-git/README.md
 /:
-  en: 7203b50c15a2e0b1
-  zh: 67c75547217abe42
+  en: 4ac608e9339564c8
+  zh: 7e344bc238ee17af
 /qilin-api-workspace-git:
   en: 4cd317bb22f81f80
   zh: 73fcb7c6992a1cad
 /qilin-api-workspace-git/summary:
-  en: 0914b613c1aa3a05
-  zh: 0d2b97fc2ffca361
+  en: db0a88b6e5c61917
+  zh: 4012887f170ea26a
 /qilin-api-workspace-git/table-of-contents:
   en: d152484eb41ac6b4
   zh: 9f0336825ccdaacd
 /qilin-api-workspace-git/use-this-package:
-  en: bbd37e1cf3b9608b
-  zh: 01fbbb9570264507
+  en: e5abd71dc920b73f
+  zh: 7b90f9781ef1a4db
 /qilin-api-workspace-git/use-this-package/fixed-argv-no-shell:
-  en: 8fa2d7a204e6cfe8
-  zh: 4f1affa87edff057
+  en: 894b0a7dff7b827c
+  zh: b4bb7bfa3a42cae2
 /qilin-api-workspace-git/use-this-package/the-gh-pull-request-face:
   en: efb24e35ab7a5a8f
   zh: 1431965b9a38164a
 /qilin-api-workspace-git/use-this-package/status-classification:
   en: 10126129702cefe9
   zh: a7d6d9db87771c1c
+/qilin-api-workspace-git/use-this-package/history:
+  en: 7295215003e4383e
+  zh: 4c9e6d5cb50e6558
 /qilin-api-workspace-git/use-this-package/configuration:
-  en: 775c875505afb203
-  zh: d3ac5e039053ce10
+  en: ec50d2a6cb4a3a54
+  zh: 4ffc499f9430fbf1
 /qilin-api-workspace-git/use-this-package/failures:
-  en: a890f1f0096a032d
-  zh: fbf5e57f093417a0
+  en: 80a9e711e4766f96
+  zh: 7263d236de3f696f
 /qilin-api-workspace-git/understand-the-implementation:
   en: 42b15ac6321706aa
   zh: c5500056b41ce570
@@ -39,8 +42,8 @@
   en: 05ee1adeb3b0519d
   zh: c527ebf9b6f70d75
 /qilin-api-workspace-git/understand-the-implementation/source-map:
-  en: c8122dae58c6379c
-  zh: 01597c24b0589aa3
+  en: 2678b297e04a1806
+  zh: 531f5a092294c164
 /qilin-api-workspace-git/further-exploration:
   en: 39865f72a1a277d8
   zh: 6055153edf0d7124
@@ -51,8 +54,8 @@
   en: ca75c51c89c2c9b0
   zh: cb72d2c8350f9b4e
 /qilin-api-workspace-git/known-limitations-and-deferred-work:
-  en: 3860d844b9b9488e
-  zh: f79a8ddeec37c4cf
+  en: 5539cc9ce46fe366
+  zh: 8a6192d7c41bee81
 /qilin-api-workspace-git/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

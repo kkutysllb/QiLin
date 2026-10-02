@@ -929,6 +929,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   GitUpstream: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',
   GitBranch: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',
   GitBranches: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',
+  GitLogEntry: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',
   GhPr: 'Host workspace git gh endpoint contract is owned by packages/api/workspace-git/README.md',
   GhAuthStatus: 'Host workspace git gh endpoint contract is owned by packages/api/workspace-git/README.md',
   GhCreatedPr: 'Host workspace git gh endpoint contract is owned by packages/api/workspace-git/README.md',

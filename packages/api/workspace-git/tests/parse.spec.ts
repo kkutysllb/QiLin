@@ -1,6 +1,6 @@
 /** The pure parsers, pinned against recorded fixture strings from real git output. */
 import { describe, expect, it } from 'vitest'
-import { parseAheadBehind, parseBranches, parseStatusPorcelain } from '../src/parse.ts'
+import { parseAheadBehind, parseBranches, parseGitLog, parseStatusPorcelain } from '../src/parse.ts'
 
 describe('parseStatusPorcelain — NUL-terminated porcelain v1', () => {
   it('classifies staged, unstaged, untracked, and clean-modified records', () => {
@@ -85,5 +85,58 @@ describe('parseBranches — the fixed for-each-ref format', () => {
     expect(parseBranches(fixture)).toEqual([
       { name: 'lone', current: true, upstream: undefined, ahead: 0, behind: 0 },
     ])
+  })
+})
+
+describe('parseGitLog — the fixed pretty=format records', () => {
+  /** One record exactly as git writes it: fields joined, terminator included. */
+  const record = (...fields: readonly string[]): string => `${fields.join('\x1f')}\x1e`
+
+  it('reads each record and strips the newline git writes between them', () => {
+    const fixture = `${record('a'.repeat(40), 'aaaaaaa', 'Ada', '2026-10-02T10:00:00+08:00', 'HEAD -> main, tag: v1.0.0, origin/main', 'seed the tree')}\n`
+      + `${record('b'.repeat(40), 'bbbbbbb', 'Grace', '2026-10-01T09:30:00+08:00', '', 'fix: 中文 subject')}\n`
+    expect(parseGitLog(fixture)).toEqual([
+      {
+        hash: 'a'.repeat(40),
+        short: 'aaaaaaa',
+        author: 'Ada',
+        date: '2026-10-02T10:00:00+08:00',
+        subject: 'seed the tree',
+        refs: ['main', 'v1.0.0', 'origin/main'],
+      },
+      {
+        hash: 'b'.repeat(40),
+        short: 'bbbbbbb',
+        author: 'Grace',
+        date: '2026-10-01T09:30:00+08:00',
+        subject: 'fix: 中文 subject',
+        refs: [],
+      },
+    ])
+  })
+
+  it('keeps a separator inside the subject in the subject and reads a detached HEAD as no ref', () => {
+    const fixture = `${record('c'.repeat(40), 'ccccccc', 'Ada', '2026-10-02T10:00:00+08:00', 'HEAD', 'a\x1fb')}\n`
+    expect(parseGitLog(fixture)).toEqual([
+      {
+        hash: 'c'.repeat(40),
+        short: 'ccccccc',
+        author: 'Ada',
+        date: '2026-10-02T10:00:00+08:00',
+        subject: 'a\x1fb',
+        refs: [],
+      },
+    ])
+  })
+
+  it('drops an empty decoration and a name listed twice', () => {
+    const fixture = `${record('d'.repeat(40), 'ddddddd', 'Ada', '2026-10-02T10:00:00+08:00', ', main, main', 's')}\n`
+    expect(parseGitLog(fixture)[0]?.refs).toEqual(['main'])
+  })
+
+  it('returns nothing for empty output, a terminator-only fragment, and a short record', () => {
+    expect(parseGitLog('')).toEqual([])
+    expect(parseGitLog('\x1e\n')).toEqual([])
+    expect(parseGitLog('abc\x1fdef\x1e\n')).toEqual([])
   })
 })

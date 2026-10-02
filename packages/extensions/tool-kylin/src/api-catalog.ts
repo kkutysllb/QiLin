@@ -3724,6 +3724,20 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         throws: ['{RemoteError} `workspace-git/too-large` when the diff exceeds `maxDiffBytes`; `bytes` is then a lower bound of the whole.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero.'],
       },
       {
+        signature: '@Remote async log( workspaceFileScope: WorkspaceFileScope, count: number | undefined, skip: number | undefined, signal: AbortSignal, ): Promise<readonly GitLogEntry[]>',
+        description: 'Read one page of the current branch\'s history, newest first.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'count', description: 'page size; an integer in `1..100`.' }, { name: 'skip', description: 'commits to skip before the page; a non-negative integer.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the page\'s commits in `git log` order, at most `count` of them.',
+        throws: ['{RemoteError} `gateway/bad-request` when `count` or `skip` is outside its bounds; nothing ran.', '{RemoteError} `workspace-git/not-a-repo` outside a work tree.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero, including a repository whose `HEAD` has no commits yet.'],
+      },
+      {
+        signature: '@Remote async commitDiff( workspaceFileScope: WorkspaceFileScope, revision: string | undefined, signal: AbortSignal, ): Promise<string>',
+        description: 'Read the patch one commit introduced, against its first parent.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'revision', description: 'the commit to show; an accepted revision spelling (object name, ref name, or `HEAD~n`).' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'the complete patch text, bounded by the configured `maxDiffBytes`.',
+        throws: ['{RemoteError} `gateway/bad-request` when `revision` is not an accepted spelling; nothing ran.', '{RemoteError} `workspace-git/not-a-repo` outside a work tree.', '{RemoteError} `workspace-git/too-large` when the patch exceeds `maxDiffBytes`; `bytes` is then a lower bound of the whole.', '{RemoteError} `workspace-git/command-failed` when git exits nonzero, including a revision the repository does not know.'],
+      },
+      {
         signature: '@Remote async stage(workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal): Promise<void>',
         description: 'Stage changes into the index.',
         parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'repo-relative pathspec limiting the stage; empty stages the whole work tree.' }, { name: 'signal', description: 'caller cancellation.' }],
@@ -5364,6 +5378,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'GitBranches',
     declaration: 'export interface GitBranches {\n    readonly branches: readonly GitBranch[];\n    readonly truncated: boolean;\n}',
+  },
+  {
+    name: 'GitLogEntry',
+    declaration: 'export interface GitLogEntry {\n    readonly hash: string;\n    readonly short: string;\n    readonly subject: string;\n    readonly author: string;\n    readonly date: string;\n    readonly refs: readonly string[];\n}',
   },
   {
     name: 'GitStatus',

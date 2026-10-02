@@ -12,7 +12,7 @@ import type {} from '@qilin/client-ui-slots'
 
 declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
-    /** Source-control type name, guide entry, change groups, commit box, branches, and failure lines. */
+    /** Source-control type name, guide entry, change groups, commit box, branches, history, and failure lines. */
     sidebarGit: SidebarGitKey
   }
 }
@@ -59,6 +59,11 @@ export const zh = {
   'branches.createButton': '创建',
   'branches.cancel': '取消',
   'branches.empty': '没有本地分支。',
+  'history.title': '历史',
+  'history.empty': '没有提交。',
+  'history.loadMore': '加载更多',
+  'history.date.md': '{m}月{d}日',
+  'history.date.ymd': '{y}年{m}月{d}日',
   'gh.title': 'GitHub',
   'gh.signedOut': '未登录 GitHub：{message}',
   'gh.recheck': '重新检测登录',
@@ -139,6 +144,11 @@ export const en = {
   'branches.createButton': 'Create',
   'branches.cancel': 'Cancel',
   'branches.empty': 'No local branches.',
+  'history.title': 'History',
+  'history.empty': 'No commits.',
+  'history.loadMore': 'Load more',
+  'history.date.md': '{m}/{d}',
+  'history.date.ymd': '{y}-{m}-{d}',
   'gh.title': 'GitHub',
   'gh.signedOut': 'Not signed in to GitHub: {message}',
   'gh.recheck': 'Recheck sign-in',

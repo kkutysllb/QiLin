@@ -1,16 +1,24 @@
 /**
  * The panel's pure arithmetic: grouping, discarding, badge letters, diff line
- * kinds, and the failure wording of every Remote code the panel reports.
+ * kinds, commit times, and the failure wording of every Remote code the panel
+ * reports.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { RemoteError } from '@qilin/client-test-runtime'
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { GitStatusEntry } from '@qilin/api-workspace-git/types'
 import { makeTranslate } from '@qilin/client-test-runtime'
 import { zh } from '../src/client/locales.ts'
-import { badgeOf, canDiscardEntry, diffLineKind, gitFailureLine, groupChanges } from '../src/client/git-model.ts'
+import {
+  badgeOf, canDiscardEntry, diffLineKind, formatCommitTime, gitFailureLine, groupChanges,
+} from '../src/client/git-model.ts'
 
 const t = makeTranslate(zh)
+
+/** One local wall-clock moment, as strict ISO 8601 with its zone's offset. */
+function isoOf(year: number, month: number, day: number, hour: number, minute: number): string {
+  return new Date(year, month - 1, day, hour, minute).toISOString()
+}
 
 /** One entry in its most compact form. */
 function entry(path: string, mark: Partial<GitStatusEntry>): GitStatusEntry {
@@ -66,6 +74,39 @@ describe('diffLineKind', () => {
     expect(diffLineKind(' context')).toBe('context')
     expect(diffLineKind('')).toBe('context')
     expect(diffLineKind('+')).toBe('add')
+  })
+})
+
+describe('formatCommitTime', () => {
+  const now = new Date(2026, 9, 2, 20, 0).getTime()
+
+  it('shows the clock alone for a commit of the given day', () => {
+    expect(formatCommitTime(isoOf(2026, 10, 2, 19, 3), t, now)).toBe('19:03')
+  })
+
+  it('shows the date and clock for another day of the same month', () => {
+    expect(formatCommitTime(isoOf(2026, 10, 1, 7, 5), t, now))
+      .toBe(zh['history.date.md'].replace('{m}', '10').replace('{d}', '1') + ' 07:05')
+  })
+
+  it('shows the date and clock for another month of the same year', () => {
+    expect(formatCommitTime(isoOf(2026, 9, 30, 8, 0), t, now))
+      .toBe(zh['history.date.md'].replace('{m}', '9').replace('{d}', '30') + ' 08:00')
+  })
+
+  it('shows the full date and clock for another year', () => {
+    expect(formatCommitTime(isoOf(2025, 12, 31, 23, 59), t, now))
+      .toBe(zh['history.date.ymd'].replace('{y}', '2025').replace('{m}', '12').replace('{d}', '31') + ' 23:59')
+  })
+
+  it('compares against this moment by default', () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(new Date(2026, 9, 2, 20, 0))
+      expect(formatCommitTime(isoOf(2026, 10, 2, 19, 3), t)).toBe('19:03')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

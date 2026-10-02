@@ -75,6 +75,25 @@ export interface GitBranches {
 }
 
 /**
+ * One commit of the history `log` reports, from the fixed `--pretty=format`
+ * record this service requests.
+ */
+export interface GitLogEntry {
+  /** Full object name of the commit. */
+  readonly hash: string
+  /** Abbreviated object name git printed for the same commit. */
+  readonly short: string
+  /** Subject line of the commit message. */
+  readonly subject: string
+  /** Author name git recorded, as stored. */
+  readonly author: string
+  /** Author date in strict ISO 8601 with its UTC offset, exactly as `%aI` printed it. */
+  readonly date: string
+  /** Decorated ref names of the commit, deduplicated; `HEAD` alone is not a name. */
+  readonly refs: readonly string[]
+}
+
+/**
  * One pull request as `ghListPrs` reports it, from one `gh pr list --json`
  * invocation; fields gh omits arrive as their zero values.
  */

@@ -12,7 +12,7 @@ import type { Mock } from 'vitest'
 import type { RemoteResult } from '@qilin/api-remotes/client'
 import type { SessionId } from '@qilin/session/types'
 import type {
-  GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitStatus,
+  GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitLogEntry, GitStatus,
 } from '@qilin/api-workspace-git/types'
 import type { WorkspaceGitRemote } from '../src/client/face.ts'
 
@@ -47,6 +47,31 @@ export const CLEAN_STATUS: GitStatus = {
 /** A signed-in, message-less `gh` answer, the shared default fixture. */
 export const SIGNED_IN: GhAuthStatus = { authenticated: true, message: '' }
 
+/** Two commits, the first with a ref decoration, newest first. */
+export const LOG: readonly GitLogEntry[] = [
+  {
+    hash: 'a'.repeat(40), short: 'aaaaaaa', subject: 'Add the history section', author: 'Ada',
+    date: '2026-10-02T19:03:23+08:00', refs: ['main'],
+  },
+  {
+    hash: 'b'.repeat(40), short: 'bbbbbbb', subject: 'Drop the old panel', author: 'Bo',
+    date: '2026-09-30T08:00:00+08:00', refs: [],
+  },
+]
+
+/**
+ * One history page of `count` distinct commits.
+ * @param count - how many commits the page holds.
+ * @returns the commits, newest first.
+ */
+export function logPage(count: number): readonly GitLogEntry[] {
+  return Array.from({ length: count }, (_unused, index) => ({
+    ...LOG[0]!,
+    hash: `hash-${String(index)}`,
+    short: `short-${String(index)}`,
+  }))
+}
+
 /** One staged-and-unstaged-more row plus one untracked row, the busy fixture. */
 export const DIRTY_STATUS: GitStatus = {
   branch: 'feature',
@@ -72,6 +97,8 @@ export interface StaticAnswers {
   readonly createBranch?: RemoteResult<void>
   readonly push?: RemoteResult<void>
   readonly pull?: RemoteResult<void>
+  readonly log?: RemoteResult<readonly GitLogEntry[]>
+  readonly commitDiff?: RemoteResult<string>
   readonly ghAvailable?: RemoteResult<boolean>
   readonly ghAuthStatus?: RemoteResult<GhAuthStatus>
   readonly ghListPrs?: RemoteResult<readonly GhPr[]>
@@ -97,6 +124,10 @@ export interface StaticGit {
     readonly createBranch: Mock<(sessionId: SessionId, name: string, from: string, signal?: AbortSignal) => Promise<RemoteResult<void>>>
     readonly push: Mock<(sessionId: SessionId, setUpstream: boolean, signal?: AbortSignal) => Promise<RemoteResult<void>>>
     readonly pull: Mock<(sessionId: SessionId, signal?: AbortSignal) => Promise<RemoteResult<void>>>
+    readonly log: Mock<(
+      sessionId: SessionId, count: number | undefined, skip: number | undefined, signal?: AbortSignal,
+    ) => Promise<RemoteResult<readonly GitLogEntry[]>>>
+    readonly commitDiff: Mock<(sessionId: SessionId, revision: string | undefined, signal?: AbortSignal) => Promise<RemoteResult<string>>>
     readonly ghAvailable: Mock<(sessionId: SessionId, signal?: AbortSignal) => Promise<RemoteResult<boolean>>>
     readonly ghAuthStatus: Mock<(sessionId: SessionId, signal?: AbortSignal) => Promise<RemoteResult<GhAuthStatus>>>
     readonly ghListPrs: Mock<(sessionId: SessionId, state: 'open' | 'closed' | 'all', signal?: AbortSignal) => Promise<RemoteResult<readonly GhPr[]>>>
@@ -126,6 +157,8 @@ export function staticGit(answers: StaticAnswers = {}): StaticGit {
     createBranch: vi.fn(async () => answers.createBranch ?? VOID),
     push: vi.fn(async () => answers.push ?? VOID),
     pull: vi.fn(async () => answers.pull ?? VOID),
+    log: vi.fn(async () => answers.log ?? { ok: true as const, value: [] as readonly GitLogEntry[] }),
+    commitDiff: vi.fn(async () => answers.commitDiff ?? { ok: true as const, value: '' }),
     ghAvailable: vi.fn(async () => answers.ghAvailable ?? { ok: true as const, value: true }),
     ghAuthStatus: vi.fn(async () => answers.ghAuthStatus ?? { ok: true as const, value: SIGNED_IN }),
     ghListPrs: vi.fn(async () => answers.ghListPrs ?? { ok: true as const, value: [] as readonly GhPr[] }),
@@ -152,6 +185,8 @@ export interface GatedQueues {
   readonly createBranch: Held<RemoteResult<void>>[]
   readonly push: Held<RemoteResult<void>>[]
   readonly pull: Held<RemoteResult<void>>[]
+  readonly log: Held<RemoteResult<readonly GitLogEntry[]>>[]
+  readonly commitDiff: Held<RemoteResult<string>>[]
   readonly ghAvailable: Held<RemoteResult<boolean>>[]
   readonly ghAuthStatus: Held<RemoteResult<GhAuthStatus>>[]
   readonly ghListPrs: Held<RemoteResult<readonly GhPr[]>>[]
@@ -176,6 +211,7 @@ export function gatedGit(): GatedGit {
     isRepo: [], status: [], diff: [], stage: [], unstage: [], discard: [], commit: [],
     branches: [], checkout: [], createBranch: [], push: [], pull: [], ghAvailable: [],
     ghAuthStatus: [], ghListPrs: [], ghCreatePr: [], ghMergePr: [],
+    log: [], commitDiff: [],
   }
   const gate = <T>(queue: Held<T>[]): (() => Promise<T>) => () => {
     const answer = held<T>()
@@ -197,6 +233,8 @@ export function gatedGit(): GatedGit {
         createBranch: gate(q.createBranch),
         push: gate(q.push),
         pull: gate(q.pull),
+        log: gate(q.log),
+        commitDiff: gate(q.commitDiff),
         ghAvailable: gate(q.ghAvailable),
         ghAuthStatus: gate(q.ghAuthStatus),
         ghListPrs: gate(q.ghListPrs),
