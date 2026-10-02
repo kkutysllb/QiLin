@@ -123,6 +123,8 @@ export interface Harness {
   readonly file: WorkspaceFileStat | undefined
   /** The scripted `useResource`. */
   useResource: Mock<() => ResourceSnapshot<WorkspaceFileStat>>
+  /** The conversation face one viewer selection is committed through. */
+  insertSelection: Mock<(text: string) => boolean>
   /** Composed props for one navigation state. */
   props: (navigation?: { params?: unknown; revision: number }) => TextPreviewProps
   /** The tab record's actions, as recording mocks. */
@@ -158,6 +160,7 @@ export function harness(
   const current = { version: 'v1' as string | undefined, failure: undefined as RemoteFailure | undefined, snapshot: meta('v1', undefined) }
   const refresh = (): void => { current.snapshot = meta(current.version, current.failure) }
   const useResource = vi.fn<() => ResourceSnapshot<WorkspaceFileStat>>(() => current.snapshot)
+  const insertSelection = vi.fn<(text: string) => boolean>(() => true)
   const controller = new AbortController()
   onTestFinished(() => { controller.abort() })
   const tabActions = { openResource: vi.fn(), openTab: vi.fn(), close: vi.fn(), replace: vi.fn() }
@@ -188,6 +191,7 @@ export function harness(
     useDocumentPreviews: () => definitions,
     renderSlot,
     t,
+    insertSelection,
   }) as TextPreviewProps
   return {
     instance,
@@ -198,6 +202,7 @@ export function harness(
     tabActions,
     get file() { return current.snapshot.value },
     useResource,
+    insertSelection,
     props,
     script(offset, result) { pages[offset] = result },
     setVersion(version) { current.version = version; refresh() },

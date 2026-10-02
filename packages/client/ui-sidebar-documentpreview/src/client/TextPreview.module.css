@@ -322,3 +322,29 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* The "add selection to conversation" button: portaled to the document, so it
+   is fixed to the viewport and translated to sit above the selection's top
+   edge. Elevation alone separates it from what it covers — an elevated surface
+   never also carries a neutral border. `z-index` matches the other floating
+   surfaces; the label stays on one line. */
+.selectionPopup {
+  position: fixed;
+  z-index: 100;
+  padding: 4px 10px;
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+  font-family: var(--dsw-font-family);
+  line-height: 18px;
+  white-space: nowrap;
+  background: var(--dsw-alias-bg-layer-3);
+  border: none;
+  border-radius: 8px;
+  box-shadow: var(--dsw-shadow-lv3);
+  transform: translate(-50%, calc(-100% - 6px));
+  cursor: pointer;
+}
+
+.selectionPopup:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}

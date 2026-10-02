@@ -14,6 +14,7 @@ import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND } from '../src/client/definition.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { OfficeBody } from '../src/client/office/OfficeBody.tsx'
 import { TextPreview } from '../src/client/TextPreview.tsx'
+import type { TextPreviewInjected } from '../src/client/TextPreview.tsx'
 import { TextTitle } from '../src/client/TextTitle.tsx'
 import { TextBody } from '../src/client/text/TextBody.tsx'
 import { PLAIN_BODY_ID } from '../src/client/text/index.ts'
@@ -77,10 +78,14 @@ async function boot() {
   ctx.provide('locale', locale as never)
   ctx.provide('remote', { workspaceFiles } as never)
   ctx.provide('remote.workspaceFiles', workspaceFiles as never)
+  const drafts: { sessionId: string; text: string }[] = []
+  ctx.provide('uiConversation', {
+    insertDraft: vi.fn((sessionId: string, text: string) => { drafts.push({ sessionId, text }); return true }),
+  } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   onTestFinished(async () => { await fiber.dispose() })
   await fiber.await()
-  return { tabs, registered, dictionaries, fiber, workspaceFiles }
+  return { tabs, registered, dictionaries, fiber, workspaceFiles, drafts }
 }
 
 describe('ui-sidebar-documentpreview apply', () => {
@@ -138,5 +143,17 @@ describe('ui-sidebar-documentpreview apply', () => {
     face.reloadAll(TAB_ID, FILE, controller.signal, 'v2')
     await expect.poll(() => instance.getSnapshot().byTab[TAB_ID]?.failure).toBe(failure)
     expect(instance.getSnapshot().byTab[TAB_ID]?.complete).toBeUndefined()
+  })
+
+  it('routes a viewer selection into the conversation assembly of its own Session', async () => {
+    const { registered, drafts } = await boot()
+    const registration = registered.find(entry => entry.component === TextPreview)
+    if (registration === undefined) throw new Error('missing preview registration')
+    const instance = (registration.store as TextStore).create()
+    const injectPreview = registration.inject as
+      (sessionId: typeof SESSION, actions: typeof instance.actions) => TextPreviewInjected
+    const face = injectPreview(SESSION, instance.actions)
+    expect(face.insertSelection('```notes.md:2\nbeta\n```')).toBe(true)
+    expect(drafts).toEqual([{ sessionId: SESSION, text: '```notes.md:2\nbeta\n```' }])
   })
 })

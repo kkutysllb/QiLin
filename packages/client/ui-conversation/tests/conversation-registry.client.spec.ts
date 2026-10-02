@@ -14,7 +14,7 @@ import {
   ConversationEventRegistry, ConversationNodeAssembler, ConversationViewRegistry, UiConversation,
 } from '@qilin/client-ui-conversation/client'
 import type {
-  ConversationNodeDefinition, ConversationViewDefinition, ConversationViewNode,
+  ConversationNodeDefinition, ConversationViewDefinition, ConversationViewNode, InsertTextRequest,
 } from '@qilin/client-ui-conversation/client'
 
 const SESSION_ID = 'resident' as SessionId
@@ -411,5 +411,56 @@ describe('Conversation registries', () => {
     expect(trajectorySource.getSnapshot()).toBeUndefined()
     expect(trajectoryListener).toHaveBeenCalledTimes(2)
     unsubscribeTrajectory()
+  })
+})
+
+describe('draft insert', () => {
+  /** Stand in the conversation service's input registry over one scripted draft. */
+  function provideInput(ctx: Context, draft: string, draftRev: number): void {
+    ctx.provide('conversation', {
+      input: { for: () => ({ state: { getSnapshot: () => ({ draft, draftRev }) } }) },
+    } as never)
+  }
+
+  it('appends after the draft, separated by one newline', async () => {
+    const { ctx, uiConversation, binding } = await bootRegistries()
+    provideInput(ctx, 'hello', 7)
+    const seen: InsertTextRequest[] = []
+    binding.ctx.on('slash/input-insert-text', (request) => { seen.push(request); return true })
+    expect(uiConversation.insertDraft(SESSION_ID, '```a.md:1\nx\n```')).toBe(true)
+    expect(seen).toEqual([{
+      text: '\n```a.md:1\nx\n```',
+      span: { start: 5, end: 5, draftRev: 7 },
+    }])
+  })
+
+  it.each([['an empty draft', ''], ['a draft already ending in whitespace', 'hello\n']])(
+    'appends without a separator to %s',
+    async (_name, draft) => {
+      const { ctx, uiConversation, binding } = await bootRegistries()
+      provideInput(ctx, draft, 3)
+      const seen: InsertTextRequest[] = []
+      binding.ctx.on('slash/input-insert-text', (request) => { seen.push(request); return true })
+      expect(uiConversation.insertDraft(SESSION_ID, 'quoted')).toBe(true)
+      expect(seen[0]?.text).toBe('quoted')
+      expect(seen[0]?.span).toEqual({ start: draft.length, end: draft.length, draftRev: 3 })
+    },
+  )
+
+  it('reports a Session this assembly does not hold', async () => {
+    const { uiConversation } = await bootRegistries()
+    expect(uiConversation.insertDraft('absent' as SessionId, 'x')).toBe(false)
+  })
+
+  it('reports a composition with no conversation service', async () => {
+    const { uiConversation } = await bootRegistries()
+    expect(uiConversation.insertDraft(SESSION_ID, 'x')).toBe(false)
+  })
+
+  it('reports a shell that refused the insert', async () => {
+    const { ctx, uiConversation, binding } = await bootRegistries()
+    provideInput(ctx, 'hello', 1)
+    binding.ctx.on('slash/input-insert-text', () => undefined)
+    expect(uiConversation.insertDraft(SESSION_ID, 'x')).toBe(false)
   })
 })

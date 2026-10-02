@@ -36,6 +36,7 @@
         "@qilin/client-resources",
         "@qilin/client-ui-sidebar-right",
         "@qilin/client-ui-session",
+        "@qilin/client-ui-conversation",
         "@qilin/api-remotes",
         "@qilin/client-locale",
         "@qilin/client-ui-settings"
@@ -62,6 +63,7 @@
     "@qilin/client-store": "workspace:*",
     "@qilin/client-test-runtime": "workspace:*",
     "@qilin/client-ui-dockkit": "workspace:*",
+    "@qilin/client-ui-conversation": "workspace:*",
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-session": "workspace:*",

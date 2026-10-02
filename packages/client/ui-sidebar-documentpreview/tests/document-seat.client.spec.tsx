@@ -77,6 +77,10 @@ async function boot() {
     },
   }))
   await rt.mount({ inject: [...sidebarInject], apply: sidebarApply })
+  // The viewer hands a selection to the conversation assembly by Session id.
+  // This seat spec composes no such assembly, so the one member it reads is
+  // stood in here.
+  rt.ctx.provide('uiConversation', { insertDraft: vi.fn(() => true) } as never)
   await rt.mount({ inject: [...inject], apply })
   const view = rt.renderSlot('rightbar', { width: 600, viewportWidth: 1440, canShow: true })
   const open = (name: string): void => {

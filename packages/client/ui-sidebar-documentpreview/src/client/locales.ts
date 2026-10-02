@@ -32,6 +32,7 @@ export const zh = {
   'error.notRegularFile': '该路径不是普通文件，没有可显示的内容',
   'error.unavailable': '读取失败：{message}',
   retry: '重试',
+  addToConversation: '加入对话',
 } satisfies Record<string, string>
 
 /** Text-preview dictionary key union. */
@@ -63,4 +64,5 @@ export const en = {
   'error.notRegularFile': 'Not a regular file, nothing to display.',
   'error.unavailable': 'Read failed: {message}',
   retry: 'Retry',
+  addToConversation: 'Add to conversation',
 } satisfies Record<SidebarDocumentPreviewKey, string>

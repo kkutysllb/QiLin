@@ -13,6 +13,7 @@
  * its Host path; the Sidebar's strip carries none of them.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
 import type { ObservableSnapshot } from '@qilin/client-store'
@@ -34,6 +35,8 @@ import type { DocumentPreviewDefinition } from './document/registry.ts'
 import { unviewableBinaryPath } from './document/unviewable.ts'
 import { PLAIN_BODY_ID } from './text/index.ts'
 import { loadedPages, lastLineLoaded, scrollToLine } from './text/lines.ts'
+import { buildSelectionInsert, linesOfSelection } from './selection-payload.ts'
+import { useSelectionPopup } from './selection-popup.ts'
 import css from './TextPreview.module.css'
 
 export { linesOf, loadedPages, lastLineLoaded, scrollToLine } from './text/lines.ts'
@@ -65,6 +68,12 @@ function usePathClipped(
 /** Private registration inputs; the framework binds the registry source to useDocumentPreviews. */
 export interface TextPreviewInjected extends TextInjected {
   readonly hooks: { readonly documentPreviews: ObservableSnapshot<readonly DocumentPreviewDefinition[]> }
+  /**
+   * Append one viewer selection to this tab's Session composer draft.
+   * @param text - the fenced selection block.
+   * @returns whether the Session's input applied it.
+   */
+  readonly insertSelection: (text: string) => boolean
 }
 
 /** The body's composed props: the tab, its navigation, the shared store and face, and copy. */
@@ -88,7 +97,7 @@ export type TextPreviewProps =
 export function TextPreview({
   useTabInfo, useResource, useStore, actions, loadPage, reloadPages,
   loadAll, reloadAll, prepareRenderer, useDocumentPreviews, renderSlot, t,
-  addResource, setResources,
+  addResource, setResources, insertSelection,
 }: TextPreviewProps): ReactNode {
   const { tab } = useTabInfo()
   const { navigation, signal, actions: tabActions } = tab
@@ -230,6 +239,40 @@ export function TextPreview({
     if (current === undefined || loaded.length === 0) return undefined
     return { kind: 'text', pages: loaded, text: loaded.filter(page => page.lines > 0).map(page => page.text).join('\n'), eof: current.eof }
   }, [mode, loaded, current?.complete, current?.eof, current?.loadRevision, rendererReload, actions, tab.id])
+
+  // The "add selection to conversation" button. Only a text body has a source
+  // to reverse-search for line numbers; the byte and whole-file renderers
+  // (PDF, images, Office) show documents whose text is not the file's own.
+  const source = content?.kind === 'text' ? content.text : undefined
+  const selectionPopup = useSelectionPopup({
+    onCommit: (insert) => { insertSelection(insert) },
+    getSurface: () => bodyRef.current,
+  })
+  const showSelection = (): void => {
+    const selection = window.getSelection()
+    const surface = bodyRef.current
+    if (selection === null || selection.isCollapsed || surface === null || source === undefined) {
+      selectionPopup.hide()
+      return
+    }
+    const { anchorNode, focusNode } = selection
+    if (anchorNode === null || focusNode === null
+      || !surface.contains(anchorNode) || !surface.contains(focusNode)) {
+      selectionPopup.hide()
+      return
+    }
+    const text = selection.toString()
+    if (text.trim() === '') {
+      selectionPopup.hide()
+      return
+    }
+    const rect = selection.getRangeAt(0).getBoundingClientRect()
+    selectionPopup.show(
+      buildSelectionInsert(file.path, linesOfSelection(source, text) ?? undefined, text),
+      rect.left + rect.width / 2,
+      rect.top,
+    )
+  }
 
   // A known binary suffix with no matching renderer never reads: no plain-text
   // fallback, no viewer control, only the path and the unsupported line.
@@ -388,6 +431,7 @@ export function TextPreview({
         className={clsx(css.body, state.wrap && css.wrap)}
         data-textpreview-body
         data-textpreview-wrap={state.wrap ? '' : undefined}
+        onMouseUp={showSelection}
         onScrollCapture={(event) => {
           const body = scrollportRef.current
           /* v8 ignore next -- callback refs bind the scrollport during commit, before user input. */
@@ -451,6 +495,23 @@ export function TextPreview({
           </button>
         )}
       </div>
+      {selectionPopup.popup !== null && createPortal(
+        // Fixed to the viewport, so it is portaled out of the pane: the body's
+        // scrollport would otherwise clip a button anchored above the line.
+        <button
+          type="button"
+          ref={selectionPopup.buttonRef}
+          className={css.selectionPopup}
+          data-textpreview-selection-popup
+          style={{ left: selectionPopup.popup.left, top: selectionPopup.popup.top }}
+          // Keep the selection (and the caret) alive until the click commits.
+          onMouseDown={(event) => { event.preventDefault() }}
+          onClick={() => { selectionPopup.commit() }}
+        >
+          {t('addToConversation')}
+        </button>,
+        document.body,
+      )}
     </div>
   )
 }

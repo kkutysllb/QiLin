@@ -16,6 +16,7 @@ import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-resources/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin/client-ui-conversation/client'
 import type {} from '@qilin/client-ui-sidebar-right/client'
 import type {} from '@qilin/api-gateway/client'
 import type {} from '@qilin/api-workspace-files/remote'
@@ -79,9 +80,10 @@ declare module '@qilin/client-ui-slots' {
 /**
  * Required browser services: the tab registry, the slot registry, copy, the
  * shared resource model, the developer-tools preference that selects the HTML
- * preview policy, and the Remote carrier with its `workspaceFiles` namespace.
+ * preview policy, the conversation assembly a viewer selection lands in, and
+ * the Remote carrier with its `workspaceFiles` namespace.
  */
-export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'configForms', 'resources']
+export const inject = ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'configForms', 'resources', 'uiConversation']
 
 /**
  * Client plugin body: register the type, its dictionaries, its body, and its chip title.
@@ -116,7 +118,12 @@ export function apply(ctx: ClientContext): void {
         'sidebar.right.tab.document.action': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: documentTabInfoFactory } } },
       },
       inject: (sessionId, actions): TextPreviewInjected => ({
-        ...face(sessionId, actions), hooks: { documentPreviews: source },
+        ...face(sessionId, actions),
+        hooks: { documentPreviews: source },
+        // The conversation assembly owns the Session's composer: a viewer
+        // selection reaches it by Session id, so this package needs no
+        // scope-addressed input inject of its own.
+        insertSelection: text => ctx.uiConversation.insertDraft(sessionId, text),
       }),
     },
     TextPreview,

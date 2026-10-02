@@ -297,6 +297,34 @@ export class UiConversation extends Service {
   }
 
   /**
+   * Append `text` after one Session's composer draft, leaving the draft's
+   * existing text and reference chips in place. Dispatched as the scoped
+   * insert event against the revision the draft is read at, so a concurrent
+   * edit makes the shell refuse the insert instead of splicing into moved
+   * text; a non-empty draft that does not already end in whitespace gains one
+   * separating newline. SessionId-explicit, like {@link fillDraft}, so a call
+   * from any package needs no scope-addressed service inject.
+   * @param sessionId - target Session.
+   * @param text - text to append.
+   * @returns whether the resident input shell applied the insert.
+   */
+  insertDraft(sessionId: SessionId, text: string): boolean {
+    const owner = this.sessions.binding(sessionId)
+    if (owner === undefined) return false
+    const conversation = this.ctx.get('conversation') as
+      | { readonly input: SessionInputResolver }
+      | undefined
+    if (conversation === undefined) return false
+    const input = conversation.input.for(owner.ctx)
+    const { draft, draftRev } = input.state.getSnapshot()
+    const separator = draft === '' || /\s$/u.test(draft) ? '' : '\n'
+    return owner.ctx.bail(owner.ctx, 'slash/input-insert-text', {
+      text: `${separator}${text}`,
+      span: { start: draft.length, end: draft.length, draftRev },
+    }) === true
+  }
+
+  /**
    * Adopt an already-displayable URL for one durable reference (see
    * HistoricalImageCache.seed): the transcript node then renders it without a
    * byte round-trip.
