@@ -425,3 +425,33 @@ React 18 只把 `ref` 交给 `forwardRef` 与 DOM 元素；普通函数组件收
 - `pnpm run test:gui`：**592 全过 / 1 红**（唯一红仍是 `ui-theme` 的 ModelSelect 滚动面，预存）。
 - `pnpm run hygiene`：**18 过 / 1 红**（唯一红 `vendor rescope`，预存）。`verify-client-catalog` / `verify-kylin-catalog` / `verify-config-catalog` / `verify-package-invariants` 全过。
 - **`test:web` 本机无法执行**：`~/Library/Caches/ms-playwright` 被外部清空（只有 `.links` 与 `__dirlock`，无任何浏览器）。`QILIN_SNAPSHOT=replay pnpm run test:web` 因此 121 个文件在 `browserType.launch` 处失败（`Executable doesn't exist at …/chromium_headless_shell-1228/…`），非浏览器用例 24 例通过。`pnpm exec playwright install chromium` 再试一次，约 9 分钟零字节（缓存仍 8K），已终止。**这是环境阻塞，不是本批回归**；浏览器恢复后需补跑一次 `test:web` 才能宣告本批的组装面验证完成。
+
+## 批次执行状态补充二十八（2026-10-02 21:35）——批次七「终端 URL 链接」，并订正「等待横幅」不是缺口
+
+### 一、审计订正：上游的「等待横幅」在 QiLin 没有指称
+
+上游 `TerminalWaitBanner.tsx` 是 `terminal_wait_for` 的 UI：模型在该工具里**阻塞等待终端输出**时，侧栏顶部显示「Agent 正在等待 {needle}」并提供「跳过等待」。QiLin 的终端工具集是 `terminal_open / send / read / signal / close / list`（`packages/terminal/tool-terminal/src/index.ts`）——**没有 wait_for，模型从不阻塞等待终端**，因此没有可显示的状态。这一项**不是缺口**，是上游一条 QiLin 不存在的产品线；照搬会造出一个永远不出现的组件。旧审计把它列为「终端三缺」之一，属未验证即转抄。
+
+终端一行因此收窄为两项：**URL 链接（本批已做）** 与 **字体偏好（仍缺）**。
+
+### 二、交付（提交主体：`feat(client-ui-sidebar-terminal): link the URLs a terminal prints`）
+
+| 件 | 内容 |
+|---|---|
+| `terminal-links.ts` | 纯模块（不 import xterm）：`TERMINAL_URL_REGEX`、逐行扫描、**去除包装用右括号**（配平括号保留，维基式 `…(language)` 不被截断）、1-based 闭区间单元格范围、Ctrl/Cmd 修饰键判定、协议白名单。只扫描 http(s)，所以打印出的 `file://`、`mailto:` 保持纯文本；扫描命中但 `new URL` 拒绝的文本（如 `https://%zz`）仍画链接、但激活时被拒。 |
+| `terminal.tsx` | 注册 xterm link provider。**关键坐标事实**：`provideLinks` 给的是 **1-based** 缓冲区行号，而 `getLine` 从 0 索引——上游注释记录了「直接用会取到下面一行、URL 文本与 range.y 错位」的历史 bug，这里沿用 `getLine(lineNumber - 1)` 并用注释钉住，测试也按该契约断言。 |
+| `index.ts` | `openUrl` 开在**终端旁边的侧栏内置浏览器**里；该 tab 类型未组合进来时退回新开浏览器标签页——终端链接点了没反应比离开应用更糟。同时把导航参数读取改为**收窄到本包自己的拼写**（`terminalId in params || shellPath in params`），而不是声称整个已注册参数联合。 |
+
+### 三、关于「跟随 Chat 的链接打开偏好」
+
+`linkOpening` 是 **Chat 设置命名空间**（`ui-chat`）里的字段，语义是「Chat 里点 HTTP(S) 链接的去向」。终端借用它会形成跨特性插件的**值依赖**（违反「特性插件不得运行时 import 另一特性插件的值」），而共享该偏好的正解是抽一个 external-link seam。当前裁决：终端用自己的规则（优先内置浏览器、无则新标签），README 与本文留档；**若要三处统一，需要单独一批做那个 seam**（`linkOpening` 也应从 Chat 命名空间提升为通用设置），不在本批夹带。
+
+### 四、验证
+
+| 项 | 结果 |
+|---|---|
+| 新增测试 | `terminal-links` 14 例（扫描顺序/包装标点/配平括号/不平衡括号/`nothttps://` 不匹配/重复扫描稳定/范围/修饰键/协议拒绝/畸形 URL）、`terminal-body` 2 例（真实 provider：范围与激活、无链接行与越界行、拒绝目标、dispose）、`apply` 1 例（有/无 browser 类型两条路径） |
+| 覆盖率 | `terminal-links.ts`、`terminal.tsx`、`index.ts` 均 **100/100/100/100**；其中 `index.ts` 原本就缺一个 `label` thunk 的调用（本包自有文件未满 100 的旧账），本批顺带补齐并删掉了 `terminal-body` spec 里一条被祖父化的 `as unknown as` 双重断言（基线 **prune** 一条，1671 条留存） |
+| 包级 | `ui-sidebar-terminal` **82 例全绿** |
+| `test:gui` | **593 全过 / 1 红**（ui-theme 的 ModelSelect 滚动面，预存） |
+| 门禁 | `tsc -b tsconfig.client.json` 0；`oxlint` 全仓 **88 = 基线**；`doc-sync` 41 过 / 1 红（预存 `verify-persistence-changes`）；`verify-package-dependencies` / `verify-client-packages` / `verify-export-jsdoc` / `verify-client-ui-i18n` 全过 |
