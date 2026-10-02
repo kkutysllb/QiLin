@@ -61,6 +61,18 @@ import type {
   SessionSelectModelRequest,
   SessionSelectModelValue,
   SessionProjectionsRequest,
+  SessionSidechatCancelRequest,
+  SessionSidechatCancelValue,
+  SessionSidechatPromptRequest,
+  SessionSidechatPromptValue,
+  SessionSidechatReleaseRequest,
+  SessionSidechatReleaseValue,
+  SessionSidechatSnapshotRequest,
+  SessionSidechatSnapshotValue,
+  SessionSidechatStartRequest,
+  SessionSidechatStartValue,
+  SessionSidechatThreadsRequest,
+  SessionSidechatThreadsValue,
   SessionUpdateQueueRequest,
   SessionUpdateQueueValue,
 } from '../src/types.ts'
@@ -90,6 +102,12 @@ export interface TestSessionRemote {
   projections(request: SessionProjectionsRequest, signal?: AbortSignal): Promise<RemoteResult<SessionProjectionsValue>>
   follow(request: SessionFollowRequest, signal?: AbortSignal): AsyncIterable<SessionFollowFrame>
   control(signal?: AbortSignal): AsyncIterable<SessionControlFrame>
+  sidechatStart(request: SessionSidechatStartRequest, signal?: AbortSignal): Promise<RemoteResult<SessionSidechatStartValue>>
+  sidechatPrompt(request: SessionSidechatPromptRequest, signal?: AbortSignal): Promise<RemoteResult<SessionSidechatPromptValue>>
+  sidechatCancel(request: SessionSidechatCancelRequest): Promise<RemoteResult<SessionSidechatCancelValue>>
+  sidechatSnapshot(request: SessionSidechatSnapshotRequest, signal?: AbortSignal): Promise<RemoteResult<SessionSidechatSnapshotValue>>
+  sidechatRelease(request: SessionSidechatReleaseRequest): Promise<RemoteResult<SessionSidechatReleaseValue>>
+  sidechatThreads(request: SessionSidechatThreadsRequest, signal?: AbortSignal): Promise<RemoteResult<SessionSidechatThreadsValue>>
 }
 
 /** Dependencies and policy supplied by a Session Controller unit harness. */
@@ -97,6 +115,8 @@ export interface TestSessionRemoteDefaults {
   readonly defaultModelSelection: () => AgentModelSelection
   readonly cwd: string
   readonly nativeOpen?: boolean
+  readonly sidechatMaxSnapshotEvents?: number
+  readonly sidechatMaxPromptChars?: number
   readonly saveDefaultModelSelection?: (selection: AgentModelSelection) => void | Promise<void>
   readonly openPath?: (path: string, signal: AbortSignal) => Promise<void>
   readonly fileApplications?: SessionControllerInternals['fileApplications']
@@ -292,6 +312,12 @@ function installControllers(
       ctx,
       {
         ...defaults.nativeOpen === undefined ? {} : { nativeOpen: defaults.nativeOpen },
+        ...defaults.sidechatMaxSnapshotEvents === undefined
+          ? {}
+          : { sidechatMaxSnapshotEvents: defaults.sidechatMaxSnapshotEvents },
+        ...defaults.sidechatMaxPromptChars === undefined
+          ? {}
+          : { sidechatMaxPromptChars: defaults.sidechatMaxPromptChars },
       },
       {
         ...defaults.openPath === undefined ? {} : { openPath: defaults.openPath },
@@ -381,5 +407,23 @@ export function createSessionTestRemote(
     ),
     follow: (request, signal = new AbortController().signal) => direct.follow(request, signal),
     control: (signal = new AbortController().signal) => direct.control(signal),
+    sidechatStart: (request, signal = new AbortController().signal) => remoteResult(
+      () => direct.sidechatStart(request, signal),
+      signal,
+    ),
+    sidechatPrompt: (request, signal = new AbortController().signal) => remoteResult(
+      () => direct.sidechatPrompt(request, signal),
+      signal,
+    ),
+    sidechatCancel: request => remoteResult(() => direct.sidechatCancel(request)),
+    sidechatSnapshot: (request, signal = new AbortController().signal) => remoteResult(
+      () => direct.sidechatSnapshot(request, signal),
+      signal,
+    ),
+    sidechatRelease: request => remoteResult(() => direct.sidechatRelease(request)),
+    sidechatThreads: (request, signal = new AbortController().signal) => remoteResult(
+      () => direct.sidechatThreads(request, signal),
+      signal,
+    ),
   }
 }

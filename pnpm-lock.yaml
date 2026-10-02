@@ -2272,6 +2272,9 @@ importers:
       '@qilin/client-ui-sidebar-terminal':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-terminal
+      '@qilin/client-ui-sidechat':
+        specifier: workspace:*
+        version: link:../../client/ui-sidechat
       '@qilin/client-ui-skill':
         specifier: workspace:*
         version: link:../../client/ui-skill
@@ -5371,6 +5374,9 @@ importers:
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../store
       '@qilin/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
@@ -5491,6 +5497,69 @@ importers:
       '@xterm/xterm':
         specifier: ^6.0.0
         version: 6.0.0
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-sidechat:
+    devDependencies:
+      '@qilin/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin/client-ui-session':
+        specifier: workspace:*
+        version: link:../ui-session
+      '@qilin/client-ui-sidebar-right':
+        specifier: workspace:*
+        version: link:../ui-sidebar-right
+      '@qilin/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/remote-mock':
+        specifier: workspace:*
+        version: link:../../test-support/remote-mock
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin/subagent':
+        specifier: workspace:*
+        version: link:../../subagent/subagent
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
       clsx:
         specifier: ^2.0.0
         version: 2.1.1
@@ -7063,6 +7132,9 @@ importers:
       '@qilin/subagent-spawn-in-process':
         specifier: workspace:*
         version: link:../../subagent/subagent-spawn-in-process
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
 
   packages/experimental/agent-team-profile:
     dependencies:
@@ -7418,6 +7490,9 @@ importers:
 
   packages/experimental/client-ui-agent-team:
     devDependencies:
+      '@qilin/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
       '@qilin/api-session-controller':
         specifier: workspace:*
         version: link:../../api/session-controller
@@ -7442,6 +7517,9 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:*
         version: link:../../client/ui-session
+      '@qilin/client-ui-sidebar-right':
+        specifier: workspace:*
+        version: link:../../client/ui-sidebar-right
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../../client/ui-slots
@@ -7457,6 +7535,9 @@ importers:
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

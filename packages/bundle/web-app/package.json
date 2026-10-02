@@ -103,6 +103,7 @@
     "@qilin/client-ui-sidebar-plans": "workspace:*",
     "@qilin/client-ui-sidebar-right": "workspace:*",
     "@qilin/client-ui-sidebar-tasks": "workspace:*",
+    "@qilin/client-ui-sidechat": "workspace:*",
     "@qilin/client-ui-sidebar-terminal": "workspace:*",
     "@qilin/client-ui-skill": "workspace:*",
     "@qilin/client-ui-subagent": "workspace:*",

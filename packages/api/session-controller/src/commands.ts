@@ -83,6 +83,70 @@ function latestCompletedPrefixBoundary(events: readonly SessionEvent[]): Session
   return boundary
 }
 
+/**
+ * One validated fork cut: the honest seed, its inclusive boundary, the source
+ * header, and the source's Agent preset.
+ */
+export interface PreparedForkSeed {
+  readonly seed: SessionEvent[]
+  readonly boundary: SessionSeq
+  readonly header: SessionHeader
+  readonly presetId: string | undefined
+}
+
+/**
+ * Validate one fork boundary over a source Session and build its honest seed:
+ * an explicit `atSeq` is the inclusive cut, an omitted value selects the
+ * latest completed-turn prefix, and an open cut receives synthetic fork closers.
+ * @param ctx - Host context carrying the Session query service.
+ * @param agents - Session Agent policy reading the source preset.
+ * @param sessionId - source Session identity.
+ * @param atSeq - explicit inclusive cut, or undefined for the latest completed-turn prefix.
+ * @throws {RemoteError} `session/not-found` when the source is absent, `session/fork-unavailable`
+ *   when no cut exists, and `gateway/internal` when the source read fails.
+ * @returns the prepared seed records with the resolved cut metadata.
+ */
+export async function prepareForkSeed(
+  ctx: Context,
+  agents: Pick<ApiSessionAgentController, 'presetForObservation'>,
+  sessionId: SessionId,
+  atSeq: SessionSeq | undefined,
+): Promise<PreparedForkSeed> {
+  let observed: SessionObservation
+  try {
+    observed = await ctx.sessionQuery.observeSession(sessionId)
+  } catch (error) {
+    if (error instanceof SessionQueryError
+      && error.code === 'SESSION_QUERY_SESSION_NOT_FOUND') {
+      throw new RemoteError('session/not-found', `session "${sessionId}" not found`, {
+        sessionId,
+      })
+    }
+    throw new RemoteError(
+      'gateway/internal',
+      `fork source unavailable for session "${sessionId}": ${String(error)}`,
+      {},
+    )
+  }
+  using source = observed
+  const boundary = atSeq ?? latestCompletedPrefixBoundary(source.events)
+  if (boundary === undefined || source.events[boundary]?.seq !== boundary) {
+    throw new RemoteError(
+      'session/fork-unavailable',
+      atSeq === undefined
+        ? `session "${sessionId}" has no completed turn to fork from`
+        : `event ${String(atSeq)} does not exist in session "${sessionId}" (last seq: ${String(source.events.at(-1)?.seq ?? 'none')})`,
+      { sessionId },
+    )
+  }
+  return {
+    seed: buildForkSeed(source.events, boundary),
+    boundary,
+    header: source.header,
+    presetId: agents.presetForObservation(source),
+  }
+}
+
 /** Implements Session business commands delegated by the Session Controller Remote service. */
 export class SessionCommandController {
   /**
@@ -219,43 +283,16 @@ export class SessionCommandController {
    * @returns the new Session identity.
    */
   async fork(request: SessionForkRequest): Promise<SessionForkValue> {
-    let atSeq: ReturnType<typeof SessionSeq> | undefined
+    let atSeq: SessionSeq | undefined
     try {
       atSeq = request.atSeq === undefined ? undefined : SessionSeq(request.atSeq)
     } catch {
       throw new RemoteError('gateway/bad-request', 'atSeq must be a non-negative safe integer', {})
     }
-    let observed: SessionObservation
-    try {
-      observed = await this.ctx.sessionQuery.observeSession(request.sessionId)
-    } catch (error) {
-      if (error instanceof SessionQueryError
-        && error.code === 'SESSION_QUERY_SESSION_NOT_FOUND') {
-        throw new RemoteError('session/not-found', `session "${request.sessionId}" not found`, {
-          sessionId: request.sessionId,
-        })
-      }
-      throw new RemoteError(
-        'gateway/internal',
-        `fork source unavailable for session "${request.sessionId}": ${String(error)}`,
-        {},
-      )
-    }
-    using source = observed
-    const boundary = atSeq ?? latestCompletedPrefixBoundary(source.events)
-    if (boundary === undefined || source.events[boundary]?.seq !== boundary) {
-      throw new RemoteError(
-        'session/fork-unavailable',
-        request.atSeq === undefined
-          ? `session "${request.sessionId}" has no completed turn to fork from`
-          : `event ${String(request.atSeq)} does not exist in session "${request.sessionId}" (last seq: ${String(source.events.at(-1)?.seq ?? 'none')})`,
-        { sessionId: request.sessionId },
-      )
-    }
-    const seed = buildForkSeed(source.events, boundary)
+    const prepared = await prepareForkSeed(this.ctx, this.agents, request.sessionId, atSeq)
     let workspace: Workspace | undefined
     try {
-      workspace = await this.forkWorkspace(source.header)
+      workspace = await this.forkWorkspace(prepared.header)
     } catch (error) {
       throw new RemoteError(
         'gateway/internal',
@@ -264,16 +301,16 @@ export class SessionCommandController {
       )
     }
     const childId = brandString<SessionId>(`session-${randomUUID()}`)
-    const composition = await this.agents.composeAgent(this.agents.presetForObservation(source))
+    const composition = await this.agents.composeAgent(prepared.presetId)
     try {
       const { provider, model } = this.ctx.agentDefaultModel.currentSelection()
       await this.ctx.agents.create({
         sessionId: childId,
-        seed,
-        inheritedEventCount: SessionLogOffset(boundary + 1),
+        seed: prepared.seed,
+        inheritedEventCount: SessionLogOffset(prepared.boundary + 1),
         meta: {
-          ...(source.header.cwd === undefined ? {} : { cwd: source.header.cwd }),
-          parentSession: source.header.id,
+          ...(prepared.header.cwd === undefined ? {} : { cwd: prepared.header.cwd }),
+          parentSession: prepared.header.id,
           isSeeded: true,
           ...(composition.agentPreset === undefined
             ? {}

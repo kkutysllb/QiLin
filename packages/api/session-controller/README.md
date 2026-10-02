@@ -42,6 +42,8 @@ The user-invocable `skills/list` metadata includes the winning provider’s opti
 
 Fork copies history through the selected completed turn, including its `turn/end`. Events after that point, including queued input and model-setting changes, are excluded. An omitted or past-end anchor selects the last completed turn; an anchor inside an unfinished turn is rejected.
 
+Sidechat threads are the consumer-facing fork: `sidechatStart` forks the parent's honest prefix, stamps one `subagent/descriptor` (provider `sidechat`, mode `continuable`) as the thread's first own event, and optionally delivers the inheritance boundary plus a first question. The inherited prefix is reference context, never activity: `sidechatPrompt` delivers the boundary once before the thread's first prompt, re-aligns the thread's model selection to its parent's at delivery time, and earns the thread a durable `Side: …` label from its first question. `sidechatSnapshot` returns the thread's own events only (tail-bounded by `sidechatMaxSnapshotEvents`), `sidechatCancel` stops a running turn keeping its queued inbox, `sidechatRelease` disposes the live Agent while the persisted history stays, and `sidechatThreads` lists a parent's threads oldest first. Prompt text is bounded by `sidechatMaxPromptChars`.
+
 A resume blocked by an existing write handle returns `session/writer-held` with the Session id; other resume failures retain `gateway/internal`.
 
 <a id="client-references"></a>

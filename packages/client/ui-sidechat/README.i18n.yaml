@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-sidechat/README.md
+/:
+  en: 13b9891fdae386a6
+  zh: 29b2b488971ae2d6
+/qilin-client-ui-sidechat:
+  en: cecb3667f224db3e
+  zh: a13ad6f7b8d5a793
+/qilin-client-ui-sidechat/summary:
+  en: be7936e38dba9d2a
+  zh: b1c5bf1865ae8e46
+/qilin-client-ui-sidechat/table-of-contents:
+  en: a7b1bcef44d01a5e
+  zh: ca90e1fd026996cb
+/qilin-client-ui-sidechat/what-it-registers:
+  en: 2c7f87227236d463
+  zh: ac7e2b8894279298
+/qilin-client-ui-sidechat/the-panel:
+  en: b488b91003dc65f8
+  zh: ddc092565e682419
+/qilin-client-ui-sidechat/model-experience:
+  en: 4eb476dcc206f704
+  zh: 56eb09607ced8476
+/qilin-client-ui-sidechat/model-experience/kv-cache-effect:
+  en: 21a0d6e4e39c5f40
+  zh: 870dfff007e94c1b
+/qilin-client-ui-sidechat/known-limitations-and-deferred-work:
+  en: 26b497ace8ab3846
+  zh: 10f28c06762c5f86
+/qilin-client-ui-sidechat/known-limitations-and-deferred-work/dev-note:
+  en: c9631e95a9d540f6
+  zh: 0c475848b6f76ace

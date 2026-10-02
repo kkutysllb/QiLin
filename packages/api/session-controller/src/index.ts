@@ -25,6 +25,7 @@ import { SessionFileReferences } from './file-references.ts'
 import { ApiSessionList } from './list.ts'
 import { buildModelCatalog } from './catalog.ts'
 import { installModelSelectionProjection } from './model-selection-projection.ts'
+import { SessionSidechatController } from './sidechat.ts'
 import { SessionSkillCatalog } from './skill-catalog.ts'
 import { SessionMediaReferences } from './media-references.ts'
 import { ArchivedSessionGate } from './archived-session-gate.ts'
@@ -59,6 +60,18 @@ import type {
   SessionProjectionsRequest,
   SessionProjectionsValue,
   SessionProjectionValues,
+  SessionSidechatCancelRequest,
+  SessionSidechatCancelValue,
+  SessionSidechatPromptRequest,
+  SessionSidechatPromptValue,
+  SessionSidechatReleaseRequest,
+  SessionSidechatReleaseValue,
+  SessionSidechatSnapshotRequest,
+  SessionSidechatSnapshotValue,
+  SessionSidechatStartRequest,
+  SessionSidechatStartValue,
+  SessionSidechatThreadsRequest,
+  SessionSidechatThreadsValue,
   SessionUpdateQueueRequest,
   SessionUpdateQueueValue,
 } from './types.ts'
@@ -79,6 +92,10 @@ declare module '@qilin/kylin' {
 export interface Config {
   /** Override platform desktop-opener detection. */
   readonly nativeOpen?: boolean
+  /** Maximum own-event records one sidechat snapshot returns. */
+  readonly sidechatMaxSnapshotEvents?: number
+  /** Maximum UTF-16 code units one sidechat prompt text accepts. */
+  readonly sidechatMaxPromptChars?: number
 }
 
 /** Host integrations replaceable by direct unit tests. */
@@ -113,6 +130,8 @@ export class SessionController extends TypertRemoteService {
 
   static Config: z<Config> = z.object({
     nativeOpen: z.boolean(),
+    sidechatMaxSnapshotEvents: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER),
+    sidechatMaxPromptChars: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER),
   })
 
   private readonly agents: ApiSessionAgentController
@@ -120,6 +139,7 @@ export class SessionController extends TypertRemoteService {
   private readonly controlState: SessionControlController
   private readonly history: SessionHistoryController
   private readonly listState: ApiSessionList
+  private readonly sidechat: SessionSidechatController
   private readonly openPath: (path: string, signal: AbortSignal) => Promise<void>
   private readonly fileApplications: typeof nativeFileApplications
   private readonly openFileApplication: typeof openNativeFileApplication
@@ -143,6 +163,10 @@ export class SessionController extends TypertRemoteService {
       return result.agent
     }), 'session-controller: file-upload Agent resolver')
     this.controlState = new SessionControlController(ctx)
+    this.sidechat = new SessionSidechatController(ctx, this.agents, {
+      maxSnapshotEvents: config.sidechatMaxSnapshotEvents,
+      maxPromptChars: config.sidechatMaxPromptChars,
+    })
     // Registered before history so reverse-order teardown closes every
     // follower before waiting for already-admitted promotions.
     ctx.effect(() => async () => {
@@ -438,6 +462,76 @@ export class SessionController extends TypertRemoteService {
   @Remote('cancel')
   cancel(request: SessionCancelRequest): SessionCancelValue {
     return this.commands.cancel(request)
+  }
+
+  /**
+   * Start one sidechat thread: fork the parent's log up to the cut into a
+   * `subagent`-origin child whose inherited prefix is reference context, and
+   * deliver the boundary plus an optional first question.
+   * @param request - parent Session, optional exact inclusive cut, optional first question.
+   * @param signal - caller cancellation for source reads and delivery.
+   * @returns the new thread identity.
+   */
+  @Remote('sidechatStart')
+  sidechatStart(request: SessionSidechatStartRequest, signal: AbortSignal): Promise<SessionSidechatStartValue> {
+    return this.sidechat.start(request, signal)
+  }
+
+  /**
+   * Deliver one follow-up message to a sidechat thread, resuming a cold
+   * thread first; the first prompt injects the inheritance boundary and earns
+   * the thread's durable label.
+   * @param request - thread identity, message text, and correlation id.
+   * @param signal - caller cancellation for resume and source reads.
+   * @returns the acceptance, earned label, and model-follow outcome.
+   */
+  @Remote('sidechatPrompt')
+  sidechatPrompt(request: SessionSidechatPromptRequest, signal: AbortSignal): Promise<SessionSidechatPromptValue> {
+    return this.sidechat.prompt(request, signal)
+  }
+
+  /**
+   * Cancel one sidechat thread's running turn, keeping its queued inbox.
+   * @param request - thread whose active turn is cancelled.
+   * @returns acknowledgement that cancellation was requested.
+   */
+  @Remote('sidechatCancel')
+  sidechatCancel(request: SessionSidechatCancelRequest): SessionSidechatCancelValue {
+    return this.sidechat.cancel(request)
+  }
+
+  /**
+   * Read one sidechat thread's own durable events (tail-bounded) and its
+   * live facts; the inherited prefix stays excluded.
+   * @param request - thread identity.
+   * @param signal - caller cancellation for persistence reads.
+   * @returns the thread info and its own event tail.
+   */
+  @Remote('sidechatSnapshot')
+  sidechatSnapshot(request: SessionSidechatSnapshotRequest, signal: AbortSignal): Promise<SessionSidechatSnapshotValue> {
+    return this.sidechat.snapshot(request, signal)
+  }
+
+  /**
+   * Release one sidechat thread's live Agent; its persisted history stays
+   * and a later prompt resumes it.
+   * @param request - thread whose live Agent is released.
+   * @returns acknowledgement that the release was applied.
+   */
+  @Remote('sidechatRelease')
+  sidechatRelease(request: SessionSidechatReleaseRequest): Promise<SessionSidechatReleaseValue> {
+    return this.sidechat.release(request)
+  }
+
+  /**
+   * List a parent Session's sidechat threads in creation order.
+   * @param request - parent Session identity.
+   * @param signal - caller cancellation for persistence reads.
+   * @returns one row per sidechat thread, oldest first.
+   */
+  @Remote('sidechatThreads')
+  sidechatThreads(request: SessionSidechatThreadsRequest, signal: AbortSignal): Promise<SessionSidechatThreadsValue> {
+    return this.sidechat.threads(request, signal)
   }
 
   /**

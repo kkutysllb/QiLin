@@ -42,6 +42,8 @@ Session 对象还承载本地提交回显：`session.beginSubmission` 在调用�
 
 分叉复制截至选中已结束轮次的历史，并包含其 `turn/end`。该位置之后的事件均被排除，包括排队输入和模型设置变更。省略锚点或锚点超出日志末尾时，选择最后一个已结束轮次；位于未结束轮次内的锚点会被拒绝。
 
+侧聊线程是 fork 的面向消费者形态：`sidechatStart` 分叉父会话的诚实前缀，把一个 `subagent/descriptor`（provider `sidechat`、mode `continuable`）盖为线程的第一个自有事件，并可选地投递继承边界与第一个问题。继承的前缀只是参考上下文，绝不是活动：`sidechatPrompt` 在线程首个 prompt 前一次性投递边界，在投递时把线程的模型选择重新对齐到父会话，并从第一个问题为线程挣得持久的 `Side: …` 标签。`sidechatSnapshot` 只返回线程自有事件（按 `sidechatMaxSnapshotEvents` 截尾），`sidechatCancel` 停止运行中的轮次并保留排队 inbox，`sidechatRelease` 释放 live Agent 而持久历史保持不变，`sidechatThreads` 按创建先后列出某个父会话的线程。prompt 文本受 `sidechatMaxPromptChars` 约束。
+
 恢复会话时若已有写句柄占用，返回 `session/writer-held`，并携带会话 id；其他恢复失败仍返回 `gateway/internal`。
 
 <a id="client-references"></a>

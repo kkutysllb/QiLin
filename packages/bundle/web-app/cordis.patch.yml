@@ -303,6 +303,10 @@
     - id: ui-sidebar-tasks
       name: '@qilin/client-ui-sidebar-tasks'
 
+    # The right Sidebar's sidechat tab type: threads forked from the current Session.
+    - id: ui-sidechat
+      name: '@qilin/client-ui-sidechat'
+
     # The right Sidebar's task-plan tab type: the workspace's plan documents.
     - id: ui-sidebar-plans
       name: '@qilin/client-ui-sidebar-plans'

@@ -331,6 +331,113 @@ export interface SessionForkValue {
   readonly sessionId: SessionId
 }
 
+/** Sidechat start request: seed one thread from the parent's log up to the cut. */
+export interface SessionSidechatStartRequest {
+  /** Parent Session whose log the thread inherits. */
+  readonly sessionId: SessionId
+  /** Exact inclusive source event seq; omission selects the latest completed-turn prefix. */
+  readonly atSeq?: number
+  /** Optional first question; omission opens an empty thread whose first prompt delivers the boundary. */
+  readonly question?: string
+}
+
+/** Identity of a newly started sidechat thread. */
+export interface SessionSidechatStartValue {
+  readonly threadId: SessionId
+}
+
+/** Sidechat prompt request: one follow-up message to one thread. */
+export interface SessionSidechatPromptRequest {
+  /** Sidechat thread receiving the message. */
+  readonly sessionId: SessionId
+  /** Non-empty message text; whitespace-only text is refused. */
+  readonly text: string
+  /** Caller correlation id; a repeated id on pending or delivered work is accepted idempotently. */
+  readonly requestId?: SessionRequestId
+}
+
+/** Outcome of aligning the thread's model selection to its parent before delivery. */
+export type SessionSidechatModelFollow =
+  | { readonly ok: true; readonly provider: string; readonly model: string }
+  | { readonly ok: false; readonly reason: string }
+
+/** Sidechat prompt acknowledgement with the earned label and the model-follow outcome. */
+export interface SessionSidechatPromptValue {
+  readonly accepted: true
+  /** Durable thread label after this prompt, when this prompt renamed it. */
+  readonly label?: string
+  readonly modelFollow?: SessionSidechatModelFollow
+}
+
+/** Sidechat cancel request: abort the thread's running turn, keeping queued work. */
+export interface SessionSidechatCancelRequest {
+  readonly sessionId: SessionId
+}
+
+/** Sidechat cancel acknowledgement. */
+export interface SessionSidechatCancelValue {
+  readonly accepted: true
+}
+
+/** Sidechat snapshot request: one thread's own events and live state. */
+export interface SessionSidechatSnapshotRequest {
+  readonly sessionId: SessionId
+}
+
+/** Live runtime state and durable label of one sidechat thread. */
+export interface SidechatThreadInfo {
+  readonly sessionId: SessionId
+  /** Display label: durable title, else the descriptor's creation label. */
+  readonly label: string
+  /** A live Agent drives the thread right now; `false` names a cold thread. */
+  readonly live: boolean
+  /** Whether the live Agent is inside a turn; always `false` when cold. */
+  readonly running: boolean
+  /** Provider route of the thread's effective selection, when one is recorded. */
+  readonly provider?: string
+  /** Model of the thread's effective selection, when one is recorded. */
+  readonly model?: string
+  /** Recorded Agent preset, live or persisted. */
+  readonly preset?: string
+}
+
+/** Sidechat snapshot value: thread header facts plus the thread's own event tail. */
+export interface SessionSidechatSnapshotValue {
+  readonly info: SidechatThreadInfo
+  /** Thread-own durable events (after the inherited fork seed), oldest first, tail-bounded. */
+  readonly records: readonly SessionHistoryRecord[]
+}
+
+/** Sidechat release request: dispose the thread's live Agent, keeping its persisted history. */
+export interface SessionSidechatReleaseRequest {
+  readonly sessionId: SessionId
+}
+
+/** Sidechat release acknowledgement. */
+export interface SessionSidechatReleaseValue {
+  readonly accepted: true
+}
+
+/** Sidechat thread listing request: threads of one parent Session. */
+export interface SessionSidechatThreadsRequest {
+  readonly sessionId: SessionId
+}
+
+/** One listed sidechat thread of a parent Session. */
+export interface SidechatThreadRow {
+  readonly id: SessionId
+  readonly createdAt: number
+  /** Display label: durable title, else the descriptor's creation label. */
+  readonly label: string
+  readonly live: boolean
+  readonly running: boolean
+}
+
+/** Sidechat thread listing value in creation order. */
+export interface SessionSidechatThreadsValue {
+  readonly threads: readonly SidechatThreadRow[]
+}
+
 /** Session prompt request. */
 export interface SessionPromptRequest {
   /** Client-minted identity persisted on the exact accepted user message. */
@@ -403,6 +510,12 @@ declare module '@qilin/llm' {
   interface MessageSourceMap {
     /** Browser prompt correlation and optional Host-validated time zone. */
     'user-rpc': { kind: 'user'; rpcId: SessionRequestId; clientTimeZone?: string }
+    /**
+     * Sidechat boundary context injected ahead of a thread's first prompt.
+     * The source kind is the structural boundary marker: transcript readers
+     * render it as one collapsible inheritance row, never as a user bubble.
+     */
+    'sidechat-boundary': { kind: 'sidechat-boundary' }
   }
 }
 

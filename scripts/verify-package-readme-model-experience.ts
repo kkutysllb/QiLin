@@ -137,6 +137,7 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/client/ui-settings-skills': { kind: 'none', reason: 'The page reads the Session-addressed skills Remote; the mounted Session composition owns every advertised skill.' },
   'packages/client/ui-sidebar-plans': { kind: 'none', reason: 'The sidebar draws workspace plan documents over the Remote; it registers no prompt text, tool, or session event.' },
   'packages/client/ui-sidebar-tasks': { kind: 'none', reason: 'The sidebar draws Session-side work from snapshots the client already holds; it registers no prompt text, tool, or session event.' },
+  'packages/client/ui-sidechat': { kind: 'none', reason: 'The panel draws side threads from follow streams the Session Remote already serves; each thread owns its model requests on the Host.' },
   'packages/client/ui-theme-brand': { kind: 'none', reason: 'Theme tokens are browser presentation; the palette registers no prompt text, tool, or session event.' },
   'packages/client/ui-workspace': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
   'packages/client/ui-directory-picker-browse': { kind: 'none', reason: 'Browser-side directory-browsing surface; registers nothing model-facing.' },

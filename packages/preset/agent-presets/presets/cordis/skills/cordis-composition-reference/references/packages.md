@@ -107,6 +107,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/client-ui-sidebar-right` | no | Right Sidebar: the docking surface's session-bound state, its panel and header expand control, and the navigation service over it |
 | `@qilin/client-ui-sidebar-tasks` | no | Subagent topology and background-job tab type for the right Sidebar: this Session's direct-child catalog, the descendant totals its summary lineage records, and its live job list |
 | `@qilin/client-ui-sidebar-terminal` | no | Interactive shell tabs for the right Sidebar |
+| `@qilin/client-ui-sidechat` | no | Sidechat tab type for the right Sidebar: one panel with this Session's side threads, each forked from the parent log with the inherited prefix as reference context |
 | `@qilin/client-ui-skill` | no | Web skill references and the dedicated skill tool row |
 | `@qilin/client-ui-subagent` | no | Subagent conversation catalog, continuation routing UI, and '@' reference source |
 | `@qilin/client-ui-theme` | no | Theme plugin: Host bootstrap for the pre-plugin palette; DOM-free ThemeRuntime for light/dark/system state; --dsw-* token styles and Appearance settings row |

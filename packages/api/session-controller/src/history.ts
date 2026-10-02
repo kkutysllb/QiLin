@@ -422,7 +422,11 @@ function entryFor(event: SessionEvent): SessionEventEntry {
   }
 }
 
-/** Encode one bounded logical page without changing its pagination cut. */
-function pageRecords(events: readonly SessionEvent[]): SessionHistoryRecord[] {
+/**
+ * Encode one bounded logical page without changing its pagination cut.
+ * @param events - the session's own events, already cut to the requested window.
+ * @returns the wire-shaped history records in log order.
+ */
+export function pageRecords(events: readonly SessionEvent[]): SessionHistoryRecord[] {
   return events.map(entryFor)
 }
