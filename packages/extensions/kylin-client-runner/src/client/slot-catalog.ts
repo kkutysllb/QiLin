@@ -2405,6 +2405,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'client-ui-settings-plugins PluginsSettingsSection id \'plugins\'',
       'client-ui-settings-skills SkillsSection id \'skills\'',
       'client-ui-settings-unarchive-sessions ArchivedSessionsSection id \'archived-sessions\'',
+      'client-ui-sidebar-right TabSettingsSection id \'sidebar-right\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'settings.section\', () => ctx.slots.register(\n      { name: \'settings.section\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -3168,7 +3169,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.tab.files.actions\', () => ctx.slots.register(\n      { name: \'sidebar.right.tab.files.actions\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-files/src/client/index.ts:48',
+    source: 'packages/client/ui-sidebar-files/src/client/index.ts:50',
   },
   {
     key: 'sidebar.right.tab.guide',

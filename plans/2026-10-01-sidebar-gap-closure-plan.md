@@ -376,7 +376,7 @@ React 18 只把 `ref` 交给 `forwardRef` 与 DOM 元素；普通函数组件收
 
 | 用例 | 真因 |
 |---|---|
-| `ui-sidebar-right › keeps the current binding in the disabled split tooltip…` | 该 spec 的 `mountSeat` 建了 shortcuts catalog 快照 store **却从未接进运行时**（提交 `f451cb68c1` 自述删掉重复 provide、断言却留着），于是 `h.catalog.set(...)` 全是空转；且它 focus 的是分割按钮的**父节点**，而 Tooltip 的 handler 挂在按钮本体上。修：按运行时既有 `ctx.set` 惯例接线 catalog，focus 改为真正的锚点。 |
+| `ui-sidebar-right › keeps the current binding in the disabled split tooltip…` | 该 spec 的 `mountSeat` 建了 shortcuts catalog 快照 store **却从未接进运行时**（`git log` 中「seat spec 去 QiLin 运行时重复的 shortcuts provide」那次提交自述删掉重复 provide、断言却留着），于是 `h.catalog.set(...)` 全是空转；且它 focus 的是分割按钮的**父节点**，而 Tooltip 的 handler 挂在按钮本体上。修：按运行时既有 `ctx.set` 惯例接线 catalog，focus 改为真正的锚点。 |
 | `ui-sidebar-right › advertises configured pane and page-close controls` | **与 tooltip 无关**（断言 `aria-keyshortcuts`），失效原因同为上面的「catalog 未接线」。 |
 | `ui-trajectory › marks an unloaded history prefix…` | 锚点是 DOM `<button>`（ref 正常）。真因是 `input-modality.ts` 的模块级 `pointer` 标志被同文件更早的 `pointerDown` 置真后不复位，而产品**故意**在指针模态下让键盘 focus 静默——这就是历史上被登记为「tooltip flake／顺序污染」的那条。修：focus 前补一次 `keyDown(Tab)`，把「键盘用户按过键」显式化。 |
 
