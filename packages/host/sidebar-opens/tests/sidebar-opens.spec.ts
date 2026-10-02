@@ -64,7 +64,7 @@ async function boot(cwd: string | undefined, config: Partial<SidebarOpens.Config
   await ctx.plugin(LocalFileSystem, cwd === undefined ? {} : { cwd })
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime)
-  await ctx.plugin(SidebarOpens, { maxQueued: config.maxQueued ?? 2 } as SidebarOpens.Config)
+  await ctx.plugin(SidebarOpens, { maxQueued: config.maxQueued ?? 2 })
   const owner = await agent(ctx, cwd)
   const call = async (args: Record<string, unknown>, signal = new AbortController().signal) =>
     await ctx.tools.execute({ agent: owner, callId: ToolCallId('call-1'), name: 'sidebar_open', arguments: args, signal })
@@ -127,7 +127,7 @@ describe('sidebar_open tool', () => {
     await ctx.plugin(LocalFileSystem, {})
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
-    await ctx.plugin(SidebarOpens, { maxQueued: 2 } as SidebarOpens.Config)
+    await ctx.plugin(SidebarOpens, { maxQueued: 2 })
     const result = await ctx.tools.execute({
       callId: ToolCallId('call-1'), name: 'sidebar_open', arguments: { url: 'https://example.test' },
       signal: new AbortController().signal,
@@ -248,7 +248,7 @@ describe('sidebar open delivery', () => {
     await ctx.plugin(LocalFileSystem, {})
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
-    await expect(ctx.plugin(SidebarOpens, { maxQueued: 0 } as SidebarOpens.Config)).rejects.toThrow('positive integer maxQueued')
+    await expect(ctx.plugin(SidebarOpens, { maxQueued: 0 })).rejects.toThrow('positive integer maxQueued')
   })
 })
 
