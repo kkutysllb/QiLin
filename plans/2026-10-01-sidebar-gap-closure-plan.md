@@ -256,7 +256,7 @@ kind: "plan"
 
 用户指示「删除轨迹 tab 只是第一步，其他还没有」，据此按「先验证缺口、再分批实现」推进。本批完成上游 1.0.37 Git 面板最显眼的缺失：提交历史与单次提交的 patch。
 
-### 一、本批改动（提交 `ded0e8bebf`）
+### 一、本批改动（提交主体：`feat(workspace-git): page the commit history and read one commit's patch`）
 
 - **宿主 `api-workspace-git`**：新增两个 `@Remote`。
   - `log(count, skip)`：固定 `--pretty=format` 记录（`%H`/`%h`/`%an`/`%aI`/`%D`/`%s`，单元分隔符 0x1f、记录终止符 0x1e），subject 放最后以免其内分隔符移位字段；页大小限 `1..100`，`skip` 限非负整数，越界以 `gateway/bad-request` 在运行前失败。
@@ -282,7 +282,7 @@ kind: "plan"
 
 ## 批次执行状态补充二十三（2026-10-02 19:45）——批次二「文件系统 seam：删除/移动/新建目录」
 
-上游资源管理器能重命名、删除、新建，而本仓 `ctx.fs` 只有读与写——**能力本身不存在**，所以先补 seam，再做 UI。提交 `5b8b97df9d`。
+上游资源管理器能重命名、删除、新建，而本仓 `ctx.fs` 只有读与写——**能力本身不存在**，所以先补 seam，再做 UI。提交主体：`feat(fs): remove, move, and createDirectory across the filesystem seam`。
 
 ### 一、改动
 
