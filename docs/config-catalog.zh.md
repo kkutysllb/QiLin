@@ -266,13 +266,17 @@ export interface Config {
 ## `@qilin/api-session-controller`
 
 - `inject`: `agentDefaultModel` · `agents` · `attachments` · `fileUploads` · `fs` · `llm` · `sessions` · `sessionProjections` · `sessionQuery` · `typert` · `workspaceRegistry`
-- `source`: [`packages/api/session-controller/src/index.ts:79`](../packages/api/session-controller/src/index.ts)
+- `source`: [`packages/api/session-controller/src/index.ts:92`](../packages/api/session-controller/src/index.ts)
 
 ```ts config-catalog
 /** Session Controller deployment policy. */
 export interface Config {
   /** Override platform desktop-opener detection. */
   readonly nativeOpen?: boolean
+  /** Maximum own-event records one sidechat snapshot returns. */
+  readonly sidechatMaxSnapshotEvents?: number
+  /** Maximum UTF-16 code units one sidechat prompt text accepts. */
+  readonly sidechatMaxPromptChars?: number
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/api-session-controller -->
@@ -1377,7 +1381,7 @@ export interface Config {
 ## `@qilin/host-preview-media`
 
 - `inject`: `webServer` · `connection` · `sessions` · `sandboxPolicy` · `fs`
-- `source`: [`packages/host/preview-media/src/index.ts:37`](../packages/host/preview-media/src/index.ts)
+- `source`: [`packages/host/preview-media/src/index.ts:44`](../packages/host/preview-media/src/index.ts)
 
 ```ts config-catalog
 /** Cordis row selecting the media limit. */
@@ -4294,6 +4298,7 @@ export interface Config {
 | `@qilin/client-ui-sidebar-right` | — | [`packages/client/ui-sidebar-right/src/index.ts`](../packages/client/ui-sidebar-right/src/index.ts) |
 | `@qilin/client-ui-sidebar-tasks` | — | [`packages/client/ui-sidebar-tasks/src/index.ts`](../packages/client/ui-sidebar-tasks/src/index.ts) |
 | `@qilin/client-ui-sidebar-terminal` | — | [`packages/client/ui-sidebar-terminal/src/index.ts`](../packages/client/ui-sidebar-terminal/src/index.ts) |
+| `@qilin/client-ui-sidechat` | — | [`packages/client/ui-sidechat/src/index.ts`](../packages/client/ui-sidechat/src/index.ts) |
 | `@qilin/client-ui-skill` | — | [`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts) |
 | `@qilin/client-ui-subagent` | — | [`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts) |
 | `@qilin/client-ui-theme` | — | [`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts) |

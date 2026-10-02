@@ -136,7 +136,7 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 ### `ctx.agentTeams` — `TeamService`
 
-Agent Teams service backed by the exact live Lead Session log.
+Agent Teams service backed by the exact live Lead Session log. `createTask` and `updateTask` also carry the browser write bridge through the `agentTeams` Typert Remote namespace; the wire faces map domain failures onto the shared Remote failure vocabulary without changing the domain methods' contracts.
 
 ```ts cordis-catalog
 /**
@@ -199,6 +199,30 @@ listTasks(caller: Agent): TeamTaskView[]
  * @returns the committed next task revision.
  */
 async updateTask(caller: Agent, request: UpdateTeamTaskRequest): Promise<TeamTaskView>
+
+/**
+ * Wire face of {@link TeamService.createTask}: create one shared task on a
+ * person's behalf through the browser write bridge.
+ * @param agent - exact live Team member resolved from the wire identity.
+ * @param request - subject, description, optional blockers, and optional write scopes.
+ * @returns the revision-one task view.
+ * @throws {RemoteError} `agent-team/not-a-member` when the identity is not a Team member, and
+ *   `agent-team/rejected` when the domain refuses the request.
+ */
+@Remote('createTask') async remoteCreateTask(agent: Agent, request: CreateTeamTaskRequest): Promise<TeamTaskView>
+
+/**
+ * Wire face of {@link TeamService.updateTask}: commit one compare-and-set
+ * task transition on a person's behalf. A committed mutation is durable and
+ * never undone by a later wire cancellation.
+ * @param agent - exact live Team member resolved from the wire identity.
+ * @param request - task identity, expected revision, action, and action fields.
+ * @returns the committed next task view.
+ * @throws {RemoteError} `agent-team/not-a-member` when the identity is not a Team member,
+ *   `agent-team/stale-revision` when the expected revision no longer matches, and
+ *   `agent-team/rejected` when the domain refuses the transition.
+ */
+@Remote('updateTask') async remoteUpdateTask(agent: Agent, request: UpdateTeamTaskRequest): Promise<TeamTaskView>
 
 /**
  * Wait for the next Team-domain or member-status change.

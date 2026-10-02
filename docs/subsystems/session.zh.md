@@ -909,6 +909,58 @@ workspaceDesktop(): { name: string; available: boolean; fileManager: 'finder' | 
 @Remote('cancel') cancel(request: SessionCancelRequest): SessionCancelValue
 
 /**
+ * Start one sidechat thread: fork the parent's log up to the cut into a
+ * `subagent`-origin child whose inherited prefix is reference context, and
+ * deliver the boundary plus an optional first question.
+ * @param request - parent Session, optional exact inclusive cut, optional first question.
+ * @param signal - caller cancellation for source reads and delivery.
+ * @returns the new thread identity.
+ */
+@Remote('sidechatStart') sidechatStart(request: SessionSidechatStartRequest, signal: AbortSignal): Promise<SessionSidechatStartValue>
+
+/**
+ * Deliver one follow-up message to a sidechat thread, resuming a cold
+ * thread first; the first prompt injects the inheritance boundary and earns
+ * the thread's durable label.
+ * @param request - thread identity, message text, and correlation id.
+ * @param signal - caller cancellation for resume and source reads.
+ * @returns the acceptance, earned label, and model-follow outcome.
+ */
+@Remote('sidechatPrompt') sidechatPrompt(request: SessionSidechatPromptRequest, signal: AbortSignal): Promise<SessionSidechatPromptValue>
+
+/**
+ * Cancel one sidechat thread's running turn, keeping its queued inbox.
+ * @param request - thread whose active turn is cancelled.
+ * @returns acknowledgement that cancellation was requested.
+ */
+@Remote('sidechatCancel') sidechatCancel(request: SessionSidechatCancelRequest): SessionSidechatCancelValue
+
+/**
+ * Read one sidechat thread's own durable events (tail-bounded) and its
+ * live facts; the inherited prefix stays excluded.
+ * @param request - thread identity.
+ * @param signal - caller cancellation for persistence reads.
+ * @returns the thread info and its own event tail.
+ */
+@Remote('sidechatSnapshot') sidechatSnapshot(request: SessionSidechatSnapshotRequest, signal: AbortSignal): Promise<SessionSidechatSnapshotValue>
+
+/**
+ * Release one sidechat thread's live Agent; its persisted history stays
+ * and a later prompt resumes it.
+ * @param request - thread whose live Agent is released.
+ * @returns acknowledgement that the release was applied.
+ */
+@Remote('sidechatRelease') sidechatRelease(request: SessionSidechatReleaseRequest): Promise<SessionSidechatReleaseValue>
+
+/**
+ * List a parent Session's sidechat threads in creation order.
+ * @param request - parent Session identity.
+ * @param signal - caller cancellation for persistence reads.
+ * @returns one row per sidechat thread, oldest first.
+ */
+@Remote('sidechatThreads') sidechatThreads(request: SessionSidechatThreadsRequest, signal: AbortSignal): Promise<SessionSidechatThreadsValue>
+
+/**
  * Read one cold-safe, message-aligned Session history page.
  * @param request - durable address, backward cursor, and page budget.
  * @param signal - cancellation for persistence reads.
