@@ -192,6 +192,10 @@ class RecordingFileSystem extends FileSystem {
   override async editText(_target: FsTarget, _edit: FsEditRequest): Promise<FsEditOutcome> {
     return { version: FsVersion('unused'), before: '', after: '' }
   }
+
+  override async remove(): Promise<never> { throw new Error('not needed in instruction tests') }
+  override async move(): Promise<never> { throw new Error('not needed in instruction tests') }
+  override async createDirectory(): Promise<never> { throw new Error('not needed in instruction tests') }
 }
 
 class BlockingReadFileSystem extends RecordingFileSystem {

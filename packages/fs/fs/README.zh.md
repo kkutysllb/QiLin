@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-应用需要在宿主、受限或远程执行环境中使用一致的文件系统操作时，选择 `qilin-fs`。消费方可以解析稳定的文件身份、在受支持时映射共享宿主文件、执行有界的文本与字节读取、列出目录、监听目标，并原子地写入文本及执行字面量编辑。版本防护是可选的，因此后端无需策略强制也能工作；调用方可以提供防护，在文件变化后拒绝变更。在宿主执行时选择 `fs-local` 或 `fs-sandbox`。面向模型的文件系统工具由 `qilin-tool-fs` 单独提供。
+应用需要在宿主、受限或远程执行环境中使用一致的文件系统操作时，选择 `qilin-fs`。消费方可以解析稳定的文件身份、在受支持时映射共享宿主文件、执行有界的文本与字节读取、列出目录、监听目标、原子地写入文本及执行字面量编辑，以及删除、移动或新建目录。版本防护是可选的，因此后端无需策略强制也能工作；调用方可以提供防护，在文件变化后拒绝变更。在宿主执行时选择 `fs-local` 或 `fs-sandbox`。面向模型的文件系统工具由 `qilin-tool-fs` 单独提供。
 
 ## 目录
 
@@ -33,7 +33,9 @@ kind: "package-reference"
 
 ### 服务能做什么
 
-通过 `ctx.fs`，你可以把任意路径解析为稳定的目标身份、完整读取或分片流式读取文本文件、按显式上限读取原始字节、列出一层目录、原子地创建或替换文件，并原子地应用字面量文本编辑。两个变更操作上的版本防护都是可选的：省略它即无条件创建或覆盖，提供它则在文件自上次观察以来发生变化时失败。读取、列出与变更操作的失败使用携带稳定错误码（如 `FS_NOT_FOUND`、`FS_STALE_VERSION`、`FS_AMBIGUOUS_EDIT`）的类型化 `FsError`，调用方依据错误码分支，绝不解析消息文本。
+通过 `ctx.fs`，你可以把任意路径解析为稳定的目标身份、完整读取或分片流式读取文本文件、按显式上限读取原始字节、列出一层目录、原子地创建或替换文件、原子地应用字面量文本编辑、删除文件或目录、在同一后端内移动或重命名一个条目，以及新建目录（按需连同缺失的父目录）。文件写入与编辑上的版本防护是可选的：省略它即无条件创建或覆盖，提供它则在文件自上次观察以来发生变化时失败。读取、列出与变更操作的失败使用携带稳定错误码（如 `FS_NOT_FOUND`、`FS_STALE_VERSION`、`FS_AMBIGUOUS_EDIT`）的类型化 `FsError`，调用方依据错误码分支，绝不解析消息文本。
+
+`remove`、`move` 与 `createDirectory` 沿用同一套词汇：目标不存在是 `FS_NOT_FOUND`；未带 `recursive` 而目录仍有条目时删除是 `FS_NOT_EMPTY`；新建或移动落在一个已存在的条目上是 `FS_EXISTS`。后端根本无法执行该移动时——例如跨文件系统重命名——报告 `FS_IO_ERROR`，而不是改为复制内容。
 
 `watch(target, changed, signal)` 报告单个文件或目录直接子项的失效通知。观察就绪后，它返回调用方必须等待完成的异步关闭函数。signal 取消初始化；不支持监听的提供方直接拒绝，不使用轮询。
 
@@ -51,7 +53,7 @@ kind: "package-reference"
 
 该约定建立在一个分离与三项承诺之上：
 
-- **约定高于机制。** 服务只命名存储层能做什么——解析、stat、读取、列出、监听、写入、编辑——绝不规定如何存储字节。后端拥有目标身份、执行世界坐标、解码、二进制拒绝与原子性。
+- **约定高于机制。** 服务只命名存储层能做什么——解析、stat、读取、列出、监听、写入、编辑、删除、移动、新建目录——绝不规定如何存储字节。后端拥有目标身份、执行世界坐标、解码、二进制拒绝与原子性。
 - **策略不放在基类上。** 已观察状态、编辑前读取与版本防护的变更是插件（`qilin-fs-observation-policy`）的职责，通过提供可选防护来添加——因此沙箱化或远程后端不会继承任何面向模型的观察策略。
 - **`editText` 留在 seam 上。** 版本校验、字面量匹配与原子重写共享同一个临界区，错误归因与一方胜出/一方陈旧的并发语义因此保持正确；远程后端也可以将其实现为原生比较并编辑操作。
 - **界限制在此 seam 上。** `readBytes` 要求 `maxBytes`，并以 `FS_TOO_LARGE` 失败而不是截断，因此任何后端都不会无界缓冲文件。`readByteRange` 则以窗口为界：后端最多传输所请求的 `length` 字节（外加为到达 `offset` 而跳过的前缀），因此由调用方对 `length` 的上限承担防护。
@@ -61,11 +63,11 @@ kind: "package-reference"
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 服务定义：抽象 `FileSystem` 类、`ctx.fs` 声明与 `fs/*` 事件词汇 |
-| [`src/types.ts`](src/types.ts) | 词汇：`FsTarget`/`FsTargetKey`、`FsVersion`、`FsObservation`、`FsWriteIntent`、`FsError` 及其错误码 |
+| [`src/types.ts`](src/types.ts) | 词汇：`FsTarget`/`FsTargetKey`、`FsVersion`、`FsObservation`、`FsWriteIntent`、`FsRemoveOutcome`、`FsMoveOutcome`、`FsError` 及其错误码 |
 
 ### 调用流程
 
-每个普通操作都以 `resolve(path, { cwd })` 开始，它产生稳定的 `FsTarget`（不透明 `targetKey` 加用于模型/UI 输出的 `displayPath`）；经不同路径到达同一文件会产生相同 key。`processPathFromHostPath(hostPath)` 在后端共享或显式映射宿主文件时，单独把绝对宿主文件映射进此执行世界，否则返回 `undefined`。读取随后执行 `stat` → `readText`/`streamText`/`readBytes`/`readByteRange`，列出执行 `listDir`（条目报告解析后的类型，名字本身是链接时另带 `symlink` 标志），变更则经过每个目标一个临界区：先检查可选防护，应用新内容，再原子发布结果。
+每个普通操作都以 `resolve(path, { cwd })` 开始，它产生稳定的 `FsTarget`（不透明 `targetKey` 加用于模型/UI 输出的 `displayPath`）；经不同路径到达同一文件会产生相同 key。`processPathFromHostPath(hostPath)` 在后端共享或显式映射宿主文件时，单独把绝对宿主文件映射进此执行世界，否则返回 `undefined`。读取随后执行 `stat` → `readText`/`streamText`/`readBytes`/`readByteRange`，列出执行 `listDir`（条目报告解析后的类型，名字本身是链接时另带 `symlink` 标志），变更则经过每个目标一个临界区：先检查可选防护，应用新内容，再原子发布结果。移动会同时持有两端的临界区，并按固定的 key 顺序取锁，因此触碰同一对目标的两个移动会串行而不是死锁；另外两个只取自己所触目标的单把锁。
 
 ### `fs/*` 策略事件
 
@@ -112,7 +114,7 @@ kind: "package-reference"
 这些限制说明该约定何时不合适，或何时需要特别的运维注意。它们是当前包约束，不是通用文件系统对比或任务积压。
 
 - **变更操作约定只支持文本**：文本读取和两个变更操作都以 `FS_NOT_TEXT` 拒绝二进制/非 UTF-8 内容；`readBytes` 与 `readByteRange` 是原始字节原语，二进制安全的变更操作仍延期。
-- **没有删除、重命名或复制**：`listDir` 只列出一层，递归、glob、分页与搜索不在范围内（见[目录列出笔记](../../../.agents/notes/archived/architecture/2026-07-03-filesystem-directory-listing-seam.md)）。
+- **没有复制**：移动只在同一后端内进行，绝不跨文件系统复制内容；`listDir` 仍然只列出一层，glob、分页与搜索不在范围内（见[目录列出笔记](../../../.agents/notes/archived/architecture/2026-07-03-filesystem-directory-listing-seam.md)）。
 - **没有 I/O deadline**：该 seam 不启动超时；取消只是每个原语上尽力而为的可选 `AbortSignal`（见[fs 能力族立场](../README.zh.md)）。
 - **先解析后操作使远程后端每次工具调用需要两次往返**：折叠或缓存解析由这种后端自行决定。
 

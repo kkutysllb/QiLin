@@ -88,6 +88,9 @@ class FakeFileSystem extends FileSystem {
     this.files.set(target.targetKey, after)
     return { version: FsVersion('v3'), before: content, after }
   }
+  override async remove(): Promise<never> { throw new FsError('remove is not exercised by this fake', 'FS_IO_ERROR') }
+  override async move(): Promise<never> { throw new FsError('move is not exercised by this fake', 'FS_IO_ERROR') }
+  override async createDirectory(): Promise<never> { throw new FsError('createDirectory is not exercised by this fake', 'FS_IO_ERROR') }
 }
 
 describe('FileSystem provider seam', () => {

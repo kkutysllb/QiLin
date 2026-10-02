@@ -1,14 +1,15 @@
 /**
  * Tests for the local backend through the `ctx.fs` Service Definition: stat, whole-
  * file/streamed text reads, atomic guarded writes (createIfAbsent /
- * replaceIfVersion), version-guarded literal edits, concurrency races, symlink
- * identity, and HMR/disposal. Read WINDOWING is policy and lives in
+ * replaceIfVersion), version-guarded literal edits, file/directory removal,
+ * moves, directory creation, concurrency races, symlink identity, and
+ * HMR/disposal. Read WINDOWING is policy and lives in
  * `qilin-fs-observation-policy`, so it is not exercised here.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { constants as bufferConstants } from 'node:buffer'
-import { mkdir, mkdtemp, readFile, realpath, rm, stat, symlink, unlink, utimes, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, mkdtemp, readFile, realpath, rm, stat, symlink, unlink, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, parse, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -632,6 +633,18 @@ describe('writeText', () => {
     expect(outcome.version).toBe(await versionOf(target))
   })
 
+  it('writes bytes while a signal is live', async () => {
+    const controller = new AbortController()
+    await fs.writeBytes(await fs.resolve('signalled.bin'), new Uint8Array([1, 2, 3]), undefined, controller.signal)
+    expect(new Uint8Array(await readFile(join(dir, 'signalled.bin')))).toEqual(new Uint8Array([1, 2, 3]))
+  })
+
+  it('writes text while a signal is live', async () => {
+    const controller = new AbortController()
+    await fs.writeText(await fs.resolve('signalled.txt'), 'written', undefined, controller.signal)
+    expect(await readFile(join(dir, 'signalled.txt'), 'utf8')).toBe('written')
+  })
+
   it('honors a pre-aborted signal without creating the file', async () => {
     const target = await fs.resolve('aborted.txt')
     await expect(fs.writeText(target, 'x', undefined, AbortSignal.abort()))
@@ -887,6 +900,195 @@ describe('editText', () => {
     expect(rejected).toHaveLength(1)
     expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({ code: 'FS_STALE_VERSION' })
     expect(lockCount(fs)).toBe(0)
+  })
+})
+
+describe('remove / move / createDirectory', () => {
+  it('removes a regular file and reports that it was not a directory', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    expect(await fs.remove(await fs.resolve('a.txt'), { recursive: false })).toEqual({ directory: false })
+    await expect(stat(join(dir, 'a.txt'))).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(lockCount(fs)).toBe(0)
+  })
+
+  it('removes an empty directory without recursive', async () => {
+    await mkdir(join(dir, 'empty'))
+    expect(await fs.remove(await fs.resolve('empty'), { recursive: false })).toEqual({ directory: true })
+    await expect(stat(join(dir, 'empty'))).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('removes a populated directory with recursive', async () => {
+    await mkdir(join(dir, 'tree/inner'), { recursive: true })
+    await writeFile(join(dir, 'tree/inner/a.txt'), 'x')
+    expect(await fs.remove(await fs.resolve('tree'), { recursive: true })).toEqual({ directory: true })
+    await expect(stat(join(dir, 'tree'))).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('refuses a non-empty directory without recursive and leaves every entry', async () => {
+    await mkdir(join(dir, 'tree'))
+    await writeFile(join(dir, 'tree/a.txt'), 'x')
+    await expect(fs.remove(await fs.resolve('tree'), { recursive: false })).rejects.toMatchObject({ code: 'FS_NOT_EMPTY' })
+    expect(await readFile(join(dir, 'tree/a.txt'), 'utf8')).toBe('x')
+  })
+
+  it('reports a missing target as FS_NOT_FOUND', async () => {
+    await expect(fs.remove(await fs.resolve('gone.txt'), { recursive: false }))
+      .rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
+  })
+
+  it('honors a pre-aborted signal without removing anything', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    await expect(fs.remove(await fs.resolve('a.txt'), { recursive: false }, AbortSignal.abort()))
+      .rejects.toMatchObject({ code: 'FS_ABORTED' })
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('x')
+  })
+
+  it('maps a refused removal onto FS_PERMISSION_DENIED', async () => {
+    const protectedDir = join(dir, 'protected')
+    await mkdir(protectedDir)
+    await writeFile(join(protectedDir, 'a.txt'), 'x')
+    await chmod(protectedDir, 0o500)
+    try {
+      const error = await fs.remove(await fs.resolve(join(protectedDir, 'a.txt')), { recursive: false })
+        .then(() => undefined, (caught: unknown) => caught)
+      // Root-like environments may still remove entries from a mode-500 directory.
+      if (error === undefined) return
+      expect(error).toMatchObject({ code: 'FS_PERMISSION_DENIED' })
+      expect(await readFile(join(protectedDir, 'a.txt'), 'utf8')).toBe('x')
+    } finally {
+      await chmod(protectedDir, 0o700)
+    }
+  })
+
+  it('renames a file and reports the destination version and no replacement', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    const outcome = await fs.move(await fs.resolve('a.txt'), await fs.resolve('b.txt'), { overwrite: false })
+    expect(outcome.replaced).toBe(false)
+    expect(outcome.version).toBe(await versionOf(await fs.resolve('b.txt')))
+    await expect(stat(join(dir, 'a.txt'))).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(await readFile(join(dir, 'b.txt'), 'utf8')).toBe('x')
+    expect(lockCount(fs)).toBe(0)
+  })
+
+  it('moves a populated directory with its contents', async () => {
+    await mkdir(join(dir, 'tree'))
+    await writeFile(join(dir, 'tree/a.txt'), 'x')
+    const outcome = await fs.move(await fs.resolve('tree'), await fs.resolve('moved'), { overwrite: false })
+    expect(outcome.replaced).toBe(false)
+    expect(await readFile(join(dir, 'moved/a.txt'), 'utf8')).toBe('x')
+    await expect(stat(join(dir, 'tree'))).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('refuses an existing destination without overwrite and leaves both entries', async () => {
+    await writeFile(join(dir, 'a.txt'), 'from')
+    await writeFile(join(dir, 'b.txt'), 'to')
+    await expect(fs.move(await fs.resolve('a.txt'), await fs.resolve('b.txt'), { overwrite: false }))
+      .rejects.toMatchObject({ code: 'FS_EXISTS' })
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('from')
+    expect(await readFile(join(dir, 'b.txt'), 'utf8')).toBe('to')
+  })
+
+  it('replaces an existing file with overwrite and reports the replacement', async () => {
+    await writeFile(join(dir, 'a.txt'), 'from')
+    await writeFile(join(dir, 'b.txt'), 'to')
+    const outcome = await fs.move(await fs.resolve('a.txt'), await fs.resolve('b.txt'), { overwrite: true })
+    expect(outcome.replaced).toBe(true)
+    expect(await readFile(join(dir, 'b.txt'), 'utf8')).toBe('from')
+  })
+
+  it('replaces an empty destination directory with overwrite', async () => {
+    await mkdir(join(dir, 'source'))
+    await mkdir(join(dir, 'destination'))
+    const outcome = await fs.move(await fs.resolve('source'), await fs.resolve('destination'), { overwrite: true })
+    expect(outcome.replaced).toBe(true)
+    expect((await stat(join(dir, 'destination'))).isDirectory()).toBe(true)
+    await expect(stat(join(dir, 'source'))).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('refuses a non-empty destination directory even with overwrite', async () => {
+    await mkdir(join(dir, 'destination'))
+    await writeFile(join(dir, 'destination/keep.txt'), 'x')
+    await writeFile(join(dir, 'a.txt'), 'from')
+    await expect(fs.move(await fs.resolve('a.txt'), await fs.resolve('destination'), { overwrite: true }))
+      .rejects.toMatchObject({ code: 'FS_NOT_EMPTY' })
+    expect(await readFile(join(dir, 'destination/keep.txt'), 'utf8')).toBe('x')
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('from')
+  })
+
+  it('reports a missing source as FS_NOT_FOUND', async () => {
+    await expect(fs.move(await fs.resolve('gone.txt'), await fs.resolve('b.txt'), { overwrite: false }))
+      .rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
+  })
+
+  it('reports a missing destination parent as FS_NOT_FOUND', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    await expect(fs.move(await fs.resolve('a.txt'), await fs.resolve('missing/b.txt'), { overwrite: false }))
+      .rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('x')
+  })
+
+  it('refuses a directory rename onto a file and leaves the file alone', async () => {
+    await mkdir(join(dir, 'source'))
+    await writeFile(join(dir, 'destination.txt'), 'x')
+    const error = await fs.move(await fs.resolve('source'), await fs.resolve('destination.txt'), { overwrite: true })
+      .then(() => undefined, (caught: unknown) => caught)
+    // POSIX refuses with ENOTDIR (an I/O fault); Windows reports the same
+    // refusal as a permission fault.
+    expect(['FS_IO_ERROR', 'FS_PERMISSION_DENIED']).toContain((error as { code: string }).code)
+    expect(await readFile(join(dir, 'destination.txt'), 'utf8')).toBe('x')
+    expect((await stat(join(dir, 'source'))).isDirectory()).toBe(true)
+  })
+
+  it('takes one lock when source and destination are the same target', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    const target = await fs.resolve('a.txt')
+    const outcome = await fs.move(target, target, { overwrite: true })
+    expect(outcome.replaced).toBe(true)
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('x')
+    expect(lockCount(fs)).toBe(0)
+  })
+
+  it('honors a pre-aborted signal without moving anything', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    await expect(fs.move(await fs.resolve('a.txt'), await fs.resolve('b.txt'), { overwrite: false }, AbortSignal.abort()))
+      .rejects.toMatchObject({ code: 'FS_ABORTED' })
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('x')
+  })
+
+  it('creates one directory without recursive', async () => {
+    await fs.createDirectory(await fs.resolve('created'), { recursive: false })
+    expect((await stat(join(dir, 'created'))).isDirectory()).toBe(true)
+    expect(lockCount(fs)).toBe(0)
+  })
+
+  it('creates missing parents with recursive', async () => {
+    await fs.createDirectory(await fs.resolve('nested/deep'), { recursive: true })
+    expect((await stat(join(dir, 'nested/deep'))).isDirectory()).toBe(true)
+  })
+
+  it('accepts an existing directory with recursive and refuses it without', async () => {
+    await mkdir(join(dir, 'existing'))
+    await fs.createDirectory(await fs.resolve('existing'), { recursive: true })
+    await expect(fs.createDirectory(await fs.resolve('existing'), { recursive: false }))
+      .rejects.toMatchObject({ code: 'FS_EXISTS' })
+  })
+
+  it('refuses an existing file with FS_EXISTS', async () => {
+    await writeFile(join(dir, 'a.txt'), 'x')
+    await expect(fs.createDirectory(await fs.resolve('a.txt'), { recursive: false }))
+      .rejects.toMatchObject({ code: 'FS_EXISTS' })
+    expect(await readFile(join(dir, 'a.txt'), 'utf8')).toBe('x')
+  })
+
+  it('reports a missing parent without recursive as FS_NOT_FOUND', async () => {
+    await expect(fs.createDirectory(await fs.resolve('missing/child'), { recursive: false }))
+      .rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
+  })
+
+  it('honors a pre-aborted signal without creating anything', async () => {
+    await expect(fs.createDirectory(await fs.resolve('created'), { recursive: false }, AbortSignal.abort()))
+      .rejects.toMatchObject({ code: 'FS_ABORTED' })
+    await expect(stat(join(dir, 'created'))).rejects.toMatchObject({ code: 'ENOENT' })
   })
 })
 

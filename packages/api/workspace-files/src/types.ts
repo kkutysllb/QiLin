@@ -4,10 +4,11 @@
  *
  * Two path vocabularies leave here, and each method uses exactly one:
  *
- * - `read`, `readBytes`, `stat`, `write`, and `changes` name a file by its absolute path in the
+ * - `read`, `readBytes`, `stat`, `write`, `remove`, `move`, `createDirectory`, and `changes` name a file by its absolute path in the
  *   filesystem's execution world, because their consumer is the Client
  *   resource system, whose `qilin-resource://file/session/<id>/<path>` address carries that
- *   same path.
+ *   same path. Each mutation also accepts a path relative to the Session's
+ *   workspace root, exactly as `write` does.
  * - `list` and `searchNames` speak workspace paths — the same syntax `list`'s
  *   `path` argument accepts — because their consumer is a tree rooted at the
  *   workspace root.
@@ -209,5 +210,9 @@ declare module '@qilin/typert-protocol' {
       readonly path: string
       readonly kind: 'file' | 'symlink' | 'other'
     }
+    /** An entry already occupies the path a create or a move would use; nothing is written or moved. */
+    'workspace-file/exists': { readonly path: string }
+    /** The directory still holds entries, so removing it without `recursive` is refused. */
+    'workspace-file/not-empty': { readonly path: string }
   }
 }

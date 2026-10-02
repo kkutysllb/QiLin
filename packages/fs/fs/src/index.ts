@@ -18,6 +18,8 @@ import type {
   FsInfo,
   FsPathInfo,
   FsObservation,
+  FsMoveOutcome,
+  FsRemoveOutcome,
   FsTarget,
   FsVersion,
   FsWriteIntent,
@@ -35,8 +37,10 @@ export type {
   FsDirEntry,
   FsErrorCode,
   FsInfo,
+  FsMoveOutcome,
   FsObservation,
   FsPathInfo,
+  FsRemoveOutcome,
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
@@ -312,6 +316,85 @@ export abstract class FileSystem extends Service {
     signal?: AbortSignal,
     sandboxPolicy?: SandboxExecutionPolicy,
   ): Promise<FsEditOutcome>
+
+  /**
+   * Remove one file or directory. The operation acts on the target's stable
+   * identity, so a path reached through a final symbolic link removes what that
+   * link resolves to, exactly as {@link writeText} writes through it.
+   * @param target - the resolved target to remove.
+   * @param opts - `recursive` removes a directory with all its contents; when
+   *   false, a non-empty directory fails with `FS_NOT_EMPTY`.
+   * @param signal - aborts before the removal takes effect.
+   * @param sandboxPolicy - the per-call mode and workspace root this removal
+   *   runs under; a sandboxing backend fences the removal by it, the bare
+   *   backend ignores it. Omit to leave the backend its own default.
+   * @returns whether a directory was removed; an absent target fails with `FS_NOT_FOUND`.
+   * @throws {FsError} with `FS_NOT_FOUND` for an absent target, `FS_NOT_EMPTY`
+   *   for a non-empty directory removed without `recursive`, `FS_PERMISSION_DENIED`
+   *   when the execution world refuses the removal, or `FS_IO_ERROR` for any
+   *   other backend failure.
+   */
+  abstract remove(
+    target: FsTarget,
+    opts: { recursive: boolean },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsRemoveOutcome>
+
+  /**
+   * Move or rename within one backend's execution world. A move never crosses
+   * backends: both targets must come from this provider, and a backend that
+   * cannot move a target (for example across filesystems) fails with `FS_IO_ERROR`
+   * rather than copying. Like the other mutations, the operation acts on each
+   * target's stable identity.
+   * @param from - the resolved source target.
+   * @param to - the resolved destination target; its parent directory must exist.
+   * @param opts - `overwrite` replaces an existing file at the destination; with
+   *   false an existing destination fails with `FS_EXISTS`, and a non-empty
+   *   destination directory always fails with `FS_NOT_EMPTY`.
+   * @param signal - aborts before the move takes effect.
+   * @param sandboxPolicy - the per-call mode and workspace root this move runs
+   *   under; a sandboxing backend fences both ends by it, the bare backend
+   *   ignores it. Omit to leave the backend its own default.
+   * @returns the destination's observed version when the backend can report one,
+   *   and whether an existing target was replaced.
+   * @throws {FsError} with `FS_NOT_FOUND` for an absent source or destination
+   *   parent, `FS_EXISTS` for an existing destination moved onto without
+   *   `overwrite`, `FS_NOT_EMPTY` for a non-empty destination directory,
+   *   `FS_PERMISSION_DENIED` when the execution world refuses the move, or
+   *   `FS_IO_ERROR` for any other backend failure.
+   */
+  abstract move(
+    from: FsTarget,
+    to: FsTarget,
+    opts: { overwrite: boolean },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsMoveOutcome>
+
+  /**
+   * Create one directory. The operation acts on the target's stable identity and
+   * creates nothing outside the backend's own execution world.
+   * @param target - the resolved directory target to create.
+   * @param opts - `recursive` also creates missing parent directories; when
+   *   false, a missing parent fails with `FS_NOT_FOUND`. Either way an existing
+   *   directory is not an error only when `recursive` is true.
+   * @param signal - aborts before the directory is created.
+   * @param sandboxPolicy - the per-call mode and workspace root this creation
+   *   runs under; a sandboxing backend fences it by it, the bare backend ignores
+   *   it. Omit to leave the backend its own default.
+   * @returns nothing; the caller observes the new directory through `stat`/`listDir`.
+   * @throws {FsError} with `FS_EXISTS` for an existing entry the call would not
+   *   accept, `FS_NOT_FOUND` for a missing parent without `recursive`,
+   *   `FS_PERMISSION_DENIED` when the execution world refuses the creation, or
+   *   `FS_IO_ERROR` for any other backend failure.
+   */
+  abstract createDirectory(
+    target: FsTarget,
+    opts: { recursive: boolean },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<void>
 }
 
 export default FileSystem

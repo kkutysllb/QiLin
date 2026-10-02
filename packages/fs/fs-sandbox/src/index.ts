@@ -2,10 +2,12 @@
  * `SandboxedFileSystem`: the sandbox-enforcing implementation of the
  * `@qilin/fs` Service Definition. It extends `LocalFileSystem` so all
  * text-storage mechanics — resolve, stat, read/stream, list, the atomic
- * write and the read-match-write edit critical section — are the local
- * implementation's, verbatim; this package adds only the per-call POLICY fence
- * on the mutations (text write, byte write, text edit). Reads pass through
- * untouched: every mode permits reading.
+ * write, the read-match-write edit critical section, removal, move, and
+ * directory creation — are the local implementation's, verbatim; this package
+ * adds only the per-call POLICY fence on the mutations (text write, byte
+ * write, text edit, remove, move, createDirectory). Reads pass through
+ * untouched: every mode permits reading. A move fences both of its ends before
+ * anything moves.
  *
  * The fence is a policy check in TRUSTED code over a MODEL-CONTROLLED path,
  * NOT a kernel boundary — the operations are the seam's own (open, rename),
@@ -30,7 +32,7 @@ import { Context } from '@qilin/kylin'
 import { LocalFileSystem } from '@qilin/fs-local'
 import type { Config as LocalConfig } from '@qilin/fs-local'
 import { FsError } from '@qilin/fs'
-import type { FsEditOutcome, FsEditRequest, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin/fs'
+import type { FsEditOutcome, FsEditRequest, FsMoveOutcome, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin/fs'
 import { writableRoots } from '@qilin/sandbox'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import type {} from '@qilin/sandbox-policy'
@@ -127,6 +129,73 @@ export class SandboxedFileSystem extends LocalFileSystem {
     sandboxPolicy?: SandboxExecutionPolicy,
   ): Promise<FsEditOutcome> {
     return super.editText(await this.checkedTarget(target, sandboxPolicy), edit, expected, signal)
+  }
+
+  /**
+   * Fence the removal by the per-call policy, then delegate to the inherited
+   * removal. See {@link checkedTarget}.
+   * @param target - the resolved target to remove.
+   * @param opts - `recursive` removes a directory with all its contents.
+   * @param signal - aborts before the removal takes effect.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns the removal outcome from the inherited backend.
+   */
+  override async remove(
+    target: FsTarget,
+    opts: { recursive: boolean },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsRemoveOutcome> {
+    return super.remove(await this.checkedTarget(target, sandboxPolicy), opts, signal)
+  }
+
+  /**
+   * Fence BOTH ends of the move by the per-call policy before anything moves,
+   * then delegate to the inherited move with the freshly checked targets. A
+   * move that starts inside the workspace and lands outside it is refused as a
+   * whole, and the destination is checked against the caller's own policy
+   * rather than the deployment's. See {@link checkedTarget}.
+   * @param from - the resolved source target.
+   * @param to - the resolved destination target.
+   * @param opts - `overwrite` replaces an existing entry at the destination.
+   * @param signal - aborts before the move takes effect.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns the move outcome from the inherited backend.
+   */
+  override async move(
+    from: FsTarget,
+    to: FsTarget,
+    opts: { overwrite: boolean },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsMoveOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    const [checkedFrom, checkedTo] = await Promise.all([
+      this.checkedTarget(from, policy),
+      this.checkedTarget(to, policy),
+    ])
+    return super.move(checkedFrom, checkedTo, opts, signal)
+  }
+
+  /**
+   * Fence the directory creation by the per-call policy, then delegate to the
+   * inherited creation. See {@link checkedTarget}.
+   * @param target - the resolved directory target to create.
+   * @param opts - `recursive` also creates missing parent directories.
+   * @param signal - aborts before the directory is created.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns nothing; the caller observes the directory through the backend.
+   */
+  override async createDirectory(
+    target: FsTarget,
+    opts: { recursive: boolean },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<void> {
+    return super.createDirectory(await this.checkedTarget(target, sandboxPolicy), opts, signal)
   }
 
   /**

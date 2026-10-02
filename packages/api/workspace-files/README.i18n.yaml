@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/api/workspace-files/README.md
 /:
-  en: 6182120493641873
-  zh: a859f2a25cf512e5
+  en: 979eef009b590686
+  zh: 0e06cbd1ef18bd0f
 /qilin-api-workspace-files:
   en: e379b4ac3f1aedb4
   zh: d0a84d8bafee31e0
 /qilin-api-workspace-files/summary:
-  en: 8407586d54ad72fb
-  zh: cd0150adf3a6f66e
+  en: e21b57ad2e2f9235
+  zh: 0799d20dcd6af5a5
 /qilin-api-workspace-files/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-api-workspace-files/use-this-package:
-  en: 02e8e4cbb15d0371
-  zh: 559a48546452337b
+  en: 6f207accb9eee868
+  zh: c59b7d2540aaffaf
 /qilin-api-workspace-files/use-this-package/addressing-and-paths:
-  en: 9495e2e896d582be
-  zh: a88f8c4ec8faee18
+  en: b01b68d42902bca7
+  zh: c67235ce4ee5ec80
 /qilin-api-workspace-files/use-this-package/pages:
   en: 9cd68b8be3390c80
   zh: 26049ce447f00452
@@ -32,6 +32,9 @@
 /qilin-api-workspace-files/use-this-package/text-saves:
   en: 004829dfcaa7f1b7
   zh: 73cd73ec783385b3
+/qilin-api-workspace-files/use-this-package/entry-mutations:
+  en: 85e26777504e5baa
+  zh: 3516016e1b90521b
 /qilin-api-workspace-files/use-this-package/the-change-feed:
   en: ec601195206adcd3
   zh: 8745093e8bddb1dc
@@ -42,8 +45,8 @@
   en: d8abad8a79b6b7fe
   zh: ff8517788cca2567
 /qilin-api-workspace-files/use-this-package/failures:
-  en: 35f8d68cb6ab6980
-  zh: 7f338856c65bc157
+  en: aea3b8926c8d0b68
+  zh: d80fbb58e3b09bd5
 /qilin-api-workspace-files/use-this-package/client-file-resources:
   en: 682dc4f2c5713d56
   zh: 0f7845c7d519e95b
@@ -51,10 +54,10 @@
   en: 42b15ac6321706aa
   zh: ce1d25bffb6948cd
 /qilin-api-workspace-files/understand-the-implementation/design-concept:
-  en: 8366f191747620a7
-  zh: f0a509dae669ccdf
+  en: 82638fa4a3ad6437
+  zh: 3bce1687a223a1d8
 /qilin-api-workspace-files/understand-the-implementation/source-map:
-  en: eeaf67c1b42ba4d5
+  en: d69c00bddc815851
   zh: 7568d92e5cffa440
 /qilin-api-workspace-files/further-exploration:
   en: 421908edb3f05f30

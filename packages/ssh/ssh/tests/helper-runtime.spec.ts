@@ -43,6 +43,27 @@ describe.skipIf(process.platform === 'win32')('SSH helper runtime', () => {
     } finally { await test.close() }
   })
 
+  it('performs remote removal, move, and directory creation under the call policy', async () => {
+    const test = await helper()
+    try {
+      await writeFile(`${test.root}/a.txt`, 'first')
+      const source = await test.client.request('fs.resolve', { path: 'a.txt' }, targetSchema)
+      const destination = await test.client.request('fs.resolve', { path: 'b.txt' }, targetSchema)
+      const directory = await test.client.request('fs.resolve', { path: 'dir' }, targetSchema)
+      const removeResult = z.object({ directory: z.boolean() }).strict()
+      const moveResult = z.object({ version: z.string().optional(), replaced: z.boolean() }).strict()
+      expect(await test.client.request('fs.createDirectory', { target: directory, recursive: true, policy: policy(test.root) }, z.null())).toBeNull()
+      expect(await test.client.request('fs.stat', { target: directory }, infoSchema)).toMatchObject({ type: 'directory' })
+      expect(await test.client.request('fs.move', { from: source, to: destination, overwrite: false, policy: policy(test.root) }, moveResult)).toMatchObject({ replaced: false })
+      expect(await test.client.request('fs.stat', { target: source }, z.null())).toBeNull()
+      expect(await test.client.request('fs.readText', { target: destination }, z.string())).toBe('first')
+      expect(await test.client.request('fs.remove', { target: destination, recursive: false, policy: policy(test.root) }, removeResult)).toEqual({ directory: false })
+      expect(await test.client.request('fs.remove', { target: directory, recursive: true, policy: policy(test.root) }, removeResult)).toEqual({ directory: true })
+      await expect(test.client.request('fs.remove', { target: destination, recursive: false, policy: policy(test.root) }, z.unknown())).rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
+      await expect(test.client.request('fs.createDirectory', { target: directory, recursive: false, policy: { mode: 'read-only', workspaceRoot: test.root } }, z.unknown())).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    } finally { await test.close() }
+  })
+
   it('returns metadata, byte ranges and canonical symlink observations', async () => {
     const test = await helper()
     try {

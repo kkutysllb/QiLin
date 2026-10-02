@@ -236,6 +236,20 @@ export async function runSshHelper(transport: HelperTransport): Promise<void> {
         signal, resolved,
       )
     }
+    if (method === 'fs.remove' || method === 'fs.createDirectory') {
+      const input = z.object({ target: targetSchema, recursive: z.boolean(), policy: policySchema }).strict().parse(raw)
+      const target = asTarget(input.target)
+      const resolved = await policy(input.policy, signal)
+      if (method === 'fs.remove') return ctx.fs.remove(target, { recursive: input.recursive }, signal, resolved)
+      await ctx.fs.createDirectory(target, { recursive: input.recursive }, signal, resolved)
+      return null
+    }
+    if (method === 'fs.move') {
+      const input = z.object({ from: targetSchema, to: targetSchema, overwrite: z.boolean(), policy: policySchema }).strict().parse(raw)
+      return ctx.fs.move(
+        asTarget(input.from), asTarget(input.to), { overwrite: input.overwrite }, signal, await policy(input.policy, signal),
+      )
+    }
     throw new Error(`Unknown SSH helper operation: ${method}`)
   })
   const closed = Promise.withResolvers<undefined>()

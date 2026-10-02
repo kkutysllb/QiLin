@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`qilin-fs-sandbox` 按各会话的沙箱模式限制模型对文件的写入与编辑，同时保留本地文件系统的读取行为。`read-only` 拒绝所有变更；`workspace-write` 只允许目标位于会话工作区或平台临时根目录内；`danger-full-access` 不限制变更。当会话需要将文件变更限制在工作区内时，使用它代替 `fs-local`，并加载 `ctx.sandboxPolicy`。被拒绝的操作返回 `FS_SANDBOX_DENIED`，文件系统工具会显示当前模式和同轮次升级提示。
+`qilin-fs-sandbox` 按各会话的沙箱模式限制模型的文件变更——写入、编辑、删除、移动与新建目录——同时保留本地文件系统的读取行为。`read-only` 拒绝所有变更；`workspace-write` 只允许目标位于会话工作区或平台临时根目录内；`danger-full-access` 不限制变更。当会话需要将文件变更限制在工作区内时，使用它代替 `fs-local`，并加载 `ctx.sandboxPolicy`。被拒绝的操作返回 `FS_SANDBOX_DENIED`，文件系统工具会显示当前模式和同轮次升级提示。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当模型的文件写入与编辑必须受会话沙箱模式约束、而读取保持不受约束时，挂载此后端以替代 `fs-local`。围栏按调用生效：工具层把调用会话的模式与工作区根目录解析为与 bash runner 收到的相同策略，因此文件系统与 shell 两个能力族绝不会约束到不同根目录。
+当模型的文件变更必须受会话沙箱模式约束、而读取保持不受约束时，挂载此后端以替代 `fs-local`。围栏按调用生效：工具层把调用会话的模式与工作区根目录解析为与 bash runner 收到的相同策略，因此文件系统与 shell 两个能力族绝不会约束到不同根目录。
 
 ### 最小组合
 
@@ -43,7 +43,7 @@ kind: "package-reference"
 
 ### 围栏行为
 
-有效模式来自调用会话的覆盖值或升级授权，两者都未生效时才回退到部署默认值。`read-only` 以结构化 `FS_SANDBOX_DENIED` 拒绝所有变更。`workspace-write` 只允许目标规范化后位于工作区根目录或平台临时区域（`/tmp`、`os.tmpdir()`）之下的变更——与 Seatbelt profile 授权的可写集合相同。`danger-full-access` 不加围栏直接委托。
+有效模式来自调用会话的覆盖值或升级授权，两者都未生效时才回退到部署默认值。`read-only` 以结构化 `FS_SANDBOX_DENIED` 拒绝所有变更。`workspace-write` 只允许它触及的每个目标都规范化到工作区根目录或平台临时区域（`/tmp`、`os.tmpdir()`）之下的变更——与 Seatbelt profile 授权的可写集合相同。`danger-full-access` 不加围栏直接委托。
 
 ### 可观察的成功与失败
 
@@ -67,12 +67,12 @@ kind: "package-reference"
 
 | 文件 | 职责 |
 |---|---|
-| [`src/index.ts`](src/index.ts) | `SandboxedFileSystem`：`writeText`/`editText` 上的模式围栏、`sandboxMode` 事实 |
+| [`src/index.ts`](src/index.ts) | `SandboxedFileSystem`：`writeText`/`writeBytes`/`editText`/`remove`/`move`/`createDirectory` 上的模式围栏、`sandboxMode` 事实 |
 | [`src/containment.ts`](src/containment.ts) | 祖先包含检查，带词法快速路径与基于身份的兜底 |
 
 ### 变更如何被围栏
 
-每次变更先解析按调用策略（`danger-full-access` 原样返回调用方目标；`read-only` 抛出 `FS_SANDBOX_DENIED`），`workspace-write` 则立即重新规范化目标，并要求它位于由唯一的 `writableRoots` 函数派生的某个可写根之下——与 Seatbelt profile 授权的集合相同，因此 fs 围栏与 bash runner 不会漂移。被变更的正是这个新目标，因此工具解析后被替换的符号链接祖先也会被发现。
+每次变更先解析按调用策略（`danger-full-access` 原样返回调用方目标；`read-only` 抛出 `FS_SANDBOX_DENIED`），`workspace-write` 则立即重新规范化目标，并要求它位于由唯一的 `writableRoots` 函数派生的某个可写根之下——与 Seatbelt profile 授权的集合相同，因此 fs 围栏与 bash runner 不会漂移。被变更的正是这个新目标，因此工具解析后被替换的符号链接祖先也会被发现。移动会在任何内容移动之前围栏两端：源与目标都按调用方自己的策略重新规范化，目标在工作区之外时整次移动被拒绝，而不是让条目离开工作区。
 
 ### 威胁模型
 

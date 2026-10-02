@@ -2,7 +2,7 @@
 import { posix } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { FileSystem, FsError } from '@qilin/fs'
-import type { FsDirEntry, FsEditOutcome, FsEditRequest, FsErrorCode, FsInfo, FsPathInfo, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin/fs'
+import type { FsDirEntry, FsEditOutcome, FsEditRequest, FsErrorCode, FsInfo, FsMoveOutcome, FsPathInfo, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin/fs'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
 import type {} from '@qilin/sandbox-policy'
 import type {} from '@qilin/ssh'
@@ -12,9 +12,15 @@ import { z } from 'zod'
 
 const errorCodes: Record<FsErrorCode, true> = {
   FS_NOT_FOUND: true, FS_NOT_DIRECTORY: true, FS_NOT_TEXT: true, FS_NOT_REGULAR_FILE: true,
+  FS_NOT_EMPTY: true, FS_EXISTS: true,
   FS_TOO_LARGE: true, FS_PERMISSION_DENIED: true, FS_SANDBOX_DENIED: true, FS_IO_ERROR: true,
   FS_STALE_VERSION: true, FS_NOT_OBSERVED: true, FS_AMBIGUOUS_EDIT: true, FS_EDIT_NOT_FOUND: true, FS_ABORTED: true,
 }
+
+/** What the remote helper observed after removing a target. */
+const removeResultSchema = z.object({ directory: z.boolean() }).strict()
+/** What the remote helper observed after moving a target. */
+const moveResultSchema = z.object({ version: z.string().optional(), replaced: z.boolean() }).strict()
 
 /** Remote filesystem paired with the SSH subprocess and sandbox providers. */
 export class SshFileSystem extends FileSystem {
@@ -106,6 +112,28 @@ export class SshFileSystem extends FileSystem {
   ): Promise<FsEditOutcome> {
     const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
     return await this.call('fs.edit', { target, edit, expected, policy }, editResultSchema, signal) as FsEditOutcome
+  }
+
+  override async remove(
+    target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsRemoveOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    return await this.call('fs.remove', { target, recursive: opts.recursive, policy }, removeResultSchema, signal)
+  }
+
+  override async move(
+    from: FsTarget, to: FsTarget, opts: { overwrite: boolean },
+    signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsMoveOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    return await this.call('fs.move', { from, to, overwrite: opts.overwrite, policy }, moveResultSchema, signal) as FsMoveOutcome
+  }
+
+  override async createDirectory(
+    target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<void> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    await this.call('fs.createDirectory', { target, recursive: opts.recursive, policy }, z.null(), signal)
   }
 
   private async call<T>(method: string, params: unknown, schema: z.ZodType<T>, signal?: AbortSignal): Promise<T> {

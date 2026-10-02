@@ -1089,6 +1089,27 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'target', description: 'the resolved target to edit.' }, { name: 'edit', description: 'the literal search/replace request.' }, { name: 'expected', description: 'the version guard; omit for an unconditional edit.' }, { name: 'signal', description: 'aborts before atomic publication takes effect.' }, { name: 'sandboxPolicy', description: 'the per-call mode and workspace root this edit runs under; a sandboxing backend fences the edit by it, the bare backend ignores it. Omit to leave the backend its own default.' }],
         returns: 'the outcome, including the version the edit produced.',
       },
+      {
+        signature: 'abstract remove( target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsRemoveOutcome>',
+        description: 'Remove one file or directory. The operation acts on the target\'s stable identity, so a path reached through a final symbolic link removes what that link resolves to, exactly as writeText writes through it.',
+        parameters: [{ name: 'target', description: 'the resolved target to remove.' }, { name: 'opts', description: '`recursive` removes a directory with all its contents; when false, a non-empty directory fails with `FS_NOT_EMPTY`.' }, { name: 'signal', description: 'aborts before the removal takes effect.' }, { name: 'sandboxPolicy', description: 'the per-call mode and workspace root this removal runs under; a sandboxing backend fences the removal by it, the bare backend ignores it. Omit to leave the backend its own default.' }],
+        returns: 'whether a directory was removed; an absent target fails with `FS_NOT_FOUND`.',
+        throws: ['{FsError} with `FS_NOT_FOUND` for an absent target, `FS_NOT_EMPTY` for a non-empty directory removed without `recursive`, `FS_PERMISSION_DENIED` when the execution world refuses the removal, or `FS_IO_ERROR` for any other backend failure.'],
+      },
+      {
+        signature: 'abstract move( from: FsTarget, to: FsTarget, opts: { overwrite: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsMoveOutcome>',
+        description: 'Move or rename within one backend\'s execution world. A move never crosses backends: both targets must come from this provider, and a backend that cannot move a target (for example across filesystems) fails with `FS_IO_ERROR` rather than copying. Like the other mutations, the operation acts on each target\'s stable identity.',
+        parameters: [{ name: 'from', description: 'the resolved source target.' }, { name: 'to', description: 'the resolved destination target; its parent directory must exist.' }, { name: 'opts', description: '`overwrite` replaces an existing file at the destination; with false an existing destination fails with `FS_EXISTS`, and a non-empty destination directory always fails with `FS_NOT_EMPTY`.' }, { name: 'signal', description: 'aborts before the move takes effect.' }, { name: 'sandboxPolicy', description: 'the per-call mode and workspace root this move runs under; a sandboxing backend fences both ends by it, the bare backend ignores it. Omit to leave the backend its own default.' }],
+        returns: 'the destination\'s observed version when the backend can report one, and whether an existing target was replaced.',
+        throws: ['{FsError} with `FS_NOT_FOUND` for an absent source or destination parent, `FS_EXISTS` for an existing destination moved onto without `overwrite`, `FS_NOT_EMPTY` for a non-empty destination directory, `FS_PERMISSION_DENIED` when the execution world refuses the move, or `FS_IO_ERROR` for any other backend failure.'],
+      },
+      {
+        signature: 'abstract createDirectory( target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<void>',
+        description: 'Create one directory. The operation acts on the target\'s stable identity and creates nothing outside the backend\'s own execution world.',
+        parameters: [{ name: 'target', description: 'the resolved directory target to create.' }, { name: 'opts', description: '`recursive` also creates missing parent directories; when false, a missing parent fails with `FS_NOT_FOUND`. Either way an existing directory is not an error only when `recursive` is true.' }, { name: 'signal', description: 'aborts before the directory is created.' }, { name: 'sandboxPolicy', description: 'the per-call mode and workspace root this creation runs under; a sandboxing backend fences it by it, the bare backend ignores it. Omit to leave the backend its own default.' }],
+        returns: 'nothing; the caller observes the new directory through `stat`/`listDir`.',
+        throws: ['{FsError} with `FS_EXISTS` for an existing entry the call would not accept, `FS_NOT_FOUND` for a missing parent without `recursive`, `FS_PERMISSION_DENIED` when the execution world refuses the creation, or `FS_IO_ERROR` for any other backend failure.'],
+      },
     ],
   },
   {
@@ -3632,8 +3653,8 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   },
   {
     key: 'workspaceFiles',
-    summary: 'Host Remote file reads and writes plus workspace directory observations over the composed filesystem.',
-    description: 'Host Remote file reads and writes plus workspace directory observations over the composed filesystem.',
+    summary: 'Host Remote file reads, writes, and workspace entry mutations plus workspace directory observations over the composed filesystem.',
+    description: 'Host Remote file reads, writes, and workspace entry mutations plus workspace directory observations over the composed filesystem.',
     methods: [
       {
         signature: '@Remote async read( workspaceFileScope: WorkspaceFileScope, path: string, range: WorkspaceFileRange, signal: AbortSignal, ): Promise<WorkspaceFileText>',
@@ -3688,6 +3709,24 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Stream every `fs/observed` observation of a file inside the Session\'s workspace. Only instrumented filesystem operations report here; the OS is not watched.',
         parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'signal', description: 'generation cancellation.' }],
         returns: '`ready` once the Host observation queue is active and the workspace root is resolved, then queued and live observations in emission order.',
+      },
+      {
+        signature: '@Remote async remove( workspaceFileScope: WorkspaceFileScope, path: string, recursive: boolean, signal: AbortSignal, ): Promise<void>',
+        description: 'Delete one file or directory inside the Session\'s workspace. A final symbolic link is refused before resolution follows it, so a delete never reaches through a link to a file the caller did not name; a directory is either emptied by the caller or removed whole with `recursive`.\n\nThe successful removal emits `fs/observed` with an absent observation, so the change feed reports the disappearance to every open consumer.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.' }, { name: 'recursive', description: 'remove a directory with all its contents; `false` refuses a non-empty directory with not-empty.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'nothing; the caller observes the removal through `list`/`stat`.',
+      },
+      {
+        signature: '@Remote async move( workspaceFileScope: WorkspaceFileScope, from: string, to: string, signal: AbortSignal, ): Promise<void>',
+        description: 'Move or rename one entry inside the Session\'s workspace. Both ends are gated the same way: each path\'s own entry is probed before resolution follows it, a final symbolic link on either end is refused, and both resolved targets must stay inside the workspace root, so a move can never land outside it. An existing destination is refused rather than replaced.\n\nThe successful move emits `fs/observed` twice: an absent observation for the source and a present one for the destination, so the change feed reports both ends.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'from', description: 'the source, absolute or relative to the workspace root.' }, { name: 'to', description: 'the destination, absolute or relative to the workspace root; its parent directory must exist.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'nothing; the caller observes the destination through `list`/`stat`.',
+      },
+      {
+        signature: '@Remote async createDirectory( workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal, ): Promise<void>',
+        description: 'Create one directory inside the Session\'s workspace. A final symbolic link is refused before resolution follows it, and the resolved target must stay inside the workspace root.\n\nThe successful creation emits `fs/observed` with a present observation at the new directory\'s version, so the change feed reports the new entry.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.' }, { name: 'signal', description: 'caller cancellation.' }],
+        returns: 'nothing; the caller observes the directory through `list`.',
       },
     ],
   },
@@ -5320,12 +5359,20 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface FsInfo {\n    version: FsVersion;\n    type: \'file\' | \'directory\' | \'other\';\n    size?: number;\n}',
   },
   {
+    name: 'FsMoveOutcome',
+    declaration: 'export interface FsMoveOutcome {\n    version?: FsVersion;\n    replaced: boolean;\n}',
+  },
+  {
     name: 'FsObservation',
     declaration: 'export type FsObservation = {\n    readonly kind: \'present\';\n    readonly version: FsVersion;\n} | {\n    readonly kind: \'absent\';\n};',
   },
   {
     name: 'FsPathInfo',
     declaration: 'export interface FsPathInfo {\n    version: FsVersion;\n    type: \'file\' | \'directory\' | \'symlink\' | \'other\';\n    size?: number;\n}',
+  },
+  {
+    name: 'FsRemoveOutcome',
+    declaration: 'export interface FsRemoveOutcome {\n    directory: boolean;\n}',
   },
   {
     name: 'FsTarget',

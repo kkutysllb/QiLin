@@ -15,15 +15,19 @@ import type {
   FsEditOutcome,
   FsEditRequest,
   FsInfo,
+  FsMoveOutcome,
   FsPathInfo,
+  FsRemoveOutcome,
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
 } from '@qilin/fs'
 import {
   applyLiteralEdit,
+  createDirectoryPath,
   listDirectory,
   localDisplayPath,
+  movePath,
   normalizeLineEndings,
   probe,
   probeNoFollow,
@@ -32,6 +36,7 @@ import {
   readTextForDiff,
   readWholeBytes,
   readWholeText,
+  removePath,
   resolveLocalTarget,
   restoreLineEndings,
   streamWholeText,
@@ -296,6 +301,40 @@ export class LocalFileSystem extends FileSystem {
         after: edited.content,
       }
     })
+  }
+
+  override async remove(
+    target: FsTarget,
+    opts: { recursive: boolean },
+    signal?: AbortSignal,
+  ): Promise<FsRemoveOutcome> {
+    return this.withLock(target.targetKey, () => removePath(target, opts.recursive, signal))
+  }
+
+  override async move(
+    from: FsTarget,
+    to: FsTarget,
+    opts: { overwrite: boolean },
+    signal?: AbortSignal,
+  ): Promise<FsMoveOutcome> {
+    // Both ends take a lock, in a fixed key order, so two moves that touch the
+    // same pair of targets serialize instead of deadlocking on one another.
+    const keys = [...new Set([from.targetKey, to.targetKey])].sort()
+    return this.withLocks(keys, () => movePath(from, to, opts.overwrite, signal))
+  }
+
+  override async createDirectory(
+    target: FsTarget,
+    opts: { recursive: boolean },
+    signal?: AbortSignal,
+  ): Promise<void> {
+    return this.withLock(target.targetKey, () => createDirectoryPath(target, opts.recursive, signal))
+  }
+
+  /** Run `op` holding every listed key's lock, taking them in the given order. */
+  private withLocks<T>(targetKeys: readonly string[], op: () => Promise<T>): Promise<T> {
+    const [key, ...rest] = targetKeys
+    return key === undefined ? op() : this.withLock(key, () => this.withLocks(rest, op))
   }
 
   /* v8 ignore next 5 -- the post-write probe finding the file absent requires a

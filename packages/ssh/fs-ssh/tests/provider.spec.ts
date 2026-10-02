@@ -110,6 +110,38 @@ describe('SSH filesystem provider', () => {
     expect(dispatch).toHaveBeenLastCalledWith('fs.edit', { target, edit, expected: { version: 'v2' }, policy }, signal)
   })
 
+  it('forwards removal, move, and directory creation with the per-call policy', async () => {
+    const { fs, dispatch } = await setup()
+    const removed = { directory: true }
+    const moved = { version: 'v4', replaced: false }
+    dispatch.mockResolvedValueOnce(removed).mockResolvedValueOnce(moved).mockResolvedValueOnce(null)
+    const signal = new AbortController().signal
+    const policy: SandboxExecutionPolicy = { mode: 'workspace-write', workspaceRoot: '/remote/link/..' }
+    const to = { targetKey: FsTargetKey('/remote/work/to'), displayPath: 'to' }
+    expect(await fs.remove(target, { recursive: true }, signal, policy)).toEqual(removed)
+    expect(dispatch).toHaveBeenLastCalledWith('fs.remove', { target, recursive: true, policy }, signal)
+    expect(await fs.move(target, to, { overwrite: false }, signal, policy)).toEqual(moved)
+    expect(dispatch).toHaveBeenLastCalledWith('fs.move', { from: target, to, overwrite: false, policy }, signal)
+    await fs.createDirectory(to, { recursive: false }, signal, policy)
+    expect(dispatch).toHaveBeenLastCalledWith('fs.createDirectory', { target: to, recursive: false, policy }, signal)
+  })
+
+  it('resolves the deployment policy for the new mutations too', async () => {
+    const { fs, dispatch } = await setup()
+    dispatch.mockResolvedValueOnce({ directory: false }).mockResolvedValueOnce({ replaced: true }).mockResolvedValueOnce(null)
+    await fs.remove(target, { recursive: false })
+    await fs.move(target, target, { overwrite: true })
+    await fs.createDirectory(target, { recursive: true })
+    for (const [, params] of dispatch.mock.calls) expect(params).toMatchObject({ policy: { mode: 'read-only', workspaceRoot: '/remote/work' } })
+  })
+
+  it.each(['FS_NOT_EMPTY', 'FS_EXISTS'] as const)('preserves the remote %s refusal', async (code) => {
+    const { fs, dispatch } = await setup()
+    const cause = new RemoteOperationError('remote mutation rejected', code)
+    dispatch.mockRejectedValueOnce(cause)
+    await expect(fs.remove(target, { recursive: false })).rejects.toMatchObject({ code, message: cause.message, cause })
+  })
+
   it('resolves deployment policy for mutations without an explicit policy', async () => {
     const { fs, dispatch } = await setup()
     dispatch.mockResolvedValueOnce({ operation: 'create', version: 'v1', before: null, after: 'new' })

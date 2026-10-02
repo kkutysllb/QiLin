@@ -11,6 +11,9 @@
 /filesystem/write-and-edit-guards-provider-contract:
   en: 067137c8b8181c98
   zh: 0a9c8282789d147f
+/filesystem/removal-move-and-directory-creation-provider-contract:
+  en: 2b5df10f2c9ecf40
+  zh: f60155b3c1413af3
 /filesystem/the-fs-policy-events-provider-contract-vocabulary:
   en: d0672e6bce6ecc3a
   zh: 029ab19175f1004d
@@ -24,11 +27,11 @@
   en: a67a1a30466e77c2
   zh: fe97674b524bdd28
 /filesystem/error-taxonomy-provider-contract:
-  en: 15b19fc0d5df24ec
-  zh: b80f1a414202ca1d
+  en: 9cc0e1f705bc6378
+  zh: a5d729b8ace825ac
 /filesystem/no-timeouts-on-file-io:
   en: dca26e09c4f93a16
   zh: e07ed063b5486cd5
 /filesystem/the-service-and-the-plugin:
-  en: 513353811ed596d8
-  zh: 29f5e1990de9e315
+  en: ca8ddd99cf0e144c
+  zh: 1558e05ce6a5b031

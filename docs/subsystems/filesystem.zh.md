@@ -180,6 +180,12 @@ interface FsEditOutcome {
 }
 ```
 
+## 删除、移动与新建目录（提供方约定）
+
+`remove`、`move` 与 `createDirectory` 改变的是目录条目而不是文件内容，因此不带版本防护：每个都在调用时刻作用于其目标解析到的条目，需要新鲜度前置条件的调用方应先读取（或 stat）。三者都作用于解析后的身份，与 `writeText` 完全一致，因此经符号链接到达文件的路径会删除或移动该文件；包含关系仍由策略层负责。后端无法完成所请求的移动时——例如跨文件系统 `rename`——报告 `FS_IO_ERROR`，而不是复制内容。
+
+各后端自行串行化可能交错的变更。`fs-local` 为每个目标持有一把 FIFO 锁，并按排序后的顺序取得移动的两把 key，因此针对同一对目标的两个移动会串行而不是死锁。沙箱后端在任何内容改变之前，按调用方的逐次策略围栏变更的每一端，因此目标离开可写根的移动整次被拒绝。
+
 ## fs 策略事件（提供方约定词汇）
 
 `qilin-fs` 拥有三个事件，由工具分发、策略插件监听，使事件发出方（`qilin-tool-fs`）与监听方（`qilin-fs-observation-policy`）共享词汇，而事件发出方无需依赖策略插件。它们只携带 `qilin-fs` 词汇加一个不透明的 `object` actor，不含面向模型的概念，也不含 agent/会话所有者结构。
@@ -258,6 +264,8 @@ type FsErrorCode =
   | 'FS_NOT_DIRECTORY'
   | 'FS_NOT_TEXT'
   | 'FS_NOT_REGULAR_FILE'
+  | 'FS_NOT_EMPTY'
+  | 'FS_EXISTS'
   | 'FS_TOO_LARGE'
   | 'FS_PERMISSION_DENIED'
   | 'FS_SANDBOX_DENIED'
@@ -269,7 +277,7 @@ type FsErrorCode =
   | 'FS_ABORTED'
 ```
 
-目录列表使用 `FS_NOT_DIRECTORY`、`FS_PERMISSION_DENIED` 与 `FS_IO_ERROR` 区分已存在但并非目录的目标、被拒绝的列表操作和意外的后端 I/O 失败。`FS_SANDBOX_DENIED` 是强制执行沙箱的后端（`qilin-fs-sandbox`）所作的策略拒绝——模式边界拒绝了写入/编辑——与 `FS_PERMISSION_DENIED`（宿主内核拒绝）不同。`FS_NOT_OBSERVED` 表示策略插件没有此所有者的先前观测记录（或 `createIfAbsent` 遇到了现有文件）。`FS_NOT_FOUND` 也表示策略因确认缺失而拒绝 edit。`FS_STALE_VERSION` 表示后端版本不再与观测到的版本匹配（或提供方本身收到针对缺失目标的 edit）。新鲜度授权没有部分/完整之分，因此不存在 `FS_PARTIAL_OBSERVATION`。
+目录列表使用 `FS_NOT_DIRECTORY`、`FS_PERMISSION_DENIED` 与 `FS_IO_ERROR` 区分已存在但并非目录的目标、被拒绝的列表操作和意外的后端 I/O 失败。`FS_SANDBOX_DENIED` 是强制执行沙箱的后端（`qilin-fs-sandbox`）所作的策略拒绝——模式边界拒绝了写入/编辑——与 `FS_PERMISSION_DENIED`（宿主内核拒绝）不同。`FS_NOT_OBSERVED` 表示策略插件没有此所有者的先前观测记录（或 `createIfAbsent` 遇到了现有文件）。`FS_NOT_FOUND` 也表示策略因确认缺失而拒绝 edit。`FS_STALE_VERSION` 表示后端版本不再与观测到的版本匹配（或提供方本身收到针对缺失目标的 edit）。`FS_NOT_EMPTY` 与 `FS_EXISTS` 属于条目变更：`FS_NOT_EMPTY` 拒绝删除仍有条目的目录（或替换这样的目录），`FS_EXISTS` 拒绝在已有条目处新建，也包括移动到一个已存在的目标。新鲜度授权没有部分/完整之分，因此不存在 `FS_PARTIAL_OBSERVATION`。
 
 ## 文件 IO 不设超时
 
@@ -277,7 +285,7 @@ type FsErrorCode =
 
 ## 服务与插件
 
-`FileSystem`（`ctx.fs`，abstract）拥有提供方原语：`resolve`、`processPath`、`processPathFromHostPath`、`fileUrl`、`contains`、`stat`、`lstat`、`readText`、`streamText`、`readBytes`、`listDir`、`writeText` 与 `editText`。`qilin-fs-observation-policy` **不注册服务**。它通过 `fs/*` 事件门禁添加策略，根据未见、缺失或存在状态对写入与编辑意图 waterfall 作出决策，并记录 `FsObservation` 值。执行器是 `qilin-tool-fs`：它通过 `ctx.fs` 读取、写入或编辑，分发 waterfall，并 emit 记录事件。下方生成的 [`ctx.fs` 小节](#ctxfs--filesystem-abstract-seam) 展示确切的 `ctx.fs` 签名。
+`FileSystem`（`ctx.fs`，abstract）拥有提供方原语：`resolve`、`processPath`、`processPathFromHostPath`、`fileUrl`、`contains`、`stat`、`lstat`、`readText`、`streamText`、`readBytes`、`listDir`、`writeText`、`writeBytes`、`editText`、`remove`、`move` 与 `createDirectory`。`qilin-fs-observation-policy` **不注册服务**。它通过 `fs/*` 事件门禁添加策略，根据未见、缺失或存在状态对写入与编辑意图 waterfall 作出决策，并记录 `FsObservation` 值。执行器是 `qilin-tool-fs`：它通过 `ctx.fs` 读取、写入或编辑，分发 waterfall，并 emit 记录事件。下方生成的 [`ctx.fs` 小节](#ctxfs--filesystem-abstract-seam) 展示确切的 `ctx.fs` 签名。
 
 <!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
@@ -475,6 +483,69 @@ abstract writeBytes( target: FsTarget, content: Uint8Array, expected?: FsWriteIn
  * @returns the outcome, including the version the edit produced.
  */
 abstract editText( target: FsTarget, edit: FsEditRequest, expected?: { version: FsVersion }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsEditOutcome>
+
+/**
+ * Remove one file or directory. The operation acts on the target's stable
+ * identity, so a path reached through a final symbolic link removes what that
+ * link resolves to, exactly as {@link writeText} writes through it.
+ * @param target - the resolved target to remove.
+ * @param opts - `recursive` removes a directory with all its contents; when
+ *   false, a non-empty directory fails with `FS_NOT_EMPTY`.
+ * @param signal - aborts before the removal takes effect.
+ * @param sandboxPolicy - the per-call mode and workspace root this removal
+ *   runs under; a sandboxing backend fences the removal by it, the bare
+ *   backend ignores it. Omit to leave the backend its own default.
+ * @returns whether a directory was removed; an absent target fails with `FS_NOT_FOUND`.
+ * @throws {FsError} with `FS_NOT_FOUND` for an absent target, `FS_NOT_EMPTY`
+ *   for a non-empty directory removed without `recursive`, `FS_PERMISSION_DENIED`
+ *   when the execution world refuses the removal, or `FS_IO_ERROR` for any
+ *   other backend failure.
+ */
+abstract remove( target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsRemoveOutcome>
+
+/**
+ * Move or rename within one backend's execution world. A move never crosses
+ * backends: both targets must come from this provider, and a backend that
+ * cannot move a target (for example across filesystems) fails with `FS_IO_ERROR`
+ * rather than copying. Like the other mutations, the operation acts on each
+ * target's stable identity.
+ * @param from - the resolved source target.
+ * @param to - the resolved destination target; its parent directory must exist.
+ * @param opts - `overwrite` replaces an existing file at the destination; with
+ *   false an existing destination fails with `FS_EXISTS`, and a non-empty
+ *   destination directory always fails with `FS_NOT_EMPTY`.
+ * @param signal - aborts before the move takes effect.
+ * @param sandboxPolicy - the per-call mode and workspace root this move runs
+ *   under; a sandboxing backend fences both ends by it, the bare backend
+ *   ignores it. Omit to leave the backend its own default.
+ * @returns the destination's observed version when the backend can report one,
+ *   and whether an existing target was replaced.
+ * @throws {FsError} with `FS_NOT_FOUND` for an absent source or destination
+ *   parent, `FS_EXISTS` for an existing destination moved onto without
+ *   `overwrite`, `FS_NOT_EMPTY` for a non-empty destination directory,
+ *   `FS_PERMISSION_DENIED` when the execution world refuses the move, or
+ *   `FS_IO_ERROR` for any other backend failure.
+ */
+abstract move( from: FsTarget, to: FsTarget, opts: { overwrite: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsMoveOutcome>
+
+/**
+ * Create one directory. The operation acts on the target's stable identity and
+ * creates nothing outside the backend's own execution world.
+ * @param target - the resolved directory target to create.
+ * @param opts - `recursive` also creates missing parent directories; when
+ *   false, a missing parent fails with `FS_NOT_FOUND`. Either way an existing
+ *   directory is not an error only when `recursive` is true.
+ * @param signal - aborts before the directory is created.
+ * @param sandboxPolicy - the per-call mode and workspace root this creation
+ *   runs under; a sandboxing backend fences it by it, the bare backend ignores
+ *   it. Omit to leave the backend its own default.
+ * @returns nothing; the caller observes the new directory through `stat`/`listDir`.
+ * @throws {FsError} with `FS_EXISTS` for an existing entry the call would not
+ *   accept, `FS_NOT_FOUND` for a missing parent without `recursive`,
+ *   `FS_PERMISSION_DENIED` when the execution world refuses the creation, or
+ *   `FS_IO_ERROR` for any other backend failure.
+ */
+abstract createDirectory( target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<void>
 ```
 
 Types: [SandboxExecutionPolicy](sandbox.zh.md)

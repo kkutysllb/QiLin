@@ -169,6 +169,24 @@ export interface FsEditOutcome {
   after: string
 }
 
+/** Outcome of a delete. */
+export interface FsRemoveOutcome {
+  /** Whether the removed target was a directory rather than a file or other entry. */
+  directory: boolean
+}
+
+/** Outcome of a move or rename inside one backend. */
+export interface FsMoveOutcome {
+  /**
+   * Opaque version of the target after the move, when the backend can observe
+   * the destination. Omitted when it cannot (a backend that only relays the
+   * move reports no version rather than a fabricated one).
+   */
+  version?: FsVersion
+  /** Whether a target already existed at the destination and the move replaced it. */
+  replaced: boolean
+}
+
 /**
  * Stable, machine-routable codes for filesystem failures. Carried on
  * {@link FsError}; the tool registry exposes `{ name, code }` on `isError`
@@ -179,6 +197,8 @@ export type FsErrorCode =
   | 'FS_NOT_DIRECTORY'
   | 'FS_NOT_TEXT'
   | 'FS_NOT_REGULAR_FILE'
+  | 'FS_NOT_EMPTY'
+  | 'FS_EXISTS'
   | 'FS_TOO_LARGE'
   | 'FS_PERMISSION_DENIED'
   | 'FS_SANDBOX_DENIED'

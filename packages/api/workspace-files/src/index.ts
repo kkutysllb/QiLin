@@ -1,6 +1,7 @@
 /**
  * Workspace file service: file previews, one guarded text write, workspace
- * directory listings, and the filesystem-observation change feed, exposed as
+ * entry mutations (removal, move, directory creation), workspace directory
+ * listings, and the filesystem-observation change feed, exposed as
  * `workspaceFiles`.
  *
  * File reads follow the composed filesystem's read access, including paths
@@ -34,6 +35,7 @@ import {
   type FsWriteOutcome,
 } from '@qilin/fs'
 import type {} from '@qilin/sandbox-policy'
+import type { SandboxExecutionPolicy } from '@qilin/sandbox'
 import type {} from '@qilin/session'
 import type {} from '@qilin/session-persistence'
 import type { SessionId } from '@qilin/session/types'
@@ -203,7 +205,7 @@ function directoryEntry(child: FsDirEntry): WorkspaceDirectoryEntry {
   }
 }
 
-/** Host Remote file reads and writes plus workspace directory observations over the composed filesystem. */
+/** Host Remote file reads, writes, and workspace entry mutations plus workspace directory observations over the composed filesystem. */
 export class WorkspaceFiles extends TypertRemoteService {
   static inject = ['fs', 'sandboxPolicy', 'sessions', 'typert']
 
@@ -518,6 +520,109 @@ export class WorkspaceFiles extends TypertRemoteService {
     return this.feed.follow(workspaceFileScope.workspaceRoot, signal)
   }
 
+  /**
+   * Delete one file or directory inside the Session's workspace. A final
+   * symbolic link is refused before resolution follows it, so a delete never
+   * reaches through a link to a file the caller did not name; a directory is
+   * either emptied by the caller or removed whole with `recursive`.
+   *
+   * The successful removal emits `fs/observed` with an absent observation, so
+   * the change feed reports the disappearance to every open consumer.
+   *
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param path - absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.
+   * @param recursive - remove a directory with all its contents; `false` refuses a non-empty directory with not-empty.
+   * @param signal - caller cancellation.
+   * @returns nothing; the caller observes the removal through `list`/`stat`.
+   */
+  @Remote
+  async remove(
+    workspaceFileScope: WorkspaceFileScope,
+    path: string,
+    recursive: boolean,
+    signal: AbortSignal,
+  ): Promise<void> {
+    if (typeof recursive !== 'boolean') {
+      throw new RemoteError('gateway/bad-request', 'recursive must be a boolean', {})
+    }
+    const { target, workspaceRoot } = await this.locateMutable(workspaceFileScope, path, signal)
+    try {
+      await this.ctx.fs.remove(target, { recursive }, signal, this.policyAt(workspaceRoot))
+    } catch (error: unknown) {
+      throw refusalFor(error, path)
+    }
+    this.ctx.emit('fs/observed', target, { kind: 'absent' }, undefined)
+  }
+
+  /**
+   * Move or rename one entry inside the Session's workspace. Both ends are
+   * gated the same way: each path's own entry is probed before resolution
+   * follows it, a final symbolic link on either end is refused, and both
+   * resolved targets must stay inside the workspace root, so a move can never
+   * land outside it. An existing destination is refused rather than replaced.
+   *
+   * The successful move emits `fs/observed` twice: an absent observation for
+   * the source and a present one for the destination, so the change feed
+   * reports both ends.
+   *
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param from - the source, absolute or relative to the workspace root.
+   * @param to - the destination, absolute or relative to the workspace root; its parent directory must exist.
+   * @param signal - caller cancellation.
+   * @returns nothing; the caller observes the destination through `list`/`stat`.
+   */
+  @Remote
+  async move(
+    workspaceFileScope: WorkspaceFileScope,
+    from: string,
+    to: string,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const source = await this.locateMutable(workspaceFileScope, from, signal)
+    const destination = await this.locateMutable(workspaceFileScope, to, signal)
+    let version: FsVersion | undefined
+    try {
+      const outcome = await this.ctx.fs.move(
+        source.target, destination.target, { overwrite: false }, signal, this.policyAt(source.workspaceRoot),
+      )
+      version = outcome.version
+    } catch (error: unknown) {
+      // An existing destination is named by its own path; a missing source by the source's.
+      if (isFsRefusal(error, 'FS_EXISTS') || isFsRefusal(error, 'FS_NOT_EMPTY')) throw refusalFor(error, to)
+      throw refusalFor(error, from)
+    }
+    this.ctx.emit('fs/observed', source.target, { kind: 'absent' }, undefined)
+    await this.observePresent(destination.target, signal, version)
+  }
+
+  /**
+   * Create one directory inside the Session's workspace. A final symbolic link
+   * is refused before resolution follows it, and the resolved target must stay
+   * inside the workspace root.
+   *
+   * The successful creation emits `fs/observed` with a present observation at
+   * the new directory's version, so the change feed reports the new entry.
+   *
+   * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+   * @param path - absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.
+   * @param signal - caller cancellation.
+   * @returns nothing; the caller observes the directory through `list`.
+   */
+  @Remote
+  async createDirectory(
+    workspaceFileScope: WorkspaceFileScope,
+    path: string,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const { target, workspaceRoot } = await this.locateMutable(workspaceFileScope, path, signal)
+    try {
+      await this.ctx.fs.createDirectory(target, { recursive: false }, signal, this.policyAt(workspaceRoot))
+    } catch (error: unknown) {
+      throw refusalFor(error, path)
+    }
+    await this.observePresent(target, signal)
+  }
+
   /** Apply the page defaults and caps here, so the request never carries them implicitly. */
   private resolvePage(range: WorkspaceFileRange): { offset: number; limit: number } {
     const offset = range.offset === undefined ? 1 : integerAtLeast(range.offset, 1, 'offset')
@@ -624,6 +729,46 @@ export class WorkspaceFiles extends TypertRemoteService {
   }
 
   /**
+   * The per-call `workspace-write` policy at the same root this service
+   * confined to, so a sandboxing backend fences a mutation where it was already
+   * checked instead of falling back to the deployment root, which can differ
+   * from the Session's own.
+   */
+  private policyAt(workspaceRoot: string): SandboxExecutionPolicy {
+    return { mode: 'workspace-write', workspaceRoot }
+  }
+
+  /**
+   * All gates for a path mutation: the path's own entry is probed before
+   * resolution follows it, a final symbolic link is refused exactly as the
+   * write path refuses one, and the resolved target must stay inside the
+   * workspace root. The entry may be absent — a create needs that, and the
+   * provider reports an absent source for a removal or a move.
+   */
+  private async locateMutable(
+    workspaceFileScope: WorkspaceFileScope,
+    path: string,
+    signal: AbortSignal,
+  ): Promise<{ target: FsTarget; workspaceRoot: string }> {
+    const { root, workspaceRoot, entry } = await this.inspectPath(workspaceFileScope, path, signal)
+    if (entry?.type === 'symlink') {
+      throw new RemoteError('workspace-file/not-regular-file', `"${path}" is a symbolic link`, { path, kind: 'symlink' })
+    }
+    return { target: await this.confine(root, workspaceRoot, path, signal), workspaceRoot }
+  }
+
+  /**
+   * Emit a present observation for `target` at `known`, or at the version a
+   * fresh stat names when the backend reported none. A target the backend can
+   * no longer observe emits nothing rather than a fabricated version.
+   */
+  private async observePresent(target: FsTarget, signal: AbortSignal, known?: FsVersion): Promise<void> {
+    const version = known ?? (await this.ctx.fs.stat(target, signal))?.version
+    if (version === undefined) return
+    this.ctx.emit('fs/observed', target, { kind: 'present', version }, undefined)
+  }
+
+  /**
    * All gates for a text save: the path's own entry is probed before resolution
    * follows it, a non-file entry is refused as such, and the resolved target
    * must stay inside the workspace root. An absent entry is a create.
@@ -693,12 +838,39 @@ export class WorkspaceFiles extends TypertRemoteService {
  * identity is shared across the package boundary.
  */
 function isNotTextRefusal(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'FS_NOT_TEXT'
+  return isFsRefusal(error, 'FS_NOT_TEXT')
+}
+
+/**
+ * The backend's refusal, recognized by its code alone: the error class belongs
+ * to whichever `qilin-fs` instance the provider loaded, so no class identity is
+ * shared across the package boundary.
+ */
+function isFsRefusal(error: unknown, code: string): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === code
+}
+
+/**
+ * Translate the provider's own refusals into this namespace's codes, naming the
+ * path the caller gave. Anything else keeps its identity, so an unclassified
+ * backend failure is not given a meaning this service cannot vouch for.
+ */
+function refusalFor(error: unknown, path: string): unknown {
+  if (isFsRefusal(error, 'FS_NOT_FOUND')) {
+    return new RemoteError('workspace-file/not-found', `no entry at "${path}"`, { path }, { cause: error })
+  }
+  if (isFsRefusal(error, 'FS_EXISTS')) {
+    return new RemoteError('workspace-file/exists', `an entry already exists at "${path}"`, { path }, { cause: error })
+  }
+  if (isFsRefusal(error, 'FS_NOT_EMPTY')) {
+    return new RemoteError('workspace-file/not-empty', `"${path}" is a non-empty directory`, { path }, { cause: error })
+  }
+  return error
 }
 
 /** The same recognition for the provider's stale-version refusal. */
 function isStaleRefusal(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'FS_STALE_VERSION'
+  return isFsRefusal(error, 'FS_STALE_VERSION')
 }
 
 export default WorkspaceFiles

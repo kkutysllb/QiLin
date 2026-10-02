@@ -347,7 +347,7 @@ export interface Config {
 ## `@qilin/api-workspace-files`
 
 - `inject`: `fs` · `sandboxPolicy` · `sessions` · `typert`
-- `source`: [`packages/api/workspace-files/src/index.ts:81`](../packages/api/workspace-files/src/index.ts)
+- `source`: [`packages/api/workspace-files/src/index.ts:83`](../packages/api/workspace-files/src/index.ts)
 
 ```ts config-catalog
 /** Deployment caps on one page or one listing. */
@@ -1123,7 +1123,7 @@ export interface Config {
 
 ## `@qilin/fs-local`
 
-- `source`: [`packages/fs/fs-local/src/index.ts:43`](../packages/fs/fs-local/src/index.ts)
+- `source`: [`packages/fs/fs-local/src/index.ts:48`](../packages/fs/fs-local/src/index.ts)
 
 ```ts config-catalog
 /** Configuration for the local filesystem backend. */
@@ -1146,7 +1146,7 @@ export interface Config {
 
 - `inject`: `sandboxPolicy`
 - `refs`: [`LocalConfig`](#qilinfs-local)
-- `source`: [`packages/fs/fs-sandbox/src/index.ts:45`](../packages/fs/fs-sandbox/src/index.ts)
+- `source`: [`packages/fs/fs-sandbox/src/index.ts:47`](../packages/fs/fs-sandbox/src/index.ts)
 
 ```ts config-catalog
 /**

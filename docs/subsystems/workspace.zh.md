@@ -367,7 +367,7 @@ Source: [`packages/api/workspace-controller/src/index.ts`](../../packages/api/wo
 
 ### `ctx.workspaceFiles` — `WorkspaceFiles`
 
-Host Remote file reads and writes plus workspace directory observations over the composed filesystem.
+Host Remote file reads, writes, and workspace entry mutations plus workspace directory observations over the composed filesystem.
 
 ```ts cordis-catalog
 /**
@@ -486,6 +486,57 @@ Host Remote file reads and writes plus workspace directory observations over the
  *   root is resolved, then queued and live observations in emission order.
  */
 @Remote({ mode: 'stream' }) changes(workspaceFileScope: WorkspaceFileScope, signal: AbortSignal): AsyncIterable<WorkspaceFileWatchFrame>
+
+/**
+ * Delete one file or directory inside the Session's workspace. A final
+ * symbolic link is refused before resolution follows it, so a delete never
+ * reaches through a link to a file the caller did not name; a directory is
+ * either emptied by the caller or removed whole with `recursive`.
+ *
+ * The successful removal emits `fs/observed` with an absent observation, so
+ * the change feed reports the disappearance to every open consumer.
+ *
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.
+ * @param recursive - remove a directory with all its contents; `false` refuses a non-empty directory with not-empty.
+ * @param signal - caller cancellation.
+ * @returns nothing; the caller observes the removal through `list`/`stat`.
+ */
+@Remote async remove( workspaceFileScope: WorkspaceFileScope, path: string, recursive: boolean, signal: AbortSignal, ): Promise<void>
+
+/**
+ * Move or rename one entry inside the Session's workspace. Both ends are
+ * gated the same way: each path's own entry is probed before resolution
+ * follows it, a final symbolic link on either end is refused, and both
+ * resolved targets must stay inside the workspace root, so a move can never
+ * land outside it. An existing destination is refused rather than replaced.
+ *
+ * The successful move emits `fs/observed` twice: an absent observation for
+ * the source and a present one for the destination, so the change feed
+ * reports both ends.
+ *
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param from - the source, absolute or relative to the workspace root.
+ * @param to - the destination, absolute or relative to the workspace root; its parent directory must exist.
+ * @param signal - caller cancellation.
+ * @returns nothing; the caller observes the destination through `list`/`stat`.
+ */
+@Remote async move( workspaceFileScope: WorkspaceFileScope, from: string, to: string, signal: AbortSignal, ): Promise<void>
+
+/**
+ * Create one directory inside the Session's workspace. A final symbolic link
+ * is refused before resolution follows it, and the resolved target must stay
+ * inside the workspace root.
+ *
+ * The successful creation emits `fs/observed` with a present observation at
+ * the new directory's version, so the change feed reports the new entry.
+ *
+ * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
+ * @param path - absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.
+ * @param signal - caller cancellation.
+ * @returns nothing; the caller observes the directory through `list`.
+ */
+@Remote async createDirectory( workspaceFileScope: WorkspaceFileScope, path: string, signal: AbortSignal, ): Promise<void>
 ```
 
 Source: [`packages/api/workspace-files/src/index.ts`](../../packages/api/workspace-files/src/index.ts)

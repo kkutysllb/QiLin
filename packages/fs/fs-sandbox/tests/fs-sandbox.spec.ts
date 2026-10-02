@@ -250,6 +250,98 @@ describe('the per-call policy override (escalation)', () => {
   })
 })
 
+describe('the removal, move, and directory-creation fences', () => {
+  it('read-only denies all three, leaving the disk untouched', async () => {
+    await boot('read-only')
+    const file = join(workspace, 'a.txt')
+    await writeFile(file, 'x')
+    await expect(fs.remove(await target(file), { recursive: false })).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    await expect(fs.move(await target(file), await target(join(workspace, 'b.txt')), { overwrite: false }))
+      .rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    await expect(fs.createDirectory(await target(join(workspace, 'dir')), { recursive: false }))
+      .rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(await readFile(file, 'utf8')).toBe('x')
+    expect(existsSync(join(workspace, 'b.txt'))).toBe(false)
+    expect(existsSync(join(workspace, 'dir'))).toBe(false)
+  })
+
+  it('workspace-write removes, moves, and creates inside the workspace', async () => {
+    await boot('workspace-write')
+    const removed = join(workspace, 'a.txt')
+    await writeFile(removed, 'x')
+    expect(await fs.remove(await target(removed), { recursive: false })).toEqual({ directory: false })
+    const source = join(workspace, 'b.txt')
+    await writeFile(source, 'y')
+    const outcome = await fs.move(await target(source), await target(join(workspace, 'c.txt')), { overwrite: false })
+    expect(outcome.replaced).toBe(false)
+    await fs.createDirectory(await target(join(workspace, 'created')), { recursive: false })
+    expect(existsSync(removed)).toBe(false)
+    expect(await readFile(join(workspace, 'c.txt'), 'utf8')).toBe('y')
+    expect(existsSync(join(workspace, 'created'))).toBe(true)
+  })
+
+  it('workspace-write denies a removal outside the workspace, leaving the file', async () => {
+    await boot('workspace-write')
+    const path = join(outside, 'keep.txt')
+    await writeFile(path, 'keep')
+    await expect(fs.remove(await target(path), { recursive: false })).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(await readFile(path, 'utf8')).toBe('keep')
+  })
+
+  it('workspace-write denies a move whose destination is outside, leaving the source', async () => {
+    await boot('workspace-write')
+    const path = join(workspace, 'a.txt')
+    await writeFile(path, 'x')
+    await expect(fs.move(await target(path), await target(join(outside, 'escaped.txt')), { overwrite: false }))
+      .rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(await readFile(path, 'utf8')).toBe('x')
+    expect(existsSync(join(outside, 'escaped.txt'))).toBe(false)
+  })
+
+  it('workspace-write denies a move whose source is outside, leaving the source', async () => {
+    await boot('workspace-write')
+    const path = join(outside, 'a.txt')
+    await writeFile(path, 'x')
+    await expect(fs.move(await target(path), await target(join(workspace, 'landed.txt')), { overwrite: false }))
+      .rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(await readFile(path, 'utf8')).toBe('x')
+    expect(existsSync(join(workspace, 'landed.txt'))).toBe(false)
+  })
+
+  it('workspace-write denies a directory creation outside the workspace', async () => {
+    await boot('workspace-write')
+    await expect(fs.createDirectory(await target(join(outside, 'dir')), { recursive: true }))
+      .rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(existsSync(join(outside, 'dir'))).toBe(false)
+  })
+
+  it('danger-full-access removes, moves, and creates anywhere', async () => {
+    await boot('danger-full-access')
+    const removed = join(outside, 'a.txt')
+    await writeFile(removed, 'x')
+    expect(await fs.remove(await target(removed), { recursive: false })).toEqual({ directory: false })
+    const source = join(workspace, 'b.txt')
+    await writeFile(source, 'y')
+    await fs.move(await target(source), await target(join(outside, 'c.txt')), { overwrite: false })
+    await fs.createDirectory(await target(join(outside, 'dir')), { recursive: false })
+    expect(existsSync(removed)).toBe(false)
+    expect(existsSync(join(outside, 'c.txt'))).toBe(true)
+    expect(existsSync(join(outside, 'dir'))).toBe(true)
+  })
+
+  it('a per-call policy fences the destination of a move the deployment default would allow', async () => {
+    await boot('danger-full-access')
+    const path = join(workspace, 'a.txt')
+    await writeFile(path, 'x')
+    await expect(fs.move(
+      await target(path), await target(join(outside, 'escaped.txt')), { overwrite: false }, undefined,
+      { mode: 'workspace-write', workspaceRoot: workspace },
+    )).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(await readFile(path, 'utf8')).toBe('x')
+    expect(existsSync(join(outside, 'escaped.txt'))).toBe(false)
+  })
+})
+
 describe('registration and HMR safety', () => {
   it('registers as ctx.fs and unregisters cleanly from a child fiber', async () => {
     await boot('workspace-write')

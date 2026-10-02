@@ -7,11 +7,12 @@
 
 import { randomUUID } from 'node:crypto'
 import { createReadStream, realpath as realpathCallback } from 'node:fs'
-import { chmod, link, lstat, mkdir, open, readFile, readdir, rename, rm, stat } from 'node:fs/promises'
+import { chmod, link, lstat, mkdir, open, readFile, readdir, rename, rm, rmdir, stat, unlink } from 'node:fs/promises'
 import type { BigIntStats, Dirent, Stats } from 'node:fs'
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path'
 import { TextDecoder, promisify } from 'node:util'
 import { FsError, FsTargetKey, FsVersion } from '@qilin/fs'
+import type { FsMoveOutcome, FsRemoveOutcome } from '@qilin/fs'
 import { copyFileDaclWin32, replaceFileWin32 } from './win32.ts'
 
 const BINARY_SAMPLE_BYTES = 8192
@@ -670,6 +671,126 @@ export async function writeFileAtomic(
     }
     if (!stagingCreated) throw failure
     return removeStagingDirOrThrow(stagingDir, failure, removeStagingDir)
+  }
+}
+
+// --- Removing, moving, creating ---
+
+/**
+ * Map a refused directory-entry syscall onto the seam's error taxonomy: an
+ * absent path is not found, a permission fault names itself, and every other
+ * fault — including the `EXDEV` a `rename` reports for two filesystems and the
+ * `ENOTDIR` it reports for a directory moved onto a file — is an I/O failure
+ * this backend neither retries nor papers over with a copy.
+ */
+function mutationIoError(verb: 'remove' | 'move' | 'create', displayPath: string, error: unknown): FsError {
+  /* v8 ignore next -- Windows chmod does not deny entry removal or renaming; POSIX covers permission translation. */
+  if (isPermissionError(error)) return new FsError(`cannot ${verb} "${displayPath}": permission denied`, 'FS_PERMISSION_DENIED', { cause: error })
+  if (isENOENT(error)) return new FsError(`cannot ${verb} "${displayPath}": not found`, 'FS_NOT_FOUND', { cause: error })
+  /* v8 ignore next -- Windows reports this refused rename as EACCES (the arm above); POSIX covers this one. */
+  return new FsError(`cannot ${verb} "${displayPath}": ${errorMessage(error)}`, 'FS_IO_ERROR', { cause: error })
+}
+
+/**
+ * Remove one file or directory. A directory is either removed with its whole
+ * contents or refused as non-empty, so a typo cannot empty a populated tree.
+ * @param target - the resolved target to remove.
+ * @param recursive - remove a directory with all its contents.
+ * @param signal - aborts before the removal takes effect (`FS_ABORTED`).
+ * @returns whether the removed target was a directory.
+ */
+export async function removePath(target: LocalTarget, recursive: boolean, signal?: AbortSignal): Promise<FsRemoveOutcome> {
+  throwIfAborted(signal, 'remove')
+  const info = await probe(target.targetKey)
+  if (!info) throw new FsError(`cannot remove "${target.displayPath}": not found`, 'FS_NOT_FOUND')
+  if (info.type !== 'directory') {
+    try {
+      await unlink(target.targetKey)
+    } catch (error: unknown) {
+      /* v8 ignore next -- a post-probe unlink failure needs a concurrent removal or a kernel fault. */
+      throw mutationIoError('remove', target.displayPath, error)
+    }
+    return { directory: false }
+  }
+  if (recursive) {
+    try {
+      await rm(target.targetKey, { recursive: true })
+    } catch (error: unknown) {
+      /* v8 ignore next -- a post-probe recursive removal failure needs a concurrent change or a kernel fault. */
+      throw mutationIoError('remove', target.displayPath, error)
+    }
+    return { directory: true }
+  }
+  // Non-empty is decided by the directory's own entries, so the refusal reads
+  // the same on every platform instead of depending on `rmdir`'s errno.
+  if ((await readdir(target.targetKey)).length > 0) {
+    throw new FsError(`cannot remove "${target.displayPath}": directory is not empty`, 'FS_NOT_EMPTY')
+  }
+  try {
+    await rmdir(target.targetKey)
+  } catch (error: unknown) {
+    /* v8 ignore next -- a post-probe rmdir failure needs an entry created between the listing and the call. */
+    throw mutationIoError('remove', target.displayPath, error)
+  }
+  return { directory: true }
+}
+
+/**
+ * Move or rename one path inside this filesystem. A move to a destination whose
+ * parent is missing fails rather than creating that parent, so a rename never
+ * silently relocates a file into a directory the caller did not name.
+ * @param from - the resolved source.
+ * @param to - the resolved destination.
+ * @param overwrite - replace an existing entry at the destination; false refuses one.
+ * @param signal - aborts before the move takes effect (`FS_ABORTED`).
+ * @returns the destination's observed version and whether an existing entry was replaced.
+ */
+export async function movePath(from: LocalTarget, to: LocalTarget, overwrite: boolean, signal?: AbortSignal): Promise<FsMoveOutcome> {
+  throwIfAborted(signal, 'move')
+  if (!await probe(from.targetKey)) throw new FsError(`cannot move "${from.displayPath}": not found`, 'FS_NOT_FOUND')
+  const existing = await probe(to.targetKey)
+  if (existing) {
+    if (!overwrite) throw new FsError(`cannot move "${from.displayPath}" onto existing "${to.displayPath}"`, 'FS_EXISTS')
+    // A destination directory is replaceable only when it is empty, and
+    // `rename` refuses to replace a directory at all on some platforms: drop
+    // the empty destination first so the replacement reads the same everywhere.
+    if (existing.type === 'directory') {
+      if ((await readdir(to.targetKey)).length > 0) {
+        throw new FsError(`cannot move "${from.displayPath}" onto "${to.displayPath}": directory is not empty`, 'FS_NOT_EMPTY')
+      }
+      try {
+        await rmdir(to.targetKey)
+      } catch (error: unknown) {
+        /* v8 ignore next -- a post-listing rmdir failure needs an entry created between the listing and the call. */
+        throw mutationIoError('move', to.displayPath, error)
+      }
+    }
+  }
+  try {
+    await rename(from.targetKey, to.targetKey)
+  } catch (error: unknown) {
+    throw mutationIoError('move', from.displayPath, error)
+  }
+  const after = await probe(to.targetKey)
+  /* v8 ignore next -- the destination disappearing between rename and this observation needs a concurrent removal. */
+  return { ...(after === null ? {} : { version: after.version }), replaced: existing !== null }
+}
+
+/**
+ * Create one directory. The parent-missing and already-exists refusals are
+ * translated from the syscall's errno so the seam reports its own codes.
+ * @param target - the resolved directory to create.
+ * @param recursive - also create missing parent directories, and accept an existing directory.
+ * @param signal - aborts before the directory is created (`FS_ABORTED`).
+ * @returns nothing; the caller observes the directory through `probe`/`listDirectory`.
+ */
+export async function createDirectoryPath(target: LocalTarget, recursive: boolean, signal?: AbortSignal): Promise<void> {
+  throwIfAborted(signal, 'create')
+  try {
+    await mkdir(target.targetKey, { recursive })
+  } catch (error: unknown) {
+    if (isEEXIST(error)) throw new FsError(`cannot create "${target.displayPath}": already exists`, 'FS_EXISTS', { cause: error })
+    throw mutationIoError('create', target.displayPath, error)
   }
 }
 
