@@ -10,12 +10,14 @@ import type { BrowserAuth } from '@qilin/client-connection/src/browser-auth.ts'
 import { SessionId } from '@qilin/session'
 import { SessionQueryError } from '@qilin/session-query'
 import type { SessionEventReadRequest } from '@qilin/session-query'
-import type { WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceFileDiff } from '@qilin/workspace-changes/types'
+import type {
+  WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceFileDiff, WorkspaceSessionChanges,
+} from '@qilin/workspace-changes/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { registerPresentOpen } from '../src/present-open.ts'
 import {
-  changedFileUrl, changesDiffUrl, changesSummaryUrl, CHANGES_DIFF_PATH, CHANGES_OPEN_PATH, CHANGED_FILES_PATH, isChangedFile, isChangesDiff,
-  isChangesEvent, isChangesSummary,
+  changedFileUrl, changesDiffUrl, changesSessionUrl, changesSummaryUrl, CHANGES_DIFF_PATH, CHANGES_OPEN_PATH,
+  CHANGES_SESSION_PATH, CHANGED_FILES_PATH, isChangedFile, isChangesDiff, isChangesEvent, isChangesSummary,
 } from '../src/changes.ts'
 
 const cleanups: Array<() => Promise<unknown>> = []
@@ -64,7 +66,15 @@ async function fixture() {
   }
   const diff = vi.fn(async (sessionId: SessionId, seq: number, index: number, _signal: AbortSignal) =>
     sessionId === 'owner' && seq === 9 && index === 0 ? comparison : undefined)
-  ctx.provide('workspaceChanges', { summary, diff })
+  const folded: WorkspaceSessionChanges = {
+    cwd, total: 2, added: 5, deleted: 1,
+    files: [
+      { path: 'src/lib/a.ts', display: 'src/lib/a.ts', added: 3, deleted: 1, turns: 2, lastTurn: 2, lastSeq: 11, lastIndex: 0 },
+      { path: 'src/b.ts', display: 'src/b.ts', added: 2, deleted: 0, turns: 1, lastTurn: 2, lastSeq: 11, lastIndex: 1 },
+    ],
+  }
+  const session = vi.fn((sessionId: SessionId) => sessionId === 'owner' ? folded : undefined)
+  ctx.provide('workspaceChanges', { summary, diff, session })
   const opener = vi.fn(async (_request: { path: string; action?: 'reveal' }, _signal: AbortSignal) => ({ opened: true as const }))
   ctx.provide('sessionController', { openWorkspacePath: opener, workspaceDesktop: () => ({ name: 'desktop', available: true, fileManager: 'finder' }) } as never)
   const connection = new HostConnectionService(ctx, [], {} as BrowserAuth)
@@ -76,7 +86,8 @@ async function fixture() {
   const open = (query = '?sessionId=owner&seq=9&index=0') => handler.fetch(new Request(`http://localhost${CHANGES_OPEN_PATH}${query}`, { method: 'POST' }))
   const read = (query = '?sessionId=owner&seq=9') => handler.fetch(new Request(`http://localhost${CHANGED_FILES_PATH}${query}`))
   const compare = (query = '?sessionId=owner&seq=9&index=0') => handler.fetch(new Request(`http://localhost${CHANGES_DIFF_PATH}${query}`))
-  return { root, cwd, ctx, data, readEvent, open, read, compare, comparison, diff, opener, outside, summary }
+  const fold = (query = '?sessionId=owner') => handler.fetch(new Request(`http://localhost${CHANGES_SESSION_PATH}${query}`))
+  return { root, cwd, ctx, data, readEvent, open, read, compare, fold, comparison, diff, opener, outside, summary, session, folded }
 }
 
 describe('change summary route', () => {
@@ -94,6 +105,22 @@ describe('change summary route', () => {
       expect((await read(bad)).status).toBe(400)
     }
     expect(summary).toHaveBeenCalledTimes(3)
+  })
+})
+
+describe('change session route', () => {
+  it('serves the Session’s folded list without its working directory, and 404 once the recorder is gone', async () => {
+    const { fold, session, folded } = await fixture()
+    expect(changesSessionUrl(SessionId('owner'))).toBe('api/changes.session?sessionId=owner')
+    const response = await fold()
+    expect(response.status).toBe(200)
+    expect(response.headers.get('cache-control')).toBe('no-store')
+    // The working directory stays on the Host; the list carries only what the page draws.
+    expect(await response.json()).toEqual({ files: folded.files, total: 2, added: 5, deleted: 1 })
+    expect((await fold('?sessionId=other')).status).toBe(404)
+    for (const bad of ['', '?sessionId=']) expect((await fold(bad)).status).toBe(400)
+    // Only the served and the refused Session reached the Host service.
+    expect(session).toHaveBeenCalledTimes(2)
   })
 })
 

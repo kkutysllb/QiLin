@@ -1281,7 +1281,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
 'workspace/changes': { turn: number }
 ```
 
-来源：[`packages/deliverables/workspace-changes/src/types.ts:106`](../packages/deliverables/workspace-changes/src/types.ts)
+来源：[`packages/deliverables/workspace-changes/src/types.ts:150`](../packages/deliverables/workspace-changes/src/types.ts)
 
 ## 已解析的持久化类型
 
@@ -7737,7 +7737,7 @@ SHA-256: `e48379bd1f068d7786e8fb196fc9f3d27ca1e84dad49291571ccb9eb21ffbc8b`
 
 SHA-256: `4f71a0581cf2060c02b0813899aca6e1dd0937985f99bd32b6b693cf01021f7c`
 
-来源：[`packages/core/session/src/types.ts:288`](../packages/core/session/src/types.ts) · [`packages/deliverables/workspace-changes/src/types.ts:106`](../packages/deliverables/workspace-changes/src/types.ts)
+来源：[`packages/core/session/src/types.ts:288`](../packages/core/session/src/types.ts) · [`packages/deliverables/workspace-changes/src/types.ts:150`](../packages/deliverables/workspace-changes/src/types.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|

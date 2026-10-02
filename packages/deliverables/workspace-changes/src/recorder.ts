@@ -9,7 +9,10 @@ import {
   blobText, diffTrees, gitlinkPaths, ignoredPaths, locateGitWorkspace, snapshotTree, treeBlob, type GitRunner, type GitWorkspace,
 } from './git.ts'
 import { canonicalPath, compareDisplay, displayPathOf, durablePathOf, isInside, isTemporaryPath, temporaryRoots, toPosix } from './paths.ts'
-import type { WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceFileDiff } from './types.ts'
+import type {
+  WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceFileDiff, WorkspaceSessionChangedFile,
+  WorkspaceSessionChanges,
+} from './types.ts'
 
 /** Facts shared by every recorder of one plugin instance. */
 export interface RecorderEnvironment {
@@ -209,6 +212,45 @@ export class TurnRecorder {
    */
   summary(seq: number): WorkspaceChangesSummary | undefined {
     return this.records.get(seq)?.summary
+  }
+
+  /**
+   * Every file this Session's recorded turns changed, folded by path.
+   *
+   * The per-file counts and flags come from the LATEST turn that listed the
+   * file, so a rewrite reads as the delta it left rather than as the churn of
+   * every rewrite; `turns` carries that churn. The Session totals come from
+   * each turn's own complete counts, which include files that turn's list cap
+   * omitted.
+   * @returns the folded list in `display` order, empty before the first recorded turn.
+   */
+  sessionChanges(): WorkspaceSessionChanges {
+    const folded = new Map<string, WorkspaceSessionChangedFile>()
+    let added = 0
+    let deleted = 0
+    for (const [seq, record] of [...this.records].sort(([left], [right]) => left - right)) {
+      const { turn, files, added: turnAdded, deleted: turnDeleted } = record.summary
+      added += turnAdded
+      deleted += turnDeleted
+      files.forEach((file, index) => {
+        const previous = folded.get(file.path)
+        folded.set(file.path, {
+          path: file.path,
+          display: file.display,
+          added: file.added,
+          deleted: file.deleted,
+          turns: (previous?.turns ?? 0) + 1,
+          lastTurn: turn,
+          lastSeq: seq,
+          lastIndex: index,
+          ...(file.binary === true ? { binary: true as const } : {}),
+          ...(file.oversized === true ? { oversized: true as const } : {}),
+        })
+      })
+    }
+    const files = [...folded.values()].sort((left, right) =>
+      left.display < right.display ? -1 : left.display > right.display ? 1 : 0)
+    return { cwd: this.cwd, files, total: files.length, added, deleted }
   }
 
   /**

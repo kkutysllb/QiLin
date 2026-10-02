@@ -529,3 +529,58 @@ describe('workspace-changes without git', () => {
     }
   })
 })
+
+describe('workspace-changes over a whole Session', () => {
+  it('folds every recorded turn by path, reading each file’s counts from its latest turn', async () => {
+    const cwd = await repository()
+    const { ctx } = await boot()
+    const session = ctx.sessions.create(SessionId('fold'), { meta: { cwd } })
+
+    startTurn(session, 1)
+    await settle(ctx, session)
+    await mutate(ctx, session, 1, 'edit', { file_path: 'a.txt', old_string: 'l2', new_string: 'l2 one' },
+      () => writeFile(join(cwd, 'a.txt'), 'l1\nl2 one\nl3\n'), { meta: { diffs: [{ path: 'a.txt', oldText: 'l2', newText: 'l2 one' }] } })
+    await mkdir(join(cwd, 'sub', 'dir'), { recursive: true })
+    await writeFile(join(cwd, 'sub', 'dir', 'c.txt'), 'c1\nc2\n')
+    toolCall(session, 1, 'bash', { command: 'true' })
+    endTurn(session, 1)
+    await settle(ctx, session)
+    const firstSeq = announcedSeq(session)
+
+    startTurn(session, 2)
+    await settle(ctx, session)
+    await mutate(ctx, session, 2, 'edit', { file_path: 'a.txt', old_string: 'l2 one\nl3', new_string: 'l2 two' },
+      () => writeFile(join(cwd, 'a.txt'), 'l1\nl2 two\n'), { meta: { diffs: [{ path: 'a.txt', oldText: 'l2 one\nl3', newText: 'l2 two' }] } })
+    await mutate(ctx, session, 2, 'edit', { file_path: 'sub/dir/c.txt', old_string: 'c1', new_string: 'c1 changed' },
+      () => writeFile(join(cwd, 'sub/dir/c.txt'), 'c1 changed\nc2\n'), { meta: { diffs: [{ path: 'sub/dir/c.txt', oldText: 'c1', newText: 'c1 changed' }] } })
+    toolCall(session, 2, 'bash', { command: 'true' })
+    endTurn(session, 2)
+    await settle(ctx, session)
+    const secondSeq = announcedSeq(session)
+
+    const folded = ctx.workspaceChanges.session(session.id)
+    expect(folded?.cwd).toBe(cwd)
+    // Distinct paths only, in display order, with the latest turn's counts and
+    // coordinates — the churn is carried by `turns`.
+    expect(folded?.files.map(file => file.path)).toEqual(['a.txt', 'sub/dir/c.txt'])
+    expect(folded?.total).toBe(2)
+    expect(folded?.files[0]).toMatchObject({ display: 'a.txt', turns: 2, lastTurn: 2, lastSeq: secondSeq })
+    expect(folded?.files[1]).toMatchObject({ display: 'sub/dir/c.txt', turns: 2, lastTurn: 2, lastSeq: secondSeq })
+    expect(folded?.files[0]!.lastIndex).toBe(0)
+    expect(folded!.added).toBeGreaterThan(folded!.files[0]!.added + folded!.files[1]!.added)
+    // The announced sequences are the ones the fold kept, and the first turn's
+    // summary is still served by its own coordinates.
+    expect(firstSeq).toBeLessThan(secondSeq)
+    expect(ctx.workspaceChanges.summary(session.id, firstSeq)?.turn).toBe(1)
+    expect(ctx.workspaceChanges.session(SessionId('elsewhere'))).toBeUndefined()
+    ctx.emit('session/disposed', session)
+    expect(ctx.workspaceChanges.session(session.id)).toBeUndefined()
+  })
+
+  it('reports no Session fold before any turn was recorded', async () => {
+    const cwd = await repository()
+    const { ctx } = await boot()
+    const session = ctx.sessions.create(SessionId('quiet'), { meta: { cwd } })
+    expect(ctx.workspaceChanges.session(session.id)).toBeUndefined()
+  })
+})

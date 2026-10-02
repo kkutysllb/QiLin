@@ -3576,6 +3576,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the summary, or undefined once its Session was disposed or when this Host never recorded it.',
       },
       {
+        signature: 'session(sessionId: SessionId): WorkspaceSessionChanges | undefined',
+        description: 'Every file the Session\'s recorded turns changed, folded by path.',
+        parameters: [{ name: 'sessionId', description: 'the Session that appended the events.' }],
+        returns: 'the folded list, or undefined once its Session was disposed or when it recorded no turn.',
+      },
+      {
         signature: 'diff(sessionId: SessionId, seq: number, index: number, signal: AbortSignal): Promise<WorkspaceFileDiff | undefined>',
         description: 'Compare one listed file\'s contents at turn start and turn end.',
         parameters: [{ name: 'sessionId', description: 'the Session that appended the event.' }, { name: 'seq', description: 'the event\'s sequence number.' }, { name: 'index', description: 'the file\'s index in the summary\'s `files`.' }, { name: 'signal', description: 'cancels the reads.' }],
@@ -8361,6 +8367,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceRenameRequest',
     declaration: 'export interface WorkspaceRenameRequest {\n    readonly workspaceId: WorkspaceId;\n    readonly title: string;\n}',
+  },
+  {
+    name: 'WorkspaceSessionChangedFile',
+    declaration: 'export interface WorkspaceSessionChangedFile {\n    path: string;\n    display: string;\n    added: number;\n    deleted: number;\n    turns: number;\n    lastTurn: number;\n    lastSeq: number;\n    lastIndex: number;\n    binary?: true;\n    oversized?: true;\n}',
+  },
+  {
+    name: 'WorkspaceSessionChanges',
+    declaration: 'export interface WorkspaceSessionChanges {\n    cwd: string;\n    files: WorkspaceSessionChangedFile[];\n    total: number;\n    added: number;\n    deleted: number;\n}',
   },
   {
     name: 'WorkspaceUnarchiveSessionRequest',

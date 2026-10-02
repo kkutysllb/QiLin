@@ -21,6 +21,7 @@ import type { WorkspaceChanges } from './types.ts'
 
 export type {
   WorkspaceChangedFile, WorkspaceChanges, WorkspaceChangesSummary, WorkspaceDiffHunk, WorkspaceFileDiff,
+  WorkspaceSessionChangedFile, WorkspaceSessionChanges,
 } from './types.ts'
 
 /** Stable Loader identity. */
@@ -113,6 +114,12 @@ export function apply(ctx: Context, config: Config): void {
   })
   const service: WorkspaceChanges = {
     summary: (sessionId, seq) => byId.get(sessionId)?.summary(seq),
+    session: (sessionId) => {
+      const recorder = byId.get(sessionId)
+      if (recorder === undefined) return undefined
+      const folded = recorder.sessionChanges()
+      return folded.files.length === 0 ? undefined : folded
+    },
     diff: (sessionId, seq, index, signal) => byId.get(sessionId)?.diff(seq, index, signal) ?? Promise.resolve(undefined),
   }
   ctx.provide('workspaceChanges', service)

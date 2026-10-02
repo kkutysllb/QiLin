@@ -121,6 +121,12 @@ interface WorkspaceChanges {
    */
   summary(sessionId: SessionId, seq: number): WorkspaceChangesSummary | undefined
   /**
+   * Every file the Session's recorded turns changed, folded by path.
+   * @param sessionId - the Session that appended the events.
+   * @returns the folded list, or undefined once its Session was disposed or when it recorded no turn.
+   */
+  session(sessionId: SessionId): WorkspaceSessionChanges | undefined
+  /**
    * Compare one listed file's contents at turn start and turn end.
    * @param sessionId - the Session that appended the event.
    * @param seq - the event's sequence number.
@@ -159,6 +165,13 @@ Serves the summaries and file comparisons the recorder keeps for live Sessions.
  * @returns the summary, or undefined once its Session was disposed or when this Host never recorded it.
  */
 summary(sessionId: SessionId, seq: number): WorkspaceChangesSummary | undefined
+
+/**
+ * Every file the Session's recorded turns changed, folded by path.
+ * @param sessionId - the Session that appended the events.
+ * @returns the folded list, or undefined once its Session was disposed or when it recorded no turn.
+ */
+session(sessionId: SessionId): WorkspaceSessionChanges | undefined
 
 /**
  * Compare one listed file's contents at turn start and turn end.

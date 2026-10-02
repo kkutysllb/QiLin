@@ -8,7 +8,10 @@ import { remoteErrorOf } from '@qilin/typert-protocol'
 import type {} from '@qilin/client-connection'
 import type {} from '@qilin/session-query'
 import type { SessionId, SessionSeq } from '@qilin/session'
-import { CHANGES_DIFF_PATH, CHANGES_OPEN_PATH, CHANGED_FILES_PATH, type ChangesSummary } from './changes.ts'
+import {
+  CHANGES_DIFF_PATH, CHANGES_OPEN_PATH, CHANGES_SESSION_PATH, CHANGED_FILES_PATH, type ChangesSession,
+  type ChangesSummary,
+} from './changes.ts'
 import { isPresentedData, isPresentedFile, PRESENT_OPEN_PATH, PRESENT_HOST_PATH, type PresentedHost } from './presented.ts'
 
 /**
@@ -26,6 +29,10 @@ export function registerPresentOpen(ctx: Context): void {
   ctx.connection.fetch.register({
     path: CHANGED_FILES_PATH, methods: ['GET'], requestBody: 'buffered',
     fetch: request => Promise.resolve(handleChangesSummary(ctx, request)),
+  })
+  ctx.connection.fetch.register({
+    path: CHANGES_SESSION_PATH, methods: ['GET'], requestBody: 'buffered',
+    fetch: request => Promise.resolve(handleChangesSession(ctx, request)),
   })
   const lifetime = new AbortController()
   const pending = new Set<Promise<Response>>()
@@ -131,6 +138,16 @@ function handleChangesSummary(ctx: Context, request: Request): Response {
   if (summary === undefined) return new Response('Change summary unavailable.', { status: 404 })
   const { turn, files, total, added, deleted } = summary
   return Response.json({ turn, files, total, added, deleted } satisfies ChangesSummary, { headers: { 'cache-control': 'no-store' } })
+}
+
+/** Every change the Session recorded, folded by path; 404 once the Host no longer holds its recorder. */
+function handleChangesSession(ctx: Context, request: Request): Response {
+  const id = new URL(request.url).searchParams.get('sessionId')
+  if (!id) return new Response('Invalid change session coordinates.', { status: 400 })
+  const changes = ctx.workspaceChanges.session(id as SessionId)
+  if (changes === undefined) return new Response('Session changes unavailable.', { status: 404 })
+  const { files, total, added, deleted } = changes
+  return Response.json({ files, total, added, deleted } satisfies ChangesSession, { headers: { 'cache-control': 'no-store' } })
 }
 
 /** A changed file's coordinates from a route query, or the 400 to answer with. */

@@ -1,12 +1,18 @@
 /** Validate workspace-change records that cross the Host routes and address their summary, comparison, and native-open actions. */
 import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceDiffHunk, WorkspaceFileDiff } from '@qilin/workspace-changes/types'
+import type {
+  WorkspaceChangedFile, WorkspaceChangesSummary, WorkspaceDiffHunk, WorkspaceFileDiff,
+  WorkspaceSessionChangedFile, WorkspaceSessionChanges,
+} from '@qilin/workspace-changes/types'
 
 /** Authenticated GET route serving one announced change summary while its Session lives. */
 export const CHANGED_FILES_PATH = '/api/changes.summary'
 
 /** Authenticated GET route serving one listed file's turn-start and turn-end comparison while its Session lives. */
 export const CHANGES_DIFF_PATH = '/api/changes.diff'
+
+/** Authenticated GET route serving the Session's whole changed-file list while its Session lives. */
+export const CHANGES_SESSION_PATH = '/api/changes.session'
 
 /** Authenticated POST route for opening a changed file on the Host desktop. */
 export const CHANGES_OPEN_PATH = '/api/changes.open'
@@ -20,6 +26,9 @@ export const CHANGED_FILES_ROUTE = CHANGED_FILES_PATH.slice(1)
 /** Browser-relative form of {@link CHANGES_DIFF_PATH}. */
 export const CHANGES_DIFF_ROUTE = CHANGES_DIFF_PATH.slice(1)
 
+/** Browser-relative form of {@link CHANGES_SESSION_PATH}. */
+export const CHANGES_SESSION_ROUTE = CHANGES_SESSION_PATH.slice(1)
+
 /** Browser-relative form of {@link CHANGES_OPEN_PATH}. */
 export const CHANGES_OPEN_ROUTE = CHANGES_OPEN_PATH.slice(1)
 
@@ -29,8 +38,16 @@ export const CHANGES_REVIEW_ADDRESS = 'qilin-resource://changes-review/session/'
 /** The summary fields the route serves; the Host keeps the working directory and snapshot ids to itself. */
 export type ChangesSummary = Pick<WorkspaceChangesSummary, 'turn' | 'files' | 'total' | 'added' | 'deleted'>
 
-/** The comparison the route serves, as the Host computed it. */
+/**
+ * The comparison the route serves, as the Host computed it.
+ */
 export type ChangesDiff = WorkspaceFileDiff
+
+/** One file the Session changed, as the session route serves it. */
+export type ChangesSessionFile = WorkspaceSessionChangedFile
+
+/** Every file change the Session recorded, folded by path across its turns. */
+export type ChangesSession = Pick<WorkspaceSessionChanges, 'files' | 'total' | 'added' | 'deleted'>
 
 /** Coordinates of one turn's review: the viewed Session, the announcing event, and the turn it summarized. */
 export interface ChangesReviewCoordinates {
@@ -110,6 +127,41 @@ export function isChangesEvent(value: unknown): value is { turn: number } {
  */
 export function changesSummaryUrl(sessionId: SessionId, seq: number): string {
   return `${CHANGED_FILES_ROUTE}?${new URLSearchParams({ sessionId, seq: String(seq) })}`
+}
+
+/**
+ * Validate one folded session changed-file record read from the session route.
+ * @param value - decoded JSON.
+ * @returns whether the record carries a path, display, per-file counts, and its latest coordinates.
+ */
+export function isSessionChangedFile(value: unknown): value is WorkspaceSessionChangedFile {
+  if (!isRecord(value)) return false
+  const { path, display, added, deleted, turns, lastTurn, lastSeq, lastIndex, binary, oversized } = value
+  return typeof path === 'string' && path.length > 0 && typeof display === 'string' && display.length > 0
+    && [added, deleted, turns, lastTurn, lastSeq, lastIndex].every(field => Number.isSafeInteger(field) && (field as number) >= 0)
+    && (turns as number) >= 1 && (lastTurn as number) >= 1
+    && (binary === undefined || binary === true) && (oversized === undefined || oversized === true)
+}
+
+/**
+ * Validate the Session's whole changed-file list read from the session route.
+ * @param value - decoded JSON.
+ * @returns whether the list carries consistent totals and every record validates.
+ */
+export function isChangesSession(value: unknown): value is ChangesSession {
+  if (!isRecord(value)) return false
+  const { files, total, added, deleted } = value
+  return Number.isSafeInteger(total) && Number.isSafeInteger(added) && Number.isSafeInteger(deleted)
+    && Array.isArray(files) && files.every(isSessionChangedFile) && total === files.length
+}
+
+/**
+ * Build authenticated coordinates for the Session's whole changed-file list.
+ * @param sessionId - owning Session.
+ * @returns document-relative session route.
+ */
+export function changesSessionUrl(sessionId: SessionId): string {
+  return `${CHANGES_SESSION_ROUTE}?${new URLSearchParams({ sessionId })}`
 }
 
 /**

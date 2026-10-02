@@ -75,6 +75,44 @@ export type WorkspaceFileDiff =
   /** A side larger than the plugin's `maxFileBytes`; no lines are served. */
   | { kind: 'oversized'; path: string; display: string }
 
+/** One file the whole Session changed, folded over the turns whose summaries listed it. */
+export interface WorkspaceSessionChangedFile {
+  /** Path relative to the Session working directory, or an absolute Host path outside it. */
+  path: string
+  /** Sort key and label, as the per-turn summary reports it. */
+  display: string
+  /** Lines added by the latest turn that changed the file; zero for a binary or oversized file. */
+  added: number
+  /** Lines deleted by the latest turn that changed the file; zero for a binary or oversized file. */
+  deleted: number
+  /** How many turns listed the file, so a rewrite in a later turn counts again. */
+  turns: number
+  /** The latest turn that changed the file. */
+  lastTurn: number
+  /** The `workspace/changes` event of that latest turn. */
+  lastSeq: number
+  /** The file's index in that event's summary, which `diff` addresses it by. */
+  lastIndex: number
+  /** Present when the latest turn reported the file as binary. */
+  binary?: true
+  /** Present when a captured side exceeded the plugin's `maxFileBytes` in the latest turn. */
+  oversized?: true
+}
+
+/** Every file change one Session recorded, folded by path across its turns. */
+export interface WorkspaceSessionChanges {
+  /** The Session working directory `path` values are relative to. */
+  cwd: string
+  /** Distinct changed files in `display` order. */
+  files: WorkspaceSessionChangedFile[]
+  /** Distinct changed files: the length of `files`. */
+  total: number
+  /** Lines added over every turn, from the per-turn complete counts. */
+  added: number
+  /** Lines deleted over every turn, from the per-turn complete counts. */
+  deleted: number
+}
+
 /** Serves the summaries and file comparisons the recorder keeps for live Sessions. */
 export interface WorkspaceChanges {
   /**
@@ -84,6 +122,12 @@ export interface WorkspaceChanges {
    * @returns the summary, or undefined once its Session was disposed or when this Host never recorded it.
    */
   summary(sessionId: SessionId, seq: number): WorkspaceChangesSummary | undefined
+  /**
+   * Every file the Session's recorded turns changed, folded by path.
+   * @param sessionId - the Session that appended the events.
+   * @returns the folded list, or undefined once its Session was disposed or when it recorded no turn.
+   */
+  session(sessionId: SessionId): WorkspaceSessionChanges | undefined
   /**
    * Compare one listed file's contents at turn start and turn end.
    * @param sessionId - the Session that appended the event.

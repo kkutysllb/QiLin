@@ -276,6 +276,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   ToolCallId: 'core.md',
   TimedUserQuestionResult: 'user-questions.md',
   WorkspaceChangesSummary: 'deliverables.md',
+  WorkspaceSessionChanges: 'deliverables.md',
   WorkspaceFileDiff: 'deliverables.md',
   Reload: 'boot.md',
   PluginInfo: 'boot.md',
