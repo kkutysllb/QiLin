@@ -47,6 +47,9 @@ afterEach(async () => {
     for (const runtime of runtimes.splice(0)) await runtime.dispose()
   } finally {
     vi.restoreAllMocks()
+    // A test that switches a tab type off stores that turn, and the next
+    // runtime's registry reads browser storage when it is built.
+    localStorage.clear()
     if (getAnimationsDescriptor === undefined) Reflect.deleteProperty(Element.prototype, 'getAnimations')
     else Object.defineProperty(Element.prototype, 'getAnimations', getAnimationsDescriptor)
   }
@@ -174,6 +177,19 @@ function element(container: HTMLElement, selector: string): HTMLElement {
 }
 
 describe('RightbarSeat presentation', () => {
+  it('keeps an open tab rendering when the user switches its type off, and refuses the next open', async () => {
+    const h = await mountSeat()
+    const tab = h.open('kept.txt')
+    const body = element(h.view.container, `[data-tab-body="${tab.id}"]`)
+    act(() => { h.runtime.ctx.sidebarRightTabs.setEnabled('test/text', false) })
+    // The open tab keeps its body and its title: the switch decides what the
+    // column offers, never what it tears down.
+    expect(element(h.view.container, `[data-tab-body="${tab.id}"]`)).toBe(body)
+    expect(h.titles.get(tab.id)?.tab.title).toBe('kept.txt')
+    expect(() => { h.open('later.txt') }).toThrow('turned off')
+    expect(h.view.container.querySelectorAll('[data-tab-body]')).toHaveLength(1)
+  })
+
   it('keeps a background retained body through standard-source registration and removal', async () => {
     const h = await mountSeat(1440, true, 0, false, true)
     const tab = h.open('retained.txt')

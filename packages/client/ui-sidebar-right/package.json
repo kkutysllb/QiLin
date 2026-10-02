@@ -36,7 +36,8 @@
         "@qilin/client-shortcuts",
         "@qilin/client-ui-conversation",
         "@qilin/client-ui-layout",
-        "@qilin/client-ui-session"
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-settings"
       ],
       "platform": "web"
     }
@@ -62,6 +63,7 @@
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-settings": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
     "@qilin/client-ui-workspace": "workspace:*",
     "@qilin/kylin": "workspace:~",

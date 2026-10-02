@@ -69,6 +69,7 @@
     "@qilin/api-gateway": "workspace:*",
     "@qilin/client-resources": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/sandbox": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",

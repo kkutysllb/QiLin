@@ -18,10 +18,14 @@ export const GUIDE_ID = '@qilin/client-ui-sidebar-right/guide'
  * @returns the definition to register.
  */
 export function guideDefinition(t: TranslateNS<'sidebarRight'>): SidebarRightTabDefinition {
+  const title = (): string => t('tab.guide.title')
   return {
     id: GUIDE_ID,
     kind: GUIDE_KIND,
     priority: 'builtin',
-    title: () => t('tab.guide.title'),
+    title,
+    // The settings page names a type by its label; without one the guide's own
+    // row would read as the raw kind.
+    label: title,
   }
 }

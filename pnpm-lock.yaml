@@ -1347,6 +1347,9 @@ importers:
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
       '@qilin/sandbox-policy':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-policy
@@ -5314,6 +5317,9 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin/client-ui-settings':
+        specifier: workspace:*
+        version: link:../ui-settings
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots

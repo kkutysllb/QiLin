@@ -77,6 +77,12 @@ describe('TabSettingsSection', () => {
     expect(row('text').querySelector('[data-settings-glyph]')).toBeNull()
   })
 
+  it('names a type that declared no label by its kind', () => {
+    const { row, switchOf } = mountSection([{ id: 'pkg/raw', kind: 'raw', title: () => 'raw' }])
+    expect(row('raw').textContent).toBe('raw')
+    expect(switchOf('raw').getAttribute('aria-label')).toBe('raw')
+  })
+
   it('shows each switch in the state the registry reports and asks for the opposite turn', () => {
     const { setEnabled, switchOf } = mountSection(TYPES, ['pkg/text'])
     expect(switchOf('files').getAttribute('aria-checked')).toBe('true')

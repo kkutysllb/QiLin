@@ -15,7 +15,7 @@ import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import type { SessionId } from '@qilin/session/types'
 import type { Shortcuts, ShortcutCommand } from '@qilin/client-shortcuts/client'
 import { apply, inject } from '../src/client/index.ts'
-import type { GuideInjected, SidebarRightInjected } from '../src/client/index.ts'
+import type { GuideInjected, SidebarRightInjected, TabSettingsSectionInjected } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { SidebarRightController } from '../src/client/service.ts'
 import { SidebarRightTabRegistry } from '../src/client/tab-registry.ts'
@@ -27,6 +27,7 @@ import { ExpandButton } from '../src/client/shell/ExpandButton.tsx'
 import { GuideBody } from '../src/client/tabs/guide/GuideBody.tsx'
 import { GuideTitle } from '../src/client/tabs/guide/GuideTitle.tsx'
 import { GUIDE_ID } from '../src/client/tabs/guide/definition.ts'
+import { TabSettingsSection } from '../src/client/tabs/settings/TabSettingsSection.tsx'
 import { en, zh } from '../src/client/locales.ts'
 
 const SHORTCUT_CATALOG: readonly never[] = []
@@ -35,8 +36,11 @@ const SESSION = 's-test' as SessionId
 
 interface Recorded {
   name: string
+  id?: string
   key?: string
+  order?: number
   locale?: string
+  label?: () => string
   store?: unknown
   children?: unknown
   inject?: (sessionId: SessionId) => unknown
@@ -127,10 +131,12 @@ describe('ui-sidebar-right apply', () => {
     expect(guide?.id).toBe(GUIDE_ID)
     expect(guide?.priority).toBe('builtin')
     expect(guide?.title('sidebar://guide')).toBe('tab.guide.title')
-    // Five registrations: the root and panel seats, the header's corner seat,
-    // and the guide body and chip title under the guide implementation's id.
-    // The guide draws no product copy of its own, so neither guide seat binds the dictionary.
+    // Six registrations: the Settings switches page, the root and panel seats,
+    // the header's corner seat, and the guide body and chip title under the
+    // guide implementation's id. The guide draws no product copy of its own, so
+    // neither guide seat binds the dictionary.
     expect(registered.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
+      ['settings.section', undefined, 'sidebarRight', TabSettingsSection],
       ['rightbar', undefined, undefined, RightbarRoot],
       ['rightbar.session', undefined, 'sidebarRight', RightbarSeat],
       ['conversation.session.header.corner', undefined, 'sidebarRight', ExpandButton],
@@ -324,6 +330,32 @@ describe('ui-sidebar-right apply', () => {
     expect(dictionaries.size).toBe(0)
     await ctx.plugin({ inject: [...inject], apply }).await()
     expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
-    expect(registered).toHaveLength(5)
+    expect(registered).toHaveLength(6)
+  })
+
+  it('registers the switches page into Settings, over the registry the seats read', async () => {
+    const { ctx, seat, injectedOf } = await boot()
+    const section = seat('settings.section')
+    expect([section.id, section.order, section.locale, section.component])
+      .toEqual(['sidebar-right', 30, 'sidebarRight', TabSettingsSection])
+    expect(section.label?.()).toBe('settings.nav')
+    const injected = injectedOf(section) as TabSettingsSectionInjected
+    const types = injected.hooks.tabTypes
+    // The list is the registry's own: every type in force, switched off or not,
+    // which is what the seat dispatches a kind to and what the page lists.
+    expect(types.getSnapshot().map(type => type.id)).toEqual([GUIDE_ID])
+    const seen = vi.fn()
+    const unsubscribe = types.subscribe(seen)
+    injected.setEnabled(GUIDE_ID, false)
+    // One publication, on the source both the page and the guide follow.
+    expect(seen).toHaveBeenCalledOnce()
+    expect(injected.isEnabled(GUIDE_ID)).toBe(false)
+    expect(types.getSnapshot().map(type => type.id)).toEqual([GUIDE_ID])
+    expect(() => ctx.sidebarRightTabs.claim('sidebar://guide', 'guide')).toThrow('turned off')
+    expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
+    injected.setEnabled(GUIDE_ID, true)
+    expect(injected.isEnabled(GUIDE_ID)).toBe(true)
+    expect(seen).toHaveBeenCalledTimes(2)
+    unsubscribe()
   })
 })

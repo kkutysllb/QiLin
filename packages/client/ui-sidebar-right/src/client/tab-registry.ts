@@ -23,12 +23,19 @@
  *
  * Thunked copy (`title`, `guide[].title`, `guide[].description`) is read again
  * on every use, so a language change needs no re-registration.
+ *
+ * The registry also holds the user's switches over the types, because they are
+ * what the guide page and the open paths consult. A switched-off type keeps its
+ * registration and every tab already open — nothing closes behind the user —
+ * while its entries leave the guide and new opens are refused; `setEnabled`
+ * republishes the same list every consumer already follows.
  */
 import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
 import type { ComponentType } from 'react'
 import type { Context } from '@qilin/kylin'
 import type { IconProps } from '@qilin/client-ui-primitives'
 import { notifySubscribers } from '@qilin/client-store'
+import { readDisabledTabs, writeDisabledTabs } from './prefs.ts'
 // The POSIX build: the browser bundle must not reach for node's `path`, and
 // addresses are `/`-separated regardless of the host platform.
 import picomatch from 'picomatch/posix'
@@ -236,7 +243,9 @@ function matcherFor(pattern: string): (address: string) => boolean {
  * The registered tab types.
  *
  * Registration order is part of the contract: it breaks ties between types that
- * recognize an address equally well.
+ * recognize an address equally well. The user's switches over the types live
+ * here too, because they decide which types the guide offers and which ones may
+ * open — a switch republishes both cached lists.
  */
 export class SidebarRightTabRegistry {
   private readonly kinds = new Map<string, KindSlot>()
@@ -245,6 +254,8 @@ export class SidebarRightTabRegistry {
   private registrations = 0
   private cached: readonly SidebarRightTabDefinition[] = []
   private guideEntries: readonly SidebarRightGuideBox[] = []
+  /** The type ids the user turned off, as browser storage last held them. */
+  private readonly disabled = new Set<string>(readDisabledTabs())
 
   /** @param ctx - Context whose effects own the contributed types. */
   constructor(private readonly ctx: Context) {}
@@ -327,7 +338,9 @@ export class SidebarRightTabRegistry {
   }
 
   /**
-   * Registered types in registration order.
+   * Registered types in registration order, switched-off ones included: a tab
+   * already open under a type the user turned off keeps its body and title, and
+   * the settings page lists every type so it can be turned back on.
    * @returns reference-stable entries.
    */
   entries(): readonly SidebarRightTabDefinition[] {
@@ -336,14 +349,14 @@ export class SidebarRightTabRegistry {
 
   /**
    * Every type in force's guide entries, in `order`, each naming the kind it opens.
-   * @returns reference-stable entries.
+   * @returns reference-stable entries, without the switched-off types'.
    */
   guide(): readonly SidebarRightGuideBox[] {
     return this.guideEntries
   }
 
   /**
-   * The type in force for a kind.
+   * The type in force for a kind, switched off or not.
    * @param kind - the type discriminator.
    * @returns the type, or `undefined` when nothing registered it.
    */
@@ -352,16 +365,110 @@ export class SidebarRightTabRegistry {
   }
 
   /**
+   * The type in force for a kind, when the user still offers it.
+   *
+   * Rendering keeps reading {@link get}: a tab already open under a type the
+   * user then turns off keeps its body and title, and only new opens are refused.
+   * @param kind - the type discriminator.
+   * @returns the type in force.
+   * @throws when nothing registered the kind, or the user turned its type off.
+   */
+  requireOpenable(kind: string): SidebarRightTabDefinition {
+    const definition = this.get(kind)
+    if (definition === undefined) throw new Error(`sidebarRight: no tab type is registered as "${kind}"`)
+    if (!this.isEnabled(definition.id)) throw this.turnedOff(kind)
+    return definition
+  }
+
+  /**
+   * Whether the user still offers a type.
+   * @param id - a registration identity; an id nothing registered is offered.
+   * @returns `true` until the user turns it off.
+   */
+  isEnabled(id: string): boolean {
+    return !this.disabled.has(id)
+  }
+
+  /**
+   * Turn one type on or off, and republish the registry.
+   *
+   * The stored value is the switched-off ids alone, so a type shipped after this
+   * browser stored its switches arrives on. Storage that refuses the write leaves
+   * the switch in force for this page.
+   * @param id - the registration identity to switch.
+   * @param enabled - the turn the user gave.
+   */
+  setEnabled(id: string, enabled: boolean): void {
+    if (enabled) this.disabled.delete(id)
+    else this.disabled.add(id)
+    writeDisabledTabs([...this.disabled])
+    this.refresh()
+  }
+
+  /**
    * Every type that would open an address, best first.
    *
    * Ranked by priority band, then by the length of the pattern that matched,
-   * then by registration order. Types whose `canOpen` vetoes are absent.
+   * then by registration order. Types the user turned off and types whose
+   * `canOpen` vetoes are absent.
    * @param address - the address a caller wants opened.
-   * @returns the ranked types; empty when nothing recognizes the address.
+   * @returns the ranked types; empty when nothing offered recognizes the address.
    */
   candidates(address: string): readonly SidebarRightTabDefinition[] {
+    return this.rank(address, false)
+  }
+
+  /**
+   * Decide which type opens an address, and as what.
+   *
+   * Without `kind`, the best candidate wins. With `kind`, that type opens the
+   * address if its `canOpen` agrees — its globs are not consulted, because
+   * naming the type IS the decision.
+   *
+   * An address no offered type will open is a wiring mistake, not a user error,
+   * so this throws rather than reporting absence; a refusal caused by the user's
+   * own switch says so instead of blaming the address.
+   * @param address - the address a caller wants opened.
+   * @param kind - a type named by the caller, overriding the ranking.
+   * @returns the claiming type and the record to open.
+   */
+  claim(address: string, kind?: string): SidebarRightTabClaim {
+    if (kind !== undefined) {
+      const definition = this.requireOpenable(kind)
+      if (definition.canOpen !== undefined && !definition.canOpen(address)) {
+        throw new Error(`sidebarRight: tab type "${kind}" refuses "${address}"`)
+      }
+      return { kind, contentId: address, title: definition.title(address) }
+    }
+    const [chosen] = this.rank(address, false)
+    if (chosen !== undefined) return { kind: chosen.kind, contentId: address, title: chosen.title(address) }
+    // Nothing offered claims it: name the type the user turned off that would
+    // have, so the refusal reads as the switch it is.
+    const [blocked] = this.rank(address, true)
+    if (blocked !== undefined) throw this.turnedOff(blocked.kind)
+    throw new Error(`sidebarRight: no registered tab type claims "${address}"`)
+  }
+
+  /**
+   * Observe registry changes: a registration, and a switch the user gave.
+   * @param listener - synchronous invalidation callback.
+   * @returns unsubscribe callback.
+   */
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener)
+    return () => { this.listeners.delete(listener) }
+  }
+
+  /**
+   * Rank the types that accept an address.
+   * @param address - the address a caller wants opened.
+   * @param includeOff - keep the types the user turned off, so a refusal can name the one that would have opened it.
+   * @returns the ranked types, best first.
+   */
+  private rank(address: string, includeOff: boolean): SidebarRightTabDefinition[] {
     const ranked: Ranked[] = []
     for (const { definition, band, matchers, order } of this.active()) {
+      if (!includeOff && !this.isEnabled(definition.id)) continue
       let length = -1
       for (const matcher of matchers) {
         if (matcher.test(address) && matcher.pattern.length > length) length = matcher.pattern.length
@@ -375,50 +482,15 @@ export class SidebarRightTabRegistry {
     return ranked.map(entry => entry.definition)
   }
 
-  /**
-   * Decide which type opens an address, and as what.
-   *
-   * Without `kind`, the best candidate wins. With `kind`, that type opens the
-   * address if its `canOpen` agrees — its globs are not consulted, because
-   * naming the type IS the decision.
-   *
-   * An address no type will open is a wiring mistake, not a user error, so this
-   * throws rather than reporting absence.
-   * @param address - the address a caller wants opened.
-   * @param kind - a type named by the caller, overriding the ranking.
-   * @returns the claiming type and the record to open.
-   */
-  claim(address: string, kind?: string): SidebarRightTabClaim {
-    if (kind !== undefined) {
-      const definition = this.get(kind)
-      if (definition === undefined) {
-        throw new Error(`sidebarRight: no tab type is registered as "${kind}"`)
-      }
-      if (definition.canOpen !== undefined && !definition.canOpen(address)) {
-        throw new Error(`sidebarRight: tab type "${kind}" refuses "${address}"`)
-      }
-      return { kind, contentId: address, title: definition.title(address) }
-    }
-    const [chosen] = this.candidates(address)
-    if (chosen === undefined) {
-      throw new Error(`sidebarRight: no registered tab type claims "${address}"`)
-    }
-    return { kind: chosen.kind, contentId: address, title: chosen.title(address) }
-  }
-
-  /**
-   * Observe low-frequency registry changes.
-   * @param listener - synchronous invalidation callback.
-   * @returns unsubscribe callback.
-   */
-  subscribe(listener: () => void): () => void {
-    this.listeners.add(listener)
-    return () => { this.listeners.delete(listener) }
+  /** The refusal a switched-off type gets on a new open; the user's switch is the reason, so it is named. */
+  private turnedOff(kind: string): Error {
+    return new Error(`sidebarRight: tab type "${kind}" is turned off`)
   }
 
   private refresh(): void {
     this.cached = this.active().map(entry => entry.definition)
     this.guideEntries = this.cached
+      .filter(definition => this.isEnabled(definition.id))
       .flatMap(definition => (definition.guide ?? []).map(entry => ({ ...entry, kind: definition.kind, providerId: definition.id })))
       .sort((left, right) => left.order - right.order)
     notifySubscribers(this.listeners, '[ui-sidebar-right] tab registry')

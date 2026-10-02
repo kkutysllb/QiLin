@@ -201,15 +201,17 @@ export interface ISidebarRight {
    * `canOpen` accept the address and the best band wins; with it, that kind's
    * type in force opens the address (its `canOpen` still applies). An address
    * outside `qilin-resource://`, or one no type will open, is a wiring mistake,
-   * not a user error, so it throws. The column expands in the same step,
-   * because content the user cannot see is not opened.
+   * not a user error, so it throws; a type the user switched off in Settings
+   * refuses new opens and throws the same way. The column expands in the same
+   * step, because content the user cannot see is not opened.
    * @param address - a `qilin-resource://<type>/…` address.
    * @param options - placement, the opening type, and navigation parameters.
    */
   openResource(address: string, options?: SidebarRightOpenResourceOptions): void
   /**
    * Open a page type by kind: the type in force for it, at the address this
-   * package records pages under. A kind nothing registered throws.
+   * package records pages under. A kind nothing registered throws, and so does
+   * one the user switched off in Settings.
    * @param kind - the page type's kind.
    * @param options - placement and that kind's navigation parameters.
    */
@@ -394,15 +396,14 @@ export class SidebarRightController implements ISidebarRight {
     this.place(sessionId, actions, this.tabs.claim(address, options.kind), address, options, options.params)
   }
 
-  /** Place a page type in one session at the address pages are recorded under; an unregistered kind throws. */
+  /** Place a page type in one session at the address pages are recorded under; an unregistered or switched-off kind throws. */
   private placeTab<K extends string>(
     sessionId: SessionId,
     actions: SurfaceActions,
     kind: K,
     options: SidebarRightOpenTabOptions<K>,
   ): void {
-    const definition = this.tabs.get(kind)
-    if (definition === undefined) throw new Error(`sidebarRight: no tab type is registered as "${kind}"`)
+    const definition = this.tabs.requireOpenable(kind)
     const address = definition.multiple === true ? `${pageAddress(kind)}/${randomUUID()}` : pageAddress(kind)
     this.place(sessionId, actions, { kind, contentId: address, title: definition.title(address) }, address, options, options.params)
   }
