@@ -3,17 +3,29 @@
  * What the viewer does with a selection: the button it anchors, the payload it
  * would commit, and every selection it refuses to act on.
  *
- * jsdom's Selection cannot measure a range, so the probe is driven through a
- * stood-in `window.getSelection` returning a selection whose geometry is
- * stated by the spec; `linesOfSelection` and the fence are covered by their own
- * unit spec, and this one asserts the gesture and the payload it produces.
+ * jsdom's Selection cannot measure a range, so the document's own selection is
+ * shadowed on the members the gesture reads; `linesOfSelection` and the fence
+ * are covered by their own unit spec, and this one asserts the gesture and the
+ * payload it produces.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { TextPreview } from '../src/client/TextPreview.tsx'
 import { page, harness, settle } from './fixtures.client.ts'
 
-/** One stood-in selection: only the members the gesture reads. */
+/**
+ * The document's real selection probe, captured before any spec replaces it:
+ * the specs drive the gesture through a spy on `window.getSelection`, so the
+ * stood-in value must not come from that spy.
+ */
+const liveSelection = window.getSelection.bind(window)
+
+/**
+ * The document's selection with the members the mouse-up gesture reads
+ * shadowed on the instance, so the value stays a real `Selection`.
+ * @param options - the anchor, focus, text, collapse state, and range box the spec states.
+ * @returns the selection `window.getSelection` will answer with.
+ */
 function selection(options: {
   anchor: Node | null
   focus?: Node | null
@@ -22,17 +34,19 @@ function selection(options: {
   rect?: { left: number; top: number; width: number }
 }): Selection {
   const { anchor, focus = anchor, text = '', collapsed = false, rect } = options
-  // `Selection` is assignable to this literal's type (it carries every member),
-  // so the assertion narrows rather than crossing an unknown.
-  return {
-    isCollapsed: collapsed,
-    anchorNode: anchor,
-    focusNode: focus,
-    toString: () => text,
-    getRangeAt: () => ({
-      getBoundingClientRect: () => ({ left: rect?.left ?? 0, top: rect?.top ?? 0, width: rect?.width ?? 0 }),
-    }),
-  } as Selection
+  const live = liveSelection()
+  if (live === null) throw new Error('expected the document to carry a Selection')
+  const shadow = (name: string, value: unknown): void => {
+    Object.defineProperty(live, name, { value, configurable: true })
+  }
+  shadow('isCollapsed', collapsed)
+  shadow('anchorNode', anchor)
+  shadow('focusNode', focus)
+  shadow('toString', () => text)
+  shadow('getRangeAt', () => ({
+    getBoundingClientRect: () => ({ left: rect?.left ?? 0, top: rect?.top ?? 0, width: rect?.width ?? 0 }),
+  }))
+  return live
 }
 
 function body(container: HTMLElement): HTMLElement {
@@ -202,6 +216,7 @@ describe('TextPreview — selection to conversation', () => {
       static latest: FakeIntersectionObserver | undefined
       readonly root: Element | Document | null = null
       readonly rootMargin: string = ''
+      readonly scrollMargin: string = ''
       readonly thresholds: readonly number[] = []
       readonly disconnect = vi.fn<() => void>()
 

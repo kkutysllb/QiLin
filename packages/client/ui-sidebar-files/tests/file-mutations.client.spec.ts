@@ -102,7 +102,7 @@ describe('mutationFailureLine', () => {
   it('carries a filesystem pass-through failure\'s own message', () => {
     // A carrier code the tree does not name: the reader gets the transport's
     // own message rather than a wrong local label.
-    const failure = new RemoteError('gateway/internal', 'permission denied')
+    const failure = new RemoteError('gateway/internal', 'permission denied', {})
     expect(mutationFailureLine(t, failure)).toBe('操作失败：permission denied')
   })
 })
