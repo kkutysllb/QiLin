@@ -201,6 +201,7 @@ export function FileTree(props: {
     /* v8 ignore next -- the Menu fires onSelect only for a row of an open menu. */
     if (open === null) return
     close()
+    /* v8 ignore next -- the Menu fires onSelect only for a rendered row id, so no selection falls through both ids. */
     if (id === 'open') props.onOpen(open.path)
     else if (id === 'relative' || id === 'absolute') void writeClipboard(copyTextOf(props.state.root, open.path, id))
   }

@@ -19,6 +19,13 @@
  * Whole-file responses are bounded by `mediaLimitBytes` (default 20 MiB) so
  * a giant file never buffers into host memory; a ranged request reads only
  * its window and is therefore exempt from that cap.
+ *
+ * The exact route `PUT /sidebar/media/upload` receives one dragged upload
+ * from the files tab. Writes are the inverse of the read contract: the
+ * resolved target must stay inside the session workspace (403 otherwise),
+ * and the publication runs under an explicit `workspace-write` policy at that
+ * root so a sandboxing backend fences it too. The request body is bounded by
+ * `mediaLimitBytes` before any byte reaches the filesystem.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@qilin/kylin'
@@ -248,8 +255,15 @@ export function apply(ctx: Context, config: Config): void {
         if (live === undefined) throw new MediaError(404, `no session "${sessionId}"`)
         const root = live.header.cwd ?? ctx.sandboxPolicy.workspaceRoot
         const target = await ctx.fs.resolve(path, { cwd: root })
+        // Uploads publish inside the session workspace only: the resolved
+        // target must stay under the root, and the write runs under an
+        // explicit workspace-write policy at that root so a sandboxing backend
+        // fences the publication.
+        if (!ctx.fs.contains(await ctx.fs.resolve(root), target)) {
+          throw new MediaError(403, `"${path}" is outside the workspace`)
+        }
         const body = await readBody(req, mediaLimitBytes)
-        const outcome = await ctx.fs.writeBytes(target, body)
+        const outcome = await ctx.fs.writeBytes(target, body, undefined, undefined, { mode: 'workspace-write', workspaceRoot: root })
         res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' })
         res.end(JSON.stringify({ ok: true, path, version: outcome.version }))
       } catch (error) {

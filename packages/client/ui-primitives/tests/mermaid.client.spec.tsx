@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { sanitizeMermaidSvg } from '../src/markdown/mermaid.tsx'
 
@@ -27,18 +27,42 @@ describe('sanitizeMermaidSvg', () => {
 })
 
 describe('MermaidDiagram render integration', () => {
-  it('renders the fenced source through the markdown pipeline when the library rejects it', async () => {
-    const { MarkdownText } = await import('../src/markdown/MarkdownText.tsx')
+  const LABELS = {
+    code: { copyLabel: 'Copy', copiedLabel: 'Copied' },
+    mermaid: { diagramLabel: 'Mermaid diagram', enlargedLabel: 'Mermaid diagram (enlarged)' },
+    footnotes: undefined,
+  } as never
+
+  /** Render one mermaid fence against a fresh module registry carrying the given render mock. */
+  async function renderDiagram(mockRender: ReturnType<typeof vi.fn>) {
+    vi.resetModules()
     vi.doMock('mermaid', () => ({
-      default: {
-        initialize: vi.fn(),
-        render: vi.fn().mockRejectedValue(new Error('diagram syntax error')),
-      },
+      default: { initialize: vi.fn(), render: mockRender },
     }))
-    const view = render(<MarkdownText
-      text={'```mermaid\ngraph TD\n  broken[\n```'}
-      labels={{ code: { copyLabel: 'Copy', copiedLabel: 'Copied' }, mermaid: { diagramLabel: 'Mermaid diagram', enlargedLabel: 'Mermaid diagram (enlarged)' }, footnotes: undefined } as never}
+    const { MarkdownText } = await import('../src/markdown/MarkdownText.tsx')
+    return render(<MarkdownText
+      text={'```mermaid\ngraph TD\n  a --> b\n```'}
+      labels={LABELS}
     />)
+  }
+
+  it('renders the sanitized diagram and opens the zoom modal from pointer and keyboard', async () => {
+    const svg = '<svg viewBox="0 0 10 10"><rect width="4" height="4"/></svg>'
+    const view = await renderDiagram(vi.fn().mockResolvedValue({ svg }))
+    const stage = await view.findByRole('button', { name: 'Mermaid diagram' })
+    expect(stage.querySelector('rect')).toBeTruthy()
+    fireEvent.click(stage)
+    expect(view.getByRole('img', { name: 'Mermaid diagram (enlarged)' }).querySelector('rect')).toBeTruthy()
+    fireEvent.click(view.getByRole('img', { name: 'Mermaid diagram (enlarged)' }))
+    expect(view.getByRole('img', { name: 'Mermaid diagram (enlarged)' })).toBeTruthy()
+    fireEvent.click(view.getByRole('presentation'))
+    expect(view.queryByRole('img', { name: 'Mermaid diagram (enlarged)' })).toBeNull()
+    fireEvent.keyDown(view.getByRole('button', { name: 'Mermaid diagram' }), { key: 'Enter' })
+    expect(view.getByRole('img', { name: 'Mermaid diagram (enlarged)' })).toBeTruthy()
+  })
+
+  it('renders the fenced source through the markdown pipeline when the library rejects it', async () => {
+    const view = await renderDiagram(vi.fn().mockRejectedValue(new Error('diagram syntax error')))
     expect(await view.findByRole('alert')).toBeTruthy()
     expect(view.container.textContent).toContain('diagram syntax error')
   })

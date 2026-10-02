@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-documentpreview/README.md
 /:
-  en: 4e951e1a16a156cf
-  zh: 49a92f729c5f12ee
+  en: 61723a1508d644a3
+  zh: 634fa3444e04ceed
 /qilin-client-ui-sidebar-documentpreview:
   en: 7f134a73ec57776f
   zh: d03deead0ebff702
 /qilin-client-ui-sidebar-documentpreview/summary:
-  en: e53c6b2d5aa2c1a5
-  zh: 04898e8084c22e41
+  en: 696aafd0c39c6469
+  zh: b29ae74fa99ff2f2
 /qilin-client-ui-sidebar-documentpreview/table-of-contents:
   en: 0dd8c3a22e28aacf
   zh: c27c11bf4b5cceba
@@ -21,8 +21,8 @@
   en: 3b4b340123bf608e
   zh: 267427348f4b80e4
 /qilin-client-ui-sidebar-documentpreview/how-it-reads:
-  en: f47438f8a2b6a86d
-  zh: b415293e98d81414
+  en: cf48bf827db7a9b1
+  zh: b492d2f91835961e
 /qilin-client-ui-sidebar-documentpreview/excel-preview:
   en: 9588eca681e6d323
   zh: 4f990e58ed5272d7

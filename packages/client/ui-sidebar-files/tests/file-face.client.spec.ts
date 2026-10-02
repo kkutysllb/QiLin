@@ -56,7 +56,7 @@ describe('fileEditFace', () => {
     face.readFile(TAB, FILE, signal)
     expect(reads.fn).toHaveBeenCalledWith(SESSION, FILE.path, signal)
     expect(edit()).toMatchObject({ phase: { kind: 'reading' } })
-    await land(() => reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }))
+    await land(() =>{  reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }) })
     expect(edit()).toMatchObject({ phase: { kind: 'ready' }, text: 'one', version: 'v1' })
   })
 
@@ -65,7 +65,7 @@ describe('fileEditFace', () => {
     const signal = new AbortController().signal
     face.readFile(TAB, FILE, signal)
     const error = new RemoteError('workspace-file/not-text', 'NUL', { path: FILE.path })
-    await land(() => reads.calls[0]!.resolve({ ok: false, error }))
+    await land(() =>{  reads.calls[0]!.resolve({ ok: false, error }) })
     expect(edit()!.phase).toEqual({ kind: 'failed', failure: error })
   })
 
@@ -73,11 +73,11 @@ describe('fileEditFace', () => {
     const { face, reads, writes, edit } = mount()
     const signal = new AbortController().signal
     face.readFile(TAB, FILE, signal)
-    await land(() => reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }))
+    await land(() =>{  reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }) })
     face.saveFile(TAB, FILE, 'one!', { baseVersion: 'v1', force: false }, signal)
     expect(writes.fn).toHaveBeenCalledWith(SESSION, FILE.path, 'one!', { baseVersion: 'v1' }, signal)
     expect(edit()).toMatchObject({ saving: true })
-    await land(() => writes.calls[0]!.resolve({ ok: true, value: { absolutePath: '/a.ts', version: 'v2' } }))
+    await land(() =>{  writes.calls[0]!.resolve({ ok: true, value: { absolutePath: '/a.ts', version: 'v2' } }) })
     expect(edit()).toMatchObject({ saving: false, saveState: 'saved', text: 'one!', version: 'v2' })
   })
 
@@ -85,11 +85,11 @@ describe('fileEditFace', () => {
     const { face, reads, writes, edit } = mount()
     const signal = new AbortController().signal
     face.readFile(TAB, FILE, signal)
-    await land(() => reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }))
+    await land(() =>{  reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }) })
     face.saveFile(TAB, FILE, 'one!', { baseVersion: 'v1', force: true }, signal)
     expect(writes.calls[0]!.args[3]).toEqual({})
     const error = new RemoteError('workspace-file/stale', 'moved on', { path: FILE.path })
-    await land(() => writes.calls[0]!.resolve({ ok: false, error }))
+    await land(() =>{  writes.calls[0]!.resolve({ ok: false, error }) })
     expect(edit()).toMatchObject({ saveState: 'failed', conflict: true, text: 'one', version: 'v1' })
   })
 
@@ -99,7 +99,7 @@ describe('fileEditFace', () => {
     face.readFile(TAB, FILE, signal)
     face.saveFile(TAB, FILE, 'x', { baseVersion: '', force: true }, signal)
     const error = new RemoteError('workspace-file/too-large', 'cap', { path: FILE.path, limit: 1 })
-    await land(() => writes.calls[0]!.resolve({ ok: false, error }))
+    await land(() =>{  writes.calls[0]!.resolve({ ok: false, error }) })
     expect(edit()).toMatchObject({ saveState: 'failed', conflict: false })
   })
 
@@ -118,13 +118,13 @@ describe('fileEditFace', () => {
     const { face, reads, writes, edit } = mount()
     const signal = new AbortController().signal
     face.readFile(TAB, FILE, signal)
-    await land(() => reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }))
+    await land(() =>{  reads.calls[0]!.resolve({ ok: true, value: { text: 'one', version: 'v1' } }) })
     face.saveFile(TAB, FILE, 'first', { baseVersion: 'v1', force: false }, signal)
     face.saveFile(TAB, FILE, 'second', { baseVersion: 'v1', force: false }, signal)
     expect(writes.calls.length).toBe(2)
-    await land(() => writes.calls[1]!.resolve({ ok: true, value: { absolutePath: '/a.ts', version: 'v3' } }))
+    await land(() =>{  writes.calls[1]!.resolve({ ok: true, value: { absolutePath: '/a.ts', version: 'v3' } }) })
     expect(edit()).toMatchObject({ saveState: 'saved', text: 'second', version: 'v3' })
-    await land(() => writes.calls[0]!.resolve({ ok: true, value: { absolutePath: '/a.ts', version: 'v2' } }))
+    await land(() =>{  writes.calls[0]!.resolve({ ok: true, value: { absolutePath: '/a.ts', version: 'v2' } }) })
     // The retired save lands afterwards and changes nothing.
     expect(edit()).toMatchObject({ saveState: 'saved', text: 'second', version: 'v3' })
   })
@@ -135,9 +135,9 @@ describe('fileEditFace', () => {
     face.readFile(TAB, FILE, signal)
     face.readFile(TAB, FILE, signal)
     expect(reads.calls.length).toBe(2)
-    await land(() => reads.calls[1]!.resolve({ ok: true, value: { text: 'newest', version: 'v2' } }))
+    await land(() =>{  reads.calls[1]!.resolve({ ok: true, value: { text: 'newest', version: 'v2' } }) })
     expect(edit()).toMatchObject({ text: 'newest' })
-    await land(() => reads.calls[0]!.resolve({ ok: true, value: { text: 'oldest', version: 'v1' } }))
+    await land(() =>{  reads.calls[0]!.resolve({ ok: true, value: { text: 'oldest', version: 'v1' } }) })
     expect(edit()).toMatchObject({ text: 'newest', version: 'v2' })
   })
 })

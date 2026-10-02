@@ -122,7 +122,7 @@ function harness(cwd: string | null, initialParams: Record<string, unknown> | un
  * @param cwd - the session's working directory as `useSessions` reports it; `null` for a session without one.
  * @param initialParams - the params the opening navigation carried.
  */
-export function mountFileBody(cwd: string | null = ROOT, initialParams: Record<string, unknown> | undefined = undefined): MountedFile {
+export function mountFileBody(cwd: string | null = ROOT, initialParams?: Record<string, unknown> | undefined): MountedFile {
   const { shared, navigation, ...hands } = harness(cwd, initialParams)
   const element = <FileBody {...shared as unknown as FileBodyProps} />
   const view = render(element)

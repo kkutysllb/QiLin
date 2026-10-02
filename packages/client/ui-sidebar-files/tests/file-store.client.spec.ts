@@ -30,7 +30,7 @@ describe('file edit store', () => {
 
   it('refuses writes before the first read', () => {
     const { actions } = mounted()
-    expect(() => actions.editDraft(TAB, 'x')).toThrow('no editor for tab "tab-f"')
+    expect(() =>{  actions.editDraft(TAB, 'x') }).toThrow('no editor for tab "tab-f"')
   })
 
   it('a load becomes the clean content and remounts the surface', () => {
