@@ -31,7 +31,6 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-workspace-git",
         "@qilin/client-ui-sidebar-right",
         "@qilin/api-remotes"
       ],

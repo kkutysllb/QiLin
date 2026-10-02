@@ -23,10 +23,11 @@ import type { CardFieldState, CardShell } from '../src/client/card-form.ts'
 import type { WebSearchCardState } from '../src/client/web-search-card-controller.ts'
 import type { SubagentModelSelectionCardState } from '../src/client/subagent-model-selection-card-controller.ts'
 import { en } from '../src/client/locales.ts'
+import { makeTranslate } from '@qilin/client-test-runtime'
 
 afterEach(cleanup)
 
-const t = (key: keyof typeof en) => en[key]
+const t = makeTranslate(en)
 
 const settled: CardShell = {
   available: true,
@@ -205,8 +206,8 @@ function renderGitCard(state: Partial<GitCardState> = {}, view: ConfigView = 'pa
     ...state,
   })
   const actions = cardActions()
-  const props = { ...actions, view, t, useGitCard: bindSnapshotSelector(store) } as unknown as GitCardProps
-  render(<GitCard {...props} />)
+  const props: Partial<GitCardProps> = { ...actions, view, t, useGitCard: bindSnapshotSelector(store) }
+  render(<GitCard {...(props as GitCardProps)} />)
   return { actions, store }
 }
 

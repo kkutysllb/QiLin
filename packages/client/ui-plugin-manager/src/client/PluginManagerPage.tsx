@@ -170,7 +170,7 @@ function RowsSection({ rows, t, toggle, configure }: {
         ? (
           <Input
             type="search"
-            className={css.partsFilter as string}
+            className={css.partsFilter}
             placeholder={t('partsFilter')}
             aria-label={t('partsFilter')}
             value={filter}
@@ -1059,7 +1059,7 @@ function CatalogPanel({ catalog, t, busy, onSearch, onMore, onInstall }: {
       <form className={css.catalogSearch} onSubmit={(event) => { event.preventDefault(); onSearch(query) }}>
         <Input
           type="search"
-          className={css.catalogField as string}
+          className={css.catalogField}
           icon={<IconSearchOutline16 size={14} />}
           placeholder={t('catalogSearchPlaceholder')}
           aria-label={t('catalogSearchLabel')}

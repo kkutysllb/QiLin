@@ -130,8 +130,7 @@
     "971ec45a1146ab52f2fb13f75b782d5d35c0fb2ddba1fb9ccab14cc54f7291d5": 1,
     "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 1,
     "c81c76a591071c793e11fbe74421c4a2d4660510d064e5dec3d996589dd4beeb": 1,
-    "c9da2bbd63d402c70f1ef8ac2bc892a22ad9fda0222c548916ee3399b2642ba4": 1,
-    "cd4b4819f9c8d89ac630ce68e39d2420db4cfaa8449aacb417eef99b8811118a": 1
+    "c9da2bbd63d402c70f1ef8ac2bc892a22ad9fda0222c548916ee3399b2642ba4": 1
   },
   "packages/api/gateway/tests/gateway.client.spec.ts": {
     "2066ad746457f15b6737d62124c4ec81f2140fc3fa425187eac8e3b1c3b6ab0b": 2,
@@ -861,12 +860,6 @@
   "packages/client/ui-sidebar-right/src/client/persistence.ts": {
     "58c93ff6942e5ed7b892ff2e537c4304dbf2d7366e55b5c08559452c9a25bbd8": 1
   },
-  "packages/client/ui-sidebar-right/tests/expand-button.client.spec.tsx": {
-    "0f8ea23b013318ec4b8d64e4ae2bd9d54a57b7a7d4be5b88ed0eb332ee42e76c": 1
-  },
-  "packages/client/ui-sidebar-right/tests/guide-body.client.spec.tsx": {
-    "8ba56a6ed5e4e5fa21ddca80c6bcd30e7c7f2117b8949e4175e3723e66c9d8ed": 1
-  },
   "packages/client/ui-sidebar-right/tests/seat.client.spec.tsx": {
     "1e3017afba65017e855900ad51f65999e712b08beb1b33bfe996d3cdb137a105": 1
   },
@@ -915,9 +908,6 @@
   },
   "packages/client/ui-theme/tests/theme.client.spec.ts": {
     "6adc289cf963470891b9b4aea9e09db4c98d96d09a245bf41bf679f8f608ba49": 1
-  },
-  "packages/client/ui-tool/tests/ask-question-row.client.spec.tsx": {
-    "e4eaea47d81a304fffd298b9dde59b9846a150e7a18b0cad6403bc541b70d08a": 1
   },
   "packages/client/ui-tool/tests/coverage-tails.client.spec.tsx": {
     "89928b6d47434837e0ff1afc56684d1138d649bd9affb7d7f63fda485cd84b57": 1
@@ -994,9 +984,6 @@
   "packages/client/ui-trajectory/tests/table.client.spec.tsx": {
     "8230c12479e8aa0eb39efd18be824c802edff5965e6e4f062089753e65f2e7cf": 1,
     "bfc698b45e3bff20b13dd4dc94cca8df3902a5d534fc57e80306ad2c9e96e4b7": 1
-  },
-  "packages/client/ui-trajectory/tests/trajectory-graph-view.client.spec.tsx": {
-    "6916f9344e7c7045ed306925a673be26b5a5330f653084b24a9fb4fbe8b2cfe1": 1
   },
   "packages/client/ui-trajectory/tests/trajectory-graph.client.spec.ts": {
     "127b38e07247d02b2c42fb69a432c580f6882034f8734cdc884c936333c57041": 1,
@@ -1621,7 +1608,6 @@
     "cd55dfd79782673acc8e721a1c75604072132b4bc9172aeeb7606281c1457120": 1
   },
   "packages/interaction/tool-ask-user/tests/tool-ask-user.spec.ts": {
-    "60655aea47d3d8667f90341b58e3faaf64d12670b9592af837aa40ecf7b83583": 1,
     "d423bbcd1caff7aab2e2de52564efbc9061e775620a530157805a43d851c6fe9": 1
   },
   "packages/interaction/user-approval/tests/approval.spec.ts": {

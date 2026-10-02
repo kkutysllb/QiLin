@@ -12,7 +12,7 @@ import { vi } from 'vitest'
 import type { Mock } from 'vitest'
 import { makeTranslate } from '@qilin/client-test-runtime'
 import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { PaneId, TabId } from '@qilin/client-ui-dockkit'
 import type { SidebarRightTabActions } from '@qilin/client-ui-sidebar-right/client'
 import { createGitReader, gitFace } from '../src/client/face.ts'
 import type { GitInjected } from '../src/client/face.ts'
@@ -38,6 +38,7 @@ type GitStoreInstance = ReturnType<ReturnType<typeof createGitStore>['create']>
 
 /** The owner's tab actions as recording mocks. */
 interface MockedTabActions {
+  readonly bindCommands: Mock<SidebarRightTabActions['bindCommands']>
   readonly openResource: Mock<SidebarRightTabActions['openResource']>
   readonly openTab: Mock<SidebarRightTabActions['openTab']>
   readonly close: Mock<SidebarRightTabActions['close']>
@@ -74,15 +75,16 @@ export function mountBody(options: MountOptions = {}): Mounted {
   const controller = new AbortController()
   if (aborted) controller.abort()
   const tabActions: MockedTabActions = {
+    bindCommands: vi.fn<SidebarRightTabActions['bindCommands']>(),
     openResource: vi.fn<SidebarRightTabActions['openResource']>(),
     openTab: vi.fn<SidebarRightTabActions['openTab']>(),
     close: vi.fn<SidebarRightTabActions['close']>(),
   }
-  const shared = {
+  const shared: Partial<GitBodyProps> = {
     // A page tab's address is the shell's to mint; the body never reads it.
     useTabInfo: () => ({
       sidebar: { expanded: true, fullscreen: false },
-      panel: { id: 'pane-1' },
+      panel: { id: 'pane-1' as PaneId },
       tab: {
         id: TAB, kind: 'git', contentId: 'git', title: zh['type.label'], visible: true,
         navigation: { address: 'git', params: undefined, revision: 1 },
@@ -96,6 +98,6 @@ export function mountBody(options: MountOptions = {}): Mounted {
     ...face,
     t: makeTranslate(zh),
   }
-  const view = render(<GitBody {...shared as unknown as GitBodyProps} />)
+  const view = render(<GitBody {...(shared as GitBodyProps)} />)
   return { view, instance, script, face, controller, tabActions }
 }
