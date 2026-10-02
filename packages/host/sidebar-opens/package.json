@@ -1,7 +1,7 @@
 {
   "name": "@qilin/sidebar-opens",
   "description": "Model-facing requests to open a file or an http(s) page in the Session's Sidebar",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "publishConfig": {
     "access": "public"
   },
