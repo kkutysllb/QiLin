@@ -28,3 +28,8 @@
       config:
         freshProvider: spawn
         forkProvider: fork
+
+    # The browser half of the same feature: without it the roster and task board
+    # the rows above enable have no right-Sidebar Team page to appear in.
+    - id: client-ui-agent-team
+      name: '@qilin/experimental-client-ui-agent-team'

@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@qilin/experimental-agent-team": "workspace:*",
+    "@qilin/experimental-client-ui-agent-team": "workspace:*",
     "@qilin/experimental-tool-agent-team": "workspace:*"
   },
   "peerDependencies": {

@@ -20,8 +20,9 @@ describe('Agent Teams profile bundle', () => {
     expect(manifest.publishConfig?.access).toBe('public')
     expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(manifest.dependencies).toMatchObject({
-      '@qilin/experimental-agent-team': 'workspace:^',
-      '@qilin/experimental-tool-agent-team': 'workspace:^',
+      '@qilin/experimental-agent-team': 'workspace:*',
+      '@qilin/experimental-client-ui-agent-team': 'workspace:*',
+      '@qilin/experimental-tool-agent-team': 'workspace:*',
     })
 
     const parsed = yaml.load(
@@ -47,6 +48,11 @@ describe('Agent Teams profile bundle', () => {
     expect(inserted.find(entry => entry.id === 'tool-agent-team')).toMatchObject({
       name: '@qilin/experimental-tool-agent-team',
       config: { freshProvider: 'spawn', forkProvider: 'fork' },
+    })
+    // The Team page travels with the capability: the browser half must be in
+    // this layer, because no other layer names it.
+    expect(inserted.find(entry => entry.id === 'client-ui-agent-team')).toMatchObject({
+      name: '@qilin/experimental-client-ui-agent-team',
     })
   })
 })

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-experimental-agent-team-profile` is a published experimental profile layer that enables [Agent Teams](../agent-team/README.md) over `@qilin/base`. Its patch inserts the Team domain and Team-scoped tools and disables ordinary subagent delegation and the overlapping global continuable-child controls. Workflow remains available with fresh children. The qilin installation ships it as an optional bundle that no shipped profile enables; switch it on from the Web sidebar's Plugins page, or add it explicitly to an initialized profile.
+`qilin-experimental-agent-team-profile` is a published experimental profile layer that enables [Agent Teams](../agent-team/README.md) over `@qilin/base`. Its patch inserts the Team domain, the Team-scoped tools, and the browser half that draws the Team page in the right Sidebar, and disables ordinary subagent delegation and the overlapping global continuable-child controls. Workflow remains available with fresh children. The qilin installation ships it as an optional bundle that no shipped profile enables; switch it on from the Web sidebar's Plugins page, or add it explicitly to an initialized profile.
 
 ## Table of Contents
 
@@ -38,7 +38,7 @@ The profile must already contain `@qilin/base`, whose Subagent services and prov
 
 ### What you get
 
-The layer adds the Agent Teams domain and its scoped creation, roster, messaging, interruption, waiting, and task-board tools. Direct delegation uses `spawn_teammate`, which supports fresh and fork context. The `subagent` and `subagent_fork` tools and overlapping global child controls are disabled. Workflow retains the base profile’s `spawn` provider, while the underlying Subagent services and both providers remain available to teammates and workflow.
+The layer adds the Agent Teams domain and its scoped creation, roster, messaging, interruption, waiting, and task-board tools, plus the right-Sidebar Team page that renders the roster and task board. Direct delegation uses `spawn_teammate`, which supports fresh and fork context. The `subagent` and `subagent_fork` tools and overlapping global child controls are disabled. Workflow retains the base profile’s `spawn` provider, while the underlying Subagent services and both providers remain available to teammates and workflow.
 
 -----
 
@@ -48,7 +48,7 @@ The layer adds the Agent Teams domain and its scoped creation, roster, messaging
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package's runtime content is [`cordis.patch.yml`](cordis.patch.yml). Applied after `qilin-base`, the patch disables `tool-subagent-control`, `tool-subagent-list-agents`, `tool-subagent`, and `tool-subagent-fork`, and inserts the Team service and tool rows with explicit providers and limits.
+The package's runtime content is [`cordis.patch.yml`](cordis.patch.yml). Applied after `qilin-base`, the patch disables `tool-subagent-control`, `tool-subagent-list-agents`, `tool-subagent`, and `tool-subagent-fork`, and inserts the Team service and tool rows with explicit providers and limits, together with the browser half ([`@qilin/experimental-client-ui-agent-team`](../client-ui-agent-team/README.md)) that registers the Team page.
 
 | File | Role |
 |---|---|

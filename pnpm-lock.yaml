@@ -7141,6 +7141,9 @@ importers:
       '@qilin/experimental-agent-team':
         specifier: workspace:*
         version: link:../agent-team
+      '@qilin/experimental-client-ui-agent-team':
+        specifier: workspace:*
+        version: link:../client-ui-agent-team
       '@qilin/experimental-tool-agent-team':
         specifier: workspace:*
         version: link:../tool-agent-team

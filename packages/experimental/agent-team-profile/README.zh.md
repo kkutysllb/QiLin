@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-`qilin-experimental-agent-team-profile` 是在 `@qilin/base` 之上启用 [Agent Teams](../agent-team/README.zh.md) 的公开实验性 profile 层。它的 patch 会插入 Team domain 与 Team-scoped 工具，并禁用普通 subagent 委派和名称重叠的全局 continuable-child control。Workflow 仍可创建 fresh 子代理。qilin 安装随附本包作为可选组合包，随附 profile 都不会启用它；可在 Web 侧栏的插件页开启，或显式添加到已初始化的 profile。
+`qilin-experimental-agent-team-profile` 是在 `@qilin/base` 之上启用 [Agent Teams](../agent-team/README.zh.md) 的公开实验性 profile 层。它的 patch 会插入 Team domain、Team-scoped 工具，以及绘制右侧栏团队页的浏览器半，并禁用普通 subagent 委派和名称重叠的全局 continuable-child control。Workflow 仍可创建 fresh 子代理。qilin 安装随附本包作为可选组合包，随附 profile 都不会启用它；可在 Web 侧栏的插件页开启，或显式添加到已初始化的 profile。
 
 ## 目录
 
@@ -38,7 +38,7 @@ profile 必须已经包含 `@qilin/base`，本层会使用其中的 Subagent 服
 
 ### 获得的功能
 
-本层会添加 Agent Teams domain，以及 Team-scoped 创建、roster、消息、interrupt、等待与任务板工具。直接委派使用支持 fresh 和 fork 上下文的 `spawn_teammate`。`subagent`、`subagent_fork` 工具和名称重叠的全局 child control 均被禁用。Workflow 保留 base profile 的 `spawn` 提供方，底层 Subagent 服务和两个提供方仍供 teammate 与 workflow 使用。
+本层会添加 Agent Teams domain，以及 Team-scoped 创建、roster、消息、interrupt、等待与任务板工具，并添加渲染 roster 与任务板的右侧栏团队页。直接委派使用支持 fresh 和 fork 上下文的 `spawn_teammate`。`subagent`、`subagent_fork` 工具和名称重叠的全局 child control 均被禁用。Workflow 保留 base profile 的 `spawn` 提供方，底层 Subagent 服务和两个提供方仍供 teammate 与 workflow 使用。
 
 -----
 
@@ -48,7 +48,7 @@ profile 必须已经包含 `@qilin/base`，本层会使用其中的 Subagent 服
 <details>
 <summary>实现细节——点击展开</summary>
 
-本包的运行时内容是 [`cordis.patch.yml`](cordis.patch.yml)。在 `qilin-base` 之后应用时，patch 会禁用 `tool-subagent-control`、`tool-subagent-list-agents`、`tool-subagent` 和 `tool-subagent-fork`，并以显式 provider 和限制插入 Team 服务与工具行。
+本包的运行时内容是 [`cordis.patch.yml`](cordis.patch.yml)。在 `qilin-base` 之后应用时，patch 会禁用 `tool-subagent-control`、`tool-subagent-list-agents`、`tool-subagent` 和 `tool-subagent-fork`，并以显式 provider 和限制插入 Team 服务与工具行，同时插入注册团队页的浏览器半（[`@qilin/experimental-client-ui-agent-team`](../client-ui-agent-team/README.zh.md)）。
 
 | 文件 | 职责 |
 |---|---|
