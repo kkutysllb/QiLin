@@ -76,6 +76,11 @@ export function apply(ctx: Context): void {
   const t = ctx.locale.bind(NS)
   const duration = createTrajectoryDurationStore()
   const stringWrapping = createTrajectoryStringWrappingStore()
+  /** The session-authorized image URL reader both tab bodies hand to their attachment rows. */
+  const imageLoader = (sessionId: SessionId) => Object.assign(
+    (attachment: ImageAttachmentRef) => ctx.uiConversation.imageUrl(sessionId, attachment),
+    { peek: (attachment: ImageAttachmentRef) => ctx.uiConversation.peekImageUrl(sessionId, attachment) },
+  )
   registerTrajectoryMessageDefinitions(ctx)
   registerTrajectoryRequestHeaderDefinition(ctx)
   registerTrajectoryAssistantDefinition(ctx)
@@ -118,10 +123,7 @@ export function apply(ctx: Context): void {
           await session.loadOlder()
           return trajectory.getSnapshot() !== before
         },
-        loadImage: Object.assign(
-          (attachment: ImageAttachmentRef) => ctx.uiConversation.imageUrl(sessionId, attachment),
-          { peek: (attachment: ImageAttachmentRef) => ctx.uiConversation.peekImageUrl(sessionId, attachment) },
-        ),
+        loadImage: imageLoader(sessionId),
         setActualDuration: (value) => { duration.set(value) },
       }
     },
@@ -130,5 +132,6 @@ export function apply(ctx: Context): void {
     name: 'sidebar.right.pane.tab',
     key: TRAJECTORY_GRAPH_ID,
     locale: NS,
+    inject: (sessionId: SessionId) => ({ loadImage: imageLoader(sessionId) }),
   }, TrajectoryGraphView)), 'ui-trajectory: graph tab body')
 }

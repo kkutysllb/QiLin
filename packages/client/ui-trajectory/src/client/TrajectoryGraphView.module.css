@@ -230,9 +230,35 @@
   animation: qilin-trajectory-graph-pulse 1.4s ease-in-out infinite;
 }
 
-.nodeSelected .nodeRect {
+.nodeHot .nodeRect {
   stroke: var(--dsw-alias-brand-primary);
   stroke-width: 1.6;
+}
+
+/* Records the replay cursor has not reached yet, or that an active search
+   query filtered out, fade without disappearing (their edges stay routable). */
+.nodeDim {
+  opacity: 0.28;
+}
+
+/* Per-kind count pills, tucked into the chip's top-right corner. */
+.nodeCountImg {
+  fill: var(--dsw-alias-state-warn-primary);
+}
+
+.nodeCountFile {
+  fill: var(--dsw-alias-label-tertiary);
+}
+
+.nodeCountText {
+  fill: var(--dsw-alias-bg-layer-1);
+  font-size: 7.5px;
+  font-weight: 600;
+}
+
+/* The replay packet riding the hop's real edge path. */
+.packetHot {
+  fill: var(--dsw-alias-brand-primary);
 }
 
 .liveDot {
@@ -260,6 +286,14 @@
 @keyframes qilin-trajectory-graph-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edgeLive,
+  .nodeLive .nodeRect,
+  .liveDot {
+    animation: none;
+  }
 }
 
 .note {
@@ -338,4 +372,262 @@
   color: var(--dsw-alias-label-secondary);
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* Text glyphs (zoom −/+) share the icon buttons' optical size. */
+.glyph {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.canvasDragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Invisible wide twin of each edge: the hover target that lights the kind. */
+.edgeHit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 9;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.edgeDim {
+  opacity: 0.2;
+}
+
+.edgeHot {
+  stroke-width: 2.2;
+}
+
+.edgeKindHot {
+  stroke-width: 2.2;
+  opacity: 1;
+}
+
+/* Edge-kind legend chips: hover highlights, click pins. */
+.legendEdge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.legendEdge:hover {
+  color: var(--dsw-alias-label-primary);
+}
+
+.legendEdge[aria-pressed='true'] {
+  color: var(--dsw-alias-label-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legendEdgeDot {
+  width: 10px;
+  height: 2.5px;
+  border-radius: 1px;
+  background: var(--dsw-alias-border-l3);
+}
+
+.legendEdgeDot[data-kind='prompt'] {
+  background: var(--dsw-alias-label-tertiary);
+}
+
+.legendEdgeDot[data-kind='result'] {
+  background: var(--dsw-alias-brand-primary);
+}
+
+.legendEdgeDot[data-kind='dispatch'] {
+  background: var(--dsw-alias-state-business-primary);
+}
+
+.legendEdgeDot[data-kind='subcall'] {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--dsw-alias-label-secondary) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.legendEdgeDot[data-kind='loop'] {
+  background: var(--dsw-alias-state-warn-primary);
+}
+
+.legendEdgeHint {
+  color: var(--dsw-alias-label-dimmed);
+}
+
+/* Record search: same quiet field the ledger toolbar wears. */
+.search {
+  flex: 0 1 150px;
+  min-width: 76px;
+  height: 22px;
+  padding: 0 6px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: 4px;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-2);
+  font: var(--dsw-font-xxxs-11);
+}
+
+.search::placeholder {
+  color: var(--dsw-alias-label-caption);
+}
+
+.search:focus {
+  border-color: var(--dsw-alias-state-business-primary);
+  outline: none;
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+.searchCount {
+  flex: none;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-secondary);
+  white-space: nowrap;
+}
+
+.searchNone {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+/* Inspector attachment rows: thumbnail (images, via the authorized loader)
+   or icon (files and failed reads), then the display name and metadata line. */
+.attachments {
+  margin-top: 6px;
+}
+
+.attachment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.attachmentIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  color: var(--dsw-alias-label-tertiary);
+  background: var(--dsw-alias-bg-layer-3);
+}
+
+.attachmentThumb {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--dsw-alias-bg-layer-3);
+  cursor: zoom-in;
+}
+
+.attachmentThumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.attachmentText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.attachmentName {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachmentMeta {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inspectorMarkdown {
+  margin-top: 6px;
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-secondary);
+}
+
+/* Structured tool-call inspector. */
+.toolBody {
+  margin-top: 6px;
+}
+
+.toolHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolName {
+  font-size: var(--dsw-font-xxs-strong-12-font-size);
+  color: var(--dsw-alias-label-primary);
+}
+
+.toolCallId {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+  word-break: break-all;
+}
+
+.toolError {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.toolPending {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.toolArgs {
+  margin-top: 4px;
+}
+
+.toolArgs summary {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+  cursor: pointer;
+}
+
+.toolResult {
+  margin-top: 4px;
+}
+
+.toolResultLabel {
+  font-size: var(--dsw-font-xxxs-11-font-size);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.toolResult .inspectorBody[data-error='true'] {
+  color: var(--dsw-alias-state-error-primary);
 }

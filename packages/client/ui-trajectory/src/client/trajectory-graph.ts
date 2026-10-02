@@ -24,6 +24,7 @@ import type {
   AssistantBlock, ConversationNode, ModelRetryNode, RequestView, RunningToolCall,
   ToolCallBlock,
 } from '@qilin/client-ui-conversation/client'
+import type { ImageAttachmentRef, FileAttachmentRef, ImageMediaType } from '@qilin/attachment'
 import type { ContentBlock } from '@qilin/llm/types'
 import type { TrajectoryKey, TrajectoryTranslate } from './locales.ts'
 import type { TrajectorySnapshot } from './trajectory-contract.ts'
@@ -81,6 +82,37 @@ export interface TrajectoryTokens {
   reasoning?: number
 }
 
+/** One recorded attachment carried by a record's content or assistant blocks. */
+export interface TrajectoryAttachment {
+  readonly kind: 'image' | 'file'
+  /** Opaque storage id; never a filesystem path. */
+  readonly attachmentId: string
+  /** Recorded display name; images may be unnamed. */
+  readonly name?: string
+  /** Exact encoded byte length, when the reference carries it. */
+  readonly bytes?: number
+  /** Verified media type, when the reference carries one. */
+  readonly mediaType?: ImageMediaType
+  /** Intrinsic pixel dimensions, for images that report them. */
+  readonly width?: number
+  readonly height?: number
+  /** An image-offload decision replaced the bytes with placeholder text. */
+  readonly offloaded?: boolean
+}
+
+/** Structured tool-call facts the inspector renders for tool-lane records. */
+export interface TrajectoryToolDetail {
+  readonly name: string
+  /** Provider call id, when the record names one. */
+  readonly callId?: string
+  /** Raw JSON arguments, when the call captured any. */
+  readonly argsRaw?: string
+  /** Whether the call settled in error. */
+  readonly isError?: boolean
+  /** Settled result text, verbatim; absent while the call is unsettled. */
+  readonly resultText?: string
+}
+
 /** One graph node: one record of the ledger. */
 export interface TrajectoryGraphNode {
   /** Stable identity: `req:<startSeq>`, `ev:<kind>:<seq>`, or `call:<callId>`. */
@@ -102,10 +134,10 @@ export interface TrajectoryGraphNode {
   readonly badge?: string
   /** Free-form inspector body that is neither arguments nor result. */
   readonly detail?: string
-  /** Captured tool arguments, verbatim. */
-  readonly args?: string
-  /** Captured tool result text, verbatim. */
-  readonly result?: string
+  /** Ordered attachments carried by the record's content or assistant blocks. */
+  readonly attachments?: readonly TrajectoryAttachment[]
+  /** Structured tool-call facts, present on tool-lane records. */
+  readonly toolDetail?: TrajectoryToolDetail
   readonly tokens?: TrajectoryTokens
   /** Wall time between the record's start and completion, when both are recorded. */
   readonly durationMs?: number
@@ -256,6 +288,65 @@ function toolCallBlocks(blocks: readonly AssistantBlock[]): readonly {
   return calls
 }
 
+/** One attachment from a user-content image block, with its offload marker. */
+function attachmentOfImage(attachment: ImageAttachmentRef, offloaded: boolean): TrajectoryAttachment {
+  return {
+    kind: 'image',
+    attachmentId: attachment.attachmentId,
+    ...(attachment.name === undefined ? {} : { name: attachment.name }),
+    bytes: attachment.bytes,
+    mediaType: attachment.mediaType,
+    width: attachment.width,
+    height: attachment.height,
+    ...(offloaded ? { offloaded: true } : {}),
+  }
+}
+
+/** Every image and file reference one user-content block list carries, in block order. */
+function attachmentsOfContent(content: readonly ContentBlock[]): TrajectoryAttachment[] {
+  const attachments: TrajectoryAttachment[] = []
+  for (const block of content) {
+    if (block.type === 'image') {
+      attachments.push(attachmentOfImage(block.attachment, block.offloaded === true))
+    } else if (block.type === 'file') {
+      const file: FileAttachmentRef = block.attachment
+      attachments.push({
+        kind: 'file',
+        attachmentId: file.attachmentId,
+        name: file.name,
+        bytes: file.bytes,
+      })
+    }
+  }
+  return attachments
+}
+
+/** Every image reference one assistant block list carries, in block order. */
+function attachmentsOfBlocks(blocks: readonly AssistantBlock[]): TrajectoryAttachment[] {
+  const attachments: TrajectoryAttachment[] = []
+  for (const block of blocks) {
+    if (block.kind === 'image') attachments.push(attachmentOfImage(block.attachment, false))
+  }
+  return attachments
+}
+
+/** The tool-call facts one settled call head reports. */
+function toolDetailOfCall(
+  name: string,
+  callId: string,
+  argsRaw: string | undefined,
+  isError: boolean,
+  resultText: string | undefined,
+): TrajectoryToolDetail {
+  return {
+    name,
+    ...(callId === '' ? {} : { callId }),
+    ...(argsRaw === undefined || argsRaw === '' ? {} : { argsRaw }),
+    ...(isError ? { isError: true } : {}),
+    ...(resultText === undefined || resultText === '' ? {} : { resultText }),
+  }
+}
+
 /** The short tail a call id is displayed by. */
 function callTail(callId: string): string {
   return callId.length > 10 ? callId.slice(-6) : callId
@@ -298,8 +389,8 @@ interface DescribedNode {
   label: string
   badge?: string
   detail?: string
-  args?: string
-  result?: string
+  attachments?: readonly TrajectoryAttachment[]
+  toolDetail?: TrajectoryToolDetail
   tokens?: TrajectoryTokens
   durationMs?: number
   opensTurn?: boolean
@@ -315,27 +406,32 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
   switch (node.kind) {
     case 'user': {
       const text = contentText(node.content, 4000)
+      const attachments = attachmentsOfContent(node.content)
       return {
         kind: 'user',
         lane: 'input',
         status: 'idle',
         label: chipLabel(text, t('graph.node.user')),
         ...(text === '' ? {} : { detail: text }),
+        ...(attachments.length === 0 ? {} : { attachments }),
         opensTurn: true,
       }
     }
     case 'steering': {
       const text = contentText(node.content, 4000)
+      const attachments = attachmentsOfContent(node.content)
       return {
         kind: 'steering',
         lane: 'input',
         status: 'idle',
         label: chipLabel(text, t('graph.node.steering')),
         ...(text === '' ? {} : { detail: text }),
+        ...(attachments.length === 0 ? {} : { attachments }),
       }
     }
     case 'context': {
       const text = contentText(node.content, 4000)
+      const attachments = attachmentsOfContent(node.content)
       return {
         kind: 'context',
         lane: 'input',
@@ -343,6 +439,7 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
         label: chipLabel(node.producer.label ?? '', t('graph.node.context')),
         badge: t(node.producer.role === 'recall' ? 'graph.context.recall' : 'graph.context.inject'),
         ...(text === '' ? {} : { detail: text }),
+        ...(attachments.length === 0 ? {} : { attachments }),
       }
     }
     case 'command': {
@@ -365,6 +462,7 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
       const timing = node.timing
       const started = timing?.stepStartTime
       const completed = timing?.completedTime
+      const attachments = attachmentsOfBlocks(node.blocks)
       return {
         kind: 'assistant',
         lane: 'model',
@@ -376,6 +474,7 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
           })),
         ...(calls.length === 0 ? {} : { badge: calls.length + '×' }),
         ...(full === '' ? {} : { detail: full }),
+        ...(attachments.length === 0 ? {} : { attachments }),
         ...(usage === undefined ? {} : { tokens: usage }),
         ...(typeof started !== 'number' || completed === undefined
           ? {}
@@ -384,15 +483,26 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
     }
     case 'tool-result': {
       const content = contentText(node.content, 4000)
-      const args = node.call?.argsRaw
+      const attachments = attachmentsOfContent(node.content)
+      const head = node.call
+      const started = node.callTime
       return {
         kind: 'tool',
         lane: 'tool',
         status: node.isError ? 'error' : 'complete',
-        label: node.call?.name ?? node.callId,
+        label: head?.name ?? node.callId,
         badge: node.isError ? node.error?.code ?? t('status.failed') : callTail(node.callId),
-        ...(args === undefined || args === '' ? {} : { args }),
-        ...(content === '' ? {} : { result: content }),
+        ...(attachments.length === 0 ? {} : { attachments }),
+        toolDetail: toolDetailOfCall(
+          head?.name ?? node.callId,
+          node.callId,
+          head?.argsRaw,
+          node.isError,
+          content,
+        ),
+        ...(started === null || started <= 0 || node.time < started
+          ? {}
+          : { durationMs: node.time - started }),
       }
     }
     case 'compaction': {
@@ -595,8 +705,8 @@ export function buildTrajectoryGraph(
         label: described.label,
         ...(described.badge === undefined ? {} : { badge: described.badge }),
         ...(described.detail === undefined ? {} : { detail: described.detail }),
-        ...(described.args === undefined ? {} : { args: described.args }),
-        ...(described.result === undefined ? {} : { result: described.result }),
+        ...(described.attachments === undefined ? {} : { attachments: described.attachments }),
+        ...(described.toolDetail === undefined ? {} : { toolDetail: described.toolDetail }),
         ...(described.tokens === undefined ? {} : { tokens: described.tokens }),
         ...(described.durationMs === undefined ? {} : { durationMs: described.durationMs }),
         ...(described.opensTurn === undefined ? {} : { opensTurn: described.opensTurn }),
@@ -675,7 +785,9 @@ export function buildTrajectoryGraph(
         step: call.step,
         label: call.name,
         badge: t('graph.live'),
-        ...(call.phase === 'preparing' || call.argsRaw === '' ? {} : { args: call.argsRaw }),
+        toolDetail: toolDetailOfCall(call.name, call.callId,
+          call.phase === 'preparing' || call.argsRaw === '' ? undefined : call.argsRaw,
+          false, undefined),
         live: true,
       },
     })
@@ -708,7 +820,7 @@ export function buildTrajectoryGraph(
           step: record.step,
           label: call.name,
           badge: callTail(call.callId),
-          ...(call.argsRaw === '' ? {} : { args: call.argsRaw }),
+          toolDetail: toolDetailOfCall(call.name, call.callId, call.argsRaw, false, undefined),
           live: false,
         },
       })
@@ -890,4 +1002,51 @@ export function windowTrajectoryGraph(graph: TrajectoryGraph, limit: number): Tr
     },
     hidden: dropped,
   }
+}
+
+/** One slowest-tools leader. */
+export interface TrajectorySlowTool {
+  /** The leader's node id, so a caller can select it. */
+  readonly id: string
+  /** The record's chip label (the tool name). */
+  readonly name: string
+  /** Recorded wall time in milliseconds. */
+  readonly durationMs: number
+}
+
+/**
+ * The slowest settled tool records, descending by recorded duration.
+ * @param graph - the (windowed) graph projection.
+ * @param limit - how many leaders to keep; a non-positive limit keeps none.
+ * @returns The leaders, longest first; empty when no tool record carries a duration.
+ */
+export function slowestTools(graph: TrajectoryGraph, limit: number): readonly TrajectorySlowTool[] {
+  if (limit <= 0) return []
+  const leaders: TrajectorySlowTool[] = []
+  for (const node of graph.nodes) {
+    if (node.lane !== 'tool' || node.durationMs === undefined) continue
+    leaders.push({ id: node.id, name: node.label, durationMs: node.durationMs })
+  }
+  leaders.sort((left, right) => right.durationMs - left.durationMs)
+  return leaders.slice(0, limit)
+}
+
+/**
+ * Search the graph's records by a case-insensitive substring of the chip
+ * label, the node kind, the node id, or a tool record's call id.
+ * @param graph - the (windowed) graph projection.
+ * @param query - raw user text; a blank query matches nothing.
+ * @returns Matching node ids in ledger order, for the search box's cursor to cycle.
+ */
+export function searchTrajectoryNodes(graph: TrajectoryGraph, query: string): readonly string[] {
+  const needle = query.trim().toLowerCase()
+  if (needle === '') return []
+  const hits: string[] = []
+  for (const node of graph.nodes) {
+    if (node.label.toLowerCase().includes(needle)
+      || node.kind.includes(needle)
+      || node.id.toLowerCase().includes(needle)
+      || (node.toolDetail?.callId ?? '').toLowerCase().includes(needle)) hits.push(node.id)
+  }
+  return hits
 }

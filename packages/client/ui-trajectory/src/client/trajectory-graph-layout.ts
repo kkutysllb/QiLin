@@ -64,6 +64,8 @@ export interface TrajectoryGraphLayoutOptions {
 export interface LaidOutGraphNode {
   /** The record this node draws. */
   readonly node: TrajectoryGraphNode
+  /** The record's row, in ledger order — the replay cursor walks these. */
+  readonly index: number
   /** Left edge. */
   readonly x: number
   /** Top edge. */
@@ -241,6 +243,7 @@ export function layoutTrajectoryGraph(
     const w = lane.w - offset.shrink
     const laid: LaidOutGraphNode = {
       node,
+      index,
       x: lane.cx + offset.dx - w / 2,
       y: cursor + (rowHeight - nodeHeight) / 2,
       w,

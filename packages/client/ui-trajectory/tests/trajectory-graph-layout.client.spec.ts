@@ -40,7 +40,7 @@ function numbers(d: string): number[] {
 function expectPath(d: string, expected: readonly number[]): void {
   const got = numbers(d)
   expect(got.length).toBe(expected.length)
-  expected.forEach((value, index) => expect(got[index]).toBeCloseTo(value, 6))
+  expected.forEach((value, index) =>{  expect(got[index]).toBeCloseTo(value, 6) })
 }
 
 describe('layoutTrajectoryGraph lanes and rows', () => {

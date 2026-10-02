@@ -8,10 +8,12 @@ import type {
   ConversationNode, ModelRetryNode, PartialAssistant, RequestView, StartedToolCall, SteeringMessageNode,
   SystemPromptNode, ToolResultNode, TurnErrorNode, TurnMaxTokensNode, UnknownSurfaceNode, UserMessageNode,
 } from '@qilin/client-ui-conversation/client'
+import type { AttachmentId } from '@qilin/attachment'
 import type { ContentBlock } from '@qilin/llm/types'
 import type { TrajectorySnapshot } from '../src/client/trajectory-contract.ts'
 import {
-  buildTrajectoryGraph, windowTrajectoryGraph, type TrajectoryGraph,
+  buildTrajectoryGraph, searchTrajectoryNodes, slowestTools, windowTrajectoryGraph,
+  type TrajectoryGraph,
 } from '../src/client/trajectory-graph.ts'
 import { t } from './locale.client.ts'
 
@@ -21,6 +23,29 @@ function text(value: string): ContentBlock {
 
 function tagged(type: string): ContentBlock {
   return { type } as unknown as ContentBlock
+}
+
+/** A minimal durable image reference, valid in user or tool content. */
+function image(name?: string): ContentBlock {
+  return {
+    type: 'image',
+    attachment: {
+      attachmentId: 'att-1' as AttachmentId,
+      mediaType: 'image/png',
+      bytes: 1024,
+      width: 32,
+      height: 16,
+      ...(name === undefined ? {} : { name }),
+    },
+  } satisfies ContentBlock
+}
+
+/** A minimal durable file reference, valid in user content. */
+function file(): ContentBlock {
+  return {
+    type: 'file',
+    attachment: { attachmentId: 'att-2' as AttachmentId, name: 'notes.txt', bytes: 3 },
+  } satisfies ContentBlock
 }
 
 function message(seq: number, value: string): UserMessageNode {
@@ -291,9 +316,10 @@ describe('trajectory graph projection', () => {
   it('describes tool results, checkpoints, retries, and turn failures', () => {
     const nodes: ConversationNode[] = [
       toolResult(1, 'abcdef1234567', {
-        call: { name: 'read', argsRaw: '{"path":"a"}' }, content: [text('ok')],
+        call: { name: 'read', argsRaw: '{"path":"a"}' }, content: [text('ok'), image()],
       }),
-      toolResult(2, 'c1', { call: { name: 'read', argsRaw: '' }, content: [tagged('image')] }),
+      // A block type this client does not know degrades to its bracket label.
+      toolResult(2, 'c1', { call: { name: 'read', argsRaw: '' }, content: [tagged('venue')] }),
       toolResult(3, 'c2', { isError: true, error: { name: 'ToolError', code: 'boom' } }),
       toolResult(4, 'c3', { isError: true }),
       {
@@ -333,13 +359,21 @@ describe('trajectory graph projection', () => {
 
     expect(byId.get('ev:tool-result:1')).toMatchObject({
       kind: 'tool', lane: 'tool', status: 'complete', label: 'read', badge: '234567',
-      args: '{"path":"a"}', result: 'ok',
+      toolDetail: { name: 'read', callId: 'abcdef1234567', argsRaw: '{"path":"a"}', resultText: 'ok [image]' },
+      attachments: [{ kind: 'image', attachmentId: 'att-1' as AttachmentId, bytes: 1024, width: 32, height: 16 }],
     })
-    expect(byId.get('ev:tool-result:2')).toMatchObject({ label: 'read', badge: 'c1', result: '[image]' })
-    expect(byId.get('ev:tool-result:2')?.args).toBeUndefined()
-    expect(byId.get('ev:tool-result:3')).toMatchObject({ status: 'error', badge: 'boom' })
-    expect(byId.get('ev:tool-result:4')).toMatchObject({ status: 'error', badge: 'Failed' })
-    expect(byId.get('ev:tool-result:4')?.result).toBeUndefined()
+    expect(byId.get('ev:tool-result:2')).toMatchObject({
+      label: 'read', badge: 'c1', toolDetail: { name: 'read', callId: 'c1', resultText: '[venue]' },
+    })
+    expect(byId.get('ev:tool-result:2')?.toolDetail?.argsRaw).toBeUndefined()
+    expect(byId.get('ev:tool-result:2')?.attachments).toBeUndefined()
+    expect(byId.get('ev:tool-result:3')).toMatchObject({
+      status: 'error', badge: 'boom', toolDetail: { isError: true },
+    })
+    expect(byId.get('ev:tool-result:4')).toMatchObject({
+      status: 'error', badge: 'Failed', toolDetail: { isError: true },
+    })
+    expect(byId.get('ev:tool-result:4')?.toolDetail?.resultText).toBeUndefined()
     expect(byId.get('ev:compaction:5')).toMatchObject({
       kind: 'compaction', lane: 'model', label: 'sum', badge: '1200 tok', detail: 'sum',
     })
@@ -401,7 +435,8 @@ describe('trajectory graph projection', () => {
       'loop:ev:tool-result:7->req:8',
     ])
     expect(graph.nodes.find(node => node.id === 'waiting:missing')).toMatchObject({
-      kind: 'tool', lane: 'tool', status: 'idle', seq: 9.5, args: 'args', turn: 1, step: 1,
+      kind: 'tool', lane: 'tool', status: 'idle', seq: 9.5, turn: 1, step: 1,
+      toolDetail: { name: 'read', callId: 'missing', argsRaw: 'args' },
     })
     // Six ledger events + three requests + the one synthesized waiting record.
     expect(graph.stats.nodes).toBe(10)
@@ -451,10 +486,10 @@ describe('trajectory graph projection', () => {
     })
     expect(byId.get('call:p1')).toMatchObject({
       kind: 'running-call', lane: 'tool', status: 'running', live: true,
-      label: 'bash', args: 'ls', badge: 'Live',
+      label: 'bash', toolDetail: { name: 'bash', callId: 'p1', argsRaw: 'ls' }, badge: 'Live',
     })
     expect(byId.get('call:p2')).toMatchObject({ label: 'bash' })
-    expect(byId.get('call:p2')?.args).toBeUndefined()
+    expect(byId.get('call:p2')?.toolDetail?.argsRaw).toBeUndefined()
     expect(graph.edges.map(edge => edge.id + (edge.live ? ' (live)' : ''))).toEqual([
       'prompt:ev:user:1->req:2',
       'result:req:2->partial:1:1 (live)',
@@ -539,5 +574,101 @@ describe('trajectory graph projection', () => {
     const none = windowTrajectoryGraph(graph, 0)
     expect(none.hidden).toBe(3)
     expect(view(none.graph)).toEqual(EMPTY)
+  })
+
+  it('carries attachments from user, context, assistant, and tool content', () => {
+    const offloadedImage = {
+      type: 'image',
+      attachment: {
+        attachmentId: 'att-off' as AttachmentId,
+        mediaType: 'image/png' as const,
+        bytes: 8,
+        width: 4,
+        height: 4,
+      },
+      offloaded: true as const,
+    } satisfies ContentBlock
+    const graph = buildTrajectoryGraph(snapshotOf({
+      eventNodes: [
+        { kind: 'user', seq: 1, time: 1000, content: [image('shot.png'), file()], source: null },
+        {
+          kind: 'context', seq: 2, time: 2000, content: [offloadedImage],
+          producer: { label: 'Skill', role: 'inject' }, form: null, source: null,
+        },
+        assistant(3, { blocks: [{ kind: 'image', attachment: {
+          attachmentId: 'att-1' as AttachmentId,
+          mediaType: 'image/png' as const,
+          bytes: 1024,
+          width: 32,
+          height: 16,
+        } }] }),
+      ],
+    }), t)
+    const byId = new Map(graph.nodes.map(node => [node.id, node]))
+
+    expect(byId.get('ev:user:1')?.attachments).toEqual([
+      {
+        kind: 'image', attachmentId: 'att-1' as AttachmentId, name: 'shot.png', bytes: 1024,
+        mediaType: 'image/png', width: 32, height: 16,
+      },
+      { kind: 'file', attachmentId: 'att-2' as AttachmentId, name: 'notes.txt', bytes: 3 },
+    ])
+    expect(byId.get('ev:context:2')?.attachments).toEqual([{
+      kind: 'image', attachmentId: 'att-off' as AttachmentId, bytes: 8, mediaType: 'image/png',
+      width: 4, height: 4, offloaded: true,
+    }])
+    expect(byId.get('ev:assistant:3')?.attachments).toEqual([{
+      kind: 'image', attachmentId: 'att-1' as AttachmentId, bytes: 1024, mediaType: 'image/png', width: 32, height: 16,
+    }])
+  })
+
+  it('ranks the slowest settled tool records descending and bounds the list', () => {
+    const graph = buildTrajectoryGraph(snapshotOf({
+      eventNodes: [
+        toolResult(1, 'a', {
+          call: { name: 'bash', argsRaw: '' }, callTime: 1000, time: 3400,
+        }),
+        toolResult(2, 'b', {
+          call: { name: 'read', argsRaw: '' }, callTime: 1000, time: 2200,
+        }),
+        toolResult(3, 'c', { call: { name: 'grep', argsRaw: '' }, callTime: 1000, time: 1300 }),
+        // No call head (window truncation): no duration, so never a leader.
+        toolResult(4, 'd', { callTime: null }),
+        // Call time after the result (clock skew): no duration either.
+        toolResult(5, 'e', { call: { name: 'ls', argsRaw: '' }, callTime: 9000, time: 5000 }),
+        assistant(6),
+      ],
+    }), t)
+
+    expect(slowestTools(graph, 2)).toEqual([
+      { id: 'ev:tool-result:1', name: 'bash', durationMs: 2400 },
+      { id: 'ev:tool-result:2', name: 'read', durationMs: 1200 },
+    ])
+    expect(slowestTools(graph, 0)).toEqual([])
+    expect(slowestTools(graph, 10)).toHaveLength(3)
+  })
+
+  it('searches records by label, kind, id, and call id, case-insensitively', () => {
+    const graph = buildTrajectoryGraph(snapshotOf({
+      eventNodes: [
+        message(1, 'Run the build now'),
+        toolResult(2, 'call-ABC', { call: { name: 'Bash', argsRaw: '' } }),
+        assistant(3, { blocks: [call('p1', 'bash', '')] }),
+      ],
+      requests: [request({ startSeq: 4 })],
+    }), t)
+
+    expect(searchTrajectoryNodes(graph, '')).toEqual([])
+    expect(searchTrajectoryNodes(graph, '   ')).toEqual([])
+    // Chip label substring, case-insensitive.
+    expect(searchTrajectoryNodes(graph, 'BUILD')).toEqual(['ev:user:1'])
+    // Node kind substring.
+    expect(searchTrajectoryNodes(graph, 'assistant')).toEqual(['ev:assistant:3'])
+    // Tool call id substring.
+    expect(searchTrajectoryNodes(graph, 'abc')).toEqual(['ev:tool-result:2'])
+    // Node id substring.
+    expect(searchTrajectoryNodes(graph, 'req:4')).toEqual(['req:4'])
+    // No match anywhere.
+    expect(searchTrajectoryNodes(graph, 'zzz')).toEqual([])
   })
 })
