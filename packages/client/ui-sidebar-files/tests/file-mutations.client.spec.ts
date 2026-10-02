@@ -9,7 +9,6 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import { RemoteError, makeTranslate } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { SessionId } from '@qilin/session/types'
 import type { TabId } from '@qilin/client-ui-dockkit'
 import { absoluteFileAddress, sessionFileAddress } from '@qilin/util-workspace-path'
@@ -101,7 +100,9 @@ describe('mutationFailureLine', () => {
   })
 
   it('carries a filesystem pass-through failure\'s own message', () => {
-    const failure = { code: 'FS_EPERM', message: 'permission denied' } as unknown as RemoteFailure
+    // A carrier code the tree does not name: the reader gets the transport's
+    // own message rather than a wrong local label.
+    const failure = new RemoteError('gateway/internal', 'permission denied')
     expect(mutationFailureLine(t, failure)).toBe('操作失败：permission denied')
   })
 })
@@ -109,13 +110,18 @@ describe('mutationFailureLine', () => {
 describe('createMutations', () => {
   it('passes every call through with its own arguments', async () => {
     const signal = new AbortController().signal
-    const calls = {
-      write: vi.fn().mockResolvedValue({ ok: true, value: { absolutePath: `${ROOT}/a.ts`, version: 'v1' } }),
-      createDirectory: vi.fn().mockResolvedValue({ ok: true, value: undefined }),
-      move: vi.fn().mockResolvedValue({ ok: true, value: undefined }),
-      remove: vi.fn().mockResolvedValue({ ok: true, value: undefined }),
+    // Typed by the face the binding accepts, so the recorder and the endpoint
+    // cannot drift apart unnoticed.
+    type Mutations = WorkspaceFilesMutationRemote['workspaceFiles']
+    const calls: Mutations = {
+      write: vi.fn<Mutations['write']>().mockResolvedValue({
+        ok: true, value: { absolutePath: `${ROOT}/a.ts`, version: 'v1', bytes: 0 },
+      }),
+      createDirectory: vi.fn<Mutations['createDirectory']>().mockResolvedValue({ ok: true, value: undefined }),
+      move: vi.fn<Mutations['move']>().mockResolvedValue({ ok: true, value: undefined }),
+      remove: vi.fn<Mutations['remove']>().mockResolvedValue({ ok: true, value: undefined }),
     }
-    const remote = { workspaceFiles: calls } as unknown as WorkspaceFilesMutationRemote
+    const remote: WorkspaceFilesMutationRemote = { workspaceFiles: calls }
     const mutations = createMutations(remote)
     await mutations.createFile(SESSION, `${ROOT}/a.ts`, signal)
     expect(calls.write).toHaveBeenCalledWith(SESSION, `${ROOT}/a.ts`, '', {}, signal)
