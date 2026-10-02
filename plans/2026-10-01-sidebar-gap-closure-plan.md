@@ -385,3 +385,36 @@ React 18 只把 `ref` 交给 `forwardRef` 与 DOM 元素；普通函数组件收
 ### 三、验证
 
 四例验收：`expand-button + seat + views` **84/84 通过**（修复前 4 红）。`ui-primitives` 包 1001 例全绿；四文件 + 整包合计 1085 例全绿。`tsc -b tsconfig.client.json` exit 0；`oxlint` 全仓 **88 = 基线，净新增 0**；`Tooltip.tsx` 覆盖率 **100/100/100/100**（并入其 5 个消费者包口径）。此后 `test:gui` 由 6 红降到 **1 红**（`ui-theme` 的 ModelSelect 滚动面，A/B 证实预存）。
+
+## 批次执行状态补充二十七（2026-10-02 21:00）——批次六「选中文本加入对话」，并修掉一处此前的门禁欠账
+
+目标清单里的「客户端：选中文本加入对话」落地。上游 1.0.37 的同一功能由 `selection-popup.ts` + `selection-payload.ts` + `conversation-draft.ts` 三件组成；QiLin 的输入面是 Lexical 草稿（不是 textarea），所以只沿用前两件的形态，写入这一层换成 QiLin 自己的缝。
+
+### 一、交付（提交主体：`feat(client-ui-sidebar-documentpreview): add a viewer selection to the conversation draft`）
+
+| 件 | 内容 |
+|---|---|
+| `ui-conversation` | `UiConversation.insertDraft(sessionId, text)`：按 id 解析该 Session 常驻的输入 shell，读其 `{draft, draftRev}`，以**同一个 rev** 派发 scoped 事件 `slash/input-insert-text`（span 落在草稿末尾）。用同一 rev 作 CAS，所以并发编辑会让 shell 拒绝插入，而不是插进已经移动的文本里。非空且不以空白结尾的草稿补一个换行作分隔。与既有 `fillDraft` 同为 SessionId 显式，调用方无需 scope-addressed inject。 |
+| `selection-payload.ts` | 纯字符串：`headerOf` / `buildSelectionInsert` / `linesOfSelection`。围栏信息行 = 查看器路径 + 行范围；`SELECTION_LIMIT = 500` 之外只插信息行；行号来自「渲染出的选区在源文本里恰好命中一次」的反查，命中歧义或缺失就只给路径。 |
+| `selection-popup.ts` | 视口锚定的浮动按钮 hook：`show` 做左右边距夹取、`hide` 幂等、`commit` 提交并收起；全局撤除 = 按钮外 `mousedown`、`Escape`、文档隐藏、窗口失焦，外加 surface 上的 `IntersectionObserver`（tab 切走是 `display:none`、面板收起是位移，二者都不产生 DOM 事件，只有几何信号可靠）。 |
+| `TextPreview.tsx` | 正文 `onMouseUp` 判定选区（null／折叠／不在正文内／纯空白／无源文本 → 一律不显示），命中则 portal 出按钮；点击提交。 |
+
+**边界**：只有「持有文件自身文本」的正文参与（markdown／代码／纯文本，即 `content.kind === 'text'`）。PDF、图片、Office、HTML、视频持有字节，渲染出的选区无法反查源行号，因此不提供该操作。
+
+**写入路径的选择**：QiLin 的 `SessionInput` 只有 `setDraft`（整体替换，会清掉引用芯片），而 scoped 事件 `slash/input-insert-text` 正是为「异步文本插入、不动后续编辑与芯片、单步撤销」设计的（`InputActions.insertText` 的契约原文）。因此选后者，不引入新的服务方法给 editor 层。
+
+### 二、订正一处此前的门禁欠账
+
+`verify-no-unknown-casts` **自批次三起就是红的**，两个 `as unknown as` 在 `packages/client/ui-sidebar-files/tests/file-mutations.client.spec.ts`（提交主体：`fix(client-ui-sidebar-files): type the mutation recorders instead of asserting past the face`）。此前「零新增」的结论测得早于批次三，之后没人复测，属我的记账错误。修法不是加白名单：穿透失败例改用真正的 `RemoteError('gateway/internal', …)`（该 code 就是「载体/未分类 Host 失败」的声明），四个 recorder 改为按 `WorkspaceFileMutations` 面本身定型，于是 recorder 与 endpoint 漂移会直接编不过。
+
+### 三、验证
+
+| 项 | 结果 |
+|---|---|
+| 新增/改动测试 | `selection-payload` 13 例、`selection-popup` 20 例、`selection-insert` 11 例、`apply` 4 例、`document-seat` 8 例、`conversation-registry` 15 例（含 `insertDraft` 五条分支：未知 Session／无 conversation 服务／两种分隔符／被 shell 拒绝） |
+| 覆盖率 | `selection-payload.ts`、`selection-popup.ts` 均 **100/100/100/100**；`TextPreview.tsx` 语句/函数/行 **100%**，唯一未覆盖分支在 `usePathClipped` 第 61 行（`typeof ResizeObserver === 'undefined'`），**与本次改动无关**：单独跑既有 `text-preview.client.spec.tsx` 时同样未覆盖，属该文件既有的覆盖率欠账 |
+| 包级 | `ui-sidebar-documentpreview` 61 文件 638 例全绿；`ui-conversation` 38 文件 494 例全绿 |
+| `test:gui` | 592 全过 / 1 红 = `ui-theme` 的 ModelSelect 滚动面（预存，见补充二十六） |
+| 门禁 | `typecheck` 0；`oxlint` 全仓 **88 = 基线，净新增 0**；`verify-no-unknown-casts` 转绿（「no new assertions; 1672 existing assertions remain」）；`doc-sync` **41 过 / 1 红**（唯一红 `verify-persistence-changes` 预存，本批未触碰 `packages/session/**`） |
+
+**过程中被门禁拦下的两处真问题**（值得记）：CSS 的 `.selectionPopup` 一开始同时带 `box-shadow: lv3` 与中性边框，被 `ui-theme` 的 `elevation-styles` 判为「浮起面不得再叠中性边框」；README 的 Model Experience 段被 `verify-package-readme-model-experience` 要求回到规范句式（`None, as …`），因此把审计表里 `ui-sidebar-documentpreview` 的理由一并改述为与 `client-ui-voice-input` 同型的「只写入未发送草稿、不代替提交」。这两条都是产品/文档规范真实生效的例子，不是形式主义。
