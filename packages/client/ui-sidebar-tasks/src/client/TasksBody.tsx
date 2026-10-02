@@ -3,8 +3,10 @@
  *
  * Two sections, both open on arrival. Everything drawn comes from the Session
  * list snapshot through `useSessions` — the page issues no read of its own —
- * and every action travels through the injected face. Section and fold state is
- * this component's own; it never leaves the body.
+ * and every action travels through the injected face. The subagents section
+ * draws either the row list or the graph canvas; which one, and the graph's
+ * framing, live in the declared graph store. Section and fold state is this
+ * component's own; it never leaves the body.
  */
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -14,8 +16,9 @@ import {
   IconChevronDownOutline14, IconChevronRightOutline14, IconRefreshOutline14, IconRefreshOutline16,
   StateDot,
 } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime, TranslateNS } from '@qilin/client-ui-slots'
+import type { InjectFace, PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@qilin/client-ui-slots'
 import type {} from '@qilin/client-ui-session/client'
+import type { SessionId } from '@qilin/session/types'
 import type { TasksInjected } from './face.ts'
 import { NS } from './locales.ts'
 import { indexSubagentDescendants } from './lineage.ts'
@@ -24,12 +27,20 @@ import {
   orderedJobs, subagentRows, subagentTotal,
 } from './rows.ts'
 import type { SubagentRow } from './rows.ts'
+import type { createTasksGraphStore } from './tasks-graph-store.ts'
+import type { TaskNodeVM } from './tasks-graph-model.ts'
+import { buildTasksGraphModel } from './tasks-graph-model.ts'
+import { TasksGraphView } from './TasksGraphView.tsx'
 import css from './TasksBody.module.css'
 
-/** The body's composed props: the tab it draws, its face, and its copy. */
+/** The store handle type the body's store share derives from. */
+type TasksGraphStore = ReturnType<typeof createTasksGraphStore>
+
+/** The body's composed props: the tab it draws, its face, its store, and its copy. */
 export type TasksBodyProps =
   & PropsRuntime<'sidebar.right.pane.tab'>
   & InjectFace<TasksInjected>
+  & PropsStore<TasksGraphStore>
   & PropsLocale<typeof NS>
 
 /** How many subagent rows an unfolded section shows before folding the rest. */
@@ -94,7 +105,7 @@ function diagnosticLabel(
 }
 
 /** One subagent row: the open gesture across the row, the interrupt beside it. */
-function SubagentRowView({ row, t, onOpen, onInterrupt }: {
+export function SubagentRowView({ row, t, onOpen, onInterrupt }: {
   readonly row: SubagentRow
   readonly t: TranslateNS<typeof NS>
   readonly onOpen: TasksInjected['openChild']
@@ -167,11 +178,12 @@ function TaskRowView({ job, now, t }: {
 
 /**
  * The page body.
- * @param props - the tab's runtime share, the injected face, and the copy.
+ * @param props - the tab's runtime share, the injected face, the graph store
+ *   shares, and the copy.
  * @returns the two sections, or the single line a Session with no work shows.
  */
 export function TasksBody({
-  sessionId, useSessions, useJobs, watchRows, openChild, refresh, interruptChild, t,
+  sessionId, useSessions, useJobs, useStore, actions, watchRows, openChild, refresh, interruptChild, t,
 }: TasksBodyProps): ReactNode {
   const summaries = useSessions(state => state.byId)
   const projections = useSessions(state => state.projectionsBySession)
@@ -195,6 +207,43 @@ export function TasksBody({
   )
   const tasks = useMemo(() => orderedJobs(jobs), [jobs])
   const liveTasks = useMemo(() => jobs.filter(isLive).length, [jobs])
+
+  // The graph view's shared state: which form draws, and which aggregates the
+  // user expanded. The model is derived data over the two snapshots plus that
+  // state — never a subscription of its own.
+  const view = useStore(state => state.view)
+  const expandedKeys = useStore(state => state.expanded)
+  const graphModel = useMemo(() => buildTasksGraphModel({
+    rootId: sessionId,
+    catalogs,
+    summaries,
+    expanded: new Set(Object.keys(expandedKeys).filter(key => expandedKeys[key] === true)),
+    currentSessionId: sessionId,
+    labelOf: (entry, summary) => entry.label ?? summary?.displayTitle ?? entry.id,
+    secondaryOf: entry => t(entry.mode === 'one-shot' ? 'subagents.mode.oneShot' : 'subagents.mode.continuable'),
+  }), [catalogs, summaries, expandedKeys, sessionId, t])
+
+  /** One node activation: aggregates fold, placeholders read their level, cards navigate. */
+  const onGraphNodeClick = (node: TaskNodeVM): void => {
+    if (node.aggregateKey !== undefined) {
+      actions.aggregateToggled(node.aggregateKey)
+      return
+    }
+    if (node.kind === 'placeholder') {
+      // The placeholder's parent owns the unread level; a re-read of that
+      // catalog is what hydrates it. The model derives the id from typed
+      // Session inputs, so the string is a Session id.
+      refresh(node.parentId as SessionId)
+      return
+    }
+    if (node.kind === 'main') {
+      openChild(sessionId)
+      return
+    }
+    // Members and phases carry no address; only a catalog card navigates.
+    /* v8 ignore next -- the page's catalogs give every remaining card an address. */
+    if (node.address !== undefined) openChild(node.address)
+  }
 
   // The clock runs only while a row still measures; a settled list is fixed.
   useEffect(() => {
@@ -226,16 +275,36 @@ export function TasksBody({
         expanded={sections.subagents}
         onToggle={() => { setSections(current => ({ ...current, subagents: !current.subagents })) }}
         action={(
-          <button
-            type="button"
-            className={css.sectionAction}
-            aria-label={t('subagents.refresh')}
-            title={t('subagents.refresh')}
-            data-tasks-refresh
-            onClick={() => { refresh(sessionId) }}
-          >
-            <IconRefreshOutline16 className={css.refreshIcon} />
-          </button>
+          <>
+            <span className={css.viewToggle} role="group" aria-label={t('graph.toggle')}>
+              <button
+                type="button"
+                aria-pressed={view === 'graph'}
+                data-tasks-view="graph"
+                onClick={() => { actions.viewSet('graph') }}
+              >
+                {t('graph.view')}
+              </button>
+              <button
+                type="button"
+                aria-pressed={view === 'list'}
+                data-tasks-view="list"
+                onClick={() => { actions.viewSet('list') }}
+              >
+                {t('graph.list')}
+              </button>
+            </span>
+            <button
+              type="button"
+              className={css.sectionAction}
+              aria-label={t('subagents.refresh')}
+              title={t('subagents.refresh')}
+              data-tasks-refresh
+              onClick={() => { refresh(sessionId) }}
+            >
+              <IconRefreshOutline16 className={css.refreshIcon} />
+            </button>
+          </>
         )}
       />
       {sections.subagents && (
@@ -250,42 +319,52 @@ export function TasksBody({
                 </button>
               </div>
             )
-            : rows.length === 0
+            : view === 'graph' && catalog?.state === 'ready'
               ? (
-                <p className={css.note}>
-                  {catalog === undefined || catalog.state === 'loading'
-                    ? t('subagents.loading')
-                    : t('subagents.empty')}
-                </p>
+                <TasksGraphView
+                  model={graphModel}
+                  onNodeClick={onGraphNodeClick}
+                  useStore={useStore}
+                  actions={actions}
+                  t={t}
+                />
               )
-              : (
-                <>
-                  <ul className={css.list}>
-                    {shownSubagents.map(row => (
-                      <SubagentRowView
-                        key={row.id}
-                        row={row}
-                        t={t}
-                        onOpen={openChild}
-                        onInterrupt={interruptChild}
-                      />
-                    ))}
-                  </ul>
-                  {rows.length > SUBAGENT_PREVIEW && (
-                    <button
-                      type="button"
-                      className={css.more}
-                      aria-expanded={allSubagents}
-                      data-tasks-more="subagents"
-                      onClick={() => { setAllSubagents(current => !current) }}
-                    >
-                      {allSubagents
-                        ? t('more.collapse')
-                        : t('more.expand', { count: hiddenSubagents })}
-                    </button>
-                  )}
-                </>
-              )}
+              : rows.length === 0
+                ? (
+                  <p className={css.note}>
+                    {catalog === undefined || catalog.state === 'loading'
+                      ? t('subagents.loading')
+                      : t('subagents.empty')}
+                  </p>
+                )
+                : (
+                  <>
+                    <ul className={css.list}>
+                      {shownSubagents.map(row => (
+                        <SubagentRowView
+                          key={row.id}
+                          row={row}
+                          t={t}
+                          onOpen={openChild}
+                          onInterrupt={interruptChild}
+                        />
+                      ))}
+                    </ul>
+                    {rows.length > SUBAGENT_PREVIEW && (
+                      <button
+                        type="button"
+                        className={css.more}
+                        aria-expanded={allSubagents}
+                        data-tasks-more="subagents"
+                        onClick={() => { setAllSubagents(current => !current) }}
+                      >
+                        {allSubagents
+                          ? t('more.collapse')
+                          : t('more.expand', { count: hiddenSubagents })}
+                      </button>
+                    )}
+                  </>
+                )}
         </div>
       )}
       <SectionHeader

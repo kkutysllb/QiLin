@@ -53,6 +53,7 @@
     "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/client-locale": "workspace:*",
+    "@qilin/client-store": "workspace:*",
     "@qilin/client-test-runtime": "workspace:*",
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",

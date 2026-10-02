@@ -10,12 +10,61 @@ import type { SessionId } from '@qilin/session/types'
 import type { SubagentDescendantSummary } from '../src/client/lineage.ts'
 import { zh } from '../src/client/locales.ts'
 import {
-  activeWorkCount, childRowCount, formatDuration, isLive, jobDotState, jobElapsed,
+  activeWorkCount, catalogsOf, childRowCount, formatDuration, isLive, jobDotState, jobElapsed,
   jobStatusLabel, orderedJobs, subagentRows, subagentTotal,
 } from '../src/client/rows.ts'
 import { catalog, child, diagnostic, job, sid } from './fixtures.client.ts'
 
 const t: TranslateNS<'sidebarTasks'> = makeTranslate(zh)
+
+describe('catalogsOf', () => {
+  it('derives activity from the Session list and childlessness only from a settled empty catalog', () => {
+    const running = (id: SessionId): boolean => id === sid('live')
+    const catalogs = catalogsOf({
+      [sid('root')]: {
+        values: { subagentCatalog: [
+          { id: sid('live'), createdAt: 1, mode: 'continuable', label: 'Live' },
+          { id: sid('read'), createdAt: 1, mode: 'one-shot' },
+          { id: sid('unread'), createdAt: 1, mode: 'continuable', label: 'Unread' },
+          { id: sid('busy'), createdAt: 1, mode: 'continuable', label: 'Busy' },
+          { id: sid('ghost'), createdAt: 1, mode: 'continuable', label: 'Ghost' },
+        ] },
+        state: 'ready',
+        error: null,
+      },
+      // A settled empty catalog proves the child childless.
+      [sid('read')]: { values: { subagentCatalog: [] }, state: 'ready', error: null },
+      // An unsettled catalog keeps the disclosure; a populated one too.
+      [sid('unread')]: { values: {}, state: 'loading', error: null },
+      [sid('busy')]: {
+        values: { subagentCatalog: [{ id: sid('inner'), createdAt: 1, mode: 'one-shot' }] },
+        state: 'ready',
+        error: null,
+      },
+      // A settled catalog with no values yet discloses too.
+      [sid('ghost')]: { values: {}, state: 'ready', error: null },
+    }, running)
+    expect(catalogs[sid('root')]?.entries.map(entry => [entry.kind === 'child' ? entry.activity : entry.kind, entry.kind === 'child' ? entry.hasChildren : undefined])).toEqual([
+      ['running', true],
+      ['inactive', false],
+      ['inactive', true],
+      ['inactive', true],
+      // A settled valueless catalog reads as childless.
+      ['inactive', false],
+    ])
+  })
+
+  it('reads a ready catalog with no values yet as empty and an idle one as loading', () => {
+    const ready = catalogsOf({ [sid('r')]: { values: {}, state: 'ready', error: null } }, () => false)
+    expect(ready[sid('r')]).toMatchObject({ state: 'ready', entries: [] })
+    const loading = catalogsOf({ [sid('r')]: { values: {}, state: 'idle', error: null } }, () => false)
+    expect(loading[sid('r')]?.state).toBe('loading')
+    const settled = catalogsOf({
+      [sid('r')]: { values: { subagentCatalog: [] }, state: 'idle', error: null },
+    }, () => false)
+    expect(settled[sid('r')]?.state).toBe('ready')
+  })
+})
 
 describe('subagentRows', () => {
   it('walks a level newest-first and descends only where a catalog exists', () => {
@@ -104,6 +153,14 @@ describe('job rows', () => {
     const tied = job('tied', { status: 'killed', startedAt: 30, finishedAt: 50 })
     expect(orderedJobs([recent, starting, tied, started, older]).map(entry => entry.id))
       .toEqual(['started-early', 'started-late', 'recent', 'tied', 'older'])
+  })
+
+  it('orders settled jobs without a settlement time by their start', () => {
+    const unfinished = job('unfinished', { status: 'failed', startedAt: 70 })
+    const finished = job('finished', { status: 'completed', startedAt: 0, finishedAt: 10 })
+    const unfinishedLater = job('unfinished-later', { status: 'failed', startedAt: 80 })
+    expect(orderedJobs([unfinished, finished, unfinishedLater]).map(entry => entry.id))
+      .toEqual(['unfinished-later', 'unfinished', 'finished'])
   })
 
   it('measures a running job against the clock and a settled one against itself', () => {

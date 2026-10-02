@@ -1,5 +1,5 @@
 ---
-description: "qilin 网页客户端右侧边栏的任务页：本会话的子代理拓扑与后台任务，全部读自页面已持有的会话列表。"
+description: "qilin 网页客户端右侧边栏的任务页：本会话的子代理拓扑与后台任务，以列表或任务管理图呈现，全部读自页面已持有的会话列表。"
 kind: "package-reference"
 ---
 
@@ -9,12 +9,13 @@ kind: "package-reference"
 
 ## 概述
 
-右侧边栏的任务页：本会话的子代理拓扑与后台任务收进同一栏。它是一个页面类型，从启动页进入，不认领任何地址。画出的所有内容都读自会话列表快照——页面自己不发起任何读取——每个动作都经由会话服务或 subagent Remote。`ui-sidebar-right` 不知道这个包的存在。
+右侧边栏的任务页：本会话的子代理拓扑与后台任务收进同一栏。它是一个页面类型，从启动页进入，不认领任何地址。区块内容可以画成列表，也可以画成任务管理图。画出的所有内容都读自会话列表快照——页面自己不发起任何读取——每个动作都经由会话服务或 subagent Remote。`ui-sidebar-right` 不知道这个包的存在。
 
 ## 目录
 
 - [注册了什么](#what-it-registers)
 - [两个区块](#the-two-sections)
+- [图形形态](#the-graph-form)
 - [chip 徽标](#the-chip-badge)
 - [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
@@ -26,10 +27,10 @@ kind: "package-reference"
 ## 注册了什么
 
 - **类型** —— `ctx.sidebarRightTabs.register(...)`：kind `tasks`、id `@qilin/client-ui-sidebar-tasks`、band `builtin`、无 patterns、`single`，以及一个启动页条目（order 40，标题与描述来自 `sidebarTasks` 命名空间，图形用共享的清单图标）。
-- **页面主体** —— 同一 id 下的 keyed `sidebar.right.pane.tab` 席位。
+- **页面主体** —— 同一 id 下的 keyed `sidebar.right.pane.tab` 席位，声明图形视图的 store，让折叠、排布与镜头在主体卸载后仍然存活。
 - **chip 徽标** —— 同一 id 下的 keyed `sidebar.right.pane.tab.badge` 席位。
 
-`src/client/` 下七个源文件：`definition.tsx`（类型）、`rows.ts` 与 `lineage.ts`（两份快照的纯投影）、`face.ts`（动作及其 Remote 绑定）、`TasksBody.tsx` 与 `TasksBadge.tsx`（画什么）、`locales.ts`（说什么）、`index.ts`（接线）。
+`src/client/` 下十一个源文件：`definition.tsx`（类型）、`rows.ts` 与 `lineage.ts`（两份快照的纯投影）、`face.ts`（动作及其 Remote 绑定）、`tasks-graph-model.ts`、`tasks-graph-layout.ts` 与 `tasks-graph-store.ts`（图形的纯模型、纯布局与视图 store）、`TasksBody.tsx`、`TasksGraphView.tsx` 与 `TasksBadge.tsx`（画什么）、`locales.ts`（说什么）、`index.ts`（接线）。
 
 <a id="the-two-sections"></a>
 ## 两个区块
@@ -41,6 +42,13 @@ kind: "package-reference"
 两个区块到达即展开。超过预览数量的区块——子代理五行、任务三行——把其余的折叠进一个控件。区块与折叠状态是主体自己的，从不离开它。
 
 共三个动作，都由注入的 face 在调用时执行：把某个子代理显现为当前会话、重读某个 parent 的 catalog、以及经 `subagents.interruptByParent` 停掉一个 continuable 子项。
+
+<a id="the-graph-form"></a>
+## 图形形态
+
+子代理区块可以改画成一棵卡片树。`buildTasksGraphModel` 走同一批 catalog，深度优先，每个 catalog 子项一张卡，页面会话另有一张主卡；六张及以上的已结束 one-shot 卡折叠成一张聚合卡，点击才展开，没读过的分支显示占位卡，standby 子项同样折叠。卡片的排布可以是树形、紧凑横向分组或固定六列网格；卡片可以拖动——默认手势连同整棵子树，Alt 则只拖单卡——模型会记住每个偏移。
+
+画布像文档查看器一样操控：滚轮朝光标缩放，背景拖拽平移，双击或适配控件重新取景，且只在用户未持有镜头时才随窗口尺寸重取景。卡片点击按种类路由：聚合卡折叠或展开，占位卡重读其 parent 的 catalog，catalog 卡打开该子项，主卡打开页面的会话。视图状态——形态、逐聚合折叠、排布模式、拖拽偏移与镜头——收在主体席位声明的一个 store 里，离开页签再回来时原样恢复。
 
 <a id="the-chip-badge"></a>
 ## chip 徽标
@@ -63,6 +71,7 @@ kind: "package-reference"
 - **one-shot 子项不能在这里停。** 中断动作通过持久 parent 寻址 continuable 子项；one-shot 子项可以画出来、可以打开，仅此而已。
 - **深度止步于已读的 catalog。** 页面自己不发起 catalog 读取，所以会话列表从没读过的分支只贡献一行；想展开分支靠刷新动作。
 - **徽标只数直接子项**，理由同上：一次条带渲染不该去走谱系。
+- **图形画的是 catalog，不是 run。** 模型接受会话列表上报的 run、phase 与 member 卡，但页面今天不喂给它任何工作流运行流，所以每个子代理都画成普通的 catalog 卡，或折叠为 done 与 standby；run 词汇先备好，是为了将来接入 feed 时不必改模型。
 
 <a id="dev-note"></a>
 ### 开发备注

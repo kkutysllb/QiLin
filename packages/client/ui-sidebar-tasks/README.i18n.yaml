@@ -3,23 +3,26 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-tasks/README.md
 /:
-  en: 8f600f9cd87cb40b
-  zh: c3a2173e912c19fa
+  en: fa8df2be1a2abb55
+  zh: 645982177f34ed56
 /qilin-client-ui-sidebar-tasks:
   en: 959e00b7c5e1f306
   zh: 5f18ced69448fc80
 /qilin-client-ui-sidebar-tasks/summary:
-  en: a34fbdf8e7f59402
-  zh: 7d7c5862a4b09b59
+  en: 5c11f1be552069fc
+  zh: 0130685e0d40f647
 /qilin-client-ui-sidebar-tasks/table-of-contents:
-  en: a013e79deb7ec201
-  zh: fc98f391e7831ef1
+  en: 141356e3f3160484
+  zh: 356e83d7b100f3d4
 /qilin-client-ui-sidebar-tasks/what-it-registers:
-  en: a7c713b1a95622d4
-  zh: 7c27648c6e095c2a
+  en: 5ccc2d6432242521
+  zh: 8f01824dcfdc05f0
 /qilin-client-ui-sidebar-tasks/the-two-sections:
-  en: f5e5affaf1ef34c1
-  zh: 6a707961c3634520
+  en: 39ef0b5fed55cfa3
+  zh: 0b441bf7d6152951
+/qilin-client-ui-sidebar-tasks/the-graph-form:
+  en: 4ec2916d34654437
+  zh: 66a656ca97d91687
 /qilin-client-ui-sidebar-tasks/the-chip-badge:
   en: 0274f26ca136cbd7
   zh: 91920d0e208382d1
@@ -30,8 +33,8 @@
   en: aa7bf62b7a2515e2
   zh: 16f9bbe19901ab33
 /qilin-client-ui-sidebar-tasks/known-limitations-and-deferred-work:
-  en: 70a3c40a458a82b6
-  zh: 99b64f15bfd4ae8f
+  en: dcdd21c1e8cb54d6
+  zh: 213b0ecf61355b7c
 /qilin-client-ui-sidebar-tasks/known-limitations-and-deferred-work/dev-note:
   en: 8abd1ce7d1f8bfef
   zh: 4421afdfc8cd1bc6

@@ -1,5 +1,5 @@
 ---
-description: "The right Sidebar's tasks page for the qilin web client: the session's subagent topology and its background jobs, read from the Session list the page already holds."
+description: "The right Sidebar's tasks page for the qilin web client: the session's subagent topology and its background jobs as a list or a task-management graph, read from the Session list the page already holds."
 kind: "package-reference"
 ---
 
@@ -9,12 +9,13 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The right Sidebar's tasks page: this Session's subagent topology and its background jobs in one column. It is a page type reached from the guide and claims no address. Everything drawn is read from the Session list snapshot — the page issues no read of its own — and every action travels through the Session service or the subagent Remote. Nothing in `ui-sidebar-right` knows this package.
+The right Sidebar's tasks page: this Session's subagent topology and its background jobs in one column. It is a page type reached from the guide and claims no address. The section content draws either as a list or as a task-management graph. Everything drawn is read from the Session list snapshot — the page issues no read of its own — and every action travels through the Session service or the subagent Remote. Nothing in `ui-sidebar-right` knows this package.
 
 ## Table of Contents
 
 - [What it registers](#what-it-registers)
 - [The two sections](#the-two-sections)
+- [The graph form](#the-graph-form)
 - [The chip badge](#the-chip-badge)
 - [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
@@ -26,10 +27,10 @@ The right Sidebar's tasks page: this Session's subagent topology and its backgro
 ## What it registers
 
 - **The type** — `ctx.sidebarRightTabs.register(...)` with kind `tasks`, id `@qilin/client-ui-sidebar-tasks`, band `builtin`, no patterns, `single`, and one guide entry (order 40, its title and description from the `sidebarTasks` namespace, its glyph the shared checklist icon) that opens the type.
-- **The body** — the keyed `sidebar.right.pane.tab` seat under that id.
+- **The body** — the keyed `sidebar.right.pane.tab` seat under that id, declaring the graph's view store so folds, arrangement, and camera survive the body's unmounts.
 - **The chip badge** — the keyed `sidebar.right.pane.tab.badge` seat under the same id.
 
-Seven source files under `src/client/`: `definition.tsx` (the type), `rows.ts` and `lineage.ts` (pure projections of the two snapshots), `face.ts` (the actions and their Remote binding), `TasksBody.tsx` and `TasksBadge.tsx` (what is drawn), `locales.ts` (what it says), and `index.ts` (the wiring).
+Eleven source files under `src/client/`: `definition.tsx` (the type), `rows.ts` and `lineage.ts` (pure projections of the two snapshots), `face.ts` (the actions and their Remote binding), `tasks-graph-model.ts`, `tasks-graph-layout.ts`, and `tasks-graph-store.ts` (the graph's pure model, pure layout, and view store), `TasksBody.tsx`, `TasksGraphView.tsx`, and `TasksBadge.tsx` (what is drawn), `locales.ts` (what it says), and `index.ts` (the wiring).
 
 <a id="the-two-sections"></a>
 ## The two sections
@@ -41,6 +42,13 @@ Seven source files under `src/client/`: `definition.tsx` (the type), `rows.ts` a
 Both sections open on arrival. A section past its preview count — five subagent rows, three job rows — folds the rest behind one control. Section and fold state is the body's own and never leaves it.
 
 Three actions exist, each performed by the injected face at call time: reveal a child as the current Session, re-read one parent's catalog, and stop a continuable child through `subagents.interruptByParent`.
+
+<a id="the-graph-form"></a>
+## The graph form
+
+The subagents section renders instead as a card tree. `buildTasksGraphModel` walks the same catalogs depth-first and emits one card per catalog child, with a main card for the page's Session; a child of six or more settled one-shot cards folds into one aggregate card until it is clicked open, an unread branch shows a placeholder card, and standby-mode children fold the same way. The card set arranges as a tree, a compact horizontal grouping, or a fixed six-column grid, and a card can be dragged — with its whole subtree under the default gesture, alone under Alt — to any offset the model keeps.
+
+The canvas steers like a document viewer: the wheel zooms toward the cursor, a drag on the background pans, double-click or the fit control reframes the content, and a resize reframes only while the user holds no camera. Card clicks route by kind: an aggregate card folds or unfolds, a placeholder card re-reads its parent's catalog, a catalog card opens the child, and the main card opens the page's Session. View state — form, per-aggregate folds, arrangement mode, drag offsets, and camera — lives in one store declared at the body's seat, so leaving the tab and coming back restores it.
 
 <a id="the-chip-badge"></a>
 ## The chip badge
@@ -63,6 +71,7 @@ None; both snapshots arrive on the Session list the client already holds, and th
 - **One-shot children cannot be stopped here.** The interrupt action addresses a continuable child through its durable parent; a one-shot child is drawn and openable, and nothing more.
 - **Depth stops at read catalogs.** The page issues no catalog read of its own, so a branch the Session list has never read contributes one row and no rows below it; the refresh action is how a branch opens up.
 - **The badge counts direct children only**, for the same reason it does not walk the lineage: a strip render must not.
+- **The graph draws catalogs, not runs.** The model accepts run, phase, and member cards for a Session list that reports them, but the page feeds it no workflow-run feed today, so every subagent draws as a plain catalog card or folds as done or standby; the run vocabulary exists so a future feed lands without a model change.
 
 <a id="dev-note"></a>
 ### Dev Note

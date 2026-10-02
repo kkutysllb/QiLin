@@ -1,12 +1,13 @@
 /**
  * `sidebarTasks` namespace dictionaries, and the namespace's declaration.
  *
- * Two vocabularies live here: the page's own (the type name, the guide entry,
- * the section headings, the fold control, and the empty and failure lines) and
- * the background-job list's (the wire status words and the elapsed-time
- * phrases), which this page owns rather than borrowing from the session
- * header's job action because a plugin bundle shares runtime code only through
- * the platform modules.
+ * Three vocabularies live here: the page's own (the type name, the guide
+ * entry, the section headings, the fold control, and the empty and failure
+ * lines), the background-job list's (the wire status words and the elapsed
+ * time phrases), and the graph view's (the view toggle, the canvas controls,
+ * and the per-kind node words) — which this page owns rather than borrowing
+ * from another plugin because a plugin bundle shares runtime code only
+ * through the platform modules.
  *
  * The namespace merge lives with its key set so that any module naming
  * `TranslateNS<'sidebarTasks'>` or `PropsLocale<'sidebarTasks'>` needs only
@@ -60,6 +61,30 @@ export const zh = {
   'tasks.duration.done': '耗时 {duration}',
   'more.expand': '展开更多（还有 {count} 条）',
   'more.collapse': '收起',
+  'graph.toggle': '切换视图',
+  'graph.view': '图',
+  'graph.list': '列表',
+  'graph.zoomIn': '放大',
+  'graph.zoomOut': '缩小',
+  'graph.fit': '适配',
+  'graph.arrange': '自动整理',
+  'graph.mode.tree': '树形',
+  'graph.mode.compact': '紧凑',
+  'graph.mode.grid': '网格',
+  'graph.resetLayout': '重置布局',
+  'graph.status.running': '运行中',
+  'graph.status.idle': '空闲',
+  'graph.loading': '读取中…',
+  'graph.unphased': '未分相位',
+  'graph.badge.main': '主代理',
+  'graph.badge.subagent': '子代理',
+  'graph.badge.done': '已完成',
+  'graph.badge.standby': '待命',
+  'graph.badge.placeholder': '子代理',
+  'graph.badge.diagnostic': '不可读',
+  'graph.badge.run': '工作流',
+  'graph.badge.phase': '相位',
+  'graph.badge.member': '成员',
 } satisfies Record<string, string>
 
 /** Tasks dictionary key union. */
@@ -101,4 +126,28 @@ export const en = {
   'tasks.duration.done': 'Took {duration}',
   'more.expand': 'Show more ({count} hidden)',
   'more.collapse': 'Show less',
+  'graph.toggle': 'Switch view',
+  'graph.view': 'Graph',
+  'graph.list': 'List',
+  'graph.zoomIn': 'Zoom in',
+  'graph.zoomOut': 'Zoom out',
+  'graph.fit': 'Fit',
+  'graph.arrange': 'Arrange',
+  'graph.mode.tree': 'Tree',
+  'graph.mode.compact': 'Compact',
+  'graph.mode.grid': 'Grid',
+  'graph.resetLayout': 'Reset layout',
+  'graph.status.running': 'running',
+  'graph.status.idle': 'idle',
+  'graph.loading': 'Loading…',
+  'graph.unphased': 'Unphased',
+  'graph.badge.main': 'Main agent',
+  'graph.badge.subagent': 'Subagent',
+  'graph.badge.done': 'Done',
+  'graph.badge.standby': 'Standby',
+  'graph.badge.placeholder': 'Subagent',
+  'graph.badge.diagnostic': 'Unreadable',
+  'graph.badge.run': 'Workflow',
+  'graph.badge.phase': 'Phase',
+  'graph.badge.member': 'Member',
 } satisfies Record<SidebarTasksKey, string>

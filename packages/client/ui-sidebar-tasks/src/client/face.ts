@@ -6,17 +6,19 @@
  * them. Each action resolves what it needs at call time, never at render time.
  */
 import type { JobsSnapshot } from '@qilin/api-job-controller/client'
+import type { SessionTarget } from '@qilin/api-session-controller/client'
 import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress, SubagentInterruptReceipt } from '@qilin/subagent/client'
+import type { SubagentInterruptReceipt } from '@qilin/subagent/client'
 import type { RemoteResult } from '@qilin/typert-protocol'
 
 /** The `ctx.sessions` reads the page's actions perform. */
 export interface TasksSessionActions {
   /**
-   * Reveal one catalog child as the current Session.
-   * @param address - catalog-derived parent and child ids.
+   * Reveal one Session as the current one: a catalog child through its
+   * durable address, or a bare id (the graph's main card).
+   * @param target - the Session to open.
    */
-  openSubagent(address: SubagentAddress): void
+  openSubagent(target: SessionTarget): void
   /**
    * Re-read one parent's direct-child catalog.
    * @param parentSessionId - catalog owner.
@@ -47,10 +49,11 @@ export interface TasksSubagentsRemote {
 /** The page's injected business face, as the body receives it. */
 export interface TasksInjected {
   /**
-   * Reveal one catalog child as the current Session.
-   * @param address - the row's catalog address.
+   * Reveal one Session as the current one: a row's catalog address, or the
+   * graph's bare main id.
+   * @param target - the Session to open.
    */
-  readonly openChild: (address: SubagentAddress) => void
+  readonly openChild: (target: SessionTarget) => void
   /**
    * Re-read one parent's direct-child catalog.
    * @param parentSessionId - catalog owner.
@@ -100,8 +103,8 @@ export function tasksFace(
 ): TasksInjected {
   return {
     ...jobs,
-    openChild(address) {
-      sessions.openSubagent(address)
+    openChild(target) {
+      sessions.openSubagent(target)
     },
     refresh(parentSessionId) {
       void sessions.refreshProjections(parentSessionId)

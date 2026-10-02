@@ -65,6 +65,31 @@
   text-overflow: ellipsis;
 }
 
+/* The graph/list form toggle: a two-chip segmented control in the section
+   header, beside the refresh control. */
+.viewToggle {
+  display: inline-flex;
+  flex: none;
+  overflow: hidden;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+}
+
+.viewToggle button {
+  padding: 2px 8px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+  line-height: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.viewToggle button[aria-pressed='true'] {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
 /* The same icon button as the Sidebar's strip controls: a 28px circle around
    a 15px glyph. */
 .sectionAction {

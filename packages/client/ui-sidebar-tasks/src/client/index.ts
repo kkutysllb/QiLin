@@ -8,8 +8,11 @@
  *
  * The split is this package's layering: what the type IS (`definition.tsx`),
  * what it says (`locales.ts`), the pure projections of the two snapshots
- * (`rows.ts`, `lineage.ts`), the actions it performs (`face.ts`), what it draws
- * (`TasksBody.tsx`, `TasksBadge.tsx`), and this module, which wires them.
+ * (`rows.ts`, `lineage.ts`), the graph's pure model and layout
+ * (`tasks-graph-model.ts`, `tasks-graph-layout.ts`), what it keeps
+ * (`tasks-graph-store.ts`), the actions it performs (`face.ts`), what it draws
+ * (`TasksBody.tsx`, `TasksGraphView.tsx`, `TasksBadge.tsx`), and this module,
+ * which wires them.
  */
 import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: pulls the ctx.uiWorkspace service merge.
@@ -25,12 +28,16 @@ import type { TasksJobsFace } from './face.ts'
 import { TasksBadge } from './TasksBadge.tsx'
 import type { TasksBadgeInjected } from './TasksBadge.tsx'
 import { NS, en, zh } from './locales.ts'
+import { createTasksGraphStore } from './tasks-graph-store.ts'
 import { TasksBody } from './TasksBody.tsx'
 
 export type { SidebarTasksKey } from './locales.ts'
 export type { InterruptByParent, TasksInjected, TasksSessionActions, TasksSubagentsRemote } from './face.ts'
 export type { SubagentDescendantSummary } from './lineage.ts'
 export type { SubagentRow } from './rows.ts'
+export type { TaskNodeKind, TaskNodeVM, TasksGraphModel } from './tasks-graph-model.ts'
+export type { NodeOffsets, TaskLayoutMode } from './tasks-graph-layout.ts'
+export type { TasksGraphCamera, TasksGraphState } from './tasks-graph-store.ts'
 export type { TasksBadgeProps } from './TasksBadge.tsx'
 export type { TasksBodyProps } from './TasksBody.tsx'
 
@@ -57,11 +64,14 @@ export function apply(ctx: ClientContext): void {
     watchRows: sessionId => ctx.jobs.watchRows(sessionId),
   }
   const face = tasksFace({
-    openSubagent: address => ctx.uiWorkspace.openSession(address),
+    openSubagent: (target) => { ctx.uiWorkspace.openSession(target) },
     refreshProjections: parentSessionId => ctx.sessions.refreshProjections(parentSessionId),
   }, ctx.remote.subagents, jobsFace)
+  // The graph's shared view state (form, folds, arrangement, offsets, camera)
+  // outlives the body's unmounts, so the body registration declares the store.
+  const graphStore = createTasksGraphStore()
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab', key: TASKS_ID, locale: NS, inject: () => face },
+    { name: 'sidebar.right.pane.tab', key: TASKS_ID, locale: NS, store: graphStore, inject: () => face },
     TasksBody,
   )), 'ui-sidebar-tasks: tasks tab body')
   // The badge draws the job count from the jobs roster and owns its

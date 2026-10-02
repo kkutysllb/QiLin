@@ -36,6 +36,9 @@
       "path": "../locale"
     },
     {
+      "path": "../store"
+    },
+    {
       "path": "../ui-primitives"
     },
     {

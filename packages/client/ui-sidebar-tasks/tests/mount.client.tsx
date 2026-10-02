@@ -5,6 +5,7 @@
  * framework-injected and never touched here, so one documented cast keeps the
  * harness to what is actually exercised.
  */
+import { useSyncExternalStore } from 'react'
 import { render } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import { vi } from 'vitest'
@@ -20,13 +21,25 @@ import { TasksBadge } from '../src/client/TasksBadge.tsx'
 import type { TasksBadgeProps } from '../src/client/TasksBadge.tsx'
 import { TasksBody } from '../src/client/TasksBody.tsx'
 import type { TasksBodyProps } from '../src/client/TasksBody.tsx'
+import { createTasksGraphStore } from '../src/client/tasks-graph-store.ts'
 
 /** The Session every mount draws. */
 export const SESSION = 's-root' as SessionId
 
+/** Test-local selector hook over a framework-neutral store instance. */
+function hookOf<T>(inst: { subscribe: (fn: () => void) => () => void; getSnapshot: () => T }) {
+  return function useSelector<S>(sel: (s: T) => S): S {
+    return sel(useSyncExternalStore(inst.subscribe, inst.getSnapshot))
+  }
+}
+
+/** A live instance of the graph store, as the registration would mint one. */
+export type TasksGraphInstance = ReturnType<ReturnType<typeof createTasksGraphStore>['create']>
+
 /** What a spec holds after mounting: the rendered view and the injected actions. */
 export interface Mounted {
   readonly view: RenderResult
+  readonly graph: TasksGraphInstance
   readonly openChild: Mock<TasksInjected['openChild']>
   readonly refresh: Mock<TasksInjected['refresh']>
   readonly interruptChild: Mock<TasksInjected['interruptChild']>
@@ -73,41 +86,47 @@ function jobsSource(rows: readonly JobView[]) {
   }
 }
 
-/** The four shares a mount needs, plus the actions a spec asserts on. */
+/** The shares a mount needs, plus the actions a spec asserts on. */
 function hands(state: Partial<SessionListState>, rows: readonly JobView[] = []) {
   const openChild = vi.fn<TasksInjected['openChild']>()
   const refresh = vi.fn<TasksInjected['refresh']>()
   const interruptChild = vi.fn<TasksInjected['interruptChild']>()
   const snapshot = listState(state)
+  const jobs = jobsSource(rows)
+  const graph = createTasksGraphStore().create()
   const shared = {
     useTabInfo: tabInfo,
     sessionId: SESSION,
     useSessions: <S,>(selector: (snapshot: SessionListState) => S): S => selector(snapshot),
+    useStore: hookOf(graph),
+    actions: graph.actions,
     openChild,
     refresh,
     interruptChild,
-    hooks: { jobs: jobsSource(rows) },
-    useJobs: <S,>(selector: (snapshot: JobsSnapshot) => S): S => selector(jobsSource(rows).getSnapshot()),
+    hooks: { jobs },
+    useJobs: <S,>(selector: (snapshot: JobsSnapshot) => S): S => selector(jobs.getSnapshot()),
     watchRows: () => () => {},
     t: makeTranslate(zh),
   }
-  return { shared, openChild, refresh, interruptChild }
+  return { shared, graph, openChild, refresh, interruptChild }
 }
 
 /**
  * Mount the page body.
  * @param state - the Session list fields the spec wants the body to see.
- * @returns the rendered view and the injected action mocks.
+ * @param rows - the background jobs the Session holds.
+ * @returns the rendered view, the graph store instance, and the action mocks.
  */
 export function mountBody(state: Partial<SessionListState> = {}, rows: readonly JobView[] = []): Mounted {
-  const { shared, openChild, refresh, interruptChild } = hands(state, rows)
+  const { shared, graph, openChild, refresh, interruptChild } = hands(state, rows)
   const view = render(<TasksBody {...shared as unknown as TasksBodyProps} />)
-  return { view, openChild, refresh, interruptChild }
+  return { view, graph, openChild, refresh, interruptChild }
 }
 
 /**
  * Mount the chip badge.
  * @param state - the Session list fields the spec wants the badge to see.
+ * @param rows - the background jobs the Session holds.
  * @returns the rendered view.
  */
 export function mountBadge(state: Partial<SessionListState> = {}, rows: readonly JobView[] = []): RenderResult {

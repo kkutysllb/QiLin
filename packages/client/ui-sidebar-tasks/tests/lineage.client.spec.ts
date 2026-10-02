@@ -31,6 +31,15 @@ describe('indexSubagentDescendants', () => {
     expect(indexSubagentDescendants({ [sid('a')]: subagent('a') }).size).toBe(0)
   })
 
+  it('aggregates a second descendant, counting its liveness too', () => {
+    const indexed = indexSubagentDescendants({
+      [sid('root')]: { id: sid('root'), running: false },
+      [sid('a')]: subagent('a', 'root', true),
+      [sid('b')]: subagent('b', 'root', true),
+    })
+    expect(indexed.get(sid('root'))).toEqual({ count: 2, runningCount: 2 })
+  })
+
   it('credits every ancestor on the chain once per descendant', () => {
     const indexed = indexSubagentDescendants({
       [sid('root')]: { id: sid('root'), running: false },
