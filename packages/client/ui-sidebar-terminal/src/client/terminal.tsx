@@ -12,6 +12,7 @@ import '@xterm/xterm/css/xterm.css'
 import css from './terminal.module.css'
 import { TerminalTheme } from './terminal-theme.ts'
 import { observeTerminalCursor } from './terminal-cursor.ts'
+import { buildTerminalLinks, shouldActivateTerminalLink, terminalUrlTarget } from './terminal-links.ts'
 
 /** Standard sidebar owner share plus terminal model and localized copy. */
 export type TerminalBodyProps = PropsRuntime<'sidebar.right.pane.tab'> & PropsLocale<'sidebarTerminal'> & InjectFace<TerminalBodyInjected>
@@ -21,7 +22,7 @@ export type TerminalBodyProps = PropsRuntime<'sidebar.right.pane.tab'> & PropsLo
  * @param props - sidebar occurrence, model lookup and translated copy.
  * @returns the terminal screen and any pending or exceptional state.
  */
-export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, t }: TerminalBodyProps): ReactNode {
+export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, openUrl, t }: TerminalBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const theme = useTheme(value => value)
   const model = view(tab.id)
@@ -63,19 +64,20 @@ export function TerminalBody({ useTabInfo, useTerminal, useTheme, view, t }: Ter
           : <Button variant="outline" size="sm" onClick={() => { model.connect() }}>{t('reconnect')}</Button>)}
         {ended && newTerminal}
       </div>}
-      {state.info !== undefined && <TerminalScreen state={state} model={model} visible={tab.visible} label={t('title')} theme={theme} />}
+      {state.info !== undefined && <TerminalScreen state={state} model={model} visible={tab.visible} label={t('title')} theme={theme} openUrl={openUrl} />}
       {error !== undefined && <p className={css.error} role="alert">{t('failed', { message: error })}</p>}
     </section>
   )
 }
 
 /* oxlint-disable typescript/no-non-null-assertion -- React sets the DOM ref, then these effects initialize and use the emulator. */
-function TerminalScreen({ state, model, visible, label, theme }: {
+function TerminalScreen({ state, model, visible, label, theme, openUrl }: {
   state: TerminalViewState
   model: TerminalView
   visible: boolean
   label: string
   theme: ThemeSnapshot
+  openUrl: (url: string) => void
 }): ReactNode {
   const element = useRef<HTMLDivElement>(null)
   const terminal = useRef<Terminal>()
@@ -84,6 +86,10 @@ function TerminalScreen({ state, model, visible, label, theme }: {
   const lastRevision = useRef(0)
   const current = useRef({ state, visible })
   current.current = { state, visible }
+  // The link provider lives for the screen's lifetime while the injected
+  // opener may be rebuilt with its registration, so the handler reads it late.
+  const opener = useRef(openUrl)
+  opener.current = openUrl
 
   useLayoutEffect(() => {
     const node = element.current!
@@ -99,6 +105,33 @@ function TerminalScreen({ state, model, visible, label, theme }: {
     fit.current = addon
     lastRevision.current = 0
     const input = xterm.onData((data) => { model.write(data) })
+    const links = xterm.registerLinkProvider({
+      provideLinks: (lineNumber, callback) => {
+        // xterm's `provideLinks` hands a 1-based buffer line number while
+        // `getLine` indexes from 0: passing it straight through would scan the
+        // row below the one asked about, so the URL text would come from one
+        // row while `range.y` still named the requested one.
+        const line = xterm.buffer.active.getLine(lineNumber - 1)
+        if (line === undefined) {
+          callback(undefined)
+          return
+        }
+        const descriptors = buildTerminalLinks(line.translateToString(true), lineNumber)
+        if (descriptors.length === 0) {
+          callback(undefined)
+          return
+        }
+        callback(descriptors.map(descriptor => ({
+          range: descriptor.range,
+          text: descriptor.text,
+          activate: (event: MouseEvent) => {
+            if (!shouldActivateTerminalLink(event)) return
+            const target = terminalUrlTarget(descriptor.text)
+            if (target !== undefined) opener.current(target)
+          },
+        })))
+      },
+    })
     const measure = (): void => {
       if (!current.current.visible || !current.current.state.writable || node.clientWidth === 0 || node.clientHeight === 0) return
       fitScreen(xterm, addon, current.current.state, model)
@@ -108,6 +141,7 @@ function TerminalScreen({ state, model, visible, label, theme }: {
     return () => {
       observer.disconnect()
       input.dispose()
+      links.dispose()
       cursor.dispose()
       palette.dispose()
       xterm.dispose()

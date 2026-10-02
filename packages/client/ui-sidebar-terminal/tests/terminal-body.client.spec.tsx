@@ -34,6 +34,15 @@ class FakeTerminal {
   readonly dispose = vi.fn()
   readonly write = vi.fn((_data: string, callback: () => void) => { callback() })
   readonly loadAddon = vi.fn()
+  /** Buffer rows the link provider reads, indexed from 0 as `getLine` does. */
+  lines: ({ translateToString(trim?: boolean): string } | undefined)[] = []
+  readonly buffer = { active: { getLine: (index: number) => this.lines[index] } }
+  readonly disposeLinks = vi.fn()
+  linkProvider: { provideLinks: (line: number, callback: (links: unknown) => void) => void } | undefined
+  readonly registerLinkProvider = vi.fn((provider: FakeTerminal['linkProvider']) => {
+    this.linkProvider = provider
+    return { dispose: this.disposeLinks }
+  })
   constructor(options: object) { this.options = options; fake.terminals.push(this) }
   open(node: HTMLElement) { node.appendChild(this.textarea!) }
   onData(input: (data: string) => void) { this.input = input; return { dispose: this.disposeInput } }
@@ -79,6 +88,7 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
     rename: vi.fn(async () => {}), connect: vi.fn(), write: vi.fn(), resize: vi.fn(), acknowledge: vi.fn(),
   }
   const openTab = vi.fn()
+  const openUrl = vi.fn()
   const tab = () => ({ tab: { id: 'tab', title: 'Terminal', visible, actions: { openTab } } })
   // The test supplies the owner and model hooks consumed here; the remaining slot props are framework-owned.
   const props = {
@@ -86,10 +96,11 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
     useTerminal: (_key: string, select?: (value: TerminalViewState | undefined) => unknown) => select === undefined ? state : select(state),
     useTheme: (select: (value: ThemeSnapshot) => unknown) => select(theme),
     useTabInfo: tab, t: makeTranslate(dictionary),
-  } as unknown as TerminalBodyProps
+    openUrl,
+  } as TerminalBodyProps
   const view = render(<TerminalBody {...props} />)
   return {
-    view, props, model, detach, openTab,
+    view, props, model, detach, openTab, openUrl,
     changeTheme() { theme = { ...theme, revision: theme.revision + 1 }; view.rerender(<TerminalBody {...props} />) },
     update(next: TerminalViewState | undefined, shown = visible) {
       state = next; visible = shown; view.rerender(<TerminalBody {...props} />)
@@ -415,4 +426,52 @@ it('offers a new terminal after process exit while preserving its final output f
   expect(h.view.queryByRole('button', { name: en.reconnect })).toBeNull()
   fireEvent.click(h.view.getByRole('button', { name: en.new }))
   expect(h.openTab).toHaveBeenCalledExactlyOnceWith('terminal', { replaceTab: true })
+})
+
+it('links the URLs a line carries and opens only an activated http(s) target', () => {
+  const h = mount({ ...idle, info, phase: 'connected', writable: true })
+  const terminal = fake.terminals[0]!
+  const provider = terminal.linkProvider
+  if (provider === undefined) throw new Error('expected the screen to register a link provider')
+  // xterm asks with a 1-based buffer line number while `getLine` indexes from
+  // 0, so the row it names is the row the provider must scan.
+  terminal.lines = [undefined, { translateToString: () => 'see https://example.com/docs for more' }]
+  let links: { range: unknown; text: string; activate: (event: MouseEvent) => void }[] | undefined
+  provider.provideLinks(2, (provided) => { links = provided as typeof links })
+  expect(links).toHaveLength(1)
+  expect(links?.[0]?.text).toBe('https://example.com/docs')
+  expect(links?.[0]?.range).toEqual({ start: { x: 5, y: 2 }, end: { x: 28, y: 2 } })
+
+  // A plain click stays xterm's selection gesture.
+  links?.[0]?.activate(new MouseEvent('click'))
+  expect(h.openUrl).not.toHaveBeenCalled()
+  links?.[0]?.activate(new MouseEvent('click', { metaKey: true }))
+  expect(h.openUrl).toHaveBeenCalledExactlyOnceWith('https://example.com/docs')
+
+  // Only http(s) is scanned, so another scheme prints as plain text.
+  terminal.lines[1] = { translateToString: () => 'open file:///etc/hosts' }
+  provider.provideLinks(2, (provided) => { links = provided as typeof links })
+  expect(links).toBeUndefined()
+  expect(h.openUrl).toHaveBeenCalledOnce()
+
+  // Scanned text the URL parser refuses is shown as a link but never opened.
+  terminal.lines[1] = { translateToString: () => 'curl https://%zz' }
+  provider.provideLinks(2, (provided) => { links = provided as typeof links })
+  expect(links).toHaveLength(1)
+  links?.[0]?.activate(new MouseEvent('click', { ctrlKey: true }))
+  expect(h.openUrl).toHaveBeenCalledOnce()
+})
+
+it('reports no links for a line without a URL and for a row outside the buffer', () => {
+  const h = mount({ ...idle, info, phase: 'connected', writable: true })
+  const terminal = fake.terminals[0]!
+  const provider = terminal.linkProvider
+  if (provider === undefined) throw new Error('expected the screen to register a link provider')
+  const answers: unknown[] = []
+  terminal.lines = [{ translateToString: () => 'plain output, nothing to open' }]
+  provider.provideLinks(1, (provided) => { answers.push(provided) })
+  provider.provideLinks(9, (provided) => { answers.push(provided) })
+  expect(answers).toEqual([undefined, undefined])
+  h.view.unmount()
+  expect(terminal.disposeLinks).toHaveBeenCalledOnce()
 })

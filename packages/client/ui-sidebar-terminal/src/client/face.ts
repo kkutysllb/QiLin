@@ -15,6 +15,12 @@ export interface TerminalInjected {
 /** The terminal screen follows the resolved application theme through a framework hook. */
 export interface TerminalBodyInjected extends TerminalInjected {
   readonly hooks: { readonly theme: HostObservable<ThemeSnapshot> }
+  /**
+   * Open one URL a terminal line carries, in the destination this application
+   * uses for a link.
+   * @param url - an http(s) target.
+   */
+  readonly openUrl: (url: string) => void
 }
 
 declare module '@qilin/client-ui-sidebar-right/client' {

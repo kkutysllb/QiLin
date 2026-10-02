@@ -33,6 +33,7 @@
       "inject": [
         "@qilin/api-terminal-controller",
         "@qilin/client-ui-sidebar-right",
+        "@qilin/client-ui-sidebar-browser",
         "@qilin/api-remotes",
         "@qilin/client-ui-theme"
       ],
@@ -57,6 +58,7 @@
     "@qilin/client-ui-primitives": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-session": "workspace:*",
+    "@qilin/client-ui-sidebar-browser": "workspace:*",
     "@qilin/client-ui-sidebar-right": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
     "@qilin/session": "workspace:*",

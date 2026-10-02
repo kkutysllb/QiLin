@@ -5476,6 +5476,9 @@ importers:
       '@qilin/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin/client-ui-sidebar-browser':
+        specifier: workspace:*
+        version: link:../ui-sidebar-browser
       '@qilin/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../ui-sidebar-right

@@ -49,14 +49,15 @@ async function mountPlugin() {
     launchShells: vi.fn(async () => ({ shells: [], selectedShell: undefined })), selectShell: vi.fn(),
     recover: vi.fn(async (_sessionId: SessionId): Promise<WebTerminalInfo[]> => []),
   }
-  let params: { terminalId: WebTerminalId } | { shellPath: string } | undefined
+  let params: { terminalId: WebTerminalId } | { shellPath: string } | { url: string } | undefined
   const occurrence = vi.fn(() => ({ navigation: { getSnapshot: () => ({ params, address: 'sidebar://terminal/content' }) } }))
   const openTabIn = vi.fn()
   const tabsIn = vi.fn(() => [] as { id: string; kind: string }[])
   const openTabs = createSnapshotStore<readonly SidebarRightOpenTab[]>([])
   ctx.provide('webTerminals', terminals as never)
+  const openTab = vi.fn()
   ctx.provide('sidebarRight', {
-    tabDomain: { occurrence }, openTabIn, tabsIn, openTabs,
+    tabDomain: { occurrence }, openTabIn, openTab, tabsIn, openTabs,
     registerCloseHandler: (kind: string, handler: SidebarRightCloseHandler) => { expect(kind).toBe('terminal'); closeHandler = handler; return () => { closeHandler = undefined } },
   } as never)
   ctx.provide('slots', {
@@ -71,7 +72,7 @@ async function mountPlugin() {
   ctx.provide('theme', { getTheme: () => theme } as never)
   const fiber = await ctx.plugin({ inject, apply })
   return {
-    tabs, entries, dictionaries, terminals, model, occurrence, openTabIn, tabsIn, openTabs, theme,
+    tabs, entries, dictionaries, terminals, model, occurrence, openTabIn, openTab, tabsIn, openTabs, theme,
     emitTheme() { ctx.emit('theme/change', theme) },
     get closeHandler() { return closeHandler },
     setParams(next: typeof params) { params = next },
@@ -84,6 +85,7 @@ it('registers terminal views, recovery and cleanup, then releases every contribu
   const h = await mountPlugin()
   try {
     const definition = h.tabs.get('terminal')!
+    expect(definition.label?.()).toBe('title')
     expect(definition.title('sidebar://terminal')).toBe('title')
     expect(definition.guide?.map(entry => [entry.order, entry.title(), entry.description?.()])).toEqual([[20, 'new', 'description']])
     const Icon = definition.guide?.[0]?.icon
@@ -122,6 +124,10 @@ it('registers terminal views, recovery and cleanup, then releases every contribu
     h.setParams({ shellPath: '/bin/bash' })
     face.view('tab')
     expect(h.terminals.view).toHaveBeenLastCalledWith(sessionId, 'tab', 'sidebar://terminal/content', undefined, '/bin/bash')
+    // Parameters another tab type owns are not this package's occurrence.
+    h.setParams({ url: 'https://example.test' })
+    face.view('tab')
+    expect(h.terminals.view).toHaveBeenLastCalledWith(sessionId, 'tab', 'sidebar://terminal/content', undefined, undefined)
     h.setParams({ terminalId })
     expect(face.keyedHooks.terminal('tab')).toBe(h.model.state)
     expect(h.terminals.view).toHaveBeenLastCalledWith(sessionId, 'tab', 'sidebar://terminal/content', terminalId, undefined)
@@ -233,4 +239,26 @@ it('retains terminal metadata from dormant layouts and releases its inventory su
   h.openTabs.set([terminal])
   await Promise.resolve()
   expect(h.terminals.retainTabs).toHaveBeenCalledTimes(calls)
+})
+
+it('opens a terminal link beside the terminal, and falls back to a browser tab without the browser type', async () => {
+  const h = await mountPlugin()
+  const face = h.entries[1]!.inject('s-1' as SessionId) as TerminalBodyInjected
+  const opened = vi.spyOn(window, 'open').mockImplementation(() => null)
+  try {
+    // No browser tab type is registered here, so the link leaves the app.
+    face.openUrl('https://example.test/a')
+    expect(opened).toHaveBeenCalledExactlyOnceWith('https://example.test/a', '_blank', 'noopener,noreferrer')
+    expect(h.openTab).not.toHaveBeenCalled()
+
+    h.tabs.register({
+      id: 'browser', kind: 'browser', priority: 'builtin', label: () => 'Browser', title: () => 'Browser',
+    })
+    face.openUrl('https://example.test/b')
+    expect(h.openTab).toHaveBeenCalledExactlyOnceWith('browser', { params: { url: 'https://example.test/b' } })
+    expect(opened).toHaveBeenCalledOnce()
+  } finally {
+    opened.mockRestore()
+  }
+  await h.dispose()
 })

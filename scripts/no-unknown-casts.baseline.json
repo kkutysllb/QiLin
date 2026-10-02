@@ -869,9 +869,6 @@
   "packages/client/ui-sidebar-tasks/tests/mount.client.tsx": {
     "2caa9ae382deea09b4ac64586c1ab49bd935b1e689218e3d485bd7b918e22066": 2
   },
-  "packages/client/ui-sidebar-terminal/tests/terminal-body.client.spec.tsx": {
-    "2619b64fb6b7aaf380269d12e204e1f44eee31ff48e151313c326dae4ef2887c": 1
-  },
   "packages/client/ui-sidebar-terminal/tests/terminal-cursor.client.spec.ts": {
     "c17c30832b2cde55b57c2c94083562feb1e941ade2d01268f1d49d31a6c6e2ca": 1
   },

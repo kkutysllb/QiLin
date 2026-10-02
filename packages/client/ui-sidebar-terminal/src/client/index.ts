@@ -5,6 +5,7 @@ import type { SidebarRightTabParamsMap, TabId } from '@qilin/client-ui-sidebar-r
 import type { SessionId } from '@qilin/session/types'
 import type {} from '@qilin/api-terminal-controller/client'
 import type {} from '@qilin/client-ui-sidebar-right/client'
+import type {} from '@qilin/client-ui-sidebar-browser/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-session/client'
@@ -35,8 +36,14 @@ export function apply(ctx: Context): void {
     sync()
     return () => { unsubscribe(); ctx.webTerminals.retainTabs([]) }
   }, 'ui-sidebar-terminal.window-holds')
-  const target = (sessionId: SessionId, key: string): SidebarRightTabParamsMap['terminal'] | undefined =>
-    ctx.sidebarRight.tabDomain.occurrence(sessionId, { id: key as TabId }).navigation.getSnapshot().params
+  // Navigation parameters are typed by every registered tab type; this package
+  // reads only its own occurrence's terminal spelling, so it narrows rather
+  // than claiming the whole union.
+  const target = (sessionId: SessionId, key: string): SidebarRightTabParamsMap['terminal'] | undefined => {
+    const params = ctx.sidebarRight.tabDomain.occurrence(sessionId, { id: key as TabId }).navigation.getSnapshot().params
+    if (params === undefined) return undefined
+    return 'terminalId' in params || 'shellPath' in params ? params : undefined
+  }
   const terminalId = (sessionId: SessionId, key: string): WebTerminalId | undefined => {
     const params = target(sessionId, key)
     return params !== undefined && 'terminalId' in params ? params.terminalId : undefined
@@ -66,6 +73,14 @@ export function apply(ctx: Context): void {
     getSnapshot: () => ctx.theme.getTheme(),
     subscribe: listener => ctx.on('theme/change', listener),
   }
+  // A URL printed in a terminal opens in the Sidebar's own browser, beside the
+  // terminal that printed it; without that tab type — a composition that leaves
+  // the browser out — the link falls back to a new browser tab, because a
+  // terminal link that does nothing is worse than one that leaves the app.
+  const openUrl = (url: string): void => {
+    if (ctx.sidebarRightTabs.get('browser') !== undefined) ctx.sidebarRight.openTab('browser', { params: { url } })
+    else window.open(url, '_blank', 'noopener,noreferrer')
+  }
   ctx.effect(() => ctx.slots.inject('sidebar.right.tab.guide.entry', () => ctx.slots.register({
     name: 'sidebar.right.tab.guide.entry', key: id, locale: namespace,
     inject: (sessionId): TerminalGuideInjected => ({
@@ -75,7 +90,7 @@ export function apply(ctx: Context): void {
   }, TerminalGuide)), 'ui-sidebar-terminal.guide')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab', key: id, locale: namespace,
-      inject: (sessionId): TerminalBodyInjected => ({ ...inject(sessionId), hooks: { theme } }),
+      inject: (sessionId): TerminalBodyInjected => ({ ...inject(sessionId), hooks: { theme }, openUrl }),
     }, LazyTerminalBody,
   )), 'ui-sidebar-terminal.body')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register(
