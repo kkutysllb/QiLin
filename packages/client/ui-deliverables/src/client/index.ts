@@ -1,8 +1,9 @@
 /**
  * Deliverables plugin, browser half: registers the changed-files card and
  * delivery cards into the chat view's turn-tail list, the `changes-review`
- * right-Sidebar tab type that reviews one turn's changed files one comparison
- * at a time, and provides the `chatFileMentions` service that links
+ * right-Sidebar tab types that review one turn's changed files one comparison
+ * at a time and list the whole Session's changed files as a directory tree,
+ * and provides the `chatFileMentions` service that links
  * inline-code mentions of produced or delivered files in the closing prose.
  * All policy lives here — the supported mutation calls, mention matching, row
  * cap, and copy — so composing this plugin out of cordis.yml removes every
@@ -23,7 +24,10 @@ import { PresentedOpenController } from './present-open.ts'
 import { PresentRow } from './PresentRow.tsx'
 import { DeliverablesTail, type DeliverablesInjected } from './Deliverables.tsx'
 import { ReviewTab, type ReviewInjected } from './ReviewTab.tsx'
+import { SessionChangesBody, type SessionChangesInjected } from './SessionChangesBody.tsx'
+import { SessionChangesStore } from './session-changes.ts'
 import { CHANGES_REVIEW_ID, changesReviewDefinition } from './review-definition.ts'
+import { SESSION_CHANGES_ID, sessionChangesDefinition } from './session-changes-definition.tsx'
 import { createReviewStore } from './review-store.ts'
 import { en, NS, zh, type DeliverablesKey } from './locales.ts'
 import {
@@ -48,11 +52,13 @@ export function apply(ctx: ClientContext): void {
   const opener = new PresentedOpenController()
   const summaries = new ChangesSummaryStore()
   const diffs = new ChangesDiffStore()
-  ctx.effect(() => () => Promise.all([opener.dispose(), summaries.dispose(), diffs.dispose()]))
+  const sessionChanges = new SessionChangesStore()
+  ctx.effect(() => () => Promise.all([opener.dispose(), summaries.dispose(), diffs.dispose(), sessionChanges.dispose()]))
   ctx.on('connection/reset', () => {
     opener.resetHost()
     summaries.reset()
     diffs.reset()
+    sessionChanges.reset()
   })
   ctx.uiConversation.events.register(deliverablesDefinition)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-deliverables: dictionaries')
@@ -92,6 +98,22 @@ export function apply(ctx: ClientContext): void {
     },
     ReviewTab,
   )), 'ui-deliverables: changes-review body')
+  ctx.effect(() => ctx.sidebarRightTabs.register(sessionChangesDefinition(t)), 'ui-deliverables: session changes type')
+  ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
+    {
+      name: 'sidebar.right.pane.tab', key: SESSION_CHANGES_ID, locale: NS,
+      inject: (sessionId): SessionChangesInjected => ({
+        hooks: { sessionChanges: sessionChanges.state },
+        loadSessionChanges: sessionId => sessionChanges.load(sessionId),
+        // A row reopens the turn that last changed its file; the review tab
+        // owns the diff rendering this page deliberately does not repeat.
+        openTurn: (seq, turn, index) => {
+          ctx.sidebarRight.openResource(changesReviewAddress({ sessionId, seq, turn }), { params: { index } })
+        },
+      }),
+    },
+    SessionChangesBody,
+  )), 'ui-deliverables: session changes body')
   // The prose side of the same vocabulary: the chat view reaches this face
   // via ctx.get, so its absence — this plugin composed out — is the off state.
   const mentions: ChatFileMentions = {

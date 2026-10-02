@@ -25,6 +25,18 @@ import type { ChatFileMentions, TurnTailOwnerProps } from '@qilin/client-ui-chat
 import { makeTranslate, stubConfigForm } from '@qilin/client-test-runtime'
 import { Deliverables, DeliverablesTail, selectDeliverables, type DeliverablesInjected } from '../src/client/Deliverables.tsx'
 import type { ReviewInjected } from '../src/client/ReviewTab.tsx'
+import type { SessionChangesInjected } from '../src/client/SessionChangesBody.tsx'
+
+/**
+ * Recognize the Session changes face inside a slot entry's loosely typed
+ * inject, so the spec drives the wiring without asserting past its type.
+ * @param value - what the entry's inject answered.
+ * @returns whether the value carries the members the spec calls.
+ */
+function isSessionChangesInjected(value: Record<string, unknown>): value is SessionChangesInjected {
+  return typeof value.loadSessionChanges === 'function' && typeof value.openTurn === 'function'
+    && typeof value.hooks === 'object' && value.hooks !== null
+}
 import { ChangesSummaryStore } from '../src/client/changes-summary.ts'
 import { changesSummaryUrl, type ChangesSummary } from '../src/changes.ts'
 import { PresentedOpenController } from '../src/client/present-open.ts'
@@ -691,9 +703,9 @@ describe('plugin registration', () => {
         'sidebar.right.pane.tab': { kind: 'keyed', scope: 'session' },
       },
     } as never, () => null)
-    const registerTab = vi.fn(() => () => { registered = undefined })
-    let registered: unknown
-    ctx.provide('sidebarRightTabs', { register: (definition: unknown) => { registered = definition; return registerTab() } } as never)
+    const registerTab = vi.fn(() => () => { registered = [] as unknown[] })
+    let registered: unknown[] = []
+    ctx.provide('sidebarRightTabs', { register: (definition: unknown) => { registered = [...registered, definition]; return registerTab() } } as never)
     const openResource = vi.fn()
     ctx.provide('sidebarRight', { openResource } as never)
     // ui-theme's Appearance row binds a durable scope through these two.
@@ -715,9 +727,15 @@ describe('plugin registration', () => {
     expect(entry).toBeDefined()
     expect(ctx.slots.entries('tool.call.toolview')).toHaveLength(1)
     expect(entry?.inject).toBeDefined()
-    expect(registered).toMatchObject({ kind: 'changes-review', patterns: ['qilin-resource://changes-review/**'] })
+    // Two tab types: the per-turn review that claims its addresses, and the
+    // Session-wide page the guide opens by kind.
+    expect(registered).toMatchObject([
+      { kind: 'changes-review', patterns: ['qilin-resource://changes-review/**'] },
+      { kind: 'session-changes', single: true },
+    ])
+    expect(ctx.slots.entries('sidebar.right.pane.tab').map(entry => entry.options.key))
+      .toEqual(['@qilin/client-ui-deliverables', '@qilin/client-ui-deliverables/changes'])
     const [tabEntry] = ctx.slots.entries('sidebar.right.pane.tab')
-    expect(tabEntry?.options.key).toBe('@qilin/client-ui-deliverables')
 
     // The prose face is live while the plugin is: a produced turn yields a
     // resolver whose matches open through the owner-supplied opener.
@@ -763,7 +781,7 @@ describe('plugin registration', () => {
     expect(face.hooks.presentedOpen.getSnapshot()['api/changes.open?sessionId=child-session&seq=5&index=0']).toBe('opened')
     face.openChangesReview({ sessionId: SessionId('child-session'), seq: 5, turn: 3 }, 1)
     expect(openResource).toHaveBeenCalledWith('qilin-resource://changes-review/session/child-session/5/3', { params: { index: 1 } })
-    expect((registered as { title(address: string): string }).title('qilin-resource://changes-review/session/child-session/5/3')).toBe('Review · turn 3')
+    expect((registered[0] as { title(address: string): string }).title('qilin-resource://changes-review/session/child-session/5/3')).toBe('Review · turn 3')
     const tabFace = tabEntry!.inject!(SessionId('child-session') as never) as unknown as ReviewInjected
     fetcher.mockResolvedValueOnce(Response.json({ turn: 3, files: [], total: 0, added: 0, deleted: 0 }))
     await tabFace.loadChangesSummary(SessionId('child-session'), 6)
@@ -772,6 +790,17 @@ describe('plugin registration', () => {
     await tabFace.loadChangesDiff(SessionId('child-session'), 5, 1)
     expect(tabFace.hooks.changesDiff.getSnapshot()['api/changes.diff?sessionId=child-session&seq=5&index=1']).toEqual({ kind: 'binary', path: 'src/a.ts', display: 'src/a.ts' })
     expect(tabFace.hooks.presentedHost).toBe(face.hooks.presentedHost)
+    // The Session-wide page reaches its own route and reopens a row's turn
+    // through the same review address the per-turn type claims.
+    const sessionTab = ctx.slots.entries('sidebar.right.pane.tab')[1]!
+    fetcher.mockResolvedValueOnce(Response.json({ files: [], total: 0, added: 0, deleted: 0 }))
+    const injected = sessionTab.inject!(SessionId('child-session') as never)
+    if (!isSessionChangesInjected(injected)) throw new Error('expected the Session changes face')
+    await injected.loadSessionChanges(SessionId('child-session'))
+    expect(injected.hooks.sessionChanges.getSnapshot()['api/changes.session?sessionId=child-session'])
+      .toEqual({ files: [], total: 0, added: 0, deleted: 0 })
+    injected.openTurn(5, 3, 1)
+    expect(openResource).toHaveBeenCalledWith('qilin-resource://changes-review/session/child-session/5/3', { params: { index: 1 } })
     fetcher.mockResolvedValueOnce(Response.json({ name: 'desktop', available: true, fileManager: 'finder' }))
     await tabFace.reloadPresentedHost()
     fetcher.mockResolvedValueOnce(new Response(null, { status: 204 }))
@@ -793,7 +822,7 @@ describe('plugin registration', () => {
     expect(ctx.slots.entries('conversation.chat.turnTail')).toHaveLength(0)
     expect(ctx.slots.entries('tool.call.toolview')).toHaveLength(0)
     expect(ctx.slots.entries('sidebar.right.pane.tab')).toHaveLength(0)
-    expect(registered).toBeUndefined()
+    expect(registered).toEqual([])
     // Fiber teardown retracts the service: the consumer's ctx.get sees the off state.
     expect((ctx as unknown as { get(name: string): unknown }).get('chatFileMentions')).toBeUndefined()
   })
