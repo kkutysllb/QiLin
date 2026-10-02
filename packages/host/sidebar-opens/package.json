@@ -47,7 +47,8 @@
     "lib/typert.remote-client.d.ts"
   ],
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin/schemastery": "workspace:~",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",
