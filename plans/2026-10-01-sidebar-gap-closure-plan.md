@@ -418,3 +418,10 @@ React 18 只把 `ref` 交给 `forwardRef` 与 DOM 元素；普通函数组件收
 | 门禁 | `typecheck` 0；`oxlint` 全仓 **88 = 基线，净新增 0**；`verify-no-unknown-casts` 转绿（「no new assertions; 1672 existing assertions remain」）；`doc-sync` **41 过 / 1 红**（唯一红 `verify-persistence-changes` 预存，本批未触碰 `packages/session/**`） |
 
 **过程中被门禁拦下的两处真问题**（值得记）：CSS 的 `.selectionPopup` 一开始同时带 `box-shadow: lv3` 与中性边框，被 `ui-theme` 的 `elevation-styles` 判为「浮起面不得再叠中性边框」；README 的 Model Experience 段被 `verify-package-readme-model-experience` 要求回到规范句式（`None, as …`），因此把审计表里 `ui-sidebar-documentpreview` 的理由一并改述为与 `client-ui-voice-input` 同型的「只写入未发送草稿、不代替提交」。这两条都是产品/文档规范真实生效的例子，不是形式主义。
+
+### 四、补充二十七的验证补记（2026-10-02 21:20）
+
+- 根 client 方案 `tsc -b tsconfig.client.json` 与 `pnpm run typecheck` 均为 **0**。**教训**：包级 `tsc -p <包>/tsconfig.client.json` 只覆盖 `src`，**不覆盖 `tests/`**；测试文件的类型错误只有根方案（`build:lib` / `typecheck` 走的那条）才会暴露。本批最初的 `FakeIntersectionObserver` 就栽在这里（浏览器 lib 还要求 `scrollMargin`），已改为 `implements IntersectionObserver` 并把选择夹具改为在文档自身的 `Selection` 上遮蔽所用成员，不再有断言穿透。
+- `pnpm run test:gui`：**592 全过 / 1 红**（唯一红仍是 `ui-theme` 的 ModelSelect 滚动面，预存）。
+- `pnpm run hygiene`：**18 过 / 1 红**（唯一红 `vendor rescope`，预存）。`verify-client-catalog` / `verify-kylin-catalog` / `verify-config-catalog` / `verify-package-invariants` 全过。
+- **`test:web` 本机无法执行**：`~/Library/Caches/ms-playwright` 被外部清空（只有 `.links` 与 `__dirlock`，无任何浏览器）。`QILIN_SNAPSHOT=replay pnpm run test:web` 因此 121 个文件在 `browserType.launch` 处失败（`Executable doesn't exist at …/chromium_headless_shell-1228/…`），非浏览器用例 24 例通过。`pnpm exec playwright install chromium` 再试一次，约 9 分钟零字节（缓存仍 8K），已终止。**这是环境阻塞，不是本批回归**；浏览器恢复后需补跑一次 `test:web` 才能宣告本批的组装面验证完成。
