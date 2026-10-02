@@ -423,10 +423,13 @@ describe('web e2e: shipped right Sidebar', () => {
       }
 
       await expect.poll(async () => await tabTitles(column)).toEqual(['Start'])
-      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(8)
-      for (const kind of ['files', 'terminal', 'trajectory', 'trajectory-graph', 'browser', 'tasks', 'plans', 'git']) {
+      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(7)
+      for (const kind of ['files', 'terminal', 'trajectory-graph', 'browser', 'tasks', 'plans', 'git']) {
         expect(await column.locator('[data-sidebar-right-guide-entry="' + kind + '"]').count(), kind).toBe(1)
       }
+      // The ledger keeps no guide entry: the graph page is the Sidebar's only
+      // trajectory page, and it carries the control that opens the ledger.
+      expect(await column.locator('[data-sidebar-right-guide-entry="trajectory"]').count()).toBe(0)
       await column.locator('[data-sidebar-right-guide-entry="files"]').click()
 
       // A manual guide is closable beside Files and suppresses another add

@@ -1,9 +1,11 @@
 /**
  * Stage one of the trajectory tab type: what it IS in the right Sidebar.
  *
- * The type is a page, not a viewer: it claims no address. It opens by kind —
- * from the guide page's entry box, or from a Chat tool card's inspect action,
- * which addresses the call to focus through `params.focus`.
+ * The type is a page, not a viewer: it claims no address, and it offers no
+ * guide entry, so the Sidebar never lists the ledger beside the graph. It opens
+ * by kind from the two actions that ask for it: a Chat tool card's inspect
+ * action, which addresses the call to focus through `params.focus`, and the
+ * graph page's Ledger control.
  */
 import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
 import type { TranslateNS } from '@qilin/client-locale/client'
@@ -43,12 +45,5 @@ export function trajectoryTabDefinition(t: TranslateNS<'trajectory'>): SidebarRi
     // page through its navigation parameters instead of seating another.
     single: true,
     title: () => t('view.trajectory'),
-    guide: [{
-      id: 'trajectory',
-      order: 20,
-      title: () => t('view.trajectory'),
-      description: () => t('guide.description'),
-      icon: IconGaugeOutline16,
-    }],
   }
 }

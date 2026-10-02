@@ -232,11 +232,11 @@ export async function openSettings(page: Page, label = { menu: '设置', dialog:
  * The ledger's only seat is that column now that the conversation header
  * carries no view tabs, and the column starts collapsed: the header's corner
  * control expands it, the strip's add control reveals the guide page while the
- * trajectory capsule is absent, and the capsule opens the page. A column that
- * already shows the ledger is left alone, but a collapsed one keeps its panel
- * mounted off-edge, so presence alone is not enough to skip the expansion.
- * Resolves once the ledger's scroll container is on screen; its table follows
- * under the same seat.
+ * page is absent, and the graph page's Ledger control opens the ledger — the
+ * ledger type keeps no guide entry of its own. A column that already shows the
+ * ledger is left alone, but a collapsed one keeps its panel mounted off-edge,
+ * so presence alone is not enough to skip the expansion. Resolves once the
+ * ledger's scroll container is on screen; its table follows under the same seat.
  * @param page - the page under test.
  */
 export async function openTrajectoryTab(page: Page): Promise<void> {
@@ -244,15 +244,16 @@ export async function openTrajectoryTab(page: Page): Promise<void> {
   if (await ledger.isVisible()) return
   const expand = page.getByRole('button', { name: 'Open right sidebar' })
   if (await expand.count() > 0) await expand.click()
-  const capsule = page.locator('[data-sidebar-right-guide-entry="trajectory"]')
-  if (await capsule.count() === 0) await page.getByRole('button', { name: 'New tab' }).first().click()
-  await capsule.click()
+  const graphCapsule = page.locator('[data-sidebar-right-guide-entry="trajectory-graph"]')
+  if (await graphCapsule.count() === 0) await page.getByRole('button', { name: 'New tab' }).first().click()
+  await graphCapsule.click()
+  await page.getByRole('button', { name: 'Ledger', exact: true }).click()
   await ledger.waitFor({ timeout: 30_000 })
 }
 
 /**
  * Make the right Sidebar show the Files page.
- * Two types contribute guide capsules (files, trajectory), so the registry
+ * Several types contribute guide capsules, so the registry
  * seeds a fresh pane on the guide page instead of the Files tree: expanding the
  * column is no longer enough. A pane that already holds a Files tab only needs
  * that chip focused; otherwise the guide's own capsule opens the page in its

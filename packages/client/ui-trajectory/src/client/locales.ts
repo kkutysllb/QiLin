@@ -6,7 +6,6 @@ export const NS = 'trajectory'
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
   'view.trajectory': '轨迹',
-  'guide.description': '在右侧边栏查看请求与工具调用账本',
   'toolbar.aria': '轨迹工具栏',
   'toolbar.duration': '时长',
   'toolbar.useActualDuration': '使用实际时长',
@@ -209,6 +208,7 @@ export const zh = {
   'graph.empty': '暂无可绘制的轨迹记录',
   'graph.windowed': '仅显示最近 {count} 条记录',
   'graph.hint': '点击节点查看参数与结果',
+  'graph.openLedger': '账本',
   'graph.nodeAria': '{kind}节点：{label}',
   'graph.live': '进行中',
   'graph.sequence': '序号',
@@ -298,7 +298,6 @@ export type TrajectoryTranslate =
 /** English dictionary, checked complete against the Chinese source of truth. */
 export const en: Record<TrajectoryKey, string> = {
   'view.trajectory': 'Trajectory',
-  'guide.description': 'Request and tool-call ledger in the right Sidebar',
   'toolbar.aria': 'Trajectory toolbar',
   'toolbar.duration': 'Duration',
   'toolbar.useActualDuration': 'Use actual duration',
@@ -501,6 +500,7 @@ export const en: Record<TrajectoryKey, string> = {
   'graph.empty': 'No trajectory records to draw',
   'graph.windowed': 'Showing the {count} most recent records',
   'graph.hint': 'Select a node to read its arguments and result',
+  'graph.openLedger': 'Ledger',
   'graph.nodeAria': '{kind} node: {label}',
   'graph.live': 'Live',
   'graph.sequence': 'Seq',

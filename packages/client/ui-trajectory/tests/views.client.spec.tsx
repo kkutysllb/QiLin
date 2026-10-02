@@ -314,6 +314,10 @@ async function bench(snapshot = historySnapshot(NODES)) {
   // seat the type registers into.
   const tabs = new SidebarRightTabRegistry(ctx)
   ctx.provide('sidebarRightTabs', tabs as never)
+  // The Sidebar's controller: the graph body's Ledger control opens the
+  // trajectory type through it.
+  const openLedger = vi.fn()
+  ctx.provide('sidebarRight', { openTab: openLedger } as never)
   await runtime.root.declare(
     {
       'sidebar.right.pane.tab': {
@@ -335,7 +339,7 @@ async function bench(snapshot = historySnapshot(NODES)) {
   if (sourceDescriptor === undefined) throw new Error('ui-trajectory did not provide its standard source')
   return {
     runtime, ctx, slots, feature, loadOlder, trajectoryStore, conversationStore,
-    events, views, sourceDescriptor, tabs,
+    events, views, sourceDescriptor, tabs, openLedger,
   }
 }
 
@@ -434,8 +438,9 @@ describe('plugin registration', () => {
     expect(definition?.id).toBe(TRAJECTORY_ID)
     expect(definition?.kind).toBe(TRAJECTORY_KIND)
     expect(definition?.priority).toBe('builtin')
-    expect(definition?.guide?.map(entry => [entry.order, entry.title(), entry.description?.()]))
-      .toEqual([[20, 'Trajectory', 'Request and tool-call ledger in the right Sidebar']])
+    // The ledger keeps off the guide page: the Sidebar lists the graph alone,
+    // and the type opens only from the actions that name it.
+    expect(definition?.guide).toBeUndefined()
 
     const entry = bodyEntry(b)
     expect(entry.locale).toBe('trajectory')
@@ -453,6 +458,11 @@ describe('plugin registration', () => {
       .find(candidate => candidate.options.key === TRAJECTORY_GRAPH_ID)
     expect(graphEntry?.locale).toBe('trajectory')
     expect(graphEntry?.component).toBe(TrajectoryGraphView)
+    // The graph body carries the way back to the ledger it draws.
+    const graphInject = graphEntry?.inject as ((sessionId: SessionId) => { openLedger: () => void }) | undefined
+    if (graphInject === undefined) throw new Error('ui-trajectory graph seat declares no inject face')
+    graphInject(SID).openLedger()
+    expect(b.openLedger).toHaveBeenCalledWith(TRAJECTORY_KIND)
   })
 
   it('labels the trajectory page in the active locale', async () => {

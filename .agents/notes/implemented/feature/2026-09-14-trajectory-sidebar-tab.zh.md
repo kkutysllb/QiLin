@@ -14,7 +14,7 @@ Status: implemented
 
 ## Decision
 
-`ui-trajectory` 把记录表注册为右侧边栏的页面类型。`trajectoryTabDefinition` 声明 kind 为 `trajectory`、id 为 `@qilin/client-ui-trajectory/trajectory`、band 为 `builtin`、本地化的 `view.trajectory` 标签标题，以及 order 20 的引导页条目。正文以同一 id 注册进键控座位 `sidebar.right.pane.tab`，把 `conversation.trajectory.images` 声明为子槽位，并由 inject face 提供分页加载器、图片加载器与时长偏好。注册表在标签页打开时捕获标题，因此标题永不变化的本类型无需注册 `sidebar.right.pane.tab.title`。
+`ui-trajectory` 把记录表注册为右侧边栏的页面类型。`trajectoryTabDefinition` 声明 kind 为 `trajectory`、id 为 `@qilin/client-ui-trajectory/trajectory`、band 为 `builtin`、本地化的 `view.trajectory` 标签标题；它不提供引导页条目，因此引导页只列轨迹图页面，记录表改由轨迹图页面的账本控件或 Chat 工具卡片的查看操作打开。正文以同一 id 注册进键控座位 `sidebar.right.pane.tab`，把 `conversation.trajectory.images` 声明为子槽位，并由 inject face 提供分页加载器、图片加载器与时长偏好。注册表在标签页打开时捕获标题，因此标题永不变化的本类型无需注册 `sidebar.right.pane.tab.title`。
 
 焦点经由标签页导航记录传递，而不是会话 store 的请求。`TrajectoryTabParams` 为 `{ focus?: string }`，声明为 `SidebarRightTabParamsMap` 的 `trajectory` 条目；`ctx.sidebarRight.openTab("trajectory", { params: { focus: callId } })` 一次完成打开标签页、聚焦该调用并展开侧边栏。正文读取 `useTabInfo().tab.navigation`，在 `navigation.revision !== appliedRevision` 期间应用焦点，随后记录已应用的 revision：同一次导航不会重复应用，之后再次查看同一调用则会重新应用。
 

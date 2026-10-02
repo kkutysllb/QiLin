@@ -232,3 +232,22 @@ kind: "plan"
 
 ### 三、遗留验证口径
 侧栏相关 14 包：**2 红，均为预存**（`ui-trajectory/tests/views.client.spec.tsx` tooltip 用例；`test-support/client-runtime/tests/assembly-test-client.client.spec.ts` TestResizeObserver 全局泄漏——已用 HEAD 版本文件对拍确认为预存）。同样对拍确认预存的还有：`apps/cli/tests/profiles/web/tests/web-default-isolation.expected.e2e.ts`（302≠200，环境账户门）、`apps/cli/tests/agent-team-headless.e2e.ts`（90s 超时，把新增客户端行**禁用后同样挂住**，故与本次改动无关）。门禁：`verify-cordis-config` ✅214、`verify-package-dependencies` ✅、`verify-default-product-isolation` ✅179、`verify-translation-pairing` ✅1064 对、hygiene 18/19（红=vendor rescope 预存）、doc-sync 41/42（红=persistence 预存）、oxlint 触及文件 0 错。
+
+## 批次执行状态补充二十一（2026-10-02 17:55）——右侧栏只留「轨迹图」，账本改为按需详情
+
+用户指示「删除当前右边侧边栏的轨迹 tab，保留轨迹图即可」，并选定范围 A（只删侧栏入口，账本保留为按需详情视图）。
+
+### 一、产品改动
+1. `trajectoryTabDefinition` 不再提供 `guide` 条目 → 引导页（Start 页 / 新建 tab 列表）只剩 7 条，`trajectory` 类型仍在册，仍可由 `openTab('trajectory', { params: { focus } })` 打开。删掉只服务该条目的文案键 `guide.description`。
+2. 轨迹图新增工具栏「账本」控件（`graph.openLedger`，中文「账本」/英文「Ledger」，`IconGaugeOutline16`），经 inject face `openLedger()` → `ctx.sidebarRight.openTab(TRAJECTORY_KIND)`。账本因此保持一条与工具卡无关的通用入口（`ui-trajectory` 的 `inject` 增加 `sidebarRight`）。
+3. 账本仍可由 Chat 工具卡的 Inspect 打开并聚焦该调用（原路径未变）。
+
+### 二、受影响测试与文档（均已同步）
+- 单测：`views.client.spec.tsx`（guide 断言改为 `toBeUndefined()`；bench 增补 `sidebarRight` 桩并断言 `openLedger()` 以 `TRAJECTORY_KIND` 调用）、`trajectory-graph-view.client.spec.tsx`（新增账本控件用例，`mountGraph` 增补 `openLedger`）。
+- e2e：`support.ts` 的 `openTrajectoryTab` 改走「引导页轨迹图 → 账本控件」；`trajectory-image-display.expected.e2e.ts` 的 `openTrajectoryPage` 同路径；`sidebar-right.e2e.ts` 引导条目数 8→7 并断言 `trajectory` 条目为 0。
+- 文档：`ui-trajectory/README.md|zh.md`、`docs/subsystems/sidebar-right.md|zh.md`、`.agents/notes/implemented/feature/2026-09-14-trajectory-sidebar-tab.md|zh.md`；三份 i18n 配对记录已重录（`verify-translation-pairing` 1064 对一致）。
+
+### 三、顺带定位并修掉「src 泄漏」发射源（补充二十的遗留观察）
+- 症状：`packages/api/job-controller/src/` 被写入 `types.js`/`types.js.map`/`types.d.ts`/`types.d.ts.map`（历史上曾被误提交，本次全量构建再次复现）。
+- 根因：`packages/api/remotes/src/client/index.ts` 有 `export type * from '@qilin/api-job-controller/types'`，而 remotes 的 client 工程 `tsconfig.client.json` **没有引用** `../job-controller/tsconfig.client.json`；tsc 于是把该包 `src/types.ts` 当成本工程输入文件，按原位发射（`--force` 复现率 100%，增量构建则时有时无——这解释了此前「疑似中断/并发」的假象）。
+- 修复：在 remotes 的 client 工程 references 中补入 job-controller 的 client 面；`--force` 重跑后 src 目录无任何发射物。`scripts/project-reference-faces.ts` 通过。

@@ -15,7 +15,7 @@ import { useEffect, useMemo, useRef, useState,
   type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import {
   IconChevronDownOutline14, IconCloseOutline16, IconFullscreenOutline16,
-  IconPaperclipOutline16, IconPauseOutline16, IconPlayOutline16, IconStopFill16,
+  IconGaugeOutline16, IconPaperclipOutline16, IconPauseOutline16, IconPlayOutline16, IconStopFill16,
   ImageLightbox, MarkdownText,
 } from '@qilin/client-ui-primitives'
 import type { ImageLightboxLabels } from '@qilin/client-ui-primitives'
@@ -218,9 +218,11 @@ interface ReplayState {
 export interface TrajectoryGraphViewInjected {
   /** Session-authorized image URL loader with its synchronous cache read. */
   loadImage: MessageImageLoader
+  /** Reveal the ledger page this graph draws, in the same pane. */
+  openLedger: () => void
 }
 
-/** The graph body's composed props: the Sidebar tab seat, its image loader, and the trajectory locale. */
+/** The graph body's composed props: the Sidebar tab seat, its image loader, the ledger control, and the trajectory locale. */
 export type TrajectoryGraphViewProps =
   & PropsRuntime<'sidebar.right.pane.tab'>
   & InjectFace<TrajectoryGraphViewInjected>
@@ -229,10 +231,12 @@ export type TrajectoryGraphViewProps =
 /**
  * Render one session's trajectory ledger as a node and edge graph.
  * @param props - the Sidebar tab seat's runtime share, the authorized image
- * loader, and the trajectory locale.
+ * loader, the ledger control, and the trajectory locale.
  * @returns The graph body, or its empty and hint states.
  */
-export function TrajectoryGraphView({ useTrajectory, loadImage, t }: TrajectoryGraphViewProps): ReactNode {
+export function TrajectoryGraphView(
+  { useTrajectory, loadImage, openLedger, t }: TrajectoryGraphViewProps,
+): ReactNode {
   const snapshot = useTrajectory(value => value)
   const graph = useMemo(() => buildTrajectoryGraph(snapshot, t), [snapshot, t])
   const windowed = useMemo(() => windowTrajectoryGraph(graph, RENDER_LIMIT), [graph])
@@ -563,6 +567,15 @@ export function TrajectoryGraphView({ useTrajectory, loadImage, t }: TrajectoryG
             <IconStopFill16 size={12} />
           </button>
         )}
+        <button
+          type="button"
+          className={css.tool}
+          aria-label={t('graph.openLedger')}
+          title={t('graph.openLedger')}
+          onClick={openLedger}
+        >
+          <IconGaugeOutline16 size={14} />
+        </button>
         <span className={css.spacer} />
         <span className={css.stat}>{t('graph.stats.nodes', { count: windowed.graph.stats.nodes })}</span>
         <span className={css.stat}>{t('graph.stats.edges', { count: windowed.graph.stats.edges })}</span>

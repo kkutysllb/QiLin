@@ -108,18 +108,20 @@ function stubLoader(over: { peek?: string | undefined; reject?: boolean } = {}):
 }
 
 /**
- * The graph body reads the trajectory hook, the locale seat, and the image
- * loader; the rest of the session-scope runtime kit stays unprovided.
+ * The graph body reads the trajectory hook, the locale seat, the image loader,
+ * and the ledger control; the rest of the session-scope runtime kit stays
+ * unprovided.
  */
 function mountGraph(
   snapshot: TrajectorySnapshot,
-  over: { loadImage?: MessageImageLoader } = {},
+  over: { loadImage?: MessageImageLoader; openLedger?: () => void } = {},
 ) {
   const trajectory = createSnapshotStore<TrajectorySnapshot>(snapshot)
   const props: Partial<Parameters<typeof TrajectoryGraphView>[0]> = {
     sessionId: SID,
     useTrajectory: bindSnapshotSelector(trajectory),
     loadImage: over.loadImage ?? stubLoader(),
+    openLedger: over.openLedger ?? vi.fn(),
     t: tTrajectory,
   }
   return { view: render(<TrajectoryGraphView {...(props as Parameters<typeof TrajectoryGraphView>[0])} />), trajectory }
@@ -190,6 +192,15 @@ describe('TrajectoryGraphView empty state', () => {
   it('ignores the fit press while no canvas exists', () => {
     mountGraph(EMPTY_TRAJECTORY_SNAPSHOT)
     expect(() => fireEvent.click(screen.getByRole('button', { name: 'Fit view' }))).not.toThrow()
+  })
+
+  it('opens the ledger from its toolbar control', () => {
+    const openLedger = vi.fn()
+    mountGraph(staticSnapshot(), { openLedger })
+    const control = screen.getByRole('button', { name: 'Ledger' })
+    expect(control.getAttribute('title')).toBe('Ledger')
+    fireEvent.click(control)
+    expect(openLedger).toHaveBeenCalledTimes(1)
   })
 })
 

@@ -70,7 +70,7 @@ describe('tsdown client artifact', () => {
     expect(handoff.id).toBe(PLUGIN_ID)
     expect(exports.apply).toBeTypeOf('function')
     expect(exports.inject).toEqual([
-      'slots', 'sessions', 'uiSession', 'uiConversation', 'sidebarRightTabs', 'locale',
+      'slots', 'sessions', 'uiSession', 'uiConversation', 'sidebarRight', 'sidebarRightTabs', 'locale',
     ])
   })
 
@@ -83,6 +83,9 @@ describe('tsdown client artifact', () => {
     // seat the type registers into before its riders land.
     const tabs = new SidebarRightTabRegistry(ctx)
     ctx.provide('sidebarRightTabs', tabs as never)
+    // The Sidebar's controller: the graph body's Ledger control opens the
+    // ledger type through it.
+    ctx.provide('sidebarRight', { openTab: () => {} } as never)
     slots.register({
       name: 'root',
       children: {

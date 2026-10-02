@@ -28,7 +28,7 @@ import {
 } from './trajectory-snapshot-builder.ts'
 import type { TrajectorySnapshot } from './trajectory-contract.ts'
 import { registerTrajectoryToolDefinition } from './trajectory-tool-definition.ts'
-import { TRAJECTORY_ID, trajectoryTabDefinition } from './trajectory-tab-definition.ts'
+import { TRAJECTORY_ID, TRAJECTORY_KIND, trajectoryTabDefinition } from './trajectory-tab-definition.ts'
 import { TrajectoryView, type TrajectoryViewInjected } from './TrajectoryView.tsx'
 import { TrajectoryGraphView } from './TrajectoryGraphView.tsx'
 import {
@@ -46,8 +46,10 @@ export type {
 export type { TrajectoryTabParams } from './trajectory-tab-definition.ts'
 export { TRAJECTORY_ID, TRAJECTORY_KIND } from './trajectory-tab-definition.ts'
 
-/** Required services: the Sidebar tab registry, the slot registry, Session paging, and the locale service. */
-export const inject = ['slots', 'sessions', 'uiSession', 'uiConversation', 'sidebarRightTabs', 'locale']
+/** Required services: the Sidebar controller and tab registry, the slot registry, Session paging, and the locale service. */
+export const inject = [
+  'slots', 'sessions', 'uiSession', 'uiConversation', 'sidebarRight', 'sidebarRightTabs', 'locale',
+]
 
 /**
  * Client plugin body: register the Sidebar tab type, its body, and its data
@@ -132,6 +134,13 @@ export function apply(ctx: Context): void {
     name: 'sidebar.right.pane.tab',
     key: TRAJECTORY_GRAPH_ID,
     locale: NS,
-    inject: (sessionId: SessionId) => ({ loadImage: imageLoader(sessionId) }),
+    inject: (sessionId: SessionId) => ({
+      loadImage: imageLoader(sessionId),
+      // The graph is the only trajectory page the Sidebar offers, so it carries
+      // the way to the ledger it draws. The ledger keeps its own type: the
+      // page opened here is the same one a Chat tool card's inspect action
+      // reaches, focused on a call.
+      openLedger: () => { ctx.sidebarRight.openTab(TRAJECTORY_KIND) },
+    }),
   }, TrajectoryGraphView)), 'ui-trajectory: graph tab body')
 }
