@@ -656,6 +656,93 @@ describe('writeText', () => {
   })
 })
 
+describe('writeBytes', () => {
+  /** Every byte value, so encoding or transform drift cannot hide. */
+  const ALL_BYTES = Uint8Array.from({ length: 256 }, (_, value) => value)
+
+  it('createIfAbsent creates a new file with the exact bytes', async () => {
+    const target = await fs.resolve('new.bin')
+    const outcome = await fs.writeBytes(target, ALL_BYTES, { kind: 'createIfAbsent' })
+    expect(outcome.operation).toBe('create')
+    expect(new Uint8Array(await readFile(join(dir, 'new.bin')))).toEqual(ALL_BYTES)
+  })
+
+  it('an unconditional overwrite replaces binary bytes exactly and reports the post-write version', async () => {
+    await writeFile(join(dir, 'a.bin'), Buffer.from([1, 2, 3]))
+    const target = await fs.resolve('a.bin')
+    const outcome = await fs.writeBytes(target, ALL_BYTES)
+    expect(outcome.operation).toBe('update')
+    expect(new Uint8Array(await readFile(join(dir, 'a.bin')))).toEqual(ALL_BYTES)
+    expect(outcome.version).toBe(await versionOf(target))
+  })
+
+  it('createIfAbsent rejects an existing file as FS_NOT_OBSERVED and preserves its bytes', async () => {
+    const original = Buffer.from([9, 8, 7])
+    await writeFile(join(dir, 'a.bin'), original)
+    const target = await fs.resolve('a.bin')
+    await expect(fs.writeBytes(target, ALL_BYTES, { kind: 'createIfAbsent' }))
+      .rejects.toMatchObject({ code: 'FS_NOT_OBSERVED' })
+    expect(await readFile(join(dir, 'a.bin'))).toEqual(original)
+  })
+
+  it('a stale replaceIfVersion version is rejected and preserves the file', async () => {
+    await writeFile(join(dir, 'a.bin'), Buffer.from([1]))
+    const target = await fs.resolve('a.bin')
+    await fs.writeBytes(target, ALL_BYTES)
+    await expect(fs.writeBytes(target, Buffer.from([2]), { kind: 'replaceIfVersion', version: FsVersion('stale') }))
+      .rejects.toMatchObject({ code: 'FS_STALE_VERSION' })
+    expect(new Uint8Array(await readFile(join(dir, 'a.bin')))).toEqual(ALL_BYTES)
+  })
+
+  it('replaceIfVersion on a missing file is rejected as stale', async () => {
+    const target = await fs.resolve('missing.bin')
+    await expect(fs.writeBytes(target, ALL_BYTES, { kind: 'replaceIfVersion', version: FsVersion('any') }))
+      .rejects.toMatchObject({ code: 'FS_STALE_VERSION' })
+    await expect(stat(join(dir, 'missing.bin'))).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('a directory target is rejected as not a regular file', async () => {
+    await mkdir(join(dir, 'subdir'))
+    const target = await fs.resolve('subdir')
+    await expect(fs.writeBytes(target, ALL_BYTES)).rejects.toMatchObject({ code: 'FS_NOT_REGULAR_FILE' })
+    expect((await stat(join(dir, 'subdir'))).isDirectory()).toBe(true)
+  })
+
+  it('a createIfAbsent competitor created after the initial probe preserves the competitor', async () => {
+    const path = join(dir, 'a.bin')
+    const competitor = Buffer.from([5, 5])
+    const target = await fs.resolve('a.bin')
+    fs.internals.inspectTemp = async () => { await writeFile(path, competitor) }
+
+    await expect(fs.writeBytes(target, ALL_BYTES, { kind: 'createIfAbsent' }))
+      .rejects.toMatchObject({ code: 'FS_NOT_OBSERVED' })
+    expect(await readFile(path)).toEqual(competitor)
+  })
+
+  it('honors a pre-aborted signal without creating the file', async () => {
+    const target = await fs.resolve('aborted.bin')
+    await expect(fs.writeBytes(target, ALL_BYTES, undefined, AbortSignal.abort()))
+      .rejects.toMatchObject({ code: 'FS_ABORTED' })
+    await expect(stat(join(dir, 'aborted.bin'))).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(lockCount(fs)).toBe(0)
+  })
+
+  it('two concurrent guarded writes: one updates, the other is rejected as stale', async () => {
+    await writeFile(join(dir, 'a.bin'), Buffer.from([0]))
+    const target = await fs.resolve('a.bin')
+    const version = await versionOf(target)
+    const results = await Promise.allSettled([
+      fs.writeBytes(target, Buffer.from([1]), { kind: 'replaceIfVersion', version }),
+      fs.writeBytes(target, Buffer.from([2]), { kind: 'replaceIfVersion', version }),
+    ])
+    expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(1)
+    const rejected = results.filter(r => r.status === 'rejected')
+    expect(rejected).toHaveLength(1)
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({ code: 'FS_STALE_VERSION' })
+    expect(lockCount(fs)).toBe(0)
+  })
+})
+
 describe('editText', () => {
   it('applies a literal edit at the matching version', async () => {
     await writeFile(join(dir, 'a.txt'), 'hello world')

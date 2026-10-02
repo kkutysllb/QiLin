@@ -4,8 +4,8 @@
  * text-storage mechanics — resolve, stat, read/stream, list, the atomic
  * write and the read-match-write edit critical section — are the local
  * implementation's, verbatim; this package adds only the per-call POLICY fence
- * on the two mutations. Reads pass through untouched: every mode permits
- * reading.
+ * on the mutations (text write, byte write, text edit). Reads pass through
+ * untouched: every mode permits reading.
  *
  * The fence is a policy check in TRUSTED code over a MODEL-CONTROLLED path,
  * NOT a kernel boundary — the operations are the seam's own (open, rename),
@@ -85,6 +85,27 @@ export class SandboxedFileSystem extends LocalFileSystem {
     sandboxPolicy?: SandboxExecutionPolicy,
   ): Promise<FsWriteOutcome> {
     return super.writeText(await this.checkedTarget(target, sandboxPolicy), content, expected, signal)
+  }
+
+  /**
+   * Fence the byte write by the per-call policy, then delegate to the inherited
+   * atomic write. See {@link checkedTarget}.
+   * @param target - the resolved target to write.
+   * @param content - the full new file content as raw bytes.
+   * @param expected - the write intent guarding the write; omit for unconditional.
+   * @param signal - aborts before atomic publication takes effect.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns the write outcome from the inherited backend.
+   */
+  override async writeBytes(
+    target: FsTarget,
+    content: Uint8Array,
+    expected?: FsWriteIntent,
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsWriteOutcome> {
+    return super.writeBytes(await this.checkedTarget(target, sandboxPolicy), content, expected, signal)
   }
 
   /**

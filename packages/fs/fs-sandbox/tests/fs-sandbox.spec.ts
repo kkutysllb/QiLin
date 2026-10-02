@@ -73,6 +73,12 @@ describe('read-only', () => {
     expect(existsSync(path)).toBe(false)
   })
 
+  it('denies a byte write, leaving no file on disk', async () => {
+    const path = join(workspace, 'denied.bin')
+    await expect(fs.writeBytes(await target(path), new Uint8Array([1, 2, 3]))).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(existsSync(path)).toBe(false)
+  })
+
   it('denies edit of an existing file (the content is unchanged)', async () => {
     const path = join(workspace, 'file.txt')
     await writeFile(path, 'original')
@@ -96,6 +102,20 @@ describe('workspace-write containment', () => {
     const outcome = await fs.writeText(await target(path), 'inside')
     expect(outcome.operation).toBe('create')
     expect(await readFile(path, 'utf8')).toBe('inside')
+  })
+
+  it('a byte write under the workspace lands verbatim', async () => {
+    const path = join(workspace, 'nested', 'ok.bin')
+    const bytes = new Uint8Array([0, 255, 10, 13, 10])
+    const outcome = await fs.writeBytes(await target(path), bytes)
+    expect(outcome.operation).toBe('create')
+    expect(new Uint8Array(await readFile(path))).toEqual(bytes)
+  })
+
+  it('a byte write to an absolute path outside the workspace is denied, no file created', async () => {
+    const path = join(outside, 'escape.bin')
+    await expect(fs.writeBytes(await target(path), new Uint8Array([1]))).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    expect(existsSync(path)).toBe(false)
   })
 
   it('a write to the platform temp area lands (parity with the bash runner grant)', async () => {
@@ -218,6 +238,15 @@ describe('the per-call policy override (escalation)', () => {
     const path = join(outside, 'granted-full.txt')
     await fs.writeText(await target(path), 'full', undefined, undefined, { mode: 'danger-full-access', workspaceRoot: workspace })
     expect(await readFile(path, 'utf8')).toBe('full')
+  })
+
+  it('a workspace-write stamp on a read-only default lets a contained byte write land for that call only', async () => {
+    await boot('read-only')
+    const path = join(workspace, 'escalated.bin')
+    await fs.writeBytes(await target(path), new Uint8Array([7, 7]), undefined, undefined, { mode: 'workspace-write', workspaceRoot: workspace })
+    expect(new Uint8Array(await readFile(path))).toEqual(new Uint8Array([7, 7]))
+    await expect(fs.writeBytes(await target(join(workspace, 'plain.bin')), new Uint8Array([1])))
+      .rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
   })
 })
 
