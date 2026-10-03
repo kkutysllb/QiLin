@@ -122,9 +122,13 @@ describe('WorkspaceBrowser.module.css list', () => {
     expect(rowDeclarations('.sessionRow:hover .title')?.get('text-overflow')).toBe('clip')
   })
 
-  it('pins both rail controls to the shared left anchor during the column slide', () => {
+  it('keeps the collapsed column free of region controls', () => {
+    // The rail keeps the header box as the list's top boundary; the add button
+    // and the search pill are wide-only chrome, so no rail rule may size them.
     expect(declarations('.rail .sectionHeader')?.get('justify-content')).toBe('flex-start')
-    expect(declarations('.rail .iconButton')?.get('width')).toBe('36px')
-    expect(declarations('.rail .search')?.get('width')).toBe('36px')
+    expect(declarations('.rail .headerActions')).toBeUndefined()
+    expect(declarations('.rail .iconButton')).toBeUndefined()
+    expect(declarations('.rail .search')).toBeUndefined()
+    expect(declarations('.rail .searchButton')).toBeUndefined()
   })
 })

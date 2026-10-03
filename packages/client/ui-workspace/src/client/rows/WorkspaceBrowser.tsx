@@ -2,12 +2,12 @@
  * The workspace/session browsing region filling the sidebar shell's
  * `sidebar.workspaces` hole: section header (title + view options + add
  * workspace), search, the grouped tree or flat list, and the workspace
- * dialogs. Wide state renders the full browser; rail state renders the two
- * region icons (search / add workspace) as 36px controls on the shell's shared
- * rail entry path, each requesting expansion through the owner share. Adding
- * is the header button's one action, so it raises the directory flow with no
- * menu in between; the flow and its error dialog live in WorkspacePicker
- * (same package — direct composition, no slot between them).
+ * dialogs. Wide state renders the full browser; rail state renders no region
+ * control of its own, so the search and add requests each expand the column
+ * through the owner share and act once it is wide. Adding is the header
+ * button's one action, so it raises the directory flow with no menu in
+ * between; the flow and its error dialog live in WorkspacePicker (same package
+ * — direct composition, no slot between them).
  */
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
@@ -32,8 +32,10 @@ import { WorkspacePickFlow } from '../WorkspacePicker.tsx'
 import css from './WorkspaceBrowser.module.css'
 
 /**
- * Column slide length (--ds-transition-duration-slow): rail-search focus waits it out —
- * focus() forces a synchronous layout and would jank the slide.
+ * Column slide length (--ds-transition-duration-slow): the rail-expanded search
+ * focus and the rail-expanded add picker both wait it out — focus() forces a
+ * synchronous layout that would jank the slide, and the picker's anchor button
+ * mounts only once the same slide has made the column wide.
  */
 const EXPAND_SLIDE_MS = 300
 /** Pause between the latest keystroke and a Host content-search request. */
@@ -938,9 +940,11 @@ export function WorkspaceBrowser({
   })
   const searchRoot = useRef<HTMLDivElement | null>(null)
   const searchInput = useRef<HTMLInputElement | null>(null)
-  // Section-header ＋ opens the picker menu (same popover in wide and rail
-  // states; the menu anchors on this button).
+  // Section-header ＋ opens the picker menu; the button is wide-only chrome, so
+  // a request that arrives on the rail expands the column first and opens the
+  // menu once that button has mounted (addOnExpand).
   const [wsPickerOpen, setWsPickerOpen] = useState(false)
+  const [addOnExpand, setAddOnExpand] = useState(false)
   const wsPlusRef = useRef<HTMLButtonElement>(null)
   const composingRef = useRef(false)
 
@@ -1110,8 +1114,23 @@ export function WorkspaceBrowser({
   useEffect(() => {
     if (!shortcutState.addRequested) return
     closeAddWorkspace()
+    if (!wide) {
+      setAddOnExpand(true)
+      expandSidebar()
+      return
+    }
     setWsPickerOpen(true)
   }, [closeAddWorkspace, shortcutState.addRequested])
+  // A rail request's picker waits for the slide: its anchor button is wide-only
+  // and Menu placement skips a frame whose anchor rect is still absent.
+  useEffect(() => {
+    if (!wide || !addOnExpand) return
+    const timer = window.setTimeout(() => {
+      setWsPickerOpen(true)
+      setAddOnExpand(false)
+    }, EXPAND_SLIDE_MS)
+    return () => { window.clearTimeout(timer) }
+  }, [wide, addOnExpand])
   useEffect(() => {
     const target = shortcutState.renameTarget
     if (target === null) return
@@ -1248,8 +1267,8 @@ export function WorkspaceBrowser({
             </div>
           </div>
         )}
-        <div className={clsx(css.headerActions, wide && searchExpanded && css.headerActionsHidden)}>
-          {wide && (
+        {wide && (
+          <div className={clsx(css.headerActions, searchExpanded && css.headerActionsHidden)}>
             <ViewOptionsMenu
               groupBy={groupBy}
               orderBy={orderBy}
@@ -1257,27 +1276,27 @@ export function WorkspaceBrowser({
               onOrderPick={(mode) => { actions.setOrderBy(mode, activeSessionOrders) }}
               t={t}
             />
-          )}
-          {/* Adding is the button's one action, so a composition with no
-              picking affordance has nothing to offer here: the region hides the
-              button rather than leaving a dead one in the header. */}
-          {directoryFlowAvailable && (
-            <Tooltip label={t('workspace.add')} shortcutKeys={addShortcut?.keys} side="bottom" delayMs={500}>
-              <button
-                ref={wsPlusRef}
-                type="button"
-                className={css.iconButton}
-                aria-label={t('workspace.add')}
-                aria-keyshortcuts={addShortcut?.aria}
-                onClick={() => {
-                  requestAddWorkspace()
-                }}
-              >
-                <IconProjectAddOutline16 size={wide ? 16 : 18} />
-              </button>
-            </Tooltip>
-          )}
-        </div>
+            {/* Adding is the button's one action, so a composition with no
+                picking affordance has nothing to offer here: the region hides the
+                button rather than leaving a dead one in the header. */}
+            {directoryFlowAvailable && (
+              <Tooltip label={t('workspace.add')} shortcutKeys={addShortcut?.keys} side="bottom" delayMs={500}>
+                <button
+                  ref={wsPlusRef}
+                  type="button"
+                  className={css.iconButton}
+                  aria-label={t('workspace.add')}
+                  aria-keyshortcuts={addShortcut?.aria}
+                  onClick={() => {
+                    requestAddWorkspace()
+                  }}
+                >
+                  <IconProjectAddOutline16 size={16} />
+                </button>
+              </Tooltip>
+            )}
+          </div>
+        )}
         {/* Add flow + its error dialog (same package — direct composition). */}
         <WorkspacePickFlow
           t={t}
@@ -1296,21 +1315,6 @@ export function WorkspaceBrowser({
           onClose={() => { setWsPickerOpen(false) }}
         />
       </div>
-
-      {/* The collapsed rail keeps search as its own 36px control. */}
-      {!wide && <div className={css.search}>
-        <Tooltip label={t('search')} shortcutKeys={searchShortcut?.keys}>
-          <button
-            type="button"
-            className={css.searchButton}
-            aria-label={t('search.sessions.aria')}
-            aria-keyshortcuts={searchShortcut?.aria}
-            onClick={() => { requestSearch() }}
-          >
-            <IconSearchOutline16 size={18} />
-          </button>
-        </Tooltip>
-      </div>}
 
       {/* Always-mounted seat keeps the region's flex slot while the list
           itself is wide-only. */}

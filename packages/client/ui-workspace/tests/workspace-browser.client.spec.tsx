@@ -1314,17 +1314,21 @@ describe('WorkspaceBrowser', () => {
     }
   })
 
-  it('rail state renders icon controls that request expansion', () => {
+  it('rail state renders no region control and expands on the search request', () => {
     vi.useFakeTimers()
     try {
       const expandSidebar = vi.fn()
       const b = mount({ wide: false, expandSidebar })
-      // No wide chrome in rail state.
+      // Neither the wide chrome nor a rail control: the collapsed column
+      // carries no region icon of its own.
       expect(screen.queryByText('工作区')).toBeNull()
       expect(screen.queryByPlaceholderText('搜索会话…')).toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: '搜索会话' }))
+      expect(screen.queryByRole('button', { name: '搜索会话' })).toBeNull()
+      expect(screen.queryByRole('button', { name: '添加工作区' })).toBeNull()
+      // The command expands the column; the wide flip mounts the input and
+      // focuses it after the slide.
+      act(() => { b.props.requestSearch() })
       expect(expandSidebar).toHaveBeenCalledTimes(1)
-      // The wide flip mounts the input and focuses it after the slide.
       rerender(b, { wide: true })
       const input = screen.getByPlaceholderText('搜索会话…')
       act(() => { vi.advanceTimersByTime(300) })
@@ -1337,16 +1341,15 @@ describe('WorkspaceBrowser', () => {
     }
   })
 
-  it('keeps the rail-opened search expanded when the initiating click reaches document', () => {
+  it('keeps the requested search open across a document click while the expand settles', () => {
     vi.useFakeTimers()
     try {
       const b = mount({ wide: false })
-      fireEvent.click(screen.getByRole('button', { name: '搜索会话' }))
+      act(() => { b.props.requestSearch() })
       rerender(b, { wide: true })
-      // In the browser the rail click keeps bubbling to document after the
-      // wide flip mounted the outside-click listener, with the unmounted rail
-      // button as its target — outside searchRoot. It must not dismiss the
-      // search it just opened.
+      // The outside-click listener mounts on the wide flip, while the request
+      // that opened the search is still waiting out the slide: a click landing
+      // in that window must not dismiss the search it just opened.
       fireEvent.click(document.body)
       expect(screen.getByRole('button', { name: '搜索会话' }).getAttribute('aria-expanded')).toBe('true')
       act(() => { vi.advanceTimersByTime(300) })
@@ -1359,16 +1362,26 @@ describe('WorkspaceBrowser', () => {
     }
   })
 
-  it('rail add-workspace raises the directory flow in place, with no menu and no expansion', () => {
-    const expandSidebar = vi.fn()
-    mount({ wide: false, expandSidebar, useWorkspaces: hook(workspaceState([workspace('alpha', [])])) })
-    fireEvent.click(screen.getByRole('button', { name: '添加工作区' }))
-    expect(expandSidebar).not.toHaveBeenCalled()
-    // Adding is the header's only action, so the gesture IS that action: no
-    // one-row popover, and existing workspaces stay in the tree below.
-    expect(screen.queryByRole('menu')).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'alpha' })).toBeNull()
-    expect(screen.getByTestId('directory-flow')).toBeTruthy()
+  it('rail add request expands, then raises the directory flow once the button mounts', () => {
+    vi.useFakeTimers()
+    try {
+      const expandSidebar = vi.fn()
+      const b = mount({ wide: false, expandSidebar, useWorkspaces: hook(workspaceState([workspace('alpha', [])])) })
+      act(() => { b.props.requestAddWorkspace() })
+      expect(expandSidebar).toHaveBeenCalledTimes(1)
+      // The picker waits for the slide: its anchor button is wide-only, and an
+      // early open would place the menu from a missing anchor rect.
+      expect(screen.queryByTestId('directory-flow')).toBeNull()
+      rerender(b, { wide: true })
+      act(() => { vi.advanceTimersByTime(300) })
+      // Adding is the header's only action, so the gesture IS that action: no
+      // one-row popover, and existing workspaces stay in the tree below.
+      expect(screen.queryByRole('menu')).toBeNull()
+      expect(screen.queryByRole('menuitem', { name: 'alpha' })).toBeNull()
+      expect(screen.getByTestId('directory-flow')).toBeTruthy()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('hides the add button when no directory-flow occupant is composed', () => {
