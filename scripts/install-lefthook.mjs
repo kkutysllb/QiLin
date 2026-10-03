@@ -14,7 +14,14 @@ import {
 } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
-import lefthookPackage from 'lefthook/package.json' with { type: 'json' }
+let lefthookPackage
+try {
+  lefthookPackage = (await import('lefthook/package.json', { with: { type: 'json' } })).default
+} catch {
+  // KStock patch: 生产安装（--production）省略 devDependency lefthook；
+  // 该场景不装 git hooks，静默降级而非让整次安装失败。
+  lefthookPackage = undefined
+}
 
 const MINIMUM_GIT = [2, 26, 0]
 const HOOKS_DIRECTORY = 'qilin-hooks'
@@ -596,7 +603,7 @@ function refuseScopedHooksPath(entry) {
 
 async function main() {
   if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') return
-  if (typeof lefthookPackage.bin?.lefthook !== 'string') return
+  if (typeof lefthookPackage?.bin?.lefthook !== 'string') return
   const probe = spawnSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' })
   if (probe.status !== 0) return
   const root = stripGitLineTerminator(probe.stdout)
