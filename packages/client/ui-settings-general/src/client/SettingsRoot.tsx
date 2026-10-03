@@ -20,6 +20,8 @@ import {
   IconAgentPresetOutline16, IconArchiveOutline20, IconChevronLeftOutline14,
   IconCloseOutline16, IconDataOutline16, IconPersonalizationOutline16,
   IconQuestionOutline14, IconSettingsOutline16, useModalLayer,
+  IconApiOutline14, IconDatabaseOutline16, IconGaugeOutline16,
+  IconPanelLeftOutline16, IconSkillOutline16,
 } from '@qilin/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
@@ -130,6 +132,13 @@ function navIcon(id: string) {
   // 20-native glyph in the rail's 16px icon slot, as on the Session row menu.
   if (id === 'archived-sessions') return <IconArchiveOutline20 className={css.navIcon} size={16} />
   if (id === 'about') return <IconQuestionOutline14 className={css.navIcon} size={16} />
+  // KStock：扩展分区图标映射（上游 navIcon 对未知 id 一律回落设置齿轮，见
+  // docs/design/icon-refresh/ 与 scripts/patch_vendor_engine.py 的重放记录）。
+  if (id === 'mcp') return <IconApiOutline14 className={css.navIcon} size={16} />
+  if (id === 'skills') return <IconSkillOutline16 className={css.navIcon} size={16} />
+  if (id === 'sidebar-right') return <IconPanelLeftOutline16 className={css.navIcon} size={16} />
+  if (id === 'kstock-data-sources') return <IconDatabaseOutline16 className={css.navIcon} size={16} />
+  if (id === 'kstock-quant-workspace') return <IconGaugeOutline16 className={css.navIcon} size={16} />
   return <IconSettingsOutline16 className={css.navIcon} size={16} />
 }
 
