@@ -34,8 +34,7 @@ import { Service } from '@qilin/kylin'
 import type { Context } from '@qilin/kylin'
 import type { Entry } from '@qilin/kylin-plugin-loader'
 import type { IndexInjection } from '@qilin/host-webserver'
-import type { QilinClientManifest } from '@qilin/package-manifest'
-import { optionalStringArray, stripClientSuffix } from './client/manifest.ts'
+import { exactPackageSpecifier, parseQilinClient, stripClientSuffix } from './client/manifest.ts'
 import type { WebBootBatch, WebBootBatchPhase, WebBootEntry, WebBootGraph } from './client/manifest.ts'
 
 export { stripClientSuffix } from './client/manifest.ts'
@@ -184,38 +183,6 @@ const SOURCE_MAP_TRAILER = /(?:\r?\n)?\/\/# sourceMappingURL=[^\r\n]*(?:\r?\n)?$
 const SOURCE_URL_TRAILER = /(?:\r?\n)?\/\/# sourceURL=([^\r\n]+)(?:\r?\n)?$/
 /** Published package-local client chunk names accepted by the on-demand route. */
 const CLIENT_CHUNK = /^client\.[A-Za-z0-9][A-Za-z0-9._-]*\.js$/
-
-/** Return a bare package-root specifier, excluding package subpaths and path-like entries. */
-function exactPackageSpecifier(specifier: string): string | undefined {
-  if (specifier.startsWith('@')) {
-    const parts = specifier.split('/')
-    return parts.length === 2 && parts.every(Boolean) ? specifier : undefined
-  }
-  return specifier.length > 0 && !specifier.includes('/') ? specifier : undefined
-}
-
-/** Narrow an unknown parsed JSON value to a DSH or QiLin client declaration. */
-function parseQilinClient(pkgName: string, key: string, value: unknown): QilinClientManifest | undefined {
-  if (value === undefined) return undefined
-  if (typeof value !== 'object' || value === null) {
-    throw new Error(`client-modules: ${pkgName} has a non-object ${key} declaration`)
-  }
-  const decl = value as Record<string, unknown>
-  if (typeof decl.platform !== 'string') {
-    throw new Error(`client-modules: ${pkgName} ${key}.platform must be a string`)
-  }
-  const inject = optionalStringArray(pkgName, `${key}.inject`, decl.inject)
-  const external = optionalStringArray(pkgName, `${key}.external`, decl.external)
-  if (decl.immediately !== undefined && typeof decl.immediately !== 'boolean') {
-    throw new Error(`client-modules: ${pkgName} ${key}.immediately must be a boolean`)
-  }
-  return {
-    platform: decl.platform,
-    ...(inject !== undefined ? { inject } : {}),
-    ...(external !== undefined ? { external } : {}),
-    ...(decl.immediately !== undefined ? { immediately: decl.immediately } : {}),
-  }
-}
 
 /** Resolve `exports["./client"]` to a relative path, accepting the string and one-level conditional forms. */
 function clientExportOf(pkgName: string, exportsField: unknown): string | undefined {

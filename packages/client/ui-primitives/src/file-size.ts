@@ -1,4 +1,4 @@
-/** Compact human-readable byte counts shared by attachment presenters. @module @qilin/client-ui-primitives/file-size */
+/** Human-readable byte counts shared by the client's attachment and file surfaces. @module @qilin/client-ui-primitives/file-size */
 
 /**
  * Byte count as compact user-facing size text (`312B`, `4.2KB`, `1.5MB`, `2.4GB`).
@@ -13,4 +13,18 @@ export function fileSizeText(bytes: number): string {
   if (mb < 1024) return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)}MB`
   const gb = mb / 1024
   return `${gb < 10 ? gb.toFixed(1) : Math.round(gb)}GB`
+}
+
+/**
+ * The same byte count as rounded whole units with a space before the unit
+ * (`512 B`, `4 KB`, `3 MB`). File-error copy states a size cap this way, where
+ * the compact form's decimals and missing space would read as a different
+ * sentence; both spellings stay because each is pinned by the surfaces showing it.
+ * @param bytes - exact byte count.
+ * @returns the nearest unit at or below the count, rounded to a whole number.
+ */
+export function fileSizeRoundedText(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${Math.round(bytes / (1024 * 1024))} MB`
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${bytes} B`
 }

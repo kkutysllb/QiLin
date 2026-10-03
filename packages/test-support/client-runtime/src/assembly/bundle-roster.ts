@@ -65,7 +65,7 @@ export function bundleRoster(bundles: readonly string[], anchor: string = fileUR
     if (manifest.name !== name) {
       throw new Error(`client-test-runtime: ${manifestPath} names ${JSON.stringify(manifest.name)}, expected ${name}`)
     }
-    const declaration = parseQilinClient(name, manifest.qilin?.client)
+    const declaration = parseQilinClient(name, 'qilin.client', manifest.qilin?.client)
     if (declaration === undefined || declaration.platform !== 'web') continue
     if (disabled !== undefined && disabled !== null && typeof disabled !== 'boolean') {
       throw new Error(`client-test-runtime: browser row ${name} has a \`disabled\` value this reader cannot evaluate (a !!js expression)`)
