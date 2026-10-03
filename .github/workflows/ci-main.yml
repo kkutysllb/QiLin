@@ -1,0 +1,77 @@
+# Post-merge static and unit lane for this repository's `main` branch.
+#
+# Upstream's ci.yml is pull-request-only and its jobs target runner pools this
+# repository does not have, so without this lane a main push runs no lint, type,
+# duplication, or unit gate at all. Every step below is one of this repository's
+# own package.json scripts on a GitHub-hosted runner; `test` is the same command
+# ci.yml's primary aggregate runs. Post-merge platform carriers stay in
+# ci-master.yml.
+#
+# The gates run individually rather than through `check:ci:static`, which also
+# carries the documentation gates and needs a base-ref environment value.
+name: CI main
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # CI runs must never report to the production telemetry endpoint baked
+  # into apps/cli/cordis.yml (AppCLIEntry disables the row when set).
+  QILIN_TELEMETRY_DISABLED: '1'
+
+jobs:
+  static:
+    name: lint, types, duplication
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install (immutable)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Type check
+        run: pnpm run typecheck
+
+      - name: Duplication
+        run: pnpm run duplication
+
+  unit:
+    name: unit tests
+    # Split from the static job so a unit failure does not hide the static
+    # verdict. The script builds the native host addon before the suite.
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install (immutable)
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests
+        run: pnpm run test

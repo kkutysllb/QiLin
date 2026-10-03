@@ -7,7 +7,10 @@ import { describe, expect, it } from 'vitest'
 import { gatesForMode } from '../run-gates.ts'
 
 const root = resolve(import.meta.dirname, '../..')
-const masterPush = "github.event_name == 'push' && github.ref == 'refs/heads/master'"
+const mainPush = "github.event_name == 'push' && github.ref == 'refs/heads/main'"
+// Carriers whose runners or credentials exist only at the upstream repository
+// carry this guard; the Wine carrier does not.
+const upstreamOnlyMainPush = `${mainPush} && github.repository == 'deepseek-harness/deepseek-harness'`
 const runtimeBuilder = './.github/workflows/build-exe-for-python-sdk.yml'
 
 interface Job {
@@ -49,7 +52,7 @@ function evaluateCondition(expression: string, cancelled: boolean, results: stri
   }, { timeout: 1000 }) as boolean
 }
 
-describe('master-only platform scheduling', () => {
+describe('main-only platform scheduling', () => {
   it.each(['success', 'failure', 'skipped', 'cancelled'])(
     'reports %s dependencies in active runs but never starts a cancelled-run verdict', (result) => {
       const aggregate = workflow('ci.yml').jobs['all-checks-passed']!
@@ -92,13 +95,13 @@ describe('master-only platform scheduling', () => {
     }))
   })
 
-  it('runs all three deferred carriers on master pushes with fail-loud API credentials', () => {
+  it('runs all three deferred carriers on main pushes with fail-loud API credentials', () => {
     const master = workflow('ci-master.yml')
-    expect(master.on.push).toEqual({ branches: ['master'] })
+    expect(master.on.push).toEqual({ branches: ['main'] })
     expect(Object.keys(master.on).sort()).toEqual(['push', 'workflow_dispatch'])
     const runtime = master.jobs['python-runtime']!
     expect(runtime).toMatchObject({
-      if: masterPush,
+      if: upstreamOnlyMainPush,
       uses: runtimeBuilder,
       with: { ci: true, targets: 'node24-linux-arm64,node24-macos-arm64,node24-macos-x64' },
       secrets: { DEEPSEEK_API_KEY_EXTERNAL: '${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}' },
@@ -118,10 +121,10 @@ describe('master-only platform scheduling', () => {
     expect(preflight.run).toContain('exit 1')
   })
 
-  it('runs Wine once on hosted master CI and seeds its own apt cache', () => {
+  it('runs Wine once on hosted main CI and seeds its own apt cache', () => {
     const master = workflow('ci-master.yml')
     const wine = master.jobs.windows!
-    expect(wine).toMatchObject({ if: masterPush, 'runs-on': 'ubuntu-latest' })
+    expect(wine).toMatchObject({ if: mainPush, 'runs-on': 'ubuntu-latest' })
     expect(wine.needs).toBeUndefined()
     expect(wine['continue-on-error']).toBeUndefined()
     expect(master.jobs['wine-apt-cache']).toBeUndefined()
