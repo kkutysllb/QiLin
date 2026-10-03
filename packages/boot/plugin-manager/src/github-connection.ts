@@ -16,20 +16,6 @@ export interface GithubConnectionOptions {
   env?: Readonly<Record<string, string>>
 }
 
-/** The hosts pnpm's git shorthands stand for. */
-const GIT_SHORTHAND_HOSTS: Readonly<Record<string, string>> = {
-  github: 'github.com', gitlab: 'gitlab.com', bitbucket: 'bitbucket.org', gist: 'gist.github.com',
-}
-
-/** The host a git spec is cloned from: the shorthand's host, the scp-like user@host, or the URL's host with its port. */
-function gitHost(spec: string): string {
-  const shorthand = /^([a-z]+):/i.exec(spec)?.[1]?.toLowerCase()
-  if (shorthand !== undefined && Object.hasOwn(GIT_SHORTHAND_HOSTS, shorthand)) return GIT_SHORTHAND_HOSTS[shorthand] as string
-  const scp = /^git@([^:]+):/i.exec(spec)?.[1]
-  if (scp !== undefined) return scp.toLowerCase()
-  return new URL(spec.replace(/^git\+/i, '')).host
-}
-
 /**
  * Check a GitHub repository before pnpm starts, without downloading or building its package.
  * Git reads the profile's Git and proxy configuration without invoking credential helpers or prompting.
@@ -43,7 +29,7 @@ export async function checkGithubConnection(
   spec: ParsedInstallSpec, dir: string, options: GithubConnectionOptions,
 ): Promise<PackageResult | undefined> {
   if (spec.kind !== 'git') return undefined
-  const host = gitHost(spec.spec)
+  const host = spec.host
   const address = host.toLowerCase().replace(/:.*$/, '')
   if (address !== 'github.com' && !address.endsWith('.github.com')) return undefined
   const repository = spec.spec.replace(/#.*$/s, '')

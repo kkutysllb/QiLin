@@ -191,6 +191,25 @@ async function readAdmission(request: Request): Promise<Outcome<Admission>> {
 }
 
 /**
+ * Admit one sign-up request and apply the sign-up rules: the request's
+ * authority, the parsed body, the submitted form, then the rules, stopping at
+ * the first refusal — the order the first-run and registration endpoints share.
+ * @param request - the buffered POST the endpoint received.
+ * @returns the admitted authority with the accepted form, or the response refusing the request.
+ */
+async function acceptedSignUp(
+  request: Request,
+): Promise<Outcome<{ readonly authority: string; readonly submitted: SubmittedSignUp }>> {
+  const admission = await readAdmission(request)
+  if (!admission.ok) return admission
+  const submitted = readSignUp(admission.value.body)
+  if (!submitted.ok) return submitted
+  const accepted = acceptSignUp(submitted.value)
+  if (!accepted.ok) return accepted
+  return { ok: true, value: { authority: admission.value.authority, submitted: accepted.value } }
+}
+
+/**
  * Build the authentication endpoints.
  * @param deps - the account set, session cookies, and the request's account lookup.
  * @returns one route per endpoint, in documentation order.
@@ -220,14 +239,10 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       if (!deps.store.isEmpty) {
         return failure(409, 'already-initialized', 'An account already exists; sign in instead.')
       }
-      const admission = await readAdmission(request)
-      if (!admission.ok) return admission.response
-      const submitted = readSignUp(admission.value.body)
-      if (!submitted.ok) return submitted.response
-      const accepted = acceptSignUp(submitted.value)
-      if (!accepted.ok) return accepted.response
-      const account = await deps.store.add(accepted.value, accepted.value.password)
-      return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))
+      const signUp = await acceptedSignUp(request)
+      if (!signUp.ok) return signUp.response
+      const account = await deps.store.add(signUp.value.submitted, signUp.value.submitted.password)
+      return json(200, { user: accountView(account) }, deps.sessions.issue(signUp.value.authority, account, Date.now()))
     },
   }
 
@@ -239,20 +254,17 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       if (deps.registration !== 'open') {
         return failure(403, 'registration-closed', 'This deployment does not accept new accounts.')
       }
-      const admission = await readAdmission(request)
-      if (!admission.ok) return admission.response
-      const submitted = readSignUp(admission.value.body)
-      if (!submitted.ok) return submitted.response
-      const accepted = acceptSignUp(submitted.value)
-      if (!accepted.ok) return accepted.response
-      if (deps.store.byUsername(accepted.value.username) !== undefined) {
+      const signUp = await acceptedSignUp(request)
+      if (!signUp.ok) return signUp.response
+      const submitted = signUp.value.submitted
+      if (deps.store.byUsername(submitted.username) !== undefined) {
         return failure(409, 'username-taken', 'That username already has an account.')
       }
-      if (accepted.value.email !== null && deps.store.byEmail(accepted.value.email) !== undefined) {
+      if (submitted.email !== null && deps.store.byEmail(submitted.email) !== undefined) {
         return failure(409, 'email-taken', 'That email address already has an account.')
       }
-      const account = await deps.store.add(accepted.value, accepted.value.password)
-      return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))
+      const account = await deps.store.add(submitted, submitted.password)
+      return json(200, { user: accountView(account) }, deps.sessions.issue(signUp.value.authority, account, Date.now()))
     },
   }
 

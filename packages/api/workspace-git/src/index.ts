@@ -210,13 +210,7 @@ export class WorkspaceGit extends TypertRemoteService {
     const args = [...(staged ? ['diff', '--cached'] : ['diff']), ...this.pathspec(path)]
     const run = await this.run(workspaceFileScope, this.config.gitBin, args, this.config.timeoutMs, signal, this.config.maxDiffBytes)
     if (this.failed(run)) throw this.commandFailure(this.config.gitBin, args, run)
-    if (run.oversized) {
-      throw new RemoteError(
-        'workspace-git/too-large',
-        `the diff exceeds the ${this.config.maxDiffBytes} byte cap`,
-        { bytes: run.stdoutBytes, maxBytes: this.config.maxDiffBytes },
-      )
-    }
+    if (run.oversized) throw this.tooLarge(run, 'diff')
     return run.stdout
   }
 
@@ -269,13 +263,7 @@ export class WorkspaceGit extends TypertRemoteService {
     const args = ['show', '--no-ext-diff', '--no-color', '--format=', '-m', '--first-parent', asked]
     const run = await this.run(workspaceFileScope, this.config.gitBin, args, this.config.timeoutMs, signal, this.config.maxDiffBytes)
     if (this.failed(run)) throw this.commandFailure(this.config.gitBin, args, run)
-    if (run.oversized) {
-      throw new RemoteError(
-        'workspace-git/too-large',
-        `the patch exceeds the ${this.config.maxDiffBytes} byte cap`,
-        { bytes: run.stdoutBytes, maxBytes: this.config.maxDiffBytes },
-      )
-    }
+    if (run.oversized) throw this.tooLarge(run, 'patch')
     return run.stdout
   }
 
@@ -722,6 +710,20 @@ export class WorkspaceGit extends TypertRemoteService {
       throw new RemoteError('workspace-git/bad-branch', 'the branch name is not accepted', { branch: branch ?? '' })
     }
     return branch
+  }
+
+  /**
+   * The Remote failure for one invocation whose output breached the byte cap.
+   * @param run - the capped invocation's exit facts.
+   * @param noun - what the cap bounded, as the reader names it.
+   * @returns the failure; `bytes` is a lower bound of the complete output.
+   */
+  private tooLarge(run: CliRun, noun: 'diff' | 'patch'): RemoteError<'workspace-git/too-large'> {
+    return new RemoteError(
+      'workspace-git/too-large',
+      `the ${noun} exceeds the ${this.config.maxDiffBytes} byte cap`,
+      { bytes: run.stdoutBytes, maxBytes: this.config.maxDiffBytes },
+    )
   }
 
   /** The Remote failure for one nonzero, timed-out, or unspawnable invocation. */

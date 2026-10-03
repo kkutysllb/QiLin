@@ -30,7 +30,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/host-webserver'
-import type {} from '@qilin/fs'
+import type { FsTarget } from '@qilin/fs'
 import type {} from '@qilin/sandbox-policy'
 import type {} from '@qilin/session'
 import z from '@qilin/schemastery'
@@ -130,6 +130,32 @@ function basenameOf(path: string): string {
   return slash === -1 ? path : path.slice(slash + 1)
 }
 
+/**
+ * Resolve one request's `sessionId`/`path` pair to the file it names, against
+ * the session's live workspace root (the deployment sandbox root as fallback).
+ * Both routes that take the pair share this read; what each does with the
+ * target — bounded read, ranged window, or contained write — stays with the route.
+ * @param ctx - host context carrying the session registry, sandbox policy, and filesystem service.
+ * @param url - the request URL whose query names the target.
+ * @returns the requested path, the workspace root it resolved under, and the resolved target.
+ * @throws {MediaError} 400 when either query parameter is absent or empty, 404 when the session is unknown.
+ */
+async function resolveMediaTarget(ctx: Context, url: URL): Promise<{
+  readonly path: string
+  readonly root: string
+  readonly target: FsTarget
+}> {
+  const sessionId = url.searchParams.get('sessionId')
+  const path = url.searchParams.get('path')
+  if (sessionId === null || path === null || path === '') {
+    throw new MediaError(400, 'sessionId and path are required')
+  }
+  const live = ctx.sessions.get(sessionId as SessionId)
+  if (live === undefined) throw new MediaError(404, `no session "${sessionId}"`)
+  const root = live.header.cwd ?? ctx.sandboxPolicy.workspaceRoot
+  return { path, root, target: await ctx.fs.resolve(path, { cwd: root }) }
+}
+
 export const inject = ['webServer', 'connection', 'sessions', 'sandboxPolicy', 'fs']
 
 /**
@@ -162,15 +188,7 @@ export function apply(ctx: Context, config: Config): void {
       }
       try {
         const url = new URL(req.url ?? '/', 'http://qilin.internal')
-        const sessionId = url.searchParams.get('sessionId')
-        const path = url.searchParams.get('path')
-        if (sessionId === null || path === null || path === '') {
-          throw new MediaError(400, 'sessionId and path are required')
-        }
-        const live = ctx.sessions.get(sessionId as SessionId)
-        if (live === undefined) throw new MediaError(404, `no session "${sessionId}"`)
-        const root = live.header.cwd ?? ctx.sandboxPolicy.workspaceRoot
-        const target = await ctx.fs.resolve(path, { cwd: root })
+        const { path, target } = await resolveMediaTarget(ctx, url)
         const info = await ctx.fs.stat(target)
         if (info === undefined) throw new MediaError(404, `no entry at "${path}"`)
         if (info.type !== 'file') throw new MediaError(400, `"${path}" is a ${info.type}`)
@@ -245,16 +263,7 @@ export function apply(ctx: Context, config: Config): void {
         return
       }
       try {
-        const url = new URL(req.url ?? '/', 'http://qilin.internal')
-        const sessionId = url.searchParams.get('sessionId')
-        const path = url.searchParams.get('path')
-        if (sessionId === null || path === null || path === '') {
-          throw new MediaError(400, 'sessionId and path are required')
-        }
-        const live = ctx.sessions.get(sessionId as SessionId)
-        if (live === undefined) throw new MediaError(404, `no session "${sessionId}"`)
-        const root = live.header.cwd ?? ctx.sandboxPolicy.workspaceRoot
-        const target = await ctx.fs.resolve(path, { cwd: root })
+        const { path, root, target } = await resolveMediaTarget(ctx, new URL(req.url ?? '/', 'http://qilin.internal'))
         // Uploads publish inside the session workspace only: the resolved
         // target must stay under the root, and the write runs under an
         // explicit workspace-write policy at that root so a sandboxing backend
