@@ -302,6 +302,7 @@ class SingleExeBuild {
     ])
     await this.restoreLegacyHoists()
     await this.materializeStagedLinks()
+    await this.repairStagedScope()
     if (this.cli.dryRun) {
       for (const name of DEPLOY_ONLY_DOCS) console.log(`build-exe-for-python-sdk: [dry-run] rm -f ${join(this.staging, name)}`)
     } else {
@@ -395,6 +396,66 @@ class SingleExeBuild {
       }
     }
     return undefined
+  }
+
+  /**
+   * KStock patch: repair workspace-scope packages missing from staging.
+   *
+   * pnpm's legacy deploy on Windows can leave transitive workspace
+   * dependencies hoisted at the deploy source instead of the target;
+   * `restoreLegacyHoists` only covers the manifest's direct dependencies,
+   * so a package like `@qilin/sandbox-windows-acl` (reached through
+   * `@qilin/sandbox-local`) can be absent from the packaged payload while
+   * the SEA executable still boots into `runtime-bootstrap.mjs` and fails
+   * at its first bare import. Copy scope packages that exist at the deploy
+   * source but are missing from staging, then top up the non-scoped
+   * runtime dependencies of everything that was repaired.
+   */
+  private async repairStagedScope(): Promise<void> {
+    if (this.cli.dryRun) {
+      console.log('build-exe-for-python-sdk: [dry-run] repair staged workspace scope packages')
+      return
+    }
+    const sourceNodeModules = resolve(root, DEPLOY_SOURCE_NODE_MODULES)
+    const stagedNodeModules = join(this.staging, 'node_modules')
+    const scopes = ['@qilin', '@deepseek-ai']
+    const repaired: string[] = []
+    const copyPackage = async (name: string): Promise<void> => {
+      const destination = join(stagedNodeModules, name)
+      if (existsSync(join(destination, 'package.json'))) return
+      const source = join(sourceNodeModules, name)
+      if (!existsSync(join(source, 'package.json'))) return
+      const nestedNodeModules = join(source, 'node_modules')
+      await mkdir(dirname(destination), { recursive: true })
+      await cp(source, destination, {
+        recursive: true,
+        dereference: true,
+        filter: path => path !== nestedNodeModules && !path.startsWith(nestedNodeModules + sep),
+      })
+      repaired.push(name)
+    }
+    for (const scope of scopes) {
+      const scopeDir = join(sourceNodeModules, scope)
+      if (!existsSync(scopeDir)) continue
+      for (const entry of await readdir(scopeDir, { withFileTypes: true })) {
+        if (!entry.isDirectory() && !entry.isSymbolicLink()) continue
+        await copyPackage(`${scope}/${entry.name}`)
+      }
+    }
+    for (const name of [...repaired]) {
+      const manifestPath = join(stagedNodeModules, name, 'package.json')
+      if (!existsSync(manifestPath)) continue
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as {
+        dependencies?: Record<string, string>
+      }
+      for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+        if (dependency.startsWith('@')) continue
+        await copyPackage(dependency)
+      }
+    }
+    if (repaired.length > 0) {
+      console.log(`build-exe-for-python-sdk: repaired staged workspace packages: ${repaired.join(', ')}`)
+    }
   }
 
   /** Add the executable entry and pkg assets to the staged manifest. */
