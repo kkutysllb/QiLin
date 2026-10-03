@@ -5,6 +5,11 @@
   padding: 10px 12px 16px;
   overflow-y: auto;
   scrollbar-gutter: stable;
+  /* The notice, member, and task cards in this sheet paint the l2/l3
+     surfaces, so the page scroller rebinds the thumb indirection in a
+     complete pair (see ui-theme styles/scrollbar.css). */
+  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .toolbar {
