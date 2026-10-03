@@ -648,4 +648,4 @@ QiLin 的对应缝是 `@Remote({ mode: 'stream' })`（与 `terminalController.fo
 
 ### 六、遗留（未伪装成已覆盖）
 
-`workspace-files/src/index.ts` 仍有 3 处未覆盖（430 的 `child.size === undefined`、807/810 的 stale 重抛），`git blame` 指向 `94e87e9fff` 与 `c00c13a19c` 两个 **v3.0.8 之前**的提交，与本批无关，但**真实装配级的客户端组成测试仍然缺失**——本批新增的是静态名字门禁，不是「装起来能跑」的证据。本机 Playwright 二进制缺失使 `test:web` 无法运行，这一条只能由用户在自己的机器上启动验证。
+`workspace-files/src/index.ts` 仍有 3 处未覆盖（430 的 `child.size === undefined`、807/810 的 stale 重抛），`git blame` 指向已随 `v3.0.8` 与 `v3.0.1` 发布的两个提交，与本批无关，但**真实装配级的客户端组成测试仍然缺失**——本批新增的是静态名字门禁，不是「装起来能跑」的证据。本机 Playwright 二进制缺失使 `test:web` 无法运行，这一条只能由用户在自己的机器上启动验证。
