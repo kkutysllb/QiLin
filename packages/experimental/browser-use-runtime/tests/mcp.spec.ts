@@ -39,7 +39,10 @@ class FixtureModel extends LlmAdapter {
   }
   async * stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
     this.requests.push(options)
-    if (options.tools?.some(tool => tool.name === TOOL) && options.messages.at(-1)?.content[0]?.type === 'text') {
+    // A visit tool call answers the user message that opened the turn; the tool
+    // result message (role 'tool', text-first content) gets a text reply, so the
+    // turn ends instead of looping on another tool call.
+    if (options.tools?.some(tool => tool.name === TOOL) && options.messages.at(-1)?.role === 'user') {
       const call = { type: 'tool-call' as const, id: ToolCallId('visit'), name: TOOL, arguments: '{"label":"fixture"}' }
       yield { type: 'block-start', index: 0, blockType: 'tool-call' }
       yield { type: 'tool-call-delta', index: 0, id: call.id, name: call.name, argumentsDelta: call.arguments }

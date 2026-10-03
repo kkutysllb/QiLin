@@ -127,9 +127,12 @@ describe('undeclared imports', () => {
 })
 
 describe('shipped tree', () => {
+  // One full-workspace Typert generation; a hosted runner shares its cores with
+  // the suite's other forked specs, so the CPU-bound scan needs minutes of wall
+  // time even though a quiet host finishes it in half a minute.
   it('generates a corpus large enough to mean something, and declares every import', () => {
     const { violations, faces } = scanRepository()
     expect(faces).toBeGreaterThanOrEqual(20)
     expect(violations).toEqual([])
-  }, 120_000)
+  }, 300_000)
 })
