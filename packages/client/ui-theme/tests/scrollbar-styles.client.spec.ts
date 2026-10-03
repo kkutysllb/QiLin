@@ -4,7 +4,8 @@
  * scrollbar.css binds the base-surface pair through the rebindable
  * indirection, the WebKit geometry reads the shared width, thumb-border, and
  * track-margin variables, and elevated surfaces rebind the colour indirection
- * in complete pairs. The expected token set is scanned out of
+ * in complete pairs, with a sheet whose scroll containers sit on the base
+ * surface classifying them instead. The expected token set is scanned out of
  * design-platform.css, so adding, renaming, or dropping a scrollbar token
  * moves these assertions with it.
  */
@@ -37,6 +38,36 @@ const ELEVATED_REBIND = new Map([
   ['--qilin-scrollbar-thumb', '--dsw-alias-scrollbar-bg-l2'],
   ['--qilin-scrollbar-thumb-hover', '--dsw-alias-scrollbar-hover-l2'],
 ].map(([property, token]) => [property!, `var(${token!})`]))
+
+/**
+ * Scroll containers whose bar is drawn on the base surface, so the l1 pair
+ * stays even though their sheet paints elevated surfaces elsewhere. Detection
+ * is sheet-level because CSS text does not say which element contains which, so
+ * a sheet states what actually backs its scrollers here; the entries must cover
+ * EVERY scroll container in the sheet, which makes a scroller added later
+ * re-open the question instead of inheriting the exemption.
+ */
+const BASE_SURFACE_SCROLLERS: readonly {
+  readonly file: string
+  readonly selector: string
+  readonly reason: string
+}[] = [
+  {
+    file: 'ui-deliverables/src/client/SessionChanges.module.css',
+    selector: '.rows',
+    reason: 'The row scroller fills a page that paints no surface, so its bar sits on the app base background; the l3 turn and flag chips are descendants, not its background.',
+  },
+  {
+    file: 'experimental/client-ui-agent-team/src/client/TeamBody.module.css',
+    selector: '.root',
+    reason: 'The page scroller draws on the sidebar fill, a base rung below bg-layer-2/3; the l2 notice, member, task, and form cards are descendants, not its background.',
+  },
+]
+
+/** The classifications naming one stylesheet. */
+function baseSurfaceScrollers(file: string): typeof BASE_SURFACE_SCROLLERS[number][] {
+  return BASE_SURFACE_SCROLLERS.filter(entry => file.endsWith(entry.file))
+}
 
 /**
  * Tokens a stylesheet reads through its rendering declarations, following its
@@ -118,6 +149,8 @@ interface SheetSurfaces {
   elevated: Set<string>
   /** True when some rule declares `overflow*: auto|scroll`. */
   scrolls: boolean
+  /** Selectors of every rule that declares a scroll container. */
+  scrollers: Set<string>
   /**
    * True when some rule rebinds the indirection to an ELEVATION. A rule that
    * only hides the bar (`transparent`) does not count: it states no elevation,
@@ -182,7 +215,7 @@ const elevatedSurfaces = elevatedRungs()
 
 for (const file of packageStylesheets()) {
   const rules = parseRules(readFileSync(file, 'utf8'))
-  const surfaces: SheetSurfaces = { elevated: new Set(), scrolls: false, rebindsElevation: false }
+  const surfaces: SheetSurfaces = { elevated: new Set(), scrolls: false, scrollers: new Set(), rebindsElevation: false }
   for (const rule of rules) {
     let rebinds = false
     let rebindsElevation = false
@@ -192,7 +225,10 @@ for (const file of packageStylesheets()) {
         rebinds = true
         if (value !== HIDDEN_THUMB) rebindsElevation = true
       }
-      if (OVERFLOW_PROPERTIES.includes(property) && /\b(?:auto|scroll)\b/.test(value)) surfaces.scrolls = true
+      if (OVERFLOW_PROPERTIES.includes(property) && /\b(?:auto|scroll)\b/.test(value)) {
+        surfaces.scrolls = true
+        for (const selector of rule.selectors) surfaces.scrollers.add(selector)
+      }
       if (SURFACE_PROPERTIES.includes(property)) ruleSurfaces.push(...varReferences(value))
       for (const token of varReferences(value)) {
         if (!token.startsWith(TOKEN_PREFIX)) continue
@@ -491,7 +527,7 @@ describe('elevated surface rebinds', () => {
     expect(elevatedSurfaces).not.toContain('--dsw-alias-bg-layer-1')
   })
 
-  it('every sheet that scrolls on an elevated surface rebinds', () => {
+  it('every sheet that scrolls on an elevated surface rebinds or classifies its scrollers', () => {
     // The failure this closes: a scroll container on an elevated surface that
     // nobody remembered to rebind renders the l1 thumb, which differs from l2
     // only in the dark palette and only for that one surface — invisible both in
@@ -506,9 +542,30 @@ describe('elevated surface rebinds', () => {
     // button or an inline code span reaching the same rung is out of scope
     // (ChatView's `.toBottom`, CodeBlock's banner). Geometry cannot make that
     // call — a floating button carries a radius, a shadow, and a fixed size.
+    //
+    // A sheet whose scrollers sit on the base surface while it paints elevated
+    // surfaces somewhere else declares that in BASE_SURFACE_SCROLLERS; the
+    // declaration must name every scroller, so the exemption covers the sheet
+    // only as far as it was reviewed.
     for (const [file, surfaces] of sheetSurfaces) {
-      if (!surfaces.scrolls || surfaces.rebindsElevation) continue
-      expect([...surfaces.elevated], `${file} scrolls on an elevated surface without rebinding`).toEqual([])
+      if (!surfaces.scrolls || surfaces.rebindsElevation || surfaces.elevated.size === 0) continue
+      expect(
+        baseSurfaceScrollers(file).map(entry => entry.selector).sort(),
+        `${file} paints an elevated surface and scrolls without rebinding: rebind the pair,`
+        + ' or classify every scroll container in BASE_SURFACE_SCROLLERS',
+      ).toEqual([...surfaces.scrollers].sort())
+    }
+  })
+
+  it('every base-surface classification names a live scroll container and a reason', () => {
+    for (const entry of BASE_SURFACE_SCROLLERS) {
+      expect(entry.reason.trim().length, `${entry.selector}: reason`).toBeGreaterThan(0)
+      const file = [...sheetSurfaces.keys()].find(path => path.endsWith(entry.file))
+      expect(file, `${entry.file} is not a package stylesheet`).toBeDefined()
+      expect(
+        [...sheetSurfaces.get(file as string)?.scrollers ?? []],
+        `${entry.file} ${entry.selector} no longer declares a scroll container`,
+      ).toContain(entry.selector)
     }
   })
 })
