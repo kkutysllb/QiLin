@@ -51,7 +51,7 @@ function rows(root: HTMLElement): string[] {
 /** The panel's one status line, or `undefined` while it lists rows. */
 function notice(root: HTMLElement): { kind: string; line: string } | undefined {
   const line = root.querySelector('[data-plans-row]')
-  return line === null ? undefined : { kind: line.getAttribute('data-plans-row')!, line: line.textContent! }
+  return line === null ? undefined : { kind: line.getAttribute('data-plans-row')!, line: line.textContent }
 }
 
 describe('PlansBody', () => {

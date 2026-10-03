@@ -92,7 +92,7 @@ function makeSeat(options: SeatOptions = {}) {
       }
       return source
     },
-    turnDataSource: () => ({ getSnapshot: () => [], subscribe: () => () => {} }) as never,
+    turnDataSource: () => ({ getSnapshot: () => [], subscribe: () => () => {} }),
     processSource: (key): ChatNodeProcessSource => {
       let source = processSources.get(key)
       if (source === undefined) {

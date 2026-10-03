@@ -62,20 +62,28 @@ function stageMissingProfile(profile: string): string {
 /**
  * Run one invocation while capturing what it wrote.
  * @param run - the invocation to await.
- * @returns its exit code and both captured streams.
+ * @returns its exit code, both captured streams, and the order they were written in.
  */
-async function capture(run: () => Promise<number>): Promise<{ code: number; out: string; err: string }> {
+async function capture(run: () => Promise<number>): Promise<{
+  code: number
+  out: string
+  err: string
+  writes: readonly ('stdout' | 'stderr')[]
+}> {
   let out = ''
   let err = ''
+  const writes: ('stdout' | 'stderr')[] = []
   vi.spyOn(process.stdout, 'write').mockImplementation((chunk: string | Uint8Array) => {
     out += chunk.toString()
+    writes.push('stdout')
     return true
   })
   vi.spyOn(process.stderr, 'write').mockImplementation((chunk: string | Uint8Array) => {
     err += chunk.toString()
+    writes.push('stderr')
     return true
   })
-  return { code: await run(), out, err }
+  return { code: await run(), out, err, writes }
 }
 
 describe('qilin plugin list', () => {
@@ -170,8 +178,7 @@ describe('qilin plugin version exemptions', () => {
     expect(granted.code).toBe(0)
     expect(granted.err).toBe('qilin: warning: allowing incompatible plugin versions can break the application or corrupt data. Approval applies only to the exact package and qilin versions.\n')
     // The risk statement reaches the operator before the confirmation does.
-    const stderrOrder = vi.mocked(process.stderr.write).mock.invocationCallOrder[0]
-    expect(stderrOrder).toBeLessThan(vi.mocked(process.stdout.write).mock.invocationCallOrder[0]!)
+    expect(granted.writes.indexOf('stderr')).toBeLessThan(granted.writes.indexOf('stdout'))
     expect(readProfileVersionExemptions(dir)).toEqual({ '@example/plugin@1.2.3': [runtime] })
     expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({ '@example/plugin@1.2.3': [runtime] })
     // The grant is profile metadata of its own: no bundle joins the layer list.

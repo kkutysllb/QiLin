@@ -71,7 +71,7 @@ export async function verifyRuntimeClosure(
   if (presetPaths.length === 0) failures.push(`no agent presets matched ${AGENT_PRESET_GLOB}`)
   if (targets.length === 0) failures.push('python/sdk-runtime/platforms.json defines no runtime targets')
   const compositions = await presetCompositions(root, presetPaths, failures)
-  failures.push(...await missingPresetPlugins(runtimeDependencies, compositions, targets))
+  failures.push(...missingPresetPlugins(runtimeDependencies, compositions, targets))
   for (let index = 0; index < queue.length; index += 1) {
     const packageName = queue[index]
     if (packageName === undefined) continue
@@ -148,11 +148,11 @@ async function presetCompositions(
   return compositions
 }
 
-async function missingPresetPlugins(
+function missingPresetPlugins(
   runtimeDependencies: Readonly<Record<string, string>>,
   compositions: readonly PresetComposition[],
   targets: readonly string[],
-): Promise<string[]> {
+): string[] {
   const missing = new Map<string, Set<string>>()
   const failures: string[] = []
   for (const definition of compositions) {

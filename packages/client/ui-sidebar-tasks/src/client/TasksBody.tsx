@@ -312,7 +312,7 @@ export function TasksBody({
           {catalog?.state === 'error'
             ? (
               <div className={css.failure}>
-                <span className={css.failureText}>{catalog?.error?.message ?? t('subagents.failed')}</span>
+                <span className={css.failureText}>{catalog.error?.message ?? t('subagents.failed')}</span>
                 <button type="button" className={css.retry} onClick={() => { refresh(sessionId) }}>
                   <IconRefreshOutline14 className={css.retryIcon} />
                   {t('subagents.retry')}

@@ -179,7 +179,7 @@ describe('scanPlans', () => {
     const script = scriptedReader({ heads: { [`${ROOT}/plan.md`]: '# Head' } })
     await scanPlans(SESSION, ROOT, script.reader, SIGNAL)
     expect(script.read).toHaveBeenCalledWith(
-      SESSION, `${ROOT}/plan.md`, { offset: 1, limit: expect.any(Number) }, SIGNAL,
+      SESSION, `${ROOT}/plan.md`, { offset: 1, limit: expect.any(Number) as number }, SIGNAL,
     )
   })
 })

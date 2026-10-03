@@ -307,6 +307,7 @@ function makeHarness(
     const nodeOwner = owner as RoutedChatNodeOwner
     const hookContext = opts?.hookContext as ChatNodeHookContext | undefined
     const useTurnData: UseChatNodeTurnData = dataKey => useTurnDataValue(hookContext?.turnData, dataKey)
+    // oxlint-disable-next-line typescript/no-unnecessary-type-parameters -- each call site names the kind it renders.
     const nodeProps = <Kind extends ChatNode['kind']>(): ChatNodeViewProps<Kind>
       & InjectFace<PresentationInjected> & InjectFace<PerformanceUsageInjected> => (
       {

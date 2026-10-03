@@ -57,7 +57,7 @@ async function installed(sessions: readonly MainViewSession[] = []) {
   const navigation = { startSession: vi.fn(), forkSession: vi.fn(async () => undefined) }
   const archiveSession = vi.fn()
   const controls = createWorkspaceShortcutControls()
-  installWorkspaceShortcuts(b.ctx as never, navigation, controls, archiveSession)
+  installWorkspaceShortcuts(b.ctx, navigation, controls, archiveSession)
   /** The captured resolve for one command id; the installer registered it. */
   const command = (id: string): ShortcutCommandResolution => {
     const resolve = b.registered.find(row => row.id === id)?.resolve as (() => ShortcutCommandResolution) | undefined

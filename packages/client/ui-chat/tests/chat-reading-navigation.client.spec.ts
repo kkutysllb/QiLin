@@ -46,7 +46,7 @@ function makeWorld(init: {
   let notifyResize: (() => void) | undefined
   class ResizeObserverStub {
     constructor(callback: ResizeObserverCallback) {
-      notifyResize = () => { callback([], this as ResizeObserver) }
+      notifyResize = () => { callback([], this) }
     }
     observe = vi.fn()
     disconnect = vi.fn()

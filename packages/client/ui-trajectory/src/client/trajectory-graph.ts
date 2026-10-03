@@ -472,7 +472,7 @@ function describeEventNode(node: ConversationNode, t: TrajectoryTranslate): Desc
           : t(calls.length === 1 ? 'summary.toolCalls.one' : 'summary.toolCalls.other', {
             count: calls.length,
           })),
-        ...(calls.length === 0 ? {} : { badge: calls.length + '×' }),
+        ...(calls.length === 0 ? {} : { badge: `${calls.length}×` }),
         ...(full === '' ? {} : { detail: full }),
         ...(attachments.length === 0 ? {} : { attachments }),
         ...(usage === undefined ? {} : { tokens: usage }),
@@ -672,7 +672,7 @@ export function buildTrajectoryGraph(
     pending.push({
       order: prompt.seq,
       node: {
-        id: 'sys:' + prompt.seq,
+        id: `sys:${prompt.seq}`,
         kind: 'system',
         lane: 'input',
         status: 'idle',
@@ -690,7 +690,7 @@ export function buildTrajectoryGraph(
   // 2. Durable ledger records.
   for (const record of snapshot.eventNodes) {
     const described = describeEventNode(record, t)
-    const id = 'ev:' + record.kind + ':' + record.seq
+    const id = `ev:${record.kind}:${record.seq}`
     pending.push({
       order: record.seq,
       node: {
@@ -724,7 +724,7 @@ export function buildTrajectoryGraph(
       : view.status === 'error' ? 'error' : 'complete'
     const usage = tokenBuckets(view.usage)
     const node: MutableNode = {
-      id: (compaction ? 'creq:' : 'req:') + view.startSeq,
+      id: `${compaction ? 'creq:' : 'req:'}${view.startSeq}`,
       kind: compaction ? 'compact-request' : 'request',
       lane: 'model',
       status,
@@ -752,7 +752,7 @@ export function buildTrajectoryGraph(
     pending.push({
       order: LIVE_SEQ_BASE,
       node: {
-        id: 'partial:' + partial.turn + ':' + partial.step,
+        id: `partial:${partial.turn}:${partial.step}`,
         kind: 'partial',
         lane: 'model',
         status: 'running',
@@ -926,7 +926,7 @@ export function buildTrajectoryGraph(
   // 8c. assistant tool-call block to the tool record its callId names.
   for (const record of snapshot.eventNodes) {
     if (record.kind !== 'assistant') continue
-    const from = 'ev:assistant:' + record.seq
+    const from = `ev:assistant:${record.seq}`
     for (const call of toolCallBlocks(record.blocks)) {
       if (call.callId === '') continue
       const target = callNodes.get(call.callId)
@@ -942,7 +942,7 @@ export function buildTrajectoryGraph(
   }
   for (const record of snapshot.eventNodes) {
     if (record.kind !== 'tool-result') continue
-    const parentId = 'ev:tool-result:' + record.seq
+    const parentId = `ev:tool-result:${record.seq}`
     for (const child of record.subCalls) linkSubCalls(parentId, child)
   }
   for (const call of snapshot.runningCalls) {

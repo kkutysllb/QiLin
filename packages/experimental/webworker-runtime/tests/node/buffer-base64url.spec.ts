@@ -15,13 +15,21 @@ import {
   installBase64UrlEncoding, toStandardAlphabet, toUrlSafeAlphabet,
 } from '../../src/polyfill/buffer/base64url.ts'
 
+/**
+ * Node's Buffer prototype, aliased so the captured codec methods keep their
+ * types: `Buffer.prototype` is inherited from `Function` and types as `any`.
+ */
+const bufferPrototype = Buffer.prototype as Buffer
+
+/* oxlint-disable typescript/unbound-method -- the pristine natives are captured before the patch and `.call`ed on their own buffer. */
 const native = {
   from: Buffer.from,
   isEncoding: Buffer.isEncoding,
   byteLength: Buffer.byteLength,
-  toString: Buffer.prototype.toString,
-  write: Buffer.prototype.write,
+  toString: bufferPrototype.toString,
+  write: bufferPrototype.write,
 }
+/* oxlint-enable typescript/unbound-method */
 
 installBase64UrlEncoding(Buffer)
 
@@ -29,8 +37,8 @@ afterAll(() => {
   Buffer.from = native.from
   Buffer.isEncoding = native.isEncoding
   Buffer.byteLength = native.byteLength
-  Buffer.prototype.toString = native.toString
-  Buffer.prototype.write = native.write
+  bufferPrototype.toString = native.toString
+  bufferPrototype.write = native.write
 })
 
 /** One deterministic byte sequence per length, covering every padding case. */

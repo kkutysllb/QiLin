@@ -158,7 +158,8 @@ function readStdinWithTimeout(ms: number): Promise<string> {
     let raw = ''
     const timer = setTimeout(() => { process.stdin.destroy(); resolve(raw) }, ms)
     process.stdin.setEncoding('utf8')
-    process.stdin.on('data', (chunk) => { raw += chunk })
+    // `setEncoding` hands every chunk over as a string; the stdin typings keep the Buffer overload.
+    process.stdin.on('data', (chunk) => { raw += chunk.toString('utf8') })
     process.stdin.on('end', () => { clearTimeout(timer); resolve(raw) })
     process.stdin.on('error', () => { clearTimeout(timer); resolve(raw) })
   })

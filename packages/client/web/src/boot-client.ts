@@ -56,6 +56,27 @@ export async function bootClient(options: ClientBootOptions): Promise<void> {
 }
 
 /**
+ * One retained Loader reason as text. An Error contributes its message, a
+ * string itself, and any other value its JSON form, so the audit never prints
+ * Object's default `[object Object]` spelling.
+ * @param reason - the value the failed fiber retained.
+ * @returns the message text.
+ */
+function reasonText(reason: unknown): string {
+  if (reason instanceof Error) return reason.message
+  if (reason === null) return 'null'
+  if (typeof reason === 'string') return reason
+  if (typeof reason === 'number' || typeof reason === 'boolean' || typeof reason === 'bigint' || typeof reason === 'symbol') return String(reason)
+  if (typeof reason !== 'object') return Object.prototype.toString.call(reason)
+  try {
+    return JSON.stringify(reason)
+  } catch {
+    // A cyclic reason has no JSON form; report its kind instead.
+    return Object.prototype.toString.call(reason)
+  }
+}
+
+/**
  * The reason a failed Loader fiber keeps for itself. The Loader holds it in a
  * private field and logs it through a logger the browser composition does not
  * mount, so the boot audit is the only place a report can read it.
@@ -64,8 +85,7 @@ export async function bootClient(options: ClientBootOptions): Promise<void> {
  */
 function failureReason(fiber: unknown): string {
   const reason = (fiber as { _error?: unknown })._error
-  if (reason === undefined) return ''
-  return `: ${reason instanceof Error ? reason.message : String(reason)}`
+  return reason === undefined ? '' : `: ${reasonText(reason)}`
 }
 
 /**

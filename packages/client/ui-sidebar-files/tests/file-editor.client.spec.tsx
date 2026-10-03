@@ -75,7 +75,8 @@ describe('mountFileEditor', () => {
     const css = [...document.head.querySelectorAll('style')].map(node => node.textContent).join('\n')
     const ruleFor = (tagSet: readonly Tag[]): string => {
       const cls = highlightingFor(handle.view.state, tagSet)
-      return css.split('}').find(rule => rule.includes('.' + cls)) ?? ''
+      if (cls === null) return ''
+      return css.split('}').find(rule => rule.includes(`.${cls}`)) ?? ''
     }
     expect(ruleFor([tags.comment])).toContain('var(--dsw-static-neutral-500)')
     expect(ruleFor([tags.keyword])).toContain('var(--dsw-static-red-500)')

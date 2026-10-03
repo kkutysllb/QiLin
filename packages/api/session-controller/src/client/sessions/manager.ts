@@ -614,14 +614,14 @@ export class SessionManager {
    * @param frame - baseline or live control replacement from Session Controller.
    */
   handleControlFrame(frame: SessionControlFrame): void {
-    if (frame.type === 'baseline') {
-      this.replaceControlBaseline(frame.value)
-      return
-    }
-    if (frame.type === 'projection') {
-      this.projectionStore(frame.sessionId).apply(frame.key, frame.value, SessionSeq(frame.seq))
-      this.notifier.markDirty()
-      return
+    switch (frame.type) {
+      case 'baseline':
+        this.replaceControlBaseline(frame.value)
+        return
+      case 'projection':
+        this.projectionStore(frame.sessionId).apply(frame.key, frame.value, SessionSeq(frame.seq))
+        this.notifier.markDirty()
+        return
     }
     assertNever(frame)
   }

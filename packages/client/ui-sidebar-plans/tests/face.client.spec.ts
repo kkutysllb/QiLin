@@ -97,8 +97,8 @@ describe('plansFace', () => {
         if (gate !== undefined) await gate
         return script.reader.list(...args)
       },
-      read: script.reader.read,
-      stat: script.reader.stat,
+      read: (...args: Parameters<PlanReader['read']>) => script.reader.read(...args),
+      stat: (...args: Parameters<PlanReader['stat']>) => script.reader.stat(...args),
     }
     const { instance, face } = mount(reader)
     const signal = new AbortController().signal

@@ -181,23 +181,19 @@ function edgePath(kind: TrajectoryGraphEdgeKind, x1: number, y1: number, x2: num
   if (dy <= 4) {
     // Same row, or a backwards link: sweep out to the right and back in.
     const rail = Math.max(x1, x2) + 28
-    return 'M ' + x1 + ' ' + y1 + ' C ' + rail + ' ' + (y1 + 24) + ', ' + rail + ' '
-      + (y2 - 24) + ', ' + x2 + ' ' + y2
+    return `M ${x1} ${y1} C ${rail} ${y1 + 24}, ${rail} ${y2 - 24}, ${x2} ${y2}`
   }
   if (Math.abs(dx) < 2) {
-    return 'M ' + x1 + ' ' + y1 + ' C ' + x1 + ' ' + (y1 + dy * 0.4) + ', ' + x2 + ' '
-      + (y2 - dy * 0.4) + ', ' + x2 + ' ' + y2
+    return `M ${x1} ${y1} C ${x1} ${y1 + dy * 0.4}, ${x2} ${y2 - dy * 0.4}, ${x2} ${y2}`
   }
   const k = clamp(dy * 0.45, 10, 64)
   if (kind === 'loop') {
     // The agent loop: leave the tool lane, ride a rail to the right, then cut
     // back into the model lane.
     const rail = 26
-    return 'M ' + x1 + ' ' + y1 + ' C ' + (x1 + rail) + ' ' + (y1 + k) + ', '
-      + (x2 + rail * 1.4) + ' ' + (y2 - k) + ', ' + x2 + ' ' + y2
+    return `M ${x1} ${y1} C ${x1 + rail} ${y1 + k}, ${x2 + rail * 1.4} ${y2 - k}, ${x2} ${y2}`
   }
-  return 'M ' + x1 + ' ' + y1 + ' C ' + x1 + ' ' + (y1 + k) + ', ' + x2 + ' ' + (y2 - k)
-    + ', ' + x2 + ' ' + y2
+  return `M ${x1} ${y1} C ${x1} ${y1 + k}, ${x2} ${y2 - k}, ${x2} ${y2}`
 }
 
 /**
