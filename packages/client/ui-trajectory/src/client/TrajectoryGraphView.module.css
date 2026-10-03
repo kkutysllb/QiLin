@@ -70,10 +70,23 @@
   color: var(--dsw-alias-label-secondary);
 }
 
+/* The legend chips keep their intrinsic width and wrap as whole chips; a chip
+   that shrank would break its label across lines one character at a time. */
+.legendChips {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+}
+
 .legendItem {
   display: inline-flex;
+  flex: none;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
 .legendDot {
@@ -415,6 +428,7 @@
 /* Edge-kind legend chips: hover highlights, click pins. */
 .legendEdge {
   display: inline-flex;
+  flex: none;
   align-items: center;
   gap: 4px;
   padding: 0;
@@ -422,6 +436,7 @@
   background: transparent;
   font: inherit;
   color: var(--dsw-alias-label-secondary);
+  white-space: nowrap;
   cursor: pointer;
 }
 

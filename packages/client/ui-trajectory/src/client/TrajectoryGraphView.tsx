@@ -599,27 +599,28 @@ export function TrajectoryGraphView(
         {graph.live && <span className={css.liveDot} aria-hidden="true" />}
       </div>
       <div className={css.legend}>
-        {LANES.map(lane => (
-          <span key={lane} className={css.legendItem}>
-            <span className={cx(css.legendDot, LANE_CLASS[lane])} aria-hidden="true" />
-            {t(LANE_KEY[lane])}
-          </span>
-        ))}
-        <span className={cx(css.legendItem, css.legendEdgeHint)} aria-hidden="true">·</span>
-        {EDGE_KINDS.map(kind => (
-          <button
-            key={kind}
-            type="button"
-            className={css.legendEdge}
-            aria-pressed={pinnedEdgeKind === kind}
-            title={t('graph.edge.hint')}
-            onClick={() => { setPinnedEdgeKind(current => (current === kind ? null : kind)) }}
-          >
-            <span className={css.legendEdgeDot} data-kind={kind} aria-hidden="true" />
-            {t(EDGE_KEY[kind])}
-          </button>
-        ))}
-        <span className={css.spacer} />
+        <div className={css.legendChips}>
+          {LANES.map(lane => (
+            <span key={lane} className={css.legendItem}>
+              <span className={cx(css.legendDot, LANE_CLASS[lane])} aria-hidden="true" />
+              {t(LANE_KEY[lane])}
+            </span>
+          ))}
+          <span className={cx(css.legendItem, css.legendEdgeHint)} aria-hidden="true">·</span>
+          {EDGE_KINDS.map(kind => (
+            <button
+              key={kind}
+              type="button"
+              className={css.legendEdge}
+              aria-pressed={pinnedEdgeKind === kind}
+              title={t('graph.edge.hint')}
+              onClick={() => { setPinnedEdgeKind(current => (current === kind ? null : kind)) }}
+            >
+              <span className={css.legendEdgeDot} data-kind={kind} aria-hidden="true" />
+              {t(EDGE_KEY[kind])}
+            </button>
+          ))}
+        </div>
         <input
           className={css.search}
           value={query}
