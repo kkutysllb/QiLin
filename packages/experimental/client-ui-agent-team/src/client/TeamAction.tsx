@@ -14,13 +14,12 @@ import {
 import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
 import type { TranslateNS } from '@qilin/client-ui-slots'
 import type {} from '@qilin/client-ui-conversation/client'
-import type { MemberStatus } from './team-model.ts'
 import {
   memberDotState,
   memberStatusKey,
-  statusKey,
-  taskDotState,
 } from './team-model.ts'
+import { useMemberFacts } from './member-facts.ts'
+import { TaskCardHead, TaskFacts } from './TaskCardParts.tsx'
 import { NS } from './locales.ts'
 import css from './TeamAction.module.css'
 
@@ -45,13 +44,7 @@ type TeamMemberRowProps = Pick<TeamActionProps,
 function TeamMemberRow({
   member, memberCount, sessionId, useSessions, useSessionStatus, openTeammate, onError, t,
 }: TeamMemberRowProps) {
-  const model = useSessions(state => state.projectionsBySession[member.id]?.values.modelSelection?.next?.model)
-  const running = useSessionStatus(state => state.get(member.id)?.running)
-  const summaryRunning = useSessions(state => state.byId[member.id]?.running)
-  const status: MemberStatus = member.phase === 'active'
-    ? (running ?? summaryRunning) === true ? 'running' : 'inactive'
-    : member.phase
-  const isCurrent = member.id === sessionId
+  const { model, status, isCurrent } = useMemberFacts(member, sessionId, { useSessions, useSessionStatus })
   const highlightCurrent = isCurrent && memberCount > 1
   const inert = isCurrent || status === 'failed' || status === 'provisioning'
 
@@ -111,13 +104,7 @@ function TaskCard({ task, t }: { task: TeamTask; t: TranslateNS<typeof NS> }) {
   }, [task.description, expanded])
   return (
     <article className={css.task}>
-      <div className={css.taskTitle}>
-        <strong>{task.subject}</strong>
-        <span className={css.taskState}>
-          <StateDot state={taskDotState(task)} />
-          <span>{t(statusKey(task.status))}</span>
-        </span>
-      </div>
+      <TaskCardHead task={task} styles={css} t={t} />
       <p ref={textRef} className={expanded ? undefined : css.clampedDescription}>{task.description}</p>
       <div className={css.meta}>
         {(clamped || expanded) && (
@@ -133,10 +120,7 @@ function TaskCard({ task, t }: { task: TeamTask; t: TranslateNS<typeof NS> }) {
         )}
         <span>{task.id}</span>
         <span>{t('owner')}: {task.ownerName ?? t('unowned')}</span>
-        {task.status === 'pending' && <span>{task.ready ? t('ready') : t('blocked')}</span>}
-        {task.blockedBy.length > 0 && <span>{t('blockedBy')}: {task.blockedBy.join(', ')}</span>}
-        {task.writeScopes.length > 0 && <span>{t('writeScopes')}: {task.writeScopes.join(', ')}</span>}
-        {task.writeScopeWarnings.map(warning => <span key={warning} className={css.warning}>{warning}</span>)}
+        <TaskFacts task={task} styles={css} t={t} />
       </div>
     </article>
   )

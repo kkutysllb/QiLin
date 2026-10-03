@@ -50,6 +50,16 @@ export function apply(ctx: ClientContext): void {
   void controller.load()
   const paths = new OpenInAppPathController(ctx.remote.session)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'open-in-app: dictionaries')
+  /** The opening face both Session-header seats receive: the app roster, the remembered choice, and the launch. */
+  const openInAppInjected = (): OpenInAppActionInjected => ({
+    hooks: {
+      openInAppApps: controller.apps,
+      openInAppChoice: controller.choice,
+    },
+    launch: (appId, path) => controller.launch(appId, path),
+    choose: (appId) => { controller.choose(appId) },
+    iconUrl: appId => `${OPEN_IN_APP_ICON_PREFIX_ROUTE}/${appId}`,
+  })
   /** The opening face both document seats receive: one page-lifetime desktop answer, per-file queries on demand. */
   const pathInjected = (): OpenPathInjected => ({
     hooks: { openInAppDesktop: paths.desktop },
@@ -91,15 +101,7 @@ export function apply(ctx: ClientContext): void {
     id: 'open-in-app',
     order: -10,
     locale: NS,
-    inject: (): OpenInAppActionInjected => ({
-      hooks: {
-        openInAppApps: controller.apps,
-        openInAppChoice: controller.choice,
-      },
-      launch: (appId, path) => controller.launch(appId, path),
-      choose: (appId) => { controller.choose(appId) },
-      iconUrl: appId => `${OPEN_IN_APP_ICON_PREFIX_ROUTE}/${appId}`,
-    }),
+    inject: openInAppInjected,
   }, OpenInAppAction))
   // Workspace directory controls: the file tree's reload-adjacent action list
   // renders the same shared control against the displayed directory.
@@ -107,15 +109,7 @@ export function apply(ctx: ClientContext): void {
     name: 'sidebar.right.tab.files.actions',
     id: 'open-in-app',
     locale: NS,
-    inject: (): OpenInAppActionInjected => ({
-      hooks: {
-        openInAppApps: controller.apps,
-        openInAppChoice: controller.choice,
-      },
-      launch: (appId, path) => controller.launch(appId, path),
-      choose: (appId) => { controller.choose(appId) },
-      iconUrl: appId => `${OPEN_IN_APP_ICON_PREFIX_ROUTE}/${appId}`,
-    }),
+    inject: openInAppInjected,
   }, OpenInAppAction))
   ctx.slots.inject('sidebar.right.tab.document.actions', () => ctx.slots.register({
     name: 'sidebar.right.tab.document.actions',

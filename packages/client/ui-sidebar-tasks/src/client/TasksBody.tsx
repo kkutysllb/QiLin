@@ -23,10 +23,11 @@ import type { TasksInjected } from './face.ts'
 import { NS } from './locales.ts'
 import { indexSubagentDescendants } from './lineage.ts'
 import {
-  NO_JOBS, catalogsOf, childRowCount, formatDuration, isLive, jobDotState, jobElapsed, jobStatusLabel,
+  childRowCount, formatDuration, isLive, jobDotState, jobElapsed, jobStatusLabel,
   orderedJobs, subagentRows, subagentTotal,
 } from './rows.ts'
 import type { SubagentRow } from './rows.ts'
+import { useWorkSources } from './work-sources.ts'
 import type { createTasksGraphStore } from './tasks-graph-store.ts'
 import type { TaskNodeVM } from './tasks-graph-model.ts'
 import { buildTasksGraphModel } from './tasks-graph-model.ts'
@@ -185,15 +186,7 @@ function TaskRowView({ job, now, t }: {
 export function TasksBody({
   sessionId, useSessions, useJobs, useStore, actions, watchRows, openChild, refresh, interruptChild, t,
 }: TasksBodyProps): ReactNode {
-  const summaries = useSessions(state => state.byId)
-  const projections = useSessions(state => state.projectionsBySession)
-  const jobs = useJobs(state => state.rows[sessionId]) ?? NO_JOBS
-  // The pane keeps its Session roster current for as long as it is mounted.
-  useEffect(() => watchRows(sessionId), [sessionId, watchRows])
-  const catalogs = useMemo(
-    () => catalogsOf(projections, id => summaries[id]?.running === true),
-    [projections, summaries],
-  )
+  const { catalogs, jobs, summaries } = useWorkSources(sessionId, { useSessions, useJobs, watchRows })
   const catalog = catalogs[sessionId]
   const [sections, setSections] = useState<Sections>({ subagents: true, tasks: true })
   const [allSubagents, setAllSubagents] = useState(false)

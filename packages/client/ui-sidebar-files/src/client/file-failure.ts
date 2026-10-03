@@ -7,13 +7,7 @@
  */
 import type { RemoteFailure } from '@qilin/api-remotes/client'
 import type { TranslateNS } from '@qilin/client-locale/client'
-
-/** Render a byte count the way a person reads one. */
-function humanBytes(bytes: number): string {
-  if (bytes >= 1024 * 1024) return `${Math.round(bytes / (1024 * 1024))} MB`
-  if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${bytes} B`
-}
+import { fileSizeRoundedText } from '@qilin/client-ui-primitives'
 
 /**
  * Say what went wrong, in terms of the file rather than of the transport.
@@ -25,7 +19,7 @@ export function fileFailureLine(t: TranslateNS<'sidebarFiles'>, failure: RemoteF
   switch (failure.code) {
     case 'workspace-file/not-found': return t('file.error.notFound')
     case 'workspace-file/too-large':
-      return t('file.error.tooLarge', { size: humanBytes(failure.details.limit) })
+      return t('file.error.tooLarge', { size: fileSizeRoundedText(failure.details.limit) })
     case 'workspace-file/not-text': return t('file.error.notText')
     case 'workspace-file/not-regular-file': return t('file.error.notRegularFile')
     case 'workspace-file/outside-workspace': return t('file.error.outsideWorkspace')

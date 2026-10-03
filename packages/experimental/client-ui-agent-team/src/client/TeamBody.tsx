@@ -37,13 +37,12 @@ import {
   isTeamDraftCommittable,
   memberDotState,
   memberStatusKey,
-  statusKey,
-  taskDotState,
   teamDraftOf,
   teamFormFieldsOf,
-  type MemberStatus,
   type TeamDraft,
 } from './team-model.ts'
+import { useMemberFacts } from './member-facts.ts'
+import { TaskCardHead, TaskFacts } from './TaskCardParts.tsx'
 import type { createTeamPageStore } from './team-page-store.ts'
 import type { TeamPageInjected } from './team-writes.ts'
 import { NS } from './locales.ts'
@@ -88,13 +87,7 @@ function MemberRow({
   & Pick<TeamBodyProps, 'useSessions' | 'useSessionStatus'>
   & Pick<TeamPageInjected, 'openTeammate'>
   & { member: TeamMemberProjection }): ReactNode {
-  const model = useSessions(state => state.projectionsBySession[member.id]?.values.modelSelection?.next?.model)
-  const running = useSessionStatus(state => state.get(member.id)?.running)
-  const summaryRunning = useSessions(state => state.byId[member.id]?.running)
-  const status: MemberStatus = member.phase === 'active'
-    ? (running ?? summaryRunning) === true ? 'running' : 'inactive'
-    : member.phase
-  const isCurrent = member.id === sessionId
+  const { model, status, isCurrent } = useMemberFacts(member, sessionId, { useSessions, useSessionStatus })
   const openable = !isCurrent && status !== 'failed' && status !== 'provisioning'
   return (
     <button
@@ -158,20 +151,11 @@ function TaskCard({
   const [armed, setArmed] = useState(false)
   return (
     <article className={css.task}>
-      <div className={css.taskTitle}>
-        <strong>{task.subject}</strong>
-        <span className={css.taskState}>
-          <StateDot state={taskDotState(task)} />
-          <span>{t(statusKey(task.status))}</span>
-        </span>
-      </div>
+      <TaskCardHead task={task} styles={css} t={t} />
       <p className={css.taskDescription}>{task.description}</p>
       <div className={css.meta}>
         <span>{task.id}</span>
-        {task.status === 'pending' && <span>{task.ready ? t('ready') : t('blocked')}</span>}
-        {task.blockedBy.length > 0 && <span>{t('blockedBy')}: {task.blockedBy.join(', ')}</span>}
-        {task.writeScopes.length > 0 && <span>{t('writeScopes')}: {task.writeScopes.join(', ')}</span>}
-        {task.writeScopeWarnings.map(warning => <span key={warning} className={css.warning}>{warning}</span>)}
+        <TaskFacts task={task} styles={css} t={t} />
       </div>
       <div className={css.controls}>
         <OwnerSelect task={task} members={members} sessionId={sessionId} busy={busy} reassignTask={reassignTask} t={t} />
