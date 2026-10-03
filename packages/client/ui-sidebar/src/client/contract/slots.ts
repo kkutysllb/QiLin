@@ -34,6 +34,15 @@ declare module '@qilin/client-ui-slots' {
      */
     'sidebar.panellist': { kind: 'list'; scope: 'root'; owner: SidebarPanelIconOwnerProps }
     /**
+     * Deployment-side section assignment for panel rows. Each occupant's
+     * inject face contributes a row-id → section-label map applied over the
+     * panel list before grouping, so a deployment can join rows it does not
+     * register itself (engine panels) into sections of its naming. An
+     * assignment wins over the row's own `section`. Declared by this
+     * package's `sidebar` entry.
+     */
+    'sidebar.section.assignments': { kind: 'list'; scope: 'root'; owner: SidebarSectionAssignmentsOwnerProps }
+    /**
      * The workspace/session browsing region: section header, search, the
      * grouped/flat session list, and every workspace dialog. Declared by this
      * package's 'sidebar' entry (declaring is claiming); ui-workspace
@@ -74,6 +83,12 @@ export interface SidebarPanelIconOwnerProps {
   size: number
   /** Whether this panel is selected in the main column. */
   active: boolean
+}
+
+/** Owner share of a section-assignments seat: row-id → section label. */
+export interface SidebarSectionAssignmentsOwnerProps {
+  /** Applied over every panel row; an assignment wins over the row's own section. */
+  assignments: Readonly<Record<string, string>>
 }
 
 /** Serializable metadata for one active global panel list registration. */
