@@ -12,6 +12,12 @@ import {
 
 const QILIN_PACKAGE = '@qilin/cli'
 const CORDIS_PACKAGE = '@qilin/kylin'
+/** The vendored foundation packages, which version with the framework rather than the harness. */
+const VENDORED_FOUNDATION_PACKAGES = ['@qilin/cosmokit', '@qilin/schemastery'] as const
+/** The vendored Loader plugin family, which versions with the framework. */
+const VENDORED_PLUGIN_PREFIX = '@qilin/kylin-plugin-'
+/** The native addon sequence versions and publishes independently of a harness release. */
+const NATIVE_ADDON_PACKAGE = '@qilin/node-addon-system'
 const NESTED_QILIN_ALIAS = 'qilin-previous'
 const NESTED_QILIN_PATH = `node_modules/${NESTED_QILIN_ALIAS}`
 const DEPENDENCY_FIELDS = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
@@ -35,9 +41,27 @@ export interface QilinInstallLayoutSummary {
   readonly checkedQilinEdges: number
 }
 
+/**
+ * Packages that version and publish outside a harness release, so no harness
+ * version exists for them: the vendored framework layer and the native addon
+ * sequence ([independent version lines](../../AGENTS.md#conventions)).
+ * @param name - npm package name.
+ * @returns whether the package carries its own version line.
+ */
+function isIndependentPackage(name: string): boolean {
+  return name === CORDIS_PACKAGE
+    || name === VENDORED_FOUNDATION_PACKAGES[0]
+    || name === VENDORED_FOUNDATION_PACKAGES[1]
+    || name.startsWith(VENDORED_PLUGIN_PREFIX)
+    || name === NATIVE_ADDON_PACKAGE
+    || name.startsWith(`${NATIVE_ADDON_PACKAGE}-`)
+}
+
 function isQilinPackage(name: string): boolean {
-  // The framework is the one shared peer layer, deliberately outside the dual-release scheme.
-  return name !== CORDIS_PACKAGE && (name === QILIN_PACKAGE || name.startsWith('@qilin/'))
+  // Independently versioned packages are shared layers, deliberately outside the
+  // dual-release scheme; everything else must carry the workspace release version.
+  if (isIndependentPackage(name)) return false
+  return name === QILIN_PACKAGE || name.startsWith('@qilin/')
 }
 
 function cloneForVersion(manifest: object, version: string): MutableRegistryManifest {
