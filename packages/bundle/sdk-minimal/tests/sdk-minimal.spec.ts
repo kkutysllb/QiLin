@@ -31,7 +31,7 @@ describe('qilin-sdk-minimal bundle', () => {
       ['deepseek-llm-api-extensions', '@qilin/deepseek-llm-api-extensions'],
       ['session-log-deepseek', '@qilin/session-log-deepseek'],
       ['plugin-package-inventory-deepseek', '@qilin/plugin-package-inventory-deepseek'],
-      ['llm-deepseek', '@qilin/llm-deepseek'],
+      ['llm-deepseek', '@qilin/llm-deepseek-api-key'],
       ['sandbox', '@qilin/sandbox-local'],
       ['session-projection', '@qilin/session-projection'],
       ['sandbox-policy', '@qilin/sandbox-policy'],

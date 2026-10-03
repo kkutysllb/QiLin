@@ -72,8 +72,14 @@ describe('canonicalSessionFixture', () => {
     }
     const raw = [HEADER, ...[...fixtureEvents(), event].map(value => JSON.stringify(value)), ''].join('\n')
     const written = scrubSessionSnapshot(prepareSessionSnapshotFixtureForComparison(raw))
+    const canonical = canonicalSessionFixture(written)
 
-    expect(canonicalSessionFixture(written)).toBe(written)
+    // The comparison text keeps the compacted on-disk range encoding for
+    // `sourceEventSeqs`, while the fixture layout stores that list decoded; one
+    // canonicalization pass converts between them and the result is stable.
+    expect(canonical).toBeDefined()
+    expect(canonicalSessionFixture(canonical!)).toBe(canonical)
+    expect(decodedBody(canonical!)).toEqual(decodedBody(written))
     expect(decodedBody(written).at(-1)?.sourceEventSeqs).toEqual(sources)
     expect(scrubSessionSnapshot(written)).toBe(written)
   })

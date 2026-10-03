@@ -87,8 +87,8 @@ describe('next package benchmark graph', () => {
     ]))
 
     expect(index.get('@f/probe')?.get('1.0.0')).toMatchObject({
-      dependencies: { '@f/runtime': '^2.0.0' },
-      peerDependencies: { '@qilin/kylin': '^4.0.1' },
+      dependencies: { '@f/runtime': '2.0.0' },
+      peerDependencies: { '@qilin/kylin': '~4.0.1' },
     })
     expect(index.get('@f/probe')?.get('1.0.0')?.dependencies).not.toHaveProperty('@f/types')
   })

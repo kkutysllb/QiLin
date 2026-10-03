@@ -174,7 +174,7 @@ describe('sandbox:policy request context', () => {
     const workspaceRoot = '/projects/../projects/current'
     const expected = {
       'read-only': 'Current QILIN file policy: read-only. Any available operation enforced by the QILIN file sandbox cannot modify files in the standing mode. Do not refuse a required modification from this policy alone: try an available tool normally and follow any denial and escalation guidance it returns.',
-      'workspace-write': `Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: ${JSON.stringify(workspaceRoot)}. Some platform temporary areas may also be writable.`,
+      'workspace-write': `Current QILIN file policy: workspace-write. Any available operation enforced by the QILIN file sandbox may modify files under the session workspace: ${JSON.stringify(workspaceRoot)}. Some platform temporary areas may also be writable.`,
       'danger-full-access': 'Current QILIN file policy: danger-full-access. The QILIN file sandbox does not restrict file modifications by available operations.',
     } as const
 
@@ -213,7 +213,7 @@ describe('sandbox:policy request context', () => {
     expect(await policyContext(ctx, active)).toBe(danger)
 
     setSandboxMode(active, 'workspace-write')
-    expect(await policyContext(ctx, active)).toBe(`Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: ${JSON.stringify('/projects/current')}. Some platform temporary areas may also be writable.`)
+    expect(await policyContext(ctx, active)).toBe(`Current QILIN file policy: workspace-write. Any available operation enforced by the QILIN file sandbox may modify files under the session workspace: ${JSON.stringify('/projects/current')}. Some platform temporary areas may also be writable.`)
   })
 
   it('reconstructs resumed policy from the session log and omits diagnostics without an agent', async () => {

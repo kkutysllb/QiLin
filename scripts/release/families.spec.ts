@@ -62,6 +62,7 @@ describe('release families', () => {
       '@qilin/experimental-computer-use-cua-driver-native',
       '@qilin/experimental-inspector',
       '@qilin/experimental-ptc-runtime-python',
+      '@qilin/experimental-schedule-bundle',
       '@qilin/experimental-speech-to-text-sensevoice',
       '@qilin/experimental-speech-to-text',
       '@qilin/experimental-tool-agent-team',

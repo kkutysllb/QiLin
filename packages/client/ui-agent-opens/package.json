@@ -35,8 +35,7 @@
         "@qilin/api-remotes",
         "@qilin/client-ui-sidebar-browser",
         "@qilin/client-ui-sidebar-right",
-        "@qilin/client-ui-session",
-        "@qilin/sidebar-opens"
+        "@qilin/client-ui-session"
       ],
       "platform": "web"
     }

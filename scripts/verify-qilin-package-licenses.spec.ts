@@ -41,9 +41,10 @@ describe('QILIN package license gate', () => {
     })
 
     expect(inspectQilinPackageLicenses(root)).toEqual({
-      packageCount: 3,
+      packageCount: 4,
       failures: [
         'packages/core/agent/package.json: @qilin/agent must declare "license": "MIT"; found "BSD-3-Clause".',
+        'vendor/cordis/package.json: @qilin/kylin must declare "license": "MIT"; found "BSD-3-Clause".',
       ],
     })
   })

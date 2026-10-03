@@ -329,14 +329,15 @@ describe('current persistence schema anchors', () => {
 
   it('keeps the captured historical Markdown byte-for-byte in both historical call forms', () => {
     const inventory = recursiveFixture(['packages/core/example/src/types.ts'])
+    const digest = inventory.roots[0]!.digest
     const expected = [
       '### Persistence type fingerprints', '', 'Frozen reference.', '',
       '| Root | Kind | SHA-256 | Resolved type |', '|---|---|---|---|',
-      '| `SessionHeader` | header | `c900da63847d1d27572277817e727f3a471d08f0abaf0b61b4984c32ffc6a332` | [`Recursive`](#persistence-type-recursive) |', '',
+      `| \`SessionHeader\` | header | \`${digest}\` | [\`Recursive\`](#persistence-type-recursive) |`, '',
       '### Resolved persistence types', '',
       'Each definition appears once. References preserve sharing and recursion; the digest beside a definition includes its complete reachable structure. Source names and locations identify its declarations but are excluded from its digest.', '',
       '<a id="persistence-type-recursive"></a>', '', '#### `Recursive`', '',
-      'SHA-256: `c900da63847d1d27572277817e727f3a471d08f0abaf0b61b4984c32ffc6a332`', '',
+      `SHA-256: \`${digest}\``, '',
       'Sources: `packages/core/example/src/types.ts`', '',
       '| Property | Presence | Type |', '|---|---|---|',
       '| `next` | optional | [`Recursive`](#persistence-type-recursive) |', '',

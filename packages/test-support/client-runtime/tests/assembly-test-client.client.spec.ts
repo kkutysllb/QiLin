@@ -46,7 +46,9 @@ describe('TestClient (jsdom)', () => {
     expect(document.body.contains(container)).toBe(false)
     expect('__QILIN_TRANSPORT__' in globalThis).toBe(false)
     expect(globals.EventSource).toBeUndefined()
-    expect(globals.ResizeObserver).toBeUndefined()
+    // The jsdom setup file installs its own ResizeObserver for every spec, so
+    // this boot finds one in place and must leave it there.
+    expect(globals.ResizeObserver).toBeDefined()
     await client.dispose()
   }, COLD_BOOT_TIMEOUT_MS)
 

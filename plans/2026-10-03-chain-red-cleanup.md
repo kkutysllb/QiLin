@@ -17,7 +17,7 @@
 
 ## 二、本轮清掉的红
 
-全部在提交 `1d5263e2aa`、`b8f63b8ce9`、`c2f1b74be4`、`ed9e24bc69`：
+全部在随 `v3.0.10` 发布的四个提交里（`docs(catalogs)` 重跑发布批次漏掉的生成物、`fix(new-packages)` 补新包发布视图与中文 README 骨架、`fix(sidebar-opens)` 去掉用例的 unknown 断言、`chore(gates)` 收掉 vendor rescope 与仓库引用两处存量红）：
 
 - `verify-module-graph`：产物缺 `sidebar-opens` 与 `client-ui-agent-opens` 两个包（发布批次漏再生成）。
 - `verify-kylin-catalog`：`workspace-files` 的 `remove` → `delete` 重命名没有落到 `docs/subsystems/workspace.md` 与 `tool-kylin/src/api-catalog.ts`。
@@ -38,12 +38,12 @@
 红在 `parseSnapshot` 读历史快照：`SessionHeader: schema digest mismatch`。本轮的取证结论：
 
 - 全部 8 份 `docs/persistence-changes/*.schema.json` 里，只有 `2026-09-16-session-format-v4`（15 个 root）与 `2026-09-20-unknown-child-catalog`（1 个 root）内部不一致；其余 6 份自洽。
-- 这两个文件恰好是提交 `b1696f535b`（2026-09-25 08:48）最后写入的两个；同目录其他快照由别的提交写入。即：那次生成器运行产出的 digest 与它同时写出的 schema 对不上。
-- 这 15 个 digest 既不等于其自身 schema 的 digest，也不等于该 schema 经 `canonicalizeSchema` 之后的 digest；用 `b1696f535b` 当时的 `schemaDigest`/`canonicalizeSchema`（`git show b1696f535b:scripts/persistence-schema-model.ts`）复算仍然不相等。**这些 digest 不可复现**。
+- 这两个文件恰好是 `feat: 对齐上游 dsh 0.1.7-rc.1` 那批落地（2026-09-25 08:48，随 `v3.0.5` 发布）最后写入的两个；同目录其他快照由别的提交写入。即：那次生成器运行产出的 digest 与它同时写出的 schema 对不上。
+- 这 15 个 digest 既不等于其自身 schema 的 digest，也不等于该 schema 经 `canonicalizeSchema` 之后的 digest；用该提交所处的发布世代 `v3.0.5` 的 `schemaDigest`/`canonicalizeSchema`（`git show v3.0.5:scripts/persistence-schema-model.ts`）复算仍然不相等。**这些 digest 不可复现**。
 - 另有 `2026-09-21-user-question-reply.schema.json` **整个文件缺失**（该记录声明了 4 个 root）。即使修好上面 15 个 digest，下一步仍会报 `missing schema snapshot`；而它的声明 digest 与当前树、与可复现的任何规范化形式也都不相等。
 - 我还验过另一条路：把这两个快照按当前代码规范化并重新指纹（15 个 root），确实能让解析通过，但随即暴露第三条：当前树的 `event:user/message` 等 4 个 root 与 `2026-09-21` 记录的声明不一致，需要再补一条 acknowledgement。这条链已经不只是「校验和写错」，而是丢失了一代快照 + 两代 digest 不可复现。
 
-按仓库既有铁律（`b65716be4f` 提交信息：禁止手改持久化 JSON、只准改生成器后重跑；`persistence-formats` 对历史快照的放宽不等于可修改已发布世代），我**没有**改写已发布世代，也没有为了让门禁变绿而补一条内容不实的 acknowledgement。这一条留 owner 决策：要么恢复 `b1696f535b` 那次运行的生成器输入，要么由 owner 明确同意重录这三份历史产物。
+按仓库既有铁律（随 `v3.0.6` 发布的 `build(B4)` 提交信息：禁止手改持久化 JSON、只准改生成器后重跑；`persistence-formats` 对历史快照的放宽不等于可修改已发布世代），我**没有**改写已发布世代，也没有为了让门禁变绿而补一条内容不实的 acknowledgement。这一条留 owner 决策：要么恢复那一代运行的生成器输入，要么由 owner 明确同意重录这三份历史产物。
 
 ### 2. `docs:build`（本地环境）
 
