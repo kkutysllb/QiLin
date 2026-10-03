@@ -140,7 +140,10 @@ export function repositoryClientBuildEnvironment(
     ...inherited,
     QILIN_CLIENT_COMMIT_HASH: repositoryCommitHash(root, environment),
     ...(dirty === true ? { QILIN_CLIENT_GIT_DIRTY: 'true' } : {}),
-    QILIN_CLIENT_VERSION: repositoryVersion(root),
+    // KStock patch: 桌面端版本徽章——KSTOCK_CLIENT_VERSION 由
+    // scripts/qilin-pnpm.sh 从 apps/desktop/package.json 注入（桌面端 vX.Y.Z），
+    // 未设置时回落引擎仓库版本，行为与上游一致。
+    QILIN_CLIENT_VERSION: environment.KSTOCK_CLIENT_VERSION ?? repositoryVersion(root),
   }
 }
 
