@@ -3741,7 +3741,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: '`ready` once the Host observation queue is active and the workspace root is resolved, then queued and live observations in emission order.',
       },
       {
-        signature: '@Remote async remove( workspaceFileScope: WorkspaceFileScope, path: string, recursive: boolean, signal: AbortSignal, ): Promise<void>',
+        signature: '@Remote async delete( workspaceFileScope: WorkspaceFileScope, path: string, recursive: boolean, signal: AbortSignal, ): Promise<void>',
         description: 'Delete one file or directory inside the Session\'s workspace. A final symbolic link is refused before resolution follows it, so a delete never reaches through a link to a file the caller did not name; a directory is either emptied by the caller or removed whole with `recursive`.\n\nThe successful removal emits `fs/observed` with an absent observation, so the change feed reports the disappearance to every open consumer.',
         parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'path', description: 'absolute path or path relative to the workspace root; a resolved target outside it fails with outside-workspace.' }, { name: 'recursive', description: 'remove a directory with all its contents; `false` refuses a non-empty directory with not-empty.' }, { name: 'signal', description: 'caller cancellation.' }],
         returns: 'nothing; the caller observes the removal through `list`/`stat`.',

@@ -49,6 +49,7 @@
 | `@qilin/tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
 | `@qilin/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`、`tool/result` | - | - |
 | `@qilin/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
+| `@qilin/sidebar-opens` | `sidebar_open` | `ctx.tools`、`ctx.fs` | `tool/call`、`one Remote sidebarOpens.watch request per open`、`tool/result` | - | 宿主包工具：请求以 Remote 流而非会话事件的形式发往浏览器半边（`@qilin/client-ui-agent-opens`），因此模型请求查看的内容留在日志中，而任何页面加载都不会重放旧的打开请求。每个会话的待处理队列由 `maxQueued` 配置限定（默认 16）；已被视图消费的请求绝不重放。 |
 
 <a id="qilinplugin-manager"></a>
 
@@ -2726,3 +2727,31 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 来源：[`packages/web/tool-web/src/index.ts`](../packages/web/tool-web/src/index.ts)
 
 web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。
+
+<a id="qilinsidebar-opens"></a>
+
+## `@qilin/sidebar-opens`
+
+### `sidebar_open`
+
+在用户正在查看本会话的侧栏中打开一个文件或一个 http(s) 页面。当用户要求查看某样东西时使用：你生成的文件、值得在对话旁阅读的文件，或你找到的页面。只传 `path`（已存在的文件）或 `url` 之一。文件在文档预览中打开，页面在内置浏览器中打开；两者都出现在对话旁边，而不是离开当前应用。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "Path of an existing regular file, relative to the Session working directory or absolute."
+    },
+    "url": {
+      "type": "string",
+      "description": "An http:// or https:// page to open in the built-in browser."
+    }
+  }
+}
+```
+
+来源：[`packages/host/sidebar-opens/src/index.ts`](../packages/host/sidebar-opens/src/index.ts)
+
+宿主包工具：请求以 Remote 流而非会话事件的形式发往浏览器半边（`@qilin/client-ui-agent-opens`），因此模型请求查看的内容留在日志中，而任何页面加载都不会重放旧的打开请求。每个会话的待处理队列由 `maxQueued` 配置限定（默认 16）；已被视图消费的请求绝不重放。

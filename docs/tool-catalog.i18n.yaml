@@ -9,8 +9,8 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: a89460b8009f684b
-  zh: 6344d1e8e02ee537
+  en: 58d1b6d24fddbee6
+  zh: 6f9c41debc1e0f3f
 /tool-schema-catalog/qilin-plugin-manager:
   en: 137ab7ab9dfccf59
   zh: 137ab7ab9dfccf59
@@ -309,5 +309,11 @@
   en: 8673f203aea9bdf2
   zh: 4e17783ffdf34c83
 /tool-schema-catalog/qilin-tool-web/web-search:
-  en: 096d6a19c83af773
-  zh: fa5213caf9401216
+  en: 6f60a40e1290fde6
+  zh: fa5ba0db4e96f194
+/tool-schema-catalog/qilin-sidebar-opens:
+  en: 4b4479208b1ff0da
+  zh: 4b4479208b1ff0da
+/tool-schema-catalog/qilin-sidebar-opens/sidebar-open:
+  en: 895c2ec8066d2aee
+  zh: 076a520ea9fd1e54

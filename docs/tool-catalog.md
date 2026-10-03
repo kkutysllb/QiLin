@@ -45,6 +45,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@qilin/tool-workflow` | `workflow` | `ctx.tools`, `ctx.workflowEngine`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents the script children)` | `tool/call`, `tool/result` | - | - |
 | `@qilin/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`, `tool/result` | - | - |
 | `@qilin/tool-web` | `web_fetch`, `web_search` | `ctx.tools`, `ctx.web`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps. |
+| `@qilin/sidebar-opens` | `sidebar_open` | `ctx.tools`, `ctx.fs` | `tool/call`, `one Remote sidebarOpens.watch request per open`, `tool/result` | - | A Host package tool: the request leaves for the browser half (`@qilin/client-ui-agent-opens`) as a Remote stream instead of a session event, so what the model asked for stays in the log while no page load replays an old open. The per-Session pending queue is bounded by the `maxQueued` Config (default 16); a request a view already consumed is never replayed. |
 
 <a id="qilinplugin-manager"></a>
 
@@ -2716,3 +2717,31 @@ Search the web for current information. Provide 1–4 queries in the required qu
 Source: [`packages/web/tool-web/src/index.ts`](../packages/web/tool-web/src/index.ts)
 
 web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps.
+
+<a id="qilinsidebar-opens"></a>
+
+## `@qilin/sidebar-opens`
+
+### `sidebar_open`
+
+Open one file or one http(s) page in the Sidebar the user is viewing this Session in. Use it when the user asked to see something: a file you produced, a file worth reading beside the conversation, or a page you found. Pass exactly one of `path` (a file that already exists) or `url`. The file opens in the document preview and the page in the built-in browser; both appear beside the conversation rather than leaving the application.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "Path of an existing regular file, relative to the Session working directory or absolute."
+    },
+    "url": {
+      "type": "string",
+      "description": "An http:// or https:// page to open in the built-in browser."
+    }
+  }
+}
+```
+
+Source: [`packages/host/sidebar-opens/src/index.ts`](../packages/host/sidebar-opens/src/index.ts)
+
+A Host package tool: the request leaves for the browser half (`@qilin/client-ui-agent-opens`) as a Remote stream instead of a session event, so what the model asked for stays in the log while no page load replays an old open. The per-Session pending queue is bounded by the `maxQueued` Config (default 16); a request a view already consumed is never replayed.

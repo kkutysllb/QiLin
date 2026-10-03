@@ -47,6 +47,7 @@ import * as ToolPwshPersistent from '@qilin/tool-pwsh-persistent'
 import CordisHostRunner from '@qilin/kylin-host-runner'
 import * as ToolCordis from '@qilin/tool-kylin'
 import * as ToolPresent from '@qilin/tool-present'
+import * as SidebarOpens from '@qilin/sidebar-opens'
 import * as ToolFs from '@qilin/tool-fs'
 import * as ToolFsSearch from '@qilin/tool-fs-search'
 import * as ToolStrReplaceEditor from '@qilin/tool-str-replace-editor'
@@ -665,6 +666,21 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
     note:
       'web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps.',
+  },
+  {
+    pkg: '@qilin/sidebar-opens',
+    dir: 'sidebar-opens',
+    source: 'packages/host/sidebar-opens/src/index.ts',
+    requires: ['ctx.tools', 'ctx.fs'],
+    writes: ['tool/call', 'one Remote sidebarOpens.watch request per open', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(LocalFileSystem)
+      await ctx.plugin(SidebarOpens)
+    },
+    note:
+      'A Host package tool: the request leaves for the browser half (`@qilin/client-ui-agent-opens`) as a Remote stream '
+      + 'instead of a session event, so what the model asked for stays in the log while no page load replays an old open. '
+      + 'The per-Session pending queue is bounded by the `maxQueued` Config (default 16); a request a view already consumed is never replayed.',
   },
 ]
 

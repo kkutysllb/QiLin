@@ -538,7 +538,7 @@ Host Remote file reads, writes, and workspace entry mutations plus workspace dir
  * @param signal - caller cancellation.
  * @returns nothing; the caller observes the removal through `list`/`stat`.
  */
-@Remote async remove( workspaceFileScope: WorkspaceFileScope, path: string, recursive: boolean, signal: AbortSignal, ): Promise<void>
+@Remote async delete( workspaceFileScope: WorkspaceFileScope, path: string, recursive: boolean, signal: AbortSignal, ): Promise<void>
 
 /**
  * Move or rename one entry inside the Session's workspace. Both ends are
