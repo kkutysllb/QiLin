@@ -11,6 +11,10 @@ import type { ShellProcess, ShellSandboxInfo } from '@qilin/shell'
 import type { JobHooks, JobOutcome, JobOutputSource } from '@qilin/jobs'
 import { renderPwshProcessRead } from './render.ts'
 
+/* jscpd:ignore-start -- deliberate twin of qilin-tool-bash/background.ts: the
+ * two shell tools mirror each other call-for-call until a third dialect makes a
+ * shared base's shape observable (2026-08-02-pwsh-tool-bash-parity). */
+
 /**
  * Sandbox facts worth the terminal detail: a runner that never ran the
  * command, or a denial (with the escalation hint this composition offers).
@@ -120,3 +124,5 @@ export function processJob(
     done,
   }
 }
+
+/* jscpd:ignore-end */

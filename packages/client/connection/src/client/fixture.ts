@@ -370,6 +370,9 @@ interface WorkspacePinSessionRequest { readonly sessionId: SessionId }
 interface WorkspaceUnpinSessionRequest { readonly sessionId: SessionId }
 interface WorkspacePinValue { readonly pinnedSessionIds: readonly SessionId[] }
 
+/* jscpd:ignore-start -- the standalone fixture mirrors the workspace stream
+ * without importing its owner: workspace-controller builds on this package, so
+ * a type import back would close a project-reference cycle. */
 type WorkspaceFollowFrame =
   | {
     readonly type: 'baseline'
@@ -384,6 +387,7 @@ type WorkspaceFollowFrame =
   | { readonly type: 'order'; readonly workspaceIds: readonly WorkspaceId[] }
   | { readonly type: 'archived'; readonly archivedSessionIds: readonly SessionId[] }
   | { readonly type: 'pinned'; readonly pinnedSessionIds: readonly SessionId[] }
+/* jscpd:ignore-end */
 
 interface FixtureWorkspaceApi {
   create(request: WorkspaceCreateRequest): Promise<ConnectionRpcResult<WorkspaceCreateValue>>
