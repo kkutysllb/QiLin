@@ -27,7 +27,8 @@ describe('workspaceGit.log', () => {
     expect(tip?.author).toBe('QiLin Test')
     expect(tip?.hash).toMatch(/^[0-9a-f]{40}$/u)
     expect(tip?.short).toHaveLength(7)
-    expect(tip?.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/u)
+    // Git renders a UTC commit date as ISO `Z`, and any other zone as a numeric offset.
+    expect(tip?.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[+-]\d{2}:\d{2}|Z)$/u)
     expect(tip?.refs.length).toBeGreaterThan(0)
     expect(tip?.refs).not.toContain('HEAD')
   })

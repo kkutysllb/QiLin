@@ -57,7 +57,10 @@ jobs:
   unit:
     name: unit tests
     # Split from the static job so a unit failure does not hide the static
-    # verdict. The script builds the native host addon before the suite.
+    # verdict. The full suite reaches built `lib/` subpaths (Typert remote
+    # clients, client `./types` leaves) and exercises confined subprocesses, so
+    # this job builds and prepares bubblewrap the way ci.yml's carriers do; the
+    # `test` script itself only builds the native host addon.
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -70,8 +73,21 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install (immutable)
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies and prepare bubblewrap
+        run: |
+          pnpm install --frozen-lockfile &
+          install_pid=$!
+          bash scripts/prepare-ci-bubblewrap.sh &
+          sandbox_pid=$!
+          install_status=0
+          wait "$install_pid" || install_status=$?
+          sandbox_status=0
+          wait "$sandbox_pid" || sandbox_status=$?
+          if (( install_status != 0 )); then exit "$install_status"; fi
+          exit "$sandbox_status"
+
+      - name: Build
+        run: pnpm run build
 
       - name: Unit tests
         run: pnpm run test
