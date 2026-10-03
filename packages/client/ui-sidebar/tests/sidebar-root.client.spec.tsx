@@ -134,6 +134,8 @@ describe('SidebarRoot shell', () => {
   it.each([
     [{ QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3', '1.2.3'],
     [{ QILIN_CLIENT_COMMIT_HASH: 'abcdef0', QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3', '1.2.3-abcdef0'],
+    [{ QILIN_CLIENT_PRODUCT_VERSION: '0.1.2', QILIN_CLIENT_VERSION: '3.0.5' }, '0.1.2', '0.1.2（引擎 3.0.5）'],
+    [{ QILIN_CLIENT_PRODUCT_VERSION: '0.1.2', QILIN_CLIENT_VERSION: '0.1.2' }, '0.1.2', '0.1.2'],
   ])('omits unavailable build-version suffixes from %j', (environment, version, detail) => {
     for (const [name, value] of Object.entries(environment)) vi.stubEnv(name, value)
     render(<SidebarRoot
