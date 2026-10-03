@@ -51,8 +51,13 @@ async function agent(ctx: Context, cwd: string | undefined): Promise<Agent> {
     status: 'idle',
     get ctx() { return scope.ctx },
     send: () => {},
-    abort: () => {},
-  } as unknown as Agent
+    followup: () => {},
+    steer: () => {},
+    inject: () => {},
+    cancel: () => {},
+    whenIdle: async () => {},
+    runMaintenance: task => task(new AbortController().signal),
+  }
   await ctx.plugin(AgentRegistry).await()
   ctx.agents.register(value)
   return value
