@@ -33,7 +33,10 @@ interface RuntimePlatform {
 
 type RuntimePlatformManifest = Record<string, RuntimePlatform>
 
-const AGENT_PRESET_GLOB = 'packages/preset/agent-presets/presets/*/agent.cordis.yml'
+// KStock patch: preset glob 扩展——上游 glob 只覆盖引擎 shipped 预设，
+// KStock 产品态预设（kstock/presets，随包分发的真正预设面）在引擎树
+// 之外，纳入后才受本门禁保护，否则对产品预设空转假绿。
+const AGENT_PRESET_GLOB = '{packages/preset/agent-presets/presets/*/agent.cordis.yml,../../kstock/presets/*/agent.cordis.yml}'
 
 export interface RuntimeClosureResult {
   failures: string[]
