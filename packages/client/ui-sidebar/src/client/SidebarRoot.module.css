@@ -185,7 +185,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 52px;
+  height: 48px;
   box-sizing: border-box;
   margin: -6px calc(-1 * var(--qilin-sidebar-inline-padding)) 0;
   padding: 0 12px;
@@ -194,9 +194,11 @@
 /* The strip's full 52px foot leaves the wordmark too low; the content column
    tucks 12px back under it, still clear of the toggle (28px control centered
    in the strip ends at y 40). */
-.topStrip + .logoRow {
-  margin-top: -12px;
-}
+/*
+ * KStock patch: 品牌行不再上提——topStrip（窗口拖拽条 + 红绿灯落位带）
+ * 独占一行，logoRow 保持自然行距在其下（对齐 KCoder 桌面端头部布局），
+ * 避免品牌徽章与红绿灯同排拥挤。
+ */
 
 /* Logo row (figma pad (4,8,4,8)): expanded keeps the panel toggle at the
    right edge; the rail gives every control the same base left anchor before
