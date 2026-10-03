@@ -64,5 +64,10 @@
     "@qilin/session": "workspace:*",
     "@qilin/sidebar-opens": "workspace:*",
     "@qilin/util-workspace-path": "workspace:*"
-  }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ]
 }

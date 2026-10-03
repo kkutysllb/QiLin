@@ -7,7 +7,7 @@ kind: "package-reference"
 
 [English](README.md) | 中文
 
-## 摘要
+## 概述
 
 `sidebar_open` 让模型直接"展示"而不是"描述"：一个已存在的文件，或一个 http(s) 页面。请求以 Host Remote 流（`sidebarOpens.watch`）送到 [`@qilin/client-ui-agent-opens`](../../client/ui-agent-opens/README.zh.md)，由它在**该会话自己的**侧栏中打开。投递是瞬时的：视图附着时随发随取，否则在每会话的有界队列里等待下一次附着重放。
 
