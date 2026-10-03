@@ -857,6 +857,9 @@ importers:
       '@qilin/client-connection':
         specifier: workspace:*
         version: link:../../client/connection
+      '@qilin/cmdline':
+        specifier: workspace:*
+        version: link:../../boot/cmdline
       '@qilin/host-webserver':
         specifier: workspace:*
         version: link:../../host/webserver

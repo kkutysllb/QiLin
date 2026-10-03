@@ -66,6 +66,7 @@
   },
   "devDependencies": {
     "@qilin/brand": "workspace:*",
+    "@qilin/cmdline": "workspace:*",
     "@qilin/client-connection": "workspace:*",
     "@qilin/host-webserver": "workspace:*",
     "@qilin/remote-mock": "workspace:*",

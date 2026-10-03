@@ -23,6 +23,9 @@
       "path": "../../../vendor/schemastery"
     },
     {
+      "path": "../../boot/cmdline"
+    },
+    {
       "path": "../../client/connection/tsconfig.host.json"
     },
     {
