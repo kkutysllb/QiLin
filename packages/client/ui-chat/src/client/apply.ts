@@ -206,7 +206,18 @@ export function apply(ctx: Context): void {
           },
           openExternalLink: (url) => {
             if (linkOpening.getSnapshot() === 'sidebar' && ctx.get('sidebarRightTabs')?.get('browser') !== undefined) {
-              ctx.sidebarRight.openTab('browser', { params: { url } })
+              // KStock patch: X-Frame-Options / frame-ancestors refusals still
+              // fire the iframe load event, so the embedded Browser renders a
+              // blank frame with no failure notice. Ask the KStock host route
+              // whether the URL is embeddable and open externally when it is
+              // not; preflight failure falls back to the embedded attempt.
+              void fetch(`/kstock-api/frame-check?url=${encodeURIComponent(url)}`)
+                .then(response => response.json() as Promise<{ embeddable?: boolean }>)
+                .then(result => {
+                  if (result.embeddable === true) ctx.sidebarRight.openTab('browser', { params: { url } })
+                  else window.open(url, '_blank', 'noopener,noreferrer')
+                })
+                .catch(() => { ctx.sidebarRight.openTab('browser', { params: { url } }) })
             } else {
               window.open(url, '_blank', 'noopener,noreferrer')
             }
