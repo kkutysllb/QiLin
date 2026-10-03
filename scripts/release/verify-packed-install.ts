@@ -17,7 +17,7 @@
  * checkout cannot stand in for a missing file here.
  */
 
-import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -69,6 +69,69 @@ function packedDependencies(directories: readonly string[]): Map<string, { url: 
   return dependencies
 }
 
+/**
+ * The `node-addon-require-builtin` manifest fields that name its per-platform
+ * binary package.
+ */
+interface NativeEntryManifest {
+  readonly name: string
+  readonly optionalDependencies: Record<string, string>
+}
+
+/**
+ * Name the per-platform binary package an installed `node-addon-require-builtin`
+ * declares for one platform suffix.
+ * @param manifest - the installed entry package's manifest.
+ * @param suffix - platform suffix as `node-addon-native-custom-loader` computes
+ * it, e.g. `linux-x64-gnu` or `darwin-arm64`.
+ * @returns the platform package's name and the version to install.
+ * @throws when the entry publishes no binary package for the suffix, because
+ * the boot path load-requires the binding and no fallback exists in a packed
+ * install.
+ */
+export function nativeEntryPlatformPackage(
+  manifest: NativeEntryManifest,
+  suffix: string,
+): { packageName: string; version: string } {
+  const packageName = `${manifest.name}-${suffix}`
+  const version = manifest.optionalDependencies[packageName]
+  if (version === undefined) {
+    throw new Error(
+      `${manifest.name} declares no platform package ${packageName} for this host, so the installed entry cannot load its native binding`,
+    )
+  }
+  return { packageName, version }
+}
+
+/**
+ * Install the `node-addon-require-builtin` platform binary package the boot
+ * path load-requires.
+ *
+ * The addon's binding ships only through per-platform npm packages declared as
+ * optional dependencies — the standard Node-API distribution, with no local
+ * build in a packed install — while `--omit=optional` above exists to keep the
+ * Landlock family's genuinely optional binaries out. A tree without the addon
+ * (the vendor family installs none) skips this step.
+ * @param consumerRoot - the throwaway consumer directory.
+ * @param environment - the child environment used for the install.
+ */
+function installNativeEntryPlatformPackage(consumerRoot: string, environment: NodeJS.ProcessEnv): void {
+  const manifestPath = join(consumerRoot, 'node_modules', 'node-addon-require-builtin', 'package.json')
+  if (!existsSync(manifestPath)) return
+  // The suffix comes from the loader installed beside the entry, so this picks
+  // the same platform package the boot path will resolve — including its
+  // glibc/musl distinction.
+  const suffix = capture(process.execPath,
+    ['--eval', "console.log(require('node-addon-native-custom-loader').platformPackageSuffix())"],
+    { cwd: consumerRoot, env: environment })
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as NativeEntryManifest
+  const { packageName, version } = nativeEntryPlatformPackage(manifest, suffix)
+  console.log(`release verify-packed-install: adding ${packageName}@${version} for the boot path's native binding`)
+  capture('npm',
+    ['install', '--no-audit', '--no-fund', '--package-lock=false', '--omit=optional', '--no-save', `${packageName}@${version}`],
+    { cwd: consumerRoot, env: environment })
+}
+
 /** Install every tarball under `--from` and drive the `--family` entry. */
 async function main(): Promise<void> {
   const { values } = parseArgs({
@@ -106,9 +169,12 @@ async function main(): Promise<void> {
     // them need a musl toolchain and one build per architecture, and a consumer
     // that cannot install them must still start — which is what optional means
     // here. Their entry package is a plain dependency of qilin-sandbox-local, so
-    // its tarball is supplied through --from.
+    // its tarball is supplied through --from. The require-builtin platform
+    // package, whose binding the boot path load-requires, is restored right
+    // after this install.
     capture('npm', ['install', '--no-audit', '--no-fund', '--package-lock=false', '--omit=optional', '--loglevel=http'],
       { cwd: consumerRoot, env: environment })
+    installNativeEntryPlatformPackage(consumerRoot, environment)
 
     const installedEntry = join(consumerRoot, 'node_modules', entry.packageName)
     const packageCount = verifyInstalledProductIsolation(installedEntry)
