@@ -160,6 +160,17 @@ it('paginates inventories with an explicit continuation and total', async () => 
   expect(resultText(await call({ action: 'list_bundles' }))).toContain('"name":"bundle"')
 })
 
+it('keeps UI display metadata out of the model-facing bundle list and names the source', async () => {
+  const { call, manager } = await fixture()
+  const meta = { title: { en: 'Plugin', zh: '插件' }, error: 'UI-only diagnostic' }
+  manager.listBundles.mockImplementationOnce(async () => [{
+    name: 'bundle', source: 'bundle@^1.0.0', enabled: true, meta, rows: [{ rowId: 'plugin', moduleName: 'plugin' }],
+  }])
+  expect(JSON.parse(resultText(await call({ action: 'list_bundles' })))).toEqual({
+    entries: [{ name: 'bundle', source: 'bundle@^1.0.0', enabled: true, rows: [{ rowId: 'plugin', moduleName: 'plugin' }] }], total: 1, nextOffset: null,
+  })
+})
+
 it('forwards all mutation actions and renders the returned outcome', async () => {
   const { call, manager } = await fixture()
   await call({ action: 'set_plugin', target: 'include:1', enabled: false })

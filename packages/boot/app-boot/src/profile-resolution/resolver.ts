@@ -98,9 +98,10 @@ export interface ProfileResolutionRegistration {
    */
   packageDir(specifier: string, parentURL: string): string | undefined
   /**
-   * Atomically publish an additive package table and fresh generation-owned caches.
+   * Atomically publish a successor package table and fresh generation-owned caches. Retained package mappings
+   * keep their directory and version; profile-scoped mappings and local package names may leave the table.
    * @param generation - fully constructed successor generation.
-   * @throws when the profile scope or an existing package mapping changes.
+   * @throws when the profile scope, a retained package mapping, or a local override changes.
    */
   replace(generation: ProfileResolutionGeneration): void
   /** Restore the native resolver methods. Registrations dispose in reverse order. */
@@ -327,20 +328,17 @@ class ResolutionRouter {
     }
     for (const [name, current] of this.current.entries) {
       const next = entries.get(name)
+      // A profile-scoped mapping may leave the table once its plugins have stopped.
+      if (next === undefined && current.scope === 'profile') continue
       if (next === undefined
         || !sameResolution(current.packageDir, next.packageDir)
-        || !sameResolution(current.declarer, next.declarer)
+        || (current.scope === 'installation' && !sameResolution(current.declarer, next.declarer))
         || current.version !== next.version
         || current.scope !== next.scope) {
         throw new Error(`profile resolution: replacing ${JSON.stringify(name)} requires a process restart`)
       }
     }
     const localPackageNames = new Set(generation.localPackageNames)
-    for (const name of this.current.localPackageNames) {
-      if (!localPackageNames.has(name)) {
-        throw new Error(`profile resolution: removing local package ${JSON.stringify(name)} requires a process restart`)
-      }
-    }
     for (const name of localPackageNames) {
       if (!this.current.localPackageNames.has(name) && this.current.entries.has(name)) {
         throw new Error(`profile resolution: overriding ${JSON.stringify(name)} locally requires a process restart`)

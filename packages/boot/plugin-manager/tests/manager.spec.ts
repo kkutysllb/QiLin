@@ -1,8 +1,8 @@
 /** Persistent manager behavior through a real profile Include and Loader. */
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { realpath } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { tmpdir } from 'node:os'
+import { join, dirname, resolve } from 'node:path'
+import { homedir, tmpdir } from 'node:os'
 import { pathToFileURL } from 'node:url'
 import type { Context } from '@qilin/kylin'
 import { expect, it, onTestFinished, vi } from 'vitest'
@@ -91,7 +91,7 @@ it('lists bundle versions and current-profile plugin targets', async () => {
     },
     {
       name: 'extra', version: '1.0.0', meta: { title: 'extra' }, enabled: true, installed: true, optional: false,
-      updatable: true, removable: true,
+      updatable: true, removable: true, source: 'extra@1.0.0',
       rows: [{ rowId: 'managed', moduleName: pathToFileURL(join(dir, 'node_modules', 'extra', 'plugin.mjs')).href, entryId: 'include:managed' }], overrides: [],
     },
   ])
@@ -171,7 +171,7 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   const moduleName = pathToFileURL(join(dir, 'node_modules', 'described', 'plugin.mjs')).href
   expect((await manager.listBundles()).find(row => row.name === 'described')).toEqual({
     name: 'described', version: '2.0.0', meta: { title: 'described', description: 'Describes itself.' },
-    description: 'Describes itself.', enabled: false, installed: true, optional: false,
+    description: 'Describes itself.', source: 'described@2.0.0', enabled: false, installed: true, optional: false,
     updatable: true, removable: true,
     rows: [{ rowId: 'described-row', moduleName }], overrides: ['managed'],
   })
@@ -182,6 +182,36 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   // Off again, the rows lose their entries.
   await manager.setBundleEnabled('described', false)
   expect((await manager.listBundles()).find(row => row.name === 'described')?.rows).toEqual([{ rowId: 'described-row', moduleName }])
+})
+
+it('names where each installed bundle comes from as a spec pnpm installs', async () => {
+  const { manager, dir, bundle, profile } = await fixture()
+  const recorded: Record<string, string> = {
+    extra: '^1.0.0', tagged: 'latest', aliased: 'npm:@acme/aliased@2', jsr: 'jsr:@acme/jsr@^1', github: 'github:someone/dsh-plugin#v1',
+    ssh: 'git@github.com:someone/dsh-plugin.git', deploy: 'deploy@git.corp:team/dsh-plugin.git',
+    sshUrl: 'git+ssh://git@github.com/someone/dsh-plugin.git', email: 'git+http://user@example.com:secret@git.example.com/repo.git',
+    tarball: 'https://cdn.example.com/dsh-x-1.0.0.tgz', token: 'https://ghp_secret@cdn.example.com/dsh-x-1.0.0.tgz',
+    password: 'git+https://someone:secret@git.example.com/someone/dsh-plugin.git#main',
+    relative: 'file:../plugins/relative', linked: 'link:/plugins/linked', home: 'file:~/plugins/home',
+    aliasLocal: 'file:../plugins/original', shadowed: '1.0.0',
+  }
+  for (const name of Object.keys(recorded)) bundle(name, [])
+  // Installed under a name other than its own, the package keeps that name only when the spec carries it.
+  writeFileSync(join(dir, 'node_modules', 'aliasLocal', 'package.json'), JSON.stringify({ name: 'original', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = recorded
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  // The installation's own copy of a bundle is the one that loads, so the profile's dependency on it names nothing.
+  writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { shadowed: '1.0.0' } }))
+  expect(Object.fromEntries((await manager.listBundles()).map(row => [row.name, row.source]))).toEqual({
+    core: undefined, extra: 'extra@^1.0.0', tagged: 'tagged@latest', aliased: 'aliased@npm:@acme/aliased@2', jsr: 'jsr@jsr:@acme/jsr@^1',
+    github: 'github:someone/dsh-plugin#v1', ssh: 'git@github.com:someone/dsh-plugin.git', deploy: 'deploy@git.corp:team/dsh-plugin.git',
+    sshUrl: 'git+ssh://git@github.com/someone/dsh-plugin.git', email: 'git+http://git.example.com/repo.git',
+    tarball: 'https://cdn.example.com/dsh-x-1.0.0.tgz', token: 'https://cdn.example.com/dsh-x-1.0.0.tgz',
+    password: 'git+https://git.example.com/someone/dsh-plugin.git#main',
+    relative: `file:${resolve(dir, '../plugins/relative')}`, linked: `link:${resolve(dir, '/plugins/linked')}`,
+    home: `file:${resolve(homedir(), 'plugins/home')}`, aliasLocal: `aliasLocal@file:${resolve(dir, '../plugins/original')}`, shadowed: undefined,
+  })
 })
 
 it('turns a plugin off and on without duplicating patch overrides', async () => {
@@ -253,6 +283,36 @@ it('installs only valid bundle declarations and honors installation without acti
   expect((await manager.listPlugins()).find(row => row.patchId === 'new-bundle')?.fiberPhase).toBe('active')
   expect(await manager.installBundle('another-bundle')).toMatchObject({ application: 'applied' })
   expect((await manager.listBundles()).find(row => row.name === 'another-bundle')?.enabled).toBe(true)
+})
+
+it('refreshes runtime package resolution after an install and keeps deselected startup bundles untouched', async () => {
+  const refresh = vi.fn(async () => undefined)
+  const { manager, dir, bundle } = await fixture('startup', false, (ctx) => {
+    ctx.provide('pluginPackages', { refresh } as unknown as Context['pluginPackages'])
+  })
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
+    const name = String(args[1])
+    bundle(name, [{ id: name, name: './plugin.mjs', config: { service: name } }])
+    const manifest = readProfileManifest('test', dir)
+    manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
+  })
+  onTestFinished(() => { install.mockRestore() })
+  expect(await manager.installBundle('new-bundle', { enabled: true })).toMatchObject({ changed: true, stage: 'enable' })
+  expect(refresh).toHaveBeenCalledTimes(1)
+  // A started bundle deselected for this run keeps running on the existing package table.
+  expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ changed: true, application: 'restart-required' })
+  expect(refresh).toHaveBeenCalledTimes(1)
+})
+
+it('refreshes runtime package resolution when live reload deselects a started bundle', async () => {
+  const refresh = vi.fn(async () => undefined)
+  const { manager } = await fixture('live', false, (ctx) => {
+    ctx.provide('pluginPackages', { refresh } as unknown as Context['pluginPackages'])
+  })
+  expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ application: 'applied' })
+  expect(refresh).toHaveBeenCalledTimes(1)
 })
 
 it.each(['network', 'timeout'] as const)('stops a GitHub %s before pnpm and attributes it to the repository', async (kind) => {
@@ -454,7 +514,7 @@ it('reports a selected plain dependency as a problem, omits an unselected one, a
   const { manager, dir, profile } = await fixture()
   writeFileSync(profile.installAnchor, '{}')
   writeFileSync(join(dir, 'node_modules', 'extra', 'package.json'), '{"name":"extra"}')
-  expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({ enabled: true, error: { code: 'not-bundle' } })
+  expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({ enabled: true, source: 'extra@1.0.0', error: { code: 'not-bundle' } })
   expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ application: 'applied' })
   // Switched off, a dependency without a bundle patch is a library the page has no business with.
   expect((await manager.listBundles()).some(row => row.name === 'extra')).toBe(false)

@@ -25,6 +25,7 @@ import {
   installFailLoud,
   loadOverlayPatches,
   loadProfile,
+  loadProfileDirectory,
   PluginPackages,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
@@ -322,6 +323,13 @@ export async function runProfile(options: RunProfileOptions): Promise<{ ctx: Con
       await hostCtx.plugin(PluginPackages, resolutionMode === 'link' ? {} : {
         generation: composed.resolution,
         behavior: resolutionMode === 'dual' ? 'verify' : 'enforce',
+        // Package operations refresh from the launch sources, rereading the profile manifest from disk.
+        recompute: async () => createProfileResolutionGeneration({
+          installAnchor: profileContext.installAnchor,
+          profile: options.resolvedProfile === undefined
+            ? loadProfile(NAME, options.profile, profileContext.installAnchor)
+            : loadProfileDirectory(NAME, options.resolvedProfile.profile.dir, profileContext.installAnchor),
+        }),
       })
       // The command line and bounded exit request are launcher facts available
       // to every app plugin that injects the argument snapshot.

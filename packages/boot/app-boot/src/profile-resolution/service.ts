@@ -40,6 +40,8 @@ export interface PluginPackagesConfig {
   generation?: ProfileResolutionGeneration
   /** Enforce the table or compare it with a materialized fallback. */
   behavior?: ProfileResolutionBehavior
+  /** Recompute the launch generation from disk for {@link PluginPackages.refresh}; the launcher supplies its own sources. */
+  recompute?: () => Promise<ProfileResolutionGeneration>
 }
 
 function readPackage(dir: string, fallbackName: string): PluginPackage | undefined {
@@ -62,11 +64,13 @@ export class PluginPackages extends Service {
   private packages = new Map<string, PluginPackage | undefined>()
   private readonly resolver: ProfileResolutionRegistration | undefined
   private readonly behavior: ProfileResolutionBehavior
+  private readonly recompute: (() => Promise<ProfileResolutionGeneration>) | undefined
   private disposeWorkerResolution: (() => void) | undefined
 
   constructor(ctx: Context, config: PluginPackagesConfig = {}) {
     super(ctx, 'pluginPackages')
     this.behavior = config.behavior ?? 'enforce'
+    this.recompute = config.recompute
     if (config.generation === undefined) return
     const resolver = installProfileResolution(config.generation, this.behavior)
     this.disposeWorkerResolution = registerWorkerResolution(config.generation, this.behavior)
@@ -78,7 +82,8 @@ export class PluginPackages extends Service {
   }
 
   /**
-   * Publish an additive generation for this process and subsequently created Workers.
+   * Publish a successor generation for this process and subsequently created Workers. Retained package mappings
+   * keep their directory and version; profile-scoped mappings may leave the table.
    * @param generation - fully constructed successor generation.
    */
   replace(generation: ProfileResolutionGeneration): void {
@@ -87,6 +92,18 @@ export class PluginPackages extends Service {
     this.packages = new Map()
     this.disposeWorkerResolution?.()
     this.disposeWorkerResolution = registerWorkerResolution(generation, this.behavior)
+  }
+
+  /**
+   * Recompute the launch generation from disk and publish it for this process and subsequently created Workers.
+   * Package contents and loaded modules are not reloaded.
+   * @throws when the launcher supplied no recompute for an installed runtime resolution.
+   */
+  async refresh(): Promise<void> {
+    // A service without runtime resolution answers through native lookup, which disk changes already move.
+    if (this.resolver === undefined) return
+    if (this.recompute === undefined) throw new Error('plugin-packages: the installed runtime resolution cannot be recomputed')
+    this.replace(await this.recompute())
   }
 
   /**

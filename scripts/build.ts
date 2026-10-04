@@ -30,6 +30,10 @@ function runScript(script: string, environment: NodeJS.ProcessEnv): void {
 
 /** Run the full build selected by `--profile` or `QILIN_BUILD_CLIENT_PROFILE`. */
 function main(): void {
+  // tsdown loads tsdown.config.ts natively only when Node strips types; this names the cause before tsdown fails.
+  if (!process.features.typescript) {
+    throw new Error('build: Node.js TypeScript type stripping is unavailable (process.features.typescript is false); remove --no-experimental-strip-types from NODE_OPTIONS or use a Node.js build with TypeScript support')
+  }
   const { values } = parseArgs({
     options: { profile: { type: 'string' } },
     allowPositionals: false,

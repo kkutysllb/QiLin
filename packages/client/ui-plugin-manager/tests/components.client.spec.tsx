@@ -568,6 +568,30 @@ describe('PluginManagerPage', () => {
     }
   })
 
+  it('names where a bundle comes from, built in for one whose copy the installation supplies, and nothing for a missing one', () => {
+    renderTab({ packages: [
+      pkg({ source: 'github:someone/dsh-better-sidebar' }),
+      { name: 'qilin-official', installed: false, optional: true, enabled: false, updatable: false, rows: [] },
+      { name: 'qilin-shadowed', installed: true, optional: false, enabled: true, updatable: false, rows: [] },
+      { name: 'qilin-missing', installed: false, optional: false, enabled: true, updatable: false, error: { code: 'unknown-plugin' }, rows: [] },
+    ] })
+    const facts = (): string[] => [...document.querySelectorAll('[data-plugin-source] dt, [data-plugin-source] dd')].map(node => node.textContent)
+    const back = (): void => { fireEvent.click(screen.getByRole('button', { name: en.backToList })) }
+    const open = (name: string): void => { fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', name) })) }
+    open('better-sidebar')
+    expect(facts()).toEqual([en.sourceSpec, 'github:someone/dsh-better-sidebar', en.sourceVersion, '0.16.0'])
+    back()
+    open('official')
+    expect(facts()).toEqual([en.sourceSpec, en.sourceBuiltIn])
+    back()
+    // A profile dependency the installation also supplies loads the installation's copy.
+    open('shadowed')
+    expect(facts()).toEqual([en.sourceSpec, en.sourceBuiltIn])
+    back()
+    open('missing')
+    expect(document.querySelector('[data-plugin-source]')).toBeNull()
+  })
+
   describe('configuration pages', () => {
     const bodies: SlotBodies = {
       'plugins.item:bash': view => view === 'summary' ? 'Limits every command.' : <form aria-label="bash form" />,
