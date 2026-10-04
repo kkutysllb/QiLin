@@ -16,6 +16,7 @@ import {
   type TrajectoryGraph,
 } from '../src/client/trajectory-graph.ts'
 import { t } from './locale.client.ts'
+import { PartialArguments } from '@qilin/util-values'
 
 function text(value: string): ContentBlock {
   return { type: 'text', text: value }
@@ -66,15 +67,20 @@ function call(callId: string, name: string, argsRaw: string): AssistantBlock {
 }
 
 function toolResult(seq: number, callId: string, over: Partial<ToolResultNode> = {}): ToolResultNode {
+  const call = over.call ?? null
   return {
-    kind: 'tool-result', seq, time: seq * 1000, callId, call: null, callTime: null,
+    kind: 'tool-result', seq, time: seq * 1000, callId,
+    name: call?.name ?? '', args: call === null ? PartialArguments.EMPTY : PartialArguments.fromText(call.argsRaw),
+    call, callTime: null,
     content: [], isError: false, subCalls: [], ...over,
   }
 }
 
 function runningCall(callId: string, over: Partial<StartedToolCall> = {}): StartedToolCall {
+  const argsRaw = over.argsRaw ?? ''
   return {
-    phase: 'start', callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
+    phase: 'start', args: PartialArguments.fromText(argsRaw), callId, name: 'bash', argsRaw,
+    turn: 1, step: 1, time: 500, subCalls: [], ...over,
   }
 }
 

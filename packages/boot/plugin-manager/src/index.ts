@@ -539,6 +539,7 @@ export class PluginManager extends TypertRemoteService {
       const files = await this.readRestoredFiles()
       const before = readProfileManifest('qilin', this.profile.dir).dependencies ?? {}
       let name: string
+      let version: string | undefined
       try {
         result.registries = []
         const connection = checkGithubConnection(parsedForRegistry(spec), this.profile.dir, {
@@ -605,6 +606,7 @@ export class PluginManager extends TypertRemoteService {
           throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
         }
         loadOverlayPatches('qilin', join(dir, manifest.qilin.bundle.patch))
+        version = manifest.version
       } catch (error) {
         // pnpm has exited by now, so the files it rewrote go back as they were.
         await this.restoreFiles(files)
@@ -613,6 +615,7 @@ export class PluginManager extends TypertRemoteService {
       control.phase = 'applying'
       announce('applying')
       result.bundle = name
+      if (version !== undefined) result.version = version
       result.target = name
       result.stage = 'enable'
       return this.configure(async () => {

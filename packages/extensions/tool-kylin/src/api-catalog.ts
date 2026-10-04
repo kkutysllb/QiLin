@@ -947,8 +947,8 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   },
   {
     key: 'fileUploads',
-    summary: 'Host service owning upload storage and Agent-scoped staged receipts.',
-    description: 'Host service owning upload storage and Agent-scoped staged receipts.',
+    summary: 'Host service owning upload storage and receipts keyed by each receiving Agent\'s exact Session.',
+    description: 'Host service owning upload storage and receipts keyed by each receiving Agent\'s exact Session.',
     methods: [
       {
         signature: 'registerAgentResolver(resolve: AgentResolver): () => void',
@@ -970,7 +970,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'resolve(agent: Agent, receiptId: FileUploadReceiptId): FileAttachmentRef | undefined',
-        description: 'Resolve one staged receipt inside its receiving Agent scope.',
+        description: 'Resolve one staged receipt for the receiving Agent\'s exact Session.',
         parameters: [{ name: 'agent', description: 'receiving Agent.' }, { name: 'receiptId', description: 'opaque receipt minted for one completed upload.' }],
         returns: 'durable file reference, or `undefined` for an unknown or foreign receipt.',
       },
@@ -4866,7 +4866,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'BundleInfo',
-    declaration: 'export interface BundleInfo {\n    name: string;\n    version?: string;\n    meta?: PluginLocalizedMeta;\n    description?: string;\n    enabled: boolean;\n    installed: boolean;\n    optional: boolean;\n    updatable: boolean;\n    removable: boolean;\n    readOnlyReason?: ReadOnlyReason;\n    error?: ManagementError;\n    rows: BundleRowInfo[];\n    overrides: string[];\n}',
+    declaration: 'export interface BundleInfo {\n    name: string;\n    version?: string;\n    meta?: PluginLocalizedMeta;\n    description?: string;\n    enabled: boolean;\n    installed: boolean;\n    source?: string;\n    optional: boolean;\n    updatable: boolean;\n    removable: boolean;\n    readOnlyReason?: ReadOnlyReason;\n    error?: ManagementError;\n    rows: BundleRowInfo[];\n    overrides: string[];\n}',
   },
   {
     name: 'BundleRowInfo',
@@ -4874,7 +4874,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ChangeResult',
-    declaration: 'export interface ChangeResult {\n    changed: boolean;\n    application: \'applied\' | \'restart-required\' | \'overridden\' | \'failed\' | \'cancelled\';\n    stage: \'install\' | \'enable\' | \'remove\';\n    target: string;\n    enabled?: boolean;\n    error?: ManagementError;\n    warnings?: string[];\n    packageResult?: PackageResult;\n    bundle?: string;\n    pendingBuilds?: string[];\n    approvedBuilds?: string[];\n    registries?: Registry[];\n    failedAt?: \'registry\' | \'spec-host\';\n}',
+    declaration: 'export interface ChangeResult {\n    changed: boolean;\n    application: \'applied\' | \'restart-required\' | \'overridden\' | \'failed\' | \'cancelled\';\n    stage: \'install\' | \'enable\' | \'remove\';\n    target: string;\n    enabled?: boolean;\n    error?: ManagementError;\n    warnings?: string[];\n    packageResult?: PackageResult;\n    bundle?: string;\n    version?: string;\n    pendingBuilds?: string[];\n    approvedBuilds?: string[];\n    registries?: Registry[];\n    failedAt?: \'registry\' | \'spec-host\';\n}',
   },
   {
     name: 'ClientArtifactBaseline',
@@ -6374,7 +6374,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'Reload',
-    declaration: 'export interface Reload {\n    filename: string;\n    runtime?: Plugin.Runtime | undefined;\n}',
+    declaration: 'export interface Reload {\n    filename: string;\n    modules: ReloadModules;\n    runtime?: Plugin.Runtime | undefined;\n}',
   },
   {
     name: 'RemoteError',
@@ -6562,7 +6562,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ScheduleToolError',
-    declaration: 'export type ScheduleToolError = InvalidPromptError | InvalidSelectorError | InvalidRuleError | InvalidTimeZoneError | NotFutureError | TimeOutOfRangeError | FrequencyTooHighError | InternalScheduleError;',
+    declaration: 'export type ScheduleToolError = InvalidPromptError | InvalidSelectorError | InvalidRuleError | InvalidTimeZoneError | NotFutureError | TimeOutOfRangeError | FrequencyTooHighError | SubagentSessionError | InternalScheduleError;',
   },
   {
     name: 'ScheduleUpdateContent',
@@ -7555,6 +7555,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'SubagentSendMessageOptions',
     declaration: 'export interface SubagentSendMessageOptions {\n    readonly signal: AbortSignal;\n}',
+  },
+  {
+    name: 'SubagentSessionError',
+    declaration: 'export interface SubagentSessionError {\n    readonly code: \'subagent_session\';\n    readonly message: string;\n}',
   },
   {
     name: 'SubagentStartRequest',

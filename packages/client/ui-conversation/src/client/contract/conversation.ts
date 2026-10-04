@@ -102,6 +102,20 @@ export interface TurnLocation {
   readonly data: ConversationLocationDataStore<ConversationTurnDataMap>
 }
 
+
+/**
+ * Extract a stable business identity using only the current event.
+ * @param event - durable or transient Client event.
+ * @returns identity and lifecycle role, or null when unrelated.
+ */
+export type ConversationMatchHandler = (event: SessionEventLike) => ConversationMatchResult | null
+
+/** Registration accepts a function or an immutable table of own event-type handlers. */
+export type ConversationNodeDefinitionInput<State = unknown> =
+  Omit<ConversationNodeDefinition<State>, 'match'> & {
+    readonly match: ConversationMatchHandler | Readonly<Record<string, ConversationMatchHandler>>
+  }
+
 /** Engine-owned placement of one matched event in the Session hierarchy. */
 export type ConversationLocation =
   | { readonly kind: 'session' }

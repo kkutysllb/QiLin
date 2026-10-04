@@ -22,7 +22,9 @@ import {
 import type {
   ChatNodeInjected, ChatSnapshot, TranscriptViewRowInjected, UseChatNodeTurnData,
 } from '@qilin/client-ui-chat/client'
+import type { PerformanceUsageRowInjected } from '../src/client/settings/PerformanceUsageRow.tsx'
 import { CHAT_SETTINGS_NAMESPACE, type ChatSettings } from '../src/chat-settings.ts'
+import { ActivityPill, UsagePill } from '../src/client/chat/StatsPills.tsx'
 
 declare module '@qilin/client-ui-conversation/client' {
   interface ConversationTurnDataMap {
@@ -90,9 +92,25 @@ describe('Chat apply wiring', () => {
     expect(b.runtime.slots.spec('conversation.chat.node'))
       .toMatchObject({ kind: 'keyed', scope: 'session' })
     expect(b.runtime.slots.entries('conversation.composer.dock').map(row => row.options.id))
-      .toEqual(['stats'])
+      .toEqual(['activity', 'usage'])
     expect(b.runtime.slots.entries('settings.general.item').map(row => row.options.id))
       .toEqual(['transcript-view', 'content-width', 'link-opening', 'composer-enter', 'performance-usage'])
+    await b.runtime.dispose()
+  })
+
+  it('lets another registrant replace one composer stats pill by id', async () => {
+    const b = await bench()
+    function PluginActivity() { return null }
+    const dispose = b.runtime.ctx.slots.register({
+      name: 'conversation.composer.dock', id: 'activity', order: 0, priority: -1,
+    }, PluginActivity)
+    const winners = (): Record<string, unknown> => Object.fromEntries(
+      b.runtime.slots.entriesOfSlot('conversation.composer.dock')
+        .map((entry): [string, unknown] => [entry.options.id ?? '', entry.component]),
+    )
+    expect(winners()).toEqual({ activity: PluginActivity, usage: UsagePill })
+    dispose()
+    expect(winners()).toEqual({ activity: ActivityPill, usage: UsagePill })
     await b.runtime.dispose()
   })
 
@@ -113,6 +131,25 @@ describe('Chat apply wiring', () => {
       revision: 1, writable: true,
     })
     expect(face.hooks.transcriptView.getSnapshot()).toBe('compact')
+    await b.runtime.dispose()
+  })
+
+  it('shares the accepted performance preference with settings, composer, and turn tails', async () => {
+    const b = await bench()
+    const row = b.runtime.slots.entries('settings.general.item').find(entry => entry.options.id === 'performance-usage')!
+    const face = (row.inject as unknown as () => PerformanceUsageRowInjected)()
+    expect(face.hooks.performanceUsage.getSnapshot()).toBe('detailed')
+    face.setPerformanceUsage('compact')
+    expect(b.chatSettings.set).toHaveBeenCalledWith('performanceUsage', 'compact')
+    b.chatSettings.publish({ value: { linkOpening: 'sidebar', transcriptView: 'compact', performanceUsage: 'compact' } })
+    expect(face.hooks.performanceUsage.getSnapshot()).toBe('compact')
+    for (const entry of [
+      ...b.runtime.slots.entries('conversation.composer.dock'),
+      b.runtime.slots.entries('conversation.chat.node').find(entry => entry.options.key === 'turn-tail')!,
+    ]) {
+      const injected = (entry.inject as () => Pick<PerformanceUsageRowInjected, 'hooks'>)()
+      expect(injected.hooks.performanceUsage).toBe(face.hooks.performanceUsage)
+    }
     await b.runtime.dispose()
   })
 

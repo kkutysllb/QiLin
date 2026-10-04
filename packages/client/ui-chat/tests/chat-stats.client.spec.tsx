@@ -9,14 +9,25 @@ import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { StatsPills, deriveStats, formatDuration, type StatsPillsProps } from '../src/client/chat/StatsPills.tsx'
+import { PartialArguments } from '@qilin/util-values'
+import { ActivityPill, UsagePill, deriveStats, formatDuration, type StatPillProps } from '../src/client/chat/StatsPills.tsx'
 import type { PerformanceUsageMode } from '../src/chat-settings.ts'
 import { formatTokens } from '../src/client/chat/token-format.ts'
 import { en, zh } from '../src/client/locale.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
 
-const t: StatsPillsProps['t'] = makeTranslate(zh, commonZh)
-const tEn: StatsPillsProps['t'] = makeTranslate(en, commonEn)
+const t: StatPillProps['t'] = makeTranslate(zh, commonZh)
+const tEn: StatPillProps['t'] = makeTranslate(en, commonEn)
+
+/** Both composer-dock entries in their registered order, as the dock renders them. */
+function StatsPills(props: StatPillProps) {
+  return (
+    <>
+      <ActivityPill {...props} />
+      <UsagePill {...props} />
+    </>
+  )
+}
 
 afterEach(() => {
   cleanup()
@@ -70,6 +81,7 @@ describe('deriveStats', () => {
   it('ignores tool results with no call time', () => {
     const tool: ToolResultNode = {
       kind: 'tool-result', seq: 5, time: 5_000, callId: 'c', call: null, callTime: null, content: [],
+      name: '', args: PartialArguments.EMPTY,
       isError: false, subCalls: [],
     }
     const stats = deriveStats([tool, assistant(1, 1)])
@@ -88,6 +100,7 @@ describe('deriveStats', () => {
     }
     const tool: ToolResultNode = {
       kind: 'tool-result', seq: 5, time: 7_000, callId: 'c', call: null, callTime: 4_000, content: [],
+      name: '', args: PartialArguments.EMPTY,
       isError: false, subCalls: [],
     }
     const stats = deriveStats([timed, untimed, tool])
@@ -127,7 +140,7 @@ describe('formatters', () => {
   })
 })
 
-describe('StatsPills', () => {
+describe('composer stats pills', () => {
   const USAGE = { uncachedInputTokens: 10, outputTokens: 5, cacheReadTokens: 90, cacheWriteTokens: 0 }
 
   /** A whole-log sessionStats value: zeros plus overrides. */
@@ -139,7 +152,7 @@ describe('StatsPills', () => {
   }
 
   /** Stub the projection seat: a key-addressed table of whole values. */
-  function projections(values: Record<string, unknown>): StatsPillsProps['useProjection'] {
+  function projections(values: Record<string, unknown>): StatPillProps['useProjection'] {
     return (key: string) => values[key]
   }
 
@@ -147,7 +160,7 @@ describe('StatsPills', () => {
     source: { getSnapshot(): ChatSnapshot; subscribe(fn: () => void): () => void },
     values: Record<string, unknown> = { tokenUsage: USAGE },
     mode: PerformanceUsageMode = 'detailed',
-  ): StatsPillsProps {
+  ): StatPillProps {
     return {
       useChat: bindSnapshotSelector(source),
       useProjection: projections(values),
@@ -217,6 +230,16 @@ describe('StatsPills', () => {
     expect(timePill.getAttribute('aria-label')).toBe('1 turns 1 steps · 20 tok/s')
   })
 
+  it('marks each pill with its dock entry id', () => {
+    const { source } = makeSource({ nodes: [timedStep()] })
+    const view = render(<StatsPills {...props(source)} />)
+    const pills = [...view.container.querySelectorAll('[data-composer-stat]')]
+    expect(pills.map(pill => [pill.getAttribute('data-composer-stat'), pill.textContent])).toEqual([
+      ['activity', '1 turns 1 steps·20 tok/s'],
+      ['usage', '105 tok·Cache hit 90%'],
+    ])
+  })
+
   it('click-opens the time-and-speed dialog carrying the time split and speeds', () => {
     const { source } = makeSource({ nodes: [timedStep()] })
     const view = render(<StatsPills {...props(source)} />)
@@ -268,7 +291,7 @@ describe('StatsPills', () => {
     expect(dialog.textContent).not.toContain('LLM time')
   })
 
-  it('closes the dialog on Escape or outside pointerdown', () => {
+  it('closes the dialog on Escape or an outside pointerdown', () => {
     const { source } = makeSource({ nodes: [timedStep()] })
     const view = render(<StatsPills {...props(source)} />)
     const timePill = view.getAllByRole('button')[0]!
@@ -294,12 +317,29 @@ describe('StatsPills', () => {
 
     fireEvent.click(timePill)
     expect(view.getByRole('dialog').getAttribute('aria-label')).toBe('Session statistics')
+    // A sibling pill's pointerdown lands outside the open dialog and closes it.
+    fireEvent.pointerDown(usagePill)
     fireEvent.click(usagePill)
     const dialogs = view.getAllByRole('dialog')
     expect(dialogs).toHaveLength(1)
     expect(dialogs[0]!.getAttribute('aria-label')).toBe('Token usage')
     expect(timePill.getAttribute('aria-expanded')).toBe('false')
     expect(usagePill.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('swaps dialogs on keyboard activation of a sibling pill, which fires click without pointerdown', () => {
+    const { source } = makeSource({ nodes: [timedStep()] })
+    const view = render(<StatsPills {...props(source)} />)
+    const [timePill, usagePill] = [...view.getAllByRole('button')] as [HTMLElement, HTMLElement]
+    fireEvent.click(timePill)
+    // A click inside the panel keeps it open; focus moving away does not close it.
+    fireEvent.click(view.getByRole('dialog'))
+    fireEvent.focusIn(usagePill)
+    expect(view.getByRole('dialog').getAttribute('aria-label')).toBe('Session statistics')
+    fireEvent.click(usagePill)
+    const dialogs = view.getAllByRole('dialog')
+    expect(dialogs).toHaveLength(1)
+    expect(dialogs[0]!.getAttribute('aria-label')).toBe('Token usage')
   })
 
   it('takes every pill and dialog label from the active locale', () => {
@@ -441,7 +481,7 @@ describe('StatsPills', () => {
   it('renders ZERO times during streaming chunk frames (RFC hard acceptance)', () => {
     const { set, source } = makeSource({ nodes: [assistant(1, 1)] })
     let renders = 0
-    function Counting(p: StatsPillsProps) {
+    function Counting(p: StatPillProps) {
       renders += 1
       return <StatsPills {...p} />
     }

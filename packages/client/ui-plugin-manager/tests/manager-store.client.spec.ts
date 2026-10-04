@@ -145,7 +145,7 @@ describe('registry recovery', () => {
   const base: InstallState = {
     open: true, spec: 'github:acme/x', phase: 'failed', registries: { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL },
     registry: { kind: 'offered', registry: null }, registryOpen: false, registryError: false, attempts: null,
-    inputError: null, runs: [], detailsOpen: false, installed: null, restartRequired: false,
+    inputError: null, runs: [], detailsOpen: false, installed: null, installedVersion: null, restartRequired: false,
     approvedBuilds: [], enabling: false,
     subject: { spec: 'github:acme/x', status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' },
     failure: { reason: 'unreachable', kind: 'network', failedAt: 'spec-host' },

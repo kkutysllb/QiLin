@@ -923,6 +923,17 @@ function InstallDialog({
           {phase === 'done' && install.restartRequired
             ? <p className={css.resultWarn} role="status">{t('installDoneRestart')}</p>
             : null}
+          {phase === 'done' && install.subject?.kind === 'registry' && install.subject.version !== undefined
+            && install.installedVersion !== null && install.installedVersion !== install.subject.version
+            ? (
+              <p className={css.resultWarn} role="status">
+                {t('installDoneOtherVersion', {
+                  installed: install.installedVersion, version: install.subject.version,
+                  exact: `${install.subject.name ?? install.subject.spec}@${install.subject.version}`,
+                })}
+              </p>
+            )
+            : null}
           {phase === 'done' && install.approvedBuilds.length > 0
             ? <p className={css.result} role="status">{t('installDoneApproved', { names: install.approvedBuilds.join(', ') })}</p>
             : null}

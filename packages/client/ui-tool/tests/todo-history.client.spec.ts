@@ -10,6 +10,7 @@ import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
 import { todoCallDefinition, todoHistoryView, todoWriteDefinition, type TodoHistory } from '../src/client/tool/models/todo-history.ts'
 import { todoDiffModel } from '../src/client/tool/models/todo-diff-model.ts'
 import type { ToolResultNode } from '@qilin/client-ui-chat/client'
+import { PartialArguments } from '@qilin/util-values'
 
 const t = makeTranslate(en, commonEn)
 const first: TodoItem[] = [
@@ -49,7 +50,7 @@ function ptcDetail(seq: number, subCallId: string, todos: TodoItem[]): SessionLi
 }
 
 function call(todos: unknown): ToolResultNode {
-  return { kind: 'tool-result', seq: 20, time: 2000, callTime: 1000, callId: 'second', call: { name: 'todo_write', argsRaw: JSON.stringify({ todos }) }, content: [], isError: false, subCalls: [] }
+  return { kind: 'tool-result', seq: 20, time: 2000, callTime: 1000, callId: 'second', name: 'todo_write', args: PartialArguments.fromText(JSON.stringify({ todos })), call: { name: 'todo_write', argsRaw: JSON.stringify({ todos }) }, content: [], isError: false, subCalls: [] }
 }
 
 function runtime() {

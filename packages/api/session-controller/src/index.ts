@@ -96,6 +96,8 @@ export interface Config {
   readonly sidechatMaxSnapshotEvents?: number
   /** Maximum UTF-16 code units one sidechat prompt text accepts. */
   readonly sidechatMaxPromptChars?: number
+  /** Positive integral milliseconds of list work before yielding between complete rows. */
+  readonly listWorkSliceMs?: number
 }
 
 /** Host integrations replaceable by direct unit tests. */
@@ -132,6 +134,7 @@ export class SessionController extends TypertRemoteService {
     nativeOpen: z.boolean(),
     sidechatMaxSnapshotEvents: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER),
     sidechatMaxPromptChars: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER),
+    listWorkSliceMs: z.natural().min(1),
   })
 
   private readonly agents: ApiSessionAgentController
@@ -173,7 +176,7 @@ export class SessionController extends TypertRemoteService {
       await Promise.allSettled([...this.promotions])
     }, 'session-controller.promotions')
     this.history = new SessionHistoryController(ctx, (observation) => { this.promote(observation) })
-    this.listState = new ApiSessionList(ctx)
+    this.listState = new ApiSessionList(ctx, config.listWorkSliceMs ?? 16)
     this.fileApplications = internals.fileApplications ?? nativeFileApplications
     this.openFileApplication = internals.openFileApplication ?? openNativeFileApplication
     this.openPath = internals.openPath ?? openNativeAssociatedPath

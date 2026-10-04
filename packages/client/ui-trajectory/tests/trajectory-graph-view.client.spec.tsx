@@ -23,6 +23,7 @@ import { EMPTY_TRAJECTORY_SNAPSHOT } from '../src/client/trajectory-snapshot-bui
 import { ZOOM_MAX } from '../src/client/trajectory-graph-canvas.ts'
 import { TrajectoryGraphView } from '../src/client/TrajectoryGraphView.tsx'
 import { t as tTrajectory } from './locale.client.ts'
+import { PartialArguments } from '@qilin/util-values'
 
 const SID = 's1' as SessionId
 
@@ -65,8 +66,11 @@ function assistantNode(seq: number, over: Partial<AssistantMessageNode> = {}): A
 }
 
 function toolResultNode(seq: number, callId: string, over: Partial<ToolResultNode> = {}): ToolResultNode {
+  const call = over.call ?? null
   return {
-    kind: 'tool-result', seq, time: seq * 1000, callId, call: null, callTime: null,
+    kind: 'tool-result', seq, time: seq * 1000, callId,
+    name: call?.name ?? '', args: call === null ? PartialArguments.EMPTY : PartialArguments.fromText(call.argsRaw),
+    call, callTime: null,
     content: [], isError: false, subCalls: [], ...over,
   }
 }
@@ -79,8 +83,10 @@ function requestView(startSeq: number, over: Partial<Extract<RequestView, { purp
 }
 
 function runningCall(callId: string, over: Partial<StartedToolCall> = {}): StartedToolCall {
+  const argsRaw = over.argsRaw ?? ''
   return {
-    phase: 'start', callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
+    phase: 'start', args: PartialArguments.fromText(argsRaw), callId, name: 'bash', argsRaw,
+    turn: 1, step: 1, time: 500, subCalls: [], ...over,
   }
 }
 

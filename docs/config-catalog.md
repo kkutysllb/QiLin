@@ -275,6 +275,8 @@ export interface Config {
   readonly sidechatMaxSnapshotEvents?: number
   /** Maximum UTF-16 code units one sidechat prompt text accepts. */
   readonly sidechatMaxPromptChars?: number
+  /** Positive integral milliseconds of list work before yielding between complete rows. */
+  readonly listWorkSliceMs?: number
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/api-session-controller -->
@@ -1203,7 +1205,7 @@ export interface Config {
 ## `@qilin/hmr`
 
 - `refs`: `ChokidarOptions` (`chokidar`)
-- `source`: [`packages/boot/hmr/src/index.ts:51`](../packages/boot/hmr/src/index.ts)
+- `source`: [`packages/boot/hmr/src/index.ts:53`](../packages/boot/hmr/src/index.ts)
 
 ```ts config-catalog
 /** Module roots and watcher timing, with Chokidar deployment options. */
@@ -2395,7 +2397,7 @@ export interface Config {
 ## `@qilin/schedule`
 
 - `inject`: `agents` · `sessions` · `tools` · `storageDomain` · `sessionController` · `sessionPersistence`
-- `source`: [`packages/schedule/schedule/src/index.ts:73`](../packages/schedule/schedule/src/index.ts)
+- `source`: [`packages/schedule/schedule/src/index.ts:72`](../packages/schedule/schedule/src/index.ts)
 
 ```ts config-catalog
 /** Configuration for the Host Schedule domain. */
@@ -4360,6 +4362,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin/terminal` | — | [`packages/terminal/terminal/src/index.ts`](../packages/terminal/terminal/src/index.ts) |
 | `@qilin/tool-call-timeout-policy` | `tools` | [`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts) |
 | `@qilin/tool-kylin` | `tools` · `systemPrompt` · `cordisInspect` | [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts) |
+| `@qilin/tool-schedule` | `tools` | [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/tool-schedule/src/index.ts) |
 | `@qilin/tool-subagent-control` | `tools` · `subagents` | [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/subagent/tool-subagent-control/src/index.ts) |
 | `@qilin/user-questions` | — | [`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts) |
 | `@qilin/webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/webhook/webhook/src/index.ts`](../packages/webhook/webhook/src/index.ts) |

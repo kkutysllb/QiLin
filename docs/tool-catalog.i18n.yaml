@@ -9,8 +9,8 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: 58d1b6d24fddbee6
-  zh: 6f9c41debc1e0f3f
+  en: cc6ce52d5af87255
+  zh: 6044d9554b566477
 /tool-schema-catalog/qilin-plugin-manager:
   en: 137ab7ab9dfccf59
   zh: 137ab7ab9dfccf59
@@ -60,7 +60,7 @@
   en: d8bfe92141b92bf9
   zh: d8bfe92141b92bf9
 /tool-schema-catalog/qilin-tools/run-code:
-  en: 91686fe4a398c246
+  en: d8ce84d1ada74837
   zh: bb6956ac9ca860d4
 /tool-schema-catalog/qilin-plan-mode:
   en: fe8fc5a5b1b4793c
@@ -168,23 +168,23 @@
   en: 73ab2b24d4de682d
   zh: 82c42a427774c67d
 /tool-schema-catalog/qilin-tool-goal/update-goal:
-  en: b61566147c8371a9
-  zh: 9cb4ca900d083e71
-/tool-schema-catalog/qilin-schedule:
-  en: b21524aa51012c24
-  zh: b21524aa51012c24
-/tool-schema-catalog/qilin-schedule/schedule-create:
-  en: 0a10b5db8919d316
-  zh: 8b4f751da5d26d02
-/tool-schema-catalog/qilin-schedule/schedule-delete:
-  en: cff096695f06e298
-  zh: c8ff7983d733d293
-/tool-schema-catalog/qilin-schedule/schedule-list:
-  en: d8543c8503d0947e
-  zh: 113501fde825006f
-/tool-schema-catalog/qilin-schedule/schedule-update:
-  en: 78477ea5a6d8df82
-  zh: c9051cacd5e1166f
+  en: 5e31bf8a23d61d5b
+  zh: 23d8eb110d6cc6e8
+/tool-schema-catalog/qilin-tool-schedule:
+  en: e6af30392842e8dc
+  zh: e6af30392842e8dc
+/tool-schema-catalog/qilin-tool-schedule/schedule-create:
+  en: 606fc2b8d62ba044
+  zh: f01a266b8dbe9bcf
+/tool-schema-catalog/qilin-tool-schedule/schedule-delete:
+  en: 5fc994535c95cd6b
+  zh: ed766fd659775f5c
+/tool-schema-catalog/qilin-tool-schedule/schedule-list:
+  en: 5bcfc051e364df29
+  zh: f17d6be278ee2c55
+/tool-schema-catalog/qilin-tool-schedule/schedule-update:
+  en: 2c1577d83f20c686
+  zh: e3cba3c871d1ca2f
 /tool-schema-catalog/qilin-tool-lsp:
   en: da101fc9a9715c1d
   zh: da101fc9a9715c1d

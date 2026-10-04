@@ -94,7 +94,7 @@ Schedule domain 声明整 unit 布局，因为任务是权威数据。路由到 
 
 #### 模型看到什么
 
-[生成的工具目录](../../../docs/tool-catalog.zh.md#qilinschedule) 包含 `schedule_create`、`schedule_list`、`schedule_delete` 和 `schedule_update` 的描述与 schema；Schedule 加载期间，这些工具注册在活动根 Agent 的作用域中。
+[生成的工具目录](../../../docs/tool-catalog.zh.md#qilintool-schedule) 包含 `schedule_create`、`schedule_list`、`schedule_delete` 和 `schedule_update` 的描述与 schema；这些工具由 preset 挂载的 tool-schedule 包提供。
 
 #### Token 影响
 

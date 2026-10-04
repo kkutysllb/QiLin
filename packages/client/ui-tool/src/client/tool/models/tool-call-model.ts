@@ -8,7 +8,7 @@
 // The block union's defining home is runtime (fold-product types); this
 // contract only forwards it (type-definition authority stays with the layer
 // that produces the values).
-import type { ToolCallBlock, ToolResultNode } from '@qilin/client-ui-chat/client'
+import type { ToolArgs, ToolCallBlock, ToolResultNode } from '@qilin/client-ui-chat/client'
 import type { LocaleKeysOf } from '@qilin/client-ui-slots'
 import { abbreviateHomePath, relativizeToCwd } from '@qilin/util-workspace-path'
 
@@ -277,6 +277,24 @@ export function formatToolBody(variant: ToolRowVariant, argsRaw: string): string
 }
 
 /**
+ * Summary material read the same way at every stage from the argument view: a
+ * complete `file_path` for file tools, otherwise the `description` text so far.
+ * Empty when the view carries neither, so the caller falls back to the raw text.
+ */
+function argumentSummary(
+  variant: ToolRowVariant, args: ToolArgs, cwd?: string, home?: string,
+): { summary: string; filePath: string | undefined } {
+  if (FILE_PATH_VARIANTS.has(variant)) {
+    const path = args.complete('file_path') ? args.text('file_path') : undefined
+    // Decoding text can discover an invalid escape and make complete() false.
+    const filePath = path !== undefined && path !== '' && args.complete('file_path') ? firstLine(path) : undefined
+    return { summary: filePath === undefined ? '' : abbreviateHomePath(relativizeToCwd(filePath, cwd), home), filePath }
+  }
+  const description = args.text('description')
+  return { summary: description === undefined ? '' : firstLine(description), filePath: undefined }
+}
+
+/**
  * Derive the full row model from a frozen call slice.
  * @param toolName - wire tool name (dispatch-supplied; survives windowless results).
  * @param block - preparing call, dispatched call, or result from the snapshot.
@@ -292,7 +310,9 @@ export function toolRowModel(toolName: string, block: ToolCallBlock, cwd?: strin
   const state: ToolRowState = !done ? block.phase === 'preparing' ? 'preparing' : 'running'
     : block.error?.code === 'interrupted' ? 'stopped'
       : block.isError ? 'error' : 'ok'
-  const base = argsRaw === null ? ''
+  const primary = argumentSummary(variant, block.args, cwd, home)
+  // The argument view serves every stage; the raw text is the fallback when it carries nothing useful.
+  const base = primary.summary !== '' || argsRaw === null ? primary.summary
     : argsRaw === '' ? block.callId
       : abbreviateHomePath(relativizeToCwd(deriveSummary(variant, argsRaw), cwd), home)
   // Others keeps the static "Tool call" title (figma literal); the real tool
@@ -312,7 +332,7 @@ export function toolRowModel(toolName: string, block: ToolCallBlock, cwd?: strin
     variant,
     titleKey,
     summary,
-    filePath: argsRaw === null ? undefined : deriveFilePath(variant, argsRaw),
+    filePath: primary.filePath ?? (argsRaw === null ? undefined : deriveFilePath(variant, argsRaw)),
     bodyRaw,
     output,
     errorSummary,

@@ -18,6 +18,7 @@ import { en as conversationEn, NS as CONVERSATION_NS, zh as conversationZh } fro
 import { apply as applyChat, inject as injectChat } from '@qilin/client-ui-chat/client'
 import { apply as applyTool, inject as injectTool } from '../src/client/apply.ts'
 import { toolChatSnapshot } from './tool-fixtures.client.ts'
+import { PartialArguments } from '@qilin/util-values'
 
 const SID = 's1' as SessionId
 
@@ -45,6 +46,7 @@ const RUN_CODE_ARGS = JSON.stringify({ code: PROGRAM, description: 'List the not
 
 const codeResult = (seq: number, callId: string): ToolResultNode => ({
   kind: 'tool-result', seq, time: seq * 1_000, callId,
+  name: 'run_code', args: PartialArguments.fromText(RUN_CODE_ARGS),
   call: { name: 'run_code', argsRaw: RUN_CODE_ARGS },
   callTime: seq * 1_000 - 500,
   content: [{ type: 'text', text: 'demo.txt' }], isError: false,
@@ -52,7 +54,7 @@ const codeResult = (seq: number, callId: string): ToolResultNode => ({
 })
 
 const runningCode = (callId: string): StartedToolCall => ({
-  phase: 'start' as const, callId, name: 'run_code', argsRaw: RUN_CODE_ARGS, turn: 9, step: 0, time: 9_000,
+  phase: 'start' as const, args: PartialArguments.fromText(RUN_CODE_ARGS), callId, name: 'run_code', argsRaw: RUN_CODE_ARGS, turn: 9, step: 0, time: 9_000,
   subCalls: [],
 })
 
@@ -61,6 +63,7 @@ const subCall = (
 ): ToolCallBlock => ({
   kind: 'tool-result', seq, time: seq * 1_000,
   callId: `${parent}:code:${n}`,
+  name, args: PartialArguments.fromText(JSON.stringify(args)),
   parentCallId: parent,
   call: { name, argsRaw: JSON.stringify(args) },
   callTime: seq * 1_000,
@@ -254,7 +257,7 @@ describe('run_code sub-calls through the real chat machinery', () => {
   it('a started-but-unsettled sub-call renders the running state exactly like a native in-flight row', async () => {
     const parent = 'call-live'
     const runningSub: ToolCallBlock = {
-      phase: 'start' as const, callId: `${parent}:code:1`, name: 'grep', argsRaw: '{"pattern":"todo"}',
+      phase: 'start' as const, args: PartialArguments.fromText('{"pattern":"todo"}'), callId: `${parent}:code:1`, name: 'grep', argsRaw: '{"pattern":"todo"}',
       parentCallId: parent,
       turn: 0, step: 0, time: 21_000, subCalls: [],
     }
@@ -270,6 +273,7 @@ describe('run_code sub-calls through the real chat machinery', () => {
     const parent = 'call-64'
     const plain: ToolResultNode = {
       kind: 'tool-result', seq: 10, time: 10_000, callId: parent,
+      name: 'mystery', args: PartialArguments.fromText('{"n":1}'),
       call: { name: 'mystery', argsRaw: '{"n":1}' },
       callTime: 9_500,
       content: [], isError: false, subCalls: [],

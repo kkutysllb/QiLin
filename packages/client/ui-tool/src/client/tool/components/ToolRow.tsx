@@ -38,10 +38,9 @@ export interface ToolRowProps {
   summary: string
   /**
    * Trailing summary fragment rendered outside the ellipsized summary text, so
-   * a narrow row clips the summary before this. For a fragment whose whole
-   * value is surviving that clip — the todo row's parallel-active count.
-   * null/absent = the summary is the whole collapsed content. Dropped on an
-   * error row, whose collapsed summary is the failure line instead.
+   * a narrow row clips the summary before this. Appears before diff totals
+   * when both are present. null/absent omits this fragment. Error and stopped
+   * rows omit both the suffix and diff totals.
    */
   summarySuffix?: string | null | undefined
   /** Original argument JSON formatted only while the row is expanded. */
@@ -185,9 +184,10 @@ export function ToolRow({
   const summaryText = failureLine ?? normalSummary
   // A diff row's collapsed line carries the card's +/- totals (the same
   // numbers the expanded footer prints) so the change size reads without
-  // expanding; an explicit summarySuffix (none today on diff rows) wins.
+  // expanding. Diff totals remain visible after the optional summary suffix.
   const diffStat = useMemo(() => diffBody === null ? null : diffTotals(diffBody.card.diffs), [diffBody])
-  const suffix = settledWithCue ? null : summarySuffix ?? diffStat
+  const suffix = settledWithCue ? null : summarySuffix ?? null
+  const totals = settledWithCue ? null : diffStat
   const openFile = filePath !== undefined && onOpenFile !== undefined && !settledWithCue
     ? (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation()
@@ -247,8 +247,11 @@ export function ToolRow({
               </span>
             )}
             {suffix !== null && (
-              <TextShimmer className={clsx(css.summarySuffix, typeof suffix !== 'string' && css.diffStat)}>
-                {typeof suffix === 'string' ? suffix : <><span className={css.diffAdded}>{`+${suffix.added}`}</span>{' '}<span className={css.diffRemoved}>{`-${suffix.removed}`}</span></>}
+              <TextShimmer className={css.summarySuffix}>{suffix}</TextShimmer>
+            )}
+            {totals !== null && (
+              <TextShimmer className={clsx(css.summarySuffix, css.diffStat)}>
+                <span className={css.diffAdded}>{`+${totals.added}`}</span>{' '}<span className={css.diffRemoved}>{`-${totals.removed}`}</span>
               </TextShimmer>
             )}
           </>

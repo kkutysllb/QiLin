@@ -10452,6 +10452,33 @@ importers:
         specifier: workspace:*
         version: link:../../typert/protocol
 
+  packages/schedule/tool-schedule:
+    devDependencies:
+      '@qilin/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin/schedule':
+        specifier: workspace:*
+        version: link:../schedule
+      '@qilin/scope':
+        specifier: workspace:*
+        version: link:../../core/scope
+      '@qilin/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin/subagent':
+        specifier: workspace:*
+        version: link:../../subagent/subagent
+      '@qilin/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+
   packages/sdk/client:
     dependencies:
       '@qilin/cli':

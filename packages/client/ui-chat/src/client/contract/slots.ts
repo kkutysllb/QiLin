@@ -114,7 +114,7 @@ export interface ChatNodeOwnerProps {
   /** Open the current source file of a skill referenced by a sent message. */
   openSkill: (name: string) => void
   openFile: (path: string, options?: OpenFileOptions) => void
-  inspectCall: (callId: ToolCallId) => void
+  inspectCall: ((callId: ToolCallId) => void) | undefined
   forkAt: (seq: number) => void
   /**
    * Revise one sent user message: replace the composer draft with its text

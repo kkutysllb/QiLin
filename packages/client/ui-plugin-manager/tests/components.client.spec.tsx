@@ -46,7 +46,7 @@ const incompatibleText = (name = INCOMPATIBLE.name): string => en.reasonIncompat
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false,
   registryError: false, attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
-  installed: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
+  installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
 const READY: PluginManagerState = {
@@ -590,6 +590,23 @@ describe('PluginManagerPage', () => {
     back()
     open('missing')
     expect(document.querySelector('[data-plugin-source]')).toBeNull()
+  })
+
+  it('names the exact spec when pnpm installed an older version than the one inspected', () => {
+    const subject = { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', version: '1.4.2', bundle: true, registry: null } as const
+    const older = en.installDoneOtherVersion
+      .replace('{installed}', '1.4.1').replaceAll('{version}', '1.4.2').replace('{exact}', 'qilin-x@1.4.2')
+    const done = { ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'done', installed: 'qilin-x' } as const
+    const { set } = renderTab({ install: { ...done, subject, installedVersion: '1.4.1' } })
+    expect(screen.getByText(older)).toBeTruthy()
+    // Without a name the exact spec falls back to the typed one.
+    const { name: _name, ...unnamed } = subject
+    set({ install: { ...done, subject: unnamed, installedVersion: '1.4.1' } })
+    expect(screen.getByText(older)).toBeTruthy()
+    set({ install: { ...done, subject, installedVersion: '1.4.2' } })
+    expect(screen.queryByText(older)).toBeNull()
+    set({ install: { ...done, subject: { ...subject, kind: 'path' }, installedVersion: '1.4.1' } })
+    expect(screen.queryByText(older)).toBeNull()
   })
 
   describe('configuration pages', () => {

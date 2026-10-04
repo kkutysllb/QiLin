@@ -500,7 +500,8 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     slotInject: '',
     declaredBy: 'an entry in \'conversation.composer.bar\' (client-ui-conversation), so it exists while that entry is mounted',
     occupants: [
-      'client-ui-chat StatsPills id \'stats\'',
+      'client-ui-chat ActivityPill id \'activity\'',
+      'client-ui-chat UsagePill id \'usage\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.composer.dock\', () => ctx.slots.register(\n      { name: \'conversation.composer.dock\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -3590,8 +3591,8 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     key: 'tool.call.toolview',
     kind: 'keyed',
     scope: 'session',
-    summary: 'Keyed atomic Tool call view, dispatched by the wire Tool name.',
-    doc: 'Keyed atomic Tool call view, dispatched by the wire Tool name. The key\ndomain is open (any wire tool name, including a tool your own package\nregistered), so a typo never renders. Registering an occupied key\nreplaces that view; an unclaimed key falls back to the generic row. The\nowner supplies the call identity and the current stage\'s data, so the\nview stays a pure function of what the turn already knows.',
+    summary: 'Keyed Tool call view dispatched by wire Tool name.',
+    doc: 'Keyed Tool call view dispatched by wire Tool name. Any name is allowed,\nincluding tools registered by your package. Register with\n`key: \'<tool name>\'`; a typo never renders.\n\nRegistering an occupied key replaces its view; unclaimed keys use the\ngeneric row. The owner supplies the call identity and running\nor settled node through explicit phase props. Every stage supplies\n`name` and a lazy `args` view; preparing arguments may be incomplete.',
     registerOptions: [
       {
         name: 'key',
@@ -3631,8 +3632,8 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'useTrajectory: UseTrajectory',
     ],
     keyDomain: 'open: any string the owner dispatches (no compile-time key set), already taken: ask_user_question, bash, cordis_define, cordis_inspect_list, cordis_inspect_query, cordis_inspect_self, cordis_run, cordis_stop, cordis_undefine, create_goal, edit, get_goal, glob, grep, interrupt_agent, job_kill, job_list, job_output, list_agents, list_subagent_models, lsp, present, ralph, read, read_image, schedule_create, schedule_delete, schedule_list, schedule_update, send_message, session_event_read, session_event_search, session_event_trace, session_search, session_trace, skill, spawn_teammate, subagent, team_task_create, team_task_get, team_task_list, team_task_update, terminal_close, terminal_list, terminal_open, terminal_read, terminal_signal, todo_write, update_goal, wait_agent, web_fetch, web_search, workflow, write',
-    hookContext: 'ToolCallHookContext',
-    slotInject: 'ToolCallInjected',
+    hookContext: '',
+    slotInject: '',
     declaredBy: 'an entry in \'conversation.chat.node\' (client-ui-tool), so it exists while that entry is mounted',
     occupants: [
       'client-ui-deliverables PresentRow key \'present\'',
@@ -3692,7 +3693,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'tool.call.toolview\', () => ctx.slots.register(\n      { name: \'tool.call.toolview\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-tool/src/client/contract/slots.ts:24',
+    source: 'packages/client/ui-tool/src/client/contract/slots.ts:26',
   },
   {
     key: 'tool.view.cordis',

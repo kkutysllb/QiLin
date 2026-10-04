@@ -16,6 +16,7 @@ import {
   deriveTrajectoryLayout as deriveTrajectoryLayoutWithLocale,
 } from '../src/client/layout.ts'
 import { t, tZh } from './locale.client.ts'
+import { PartialArguments } from '@qilin/util-values'
 
 const deriveTrajectoryLayout = (
   input: Parameters<typeof deriveTrajectoryLayoutWithLocale>[0],
@@ -115,7 +116,7 @@ describe('deriveTrajectoryLayout', () => {
       nodes: [],
       partial: null,
       runningCalls: [{
-        phase: 'start' as const, callId: 'r1', name: 'bash', argsRaw: '{"command":"pwd"}',
+        phase: 'start' as const, args: PartialArguments.fromText('{"command":"pwd"}'), callId: 'r1', name: 'bash', argsRaw: '{"command":"pwd"}',
         turn: 1, step: 2, time: 9_000, subCalls: [],
       }],
     })
@@ -179,7 +180,7 @@ describe('deriveTrajectoryLayout', () => {
       nodes: [],
       partial: { ...partial, blocks: [] },
       runningCalls: [{
-        phase: 'start' as const, callId: 'c1', name: 'bash', argsRaw: '{"command":"pwd"}',
+        phase: 'start' as const, args: PartialArguments.fromText('{"command":"pwd"}'), callId: 'c1', name: 'bash', argsRaw: '{"command":"pwd"}',
         turn: 1, step: 1, time: 9_000, subCalls: [],
       }],
     })

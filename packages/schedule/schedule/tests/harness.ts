@@ -120,8 +120,8 @@ export interface HarnessAgent extends Agent {
  * @param id - Unique Session identity within the test Context.
  * @returns Agent whose follow-up entry is a spy.
  */
-export function agentFor(ctx: Context, id = 'original'): HarnessAgent {
-  const session = ctx.sessions.create(SessionId(id))
+export function agentFor(ctx: Context, id = 'original', meta?: { delegationDepth?: number }): HarnessAgent {
+  const session = ctx.sessions.create(SessionId(id), meta === undefined ? undefined : { meta })
   return {
     id: session.id, session, ctx: ctx.extend(), options: {}, status: 'idle', inbox: unsupportedInbox(),
     send() {}, followup: vi.fn<(message: UserMessage) => void>(), steer() {}, inject() {}, cancel() {},

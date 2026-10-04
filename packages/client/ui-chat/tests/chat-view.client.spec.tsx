@@ -30,6 +30,7 @@ import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-stor
 import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@qilin/util-values'
 import { createChatStore } from '../src/client/stores.ts'
 import { ChatView } from '../src/client/chat/ChatView.tsx'
 import { ChatNodeSeat } from '../src/client/chat/ChatNodeSeat.tsx'
@@ -189,12 +190,13 @@ const turnMaxTokens = (seq: number): TurnMaxTokensNode => ({
 })
 const toolResult = (seq: number, callId: string, name = 'bash'): ToolResultNode => ({
   kind: 'tool-result', seq, time: seq * 1_000, callId,
+  name, args: PartialArguments.fromText(`{"command":"cmd-${callId}","description":"run ${callId}"}`),
   call: { name, argsRaw: `{"command":"cmd-${callId}","description":"run ${callId}"}` },
   callTime: seq * 1_000 - 500,
   content: [], isError: false, subCalls: [],
 })
 const runningCall = (callId: string, name = 'bash'): StartedToolCall => ({
-  phase: 'start' as const, callId, name, argsRaw: `{"command":"cmd-${callId}"}`, turn: 2, step: 1, time: 1_000, subCalls: [],
+  phase: 'start' as const, args: PartialArguments.fromText(`{"command":"cmd-${callId}"}`), callId, name, argsRaw: `{"command":"cmd-${callId}"}`, turn: 2, step: 1, time: 1_000, subCalls: [],
 })
 const command = (over: Partial<CommandNode> = {}): CommandNode => ({
   kind: 'command', seq: 5, time: 5_000, commandId: 'cmd-1' as CommandNode['commandId'],
@@ -1378,7 +1380,7 @@ describe('ChatView', () => {
       nodes: [toolResult(3, 'a')],
     })
     render(<h.ChatView {...h.props} />)
-    h.toolOwners[0]?.inspectCall('a')
+    h.toolOwners[0]?.inspectCall?.('a')
     expect(h.openTrajectory).toHaveBeenCalledWith('a')
   })
 
@@ -2328,7 +2330,7 @@ describe('ChatView', () => {
     expect(owner.openFile).not.toBe(h.openFile)
     owner.openFile('src/a.ts')
     expect(h.openFile).toHaveBeenCalledWith('src/a.ts')
-    owner.inspectCall('a')
+    owner.inspectCall?.('a')
     expect(h.openTrajectory).toHaveBeenCalledWith('a')
   })
 

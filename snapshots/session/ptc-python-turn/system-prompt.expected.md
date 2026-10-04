@@ -122,7 +122,7 @@ class CreateGoalOutput2(TypedDict):
     activation: Literal["armed", "disarmed"]
 
 class EditArgs(TypedDict):
-    # Path to edit, resolved by the filesystem backend.
+    # Path to edit, resolved by the filesystem backend. Provide `file_path` before `old_string` and `new_string` in the arguments.
     file_path: str
     # Literal text to replace. Must match exactly.
     old_string: str
@@ -487,7 +487,7 @@ class WebSearchOutput(TypedDict):
     truncated: bool
 
 class WriteArgs(TypedDict):
-    # Path to write, resolved by the filesystem backend.
+    # Path to write, resolved by the filesystem backend. Provide `file_path` before `content` in the arguments.
     file_path: str
     # Full UTF-8 text content to write.
     content: str
