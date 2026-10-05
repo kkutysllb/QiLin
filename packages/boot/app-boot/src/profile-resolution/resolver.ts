@@ -305,6 +305,25 @@ function engineNameMiss(error: unknown, request: string, importer: string): Erro
   )
 }
 
+/**
+ * The canonical spelling a routed fallback resolves when its entry maps a
+ * translated DSH-era name onto a QiLin package directory. The mapped package
+ * lives under its QiLin name in the installation's node_modules, so resolution
+ * anchors inside that directory, where the containing node_modules chain owns
+ * the QiLin package, and resolves the translated spelling of the request.
+ * @param route - the fallback route the request routed to.
+ * @param request - the specifier the importing module requested.
+ * @returns the translated specifier, or `undefined` for untranslated routes.
+ */
+function translatedRequest(route: ResolutionRoute, request: string): string | undefined {
+  if (route.kind !== 'fallback') return undefined
+  const name = barePackageName(request)
+  if (name === undefined || !request.startsWith(name)) return undefined
+  const canonical = dshCompatModuleId(name)
+  if (canonical === name) return undefined
+  return canonical + request.slice(name.length)
+}
+
 function sameResolution(left: string, right: string): boolean {
   if (left === right) return true
   const leftPath = left.startsWith('file:') ? fileURLToPath(left) : left
@@ -737,7 +756,10 @@ export function installProfileResolution(
         if (cacheable && !(result instanceof Promise)) state.esm = result
         return result
       }
-      const routedParent = pathToFileURL(route.kind === 'fallback' ? route.entry.declarer : route.parent).href
+      const translated = translatedRequest(route, request)
+      const routedParent = translated !== undefined && route.kind === 'fallback'
+        ? pathToFileURL(join(route.entry.packageDir, 'package.json')).href
+        : pathToFileURL(route.kind === 'fallback' ? route.entry.declarer : route.parent).href
       if (behavior === 'enforce') {
         const previous = delegatedEsm
         delegatedEsm = { parent: routedParent, request }
@@ -745,7 +767,7 @@ export function installProfileResolution(
         try {
           let result: ResolveResult | Promise<ResolveResult>
           try {
-            result = native(request, routedParent, attributes)
+            result = native(translated ?? request, routedParent, attributes)
           } catch (error) {
             return restoreImporter(error)
           }
@@ -764,7 +786,7 @@ export function installProfileResolution(
       try {
         let expected: ResolveResult | Promise<ResolveResult>
         try {
-          const result = native(request, routedParent, attributes)
+          const result = native(translated ?? request, routedParent, attributes)
           expected = result
           /* v8 ignore next -- Node 24+ resolves synchronously; the Node 22 matrix covers its Promise result */
           if (result instanceof Promise) expected = result.catch(restoreImporter)
@@ -837,15 +859,18 @@ export function installProfileResolution(
     parent: CommonJsParent, main: boolean, options?: CommonJsOptions,
   ): string => {
     const anchor = routed.kind === 'fallback' ? routed.entry.declarer : routed.parent
+    const translated = translatedRequest(routed, request)
     const synthetic = new cjs(anchor)
     // Late parent assignment preserves Node's require stack without publishing this routing anchor in parent.children.
     synthetic.parent = parent
     synthetic.filename = anchor
     synthetic.paths = routed.kind === 'fallback'
-      ? packageSearchPaths(routed.entry, request, cjs)
+      ? translated !== undefined
+        ? cjs._nodeModulePaths(dirname(routed.entry.packageDir))
+        : packageSearchPaths(routed.entry, request, cjs)
       : cjs._nodeModulePaths(dirname(anchor))
     try {
-      return originalFilename.call(cjs, request, synthetic, main, options)
+      return originalFilename.call(cjs, translated ?? request, synthetic, main, options)
     } catch (error) {
       return throwWithoutCjsAnchor(error, request, parent.filename ?? anchor, anchor)
     }

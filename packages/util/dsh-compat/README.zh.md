@@ -24,7 +24,7 @@ kind: "package-library"
 <a id="use-this-package"></a>
 ## 使用本包
 
-Profile 加载通过 `bundlePatchOf` 同时读取 `qilin.bundle.patch` 与 `dsh.bundle.patch`。客户端模块图和浏览器加载器通过 `clientDeclarationOf` 与 `dshCompatModuleId` 处理预构建 DSH 工厂，使其可以保留原有的 `require()` 名称。
+Profile 加载、插件管理器的安装门与 bundle 清单、以及客户端测试运行时的 roster 通过 `bundlePatchOf` 同时读取 `qilin.bundle.patch` 与 `dsh.bundle.patch`。客户端模块图和浏览器加载器通过 `clientDeclarationOf` 与 `dshCompatModuleId` 处理预构建 DSH 工厂，使其可以保留原有的 `require()` 名称。
 
 精确的平台别名由 `DSH_PLATFORM_MODULE_ALIASES` 导出。未知的第三方名称保持不变；兼容层不会替换服务实现，也不会提供 Electron 专属 API。
 

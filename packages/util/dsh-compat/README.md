@@ -24,7 +24,7 @@ This package keeps the DSH plugin ecosystem usable in QiLin. It selects a bundle
 <a id="use-this-package"></a>
 ## Use this package
 
-Profile loading uses `bundlePatchOf` for `qilin.bundle.patch` and `dsh.bundle.patch`. The client module graph and browser loader use `clientDeclarationOf` and `dshCompatModuleId` so prebuilt DSH factories can keep their original `require()` names.
+Profile loading, the plugin manager's install gate and bundle inventory, and the client test runtime's roster use `bundlePatchOf` for `qilin.bundle.patch` and `dsh.bundle.patch`. The client module graph and browser loader use `clientDeclarationOf` and `dshCompatModuleId` so prebuilt DSH factories can keep their original `require()` names.
 
 The exact platform aliases are exported as `DSH_PLATFORM_MODULE_ALIASES`. Unknown third-party names pass through unchanged; the compatibility layer does not replace service implementations or provide Electron-only APIs.
 

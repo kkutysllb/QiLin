@@ -1119,7 +1119,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         'plugin', '--profile', 'alias', 'add', `bundle-alias@file:${bundle}`, `file:${library}`,
       ], { QILIN_HOME: home }, home)
       expect(added.code).toBe(0)
-      expect(added.stderr).toContain('ordinary-library declares no qilin.bundle — installed as a plain dependency, not a profile layer')
+      expect(added.stderr).toContain('ordinary-library declares no qilin.bundle.patch or dsh.bundle.patch — installed as a plain dependency, not a profile layer')
       const manifestPath = join(home, 'profiles', 'alias', 'package.json')
       const installed = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
         dependencies: Record<string, string>

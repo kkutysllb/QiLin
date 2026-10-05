@@ -780,7 +780,7 @@ it('reads what a spec names before installing it', async () => {
   expect(view).toHaveBeenCalledWith(dir, 'qilin-x', { command: 'pnpm-test', timeoutMs: 1000, registry: null })
   const signal = AbortSignal.abort()
   answers(JSON.stringify([{ name: 'qilin-lib', version: '1.0.0', qilin: { bundle: {} } }, { name: 'qilin-lib', version: '1.1.0', qilin: null }]))
-  expect(await manager.inspect('qilin-lib@^1', undefined, signal)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'qilin-lib declares no qilin.bundle', registries: [null] })
+  expect(await manager.inspect('qilin-lib@^1', undefined, signal)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'qilin-lib declares no qilin.bundle.patch or dsh.bundle.patch', registries: [null] })
   expect(view).toHaveBeenLastCalledWith(dir, 'qilin-lib@^1', { command: 'pnpm-test', timeoutMs: 1000, signal, registry: null })
   // An answer that names no package keeps the name the spec gave; colour escapes around the JSON are dropped.
   answers('\x1b[36m' + JSON.stringify({ version: '0.0.1', description: '', qilin: { bundle: { patch: './p.yml' } } }) + '\x1b[39m\n')
@@ -827,7 +827,7 @@ it('reads what a spec names before installing it', async () => {
   writeFileSync(join(local, 'package.json'), '{"version":"1.0.0"}')
   expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'not-a-package', reason: 'the package.json names no package' })
   writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'qilin-local', version: '0.1.0', description: 'Local.' }))
-  expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'qilin-local declares no qilin.bundle' })
+  expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'qilin-local declares no qilin.bundle.patch or dsh.bundle.patch' })
   writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'qilin-local', version: '0.1.0', description: 'Local.', qilin: { bundle: { patch: './p.yml' } } }))
   expect(await manager.inspect(`file:${local}`)).toEqual({
     status: 'accepted', kind: 'path', name: 'qilin-local', version: '0.1.0', description: 'Local.', bundle: true, registry: null,
@@ -839,6 +839,29 @@ it('reads what a spec names before installing it', async () => {
   writeFileSync(profile.installAnchor, '{}')
   expect(await manager.inspect(local)).toEqual({ status: 'accepted', kind: 'path', name: 'core', bundle: true, registry: null })
   expect(view).toHaveBeenCalledTimes(13)
+})
+
+it('accepts a DSH-era bundle declaration the load path accepts', async () => {
+  const { manager, profile } = await fixture(undefined, false, undefined, { inspectTimeoutMs: 1000, pnpmCommand: 'pnpm-test', fallbackRegistries: [] })
+  const view = vi.spyOn(operations, 'viewProfilePackage')
+  onTestFinished(() => { view.mockRestore() })
+  const answers = (stdout: string) => view.mockResolvedValueOnce({ exitCode: 0, stdout, stderr: '', timedOut: false })
+  answers(JSON.stringify({ name: 'dsh-context', version: '0.64.0', description: 'Context.', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  expect(await manager.inspect('dsh-context')).toEqual({
+    status: 'accepted', kind: 'registry', name: 'dsh-context', version: '0.64.0', description: 'Context.', bundle: true, registry: null,
+  })
+  // A present-but-non-string declaration is no declaration.
+  answers(JSON.stringify({ name: 'dsh-broken', version: '1.0.0', dsh: { bundle: { patch: 7 } } }))
+  expect(await manager.inspect('dsh-broken')).toEqual({
+    status: 'refused', problem: 'not-a-bundle', reason: 'dsh-broken declares no qilin.bundle.patch or dsh.bundle.patch', registries: [null],
+  })
+  // A directory answers from its own manifest the same way.
+  const local = join(profile.home, 'dev', 'dsh-local')
+  mkdirSync(local, { recursive: true })
+  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'dsh-local', version: '0.1.0', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  expect(await manager.inspect(local)).toEqual({
+    status: 'accepted', kind: 'path', name: 'dsh-local', version: '0.1.0', bundle: true, registry: null,
+  })
 })
 
 it('announces each manager operation as a change, and a patch generation applied outside it not at all', async () => {
