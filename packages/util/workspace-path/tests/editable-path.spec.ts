@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { acceptsPath, extensionOf, TEXT_FILE_EXTENSIONS } from '../src/editable-path.ts'
+import { acceptsPath, extensionOf, PREVIEW_FILE_EXTENSIONS, previewedPath, TEXT_FILE_EXTENSIONS } from '../src/editable-path.ts'
 
 describe('extensionOf', () => {
   it('reads the lower-case suffix of either separator and of dot files', () => {
@@ -27,6 +27,26 @@ describe('TEXT_FILE_EXTENSIONS', () => {
     for (const extension of TEXT_FILE_EXTENSIONS) {
       expect(extension, extension).toBe(extension.toLowerCase())
       expect(extension.startsWith('.'), extension).toBe(false)
+    }
+  })
+})
+
+describe('previewedPath', () => {
+  it('takes the rendered-document extensions and refuses the rest', () => {
+    expect(previewedPath('reports/weekly.html')).toBe(true)
+    expect(previewedPath('reports/weekly.htm')).toBe(true)
+    expect(previewedPath('notes.md')).toBe(true)
+    expect(previewedPath('notes.markdown')).toBe(true)
+    expect(previewedPath('REPORT.MDX')).toBe(true)
+    expect(previewedPath('src/a.ts')).toBe(false)
+    expect(previewedPath('data.json')).toBe(false)
+    expect(previewedPath('logo.png')).toBe(false)
+    expect(previewedPath('Makefile')).toBe(false)
+  })
+
+  it('stays inside the editable set, so the preview edit affordance reaches the editor', () => {
+    for (const extension of PREVIEW_FILE_EXTENSIONS) {
+      expect(TEXT_FILE_EXTENSIONS.has(extension), extension).toBe(true)
     }
   })
 })

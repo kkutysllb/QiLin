@@ -26,11 +26,14 @@ import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: pulls the Workspace UI navigation service merge (ctx.uiWorkspace).
 import type {} from '@qilin/client-ui-workspace/client'
+// Type-only: pulls the plugin page's SlotMap merge (the 'plugins.add.actions' entry).
+import type {} from '@qilin/client-ui-plugin-manager/client'
 import type { Context as ClientContext } from '@qilin/kylin'
 import { AgentPresetLabel } from './AgentPresetLabel.tsx'
 import type { AgentPresetLabelInjected } from './AgentPresetLabel.tsx'
 import { AgentPresetSeat } from './AgentPresetSeat.tsx'
 import type { AgentPresetSeatInjected } from './AgentPresetSeat.tsx'
+import { CreatePluginMenuItem } from './CreatePluginMenuItem.tsx'
 import { AgentPresetSection } from './AgentPresetSection.tsx'
 import type { AgentPresetSectionInjected } from './AgentPresetSection.tsx'
 import { AgentPresetSeatController, type AgentPresetStage } from './seat-store.ts'
@@ -140,6 +143,7 @@ export function apply(ctx: ClientContext): void {
         hooks: { agentPresetSeat: seat.store },
         load: () => seat.load(),
         select: (id: string) => seat.select(id),
+        dismissRefusal: (error) => { seat.dismissRefusal(error) },
         introduced: () => { seat.introduced() },
       }
     }
@@ -149,14 +153,20 @@ export function apply(ctx: ClientContext): void {
       load: () => controller.load(),
     })
 
+    // One creator flow, two entries: the settings section's creator button and
+    // the plugin page's 让 Agent 创建插件 menu item both stage the
+    // self-referential preset and land a new session on it. Nothing reaches
+    // the model here — the draft the visitor typed stays until it is sent.
+    const startCreatorDraft = (): void => {
+      if (!section.store.getSnapshot().showPicker) return
+      const seat = mainBlankSeat(scope) ?? unboundSeat
+      seat.stage('cordis', true)
+      scope.uiWorkspace.startSession()
+      void seat.apply()
+    }
+
     scope.effect(() => {
-      creatorDraft = () => {
-        if (!section.store.getSnapshot().showPicker) return
-        const seat = mainBlankSeat(scope) ?? unboundSeat
-        seat.stage('cordis', true)
-        scope.uiWorkspace.startSession()
-        void seat.apply()
-      }
+      creatorDraft = startCreatorDraft
       const chip = scope.slots.register({
         name: 'conversation.hero.agentPreset',
         locale: 'settings.agentPreset',
@@ -170,10 +180,21 @@ export function apply(ctx: ClientContext): void {
         locale: 'settings.agentPreset',
         inject: labelInjected,
       }, AgentPresetLabel)
+      const createPlugin = scope.slots.inject('plugins.add.actions', () => scope.slots.register({
+        name: 'plugins.add.actions',
+        id: 'create-plugin',
+        locale: 'settings.agentPreset',
+        inject: () => ({
+          hooks: { agentPresets: controller.store },
+          load: () => controller.load(),
+          startCreatorDraft,
+        }),
+      }, CreatePluginMenuItem))
       return () => {
         creatorDraft = undefined
         chip()
         label()
+        createPlugin()
       }
     }, 'ui-agent-preset: new-session chip and header label')
   })

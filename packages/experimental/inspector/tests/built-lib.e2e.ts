@@ -15,7 +15,7 @@ const built = [
 
 describe.skipIf(!built)('experimental Inspector built artifact', () => {
   it('packs its sibling Worker and evaluates the Host from the tarball through plain Node', { retry: 0 }, async (test) => {
-    const root = await mkdtemp(join(tmpdir(), 'dsh-inspector-packed-'))
+    const root = await mkdtemp(join(tmpdir(), 'qilin-inspector-packed-'))
     const consumer = join(root, 'package')
     const dependencies = join(consumer, 'node_modules')
     let linked = false

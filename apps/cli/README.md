@@ -23,7 +23,7 @@ The invoking directory is the default workspace root. The `web`, `headless`, `sd
 
 `list` and `doctor` read the profile and never initialize it or run pnpm. `doctor` accepts an installed package name or a package directory and checks the four rules a plugin must satisfy to load here: whether the package builds the DSH-era home itself instead of reading `DSH_HOME`/`QILIN_HOME`, installs an engine package the harness supplies, imports an engine name it never declared as a peer, and injects client module names the compatibility layer cannot map. It prints one finding per line and exits 1 only when a finding blocks activation.
 
-`list` marks a shipped layer the profile owns — the animations bundle the browser templates seed — as `(updatable)`: a copy installed into the profile resolves ahead of the installation's, so `qilin plugin add dsh-animations@latest` or the plugin page's update action moves that layer without a QiLin release.
+`list` marks a shipped template layer with `(shipped)`: it moves with the running installation and cannot be dropped from the profile. Every other listed layer belongs to the profile — for example the retired `dsh-animations` animations skill pack installed back through `qilin plugin add` — and upgrades or removes in place without a QiLin release.
 
 Install the command itself from the published package (`npm install -g @qilin/cli`) to get `qilin` on `PATH`; the manifest declares `lib/bin.js` as the `qilin` bin and ships only that bundle.
 

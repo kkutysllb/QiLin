@@ -1,7 +1,6 @@
 /**
- * The editor's route to the preview viewer: one targeted open of the tab's own
- * address on the `text` type, whose fallback claim takes every address this
- * type takes.
+ * The routes to the preview viewer: the editor toolbar's targeted open of the
+ * tab's own address, and the open options the workspace trees hand their rows.
  *
  * The toolbar cannot use the tab's own `openResource` action for this: that
  * action opens through the registry's ranking, and this type outranks the
@@ -9,8 +8,9 @@
  * past it; the Sidebar controller places the open on the session on screen.
  * @module
  */
-import type { ISidebarRight } from '@qilin/client-ui-sidebar-right/client'
+import type { ISidebarRight, SidebarRightTabActions } from '@qilin/client-ui-sidebar-right/client'
 import type { SessionId } from '@qilin/session/types'
+import { previewedPath } from '@qilin/util-workspace-path'
 
 /** The preview navigation the body receives. */
 export interface FilePreviewInjected {
@@ -34,4 +34,22 @@ export function filePreviewFace(sidebarRight: ISidebarRight): () => FilePreviewI
       sidebarRight.openResource(address, { kind: 'text' })
     },
   })
+}
+
+/**
+ * Open one tree row's file: a renderable document names the `text` viewer so
+ * the first open is the rendered document rather than this package's code
+ * view; the viewer's edit affordance opens the editor in return. Everything
+ * else takes the ranked claim unchanged.
+ * @param actions - the acting tab's action face, carrying `openResource`.
+ * @param address - the row's session file address.
+ * @param path - the row's workspace-relative path, for the renderable check.
+ */
+export function openFileRow(
+  actions: Pick<SidebarRightTabActions, 'openResource'>,
+  address: string,
+  path: string,
+): void {
+  if (previewedPath(path)) actions.openResource(address, { kind: 'text' })
+  else actions.openResource(address)
 }

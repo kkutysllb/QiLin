@@ -143,6 +143,7 @@
     "apps/cli/tests/**/*.ts",
     "benchmarks/**/*.ts",
     "packages/*/*/tests/**/*.ts",
+    "packages/experimental/inspector/scripts/**/*.ts",
     // Client-face entries pulled into this program by host-side specs and e2e fixtures
     // (apps/web and the settings pages). Listing them satisfies the
     // project file-list rule; the face split is enforced by tsconfig.client.json.
@@ -240,6 +241,8 @@
     { "path": "./packages/experimental/browser-use-runtime" },
     { "path": "./packages/experimental/browser-use-playwright-mcp" },
     { "path": "./packages/experimental/browser-use-chrome-devtools-mcp" },
+    { "path": "./packages/experimental/inspector-profile" },
+    { "path": "./packages/experimental/inspector/tsconfig.host.json" },
     { "path": "./packages/experimental/browser-use-stagehand-native" },
     { "path": "./packages/api/terminal-controller/tsconfig.host.json" },
     { "path": "./packages/computer-use/computer-use" },

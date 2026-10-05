@@ -62,7 +62,7 @@ export type InspectorSourceEvent =
     readonly frame: ClientSourceResponseFrame
   }
 
-/** Read-only diagnostic for `QILINInspector.getSources`. */
+/** Read-only diagnostic for `DSHInspector.getSources`. */
 export interface InspectorSourceView {
   readonly sourceId: string
   readonly generation: string

@@ -1,8 +1,9 @@
 /**
- * Plugin manager, browser half: the **Manage plugins** view inside the Settings
- * Plugins section. The page installs, enables, disables, and removes the
- * bundles of the Host's profile through the `pluginManager` Remote and switches
- * their rows in the profile's user layer.
+ * Plugin manager, browser half: the sidebar's **插件管理** entry with the main
+ * panel it opens, and the management view inside the Settings Plugins section
+ * — one page in both places. The page installs, enables, disables, and removes
+ * the bundles of the Host's profile through the `pluginManager` Remote and
+ * switches their rows in the profile's user layer.
  * A plugin that carries its own configuration renders it on this page through
  * the slots the page declares (`slot-contract.ts`).
  */
@@ -10,14 +11,17 @@
 import type {} from '@qilin/client-locale/client'
 import type { Context as ClientContext } from '@qilin/kylin'
 // Type-only: declares the `shell.overlay` seat the refresh-failure toast
-// registers into, so a failed refresh outlives the Plugins tab.
-import type {} from '@qilin/client-ui-layout/client'
+// registers into, so a failed refresh outlives the Plugins tab; also the
+// `MainPanelId` brand the sidebar entry's panel id carries.
+import type { MainPanelId } from '@qilin/client-ui-layout/client'
 // Type-only: the Settings shell declares the tab list this page registers into
 // (`settings.plugins.tab`), and the Plugins section owner renders the tab and
 // mounts the page inside it.
 import type {} from '@qilin/client-ui-settings/client'
 // Type-only: pulls the ctx.settingsShell merge (the section open channel).
 import type {} from '@qilin/client-ui-settings-general/client'
+// Type-only: the `sidebar.panellist` entry seat the sidebar row registers into.
+import type {} from '@qilin/client-ui-sidebar/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin/api-remotes/client'
@@ -25,6 +29,7 @@ import type {} from '@qilin/api-remotes/client'
 // through the owning package's client-safe types subpath).
 import type {} from '@qilin/plugin-manager/types'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
+import { PluginsPanelIcon } from './PluginsPanelIcon.tsx'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
 import { configLedgerSource } from './config-ledger.ts'
 import { PluginManagerController } from './manager-store.ts'
@@ -35,7 +40,7 @@ export type { PluginManagerPageProps } from './PluginManagerPage.tsx'
 export type { ConfigLedger, OfficialItem } from './config-ledger.ts'
 export type { PluginManagerFace } from './manager-store.ts'
 export type { PluginManagerLocaleKey } from './locales.ts'
-export type { ConfigPageForm, PluginConfigViewProps } from './slot-contract.ts'
+export type { ConfigPageForm, PluginAddActionsProps, PluginConfigViewProps } from './slot-contract.ts'
 
 declare module '@qilin/client-ui-slots' {
   interface LocaleNamespaceMap {
@@ -49,6 +54,9 @@ export const NS = 'pluginManager'
 
 /** Tab key of the management view in the Plugins settings section. */
 export const TAB_ID = 'manage'
+
+/** The id shared by the sidebar entry and the main panel it opens. */
+export const PANEL_ID = 'plugins' as MainPanelId
 
 /** Services required by the tab registration, the Remote methods, and the shared configuration forms. */
 export const inject = [
@@ -106,11 +114,22 @@ export function apply(ctx: ClientContext): void {
   } satisfies ClientContext['pluginNavigation'])
   ctx.effect(() => () => { void disposeNavigation() }, 'ui-plugin-manager: navigation channel')
 
-  // The management view is a tab of the Settings Plugins section: the section
-  // owns the nav row, the tab bar, and the tab panel, so the Web sidebar carries
-  // no Plugins entry of its own. What is installed and switched on is the page's
-  // own; a plugin's configuration arrives through the slots the page declares
-  // here, so the page never names a configurable plugin.
+  // One page, two seats: the sidebar entry opens it as a global main panel
+  // (the profile's surface, not a Session's), and the Settings Plugins
+  // section mounts the same page as its 管理 tab — the two stay consistent
+  // because both render through this one controller face. The settings seat
+  // shares the panel's child table (`rendersExistingChildren`) rather than
+  // declaring its own: one slot, one declarer, and the page keeps its
+  // `renderSlot` share in both places. What is installed and switched on is
+  // the page's own; a plugin's configuration arrives through the slots the
+  // page declares here, so the page never names a configurable plugin.
+  const pageChildren = {
+    'plugins.add.actions': { kind: 'list', scope: 'root' },
+    'plugins.item': { kind: 'list', scope: 'root' },
+    'plugins.bundle.activation': { kind: 'keyed', scope: 'root' },
+    'plugins.bundle.config': { kind: 'keyed', scope: 'root' },
+    'plugins.row.config': { kind: 'keyed', scope: 'root' },
+  } as const
   const configLedger = configLedgerSource(ctx)
   const face = controller.inject(configLedger, text => ctx.locale.resolveText(text))
   // A failed manual refresh announces through the frame-wide overlay seat, so
@@ -123,6 +142,22 @@ export function apply(ctx: ClientContext): void {
       dismissNotice: face.dismissNotice,
     }),
   }, PluginRefreshToast))
+  ctx.slots.inject('main', () => ctx.slots.register({
+    name: 'main',
+    key: PANEL_ID,
+    locale: NS,
+    inject: () => face,
+    children: pageChildren,
+  }, PluginManagerPage))
+  // First row of the sidebar's panel list, under the new-session button; the
+  // schedules row (order 10) and later entries follow.
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+    name: 'sidebar.panellist',
+    id: PANEL_ID,
+    order: 0,
+    locale: NS,
+    label: () => t('panel'),
+  }, PluginsPanelIcon))
   ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
     name: 'settings.plugins.tab',
     id: TAB_ID,
@@ -136,12 +171,8 @@ export function apply(ctx: ClientContext): void {
         return () => { if (revealPackage === handler) revealPackage = undefined }
       },
     }),
-    children: {
-      'plugins.item': { kind: 'list', scope: 'root' },
-      'plugins.bundle.activation': { kind: 'keyed', scope: 'root' },
-      'plugins.bundle.config': { kind: 'keyed', scope: 'root' },
-      'plugins.row.config': { kind: 'keyed', scope: 'root' },
-    },
+    children: pageChildren,
+    rendersExistingChildren: true,
   }, PluginManagerPage))
 
 }

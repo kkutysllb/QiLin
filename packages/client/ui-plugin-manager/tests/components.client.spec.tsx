@@ -119,8 +119,8 @@ function renderTab(
     usePluginManager: bindSnapshotSelector(store),
     useConfigLedger: bindSnapshotSelector(ledger),
     useConfigurations: bindSnapshotSelector(configurations),
-    renderSlot: (name: string, owner: { view: 'summary' | 'page'; form?: unknown }, opts: { only?: string; entryKey?: string }) =>
-      bodies[`${name}:${opts.only ?? opts.entryKey ?? ''}`]?.(owner.view, owner) ?? null,
+    renderSlot: (name: string, owner: { view: 'summary' | 'page'; form?: unknown }, opts?: { only?: string; entryKey?: string }) =>
+      bodies[`${name}:${opts?.only ?? opts?.entryKey ?? ''}`]?.(owner.view, owner) ?? null,
   } as PluginManagerPageProps
   const { rerender } = render(<PluginManagerPage {...props} />)
   return {
@@ -395,6 +395,30 @@ describe('PluginManagerPage', () => {
     expect(screen.getByText(en.empty)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: en.addPlugin }))
     expect(actions.openInstall).toHaveBeenCalledTimes(1)
+  })
+
+  it('splits the add-plugin control: the menu offers install and the contributed actions', () => {
+    const bodies: SlotBodies = {
+      'plugins.add.actions:': (_view, owner) => (
+        <button type="button" role="menuitem" data-testid="contributed"
+          onClick={() => { owner.onDismiss?.() }}>让 Agent 创建插件</button>
+      ),
+    }
+    const { actions } = renderTab({ status: 'ready' }, {}, bodies)
+    // The primary half installs; the chevron half opens the action menu.
+    fireEvent.click(screen.getByRole('button', { name: en.addPlugin }))
+    expect(actions.openInstall).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('menu')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: en.chooseAddMethod }))
+    expect(screen.getByRole('menu')).toBeTruthy()
+    // The install row dismisses the menu before opening the dialog.
+    fireEvent.click(screen.getByRole('menuitem', { name: new RegExp(en.installExisting) }))
+    expect(actions.openInstall).toHaveBeenCalledTimes(2)
+    expect(screen.queryByRole('menu')).toBeNull()
+    // A contributed row receives the same dismissal before its own action.
+    fireEvent.click(screen.getByRole('button', { name: en.chooseAddMethod }))
+    fireEvent.click(screen.getByTestId('contributed'))
+    expect(screen.queryByRole('menu')).toBeNull()
   })
 
   it('keeps a refresh failure off the page toast, spins the refresh control, and words the inline failure', () => {

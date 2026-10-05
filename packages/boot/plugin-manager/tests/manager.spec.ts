@@ -97,13 +97,13 @@ it('lists bundle versions and current-profile plugin targets', async () => {
   ])
 })
 
-it('reports a shipped layer as locked at the layer level and updatable when the profile owns its resolution', async () => {
+it('reports shipped layers locked at the layer level and owner layers switchable', async () => {
   // The shipped template locks the layer: a profile switches it off through its
   // rows, because dropping the entry would come back on the next load.
   const { manager, dir, profile } = await fixture('live', false, undefined, {}, undefined, undefined, 'web')
   const shipped = '@qilin/web-app'
-  const owned = 'dsh-animations'
-  for (const [name, version] of [[shipped, '3.0.4'], [owned, '1.2.3']] as const) {
+  const owner = 'dsh-animations'
+  for (const [name, version] of [[shipped, '3.0.4'], [owner, '1.2.3']] as const) {
     const installedDir = join(dirname(profile.installAnchor), 'node_modules', name)
     mkdirSync(installedDir, { recursive: true })
     writeFileSync(join(installedDir, 'package.json'), JSON.stringify({
@@ -112,21 +112,26 @@ it('reports a shipped layer as locked at the layer level and updatable when the 
     writeFileSync(join(installedDir, 'cordis.patch.yml'), '[]\n')
   }
   const installation = JSON.parse(readFileSync(profile.installAnchor, 'utf8')) as { dependencies: Record<string, string> }
-  installation.dependencies = { ...installation.dependencies, [shipped]: '3.0.4', [owned]: '1.2.3' }
+  installation.dependencies = { ...installation.dependencies, [shipped]: '3.0.4' }
   writeFileSync(profile.installAnchor, JSON.stringify(installation))
   const manifest = readProfileManifest(profile.name, dir)
-  manifest.qilin = { profile: { bundles: ['core', shipped, owned] } }
+  manifest.qilin = { profile: { bundles: ['core', shipped, owner] } }
+  // The owner layer arrives the way a plugin-channel install writes it: listed
+  // as a profile dependency, which is what makes it removable.
+  manifest.dependencies = { ...manifest.dependencies, [owner]: '^1.2.3' }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
 
   const rows = await manager.listBundles()
-  // A shipped layer the profile does not own moves with the installation.
+  // A shipped layer moves with the installation.
   expect(rows.find(row => row.name === shipped)).toMatchObject({
     enabled: true, installed: false, optional: false, updatable: false, removable: false, readOnlyReason: 'shipped-layer',
   })
-  // The one the profile owns can be upgraded in place, and is still locked as a layer.
-  expect(rows.find(row => row.name === owned)).toMatchObject({
-    enabled: true, installed: false, optional: false, updatable: true, removable: false, readOnlyReason: 'shipped-layer',
+  // A retired template name installed back through the plugin channel is the
+  // profile's own layer: updatable and removable, with no shipped lock.
+  expect(rows.find(row => row.name === owner)).toMatchObject({
+    enabled: true, installed: true, optional: false, updatable: true, removable: true,
   })
+  expect(rows.find(row => row.name === owner)?.readOnlyReason).toBeUndefined()
   // A bundle the template never named keeps being switchable as a layer.
   expect(rows.find(row => row.name === 'extra')?.updatable).toBe(true)
   expect(rows.find(row => row.name === 'extra')?.readOnlyReason).toBeUndefined()

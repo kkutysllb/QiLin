@@ -1,8 +1,8 @@
 {
   "name": "@qilin/experimental-inspector",
   "description": "Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection",
-  "icon": "./icon.svg",
   "version": "3.0.10",
+  "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
   },
@@ -10,9 +10,6 @@
     "type": "git",
     "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/experimental/inspector"
-  },
-  "engines": {
-    "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -26,19 +23,16 @@
       "types": "./lib/types/client/index.d.ts",
       "default": "./lib/client.js"
     },
-    "./src/*": "./src/*",
-    "./package.json": "./package.json",
     "./cordis.patch.yml": "./cordis.patch.yml",
-    "./locale/*.json": "./locale/*.json"
+    "./locale/*.json": "./locale/*.json",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
   },
   "qilin": {
     "client": {
       "inject": [],
       "platform": "web",
       "immediately": true
-    },
-    "bundle": {
-      "patch": "./cordis.patch.yml"
     }
   },
   "files": [
@@ -46,8 +40,9 @@
     "locale/*.json",
     "lib/index.js",
     "lib/client.js",
-    "cordis.patch.yml",
+    "lib/client.*.js",
     "lib/worker.js",
+    "lib/devtools/**",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
@@ -56,21 +51,42 @@
     "@qilin/brand": "workspace:*",
     "@qilin/util-crypto": "workspace:*",
     "@qilin/schemastery": "workspace:~",
+    "open": "^11.0.0",
+    "serve-static": "^2.2.1",
     "ws": "^8.21.0"
   },
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",
     "@qilin/kylin-plugin-loader": "workspace:~",
     "@qilin/client-modules": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
     "@qilin/host-webserver": "workspace:*"
   },
   "devDependencies": {
+    "@qilin/client-connection": "workspace:*",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-shortcuts": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin/client-ui-layout": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/cmdline": "workspace:*",
+    "@qilin/host-webserver": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/kylin-plugin-include": "workspace:~",
     "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/host-webserver": "workspace:*",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "@types/serve-static": "^2.2.0",
     "@types/ws": "^8.18.1",
+    "chrome-devtools-frontend": "1.0.1638082",
     "playwright": "^1.49.0",
+    "react": "^18.2.0",
     "tsx": "^4.19.2"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   }
 }

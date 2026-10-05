@@ -13,7 +13,7 @@ import type {} from '@qilin/client-ui-input-trigger/client'
 import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
 // The `trajectory` entry of `SidebarRightTabParamsMap`, which types the inspect open below.
 import type {} from '@qilin/client-ui-trajectory/client'
-import { fileAddressFor } from '@qilin/util-workspace-path'
+import { fileAddressFor, previewedPath } from '@qilin/util-workspace-path'
 // Type-only service and declaration merges used by the apply world.
 import type {} from '@qilin/client-locale/client'
 import type {} from '@qilin/client-ui-conversation/client'
@@ -184,17 +184,19 @@ export function apply(ctx: Context): void {
           // workspace, is addressed under this session's scope,
           // `qilin-resource://file/session/<id>/<path>`; an absolute path
           // elsewhere keeps its absolute spelling in the same Session's address.
-          // Which tab type claims the
-          // address is the Sidebar's decision, not this call site's.
-          // A line travels as a navigation parameter, not as part of the
-          // address: the file is one piece of content whether it is opened at
-          // its top or at line 400, so the same tab is revealed and told where
-          // to land.
+          // A renderable document names the preview viewer, so reading the
+          // delivery is the first open; the viewer's edit affordance reaches
+          // the editor. Everything else takes the ranked claim. A line travels
+          // as a navigation parameter, not as part of the address: the file is
+          // one piece of content whether it is opened at its top or at line
+          // 400, so the same tab is revealed and told where to land — and a
+          // line names the code view, so it keeps the ranked claim.
           openFile: async (path, options) => {
             const cwd = ctx.sessions.list.getSnapshot().byId[sessionId]?.cwd
             const url = fileAddressFor(sessionId, cwd, path)
-            if (options?.line === undefined) ctx.sidebarRight.openResource(url)
-            else ctx.sidebarRight.openResource(url, { params: { line: options.line } })
+            if (options?.line !== undefined) ctx.sidebarRight.openResource(url, { params: { line: options.line } })
+            else if (previewedPath(path)) ctx.sidebarRight.openResource(url, { kind: 'text' })
+            else ctx.sidebarRight.openResource(url)
             await Promise.resolve()
           },
           openSkill: (name) => {

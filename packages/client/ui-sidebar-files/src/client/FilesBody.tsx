@@ -14,6 +14,7 @@ import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
 import { fileAddressFor, pathPartsOf } from '@qilin/util-workspace-path'
 import { FileSearchBox, FileSearchResults } from './FileSearch.tsx'
 import { FileTree } from './FileTree.tsx'
+import { openFileRow } from './file-preview.ts'
 import type { FilesInjected } from './face.ts'
 import type { PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
 import type {} from './locales.ts'
@@ -126,7 +127,7 @@ export function FilesBody({
   // brings the tree back.
   const searching = state.search.query.trim() !== ''
   const openResult = (path: string): void => {
-    tabActions.openResource(fileAddressFor(sessionId, state.root, path))
+    openFileRow(tabActions, fileAddressFor(sessionId, state.root, path), path)
   }
   return (
     <UploadOverlay sessionId={sessionId} root={state.root} onUploaded={uploaded} t={t}>
@@ -182,8 +183,10 @@ export function FilesBody({
               <FileTree
                 state={state}
                 onToggle={(path) => { toggle(tab.id, path, state.levels[path] !== undefined, signal) }}
-                // Every row is under the tree's root, so its address is session-relative.
-                onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, state.root, path)) }}
+                // Every row is under the tree's root, so its address is
+                // session-relative; renderable documents open on the preview
+                // viewer, everything else takes the ranked claim.
+                onOpen={(path) => { openFileRow(tabActions, fileAddressFor(sessionId, state.root, path), path) }}
                 onCreate={(directory, name, kind) => { createEntry(tab.id, directory, name, kind, signal) }}
                 onRename={(path, name) => { renameEntry(tab.id, path, name, state.root, signal) }}
                 onDelete={(path, kind) => { removeEntry(tab.id, path, kind, state.root, signal) }}

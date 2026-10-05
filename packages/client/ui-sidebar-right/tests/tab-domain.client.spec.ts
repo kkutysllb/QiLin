@@ -175,6 +175,20 @@ describe('TabDomain — a tab\'s own actions', () => {
     expect(navigator.openResourceIn).toHaveBeenLastCalledWith(SESSION, 'qilin-resource://file/session/s-one/b.txt', { paneId: leftPane })
   })
 
+  it('forwards a named opening kind from a tab body', () => {
+    const { domain, navigator, controller, current } = harness()
+    const tabId = controller.openContent({ kind: 'text', contentId: 'qilin-resource://file/session/s-one/a.txt', title: 'a' })
+    domain.sync(SESSION, current())
+    domain.occurrence(SESSION, recordOf(current(), tabId)).tabActions
+      .openResource('qilin-resource://file/session/s-one/report.html', { kind: 'text' })
+    // Placement is the subject of the opens above; this pins the kind's ride-along.
+    expect(navigator.openResourceIn).toHaveBeenLastCalledWith(
+      SESSION,
+      'qilin-resource://file/session/s-one/report.html',
+      expect.objectContaining({ kind: 'text' }),
+    )
+  })
+
   it('opens unplaced from a floating tab, since a floating pane holds one tab', () => {
     const { domain, navigator, controller, current } = harness()
     const tabId = controller.openContent({ kind: 'text', contentId: 'qilin-resource://file/session/s-one/a.txt', title: 'a' })

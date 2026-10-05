@@ -115,14 +115,19 @@ describe('qilin plugin list', () => {
     expect(out).not.toContain('(updatable)')
   })
 
-  it('marks the shipped layer an in-place upgrade can move', async () => {
+  it('reports the retired animations layer as a plain user layer', async () => {
+    // `list` reads the manifest without normalizing it, so a profile still
+    // carrying the once-seeded layer shows it as an owner layer: not shipped,
+    // no in-place upgrade marker of its own.
     const dir = stageProfile('web', {
       qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app', 'dsh-animations'] } },
     })
     file(join(dir, 'node_modules', 'dsh-animations', 'package.json'), JSON.stringify({ name: 'dsh-animations', version: '1.2.3' }))
     const { code, out } = await capture(() => runPlugin('web', ['list']))
     expect(code).toBe(0)
-    expect(out).toContain('2\tdsh-animations@1.2.3\tbuiltin  (shipped)  (updatable)')
+    expect(out).toContain('2\tdsh-animations@1.2.3\tuser')
+    expect(out.match(/\(shipped\)/gu)).toHaveLength(2)
+    expect(out).not.toContain('(updatable)')
   })
 
   it('reports a profile that lists no layers', async () => {

@@ -68,7 +68,8 @@ export type {
 } from './tab-registry.ts'
 export type {
   SidebarRightTabInfo, SidebarRightTabInjected, UseSidebarRightTabInfo, SidebarRightTabActions,
-  SidebarRightTabMenuOwnerProps, SidebarRightTabNavigation, SidebarRightTabPlacement, SidebarRightGuideEntryOwnerProps,
+  SidebarRightTabMenuOwnerProps, SidebarRightTabNavigation, SidebarRightTabOpenResourceOptions,
+  SidebarRightTabPlacement, SidebarRightGuideEntryOwnerProps,
 } from './contract/slots.ts'
 export type {
   SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightResourceParamsMap,

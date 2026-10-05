@@ -3,6 +3,7 @@
 /** Simplified Chinese dictionary and key source of truth. */
 export const zh = {
   tab: '插件管理',
+  panel: '插件管理',
   title: '插件',
   intro: '添加和管理插件',
   loading: '正在读取插件…',
@@ -13,6 +14,9 @@ export const zh = {
   refreshError: '刷新失败，请重试',
   empty: '还没有安装任何插件。',
   addPlugin: '添加插件',
+  chooseAddMethod: '选择添加插件方式',
+  installExisting: '安装第三方插件',
+  installExistingDescription: '支持 npm 包、Git 仓库和本地目录',
   restartNotice: '更改将在下次启动生效',
   overriddenNotice: '{name} 已保存，但被更高优先级的配置覆盖，当前未生效',
   bundlesTitle: '已安装',
@@ -23,6 +27,8 @@ export const zh = {
   builtinAutoReviewDescription: '提供自动审查权限模式，由模型在每次工具调用前判断是否授权。',
   builtinVoiceInputTitle: '语音输入',
   builtinVoiceInputDescription: '在本机使用 SenseVoice 转写录音；首次使用需安装依赖',
+  builtinDevtoolsTitle: '开发者工具',
+  builtinDevtoolsDescription: '提供会话原始日志、聊天分组与正文的双向定位，以及内嵌 Host 调试工具。',
   statusProblem: '异常',
   statusBeta: 'Beta',
   reasonLabel: '原因',
@@ -217,6 +223,7 @@ export type PluginManagerLocaleKey = keyof typeof zh
 /** English dictionary checked against the Chinese key set. */
 export const en = {
   tab: 'Manage plugins',
+  panel: 'Plugins',
   title: 'Plugins',
   intro: 'Add and manage plugins',
   loading: 'Reading plugins…',
@@ -227,6 +234,9 @@ export const en = {
   refreshError: 'Refresh failed. Please try again.',
   empty: 'No plugins are installed yet.',
   addPlugin: 'Add plugin',
+  chooseAddMethod: 'Choose how to add a plugin',
+  installExisting: 'Install a third-party plugin',
+  installExistingDescription: 'Supports npm packages, Git repositories, and local directories',
   restartNotice: 'The change takes effect at the next start',
   overriddenNotice: '{name} was saved, but a higher-priority configuration overrides it, so it is not in effect',
   bundlesTitle: 'Installed',
@@ -237,6 +247,8 @@ export const en = {
   builtinAutoReviewDescription: 'Add an Auto review permission mode that uses the model to assess authorization before each tool call.',
   builtinVoiceInputTitle: 'Voice input',
   builtinVoiceInputDescription: 'Transcribe recordings locally with SenseVoice; first use requires installing dependencies',
+  builtinDevtoolsTitle: 'Developer tools',
+  builtinDevtoolsDescription: 'Raw session logs, two-way navigation between chat groups and message bodies, and embedded Host DevTools.',
   statusProblem: 'Problem',
   statusBeta: 'Beta',
   reasonLabel: 'Reason',

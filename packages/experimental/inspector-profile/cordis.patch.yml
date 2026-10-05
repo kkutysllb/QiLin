@@ -1,0 +1,8 @@
+- insert:
+    - id: experimental-inspector
+      name: '@qilin/experimental-inspector'
+      disabled: false
+      config:
+        captureFetch: true
+    - id: session-inspector
+      name: '@qilin/experimental-session-inspector'

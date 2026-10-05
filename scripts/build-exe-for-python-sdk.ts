@@ -60,8 +60,6 @@ const ASSET_GLOBS = [
   'node_modules/@qilin/web-frontend/dist/**/*',
   // skill-badge resolves both Markdown and image resources through import.meta.url.
   'node_modules/@qilin/skill-badge/assets/**/*',
-  // dsh-animations resolves every skill body and template through import.meta.url.
-  'node_modules/dsh-animations/skills/**/*',
 ]
 
 const PLATFORMS = ['linux', 'macos', 'win'] as const

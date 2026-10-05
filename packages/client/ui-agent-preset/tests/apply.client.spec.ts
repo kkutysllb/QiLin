@@ -879,7 +879,7 @@ describe('AgentPresetSeatController reconciliation', () => {
     await controller.select('minimal')
 
     expect(controller.store.getSnapshot()).toMatchObject({
-      busy: false, current: '', error: 'selection rejected',
+      busy: false, current: '', error: { reason: 'selection rejected' },
     })
   })
 
@@ -903,6 +903,6 @@ describe('AgentPresetSeatController reconciliation', () => {
     // The surface reporting this names the preset itself, so carrying the
     // roster's own "preset X failed to mount" frame would say it twice.
     expect(await controller.select('broken')).toBe(reason)
-    expect(controller.store.getSnapshot().error).toBe(reason)
+    expect(controller.store.getSnapshot().error).toMatchObject({ reason })
   })
 })

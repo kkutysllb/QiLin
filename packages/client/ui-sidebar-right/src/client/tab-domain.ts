@@ -200,7 +200,11 @@ export class TabDomain {
           return release
         },
         openResource: (address, options = {}) => {
-          navigator.openResourceIn(sessionId, address, { ...place(options), params: options.params })
+          navigator.openResourceIn(sessionId, address, {
+            ...place(options),
+            ...(options.kind === undefined ? {} : { kind: options.kind }),
+            params: options.params,
+          })
         },
         openTab: (kind, options = {}) => {
           navigator.openTabIn(sessionId, kind, { ...place(options), params: options.params })

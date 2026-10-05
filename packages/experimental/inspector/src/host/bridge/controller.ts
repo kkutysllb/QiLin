@@ -1,6 +1,8 @@
 /** Host controller that owns the Inspector Worker and Host observation source. */
 
+import { createRequire } from 'node:module'
 import { randomBytes, randomUUID } from 'node:crypto'
+import { pathToFileURL } from 'node:url'
 import { tmpdir } from 'node:os'
 import { MessageChannel, Worker, type MessagePort, type WorkerOptions } from 'node:worker_threads'
 import type { InspectorClientBootstrap, InspectorWorkerBoot, InspectorWorkerConfig } from '../../shared/bridge/messages/control.ts'
@@ -295,7 +297,9 @@ function spawnWorker(boot: InspectorWorkerBoot<MessagePort>): Worker {
     return new Worker(new URL('./worker.js', import.meta.url), options)
   }
   const workerEntry = new URL('../../worker/entry.ts', import.meta.url)
-  const tsxEsmApiEntry = import.meta.resolve('tsx/esm/api')
+  // Vitest's module runner does not implement import.meta.resolve; the CJS
+  // resolver finds the same loader entry at runtime.
+  const tsxEsmApiEntry = resolveTsxEsmApi()
   const bootstrap = [
     `import { register } from ${JSON.stringify(tsxEsmApiEntry)}`,
     'register()',
@@ -305,6 +309,15 @@ function spawnWorker(boot: InspectorWorkerBoot<MessagePort>): Worker {
     ...options,
     env: sourceWorkerEnv(),
   })
+}
+
+/** Resolve the tsx ESM loader API entry, as a file URL. */
+function resolveTsxEsmApi(): string {
+  try {
+    return import.meta.resolve('tsx/esm/api')
+  } catch {
+    return pathToFileURL(createRequire(import.meta.url).resolve('tsx/esm/api')).href
+  }
 }
 
 function sourceWorkerEnv(): NodeJS.ProcessEnv {

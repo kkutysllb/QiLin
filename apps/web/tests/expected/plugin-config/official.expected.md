@@ -34,12 +34,8 @@
     - button "查看 网页搜索": 网页搜索
     - text: DeepSeek 搜索提供方。
 - heading "已安装" [level=3]
-- text: "3"
+- text: "2"
 - list:
-  - listitem:
-    - button "查看 dsh-animations": dsh-animations
-    - text: DSH 原生动效技能包：8 个 HTML 动画技能（PPT 翻页演示 / 流程图 / 网络协议可视化 / 动态架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI 演示），激活即注册为 runtime skill，Web GUI 左侧栏内置「动效技能库」工作台面板（技能选择 + 工作区菜单 + 一键投递会话）。
-    - switch "启用 dsh-animations"
   - listitem:
     - button "查看 live-client": live-client
     - switch "启用 live-client"
