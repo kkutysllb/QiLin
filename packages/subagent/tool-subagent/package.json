@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tool-subagent",
   "description": "Model-facing subagent delegation tool over the ctx.subagents seam",
-  "version": "3.0.10",
+  "version": "3.0.11",
   "publishConfig": {
     "access": "public"
   },

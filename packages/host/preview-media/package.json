@@ -1,7 +1,7 @@
 {
   "name": "@qilin/host-preview-media",
   "description": "Host half of preview media: the /sidebar/media route serving session-workspace files to inline previews, with HTTP Range windows for seeking video",
-  "version": "3.0.10",
+  "version": "3.0.11",
   "publishConfig": {
     "access": "public"
   },
