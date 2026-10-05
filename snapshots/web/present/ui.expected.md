@@ -1,16 +1,14 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use one run_code program to" [disabled]
-  - text: PTC mode
   - button "Open right sidebar"
 - button "System prompt"
 - text: "Use one run_code program to do the following in order. Call present for missing.txt and catch its error without creating that file. Use bash to run exactly `printf \"DELIVERED_REPORT\\n\" > report.txt; printf \"DELIVERED_NOTE\\n\" > 说明.txt`. Call present for report.txt and 说明.txt. After present succeeds, deliberately throw the string \"AFTER_PRESENT\" (not an Error object) from that same run_code program. Do not retry the program or create any other files. Finish by mentioning `report.txt` and `说明.txt` in inline code, and put PRESENT_DONE in a separate paragraph. {{clock}}"
 - button "Copy"
 - button "Edit this message and resend"
-- status: Worked
-- button "Took {{duration}}" [expanded]
+- status: Completed
+- button "Completed in {{duration}}" [expanded]
 - button "Context injection runtime-context"
-- button "Context injection time-context"
 - button "Called tools, ran code, ran commands" [expanded]
 - button "Think The user wants one run_code program that:"
 - text: Failed
@@ -18,8 +16,6 @@
 - button "Present files Delivery failed missing.txt"
 - button "Bash Write DELIVERED_REPORT and DELIVERED_NOTE to files"
 - button "Present files Delivered report.txt, 说明.txt"
-- button "Context injection time-context"
-- button "Analysis completed" [expanded]
 - button "Think The program ran as intended:"
 - paragraph:
   - text: "The single program ran exactly as ordered:"
@@ -54,7 +50,6 @@
 - button "Branch into a new conversation"
 - button "Usage 19K tok"
 - text: {{clock}}
-- button "Back to bottom"
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Read the attached file with" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - button "System prompt"
 - text: poem.txt TXT 16B

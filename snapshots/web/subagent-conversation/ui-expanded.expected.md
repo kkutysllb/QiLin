@@ -4,7 +4,6 @@
     - text: /
     - 'button "Switch subagent: event-sourcing researcher"': event-sourcing researcher
     - button "1 subagent"
-  - text: Standard mode
   - button "Open right sidebar"
 - navigation "Turn navigation":
   - button "Jump to turn 1"

@@ -3,7 +3,6 @@
 - paragraph: {{greeting}}
 - heading "Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit" [level=1]
 - button "Choose workspace": workspace
-- button "Standard mode"
 - textbox "Describe what you want to build, / commands, @ files or sessions":
   - paragraph: "Use the bash tool to run exactly: echo WEB_E2E_OK. Then reply with the single word DONE and stop."
 - button "Add files or run commands"

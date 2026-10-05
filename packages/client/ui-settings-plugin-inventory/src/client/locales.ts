@@ -41,6 +41,17 @@ export const zh = {
   active: '运行中',
   failed: '启动失败',
   unloading: '卸载中',
+  // Display copy for the three shipped presets. This tab renders the roster
+  // while the ui-agent-preset plugin may be absent (the shipped Web
+  // composition disables it since the dual-workbench design), so the copy is
+  // owned here instead of read through that plugin's namespace; the id→key
+  // mapping stays in `@qilin/agent-presets/display`.
+  presetStandardName: '标准模式',
+  presetStandardDescription: '功能完整的编码 Agent，支持文件编辑、Shell、文件与网页检索、Skills、计划、目标、子代理和工作流。',
+  presetPtcName: '编码模式',
+  presetPtcDescription: '功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。',
+  presetCordisName: '创造模式',
+  presetCordisDescription: '用于创建自定义 Agent preset：具备标准模式的全部能力，并提供运行时检查、持久化插件管理和 preset 创作指导。',
 } satisfies Record<string, string>
 
 /** Plugin inventory locale key union. */
@@ -87,4 +98,13 @@ export const en = {
   active: 'Running',
   failed: 'Failed to start',
   unloading: 'Unloading',
+  presetStandardName: 'Standard mode',
+  presetStandardDescription:
+    'Full coding agent with file editing, shell, file and web search, skills, planning, goals, subagents, and workflows.',
+  presetPtcName: 'Coding mode',
+  presetPtcDescription:
+    'Full coding agent without the workflow tool; other tools are exposed through a generated SDK so the model can combine multi-step operations in one TypeScript program.',
+  presetCordisName: 'Creator mode',
+  presetCordisDescription:
+    'Built for creating custom agent presets, with all Standard mode capabilities plus runtime inspection, persistent plugin management, and preset-authoring guidance.',
 } satisfies Record<PluginInventoryLocaleKey, string>

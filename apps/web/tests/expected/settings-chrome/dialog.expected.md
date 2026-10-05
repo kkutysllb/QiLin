@@ -6,7 +6,6 @@
     - button "模型"
     - button "内置插件"
     - button "MCP 服务器"
-    - button "Agent 预设"
     - button "已归档会话"
     - button "技能"
     - button "关于 QiLin"
@@ -34,6 +33,11 @@
   - switch "显示代码工作视图" [checked]
   - text: 网页链接默认打开方式 对话中网页链接的打开位置
   - button "应用内侧边栏"
+  - text: 终端字体 终端测量字符网格所用的字体与字号。留空字体系列即使用内置等宽字体栈；提示图标会自动追加 Nerd Font 回退。 字体系列
+  - textbox "字体系列":
+    - /placeholder: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+  - text: 字号（像素）
+  - textbox "字号（像素）": "13"
   - text: 快捷键
   - paragraph: 查看和编辑当前可用的快捷键和输入操作
   - button "编辑快捷键"

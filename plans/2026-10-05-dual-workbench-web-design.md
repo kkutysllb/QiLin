@@ -137,3 +137,12 @@ R3 五面契约按 HEAD 复核 → 11 图标补 ui-primitives → 说明符重�
 - 每切片独立提交、独立可发布；S1 先行落地后 S2–S4 可并行推进。
 - GUI 行为变更按仓库规矩录 GIF；涉及 assembled 输出的跑 replay 快照。
 - 完成的唯一定义是**实机走通**：S3 验收必须在真浏览器过「切标签→右栏内容体切换→编码面板功能→切回通用无残留」全链。
+
+### S1 落地记录（2026-10-05）
+
+- 计划文件名漂移核实：`apps/web/tests/web-agent-presets.e2e.ts` 不存在；roster 断言的实际家是 `packages/preset/agent-presets/tests/shipped-root.spec.ts`（`['cordis','ptc','standard']`）。
+- selection/authoring 两条 e2e 车道启动真实 Web 组合，D4 停用行会连坐其 GUI 面；各自以车道级 overlay 重插 `ui-agent-preset` 行（显式 `disabled: false`），插件作为引擎能力继续被覆盖，产品默认仍是停用。
+- D4 的第五个受累面是 `ui-settings-plugin-inventory`：其预设切换器经 `ctx.locale.bind('settings.agentPreset')` 读 ui-agent-preset 的词典，命名空间消失后退化为原始键。修复为该插件自持三预设展示文案（id→键映射仍单点在 `@qilin/agent-presets/display`），并解除对 ui-agent-preset 的依赖声明。
+- shipped-composition 的 Auto 热插用例改为车道内 user-root fixture 预设（persistent-shell 组合），minimal 的 terminal 注册表职责就地重建；该车道同场对齐两处存量漂移（`sidebar_open` 宿主级行、`EXPECTED_TOOLS` 的 win32 schedule 门控与 pwsh 行）。
+- 黄金重录：D4 去除的 chrome（英雄条 chip、会话头预设标签）与 pwsh/schedule 既有目录漂移在同一批 refresh 中落盘；`minimal-preset` 快照车道与 `snapshots/web/minimal-preset/` 删除。
+- 验证基线：typecheck、三包单测（375）、selection/authoring/shipped-composition 三车道 replay 全绿、hygiene 与 doc-sync 仅剩 main 既有红（runtime-closure、persistence-type-history）。全量 test:web 的其余红均为干净树复现的存量红，逐车道对照确认与 S1 无关。

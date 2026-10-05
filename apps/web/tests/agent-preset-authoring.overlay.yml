@@ -11,3 +11,11 @@
 - id: settings-controller
   config:
     nativeOpen: false
+# The dual-workbench Web design (plans/2026-10-05-dual-workbench-web-design.md,
+# D4) disables `ui-agent-preset` in the shipped Web composition. This lane
+# tests the settings section's authoring surfaces, so it re-enables the row
+# the way a deployment that ships the section would; the explicit flag keeps
+# the restatement correct under either patch-field semantics.
+- id: ui-agent-preset
+  name: '@qilin/client-ui-agent-preset'
+  disabled: false

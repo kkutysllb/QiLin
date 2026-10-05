@@ -729,8 +729,10 @@ describe('web e2e: settings modal and General preferences', () => {
       await frPage.getByRole('menuitem', { name: 'English', exact: true }).waitFor({ timeout: 10_000 })
       await frPage.keyboard.press('Escape')
       const dialog = await openSettings(frPage, { menu: 'Settings', dialog: 'Settings' })
-      // A locale-owned nav label proves the dictionaries resolved to en.
-      await dialog.getByRole('button', { name: 'Agent presets' }).waitFor({ timeout: 10_000 })
+      // A locale-owned nav label proves the dictionaries resolved to en. The
+      // Models entry is one of the always-shipped preset surfaces the
+      // dual-workbench design left enabled.
+      await dialog.getByRole('button', { name: 'Models' }).waitFor({ timeout: 10_000 })
       // The markup already ships `en`, so this alone cannot prove the sync ran
       // — the zh scenario above is the discriminating half. Asserted here too
       // so a future change that resolves en but writes the wrong tag is caught.

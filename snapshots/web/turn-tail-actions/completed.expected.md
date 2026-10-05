@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Begin your reply with the" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - button "System prompt"
 - text: Begin your reply with the plain sentence "Reading the workspace now." as text, and in that same message call the bash tool with the command "echo alpha". After the tool result, reply with the single word DONE and stop. {{clock}}

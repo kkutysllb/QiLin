@@ -113,11 +113,11 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     await viewer.waitFor({ state: 'detached', timeout: 10_000 })
   }, 60_000)
 
-  it('copies 极简模式 whole under a new id and lands in its files', async () => {
+  it('copies 编码模式 whole under a new id and lands in its files', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-preset-authoring-copy'))
     const dialog = settingsDialog()
-    await dialog.getByRole('button', { name: '复制: 极简模式' }).click()
-    const copyDialog = page.getByRole('dialog', { name: '复制预设 · 复制自 极简模式' })
+    await dialog.getByRole('button', { name: '复制: 编码模式' }).click()
+    const copyDialog = page.getByRole('dialog', { name: '复制预设 · 复制自 编码模式' })
     await copyDialog.waitFor({ timeout: 10_000 })
 
     const dialogSnapshot = await captureStableAria(
@@ -152,10 +152,10 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // description rides along for the user to edit in place, and neither the
     // source's name nor its roster order survives into the copy.
     const composition = await readFile(join(userRoot, 'my-agent', 'agent.cordis.yml'), 'utf8')
-    expect(composition).toBe(await readFile(join(SHIPPED_PRESETS, 'minimal', 'agent.cordis.yml'), 'utf8'))
+    expect(composition).toBe(await readFile(join(SHIPPED_PRESETS, 'ptc', 'agent.cordis.yml'), 'utf8'))
     const metadata = await readFile(join(userRoot, 'my-agent', 'preset.yml'), 'utf8')
     expect(metadata).toContain('name: 我的模式')
-    expect(metadata).toContain('description: 仅提供持久 shell 的单工具编码 Agent。')
+    expect(metadata).toContain('description: 功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。')
     expect(metadata).not.toContain('order:')
   }, 60_000)
 
@@ -218,8 +218,8 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     await expect.poll(async () => dialog.getByText('幽灵预设').count(), { timeout: 10_000 }).toBe(0)
     expect(existsSync(join(userRoot, 'ghost'))).toBe(false)
 
-    await dialog.getByRole('button', { name: '复制: 极简模式' }).click()
-    const copyDialog = page.getByRole('dialog', { name: '复制预设 · 复制自 极简模式' })
+    await dialog.getByRole('button', { name: '复制: 编码模式' }).click()
+    const copyDialog = page.getByRole('dialog', { name: '复制预设 · 复制自 编码模式' })
     await copyDialog.waitFor({ timeout: 10_000 })
     await copyDialog.getByPlaceholder('my-agent').fill('ghost')
     await copyDialog.getByRole('button', { name: '创建' }).click()

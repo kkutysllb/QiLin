@@ -172,11 +172,6 @@
           "isDefault": true
         },
         {
-          "id": "minimal",
-          "trust": "system",
-          "isDefault": false
-        },
-        {
           "id": "my-agent",
           "trust": "user",
           "isDefault": false

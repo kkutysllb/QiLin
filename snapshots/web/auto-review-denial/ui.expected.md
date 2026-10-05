@@ -57,6 +57,9 @@
 ## Trajectory
 
 - tablist:
+  - tab "Trajectory graph Close":
+    - text: Trajectory graph
+    - button "Close"
   - tab "Trajectory Close" [selected]:
     - text: Trajectory
     - button "Close"

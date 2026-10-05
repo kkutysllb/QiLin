@@ -10,7 +10,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Review deepseek-ai/deepseek-harness#314" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - button "System prompt"
 - button "GitHub event received {{clock}}":

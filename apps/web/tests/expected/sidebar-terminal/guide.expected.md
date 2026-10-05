@@ -1,2 +1,2 @@
-- button "New terminal"
+- button "New terminal Run commands in the Session workspace"
 - button "Choose shell" [expanded]

@@ -8,30 +8,30 @@
 - status: Completed
 - button "Completed in {{duration}}" [expanded]
 - button "Wrote files, called tools, searched code, etc." [expanded]
-- button "Write site/report.html +1 -0":
+- button "Write site/report.html Preparing content 1KB +1 -0":
   - text: Write
   - button "site/report.html"
-  - text: +1 -0
-- button "Write a/style.css +1 -0":
+  - text: Preparing content 1KB +1 -0
+- button "Write a/style.css Preparing content 1KB +1 -0":
   - text: Write
   - button "a/style.css"
-  - text: +1 -0
-- button "Write b/style.css +1 -0":
+  - text: Preparing content 1KB +1 -0
+- button "Write b/style.css Preparing content 1KB +1 -0":
   - text: Write
   - button "b/style.css"
-  - text: +1 -0
-- button "Write site/index.html +1 -0":
+  - text: Preparing content 1KB +1 -0
+- button "Write site/index.html Preparing content 1KB +1 -0":
   - text: Write
   - button "site/index.html"
-  - text: +1 -0
-- button "Write site/app.js +1 -0":
+  - text: Preparing content 1KB +1 -0
+- button "Write site/app.js Preparing content 1KB +1 -0":
   - text: Write
   - button "site/app.js"
-  - text: +1 -0
-- button "Edit src/tokens.css +1 -1" [expanded]:
+  - text: Preparing content 1KB +1 -0
+- button "Edit src/tokens.css Preparing content 1KB +1 -1" [expanded]:
   - text: Edit
   - button "src/tokens.css"
-  - text: +1 -1
+  - text: Preparing content 1KB +1 -1
 - button "Copy"
 - text: "src/tokens.css - --inline-code: #EBEEF2; + --inline-code: #F5F5F5; └ +1 -1 · 1 file"
 - button "Inspect"

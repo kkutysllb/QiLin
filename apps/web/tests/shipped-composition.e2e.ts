@@ -3,7 +3,7 @@
 // producer-to-tool path. Browser scenarios in this lane own visual behavior.
 import { randomUUID } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -471,6 +471,10 @@ function assertLeanChildRecord(agent: Agent, mode: 'one-shot' | 'continuable'): 
  * `web_fetch` is present because public-address enforcement and one-shot
  * approval now confine its model-selected request target. The composition
  * Agent Note owns the rationale and its sources.
+ *
+ * Recorded on POSIX: the `schedule_*` rows gate off non-win32 and the `pwsh`
+ * row registers on every host. `sidebar_open` is the one host-level row —
+ * the base bundle registers it process-wide, outside every preset.
  */
 const EXPECTED_TOOLS = [
   'ask_user_question',
@@ -485,13 +489,11 @@ const EXPECTED_TOOLS = [
   'job_output',
   'list_agents',
   'present',
+  'pwsh',
   'read',
   'read_image',
-  'schedule_create',
-  'schedule_delete',
-  'schedule_list',
-  'schedule_update',
   'send_message',
+  'sidebar_open',
   'skill',
   'subagent',
   'subagent_fork',
@@ -594,11 +596,11 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
     }
   `)
   // The catalog belongs to an AGENT, not to the process: every model-facing row
-  // now lives in a preset mounted under one session's scope, so the global
-  // layer holds nothing and a caller must name the agent to see anything. This
-  // composes from the deployment default — what a session that names no preset
-  // gets — which is the shape this test has always been about.
-  expect(ctx.tools.schemas().map(schema => schema.name)).toEqual([])
+  // now lives in a preset mounted under one session's scope, so a caller must
+  // name the agent to see anything. The one host-level exception is
+  // `sidebar_open`, which the base bundle registers process-wide so it reaches
+  // every preset's agent.
+  expect(ctx.tools.schemas().map(schema => schema.name)).toEqual(['sidebar_open'])
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-composition'),
     setup: agentCtx => ctx.agentPresets.mount(agentCtx).then(() => undefined),
@@ -1068,19 +1070,71 @@ it('rolls back a failed shipped Auto initialization before publishing or interce
   expect(ctx.permissionPresets.names).toContain('auto')
 }, 120_000)
 
+/**
+ * The persistent-shell composition the deleted `minimal` preset used to ship:
+ * the Auto hot-plug scenario needs a preset whose terminal registry outlives a
+ * Loader unload, and no remaining shipped preset mounts one.
+ */
+const SHELL_FIXTURE_COMPOSITION = [
+  '- id: persistent-shell',
+  '  name: cordis:group',
+  '  group: true',
+  '  isolate:',
+  '    terminals: true',
+  '  config:',
+  '    - id: pty',
+  "      name: '@qilin/terminal'",
+  '',
+  '    - id: terminal-bash',
+  "      name: '@qilin/terminal-bash'",
+  "      disabled: !!js process.platform === 'win32'",
+  '      config:',
+  '        timeoutMs: 300000',
+  '',
+  '    - id: persistent-bash',
+  "      name: '@qilin/tool-bash-persistent'",
+  "      disabled: !!js process.platform === 'win32'",
+  '      config:',
+  '        timeoutMs: 300000',
+  '',
+  '    - id: terminal-pwsh',
+  "      name: '@qilin/terminal-bash'",
+  "      disabled: !!js process.platform !== 'win32'",
+  '      config:',
+  '        shellDialect: pwsh',
+  '        timeoutMs: 300000',
+  '',
+  '    - id: persistent-pwsh',
+  "      name: '@qilin/tool-pwsh-persistent'",
+  "      disabled: !!js process.platform !== 'win32'",
+  '      config:',
+  '        timeoutMs: 300000',
+  '',
+].join('\n')
+
 it('withdraws Auto on shipped Loader unload and does not restore migrated live sessions', async () => {
-  scaffold = await launchWebScaffold(AUTO_REVIEW_FIXTURE)
+  // The lane-owned preset root supplies the shell preset; the shipped roster
+  // stays the default so the Auto fixture rides the real composition.
+  const presetRoot = await mkdtemp(join(tmpdir(), 'qilin-web-e2e-shell-preset-'))
+  await mkdir(join(presetRoot, 'persistent-shell'), { recursive: true })
+  await writeFile(join(presetRoot, 'persistent-shell', 'preset.yml'),
+    'name: Shell fixture\ndescription: Terminal registry preset for the Auto hot-plug scenario.\n')
+  await writeFile(join(presetRoot, 'persistent-shell', 'agent.cordis.yml'), SHELL_FIXTURE_COMPOSITION)
+  scaffold = await launchWebScaffold({
+    ...AUTO_REVIEW_FIXTURE,
+    agentPresets: { roots: [{ path: presetRoot, trust: 'user' }], default: 'standard' },
+  })
   const ctx = scaffold.ctx
   const autoEntry = [...ctx.loader.entries()].find(entry => entry.options.id === 'auto-review')
   if (autoEntry === undefined) throw new Error('shipped Auto review Loader entry is missing')
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-auto-hot-plug'),
-    meta: { cwd: scaffold.workspaceCwd, agentPreset: 'minimal' },
-    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'minimal').then(() => undefined),
+    meta: { cwd: scaffold.workspaceCwd, agentPreset: 'persistent-shell' },
+    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'persistent-shell').then(() => undefined),
   })
   const terminals = ctx.agentPresets.serviceFor(handle.agent, 'terminals')
   try {
-    if (terminals === undefined) throw new Error('shipped minimal preset has no terminal registry')
+    if (terminals === undefined) throw new Error('the shell fixture preset has no terminal registry')
     ctx.permissionPresets.set(handle.agent.session, 'danger-full-access')
     const terminal = await terminals.spawn(handle.agent, { type: 'shell', cwd: scaffold.workspaceCwd })
     ctx.permissionPresets.set(handle.agent.session, 'auto')
@@ -1109,4 +1163,5 @@ it('withdraws Auto on shipped Loader unload and does not restore migrated live s
     await handle.dispose()
   }
   expect(terminals?.hasOwnerActivity(handle.agent)).toBe(false)
+  await rm(presetRoot, { recursive: true, force: true })
 }, 120_000)

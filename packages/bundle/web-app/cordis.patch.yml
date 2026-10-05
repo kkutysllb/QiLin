@@ -414,9 +414,15 @@
       name: '@qilin/client-ui-permission-presets'
 
     # The agent-preset row in General settings: the default preset for
-    # sessions created later. Absent a roster it renders nothing.
+    # sessions created later. Disabled since the dual-workbench Web design
+    # (plans/2026-10-05-dual-workbench-web-design.md, D4): the picker, the
+    # settings section, the header label, and the create-plugin menu item all
+    # live in this one plugin, and the workbench tags replace them. The row
+    # stays so the web-app dependency declaration keeps passing
+    # verify-cordis-config; the plugin itself remains installable.
     - id: ui-agent-preset
       name: '@qilin/client-ui-agent-preset'
+      disabled: true
     - id: ui-settings-session-log
       name: '@qilin/client-ui-settings-session-log'
 

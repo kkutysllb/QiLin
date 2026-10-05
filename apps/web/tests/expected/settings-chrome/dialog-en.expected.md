@@ -6,7 +6,6 @@
     - button "Models"
     - button "Built-in plugins"
     - button "MCP servers"
-    - button "Agent presets"
     - button "Archived sessions"
     - button "Skills"
     - button "About QiLin"
@@ -34,6 +33,11 @@
   - switch "Show coding view" [checked]
   - text: Open chat links in Choose where web links from the conversation open
   - button "In-app sidebar"
+  - text: Terminal font The family and size the terminal measures its character grid with. An empty family uses the built-in monospace stack; icon fonts are appended as fallbacks. Font family
+  - textbox "Font family":
+    - /placeholder: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+  - text: Size (px)
+  - textbox "Size (px)": "13"
   - text: Keyboard shortcuts
   - paragraph: View and edit available shortcuts and input actions
   - button "Edit shortcuts"

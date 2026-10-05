@@ -4596,9 +4596,6 @@ importers:
       '@qilin/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
-      '@qilin/client-ui-agent-preset':
-        specifier: workspace:*
-        version: link:../ui-agent-preset
       '@qilin/client-ui-primitives':
         specifier: workspace:*
         version: link:../ui-primitives

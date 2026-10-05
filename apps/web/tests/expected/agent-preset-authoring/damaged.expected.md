@@ -16,7 +16,7 @@
   - heading "Agent 预设" [level=2]
   - paragraph: 预设即一个会话的 Agent 所运行的插件组装 —— 它的工具、提示词与能力。复制一份既有预设改成自己的，或用「创造模式」让 Agent 帮你创建。
   - text: 允许切换agent模式 beta
-  - paragraph: 开启后，新任务可选择标准、PTC、创造、极简及自定义模式；关闭后统一使用默认模式（默认为标准模式，可自定义）。仅影响新任务。
+  - paragraph: 开启后，新任务可选择标准、编码、创造及自定义模式；关闭后统一使用默认模式（默认为标准模式，可自定义）。仅影响新任务。
   - switch "允许切换agent模式" [checked]
   - heading "内置" [level=3]
   - list:
@@ -27,17 +27,11 @@
       - 'button "查看: 标准模式"': 查看
       - 'button "复制: 标准模式"': 复制
     - listitem:
-      - 'button "设为默认: PTC 模式"':
-        - text: PTC 模式 内置 功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具通过 PTC 模式 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。
+      - 'button "设为默认: 编码模式"':
+        - text: 编码模式 内置 功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。
         - code: ptc
-      - 'button "查看: PTC 模式"': 查看
-      - 'button "复制: PTC 模式"': 复制
-    - listitem:
-      - 'button "设为默认: 极简模式"':
-        - text: 极简模式 内置 仅提供持久 shell 的单工具编码 Agent。
-        - code: minimal
-      - 'button "查看: 极简模式"': 查看
-      - 'button "复制: 极简模式"': 复制
+      - 'button "查看: 编码模式"': 查看
+      - 'button "复制: 编码模式"': 复制
     - listitem:
       - 'button "设为默认: 创造模式"':
         - text: 创造模式 内置 用于创建自定义 Agent preset：具备标准模式的全部能力，并提供运行时检查、持久化插件管理和 preset 创作指导。

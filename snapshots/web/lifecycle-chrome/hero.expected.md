@@ -1,6 +1,8 @@
 - button "New session"
 - button "Collapse sidebar"
 - button "New session": New Session
+- navigation "Global panels":
+  - button "Plugins"
 - text: Workspaces
 - button "Search sessions"
 - textbox "Search sessions..."
@@ -15,7 +17,6 @@
 - paragraph: {{greeting}}
 - heading "Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit" [level=1]
 - button "Choose workspace": workspace
-- button "Standard mode"
 - textbox "Describe what you want to build, / commands, @ files or sessions":
   - paragraph
 - button "Add files or run commands"

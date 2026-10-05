@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use web_search once with queries" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - button "System prompt"
 - text: Use web_search once with queries ["QiLin snapshot search","QiLin multi-query search"]. Then reply exactly SEARCH_DONE and stop. {{clock}}
